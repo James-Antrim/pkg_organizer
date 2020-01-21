@@ -1,10 +1,10 @@
 <?php
 /**
- * @package     THM_Organizer
- * @extension   com_thm_organizer
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2020 TH Mittelhessen
- * @license     GNU GPL v.2
+ * @license     GNU GPL v.3
  * @link        www.thm.de
  */
 
@@ -40,7 +40,7 @@ spl_autoload_register(function ($originalClassName) {
 
 	$classNameParts[] = empty($className) ? 'Organizer' : $className;
 
-	$filepath            = JPATH_ROOT . '/components/com_thm_organizer/' . implode('/', $classNameParts) . '.php';
+	$filepath            = JPATH_ROOT . '/components/com_organizer/' . implode('/', $classNameParts) . '.php';
 	$namespacedClassName = "Organizer\\" . implode('\\', $classNameParts);
 
 	if (is_file($filepath))

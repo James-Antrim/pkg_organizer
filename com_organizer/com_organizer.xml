@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="component" version="3.*" method="upgrade">
+    <name>ORGANIZER</name>
+    <author>James Antrim</author>
+    <authorEmail>james.antrim@nm.thm.de</authorEmail>
+    <authorUrl>www.thm.de</authorUrl>
+    <creationDate>January 2020</creationDate>
+    <copyright>TH Mittelhessen 2020</copyright>
+    <licence>GNU GPL v.3</licence>
+    <version>3.0.0</version>
+    <scriptfile>script.php</scriptfile>
+    <files folder="site">
+        <filename>autoloader.php</filename>
+        <filename>Controller.php</filename>
+        <filename>LICENSE.txt</filename>
+        <filename>organizer.php</filename>
+        <filename>metadata.xml</filename>
+        <folder>Controllers</folder>
+        <folder>css</folder>
+        <folder>Fields</folder>
+        <folder>Forms</folder>
+        <folder>Helpers</folder>
+        <!--<folder>icalcreator</folder>-->
+        <folder>images</folder>
+        <folder>js</folder>
+        <folder>Layouts</folder>
+        <folder>Models</folder>
+        <folder>Tables</folder>
+        <folder>Views</folder>
+    </files>
+    <administration>
+        <menu>ORGANIZER</menu>
+        <files folder="admin">
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+            <filename>LICENSE.txt</filename>
+            <filename>organizer.php</filename>
+            <folder>language</folder>
+            <folder>sql</folder>
+        </files>
+    </administration>
+    <updateservers>
+        <server type="extension" priority="1" name="Organizer Component Update Site"></server>
+    </updateservers>
+</extension>

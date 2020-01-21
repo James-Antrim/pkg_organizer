@@ -16,7 +16,15 @@ Thumbs.db
 
 # Specific Local Files #
 ########################
-cas_dif
 /com_organizer/admin/sql/updates/mysql/organizer*
 /*_examples
 /*_examples/*
+/backups
+/backups/*
+/datasets
+/datasets/*
+/issues.txt
+/sql_files
+/sql_files/*
+/untis_exports
+/untis_exports/*

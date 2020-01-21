@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <fields name="params" addfieldprefix="Organizer\Fields">
+        <fieldset name="basic" label="ORGANIZER_SETTINGS">
+            <field name="programID" type="Programs" label="PROGRAM" required="true">
+                <option value="">SELECT_PROGRAM</option>
+            </field>
+            <field name="initialLanguage" type="Options" label="LANGUAGE" default="de">
+                <option value="de">GERMAN</option>
+                <option value="en">ENGLISH</option>
+            </field>
+        </fieldset>
+    </fields>
+</form>

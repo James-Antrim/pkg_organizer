@@ -1,12 +1,12 @@
 <?php
 /**
- * @package     THM_Organizer
- * @extension   com_thm_organizer
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @author      Wolf Rost, <wolf.rost@mni.thm.de>
  * @author      Florian Fenzl, <florian.fenzl@mni.thm.de>
  * @copyright   2020 TH Mittelhessen
- * @license     GNU GPL v.2
+ * @license     GNU GPL v.3
  * @link        www.thm.de
  */
 
@@ -290,7 +290,7 @@ class Controller extends BaseController
 	 */
 	public function mergeView()
 	{
-		$url = "index.php?option=com_thm_organizer&view={$this->listView}";
+		$url = "index.php?option=com_organizer&view={$this->listView}";
 
 		if (JDEBUG)
 		{
