@@ -1,0 +1,69 @@
+@import "filter_bars";
+@import "variables";
+
+.attribute-item {
+  clear: both;
+  overflow: auto; //to set height like the largest child
+  padding: 8px;
+  margin: 2px 0;
+  border-bottom: 1px solid rgba(164, 176, 187, 0.5);
+}
+
+.span10 div:last-child {
+  border-bottom: none;
+  margin-bottom: 1rem;
+}
+
+.attribute-label {
+  color: #3d494f;
+  float: left;
+  font-weight: bold;
+  padding-right: 20px;
+  width: 18%;
+}
+
+.attribute-content {
+  margin-left: 10px;
+  float: left;
+  width: 79%;
+
+  [class^='icon-'], [class*=' icon-'] {
+    margin-right: .2rem;
+  }
+
+  ul {
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    li:last-child {
+      padding-bottom: 0;
+    }
+
+    ul {
+
+      li:before {
+        content: '-';
+        display: block;
+        float: left;
+        margin-left: -.4rem;
+      }
+
+      li {
+        padding-bottom: .4rem;
+      }
+
+      li:first-child {
+        padding-top: .4rem;
+      }
+
+      li:last-child {
+        padding-bottom: 0;
+      }
+    }
+  }
+
+  li {
+    padding-bottom: .8rem;
+  }
+}

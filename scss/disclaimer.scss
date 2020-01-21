@@ -1,0 +1,12 @@
+@import 'variables';
+
+div.disclaimer {
+
+  margin-top: 2rem;
+  padding-left: 8px;
+
+  li, p {
+    font-size: .8rem;
+    font-style: italic;
+  }
+}

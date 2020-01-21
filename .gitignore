@@ -1,0 +1,22 @@
+# IDE Generated Files #
+#######################
+.buildpath
+.project
+.settings
+.idea
+nbproject/
+atlassian-ide-plugin.xml
+
+# OS Generated Files #
+######################
+Thumbs.db
+.*~
+.directory
+.zip
+
+# Specific Local Files #
+########################
+cas_dif
+/com_organizer/admin/sql/updates/mysql/organizer*
+/*_examples
+/*_examples/*

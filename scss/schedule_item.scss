@@ -1,0 +1,849 @@
+@import 'tabs';
+@import 'variables';
+
+.tmpl-mobile .schedule .ym-cbox {
+
+  @media screen and (max-width: 677px) {
+    padding: inherit !important;
+  }
+}
+
+// Allgemein *********************************************************************************************************//
+.schedule a {
+  color: $font-color;
+
+  &:visited {
+    color: $font-color;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+button {
+  font-size: 1.3rem;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+[class^='icon-'], [class*=' icon-'] {
+  color: $font-color;
+}
+
+input[type=radio] {
+  display: none;
+}
+
+.hide {
+  display: none !important;
+}
+
+// Icons *************************************************************************************************************//
+.icon-remove::before,
+.icon-cancel::before {
+  font-size: 1rem;
+}
+
+.add-instance .icon-plus::before {
+  color: $green-100;
+}
+
+.icon-question::before,
+.add-instance .icon-plus::before,
+.delete-instance .icon-delete::before {
+  font-size: 1.1rem;
+}
+
+.delete-instance .icon-delete::before {
+  color: $red-75;
+}
+
+// Schedule Header
+//********************************************************************************************************************//
+
+// specific tabs *****************************************************************************************************//
+.menu-bar {
+  margin-bottom: 0.5rem;
+
+  // in mobile view: date-input is a neighbour of menu-bar...
+  + .date-input {
+    margin-bottom: 0.5rem;
+    margin-left: 0.5rem;
+  }
+
+  .date-input {
+    margin-right: 0.3rem;
+  }
+
+  a:hover,
+  label:hover {
+    cursor: pointer;
+  }
+}
+
+.tabs-toggle {
+  .icon-grid-2::before,
+  .icon-calendars::before {
+    font-size: 1.1rem;
+  }
+}
+
+#tab-exports {
+  padding-right: 0.7rem;
+}
+
+// specific tab-content *********************************************************************************************//
+// Planauswahl
+.selection {
+
+  &:focus {
+    outline: none;
+  }
+
+  input[disabled] {
+    cursor: wait;
+  }
+}
+
+#department-input {
+  display: block;
+
+  @media screen and (min-width: 951px) {
+    margin-bottom: 0.5rem;
+  }
+
+  input.default {
+    padding: 6px !important;
+  }
+}
+
+#category-input,
+.input-wrapper {
+  display: inline-block;
+  vertical-align: top;
+
+  @media screen and (max-width: 950px) {
+    display: block;
+    margin-top: 0.5rem;
+  }
+}
+
+#schedule-form {
+
+  select:disabled {
+    background-color: $grey-25;
+  }
+
+  .chzn-container {
+    margin-right: 0.3rem;
+
+    &-active.chzn-with-drop {
+      .chzn-single {
+        border: none;
+        background: none;
+      }
+    }
+
+    .chzn-search input {
+      width: 100% !important;
+    }
+
+    .chzn-single > span {
+      line-height: 1.4;
+    }
+  }
+}
+
+//Ausgewaehlt
+.selected-schedule {
+  background-color: white;
+  border: $border-darkest;
+  color: $font-color;
+  display: block;
+  padding: 0.4rem;
+  width: 276px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:not(:last-of-type) {
+    margin-bottom: 0.5rem;
+  }
+
+  &.shown {
+    background: $background-green;
+
+    // change icon-eye-close to icon-eye-open
+    .show-schedule span::before {
+      content: '\3c';
+    }
+  }
+
+  .title {
+    text-align: left;
+    width: calc(100% - 4rem);
+  }
+
+  .show-schedule,
+  .pop-up-schedule {
+    width: 1rem;
+    margin-right: 0.5rem;
+  }
+
+  .remove-schedule {
+    width: 1rem;
+  }
+
+}
+
+//Exportformat
+.link-item {
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+
+    a {
+      padding-left: 0.5rem;
+      color: $font-color;
+    }
+  }
+
+  &:nth-last-child(n+2) {
+
+    a {
+      background-color: white;
+      color: $font-color;
+      border: $border-darkest;
+      padding: 0.4rem;
+      display: inline-block;
+      width: 276px;
+    }
+  }
+}
+
+@media screen and (min-width: 678px) {
+
+  .tab-panel.active {
+
+    &[aria-labelledby="tab-selected-schedules"],
+    &[aria-labelledby="tab-exports-menu"] {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    &[aria-labelledby="tab-selected-schedules"] .selected-schedule {
+      margin: 0 0.5rem 0.5rem 0;
+    }
+
+    &[aria-labelledby="tab-exports-menu"] .link-item {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+// Date-Input ********************************************************************************************************//
+.date-input {
+  display: inline;
+  margin-left: 0;
+  vertical-align: super;
+
+  .controls,
+  .calender-icon {
+    display: none;
+  }
+
+  button, span, input {
+    display: inline;
+    vertical-align: middle;
+
+    @media (max-width: 360px) {
+      vertical-align: bottom;
+    }
+  }
+
+  > button:last-child {
+    margin-right: 0.2rem;
+  }
+
+  span {
+    position: relative;
+
+    &::before {
+      font-size: small;
+    }
+  }
+
+  #date {
+    width: 5.2rem !important;
+    padding: 0 0 0 0.3rem !important;
+    vertical-align: sub;
+    margin-bottom: 0;
+  }
+
+  #calendar-icon {
+    position: relative;
+
+    span::before {
+      font-size: 1rem;
+    }
+  }
+
+  //calendar
+  div {
+    background-color: $background-color;
+    border: $border-light;
+    box-shadow: 0 0 5px $grey-75;
+    padding: 0.3rem 1rem;
+    position: absolute;
+    visibility: hidden;
+    z-index: 3;
+
+    table {
+      margin: 0;
+      font-size: small;
+    }
+
+    thead {
+      td {
+        padding: 0.1rem 0.2rem;
+      }
+    }
+
+    thead:last-of-type {
+      border: $border-darkest;
+      border-bottom: none;
+    }
+
+    tbody {
+      border: $border-darkest;
+
+      td:hover {
+        background: $grey-25;
+      }
+    }
+
+    td {
+      text-align: center;
+      padding: 0 0.2rem;
+    }
+
+    thead span {
+      float: none;
+    }
+
+    button {
+      color: $font-color;
+
+      span {
+        vertical-align: baseline;
+      }
+    }
+
+    tfoot td:hover {
+      background: $grey-25;
+    }
+
+    .today {
+      width: 100%;
+    }
+  }
+}
+
+// Check-Input *******************************************************************************************************//
+.menu-bar .check-input {
+  margin-left: 0;
+  margin-bottom: 0;
+}
+
+.check-input {
+  display: inline-block;
+  vertical-align: bottom;
+  margin-bottom: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.check-input #check-notify-text {
+  margin: auto;
+  vertical-align: bottom;
+  display: inline;
+}
+
+.check-input #check-notify-box {
+  margin: 0.25rem auto;
+  vertical-align: bottom;
+}
+
+// Content - Schedule-Table
+//********************************************************************************************************************//
+.scheduleWrapper {
+
+  a,
+  a:visited,
+  a:hover {
+    color: $font-color;
+  }
+}
+
+.schedule-input:not(:checked) + .schedule-table {
+  width: 0;
+  position: absolute;
+  left: -3000px;
+}
+
+.schedule-table {
+
+  table {
+    border-top: 0.15rem solid $grey-100;
+
+    &.cell-border td {
+      border-bottom: 0.2rem solid $green-25;
+    }
+
+    td {
+      border-bottom: 0.2rem solid $green-25;
+    }
+
+    tr {
+      &.long-break-after td {
+        border-bottom: 0.7rem solid $green-25;
+      }
+
+      &:last-child td {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  td, th {
+    width: 16%;
+    text-align: center;
+
+    &:first-child {
+      width: 2.5rem;
+    }
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.break td {
+  background-color: $green-25;
+}
+
+.occupied {
+  background-color: $background-navigation-color;
+}
+
+.instance {
+  border: 0.1rem solid $grey-100;
+  background-color: $background-color;
+  margin: 0 auto 0.5rem;
+  padding: 0 0.2rem;
+
+  a {
+    cursor: pointer;
+  }
+}
+
+.name {
+  display: inline-block;
+  font-weight: bold;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.module {
+  &:before {
+    content: ' (';
+  }
+
+  &:after {
+    content: ') ';
+  }
+}
+
+.comment-container {
+  font-size: 90%;
+  font-style: italic;
+}
+
+.pools {
+  padding: 0.2rem 0;
+
+  @media (max-width: 360px) {
+    padding: 0.1rem 0;
+  }
+}
+
+.pool:nth-of-type(n+2):before {
+  content: ' , ';
+}
+
+.person:nth-of-type(n+2):before,
+.location:nth-of-type(n+2):before {
+  content: ' / ';
+}
+
+.add-instance, .delete-instance {
+  text-align: right;
+
+  &:focus {
+    outline: none;
+  }
+
+  .icon-question {
+    margin-left: 0.5rem;
+    margin-right: 0.2rem;
+  }
+}
+
+.pop-up {
+  box-shadow: 0 0 5px $grey-75;
+  color: $font-color;
+  display: none;
+  position: absolute;
+  top: 28rem;
+  z-index: 2;
+
+  .icon-notification, p {
+    margin: 0.5rem 0 0.5rem 0;
+    width: initial;
+
+    &::before {
+      margin-right: 0.3rem;
+      font-size: 1rem;
+      vertical-align: bottom;
+    }
+  }
+
+  button {
+    color: inherit;
+    width: initial;
+    display: block;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    span {
+      margin-right: 0.3rem;
+
+      &::before {
+        font-size: 1.1rem;
+        display: inline-block;
+        vertical-align: bottom;
+      }
+    }
+
+    @media screen and (min-width: 678px) {
+      display: inline-block;
+    }
+
+    &:not(.icon-cancel) {
+      margin-top: 0.5rem;
+      margin-left: 0.1rem;
+    }
+  }
+
+  .icon-cancel {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  &.message {
+    left: calc(50% - 12rem);
+    width: 24rem;
+    padding: 0.5rem;
+    background-color: $background-green;
+
+    .icon-arrow-left-2 {
+
+      @media screen and (min-width: 678px) {
+        + .icon-arrow-right-2 {
+          margin-left: 2.5rem;
+        }
+      }
+
+      @media screen and (max-width: 677px) {
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  &.schedule-table {
+    left: 200px;
+    width: 50rem;
+    display: block;
+    padding: 1rem;
+    font-size: 80%;
+    background-color: $foreground-color;
+    border: $border-dark;
+
+    &:hover {
+      // For browsers without 'grab'
+      cursor: grab;
+    }
+
+    a:hover {
+      text-decoration: none;
+      color: $font-color;
+      cursor: grab;
+    }
+
+    .icon-cancel {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+}
+
+.instance-menu {
+  background-color: $background-green;
+  box-shadow: 0 0 5px $grey-75;
+  color: $font-color;
+  display: none;
+  padding: 0.5rem;
+  position: absolute;
+  z-index: 2;
+
+  button {
+    color: $font-color;
+    display: block;
+    text-align: left;
+
+    &:nth-last-of-type(n+2) {
+      margin-bottom: 0.3rem;
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .icon-cancel {
+    position: absolute;
+    right: 0.5rem;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  .persons, .rooms {
+    display: inline-block;
+  }
+
+  .rooms span::before,
+  .persons span:nth-of-type(n+2)::before {
+    content: ' / ';
+  }
+
+  .pools {
+    padding: 0;
+
+    span:nth-of-type(n+2)::before {
+      content: ' , '
+    }
+  }
+}
+
+.instance-data {
+  color: $grey-100;
+  margin: 0.8rem 0.7rem 0.8rem 0;
+}
+
+.delete {
+
+  button::before {
+    font-family: IcoMoon;
+    content: '\e935';
+    color: $red-75;
+    display: inline-block;
+    margin-right: 0.2rem;
+    vertical-align: text-top;
+  }
+}
+
+.save {
+  button::before {
+    font-family: IcoMoon;
+    content: '\5d';
+    color: $green-100;
+    display: inline-block;
+    margin-right: 0.2rem;
+    vertical-align: text-top;
+  }
+}
+
+.delete-instance {
+  display: none;
+}
+
+.save, .delete {
+  display: none;
+}
+
+.added {
+  .add-instance {
+    display: none;
+  }
+
+  .delete-instance {
+    display: block;
+  }
+}
+
+.no-saving .add-instance {
+  display: none;
+}
+
+.break {
+  background-color: $green-25;
+  padding: 0.2rem;
+}
+
+.own-time {
+  display: block;
+}
+
+.in-planning,
+.removed {
+  opacity: 0.5;
+}
+
+.in-planning {
+  border-style: dashed;
+}
+
+.removed {
+  text-decoration: line-through;
+}
+
+.in-planning {
+  .add-instance, .delete-instance {
+    display: none;
+  }
+}
+
+.calendar-new,
+.instance .person.new a,
+.instance .room.new a,
+.instance .group.new a {
+  border-color: $thm;
+  color: $thm;
+}
+
+// Mobile ************************************************************************************************************//
+.organizer.mobile {
+
+  .date-input {
+
+    .controls:nth-last-of-type(n+2) {
+      margin-right: 0.5rem;
+    }
+
+    input#date {
+      font-size: 16px !important; //prevent ios safari to zoom-in
+      padding-left: 0.1rem !important;
+    }
+  }
+
+  .selection {
+
+    select {
+      //overwrite bootstrap
+      margin-bottom: 0;
+    }
+  }
+
+  .selected-schedule {
+    width: 90%;
+
+    .title {
+      width: calc(100% - 3rem);
+    }
+
+    .show-schedule {
+      width: 1rem;
+      margin-right: 1rem;
+    }
+  }
+
+  #calendar-table {
+
+    td {
+      padding: 0.3rem;
+    }
+  }
+
+  .scheduleWrapper {
+
+    td, th {
+
+      &:not(.activeColumn) {
+        display: none;
+      }
+
+      &:first-child {
+        display: table-cell;
+      }
+
+      &.activeColumn {
+        width: auto;
+        padding-right: 1rem;
+      }
+    }
+  }
+
+  .pools,
+  .persons,
+  .locations {
+    display: inline-block;
+  }
+
+  .pools {
+    margin-right: 0.2rem;
+
+    + .persons {
+      .person:nth-of-type(1):before {
+        content: ' / ';
+      }
+    }
+  }
+
+  .locations {
+    margin-left: 0.2rem;
+  }
+
+  .location:nth-of-type(1):before {
+    content: ' / ';
+  }
+
+  .message.pop-up {
+    left: auto;
+    right: auto;
+    width: 90%;
+  }
+
+  .instance-menu {
+    right: 0.5rem;
+    left: 0.5rem;
+
+    .pools {
+      span:first-child::before {
+        content: ' / '
+      }
+    }
+  }
+}
