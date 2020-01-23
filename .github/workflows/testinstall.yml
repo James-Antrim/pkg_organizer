@@ -11,7 +11,4 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
     - name: Testausgaben
-      run:
-        - pwd
-        - ls -lA
-        - tree
+      run: "pwd && ls -lA && tree"
