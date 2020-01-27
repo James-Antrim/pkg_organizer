@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Install dependencies
         run: "sudo apt-get install tree"
+      - name: "Stopping mysql"
+        run: "sudo systemctl stop mysql"
       - name: netstat
         run: "netstat -a -p tcp"
       - name: "Install mariadb"
