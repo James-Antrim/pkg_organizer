@@ -8,7 +8,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Testausgaben
-      run: "pwd && ls -lA && tree"
+      - name: Install dependencies
+        run: "apt-get install tree"
+      - name: Stop mysqld
+        run: systemctl stop mysqld
+      - name: "Install mariadb"
+        uses: getong/mariadb-action@v1.1
+        with:
+          mysql database: "joomla"
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Testausgaben
+        run: "pwd && ls -lA && tree"
