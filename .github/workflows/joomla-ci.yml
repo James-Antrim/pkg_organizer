@@ -1,4 +1,4 @@
-name: Test component installation
+name: Test joomla component installation
 
 on: [push]
 
