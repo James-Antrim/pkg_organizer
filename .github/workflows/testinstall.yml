@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Install dependencies
         run: "sudo apt-get install tree"
+      - name: netstat
+        run: "netstat -t"
       - name: "Install mariadb"
         uses: getong/mariadb-action@v1.1
         with:
