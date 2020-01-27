@@ -9,9 +9,9 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: "apt-get install tree"
+        run: "sudo apt-get install tree"
       - name: Stop mysqld
-        run: systemctl stop mysqld
+        run: "sudo systemctl stop mysqld"
       - name: "Install mariadb"
         uses: getong/mariadb-action@v1.1
         with:
