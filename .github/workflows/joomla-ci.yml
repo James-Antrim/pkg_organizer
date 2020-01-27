@@ -21,4 +21,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Testausgaben
-        run: "pwd && ls -lA && tree"
+        run: |
+          echo "php -v"
+          php -v
+          echo "pwd:"
+          pwd
+          echo "ls -lA:"
+          ls -lA
+          echo "tree:"
+          tree
