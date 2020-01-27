@@ -1,0 +1,12 @@
+name: Mariadb initialisieren
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start MariaDB
+        uses: getong/mariadb-action@v1.1
