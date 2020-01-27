@@ -11,7 +11,7 @@ jobs:
       - name: Install dependencies
         run: "sudo apt-get install tree"
       - name: netstat
-        run: "netstat -t"
+        run: "netstat -a -p tcp"
       - name: "Install mariadb"
         uses: getong/mariadb-action@v1.1
         with:
