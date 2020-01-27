@@ -20,10 +20,10 @@ jobs:
           mysql database: "joomla"
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          path : extensions/com_organizer
       - name: Testausgaben
         run: |
-          echo "php -v"
-          php -v
           echo "pwd:"
           pwd
           echo "ls -lA:"
