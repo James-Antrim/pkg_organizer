@@ -17,6 +17,7 @@ jobs:
       - name: "Install mariadb"
         uses: getong/mariadb-action@v1.1
         with:
+          mysql root password: "root"
           mysql database: "joomla"
       - name: Checkout build enviroment
         uses: actions/checkout@v2
