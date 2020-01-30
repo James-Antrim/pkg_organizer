@@ -21,7 +21,7 @@ jobs:
       - name: netstat
         run: "netstat -a -p tcp"
       - name: Start database
-        run: "sudo systemctl start mariadb-server"
+        run: "sudo systemctl start mariadb"
       - name: netstat
         run: "netstat -a -p tcp"
       - name: Checkout build enviroment
