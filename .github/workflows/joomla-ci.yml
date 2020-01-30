@@ -38,4 +38,4 @@ jobs:
           echo "ls -lA:"
           ls -lA
           echo "tree:"
-          tree
+          tree -a
