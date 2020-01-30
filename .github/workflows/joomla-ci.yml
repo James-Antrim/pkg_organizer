@@ -18,6 +18,11 @@ jobs:
         uses: getong/mariadb-action@v1.1
         with:
           mysql database: "joomla"
+      - name: Checkout build enviroment
+        uses: actions/checkout@v2
+        with:
+          repository:  jpbm04/ii-ci
+          path: build
       - name: Checkout
         uses: actions/checkout@v2
         with:
