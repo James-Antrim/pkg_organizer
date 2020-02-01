@@ -1,0 +1,123 @@
+-----------------------------------------------------------------------------------------------------------------Initial
+
+TODO make THM settings configuration a local sql file
+-email filter for internal mail addresses:
+-lsf uri:
+-lsf username:
+-lsf password:
+-representative name: "Prof. Dr. Matthias Willems"
+-impressum address: "Technische Hochschule Mittelhessen – Wiesenstraße 14 – 35390 Gießen"
+-impressum contact information: "Tel.: 0641/309 0 – Fax: 0641/309 2901 – www.thm.de"
+
+TODO resolve inconsistencies in the thm_organizer_pools table
+-set lsfID to NULL where id is 0
+-ensure lsfID is set to NULL if the value is empty
+
+TODO resolve inconsistencies in the thm_organizer_subjects table
+-set competences to null where the value exceeds 3
+-ensure competences are set to null if the value is invalid
+
+TODO resolve inconsistencies in the thm_organizer_teachers table
+-set empty username values to null
+-ensure username defaults to null on save
+-Duplicate entry 'KlosA' for key 'code'
+-Duplicate entry 'avet29' for key 'username'
+-Duplicate entry 'Schudt' for key 'code'
+-Duplicate entry 'welker' for key 'code'
+-Duplicate entry 'Groß' for key 'code'
+-Duplicate entry 'KrauS' for key 'code'
+-Duplicate entry 'SchuS' for key 'code'
+-Duplicate entry 'NN.Ext' for key 'code'
+-Duplicate entry 'Euler' for key 'code'
+
+TODO adjust table classes to compensate for changes made to the table definitions contained in the install file
+
+-----------------------------------------------------------------------------------------------------Phase 1: Curriculum
+
+TODO create a fill file for curriculum related tables
+-curriculum
+-fields
+-pools
+-prerequisites
+-programs
+-subject_persons
+-subjects
+
+TODO remove references to the thm_organizer curriculum based views => set access rights to administrator
+-programs
+-pools
+-subjects
+
+--------------------------------------------------------------------------------------Phase 2: Migration/Synchronization
+
+TODO create a fill file for initialization of tables synchronized in phase 2
+-associations
+-categories
+-event_coordinators
+-events
+-group_publishing
+-groups
+-instance_groups
+-instance_participants
+-instance_persons
+-instance_rooms
+-instances
+-participants
+-schedules
+-subject_events
+-units
+
+TODO adjust thee schedule migration routine to import schedules from thm_organizer
+TODO automatically update the listed resources on splash page load
+-blocks (if not finished by may)
+
+-----------------------------------------------------------------------------------------------Phase 3: Individual Views
+Room Overview-----------------------------------------------------------------------------------------------------------
+Deputat-----------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------Phase 4: Schedule (?) View
+---------------------------------------------------------------------------------------------------Phase 5: Course Views
+
+TODO create a fill file for initialization of tables used in phase 5
+-course_participants
+-courses
+
+TODO default the default sender to the site sender
+
+----------------------------------------------------------------------------------------------------------------Complete
+
+TODO change events table organizationID column default back to none
+
+TODO add event, group, and room association support
+-xml import
+-edit views
+-options fields
+
+TODO change the frequency ids from 0-5 to 1-6
+-update frequencies, programs, subjects
+-adjust lsf import to compensate
+
+------------------------------------------------------------------------------------------------------------------Beyond
+
+System------------------------------------------------------------------------------------------------------------------
+TODO create a strategy around required image files
+-logo
+-signature
+-documentation for configuration/uploading
+
+TODO sort out the FILTER and the SELECT text constants
+
+Feature: Tagging--------------------------------------------------------------------------------------------------------
+TODO add resource_field tables to associate resources with multiple fields in addition to the existing reference
+-the documentation references should carry over onto schedule references
+-category
+-event
+-group
+-pool
+-program
+-subject
+
+Feature: Degree Management----------------------------------------------------------------------------------------------
+
+TODO add degree management views
+
+

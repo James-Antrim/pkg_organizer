@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="departmentID" type="Departments" label="DEPARTMENT" access="schedule" required="true"/>
+        <field name="asset_id" type="hidden" filter="unset"/>
+        <field name="file" type="file" label="ORGANIZER_SCHEDULE_FILE" required="true" accept=".xml"
+               description="ORGANIZER_SCHEDULE_FILE_DESC"/>
+    </fieldset>
+</form>

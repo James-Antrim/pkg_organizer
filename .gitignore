@@ -17,14 +17,7 @@ Thumbs.db
 # Specific Local Files #
 ########################
 /com_organizer/admin/sql/updates/mysql/organizer*
-/*_examples
-/*_examples/*
-/backups
-/backups/*
-/datasets
-/datasets/*
-/issues.txt
-/sql_files
-/sql_files/*
-/untis_exports
-/untis_exports/*
+/examples
+/examples/*
+/local
+/local/*

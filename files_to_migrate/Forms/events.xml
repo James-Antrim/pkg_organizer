@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fields name="filter">
+        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="departmentID" type="Departments" label="Department" onchange="this.form.submit();">
+            <option value="">ALL_DEPARTMENTS</option>
+            <option value="-1">NO_DEPARTMENT</option>
+        </field>
+        <field name="campusID" type="Campuses" label="CAMPUS" onchange="this.form.submit();">
+            <option value="">ALL_CAMPUSES</option>
+            <option value="-1">NO_CAMPUS</option>
+        </field>
+        <field name="preparatory" type="Options" label="ORGANIZER_PREP_COURSES"
+               description="ORGANIZER_PREP_COURSES_DESC" default="0">
+            <option value="">ORGANIZER_ALL_COURSES</option>
+            <option value="1">ORGANIZER_ONLY_PREP_COURSES</option>
+            <option value="0">ORGANIZER_NOT_PREP_COURSES</option>
+        </field>
+    </fields>
+    <fields name="list">
+        <field name="limit" type="limitbox" class="input-mini" onchange="this.form.submit();"/>
+    </fields>
+</form>

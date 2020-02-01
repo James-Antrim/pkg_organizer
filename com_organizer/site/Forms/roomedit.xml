@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="untisID" type="Blank" label="UNTIS_ID" required="true" size="40"/>
+        <field name="name" type="Blank" label="NAME" required="true" size="40"/>
+        <field name="buildingID" type="GenericOptions" label="BUILDING" table="organizer_buildings"
+               textcolumn="name" valuecolumn="id">
+            <option value="">NO_INPUT</option>
+        </field>
+        <field name="roomtypeID" type="GenericOptions" label="ROOMTYPE" localized="true" table="organizer_roomtypes"
+               textcolumn="name" valuecolumn="id">
+            <option value="">SELECT_ROOMTYPE</option>
+        </field>
+        <field name="capacity" type="Integer" label="CAPACITY" last="500" step="1"/>
+    </fieldset>
+</form>

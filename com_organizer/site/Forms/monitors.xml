@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fields name="filter">
+        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="useDefaults" type="Options" label="DEFAULT_SETTINGS" onchange="this.form.submit();">
+            <option value="">ALL_DEFAULT_VALUES</option>
+            <option value="1">DEFAULT_USED</option>
+            <option value="0">DEFAULT_NOT_USED</option>
+        </field>
+        <field name="display" type="Options" label="DISPLAY_BEHAVIOUR" onchange="this.form.submit();">
+            <option value="">ALL_DISPLAY_BEHAVIOURS</option>
+            <option value="1">DAILY_PLAN</option>
+            <option value="2">MIXED_PLAN</option>
+            <option value="3">CONTENT_DISPLAY</option>
+            <option value="4">EVENT_LIST</option>
+        </field>
+        <field name="content" type="GenericOptions" label="DISPLAY_CONTENT" conditions="content != ''"
+               onchange="this.form.submit();" table="organizer_monitors" textcolumn="content" valuecolumn="content"
+               valueParameter="content">
+            <option value="">ALL_CONTENTS</option>
+            <option value="-1">NO_CONTENT</option>
+        </field>
+    </fields>
+    <fields name="list">
+        <field name="limit" type="Limitbox" onchange="this.form.submit();"/>
+    </fields>
+</form>
