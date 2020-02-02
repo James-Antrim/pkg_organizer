@@ -101,7 +101,7 @@ abstract class BaseHTMLView extends BaseView
 		$viewName = strtolower($this->get('name'));
 
 		JHtmlSidebar::addEntry(
-			Languages::_('ORGANIZER'),
+			'<span class="icon-home"></span>' . Languages::_('ORGANIZER'),
 			'index.php?option=com_organizer&amp;view=organizer',
 			$viewName == 'organizer'
 		);
@@ -249,7 +249,7 @@ abstract class BaseHTMLView extends BaseView
 
 			$adminEntries = [];
 
-			$adminEntries[Languages::_('ORGANIZER_DEPARTMENTS')] = [
+			$adminEntries[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=departments',
 				'active' => $viewName == 'departments'
 			];

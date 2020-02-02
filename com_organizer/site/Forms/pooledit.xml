@@ -3,8 +3,8 @@
     <fieldset name="details" label="ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
         <field name="asset_id" type="hidden" filter="unset"/>
-        <field name="departmentID" type="Departments" label="DEPARTMENT" access="document" required="true">
-            <option value="">SELECT_DEPARTMENT</option>
+        <field name="departmentID" type="Departments" label="ORGANIZATION" access="document" required="true">
+            <option value="">SELECT_ORGANIZATION</option>
         </field>
         <field name="lsfID" type="Blank" label="LSF_ID" size="40"/>
         <field name="fieldID" type="GenericOptions" label="FIELD" valuecolumn="id" textcolumn="name" localized="true"

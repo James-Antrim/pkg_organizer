@@ -112,7 +112,7 @@ class Can
 	 */
 	public static function documentTheseDepartments()
 	{
-		return self::getAuthorizedDepartments('document');
+		return self::getAuthorizedOrganizations('document');
 	}
 
 	/**
@@ -225,7 +225,7 @@ class Can
 	 *
 	 * @return array  the department ids, empty if user has no access
 	 */
-	private static function getAuthorizedDepartments($function)
+	private static function getAuthorizedOrganizations($function)
 	{
 		if (!Users::getID())
 		{
@@ -317,9 +317,9 @@ class Can
 	 *
 	 * @return array  the department ids, empty if user has no access
 	 */
-	public static function manageTheseDepartments()
+	public static function manageTheseOrganizations()
 	{
-		return self::getAuthorizedDepartments('manage');
+		return self::getAuthorizedOrganizations('manage');
 	}
 
 	/**
@@ -364,7 +364,7 @@ class Can
 	 */
 	public static function scheduleTheseDepartments()
 	{
-		return self::getAuthorizedDepartments('schedule');
+		return self::getAuthorizedOrganizations('schedule');
 	}
 
 	/**
@@ -404,6 +404,6 @@ class Can
 	 */
 	public static function viewTheseDepartments()
 	{
-		return self::getAuthorizedDepartments('view');
+		return self::getAuthorizedOrganizations('view');
 	}
 }

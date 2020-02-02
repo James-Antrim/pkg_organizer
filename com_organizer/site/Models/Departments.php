@@ -28,7 +28,7 @@ class Departments extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$allowedDepartments = Can::manageTheseDepartments();
+		$allowedDepartments = Can::manageTheseOrganizations();
 		$tag                = Languages::getTag();
 
 		// Create the query

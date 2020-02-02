@@ -32,7 +32,7 @@ trait Filtered
 				$authorizedDepts = Can::documentTheseDepartments();
 				break;
 			case 'manage':
-				$authorizedDepts = Can::manageTheseDepartments();
+				$authorizedDepts = Can::manageTheseOrganizations();
 				break;
 			case 'schedule':
 				$authorizedDepts = Can::scheduleTheseDepartments();

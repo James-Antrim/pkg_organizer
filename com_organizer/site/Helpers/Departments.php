@@ -46,7 +46,7 @@ class Departments extends ResourceHelper implements Selectable
 				$allowedIDs = Can::documentTheseDepartments();
 				break;
 			case 'manage':
-				$allowedIDs = Can::manageTheseDepartments();
+				$allowedIDs = Can::manageTheseOrganizations();
 				break;
 			case 'schedule':
 				$query->innerJoin('#__organizer_department_resources AS dpr ON dpr.departmentID = depts.id');

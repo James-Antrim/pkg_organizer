@@ -87,7 +87,7 @@ class Programs extends ListView
 			'programName' => HTML::sort('NAME', 'programName', $direction, $ordering),
 			'degree'      => HTML::sort('DEGREE', 'degree', $direction, $ordering),
 			'version'     => HTML::sort('VERSION', 'version', $direction, $ordering),
-			'department'  => HTML::sort('DEPARTMENT', 'department', $direction, $ordering)
+			'department'  => HTML::sort('ORGANIZATION', 'department', $direction, $ordering)
 		];
 
 		$this->headers = $headers;

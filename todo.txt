@@ -12,12 +12,14 @@ TODO make THM settings configuration a local sql file
 TODO resolve inconsistencies in the thm_organizer_pools table
 -set lsfID to NULL where id is 0
 -ensure lsfID is set to NULL if the value is empty
+-set abbreviation to '' where abbreviation length > 25
+-ensure abbreviation set to '' on import if length > 25
 
 TODO resolve inconsistencies in the thm_organizer_subjects table
 -set competences to null where the value exceeds 3
 -ensure competences are set to null if the value is invalid
 
-TODO resolve inconsistencies in the thm_organizer_teachers table
+TODO resolve inconsistencies in the thm_organizer_teachers table => leads to fk failure in associations later as well
 -set empty username values to null
 -ensure username defaults to null on save
 -Duplicate entry 'KlosA' for key 'code'
@@ -33,15 +35,6 @@ TODO resolve inconsistencies in the thm_organizer_teachers table
 TODO adjust table classes to compensate for changes made to the table definitions contained in the install file
 
 -----------------------------------------------------------------------------------------------------Phase 1: Curriculum
-
-TODO create a fill file for curriculum related tables
--curriculum
--fields
--pools
--prerequisites
--programs
--subject_persons
--subjects
 
 TODO remove references to the thm_organizer curriculum based views => set access rights to administrator
 -programs
@@ -67,9 +60,11 @@ TODO create a fill file for initialization of tables synchronized in phase 2
 -subject_events
 -units
 
+TODO resolve inconsistencies in the thm_organizer_plan_pools table
+-Duplicate entry 'B.4.BPALT-30' for key 'entry'
+
 TODO adjust thee schedule migration routine to import schedules from thm_organizer
-TODO automatically update the listed resources on splash page load
--blocks (if not finished by may)
+TODO automatically update resources dependent on currrent thm_organizer data
 
 -----------------------------------------------------------------------------------------------Phase 3: Individual Views
 Room Overview-----------------------------------------------------------------------------------------------------------

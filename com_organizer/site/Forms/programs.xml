@@ -2,10 +2,10 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="departmentID" type="Departments" label="DEPARTMENT" access="document"
+        <field name="departmentID" type="Departments" label="ORGANIZATION" access="document"
                onchange="this.form.submit();">
-            <option value="">ALL_DEPARTMENTS</option>
-            <option value="-1">NO_DEPARTMENT</option>
+            <option value="">ALL_ORGANIZATIONS</option>
+            <option value="-1">NO_ORGANIZATION</option>
         </field>
         <field name="degreeID" type="GenericOptions" label="DEGREE" onchange="this.form.submit();"
                table="organizer_programs AS p,organizer_degrees AS d ON p.degreeID = d.id" textcolumn="d.abbreviation"

@@ -29,7 +29,7 @@ class DepartmentEdit extends EditView
 	{
 		$new   = empty($this->item->id);
 		$title = $new ?
-			Languages::_('ORGANIZER_DEPARTMENT_NEW') : Languages::_('ORGANIZER_DEPARTMENT_EDIT');
+			Languages::_('ORGANIZER_ORGANIZATION_NEW') : Languages::_('ORGANIZER_ORGANIZATION_EDIT');
 		HTML::setTitle($title, 'tree-2');
 		$toolbar   = Toolbar::getInstance();
 		$applyText = $new ? Languages::_('ORGANIZER_CREATE') : Languages::_('ORGANIZER_APPLY');
