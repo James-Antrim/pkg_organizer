@@ -19,7 +19,7 @@ TODO resolve inconsistencies in the thm_organizer_subjects table
 -set competences to null where the value exceeds 3
 -ensure competences are set to null if the value is invalid
 
-TODO resolve inconsistencies in the thm_organizer_teachers table => leads to fk failure in associations later as well
+TODO resolve inconsistencies in the thm_organizer_teachers table => leads to fk failure in associations, instance persons later as well
 -set empty username values to null
 -ensure username defaults to null on save
 -Duplicate entry 'KlosA' for key 'code'
@@ -44,21 +44,12 @@ TODO remove references to the thm_organizer curriculum based views => set access
 --------------------------------------------------------------------------------------Phase 2: Migration/Synchronization
 
 TODO create a fill file for initialization of tables synchronized in phase 2
--associations
--categories
--event_coordinators
--events
--group_publishing
--groups
--instance_groups
--instance_participants
--instance_persons
--instance_rooms
--instances
--participants
--schedules
--subject_events
--units
+-associations -> fk problems with current stand
+-instance_persons -> fk problems with current stand
+-instance_groups -> cannot verify
+-instance_rooms -> migration function?
+-participants -> outstanding (+migration function?)
+-instance_participants -> migration function?
 
 TODO resolve inconsistencies in the thm_organizer_plan_pools table
 -Duplicate entry 'B.4.BPALT-30' for key 'entry'
@@ -73,8 +64,8 @@ Deputat-------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------Phase 5: Course Views
 
 TODO create a fill file for initialization of tables used in phase 5
--course_participants
 -courses
+-course_participants
 
 TODO default the default sender to the site sender
 
