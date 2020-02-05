@@ -8,36 +8,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install dependencies
+      - name: "Install dependencies"
         run: "sudo apt-get install tree"
       - name: "Stopping mysql"
         run: "sudo systemctl stop mysql"
-      - name: netstat
+      - name: "netstat"
         run: "netstat -a -p tcp"
       - name: "Install mariadb"
         uses: getong/mariadb-action@v1.1
         with:
           mysql database: "joomla"
-      - name: netstat
+      - name: "netstat"
         run: "netstat -a -p tcp"
-      - name: Start database
-        run: "sudo systemctl start mariadb"
-      - name: netstat
-        run: "netstat -a -p tcp"
-      - name: Checkout build enviroment
+      - name: "Checkout build enviroment"
         uses: actions/checkout@v2
         with:
           repository:  jpbm04/ii-ci
           path: build
-      - name: Checkout
+      - name: "Checkout"
         uses: actions/checkout@v2
         with:
           path : extensions/com_organizer
-      - name: Cleanup build enviroment
+      - name: "Cleanup build enviroment"
         run: build/scripts/shell/cleanup.sh
-      - name: Initialize build enviroment
+      - name: "Initialize build enviroment"
         run: build/scripts/shell/init.sh
-      - name: Testausgaben
+      - name: "Testausgaben"
         run: |
           echo "pwd:"
           pwd
