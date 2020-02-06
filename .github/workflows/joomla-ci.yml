@@ -31,8 +31,8 @@ jobs:
           path : extensions/com_organizer
       - name: "Cleanup build enviroment"
         run: build/scripts/shell/cleanup.sh
-      - name: "Find mysqld.sock"
-        run: "sudo find / -name mysqld.sock 2> /dev/null"
+        #      - name: "Find mysqld.sock"
+        #        run: "sudo find / -name mysqld.sock 2> /dev/null"
       - name: "Initialize build enviroment"
         run: build/scripts/shell/init.sh
       - name: "Testausgaben"
