@@ -638,8 +638,7 @@ class ScheduleListA3 extends BaseLayout
 		$startDate,
 		$breakDate,
 		$rowHeader = null
-	)
-	{
+	) {
 		// Less one because of the line count index
 		$lastRowNumber = $resourceCells['rowCount'];
 		$rowNumber     = 1;
@@ -831,8 +830,7 @@ class ScheduleListA3 extends BaseLayout
 		$startDate,
 		$breakDate,
 		$rowHeader = null
-	)
-	{
+	) {
 		// Less one because of the line count index
 		$lastRowNumber = count($rowCells) - 1;
 		$rowNumber     = 1;

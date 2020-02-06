@@ -22,8 +22,8 @@
                table="organizer_groups" valuecolumn="id">
             <option value="">ALL_GROUPS</option>
         </field>
-        <field name="roomID" type="GenericOptions" label="ROOMS" onchange="this.form.submit();"
-               table="organizer_rooms" textcolumn="name" valuecolumn="id">
+        <field name="roomID" type="GenericOptions" label="ROOMS" onchange="this.form.submit();" table="organizer_rooms"
+               textcolumn="name" valuecolumn="id">
             <option value="">ALL_ROOMS</option>
         </field>
         <field name="status" type="Options" label="STATE" onchange="this.form.submit();">

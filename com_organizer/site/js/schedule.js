@@ -74,7 +74,8 @@ const ScheduleApp = function (variables) {
      * Calendar class for a date input field with HTMLTableElement as calendar.
      * By choosing a date, schedules are updated.
      */
-    function Calendar() {
+    function Calendar()
+    {
         const calendarDiv = document.getElementById('calendar'),
             month = document.getElementById('display-month'),
             months = [
@@ -101,11 +102,13 @@ const ScheduleApp = function (variables) {
         /**
          * Display calendar controls like changing to previous month.
          */
-        function showControls() {
+        function showControls()
+        {
             const dateControls = document.getElementsByClassName('date-input')[0].getElementsByClassName('controls');
             let controlIndex;
 
-            for (controlIndex = 0; controlIndex < dateControls.length; ++controlIndex) {
+            for (controlIndex = 0; controlIndex < dateControls.length; ++controlIndex)
+            {
                 dateControls[controlIndex].style.display = 'inline';
             }
         }
@@ -113,7 +116,8 @@ const ScheduleApp = function (variables) {
         /**
          * Displays month and year in calendar table head
          */
-        function setUpCalendarHead() {
+        function setUpCalendarHead()
+        {
             month.innerHTML = months[activeDate.getMonth()];
             year.innerHTML = activeDate.getFullYear().toString();
         }
@@ -121,12 +125,14 @@ const ScheduleApp = function (variables) {
         /**
          * Deletes the rows of the calendar table for refreshing.
          */
-        function resetTable() {
+        function resetTable()
+        {
             const tableBody = table.getElementsByTagName('tbody')[0],
                 rowLength = table.getElementsByTagName('tr').length;
             let rowIndex;
 
-            for (rowIndex = 0; rowIndex < rowLength; ++rowIndex) {
+            for (rowIndex = 0; rowIndex < rowLength; ++rowIndex)
+            {
                 // "-1" represents the last row
                 tableBody.deleteRow(-1);
             }
@@ -136,7 +142,8 @@ const ScheduleApp = function (variables) {
          * Calendar table gets filled with days of the month, chosen by the given date
          * Inspired by https://wiki.selfhtml.org/wiki/JavaScript/Anwendung_und_Praxis/Monatskalender
          */
-        function fillCalendar() {
+        function fillCalendar()
+        {
             const generalMonth = new Date(activeDate.getFullYear(), activeDate.getMonth(), 1),
                 month = activeDate.getMonth() + 1,
                 months30days = [4, 6, 9, 11],
@@ -146,26 +153,33 @@ const ScheduleApp = function (variables) {
             let cellIndex, days = 31, day = 1, rowCount, rowIndex;
 
             // Compute count of days
-            if (months30days.indexOf(month) !== -1) {
+            if (months30days.indexOf(month) !== -1)
+            {
                 days = 30;
             }
 
-            if (month === 2) {
+            if (month === 2)
+            {
                 days = (year % 4 === 0) ? 29 : 28;
             }
 
             // Append rows to table
             rowCount = Math.min(Math.ceil((days + generalMonth.getDay() - 1) / 7), 6);
 
-            for (rowIndex = 0; rowIndex <= rowCount; ++rowIndex) {
+            for (rowIndex = 0; rowIndex <= rowCount; ++rowIndex)
+            {
                 const row = tableBody.insertRow(rowIndex);
 
-                for (cellIndex = 0; cellIndex <= 6; ++cellIndex) {
+                for (cellIndex = 0; cellIndex <= 6; ++cellIndex)
+                {
                     const cell = row.insertCell(cellIndex);
 
-                    if ((rowIndex === 0 && cellIndex < weekdayStart - 1) || day > days) {
+                    if ((rowIndex === 0 && cellIndex < weekdayStart - 1) || day > days)
+                    {
                         cell.innerHTML = ' ';
-                    } else {
+                    }
+                    else
+                    {
                         addInsertDateButton(new Date(year, month - 1, day), cell);
                         ++day;
                     }
@@ -178,7 +192,8 @@ const ScheduleApp = function (variables) {
          * @param {Date} date
          * @param {HTMLElement} cell
          */
-        function addInsertDateButton(date, cell) {
+        function addInsertDateButton(date, cell)
+        {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'day';
@@ -194,10 +209,13 @@ const ScheduleApp = function (variables) {
          * @param {boolean} increaseMonth
          */
         this.changeCalendarMonth = function (increaseMonth) {
-            if (increaseMonth) {
+            if (increaseMonth)
+            {
                 // Day 1 for preventing get Feb 31
                 activeDate.setMonth(activeDate.getMonth() + 1, 1);
-            } else {
+            }
+            else
+            {
                 activeDate.setMonth(activeDate.getMonth() - 1, 1);
             }
 
@@ -213,7 +231,8 @@ const ScheduleApp = function (variables) {
             changeDate(increase, step);
             app.updateSchedule();
 
-            if (calendarIsVisible) {
+            if (calendarIsVisible)
+            {
                 this.setUpCalendar();
             }
         };
@@ -225,7 +244,8 @@ const ScheduleApp = function (variables) {
             calendarDiv.style.visibility = (calendarIsVisible) ? 'hidden' : 'visible';
             calendarIsVisible = !calendarIsVisible;
 
-            if (calendarIsVisible) {
+            if (calendarIsVisible)
+            {
                 this.setUpCalendar();
             }
         };
@@ -288,7 +308,8 @@ const ScheduleApp = function (variables) {
      * @param {string} [IDs] - makes together with source the schedule ID and defines the task
      * @param {string} [optionalTitle] - optional title for directly linked schedules (e.g. person or room)
      */
-    function Schedule(source, IDs, optionalTitle) {
+    function Schedule(source, IDs, optionalTitle)
+    {
         const ajaxRequest = new XMLHttpRequest(),
             id = (source === 'user' ? source : IDs ? source + IDs : source + getSelectedValues(source, '-')),
             resource = source,
@@ -310,9 +331,12 @@ const ScheduleApp = function (variables) {
                 url += '&date=' + getDateFieldString() + (variables.isMobile ? '&interval=day' : '');
                 url += '&delta=' + variables.delta;
 
-                if (resource === 'user') {
+                if (resource === 'user')
+                {
                     url += '&mySchedule=' + (resource === 'user' ? '1' : '0');
-                } else {
+                }
+                else
+                {
                     url += '&' + resource + 'IDs=' + resourceIDs;
                 }
 
@@ -327,22 +351,27 @@ const ScheduleApp = function (variables) {
                     categoryField = document.getElementById('category'),
                     selection = [];
 
-                if (optionalTitle) {
+                if (optionalTitle)
+                {
                     return optionalTitle;
                 }
 
-                if (resource === 'user') {
+                if (resource === 'user')
+                {
                     return Joomla.JText._('ORGANIZER_MY_SCHEDULE');
                 }
 
                 // Get pre-selected value like 'Informatik Master'
-                if (resource === 'group' && categoryField.selectedIndex !== -1) {
+                if (resource === 'group' && categoryField.selectedIndex !== -1)
+                {
                     (function () {
                         const options = categoryField.options;
                         let index;
 
-                        for (index = 0; index < options.length; ++index) {
-                            if (options[index].selected) {
+                        for (index = 0; index < options.length; ++index)
+                        {
+                            if (options[index].selected)
+                            {
                                 selection.push(options[index].text);
                                 return;
                             }
@@ -351,13 +380,16 @@ const ScheduleApp = function (variables) {
                 }
 
                 // Get resource selection like '1. Semester' or 'A20.1.1'
-                if (resourceField && resourceField.selectedIndex !== -1) {
+                if (resourceField && resourceField.selectedIndex !== -1)
+                {
                     (function () {
                         const options = resourceField.options;
                         let index;
 
-                        for (index = 0; index < options.length; ++index) {
-                            if (options[index].selected) {
+                        for (index = 0; index < options.length; ++index)
+                        {
+                            if (options[index].selected)
+                            {
                                 selection.push(options[index].text);
                                 return;
                             }
@@ -365,7 +397,8 @@ const ScheduleApp = function (variables) {
                     })();
                 }
 
-                if (selection.length > 0) {
+                if (selection.length > 0)
+                {
                     return selection.join(' - ');
                 }
 
@@ -381,7 +414,8 @@ const ScheduleApp = function (variables) {
             ajaxRequest.open('GET', ajaxUrl, true);
 
             ajaxRequest.onreadystatechange = function () {
-                if (ajaxRequest.readyState === 4 && ajaxRequest.status === 200) {
+                if (ajaxRequest.readyState === 4 && ajaxRequest.status === 200)
+                {
                     /**
                      * @param {Object} response
                      * @param {Date} response.pastDate
@@ -392,18 +426,24 @@ const ScheduleApp = function (variables) {
                     table.update(response);
                     that.popUp();
 
-                    if (id === getSelectedScheduleID()) {
-                        if (response.pastDate || response.futureDate) {
+                    if (id === getSelectedScheduleID())
+                    {
+                        if (response.pastDate || response.futureDate)
+                        {
                             openNextDateQuestion(response);
-                        } else if (response.pastDate === null && response.futureDate === null) {
+                        }
+                        else if (response.pastDate === null && response.futureDate === null)
+                        {
                             noEvents.style.display = 'block';
                         }
                     }
 
                     // Updates other schedule tables after this one, because of dependencies like 'occupied' events
-                    if (updateOthers) {
+                    if (updateOthers)
+                    {
                         scheduleObjects.schedules.forEach(function (schedule) {
-                            if (schedule.getId() !== id) {
+                            if (schedule.getId() !== id)
+                            {
                                 schedule.updateTable();
                             }
                         });
@@ -429,10 +469,13 @@ const ScheduleApp = function (variables) {
         this.popUp = function (create) {
             let cancelBtn, floatDiv = document.getElementById(id + '-pop-up'), titleElement;
 
-            if (floatDiv) {
+            if (floatDiv)
+            {
                 floatDiv.removeChild(floatDiv.lastChild);
                 jQuery(table.getTableElement()).clone(true).appendTo(jQuery(floatDiv));
-            } else if (create) {
+            }
+            else if (create)
+            {
                 floatDiv = document.createElement('div');
                 floatDiv.id = id + '-pop-up';
                 floatDiv.className = 'pop-up schedule-table';
@@ -468,7 +511,8 @@ const ScheduleApp = function (variables) {
                 jQuery(table.getTableElement()).clone(true).appendTo(jQuery(floatDiv));
             }
 
-            if (create) {
+            if (create)
+            {
                 floatDiv.style.display = 'block';
             }
         };
@@ -528,7 +572,8 @@ const ScheduleApp = function (variables) {
      * Class for the HTMLTableElement of a schedule
      * @param {Schedule} schedule
      */
-    function ScheduleTable(schedule) {
+    function ScheduleTable(schedule)
+    {
         const table = document.createElement('table'), SPEAKER = 4, SUPERVISOR = 3, TEACHER = 1, TUTOR = 2,
             isUserSchedule = schedule.getId() === 'user',
             weekend = 7;
@@ -551,7 +596,8 @@ const ScheduleApp = function (variables) {
          * @param instance the instance to display
          * @param action the action which the button should perform
          */
-        function addButton(item, instance, action) {
+        function addButton(item, instance, action)
+        {
             const container = document.createElement('div'),
                 button = document.createElement('button'),
                 questionButton = document.createElement('button');
@@ -576,8 +622,10 @@ const ScheduleApp = function (variables) {
          * @param item the div in which the instance item will be displayed
          * @param object instance the instance data
          */
-        function addComment(item, instance) {
-            if (instance.comment) {
+        function addComment(item, instance)
+        {
+            if (instance.comment)
+            {
                 const commentDiv = document.createElement('div');
                 commentDiv.innerHTML = instance.comment;
                 commentDiv.className = 'comment-container';
@@ -592,7 +640,8 @@ const ScheduleApp = function (variables) {
          * @param {string|int} id
          * @param {string} title
          */
-        function addInternalLinkEvent(element, resource, id, title) {
+        function addInternalLinkEvent(element, resource, id, title)
+        {
             element.addEventListener('click', function () {
                 sendEventRequest(resource, id, title);
             });
@@ -603,7 +652,8 @@ const ScheduleApp = function (variables) {
          * @param item the div in which the instance item will be displayed
          * @param object instance the instance data
          */
-        function addIdentifiers(item, instance) {
+        function addIdentifiers(item, instance)
+        {
             const indentifiersDiv = document.createElement('div'),
                 subjectItemLink = function () {
                     window.open(variables.subjectItemBase.replace(/&id=\d+/, '&id=' + instance.subjectID), '_blank');
@@ -611,10 +661,13 @@ const ScheduleApp = function (variables) {
 
             let nameElement, numberElement;
 
-            if (instance.subjectID) {
+            if (instance.subjectID)
+            {
                 nameElement = document.createElement('a');
                 nameElement.addEventListener('click', subjectItemLink);
-            } else {
+            }
+            else
+            {
                 nameElement = document.createElement('span');
             }
 
@@ -626,11 +679,15 @@ const ScheduleApp = function (variables) {
             nameElement.innerHTML = nameElement.innerHTML.replace(/(\S)\/(\S)/g, '$1 / $2');
             indentifiersDiv.appendChild(nameElement);
 
-            if (instance.subjectNo) {
-                if (instance.subjectID) {
+            if (instance.subjectNo)
+            {
+                if (instance.subjectID)
+                {
                     numberElement = document.createElement('a');
                     numberElement.addEventListener('click', subjectItemLink);
-                } else {
+                }
+                else
+                {
                     numberElement = document.createElement('span');
                 }
 
@@ -648,15 +705,19 @@ const ScheduleApp = function (variables) {
          * @param {HTMLElement} item - the html element which will display the instance
          * @param {Object} instance - the instance to be displayed
          */
-        function addMenu(item, instance) {
-            if (variables.userID) {
+        function addMenu(item, instance)
+        {
+            if (variables.userID)
+            {
                 item.addEventListener('contextmenu', function (item) {
-                    if (!item.classList.contains('instance-removed')) {
+                    if (!item.classList.contains('instance-removed'))
+                    {
                         item.preventDefault();
                         instanceMenu.getMenu(item, instance, 'save');
                     }
 
-                    if (item.classList.contains('added')) {
+                    if (item.classList.contains('added'))
+                    {
                         item.preventDefault();
                         instanceMenu.getMenu(item, instance, 'delete');
                     }
@@ -669,12 +730,15 @@ const ScheduleApp = function (variables) {
          * @param container the container used for resource output
          * @param collection the aggregated persons of the given role for the instance
          */
-        function addSortedResources(container, collection) {
-            if (Object.keys(collection).length) {
+        function addSortedResources(container, collection)
+        {
+            if (Object.keys(collection).length)
+            {
                 const keys = Object.keys(collection).sort();
                 let key;
 
-                for (key in keys) {
+                for (key in keys)
+                {
                     container.appendChild(collection[keys[key]]);
                 }
             }
@@ -686,7 +750,8 @@ const ScheduleApp = function (variables) {
          * @param item the div in which the instance item will be displayed
          * @param object instance the instance data
          */
-        function addResources(item, instance) {
+        function addResources(item, instance)
+        {
             const resource = schedule.getResource(),
                 updateItem = !(item.classList.contains('instance-new') || item.classList.contains('instance-removed'));
             let addGroups = false,
@@ -723,7 +788,8 @@ const ScheduleApp = function (variables) {
                 teachers = [],
                 tutors = [];
 
-            if (resource === 'group') {
+            if (resource === 'group')
+            {
                 addGroupResources(item, instance);
             }
 
@@ -879,7 +945,8 @@ const ScheduleApp = function (variables) {
             addSortedResources(item, supervisors);*/
         }
 
-        function addGroupResources(item, instance) {
+        function addGroupResources(item, instance)
+        {
             const personIDs = Object.keys(instance.resources),
                 resourceIDs = schedule.getResourceIDs(),
                 updateItem = !(item.classList.contains('instance-new') || item.classList.contains('instance-removed'));
@@ -891,19 +958,23 @@ const ScheduleApp = function (variables) {
                 roleDiv, roleID, roleIDs, roleKey, roleName, rolePersons = [],
                 roomID, roomIDs, roomKey, roomName, roomNames, rooms, roomsDiv, roomStatus;
 
-            for (personKey in personIDs) {
+            for (personKey in personIDs)
+            {
                 personID = personIDs[personKey];
                 person = instance.resources[personID];
-                if (!person.groups) {
+                if (!person.groups)
+                {
                     // Person is not associated with any groups and is therefore irrelevant.
                     continue;
                 }
 
                 personRelevant = false;
                 groupIDs = Object.keys(person.groups);
-                for (groupKey in groupIDs) {
+                for (groupKey in groupIDs)
+                {
                     groupID = groupIDs[groupKey];
-                    if (!resourceIDs.includes(groupID)) {
+                    if (!resourceIDs.includes(groupID))
+                    {
                         continue;
                     }
 
@@ -911,16 +982,20 @@ const ScheduleApp = function (variables) {
                     groupStatus = person.groups[groupID].status;
 
                     // Determines whether all person <-> group associations have the same status.
-                    if (initial) {
+                    if (initial)
+                    {
                         instanceGroupStatus = groupStatus;
                         initial = false;
-                    } else if (instanceGroupStatus !== false && instanceGroupStatus !== groupStatus) {
+                    }
+                    else if (instanceGroupStatus !== false && instanceGroupStatus !== groupStatus)
+                    {
                         instanceGroupStatus = false;
                     }
                 }
 
                 // Person is not associated with the group sought.
-                if (!personRelevant) {
+                if (!personRelevant)
+                {
                     continue;
                 }
 
@@ -934,64 +1009,81 @@ const ScheduleApp = function (variables) {
                 personStatus = groupStatus === 'removed' || person.status === 'removed' ? 'removed' : person.status || '';
                 personSpan.innerHTML = personName;
 
-                if (personStatus) {
+                if (personStatus)
+                {
                     personSpan.classList.add(personStatus);
                 }
 
-                if (!rolePersons[roleID]) {
+                if (!rolePersons[roleID])
+                {
                     rolePersons[roleID] = {}
                 }
                 rolePersons[roleID][personName] = personSpan;
                 personDiv.appendChild(personSpan);
 
                 // If the person has become irrelevant, so too have their associated rooms.
-                if (personStatus !== 'removed' && person.rooms) {
+                if (personStatus !== 'removed' && person.rooms)
+                {
                     rooms = {};
                     roomIDs = Object.keys(person.rooms);
-                    for (roomKey in roomIDs) {
+                    for (roomKey in roomIDs)
+                    {
                         roomID = roomIDs[roomKey];
                         roomName = person.rooms[roomID].room;
                         roomStatus = person.rooms[roomID].status;
                         addSubordinateResource(rooms, roomID, roomName, roomName, roomStatus, 'room');
                     }
 
-                    if (Object.keys(rooms)) {
+                    if (Object.keys(rooms))
+                    {
                         roomsDiv = document.createElement('div');
                         addSortedResources(roomsDiv, rooms);
                         personDiv.appendChild(roomsDiv);
                     }
 
-                    if (initialRooms) {
+                    if (initialRooms)
+                    {
                         instanceRooms = rooms;
                         initialRooms = false;
-                    } else if (instanceRooms !== false && JSON.stringify(instanceRooms) !== JSON.stringify(rooms)) {
+                    }
+                    else if (instanceRooms !== false && JSON.stringify(instanceRooms) !== JSON.stringify(rooms))
+                    {
                         aggregateRooms = false;
                         instanceRooms = false;
                     }
                 }
             }
 
-            if (aggregateRooms) {
+            if (aggregateRooms)
+            {
                 personDiv = document.createElement('div');
                 personDiv.className = 'persons';
                 roleIDs = Object.keys(rolePersons);
-                for (roleKey in roleIDs) {
+                for (roleKey in roleIDs)
+                {
                     roleID = roleIDs[roleKey];
                     count = Object.keys(rolePersons[roleID]).length;
                     roleDiv = document.createElement('div');
-                    if (roleID === SPEAKER) {
+                    if (roleID === SPEAKER)
+                    {
                         roleName = count > 1 ?
                             Joomla.JText._('ORGANIZER_SPEAKERS') : Joomla.JText._('ORGANIZER_SPEAKER');
                         roleDiv.classList.add('speakers');
-                    } else if (roleID === TUTOR) {
+                    }
+                    else if (roleID === TUTOR)
+                    {
                         roleName = count > 1 ?
                             Joomla.JText._('ORGANIZER_TUTORS') : Joomla.JText._('ORGANIZER_TUTOR');
                         roleDiv.classList.add('tutors');
-                    } else if (roleID === SUPERVISOR) {
+                    }
+                    else if (roleID === SUPERVISOR)
+                    {
                         roleName = count > 1 ?
                             Joomla.JText._('ORGANIZER_SUPERVISORS') : Joomla.JText._('ORGANIZER_SUPERVISOR');
                         roleDiv.classList.add('supervisors');
-                    } else {
+                    }
+                    else
+                    {
                         roleName = count > 1 ?
                             Joomla.JText._('ORGANIZER_TEACHERS') : Joomla.JText._('ORGANIZER_TEACHER');
                         roleDiv.classList.add('teachers');
@@ -1000,11 +1092,13 @@ const ScheduleApp = function (variables) {
                     personDiv.appendChild(roleDiv);
                 }
 
-                if (Object.keys(instanceRooms).length) {
+                if (Object.keys(instanceRooms).length)
+                {
                     roomsDiv = document.createElement('div');
                     roomsDiv.classList.add('rooms');
                     roomNames = Object.keys(instanceRooms).sort();
-                    for (roomName in roomNames) {
+                    for (roomName in roomNames)
+                    {
                         roomsDiv.append(instanceRooms[roomNames[roomName]]);
                         roomsDiv.innerHTML += ', ';
                     }
@@ -1027,7 +1121,8 @@ const ScheduleApp = function (variables) {
          * @param status the status of the subordinate resource
          * @param type the type of subordinate resource
          */
-        function addSubordinateResource(collection, id, name, fullName, status, type) {
+        function addSubordinateResource(collection, id, name, fullName, status, type)
+        {
             const link = document.createElement('a'),
                 span = document.createElement('span');
             link.innerHTML = name;
@@ -1037,7 +1132,8 @@ const ScheduleApp = function (variables) {
             span.classList.add(type);
             span.appendChild(link);
 
-            if (status) {
+            if (status)
+            {
                 span.classList.add(status);
             }
 
@@ -1059,7 +1155,8 @@ const ScheduleApp = function (variables) {
          * @param {boolean} [ownTime=false] - show own time
          * @returns {HTMLDivElement[]|boolean} HTMLDivElements in an array or false in case of wrong input
          */
-        function createItem(instance, ownTime) {
+        function createItem(instance, ownTime)
+        {
             const instanceGroups = [],
                 instanceRooms = [],
                 item = document.createElement('div'),
@@ -1075,17 +1172,22 @@ const ScheduleApp = function (variables) {
             item.dataset.instanceID = instance.instanceID;
             item.dataset.registrationType = instance.registrationType;
 
-            if (instance.unitStatus || instance.status) {
-                if (instance.unitStatus === 'removed' || instance.status === 'removed') {
+            if (instance.unitStatus || instance.status)
+            {
+                if (instance.unitStatus === 'removed' || instance.status === 'removed')
+                {
                     item.classList.add('instance-removed');
-                } else if (instance.unitStatus === 'new' || instance.status === 'new') {
+                }
+                else if (instance.unitStatus === 'new' || instance.status === 'new')
+                {
                     item.classList.add('instance-removed');
                 }
             }
 
             // Show deviant time first
             ownTime = typeof ownTime === 'undefined' ? false : ownTime;
-            if (ownTime && instance.startTime && instance.endTime) {
+            if (ownTime && instance.startTime && instance.endTime)
+            {
                 const ownTimeSpan = document.createElement('span');
                 ownTimeSpan.className = 'own-time';
                 ownTimeSpan.innerHTML = instance.startTime + ' - ' + instance.endTime;
@@ -1096,12 +1198,14 @@ const ScheduleApp = function (variables) {
             addComment(item, instance);
             addResources(item, instance);
 
-            if (instance.full) {
+            if (instance.full)
+            {
                 item.classList.add('full');
             }
 
             addMenu(item, instance);
-            if (variables.userID) {
+            if (variables.userID)
+            {
                 addMenu(item, instance);
                 addButton(item, instance, 'delete');
                 addButton(item, instance, 'save');
@@ -1111,7 +1215,9 @@ const ScheduleApp = function (variables) {
                 {
                     item.classList.add('added');
                 }*/
-            } else {
+            }
+            else
+            {
                 item.classList.add('no-saving');
             }
 
@@ -1122,7 +1228,8 @@ const ScheduleApp = function (variables) {
          * Creates a table DOM-element with an input and label for selecting it and a caption with the given title.
          * It gets appended to the scheduleWrapper.
          */
-        function createScheduleElement() {
+        function createScheduleElement()
+        {
             const input = document.createElement('input'),
                 div = document.createElement('div'),
                 body = document.createElement('tbody'),
@@ -1146,11 +1253,13 @@ const ScheduleApp = function (variables) {
 
             table.appendChild(body);
 
-            for (rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
+            for (rowIndex = 0; rowIndex < rowCount; ++rowIndex)
+            {
                 // Filled with rows and cells (with -1 for last position)
                 const row = body.insertRow(-1);
 
-                for (firstDay = 0; firstDay < weekend; ++firstDay) {
+                for (firstDay = 0; firstDay < weekend; ++firstDay)
+                {
                     row.insertCell(-1);
                 }
             }
@@ -1160,24 +1269,32 @@ const ScheduleApp = function (variables) {
          * Sets default gridID of schedule, select it in grid form field and returns it
          * @return {Object}
          */
-        function getDefaultGrid() {
-            if (!defaultGrid) {
+        function getDefaultGrid()
+        {
+            if (!defaultGrid)
+            {
                 // Function returns first found gridID
                 const defaultGridID = (function () {
                     let day, event, time;
 
-                    for (day in instances) {
-                        if (!instances.hasOwnProperty(day)) {
+                    for (day in instances)
+                    {
+                        if (!instances.hasOwnProperty(day))
+                        {
                             continue;
                         }
 
-                        for (time in instances[day]) {
-                            if (!instances[day].hasOwnProperty(time)) {
+                        for (time in instances[day])
+                        {
+                            if (!instances[day].hasOwnProperty(time))
+                            {
                                 continue;
                             }
 
-                            for (event in instances[day][time]) {
-                                if (instances[day][time].hasOwnProperty(event) && instances[day][time][event].gridID) {
+                            for (event in instances[day][time])
+                            {
+                                if (instances[day][time].hasOwnProperty(event) && instances[day][time][event].gridID)
+                                {
                                     return instances[day][time][event].gridID;
                                 }
                             }
@@ -1185,7 +1302,8 @@ const ScheduleApp = function (variables) {
                     }
                 })();
 
-                if (defaultGridID) {
+                if (defaultGridID)
+                {
                     setGrid(defaultGridID);
                     defaultGrid = JSON.parse(variables.grids[defaultGridID].grid);
                 }
@@ -1200,35 +1318,41 @@ const ScheduleApp = function (variables) {
          * @param string iStartTime the instance start time
          * @return {[]} the blocks relevant to the display of the instance
          */
-        function getRelevantBlocks(iEndTime, iStartTime) {
+        function getRelevantBlocks(iEndTime, iStartTime)
+        {
             const blocks = [];
             let block, blockIndex, contains, ends, equals, overlaps, starts;
 
-            for (blockIndex in timeGrid.periods) {
+            for (blockIndex in timeGrid.periods)
+            {
                 // This is being resolved to table rows which start numbering with 0.
                 block = timeGrid.periods[blockIndex];
 
                 // Irrelevant and the search is over
-                if (block.startTime > iEndTime) {
+                if (block.startTime > iEndTime)
+                {
                     break;
                 }
 
                 // Irrelevant and nothing was found yet
-                if (block.endTime < iStartTime) {
+                if (block.endTime < iStartTime)
+                {
                     continue;
                 }
 
                 contains = block.endTime >= iEndTime && block.startTime <= iStartTime;
                 ends = block.endTime > iEndTime && block.startTime < iEndTime;
                 equals = block.endTime === iEndTime && block.startTime === iStartTime;
-                if (contains || ends || equals) {
+                if (contains || ends || equals)
+                {
                     blocks.push(blockIndex - 1);
                     break;
                 }
 
                 overlaps = block.endTime < iEndTime && block.startTime > iStartTime;
                 starts = block.endTime > iStartTime && block.startTime < iStartTime;
-                if (overlaps || starts) {
+                if (overlaps || starts)
+                {
                     blocks.push(blockIndex - 1);
                     continue;
                 }
@@ -1241,32 +1365,40 @@ const ScheduleApp = function (variables) {
          *
          * @param instance the instance whose resources are to be filtered
          */
-        function filterResources(instance) {
+        function filterResources(instance)
+        {
 
             const resource = schedule.getResource(),
                 resourceIDs = schedule.getResourceIDs();
 
             let groupID, person, personID, roomID;
 
-            for (personID in instance.resources) {
-                for (groupID in person.groups) {
-                    if (!person.groups.hasOwnProperty(groupID)) {
+            for (personID in instance.resources)
+            {
+                for (groupID in person.groups)
+                {
+                    if (!person.groups.hasOwnProperty(groupID))
+                    {
                         continue;
                     }
                 }
 
-                for (roomID in person.rooms) {
-                    if (!person.rooms.hasOwnProperty(roomID)) {
+                for (roomID in person.rooms)
+                {
+                    if (!person.rooms.hasOwnProperty(roomID))
+                    {
                         continue;
                     }
 
-                    if (resource === 'room' && !resourceIDs.includes(roomID)) {
+                    if (resource === 'room' && !resourceIDs.includes(roomID))
+                    {
                         delete instance.resources.personID.rooms.roomID;
                         continue;
                     }
                 }
 
-                if (resource === 'room' && !Object.keys(instance.resources[personID].rooms).length) {
+                if (resource === 'room' && !Object.keys(instance.resources[personID].rooms).length)
+                {
                     delete instance.resources.personID;
                     continue;
                 }
@@ -1277,7 +1409,8 @@ const ScheduleApp = function (variables) {
          * Inserts instances into a schedule
          * @param {Object} instances
          */
-        function insertInstances(instances) {
+        function insertInstances(instances)
+        {
             const instanceIndexes = Object.keys(instances),
                 rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
             let block, blockIndex, cell, iDoW, iEndTime, index, instance,
@@ -1290,16 +1423,20 @@ const ScheduleApp = function (variables) {
                 jQuery(cell).addClass('occupied');
             }*/
 
-            for (index in instanceIndexes) {
+            for (index in instanceIndexes)
+            {
                 instance = instances[instanceIndexes[index]];
                 iDoW = new Date(instance.date).getDay();
 
-                if (timeGrid.periods) {
+                if (timeGrid.periods)
+                {
                     iEndTime = instance.endTime.replace(':', '');
                     iStartTime = instance.startTime.replace(':', '');
                     relevantBlocks = getRelevantBlocks(iEndTime, iStartTime);
                     showOwnTime = relevantBlocks.length > 1;
-                } else {
+                }
+                else
+                {
                     // There is no column displaying block times so the index is one less.
                     iDoW = iDoW - 1
                     relevantBlocks = [0];
@@ -1308,7 +1445,8 @@ const ScheduleApp = function (variables) {
 
                 item = createItem(instance, showOwnTime);
 
-                for (blockIndex in relevantBlocks) {
+                for (blockIndex in relevantBlocks)
+                {
                     block = relevantBlocks[blockIndex];
                     cell = rows[block].getElementsByTagName('td')[iDoW];
                     cell.appendChild(item);
@@ -1320,20 +1458,23 @@ const ScheduleApp = function (variables) {
         /**
          * Insert table head and side cells with time data
          */
-        function insertTableHead() {
+        function insertTableHead()
+        {
             const headerDate = getDateFieldsDateObject(), tr = table.createTHead().insertRow(0);
             let headIndex;
 
             // Set date to monday
             headerDate.setDate(headerDate.getDate() - headerDate.getDay());
 
-            for (headIndex = 0; headIndex < weekend; ++headIndex) {
+            for (headIndex = 0; headIndex < weekend; ++headIndex)
+            {
                 const th = document.createElement('th');
 
                 th.innerHTML = (headIndex === 0) ? Joomla.JText._('ORGANIZER_TIME') : weekdays[headIndex - 1] +
                     ' (' + headerDate.getPresentationFormat(true) + ')';
 
-                if (headIndex === visibleDay) {
+                if (headIndex === visibleDay)
+                {
                     th.classList.add('activeColumn');
                 }
                 tr.appendChild(th);
@@ -1347,7 +1488,8 @@ const ScheduleApp = function (variables) {
          * @param {number} colIndex
          * @return {boolean}
          */
-        function isOccupiedByUserEvent(rowIndex, colIndex) {
+        function isOccupiedByUserEvent(rowIndex, colIndex)
+        {
             const userScheduleTable = scheduleObjects.userSchedule.getTable().getTableElement(),
                 rows = userScheduleTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr'),
                 row = rows[rowIndex],
@@ -1361,16 +1503,20 @@ const ScheduleApp = function (variables) {
          * @param {HTMLElement} event
          * @return {boolean}
          */
-        function isSavedByUser(event) {
+        function isSavedByUser(event)
+        {
             let eventIndex, events;
 
-            if (!event || !scheduleObjects.userSchedule) {
+            if (!event || !scheduleObjects.userSchedule)
+            {
                 return false;
             }
 
             events = scheduleObjects.userSchedule.getTable().getEvents();
-            for (eventIndex = 0; eventIndex < events.length; ++eventIndex) {
-                if (events[eventIndex].dataset.ccmID === event.dataset.ccmID) {
+            for (eventIndex = 0; eventIndex < events.length; ++eventIndex)
+            {
+                if (events[eventIndex].dataset.ccmID === event.dataset.ccmID)
+                {
                     return true;
                 }
             }
@@ -1381,20 +1527,24 @@ const ScheduleApp = function (variables) {
         /**
          * Removes all events and rebuild table structure on time grid
          */
-        function resetTable() {
+        function resetTable()
+        {
             const newBody = document.createElement('tbody'), oldBody = table.getElementsByTagName('tbody')[0],
                 columnCount = timeGrid.endDay, rowCount = timeGrid.periods ? Object.keys(timeGrid.periods).length : 1;
             let columnIndex, rowIndex;
 
             // Build table on time grid filled with rows and cells (with -1 for last position)
-            for (rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
+            for (rowIndex = 0; rowIndex < rowCount; ++rowIndex)
+            {
                 const row = newBody.insertRow(-1), type = timeGrid.periods && timeGrid.periods[rowIndex + 1].type;
 
-                if (type) {
+                if (type)
+                {
                     row.classList.add(type);
                 }
 
-                for (columnIndex = 0; columnIndex <= columnCount; ++columnIndex) {
+                for (columnIndex = 0; columnIndex <= columnCount; ++columnIndex)
+                {
                     row.insertCell(-1);
                 }
             }
@@ -1405,25 +1555,35 @@ const ScheduleApp = function (variables) {
         /**
          * Sets only the selected day column visible for mobile devices
          */
-        function setActiveColumn() {
+        function setActiveColumn()
+        {
             const rows = table.getElementsByTagName('tr');
             let thIndex, ths, tdIndex, tds, row;
 
-            for (row = 0; row < rows.length; ++row) {
+            for (row = 0; row < rows.length; ++row)
+            {
                 ths = rows[row].getElementsByTagName('th');
-                for (thIndex = 1; thIndex < ths.length; ++thIndex) {
-                    if (thIndex === visibleDay) {
+                for (thIndex = 1; thIndex < ths.length; ++thIndex)
+                {
+                    if (thIndex === visibleDay)
+                    {
                         ths[thIndex].classList.add('activeColumn');
-                    } else {
+                    }
+                    else
+                    {
                         ths[thIndex].classList.remove('activeColumn');
                     }
                 }
 
                 tds = rows[row].getElementsByTagName('td');
-                for (tdIndex = 1; tdIndex < tds.length; ++tdIndex) {
-                    if (tdIndex === visibleDay) {
+                for (tdIndex = 1; tdIndex < tds.length; ++tdIndex)
+                {
+                    if (tdIndex === visibleDay)
+                    {
                         tds[tdIndex].classList.add('activeColumn');
-                    } else {
+                    }
+                    else
+                    {
                         tds[tdIndex].classList.remove('activeColumn');
                     }
                 }
@@ -1433,16 +1593,20 @@ const ScheduleApp = function (variables) {
         /**
          * Here the table head changes to the grids specified weekdays with start day and end day
          */
-        function setGridDays() {
+        function setGridDays()
+        {
             const headItems = table.getElementsByTagName('thead')[0].getElementsByTagName('th'),
                 headerDate = getDateFieldsDateObject(),
                 day = headerDate.getDay();
             let currentDay = parseInt(timeGrid.startDay), thElement;
 
             // Set date to monday of the coming week
-            if (day === 0) {
+            if (day === 0)
+            {
                 headerDate.setDate(headerDate.getDate() + 1);
-            } else {
+            }
+            else
+            {
                 // Sunday is 0, so we add a one for monday
                 headerDate.setDate(headerDate.getDate() - day + 1);
             }
@@ -1451,13 +1615,17 @@ const ScheduleApp = function (variables) {
             headItems[0].style.display = timeGrid.hasOwnProperty('periods') ? '' : 'none';
 
             // Fill tHead with days of week
-            for (thElement = 1; thElement < headItems.length; ++thElement) {
-                if (thElement === currentDay && currentDay <= timeGrid.endDay) {
+            for (thElement = 1; thElement < headItems.length; ++thElement)
+            {
+                if (thElement === currentDay && currentDay <= timeGrid.endDay)
+                {
                     headItems[thElement].innerHTML = weekdays[currentDay - 1] +
                         ' (' + headerDate.getPresentationFormat(true) + ')';
                     headerDate.setDate(headerDate.getDate() + 1);
                     ++currentDay;
-                } else {
+                }
+                else
+                {
                     headItems[thElement].innerHTML = '';
                 }
             }
@@ -1466,21 +1634,25 @@ const ScheduleApp = function (variables) {
         /**
          * Sets the chosen times of the grid in the schedules tables
          */
-        function setGridTime() {
+        function setGridTime()
+        {
             const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
             let endTime, period = 1, row, startTime;
 
             // No periods -> no times
-            if (!timeGrid.periods) {
+            if (!timeGrid.periods)
+            {
                 return;
             }
 
-            for (row = 0; row < rows.length; ++row) {
+            for (row = 0; row < rows.length; ++row)
+            {
                 const gap = endTime ? timeGrid.periods[period].startTime - timeGrid.periods[period - 1].endTime : 0,
                     timeCell = rows[row].getElementsByTagName('td')[0];
 
                 // Indicate bigger breaks between blocks (more than 30 minutes)
-                if (gap >= 100) {
+                if (gap >= 100)
+                {
                     rows[row - 1].classList.add('long-break-after');
                 }
 
@@ -1534,7 +1706,8 @@ const ScheduleApp = function (variables) {
             instances = newInstances || instances;
             visibleDay = getDateFieldsDateObject().getDay();
 
-            if (useDefaultGrid) {
+            if (useDefaultGrid)
+            {
                 timeGrid = getDefaultGrid();
             }
 
@@ -1542,11 +1715,13 @@ const ScheduleApp = function (variables) {
             setGridDays();
             setGridTime();
 
-            if (!(instances.pastDate || instances.futureDate)) {
+            if (!(instances.pastDate || instances.futureDate))
+            {
                 insertInstances(instances);
             }
 
-            if (variables.isMobile) {
+            if (variables.isMobile)
+            {
                 setActiveColumn();
             }
         };
@@ -1574,7 +1749,8 @@ const ScheduleApp = function (variables) {
     /**
      * Creates an event menu for saving and deleting an event, which opens by right clicking on it
      */
-    function InstanceMenu() {
+    function InstanceMenu()
+    {
         const instanceMenu = document.getElementsByClassName('instance-menu')[0],
             deleteInstanceMode = document.getElementById('delete-mode-instance'),
             deleteMenu = instanceMenu.getElementsByClassName('delete')[0],
@@ -1595,7 +1771,8 @@ const ScheduleApp = function (variables) {
         /**
          * Resets HTMLDivElements
          */
-        function resetElements() {
+        function resetElements()
+        {
             removeChildren(personsDiv);
             removeChildren(roomsDiv);
             removeChildren(groupsDiv);
@@ -1613,15 +1790,19 @@ const ScheduleApp = function (variables) {
          * @param {Object} instance.persons - all persons
          * @param {Object} instance.personDeltas - changed persons
          */
-        function setInstanceData(instance) {
+        function setInstanceData(instance)
+        {
             let groupID, roomID, personID;
 
             resetElements();
             subjectSpan.innerHTML = instance.name;
 
-            if (instance.subjectNo === '') {
+            if (instance.subjectNo === '')
+            {
                 moduleSpan.style.display = 'none';
-            } else {
+            }
+            else
+            {
                 moduleSpan.style.display = 'inline-block';
                 moduleSpan.innerHTML = instance.subjectNo;
             }
@@ -1629,24 +1810,30 @@ const ScheduleApp = function (variables) {
             descriptionSpan.innerHTML = instanceMenu.parentNode.getElementsByClassName('comment-container')[0] ?
                 instanceMenu.parentNode.getElementsByClassName('comment-container')[0].innerText : '';
 
-            for (personID in instance.persons) {
-                if (instance.persons.hasOwnProperty(personID) && instance.personDeltas[personID] !== 'removed') {
+            for (personID in instance.persons)
+            {
+                if (instance.persons.hasOwnProperty(personID) && instance.personDeltas[personID] !== 'removed')
+                {
                     const personSpan = document.createElement('span');
                     personSpan.innerHTML = instance.persons[personID];
                     personsDiv.appendChild(personSpan);
                 }
             }
 
-            for (roomID in instance.rooms) {
-                if (instance.rooms.hasOwnProperty(roomID) && instance.roomDeltas[roomID] !== 'removed') {
+            for (roomID in instance.rooms)
+            {
+                if (instance.rooms.hasOwnProperty(roomID) && instance.roomDeltas[roomID] !== 'removed')
+                {
                     const roomSpan = document.createElement('span');
                     roomSpan.innerHTML = instance.rooms[roomID];
                     roomsDiv.appendChild(roomSpan);
                 }
             }
 
-            for (groupID in instance.groups) {
-                if (instance.groups.hasOwnProperty(groupID)) {
+            for (groupID in instance.groups)
+            {
+                if (instance.groups.hasOwnProperty(groupID))
+                {
                     const groupSpan = document.createElement('span');
                     groupSpan.innerHTML = instance.groups[groupID].untisID;
                     groupsDiv.appendChild(groupSpan);
@@ -1686,10 +1873,13 @@ const ScheduleApp = function (variables) {
 
         this.getMenu = function (item, instance, action) {
             currentInstanceID = item.dataset.instanceID;
-            if (action == 'save') {
+            if (action == 'save')
+            {
                 saveMenu.style.display = 'block';
                 deleteMenu.style.display = 'none';
-            } else {
+            }
+            else
+            {
                 saveMenu.style.display = 'none';
                 deleteMenu.style.display = 'block';
             }
@@ -1703,7 +1893,8 @@ const ScheduleApp = function (variables) {
      * Container for all schedule objects
      * Including functions to get the right schedule by id or response url.
      */
-    function Schedules() {
+    function Schedules()
+    {
         /**
          * @type {Schedule[]}
          */
@@ -1728,14 +1919,18 @@ const ScheduleApp = function (variables) {
             };
 
             // No user schedules in session. When someone is logged in, the schedule gets loaded anyway.
-            if (schedule.getId() !== 'user') {
-                if (!sessionSchedules) {
+            if (schedule.getId() !== 'user')
+            {
+                if (!sessionSchedules)
+                {
                     sessionSchedules = {};
                 }
 
                 sessionSchedules[schedule.getId()] = scheduleObject;
                 window.sessionStorage.setItem('schedules', JSON.stringify(sessionSchedules));
-            } else {
+            }
+            else
+            {
                 this.userSchedule = schedule;
             }
 
@@ -1752,7 +1947,8 @@ const ScheduleApp = function (variables) {
             delete sessionSchedules[schedule.getId()];
             window.sessionStorage.setItem('schedules', JSON.stringify(sessionSchedules));
 
-            if (schedule.getTable()) {
+            if (schedule.getTable())
+            {
                 schedule.getTable().remove();
                 this.schedules.splice(this.schedules.indexOf(schedule), 1);
             }
@@ -1766,8 +1962,10 @@ const ScheduleApp = function (variables) {
         this.getScheduleById = function (id) {
             let scheduleIndex;
 
-            for (scheduleIndex = 0; scheduleIndex < this.schedules.length; ++scheduleIndex) {
-                if (this.schedules[scheduleIndex].getId() === id) {
+            for (scheduleIndex = 0; scheduleIndex < this.schedules.length; ++scheduleIndex)
+            {
+                if (this.schedules[scheduleIndex].getId() === id)
+                {
                     return this.schedules[scheduleIndex];
                 }
             }
@@ -1794,7 +1992,8 @@ const ScheduleApp = function (variables) {
     /**
      * Form of selecting a schedule
      */
-    function ScheduleForm() {
+    function ScheduleForm()
+    {
         const fieldsToShow = {},
             config = {
                 'name': '',
@@ -1833,14 +2032,16 @@ const ScheduleApp = function (variables) {
          * @param {HTMLSelectElement} field - selected field
          * @param {string} [values] - optional values to specify task
          */
-        function getOptionsUrl(field, values) {
+        function getOptionsUrl(field, values)
+        {
             const previousField = document.querySelector('[data-next=' + field.id + ']');
             let resource, url = getAjaxUrl();
 
             resource = field.dataset.input === 'static' ? jQuery(field).val() : field.id;
             url += '&view=' + resource.replace(/([A-Z])/g, '_$&').toLowerCase() + '_options';
 
-            if (previousField) {
+            if (previousField)
+            {
                 url += '&' + previousField.id + 'IDs=' + (values ? values : getSelectedValues(previousField.id));
             }
 
@@ -1851,10 +2052,12 @@ const ScheduleApp = function (variables) {
          * Set an option with placeholder text after removing all options
          * @param {HTMLSelectElement} field
          */
-        function setPlaceholder(field) {
+        function setPlaceholder(field)
+        {
             removeChildren(field);
 
-            if (placeholder[field.id]) {
+            if (placeholder[field.id])
+            {
                 const option = document.createElement('option');
 
                 option.setAttribute('value', '');
@@ -1869,11 +2072,15 @@ const ScheduleApp = function (variables) {
          * Add an event handler for all schedule form selection elements
          * @param {HTMLSelectElement} field
          */
-        function addSelectEventListener(field) {
+        function addSelectEventListener(field)
+        {
             // No Chosen-library available
-            if (variables.isMobile) {
+            if (variables.isMobile)
+            {
                 fields[field.id].addEventListener('change', handleField);
-            } else {
+            }
+            else
+            {
                 jQuery('#' + field.id).chosen().change(
                     function () {
                         handleField(field.id);
@@ -1892,13 +2099,16 @@ const ScheduleApp = function (variables) {
          * Show given field and its 'parents' (like roomtype to room) and hide rest
          * @param {string} name - id of field
          */
-        function showField(name) {
+        function showField(name)
+        {
             const selectedValue = fields[name].dataset.input === 'static' ? getSelectedValues(name) : '';
             let id;
 
             // Go through all ScheduleForm fields and show/hide them, when they are related to given field
-            for (id in fields) {
-                if (fields.hasOwnProperty(id)) {
+            for (id in fields)
+            {
+                if (fields.hasOwnProperty(id))
+                {
                     const field = fields[id];
 
                     if (fieldsToShow[id.toLowerCase()] && (
@@ -1911,9 +2121,12 @@ const ScheduleApp = function (variables) {
                         // Show static fields and their selection
                         id === selectedValue
                     )
-                    ) {
+                    )
+                    {
                         jQuery(wrappers[id]).show();
-                    } else {
+                    }
+                    else
+                    {
                         jQuery(wrappers[id]).hide();
                     }
                 }
@@ -1924,17 +2137,22 @@ const ScheduleApp = function (variables) {
          * Set session data to save form state, provided that the field does not fire a new schedule (events)
          * @param {HTMLSelectElement} field - will be set into session storage
          */
-        function setSession(field) {
-            if (field.dataset.next !== 'event') {
+        function setSession(field)
+        {
+            if (field.dataset.next !== 'event')
+            {
                 const session = {};
 
                 session.name = field.id;
                 session.value = getSelectedValues(field.id);
 
-                if (field.id === 'department') {
+                if (field.id === 'department')
+                {
                     sessionDepartments[variables.menuID] = session;
                     window.sessionStorage.setItem('scheduleDepartment', JSON.stringify(sessionDepartments));
-                } else {
+                }
+                else
+                {
                     sessionFields[variables.menuID] = session;
                     window.sessionStorage.setItem('scheduleForm', JSON.stringify(sessionFields));
                 }
@@ -1945,25 +2163,34 @@ const ScheduleApp = function (variables) {
          * Loads field which is set in session
          * @return boolean - success indicator
          */
-        function loadSession() {
+        function loadSession()
+        {
             const department = sessionDepartments[variables.menuID], session = sessionFields[variables.menuID];
 
-            if (department) {
+            if (department)
+            {
                 jQuery('#department').val(department.value).chosen('destroy').chosen();
             }
 
-            if (session) {
+            if (session)
+            {
                 // Prevent overwriting configuration values
-                if (session.name === config.name) {
+                if (session.name === config.name)
+                {
                     sendFormRequest(session.name, session.value, config.values);
-                } else if (fields[session.name].dataset.input === 'static') {
+                }
+                else if (fields[session.name].dataset.input === 'static')
+                {
                     jQuery(fields[session.name]).val(session.value).chosen('destroy').chosen();
 
                     // Update static selected field like program
-                    if (fields[session.value]) {
+                    if (fields[session.value])
+                    {
                         sendFormRequest(session.value);
                     }
-                } else {
+                }
+                else
+                {
                     sendFormRequest(session.name, session.value);
                 }
 
@@ -1979,20 +2206,24 @@ const ScheduleApp = function (variables) {
          * @param {string} [selectedValue] - value to select immediately
          * @param {string[]} [onlyValues] - array with values that are designated to add
          */
-        function sendFormRequest(name, selectedValue, onlyValues) {
+        function sendFormRequest(name, selectedValue, onlyValues)
+        {
             const ajax = new XMLHttpRequest(), field = fields[name];
 
             ajax.open('GET', getOptionsUrl(field, selectedValue), true);
             ajax.onreadystatechange = function () {
                 let option, optionCount, response, key;
 
-                if (ajax.readyState === 4 && ajax.status === 200) {
+                if (ajax.readyState === 4 && ajax.status === 200)
+                {
                     response = JSON.parse(ajax.responseText);
                     optionCount = onlyValues ? onlyValues.length : Object.keys(response).length;
                     setPlaceholder(field);
 
-                    for (key in response) {
-                        if (response.hasOwnProperty(key) && (!onlyValues || onlyValues.includes(response[key]))) {
+                    for (key in response)
+                    {
+                        if (response.hasOwnProperty(key) && (!onlyValues || onlyValues.includes(response[key])))
+                        {
                             option = document.createElement('option');
                             option.value = response[key].value;
                             option.innerHTML = response[key].text;
@@ -2001,10 +2232,14 @@ const ScheduleApp = function (variables) {
                         }
                     }
 
-                    if (optionCount === 1 || selectedValue) {
-                        if (field.dataset.next === 'event') {
+                    if (optionCount === 1 || selectedValue)
+                    {
+                        if (field.dataset.next === 'event')
+                        {
                             sendEventRequest(field.id);
-                        } else {
+                        }
+                        else
+                        {
                             sendFormRequest(field.dataset.next);
                         }
                     }
@@ -2022,19 +2257,25 @@ const ScheduleApp = function (variables) {
          * Request for events or the next field will be send, depending on fields data-set
          * @param {Event|string} field - the triggered event or id of field
          */
-        function handleField(field) {
+        function handleField(field)
+        {
             const element = fields[field] || fields[field.target.id];
 
             // Do not target placeholder
-            if (element.selectedIndex !== 0) {
-                if (element.dataset.next === 'event') {
+            if (element.selectedIndex !== 0)
+            {
+                if (element.dataset.next === 'event')
+                {
                     sendEventRequest(element.id);
                     return;
                 }
 
-                if (element.dataset.input === 'static') {
+                if (element.dataset.input === 'static')
+                {
                     sendFormRequest(getSelectedValues(element.id));
-                } else {
+                }
+                else
+                {
                     sendFormRequest(element.dataset.next);
                 }
 
@@ -2045,20 +2286,26 @@ const ScheduleApp = function (variables) {
         /**
          * Forms first field gets handled, inclusive setting session params and displaying fields
          */
-        function handleFirstField() {
+        function handleFirstField()
+        {
             let firstField, name;
 
             // Subjects do not have a select field, so the necessary information is simulated here
-            if (config.name === 'subject' || config.name === 'event') {
+            if (config.name === 'subject' || config.name === 'event')
+            {
                 firstField = {'id': config.name, 'dataset': {'next': 'event'}};
-            } else {
+            }
+            else
+            {
                 firstField = fields[config.name] || fields.type;
             }
 
             name = firstField.id;
 
-            if (config.name) {
-                if (firstField.dataset.next === 'event') {
+            if (config.name)
+            {
+                if (firstField.dataset.next === 'event')
+                {
                     config.values.forEach(function (value) {
                         const ajaxRequest = new XMLHttpRequest(),
                             titleURL = getAjaxUrl() + '&view=' + name + 's&task=getName&id=' + value;
@@ -2068,7 +2315,8 @@ const ScheduleApp = function (variables) {
                         ajaxRequest.onreadystatechange = function () {
                             let title;
 
-                            if (ajaxRequest.readyState === 4 && ajaxRequest.status === 200) {
+                            if (ajaxRequest.readyState === 4 && ajaxRequest.status === 200)
+                            {
                                 title = ajaxRequest.responseText.replace(/"+/g, '');
                                 sendEventRequest(name, value, title);
                             }
@@ -2077,11 +2325,15 @@ const ScheduleApp = function (variables) {
                     });
 
                     disableTabs('tab-selected-schedule');
-                } else {
+                }
+                else
+                {
                     sendFormRequest(name, '', config.values);
                     disableTabs();
                 }
-            } else {
+            }
+            else
+            {
                 // First field is static (type)
                 sendFormRequest(getSelectedValues(name));
                 disableTabs();
@@ -2091,19 +2343,26 @@ const ScheduleApp = function (variables) {
         /**
          * Reloads the next visible and flexible field of the form (for updating departmentID)
          */
-        function updateNextVisibleField() {
+        function updateNextVisibleField()
+        {
             const toUpdate = {'next': '', 'event': ''};
             let name;
 
-            for (name in fields) {
-                if (fields.hasOwnProperty(name)) {
+            for (name in fields)
+            {
+                if (fields.hasOwnProperty(name))
+                {
                     const field = fields[name],
                         wrapper = jQuery(wrappers[name]);
 
-                    if (wrapper.css('display') !== 'none' && field.dataset.input !== 'static') {
-                        if (field.dataset.next === 'event') {
+                    if (wrapper.css('display') !== 'none' && field.dataset.input !== 'static')
+                    {
+                        if (field.dataset.next === 'event')
+                        {
                             toUpdate.event = field.id;
-                        } else {
+                        }
+                        else
+                        {
                             toUpdate.next = field.id;
                         }
                     }
@@ -2117,32 +2376,41 @@ const ScheduleApp = function (variables) {
         /**
          * Collects configuration from backend and url params
          */
-        function collectConfig() {
+        function collectConfig()
+        {
             let valueIndex, variable;
 
-            for (variable in variables) {
-                if (!variables.hasOwnProperty(variable)) {
+            for (variable in variables)
+            {
+                if (!variables.hasOwnProperty(variable))
+                {
                     continue;
                 }
 
                 const idMatch = /^(\w+)*IDs$/.exec(variable);
                 let fieldID, showMatch = /^show(\w+)s$/i.exec(variable);
 
-                if (idMatch) {
+                if (idMatch)
+                {
                     const values = variables[variable];
                     config.name = idMatch[1].toLowerCase();
 
                     // Convert values to strings, to compare them later with Ajax response
-                    if (jQuery.isArray(values)) {
-                        for (valueIndex = 0; valueIndex < values.length; ++valueIndex) {
+                    if (jQuery.isArray(values))
+                    {
+                        for (valueIndex = 0; valueIndex < values.length; ++valueIndex)
+                        {
                             config.values.push('' + values[valueIndex]);
                         }
-                    } else {
+                    }
+                    else
+                    {
                         config.values.push('' + values);
                     }
                 }
 
-                if (showMatch) {
+                if (showMatch)
+                {
                     fieldID = showMatch[1].toLowerCase();
                     fieldID = fieldID === 'categorie' ? 'category' : fieldID;
                     fieldsToShow[fieldID] = variables[variable];
@@ -2159,7 +2427,8 @@ const ScheduleApp = function (variables) {
         (function () {
             collectConfig();
 
-            if (!loadSession()) {
+            if (!loadSession())
+            {
                 handleFirstField();
             }
 
@@ -2178,26 +2447,32 @@ const ScheduleApp = function (variables) {
      * Get the general ajax url
      * @returns {string}
      */
-    function getAjaxUrl() {
+    function getAjaxUrl()
+    {
         return variables.ajaxBase + variables.departmentID || getSelectedValues('department') || 0;
     }
 
     /**
      * Loads schedules from session storage
      */
-    function loadSessionSchedules() {
+    function loadSessionSchedules()
+    {
         const schedules = JSON.parse(window.sessionStorage.getItem('schedules'));
 
-        if (schedules && Object.keys(schedules).length > 0) {
+        if (schedules && Object.keys(schedules).length > 0)
+        {
             let id;
 
-            for (id in schedules) {
-                if (schedules.hasOwnProperty(id) && !scheduleObjects.getScheduleById(id)) {
+            for (id in schedules)
+            {
+                if (schedules.hasOwnProperty(id) && !scheduleObjects.getScheduleById(id))
+                {
                     new Schedule(schedules[id].resource, schedules[id].IDs, schedules[id].title);
                 }
             }
 
-            if (scheduleObjects.schedules.length > 0) {
+            if (scheduleObjects.schedules.length > 0)
+            {
                 switchToScheduleListTab();
             }
 
@@ -2209,7 +2484,8 @@ const ScheduleApp = function (variables) {
      * Selects the given grid id in grid form field
      * @param {string} id - grid id to set as selected
      */
-    function setGrid(id) {
+    function setGrid(id)
+    {
         jQuery('#grid').val(id).chosen('destroy').chosen();
     }
 
@@ -2219,13 +2495,17 @@ const ScheduleApp = function (variables) {
      * @param {string} [id]
      * @param {string} [title]
      */
-    function sendEventRequest(resource, id, title) {
+    function sendEventRequest(resource, id, title)
+    {
         const IDs = id || getSelectedValues(resource, '-');
         let schedule = scheduleObjects.getScheduleById(resource + IDs);
 
-        if (schedule) {
+        if (schedule)
+        {
             schedule.requestUpdate();
-        } else {
+        }
+        else
+        {
             schedule = new Schedule(resource, IDs, title);
         }
 
@@ -2239,25 +2519,32 @@ const ScheduleApp = function (variables) {
      * @param {string} dates.futureDate - next date in the future
      * @param {string} dates.pastDate - next date in the past
      */
-    function openNextDateQuestion(dates) {
+    function openNextDateQuestion(dates)
+    {
         const pastDate = dates.pastDate ? new Date(dates.pastDate) : null,
             futureDate = dates.futureDate ? new Date(dates.futureDate) : null;
 
         nextDateSelection.style.display = 'block';
 
-        if (pastDate) {
+        if (pastDate)
+        {
             pastDateButton.innerHTML = pastDateButton.innerHTML.replace(datePattern, pastDate.getPresentationFormat());
             pastDateButton.dataset.date = dates.pastDate;
             jQuery(pastDateButton).show();
-        } else {
+        }
+        else
+        {
             jQuery(pastDateButton).hide();
         }
 
-        if (futureDate) {
+        if (futureDate)
+        {
             futureDateButton.innerHTML = futureDateButton.innerHTML.replace(datePattern, futureDate.getPresentationFormat());
             futureDateButton.dataset.date = dates.futureDate;
             jQuery(futureDateButton).show();
-        } else {
+        }
+        else
+        {
             jQuery(futureDateButton).hide();
         }
     }
@@ -2271,7 +2558,8 @@ const ScheduleApp = function (variables) {
      * @param {number} [taskNumber=1]
      * @param {boolean} [save=true] - indicate to save or to delete the event
      */
-    function handleEvent(instanceID, taskNumber, save) {
+    function handleEvent(instanceID, taskNumber, save)
+    {
         const saving = (typeof save === 'undefined') ? true : save;
         let actionURL = getAjaxUrl();
 
@@ -2279,39 +2567,52 @@ const ScheduleApp = function (variables) {
         actionURL += saving ? 'saveUserLesson' : 'deleteUserLesson'
         ajaxSave.open('GET', actionURL, true);
         ajaxSave.onreadystatechange = function () {
-            if (ajaxSave.readyState === 4 && ajaxSave.status === 200) {
+            if (ajaxSave.readyState === 4 && ajaxSave.status === 200)
+            {
                 const handledEvents = JSON.parse(ajaxSave.responseText);
 
                 scheduleObjects.schedules.forEach(function (schedule) {
                     const eventElements = schedule.getTable().getEvents();
                     let fifo = false, eventIndex, manual = false;
 
-                    for (eventIndex = 0; eventIndex < eventElements.length; ++eventIndex) {
+                    for (eventIndex = 0; eventIndex < eventElements.length; ++eventIndex)
+                    {
                         const eventElement = eventElements[eventIndex];
 
-                        if (handledEvents.includes(eventElement.dataset.ccmID)) {
-                            if (saving) {
+                        if (handledEvents.includes(eventElement.dataset.ccmID))
+                        {
+                            if (saving)
+                            {
                                 eventElement.classList.add('added');
 
-                                if (eventElement.dataset.regType === 0) {
+                                if (eventElement.dataset.regType === 0)
+                                {
                                     fifo = true;
-                                } else if (eventElement.dataset.regType === 1) {
+                                }
+                                else if (eventElement.dataset.regType === 1)
+                                {
                                     manual = true;
                                 }
-                            } else {
+                            }
+                            else
+                            {
                                 eventElement.classList.remove('added');
 
                                 // So the element is invisible immediately and not as late as updating this schedule
-                                if (schedule === scheduleObjects.userSchedule) {
+                                if (schedule === scheduleObjects.userSchedule)
+                                {
                                     jQuery(eventElement).hide();
                                 }
                             }
                         }
                     }
 
-                    if (fifo) {
+                    if (fifo)
+                    {
                         regFifo.style.display = 'block';
-                    } else if (manual) {
+                    }
+                    else if (manual)
+                    {
                         regManual.style.display = 'block';
                     }
                 });
@@ -2326,7 +2627,8 @@ const ScheduleApp = function (variables) {
      * Create a new entry in the drop-down field for selecting a schedule
      * @param {Schedule} schedule
      */
-    function addScheduleToSelection(schedule) {
+    function addScheduleToSelection(schedule)
+    {
         const selectedItem = document.createElement('div'),
             selectedTitle = document.createElement('button'),
             showButton = document.createElement('button');
@@ -2349,7 +2651,8 @@ const ScheduleApp = function (variables) {
         });
         selectedItem.appendChild(showButton);
 
-        if (!variables.isMobile) {
+        if (!variables.isMobile)
+        {
             const popUpButton = document.createElement('button');
 
             popUpButton.className = 'pop-up-schedule';
@@ -2360,7 +2663,8 @@ const ScheduleApp = function (variables) {
             selectedItem.appendChild(popUpButton);
         }
 
-        if (schedule.getId() !== 'user') {
+        if (schedule.getId() !== 'user')
+        {
             const removeButton = document.createElement('button');
 
             removeButton.className = 'remove-schedule';
@@ -2378,18 +2682,22 @@ const ScheduleApp = function (variables) {
      * Shows schedule with given ID
      * @param {string} scheduleID
      */
-    function showSchedule(scheduleID) {
+    function showSchedule(scheduleID)
+    {
         const scheduleElements = jQuery('.schedule-input'), schedule = scheduleObjects.getScheduleById(scheduleID);
         let schedulesIndex;
 
-        for (schedulesIndex = 0; schedulesIndex < scheduleElements.length; ++schedulesIndex) {
-            if (scheduleElements[schedulesIndex].id === scheduleID + '-input') {
+        for (schedulesIndex = 0; schedulesIndex < scheduleElements.length; ++schedulesIndex)
+        {
+            if (scheduleElements[schedulesIndex].id === scheduleID + '-input')
+            {
                 scheduleElements[schedulesIndex].checked = 'checked';
                 jQuery('.selected-schedule').removeClass('shown');
                 jQuery('#' + scheduleID).addClass('shown');
 
                 // Set grid of schedule as selected in form field to make changing it easier (except default schedule)
-                if (schedule) {
+                if (schedule)
+                {
                     setGrid(scheduleObjects.getScheduleById(scheduleID).getTable().getGridID());
                 }
             }
@@ -2403,7 +2711,8 @@ const ScheduleApp = function (variables) {
      * Returns false in case no schedule was found.
      * @returns {string|boolean}
      */
-    function getSelectedScheduleID() {
+    function getSelectedScheduleID()
+    {
         const selectedSchedule = document.getElementById('selected-schedules').getElementsByClassName('shown')[0];
 
         return selectedSchedule ? selectedSchedule.id : false;
@@ -2414,14 +2723,18 @@ const ScheduleApp = function (variables) {
      * @param {HTMLElement} scheduleSelectionElement - remove this element
      * @param {Schedule} schedule - remove this object
      */
-    function removeScheduleFromSelection(scheduleSelectionElement, schedule) {
+    function removeScheduleFromSelection(scheduleSelectionElement, schedule)
+    {
         scheduleSelectionElement.parentNode.removeChild(scheduleSelectionElement);
         scheduleObjects.removeSchedule(schedule);
 
-        if (scheduleObjects.schedules.length === 0) {
+        if (scheduleObjects.schedules.length === 0)
+        {
             showSchedule('default');
             switchToFormTab();
-        } else {
+        }
+        else
+        {
             showSchedule(jQuery('#selected-schedules').find('.selected-schedule').last().attr('id'));
         }
     }
@@ -2430,11 +2743,13 @@ const ScheduleApp = function (variables) {
      * Removes all children elements of one given parent element
      * @param {HTMLElement} element - parent element
      */
-    function removeChildren(element) {
+    function removeChildren(element)
+    {
         const children = element.children, maxIndex = children.length - 1;
         let index;
 
-        for (index = maxIndex; index >= 0; --index) {
+        for (index = maxIndex; index >= 0; --index)
+        {
             element.removeChild(children[index]);
         }
     }
@@ -2445,16 +2760,20 @@ const ScheduleApp = function (variables) {
      * @param {string} [separator=","]
      * @returns {string|boolean}
      */
-    function getSelectedValues(fieldID, separator) {
+    function getSelectedValues(fieldID, separator)
+    {
         const field = document.getElementById(fieldID),
             options = field ? field.options : undefined,
             result = [];
 
-        if (field && field.selectedIndex > -1) {
+        if (field && field.selectedIndex > -1)
+        {
             let index;
 
-            for (index = 0; index < options.length; ++index) {
-                if (options[index].selected) {
+            for (index = 0; index < options.length; ++index)
+            {
+                if (options[index].selected)
+                {
                     result.push(options[index].value);
                 }
             }
@@ -2470,32 +2789,44 @@ const ScheduleApp = function (variables) {
      * @param {boolean} increase - goes forward with true or backward with false
      * @param {string} [step="week"] - defines how big the step is as "day", "week" or "month"
      */
-    function changeDate(increase, step) {
+    function changeDate(increase, step)
+    {
         const newDate = getDateFieldsDateObject(),
             stepString = step || 'week',
             stepInt = stepString === 'week' ? 7 : 1;
 
-        if (increase) {
-            if (step === 'month') {
+        if (increase)
+        {
+            if (step === 'month')
+            {
                 newDate.setMonth(newDate.getMonth() + stepInt);
-            } else {
+            }
+            else
+            {
                 newDate.setDate(newDate.getDate() + stepInt);
             }
 
             // Jump over sunday
-            if (newDate.getDay() === 0) {
+            if (newDate.getDay() === 0)
+            {
                 newDate.setDate(newDate.getDate() + 1);
             }
-        } else {
+        }
+        else
+        {
             // Decrease date
-            if (step === 'month') {
+            if (step === 'month')
+            {
                 newDate.setMonth(newDate.getMonth() - stepInt);
-            } else {
+            }
+            else
+            {
                 newDate.setDate(newDate.getDate() - stepInt);
             }
 
             // Jump over sunday
-            if (newDate.getDay() === 0) {
+            if (newDate.getDay() === 0)
+            {
                 newDate.setDate(newDate.getDate() - 1);
             }
         }
@@ -2508,7 +2839,8 @@ const ScheduleApp = function (variables) {
      * Returns the current date field value as a string connected by minus.
      * @returns {string}
      */
-    function getDateFieldString() {
+    function getDateFieldString()
+    {
         const date = getDateFieldsDateObject(), day = date.getDate(), month = date.getMonth() + 1;
 
         return date.getFullYear() + '-' + (month < 10 ? '0' + month : month) + '-' + (day < 10 ? '0' + day : day);
@@ -2518,15 +2850,20 @@ const ScheduleApp = function (variables) {
      * Returns a Date object by the current date field value, parsing the configured date format
      * @returns {Date}
      */
-    function getDateFieldsDateObject() {
+    function getDateFieldsDateObject()
+    {
         const matches = app.dateField.value.match(datePattern), firstChar = variables.dateFormat.charAt(0);
 
-        if (matches) {
+        if (matches)
+        {
             // Year comes first
-            if (firstChar === 'y' || firstChar === 'Y') {
+            if (firstChar === 'y' || firstChar === 'Y')
+            {
                 // 12:00:00 o'clock for timezone offset
                 return new Date(parseInt(matches[1], 10), parseInt(matches[2] - 1, 10), parseInt(matches[3], 10), 12, 0, 0);
-            } else {
+            }
+            else
+            {
                 return new Date(parseInt(matches[3], 10), parseInt(matches[2] - 1, 10), parseInt(matches[1], 10), 12, 0, 0);
             }
         }
@@ -2538,7 +2875,8 @@ const ScheduleApp = function (variables) {
      * Returns the time grid which is selected in form input
      * @returns {Object}
      */
-    function getSelectedTimeGrid() {
+    function getSelectedTimeGrid()
+    {
         return JSON.parse(variables.grids[getSelectedValues('grid')].grid);
     }
 
@@ -2546,11 +2884,15 @@ const ScheduleApp = function (variables) {
      * Change tab-behaviour of tabs in menu-bar, so all tabs can be closed
      * @param {Object} clickedTab - jQuery object of tab
      */
-    function changeTabBehaviour(clickedTab) {
-        if (clickedTab.parent('li').hasClass('active')) {
+    function changeTabBehaviour(clickedTab)
+    {
+        if (clickedTab.parent('li').hasClass('active'))
+        {
             clickedTab.parent('li').toggleClass('inactive', '');
             jQuery('#' + clickedTab.attr('data-id')).toggleClass('inactive', '');
-        } else {
+        }
+        else
+        {
             jQuery('.tabs-tab').removeClass('inactive');
             jQuery('.tab-panel').removeClass('inactive');
         }
@@ -2559,10 +2901,12 @@ const ScheduleApp = function (variables) {
     /**
      * Activates tab with a list of selected schedules
      */
-    function switchToScheduleListTab() {
+    function switchToScheduleListTab()
+    {
         const selectedSchedulesTab = jQuery('#tab-selected-schedules');
 
-        if (!selectedSchedulesTab.parent('li').hasClass('disabled-tab')) {
+        if (!selectedSchedulesTab.parent('li').hasClass('disabled-tab'))
+        {
             selectedSchedulesTab.parent('li').addClass('active');
             jQuery('#selected-schedules').addClass('active');
         }
@@ -2574,10 +2918,12 @@ const ScheduleApp = function (variables) {
     /**
      * Activates tab with a form for selecting a new schedule
      */
-    function switchToFormTab() {
+    function switchToFormTab()
+    {
         const formTab = jQuery('#tab-schedule-form');
 
-        if (!formTab.parent('li').hasClass('disabled-tab')) {
+        if (!formTab.parent('li').hasClass('disabled-tab'))
+        {
             formTab.parent('li').addClass('active');
             jQuery('#schedule-form').addClass('active');
         }
@@ -2589,19 +2935,24 @@ const ScheduleApp = function (variables) {
     /**
      * Change position of the date-input, depending of screen-width
      */
-    function changePositionOfDateInput() {
+    function changePositionOfDateInput()
+    {
         const mq = window.matchMedia('(max-width: 677px)');
 
-        if (variables.isMobile) {
+        if (variables.isMobile)
+        {
             jQuery('.date-input').insertAfter('.menu-bar');
             //jQuery('.check-input').insertAfter('.date-input');
         }
 
         mq.addListener(function () {
-            if (mq.matches) {
+            if (mq.matches)
+            {
                 jQuery('.date-input').insertAfter('.menu-bar');
                 //jQuery('.check-input').insertAfter('.date-input');
-            } else {
+            }
+            else
+            {
                 jQuery('.date-input').insertAfter(jQuery('.tabs-tab').eq(-2));
                 //jQuery('.check-input').insertAfter('.date-input');
             }
@@ -2612,7 +2963,8 @@ const ScheduleApp = function (variables) {
      * Disable tabs, when only the default-schedule-table is shown
      * @param {string} [tabID] - optional to disable all tabs except this
      */
-    function disableTabs(tabID) {
+    function disableTabs(tabID)
+    {
         const scheduleInput = jQuery('.schedule-input'),
             tabsToDisable = [
                 jQuery('#tab-selected-schedules'),
@@ -2621,24 +2973,33 @@ const ScheduleApp = function (variables) {
             ];
         let i;
 
-        if (tabID) {
+        if (tabID)
+        {
             const allTabs = jQuery('.tabs-toggle');
 
-            for (i = 0; i < allTabs.length; ++i) {
-                if (tabID !== allTabs[i].id) {
+            for (i = 0; i < allTabs.length; ++i)
+            {
+                if (tabID !== allTabs[i].id)
+                {
                     allTabs[i].dataset.toggle = '';
                     allTabs[i].parentElement.classList.add('disabled-tab');
                 }
             }
-        } else if (scheduleInput.length === 1 && scheduleInput.is('#default-input')) {
+        }
+        else if (scheduleInput.length === 1 && scheduleInput.is('#default-input'))
+        {
             // No schedule selected - disable all but schedule form
-            for (i = 0; i < tabsToDisable.length; ++i) {
+            for (i = 0; i < tabsToDisable.length; ++i)
+            {
                 tabsToDisable[i].attr('data-toggle', '');
                 tabsToDisable[i].parent('li').addClass('disabled-tab');
             }
-        } else {
+        }
+        else
+        {
             // Activates all tabs
-            for (i = 0; i < tabsToDisable.length; ++i) {
+            for (i = 0; i < tabsToDisable.length; ++i)
+            {
                 tabsToDisable[i].attr('data-toggle', 'tab');
                 tabsToDisable[i].parent('li').removeClass('disabled-tab');
             }
@@ -2650,7 +3011,8 @@ const ScheduleApp = function (variables) {
      * @param {Event} event
      * @param {DataTransfer|Object} event.dataTransfer - drag data store
      */
-    function handleDragOver(event) {
+    function handleDragOver(event)
+    {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     }
@@ -2660,7 +3022,8 @@ const ScheduleApp = function (variables) {
      * @param {Event} event
      * @param {DataTransfer|Object} event.dataTransfer - drag data store
      */
-    function handleDrops(event) {
+    function handleDrops(event)
+    {
         const data = JSON.parse(event.dataTransfer.getData('text')),
             element = document.getElementById(data.id),
             left = window.getComputedStyle(element).getPropertyValue('left'),
@@ -2687,11 +3050,13 @@ const ScheduleApp = function (variables) {
      * @param {string} className
      * @returns {number}
      */
-    function getHighestZIndexForClass(className) {
+    function getHighestZIndexForClass(className)
+    {
         const elements = document.querySelectorAll(className);
         let index, maxZIndex = 1;
 
-        for (index = 0; index < elements.length; ++index) {
+        for (index = 0; index < elements.length; ++index)
+        {
             const zIndex = parseInt(window.getComputedStyle(elements[index]).getPropertyValue('z-index'));
 
             maxZIndex = Math.max(zIndex, maxZIndex);
@@ -2713,9 +3078,12 @@ const ScheduleApp = function (variables) {
     this.updateSchedule = function (id) {
         const schedule = scheduleObjects.getScheduleById(id);
 
-        if (schedule) {
+        if (schedule)
+        {
             schedule.requestUpdate();
-        } else {
+        }
+        else
+        {
             scheduleObjects.schedules.forEach(function (schedule) {
                 schedule.requestUpdate();
             });
@@ -2754,39 +3122,54 @@ const ScheduleApp = function (variables) {
 
         url += '&format=' + formats[0];
 
-        if (formats[0] === 'pdf') {
+        if (formats[0] === 'pdf')
+        {
             url += '&gridID=' + variables.grids[getSelectedValues('grid')].id;
         }
 
-        if (formats[1] !== undefined) {
+        if (formats[1] !== undefined)
+        {
             url += '&documentFormat=' + formats[1];
         }
 
-        if (typeof variables.username !== 'undefined' && typeof variables.auth !== 'undefined') {
+        if (typeof variables.username !== 'undefined' && typeof variables.auth !== 'undefined')
+        {
             url += '&username=' + variables.username + '&auth=' + variables.auth;
         }
 
-        if (schedule === 'user') {
+        if (schedule === 'user')
+        {
             url += '&myschedule=1';
-        } else {
+        }
+        else
+        {
             const resourceID = schedule.match(/[0-9]+/);
 
-            if (resourceID === null) {
+            if (resourceID === null)
+            {
                 return;
             }
 
-            if (schedule.search(/group/) === 0) {
+            if (schedule.search(/group/) === 0)
+            {
                 url += '&groupIDs=' + resourceID;
-            } else if (schedule.search(/room/) === 0) {
+            }
+            else if (schedule.search(/room/) === 0)
+            {
                 url += '&roomIDs=' + resourceID;
-            } else if (schedule.search(/person/) === 0) {
+            }
+            else if (schedule.search(/person/) === 0)
+            {
                 url += '&personIDs=' + resourceID;
-            } else {
+            }
+            else
+            {
                 return;
             }
         }
 
-        if (formats[0] === 'ics') {
+        if (formats[0] === 'ics')
+        {
             window.prompt(Joomla.JText._('ORGANIZER_GENERATE_LINK'), url);
             exportSelection.val('placeholder');
             exportSelection.trigger('chosen:updated');
@@ -2832,9 +3215,12 @@ const ScheduleApp = function (variables) {
         date = date.replace(/m/, monthLong);
 
         // Insert year
-        if (typeof shortYear === 'undefined' ? false : shortYear) {
+        if (typeof shortYear === 'undefined' ? false : shortYear)
+        {
             date = date.replace(/[yY]/, year.toString());
-        } else {
+        }
+        else
+        {
             date = date.replace(/Y/, yearLong.toString());
             date = date.replace(/y/, year.toString());
         }
@@ -2845,7 +3231,8 @@ const ScheduleApp = function (variables) {
     /**
      * Very simple alternative for internet explorers missing method Array.includes
      */
-    if (!Array.prototype.includes) {
+    if (!Array.prototype.includes)
+    {
         /**
          * @param {*} element
          * @returns {boolean}
@@ -2870,7 +3257,8 @@ const ScheduleApp = function (variables) {
         scheduleObjects = new Schedules();
         form = new ScheduleForm();
 
-        if (variables.userID && !scheduleObjects.getScheduleById('user')) {
+        if (variables.userID && !scheduleObjects.getScheduleById('user'))
+        {
             new Schedule('user');
             switchToScheduleListTab();
         }
@@ -2895,12 +3283,16 @@ const ScheduleApp = function (variables) {
                 distY = parseInt(touch.pageY, 10) - startY,
                 minDist = 50;
 
-            if (Math.abs(distX) > Math.abs(distY)) {
-                if (distX < -(minDist)) {
+            if (Math.abs(distX) > Math.abs(distY))
+            {
+                if (distX < -(minDist))
+                {
                     event.stopPropagation();
                     changeDate(true, variables.isMobile ? 'day' : 'week');
                     app.updateSchedule();
-                } else if (distX > minDist) {
+                }
+                else if (distX > minDist)
+                {
                     event.stopPropagation();
                     changeDate(false, variables.isMobile ? 'day' : 'week');
                     app.updateSchedule();
@@ -2935,16 +3327,20 @@ const ScheduleApp = function (variables) {
             messagePopup = jQuery('.message.pop-up'),
             popup = jQuery('.instance-menu');
 
-        if (!popup.is(e.target) && popup.has(e.target).length === 0) {
+        if (!popup.is(e.target) && popup.has(e.target).length === 0)
+        {
             popup.hide(0);
         }
 
-        if (!messagePopup.is(e.target) && messagePopup.has(e.target).length === 0) {
+        if (!messagePopup.is(e.target) && messagePopup.has(e.target).length === 0)
+        {
             messagePopup.hide(0);
         }
 
-        if (jQuery('.controls').css('display') !== 'none') {
-            if (calendar.isVisible() && !calendarPopup.is(e.target) && calendarPopup.has(e.target).length === 0) {
+        if (jQuery('.controls').css('display') !== 'none')
+        {
+            if (calendar.isVisible() && !calendarPopup.is(e.target) && calendarPopup.has(e.target).length === 0)
+            {
                 calendar.hideCalendar();
             }
         }

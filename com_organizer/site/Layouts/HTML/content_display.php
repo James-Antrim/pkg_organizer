@@ -12,7 +12,8 @@
 <script type="text/javascript">
     var timer = null;
 
-    function auto_reload() {
+    function auto_reload()
+    {
         window.location = document.URL;
     }
 

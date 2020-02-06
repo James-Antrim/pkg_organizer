@@ -192,8 +192,7 @@ abstract class BaseLayout extends TCPDF
 		$fill = false,
 		$vAlign = self::CENTER,
 		$link = ''
-	)
-	{
+	) {
 		$this->Cell($width, $height, $text, $border, 0, $hAlign, $fill, $link, 0, false, self::TOP, $vAlign);
 	}
 
@@ -227,8 +226,7 @@ abstract class BaseLayout extends TCPDF
 		$fill = false,
 		$vAlign = self::CENTER,
 		$maxHeight = 0
-	)
-	{
+	) {
 		return $this->MultiCell(
 			$width,
 			$height,

@@ -8,7 +8,7 @@
         <field name="departmentID" type="Departments" label="DEPARTMENT" required="true"/>
         <field name="termID" type="Terms" label="TERM" required="true"/>
         <field name="gridID" type="Grids" label="GRID"/>
-        <field name="runID" type="GenericOptions" required="true" label="RUN" localized="true"
-               table="organizer_runs" textcolumn="name" valuecolumn="id"/>
+        <field name="runID" type="GenericOptions" required="true" label="RUN" localized="true" table="organizer_runs"
+               textcolumn="name" valuecolumn="id"/>
     </fieldset>
 </form>
