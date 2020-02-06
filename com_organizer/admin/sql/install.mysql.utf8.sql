@@ -1,6 +1,4 @@
-# person signed int
-CREATE TABLE IF NOT EXISTS `#__organizer_associations`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_associations` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `organizationID` INT(11) UNSIGNED NOT NULL,
     `categoryID`     INT(11) UNSIGNED DEFAULT NULL,
@@ -18,11 +16,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_associations`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-# dow new
-CREATE TABLE IF NOT EXISTS `#__organizer_blocks`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_blocks` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `date`      DATE                NOT NULL,
     `dow`       TINYINT(1) UNSIGNED NOT NULL,
@@ -36,10 +32,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_blocks`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_buildings`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_buildings` (
     `id`           INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`        VARCHAR(255)              DEFAULT '',
     `campusID`     INT(11) UNSIGNED          DEFAULT NULL,
@@ -54,12 +49,11 @@ CREATE TABLE IF NOT EXISTS `#__organizer_buildings`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_campuses`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_campuses` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`    VARCHAR(150)                 DEFAULT '',
+    `alias`    VARCHAR(255)                 DEFAULT '',
     `parentID` INT(11) UNSIGNED             DEFAULT NULL,
     `name_de`  VARCHAR(150)        NOT NULL,
     `name_en`  VARCHAR(150)        NOT NULL,
@@ -77,10 +71,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_campuses`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_categories`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_categories` (
     `id`      INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`   VARCHAR(255)                 DEFAULT '',
     `code`    VARCHAR(60)                  DEFAULT NULL,
@@ -92,10 +85,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_categories`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_colors`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_colors` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name_de` VARCHAR(150)     NOT NULL,
     `name_en` VARCHAR(150)     NOT NULL,
@@ -104,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_colors`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
 INSERT IGNORE INTO `#__organizer_colors` (`id`, `name_de`, `name_en`, `color`)
 VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
@@ -145,9 +137,7 @@ VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
        (36, 'Lila', 'Purple', '#7647a2'),
        (37, 'Dunkellila', 'Dark Purple', '#551A8B');
 
-# participants are an extension of users which use signed int
-CREATE TABLE IF NOT EXISTS `#__organizer_course_participants`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_course_participants` (
     `id`              INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `courseID`        INT(11) UNSIGNED NOT NULL,
     `participantID`   INT(11)          NOT NULL,
@@ -162,10 +152,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_course_participants`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_courses`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_courses` (
     `id`               INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `campusID`         INT(11) UNSIGNED          DEFAULT NULL,
     `termID`           INT(11) UNSIGNED NOT NULL,
@@ -184,10 +173,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_courses`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_curriculum`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_curriculum` (
     `id`        INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `programID` INT(11) UNSIGNED DEFAULT NULL,
     `parentID`  INT(11) UNSIGNED DEFAULT NULL,
@@ -205,10 +193,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_curriculum`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_degrees`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_degrees` (
     `id`           INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `abbreviation` VARCHAR(25)      NOT NULL,
     `code`         VARCHAR(60)      NOT NULL,
@@ -217,7 +204,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_degrees`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
 INSERT IGNORE INTO `#__organizer_degrees`
 VALUES (2, 'Bachelor of Engineering', 'B.Eng.', 'BE'),
@@ -232,8 +219,7 @@ VALUES (2, 'Bachelor of Engineering', 'B.Eng.', 'BE'),
 ALTER TABLE `#__organizer_degrees`
     AUTO_INCREMENT = 10;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators` (
     `id`       INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `eventID`  INT(11) UNSIGNED NOT NULL,
     `personID` INT(11) UNSIGNED NOT NULL,
@@ -244,10 +230,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_events`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_events` (
     `id`               INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`            VARCHAR(255)                 DEFAULT '',
     `organizationID`   INT(11) UNSIGNED             DEFAULT NULL,
@@ -281,10 +266,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_events`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_field_colors`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_field_colors` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `colorID`        INT(11) UNSIGNED NOT NULL,
     `fieldID`        INT(11) UNSIGNED NOT NULL,
@@ -297,10 +281,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_field_colors`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_fields`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_fields` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `code`    VARCHAR(60)      NOT NULL,
     `name_de` VARCHAR(150)     NOT NULL,
@@ -310,10 +293,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_fields`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_frequencies`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_frequencies` (
     `id`      INT(1) UNSIGNED NOT NULL,
     `name_de` VARCHAR(150)    NOT NULL,
     `name_en` VARCHAR(150)    NOT NULL,
@@ -323,7 +305,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_frequencies`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
 INSERT IGNORE INTO `#__organizer_frequencies` (`id`, `name_de`, `name_en`)
 VALUES (0, 'Nach Termin', 'By Appointment'),
@@ -333,8 +315,7 @@ VALUES (0, 'Nach Termin', 'By Appointment'),
        (4, 'Nach Bedarf', 'As Needed'),
        (5, 'Einmal im Jahr', 'Yearly');
 
-CREATE TABLE IF NOT EXISTS `#__organizer_grids`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_grids` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `code`      VARCHAR(60)                  DEFAULT NULL,
     `name_de`   VARCHAR(150)                 DEFAULT NULL,
@@ -347,10 +328,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_grids`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_group_publishing`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_group_publishing` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `groupID`   INT(11) UNSIGNED    NOT NULL,
     `termID`    INT(11) UNSIGNED    NOT NULL,
@@ -362,10 +342,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_group_publishing`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_groups`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_groups` (
     `id`          INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`       VARCHAR(255)                 DEFAULT '',
     `code`        VARCHAR(60)                  DEFAULT NULL,
@@ -384,10 +363,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_groups`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_holidays`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_holidays` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `name_de`   VARCHAR(150)        NOT NULL,
     `name_en`   VARCHAR(150)        NOT NULL,
@@ -399,10 +377,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_holidays`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_instance_groups`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_instance_groups` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `assocID`  INT(20) UNSIGNED NOT NULL COMMENT 'The instance to person association id.',
     `groupID`  INT(11) UNSIGNED NOT NULL,
@@ -414,11 +391,10 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_groups`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
 # participants are an extension of users which use signed int
-CREATE TABLE IF NOT EXISTS `#__organizer_instance_participants`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_instance_participants` (
     `id`            INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `instanceID`    INT(20) UNSIGNED NOT NULL,
     `participantID` INT(11)          NOT NULL,
@@ -428,10 +404,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_participants`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_instance_persons`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_instance_persons` (
     `id`         INT(20) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `instanceID` INT(20) UNSIGNED    NOT NULL,
     `personID`   INT(11) UNSIGNED    NOT NULL,
@@ -448,10 +423,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_persons`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_instance_rooms`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_instance_rooms` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `assocID`  INT(20) UNSIGNED NOT NULL COMMENT 'The instance to person association id.',
     `roomID`   INT(11) UNSIGNED NOT NULL,
@@ -465,10 +439,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_rooms`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_instances`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `blockID`  INT(11) UNSIGNED NOT NULL,
     `eventID`  INT(11) UNSIGNED NOT NULL,
@@ -485,10 +458,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instances`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_methods`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_methods` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `code`            VARCHAR(60)  DEFAULT NULL,
     `abbreviation_de` VARCHAR(25)  DEFAULT '',
@@ -500,10 +472,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_methods`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_monitors`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_monitors` (
     `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `ip`              VARCHAR(15)         NOT NULL,
     `roomID`          INT(11) UNSIGNED             DEFAULT NULL,
@@ -519,11 +490,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_monitors`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-# users use signed int
-CREATE TABLE IF NOT EXISTS `#__organizer_organizations`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_organizations` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `asset_id`        INT(11)      DEFAULT NULL,
     `alias`           VARCHAR(255) DEFAULT '',
@@ -551,11 +520,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_organizations`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-# participants are an extension of users which use signed int
-CREATE TABLE IF NOT EXISTS `#__organizer_participants`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_participants` (
     `id`        INT(11)             NOT NULL,
     `forename`  VARCHAR(255)        NOT NULL DEFAULT '',
     `surname`   VARCHAR(255)        NOT NULL DEFAULT '',
@@ -569,11 +536,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_participants`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-# users use signed int
-CREATE TABLE IF NOT EXISTS `#__organizer_persons`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_persons` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`    VARCHAR(255)                 DEFAULT '',
     `userID`   INT(11)                      DEFAULT NULL,
@@ -590,10 +555,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_persons`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_pools`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_pools` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`           VARCHAR(255)     DEFAULT '',
     `organizationID`  INT(11) UNSIGNED DEFAULT NULL,
@@ -618,10 +582,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_pools`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_prerequisites`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_prerequisites` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `subjectID`      INT(11) UNSIGNED NOT NULL,
     `prerequisiteID` INT(11) UNSIGNED NOT NULL,
@@ -632,10 +595,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_prerequisites`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_programs`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_programs` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`          VARCHAR(255)                 DEFAULT '',
     `organizationID` INT(11) UNSIGNED             DEFAULT NULL,
@@ -658,10 +620,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_roles`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_roles` (
     `id`              TINYINT(2) UNSIGNED NOT NULL AUTO_INCREMENT,
     `abbreviation_de` VARCHAR(25)         NOT NULL,
     `abbreviation_en` VARCHAR(25)         NOT NULL,
@@ -675,7 +636,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roles`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
 INSERT IGNORE INTO `#__organizer_roles` (`id`, `name_de`, `name_en`, `abbreviation_de`, `abbreviation_en`)
 VALUES (1, 'Dozent', 'Teacher', 'DOZ', 'TCH'),
@@ -683,8 +644,7 @@ VALUES (1, 'Dozent', 'Teacher', 'DOZ', 'TCH'),
        (3, 'Aufsicht', 'Supervisor', 'AFS', 'SPR'),
        (4, 'Referent', 'Speaker', 'REF', 'SPK');
 
-CREATE TABLE IF NOT EXISTS `#__organizer_rooms`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `id`         INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`      VARCHAR(255)                 DEFAULT '',
     `buildingID` INT(11) UNSIGNED             DEFAULT NULL,
@@ -700,10 +660,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_rooms`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `code`           VARCHAR(60)                  DEFAULT NULL,
     `name_de`        VARCHAR(150)        NOT NULL,
@@ -718,10 +677,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_runs`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_runs` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name_de` VARCHAR(150)     NOT NULL,
     `name_en` VARCHAR(150)     NOT NULL,
@@ -733,10 +691,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_runs`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_schedules`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_schedules` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `organizationID` INT(11) UNSIGNED    NOT NULL,
     `termID`         INT(11) UNSIGNED    NOT NULL,
@@ -752,10 +709,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_schedules`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_subject_events`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_subject_events` (
     `id`        INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `eventID`   INT(11) UNSIGNED NOT NULL,
     `subjectID` INT(11) UNSIGNED NOT NULL,
@@ -766,10 +722,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subject_events`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `personID`  INT(11) UNSIGNED    NOT NULL,
     `role`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
@@ -782,10 +737,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_subjects`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `id`                          INT(11) UNSIGNED      NOT NULL AUTO_INCREMENT,
     `alias`                       VARCHAR(255)                   DEFAULT '',
     `organizationID`              INT(11) UNSIGNED               DEFAULT NULL,
@@ -842,10 +796,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_terms`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_terms` (
     `id`          INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `code`        VARCHAR(60)      NOT NULL,
     `name_de`     VARCHAR(150) DEFAULT '',
@@ -859,10 +812,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_terms`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_units`
-(
+CREATE TABLE IF NOT EXISTS `#__organizer_units` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `organizationID` INT(11) UNSIGNED NOT NULL,
     `termID`         INT(11) UNSIGNED NOT NULL,
@@ -886,7 +838,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_units`
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
+    COLLATE = utf8mb4_bin;
 
 ALTER TABLE `#__organizer_associations`
     ADD CONSTRAINT `association_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `#__organizer_categories` (`id`)
