@@ -1,6 +1,6 @@
 # region programs references categories (later), degrees, frequencies and organizations
-INSERT INTO `#__organizer_programs` (`id`, `organizationID`, `code`, `degreeID`, `version`, `frequencyID`, `name_de`,
-                                        `name_en`, `description_de`, `description_en`)
+INSERT INTO `#__organizer_programs` (`id`, `organizationID`, `code`, `degreeID`, `year`, `frequencyID`, `name_de`,
+                                     `name_en`, `description_de`, `description_en`)
 SELECT DISTINCT `id`,
                 `departmentID`,
                 `code`,
@@ -31,8 +31,8 @@ SET `abbreviation_en` = ''
 WHERE LENGTH(`abbreviation_en`) > 25;
 
 INSERT IGNORE INTO `#__organizer_pools` (`id`, `organizationID`, `fieldID`, `lsfID`, `abbreviation_de`,
-                                            `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
-                                            `fullName_en`, `description_de`, `description_en`, `minCrP`, `maxCrP`)
+                                         `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
+                                         `fullName_en`, `description_de`, `description_en`, `minCrP`, `maxCrP`)
 SELECT DISTINCT `id`,
                 `departmentID`,
                 `fieldID`,
@@ -53,17 +53,17 @@ FROM `#__thm_organizer_pools`;
 
 # region subjects references fields, frequencies and organizations
 INSERT IGNORE INTO `#__organizer_subjects` (`id`, `organizationID`, `lsfID`, `code`, `abbreviation_de`,
-                                               `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
-                                               `fullName_en`, `description_de`, `description_en`, `objective_de`,
-                                               `objective_en`, `content_de`, `content_en`, `prerequisites_de`,
-                                               `prerequisites_en`, `preliminaryWork_de`, `preliminaryWork_en`,
-                                               `instructionLanguage`, `literature`, `creditpoints`, `expenditure`,
-                                               `present`, `independent`, `proof_de`, `proof_en`, `frequencyID`,
-                                               `method_de`, `method_en`, `fieldID`, `sws`, `aids_de`, `aids_en`,
-                                               `evaluation_de`, `evaluation_en`, `expertise`, `selfCompetence`,
-                                               `methodCompetence`, `socialCompetence`, `recommendedPrerequisites_de`,
-                                               `recommendedPrerequisites_en`, `usedFor_de`, `usedFor_en`, `duration`,
-                                               `bonusPoints_de`, `bonusPoints_en`)
+                                            `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
+                                            `fullName_en`, `description_de`, `description_en`, `objective_de`,
+                                            `objective_en`, `content_de`, `content_en`, `prerequisites_de`,
+                                            `prerequisites_en`, `preliminaryWork_de`, `preliminaryWork_en`,
+                                            `instructionLanguage`, `literature`, `creditpoints`, `expenditure`,
+                                            `present`, `independent`, `proof_de`, `proof_en`, `frequencyID`,
+                                            `method_de`, `method_en`, `fieldID`, `sws`, `aids_de`, `aids_en`,
+                                            `evaluation_de`, `evaluation_en`, `expertise`, `selfCompetence`,
+                                            `methodCompetence`, `socialCompetence`, `recommendedPrerequisites_de`,
+                                            `recommendedPrerequisites_en`, `usedFor_de`, `usedFor_en`, `duration`,
+                                            `bonusPoints_de`, `bonusPoints_en`)
 SELECT DISTINCT `id`,
                 `departmentID`,
                 `lsfID`,

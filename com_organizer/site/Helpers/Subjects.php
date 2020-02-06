@@ -209,7 +209,7 @@ class Subjects extends ResourceHelper implements Selectable
 		$tag   = Languages::getTag();
 
 		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.version', "')'"];
+		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.year', "')'"];
 		$query->select('cat.name AS categoryName, ' . $query->concatenate($nameParts, "") . ' AS name')
 			->select('p.id')
 			->from('#__organizer_programs AS p')

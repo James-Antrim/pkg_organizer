@@ -92,7 +92,7 @@ class Programs extends ResourceHelper implements Selectable
 		$tag = Languages::getTag();
 
 		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.version', "')'"];
+		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.year', "')'"];
 		$query->select($query->concatenate($nameParts, "") . ' AS name')
 			->from('#__organizer_programs AS p')
 			->innerJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
@@ -115,7 +115,7 @@ class Programs extends ResourceHelper implements Selectable
 		$options = [];
 		foreach (self::getResources($access) as $program)
 		{
-			$name = "{$program['name']} ({$program['degree']},  {$program['version']})";
+			$name = "{$program['name']} ({$program['degree']},  {$program['year']})";
 
 			$options[] = HTML::_('select.option', $program['id'], $name);
 		}
@@ -140,7 +140,7 @@ class Programs extends ResourceHelper implements Selectable
 			->from('#__organizer_programs AS dp')
 			->innerJoin('#__organizer_degrees AS d ON dp.degreeID = d.id')
 			->innerJoin('#__organizer_mappings AS m ON dp.id = m.programID')
-			->order('name ASC, degree ASC, version DESC');
+			->order('name ASC, degree ASC, YEAR DESC');
 
 		if (!empty($access))
 		{
@@ -153,12 +153,12 @@ class Programs extends ResourceHelper implements Selectable
 		if ($useCurrent)
 		{
 			$subQuery = $dbo->getQuery(true);
-			$subQuery->select("dp2.name_$tag, dp2.degreeID, MAX(dp2.version) AS version")
+			$subQuery->select("dp2.name_$tag, dp2.degreeID, MAX(dp2.year) AS year")
 				->from('#__organizer_programs AS dp2')
 				->group("dp2.name_$tag, dp2.degreeID");
 			$conditions = "grouped.name_$tag = dp.name_$tag ";
 			$conditions .= "AND grouped.degreeID = dp.degreeID ";
-			$conditions .= "AND grouped.version = dp.version ";
+			$conditions .= "AND grouped.year = dp.year ";
 			$query->innerJoin("($subQuery) AS grouped ON $conditions");
 		}
 
@@ -168,7 +168,7 @@ class Programs extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Determines whether only the latest version of a program should be displayed in the list.
+	 * Determines whether only the latest accreditation version of a program should be displayed in the list.
 	 *
 	 * @return bool
 	 */

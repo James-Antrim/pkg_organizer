@@ -12,8 +12,8 @@
                valuecolumn="d.id">
             <option value="">ALL_DEGREES</option>
         </field>
-        <field name="version" type="GenericOptions" label="VERSION" onchange="this.form.submit();"
-               table="organizer_programs" textcolumn="version" valuecolumn="version">
+        <field name="year" type="GenericOptions" label="YEAR" onchange="this.form.submit();" table="organizer_programs"
+               textcolumn="year" valuecolumn="year">
             <option value="">ALL_ACCREDITATION_YEARS</option>
         </field>
         <field name="frequencyID" type="GenericOptions" label="FREQUENCY" localized="true"

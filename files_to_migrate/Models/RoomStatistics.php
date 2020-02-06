@@ -435,7 +435,7 @@ class RoomStatistics extends BaseModel
 
 		// Category/Program Data
 		$select .= 'cat.id AS categoryID, cat.name AS categoryName, ';
-		$select .= "prog.name_$tag AS progName, prog.version, dg.abbreviation AS progAbbr, ";
+		$select .= "prog.name_$tag AS progName, prog.year, dg.abbreviation AS progAbbr, ";
 		$query->innerJoin('#__organizer_categories AS cat ON cat.id = group.categoryID');
 		$query->leftJoin('#__organizer_programs AS prog ON prog.categoryID = cat.id');
 		$query->leftJoin('#__organizer_degrees AS dg ON prog.degreeID = dg.id');

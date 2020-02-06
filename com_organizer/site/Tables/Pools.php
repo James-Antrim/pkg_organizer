@@ -182,7 +182,7 @@ class Pools extends Assets
 	 */
 	public function check()
 	{
-		if (empty($this->lsfID))
+		if (empty($this->lsfID) or !is_numeric($this->lsfID))
 		{
 			$this->lsfID = null;
 		}

@@ -9,29 +9,6 @@ TODO make THM settings configuration a local sql file
 -impressum address: "Technische Hochschule Mittelhessen – Wiesenstraße 14 – 35390 Gießen"
 -impressum contact information: "Tel.: 0641/309 0 – Fax: 0641/309 2901 – www.thm.de"
 
-TODO resolve inconsistencies in the thm_organizer_pools table
--set lsfID to NULL where id is 0
--ensure lsfID is set to NULL if the value is empty
--set abbreviation to '' where abbreviation length > 25
--ensure abbreviation set to '' on import if length > 25
-
-TODO resolve inconsistencies in the thm_organizer_subjects table
--set competences to null where the value exceeds 3
--ensure competences are set to null if the value is invalid
-
-TODO resolve inconsistencies in the thm_organizer_teachers table => leads to fk failure in associations, instance persons later as well
--set empty username values to null
--ensure username defaults to null on save
--Duplicate entry 'KlosA' for key 'code'
--Duplicate entry 'avet29' for key 'username'
--Duplicate entry 'Schudt' for key 'code'
--Duplicate entry 'welker' for key 'code'
--Duplicate entry 'Groß' for key 'code'
--Duplicate entry 'KrauS' for key 'code'
--Duplicate entry 'SchuS' for key 'code'
--Duplicate entry 'NN.Ext' for key 'code'
--Duplicate entry 'Euler' for key 'code'
-
 TODO adjust table classes to compensate for changes made to the table definitions contained in the install file
 
 -----------------------------------------------------------------------------------------------------Phase 1: Curriculum
@@ -91,6 +68,8 @@ TODO create a strategy around required image files
 -documentation for configuration/uploading
 
 TODO sort out the FILTER and the SELECT text constants
+
+TODO move the event => organization associations from the events table to the associations table
 
 Feature: Tagging--------------------------------------------------------------------------------------------------------
 TODO add resource_field tables to associate resources with multiple fields in addition to the existing reference

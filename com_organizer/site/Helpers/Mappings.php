@@ -369,7 +369,7 @@ class Mappings
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.version', "')'"];
+		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.year', "')'"];
 		$query->select($query->concatenate($parts, '') . ' AS text')
 			->from('#__organizer_programs AS dp')
 			->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
@@ -408,7 +408,7 @@ class Mappings
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.version', "')'"];
+		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.year', "')'"];
 		$text  = $query->concatenate($parts, '') . ' AS name';
 		$query->select("DISTINCT dp.id AS id, $text")
 			->from('#__organizer_programs AS dp')
@@ -472,7 +472,7 @@ class Mappings
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$parts  = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.version', "')'"];
+		$parts  = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.year', "')'"];
 		$select = 'DISTINCT ' . $query->concatenate($parts, '') . ' AS name, dp.id AS id';
 		$query->select($select)
 			->from('#__organizer_programs AS dp')

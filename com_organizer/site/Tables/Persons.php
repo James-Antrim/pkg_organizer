@@ -88,7 +88,7 @@ class Persons extends Nullable
 	 */
 	public function check()
 	{
-		$nullColumns = ['fieldID'];
+		$nullColumns = ['fieldID', 'username'];
 		foreach ($nullColumns as $nullColumn)
 		{
 			if (!strlen($this->$nullColumn))

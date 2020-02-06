@@ -432,10 +432,24 @@ class Subjects extends Assets
 
 		foreach ($nullColumns as $nullColumn)
 		{
-			if (!strlen($this->$nullColumn))
+			if (!$this->$nullColumn)
 			{
 				$this->$nullColumn = null;
 			}
+		}
+
+		$competences = ['expertise', 'self_competence', 'method_competence', 'social_competence'];
+
+		foreach ($competences as $competence)
+		{
+			if (!$this->$competence)
+			{
+				continue;
+			}
+
+			$value = (int) $this->$competence;
+
+			$this->$competence = ($value < 0 or $value > 3) ? null : $value;
 		}
 
 		return true;

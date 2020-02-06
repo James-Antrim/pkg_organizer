@@ -19,7 +19,7 @@ use Organizer\Helpers\Languages;
  */
 class Programs extends ListModel
 {
-	protected $filter_fields = ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'version'];
+	protected $filter_fields = ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'year'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -33,7 +33,7 @@ class Programs extends ListModel
 
 		$query     = $this->_db->getQuery(true);
 		$linkParts = ["'index.php?option=com_organizer&view=program_edit&id='", 'dp.id'];
-		$query->select("DISTINCT dp.id AS id, dp.name_$tag AS programName, version")
+		$query->select("DISTINCT dp.id AS id, dp.name_$tag AS programName, year")
 			->select($query->concatenate($linkParts, '') . ' AS link')
 			->from('#__organizer_programs AS dp')
 			->select('d.abbreviation AS degree')
@@ -43,9 +43,9 @@ class Programs extends ListModel
 			->leftJoin('#__organizer_departments AS dpt ON dp.departmentID = dpt.id')
 			->where('(dp.departmentID IN (' . implode(',', $authorizedDepts) . ') OR dp.departmentID IS NULL)');
 
-		$searchColumns = ['dp.name_de', 'dp.name_en', 'version', 'd.name', 'description_de', 'description_en'];
+		$searchColumns = ['dp.name_de', 'dp.name_en', 'year', 'd.name', 'description_de', 'description_en'];
 		$this->setSearchFilter($query, $searchColumns);
-		$this->setValueFilters($query, ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'version']);
+		$this->setValueFilters($query, ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'year']);
 
 		$this->setOrdering($query);
 

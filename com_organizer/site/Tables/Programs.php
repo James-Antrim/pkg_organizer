@@ -120,7 +120,7 @@ class Programs extends Assets
 	 *
 	 * @var int
 	 */
-	public $version;
+	public $year;
 
 	/**
 	 * Declares the associated table
