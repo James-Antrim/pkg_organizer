@@ -16,7 +16,7 @@ use Organizer\Helpers\Languages;
 use Organizer\Helpers\OrganizerHelper;
 
 /**
- * Class instantiates a Table Object associated with the schedules table.
+ * Models the organizer_schedules table.
  */
 class Schedules extends BaseTable
 {

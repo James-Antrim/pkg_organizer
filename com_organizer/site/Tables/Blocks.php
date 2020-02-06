@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the calendar table.
+ * Models the organizer_blocks table.
  */
 class Blocks extends BaseTable
 {
@@ -22,6 +22,14 @@ class Blocks extends BaseTable
 	 * @var string
 	 */
 	public $date;
+
+	/**
+	 * The numerical day of the week of the block.
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $dow;
 
 	/**
 	 * The end time of the block.

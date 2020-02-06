@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the buildings table.
+ * Models the organizer_buildings table.
  */
-class Buildings extends Nullable
+class Buildings extends BaseTable
 {
 	/**
 	 * The physical address of the resource.
@@ -22,6 +22,14 @@ class Buildings extends Nullable
 	 * @var string
 	 */
 	public $address;
+
+	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
 
 	/**
 	 * The id of the campus entry referenced.
@@ -72,7 +80,7 @@ class Buildings extends Nullable
 	 */
 	public function check()
 	{
-		if (empty($this->campusID))
+		if (!$this->campusID)
 		{
 			$this->campusID = null;
 		}

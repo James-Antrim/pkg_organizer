@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the mappings table.
+ * Models the organizer_curricula table.
  */
-class Mappings extends BaseTable
+class Curricula extends BaseTable
 {
 	/**
 	 * The depth of this element in the mapping hierarchy.

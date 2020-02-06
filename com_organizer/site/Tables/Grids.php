@@ -11,10 +11,19 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the grids table.
+ * Models the organizer_grids table.
  */
 class Grids extends BaseTable
 {
+	/**
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
+	 * VARCHAR(60) DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $code;
+
 	/**
 	 * A flag to determine which grid is to be used if none is specified.
 	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
@@ -46,14 +55,6 @@ class Grids extends BaseTable
 	 * @var string
 	 */
 	public $name_en;
-
-	/**
-	 * The resource's identifier in Untis scheduling software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $untisID;
 
 	/**
 	 * Declares the associated table

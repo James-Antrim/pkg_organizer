@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the degrees table.
+ * Models the organizer_degrees table.
  */
 class Degrees extends BaseTable
 {
@@ -24,8 +24,8 @@ class Degrees extends BaseTable
 	public $abbreviation;
 
 	/**
-	 * The resource's code. (String ID)
-	 * VARCHAR(10) DEFAULT ''
+	 * An abbreviated nomenclature for the resource.
+	 * VARCHAR(60) NOT NULL
 	 *
 	 * @var string
 	 */

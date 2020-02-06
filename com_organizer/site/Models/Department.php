@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Table\Table;
-use Organizer\Tables\Departments as DepartmentsTable;
+use Organizer\Tables\Organizations as DepartmentsTable;
 
 /**
  * Class which manages stored department data.

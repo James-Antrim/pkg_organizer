@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the persons table.
+ * Models the organizer_persons table.
  */
-class Persons extends Nullable
+class Persons extends BaseTable
 {
 	/**
 	 * A flag which displays whether the resource is currently active.
@@ -22,6 +22,23 @@ class Persons extends Nullable
 	 * @var bool
 	 */
 	public $active;
+
+	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
+
+	/**
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
+	 * VARCHAR(60) DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $code;
 
 	/**
 	 * The id of the field entry referenced.
@@ -54,14 +71,6 @@ class Persons extends Nullable
 	 * @var string
 	 */
 	public $title;
-
-	/**
-	 * The resource's identifier in Untis scheduling software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $untisID;
 
 	/**
 	 * The person's user name.

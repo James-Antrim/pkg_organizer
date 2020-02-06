@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the courses table.
+ * Models the organizer_courses table.
  */
-class Courses extends Nullable
+class Courses extends BaseTable
 {
 	/**
 	 * The id of the campus entry referenced.
@@ -57,7 +57,7 @@ class Courses extends Nullable
 
 	/**
 	 * A short textual description of which groups should visit the course.
-	 * VARCHAR(100)     NOT NULL DEFAULT ''
+	 * VARCHAR(100) NOT NULL DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -73,7 +73,7 @@ class Courses extends Nullable
 
 	/**
 	 * The resource's German name.
-	 * VARCHAR(100) NOT NULL
+	 * VARCHAR(150) DEFAULT NULL
 	 *
 	 * @var string
 	 */
@@ -81,7 +81,7 @@ class Courses extends Nullable
 
 	/**
 	 * The resource's English name.
-	 * VARCHAR(100) NOT NULL
+	 * VARCHAR(150) DEFAULT NULL
 	 *
 	 * @var string
 	 */

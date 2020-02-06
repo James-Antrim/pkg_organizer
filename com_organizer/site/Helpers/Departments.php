@@ -13,7 +13,7 @@ namespace Organizer\Helpers;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\Utilities\ArrayHelper;
-use Organizer\Tables\DepartmentResources;
+use Organizer\Tables\Associations;
 
 /**
  * Provides general functions for department access checks, data retrieval and display.
@@ -175,7 +175,7 @@ class Departments extends ResourceHelper implements Selectable
 	 */
 	public static function setDepartmentResource($resourceID, $column)
 	{
-		$deptResourceTable = new DepartmentResources;
+		$deptResourceTable = new Associations;
 
 		/**
 		 * If associations already exist for the resource, further associations should be made explicitly using the

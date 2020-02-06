@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the categories table.
+ * Models the organizer_categories table.
  */
-class Categories extends Nullable
+class Categories extends BaseTable
 {
 	/**
 	 * A flag which displays whether the resource is currently active.
@@ -24,20 +24,37 @@ class Categories extends Nullable
 	public $active;
 
 	/**
-	 * The resource's name.
-	 * VARCHAR(100) NOT NULL
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
 	 *
 	 * @var string
 	 */
-	public $name;
+	public $alias;
 
 	/**
-	 * The resource's identifier in Untis scheduling software.
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
 	 * VARCHAR(60) DEFAULT NULL
 	 *
 	 * @var string
 	 */
-	public $untisID;
+	public $code;
+
+	/**
+	 * The resource's German name.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_de;
+
+	/**
+	 * The resource's English name.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_en;
 
 	/**
 	 * Declares the associated table

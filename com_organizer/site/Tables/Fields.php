@@ -11,10 +11,19 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the fields table.
+ * Models the organizer_fields table.
  */
-class Fields extends Nullable
+class Fields extends BaseTable
 {
+	/**
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
+	 * VARCHAR(60) DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $code;
+
 	/**
 	 * The id of the color entry referenced.
 	 * INT(11) UNSIGNED DEFAULT NULL
@@ -38,14 +47,6 @@ class Fields extends Nullable
 	 * @var string
 	 */
 	public $name_en;
-
-	/**
-	 * The resource's identifier in Untis scheduling software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $untisID;
 
 	/**
 	 * Declares the associated table

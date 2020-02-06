@@ -19,7 +19,8 @@ use RuntimeException;
 use UnexpectedValueException;
 
 /**
- * Abstract class for use by resource tables whose access rules are to be stored in the Joomla assets table.
+ * Abstract class extending Table by adding a getter and setter method for individual properties and suppresses
+ * redundant exceptions from the load function.
  */
 abstract class BaseTable extends Table
 {
@@ -66,7 +67,8 @@ abstract class BaseTable extends Table
 	}
 
 	/**
-	 * Method to load a row from the database by primary key and bind the fields to the Table instance properties.
+	 * Method to load a row from the database by primary key and bind the fields to the Table instance properties. Wraps
+	 * the parent load function in a try catch clause to avoid redundant exception handling in other classes.
 	 *
 	 * @param   mixed    $keys   An optional primary key value to load the row by, or an array of fields to match.
 	 *                           If not set the instance property value is used.
@@ -119,5 +121,17 @@ abstract class BaseTable extends Table
 		$this->$property = $value;
 
 		return $this->store();
+	}
+
+	/**
+	 * Allows null values to be set without explicit parameterised calls to the store function.
+	 *
+	 * @param   bool  $updateNulls  true to update fields even if they are null.
+	 *
+	 * @return bool  true on success.
+	 */
+	public function store($updateNulls = true)
+	{
+		return parent::store($updateNulls);
 	}
 }

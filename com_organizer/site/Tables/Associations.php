@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the department_resources table.
+ * Models the organizer_associations table.
  */
-class DepartmentResources extends BaseTable
+class Associations extends BaseTable
 {
 	/**
 	 * The id of the category entry referenced.
@@ -24,12 +24,28 @@ class DepartmentResources extends BaseTable
 	public $categoryID;
 
 	/**
-	 * The id of the department entry referenced.
+	 * The id of the event entry referenced.
+	 * INT(11) DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $eventID;
+
+	/**
+	 * The id of the group entry referenced.
+	 * INT(11) DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $groupID;
+
+	/**
+	 * The id of the organization entry referenced.
 	 * INT(11) UNSIGNED NOT NULL
 	 *
 	 * @var int
 	 */
-	public $departmentID;
+	public $organizationID;
 
 	/**
 	 * The id of the person entry referenced.
@@ -46,6 +62,6 @@ class DepartmentResources extends BaseTable
 	 */
 	public function __construct(&$dbo = null)
 	{
-		parent::__construct('#__organizer_department_resources', 'id', $dbo);
+		parent::__construct('#__organizer_associatons', 'id', $dbo);
 	}
 }

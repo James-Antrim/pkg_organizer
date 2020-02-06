@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the course_participants table.
+ * Models the organizer_course_participants table.
  */
 class CourseParticipants extends BaseTable
 {
@@ -30,14 +30,6 @@ class CourseParticipants extends BaseTable
 	 * @var int
 	 */
 	public $courseID;
-
-	/**
-	 * The primary key.
-	 * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
-	 *
-	 * @var int
-	 */
-	public $id;
 
 	/**
 	 * The participant's course payment status. Values: 0 - Unpaid, 1 - Paid.

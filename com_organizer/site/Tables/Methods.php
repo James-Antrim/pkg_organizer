@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the methods table.
+ * Models the organizer_methods table.
  */
 class Methods extends BaseTable
 {
@@ -32,6 +32,15 @@ class Methods extends BaseTable
 	public $abbreviation_en;
 
 	/**
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
+	 * VARCHAR(60) DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $code;
+
+	/**
 	 * The resource's German name.
 	 * VARCHAR(255) NOT NULL
 	 *
@@ -46,14 +55,6 @@ class Methods extends BaseTable
 	 * @var string
 	 */
 	public $name_en;
-
-	/**
-	 * The resource's identifier in Untis scheduling software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $untisID;
 
 	/**
 	 * Declares the associated table

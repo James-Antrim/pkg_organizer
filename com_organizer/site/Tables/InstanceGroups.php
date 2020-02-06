@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the lesson_groups table.
+ * Models the organizer_instance_groups table.
  */
-class InstanceGroups extends Nullable
+class InstanceGroups extends BaseTable
 {
 	/**
 	 * The id of the instance persons entry referenced.
@@ -38,14 +38,6 @@ class InstanceGroups extends Nullable
 	 * @var int
 	 */
 	public $groupID;
-
-	/**
-	 * The primary key.
-	 * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
-	 *
-	 * @var int
-	 */
-	public $id;
 
 	/**
 	 * The timestamp of the time at which the last change to the entry occurred.

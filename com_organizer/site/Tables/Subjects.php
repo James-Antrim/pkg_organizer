@@ -13,7 +13,7 @@ namespace Organizer\Tables;
 use Joomla\CMS\Table\Table;
 
 /**
- * Class instantiates a Table Object associated with the subjects table.
+ * Models the organizer_subjects table.
  */
 class Subjects extends Assets
 {
@@ -50,6 +50,14 @@ class Subjects extends Assets
 	public $abbreviation_en;
 
 	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
+
+	/**
 	 * The id used by Joomla as a reference to its assets table.
 	 * INT(11) NOT NULL
 	 *
@@ -82,8 +90,9 @@ class Subjects extends Assets
 	public $creditpoints;
 
 	/**
-	 * The resource's code. (String ID)
-	 * VARCHAR(45) DEFAULT ''
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
+	 * VARCHAR(60) NOT NULL DEFAULT ''
 	 *
 	 * @var string
 	 */

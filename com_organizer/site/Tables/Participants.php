@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the participants table.
+ * Models the organizer_participants table.
  */
-class Participants extends Nullable
+class Participants extends BaseTable
 {
 	/**
 	 * The physical address of the resource.

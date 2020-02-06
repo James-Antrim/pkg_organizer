@@ -13,7 +13,7 @@ namespace Organizer\Tables;
 use Organizer\Helpers\OrganizerHelper;
 
 /**
- * Class instantiates a Table Object associated with the holidays table.
+ * Models the organizer_holidays table.
  */
 class Holidays extends BaseTable
 {

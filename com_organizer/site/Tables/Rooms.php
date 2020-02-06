@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the rooms table.
+ * Models the organizer_rooms table.
  */
-class Rooms extends Nullable
+class Rooms extends BaseTable
 {
 	/**
 	 * A flag which displays whether the resource is currently active.
@@ -22,6 +22,14 @@ class Rooms extends Nullable
 	 * @var bool
 	 */
 	public $active;
+
+	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
 
 	/**
 	 * The id of the building entry referenced.
@@ -40,6 +48,15 @@ class Rooms extends Nullable
 	public $capacity;
 
 	/**
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
+	 * VARCHAR(60) DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $code;
+
+	/**
 	 * The resource's name.
 	 * VARCHAR(10) NOT NULL
 	 *
@@ -54,14 +71,6 @@ class Rooms extends Nullable
 	 * @var int
 	 */
 	public $roomtypeID;
-
-	/**
-	 * The resource's identifier in Untis scheduling software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $untisID;
 
 	/**
 	 * Declares the associated table

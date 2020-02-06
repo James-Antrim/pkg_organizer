@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the instance_persons table.
+ * Models the organizer_instance_persons table.
  */
-class InstancePersons extends Nullable
+class InstancePersons extends BaseTable
 {
 	/**
 	 * The textual description of the associations last change. Values: changed, <empty>, new, removed.
@@ -22,14 +22,6 @@ class InstancePersons extends Nullable
 	 * @var string
 	 */
 	public $delta;
-
-	/**
-	 * The primary key.
-	 * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
-	 *
-	 * @var int
-	 */
-	public $id;
 
 	/**
 	 * The id of the instance entry referenced.

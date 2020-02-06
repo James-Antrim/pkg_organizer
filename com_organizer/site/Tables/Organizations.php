@@ -14,9 +14,9 @@ use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Languages;
 
 /**
- * Class instantiates a Table Object associated with the departments table.
+ * Models the organizer_organizations table.
  */
-class Departments extends Assets
+class Organizations extends Assets
 {
 	/**
 	 * The id used by Joomla as a reference to its assets table.
@@ -25,6 +25,14 @@ class Departments extends Assets
 	 * @var int
 	 */
 	public $asset_id;
+
+	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
 
 	/**
 	 * The id of the user entry referenced.

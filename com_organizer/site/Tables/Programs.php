@@ -14,7 +14,7 @@ namespace Organizer\Tables;
 use Joomla\CMS\Table\Table;
 
 /**
- * Class instantiates a Table Object associated with the programs table.
+ * Models the organizer_programs table.
  */
 class Programs extends Assets
 {
@@ -35,6 +35,14 @@ class Programs extends Assets
 	public $active;
 
 	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
+
+	/**
 	 * The id used by Joomla as a reference to its assets table.
 	 * INT(11) NOT NULL
 	 *
@@ -51,8 +59,8 @@ class Programs extends Assets
 	public $categoryID;
 
 	/**
-	 * The resource's code. (String ID)
-	 * VARCHAR(20) DEFAULT ''
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in the LSF application.
+	 * VARCHAR(60) DEFAULT NULL
 	 *
 	 * @var string
 	 */

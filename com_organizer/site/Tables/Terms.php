@@ -11,13 +11,14 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the terms table.
+ * Models the organizer_terms table.
  */
 class Terms extends BaseTable
 {
 	/**
-	 * The resource's code. (String ID)
-	 * VARCHAR(10) NOT NULL
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
+	 * VARCHAR(60) DEFAULT NULL
 	 *
 	 * @var string
 	 */

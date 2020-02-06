@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the group_publishing table.
+ * Models the organizer_group_publishing table.
  */
 class GroupPublishing extends BaseTable
 {

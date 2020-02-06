@@ -13,7 +13,7 @@ namespace Organizer\Tables;
 use Joomla\CMS\Table\Table;
 
 /**
- * Class instantiates a Table Object associated with the pools table.
+ * Models the organizer_pools table.
  */
 class Pools extends Assets
 {
@@ -32,6 +32,14 @@ class Pools extends Assets
 	 * @var string
 	 */
 	public $abbreviation_en;
+
+	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
 
 	/**
 	 * The id used by Joomla as a reference to its assets table.

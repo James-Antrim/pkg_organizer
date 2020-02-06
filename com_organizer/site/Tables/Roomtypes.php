@@ -11,10 +11,19 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the roomtypes table.
+ * Models the organizer_roomtypes table.
  */
 class Roomtypes extends BaseTable
 {
+	/**
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
+	 * VARCHAR(60) DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $code;
+
 	/**
 	 * The resource's German description.
 	 * TEXT
@@ -70,14 +79,6 @@ class Roomtypes extends BaseTable
 	 * @var bool
 	 */
 	public $public;
-
-	/**
-	 * The resource's identifier in Untis scheduling software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $untisID;
 
 	/**
 	 * Declares the associated table

@@ -115,13 +115,13 @@ SELECT DISTINCT `id`,
 FROM `#__thm_organizer_subjects`;
 # endregion
 
-# region curriculum references curriculum, pools, programs and subjects
-INSERT IGNORE INTO `#__organizer_curriculum`
+# region curricula references curricula, pools, programs and subjects
+INSERT IGNORE INTO `#__organizer_curricula`
 SELECT *
 FROM `#__thm_organizer_mappings`;
 # endregion
 
-# region prerequisites references curriculum
+# region prerequisites references curricula
 INSERT IGNORE INTO `#__organizer_prerequisites`
 SELECT *
 FROM `#__thm_organizer_prerequisites`;

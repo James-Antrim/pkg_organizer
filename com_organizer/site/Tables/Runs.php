@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the runs table.
+ * Models the organizer_runs table.
  */
 class Runs extends BaseTable
 {

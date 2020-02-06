@@ -14,7 +14,7 @@ use Organizer\Helpers\Input;
 use Organizer\Helpers\LSF;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
-use Organizer\Tables\Mappings;
+use Organizer\Tables\Curricula;
 
 /**
  * Class which manages stored (curriculum) mapping data.
@@ -32,7 +32,7 @@ class Mapping extends BaseModel
 	 */
 	public function addLSFMappings($programID, &$lsfData)
 	{
-		$table = new Mappings;
+		$table = new Curricula;
 
 		if (!$table->load(['programID' => $programID]))
 		{
@@ -88,7 +88,7 @@ class Mapping extends BaseModel
 				return $poolModel->deleteSingle($poolsTable->id);
 			}
 
-			$mappingsTable = new Mappings;
+			$mappingsTable = new Curricula;
 
 			if (!$mappingsTable->load(['parentID' => $parentMappingID, 'poolID' => $poolsTable->id]))
 			{
@@ -160,7 +160,7 @@ class Mapping extends BaseModel
 
 		if ($subjectsTable->load(['lsfID' => $lsfID]))
 		{
-			$mappingsTable = new Mappings;
+			$mappingsTable = new Curricula;
 			$mappingExists = $mappingsTable->load(['parentID' => $parentMappingID, 'subjectID' => $subjectsTable->id]);
 
 			if ($mappingExists)
@@ -232,7 +232,7 @@ class Mapping extends BaseModel
 			return false;
 		}
 
-		$mapping = new Mappings;
+		$mapping = new Curricula;
 
 		if ($mapping->save($pool))
 		{
@@ -302,7 +302,7 @@ class Mapping extends BaseModel
 			return false;
 		}
 
-		$mapping = new Mappings;
+		$mapping = new Curricula;
 
 		if ($mapping->save($subject))
 		{
@@ -754,7 +754,7 @@ class Mapping extends BaseModel
 			$data['level']     = 0;
 			$data['ordering']  = 0;
 
-			$mappingsTable = new Mappings;
+			$mappingsTable = new Curricula;
 
 			return $mappingsTable->save($data);
 		}
@@ -825,7 +825,7 @@ class Mapping extends BaseModel
 
 		foreach ($selectedParents as $newParentID)
 		{
-			$parent = new Mappings;
+			$parent = new Curricula;
 
 			if (!$exists = $parent->load($newParentID) or empty($parent->poolID))
 			{

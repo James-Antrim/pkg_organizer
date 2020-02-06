@@ -11,10 +11,18 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the lessons table.
+ * Models the organizer_units table.
  */
-class Units extends Nullable
+class Units extends BaseTable
 {
+	/**
+	 * Currently corresponding to the identifier in Untis scheduling software.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $code;
+
 	/**
 	 * A supplementary text description.
 	 * VARCHAR(200) DEFAULT NULL
@@ -97,7 +105,6 @@ class Units extends Nullable
 
 	/**
 	 * The resource's identifier in Untis scheduling software.
-	 * INT(11) UNSIGNED NOT NULL
 	 *
 	 * @var int
 	 */

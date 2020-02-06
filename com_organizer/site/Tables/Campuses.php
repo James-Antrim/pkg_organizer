@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the campuses table.
+ * Models the organizer_campuses table.
  */
-class Campuses extends Nullable
+class Campuses extends BaseTable
 {
 	/**
 	 * The physical address of the resource.
@@ -22,6 +22,14 @@ class Campuses extends Nullable
 	 * @var string
 	 */
 	public $address;
+
+	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
 
 	/**
 	 * The city in which the resource is located.

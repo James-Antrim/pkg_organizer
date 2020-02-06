@@ -11,18 +11,10 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the instance_participants table.
+ * Models the organizer_instance_participants table.
  */
 class InstanceParticipants extends BaseTable
 {
-	/**
-	 * The primary key.
-	 * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
-	 *
-	 * @var int
-	 */
-	public $id;
-
 	/**
 	 * The id of the instance entry referenced.
 	 * INT(20) UNSIGNED NOT NULL

@@ -11,10 +11,18 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the events table.
+ * Models the organizer_events table.
  */
 class Events extends BaseTable
 {
+	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
+
 	/**
 	 * The id of the campus entry referenced.
 	 * INT(11) UNSIGNED DEFAULT NULL
@@ -22,6 +30,15 @@ class Events extends BaseTable
 	 * @var int
 	 */
 	public $campusID;
+
+	/**
+	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+	 * software.
+	 * VARCHAR(60) DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $code;
 
 	/**
 	 * The number of days before course begin when registration is closed.
@@ -118,14 +135,6 @@ class Events extends BaseTable
 	 * @var string
 	 */
 	public $subjectNo;
-
-	/**
-	 * The resource's identifier in Untis scheduling software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $untisID;
 
 	/**
 	 * Declares the associated table

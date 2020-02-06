@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the monitors table.
+ * Models the organizer_monitors table.
  */
 class Monitors extends BaseTable
 {

@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the subject_persons table.
+ * Models the organizer_subject_persons table.
  */
 class SubjectPersons extends BaseTable
 {

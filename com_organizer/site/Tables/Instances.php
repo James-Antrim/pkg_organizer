@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the lesson_courses table.
+ * Models the organizer_instances table.
  */
-class Instances extends Nullable
+class Instances extends BaseTable
 {
 	/**
 	 * The id of the block entry referenced.
@@ -38,14 +38,6 @@ class Instances extends Nullable
 	 * @var int
 	 */
 	public $eventID;
-
-	/**
-	 * The primary key.
-	 * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
-	 *
-	 * @var int
-	 */
-	public $id;
 
 	/**
 	 * The id of the method entry referenced.

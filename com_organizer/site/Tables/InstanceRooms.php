@@ -11,9 +11,9 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the instance_rooms table.
+ * Models the organizer_instance_rooms table.
  */
-class InstanceRooms extends Nullable
+class InstanceRooms extends BaseTable
 {
 	/**
 	 * The id of the instance persons entry referenced.
@@ -30,14 +30,6 @@ class InstanceRooms extends Nullable
 	 * @var string
 	 */
 	public $delta;
-
-	/**
-	 * The primary key.
-	 * INT(20) UNSIGNED NOT NULL AUTO_INCREMENT
-	 *
-	 * @var int
-	 */
-	public $id;
 
 	/**
 	 * The timestamp of the time at which the last change to the entry occurred.

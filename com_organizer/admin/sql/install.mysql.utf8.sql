@@ -175,7 +175,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_courses` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-CREATE TABLE IF NOT EXISTS `#__organizer_curriculum` (
+CREATE TABLE IF NOT EXISTS `#__organizer_curricula` (
     `id`        INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `programID` INT(11) UNSIGNED DEFAULT NULL,
     `parentID`  INT(11) UNSIGNED DEFAULT NULL,
@@ -889,8 +889,8 @@ ALTER TABLE `#__organizer_courses`
         ON DELETE CASCADE
         ON UPDATE CASCADE;
 
-ALTER TABLE `#__organizer_curriculum`
-    ADD CONSTRAINT `curriculum_parentID_fk` FOREIGN KEY (`parentID`) REFERENCES `#__organizer_curriculum` (`id`)
+ALTER TABLE `#__organizer_curricula`
+    ADD CONSTRAINT `curriculum_parentID_fk` FOREIGN KEY (`parentID`) REFERENCES `#__organizer_curricula` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     ADD CONSTRAINT `curriculum_poolID_fk` FOREIGN KEY (`poolID`) REFERENCES `#__organizer_pools` (`id`)
