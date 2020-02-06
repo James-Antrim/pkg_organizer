@@ -43,7 +43,7 @@ class Schedules extends ListModel
 			->select("term.id AS termID, term.name_$tag AS termName")
 			->select('u.name AS userName')
 			->from('#__organizer_schedules AS s')
-			->innerJoin('#__organizer_departments AS d ON s.departmentID = d.id')
+			->innerJoin('#__organizer_departments AS d ON d.id = s.departmentID')
 			->innerJoin('#__organizer_terms AS term ON term.id = s.termID')
 			->leftJoin('#__users AS u ON u.id = s.userID');
 

@@ -8,7 +8,7 @@
                textcolumn="name" valuecolumn="id">
             <option value="">NO_INPUT</option>
         </field>
-        <field name="year" type="Blank" label="PROGRAM_YEAR" required="true" size="10"/>
+        <field name="accredited" type="Blank" label="ACCREDITED" required="true" size="10"/>
         <field name="code" type="Blank" label="LSF_FIELD_ID" required="true" size="40"/>
         <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" required="true"
                table="organizer_fields" textcolumn="name" valuecolumn="id">

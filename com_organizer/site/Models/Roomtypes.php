@@ -33,7 +33,7 @@ class Roomtypes extends ListModel
 			->select($query->concatenate($linkParts, '') . ' AS link')
 			->select('count(r.roomtypeID) AS roomCount')
 			->from('#__organizer_roomtypes AS t')
-			->leftJoin('#__organizer_rooms AS r on r.roomtypeID = t.id')
+			->leftJoin('#__organizer_rooms AS r ON r.roomtypeID = t.id')
 			->group('t.id');
 
 		$this->setSearchFilter($query, ['untisID', 'name_de', 'name_en', 'minCapacity', 'maxCapacity']);

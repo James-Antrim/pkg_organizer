@@ -374,7 +374,7 @@ class Instances extends ResourceHelper
 
 		if (!empty($conditions['eventIDs']) or !empty($conditions['subjectIDs']) or !empty($conditions['isEventsRequired']))
 		{
-			$query->innerJoin('#__organizer_events AS e ON i.eventID = e.id');
+			$query->innerJoin('#__organizer_events AS e ON e.id = i.eventID');
 
 			if (!empty($conditions['eventIDs']))
 			{

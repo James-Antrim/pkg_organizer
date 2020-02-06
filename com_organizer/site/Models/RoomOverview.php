@@ -61,7 +61,7 @@ class RoomOverview extends ListModel
 		$query->select('r.id, r.name AS name, r.capacity')
 			->select("t.id AS roomtypeID, t.name_$tag AS typeName, t.description_$tag AS typeDesc")
 			->from('#__organizer_rooms AS r')
-			->leftJoin('#__organizer_roomtypes AS t ON r.roomtypeID = t.id')
+			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
 			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
 			->leftJoin('#__organizer_campuses AS c ON (c.id = b.campusID OR c.parentID = b.campusID)');
 

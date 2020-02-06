@@ -19,6 +19,14 @@ use Joomla\CMS\Table\Table;
 class Programs extends Assets
 {
 	/**
+	 * The year in which the program was accredited.
+	 * YEAR(4) DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $accredited;
+
+	/**
 	 * A flag which displays whether the resource is currently active.
 	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
 	 *
@@ -113,14 +121,6 @@ class Programs extends Assets
 	 * @var string
 	 */
 	public $name_en;
-
-	/**
-	 * The year in which the program was accredited.
-	 * YEAR(4) DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $year;
 
 	/**
 	 * Declares the associated table

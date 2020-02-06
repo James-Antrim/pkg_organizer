@@ -8,23 +8,23 @@
             <option value="-1">NO_ORGANIZATION</option>
         </field>
         <field name="degreeID" type="GenericOptions" label="DEGREE" onchange="this.form.submit();"
-               table="organizer_programs AS p,organizer_degrees AS d ON p.degreeID = d.id" textcolumn="d.abbreviation"
+               table="organizer_programs AS p,organizer_degrees AS d ON d.id = p.degreeID" textcolumn="d.abbreviation"
                valuecolumn="d.id">
             <option value="">ALL_DEGREES</option>
         </field>
-        <field name="year" type="GenericOptions" label="YEAR" onchange="this.form.submit();" table="organizer_programs"
-               textcolumn="year" valuecolumn="year">
+        <field name="accredited" type="GenericOptions" label="ACCREDITED" onchange="this.form.submit();"
+               table="organizer_programs" textcolumn="accredited" valuecolumn="accredited">
             <option value="">ALL_ACCREDITATION_YEARS</option>
         </field>
         <field name="frequencyID" type="GenericOptions" label="FREQUENCY" localized="true"
                onchange="this.form.submit();"
-               table="organizer_frequencies AS f,organizer_programs AS p ON f.id = p.frequencyID" textcolumn="f.name"
+               table="organizer_frequencies AS f,organizer_programs AS p ON p.frequencyID = f.id" textcolumn="f.name"
                valuecolumn="f.id">
             <option value="">ALL_FREQUENCIES</option>
             <option value="-1">NO_FREQUENCY</option>
         </field>
         <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" onchange="this.form.submit();"
-               table="organizer_fields AS f,organizer_programs AS p ON f.id = p.fieldID" textcolumn="f.name"
+               table="organizer_fields AS f,organizer_programs AS p ON p.fieldID = f.id" textcolumn="f.name"
                valuecolumn="f.id">
             <option value="">ALL_FIELDS</option>
             <option value="-1">NO_FIELD</option>

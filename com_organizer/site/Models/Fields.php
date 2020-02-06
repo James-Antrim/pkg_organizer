@@ -35,7 +35,7 @@ class Fields extends ListModel
 		$query->select("f.id, untisID, f.name_$tag AS field, f.colorID")
 			->from('#__organizer_fields AS f')
 			->select("c.name_$tag AS color")
-			->leftJoin('#__organizer_colors AS c ON f.colorID = c.id');
+			->leftJoin('#__organizer_colors AS c ON c.id = f.colorID');
 
 		$this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'untisID', 'color']);
 		$this->setValueFilters($query, ['colorID']);

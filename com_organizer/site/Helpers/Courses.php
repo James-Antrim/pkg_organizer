@@ -163,8 +163,8 @@ class Courses extends ResourceHelper
 			->select("courseContact_$tag AS courseContact, content_$tag AS content, e.description_$tag AS description")
 			->select("organization_$tag AS organization, pretests_$tag AS pretests, preparatory")
 			->from('#__organizer_events AS e')
-			->innerJoin('#__organizer_instances AS i on i.eventID = e.id')
-			->innerJoin('#__organizer_units AS u on u.id = i.unitID')
+			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
+			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where("u.courseID = $courseID")
 			->order('name ASC');
 
@@ -201,7 +201,7 @@ class Courses extends ResourceHelper
 			->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = g.id')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-			->innerJoin('#__organizer_units AS u on u.id = i.unitID')
+			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where("ig.delta != 'removed'")
 			->where("ip.delta != 'removed'")
 			->where("i.delta != 'removed'")
@@ -228,7 +228,7 @@ class Courses extends ResourceHelper
 		$query = $dbo->getQuery('true');
 		$query->select("DISTINCT i.id")
 			->from('#__organizer_instances AS i')
-			->innerJoin('#__organizer_units AS u on u.id = i.unitID')
+			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where("u.courseID = $courseID")
 			->order('i.id');
 
@@ -366,7 +366,7 @@ class Courses extends ResourceHelper
 		$query->select("DISTINCT ip.personID")
 			->from('#__organizer_instance_persons AS ip')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-			->innerJoin('#__organizer_units AS u on u.id = i.unitID')
+			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where("u.courseID = $courseID");
 
 		if ($eventID)

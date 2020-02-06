@@ -32,7 +32,7 @@ class Groups extends ResourceHelper implements Selectable
 		$query = $dbo->getQuery(true);
 		$query->select('DISTINCT dr.id')
 			->from('#__organizer_department_resources AS dr')
-			->innerJoin('#__organizer_groups as gr on gr.categoryID = dr.categoryID')
+			->innerJoin('#__organizer_groups AS gr ON gr.categoryID = dr.categoryID')
 			->where("gr.id  = $resourceID");
 		$dbo->setQuery($query);
 
@@ -127,8 +127,8 @@ class Groups extends ResourceHelper implements Selectable
 		$query = $dbo->getQuery(true);
 		$query->select('DISTINCT lc.courseID')
 			->from('#__organizer_lesson_courses AS lc')
-			->innerJoin('#__organizer_lessons AS l on l.id = lc.lessonID')
-			->innerJoin('#__organizer_lesson_groups AS lg on lg.lessonCourseID = lc.id')
+			->innerJoin('#__organizer_lessons AS l ON l.id = lc.lessonID')
+			->innerJoin('#__organizer_lesson_groups AS lg ON lg.lessonCourseID = lc.id')
 			->where("lg.groupID IN ($groupIDs)")
 			->where("l.delta != 'removed'")
 			->where("lg.delta != 'removed'")

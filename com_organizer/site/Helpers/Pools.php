@@ -233,7 +233,7 @@ class Pools extends ResourceHelper implements Selectable
 		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT p.*, p.name_$tag AS name")
 			->from('#__organizer_pools AS p')
-			->innerJoin('#__organizer_mappings AS m ON p.id = m.poolID')
+			->innerJoin('#__organizer_mappings AS m ON m.poolID = p.id')
 			->where("lft > '{$ranges[0]['lft']}'")
 			->where("rgt < '{$ranges[0]['rgt']}'")
 			->order('name ASC');

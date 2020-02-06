@@ -31,8 +31,8 @@ class Buildings extends ListModel
 		$select .= $query->concatenate($parts, '') . ' AS link';
 		$query->select($select);
 		$query->from('#__organizer_buildings AS b');
-		$query->innerJoin('#__organizer_campuses as c1 on b.campusID = c1.id');
-		$query->leftJoin('#__organizer_campuses as c2 on c1.parentID = c2.id');
+		$query->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
+		$query->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
 
 		$this->setSearchFilter($query, ['b.name', 'b.address', 'c1.city', 'c2.city']);
 		$this->setValueFilters($query, ['propertyType']);

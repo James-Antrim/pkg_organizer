@@ -80,7 +80,7 @@ class Campuses extends ResourceHelper implements Selectable
 		$query = $dbo->getQuery(true);
 		$query->select("c1.name_$tag as name, c2.name_$tag as parentName")
 			->from('#__organizer_campuses AS c1')
-			->leftJoin('#__organizer_campuses as c2 on c1.parentID = c2.id')
+			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
 			->where("c1.id = '$campusID'");
 		$dbo->setQuery($query);
 		$names = OrganizerHelper::executeQuery('loadAssoc', []);
@@ -127,7 +127,7 @@ class Campuses extends ResourceHelper implements Selectable
 		$query->select("c1.*, c1.name_$tag AS name")
 			->from('#__organizer_campuses AS c1')
 			->select("c2.name_$tag as parentName")
-			->leftJoin('#__organizer_campuses as c2 on c2.id = c1.parentID')
+			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
 			->order('parentName, name');
 
 		$selectedIDs = Input::getSelectedIDs();

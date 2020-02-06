@@ -371,13 +371,13 @@ class EventList extends FormModel
 
 			if ($personID !== 0)
 			{
-				$query->leftJoin('#__organizer_user_lessons AS ul ON l.id = ul.lessonID');
+				$query->leftJoin('#__organizer_user_lessons AS ul ON ul.lessonID = l.id');
 				$regexp      = '"persons":\\{[^\}]*"' . $personID . '"';
 				$personQuery = " OR conf.configuration REGEXP '$regexp'";
 			}
 			else
 			{
-				$query->innerJoin('#__organizer_user_lessons AS ul ON l.id = ul.lessonID');
+				$query->innerJoin('#__organizer_user_lessons AS ul ON ul.lessonID = l.id');
 			}
 
 			$query->where("(ul.userID = {$userID}" . $personQuery . ')');
@@ -401,18 +401,18 @@ class EventList extends FormModel
 		$query->select($select)
 			->from('#__organizer_calendar AS cal')
 			->innerJoin('#__organizer_calendar_configuration_map AS ccm ON ccm.calendarID = cal.id')
-			->innerJoin('#__organizer_lesson_configurations AS conf ON ccm.configurationID = conf.id')
-			->innerJoin('#__organizer_lessons AS l ON cal.lessonID = l.id')
-			->innerJoin('#__organizer_departments AS d ON l.departmentID = d.id')
+			->innerJoin('#__organizer_lesson_configurations AS conf ON conf.id = ccm.configurationID')
+			->innerJoin('#__organizer_lessons AS l ON l.id = cal.lessonID')
+			->innerJoin('#__organizer_departments AS d ON d.id = l.departmentID')
 			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.lessonID = l.id')
 			->innerJoin('#__organizer_courses AS co ON co.id = lcrs.courseID')
 			->innerJoin('#__organizer_lesson_groups AS lg ON lg.lessonCourseID = lcrs.id')
 			->innerJoin('#__organizer_groups AS gr ON gr.id = lp.groupID')
 			->innerJoin('#__organizer_categories AS cat ON cat.id = gr.categoryID')
 			->leftJoin('#__organizer_group_publishing AS gp ON gp.groupID = gr.id AND gp.termID = l.termID')
-			->leftJoin('#__organizer_methods AS m ON l.methodID = m.id')
+			->leftJoin('#__organizer_methods AS m ON m.id = l.methodID')
 			->leftJoin('#__organizer_subject_mappings AS sm ON sm.courseID = co.id')
-			->leftJoin('#__organizer_subjects AS s ON sm.subjectID = s.id')
+			->leftJoin('#__organizer_subjects AS s ON s.id = sm.subjectID')
 			->where("cal.schedule_date IN ($this->dates)")
 			->where("cal.delta != 'removed'")
 			->where("l.delta != 'removed'")

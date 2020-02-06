@@ -35,7 +35,7 @@ class Units extends ListModel
 
 		$subQuery->select('MIN(date) AS start, MAX(date) AS end, i.unitID')
 			->from('#__organizer_blocks AS b')
-			->innerJoin('#__organizer_instances as i on i.blockID = b.id')
+			->innerJoin('#__organizer_instances AS i ON i.blockID = b.id')
 			->where("i.delta!='removed'")
 			->group('i.unitID');
 
@@ -46,12 +46,12 @@ class Units extends ListModel
 			->select("sq.start, sq.end");
 
 		$query->from('#__organizer_units AS u')
-			->innerJoin('#__organizer_instances AS i ON u.id = i.unitID')
+			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
 			->innerJoin('#__organizer_events AS ev ON ev.id = i.eventID')
-			->innerJoin('#__organizer_blocks as b on b.id = i.blockID')
-			->innerJoin('#__organizer_grids as g on g.id = u.gridID')
-			->leftJoin('#__organizer_runs as r on r.id = u.runID')
-			->innerJoin("($subQuery) as sq on sq.unitID = u.id")
+			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+			->innerJoin('#__organizer_grids AS g ON g.id = u.gridID')
+			->leftJoin('#__organizer_runs AS r ON r.id = u.runID')
+			->innerJoin("($subQuery) AS sq ON sq.unitID = u.id")
 			->group('u.id');
 
 		$this->setSearchFilter($query, ['ev.name_de', 'ev.name_en']);

@@ -38,7 +38,7 @@ class Departments extends ListModel
 		$select .= $query->concatenate($parts, '') . ' AS link ';
 		$query->select($select);
 		$query->from('#__organizer_departments AS d');
-		$query->innerJoin('#__assets AS a ON d.asset_id = a.id');
+		$query->innerJoin('#__assets AS a ON a.id = d.asset_id');
 		$query->where('d.id IN (' . implode(',', $allowedDepartments) . ')');
 
 		$this->setSearchFilter($query, ['shortName_de', 'name_de', 'shortName_en', 'name_en']);

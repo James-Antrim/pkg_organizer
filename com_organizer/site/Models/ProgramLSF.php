@@ -34,9 +34,9 @@ class ProgramLSF extends BaseModel
 	private function getSavedProgramData($programID)
 	{
 		$query = $this->_db->getQuery(true);
-		$query->select('p.code AS program, d.code AS degree, year, departmentID');
+		$query->select('p.code AS program, d.code AS degree, accredited, departmentID');
 		$query->from('#__organizer_programs AS p');
-		$query->leftJoin('#__organizer_degrees AS d ON p.degreeID = d.id');
+		$query->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
 		$query->where("p.id = '$programID'");
 		$this->_db->setQuery($query);
 
@@ -109,7 +109,7 @@ class ProgramLSF extends BaseModel
 		}
 
 		$client  = new LSF;
-		$program = $client->getModules($programData['program'], $programData['degree'], $programData['year']);
+		$program = $client->getModules($programData['program'], $programData['degree'], $programData['accredited']);
 		if (empty($program))
 		{
 			return false;

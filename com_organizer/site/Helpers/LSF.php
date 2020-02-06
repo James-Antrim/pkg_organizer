@@ -105,18 +105,18 @@ class LSF
 	 * Performs a soap request, in order to get the xml structure of the given
 	 * configuration
 	 *
-	 * @param   string  $program  degree program code
-	 * @param   string  $degree   associated degree
-	 * @param   string  $year     year of accreditation
+	 * @param   string  $program     degree program code
+	 * @param   string  $degree      associated degree
+	 * @param   string  $accredited  year of accreditation
 	 *
 	 * @return SimpleXMLElement
 	 */
-	public function getModules($program, $degree = null, $year = null)
+	public function getModules($program, $degree = null, $accredited = null)
 	{
 		$XML = $this->header('studiengang');
 		$XML .= "<stg>$program</stg>";
 		$XML .= "<abschl>$degree</abschl>";
-		$XML .= "<pversion>$year</pversion>";
+		$XML .= "<pversion>$accredited</pversion>";
 		$XML .= '</condition></SOAPDataService>';
 
 		return self::getDataXML($XML);

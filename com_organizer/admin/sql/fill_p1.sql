@@ -1,5 +1,5 @@
 # region programs references categories (later), degrees, frequencies and organizations
-INSERT INTO `#__organizer_programs` (`id`, `organizationID`, `code`, `degreeID`, `year`, `frequencyID`, `name_de`,
+INSERT INTO `#__organizer_programs` (`id`, `organizationID`, `code`, `degreeID`, `accredited`, `frequencyID`, `name_de`,
                                      `name_en`, `description_de`, `description_en`)
 SELECT DISTINCT `id`,
                 `departmentID`,

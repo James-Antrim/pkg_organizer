@@ -39,7 +39,7 @@ class Instances extends ListModel
 
 		$query = InstancesHelper::getInstanceQuery($conditions);
 
-		$query->innerJoin('#__organizer_terms as t on u.termID = t.id')
+		$query->innerJoin('#__organizer_terms AS t ON t.id = u.termID')
 			->select("DISTINCT i.id")
 			->select("e.name_$tag AS name")
 			->select("t.name_$tag AS term")

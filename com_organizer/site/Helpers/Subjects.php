@@ -209,13 +209,13 @@ class Subjects extends ResourceHelper implements Selectable
 		$tag   = Languages::getTag();
 
 		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.year', "')'"];
+		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
 		$query->select('cat.name AS categoryName, ' . $query->concatenate($nameParts, "") . ' AS name')
 			->select('p.id')
 			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
+			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->innerJoin('#__organizer_mappings AS m1 ON m1.programID = p.id')
-			->innerJoin('#__organizer_mappings AS m2 ON m1.lft < m2.lft AND m1.rgt > m2.rgt')
+			->innerJoin('#__organizer_mappings AS m2 ON m2.lft > m1.lft AND  m2.rgt < m1.rgt')
 			->leftJoin('#__organizer_categories AS cat ON cat.id = p.categoryID')
 			->where("m2.subjectID = '$subjectID'");
 
@@ -312,13 +312,13 @@ class Subjects extends ResourceHelper implements Selectable
 		if ($personID !== -1)
 		{
 			$query->innerJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id');
-			$query->innerJoin('#__organizer_persons AS t ON st.personID = t.id');
+			$query->innerJoin('#__organizer_persons AS t ON t.id = st.personID');
 			$query->where("st.personID = '$personID'");
 		}
 		else
 		{
 			$query->leftJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id');
-			$query->innerJoin('#__organizer_persons AS t ON st.personID = t.id');
+			$query->innerJoin('#__organizer_persons AS t ON t.id = st.personID');
 			$query->where("st.role = '1'");
 		}
 

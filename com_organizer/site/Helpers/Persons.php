@@ -129,8 +129,8 @@ class Persons extends ResourceHelper implements DepartmentAssociated, Selectable
 		$query = $dbo->getQuery(true);
 		$query->select('t.id, t.surname, t.forename, t.title, t.username, u.id AS userID, role, untisID');
 		$query->from('#__organizer_persons AS t');
-		$query->innerJoin('#__organizer_subject_persons AS st ON t.id = st.personID ');
-		$query->leftJoin('#__users AS u ON t.username = u.username');
+		$query->innerJoin('#__organizer_subject_persons AS st ON st.personID = t.id');
+		$query->leftJoin('#__users AS u ON u.username = t.username');
 		$query->where("st.subjectID = '$subjectID' ");
 
 		if (!empty($role))

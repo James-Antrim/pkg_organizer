@@ -19,7 +19,7 @@ use Organizer\Helpers\Languages;
  */
 class Programs extends ListModel
 {
-	protected $filter_fields = ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'year'];
+	protected $filter_fields = ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'accredited'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -33,19 +33,19 @@ class Programs extends ListModel
 
 		$query     = $this->_db->getQuery(true);
 		$linkParts = ["'index.php?option=com_organizer&view=program_edit&id='", 'dp.id'];
-		$query->select("DISTINCT dp.id AS id, dp.name_$tag AS programName, year")
+		$query->select("DISTINCT dp.id AS id, dp.name_$tag AS programName, accredited")
 			->select($query->concatenate($linkParts, '') . ' AS link')
 			->from('#__organizer_programs AS dp')
 			->select('d.abbreviation AS degree')
 			->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
 			->leftJoin('#__organizer_fields AS f ON f.id = dp.fieldID')
 			->select("dpt.shortName_$tag AS department")
-			->leftJoin('#__organizer_departments AS dpt ON dp.departmentID = dpt.id')
+			->leftJoin('#__organizer_departments AS dpt ON dpt.id = dp.departmentID')
 			->where('(dp.departmentID IN (' . implode(',', $authorizedDepts) . ') OR dp.departmentID IS NULL)');
 
-		$searchColumns = ['dp.name_de', 'dp.name_en', 'year', 'd.name', 'description_de', 'description_en'];
+		$searchColumns = ['dp.name_de', 'dp.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
 		$this->setSearchFilter($query, $searchColumns);
-		$this->setValueFilters($query, ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'year']);
+		$this->setValueFilters($query, ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'accredited']);
 
 		$this->setOrdering($query);
 

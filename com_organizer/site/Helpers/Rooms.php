@@ -44,10 +44,9 @@ class Rooms extends ResourceHelper implements Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('r.id, r.name, rt.id AS roomtypeID')
+		$query->select('r.id, r.name, r.roomtypeID')
 			->from('#__organizer_rooms AS r')
 			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
-			->leftJoin('#__organizer_roomtypes AS rt ON ir.roomID = r.id')
 			->order('r.name');
 
 		if ($selectedDepartment = Input::getFilterID('department'))

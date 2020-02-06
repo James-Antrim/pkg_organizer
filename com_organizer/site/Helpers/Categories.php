@@ -51,12 +51,12 @@ class Categories implements DepartmentAssociated, Selectable
 		$tag = Languages::getTag();
 
 		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.year', "')'"];
+		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
 		$query->select('cat.name AS catName, ' . $query->concatenate($nameParts, "") . ' AS name');
 
 		$query->from('#__organizer_categories AS cat');
 		$query->leftJoin('#__organizer_programs AS p ON p.categoryID = cat.id');
-		$query->leftJoin('#__organizer_degrees AS d ON p.degreeID = d.id');
+		$query->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
 		$query->where("cat.id = '$categoryID'");
 
 		$dbo->setQuery($query);
@@ -109,13 +109,13 @@ class Categories implements DepartmentAssociated, Selectable
 		$tag = Languages::getTag();
 
 		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.year', "')'"];
+		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
 		$query->select($query->concatenate($nameParts, "") . ' AS name')
 			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
+			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->innerJoin('#__organizer_categories AS cat ON cat.id = p.categoryID')
 			->where("p.categoryID = '$categoryID'")
-			->order('p.year DESC');
+			->order('p.accredited DESC');
 
 
 		$dbo->setQuery($query);
@@ -137,11 +137,11 @@ class Categories implements DepartmentAssociated, Selectable
 		$tag = Languages::getTag();
 
 		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.year', "')'"];
+		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
 		$query->select('DISTINCT c.*, ' . $query->concatenate($nameParts, "") . ' AS programName')
 			->from('#__organizer_categories AS c')
 			->leftJoin('#__organizer_programs AS p ON p.categoryID = c.id')
-			->leftJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
+			->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->order('c.name');
 
 		if (!empty($access))
@@ -167,7 +167,7 @@ class Categories implements DepartmentAssociated, Selectable
 		$dbo         = Factory::getDbo();
 		$tag         = Languages::getTag();
 		$query       = $dbo->getQuery(true);
-		$concatQuery = ["dp.name_$tag", "', ('", 'd.abbreviation', "' '", ' dp.year', "')'"];
+		$concatQuery = ["dp.name_$tag", "', ('", 'd.abbreviation', "' '", ' dp.accredited', "')'"];
 		$query->select('dp.id, ' . $query->concatenate($concatQuery, '') . ' AS name');
 		$query->from('#__organizer_programs AS dp');
 		$query->innerJoin('#__organizer_mappings AS m ON m.programID = dp.id');

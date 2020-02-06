@@ -34,8 +34,8 @@ class Events extends ListModel
 			->select("d.id AS departmentID, d.shortName_$tag AS department")
 			->select("cp.id AS campusID, cp.name_$tag AS campus")
 			->from('#__organizer_events AS ev')
-			->leftJoin('#__organizer_departments as d on d.id = ev.departmentID')
-			->leftJoin('#__organizer_campuses as cp on cp.id = ev.campusID');
+			->leftJoin('#__organizer_departments AS d ON d.id = ev.departmentID')
+			->leftJoin('#__organizer_campuses AS cp ON cp.id = ev.campusID');
 
 		$this->setSearchFilter($query, ['ev.name_de', 'ev.name_en', 'ev.subjectNo']);
 		$this->setValueFilters($query, ['ev.departmentID', 'ev.campusID', 'ev.preparatory']);

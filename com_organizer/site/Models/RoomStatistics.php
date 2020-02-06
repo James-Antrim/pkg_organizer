@@ -291,7 +291,7 @@ class RoomStatistics extends BaseModel
 			->select('lcrs.id AS lcrsID')
 			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.lessonID = l.id')
 			->select("m.id AS methodID, m.abbreviation_$tag AS method, m.name_$tag as methodName")
-			->leftJoin('#__organizer_methods AS m ON l.methodID = m.id');
+			->leftJoin('#__organizer_methods AS m ON m.id = l.methodID');
 
 		$ringQuery->where("lcrs.delta != 'removed'");
 		$ringQuery->where("l.delta != 'removed'");
@@ -425,7 +425,7 @@ class RoomStatistics extends BaseModel
 		$select .= "s.abbreviation_$tag AS subjectAbbr, ";
 		$query->innerJoin('#__organizer_courses AS co ON co.id = lcrs.courseID');
 		$query->leftJoin('#__organizer_subject_mappings AS sm ON sm.courseID = co.id');
-		$query->leftJoin('#__organizer_subjects AS s ON sm.subjectID = s.id');
+		$query->leftJoin('#__organizer_subjects AS s ON s.id = sm.subjectID');
 
 		// Group Data
 		$select .= 'group.id AS groupID, group.untisID AS groupUntisID, ';
@@ -435,15 +435,15 @@ class RoomStatistics extends BaseModel
 
 		// Category/Program Data
 		$select .= 'cat.id AS categoryID, cat.name AS categoryName, ';
-		$select .= "prog.name_$tag AS progName, prog.year, dg.abbreviation AS progAbbr, ";
+		$select .= "prog.name_$tag AS progName, prog.accredited, dg.abbreviation AS progAbbr, ";
 		$query->innerJoin('#__organizer_categories AS cat ON cat.id = group.categoryID');
 		$query->leftJoin('#__organizer_programs AS prog ON prog.categoryID = cat.id');
-		$query->leftJoin('#__organizer_degrees AS dg ON prog.degreeID = dg.id');
+		$query->leftJoin('#__organizer_degrees AS dg ON dg.id = prog.degreeID');
 
 		// Department Data
 		$select .= "d.id AS departmentID, d.shortName_$tag AS department, d.name_$tag AS departmentName";
 		$query->innerJoin('#__organizer_department_resources AS dr ON dr.categoryID = cat.id');
-		$query->innerJoin('#__organizer_departments AS d ON dr.departmentID = d.id');
+		$query->innerJoin('#__organizer_departments AS d ON d.id = dr.departmentID');
 
 		$query->select($select);
 		$query->where("lg.delta != 'removed'");

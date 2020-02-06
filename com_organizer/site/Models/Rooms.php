@@ -40,7 +40,7 @@ class Rooms extends ListModel
 			->select('b.id AS buildingID, b.name AS buildingName')
 			->select($query->concatenate($linkParts, '') . ' AS link')
 			->from('#__organizer_rooms AS r')
-			->leftJoin('#__organizer_roomtypes AS t ON r.roomtypeID = t.id')
+			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
 			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
 			->leftJoin('#__organizer_campuses AS c ON (c.id = b.campusID OR c.parentID = b.campusID)');
 

@@ -340,7 +340,7 @@ class CourseParticipant extends BaseModel
 		$query = $this->_db->getQuery('true');
 		$query->select("DISTINCT i.id")
 			->from('#__organizer_instances AS i')
-			->innerJoin('#__organizer_units AS u on u.id = i.unitID')
+			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where("u.courseID = $courseID")
 			->order('i.id');
 		$this->_db->setQuery($query);

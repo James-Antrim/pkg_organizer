@@ -693,7 +693,7 @@ class Search extends BaseModel
 		$query->select('cat.id AS categoryID, d.id AS departmentID')
 			->from('#__organizer_categories AS cat')
 			->innerJoin('#__organizer_department_resources AS dr ON dr.categoryID = cat.ID')
-			->innerJoin('#__organizer_departments AS d on dr.departmentID = d.id');
+			->innerJoin('#__organizer_departments AS d ON d.id = dr.departmentID');
 
 		// Exact
 		$this->addInclusiveConditions($query, $eWherray);
@@ -855,7 +855,7 @@ class Search extends BaseModel
 		$query  = $this->_db->getQuery(true);
 		$query->select($select)
 			->from('#__organizer_rooms AS r')
-			->leftJoin('#__organizer_roomtypes AS rt ON r.roomtypeID = rt.id')
+			->leftJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID')
 			->order('r.name ASC');
 
 		// EXACT
@@ -1024,19 +1024,19 @@ class Search extends BaseModel
 		$courseQuery = $this->_db->getQuery(true);
 		$courseQuery->select('DISTINCT co.id AS courseID, s.id AS sID')
 			->from('#__organizer_course AS co')
-			->innerJoin('#__organizer_lesson_courses AS lcrs ON co.id = lcrs.courseID')
-			->innerJoin('#__organizer_lessons AS l ON lcrs.lessonID = l.id')
+			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.courseID = co.id')
+			->innerJoin('#__organizer_lessons AS l ON l.id = lcrs.lessonID')
 			->leftJoin('#__organizer_subject_mappings AS sm ON sm.courseID = co.id')
-			->leftJoin('#__organizer_subjects AS s ON sm.subjectID = s.id');
+			->leftJoin('#__organizer_subjects AS s ON s.id = sm.subjectID');
 
 		// Subject documentation does not necessarily have planned lesson instances
 		$subjectQuery = $this->_db->getQuery(true);
 		$subjectQuery->select('DISTINCT s.id AS sID, co.id AS courseID')
 			->from('#__organizer_subjects AS s')
-			->leftJoin('#__organizer_subject_mappings AS sm on sm.subjectID = s.id')
-			->leftJoin('#__organizer_courses AS co on co.id = sm.courseID')
-			->leftJoin('#__organizer_lesson_courses AS lcrs on lcrs.courseID = co.id')
-			->leftJoin('#__organizer_lessons AS l on lcrs.lessonID = l.id');
+			->leftJoin('#__organizer_subject_mappings AS sm ON sm.subjectID = s.id')
+			->leftJoin('#__organizer_courses AS co ON co.id = sm.courseID')
+			->leftJoin('#__organizer_lesson_courses AS lcrs ON lcrs.courseID = co.id')
+			->leftJoin('#__organizer_lessons AS l ON l.id = lcrs.lessonID');
 
 		// EXACT => exact (case independent) match for the search term
 		$initialTerm = current($terms);
@@ -1233,10 +1233,10 @@ class Search extends BaseModel
 		$subjectQuery->clear('where');
 
 		$courseQuery->innerJoin('#__organizer_lesson_persons AS lt ON lt.lessonCourseID = lcrs.id')
-			->innerJoin('#__organizer_persons AS t on lt.personID = t.id');
+			->innerJoin('#__organizer_persons AS t ON t.id = lt.personID');
 
 		$subjectQuery->innerJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id')
-			->innerJoin('#__organizer_persons AS t on st.personID = t.id');
+			->innerJoin('#__organizer_persons AS t ON t.id = st.personID');
 
 		if ($termCount == 1)
 		{

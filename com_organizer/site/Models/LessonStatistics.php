@@ -343,7 +343,7 @@ class LessonStatistics extends FormModel
 			->innerJoin('#__organizer_terms AS term ON term.id = l.termID')
 			->innerJoin('#__organizer_departments AS dpt ON dpt.id = l.departmentID')
 			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.lessonID = l.id')
-			->innerJoin('#__organizer_lesson_groups AS lg on lg.lessonCourseID = lcrs.id')
+			->innerJoin('#__organizer_lesson_groups AS lg ON lg.lessonCourseID = lcrs.id')
 			->innerJoin('#__organizer_groups AS group ON group.id = lg.groupID')
 			->innerJoin('#__organizer_categories AS cat ON cat.id = group.categoryID')
 			->leftJoin('#__organizer_methods AS m ON m.id = l.methodID');

@@ -62,7 +62,7 @@ class Participants extends ListModel
 		if ($courseID = $this->state->get('filter.courseID'))
 		{
 			$query->select('cp.attended, cp.paid, cp.status')
-				->innerJoin('#__organizer_course_participants AS cp on cp.participantID = pa.id')
+				->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
 				->where("cp.courseID = $courseID");
 		}
 
@@ -77,13 +77,13 @@ class Participants extends ListModel
 			$likePASN   = $query->concatenate(["'%'", 'TRIM(pa.surname)', "'%'"], '');
 			$likePA2SN  = $query->concatenate(["'%'", 'TRIM(pa2.surname)', "'%'"], '');
 			$conditions .= "(pa.surname LIKE $likePA2SN OR pa2.surname LIKE $likePASN))";
-			$query->leftJoin("#__organizer_participants AS pa2 on $conditions")
+			$query->leftJoin("#__organizer_participants AS pa2 ON $conditions")
 				->where('pa.id != pa2.id')
 				->group('pa.id');
 
 			if ($courseID)
 			{
-				$query->innerJoin('#__organizer_course_participants AS cp2 on cp2.participantID = pa2.id')
+				$query->innerJoin('#__organizer_course_participants AS cp2 ON cp2.participantID = pa2.id')
 					->where("cp2.courseID = $courseID");
 			}
 		}

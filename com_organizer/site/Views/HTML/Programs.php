@@ -24,7 +24,7 @@ class Programs extends ListView
 		'checkbox'    => '',
 		'programName' => 'link',
 		'degree'      => 'link',
-		'year'        => 'link',
+		'accredited'  => 'link',
 		'department'  => 'link'
 	];
 
@@ -86,7 +86,7 @@ class Programs extends ListView
 			'checkbox'    => '',
 			'programName' => HTML::sort('NAME', 'programName', $direction, $ordering),
 			'degree'      => HTML::sort('DEGREE', 'degree', $direction, $ordering),
-			'year'        => HTML::sort('YEAR', 'year', $direction, $ordering),
+			'accredited'  => HTML::sort('ACCREDITED', 'accredited', $direction, $ordering),
 			'department'  => HTML::sort('ORGANIZATION', 'department', $direction, $ordering)
 		];
 

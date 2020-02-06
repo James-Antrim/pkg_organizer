@@ -92,10 +92,10 @@ class Programs extends ResourceHelper implements Selectable
 		$tag = Languages::getTag();
 
 		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.year', "')'"];
+		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
 		$query->select($query->concatenate($nameParts, "") . ' AS name')
 			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
+			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->where("p.id = '$programID'");
 
 		$dbo->setQuery($query);
@@ -115,7 +115,7 @@ class Programs extends ResourceHelper implements Selectable
 		$options = [];
 		foreach (self::getResources($access) as $program)
 		{
-			$name = "{$program['name']} ({$program['degree']},  {$program['year']})";
+			$name = "{$program['name']} ({$program['degree']},  {$program['accredited']})";
 
 			$options[] = HTML::_('select.option', $program['id'], $name);
 		}
@@ -138,9 +138,9 @@ class Programs extends ResourceHelper implements Selectable
 
 		$query->select("dp.*, dp.name_$tag AS name, d.abbreviation AS degree")
 			->from('#__organizer_programs AS dp')
-			->innerJoin('#__organizer_degrees AS d ON dp.degreeID = d.id')
-			->innerJoin('#__organizer_mappings AS m ON dp.id = m.programID')
-			->order('name ASC, degree ASC, YEAR DESC');
+			->innerJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
+			->innerJoin('#__organizer_mappings AS m ON m.programID = dp.id')
+			->order('name ASC, degree ASC, accredited DESC');
 
 		if (!empty($access))
 		{
@@ -153,12 +153,12 @@ class Programs extends ResourceHelper implements Selectable
 		if ($useCurrent)
 		{
 			$subQuery = $dbo->getQuery(true);
-			$subQuery->select("dp2.name_$tag, dp2.degreeID, MAX(dp2.year) AS year")
+			$subQuery->select("dp2.name_$tag, dp2.degreeID, MAX(dp2.accredited) AS accredited")
 				->from('#__organizer_programs AS dp2')
 				->group("dp2.name_$tag, dp2.degreeID");
 			$conditions = "grouped.name_$tag = dp.name_$tag ";
 			$conditions .= "AND grouped.degreeID = dp.degreeID ";
-			$conditions .= "AND grouped.year = dp.year ";
+			$conditions .= "AND grouped.accredited = dp.accredited ";
 			$query->innerJoin("($subQuery) AS grouped ON $conditions");
 		}
 

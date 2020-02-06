@@ -207,8 +207,8 @@ class ScheduleExport extends BaseModel
 		$query->select('co.name AS courseName, co.untisID AS untisID')
 			->select("s.shortName_$tag AS shortName, s.name_$tag AS name")
 			->from('#__organizer_courses AS co')
-			->leftJoin('#__organizer_subject_mappings AS sm ON co.id = sm.courseID')
-			->leftJoin('#__organizer_subjects AS s ON sm.subjectID = s.id');
+			->leftJoin('#__organizer_subject_mappings AS sm ON sm.courseID = co.id')
+			->leftJoin('#__organizer_subjects AS s ON s.id = sm.subjectID');
 
 		foreach ($courseIDs as $courseID)
 		{

@@ -369,7 +369,7 @@ class Mappings
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.year', "')'"];
+		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.accredited', "')'"];
 		$query->select($query->concatenate($parts, '') . ' AS text')
 			->from('#__organizer_programs AS dp')
 			->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
@@ -408,12 +408,12 @@ class Mappings
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.year', "')'"];
+		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.accredited', "')'"];
 		$text  = $query->concatenate($parts, '') . ' AS name';
 		$query->select("DISTINCT dp.id AS id, $text")
 			->from('#__organizer_programs AS dp')
-			->innerJoin('#__organizer_degrees AS d ON dp.degreeID = d.id')
-			->innerJoin('#__organizer_mappings AS m ON dp.id = m.programID')
+			->innerJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
+			->innerJoin('#__organizer_mappings AS m ON m.programID = dp.id')
 			->order('name ASC');
 		$dbo->setQuery($query);
 
@@ -472,7 +472,7 @@ class Mappings
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$parts  = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.year', "')'"];
+		$parts  = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.accredited', "')'"];
 		$select = 'DISTINCT ' . $query->concatenate($parts, '') . ' AS name, dp.id AS id';
 		$query->select($select)
 			->from('#__organizer_programs AS dp')
@@ -651,8 +651,8 @@ class Mappings
 		$query = $dbo->getQuery(true);
 		$query->select('DISTINCT dp.id');
 		$query->from('#__organizer_mappings AS m');
-		$query->innerJoin('#__organizer_programs AS dp ON m.programID = dp.id');
-		$query->innerJoin('#__organizer_degrees AS d ON dp.degreeID = d.id');
+		$query->innerJoin('#__organizer_programs AS dp ON dp.id = m.programID');
+		$query->innerJoin('#__organizer_degrees AS d ON d.id = dp.degreeID');
 		$query->where($rangesClause);
 		$dbo->setQuery($query);
 

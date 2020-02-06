@@ -73,7 +73,7 @@ class ColorsField extends OptionsField
 		$view = Input::getView();
 		if ($view !== 'field_edit')
 		{
-			$query->innerJoin('#__organizer_fields AS f on f.colorID = c.id');
+			$query->innerJoin('#__organizer_fields AS f ON f.colorID = c.id');
 		}
 
 		$dbo->setQuery($query);

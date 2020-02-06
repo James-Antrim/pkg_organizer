@@ -63,7 +63,7 @@ class SubjectItem extends ItemModel
 			->select("recommendedPrerequisites_$tag as recommendedPrerequisites, selfCompetence")
 			->select("socialCompetence, sws, present")
 			->from('#__organizer_subjects AS s')
-			->leftJoin('#__organizer_frequencies AS f ON s.frequencyID = f.id')
+			->leftJoin('#__organizer_frequencies AS f ON f.id = s.frequencyID')
 			->where("s.id = '$subjectID'");
 
 		$this->_db->setQuery($query);
@@ -205,10 +205,10 @@ class SubjectItem extends ItemModel
 		$select .= "s2.id AS postID, s2.name_$tag AS postName, s2.code AS postModuleNumber";
 		$query->select($select);
 		$query->from('#__organizer_prerequisites AS pr');
-		$query->innerJoin('#__organizer_mappings AS m1 ON pr.prerequisiteID = m1.id');
-		$query->innerJoin('#__organizer_subjects AS s1 ON m1.subjectID = s1.id');
-		$query->innerJoin('#__organizer_mappings AS m2 ON pr.subjectID = m2.id');
-		$query->innerJoin('#__organizer_subjects AS s2 ON m2.subjectID = s2.id');
+		$query->innerJoin('#__organizer_mappings AS m1 ON m1.id = pr.prerequisiteID');
+		$query->innerJoin('#__organizer_subjects AS s1 ON s1.id = m1.subjectID');
+		$query->innerJoin('#__organizer_mappings AS m2 ON m2.id = pr.subjectID');
+		$query->innerJoin('#__organizer_subjects AS s2 ON s2.id = m2.subjectID');
 
 		foreach ($programs as $program)
 		{

@@ -37,9 +37,9 @@ class Campuses extends ListModel
 		$select .= $query->concatenate($parts, '') . ' AS link';
 		$query->select($select)
 			->from('#__organizer_campuses AS c1')
-			->leftJoin('#__organizer_grids as g1 on c1.gridID = g1.id')
-			->leftJoin('#__organizer_campuses as c2 on c1.parentID = c2.id')
-			->leftJoin('#__organizer_grids as g2 on c2.gridID = g2.id');
+			->leftJoin('#__organizer_grids AS g1 ON g1.id = c1.gridID')
+			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
+			->leftJoin('#__organizer_grids AS g2 ON g2.id = c2.gridID');
 
 		$searchColumns = [
 			'c1.name_de',

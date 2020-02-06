@@ -55,7 +55,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		$plausibleVersion = (ctype_digit($pieces[2]) and preg_match('/^[2]{1}[0-9]{3}$/', $pieces[2]));
 
 		return ($plausibleCode and $degreeID and $plausibleVersion) ?
-			['code' => $pieces[0], 'degreeID' => $degreeID, 'year' => $pieces[2]] : [];
+			['code' => $pieces[0], 'degreeID' => $degreeID, 'accredited' => $pieces[2]] : [];
 	}
 
 	/**

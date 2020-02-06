@@ -84,8 +84,8 @@ FROM `#__thm_organizer_methods`;
 
 # region organizations
 INSERT IGNORE INTO `#__organizer_organizations` (`id`, `abbreviation_de`, `abbreviation_en`, `shortName_de`,
-                                                    `shortName_en`, `name_de`, `name_en`, `fullName_de`, `fullName_en`,
-                                                    `contactEmail`, `alias`, `URL`)
+                                                 `shortName_en`, `name_de`, `name_en`, `fullName_de`, `fullName_en`,
+                                                 `contactEmail`, `alias`, `URL`)
 VALUES (1, 'BAU', 'CE', 'FB 01 BAU', 'CE DEPT 01', 'Fachbereich Bauwesen', 'Civil Engineering Department',
         'Fachbereich 01 Bauwesen', 'Civil Engineering Department 01', 'dekanat@bau.thm.de', 'bau',
         'https://www.thm.de/bau'),
@@ -155,7 +155,7 @@ WHERE p.`username` IS NOT NULL;
 
 # region roomtypes
 INSERT INTO `#__organizer_roomtypes` (`id`, `code`, `name_de`, `name_en`, `description_de`, `description_en`,
-                                         `minCapacity`, `maxCapacity`)
+                                      `minCapacity`, `maxCapacity`)
 SELECT DISTINCT `id`,
                 `gpuntisID`,
                 `name_de`,
@@ -231,7 +231,7 @@ WHERE `code` = 'SS21';
 
 # region campuses references grids
 INSERT IGNORE INTO `#__organizer_campuses` (`id`, `parentID`, `name_de`, `name_en`, `isCity`, `location`, `address`,
-                                               `city`, `zipCode`, `gridID`)
+                                            `city`, `zipCode`, `gridID`)
 SELECT DISTINCT `id`,
                 `parentID`,
                 `name_de`,
@@ -259,7 +259,7 @@ FROM `#__thm_organizer_rooms`;
 
 # region monitors references rooms
 INSERT IGNORE INTO `#__organizer_monitors` (`id`, `ip`, `roomID`, `useDefaults`, `display`, `scheduleRefresh`,
-                                               `contentRefresh`, `interval`, `content`)
+                                            `contentRefresh`, `interval`, `content`)
 SELECT DISTINCT `id`,
                 `ip`,
                 `roomID`,
@@ -346,34 +346,34 @@ VALUES (1, 'Sommersemester', 'Summer Semester', 11,
 INSERT IGNORE INTO `#__organizer_field_colors` (`colorID`, `fieldID`, `organizationID`)
 SELECT DISTINCT f.`colorID`, f.`id`, dr.`departmentID`
 FROM `#__thm_organizer_fields` AS f
-         INNER JOIN `#__thm_organizer_plan_pools` AS ppo on f.`id` = ppo.`fieldID`
-         INNER JOIN `#__thm_organizer_department_resources` AS dr on dr.`programID` = ppo.`programID`
+         INNER JOIN `#__thm_organizer_plan_pools` AS ppo ON ppo.`fieldID` = f.`id`
+         INNER JOIN `#__thm_organizer_department_resources` AS dr ON dr.`programID` = ppo.`programID`
 WHERE f.`colorID` IS NOT NULL;
 
 INSERT IGNORE INTO `#__organizer_field_colors` (`colorID`, `fieldID`, `organizationID`)
 SELECT DISTINCT f.`colorID`, f.`id`, l.`departmentID`
 FROM `#__thm_organizer_fields` AS f
-         INNER JOIN `#__thm_organizer_plan_subjects` AS ps on f.`id` = ps.`fieldID`
-         INNER JOIN `#__thm_organizer_lesson_subjects` AS ls on ls.`subjectID` = ps.`id`
-         INNER JOIN `#__thm_organizer_lessons` AS l on l.`id` = ls.`lessonID`
+         INNER JOIN `#__thm_organizer_plan_subjects` AS ps ON ps.`fieldID` = f.`id`
+         INNER JOIN `#__thm_organizer_lesson_subjects` AS ls ON ls.`subjectID` = ps.`id`
+         INNER JOIN `#__thm_organizer_lessons` AS l ON l.`id` = ls.`lessonID`
 WHERE f.`colorID` IS NOT NULL;
 
 INSERT IGNORE INTO `#__organizer_field_colors` (`colorID`, `fieldID`, `organizationID`)
 SELECT DISTINCT f.`colorID`, f.`id`, p.`departmentID`
 FROM `#__thm_organizer_fields` AS f
-         INNER JOIN `#__thm_organizer_pools` AS p on p.`fieldID` = f.`id`
+         INNER JOIN `#__thm_organizer_pools` AS p ON p.`fieldID` = f.`id`
 WHERE f.`colorID` IS NOT NULL;
 
 INSERT IGNORE INTO `#__organizer_field_colors` (`colorID`, `fieldID`, `organizationID`)
 SELECT DISTINCT f.`colorID`, f.`id`, p.`departmentID`
 FROM `#__thm_organizer_fields` AS f
-         INNER JOIN `#__thm_organizer_programs` AS p on p.`fieldID` = f.`id`
+         INNER JOIN `#__thm_organizer_programs` AS p ON p.`fieldID` = f.`id`
 WHERE f.`colorID` IS NOT NULL;
 
 INSERT IGNORE INTO `#__organizer_field_colors` (`colorID`, `fieldID`, `organizationID`)
 SELECT DISTINCT f.`colorID`, f.`id`, s.`departmentID`
 FROM `#__thm_organizer_fields` AS f
-         INNER JOIN `#__thm_organizer_subjects` AS s on s.`fieldID` = f.`id`
+         INNER JOIN `#__thm_organizer_subjects` AS s ON s.`fieldID` = f.`id`
 WHERE f.`colorID` IS NOT NULL;
 
 # endregion

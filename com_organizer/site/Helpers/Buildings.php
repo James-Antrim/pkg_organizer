@@ -112,7 +112,7 @@ class Buildings extends ResourceHelper implements Selectable
 
 		$query->select('DISTINCT b.*, c.parentID')
 			->from('#__organizer_buildings AS b')
-			->leftJoin('#__organizer_campuses AS c on c.id = b.campusID');
+			->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID');
 
 		self::addCampusFilter($query, 'b');
 

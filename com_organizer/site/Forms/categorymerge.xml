@@ -3,9 +3,9 @@
     <fieldset name="details">
         <field name="untisID" type="MergeValues" label="UNTIS_ID"/>
         <field name="name" type="MergeValues" label="NAME"/>
-        <field name="programID" type="MergeAssociations" label="PROGRAM" textcolumn="prg.name,prg.year,dgr.abbreviation"
+        <field name="programID" type="MergeAssociations" label="PROGRAM" textcolumn="p.name,p.accredited,d.abbreviation"
                localized="true" glue=", " from="categories AS cat"
-               innerJoins="programs AS prg ON prg.categoryID = cat.id,degrees AS dgr ON dgr.id = prg.degreeID"/>
+               innerJoins="programs AS p ON p.categoryID = cat.id,degrees AS d ON d.id = p.degreeID"/>
         <field name="departmentID" type="MergeDepartments" label="DEPARTMENTS" resource="category" multiple="multiple"/>
         <field name="ids" type="MergeIDs" hidden="true"/>
     </fieldset>
