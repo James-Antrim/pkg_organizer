@@ -10,6 +10,7 @@
 
 namespace Organizer\Tables;
 
+use JDatabaseDriver;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Languages;
@@ -87,7 +88,7 @@ class Schedules extends BaseTable
 	/**
 	 * Declares the associated table
 	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * @param   JDatabaseDriver &$dbo  A database connector object
 	 */
 	public function __construct(&$dbo = null)
 	{

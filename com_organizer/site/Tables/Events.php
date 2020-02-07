@@ -10,6 +10,8 @@
 
 namespace Organizer\Tables;
 
+use JDatabaseDriver;
+
 /**
  * Models the organizer_events table.
  */
@@ -33,6 +35,54 @@ class Events extends BaseTable
 	 * @var string
 	 */
 	public $code;
+
+	/**
+	 * The organization's German contact information for a group of courses.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $contact_de;
+
+	/**
+	 * The organization's English contact information for a group of courses.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $contact_en;
+
+	/**
+	 * The German description of the event's contents.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $content_de;
+
+	/**
+	 * The English description of the event's contents.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $content_en;
+
+	/**
+	 * The organization's German contact information for courses of this event type.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $courseContact_de;
+
+	/**
+	 * The organization's English contact information for courses of this event type.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $courseContact_en;
 
 	/**
 	 * The number of days before course begin when registration is closed.
@@ -59,28 +109,12 @@ class Events extends BaseTable
 	public $description_en;
 
 	/**
-	 * The id of the department entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $departmentID;
-
-	/**
 	 * The fee for participation in the course.
 	 * INT(3) UNSIGNED DEFAULT 0
 	 *
 	 * @var int
 	 */
 	public $fee;
-
-	/**
-	 * The id of the field entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $fieldID;
 
 	/**
 	 * The maximum number of participants the course allows.
@@ -92,7 +126,7 @@ class Events extends BaseTable
 
 	/**
 	 * The resource's German name.
-	 * VARCHAR(100) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -100,11 +134,53 @@ class Events extends BaseTable
 
 	/**
 	 * The resource's English name.
-	 * VARCHAR(100) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
 	public $name_en;
+
+	/**
+	 * A German description of how courses implementing this event are organized.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $organization_de;
+
+	/**
+	 * A English description of how courses implementing this event are organized.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $organization_en;
+
+	/**
+	 * The id of the organization entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $organizationID;
+
+	/**
+	 * A German description how to test one's self to see if one should attend or is qualified to attend courses
+	 * implementing this event.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $pretests_de;
+
+	/**
+	 * A English description how to test one's self to see if one should attend or is qualified to attend courses
+	 * implementing this event.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $pretests_en;
 
 	/**
 	 * Whether or not the event is a preparatory event.
@@ -133,7 +209,7 @@ class Events extends BaseTable
 	/**
 	 * Declares the associated table
 	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * @param   JDatabaseDriver &$dbo  A database connector object
 	 */
 	public function __construct(&$dbo = null)
 	{

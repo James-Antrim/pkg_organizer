@@ -10,6 +10,8 @@
 
 namespace Organizer\Tables;
 
+use JDatabaseDriver;
+
 /**
  * Models the organizer_fields table.
  */
@@ -51,7 +53,7 @@ class Fields extends BaseTable
 	/**
 	 * Declares the associated table
 	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * @param   JDatabaseDriver &$dbo  A database connector object
 	 */
 	public function __construct(&$dbo = null)
 	{

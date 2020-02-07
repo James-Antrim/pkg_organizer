@@ -10,6 +10,7 @@
 
 namespace Organizer\Tables;
 
+use JDatabaseDriver;
 use Joomla\CMS\Table\Table;
 
 /**
@@ -142,7 +143,7 @@ class Pools extends Assets
 	/**
 	 * Declares the associated table
 	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * @param   JDatabaseDriver &$dbo  A database connector object
 	 */
 	public function __construct(&$dbo = null)
 	{

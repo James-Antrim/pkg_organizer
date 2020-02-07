@@ -10,6 +10,7 @@
 
 namespace Organizer\Tables;
 
+use JDatabaseDriver;
 use Organizer\Helpers\OrganizerHelper;
 
 /**
@@ -60,9 +61,8 @@ class Holidays extends BaseTable
 	/**
 	 * Declares the associated table
 	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * @param   JDatabaseDriver &$dbo  A database connector object
 	 */
-
 	public function __construct(&$dbo = null)
 	{
 		parent::__construct('#__organizer_holidays', 'id', $dbo);
@@ -73,7 +73,6 @@ class Holidays extends BaseTable
 	 *
 	 * @return boolean true on success, otherwise false
 	 */
-
 	public function check()
 	{
 		if ($this->endDate < $this->startDate)

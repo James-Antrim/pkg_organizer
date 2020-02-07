@@ -10,6 +10,8 @@
 
 namespace Organizer\Tables;
 
+use JDatabaseDriver;
+
 /**
  * Models the organizer_subject_events table.
  */
@@ -34,7 +36,7 @@ class SubjectEvents extends BaseTable
 	/**
 	 * Declares the associated table
 	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * @param   JDatabaseDriver &$dbo  A database connector object
 	 */
 	public function __construct(&$dbo = null)
 	{
