@@ -25,7 +25,7 @@
             <option value='6'>SATURDAY</option>
             <option value='0'>SUNDAY</option>
         </field>
-        <field name="defaultGrid" type="Options" label="DEFAULT" default="1">
+        <field name="isDefault" type="Options" label="DEFAULT" default="1">
             <option value='1'>YES</option>
             <option value='0'>NO</option>
         </field>

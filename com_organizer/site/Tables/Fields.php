@@ -27,14 +27,6 @@ class Fields extends BaseTable
 	public $code;
 
 	/**
-	 * The id of the color entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $colorID;
-
-	/**
 	 * The resource's German name.
 	 * VARCHAR(60) NOT NULL
 	 *
@@ -58,24 +50,5 @@ class Fields extends BaseTable
 	public function __construct(&$dbo = null)
 	{
 		parent::__construct('#__organizer_fields', 'id', $dbo);
-	}
-
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return boolean  true
-	 */
-	public function check()
-	{
-		$nullColumns = ['colorID'];
-		foreach ($nullColumns as $nullColumn)
-		{
-			if (!strlen($this->$nullColumn))
-			{
-				$this->$nullColumn = null;
-			}
-		}
-
-		return true;
 	}
 }

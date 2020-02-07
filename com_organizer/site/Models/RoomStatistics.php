@@ -373,11 +373,11 @@ class RoomStatistics extends BaseModel
 
 		if (empty($this->parameters['gridID']))
 		{
-			$query->where("defaultGrid = '1'");
+			$query->where('isDefault = 1');
 		}
 		else
 		{
-			$query->where("id = '{$this->parameters['gridID']}'");
+			$query->where("id = {$this->parameters['gridID']}");
 		}
 
 		$this->_db->setQuery($query);

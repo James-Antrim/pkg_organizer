@@ -18,7 +18,6 @@ use Organizer\Tables\Grids as GridsTable;
  */
 class Grids extends ResourceHelper
 {
-
 	/**
 	 * Retrieves the selectable options for the resource.
 	 *
@@ -44,10 +43,9 @@ class Grids extends ResourceHelper
 	 */
 	public static function getDefault($onlyID = true)
 	{
-
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select("*")->from('#__organizer_grids')->where('defaultGrid = 1');
+		$query->select("*")->from('#__organizer_grids')->where('isDefault = 1');
 
 		$dbo->setQuery($query);
 
@@ -80,7 +78,7 @@ class Grids extends ResourceHelper
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select("*, name_$tag as name, defaultGrid")->from('#__organizer_grids')->order('name');
+		$query->select("*, name_$tag as name, isDefault")->from('#__organizer_grids')->order('name');
 
 		$dbo->setQuery($query);
 

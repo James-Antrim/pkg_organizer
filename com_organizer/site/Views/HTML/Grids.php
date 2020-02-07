@@ -22,13 +22,13 @@ use Organizer\Helpers\Languages;
 class Grids extends ListView
 {
 	protected $rowStructure = [
-		'checkbox'    => '',
-		'name'        => 'link',
-		'startDay'    => 'value',
-		'endDay'      => 'value',
-		'startTime'   => 'value',
-		'endTime'     => 'value',
-		'defaultGrid' => 'value'
+		'checkbox'  => '',
+		'name'      => 'link',
+		'startDay'  => 'value',
+		'endDay'    => 'value',
+		'startTime' => 'value',
+		'endTime'   => 'value',
+		'isDefault' => 'value'
 	];
 
 	/**
@@ -70,13 +70,13 @@ class Grids extends ListView
 	public function setHeaders()
 	{
 		$headers = [
-			'checkbox'    => '',
-			'name'        => Languages::_('ORGANIZER_NAME'),
-			'startDay'    => Languages::_('ORGANIZER_START_DAY'),
-			'endDay'      => Languages::_('ORGANIZER_END_DAY'),
-			'startTime'   => Languages::_('ORGANIZER_START_TIME'),
-			'endTime'     => Languages::_('ORGANIZER_END_TIME'),
-			'defaultGrid' => Languages::_('ORGANIZER_DEFAULT')
+			'checkbox'  => '',
+			'name'      => Languages::_('ORGANIZER_NAME'),
+			'startDay'  => Languages::_('ORGANIZER_START_DAY'),
+			'endDay'    => Languages::_('ORGANIZER_END_DAY'),
+			'startTime' => Languages::_('ORGANIZER_START_TIME'),
+			'endTime'   => Languages::_('ORGANIZER_END_TIME'),
+			'isDefault' => Languages::_('ORGANIZER_DEFAULT')
 		];
 
 		$this->headers = $headers;
@@ -116,7 +116,7 @@ class Grids extends ListView
 			}
 
 			$tip                     = Languages::_('ORGANIZER_GRID_DEFAULT_DESC');
-			$item->defaultGrid       = $this->getToggle('grid', $item->id, $item->defaultGrid, $tip);
+			$item->isDefault         = $this->getToggle('grid', $item->id, $item->isDefault, $tip);
 			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
 			$index++;
 		}

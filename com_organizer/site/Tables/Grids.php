@@ -32,11 +32,11 @@ class Grids extends BaseTable
 	 *
 	 * @var bool
 	 */
-	public $defaultGrid;
+	public $isDefault;
 
 	/**
 	 * A grid object modeled by a JSON string, containing the respective start and end times of the grid blocks.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */

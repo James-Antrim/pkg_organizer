@@ -85,7 +85,7 @@ class ScheduleExport extends BaseModel
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
-		$query->select("id, name_$tag AS name, defaultGrid")->from('#__organizer_grids');
+		$query->select("id, name_$tag AS name, isDefault")->from('#__organizer_grids');
 		$this->_db->setQuery($query);
 
 		$options = [];
@@ -94,7 +94,7 @@ class ScheduleExport extends BaseModel
 
 		foreach ($grids as $grid)
 		{
-			if ($grid['defaultGrid'])
+			if ($grid['isDefault'])
 			{
 				$this->defaultGrid = $grid['id'];
 			}
@@ -306,11 +306,11 @@ class ScheduleExport extends BaseModel
 
 		if (empty($this->parameters['gridID']))
 		{
-			$query->where("defaultGrid = '1'");
+			$query->where('isDefault = 1');
 		}
 		else
 		{
-			$query->where("id = '{$this->parameters['gridID']}'");
+			$query->where("id = {$this->parameters['gridID']}");
 		}
 
 		$this->_db->setQuery($query);

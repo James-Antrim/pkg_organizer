@@ -316,7 +316,7 @@ class RoomDisplay extends BaseModel
 	private function setGrid()
 	{
 		$query = $this->_db->getQuery(true);
-		$query->select('grid')->from('#__organizer_grids')->where("defaultGrid = '1'");
+		$query->select('grid')->from('#__organizer_grids')->where('isDefault = 1');
 		$this->_db->setQuery($query);
 
 		$rawGrid = OrganizerHelper::executeQuery('loadResult');
