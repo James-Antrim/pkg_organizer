@@ -17,15 +17,7 @@ use JDatabaseDriver;
  */
 class Groups extends BaseTable
 {
-	use Addressable;
-
-	/**
-	 * A flag which displays whether the resource is currently active.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-	 *
-	 * @var bool
-	 */
-	public $active;
+	use Activated, Aliased, Suppressed;
 
 	/**
 	 * The id of the category entry referenced.
@@ -45,20 +37,20 @@ class Groups extends BaseTable
 	public $code;
 
 	/**
-	 * The id of the field entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $fieldID;
-
-	/**
-	 * The resource's full name.
-	 * VARCHAR(100) NOT NULL
+	 * The resource's German name.
+	 * VARCHAR(200) NOT NULL
 	 *
 	 * @var string
 	 */
-	public $fullName;
+	public $fullName_de;
+
+	/**
+	 * The resource's English name.
+	 * VARCHAR(200) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fullName_en;
 
 	/**
 	 * The id of the grid entry referenced.
@@ -69,12 +61,20 @@ class Groups extends BaseTable
 	public $gridID;
 
 	/**
-	 * The resource's name.
-	 * VARCHAR(100) NOT NULL
+	 * The resource's German name.
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
-	public $name;
+	public $name_de;
+
+	/**
+	 * The resource's English name.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_en;
 
 	/**
 	 * Declares the associated table
@@ -84,20 +84,5 @@ class Groups extends BaseTable
 	public function __construct(&$dbo = null)
 	{
 		parent::__construct('#__organizer_groups', 'id', $dbo);
-	}
-
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return boolean  true
-	 */
-	public function check()
-	{
-		if (empty($this->fieldID))
-		{
-			$this->fieldID = null;
-		}
-
-		return true;
 	}
 }

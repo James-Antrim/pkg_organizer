@@ -17,15 +17,7 @@ use JDatabaseDriver;
  */
 class Persons extends BaseTable
 {
-	use Addressable;
-
-	/**
-	 * A flag which displays whether the resource is currently active.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-	 *
-	 * @var bool
-	 */
-	public $active;
+	use Activated, Aliased, Suppressed;
 
 	/**
 	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
@@ -35,14 +27,6 @@ class Persons extends BaseTable
 	 * @var string
 	 */
 	public $code;
-
-	/**
-	 * The id of the field entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $fieldID;
 
 	/**
 	 * The person's first and middle names.
@@ -69,6 +53,14 @@ class Persons extends BaseTable
 	public $title;
 
 	/**
+	 * The person's userID.
+	 * INT(11) DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $userID;
+
+	/**
 	 * The person's user name.
 	 * VARCHAR(150) DEFAULT NULL
 	 *
@@ -93,7 +85,8 @@ class Persons extends BaseTable
 	 */
 	public function check()
 	{
-		$nullColumns = ['fieldID', 'username'];
+		// All three fields can recieve data from at least two systems.
+		$nullColumns = ['code', 'userID', 'username'];
 		foreach ($nullColumns as $nullColumn)
 		{
 			if (!strlen($this->$nullColumn))

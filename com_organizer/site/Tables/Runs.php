@@ -19,7 +19,7 @@ class Runs extends BaseTable
 {
 	/**
 	 * The resource's German name.
-	 * VARCHAR(50) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -27,7 +27,7 @@ class Runs extends BaseTable
 
 	/**
 	 * The resource's English name.
-	 * VARCHAR(50) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -35,7 +35,7 @@ class Runs extends BaseTable
 
 	/**
 	 * A run object modeled by a JSON string, containing the respective start and end dates of run sections.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */

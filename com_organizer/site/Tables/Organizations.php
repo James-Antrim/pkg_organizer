@@ -19,7 +19,23 @@ use Organizer\Helpers\Languages;
  */
 class Organizations extends Assets
 {
-	use Addressable;
+	use Activated, Aliased;
+
+	/**
+	 * The resource's German abbreviation.
+	 * VARCHAR(25) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $abbreviation_de;
+
+	/**
+	 * The resource's English abbreviation.
+	 * VARCHAR(25) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $abbreviation_en;
 
 	/**
 	 * The id used by Joomla as a reference to its assets table.
@@ -46,12 +62,20 @@ class Organizations extends Assets
 	public $contactEmail;
 
 	/**
-	 * The way way in which department contact is to be carried out. Values: 0 - User Entry, 1 - Email Address
-	 * TINYINT(1) UNSIGNED DEFAULT 0
+	 * The resource's German full name.
+	 * VARCHAR(200) NOT NULL
 	 *
-	 * @var int
+	 * @var string
 	 */
-	public $contactType;
+	public $fullName_de;
+
+	/**
+	 * The resource's English full name.
+	 * VARCHAR(200) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fullName_en;
 
 	/**
 	 * The resource's German name.
@@ -86,13 +110,21 @@ class Organizations extends Assets
 	public $shortName_en;
 
 	/**
+	 * The base URL for the organization's homepage.
+	 * VARCHAR(50) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $URL;
+
+	/**
 	 * Declares the associated table
 	 *
 	 * @param   JDatabaseDriver &$dbo  A database connector object
 	 */
 	public function __construct(&$dbo = null)
 	{
-		parent::__construct('#__organizer_departments', 'id', $dbo);
+		parent::__construct('#__organizer_organizations', 'id', $dbo);
 	}
 
 	/**
@@ -103,13 +135,11 @@ class Organizations extends Assets
 	 */
 	protected function _getAssetTitle()
 	{
-		$shortNameColumn = 'shortName_' . Languages::getTag();
-
-		return $this->$shortNameColumn;
+		return $this->shortName_en;
 	}
 
 	/**
-	 * Sets the department asset name
+	 * Sets the organization asset name
 	 *
 	 * @return string
 	 */
@@ -117,7 +147,7 @@ class Organizations extends Assets
 	{
 		$key = $this->_tbl_key;
 
-		return 'com_organizer.department.' . (int) $this->$key;
+		return 'com_organizer.organization.' . (int) $this->$key;
 	}
 
 	/**
@@ -145,7 +175,7 @@ class Organizations extends Assets
 	 */
 	public function check()
 	{
-		if (empty($this->contactID))
+		if (!$this->contactID)
 		{
 			$this->contactID = null;
 		}

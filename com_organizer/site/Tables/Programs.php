@@ -12,14 +12,13 @@
 namespace Organizer\Tables;
 
 use JDatabaseDriver;
-use Joomla\CMS\Table\Table;
 
 /**
  * Models the organizer_programs table.
  */
-class Programs extends Assets
+class Programs extends BaseTable
 {
-	use Addressable;
+	use Activated, Aliased;
 
 	/**
 	 * The year in which the program was accredited.
@@ -28,22 +27,6 @@ class Programs extends Assets
 	 * @var int
 	 */
 	public $accredited;
-
-	/**
-	 * A flag which displays whether the resource is currently active.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-	 *
-	 * @var bool
-	 */
-	public $active;
-
-	/**
-	 * The id used by Joomla as a reference to its assets table.
-	 * INT(11) NOT NULL
-	 *
-	 * @var int
-	 */
-	public $asset_id;
 
 	/**
 	 * The id of the category entry referenced.
@@ -70,12 +53,12 @@ class Programs extends Assets
 	public $degreeID;
 
 	/**
-	 * The id of the department entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
+	 * The id of the organization entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
 	 *
 	 * @var int
 	 */
-	public $departmentID;
+	public $organizationID;
 
 	/**
 	 * The resource's German description.
@@ -111,7 +94,7 @@ class Programs extends Assets
 
 	/**
 	 * The resource's German name.
-	 * VARCHAR(60) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -119,7 +102,7 @@ class Programs extends Assets
 
 	/**
 	 * The resource's English name.
-	 * VARCHAR(60) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -142,43 +125,11 @@ class Programs extends Assets
 	 */
 	public function check()
 	{
-		$nullColumns = ['fieldID'];
-		foreach ($nullColumns as $nullColumn)
+		if (empty($this->categoryID))
 		{
-			if (!strlen($this->$nullColumn))
-			{
-				$this->$nullColumn = null;
-			}
+			$this->categoryID = null;
 		}
 
 		return true;
-	}
-
-	/**
-	 * Sets the department asset name
-	 *
-	 * @return string
-	 */
-	protected function _getAssetName()
-	{
-		return "com_organizer.program.$this->id";
-	}
-
-	/**
-	 * Sets the parent as the component root
-	 *
-	 * @param   Table    $table  A Table object for the asset parent.
-	 * @param   integer  $id     Id to look up
-	 *
-	 * @return int  the asset id of the component root
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	protected function _getAssetParentId(Table $table = null, $id = null)
-	{
-		$asset = Table::getInstance('Asset');
-		$asset->loadByName("com_organizer.department.$this->departmentID");
-
-		return $asset->id;
 	}
 }

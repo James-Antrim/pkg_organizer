@@ -13,13 +13,13 @@ namespace Organizer\Tables;
 /**
  * Resources which can be reached over a URL are addressable.
  */
-trait Addressable
+trait Activated
 {
 	/**
-	 * The alias used to reference the resource in an URL
-	 * VARCHAR(255) DEFAULT ''
+	 * A flag which displays whether the resource is currently active.
+	 * TINYINT(1) UNSIGNED NOT NULL
 	 *
 	 * @var string
 	 */
-	public $alias;
+	public $active;
 }

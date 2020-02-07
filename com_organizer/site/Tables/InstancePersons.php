@@ -17,13 +17,7 @@ use JDatabaseDriver;
  */
 class InstancePersons extends BaseTable
 {
-	/**
-	 * The textual description of the associations last change. Values: changed, <empty>, new, removed.
-	 * VARCHAR(10) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $delta;
+	use Modified;
 
 	/**
 	 * The id of the instance entry referenced.
@@ -32,14 +26,6 @@ class InstancePersons extends BaseTable
 	 * @var int
 	 */
 	public $instanceID;
-
-	/**
-	 * The timestamp of the time at which the last change to the entry occurred.
-	 * TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-	 *
-	 * @var int
-	 */
-	public $modified;
 
 	/**
 	 * The id of the person entry referenced.
@@ -65,17 +51,5 @@ class InstancePersons extends BaseTable
 	public function __construct(&$dbo = null)
 	{
 		parent::__construct('#__organizer_instance_persons', 'id', $dbo);
-	}
-
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return boolean  true
-	 */
-	public function check()
-	{
-		$this->modified = null;
-
-		return true;
 	}
 }

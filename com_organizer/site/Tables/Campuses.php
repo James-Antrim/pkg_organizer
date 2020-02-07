@@ -17,7 +17,7 @@ use JDatabaseDriver;
  */
 class Campuses extends BaseTable
 {
-	use Addressable;
+	use Activated, Aliased;
 
 	/**
 	 * The physical address of the resource.
@@ -112,6 +112,7 @@ class Campuses extends BaseTable
 		{
 			$this->parentID = null;
 		}
+
 		if (empty($this->gridID))
 		{
 			$this->gridID = null;

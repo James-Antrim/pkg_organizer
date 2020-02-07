@@ -17,6 +17,8 @@ use JDatabaseDriver;
  */
 class Courses extends BaseTable
 {
+	use Aliased;
+
 	/**
 	 * The id of the campus entry referenced.
 	 * INT(11) UNSIGNED DEFAULT NULL

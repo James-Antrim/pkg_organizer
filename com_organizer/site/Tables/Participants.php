@@ -42,14 +42,6 @@ class Participants extends BaseTable
 	public $forename;
 
 	/**
-	 * The primary key, FK to #__users.
-	 * INT(11) NOT NULL
-	 *
-	 * @var int
-	 */
-	public $id;
-
-	/**
 	 * A flag displaying whether the user wishes to receive emails regarding schedule changes.
 	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
 	 *
@@ -75,7 +67,7 @@ class Participants extends BaseTable
 
 	/**
 	 * The ZIP code of the resource.
-	 * INT(11) NOT NULL DEFAULT 0
+	 * VARCHAR(60) NOT NULL DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -98,7 +90,7 @@ class Participants extends BaseTable
 	 */
 	public function check()
 	{
-		if (empty($this->programID))
+		if (!$this->programID)
 		{
 			$this->programID = null;
 		}

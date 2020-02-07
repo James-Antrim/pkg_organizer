@@ -22,26 +22,26 @@ CREATE TABLE IF NOT EXISTS `#__organizer_blocks` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `date`      DATE                NOT NULL,
     `dow`       TINYINT(1) UNSIGNED NOT NULL,
-    `startTime` TIME                NOT NULL,
     `endTime`   TIME                NOT NULL,
+    `startTime` TIME                NOT NULL,
     PRIMARY KEY (`id`),
     INDEX `date` (`date`),
-    INDEX `dow` (`endTime`),
-    INDEX `startTime` (`startTime`),
-    INDEX `endTime` (`endTime`)
+    INDEX `dow` (`dow`),
+    INDEX `endTime` (`endTime`),
+    INDEX `startTime` (`startTime`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `#__organizer_buildings` (
-    `id`           INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias`        VARCHAR(255)              DEFAULT '',
-    `campusID`     INT(11) UNSIGNED          DEFAULT NULL,
-    `name`         VARCHAR(150)     NOT NULL,
-    `location`     VARCHAR(20)      NOT NULL,
-    `address`      VARCHAR(255)     NOT NULL,
-    `propertyType` INT(1) UNSIGNED  NOT NULL DEFAULT 0
+    `id`           INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `campusID`     INT(11) UNSIGNED             DEFAULT NULL,
+    `name`         VARCHAR(150)        NOT NULL,
+    `active`       TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `address`      VARCHAR(255)        NOT NULL,
+    `location`     VARCHAR(20)         NOT NULL,
+    `propertyType` INT(1) UNSIGNED     NOT NULL DEFAULT 0
         COMMENT '0 - new/unknown | 1 - owned | 2 - rented/leased',
     PRIMARY KEY (`id`),
     INDEX `campusID` (`campusID`),
@@ -57,12 +57,13 @@ CREATE TABLE IF NOT EXISTS `#__organizer_campuses` (
     `parentID` INT(11) UNSIGNED             DEFAULT NULL,
     `name_de`  VARCHAR(150)        NOT NULL,
     `name_en`  VARCHAR(150)        NOT NULL,
-    `isCity`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-    `location` VARCHAR(20)         NOT NULL,
+    `active`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `address`  VARCHAR(255)        NOT NULL,
     `city`     VARCHAR(60)         NOT NULL,
-    `zipCode`  VARCHAR(60)         NOT NULL,
     `gridID`   INT(11) UNSIGNED             DEFAULT NULL,
+    `isCity`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+    `location` VARCHAR(20)         NOT NULL,
+    `zipCode`  VARCHAR(60)         NOT NULL,
     PRIMARY KEY (`id`),
     INDEX `gridID` (`gridID`),
     INDEX `parentID` (`parentID`),
@@ -74,12 +75,13 @@ CREATE TABLE IF NOT EXISTS `#__organizer_campuses` (
     COLLATE = utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `#__organizer_categories` (
-    `id`      INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`   VARCHAR(255)                 DEFAULT '',
-    `code`    VARCHAR(60)                  DEFAULT NULL,
-    `name_de` VARCHAR(150)        NOT NULL,
-    `name_en` VARCHAR(150)        NOT NULL,
-    `active`  TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `alias`    VARCHAR(255)                 DEFAULT '',
+    `code`     VARCHAR(60)                  DEFAULT NULL,
+    `name_de`  VARCHAR(150)        NOT NULL,
+    `name_en`  VARCHAR(150)        NOT NULL,
+    `active`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `suppress` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `code` (`code`)
 )
@@ -98,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_colors` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-INSERT IGNORE INTO `#__organizer_colors` (`id`, `name_de`, `name_en`, `color`)
+INSERT IGNORE INTO `#__organizer_colors`
 VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
        (2, 'Hellstgrau', 'Lightest Grey', '#d2d6d9'),
        (3, 'Hellstrot', 'Lightest Red', '#e6c4cb'),
@@ -141,11 +143,11 @@ CREATE TABLE IF NOT EXISTS `#__organizer_course_participants` (
     `id`              INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `courseID`        INT(11) UNSIGNED NOT NULL,
     `participantID`   INT(11)          NOT NULL,
-    `participantDate` DATETIME            DEFAULT NULL COMMENT 'The last date of participant action.',
-    `status`          TINYINT(1) UNSIGNED DEFAULT 0 COMMENT 'Possible values: 0 - pending, 1 - accepted',
-    `statusDate`      DATETIME            DEFAULT NULL COMMENT 'The last date of status action.',
-    `attended`        TINYINT(1) UNSIGNED DEFAULT 0 COMMENT 'Possible values: 0 - unattended, 1 - attended',
-    `paid`            TINYINT(1) UNSIGNED DEFAULT 0 COMMENT 'Possible values: 0 - unpaid, 1 - paid',
+    `attended`        TINYINT(1) UNSIGNED DEFAULT 0,
+    `paid`            TINYINT(1) UNSIGNED DEFAULT 0,
+    `participantDate` DATETIME            DEFAULT NULL,
+    `status`          TINYINT(1) UNSIGNED DEFAULT 0,
+    `statusDate`      DATETIME            DEFAULT NULL,
     PRIMARY KEY (`id`),
     INDEX `courseID` (`courseID`),
     INDEX `participantID` (`participantID`)
@@ -156,17 +158,18 @@ CREATE TABLE IF NOT EXISTS `#__organizer_course_participants` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_courses` (
     `id`               INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias`            VARCHAR(255)              DEFAULT '',
     `campusID`         INT(11) UNSIGNED          DEFAULT NULL,
-    `termID`           INT(11) UNSIGNED NOT NULL,
-    `groups`           VARCHAR(100)     NOT NULL DEFAULT '',
     `name_de`          VARCHAR(150)              DEFAULT NULL,
     `name_en`          VARCHAR(150)              DEFAULT NULL,
+    `termID`           INT(11) UNSIGNED NOT NULL,
+    `deadline`         INT(2) UNSIGNED           DEFAULT 0,
     `description_de`   TEXT,
     `description_en`   TEXT,
-    `deadline`         INT(2) UNSIGNED           DEFAULT 0 COMMENT 'The deadline in days for registration before the course starts.',
     `fee`              INT(3) UNSIGNED           DEFAULT 0,
+    `groups`           VARCHAR(100)     NOT NULL DEFAULT '',
     `maxParticipants`  INT(4) UNSIGNED           DEFAULT 1000,
-    `registrationType` INT(1) UNSIGNED           DEFAULT NULL COMMENT 'The method of registration for the lesson. Possible values: NULL - None, 0 - FIFO, 1 - Manual.',
+    `registrationType` INT(1) UNSIGNED           DEFAULT NULL,
     PRIMARY KEY (`id`),
     INDEX `campusID` (`campusID`),
     INDEX `termID` (`termID`)
@@ -177,14 +180,14 @@ CREATE TABLE IF NOT EXISTS `#__organizer_courses` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_curricula` (
     `id`        INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `programID` INT(11) UNSIGNED DEFAULT NULL,
     `parentID`  INT(11) UNSIGNED DEFAULT NULL,
+    `programID` INT(11) UNSIGNED DEFAULT NULL,
     `poolID`    INT(11) UNSIGNED DEFAULT NULL,
     `subjectID` INT(11) UNSIGNED DEFAULT NULL,
-    `lft`       INT(11) UNSIGNED DEFAULT NULL,
-    `rgt`       INT(11) UNSIGNED DEFAULT NULL,
     `level`     INT(11) UNSIGNED DEFAULT NULL,
+    `lft`       INT(11) UNSIGNED DEFAULT NULL,
     `ordering`  INT(11) UNSIGNED DEFAULT NULL,
+    `rgt`       INT(11) UNSIGNED DEFAULT NULL,
     PRIMARY KEY (`id`),
     INDEX `parentID` (`parentID`),
     INDEX `poolID` (`poolID`),
@@ -198,6 +201,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_curricula` (
 CREATE TABLE IF NOT EXISTS `#__organizer_degrees` (
     `id`           INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `abbreviation` VARCHAR(25)      NOT NULL,
+    `alias`        VARCHAR(255) DEFAULT '',
     `code`         VARCHAR(60)      NOT NULL,
     `name`         VARCHAR(150)     NOT NULL,
     PRIMARY KEY (`id`)
@@ -207,14 +211,14 @@ CREATE TABLE IF NOT EXISTS `#__organizer_degrees` (
     COLLATE = utf8mb4_bin;
 
 INSERT IGNORE INTO `#__organizer_degrees`
-VALUES (2, 'Bachelor of Engineering', 'B.Eng.', 'BE'),
-       (3, 'Bachelor of Science', 'B.Sc.', 'BS'),
-       (4, 'Bachelor of Arts', 'B.A.', 'BA'),
-       (5, 'Master of Engineering', 'M.Eng.', 'ME'),
-       (6, 'Master of Science', 'M.Sc.', 'MS'),
-       (7, 'Master of Arts', 'M.A.', 'MA'),
-       (8, 'Master of Business Administration and Engineering', 'M.B.A.', 'MB'),
-       (9, 'Master of Education', 'M.Ed.', 'MH');
+VALUES (2, 'B.Eng.', 'beng', 'BE', 'Bachelor of Engineering'),
+       (3, 'B.Sc.', 'bsc', 'BS', 'Bachelor of Science'),
+       (4, 'B.A.', 'ba', 'BA', 'Bachelor of Arts'),
+       (5, 'M.Eng.', 'meng', 'ME', 'Master of Engineering'),
+       (6, 'M.Sc.', 'msc', 'MS', 'Master of Science'),
+       (7, 'M.A.', 'ma', 'MA', 'Master of Arts'),
+       (8, 'M.B.A.', 'mba', 'MB', 'Master of Business Administration and Engineering'),
+       (9, 'M.Ed.', 'med', 'MH', 'Master of Education');
 
 CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators` (
     `id`       INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -232,19 +236,20 @@ CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators` (
 CREATE TABLE IF NOT EXISTS `#__organizer_events` (
     `id`               INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`            VARCHAR(255)                 DEFAULT '',
-    `code`             VARCHAR(60)                  DEFAULT NULL,
+    `code`             VARCHAR(60)         NOT NULL,
     `name_de`          VARCHAR(150)        NOT NULL,
     `name_en`          VARCHAR(150)        NOT NULL,
     `subjectNo`        VARCHAR(45)         NOT NULL DEFAULT '',
     `campusID`         INT(11) UNSIGNED             DEFAULT NULL,
-    `organizationID`   INT(11) UNSIGNED             DEFAULT NULL,
+    `organizationID`   INT(11) UNSIGNED    NOT NULL,
+    `active`           TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `contact_de`       TEXT,
     `contact_en`       TEXT,
     `content_de`       TEXT,
     `content_en`       TEXT,
     `courseContact_de` TEXT,
     `courseContact_en` TEXT,
-    `deadline`         INT(2) UNSIGNED              DEFAULT 0 COMMENT 'The deadline in days for registration before the course starts.',
+    `deadline`         INT(2) UNSIGNED              DEFAULT 0,
     `description_de`   TEXT,
     `description_en`   TEXT,
     `fee`              INT(3) UNSIGNED              DEFAULT 0,
@@ -254,7 +259,8 @@ CREATE TABLE IF NOT EXISTS `#__organizer_events` (
     `pretests_de`      TEXT,
     `pretests_en`      TEXT,
     `preparatory`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-    `registrationType` INT(1) UNSIGNED              DEFAULT NULL COMMENT 'The method of registration for the lesson. Possible values: NULL - None, 0 - FIFO, 1 - Manual.',
+    `registrationType` INT(1) UNSIGNED              DEFAULT NULL,
+    `suppress`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `entry` (`code`, `organizationID`),
     INDEX `campusID` (`campusID`),
@@ -282,6 +288,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_field_colors` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_fields` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias`   VARCHAR(255) DEFAULT '',
     `code`    VARCHAR(60)      NOT NULL,
     `name_de` VARCHAR(150)     NOT NULL,
     `name_en` VARCHAR(150)     NOT NULL,
@@ -304,7 +311,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_frequencies` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-INSERT IGNORE INTO `#__organizer_frequencies` (`id`, `name_de`, `name_en`)
+INSERT IGNORE INTO `#__organizer_frequencies`
 VALUES (0, 'Nach Termin', 'By Appointment'),
        (1, 'Nur im Sommersemester', 'Only Spring/Summer Term'),
        (2, 'Nur im Wintersemester', 'Only Fall/Winter Term'),
@@ -314,11 +321,10 @@ VALUES (0, 'Nach Termin', 'By Appointment'),
 
 CREATE TABLE IF NOT EXISTS `#__organizer_grids` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `code`      VARCHAR(60)                  DEFAULT NULL,
+    `code`      VARCHAR(60)         NOT NULL,
     `name_de`   VARCHAR(150)                 DEFAULT NULL,
     `name_en`   VARCHAR(150)                 DEFAULT NULL,
-    `grid`      TEXT
-        COMMENT 'A grid object modeled by a JSON string, containing the respective start and end times of the grid blocks.',
+    `grid`      TEXT,
     `isDefault` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `code` (`code`)
@@ -344,14 +350,15 @@ CREATE TABLE IF NOT EXISTS `#__organizer_group_publishing` (
 CREATE TABLE IF NOT EXISTS `#__organizer_groups` (
     `id`          INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`       VARCHAR(255)                 DEFAULT '',
-    `code`        VARCHAR(60)                  DEFAULT NULL,
-    `categoryID`  INT(11) UNSIGNED             DEFAULT NULL,
-    `gridID`      INT(11) UNSIGNED             DEFAULT 1,
+    `code`        VARCHAR(60)         NOT NULL,
     `name_de`     VARCHAR(150)        NOT NULL,
     `name_en`     VARCHAR(150)        NOT NULL,
+    `active`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `categoryID`  INT(11) UNSIGNED    NOT NULL,
     `fullName_de` VARCHAR(200)        NOT NULL,
     `fullName_en` VARCHAR(200)        NOT NULL,
-    `active`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `gridID`      INT(11) UNSIGNED             DEFAULT 1,
+    `suppress`    TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `entry` (`code`, `categoryID`),
     INDEX `categoryID` (`categoryID`),
@@ -368,8 +375,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_holidays` (
     `name_en`   VARCHAR(150)        NOT NULL,
     `startDate` DATE                NOT NULL,
     `endDate`   DATE                NOT NULL,
-    `type`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 3
-        COMMENT 'The impact of the holiday on the planning process. Possible values: 1 - Automatic, 2 - Manual, 3 - Unplannable',
+    `type`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 3,
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
@@ -380,7 +386,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_groups` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `assocID`  INT(20) UNSIGNED NOT NULL COMMENT 'The instance to person association id.',
     `groupID`  INT(11) UNSIGNED NOT NULL,
-    `delta`    VARCHAR(10)      NOT NULL DEFAULT '' COMMENT 'The association''s delta status. Possible values: empty, new, removed.',
+    `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
     `modified` TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     INDEX `assocID` (`assocID`),
@@ -390,7 +396,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_groups` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-# participants are an extension of users which use signed int
 CREATE TABLE IF NOT EXISTS `#__organizer_instance_participants` (
     `id`            INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `instanceID`    INT(20) UNSIGNED NOT NULL,
@@ -408,8 +413,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_persons` (
     `instanceID` INT(20) UNSIGNED    NOT NULL,
     `personID`   INT(11) UNSIGNED    NOT NULL,
     `roleID`     TINYINT(2) UNSIGNED NOT NULL DEFAULT 1,
-    `delta`      VARCHAR(10)         NOT NULL DEFAULT ''
-        COMMENT 'The association''s delta status. Possible values: empty, new, removed.',
+    `delta`      VARCHAR(10)         NOT NULL DEFAULT '',
     `modified`   TIMESTAMP                    DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -426,8 +430,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_rooms` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `assocID`  INT(20) UNSIGNED NOT NULL COMMENT 'The instance to person association id.',
     `roomID`   INT(11) UNSIGNED NOT NULL,
-    `delta`    VARCHAR(10)      NOT NULL DEFAULT ''
-        COMMENT 'The association''s delta status. Possible values: empty, new, removed.',
+    `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
     `modified` TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -459,11 +462,12 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_methods` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `code`            VARCHAR(60)  DEFAULT NULL,
-    `abbreviation_de` VARCHAR(25)  DEFAULT '',
-    `abbreviation_en` VARCHAR(25)  DEFAULT '',
+    `alias`           VARCHAR(255) DEFAULT '',
+    `code`            VARCHAR(60)      NOT NULL,
     `name_de`         VARCHAR(150) DEFAULT NULL,
     `name_en`         VARCHAR(150) DEFAULT NULL,
+    `abbreviation_de` VARCHAR(25)  DEFAULT '',
+    `abbreviation_en` VARCHAR(25)  DEFAULT '',
     PRIMARY KEY (`id`),
     UNIQUE `code` (`code`)
 )
@@ -471,16 +475,17 @@ CREATE TABLE IF NOT EXISTS `#__organizer_methods` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
+# fk rooms fails
 CREATE TABLE IF NOT EXISTS `#__organizer_monitors` (
     `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `ip`              VARCHAR(15)         NOT NULL,
-    `roomID`          INT(11) UNSIGNED             DEFAULT NULL,
+    `roomID`          INT(11) UNSIGNED    NOT NULL,
+    `content`         VARCHAR(256)                 DEFAULT '',
+    `contentRefresh`  INT(3) UNSIGNED     NOT NULL DEFAULT 60,
+    `display`         INT(1) UNSIGNED     NOT NULL DEFAULT 1,
+    `interval`        INT(1) UNSIGNED     NOT NULL DEFAULT 1,
+    `scheduleRefresh` INT(3) UNSIGNED     NOT NULL DEFAULT 60,
     `useDefaults`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-    `display`         INT(1) UNSIGNED     NOT NULL DEFAULT 1 COMMENT 'the display behaviour of the monitor',
-    `scheduleRefresh` INT(3) UNSIGNED     NOT NULL DEFAULT 60 COMMENT 'the amount of seconds before the schedule refreshes',
-    `contentRefresh`  INT(3) UNSIGNED     NOT NULL DEFAULT 60 COMMENT 'the amount of time in seconds before the content refreshes',
-    `interval`        INT(1) UNSIGNED     NOT NULL DEFAULT 1 COMMENT 'the time interval in minutes between context switches',
-    `content`         VARCHAR(256)                 DEFAULT '' COMMENT 'the filename of the resource to the optional resource to be displayed',
     PRIMARY KEY (`id`),
     INDEX `roomID` (`roomID`),
     UNIQUE INDEX `ip` (`ip`)
@@ -490,20 +495,21 @@ CREATE TABLE IF NOT EXISTS `#__organizer_monitors` (
     COLLATE = utf8mb4_bin;
 
 CREATE TABLE IF NOT EXISTS `#__organizer_organizations` (
-    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `asset_id`        INT(11)      DEFAULT NULL,
-    `alias`           VARCHAR(255) DEFAULT '',
-    `abbreviation_de` VARCHAR(25)      NOT NULL,
-    `abbreviation_en` VARCHAR(25)      NOT NULL,
-    `shortName_de`    VARCHAR(50)      NOT NULL,
-    `shortName_en`    VARCHAR(50)      NOT NULL,
-    `name_de`         VARCHAR(150)     NOT NULL,
-    `name_en`         VARCHAR(150)     NOT NULL,
-    `fullName_de`     VARCHAR(200)     NOT NULL,
-    `fullName_en`     VARCHAR(200)     NOT NULL,
-    `contactID`       INT(11)      DEFAULT NULL,
-    `contactEmail`    VARCHAR(100) DEFAULT NULL,
-    `URL`             VARCHAR(255) DEFAULT '' COMMENT 'The base URL for the organization''s homepage.',
+    `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `asset_id`        INT(11)                      DEFAULT NULL,
+    `alias`           VARCHAR(255)                 DEFAULT '',
+    `name_de`         VARCHAR(150)        NOT NULL,
+    `name_en`         VARCHAR(150)        NOT NULL,
+    `active`          TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `abbreviation_de` VARCHAR(25)         NOT NULL,
+    `abbreviation_en` VARCHAR(25)         NOT NULL,
+    `contactID`       INT(11)                      DEFAULT NULL,
+    `contactEmail`    VARCHAR(100)                 DEFAULT NULL,
+    `fullName_de`     VARCHAR(200)        NOT NULL,
+    `fullName_en`     VARCHAR(200)        NOT NULL,
+    `shortName_de`    VARCHAR(50)         NOT NULL,
+    `shortName_en`    VARCHAR(50)         NOT NULL,
+    `URL`             VARCHAR(255)                 DEFAULT '',
     PRIMARY KEY (`id`),
     UNIQUE INDEX `abbreviation_de` (`abbreviation_de`),
     UNIQUE INDEX `abbreviation_en` (`abbreviation_en`),
@@ -519,15 +525,16 @@ CREATE TABLE IF NOT EXISTS `#__organizer_organizations` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
+# fk programs fails
 CREATE TABLE IF NOT EXISTS `#__organizer_participants` (
     `id`        INT(11)             NOT NULL,
     `forename`  VARCHAR(255)        NOT NULL DEFAULT '',
     `surname`   VARCHAR(255)        NOT NULL DEFAULT '',
-    `city`      VARCHAR(60)         NOT NULL DEFAULT '',
     `address`   VARCHAR(60)         NOT NULL DEFAULT '',
-    `zipCode`   VARCHAR(60)         NOT NULL DEFAULT '',
-    `programID` INT(11) UNSIGNED             DEFAULT NULL,
+    `city`      VARCHAR(60)         NOT NULL DEFAULT '',
     `notify`    TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+    `programID` INT(11) UNSIGNED    NOT NULL,
+    `zipCode`   VARCHAR(60)         NOT NULL DEFAULT '',
     PRIMARY KEY (`id`),
     INDEX `programID` (`programID`)
 )
@@ -538,37 +545,39 @@ CREATE TABLE IF NOT EXISTS `#__organizer_participants` (
 CREATE TABLE IF NOT EXISTS `#__organizer_persons` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`    VARCHAR(255)                 DEFAULT '',
-    `userID`   INT(11)                      DEFAULT NULL,
     `code`     VARCHAR(60)                  DEFAULT NULL,
-    `surname`  VARCHAR(255)        NOT NULL,
     `forename` VARCHAR(255)        NOT NULL DEFAULT '',
-    `username` VARCHAR(150)                 DEFAULT NULL,
-    `title`    VARCHAR(45)         NOT NULL DEFAULT '',
+    `surname`  VARCHAR(255)        NOT NULL,
     `active`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `suppress` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `title`    VARCHAR(45)         NOT NULL DEFAULT '',
+    `userID`   INT(11)                      DEFAULT NULL,
+    `username` VARCHAR(150)                 DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `code` (`code`),
-    INDEX `userID` (`userID`),
+    UNIQUE INDEX `userID` (`userID`),
     UNIQUE INDEX `username` (`username`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
+# fk groups fails
 CREATE TABLE IF NOT EXISTS `#__organizer_pools` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`           VARCHAR(255)     DEFAULT '',
-    `organizationID`  INT(11) UNSIGNED DEFAULT NULL,
-    `fieldID`         INT(11) UNSIGNED DEFAULT NULL,
-    `groupID`         INT(11) UNSIGNED DEFAULT NULL,
+    `shortName_de`    VARCHAR(50)      DEFAULT '',
+    `shortName_en`    VARCHAR(50)      DEFAULT '',
+    `organizationID`  INT(11) UNSIGNED NOT NULL,
     `lsfID`           INT(11) UNSIGNED DEFAULT NULL,
     `abbreviation_de` VARCHAR(25)      DEFAULT '',
     `abbreviation_en` VARCHAR(25)      DEFAULT '',
-    `shortName_de`    VARCHAR(50)      DEFAULT '',
-    `shortName_en`    VARCHAR(50)      DEFAULT '',
-    `fullName_de`     VARCHAR(200)     DEFAULT NULL,
-    `fullName_en`     VARCHAR(200)     DEFAULT NULL,
     `description_de`  TEXT,
     `description_en`  TEXT,
+    `fieldID`         INT(11) UNSIGNED DEFAULT NULL,
+    `fullName_de`     VARCHAR(200)     DEFAULT NULL,
+    `fullName_en`     VARCHAR(200)     DEFAULT NULL,
+    `groupID`         INT(11) UNSIGNED DEFAULT NULL,
     `minCrP`          INT(3) UNSIGNED  DEFAULT 0,
     `maxCrP`          INT(3) UNSIGNED  DEFAULT 0,
     PRIMARY KEY (`id`),
@@ -594,20 +603,21 @@ CREATE TABLE IF NOT EXISTS `#__organizer_prerequisites` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
+# fk categories fails
 CREATE TABLE IF NOT EXISTS `#__organizer_programs` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`          VARCHAR(255)                 DEFAULT '',
-    `organizationID` INT(11) UNSIGNED    NOT NULL,
-    `code`           VARCHAR(60)                  DEFAULT '',
-    `degreeID`       INT(11) UNSIGNED    NOT NULL,
     `accredited`     YEAR(4)             NOT NULL,
-    `categoryID`     INT(11) UNSIGNED             DEFAULT NULL,
-    `frequencyID`    INT(1) UNSIGNED              DEFAULT 3,
+    `code`           VARCHAR(60)         NOT NULL,
+    `degreeID`       INT(11) UNSIGNED    NOT NULL,
     `name_de`        VARCHAR(150)        NOT NULL,
     `name_en`        VARCHAR(150)        NOT NULL,
+    `active`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `categoryID`     INT(11) UNSIGNED             DEFAULT NULL,
     `description_de` TEXT,
     `description_en` TEXT,
-    `active`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `frequencyID`    INT(1) UNSIGNED              DEFAULT 3,
+    `organizationID` INT(11) UNSIGNED    NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `entry` (`code`, `degreeID`, `accredited`),
     INDEX `categoryID` (`categoryID`),
@@ -635,21 +645,22 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roles` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-INSERT IGNORE INTO `#__organizer_roles` (`id`, `name_de`, `name_en`, `abbreviation_de`, `abbreviation_en`)
-VALUES (1, 'Dozent', 'Teacher', 'DOZ', 'TCH'),
-       (2, 'Tutor', 'Tutor', 'TUT', 'TUT'),
-       (3, 'Aufsicht', 'Supervisor', 'AFS', 'SPR'),
-       (4, 'Referent', 'Speaker', 'REF', 'SPK');
+INSERT IGNORE INTO `#__organizer_roles`
+VALUES (1, 'DOZ', 'TCH', 'Dozent', 'Teacher'),
+       (2, 'TUT', 'TUT', 'Tutor', 'Tutor'),
+       (3, 'AFS', 'SPR', 'Aufsicht', 'Supervisor'),
+       (4, 'REF', 'SPK', 'Referent', 'Speaker');
 
+# fk roomtypes fails
 CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `id`         INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`      VARCHAR(255)                 DEFAULT '',
-    `buildingID` INT(11) UNSIGNED             DEFAULT NULL,
     `code`       VARCHAR(60)                  DEFAULT NULL,
     `name`       VARCHAR(150)        NOT NULL,
-    `roomtypeID` INT(11) UNSIGNED             DEFAULT NULL,
-    `capacity`   INT(4) UNSIGNED              DEFAULT NULL,
     `active`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `buildingID` INT(11) UNSIGNED             DEFAULT NULL,
+    `capacity`   INT(4) UNSIGNED              DEFAULT NULL,
+    `roomtypeID` INT(11) UNSIGNED    NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `code` (`code`),
     INDEX `buildingID` (`buildingID`),
@@ -661,14 +672,15 @@ CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `code`           VARCHAR(60)                  DEFAULT NULL,
+    `alias`          VARCHAR(255)                 DEFAULT '',
+    `code`           VARCHAR(60)         NOT NULL,
     `name_de`        VARCHAR(150)        NOT NULL,
     `name_en`        VARCHAR(150)        NOT NULL,
-    `description_de` TEXT                NOT NULL,
-    `description_en` TEXT                NOT NULL,
+    `description_de` TEXT,
+    `description_en` TEXT,
     `minCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
     `maxCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
-    `public`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `suppress`       TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `code` (`code`)
 )
@@ -680,9 +692,8 @@ CREATE TABLE IF NOT EXISTS `#__organizer_runs` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name_de` VARCHAR(150)     NOT NULL,
     `name_en` VARCHAR(150)     NOT NULL,
+    `run`     TEXT,
     `termID`  INT(11) UNSIGNED NOT NULL,
-    `run`     TEXT             NOT NULL
-        COMMENT 'Contains the start date and end dates of individual runs as a JSON string.',
     PRIMARY KEY (`id`),
     INDEX `termID` (`termID`)
 )
@@ -694,11 +705,11 @@ CREATE TABLE IF NOT EXISTS `#__organizer_schedules` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `organizationID` INT(11) UNSIGNED    NOT NULL,
     `termID`         INT(11) UNSIGNED    NOT NULL,
-    `userID`         INT(11)                      DEFAULT NULL,
+    `active`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     `creationDate`   DATE                         DEFAULT NULL,
     `creationTime`   TIME                         DEFAULT NULL,
+    `userID`         INT(11)                      DEFAULT NULL,
     `schedule`       MEDIUMTEXT,
-    `active`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     INDEX `organizationID` (`organizationID`),
     INDEX `termID` (`termID`),
@@ -736,56 +747,57 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
+# fk frequencies fails
 CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `id`                          INT(11) UNSIGNED      NOT NULL AUTO_INCREMENT,
     `alias`                       VARCHAR(255)                   DEFAULT '',
-    `organizationID`              INT(11) UNSIGNED               DEFAULT NULL,
-    `lsfID`                       INT(11) UNSIGNED               DEFAULT NULL,
     `code`                        VARCHAR(60)           NOT NULL DEFAULT '',
-    `abbreviation_de`             VARCHAR(25)           NOT NULL DEFAULT '',
-    `abbreviation_en`             VARCHAR(25)           NOT NULL DEFAULT '',
-    `shortName_de`                VARCHAR(50)           NOT NULL DEFAULT '',
-    `shortName_en`                VARCHAR(50)           NOT NULL DEFAULT '',
     `fullName_de`                 VARCHAR(200)          NOT NULL,
     `fullName_en`                 VARCHAR(200)          NOT NULL,
-    `description_de`              TEXT,
-    `description_en`              TEXT,
-    `objective_de`                TEXT,
-    `objective_en`                TEXT,
-    `content_de`                  TEXT,
-    `content_en`                  TEXT,
-    `prerequisites_de`            TEXT,
-    `prerequisites_en`            TEXT,
-    `preliminaryWork_de`          TEXT,
-    `preliminaryWork_en`          TEXT,
-    `instructionLanguage`         VARCHAR(2)            NOT NULL DEFAULT 'D',
-    `literature`                  TEXT,
-    `creditpoints`                DOUBLE(4, 1) UNSIGNED NOT NULL DEFAULT 0,
-    `expenditure`                 INT(4) UNSIGNED       NOT NULL DEFAULT 0,
-    `present`                     INT(4) UNSIGNED       NOT NULL DEFAULT 0,
-    `independent`                 INT(4) UNSIGNED       NOT NULL DEFAULT 0,
-    `proof_de`                    TEXT,
-    `proof_en`                    TEXT,
-    `frequencyID`                 INT(1) UNSIGNED                DEFAULT NULL,
-    `method_de`                   TEXT,
-    `method_en`                   TEXT,
-    `fieldID`                     INT(11) UNSIGNED               DEFAULT NULL,
-    `sws`                         INT(2) UNSIGNED       NOT NULL DEFAULT 0,
+    `organizationID`              INT(11) UNSIGNED      NOT NULL,
+    `lsfID`                       INT(11) UNSIGNED      NOT NULL,
+    `abbreviation_de`             VARCHAR(25)           NOT NULL DEFAULT '',
+    `abbreviation_en`             VARCHAR(25)           NOT NULL DEFAULT '',
     `aids_de`                     TEXT,
     `aids_en`                     TEXT,
-    `evaluation_de`               TEXT,
-    `evaluation_en`               TEXT,
-    `expertise`                   TINYINT(1) UNSIGNED            DEFAULT NULL,
-    `selfCompetence`              TINYINT(1) UNSIGNED            DEFAULT NULL,
-    `methodCompetence`            TINYINT(1) UNSIGNED            DEFAULT NULL,
-    `socialCompetence`            TINYINT(1) UNSIGNED            DEFAULT NULL,
-    `recommendedPrerequisites_de` TEXT,
-    `recommendedPrerequisites_en` TEXT,
-    `usedFor_de`                  TEXT,
-    `usedFor_en`                  TEXT,
-    `duration`                    INT(2) UNSIGNED                DEFAULT 1,
     `bonusPoints_de`              TEXT,
     `bonusPoints_en`              TEXT,
+    `content_de`                  TEXT,
+    `content_en`                  TEXT,
+    `creditpoints`                DOUBLE(4, 1) UNSIGNED NOT NULL DEFAULT 0,
+    `description_de`              TEXT,
+    `description_en`              TEXT,
+    `duration`                    INT(2) UNSIGNED                DEFAULT 1,
+    `evaluation_de`               TEXT,
+    `evaluation_en`               TEXT,
+    `expenditure`                 INT(4) UNSIGNED       NOT NULL DEFAULT 0,
+    `expertise`                   TINYINT(1) UNSIGNED            DEFAULT NULL,
+    `fieldID`                     INT(11) UNSIGNED               DEFAULT NULL,
+    `frequencyID`                 INT(1) UNSIGNED                DEFAULT NULL,
+    `independent`                 INT(4) UNSIGNED       NOT NULL DEFAULT 0,
+    `instructionLanguage`         VARCHAR(2)            NOT NULL DEFAULT 'D',
+    `literature`                  TEXT,
+    `method_de`                   TEXT,
+    `method_en`                   TEXT,
+    `methodCompetence`            TINYINT(1) UNSIGNED            DEFAULT NULL,
+    `objective_de`                TEXT,
+    `objective_en`                TEXT,
+    `preliminaryWork_de`          TEXT,
+    `preliminaryWork_en`          TEXT,
+    `prerequisites_de`            TEXT,
+    `prerequisites_en`            TEXT,
+    `present`                     INT(4) UNSIGNED       NOT NULL DEFAULT 0,
+    `proof_de`                    TEXT,
+    `proof_en`                    TEXT,
+    `recommendedPrerequisites_de` TEXT,
+    `recommendedPrerequisites_en` TEXT,
+    `selfCompetence`              TINYINT(1) UNSIGNED            DEFAULT NULL,
+    `shortName_de`                VARCHAR(50)           NOT NULL DEFAULT '',
+    `shortName_en`                VARCHAR(50)           NOT NULL DEFAULT '',
+    `socialCompetence`            TINYINT(1) UNSIGNED            DEFAULT NULL,
+    `sws`                         INT(2) UNSIGNED       NOT NULL DEFAULT 0,
+    `usedFor_de`                  TEXT,
+    `usedFor_en`                  TEXT,
     PRIMARY KEY (`id`),
     INDEX `fieldID` (`fieldID`),
     INDEX `frequencyID` (`frequencyID`),
@@ -797,13 +809,14 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_terms` (
     `id`          INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias`       VARCHAR(255) DEFAULT '',
     `code`        VARCHAR(60)      NOT NULL,
     `name_de`     VARCHAR(150) DEFAULT '',
     `name_en`     VARCHAR(150) DEFAULT '',
+    `endDate`     DATE             NOT NULL,
     `fullName_de` VARCHAR(200) DEFAULT '',
     `fullName_en` VARCHAR(200) DEFAULT '',
     `startDate`   DATE             NOT NULL,
-    `endDate`     DATE             NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `entry` (`code`, `startDate`, `endDate`)
 )
@@ -813,17 +826,17 @@ CREATE TABLE IF NOT EXISTS `#__organizer_terms` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_units` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `code`           INT(11) UNSIGNED NOT NULL,
     `organizationID` INT(11) UNSIGNED NOT NULL,
     `termID`         INT(11) UNSIGNED NOT NULL,
-    `code`           INT(11) UNSIGNED NOT NULL,
+    `comment`        VARCHAR(255)              DEFAULT '',
     `courseID`       INT(11) UNSIGNED          DEFAULT NULL,
-    `gridID`         INT(11) UNSIGNED          DEFAULT NULL,
-    `runID`          INT(11) UNSIGNED          DEFAULT NULL,
+    `delta`          VARCHAR(10)      NOT NULL DEFAULT '',
     `endDate`        DATE                      DEFAULT NULL,
-    `startDate`      DATE                      DEFAULT NULL,
-    `comment`        VARCHAR(255)              DEFAULT NULL,
-    `delta`          VARCHAR(10)      NOT NULL DEFAULT '' COMMENT 'The unit''s delta status. Possible values: empty, new, removed.',
+    `gridID`         INT(11) UNSIGNED          DEFAULT NULL,
     `modified`       TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `runID`          INT(11) UNSIGNED          DEFAULT NULL,
+    `startDate`      DATE                      DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `entry` (`code`, `organizationID`, `termID`),
     INDEX `code` (`code`),
@@ -1027,10 +1040,10 @@ ALTER TABLE `#__organizer_pools`
         ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_prerequisites`
-    ADD CONSTRAINT `prerequisite_prerequisiteID_fk` FOREIGN KEY (`prerequisiteID`) REFERENCES `#__organizer_curriculum` (`id`)
+    ADD CONSTRAINT `prerequisite_prerequisiteID_fk` FOREIGN KEY (`prerequisiteID`) REFERENCES `#__organizer_curricula` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    ADD CONSTRAINT `prerequisite_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `#__organizer_curriculum` (`id`)
+    ADD CONSTRAINT `prerequisite_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `#__organizer_curricula` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE;
 

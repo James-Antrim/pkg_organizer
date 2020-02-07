@@ -17,6 +17,8 @@ use JDatabaseDriver;
  */
 class Roomtypes extends BaseTable
 {
+	use Aliased, Suppressed;
+
 	/**
 	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
 	 * software.
@@ -60,7 +62,7 @@ class Roomtypes extends BaseTable
 
 	/**
 	 * The resource's German name.
-	 * VARCHAR(50) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -68,19 +70,11 @@ class Roomtypes extends BaseTable
 
 	/**
 	 * The resource's English name.
-	 * VARCHAR(50) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
 	public $name_en;
-
-	/**
-	 * A flag which displays whether rooms of this type should be displayed publicly.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-	 *
-	 * @var bool
-	 */
-	public $public;
 
 	/**
 	 * Declares the associated table

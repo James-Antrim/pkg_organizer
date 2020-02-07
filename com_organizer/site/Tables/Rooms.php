@@ -17,15 +17,7 @@ use JDatabaseDriver;
  */
 class Rooms extends BaseTable
 {
-	use Addressable;
-
-	/**
-	 * A flag which displays whether the resource is currently active.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-	 *
-	 * @var bool
-	 */
-	public $active;
+	use Activated, Aliased;
 
 	/**
 	 * The id of the building entry referenced.
@@ -54,7 +46,7 @@ class Rooms extends BaseTable
 
 	/**
 	 * The resource's name.
-	 * VARCHAR(10) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -85,7 +77,7 @@ class Rooms extends BaseTable
 	 */
 	public function check()
 	{
-		$nullColumns = ['roomtypeID', 'buildingID'];
+		$nullColumns = ['buildingID', 'code'];
 		foreach ($nullColumns as $nullColumn)
 		{
 			if (!strlen($this->$nullColumn))

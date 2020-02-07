@@ -17,7 +17,7 @@ use JDatabaseDriver;
  */
 class Events extends BaseTable
 {
-	use Addressable;
+	use Activated, Aliased, Suppressed;
 
 	/**
 	 * The id of the campus entry referenced.
@@ -214,5 +214,20 @@ class Events extends BaseTable
 	public function __construct(&$dbo = null)
 	{
 		parent::__construct('#__organizer_events', 'id', $dbo);
+	}
+
+	/**
+	 * Set the table column names which are allowed to be null
+	 *
+	 * @return boolean  true
+	 */
+	public function check()
+	{
+		if (empty($this->campusID))
+		{
+			$this->campusID = null;
+		}
+
+		return true;
 	}
 }

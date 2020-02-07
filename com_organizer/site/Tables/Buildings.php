@@ -17,7 +17,7 @@ use JDatabaseDriver;
  */
 class Buildings extends BaseTable
 {
-	use Addressable;
+	use Activated;
 
 	/**
 	 * The physical address of the resource.

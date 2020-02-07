@@ -11,14 +11,29 @@
 namespace Organizer\Tables;
 
 use JDatabaseDriver;
-use Joomla\CMS\Table\Table;
 
 /**
  * Models the organizer_subjects table.
  */
-class Subjects extends Assets
+class Subjects extends BaseTable
 {
-	use Addressable;
+	use Aliased;
+
+	/**
+	 * The resource's German abbreviation.
+	 * VARCHAR(25) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $abbreviation_de;
+
+	/**
+	 * The resource's English abbreviation.
+	 * VARCHAR(25) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $abbreviation_en;
 
 	/**
 	 * The subject's supplementary materials in German.
@@ -37,30 +52,6 @@ class Subjects extends Assets
 	public $aids_en;
 
 	/**
-	 * The resource's German abbreviation.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $abbreviation_de;
-
-	/**
-	 * The resource's English abbreviation.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $abbreviation_en;
-
-	/**
-	 * The id used by Joomla as a reference to its assets table.
-	 * INT(11) NOT NULL
-	 *
-	 * @var int
-	 */
-	public $asset_id;
-
-	/**
 	 * A description of ways in which to achieve extra credit for this subject in German.
 	 * TEXT
 	 *
@@ -77,14 +68,6 @@ class Subjects extends Assets
 	public $bonusPoints_en;
 
 	/**
-	 * The number of credit points (ECTS) rewarded for successful completion of this subject.
-	 * DOUBLE(4, 1) UNSIGNED NOT NULL DEFAULT 0
-	 *
-	 * @var float
-	 */
-	public $creditpoints;
-
-	/**
 	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
 	 * software.
 	 * VARCHAR(60) NOT NULL DEFAULT ''
@@ -95,7 +78,7 @@ class Subjects extends Assets
 
 	/**
 	 * The subject's contents in German.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
@@ -103,19 +86,19 @@ class Subjects extends Assets
 
 	/**
 	 * The subject's contents in English.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
 	public $content_en;
 
 	/**
-	 * The id of the department entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
+	 * The number of credit points (ECTS) rewarded for successful completion of this subject.
+	 * DOUBLE(4, 1) UNSIGNED NOT NULL DEFAULT 0
 	 *
-	 * @var int
+	 * @var float
 	 */
-	public $departmentID;
+	public $creditpoints;
 
 	/**
 	 * The resource's German description.
@@ -190,6 +173,22 @@ class Subjects extends Assets
 	public $frequencyID;
 
 	/**
+	 * The resource's German full name.
+	 * VARCHAR(200) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fullName_de;
+
+	/**
+	 * The resource's English full name.
+	 * VARCHAR(200) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fullName_en;
+
+	/**
 	 * The total number of scholastic hours (45 minutes) independent estimated to be necessary for this subject.
 	 * INT(4) UNSIGNED NOT NULL DEFAULT
 	 *
@@ -207,7 +206,7 @@ class Subjects extends Assets
 
 	/**
 	 * The recommended literature to accompany this subject.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
@@ -246,24 +245,8 @@ class Subjects extends Assets
 	public $methodCompetence;
 
 	/**
-	 * The resource's German name.
-	 * VARCHAR(255) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
-
-	/**
-	 * The resource's English name.
-	 * VARCHAR(255) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
-
-	/**
 	 * The subject's objectives in German.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
@@ -271,11 +254,19 @@ class Subjects extends Assets
 
 	/**
 	 * The subject's objectives in English.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
 	public $objective_en;
+
+	/**
+	 * The id of the organization entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $organizationID;
 
 	/**
 	 * The subject's required preliminary work in German.
@@ -303,7 +294,7 @@ class Subjects extends Assets
 
 	/**
 	 * The textual description of the subject's prerequisites in English.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
@@ -319,7 +310,7 @@ class Subjects extends Assets
 
 	/**
 	 * The description of how credit points are awarded for this subject in German.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
@@ -327,7 +318,7 @@ class Subjects extends Assets
 
 	/**
 	 * The description of how credit points are awarded for this subject in English.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
@@ -359,7 +350,7 @@ class Subjects extends Assets
 
 	/**
 	 * The resource's shortened German name.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * VARCHAR(50) NOT NULL DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -367,7 +358,7 @@ class Subjects extends Assets
 
 	/**
 	 * The resource's shortened English name.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * VARCHAR(50) NOT NULL DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -422,17 +413,7 @@ class Subjects extends Assets
 	 */
 	public function check()
 	{
-		$nullColumns = [
-			'campusID',
-			'expertise',
-			'fieldID',
-			'frequencyID',
-			'instructionLanguage',
-			'lsfID',
-			'methodCompetence',
-			'selfCompetence',
-			'socialCompetence'
-		];
+		$nullColumns = ['fieldID', 'frequencyID', 'instructionLanguage'];
 
 		foreach ($nullColumns as $nullColumn)
 		{
@@ -446,8 +427,10 @@ class Subjects extends Assets
 
 		foreach ($competences as $competence)
 		{
-			if (!$this->$competence)
+			// Truly empty
+			if (!strlen($this->$competence))
 			{
+				$this->$competence = null;
 				continue;
 			}
 
@@ -457,34 +440,5 @@ class Subjects extends Assets
 		}
 
 		return true;
-	}
-
-	/**
-	 * Sets the department asset name
-	 *
-	 * @return string
-	 */
-	protected function _getAssetName()
-	{
-		return "com_organizer.subject.$this->id";
-	}
-
-	/**
-	 * Sets the parent as the component root
-	 *
-	 * @param   Table    $table  A Table object for the asset parent.
-	 * @param   integer  $id     Id to look up
-	 *
-	 * @return int  the asset id of the component root
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	protected function _getAssetParentId(Table $table = null, $id = null)
-	{
-		$asset = Table::getInstance('Asset');
-		$name  = empty($this->departmentID) ? 'com_organizer' : "com_organizer.department.$this->departmentID";
-		$asset->loadByName($name);
-
-		return $asset->id;
 	}
 }

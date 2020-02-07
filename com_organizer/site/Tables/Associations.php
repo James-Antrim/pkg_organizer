@@ -58,6 +58,14 @@ class Associations extends BaseTable
 	public $personID;
 
 	/**
+	 * The id of the room entry referenced.
+	 * INT(11) DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $roomID;
+
+	/**
 	 * Declares the associated table
 	 *
 	 * @param   JDatabaseDriver &$dbo  A database connector object
@@ -65,5 +73,29 @@ class Associations extends BaseTable
 	public function __construct(&$dbo = null)
 	{
 		parent::__construct('#__organizer_associatons', 'id', $dbo);
+	}
+
+	/**
+	 * Set the table column names which are allowed to be null
+	 *
+	 * @return boolean  true
+	 */
+	public function check()
+	{
+		// All three fields can recieve data from at least two systems.
+		$atLeastOne = false;
+		$keyColumns = ['categoryID', 'eventID', 'groupID', 'personID', 'roomID'];
+		foreach ($keyColumns as $keyColumn)
+		{
+			if (!strlen($this->$keyColumn))
+			{
+				$this->$keyColumn = null;
+				continue;
+			}
+
+			$atLeastOne = true;
+		}
+
+		return $atLeastOne;
 	}
 }

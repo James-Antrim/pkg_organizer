@@ -234,6 +234,13 @@ FROM `#__thm_organizer_schedules`;
 INSERT IGNORE INTO `#__organizer_units` (`id`, `organizationID`, `termID`, `code`, `comment`, `delta`, `modified`)
 SELECT `id`, `departmentID`, `planningPeriodID`, `gpuntisID`, `comment`, `delta`, `modified`
 FROM `#__thm_organizer_lessons`;
+
+UPDATE `#__organizer_units` AS u
+    INNER JOIN `#__thm_organizer_lesson_subjects` AS ls ON ls.`lessonID` = u.`id`
+    INNER JOIN `#__thm_organizer_lesson_pools` AS lp ON lp.`subjectID` = ls.`id`
+    INNER JOIN `#__thm_organizer_plan_pools` AS pp ON pp.`id` = lp.`poolID`
+SET u.`gridID` = pp.`gridID`
+WHERE u.`id` IS NOT NULL;
 # endregion
 
 # region instances
@@ -311,27 +318,22 @@ SET `startDate` = (SELECT MIN(date)
 # endregion
 
 # region instance_persons
-INSERT INTO `#__organizer_instance_persons`(`instanceID`, `personID`, `delta`, `modified`)
+INSERT IGNORE INTO `#__organizer_instance_persons`(`instanceID`, `personID`, `delta`, `modified`)
 SELECT DISTINCT i.`id`, lt.`teacherID`, lt.`delta`, lt.`modified`
 FROM `#__thm_organizer_lesson_teachers` AS lt
          INNER JOIN `#__thm_organizer_lesson_subjects` AS ls ON ls.`id` = lt.`subjectID`
          INNER JOIN `#__organizer_instances` AS i ON i.`eventID` = ls.`subjectID` AND i.`unitID` = ls.`lessonID`
-WHERE lt.`teacherID` NOT IN (SELECT `id` FROM `#__organizer_persons`)
 GROUP BY i.`id`, lt.`teacherID`;
 # endregion
 
 # region instance_groups
-INSERT INTO `#__organizer_instance_groups`(`assocID`, `groupID`, `delta`, `modified`)
+INSERT IGNORE INTO `#__organizer_instance_groups`(`assocID`, `groupID`, `delta`, `modified`)
 SELECT DISTINCT ip.`id`, lp.`poolID`, lp.`delta`, lp.`modified`
 FROM `#__thm_organizer_lesson_pools` AS lp
          INNER JOIN `#__thm_organizer_lesson_subjects` AS ls ON ls.`id` = lp.`subjectID`
          INNER JOIN `#__organizer_instances` AS i ON i.`eventID` = ls.`subjectID` AND i.`unitID` = ls.`lessonID`
          INNER JOIN `#__organizer_instance_persons` AS ip ON ip.`instanceID` = i.`id`
 GROUP BY ip.`id`, lp.`poolID`;
-
-# update units with their respective gridIDs
-#####################################################################################
-
 # endregion
 
 # region instance_rooms

@@ -17,9 +17,11 @@ use JDatabaseDriver;
  */
 class Methods extends BaseTable
 {
+	use Aliased;
+
 	/**
 	 * The resource's German abbreviation.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * VARCHAR(25) NOT NULL DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -27,7 +29,7 @@ class Methods extends BaseTable
 
 	/**
 	 * The resource's English abbreviation.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * VARCHAR(25) NOT NULL DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -44,7 +46,7 @@ class Methods extends BaseTable
 
 	/**
 	 * The resource's German name.
-	 * VARCHAR(255) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -52,7 +54,7 @@ class Methods extends BaseTable
 
 	/**
 	 * The resource's English name.
-	 * VARCHAR(255) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */

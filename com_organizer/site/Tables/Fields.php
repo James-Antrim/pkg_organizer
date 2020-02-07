@@ -17,6 +17,8 @@ use JDatabaseDriver;
  */
 class Fields extends BaseTable
 {
+	use Aliased;
+
 	/**
 	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
 	 * software.

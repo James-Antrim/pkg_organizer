@@ -17,6 +17,8 @@ use JDatabaseDriver;
  */
 class Units extends BaseTable
 {
+	use Modified;
+
 	/**
 	 * Currently corresponding to the identifier in Untis scheduling software.
 	 * INT(11) UNSIGNED NOT NULL
@@ -27,7 +29,7 @@ class Units extends BaseTable
 
 	/**
 	 * A supplementary text description.
-	 * VARCHAR(200) DEFAULT NULL
+	 * VARCHAR(255) DEFAULT NULL
 	 *
 	 * @var string
 	 */
@@ -42,20 +44,12 @@ class Units extends BaseTable
 	public $courseID;
 
 	/**
-	 * The textual description of the associations last change. Values: changed, <empty>, new, removed.
-	 * VARCHAR(10) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $delta;
-
-	/**
-	 * The id of the department entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
+	 * The id of the organization entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
 	 *
 	 * @var int
 	 */
-	public $departmentID;
+	public $organizationID;
 
 	/**
 	 * The end date of the resource.
@@ -72,14 +66,6 @@ class Units extends BaseTable
 	 * @var int
 	 */
 	public $gridID;
-
-	/**
-	 * The timestamp of the time at which the last change to the entry occurred.
-	 * TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-	 *
-	 * @var int
-	 */
-	public $modified;
 
 	/**
 	 * The id of the run entry referenced.
@@ -106,13 +92,6 @@ class Units extends BaseTable
 	public $termID;
 
 	/**
-	 * The resource's identifier in Untis scheduling software.
-	 *
-	 * @var int
-	 */
-	public $untisID;
-
-	/**
 	 * Declares the associated table
 	 *
 	 * @param   JDatabaseDriver &$dbo  A database connector object
@@ -129,12 +108,15 @@ class Units extends BaseTable
 	 */
 	public function check()
 	{
-		if (empty($this->gridID))
-		{
-			$this->gridID = null;
-		}
+		$nullColumns = ['courseID', 'endDate', 'gridID', 'runID', 'startDate'];
 
-		$this->modified = null;
+		foreach ($nullColumns as $nullColumn)
+		{
+			if (!$this->$nullColumn)
+			{
+				$this->$nullColumn = null;
+			}
+		}
 
 		return true;
 	}

@@ -26,7 +26,7 @@ abstract class BaseTable extends Table
 {
 	/**
 	 * The primary key.
-	 * INT(11) UNSIGNED NOT NULL AUTO_INCREMENT
+	 * INT (UN)SIGNED (11|20) NOT NULL AUTO_INCREMENT
 	 *
 	 * @var int
 	 */

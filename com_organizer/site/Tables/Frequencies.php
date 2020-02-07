@@ -13,27 +13,25 @@ namespace Organizer\Tables;
 use JDatabaseDriver;
 
 /**
- * Models the organizer_instance_rooms table.
+ * Models the organizer_degrees table.
  */
-class InstanceRooms extends BaseTable
+class Frequencies extends BaseTable
 {
-	use Modified;
+	/**
+	 * The resource's German name.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_de;
 
 	/**
-	 * The id of the instance persons entry referenced.
-	 * INT(20) UNSIGNED NOT NULL
+	 * The resource's English name.
+	 * VARCHAR(150) NOT NULL
 	 *
-	 * @var int
+	 * @var string
 	 */
-	public $assocID;
-
-	/**
-	 * The id of the room entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $roomID;
+	public $name_en;
 
 	/**
 	 * Declares the associated table
@@ -42,6 +40,6 @@ class InstanceRooms extends BaseTable
 	 */
 	public function __construct(&$dbo = null)
 	{
-		parent::__construct('#__organizer_instance_rooms', 'id', $dbo);
+		parent::__construct('#__organizer_frequencies', 'id', $dbo);
 	}
 }

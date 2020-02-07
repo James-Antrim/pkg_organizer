@@ -17,15 +17,7 @@ use JDatabaseDriver;
  */
 class Categories extends BaseTable
 {
-	use Addressable;
-
-	/**
-	 * A flag which displays whether the resource is currently active.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-	 *
-	 * @var bool
-	 */
-	public $active;
+	use Activated, Aliased, Suppressed;
 
 	/**
 	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
@@ -69,9 +61,9 @@ class Categories extends BaseTable
 	 */
 	public function check()
 	{
-		if (empty($this->programID))
+		if (empty($this->code))
 		{
-			$this->programID = null;
+			$this->code = null;
 		}
 
 		return true;

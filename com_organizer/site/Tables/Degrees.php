@@ -17,6 +17,8 @@ use JDatabaseDriver;
  */
 class Degrees extends BaseTable
 {
+	use Aliased;
+
 	/**
 	 * The resource's abbreviation.
 	 * VARCHAR(45) NOT NULL DEFAULT ''

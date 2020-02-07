@@ -90,4 +90,28 @@ class Curricula extends BaseTable
 	{
 		parent::__construct('#__organizer_mappings', 'id', $dbo);
 	}
+
+	/**
+	 * Set the table column names which are allowed to be null
+	 *
+	 * @return boolean  true
+	 */
+	public function check()
+	{
+		// All three fields can recieve data from at least two systems.
+		$atLeastOne = false;
+		$keyColumns = ['programID', 'poolID', 'subjectID'];
+		foreach ($keyColumns as $keyColumn)
+		{
+			if (!strlen($this->$keyColumn))
+			{
+				$this->$keyColumn = null;
+				continue;
+			}
+
+			$atLeastOne = true;
+		}
+
+		return $atLeastOne;
+	}
 }

@@ -17,6 +17,8 @@ use JDatabaseDriver;
  */
 class Terms extends BaseTable
 {
+	use Aliased;
+
 	/**
 	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
 	 * software.
@@ -36,7 +38,7 @@ class Terms extends BaseTable
 
 	/**
 	 * The resource's full German name.
-	 * VARCHAR(255) DEFAULT ''
+	 * VARCHAR(200) DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -44,7 +46,7 @@ class Terms extends BaseTable
 
 	/**
 	 * The resource's full English name.
-	 * VARCHAR(255) DEFAULT ''
+	 * VARCHAR(200) DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -52,7 +54,7 @@ class Terms extends BaseTable
 
 	/**
 	 * The resource's German name.
-	 * VARCHAR(100) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -60,7 +62,7 @@ class Terms extends BaseTable
 
 	/**
 	 * The resource's English name.
-	 * VARCHAR(100) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */

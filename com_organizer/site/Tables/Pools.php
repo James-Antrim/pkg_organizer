@@ -11,18 +11,17 @@
 namespace Organizer\Tables;
 
 use JDatabaseDriver;
-use Joomla\CMS\Table\Table;
 
 /**
  * Models the organizer_pools table.
  */
-class Pools extends Assets
+class Pools extends BaseTable
 {
-	use Addressable;
+	use Aliased;
 
 	/**
 	 * The resource's German abbreviation.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * VARCHAR(25) NOT NULL DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -30,19 +29,11 @@ class Pools extends Assets
 
 	/**
 	 * The resource's English abbreviation.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * VARCHAR(25) NOT NULL DEFAULT ''
 	 *
 	 * @var string
 	 */
 	public $abbreviation_en;
-
-	/**
-	 * The id used by Joomla as a reference to its assets table.
-	 * INT(11) NOT NULL
-	 *
-	 * @var int
-	 */
-	public $asset_id;
 
 	/**
 	 * The resource's German description.
@@ -59,14 +50,6 @@ class Pools extends Assets
 	 * @var string
 	 */
 	public $description_en;
-
-	/**
-	 * The id of the department entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $departmentID;
 
 	/**
 	 * The id of the field entry referenced.
@@ -125,8 +108,16 @@ class Pools extends Assets
 	public $name_en;
 
 	/**
+	 * The id of the organization entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $organizationID;
+
+	/**
 	 * The resource's German shortened name.
-	 * VARCHAR(45) DEFAULT ''
+	 * VARCHAR(50) DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -134,7 +125,7 @@ class Pools extends Assets
 
 	/**
 	 * The resource's English shortened name.
-	 * VARCHAR(45) DEFAULT ''
+	 * VARCHAR(50) DEFAULT ''
 	 *
 	 * @var string
 	 */
@@ -151,43 +142,20 @@ class Pools extends Assets
 	}
 
 	/**
-	 * Sets the department asset name
-	 *
-	 * @return string
-	 */
-	protected function _getAssetName()
-	{
-		return "com_organizer.pool.$this->id";
-	}
-
-	/**
-	 * Sets the parent as the component root
-	 *
-	 * @param   Table    $table  A Table object for the asset parent.
-	 * @param   integer  $id     Id to look up
-	 *
-	 * @return int  the asset id of the component root
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	protected function _getAssetParentId(Table $table = null, $id = null)
-	{
-		$asset = Table::getInstance('Asset');
-		$asset->loadByName("com_organizer.department.$this->departmentID");
-
-		return $asset->id;
-	}
-
-	/**
 	 * Set the table column names which are allowed to be null
 	 *
 	 * @return boolean  true
 	 */
 	public function check()
 	{
-		if (empty($this->lsfID) or !is_numeric($this->lsfID))
+		// These can be blank, but non-empty values should be unique.
+		$nullColumns = ['groupID', 'fieldID', 'lsfID'];
+		foreach ($nullColumns as $nullColumn)
 		{
-			$this->lsfID = null;
+			if (!strlen($this->$nullColumn))
+			{
+				$this->$nullColumn = null;
+			}
 		}
 
 		return true;
