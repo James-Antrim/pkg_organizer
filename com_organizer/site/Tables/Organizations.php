@@ -18,6 +18,8 @@ use Organizer\Helpers\Languages;
  */
 class Organizations extends Assets
 {
+	use Addressable;
+
 	/**
 	 * The id used by Joomla as a reference to its assets table.
 	 * INT(11) NOT NULL
@@ -25,14 +27,6 @@ class Organizations extends Assets
 	 * @var int
 	 */
 	public $asset_id;
-
-	/**
-	 * The alias used to reference the resource in an URL
-	 * VARCHAR(255) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $alias;
 
 	/**
 	 * The id of the user entry referenced.

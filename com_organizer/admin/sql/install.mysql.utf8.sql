@@ -216,9 +216,6 @@ VALUES (2, 'Bachelor of Engineering', 'B.Eng.', 'BE'),
        (8, 'Master of Business Administration and Engineering', 'M.B.A.', 'MB'),
        (9, 'Master of Education', 'M.Ed.', 'MH');
 
-ALTER TABLE `#__organizer_degrees`
-    AUTO_INCREMENT = 10;
-
 CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators` (
     `id`       INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `eventID`  INT(11) UNSIGNED NOT NULL,
@@ -242,10 +239,10 @@ CREATE TABLE IF NOT EXISTS `#__organizer_events` (
     `subjectNo`        VARCHAR(45)         NOT NULL DEFAULT '',
     `contact_de`       TEXT,
     `contact_en`       TEXT,
-    `courseContact_de` TEXT,
-    `courseContact_en` TEXT,
     `content_de`       TEXT,
     `content_en`       TEXT,
+    `courseContact_de` TEXT,
+    `courseContact_en` TEXT,
     `description_de`   TEXT,
     `description_en`   TEXT,
     `organization_de`  TEXT,

@@ -15,6 +15,8 @@ namespace Organizer\Tables;
  */
 class Buildings extends BaseTable
 {
+	use Addressable;
+
 	/**
 	 * The physical address of the resource.
 	 * VARCHAR(255) NOT NULL
@@ -22,14 +24,6 @@ class Buildings extends BaseTable
 	 * @var string
 	 */
 	public $address;
-
-	/**
-	 * The alias used to reference the resource in an URL
-	 * VARCHAR(255) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $alias;
 
 	/**
 	 * The id of the campus entry referenced.

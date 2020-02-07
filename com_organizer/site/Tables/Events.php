@@ -15,13 +15,7 @@ namespace Organizer\Tables;
  */
 class Events extends BaseTable
 {
-	/**
-	 * The alias used to reference the resource in an URL
-	 * VARCHAR(255) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $alias;
+	use Addressable;
 
 	/**
 	 * The id of the campus entry referenced.

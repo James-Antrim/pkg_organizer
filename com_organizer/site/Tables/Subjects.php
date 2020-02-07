@@ -17,6 +17,8 @@ use Joomla\CMS\Table\Table;
  */
 class Subjects extends Assets
 {
+	use Addressable;
+
 	/**
 	 * The subject's supplementary materials in German.
 	 * TEXT
@@ -48,14 +50,6 @@ class Subjects extends Assets
 	 * @var string
 	 */
 	public $abbreviation_en;
-
-	/**
-	 * The alias used to reference the resource in an URL
-	 * VARCHAR(255) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $alias;
 
 	/**
 	 * The id used by Joomla as a reference to its assets table.

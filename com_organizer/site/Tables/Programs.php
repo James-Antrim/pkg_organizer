@@ -18,6 +18,8 @@ use Joomla\CMS\Table\Table;
  */
 class Programs extends Assets
 {
+	use Addressable;
+
 	/**
 	 * The year in which the program was accredited.
 	 * YEAR(4) DEFAULT NULL
@@ -33,14 +35,6 @@ class Programs extends Assets
 	 * @var bool
 	 */
 	public $active;
-
-	/**
-	 * The alias used to reference the resource in an URL
-	 * VARCHAR(255) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $alias;
 
 	/**
 	 * The id used by Joomla as a reference to its assets table.

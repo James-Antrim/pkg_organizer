@@ -15,6 +15,8 @@ namespace Organizer\Tables;
  */
 class Persons extends BaseTable
 {
+	use Addressable;
+
 	/**
 	 * A flag which displays whether the resource is currently active.
 	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
@@ -22,14 +24,6 @@ class Persons extends BaseTable
 	 * @var bool
 	 */
 	public $active;
-
-	/**
-	 * The alias used to reference the resource in an URL
-	 * VARCHAR(255) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $alias;
 
 	/**
 	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
