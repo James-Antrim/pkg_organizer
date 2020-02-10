@@ -15,7 +15,7 @@ use Joomla\CMS\Factory;
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class Categories implements DepartmentAssociated, Selectable
+class Categories implements Associated, Selectable
 {
 	use Filtered;
 

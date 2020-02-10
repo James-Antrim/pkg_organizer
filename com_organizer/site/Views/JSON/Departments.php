@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Departments as DepartmentsHelper;
+use Organizer\Helpers\Organizations as DepartmentsHelper;
 use Organizer\Helpers\Input;
 
 /**
@@ -26,7 +26,7 @@ class Departments extends BaseView
 	public function display()
 	{
 		$function = Input::getTask();
-		if (method_exists('Organizer\\Helpers\\Departments', $function))
+		if (method_exists('Organizer\\Helpers\\Organizations', $function))
 		{
 			echo json_encode(DepartmentsHelper::$function(), JSON_UNESCAPED_UNICODE);
 		}

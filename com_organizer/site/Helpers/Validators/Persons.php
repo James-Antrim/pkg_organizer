@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Organizer\Helpers\Departments;
+use Organizer\Helpers\Organizations;
 use Organizer\Helpers\Languages;
 use Organizer\Helpers\ResourceHelper;
 use Organizer\Tables\Persons as PersonsTable;
@@ -171,6 +171,6 @@ class Persons extends ResourceHelper implements UntisXMLValidator
 		$model->persons->$internalID = $person;
 
 		self::setID($model, $internalID);
-		Departments::setDepartmentResource($person->id, 'personID');
+		Organizations::setDepartmentResource($person->id, 'personID');
 	}
 }

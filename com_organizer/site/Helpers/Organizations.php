@@ -18,7 +18,7 @@ use Organizer\Tables\Associations;
 /**
  * Provides general functions for department access checks, data retrieval and display.
  */
-class Departments extends ResourceHelper implements Selectable
+class Organizations extends ResourceHelper implements Selectable
 {
 	/**
 	 * Filters departments according to user access and relevant resource associations.

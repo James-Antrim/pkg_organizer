@@ -232,7 +232,7 @@ class Can
 			return [];
 		}
 
-		$organizationIDs = Departments::getIDs();
+		$organizationIDs = Organizations::getIDs();
 
 		if (self::administrate())
 		{

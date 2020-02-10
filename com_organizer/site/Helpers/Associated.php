@@ -13,7 +13,7 @@ namespace Organizer\Helpers;
 /**
  * Ensures that resources associated with departments have functions pertaining to those associations.
  */
-interface DepartmentAssociated
+interface Associated
 {
 	/**
 	 * Retrieves the ids of departments associated with the resource

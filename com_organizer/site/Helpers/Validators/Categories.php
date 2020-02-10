@@ -139,6 +139,6 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		$model->categories->$untisID = $category;
 
 		self::setID($model, $untisID);
-		Helpers\Departments::setDepartmentResource($category->id, 'categoryID');
+		Helpers\Organizations::setDepartmentResource($category->id, 'categoryID');
 	}
 }

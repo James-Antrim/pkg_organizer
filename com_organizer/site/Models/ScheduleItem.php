@@ -58,7 +58,7 @@ class ScheduleItem extends BaseModel
 
 		// Default title: menu > department
 		$displayName                 = ($params->get('show_page_heading') and $params->get('page_heading')) ?
-			$params->get('page_heading') : Helpers\Departments::getName($this->params['departmentID']);
+			$params->get('page_heading') : Helpers\Organizations::getName($this->params['departmentID']);
 		$this->displayName           = $displayName;
 		$this->params['displayName'] = $displayName;
 

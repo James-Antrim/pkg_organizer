@@ -9,7 +9,7 @@
  */
 
 use Organizer\Helpers\Dates;
-use Organizer\Helpers\Departments;
+use Organizer\Helpers\Organizations;
 use Organizer\Helpers\Languages;
 
 $activeDay      = date('w');
@@ -178,7 +178,7 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
                  aria-labelledby="tab-schedule-form" aria-hidden="false">
                 <div id="department-input" class="input-wrapper">
                     <select id="department" data-input="static" data-placeholder="<?php echo $departmentPH; ?>">
-						<?php foreach (Departments::getOptions() as $department) : ?>
+						<?php foreach (Organizations::getOptions() as $department) : ?>
                             <option value="<?php echo $department->value; ?>">
 								<?php echo $department->text; ?>
                             </option>

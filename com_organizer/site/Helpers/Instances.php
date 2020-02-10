@@ -264,7 +264,7 @@ class Instances extends ResourceHelper
 		$unit = [
 			'comment'      => $unitsTable->comment,
 			'courseID'     => $unitsTable->courseID,
-			'department'   => Departments::getShortName($unitsTable->departmentID),
+			'department'   => Organizations::getShortName($unitsTable->departmentID),
 			'departmentID' => $unitsTable->departmentID,
 			'gridID'       => $unitsTable->gridID,
 			'unitStatus'   => $unitsTable->delta

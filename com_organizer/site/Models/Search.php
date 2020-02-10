@@ -302,7 +302,7 @@ class Search extends BaseModel
 		{
 			foreach ($results as $departmentID)
 			{
-				$departmentName = Helpers\Departments::getName($departmentID);
+				$departmentName = Helpers\Organizations::getName($departmentID);
 
 				$departments[$departmentID]         = [];
 				$departments[$departmentID]['text'] = Languages::_('ORGANIZER_ORGANIZATION') . ": {$departmentName}";

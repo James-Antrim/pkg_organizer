@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use Organizer\Helpers\Dates;
-use Organizer\Helpers\Departments;
+use Organizer\Helpers\Organizations;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\Languages;
 use Organizer\Helpers\Rooms;
@@ -170,7 +170,7 @@ class RoomStatistics extends BaseModel
 	public function getDepartmentOptions()
 	{
 		$options = [];
-		foreach (Departments::getOptions(false) as $departmentID => $departmentName)
+		foreach (Organizations::getOptions(false) as $departmentID => $departmentName)
 		{
 			$options[$departmentID] = $departmentName;
 		}

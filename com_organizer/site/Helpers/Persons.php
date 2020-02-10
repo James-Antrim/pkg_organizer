@@ -16,7 +16,7 @@ use Organizer\Tables\Persons as PersonsTable;
 /**
  * Provides general functions for person access checks, data retrieval and display.
  */
-class Persons extends ResourceHelper implements DepartmentAssociated, Selectable
+class Persons extends ResourceHelper implements Associated, Selectable
 {
 	const COORDINATES = 1;
 

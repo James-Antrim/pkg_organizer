@@ -64,7 +64,7 @@ class ScheduleExport extends BaseModel
 	 */
 	public function getDepartmentOptions()
 	{
-		$departments = Helpers\Departments::getOptions(false);
+		$departments = Helpers\Organizations::getOptions(false);
 		$options     = [];
 		$options[''] = Helpers\Languages::_('ORGANIZER_SELECT_ORGANIZATION');
 
