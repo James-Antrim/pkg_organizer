@@ -32,7 +32,7 @@ $daysOfTheWeek  = [
 	Languages::_('SAT'),
 	Languages::_('SUN')
 ];
-$departmentPH   = Languages::_('ORGANIZER_SELECT_ORGANIZATION');
+$organizationPH = Languages::_('ORGANIZER_SELECT_ORGANIZATION');
 $displayName    = empty($this->model->displayName) ?
 	'THM Organizer  - ' . Languages::_('ORGANIZER_SCHEDULES') : $this->model->displayName;
 $grid           = json_decode($this->params['defaultGrid'], true);
@@ -176,11 +176,11 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
         <div class="tab-content">
             <div class="tab-panel selection active" id="schedule-form" role="tabpanel"
                  aria-labelledby="tab-schedule-form" aria-hidden="false">
-                <div id="department-input" class="input-wrapper">
-                    <select id="department" data-input="static" data-placeholder="<?php echo $departmentPH; ?>">
-						<?php foreach (Organizations::getOptions() as $department) : ?>
-                            <option value="<?php echo $department->value; ?>">
-								<?php echo $department->text; ?>
+                <div id="organization-input" class="input-wrapper">
+                    <select id="organization" data-input="static" data-placeholder="<?php echo $organizationPH; ?>">
+						<?php foreach (Organizations::getOptions() as $organization) : ?>
+                            <option value="<?php echo $organization->value; ?>">
+								<?php echo $organization->text; ?>
                             </option>
 						<?php endforeach; ?>
                     </select>

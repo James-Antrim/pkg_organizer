@@ -3,7 +3,7 @@
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
         <field name="organizationID" type="GenericOptions" label="ORGANIZATION" localized="true"
-               onchange="this.form.submit();" table="organizer_departments" textcolumn="shortName" valuecolumn="id">
+               onchange="this.form.submit();" table="organizer_organizations" textcolumn="shortName" valuecolumn="id">
             <option value="">ALL_ORGANIZATIONS</option>
             <option value="-1">NO_ORGANIZATION</option>
         </field>

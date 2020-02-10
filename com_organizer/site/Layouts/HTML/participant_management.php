@@ -18,9 +18,9 @@ $tag     = Languages::getTag();
 $baseURL = '?option=com_organizer&view=courses&format=pdf';
 $baseURL .= "&lessonID={$this->course['id']}&languageTag=$tag&type=";
 
-$participantListRoute = Route::_($baseURL . 0, false);
-$departmentListRoute  = Route::_($baseURL . 1, false);
-$badgesRoute          = Route::_($baseURL . 2, false);
+$badgesRoute           = Route::_($baseURL . 2, false);
+$organizationListRoute = Route::_($baseURL . 1, false);
+$participantListRoute  = Route::_($baseURL . 0, false);
 
 $acceptedText = Languages::_('ORGANIZER_ACCEPTED');
 $waitListText = Languages::_('ORGANIZER_WAIT_LIST');
@@ -73,7 +73,7 @@ $dateFormat .= $params->get('timeFormat', 'H.i');
                         </a>
                     </li>
                     <li>
-                        <a href="<?php echo $departmentListRoute; ?>" target="_blank">
+                        <a href="<?php echo $organizationListRoute; ?>" target="_blank">
                             <span class="icon-file-pdf"></span>
 							<?php echo Languages::_('ORGANIZER_ORGANIZATION_STATISTICS'); ?>
                         </a>

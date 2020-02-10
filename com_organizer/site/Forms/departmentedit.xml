@@ -16,6 +16,6 @@
                validate="email"/>
         <field name="asset_id" type="hidden" filter="unset"/>
         <field name="rules" type="Rules" label="JCONFIG_PERMISSIONS_LABEL" validate="rules" filter="rules"
-               component="com_organizer" section="department"/>
+               component="com_organizer" section="organization"/>
     </fieldset>
 </form>

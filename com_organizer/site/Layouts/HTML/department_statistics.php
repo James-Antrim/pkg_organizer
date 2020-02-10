@@ -12,7 +12,7 @@ $infoSpan      = '&nbsp;<span class="icon-info"></span>';
 $initialHidden = ['date'];
 ?>
 <div id="j-main-container">
-    <form action="index.php?option=com_organizer&view=department_occupancy&format=xls"
+    <form action="index.php?option=com_organizer&view=organization_occupancy&format=xls"
           method="post" name="adminForm" id="adminForm" target="_blank">
         <div id="header-container" class="header-container clearfix">
             <div class="header-title">

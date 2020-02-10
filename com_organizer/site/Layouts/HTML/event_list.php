@@ -90,7 +90,7 @@ foreach ($this->model->events as $date => $times)
 			echo '</td>';
 			echo '<td class="persons-column">' . implode(' / ', $lesson['persons']) . '</td>';
 			echo '<td class="rooms-column">' . implode(', ', $lesson['rooms']) . '</td>';
-			echo '<td class="org-column">' . implode(', ', $lesson['departments']) . '</td>';
+			echo '<td class="org-column">' . implode(', ', $lesson['organizations']) . '</td>';
 			echo '</tr>';
 		}
 	}
