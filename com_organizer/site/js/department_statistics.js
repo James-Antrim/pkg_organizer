@@ -25,7 +25,7 @@ function addRooms(rooms)
 }
 
 /**
- * Load rooms dependent on the selected departments and programs
+ * Load rooms dependent on the selected organizations and programs
  */
 function repopulateRooms()
 {

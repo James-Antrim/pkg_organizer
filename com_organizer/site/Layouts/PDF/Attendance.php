@@ -23,11 +23,11 @@ class Attendance extends BaseLayout
 	private $headers;
 
 	private $widths = [
-		'index'      => 10,
-		'name'       => 55,
-		'department' => 25,
-		'program'    => 85,
-		'room'       => 15
+		'index'        => 10,
+		'name'         => 55,
+		'organization' => 25,
+		'program'      => 85,
+		'room'         => 15
 	];
 
 	/**
@@ -48,11 +48,11 @@ class Attendance extends BaseLayout
 		$this->showPrintOverhead(true);
 
 		$this->headers = [
-			'index'      => '#',
-			'name'       => 'Name',
-			'department' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
-			'program'    => Helpers\Languages::_('ORGANIZER_PROGRAM'),
-			'room'       => Helpers\Languages::_('ORGANIZER_ROOM')
+			'index'        => '#',
+			'name'         => 'Name',
+			'organization' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
+			'program'      => Helpers\Languages::_('ORGANIZER_PROGRAM'),
+			'room'         => Helpers\Languages::_('ORGANIZER_ROOM')
 		];
 
 		// Adjust for more information
@@ -130,8 +130,8 @@ class Attendance extends BaseLayout
 						$value = empty($participant['forename']) ?
 							$participant['surname'] : "{$participant['surname']},  {$participant['forename']}";
 						break;
-					case 'department':
-						$value = $participant['departmentName'];
+					case 'organization':
+						$value = $participant['organizationName'];
 						break;
 					case 'program':
 						$value = $participant['programName'];

@@ -11,12 +11,12 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Table\Table;
-use Organizer\Tables\Organizations as DepartmentsTable;
+use Organizer\Tables\Organizations as OrganizationsTable;
 
 /**
- * Class loads a form for editing department data.
+ * Class loads a form for editing organization data.
  */
-class DepartmentEdit extends EditModel
+class OrganizationEdit extends EditModel
 {
 	/**
 	 * Method to get a table object, load it if necessary.
@@ -31,6 +31,6 @@ class DepartmentEdit extends EditModel
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new DepartmentsTable;
+		return new OrganizationsTable;
 	}
 }

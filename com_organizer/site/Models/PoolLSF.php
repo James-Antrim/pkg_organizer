@@ -22,7 +22,7 @@ class PoolLSF extends BaseModel
 	 * Creates a pool entry if none exists and calls
 	 *
 	 * @param   object &$stub            a SimpleXML object containing rudimentary subject data
-	 * @param   int     $organizationID  the id of the department to which this data belongs
+	 * @param   int     $organizationID  the id of the organization to which this data belongs
 	 *
 	 * @return mixed  int value of subject id on success, otherwise false
 	 */
@@ -93,7 +93,7 @@ class PoolLSF extends BaseModel
 	 * Processes the children of the stub element
 	 *
 	 * @param   object &$stub            the pool element
-	 * @param   int     $organizationID  the id of the department to which this data belongs
+	 * @param   int     $organizationID  the id of the organization to which this data belongs
 	 *
 	 * @return boolean true on success, otherwise false
 	 */

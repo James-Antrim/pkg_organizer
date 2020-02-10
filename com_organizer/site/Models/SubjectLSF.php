@@ -421,9 +421,10 @@ class SubjectLSF extends BaseModel
 	 * Creates a subject entry if none exists and imports data to fill it
 	 *
 	 * @param   object &$stub            a simplexml object containing rudimentary subject data
-	 * @param   int     $organizationID  the id of the department to which this data belongs
+	 * @param   int     $organizationID  the id of the organization to which this data belongs
 	 *
 	 * @return boolean true on success, otherwise false
+	 * @throws Exception
 	 */
 	public function processStub(&$stub, $organizationID)
 	{
@@ -979,7 +980,7 @@ class SubjectLSF extends BaseModel
 	}
 
 	/**
-	 * Sets business administration department start attributes
+	 * Sets business administration organization start attributes
 	 *
 	 * @param   object &$subject    the subject object
 	 * @param   string  $attribute  the attribute's name in the xml response

@@ -18,9 +18,9 @@ use Organizer\Tables\Schedules as SchedulesTable;
 class Schedules extends ResourceHelper
 {
 	/**
-	 * Returns the id of the active schedule for the given department/term context
+	 * Returns the id of the active schedule for the given organization/term context
 	 *
-	 * @param   int  $organizationID  the id of the department context
+	 * @param   int  $organizationID  the id of the organization context
 	 * @param   int  $termID          the id of the term context
 	 *
 	 * @return int the id of the active schedule for the context or 0

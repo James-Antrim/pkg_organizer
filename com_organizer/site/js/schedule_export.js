@@ -196,35 +196,35 @@ function handleSubmit()
 }
 
 /**
- * Load pools dependent on the selected departments and categories
+ * Load pools dependent on the selected organizations and categories
  */
 function repopulateResources()
 {
     'use strict';
 
-    const selectedDepartments = jQuery('#organizationIDs').val(),
-        selectedCategories = jQuery('#categoryIDs').val();
-    let invalidDepartments, invalidCategories, componentParameters, selectionParameters = '';
+    const organizations = jQuery('#organizationIDs').val(),
+        categories = jQuery('#categoryIDs').val();
+    let invalidOrganizations, invalidCategories, componentParameters, selectionParameters = '';
 
-    invalidDepartments = selectedDepartments == null || selectedDepartments.length === 0;
-    invalidCategories = selectedCategories == null || selectedCategories.length === 0;
+    invalidOrganizations = organizations == null || organizations.length === 0;
+    invalidCategories = categories == null || categories.length === 0;
 
     // The all selection was revoked from something.
-    if (invalidDepartments && invalidCategories)
+    if (invalidOrganizations && invalidCategories)
     {
         return;
     }
 
     componentParameters = 'index.php?option=com_organizer&format=json';
 
-    if (!invalidDepartments)
+    if (!invalidOrganizations)
     {
-        selectionParameters += '&organizationIDs=' + selectedDepartments;
+        selectionParameters += '&organizationIDs=' + organizations;
     }
 
     if (!invalidCategories)
     {
-        selectionParameters += '&categoryIDs=' + selectedCategories;
+        selectionParameters += '&categoryIDs=' + categories;
     }
 
     jQuery.ajax({
@@ -274,22 +274,22 @@ function repopulateResources()
 }
 
 /**
- * Load categories dependent on the selected departments
+ * Load categories dependent on the selected organizations
  */
 function repopulateCategories()
 {
     'use strict';
 
     const componentParameters = '/index.php?option=com_organizer&view=category_options&format=json',
-        selectedDepartments = jQuery('#organizationIDs').val();
+        organizations = jQuery('#organizationIDs').val();
     let selectionParameters;
 
-    if (selectedDepartments == null)
+    if (organizations == null)
     {
         return;
     }
 
-    selectionParameters = '&organizationIDs=' + selectedDepartments;
+    selectionParameters = '&organizationIDs=' + organizations;
 
     jQuery.ajax({
         type: 'GET',

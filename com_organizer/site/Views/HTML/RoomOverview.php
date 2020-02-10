@@ -305,8 +305,8 @@ class RoomOverview extends TableView
 			$tip .= '</span><br>';
 
 			$tip .= Helpers\Languages::_('ORGANIZER_ORGANISATION') . ":";
-			$tip .= strlen($instance['department']) > 20 ? '<br>' : ' ';
-			$tip .= "{$instance['department']}<br>";
+			$tip .= strlen($instance['organization']) > 20 ? '<br>' : ' ';
+			$tip .= "{$instance['organization']}<br>";
 
 			$persons = [];
 			foreach ($instance['resources'] as $personID => $personAssoc)

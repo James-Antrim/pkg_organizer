@@ -37,7 +37,7 @@ class Deputat extends BaseModel
 
 	public $irrelevant = [];
 
-	public $departmentName = '';
+	public $organizationName = '';
 
 	/**
 	 * Sets construction model properties
@@ -86,7 +86,7 @@ class Deputat extends BaseModel
 	}
 
 	/**
-	 * Checks for the cross department deputat of persons belonging to the department
+	 * Checks for the cross organization deputat of persons belonging to the organization
 	 *
 	 * @param   array   $persons    the persons listed in the original schedule
 	 * @param   string  $startDate  the start date of the original schedule
@@ -223,8 +223,8 @@ class Deputat extends BaseModel
 		return [];
 
 		/**
-		 * TODO: get the departments for which the user has scheduling access, and their schedules.
-		 * TODO: get the names from the schedules from the department resource name and the term name
+		 * TODO: get the organizations for which the user has scheduling access, and their schedules.
+		 * TODO: get the names from the schedules from the organization resource name and the term name
 		 * $canManageSchedules = $user->authorise('organizer.schedule', "com_organizer.$resource.$resourceID");
 		 */
 	}
@@ -473,11 +473,11 @@ class Deputat extends BaseModel
 	}
 
 	/**
-	 * Resolves the department id to its name
+	 * Resolves the organization id to its name
 	 *
-	 * @param   int  $organizationID  the id of the department
+	 * @param   int  $organizationID  the id of the organization
 	 *
-	 * @return void  sets the object variable $departmentName on success
+	 * @return void  sets the object variable $organizationName on success
 	 */
 	private function setOrganizationName($organizationID)
 	{
@@ -485,17 +485,15 @@ class Deputat extends BaseModel
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select("shortName_$tag")->from('#__organizer_departments')->where("id = '$organizationID'");
+		$query->select("shortName_$tag")->from('#__organizer_organizations')->where("id = '$organizationID'");
 		$dbo->setQuery($query);
 
-		$departmentName = OrganizerHelper::executeQuery('loadResult');
 
-		if (empty($departmentName))
+		if ($name = OrganizerHelper::executeQuery('loadResult', ''))
 		{
-			return;
+			$this->organizationName = Languages::_('ORGANIZER_ORGANIZATION') . ' ' . $name;
 		}
 
-		$this->departmentName = Languages::_('ORGANIZER_ORGANIZATION') . ' ' . $departmentName;
 	}
 
 	/**
@@ -598,7 +596,7 @@ class Deputat extends BaseModel
 			}
 
 			/**
-			 * The function was called during the iteration of the schedule of another department. Only the persons
+			 * The function was called during the iteration of the schedule of another organization. Only the persons
 			 * from the original are relevant.
 			 */
 			if (!empty($persons) and !in_array($personID, $persons))

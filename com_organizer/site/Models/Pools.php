@@ -35,8 +35,8 @@ class Pools extends ListModel
 		$query->select("DISTINCT p.id, p.name_$tag AS name, p.fieldID")
 			->from('#__organizer_pools AS p');
 
-		$authorizedDepts = Can::documentTheseOrganizations();
-		$query->where('(p.organizationID IN (' . implode(',', $authorizedDepts) . ') OR p.organizationID IS NULL)');
+		$authorized = Can::documentTheseOrganizations();
+		$query->where('(p.organizationID IN (' . implode(',', $authorized) . ') OR p.organizationID IS NULL)');
 
 		$searchColumns = [
 			'p.name_de',

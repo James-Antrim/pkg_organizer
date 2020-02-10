@@ -50,7 +50,7 @@ class CoursePersonsField extends OptionsField
 	 */
 	public static function getPersons()
 	{
-		if (!$organizationID = Input::getFilterID('department', 0))
+		if (!$organizationID = Input::getFilterID('organization', 0))
 		{
 			return [];
 		}
@@ -66,7 +66,7 @@ class CoursePersonsField extends OptionsField
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where('u.courseID IS NOT NULL');
 
-		// Ensure relation to a department
+		// Ensure relation to a organization
 		$query->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = g.categoryID')

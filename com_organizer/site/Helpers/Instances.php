@@ -78,12 +78,12 @@ class Instances extends ResourceHelper
 				$conditions['courseIDs'] = $courseIDs;
 			}
 
-			if ($organizationIDs = Input::getFilterIDs('department'))
+			if ($organizationIDs = Input::getFilterIDs('organization'))
 			{
 				$conditions['organizationIDs'] = $organizationIDs;
 			}
 
-			// Department specific events
+			// Organization specific events
 			if ($eventIDs = Input::getFilterIDs('event'))
 			{
 				$conditions['eventIDs'] = $eventIDs;
@@ -121,7 +121,7 @@ class Instances extends ResourceHelper
 				$overlap      = array_intersect($conditions['organizationIDs'], $allowedIDs);
 				$overlapCount = count($overlap);
 
-				// If the user has planning access to all requested departments show unpublished automatically.
+				// If the user has planning access to all requested organizations show unpublished automatically.
 				if ($overlapCount and $overlapCount == count($conditions['organizationIDs']))
 				{
 					$conditions['organizationIDs'] = $overlap;
@@ -264,7 +264,7 @@ class Instances extends ResourceHelper
 		$unit = [
 			'comment'        => $unitsTable->comment,
 			'courseID'       => $unitsTable->courseID,
-			'department'     => Organizations::getShortName($unitsTable->organizationID),
+			'organization'   => Organizations::getShortName($unitsTable->organizationID),
 			'organizationID' => $unitsTable->organizationID,
 			'gridID'         => $unitsTable->gridID,
 			'unitStatus'     => $unitsTable->delta
@@ -415,8 +415,8 @@ class Instances extends ResourceHelper
 			return;
 		}
 
-		$thisPersonID      = Persons::getIDByUserID($userID);
-		$accessibleDeptIDs = Can::viewTheseOrganizations();
+		$thisPersonID = Persons::getIDByUserID($userID);
+		$authorized   = Can::viewTheseOrganizations();
 
 		foreach ($personIDs as $key => $personID)
 		{
@@ -424,8 +424,9 @@ class Instances extends ResourceHelper
 			{
 				continue;
 			}
-			$personDepartments = Persons::getOrganizationIDs($personID);
-			$overlap           = array_intersect($accessibleDeptIDs, $personDepartments);
+
+			$associations = Persons::getOrganizationIDs($personID);
+			$overlap      = array_intersect($authorized, $associations);
 
 			if (empty($overlap))
 			{
@@ -716,7 +717,7 @@ class Instances extends ResourceHelper
 
 		$subject = [];
 
-		// In the event of multiple results take the first one to fulfill the department condition
+		// In the event of multiple results take the first one to fulfill the organization condition
 		if (!empty($conditions['organizationIDs']) and count($subjects) > 1)
 		{
 			foreach ($subjects as $subjectItem)

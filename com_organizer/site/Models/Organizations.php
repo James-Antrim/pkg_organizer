@@ -15,7 +15,7 @@ use Organizer\Helpers\Can;
 use Organizer\Helpers\Languages;
 
 /**
- * Class retrieves information for a filtered set of departments.
+ * Class retrieves information for a filtered set of organizations.
  */
 class Organizations extends ListModel
 {
@@ -28,18 +28,18 @@ class Organizations extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$allowedDepartments = Can::manageTheseOrganizations();
-		$tag                = Languages::getTag();
+		$authorized = Can::manageTheseOrganizations();
+		$tag        = Languages::getTag();
 
 		// Create the query
 		$query  = $this->_db->getQuery(true);
 		$select = "o.id, o.shortName_$tag AS shortName, o.name_$tag AS name, a.rules, ";
-		$parts  = ["'index.php?option=com_organizer&view=department_edit&id='", 'o.id'];
+		$parts  = ["'index.php?option=com_organizer&view=organization_edit&id='", 'o.id'];
 		$select .= $query->concatenate($parts, '') . ' AS link ';
 		$query->select($select);
 		$query->from('#__organizer_organizations AS o');
 		$query->innerJoin('#__assets AS a ON a.id = o.asset_id');
-		$query->where('o.id IN (' . implode(',', $allowedDepartments) . ')');
+		$query->where('o.id IN (' . implode(',', $authorized) . ')');
 
 		$this->setSearchFilter($query, ['shortName_de', 'name_de', 'shortName_en', 'name_en']);
 

@@ -21,11 +21,11 @@ use Organizer\Helpers\Languages;
 class Programs extends ListView
 {
 	protected $rowStructure = [
-		'checkbox'    => '',
-		'programName' => 'link',
-		'degree'      => 'link',
-		'accredited'  => 'link',
-		'department'  => 'link'
+		'checkbox'     => '',
+		'programName'  => 'link',
+		'degree'       => 'link',
+		'accredited'   => 'link',
+		'organization' => 'link'
 	];
 
 	/**
@@ -83,11 +83,11 @@ class Programs extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'    => '',
-			'programName' => HTML::sort('NAME', 'programName', $direction, $ordering),
-			'degree'      => HTML::sort('DEGREE', 'degree', $direction, $ordering),
-			'accredited'  => HTML::sort('ACCREDITED', 'accredited', $direction, $ordering),
-			'department'  => HTML::sort('ORGANIZATION', 'department', $direction, $ordering)
+			'checkbox'     => '',
+			'programName'  => HTML::sort('NAME', 'programName', $direction, $ordering),
+			'degree'       => HTML::sort('DEGREE', 'degree', $direction, $ordering),
+			'accredited'   => HTML::sort('ACCREDITED', 'accredited', $direction, $ordering),
+			'organization' => HTML::sort('ORGANIZATION', 'organization', $direction, $ordering)
 		];
 
 		$this->headers = $headers;

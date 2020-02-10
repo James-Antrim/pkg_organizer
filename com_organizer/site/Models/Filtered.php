@@ -13,7 +13,7 @@ namespace Organizer\Models;
 use JDatabaseQuery;
 
 /**
- * Class contains functions for department filtering.
+ * Class contains functions for organization filtering.
  */
 trait Filtered
 {

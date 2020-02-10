@@ -21,7 +21,7 @@ use Organizer\Helpers\OrganizerHelper;
  */
 class Search extends BaseModel
 {
-	private $schedDepts;
+	private $authorized;
 
 	public $tag;
 
@@ -181,7 +181,7 @@ class Search extends BaseModel
 	public function getResults()
 	{
 		$this->personID   = Helpers\Persons::getIDByUserID();
-		$this->schedDepts = Can::scheduleTheseOrganizations();
+		$this->authorized = Can::scheduleTheseOrganizations();
 
 		/**
 		 * Exact     => exact match for the whole search independent of capitalization
@@ -203,7 +203,7 @@ class Search extends BaseModel
 
 		$this->setTerms($rawSearch);
 
-		// Programs are searched for initially and set as an object property for use by departments, pools and programs
+		// Programs are searched for initially and set as an object property for use by organizations, pools and programs
 		$this->setPrograms();
 
 		// Ordered by what I imagine their relative search frequency will be
@@ -288,33 +288,33 @@ class Search extends BaseModel
 	}
 
 	/**
-	 * Processes department/organization results into a standardized array for output
+	 * Processes organization results into a standardized array for output
 	 *
-	 * @param   array  $results  the department results
+	 * @param   array  $results  the organization results
 	 *
 	 * @return array modifies the results property
 	 */
 	private function processOrganizations($results)
 	{
-		$departments = [];
+		$organizations = [];
 
 		if (!empty($results))
 		{
 			foreach ($results as $organizationID)
 			{
-				$departmentName = Helpers\Organizations::getName($organizationID);
+				$organizationName = Helpers\Organizations::getName($organizationID);
 
-				$departments[$organizationID]         = [];
-				$departments[$organizationID]['text'] = Languages::_('ORGANIZER_ORGANIZATION') . ": {$departmentName}";
+				$organizations[$organizationID]         = [];
+				$organizations[$organizationID]['text'] = Languages::_('ORGANIZER_ORGANIZATION') . ": {$organizationName}";
 
 				$links['schedule']   = "?option=com_organizer&view=schedule_item&organizationIDs=$organizationID";
 				$links['event_list'] = "?option=com_organizer&view=event_list&organizationIDs=$organizationID";
 
-				$departments[$organizationID]['links'] = $links;
+				$organizations[$organizationID]['links'] = $links;
 			}
 		}
 
-		return $departments;
+		return $organizations;
 	}
 
 	/**
@@ -635,7 +635,7 @@ class Search extends BaseModel
 				}
 
 				$overlap = array_intersect(
-					$this->schedDepts,
+					$this->authorized,
 					Helpers\Persons::getOrganizationIDs($person['id'])
 				);
 
@@ -653,7 +653,7 @@ class Search extends BaseModel
 	}
 
 	/**
-	 * Retrieves prioritized department search results
+	 * Retrieves prioritized organization search results
 	 *
 	 * @return void adds to the results property
 	 */
@@ -712,7 +712,7 @@ class Search extends BaseModel
 			$organizationIDs[$association['organizationID']] = $association['organizationID'];
 		}
 
-		$this->results['exact']['departments'] = $this->processOrganizations($organizationIDs);
+		$this->results['exact']['organizations'] = $this->processOrganizations($organizationIDs);
 
 		$programs                             = [];
 		$this->results['related']['programs'] = $this->processPrograms($programs, $associations);
@@ -731,7 +731,7 @@ class Search extends BaseModel
 			return;
 		}
 
-		$this->results['strong']['departments'] = $this->processOrganizations($organizationIDs);
+		$this->results['strong']['organizations'] = $this->processOrganizations($organizationIDs);
 	}
 
 	/**

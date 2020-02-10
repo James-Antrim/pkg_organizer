@@ -24,7 +24,7 @@ class Events extends ListView
 	protected $rowStructure = [
 		'checkbox'        => '',
 		'name'            => 'link',
-		'department'      => 'link',
+		'organization'    => 'link',
 		'campus'          => 'link',
 		'maxParticipants' => 'link'
 	];
@@ -72,7 +72,7 @@ class Events extends ListView
 		$headers   = [
 			'checkbox'        => '',
 			'name'            => HTML::sort('NAME', 'name', $direction, $ordering),
-			'department'      => HTML::sort('ORGANIZATION', 'name', $direction, $ordering),
+			'organization'    => HTML::sort('ORGANIZATION', 'name', $direction, $ordering),
 			'campus'          => Languages::_('ORGANIZER_CAMPUS'),
 			'maxParticipants' => Languages::_('ORGANIZER_MAX_PARTICIPANTS')
 		];

@@ -98,13 +98,13 @@ class Persons extends ListView
 			$item->username = empty($item->username) ? '' : $item->username;
 			$item->untisID  = empty($item->untisID) ? '' : $item->untisID;
 
-			if (!$departments = PersonsHelper::getOrganizationNames($item->id))
+			if (!$organizations = PersonsHelper::getOrganizationNames($item->id))
 			{
 				$item->organizationID = Languages::_('JNONE');
 			}
-			elseif (count($departments) === 1)
+			elseif (count($organizations) === 1)
 			{
-				$item->organizationID = $departments[0];
+				$item->organizationID = $organizations[0];
 			}
 			else
 			{

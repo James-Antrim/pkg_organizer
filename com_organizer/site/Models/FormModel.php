@@ -23,7 +23,7 @@ class FormModel extends ParentModel
 {
 	use Named;
 
-	protected $deptResource;
+	protected $association;
 
 	/**
 	 * Constructor.

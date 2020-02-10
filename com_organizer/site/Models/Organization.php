@@ -11,12 +11,12 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Table\Table;
-use Organizer\Tables\Organizations as DepartmentsTable;
+use Organizer\Tables\Organizations as OrganizationsTable;
 
 /**
- * Class which manages stored department data.
+ * Class which manages stored organization data.
  */
-class Department extends BaseModel
+class Organization extends BaseModel
 {
 	/**
 	 * Method to get a table object, load it if necessary.
@@ -31,6 +31,6 @@ class Department extends BaseModel
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new DepartmentsTable;
+		return new OrganizationsTable;
 	}
 }

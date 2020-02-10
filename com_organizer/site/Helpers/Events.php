@@ -51,11 +51,11 @@ class Events extends ResourceHelper
 	}
 
 	/**
-	 * Retrieves the ids of departments associated with the resource
+	 * Retrieves the ids of organizations associated with the resource
 	 *
-	 * @param   int  $resourceID  the id of the resource for which the associated departments are requested
+	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
 	 *
-	 * @return array the ids of departments associated with the resource
+	 * @return array the ids of organizations associated with the resource
 	 * @todo make this compatible with Associated
 	 */
 	public static function getOrganizationIDs($resourceID)

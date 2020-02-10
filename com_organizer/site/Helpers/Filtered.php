@@ -13,7 +13,7 @@ namespace Organizer\Helpers;
 use JDatabaseQuery;
 
 /**
- * Class contains functions for department filtering.
+ * Class contains functions for organization filtering.
  */
 trait Filtered
 {
@@ -29,21 +29,21 @@ trait Filtered
 		switch ($action)
 		{
 			case 'document':
-				$authorizedDepts = Can::documentTheseOrganizations();
+				$authorized = Can::documentTheseOrganizations();
 				break;
 			case 'manage':
-				$authorizedDepts = Can::manageTheseOrganizations();
+				$authorized = Can::manageTheseOrganizations();
 				break;
 			case 'schedule':
-				$authorizedDepts = Can::scheduleTheseOrganizations();
+				$authorized = Can::scheduleTheseOrganizations();
 				break;
 			case 'view':
-				$authorizedDepts = Can::viewTheseOrganizations();
+				$authorized = Can::viewTheseOrganizations();
 				break;
 		}
 
-		$authorizedDepts = implode(',', $authorizedDepts);
-		$query->where("$alias.organizationID IN ($authorizedDepts)");
+		$authorized = implode(',', $authorized);
+		$query->where("$alias.organizationID IN ($authorized)");
 	}
 
 	/**
@@ -74,18 +74,18 @@ trait Filtered
 	}
 
 	/**
-	 * Adds a selected department filter to the query.
+	 * Adds a selected organization filter to the query.
 	 *
 	 * @param   JDatabaseQuery &$query      the query to be modified
-	 * @param   string          $resource   the name of the department associated resource
+	 * @param   string          $resource   the name of the organization associated resource
 	 * @param   string          $alias      the alias being used for the resource table
 	 * @param   string          $keyColumn  the name of the column holding the association key
 	 *
 	 * @return void modifies the query
 	 */
-	public static function addDeptSelectionFilter(&$query, $resource, $alias, $keyColumn = 'id')
+	public static function addOrganizationFilter(&$query, $resource, $alias, $keyColumn = 'id')
 	{
-		$organizationIDs = Input::getFilterIDs('department');
+		$organizationIDs = Input::getFilterIDs('organization');
 		if (empty($organizationIDs))
 		{
 			return;

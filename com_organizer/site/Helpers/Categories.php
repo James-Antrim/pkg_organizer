@@ -20,11 +20,11 @@ class Categories implements Associated, Selectable
 	use Filtered;
 
 	/**
-	 * Retrieves the ids of departments associated with the resource
+	 * Retrieves the ids of organizations associated with the resource
 	 *
-	 * @param   int  $resourceID  the id of the resource for which the associated departments are requested
+	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
 	 *
-	 * @return array the ids of departments associated with the resource
+	 * @return array the ids of organizations associated with the resource
 	 */
 	public static function getOrganizationIDs($resourceID)
 	{
@@ -150,7 +150,7 @@ class Categories implements Associated, Selectable
 			self::addAccessFilter($query, 'a', $access);
 		}
 
-		self::addDeptSelectionFilter($query, 'category', 'c');
+		self::addOrganizationFilter($query, 'category', 'c');
 
 		$dbo->setQuery($query);
 

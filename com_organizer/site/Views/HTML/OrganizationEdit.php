@@ -15,11 +15,10 @@ use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
 
 /**
- * Class loads the department form into display context.
+ * Class loads the organization form into display context.
  */
-class DepartmentEdit extends EditView
+class OrganizationEdit extends EditView
 {
-
 	/**
 	 * Method to generate buttons for user interaction
 	 *

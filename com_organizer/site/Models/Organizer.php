@@ -57,7 +57,7 @@ class Organizer extends BaseModel
 	/**
 	 * Retrieves the unit id for the unit with the given identifiers.
 	 *
-	 * @param   array  $unit  containing the department, term and untis ids
+	 * @param   array  $unit  containing the organization, term and untis ids
 	 *
 	 * @return bool
 	 */

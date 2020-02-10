@@ -20,7 +20,7 @@ use Organizer\Tables\Schedules as SchedulesTable;
 
 /**
  * Class which manages stored schedule data.
- * Note on access checks: since schedule access rights are set by department, checking the access rights for one
+ * Note on access checks: since schedule access rights are set by organization, checking the access rights for one
  * schedule is sufficient for any other schedule modified in the same context.
  */
 class Schedule extends BaseModel
@@ -71,7 +71,7 @@ class Schedule extends BaseModel
 	 * Sets the selected schedule to inactive.
 	 *
 	 * @param   int  $scheduleID      the id of the schedule to deactivate
-	 * @param   int  $organizationID  the id of the department context for the schedule to deactivate
+	 * @param   int  $organizationID  the id of the organization context for the schedule to deactivate
 	 * @param   int  $termID          the id of the term context for the schedule to deactivate
 	 *
 	 * @return bool

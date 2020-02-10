@@ -116,8 +116,8 @@ class ScheduleExport extends SelectionView
 	{
 		$this->sets['filters'] = ['label' => 'ORGANIZER_FILTERS'];
 
-		$deptAttribs = ['onChange' => 'repopulateCategories();repopulateResources();'];
-		$this->setResourceField('department', 'filters', $deptAttribs, true);
+		$orgAttribs = ['onChange' => 'repopulateCategories();repopulateResources();'];
+		$this->setResourceField('organization', 'filters', $orgAttribs, true);
 
 		$categoryAttribs = ['multiple' => 'multiple', 'onChange' => 'repopulateResources();'];
 		$this->setResourceField('category', 'filters', $categoryAttribs);

@@ -155,7 +155,7 @@ class ProgramLSF extends BaseModel
 	 * Processes the child nodes of the program root node
 	 *
 	 * @param   object &$program         the simplexml object object containing program information
-	 * @param   int     $organizationID  the id of the department to which this data belongs
+	 * @param   int     $organizationID  the id of the organization to which this data belongs
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */

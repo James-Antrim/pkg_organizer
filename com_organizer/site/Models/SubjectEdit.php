@@ -19,7 +19,7 @@ use Organizer\Tables\Subjects as SubjectsTable;
  */
 class SubjectEdit extends EditModel
 {
-	protected $deptResource;
+	protected $association;
 
 	/**
 	 * Checks for user authorization to access the view

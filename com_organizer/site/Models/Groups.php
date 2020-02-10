@@ -29,7 +29,7 @@ class Groups extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$authorizedDepts = Can::scheduleTheseOrganizations();
+		$authorized = Can::scheduleTheseOrganizations();
 
 		$query = $this->_db->getQuery(true);
 		$query->select('DISTINCT gr.id, gr.untisID, gr.fullName, gr.name, gr.categoryID, gr.gridID')
@@ -37,7 +37,7 @@ class Groups extends ListModel
 			->from('#__organizer_groups AS gr')
 			->innerJoin('#__organizer_categories AS cat ON cat.id = gr.categoryID')
 			->leftJoin('#__organizer_associations AS a ON a.categoryID = gr.categoryID')
-			->where('(a.organizationID IN (' . implode(',', $authorizedDepts) . ') OR a.organizationID IS NULL)');
+			->where('(a.organizationID IN (' . implode(',', $authorized) . ') OR a.organizationID IS NULL)');
 
 		$this->setSearchFilter($query, ['gr.fullName', 'gr.name', 'gr.untisID']);
 		$this->setValueFilters($query, ['gr.categoryID', 'a.organizationID', 'gr.gridID']);

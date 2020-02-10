@@ -1,25 +1,25 @@
 /**
- * Gets programs, pools and rooms depending on selected department (or program) and inserts them as the only options
+ * Gets programs, pools and rooms depending on selected organization (or program) and inserts them as the only options
  */
 jQuery(document).ready(function () {
     'use strict';
 
-    var department = jQuery('#jform_params_organizationID'),
+    const organization = jQuery('#jform_params_organizationID'),
         category = jQuery('#jform_params_categoryIDs'),
         group = jQuery('#jform_params_groupIDs'),
         room = jQuery('#jform_params_roomIDs');
 
     // init loading
-    if (department.val() !== '0')
+    if (organization.val() !== '0')
     {
         update();
     }
 
-    department.change(update);
+    organization.change(update);
     category.change(update);
 
     /**
-     * All values get filtered by department/program through Ajax
+     * All values get filtered by organization/program through Ajax
      * When triggered by event - discard old value
      * @param {Event} [event]
      */
@@ -27,7 +27,7 @@ jQuery(document).ready(function () {
     {
         const categoryAjax = new XMLHttpRequest(), groupAjax = new XMLHttpRequest(), roomAjax = new XMLHttpRequest(),
             url = '../index.php?option=com_organizer&format=json',
-            params = '&organizationIDs=' + department.val() + '&categoryIDs=' + (category.val() || ''),
+            params = '&organizationIDs=' + organization.val() + '&categoryIDs=' + (category.val() || ''),
             keepValue = !event;
 
         // Update programs, when it is not its own trigger

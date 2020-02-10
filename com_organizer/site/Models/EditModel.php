@@ -26,7 +26,7 @@ abstract class EditModel extends AdminModel
 {
 	use Named;
 
-	protected $deptResource;
+	protected $association;
 
 	public $item = null;
 

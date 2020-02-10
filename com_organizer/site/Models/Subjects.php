@@ -158,10 +158,10 @@ class Subjects extends ListModel
 
 		if ($this->clientContext === self::BACKEND)
 		{
-			$authorizedDepartments = Can::documentTheseOrganizations();
-			if (count($authorizedDepartments) === 1)
+			$authorized = Can::documentTheseOrganizations();
+			if (count($authorized) === 1)
 			{
-				$this->state->set('filter.organizationID', $authorizedDepartments[0]);
+				$this->state->set('filter.organizationID', $authorized[0]);
 			}
 		}
 		else
@@ -195,8 +195,8 @@ class Subjects extends ListModel
 	{
 		if ($this->clientContext === self::BACKEND)
 		{
-			$authorizedDepts = Can::documentTheseOrganizations();
-			$query->where('(s.organizationID IN (' . implode(',', $authorizedDepts) . ') OR s.organizationID IS NULL)');
+			$authorized = Can::documentTheseOrganizations();
+			$query->where('(s.organizationID IN (' . implode(',', $authorized) . ') OR s.organizationID IS NULL)');
 		}
 		$organizationID = $this->state->get('filter.organizationID');
 		if (empty($organizationID))

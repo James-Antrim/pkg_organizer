@@ -72,7 +72,7 @@ class LessonStatistics extends FormModel
 	}
 
 	/**
-	 * Adds a department restriction to the query as appropriate.
+	 * Adds an organization restriction to the query as appropriate.
 	 *
 	 * @return void
 	 */
@@ -145,9 +145,9 @@ class LessonStatistics extends FormModel
 	}
 
 	/**
-	 * Gets an array of departments.
+	 * Gets an array of organizations.
 	 *
-	 * @return array the departments.
+	 * @return array the organizations.
 	 */
 	private function getOrganizations()
 	{
@@ -160,18 +160,18 @@ class LessonStatistics extends FormModel
 
 		$this->_db->setQuery($this->query);
 
-		$departments = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-		if (empty($departments))
+		$organizations = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		if (empty($organizations))
 		{
 			return [];
 		}
 
-		foreach ($departments as &$department)
+		foreach ($organizations as &$organization)
 		{
-			$department['total'] = [];
+			$organization['total'] = [];
 		}
 
-		return $departments;
+		return $organizations;
 	}
 
 	/**

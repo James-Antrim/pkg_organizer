@@ -95,37 +95,37 @@ function handleInterval()
 }
 
 /**
- * Load rooms dependent on the selected departments and categories
+ * Load rooms dependent on the selected organizations and categories
  */
 function repopulateRooms()
 {
     'use strict';
 
-    var selectedDepartments = $('#organizationIDs').val(),
-        selectedCategories = $('#categoryIDs').val(),
-        selectedRoomTypes = $('#roomtypeIDs').val(),
-        validDepartments, validCategories, validRoomTypes,
+    var organizations = $('#organizationIDs').val(),
+        categories = $('#categoryIDs').val(),
+        roomtypes = $('#roomtypeIDs').val(),
+        validOrganizations, validCategories, validRoomtypes,
         componentParameters;
 
-    validDepartments = selectedDepartments != null && selectedDepartments.length !== 0;
-    validCategories = selectedCategories != null && selectedCategories.length !== 0;
-    validRoomTypes = selectedRoomTypes != null && selectedRoomTypes.length !== 0;
+    validOrganizations = organizations != null && organizations.length !== 0;
+    validCategories = categories != null && categories.length !== 0;
+    validRoomtypes = roomtypes != null && roomtypes.length !== 0;
 
     componentParameters = 'index.php?option=com_organizer&view=room_options&format=raw';
 
-    if (validDepartments)
+    if (validOrganizations)
     {
-        componentParameters += '&organizationIDs=' + selectedDepartments;
+        componentParameters += '&organizationIDs=' + organizations;
     }
 
     if (validCategories)
     {
-        componentParameters += '&categoryIDs=' + selectedCategories;
+        componentParameters += '&categoryIDs=' + categories;
     }
 
-    if (validRoomTypes)
+    if (validRoomtypes)
     {
-        componentParameters += '&roomtypeIDs=' + selectedRoomTypes;
+        componentParameters += '&roomtypeIDs=' + roomtypes;
     }
 
     $.ajax({
@@ -145,21 +145,21 @@ function repopulateRooms()
 }
 
 /**
- * Load categories dependent on the selected departments
+ * Load categories dependent on the selected organizations
  */
 function repopulateCategories()
 {
     'use strict';
 
-    var componentParameters, selectedDepartments = $('#organizationIDs').val(), allIndex, selectionParameters;
+    var componentParameters, organizations = $('#organizationIDs').val(), allIndex, selectionParameters;
     componentParameters = '/index.php?option=com_organizer&view=category_options&format=json';
 
-    if (selectedDepartments == null)
+    if (organizations == null)
     {
         return;
     }
 
-    selectionParameters = '&organizationIDs=' + selectedDepartments;
+    selectionParameters = '&organizationIDs=' + organizations;
 
     $.ajax({
         type: 'GET',

@@ -15,7 +15,7 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers\Organizations;
 
 /**
- * Class creates a select box for departments.
+ * Class creates a select box for organizations.
  */
 class OrganizationsField extends OptionsField
 {

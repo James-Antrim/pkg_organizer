@@ -56,11 +56,11 @@ class RoomStatistics extends SelectionView
 	{
 		$this->sets['filters'] = ['label' => 'ORGANIZER_FILTERS'];
 
-		$deptAttribs = [
+		$orgAttribs = [
 			'multiple' => 'multiple',
 			'onChange' => 'repopulateTerms();repopulateCategories();repopulateRooms();'
 		];
-		$this->setResourceField('department', 'filters', $deptAttribs, true);
+		$this->setResourceField('organization', 'filters', $orgAttribs, true);
 
 		$categoryAttribs = ['multiple' => 'multiple', 'onChange' => 'repopulateRooms();'];
 		$this->setResourceField('category', 'filters', $categoryAttribs);

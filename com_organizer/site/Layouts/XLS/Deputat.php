@@ -240,19 +240,19 @@ class Deputat
 		$activeSheet->getStyle('B7')->getFont()->setSize('14');
 
 		$activeSheet->getRowDimension('8')->setRowHeight('90');
-		$department1 = 'Sollten Sie eine Lehrveranstaltung gehalten haben, die in mehreren Fachbereichen ';
-		$department1 .= 'angeboten wird, so verfahren Sie bitte analog, nutzen aber die Rubrik "mehrere ';
-		$department1 .= 'Fachbereiche", da dort eine  Auswahlliste hinterlegt ist, die alle Studiengänge ';
-		$department1 .= 'der THM enthält.';
-		$activeSheet->setCellValue('B8', $department1);
+		$organization1 = 'Sollten Sie eine Lehrveranstaltung gehalten haben, die in mehreren Fachbereichen ';
+		$organization1 .= 'angeboten wird, so verfahren Sie bitte analog, nutzen aber die Rubrik "mehrere ';
+		$organization1 .= 'Fachbereiche", da dort eine  Auswahlliste hinterlegt ist, die alle Studiengänge ';
+		$organization1 .= 'der THM enthält.';
+		$activeSheet->setCellValue('B8', $organization1);
 		$activeSheet->getStyle('B8')->getAlignment()->setWrapText(true);
 		$activeSheet->getStyle('B8')->getAlignment()
 			->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
 		$activeSheet->getStyle('B8')->getFont()->setSize('14');
 
 		$activeSheet->getRowDimension('9')->setRowHeight('20');
-		$department2 = 'Die Liste ist nach Fachbereichen geordnet.';
-		$activeSheet->setCellValue('B9', $department2);
+		$organization2 = 'Die Liste ist nach Fachbereichen geordnet.';
+		$activeSheet->setCellValue('B9', $organization2);
 		$activeSheet->getStyle('B9')->getAlignment()
 			->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);
 		$activeSheet->getStyle('B9')->getFont()->setSize('14');

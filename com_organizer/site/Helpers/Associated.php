@@ -11,16 +11,16 @@
 namespace Organizer\Helpers;
 
 /**
- * Ensures that resources associated with departments have functions pertaining to those associations.
+ * Ensures that resources associated with organizations have functions pertaining to those associations.
  */
 interface Associated
 {
 	/**
-	 * Retrieves the ids of departments associated with the resource
+	 * Retrieves the ids of organizations associated with the resource
 	 *
-	 * @param   int  $resourceID  the id of the resource for which the associated departments are requested
+	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
 	 *
-	 * @return array the ids of departments associated with the resource
+	 * @return array the ids of organizations associated with the resource
 	 */
 	public static function getOrganizationIDs($resourceID);
 }

@@ -21,7 +21,7 @@ use Organizer\Tables\Categories as CategoriesTable;
  */
 class CategoryEdit extends EditModel
 {
-	protected $deptResource = 'program';
+	protected $association = 'program';
 
 	/**
 	 * Checks for user authorization to access the view.

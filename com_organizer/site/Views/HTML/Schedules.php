@@ -22,12 +22,12 @@ use Organizer\Helpers\Languages;
 class Schedules extends ListView
 {
 	protected $rowStructure = [
-		'checkbox'       => '',
-		'departmentName' => 'value',
-		'termName'       => 'value',
-		'active'         => 'value',
-		'userName'       => 'value',
-		'created'        => 'value'
+		'checkbox'         => '',
+		'organizationName' => 'value',
+		'termName'         => 'value',
+		'active'           => 'value',
+		'userName'         => 'value',
+		'created'          => 'value'
 	];
 
 	/**
@@ -84,12 +84,12 @@ class Schedules extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'       => '',
-			'departmentName' => HTML::sort('ORGANIZATION', 'departmentName', $direction, $ordering),
-			'termName'       => HTML::sort('TERM', 'termName', $direction, $ordering),
-			'active'         => HTML::sort('STATUS', 'active', $direction, $ordering),
-			'userName'       => HTML::sort('USERNAME', 'userName', $direction, $ordering),
-			'created'        => HTML::sort('CREATION_DATE', 'created', $direction, $ordering)
+			'checkbox'         => '',
+			'organizationName' => HTML::sort('ORGANIZATION', 'organizationName', $direction, $ordering),
+			'termName'         => HTML::sort('TERM', 'termName', $direction, $ordering),
+			'active'           => HTML::sort('STATUS', 'active', $direction, $ordering),
+			'userName'         => HTML::sort('USERNAME', 'userName', $direction, $ordering),
+			'created'          => HTML::sort('CREATION_DATE', 'created', $direction, $ordering)
 		];
 
 		$this->headers = $headers;

@@ -18,7 +18,7 @@ use Organizer\Helpers\Languages;
  */
 class Events extends ListModel
 {
-	protected $defaultOrdering = 'name,department';
+	protected $defaultOrdering = 'name,organization';
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -31,7 +31,7 @@ class Events extends ListModel
 		$query = $this->_db->getQuery(true);
 		$query->select("DISTINCT ev.id AS id, ev.name_$tag as name, ev.organizationID, ev.campusID")
 			->select("ev.maxParticipants, ev.registrationType, ev.subjectNo, ev.preparatory")
-			->select("o.id AS organizationID, o.shortName_$tag AS department")
+			->select("o.id AS organizationID, o.shortName_$tag AS organization")
 			->select("cp.id AS campusID, cp.name_$tag AS campus")
 			->from('#__organizer_events AS ev')
 			->leftJoin('#__organizer_organizations AS o ON o.id = ev.organizationID')

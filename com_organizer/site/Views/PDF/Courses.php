@@ -14,7 +14,7 @@ use Exception;
 use Organizer\Helpers\Can;
 use Organizer\Views\BaseView;
 use OrganizerTemplateBadges;
-use OrganizerTemplateDepartment_Participants;
+use OrganizerTemplateOrganization_Participants;
 use OrganizerTemplateParticipants;
 
 /**
@@ -61,8 +61,8 @@ class Courses extends BaseView
 				new OrganizerTemplateBadges($courseID);
 				break;
 			case self::ORGANIZATION_PARTICIPANTS:
-				require_once __DIR__ . '/tmpl/department_participants.php';
-				new OrganizerTemplateDepartment_Participants($courseID);
+				require_once __DIR__ . '/tmpl/organization_participants.php';
+				new OrganizerTemplateOrganization_Participants($courseID);
 				break;
 			case self::PARTICIPANTS:
 				require_once __DIR__ . '/tmpl/participants.php';

@@ -29,7 +29,7 @@ class RoomStatistics extends BaseView
 
 	public $terms;
 
-	public $departments;
+	public $organizations;
 
 	public $programs;
 

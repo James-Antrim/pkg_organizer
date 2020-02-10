@@ -28,8 +28,8 @@ class Programs extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$authorizedDepts = Can::documentTheseOrganizations();
-		$tag             = Languages::getTag();
+		$authorized = Can::documentTheseOrganizations();
+		$tag        = Languages::getTag();
 
 		$query     = $this->_db->getQuery(true);
 		$linkParts = ["'index.php?option=com_organizer&view=program_edit&id='", 'p.id'];
@@ -40,7 +40,7 @@ class Programs extends ListModel
 			->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->select("o.shortName_$tag AS organization")
 			->leftJoin('#__organizer_organizations AS o ON o.id = p.organizationID')
-			->where('(p.organizationID IN (' . implode(',', $authorizedDepts) . ') OR p.organizationID IS NULL)');
+			->where('(p.organizationID IN (' . implode(',', $authorized) . ') OR p.organizationID IS NULL)');
 
 		$searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
 		$this->setSearchFilter($query, $searchColumns);

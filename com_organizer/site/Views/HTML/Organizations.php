@@ -16,9 +16,9 @@ use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
 
 /**
- * Class loads persistent information a filtered set of departments into the display context.
+ * Class loads persistent information a filtered set of organizations into the display context.
  */
-class Departments extends ListView
+class Organizations extends ListView
 {
 	protected $rowStructure = ['checkbox' => '', 'shortName' => 'link', 'name' => 'link'];
 

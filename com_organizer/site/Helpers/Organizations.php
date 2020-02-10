@@ -16,12 +16,12 @@ use Joomla\Utilities\ArrayHelper;
 use Organizer\Tables\Associations;
 
 /**
- * Provides general functions for department access checks, data retrieval and display.
+ * Provides general functions for organization access checks, data retrieval and display.
  */
 class Organizations extends ResourceHelper implements Selectable
 {
 	/**
-	 * Filters departments according to user access and relevant resource associations.
+	 * Filters organizations according to user access and relevant resource associations.
 	 *
 	 * @param   JDatabaseQuery &$query   the query to be modified.
 	 * @param   string          $access  any access restriction which should be performed
@@ -60,7 +60,7 @@ class Organizations extends ResourceHelper implements Selectable
 				$allowedIDs = Can::viewTheseOrganizations();
 				break;
 			default:
-				// Access right does not exist for department resource.
+				// Access right does not exist for organization resource.
 				return;
 		}
 
@@ -79,7 +79,7 @@ class Organizations extends ResourceHelper implements Selectable
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 
-		$query->select('id')->from('#__organizer_departments');
+		$query->select('id')->from('#__organizer_organizations');
 
 		$dbo->setQuery($query);
 
@@ -97,11 +97,11 @@ class Organizations extends ResourceHelper implements Selectable
 	public static function getOptions($short = true, $access = '')
 	{
 		$options = [];
-		foreach (self::getResources($access) as $department)
+		foreach (self::getResources($access) as $organization)
 		{
-			$name = $short ? $department['shortName'] : $department['name'];
+			$name = $short ? $organization['shortName'] : $organization['name'];
 
-			$options[] = HTML::_('select.option', $department['id'], $name);
+			$options[] = HTML::_('select.option', $organization['id'], $name);
 		}
 
 		uasort($options, function ($optionOne, $optionTwo) {
@@ -136,7 +136,7 @@ class Organizations extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Checks whether the plan resource is already associated with a department, creating an entry if none already
+	 * Checks whether the plan resource is already associated with a organization, creating an entry if none already
 	 * exists.
 	 *
 	 * @param   int     $resourceID  the db id for the plan resource
@@ -146,14 +146,14 @@ class Organizations extends ResourceHelper implements Selectable
 	 */
 	public static function setResource($resourceID, $column)
 	{
-		$deptResourceTable = new Associations;
+		$associations = new Associations;
 
 		/**
 		 * If associations already exist for the resource, further associations should be made explicitly using the
 		 * appropriate edit view.
 		 */
 		$data = [$column => $resourceID];
-		if ($deptResourceTable->load($data))
+		if ($associations->load($data))
 		{
 			return;
 		}
@@ -162,7 +162,7 @@ class Organizations extends ResourceHelper implements Selectable
 
 		try
 		{
-			$deptResourceTable->save($data);
+			$associations->save($data);
 		}
 		catch (Exception $exc)
 		{

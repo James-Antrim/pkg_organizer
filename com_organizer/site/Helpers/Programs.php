@@ -164,10 +164,10 @@ class Programs extends ResourceHelper implements Selectable
 
 		if (!empty($access))
 		{
-			self::addAccessFilter($query, 'dp', $access);
+			self::addAccessFilter($query, 'p', $access);
 		}
 
-		self::addResourceFilter($query, 'department', 'dept', 'dp');
+		self::addResourceFilter($query, 'organization', 'o', 'p');
 
 		$useCurrent = self::useCurrent();
 		if ($useCurrent)

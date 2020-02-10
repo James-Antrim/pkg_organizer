@@ -20,9 +20,9 @@ use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
 
 /**
- * Class loads department statistics into the display context.
+ * Class loads organization statistics into the display context.
  */
-class DepartmentOccupancy extends SelectionView
+class OrganizationOccupancy extends SelectionView
 {
 	/**
 	 * Modifies document variables and adds links to external files
@@ -33,7 +33,7 @@ class DepartmentOccupancy extends SelectionView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/department_occupancy.js');
+		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/organization_occupancy.js');
 	}
 
 	private function setBaseFields()

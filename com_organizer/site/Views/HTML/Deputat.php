@@ -57,8 +57,8 @@ class Deputat extends BaseHTMLView
 
 		$this->params = OrganizerHelper::getParams();
 
-		$this->model          = $this->getModel();
-		$this->departmentName = $this->model->departmentName;
+		$this->model            = $this->getModel();
+		$this->organizationName = $this->model->organizationName;
 		$this->makeScheduleSelectBox();
 
 		if (!empty($this->model->schedule))
@@ -89,7 +89,7 @@ class Deputat extends BaseHTMLView
 	private function makeScheduleSelectBox()
 	{
 		$scheduleID = $this->model->scheduleID;
-		$schedules  = $this->model->getDepartmentSchedules();
+		$schedules  = $this->model->getOrganizationSchedules();
 
 		$options    = [];
 		$options[0] = Languages::_('ORGANIZER_FILTER_SCHEDULE');

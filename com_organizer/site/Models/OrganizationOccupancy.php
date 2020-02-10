@@ -17,9 +17,9 @@ use Organizer\Helpers\Rooms;
 use Organizer\Helpers\OrganizerHelper;
 
 /**
- * Class which calculates department statistic data.
+ * Class which calculates organization statistic data.
  */
-class DepartmentOccupancy extends BaseModel
+class OrganizationOccupancy extends BaseModel
 {
 	private $calendarData;
 
@@ -38,7 +38,7 @@ class DepartmentOccupancy extends BaseModel
 	public $useData;
 
 	/**
-	 * Department_Statistics constructor.
+	 * Organization_Statistics constructor.
 	 *
 	 * @param   array  $config
 	 */
@@ -100,7 +100,7 @@ class DepartmentOccupancy extends BaseModel
 	}
 
 	/**
-	 * Restructures the data for the department usage statistics
+	 * Restructures the data for the organization usage statistics
 	 *
 	 * @return void
 	 */
@@ -124,16 +124,16 @@ class DepartmentOccupancy extends BaseModel
 					continue;
 				}
 
-				foreach ($this->calendarData[$currentDate] as $times => $roomDepts)
+				foreach ($this->calendarData[$currentDate] as $times => $roomOrgs)
 				{
 					list($startTime, $endTime) = explode('-', $times);
 					$minutes = round((strtotime($endTime) - strtotime($startTime)) / 60);
 
-					foreach ($roomDepts as $roomID => $departments)
+					foreach ($roomOrgs as $roomID => $organizations)
 					{
-						$departmentName = $this->getOrganizationName($departments);
-						$this->setUseData('total', $departmentName, $roomID, $minutes);
-						$this->setUseData($termName, $departmentName, $roomID, $minutes);
+						$organizationName = $this->getOrganizationName($organizations);
+						$this->setUseData('total', $organizationName, $roomID, $minutes);
+						$this->setUseData($termName, $organizationName, $roomID, $minutes);
 					}
 				}
 
@@ -190,51 +190,51 @@ class DepartmentOccupancy extends BaseModel
 					$this->calendarData[$date][$times][$roomID] = [];
 				}
 
-				$this->calendarData[$date][$times][$roomID][$rawInstance['organizationID']] = $rawInstance['department'];
+				$this->calendarData[$date][$times][$roomID][$rawInstance['organizationID']] = $rawInstance['organization'];
 			}
 		}
 	}
 
 	/**
-	 * Makes the department name or department name aggregate
+	 * Makes the organization name or organization name aggregate
 	 *
-	 * @param $departments
+	 * @param $organizations
 	 *
-	 * @return string the department name
+	 * @return string the organization name
 	 */
-	private function getOrganizationName($departments)
+	private function getOrganizationName($organizations)
 	{
-		$deptCount = count($departments);
+		$noOrgs = count($organizations);
 
-		if ($deptCount === 1)
+		if ($noOrgs === 1)
 		{
-			return array_pop($departments);
+			return array_pop($organizations);
 		}
 
-		$count          = 1;
-		$departmentName = '';
+		$count            = 1;
+		$organizationName = '';
 
-		asort($departments);
+		asort($organizations);
 
-		foreach ($departments as $department)
+		foreach ($organizations as $organization)
 		{
 			if ($count == 1)
 			{
-				$departmentName .= $department;
+				$organizationName .= $organization;
 			}
-			elseif ($count == $deptCount)
+			elseif ($count == $noOrgs)
 			{
-				$departmentName .= " & $department";
+				$organizationName .= " & $organization";
 			}
 			else
 			{
-				$departmentName .= ", $department";
+				$organizationName .= ", $organization";
 			}
 
 			$count++;
 		}
 
-		return $departmentName;
+		return $organizationName;
 	}
 
 	/**
@@ -316,7 +316,7 @@ class DepartmentOccupancy extends BaseModel
 			->select('conf.configuration')
 			->innerJoin('#__organizer_lesson_configurations AS conf ON conf.id = ccm.configurationID')
 			->innerJoin('#__organizer_lessons AS l ON l.id = c.lessonID')
-			->select("o.id AS organizationID, o.shortName_$tag AS department")
+			->select("o.id AS organizationID, o.shortName_$tag AS organization")
 			->innerJoin('#__organizer_organizations AS o ON o.id = l.organizationID')
 			->select('lcrs.id AS lcrsID')
 			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.lessonID = l.id');
@@ -404,22 +404,22 @@ class DepartmentOccupancy extends BaseModel
 	 * Sets/sums individual usage values in it's container property
 	 *
 	 * @param   string  $termName  the name of the term
-	 * @param   string  $deptName  the name of the department
+	 * @param   string  $orgName   the name of the organization
 	 * @param   int     $roomID    the id of the room
 	 * @param   int     $value     the number of minutes
 	 *
 	 * @return void
 	 */
-	private function setUseData($termName, $deptName, $roomID, $value)
+	private function setUseData($termName, $orgName, $roomID, $value)
 	{
-		if (empty($this->useData[$termName][$deptName]))
+		if (empty($this->useData[$termName][$orgName]))
 		{
-			$this->useData[$termName][$deptName] = [];
+			$this->useData[$termName][$orgName] = [];
 		}
 
-		$existingValue = empty($this->useData[$termName][$deptName][$roomID]) ?
-			0 : $this->useData[$termName][$deptName][$roomID];
+		$existingValue = empty($this->useData[$termName][$orgName][$roomID]) ?
+			0 : $this->useData[$termName][$orgName][$roomID];
 
-		$this->useData[$termName][$deptName][$roomID] = $existingValue + $value;
+		$this->useData[$termName][$orgName][$roomID] = $existingValue + $value;
 	}
 }

@@ -13,9 +13,9 @@ namespace Organizer\Views\XLS;
 use Organizer\Views\BaseView;
 
 /**
- * Class instantiates and renders an XLS File with the department statistics.
+ * Class instantiates and renders an XLS File with the organization statistics.
  */
-class DepartmentOccupancy extends BaseView
+class OrganizationOccupancy extends BaseView
 {
 	use PHPExcelDependent;
 
@@ -33,7 +33,7 @@ class DepartmentOccupancy extends BaseView
 		$model = $this->getModel();
 
 		require_once __DIR__ . '/tmpl/document.php';
-		$export = new \DepartmentOccupancy_XLS($model);
+		$export = new \OrganizationOccupancy_XLS($model);
 		$export->render();
 		ob_flush();
 	}

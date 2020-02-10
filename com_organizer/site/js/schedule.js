@@ -13,7 +13,7 @@ jQuery(document).ready(function () {
  * @param {string} variables.auth - token to authenticate user
  * @param {string} variables.dateFormat - configured format of date for this website (e.g. d.m.Y)
  * @param {string} variables.defaultGrid - JSON which contains the default schedule grid
- * @param {number} variables.organizationID - ID of selected department
+ * @param {number} variables.organizationID - ID of selected organization
  * @param {string} variables.delta - amount of days deleted/moved events should get displayed
  * @param {string} variables.displayName - indicates whether name of page should be displayed
  * @param {string} variables.exportBase - basic url for exporting schedules
@@ -2001,8 +2001,8 @@ const ScheduleApp = function (variables) {
             },
             fields = {
                 'category': document.getElementById('category'),
-                'department': document.getElementById('department'),
                 'group': document.getElementById('group'),
+                'organization': document.getElementById('organization'),
                 'person': document.getElementById('person'),
                 'room': document.getElementById('room'),
                 'roomtype': document.getElementById('roomtype'),
@@ -2017,15 +2017,15 @@ const ScheduleApp = function (variables) {
             },
             wrappers = {
                 'category': document.getElementById('category-input'),
-                'department': document.getElementById('department-input'),
                 'group': document.getElementById('group-input'),
+                'organization': document.getElementById('organization-input'),
                 'person': document.getElementById('person-input'),
                 'room': document.getElementById('room-input'),
                 'roomtype': document.getElementById('roomtype-input'),
                 'type': document.getElementById('type-input')
             },
             sessionFields = JSON.parse(window.sessionStorage.getItem('scheduleForm')) || {},
-            sessionDepartments = JSON.parse(window.sessionStorage.getItem('scheduleDepartment')) || {};
+            organizations = JSON.parse(window.sessionStorage.getItem('organization')) || {};
 
         /**
          * Get ajax url for selecting a form field
@@ -2146,10 +2146,10 @@ const ScheduleApp = function (variables) {
                 session.name = field.id;
                 session.value = getSelectedValues(field.id);
 
-                if (field.id === 'department')
+                if (field.id === 'organization')
                 {
-                    sessionDepartments[variables.menuID] = session;
-                    window.sessionStorage.setItem('scheduleDepartment', JSON.stringify(sessionDepartments));
+                    organizations[variables.menuID] = session;
+                    window.sessionStorage.setItem('organization', JSON.stringify(organizations));
                 }
                 else
                 {
@@ -2165,11 +2165,11 @@ const ScheduleApp = function (variables) {
          */
         function loadSession()
         {
-            const department = sessionDepartments[variables.menuID], session = sessionFields[variables.menuID];
+            const organization = organizations[variables.menuID], session = sessionFields[variables.menuID];
 
-            if (department)
+            if (organization)
             {
-                jQuery('#department').val(department.value).chosen('destroy').chosen();
+                jQuery('#organization').val(organization.value).chosen('destroy').chosen();
             }
 
             if (session)
@@ -2436,7 +2436,7 @@ const ScheduleApp = function (variables) {
                 sendFormRequest(getSelectedValues(this.id));
                 setSession(this);
             });
-            jQuery('#department').chosen().change(function () {
+            jQuery('#organization').chosen().change(function () {
                 updateNextVisibleField();
                 setSession(this);
             });
@@ -2449,7 +2449,7 @@ const ScheduleApp = function (variables) {
      */
     function getAjaxUrl()
     {
-        return variables.ajaxBase + variables.organizationID || getSelectedValues('department') || 0;
+        return variables.ajaxBase + variables.organizationID || getSelectedValues('organization') || 0;
     }
 
     /**

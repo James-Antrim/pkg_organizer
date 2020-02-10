@@ -58,19 +58,19 @@ class ScheduleExport extends BaseModel
 	}
 
 	/**
-	 * Retrieves department options
+	 * Retrieves organization options
 	 *
-	 * @return array an array of department options
+	 * @return array an array of organization options
 	 */
 	public function getOrganizationOptions()
 	{
-		$departments = Helpers\Organizations::getOptions(false);
-		$options     = [];
-		$options[''] = Helpers\Languages::_('ORGANIZER_SELECT_ORGANIZATION');
+		$organizations = Helpers\Organizations::getOptions(false);
+		$options       = [];
+		$options['']   = Helpers\Languages::_('ORGANIZER_SELECT_ORGANIZATION');
 
-		foreach ($departments as $organizationID => $departmentName)
+		foreach ($organizations as $id => $name)
 		{
-			$options[$organizationID] = $departmentName;
+			$options[$id] = $name;
 		}
 
 		return $options;
@@ -340,7 +340,7 @@ class ScheduleExport extends BaseModel
 	private function setParameters()
 	{
 		$parameters                    = [];
-		$parameters['organizationIDs'] = Helpers\Input::getFilterIDs('department');
+		$parameters['organizationIDs'] = Helpers\Input::getFilterIDs('organization');
 		$parameters['format']          = Helpers\Input::getCMD('format', 'pdf');
 		$parameters['mySchedule']      = Helpers\Input::getBool('myschedule', false);
 

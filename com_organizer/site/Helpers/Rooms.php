@@ -49,12 +49,12 @@ class Rooms extends ResourceHelper implements Selectable
 			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
 			->order('r.name');
 
-		if ($selectedDepartment = Input::getFilterID('department'))
+		if ($organizationID = Input::getFilterID('organization'))
 		{
 			$query->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ir.assocID')
 				->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 				->innerJoin('#__organizer_associations AS a ON a.categoryID = g.categoryID')
-				->where("a.organizationID = $selectedDepartment");
+				->where("a.organizationID = $organizationID");
 
 			if ($selectedCategory = Input::getFilterID('category'))
 			{

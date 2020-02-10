@@ -185,11 +185,11 @@ class Persons extends ResourceHelper implements Associated, Selectable
 	}
 
 	/**
-	 * Retrieves the ids of departments associated with the resource
+	 * Retrieves the ids of organizations associated with the resource
 	 *
-	 * @param   int  $resourceID  the id of the resource for which the associated departments are requested
+	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
 	 *
-	 * @return array the ids of departments associated with the resource
+	 * @return array the ids of organizations associated with the resource
 	 */
 	public static function getOrganizationIDs($resourceID)
 	{
@@ -205,11 +205,11 @@ class Persons extends ResourceHelper implements Associated, Selectable
 	}
 
 	/**
-	 * Gets the departments with which the person is associated
+	 * Gets the organizations with which the person is associated
 	 *
 	 * @param   int  $personID  the person's id
 	 *
-	 * @return array the departments with which the person is associated id => name
+	 * @return array the organizations with which the person is associated id => name
 	 */
 	public static function getOrganizationNames($personID)
 	{
@@ -222,9 +222,8 @@ class Persons extends ResourceHelper implements Associated, Selectable
 			->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id')
 			->where("personID = $personID");
 		$dbo->setQuery($query);
-		$departments = OrganizerHelper::executeQuery('loadColumn', []);
 
-		return empty($departments) ? [] : $departments;
+		return OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -315,7 +314,7 @@ class Persons extends ResourceHelper implements Associated, Selectable
 			return [];
 		}
 
-		$organizationIDs = Input::getFilterIDs('department');
+		$organizationIDs = Input::getFilterIDs('organization');
 		$thisPersonID    = self::getIDByUserID();
 		if (empty($organizationIDs) and empty($thisPersonID))
 		{
@@ -324,8 +323,7 @@ class Persons extends ResourceHelper implements Associated, Selectable
 
 		foreach ($organizationIDs as $key => $organizationID)
 		{
-			$departmentAccess = Can::view('department', $organizationID);
-			if (!$departmentAccess)
+			if (!Can::view('organization', $organizationID))
 			{
 				unset($organizationIDs[$key]);
 			}

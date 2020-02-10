@@ -12,9 +12,9 @@ use Joomla\CMS\Uri\Uri;
 
 $showHeading = $this->params->get('show_page_heading', '');
 $title       = $this->params->get('page_title', '');
-if (!empty($this->departmentName))
+if (!empty($this->organizationName))
 {
-	$title .= " - $this->departmentName";
+	$title .= " - $this->organizationName";
 }
 $weeks = $this->params->get('deputat_weeks', 13);
 ?>

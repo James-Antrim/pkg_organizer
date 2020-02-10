@@ -10,13 +10,13 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Organizations as DepartmentsHelper;
+use Organizer\Helpers\Organizations as OrganizationsHelper;
 use Organizer\Helpers\Input;
 
 /**
  * Class answers dynamic organizational related queries
  */
-class Departments extends BaseView
+class Organizations extends BaseView
 {
 	/**
 	 * loads model data into view context
@@ -28,7 +28,7 @@ class Departments extends BaseView
 		$function = Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Organizations', $function))
 		{
-			echo json_encode(DepartmentsHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(OrganizationsHelper::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

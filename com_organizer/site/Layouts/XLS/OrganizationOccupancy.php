@@ -16,9 +16,9 @@ use Joomla\CMS\Application\ApplicationHelper;
 use Joomla\CMS\Factory;
 
 /**
- * Class generates the department statistics XLS file.
+ * Class generates the organization statistics XLS file.
  */
-class DepartmentOccupancy
+class OrganizationOccupancy
 {
 
 	private $endDate;
@@ -44,7 +44,7 @@ class DepartmentOccupancy
 	private $useData;
 
 	/**
-	 * DepartmentOccupancy_XLS constructor.
+	 * OrganizationOccupancy_XLS constructor.
 	 *
 	 * @param   object &$model  the model containing the data for the room statistics
 	 */
@@ -330,9 +330,10 @@ class DepartmentOccupancy
 
 		$currentColumn = 'D';
 
-		foreach (array_keys($this->useData[$termIndex]) as $departmentName)
+		foreach (array_keys($this->useData[$termIndex]) as $organizationName)
 		{
-			$currentColumn = $this->addHeaderGroup($sheetNumber, $currentColumn, $departmentName, $firstRow, $lastRow);
+			$currentColumn = $this->addHeaderGroup($sheetNumber, $currentColumn, $organizationName, $firstRow,
+				$lastRow);
 		}
 
 		$this->spreadSheet->getActiveSheet($sheetNumber)->setCellValue('A7', Languages::_('ORGANIZER_NAME'));

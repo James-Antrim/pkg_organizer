@@ -106,7 +106,7 @@ abstract class BaseHTMLView extends BaseView
 			$viewName == 'organizer'
 		);
 
-		/*if (Can::scheduleTheseDepartments())
+		/*if (Can::scheduleTheseOrganizations())
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_SCHEDULING') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -250,8 +250,8 @@ abstract class BaseHTMLView extends BaseView
 			$adminEntries = [];
 
 			$adminEntries[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
-				'url'    => 'index.php?option=com_organizer&amp;view=departments',
-				'active' => $viewName == 'departments'
+				'url'    => 'index.php?option=com_organizer&amp;view=organizations',
+				'active' => $viewName == 'organizations'
 			];
 			$adminEntries[Languages::_('ORGANIZER_COLORS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=colors',

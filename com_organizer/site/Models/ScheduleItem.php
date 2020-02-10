@@ -20,7 +20,7 @@ class ScheduleItem extends BaseModel
 {
 	public $grids = [];
 
-	public $departments;
+	public $organizations;
 
 	public $displayName;
 
@@ -36,7 +36,7 @@ class ScheduleItem extends BaseModel
 		parent::__construct($config);
 
 		$params         = Input::getParams();
-		$organizationID = Input::getFilterID('department');
+		$organizationID = Input::getFilterID('organization');
 
 		$this->params                   = [];
 		$this->params['organizationID'] = $organizationID;
@@ -46,17 +46,17 @@ class ScheduleItem extends BaseModel
 		$this->params['showRoomtypes']  = Input::getInt('showRoomtypes', $params->get('showRoomtypes', 1));
 
 		$showPersonsParam            = Input::getInt('showPersons', $params->get('showPersons', 1));
-		$privilegedAccess            = Helpers\Can::view('department', $organizationID);
+		$privilegedAccess            = Helpers\Can::view('organization', $organizationID);
 		$personEntryExists           = Helpers\Persons::getIDByUserID();
 		$showPersons                 = (($privilegedAccess or $personEntryExists) and $showPersonsParam);
 		$this->params['showPersons'] = $showPersons;
 
 		$this->params['delta'] = Input::getInt('delta', $params->get('delta', 5));
 
-		$defaultEnabled                  = Input::getInt('showDepartments', $params->get('showDepartments', 1));
-		$this->params['showDepartments'] = $organizationID ? 0 : $defaultEnabled;
+		$defaultEnabled                    = Input::getInt('showOrganizations', $params->get('showOrganizations', 1));
+		$this->params['showOrganizations'] = $organizationID ? 0 : $defaultEnabled;
 
-		// Default title: menu > department
+		// Default title: menu > organization
 		$displayName                 = ($params->get('show_page_heading') and $params->get('page_heading')) ?
 			$params->get('page_heading') : Helpers\Organizations::getName($this->params['organizationID']);
 		$this->displayName           = $displayName;
@@ -170,12 +170,12 @@ class ScheduleItem extends BaseModel
 			$this->params["{$resourceName}IDs"] = $resourceIDs;
 
 			// Disable all, reenable relevant on return
-			$this->params['showCategories']  = 0;
-			$this->params['showDepartments'] = 0;
-			$this->params['showGroups']      = 0;
-			$this->params['showPersons']     = 0;
-			$this->params['showRooms']       = 0;
-			$this->params['showRoomtypes']   = 0;
+			$this->params['showCategories']    = 0;
+			$this->params['showOrganizations'] = 0;
+			$this->params['showGroups']        = 0;
+			$this->params['showPersons']       = 0;
+			$this->params['showRooms']         = 0;
+			$this->params['showRoomtypes']     = 0;
 
 			return true;
 		}

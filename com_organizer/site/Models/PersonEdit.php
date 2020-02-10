@@ -21,7 +21,7 @@ use Organizer\Tables\Persons as PersonsTable;
  */
 class PersonEdit extends EditModel
 {
-	protected $deptResource = 'person';
+	protected $association = 'person';
 
 	/**
 	 * Checks for user authorization to access the view.

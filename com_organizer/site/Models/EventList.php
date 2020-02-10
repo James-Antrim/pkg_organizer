@@ -203,7 +203,7 @@ class EventList extends FormModel
 				$aggregatedEvents[$times][$lessonID]['persons']
 					= array_unique(array_merge($aggregatedEvents[$times][$lessonID]['persons'], $event['persons']));
 			}
-			$aggregatedEvents[$times][$lessonID]['departments'][$event['organizationID']] = $event['department'];
+			$aggregatedEvents[$times][$lessonID]['organizations'][$event['organizationID']] = $event['organization'];
 		}
 
 		ksort($aggregatedEvents);
@@ -395,7 +395,7 @@ class EventList extends FormModel
 		$query = $this->_db->getQuery(true);
 
 		$select = 'DISTINCT conf.id, conf.configuration, cal.startTime, cal.endTime, cal.schedule_date, ';
-		$select .= "o.shortName_$tag AS department, o.id AS organizationID, ";
+		$select .= "o.shortName_$tag AS organization, o.id AS organizationID, ";
 		$select .= "l.id as lessonID, l.comment, m.abbreviation_$tag AS method, ";
 		$select .= "co.name AS courseName, s.name_$tag AS sName";
 		$query->select($select)

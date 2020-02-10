@@ -22,7 +22,7 @@ use Organizer\Tables\Schedules as SchedulesTable;
 abstract class MergeModel extends BaseModel
 {
 	/**
-	 * @var the column name in the department resources table
+	 * @var the column name in the organization resources table
 	 */
 	protected $assocation;
 
@@ -262,7 +262,7 @@ abstract class MergeModel extends BaseModel
 	abstract protected function updateAssociations();
 
 	/**
-	 * Updates the associated departments for a resource
+	 * Updates the associated organizations for a resource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
@@ -315,7 +315,7 @@ abstract class MergeModel extends BaseModel
 	}
 
 	/**
-	 * Updates department resource associations
+	 * Updates organization resource associations
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
@@ -323,14 +323,14 @@ abstract class MergeModel extends BaseModel
 	{
 		$relevantIDs = "'" . implode("', '", $this->selected) . "'";
 
-		$departmentQuery = $this->_db->getQuery(true);
-		$departmentQuery->select('DISTINCT organizationID');
-		$departmentQuery->from('#__organizer_associations');
-		$departmentQuery->where("{$this->assocation} IN ( $relevantIDs )");
-		$this->_db->setQuery($departmentQuery);
-		$deptIDs = OrganizerHelper::executeQuery('loadColumn', []);
+		$selectQuery = $this->_db->getQuery(true);
+		$selectQuery->select('DISTINCT organizationID');
+		$selectQuery->from('#__organizer_associations');
+		$selectQuery->where("{$this->assocation} IN ( $relevantIDs )");
+		$this->_db->setQuery($selectQuery);
+		$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
 
-		if (empty($deptIDs))
+		if (empty($organizationIDs))
 		{
 			return true;
 		}
@@ -351,9 +351,9 @@ abstract class MergeModel extends BaseModel
 		$insertQuery->insert('#__organizer_associations');
 		$insertQuery->columns("organizationID, {$this->fkColumn}");
 
-		foreach ($deptIDs as $deptID)
+		foreach ($organizationIDs as $organizationID)
 		{
-			$insertQuery->values("'$deptID', $mergeID");
+			$insertQuery->values("'$organizationID', $mergeID");
 		}
 
 		$this->_db->setQuery($insertQuery);

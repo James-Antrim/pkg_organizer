@@ -38,7 +38,7 @@ class ScheduleItem extends BaseHTMLView
 	public $grids;
 
 	/**
-	 * the department for this schedule, chosen in menu options
+	 * the organization for this schedule, chosen in menu options
 	 *
 	 * @var string
 	 */
