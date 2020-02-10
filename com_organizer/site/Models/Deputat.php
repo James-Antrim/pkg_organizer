@@ -218,7 +218,7 @@ class Deputat extends BaseModel
 	 *
 	 * @return array An array with the schedules
 	 */
-	public function getDepartmentSchedules()
+	public function getOrganizationSchedules()
 	{
 		return [];
 
@@ -459,7 +459,7 @@ class Deputat extends BaseModel
 		$organizationID = $this->params->get('organizationID', 0);
 		if (!empty($organizationID))
 		{
-			$this->setDepartmentName($organizationID);
+			$this->setOrganizationName($organizationID);
 		}
 
 		$this->reset                  = Input::getBool('reset', false);
@@ -479,7 +479,7 @@ class Deputat extends BaseModel
 	 *
 	 * @return void  sets the object variable $departmentName on success
 	 */
-	private function setDepartmentName($organizationID)
+	private function setOrganizationName($organizationID)
 	{
 		$tag = Languages::getTag();
 

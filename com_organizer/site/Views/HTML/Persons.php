@@ -98,7 +98,7 @@ class Persons extends ListView
 			$item->username = empty($item->username) ? '' : $item->username;
 			$item->untisID  = empty($item->untisID) ? '' : $item->untisID;
 
-			if (!$departments = PersonsHelper::getDepartmentNames($item->id))
+			if (!$departments = PersonsHelper::getOrganizationNames($item->id))
 			{
 				$item->organizationID = Languages::_('JNONE');
 			}

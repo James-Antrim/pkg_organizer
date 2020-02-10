@@ -22,14 +22,14 @@ use Organizer\Tables\Schedules as SchedulesTable;
 abstract class MergeModel extends BaseModel
 {
 	/**
+	 * @var the column name in the department resources table
+	 */
+	protected $assocation;
+
+	/**
 	 * @var array the preprocessed form data
 	 */
 	protected $data = [];
-
-	/**
-	 * @var the column name in the department resources table
-	 */
-	protected $deptResource;
 
 	/**
 	 * The column name referencing this resource in other resource tables.
@@ -221,7 +221,7 @@ abstract class MergeModel extends BaseModel
 			// Set id for new rewrite for existing.
 			$this->data['id'] = $table->id;
 
-			if (!empty($this->deptResource) and !$this->updateDepartments())
+			if (!empty($this->assocation) and !$this->updateOrganizations())
 			{
 				return false;
 			}
@@ -266,12 +266,12 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function updateDepartments()
+	private function updateOrganizations()
 	{
 		$existingQuery = $this->_db->getQuery(true);
 		$existingQuery->select('DISTINCT organizationID');
 		$existingQuery->from('#__organizer_associations');
-		$existingQuery->where("{$this->deptResource} = '{$this->data['id']}'");
+		$existingQuery->where("{$this->assocation} = '{$this->data['id']}'");
 		$this->_db->setQuery($existingQuery);
 		$existing = OrganizerHelper::executeQuery('loadColumn', []);
 
@@ -279,7 +279,7 @@ abstract class MergeModel extends BaseModel
 		{
 			$deletionQuery = $this->_db->getQuery(true);
 			$deletionQuery->delete('#__organizer_associations');
-			$deletionQuery->where("{$this->deptResource} = '{$this->data['id']}'");
+			$deletionQuery->where("{$this->assocation} = '{$this->data['id']}'");
 			$deletionQuery->where("organizationID IN ('" . implode("','", $deprecated) . "')");
 			$this->_db->setQuery($deletionQuery);
 
@@ -296,7 +296,7 @@ abstract class MergeModel extends BaseModel
 		{
 			$insertQuery = $this->_db->getQuery(true);
 			$insertQuery->insert('#__organizer_associations');
-			$insertQuery->columns("organizationID, {$this->deptResource}");
+			$insertQuery->columns("organizationID, {$this->assocation}");
 
 			foreach ($new as $newID)
 			{
@@ -326,7 +326,7 @@ abstract class MergeModel extends BaseModel
 		$departmentQuery = $this->_db->getQuery(true);
 		$departmentQuery->select('DISTINCT organizationID');
 		$departmentQuery->from('#__organizer_associations');
-		$departmentQuery->where("{$this->deptResource} IN ( $relevantIDs )");
+		$departmentQuery->where("{$this->assocation} IN ( $relevantIDs )");
 		$this->_db->setQuery($departmentQuery);
 		$deptIDs = OrganizerHelper::executeQuery('loadColumn', []);
 

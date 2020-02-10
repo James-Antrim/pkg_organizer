@@ -131,7 +131,7 @@ class DepartmentOccupancy extends BaseModel
 
 					foreach ($roomDepts as $roomID => $departments)
 					{
-						$departmentName = $this->getDepartmentName($departments);
+						$departmentName = $this->getOrganizationName($departments);
 						$this->setUseData('total', $departmentName, $roomID, $minutes);
 						$this->setUseData($termName, $departmentName, $roomID, $minutes);
 					}
@@ -202,7 +202,7 @@ class DepartmentOccupancy extends BaseModel
 	 *
 	 * @return string the department name
 	 */
-	private function getDepartmentName($departments)
+	private function getOrganizationName($departments)
 	{
 		$deptCount = count($departments);
 

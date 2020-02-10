@@ -30,7 +30,7 @@ class Programs extends ResourceHelper implements Selectable
 	 *
 	 * @return int the organizationID associated with the program's documentation
 	 */
-	public static function getDepartment($programID)
+	public static function getOrganization($programID)
 	{
 		if (empty($programID))
 		{

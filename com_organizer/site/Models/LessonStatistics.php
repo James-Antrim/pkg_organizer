@@ -57,7 +57,7 @@ class LessonStatistics extends FormModel
 
 		if (empty($organizationID) and empty($categoryID))
 		{
-			$this->columns = $this->getDepartments();
+			$this->columns = $this->getOrganizations();
 		}
 		elseif (empty($categoryID))
 		{
@@ -76,7 +76,7 @@ class LessonStatistics extends FormModel
 	 *
 	 * @return void
 	 */
-	private function addDepartmentRestriction()
+	private function addOrganizationRestriction()
 	{
 		$organizationID = $this->state->get('organizationID');
 		if (!empty($organizationID))
@@ -125,7 +125,7 @@ class LessonStatistics extends FormModel
 			->where("l.delta != 'removed'")
 			->order('cat.name');
 
-		$this->addDepartmentRestriction();
+		$this->addOrganizationRestriction();
 		$this->addPeriodRestriction();
 
 		$this->_db->setQuery($this->query);
@@ -149,7 +149,7 @@ class LessonStatistics extends FormModel
 	 *
 	 * @return array the departments.
 	 */
-	private function getDepartments()
+	private function getOrganizations()
 	{
 		$this->resetAdaptiveClauses();
 		$this->query->select("DISTINCT dpt.id, dpt.shortName_$this->tag AS name")
@@ -207,7 +207,7 @@ class LessonStatistics extends FormModel
 			->where("l.delta != 'removed'")
 			->order('group.name');
 
-		$this->addDepartmentRestriction();
+		$this->addOrganizationRestriction();
 		$this->addPeriodRestriction();
 		$this->addCategoryRestriction();
 
@@ -239,7 +239,7 @@ class LessonStatistics extends FormModel
 			->where("l.delta != 'removed'")
 			->order('name');
 
-		$this->addDepartmentRestriction();
+		$this->addOrganizationRestriction();
 		$this->addPeriodRestriction();
 		$this->addCategoryRestriction();
 
@@ -276,7 +276,7 @@ class LessonStatistics extends FormModel
 			->where("l.delta != 'removed'")
 			->order('term.startDate DESC');
 
-		$this->addDepartmentRestriction();
+		$this->addOrganizationRestriction();
 		$this->addCategoryRestriction();
 
 		$this->_db->setQuery($this->query);

@@ -167,7 +167,7 @@ class RoomStatistics extends BaseModel
 	 *
 	 * @return array an array of department options
 	 */
-	public function getDepartmentOptions()
+	public function getOrganizationOptions()
 	{
 		$options = [];
 		foreach (Organizations::getOptions(false) as $organizationID => $departmentName)

@@ -212,7 +212,7 @@ class Search extends BaseModel
 		$this->searchPrograms();
 		$this->searchPersons();
 		$this->searchRooms();
-		$this->searchDepartments();
+		$this->searchOrganizations();
 
 		$this->cleanResults();
 
@@ -294,7 +294,7 @@ class Search extends BaseModel
 	 *
 	 * @return array modifies the results property
 	 */
-	private function processDepartments($results)
+	private function processOrganizations($results)
 	{
 		$departments = [];
 
@@ -657,7 +657,7 @@ class Search extends BaseModel
 	 *
 	 * @return void adds to the results property
 	 */
-	private function searchDepartments()
+	private function searchOrganizations()
 	{
 		$eWherray = [];
 		$sWherray = [];
@@ -712,7 +712,7 @@ class Search extends BaseModel
 			$organizationIDs[$association['organizationID']] = $association['organizationID'];
 		}
 
-		$this->results['exact']['departments'] = $this->processDepartments($organizationIDs);
+		$this->results['exact']['departments'] = $this->processOrganizations($organizationIDs);
 
 		$programs                             = [];
 		$this->results['related']['programs'] = $this->processPrograms($programs, $associations);
@@ -731,7 +731,7 @@ class Search extends BaseModel
 			return;
 		}
 
-		$this->results['strong']['departments'] = $this->processDepartments($organizationIDs);
+		$this->results['strong']['departments'] = $this->processOrganizations($organizationIDs);
 	}
 
 	/**

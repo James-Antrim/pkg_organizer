@@ -211,7 +211,7 @@ class Persons extends ResourceHelper implements Associated, Selectable
 	 *
 	 * @return array the departments with which the person is associated id => name
 	 */
-	public static function getDepartmentNames($personID)
+	public static function getOrganizationNames($personID)
 	{
 		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();

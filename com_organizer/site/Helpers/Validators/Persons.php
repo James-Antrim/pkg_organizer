@@ -171,6 +171,6 @@ class Persons extends ResourceHelper implements UntisXMLValidator
 		$model->persons->$internalID = $person;
 
 		self::setID($model, $internalID);
-		Organizations::setDepartmentResource($person->id, 'personID');
+		Organizations::setResource($person->id, 'personID');
 	}
 }

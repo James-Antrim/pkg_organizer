@@ -68,35 +68,6 @@ class Organizations extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the ids of the departments associated with the given resources.
-	 *
-	 * @param   string  $resource     the name of the resource
-	 * @param   array   $resourceIDs  the ids of the resources selected
-	 *
-	 * @return array the department ids associated with the selected resources
-	 */
-	public static function getDepartmentsByResource($resource, $resourceIDs = null)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT organizationID')
-			->from('#__organizer_associations');
-		if (!empty($resourceIDs) and is_array($resourceIDs))
-		{
-			$resourceIDs = "'" . implode("', '", ArrayHelper::toInteger($resourceIDs)) . "'";
-			$query->where("{$resource}ID IN ($resourceIDs)");
-		}
-		else
-		{
-			$query->where("{$resource}ID IS NOT NULL");
-		}
-		$dbo->setQuery($query);
-		$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
-
-		return empty($organizationIDs) ? [] : $organizationIDs;
-	}
-
-	/**
 	 * Retrieves the resource items.
 	 *
 	 * @param   string  $access  any access restriction which should be performed
@@ -173,7 +144,7 @@ class Organizations extends ResourceHelper implements Selectable
 	 *
 	 * @return void
 	 */
-	public static function setDepartmentResource($resourceID, $column)
+	public static function setResource($resourceID, $column)
 	{
 		$deptResourceTable = new Associations;
 

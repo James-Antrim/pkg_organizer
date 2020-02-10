@@ -108,7 +108,7 @@ class Subjects extends ListModel
 			'lsfID'
 		];
 
-		$this->setDepartmentFilter($query);
+		$this->setOrganizationFilter($query);
 		$this->setSearchFilter($query, $searchFields);
 
 		$programID = $this->state->get('filter.programID', '');
@@ -142,31 +142,6 @@ class Subjects extends ListModel
 		$this->setOrdering($query);
 
 		return $query;
-	}
-
-	/**
-	 * Sets restrictions to the subject's organizationID field
-	 *
-	 * @param   JDatabaseQuery &$query  the query to be modified
-	 *
-	 * @return void modifies the query
-	 */
-	private function setDepartmentFilter(&$query)
-	{
-		if ($this->clientContext === self::BACKEND)
-		{
-			$authorizedDepts = Can::documentTheseOrganizations();
-			$query->where('(s.organizationID IN (' . implode(',', $authorizedDepts) . ') OR s.organizationID IS NULL)');
-		}
-		$organizationID = $this->state->get('filter.organizationID');
-		if (empty($organizationID))
-		{
-			return;
-		}
-		elseif ($organizationID == '-1')
-		{
-			$query->where('(s.organizationID IS NULL)');
-		}
 	}
 
 	/**
@@ -207,5 +182,30 @@ class Subjects extends ListModel
 		}
 
 		return;
+	}
+
+	/**
+	 * Sets restrictions to the subject's organizationID field
+	 *
+	 * @param   JDatabaseQuery &$query  the query to be modified
+	 *
+	 * @return void modifies the query
+	 */
+	private function setOrganizationFilter(&$query)
+	{
+		if ($this->clientContext === self::BACKEND)
+		{
+			$authorizedDepts = Can::documentTheseOrganizations();
+			$query->where('(s.organizationID IN (' . implode(',', $authorizedDepts) . ') OR s.organizationID IS NULL)');
+		}
+		$organizationID = $this->state->get('filter.organizationID');
+		if (empty($organizationID))
+		{
+			return;
+		}
+		elseif ($organizationID == '-1')
+		{
+			$query->where('(s.organizationID IS NULL)');
+		}
 	}
 }

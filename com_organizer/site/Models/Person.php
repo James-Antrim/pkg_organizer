@@ -19,7 +19,7 @@ use Organizer\Tables;
  */
 class Person extends MergeModel implements ScheduleResource
 {
-	protected $deptResource = 'personID';
+	protected $assocation = 'personID';
 
 	protected $fkColumn = 'personID';
 

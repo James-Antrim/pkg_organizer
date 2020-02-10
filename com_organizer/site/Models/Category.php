@@ -19,7 +19,7 @@ use Organizer\Tables\Categories as CategoriesTable;
  */
 class Category extends MergeModel
 {
-	protected $deptResource = 'categoryID';
+	protected $assocation = 'categoryID';
 
 	protected $fkColumn = 'categoryID';
 

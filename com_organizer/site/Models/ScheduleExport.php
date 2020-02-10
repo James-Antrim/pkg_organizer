@@ -62,7 +62,7 @@ class ScheduleExport extends BaseModel
 	 *
 	 * @return array an array of department options
 	 */
-	public function getDepartmentOptions()
+	public function getOrganizationOptions()
 	{
 		$departments = Helpers\Organizations::getOptions(false);
 		$options     = [];
