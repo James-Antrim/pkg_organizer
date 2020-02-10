@@ -32,20 +32,19 @@ class Programs extends ListModel
 		$tag             = Languages::getTag();
 
 		$query     = $this->_db->getQuery(true);
-		$linkParts = ["'index.php?option=com_organizer&view=program_edit&id='", 'dp.id'];
-		$query->select("DISTINCT dp.id AS id, dp.name_$tag AS programName, accredited")
+		$linkParts = ["'index.php?option=com_organizer&view=program_edit&id='", 'p.id'];
+		$query->select("DISTINCT p.id AS id, p.name_$tag AS programName, accredited")
 			->select($query->concatenate($linkParts, '') . ' AS link')
-			->from('#__organizer_programs AS dp')
+			->from('#__organizer_programs AS p')
 			->select('d.abbreviation AS degree')
-			->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
-			->leftJoin('#__organizer_fields AS f ON f.id = dp.fieldID')
+			->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->select("o.shortName_$tag AS organization")
-			->leftJoin('#__organizer_organizations AS o ON o.id = dp.organizationID')
-			->where('(dp.organizationID IN (' . implode(',', $authorizedDepts) . ') OR dp.organizationID IS NULL)');
+			->leftJoin('#__organizer_organizations AS o ON o.id = p.organizationID')
+			->where('(p.organizationID IN (' . implode(',', $authorizedDepts) . ') OR p.organizationID IS NULL)');
 
-		$searchColumns = ['dp.name_de', 'dp.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
+		$searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
 		$this->setSearchFilter($query, $searchColumns);
-		$this->setValueFilters($query, ['degreeID', 'organizationID', 'fieldID', 'frequencyID', 'accredited']);
+		$this->setValueFilters($query, ['degreeID', 'organizationID', 'frequencyID', 'accredited']);
 
 		$this->setOrdering($query);
 

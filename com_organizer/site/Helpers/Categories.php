@@ -158,23 +158,19 @@ class Categories implements Associated, Selectable
 	}
 
 	/**
-	 * Retrieves subject entries from the database
+	 * Retrieves programs relevant to a selected person. Probably called by the pool/subject selection views.
 	 *
 	 * @return string  the subjects which fit the selected resource
+	 * @todo Move this to either persons or programs
+	 * @todo Find out where this is called and document it here.
 	 */
 	public function byPerson()
 	{
-		$dbo         = Factory::getDbo();
-		$tag         = Languages::getTag();
-		$query       = $dbo->getQuery(true);
-		$concatQuery = ["dp.name_$tag", "', ('", 'd.abbreviation', "' '", ' dp.accredited', "')'"];
-		$query->select('dp.id, ' . $query->concatenate($concatQuery, '') . ' AS name');
-		$query->from('#__organizer_programs AS dp');
-		$query->innerJoin('#__organizer_mappings AS m ON m.programID = dp.id');
-		$query->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID');
+		$dbo   = Factory::getDbo();
+		$query = Programs::getProgramQuery();
+		$query->innerJoin('#__organizer_mappings AS m ON m.programID = p.id');
 
-		$personClauses = Mappings::getPersonMappingClauses();
-		if (!empty($personClauses))
+		if ($personClauses = Mappings::getPersonMappingClauses())
 		{
 			$query->where('( ( ' . implode(') OR (', $personClauses) . ') )');
 		}
@@ -182,8 +178,8 @@ class Categories implements Associated, Selectable
 		$query->order('name');
 		$dbo->setQuery($query);
 
-		$programs = OrganizerHelper::executeQuery('loadObjectList');
+		$programs = OrganizerHelper::executeQuery('loadObjectList', []);
 
-		return empty($programs) ? '[]' : json_encode($programs, JSON_UNESCAPED_UNICODE);
+		return json_encode($programs, JSON_UNESCAPED_UNICODE);
 	}
 }

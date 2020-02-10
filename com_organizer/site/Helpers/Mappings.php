@@ -366,14 +366,9 @@ class Mappings
 	public static function getProgramOption(&$mapping, &$selectedParents, $resourceType)
 	{
 		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$query = Programs::getProgramQuery();
 
-		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.accredited', "')'"];
-		$query->select($query->concatenate($parts, '') . ' AS text')
-			->from('#__organizer_programs AS dp')
-			->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
-			->where("dp.id = '{$mapping['programID']}'");
+		$query->where("p.id = '{$mapping['programID']}'");
 		$dbo->setQuery($query);
 
 		$name = OrganizerHelper::executeQuery('loadResult');
@@ -404,17 +399,10 @@ class Mappings
 	 */
 	public static function getProgramOptions()
 	{
+		$query = Programs::getProgramQuery();
 		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
 
-		$parts = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.accredited', "')'"];
-		$text  = $query->concatenate($parts, '') . ' AS name';
-		$query->select("DISTINCT dp.id AS id, $text")
-			->from('#__organizer_programs AS dp')
-			->innerJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
-			->innerJoin('#__organizer_mappings AS m ON m.programID = dp.id')
-			->order('name ASC');
+		$query->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')->order('name ASC');
 		$dbo->setQuery($query);
 
 		$programs = OrganizerHelper::executeQuery('loadAssocList');
@@ -469,15 +457,9 @@ class Mappings
 		}
 
 		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$query = Programs::getProgramQuery();
 
-		$parts  = ["dp.name_$tag", "' ('", 'd.abbreviation', "' '", 'dp.accredited', "')'"];
-		$select = 'DISTINCT ' . $query->concatenate($parts, '') . ' AS name, dp.id AS id';
-		$query->select($select)
-			->from('#__organizer_programs AS dp')
-			->innerJoin('#__organizer_mappings AS m ON m.programID = dp.id')
-			->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
+		$query->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')
 			->where($rangeClauses, 'OR')
 			->order('name');
 		$dbo->setQuery($query);
@@ -648,12 +630,11 @@ class Mappings
 
 		$rangesClause = implode(' OR ', $rangeConditions);
 
-		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT dp.id');
-		$query->from('#__organizer_mappings AS m');
-		$query->innerJoin('#__organizer_programs AS dp ON dp.id = m.programID');
-		$query->innerJoin('#__organizer_degrees AS d ON d.id = dp.degreeID');
-		$query->where($rangesClause);
+		$query = Programs::getProgramQuery();
+		$query->clear('SELECT');
+		$query->select('DISTINCT p.id')
+			->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')
+			->where($rangesClause);
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadColumn', []);

@@ -11,6 +11,7 @@
 namespace Organizer\Helpers;
 
 use Exception;
+use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Organizer\Models\Program;
 use Organizer\Tables\Participants;
@@ -22,6 +23,25 @@ use Organizer\Tables\Programs as ProgramsTable;
 class Programs extends ResourceHelper implements Selectable
 {
 	use Filtered;
+
+	/**
+	 * Creates a basic query for program related items.
+	 *
+	 * @return JDatabaseQuery
+	 */
+	public static function getProgramQuery()
+	{
+		$dbo        = Factory::getDbo();
+		$tag        = Languages::getTag();
+		$query      = $dbo->getQuery(true);
+		$parts      = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
+		$nameClause = $query->concatenate($parts, '') . ' AS name';
+		$query->select("DISTINCT p.id AS id, $nameClause")
+			->from('#__organizer_programs AS p')
+			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
+
+		return $query;
+	}
 
 	/**
 	 * Retrieves the organizationIDs associated with the program
@@ -136,10 +156,10 @@ class Programs extends ResourceHelper implements Selectable
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$query->select("dp.*, dp.name_$tag AS name, d.abbreviation AS degree")
-			->from('#__organizer_programs AS dp')
-			->innerJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
-			->innerJoin('#__organizer_mappings AS m ON m.programID = dp.id')
+		$query->select("p.*, p.name_$tag AS name, d.abbreviation AS degree")
+			->from('#__organizer_programs AS p')
+			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
+			->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')
 			->order('name ASC, degree ASC, accredited DESC');
 
 		if (!empty($access))
@@ -153,12 +173,12 @@ class Programs extends ResourceHelper implements Selectable
 		if ($useCurrent)
 		{
 			$subQuery = $dbo->getQuery(true);
-			$subQuery->select("dp2.name_$tag, dp2.degreeID, MAX(dp2.accredited) AS accredited")
-				->from('#__organizer_programs AS dp2')
-				->group("dp2.name_$tag, dp2.degreeID");
-			$conditions = "grouped.name_$tag = dp.name_$tag ";
-			$conditions .= "AND grouped.degreeID = dp.degreeID ";
-			$conditions .= "AND grouped.accredited = dp.accredited ";
+			$subQuery->select("p2.name_$tag, p2.degreeID, MAX(p2.accredited) AS accredited")
+				->from('#__organizer_programs AS p2')
+				->group("p2.name_$tag, p2.degreeID");
+			$conditions = "grouped.name_$tag = p.name_$tag ";
+			$conditions .= "AND grouped.degreeID = p.degreeID ";
+			$conditions .= "AND grouped.accredited = p.accredited ";
 			$query->innerJoin("($subQuery) AS grouped ON $conditions");
 		}
 
