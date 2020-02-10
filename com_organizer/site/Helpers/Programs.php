@@ -24,11 +24,11 @@ class Programs extends ResourceHelper implements Selectable
 	use Filtered;
 
 	/**
-	 * Retrieves the departmentIDs associated with the program
+	 * Retrieves the organizationIDs associated with the program
 	 *
 	 * @param   int  $programID  the table id for the program
 	 *
-	 * @return int the departmentID associated with the program's documentation
+	 * @return int the organizationID associated with the program's documentation
 	 */
 	public static function getDepartment($programID)
 	{
@@ -39,7 +39,7 @@ class Programs extends ResourceHelper implements Selectable
 
 		$table = new ProgramsTable;
 
-		return ($table->load($programID) and $departmentID = $table->departmentID) ? $departmentID : 0;
+		return ($table->load($programID) and $organizationID = $table->organizationID) ? $organizationID : 0;
 	}
 
 	/**
@@ -64,9 +64,9 @@ class Programs extends ResourceHelper implements Selectable
 			return null;
 		}
 
-		$programData['departmentID'] = Input::getInt('departmentID');
-		$programData['name_de']      = $initialName;
-		$programData['name_en']      = $initialName;
+		$programData['organizationID'] = Input::getInt('organizationID');
+		$programData['name_de']        = $initialName;
+		$programData['name_en']        = $initialName;
 
 		$model     = new Program;
 		$programID = $model->save($programData);

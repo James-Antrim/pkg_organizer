@@ -77,8 +77,8 @@ trait CourseParticipants
 				if ($property === 'programID')
 				{
 					$participant['programName']    = Helpers\Programs::getName($table->$property);
-					$departmentID                  = Helpers\Programs::getDepartment($table->$property);
-					$participant['departmentName'] = Helpers\Organizations::getShortName($departmentID);
+					$organizationID                = Helpers\Programs::getDepartment($table->$property);
+					$participant['departmentName'] = Helpers\Organizations::getShortName($organizationID);
 				}
 			}
 

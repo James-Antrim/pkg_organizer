@@ -34,7 +34,7 @@ class ProgramLSF extends BaseModel
 	private function getSavedProgramData($programID)
 	{
 		$query = $this->_db->getQuery(true);
-		$query->select('p.code AS program, d.code AS degree, accredited, departmentID');
+		$query->select('p.code AS program, d.code AS degree, accredited, organizationID');
 		$query->from('#__organizer_programs AS p');
 		$query->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
 		$query->where("p.id = '$programID'");
@@ -125,7 +125,7 @@ class ProgramLSF extends BaseModel
 				return false;
 			}
 
-			if (!$this->processChildNodes($program, $programData['departmentID']))
+			if (!$this->processChildNodes($program, $programData['organizationID']))
 			{
 				return false;
 			}
@@ -154,12 +154,12 @@ class ProgramLSF extends BaseModel
 	/**
 	 * Processes the child nodes of the program root node
 	 *
-	 * @param   object &$program       the simplexml object object containing program information
-	 * @param   int     $departmentID  the id of the department to which this data belongs
+	 * @param   object &$program         the simplexml object object containing program information
+	 * @param   int     $organizationID  the id of the department to which this data belongs
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
-	private function processChildNodes(&$program, $departmentID)
+	private function processChildNodes(&$program, $organizationID)
 	{
 		$lsfSubjectModel = new SubjectLSF;
 		$lsfPoolModel    = new PoolLSF;
@@ -171,11 +171,11 @@ class ProgramLSF extends BaseModel
 
 			if ($type == 'subject')
 			{
-				$success = $lsfSubjectModel->processStub($resource, $departmentID);
+				$success = $lsfSubjectModel->processStub($resource, $organizationID);
 			}
 			elseif ($type == 'pool')
 			{
-				$success = $lsfPoolModel->processStub($resource, $departmentID);
+				$success = $lsfPoolModel->processStub($resource, $organizationID);
 			}
 
 			// Malformed xml, invalid/incomplete data, database errors

@@ -18,7 +18,7 @@ use JDatabaseQuery;
 trait Filtered
 {
 	/**
-	 * Restricts the query by the departmentIDs for which the user has the given access right.
+	 * Restricts the query by the organizationIDs for which the user has the given access right.
 	 *
 	 * @param   JDatabaseQuery &$query   the query to modify
 	 * @param   string          $alias   the alias being used for the resource table
@@ -43,7 +43,7 @@ trait Filtered
 		}
 
 		$authorizedDepts = implode(',', $authorizedDepts);
-		$query->where("$alias.departmentID IN ($authorizedDepts)");
+		$query->where("$alias.organizationID IN ($authorizedDepts)");
 	}
 
 	/**
@@ -85,14 +85,14 @@ trait Filtered
 	 */
 	public static function addDeptSelectionFilter(&$query, $resource, $alias, $keyColumn = 'id')
 	{
-		$departmentIDs = Input::getFilterIDs('department');
-		if (empty($departmentIDs))
+		$organizationIDs = Input::getFilterIDs('department');
+		if (empty($organizationIDs))
 		{
 			return;
 		}
 
 		$tableWithAlias = '#__organizer_associations AS a';
-		if (in_array('-1', $departmentIDs))
+		if (in_array('-1', $organizationIDs))
 		{
 			$query->leftJoin("$tableWithAlias ON a.{$resource}ID = $alias.$keyColumn")
 				->where("a.id IS NULL");
@@ -100,7 +100,7 @@ trait Filtered
 		else
 		{
 			$query->innerJoin("$tableWithAlias ON a.{$resource}ID = $alias.$keyColumn")
-				->where("a.departmentID IN (" . implode(',', $departmentIDs) . ")");
+				->where("a.organizationID IN (" . implode(',', $organizationIDs) . ")");
 		}
 	}
 

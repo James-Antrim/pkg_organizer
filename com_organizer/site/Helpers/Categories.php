@@ -30,7 +30,7 @@ class Categories implements Associated, Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('departmentID')
+		$query->select('organizationID')
 			->from('#__organizer_associations')
 			->where("categoryID = $resourceID");
 		$dbo->setQuery($query);

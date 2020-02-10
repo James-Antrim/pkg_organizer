@@ -202,7 +202,7 @@ function repopulateResources()
 {
     'use strict';
 
-    const selectedDepartments = jQuery('#departmentIDs').val(),
+    const selectedDepartments = jQuery('#organizationIDs').val(),
         selectedCategories = jQuery('#categoryIDs').val();
     let invalidDepartments, invalidCategories, componentParameters, selectionParameters = '';
 
@@ -219,7 +219,7 @@ function repopulateResources()
 
     if (!invalidDepartments)
     {
-        selectionParameters += '&departmentIDs=' + selectedDepartments;
+        selectionParameters += '&organizationIDs=' + selectedDepartments;
     }
 
     if (!invalidCategories)
@@ -281,7 +281,7 @@ function repopulateCategories()
     'use strict';
 
     const componentParameters = '/index.php?option=com_organizer&view=category_options&format=json',
-        selectedDepartments = jQuery('#departmentIDs').val();
+        selectedDepartments = jQuery('#organizationIDs').val();
     let selectionParameters;
 
     if (selectedDepartments == null)
@@ -289,7 +289,7 @@ function repopulateCategories()
         return;
     }
 
-    selectionParameters = '&departmentIDs=' + selectedDepartments;
+    selectionParameters = '&organizationIDs=' + selectedDepartments;
 
     jQuery.ajax({
         type: 'GET',

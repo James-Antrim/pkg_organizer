@@ -33,7 +33,7 @@ class Events extends ResourceHelper implements UntisXMLValidator
 		$event = $model->events->$untisID;
 		$table = new EventsTable;
 
-		if ($table->load(['departmentID' => $event->departmentID, 'untisID' => $untisID]))
+		if ($table->load(['organizationID' => $event->organizationID, 'untisID' => $untisID]))
 		{
 			$altered = false;
 			foreach ($event as $key => $value)
@@ -114,13 +114,13 @@ class Events extends ResourceHelper implements UntisXMLValidator
 		$invalidField = (empty($fieldID) or empty($fields->$fieldID));
 		$fieldID      = $invalidField ? null : $fields->$fieldID;
 
-		$event               = new stdClass;
-		$event->departmentID = $model->departmentID;
-		$event->fieldID      = $fieldID;
-		$event->untisID      = $untisID;
-		$event->name_de      = $name;
-		$event->name_en      = $name;
-		$event->subjectNo    = $subjectNo;
+		$event                 = new stdClass;
+		$event->organizationID = $model->organizationID;
+		$event->fieldID        = $fieldID;
+		$event->untisID        = $untisID;
+		$event->name_de        = $name;
+		$event->name_en        = $name;
+		$event->subjectNo      = $subjectNo;
 
 		$model->events->$untisID = $event;
 		self::setID($model, $untisID);

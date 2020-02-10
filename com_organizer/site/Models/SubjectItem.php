@@ -55,7 +55,7 @@ class SubjectItem extends ItemModel
 
 		$query = $this->_db->getQuery(true);
 		$query->select("aids_$tag AS aids, f.name_$tag AS availability, bonusPoints_$tag as bonus")
-			->select("content_$tag AS content, creditpoints, departmentID, description_$tag AS description")
+			->select("content_$tag AS content, creditpoints, organizationID, description_$tag AS description")
 			->select("duration, evaluation_$tag AS evaluation, expenditure, expertise, instructionLanguage")
 			->select("literature, method_$tag AS method, methodCompetence, code AS moduleCode")
 			->select("s.name_$tag AS name, objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
@@ -103,7 +103,7 @@ class SubjectItem extends ItemModel
 		$template = [
 			'subjectID'                => Helpers\Input::getID(),
 			'name'                     => ['label' => Languages::_($option . 'NAME'), 'type' => 'text'],
-			'departmentID'             => [],
+			'organizationID'           => [],
 			'campus'                   => ['label' => Languages::_($option . 'CAMPUS'), 'type' => 'location'],
 			'moduleCode'               => ['label' => Languages::_($option . 'MODULE_CODE'), 'type' => 'text'],
 			'coordinators'             => ['label' => Languages::_($option . 'SUBJECT_COORDINATOR'), 'type' => 'list'],

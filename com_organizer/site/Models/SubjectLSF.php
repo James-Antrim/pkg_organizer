@@ -420,12 +420,12 @@ class SubjectLSF extends BaseModel
 	/**
 	 * Creates a subject entry if none exists and imports data to fill it
 	 *
-	 * @param   object &$stub          a simplexml object containing rudimentary subject data
-	 * @param   int     $departmentID  the id of the department to which this data belongs
+	 * @param   object &$stub            a simplexml object containing rudimentary subject data
+	 * @param   int     $organizationID  the id of the department to which this data belongs
 	 *
 	 * @return boolean true on success, otherwise false
 	 */
-	public function processStub(&$stub, $departmentID)
+	public function processStub(&$stub, $organizationID)
 	{
 		$lsfID = (string) (empty($stub->modulid) ? $stub->pordid : $stub->modulid);
 		if (empty($lsfID))
@@ -435,8 +435,8 @@ class SubjectLSF extends BaseModel
 
 		$table = new SubjectsTable;
 
-		// Attempt to load using the departmentID
-		$data = ['lsfID' => $lsfID, 'departmentID' => $departmentID];
+		// Attempt to load using the organizationID
+		$data = ['lsfID' => $lsfID, 'organizationID' => $organizationID];
 		$table->load($data);
 
 		if (empty($table->id))
@@ -449,7 +449,7 @@ class SubjectLSF extends BaseModel
 		$blocked = !empty($stub->sperrmh) and strtolower((string) $stub->sperrmh) == 'x';
 
 		// No row was found => create one
-		if (empty($table->id) or empty($table->departmentID))
+		if (empty($table->id) or empty($table->organizationID))
 		{
 			if ($blocked or $invalidTitle)
 			{

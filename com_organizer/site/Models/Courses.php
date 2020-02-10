@@ -25,7 +25,7 @@ class Courses extends ListModel
 
 	protected $defaultOrdering = 'name';
 
-	protected $filter_fields = ['campusID', 'categoryID', 'departmentID', 'groupID', 'personID', 'termID'];
+	protected $filter_fields = ['campusID', 'categoryID', 'organizationID', 'groupID', 'personID', 'termID'];
 
 	/**
 	 * Filters out form inputs which should not be displayed due to menu settings.
@@ -51,12 +51,12 @@ class Courses extends ListModel
 		if ($params->get('onlyPrepCourses'))
 		{
 			$form->removeField('categoryID', 'filter');
-			$form->removeField('departmentID', 'filter');
+			$form->removeField('organizationID', 'filter');
 			$form->removeField('groupID', 'filter');
 			$form->removeField('personID', 'filter');
 			$form->removeField('search', 'filter');
 		}
-		elseif (empty($this->state->get('filter.departmentID')))
+		elseif (empty($this->state->get('filter.organizationID')))
 		{
 			$form->removeField('categoryID', 'filter');
 			$form->removeField('personID', 'filter');
@@ -108,9 +108,9 @@ class Courses extends ListModel
 			$this->setValueFilters($query, ['c.termID']);
 		}
 
-		if ($this->state->get('filter.departmentID'))
+		if ($this->state->get('filter.organizationID'))
 		{
-			$this->setValueFilters($query, ['g.categoryID', 'a.departmentID', 'ig.groupID', 'ip.personID']);
+			$this->setValueFilters($query, ['g.categoryID', 'a.organizationID', 'ig.groupID', 'ip.personID']);
 		}
 
 		$this->addCampusFilter($query, 'c');
@@ -149,9 +149,10 @@ class Courses extends ListModel
 			}
 		}
 
-		$departmentID = $app->getUserStateFromRequest($this->context . '.filter.departmentID', 'filter.departmentID');
-		$categoryID   = $app->getUserStateFromRequest($this->context . '.filter.categoryID', 'filter.categoryID');
-		if (empty($departmentID))
+		$organizationID = $app->getUserStateFromRequest($this->context . '.filter.organizationID',
+			'filter.organizationID');
+		$categoryID     = $app->getUserStateFromRequest($this->context . '.filter.categoryID', 'filter.categoryID');
+		if (empty($organizationID))
 		{
 			$this->state->set('filter.categoryID', '');
 			$this->state->set('filter.groupID', '');

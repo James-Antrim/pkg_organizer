@@ -68,9 +68,9 @@ class ScheduleExport extends BaseModel
 		$options     = [];
 		$options[''] = Helpers\Languages::_('ORGANIZER_SELECT_ORGANIZATION');
 
-		foreach ($departments as $departmentID => $departmentName)
+		foreach ($departments as $organizationID => $departmentName)
 		{
-			$options[$departmentID] = $departmentName;
+			$options[$organizationID] = $departmentName;
 		}
 
 		return $options;
@@ -339,10 +339,10 @@ class ScheduleExport extends BaseModel
 	 */
 	private function setParameters()
 	{
-		$parameters                  = [];
-		$parameters['departmentIDs'] = Helpers\Input::getFilterIDs('department');
-		$parameters['format']        = Helpers\Input::getCMD('format', 'pdf');
-		$parameters['mySchedule']    = Helpers\Input::getBool('myschedule', false);
+		$parameters                    = [];
+		$parameters['organizationIDs'] = Helpers\Input::getFilterIDs('department');
+		$parameters['format']          = Helpers\Input::getCMD('format', 'pdf');
+		$parameters['mySchedule']      = Helpers\Input::getBool('myschedule', false);
 
 		if (empty($parameters['mySchedule']))
 		{

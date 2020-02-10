@@ -11,10 +11,10 @@
 $action = OrganizerHelper::getRedirectBase();
 $menuID = OrganizerHelper::getInput()->getInt('Itemid');
 
-$departmentID = $this->state->get('departmentID');
-$periodID     = $this->state->get('periodID');
-$categoryID   = $this->state->get('categoryID');
-$showTable    = (!empty($this->columns) and !empty($this->rows));
+$organizationID = $this->state->get('organizationID');
+$periodID       = $this->state->get('periodID');
+$categoryID     = $this->state->get('categoryID');
+$showTable      = (!empty($this->columns) and !empty($this->rows));
 
 ?>
 <!-- use language_selection layout -->
@@ -26,7 +26,7 @@ $showTable    = (!empty($this->columns) and !empty($this->rows));
         <input type="hidden" name="view" value="lesson_statistics">
         <input type='hidden' name='Itemid' value='<?php echo $menuID; ?>'>
 		<?php echo $this->form->getField('termID')->input; ?>
-		<?php echo $this->form->getField('departmentID')->input; ?>
+		<?php echo $this->form->getField('organizationID')->input; ?>
 		<?php echo $this->form->getField('programID')->input; ?>
     </form>
     <div class="table-container">

@@ -167,7 +167,7 @@ class Units extends ResourceHelper implements UntisXMLValidator
 		$unit  = $model->units->$untisID;
 		$table = new UnitsTable;
 
-		if ($table->load(['departmentID' => $unit->departmentID, 'termID' => $unit->termID, 'untisID' => $untisID]))
+		if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'untisID' => $untisID]))
 		{
 			$altered = false;
 
@@ -349,18 +349,18 @@ class Units extends ResourceHelper implements UntisXMLValidator
 
 		$role = trim((string) $node->text1);
 
-		$unit               = new stdClass;
-		$unit->departmentID = $model->departmentID;
-		$unit->termID       = $model->termID;
-		$unit->untisID      = $untisID;
-		$unit->gridID       = Grids::getID($gridName);
-		$unit->gridName     = $gridName;
-		$unit->roleID       = self::getRoleID($role);
-		$unit->startDate    = date('Y-m-d', $effBeginDT);
-		$unit->startDT      = $effBeginDT;
-		$unit->endDate      = date('Y-m-d', $effEndDT);
-		$unit->endDT        = $effEndDT;
-		$unit->comment      = (empty($comment) or $comment == '.') ? '' : $comment;
+		$unit                 = new stdClass;
+		$unit->organizationID = $model->organizationID;
+		$unit->termID         = $model->termID;
+		$unit->untisID        = $untisID;
+		$unit->gridID         = Grids::getID($gridName);
+		$unit->gridName       = $gridName;
+		$unit->roleID         = self::getRoleID($role);
+		$unit->startDate      = date('Y-m-d', $effBeginDT);
+		$unit->startDT        = $effBeginDT;
+		$unit->endDate        = date('Y-m-d', $effEndDT);
+		$unit->endDT          = $effEndDT;
+		$unit->comment        = (empty($comment) or $comment == '.') ? '' : $comment;
 
 		$model->units->$untisID = $unit;
 

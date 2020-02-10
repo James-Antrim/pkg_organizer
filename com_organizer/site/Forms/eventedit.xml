@@ -3,7 +3,7 @@
     <fieldset name="details" label="ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
         <field name="untisID" type="Blank" label="UNTIS_ID" disabled="true" required="true"/>
-        <field name="departmentID" type="Departments" label="ORGANIZATION" disabled="true" required="true"/>
+        <field name="organizationID" type="Departments" label="ORGANIZATION" disabled="true" required="true"/>
         <field name="campusID" type="Campuses" label="CAMPUS" required="true">
             <option value="">NO_CAMPUSES</option>
         </field>

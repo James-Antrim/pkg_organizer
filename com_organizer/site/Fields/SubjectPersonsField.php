@@ -52,20 +52,20 @@ class SubjectPersonsField extends OptionsField
 			->from('#__organizer_persons AS t')
 			->order('surname, forename');
 
-		$departmentID = $this->form->getValue('departmentID');
-		if (!empty($departmentID))
+		$organizationID = $this->form->getValue('organizationID');
+		if (!empty($organizationID))
 		{
 			if (empty($this->value))
 			{
 				$query->innerJoin('#__organizer_associations AS a ON a.personID = t.id');
-				$query->where("departmentID = $departmentID");
+				$query->where("organizationID = $organizationID");
 			}
 			else
 			{
 				$query->leftJoin('#__organizer_associations AS a ON a.personID = t.id');
 				$personIDs  = implode(',', $this->value);
-				$extPersons = "(departmentID != $departmentID AND personID IN ($personIDs))";
-				$query->where("(departmentID = $departmentID OR $extPersons)");
+				$extPersons = "(organizationID != $organizationID AND personID IN ($personIDs))";
+				$query->where("(organizationID = $organizationID OR $extPersons)");
 			}
 		}
 

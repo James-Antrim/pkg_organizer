@@ -24,7 +24,7 @@ use Organizer\Helpers\Subjects as SubjectsHelper;
  */
 class Subjects extends ListModel
 {
-	protected $filter_fields = ['departmentID', 'personID', 'poolID', 'programID'];
+	protected $filter_fields = ['organizationID', 'personID', 'poolID', 'programID'];
 
 	/**
 	 * Filters out form inputs which should not be displayed due to menu settings.
@@ -39,7 +39,7 @@ class Subjects extends ListModel
 		$params = Input::getParams();
 		if (!empty($params->get('programID')) or !empty($this->state->get('calledPoolID')))
 		{
-			$form->removeField('departmentID', 'filter');
+			$form->removeField('organizationID', 'filter');
 			$form->removeField('limit', 'list');
 			$form->removeField('programID', 'filter');
 		}
@@ -47,7 +47,7 @@ class Subjects extends ListModel
 		{
 			if (count(Can::documentTheseOrganizations()) === 1)
 			{
-				$form->removeField('departmentID', 'filter');
+				$form->removeField('organizationID', 'filter');
 			}
 		}
 
@@ -145,7 +145,7 @@ class Subjects extends ListModel
 	}
 
 	/**
-	 * Sets restrictions to the subject's departmentID field
+	 * Sets restrictions to the subject's organizationID field
 	 *
 	 * @param   JDatabaseQuery &$query  the query to be modified
 	 *
@@ -156,16 +156,16 @@ class Subjects extends ListModel
 		if ($this->clientContext === self::BACKEND)
 		{
 			$authorizedDepts = Can::documentTheseOrganizations();
-			$query->where('(s.departmentID IN (' . implode(',', $authorizedDepts) . ') OR s.departmentID IS NULL)');
+			$query->where('(s.organizationID IN (' . implode(',', $authorizedDepts) . ') OR s.organizationID IS NULL)');
 		}
-		$departmentID = $this->state->get('filter.departmentID');
-		if (empty($departmentID))
+		$organizationID = $this->state->get('filter.organizationID');
+		if (empty($organizationID))
 		{
 			return;
 		}
-		elseif ($departmentID == '-1')
+		elseif ($organizationID == '-1')
 		{
-			$query->where('(s.departmentID IS NULL)');
+			$query->where('(s.organizationID IS NULL)');
 		}
 	}
 
@@ -186,7 +186,7 @@ class Subjects extends ListModel
 			$authorizedDepartments = Can::documentTheseOrganizations();
 			if (count($authorizedDepartments) === 1)
 			{
-				$this->state->set('filter.departmentID', $authorizedDepartments[0]);
+				$this->state->set('filter.organizationID', $authorizedDepartments[0]);
 			}
 		}
 		else

@@ -42,14 +42,14 @@ class Organizations extends ResourceHelper implements Selectable
 		{
 			case 'document':
 				$table = OrganizerHelper::getPlural($resource);
-				$query->innerJoin("#__organizer_$table AS res ON res.departmentID = depts.id");
+				$query->innerJoin("#__organizer_$table AS res ON res.organizationID = depts.id");
 				$allowedIDs = Can::documentTheseOrganizations();
 				break;
 			case 'manage':
 				$allowedIDs = Can::manageTheseOrganizations();
 				break;
 			case 'schedule':
-				$query->innerJoin('#__organizer_associations AS a ON a.departmentID = depts.id');
+				$query->innerJoin('#__organizer_associations AS a ON a.organizationID = depts.id');
 				if (in_array($resource, ['category', 'person']))
 				{
 					$query->where("a.{$resource}ID IS NOT NULL");
@@ -79,7 +79,7 @@ class Organizations extends ResourceHelper implements Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT departmentID')
+		$query->select('DISTINCT organizationID')
 			->from('#__organizer_associations');
 		if (!empty($resourceIDs) and is_array($resourceIDs))
 		{
@@ -91,9 +91,9 @@ class Organizations extends ResourceHelper implements Selectable
 			$query->where("{$resource}ID IS NOT NULL");
 		}
 		$dbo->setQuery($query);
-		$departmentIDs = OrganizerHelper::executeQuery('loadColumn', []);
+		$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
 
-		return empty($departmentIDs) ? [] : $departmentIDs;
+		return empty($organizationIDs) ? [] : $organizationIDs;
 	}
 
 	/**
@@ -187,7 +187,7 @@ class Organizations extends ResourceHelper implements Selectable
 			return;
 		}
 
-		$data['departmentID'] = Input::getInt('departmentID');
+		$data['organizationID'] = Input::getInt('organizationID');
 
 		try
 		{

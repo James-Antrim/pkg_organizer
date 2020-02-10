@@ -28,7 +28,7 @@ class Schedules
 
 	public $creationTime;
 
-	public $departmentID;
+	public $organizationID;
 
 	public $errors = [];
 
@@ -92,9 +92,9 @@ class Schedules
 	 */
 	public function validate()
 	{
-		$this->departmentID = Input::getInt('departmentID');
-		$formFiles          = Input::getInput()->files->get('jform', [], 'array');
-		$this->schedule     = simplexml_load_file($formFiles['file']['tmp_name']);
+		$this->organizationID = Input::getInt('organizationID');
+		$formFiles            = Input::getInput()->files->get('jform', [], 'array');
+		$this->schedule       = simplexml_load_file($formFiles['file']['tmp_name']);
 
 		// Unused & mostly unfilled nodes
 		unset($this->schedule->lesson_date_schemes, $this->schedule->lesson_tables, $this->schedule->reductions);

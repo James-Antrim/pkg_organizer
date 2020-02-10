@@ -21,7 +21,7 @@ class Categories extends ListModel
 {
 	protected $defaultOrdering = 'cat.name';
 
-	protected $filter_fields = ['departmentID'];
+	protected $filter_fields = ['organizationID'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -36,10 +36,10 @@ class Categories extends ListModel
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
 
 		$authorizedDepartments = implode(",", Can::scheduleTheseOrganizations());
-		$query->where("a.departmentID IN ($authorizedDepartments)");
+		$query->where("a.organizationID IN ($authorizedDepartments)");
 
 		$this->setSearchFilter($query, ['cat.name', 'cat.untisID']);
-		$this->setValueFilters($query, ['departmentID', 'programID']);
+		$this->setValueFilters($query, ['organizationID', 'programID']);
 		$this->setOrdering($query);
 
 		return $query;

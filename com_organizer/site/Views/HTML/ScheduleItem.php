@@ -124,7 +124,7 @@ class ScheduleItem extends BaseHTMLView
 			'SEMESTER_MODE'   => 1,
 			'BLOCK_MODE'      => 2,
 			'INSTANCE_MODE'   => 3,
-			'ajaxBase'        => $root . 'index.php?option=com_organizer&format=json&departmentIDs=',
+			'ajaxBase'        => $root . 'index.php?option=com_organizer&format=json&organizationIDs=',
 			'dateFormat'      => $this->dateFormat,
 			'exportBase'      => $root . 'index.php?option=com_organizer&view=schedule_export',
 			'isMobile'        => $this->isMobile,

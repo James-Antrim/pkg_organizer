@@ -4,7 +4,7 @@
 jQuery(document).ready(function () {
     'use strict';
 
-    var department = jQuery('#jform_params_departmentID'),
+    var department = jQuery('#jform_params_organizationID'),
         category = jQuery('#jform_params_categoryIDs'),
         group = jQuery('#jform_params_groupIDs'),
         room = jQuery('#jform_params_roomIDs');
@@ -27,7 +27,7 @@ jQuery(document).ready(function () {
     {
         const categoryAjax = new XMLHttpRequest(), groupAjax = new XMLHttpRequest(), roomAjax = new XMLHttpRequest(),
             url = '../index.php?option=com_organizer&format=json',
-            params = '&departmentIDs=' + department.val() + '&categoryIDs=' + (category.val() || ''),
+            params = '&organizationIDs=' + department.val() + '&categoryIDs=' + (category.val() || ''),
             keepValue = !event;
 
         // Update programs, when it is not its own trigger

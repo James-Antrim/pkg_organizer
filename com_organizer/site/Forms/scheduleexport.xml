@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details" label="FILTERS">
-        <field name="departmentIDs" type="Departments" label="ORGANIZATION" required="true" multiple="true"
+        <field name="organizationIDs" type="Departments" label="ORGANIZATION" required="true" multiple="true"
                onChange="repopulateCategories();repopulateResources();" data-placeholder="SELECT_ORGANIZATIONS"/>
         <field name="categoryIDs" type="Categories" label="CATEGORY" required="true" multiple="true"
                onChange="repopulateResources();" data-placeholder="SELECT_CATEGORIES"/>

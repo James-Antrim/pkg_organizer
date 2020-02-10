@@ -19,7 +19,7 @@ use Organizer\Helpers\Languages;
  */
 class Programs extends ListModel
 {
-	protected $filter_fields = ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'accredited'];
+	protected $filter_fields = ['degreeID', 'organizationID', 'fieldID', 'frequencyID', 'accredited'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -40,12 +40,12 @@ class Programs extends ListModel
 			->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
 			->leftJoin('#__organizer_fields AS f ON f.id = dp.fieldID')
 			->select("dpt.shortName_$tag AS department")
-			->leftJoin('#__organizer_departments AS dpt ON dpt.id = dp.departmentID')
-			->where('(dp.departmentID IN (' . implode(',', $authorizedDepts) . ') OR dp.departmentID IS NULL)');
+			->leftJoin('#__organizer_departments AS dpt ON dpt.id = dp.organizationID')
+			->where('(dp.organizationID IN (' . implode(',', $authorizedDepts) . ') OR dp.organizationID IS NULL)');
 
 		$searchColumns = ['dp.name_de', 'dp.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
 		$this->setSearchFilter($query, $searchColumns);
-		$this->setValueFilters($query, ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'accredited']);
+		$this->setValueFilters($query, ['degreeID', 'organizationID', 'fieldID', 'frequencyID', 'accredited']);
 
 		$this->setOrdering($query);
 

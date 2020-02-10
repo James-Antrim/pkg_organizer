@@ -20,20 +20,20 @@ class Schedules extends ResourceHelper
 	/**
 	 * Returns the id of the active schedule for the given department/term context
 	 *
-	 * @param   int  $departmentID  the id of the department context
-	 * @param   int  $termID        the id of the term context
+	 * @param   int  $organizationID  the id of the department context
+	 * @param   int  $termID          the id of the term context
 	 *
 	 * @return int the id of the active schedule for the context or 0
 	 */
-	public static function getActiveID($departmentID, $termID)
+	public static function getActiveID($organizationID, $termID)
 	{
-		if (empty($departmentID) or empty($termID))
+		if (empty($organizationID) or empty($termID))
 		{
 			return 0;
 		}
 
 		$table = new SchedulesTable;
 
-		return $table->load(['active' => 1, 'departmentID' => $departmentID, 'termID' => $termID]) ? $table->id : 0;
+		return $table->load(['active' => 1, 'organizationID' => $organizationID, 'termID' => $termID]) ? $table->id : 0;
 	}
 }

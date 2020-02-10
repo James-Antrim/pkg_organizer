@@ -22,12 +22,12 @@ use Organizer\Helpers\Persons as PersonsHelper;
 class Persons extends ListView
 {
 	protected $rowStructure = [
-		'checkbox'     => '',
-		'surname'      => 'link',
-		'forename'     => 'link',
-		'username'     => 'link',
-		'untisID'      => 'link',
-		'departmentID' => 'link'
+		'checkbox'       => '',
+		'surname'        => 'link',
+		'forename'       => 'link',
+		'username'       => 'link',
+		'untisID'        => 'link',
+		'organizationID' => 'link'
 	];
 
 	/**
@@ -71,12 +71,12 @@ class Persons extends ListView
 	public function setHeaders()
 	{
 		$headers = [
-			'checkbox'     => '',
-			'surname'      => Languages::_('ORGANIZER_SURNAME'),
-			'forename'     => Languages::_('ORGANIZER_FORENAME'),
-			'username'     => Languages::_('ORGANIZER_USERNAME'),
-			't.untisID'    => Languages::_('ORGANIZER_UNTIS_ID'),
-			'departmentID' => Languages::_('ORGANIZER_ORGANIZATION')
+			'checkbox'       => '',
+			'surname'        => Languages::_('ORGANIZER_SURNAME'),
+			'forename'       => Languages::_('ORGANIZER_FORENAME'),
+			'username'       => Languages::_('ORGANIZER_USERNAME'),
+			't.untisID'      => Languages::_('ORGANIZER_UNTIS_ID'),
+			'organizationID' => Languages::_('ORGANIZER_ORGANIZATION')
 		];
 
 		$this->headers = $headers;
@@ -100,15 +100,15 @@ class Persons extends ListView
 
 			if (!$departments = PersonsHelper::getDepartmentNames($item->id))
 			{
-				$item->departmentID = Languages::_('JNONE');
+				$item->organizationID = Languages::_('JNONE');
 			}
 			elseif (count($departments) === 1)
 			{
-				$item->departmentID = $departments[0];
+				$item->organizationID = $departments[0];
 			}
 			else
 			{
-				$item->departmentID = Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
+				$item->organizationID = Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
 			}
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);

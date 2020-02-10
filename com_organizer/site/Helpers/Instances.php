@@ -78,9 +78,9 @@ class Instances extends ResourceHelper
 				$conditions['courseIDs'] = $courseIDs;
 			}
 
-			if ($departmentIDs = Input::getFilterIDs('department'))
+			if ($organizationIDs = Input::getFilterIDs('department'))
 			{
-				$conditions['departmentIDs'] = $departmentIDs;
+				$conditions['organizationIDs'] = $organizationIDs;
 			}
 
 			// Department specific events
@@ -115,16 +115,16 @@ class Instances extends ResourceHelper
 				$conditions['subjectIDs'] = $subjectIDs;
 			}
 
-			if (!empty($conditions['departmentIDs']))
+			if (!empty($conditions['organizationIDs']))
 			{
 				$allowedIDs   = Can::scheduleTheseOrganizations();
-				$overlap      = array_intersect($conditions['departmentIDs'], $allowedIDs);
+				$overlap      = array_intersect($conditions['organizationIDs'], $allowedIDs);
 				$overlapCount = count($overlap);
 
 				// If the user has planning access to all requested departments show unpublished automatically.
-				if ($overlapCount and $overlapCount == count($conditions['departmentIDs']))
+				if ($overlapCount and $overlapCount == count($conditions['organizationIDs']))
 				{
-					$conditions['departmentIDs']   = $overlap;
+					$conditions['organizationIDs'] = $overlap;
 					$conditions['showUnpublished'] = true;
 				}
 				else
@@ -262,12 +262,12 @@ class Instances extends ResourceHelper
 		}
 
 		$unit = [
-			'comment'      => $unitsTable->comment,
-			'courseID'     => $unitsTable->courseID,
-			'department'   => Organizations::getShortName($unitsTable->departmentID),
-			'departmentID' => $unitsTable->departmentID,
-			'gridID'       => $unitsTable->gridID,
-			'unitStatus'   => $unitsTable->delta
+			'comment'        => $unitsTable->comment,
+			'courseID'       => $unitsTable->courseID,
+			'department'     => Organizations::getShortName($unitsTable->organizationID),
+			'organizationID' => $unitsTable->organizationID,
+			'gridID'         => $unitsTable->gridID,
+			'unitStatus'     => $unitsTable->delta
 		];
 
 		unset($unitsTable);
@@ -698,7 +698,7 @@ class Instances extends ResourceHelper
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 		$query->select("s.id, s.abbreviation_$tag AS code, s.name_$tag AS fullName, s.shortName_$tag AS name")
-			->select("s.description_$tag AS description, s.departmentID")
+			->select("s.description_$tag AS description, s.organizationID")
 			->from('#__organizer_subjects AS s')
 			->innerJoin('#__organizer_subject_events AS se ON se.subjectID = s.id')
 			->where("se.eventID = {$instance['eventID']}");
@@ -717,11 +717,11 @@ class Instances extends ResourceHelper
 		$subject = [];
 
 		// In the event of multiple results take the first one to fulfill the department condition
-		if (!empty($conditions['departmentIDs']) and count($subjects) > 1)
+		if (!empty($conditions['organizationIDs']) and count($subjects) > 1)
 		{
 			foreach ($subjects as $subjectItem)
 			{
-				if (in_array($subjectItem['departmentID'], $conditions['departmentIDs']))
+				if (in_array($subjectItem['organizationID'], $conditions['organizationIDs']))
 				{
 					$subject = $subjectItem;
 					break;

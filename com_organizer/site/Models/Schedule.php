@@ -25,7 +25,7 @@ use Organizer\Tables\Schedules as SchedulesTable;
  */
 class Schedule extends BaseModel
 {
-	private $departmentID;
+	private $organizationID;
 	private $instanceIDs;
 	private $instances;
 	private $termID;
@@ -57,7 +57,7 @@ class Schedule extends BaseModel
 		{
 			$this->setActive();
 			$this->setRemoved();
-			$this->authorizedDeactivate(0, $table->departmentID, $table->termID);
+			$this->authorizedDeactivate(0, $table->organizationID, $table->termID);
 			$table->set('active', 1);
 			$table->store();
 
@@ -70,16 +70,16 @@ class Schedule extends BaseModel
 	/**
 	 * Sets the selected schedule to inactive.
 	 *
-	 * @param   int  $scheduleID    the id of the schedule to deactivate
-	 * @param   int  $departmentID  the id of the department context for the schedule to deactivate
-	 * @param   int  $termID        the id of the term context for the schedule to deactivate
+	 * @param   int  $scheduleID      the id of the schedule to deactivate
+	 * @param   int  $organizationID  the id of the department context for the schedule to deactivate
+	 * @param   int  $termID          the id of the term context for the schedule to deactivate
 	 *
 	 * @return bool
 	 */
-	private function authorizedDeactivate($scheduleID = 0, $departmentID = 0, $termID = 0)
+	private function authorizedDeactivate($scheduleID = 0, $organizationID = 0, $termID = 0)
 	{
 		$conditions = empty($scheduleID) ?
-			['active' => 1, 'departmentID' => $departmentID, 'termID' => $termID] : $scheduleID;
+			['active' => 1, 'organizationID' => $organizationID, 'termID' => $termID] : $scheduleID;
 		$table      = new SchedulesTable;
 
 		if (!$table->load($conditions))
@@ -302,11 +302,11 @@ class Schedule extends BaseModel
 		$table = new SchedulesTable;
 		if ($table->load($scheduleID))
 		{
-			$this->departmentID = $table->departmentID;
-			$this->instances    = json_decode($table->schedule, true);
-			$this->instanceIDs  = array_keys($this->instances);
-			$this->termID       = $table->termID;
-			$this->unitIDs      = $this->getUnitIDs($this->instanceIDs);
+			$this->organizationID = $table->organizationID;
+			$this->instances      = json_decode($table->schedule, true);
+			$this->instanceIDs    = array_keys($this->instances);
+			$this->termID         = $table->termID;
+			$this->unitIDs        = $this->getUnitIDs($this->instanceIDs);
 
 			return true;
 		}
@@ -335,12 +335,12 @@ class Schedule extends BaseModel
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
-		$departmentID = $reference->departmentID;
-		$rInstances   = json_decode($reference->schedule, true);
-		$termID       = $reference->termID;
+		$organizationID = $reference->organizationID;
+		$rInstances     = json_decode($reference->schedule, true);
+		$termID         = $reference->termID;
 		unset($reference);
 
-		$activeID = Helpers\Schedules::getActiveID($departmentID, $termID);
+		$activeID = Helpers\Schedules::getActiveID($organizationID, $termID);
 		$active   = new SchedulesTable;
 		if (!$active->load($activeID))
 		{
@@ -563,7 +563,7 @@ class Schedule extends BaseModel
 		$query = $dbo->getQuery(true);
 		$query->update('#__organizer_units')
 			->set("delta = 'removed'")
-			->where("departmentID = {$this->departmentID}")
+			->where("organizationID = {$this->organizationID}")
 			->where("termID = {$this->termID}")
 			->where('id NOT IN (' . implode(',', $this->unitIDs) . ')')
 			->where("delta != 'removed'");
@@ -604,7 +604,7 @@ class Schedule extends BaseModel
 		{
 			$this->setActive();
 			$this->setRemoved();
-			$this->authorizedDeactivate(0, $table->departmentID, $table->termID);
+			$this->authorizedDeactivate(0, $table->organizationID, $table->termID);
 			$table->set('active', 1);
 			$table->store();
 
@@ -624,15 +624,15 @@ class Schedule extends BaseModel
 	 */
 	public function upload($notify = false)
 	{
-		$departmentID = Helpers\Input::getInt('departmentID');
-		$invalidForm  = (empty($departmentID));
+		$organizationID = Helpers\Input::getInt('organizationID');
+		$invalidForm    = (empty($organizationID));
 
 		if ($invalidForm)
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
 		}
 
-		if (!Helpers\Can::schedule('schedule', $departmentID))
+		if (!Helpers\Can::schedule('schedule', $organizationID))
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
@@ -645,16 +645,16 @@ class Schedule extends BaseModel
 			return false;
 		}
 
-		$this->authorizedDeactivate(0, $departmentID, $validator->termID);
+		$this->authorizedDeactivate(0, $organizationID, $validator->termID);
 
 		$data = [
-			'active'       => 1,
-			'creationDate' => $validator->creationDate,
-			'creationTime' => $validator->creationTime,
-			'departmentID' => $departmentID,
-			'schedule'     => json_encode($validator->instances),
-			'termID'       => $validator->termID,
-			'userID'       => Factory::getUser()->id
+			'active'         => 1,
+			'creationDate'   => $validator->creationDate,
+			'creationTime'   => $validator->creationTime,
+			'organizationID' => $organizationID,
+			'schedule'       => json_encode($validator->instances),
+			'termID'         => $validator->termID,
+			'userID'         => Factory::getUser()->id
 		];
 
 		$newTable = new SchedulesTable;

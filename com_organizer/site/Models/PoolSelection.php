@@ -34,7 +34,7 @@ class PoolSelection extends ListModel
 			->from('#__organizer_pools AS p');
 
 		$authorizedDepts = Can::documentTheseOrganizations();
-		$query->where('(p.departmentID IN (' . implode(',', $authorizedDepts) . ') OR p.departmentID IS NULL)');
+		$query->where('(p.organizationID IN (' . implode(',', $authorizedDepts) . ') OR p.organizationID IS NULL)');
 
 		$searchColumns = [
 			'p.name_de',
@@ -47,7 +47,7 @@ class PoolSelection extends ListModel
 			'p.description_en'
 		];
 		$this->setSearchFilter($query, $searchColumns);
-		$this->setValueFilters($query, ['departmentID', 'fieldID']);
+		$this->setValueFilters($query, ['organizationID', 'fieldID']);
 
 		$programID = $this->state->get('filter.programID', '');
 		Mappings::setResourceIDFilter($query, $programID, 'program', 'pool');

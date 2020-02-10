@@ -332,7 +332,7 @@ class RoomOverview extends TableView
 				$tip .= "{$instance['comment']}<br>";
 			}
 
-			$index = "$times {$instance['departmentID']} {$instance['name']} {$instance['method']}";
+			$index = "$times {$instance['organizationID']} {$instance['name']} {$instance['method']}";
 
 			$tip          .= '</div>';
 			$tips[$index] = $tip;

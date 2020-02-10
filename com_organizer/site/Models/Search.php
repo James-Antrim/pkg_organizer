@@ -300,17 +300,17 @@ class Search extends BaseModel
 
 		if (!empty($results))
 		{
-			foreach ($results as $departmentID)
+			foreach ($results as $organizationID)
 			{
-				$departmentName = Helpers\Organizations::getName($departmentID);
+				$departmentName = Helpers\Organizations::getName($organizationID);
 
-				$departments[$departmentID]         = [];
-				$departments[$departmentID]['text'] = Languages::_('ORGANIZER_ORGANIZATION') . ": {$departmentName}";
+				$departments[$organizationID]         = [];
+				$departments[$organizationID]['text'] = Languages::_('ORGANIZER_ORGANIZATION') . ": {$departmentName}";
 
-				$links['schedule']   = "?option=com_organizer&view=schedule_item&departmentIDs=$departmentID";
-				$links['event_list'] = "?option=com_organizer&view=event_list&departmentIDs=$departmentID";
+				$links['schedule']   = "?option=com_organizer&view=schedule_item&organizationIDs=$organizationID";
+				$links['event_list'] = "?option=com_organizer&view=event_list&organizationIDs=$organizationID";
 
-				$departments[$departmentID]['links'] = $links;
+				$departments[$organizationID]['links'] = $links;
 			}
 		}
 
@@ -690,10 +690,10 @@ class Search extends BaseModel
 		}
 
 		$query = $this->_db->getQuery(true);
-		$query->select('cat.id AS categoryID, d.id AS departmentID')
+		$query->select('cat.id AS categoryID, d.id AS organizationID')
 			->from('#__organizer_categories AS cat')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.ID')
-			->innerJoin('#__organizer_departments AS d ON d.id = a.departmentID');
+			->innerJoin('#__organizer_departments AS d ON d.id = a.organizationID');
 
 		// Exact
 		$this->addInclusiveConditions($query, $eWherray);
@@ -705,14 +705,14 @@ class Search extends BaseModel
 			return;
 		}
 
-		$departmentIDs = [];
+		$organizationIDs = [];
 
 		foreach ($associations as $association)
 		{
-			$departmentIDs[$association['departmentID']] = $association['departmentID'];
+			$organizationIDs[$association['organizationID']] = $association['organizationID'];
 		}
 
-		$this->results['exact']['departments'] = $this->processDepartments($departmentIDs);
+		$this->results['exact']['departments'] = $this->processDepartments($organizationIDs);
 
 		$programs                             = [];
 		$this->results['related']['programs'] = $this->processPrograms($programs, $associations);
@@ -724,14 +724,14 @@ class Search extends BaseModel
 		$query->select('DISTINCT d.id');
 		$this->addInclusiveConditions($query, $sWherray);
 		$this->_db->setQuery($query);
-		$departmentIDs = OrganizerHelper::executeQuery('loadColumn', []);
+		$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
 
-		if (empty($departmentIDs))
+		if (empty($organizationIDs))
 		{
 			return;
 		}
 
-		$this->results['strong']['departments'] = $this->processDepartments($departmentIDs);
+		$this->results['strong']['departments'] = $this->processDepartments($organizationIDs);
 	}
 
 	/**

@@ -55,7 +55,7 @@ class Units extends ListModel
 			->group('u.id');
 
 		$this->setSearchFilter($query, ['ev.name_de', 'ev.name_en']);
-		$this->setValueFilters($query, ['u.departmentID', 'u.termID', 'u.gridID', 'u.runID']);
+		$this->setValueFilters($query, ['u.organizationID', 'u.termID', 'u.gridID', 'u.runID']);
 		$this->setDateStatusFilter($query, 'status', 'sq.start', 'sq.end');
 
 		return $query;

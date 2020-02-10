@@ -203,7 +203,7 @@ class EventList extends FormModel
 				$aggregatedEvents[$times][$lessonID]['persons']
 					= array_unique(array_merge($aggregatedEvents[$times][$lessonID]['persons'], $event['persons']));
 			}
-			$aggregatedEvents[$times][$lessonID]['departments'][$event['departmentID']] = $event['department'];
+			$aggregatedEvents[$times][$lessonID]['departments'][$event['organizationID']] = $event['department'];
 		}
 
 		ksort($aggregatedEvents);
@@ -395,7 +395,7 @@ class EventList extends FormModel
 		$query = $this->_db->getQuery(true);
 
 		$select = 'DISTINCT conf.id, conf.configuration, cal.startTime, cal.endTime, cal.schedule_date, ';
-		$select .= "d.shortName_$tag AS department, d.id AS departmentID, ";
+		$select .= "d.shortName_$tag AS department, d.id AS organizationID, ";
 		$select .= "l.id as lessonID, l.comment, m.abbreviation_$tag AS method, ";
 		$select .= "co.name AS courseName, s.name_$tag AS sName";
 		$query->select($select)
@@ -403,7 +403,7 @@ class EventList extends FormModel
 			->innerJoin('#__organizer_calendar_configuration_map AS ccm ON ccm.calendarID = cal.id')
 			->innerJoin('#__organizer_lesson_configurations AS conf ON conf.id = ccm.configurationID')
 			->innerJoin('#__organizer_lessons AS l ON l.id = cal.lessonID')
-			->innerJoin('#__organizer_departments AS d ON d.id = l.departmentID')
+			->innerJoin('#__organizer_departments AS d ON d.id = l.organizationID')
 			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.lessonID = l.id')
 			->innerJoin('#__organizer_courses AS co ON co.id = lcrs.courseID')
 			->innerJoin('#__organizer_lesson_groups AS lg ON lg.lessonCourseID = lcrs.id')

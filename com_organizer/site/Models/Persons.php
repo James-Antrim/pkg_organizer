@@ -19,7 +19,7 @@ class Persons extends ListModel
 {
 	protected $defaultOrdering = 'p.surname, p.forename';
 
-	protected $filter_fields = ['departmentID'];
+	protected $filter_fields = ['organizationID'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -29,7 +29,7 @@ class Persons extends ListModel
 	protected function getListQuery()
 	{
 		$query  = $this->_db->getQuery(true);
-		$select = 'DISTINCT p.id, surname, forename, username, untisID, d.id AS departmentID, ';
+		$select = 'DISTINCT p.id, surname, forename, username, untisID, d.id AS organizationID, ';
 		$parts  = ["'index.php?option=com_organizer&view=person_edit&id='", 'p.id'];
 		$select .= $query->concatenate($parts, '') . ' AS link ';
 		$query->select($select);
@@ -38,7 +38,7 @@ class Persons extends ListModel
 			->leftJoin('#__organizer_departments AS d ON d.id = a.id');
 
 		$this->setSearchFilter($query, ['surname', 'forename', 'username', 'untisID']);
-		$this->setIDFilter($query, 'departmentID', 'list.departmentID');
+		$this->setIDFilter($query, 'organizationID', 'list.organizationID');
 		$this->setValueFilters($query, ['forename', 'username', 'untisID']);
 
 		$this->setOrdering($query);

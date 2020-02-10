@@ -13,7 +13,7 @@ jQuery(document).ready(function () {
  * @param {string} variables.auth - token to authenticate user
  * @param {string} variables.dateFormat - configured format of date for this website (e.g. d.m.Y)
  * @param {string} variables.defaultGrid - JSON which contains the default schedule grid
- * @param {number} variables.departmentID - ID of selected department
+ * @param {number} variables.organizationID - ID of selected department
  * @param {string} variables.delta - amount of days deleted/moved events should get displayed
  * @param {string} variables.displayName - indicates whether name of page should be displayed
  * @param {string} variables.exportBase - basic url for exporting schedules
@@ -2341,7 +2341,7 @@ const ScheduleApp = function (variables) {
         }
 
         /**
-         * Reloads the next visible and flexible field of the form (for updating departmentID)
+         * Reloads the next visible and flexible field of the form (for updating organizationID)
          */
         function updateNextVisibleField()
         {
@@ -2449,7 +2449,7 @@ const ScheduleApp = function (variables) {
      */
     function getAjaxUrl()
     {
-        return variables.ajaxBase + variables.departmentID || getSelectedValues('department') || 0;
+        return variables.ajaxBase + variables.organizationID || getSelectedValues('department') || 0;
     }
 
     /**

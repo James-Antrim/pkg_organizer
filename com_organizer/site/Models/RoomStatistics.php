@@ -170,9 +170,9 @@ class RoomStatistics extends BaseModel
 	public function getDepartmentOptions()
 	{
 		$options = [];
-		foreach (Organizations::getOptions(false) as $departmentID => $departmentName)
+		foreach (Organizations::getOptions(false) as $organizationID => $departmentName)
 		{
-			$options[$departmentID] = $departmentName;
+			$options[$organizationID] = $departmentName;
 		}
 
 		return $options;
@@ -441,9 +441,9 @@ class RoomStatistics extends BaseModel
 		$query->leftJoin('#__organizer_degrees AS dg ON dg.id = prog.degreeID');
 
 		// Department Data
-		$select .= "d.id AS departmentID, d.shortName_$tag AS department, d.name_$tag AS departmentName";
+		$select .= "d.id AS organizationID, d.shortName_$tag AS department, d.name_$tag AS departmentName";
 		$query->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
-		$query->innerJoin('#__organizer_departments AS d ON d.id = a.departmentID');
+		$query->innerJoin('#__organizer_departments AS d ON d.id = a.organizationID');
 
 		$query->select($select);
 		$query->where("lg.delta != 'removed'");

@@ -21,12 +21,12 @@ class PoolLSF extends BaseModel
 	/**
 	 * Creates a pool entry if none exists and calls
 	 *
-	 * @param   object &$stub          a SimpleXML object containing rudimentary subject data
-	 * @param   int     $departmentID  the id of the department to which this data belongs
+	 * @param   object &$stub            a SimpleXML object containing rudimentary subject data
+	 * @param   int     $organizationID  the id of the department to which this data belongs
 	 *
 	 * @return mixed  int value of subject id on success, otherwise false
 	 */
-	public function processStub(&$stub, $departmentID)
+	public function processStub(&$stub, $organizationID)
 	{
 		if (empty($stub->pordid) and empty($stub->modulid))
 		{
@@ -48,8 +48,8 @@ class PoolLSF extends BaseModel
 			return $poolModel->deleteSingle($pool->id);
 		}
 
-		$pool->departmentID = $departmentID;
-		$pool->lsfID        = $lsfID;
+		$pool->organizationID = $organizationID;
+		$pool->lsfID          = $lsfID;
 		$this->setAttribute($pool, 'abbreviation_de', (string) $stub->kuerzel);
 		$this->setAttribute($pool, 'abbreviation_en', (string) $stub->kuerzelen, $pool->abbreviation_de);
 		$this->setAttribute($pool, 'shortName_de', (string) $stub->kurzname);
@@ -62,7 +62,7 @@ class PoolLSF extends BaseModel
 			return false;
 		}
 
-		return $this->processChildren($stub, $departmentID);
+		return $this->processChildren($stub, $organizationID);
 	}
 
 	/**
@@ -92,12 +92,12 @@ class PoolLSF extends BaseModel
 	/**
 	 * Processes the children of the stub element
 	 *
-	 * @param   object &$stub          the pool element
-	 * @param   int     $departmentID  the id of the department to which this data belongs
+	 * @param   object &$stub            the pool element
+	 * @param   int     $organizationID  the id of the department to which this data belongs
 	 *
 	 * @return boolean true on success, otherwise false
 	 */
-	private function processChildren(&$stub, $departmentID)
+	private function processChildren(&$stub, $organizationID)
 	{
 		$lsfSubjectModel = new SubjectLSF;
 
@@ -108,11 +108,11 @@ class PoolLSF extends BaseModel
 
 			if ($type == 'subject')
 			{
-				$success = $lsfSubjectModel->processStub($subStub, $departmentID);
+				$success = $lsfSubjectModel->processStub($subStub, $organizationID);
 			}
 			elseif ($type == 'pool')
 			{
-				$success = $this->processStub($subStub, $departmentID);
+				$success = $this->processStub($subStub, $organizationID);
 			}
 
 			// Malformed xml, invalid/incomplete data, database errors

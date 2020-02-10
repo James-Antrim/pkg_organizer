@@ -61,7 +61,7 @@ class Events extends ResourceHelper
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('departmentID')
+		$query->select('organizationID')
 			->from('#__organizer_events')
 			->where("eventID = $resourceID");
 		$dbo->setQuery($query);

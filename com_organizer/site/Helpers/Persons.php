@@ -195,13 +195,13 @@ class Persons extends ResourceHelper implements Associated, Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('departmentID')
+		$query->select('organizationID')
 			->from('#__organizer_associations')
 			->where("personID = $resourceID");
 		$dbo->setQuery($query);
-		$departmentIDs = OrganizerHelper::executeQuery('loadColumn', []);
+		$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
 
-		return empty($departmentIDs) ? [] : $departmentIDs;
+		return empty($organizationIDs) ? [] : $organizationIDs;
 	}
 
 	/**
@@ -219,7 +219,7 @@ class Persons extends ResourceHelper implements Associated, Selectable
 
 		$query->select("d.shortName_$tag AS name")
 			->from('#__organizer_departments AS d')
-			->innerJoin('#__organizer_associations AS a ON a.departmentID = d.id')
+			->innerJoin('#__organizer_associations AS a ON a.organizationID = d.id')
 			->where("personID = $personID");
 		$dbo->setQuery($query);
 		$departments = OrganizerHelper::executeQuery('loadColumn', []);
@@ -315,19 +315,19 @@ class Persons extends ResourceHelper implements Associated, Selectable
 			return [];
 		}
 
-		$departmentIDs = Input::getFilterIDs('department');
-		$thisPersonID  = self::getIDByUserID();
-		if (empty($departmentIDs) and empty($thisPersonID))
+		$organizationIDs = Input::getFilterIDs('department');
+		$thisPersonID    = self::getIDByUserID();
+		if (empty($organizationIDs) and empty($thisPersonID))
 		{
 			return [];
 		}
 
-		foreach ($departmentIDs as $key => $departmentID)
+		foreach ($organizationIDs as $key => $organizationID)
 		{
-			$departmentAccess = Can::view('department', $departmentID);
+			$departmentAccess = Can::view('department', $organizationID);
 			if (!$departmentAccess)
 			{
-				unset($departmentIDs[$key]);
+				unset($organizationIDs[$key]);
 			}
 		}
 
@@ -346,11 +346,11 @@ class Persons extends ResourceHelper implements Associated, Selectable
 			$wherray[] = "p.username = '{$user->username}'";
 		}
 
-		if (count($departmentIDs))
+		if (count($organizationIDs))
 		{
 			$query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
 
-			$where = 'a.departmentID IN (' . implode(',', $departmentIDs) . ')';
+			$where = 'a.organizationID IN (' . implode(',', $organizationIDs) . ')';
 
 			$selectedCategories = Input::getFilterIDs('category');
 

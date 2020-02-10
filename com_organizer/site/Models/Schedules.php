@@ -23,7 +23,7 @@ class Schedules extends ListModel
 
 	protected $defaultDirection = 'DESC';
 
-	protected $filter_fields = ['active', 'departmentID', 'termID'];
+	protected $filter_fields = ['active', 'organizationID', 'termID'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -39,18 +39,18 @@ class Schedules extends ListModel
 		$createdParts = ['s.creationDate', 's.creationTime'];
 		$query->select('s.id, s.active, s.creationDate, s.creationTime')
 			->select($query->concatenate($createdParts, ' ') . ' AS created ')
-			->select("d.id AS departmentID, d.shortName_$tag AS departmentName")
+			->select("d.id AS organizationID, d.shortName_$tag AS departmentName")
 			->select("term.id AS termID, term.name_$tag AS termName")
 			->select('u.name AS userName')
 			->from('#__organizer_schedules AS s')
-			->innerJoin('#__organizer_departments AS d ON d.id = s.departmentID')
+			->innerJoin('#__organizer_departments AS d ON d.id = s.organizationID')
 			->innerJoin('#__organizer_terms AS term ON term.id = s.termID')
 			->leftJoin('#__users AS u ON u.id = s.userID');
 
 		$authorizedDepartments = implode(', ', Can::scheduleTheseOrganizations());
 		$query->where("d.id IN ($authorizedDepartments)");
 
-		$this->setValueFilters($query, ['departmentID', 'termID', 'active']);
+		$this->setValueFilters($query, ['organizationID', 'termID', 'active']);
 
 		$this->setOrdering($query);
 

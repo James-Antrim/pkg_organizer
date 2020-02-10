@@ -35,18 +35,18 @@ class ScheduleItem extends BaseModel
 	{
 		parent::__construct($config);
 
-		$params       = Input::getParams();
-		$departmentID = Input::getFilterID('department');
+		$params         = Input::getParams();
+		$organizationID = Input::getFilterID('department');
 
 		$this->params                   = [];
-		$this->params['departmentID']   = $departmentID;
+		$this->params['organizationID'] = $organizationID;
 		$this->params['showCategories'] = Input::getInt('showCategories', $params->get('showCategories', 1));
 		$this->params['showGroups']     = Input::getInt('showGroups', $params->get('showGroups', 1));
 		$this->params['showRooms']      = Input::getInt('showRooms', $params->get('showRooms', 1));
 		$this->params['showRoomtypes']  = Input::getInt('showRoomtypes', $params->get('showRoomtypes', 1));
 
 		$showPersonsParam            = Input::getInt('showPersons', $params->get('showPersons', 1));
-		$privilegedAccess            = Helpers\Can::view('department', $departmentID);
+		$privilegedAccess            = Helpers\Can::view('department', $organizationID);
 		$personEntryExists           = Helpers\Persons::getIDByUserID();
 		$showPersons                 = (($privilegedAccess or $personEntryExists) and $showPersonsParam);
 		$this->params['showPersons'] = $showPersons;
@@ -54,11 +54,11 @@ class ScheduleItem extends BaseModel
 		$this->params['delta'] = Input::getInt('delta', $params->get('delta', 5));
 
 		$defaultEnabled                  = Input::getInt('showDepartments', $params->get('showDepartments', 1));
-		$this->params['showDepartments'] = $departmentID ? 0 : $defaultEnabled;
+		$this->params['showDepartments'] = $organizationID ? 0 : $defaultEnabled;
 
 		// Default title: menu > department
 		$displayName                 = ($params->get('show_page_heading') and $params->get('page_heading')) ?
-			$params->get('page_heading') : Helpers\Organizations::getName($this->params['departmentID']);
+			$params->get('page_heading') : Helpers\Organizations::getName($this->params['organizationID']);
 		$this->displayName           = $displayName;
 		$this->params['displayName'] = $displayName;
 

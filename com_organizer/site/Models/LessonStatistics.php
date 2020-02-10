@@ -39,9 +39,9 @@ class LessonStatistics extends FormModel
 		$this->tag = Languages::getTag();
 
 		$this->populateState();
-		$categoryID   = $this->state->get('categoryID');
-		$departmentID = $this->state->get('departmentID');
-		$periodID     = $this->state->get('termID');
+		$categoryID     = $this->state->get('categoryID');
+		$organizationID = $this->state->get('organizationID');
+		$periodID       = $this->state->get('termID');
 
 		$this->query = $this->_db->getQuery(true);
 		$this->setBaseQuery();
@@ -55,7 +55,7 @@ class LessonStatistics extends FormModel
 			$this->rows = $this->getMethods();
 		}
 
-		if (empty($departmentID) and empty($categoryID))
+		if (empty($organizationID) and empty($categoryID))
 		{
 			$this->columns = $this->getDepartments();
 		}
@@ -78,10 +78,10 @@ class LessonStatistics extends FormModel
 	 */
 	private function addDepartmentRestriction()
 	{
-		$departmentID = $this->state->get('departmentID');
-		if (!empty($departmentID))
+		$organizationID = $this->state->get('organizationID');
+		if (!empty($organizationID))
 		{
-			$this->query->where("l.departmentID = '$departmentID'");
+			$this->query->where("l.organizationID = '$organizationID'");
 		}
 	}
 
@@ -304,19 +304,19 @@ class LessonStatistics extends FormModel
 	{
 		parent::populateState();
 
-		$categoryID   = 0;
-		$departmentID = 0;
-		$termID       = Terms::getCurrentID();
+		$categoryID     = 0;
+		$organizationID = 0;
+		$termID         = Terms::getCurrentID();
 
 		if (Input::getFormItems()->count())
 		{
-			$categoryID   = Input::getInt('categoryID');
-			$departmentID = Input::getInt('departmentID');
-			$termID       = Input::getInt('termID', $termID);
+			$categoryID     = Input::getInt('categoryID');
+			$organizationID = Input::getInt('organizationID');
+			$termID         = Input::getInt('termID', $termID);
 		}
 
 		$this->setState('categoryID', $categoryID);
-		$this->setState('departmentID', $departmentID);
+		$this->setState('organizationID', $organizationID);
 		$this->setState('termID', $termID);
 	}
 
@@ -341,7 +341,7 @@ class LessonStatistics extends FormModel
 	{
 		$this->query->from('#__organizer_lessons AS l')
 			->innerJoin('#__organizer_terms AS term ON term.id = l.termID')
-			->innerJoin('#__organizer_departments AS dpt ON dpt.id = l.departmentID')
+			->innerJoin('#__organizer_departments AS dpt ON dpt.id = l.organizationID')
 			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.lessonID = l.id')
 			->innerJoin('#__organizer_lesson_groups AS lg ON lg.lessonCourseID = lcrs.id')
 			->innerJoin('#__organizer_groups AS group ON group.id = lg.groupID')
@@ -356,10 +356,10 @@ class LessonStatistics extends FormModel
 	 */
 	private function setLessonCounts()
 	{
-		$categoryID   = $this->state->get('categoryID');
-		$departmentID = $this->state->get('departmentID');
-		$termID       = $this->state->get('termID');
-		$lessonCounts = [];
+		$categoryID     = $this->state->get('categoryID');
+		$organizationID = $this->state->get('organizationID');
+		$termID         = $this->state->get('termID');
+		$lessonCounts   = [];
 		foreach (array_keys($this->rows) as $rowID)
 		{
 			$lessons[$rowID] = [];
@@ -370,13 +370,13 @@ class LessonStatistics extends FormModel
 					->where("l.delta != 'removed'");
 
 				// Define column column
-				if (empty($departmentID))
+				if (empty($organizationID))
 				{
 					$column = empty($categoryID) ? 'dpt' : 'group';
 				}
 				else
 				{
-					$this->query->where("l.departmentID = '$departmentID'");
+					$this->query->where("l.organizationID = '$organizationID'");
 					$column = empty($categoryID) ? 'cat' : 'group';
 				}
 				$this->query->where("$column.id = '$columnID'");

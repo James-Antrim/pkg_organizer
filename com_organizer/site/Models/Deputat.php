@@ -455,11 +455,11 @@ class Deputat extends BaseModel
 	 */
 	private function setObjectProperties()
 	{
-		$this->params = Input::getParams();
-		$departmentID = $this->params->get('departmentID', 0);
-		if (!empty($departmentID))
+		$this->params   = Input::getParams();
+		$organizationID = $this->params->get('organizationID', 0);
+		if (!empty($organizationID))
 		{
-			$this->setDepartmentName($departmentID);
+			$this->setDepartmentName($organizationID);
 		}
 
 		$this->reset                  = Input::getBool('reset', false);
@@ -475,17 +475,17 @@ class Deputat extends BaseModel
 	/**
 	 * Resolves the department id to its name
 	 *
-	 * @param   int  $departmentID  the id of the department
+	 * @param   int  $organizationID  the id of the department
 	 *
 	 * @return void  sets the object variable $departmentName on success
 	 */
-	private function setDepartmentName($departmentID)
+	private function setDepartmentName($organizationID)
 	{
 		$tag = Languages::getTag();
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select("shortName_$tag")->from('#__organizer_departments')->where("id = '$departmentID'");
+		$query->select("shortName_$tag")->from('#__organizer_departments')->where("id = '$organizationID'");
 		$dbo->setQuery($query);
 
 		$departmentName = OrganizerHelper::executeQuery('loadResult');

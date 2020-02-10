@@ -101,7 +101,7 @@ function repopulateRooms()
 {
     'use strict';
 
-    var selectedDepartments = $('#departmentIDs').val(),
+    var selectedDepartments = $('#organizationIDs').val(),
         selectedCategories = $('#categoryIDs').val(),
         selectedRoomTypes = $('#roomtypeIDs').val(),
         validDepartments, validCategories, validRoomTypes,
@@ -115,7 +115,7 @@ function repopulateRooms()
 
     if (validDepartments)
     {
-        componentParameters += '&departmentIDs=' + selectedDepartments;
+        componentParameters += '&organizationIDs=' + selectedDepartments;
     }
 
     if (validCategories)
@@ -151,7 +151,7 @@ function repopulateCategories()
 {
     'use strict';
 
-    var componentParameters, selectedDepartments = $('#departmentIDs').val(), allIndex, selectionParameters;
+    var componentParameters, selectedDepartments = $('#organizationIDs').val(), allIndex, selectionParameters;
     componentParameters = '/index.php?option=com_organizer&view=category_options&format=json';
 
     if (selectedDepartments == null)
@@ -159,7 +159,7 @@ function repopulateCategories()
         return;
     }
 
-    selectionParameters = '&departmentIDs=' + selectedDepartments;
+    selectionParameters = '&organizationIDs=' + selectedDepartments;
 
     $.ajax({
         type: 'GET',

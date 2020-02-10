@@ -269,18 +269,18 @@ abstract class MergeModel extends BaseModel
 	private function updateDepartments()
 	{
 		$existingQuery = $this->_db->getQuery(true);
-		$existingQuery->select('DISTINCT departmentID');
+		$existingQuery->select('DISTINCT organizationID');
 		$existingQuery->from('#__organizer_associations');
 		$existingQuery->where("{$this->deptResource} = '{$this->data['id']}'");
 		$this->_db->setQuery($existingQuery);
 		$existing = OrganizerHelper::executeQuery('loadColumn', []);
 
-		if ($deprecated = array_diff($existing, $this->data['departmentID']))
+		if ($deprecated = array_diff($existing, $this->data['organizationID']))
 		{
 			$deletionQuery = $this->_db->getQuery(true);
 			$deletionQuery->delete('#__organizer_associations');
 			$deletionQuery->where("{$this->deptResource} = '{$this->data['id']}'");
-			$deletionQuery->where("departmentID IN ('" . implode("','", $deprecated) . "')");
+			$deletionQuery->where("organizationID IN ('" . implode("','", $deprecated) . "')");
 			$this->_db->setQuery($deletionQuery);
 
 			$deleted = (bool) OrganizerHelper::executeQuery('execute', false, null, true);
@@ -290,13 +290,13 @@ abstract class MergeModel extends BaseModel
 			}
 		}
 
-		$new = array_diff($this->data['departmentID'], $existing);
+		$new = array_diff($this->data['organizationID'], $existing);
 
 		if (!empty($new))
 		{
 			$insertQuery = $this->_db->getQuery(true);
 			$insertQuery->insert('#__organizer_associations');
-			$insertQuery->columns("departmentID, {$this->deptResource}");
+			$insertQuery->columns("organizationID, {$this->deptResource}");
 
 			foreach ($new as $newID)
 			{
@@ -324,7 +324,7 @@ abstract class MergeModel extends BaseModel
 		$relevantIDs = "'" . implode("', '", $this->selected) . "'";
 
 		$departmentQuery = $this->_db->getQuery(true);
-		$departmentQuery->select('DISTINCT departmentID');
+		$departmentQuery->select('DISTINCT organizationID');
 		$departmentQuery->from('#__organizer_associations');
 		$departmentQuery->where("{$this->deptResource} IN ( $relevantIDs )");
 		$this->_db->setQuery($departmentQuery);
@@ -349,7 +349,7 @@ abstract class MergeModel extends BaseModel
 		$mergeID     = reset($this->selected);
 		$insertQuery = $this->_db->getQuery(true);
 		$insertQuery->insert('#__organizer_associations');
-		$insertQuery->columns("departmentID, {$this->fkColumn}");
+		$insertQuery->columns("organizationID, {$this->fkColumn}");
 
 		foreach ($deptIDs as $deptID)
 		{

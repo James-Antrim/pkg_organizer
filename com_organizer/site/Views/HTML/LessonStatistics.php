@@ -41,7 +41,7 @@ class LessonStatistics extends BaseHTMLView
 		$this->state = $this->get('State');
 		$this->form  = $this->get('Form');
 		$this->form->setValue('termID', null, $this->state->get('termID'));
-		$this->form->setValue('departmentID', null, $this->state->get('departmentID'));
+		$this->form->setValue('organizationID', null, $this->state->get('organizationID'));
 		$this->form->setValue('categoryID', null, $this->state->get('categoryID'));
 
 		$model         = $this->getModel();

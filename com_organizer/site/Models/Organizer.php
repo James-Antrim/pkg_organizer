@@ -250,7 +250,7 @@ class Organizer extends BaseModel
 
 		unset($schedule['creationDate']);
 		unset($schedule['creationTime']);
-		unset($schedule['departmentID']);
+		unset($schedule['organizationID']);
 		unset($schedule['endDate']);
 		unset($schedule['referenceID']);
 		unset($schedule['startDate']);
@@ -264,7 +264,7 @@ class Organizer extends BaseModel
 
 		$termStart = $term['startDate'];
 		$termEnd   = $term['endDate'];
-		$unit      = ['departmentID' => $schedules->departmentID, 'termID' => $termID];
+		$unit      = ['organizationID' => $schedules->organizationID, 'termID' => $termID];
 
 		foreach ($schedule['calendar'] as $date => $times)
 		{

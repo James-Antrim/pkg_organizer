@@ -11,6 +11,6 @@
                textcolumn="name" valuecolumn="id">
             <option value="">NO_FIELD</option>
         </field>
-        <field name="departmentID" type="Departments" label="ORGANIZATIONS" multiple="multiple" required="true"/>
+        <field name="organizationID" type="Departments" label="ORGANIZATIONS" multiple="multiple" required="true"/>
     </fieldset>
 </form>
