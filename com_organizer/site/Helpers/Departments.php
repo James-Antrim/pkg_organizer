@@ -49,10 +49,10 @@ class Departments extends ResourceHelper implements Selectable
 				$allowedIDs = Can::manageTheseOrganizations();
 				break;
 			case 'schedule':
-				$query->innerJoin('#__organizer_associations AS dpr ON dpr.departmentID = depts.id');
+				$query->innerJoin('#__organizer_associations AS a ON a.departmentID = depts.id');
 				if (in_array($resource, ['category', 'person']))
 				{
-					$query->where("dpr.{$resource}ID IS NOT NULL");
+					$query->where("a.{$resource}ID IS NOT NULL");
 				}
 				$allowedIDs = Can::scheduleTheseDepartments();
 				break;
