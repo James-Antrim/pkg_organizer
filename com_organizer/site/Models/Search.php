@@ -692,8 +692,8 @@ class Search extends BaseModel
 		$query = $this->_db->getQuery(true);
 		$query->select('cat.id AS categoryID, d.id AS departmentID')
 			->from('#__organizer_categories AS cat')
-			->innerJoin('#__organizer_department_resources AS dr ON dr.categoryID = cat.ID')
-			->innerJoin('#__organizer_departments AS d ON d.id = dr.departmentID');
+			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.ID')
+			->innerJoin('#__organizer_departments AS d ON d.id = a.departmentID');
 
 		// Exact
 		$this->addInclusiveConditions($query, $eWherray);

@@ -30,9 +30,9 @@ class Groups extends ResourceHelper implements Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT dr.id')
-			->from('#__organizer_department_resources AS dr')
-			->innerJoin('#__organizer_groups AS gr ON gr.categoryID = dr.categoryID')
+		$query->select('DISTINCT a.id')
+			->from('#__organizer_associations AS a')
+			->innerJoin('#__organizer_groups AS gr ON gr.categoryID = a.categoryID')
 			->where("gr.id  = $resourceID");
 		$dbo->setQuery($query);
 
@@ -83,8 +83,8 @@ class Groups extends ResourceHelper implements Selectable
 
 		if (!empty($access))
 		{
-			$query->innerJoin('#__organizer_department_resources AS dr ON dr.categoryID = gr.categoryID');
-			self::addAccessFilter($query, 'dr', $access);
+			$query->innerJoin('#__organizer_associations AS a ON a.categoryID = gr.categoryID');
+			self::addAccessFilter($query, 'a', $access);
 		}
 
 		self::addDeptSelectionFilter($query, 'category', 'gr', 'categoryID');

@@ -49,7 +49,7 @@ class Departments extends ResourceHelper implements Selectable
 				$allowedIDs = Can::manageTheseOrganizations();
 				break;
 			case 'schedule':
-				$query->innerJoin('#__organizer_department_resources AS dpr ON dpr.departmentID = depts.id');
+				$query->innerJoin('#__organizer_associations AS dpr ON dpr.departmentID = depts.id');
 				if (in_array($resource, ['category', 'person']))
 				{
 					$query->where("dpr.{$resource}ID IS NOT NULL");
@@ -80,7 +80,7 @@ class Departments extends ResourceHelper implements Selectable
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 		$query->select('DISTINCT departmentID')
-			->from('#__organizer_department_resources');
+			->from('#__organizer_associations');
 		if (!empty($resourceIDs) and is_array($resourceIDs))
 		{
 			$resourceIDs = "'" . implode("', '", ArrayHelper::toInteger($resourceIDs)) . "'";

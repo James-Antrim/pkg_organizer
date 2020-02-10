@@ -196,7 +196,7 @@ class Persons extends ResourceHelper implements DepartmentAssociated, Selectable
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 		$query->select('departmentID')
-			->from('#__organizer_department_resources')
+			->from('#__organizer_associations')
 			->where("personID = $resourceID");
 		$dbo->setQuery($query);
 		$departmentIDs = OrganizerHelper::executeQuery('loadColumn', []);
@@ -219,7 +219,7 @@ class Persons extends ResourceHelper implements DepartmentAssociated, Selectable
 
 		$query->select("d.shortName_$tag AS name")
 			->from('#__organizer_departments AS d')
-			->innerJoin('#__organizer_department_resources AS dr ON dr.departmentID = d.id')
+			->innerJoin('#__organizer_associations AS a ON a.departmentID = d.id')
 			->where("personID = $personID");
 		$dbo->setQuery($query);
 		$departments = OrganizerHelper::executeQuery('loadColumn', []);
@@ -348,9 +348,9 @@ class Persons extends ResourceHelper implements DepartmentAssociated, Selectable
 
 		if (count($departmentIDs))
 		{
-			$query->innerJoin('#__organizer_department_resources AS dr ON dr.personID = p.id');
+			$query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
 
-			$where = 'dr.departmentID IN (' . implode(',', $departmentIDs) . ')';
+			$where = 'a.departmentID IN (' . implode(',', $departmentIDs) . ')';
 
 			$selectedCategories = Input::getFilterIDs('category');
 

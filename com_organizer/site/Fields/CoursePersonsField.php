@@ -69,8 +69,8 @@ class CoursePersonsField extends OptionsField
 		// Ensure relation to a department
 		$query->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
-			->innerJoin('#__organizer_department_resources AS dr ON dr.categoryID = g.categoryID')
-			->where("dr.departmentID = $departmentID");
+			->innerJoin('#__organizer_associations AS a ON a.categoryID = g.categoryID')
+			->where("a.departmentID = $departmentID");
 
 		// Ensure existence
 		$query->where("i.delta != 'removed'")

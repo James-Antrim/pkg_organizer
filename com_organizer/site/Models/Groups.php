@@ -33,14 +33,14 @@ class Groups extends ListModel
 
 		$query = $this->_db->getQuery(true);
 		$query->select('DISTINCT gr.id, gr.untisID, gr.fullName, gr.name, gr.categoryID, gr.gridID')
-			->select('dr.departmentID')
+			->select('a.departmentID')
 			->from('#__organizer_groups AS gr')
 			->innerJoin('#__organizer_categories AS cat ON cat.id = gr.categoryID')
-			->leftJoin('#__organizer_department_resources AS dr ON dr.categoryID = gr.categoryID')
-			->where('(dr.departmentID IN (' . implode(',', $authorizedDepts) . ') OR dr.departmentID IS NULL)');
+			->leftJoin('#__organizer_associations AS a ON a.categoryID = gr.categoryID')
+			->where('(a.departmentID IN (' . implode(',', $authorizedDepts) . ') OR a.departmentID IS NULL)');
 
 		$this->setSearchFilter($query, ['gr.fullName', 'gr.name', 'gr.untisID']);
-		$this->setValueFilters($query, ['gr.categoryID', 'dr.departmentID', 'gr.gridID']);
+		$this->setValueFilters($query, ['gr.categoryID', 'a.departmentID', 'gr.gridID']);
 
 		$this->setOrdering($query);
 

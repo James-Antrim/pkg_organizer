@@ -34,8 +34,8 @@ class Persons extends ListModel
 		$select .= $query->concatenate($parts, '') . ' AS link ';
 		$query->select($select);
 		$query->from('#__organizer_persons AS p')
-			->leftJoin('#__organizer_department_resources AS dr ON dr.personID = p.id')
-			->leftJoin('#__organizer_departments AS d ON d.id = dr.id');
+			->leftJoin('#__organizer_associations AS a ON a.personID = p.id')
+			->leftJoin('#__organizer_departments AS d ON d.id = a.id');
 
 		$this->setSearchFilter($query, ['surname', 'forename', 'username', 'untisID']);
 		$this->setIDFilter($query, 'departmentID', 'list.departmentID');

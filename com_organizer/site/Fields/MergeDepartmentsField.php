@@ -50,8 +50,8 @@ class MergeDepartmentsField extends OptionsField
 
 		$query->select("DISTINCT depts.id AS value, depts.$textColumn AS text")
 			->from("#__organizer_departments AS depts")
-			->innerJoin("#__organizer_department_resources AS dr ON dr.departmentID = depts.id")
-			->innerJoin("#__organizer_$table AS res ON res.id = dr.{$resource}ID")
+			->innerJoin("#__organizer_associations AS a ON a.departmentID = depts.id")
+			->innerJoin("#__organizer_$table AS res ON res.id = a.{$resource}ID")
 			->where("res.id IN ( '" . implode("', '", $selectedIDs) . "' )")
 			->order('text ASC');
 		$dbo->setQuery($query);

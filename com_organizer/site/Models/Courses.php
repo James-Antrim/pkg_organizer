@@ -84,7 +84,7 @@ class Courses extends ListModel
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
 			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
-			->innerJoin('#__organizer_department_resources AS dr ON dr.categoryID = g.categoryID')
+			->innerJoin('#__organizer_associations AS a ON a.categoryID = g.categoryID')
 			->where("u.delta != 'removed'")
 			->where("i.delta != 'removed'")
 			->group('c.id');
@@ -110,7 +110,7 @@ class Courses extends ListModel
 
 		if ($this->state->get('filter.departmentID'))
 		{
-			$this->setValueFilters($query, ['g.categoryID', 'dr.departmentID', 'ig.groupID', 'ip.personID']);
+			$this->setValueFilters($query, ['g.categoryID', 'a.departmentID', 'ig.groupID', 'ip.personID']);
 		}
 
 		$this->addCampusFilter($query, 'c');

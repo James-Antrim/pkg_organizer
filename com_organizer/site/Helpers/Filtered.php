@@ -91,7 +91,7 @@ trait Filtered
 			return;
 		}
 
-		$tableWithAlias = '#__organizer_department_resources AS drAlias';
+		$tableWithAlias = '#__organizer_associations AS drAlias';
 		if (in_array('-1', $departmentIDs))
 		{
 			$query->leftJoin("$tableWithAlias ON drAlias.{$resource}ID = $alias.$keyColumn")

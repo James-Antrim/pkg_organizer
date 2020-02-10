@@ -31,7 +31,7 @@ class Categories implements DepartmentAssociated, Selectable
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 		$query->select('departmentID')
-			->from('#__organizer_department_resources')
+			->from('#__organizer_associations')
 			->where("categoryID = $resourceID");
 		$dbo->setQuery($query);
 
@@ -146,8 +146,8 @@ class Categories implements DepartmentAssociated, Selectable
 
 		if (!empty($access))
 		{
-			$query->innerJoin('#__organizer_department_resources AS dr ON dr.categoryID = c.id');
-			self::addAccessFilter($query, 'dr', $access);
+			$query->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id');
+			self::addAccessFilter($query, 'a', $access);
 		}
 
 		self::addDeptSelectionFilter($query, 'category', 'c');

@@ -442,8 +442,8 @@ class RoomStatistics extends BaseModel
 
 		// Department Data
 		$select .= "d.id AS departmentID, d.shortName_$tag AS department, d.name_$tag AS departmentName";
-		$query->innerJoin('#__organizer_department_resources AS dr ON dr.categoryID = cat.id');
-		$query->innerJoin('#__organizer_departments AS d ON d.id = dr.departmentID');
+		$query->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
+		$query->innerJoin('#__organizer_departments AS d ON d.id = a.departmentID');
 
 		$query->select($select);
 		$query->where("lg.delta != 'removed'");

@@ -33,10 +33,10 @@ class Categories extends ListModel
 		$query = $this->_db->getQuery(true);
 		$query->select('DISTINCT cat.id, cat.untisID, cat.name')
 			->from('#__organizer_categories AS cat')
-			->innerJoin('#__organizer_department_resources AS dr ON dr.categoryID = cat.id');
+			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
 
 		$authorizedDepartments = implode(",", Can::scheduleTheseDepartments());
-		$query->where("dr.departmentID IN ($authorizedDepartments)");
+		$query->where("a.departmentID IN ($authorizedDepartments)");
 
 		$this->setSearchFilter($query, ['cat.name', 'cat.untisID']);
 		$this->setValueFilters($query, ['departmentID', 'programID']);

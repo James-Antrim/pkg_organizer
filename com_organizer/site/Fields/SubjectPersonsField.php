@@ -57,12 +57,12 @@ class SubjectPersonsField extends OptionsField
 		{
 			if (empty($this->value))
 			{
-				$query->innerJoin('#__organizer_department_resources AS dr ON dr.personID = t.id');
+				$query->innerJoin('#__organizer_associations AS a ON a.personID = t.id');
 				$query->where("departmentID = $departmentID");
 			}
 			else
 			{
-				$query->leftJoin('#__organizer_department_resources AS dr ON dr.personID = t.id');
+				$query->leftJoin('#__organizer_associations AS a ON a.personID = t.id');
 				$personIDs  = implode(',', $this->value);
 				$extPersons = "(departmentID != $departmentID AND personID IN ($personIDs))";
 				$query->where("(departmentID = $departmentID OR $extPersons)");
