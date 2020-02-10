@@ -10,17 +10,14 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Can;
-use Organizer\Helpers\Named;
-use Organizer\Helpers\OrganizerHelper;
 
 /**
  * Class loads non-item-specific form data.
  */
 class ItemModel extends BaseModel
 {
-	use Named;
+	use Contextualized;
 
 	protected $option = 'com_organizer';
 

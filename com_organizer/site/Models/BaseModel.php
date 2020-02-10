@@ -12,11 +12,9 @@ namespace Organizer\Models;
 
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Can;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\Languages;
-use Organizer\Helpers\Named;
 use Organizer\Helpers\OrganizerHelper;
 
 /**
@@ -24,7 +22,7 @@ use Organizer\Helpers\OrganizerHelper;
  */
 abstract class BaseModel extends BaseDatabaseModel
 {
-	use Named;
+	use Contextualized;
 
 	/**
 	 * BaseModel constructor.

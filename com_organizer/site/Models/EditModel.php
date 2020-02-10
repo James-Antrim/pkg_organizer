@@ -17,14 +17,13 @@ use Joomla\CMS\MVC\Model\AdminModel;
 use Organizer\Helpers\Can;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\Languages;
-use Organizer\Helpers\Named;
 
 /**
  * Class loads item form data to edit an entry.
  */
 abstract class EditModel extends AdminModel
 {
-	use Named;
+	use Contextualized;
 
 	protected $association;
 

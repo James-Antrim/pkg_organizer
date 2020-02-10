@@ -14,14 +14,13 @@ use Exception;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\FormModel as ParentModel;
 use Organizer\Helpers\Can;
-use Organizer\Helpers\Named;
 
 /**
  * Class loads non-item-specific form data.
  */
 class FormModel extends ParentModel
 {
-	use Named;
+	use Contextualized;
 
 	protected $association;
 
