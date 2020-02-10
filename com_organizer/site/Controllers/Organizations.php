@@ -15,7 +15,7 @@ use Organizer\Controller;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Departments extends Controller
+class Organizations extends Controller
 {
 	protected $listView = 'departments';
 

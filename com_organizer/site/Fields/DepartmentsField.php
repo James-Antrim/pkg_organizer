@@ -12,7 +12,7 @@ namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Departments;
+use Organizer\Helpers\Organizations;
 
 /**
  * Class creates a select box for departments.
@@ -49,7 +49,7 @@ class DepartmentsField extends OptionsField
 	protected function getOptions()
 	{
 		$options     = parent::getOptions();
-		$departments = Departments::getOptions(true, $this->getAttribute('access', ''));
+		$departments = Organizations::getOptions(true, $this->getAttribute('access', ''));
 
 		return array_merge($options, $departments);
 	}

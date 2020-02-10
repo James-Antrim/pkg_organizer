@@ -31,14 +31,14 @@ class Departments extends ListView
 	{
 		HTML::setTitle(Languages::_('ORGANIZER_ORGANIZATIONS'), 'tree-2');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'departments.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'departments.edit', true);
+		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'organizations.add', false);
+		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'organizations.edit', true);
 		$toolbar->appendButton(
 			'Confirm',
 			Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'delete',
 			Languages::_('ORGANIZER_DELETE'),
-			'departments.delete',
+			'organizations.delete',
 			true
 		);
 	}
