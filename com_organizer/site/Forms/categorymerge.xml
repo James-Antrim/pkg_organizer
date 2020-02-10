@@ -6,7 +6,7 @@
         <field name="programID" type="MergeAssociations" label="PROGRAM" textcolumn="p.name,p.accredited,d.abbreviation"
                localized="true" glue=", " from="categories AS cat"
                innerJoins="programs AS p ON p.categoryID = cat.id,degrees AS d ON d.id = p.degreeID"/>
-        <field name="organizationID" type="MergeDepartments" label="ORGANIZATIONS" resource="category"
+        <field name="organizationID" type="MergeOrganizations" label="ORGANIZATIONS" resource="category"
                multiple="multiple"/>
         <field name="ids" type="MergeIDs" hidden="true"/>
     </fieldset>

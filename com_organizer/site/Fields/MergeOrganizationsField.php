@@ -19,12 +19,12 @@ use Organizer\Helpers\OrganizerHelper;
 /**
  * Class creates a generalized select box for selection of a single id column value among those already selected.
  */
-class MergeDepartmentsField extends OptionsField
+class MergeOrganizationsField extends OptionsField
 {
 	/**
 	 * @var  string
 	 */
-	protected $type = 'MergeDepartments';
+	protected $type = 'MergeOrganizations';
 
 	/**
 	 * Returns a select box where resource attributes can be selected
@@ -48,9 +48,9 @@ class MergeDepartmentsField extends OptionsField
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 
-		$query->select("DISTINCT depts.id AS value, depts.$textColumn AS text")
-			->from("#__organizer_departments AS depts")
-			->innerJoin("#__organizer_associations AS a ON a.organizationID = depts.id")
+		$query->select("DISTINCT o.id AS value, o.$textColumn AS text")
+			->from("#__organizer_organizations AS o")
+			->innerJoin("#__organizer_associations AS a ON a.organizationID = o.id")
 			->innerJoin("#__organizer_$table AS res ON res.id = a.{$resource}ID")
 			->where("res.id IN ( '" . implode("', '", $selectedIDs) . "' )")
 			->order('text ASC');
