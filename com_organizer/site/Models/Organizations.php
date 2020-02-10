@@ -17,7 +17,7 @@ use Organizer\Helpers\Languages;
 /**
  * Class retrieves information for a filtered set of departments.
  */
-class Departments extends ListModel
+class Organizations extends ListModel
 {
 	protected $defaultOrdering = 'shortName';
 
@@ -33,13 +33,13 @@ class Departments extends ListModel
 
 		// Create the query
 		$query  = $this->_db->getQuery(true);
-		$select = "d.id, d.shortName_$tag AS shortName, d.name_$tag AS name, a.rules, ";
-		$parts  = ["'index.php?option=com_organizer&view=department_edit&id='", 'd.id'];
+		$select = "o.id, o.shortName_$tag AS shortName, o.name_$tag AS name, a.rules, ";
+		$parts  = ["'index.php?option=com_organizer&view=department_edit&id='", 'o.id'];
 		$select .= $query->concatenate($parts, '') . ' AS link ';
 		$query->select($select);
-		$query->from('#__organizer_departments AS d');
-		$query->innerJoin('#__assets AS a ON a.id = d.asset_id');
-		$query->where('d.id IN (' . implode(',', $allowedDepartments) . ')');
+		$query->from('#__organizer_organizations AS o');
+		$query->innerJoin('#__assets AS a ON a.id = o.asset_id');
+		$query->where('o.id IN (' . implode(',', $allowedDepartments) . ')');
 
 		$this->setSearchFilter($query, ['shortName_de', 'name_de', 'shortName_en', 'name_en']);
 

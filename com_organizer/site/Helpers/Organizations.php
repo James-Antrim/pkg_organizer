@@ -42,14 +42,14 @@ class Organizations extends ResourceHelper implements Selectable
 		{
 			case 'document':
 				$table = OrganizerHelper::getPlural($resource);
-				$query->innerJoin("#__organizer_$table AS res ON res.organizationID = depts.id");
+				$query->innerJoin("#__organizer_$table AS res ON res.organizationID = o.id");
 				$allowedIDs = Can::documentTheseOrganizations();
 				break;
 			case 'manage':
 				$allowedIDs = Can::manageTheseOrganizations();
 				break;
 			case 'schedule':
-				$query->innerJoin('#__organizer_associations AS a ON a.organizationID = depts.id');
+				$query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
 				if (in_array($resource, ['category', 'person']))
 				{
 					$query->where("a.{$resource}ID IS NOT NULL");
@@ -64,7 +64,7 @@ class Organizations extends ResourceHelper implements Selectable
 				return;
 		}
 
-		$query->where("depts.id IN ( '" . implode("', '", $allowedIDs) . "' )");
+		$query->where("o.id IN ( '" . implode("', '", $allowedIDs) . "' )");
 	}
 
 	/**
@@ -125,8 +125,8 @@ class Organizations extends ResourceHelper implements Selectable
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$query->select("DISTINCT depts.*, depts.shortName_$tag AS shortName, depts.name_$tag AS name")
-			->from('#__organizer_departments AS depts');
+		$query->select("DISTINCT o.*, o.shortName_$tag AS shortName, o.name_$tag AS name")
+			->from('#__organizer_organizations AS o');
 
 		self::addAccessFilter($query, $access);
 

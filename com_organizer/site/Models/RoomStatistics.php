@@ -440,10 +440,10 @@ class RoomStatistics extends BaseModel
 		$query->leftJoin('#__organizer_programs AS prog ON prog.categoryID = cat.id');
 		$query->leftJoin('#__organizer_degrees AS dg ON dg.id = prog.degreeID');
 
-		// Department Data
-		$select .= "d.id AS organizationID, d.shortName_$tag AS department, d.name_$tag AS departmentName";
+		// Organization Data
+		$select .= "o.id AS organizationID, o.shortName_$tag AS organization, o.name_$tag AS organizationName";
 		$query->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
-		$query->innerJoin('#__organizer_departments AS d ON d.id = a.organizationID');
+		$query->innerJoin('#__organizer_organizations AS o ON o.id = a.organizationID');
 
 		$query->select($select);
 		$query->where("lg.delta != 'removed'");

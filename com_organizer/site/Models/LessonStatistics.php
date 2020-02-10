@@ -152,9 +152,9 @@ class LessonStatistics extends FormModel
 	private function getOrganizations()
 	{
 		$this->resetAdaptiveClauses();
-		$this->query->select("DISTINCT dpt.id, dpt.shortName_$this->tag AS name")
+		$this->query->select("DISTINCT o.id, o.shortName_$this->tag AS name")
 			->where("l.delta != 'removed'")
-			->order("dpt.shortName_$this->tag");
+			->order("o.shortName_$this->tag");
 
 		$this->addPeriodRestriction();
 
@@ -341,7 +341,7 @@ class LessonStatistics extends FormModel
 	{
 		$this->query->from('#__organizer_lessons AS l')
 			->innerJoin('#__organizer_terms AS term ON term.id = l.termID')
-			->innerJoin('#__organizer_departments AS dpt ON dpt.id = l.organizationID')
+			->innerJoin('#__organizer_organizations AS o ON o.id = l.organizationID')
 			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.lessonID = l.id')
 			->innerJoin('#__organizer_lesson_groups AS lg ON lg.lessonCourseID = lcrs.id')
 			->innerJoin('#__organizer_groups AS group ON group.id = lg.groupID')
@@ -372,7 +372,7 @@ class LessonStatistics extends FormModel
 				// Define column column
 				if (empty($organizationID))
 				{
-					$column = empty($categoryID) ? 'dpt' : 'group';
+					$column = empty($categoryID) ? 'o' : 'group';
 				}
 				else
 				{

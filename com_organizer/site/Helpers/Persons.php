@@ -217,9 +217,9 @@ class Persons extends ResourceHelper implements Associated, Selectable
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$query->select("d.shortName_$tag AS name")
-			->from('#__organizer_departments AS d')
-			->innerJoin('#__organizer_associations AS a ON a.organizationID = d.id')
+		$query->select("o.shortName_$tag AS name")
+			->from('#__organizer_organizations AS o')
+			->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id')
 			->where("personID = $personID");
 		$dbo->setQuery($query);
 		$departments = OrganizerHelper::executeQuery('loadColumn', []);

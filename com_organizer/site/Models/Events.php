@@ -31,10 +31,10 @@ class Events extends ListModel
 		$query = $this->_db->getQuery(true);
 		$query->select("DISTINCT ev.id AS id, ev.name_$tag as name, ev.organizationID, ev.campusID")
 			->select("ev.maxParticipants, ev.registrationType, ev.subjectNo, ev.preparatory")
-			->select("d.id AS organizationID, d.shortName_$tag AS department")
+			->select("o.id AS organizationID, o.shortName_$tag AS department")
 			->select("cp.id AS campusID, cp.name_$tag AS campus")
 			->from('#__organizer_events AS ev')
-			->leftJoin('#__organizer_departments AS d ON d.id = ev.organizationID')
+			->leftJoin('#__organizer_organizations AS o ON o.id = ev.organizationID')
 			->leftJoin('#__organizer_campuses AS cp ON cp.id = ev.campusID');
 
 		$this->setSearchFilter($query, ['ev.name_de', 'ev.name_en', 'ev.subjectNo']);

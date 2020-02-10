@@ -39,16 +39,16 @@ class Schedules extends ListModel
 		$createdParts = ['s.creationDate', 's.creationTime'];
 		$query->select('s.id, s.active, s.creationDate, s.creationTime')
 			->select($query->concatenate($createdParts, ' ') . ' AS created ')
-			->select("d.id AS organizationID, d.shortName_$tag AS departmentName")
+			->select("o.id AS organizationID, o.shortName_$tag AS organizationName")
 			->select("term.id AS termID, term.name_$tag AS termName")
 			->select('u.name AS userName')
 			->from('#__organizer_schedules AS s')
-			->innerJoin('#__organizer_departments AS d ON d.id = s.organizationID')
+			->innerJoin('#__organizer_organizations AS o ON o.id = s.organizationID')
 			->innerJoin('#__organizer_terms AS term ON term.id = s.termID')
 			->leftJoin('#__users AS u ON u.id = s.userID');
 
 		$authorizedDepartments = implode(', ', Can::scheduleTheseOrganizations());
-		$query->where("d.id IN ($authorizedDepartments)");
+		$query->where("o.id IN ($authorizedDepartments)");
 
 		$this->setValueFilters($query, ['organizationID', 'termID', 'active']);
 

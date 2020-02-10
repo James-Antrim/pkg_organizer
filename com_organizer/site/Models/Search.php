@@ -690,10 +690,10 @@ class Search extends BaseModel
 		}
 
 		$query = $this->_db->getQuery(true);
-		$query->select('cat.id AS categoryID, d.id AS organizationID')
+		$query->select('cat.id AS categoryID, o.id AS organizationID')
 			->from('#__organizer_categories AS cat')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.ID')
-			->innerJoin('#__organizer_departments AS d ON d.id = a.organizationID');
+			->innerJoin('#__organizer_organizations AS o ON o.id = a.organizationID');
 
 		// Exact
 		$this->addInclusiveConditions($query, $eWherray);

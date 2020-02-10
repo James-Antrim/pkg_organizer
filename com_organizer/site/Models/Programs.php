@@ -39,8 +39,8 @@ class Programs extends ListModel
 			->select('d.abbreviation AS degree')
 			->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
 			->leftJoin('#__organizer_fields AS f ON f.id = dp.fieldID')
-			->select("dpt.shortName_$tag AS department")
-			->leftJoin('#__organizer_departments AS dpt ON dpt.id = dp.organizationID')
+			->select("o.shortName_$tag AS organization")
+			->leftJoin('#__organizer_organizations AS o ON o.id = dp.organizationID')
 			->where('(dp.organizationID IN (' . implode(',', $authorizedDepts) . ') OR dp.organizationID IS NULL)');
 
 		$searchColumns = ['dp.name_de', 'dp.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
