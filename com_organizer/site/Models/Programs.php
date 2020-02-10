@@ -28,7 +28,7 @@ class Programs extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$authorizedDepts = Can::documentTheseDepartments();
+		$authorizedDepts = Can::documentTheseOrganizations();
 		$tag             = Languages::getTag();
 
 		$query     = $this->_db->getQuery(true);

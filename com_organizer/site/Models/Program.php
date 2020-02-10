@@ -29,7 +29,7 @@ class Program extends BaseModel
 	 */
 	public function delete()
 	{
-		if (!Can::documentTheseDepartments())
+		if (!Can::documentTheseOrganizations())
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
@@ -90,8 +90,8 @@ class Program extends BaseModel
 
 		if (empty($data['id']))
 		{
-			$documentationAccess = (bool) Can::documentTheseDepartments();
-			$schedulingAccess    = (bool) Can::scheduleTheseDepartments();
+			$documentationAccess = (bool) Can::documentTheseOrganizations();
+			$schedulingAccess    = (bool) Can::scheduleTheseOrganizations();
 
 			if (!($documentationAccess or $schedulingAccess))
 			{
@@ -135,7 +135,7 @@ class Program extends BaseModel
 	 */
 	public function save2copy($data = [])
 	{
-		if (!Can::documentTheseDepartments())
+		if (!Can::documentTheseOrganizations())
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}

@@ -117,7 +117,7 @@ class Schedule extends BaseModel
 	 */
 	public function delete()
 	{
-		if (!Helpers\Can::scheduleTheseDepartments())
+		if (!Helpers\Can::scheduleTheseOrganizations())
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}

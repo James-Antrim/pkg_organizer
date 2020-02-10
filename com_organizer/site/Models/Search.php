@@ -181,7 +181,7 @@ class Search extends BaseModel
 	public function getResults()
 	{
 		$this->personID   = Helpers\Persons::getIDByUserID();
-		$this->schedDepts = Can::scheduleTheseDepartments();
+		$this->schedDepts = Can::scheduleTheseOrganizations();
 
 		/**
 		 * Exact     => exact match for the whole search independent of capitalization

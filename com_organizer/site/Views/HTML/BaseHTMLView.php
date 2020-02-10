@@ -145,7 +145,7 @@ abstract class BaseHTMLView extends BaseView
 			}
 		}*/
 
-		if (Can::documentTheseDepartments())
+		if (Can::documentTheseOrganizations())
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_DOCUMENTATION') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -253,31 +253,31 @@ abstract class BaseHTMLView extends BaseView
 				'url'    => 'index.php?option=com_organizer&amp;view=departments',
 				'active' => $viewName == 'departments'
 			];
-			$adminEntries[Languages::_('ORGANIZER_COLORS')]      = [
+			$adminEntries[Languages::_('ORGANIZER_COLORS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=colors',
 				'active' => $viewName == 'colors'
 			];
-			$adminEntries[Languages::_('ORGANIZER_DEGREES')]     = [
+			$adminEntries[Languages::_('ORGANIZER_DEGREES')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=degrees',
 				'active' => $viewName == 'degrees'
 			];
-			$adminEntries[Languages::_('ORGANIZER_FIELDS')]      = [
+			$adminEntries[Languages::_('ORGANIZER_FIELDS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=fields',
 				'active' => $viewName == 'fields'
 			];
-			$adminEntries[Languages::_('ORGANIZER_GRIDS')]       = [
+			$adminEntries[Languages::_('ORGANIZER_GRIDS')]         = [
 				'url'    => 'index.php?option=com_organizer&amp;view=grids',
 				'active' => $viewName == 'grids'
 			];
-			$adminEntries[Languages::_('ORGANIZER_HOLIDAYS')]    = [
+			$adminEntries[Languages::_('ORGANIZER_HOLIDAYS')]      = [
 				'url'    => 'index.php?option=com_organizer&amp;view=holidays',
 				'active' => $viewName == 'holidays'
 			];
-			$adminEntries[Languages::_('ORGANIZER_METHODS')]     = [
+			$adminEntries[Languages::_('ORGANIZER_METHODS')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=methods',
 				'active' => $viewName == 'methods'
 			];
-			$adminEntries[Languages::_('ORGANIZER_RUNS')]        = [
+			$adminEntries[Languages::_('ORGANIZER_RUNS')]          = [
 				'url'    => 'index.php?option=com_organizer&amp;view=runs',
 				'active' => $viewName == 'runs'
 			];

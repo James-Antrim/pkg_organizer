@@ -117,7 +117,7 @@ class Instances extends ResourceHelper
 
 			if (!empty($conditions['departmentIDs']))
 			{
-				$allowedIDs   = Can::scheduleTheseDepartments();
+				$allowedIDs   = Can::scheduleTheseOrganizations();
 				$overlap      = array_intersect($conditions['departmentIDs'], $allowedIDs);
 				$overlapCount = count($overlap);
 
@@ -416,7 +416,7 @@ class Instances extends ResourceHelper
 		}
 
 		$thisPersonID      = Persons::getIDByUserID($userID);
-		$accessibleDeptIDs = Can::viewTheseDepartments();
+		$accessibleDeptIDs = Can::viewTheseOrganizations();
 
 		foreach ($personIDs as $key => $personID)
 		{

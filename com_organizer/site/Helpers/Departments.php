@@ -43,7 +43,7 @@ class Departments extends ResourceHelper implements Selectable
 			case 'document':
 				$table = OrganizerHelper::getPlural($resource);
 				$query->innerJoin("#__organizer_$table AS res ON res.departmentID = depts.id");
-				$allowedIDs = Can::documentTheseDepartments();
+				$allowedIDs = Can::documentTheseOrganizations();
 				break;
 			case 'manage':
 				$allowedIDs = Can::manageTheseOrganizations();
@@ -54,10 +54,10 @@ class Departments extends ResourceHelper implements Selectable
 				{
 					$query->where("a.{$resource}ID IS NOT NULL");
 				}
-				$allowedIDs = Can::scheduleTheseDepartments();
+				$allowedIDs = Can::scheduleTheseOrganizations();
 				break;
 			case 'view':
-				$allowedIDs = Can::viewTheseDepartments();
+				$allowedIDs = Can::viewTheseOrganizations();
 				break;
 			default:
 				// Access right does not exist for department resource.

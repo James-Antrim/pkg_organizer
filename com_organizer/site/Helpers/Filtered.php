@@ -29,16 +29,16 @@ trait Filtered
 		switch ($action)
 		{
 			case 'document':
-				$authorizedDepts = Can::documentTheseDepartments();
+				$authorizedDepts = Can::documentTheseOrganizations();
 				break;
 			case 'manage':
 				$authorizedDepts = Can::manageTheseOrganizations();
 				break;
 			case 'schedule':
-				$authorizedDepts = Can::scheduleTheseDepartments();
+				$authorizedDepts = Can::scheduleTheseOrganizations();
 				break;
 			case 'view':
-				$authorizedDepts = Can::viewTheseDepartments();
+				$authorizedDepts = Can::viewTheseOrganizations();
 				break;
 		}
 

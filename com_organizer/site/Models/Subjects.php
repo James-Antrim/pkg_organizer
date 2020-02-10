@@ -45,7 +45,7 @@ class Subjects extends ListModel
 		}
 		elseif ($this->clientContext === self::BACKEND)
 		{
-			if (count(Can::documentTheseDepartments()) === 1)
+			if (count(Can::documentTheseOrganizations()) === 1)
 			{
 				$form->removeField('departmentID', 'filter');
 			}
@@ -155,7 +155,7 @@ class Subjects extends ListModel
 	{
 		if ($this->clientContext === self::BACKEND)
 		{
-			$authorizedDepts = Can::documentTheseDepartments();
+			$authorizedDepts = Can::documentTheseOrganizations();
 			$query->where('(s.departmentID IN (' . implode(',', $authorizedDepts) . ') OR s.departmentID IS NULL)');
 		}
 		$departmentID = $this->state->get('filter.departmentID');
@@ -183,7 +183,7 @@ class Subjects extends ListModel
 
 		if ($this->clientContext === self::BACKEND)
 		{
-			$authorizedDepartments = Can::documentTheseDepartments();
+			$authorizedDepartments = Can::documentTheseOrganizations();
 			if (count($authorizedDepartments) === 1)
 			{
 				$this->state->set('filter.departmentID', $authorizedDepartments[0]);

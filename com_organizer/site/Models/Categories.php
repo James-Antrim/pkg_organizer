@@ -35,7 +35,7 @@ class Categories extends ListModel
 			->from('#__organizer_categories AS cat')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
 
-		$authorizedDepartments = implode(",", Can::scheduleTheseDepartments());
+		$authorizedDepartments = implode(",", Can::scheduleTheseOrganizations());
 		$query->where("a.departmentID IN ($authorizedDepartments)");
 
 		$this->setSearchFilter($query, ['cat.name', 'cat.untisID']);

@@ -92,7 +92,7 @@ class Subjects extends ListView
 	 */
 	protected function allowAccess()
 	{
-		$this->documentAccess = (bool) Can::documentTheseDepartments();
+		$this->documentAccess = (bool) Can::documentTheseOrganizations();
 
 		return $this->clientContext === self::BACKEND ? $this->documentAccess : true;
 	}

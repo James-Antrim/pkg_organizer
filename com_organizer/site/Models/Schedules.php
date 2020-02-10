@@ -47,7 +47,7 @@ class Schedules extends ListModel
 			->innerJoin('#__organizer_terms AS term ON term.id = s.termID')
 			->leftJoin('#__users AS u ON u.id = s.userID');
 
-		$authorizedDepartments = implode(', ', Can::scheduleTheseDepartments());
+		$authorizedDepartments = implode(', ', Can::scheduleTheseOrganizations());
 		$query->where("d.id IN ($authorizedDepartments)");
 
 		$this->setValueFilters($query, ['departmentID', 'termID', 'active']);

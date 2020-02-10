@@ -33,7 +33,7 @@ class PoolSelection extends ListModel
 		$query->select("DISTINCT p.id, p.name_$tag AS name, p.fieldID")
 			->from('#__organizer_pools AS p');
 
-		$authorizedDepts = Can::documentTheseDepartments();
+		$authorizedDepts = Can::documentTheseOrganizations();
 		$query->where('(p.departmentID IN (' . implode(',', $authorizedDepts) . ') OR p.departmentID IS NULL)');
 
 		$searchColumns = [

@@ -30,7 +30,7 @@ abstract class PoolsView extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Can::documentTheseDepartments();
+		return (bool) Can::documentTheseOrganizations();
 	}
 
 	/**

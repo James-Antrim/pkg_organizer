@@ -26,6 +26,6 @@ class ScheduleEdit extends EditModel
 	 */
 	public function allowEdit()
 	{
-		return (bool) Can::scheduleTheseDepartments();
+		return (bool) Can::scheduleTheseOrganizations();
 	}
 }

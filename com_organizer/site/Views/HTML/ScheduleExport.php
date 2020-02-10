@@ -64,7 +64,7 @@ class ScheduleExport extends SelectionView
 		$this->setResourceField('group', 'content', $attribs, false);
 
 		$userID      = Helpers\Users::getID();
-		$showPersons = ($userID and (Helpers\Can::viewTheseDepartments() or Helpers\Persons::getIDByUserID()));
+		$showPersons = ($userID and (Helpers\Can::viewTheseOrganizations() or Helpers\Persons::getIDByUserID()));
 		if ($showPersons)
 		{
 			$this->setResourceField('person', 'content', $attribs, false);

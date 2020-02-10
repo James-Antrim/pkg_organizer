@@ -52,7 +52,7 @@ class Categories extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Can::scheduleTheseDepartments();
+		return (bool) Can::scheduleTheseOrganizations();
 	}
 
 	/**

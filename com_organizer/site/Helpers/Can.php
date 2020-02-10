@@ -106,11 +106,11 @@ class Can
 	}
 
 	/**
-	 * Gets the ids of departments for which the user is authorized documentation access
+	 * Gets the ids of organizations for which the user is authorized documentation access
 	 *
-	 * @return array  the department ids, empty if user has no access
+	 * @return array  the organization ids, empty if user has no access
 	 */
-	public static function documentTheseDepartments()
+	public static function documentTheseOrganizations()
 	{
 		return self::getAuthorizedOrganizations('document');
 	}
@@ -192,21 +192,21 @@ class Can
 			return false;
 		}
 
-		$authorizedDepartments = Can::scheduleTheseDepartments();
-		$helper                = "Organizer\\Helpers\\$helperClass";
+		$authorized = self::scheduleTheseOrganizations();
+		$helper     = "Organizer\\Helpers\\$helperClass";
 
 		if (is_int($resource))
 		{
-			$resourceDepartments = $helper::getDepartmentIDs($resource);
+			$associated = $helper::getDepartmentIDs($resource);
 
-			return (bool) array_intersect($resourceDepartments, $authorizedDepartments);
+			return (bool) array_intersect($associated, $authorized);
 		}
 		elseif (is_array($resource))
 		{
 			foreach ($resource as $resourceID)
 			{
-				$resourceDepartments = $helper::getDepartmentIDs($resourceID);
-				if (!array_intersect($resourceDepartments, $authorizedDepartments))
+				$associated = $helper::getDepartmentIDs($resourceID);
+				if (!array_intersect($associated, $authorized))
 				{
 					return false;
 				}
@@ -219,11 +219,11 @@ class Can
 	}
 
 	/**
-	 * Gets the department ids of for which the user is authorized access
+	 * Gets the organization ids of for which the user is authorized access
 	 *
 	 * @param   string  $function  the action for authorization
 	 *
-	 * @return array  the department ids, empty if user has no access
+	 * @return array  the organization ids, empty if user has no access
 	 */
 	private static function getAuthorizedOrganizations($function)
 	{
@@ -232,11 +232,11 @@ class Can
 			return [];
 		}
 
-		$departmentIDs = Departments::getIDs();
+		$organizationIDs = Departments::getIDs();
 
 		if (self::administrate())
 		{
-			return $departmentIDs;
+			return $organizationIDs;
 		}
 
 		if (!function_exists($function))
@@ -244,17 +244,17 @@ class Can
 			return [];
 		}
 
-		$allowedDepartmentIDs = [];
+		$authorized = [];
 
-		foreach ($departmentIDs as $departmentID)
+		foreach ($organizationIDs as $organizationID)
 		{
-			if (self::$function('department', $departmentID))
+			if (self::$function('organization', $organizationID))
 			{
-				$allowedDepartmentIDs[] = $departmentID;
+				$authorized[] = $organizationID;
 			}
 		}
 
-		return $allowedDepartmentIDs;
+		return $authorized;
 	}
 
 	/**
@@ -279,9 +279,9 @@ class Can
 			return (Courses::coordinates($resource) or Courses::hasResponsibility($resource));
 		}
 
-		if ($resourceType === 'department' and is_int($resource))
+		if ($resourceType === 'organization' and is_int($resource))
 		{
-			return $user->authorise('organizer.manage', "com_organizer.department.$resource");
+			return $user->authorise('organizer.manage', "com_organizer.organization.$resource");
 		}
 
 		if ($resourceType === 'facilities')
@@ -313,9 +313,9 @@ class Can
 	}
 
 	/**
-	 * Gets the ids of departments for which the user is authorized managing access
+	 * Gets the ids of organizations for which the user is authorized managing access
 	 *
-	 * @return array  the department ids, empty if user has no access
+	 * @return array  the organization ids, empty if user has no access
 	 */
 	public static function manageTheseOrganizations()
 	{
@@ -349,20 +349,20 @@ class Can
 			return $user->authorise('organizer.schedule', "com_organizer.schedule.$resource");
 		}
 
-		if ($resourceType === 'department')
+		if ($resourceType === 'organization')
 		{
-			return $user->authorise('organizer.schedule', "com_organizer.department.$resource");
+			return $user->authorise('organizer.schedule', "com_organizer.organization.$resource");
 		}
 
 		return false;
 	}
 
 	/**
-	 * Gets the ids of departments for which the user is authorized scheduling access
+	 * Gets the ids of organizations for which the user is authorized scheduling access
 	 *
-	 * @return array  the department ids, empty if user has no access
+	 * @return array  the organization ids, empty if user has no access
 	 */
-	public static function scheduleTheseDepartments()
+	public static function scheduleTheseOrganizations()
 	{
 		return self::getAuthorizedOrganizations('schedule');
 	}
@@ -384,9 +384,9 @@ class Can
 
 		$user = Users::getUser();
 
-		if ($resourceType === 'department' and is_int($resource))
+		if ($resourceType === 'organization' and is_int($resource))
 		{
-			if ($user->authorise('organizer.view', "com_organizer.department.$resource"))
+			if ($user->authorise('organizer.view', "com_organizer.organization.$resource"))
 			{
 				return true;
 			}
@@ -398,11 +398,11 @@ class Can
 	}
 
 	/**
-	 * Gets the ids of departments for which the user is authorized privileged view access
+	 * Gets the ids of organizations for which the user is authorized privileged view access
 	 *
-	 * @return array  the department ids, empty if user has no access
+	 * @return array  the organization ids, empty if user has no access
 	 */
-	public static function viewTheseDepartments()
+	public static function viewTheseOrganizations()
 	{
 		return self::getAuthorizedOrganizations('view');
 	}

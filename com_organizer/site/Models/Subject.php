@@ -117,7 +117,7 @@ class Subject extends BaseModel
 	 */
 	public function delete()
 	{
-		if (!Can::documentTheseDepartments())
+		if (!Can::documentTheseOrganizations())
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}

@@ -29,7 +29,7 @@ class Groups extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$authorizedDepts = Can::scheduleTheseDepartments();
+		$authorizedDepts = Can::scheduleTheseOrganizations();
 
 		$query = $this->_db->getQuery(true);
 		$query->select('DISTINCT gr.id, gr.untisID, gr.fullName, gr.name, gr.categoryID, gr.gridID')
