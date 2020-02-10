@@ -91,16 +91,16 @@ trait Filtered
 			return;
 		}
 
-		$tableWithAlias = '#__organizer_associations AS drAlias';
+		$tableWithAlias = '#__organizer_associations AS a';
 		if (in_array('-1', $departmentIDs))
 		{
-			$query->leftJoin("$tableWithAlias ON drAlias.{$resource}ID = $alias.$keyColumn")
-				->where("drAlias.id IS NULL");
+			$query->leftJoin("$tableWithAlias ON a.{$resource}ID = $alias.$keyColumn")
+				->where("a.id IS NULL");
 		}
 		else
 		{
-			$query->innerJoin("$tableWithAlias ON drAlias.{$resource}ID = $alias.$keyColumn")
-				->where("drAlias.departmentID IN (" . implode(',', $departmentIDs) . ")");
+			$query->innerJoin("$tableWithAlias ON a.{$resource}ID = $alias.$keyColumn")
+				->where("a.departmentID IN (" . implode(',', $departmentIDs) . ")");
 		}
 	}
 
