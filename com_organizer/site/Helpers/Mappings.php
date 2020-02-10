@@ -170,38 +170,6 @@ class Mappings
 	}
 
 	/**
-	 * Retrieves a string value representing the degree programs to which the
-	 * pool is ordered. Used in subject manager view.
-	 *
-	 * @param   int  $resourceID  the id of the resource
-	 *
-	 * @return string  string representing the associated program(s)
-	 */
-	public static function getPoolName($resourceID)
-	{
-		$resourceRanges = self::getResourceRanges('subject', $resourceID);
-		if (empty($resourceRanges))
-		{
-			return Languages::_('JNONE');
-		}
-
-		$pools = self::getSubjectPools($resourceRanges);
-		if (empty($pools))
-		{
-			return Languages::_('JNONE');
-		}
-
-		if (count($pools) === 1)
-		{
-			return $pools[0];
-		}
-		else
-		{
-			return Languages::_('ORGANIZER_MULTIPLE_POOLS');
-		}
-	}
-
-	/**
 	 * Gets a HTML option based upon a pool mapping
 	 *
 	 * @param   array &$mapping          the pool mapping entry

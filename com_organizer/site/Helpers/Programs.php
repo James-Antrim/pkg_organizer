@@ -22,6 +22,8 @@ use Organizer\Tables\Programs as ProgramsTable;
  */
 class Programs extends ResourceHelper implements Selectable
 {
+	const ALL = '-1';
+
 	use Filtered;
 
 	/**
@@ -141,6 +143,32 @@ class Programs extends ResourceHelper implements Selectable
 		}
 
 		return $options;
+	}
+
+	/**
+	 * Gets the mapped curricula ranges for the given program
+	 *
+	 * @param   int  $programID  the id of the subject
+	 *
+	 * @return array the pool ranges
+	 */
+	public static function getRanges($programID)
+	{
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('DISTINCT id, programID, lft, rgt')->from('#__organizer_curricula')->order('lft');
+		if ($programID === '-1')
+		{
+			$query->where('programID IS NOT NULL');
+		}
+		else
+		{
+			$query->where("programID = $programID");
+		}
+
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadAssocList', []);
 	}
 
 	/**

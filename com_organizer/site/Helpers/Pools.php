@@ -18,6 +18,8 @@ use Organizer\Tables\Pools as PoolsTable;
  */
 class Pools extends ResourceHelper implements Selectable
 {
+	const ALL = '-1';
+
 	use Filtered;
 
 	/**
@@ -170,6 +172,32 @@ class Pools extends ResourceHelper implements Selectable
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssocList');
+	}
+
+	/**
+	 * Gets the mapped curricula ranges for the given pool
+	 *
+	 * @param   int  $poolID  the id of the subject
+	 *
+	 * @return array the pool ranges
+	 */
+	public static function getRanges($poolID)
+	{
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('DISTINCT id, poolID, lft, rgt')->from('#__organizer_curricula')->order('lft');
+		if ($poolID === '-1')
+		{
+			$query->where('poolID IS NOT NULL');
+		}
+		else
+		{
+			$query->where("poolID = $poolID");
+		}
+
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadAssocList', []);
 	}
 
 	/**

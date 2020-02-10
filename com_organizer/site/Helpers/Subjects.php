@@ -18,6 +18,8 @@ use Organizer\Tables\Subjects as SubjectsTable;
  */
 class Subjects extends ResourceHelper implements Selectable
 {
+	const ALL = '-1';
+
 	/**
 	 * Check if user one of the subject's coordinators.
 	 *
@@ -204,35 +206,48 @@ class Subjects extends ResourceHelper implements Selectable
 	 */
 	public static function getPrograms($subjectID)
 	{
+		$programRanges = Programs::getRanges(self::ALL);
+		$subjectRanges = self::getRanges($subjectID);
+
+		$programIDs = [];
+		foreach ($programRanges as $curriculum)
+		{
+			foreach ($subjectRanges as $index => $entry)
+			{
+				if ($curriculum['lft'] < $entry['lft'] and $curriculum['rgt'] > $entry['rgt'])
+				{
+					$programIDs[$curriculum['programID']] = $curriculum;
+					continue 2;
+				}
+				elseif ($curriculum['lft'] > $entry['rgt'])
+				{
+					// The programs have moved past this range.
+					unset($subjectRanges[$index]);
+				}
+			}
+		}
+
+		return $programIDs;
+	}
+
+	/**
+	 * Gets the mapped curricula ranges for the given subject
+	 *
+	 * @param   int  $subjectID  the id of the subject
+	 *
+	 * @return array the subject ranges
+	 */
+	public static function getRanges($subjectID)
+	{
 		$dbo   = Factory::getDbo();
-		$names = [];
-		$tag   = Languages::getTag();
-
-		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
-		$query->select('cat.name AS categoryName, ' . $query->concatenate($nameParts, "") . ' AS name')
-			->select('p.id')
-			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-			->innerJoin('#__organizer_mappings AS m1 ON m1.programID = p.id')
-			->innerJoin('#__organizer_mappings AS m2 ON m2.lft > m1.lft AND  m2.rgt < m1.rgt')
-			->leftJoin('#__organizer_categories AS cat ON cat.id = p.categoryID')
-			->where("m2.subjectID = '$subjectID'");
-
+		$query = $dbo->getQuery(true);
+		$query->select('DISTINCT id, subjectID, lft, rgt')
+			->from('#__organizer_curricula')
+			->where("subjectID = $subjectID")
+			->order('lft');
 		$dbo->setQuery($query);
 
-		$results = OrganizerHelper::executeQuery('loadAssocList', []);
-		if (empty($results))
-		{
-			return $results;
-		}
-
-		foreach ($results as $result)
-		{
-			$names[$result['id']] = empty($result['name']) ? $result['categoryName'] : $result['name'];
-		}
-
-		return $names;
+		return OrganizerHelper::executeQuery('loadAssocList', []);
 	}
 
 	/**
