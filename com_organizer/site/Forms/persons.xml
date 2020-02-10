@@ -2,8 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="departmentID" type="Departments" label="DEPARTMENT" onchange="this.form.submit();">
-            <option value="">ALL_DEPARTMENTS</option>
+        <field name="departmentID" type="Departments" label="ORGANIZATION" onchange="this.form.submit();">
+            <option value="">ALL_ORGANIZATIONS</option>
         </field>
     </fields>
     <fields name="list">

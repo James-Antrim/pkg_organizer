@@ -50,7 +50,7 @@ class Attendance extends BaseLayout
 		$this->headers = [
 			'index'      => '#',
 			'name'       => 'Name',
-			'department' => Helpers\Languages::_('ORGANIZER_DEPARTMENT'),
+			'department' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
 			'program'    => Helpers\Languages::_('ORGANIZER_PROGRAM'),
 			'room'       => Helpers\Languages::_('ORGANIZER_ROOM')
 		];

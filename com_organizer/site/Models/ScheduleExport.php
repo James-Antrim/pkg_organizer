@@ -66,7 +66,7 @@ class ScheduleExport extends BaseModel
 	{
 		$departments = Helpers\Departments::getOptions(false);
 		$options     = [];
-		$options[''] = Helpers\Languages::_('ORGANIZER_SELECT_DEPARTMENT');
+		$options[''] = Helpers\Languages::_('ORGANIZER_SELECT_ORGANIZATION');
 
 		foreach ($departments as $departmentID => $departmentName)
 		{

@@ -66,10 +66,10 @@ class DepartmentOccupancy
 		$endDate   = Dates::formatDate($this->endDate);
 
 		$description
-			= sprintf(Languages::_('ORGANIZER_DEPARTMENT_OCCUPANCY_DESC'), $startDate, $endDate);
+			= sprintf(Languages::_('ORGANIZER_ORGANIZATION_OCCUPANCY_DESC'), $startDate, $endDate);
 		$this->spreadSheet->getProperties()->setCreator('THM Organizer')
 			->setLastModifiedBy($userName)
-			->setTitle(Languages::_('ORGANIZER_DEPARTMENT_OCCUPANCY'))
+			->setTitle(Languages::_('ORGANIZER_ORGANIZATION_OCCUPANCY'))
 			->setDescription($description);
 
 		$this->headerFill = [
@@ -395,7 +395,7 @@ class DepartmentOccupancy
 		$objWriter = PHPExcel_IOFactory::createWriter($this->spreadSheet, 'Excel2007');
 		ob_end_clean();
 		header('Content-type: application/vnd.ms-excel');
-		$rawTitle = Languages::_('ORGANIZER_DEPARTMENT_OCCUPANCY') . '_' . date('Ymd');
+		$rawTitle = Languages::_('ORGANIZER_ORGANIZATION_OCCUPANCY') . '_' . date('Ymd');
 		$docTitle = ApplicationHelper::stringURLSafe($rawTitle);
 		header("Content-Disposition: attachment;filename=$docTitle.xlsx");
 		$objWriter->save('php://output');

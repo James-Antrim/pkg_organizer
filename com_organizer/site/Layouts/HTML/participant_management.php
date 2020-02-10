@@ -75,7 +75,7 @@ $dateFormat .= $params->get('timeFormat', 'H.i');
                     <li>
                         <a href="<?php echo $departmentListRoute; ?>" target="_blank">
                             <span class="icon-file-pdf"></span>
-							<?php echo Languages::_('ORGANIZER_DEPARTMENT_STATISTICS'); ?>
+							<?php echo Languages::_('ORGANIZER_ORGANIZATION_STATISTICS'); ?>
                         </a>
                     </li>
                     <li>

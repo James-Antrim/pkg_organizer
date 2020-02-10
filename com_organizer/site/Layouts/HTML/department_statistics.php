@@ -16,7 +16,7 @@ $initialHidden = ['date'];
           method="post" name="adminForm" id="adminForm" target="_blank">
         <div id="header-container" class="header-container clearfix">
             <div class="header-title">
-				<?php echo Languages::_('ORGANIZER_DEPARTMENT_OCCUPANCY'); ?>
+				<?php echo Languages::_('ORGANIZER_ORGANIZATION_OCCUPANCY'); ?>
             </div>
             <div class="toolbar">
                 <button id="action-btn" class="btn" type="submit">

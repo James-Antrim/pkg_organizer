@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
-    <field name="termID" type="Terms" label="DEPARTMENT" onchange="this.form.submit();">
+    <field name="termID" type="Terms" label="ORGANIZATION" onchange="this.form.submit();">
         <option value="">ALL_TERMS</option>
     </field>
-    <field name="departmentID" type="Departments" label="DEPARTMENT" onchange="this.form.submit();">
-        <option value="">ALL_DEPARTMENTS</option>
+    <field name="departmentID" type="Departments" label="ORGANIZATION" onchange="this.form.submit();">
+        <option value="">ALL_ORGANIZATIONS</option>
     </field>
     <field name="categoryID" type="Categories" label="CATEGORY" onchange="this.form.submit();">
         <option value="">ALL_CATEGORIES</option>

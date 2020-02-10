@@ -7,7 +7,7 @@
         <field name="programID" type="Programs" label="PROGRAM" access="schedule">
             <option value="">NO_PROGRAM</option>
         </field>
-        <field name="departmentID" type="Departments" label="DEPARTMENTS" access="schedule" required="true"
+        <field name="departmentID" type="Departments" label="ORGANIZATIONS" access="schedule" required="true"
                multiple="multiple"/>
     </fieldset>
 </form>

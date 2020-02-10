@@ -2,10 +2,10 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="departmentID" type="Departments" label="DEPARTMENT" access="schedule"
+        <field name="departmentID" type="Departments" label="ORGANIZATION" access="schedule"
                onchange="this.form.submit();">
-            <option value="">ALL_DEPARTMENTS</option>
-            <option value="-1">NO_DEPARTMENTS</option>
+            <option value="">ALL_ORGANIZATIONS</option>
+            <option value="-1">NO_ORGANIZATIONS</option>
         </field>
         <field name="categoryID" type="Categories" label="CATEGORY" access="schedule" onchange="this.form.submit();">
             <option value="">ALL_CATEGORIES</option>

@@ -23,7 +23,7 @@ use OrganizerTemplateParticipants;
 class Courses extends BaseView
 {
 	const BADGES = 2;
-	const DEPARTMENT_PARTICIPANTS = 1;
+	const ORGANIZATION_PARTICIPANTS = 1;
 	const PARTICIPANTS = 0;
 
 	/**
@@ -42,7 +42,7 @@ class Courses extends BaseView
 
 		$courseID   = $input->get('lessonID', 0);
 		$type       = $input->get('type', 0);
-		$validTypes = [self::BADGES, self::DEPARTMENT_PARTICIPANTS, self::PARTICIPANTS];
+		$validTypes = [self::BADGES, self::ORGANIZATION_PARTICIPANTS, self::PARTICIPANTS];
 
 		if (empty($courseID) or !in_array($type, $validTypes))
 		{
@@ -60,7 +60,7 @@ class Courses extends BaseView
 				require_once __DIR__ . '/tmpl/badges.php';
 				new OrganizerTemplateBadges($courseID);
 				break;
-			case self::DEPARTMENT_PARTICIPANTS:
+			case self::ORGANIZATION_PARTICIPANTS:
 				require_once __DIR__ . '/tmpl/department_participants.php';
 				new OrganizerTemplateDepartment_Participants($courseID);
 				break;

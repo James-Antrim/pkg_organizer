@@ -6,7 +6,7 @@
                 <option value="">All_CAMPUSES</option>
             </field>
             <field name="departmentID" type="Departments" label="Department">
-                <option value="">ALL_DEPARTMENTS</option>
+                <option value="">ALL_ORGANIZATIONS</option>
             </field>
             <field name="onlyPrepCourses" type="Options" label="COURSE_TYPE">
                 <option value="">ALL_COURSE_TYPES</option>

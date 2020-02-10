@@ -2,8 +2,8 @@
 <form>
     <fields name="params" addfieldprefix="Organizer\Fields">
         <fieldset name="basic" label="ORGANIZER_SETTINGS">
-            <field name="departmentID" type="Departments" label="DEPARTMENT">
-                <option value="">ALL_DEPARTMENTS</option>
+            <field name="departmentID" type="Departments" label="ORGANIZATION">
+                <option value="">ALL_ORGANIZATIONS</option>
             </field>
             <field name="deputat_weeks" type="Integer" label="DEPUTAT_WEEKS" default="13" first="1" last="52" step="1"/>
             <field name="bachelor_value" type="Integer" label="BACHELOR_VALUE" default="25" first="5" last="100"

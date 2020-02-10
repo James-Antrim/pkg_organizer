@@ -3,8 +3,8 @@
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
         <field name="departmentID" type="Departments" label="Department" onchange="this.form.submit();">
-            <option value="">ALL_DEPARTMENTS</option>
-            <option value="-1">NO_DEPARTMENT</option>
+            <option value="">ALL_ORGANIZATIONS</option>
+            <option value="-1">NO_ORGANIZATION</option>
         </field>
         <field name="campusID" type="Campuses" label="CAMPUS" onchange="this.form.submit();">
             <option value="">ALL_CAMPUSES</option>

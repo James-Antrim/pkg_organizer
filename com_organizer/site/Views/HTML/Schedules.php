@@ -85,7 +85,7 @@ class Schedules extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'       => '',
-			'departmentName' => HTML::sort('DEPARTMENT', 'departmentName', $direction, $ordering),
+			'departmentName' => HTML::sort('ORGANIZATION', 'departmentName', $direction, $ordering),
 			'termName'       => HTML::sort('TERM', 'termName', $direction, $ordering),
 			'active'         => HTML::sort('STATUS', 'active', $direction, $ordering),
 			'userName'       => HTML::sort('USERNAME', 'userName', $direction, $ordering),

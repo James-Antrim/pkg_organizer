@@ -32,7 +32,7 @@ $daysOfTheWeek  = [
 	Languages::_('SAT'),
 	Languages::_('SUN')
 ];
-$departmentPH   = Languages::_('ORGANIZER_SELECT_DEPARTMENT');
+$departmentPH   = Languages::_('ORGANIZER_SELECT_ORGANIZATION');
 $displayName    = empty($this->model->displayName) ?
 	'THM Organizer  - ' . Languages::_('ORGANIZER_SCHEDULES') : $this->model->displayName;
 $grid           = json_decode($this->params['defaultGrid'], true);

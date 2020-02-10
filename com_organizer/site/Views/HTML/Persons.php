@@ -76,7 +76,7 @@ class Persons extends ListView
 			'forename'     => Languages::_('ORGANIZER_FORENAME'),
 			'username'     => Languages::_('ORGANIZER_USERNAME'),
 			't.untisID'    => Languages::_('ORGANIZER_UNTIS_ID'),
-			'departmentID' => Languages::_('ORGANIZER_DEPARTMENT')
+			'departmentID' => Languages::_('ORGANIZER_ORGANIZATION')
 		];
 
 		$this->headers = $headers;
@@ -108,7 +108,7 @@ class Persons extends ListView
 			}
 			else
 			{
-				$item->departmentID = Languages::_('ORGANIZER_MULTIPLE_DEPARTMENTS');
+				$item->departmentID = Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
 			}
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);

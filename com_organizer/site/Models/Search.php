@@ -305,7 +305,7 @@ class Search extends BaseModel
 				$departmentName = Helpers\Departments::getName($departmentID);
 
 				$departments[$departmentID]         = [];
-				$departments[$departmentID]['text'] = Languages::_('ORGANIZER_DEPARTMENT') . ": {$departmentName}";
+				$departments[$departmentID]['text'] = Languages::_('ORGANIZER_ORGANIZATION') . ": {$departmentName}";
 
 				$links['schedule']   = "?option=com_organizer&view=schedule_item&departmentIDs=$departmentID";
 				$links['event_list'] = "?option=com_organizer&view=event_list&departmentIDs=$departmentID";

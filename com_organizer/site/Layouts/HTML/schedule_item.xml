@@ -2,8 +2,8 @@
 <form>
     <fields name="params" addfieldprefix="Organizer\Fields">
         <fieldset name="basic" label="ORGANIZER_SETTINGS">
-            <field name="departmentID" type="Departments" label="DEPARTMENT" class="departmentlist">
-                <option value="0">ALL_DEPARTMENTS</option>
+            <field name="departmentID" type="Departments" label="ORGANIZATION" class="departmentlist">
+                <option value="0">ALL_ORGANIZATIONS</option>
             </field>
             <field name="categoryIDs" type="GenericOptions" label="CATEGORIES" multiple="true"
                    table="organizer_categories" textcolumn="name" valuecolumn="id">
