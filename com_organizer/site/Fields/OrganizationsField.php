@@ -17,15 +17,15 @@ use Organizer\Helpers\Organizations;
 /**
  * Class creates a select box for departments.
  */
-class DepartmentsField extends OptionsField
+class OrganizationsField extends OptionsField
 {
 	/**
 	 * @var  string
 	 */
-	protected $type = 'Departments';
+	protected $type = 'Organizations';
 
 	/**
-	 * Method to get the field input markup for department selection.
+	 * Method to get the field input markup for organization selection.
 	 * Use the multiple attribute to enable multiselect.
 	 *
 	 * @return  string  The field input markup.
@@ -33,9 +33,9 @@ class DepartmentsField extends OptionsField
 	protected function getInput()
 	{
 		// Add custom js script to update other fields like programs
-		if (!empty($this->class) and $this->class === 'departmentlist')
+		if (!empty($this->class) and $this->class === 'organizationlist')
 		{
-			Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/departmentlist.js');
+			Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/organizationlist.js');
 		}
 
 		return parent::getInput();
@@ -44,13 +44,13 @@ class DepartmentsField extends OptionsField
 	/**
 	 * Returns an array of options
 	 *
-	 * @return array  the department options
+	 * @return array  the organization options
 	 */
 	protected function getOptions()
 	{
-		$options     = parent::getOptions();
-		$departments = Organizations::getOptions(true, $this->getAttribute('access', ''));
+		$options       = parent::getOptions();
+		$organizations = Organizations::getOptions(true, $this->getAttribute('access', ''));
 
-		return array_merge($options, $departments);
+		return array_merge($options, $organizations);
 	}
 }

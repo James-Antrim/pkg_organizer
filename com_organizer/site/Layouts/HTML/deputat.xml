@@ -2,7 +2,7 @@
 <form>
     <fields name="params" addfieldprefix="Organizer\Fields">
         <fieldset name="basic" label="ORGANIZER_SETTINGS">
-            <field name="organizationID" type="Departments" label="ORGANIZATION">
+            <field name="organizationID" type="Organizations" label="ORGANIZATION">
                 <option value="">ALL_ORGANIZATIONS</option>
             </field>
             <field name="deputat_weeks" type="Integer" label="DEPUTAT_WEEKS" default="13" first="1" last="52" step="1"/>

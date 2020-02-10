@@ -10,7 +10,7 @@
             <option value="">ALL_CAMPUSES</option>
             <option value="-1">NO_CAMPUS</option>
         </field>
-        <field name="organizationID" type="Departments" label="ORGANIZATION" onchange="this.form.submit();">
+        <field name="organizationID" type="Organizations" label="ORGANIZATION" onchange="this.form.submit();">
             <option value="">ALL_ORGANIZATIONS</option>
             <option value="-1">NO_ORGANIZATION</option>
         </field>

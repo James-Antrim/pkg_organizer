@@ -2,7 +2,7 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="organizationID" type="Departments" label="ORGANIZATION" access="document"
+        <field name="organizationID" type="Organizations" label="ORGANIZATION" access="document"
                onchange="this.form.submit();">
             <option value="">ALL_ORGANIZATIONS</option>
             <option value="-1">NO_ORGANIZATION</option>
