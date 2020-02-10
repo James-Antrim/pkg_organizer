@@ -192,17 +192,17 @@ input[type=radio] {
     cursor: wait;
 }
 
-#department-input {
+#organization-input {
     display: block;
 }
 
 @media screen and (min-width: 951px) {
-    #department-input {
+    #organization-input {
         margin-bottom: 0.5rem;
     }
 }
 
-#department-input input.default {
+#organization-input input.default {
     padding: 6px !important;
 }
 
