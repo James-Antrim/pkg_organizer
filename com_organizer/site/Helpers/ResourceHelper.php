@@ -10,6 +10,8 @@
 
 namespace Organizer\Helpers;
 
+use Joomla\CMS\Table\Table;
+
 abstract class ResourceHelper
 {
 	/**
@@ -27,6 +29,18 @@ abstract class ResourceHelper
 	/**
 	 * Attempts to retrieve the name of the resource.
 	 *
+	 * @param   int  $resourceID  the id of the resource
+	 *
+	 * @return string
+	 */
+	public static function getFullName($resourceID)
+	{
+		return self::getNameAttribute('fullName', $resourceID);
+	}
+
+	/**
+	 * Attempts to retrieve the name of the resource.
+	 *
 	 * @param   string  $columnName  the substatiative part of the column name to search for
 	 * @param   int     $resourceID  the id of the resource
 	 *
@@ -34,7 +48,7 @@ abstract class ResourceHelper
 	 */
 	public static function getNameAttribute($columnName, $resourceID)
 	{
-		$table  = OrganizerHelper::getTable(OrganizerHelper::getClass(get_called_class()));
+		$table  = self::getTable();
 		$exists = $table->load($resourceID);
 		if (empty($exists))
 		{
@@ -78,5 +92,15 @@ abstract class ResourceHelper
 	public static function getShortName($resourceID)
 	{
 		return self::getNameAttribute('shortName', $resourceID);
+	}
+
+	/**
+	 * Returns a table based on the called class.
+	 *
+	 * @return Table
+	 */
+	public static function getTable()
+	{
+		return OrganizerHelper::getTable(OrganizerHelper::getClass(get_called_class()));
 	}
 }
