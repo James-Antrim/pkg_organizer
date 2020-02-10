@@ -23,8 +23,6 @@ use Organizer\Helpers\OrganizerHelper;
  */
 abstract class BaseView extends CMSObject
 {
-	use Named;
-
 	/**
 	 * The base path of the view
 	 *
@@ -49,7 +47,7 @@ abstract class BaseView extends CMSObject
 		// Set the view name
 		if (empty($this->name))
 		{
-			$this->getName();
+			$this->name = OrganizerHelper::getClass($this);
 		}
 
 		// Set a base path for use by the view
