@@ -424,7 +424,7 @@ class Instances extends ResourceHelper
 			{
 				continue;
 			}
-			$personDepartments = Persons::getDepartmentIDs($personID);
+			$personDepartments = Persons::getOrganizationIDs($personID);
 			$overlap           = array_intersect($accessibleDeptIDs, $personDepartments);
 
 			if (empty($overlap))

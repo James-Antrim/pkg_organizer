@@ -25,8 +25,9 @@ class Groups extends ResourceHelper implements Selectable
 	 * @param   int  $resourceID  the id of the resource for which the associated departments are requested
 	 *
 	 * @return array the ids of departments associated with the resource
+	 * @todo make this compatible with Associated
 	 */
-	public static function getDepartmentIDs($resourceID)
+	public static function getOrganizationIDs($resourceID)
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);

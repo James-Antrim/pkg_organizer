@@ -44,7 +44,7 @@ class PersonEdit extends EditModel
 	public function getItem($pk = null)
 	{
 		$this->item                 = parent::getItem($pk);
-		$this->item->organizationID = Helpers\Persons::getDepartmentIDs($this->item->id);
+		$this->item->organizationID = Helpers\Persons::getOrganizationIDs($this->item->id);
 
 		return $this->item;
 	}

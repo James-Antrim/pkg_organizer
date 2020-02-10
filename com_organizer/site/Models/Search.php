@@ -636,7 +636,7 @@ class Search extends BaseModel
 
 				$overlap = array_intersect(
 					$this->schedDepts,
-					Helpers\Persons::getDepartmentIDs($person['id'])
+					Helpers\Persons::getOrganizationIDs($person['id'])
 				);
 
 				$isPerson = $this->personID == $person['id'];

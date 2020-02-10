@@ -197,7 +197,7 @@ class Can
 
 		if (is_int($resource))
 		{
-			$associated = $helper::getDepartmentIDs($resource);
+			$associated = $helper::getOrganizationIDs($resource);
 
 			return (bool) array_intersect($associated, $authorized);
 		}
@@ -205,7 +205,7 @@ class Can
 		{
 			foreach ($resource as $resourceID)
 			{
-				$associated = $helper::getDepartmentIDs($resourceID);
+				$associated = $helper::getOrganizationIDs($resourceID);
 				if (!array_intersect($associated, $authorized))
 				{
 					return false;

@@ -22,5 +22,5 @@ interface Associated
 	 *
 	 * @return array the ids of departments associated with the resource
 	 */
-	public static function getDepartmentIDs($resourceID);
+	public static function getOrganizationIDs($resourceID);
 }
