@@ -475,11 +475,11 @@ CREATE TABLE IF NOT EXISTS `#__organizer_methods` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-# fk rooms fails
+# roomID defaults to null so the entry does not get deleted with the room
 CREATE TABLE IF NOT EXISTS `#__organizer_monitors` (
     `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `ip`              VARCHAR(15)         NOT NULL,
-    `roomID`          INT(11) UNSIGNED    NOT NULL,
+    `roomID`          INT(11) UNSIGNED             DEFAULT NULL,
     `content`         VARCHAR(256)                 DEFAULT '',
     `contentRefresh`  INT(3) UNSIGNED     NOT NULL DEFAULT 60,
     `display`         INT(1) UNSIGNED     NOT NULL DEFAULT 1,
@@ -525,7 +525,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_organizations` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-# fk programs fails
+# programID defaults to null so the entry does not get deleted with the program
 CREATE TABLE IF NOT EXISTS `#__organizer_participants` (
     `id`        INT(11)             NOT NULL,
     `forename`  VARCHAR(255)        NOT NULL DEFAULT '',
@@ -533,7 +533,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_participants` (
     `address`   VARCHAR(60)         NOT NULL DEFAULT '',
     `city`      VARCHAR(60)         NOT NULL DEFAULT '',
     `notify`    TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-    `programID` INT(11) UNSIGNED    NOT NULL,
+    `programID` INT(11) UNSIGNED             DEFAULT NULL,
     `zipCode`   VARCHAR(60)         NOT NULL DEFAULT '',
     PRIMARY KEY (`id`),
     INDEX `programID` (`programID`)
@@ -562,13 +562,13 @@ CREATE TABLE IF NOT EXISTS `#__organizer_persons` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-# fk groups fails
+# organizationID defaults to null so the entry does not get deleted with the organization
 CREATE TABLE IF NOT EXISTS `#__organizer_pools` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`           VARCHAR(255)     DEFAULT '',
     `shortName_de`    VARCHAR(50)      DEFAULT '',
     `shortName_en`    VARCHAR(50)      DEFAULT '',
-    `organizationID`  INT(11) UNSIGNED NOT NULL,
+    `organizationID`  INT(11) UNSIGNED DEFAULT NULL,
     `lsfID`           INT(11) UNSIGNED DEFAULT NULL,
     `abbreviation_de` VARCHAR(25)      DEFAULT '',
     `abbreviation_en` VARCHAR(25)      DEFAULT '',
@@ -603,21 +603,21 @@ CREATE TABLE IF NOT EXISTS `#__organizer_prerequisites` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-# fk categories fails
+# degreeID, frequencyID, organizationID defaults to null so the entry does not get deleted with the organization
 CREATE TABLE IF NOT EXISTS `#__organizer_programs` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`          VARCHAR(255)                 DEFAULT '',
     `accredited`     YEAR(4)             NOT NULL,
     `code`           VARCHAR(60)         NOT NULL,
-    `degreeID`       INT(11) UNSIGNED    NOT NULL,
+    `degreeID`       INT(11) UNSIGNED             DEFAULT NULL,
     `name_de`        VARCHAR(150)        NOT NULL,
     `name_en`        VARCHAR(150)        NOT NULL,
     `active`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `categoryID`     INT(11) UNSIGNED             DEFAULT NULL,
     `description_de` TEXT,
     `description_en` TEXT,
-    `frequencyID`    INT(1) UNSIGNED              DEFAULT 3,
-    `organizationID` INT(11) UNSIGNED    NOT NULL,
+    `frequencyID`    INT(1) UNSIGNED              DEFAULT NULL,
+    `organizationID` INT(11) UNSIGNED             DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `entry` (`code`, `degreeID`, `accredited`),
     INDEX `categoryID` (`categoryID`),
@@ -651,7 +651,7 @@ VALUES (1, 'DOZ', 'TCH', 'Dozent', 'Teacher'),
        (3, 'AFS', 'SPR', 'Aufsicht', 'Supervisor'),
        (4, 'REF', 'SPK', 'Referent', 'Speaker');
 
-# fk roomtypes fails
+# roomtypeID defaults to null so the entry does not get deleted with the roomtype
 CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `id`         INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`      VARCHAR(255)                 DEFAULT '',
@@ -660,7 +660,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `active`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `buildingID` INT(11) UNSIGNED             DEFAULT NULL,
     `capacity`   INT(4) UNSIGNED              DEFAULT NULL,
-    `roomtypeID` INT(11) UNSIGNED    NOT NULL,
+    `roomtypeID` INT(11) UNSIGNED             DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `code` (`code`),
     INDEX `buildingID` (`buildingID`),
@@ -747,14 +747,14 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-# fk frequencies fails
+# organizationID defaults to null so the entry does not get deleted with the organization
 CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `id`                          INT(11) UNSIGNED      NOT NULL AUTO_INCREMENT,
     `alias`                       VARCHAR(255)                   DEFAULT '',
     `code`                        VARCHAR(60)           NOT NULL DEFAULT '',
     `fullName_de`                 VARCHAR(200)          NOT NULL,
     `fullName_en`                 VARCHAR(200)          NOT NULL,
-    `organizationID`              INT(11) UNSIGNED      NOT NULL,
+    `organizationID`              INT(11) UNSIGNED               DEFAULT NULL,
     `lsfID`                       INT(11) UNSIGNED      NOT NULL,
     `abbreviation_de`             VARCHAR(25)           NOT NULL DEFAULT '',
     `abbreviation_en`             VARCHAR(25)           NOT NULL DEFAULT '',
@@ -1101,6 +1101,7 @@ ALTER TABLE `#__organizer_subject_persons`
         ON DELETE CASCADE
         ON UPDATE CASCADE;
 
+# fk frequencies fails
 ALTER TABLE `#__organizer_subjects`
     ADD CONSTRAINT `subject_fieldID_fk` FOREIGN KEY (`fieldID`) REFERENCES `#__organizer_fields` (`id`)
         ON DELETE SET NULL
