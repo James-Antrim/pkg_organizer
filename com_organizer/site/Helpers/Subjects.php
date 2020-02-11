@@ -61,14 +61,12 @@ class Subjects extends ResourceHelper implements Selectable
 	 */
 	private static function getBoundaries()
 	{
-		$programBoundaries = Mappings::getMappings('program', Input::getInt('programID'));
-
-		if (empty($programBoundaries))
+		if (!$programBoundaries = Programs::getRanges(Input::getInt('programID')))
 		{
 			return [];
 		}
 
-		$poolBoundaries = Mappings::getMappings('pool', Input::getInt('poolID'));
+		$poolBoundaries = Pools::getRanges(Input::getInt('poolID'));
 
 		$validBoundaries = (!empty($poolBoundaries) and self::poolInProgram($poolBoundaries, $programBoundaries));
 		if ($validBoundaries)
@@ -206,28 +204,7 @@ class Subjects extends ResourceHelper implements Selectable
 	 */
 	public static function getPrograms($subjectID)
 	{
-		$programRanges = Programs::getRanges(self::ALL);
-		$subjectRanges = self::getRanges($subjectID);
-
-		$programIDs = [];
-		foreach ($programRanges as $curriculum)
-		{
-			foreach ($subjectRanges as $index => $entry)
-			{
-				if ($curriculum['lft'] < $entry['lft'] and $curriculum['rgt'] > $entry['rgt'])
-				{
-					$programIDs[$curriculum['programID']] = $curriculum;
-					continue 2;
-				}
-				elseif ($curriculum['lft'] > $entry['rgt'])
-				{
-					// The programs have moved past this range.
-					unset($subjectRanges[$index]);
-				}
-			}
-		}
-
-		return $programIDs;
+		return Programs::getRanges(self::getRanges($subjectID));
 	}
 
 	/**

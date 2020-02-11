@@ -148,22 +148,41 @@ class Programs extends ResourceHelper implements Selectable
 	/**
 	 * Gets the mapped curricula ranges for the given program
 	 *
-	 * @param   int  $programID  the id of the subject
+	 * @param   mixed  $identifiers  int programID | array ranges of subordinate resources
 	 *
-	 * @return array the pool ranges
+	 * @return array the program ranges
 	 */
-	public static function getRanges($programID)
+	public static function getRanges($identifiers)
 	{
+		if (!is_numeric($identifiers) and !is_array($identifiers))
+		{
+			return [];
+		}
+
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT id, programID, lft, rgt')->from('#__organizer_curricula')->order('lft');
-		if ($programID === '-1')
+		$query->select('DISTINCT id, programID, lft, rgt')
+			->from('#__organizer_curricula')
+			->where('programID IS NOT NULL ')
+			->order('lft');
+
+		if (is_array($identifiers))
 		{
-			$query->where('programID IS NOT NULL');
+			$wherray = [];
+			foreach ($identifiers as $range)
+			{
+				$wherray[] = "( lft < '{$range['lft']}' AND rgt > '{$range['rgt']}')";
+			}
+
+			$query->where('(' . implode(' OR ', $wherray) . ')');
 		}
 		else
 		{
-			$query->where("programID = $programID");
+			$programID = (int) $identifiers;
+			if ($identifiers !== -1)
+			{
+				$query->where("programID = $programID");
+			}
 		}
 
 		$dbo->setQuery($query);

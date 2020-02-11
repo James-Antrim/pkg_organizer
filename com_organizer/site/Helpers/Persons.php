@@ -38,16 +38,12 @@ class Persons extends ResourceHelper implements Associated, Selectable
 
 		if ($poolID > 0)
 		{
-			$resourceType = 'pool';
-			$resourceID   = $poolID;
+			$boundarySet = Pools::getRanges($poolID);
 		}
 		else
 		{
-			$resourceType = 'program';
-			$resourceID   = $programID;
+			$boundarySet = Programs::getRanges($programID);
 		}
-
-		$boundarySet = Mappings::getMappings($resourceType, $resourceID);
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);

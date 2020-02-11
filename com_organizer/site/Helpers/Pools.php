@@ -177,27 +177,41 @@ class Pools extends ResourceHelper implements Selectable
 	/**
 	 * Gets the mapped curricula ranges for the given pool
 	 *
-	 * @param   int  $poolID  the id of the subject
+	 * @param   int   $poolID   the id of the subject
+	 * @param   bool  $exclude  whether subordinate pools should be filtered from the result set
 	 *
 	 * @return array the pool ranges
 	 */
-	public static function getRanges($poolID)
+	public static function getRanges($poolID, $exclude = true)
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT id, poolID, lft, rgt')->from('#__organizer_curricula')->order('lft');
-		if ($poolID === '-1')
-		{
-			$query->where('poolID IS NOT NULL');
-		}
-		else
+		$query->select('DISTINCT id, poolID, lft, rgt')
+			->from('#__organizer_curricula')
+			->where('poolID IS NOT NULL')
+			->order('lft');
+
+		if ($poolID !== '-1')
 		{
 			$query->where("poolID = $poolID");
 		}
 
 		$dbo->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		$ranges = OrganizerHelper::executeQuery('loadAssocList', []);
+
+		if ($exclude)
+		{
+			$filteredBoundaries = [];
+			foreach ($ranges as $range)
+			{
+				$filteredBoundaries = Mappings::removeExclusions($range);
+			}
+
+			return $filteredBoundaries;
+		}
+
+		return $ranges;
 	}
 
 	/**
@@ -312,7 +326,7 @@ class Pools extends ResourceHelper implements Selectable
 			return '[]';
 		}
 
-		$programBounds = Mappings::getMappings('program', $selectedProgram);
+		$programBounds = Programs::getRanges($selectedProgram);
 		$personClauses = Mappings::getPersonMappingClauses();
 
 		if (empty($programBounds))

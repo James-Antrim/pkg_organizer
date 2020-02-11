@@ -1,15 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------Initial
 
-TODO make THM settings configuration a local sql file
--email filter for internal mail addresses:
--lsf uri:
--lsf username:
--lsf password:
--representative name: "Prof. Dr. Matthias Willems"
--impressum address: "Technische Hochschule Mittelhessen – Wiesenstraße 14 – 35390 Gießen"
--impressum contact information: "Tel.: 0641/309 0 – Fax: 0641/309 2901 – www.thm.de"
-
-TODO adjust table classes to compensate for changes made to the table definitions contained in the install file
+TODO find out what purpose poking holes in the pool ranges with remove exclusions serves
+TODO simplify imports in PoolLSF and SubjectLSF
 
 -----------------------------------------------------------------------------------------------------Phase 1: Curriculum
 

@@ -11,13 +11,7 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\LSF;
-use Organizer\Helpers\Mappings;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\Programs as ProgramsTable;
+use Organizer\Helpers;
 
 /**
  * Class used to import lsf program data.
@@ -40,7 +34,7 @@ class ProgramLSF extends BaseModel
 		$query->where("p.id = '$programID'");
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssoc', []);
+		return Helpers\OrganizerHelper::executeQuery('loadAssoc', []);
 	}
 
 	/**
@@ -52,7 +46,7 @@ class ProgramLSF extends BaseModel
 	 */
 	private function getSubjectIDs($programID)
 	{
-		$borders = Mappings::getMappings('program', $programID);
+		$borders = Helpers\Programs::getRanges($programID);
 
 		$query = $this->_db->getQuery(true);
 		$query->select('DISTINCT subjectID')
@@ -62,7 +56,7 @@ class ProgramLSF extends BaseModel
 			->where("rgt < '{$borders[0]['rgt']}'");
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -73,11 +67,11 @@ class ProgramLSF extends BaseModel
 	 */
 	public function import()
 	{
-		$programIDs = Input::getSelectedIDs();
+		$programIDs = Helpers\Input::getSelectedIDs();
 
 		foreach ($programIDs as $programID)
 		{
-			if (!Can::document('program', $programID))
+			if (!Helpers\Can::document('program', $programID))
 			{
 				throw new Exception(Languages::_('ORGANIZER_403'), 403);
 			}
@@ -103,12 +97,12 @@ class ProgramLSF extends BaseModel
 		$programData = $this->getSavedProgramData($programID);
 		if (empty($programData))
 		{
-			OrganizerHelper::message('ORGANIZER_LSF_DATA_MISSING', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_LSF_DATA_MISSING', 'error');
 
 			return false;
 		}
 
-		$client  = new LSF;
+		$client  = new Helpers\LSF;
 		$program = $client->getModules($programData['program'], $programData['degree'], $programData['accredited']);
 		if (empty($program))
 		{
@@ -166,7 +160,7 @@ class ProgramLSF extends BaseModel
 
 		foreach ($program->gruppe as $resource)
 		{
-			$type    = LSF::determineType($resource);
+			$type    = Helpers\LSF::determineType($resource);
 			$success = true;
 
 			if ($type == 'subject')
@@ -214,7 +208,7 @@ class ProgramLSF extends BaseModel
 	 */
 	public function update()
 	{
-		$programIDs = Input::getSelectedIDs();
+		$programIDs = Helpers\Input::getSelectedIDs();
 
 		if (empty($programIDs))
 		{
@@ -225,7 +219,7 @@ class ProgramLSF extends BaseModel
 
 		foreach ($programIDs as $programID)
 		{
-			if (!Can::document('program', $programID))
+			if (!Helpers\Can::document('program', $programID))
 			{
 				throw new Exception(Languages::_('ORGANIZER_403'), 403);
 			}

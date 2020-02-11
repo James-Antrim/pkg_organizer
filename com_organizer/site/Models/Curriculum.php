@@ -49,13 +49,13 @@ class Curriculum extends ItemModel
 		$resource = [];
 		if ($poolID = Input::getFilterID('pool'))
 		{
-			$mappings         = Mappings::getMappings('pool', $poolID);
+			$mappings         = Pools::getRanges($poolID);
 			$resource['name'] = Pools::getName($poolID);
 			$resource['type'] = 'pool';
 		}
 		elseif ($programID = Input::getFilterID('program'))
 		{
-			$mappings         = Mappings::getMappings('program', $programID);
+			$mappings         = Programs::getRanges($programID);
 			$resource['name'] = Programs::getName($programID);
 			$resource['type'] = 'program';
 		}

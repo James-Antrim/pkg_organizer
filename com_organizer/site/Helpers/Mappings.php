@@ -131,45 +131,6 @@ class Mappings
 	}
 
 	/**
-	 * Retrieves the mapping boundaries of the selected resource
-	 *
-	 * @param   string   $resourceType       the type of the selected resource
-	 * @param   int      $resourceID         the id of the selected resource
-	 * @param   boolean  $excludeChildPools  whether the return values should have child pools filtered out
-	 *
-	 * @return array with boundary values on success, otherwise empty
-	 */
-	public static function getMappings($resourceType, $resourceID, $excludeChildPools = true)
-	{
-		$invalidID = (empty($resourceID) or $resourceID < 1);
-		if ($invalidID)
-		{
-			return [];
-		}
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select("id, {$resourceType}ID, level, lft, rgt")->from('#__organizer_mappings');
-		$query->where("{$resourceType}ID = '$resourceID'");
-		$dbo->setQuery($query);
-
-		$ufBoundarySet = OrganizerHelper::executeQuery('loadAssocList', []);
-
-		if ($resourceType == 'program' or $resourceType == 'subject' or !$excludeChildPools)
-		{
-			return $ufBoundarySet;
-		}
-
-		$filteredBoundaries = [];
-		foreach ($ufBoundarySet as $ufBoundaries)
-		{
-			$filteredBoundaries = self::removeExclusions($ufBoundaries);
-		}
-
-		return $filteredBoundaries;
-	}
-
-	/**
 	 * Gets a HTML option based upon a pool mapping
 	 *
 	 * @param   array &$mapping          the pool mapping entry
@@ -210,10 +171,8 @@ class Mappings
 	 */
 	public static function getPoolSubjects($poolID)
 	{
-		$poolBoundaries = self::getMappings('pool', $poolID, false);
-
 		// Subject does not yet have any mappings. Improbable, but possible
-		if (empty($poolBoundaries))
+		if (!$poolBoundaries = Pools::getRanges($poolID, false))
 		{
 			return [];
 		}
@@ -397,7 +356,7 @@ class Mappings
 	 */
 	public static function getProgramSubjects($programID)
 	{
-		$programBoundaries = self::getMappings('program', $programID);
+		$programBoundaries = Programs::getRanges($programID);
 
 		// Subject does not yet have any mappings. Improbable, but possible
 		if (empty($programBoundaries))
@@ -540,44 +499,6 @@ class Mappings
 		}
 
 		return $pools;
-	}
-
-	/**
-	 * Retrieves the set of program boundaries for the programs to which this subject is associated.
-	 *
-	 * @param   int  $subjectID  the id of the subject
-	 *
-	 * @return array the program boundaries
-	 */
-	public static function getSubjectPrograms($subjectID)
-	{
-		$subjectBoundaries = self::getMappings('subject', $subjectID);
-
-		// Subject does not yet have any mappings. Improbable, but possible
-		if (empty($subjectBoundaries))
-		{
-			return [];
-		}
-
-		$programs = self::getResourcePrograms($subjectBoundaries, true);
-
-		if (empty($programs))
-		{
-			return [];
-		}
-
-		foreach (array_keys($programs) as $programID)
-		{
-			$programBoundaries = self::getMappings('program', $programID);
-
-			if (!empty($programBoundaries))
-			{
-				$programs[$programID]['lft'] = $programBoundaries[0]['lft'];
-				$programs[$programID]['rgt'] = $programBoundaries[0]['rgt'];
-			}
-		}
-
-		return $programs;
 	}
 
 	/**
