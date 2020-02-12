@@ -11,9 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Mappings;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for superordinate (subject) pool mappings.
@@ -51,28 +49,28 @@ class ParentPoolField extends FormField
 	protected function getOptions()
 	{
 		// Get basic resource data
-		$resourceID   = Input::getID();
+		$resourceID   = Helpers\Input::getID();
 		$contextParts = explode('.', $this->form->getName());
 		$resourceType = str_replace('edit', '', $contextParts[1]);
 
 		$mappings   = [];
 		$mappingIDs = [];
 		$parentIDs  = [];
-		Mappings::setMappingData($resourceID, $resourceType, $mappings, $mappingIDs, $parentIDs);
+		Helpers\Mappings::setMappingData($resourceID, $resourceType, $mappings, $mappingIDs, $parentIDs);
 
 		$options   = [];
-		$options[] = '<option value="-1">' . Languages::_('JNONE') . '</option>';
+		$options[] = '<option value="-1">' . Helpers\Languages::_('JNONE') . '</option>';
 
 		if (!empty($mappings))
 		{
 			$unwantedMappings = [];
-			$programEntries   = Mappings::getProgramEntries($mappings);
-			$programMappings  = Mappings::getProgramMappings($programEntries);
+			$programEntries   = Helpers\Programs::getRanges($mappings);
+			$programMappings  = Helpers\Mappings::getProgramMappings($programEntries);
 
 			// Pools should not be allowed to be placed anywhere where recursion could occur
 			if ($resourceType == 'pool')
 			{
-				$children         = Mappings::getChildMappingIDs($mappings);
+				$children         = Helpers\Mappings::getChildMappingIDs($mappings);
 				$unwantedMappings = array_merge($unwantedMappings, $mappingIDs, $children);
 			}
 
@@ -86,11 +84,11 @@ class ParentPoolField extends FormField
 
 				if (!empty($mapping['poolID']))
 				{
-					$options[] = Mappings::getPoolOption($mapping, $parentIDs);
+					$options[] = Helpers\Mappings::getPoolOption($mapping, $parentIDs);
 				}
 				else
 				{
-					$options[] = Mappings::getProgramOption($mapping, $parentIDs, $resourceType);
+					$options[] = Helpers\Mappings::getProgramOption($mapping, $parentIDs, $resourceType);
 				}
 			}
 		}

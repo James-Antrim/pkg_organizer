@@ -11,9 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Mappings;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of (subject) pools.
@@ -29,13 +27,13 @@ class Pools extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
 		$query->select("DISTINCT p.id, p.name_$tag AS name, p.fieldID")
 			->from('#__organizer_pools AS p');
 
-		$authorized = Can::documentTheseOrganizations();
+		$authorized = Helpers\Can::documentTheseOrganizations();
 		$query->where('(p.organizationID IN (' . implode(',', $authorized) . ') OR p.organizationID IS NULL)');
 
 		$searchColumns = [
@@ -52,7 +50,7 @@ class Pools extends ListModel
 		$this->setValueFilters($query, ['organizationID', 'fieldID']);
 
 		$programID = $this->state->get('filter.programID', '');
-		Mappings::setResourceIDFilter($query, $programID, 'program', 'pool');
+		Helpers\Pools::setProgramFilter($query, $programID, 'pool');
 
 		$this->setOrdering($query);
 

@@ -10,11 +10,38 @@
 namespace Organizer\Helpers;
 
 
+use JDatabaseQuery;
 use Joomla\CMS\Factory;
 
 abstract class Curricula extends ResourceHelper implements Selectable
 {
-	const ALL = '-1';
+	const NONE = '-1';
+
+	/**
+	 * Adds clauses to an array to find subordinate resources in an error state disassociated from a superordinate
+	 * resource type.
+	 *
+	 * @param   JDatabaseQuery  $query   the query to modify
+	 * @param   array           $ranges  the ranges of the possible superordinate resources
+	 * @param   string          $alias   the alias to use in the query
+	 *
+	 * @return void modifies the query
+	 */
+	protected static function filterDisassociated(&$query, $ranges, $alias)
+	{
+		$erray = [];
+
+		foreach ($ranges as $range)
+		{
+			$erray[] = "( $alias.lft NOT BETWEEN '{$range['lft']}' AND '{$range['rgt']}' )";
+			$erray[] = "( $alias.rgt NOT BETWEEN '{$range['lft']}' AND '{$range['rgt']}' )";
+		}
+
+		$errorClauses = implode(' AND ', $erray);
+		$query->where("( ($errorClauses) OR $alias.id IS NULL ) ");
+
+		return;
+	}
 
 	/**
 	 * Adds range restrictions for subordinate resources.
@@ -25,7 +52,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	 *
 	 * @return void modifies the query
 	 */
-	private static function filterSubOrdinate(&$query, $ranges, $type = '')
+	protected static function filterSubOrdinate(&$query, $ranges, $type = '')
 	{
 		$wherray = [];
 		foreach ($ranges as $range)
@@ -132,4 +159,72 @@ abstract class Curricula extends ResourceHelper implements Selectable
 		return OrganizerHelper::executeQuery('loadAssocList', []);
 	}
 
+	/**
+	 * Adds a program filter clause to the given query.
+	 *
+	 * @param   JDatabaseQuery  $query   the query to be modified
+	 * @param   int             $poolID  the id of the pool to filter for
+	 *
+	 * @return void modifies the query
+	 */
+	public static function setPoolFilter(&$query, $poolID)
+	{
+		if (empty($poolID))
+		{
+			return;
+		}
+
+		if (!$ranges = Pools::getRanges($poolID))
+		{
+			return;
+		}
+
+		$query->leftJoin("#__organizer_curricula AS poc on poc.subjectID = p.id");
+
+		if ($poolID == self::NONE)
+		{
+			self::filterDisassociated($query, $ranges, 'poc');
+
+			return;
+		}
+
+		// Specific association
+		$query->where("poc.lft > '{$ranges[0]['lft']}'");
+		$query->where("poc.rgt < '{$ranges[0]['rgt']}'");
+	}
+
+	/**
+	 * Adds a program filter clause to the given query.
+	 *
+	 * @param   JDatabaseQuery  $query      the query to be modified
+	 * @param   int             $programID  the id of the program to filter for
+	 * @param   string          $context    the resource context from which this function was called
+	 *
+	 * @return void modifies the query
+	 */
+	public static function setProgramFilter(&$query, $programID, $context)
+	{
+		if (empty($programID))
+		{
+			return;
+		}
+
+		if (!$ranges = Programs::getRanges($programID))
+		{
+			return;
+		}
+
+		$query->leftJoin("#__organizer_curricula AS prc on prc.{$context}}ID = p.id");
+
+		if ($programID == self::NONE)
+		{
+			self::filterDisassociated($query, $ranges, 'prc');
+
+			return;
+		}
+
+		// Specific association
+		$query->where("prc.lft > '{$ranges[0]['lft']}'");
+		$query->where("prc.rgt < '{$ranges[0]['rgt']}'");
+	}
 }

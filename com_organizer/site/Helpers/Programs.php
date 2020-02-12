@@ -171,7 +171,7 @@ class Programs extends Curricula implements Selectable
 		else
 		{
 			$programID = (int) $identifiers;
-			if ($identifiers !== -1)
+			if ($identifiers != self::NONE)
 			{
 				$query->where("programID = $programID");
 			}

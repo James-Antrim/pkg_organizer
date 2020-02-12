@@ -52,9 +52,9 @@ class SubjectSelection extends ListModel
 		$this->setValueFilters($query, ['code', 'fieldID']);
 
 		$programID = $this->state->get('filter.programID', '');
-		Mappings::setResourceIDFilter($query, $programID, 'program', 'subject');
+		Helpers\Subjects::setProgramFilter($query, $programID, 'subject');
 		$poolID = $this->state->get('filter.poolID', '');
-		Mappings::setResourceIDFilter($query, $poolID, 'pool', 'subject');
+		Helpers\Subjects::setPoolFilter($query, $poolID);
 
 		$this->setOrdering($query);
 

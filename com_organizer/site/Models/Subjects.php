@@ -12,12 +12,8 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
-use Organizer\Helpers\Can;
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Mappings;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Subjects as SubjectsHelper;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of subjects.
@@ -36,7 +32,7 @@ class Subjects extends ListModel
 	public function filterFilterForm(&$form)
 	{
 		parent::filterFilterForm($form);
-		$params = Input::getParams();
+		$params = Helpers\Input::getParams();
 		if (!empty($params->get('programID')) or !empty($this->state->get('calledPoolID')))
 		{
 			$form->removeField('organizationID', 'filter');
@@ -45,7 +41,7 @@ class Subjects extends ListModel
 		}
 		elseif ($this->clientContext === self::BACKEND)
 		{
-			if (count(Can::documentTheseOrganizations()) === 1)
+			if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 			{
 				$form->removeField('organizationID', 'filter');
 			}
@@ -70,7 +66,7 @@ class Subjects extends ListModel
 
 		foreach ($items as $item)
 		{
-			$item->persons = SubjectsHelper::getPersons($item->id);
+			$item->persons = Helpers\Subjects::getPersons($item->id);
 		}
 
 		return $items;
@@ -84,7 +80,7 @@ class Subjects extends ListModel
 	protected function getListQuery()
 	{
 		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
+		$tag = Helpers\Languages::getTag();
 
 		// Create the sql query
 		$query = $dbo->getQuery(true);
@@ -112,16 +108,16 @@ class Subjects extends ListModel
 		$this->setSearchFilter($query, $searchFields);
 
 		$programID = $this->state->get('filter.programID', '');
-		Mappings::setResourceIDFilter($query, $programID, 'program', 'subject');
+		Helpers\Subjects::setProgramFilter($query, $programID, 'subject');
 
 		// The selected pool supercedes any original called pool
 		if ($poolID = $this->state->get('filter.poolID', ''))
 		{
-			Mappings::setResourceIDFilter($query, $poolID, 'pool', 'subject');
+			Helpers\Subjects::setPoolFilter($query, $poolID);
 		}
 		elseif ($calledPoolID = $this->state->get('calledPoolID', ''))
 		{
-			Mappings::setResourceIDFilter($query, $calledPoolID, 'pool', 'subject');
+			Helpers\Subjects::setPoolFilter($query, $calledPoolID);
 		}
 
 		$personID = $this->state->get('filter.personID', '');
@@ -158,7 +154,7 @@ class Subjects extends ListModel
 
 		if ($this->clientContext === self::BACKEND)
 		{
-			$authorized = Can::documentTheseOrganizations();
+			$authorized = Helpers\Can::documentTheseOrganizations();
 			if (count($authorized) === 1)
 			{
 				$this->state->set('filter.organizationID', $authorized[0]);
@@ -166,8 +162,8 @@ class Subjects extends ListModel
 		}
 		else
 		{
-			$programID = Input::getParams()->get('programID');
-			if ($poolID = Input::getInput()->get->getInt('poolID', 0) or $programID)
+			$programID = Helpers\Input::getParams()->get('programID');
+			if ($poolID = Helpers\Input::getInput()->get->getInt('poolID', 0) or $programID)
 			{
 				if ($poolID)
 				{
@@ -195,7 +191,7 @@ class Subjects extends ListModel
 	{
 		if ($this->clientContext === self::BACKEND)
 		{
-			$authorized = Can::documentTheseOrganizations();
+			$authorized = Helpers\Can::documentTheseOrganizations();
 			$query->where('(s.organizationID IN (' . implode(',', $authorized) . ') OR s.organizationID IS NULL)');
 		}
 		$organizationID = $this->state->get('filter.organizationID');

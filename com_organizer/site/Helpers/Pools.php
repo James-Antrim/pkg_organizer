@@ -201,7 +201,7 @@ class Pools extends Curricula implements Selectable
 		else
 		{
 			$programID = (int) $identifiers;
-			if ($identifiers !== -1)
+			if ($identifiers != self::NONE)
 			{
 				$query->where("poolID = $programID");
 			}
@@ -216,7 +216,7 @@ class Pools extends Curricula implements Selectable
 			$filteredBoundaries = [];
 			foreach ($ranges as $range)
 			{
-				$filteredBoundaries = Mappings::removeExclusions($range);
+				$filteredBoundaries = self::removeExclusions($range);
 			}
 
 			return $filteredBoundaries;
@@ -377,5 +377,68 @@ class Pools extends Curricula implements Selectable
 		}
 
 		return $pools;
+	}
+
+	/**
+	 * Retrieves the mapping boundaries of the selected resource
+	 *
+	 * @param   int  $range  the boundaries of a single pool
+	 *
+	 * @return array  array of arrays with boundary values
+	 */
+	private static function removeExclusions($range)
+	{
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('lft, rgt')->from('#__organizer_mappings')
+			->where('poolID IS NOT NULL')
+			->where("lft > '{$range['lft']}' AND rgt < '{$range['rgt']}'")
+			->order('lft');
+		$dbo->setQuery($query);
+
+		if (!$exclusions = OrganizerHelper::executeQuery('loadAssocList'))
+		{
+			return [$range];
+		}
+
+		$ranges = [];
+		foreach ($exclusions as $exclusion)
+		{
+			// Child has no children => has no impact on output
+			if ($exclusion['lft'] + 1 == $exclusion['rgt'])
+			{
+				continue;
+			}
+
+			// Not an immediate child
+			if ($exclusion['lft'] != $range['lft'] + 1)
+			{
+				// Create a new boundary from the current left to the exclusion
+				$boundary = ['lft' => $range['lft'], 'rgt' => $exclusion['lft']];
+
+				// Change the new left to the other side of the exclusion
+				$range['lft'] = $exclusion['rgt'];
+
+				$ranges[] = $boundary;
+			}
+			else
+			{
+				// Change the new left to the other side of the exclusion
+				$range['lft'] = $exclusion['rgt'];
+			}
+
+			if ($range['lft'] >= $range['rgt'])
+			{
+				break;
+			}
+		}
+
+		// Remnants after exclusions still exist
+		if ($range['lft'] < $range['rgt'])
+		{
+			$ranges[] = $range;
+		}
+
+		return $ranges;
 	}
 }

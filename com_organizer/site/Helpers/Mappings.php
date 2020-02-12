@@ -163,39 +163,6 @@ class Mappings
 	}
 
 	/**
-	 * Retrieves the mappings of superordinate programs
-	 *
-	 * @param   array &$mappings  the existing mappings of the element
-	 *
-	 * @return array  the superordinate program mappings
-	 */
-	public static function getProgramEntries(&$mappings)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('id, programID, lft, rgt');
-		$query->from('#__organizer_mappings');
-
-		$programs = [];
-		foreach ($mappings as $mapping)
-		{
-			$query->clear('where');
-			$query->where("lft < '{$mapping['lft']}'");
-			$query->where("rgt > '{$mapping['rgt']}'");
-			$query->where('parentID IS NULL');
-			$dbo->setQuery($query);
-			$program = OrganizerHelper::executeQuery('loadAssoc', []);
-
-			if (!empty($program) and !in_array($program, $programs))
-			{
-				$programs[] = $program;
-			}
-		}
-
-		return $programs;
-	}
-
-	/**
 	 * Retrieves all mapping entries subordinate to associated degree programs
 	 *
 	 * @param   array &$programEntries  the program mappings themselves
@@ -387,70 +354,6 @@ class Mappings
 	}
 
 	/**
-	 * Retrieves the mapping boundaries of the selected resource
-	 *
-	 * @param   int  $boundaries  the boundaries of a single pool
-	 *
-	 * @return array  array of arrays with boundary values
-	 */
-	public static function removeExclusions($boundaries)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('lft, rgt')->from('#__organizer_mappings');
-		$query->where('poolID IS NOT NULL');
-		$query->where("lft > '{$boundaries['lft']}' AND rgt < '{$boundaries['rgt']}'");
-		$query->order('lft');
-		$dbo->setQuery($query);
-
-		$exclusions = OrganizerHelper::executeQuery('loadAssocList');
-		if (empty($exclusions))
-		{
-			return [$boundaries];
-		}
-
-		$boundarySet = [];
-		foreach ($exclusions as $exclusion)
-		{
-			// Child has no children => has no impact on output
-			if ($exclusion['lft'] + 1 == $exclusion['rgt'])
-			{
-				continue;
-			}
-
-			// Not an immediate child
-			if ($exclusion['lft'] != $boundaries['lft'] + 1)
-			{
-				// Create a new boundary from the current left to the exclusion
-				$boundary = ['lft' => $boundaries['lft'], 'rgt' => $exclusion['lft']];
-
-				// Change the new left to the other side of the exclusion
-				$boundaries['lft'] = $exclusion['rgt'];
-
-				$boundarySet[] = $boundary;
-			}
-			else
-			{
-				// Change the new left to the other side of the exclusion
-				$boundaries['lft'] = $exclusion['rgt'];
-			}
-
-			if ($boundaries['lft'] >= $boundaries['rgt'])
-			{
-				break;
-			}
-		}
-
-		// Remnants after exclusions still exist
-		if ($boundaries['lft'] < $boundaries['rgt'])
-		{
-			$boundarySet[] = $boundaries;
-		}
-
-		return $boundarySet;
-	}
-
-	/**
 	 * Retrieves the parent ids of the resource in question. Used in parentpool field.
 	 *
 	 * @param   int     $resourceID    the resource id
@@ -472,56 +375,5 @@ class Mappings
 		$mappings   = array_merge($mappings, OrganizerHelper::executeQuery('loadAssocList', []));
 		$mappingIDs = array_merge($mappingIDs, OrganizerHelper::executeQuery('loadColumn', []));
 		$parentIDs  = array_merge($parentIDs, OrganizerHelper::executeQuery('loadColumn', [], 1));
-	}
-
-	/**
-	 * Sets the program id filter for a query. Used in pool manager and subject manager.
-	 *
-	 * @param   object &$query             the query object
-	 * @param   int     $resourceID        the id of the resource from the filter
-	 * @param   string  $resourceType      the type of the resource from the filter
-	 * @param   string  $formResourceType  the type of the resource from the form
-	 *
-	 * @return void  sets query object variables
-	 */
-	public static function setResourceIDFilter(&$query, $resourceID, $resourceType, $formResourceType)
-	{
-		$invalid = (empty($resourceID) or empty($resourceType) or empty($formResourceType));
-		if ($invalid)
-		{
-			return;
-		}
-
-		$ranges = self::getResourceRanges($resourceType, $resourceID);
-		if (empty($ranges))
-		{
-			return;
-		}
-
-		$alias           = $resourceType == 'pool' ? 'm1' : 'm2';
-		$aliasConditions = "$alias.{$formResourceType}ID = {$formResourceType[0]}.id";
-		$query->leftJoin("#__organizer_mappings AS $alias on $aliasConditions");
-
-		// No associations
-		if ($resourceID == '-1')
-		{
-			// Mapping exists but erroneous
-			$erray = [];
-
-			foreach ($ranges as $range)
-			{
-				$erray[] = "( $alias.lft NOT BETWEEN '{$range['lft']}' AND '{$range['rgt']}' )";
-				$erray[] = "( $alias.rgt NOT BETWEEN '{$range['lft']}' AND '{$range['rgt']}' )";
-			}
-
-			$errorClauses = implode(' AND ', $erray);
-			$query->where("( ($errorClauses) OR $alias.id IS NULL ) ");
-
-			return;
-		}
-
-		// Specific association
-		$query->where("$alias.lft > '{$ranges[0]['lft']}'");
-		$query->where("$alias.rgt < '{$ranges[0]['rgt']}'");
 	}
 }
