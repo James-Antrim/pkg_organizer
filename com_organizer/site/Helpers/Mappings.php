@@ -236,69 +236,6 @@ class Mappings
 	}
 
 	/**
-	 * Retrieves the mapped left and right values for the resource's existing mappings.
-	 * Used in programs field, and self.
-	 *
-	 * @param   string  $resourceType  the type of the mapped resource
-	 * @param   int     $resourceID    the id of the mapped resource
-	 *
-	 * @return array contains the sought left and right values
-	 */
-	public static function getResourceRanges($resourceType, $resourceID)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT lft, rgt')->from('#__organizer_mappings');
-
-		$allPrograms = ($resourceType == 'program' and $resourceID == '-1');
-		$allPools    = ($resourceType == 'pool' and $resourceID == '-1');
-		if ($allPrograms)
-		{
-			$query->where('programID IS NOT NULL');
-		}
-		elseif ($allPools)
-		{
-			$query->where('poolID IS NOT NULL');
-		}
-		else
-		{
-			$query->where("{$resourceType}ID = '$resourceID'");
-		}
-
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList', []);
-	}
-
-	/**
-	 * Retrieves the ids of associated degree programs
-	 *
-	 * @param   array  $ranges  the ranges for the individual subject entries
-	 *
-	 * @return array  the ids of the associated programs
-	 */
-	public static function getSelectedPrograms($ranges)
-	{
-		$dbo             = Factory::getDbo();
-		$rangeConditions = [];
-		foreach ($ranges as $range)
-		{
-			$rangeConditions[] = "( lft < '{$range['lft']}' AND rgt > '{$range['rgt']}' )";
-		}
-
-		$rangesClause = implode(' OR ', $rangeConditions);
-
-		$query = Programs::getProgramQuery();
-		$query->clear('SELECT');
-		$query->select('DISTINCT p.id')
-			->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')
-			->where($rangesClause);
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
 	 * Retrieves the parent ids of the resource in question. Used in parentpool field.
 	 *
 	 * @param   int     $resourceID    the resource id

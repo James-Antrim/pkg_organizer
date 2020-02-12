@@ -95,6 +95,32 @@ class Programs extends Curricula implements Selectable
 	}
 
 	/**
+	 * Gets the programIDs for the given resource
+	 *
+	 * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
+	 *
+	 * @return array the program ids
+	 */
+	public static function getIDs($identifiers)
+	{
+		if (!$ranges = self::getRanges($identifiers))
+		{
+			return [];
+		}
+
+		$ids = [];
+		foreach ($ranges as $range)
+		{
+			$ids[] = $range['programID'];
+		}
+
+		$ids = array_unique($ids);
+		sort($ids);
+
+		return $ids;
+	}
+
+	/**
 	 * Retrieves the program name
 	 *
 	 * @param   int  $programID  the table id for the program

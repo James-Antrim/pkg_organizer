@@ -150,8 +150,10 @@ class ProgramMappingsField extends FormField
 		$resourceType = str_replace('edit', '', $contextParts[1]);
 		$this->addScript($resourceID, $resourceType);
 
-		$ranges           = Helpers\Mappings::getResourceRanges($resourceType, $resourceID);
-		$selectedPrograms = empty($ranges) ? [] : Helpers\Mappings::getSelectedPrograms($ranges);
+		$ranges = $resourceType === 'pool' ?
+			Helpers\Pools::getRanges($resourceID) : Helpers\Subjects::getRanges($resourceID);
+
+		$selectedPrograms = empty($ranges) ? [] : Helpers\Programs::getIDs($ranges);
 		$options          = $this->getOptions();
 
 		$defaultOptions = [Helpers\HTML::_('select.option', '-1', Helpers\Languages::_('ORGANIZER_NONE'))];

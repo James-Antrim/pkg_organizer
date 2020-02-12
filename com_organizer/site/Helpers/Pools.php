@@ -274,8 +274,7 @@ class Pools extends Curricula implements Selectable
 			return [];
 		}
 
-		$ranges = $poolID ?
-			Mappings::getResourceRanges('pool', $poolID) : Mappings::getResourceRanges('program', $programID);
+		$ranges = $poolID ? self::getRanges($poolID) : Programs::getRanges($programID);
 		if (empty($ranges))
 		{
 			return [];
