@@ -11,7 +11,6 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use Organizer\Tables\Pools as PoolsTable;
 
 /**
  * Provides general functions for mapping data retrieval.
@@ -48,121 +47,6 @@ class Mappings
 	}
 
 	/**
-	 * Retrieves the ids of both direct and indirect pool children
-	 *
-	 * @param   array &$resource  the current mappings of the pool
-	 *
-	 * @return void  modifies the resource
-	 */
-	public static function getChildren(&$resource)
-	{
-		$invalidMapping = (empty($resource['lft']) or empty($resource['rgt']));
-		$isSubject      = !empty($resource['subjectID']);
-		if ($invalidMapping or $isSubject)
-		{
-			return;
-		}
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('*')
-			->from('#__organizer_mappings')
-			->where("lft > '{$resource['lft']}'")
-			->where("rgt < '{$resource['rgt']}'")
-			->where("level = {$resource['level']} + 1")
-			->order('lft');
-
-		if (!empty($resource['programID']))
-		{
-			$query->where("poolID IS NOT NULL");
-		}
-
-		$dbo->setQuery($query);
-
-		$mappings = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-
-		if (empty($mappings))
-		{
-			return;
-		}
-
-		foreach ($mappings as $id => &$mapping)
-		{
-			$attributes = $mapping['poolID'] ?
-				Pools::getResource($mapping['poolID']) : Subjects::getResource($mapping['subjectID']);
-			unset($attributes['id']);
-			$mapping = array_merge($mapping, $attributes);
-			if ($mapping['poolID'])
-			{
-				self::getChildren($mapping);
-			}
-		}
-
-		$resource['children'] = $mappings;
-
-		return;
-	}
-
-	/**
-	 * Provides an indentation according to the structural depth of a pool
-	 *
-	 * @param   string  $name          the name of the pool
-	 * @param   int     $level         the pool's structural depth
-	 * @param   bool    $withPrograms  if programs will be listed with the pools
-	 *
-	 * @return string
-	 */
-	public static function getIndentedPoolName($name, $level, $withPrograms = true)
-	{
-		if ($level == 1 and $withPrograms == false)
-		{
-			return $name;
-		}
-
-		$iteration = $withPrograms ? 0 : 1;
-		$indent    = '';
-		while ($iteration < $level)
-		{
-			$indent .= '&nbsp;&nbsp;&nbsp;';
-			$iteration++;
-		}
-
-		return $indent . '|_' . $name;
-	}
-
-	/**
-	 * Gets a HTML option based upon a pool mapping
-	 *
-	 * @param   array &$mapping          the pool mapping entry
-	 * @param   array &$selectedParents  the selected parents
-	 *
-	 * @return string  HTML option
-	 */
-	public static function getPoolOption(&$mapping, &$selectedParents)
-	{
-		$tag        = Languages::getTag();
-		$poolsTable = new PoolsTable;
-
-		try
-		{
-			$poolsTable->load($mapping['poolID']);
-		}
-		catch (Exception $exc)
-		{
-			OrganizerHelper::message($exc->getMessage(), 'error');
-
-			return '';
-		}
-
-		$nameColumn   = "name_$tag";
-		$indentedName = self::getIndentedPoolName($poolsTable->$nameColumn, $mapping['level']);
-
-		$selected = in_array($mapping['id'], $selectedParents) ? 'selected' : '';
-
-		return "<option value='{$mapping['id']}' $selected>$indentedName</option>";
-	}
-
-	/**
 	 * Retrieves all mapping entries subordinate to associated degree programs
 	 *
 	 * @param   array &$programEntries  the program mappings themselves
@@ -195,44 +79,6 @@ class Mappings
 		}
 
 		return $programMappings;
-	}
-
-	/**
-	 * Gets a HTML option based upon a program mapping
-	 *
-	 * @param   array  &$mapping          the program mapping entry
-	 * @param   array  &$selectedParents  the selected parents
-	 * @param   string  $resourceType     the type of resource
-	 *
-	 * @return string  HTML option
-	 */
-	public static function getProgramOption(&$mapping, &$selectedParents, $resourceType)
-	{
-		$dbo   = Factory::getDbo();
-		$query = Programs::getProgramQuery();
-
-		$query->where("p.id = '{$mapping['programID']}'");
-		$dbo->setQuery($query);
-
-		$name = OrganizerHelper::executeQuery('loadResult');
-
-		if (empty($name))
-		{
-			return '';
-		}
-
-		if ($resourceType == 'subject')
-		{
-			$selected = '';
-			$disabled = 'disabled';
-		}
-		else
-		{
-			$selected = in_array($mapping['id'], $selectedParents) ? 'selected' : '';
-			$disabled = '';
-		}
-
-		return "<option value='{$mapping['id']}' $selected $disabled>$name</option>";
 	}
 
 	/**

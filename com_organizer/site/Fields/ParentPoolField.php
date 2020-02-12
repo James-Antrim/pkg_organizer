@@ -84,11 +84,11 @@ class ParentPoolField extends FormField
 
 				if (!empty($mapping['poolID']))
 				{
-					$options[] = Helpers\Mappings::getPoolOption($mapping, $parentIDs);
+					$options[] = Helpers\Pools::getCurricularOption($mapping, $parentIDs);
 				}
 				else
 				{
-					$options[] = Helpers\Mappings::getProgramOption($mapping, $parentIDs, $resourceType);
+					$options[] = Helpers\Programs::getCurricularOption($mapping, $parentIDs, $resourceType);
 				}
 			}
 		}

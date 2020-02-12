@@ -44,11 +44,11 @@ class Pools extends Curricula implements Selectable
 
 			if (!empty($mapping['poolID']))
 			{
-				$options[] = Mappings::getPoolOption($mapping, $parentIDs);
+				$options[] = Pools::getCurricularOption($mapping, $parentIDs);
 			}
 			else
 			{
-				$options[] = Mappings::getProgramOption($mapping, $parentIDs, $resourceType);
+				$options[] = Programs::getCurricularOption($mapping, $parentIDs, $resourceType);
 			}
 		}
 	}
@@ -85,6 +85,33 @@ class Pools extends Curricula implements Selectable
 	}
 
 	/**
+	 * Gets a HTML option based upon a pool mapping
+	 *
+	 * @param   array  $mapping    the pool mapping entry
+	 * @param   array  $parentIDs  the selected parents
+	 *
+	 * @return string  HTML option
+	 */
+	public static function getCurricularOption($mapping, $parentIDs)
+	{
+		$tag        = Languages::getTag();
+		$poolsTable = new PoolsTable;
+		$poolsTable->load($mapping['poolID']);
+
+		if (!$poolsTable->load($mapping['poolID']))
+		{
+			return '';
+		}
+
+		$nameColumn   = "name_$tag";
+		$indentedName = Pools::getIndentedName($poolsTable->$nameColumn, $mapping['level']);
+
+		$selected = in_array($mapping['id'], $parentIDs) ? 'selected' : '';
+
+		return "<option value='{$mapping['id']}' $selected>$indentedName</option>";
+	}
+
+	/**
 	 * Retrieves the pool's full name if existent.
 	 *
 	 * @param   int  $poolID  the table's pool id
@@ -96,6 +123,27 @@ class Pools extends Curricula implements Selectable
 		$table = new PoolsTable;
 
 		return $table->load($poolID) ? $table->fullName : '';
+	}
+
+	/**
+	 * Creates a name for use in a list of options implicitly displaying the pool hierarchy.
+	 *
+	 * @param   string  $name   the name of the pool
+	 * @param   int     $level  the structural depth
+	 *
+	 * @return string the pool name indented according to the curricular hierarchy
+	 */
+	public static function getIndentedName($name, $level)
+	{
+		$iteration = 0;
+		$indent    = '';
+		while ($iteration < $level)
+		{
+			$indent .= '&nbsp;&nbsp;&nbsp;';
+			$iteration++;
+		}
+
+		return $indent . '|_' . $name;
 	}
 
 	/**
@@ -241,8 +289,9 @@ class Pools extends Curricula implements Selectable
 			return [];
 		}
 
-		$tag  = Languages::getTag();
-		$pool = [
+		$tag = Languages::getTag();
+
+		return [
 			'abbreviation' => $table->{"abbreviation_$tag"},
 			'bgColor'      => Fields::getColor($table->fieldID),
 			'description'  => $table->{"description_$tag"},
@@ -254,8 +303,6 @@ class Pools extends Curricula implements Selectable
 			'name'         => $table->{"name_$tag"},
 			'shortName'    => $table->{"shortName_$tag"},
 		];
-
-		return $pool;
 	}
 
 	/**

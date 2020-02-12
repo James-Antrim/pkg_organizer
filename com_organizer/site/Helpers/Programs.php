@@ -25,6 +25,41 @@ class Programs extends Curricula implements Selectable
 	use Filtered;
 
 	/**
+	 * Gets a HTML option based upon a program mapping
+	 *
+	 * @param   array   $mapping       the program mapping entry
+	 * @param   array   $parentIDs     the selected parents
+	 * @param   string  $resourceType  the type of resource
+	 *
+	 * @return string  HTML option
+	 */
+	public static function getCurricularOption($mapping, $parentIDs, $resourceType)
+	{
+		$dbo   = Factory::getDbo();
+		$query = self::getProgramQuery();
+		$query->where("p.id = '{$mapping['programID']}'");
+		$dbo->setQuery($query);
+
+		if (!$name = OrganizerHelper::executeQuery('loadResult'))
+		{
+			return '';
+		}
+
+		if ($resourceType == 'subject')
+		{
+			$selected = '';
+			$disabled = 'disabled';
+		}
+		else
+		{
+			$selected = in_array($mapping['id'], $parentIDs) ? 'selected' : '';
+			$disabled = '';
+		}
+
+		return "<option value='{$mapping['id']}' $selected $disabled>$name</option>";
+	}
+
+	/**
 	 * Creates a basic query for program related items.
 	 *
 	 * @return JDatabaseQuery

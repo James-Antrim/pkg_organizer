@@ -46,28 +46,24 @@ class Curriculum extends ItemModel
 			throw new Exception(Languages::_('ORGANIZER_401'), 401);
 		}
 
-		$resource = [];
+		$curriculum = [];
 		if ($poolID = Input::getFilterID('pool'))
 		{
-			$mappings         = Pools::getRanges($poolID);
-			$resource['name'] = Pools::getName($poolID);
-			$resource['type'] = 'pool';
+			$ranges             = Pools::getRanges($poolID);
+			$curriculum['name'] = Pools::getName($poolID);
+			$curriculum['type'] = 'pool';
+			$curriculum         += array_pop($ranges);
+			Pools::getCurriculum($curriculum);
 		}
 		elseif ($programID = Input::getFilterID('program'))
 		{
-			$mappings         = Programs::getRanges($programID);
-			$resource['name'] = Programs::getName($programID);
-			$resource['type'] = 'program';
-		}
-		else
-		{
-			return $resource;
+			$ranges             = Programs::getRanges($programID);
+			$curriculum['name'] = Programs::getName($programID);
+			$curriculum['type'] = 'program';
+			$curriculum         += array_pop($ranges);
+			Programs::getCurriculum($curriculum);
 		}
 
-		$mapping  = array_pop($mappings);
-		$resource += $mapping;
-		Mappings::getChildren($resource);
-
-		return $resource;
+		return $curriculum;
 	}
 }

@@ -87,6 +87,57 @@ abstract class Curricula extends ResourceHelper implements Selectable
 		$query->where('(' . implode(' OR ', $wherray) . ')');
 	}
 
+	public static function getCurriculum(&$curriculum)
+	{
+		$invalidRange = (empty($curriculum['lft']) or empty($curriculum['rgt']) or $curriculum['subjectID']);
+		if ($invalidRange)
+		{
+			return;
+		}
+
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('*')
+			->from('#__organizer_curricula')
+			->where("lft > {$curriculum['lft']}")
+			->where("rgt < {$curriculum['rgt']}")
+			->where("level = {$curriculum['level']} + 1")
+			->order('lft');
+
+		// Only pools should be direct subordinates of programs
+		if ($curriculum['programID'])
+		{
+			$query->where("poolID IS NOT NULL");
+		}
+
+		$dbo->setQuery($query);
+
+		if (!$subordinateResources = OrganizerHelper::executeQuery('loadAssocList', [], 'id'))
+		{
+			return;
+		}
+
+		// Fill data for subordinate resources
+		foreach ($subordinateResources as $mappingID => &$resource)
+		{
+			$resourceData = $resource['poolID'] ?
+				Pools::getResource($resource['poolID']) : Subjects::getResource($resource['subjectID']);
+
+			// Avoid conflicts between the resource's actual id and the curriculum mapping id
+			unset($resourceData['id']);
+
+			$resource = array_merge($resource, $resourceData);
+			if ($resource['poolID'])
+			{
+				self::getCurriculum($resource);
+			}
+		}
+
+		$curriculum['curriculum'] = $subordinateResources;
+
+		return;
+	}
+
 	/**
 	 * Gets the mapped curricula ranges for the given resource
 	 *
