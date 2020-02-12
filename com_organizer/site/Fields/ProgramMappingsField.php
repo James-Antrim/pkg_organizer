@@ -10,12 +10,10 @@
 
 namespace Organizer\Fields;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Mappings;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for (degree) program mappings.
@@ -28,37 +26,6 @@ class ProgramMappingsField extends FormField
 	 * @var  string
 	 */
 	protected $type = 'ProgramMappings';
-
-	/**
-	 * Returns a select box where stored degree program can be chosen
-	 *
-	 * @return string  the HTML for the select box
-	 */
-	public function getInput()
-	{
-		$resourceID   = $this->form->getValue('id');
-		$contextParts = explode('.', $this->form->getName());
-		$resourceType = str_replace('edit', '', $contextParts[1]);
-		$this->addScript($resourceID, $resourceType);
-
-		$ranges           = Mappings::getResourceRanges($resourceType, $resourceID);
-		$selectedPrograms = empty($ranges) ? [] : Mappings::getSelectedPrograms($ranges);
-		$options          = Mappings::getProgramOptions();
-
-		foreach ($options as $key => $option)
-		{
-			if (!Can::document('program', $option->value))
-			{
-				unset($options[$key]);
-			}
-		}
-
-		$defaultOptions = [HTML::_('select.option', '-1', Languages::_('ORGANIZER_NONE'))];
-		$programs       = $defaultOptions + $options;
-		$attributes     = ['multiple' => 'multiple', 'size' => '10'];
-
-		return HTML::selectBox($programs, 'programID', $attributes, $selectedPrograms, true);
-	}
 
 	/**
 	 * Adds the javascript to the page necessary to refresh the parent pool options
@@ -169,5 +136,61 @@ class ProgramMappingsField extends FormField
             });
         </script>
 		<?php
+	}
+
+	/**
+	 * Returns a select box where stored degree program can be chosen
+	 *
+	 * @return string  the HTML for the select box
+	 */
+	public function getInput()
+	{
+		$resourceID   = $this->form->getValue('id');
+		$contextParts = explode('.', $this->form->getName());
+		$resourceType = str_replace('edit', '', $contextParts[1]);
+		$this->addScript($resourceID, $resourceType);
+
+		$ranges           = Helpers\Mappings::getResourceRanges($resourceType, $resourceID);
+		$selectedPrograms = empty($ranges) ? [] : Helpers\Mappings::getSelectedPrograms($ranges);
+		$options          = $this->getOptions();
+
+		$defaultOptions = [Helpers\HTML::_('select.option', '-1', Helpers\Languages::_('ORGANIZER_NONE'))];
+		$programs       = $defaultOptions + $options;
+		$attributes     = ['multiple' => 'multiple', 'size' => '10'];
+
+		return Helpers\HTML::selectBox($programs, 'programID', $attributes, $selectedPrograms, true);
+	}
+
+	/**
+	 * Creates a list of programs to which the user has documentation access.
+	 *
+	 * @return array HTML options strings
+	 */
+	private function getOptions()
+	{
+		$query = Helpers\Programs::getProgramQuery();
+		$dbo   = Factory::getDbo();
+
+		$query->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')->order('name ASC');
+		$dbo->setQuery($query);
+
+		$programs = Helpers\OrganizerHelper::executeQuery('loadAssocList');
+		if (empty($programs))
+		{
+			return [];
+		}
+
+		$options = [];
+		foreach ($programs as $program)
+		{
+			if (!Helpers\Can::document('program', $program['id']))
+			{
+				continue;
+			}
+
+			$options[] = Helpers\HTML::_('select.option', $program['id'], $program['name']);
+		}
+
+		return $options;
 	}
 }

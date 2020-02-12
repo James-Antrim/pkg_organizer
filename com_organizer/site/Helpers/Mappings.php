@@ -236,34 +236,6 @@ class Mappings
 	}
 
 	/**
-	 * Retrieves a list of all available programs
-	 *
-	 * @return array  the ids and names of all available programs
-	 */
-	public static function getProgramOptions()
-	{
-		$query = Programs::getProgramQuery();
-		$dbo   = Factory::getDbo();
-
-		$query->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')->order('name ASC');
-		$dbo->setQuery($query);
-
-		$programs = OrganizerHelper::executeQuery('loadAssocList');
-		if (empty($programs))
-		{
-			return [];
-		}
-
-		$options = [];
-		foreach ($programs as $program)
-		{
-			$options[] = HTML::_('select.option', $program['id'], $program['name']);
-		}
-
-		return $options;
-	}
-
-	/**
 	 * Retrieves the mapped left and right values for the resource's existing mappings.
 	 * Used in programs field, and self.
 	 *
@@ -321,33 +293,6 @@ class Mappings
 		$query->select('DISTINCT p.id')
 			->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')
 			->where($rangesClause);
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
-	 * Retrieves the nested slice values for subjects associated with the
-	 * selected person
-	 *
-	 * @return mixed  array on success, otherwise null
-	 */
-	public static function getPersonMappingClauses()
-	{
-		$personID = Input::getInt('personID');
-		if (empty($personID) or $personID == '-1' or $personID == 'null')
-		{
-			return null;
-		}
-
-		$dbo                  = Factory::getDbo();
-		$query                = $dbo->getQuery(true);
-		$concateMappingClause = ["'m.lft <= '", 'm.lft', "' AND m.rgt >= '", 'm.rgt'];
-		$mappingClause        = $query->concatenate($concateMappingClause);
-		$query->select("DISTINCT $mappingClause");
-		$query->from('#__organizer_subject_persons AS st');
-		$query->innerJoin('#__organizer_mappings AS m ON m.subjectID = st.subjectID');
-		$query->where("st.personID = '$personID'");
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadColumn', []);

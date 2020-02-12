@@ -324,62 +324,6 @@ class Pools extends Curricula implements Selectable
 	}
 
 	/**
-	 * Retrieves pool entries from the database based upon selected program and
-	 * person
-	 *
-	 * @return string  the subjects which fit the selected resource
-	 */
-	public static function poolsByProgramOrPerson()
-	{
-		$selectedProgram = Input::getInt('programID');
-		if (empty($selectedProgram) or $selectedProgram == '-1')
-		{
-			return '[]';
-		}
-
-		$programBounds = Programs::getRanges($selectedProgram);
-		$personClauses = Mappings::getPersonMappingClauses();
-
-		if (empty($programBounds))
-		{
-			return '[]';
-		}
-
-		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
-		$query->select("p.id, p.name_{$tag} AS name, m.level");
-		$query->from('#__organizer_pools AS p');
-		$query->innerJoin('#__organizer_mappings AS m ON m.poolID = p.id');
-		if (!empty($programBounds[0]))
-		{
-			$query->where("m.lft >= '{$programBounds[0]['lft']}'");
-			$query->where("m.rgt <= '{$programBounds[0]['rgt']}'");
-		}
-
-		if (!empty($personClauses))
-		{
-			$query->where('( ( ' . implode(') OR (', $personClauses) . ') )');
-		}
-
-		$query->order('lft');
-		$dbo->setQuery($query);
-
-		$pools = OrganizerHelper::executeQuery('loadObjectList');
-		if (empty($pools))
-		{
-			return '[]';
-		}
-
-		foreach ($pools as $key => $value)
-		{
-			$pools[$key]->name = Mappings::getIndentedPoolName($value->name, $value->level, false);
-		}
-
-		return $pools;
-	}
-
-	/**
 	 * Retrieves the mapping boundaries of the selected resource
 	 *
 	 * @param   int  $range  the boundaries of a single pool

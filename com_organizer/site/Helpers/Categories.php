@@ -156,30 +156,4 @@ class Categories implements Associated, Selectable
 
 		return OrganizerHelper::executeQuery('loadAssocList', []);
 	}
-
-	/**
-	 * Retrieves programs relevant to a selected person. Probably called by the pool/subject selection views.
-	 *
-	 * @return string  the subjects which fit the selected resource
-	 * @todo Move this to either persons or programs
-	 * @todo Find out where this is called and document it here.
-	 */
-	public function byPerson()
-	{
-		$dbo   = Factory::getDbo();
-		$query = Programs::getProgramQuery();
-		$query->innerJoin('#__organizer_mappings AS m ON m.programID = p.id');
-
-		if ($personClauses = Mappings::getPersonMappingClauses())
-		{
-			$query->where('( ( ' . implode(') OR (', $personClauses) . ') )');
-		}
-
-		$query->order('name');
-		$dbo->setQuery($query);
-
-		$programs = OrganizerHelper::executeQuery('loadObjectList', []);
-
-		return json_encode($programs, JSON_UNESCAPED_UNICODE);
-	}
 }
