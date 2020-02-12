@@ -16,10 +16,8 @@ use Organizer\Tables\Pools as PoolsTable;
 /**
  * Provides general functions for (subject) pool access checks, data retrieval and display.
  */
-class Pools extends ResourceHelper implements Selectable
+class Pools extends Curricula implements Selectable
 {
-	const ALL = '-1';
-
 	use Filtered;
 
 	/**
@@ -177,23 +175,36 @@ class Pools extends ResourceHelper implements Selectable
 	/**
 	 * Gets the mapped curricula ranges for the given pool
 	 *
-	 * @param   int   $poolID   the id of the subject
-	 * @param   bool  $exclude  whether subordinate pools should be filtered from the result set
+	 * @param   mixed  $identifiers  int poolID | array ranges of subordinate resources
+	 * @param   bool   $exclude      whether subordinate pools should be filtered from the result set
 	 *
 	 * @return array the pool ranges
 	 */
-	public static function getRanges($poolID, $exclude = true)
+	public static function getRanges($identifiers, $exclude = true)
 	{
+		if (!is_numeric($identifiers) and !is_array($identifiers))
+		{
+			return [];
+		}
+
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT id, poolID, lft, rgt')
+		$query->select('DISTINCT *')
 			->from('#__organizer_curricula')
-			->where('poolID IS NOT NULL')
+			->where('poolID IS NOT NULL ')
 			->order('lft');
 
-		if ($poolID !== '-1')
+		if (is_array($identifiers))
 		{
-			$query->where("poolID = $poolID");
+			self::filterSuperOrdinate($query, $identifiers);
+		}
+		else
+		{
+			$programID = (int) $identifiers;
+			if ($identifiers !== -1)
+			{
+				$query->where("poolID = $programID");
+			}
 		}
 
 		$dbo->setQuery($query);

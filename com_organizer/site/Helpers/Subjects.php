@@ -16,10 +16,8 @@ use Organizer\Tables\Subjects as SubjectsTable;
 /**
  * Provides general functions for subject access checks, data retrieval and display.
  */
-class Subjects extends ResourceHelper implements Selectable
+class Subjects extends Curricula implements Selectable
 {
-	const ALL = '-1';
-
 	/**
 	 * Check if user one of the subject's coordinators.
 	 *
@@ -196,29 +194,34 @@ class Subjects extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Looks up the names of the programs associated with the subject
+	 * Looks up the names of the pools associated with the subject
 	 *
 	 * @param   int  $subjectID  the id of the (plan) subject
 	 *
 	 * @return array the associated program names
 	 */
-	public static function getPrograms($subjectID)
+	public static function getPools($subjectID)
 	{
-		return Programs::getRanges(self::getRanges($subjectID));
+		return Pools::getRanges(self::getRanges($subjectID));
 	}
 
 	/**
-	 * Gets the mapped curricula ranges for the given subject
+	 * Gets the mapped curricula ranges for the given resource
 	 *
-	 * @param   int  $subjectID  the id of the subject
+	 * @param   mixed  $subjectID  int resourceID
 	 *
-	 * @return array the subject ranges
+	 * @return array the resource ranges
 	 */
 	public static function getRanges($subjectID)
 	{
+		if (!is_numeric($subjectID))
+		{
+			return [];
+		}
+
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT id, subjectID, lft, rgt')
+		$query->select('DISTINCT *')
 			->from('#__organizer_curricula')
 			->where("subjectID = $subjectID")
 			->order('lft');

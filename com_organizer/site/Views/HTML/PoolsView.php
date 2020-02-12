@@ -10,11 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Fields;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Mappings;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of (subject) pools into the display context.
@@ -30,7 +26,7 @@ abstract class PoolsView extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Can::documentTheseOrganizations();
+		return (bool) Helpers\Can::documentTheseOrganizations();
 	}
 
 	/**
@@ -44,9 +40,9 @@ abstract class PoolsView extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'  => '',
-			'name'      => HTML::sort('NAME', 'name', $direction, $ordering),
-			'programID' => Languages::_('ORGANIZER_PROGRAM'),
-			'fieldID'   => HTML::sort('FIELD', 'field', $direction, $ordering)
+			'name'      => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'programID' => Helpers\Languages::_('ORGANIZER_PROGRAM'),
+			'fieldID'   => Helpers\HTML::sort('FIELD', 'field', $direction, $ordering)
 		];
 
 		$this->headers = $headers;
@@ -65,8 +61,8 @@ abstract class PoolsView extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->fieldID           = Fields::getListDisplay($item->fieldID);
-			$item->programID         = Mappings::getProgramName('pool', $item->id);
+			$item->fieldID           = Helpers\Fields::getListDisplay($item->fieldID);
+			$item->programID         = Helpers\Pools::getProgramName('pool', $item->id);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

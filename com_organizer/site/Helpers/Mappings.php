@@ -163,24 +163,6 @@ class Mappings
 	}
 
 	/**
-	 * Retrieves the set of subjects associated with the given pool
-	 *
-	 * @param   int  $poolID  the id of the pool
-	 *
-	 * @return array the pool subjects
-	 */
-	public static function getPoolSubjects($poolID)
-	{
-		// Subject does not yet have any mappings. Improbable, but possible
-		if (!$poolBoundaries = Pools::getRanges($poolID, false))
-		{
-			return [];
-		}
-
-		return self::getResourceSubjects($poolBoundaries);
-	}
-
-	/**
 	 * Retrieves the mappings of superordinate programs
 	 *
 	 * @param   array &$mappings  the existing mappings of the element
@@ -246,39 +228,6 @@ class Mappings
 		}
 
 		return $programMappings;
-	}
-
-	/**
-	 * Retrieves a string value representing the degree programs to which the
-	 * pool is ordered. Used in pool and subject manager views.
-	 *
-	 * @param   string  $resourceType  the type of the mapped resource
-	 * @param   int     $resourceID    the id of the resource
-	 *
-	 * @return string  string representing the associated program(s)
-	 */
-	public static function getProgramName($resourceType, $resourceID)
-	{
-		$resourceRanges = self::getResourceRanges($resourceType, $resourceID);
-		if (empty($resourceRanges))
-		{
-			return Languages::_('JNONE');
-		}
-
-		$programs = self::getResourcePrograms($resourceRanges);
-		if (empty($programs))
-		{
-			return Languages::_('JNONE');
-		}
-
-		if (count($programs) === 1)
-		{
-			return $programs[0];
-		}
-		else
-		{
-			return Languages::_('ORGANIZER_MULTIPLE_PROGRAMS');
-		}
 	}
 
 	/**
@@ -348,58 +297,6 @@ class Mappings
 	}
 
 	/**
-	 * Retrieves the set of subjects associated with the given program
-	 *
-	 * @param   int  $programID  the id of the program
-	 *
-	 * @return array the program subjects
-	 */
-	public static function getProgramSubjects($programID)
-	{
-		$programBoundaries = Programs::getRanges($programID);
-
-		// Subject does not yet have any mappings. Improbable, but possible
-		if (empty($programBoundaries))
-		{
-			return [];
-		}
-
-		return self::getResourceSubjects($programBoundaries);
-	}
-
-	/**
-	 * Retrieves the names of the programs to which a resource is ordered. Used in self.
-	 *
-	 * @param   array  $resourceRanges  the left and right values of the resource's mappings
-	 * @param   bool   $getIDs          whether or not the program ids should be included in the return value
-	 *
-	 * @return mixed array the names of the programs to which the pool is ordered on success, otherwise false
-	 */
-	private static function getResourcePrograms($resourceRanges, $getIDs = false)
-	{
-		$rangeClauses = [];
-		foreach ($resourceRanges as $borders)
-		{
-			$rangeClauses[] = "( lft < '{$borders['lft']}' AND rgt > '{$borders['rgt']}')";
-		}
-
-		$dbo   = Factory::getDbo();
-		$query = Programs::getProgramQuery();
-
-		$query->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')
-			->where($rangeClauses, 'OR')
-			->order('name');
-		$dbo->setQuery($query);
-
-		if ($getIDs)
-		{
-			return OrganizerHelper::executeQuery('loadAssocList', null, 'id');
-		}
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
 	 * Retrieves the mapped left and right values for the resource's existing mappings.
 	 * Used in programs field, and self.
 	 *
@@ -432,73 +329,6 @@ class Mappings
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssocList', []);
-	}
-
-	/**
-	 * Retrieves the names of the programs to which a resource is ordered. Used in self.
-	 *
-	 * @param   array  $resourceRanges  the left and right values of the resource's mappings
-	 *
-	 * @return array the ids of the subjects with which the resource is associated, otherwise empty
-	 */
-	private static function getResourceSubjects($resourceRanges)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT subjectID')
-			->from('#__organizer_mappings')
-			->where("lft > {$resourceRanges[0]['lft']}")
-			->where("rgt < {$resourceRanges[0]['rgt']}");
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
-	 * Retrieves the names of the pools to which a resource is ordered
-	 *
-	 * @param   array  $ranges  the left and right values of the resource's mappings
-	 *
-	 * @return array  the names of the pools to which the subject is ordered
-	 */
-	public static function getSubjectPools($ranges)
-	{
-		$dbo      = Factory::getDbo();
-		$lftQuery = $dbo->getQuery(true);
-		$lftQuery->select('lft');
-		$lftQuery->from('#__organizer_pools AS p');
-		$lftQuery->innerJoin('#__organizer_mappings AS m ON m.poolID = p.id');
-		$lftQuery->order('lft DESC');
-
-		$tag       = Languages::getTag();
-		$nameQuery = $dbo->getQuery(true);
-		$nameQuery->select("DISTINCT p.name_$tag AS name");
-		$nameQuery->from('#__organizer_pools AS p');
-		$nameQuery->innerJoin('#__organizer_mappings AS m ON m.poolID = p.id');
-		$pools = [];
-
-		// Each range is a unique pool association
-		foreach ($ranges as $borders)
-		{
-			$lftQuery->clear('where');
-			$lftQuery->where('poolID IS NOT NULL');
-			$lftQuery->where("( lft < '{$borders['lft']}' AND rgt > '{$borders['rgt']}')");
-			$dbo->setQuery($lftQuery);
-
-			$poolLFT = OrganizerHelper::executeQuery('loadResult');
-			if (empty($poolLFT))
-			{
-				continue;
-			}
-
-			$nameQuery->clear('where');
-			$nameQuery->where("lft = '$poolLFT'");
-			$dbo->setQuery($nameQuery);
-
-			$pools[] = OrganizerHelper::executeQuery('loadResult');
-		}
-
-		return $pools;
 	}
 
 	/**
