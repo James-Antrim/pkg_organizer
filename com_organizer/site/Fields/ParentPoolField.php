@@ -48,51 +48,14 @@ class ParentPoolField extends FormField
 	 */
 	protected function getOptions()
 	{
-		// Get basic resource data
 		$resourceID   = Helpers\Input::getID();
 		$contextParts = explode('.', $this->form->getName());
 		$resourceType = str_replace('edit', '', $contextParts[1]);
 
-		$mappings   = [];
-		$mappingIDs = [];
-		$parentIDs  = [];
-		Helpers\Mappings::setMappingData($resourceID, $resourceType, $mappings, $mappingIDs, $parentIDs);
+		// Initial program ranges are dependant on existing ranges.
+		$programRanges = $resourceType === 'pool' ?
+			Helpers\Pools::getPrograms($resourceID) : Helpers\Subjects::getPrograms($resourceID);
 
-		$options   = [];
-		$options[] = '<option value="-1">' . Helpers\Languages::_('JNONE') . '</option>';
-
-		if (!empty($mappings))
-		{
-			$unwantedMappings = [];
-			$programEntries   = Helpers\Programs::getRanges($mappings);
-			$programMappings  = Helpers\Mappings::getProgramMappings($programEntries);
-
-			// Pools should not be allowed to be placed anywhere where recursion could occur
-			if ($resourceType == 'pool')
-			{
-				$children         = Helpers\Mappings::getChildMappingIDs($mappings);
-				$unwantedMappings = array_merge($unwantedMappings, $mappingIDs, $children);
-			}
-
-			foreach ($programMappings as $mapping)
-			{
-				// Recursive mappings or mappings belonging to subjects should not be offered
-				if (in_array($mapping['id'], $unwantedMappings) or !empty($mapping['subjectID']))
-				{
-					continue;
-				}
-
-				if (!empty($mapping['poolID']))
-				{
-					$options[] = Helpers\Pools::getCurricularOption($mapping, $parentIDs);
-				}
-				else
-				{
-					$options[] = Helpers\Programs::getCurricularOption($mapping, $parentIDs, $resourceType);
-				}
-			}
-		}
-
-		return $options;
+		return Helpers\Pools::getSuperOrdinateOptions($resourceID, $resourceType, $programRanges);
 	}
 }

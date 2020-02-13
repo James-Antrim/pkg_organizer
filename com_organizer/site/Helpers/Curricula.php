@@ -9,7 +9,6 @@
 
 namespace Organizer\Helpers;
 
-
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 
@@ -41,6 +40,42 @@ abstract class Curricula extends ResourceHelper implements Selectable
 		$query->where("( ($errorClauses) OR $alias.id IS NULL ) ");
 
 		return;
+	}
+
+	/**
+	 * Filters the curricula ids from an array of ranges.
+	 *
+	 * @param   array  $ranges  the ranges to filter
+	 *
+	 * @return array the curricular ids contained in the ranges
+	 */
+	public static function filterIDs($ranges)
+	{
+		$ids = [];
+		foreach ($ranges as $range)
+		{
+			$ids[] = $range['id'];
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Filters the curricula ids from an array of ranges.
+	 *
+	 * @param   array  $ranges  the ranges to filter
+	 *
+	 * @return array the curricular ids contained in the ranges
+	 */
+	public static function filterParentIDs($ranges)
+	{
+		$ids = [];
+		foreach ($ranges as $range)
+		{
+			$ids[] = $range['parentID'];
+		}
+
+		return $ids;
 	}
 
 	/**
@@ -87,6 +122,13 @@ abstract class Curricula extends ResourceHelper implements Selectable
 		$query->where('(' . implode(' OR ', $wherray) . ')');
 	}
 
+	/**
+	 * Recursively builds the curriculum hierarchy inclusive data for resources subordinate to a given range.
+	 *
+	 * @param   array  $curriculum  the range used as the start point
+	 *
+	 * @return void modifies the curriculum array
+	 */
 	public static function getCurriculum(&$curriculum)
 	{
 		$invalidRange = (empty($curriculum['lft']) or empty($curriculum['rgt']) or $curriculum['subjectID']);
@@ -139,6 +181,41 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	}
 
 	/**
+	 * Retrieves all non-subject mapping entries subordinate to associated degree programs
+	 *
+	 * @param   array  $programRanges  the ranges of superordinate programs
+	 *
+	 * @return array  an array containing all ranges subordinate to the ranges specified
+	 */
+	private static function getMappableItems($programRanges)
+	{
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('*');
+		$query->from('#__organizer_curricula');
+
+		$items = [];
+		foreach ($programRanges as $range)
+		{
+			$query->clear('where');
+			$query->where("lft >= {$range['lft']}")
+				->where("rgt <= {$range['rgt']}")
+				->where('subjectID IS NULL')
+				->order('lft ASC');
+			$dbo->setQuery($query);
+
+			if (!$results = OrganizerHelper::executeQuery('loadAssocList', []))
+			{
+				continue;
+			}
+
+			$items = array_merge($items, $results);
+		}
+
+		return $items;
+	}
+
+	/**
 	 * Gets the mapped curricula ranges for the given resource
 	 *
 	 * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
@@ -146,6 +223,105 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	 * @return array the resource ranges
 	 */
 	abstract public static function getRanges($identifiers);
+
+	/**
+	 * Retrieves the ids of all subordinate resource ranges.
+	 *
+	 * @param   array  $ranges  the current ranges of the pool
+	 *
+	 * @return array  the ids of the subordinate resource ranges
+	 */
+	public static function getSubOrdinateIDs($ranges)
+	{
+		$dbo = Factory::getDbo();
+
+		$query = $dbo->getQuery(true);
+		$query->select('id')->from('#__organizer_curricula');
+		$dbo->setQuery($query);
+
+		$subordinateIDs = [];
+		foreach ($ranges as $range)
+		{
+			$query->clear('where');
+			$query->where("lft > {$range['lft']}")
+				->where("rgt < {$range['rgt']}")
+				->order('lft ASC');
+			$dbo->setQuery($query);
+
+			if (!$results = OrganizerHelper::executeQuery('loadAssocList', []))
+			{
+				continue;
+			}
+
+			$subordinateIDs = array_merge($subordinateIDs, $results);
+		}
+
+		return OrganizerHelper::executeQuery('loadColumn', []);
+	}
+
+	/**
+	 * Retrieves a list of options for choosing superordinate entries in the curriculum hierarchy.
+	 *
+	 * @param   int     $resourceID     the id of the resource for which the form is being displayed
+	 * @param   string  $type           the type of the resource
+	 * @param   array   $programRanges  the ranges for programs selected in the form, or already mapped
+	 *
+	 * @return array the superordinate resource options
+	 */
+	public static function getSuperOrdinateOptions($resourceID, $type, $programRanges)
+	{
+		$options = ['<option value="-1">' . Languages::_('JNONE') . '</option>'];
+		if (empty($resourceID) or empty($type) or empty($programRanges))
+		{
+			return $options;
+		}
+
+		$mappableItems      = self::getMappableItems($programRanges);
+		$onlyProgramsMapped = count($mappableItems) === count($programRanges);
+
+		// Subjects cannot be subordinated to programs
+		if ($onlyProgramsMapped and $type == 'subject')
+		{
+			return $options;
+		}
+
+		if ($type === 'pool')
+		{
+			$selected = Pools::getRanges($resourceID);
+
+			$currentIDs     = self::filterIDs($selected);
+			$subordinateIDs = self::getSubOrdinateIDs($selected);
+
+			// Pools cannot be subordinated to themselves or any pool subordinated to them.
+			$suppressIDs = array_merge($currentIDs, $subordinateIDs);
+		}
+		else
+		{
+			$selected    = Subjects::getRanges($resourceID);
+			$suppressIDs = [];
+		}
+
+		$parentIDs = self::filterParentIDs($selected);
+
+		foreach ($mappableItems as $mappableItem)
+		{
+			if (in_array($mappableItem['id'], $suppressIDs))
+			{
+				continue;
+			}
+
+			if (!empty($mapping['poolID']))
+			{
+				$options[] = Pools::getCurricularOption($mapping, $parentIDs);
+			}
+			else
+			{
+				$options[] = Programs::getCurricularOption($mapping, $parentIDs, $type);
+			}
+		}
+
+		return $options;
+	}
 
 	/**
 	 * Retrieves a string value representing the degree programs to which the resource is associated.

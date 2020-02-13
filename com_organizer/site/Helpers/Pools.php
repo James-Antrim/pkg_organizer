@@ -27,30 +27,11 @@ class Pools extends Curricula implements Selectable
 	 * @param   array   &$programMappings      mappings belonging to one of the requested programs
 	 * @param   array   &$unelectableMappings  mappings which would lead to data inconsistency
 	 * @param   array   &$parentIDs            previously mapped parents
-	 * @param   boolean  $resourceType         the resource's type
 	 *
 	 * @return void
 	 */
-	private static function fillOptions(&$options, &$programMappings, &$unelectableMappings, &$parentIDs, $resourceType)
+	private static function fillOptions(&$options, &$programMappings, &$unelectableMappings, &$parentIDs)
 	{
-		foreach ($programMappings as $mapping)
-		{
-			if (!empty($mapping['subjectID'])
-				or (!empty($unelectableMappings) and in_array($mapping['id'], $unelectableMappings))
-			)
-			{
-				continue;
-			}
-
-			if (!empty($mapping['poolID']))
-			{
-				$options[] = Pools::getCurricularOption($mapping, $parentIDs);
-			}
-			else
-			{
-				$options[] = Programs::getCurricularOption($mapping, $parentIDs, $resourceType);
-			}
-		}
 	}
 
 	/**
@@ -171,53 +152,16 @@ class Pools extends Curricula implements Selectable
 	 */
 	public static function getParentOptions()
 	{
-		$resourceID     = Input::getID();
-		$resourceType   = Input::getCMD('type');
-		$programIDs     = Input::getFilterIDs('program');
-		$programEntries = self::getProgramEntries($programIDs);
-		$options        = [];
-		$options[]      = '<option value="-1">' . Languages::_('JNONE') . '</option>';
+		$resourceID   = Input::getID();
+		$resourceType = Input::getCMD('type');
 
-		$invalidRequest = (empty($resourceID) or empty($resourceType));
-		$none           = ($invalidRequest or empty($programEntries));
-		if ($none)
-		{
-			return $options[0];
-		}
+		// Pending program ranges are dependant on selected programs.
+		$programIDs    = Input::getFilterIDs('program');
+		$programRanges = Programs::getPrograms($programIDs);
 
-		$programMappings     = Mappings::getProgramMappings($programEntries);
-		$onlyProgramMappings = count($programEntries) == count($programMappings);
-		if ($onlyProgramMappings and $resourceType == 'subject')
-		{
-			return $options[0];
-		}
-
-		$mappings = $mappingIDs = $parentIDs = [];
-		Mappings::setMappingData($resourceID, $resourceType, $mappings, $mappingIDs, $parentIDs);
-		$unSelectableMappings = self::getUnselectableMappings($mappings, $mappingIDs, $resourceType);
-		self::fillOptions($options, $programMappings, $unSelectableMappings, $parentIDs, $resourceType);
+		$options = self::getSuperOrdinateOptions($resourceID, $resourceType, $programRanges);
 
 		return implode('', $options);
-	}
-
-	/**
-	 * Retrieves the mappings of superordinate programs
-	 *
-	 * @param   array  $programIDs  the requested program ids
-	 *
-	 * @return array  the superordinate program mappings
-	 */
-	private static function getProgramEntries($programIDs)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('id, programID, lft, rgt');
-		$query->from('#__organizer_mappings');
-		$query->where("programID IN ( '" . implode("', '", $programIDs) . "' )");
-		$query->order('lft ASC');
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList');
 	}
 
 	/**
@@ -345,28 +289,6 @@ class Pools extends Curricula implements Selectable
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssocList', []);
-	}
-
-	/**
-	 * Retrieves an array of mappings which should not be available for selection
-	 * as the parent of the resource
-	 *
-	 * @param   array  &$mappings      the existing mappings of the resource
-	 * @param   array  &$mappingIDs    the mapping ids for the resource
-	 * @param   string  $resourceType  the resource's type
-	 *
-	 * @return array  the ids which should be unselectable
-	 */
-	private static function getUnselectableMappings(&$mappings, &$mappingIDs, $resourceType)
-	{
-		if ($resourceType == 'subject')
-		{
-			return [];
-		}
-
-		$children = Mappings::getChildMappingIDs($mappings);
-
-		return array_merge($mappingIDs, $children);
 	}
 
 	/**

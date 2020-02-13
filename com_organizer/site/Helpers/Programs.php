@@ -27,13 +27,13 @@ class Programs extends Curricula implements Selectable
 	/**
 	 * Gets a HTML option based upon a program mapping
 	 *
-	 * @param   array   $mapping       the program mapping entry
-	 * @param   array   $parentIDs     the selected parents
-	 * @param   string  $resourceType  the type of resource
+	 * @param   array   $mapping    the program mapping entry
+	 * @param   array   $parentIDs  the selected parents
+	 * @param   string  $type       the resource type of the form
 	 *
 	 * @return string  HTML option
 	 */
-	public static function getCurricularOption($mapping, $parentIDs, $resourceType)
+	public static function getCurricularOption($mapping, $parentIDs, $type)
 	{
 		$dbo   = Factory::getDbo();
 		$query = self::getProgramQuery();
@@ -45,16 +45,8 @@ class Programs extends Curricula implements Selectable
 			return '';
 		}
 
-		if ($resourceType == 'subject')
-		{
-			$selected = '';
-			$disabled = 'disabled';
-		}
-		else
-		{
-			$selected = in_array($mapping['id'], $parentIDs) ? 'selected' : '';
-			$disabled = '';
-		}
+		$selected = in_array($mapping['id'], $parentIDs) ? 'selected' : '';
+		$disabled = $type === 'pool' ? '' : 'disabled';
 
 		return "<option value='{$mapping['id']}' $selected $disabled>$name</option>";
 	}
@@ -285,6 +277,24 @@ class Programs extends Curricula implements Selectable
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssocList', []);
+	}
+
+	/**
+	 * Looks up the names of the programs associated with the resource
+	 *
+	 * @param   array  $programIDs  the ids of the program resources
+	 *
+	 * @return array the program ranges
+	 */
+	public static function getPrograms($programIDs)
+	{
+		$ranges = [];
+		foreach ($programIDs as $programID)
+		{
+			$ranges[] = self::getRanges($programID);
+		}
+
+		return $ranges;
 	}
 
 	/**
