@@ -12,14 +12,6 @@ jobs:
         run: "sudo apt-get install tree"
         #      - name: "Stopping mysql"
         #        run: "sudo systemctl stop mysql"
-      - name: "netstat"
-        run: "netstat -a -p tcp"
-        #      - name: "Install mariadb"
-        #        uses: getong/mariadb-action@v1.1
-        #        with:
-        #          mysql database: "joomla"
-        #      - name: "netstat"
-        #        run: "netstat -a -p tcp"
       - name: "Checkout build enviroment"
         uses: actions/checkout@v2
         with:
@@ -31,15 +23,5 @@ jobs:
           path : extensions/com_organizer
       - name: "Cleanup build enviroment"
         run: build/scripts/shell/cleanup.sh
-        #      - name: "Find mysqld.sock"
-        #        run: "sudo find / -name mysqld.sock 2> /dev/null"
       - name: "Initialize build enviroment"
         run: build/scripts/shell/init.sh
-      - name: "Testausgaben"
-        run: |
-          echo "pwd:"
-          pwd
-          echo "ls -lA:"
-          ls -lA
-          echo "tree:"
-          tree -a
