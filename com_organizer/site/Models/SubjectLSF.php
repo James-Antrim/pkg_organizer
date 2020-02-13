@@ -29,28 +29,28 @@ class SubjectLSF extends BaseModel
 	/**
 	 * Checks whether the text is without content other than subject module numbers and subject name attributes
 	 *
-	 * @param   string  $text               the text to be checked
-	 * @param   array   $checkedAttributes  the attributes whose values are to be removed during the search
-	 * @param   array   $modules            the mapped subject information
+	 * @param   string  $text           the text to be checked
+	 * @param   array   $attributes     the attributes whose values are to be removed during the search
+	 * @param   array   $codeGroupings  array code (module number) => [curriculumID => subject information]
 	 *
 	 * @return bool
 	 */
-	private function checkContents($text, $checkedAttributes, $modules)
+	private function checkContents($text, $attributes, $codeGroupings)
 	{
-		foreach ($checkedAttributes as $checkedAttribute)
+		foreach ($attributes as $checkedAttribute)
 		{
-			foreach ($modules as $mappedSubjects)
+			foreach ($codeGroupings as $codeGroup)
 			{
-				foreach ($mappedSubjects as $mappedSubject)
+				foreach ($codeGroup as $curriculumSubject)
 				{
 					if ($checkedAttribute == 'code')
 					{
-						$text = str_replace(strtolower($mappedSubject[$checkedAttribute]), '', $text);
-						$text = str_replace(strtoupper($mappedSubject[$checkedAttribute]), '', $text);
+						$text = str_replace(strtolower($curriculumSubject[$checkedAttribute]), '', $text);
+						$text = str_replace(strtoupper($curriculumSubject[$checkedAttribute]), '', $text);
 					}
 					else
 					{
-						$text = str_replace($mappedSubject[$checkedAttribute], '', $text);
+						$text = str_replace($curriculumSubject[$checkedAttribute], '', $text);
 					}
 				}
 			}
@@ -60,63 +60,6 @@ class SubjectLSF extends BaseModel
 		$text = trim($text);
 
 		return empty($text);
-	}
-
-	/**
-	 * Checks for subjects with the given possible module number mapped to the same programs
-	 *
-	 * @param   array  $possibleModNos  the possible module numbers used in the attribute text
-	 * @param   array  $programs        the programs to which the subject is mapped [id, name, lft, rgt)
-	 *
-	 * @return array the subject information for subjects with dependencies
-	 */
-	private function checkForMappedSubjects($possibleModNos, $programs)
-	{
-		$select = 's.id AS subjectID, code, ';
-		$select .= 'abbreviation_de, shortName_de, name_de, abbreviation_en, shortName_en, name_en, ';
-		$select .= 'm.id AS mappingID, m.lft, m.rgt, ';
-
-		$query = $this->_db->getQuery(true);
-		$query->from('#__organizer_subjects AS s')
-			->innerJoin('#__organizer_mappings AS m ON m.subjectID = s.id');
-
-		$subjects = [];
-		foreach ($possibleModNos as $possibleModuleNumber)
-		{
-			$possibleModuleNumber = strtoupper($possibleModuleNumber);
-			if (empty(preg_match('/[A-Z0-9]{3,10}/', $possibleModuleNumber)))
-			{
-				continue;
-			}
-
-			foreach ($programs as $program)
-			{
-				$query->clear('SELECT');
-				$query->select($select . "'{$program['id']}' AS programID");
-
-				$query->clear('where');
-				$query->where("lft > '{$program['lft']}' AND rgt < '{$program['rgt']}'");
-				$query->where("s.code = '$possibleModuleNumber'");
-				$this->_db->setQuery($query);
-
-				$mappedSubjects = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'mappingID');
-				if (empty($mappedSubjects))
-				{
-					continue;
-				}
-
-				if (empty($subjects[$possibleModuleNumber]))
-				{
-					$subjects[$possibleModuleNumber] = $mappedSubjects;
-				}
-				else
-				{
-					$subjects[$possibleModuleNumber] = $subjects[$possibleModuleNumber] + $mappedSubjects;
-				}
-			}
-		}
-
-		return $subjects;
 	}
 
 	/**
@@ -319,6 +262,62 @@ class SubjectLSF extends BaseModel
 	}
 
 	/**
+	 * Checks for subjects with the given possible module number associated with to the same programs
+	 *
+	 * @param   array  $possibleModNos  the possible module numbers used in the attribute text
+	 * @param   array  $programs        the programs whose curricula contain the subject
+	 *
+	 * @return array the subject information for subjects with dependencies
+	 */
+	private function parseDependencies($possibleModNos, $programs)
+	{
+		$select = 's.id AS subjectID, code, ';
+		$select .= 'abbreviation_de, shortName_de, name_de, abbreviation_en, shortName_en, name_en, ';
+		$select .= 'c.id AS curriculumID, m.lft, m.rgt, ';
+
+		$query = $this->_db->getQuery(true);
+		$query->from('#__organizer_subjects AS s')
+			->innerJoin('#__organizer_curricula AS c ON c.subjectID = s.id');
+
+		$subjects = [];
+		foreach ($possibleModNos as $possibleModuleNumber)
+		{
+			$possibleModuleNumber = strtoupper($possibleModuleNumber);
+			if (empty(preg_match('/[A-Z0-9]{3,10}/', $possibleModuleNumber)))
+			{
+				continue;
+			}
+
+			foreach ($programs as $program)
+			{
+				$query->clear('SELECT');
+				$query->select($select . "'{$program['id']}' AS programID");
+
+				$query->clear('where');
+				$query->where("lft > '{$program['lft']}' AND rgt < '{$program['rgt']}'");
+				$query->where("s.code = '$possibleModuleNumber'");
+				$this->_db->setQuery($query);
+
+				if (!$curriculumSubjects = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'curriculumID'))
+				{
+					continue;
+				}
+
+				if (empty($subjects[$possibleModuleNumber]))
+				{
+					$subjects[$possibleModuleNumber] = $curriculumSubjects;
+				}
+				else
+				{
+					$subjects[$possibleModuleNumber] = $subjects[$possibleModuleNumber] + $curriculumSubjects;
+				}
+			}
+		}
+
+		return $subjects;
+	}
+
+	/**
 	 * Checks for the existence and viability of seldom used fields
 	 *
 	 * @param   object &$dataObject  the data object
@@ -456,18 +455,15 @@ class SubjectLSF extends BaseModel
 	public function resolveDependencies($subjectID)
 	{
 		$subjectTable = new Tables\Subjects;
-		$exists       = $subjectTable->load($subjectID);
 
 		// Entry doesn't exist. Should not occur.
-		if (!$exists)
+		if (!$subjectTable->load($subjectID))
 		{
 			return true;
 		}
 
-		$programs = Helpers\Subjects::getPrograms($subjectID);
-
-		// Subject has not yet been mapped to a program. Improbable, but not impossible.
-		if (empty($programs))
+		// Subject is not associated with a program
+		if (!$programs = Helpers\Subjects::getPrograms($subjectID))
 		{
 			return true;
 		}
@@ -486,21 +482,34 @@ class SubjectLSF extends BaseModel
 		// Flag to be set should one of the attribute texts consist only of module information. => Text should be empty.
 		$attributeChanged = false;
 
-		$preReqAttribs = ['prerequisites_de', 'prerequisites_en'];
-		$prerequisites = [];
+		$reqAttribs     = [
+			'prerequisites_de' => 'pre',
+			'prerequisites_en' => 'pre',
+			'usedFor_de'       => 'post',
+			'usedFor_en'       => 'post'
+		];
+		$postrequisites = [];
+		$prerequisites  = [];
 
-		foreach ($preReqAttribs as $attribute)
+		foreach ($reqAttribs as $attribute => $direction)
 		{
 			$originalText   = $subjectTable->$attribute;
 			$sanitizedText  = $this->sanitizeText($originalText);
 			$possibleModNos = preg_split('[\ ]', $sanitizedText);
 
-			$mappedDependencies = $this->checkForMappedSubjects($possibleModNos, $programs);
-
-			if (!empty($mappedDependencies))
+			if ($dependencies = $this->parseDependencies($possibleModNos, $programs))
 			{
-				$prerequisites  = $prerequisites + $mappedDependencies;
-				$emptyAttribute = $this->checkContents($originalText, $checkedAttributes, $mappedDependencies);
+				// Aggregate potential dependencies across language specific attributes
+				if ($direction === 'pre')
+				{
+					$prerequisites = $prerequisites + $dependencies;
+				}
+				else
+				{
+					$postrequisites = $postrequisites + $dependencies;
+				}
+
+				$emptyAttribute = $this->checkContents($originalText, $checkedAttributes, $dependencies);
 
 				if ($emptyAttribute)
 				{
@@ -513,29 +522,6 @@ class SubjectLSF extends BaseModel
 		if (!$this->saveDependencies($programs, $subjectID, $prerequisites, 'pre'))
 		{
 			return false;
-		}
-
-		$postReqAttribs = ['usedFor_de', 'usedFor_en'];
-		$postrequisites = [];
-
-		foreach ($postReqAttribs as $attribute)
-		{
-			$originalText   = $subjectTable->$attribute;
-			$sanitizedText  = $this->sanitizeText($originalText);
-			$possibleModNos = preg_split('[\ ]', $sanitizedText);
-
-			$mappedDependencies = $this->checkForMappedSubjects($possibleModNos, $programs);
-
-			if (!empty($mappedDependencies))
-			{
-				$postrequisites = $postrequisites + $mappedDependencies;
-				$emptyAttribute = $this->checkContents($originalText, $checkedAttributes, $mappedDependencies);
-				if ($emptyAttribute)
-				{
-					$subjectTable->$attribute = '';
-					$attributeChanged         = true;
-				}
-			}
 		}
 
 		if (!$this->saveDependencies($programs, $subjectID, $postrequisites, 'post'))
@@ -565,27 +551,28 @@ class SubjectLSF extends BaseModel
 	{
 		foreach ($programs as $program)
 		{
-			$subjectMappings = Helpers\Programs::getSubjectIDs($program['id'], $subjectID);
+			$subjectIDs = Helpers\Programs::getSubjectIDs($program['id'], $subjectID);
 
-			$dependencyMappings = [];
-			foreach ($dependencies as $mappings)
+			$dependencyIDs = [];
+			foreach ($dependencies as $dependency)
 			{
-				foreach ($mappings as $mappingID => $subjectData)
+				foreach ($dependency as $curriculumID => $subjectData)
 				{
+					// A dependency is only relevant in the program context
 					if ($subjectData['programID'] == $program['id'])
 					{
-						$dependencyMappings[$mappingID] = $mappingID;
+						$dependencyIDs[$curriculumID] = $curriculumID;
 					}
 				}
 			}
 
 			if ($type == 'pre')
 			{
-				$success = $this->savePrerequisites($dependencyMappings, $subjectMappings);
+				$success = $this->savePrerequisites($dependencyIDs, $subjectIDs);
 			}
 			else
 			{
-				$success = $this->savePrerequisites($subjectMappings, $dependencyMappings);
+				$success = $this->savePrerequisites($subjectIDs, $dependencyIDs);
 			}
 
 			if (empty($success))
@@ -885,30 +872,30 @@ class SubjectLSF extends BaseModel
 	/**
 	 * Saves the prerequisite relation.
 	 *
-	 * @param   array  $prerequisiteMappings  the mappings for the prerequiste subject for the program
-	 * @param   array  $subjectMappings       the mappings for the subject for the program
+	 * @param   array  $prerequisiteIDs  ids for prerequisite subject entries in the program curriculum context
+	 * @param   array  $subjectIDs       ids for subject entries in the program curriculum context
 	 *
 	 * @return bool true on success otherwise false
 	 */
-	private function savePrerequisites($prerequisiteMappings, $subjectMappings)
+	private function savePrerequisites($prerequisiteIDs, $subjectIDs)
 	{
 		// Delete any and all old prerequisites in case there are now fewer.
-		if (!empty($subjectMappings))
+		if ($subjectIDs)
 		{
-			$subjectMappingIDs = implode(',', $subjectMappings);
-			$deleteQuery       = $this->_db->getQuery(true);
-			$deleteQuery->delete('#__organizer_prerequisites')->where("subjectID IN ($subjectMappingIDs)");
+			$deleteQuery = $this->_db->getQuery(true);
+			$deleteQuery->delete('#__organizer_prerequisites')
+				->where('subjectID IN (' . implode(',', $subjectIDs) . ')');
 			$this->_db->setQuery($deleteQuery);
 			Helpers\OrganizerHelper::executeQuery('execute');
 		}
 
-		foreach ($prerequisiteMappings as $prerequisiteID)
+		foreach ($prerequisiteIDs as $prerequisiteID)
 		{
-			foreach ($subjectMappings as $subjectID)
+			foreach ($subjectIDs as $subjectID)
 			{
 				$checkQuery = $this->_db->getQuery(true);
-				$checkQuery->select('COUNT(*)');
-				$checkQuery->from('#__organizer_prerequisites')
+				$checkQuery->select('COUNT(*)')
+					->from('#__organizer_prerequisites')
 					->where("prerequisiteID = '$prerequisiteID'")
 					->where("subjectID = '$subjectID'");
 				$this->_db->setQuery($checkQuery);
