@@ -12,13 +12,8 @@ namespace Organizer\Models;
 
 use Exception;
 use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\LSF;
-use Organizer\Helpers\Mappings;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\Persons as PersonsTable;
-use Organizer\Tables\Subjects as SubjectsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class used to import lsf subject data.
@@ -104,7 +99,7 @@ class SubjectLSF extends BaseModel
 				$query->where("s.code = '$possibleModuleNumber'");
 				$this->_db->setQuery($query);
 
-				$mappedSubjects = OrganizerHelper::executeQuery('loadAssocList', [], 'mappingID');
+				$mappedSubjects = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'mappingID');
 				if (empty($mappedSubjects))
 				{
 					continue;
@@ -204,27 +199,6 @@ class SubjectLSF extends BaseModel
 	}
 
 	/**
-	 * Gets the subjects existing mapping ids for the given program
-	 *
-	 * @param   array  $program    the program being iterated
-	 * @param   int    $subjectID  the id of the subject being iterated
-	 *
-	 * @return array|mixed the mapping ids for the subject or null if the query failed
-	 */
-	private function getProgramMappings($program, $subjectID)
-	{
-		$query = $this->_db->getQuery(true);
-		$query->select('id')
-			->from('#__organizer_mappings')
-			->where("subjectID = '$subjectID'")
-			->where("lft > '{$program['lft']}'")
-			->where("rgt < '{$program['rgt']}'");
-		$this->_db->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
 	 * Method to import data associated with subjects from LSF
 	 *
 	 * @return bool  true on success, otherwise false
@@ -232,11 +206,11 @@ class SubjectLSF extends BaseModel
 	 */
 	public function import()
 	{
-		$subjectIDs = Input::getSelectedIDs();
+		$subjectIDs = Helpers\Input::getSelectedIDs();
 
 		foreach ($subjectIDs as $subjectID)
 		{
-			if (!Can::document('subject', $subjectID))
+			if (!Helpers\Can::document('subject', $subjectID))
 			{
 				throw new Exception(Languages::_('ORGANIZER_403'), 403);
 			}
@@ -264,7 +238,7 @@ class SubjectLSF extends BaseModel
 	 */
 	public function importSingle($subjectID)
 	{
-		$subject = new SubjectsTable;
+		$subject = new Tables\Subjects;
 
 		if (!$entryExists = $subject->load($subjectID))
 		{
@@ -276,12 +250,12 @@ class SubjectLSF extends BaseModel
 			return true;
 		}
 
-		$client  = new LSF;
+		$client  = new Helpers\LSF;
 		$lsfData = $client->getModuleByModulid($subject->lsfID);
 
 		// The system administrator does not wish to display entries with this value
 		$blocked      = strtolower((string) $lsfData->modul->sperrmh) == 'x';
-		$invalidTitle = LSF::invalidTitle($lsfData, true);
+		$invalidTitle = Helpers\LSF::invalidTitle($lsfData, true);
 
 		if ($blocked or $invalidTitle)
 		{
@@ -307,7 +281,7 @@ class SubjectLSF extends BaseModel
 
 		if (!$personsSet)
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 
 			return false;
 		}
@@ -434,7 +408,7 @@ class SubjectLSF extends BaseModel
 			return false;
 		}
 
-		$table = new SubjectsTable;
+		$table = new Tables\Subjects;
 
 		// Attempt to load using the organizationID
 		$data = ['lsfID' => $lsfID, 'organizationID' => $organizationID];
@@ -446,7 +420,7 @@ class SubjectLSF extends BaseModel
 			$table->load(['lsfID' => $lsfID]);
 		}
 
-		$invalidTitle = LSF::invalidTitle($stub);
+		$invalidTitle = Helpers\LSF::invalidTitle($stub);
 		$blocked = !empty($stub->sperrmh) and strtolower((string) $stub->sperrmh) == 'x';
 
 		// No row was found => create one
@@ -481,7 +455,7 @@ class SubjectLSF extends BaseModel
 	 */
 	public function resolveDependencies($subjectID)
 	{
-		$subjectTable = new SubjectsTable;
+		$subjectTable = new Tables\Subjects;
 		$exists       = $subjectTable->load($subjectID);
 
 		// Entry doesn't exist. Should not occur.
@@ -490,7 +464,7 @@ class SubjectLSF extends BaseModel
 			return true;
 		}
 
-		$programs = Mappings::getSubjectPrograms($subjectID);
+		$programs = Helpers\Subjects::getPrograms($subjectID);
 
 		// Subject has not yet been mapped to a program. Improbable, but not impossible.
 		if (empty($programs))
@@ -591,7 +565,7 @@ class SubjectLSF extends BaseModel
 	{
 		foreach ($programs as $program)
 		{
-			$subjectMappings = $this->getProgramMappings($program, $subjectID);
+			$subjectMappings = Helpers\Programs::getSubjectIDs($program['id'], $subjectID);
 
 			$dependencyMappings = [];
 			foreach ($dependencies as $mappings)
@@ -879,7 +853,7 @@ class SubjectLSF extends BaseModel
 				$loadCriteria[] = ['surname' => $personData['surname'], 'forename' => $personData['forename']];
 			}
 
-			$personTable = new PersonsTable;
+			$personTable = new Tables\Persons;
 			$loaded      = false;
 
 			foreach ($loadCriteria as $criteria)
@@ -925,7 +899,7 @@ class SubjectLSF extends BaseModel
 			$deleteQuery       = $this->_db->getQuery(true);
 			$deleteQuery->delete('#__organizer_prerequisites')->where("subjectID IN ($subjectMappingIDs)");
 			$this->_db->setQuery($deleteQuery);
-			OrganizerHelper::executeQuery('execute');
+			Helpers\OrganizerHelper::executeQuery('execute');
 		}
 
 		foreach ($prerequisiteMappings as $prerequisiteID)
@@ -939,7 +913,7 @@ class SubjectLSF extends BaseModel
 					->where("subjectID = '$subjectID'");
 				$this->_db->setQuery($checkQuery);
 
-				$entryExists = (bool) OrganizerHelper::executeQuery('loadResult');
+				$entryExists = (bool) Helpers\OrganizerHelper::executeQuery('loadResult');
 
 				if (!$entryExists)
 				{
@@ -948,7 +922,7 @@ class SubjectLSF extends BaseModel
 					$insertQuery->columns('prerequisiteID, subjectID');
 					$insertQuery->values("'$prerequisiteID', '$subjectID'");
 					$this->_db->setQuery($insertQuery);
-					OrganizerHelper::executeQuery('execute');
+					Helpers\OrganizerHelper::executeQuery('execute');
 				}
 			}
 		}

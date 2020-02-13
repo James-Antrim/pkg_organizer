@@ -304,7 +304,7 @@ class Subjects extends Curricula implements Selectable
 			$query->where($where . ')');
 		}
 
-		if ($personID !== -1)
+		if ($personID !== self::ALL)
 		{
 			$query->innerJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id');
 			$query->innerJoin('#__organizer_persons AS t ON t.id = st.personID');

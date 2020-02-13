@@ -113,8 +113,7 @@ class ProgramLSF extends BaseModel
 		{
 			$mappingModel = new Mapping;
 
-			$programMappingExists = $this->processProgramMapping($programID, $mappingModel);
-			if (!$programMappingExists)
+			if (!$this->processProgramContext($programID, $mappingModel))
 			{
 				return false;
 			}
@@ -190,7 +189,7 @@ class ProgramLSF extends BaseModel
 	 *
 	 * @return boolean  true on existant/created mapping, otherwise false
 	 */
-	private function processProgramMapping($programID, &$mappingModel)
+	private function processProgramContext($programID, &$mappingModel)
 	{
 		if (!$mappingModel->checkForMapping($programID, 'program') and !$mappingModel->saveProgram($programID))
 		{

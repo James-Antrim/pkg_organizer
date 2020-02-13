@@ -14,8 +14,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class creates a box for managing subordinated curriculum elements. Change order, remove, add empty element.
@@ -38,7 +37,7 @@ class ChildrenField extends FormField
 	 */
 	public function getInput()
 	{
-		$children = $this->getChildren();
+		$children = $this->getSubordinateItems();
 
 		$document = Factory::getDocument();
 		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/children.css');
@@ -52,93 +51,69 @@ class ChildrenField extends FormField
 	 *
 	 * @return array  empty if no child data exists
 	 */
-	private function getChildren()
+	private function getSubordinateItems()
 	{
 		$resourceID   = $this->form->getValue('id');
 		$contextParts = explode('.', $this->form->getName());
-		$resource     = OrganizerHelper::getResource($contextParts[1]);
+		$resource     = Helpers\OrganizerHelper::getResource($contextParts[1]);
 
 		$dbo     = Factory::getDbo();
 		$idQuery = $dbo->getQuery(true);
-		$idQuery->select('id')->from('#__organizer_mappings');
-		$idQuery->where("{$resource}ID = '$resourceID'");
+		$idQuery->select('id')
+			->from('#__organizer_curricula')
+			->where("{$resource}ID = '$resourceID'")
+			->group('id');
 
-		/**
-		 * Subordinate structures are the same for every parent mapping,
-		 * therefore only the first mapping needs to be found
-		 */
-		$dbo->setQuery($idQuery, 0, 1);
-		$parentID = OrganizerHelper::executeQuery('loadResult');
+		$dbo->setQuery($idQuery);
 
-		if (empty($parentID))
+		if (!$parentID = Helpers\OrganizerHelper::executeQuery('loadResult'))
 		{
 			return [];
 		}
 
-		$childMappingQuery = $dbo->getQuery(true);
-		$childMappingQuery->select('poolID, subjectID, ordering');
-		$childMappingQuery->from('#__organizer_mappings');
-		$childMappingQuery->where("parentID = '$parentID'");
-		$childMappingQuery->order('lft ASC');
-		$dbo->setQuery($childMappingQuery);
+		$subordinateQuery = $dbo->getQuery(true);
+		$subordinateQuery->select('*')
+			->from('#__organizer_curricula')
+			->where("parentID = $parentID")
+			->order('lft ASC');
+		$dbo->setQuery($subordinateQuery);
 
-		$children = OrganizerHelper::executeQuery('loadAssocList', [], 'ordering');
-		if (empty($children))
+		if (!$subordinateItems = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'ordering'))
 		{
 			return [];
 		}
 
-		$this->setTypeData($children);
+		$this->setTypeData($subordinateItems);
 
-		return $children;
+		return $subordinateItems;
 	}
 
 	/**
-	 * Sets mapping data dependent upon the resource type
+	 * Sets attributes of subordinate items according to their type.
 	 *
-	 * @param   array &$children  the subordinate resource data
+	 * @param   array  &$items  the subordinate resource items
 	 *
 	 * @return void  adds data to the &$children array
 	 */
-	private function setTypeData(&$children)
+	private function setTypeData(&$items)
 	{
 		$poolEditLink    = 'index.php?option=com_organizer&view=pool_edit&id=';
 		$subjectEditLink = 'index.php?option=com_organizer&view=subject_edit&id=';
-		foreach ($children as $ordering => $mapping)
+		foreach ($items as $key => $range)
 		{
-			if (!empty($mapping['poolID']))
+			if ($range['poolID'])
 			{
-				$children[$ordering]['id']   = $mapping['poolID'] . 'p';
-				$children[$ordering]['name'] = $this->getResourceName($mapping['poolID'], 'pool');
-				$children[$ordering]['link'] = $poolEditLink . $mapping['poolID'];
+				$items[$key]['id']   = $range['poolID'] . 'p';
+				$items[$key]['name'] = Helpers\Pools::getName($range['poolID']);
+				$items[$key]['link'] = $poolEditLink . $range['poolID'];
 			}
 			else
 			{
-				$children[$ordering]['id']   = $mapping['subjectID'] . 's';
-				$children[$ordering]['name'] = $this->getResourceName($mapping['subjectID'], 'subject');
-				$children[$ordering]['link'] = $subjectEditLink . $mapping['subjectID'];
+				$items[$key]['id']   = $range['subjectID'] . 's';
+				$items[$key]['name'] = Helpers\Subjects::getName($range['subjectID']);
+				$items[$key]['link'] = $subjectEditLink . $range['subjectID'];
 			}
 		}
-	}
-
-	/**
-	 * Retrieves the child's name from the database
-	 *
-	 * @param   string  $resourceID    the id used for the child element
-	 * @param   string  $resourceType  the child element's type
-	 *
-	 * @return string  the name of the child element
-	 */
-	private function getResourceName($resourceID, $resourceType)
-	{
-		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
-
-		$query->select("name_$tag")->from("#__organizer_{$resourceType}s")->where("id = '$resourceID'");
-		$dbo->setQuery($query);
-
-		return (string) OrganizerHelper::executeQuery('loadResult');
 	}
 
 	/**
@@ -152,22 +127,17 @@ class ChildrenField extends FormField
 	{
 		$html = '<table id="childList" class="table table-striped">';
 		$html .= '<thead><tr>';
-		$html .= '<th>' . Languages::_('ORGANIZER_NAME') . '</th>';
-		$html .= '<th class="organizer_pools_ordering">' . Languages::_('ORGANIZER_ORDER') . '</th>';
+		$html .= '<th>' . Helpers\Languages::_('ORGANIZER_NAME') . '</th>';
+		$html .= '<th class="organizer_pools_ordering">' . Helpers\Languages::_('ORGANIZER_ORDER') . '</th>';
 		$html .= '</tr></thead>';
 		$html .= '<tbody>';
 
-		$addSpace = Languages::_('ORGANIZER_ADD_EMPTY');
-		Languages::script('ORGANIZER_ADD_EMPTY');
-		$makeFirst = Languages::_('ORGANIZER_MAKE_FIRST');
-		Languages::script('ORGANIZER_MAKE_FIRST');
-		$makeLast = Languages::_('ORGANIZER_MAKE_LAST');
-		Languages::script('ORGANIZER_MAKE_LAST');
-		$moveChildUp = Languages::_('ORGANIZER_MOVE_UP');
-		Languages::script('ORGANIZER_MOVE_UP');
-		$moveChildDown = Languages::_('ORGANIZER_MOVE_DOWN');
-		Languages::script('ORGANIZER_MOVE_DOWN');
-		Languages::script('ORGANIZER_DELETE');
+		$addSpace      = Helpers\Languages::setScript('ORGANIZER_ADD_EMPTY');
+		$delete        = Helpers\Languages::setScript('ORGANIZER_DELETE');
+		$makeFirst     = Helpers\Languages::setScript('ORGANIZER_MAKE_FIRST');
+		$makeLast      = Helpers\Languages::setScript('ORGANIZER_MAKE_LAST');
+		$moveChildUp   = Helpers\Languages::setScript('ORGANIZER_MOVE_UP');
+		$moveChildDown = Helpers\Languages::setScript('ORGANIZER_MOVE_DOWN');
 
 		$rowClass = 'row0';
 		if (!empty($children))
@@ -217,7 +187,7 @@ class ChildrenField extends FormField
 				$blank .= 'title="' . $addSpace . '"><span class="icon-download"></span></button>';
 
 				$trash = '<button class="btn btn-small" onClick="trash(' . $ordering . ');" ';
-				$trash .= 'title="' . Languages::_('ORGANIZER_DELETE') . '" ><span class="icon-trash"></span>';
+				$trash .= 'title="' . $delete . '" ><span class="icon-trash"></span>';
 				$trash .= '</button>';
 
 				$next = '<button class="btn btn-small" onclick="moveChildDown(\'' . $ordering . '\');" ';

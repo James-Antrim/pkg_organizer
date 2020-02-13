@@ -18,14 +18,14 @@ use Organizer\Helpers;
 /**
  * Class creates a select box for (degree) program mappings.
  */
-class ProgramMappingsField extends FormField
+class ProgramContextField extends FormField
 {
 	use Translated;
 
 	/**
 	 * @var  string
 	 */
-	protected $type = 'ProgramMappings';
+	protected $type = 'ProgramContext';
 
 	/**
 	 * Adds the javascript to the page necessary to refresh the parent pool options

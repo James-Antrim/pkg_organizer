@@ -14,7 +14,7 @@ use Joomla\CMS\Factory;
 
 abstract class Curricula extends ResourceHelper implements Selectable
 {
-	const NONE = '-1';
+	const ALL = '-1', NONE = '-1';
 
 	/**
 	 * Adds clauses to an array to find subordinate resources in an error state disassociated from a superordinate
@@ -49,7 +49,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	 *
 	 * @return array the curricular ids contained in the ranges
 	 */
-	public static function filterIDs($ranges)
+	protected static function filterIDs($ranges)
 	{
 		$ids = [];
 		foreach ($ranges as $range)
@@ -67,7 +67,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	 *
 	 * @return array the curricular ids contained in the ranges
 	 */
-	public static function filterParentIDs($ranges)
+	protected static function filterParentIDs($ranges)
 	{
 		$ids = [];
 		foreach ($ranges as $range)
@@ -81,13 +81,14 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	/**
 	 * Adds range restrictions for subordinate resources.
 	 *
-	 * @param   JDatabaseQuery &$query   the query to modify
-	 * @param   array           $ranges  the ranges of subordinate resources
-	 * @param   string          $type    the type of subordinate resource to filter for, empty => no filter
+	 * @param   JDatabaseQuery &$query       the query to modify
+	 * @param   array           $ranges      the ranges of subordinate resources
+	 * @param   string          $type        the type of subordinate resource to filter for, empty => no filter
+	 * @param   int             $resourceID  the id of a specific subject resource to find in context
 	 *
 	 * @return void modifies the query
 	 */
-	protected static function filterSubOrdinate(&$query, $ranges, $type = '')
+	protected static function filterSubOrdinate(&$query, $ranges, $type = '', $resourceID = 0)
 	{
 		$wherray = [];
 		foreach ($ranges as $range)
@@ -99,7 +100,14 @@ abstract class Curricula extends ResourceHelper implements Selectable
 
 		if ($type and in_array($type, ['pool', 'subject']))
 		{
-			$query->where("{$type}ID IS NOT NULL");
+			if ($resourceID)
+			{
+				$query->where("{$type}ID = $resourceID");
+			}
+			else
+			{
+				$query->where("{$type}ID IS NOT NULL");
+			}
 		}
 	}
 
@@ -363,13 +371,29 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Looks up the names of the subjects associated with the resource
+	 * Finds the subject entries subordinate to a particular resource.
 	 *
 	 * @param   int  $resourceID  the id of the resource
+	 * @param   int  $subjectID   the id of a specific subject resource to find in context
 	 *
 	 * @return array the associated programs
 	 */
-	public static function getSubjects($resourceID)
+	public static function getSubjectIDs($resourceID, $subjectID = 0)
+	{
+		$subjects = self::getSubjects($resourceID, $subjectID);
+
+		return self::filterIDs($subjects);
+	}
+
+	/**
+	 * Finds the subject entries subordinate to a particular resource.
+	 *
+	 * @param   int  $resourceID  the id of the resource
+	 * @param   int  $subjectID   the id of a specific subject resource to find in context
+	 *
+	 * @return array the associated programs
+	 */
+	public static function getSubjects($resourceID, $subjectID = 0)
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -379,7 +403,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 			->order('lft');
 
 		$resource = get_called_class();
-		self::filterSubOrdinate($query, $resource::getRanges($resourceID), 'subject');
+		self::filterSubOrdinate($query, $resource::getRanges($resourceID), 'subject', $subjectID);
 
 		$dbo->setQuery($query);
 
