@@ -29,7 +29,7 @@
     <fieldset name="mappings" label="ATTRIBUTES_STRUCTURE" displayinitial="0">
         <field name="programID" type="ProgramMappings" access="true" label="PROGRAMS"
                description="ORGANIZER_PROGRAMS_DESC" required="false"/>
-        <field name="parentID" type="ParentPool" label="PARENT_POOLS" description="ORGANIZER_PARENT_POOLS_DESC"
+        <field name="parentID" type="SuperOrdinate" label="PARENT_POOLS" description="ORGANIZER_PARENT_POOLS_DESC"
                required="false"/>
         <field name="children" type="Children" label="CHILDREN" description="ORGANIZER_CHILDREN_DESC"/>
     </fieldset>

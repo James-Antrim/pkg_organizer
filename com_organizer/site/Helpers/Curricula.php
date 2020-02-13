@@ -289,11 +289,11 @@ abstract class Curricula extends ResourceHelper implements Selectable
 		{
 			$selected = Pools::getRanges($resourceID);
 
-			$currentIDs     = self::filterIDs($selected);
+			$curriculumIDs  = self::filterIDs($selected);
 			$subordinateIDs = self::getSubOrdinateIDs($selected);
 
 			// Pools cannot be subordinated to themselves or any pool subordinated to them.
-			$suppressIDs = array_merge($currentIDs, $subordinateIDs);
+			$suppressIDs = array_merge($curriculumIDs, $subordinateIDs);
 		}
 		else
 		{

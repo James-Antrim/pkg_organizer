@@ -16,7 +16,7 @@ use Organizer\Helpers;
 /**
  * Class creates a select box for superordinate (subject) pool mappings.
  */
-class ParentPoolField extends FormField
+class SuperOrdinateField extends FormField
 {
 	use Translated;
 
@@ -25,7 +25,7 @@ class ParentPoolField extends FormField
 	 *
 	 * @var    String
 	 */
-	protected $type = 'ParentPool';
+	protected $type = 'SuperOrdinate';
 
 	/**
 	 * Returns a select box in which pools can be chosen as a parent node

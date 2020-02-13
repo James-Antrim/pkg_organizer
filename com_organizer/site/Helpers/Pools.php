@@ -21,20 +21,6 @@ class Pools extends Curricula implements Selectable
 	use Filtered;
 
 	/**
-	 * Fills the options array with HTML pool options
-	 *
-	 * @param   array   &$options              an array to store the options in
-	 * @param   array   &$programMappings      mappings belonging to one of the requested programs
-	 * @param   array   &$unelectableMappings  mappings which would lead to data inconsistency
-	 * @param   array   &$parentIDs            previously mapped parents
-	 *
-	 * @return void
-	 */
-	private static function fillOptions(&$options, &$programMappings, &$unelectableMappings, &$parentIDs)
-	{
-	}
-
-	/**
 	 * Creates a text for the required pool credit points
 	 *
 	 * @param   object  $pool  the pool

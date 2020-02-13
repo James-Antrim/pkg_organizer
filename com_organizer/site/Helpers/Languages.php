@@ -144,6 +144,20 @@ class Languages extends Text
 	}
 
 	/**
+	 * Sets the constant into the joomla translation scripts and resolves the constant for immediate use.
+	 *
+	 * @param   string  $constant  the constant to process
+	 *
+	 * @return string the resolved constant
+	 */
+	public static function setScript($constant)
+	{
+		self::script($constant);
+
+		return self::_($constant);
+	}
+
+	/**
 	 * Converts a double colon separated string or 2 separate strings to a string ready for bootstrap tooltips
 	 *
 	 * @param   string   $title    The title of the tooltip (or combined '::' separated string).
