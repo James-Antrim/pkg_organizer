@@ -29,7 +29,7 @@
         <field name="name_en" type="Blank" label="NAME_EN" class="required" maxlength="255" required="true"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
     </fieldset>
-    <fieldset name="mappings" label="POOLS" displayinitial="0">
+    <fieldset name="curriculum" label="CURRICULUM" displayinitial="0">
         <field name="children" type="Children" label="CHILDREN"/>
     </fieldset>
 </form>

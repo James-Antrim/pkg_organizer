@@ -145,7 +145,7 @@
             <option value='3'>THREE_STARS</option>
         </field>
     </fieldset>
-    <fieldset name="mappings" label="ATTRIBUTES_STRUCTURE" displayinitial="0">
+    <fieldset name="curriculum" label="CURRICULUM" displayinitial="0">
         <field name="programID" type="ProgramContext" label="PROGRAMS"/>
         <field name="parentID" type="SuperOrdinate" label="PARENT_POOLS"/>
     </fieldset>

@@ -26,7 +26,7 @@
         <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" size="40"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
     </fieldset>
-    <fieldset name="mappings" label="ATTRIBUTES_STRUCTURE" displayinitial="0">
+    <fieldset name="curriculum" label="CURRICULUM" displayinitial="0">
         <field name="programID" type="ProgramContext" access="true" label="PROGRAMS"
                description="ORGANIZER_PROGRAMS_DESC" required="false"/>
         <field name="parentID" type="SuperOrdinate" label="PARENT_POOLS" description="ORGANIZER_PARENT_POOLS_DESC"
