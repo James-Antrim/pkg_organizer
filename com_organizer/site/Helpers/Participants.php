@@ -10,6 +10,7 @@
 
 namespace Organizer\Helpers;
 
+use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Tables;
 
@@ -160,11 +161,11 @@ class Participants extends ResourceHelper
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
 
-		$mode     = Input::getInt('mode', self::BLOCK_MODE);
-		$mappings = self::getMatchingLessons($mode, $ccmID);
+		$mode            = Input::getInt('mode', self::BLOCK_MODE);
+		$matchingLessons = self::getMatchingLessons($mode, $ccmID);
 
 		$deletedCcmIDs = [];
-		foreach ($mappings as $lessonID => $ccmIDs)
+		foreach ($matchingLessons as $lessonID => $ccmIDs)
 		{
 			$userLessonTable = new Tables\CourseParticipants;
 
@@ -232,11 +233,11 @@ class Participants extends ResourceHelper
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
 
-		$savedCcmIDs = [];
-		$mode        = Input::getInt('mode', self::BLOCK_MODE);
-		$mappings    = self::getMatchingLessons($mode, $ccmID);
+		$savedCcmIDs     = [];
+		$mode            = Input::getInt('mode', self::BLOCK_MODE);
+		$matchingLessons = self::getMatchingLessons($mode, $ccmID);
 
-		foreach ($mappings as $lessonID => $ccmIDs)
+		foreach ($matchingLessons as $lessonID => $ccmIDs)
 		{
 			try
 			{

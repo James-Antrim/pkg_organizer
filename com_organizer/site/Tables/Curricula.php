@@ -98,7 +98,7 @@ class Curricula extends BaseTable
 	 */
 	public function check()
 	{
-		// All three fields can recieve data from at least two systems.
+		// All three fields can receive data from at least two systems.
 		$atLeastOne = false;
 		$keyColumns = ['programID', 'poolID', 'subjectID'];
 		foreach ($keyColumns as $keyColumn)

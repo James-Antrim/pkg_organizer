@@ -13,7 +13,6 @@ namespace Organizer\Models;
 use Exception;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\Languages;
-use Organizer\Helpers\Mappings;
 use Organizer\Helpers\Pools;
 use Organizer\Helpers\Programs;
 

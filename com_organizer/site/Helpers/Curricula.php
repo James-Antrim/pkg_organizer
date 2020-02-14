@@ -168,7 +168,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 		}
 
 		// Fill data for subordinate resources
-		foreach ($subordinateResources as $mappingID => &$resource)
+		foreach ($subordinateResources as &$resource)
 		{
 			$resourceData = $resource['poolID'] ?
 				Pools::getResource($resource['poolID']) : Subjects::getResource($resource['subjectID']);
@@ -195,7 +195,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	 *
 	 * @return array  an array containing all ranges subordinate to the ranges specified
 	 */
-	private static function getMappableItems($programRanges)
+	private static function getMappableRanges($programRanges)
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -226,11 +226,30 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	/**
 	 * Gets the mapped curricula ranges for the given resource
 	 *
+	 * @param   int  $resourceID  the resource ID
+	 *
+	 * @return array the resource ranges
+	 */
+	public static function getRangeIDs($resourceID)
+	{
+		$self = get_called_class();
+
+		return self::filterIDs($self::getRanges($resourceID));
+	}
+
+	/**
+	 * Gets the mapped curricula ranges for the given resource
+	 *
 	 * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
 	 *
 	 * @return array the resource ranges
 	 */
-	abstract public static function getRanges($identifiers);
+	public static function getRanges($identifiers)
+	{
+		$self = get_called_class();
+
+		return $self::getRanges($identifiers);
+	}
 
 	/**
 	 * Retrieves the ids of all subordinate resource ranges.
@@ -284,8 +303,8 @@ abstract class Curricula extends ResourceHelper implements Selectable
 			return $options;
 		}
 
-		$mappableItems      = self::getMappableItems($programRanges);
-		$onlyProgramsMapped = count($mappableItems) === count($programRanges);
+		$mappableRanges     = self::getMappableRanges($programRanges);
+		$onlyProgramsMapped = count($mappableRanges) === count($programRanges);
 
 		// Subjects cannot be subordinated to programs
 		if ($onlyProgramsMapped and $type == 'subject')
@@ -311,20 +330,20 @@ abstract class Curricula extends ResourceHelper implements Selectable
 
 		$parentIDs = self::filterParentIDs($selected);
 
-		foreach ($mappableItems as $mappableItem)
+		foreach ($mappableRanges as $mappableRange)
 		{
-			if (in_array($mappableItem['id'], $suppressIDs))
+			if (in_array($mappableRange['id'], $suppressIDs))
 			{
 				continue;
 			}
 
-			if (!empty($mapping['poolID']))
+			if (!empty($mappableRange['poolID']))
 			{
-				$options[] = Pools::getCurricularOption($mapping, $parentIDs);
+				$options[] = Pools::getCurricularOption($mappableRange, $parentIDs);
 			}
 			else
 			{
-				$options[] = Programs::getCurricularOption($mapping, $parentIDs, $type);
+				$options[] = Programs::getCurricularOption($mappableRange, $parentIDs, $type);
 			}
 		}
 

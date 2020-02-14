@@ -111,9 +111,7 @@ class ProgramLSF extends BaseModel
 
 		if (!empty($program->gruppe))
 		{
-			$mappingModel = new Mapping;
-
-			if (!$this->processProgramContext($programID, $mappingModel))
+			if (!$this->processProgramContext($programID))
 			{
 				return false;
 			}
@@ -123,7 +121,7 @@ class ProgramLSF extends BaseModel
 				return false;
 			}
 
-			if (!$mappingModel->addLSFMappings($programID, $program))
+			if (!Program::import($programID, $program))
 			{
 				return false;
 			}
@@ -184,16 +182,17 @@ class ProgramLSF extends BaseModel
 	/**
 	 * Checks for a program mapping, creating one if non-existant
 	 *
-	 * @param   int     $programID     the id of the program
-	 * @param   object &$mappingModel  the mapping model
+	 * @param   int  $programID  the id of the program
 	 *
-	 * @return boolean  true on existant/created mapping, otherwise false
+	 * @return boolean  true on existent/created mapping, otherwise false
 	 */
-	private function processProgramContext($programID, &$mappingModel)
+	private function processProgramContext($programID)
 	{
-		if (!$mappingModel->checkForMapping($programID, 'program') and !$mappingModel->saveProgram($programID))
+		if (!Helpers\Programs::getRanges($programID))
 		{
-			return false;
+			$program = new Program;
+
+			return $program->saveCurriculum($programID);
 		}
 
 		return true;

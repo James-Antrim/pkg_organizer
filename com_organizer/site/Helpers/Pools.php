@@ -54,28 +54,28 @@ class Pools extends Curricula implements Selectable
 	/**
 	 * Gets a HTML option based upon a pool mapping
 	 *
-	 * @param   array  $mapping    the pool mapping entry
+	 * @param   array  $range      the curriculum range entry
 	 * @param   array  $parentIDs  the selected parents
 	 *
 	 * @return string  HTML option
 	 */
-	public static function getCurricularOption($mapping, $parentIDs)
+	public static function getCurricularOption($range, $parentIDs)
 	{
 		$tag        = Languages::getTag();
 		$poolsTable = new PoolsTable;
-		$poolsTable->load($mapping['poolID']);
+		$poolsTable->load($range['poolID']);
 
-		if (!$poolsTable->load($mapping['poolID']))
+		if (!$poolsTable->load($range['poolID']))
 		{
 			return '';
 		}
 
 		$nameColumn   = "name_$tag";
-		$indentedName = Pools::getIndentedName($poolsTable->$nameColumn, $mapping['level']);
+		$indentedName = Pools::getIndentedName($poolsTable->$nameColumn, $range['level']);
 
-		$selected = in_array($mapping['id'], $parentIDs) ? 'selected' : '';
+		$selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
 
-		return "<option value='{$mapping['id']}' $selected>$indentedName</option>";
+		return "<option value='{$range['id']}' $selected>$indentedName</option>";
 	}
 
 	/**

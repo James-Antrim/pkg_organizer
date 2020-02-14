@@ -11,16 +11,15 @@
 namespace Organizer\Models;
 
 use Exception;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\Subjects as SubjectsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class which manages stored subject data.
  */
-class Subject extends BaseModel
+class Subject extends CurriculumResource
 {
 	const COORDINATES = 1;
 
@@ -42,7 +41,7 @@ class Subject extends BaseModel
 		$query->values("'$subjectID', '$prerequisiteID'");
 		$this->_db->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -65,7 +64,7 @@ class Subject extends BaseModel
 
 		$this->_db->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -85,7 +84,7 @@ class Subject extends BaseModel
 		$query->values("$subjectID, $personID, $role");
 		$this->_db->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -117,16 +116,16 @@ class Subject extends BaseModel
 	 */
 	public function delete()
 	{
-		if (!Can::documentTheseOrganizations())
+		if (!Helpers\Can::documentTheseOrganizations())
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
 
-		if ($subjectIDs = Input::getSelectedIDs())
+		if ($subjectIDs = Helpers\Input::getSelectedIDs())
 		{
 			foreach ($subjectIDs as $subjectID)
 			{
-				if (!Can::document('subject', $subjectID))
+				if (!Helpers\Can::document('subject', $subjectID))
 				{
 					throw new Exception(Languages::_('ORGANIZER_403'), 403);
 				}
@@ -142,29 +141,67 @@ class Subject extends BaseModel
 	}
 
 	/**
-	 * Deletes an individual subject entry in the mappings and subjects tables. No access checks => this is not directly
-	 * accessible and requires differing checks according to its calling context.
+	 * Deletes mappings of a specific resource.
 	 *
-	 * @param   int  $subjectID  the id of the subject to be deleted
+	 * @param   int  $resourceID  the id of the mapping
 	 *
-	 * @return boolean  true if successful, otherwise false
+	 * @return boolean true on success, otherwise false
 	 */
-	public function deleteSingle($subjectID)
+	protected function deleteRanges($resourceID)
 	{
-		$table        = new SubjectsTable;
-		$mappingModel = new Mapping;
-
-		if (!$mappingModel->deleteByResourceID($subjectID, 'subject'))
+		if ($rangeIDs = Helpers\Subjects::getRangeIDs($resourceID))
 		{
-			return false;
-		}
-
-		if (!$table->delete($subjectID))
-		{
-			return false;
+			foreach ($rangeIDs as $rangeID)
+			{
+				$success = $this->deleteRange($rangeID);
+				if (!$success)
+				{
+					return false;
+				}
+			}
 		}
 
 		return true;
+	}
+
+	/**
+	 * Deletes a single curriculum resource.
+	 *
+	 * @param   int  $resourceID  the resource id
+	 *
+	 * @return boolean  true on success, otherwise false
+	 */
+	public function deleteSingle($resourceID)
+	{
+		if (!$this->deleteRanges($resourceID))
+		{
+			return false;
+		}
+
+		$table = new Tables\Subjects;
+
+		return $table->delete($resourceID);
+	}
+
+	/**
+	 * Returns the resource's existing ordering in the context of its parent.
+	 *
+	 * @param   int  $parentID    the parent id (curricula)
+	 * @param   int  $resourceID  the resource id (resource table)
+	 *
+	 * @return mixed int if the resource has an existing ordering, otherwise null
+	 */
+	public function getExistingOrdering($parentID, $resourceID)
+	{
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('ordering')
+			->from('#__organizer_curricula')
+			->where("parentID = '$parentID'")
+			->where("subjectID = '$resourceID'");
+		$dbo->setQuery($query);
+
+		return Helpers\OrganizerHelper::executeQuery('loadResult', null);
 	}
 
 	/**
@@ -180,27 +217,62 @@ class Subject extends BaseModel
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new SubjectsTable;
+		return new Tables\Subjects;
 	}
 
 	/**
-	 * Processes the mappings of the subject selected
+	 * Adds a subject from LSF to the mappings table
 	 *
-	 * @param   array &$data  the post data
+	 * @param   int     $parentID   the id of the parent mapping
+	 * @param   object &$XMLObject  the object representing the LSF pool
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return boolean  true if the mapping exists, otherwise false
 	 */
-	private function processFormMappings(&$data)
+	public function import($parentID, &$XMLObject)
 	{
-		$model = new Mapping;
+		$lsfID = (string) (empty($XMLObject->modulid) ? $XMLObject->pordid : $XMLObject->modulid);
+		$blocked = !empty($XMLObject->sperrmh) and strtolower((string) $XMLObject->sperrmh) == 'x';
+		$invalidTitle = Helpers\LSF::invalidTitle($XMLObject);
+		$subjects     = new Tables\Subjects;
 
-		// No mappings desired
-		if (empty($data['parentID']))
+		if (!$subjects->load(['lsfID' => $lsfID]))
 		{
-			return $model->deleteByResourceID($data['id'], 'subject');
+			if ($blocked or $invalidTitle)
+			{
+				return true;
+			}
+
+			Helpers\OrganizerHelper::message('ORGANIZER_SUBJECT_IMPORT_FAIL', 'error');
+
+			return false;
 		}
 
-		return $model->saveSubject($data);
+		$curricula = new Tables\Curricula;
+
+		if ($curricula->load(['parentID' => $parentID, 'subjectID' => $subjects->id]))
+		{
+			if ($blocked or $invalidTitle)
+			{
+				return $this->deleteRange($curricula->id);
+			}
+
+			return true;
+		}
+
+		$range              = [];
+		$range['parentID']  = $parentID;
+		$range['subjectID'] = $subjects->id;
+		$range['ordering']  = $this->getOrdering($parentID, $subjects->id, 'subject');
+		$subjectAdded       = $this->addSubject($range);
+
+		if (!$subjectAdded)
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SUBJECT_ADD_FAIL', 'error');
+
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -258,7 +330,7 @@ class Subject extends BaseModel
 	 */
 	private function processFormSubjectMappings(&$data)
 	{
-		if (!isset($data['courseIDs']))
+		/*if (!isset($data['courseIDs']))
 		{
 			return true;
 		}
@@ -275,7 +347,7 @@ class Subject extends BaseModel
 			{
 				return false;
 			}
-		}
+		}*/
 
 		return true;
 	}
@@ -343,7 +415,7 @@ class Subject extends BaseModel
 			->where("subjectID = '$subjectID' OR prerequisiteID ='$subjectID'");
 		$this->_db->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -354,14 +426,14 @@ class Subject extends BaseModel
 	 *
 	 * @return boolean
 	 */
-	private function removeSubjectMappings($subjectID)
+	/*private function removeSubjectMappings($subjectID)
 	{
 		$query = $this->_db->getQuery(true);
 		$query->delete('#__organizer_subject_mappings')->where("subjectID = '$subjectID'");
 		$this->_db->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
-	}
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+	}*/
 
 	/**
 	 * Removes person associations for the given subject and role. No access checks => this is not directly
@@ -383,7 +455,7 @@ class Subject extends BaseModel
 
 		$this->_db->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -396,17 +468,28 @@ class Subject extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
-		if (!isset($data['id']))
+		if (empty($data['id']))
+		{
+			if (!Helpers\Can::documentTheseOrganizations())
+			{
+				throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			}
+		}
+		elseif (is_numeric($data['id']))
+		{
+			if (!Helpers\Can::document('subject', $data['id']))
+			{
+				throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			}
+		}
+		else
 		{
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
-		elseif (!Can::document('subject', $data['id']))
-		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
 
+		// Prepare the data
 		$data['creditpoints'] = (float) $data['creditpoints'];
 
 		$starProperties = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
@@ -415,15 +498,14 @@ class Subject extends BaseModel
 			$this->cleanStarProperty($data, $property);
 		}
 
-		$table = new SubjectsTable;
+		$table = new Tables\Subjects;
 
 		if (!$table->save($data))
 		{
 			return false;
 		}
 
-		$processMappings = (!empty($data['id']) and isset($data['parentID']));
-		$data['id']      = $table->id;
+		$data['id'] = $table->id;
 
 		if (!$this->processFormPersons($data))
 		{
@@ -440,17 +522,43 @@ class Subject extends BaseModel
 			return false;
 		}
 
-		if ($processMappings and !$this->processFormMappings($data))
+		if (!$this->deleteRanges($data['id']))
 		{
 			return false;
 		}
 
-		$lessonID = Input::getInt('lessonID');
-		if (!empty($lessonID))
+		if (!$this->saveCurriculum($data))
 		{
-			Courses::refreshWaitList($lessonID);
+			return false;
 		}
 
 		return $table->id;
+	}
+
+	/**
+	 * Saves the resource's curriculum information.
+	 *
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	protected function saveCurriculum($data)
+	{
+		$range = ['subjectID' => $data['id']];
+
+		foreach ($data['parentID'] as $parentID)
+		{
+			$range['parentID'] = $parentID;
+			$range['ordering'] = $this->getOrdering($parentID, $range['subjectID']);
+
+			if (!$this->addRange($range))
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_SUBJECT_ADD_FAIL', 'error');
+
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

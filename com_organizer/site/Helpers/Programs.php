@@ -27,17 +27,17 @@ class Programs extends Curricula implements Selectable
 	/**
 	 * Gets a HTML option based upon a program mapping
 	 *
-	 * @param   array   $mapping    the program mapping entry
+	 * @param   array   $range      the program curriculum range
 	 * @param   array   $parentIDs  the selected parents
 	 * @param   string  $type       the resource type of the form
 	 *
 	 * @return string  HTML option
 	 */
-	public static function getCurricularOption($mapping, $parentIDs, $type)
+	public static function getCurricularOption($range, $parentIDs, $type)
 	{
 		$dbo   = Factory::getDbo();
 		$query = self::getProgramQuery();
-		$query->where("p.id = '{$mapping['programID']}'");
+		$query->where("p.id = '{$range['programID']}'");
 		$dbo->setQuery($query);
 
 		if (!$name = OrganizerHelper::executeQuery('loadResult'))
@@ -45,10 +45,10 @@ class Programs extends Curricula implements Selectable
 			return '';
 		}
 
-		$selected = in_array($mapping['id'], $parentIDs) ? 'selected' : '';
+		$selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
 		$disabled = $type === 'pool' ? '' : 'disabled';
 
-		return "<option value='{$mapping['id']}' $selected $disabled>$name</option>";
+		return "<option value='{$range['id']}' $selected $disabled>$name</option>";
 	}
 
 	/**

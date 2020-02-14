@@ -42,11 +42,11 @@ class Users
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
 
-		$mode     = Input::getInt('mode', self::BLOCK_MODE);
-		$mappings = self::getMatchingLessons($mode, $ccmID);
+		$mode            = Input::getInt('mode', self::BLOCK_MODE);
+		$matchingLessons = self::getMatchingLessons($mode, $ccmID);
 
 		$deletedCcmIDs = [];
-		foreach ($mappings as $lessonID => $ccmIDs)
+		foreach ($matchingLessons as $lessonID => $ccmIDs)
 		{
 			$userLessonTable = new CourseParticipants;
 
@@ -213,11 +213,11 @@ class Users
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
 
-		$savedCcmIDs = [];
-		$mode        = Input::getInt('mode', self::BLOCK_MODE);
-		$mappings    = self::getMatchingLessons($mode, $ccmID);
+		$savedCcmIDs     = [];
+		$mode            = Input::getInt('mode', self::BLOCK_MODE);
+		$matchingLessons = self::getMatchingLessons($mode, $ccmID);
 
-		foreach ($mappings as $lessonID => $ccmIDs)
+		foreach ($matchingLessons as $lessonID => $ccmIDs)
 		{
 			try
 			{
