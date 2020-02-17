@@ -18,6 +18,8 @@ jobs:
                 php-version: ${{ matrix.php-versions }}
       #- name: "Install dependencies"
       #  run: "sudo apt-get install tree"
+      - name: "List PHP Modules"
+        run: php -m
       - name: "Checkout build enviroment"
         uses: actions/checkout@v2
         with:
