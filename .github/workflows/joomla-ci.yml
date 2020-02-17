@@ -5,9 +5,16 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    strategy:
+            matrix:
+                    php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0']
 
+    runs-on: ubuntu-latest
+    
     steps:
+      - name: "Installing PHP"
+        with:
+                php-version: ${{ matrix.php-versions }}
       - name: "Install dependencies"
         run: "sudo apt-get install tree"
       - name: "Checkout build enviroment"
@@ -15,11 +22,9 @@ jobs:
         with:
           repository:  jpbm04/ii-ci
           path: build
-      - name: "Checkout"
+      - name: "Checkout sources"
         uses: actions/checkout@v2
         with:
           path : extensions/com_organizer
-      - name: "Cleanup build enviroment"
-        run: build/scripts/shell/cleanup.sh
       - name: "Initialize build enviroment"
         run: build/scripts/shell/init.sh
