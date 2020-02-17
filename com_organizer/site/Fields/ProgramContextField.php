@@ -16,7 +16,7 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
 /**
- * Class creates a select box for (degree) program mappings.
+ * Class creates a select box for programs to filter the context for subordinate resources.
  */
 class ProgramContextField extends FormField
 {

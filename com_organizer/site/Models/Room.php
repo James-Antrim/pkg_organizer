@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Can;
 use Organizer\Tables;
 
@@ -38,7 +37,7 @@ class Room extends MergeModel implements ScheduleResource
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return Tables\Rooms A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

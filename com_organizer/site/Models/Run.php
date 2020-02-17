@@ -11,7 +11,6 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Can;
 use Organizer\Helpers\Input;
 use Organizer\Tables\Runs as RunsTable;
@@ -28,7 +27,7 @@ class Run extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return RunsTable A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

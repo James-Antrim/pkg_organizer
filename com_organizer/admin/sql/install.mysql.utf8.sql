@@ -801,6 +801,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     PRIMARY KEY (`id`),
     INDEX `fieldID` (`fieldID`),
     INDEX `frequencyID` (`frequencyID`),
+    UNIQUE INDEX `lsfID` (`lsfID`),
     INDEX `organizationID` (`organizationID`)
 )
     ENGINE = InnoDB

@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
 use Organizer\Tables\Holidays as HolidaysTable;
 
 /**
@@ -25,7 +24,7 @@ class Holiday extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return HolidaysTable A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Can;
 use Organizer\Tables\Subjects as SubjectsTable;
 
@@ -40,7 +39,7 @@ class SubjectEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return SubjectsTable A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

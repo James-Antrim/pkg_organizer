@@ -47,7 +47,7 @@ class ChildrenField extends FormField
 	}
 
 	/**
-	 * Retrieves child mappings for the resource being edited
+	 * Retrieves resources subordinate to the resource being edited
 	 *
 	 * @return array  empty if no child data exists
 	 */

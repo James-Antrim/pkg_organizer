@@ -12,7 +12,6 @@ namespace Organizer\Tables;
 
 use JDatabaseDriver;
 use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Languages;
 
 /**
  * Models the organizer_organizations table.

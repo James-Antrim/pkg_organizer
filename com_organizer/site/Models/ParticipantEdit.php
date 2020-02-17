@@ -13,7 +13,6 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Can;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\Languages;
@@ -76,7 +75,7 @@ class ParticipantEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return ParticipantsTable A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

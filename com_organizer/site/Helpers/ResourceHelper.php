@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Table\Table;
+use Organizer\Tables\BaseTable;
 
 abstract class ResourceHelper
 {
@@ -97,7 +97,7 @@ abstract class ResourceHelper
 	/**
 	 * Returns a table based on the called class.
 	 *
-	 * @return Table
+	 * @return BaseTable
 	 */
 	public static function getTable()
 	{

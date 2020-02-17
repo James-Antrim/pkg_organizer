@@ -12,7 +12,6 @@ namespace Organizer\Models;
 
 use Exception;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers;
 use Organizer\Helpers\Validators\Schedules as SchedulesValidator;
 use Organizer\Tables\InstancePersons;
@@ -148,7 +147,7 @@ class Schedule extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return SchedulesTable A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

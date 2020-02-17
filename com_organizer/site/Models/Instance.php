@@ -10,13 +10,9 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\InstanceGroups;
-use Organizer\Tables\InstancePersons;
-use Organizer\Tables\InstanceRooms;
-use Organizer\Tables\Instances as InstancesTable;
+use Organizer\Tables;
 
 /**
  * Class which manages stored instance data.
@@ -26,8 +22,8 @@ class Instance extends BaseModel
 	/**
 	 * Updates an association table's delta value.
 	 *
-	 * @param   Table  $assoc  the association table to update
-	 * @param   array  $data   the data used to identify/create
+	 * @param   Tables\BaseTable  $assoc  the association table to update
+	 * @param   array             $data   the data used to identify/create
 	 *
 	 * @return bool true on success, otherwise false
 	 */
@@ -54,13 +50,13 @@ class Instance extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return Tables\Instances A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new InstancesTable;
+		return new Tables\Instances;
 	}
 
 	/**
@@ -74,7 +70,7 @@ class Instance extends BaseModel
 	{
 		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
-		$table = new InstancesTable;
+		$table = new Tables\Instances;
 		if (!$table->save($data))
 		{
 			return false;
@@ -101,7 +97,7 @@ class Instance extends BaseModel
 		foreach ($data['resources'] as $person)
 		{
 			$ipData  = ['instanceID' => $instanceID, 'personID' => $person["personID"]];
-			$ipTable = new InstancePersons;
+			$ipTable = new Tables\InstancePersons;
 			$roleID  = !empty($person['roleID']) ? $person['roleID'] : 1;
 			if ($ipTable->load($ipData))
 			{
@@ -144,7 +140,7 @@ class Instance extends BaseModel
 			foreach ($person['groups'] as $group)
 			{
 				$igData  = ['assocID' => $ipID, 'groupID' => $group['groupID']];
-				$igTable = new InstanceGroups;
+				$igTable = new Tables\InstanceGroups;
 				if (!$this->associate($igTable, $igData))
 				{
 					return false;
@@ -159,7 +155,7 @@ class Instance extends BaseModel
 			foreach ($person['rooms'] as $room)
 			{
 				$irData  = ['assocID' => $ipID, 'roomID' => $room['roomID']];
-				$irTable = new InstanceRooms;
+				$irTable = new Tables\InstanceRooms;
 				if (!$this->associate($irTable, $irData))
 				{
 					return false;

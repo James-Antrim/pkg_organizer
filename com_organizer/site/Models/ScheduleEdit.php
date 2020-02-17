@@ -10,9 +10,7 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Can;
-use Organizer\Tables\Schedules as SchedulesTable;
 
 /**
  * Class loads a form for uploading schedule data.

@@ -105,22 +105,18 @@ abstract class BaseTable extends Table
 	/**
 	 * Sets a given property from a table, loading the table as necessary.
 	 *
-	 * @param   string  $property  the name of the property to set
-	 * @param   mixed   $value     the value to set the property to
-	 * @param   mixed   $keys      an optional primary key value to load the row by, or an array of fields to match
+	 * @param   string  $column   the name of the property to set
+	 * @param   mixed   $value    the value to set the property to
+	 * @param   mixed   $default  the default value to use if the value parameter is empty
 	 *
-	 * @return bool true on success, otherwise false
+	 * @return void modifies the column property value
 	 */
-	public function setProperty($property, $value, $keys = null)
+	public function setColumn($column, $value, $default)
 	{
-		if (empty($this->id) and !$this->load($keys))
+		if (property_exists($this, $column))
 		{
-			return false;
+			$this->$column = empty($value) ? $default : $value;
 		}
-
-		$this->$property = $value;
-
-		return $this->store();
 	}
 
 	/**

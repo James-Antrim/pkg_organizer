@@ -10,14 +10,14 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
+use Organizer\Tables;
 
 interface ScheduleResource
 {
 	/**
 	 * Processes the data for an individual schedule
 	 *
-	 * @param   Table  $schedule  the schedule being processed
+	 * @param   Tables\Schedule  $schedule  the schedule being processed
 	 *
 	 * @return bool true if the schedule was changed, otherwise false
 	 */

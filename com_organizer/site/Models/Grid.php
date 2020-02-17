@@ -11,7 +11,6 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers\Can;
 use Organizer\Helpers\Input;
 use Organizer\Tables\Grids as GridsTable;
@@ -28,7 +27,7 @@ class Grid extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return GridsTable A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

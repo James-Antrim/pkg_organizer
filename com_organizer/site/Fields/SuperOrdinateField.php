@@ -14,7 +14,7 @@ use Joomla\CMS\Form\FormField;
 use Organizer\Helpers;
 
 /**
- * Class creates a select box for superordinate (subject) pool mappings.
+ * Class creates a select box for superordinate pool resources.
  */
 class SuperOrdinateField extends FormField
 {

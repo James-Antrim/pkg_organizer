@@ -12,7 +12,6 @@ namespace Organizer\Models;
 
 use Exception;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -70,7 +69,7 @@ class Participant extends MergeModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return Tables\Participants A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

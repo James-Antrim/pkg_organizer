@@ -13,9 +13,8 @@ namespace Organizer\Helpers;
 use Exception;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Table\Table;
-use Joomla\Utilities\ArrayHelper;
 use Organizer\Controller;
+use Organizer\Tables\BaseTable;
 use ReflectionMethod;
 use RuntimeException;
 
@@ -191,7 +190,7 @@ class OrganizerHelper
 	 *
 	 * @param   string  $name  the table name
 	 *
-	 * @return Table
+	 * @return BaseTable
 	 */
 	public static function getTable($name)
 	{
