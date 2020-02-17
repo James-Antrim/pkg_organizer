@@ -197,7 +197,7 @@ class SubjectItem extends ItemModel
 	{
 		$subjectID = $subject['subjectID'];
 		$tag       = Languages::getTag();
-		$programs  = Helpers\Mappings::getSubjectPrograms($subjectID);
+		$programs  = Helpers\Subjects::getPrograms($subjectID);
 
 		$query  = $this->_db->getQuery(true);
 		$select = 'DISTINCT pr.id AS id, ';

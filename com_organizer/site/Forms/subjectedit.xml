@@ -34,7 +34,7 @@
                textcolumn="name" valuecolumn="id">
             <option value="">NO_FIELD</option>
         </field>
-        <field name="planSubjectIDs" type="SubjectEvents" label="EVENT" role="1"/>
+        <field name="eventIDs" type="SubjectEvents" label="EVENT" role="1"/>
         <field name="spacer1" type="spacer" hr="true"/>
         <field name="creditpoints" type="Blank" label="CREDIT_POINTS" class="inputbox" hint="3" size="70"/>
         <field name="sws" type="Integer" label="SWS" default="0" first="1" last="30" step="1">

@@ -12,7 +12,7 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Mappings;
+use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
 /**

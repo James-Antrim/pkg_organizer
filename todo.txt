@@ -10,6 +10,8 @@ TODO remove references to the thm_organizer curriculum based views => set access
 -pools
 -subjects
 
+TODO make the frequencies field reference the table
+
 --------------------------------------------------------------------------------------Phase 2: Migration/Synchronization
 
 TODO create a fill file for initialization of tables synchronized in phase 2

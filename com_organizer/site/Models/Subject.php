@@ -26,40 +26,22 @@ class Subject extends CurriculumResource
 	const TEACHES = 2;
 
 	/**
-	 * Adds a prerequisite association. No access checks => this is not directly accessible and requires differing
-	 * checks according to its calling context.
-	 *
-	 * @param   int    $subjectID       the id of the subject
-	 * @param   array  $prerequisiteID  the id of the prerequisite
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	private function addPrerequisite($subjectID, $prerequisiteID)
-	{
-		$query = $this->_db->getQuery(true);
-		$query->insert('#__organizer_prerequisites')->columns('subjectID, prerequisiteID');
-		$query->values("'$subjectID', '$prerequisiteID'");
-		$this->_db->setQuery($query);
-
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
-	}
-
-	/**
 	 * Adds a Subject => Event association. No access checks => this is not directly accessible and requires
 	 * differing checks according to its calling context.
 	 *
 	 * @param   int    $subjectID  the id of the subject
-	 * @param   array  $courseIDs  the id of the planSubject
+	 * @param   array  $eventIDs   the ids of the events
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function addSubjectMappings($subjectID, $courseIDs)
+	private function addEvents($subjectID, $eventIDs)
 	{
 		$query = $this->_db->getQuery(true);
-		$query->insert('#__organizer_subject_mappings')->columns('subjectID, courseID');
-		foreach ($courseIDs as $courseID)
+		$query->insert('#__organizer_subject_events')->columns('subjectID, eventID');
+
+		foreach ($eventIDs as $eventID)
 		{
-			$query->values("'$subjectID', '$courseID'");
+			$query->values("'$subjectID', '$eventID'");
 		}
 
 		$this->_db->setQuery($query);
@@ -88,6 +70,25 @@ class Subject extends CurriculumResource
 	}
 
 	/**
+	 * Adds a prerequisite association. No access checks => this is not directly accessible and requires differing
+	 * checks according to its calling context.
+	 *
+	 * @param   int    $subjectID       the id of the subject
+	 * @param   array  $prerequisiteID  the id of the prerequisite
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	private function addPrerequisite($subjectID, $prerequisiteID)
+	{
+		$query = $this->_db->getQuery(true);
+		$query->insert('#__organizer_prerequisites')->columns('subjectID, prerequisiteID');
+		$query->values("'$subjectID', '$prerequisiteID'");
+		$this->_db->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
 	 * Checks if the property should be displayed. Setting it to NULL if not.
 	 *
 	 * @param   array  &$data      the form data
@@ -109,7 +110,7 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Attempts to delete the selected subject entries and related mappings
+	 * Attempts to delete the selected subject entries and associations
 	 *
 	 * @return boolean true on success, otherwise false
 	 * @throws Exception => unauthorized access
@@ -276,78 +277,32 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Processes the subject pre- & postrequisites selected for the subject
-	 *
-	 * @param   array &$data  the post data
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	private function processFormPrerequisites(&$data)
-	{
-		if (!isset($data['prerequisites']) and !isset($data['postrequisites']))
-		{
-			return true;
-		}
-
-		$subjectID = $data['id'];
-
-		if (!$this->removePrerequisites($subjectID))
-		{
-			return false;
-		}
-
-		if (!empty($data['prerequisites']))
-		{
-			foreach ($data['prerequisites'] as $prerequisiteID)
-			{
-				if (!$this->addPrerequisite($subjectID, $prerequisiteID))
-				{
-					return false;
-				}
-			}
-		}
-
-		if (!empty($data['postrequisites']))
-		{
-			foreach ($data['postrequisites'] as $postrequisiteID)
-			{
-				if (!$this->addPrerequisite($postrequisiteID, $subjectID))
-				{
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	/**
 	 * Processes the subject mappings selected for the subject
 	 *
 	 * @param   array &$data  the post data
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processFormSubjectMappings(&$data)
+	private function processEvents(&$data)
 	{
-		/*if (!isset($data['courseIDs']))
+		if (!isset($data['courseIDs']))
 		{
 			return true;
 		}
 
 		$subjectID = $data['id'];
 
-		if (!$this->removeSubjectMappings($subjectID))
+		if (!$this->removeEvents($subjectID))
 		{
 			return false;
 		}
-		if (!empty($data['planSubjectIDs']))
+		if (!empty($data['eventIDs']))
 		{
-			if (!$this->addSubjectMappings($subjectID, $data['courseIDs']))
+			if (!$this->addEvents($subjectID, $data['eventIDs']))
 			{
 				return false;
 			}
-		}*/
+		}
 
 		return true;
 	}
@@ -359,7 +314,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processFormPersons(&$data)
+	private function processPersons(&$data)
 	{
 		if (!isset($data['coordinators']) and !isset($data['persons']))
 		{
@@ -401,21 +356,49 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Removes pre- & postrequisite associations for the given subject. No access checks => this is not directly
-	 * accessible and requires differing checks according to its calling context.
+	 * Processes the subject pre- & postrequisites selected for the subject
 	 *
-	 * @param   int  $subjectID  the subject id
+	 * @param   array &$data  the post data
 	 *
-	 * @return boolean
+	 * @return bool  true on success, otherwise false
 	 */
-	private function removePrerequisites($subjectID)
+	private function processPrerequisites(&$data)
 	{
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_prerequisites')
-			->where("subjectID = '$subjectID' OR prerequisiteID ='$subjectID'");
-		$this->_db->setQuery($query);
+		if (!isset($data['prerequisites']) and !isset($data['postrequisites']))
+		{
+			return true;
+		}
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		$subjectID = $data['id'];
+
+		if (!$this->removePrerequisites($subjectID))
+		{
+			return false;
+		}
+
+		if (!empty($data['prerequisites']))
+		{
+			foreach ($data['prerequisites'] as $prerequisiteID)
+			{
+				if (!$this->addPrerequisite($subjectID, $prerequisiteID))
+				{
+					return false;
+				}
+			}
+		}
+
+		if (!empty($data['postrequisites']))
+		{
+			foreach ($data['postrequisites'] as $postrequisiteID)
+			{
+				if (!$this->addPrerequisite($postrequisiteID, $subjectID))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -426,14 +409,14 @@ class Subject extends CurriculumResource
 	 *
 	 * @return boolean
 	 */
-	/*private function removeSubjectMappings($subjectID)
+	private function removeEvents($subjectID)
 	{
 		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_subject_mappings')->where("subjectID = '$subjectID'");
+		$query->delete('#__organizer_subject_curricula')->where("subjectID = '$subjectID'");
 		$this->_db->setQuery($query);
 
 		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
-	}*/
+	}
 
 	/**
 	 * Removes person associations for the given subject and role. No access checks => this is not directly
@@ -453,6 +436,24 @@ class Subject extends CurriculumResource
 			$query->where("role = $role");
 		}
 
+		$this->_db->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
+	 * Removes pre- & postrequisite associations for the given subject. No access checks => this is not directly
+	 * accessible and requires differing checks according to its calling context.
+	 *
+	 * @param   int  $subjectID  the subject id
+	 *
+	 * @return boolean
+	 */
+	private function removePrerequisites($subjectID)
+	{
+		$query = $this->_db->getQuery(true);
+		$query->delete('#__organizer_prerequisites')
+			->where("subjectID = '$subjectID' OR prerequisiteID ='$subjectID'");
 		$this->_db->setQuery($query);
 
 		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
@@ -507,17 +508,17 @@ class Subject extends CurriculumResource
 
 		$data['id'] = $table->id;
 
-		if (!$this->processFormPersons($data))
+		if (!$this->processPersons($data))
 		{
 			return false;
 		}
 
-		if (!$this->processFormSubjectMappings($data))
+		if (!$this->processEvents($data))
 		{
 			return false;
 		}
 
-		if (!$this->processFormPrerequisites($data))
+		if (!$this->processPrerequisites($data))
 		{
 			return false;
 		}
