@@ -12,7 +12,6 @@ namespace Organizer\Models;
 
 use Exception;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -21,40 +20,10 @@ use Organizer\Tables;
  */
 class Pool extends CurriculumResource
 {
-	/**
-	 * Attempts to delete the selected subject pool entries and related mappings
-	 *
-	 * @return boolean true on success, otherwise false
-	 * @throws Exception => unauthorized access
-	 */
-	public function delete()
-	{
-		if (!Helpers\Can::documentTheseOrganizations())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
-
-		if ($poolIDs = Helpers\Input::getSelectedIDs())
-		{
-			foreach ($poolIDs as $poolID)
-			{
-				if (!Helpers\Can::document('pool', $poolID))
-				{
-					throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-				}
-
-				if (!$this->deleteSingle($poolID))
-				{
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
+	protected $resource = 'pool';
 
 	/**
-	 * Deletes mappings of a specific resource.
+	 * Deletes ranges of a specific curriculum resource.
 	 *
 	 * @param   int  $resourceID  the id of the mapping
 	 *
@@ -124,7 +93,7 @@ class Pool extends CurriculumResource
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return Tables\Pools A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
@@ -134,36 +103,69 @@ class Pool extends CurriculumResource
 	}
 
 	/**
-	 * Adds a pool from LSF to the mappings table.
+	 * Method to import data associated with resources from LSF
 	 *
-	 * @param   int     $parentID   the id of the parent mapping
-	 * @param   object &$XMLObject  the object representing the LSF pool
-	 *
-	 * @return boolean  true if the pool is mapped, otherwise false
-	 * @see PoolLSF processStub()
+	 * @return bool true on success, otherwise false
 	 */
-	public function import($parentID, &$XMLObject)
+	public function import()
 	{
+		// There is no legitimate call to this method.
+		return false;
+	}
+
+	/**
+	 * Method to import data associated with a resource from LSF
+	 *
+	 * @param   int  $resourceID  the id of the program to be imported
+	 *
+	 * @return boolean  true on success, otherwise false
+	 */
+	public function importSingle($resourceID)
+	{
+		// There is no legitimate call to this method.
+		return false;
+	}
+
+	/**
+	 * Creates a pool entry if none exists and calls
+	 *
+	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary subject data
+	 * @param   int     $organizationID  the id of the organization to which this data belongs
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	public function processResource(&$XMLObject, $organizationID, $parentID)
+	{
+		$lsfID = empty($XMLObject->pordid) ? (string) $XMLObject->modulid : (string) $XMLObject->pordid;
+		if (empty($lsfID))
+		{
+			return false;
+		}
+
 		$blocked = !empty($XMLObject->sperrmh) and strtolower((string) $XMLObject->sperrmh) === 'x';
-		$lsfID        = empty($XMLObject->pordid) ? (string) $XMLObject->modulid : (string) $XMLObject->pordid;
-		$invalidTitle = Helpers\LSF::invalidTitle($XMLObject);
-		$noChildren   = !isset($XMLObject->modulliste->modul);
-		$pools        = new Tables\Pools;
+		$noChildren = !isset($XMLObject->modulliste->modul);
+		$validTitle = $this->validTitle($XMLObject);
+
+		$pools = new Tables\Pools;
 
 		if (!$pools->load(['lsfID' => $lsfID]))
 		{
-			if ($blocked or $invalidTitle or $noChildren)
+			// There isn't one and shouldn't be one
+			if ($blocked or !$validTitle or $noChildren)
 			{
 				return true;
 			}
 
-			Helpers\OrganizerHelper::message('ORGANIZER_POOL_IMPORT_FAIL', 'error');
+			$pools->organizationID = $organizationID;
+			$pools->lsfID          = $lsfID;
+			$this->setNameAttributes($pools, $XMLObject);
 
-			return false;
+			if (!$pools->store())
+			{
+				return false;
+			}
 		}
-
-		// Unwanted, invalid or irrelevant
-		if ($blocked or $invalidTitle or $noChildren)
+		elseif ($blocked or !$validTitle or $noChildren)
 		{
 			return $this->deleteSingle($pools->id);
 		}
@@ -192,33 +194,7 @@ class Pool extends CurriculumResource
 			$curricula->load(['parentID' => $parentID, 'poolID' => $pools->id]);
 		}
 
-		foreach ($XMLObject->modulliste->modul as $subOrdinate)
-		{
-			$type = (string) $subOrdinate->pordtyp;
-
-			if ($type === self::POOL)
-			{
-				if (!$this->import($curricula->id, $subOrdinate))
-				{
-					return false;
-				}
-
-				continue;
-			}
-
-			if ($type === self::SUBJECT)
-			{
-				$subject = new Subject;
-				if (!$subject->import($curricula->id, $subOrdinate))
-				{
-					return false;
-				}
-
-				continue;
-			}
-		}
-
-		return true;
+		return $this->processCollection($XMLObject->modulliste->modul, $organizationID, $curricula->id);
 	}
 
 	/**

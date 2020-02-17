@@ -1,7 +1,6 @@
 -----------------------------------------------------------------------------------------------------------------Initial
 
 TODO find out what purpose poking holes in the pool ranges with remove exclusions serves
-TODO simplify imports in PoolLSF and SubjectLSF
 
 -----------------------------------------------------------------------------------------------------Phase 1: Curriculum
 

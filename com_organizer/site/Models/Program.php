@@ -11,7 +11,6 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -20,40 +19,10 @@ use Organizer\Tables;
  */
 class Program extends CurriculumResource
 {
-	/**
-	 * Attempts to delete the selected degree program entries and related mappings
-	 *
-	 * @return boolean  True if successful, false if an error occurs.
-	 * @throws Exception => unauthorized access
-	 */
-	public function delete()
-	{
-		if (!Helpers\Can::documentTheseOrganizations())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
-
-		if ($programIDs = Helpers\Input::getSelectedIDs())
-		{
-			foreach ($programIDs as $programID)
-			{
-				if (!Helpers\Can::document('program', $programID))
-				{
-					throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-				}
-
-				if (!$this->deleteSingle($programID))
-				{
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
+	protected $resource = 'program';
 
 	/**
-	 * Deletes mappings of a specific resource.
+	 * Deletes ranges of a specific curriculum resource.
 	 *
 	 * @param   int  $resourceID  the id of the mapping
 	 *
@@ -109,66 +78,112 @@ class Program extends CurriculumResource
 	}
 
 	/**
+	 * Retrieves program information relevant for soap queries to the LSF system.
+	 *
+	 * @param   int  $programID  the id of the degree program
+	 *
+	 * @return array  empty if the program could not be found
+	 */
+	private function getKeys($programID)
+	{
+		$query = $this->_db->getQuery(true);
+		$query->select('p.code AS program, d.code AS degree, accredited, organizationID')
+			->from('#__organizer_programs AS p')
+			->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
+			->where("p.id = '$programID'");
+		$this->_db->setQuery($query);
+
+		return Helpers\OrganizerHelper::executeQuery('loadAssoc', []);
+	}
+
+	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return Tables\Programs A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\ProgramsTable;
+		return new Tables\Programs;
 	}
 
 	/**
-	 * Imports a program
+	 * Method to import data associated with resources from LSF
 	 *
-	 * @param   int     $resourceID  the id of the curriculum resource
-	 * @param   object &$XMLObject   the data received from the LSF system
-	 *
-	 * @return boolean  true if the data was mapped, otherwise false
+	 * @return bool true on success, otherwise false
 	 */
-	public function import($resourceID, &$XMLObject)
+	public function import()
 	{
-		$curricula = new Tables\Curricula;
+		$programIDs = Helpers\Input::getSelectedIDs();
 
-		if (!$curricula->load(['programID' => $resourceID]))
+		foreach ($programIDs as $programID)
 		{
-			return false;
-		}
-
-		foreach ($XMLObject->gruppe as $subOrdinate)
-		{
-			$type = (string) $subOrdinate->pordtyp;
-
-			if ($type === self::POOL)
+			if (!$this->importSingle($programID))
 			{
-				$pool = new Pool;
-				if ($pool->import($curricula->id, $subOrdinate))
-				{
-					continue;
-				}
-
-				return false;
-			}
-
-			if ($type === self::SUBJECT)
-			{
-				$subject = new Subject;
-				if ($subject->import($curricula->id, $subOrdinate))
-				{
-					continue;
-				}
-
 				return false;
 			}
 		}
 
 		return true;
+	}
+
+	/**
+	 * Method to import data associated with a resource from LSF
+	 *
+	 * @param   int  $resourceID  the id of the program to be imported
+	 *
+	 * @return boolean  true on success, otherwise false
+	 */
+	public function importSingle($resourceID)
+	{
+		if (!$keys = $this->getKeys($resourceID))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_LSF_DATA_MISSING', 'error');
+
+			return false;
+		}
+
+		$client = new Helpers\LSF;
+		if (!$program = $client->getModules($keys['program'], $keys['degree'], $keys['accredited']))
+		{
+			return false;
+		}
+
+		// The program has not been completed in LSF.
+		if (empty($program->gruppe))
+		{
+			return true;
+		}
+
+		$curriculumID = 0;
+
+		// Curriculum entry doesn't exist and could not be created.
+		if (!Helpers\Programs::getRanges($resourceID) and !$curriculumID = $this->saveCurriculum($resourceID))
+		{
+			return false;
+		}
+
+		return $this->processCollection($program->gruppe, $keys['organizationID'], $curriculumID);
+	}
+
+	/**
+	 * Creates a resource and resource curriculum hierarchy as necessary.
+	 *
+	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary resource data
+	 * @param   int     $organizationID  the id of the organization with which the resource is associated
+	 * @param   int     $parentID        the  id of the parent entry in the curricula table
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	public function processResource(&$XMLObject, $organizationID, $parentID)
+	{
+		// There is no legitimate call to this method.
+		return false;
 	}
 
 	/**
@@ -261,9 +276,50 @@ class Program extends CurriculumResource
 		// The curriculum has been modelled in the range => purge.
 		if (!$this->deleteRanges($range['programID']))
 		{
+			return 0;
+		}
+
+		return $this->addRange($range);
+	}
+
+	/**
+	 * Method to update subject data associated with degree programs from LSF
+	 *
+	 * @return bool  true on success, otherwise false
+	 * @throws Exception => unauthorized access
+	 */
+	public function update()
+	{
+		$programIDs = Helpers\Input::getSelectedIDs();
+
+		if (empty($programIDs))
+		{
 			return false;
 		}
 
-		return $this->addRange($range) ? true : false;
+		$subject = new Subject;
+
+		foreach ($programIDs as $programID)
+		{
+			if (!Helpers\Can::document('program', $programID))
+			{
+				throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			}
+
+			if (!$subjectIDs = Helpers\Programs::getSubjectIDs($programID))
+			{
+				continue;
+			}
+
+			foreach ($subjectIDs as $subjectID)
+			{
+				if (!$subject->importSingle($subjectID))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 }

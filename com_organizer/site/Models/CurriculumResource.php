@@ -16,12 +16,14 @@ abstract class CurriculumResource extends BaseModel
 {
 	CONST POOL = 'K', SUBJECT = 'M';
 
+	protected $resource;
+
 	/**
 	 * Adds a pool mapping to a parent mapping
 	 *
 	 * @param   array &$range  an array containing data about a curriculum item and potentially its children
 	 *
-	 * @return bool  true on success, otherwise false
+	 * @return int the id of the curriculum row on success, otherwise 0
 	 */
 	protected function addRange(&$range)
 	{
@@ -31,7 +33,7 @@ abstract class CurriculumResource extends BaseModel
 
 		if (!$left or $this->shiftRight($left))
 		{
-			return false;
+			return 0;
 		}
 
 		$range['level'] = $level;
@@ -50,17 +52,49 @@ abstract class CurriculumResource extends BaseModel
 
 					if (!$this->addRange($subOrdinate))
 					{
-						return false;
+						return 0;
 					}
 
 					continue;
 				}
 			}
 
-			return true;
+			return $curricula->id;
 		}
 
-		return false;
+		return 0;
+	}
+
+	/**
+	 * Attempts to delete the selected resources and their associations
+	 *
+	 * @return boolean  True if successful, false if an error occurs.
+	 * @throws Exception => unauthorized access
+	 */
+	public function delete()
+	{
+		if (!Helpers\Can::documentTheseOrganizations())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+		}
+
+		if ($resourceIDs = Helpers\Input::getSelectedIDs())
+		{
+			foreach ($resourceIDs as $resourceID)
+			{
+				if (!Helpers\Can::document($this->resource, $resourceID))
+				{
+					throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+				}
+
+				if (!$this->deleteSingle($resourceID))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -293,14 +327,74 @@ abstract class CurriculumResource extends BaseModel
 	}
 
 	/**
-	 * Imports a program from the LSF Module
+	 * Method to import data associated with resources from LSF
 	 *
-	 * @param   int     $resourceID  the id of the curriculum resource
-	 * @param   object &$XMLObject   the data received from the LSF system
-	 *
-	 * @return boolean  true if the data was mapped, otherwise false
+	 * @return void true on success, otherwise false
 	 */
-	abstract public function import($resourceID, &$XMLObject);
+	abstract public function import();
+
+	/**
+	 * Method to import data associated with a resource from LSF
+	 *
+	 * @param   int  $resourceID  the id of the program to be imported
+	 *
+	 * @return boolean  true on success, otherwise false
+	 */
+	abstract public function importSingle($resourceID);
+
+	/**
+	 * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
+	 * needed.
+	 *
+	 * @param   object &$collection      the SimpleXML node containing the collection of subordinate elements
+	 * @param   int     $organizationID  the id of the organization with which the resources are associated
+	 * @param   int     $parentID        the id of the curriculum entry for the parent element.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	protected function processCollection(&$collection, $organizationID, $parentID)
+	{
+		$pool    = new Pool;
+		$subject = new Subject;
+
+		foreach ($collection as $subOrdinate)
+		{
+			$type = (string) $subOrdinate->pordtyp;
+
+			if ($type === self::POOL)
+			{
+				if ($pool->processResource($subOrdinate, $organizationID, $parentID))
+				{
+					continue;
+				}
+
+				return false;
+			}
+
+			if ($type === self::SUBJECT)
+			{
+				if ($subject->processResource($subOrdinate, $organizationID, $parentID))
+				{
+					continue;
+				}
+
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Creates a resource and resource curriculum hierarchy as necessary.
+	 *
+	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary resource data
+	 * @param   int     $organizationID  the id of the organization with which the resource is associated
+	 * @param   int     $parentID        the  id of the parent entry in the curricula table
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	abstract public function processResource(&$XMLObject, $organizationID, $parentID);
 
 	/**
 	 * Saves the resource's curriculum information.
@@ -310,6 +404,39 @@ abstract class CurriculumResource extends BaseModel
 	 * @return bool true on success, otherwise false
 	 */
 	abstract protected function saveCurriculum($data);
+
+	/**
+	 * Sets the value of a generic attribute if available
+	 *
+	 * @param   object &$table    the array where subject data is being stored
+	 * @param   string  $column   the key where the value should be put
+	 * @param   string  $value    the value string
+	 * @param   string  $default  the default value
+	 *
+	 * @return void
+	 */
+	protected function setAttribute(&$table, $column, $value, $default = '')
+	{
+		$table->$column = empty($value) ? $default : $value;
+	}
+
+	/**
+	 * Set name attributes common to pools and subjects
+	 *
+	 * @param   Tables\BaseTable  $table      the table to modify
+	 * @param   object            $XMLObject  the data source
+	 *
+	 * @return void modifies the table object
+	 */
+	protected function setNameAttributes(&$table, &$XMLObject)
+	{
+		$table->setColumn('abbreviation_de', (string) $XMLObject->kuerzel, '');
+		$table->setColumn('abbreviation_en', (string) $XMLObject->kuerzelen, $table->abbreviation_de);
+		$table->setColumn('shortName_de', (string) $XMLObject->kurzname, '');
+		$table->setColumn('shortName_en', (string) $XMLObject->kurznameen, $table->shortName_de);
+		$table->setColumn('name_de', (string) $XMLObject->titelde, '');
+		$table->setColumn('name_en', (string) $XMLObject->titelen, $table->name_de);
+	}
 
 	/**
 	 * Shifts the ordering for existing siblings who have an ordering at or above the ordering to be inserted.
@@ -401,5 +528,29 @@ abstract class CurriculumResource extends BaseModel
 		$this->_db->setQuery($query);
 
 		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
+	 * Ensures that the title(s) are set and do not contain 'dummy'. This function favors the German title.
+	 *
+	 * @param   object &$resource   the resource being checked
+	 * @param   bool    $isSubject  whether or not the formatting is that of the program or subject soap response
+	 *
+	 * @return bool true if one of the titles has the possibility of being valid, otherwise false
+	 */
+	protected function validTitle(&$resource, $isSubject = false)
+	{
+		$titleDE = $isSubject ? trim((string) $resource->modul->titelde) : trim((string) $resource->titelde);
+		$titleEN = $isSubject ? trim((string) $resource->modul->titelen) : trim((string) $resource->titelen);
+		$title   = empty($titleDE) ? $titleEN : $titleDE;
+
+		if (empty($title))
+		{
+			return false;
+		}
+
+		$dummyPos = stripos($title, 'dummy');
+
+		return $dummyPos === false;
 	}
 }
