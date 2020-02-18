@@ -173,7 +173,7 @@ class ProgramContextField extends FormField
 		$query = Helpers\Programs::getProgramQuery();
 		$dbo   = Factory::getDbo();
 
-		$query->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')->order('name ASC');
+		$query->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')->order('name ASC');
 		$dbo->setQuery($query);
 
 		$programs = Helpers\OrganizerHelper::executeQuery('loadAssocList');

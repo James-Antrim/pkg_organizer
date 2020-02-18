@@ -204,16 +204,16 @@ class SubjectItem extends ItemModel
 		$select .= "s2.id AS postID, s2.name_$tag AS postName, s2.code AS postModuleNumber";
 		$query->select($select);
 		$query->from('#__organizer_prerequisites AS pr');
-		$query->innerJoin('#__organizer_mappings AS m1 ON m1.id = pr.prerequisiteID');
-		$query->innerJoin('#__organizer_subjects AS s1 ON s1.id = m1.subjectID');
-		$query->innerJoin('#__organizer_mappings AS m2 ON m2.id = pr.subjectID');
-		$query->innerJoin('#__organizer_subjects AS s2 ON s2.id = m2.subjectID');
+		$query->innerJoin('#__organizer_curricula AS c1 ON c1.id = pr.prerequisiteID');
+		$query->innerJoin('#__organizer_subjects AS s1 ON s1.id = c1.subjectID');
+		$query->innerJoin('#__organizer_curricula AS c2 ON c2.id = pr.subjectID');
+		$query->innerJoin('#__organizer_subjects AS s2 ON s2.id = c2.subjectID');
 
 		foreach ($programs as $program)
 		{
 			$query->clear('where');
-			$query->where("m1.lft > {$program['lft']} AND m1.rgt < {$program['rgt']}");
-			$query->where("m2.lft > {$program['lft']} AND m2.rgt < {$program['rgt']}");
+			$query->where("c1.lft > {$program['lft']} AND c1.rgt < {$program['rgt']}");
+			$query->where("c2.lft > {$program['lft']} AND c2.rgt < {$program['rgt']}");
 			$query->where("(s1.id = $subjectID OR s2.id = $subjectID)");
 			$this->_db->setQuery($query);
 

@@ -57,17 +57,15 @@ class Subjects extends Curricula implements Selectable
 	 *
 	 * @return array
 	 */
-	private static function getBoundaries()
+	private static function getFilterRanges()
 	{
 		if (!$programBoundaries = Programs::getRanges(Input::getInt('programID')))
 		{
 			return [];
 		}
 
-		$poolBoundaries = Pools::getRanges(Input::getInt('poolID'));
-
-		$validBoundaries = (!empty($poolBoundaries) and self::poolInProgram($poolBoundaries, $programBoundaries));
-		if ($validBoundaries)
+		if ($poolBoundaries = Pools::getRanges(Input::getInt('poolID'))
+			and self::poolInProgram($poolBoundaries, $programBoundaries))
 		{
 			return $poolBoundaries;
 		}
@@ -152,14 +150,14 @@ class Subjects extends Curricula implements Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('t.id, t.surname, t.forename, t.fieldID, t.title, st.role')
+		$query->select('t.id, t.surname, t.forename, t.fieldID, t.title, sp.role')
 			->from('#__organizer_persons AS t')
-			->innerJoin('#__organizer_subject_persons AS st ON st.personID = t.id')
-			->where("st.subjectID = '$subjectID'");
+			->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = t.id')
+			->where("sp.subjectID = '$subjectID'");
 
 		if (!empty($role) and is_numeric($role))
 		{
-			$query->where("st.role = $role");
+			$query->where("sp.role = $role");
 		}
 		$dbo->setQuery($query);
 
@@ -287,34 +285,30 @@ class Subjects extends Curricula implements Selectable
 			->order('name')
 			->group('s.id');
 
-		$boundarySet = self::getBoundaries();
-		if (!empty($boundarySet))
+		if ($ranges = self::getFilterRanges())
 		{
-			$query->innerJoin('#__organizer_mappings AS m ON m.subjectID = s.id');
-			$where   = '';
-			$initial = true;
-			foreach ($boundarySet as $boundaries)
+			$query->innerJoin('#__organizer_curricula AS c ON c.subjectID = s.id');
+			$wherray = [];
+
+			foreach ($ranges as $boundaries)
 			{
-				$where   .= $initial ?
-					"((m.lft >= '{$boundaries['lft']}' AND m.rgt <= '{$boundaries['rgt']}')"
-					: " OR (m.lft >= '{$boundaries['lft']}' AND m.rgt <= '{$boundaries['rgt']}')";
-				$initial = false;
+				$wherray[] = "(m.lft >= '{$boundaries['lft']}' AND m.rgt <= '{$boundaries['rgt']}')";
 			}
 
-			$query->where($where . ')');
+			$query->where('(' . implode(' OR ', $wherray) . ')');
 		}
 
 		if ($personID !== self::ALL)
 		{
-			$query->innerJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id');
-			$query->innerJoin('#__organizer_persons AS t ON t.id = st.personID');
-			$query->where("st.personID = '$personID'");
+			$query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id');
+			$query->innerJoin('#__organizer_persons AS t ON t.id = sp.personID');
+			$query->where("sp.personID = '$personID'");
 		}
 		else
 		{
-			$query->leftJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id');
-			$query->innerJoin('#__organizer_persons AS t ON t.id = st.personID');
-			$query->where("st.role = '1'");
+			$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id');
+			$query->innerJoin('#__organizer_persons AS t ON t.id = sp.personID');
+			$query->where("sp.role = '1'");
 		}
 
 		$dbo->setQuery($query);

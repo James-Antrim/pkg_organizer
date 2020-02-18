@@ -173,7 +173,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 			$resourceData = $resource['poolID'] ?
 				Pools::getResource($resource['poolID']) : Subjects::getResource($resource['subjectID']);
 
-			// Avoid conflicts between the resource's actual id and the curriculum mapping id
+			// Avoid conflicts between the resource's actual id and the curricula table id
 			unset($resourceData['id']);
 
 			$resource = array_merge($resource, $resourceData);
@@ -189,7 +189,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves all non-subject mapping entries subordinate to associated degree programs
+	 * Retrieves all curriculum ranges subordinate to a program
 	 *
 	 * @param   array  $programRanges  the ranges of superordinate programs
 	 *

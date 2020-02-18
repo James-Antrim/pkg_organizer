@@ -368,13 +368,13 @@ class Search extends BaseModel
 		{
 			foreach ($programs as $category)
 			{
-				$invalidMapping =
+				$invalidRange =
 					(empty($category['lft']) or empty($category['rgt']) or $category['rgt'] - $category['lft'] < 2);
 
 				$noPlan = empty($category['categoryID']);
 
 				// Any linked view would be empty
-				if ($invalidMapping and $noPlan)
+				if ($invalidRange and $noPlan)
 				{
 					continue;
 				}
@@ -395,11 +395,10 @@ class Search extends BaseModel
 
 				$links = [];
 
-				$invalidMapping =
-					(empty($category['lft']) or empty($category['rgt']) or $category['rgt'] - $category['lft'] < 2);
+				$invalidRange = (!$category['lft'] or !$category['rgt'] or $category['rgt'] - $category['lft'] < 2);
 
-				// If the mapping is invalid only an empty data set would be displayed for subject list and curriculum
-				if (!$invalidMapping)
+				// If the range is invalid only an empty data set would be displayed for subject list and curriculum
+				if (!$invalidRange)
 				{
 					$links['subjects']   = "?option=com_organizer&view=subjects&programIDs=$programID";
 					$links['curriculum'] = "?option=com_organizer&view=curriculum&programIDs=$programID";
@@ -449,10 +448,10 @@ class Search extends BaseModel
 
 				$links = [];
 
-				$invalidMapping =
+				$invalidRange =
 					(empty($category['lft']) or empty($category['rgt']) or $category['rgt'] - $category['lft'] < 2);
 
-				if (!$invalidMapping)
+				if (!$invalidRange)
 				{
 					$results[$cIndex]['programID'] = $programID;
 
@@ -773,7 +772,7 @@ class Search extends BaseModel
 
 		$poolQuery = $this->_db->getQuery(true);
 		$poolQuery->from('#__organizer_pools AS pl')
-			->innerJoin('#__organizer_mappings AS m ON m.poolID = pl.id');
+			->innerJoin('#__organizer_curricula AS c ON c.poolID = pl.id');
 
 		foreach ($this->programResults as $strength => $programs)
 		{
@@ -809,7 +808,7 @@ class Search extends BaseModel
 						$this->addInclusiveConditions($poolQuery, $wherray);
 					}
 
-					$poolQuery->where("(m.lft > '{$program['lft']}' AND m.rgt < '{$program['rgt']}')");
+					$poolQuery->where("(c.lft > '{$program['lft']}' AND c.rgt < '{$program['rgt']}')");
 					$this->_db->setQuery($poolQuery);
 
 					$poolIDs = OrganizerHelper::executeQuery('loadAssocList');
@@ -1026,15 +1025,15 @@ class Search extends BaseModel
 			->from('#__organizer_course AS co')
 			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.courseID = co.id')
 			->innerJoin('#__organizer_lessons AS l ON l.id = lcrs.lessonID')
-			->leftJoin('#__organizer_subject_mappings AS sm ON sm.courseID = co.id')
-			->leftJoin('#__organizer_subjects AS s ON s.id = sm.subjectID');
+			->leftJoin('#__organizer_subject_events AS se ON se.courseID = co.id')
+			->leftJoin('#__organizer_subjects AS s ON s.id = se.subjectID');
 
 		// Subject documentation does not necessarily have planned lesson instances
 		$subjectQuery = $this->_db->getQuery(true);
 		$subjectQuery->select('DISTINCT s.id AS sID, co.id AS courseID')
 			->from('#__organizer_subjects AS s')
-			->leftJoin('#__organizer_subject_mappings AS sm ON sm.subjectID = s.id')
-			->leftJoin('#__organizer_courses AS co ON co.id = sm.courseID')
+			->leftJoin('#__organizer_subject_events AS se ON se.subjectID = s.id')
+			->leftJoin('#__organizer_courses AS co ON co.id = se.courseID')
 			->leftJoin('#__organizer_lesson_courses AS lcrs ON lcrs.courseID = co.id')
 			->leftJoin('#__organizer_lessons AS l ON l.id = lcrs.lessonID');
 
@@ -1235,8 +1234,8 @@ class Search extends BaseModel
 		$courseQuery->innerJoin('#__organizer_lesson_persons AS lt ON lt.lessonCourseID = lcrs.id')
 			->innerJoin('#__organizer_persons AS t ON t.id = lt.personID');
 
-		$subjectQuery->innerJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id')
-			->innerJoin('#__organizer_persons AS t ON t.id = st.personID');
+		$subjectQuery->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
+			->innerJoin('#__organizer_persons AS t ON t.id = sp.personID');
 
 		if ($termCount == 1)
 		{
@@ -1411,7 +1410,7 @@ class Search extends BaseModel
 		$programQuery = $this->_db->getQuery(true);
 		$programQuery->select("p.id, name_{$this->tag} AS name, degreeID, cat.id AS categoryID, lft, rgt")
 			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_mappings AS m ON m.programID = p.ID')
+			->innerJoin('#__organizer_curricula AS cur ON cur.programID = p.ID')
 			->leftJoin('#__organizer_categories AS cat ON cat.id = p.categoryID');
 
 		// Plan programs have to be found in strings => standardized name as extra temp variable for comparison
@@ -1419,7 +1418,7 @@ class Search extends BaseModel
 		$categoryQuery->select("p.id, name_{$this->tag} AS name, degreeID, cat.id AS categoryID, lft, rgt")
 			->from('#__organizer_categories AS cat')
 			->leftJoin('#__organizer_programs AS p ON p.categoryID = cat.ID')
-			->leftJoin('#__organizer_mappings AS m ON m.programID = p.ID');
+			->leftJoin('#__organizer_curricula AS cur ON cur.programID = p.ID');
 
 		// Exact => program name and degree
 		if (!empty($degrees['exact']))

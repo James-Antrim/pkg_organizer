@@ -25,7 +25,7 @@ class Pool extends CurriculumResource
 	/**
 	 * Deletes ranges of a specific curriculum resource.
 	 *
-	 * @param   int  $resourceID  the id of the mapping
+	 * @param   int  $resourceID  the id of the resource in its specific resource table
 	 *
 	 * @return boolean true on success, otherwise false
 	 */

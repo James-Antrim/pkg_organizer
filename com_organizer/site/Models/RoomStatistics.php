@@ -424,8 +424,8 @@ class RoomStatistics extends BaseModel
 		$select .= "s.id AS subjectID, s.name_$tag AS subjectName, s.shortName_$tag AS subjectShortName, ";
 		$select .= "s.abbreviation_$tag AS subjectAbbr, ";
 		$query->innerJoin('#__organizer_courses AS co ON co.id = lcrs.courseID');
-		$query->leftJoin('#__organizer_subject_mappings AS sm ON sm.courseID = co.id');
-		$query->leftJoin('#__organizer_subjects AS s ON s.id = sm.subjectID');
+		$query->leftJoin('#__organizer_subject_events AS se ON se.courseID = co.id');
+		$query->leftJoin('#__organizer_subjects AS s ON s.id = se.subjectID');
 
 		// Group Data
 		$select .= 'group.id AS groupID, group.untisID AS groupUntisID, ';

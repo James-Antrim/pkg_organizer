@@ -224,7 +224,7 @@ function getCheckedItems(divID, type)
 }
 
 /**
- * Retrieves an array of objects mapping current form values
+ * Retrieves an array of subordinate curriculum resources as currently depicted in the form
  *
  * @returns {array} the map of the current children and their values
  */

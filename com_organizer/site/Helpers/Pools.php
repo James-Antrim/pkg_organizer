@@ -52,7 +52,7 @@ class Pools extends Curricula implements Selectable
 	}
 
 	/**
-	 * Gets a HTML option based upon a pool mapping
+	 * Gets a HTML option based upon a pool curriculum association
 	 *
 	 * @param   array  $range      the curriculum range entry
 	 * @param   array  $parentIDs  the selected parents
@@ -262,7 +262,7 @@ class Pools extends Curricula implements Selectable
 		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT p.*, p.name_$tag AS name")
 			->from('#__organizer_pools AS p')
-			->innerJoin('#__organizer_mappings AS m ON m.poolID = p.id')
+			->innerJoin('#__organizer_curricula AS c ON c.poolID = p.id')
 			->where("lft > '{$ranges[0]['lft']}'")
 			->where("rgt < '{$ranges[0]['rgt']}'")
 			->order('name ASC');
@@ -278,9 +278,9 @@ class Pools extends Curricula implements Selectable
 	}
 
 	/**
-	 * Retrieves the mapping boundaries of the selected resource
+	 * Retrieves the range of the selected resource exclusive subordinate pools.
 	 *
-	 * @param   int  $range  the boundaries of a single pool
+	 * @param   int  $range  the original range of a pool
 	 *
 	 * @return array  array of arrays with boundary values
 	 */
@@ -288,7 +288,7 @@ class Pools extends Curricula implements Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('lft, rgt')->from('#__organizer_mappings')
+		$query->select('lft, rgt')->from('#__organizer_curricula')
 			->where('poolID IS NOT NULL')
 			->where("lft > '{$range['lft']}' AND rgt < '{$range['rgt']}'")
 			->order('lft');
@@ -302,13 +302,13 @@ class Pools extends Curricula implements Selectable
 		$ranges = [];
 		foreach ($exclusions as $exclusion)
 		{
-			// Child has no children => has no impact on output
+			// Subordinate has no own subordinates => has no impact on output
 			if ($exclusion['lft'] + 1 == $exclusion['rgt'])
 			{
 				continue;
 			}
 
-			// Not an immediate child
+			// Not an immediate subordinate
 			if ($exclusion['lft'] != $range['lft'] + 1)
 			{
 				// Create a new boundary from the current left to the exclusion
@@ -318,12 +318,11 @@ class Pools extends Curricula implements Selectable
 				$range['lft'] = $exclusion['rgt'];
 
 				$ranges[] = $boundary;
+				continue;
 			}
-			else
-			{
-				// Change the new left to the other side of the exclusion
-				$range['lft'] = $exclusion['rgt'];
-			}
+
+			// Change the new left to the other side of the exclusion
+			$range['lft'] = $exclusion['rgt'];
 
 			if ($range['lft'] >= $range['rgt'])
 			{

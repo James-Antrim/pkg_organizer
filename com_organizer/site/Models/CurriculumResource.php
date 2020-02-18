@@ -19,7 +19,7 @@ abstract class CurriculumResource extends BaseModel
 	protected $resource;
 
 	/**
-	 * Adds a pool mapping to a parent mapping
+	 * Adds a curriculum range to a parent curriculum range
 	 *
 	 * @param   array &$range  an array containing data about a curriculum item and potentially its children
 	 *
@@ -157,7 +157,7 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	protected function getExistingCurriculum($poolID)
 	{
-		//Subordinate structures are the same for every parent mapping, so only the first mapping needs to be found.
+		// Subordinate structures are the same for every superordinate resource
 		$existingQuery = $this->_db->getQuery(true);
 		$existingQuery->select('id')->from('#__organizer_curricula')->where("poolID = $poolID");
 		$this->_db->setQuery($existingQuery, 0, 1);
@@ -275,7 +275,7 @@ abstract class CurriculumResource extends BaseModel
 		// No siblings => use parent left for reference
 		$lftQuery = $this->_db->getQuery(true);
 		$lftQuery->select('lft')
-			->from('#__organizer_mappings')
+			->from('#__organizer_curricula')
 			->where("id = $parentID");
 		$this->_db->setQuery($lftQuery);
 		$lft = Helpers\OrganizerHelper::executeQuery('loadResult');
@@ -286,7 +286,7 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * Retrieves the existing ordering of a pool to its parent item, or next highest value in the series
 	 *
-	 * @param   int  $parentID    the id of the parent mapping
+	 * @param   int  $parentID    the id of the parent range
 	 * @param   int  $resourceID  the id of the resource
 	 *
 	 * @return int  the value of the highest existing ordering or 1 if none exist
@@ -478,7 +478,7 @@ abstract class CurriculumResource extends BaseModel
 		}
 
 		$rgtQuery = $this->_db->getQuery(true);
-		$rgtQuery->update('#__organizer_mappings')->set("rgt = rgt - $width")->where("rgt > $left");
+		$rgtQuery->update('#__organizer_curricula')->set("rgt = rgt - $width")->where("rgt > $left");
 		$this->_db->setQuery($rgtQuery);
 
 		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
@@ -504,7 +504,7 @@ abstract class CurriculumResource extends BaseModel
 		}
 
 		$rgtQuery = $this->_db->getQuery(true);
-		$rgtQuery->update('#__organizer_mappings')->set('rgt = rgt + 2')->where("rgt >= '$left'");
+		$rgtQuery->update('#__organizer_curricula')->set('rgt = rgt + 2')->where("rgt >= '$left'");
 		$this->_db->setQuery($rgtQuery);
 
 		return (bool) Helpers\OrganizerHelper::executeQuery('execute');

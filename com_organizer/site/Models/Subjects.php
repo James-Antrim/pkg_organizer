@@ -125,13 +125,13 @@ class Subjects extends ListModel
 		{
 			if ($personID === '-1')
 			{
-				$query->leftJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id')
-					->where('st.subjectID IS NULL');
+				$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
+					->where('sp.subjectID IS NULL');
 			}
 			else
 			{
-				$query->innerJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id')
-					->where("st.personID = $personID");
+				$query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
+					->where("sp.personID = $personID");
 			}
 		}
 

@@ -18,7 +18,7 @@ use Organizer\Helpers\Languages;
 use Organizer\Helpers\OrganizerHelper;
 
 /**
- * Class creates a select box for explicitly mapping subject documentation to plan subjects. This is also done
+ * Class creates a select box for explicitly associating subjects with events. This is also done
  * implicitly during the schedule import process according to degree programs and the subject's module number.
  */
 class SubjectEventsField extends FormField

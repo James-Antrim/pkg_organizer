@@ -25,7 +25,7 @@ class Programs extends Curricula implements Selectable
 	use Filtered;
 
 	/**
-	 * Gets a HTML option based upon a program mapping
+	 * Gets a HTML option based upon a program curriculum association
 	 *
 	 * @param   array   $range      the program curriculum range
 	 * @param   array   $parentIDs  the selected parents
@@ -251,7 +251,7 @@ class Programs extends Curricula implements Selectable
 		$query->select("p.*, p.name_$tag AS name, d.abbreviation AS degree")
 			->from('#__organizer_programs AS p')
 			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-			->innerJoin('#__organizer_mappings AS m ON m.programID = p.id')
+			->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')
 			->order('name ASC, degree ASC, accredited DESC');
 
 		if (!empty($access))

@@ -18,7 +18,7 @@ use JDatabaseDriver;
 class Curricula extends BaseTable
 {
 	/**
-	 * The depth of this element in the mapping hierarchy.
+	 * The depth of this element in the curriculum hierarchy.
 	 * INT(11) UNSIGNED DEFAULT NULL
 	 *
 	 * @var int
@@ -42,7 +42,7 @@ class Curricula extends BaseTable
 	public $ordering;
 
 	/**
-	 * The id of the mappings entry referenced as parent.
+	 * The id of the range referenced as parent.
 	 * INT(11) UNSIGNED DEFAULT NULL
 	 *
 	 * @var int
@@ -88,7 +88,7 @@ class Curricula extends BaseTable
 	 */
 	public function __construct(&$dbo = null)
 	{
-		parent::__construct('#__organizer_mappings', 'id', $dbo);
+		parent::__construct('#__organizer_curricula', 'id', $dbo);
 	}
 
 	/**

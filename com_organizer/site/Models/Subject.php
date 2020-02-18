@@ -111,7 +111,7 @@ class Subject extends CurriculumResource
 	/**
 	 * Deletes ranges of a specific curriculum resource.
 	 *
-	 * @param   int  $resourceID  the id of the mapping
+	 * @param   int  $resourceID  the id of the resource in its specific resource table
 	 *
 	 * @return boolean true on success, otherwise false
 	 */
@@ -313,7 +313,7 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Processes the subject mappings selected for the subject
+	 * Processes the events to be associated with the subject
 	 *
 	 * @param   array &$data  the post data
 	 *

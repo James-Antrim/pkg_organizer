@@ -48,8 +48,8 @@ class Persons extends ResourceHelper implements Associated, Selectable
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 		$query->select('DISTINCT t.id, t.forename, t.surname')->from('#__organizer_persons AS t');
-		$query->innerJoin('#__organizer_subject_persons AS st ON st.personID = t.id');
-		$query->innerJoin('#__organizer_mappings AS m ON m.subjectID = st.subjectID');
+		$query->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = t.id');
+		$query->innerJoin('#__organizer_curricula AS c ON c.subjectID = sp.subjectID');
 		if (!empty($boundarySet))
 		{
 			$where   = '';
@@ -57,8 +57,8 @@ class Persons extends ResourceHelper implements Associated, Selectable
 			foreach ($boundarySet as $boundaries)
 			{
 				$where   .= $initial ?
-					"((m.lft >= '{$boundaries['lft']}' AND m.rgt <= '{$boundaries['rgt']}')"
-					: " OR (m.lft >= '{$boundaries['lft']}' AND m.rgt <= '{$boundaries['rgt']}')";
+					"((c.lft >= '{$boundaries['lft']}' AND c.rgt <= '{$boundaries['rgt']}')"
+					: " OR (c.lft >= '{$boundaries['lft']}' AND c.rgt <= '{$boundaries['rgt']}')";
 				$initial = false;
 			}
 
@@ -125,13 +125,13 @@ class Persons extends ResourceHelper implements Associated, Selectable
 		$query = $dbo->getQuery(true);
 		$query->select('t.id, t.surname, t.forename, t.title, t.username, u.id AS userID, role, untisID');
 		$query->from('#__organizer_persons AS t');
-		$query->innerJoin('#__organizer_subject_persons AS st ON st.personID = t.id');
+		$query->innerJoin('#__organizer_subject_persons AS st ON sp.personID = t.id');
 		$query->leftJoin('#__users AS u ON u.username = t.username');
-		$query->where("st.subjectID = '$subjectID' ");
+		$query->where("sp.subjectID = '$subjectID' ");
 
 		if (!empty($role))
 		{
-			$query->where("st.role = '$role'");
+			$query->where("sp.role = '$role'");
 		}
 
 		$query->order('surname ASC');

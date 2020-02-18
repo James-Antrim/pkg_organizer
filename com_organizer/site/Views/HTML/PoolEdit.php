@@ -70,6 +70,6 @@ class PoolEdit extends EditView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/mappings.css');
+		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/curriculum_settings.css');
 	}
 }
