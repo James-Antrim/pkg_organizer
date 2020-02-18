@@ -10,6 +10,7 @@ TODO remove references to the thm_organizer curriculum based views => set access
 -subjects
 
 TODO make the frequencies field reference the table
+TODO add language as a filter to subjects
 
 --------------------------------------------------------------------------------------Phase 2: Migration/Synchronization
 
@@ -20,9 +21,6 @@ TODO create a fill file for initialization of tables synchronized in phase 2
 -instance_rooms -> migration function?
 -participants -> outstanding (+migration function?)
 -instance_participants -> migration function?
-
-TODO resolve inconsistencies in the thm_organizer_plan_pools table
--Duplicate entry 'B.4.BPALT-30' for key 'entry'
 
 TODO adjust thee schedule migration routine to import schedules from thm_organizer
 TODO automatically update resources dependent on currrent thm_organizer data

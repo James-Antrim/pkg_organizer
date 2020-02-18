@@ -10,6 +10,8 @@
 
 namespace Organizer\Models;
 
+use Organizer\Helpers\OrganizerHelper;
+
 /**
  * Class standardizes the getName function across classes.
  */
