@@ -215,13 +215,13 @@ class ScheduleListA3 extends BaseLayout
 
 			if ($resourceIndex == 'pools')
 			{
-				$return['resourceName'] = $subject[$resourceIndex][$resourceID]['untisID'];
+				$return['resourceName'] = $subject[$resourceIndex][$resourceID]['code'];
 			}
 			else
 			{
 				foreach ($subject['pools'] as $poolID => $pool)
 				{
-					$pools[$poolID] = $pool['untisID'];
+					$pools[$poolID] = $pool['code'];
 				}
 			}
 

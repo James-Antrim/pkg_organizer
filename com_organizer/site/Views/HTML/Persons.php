@@ -26,7 +26,7 @@ class Persons extends ListView
 		'surname'        => 'link',
 		'forename'       => 'link',
 		'username'       => 'link',
-		'untisID'        => 'link',
+		'code'           => 'link',
 		'organizationID' => 'link'
 	];
 
@@ -75,7 +75,7 @@ class Persons extends ListView
 			'surname'        => Languages::_('ORGANIZER_SURNAME'),
 			'forename'       => Languages::_('ORGANIZER_FORENAME'),
 			'username'       => Languages::_('ORGANIZER_USERNAME'),
-			't.untisID'      => Languages::_('ORGANIZER_UNTIS_ID'),
+			't.code'         => Languages::_('ORGANIZER_UNTIS_ID'),
 			'organizationID' => Languages::_('ORGANIZER_ORGANIZATION')
 		];
 
@@ -96,7 +96,7 @@ class Persons extends ListView
 		{
 			$item->forename = empty($item->forename) ? '' : $item->forename;
 			$item->username = empty($item->username) ? '' : $item->username;
-			$item->untisID  = empty($item->untisID) ? '' : $item->untisID;
+			$item->code     = empty($item->code) ? '' : $item->code;
 
 			if (!$organizations = PersonsHelper::getOrganizationNames($item->id))
 			{

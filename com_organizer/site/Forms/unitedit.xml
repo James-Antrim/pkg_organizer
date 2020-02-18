@@ -2,7 +2,7 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="untisID" type="Blank" label="UNTIS_ID" disabled="true" required="true"/>
+        <field name="code" type="Blank" label="UNTIS_ID" disabled="true" required="true"/>
         <field name="eventID" type="GenericOptions" required="true" label="NAME" localized="true"
                table="organizer_events" textcolumn="name" valuecolumn="id"/>
         <field name="organizationID" type="Organizations" label="ORGANIZATION" required="true"/>

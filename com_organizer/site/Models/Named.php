@@ -15,12 +15,35 @@ use Organizer\Helpers\OrganizerHelper;
 /**
  * Class standardizes the getName function across classes.
  */
-trait Contextualized
+trait Named
 {
 	/**
 	 * @var string the textual context in which form information will be saved as necessary
 	 */
 	protected $context;
+
+	/**
+	 * The name of the object
+	 */
+	protected $name = null;
+
+	/**
+	 * Method to get the object name
+	 *
+	 * The model name by default parsed using the classname, or it can be set
+	 * by passing a $config['name'] in the class constructor
+	 *
+	 * @return  string  The name of the model
+	 */
+	public function getName()
+	{
+		if (empty($this->name))
+		{
+			$this->name = OrganizerHelper::getClass($this);
+		}
+
+		return $this->name;
+	}
 
 	/**
 	 * Sets context variables as requested.
@@ -31,9 +54,9 @@ trait Contextualized
 	{
 		if (property_exists($this, 'option'))
 		{
-			$this->option = 'com_organizer';
+			$this->option = 'com_thm_organizer';
 		}
 
-		$this->context = strtolower('com_organizer.' . OrganizerHelper::getClass($this));
+		$this->context = strtolower('com_thm_organizer.' . $this->getName());
 	}
 }

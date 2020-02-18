@@ -3,7 +3,7 @@
     <fieldset name="details">
         <field name="id" type="hidden"/>
         <field name="name" type="Blank" label="NAME" size="40" required="true"/>
-        <field name="untisID" type="Blank" label="UNTIS_ID" readonly="true" size="40"/>
+        <field name="code" type="Blank" label="UNTIS_ID" readonly="true" size="40"/>
         <field name="programID" type="Programs" label="PROGRAM" access="schedule">
             <option value="">NO_PROGRAM</option>
         </field>

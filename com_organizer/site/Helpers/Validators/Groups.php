@@ -33,7 +33,7 @@ class Groups extends ResourceHelper implements UntisXMLValidator
 		$group = $model->groups->$untisID;
 
 		$table  = new GroupsTable;
-		$exists = $table->load(['untisID' => $group->untisID]);
+		$exists = $table->load(['code' => $group->untisID]);
 
 		if ($exists)
 		{

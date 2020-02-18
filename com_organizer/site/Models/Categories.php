@@ -31,14 +31,14 @@ class Categories extends ListModel
 	protected function getListQuery()
 	{
 		$query = $this->_db->getQuery(true);
-		$query->select('DISTINCT cat.id, cat.untisID, cat.name')
+		$query->select('DISTINCT cat.id, cat.code, cat.name')
 			->from('#__organizer_categories AS cat')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
 
 		$authorized = implode(",", Can::scheduleTheseOrganizations());
 		$query->where("a.organizationID IN ($authorized)");
 
-		$this->setSearchFilter($query, ['cat.name', 'cat.untisID']);
+		$this->setSearchFilter($query, ['cat.name', 'cat.code']);
 		$this->setValueFilters($query, ['organizationID', 'programID']);
 		$this->setOrdering($query);
 

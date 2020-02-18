@@ -127,18 +127,19 @@ class ScheduleExport extends BaseModel
 		{
 			if ($table->load($poolID))
 			{
-				$untisID = ApplicationHelper::stringURLSafe($table->untisID);
+				$code = ApplicationHelper::stringURLSafe($table->code);
 
 				if ($oneResource)
 				{
-					$titles['docTitle']  = $untisID . '_';
-					$titles['pageTitle'] = $table->fullName;
+					$titles['docTitle']  = $code . '_';
+					$columnName          = 'fullName_' . Helpers\Languages::getTag();
+					$titles['pageTitle'] = $table->$columnName;
 
 					return $titles;
 				}
 
-				$titles['docTitle']  .= $untisID . '_';
-				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $table->untisID : ", {$table->untisID}";
+				$titles['docTitle']  .= $code . '_';
+				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $table->code : ", {$table->code}";
 			}
 		}
 
@@ -204,7 +205,7 @@ class ScheduleExport extends BaseModel
 		$tag         = Helpers\Languages::getTag();
 
 		$query = $this->_db->getQuery(true);
-		$query->select('co.name AS courseName, co.untisID AS untisID')
+		$query->select('co.name AS courseName, co.code')
 			->select("s.shortName_$tag AS shortName, s.name_$tag AS name")
 			->from('#__organizer_courses AS co')
 			->leftJoin('#__organizer_subject_events AS se ON se.courseID = co.id')
@@ -219,7 +220,7 @@ class ScheduleExport extends BaseModel
 
 			if (!empty($courseNames))
 			{
-				$untisID = ApplicationHelper::stringURLSafe($courseNames['untisID']);
+				$untisID = ApplicationHelper::stringURLSafe($courseNames['code']);
 
 				if (empty($courseNames['name']))
 				{

@@ -123,7 +123,7 @@ class Persons extends ResourceHelper implements Associated, Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('t.id, t.surname, t.forename, t.title, t.username, u.id AS userID, role, untisID');
+		$query->select('t.id, t.surname, t.forename, t.title, t.username, u.id AS userID, role, code');
 		$query->from('#__organizer_persons AS t');
 		$query->innerJoin('#__organizer_subject_persons AS st ON sp.personID = t.id');
 		$query->leftJoin('#__users AS u ON u.username = t.username');

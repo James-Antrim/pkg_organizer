@@ -1835,7 +1835,7 @@ const ScheduleApp = function (variables) {
                 if (instance.groups.hasOwnProperty(groupID))
                 {
                     const groupSpan = document.createElement('span');
-                    groupSpan.innerHTML = instance.groups[groupID].untisID;
+                    groupSpan.innerHTML = instance.groups[groupID].code;
                     groupsDiv.appendChild(groupSpan);
                 }
             }

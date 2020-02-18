@@ -29,14 +29,14 @@ class Roomtypes extends ListModel
 
 		$linkParts = ["'index.php?option=com_organizer&view=roomtype_edit&id='", 't.id'];
 		$query     = $this->_db->getQuery(true);
-		$query->select("DISTINCT t.id, t.name_$tag AS name, t.minCapacity, t.maxCapacity, t.untisID")
+		$query->select("DISTINCT t.id, t.name_$tag AS name, t.minCapacity, t.maxCapacity, t.code")
 			->select($query->concatenate($linkParts, '') . ' AS link')
 			->select('count(r.roomtypeID) AS roomCount')
 			->from('#__organizer_roomtypes AS t')
 			->leftJoin('#__organizer_rooms AS r ON r.roomtypeID = t.id')
 			->group('t.id');
 
-		$this->setSearchFilter($query, ['untisID', 'name_de', 'name_en', 'minCapacity', 'maxCapacity']);
+		$this->setSearchFilter($query, ['code', 'name_de', 'name_en', 'minCapacity', 'maxCapacity']);
 		$this->setOrdering($query);
 
 		return $query;

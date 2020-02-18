@@ -167,7 +167,7 @@ class Units extends ResourceHelper implements UntisXMLValidator
 		$unit  = $model->units->$untisID;
 		$table = new UnitsTable;
 
-		if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'untisID' => $untisID]))
+		if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'code' => $untisID]))
 		{
 			$altered = false;
 

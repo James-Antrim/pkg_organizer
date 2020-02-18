@@ -22,7 +22,7 @@ use Organizer\Helpers\OrganizerHelper;
  */
 abstract class BaseModel extends BaseDatabaseModel
 {
-	use Contextualized;
+	use Named;
 
 	/**
 	 * BaseModel constructor.

@@ -23,7 +23,7 @@ use Organizer\Helpers\Languages;
  */
 abstract class EditModel extends AdminModel
 {
-	use Contextualized;
+	use Named;
 
 	protected $association;
 

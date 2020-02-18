@@ -35,7 +35,7 @@ class Rooms extends ResourceHelper implements UntisXMLValidator
 		$room  = $model->rooms->$untisID;
 		$table = new RoomsTable;
 
-		if ($table->load(['untisID' => $room->untisID]))
+		if ($table->load(['code' => $room->untisID]))
 		{
 			$altered = false;
 			foreach ($room as $key => $value)

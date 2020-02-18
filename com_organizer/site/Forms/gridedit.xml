@@ -2,7 +2,7 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="untisID" type="Blank" label="UNTIS_ID" required="true" size="60"/>
+        <field name="code" type="Blank" label="UNTIS_ID" required="true" size="60"/>
         <field name="name_de" type="Blank" label="NAME_DE" required="true" size="60"/>
         <field name="name_en" type="Blank" label="NAME_EN" required="true" size="60"/>
         <field name="grid" type="Periods" formsource="grid_blocks" multiple="true" buttons="add,remove"

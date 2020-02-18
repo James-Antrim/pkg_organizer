@@ -196,7 +196,7 @@ class Courses extends ResourceHelper
 		$dbo = Factory::getDbo();
 
 		$query = $dbo->getQuery('true');
-		$query->select("DISTINCT g.untisID")
+		$query->select("DISTINCT g.code")
 			->from('#__organizer_groups AS g')
 			->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = g.id')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
@@ -207,7 +207,7 @@ class Courses extends ResourceHelper
 			->where("i.delta != 'removed'")
 			->where("u.delta != 'removed'")
 			->where("u.courseID = $courseID")
-			->order('g.untisID');
+			->order('g.code');
 
 		$dbo->setQuery($query);
 

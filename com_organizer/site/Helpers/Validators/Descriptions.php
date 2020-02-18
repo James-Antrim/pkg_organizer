@@ -61,7 +61,7 @@ class Descriptions implements UntisXMLValidator
 		}
 
 		// These are set by the administrator, so there is no case for saving a new resource on upload.
-		if ($table->load(['untisID' => $untisID]))
+		if ($table->load(['code' => $untisID]))
 		{
 			$property                   = strtolower($resource);
 			$model->$property->$untisID = $table->id;

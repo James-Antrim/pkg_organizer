@@ -567,7 +567,7 @@ class Instances extends ResourceHelper
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 
-		$query->select('ig.groupID, ig.delta, g.untisID AS code, g.name, g.fullName, g.gridID')
+		$query->select('ig.groupID, ig.delta, g.code AS code, g.name, g.fullName, g.gridID')
 			->from('#__organizer_instance_groups AS ig')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 			->where("ig.assocID = {$person['assocID']}");

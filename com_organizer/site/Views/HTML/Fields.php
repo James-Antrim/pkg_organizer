@@ -21,7 +21,7 @@ use Organizer\Helpers\Languages;
  */
 class Fields extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'field' => 'link', 'untisID' => 'link', 'colorID' => 'value'];
+	protected $rowStructure = ['checkbox' => '', 'field' => 'link', 'code' => 'link', 'colorID' => 'value'];
 
 	/**
 	 * Method to generate buttons for user interaction
@@ -67,7 +67,7 @@ class Fields extends ListView
 		$headers   = [
 			'checkbox' => '',
 			'field'    => HTML::sort('NAME', 'field', $direction, $ordering),
-			'untisID'  => HTML::sort('UNTIS_ID', 'untisID', $direction, $ordering),
+			'code'     => HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
 			'colorID'  => HTML::sort('COLOR', 'c.name', $direction, $ordering)
 		];
 

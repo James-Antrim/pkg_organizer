@@ -33,7 +33,7 @@ class Events extends ResourceHelper implements UntisXMLValidator
 		$event = $model->events->$untisID;
 		$table = new EventsTable;
 
-		if ($table->load(['organizationID' => $event->organizationID, 'untisID' => $untisID]))
+		if ($table->load(['organizationID' => $event->organizationID, 'code' => $untisID]))
 		{
 			$altered = false;
 			foreach ($event as $key => $value)

@@ -2,7 +2,7 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="untisID" type="Blank" label="UNTIS_ID" maxlength="50" required="true" size="40"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="50" required="true" size="40"/>
         <field name="surname" type="Blank" label="SURNAME" class="required" maxlength="255" required="true" size="40"/>
         <field name="forename" type="Blank" label="FORENAME" maxlength="255" size="40"/>
         <field name="title" type="Blank" label="TITLE" maxlength="45" size="40"/>

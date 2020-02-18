@@ -29,7 +29,7 @@ class Groups extends ListView
 		'fullName' => 'link',
 		'name'     => 'link',
 		'grid'     => 'link',
-		'untisID'  => 'link'
+		'code'     => 'link'
 	];
 
 	/**
@@ -127,7 +127,7 @@ class Groups extends ListView
 			'fullName' => HTML::sort('FULL_NAME', 'gr.fullName', $direction, $ordering),
 			'name'     => HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
 			'grid'     => Languages::_('ORGANIZER_GRID'),
-			'untisID'  => HTML::sort('UNTIS_ID', 'gr.untisID', $direction, $ordering)
+			'code'     => HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
 		];
 
 		$this->headers = $headers;

@@ -152,6 +152,14 @@ abstract class BaseHTMLView extends BaseView
 
 			$documentation = [];
 
+			$documentation[Languages::_('ORGANIZER_COLORS')]   = [
+				'url'    => 'index.php?option=com_organizer&amp;view=colors',
+				'active' => $viewName == 'colors'
+			];
+			$documentation[Languages::_('ORGANIZER_FIELDS')]   = [
+				'url'    => 'index.php?option=com_organizer&amp;view=fields',
+				'active' => $viewName == 'fields'
+			];
 			$documentation[Languages::_('ORGANIZER_POOLS')]    = [
 				'url'    => 'index.php?option=com_organizer&amp;view=pools',
 				'active' => $viewName == 'pools'
@@ -197,7 +205,7 @@ abstract class BaseHTMLView extends BaseView
 			}
 		}*/
 
-		/*if (Can::manage('persons'))
+		if (Can::manage('persons'))
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_HUMAN_RESOURCES') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -206,9 +214,9 @@ abstract class BaseHTMLView extends BaseView
 				'index.php?option=com_organizer&amp;view=persons',
 				$viewName == 'persons'
 			);
-		}*/
+		}
 
-		/*if (Can::manage('facilities'))
+		if (Can::manage('facilities'))
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_FACILITY_MANAGEMENT') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -240,7 +248,7 @@ abstract class BaseHTMLView extends BaseView
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
-		}*/
+		}
 
 		if (Can::administrate())
 		{
@@ -253,17 +261,9 @@ abstract class BaseHTMLView extends BaseView
 				'url'    => 'index.php?option=com_organizer&amp;view=organizations',
 				'active' => $viewName == 'organizations'
 			];
-			$adminEntries[Languages::_('ORGANIZER_COLORS')]        = [
-				'url'    => 'index.php?option=com_organizer&amp;view=colors',
-				'active' => $viewName == 'colors'
-			];
 			$adminEntries[Languages::_('ORGANIZER_DEGREES')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=degrees',
 				'active' => $viewName == 'degrees'
-			];
-			$adminEntries[Languages::_('ORGANIZER_FIELDS')]        = [
-				'url'    => 'index.php?option=com_organizer&amp;view=fields',
-				'active' => $viewName == 'fields'
 			];
 			$adminEntries[Languages::_('ORGANIZER_GRIDS')]         = [
 				'url'    => 'index.php?option=com_organizer&amp;view=grids',

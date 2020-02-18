@@ -39,16 +39,25 @@ TODO default the default sender to the site sender
 
 ----------------------------------------------------------------------------------------------------------------Complete
 
-TODO change events table organizationID column default back to none
-
 TODO add event, group, and room association support
 -xml import
 -edit views
 -options fields
+-remove events table organizationID column
 
 TODO change the frequency ids from 0-5 to 1-6
 -update frequencies, programs, subjects
 -adjust lsf import to compensate
+
+TODO come up with a longer term and more inclusive strategy for blocks
+-migration will leave holes for any unplanned blocks
+-when/how to create
+
+TODO add a terms interface
+-create possible blocks as a combination of available grids and term dates
+
+TODO bind grids to runs
+-blocks...
 
 ------------------------------------------------------------------------------------------------------------------Beyond
 

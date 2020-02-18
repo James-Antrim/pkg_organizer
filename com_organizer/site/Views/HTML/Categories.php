@@ -21,7 +21,7 @@ use Organizer\Helpers\Languages;
  */
 class Categories extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'untisID' => 'link', 'name' => 'link', 'program' => 'link'];
+	protected $rowStructure = ['checkbox' => '', 'code' => 'link', 'name' => 'link', 'program' => 'link'];
 
 	/**
 	 * Method to generate buttons for user interaction
@@ -66,7 +66,7 @@ class Categories extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox' => '',
-			'untisID'  => HTML::sort('UNTIS_ID', 'ppr.untisID', $direction, $ordering),
+			'code'     => HTML::sort('UNTIS_ID', 'ppr.code', $direction, $ordering),
 			'name'     => HTML::sort('DISPLAY_NAME', 'ppr.name', $direction, $ordering),
 			'program'  => Languages::_('ORGANIZER_PROGRAM')
 		];

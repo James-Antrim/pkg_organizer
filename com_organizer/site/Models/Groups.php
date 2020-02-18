@@ -18,7 +18,7 @@ use Organizer\Helpers\Can;
  */
 class Groups extends ListModel
 {
-	protected $defaultOrdering = 'gr.untisID';
+	protected $defaultOrdering = 'gr.code';
 
 	protected $filter_fields = ['categoryID', 'organizationID', 'gridID'];
 
@@ -32,14 +32,14 @@ class Groups extends ListModel
 		$authorized = Can::scheduleTheseOrganizations();
 
 		$query = $this->_db->getQuery(true);
-		$query->select('DISTINCT gr.id, gr.untisID, gr.fullName, gr.name, gr.categoryID, gr.gridID')
+		$query->select('DISTINCT gr.id, gr.code, gr.fullName, gr.name, gr.categoryID, gr.gridID')
 			->select('a.organizationID')
 			->from('#__organizer_groups AS gr')
 			->innerJoin('#__organizer_categories AS cat ON cat.id = gr.categoryID')
 			->leftJoin('#__organizer_associations AS a ON a.categoryID = gr.categoryID')
 			->where('(a.organizationID IN (' . implode(',', $authorized) . ') OR a.organizationID IS NULL)');
 
-		$this->setSearchFilter($query, ['gr.fullName', 'gr.name', 'gr.untisID']);
+		$this->setSearchFilter($query, ['gr.fullName', 'gr.name', 'gr.code']);
 		$this->setValueFilters($query, ['gr.categoryID', 'a.organizationID', 'gr.gridID']);
 
 		$this->setOrdering($query);

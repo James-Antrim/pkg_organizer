@@ -70,7 +70,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	{
 		$category     = $model->categories->$untisID;
 		$exists       = false;
-		$loadCriteria = [['untisID' => $untisID], ['name' => $category->name]];
+		$loadCriteria = [['code' => $untisID], ['name' => $category->name]];
 		$table        = new CategoriesTable;
 
 		foreach ($loadCriteria as $criterion)

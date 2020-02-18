@@ -223,7 +223,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @param   object &$query       the query object
 	 * @param   string  $idColumn    the id column in the table
-	 * @param   array   $filterName  the filter name to look for the id in
+	 * @param   string  $filterName  the filter name to look for the id in
 	 *
 	 * @return void
 	 */

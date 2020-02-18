@@ -3,7 +3,7 @@
     <fieldset name="details">
         <field name="name_de" type="MergeValues" label="NAME_DE"/>
         <field name="name_en" type="MergeValues" label="NAME_EN"/>
-        <field name="untisID" type="MergeValues" label="UNTIS_ID"/>
+        <field name="code" type="MergeValues" label="UNTIS_ID"/>
         <field name="colorID" type="MergeAssociations" label="COLOR" textcolumn="name" localized="true"
                from="fields AS f" innerJoins="colors AS c ON c.id = f.colorID"/>
         <field name="ids" type="MergeIDs" hidden="true"/>

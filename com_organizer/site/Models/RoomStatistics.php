@@ -420,7 +420,7 @@ class RoomStatistics extends BaseModel
 		$query->from('#__organizer_lesson_courses AS lcrs');
 
 		// Subject Data
-		$select .= 'co.id AS courseID, co.name AS courseName, co.subjectNo, co.untisID AS courseUntisID, ';
+		$select .= 'co.id AS courseID, co.name AS courseName, co.subjectNo, co.code AS courseCode, ';
 		$select .= "s.id AS subjectID, s.name_$tag AS subjectName, s.shortName_$tag AS subjectShortName, ";
 		$select .= "s.abbreviation_$tag AS subjectAbbr, ";
 		$query->innerJoin('#__organizer_courses AS co ON co.id = lcrs.courseID');
@@ -428,7 +428,7 @@ class RoomStatistics extends BaseModel
 		$query->leftJoin('#__organizer_subjects AS s ON s.id = se.subjectID');
 
 		// Group Data
-		$select .= 'group.id AS groupID, group.untisID AS groupUntisID, ';
+		$select .= 'group.id AS groupID, group.code AS groupCode, ';
 		$select .= 'group.name AS groupName, group.fullName AS groupFullName, ';
 		$query->innerJoin('#__organizer_lesson_groups AS lg ON lg.lessonCourseID = lcrs.id');
 		$query->innerJoin('#__organizer_groups AS group ON group.id = lg.groupID');

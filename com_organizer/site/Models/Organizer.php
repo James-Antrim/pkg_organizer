@@ -286,7 +286,7 @@ class Organizer extends BaseModel
 
 				foreach ($units as $untisID => $unitData)
 				{
-					$unit['untisID'] = $untisID;
+					$unit['code'] = $untisID;
 					if (!$unitID = $this->getUnitID($unit))
 					{
 						unset($schedule['calendar'][$date][$blockTimes][$untisID]);

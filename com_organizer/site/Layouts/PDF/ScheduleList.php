@@ -155,7 +155,7 @@ abstract class ScheduleList
 			{
 				foreach ($subject['pools'] as $poolID => $pool)
 				{
-					$pools[$poolID] = $pool['untisID'];
+					$pools[$poolID] = $pool['code'];
 				}
 			}
 

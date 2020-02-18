@@ -17,7 +17,7 @@ use Organizer\Helpers\Can;
  */
 class ItemModel extends BaseModel
 {
-	use Contextualized;
+	use Named;
 
 	protected $option = 'com_organizer';
 

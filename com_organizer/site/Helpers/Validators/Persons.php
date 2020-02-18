@@ -44,7 +44,7 @@ class Persons extends ResourceHelper implements UntisXMLValidator
 		{
 			$loadCriteria[] = ['surname' => $person->surname, 'forename' => $person->forename];
 		}
-		$loadCriteria[] = ['untisID' => $person->untisID];
+		$loadCriteria[] = ['code' => $person->untisID];
 
 		$extPattern = "/^[v]?[A-ZÀ-ÖØ-Þ][a-zß-ÿ]{1,3}([A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þa-zß-ÿ]*)$/";
 		foreach ($loadCriteria as $criteria)
@@ -56,7 +56,7 @@ class Persons extends ResourceHelper implements UntisXMLValidator
 				{
 
 					// This gets special handling
-					if ($key === 'untisID')
+					if ($key === 'code')
 					{
 						continue;
 					}

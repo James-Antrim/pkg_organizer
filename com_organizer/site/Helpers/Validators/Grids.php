@@ -31,7 +31,7 @@ class Grids extends ResourceHelper implements UntisXMLValidator
 	{
 		$table = new GridsTable;
 
-		return $table->load(['untisID' => $untisID]) ? $table->id : null;
+		return $table->load(['code' => $untisID]) ? $table->id : null;
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Grids extends ResourceHelper implements UntisXMLValidator
 		$table      = new GridsTable;
 
 		// No overwrites for global resources
-		if (!$table->load(['untisID' => $gridName]))
+		if (!$table->load(['code' => $gridName]))
 		{
 			$table->save($grid);
 		}

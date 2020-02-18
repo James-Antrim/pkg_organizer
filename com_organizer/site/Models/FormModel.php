@@ -20,7 +20,7 @@ use Organizer\Helpers\Can;
  */
 class FormModel extends ParentModel
 {
-	use Contextualized;
+	use Named;
 
 	protected $association;
 

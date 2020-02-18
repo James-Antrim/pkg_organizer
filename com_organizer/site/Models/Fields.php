@@ -32,12 +32,12 @@ class Fields extends ListModel
 		$tag   = Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select("f.id, untisID, f.name_$tag AS field, f.colorID")
+		$query->select("f.id, code, f.name_$tag AS field, f.colorID")
 			->from('#__organizer_fields AS f')
 			->select("c.name_$tag AS color")
 			->leftJoin('#__organizer_colors AS c ON c.id = f.colorID');
 
-		$this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'untisID', 'color']);
+		$this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code', 'color']);
 		$this->setValueFilters($query, ['colorID']);
 
 		$this->setOrdering($query);
