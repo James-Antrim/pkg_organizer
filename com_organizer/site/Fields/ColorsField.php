@@ -71,7 +71,7 @@ class ColorsField extends OptionsField
 
 		// Filter irrelevant filter colors out.
 		$view = Input::getView();;
-		if ($view !== 'field_edit')
+		if ($view !== 'field_color_edit')
 		{
 			$query->innerJoin('#__organizer_field_colors AS fc ON fc.colorID = c.id');
 		}

@@ -347,59 +347,17 @@ class Controller extends BaseController
 	 */
 	public function save()
 	{
-		$resourceID = $this->getModel($this->resource)->save();
+		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+		$model     = new $modelName;
+		$url       = Routing::getRedirectBase() . "&view={$this->listView}";
 
-		$isBackend = OrganizerHelper::getApplication()->isClient('administrator');
-		$requestID = Input::getID();
-		$lessonID  = $this->resource == 'course' ? $requestID : Input::getInt('lessonID');
-		$url       = Routing::getRedirectBase();
-		if (empty($resourceID))
+		if ($model->save())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-
-			if ($isBackend)
-			{
-				$url .= "&view={$this->listView}";
-			}
-			else
-			{
-				switch ($this->resource)
-				{
-					case 'participant':
-						$url .= '&view=participant_edit';
-						break;
-					case 'subject':
-						$url .= "&view=subject_edit&id={$requestID}";
-						$url .= empty($lessonID) ? '' : "&lessonID=$lessonID";
-						break;
-					default:
-						$url .= "&view=courses";
-						$url .= empty($lessonID) ? '' : "&lessonID=$lessonID";
-						break;
-				}
-			}
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-
-			if ($isBackend)
-			{
-				$url .= "&view={$this->listView}";
-			}
-			else
-			{
-				switch ($this->resource)
-				{
-					case 'participant':
-						$url .= '&view=course_list';
-						break;
-					default:
-						$url .= "&view=courses";
-						$url .= empty($lessonID) ? '' : "&lessonID=$lessonID";
-						break;
-				}
-			}
+			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
 		$this->setRedirect(Route::_($url, false));

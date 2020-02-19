@@ -84,8 +84,8 @@ FROM `#__thm_organizer_methods`;
 
 # region organizations
 INSERT IGNORE INTO `#__organizer_organizations` (`id`, `abbreviation_de`, `abbreviation_en`, `shortName_de`,
-                                                    `shortName_en`, `name_de`, `name_en`, `fullName_de`, `fullName_en`,
-                                                    `contactEmail`, `alias`, `URL`)
+                                                 `shortName_en`, `name_de`, `name_en`, `fullName_de`, `fullName_en`,
+                                                 `contactEmail`, `alias`, `URL`)
 VALUES (1, 'BAU', 'CE', 'FB 01 BAU', 'CE DEPT 01', 'Fachbereich Bauwesen', 'Civil Engineering Department',
         'Fachbereich 01 Bauwesen', 'Civil Engineering Department 01', 'dekanat@bau.thm.de', 'bau',
         'https://www.thm.de/bau'),
@@ -106,12 +106,12 @@ VALUES (1, 'BAU', 'CE', 'FB 01 BAU', 'CE DEPT 01', 'Fachbereich Bauwesen', 'Civi
        (8, 'MUK', 'MC', 'FB 21 MuK', 'MC DEPT 21', 'Fachbereich Management und Kommunikation',
         'Management and Communication Department', 'Fachbereich 21 Management und Kommunikation',
         'Management and Communication Department 21', 'dekanat@muk.thm.de', 'muk', 'https://www.thm.de/muk'),
-       (11, 'STK', 'STK', 'STK', 'STK', 'Studienkolleg Mittelhessen', 'Studienkolleg Mittelhessen',
+       (11, 'STK', 'STK', 'Studienkolleg', 'Studienkolleg', 'Studienkolleg Mittelhessen', 'Studienkolleg Mittelhessen',
         'Studienkolleg Mittelhessen', 'Studienkolleg Mittelhessen', 'studienkolleg@uni-marburg.de', 'stk',
         'https://www.uni-marburg.de/de/studienkolleg'),
-       (12, 'GI', 'GI', 'GI', 'GI', 'Campus Gießen', 'Giessen Campus', 'Zentralverwaltung Campus Gießen',
+       (12, 'GI', 'GI', 'Campus Gießen', 'Giessen Campus', 'Campus Gießen', 'Giessen Campus', 'Zentralverwaltung Campus Gießen',
         'Central Administration Giessen Campus', 'carmen.momberger@verw.thm.de', 'giessen', 'https://www.thm.de/site/'),
-       (13, 'ZDH', 'ZDH', 'ZDH', 'ZDH', 'Studiumplus', 'Studiumplus',
+       (13, 'ZDH', 'ZDH', 'Studiumplus', 'Studiumplus', 'Studiumplus', 'Studiumplus',
         'Wissenschaftliches Zentrum Duales Hochschulstudium', 'Wissenschaftliches Zentrum Duales Hochschulstudium',
         'servicepoint@studiumplus.de', 'zdh', 'https://www.studiumplus.de/sp/'),
        (14, 'MNI', 'MNI', 'FB 06 MNI', 'MNI DEPT 06', 'Fachbereich Mathematik, Naturwissenschaften und Informatik',
@@ -138,7 +138,7 @@ VALUES (1, 'BAU', 'CE', 'FB 01 BAU', 'CE DEPT 01', 'Fachbereich Bauwesen', 'Civi
        (18, 'WI', 'IE', 'FB 14 WI', 'IE DEPT 14', 'Fachbereich Wirtschaftsingenieurwesen',
         'Industrial Engineering Department', 'Fachbereich 14 Wirtschaftsingenieurwesen',
         'Industrial Engineering  Department 14', 'dekanat@wi.thm.de', 'bau', 'https://www.thm.de/wi'),
-       (19, 'FB', 'FB', 'FB', 'FB', 'Campus Friedberg', 'Friedberg Campus', 'Zentralverwaltung Campus Friedberg',
+       (19, 'FB', 'FB', 'Campus Friedberg', 'Friedberg Campus', 'Campus Friedberg', 'Friedberg Campus', 'Zentralverwaltung Campus Friedberg',
         'Central Administration Friedberg Campus ', 'stundenplaner-fb@thm.de', 'friedberg', 'https://www.thm.de/site');
 # endregion
 
@@ -155,7 +155,7 @@ WHERE p.`username` IS NOT NULL;
 
 # region roomtypes
 INSERT IGNORE INTO `#__organizer_roomtypes` (`id`, `code`, `name_de`, `name_en`, `description_de`, `description_en`,
-                                         `minCapacity`, `maxCapacity`)
+                                             `minCapacity`, `maxCapacity`)
 SELECT DISTINCT `id`,
                 `gpuntisID`,
                 `name_de`,
@@ -231,7 +231,7 @@ WHERE `code` = 'SS21';
 
 # region campuses references grids
 INSERT IGNORE INTO `#__organizer_campuses` (`id`, `parentID`, `name_de`, `name_en`, `isCity`, `location`, `address`,
-                                               `city`, `zipCode`, `gridID`)
+                                            `city`, `zipCode`, `gridID`)
 SELECT DISTINCT `id`,
                 `parentID`,
                 `name_de`,
@@ -259,7 +259,7 @@ FROM `#__thm_organizer_rooms`;
 
 # region monitors references rooms
 INSERT IGNORE INTO `#__organizer_monitors` (`id`, `ip`, `roomID`, `useDefaults`, `display`, `scheduleRefresh`,
-                                               `contentRefresh`, `interval`, `content`)
+                                            `contentRefresh`, `interval`, `content`)
 SELECT DISTINCT `id`,
                 `ip`,
                 `roomID`,
@@ -382,7 +382,7 @@ WHERE f.`colorID` IS NOT NULL;
 
 # region programs references categories (later), degrees, frequencies and organizations
 INSERT IGNORE INTO `#__organizer_programs` (`id`, `organizationID`, `code`, `degreeID`, `accredited`, `frequencyID`, `name_de`,
-                                        `name_en`, `description_de`, `description_en`)
+                                            `name_en`, `description_de`, `description_en`)
 SELECT DISTINCT `id`,
                 `departmentID`,
                 `code`,
@@ -398,8 +398,8 @@ FROM `#__thm_organizer_programs`;
 
 # region pools references fields, organizations
 INSERT IGNORE INTO `#__organizer_pools` (`id`, `organizationID`, `fieldID`, `lsfID`, `abbreviation_de`,
-                                            `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
-                                            `fullName_en`, `description_de`, `description_en`, `minCrP`, `maxCrP`)
+                                         `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
+                                         `fullName_en`, `description_de`, `description_en`, `minCrP`, `maxCrP`)
 SELECT DISTINCT `id`,
                 `departmentID`,
                 `fieldID`,
@@ -419,17 +419,17 @@ FROM `#__thm_organizer_pools`;
 
 # region subjects references fields, frequencies and organizations
 INSERT IGNORE INTO `#__organizer_subjects` (`id`, `organizationID`, `lsfID`, `code`, `abbreviation_de`,
-                                               `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
-                                               `fullName_en`, `description_de`, `description_en`, `objective_de`,
-                                               `objective_en`, `content_de`, `content_en`, `prerequisites_de`,
-                                               `prerequisites_en`, `preliminaryWork_de`, `preliminaryWork_en`,
-                                               `instructionLanguage`, `literature`, `creditpoints`, `expenditure`,
-                                               `present`, `independent`, `proof_de`, `proof_en`, `frequencyID`,
-                                               `method_de`, `method_en`, `fieldID`, `sws`, `aids_de`, `aids_en`,
-                                               `evaluation_de`, `evaluation_en`, `expertise`, `selfCompetence`,
-                                               `methodCompetence`, `socialCompetence`, `recommendedPrerequisites_de`,
-                                               `recommendedPrerequisites_en`, `usedFor_de`, `usedFor_en`, `duration`,
-                                               `bonusPoints_de`, `bonusPoints_en`)
+                                            `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
+                                            `fullName_en`, `description_de`, `description_en`, `objective_de`,
+                                            `objective_en`, `content_de`, `content_en`, `prerequisites_de`,
+                                            `prerequisites_en`, `preliminaryWork_de`, `preliminaryWork_en`,
+                                            `instructionLanguage`, `literature`, `creditpoints`, `expenditure`,
+                                            `present`, `independent`, `proof_de`, `proof_en`, `frequencyID`,
+                                            `method_de`, `method_en`, `fieldID`, `sws`, `aids_de`, `aids_en`,
+                                            `evaluation_de`, `evaluation_en`, `expertise`, `selfCompetence`,
+                                            `methodCompetence`, `socialCompetence`, `recommendedPrerequisites_de`,
+                                            `recommendedPrerequisites_en`, `usedFor_de`, `usedFor_en`, `duration`,
+                                            `bonusPoints_de`, `bonusPoints_en`)
 SELECT DISTINCT `id`,
                 `departmentID`,
                 `lsfID`,

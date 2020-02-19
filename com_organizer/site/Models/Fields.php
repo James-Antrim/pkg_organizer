@@ -34,7 +34,7 @@ class Fields extends ListModel
 
 		$query->select("DISTINCT f.id, code, f.name_$tag AS name")->from('#__organizer_fields AS f');
 
-		$this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code', 'color']);
+		$this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code']);
 
 		$colorID        = Helpers\Input::getFilterID('color');
 		$organizationID = Helpers\Input::getFilterID('organization');
@@ -42,11 +42,11 @@ class Fields extends ListModel
 		{
 			if ($colorID === self::NONE or $organizationID === self::NONE)
 			{
-				$query->leftJoin('#__organizer_field_colors AS of ON of.fieldID = f.id');
+				$query->leftJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
 			}
 			else
 			{
-				$query->innerJoin('#__organizer_field_colors AS of ON of.fieldID = f.id');
+				$query->innerJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
 			}
 
 			if ($colorID)

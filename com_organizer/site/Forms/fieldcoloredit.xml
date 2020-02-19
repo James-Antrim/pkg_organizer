@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" required="true"
+               table="organizer_fields" textcolumn="name" valuecolumn="id">
+            <option value="">SELECT_FIELD</option>
+        </field>
+        <field name="organizationID" type="Organizations" label="ORGANIZATION" access="document" required="true">
+            <option value="">SELECT_ORGANIZATION</option>
+        </field>
+        <field name="colorID" type="Colors" label="COLOR" required="true">
+            <option value="">SELECT_COLOR</option>
+        </field>
+    </fieldset>
+</form>

@@ -24,6 +24,39 @@ use RuntimeException;
 class OrganizerHelper
 {
 	/**
+	 * Converts a camel cased class name into a lower cased, underscore separated string
+	 *
+	 * @param   string  $className  the original class name
+	 *
+	 * @return string the encoded base class name
+	 */
+	public static function classEncode($className)
+	{
+		$root      = str_replace(['Edit', 'Merge'], '', $className);
+		$separated = preg_replace('/([a-z])([A-Z])/', '$1_$2', $root);
+
+		return strtolower($separated);
+	}
+
+	/**
+	 * Converts a lower cased, underscore separated string into a camel cased class name
+	 *
+	 * @param   string  $encoded  the encoded class name
+	 *
+	 * @return string the camel cased class name
+	 */
+	public static function classDecode($encoded)
+	{
+		$className = '';
+		foreach (explode('_', $encoded) as $piece)
+		{
+			$className .= ucfirst($piece);
+		}
+
+		return $className;
+	}
+
+	/**
 	 * Determines whether the view was called from a dynamic context
 	 *
 	 * @return bool true if the view was called dynamically, otherwise false
@@ -111,18 +144,13 @@ class OrganizerHelper
 		$fqName   = is_string($object) ? $object : get_class($object);
 		$nsParts  = explode('\\', $fqName);
 		$lastItem = array_pop($nsParts);
+
 		if (empty($lastItem))
 		{
 			return 'Organizer';
 		}
-		elseif (strpos($lastItem, '_') !== false)
-		{
-			return str_replace('_', '', ucwords($lastItem, "_"));
-		}
-		else
-		{
-			return ucfirst($lastItem);
-		}
+
+		return self::classDecode($lastItem);
 	}
 
 	/**
@@ -275,9 +303,10 @@ class OrganizerHelper
 	public static function setUp()
 	{
 		$handler = explode('.', Input::getTask());
+
 		if (count($handler) == 2)
 		{
-			$possibleController = ucfirst($handler[0]);
+			$possibleController = self::classDecode($handler[0]);
 			$filepath           = JPATH_ROOT . "/components/com_organizer/Controllers/$possibleController.php";
 			if (is_file($filepath))
 			{

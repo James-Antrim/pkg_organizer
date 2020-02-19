@@ -27,7 +27,7 @@ abstract class EditView extends FormView
 	 */
 	protected function addToolBar()
 	{
-		$resource   = strtolower(str_replace('Edit', '', $this->getName()));
+		$resource   = Helpers\OrganizerHelper::classEncode($this->getName());
 		$constant   = strtoupper($resource);
 		$controller = Helpers\OrganizerHelper::getPlural($resource);
 
