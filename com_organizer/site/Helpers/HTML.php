@@ -213,9 +213,10 @@ class HTML extends HTMLHelper
 	 */
 	public static function setTitle($title, $icon = 'generic.png')
 	{
-		$app                  = OrganizerHelper::getApplication();
-		$layout               = new FileLayout('joomla.toolbar.title');
-		$html                 = $layout->render(array('title' => $title, 'icon' => $icon));
+		$app    = OrganizerHelper::getApplication();
+		$layout = new FileLayout('joomla.toolbar.title');
+		$html   = $layout->render(array('title' => $title, 'icon' => $icon));
+
 		$app->JComponentTitle = $html;
 		Factory::getDocument()->setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
 	}

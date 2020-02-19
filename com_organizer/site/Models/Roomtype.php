@@ -10,16 +10,14 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Roomtypes as RoomtypesTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class which manages stored room type data.
  */
-class Roomtype extends MergeModel
+class Roomtype extends BaseModel
 {
-	protected $fkColumn = 'roomtypeID';
-
 	/**
 	 * Provides room type specific user access checks
 	 *
@@ -27,7 +25,7 @@ class Roomtype extends MergeModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -37,22 +35,12 @@ class Roomtype extends MergeModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return RoomtypesTable A Table object
+	 * @return Tables\Roomtypes A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new RoomtypesTable;
-	}
-
-	/**
-	 * Updates key references to the entry being merged.
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	protected function updateAssociations()
-	{
-		return $this->updateDirectAssociation('rooms');
+		return new Tables\Roomtypes;
 	}
 }

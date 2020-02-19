@@ -10,15 +10,13 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Fields as FieldsTable;
+use Organizer\Tables;
 
 /**
  * Class which manages stored field (of expertise) data.
  */
-class Field extends MergeModel
+class Field extends BaseModel
 {
-	protected $fkColumn = 'fieldID';
-
 	/**
 	 * Method to get a table object, load it if necessary.
 	 *
@@ -26,47 +24,12 @@ class Field extends MergeModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return FieldsTable A Table object
+	 * @return Tables\Fields A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new FieldsTable;
-	}
-
-	/**
-	 * Updates key references to the entry being merged.
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	protected function updateAssociations()
-	{
-		if (!$this->updateDirectAssociation('events'))
-		{
-			return false;
-		}
-
-		if (!$this->updateDirectAssociation('groups'))
-		{
-			return false;
-		}
-
-		if (!$this->updateDirectAssociation('persons'))
-		{
-			return false;
-		}
-
-		if (!$this->updateDirectAssociation('pools'))
-		{
-			return false;
-		}
-
-		if (!$this->updateDirectAssociation('programs'))
-		{
-			return false;
-		}
-
-		return $this->updateDirectAssociation('subjects');
+		return new Tables\Fields;
 	}
 }

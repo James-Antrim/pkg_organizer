@@ -10,15 +10,13 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Methods as MethodsTable;
+use Organizer\Tables;
 
 /**
  * Class which manages stored (lesson) method data.
  */
-class Method extends MergeModel
+class Method extends BaseModel
 {
-	protected $fkColumn = 'methodID';
-
 	/**
 	 * Method to get a table object, load it if necessary.
 	 *
@@ -26,22 +24,12 @@ class Method extends MergeModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return MethodsTable A Table object
+	 * @return Tables\Methods A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new MethodsTable;
-	}
-
-	/**
-	 * Updates key references to the entry being merged.
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	protected function updateAssociations()
-	{
-		return $this->updateDirectAssociation('instances');
+		return new Tables\Methods;
 	}
 }

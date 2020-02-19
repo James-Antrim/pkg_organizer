@@ -34,7 +34,6 @@ class Fields extends ListView
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'fields.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'fields.edit', true);
-		$toolbar->appendButton('Standard', 'attachment', Languages::_('ORGANIZER_MERGE'), 'fields.mergeView', true);
 		$toolbar->appendButton(
 			'Confirm',
 			Languages::_('ORGANIZER_DELETE_CONFIRM'),

@@ -48,17 +48,6 @@ class Roomtypes extends ListView
 			'roomtypes.delete',
 			true
 		);
-
-		if (Can::administrate())
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'attachment',
-				Languages::_('ORGANIZER_MERGE'),
-				'roomtypes.mergeView',
-				true
-			);
-		}
 	}
 
 	/**

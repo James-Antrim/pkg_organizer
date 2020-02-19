@@ -37,8 +37,14 @@ class Methods extends ListView
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'methods.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'methods.edit', true);
-		$toolbar->appendButton('Standard', 'attachment', Languages::_('ORGANIZER_MERGE'), 'methods.mergeView',
-			true);
+		$toolbar->appendButton(
+			'Confirm',
+			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			'delete',
+			Languages::_('ORGANIZER_DELETE'),
+			'methods.delete',
+			true
+		);
 	}
 
 	/**

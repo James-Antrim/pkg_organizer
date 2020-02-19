@@ -10,7 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Organizer\Helpers\Input;
+use Joomla\CMS\Toolbar\Toolbar;
+use Organizer\Helpers;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
@@ -18,6 +19,36 @@ use Organizer\Helpers\Input;
 abstract class EditView extends FormView
 {
 	public $item = null;
+
+	/**
+	 * Method to generate buttons for user interaction
+	 *
+	 * @return void
+	 */
+	protected function addToolBar()
+	{
+		$resource   = strtolower(str_replace('Edit', '', $this->getName()));
+		$constant   = strtoupper($resource);
+		$controller = Helpers\OrganizerHelper::getPlural($resource);
+
+		if ($this->item->id)
+		{
+			$title      = Helpers\Languages::_("ORGANIZER_{$constant}_EDIT");
+			$cancelText = Helpers\Languages::_('ORGANIZER_CLOSE');
+			$saveText   = Helpers\Languages::_('ORGANIZER_SAVE');
+		}
+		else
+		{
+			$title      = Helpers\Languages::_("ORGANIZER_{$constant}_NEW");
+			$cancelText = Helpers\Languages::_('ORGANIZER_CANCEL');
+			$saveText   = Helpers\Languages::_('ORGANIZER_CREATE');
+		}
+
+		Helpers\HTML::setTitle($title, 'cog');
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'save', $saveText, "$controller.save", false);
+		$toolbar->appendButton('Standard', 'cancel', $cancelText, "$controller.cancel", false);
+	}
 
 	/**
 	 * Method to get display
@@ -28,7 +59,7 @@ abstract class EditView extends FormView
 	 */
 	public function display($tpl = null)
 	{
-		$this->item = $this->getModel()->getItem(Input::getSelectedID());
+		$this->item = $this->getModel()->getItem(Helpers\Input::getSelectedID());
 		parent::display($tpl);
 	}
 }
