@@ -13,7 +13,6 @@ namespace Organizer\Models;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
-use Organizer\Helpers\Named;
 use Organizer\Helpers\OrganizerHelper;
 use stdClass;
 
@@ -24,7 +23,7 @@ abstract class ListModel extends ParentModel
 {
 	use Named;
 
-	const FRONTEND = false, BACKEND = true;
+	const BACKEND = true, FRONTEND = false, NONE = '-1';
 
 	protected $clientContext;
 
