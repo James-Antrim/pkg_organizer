@@ -11,17 +11,14 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Colors;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of fields (of expertise) into the display context.
  */
 class Fields extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'field' => 'link', 'code' => 'link', 'colorID' => 'value'];
+	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'code' => 'link', 'colors' => 'value'];
 
 	/**
 	 * Method to generate buttons for user interaction
@@ -30,15 +27,15 @@ class Fields extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_FIELDS'), 'lamp');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_FIELDS'), 'lamp');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'fields.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'fields.edit', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'fields.add', false);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'fields.edit', true);
 		$toolbar->appendButton(
 			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'delete',
-			Languages::_('ORGANIZER_DELETE'),
+			Helpers\Languages::_('ORGANIZER_DELETE'),
 			'fields.delete',
 			true
 		);
@@ -51,7 +48,7 @@ class Fields extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -65,9 +62,9 @@ class Fields extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox' => '',
-			'field'    => HTML::sort('NAME', 'field', $direction, $ordering),
-			'code'     => HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
-			'colorID'  => HTML::sort('COLOR', 'c.name', $direction, $ordering)
+			'field'    => Helpers\HTML::sort('NAME', 'field', $direction, $ordering),
+			'code'     => Helpers\HTML::sort('CODE', 'code', $direction, $ordering),
+			'colors'   => Helpers\Languages::_('ORGANIZER_COLORS')
 		];
 
 		$this->headers = $headers;
@@ -83,10 +80,12 @@ class Fields extends ListView
 		$index           = 0;
 		$link            = 'index.php?option=com_organizer&view=field_edit&id=';
 		$structuredItems = [];
+		$organizationID  = $this->state->get('filter.organizationID', 0);
 
 		foreach ($this->items as $item)
 		{
-			$item->colorID           = Colors::getListDisplay($item->color, $item->colorID);
+			$item->colors = Helpers\Fields::getListDisplay($item->id, $organizationID);
+
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

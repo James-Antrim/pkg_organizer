@@ -70,10 +70,10 @@ class ColorsField extends OptionsField
 			->order('text');
 
 		// Filter irrelevant filter colors out.
-		$view = Input::getView();
+		$view = Input::getView();;
 		if ($view !== 'field_edit')
 		{
-			$query->innerJoin('#__organizer_fields AS f ON f.colorID = c.id');
+			$query->innerJoin('#__organizer_field_colors AS fc ON fc.colorID = c.id');
 		}
 
 		$dbo->setQuery($query);

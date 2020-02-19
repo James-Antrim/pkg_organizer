@@ -2,6 +2,10 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="organizationID" type="Organizations" label="ORGANIZATION" onchange="this.form.submit();">
+            <option value="">ALL_ORGANIZATIONS</option>
+            <option value="">NO_ORGANIZATION</option>
+        </field>
         <field name="colorID" type="Colors" label="COLOR" onchange="this.form.submit();">
             <option value="">ALL_COLORS</option>
             <option value="-1">NO_COLOR</option>

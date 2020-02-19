@@ -111,25 +111,25 @@ abstract class BaseHTMLView extends BaseView
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_SCHEDULING') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
-			$scheduling = [];
+			$items = [];
 
-			$scheduling[Languages::_('ORGANIZER_GROUPS')]     = [
+			$items[Languages::_('ORGANIZER_GROUPS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=groups',
 				'active' => $viewName == 'groups'
 			];
-			$scheduling[Languages::_('ORGANIZER_CATEGORIES')] = [
+			$items[Languages::_('ORGANIZER_CATEGORIES')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=categories',
 				'active' => $viewName == 'categories'
 			];
-			$scheduling[Languages::_('ORGANIZER_SCHEDULES')]  = [
+			$items[Languages::_('ORGANIZER_SCHEDULES')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=schedules',
 				'active' => $viewName == 'schedules'
 			];
-			$scheduling[Languages::_('ORGANIZER_EVENTS')]     = [
+			$items[Languages::_('ORGANIZER_EVENTS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=events',
 				'active' => $viewName == 'events'
 			];
-			ksort($scheduling);
+			ksort($items);
 
 			// Uploading a schedule should always be the first menu item and will never be the active submenu item.
 			$prepend    = [
@@ -138,8 +138,8 @@ abstract class BaseHTMLView extends BaseView
 					'active' => false
 				]
 			];
-			$scheduling = $prepend + $scheduling;
-			foreach ($scheduling as $key => $value)
+			$items = $prepend + $items;
+			foreach ($items as $key => $value)
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
@@ -150,30 +150,30 @@ abstract class BaseHTMLView extends BaseView
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_DOCUMENTATION') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
-			$documentation = [];
+			$items = [];
 
-			$documentation[Languages::_('ORGANIZER_COLORS')]   = [
+			$items[Languages::_('ORGANIZER_COLORS')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=colors',
 				'active' => $viewName == 'colors'
 			];
-			$documentation[Languages::_('ORGANIZER_FIELDS')]   = [
-				'url'    => 'index.php?option=com_organizer&amp;view=fields',
-				'active' => $viewName == 'fields'
+			$items[Languages::_('ORGANIZER_FIELD_COLORS')] = [
+				'url'    => 'index.php?option=com_organizer&amp;view=field_colors',
+				'active' => $viewName == 'field_colors'
 			];
-			$documentation[Languages::_('ORGANIZER_POOLS')]    = [
+			$items[Languages::_('ORGANIZER_POOLS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=pools',
 				'active' => $viewName == 'pools'
 			];
-			$documentation[Languages::_('ORGANIZER_PROGRAMS')] = [
+			$items[Languages::_('ORGANIZER_PROGRAMS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=programs',
 				'active' => $viewName == 'programs'
 			];
-			$documentation[Languages::_('ORGANIZER_SUBJECTS')] = [
+			$items[Languages::_('ORGANIZER_SUBJECTS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=subjects',
 				'active' => $viewName == 'subjects'
 			];
-			ksort($documentation);
-			foreach ($documentation as $key => $value)
+			ksort($items);
+			foreach ($items as $key => $value)
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
@@ -184,22 +184,23 @@ abstract class BaseHTMLView extends BaseView
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_EVENT_MANAGEMENT') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
-			$courseItems                                         = [];
-			$courseItems[Languages::_('ORGANIZER_COURSES')]      = [
+			$items = [];
+
+			$items[Languages::_('ORGANIZER_COURSES')]      = [
 				'url'    => 'index.php?option=com_organizer&amp;view=courses',
 				'active' => $viewName == 'courses'
 			];
-			$courseItems[Languages::_('ORGANIZER_PARTICIPANTS')] = [
+			$items[Languages::_('ORGANIZER_PARTICIPANTS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=participants',
 				'active' => $viewName == 'participants'
 			];
-			$courseItems[Languages::_('ORGANIZER_UNITS')]        = [
+			$items[Languages::_('ORGANIZER_UNITS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=units',
 				'active' => $viewName == 'units'
 			];
-			ksort($courseItems);
+			ksort($items);
 
-			foreach ($courseItems as $key => $value)
+			foreach ($items as $key => $value)
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
@@ -221,30 +222,30 @@ abstract class BaseHTMLView extends BaseView
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_FACILITY_MANAGEMENT') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
-			$fmEntries = [];
+			$items = [];
 
-			$fmEntries[Languages::_('ORGANIZER_BUILDINGS')] = [
+			$items[Languages::_('ORGANIZER_BUILDINGS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=buildings',
 				'active' => $viewName == 'buildings'
 			];
-			$fmEntries[Languages::_('ORGANIZER_CAMPUSES')]  = [
+			$items[Languages::_('ORGANIZER_CAMPUSES')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=campuses',
 				'active' => $viewName == 'campuses'
 			];
-			$fmEntries[Languages::_('ORGANIZER_MONITORS')]  = [
+			$items[Languages::_('ORGANIZER_MONITORS')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=monitors',
 				'active' => $viewName == 'monitors'
 			];
-			$fmEntries[Languages::_('ORGANIZER_ROOMS')]     = [
+			$items[Languages::_('ORGANIZER_ROOMS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=rooms',
 				'active' => $viewName == 'rooms'
 			];
-			$fmEntries[Languages::_('ORGANIZER_ROOMTYPES')] = [
+			$items[Languages::_('ORGANIZER_ROOMTYPES')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=roomtypes',
 				'active' => $viewName == 'roomtypes'
 			];
-			ksort($fmEntries);
-			foreach ($fmEntries as $key => $value)
+			ksort($items);
+			foreach ($items as $key => $value)
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
@@ -255,34 +256,38 @@ abstract class BaseHTMLView extends BaseView
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_ADMINISTRATION') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
-			$adminEntries = [];
+			$items = [];
 
-			$adminEntries[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
+			$items[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=organizations',
 				'active' => $viewName == 'organizations'
 			];
-			$adminEntries[Languages::_('ORGANIZER_DEGREES')]       = [
+			$items[Languages::_('ORGANIZER_DEGREES')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=degrees',
 				'active' => $viewName == 'degrees'
 			];
-			$adminEntries[Languages::_('ORGANIZER_GRIDS')]         = [
+			$items[Languages::_('ORGANIZER_FIELDS')]        = [
+				'url'    => 'index.php?option=com_organizer&amp;view=fields',
+				'active' => $viewName == 'fields'
+			];
+			$items[Languages::_('ORGANIZER_GRIDS')]         = [
 				'url'    => 'index.php?option=com_organizer&amp;view=grids',
 				'active' => $viewName == 'grids'
 			];
-			$adminEntries[Languages::_('ORGANIZER_HOLIDAYS')]      = [
+			$items[Languages::_('ORGANIZER_HOLIDAYS')]      = [
 				'url'    => 'index.php?option=com_organizer&amp;view=holidays',
 				'active' => $viewName == 'holidays'
 			];
-			$adminEntries[Languages::_('ORGANIZER_METHODS')]       = [
+			$items[Languages::_('ORGANIZER_METHODS')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=methods',
 				'active' => $viewName == 'methods'
 			];
-			$adminEntries[Languages::_('ORGANIZER_RUNS')]          = [
+			$items[Languages::_('ORGANIZER_RUNS')]          = [
 				'url'    => 'index.php?option=com_organizer&amp;view=runs',
 				'active' => $viewName == 'runs'
 			];
-			ksort($adminEntries);
-			foreach ($adminEntries as $key => $value)
+			ksort($items);
+			foreach ($items as $key => $value)
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}

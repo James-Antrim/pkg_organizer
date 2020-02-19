@@ -23,7 +23,7 @@ abstract class ListModel extends ParentModel
 {
 	use Named;
 
-	const BACKEND = true, FRONTEND = false, NONE = '-1';
+	const BACKEND = true, FRONTEND = false, NONE = -1;
 
 	protected $clientContext;
 

@@ -35,7 +35,7 @@ class Colors extends ResourceHelper
 	 * Creates a container to output text with a system specific color.
 	 *
 	 * @param   string  $text     the text to display
-	 * @param   ing     $colorID  the id of the color
+	 * @param   int     $colorID  the id of the color
 	 *
 	 * @return string
 	 */
