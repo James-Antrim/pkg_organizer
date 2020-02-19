@@ -277,7 +277,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_field_colors` (
     `fieldID`        INT(11) UNSIGNED NOT NULL,
     `organizationID` INT(11) UNSIGNED NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `entry` (`colorID`, `fieldID`, `organizationID`),
+    UNIQUE INDEX `entry` (`fieldID`, `organizationID`),
     INDEX `colorID` (`colorID`),
     INDEX `fieldID` (`fieldID`),
     INDEX `organizationID` (`organizationID`)
