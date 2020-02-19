@@ -1,6 +1,9 @@
------------------------------------------------------------------------------------------------------------------Initial
+-----------------------------------------------------------------------------------------------------------------Tonight
 
-TODO find out what purpose poking holes in the pool ranges with remove exclusions serves
+TODO Minimize import aliasing accross the rest of the component.
+TODO Disable field/organization changes from an existing field color association.
+TODO Add a menu item for creating fields.
+TODO Create a documentation user & test view/function availability
 
 -----------------------------------------------------------------------------------------------------Phase 1: Curriculum
 
