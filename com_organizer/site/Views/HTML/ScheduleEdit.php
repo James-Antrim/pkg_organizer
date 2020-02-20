@@ -25,7 +25,7 @@ class ScheduleEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_SCHEDULE_EDIT'), 'calendars');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_SCHEDULE_UPLOAD'), 'calendars');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton(
 			'Standard',

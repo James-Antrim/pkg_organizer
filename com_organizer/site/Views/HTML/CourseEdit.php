@@ -11,7 +11,6 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
 /**
@@ -28,36 +27,34 @@ class CourseEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		$courseID = $this->item->id;
-		$toolbar  = Toolbar::getInstance();
-
-		if ($courseID)
+		if ($this->item->id)
 		{
-			Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_COURSE_EDIT'), 'contract-2');
-
-			$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_('ORGANIZER_APPLY'), 'courses.apply',
-				false);
-			$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'courses.save', false);
-			$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_('ORGANIZER_CLOSE'), 'courses.cancel',
-				false);
-
-			$href = Uri::base() . "?option=com_organizer&view=course_participants&courseID=$courseID";
-			$icon = '<span class="icon-users"></span>';
-			$text = Helpers\Languages::_('ORGANIZER_MANAGE_PARTICIPANTS');
-
-			$button = "<a class=\"btn\" href=\"$href\" target=\"_blank\">$icon$text</a>";
-			$toolbar->appendButton('Custom', $button, 'participants');
+			$cancel = 'ORGANIZER_CLOSE';
+			$save   = 'ORGANIZER_SAVE';
+			$title  = "ORGANIZER_COURSE_EDIT";
 		}
 		else
 		{
-			Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_COURSE_NEW'), 'contract-2');
-
-			$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_('ORGANIZER_CREATE'), 'courses.apply',
-				false);
-			$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'courses.save', false);
-			$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_('ORGANIZER_CANCEL'), 'courses.cancel',
-				false);
+			$cancel = 'ORGANIZER_CANCEL';
+			$save   = 'ORGANIZER_CREATE';
+			$title  = "ORGANIZER_COURSE_NEW";
 		}
+
+		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'contract-2');
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "courses.save", false);
+
+		if ($this->item->id)
+		{
+
+			$href   = "index.php?option=com_organizer&view=course_participants&courseID={$this->item->id}";
+			$icon   = '<span class="icon-users"></span>';
+			$text   = Helpers\Languages::_('ORGANIZER_MANAGE_PARTICIPANTS');
+			$button = "<a class=\"btn\" href=\"$href\" target=\"_blank\">$icon$text</a>";
+			$toolbar->appendButton('Custom', $button, 'participants');
+		}
+
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "courses.cancel", false);
 	}
 
 	/**

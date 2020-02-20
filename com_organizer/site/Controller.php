@@ -385,29 +385,6 @@ class Controller extends BaseController
 	}
 
 	/**
-	 * Makes call to the models's save2new function, and redirects to the edit view.
-	 *
-	 * @return void
-	 */
-	public function save2new()
-	{
-		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
-
-		if ($model->save())
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=0";
-		$this->setRedirect($url);
-	}
-
-	/**
 	 * Toggles binary resource properties from a list view.
 	 *
 	 * @return void

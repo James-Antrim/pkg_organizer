@@ -20,7 +20,6 @@ use Organizer\Helpers;
  */
 class InstanceEdit extends EditView
 {
-
 	/**
 	 * Method to generate buttons for user interaction
 	 *
@@ -28,23 +27,34 @@ class InstanceEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		$new   = empty($this->item->id);
-		$title = $new ?
-			Helpers\Languages::_('ORGANIZER_INSTANCE_NEW') : Helpers\Languages::_('ORGANIZER_INSTANCE_EDIT');
-		Helpers\HTML::setTitle($title, 'contract-2');
-		$toolbar   = Toolbar::getInstance();
-		$applyText = $new ? Helpers\Languages::_('ORGANIZER_CREATE') : Helpers\Languages::_('ORGANIZER_APPLY');
-		$toolbar->appendButton('Standard', 'apply', $applyText, 'instances.apply', false);
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'instances.save', false);
-		$cancelText = $new ? Helpers\Languages::_('ORGANIZER_CANCEL') : Helpers\Languages::_('ORGANIZER_CLOSE');
-		$toolbar->appendButton('Standard', 'cancel', $cancelText, 'instances.cancel', false);
-		$toolbar->appendButton(
-			'Standard',
-			'save-copy',
-			Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
-			'instances.save2copy',
-			false
-		);
+		if ($this->item->id)
+		{
+			$cancel = 'ORGANIZER_CLOSE';
+			$save   = 'ORGANIZER_SAVE';
+			$title  = "ORGANIZER_INSTANCE_EDIT";
+		}
+		else
+		{
+			$cancel = 'ORGANIZER_CANCEL';
+			$save   = 'ORGANIZER_CREATE';
+			$title  = "ORGANIZER_INSTANCE_NEW";
+		}
+
+		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'contract-2');
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "instances.save", false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "instances.cancel", false);
+
+		if ($this->item->id)
+		{
+			$toolbar->appendButton(
+				'Standard',
+				'save-copy',
+				Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
+				'instances.save2copy',
+				false
+			);
+		}
 	}
 
 	/**

@@ -14,7 +14,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads the (subject) pool form into display context.
@@ -30,35 +29,47 @@ class PoolEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		$new   = empty($this->item->id);
-		$title = $new ?
-			Languages::_('ORGANIZER_POOL_NEW') : Languages::_('ORGANIZER_POOL_EDIT');
-		Helpers\HTML::setTitle($title, 'list-2');
-		$toolbar   = Toolbar::getInstance();
-		$applyText = $new ? Languages::_('ORGANIZER_CREATE') : Languages::_('ORGANIZER_APPLY');
-		$toolbar->appendButton('Standard', 'apply', $applyText, 'pools.apply', false);
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'pools.save', false);
-		$toolbar->appendButton('Standard', 'save-new', Languages::_('ORGANIZER_SAVE2NEW'), 'pools.save2new', false);
-		if (!$new)
+		if ($this->item->id)
+		{
+			$apply  = 'ORGANIZER_APPLY';
+			$cancel = 'ORGANIZER_CLOSE';
+			$save   = 'ORGANIZER_SAVE';
+			$title  = "ORGANIZER_POOL_EDIT";
+		}
+		else
+		{
+			$apply  = 'ORGANIZER_CREATE';
+			$cancel = 'ORGANIZER_CANCEL';
+			$save   = 'ORGANIZER_CREATE';
+			$title  = "ORGANIZER_POOL_NEW";
+		}
+
+		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'list-2');
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'pools.apply', false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "pools.save", false);
+
+		if ($this->item->id)
 		{
 			$toolbar->appendButton(
 				'Standard',
 				'save-copy',
-				Languages::_('ORGANIZER_SAVE2COPY'),
+				Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
 				'pools.save2copy',
 				false
 			);
 
-			$baseURL = "index.php?option=com_organizer&tmpl=component&type=pool&id={$this->item->id}&view=";
+			$baseURL = 'index.php?option=com_organizer&tmpl=component';
+			$baseURL .= "&type=pool&id={$this->item->id}&view=";
 
 			$poolLink = $baseURL . 'pool_selection';
-			$toolbar->appendButton('Popup', 'list', Languages::_('ORGANIZER_ADD_POOL'), $poolLink);
+			$toolbar->appendButton('Popup', 'list', Helpers\Languages::_('ORGANIZER_ADD_POOL'), $poolLink);
 
 			$subjectLink = $baseURL . 'subject_selection';
-			$toolbar->appendButton('Popup', 'book', Languages::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
+			$toolbar->appendButton('Popup', 'book', Helpers\Languages::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
 		}
-		$cancelText = $new ? Languages::_('ORGANIZER_CANCEL') : Languages::_('ORGANIZER_CLOSE');
-		$toolbar->appendButton('Standard', 'cancel', $cancelText, 'pools.cancel', false);
+
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "pools.cancel", false);
 	}
 
 	/**
