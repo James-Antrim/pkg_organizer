@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 
 /**
@@ -19,37 +18,6 @@ use Organizer\Helpers;
 class Colors extends ListView
 {
 	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'color' => 'value'];
-
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_COLORS'), 'palette');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'colors.add', false);
-		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'colors.edit', true);
-		$toolbar->appendButton(
-			'Confirm',
-			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Helpers\Languages::_('ORGANIZER_DELETE'),
-			'colors.delete',
-			true
-		);
-	}
-
-	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	protected function allowAccess()
-	{
-		return Helpers\Can::administrate();
-	}
 
 	/**
 	 * Function to set the object's headers property

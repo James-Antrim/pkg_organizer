@@ -10,9 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads a filtered set of buildings into the display context.
@@ -28,27 +26,6 @@ class Buildings extends ListView
 		'propertyType' => 'link',
 		'address'      => 'link'
 	];
-
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		Helpers\HTML::setTitle(Languages::_('ORGANIZER_BUILDINGS'), 'home-2');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'buildings.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'buildings.edit', true);
-		$toolbar->appendButton(
-			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Languages::_('ORGANIZER_DELETE'),
-			'building.delete',
-			true
-		);
-	}
 
 	/**
 	 * Function determines whether the user may access the view.
@@ -71,9 +48,9 @@ class Buildings extends ListView
 		$headers   = [
 			'checkbox'     => '',
 			'name'         => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
-			'campusID'     => Languages::_('ORGANIZER_CAMPUS'),
-			'propertyType' => Languages::_('ORGANIZER_PROPERTY_TYPE'),
-			'address'      => Languages::_('ORGANIZER_ADDRESS')
+			'campusID'     => Helpers\Languages::_('ORGANIZER_CAMPUS'),
+			'propertyType' => Helpers\Languages::_('ORGANIZER_PROPERTY_TYPE'),
+			'address'      => Helpers\Languages::_('ORGANIZER_ADDRESS')
 		];
 
 		$this->headers = $headers;
@@ -96,19 +73,19 @@ class Buildings extends ListView
 			switch ($item->propertyType)
 			{
 				case self::OWNED:
-					$item->propertyType = Languages::_('ORGANIZER_OWNED');
+					$item->propertyType = Helpers\Languages::_('ORGANIZER_OWNED');
 					break;
 
 				case self::RENTED:
-					$item->propertyType = Languages::_('ORGANIZER_RENTED');
+					$item->propertyType = Helpers\Languages::_('ORGANIZER_RENTED');
 					break;
 
 				case self::USED:
-					$item->propertyType = Languages::_('ORGANIZER_USED');
+					$item->propertyType = Helpers\Languages::_('ORGANIZER_USED');
 					break;
 
 				default:
-					$item->propertyType = Languages::_('ORGANIZER_UNKNOWN');
+					$item->propertyType = Helpers\Languages::_('ORGANIZER_UNKNOWN');
 					break;
 			}
 

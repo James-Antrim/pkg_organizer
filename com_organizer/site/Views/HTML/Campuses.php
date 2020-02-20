@@ -10,9 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads a filtered set of campuses into the display context.
@@ -26,27 +24,6 @@ class Campuses extends ListView
 		'location' => 'value',
 		'gridID'   => 'link'
 	];
-
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		Helpers\HTML::setTitle(Languages::_('ORGANIZER_CAMPUSES'), 'location');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'campuses.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'campuses.edit', true);
-		$toolbar->appendButton(
-			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Languages::_('ORGANIZER_DELETE'),
-			'campuses.delete',
-			true
-		);
-	}
 
 	/**
 	 * Function determines whether the user may access the view.
@@ -67,10 +44,10 @@ class Campuses extends ListView
 	{
 		$headers = [
 			'checkbox' => '',
-			'name'     => Languages::_('ORGANIZER_NAME'),
-			'address'  => Languages::_('ORGANIZER_ADDRESS'),
-			'location' => Languages::_('ORGANIZER_LOCATION'),
-			'gridID'   => Languages::_('ORGANIZER_GRID')
+			'name'     => Helpers\Languages::_('ORGANIZER_NAME'),
+			'address'  => Helpers\Languages::_('ORGANIZER_ADDRESS'),
+			'location' => Helpers\Languages::_('ORGANIZER_LOCATION'),
+			'gridID'   => Helpers\Languages::_('ORGANIZER_GRID')
 		];
 
 		$this->headers = $headers;
@@ -124,7 +101,7 @@ class Campuses extends ListView
 			}
 			else
 			{
-				$gridName = Languages::_('JNONE');
+				$gridName = Helpers\Languages::_('JNONE');
 			}
 			$item->gridID = $gridName;
 

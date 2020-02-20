@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 
 /**
@@ -26,27 +25,6 @@ class Roomtypes extends ListView
 		'maxCapacity' => 'value',
 		'roomCount'   => 'value'
 	];
-
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_ROOMTYPES'), 'cog');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'roomtypes.add', false);
-		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'roomtypes.edit', true);
-		$toolbar->appendButton(
-			'Confirm',
-			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Helpers\Languages::_('ORGANIZER_DELETE'),
-			'roomtypes.delete',
-			true
-		);
-	}
 
 	/**
 	 * Function determines whether the user may access the view.

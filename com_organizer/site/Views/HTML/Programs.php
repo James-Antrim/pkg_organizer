@@ -37,6 +37,7 @@ class Programs extends ListView
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'programs.add', false);
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'programs.edit', true);
+
 		$toolbar->appendButton(
 			'Standard',
 			'upload',
@@ -44,6 +45,7 @@ class Programs extends ListView
 			'programs.import',
 			true
 		);
+
 		$toolbar->appendButton(
 			'Standard',
 			'loop',
@@ -51,14 +53,18 @@ class Programs extends ListView
 			'programs.update',
 			true
 		);
-		$toolbar->appendButton(
-			'Confirm',
-			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Helpers\Languages::_('ORGANIZER_DELETE'),
-			'programs.delete',
-			true
-		);
+
+		if (Helpers\Can::administrate())
+		{
+			$toolbar->appendButton(
+				'Confirm',
+				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+				'delete',
+				Helpers\Languages::_('ORGANIZER_DELETE'),
+				'programs.delete',
+				true
+			);
+		}
 	}
 
 	/**

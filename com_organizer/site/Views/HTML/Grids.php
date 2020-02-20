@@ -10,9 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads persistent information a filtered set of schedule grids into the display context.
@@ -30,37 +28,6 @@ class Grids extends ListView
 	];
 
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		Helpers\HTML::setTitle(Languages::_('ORGANIZER_GRIDS'), 'grid-2');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'grids.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'grids.edit', true);
-		$toolbar->appendButton(
-			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Languages::_('ORGANIZER_DELETE'),
-			'grids.delete',
-			true
-		);
-	}
-
-	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	protected function allowAccess()
-	{
-		return Helpers\Can::administrate();
-	}
-
-	/**
 	 * Function to set the object's headers property
 	 *
 	 * @return void sets the object headers property
@@ -69,12 +36,12 @@ class Grids extends ListView
 	{
 		$headers = [
 			'checkbox'  => '',
-			'name'      => Languages::_('ORGANIZER_NAME'),
-			'startDay'  => Languages::_('ORGANIZER_START_DAY'),
-			'endDay'    => Languages::_('ORGANIZER_END_DAY'),
-			'startTime' => Languages::_('ORGANIZER_START_TIME'),
-			'endTime'   => Languages::_('ORGANIZER_END_TIME'),
-			'isDefault' => Languages::_('ORGANIZER_DEFAULT')
+			'name'      => Helpers\Languages::_('ORGANIZER_NAME'),
+			'startDay'  => Helpers\Languages::_('ORGANIZER_START_DAY'),
+			'endDay'    => Helpers\Languages::_('ORGANIZER_END_DAY'),
+			'startTime' => Helpers\Languages::_('ORGANIZER_START_TIME'),
+			'endTime'   => Helpers\Languages::_('ORGANIZER_END_TIME'),
+			'isDefault' => Helpers\Languages::_('ORGANIZER_DEFAULT')
 		];
 
 		$this->headers = $headers;
@@ -100,8 +67,8 @@ class Grids extends ListView
 				$startDayConstant = strtoupper(date('l', strtotime("Sunday + {$grid['startDay']} days")));
 				$endDayConstant   = strtoupper(date('l', strtotime("Sunday + {$grid['endDay']} days")));
 
-				$item->startDay  = Languages::_($startDayConstant);
-				$item->endDay    = Languages::_($endDayConstant);
+				$item->startDay  = Helpers\Languages::_($startDayConstant);
+				$item->endDay    = Helpers\Languages::_($endDayConstant);
 				$item->startTime = Helpers\Dates::formatTime(reset($grid['periods'])['startTime']);
 				$item->endTime   = Helpers\Dates::formatTime(end($grid['periods'])['endTime']);
 			}
@@ -113,7 +80,7 @@ class Grids extends ListView
 				$item->endTime   = '';
 			}
 
-			$tip                     = Languages::_('ORGANIZER_GRID_DEFAULT_DESC');
+			$tip                     = Helpers\Languages::_('ORGANIZER_GRID_DEFAULT_DESC');
 			$item->isDefault         = $this->getToggle('grid', $item->id, $item->isDefault, $tip);
 			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
 			$index++;

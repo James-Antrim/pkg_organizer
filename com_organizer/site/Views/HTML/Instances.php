@@ -20,37 +20,6 @@ use Organizer\Helpers\Languages; // Exception for frequency of use
 class Instances extends ListView
 {
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		Helpers\HTML::setTitle(Languages::_('ORGANIZER_INSTANCES'), 'contract-2');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'instances.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'instances.edit', true);
-		$toolbar->appendButton(
-			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Languages::_('ORGANIZER_DELETE'),
-			'instances.delete',
-			true
-		);
-	}
-
-	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	protected function allowAccess()
-	{
-		return Helpers\Can::administrate();
-	}
-
-	/**
 	 * Function to set the object's headers property
 	 *
 	 * @return void sets the object headers property

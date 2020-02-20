@@ -12,6 +12,7 @@ namespace Organizer\Views\HTML;
 
 use Exception;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use Organizer\Helpers;
@@ -52,14 +53,34 @@ abstract class ListView extends BaseHTMLView
 	 *
 	 * @return void  sets context variables
 	 */
-	abstract protected function addToolBar();
+	protected function addToolBar()
+	{
+		$resource = Helpers\OrganizerHelper::classEncode($this->getName());
+		$constant = strtoupper($resource);
+
+		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_$constant"), 'list-2');
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), "$resource.add", false);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "$resource.edit", true);
+		$toolbar->appendButton(
+			'Confirm',
+			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			'delete',
+			Helpers\Languages::_('ORGANIZER_DELETE'),
+			"$resource.delete",
+			true
+		);
+	}
 
 	/**
 	 * Function determines whether the user may access the view.
 	 *
 	 * @return bool true if the use may access the view, otherwise false
 	 */
-	abstract protected function allowAccess();
+	protected function allowAccess()
+	{
+		return Helpers\Can::administrate();
+	}
 
 	/**
 	 * Method to create a list output

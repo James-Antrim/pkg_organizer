@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 
 /**
@@ -19,37 +18,6 @@ use Organizer\Helpers;
 class Runs extends ListView
 {
 	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'startDate' => 'link', 'endDate' => 'link'];
-
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_RUNS'), 'list');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'runs.add', false);
-		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'runs.edit', true);
-		$toolbar->appendButton(
-			'Confirm',
-			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Helpers\Languages::_('ORGANIZER_DELETE'),
-			'runs.delete',
-			true
-		);
-	}
-
-	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	protected function allowAccess()
-	{
-		return Helpers\Can::administrate();
-	}
 
 	/**
 	 * Function to set the object's headers property
