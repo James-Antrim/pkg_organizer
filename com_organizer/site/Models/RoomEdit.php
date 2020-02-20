@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Rooms as RoomsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing room data.
@@ -25,7 +25,7 @@ class RoomEdit extends EditModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -35,12 +35,12 @@ class RoomEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return RoomsTable A Table object
+	 * @return Tables\Rooms A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new RoomsTable;
+		return new Tables\Rooms;
 	}
 }

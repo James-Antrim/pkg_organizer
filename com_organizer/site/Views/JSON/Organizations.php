@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Organizations as OrganizationsHelper;
-use Organizer\Helpers\Input;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic organizational related queries
@@ -25,10 +24,10 @@ class Organizations extends BaseView
 	 */
 	public function display()
 	{
-		$function = Input::getTask();
+		$function = Helpers\Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Organizations', $function))
 		{
-			echo json_encode(OrganizationsHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(Helpers\Organizations::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

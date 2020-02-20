@@ -11,10 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class replaces form field type sql by using Joomla's database objects to avoid database language dependency. While
@@ -47,7 +44,7 @@ class GenericOptionsField extends OptionsField
 		$attr        .= $this->required ? ' required aria-required="true"' : '';
 		$attr        .= $this->autofocus ? ' autofocus' : '';
 		$placeHolder = $this->getAttribute('placeholder', '');
-		$attr        .= empty($placeHolder) ? '' : ' placeholder="' . Languages::_($placeHolder) . '"';
+		$attr        .= empty($placeHolder) ? '' : ' placeholder="' . Helpers\Languages::_($placeHolder) . '"';
 
 		$isReadOnly     = ($this->readonly == '1' or $this->readonly == 'true');
 		$this->readonly = (string) $isReadOnly;
@@ -68,7 +65,7 @@ class GenericOptionsField extends OptionsField
 		// Create a read-only list (no name) with hidden input(s) to store the value(s).
 		if ($isReadOnly)
 		{
-			$html[] = HTML::_(
+			$html[] = Helpers\HTML::_(
 				'select.genericlist',
 				$options,
 				'',
@@ -101,7 +98,7 @@ class GenericOptionsField extends OptionsField
 		}
 		else // Create a regular list.
 		{
-			$html[] = HTML::_(
+			$html[] = Helpers\HTML::_(
 				'select.genericlist',
 				$options,
 				$this->name,
@@ -140,7 +137,7 @@ class GenericOptionsField extends OptionsField
 		$dbo->setQuery($query);
 
 		$defaultOptions = parent::getOptions();
-		$resources      = OrganizerHelper::executeQuery('loadAssocList');
+		$resources      = Helpers\OrganizerHelper::executeQuery('loadAssocList');
 		if (empty($resources))
 		{
 			return $defaultOptions;
@@ -161,7 +158,7 @@ class GenericOptionsField extends OptionsField
 				}
 			}
 
-			$options[$resource['text']] = HTML::_('select.option', $resource['value'], $resource['text']);
+			$options[$resource['text']] = Helpers\HTML::_('select.option', $resource['value'], $resource['text']);
 		}
 		$this->setValueParameters($options);
 
@@ -183,7 +180,7 @@ class GenericOptionsField extends OptionsField
 		$localized = $this->getAttribute('localized', false);
 		if ($localized)
 		{
-			$tag = Languages::getTag();
+			$tag = Helpers\Languages::getTag();
 			foreach ($textColumns as $key => $value)
 			{
 				$textColumns[$key] = $value . '_' . $tag;
@@ -239,7 +236,7 @@ class GenericOptionsField extends OptionsField
 			return;
 		}
 		$valueParameters     = explode(',', $valueParameter);
-		$componentParameters = Input::getParams();
+		$componentParameters = Helpers\Input::getParams();
 		foreach ($valueParameters as $parameter)
 		{
 			$componentParameter = $componentParameters->get($parameter);
@@ -247,7 +244,7 @@ class GenericOptionsField extends OptionsField
 			{
 				continue;
 			}
-			$options[$componentParameter] = HTML::_('select.option', $componentParameter, $componentParameter);
+			$options[$componentParameter] = Helpers\HTML::_('select.option', $componentParameter, $componentParameter);
 		}
 		ksort($options);
 	}

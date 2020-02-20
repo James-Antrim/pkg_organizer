@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Users;
+use Organizer\Helpers;
+use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
 use Organizer\Tables;
 
 /**
@@ -624,7 +624,7 @@ class Organizer extends BaseModel
 			$insertQuery->columns('id, forename, surname');
 			foreach ($missingParticipantIDs as $participantID)
 			{
-				$names    = Users::resolveUserName($participantID);
+				$names    = Helpers\Users::resolveUserName($participantID);
 				$forename = $insertQuery->quote($names['forename']);
 				$surname  = $insertQuery->quote($names['surname']);
 				$insertQuery->clear('values');

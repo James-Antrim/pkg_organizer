@@ -11,10 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of runs into the display context.
@@ -30,15 +27,15 @@ class Runs extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_RUNS'), 'list');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_RUNS'), 'list');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'runs.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'runs.edit', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'runs.add', false);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'runs.edit', true);
 		$toolbar->appendButton(
 			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'delete',
-			Languages::_('ORGANIZER_DELETE'),
+			Helpers\Languages::_('ORGANIZER_DELETE'),
 			'runs.delete',
 			true
 		);
@@ -51,7 +48,7 @@ class Runs extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -65,9 +62,9 @@ class Runs extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'  => '',
-			'name'      => HTML::sort('NAME', 'name', $direction, $ordering),
-			'startDate' => Languages::_('ORGANIZER_START_DATE'),
-			'endDate'   => Languages::_('ORGANIZER_END_DATE')
+			'name'      => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'startDate' => Helpers\Languages::_('ORGANIZER_START_DATE'),
+			'endDate'   => Helpers\Languages::_('ORGANIZER_END_DATE')
 		];
 
 		$this->headers = $headers;
@@ -95,8 +92,8 @@ class Runs extends ListView
 			}
 			else
 			{
-				$item->startDate = Dates::formatDate(reset($run['runs'])['startDate']);
-				$item->endDate   = Dates::formatDate(end($run['runs'])['endDate']);
+				$item->startDate = Helpers\Dates::formatDate(reset($run['runs'])['startDate']);
+				$item->endDate   = Helpers\Dates::formatDate(end($run['runs'])['endDate']);
 			}
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);

@@ -13,8 +13,7 @@ namespace Organizer\Views;
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Base class for a Joomla View
@@ -37,7 +36,7 @@ abstract class BaseView extends HtmlView
 	public function __construct($config = array())
 	{
 		parent::__construct($config);
-		$this->clientContext = OrganizerHelper::getApplication()->isClient('administrator');
+		$this->clientContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
 	}
 
 	/**
@@ -52,7 +51,7 @@ abstract class BaseView extends HtmlView
 	{
 		if (empty($this->_name))
 		{
-			$this->_name = OrganizerHelper::getClass($this);
+			$this->_name = Helpers\OrganizerHelper::getClass($this);
 		}
 
 		return $this->_name;
@@ -97,7 +96,7 @@ abstract class BaseView extends HtmlView
 				if (!$exists)
 				{
 					throw new Exception(
-						sprintf(Languages::_('ORGANIZER_LAYOUT_NOT_FOUND'), $layoutName),
+						sprintf(Helpers\Languages::_('ORGANIZER_LAYOUT_NOT_FOUND'), $layoutName),
 						500
 					);
 				}

@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class standardizes the getName function across classes.
@@ -39,7 +39,7 @@ trait Named
 	{
 		if (empty($this->name))
 		{
-			$this->name = OrganizerHelper::getClass($this);
+			$this->name = Helpers\OrganizerHelper::getClass($this);
 		}
 
 		return $this->name;

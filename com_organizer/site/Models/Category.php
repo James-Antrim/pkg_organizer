@@ -10,14 +10,15 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Categories as CategoriesTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class which manages event categories.
  */
 class Category extends MergeModel
 {
-	protected $assocation = 'categoryID';
+	protected $association = 'categoryID';
 
 	protected $fkColumn = 'categoryID';
 
@@ -28,7 +29,7 @@ class Category extends MergeModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::edit('categories', $this->selected);
+		return Helpers\Can::edit('categories', $this->selected);
 	}
 
 	/**
@@ -38,13 +39,13 @@ class Category extends MergeModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return CategoriesTable A Table object
+	 * @return Tables\Categories A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new CategoriesTable;
+		return new Tables\Categories;
 	}
 
 	/**

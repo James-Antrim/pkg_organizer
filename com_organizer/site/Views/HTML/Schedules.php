@@ -11,10 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of schedules into the display context.
@@ -37,28 +34,28 @@ class Schedules extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_SCHEDULES'), 'calendars');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_SCHEDULES'), 'calendars');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'schedules.add', false);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'schedules.add', false);
 		$toolbar->appendButton(
 			'Standard',
 			'default',
-			Languages::_('ORGANIZER_ACTIVATE'),
+			Helpers\Languages::_('ORGANIZER_ACTIVATE'),
 			'schedules.activate',
 			true
 		);
 		$toolbar->appendButton(
 			'Standard',
 			'tree',
-			Languages::_('ORGANIZER_CALCULATE_DELTA'),
+			Helpers\Languages::_('ORGANIZER_CALCULATE_DELTA'),
 			'schedules.setReference',
 			true
 		);
 		$toolbar->appendButton(
 			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'delete',
-			Languages::_('ORGANIZER_DELETE'),
+			Helpers\Languages::_('ORGANIZER_DELETE'),
 			'schedules.delete',
 			true
 		);
@@ -71,7 +68,7 @@ class Schedules extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Can::scheduleTheseOrganizations();
+		return (bool) Helpers\Can::scheduleTheseOrganizations();
 	}
 
 	/**
@@ -85,11 +82,11 @@ class Schedules extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'         => '',
-			'organizationName' => HTML::sort('ORGANIZATION', 'organizationName', $direction, $ordering),
-			'termName'         => HTML::sort('TERM', 'termName', $direction, $ordering),
-			'active'           => HTML::sort('STATUS', 'active', $direction, $ordering),
-			'userName'         => HTML::sort('USERNAME', 'userName', $direction, $ordering),
-			'created'          => HTML::sort('CREATION_DATE', 'created', $direction, $ordering)
+			'organizationName' => Helpers\HTML::sort('ORGANIZATION', 'organizationName', $direction, $ordering),
+			'termName'         => Helpers\HTML::sort('TERM', 'termName', $direction, $ordering),
+			'active'           => Helpers\HTML::sort('STATUS', 'active', $direction, $ordering),
+			'userName'         => Helpers\HTML::sort('USERNAME', 'userName', $direction, $ordering),
+			'created'          => Helpers\HTML::sort('CREATION_DATE', 'created', $direction, $ordering)
 		];
 
 		$this->headers = $headers;
@@ -107,9 +104,12 @@ class Schedules extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->active  =
-				$this->getToggle('schedule', $item->id, $item->active, Languages::_('ORGANIZER_TOGGLE_ACTIVE'));
-			$item->created = Dates::formatDate($item->creationDate) . ' / ' . Dates::formatTime($item->creationTime);
+			$item->active =
+				$this->getToggle('schedule', $item->id, $item->active, Helpers\Languages::_('ORGANIZER_TOGGLE_ACTIVE'));
+
+			$creationDate  = Helpers\Dates::formatDate($item->creationDate);
+			$creationTime  = Helpers\Dates::formatTime($item->creationTime);
+			$item->created = "$creationDate / $creationTime";
 
 			$structuredItems[$index] = $this->structureItem($index, $item);
 			$index++;

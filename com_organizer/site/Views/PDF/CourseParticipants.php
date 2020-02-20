@@ -11,7 +11,7 @@
 namespace Organizer\Views\PDF;
 
 use Organizer\Helpers;
-use Organizer\Tables\Participants;
+use Organizer\Tables;
 
 /**
  * Provides methods relating to course participants for relevant PDF views.
@@ -57,7 +57,7 @@ trait CourseParticipants
 		$participants = [];
 		foreach ($selected as $participantID)
 		{
-			$table = new Participants;
+			$table = new Tables\Participants;
 			if (!$table->load($participantID))
 			{
 				continue;

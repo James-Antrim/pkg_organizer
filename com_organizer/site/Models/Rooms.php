@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of rooms.
@@ -31,7 +31,7 @@ class Rooms extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
 		$linkParts = ["'index.php?option=com_organizer&view=room_edit&id='", 'r.id'];

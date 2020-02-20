@@ -13,10 +13,8 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Tables\Participants as ParticipantsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing participant data.
@@ -30,7 +28,7 @@ class ParticipantEdit extends EditModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::edit('participant', $this->item->id);
+		return Helpers\Can::edit('participant', $this->item->id);
 	}
 
 	/**
@@ -45,10 +43,10 @@ class ParticipantEdit extends EditModel
 	{
 		if (!$userID = Factory::getUser()->id)
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}
 
-		$participantID = empty($participantID) ? Input::getSelectedID($userID) : $participantID;
+		$participantID = empty($participantID) ? Helpers\Input::getSelectedID($userID) : $participantID;
 
 		// Prevents duplicate execution from getForm and getItem
 		if (isset($this->item->id) and ($this->item->id === $participantID))
@@ -57,12 +55,12 @@ class ParticipantEdit extends EditModel
 		}
 
 		$this->item           = AdminModel::getItem($participantID);
-		$this->item->referrer = Input::getInput()->server->getString('HTTP_REFERER');
+		$this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 		$this->item->id       = $this->item->id ? $this->item->id : $participantID;
 
 		if (!$this->allowEdit())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 401);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 401);
 		}
 
 		return $this->item;
@@ -75,12 +73,12 @@ class ParticipantEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return ParticipantsTable A Table object
+	 * @return Tables\Participants A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new ParticipantsTable;
+		return new Tables\Participants;
 	}
 }

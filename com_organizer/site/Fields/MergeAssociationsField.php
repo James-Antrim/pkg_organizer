@@ -11,10 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class creates a generalized select box for selection of a single id column value among those already selected.
@@ -33,7 +30,7 @@ class MergeAssociationsField extends OptionsField
 	 */
 	protected function getOptions()
 	{
-		$selectedIDs = Input::getSelectedIDs();
+		$selectedIDs = Helpers\Input::getSelectedIDs();
 		$valueColumn = $this->getAttribute('name');
 		if (empty($selectedIDs) or empty($valueColumn))
 		{
@@ -81,7 +78,7 @@ class MergeAssociationsField extends OptionsField
 
 		$dbo->setQuery($query);
 
-		$valuePairs = OrganizerHelper::executeQuery('loadAssocList');
+		$valuePairs = Helpers\OrganizerHelper::executeQuery('loadAssocList');
 		if (empty($valuePairs))
 		{
 			return [];
@@ -90,7 +87,7 @@ class MergeAssociationsField extends OptionsField
 		$options = [];
 		foreach ($valuePairs as $valuePair)
 		{
-			$options[] = HTML::_('select.option', $valuePair['value'], $valuePair['text']);
+			$options[] = Helpers\HTML::_('select.option', $valuePair['value'], $valuePair['text']);
 		}
 
 		return empty($options) ? [] : $options;
@@ -111,7 +108,7 @@ class MergeAssociationsField extends OptionsField
 
 		if ($localized)
 		{
-			$textColumns[0] = $textColumns[0] . '_' . Languages::getTag();
+			$textColumns[0] = $textColumns[0] . '_' . Helpers\Languages::getTag();
 		}
 
 		$glue = $this->getAttribute('glue');

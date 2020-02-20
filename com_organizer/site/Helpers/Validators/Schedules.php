@@ -11,10 +11,7 @@
 namespace Organizer\Helpers\Validators;
 
 use Exception;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Models\ScheduleXML;
+use Organizer\Helpers;
 use stdClass;
 
 /**
@@ -74,12 +71,12 @@ class Schedules
 		{
 			$errorMessage = \JText::_('ORGANIZER_ERROR_HEADER') . '<br />';
 			$errorMessage .= implode('<br />', $this->errors);
-			OrganizerHelper::message($errorMessage, 'error');
+			Helpers\OrganizerHelper::message($errorMessage, 'error');
 		}
 
 		if (count($this->warnings))
 		{
-			OrganizerHelper::message(implode('<br />', $this->warnings), 'warning');
+			Helpers\OrganizerHelper::message(implode('<br />', $this->warnings), 'warning');
 		}
 	}
 
@@ -92,8 +89,8 @@ class Schedules
 	 */
 	public function validate()
 	{
-		$this->organizationID = Input::getInt('organizationID');
-		$formFiles            = Input::getInput()->files->get('jform', [], 'array');
+		$this->organizationID = Helpers\Input::getInt('organizationID');
+		$formFiles            = Helpers\Input::getInput()->files->get('jform', [], 'array');
 		$this->schedule       = simplexml_load_file($formFiles['file']['tmp_name']);
 
 		// Unused & mostly unfilled nodes
@@ -132,7 +129,7 @@ class Schedules
 	{
 		if (empty($value))
 		{
-			$this->errors[] = Languages::_("ORGANIZER_{$constant}_MISSING");
+			$this->errors[] = Helpers\Languages::_("ORGANIZER_{$constant}_MISSING");
 
 			return false;
 		}
@@ -236,14 +233,14 @@ class Schedules
 	{
 		if (empty($value))
 		{
-			$this->errors[] = Languages::_("ORGANIZER_{$constant}_MISSING");
+			$this->errors[] = Helpers\Languages::_("ORGANIZER_{$constant}_MISSING");
 
 			return false;
 		}
 
 		if (!empty($regex) and preg_match($regex, $value))
 		{
-			$this->errors[] = Languages::_("ORGANIZER_{$constant}_INVALID");
+			$this->errors[] = Helpers\Languages::_("ORGANIZER_{$constant}_INVALID");
 
 			return false;
 		}

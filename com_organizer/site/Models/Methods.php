@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class provides a standardized framework for the display of listed methods.
@@ -27,7 +27,7 @@ class Methods extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
 		$select = "id, abbreviation_$tag AS abbreviation, name_$tag AS name, ";

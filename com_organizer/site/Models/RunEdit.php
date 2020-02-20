@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Runs as RunsTable;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing run data.
@@ -24,12 +24,12 @@ class RunEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return RunsTable A Table object
+	 * @return Tables\Runs A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new RunsTable;
+		return new Tables\Runs;
 	}
 }

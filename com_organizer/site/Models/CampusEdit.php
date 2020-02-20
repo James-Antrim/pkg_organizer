@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Campuses as CampusesTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing campus data.
@@ -25,7 +25,7 @@ class CampusEdit extends EditModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -35,12 +35,12 @@ class CampusEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return CampusesTable  A Table object
+	 * @return Tables\Campuses  A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new CampusesTable;
+		return new Tables\Campuses;
 	}
 }

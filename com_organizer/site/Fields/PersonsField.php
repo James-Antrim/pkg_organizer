@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Persons;
+use Organizer\Helpers;
 
 /**
  * Class creates a form field for room type selection
@@ -30,7 +30,7 @@ class PersonsField extends OptionsField
 	protected function getOptions()
 	{
 		$options = parent::getOptions();
-		$persons = Persons::getOptions();
+		$persons = Helpers\Persons::getOptions();
 
 		return array_merge($options, $persons);
 	}

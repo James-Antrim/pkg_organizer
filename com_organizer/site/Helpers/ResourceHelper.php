@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Tables\BaseTable;
+use Organizer\Tables;
 
 abstract class ResourceHelper
 {
@@ -97,7 +97,7 @@ abstract class ResourceHelper
 	/**
 	 * Returns a table based on the called class.
 	 *
-	 * @return BaseTable
+	 * @return Tables\BaseTable
 	 */
 	public static function getTable()
 	{

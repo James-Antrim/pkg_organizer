@@ -8,14 +8,12 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
-$resourceID = Input::getID();
-$view       = Input::getView();
+$resourceID = Helpers\Input::getID();
+$view       = Helpers\Input::getView();
 require_once 'language_selection.php';
-echo OrganizerHelper::getApplication()->JComponentTitle; ?>
+echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 <div class="resource-item">
     <div class="curriculum">
 		<?php foreach ($this->item['children'] as $pool) : ?>
@@ -25,7 +23,7 @@ echo OrganizerHelper::getApplication()->JComponentTitle; ?>
     </div>
     <div class="legend">
         <div class="panel-head">
-            <div class="panel-title"><?php echo Languages::_('ORGANIZER_LEGEND'); ?></div>
+            <div class="panel-title"><?php echo Helpers\Languages::_('ORGANIZER_LEGEND'); ?></div>
         </div>
 		<?php foreach ($this->fields as $hex => $field) : ?>
             <div class="legend-item">

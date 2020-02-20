@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Can;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of groups.
@@ -29,7 +29,7 @@ class Groups extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$authorized = Can::scheduleTheseOrganizations();
+		$authorized = Helpers\Can::scheduleTheseOrganizations();
 
 		$query = $this->_db->getQuery(true);
 		$query->select('DISTINCT gr.id, gr.code, gr.fullName, gr.name, gr.categoryID, gr.gridID')

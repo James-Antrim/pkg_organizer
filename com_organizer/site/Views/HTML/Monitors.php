@@ -11,10 +11,8 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads persistent information a filtered set of monitors into the display context.
@@ -56,7 +54,7 @@ class Monitors extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_MONITORS'), 'screen');
+		Helpers\HTML::setTitle(Languages::_('ORGANIZER_MONITORS'), 'screen');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'monitors.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'monitors.edit', true);
@@ -77,7 +75,7 @@ class Monitors extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -90,12 +88,12 @@ class Monitors extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'    => HTML::_('grid.checkall'),
-			'name'        => HTML::sort('ROOM', 'r.name', $direction, $ordering),
-			'ip'          => HTML::sort('IP', 'm.ip', $direction, $ordering),
-			'useDefaults' => HTML::sort('DEFAULT_SETTINGS', 'm.useDefaults', $direction, $ordering),
+			'checkbox'    => Helpers\HTML::_('grid.checkall'),
+			'name'        => Helpers\HTML::sort('ROOM', 'r.name', $direction, $ordering),
+			'ip'          => Helpers\HTML::sort('IP', 'm.ip', $direction, $ordering),
+			'useDefaults' => Helpers\HTML::sort('DEFAULT_SETTINGS', 'm.useDefaults', $direction, $ordering),
 			'display'     => Languages::_('ORGANIZER_DISPLAY_BEHAVIOUR'),
-			'content'     => HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering)
+			'content'     => Helpers\HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering)
 		];
 
 		$this->headers = $headers;
@@ -111,7 +109,7 @@ class Monitors extends ListView
 		$index           = 0;
 		$structuredItems = [];
 
-		$params       = Input::getParams();
+		$params       = Helpers\Input::getParams();
 		$displayParam = $params->get('display');
 		$contentParam = $params->get('content');
 

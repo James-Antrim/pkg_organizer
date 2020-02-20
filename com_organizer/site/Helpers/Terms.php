@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use Organizer\Tables\Terms as TermsTable;
+use Organizer\Tables;
 
 /**
  * Provides general functions for term access checks, data retrieval and display.
@@ -45,7 +45,7 @@ class Terms extends ResourceHelper implements Selectable
 	 */
 	public static function getEndDate($termID)
 	{
-		$table = new TermsTable;
+		$table = new Tables\Terms;
 
 		return $table->load($termID) ? $table->endDate : null;
 	}
@@ -64,7 +64,7 @@ class Terms extends ResourceHelper implements Selectable
 			return null;
 		}
 
-		$table        = new TermsTable;
+		$table        = new Tables\Terms;
 		$loadCriteria = ['startDate' => $data['startDate'], 'endDate' => $data['endDate']];
 
 		if ($table->load($loadCriteria))
@@ -181,7 +181,7 @@ class Terms extends ResourceHelper implements Selectable
 	 */
 	public static function getStartDate($termID)
 	{
-		$table = new TermsTable;
+		$table = new Tables\Terms;
 
 		return $table->load($termID) ? $table->startDate : null;
 	}

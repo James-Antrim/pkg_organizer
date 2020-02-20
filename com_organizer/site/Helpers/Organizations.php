@@ -12,8 +12,7 @@ namespace Organizer\Helpers;
 
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
-use Joomla\Utilities\ArrayHelper;
-use Organizer\Tables\Associations;
+use Organizer\Tables;
 
 /**
  * Provides general functions for organization access checks, data retrieval and display.
@@ -146,7 +145,7 @@ class Organizations extends ResourceHelper implements Selectable
 	 */
 	public static function setResource($resourceID, $column)
 	{
-		$associations = new Associations;
+		$associations = new Tables\Associations;
 
 		/**
 		 * If associations already exist for the resource, further associations should be made explicitly using the

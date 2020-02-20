@@ -10,15 +10,14 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\ResourceHelper;
-use Organizer\Tables\Grids as GridsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 use stdClass;
 
 /**
  * Class provides general functions for retrieving building data.
  */
-class Grids extends ResourceHelper implements UntisXMLValidator
+class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 {
 	/**
 	 * Retrieves the table id if existent.
@@ -29,7 +28,7 @@ class Grids extends ResourceHelper implements UntisXMLValidator
 	 */
 	public static function getID($untisID)
 	{
-		$table = new GridsTable;
+		$table = new Tables\Grids;
 
 		return $table->load(['code' => $untisID]) ? $table->id : null;
 	}
@@ -51,7 +50,7 @@ class Grids extends ResourceHelper implements UntisXMLValidator
 
 		$grid       = $model->schedule->periods->$gridName;
 		$grid->grid = json_encode($grid, JSON_UNESCAPED_UNICODE);
-		$table      = new GridsTable;
+		$table      = new Tables\Grids;
 
 		// No overwrites for global resources
 		if (!$table->load(['code' => $gridName]))
@@ -104,9 +103,9 @@ class Grids extends ResourceHelper implements UntisXMLValidator
 
 		if ($invalidPeriod)
 		{
-			if (!in_array(Languages::_('ORGANIZER_PERIODS_INCONSISTENT'), $model->errors))
+			if (!in_array(Helpers\Languages::_('ORGANIZER_PERIODS_INCONSISTENT'), $model->errors))
 			{
-				$model->errors[] = Languages::_('ORGANIZER_PERIODS_INCONSISTENT');
+				$model->errors[] = Helpers\Languages::_('ORGANIZER_PERIODS_INCONSISTENT');
 			}
 
 			return;

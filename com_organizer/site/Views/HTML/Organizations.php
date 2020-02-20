@@ -11,9 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of organizations into the display context.
@@ -29,15 +27,15 @@ class Organizations extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_ORGANIZATIONS'), 'tree-2');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_ORGANIZATIONS'), 'tree-2');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'organizations.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'organizations.edit', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'organizations.add', false);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'organizations.edit', true);
 		$toolbar->appendButton(
 			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'delete',
-			Languages::_('ORGANIZER_DELETE'),
+			Helpers\Languages::_('ORGANIZER_DELETE'),
 			'organizations.delete',
 			true
 		);
@@ -50,7 +48,7 @@ class Organizations extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -64,8 +62,8 @@ class Organizations extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'  => '',
-			'shortName' => HTML::sort('SHORT_NAME', 'shortName', $direction, $ordering),
-			'name'      => HTML::sort('NAME', 'name', $direction, $ordering)
+			'shortName' => Helpers\HTML::sort('SHORT_NAME', 'shortName', $direction, $ordering),
+			'name'      => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
 		];
 
 		$this->headers = $headers;

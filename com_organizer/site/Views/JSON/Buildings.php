@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Buildings as BuildingsHelper;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic (degree) program related queries
@@ -25,10 +24,10 @@ class Buildings extends BaseView
 	 */
 	public function display()
 	{
-		$function = Input::getTask();
+		$function = Helpers\Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Buildings', $function))
 		{
-			echo json_encode(BuildingsHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(Helpers\Buildings::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

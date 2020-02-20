@@ -11,10 +11,8 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Campuses as Helper;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads a filtered set of campuses into the display context.
@@ -36,7 +34,7 @@ class Campuses extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_CAMPUSES'), 'location');
+		Helpers\HTML::setTitle(Languages::_('ORGANIZER_CAMPUSES'), 'location');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'campuses.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'campuses.edit', true);
@@ -57,7 +55,7 @@ class Campuses extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -114,7 +112,7 @@ class Campuses extends ListView
 			}
 
 			$item->address  = $address;
-			$item->location = Helper::getPin($item->location);
+			$item->location = Helpers\Campuses::getPin($item->location);
 
 			if (!empty($item->gridName))
 			{

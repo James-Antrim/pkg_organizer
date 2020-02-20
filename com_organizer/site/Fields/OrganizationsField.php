@@ -12,7 +12,7 @@ namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Organizations;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for organizations.
@@ -49,7 +49,7 @@ class OrganizationsField extends OptionsField
 	protected function getOptions()
 	{
 		$options       = parent::getOptions();
-		$organizations = Organizations::getOptions(true, $this->getAttribute('access', ''));
+		$organizations = Helpers\Organizations::getOptions(true, $this->getAttribute('access', ''));
 
 		return array_merge($options, $organizations);
 	}

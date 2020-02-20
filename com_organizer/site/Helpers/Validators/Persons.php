@@ -10,16 +10,14 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Organizer\Helpers\Organizations;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\ResourceHelper;
-use Organizer\Tables\Persons as PersonsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 use stdClass;
 
 /**
  * Provides general functions for person access checks, data retrieval and display.
  */
-class Persons extends ResourceHelper implements UntisXMLValidator
+class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 {
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
@@ -33,7 +31,7 @@ class Persons extends ResourceHelper implements UntisXMLValidator
 	{
 		$exists       = false;
 		$person       = $model->persons->$untisID;
-		$table        = new PersonsTable;
+		$table        = new Tables\Persons;
 		$loadCriteria = [];
 
 		if (!empty($person->username))
@@ -110,14 +108,14 @@ class Persons extends ResourceHelper implements UntisXMLValidator
 		{
 			$warningCount = $model->warnings['PEX'];
 			unset($model->warnings['PEX']);
-			$model->warnings[] = sprintf(Languages::_('ORGANIZER_PERSON_EXTERNAL_IDS_MISSING'), $warningCount);
+			$model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_PERSON_EXTERNAL_IDS_MISSING'), $warningCount);
 		}
 
 		if (!empty($model->warnings['PFN']))
 		{
 			$warningCount = $model->warnings['PFN'];
 			unset($model->warnings['PFN']);
-			$model->warnings[] = sprintf(Languages::_('ORGANIZER_PERSON_FORENAMES_MISSING'), $warningCount);
+			$model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_PERSON_FORENAMES_MISSING'), $warningCount);
 		}
 	}
 
@@ -147,7 +145,7 @@ class Persons extends ResourceHelper implements UntisXMLValidator
 		$surname = trim((string) $node->surname);
 		if (empty($surname))
 		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_PERSON_SURNAME_MISSING'), $internalID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_PERSON_SURNAME_MISSING'), $internalID);
 
 			return;
 		}
@@ -171,6 +169,6 @@ class Persons extends ResourceHelper implements UntisXMLValidator
 		$model->persons->$internalID = $person;
 
 		self::setID($model, $internalID);
-		Organizations::setResource($person->id, 'personID');
+		Helpers\Organizations::setResource($person->id, 'personID');
 	}
 }

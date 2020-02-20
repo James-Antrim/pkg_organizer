@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Colors as ColorsTable;
+use Organizer\Tables;
 
 /**
  * Class which manages stored color data.
@@ -24,12 +24,12 @@ class Color extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return ColorsTable A Table object
+	 * @return Tables\Colors A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new ColorsTable;
+		return new Tables\Colors;
 	}
 }

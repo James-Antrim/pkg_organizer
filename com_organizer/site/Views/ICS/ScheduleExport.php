@@ -11,7 +11,7 @@
 namespace Organizer\Views\ICS;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 use Organizer\Views\BaseView;
 
 require_once JPATH_ROOT . '/components/com_organizer/icalcreator/iCalcreator.php';
@@ -67,7 +67,7 @@ class ScheduleExport extends BaseView
 	{
 		$vCalendar = new \vcalendar;
 		$vCalendar->setConfig('unique_id', $this->parameters['docTitle']);
-		$vCalendar->setConfig('lang', Languages::getTag());
+		$vCalendar->setConfig('lang', Helpers\Languages::getTag());
 		$vCalendar->setProperty('x-wr-calname', $this->parameters['pageTitle']);
 		$vCalendar->setProperty('X-WR-TIMEZONE', 'Europe/Berlin');
 		$vCalendar->setProperty('METHOD', 'PUBLISH');
@@ -170,7 +170,7 @@ class ScheduleExport extends BaseView
 		$personsText = implode('/', $persons);
 		$roomsText   = implode('/', $rooms);
 
-		$summary = sprintf(Languages::_('ORGANIZER_ICS_SUMMARY'), $title, $personsText);
+		$summary = sprintf(Helpers\Languages::_('ORGANIZER_ICS_SUMMARY'), $title, $personsText);
 
 		$organizer = empty($this->parameters['mailto']) ? $personsText : $this->parameters['mailto'];
 		$vEvent->setProperty('ORGANIZER', $organizer);

@@ -18,7 +18,7 @@ use Organizer\Tables;
  */
 class Person extends MergeModel implements ScheduleResource
 {
-	protected $assocation = 'personID';
+	protected $association = 'personID';
 
 	protected $fkColumn = 'personID';
 

@@ -11,8 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads the monitor form into display context.
@@ -28,20 +27,20 @@ class MonitorEdit extends EditView
 	{
 		$new   = empty($this->item->id);
 		$title = $new ?
-			Languages::_('ORGANIZER_MONITOR_NEW') : Languages::_('ORGANIZER_MONITOR_EDIT');
-		HTML::setTitle($title, 'screen');
+			Helpers\Languages::_('ORGANIZER_MONITOR_NEW') : Helpers\Languages::_('ORGANIZER_MONITOR_EDIT');
+		Helpers\HTML::setTitle($title, 'screen');
 		$toolbar   = Toolbar::getInstance();
-		$applyText = $new ? Languages::_('ORGANIZER_CREATE') : Languages::_('ORGANIZER_APPLY');
+		$applyText = $new ? Helpers\Languages::_('ORGANIZER_CREATE') : Helpers\Languages::_('ORGANIZER_APPLY');
 		$toolbar->appendButton('Standard', 'apply', $applyText, 'monitors.apply', false);
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'monitors.save', false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'monitors.save', false);
 		$toolbar->appendButton(
 			'Standard',
 			'save-new',
-			Languages::_('ORGANIZER_SAVE2NEW'),
+			Helpers\Languages::_('ORGANIZER_SAVE2NEW'),
 			'monitors.save2new',
 			false
 		);
-		$cancelText = $new ? Languages::_('ORGANIZER_CANCEL') : Languages::_('ORGANIZER_CLOSE');
+		$cancelText = $new ? Helpers\Languages::_('ORGANIZER_CANCEL') : Helpers\Languages::_('ORGANIZER_CLOSE');
 		$toolbar->appendButton('Standard', 'cancel', $cancelText, 'monitors.cancel', false);
 	}
 }

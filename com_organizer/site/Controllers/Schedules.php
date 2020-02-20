@@ -12,9 +12,8 @@ namespace Organizer\Controllers;
 
 use Exception;
 use Organizer\Controller;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Routing;
-use Organizer\Models\Schedule;
+use Organizer\Helpers;
+use Organizer\Models;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -34,15 +33,15 @@ class Schedules extends Controller
 	 */
 	public function activate()
 	{
-		$model = new Schedule;
+		$model = new Models\Schedule;
 
 		if ($model->activate())
 		{
-			OrganizerHelper::message('ORGANIZER_ACTIVATE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_ACTIVATE_SUCCESS');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_ACTIVATE_FAIL', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_ACTIVATE_FAIL', 'error');
 		}
 
 		$this->setRedirect("index.php?option=com_organizer&view={$this->listView}");
@@ -56,18 +55,18 @@ class Schedules extends Controller
 	 */
 	public function setReference()
 	{
-		$model = new Schedule;
+		$model = new Models\Schedule;
 
 		if ($model->setReference())
 		{
-			OrganizerHelper::message('ORGANIZER_REFERENCE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_SUCCESS');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_REFERENCE_FAIL', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase();
+		$url = Helpers\Routing::getRedirectBase();
 		$url .= "&view=schedules";
 		$this->setRedirect($url);
 	}
@@ -83,10 +82,10 @@ class Schedules extends Controller
 	 */
 	public function upload($shouldNotify = false)
 	{
-		$url = Routing::getRedirectBase();
+		$url = Helpers\Routing::getRedirectBase();
 		if (JDEBUG)
 		{
-			OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
 			$url .= "&view=Schedules";
 			$this->setRedirect($url);
 
@@ -102,19 +101,19 @@ class Schedules extends Controller
 		{
 			if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8')
 			{
-				$model = new Schedule;
+				$model = new Models\Schedule;
 				$view  = $model->upload($shouldNotify) ? 'Schedules' : 'Schedule_Edit';
 			}
 			else
 			{
 				$view = 'Schedule_Edit';
-				OrganizerHelper::message('ORGANIZER_FILE_ENCODING_INVALID', 'error');
+				Helpers\OrganizerHelper::message('ORGANIZER_FILE_ENCODING_INVALID', 'error');
 			}
 		}
 		else
 		{
 			$view = 'Schedule_Edit';
-			OrganizerHelper::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', 'error');
 		}
 
 		$url .= "&view={$view}";

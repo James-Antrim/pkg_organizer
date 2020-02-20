@@ -12,8 +12,7 @@ namespace Organizer\Helpers\Validators;
 
 use Exception;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Tables\Terms as TermsTable;
+use Organizer\Tables;
 use stdClass;
 
 /**
@@ -37,7 +36,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 			['endDate' => $model->term->endDate, 'startDate' => $model->term->startDate]
 		];
 
-		$table = new TermsTable;
+		$table = new Tables\Terms;
 
 		foreach ($loadCriteria as $criterion)
 		{
@@ -116,7 +115,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 		// Data type / value checks failed.
 		if (!$valid)
 		{
-			$model->errors[] = Languages::_('ORGANIZER_TERM_INVALID');
+			$model->errors[] = Helpers\Languages::_('ORGANIZER_TERM_INVALID');
 
 			return false;
 		}
@@ -135,7 +134,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 		// Consistency among the dates failed.
 		if ($invalid)
 		{
-			$model->errors[] = Languages::_('ORGANIZER_TERM_INVALID');
+			$model->errors[] = Helpers\Languages::_('ORGANIZER_TERM_INVALID');
 
 			return false;
 		}

@@ -11,8 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class creates text input.
@@ -43,11 +42,11 @@ class DateField extends FormField
 
 		if ($this->value)
 		{
-			$value = Dates::standardizeDate($this->value);
+			$value = Helpers\Dates::standardizeDate($this->value);
 		}
 		else
 		{
-			$value = $empty === 'false' ? Dates::standardizeDate() : '';
+			$value = $empty === 'false' ? Helpers\Dates::standardizeDate() : '';
 		}
 
 		$attributes = [

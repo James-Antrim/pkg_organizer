@@ -13,9 +13,7 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads subject information into the display context.
@@ -32,7 +30,7 @@ class SubjectSelection extends ListView
 	protected function addToolBar()
 	{
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'pools.addSubject', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'pools.addSubject', true);
 	}
 
 	/**
@@ -42,7 +40,7 @@ class SubjectSelection extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Can::documentTheseOrganizations();
+		return (bool) Helpers\Can::documentTheseOrganizations();
 	}
 
 	/**
@@ -67,9 +65,9 @@ class SubjectSelection extends ListView
 		$direction = $this->state->get('list.direction');
 		$ordering  = $this->state->get('list.ordering');
 		$headers   = [
-			'checkbox' => HTML::_('grid.checkall'),
-			'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
-			'program'  => Languages::_('ORGANIZER_PROGRAMS')
+			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'program'  => Helpers\Languages::_('ORGANIZER_PROGRAMS')
 		];
 
 		$this->headers = $headers;
@@ -87,7 +85,7 @@ class SubjectSelection extends ListView
 
 		foreach ($this->items as $subject)
 		{
-			if (!Can::document('subject', $subject->id))
+			if (!Helpers\Can::document('subject', $subject->id))
 			{
 				continue;
 			}
@@ -96,7 +94,7 @@ class SubjectSelection extends ListView
 			$name .= empty($subject->code) ? '' : " - $subject->code";
 
 			$structuredItems[$index]             = [];
-			$structuredItems[$index]['checkbox'] = HTML::_('grid.id', $index, $subject->id);
+			$structuredItems[$index]['checkbox'] = Helpers\HTML::_('grid.id', $index, $subject->id);
 			$structuredItems[$index]['name']     = $name;
 			$structuredItems[$index]['programs'] = $name;
 

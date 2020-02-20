@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Input;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of monitors.
@@ -66,7 +66,7 @@ class Monitors extends ListModel
 
 		$where = "m.display ='$requestDisplay'";
 
-		$params              = Input::getParams();
+		$params              = Helpers\Input::getParams();
 		$defaultDisplay      = $params->get('display', '');
 		$useComponentDisplay = (!empty($defaultDisplay) and $requestDisplay == $defaultDisplay);
 		if ($useComponentDisplay)
@@ -88,7 +88,7 @@ class Monitors extends ListModel
 	 */
 	private function addContentFilter(&$query)
 	{
-		$params         = Input::getParams();
+		$params         = Helpers\Input::getParams();
 		$requestContent = $this->state->get('filter.content', '');
 
 		if ($requestContent === '')

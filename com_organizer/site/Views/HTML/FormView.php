@@ -10,11 +10,9 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads a non-item based resource form (merge) into the display context. Specific resource determined by
@@ -71,7 +69,7 @@ abstract class FormView extends BaseHTMLView
 	{
 		parent::modifyDocument();
 
-		HTML::_('behavior.formvalidator');
+		Helpers\HTML::_('behavior.formvalidator');
 
 		$document = Factory::getDocument();
 		$document->addScript(Uri::root() . 'components/com_organizer/js/validators.js');

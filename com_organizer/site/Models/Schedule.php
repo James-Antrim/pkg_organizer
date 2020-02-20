@@ -13,9 +13,9 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
-use Organizer\Helpers\Validators\Schedules as SchedulesValidator;
-use Organizer\Tables\InstancePersons;
-use Organizer\Tables\Schedules as SchedulesTable;
+use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
+use Organizer\Helpers\Validators; // Exception for structure
+use Organizer\Tables;
 
 /**
  * Class which manages stored schedule data.
@@ -45,7 +45,7 @@ class Schedule extends BaseModel
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
-		$table = new SchedulesTable;
+		$table = new Tables\Schedules;
 
 		if (!$table->load($scheduleID) or $table->active)
 		{
@@ -79,7 +79,7 @@ class Schedule extends BaseModel
 	{
 		$conditions = empty($scheduleID) ?
 			['active' => 1, 'organizationID' => $organizationID, 'termID' => $termID] : $scheduleID;
-		$table      = new SchedulesTable;
+		$table      = new Tables\Schedules;
 
 		if (!$table->load($conditions))
 		{
@@ -129,7 +129,7 @@ class Schedule extends BaseModel
 				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 			}
 
-			$schedule = new SchedulesTable;
+			$schedule = new Tables\Schedules;
 
 			if ($schedule->load($scheduleID) and !$schedule->delete())
 			{
@@ -147,13 +147,13 @@ class Schedule extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return SchedulesTable A Table object
+	 * @return Tables\Schedules A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new SchedulesTable;
+		return new Tables\Schedules;
 	}
 
 	/**
@@ -172,7 +172,7 @@ class Schedule extends BaseModel
 			->where('id IN (' . implode(',', $instanceIDs) . ')');
 		$dbo->setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		return OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -191,7 +191,7 @@ class Schedule extends BaseModel
 		{
 			foreach ($persons as $personID => $associations)
 			{
-				$instancePersons = new InstancePersons;
+				$instancePersons = new Tables\InstancePersons;
 				if (!$instancePersons->load(['instanceID' => $instanceID, 'personID' => $personID]))
 				{
 					continue;
@@ -243,7 +243,7 @@ class Schedule extends BaseModel
 			->where("delta = 'removed'");
 		$dbo->setQuery($query);
 
-		Helpers\OrganizerHelper::executeQuery('execute');
+		OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -268,7 +268,7 @@ class Schedule extends BaseModel
 			->where("delta = 'removed'");
 		$dbo->setQuery($query);
 
-		Helpers\OrganizerHelper::executeQuery('execute');
+		OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -286,7 +286,7 @@ class Schedule extends BaseModel
 			->where("delta = 'removed'");
 		$dbo->setQuery($query);
 
-		Helpers\OrganizerHelper::executeQuery('execute');
+		OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -298,7 +298,7 @@ class Schedule extends BaseModel
 	 */
 	private function setDeltaContext($scheduleID)
 	{
-		$table = new SchedulesTable;
+		$table = new Tables\Schedules;
 		if ($table->load($scheduleID))
 		{
 			$this->organizationID = $table->organizationID;
@@ -323,7 +323,7 @@ class Schedule extends BaseModel
 	{
 		$referenceID = Helpers\Input::getSelectedIDs()[0];
 
-		$reference = new SchedulesTable;
+		$reference = new Tables\Schedules;
 		if (empty($referenceID) or !$reference->load($referenceID))
 		{
 			return true;
@@ -340,7 +340,7 @@ class Schedule extends BaseModel
 		unset($reference);
 
 		$activeID = Helpers\Schedules::getActiveID($organizationID, $termID);
-		$active   = new SchedulesTable;
+		$active   = new Tables\Schedules;
 		if (!$active->load($activeID))
 		{
 			return true;
@@ -361,7 +361,7 @@ class Schedule extends BaseModel
 			->where('id IN (' . implode(',', $nInstanceIDs) . ')');
 		$dbo->setQuery($query);
 
-		Helpers\OrganizerHelper::executeQuery('execute');
+		OrganizerHelper::executeQuery('execute');
 
 		foreach ($aInstances as $instanceID => $aInstance)
 		{
@@ -374,7 +374,7 @@ class Schedule extends BaseModel
 					->where('id IN (' . implode(',', $nPersonIDs) . ')');
 				$dbo->setQuery($query);
 
-				Helpers\OrganizerHelper::executeQuery('execute');
+				OrganizerHelper::executeQuery('execute');
 			}
 
 			if (!$ePersons = array_intersect_key($aInstance, $rInstance))
@@ -390,10 +390,10 @@ class Schedule extends BaseModel
 				->where('id IN (' . implode(',', $ePersonIDs) . ')');
 			$dbo->setQuery($query);
 
-			Helpers\OrganizerHelper::executeQuery('execute');
+			OrganizerHelper::executeQuery('execute');
 			foreach ($ePersons as $personID => $assocs)
 			{
-				$instancePersons = new InstancePersons;
+				$instancePersons = new Tables\InstancePersons;
 				if (!$instancePersons->load(['instanceID' => $instanceID, 'personID' => $personID]))
 				{
 					continue;
@@ -415,7 +415,7 @@ class Schedule extends BaseModel
 						->where('groupID IN (' . implode(',', $nGroupIDs) . ')');
 					$dbo->setQuery($query);
 
-					Helpers\OrganizerHelper::executeQuery('execute');
+					OrganizerHelper::executeQuery('execute');
 				}
 
 				if ($eGroupIDs = array_keys(array_intersect_key($assocs['groups'], $rInstance[$personID]['groups'])))
@@ -427,7 +427,7 @@ class Schedule extends BaseModel
 						->where('groupID IN (' . implode(',', $eGroupIDs) . ')');
 					$dbo->setQuery($query);
 
-					Helpers\OrganizerHelper::executeQuery('execute');
+					OrganizerHelper::executeQuery('execute');
 				}
 
 				if (empty($assocs['rooms']))
@@ -454,7 +454,7 @@ class Schedule extends BaseModel
 						->where('roomID IN (' . implode(',', $nRoomIDs) . ')');
 					$dbo->setQuery($query);
 
-					Helpers\OrganizerHelper::executeQuery('execute');
+					OrganizerHelper::executeQuery('execute');
 				}
 
 				if (!empty($eRoomIDs))
@@ -466,7 +466,7 @@ class Schedule extends BaseModel
 						->where('roomID IN (' . implode(',', $eRoomIDs) . ')');
 					$dbo->setQuery($query);
 
-					Helpers\OrganizerHelper::executeQuery('execute');
+					OrganizerHelper::executeQuery('execute');
 				}
 			}
 		}
@@ -491,7 +491,7 @@ class Schedule extends BaseModel
 
 			foreach ($persons as $personID => $associations)
 			{
-				$instancePersons = new InstancePersons;
+				$instancePersons = new Tables\InstancePersons;
 				if (!$instancePersons->load(['instanceID' => $instanceID, 'personID' => $personID]))
 				{
 					continue;
@@ -522,7 +522,7 @@ class Schedule extends BaseModel
 			->where("delta != 'removed'");
 		$dbo->setQuery($query);
 
-		Helpers\OrganizerHelper::executeQuery('execute');
+		OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -548,7 +548,7 @@ class Schedule extends BaseModel
 			->where("delta != 'removed'");
 		$dbo->setQuery($query);
 
-		Helpers\OrganizerHelper::executeQuery('execute');
+		OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -568,7 +568,7 @@ class Schedule extends BaseModel
 			->where("delta != 'removed'");
 		$dbo->setQuery($query);
 
-		Helpers\OrganizerHelper::executeQuery('execute');
+		OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -580,7 +580,7 @@ class Schedule extends BaseModel
 	public function toggle()
 	{
 		$scheduleID = Helpers\Input::getInt('id');
-		$table      = new SchedulesTable;
+		$table      = new Tables\Schedules;
 
 		if (!Helpers\Can::schedule('schedule', $scheduleID))
 		{
@@ -636,7 +636,7 @@ class Schedule extends BaseModel
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
-		$validator = new SchedulesValidator();
+		$validator = new Validators\Schedules;
 		$valid     = $validator->validate();
 
 		if (!$valid)
@@ -656,7 +656,7 @@ class Schedule extends BaseModel
 			'userID'         => Factory::getUser()->id
 		];
 
-		$newTable = new SchedulesTable;
+		$newTable = new Tables\Schedules;
 		if (!$newTable->save($data))
 		{
 			return false;

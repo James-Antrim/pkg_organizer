@@ -10,11 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads participant information into the display context.
@@ -25,12 +22,12 @@ class ParticipantEdit extends EditView
 	{
 		$new   = empty($this->item->id);
 		$title = $new ?
-			Languages::_('ORGANIZER_PARTICIPANT_NEW') : Languages::_('ORGANIZER_PARTICIPANT_EDIT');
-		HTML::setTitle($title, 'user');
+			Helpers\Languages::_('ORGANIZER_PARTICIPANT_NEW') : Helpers\Languages::_('ORGANIZER_PARTICIPANT_EDIT');
+		Helpers\HTML::setTitle($title, 'user');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'participants.save', false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'participants.save', false);
 		$cancelText = $new ?
-			Languages::_('ORGANIZER_CANCEL') : Languages::_('ORGANIZER_CLOSE');
+			Helpers\Languages::_('ORGANIZER_CANCEL') : Helpers\Languages::_('ORGANIZER_CLOSE');
 		$toolbar->appendButton('Standard', 'cancel', $cancelText, 'participants.cancel', false);
 	}
 }

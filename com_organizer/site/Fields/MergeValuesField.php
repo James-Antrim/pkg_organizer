@@ -11,9 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class creates a generalized select box for selection of a single column value among those already selected.
@@ -60,8 +58,8 @@ class MergeValuesField extends OptionsField
 	 */
 	protected function getOptions()
 	{
-		$selectedIDs    = Input::getSelectedIDs();
-		$resource       = str_replace('_merge', '', Input::getView());
+		$selectedIDs    = Helpers\Input::getSelectedIDs();
+		$resource       = str_replace('_merge', '', Helpers\Input::getView());
 		$validResources = ['category', 'field', 'group', 'method', 'room', 'roomtype', 'participant', 'person'];
 		$invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
 		if ($invalid)
@@ -80,7 +78,7 @@ class MergeValuesField extends OptionsField
 		$query->order('value ASC');
 		$dbo->setQuery($query);
 
-		$values = OrganizerHelper::executeQuery('loadColumn');
+		$values = Helpers\OrganizerHelper::executeQuery('loadColumn');
 		if (empty($values))
 		{
 			return [];
@@ -89,7 +87,7 @@ class MergeValuesField extends OptionsField
 		$options = [];
 		foreach ($values as $value)
 		{
-			$options[] = HTML::_('select.option', $value, $value);
+			$options[] = Helpers\HTML::_('select.option', $value, $value);
 		}
 
 		return $options;

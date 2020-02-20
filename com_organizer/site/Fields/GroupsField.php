@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Groups;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for plan programs.
@@ -31,7 +31,7 @@ class GroupsField extends OptionsField
 	protected function getOptions()
 	{
 		$options = parent::getOptions();
-		$groups  = Groups::getOptions();
+		$groups  = Helpers\Groups::getOptions();
 
 		return array_merge($options, $groups);
 	}

@@ -12,9 +12,7 @@ namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Pools;
+use Organizer\Helpers;
 
 /**
  * Class loads curriculum information into the display context.
@@ -78,22 +76,26 @@ class Curriculum extends ItemView
 				$crp = empty($item['creditpoints']) ? '' : "{$item['creditpoints']} CrP";
 				$url = "?option=com_organizer&view=subject_item&id={$item['subjectID']}";
 
-				$documentLinkAttributes = $linkAttributes + ['title' => Languages::_('ORGANIZER_SUBJECT_ITEM')];
-				$scheduleLinkAttributes = $linkAttributes + ['title' => Languages::_('ORGANIZER_SCHEDULE')];
+				$documentLinkAttributes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SUBJECT_ITEM')];
+				$scheduleLinkAttributes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SCHEDULE')];
 
-				$documentLink = HTML::link($url, '<span class="icon-file-2"></span>', $documentLinkAttributes);
+				$documentLink = Helpers\HTML::link($url, '<span class="icon-file-2"></span>', $documentLinkAttributes);
 
 				$scheduleUrl = "?option=com_organizer&view=schedule_item&subjectIDs={$item['subjectID']}";
 
-				$scheduleLink    =
-					HTML::link($scheduleUrl, '<span class="icon-info-calender"></span>', $scheduleLinkAttributes);
+				$scheduleLink = Helpers\HTML::link(
+					$scheduleUrl,
+					'<span class="icon-info-calender"></span>',
+					$scheduleLinkAttributes
+				);
+
 				$additionalLinks .= $documentLink . $scheduleLink;
 
 				$itemClass = 'item-subject';
 			}
 			else
 			{
-				$crp = Pools::getCrPText($item);
+				$crp = Helpers\Pools::getCrPText($item);
 				$url = '?option=com_organizer&view=subjects';
 				$url .= "&programID={$this->item['programID']}&poolID={$item['poolID']}";
 
@@ -123,7 +125,7 @@ class Curriculum extends ItemView
 	 */
 	public function renderPanel($pool)
 	{
-		$crpText = Pools::getCrPText($pool);
+		$crpText = Helpers\Pools::getCrPText($pool);
 		?>
         <div class="panel">
             <div class="panel-head">

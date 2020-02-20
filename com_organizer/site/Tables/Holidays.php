@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 use JDatabaseDriver;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Models the organizer_holidays table.
@@ -77,7 +77,7 @@ class Holidays extends BaseTable
 	{
 		if ($this->endDate < $this->startDate)
 		{
-			OrganizerHelper::message('ORGANIZER_DATE_CHECK', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_DATE_CHECK', 'error');
 
 			return false;
 		}

@@ -12,9 +12,8 @@ namespace Organizer\Controllers;
 
 use Exception;
 use Organizer\Controller;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Models\Participant;
+use Organizer\Helpers;
+use Organizer\Models;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -38,18 +37,18 @@ class Participants extends Controller
 	 */
 	public function save()
 	{
-		$model = new Participant();
+		$model = new Models\Participant;
 
 		if ($participantID = $model->save())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Input::getString('referrer'));
+		$this->setRedirect(Helpers\Input::getString('referrer'));
 	}
 
 	/**
@@ -59,6 +58,6 @@ class Participants extends Controller
 	 */
 	public function cancel()
 	{
-		$this->setRedirect(Input::getString('referrer'));
+		$this->setRedirect(Helpers\Input::getString('referrer'));
 	}
 }

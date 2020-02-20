@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 trait Translated
 {
@@ -25,8 +25,8 @@ trait Translated
 		{
 			$labelConstant          = 'ORGANIZER_' . (string) $this->element['label'];
 			$descriptionConstant    = $labelConstant . '_DESC';
-			$this->element['label'] = Languages::_($labelConstant);
-			$this->description      = Languages::_($descriptionConstant);
+			$this->element['label'] = Helpers\Languages::_($labelConstant);
+			$this->description      = Helpers\Languages::_($descriptionConstant);
 		}
 
 		return parent::getLayoutData();

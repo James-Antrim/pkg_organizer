@@ -13,7 +13,6 @@ namespace Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages;
 
 /**
  * Class retrieves information for a filtered set of subjects. Modal view.
@@ -28,7 +27,7 @@ class SubjectSelection extends ListModel
 	protected function getListQuery()
 	{
 		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $dbo->getQuery(true);
 
 		$query->select("DISTINCT s.id, code, name_$tag AS name")->from('#__organizer_subjects AS s');

@@ -11,10 +11,7 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Rooms;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class which calculates organization statistic data.
@@ -46,7 +43,7 @@ class OrganizationOccupancy extends BaseModel
 	{
 		parent::__construct($config);
 
-		$format = Input::getCMD('format', 'html');
+		$format = Helpers\Input::getCMD('format', 'html');
 
 		switch ($format)
 		{
@@ -54,7 +51,7 @@ class OrganizationOccupancy extends BaseModel
 				$this->setRoomtypes();
 				$this->setRooms();
 
-				$year            = Input::getCMD('year', date('Y'));
+				$year            = Helpers\Input::getCMD('year', date('Y'));
 				$this->startDate = "$year-01-01";
 				$this->endDate   = "$year-12-31";
 
@@ -282,7 +279,7 @@ class OrganizationOccupancy extends BaseModel
 		$query->select('DISTINCT YEAR(schedule_date) AS year')->from('#__organizer_calendar')->order('year');
 
 		$this->_db->setQuery($query);
-		$years = OrganizerHelper::executeQuery('loadColumn', []);
+		$years = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 
 		if (!empty($years))
 		{
@@ -304,7 +301,7 @@ class OrganizationOccupancy extends BaseModel
 	 */
 	private function setData($roomID)
 	{
-		$tag     = Languages::getTag();
+		$tag     = Helpers\Languages::getTag();
 		$cSelect = "c.schedule_date AS date, TIME_FORMAT(c.startTime, '%H:%i') AS startTime, ";
 		$cSelect .= "TIME_FORMAT(c.endTime, '%H:%i') AS endTime";
 
@@ -331,7 +328,7 @@ class OrganizationOccupancy extends BaseModel
 		$ringQuery->where("conf.configuration REGEXP '$regexp'");
 		$this->_db->setQuery($ringQuery);
 
-		$roomConfigurations = OrganizerHelper::executeQuery('loadAssocList');
+		$roomConfigurations = Helpers\OrganizerHelper::executeQuery('loadAssocList');
 		if (empty($roomConfigurations))
 		{
 			return false;
@@ -349,7 +346,7 @@ class OrganizationOccupancy extends BaseModel
 	 */
 	private function setRooms()
 	{
-		$rooms       = Rooms::getPlannedRooms();
+		$rooms       = Helpers\Rooms::getPlannedRooms();
 		$roomtypeMap = [];
 
 		foreach ($rooms as $room)
@@ -370,14 +367,14 @@ class OrganizationOccupancy extends BaseModel
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 
 		$query->select("id, name_$tag AS name, description_$tag AS description");
 		$query->from('#__organizer_roomtypes');
 		$query->order('name');
 		$dbo->setQuery($query);
 
-		$this->roomtypes = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$this->roomtypes = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
 	}
 
 	/**
@@ -395,7 +392,7 @@ class OrganizationOccupancy extends BaseModel
 			->order('startDate');
 		$this->_db->setQuery($query);
 
-		$this->terms = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$this->terms = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
 
 		return empty($this->terms) ? false : true;
 	}

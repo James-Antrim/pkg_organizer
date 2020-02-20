@@ -18,10 +18,8 @@ use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Routing;
+use Organizer\Helpers;
+use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -70,7 +68,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$resourceID";
+		$url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$resourceID";
 		$this->setRedirect($url);
 	}
 
@@ -81,7 +79,7 @@ class Controller extends BaseController
 	 */
 	public function cancel()
 	{
-		$url = Routing::getRedirectBase() . "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
 		$this->setRedirect($url);
 	}
 
@@ -105,7 +103,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_DELETE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase();
+		$url = Helpers\Routing::getRedirectBase();
 		$url .= "&view={$this->listView}";
 		$this->setRedirect($url);
 	}
@@ -249,7 +247,7 @@ class Controller extends BaseController
 			}
 			else
 			{
-				$message = sprintf(Languages::_('ORGANIZER_VIEW_NOT_FOUND'), $name, $type, $prefix);
+				$message = sprintf(Helpers\Languages::_('ORGANIZER_VIEW_NOT_FOUND'), $name, $type, $prefix);
 				throw new Exception($message, 404);
 			}
 		}
@@ -277,7 +275,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_IMPORT_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase();
+		$url = Helpers\Routing::getRedirectBase();
 		$url .= "&view={$this->listView}";
 		$this->setRedirect($url);
 	}
@@ -302,7 +300,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_MERGE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase();
+		$url = Helpers\Routing::getRedirectBase();
 		$url .= "&view={$this->listView}";
 		$this->setRedirect($url);
 	}
@@ -325,10 +323,10 @@ class Controller extends BaseController
 			return;
 		}
 
-		$selectedIDs = Input::getSelectedIDs();
+		$selectedIDs = Helpers\Input::getSelectedIDs();
 		if (count($selectedIDs) == 1)
 		{
-			$msg = Languages::_('ORGANIZER_TOO_FEW');
+			$msg = Helpers\Languages::_('ORGANIZER_TOO_FEW');
 			$this->setRedirect(Route::_($url, false), $msg, 'warning');
 
 			return;
@@ -349,7 +347,7 @@ class Controller extends BaseController
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
 		$model     = new $modelName;
-		$url       = Routing::getRedirectBase() . "&view={$this->listView}";
+		$url       = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
 
 		if ($model->save())
 		{
@@ -382,7 +380,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase() . "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
 		$this->setRedirect($url);
 	}
 
@@ -405,7 +403,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase() . "&view={$this->resource}_edit&id=0";
+		$url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=0";
 		$this->setRedirect($url);
 	}
 
@@ -428,7 +426,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase() . "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
 		$this->setRedirect($url);
 	}
 }

@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Units as UnitsTable;
+use Organizer\Tables;
 
 /**
  * Class which manages stored unit data.
@@ -24,12 +24,12 @@ class Unit extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return UnitsTable A Table object
+	 * @return Tables\Units A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new UnitsTable;
+		return new Tables\Units;
 	}
 }

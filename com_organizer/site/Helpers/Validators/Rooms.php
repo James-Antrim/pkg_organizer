@@ -10,17 +10,14 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Organizer\Helpers\Buildings;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\ResourceHelper;
-use Organizer\Tables\Rooms as RoomsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 use stdClass;
 
 /**
  * Class provides general functions for retrieving room data.
  */
-class Rooms extends ResourceHelper implements UntisXMLValidator
+class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 {
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
@@ -33,7 +30,7 @@ class Rooms extends ResourceHelper implements UntisXMLValidator
 	public static function setID(&$model, $untisID)
 	{
 		$room  = $model->rooms->$untisID;
-		$table = new RoomsTable;
+		$table = new Tables\Rooms;
 
 		if ($table->load(['code' => $room->untisID]))
 		{
@@ -74,14 +71,14 @@ class Rooms extends ResourceHelper implements UntisXMLValidator
 		{
 			$warningCount = $model->warnings['REX'];
 			unset($model->warnings['REX']);
-			$model->warnings[] = sprintf(Languages::_('ORGANIZER_ROOM_EXTERNAL_IDS_MISSING'), $warningCount);
+			$model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_ROOM_EXTERNAL_IDS_MISSING'), $warningCount);
 		}
 
 		if (!empty($model->warnings['RT']))
 		{
 			$warningCount = $model->warnings['RT'];
 			unset($model->warnings['RT']);
-			$model->warnings[] = sprintf(Languages::_('ORGANIZER_ROOMTYPES_MISSING'), $warningCount);
+			$model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_ROOMTYPES_MISSING'), $warningCount);
 		}
 	}
 
@@ -122,11 +119,11 @@ class Rooms extends ResourceHelper implements UntisXMLValidator
 
 		$capacity      = (int) $roomNode->capacity;
 		$buildingID    = null;
-		$buildingREGEX = Input::getParams()->get('buildingRegex');
+		$buildingREGEX = Helpers\Input::getParams()->get('buildingRegex');
 
 		if (!empty($buildingREGEX) and preg_match("/$buildingREGEX/", $untisID, $matches))
 		{
-			$buildingID = Buildings::getID($matches[1]);
+			$buildingID = Helpers\Buildings::getID($matches[1]);
 		}
 
 		$room             = new stdClass;

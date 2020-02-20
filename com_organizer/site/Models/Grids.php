@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of (schedule) grids.
@@ -25,7 +25,7 @@ class Grids extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->getDbo()->getQuery(true);
 
 		$select = "id, name_$tag AS name, grid, isDefault, ";

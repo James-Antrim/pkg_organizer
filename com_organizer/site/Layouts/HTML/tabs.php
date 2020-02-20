@@ -10,16 +10,14 @@
 
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
-$isSite = OrganizerHelper::getApplication()->isClient('site');
+$isSite = Helpers\OrganizerHelper::getApplication()->isClient('site');
 $query  = Uri::getInstance()->getQuery();
 
 if ($isSite)
 {
-	echo OrganizerHelper::getApplication()->JComponentTitle;
+	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 	echo $this->subtitle;
 	echo $this->supplement;
 }
@@ -31,7 +29,7 @@ if ($isSite)
       class="form-horizontal form-validate" enctype="multipart/form-data">
 
 	<?php
-	echo HTML::_('bootstrap.startTabSet', 'myTab', ['active' => 'details']);
+	echo Helpers\HTML::_('bootstrap.startTabSet', 'myTab', ['active' => 'details']);
 
 	foreach ($this->form->getFieldSets() as $set)
 	{
@@ -40,13 +38,18 @@ if ($isSite)
 
 		if ($displayInitial or $isInitialized)
 		{
-			echo HTML::_('bootstrap.addTab', 'myTab', $set->name, Languages::_('ORGANIZER_' . $set->label, true));
+			echo Helpers\HTML::_(
+				'bootstrap.addTab',
+				'myTab',
+				$set->name,
+				Helpers\Languages::_('ORGANIZER_' . $set->label, true)
+			);
 			echo $this->form->renderFieldset($set->name);
-			echo HTML::_('bootstrap.endTab');
+			echo Helpers\HTML::_('bootstrap.endTab');
 		}
 	}
-	echo HTML::_('bootstrap.endTabSet');
+	echo Helpers\HTML::_('bootstrap.endTabSet');
 	?>
-	<?php echo HTML::_('form.token'); ?>
+	<?php echo Helpers\HTML::_('form.token'); ?>
     <input type="hidden" name="task" value=""/>
 </form>

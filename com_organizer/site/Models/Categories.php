@@ -11,8 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of categories.
@@ -35,7 +34,7 @@ class Categories extends ListModel
 			->from('#__organizer_categories AS cat')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
 
-		$authorized = implode(",", Can::scheduleTheseOrganizations());
+		$authorized = implode(",", Helpers\Can::scheduleTheseOrganizations());
 		$query->where("a.organizationID IN ($authorized)");
 
 		$this->setSearchFilter($query, ['cat.name', 'cat.code']);

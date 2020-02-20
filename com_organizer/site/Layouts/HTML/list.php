@@ -10,18 +10,17 @@
 
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 $columnCount = count($this->headers);
-$isSite      = OrganizerHelper::getApplication()->isClient('site');
+$isSite      = Helpers\OrganizerHelper::getApplication()->isClient('site');
 $items       = $this->items;
 $iteration   = 0;
 $query       = Uri::getInstance()->getQuery();
 
 if ($isSite)
 {
-	echo OrganizerHelper::getApplication()->JComponentTitle;
+	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 	echo $this->subtitle;
 	echo $this->supplement;
 }
@@ -84,7 +83,7 @@ if (!empty($this->submenu))
         <input type="hidden" name="boxchecked" value="0"/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-		<?php echo HTML::_('form.token'); ?>
+		<?php echo Helpers\HTML::_('form.token'); ?>
     </form>
 	<?php echo $this->disclaimer; ?>
 </div>

@@ -14,7 +14,7 @@ use InvalidArgumentException;
 use JDatabaseDriver;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 use RuntimeException;
 use UnexpectedValueException;
 
@@ -84,19 +84,19 @@ abstract class BaseTable extends Table
 		}
 		catch (InvalidArgumentException $exception)
 		{
-			OrganizerHelper::message($exception->getMessage(), 'error');
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return false;
 		}
 		catch (RuntimeException $exception)
 		{
-			OrganizerHelper::message($exception->getMessage(), 'error');
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return false;
 		}
 		catch (UnexpectedValueException $exception)
 		{
-			OrganizerHelper::message($exception->getMessage(), 'error');
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return false;
 		}

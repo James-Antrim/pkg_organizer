@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Instances as InstancesHelper;
-use Organizer\Tables\Instances as InstancesTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing instance data.
@@ -31,7 +31,7 @@ class InstanceEdit extends EditModel
 
 		$instance = ['instanceID' => $this->item->id];
 
-		InstancesHelper::setPersons($instance, ['delta' => '']);
+		Helpers\Instances::setPersons($instance, ['delta' => '']);
 
 		$this->item->resources = $instance['resources'];
 
@@ -46,12 +46,12 @@ class InstanceEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return InstancesTable A Table object
+	 * @return Tables\Instances A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new InstancesTable;
+		return new Tables\Instances;
 	}
 }

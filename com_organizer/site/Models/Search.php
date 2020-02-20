@@ -10,11 +10,9 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
 use Organizer\Helpers;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
 
 /**
  * Class searches THM Organizer resources for resources and views relevant to the given search query.
@@ -181,7 +179,7 @@ class Search extends BaseModel
 	public function getResults()
 	{
 		$this->personID   = Helpers\Persons::getIDByUserID();
-		$this->authorized = Can::scheduleTheseOrganizations();
+		$this->authorized = Helpers\Can::scheduleTheseOrganizations();
 
 		/**
 		 * Exact     => exact match for the whole search independent of capitalization
@@ -193,7 +191,7 @@ class Search extends BaseModel
 		$this->results = ['exact' => [], 'strong' => [], 'good' => [], 'related' => [], 'mentioned' => []];
 		$this->tag     = Languages::getTag();
 
-		$rawSearch = trim(Input::getString('search'));
+		$rawSearch = trim(Helpers\Input::getString('search'));
 
 		// New call or a hard reset
 		if ($rawSearch === '')

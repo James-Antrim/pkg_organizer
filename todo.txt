@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------------------------------------Tonight
 
-TODO Minimize import aliasing accross the rest of the component.
+TODO Minimize import aliasing across the rest of the component.
 TODO Disable field/organization changes from an existing field color association.
 TODO Add a menu item for creating fields.
 TODO Create a documentation user & test view/function availability

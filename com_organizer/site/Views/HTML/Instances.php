@@ -11,9 +11,8 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads persistent information a filtered set of instances into the display context.
@@ -27,7 +26,7 @@ class Instances extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_INSTANCES'), 'contract-2');
+		Helpers\HTML::setTitle(Languages::_('ORGANIZER_INSTANCES'), 'contract-2');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'instances.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'instances.edit', true);
@@ -48,7 +47,7 @@ class Instances extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -61,8 +60,8 @@ class Instances extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox' => HTML::_('grid.checkall'),
-			'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
+			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
 			'term'     => Languages::_('ORGANIZER_TERM'),
 			'status'   => Languages::_('ORGANIZER_STATUS')
 		];
@@ -100,10 +99,10 @@ class Instances extends ListView
 
 			$thisLink                            = $link . $item->id;
 			$structuredItems[$index]             = [];
-			$structuredItems[$index]['checkbox'] = HTML::_('grid.id', $index, $item->id);
-			$structuredItems[$index]['name']     = HTML::_('link', $thisLink, $item->name);
-			$structuredItems[$index]['term']     = HTML::_('link', $thisLink, $item->term);
-			$structuredItems[$index]['status']   = HTML::_('link', $thisLink, $status);
+			$structuredItems[$index]['checkbox'] = Helpers\HTML::_('grid.id', $index, $item->id);
+			$structuredItems[$index]['name']     = Helpers\HTML::_('link', $thisLink, $item->name);
+			$structuredItems[$index]['term']     = Helpers\HTML::_('link', $thisLink, $item->term);
+			$structuredItems[$index]['status']   = Helpers\HTML::_('link', $thisLink, $status);
 
 			$index++;
 		}

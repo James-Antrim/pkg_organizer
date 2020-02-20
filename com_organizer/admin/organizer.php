@@ -14,12 +14,11 @@ require_once JPATH_COMPONENT_SITE . '/autoloader.php';
 
 use Exception;
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 if (!Factory::getUser()->authorise('core.manage', 'com_organizer'))
 {
-	throw new Exception(Languages::_('ORGANIZER_403'), 403);
+	throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 }
 
-OrganizerHelper::setUp();
+Helpers\OrganizerHelper::setUp();

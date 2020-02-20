@@ -13,9 +13,8 @@ namespace Organizer\Controllers;
 use Exception;
 use Joomla\CMS\Router\Route;
 use Organizer\Controller;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Routing;
-use Organizer\Models\Group;
+use Organizer\Helpers;
+use Organizer\Models;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -33,19 +32,19 @@ class Groups extends Controller
 	 */
 	public function batch()
 	{
-		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+		$modelName = "Organizer\\Models\\" . Helpers\OrganizerHelper::getClass($this->resource);
 		$model     = new $modelName;
 
 		if ($model->batch())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase() . "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
 		$this->setRedirect($url);
 	}
 
@@ -57,18 +56,18 @@ class Groups extends Controller
 	 */
 	public function publishPast()
 	{
-		$group = new Group;
+		$group = new Models\Group;
 
 		if ($group->publishPast())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase() . '&view=groups';
+		$url = Helpers\Routing::getRedirectBase() . '&view=groups';
 		$this->setRedirect(Route::_($url, false));
 	}
 }

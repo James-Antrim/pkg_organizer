@@ -10,16 +10,11 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Dates;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Persons;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\Monitors as MonitorsTable;
-use Organizer\Tables\Rooms as RoomsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class retrieves information about upcoming events for display on monitors.
@@ -64,7 +59,7 @@ class EventList extends FormModel
 	 */
 	private function setParams()
 	{
-		$this->params           = Input::getParams();
+		$this->params           = Helpers\Input::getParams();
 		$this->params['layout'] = empty($this->isRegistered()) ? 'default' : 'registered';
 
 		if (!isset($this->params['show_page_heading']))
@@ -75,7 +70,7 @@ class EventList extends FormModel
 		$resources = array();
 		foreach (array_keys($this->columnMap) as $resource)
 		{
-			$resourceIDs = Input::getFilterIDs($resource);
+			$resourceIDs = Helpers\Input::getFilterIDs($resource);
 			if (count($resourceIDs))
 			{
 				foreach ($resourceIDs as $resourceID)
@@ -100,7 +95,7 @@ class EventList extends FormModel
 	{
 		parent::populateState($ordering, $direction);
 
-		$formData = Input::getFormItems();
+		$formData = Helpers\Input::getFormItems();
 
 		$menuStartDate      = $this->params->get('startDate');
 		$menuEndDate        = $this->params->get('endDate');
@@ -317,7 +312,7 @@ class EventList extends FormModel
 		$query->select('id')->from('#__organizer_rooms');
 		$dbo->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -367,7 +362,7 @@ class EventList extends FormModel
 		{
 			$userID      = Factory::getUser()->id;
 			$personQuery = "";
-			$personID    = Persons::getIDByUserID($userID);
+			$personID    = Helpers\Persons::getIDByUserID($userID);
 
 			if ($personID !== 0)
 			{
@@ -391,7 +386,7 @@ class EventList extends FormModel
 	 */
 	private function getEvents()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
 		$select = 'DISTINCT conf.id, conf.configuration, cal.startTime, cal.endTime, cal.schedule_date, ';
@@ -423,7 +418,7 @@ class EventList extends FormModel
 		$this->filterEvents($query);
 		$this->_db->setQuery($query);
 
-		$events = OrganizerHelper::executeQuery('loadAssocList');
+		$events = Helpers\OrganizerHelper::executeQuery('loadAssocList');
 
 		if (!empty($events))
 		{
@@ -476,7 +471,7 @@ class EventList extends FormModel
 				continue;
 			}
 
-			$persons[$personID] = Persons::getDefaultName($personID);
+			$persons[$personID] = Helpers\Persons::getDefaultName($personID);
 		}
 
 		asort($persons);
@@ -491,22 +486,22 @@ class EventList extends FormModel
 	 */
 	private function isRegistered()
 	{
-		$remoteAddress = Input::getInput()->server->getString('REMOTE_ADDR', '');
-		$monitorsTable = new MonitorsTable;
+		$remoteAddress = Helpers\Input::getInput()->server->getString('REMOTE_ADDR', '');
+		$monitorsTable = new Tables\Monitors;
 		if (!$monitorsTable->load(['ip' => $remoteAddress]) or !$roomID = $monitorsTable->roomID)
 		{
 			return false;
 		}
 
-		$templateSet = Input::getCMD('tmpl') == 'component';
+		$templateSet = Helpers\Input::getCMD('tmpl') == 'component';
 		if (!$templateSet)
 		{
 			$base  = Uri::root() . 'index.php?';
-			$query = Input::getInput()->server->get('QUERY_STRING', '', 'raw');
+			$query = Helpers\Input::getInput()->server->get('QUERY_STRING', '', 'raw');
 			$query .= (strpos($query, 'com_organizer') !== false) ? '' : '&option=com_organizer';
 			$query .= (strpos($query, 'event_list') !== false) ? '' : '&view=event_list';
 			$query .= '&tmpl=component';
-			OrganizerHelper::getApplication()->redirect($base . $query);
+			Helpers\OrganizerHelper::getApplication()->redirect($base . $query);
 		}
 
 		$this->rooms = [$roomID];
@@ -593,13 +588,13 @@ class EventList extends FormModel
 				$endDT = $startDT;
 				break;
 			case 'week':
-				$dates = Dates::getWeek($date);
+				$dates = Helpers\Dates::getWeek($date);
 				break;
 			case 'month':
-				$dates = Dates::getMonth($date);
+				$dates = Helpers\Dates::getMonth($date);
 				break;
 			case 'semester':
-				$dates = Dates::getSemester($date);
+				$dates = Helpers\Dates::getSemester($date);
 				break;
 			default:
 				$endDT = strtotime($this->state->get('endDate'));
@@ -666,7 +661,7 @@ class EventList extends FormModel
 		}
 
 		$rooms      = [];
-		$roomsTable = new RoomsTable;
+		$roomsTable = new Tables\Rooms;
 
 		// The current values are meaningless and will be overwritten here
 		foreach ($this->rooms as $roomID)
@@ -677,7 +672,7 @@ class EventList extends FormModel
 			}
 			catch (Exception $exc)
 			{
-				OrganizerHelper::message($exc->getMessage(), 'error');
+				Helpers\OrganizerHelper::message($exc->getMessage(), 'error');
 				unset($this->rooms[$roomID]);
 			}
 

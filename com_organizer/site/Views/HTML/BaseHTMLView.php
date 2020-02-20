@@ -13,10 +13,8 @@ namespace Organizer\Views\HTML;
 use JHtmlSidebar;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 use Organizer\Views\BaseView;
 
 /**
@@ -46,7 +44,7 @@ abstract class BaseHTMLView extends BaseView
 			return;
 		}
 
-		$thisClass = OrganizerHelper::getClass($this);
+		$thisClass = Helpers\OrganizerHelper::getClass($this);
 		if (!in_array($thisClass, ['Curriculum', 'SubjectItem', 'Subjects']))
 		{
 			return;
@@ -56,17 +54,17 @@ abstract class BaseHTMLView extends BaseView
 
 		$attributes = ['target' => '_blank'];
 
-		$lsfLink = HTML::link(
+		$lsfLink = Helpers\HTML::link(
 			'https://studien-sb-service.th-mittelhessen.de/docu/online.html',
 			Languages::_('ORGANIZER_DISCLAIMER_LSF_TITLE'),
 			$attributes
 		);
-		$ambLink = HTML::link(
+		$ambLink = Helpers\HTML::link(
 			'http://www.thm.de/amb/pruefungsordnungen',
 			Languages::_('ORGANIZER_DISCLAIMER_AMB_TITLE'),
 			$attributes
 		);
-		$poLink  = HTML::link(
+		$poLink  = Helpers\HTML::link(
 			'http://www.thm.de/site/studium/sie-studieren/pruefungsordnung.html',
 			Languages::_('ORGANIZER_DISCLAIMER_PO_TITLE'),
 			$attributes
@@ -106,7 +104,7 @@ abstract class BaseHTMLView extends BaseView
 			$viewName == 'organizer'
 		);
 
-		/*if (Can::scheduleTheseOrganizations())
+		/*if (Helpers\Can::scheduleTheseOrganizations())
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_SCHEDULING') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -145,7 +143,7 @@ abstract class BaseHTMLView extends BaseView
 			}
 		}*/
 
-		if (Can::documentTheseOrganizations())
+		if (Helpers\Can::documentTheseOrganizations())
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_DOCUMENTATION') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -179,7 +177,7 @@ abstract class BaseHTMLView extends BaseView
 			}
 		}
 
-		/*if (Can::manage('courses'))
+		/*if (Helpers\Can::manage('courses'))
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_EVENT_MANAGEMENT') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -206,7 +204,7 @@ abstract class BaseHTMLView extends BaseView
 			}
 		}*/
 
-		if (Can::manage('persons'))
+		if (Helpers\Can::manage('persons'))
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_HUMAN_RESOURCES') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -217,7 +215,7 @@ abstract class BaseHTMLView extends BaseView
 			);
 		}
 
-		if (Can::manage('facilities'))
+		if (Helpers\Can::manage('facilities'))
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_FACILITY_MANAGEMENT') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -251,7 +249,7 @@ abstract class BaseHTMLView extends BaseView
 			}
 		}
 
-		if (Can::administrate())
+		if (Helpers\Can::administrate())
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_ADMINISTRATION') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -308,6 +306,6 @@ abstract class BaseHTMLView extends BaseView
 		$document->addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
 		$document->setCharset('utf-8');
 
-		HTML::_('bootstrap.tooltip', '.hasTooltip', array('placement' => 'right'));
+		Helpers\HTML::_('bootstrap.tooltip', '.hasTooltip', array('placement' => 'right'));
 	}
 }

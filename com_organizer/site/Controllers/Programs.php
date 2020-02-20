@@ -12,8 +12,7 @@ namespace Organizer\Controllers;
 
 use Exception;
 use Organizer\Controller;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Routing;
+use Organizer\Helpers;
 use Organizer\Models;
 
 /**
@@ -37,14 +36,14 @@ class Programs extends Controller
 
 		if ($model->update())
 		{
-			OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase();
+		$url = Helpers\Routing::getRedirectBase();
 		$url .= "&view={$this->listView}";
 		$this->setRedirect($url);
 	}

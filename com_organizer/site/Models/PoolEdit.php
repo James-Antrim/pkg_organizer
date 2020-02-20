@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Pools as PoolsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing (subject) pool data.
@@ -27,7 +27,7 @@ class PoolEdit extends EditModel
 	{
 		$poolID = empty($this->item->id) ? 0 : $this->item->id;
 
-		return Can::document('pool', $poolID);
+		return Helpers\Can::document('pool', $poolID);
 	}
 
 	/**
@@ -37,12 +37,12 @@ class PoolEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return PoolsTable A Table object
+	 * @return Tables\Pools A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new PoolsTable;
+		return new Tables\Pools;
 	}
 }

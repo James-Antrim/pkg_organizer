@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Organizer\Helpers\Courses;
-use Organizer\Helpers\Terms;
+use Organizer\Helpers;
 
 /**
  * Class loads the subject into the display context.
@@ -86,9 +85,9 @@ class CourseItem extends ItemView
 	 */
 	protected function setSubtitle()
 	{
-		$dates  = Courses::getDateDisplay($this->item['id']);
-		$termID = $this->item['preparatory'] ? Terms::getNextID($this->item['termID']) : $this->item['termID'];
-		$term   = Terms::getName($termID);
+		$dates  = Helpers\Courses::getDateDisplay($this->item['id']);
+		$termID = $this->item['preparatory'] ? Helpers\Terms::getNextID($this->item['termID']) : $this->item['termID'];
+		$term   = Helpers\Terms::getName($termID);
 
 		$this->subtitle = "<h6 class=\"sub-title\">$term $dates</h6>";
 	}

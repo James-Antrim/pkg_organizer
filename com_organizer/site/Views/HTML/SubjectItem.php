@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads the subject into the display context.
@@ -39,26 +39,26 @@ class SubjectItem extends ItemView
 				$stars = '<span class="icon-featured"></span>';
 				$stars .= '<span class="icon-featured"></span>';
 				$stars .= '<span class="icon-featured"></span>';
-				$aria  = Languages::_($option . 'THREE_STARS');
+				$aria  = Helpers\Languages::_($option . 'THREE_STARS');
 				break;
 			case 2:
 				$stars = '<span class="icon-featured"></span>';
 				$stars .= '<span class="icon-featured"></span>';
 				$stars .= '<span class="icon-unfeatured"></span>';
-				$aria  = Languages::_($option . 'TWO_STARS');
+				$aria  = Helpers\Languages::_($option . 'TWO_STARS');
 				break;
 			case 1:
 				$stars = '<span class="icon-featured"></span>';
 				$stars .= '<span class="icon-unfeatured"></span>';
 				$stars .= '<span class="icon-unfeatured"></span>';
-				$aria  = Languages::_($option . 'ONE_STAR');
+				$aria  = Helpers\Languages::_($option . 'ONE_STAR');
 				break;
 			case 0:
 			default:
 				$stars = '<span class="icon-unfeatured"></span>';
 				$stars .= '<span class="icon-unfeatured"></span>';
 				$stars .= '<span class="icon-unfeatured"></span>';
-				$aria  = Languages::_($option . 'NO_STARS');
+				$aria  = Helpers\Languages::_($option . 'NO_STARS');
 				break;
 		}
 

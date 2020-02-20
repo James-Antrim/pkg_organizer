@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use Organizer\Tables\Subjects as SubjectsTable;
+use Organizer\Tables;
 
 /**
  * Provides general functions for subject access checks, data retrieval and display.
@@ -237,7 +237,7 @@ class Subjects extends Curricula implements Selectable
 	 */
 	public static function getResource($resourceID)
 	{
-		$table  = new SubjectsTable;
+		$table  = new Tables\Subjects;
 		$exists = $table->load($resourceID);
 
 		if (!$exists)

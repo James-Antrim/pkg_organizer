@@ -13,9 +13,8 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
-use Organizer\Helpers\Courses;
-use Organizer\Helpers\Languages;
-use Organizer\Tables\Courses as CoursesTable;
+use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Tables;
 
 /**
  * Class which retrieves subject information for a detailed display of subject attributes.
@@ -54,7 +53,7 @@ class CourseItem extends ItemModel
 			return [];
 		}
 
-		$courseTable = new CoursesTable;
+		$courseTable = new Tables\Courses;
 		if (!$courseTable->load($courseID))
 		{
 			return [];
@@ -140,13 +139,13 @@ class CourseItem extends ItemModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return CoursesTable A Table object
+	 * @return Tables\Courses A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new CoursesTable;
+		return new Tables\Courses;
 	}
 
 	/**
@@ -161,7 +160,7 @@ class CourseItem extends ItemModel
 		// If the course has its own name, do not create it dynamically
 		$setName = empty($course['name']['value']);
 
-		$events = Courses::getEvents($course['id']);
+		$events = Helpers\Courses::getEvents($course['id']);
 		foreach ($events as $key => $attributes)
 		{
 			$course['preparatory'] = ($course['preparatory'] or $attributes['preparatory']);
@@ -284,11 +283,11 @@ class CourseItem extends ItemModel
 	private function setRegistrationTexts(&$course)
 	{
 		$courseID = $course['id'];
-		$dates    = Courses::getDates($courseID);
+		$dates    = Helpers\Courses::getDates($courseID);
 		$deadline = date('Y-m-d', strtotime("{$dates['startDate']} - {$course['deadline']} days"));
 		$option   = 'ORGANIZER_';
 
-		if (Courses::isExpired($courseID))
+		if (Helpers\Courses::isExpired($courseID))
 		{
 			$course['courseStatus'] = self::EXPIRED;
 			$course['courseText']   = Languages::_($option . 'COURSE_EXPIRED');
@@ -296,8 +295,8 @@ class CourseItem extends ItemModel
 			return;
 		}
 
-		$course['courseStatus'] = Courses::isOngoing($courseID) ? self::ONGOING : self::PLANNED;
-		$full                   = Courses::isFull($courseID);
+		$course['courseStatus'] = Helpers\Courses::isOngoing($courseID) ? self::ONGOING : self::PLANNED;
+		$full                   = Helpers\Courses::isFull($courseID);
 		$userID                 = Factory::getUser()->id;
 		if ($userID)
 		{

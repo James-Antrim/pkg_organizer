@@ -12,10 +12,7 @@ namespace Organizer\Models;
 
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class which manages stored building data.
@@ -37,7 +34,7 @@ abstract class BaseModel extends BaseDatabaseModel
 		}
 		catch (Exception $exception)
 		{
-			OrganizerHelper::message($exception->getMessage(), 'error');
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return;
 		}
@@ -50,7 +47,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 */
 	protected function allow()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -63,10 +60,10 @@ abstract class BaseModel extends BaseDatabaseModel
 	{
 		if (!$this->allow())
 		{
-			throw new Exception(Languages::_('COM_ORGANIZER_403'), 403);
+			throw new Exception(Helpers\Languages::_('COM_ORGANIZER_403'), 403);
 		}
 
-		$selectedIDs = Input::getSelectedIDs();
+		$selectedIDs = Helpers\Input::getSelectedIDs();
 		$success     = true;
 		foreach ($selectedIDs as $selectedID)
 		{
@@ -91,10 +88,10 @@ abstract class BaseModel extends BaseDatabaseModel
 	{
 		if (!$this->allow())
 		{
-			throw new Exception(Languages::_('COM_ORGANIZER_403'), 403);
+			throw new Exception(Helpers\Languages::_('COM_ORGANIZER_403'), 403);
 		}
 
-		$data  = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		$table = $this->getTable();
 
 		return $table->save($data) ? $table->id : false;
@@ -110,7 +107,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 */
 	public function save2copy($data = [])
 	{
-		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		unset($data['id']);
 
 		return $this->save($data);

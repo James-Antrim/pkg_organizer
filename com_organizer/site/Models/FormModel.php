@@ -13,7 +13,7 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\FormModel as ParentModel;
-use Organizer\Helpers\Can;
+use Organizer\Helpers;
 
 /**
  * Class loads non-item-specific form data.
@@ -43,7 +43,7 @@ class FormModel extends ParentModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**

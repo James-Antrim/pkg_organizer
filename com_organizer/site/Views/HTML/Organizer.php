@@ -10,12 +10,10 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class modifies the document for the output of a menu like list of resource management views.
@@ -47,7 +45,7 @@ class Organizer extends BaseHTMLView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_MAIN'), 'organizer');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_MAIN'), 'organizer');
 
 		/*if (Can::administrate())
 		{

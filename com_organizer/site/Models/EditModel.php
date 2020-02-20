@@ -14,9 +14,7 @@ use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\AdminModel;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads item form data to edit an entry.
@@ -48,7 +46,7 @@ abstract class EditModel extends AdminModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -82,10 +80,10 @@ abstract class EditModel extends AdminModel
 	{
 		if (!Factory::getUser()->id)
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}
 
-		$pk = empty($pk) ? Input::getSelectedID() : $pk;
+		$pk = empty($pk) ? Helpers\Input::getSelectedID() : $pk;
 
 		// Prevents duplicate execution from getForm and getItem
 		if (isset($this->item->id) and ($this->item->id === $pk or $pk === null))
@@ -97,7 +95,7 @@ abstract class EditModel extends AdminModel
 
 		if (!$this->allowEdit())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 401);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 401);
 		}
 
 		return $this->item;
@@ -130,7 +128,7 @@ abstract class EditModel extends AdminModel
 	 */
 	protected function loadFormData()
 	{
-		$resourceIDs = Input::getSelectedIDs();
+		$resourceIDs = Helpers\Input::getSelectedIDs();
 		$resourceID  = empty($resourceIDs) ? 0 : $resourceIDs[0];
 
 		return $this->item ? $this->item : $this->getItem($resourceID);

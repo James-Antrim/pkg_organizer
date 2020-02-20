@@ -11,8 +11,8 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class which loads data into the view output context
@@ -27,7 +27,7 @@ class Units extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_UNITS'), 'contract-2');
+		Helpers\HTML::setTitle(Languages::_('ORGANIZER_UNITS'), 'contract-2');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'units.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'units.edit', true);
@@ -64,8 +64,8 @@ class Units extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox' => HTML::_('grid.checkall'),
-			'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
+			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
 			'grid'     => Languages::_('ORGANIZER_GRID'),
 			'run'      => Languages::_('ORGANIZER_RUN'),
 			'status'   => Languages::_('ORGANIZER_STATUS')
@@ -105,11 +105,11 @@ class Units extends ListView
 
 			$thisLink                            = $link . $item->id;
 			$structuredItems[$index]             = [];
-			$structuredItems[$index]['checkbox'] = HTML::_('grid.id', $index, $item->id);
-			$structuredItems[$index]['name']     = HTML::_('link', $thisLink, $item->name);
-			$structuredItems[$index]['grid']     = HTML::_('link', $thisLink, $item->grid);
-			$structuredItems[$index]['run']      = HTML::_('link', $thisLink, $item->run);
-			$structuredItems[$index]['status']   = HTML::_('link', $thisLink, $status);
+			$structuredItems[$index]['checkbox'] = Helpers\HTML::_('grid.id', $index, $item->id);
+			$structuredItems[$index]['name']     = Helpers\HTML::_('link', $thisLink, $item->name);
+			$structuredItems[$index]['grid']     = Helpers\HTML::_('link', $thisLink, $item->grid);
+			$structuredItems[$index]['run']      = Helpers\HTML::_('link', $thisLink, $item->run);
+			$structuredItems[$index]['status']   = Helpers\HTML::_('link', $thisLink, $status);
 
 			$index++;
 		}

@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
+use Organizer\Helpers;
 
 /**
  * Class loads non-item-specific form data.
@@ -40,6 +40,6 @@ class ItemModel extends BaseModel
 	 */
 	protected function allowView()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 }

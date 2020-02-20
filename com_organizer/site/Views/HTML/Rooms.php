@@ -11,9 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of rooms into the display context.
@@ -29,17 +27,17 @@ class Rooms extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_ROOMS'), 'enter');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_ROOMS'), 'enter');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'rooms.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'rooms.edit', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'rooms.add', false);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'rooms.edit', true);
 
-		if (Can::administrate())
+		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
 				'Standard',
 				'attachment',
-				Languages::_('ORGANIZER_MERGE'),
+				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'rooms.mergeView',
 				true
 			);
@@ -53,7 +51,7 @@ class Rooms extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -67,9 +65,9 @@ class Rooms extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'     => '',
-			'roomName'     => HTML::sort('NAME', 'roomName', $direction, $ordering),
-			'buildingName' => HTML::sort('BUILDING', 'buildingName', $direction, $ordering),
-			'roomType'     => HTML::sort('TYPE', 'roomType', $direction, $ordering)
+			'roomName'     => Helpers\HTML::sort('NAME', 'roomName', $direction, $ordering),
+			'buildingName' => Helpers\HTML::sort('BUILDING', 'buildingName', $direction, $ordering),
+			'roomType'     => Helpers\HTML::sort('TYPE', 'roomType', $direction, $ordering)
 		];
 
 		$this->headers = $headers;

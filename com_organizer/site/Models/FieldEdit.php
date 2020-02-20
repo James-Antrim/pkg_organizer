@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Fields as FieldsTable;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing field (of expertise) data.
@@ -24,12 +24,12 @@ class FieldEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return FieldsTable A Table object
+	 * @return Tables\Fields A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new FieldsTable;
+		return new Tables\Fields;
 	}
 }

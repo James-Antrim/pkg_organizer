@@ -12,9 +12,7 @@ namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class creates a form field for enabling or disabling publishing for specific plan (subject) pools for specific
@@ -36,7 +34,7 @@ class TermPublishingField extends FormField
 	 */
 	protected function getInput()
 	{
-		$tag         = Languages::getTag();
+		$tag         = Helpers\Languages::getTag();
 		$today       = date('Y-m-d');
 		$dbo         = Factory::getDbo();
 		$periodQuery = $dbo->getQuery(true);
@@ -46,20 +44,20 @@ class TermPublishingField extends FormField
 			->order('startDate ASC');
 		$dbo->setQuery($periodQuery);
 
-		$periods = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$periods = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
 		if (empty($periods))
 		{
 			return '';
 		}
 
-		$groupID   = Input::getID();
+		$groupID   = Helpers\Input::getID();
 		$poolQuery = $dbo->getQuery(true);
 		$poolQuery->select('termID, published')
 			->from('#__organizer_group_publishing')
 			->where("groupID = '$groupID'");
 		$dbo->setQuery($poolQuery);
 
-		$publishingEntries = OrganizerHelper::executeQuery('loadAssocList', [], 'termID');
+		$publishingEntries = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'termID');
 
 		$return = '<div class="publishing-container">';
 		foreach ($periods as $period)
@@ -72,16 +70,19 @@ class TermPublishingField extends FormField
 			$return .= '<div class="period-input">';
 			$return .= '<select id="' . $pID . '" name="' . $pName . '" class="chzn-color-state">';
 
+			$no  = Helpers\Languages::_('ORGANIZER_NO');
+			$yes = Helpers\Languages::_('ORGANIZER_YES');
+
 			// Implicitly (new) and explicitly published entries
 			if (!isset($publishingEntries[$period['id']]) or $publishingEntries[$period['id']]['published'])
 			{
-				$return .= '<option value="1" selected="selected">' . Languages::_('ORGANIZER_YES') . '</option>';
-				$return .= '<option value="0">' . Languages::_('ORGANIZER_NO') . '</option>';
+				$return .= '<option value="1" selected="selected">' . $yes . '</option>';
+				$return .= '<option value="0">' . $no . '</option>';
 			}
 			else
 			{
-				$return .= '<option value="1">' . Languages::_('ORGANIZER_YES') . '</option>';
-				$return .= '<option value="0" selected="selected">' . Languages::_('ORGANIZER_NO') . '</option>';
+				$return .= '<option value="1">' . $yes . '</option>';
+				$return .= '<option value="0" selected="selected">' . $no . '</option>';
 			}
 
 			$return .= '</select>';

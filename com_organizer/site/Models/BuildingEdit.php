@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Buildings as BuildingsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing building data.
@@ -25,7 +25,7 @@ class BuildingEdit extends EditModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -35,12 +35,12 @@ class BuildingEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return BuildingsTable  A Table object
+	 * @return Tables\Buildings  A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new BuildingsTable;
+		return new Tables\Buildings;
 	}
 }

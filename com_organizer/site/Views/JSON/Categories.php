@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Categories as CategoriesHelper;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic (degree) program related queries
@@ -25,10 +24,10 @@ class Categories extends BaseView
 	 */
 	public function display()
 	{
-		$function = Input::getTask();
+		$function = Helpers\Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Categories', $function))
 		{
-			echo json_encode(CategoriesHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(Helpers\Categories::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

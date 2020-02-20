@@ -8,14 +8,12 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
-HTML::_('searchtools.form', '#languageForm', []);
-$languageAction = OrganizerHelper::dynamic() ? "?option=com_organizer&view=$view&id=$resourceID" : '?';
-$selectedTag    = Languages::getTag();
-$languages      = [Languages::_('ORGANIZER_ENGLISH') => 'en', Languages::_('ORGANIZER_GERMAN') => 'de'];
+Helpers\HTML::_('searchtools.form', '#languageForm', []);
+$languageAction = Helpers\OrganizerHelper::dynamic() ? "?option=com_organizer&view=$view&id=$resourceID" : '?';
+$selectedTag    = Helpers\Languages::getTag();
+$languages      = [Helpers\Languages::_('ORGANIZER_ENGLISH') => 'en', Helpers\Languages::_('ORGANIZER_GERMAN') => 'de'];
 ksort($languages);
 $options = [];
 foreach ($languages as $language => $tag)

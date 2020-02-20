@@ -11,10 +11,8 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads persistent information a filtered set of schedule grids into the display context.
@@ -38,7 +36,7 @@ class Grids extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_GRIDS'), 'grid-2');
+		Helpers\HTML::setTitle(Languages::_('ORGANIZER_GRIDS'), 'grid-2');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'grids.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'grids.edit', true);
@@ -59,7 +57,7 @@ class Grids extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -104,8 +102,8 @@ class Grids extends ListView
 
 				$item->startDay  = Languages::_($startDayConstant);
 				$item->endDay    = Languages::_($endDayConstant);
-				$item->startTime = Dates::formatTime(reset($grid['periods'])['startTime']);
-				$item->endTime   = Dates::formatTime(end($grid['periods'])['endTime']);
+				$item->startTime = Helpers\Dates::formatTime(reset($grid['periods'])['startTime']);
+				$item->endTime   = Helpers\Dates::formatTime(end($grid['periods'])['endTime']);
 			}
 			else
 			{

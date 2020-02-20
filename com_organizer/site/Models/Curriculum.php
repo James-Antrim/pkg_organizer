@@ -11,10 +11,7 @@
 namespace Organizer\Models;
 
 use Exception;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Pools;
-use Organizer\Helpers\Programs;
+use Organizer\Helpers;
 
 /**
  * Class loads curriculum information into the view context.
@@ -42,25 +39,25 @@ class Curriculum extends ItemModel
 		$allowView = $this->allowView();
 		if (!$allowView)
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}
 
 		$curriculum = [];
-		if ($poolID = Input::getFilterID('pool'))
+		if ($poolID = Helpers\Input::getFilterID('pool'))
 		{
-			$ranges             = Pools::getRanges($poolID);
-			$curriculum['name'] = Pools::getName($poolID);
+			$ranges             = Helpers\Pools::getRanges($poolID);
+			$curriculum['name'] = Helpers\Pools::getName($poolID);
 			$curriculum['type'] = 'pool';
 			$curriculum         += array_pop($ranges);
-			Pools::getCurriculum($curriculum);
+			Helpers\Pools::getCurriculum($curriculum);
 		}
-		elseif ($programID = Input::getFilterID('program'))
+		elseif ($programID = Helpers\Input::getFilterID('program'))
 		{
-			$ranges             = Programs::getRanges($programID);
-			$curriculum['name'] = Programs::getName($programID);
+			$ranges             = Helpers\Programs::getRanges($programID);
+			$curriculum['name'] = Helpers\Programs::getName($programID);
 			$curriculum['type'] = 'program';
 			$curriculum         += array_pop($ranges);
-			Programs::getCurriculum($curriculum);
+			Helpers\Programs::getCurriculum($curriculum);
 		}
 
 		return $curriculum;

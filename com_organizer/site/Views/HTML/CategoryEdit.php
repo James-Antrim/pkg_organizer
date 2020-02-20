@@ -11,8 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads the plan (degree) program / organizational grouping form into display context.
@@ -26,9 +25,10 @@ class CategoryEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_CATEGORY_EDIT'), 'list');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_CATEGORY_EDIT'), 'list');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'categories.save', false);
-		$toolbar->appendButton('Standard', 'cancel', Languages::_('ORGANIZER_CANCEL'), 'categories.cancel', false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'categories.save', false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_('ORGANIZER_CANCEL'), 'categories.cancel',
+			false);
 	}
 }

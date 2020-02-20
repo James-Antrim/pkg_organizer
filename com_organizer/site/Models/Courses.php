@@ -12,9 +12,7 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Terms as TermsHelper;
+use Organizer\Helpers;
 
 /**
  * Class retrieves the data regarding a filtered set of courses.
@@ -42,7 +40,7 @@ class Courses extends ListModel
 			return;
 		}
 
-		$params = Input::getParams();
+		$params = Helpers\Input::getParams();
 		if ($params->get('campusID'))
 		{
 			$form->removeField('campusID', 'filter');
@@ -98,9 +96,9 @@ class Courses extends ListModel
 			$this->setSearchFilter($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 		}
 
-		if ($this->clientContext === self::FRONTEND and Input::getParams()->get('onlyPrepCourses'))
+		if ($this->clientContext === self::FRONTEND and Helpers\Input::getParams()->get('onlyPrepCourses'))
 		{
-			$termID = TermsHelper::getPreviousID($this->state->get('filter.termID'));
+			$termID = Helpers\Terms::getPreviousID($this->state->get('filter.termID'));
 			$query->where("c.termID = $termID")->where('e.preparatory = 1');
 		}
 		else
@@ -129,11 +127,11 @@ class Courses extends ListModel
 	protected function populateState($ordering = null, $direction = null)
 	{
 		parent::populateState($ordering, $direction);
-		$app = OrganizerHelper::getApplication();
+		$app = Helpers\OrganizerHelper::getApplication();
 
 		if ($this->clientContext === self::FRONTEND)
 		{
-			$params = Input::getParams();
+			$params = Helpers\Input::getParams();
 
 			$campusID = $params->get('campusID', 0);
 			if (!$campusID)
@@ -145,7 +143,7 @@ class Courses extends ListModel
 			$rTermID = $app->getUserStateFromRequest($this->context . '.filter.termID', 'filter.termID');
 			if (!$rTermID and $params->get('onlyPrepCourses'))
 			{
-				$this->state->set('filter.termID', TermsHelper::getNextID());
+				$this->state->set('filter.termID', Helpers\Terms::getNextID());
 			}
 		}
 

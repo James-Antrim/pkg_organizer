@@ -11,10 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Campuses;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of events into the display context.
@@ -36,15 +33,15 @@ class Events extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_EVENTS'), 'contract-2');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_EVENTS'), 'contract-2');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'events.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'events.edit', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'events.add', false);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'events.edit', true);
 		$toolbar->appendButton(
 			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'delete',
-			Languages::_('ORGANIZER_DELETE'),
+			Helpers\Languages::_('ORGANIZER_DELETE'),
 			'events.delete',
 			true
 		);
@@ -57,7 +54,7 @@ class Events extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Can::scheduleTheseOrganizations();
+		return (bool) Helpers\Can::scheduleTheseOrganizations();
 	}
 
 	/**
@@ -71,10 +68,10 @@ class Events extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'        => '',
-			'name'            => HTML::sort('NAME', 'name', $direction, $ordering),
-			'organization'    => HTML::sort('ORGANIZATION', 'name', $direction, $ordering),
-			'campus'          => Languages::_('ORGANIZER_CAMPUS'),
-			'maxParticipants' => Languages::_('ORGANIZER_MAX_PARTICIPANTS')
+			'name'            => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'organization'    => Helpers\HTML::sort('ORGANIZATION', 'name', $direction, $ordering),
+			'campus'          => Helpers\Languages::_('ORGANIZER_CAMPUS'),
+			'maxParticipants' => Helpers\Languages::_('ORGANIZER_MAX_PARTICIPANTS')
 		];
 
 		$this->headers = $headers;
@@ -93,7 +90,7 @@ class Events extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->campus            = Campuses::getName($item->campusID);
+			$item->campus            = Helpers\Campuses::getName($item->campusID);
 			$item->maxParticipants   = empty($item->maxParticipants) ? 1000 : $item->maxParticipants;
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;

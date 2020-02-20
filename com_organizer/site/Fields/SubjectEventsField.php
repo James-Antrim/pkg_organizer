@@ -12,10 +12,7 @@ namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for explicitly associating subjects with events. This is also done
@@ -36,29 +33,29 @@ class SubjectEventsField extends FormField
 	{
 		$dbo       = Factory::getDbo();
 		$fieldName = $this->getAttribute('name');
-		$subjectID = Input::getID();
-		$tag       = Languages::getTag();
+		$subjectID = Helpers\Input::getID();
+		$tag       = Helpers\Languages::getTag();
 
 		$eQuery = $dbo->getQuery(true);
 		$eQuery->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
 		$dbo->setQuery($eQuery);
 
-		$events = OrganizerHelper::executeQuery('loadAssocList', []);
+		$events = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
 
-		$options = [HTML::_('select.option', '', Languages::_('ORGANIZER_SELECT_EVENT'))];
+		$options = [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_EVENT'))];
 		foreach ($events as $event)
 		{
-			$options[] = HTML::_('select.option', $event['value'], $event['name']);
+			$options[] = Helpers\HTML::_('select.option', $event['value'], $event['name']);
 		}
 
 		$sQuery = $dbo->getQuery(true);
 		$sQuery->select('eventID')->from('#__organizer_subject_events')->where("subjectID = '$subjectID'");
 		$dbo->setQuery($sQuery);
-		$selected = OrganizerHelper::executeQuery('loadColumn', []);
+		$selected = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 
 
 		$attributes = ['multiple' => 'multiple', 'size' => '10'];
 
-		return HTML::selectBox($options, $fieldName, $attributes, $selected, true);
+		return Helpers\HTML::selectBox($options, $fieldName, $attributes, $selected, true);
 	}
 }

@@ -10,15 +10,14 @@
 
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
-$isSite    = OrganizerHelper::getApplication()->isClient('site');
+$isSite    = Helpers\OrganizerHelper::getApplication()->isClient('site');
 $rows      = $this->rows;
 $iteration = 0;
 $query     = Uri::getInstance()->getQuery();
 
-echo OrganizerHelper::getApplication()->JComponentTitle;
+echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 echo $this->subtitle;
 echo $this->supplement;
 
@@ -42,7 +41,7 @@ echo $this->supplement;
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-		<?php echo HTML::_('form.token'); ?>
+		<?php echo Helpers\HTML::_('form.token'); ?>
     </form>
 	<?php echo $this->disclaimer; ?>
 </div>

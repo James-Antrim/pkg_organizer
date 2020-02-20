@@ -16,8 +16,7 @@ jimport('tcpdf.tcpdf');
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads organization statistics into the display context.
@@ -43,11 +42,11 @@ class OrganizationOccupancy extends SelectionView
 
 		$options    = $this->model->getYearOptions();
 		$default    = date('Y');
-		$termSelect = HTML::selectBox($options, 'year', $attribs, $default);
+		$termSelect = Helpers\HTML::selectBox($options, 'year', $attribs, $default);
 
 		$this->sets['baseSettings']['termIDs'] = [
-			'label'       => Languages::_('ORGANIZER_YEAR'),
-			'description' => Languages::_('ORGANIZER_YEAR_DESC'),
+			'label'       => Helpers\Languages::_('ORGANIZER_YEAR'),
+			'description' => Helpers\Languages::_('ORGANIZER_YEAR_DESC'),
 			'input'       => $termSelect
 		];
 	}
@@ -77,22 +76,22 @@ class OrganizationOccupancy extends SelectionView
 
 		$roomAttribs = $attribs;
 		$roomOptions = $this->model->getRoomOptions();
-		$roomSelect  = HTML::selectBox($roomOptions, 'roomIDs', $roomAttribs);
+		$roomSelect  = Helpers\HTML::selectBox($roomOptions, 'roomIDs', $roomAttribs);
 
 		$this->sets['filterFields']['roomIDs'] = [
-			'label'       => Languages::_('ORGANIZER_ROOMS'),
-			'description' => Languages::_('ORGANIZER_ROOMS_DESC'),
+			'label'       => Helpers\Languages::_('ORGANIZER_ROOMS'),
+			'description' => Helpers\Languages::_('ORGANIZER_ROOMS_DESC'),
 			'input'       => $roomSelect
 		];
 
 		$roomtypeAttribs             = $attribs;
 		$roomtypeAttribs['onChange'] = 'repopulateRooms();';
 		$typeOptions                 = $this->model->getRoomtypeOptions();
-		$roomtypeSelect              = HTML::selectBox($typeOptions, 'roomtypeIDs', $roomtypeAttribs);
+		$roomtypeSelect              = Helpers\HTML::selectBox($typeOptions, 'roomtypeIDs', $roomtypeAttribs);
 
 		$this->sets['filterFields']['roomtypeIDs'] = [
-			'label'       => Languages::_('ORGANIZER_ROOMTYPES'),
-			'description' => Languages::_('ORGANIZER_ROOMS_TYPES_DESC'),
+			'label'       => Helpers\Languages::_('ORGANIZER_ROOMTYPES'),
+			'description' => Helpers\Languages::_('ORGANIZER_ROOMS_TYPES_DESC'),
 			'input'       => $roomtypeSelect
 		];
 	}

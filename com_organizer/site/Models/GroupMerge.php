@@ -10,8 +10,6 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-
 /**
  * Class loads a form for merging group data.
  */

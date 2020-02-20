@@ -10,15 +10,13 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\ResourceHelper;
-use Organizer\Models\ScheduleXML;
+use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
  * Provides functions for XML lesson validation and modeling.
  */
-class Instances extends ResourceHelper
+class Instances extends Helpers\ResourceHelper
 {
 	const NO = 0;
 	const VACATION = 'F';
@@ -26,11 +24,11 @@ class Instances extends ResourceHelper
 	/**
 	 * Adds the data for locating the missing room information to the warnings.
 	 *
-	 * @param   ScheduleXML &$model       the validating schedule model
-	 * @param   int          $untisID     the id of the lesson being iterated
-	 * @param   int          $currentDT   the current date time in the iteration
-	 * @param   int          $periodNo    the period number of the grid to look for times in
-	 * @param   array        $invalidIDs  the untis ids of rooms which proved to be invalid
+	 * @param   Schedules &$model       the validating schedule model
+	 * @param   int        $untisID     the id of the lesson being iterated
+	 * @param   int        $currentDT   the current date time in the iteration
+	 * @param   int        $periodNo    the period number of the grid to look for times in
+	 * @param   array      $invalidIDs  the untis ids of rooms which proved to be invalid
 	 */
 	private static function addInvalidRoomData(&$model, $untisID, $currentDT, $periodNo, $invalidIDs)
 	{
@@ -53,10 +51,10 @@ class Instances extends ResourceHelper
 	/**
 	 * Adds the data for locating the missing room information to the warnings.
 	 *
-	 * @param   ScheduleXML &$model      the validating schedule model
-	 * @param   int          $untisID    the id of the lesson being iterated
-	 * @param   int          $currentDT  the current date time in the iteration
-	 * @param   int          $periodNo   the period number of the grid to look for times in
+	 * @param   Schedules &$model      the validating schedule model
+	 * @param   int        $untisID    the id of the lesson being iterated
+	 * @param   int        $currentDT  the current date time in the iteration
+	 * @param   int        $periodNo   the period number of the grid to look for times in
 	 */
 	private static function addMissingRoomData(&$model, $untisID, $currentDT, $periodNo)
 	{
@@ -71,7 +69,7 @@ class Instances extends ResourceHelper
 		}
 
 		$dow = strtoupper(date('l', $currentDT));
-		$dow = Languages::_($dow);
+		$dow = Helpers\Languages::_($dow);
 		if (empty($model->warnings['IMR'][$untisID][$dow]))
 		{
 			$model->warnings['IMR'][$untisID][$dow] = [];
@@ -91,7 +89,7 @@ class Instances extends ResourceHelper
 	/**
 	 * Retrieves the appropriate block id from the database, creating the entry as necessary.
 	 *
-	 * @param   ScheduleXML &$model        the validating schedule model
+	 * @param   Schedules &  $model        the validating schedule model
 	 * @param   object      &$node         the lesson instance
 	 * @param   int          $untisID      the id of the lesson being iterated
 	 * @param   string       $currentDate  the current date being iterated
@@ -118,10 +116,10 @@ class Instances extends ResourceHelper
 	/**
 	 * Sets associations between an instance person association and its groups.
 	 *
-	 * @param   ScheduleXML &$model       the validating schedule model
-	 * @param   int          $untisID     the id of the lesson being iterated
-	 * @param   int          $instanceID  the id of the instance being validated
-	 * @param   int          $assocID     the id of the instance person association with which the groups are to be associated
+	 * @param   Schedules &$model       the validating schedule model
+	 * @param   int        $untisID     the id of the lesson being iterated
+	 * @param   int        $instanceID  the id of the instance being validated
+	 * @param   int        $assocID     the id of the instance person association with which the groups are to be associated
 	 *
 	 * @return void
 	 */
@@ -168,7 +166,7 @@ class Instances extends ResourceHelper
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   ScheduleXML &$model        the validating schedule model
+	 * @param   Schedules &  $model        the validating schedule model
 	 * @param   object      &$node         the lesson instance
 	 * @param   int          $untisID      the id of the lesson being iterated
 	 * @param   string       $currentDate  the current date being iterated
@@ -231,9 +229,9 @@ class Instances extends ResourceHelper
 	/**
 	 * Sets an instance person association.
 	 *
-	 * @param   ScheduleXML &$model       the validating schedule model
-	 * @param   int          $untisID     the id of the lesson being iterated
-	 * @param   int          $instanceID  the id of the instance being validated
+	 * @param   Schedules &$model       the validating schedule model
+	 * @param   int        $untisID     the id of the lesson being iterated
+	 * @param   int        $instanceID  the id of the instance being validated
 	 *
 	 * @return void
 	 */
@@ -291,10 +289,10 @@ class Instances extends ResourceHelper
 	/**
 	 * Sets associations between an instance person association and its groups.
 	 *
-	 * @param   ScheduleXML &$model       the validating schedule model
-	 * @param   int          $untisID     the id of the lesson being iterated
-	 * @param   int          $instanceID  the id of the instance being validated
-	 * @param   int          $assocID     the id of the instance person association with which the groups are to be associated
+	 * @param   Schedules &$model       the validating schedule model
+	 * @param   int        $untisID     the id of the lesson being iterated
+	 * @param   int        $instanceID  the id of the instance being validated
+	 * @param   int        $assocID     the id of the instance person association with which the groups are to be associated
 	 *
 	 * @return void
 	 */
@@ -341,7 +339,7 @@ class Instances extends ResourceHelper
 	/**
 	 * Iterates over possible occurrences and validates them
 	 *
-	 * @param   ScheduleXML &$model        the validating schedule model
+	 * @param   Schedules &  $model        the validating schedule model
 	 * @param   array  &     $node         the node containing the instance nodes
 	 * @param   int          $untisID      the id of the lesson being iterated
 	 * @param   array        $occurrences  an array of 'occurrences'
@@ -380,7 +378,7 @@ class Instances extends ResourceHelper
 	/**
 	 * Validates a lesson instance
 	 *
-	 * @param   ScheduleXML &$model      the validating schedule model
+	 * @param   Schedules &  $model      the validating schedule model
 	 * @param   object      &$node       the lesson instance
 	 * @param   int          $untisID    the id of the lesson being iterated
 	 * @param   int          $currentDT  the current date time in the iteration

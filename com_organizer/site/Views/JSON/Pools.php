@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Pools as PoolsHelper;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic subject pool related queries
@@ -25,10 +24,10 @@ class Pools extends BaseView
 	 */
 	public function display()
 	{
-		$function = Input::getTask();
+		$function = Helpers\Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Pools', $function))
 		{
-			echo json_encode(PoolsHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(Helpers\Pool::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

@@ -12,7 +12,6 @@ namespace Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
-use Organizer\Helpers\Input;
 
 /**
  * Retrieves lesson and event data for a filtered set of rooms.
@@ -40,7 +39,7 @@ class RoomOverview extends ListModel
 	{
 		parent::filterFilterForm($form);
 
-		$params = Input::getParams();
+		$params = Helpers\Input::getParams();
 
 		if ($params->get('campusID', 0))
 		{
@@ -71,7 +70,7 @@ class RoomOverview extends ListModel
 		$this->setSearchFilter($query, ['r.name']);
 		$this->setValueFilters($query, ['campusID', 'buildingID', 'roomtypeID']);
 
-		if ($roomIDs = Helpers\Input::getFilterIDs('room'))
+		if ($roomIDs = Helpers\Helpers\Input::getFilterIDs('room'))
 		{
 			$query->where('r.id IN (' . implode(',', $roomIDs) . ')');
 		}

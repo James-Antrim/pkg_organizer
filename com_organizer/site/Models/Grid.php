@@ -11,9 +11,8 @@
 namespace Organizer\Models;
 
 use Exception;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Tables\Grids as GridsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class which manages stored grid data.
@@ -27,13 +26,13 @@ class Grid extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return GridsTable A Table object
+	 * @return Tables\Grids A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new GridsTable;
+		return new Tables\Grids;
 	}
 
 	/**
@@ -46,12 +45,12 @@ class Grid extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		if (!Can::administrate())
+		if (!Helpers\Can::administrate())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
-		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		// Save grids in json by foreach because the index is not numeric
 		$periods = [];
@@ -68,7 +67,7 @@ class Grid extends BaseModel
 		$grid         = ['periods' => $periods, 'startDay' => $data['startDay'], 'endDay' => $data['endDay']];
 		$data['grid'] = json_encode($grid, JSON_UNESCAPED_UNICODE);
 
-		$table = new GridsTable;
+		$table = new Tables\Grids;
 
 		return $table->save($data) ? $table->id : false;
 	}

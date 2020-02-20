@@ -11,8 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads the schedule upload form into display context.
@@ -26,15 +25,21 @@ class ScheduleEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_SCHEDULE_EDIT'), 'calendars');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_SCHEDULE_EDIT'), 'calendars');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton(
 			'Standard',
 			'upload',
-			Languages::_('ORGANIZER_UPLOAD'),
+			Helpers\Languages::_('ORGANIZER_UPLOAD'),
 			'schedules.upload',
 			false
 		);
-		$toolbar->appendButton('Standard', 'cancel', Languages::_('ORGANIZER_CANCEL'), 'schedules.cancel', false);
+		$toolbar->appendButton(
+			'Standard',
+			'cancel',
+			Helpers\Languages::_('ORGANIZER_CANCEL'),
+			'schedules.cancel',
+			false
+		);
 	}
 }

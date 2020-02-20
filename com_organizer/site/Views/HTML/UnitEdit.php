@@ -10,9 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Organizer\Helpers\Languages;
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information about a unit into the display context.
@@ -30,13 +29,13 @@ class UnitEdit extends EditView
 	{
 		$new   = empty($this->item->id);
 		$title = $new ?
-			Languages::_('ORGANIZER_UNIT_NEW') : Languages::_('ORGANIZER_UNIT_EDIT');
-		HTML::setTitle($title, 'contract-2');
+			Helpers\Languages::_('ORGANIZER_UNIT_NEW') : Helpers\Languages::_('ORGANIZER_UNIT_EDIT');
+		Helpers\HTML::setTitle($title, 'contract-2');
 		$toolbar   = Toolbar::getInstance();
-		$applyText = $new ? Languages::_('ORGANIZER_CREATE') : Languages::_('ORGANIZER_APPLY');
+		$applyText = $new ? Helpers\Languages::_('ORGANIZER_CREATE') : Helpers\Languages::_('ORGANIZER_APPLY');
 		$toolbar->appendButton('Standard', 'apply', $applyText, 'units.apply', false);
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'units.save', false);
-		$cancelText = $new ? Languages::_('ORGANIZER_CANCEL') : Languages::_('ORGANIZER_CLOSE');
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'units.save', false);
+		$cancelText = $new ? Helpers\Languages::_('ORGANIZER_CANCEL') : Helpers\Languages::_('ORGANIZER_CLOSE');
 		$toolbar->appendButton('Standard', 'cancel', $cancelText, 'units.cancel', false);
 	}
 }

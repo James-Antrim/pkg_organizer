@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Monitors as MonitorsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing monitor data.
@@ -25,7 +25,7 @@ class MonitorEdit extends EditModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -35,12 +35,12 @@ class MonitorEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return MonitorsTable A Table object
+	 * @return Tables\Monitors A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new MonitorsTable;
+		return new Tables\Monitors;
 	}
 }

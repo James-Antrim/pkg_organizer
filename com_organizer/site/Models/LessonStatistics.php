@@ -10,10 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Terms;
+use Organizer\Helpers;
 
 /**
  * Class calculates lesson statistics and loads them into the view context.
@@ -36,7 +33,7 @@ class LessonStatistics extends FormModel
 	{
 		parent::__construct($config);
 
-		$this->tag = Languages::getTag();
+		$this->tag = Helpers\Languages::getTag();
 
 		$this->populateState();
 		$categoryID     = $this->state->get('categoryID');
@@ -130,7 +127,7 @@ class LessonStatistics extends FormModel
 
 		$this->_db->setQuery($this->query);
 
-		$categories = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$categories = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
 		if (empty($categories))
 		{
 			return [];
@@ -160,7 +157,7 @@ class LessonStatistics extends FormModel
 
 		$this->_db->setQuery($this->query);
 
-		$organizations = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$organizations = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
 		if (empty($organizations))
 		{
 			return [];
@@ -213,7 +210,7 @@ class LessonStatistics extends FormModel
 
 		$this->_db->setQuery($this->query);
 
-		$pools = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$pools = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
 		if (empty($pools))
 		{
 			return [];
@@ -245,7 +242,7 @@ class LessonStatistics extends FormModel
 
 		$this->_db->setQuery($this->query);
 
-		$methods = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$methods = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
 		if (empty($methods))
 		{
 			return [];
@@ -255,7 +252,7 @@ class LessonStatistics extends FormModel
 		{
 			if (empty($method['name']))
 			{
-				$method['name'] = Languages::_('ORGANIZER_NONE_GIVEN');
+				$method['name'] = Helpers\Languages::_('ORGANIZER_NONE_GIVEN');
 			}
 			$method['total'] = [];
 		}
@@ -281,7 +278,7 @@ class LessonStatistics extends FormModel
 
 		$this->_db->setQuery($this->query);
 
-		$terms = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$terms = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
 		if (empty($terms))
 		{
 			return [];
@@ -306,13 +303,13 @@ class LessonStatistics extends FormModel
 
 		$categoryID     = 0;
 		$organizationID = 0;
-		$termID         = Terms::getCurrentID();
+		$termID         = Helpers\Terms::getCurrentID();
 
-		if (Input::getFormItems()->count())
+		if (Helpers\Input::getFormItems()->count())
 		{
-			$categoryID     = Input::getInt('categoryID');
-			$organizationID = Input::getInt('organizationID');
-			$termID         = Input::getInt('termID', $termID);
+			$categoryID     = Helpers\Input::getInt('categoryID');
+			$organizationID = Helpers\Input::getInt('organizationID');
+			$termID         = Helpers\Input::getInt('termID', $termID);
 		}
 
 		$this->setState('categoryID', $categoryID);
@@ -394,7 +391,7 @@ class LessonStatistics extends FormModel
 				}
 
 				$this->_db->setQuery($this->query);
-				$lessons = OrganizerHelper::executeQuery('loadColumn', []);
+				$lessons = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 
 				$lessonCounts[$rowID][$columnID] = count($lessons);
 

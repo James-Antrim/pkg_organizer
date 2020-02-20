@@ -11,10 +11,7 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Persons;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class which calculates the number of hours persons taught individual lessons.
@@ -275,7 +272,7 @@ class Deputat extends BaseModel
 	 */
 	private function getRate($subjectName)
 	{
-		$params = Input::getParams();
+		$params = Helpers\Input::getParams();
 		if ($subjectName == 'Betreuung von Bachelorarbeiten')
 		{
 			return floatval('0.' . $params->get('bachelor_value', 25));
@@ -455,14 +452,14 @@ class Deputat extends BaseModel
 	 */
 	private function setObjectProperties()
 	{
-		$this->params   = Input::getParams();
+		$this->params   = Helpers\Input::getParams();
 		$organizationID = $this->params->get('organizationID', 0);
 		if (!empty($organizationID))
 		{
 			$this->setOrganizationName($organizationID);
 		}
 
-		$this->reset                  = Input::getBool('reset', false);
+		$this->reset                  = Helpers\Input::getBool('reset', false);
 		$this->selected               = [];
 		$this->persons                = [];
 		$this->irrelevant['methods']  = ['KLA', 'SIT', 'PRÜ', 'SHU', 'VER', 'IVR', 'VRT', 'VSM', 'TAG'];
@@ -481,7 +478,7 @@ class Deputat extends BaseModel
 	 */
 	private function setOrganizationName($organizationID)
 	{
-		$tag = Languages::getTag();
+		$tag = Helpers\Languages::getTag();
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -489,9 +486,9 @@ class Deputat extends BaseModel
 		$dbo->setQuery($query);
 
 
-		if ($name = OrganizerHelper::executeQuery('loadResult', ''))
+		if ($name = Helpers\OrganizerHelper::executeQuery('loadResult', ''))
 		{
-			$this->organizationName = Languages::_('ORGANIZER_ORGANIZATION') . ' ' . $name;
+			$this->organizationName = Helpers\Languages::_('ORGANIZER_ORGANIZATION') . ' ' . $name;
 		}
 
 	}
@@ -556,7 +553,7 @@ class Deputat extends BaseModel
 		}
 
 		$DOWConstant  = strtoupper(date('l', strtotime($day)));
-		$weekday      = Languages::_($DOWConstant);
+		$weekday      = Helpers\Languages::_($DOWConstant);
 		$plannedBlock = "$weekday-$blockNumber";
 		if (!array_key_exists($plannedBlock, $this->lessonValues[$lessonID][$personID]['periods']))
 		{
@@ -637,7 +634,7 @@ class Deputat extends BaseModel
 		{
 			$this->lessonValues[$lessonID][$personID] = [];
 			$this->lessonValues[$lessonID][$personID]['personName']
-			                                          = Persons::getLNFName($schedule->persons->$personID);
+			                                          = Helpers\Persons::getLNFName($schedule->persons->$personID);
 
 			$this->lessonValues[$lessonID][$personID]['subjectName']
 				= $this->getSubjectName($schedule, $lessonID);
@@ -651,14 +648,14 @@ class Deputat extends BaseModel
 	 */
 	public function setSchedule()
 	{
-		$this->scheduleID = Input::getInt('scheduleID');
+		$this->scheduleID = Helpers\Input::getInt('scheduleID');
 		$query            = $this->_db->getQuery(true);
 		$query->select('schedule');
 		$query->from('#__organizer_schedules');
 		$query->where("id = '$this->scheduleID'");
 		$this->_db->setQuery($query);
 
-		$result = OrganizerHelper::executeQuery('loadResult');
+		$result = Helpers\OrganizerHelper::executeQuery('loadResult');
 		if (empty($result))
 		{
 			$this->schedule = null;
@@ -914,7 +911,7 @@ class Deputat extends BaseModel
 	private function setSelected()
 	{
 		// no idea what this value is
-		$selected = Input::getFilterIDs('person');
+		$selected = Helpers\Input::getFilterIDs('person');
 
 		// Returns a hard false if value is not in array
 		$allSelected = array_search('', $selected);
@@ -971,7 +968,7 @@ class Deputat extends BaseModel
 		$query->where("active = '1'");
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -989,7 +986,7 @@ class Deputat extends BaseModel
 		$query->where("id = '$scheduleID'");
 		$this->_db->setQuery($query);
 
-		$result = OrganizerHelper::executeQuery('loadResult');
+		$result = Helpers\OrganizerHelper::executeQuery('loadResult');
 
 		return empty($result) ? null : json_decode($result);
 	}

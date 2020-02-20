@@ -12,12 +12,8 @@ namespace Organizer\Models;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Persons;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\Monitors as MonitorsTable;
-use Organizer\Tables\Rooms as RoomsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class retrieves information about daily events for display on monitors.
@@ -62,7 +58,7 @@ class RoomDisplay extends BaseModel
 	 */
 	protected function ensureComponentTemplate()
 	{
-		$app         = OrganizerHelper::getApplication();
+		$app         = Helpers\OrganizerHelper::getApplication();
 		$templateSet = $app->input->getString('tmpl', '') == 'component';
 		if (!$templateSet)
 		{
@@ -105,7 +101,7 @@ class RoomDisplay extends BaseModel
 	 */
 	protected function getEvents($date)
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
 		$select = "DISTINCT conf.id, conf.configuration, cal.startTime, cal.endTime, ";
@@ -127,7 +123,7 @@ class RoomDisplay extends BaseModel
 			->where("lcrs.delta != 'removed'");
 		$this->_db->setQuery($query);
 
-		$results = OrganizerHelper::executeQuery('loadAssocList');
+		$results = Helpers\OrganizerHelper::executeQuery('loadAssocList');
 		if (empty($results))
 		{
 			return [];
@@ -205,7 +201,7 @@ class RoomDisplay extends BaseModel
 				continue;
 			}
 
-			$persons[$personID] = Persons::getLNFName($personID);
+			$persons[$personID] = Helpers\Persons::getLNFName($personID);
 		}
 
 		asort($persons);
@@ -267,7 +263,7 @@ class RoomDisplay extends BaseModel
 	{
 		if (!empty($this->monitorID))
 		{
-			$monitorEntry = new MonitorsTable;
+			$monitorEntry = new Tables\Monitors;
 			$monitorEntry->load($this->monitorID);
 		}
 
@@ -280,12 +276,12 @@ class RoomDisplay extends BaseModel
 		}
 		else
 		{
-			$params                          = Input::getParams();
+			$params                          = Helpers\Input::getParams();
 			$this->params['display']         = $params->get('display', self::SCHEDULE);
 			$this->params['scheduleRefresh'] = $params->get('scheduleRefresh', 60);
 			$this->params['contentRefresh']  = $params->get('contentRefresh', 60);
 
-			$this->params['content'] = Input::getParams()->get('content');
+			$this->params['content'] = Helpers\Input::getParams()->get('content');
 		}
 
 		// No need for special handling if no content has been set
@@ -319,7 +315,7 @@ class RoomDisplay extends BaseModel
 		$query->select('grid')->from('#__organizer_grids')->where('isDefault = 1');
 		$this->_db->setQuery($query);
 
-		$rawGrid = OrganizerHelper::executeQuery('loadResult');
+		$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult');
 
 		if (!empty($rawGrid))
 		{
@@ -334,11 +330,11 @@ class RoomDisplay extends BaseModel
 	 */
 	private function setRoomData()
 	{
-		$roomsTable = new RoomsTable;
+		$roomsTable = new Tables\Rooms;
 
-		if ($remoteAddress = Input::getInput()->server->getString('REMOTE_ADDR', ''))
+		if ($remoteAddress = Helpers\Input::getInput()->server->getString('REMOTE_ADDR', ''))
 		{
-			$monitorTable = new MonitorsTable;
+			$monitorTable = new Tables\Monitors;
 			$registered   = $monitorTable->load(['ip' => $remoteAddress]);
 
 			if ($registered and $monitorTable->roomID and $roomsTable->load($monitorTable->roomID))
@@ -351,7 +347,7 @@ class RoomDisplay extends BaseModel
 			}
 		}
 
-		if ($name = Input::getString('name') and $roomsTable->load(['name' => $name]))
+		if ($name = Helpers\Input::getString('name') and $roomsTable->load(['name' => $name]))
 		{
 			$this->roomID   = $roomsTable->id;
 			$this->roomName = $name;
@@ -360,7 +356,7 @@ class RoomDisplay extends BaseModel
 		}
 
 		// Room could not be resolved => redirect to home
-		OrganizerHelper::getApplication()->redirect(Uri::root());
+		Helpers\OrganizerHelper::getApplication()->redirect(Uri::root());
 	}
 
 	/**

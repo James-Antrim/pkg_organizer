@@ -11,16 +11,15 @@
 namespace Organizer\Helpers\Validators;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\ResourceHelper;
-use Organizer\Tables\Units as UnitsTable;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Tables;
 use stdClass;
 
 /**
  * Provides functions for XML unit validation and persistence.
  */
-class Units extends ResourceHelper implements UntisXMLValidator
+class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 {
 	/**
 	 * Determines how the missing room attribute will be handled
@@ -124,7 +123,7 @@ class Units extends ResourceHelper implements UntisXMLValidator
 			->where($conditions, 'OR');
 		$dbo->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadResult', 1);
+		return Helpers\OrganizerHelper::executeQuery('loadResult', 1);
 	}
 
 	/**
@@ -165,7 +164,7 @@ class Units extends ResourceHelper implements UntisXMLValidator
 	public static function setID(&$model, $untisID)
 	{
 		$unit  = $model->units->$untisID;
-		$table = new UnitsTable;
+		$table = new Tables\Unit;
 
 		if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'code' => $untisID]))
 		{

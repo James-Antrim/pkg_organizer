@@ -13,8 +13,7 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads the instance form into display context.
@@ -31,18 +30,18 @@ class InstanceEdit extends EditView
 	{
 		$new   = empty($this->item->id);
 		$title = $new ?
-			Languages::_('ORGANIZER_INSTANCE_NEW') : Languages::_('ORGANIZER_INSTANCE_EDIT');
-		HTML::setTitle($title, 'contract-2');
+			Helpers\Languages::_('ORGANIZER_INSTANCE_NEW') : Helpers\Languages::_('ORGANIZER_INSTANCE_EDIT');
+		Helpers\HTML::setTitle($title, 'contract-2');
 		$toolbar   = Toolbar::getInstance();
-		$applyText = $new ? Languages::_('ORGANIZER_CREATE') : Languages::_('ORGANIZER_APPLY');
+		$applyText = $new ? Helpers\Languages::_('ORGANIZER_CREATE') : Helpers\Languages::_('ORGANIZER_APPLY');
 		$toolbar->appendButton('Standard', 'apply', $applyText, 'instances.apply', false);
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'instances.save', false);
-		$cancelText = $new ? Languages::_('ORGANIZER_CANCEL') : Languages::_('ORGANIZER_CLOSE');
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'instances.save', false);
+		$cancelText = $new ? Helpers\Languages::_('ORGANIZER_CANCEL') : Helpers\Languages::_('ORGANIZER_CLOSE');
 		$toolbar->appendButton('Standard', 'cancel', $cancelText, 'instances.cancel', false);
 		$toolbar->appendButton(
 			'Standard',
 			'save-copy',
-			Languages::_('ORGANIZER_SAVE2COPY'),
+			Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
 			'instances.save2copy',
 			false
 		);

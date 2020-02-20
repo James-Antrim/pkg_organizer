@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
+use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
@@ -27,7 +27,7 @@ class Room extends MergeModel implements ScheduleResource
 	 */
 	protected function allowEdit()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**

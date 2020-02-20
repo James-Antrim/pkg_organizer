@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Holidays as HolidaysTable;
+use Organizer\Tables;
 
 /**
  * Class which manages stored holiday data.
@@ -24,12 +24,12 @@ class Holiday extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return HolidaysTable A Table object
+	 * @return Tables\Holidays A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new HolidaysTable;
+		return new Tables\Holidays;
 	}
 }

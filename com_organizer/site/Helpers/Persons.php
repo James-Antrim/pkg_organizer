@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use Organizer\Tables\Persons as PersonsTable;
+use Organizer\Tables;
 
 /**
  * Provides general functions for person access checks, data retrieval and display.
@@ -165,7 +165,7 @@ class Persons extends ResourceHelper implements Associated, Selectable
 	 */
 	public static function getDefaultName($personID)
 	{
-		$person = new PersonsTable;
+		$person = new Tables\Persons;
 		$person->load($personID);
 
 		$return = '';
@@ -232,7 +232,7 @@ class Persons extends ResourceHelper implements Associated, Selectable
 	 */
 	public static function getLNFName($personID, $short = false)
 	{
-		$person = new PersonsTable;
+		$person = new Tables\Persons;
 		$person->load($personID);
 
 		$return = '';

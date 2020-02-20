@@ -10,9 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Campuses;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class creates a form field for campus selection.
@@ -32,7 +30,7 @@ class CampusesField extends OptionsField
 	protected function getOptions()
 	{
 		$options  = parent::getOptions();
-		$campuses = Campuses::getOptions();
+		$campuses = Helpers\Campuses::getOptions();
 
 		return array_merge($options, $campuses);
 	}

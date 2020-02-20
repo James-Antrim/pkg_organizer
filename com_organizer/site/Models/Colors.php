@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of colors.
@@ -25,7 +25,7 @@ class Colors extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
 		$select = "id, name_$tag AS name, color, ";

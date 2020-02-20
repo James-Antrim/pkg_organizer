@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of holidays.
@@ -27,7 +27,7 @@ class Holidays extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 		$query->select("id, name_$tag as name, type, startDate, endDate")
 			->from('#__organizer_holidays');

@@ -13,6 +13,8 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
+use Organizer\Helpers\HTML; // Exception for frequency of use
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
@@ -60,8 +62,8 @@ abstract class SelectionView extends BaseHTMLView
 	protected function modifyDocument()
 	{
 		$constant = 'ORGANIZER_' . strtoupper(preg_replace('/([a-z])([A-Z])/', '$1_$2', $this->getName()));
-		Helpers\HTML::setMenuTitle($constant);
-		Helpers\HTML::_('bootstrap.framework');
+		HTML::setMenuTitle($constant);
+		HTML::_('bootstrap.framework');
 
 		if ($this->isSeeingImpaired())
 		{
@@ -69,16 +71,16 @@ abstract class SelectionView extends BaseHTMLView
 		}
 		else
 		{
-			Helpers\HTML::_('behavior.calendar');
-			Helpers\HTML::_('formbehavior.chosen', 'select');
+			HTML::_('behavior.calendar');
+			HTML::_('formbehavior.chosen', 'select');
 		}
 
-		Helpers\Languages::script('ORGANIZER_ALL');
-		Helpers\Languages::script('ORGANIZER_COPY_SUBSCRIPTION');
-		Helpers\Languages::script('ORGANIZER_DOWNLOAD');
-		Helpers\Languages::script('ORGANIZER_GENERATE_LINK');
-		Helpers\Languages::script('ORGANIZER_LIST_SELECTION_WARNING');
-		Helpers\Languages::script('ORGANIZER_NONE');
+		Languages::script('ORGANIZER_ALL');
+		Languages::script('ORGANIZER_COPY_SUBSCRIPTION');
+		Languages::script('ORGANIZER_DOWNLOAD');
+		Languages::script('ORGANIZER_GENERATE_LINK');
+		Languages::script('ORGANIZER_LIST_SELECTION_WARNING');
+		Languages::script('ORGANIZER_NONE');
 
 		$rootURI  = Uri::root();
 		$document = Factory::getDocument();
@@ -98,13 +100,13 @@ abstract class SelectionView extends BaseHTMLView
 	{
 		foreach ($values as $value => $constant)
 		{
-			$values[$value] = Helpers\Languages::_($constant);
+			$values[$value] = Languages::_($constant);
 		}
 		asort($values);
 		$options = [];
 		foreach ($values as $value => $text)
 		{
-			$options[] = Helpers\HTML::_('select.option', $value, $text);
+			$options[] = HTML::_('select.option', $value, $text);
 		}
 
 		return $options;
@@ -132,8 +134,8 @@ abstract class SelectionView extends BaseHTMLView
 		$descConstant = "{$label}_EXPORT_DESC";
 
 		$this->sets[$set]['fields'][$fieldName] = [
-			'label'       => Helpers\Languages::_($label),
-			'description' => Helpers\Languages::_($descConstant),
+			'label'       => Languages::_($label),
+			'description' => Languages::_($descConstant),
 			'input'       => $input
 		];
 	}
@@ -154,10 +156,10 @@ abstract class SelectionView extends BaseHTMLView
 		$constant       = strtoupper($rawConstant);
 		$label          = "ORGANIZER_$constant";
 		$selectConstant = "ORGANIZER_SELECT_$constant";
-		$options        = [Helpers\HTML::_('select.option', '', Helpers\Languages::_($selectConstant))];
+		$options        = [HTML::_('select.option', '', Languages::_($selectConstant))];
 		$options        += $this->getOptions($values);
 
-		$input = Helpers\HTML::selectBox($options, $fieldName, $attribs, $default);
+		$input = HTML::selectBox($options, $fieldName, $attribs, $default);
 
 		$this->setField($fieldName, $set, $label, $input);
 	}
@@ -190,14 +192,14 @@ abstract class SelectionView extends BaseHTMLView
 
 		$label          = "ORGANIZER_$constant";
 		$selectConstant = "ORGANIZER_SELECT_$constant";
-		$options        = [Helpers\HTML::_('select.option', '', Helpers\Languages::_($selectConstant))];
+		$options        = [HTML::_('select.option', '', Languages::_($selectConstant))];
 		if ($fill)
 		{
 			$helper  = 'Organizer\\Helpers\\' . ucfirst($plural);
 			$options += $helper::getOptions();
 		}
 
-		$input = Helpers\HTML::selectBox($options, $fieldName, $attribs);
+		$input = HTML::selectBox($options, $fieldName, $attribs);
 
 		$this->setField($fieldName, $set, $label, $input);
 	}
@@ -215,13 +217,13 @@ abstract class SelectionView extends BaseHTMLView
 		}
 
 		$attributes = empty($set['attributes']) ?
-			'' : Helpers\HTML::implodeAttributes($set['attributes']);
+			'' : HTML::implodeAttributes($set['attributes']);
 
 		echo "<div class=\"panel\" $attributes>";
 		if (!empty($set['label']))
 		{
 			echo '<div class="panel-head"><div class="panel-title">';
-			echo Helpers\Languages::_($set['label']);
+			echo Languages::_($set['label']);
 			echo '</div></div>';
 		}
 		echo '<div class="panel-body">';
@@ -244,8 +246,8 @@ abstract class SelectionView extends BaseHTMLView
 	{
 		$hidden = in_array($fieldName, $this->hiddenFields) ? 'style="display: none;"' : '';
 		echo "<div class=\"control-group\" $hidden><div class=\"control-label\">";
-		echo '<label title="' . Helpers\Languages::_($field['description']) . '" for="' . $fieldName . '">';
-		echo '<span class="label-text">' . Helpers\Languages::_($field['label']) . '</span><span class="icon-info"></span>';
+		echo '<label title="' . Languages::_($field['description']) . '" for="' . $fieldName . '">';
+		echo '<span class="label-text">' . Languages::_($field['label']) . '</span><span class="icon-info"></span>';
 		echo '</label>';
 		echo '</div><div class="controls">';
 		echo $field['input'];

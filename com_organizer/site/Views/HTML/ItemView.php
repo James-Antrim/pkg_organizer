@@ -13,7 +13,7 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
+use Organizer\Helpers;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
@@ -48,7 +48,7 @@ abstract class ItemView extends BaseHTMLView
 		$this->modifyDocument();
 		$defaultConstant = 'ORGANIZER_' . strtoupper(str_replace('Item', '', $this->getName()));
 		$itemName        = is_array($this->item['name']) ? $this->item['name']['value'] : $this->item['name'];
-		HTML::setMenuTitle($defaultConstant, $itemName);
+		Helpers\HTML::setMenuTitle($defaultConstant, $itemName);
 		unset($this->item['name']);
 
 		// This has to be after the title has been set so that it isn't prematurely removed.
@@ -110,7 +110,7 @@ abstract class ItemView extends BaseHTMLView
 			}
 			else
 			{
-				echo empty($url) ? $item : HTML::link(Route::_($url . $index), $item, $urlAttribs);
+				echo empty($url) ? $item : Helpers\HTML::link(Route::_($url . $index), $item, $urlAttribs);
 			}
 			echo '</li>';
 		}

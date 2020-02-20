@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Groups as GroupsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing group data.
@@ -25,7 +25,7 @@ class GroupEdit extends EditModel
 	 */
 	public function allowEdit()
 	{
-		return Can::edit('group', $this->item->id);
+		return Helpers\Can::edit('group', $this->item->id);
 	}
 
 	/**
@@ -35,12 +35,12 @@ class GroupEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return GroupsTable A Table object
+	 * @return Tables\Groups A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new GroupsTable;
+		return new Tables\Groups;
 	}
 }

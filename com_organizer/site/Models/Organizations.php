@@ -11,8 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of organizations.
@@ -28,8 +27,8 @@ class Organizations extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$authorized = Can::manageTheseOrganizations();
-		$tag        = Languages::getTag();
+		$authorized = Helpers\Can::manageTheseOrganizations();
+		$tag        = Helpers\Languages::getTag();
 
 		// Create the query
 		$query  = $this->_db->getQuery(true);

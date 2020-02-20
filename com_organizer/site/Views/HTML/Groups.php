@@ -14,10 +14,7 @@ use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Grids;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of (scheduled subject) pools into the display context.
@@ -39,35 +36,35 @@ class Groups extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_GROUPS'), 'list-2');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_GROUPS'), 'list-2');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'groups.edit', true);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'groups.edit', true);
 
-		$if          = "alert('" . Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
+		$if          = "alert('" . Helpers\Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
 		$else        = "jQuery('#modal-publishing').modal('show'); return true;";
 		$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
 		$batchButton = '<button id="group-publishing" data-toggle="modal" class="btn btn-small" ' . $script . '>';
 
-		$title       = Languages::_('ORGANIZER_BATCH');
+		$title       = Helpers\Languages::_('ORGANIZER_BATCH');
 		$batchButton .= '<span class="icon-stack" title="' . $title . '"></span>' . " $title";
 
 		$batchButton .= '</button>';
 
 		$toolbar->appendButton('Custom', $batchButton, 'batch');
 
-		if (Can::administrate())
+		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
 				'Standard',
 				'attachment',
-				Languages::_('ORGANIZER_MERGE'),
+				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'groups.mergeView',
 				true
 			);
 			$toolbar->appendButton(
 				'Standard',
 				'eye-open',
-				Languages::_('ORGANIZER_PUBLISH_EXPIRED_TERMS'),
+				Helpers\Languages::_('ORGANIZER_PUBLISH_EXPIRED_TERMS'),
 				'groups.publishPast',
 				false
 			);
@@ -81,7 +78,7 @@ class Groups extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Can::scheduleTheseOrganizations();
+		return (bool) Helpers\Can::scheduleTheseOrganizations();
 	}
 
 	/**
@@ -123,11 +120,11 @@ class Groups extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox' => HTML::_('grid.checkall'),
-			'fullName' => HTML::sort('FULL_NAME', 'gr.fullName', $direction, $ordering),
-			'name'     => HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
-			'grid'     => Languages::_('ORGANIZER_GRID'),
-			'code'     => HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
+			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'fullName' => Helpers\HTML::sort('FULL_NAME', 'gr.fullName', $direction, $ordering),
+			'name'     => Helpers\HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
+			'grid'     => Helpers\Languages::_('ORGANIZER_GRID'),
+			'code'     => Helpers\HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
 		];
 
 		$this->headers = $headers;
@@ -146,7 +143,7 @@ class Groups extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->grid              = Grids::getName($item->gridID);
+			$item->grid              = Helpers\Grids::getName($item->gridID);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

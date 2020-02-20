@@ -10,15 +10,14 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\ResourceHelper;
-use Organizer\Tables\Events as EventsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 use stdClass;
 
 /**
  * Provides general functions for course access checks, data retrieval and display.
  */
-class Events extends ResourceHelper implements UntisXMLValidator
+class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 {
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
@@ -31,7 +30,7 @@ class Events extends ResourceHelper implements UntisXMLValidator
 	public static function setID(&$model, $untisID)
 	{
 		$event = $model->events->$untisID;
-		$table = new EventsTable;
+		$table = new Tables\Events;
 
 		if ($table->load(['organizationID' => $event->organizationID, 'code' => $untisID]))
 		{
@@ -75,7 +74,7 @@ class Events extends ResourceHelper implements UntisXMLValidator
 		{
 			$warningCount = $model->warnings['SUNO'];
 			unset($model->warnings['SUNO']);
-			$model->warnings[] = sprintf(Languages::_('ORGANIZER_EVENT_SUBJECTNOS_MISSING'), $warningCount);
+			$model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_EVENT_SUBJECTNOS_MISSING'), $warningCount);
 		}
 	}
 
@@ -95,7 +94,7 @@ class Events extends ResourceHelper implements UntisXMLValidator
 
 		if (empty($name))
 		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_EVENT_NAME_MISSING'), $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_EVENT_NAME_MISSING'), $untisID);
 
 			return;
 		}

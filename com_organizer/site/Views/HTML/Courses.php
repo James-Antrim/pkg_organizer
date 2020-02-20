@@ -14,8 +14,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
-use Organizer\Helpers\Courses as Helper;
-use Organizer\Helpers\Languages as Languages;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class which loads data into the view output context
@@ -106,14 +105,15 @@ class Courses extends ListView
 				);
 			}
 
-			if (Helper::coordinates())
+			if (Helpers\Courses::coordinates())
 			{
 				$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'courses.add', false);
 			}
 
 			if (!$frontend)
 			{
-				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
+				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit',
+					true);
 				$toolbar->appendButton(
 					'Confirm',
 					Languages::_('ORGANIZER_DELETE_CONFIRM'),
@@ -139,7 +139,7 @@ class Courses extends ListView
 			return true;
 		}
 
-		return (Helpers\Can::administrate() or Helper::coordinates());
+		return (Helpers\Can::administrate() or Helpers\Courses::coordinates());
 	}
 
 	/**
@@ -188,21 +188,21 @@ class Courses extends ListView
 		$URL     .= $backend ? '&view=course_edit&id=' : '&view=course_item&id=';
 		$userID  = Factory::getUser()->id;
 
-		$this->allowNew  = Helper::coordinates();
+		$this->allowNew  = Helpers\Courses::coordinates();
 		$structuredItems = [];
 
 		foreach ($this->items as $course)
 		{
 			$courseID             = $course->id;
-			$course->dates        = Helper::getDateDisplay($courseID);
-			$course->name         = Helper::getNames($courseID);
+			$course->dates        = Helpers\Courses::getDateDisplay($courseID);
+			$course->name         = Helpers\Courses::getNames($courseID);
 			$index                = "{$course->name}{$course->dates}{$courseID}";
-			$course->courseStatus = Helper::getStatusText($courseID);
+			$course->courseStatus = Helpers\Courses::getStatusText($courseID);
 
 			if ($backend)
 			{
-				$course->persons = implode(', ', Helper::getPersons($courseID));
-				$course->groups  = implode(', ', Helper::getGroups($courseID));
+				$course->persons = implode(', ', Helpers\Courses::getPersons($courseID));
+				$course->groups  = implode(', ', Helpers\Courses::getGroups($courseID));
 			}
 
 			if ($userID)
@@ -229,7 +229,7 @@ class Courses extends ListView
 	{
 		$participantID = Factory::getUser()->id;
 		$personID      = Helpers\Persons::getIDByUserID($participantID);
-		if (Helpers\Can::administrate() or ($personID and Helper::hasResponsibility($courseID, $personID)))
+		if (Helpers\Can::administrate() or ($personID and Helpers\Courses::hasResponsibility($courseID, $personID)))
 		{
 			$baseURL  = Uri::base() . '?option=com_organizer';
 			$buttons  = '';
@@ -250,7 +250,7 @@ class Courses extends ListView
 			return $buttons;
 		}
 
-		if (Helper::isExpired($courseID))
+		if (Helpers\Courses::isExpired($courseID))
 		{
 			return '';
 		}

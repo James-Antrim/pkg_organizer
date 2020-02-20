@@ -11,9 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class creates a form field for course person selection
@@ -37,7 +35,7 @@ class CoursePersonsField extends OptionsField
 		$persons = [];
 		foreach (self::getPersons() as $person)
 		{
-			$persons[] = HTML::_('select.option', $person['id'], $person['name']);
+			$persons[] = Helpers\HTML::_('select.option', $person['id'], $person['name']);
 		}
 
 		return array_merge($options, $persons);
@@ -50,7 +48,7 @@ class CoursePersonsField extends OptionsField
 	 */
 	public static function getPersons()
 	{
-		if (!$organizationID = Input::getFilterID('organization', 0))
+		if (!$organizationID = Helpers\Input::getFilterID('organization', 0))
 		{
 			return [];
 		}
@@ -79,11 +77,11 @@ class CoursePersonsField extends OptionsField
 			->where("u.delta != 'removed'");
 
 		// Extra filters
-		if ($categoryID = Input::getFilterID('category', 0))
+		if ($categoryID = Helpers\Input::getFilterID('category', 0))
 		{
 			$query->where("g.categoryID = $categoryID");
 
-			if ($groupID = Input::getFilterID('group', 0))
+			if ($groupID = Helpers\Input::getFilterID('group', 0))
 			{
 				$query->where("g.id = $categoryID");
 			}
@@ -91,7 +89,7 @@ class CoursePersonsField extends OptionsField
 
 		$dbo->setQuery($query);
 
-		if (!$persons = OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$persons = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
 		{
 			return [];
 		}

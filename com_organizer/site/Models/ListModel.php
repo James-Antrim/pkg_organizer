@@ -13,7 +13,7 @@ namespace Organizer\Models;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 use stdClass;
 
 /**
@@ -46,9 +46,9 @@ abstract class ListModel extends ParentModel
 	{
 		parent::__construct($config);
 
-		$app                  = OrganizerHelper::getApplication();
+		$app                  = Helpers\OrganizerHelper::getApplication();
 		$this->clientContext  = $app->isClient('administrator');
-		$this->filterFormName = strtolower(OrganizerHelper::getClass($this));
+		$this->filterFormName = strtolower(Helpers\OrganizerHelper::getClass($this));
 
 		if (!is_int($this->defaultLimit))
 		{
@@ -103,7 +103,7 @@ abstract class ListModel extends ParentModel
 		$query->select("COUNT(DISTINCT ($idColumn))");
 		$this->_db->setQuery($query);
 
-		$total = (int) OrganizerHelper::executeQuery('loadResult');
+		$total = (int) Helpers\OrganizerHelper::executeQuery('loadResult');
 
 		// Add the total to the internal cache.
 		$this->cache[$store] = $total;
@@ -140,7 +140,7 @@ abstract class ListModel extends ParentModel
 	protected function loadFormData()
 	{
 		// Check the session for previously entered form data.
-		$data = OrganizerHelper::getApplication()->getUserState($this->context, new stdClass);
+		$data = Helpers\OrganizerHelper::getApplication()->getUserState($this->context, new stdClass);
 
 		// Pre-create the list options
 		if (!property_exists($data, 'list'))
@@ -181,7 +181,7 @@ abstract class ListModel extends ParentModel
 	protected function populateState($ordering = null, $direction = null)
 	{
 		parent::populateState($ordering, $direction);
-		$app = OrganizerHelper::getApplication();
+		$app = Helpers\OrganizerHelper::getApplication();
 
 		// Receive & set filters
 		$filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');

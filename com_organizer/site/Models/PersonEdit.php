@@ -12,8 +12,7 @@ namespace Organizer\Models;
 
 use Exception;
 use Organizer\Helpers;
-use Organizer\Helpers\Can;
-use Organizer\Tables\Persons as PersonsTable;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing person data.
@@ -29,7 +28,7 @@ class PersonEdit extends EditModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::edit('person', $this->item->id);
+		return Helpers\Can::edit('person', $this->item->id);
 	}
 
 	/**
@@ -55,12 +54,12 @@ class PersonEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return PersonsTable A Table object
+	 * @return Tables\Persons A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new PersonsTable;
+		return new Tables\Persons;
 	}
 }

@@ -12,9 +12,7 @@ namespace Organizer\Helpers\Validators;
 
 use Exception;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Tables\Categories as CategoriesTable;
-use Organizer\Tables\Degrees as DegreesTable;
+use Organizer\Tables;
 use stdClass;
 
 /**
@@ -48,7 +46,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		$plausibleCode = preg_match('/^[A-Z]+[0-9]*$/', $pieces[0]);
 
 		// Degrees are their own managed resource
-		$degrees  = new DegreesTable;
+		$degrees  = new Tables\Degrees;
 		$degreeID = $degrees->load(['code' => $pieces[1]]) ? $degrees->id : null;
 
 		// Should be year of accreditation, but ITS likes to pick random years
@@ -71,7 +69,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		$category     = $model->categories->$untisID;
 		$exists       = false;
 		$loadCriteria = [['code' => $untisID], ['name' => $category->name]];
-		$table        = new CategoriesTable;
+		$table        = new Tables\Categories;
 
 		foreach ($loadCriteria as $criterion)
 		{
@@ -123,7 +121,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		$name = (string) $node->longname;
 		if (!isset($name))
 		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_CATEGORY_NAME_MISSING'), $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_CATEGORY_NAME_MISSING'), $untisID);
 
 			return;
 		}

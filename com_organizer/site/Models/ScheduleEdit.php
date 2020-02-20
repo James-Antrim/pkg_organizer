@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
+use Organizer\Helpers;
 
 /**
  * Class loads a form for uploading schedule data.
@@ -24,6 +24,6 @@ class ScheduleEdit extends EditModel
 	 */
 	public function allowEdit()
 	{
-		return (bool) Can::scheduleTheseOrganizations();
+		return (bool) Helpers\Can::scheduleTheseOrganizations();
 	}
 }

@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Roomtypes;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic (degree) program related queries
@@ -24,6 +24,6 @@ class RoomtypeOptions extends BaseView
 	 */
 	public function display()
 	{
-		echo json_encode(Roomtypes::getOptions(), JSON_UNESCAPED_UNICODE);
+		echo json_encode(Helpers\Roomtypes::getOptions(), JSON_UNESCAPED_UNICODE);
 	}
 }

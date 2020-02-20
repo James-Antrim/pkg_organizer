@@ -11,10 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Colors;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 use stdClass;
 
 /**
@@ -61,7 +58,7 @@ class ColorsField extends OptionsField
 	{
 		$options = parent::getOptions();
 
-		$tag = Languages::getTag();
+		$tag = Helpers\Languages::getTag();
 		$dbo = Factory::getDbo();
 
 		$query = $dbo->getQuery(true);
@@ -70,7 +67,7 @@ class ColorsField extends OptionsField
 			->order('text');
 
 		// Filter irrelevant filter colors out.
-		$view = Input::getView();;
+		$view = Helpers\Input::getView();;
 		if ($view !== 'field_color_edit')
 		{
 			$query->innerJoin('#__organizer_field_colors AS fc ON fc.colorID = c.id');
@@ -78,7 +75,7 @@ class ColorsField extends OptionsField
 
 		$dbo->setQuery($query);
 
-		$colors = OrganizerHelper::executeQuery('loadAssocList');
+		$colors = Helpers\OrganizerHelper::executeQuery('loadAssocList');
 		if (empty($colors))
 		{
 			return $options;
@@ -90,7 +87,7 @@ class ColorsField extends OptionsField
 			$option->text  = $color['text'];
 			$option->value = $color['value'];
 
-			$textColor     = Colors::getDynamicTextColor($color['color']);
+			$textColor     = Helpers\Colors::getDynamicTextColor($color['color']);
 			$option->style = "background-color:{$color['color']};color:$textColor;";
 			$options[]     = $option;
 		}

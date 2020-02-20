@@ -10,7 +10,7 @@
  */
 
 use Joomla\CMS\Router\Route;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers\Languages; //Exception for frequency of use
 
 $fieldset = $this->form->getFieldset('participant_management');
 

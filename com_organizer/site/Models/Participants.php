@@ -12,7 +12,7 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
-use Organizer\Helpers\Input;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of participants.
@@ -34,7 +34,7 @@ class Participants extends ListModel
 	{
 		parent::filterFilterForm($form);
 
-		if (!$courseID = Input::getFilterID('course'))
+		if (!$courseID = Helpers\Input::getFilterID('course'))
 		{
 			$form->removeField('attended', 'filter');
 			$form->removeField('paid', 'filter');
@@ -66,7 +66,7 @@ class Participants extends ListModel
 				->where("cp.courseID = $courseID");
 		}
 
-		if (Input::getBool('duplicates'))
+		if (Helpers\Input::getBool('duplicates'))
 		{
 			$likePAFN   = $query->concatenate(["'%'", 'TRIM(pa.forename)', "'%'"], '');
 			$likePA2FN  = $query->concatenate(["'%'", 'TRIM(pa2.forename)', "'%'"], '');
@@ -105,7 +105,7 @@ class Participants extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
-		if ($courseID = Input::getFilterID('course'))
+		if ($courseID = Helpers\Input::getFilterID('course'))
 		{
 			$this->setState("filter.courseID", $courseID);
 		}

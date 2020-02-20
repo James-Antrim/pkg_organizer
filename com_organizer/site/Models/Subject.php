@@ -13,6 +13,7 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
+use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
 use Organizer\Tables;
 
 /**
@@ -45,7 +46,7 @@ class Subject extends CurriculumResource
 
 		$this->_db->setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return (bool) OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -65,7 +66,7 @@ class Subject extends CurriculumResource
 		$query->values("$subjectID, $personID, $role");
 		$this->_db->setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return (bool) OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -84,7 +85,7 @@ class Subject extends CurriculumResource
 		$query->values("'$subjectID', '$prerequisiteID'");
 		$this->_db->setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return (bool) OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -169,7 +170,7 @@ class Subject extends CurriculumResource
 			->where("subjectID = '$resourceID'");
 		$dbo->setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('loadResult', null);
+		return OrganizerHelper::executeQuery('loadResult', null);
 	}
 
 	/**
@@ -244,7 +245,7 @@ class Subject extends CurriculumResource
 
 		if (!$this->setPersons($table->id, $subject))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 
 			return false;
 		}
@@ -293,7 +294,7 @@ class Subject extends CurriculumResource
 				$query->where("s.code = '$possibleModuleNumber'");
 				$this->_db->setQuery($query);
 
-				if (!$curriculumSubjects = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'curriculumID'))
+				if (!$curriculumSubjects = OrganizerHelper::executeQuery('loadAssocList', [], 'curriculumID'))
 				{
 					continue;
 				}
@@ -520,7 +521,7 @@ class Subject extends CurriculumResource
 		$query->delete('#__organizer_subject_curricula')->where("subjectID = '$subjectID'");
 		$this->_db->setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return (bool) OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -543,7 +544,7 @@ class Subject extends CurriculumResource
 
 		$this->_db->setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return (bool) OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -561,7 +562,7 @@ class Subject extends CurriculumResource
 			->where("subjectID = '$subjectID' OR prerequisiteID ='$subjectID'");
 		$this->_db->setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return (bool) OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -822,7 +823,7 @@ class Subject extends CurriculumResource
 			$deleteQuery->delete('#__organizer_prerequisites')
 				->where('subjectID IN (' . implode(',', $subjectIDs) . ')');
 			$this->_db->setQuery($deleteQuery);
-			Helpers\OrganizerHelper::executeQuery('execute');
+			OrganizerHelper::executeQuery('execute');
 		}
 
 		foreach ($prerequisiteIDs as $prerequisiteID)
@@ -836,7 +837,7 @@ class Subject extends CurriculumResource
 					->where("subjectID = '$subjectID'");
 				$this->_db->setQuery($checkQuery);
 
-				$entryExists = (bool) Helpers\OrganizerHelper::executeQuery('loadResult');
+				$entryExists = (bool) OrganizerHelper::executeQuery('loadResult');
 
 				if (!$entryExists)
 				{
@@ -845,7 +846,7 @@ class Subject extends CurriculumResource
 					$insertQuery->columns('prerequisiteID, subjectID');
 					$insertQuery->values("'$prerequisiteID', '$subjectID'");
 					$this->_db->setQuery($insertQuery);
-					Helpers\OrganizerHelper::executeQuery('execute');
+					OrganizerHelper::executeQuery('execute');
 				}
 			}
 		}

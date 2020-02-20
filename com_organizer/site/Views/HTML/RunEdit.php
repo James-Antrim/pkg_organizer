@@ -11,8 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads the run form into display context.
@@ -28,13 +27,13 @@ class RunEdit extends EditView
 	{
 		$new   = empty($this->item->id);
 		$title = $new ?
-			Languages::_('ORGANIZER_RUN_NEW') : Languages::_('ORGANIZER_RUN_EDIT');
-		HTML::setTitle($title, 'list');
+			Helpers\Languages::_('ORGANIZER_RUN_NEW') : Helpers\Languages::_('ORGANIZER_RUN_EDIT');
+		Helpers\HTML::setTitle($title, 'list');
 		$toolbar   = Toolbar::getInstance();
-		$applyText = $new ? Languages::_('ORGANIZER_CREATE') : Languages::_('ORGANIZER_APPLY');
+		$applyText = $new ? Helpers\Languages::_('ORGANIZER_CREATE') : Helpers\Languages::_('ORGANIZER_APPLY');
 		$toolbar->appendButton('Standard', 'apply', $applyText, 'runs.apply', false);
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'runs.save', false);
-		$cancelText = $new ? Languages::_('ORGANIZER_CANCEL') : Languages::_('ORGANIZER_CLOSE');
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'runs.save', false);
+		$cancelText = $new ? Helpers\Languages::_('ORGANIZER_CANCEL') : Helpers\Languages::_('ORGANIZER_CLOSE');
 		$toolbar->appendButton('Standard', 'cancel', $cancelText, 'runs.cancel', false);
 	}
 }

@@ -13,11 +13,9 @@ namespace Organizer\Fields;
 jimport('joomla.filesystem.folder');
 jimport('joomla.filesystem.file');
 
-use JFile;
-use JFolder;
+use Joomla\CMS\Filesystem;
 use SimpleXMLElement;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Supports an HTML select list of files
@@ -198,27 +196,29 @@ class FileOptionsField extends OptionsField
 			$path = JPATH_ROOT . '/' . $path;
 		}
 
+		$cleanedName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $this->fieldname);
+
 		// Prepend some default options based on field attributes.
 		if (!$this->hideNone)
 		{
-			$options[] = HTML::_(
+			$options[] = Helpers\HTML::_(
 				'select.option',
 				'-1',
-				Languages::alt('JOPTION_DO_NOT_USE', preg_replace('/[^a-zA-Z0-9_\-]/', '_', $this->fieldname))
+				Helpers\Languages::alt('JOPTION_DO_NOT_USE', $cleanedName)
 			);
 		}
 
 		if (!$this->hideDefault)
 		{
-			$options[] = HTML::_(
+			$options[] = Helpers\HTML::_(
 				'select.option',
 				'',
-				Languages::alt('JOPTION_USE_DEFAULT', preg_replace('/[^a-zA-Z0-9_\-]/', '_', $this->fieldname))
+				Helpers\Languages::alt('JOPTION_USE_DEFAULT', $cleanedName)
 			);
 		}
 
 		// Get a list of files in the search path with the given filter.
-		$files = JFolder::files($path, $this->filter);
+		$files = Filesystem\Folder::files($path, $this->filter);
 
 		// Build the options list from the list of files.
 		if (is_array($files))
@@ -237,10 +237,10 @@ class FileOptionsField extends OptionsField
 				// If the extension is to be stripped, do it.
 				if ($this->stripExt)
 				{
-					$file = JFile::stripExt($file);
+					$file = Filesystem\File::stripExt($file);
 				}
 
-				$options[] = HTML::_('select.option', $file, $file);
+				$options[] = Helpers\HTML::_('select.option', $file, $file);
 			}
 		}
 

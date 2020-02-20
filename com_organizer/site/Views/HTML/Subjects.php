@@ -11,12 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Pools;
-use Organizer\Helpers\Programs;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of subjects into the display context.
@@ -37,7 +32,7 @@ class Subjects extends ListView
 	public function __construct($config = array())
 	{
 		parent::__construct($config);
-		$this->params = Input::getParams();
+		$this->params = Helpers\Input::getParams();
 	}
 
 	/**
@@ -50,35 +45,35 @@ class Subjects extends ListView
 		$resourceName = '';
 		if ($this->clientContext == self::FRONTEND)
 		{
-			if ($programID = Input::getInt('programID'))
+			if ($programID = Helpers\Input::getInt('programID'))
 			{
-				$resourceName = Programs::getName($programID);
+				$resourceName = Helpers\Programs::getName($programID);
 			}
 			if ($poolID = $this->state->get('calledPoolID', 0))
 			{
-				$poolName     = Pools::getName($poolID);
+				$poolName     = Helpers\Pools::getName($poolID);
 				$resourceName .= empty($resourceName) ? $poolName : ", $poolName";
 			}
 		}
 
-		HTML::setMenuTitle('ORGANIZER_SUBJECTS', $resourceName, 'book');
+		Helpers\HTML::setMenuTitle('ORGANIZER_SUBJECTS', $resourceName, 'book');
 		$toolbar = Toolbar::getInstance();
 		if ($this->documentAccess)
 		{
-			$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'subjects.add', false);
-			$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'subjects.edit', true);
+			$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'subjects.add', false);
+			$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'subjects.edit', true);
 			$toolbar->appendButton(
 				'Standard',
 				'upload',
-				Languages::_('ORGANIZER_IMPORT_LSF'),
+				Helpers\Languages::_('ORGANIZER_IMPORT_LSF'),
 				'subjects.import',
 				true
 			);
 			$toolbar->appendButton(
 				'Confirm',
-				Languages::_('ORGANIZER_DELETE_CONFIRM'),
+				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 				'delete',
-				Languages::_('ORGANIZER_DELETE'),
+				Helpers\Languages::_('ORGANIZER_DELETE'),
 				'subjects.delete',
 				true
 			);
@@ -92,7 +87,7 @@ class Subjects extends ListView
 	 */
 	protected function allowAccess()
 	{
-		$this->documentAccess = (bool) Can::documentTheseOrganizations();
+		$this->documentAccess = (bool) Helpers\Can::documentTheseOrganizations();
 
 		return $this->clientContext === self::BACKEND ? $this->documentAccess : true;
 	}
@@ -113,10 +108,10 @@ class Subjects extends ListView
 			$headers['checkbox'] = '';
 		}
 
-		$headers['name']         = HTML::sort('NAME', 'name', $direction, $ordering);
-		$headers['code']         = HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
-		$headers['persons']      = Languages::_('ORGANIZER_TEACHERS');
-		$headers['creditpoints'] = Languages::_('ORGANIZER_CREDIT_POINTS');
+		$headers['name']         = Helpers\HTML::sort('NAME', 'name', $direction, $ordering);
+		$headers['code']         = Helpers\HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
+		$headers['persons']      = Helpers\Languages::_('ORGANIZER_TEACHERS');
+		$headers['creditpoints'] = Helpers\Languages::_('ORGANIZER_CREDIT_POINTS');
 
 		$this->headers = $headers;
 	}
@@ -138,11 +133,11 @@ class Subjects extends ListView
 			$roles = [];
 			if (isset($person['role'][self::COORDINATES]))
 			{
-				$roles[] = Languages::_('ORGANIZER_SUBJECT_COORDINATOR_ABBR');
+				$roles[] = Helpers\Languages::_('ORGANIZER_SUBJECT_COORDINATOR_ABBR');
 			}
 			if (isset($person['role'][self::TEACHES]))
 			{
-				$roles[] = Languages::_('ORGANIZER_TEACHER_ABBR');
+				$roles[] = Helpers\Languages::_('ORGANIZER_TEACHER_ABBR');
 			}
 
 			$name    .= ' (' . implode(', ', $roles) . ')';
@@ -194,7 +189,7 @@ class Subjects extends ListView
 		foreach ($this->items as $subject)
 		{
 			$access   = Can::document('subject', $subject->id);
-			$checkbox = $access ? HTML::_('grid.id', $index, $subject->id) : '';
+			$checkbox = $access ? Helpers\HTML::_('grid.id', $index, $subject->id) : '';
 			$thisLink = ($backend and $access) ? $editLink . $subject->id : $itemLink . $subject->id;
 
 			$structuredItems[$index] = [];
@@ -204,8 +199,8 @@ class Subjects extends ListView
 				$structuredItems[$index]['checkbox'] = $checkbox;
 			}
 
-			$structuredItems[$index]['name']         = HTML::_('link', $thisLink, $subject->name);
-			$structuredItems[$index]['code']         = HTML::_('link', $thisLink, $subject->code);
+			$structuredItems[$index]['name']         = Helpers\HTML::_('link', $thisLink, $subject->name);
+			$structuredItems[$index]['code']         = Helpers\HTML::_('link', $thisLink, $subject->code);
 			$structuredItems[$index]['persons']      = $this->getPersonDisplay($subject);
 			$structuredItems[$index]['creditpoints'] = empty($subject->creditpoints) ? '' : $subject->creditpoints;
 

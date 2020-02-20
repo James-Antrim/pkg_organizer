@@ -10,7 +10,7 @@
 
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
+use Organizer\Helpers;
 
 $toolbar     = Toolbar::getInstance();
 $columnCount = count($this->headers);
@@ -64,7 +64,7 @@ $type     = $viewName === 'Subject_Selection' ? 's' : 'p';
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="view" value="<?php echo $viewName; ?>"/>
     <input type="hidden" name="tmpl" value="component"/>
-	<?php echo HTML::_('form.token'); ?>
+	<?php echo Helpers\HTML::_('form.token'); ?>
 </form>
 <script>
     jQuery(document).ready(function () {

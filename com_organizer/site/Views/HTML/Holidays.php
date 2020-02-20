@@ -11,10 +11,9 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\HTML; // Exception for frequency of use
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads persistent information a filtered set of holidays into the display context.
@@ -51,7 +50,7 @@ class Holidays extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -88,10 +87,10 @@ class Holidays extends ListView
 		foreach ($this->items as $item)
 		{
 
-			$dateString = Dates::getDisplay($item->startDate, $item->endDate);
-			$today      = Dates::formatDate();
-			$startDate  = Dates::formatDate($item->startDate);
-			$endDate    = Dates::formatDate($item->endDate);
+			$dateString = Helpers\Dates::getDisplay($item->startDate, $item->endDate);
+			$today      = Helpers\Dates::formatDate();
+			$startDate  = Helpers\Dates::formatDate($item->startDate);
+			$endDate    = Helpers\Dates::formatDate($item->endDate);
 			$year       = date('Y', strtotime($item->startDate));
 
 			if ($endDate < $today)

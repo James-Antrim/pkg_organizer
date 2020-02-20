@@ -11,11 +11,11 @@
 namespace Organizer\Views\HTML;
 
 use Exception;
-use Joomla\Registry\Registry;
-use Organizer\Helpers\HTML;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Languages;
+use Joomla\Registry\Registry;
+use Organizer\Helpers;
+use Organizer\Helpers\HTML; // Exception for frequency of use
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
@@ -73,7 +73,7 @@ abstract class ListView extends BaseHTMLView
 	{
 		if (!$this->allowAccess())
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}
 
 		$this->state         = $this->get('State');

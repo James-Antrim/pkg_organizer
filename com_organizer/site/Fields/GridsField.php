@@ -10,9 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Campuses;
-use Organizer\Helpers\Grids;
-use Organizer\Helpers\Input;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for (subject) pools.
@@ -31,9 +29,9 @@ class GridsField extends OptionsField
 	 */
 	protected function getInput()
 	{
-		if (empty($this->value) and $campusID = Input::getParams()->get('campusID'))
+		if (empty($this->value) and $campusID = Helpers\Input::getParams()->get('campusID'))
 		{
-			$this->value = Campuses::getGridID($campusID);
+			$this->value = Helpers\Campuses::getGridID($campusID);
 		}
 
 		return parent::getInput();
@@ -47,7 +45,7 @@ class GridsField extends OptionsField
 	protected function getOptions()
 	{
 		$options  = parent::getOptions();
-		$campuses = Grids::getOptions();
+		$campuses = Helpers\Grids::getOptions();
 
 		return array_merge($options, $campuses);
 	}

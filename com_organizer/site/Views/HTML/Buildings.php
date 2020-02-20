@@ -11,10 +11,8 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Campuses;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads a filtered set of buildings into the display context.
@@ -38,7 +36,7 @@ class Buildings extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_BUILDINGS'), 'home-2');
+		Helpers\HTML::setTitle(Languages::_('ORGANIZER_BUILDINGS'), 'home-2');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'buildings.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'buildings.edit', true);
@@ -59,7 +57,7 @@ class Buildings extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -72,7 +70,7 @@ class Buildings extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'     => '',
-			'name'         => HTML::sort('NAME', 'name', $direction, 'name'),
+			'name'         => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
 			'campusID'     => Languages::_('ORGANIZER_CAMPUS'),
 			'propertyType' => Languages::_('ORGANIZER_PROPERTY_TYPE'),
 			'address'      => Languages::_('ORGANIZER_ADDRESS')
@@ -93,7 +91,7 @@ class Buildings extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->campusID = Campuses::getName($item->campusID);
+			$item->campusID = Helpers\Campuses::getName($item->campusID);
 
 			switch ($item->propertyType)
 			{

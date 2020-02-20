@@ -11,8 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads the plan (subject) pool form into display context.
@@ -26,9 +25,9 @@ class GroupEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_GROUP_EDIT'), 'list-2');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_GROUP_EDIT'), 'list-2');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'groups.save', false);
-		$toolbar->appendButton('Standard', 'cancel', Languages::_('ORGANIZER_CANCEL'), 'groups.cancel', false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'groups.save', false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_('ORGANIZER_CANCEL'), 'groups.cancel', false);
 	}
 }

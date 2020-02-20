@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Buildings as BuildingsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class which manages stored building data.
@@ -23,7 +23,7 @@ class Building extends BaseModel
 	 */
 	protected function allow()
 	{
-		return Can::manage('facilities');
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**
@@ -33,12 +33,12 @@ class Building extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return BuildingsTable  A Table object
+	 * @return Tables\Buildings  A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new BuildingsTable;
+		return new Tables\Buildings;
 	}
 }

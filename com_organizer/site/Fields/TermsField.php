@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Terms;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for terms.
@@ -30,7 +30,7 @@ class TermsField extends OptionsField
 	protected function getOptions()
 	{
 		$options = parent::getOptions();
-		$terms   = Terms::getOptions((bool) $this->getAttribute('withDates'));
+		$terms   = Helpers\Terms::getOptions((bool) $this->getAttribute('withDates'));
 
 		return array_merge($options, $terms);
 	}

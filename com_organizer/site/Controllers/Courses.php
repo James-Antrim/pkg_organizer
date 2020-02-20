@@ -14,7 +14,7 @@ use Exception;
 use Joomla\CMS\Router\Route;
 use Organizer\Controller;
 use Organizer\Helpers;
-use Organizer\Models\Course;
+use Organizer\Models;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -38,7 +38,7 @@ class Courses extends Controller
 	public function save()
 	{
 		$backend = $this->clientContext === self::BACKEND;
-		$model   = new Course();
+		$model   = new Models\Course;
 		$url     = Helpers\Routing::getRedirectBase();
 
 		if ($courseID = $model->save())

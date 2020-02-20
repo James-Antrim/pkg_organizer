@@ -8,20 +8,19 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\Organizations;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 $activeDay      = date('w');
 $categoryPH     = Languages::_('ORGANIZER_SELECT_CATEGORY');
 $datesOfTheWeek = [
-	Dates::formatDate('monday this week'),
-	Dates::formatDate('tuesday this week'),
-	Dates::formatDate('wednesday this week'),
-	Dates::formatDate('thursday this week'),
-	Dates::formatDate('friday this week'),
-	Dates::formatDate('saturday this week'),
-	Dates::formatDate('sunday this week')
+	Helpers\Dates::formatDate('monday this week'),
+	Helpers\Dates::formatDate('tuesday this week'),
+	Helpers\Dates::formatDate('wednesday this week'),
+	Helpers\Dates::formatDate('thursday this week'),
+	Helpers\Dates::formatDate('friday this week'),
+	Helpers\Dates::formatDate('saturday this week'),
+	Helpers\Dates::formatDate('sunday this week')
 ];
 $daysOfTheWeek  = [
 	Languages::_('MON'),
@@ -178,7 +177,7 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
                  aria-labelledby="tab-schedule-form" aria-hidden="false">
                 <div id="organization-input" class="input-wrapper">
                     <select id="organization" data-input="static" data-placeholder="<?php echo $organizationPH; ?>">
-						<?php foreach (Organizations::getOptions() as $organization) : ?>
+						<?php foreach (Helpers\Organization::getOptions() as $organization) : ?>
                             <option value="<?php echo $organization->value; ?>">
 								<?php echo $organization->text; ?>
                             </option>

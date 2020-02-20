@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use Joomla\CMS\Application\ApplicationHelper;
 use Organizer\Helpers;
+use Organizer\Helpers\Input; // Exception for frequency of use
 use Organizer\Tables;
 
 /**
@@ -39,7 +40,7 @@ class ScheduleExport extends BaseModel
 	public function __construct(array $config)
 	{
 		parent::__construct($config);
-		$format        = Helpers\Input::getCMD('format', 'html');
+		$format        = Input::getCMD('format', 'html');
 		$lessonFormats = ['pdf', 'ics', 'xls'];
 
 		// Don't bother setting these variables for html and raw formats
@@ -341,21 +342,21 @@ class ScheduleExport extends BaseModel
 	private function setParameters()
 	{
 		$parameters                    = [];
-		$parameters['organizationIDs'] = Helpers\Input::getFilterIDs('organization');
-		$parameters['format']          = Helpers\Input::getCMD('format', 'pdf');
-		$parameters['mySchedule']      = Helpers\Input::getBool('myschedule', false);
+		$parameters['organizationIDs'] = Input::getFilterIDs('organization');
+		$parameters['format']          = Input::getCMD('format', 'pdf');
+		$parameters['mySchedule']      = Input::getBool('myschedule', false);
 
 		if (empty($parameters['mySchedule']))
 		{
-			if (count($poolIDs = Helpers\Input::getFilterIDs('pool')))
+			if (count($poolIDs = Input::getFilterIDs('pool')))
 			{
 				$parameters["poolIDs"] = [$poolIDs];
 			}
-			if (count($personIDs = Helpers\Input::getFilterIDs('person')))
+			if (count($personIDs = Input::getFilterIDs('person')))
 			{
 				$parameters["personIDs"] = [$personIDs];
 			}
-			if (count($roomIDs = Helpers\Input::getFilterIDs('room')))
+			if (count($roomIDs = Input::getFilterIDs('room')))
 			{
 				$parameters["roomIDs"] = [$roomIDs];
 			}
@@ -364,24 +365,24 @@ class ScheduleExport extends BaseModel
 		$parameters['userID'] = Helpers\Users::getUser()->id;
 
 		$allowedIntervals       = ['day', 'week', 'month', 'semester', 'custom'];
-		$reqInterval            = Helpers\Input::getCMD('interval');
+		$reqInterval            = Input::getCMD('interval');
 		$parameters['interval'] = in_array($reqInterval, $allowedIntervals) ? $reqInterval : 'week';
 
-		$parameters['date'] = Helpers\Dates::standardizeDate(Helpers\Input::getCMD('date'));
+		$parameters['date'] = Helpers\Dates::standardizeDate(Input::getCMD('date'));
 
 		switch ($parameters['format'])
 		{
 			case 'pdf':
-				$parameters['documentFormat'] = Helpers\Input::getCMD('documentFormat', 'a4');
-				$parameters['displayFormat']  = Helpers\Input::getCMD('displayFormat', 'schedule');
-				$parameters['gridID']         = Helpers\Input::getInt('gridID');
-				$parameters['grouping']       = Helpers\Input::getInt('grouping', 1);
-				$parameters['pdfWeekFormat']  = Helpers\Input::getCMD('pdfWeekFormat', 'sequence');
-				$parameters['titles']         = Helpers\Input::getInt('titles', 1);
+				$parameters['documentFormat'] = Input::getCMD('documentFormat', 'a4');
+				$parameters['displayFormat']  = Input::getCMD('displayFormat', 'schedule');
+				$parameters['gridID']         = Input::getInt('gridID');
+				$parameters['grouping']       = Input::getInt('grouping', 1);
+				$parameters['pdfWeekFormat']  = Input::getCMD('pdfWeekFormat', 'sequence');
+				$parameters['titles']         = Input::getInt('titles', 1);
 				break;
 			case 'xls':
-				$parameters['documentFormat'] = Helpers\Input::getCMD('documentFormat', 'si');
-				$parameters['xlsWeekFormat']  = Helpers\Input::getCMD('xlsWeekFormat', 'sequence');
+				$parameters['documentFormat'] = Input::getCMD('documentFormat', 'si');
+				$parameters['xlsWeekFormat']  = Input::getCMD('xlsWeekFormat', 'sequence');
 				break;
 		}
 

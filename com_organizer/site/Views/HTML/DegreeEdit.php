@@ -11,8 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads the degree form into display context.
@@ -28,13 +27,13 @@ class DegreeEdit extends EditView
 	{
 		$new   = empty($this->item->id);
 		$title = $new ?
-			Languages::_('ORGANIZER_DEGREE_NEW') : Languages::_('ORGANIZER_DEGREE_EDIT');
-		HTML::setTitle($title, 'info-cap');
+			Helpers\Languages::_('ORGANIZER_DEGREE_NEW') : Helpers\Languages::_('ORGANIZER_DEGREE_EDIT');
+		Helpers\HTML::setTitle($title, 'info-cap');
 		$toolbar   = Toolbar::getInstance();
-		$applyText = $new ? Languages::_('ORGANIZER_CREATE') : Languages::_('ORGANIZER_APPLY');
+		$applyText = $new ? Helpers\Languages::_('ORGANIZER_CREATE') : Helpers\Languages::_('ORGANIZER_APPLY');
 		$toolbar->appendButton('Standard', 'apply', $applyText, 'degrees.apply', false);
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'degrees.save', false);
-		$cancelText = $new ? Languages::_('ORGANIZER_CANCEL') : Languages::_('ORGANIZER_CLOSE');
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'degrees.save', false);
+		$cancelText = $new ? Helpers\Languages::_('ORGANIZER_CANCEL') : Helpers\Languages::_('ORGANIZER_CLOSE');
 		$toolbar->appendButton('Standard', 'cancel', $cancelText, 'degrees.cancel', false);
 	}
 }

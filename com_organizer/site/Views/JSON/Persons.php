@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Persons as PersonsHelper;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic person related queries
@@ -25,10 +24,10 @@ class Persons extends BaseView
 	 */
 	public function display()
 	{
-		$function = Input::getTask();
+		$function = Helpers\Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Persons', $function))
 		{
-			echo json_encode(PersonsHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(Helpers\Persons::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

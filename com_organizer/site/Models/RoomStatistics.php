@@ -10,13 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\Organizations;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Rooms;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\Terms;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class calculates room usage statistics.
@@ -63,7 +58,7 @@ class RoomStatistics extends BaseModel
 	{
 		parent::__construct($config);
 
-		$format = Input::getCMD('format', 'html');
+		$format = Helpers\Input::getCMD('format', 'html');
 
 		switch ($format)
 		{
@@ -170,7 +165,7 @@ class RoomStatistics extends BaseModel
 	public function getOrganizationOptions()
 	{
 		$options = [];
-		foreach (Organizations::getOptions(false) as $id => $name)
+		foreach (Helpers\Organizations::getOptions(false) as $id => $name)
 		{
 			$options[$id] = $name;
 		}
@@ -278,7 +273,7 @@ class RoomStatistics extends BaseModel
 	 */
 	private function setData($roomID)
 	{
-		$tag       = Languages::getTag();
+		$tag       = Helpers\Languages::getTag();
 		$ringQuery = $this->_db->getQuery(true);
 		$ringQuery->select('DISTINCT ccm.id AS ccmID')
 			->from('#__organizer_calendar_configuration_map AS ccm')
@@ -301,8 +296,8 @@ class RoomStatistics extends BaseModel
 		$regexp = '"rooms":\\{("[0-9]+":"[\w]*",)*"' . $roomID . '":("new"|"")';
 		$ringQuery->where("conf.configuration REGEXP '$regexp'");
 		$this->_db->setQuery($ringQuery);
-		$ringData = OrganizerHelper::executeQuery('loadAssocList');
-		$lcrsIDs  = OrganizerHelper::executeQuery('loadColumn', [], 1);
+		$ringData = Helpers\OrganizerHelper::executeQuery('loadAssocList');
+		$lcrsIDs  = Helpers\OrganizerHelper::executeQuery('loadColumn', [], 1);
 
 		if (empty($ringData) or empty($lcrsIDs))
 		{
@@ -322,11 +317,11 @@ class RoomStatistics extends BaseModel
 	 */
 	private function setDates()
 	{
-		$termID = Input::getFilterID('term');
+		$termID = Helpers\Input::getFilterID('term');
 
 		if ($termID)
 		{
-			$table = new Terms;
+			$table = new Tables\Terms;
 
 			if ($table->load($termID))
 			{
@@ -337,20 +332,20 @@ class RoomStatistics extends BaseModel
 			}
 		}
 
-		$dateFormat = Input::getParams()->get('dateFormat');
-		$date       = Input::getCMD('date', date($dateFormat));
+		$dateFormat = Helpers\Input::getParams()->get('dateFormat');
+		$date       = Helpers\Input::getCMD('date', date($dateFormat));
 		$startDoWNo = empty($this->startDoW) ? 1 : $this->startDoW;
 		$endDoWNo   = empty($this->endDoW) ? 6 : $this->endDoW;
-		$interval   = Input::getCMD('interval', 'week');
+		$interval   = Helpers\Input::getCMD('interval', 'week');
 
 		switch ($interval)
 		{
 			case 'month':
-				$dates = Dates::getMonth($date, $startDoWNo, $endDoWNo);
+				$dates = Helpers\Dates::getMonth($date, $startDoWNo, $endDoWNo);
 				break;
 			case 'week':
 			default:
-				$dates = Dates::getWeek($date, $startDoWNo, $endDoWNo);
+				$dates = Helpers\Dates::getWeek($date, $startDoWNo, $endDoWNo);
 				break;
 
 		}
@@ -382,7 +377,7 @@ class RoomStatistics extends BaseModel
 
 		$this->_db->setQuery($query);
 
-		$rawGrid = OrganizerHelper::executeQuery('loadResult');
+		$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult');
 		if (empty($rawGrid))
 		{
 			return;
@@ -413,7 +408,7 @@ class RoomStatistics extends BaseModel
 	 */
 	private function setLSData($lcrsIDs)
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
 		$select = 'DISTINCT lcrs.id AS lcrsID, ';
@@ -450,7 +445,7 @@ class RoomStatistics extends BaseModel
 		$query->where("lcrs.id IN ('" . implode("', '", $lcrsIDs) . "')");
 		$this->_db->setQuery($query);
 
-		$results = OrganizerHelper::executeQuery('loadAssocList', [], 'lcrsID');
+		$results = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'lcrsID');
 		if (empty($results))
 		{
 			return;
@@ -469,7 +464,7 @@ class RoomStatistics extends BaseModel
 	 */
 	private function setRooms()
 	{
-		$rooms       = Rooms::getPlannedRooms();
+		$rooms       = Helpers\Rooms::getPlannedRooms();
 		$roomtypeMap = [];
 
 		foreach ($rooms as $room)
@@ -488,7 +483,7 @@ class RoomStatistics extends BaseModel
 	 */
 	private function setRoomtypes()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
 		$query->select("id, name_$tag AS name, description_$tag AS description")
@@ -497,7 +492,7 @@ class RoomStatistics extends BaseModel
 
 		$this->_db->setQuery($query);
 
-		$this->roomtypes = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$this->roomtypes = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
 	}
 
 	/**

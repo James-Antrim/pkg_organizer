@@ -11,8 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of schedules.
@@ -33,7 +32,7 @@ class Schedules extends ListModel
 	protected function getListQuery()
 	{
 		$dbo   = $this->getDbo();
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $dbo->getQuery(true);
 
 		$createdParts = ['s.creationDate', 's.creationTime'];
@@ -47,7 +46,7 @@ class Schedules extends ListModel
 			->innerJoin('#__organizer_terms AS term ON term.id = s.termID')
 			->leftJoin('#__users AS u ON u.id = s.userID');
 
-		$authorized = implode(', ', Can::scheduleTheseOrganizations());
+		$authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
 		$query->where("o.id IN ($authorized)");
 
 		$this->setValueFilters($query, ['organizationID', 'termID', 'active']);

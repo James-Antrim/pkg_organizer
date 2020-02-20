@@ -11,10 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class creates a generalized select box for selection of a single id column value among those already selected.
@@ -33,8 +30,8 @@ class MergeOrganizationsField extends OptionsField
 	 */
 	protected function getOptions()
 	{
-		$selectedIDs    = Input::getSelectedIDs();
-		$resource       = str_replace('_merge', '', Input::getView());
+		$selectedIDs    = Helpers\Input::getSelectedIDs();
+		$resource       = str_replace('_merge', '', Helpers\Input::getView());
 		$validResources = ['category', 'person'];
 		$invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
 		if ($invalid)
@@ -42,7 +39,7 @@ class MergeOrganizationsField extends OptionsField
 			return [];
 		}
 
-		$textColumn = 'shortName_' . Languages::getTag();
+		$textColumn = 'shortName_' . Helpers\Languages::getTag();
 		$table      = $resource === 'category' ? 'categories' : 'persons';
 
 		$dbo   = Factory::getDbo();
@@ -56,7 +53,7 @@ class MergeOrganizationsField extends OptionsField
 			->order('text ASC');
 		$dbo->setQuery($query);
 
-		$valuePairs = OrganizerHelper::executeQuery('loadAssocList');
+		$valuePairs = Helpers\OrganizerHelper::executeQuery('loadAssocList');
 		if (empty($valuePairs))
 		{
 			return [];
@@ -66,7 +63,7 @@ class MergeOrganizationsField extends OptionsField
 		$values  = [];
 		foreach ($valuePairs as $valuePair)
 		{
-			$options[]                   = HTML::_('select.option', $valuePair['value'], $valuePair['text']);
+			$options[]                   = Helpers\HTML::_('select.option', $valuePair['value'], $valuePair['text']);
 			$values[$valuePair['value']] = $valuePair['value'];
 		}
 

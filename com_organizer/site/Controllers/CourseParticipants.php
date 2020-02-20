@@ -14,7 +14,9 @@ namespace Organizer\Controllers;
 use Exception;
 use Joomla\CMS\Router\Route;
 use Organizer\Helpers;
-use Organizer\Models\CourseParticipant;
+use Organizer\Helpers\Input; // Exception for frequency of use
+use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
+use Organizer\Models;
 
 trait CourseParticipants
 {
@@ -26,18 +28,18 @@ trait CourseParticipants
 	 */
 	public function accept()
 	{
-		$model = new CourseParticipant;
+		$model = new Models\CourseParticipant;
 
 		if ($model->accept())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
 	}
 
 	/**
@@ -50,11 +52,11 @@ trait CourseParticipants
 	{
 		if (empty($this->getModel('course')->circular()))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SEND_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_SEND_FAIL', 'error');
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SEND_SUCCESS', 'error');
+			OrganizerHelper::message('ORGANIZER_SEND_SUCCESS', 'error');
 		}
 
 		$lessonID = $this->input->get('lessonID');
@@ -69,18 +71,18 @@ trait CourseParticipants
 	 */
 	public function changeState()
 	{
-		$model = new CourseParticipant;
+		$model = new Models\CourseParticipant;
 
 		if ($model->changeState())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
 	}
 
 	/**
@@ -91,18 +93,18 @@ trait CourseParticipants
 	 */
 	public function confirmAttendance()
 	{
-		$model = new CourseParticipant;
+		$model = new Models\CourseParticipant;
 
 		if ($model->confirmAttendance())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
 	}
 
 	/**
@@ -113,18 +115,18 @@ trait CourseParticipants
 	 */
 	public function confirmPayment()
 	{
-		$model = new CourseParticipant;
+		$model = new Models\CourseParticipant;
 
 		if ($model->confirmPayment())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
 	}
 
 	/**
@@ -148,39 +150,39 @@ trait CourseParticipants
 	 */
 	public function register()
 	{
-		$participantID = Helpers\Input::getInt('participantID');
+		$participantID = Input::getInt('participantID');
 
 		if (!Helpers\Participants::canRegister($participantID))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_REGISTRATION_INCOMPLETE', 'error');
-			$this->setRedirect(Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+			OrganizerHelper::message('ORGANIZER_PARTICIPANT_REGISTRATION_INCOMPLETE', 'error');
+			$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
 		}
 
-		$courseID      = Helpers\Input::getInt('participantID');
-		$eventID       = Helpers\Input::getInt('eventID');
-		$model         = new CourseParticipant;
+		$courseID      = Input::getInt('participantID');
+		$eventID       = Input::getInt('eventID');
+		$model         = new Models\CourseParticipant;
 		$previousState = Helpers\CourseParticipants::getState($courseID, $participantID, $eventID);
 
 		if ($model->register())
 		{
 			if ($previousState !== self::UNREGISTERED)
 			{
-				Helpers\OrganizerHelper::message('ORGANIZER_DEREGISTER_SUCCESS', 'success');
+				OrganizerHelper::message('ORGANIZER_DEREGISTER_SUCCESS', 'success');
 			}
 			else
 			{
 				$currentState = Helpers\CourseParticipants::getState($courseID, $participantID, $eventID);
 
 				$msg = $currentState ? 'ORGANIZER_REGISTRATION_ACCEPTED' : 'ORGANIZER_REGISTRATION_WAIT';
-				Helpers\OrganizerHelper::message($msg);
+				OrganizerHelper::message($msg);
 			}
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
 	}
 
 	/**
@@ -191,18 +193,18 @@ trait CourseParticipants
 	 */
 	public function remove()
 	{
-		$model = new CourseParticipant;
+		$model = new Models\CourseParticipant;
 
 		if ($model->remove())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_REMOVE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_REMOVE_SUCCESS', 'success');
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_REMOVE_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_REMOVE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
 	}
 
 	/**
@@ -213,17 +215,17 @@ trait CourseParticipants
 	 */
 	public function toggle()
 	{
-		$model = new CourseParticipant;
+		$model = new Models\CourseParticipant;
 
 		if ($model->toggle())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_TOGGLE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_TOGGLE_SUCCESS', 'success');
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_TOGGLE_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_TOGGLE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
 	}
 }

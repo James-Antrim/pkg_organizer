@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Categories;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic (degree) program related queries
@@ -24,6 +24,6 @@ class CategoryOptions extends BaseView
 	 */
 	public function display()
 	{
-		echo json_encode(Categories::getOptions(), JSON_UNESCAPED_UNICODE);
+		echo json_encode(Helpers\Categories::getOptions(), JSON_UNESCAPED_UNICODE);
 	}
 }

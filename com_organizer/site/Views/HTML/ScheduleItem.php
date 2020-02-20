@@ -12,11 +12,8 @@ namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Grids;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads the schedule form into the display context.
@@ -81,11 +78,11 @@ class ScheduleItem extends BaseHTMLView
 	 */
 	public function display($tpl = null)
 	{
-		$compParams        = Input::getParams();
+		$compParams        = Helpers\Input::getParams();
 		$this->dateFormat  = $compParams->get('dateFormat', 'd.m.Y');
 		$this->emailFilter = $compParams->get('emailFilter', '');
-		$this->grids       = Grids::getResources();
-		$this->isMobile    = OrganizerHelper::isSmartphone();
+		$this->grids       = Helpers\Grids::getResources();
+		$this->isMobile    = Helpers\OrganizerHelper::isSmartphone();
 		$this->params      = $this->getModel()->params;
 		$this->tag         = Languages::getTag();
 
@@ -107,7 +104,7 @@ class ScheduleItem extends BaseHTMLView
 		$doc->addStyleSheet(Uri::root() . 'components/com_organizer/css/schedule_item.css');
 		$doc->addStyleSheet(Uri::root() . 'media/jui/css/icomoon.css');
 
-		HTML::_('formbehavior.chosen', 'select');
+		Helpers\HTML::_('formbehavior.chosen', 'select');
 	}
 
 	/**
@@ -128,7 +125,7 @@ class ScheduleItem extends BaseHTMLView
 			'dateFormat'      => $this->dateFormat,
 			'exportBase'      => $root . 'index.php?option=com_organizer&view=schedule_export',
 			'isMobile'        => $this->isMobile,
-			'menuID'          => Input::getItemid(),
+			'menuID'          => Helpers\Input::getItemid(),
 			'subjectItemBase' => $root . 'index.php?option=com_organizer&view=subject_item&id=1',
 			'username'        => $user->id ? $user->username : ''
 		];
@@ -155,7 +152,7 @@ class ScheduleItem extends BaseHTMLView
 		foreach ($this->grids as $grid)
 		{
 			$gridID     = $grid['id'];
-			$gridString = Grids::getGrid($gridID);
+			$gridString = Helpers\Grids::getGrid($gridID);
 
 			// Set a default until when/if the real default is iterated
 			$this->params['defaultGrid'] = empty($this->params['defaultGrid']) ?

@@ -12,8 +12,8 @@ namespace Organizer\Models;
 
 use Exception;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Tables\Subjects as SubjectsTable;
+use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Tables;
 
 /**
  * Class which retrieves subject information for a detailed display of subject attributes.
@@ -154,13 +154,13 @@ class SubjectItem extends ItemModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return SubjectsTable A Table object
+	 * @return Tables\Subjects A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new SubjectsTable;
+		return new Tables\Subjects;
 	}
 
 	/**

@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of runs.
@@ -29,7 +29,7 @@ class Runs extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag       = Languages::getTag();
+		$tag       = Helpers\Languages::getTag();
 		$linkParts = ["'index.php?option=com_organizer&view=run_edit&id='", 'r.id'];
 		$query     = $this->_db->getQuery(true);
 		$query->select("r.id, r.name_$tag as name, r.run, r.termID, t.name_$tag as term")

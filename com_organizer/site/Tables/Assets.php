@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 use Joomla\CMS\Access\Rules;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Abstract class for use by resource tables whose access rules are to be stored in the Joomla assets table.
@@ -124,7 +124,7 @@ abstract class Assets extends BaseTable
 							->update($this->_db->quoteName($this->_tbl))
 							->set('asset_id = ' . (int) $this->asset_id);
 						$this->appendPrimaryKeys($query);
-						OrganizerHelper::executeQuery('execute');
+						Helpers\OrganizerHelper::executeQuery('execute');
 					}
 				}
 			}

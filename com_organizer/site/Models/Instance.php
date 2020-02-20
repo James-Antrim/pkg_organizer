@@ -10,8 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
@@ -68,7 +67,7 @@ class Instance extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		$table = new Tables\Instances;
 		if (!$table->save($data))
@@ -193,7 +192,7 @@ class Instance extends BaseModel
 
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('execute', false) ? true : false;
+		return Helpers\OrganizerHelper::executeQuery('execute', false) ? true : false;
 	}
 
 	/**
@@ -205,7 +204,7 @@ class Instance extends BaseModel
 	 */
 	public function save2copy($data = [])
 	{
-		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		unset($data['id']);
 

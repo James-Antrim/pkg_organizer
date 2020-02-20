@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Terms;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic term related queries
@@ -24,6 +24,6 @@ class TermOptions extends BaseView
 	 */
 	public function display()
 	{
-		echo json_encode(Terms::getOptions(), JSON_UNESCAPED_UNICODE);
+		echo json_encode(Helpers\Terms::getOptions(), JSON_UNESCAPED_UNICODE);
 	}
 }

@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Units as UnitsHelper;
-use Organizer\Tables\Units as UnitsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing unit data.
@@ -28,7 +28,7 @@ class UnitEdit extends EditModel
 	public function getItem($pk = null)
 	{
 		$this->item          = parent::getItem($pk);
-		$this->item->eventID = UnitsHelper::getEventID($this->item->id);
+		$this->item->eventID = Helpers\Units::getEventID($this->item->id);
 
 		return $this->item;
 	}
@@ -40,12 +40,12 @@ class UnitEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return UnitsTable A Table object
+	 * @return Tables\Units A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new UnitsTable;
+		return new Tables\Units;
 	}
 }

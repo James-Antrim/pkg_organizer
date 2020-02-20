@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves the data regarding a filtered set of units.
@@ -28,7 +28,7 @@ class Units extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag = Languages::getTag();
+		$tag = Helpers\Languages::getTag();
 
 		$query    = $this->_db->getQuery(true);
 		$subQuery = $this->_db->getQuery(true);

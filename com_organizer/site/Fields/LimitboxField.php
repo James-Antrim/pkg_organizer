@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Field to load a list of possible item count limits
@@ -90,7 +90,7 @@ class LimitboxField extends OptionsField
 				{
 					$options[] = (object) array(
 						'value' => $value,
-						'text'  => ($value != 0) ? Languages::_('J' . $value) : Languages::_('JALL'),
+						'text'  => ($value != 0) ? Helpers\Languages::_('J' . $value) : Helpers\Languages::_('JALL'),
 					);
 				}
 

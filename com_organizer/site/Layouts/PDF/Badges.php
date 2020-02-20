@@ -11,8 +11,8 @@
 
 namespace Organizer\Layouts\PDF;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class generates sheets of participant badges based on the participants.
@@ -49,7 +49,7 @@ class Badges extends BaseLayout
 	{
 		parent::__construct();
 
-		$this->params = Input::getParams();
+		$this->params = Helpers\Input::getParams();
 		$this->setCourse($courseID);
 
 		$documentName = "$this->name - $this->term - " . Languages::_('ORGANIZER_BADGE_SHEETS');

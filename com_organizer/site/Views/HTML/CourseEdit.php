@@ -10,10 +10,9 @@
 
 namespace Organizer\Views\HTML;
 
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Joomla\CMS\Toolbar\Toolbar;
 
 /**
  * Class loads persistent information about a course into the display context.
@@ -34,26 +33,30 @@ class CourseEdit extends EditView
 
 		if ($courseID)
 		{
-			Helpers\HTML::setTitle(Languages::_('ORGANIZER_COURSE_EDIT'), 'contract-2');
+			Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_COURSE_EDIT'), 'contract-2');
 
-			$toolbar->appendButton('Standard', 'apply', Languages::_('ORGANIZER_APPLY'), 'courses.apply', false);
-			$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'courses.save', false);
-			$toolbar->appendButton('Standard', 'cancel', Languages::_('ORGANIZER_CLOSE'), 'courses.cancel', false);
+			$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_('ORGANIZER_APPLY'), 'courses.apply',
+				false);
+			$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'courses.save', false);
+			$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_('ORGANIZER_CLOSE'), 'courses.cancel',
+				false);
 
 			$href = Uri::base() . "?option=com_organizer&view=course_participants&courseID=$courseID";
 			$icon = '<span class="icon-users"></span>';
-			$text = Languages::_('ORGANIZER_MANAGE_PARTICIPANTS');
+			$text = Helpers\Languages::_('ORGANIZER_MANAGE_PARTICIPANTS');
 
 			$button = "<a class=\"btn\" href=\"$href\" target=\"_blank\">$icon$text</a>";
 			$toolbar->appendButton('Custom', $button, 'participants');
 		}
 		else
 		{
-			Helpers\HTML::setTitle(Languages::_('ORGANIZER_COURSE_NEW'), 'contract-2');
+			Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_COURSE_NEW'), 'contract-2');
 
-			$toolbar->appendButton('Standard', 'apply', Languages::_('ORGANIZER_CREATE'), 'courses.apply', false);
-			$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'courses.save', false);
-			$toolbar->appendButton('Standard', 'cancel', Languages::_('ORGANIZER_CANCEL'), 'courses.cancel', false);
+			$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_('ORGANIZER_CREATE'), 'courses.apply',
+				false);
+			$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'courses.save', false);
+			$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_('ORGANIZER_CANCEL'), 'courses.cancel',
+				false);
 		}
 	}
 

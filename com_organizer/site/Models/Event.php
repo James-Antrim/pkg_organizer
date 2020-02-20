@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Events as EventsTable;
+use Organizer\Tables;
 
 /**
  * Class which manages stored event data.
@@ -24,12 +24,12 @@ class Event extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return EventsTable A Table object
+	 * @return Tables\Events A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new EventsTable;
+		return new Tables\Events;
 	}
 }

@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Tables\Schedules as SchedulesTable;
+use Organizer\Tables;
 
 /**
  * Provides general functions for schedule access checks, data retrieval and display.
@@ -32,7 +32,7 @@ class Schedules extends ResourceHelper
 			return 0;
 		}
 
-		$table = new SchedulesTable;
+		$table = new Tables\Schedules;
 
 		return $table->load(['active' => 1, 'organizationID' => $organizationID, 'termID' => $termID]) ? $table->id : 0;
 	}

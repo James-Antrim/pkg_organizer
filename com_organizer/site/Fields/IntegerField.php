@@ -10,8 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Provides a select list of integers with specified first, last and step values.
@@ -64,9 +63,9 @@ class IntegerField extends OptionsField
 			{
 				$text = empty($prefix) ? '' : $prefix;
 				$text .= $number;
-				$text .= empty($unit) ? '' : ' ' . Languages::_("ORGANIZER_$unit");
+				$text .= empty($unit) ? '' : ' ' . Helpers\Languages::_("ORGANIZER_$unit");
 
-				$options[] = HTML::_('select.option', $number, $text);
+				$options[] = Helpers\HTML::_('select.option', $number, $text);
 			}
 		}
 		else
@@ -76,9 +75,9 @@ class IntegerField extends OptionsField
 			{
 				$text = empty($prefix) ? '' : $prefix;
 				$text .= $number;
-				$text .= empty($unit) ? '' : ' ' . Languages::_("ORGANIZER_$unit");
+				$text .= empty($unit) ? '' : ' ' . Helpers\Languages::_("ORGANIZER_$unit");
 
-				$options[] = HTML::_('select.option', $number, $text);
+				$options[] = Helpers\HTML::_('select.option', $number, $text);
 			}
 		}
 

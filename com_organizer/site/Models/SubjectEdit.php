@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Subjects as SubjectsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing data.
@@ -29,7 +29,7 @@ class SubjectEdit extends EditModel
 	{
 		$subjectID = empty($this->item->id) ? 0 : $this->item->id;
 
-		return Can::document('subject', $subjectID);
+		return Helpers\Can::document('subject', $subjectID);
 	}
 
 	/**
@@ -39,12 +39,12 @@ class SubjectEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return SubjectsTable A Table object
+	 * @return Tables\Subjects A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new SubjectsTable;
+		return new Tables\Subjects;
 	}
 }

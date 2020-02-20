@@ -11,13 +11,10 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Factory;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Courses;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\CourseParticipants as CourseParticipantsTable;
+use Organizer\Helpers;
+use Organizer\Helpers\Input; // Exception for frequency of use
+use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Tables;
 
 /**
  * Class which manages stored course data.
@@ -53,14 +50,14 @@ class CourseParticipant extends BaseModel
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
 
-		if (!Can::manage('course', $courseID))
+		if (!Helpers\Can::manage('course', $courseID))
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
 
 		foreach ($participantIDs as $participantID)
 		{
-			if (!Can::manage('participant', $participantID))
+			if (!Helpers\Can::manage('participant', $participantID))
 			{
 				throw new Exception(Languages::_('ORGANIZER_403'), 403);
 			}
@@ -95,7 +92,7 @@ class CourseParticipant extends BaseModel
 		{
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
-		elseif (!Can::manage('course', $courseID))
+		elseif (!Helpers\Can::manage('course', $courseID))
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
@@ -120,7 +117,7 @@ class CourseParticipant extends BaseModel
 
 		// Get the ids of the intended recipients
 		//$status = include wait list? yes, no, no input
-		//$recipients = Courses::getParticipants($courseID, $status);
+		//$recipients = Helpers\Courses::getParticipants($courseID, $status);
 
 		//if (empty($recipients))
 		//{
@@ -155,7 +152,7 @@ class CourseParticipant extends BaseModel
 		$data     = Input::getInput()->getArray();
 		$courseID = Input::getID();
 
-		if (!Can::manage('course', $courseID))
+		if (!Helpers\Can::manage('course', $courseID))
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
@@ -178,7 +175,7 @@ class CourseParticipant extends BaseModel
 
 			if ($state === 0)
 			{
-				Courses::refreshWaitList($courseID);
+				Helpers\Courses::refreshWaitList($courseID);
 			}
 		}
 
@@ -214,13 +211,13 @@ class CourseParticipant extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return CourseParticipantsTable A Table object
+	 * @return Tables\CourseParticipants A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new CourseParticipantsTable;
+		return new Tables\CourseParticipants;
 	}
 	/*
 		private function mailRemoval($courseID, $participantID)
@@ -247,15 +244,15 @@ class CourseParticipant extends BaseModel
 
 			$mailer->setSender([$sender->email, $sender->name]);
 
-			$course   = Courses::getCourse($courseID);
-			$dateText = Courses::getDateDisplay($courseID);
+			$course   = Helpers\Courses::getCourse($courseID);
+			$dateText = Helpers\Courses::getDateDisplay($courseID);
 
 			if (empty($course) or empty($dateText))
 			{
 				return;
 			}
 
-			$campus     = Courses::getCampus($courseID);
+			$campus     = Helpers\Courses::getCampus($courseID);
 			$courseName = (empty($campus) or empty($campus['name'])) ?
 				$course['name'] : "{$course['name']} ({$campus['name']})";
 			$mailer->setSubject($courseName);
@@ -332,7 +329,7 @@ class CourseParticipant extends BaseModel
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
 
-		if (!Can::manage('course', $courseID))
+		if (!Helpers\Can::manage('course', $courseID))
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
@@ -344,11 +341,11 @@ class CourseParticipant extends BaseModel
 			->where("u.courseID = $courseID")
 			->order('i.id');
 		$this->_db->setQuery($query);
-		$instances = implode(',', OrganizerHelper::executeQuery('loadColumn', []));
+		$instances = implode(',', Helpers\OrganizerHelper::executeQuery('loadColumn', []));
 
 		foreach ($participantIDs as $participantID)
 		{
-			if (!Can::manage('participant', $participantID))
+			if (!Helpers\Can::manage('participant', $participantID))
 			{
 				throw new Exception(Languages::_('ORGANIZER_403'), 403);
 			}
@@ -397,7 +394,7 @@ class CourseParticipant extends BaseModel
 			->where("participantID = $participantID");
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('execute') ? true : false;
+		return Helpers\OrganizerHelper::executeQuery('execute') ? true : false;
 
 	}
 
@@ -417,7 +414,7 @@ class CourseParticipant extends BaseModel
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
 
-		if (!Can::manage('course', $courseID) or !Can::manage('participant', $participantID))
+		if (!Helpers\Can::manage('course', $courseID) or !Helpers\Can::manage('participant', $participantID))
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}

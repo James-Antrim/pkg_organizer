@@ -13,7 +13,7 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads pool information into the display context.
@@ -30,7 +30,7 @@ class PoolSelection extends PoolsView
 	protected function addToolBar()
 	{
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'programs.addPool', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'programs.addPool', true);
 	}
 
 	/**

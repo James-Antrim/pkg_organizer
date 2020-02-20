@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Groups as GroupsHelper;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic event group related queries
@@ -25,10 +24,10 @@ class Groups extends BaseView
 	 */
 	public function display()
 	{
-		$function = Input::getTask();
+		$function = Helpers\Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Groups', $function))
 		{
-			echo json_encode(GroupsHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(Helpers\Groups::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

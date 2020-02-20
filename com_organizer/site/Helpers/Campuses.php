@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use Organizer\Tables\Campuses as CampusesTable;
+use Organizer\Tables;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -27,7 +27,7 @@ class Campuses extends ResourceHelper implements Selectable
 	 */
 	public static function getGridID($campusID)
 	{
-		$table = new CampusesTable;
+		$table = new Tables\Campuses;
 		if (!$table->load($campusID))
 		{
 			return 0;
@@ -55,7 +55,7 @@ class Campuses extends ResourceHelper implements Selectable
 	 */
 	public static function getLocation($campusID)
 	{
-		$table = new CampusesTable;
+		$table = new Tables\Campuses;
 		$table->load($campusID);
 
 		return empty($table->location) ? '' : str_replace(' ', '', $table->location);

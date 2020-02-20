@@ -9,14 +9,12 @@
  */
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 $user = Factory::getUser();
-$view = Input::getCMD('view');
+$view = Helpers\Input::getCMD('view');
 require_once 'language_selection.php';
-echo OrganizerHelper::getApplication()->JComponentTitle; ?>
+echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 <div id="j-main-container">
     <form action="index.php?" method="post" name="adminForm" id="adminForm" target="_blank">
 		<?php foreach ($this->sets as $set) : ?>
@@ -24,7 +22,7 @@ echo OrganizerHelper::getApplication()->JComponentTitle; ?>
 		<?php endforeach; ?>
         <div class="toolbar">
             <a id="action-btn" class="btn" onclick="handleSubmit();">
-				<?php echo Languages::_('ORGANIZER_DOWNLOAD') ?>
+				<?php echo Helpers\Languages::_('ORGANIZER_DOWNLOAD') ?>
                 <span class="icon-file-pdf"></span>
             </a>
         </div>

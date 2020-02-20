@@ -11,9 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of degrees into the display context.
@@ -29,15 +27,15 @@ class Degrees extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_DEGREES'), 'info-cap');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_DEGREES'), 'info-cap');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'degrees.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'degrees.edit', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'degrees.add', false);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'degrees.edit', true);
 		$toolbar->appendButton(
 			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'delete',
-			Languages::_('ORGANIZER_DELETE'),
+			Helpers\Languages::_('ORGANIZER_DELETE'),
 			'degrees.delete',
 			true
 		);
@@ -50,7 +48,7 @@ class Degrees extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -64,9 +62,9 @@ class Degrees extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'     => '',
-			'name'         => HTML::sort('NAME', 'name', $direction, $ordering),
-			'abbreviation' => HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
-			'code'         => HTML::sort('DEGREE_CODE', 'code', $direction, $ordering)
+			'name'         => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'abbreviation' => Helpers\HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
+			'code'         => Helpers\HTML::sort('DEGREE_CODE', 'code', $direction, $ordering)
 		];
 
 		$this->headers = $headers;

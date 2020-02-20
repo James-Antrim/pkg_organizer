@@ -11,9 +11,8 @@
 namespace Organizer\Models;
 
 use Exception;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Tables\Monitors as MonitorsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class which manages stored monitor data.
@@ -27,13 +26,13 @@ class Monitor extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return MonitorsTable A Table object
+	 * @return Tables\Monitors A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new MonitorsTable;
+		return new Tables\Monitors;
 	}
 
 	/**
@@ -46,7 +45,7 @@ class Monitor extends BaseModel
 	 */
 	public function save()
 	{
-		$data = Input::getFormItems()->toArray();
+		$data = Helpers\Input::getFormItems()->toArray();
 
 		if (empty($data['roomID']))
 		{
@@ -66,19 +65,19 @@ class Monitor extends BaseModel
 	 */
 	public function saveDefaultBehaviour()
 	{
-		if (!Can::administrate())
+		if (!Helpers\Can::administrate())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
-		$monitorID   = Input::getID();
+		$monitorID   = Helpers\Input::getID();
 		$plausibleID = ($monitorID > 0);
 
 		if ($plausibleID)
 		{
-			$table = new MonitorsTable;
+			$table = new Tables\Monitors;
 			$table->load($monitorID);
-			$table->set('useDefaults', Input::getInt('useDefaults'));
+			$table->set('useDefaults', Helpers\Input::getInt('useDefaults'));
 
 			return $table->store();
 		}
@@ -94,13 +93,13 @@ class Monitor extends BaseModel
 	 */
 	public function toggle()
 	{
-		if (!Can::manage('facilities'))
+		if (!Helpers\Can::manage('facilities'))
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
-		$monitorID = Input::getID();
-		$table     = new MonitorsTable;
+		$monitorID = Helpers\Input::getID();
+		$table     = new Tables\Monitors;
 		if (empty($monitorID) or !$table->load($monitorID))
 		{
 			return false;

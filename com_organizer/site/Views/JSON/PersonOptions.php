@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Persons;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic person related queries
@@ -24,6 +24,6 @@ class PersonOptions extends BaseView
 	 */
 	public function display()
 	{
-		echo json_encode(Persons::getOptions(), JSON_UNESCAPED_UNICODE);
+		echo json_encode(Helpers\Persons::getOptions(), JSON_UNESCAPED_UNICODE);
 	}
 }

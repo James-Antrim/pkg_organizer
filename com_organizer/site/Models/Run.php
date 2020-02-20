@@ -11,9 +11,8 @@
 namespace Organizer\Models;
 
 use Exception;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Tables\Runs as RunsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class which manages stored run data.
@@ -27,13 +26,13 @@ class Run extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return RunsTable A Table object
+	 * @return Tables\Runs A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new RunsTable;
+		return new Tables\Runs;
 	}
 
 	/**
@@ -46,12 +45,12 @@ class Run extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		if (!Can::administrate())
+		if (!Helpers\Can::administrate())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
-		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		$runs  = [];
 		$index = 1;

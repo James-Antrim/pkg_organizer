@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Subjects as SubjectsHelper;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic subject related queries
@@ -25,10 +24,10 @@ class Subjects extends BaseView
 	 */
 	public function display()
 	{
-		$function = Input::getTask();
+		$function = Helpers\Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Subjects', $function))
 		{
-			echo json_encode(SubjectsHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(Helpers\Subjects::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

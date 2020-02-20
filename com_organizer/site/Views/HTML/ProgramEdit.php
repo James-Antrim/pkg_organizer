@@ -13,8 +13,8 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads the (degree) program form into display context.
@@ -33,7 +33,7 @@ class ProgramEdit extends EditView
 		$new   = empty($this->item->id);
 		$title = $new ?
 			Languages::_('ORGANIZER_PROGRAM_NEW') : Languages::_('ORGANIZER_PROGRAM_EDIT');
-		HTML::setTitle($title, 'list');
+		Helpers\HTML::setTitle($title, 'list');
 		$toolbar   = Toolbar::getInstance();
 		$applyText = $new ? Languages::_('ORGANIZER_CREATE') : Languages::_('ORGANIZER_APPLY');
 		$toolbar->appendButton('Standard', 'apply', $applyText, 'programs.apply', false);

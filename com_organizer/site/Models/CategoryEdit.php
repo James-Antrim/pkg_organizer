@@ -11,9 +11,8 @@
 namespace Organizer\Models;
 
 use Exception;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Categories;
-use Organizer\Tables\Categories as CategoriesTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing category data.
@@ -29,7 +28,7 @@ class CategoryEdit extends EditModel
 	 */
 	public function allowEdit()
 	{
-		return Can::edit('category', $this->item->id);
+		return Helpers\Can::edit('category', $this->item->id);
 	}
 
 	/**
@@ -43,7 +42,7 @@ class CategoryEdit extends EditModel
 	public function getItem($pk = null)
 	{
 		$this->item                 = parent::getItem($pk);
-		$this->item->organizationID = Categories::getOrganizationIDs($this->item->id);
+		$this->item->organizationID = Helpers\Categories::getOrganizationIDs($this->item->id);
 
 		return $this->item;
 	}
@@ -55,12 +54,12 @@ class CategoryEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return CategoriesTable A Table object
+	 * @return Tables\Categories A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new CategoriesTable;
+		return new Tables\Categories;
 	}
 }

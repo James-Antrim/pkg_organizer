@@ -11,8 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 use SimpleXMLElement;
 use stdClass;
 
@@ -61,7 +60,7 @@ class OptionsField extends FormField
 		// Get the field options.
 		$options = (array) $this->getOptions();
 
-		$html[] = HTML::_(
+		$html[] = Helpers\HTML::_(
 			'select.genericlist',
 			$options,
 			$this->name,
@@ -92,7 +91,7 @@ class OptionsField extends FormField
 			$option->value = (string) $optionTag['value'];
 
 			$text         = trim((string) $optionTag) != '' ? trim((string) $optionTag) : $option->value;
-			$option->text = Languages::alt('ORGANIZER_' . $text, $fieldName);
+			$option->text = Helpers\Languages::alt('ORGANIZER_' . $text, $fieldName);
 
 			$option->class = (string) $optionTag['class'];
 

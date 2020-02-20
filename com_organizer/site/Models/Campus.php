@@ -11,9 +11,8 @@
 namespace Organizer\Models;
 
 use Exception;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Tables\Campuses as CampusesTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class which manages stored campus data.
@@ -25,7 +24,7 @@ class Campus extends BaseModel
 	 */
 	protected function allow()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -35,13 +34,13 @@ class Campus extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return CampusesTable  A Table object
+	 * @return Tables\Campuses  A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new CampusesTable;
+		return new Tables\Campuses;
 	}
 
 	/**
@@ -52,9 +51,9 @@ class Campus extends BaseModel
 	 */
 	public function save()
 	{
-		if ($parentID = Input::getInt('parentID'))
+		if ($parentID = Helpers\Input::getInt('parentID'))
 		{
-			$table = new CampusesTable;
+			$table = new Tables\Campuses;
 			$table->load($parentID);
 			if (!empty($table->parentID))
 			{

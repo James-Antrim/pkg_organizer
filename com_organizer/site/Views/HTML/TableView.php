@@ -14,7 +14,7 @@ use Exception;
 use Joomla\Registry\Registry;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
@@ -71,7 +71,7 @@ abstract class TableView extends BaseHTMLView
 	{
 		if (!$this->allowAccess())
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}
 
 		$this->state         = $this->get('State');

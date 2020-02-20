@@ -13,9 +13,8 @@ namespace Organizer\Helpers;
 use Exception;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
-use Organizer\Models\Program;
-use Organizer\Tables\Participants;
-use Organizer\Tables\Programs as ProgramsTable;
+use Organizer\Models;
+use Organizer\Tables;
 
 /**
  * Provides general functions for program access checks, data retrieval and display.
@@ -84,7 +83,7 @@ class Programs extends Curricula implements Selectable
 			return Languages::_('ORGANIZER_NO_ORGANIZATION');
 		}
 
-		$table = new ProgramsTable;
+		$table = new Tables\Programs;
 
 		return ($table->load($programID) and $organizationID = $table->organizationID) ? $organizationID : 0;
 	}
@@ -100,7 +99,7 @@ class Programs extends Curricula implements Selectable
 	 */
 	public static function getID($programData, $initialName)
 	{
-		$programTable = new ProgramsTable;
+		$programTable = new Tables\Programs;
 		if ($programTable->load($programData))
 		{
 			return $programTable->id;
@@ -115,7 +114,7 @@ class Programs extends Curricula implements Selectable
 		$programData['name_de']        = $initialName;
 		$programData['name_en']        = $initialName;
 
-		$model     = new Program;
+		$model     = new Models\Program;
 		$programID = $model->save($programData);
 
 		return empty($programID) ? null : $programID;
@@ -310,7 +309,7 @@ class Programs extends Curricula implements Selectable
 		if ($view === 'participant_edit')
 		{
 			$participantID = empty($selectedIDs) ? Factory::getUser() : $selectedIDs[0];
-			$table         = new Participants;
+			$table         = new Tables\Participants;
 			$exists        = $table->load($participantID);
 
 			if (!$exists)

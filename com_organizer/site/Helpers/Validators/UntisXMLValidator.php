@@ -10,8 +10,6 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Organizer\Models\ScheduleXML;
-
 /**
  * Ensures that Helpers which validate Schedule XML Export files have standardized functions.
  */
@@ -31,8 +29,8 @@ interface UntisXMLValidator
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   ScheduleXML &$model  the validating schedule model
-	 * @param   object &     $node   the node to be validated
+	 * @param   Schedules &$model  the validating schedule model
+	 * @param   object    &$node   the node to be validated
 	 *
 	 * @return void
 	 */

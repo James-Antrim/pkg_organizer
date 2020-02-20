@@ -11,10 +11,8 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Persons as PersonsHelper;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages; // Exception for frequency of use
 
 /**
  * Class loads persistent information a filtered set of persons into the display context.
@@ -37,11 +35,11 @@ class Persons extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_TEACHERS'), 'users');
+		Helpers\HTML::setTitle(Languages::_('ORGANIZER_TEACHERS'), 'users');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'persons.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'persons.edit', true);
-		if (Can::administrate())
+		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
 				'Standard',
@@ -60,7 +58,7 @@ class Persons extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return Can::manage('persons');
+		return Helpers\Can::manage('persons');
 	}
 
 	/**
@@ -98,7 +96,7 @@ class Persons extends ListView
 			$item->username = empty($item->username) ? '' : $item->username;
 			$item->code     = empty($item->code) ? '' : $item->code;
 
-			if (!$organizations = PersonsHelper::getOrganizationNames($item->id))
+			if (!$organizations = Helpers\Persons::getOrganizationNames($item->id))
 			{
 				$item->organizationID = Languages::_('JNONE');
 			}

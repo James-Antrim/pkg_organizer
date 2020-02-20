@@ -11,8 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of (degree) programs.
@@ -28,8 +27,8 @@ class Programs extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$authorized = Can::documentTheseOrganizations();
-		$tag        = Languages::getTag();
+		$authorized = Helpers\Can::documentTheseOrganizations();
+		$tag        = Helpers\Languages::getTag();
 
 		$query     = $this->_db->getQuery(true);
 		$linkParts = ["'index.php?option=com_organizer&view=program_edit&id='", 'p.id'];

@@ -8,8 +8,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 // Receive overridable options
 
@@ -42,7 +41,7 @@ $options['orderFieldSelector']  = '#list_fullordering';
 $filtersActiveClass = $hideActiveFilters ? '' : ' js-stools-container-filters-visible';
 
 // Load search tools
-HTML::_('searchtools.form', '#adminForm', $options);
+Helpers\HTML::_('searchtools.form', '#adminForm', $options);
 ?>
 <div class="js-stools clearfix">
     <div class="clearfix">

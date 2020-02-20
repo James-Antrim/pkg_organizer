@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Courses as CoursesTable;
+use Organizer\Tables;
 
 /**
  * Class which manages stored course data.
@@ -24,12 +24,12 @@ class Course extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return CoursesTable A Table object
+	 * @return Tables\Courses A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new CoursesTable;
+		return new Tables\Courses;
 	}
 }

@@ -9,11 +9,10 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 $logoURL = 'components/com_organizer/images/organizer.png';
-$logo    = HTML::_('image', $logoURL, Languages::_('ORGANIZER'), ['class' => 'organizer_main_image']);
+$logo    = Helpers\HTML::_('image', $logoURL, Helpers\Languages::_('ORGANIZER'), ['class' => 'organizer_main_image']);
 $query   = Uri::getInstance()->getQuery();
 ?>
 <div id="j-sidebar-container" class="span2">

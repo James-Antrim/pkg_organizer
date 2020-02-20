@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Groups;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic event group related queries
@@ -24,6 +24,6 @@ class GroupOptions extends BaseView
 	 */
 	public function display()
 	{
-		echo json_encode(Groups::getOptions(), JSON_UNESCAPED_UNICODE);
+		echo json_encode(Helpers\Groups::getOptions(), JSON_UNESCAPED_UNICODE);
 	}
 }

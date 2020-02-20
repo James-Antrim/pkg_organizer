@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use Organizer\Tables\Pools as PoolsTable;
+use Organizer\Tables;
 
 /**
  * Provides general functions for (subject) pool access checks, data retrieval and display.
@@ -62,7 +62,7 @@ class Pools extends Curricula implements Selectable
 	public static function getCurricularOption($range, $parentIDs)
 	{
 		$tag        = Languages::getTag();
-		$poolsTable = new PoolsTable;
+		$poolsTable = new Tables\Pools;
 		$poolsTable->load($range['poolID']);
 
 		if (!$poolsTable->load($range['poolID']))
@@ -87,7 +87,7 @@ class Pools extends Curricula implements Selectable
 	 */
 	public static function getFullName($poolID)
 	{
-		$table = new PoolsTable;
+		$table = new Tables\Pools;
 
 		return $table->load($poolID) ? $table->fullName : '';
 	}
@@ -212,7 +212,7 @@ class Pools extends Curricula implements Selectable
 	 */
 	public static function getResource($resourceID)
 	{
-		$table = new PoolsTable;
+		$table = new Tables\Pools;
 
 		if (!$table->load($resourceID))
 		{

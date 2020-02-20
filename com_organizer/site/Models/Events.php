@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of events.
@@ -27,7 +27,7 @@ class Events extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 		$query->select("DISTINCT ev.id AS id, ev.name_$tag as name, ev.organizationID, ev.campusID")
 			->select("ev.maxParticipants, ev.registrationType, ev.subjectNo, ev.preparatory")

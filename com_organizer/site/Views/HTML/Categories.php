@@ -11,10 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Categories as Helper;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of event categories into the display context.
@@ -30,15 +27,15 @@ class Categories extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_CATEGORIES'), 'list');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_CATEGORIES'), 'list');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'categories.edit', true);
-		if (Can::administrate())
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'categories.edit', true);
+		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
 				'Standard',
 				'attachment',
-				Languages::_('ORGANIZER_MERGE'),
+				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'categories.mergeView',
 				true
 			);
@@ -52,7 +49,7 @@ class Categories extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Can::scheduleTheseOrganizations();
+		return (bool) Helpers\Can::scheduleTheseOrganizations();
 	}
 
 	/**
@@ -66,9 +63,9 @@ class Categories extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox' => '',
-			'code'     => HTML::sort('UNTIS_ID', 'ppr.code', $direction, $ordering),
-			'name'     => HTML::sort('DISPLAY_NAME', 'ppr.name', $direction, $ordering),
-			'program'  => Languages::_('ORGANIZER_PROGRAM')
+			'code'     => Helpers\HTML::sort('UNTIS_ID', 'ppr.code', $direction, $ordering),
+			'name'     => Helpers\HTML::sort('DISPLAY_NAME', 'ppr.name', $direction, $ordering),
+			'program'  => Helpers\Languages::_('ORGANIZER_PROGRAM')
 		];
 
 		$this->headers = $headers;
@@ -87,7 +84,7 @@ class Categories extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->program           = Helper::getName($item->id);
+			$item->program           = Helpers\Categories::getName($item->id);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

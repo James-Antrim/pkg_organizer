@@ -14,7 +14,7 @@ use Exception;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Organizer\Controller;
-use Organizer\Tables\BaseTable;
+use Organizer\Tables;
 use ReflectionMethod;
 use RuntimeException;
 
@@ -218,7 +218,7 @@ class OrganizerHelper
 	 *
 	 * @param   string  $name  the table name
 	 *
-	 * @return BaseTable
+	 * @return Tables\BaseTable
 	 */
 	public static function getTable($name)
 	{

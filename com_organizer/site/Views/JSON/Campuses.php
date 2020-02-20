@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Campuses as CampusesHelper;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic (degree) program related queries
@@ -25,10 +24,10 @@ class Campuses extends BaseView
 	 */
 	public function display()
 	{
-		$function = Input::getTask();
+		$function = Helpers\Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Campuses', $function))
 		{
-			echo json_encode(CampusesHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(Helpers\Campuses::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

@@ -11,10 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Subjects;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for the association of persons with subject documentation.
@@ -30,7 +27,7 @@ class SubjectPersonsField extends OptionsField
 	 */
 	protected function getOptions()
 	{
-		$subjectIDs = Input::getSelectedIDs();
+		$subjectIDs = Helpers\Input::getSelectedIDs();
 		$role       = $this->getAttribute('role');
 		$invalid    = (empty($subjectIDs) or empty($subjectIDs[0]) or empty($role));
 
@@ -39,7 +36,7 @@ class SubjectPersonsField extends OptionsField
 			return [];
 		}
 
-		$existingPersons = Subjects::getPersons($subjectIDs[0], $role);
+		$existingPersons = Helpers\Subjects::getPersons($subjectIDs[0], $role);
 		$this->value     = [];
 		foreach ($existingPersons as $person)
 		{
@@ -70,7 +67,7 @@ class SubjectPersonsField extends OptionsField
 		}
 
 		$dbo->setQuery($query);
-		$persons = OrganizerHelper::executeQuery('loadAssocList', null, 'id');
+		$persons = Helpers\OrganizerHelper::executeQuery('loadAssocList', null, 'id');
 
 		$options = parent::getOptions();
 		if (empty($persons))
@@ -82,7 +79,7 @@ class SubjectPersonsField extends OptionsField
 		{
 			$text      = empty($person['forename']) ?
 				$person['surname'] : "{$person['surname']}, {$person['forename']}";
-			$options[] = HTML::_('select.option', $person['id'], $text);
+			$options[] = Helpers\HTML::_('select.option', $person['id'], $text);
 		}
 
 		return $options;

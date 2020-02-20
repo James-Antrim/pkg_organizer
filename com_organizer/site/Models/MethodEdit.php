@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Methods as MethodsTable;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing (lesson) method data.
@@ -24,12 +24,12 @@ class MethodEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return MethodsTable A Table object
+	 * @return Tables\Methods A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new MethodsTable;
+		return new Tables\Methods;
 	}
 }

@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\HTML;
+use Organizer\Helpers;
 
 /**
  * Class creates a form field for template selection.
@@ -30,6 +30,6 @@ class TemplatesField extends OptionsField
 	 */
 	protected function getOptions()
 	{
-		return HTML::getTranslatedOptions($this, $this->element);
+		return Helpers\HTML::getTranslatedOptions($this, $this->element);
 	}
 }

@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables\Grids as GridsTable;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing grid data.
@@ -24,12 +24,12 @@ class GridEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return GridsTable A Table object
+	 * @return Tables\Grids A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new GridsTable;
+		return new Tables\Grids;
 	}
 }

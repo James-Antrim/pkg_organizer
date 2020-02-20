@@ -11,10 +11,9 @@
 namespace Organizer\Models;
 
 use Exception;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
+use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\Schedules as SchedulesTable;
+use Organizer\Tables;
 
 /**
  * Class provides methods for merging resources. Resource specific tasks are implemented in the extending classes.
@@ -24,7 +23,7 @@ abstract class MergeModel extends BaseModel
 	/**
 	 * @var the column name in the organization resources table
 	 */
-	protected $assocation;
+	protected $association;
 
 	/**
 	 * @var array the preprocessed form data
@@ -51,7 +50,7 @@ abstract class MergeModel extends BaseModel
 	 */
 	protected function allowEdit()
 	{
-		return Can::administrate();
+		return Helpers\Can::administrate();
 	}
 
 	/**
@@ -62,7 +61,7 @@ abstract class MergeModel extends BaseModel
 	 */
 	public function delete()
 	{
-		$this->selected = Input::getSelectedIDs();
+		$this->selected = Helpers\Input::getSelectedIDs();
 
 		if (empty($this->selected))
 		{
@@ -147,7 +146,7 @@ abstract class MergeModel extends BaseModel
 	 */
 	public function merge()
 	{
-		$this->selected = Input::getSelectedIDs();
+		$this->selected = Helpers\Input::getSelectedIDs();
 		sort($this->selected);
 
 		if (!$this->allowEdit())
@@ -161,7 +160,7 @@ abstract class MergeModel extends BaseModel
 			return false;
 		}
 
-		$data          = empty($this->data) ? Input::getFormItems()->toArray() : $this->data;
+		$data          = empty($this->data) ? Helpers\Input::getFormItems()->toArray() : $this->data;
 		$deprecatedIDs = $this->selected;
 		$data['id']    = array_shift($deprecatedIDs);
 		$table         = $this->getTable();
@@ -202,18 +201,18 @@ abstract class MergeModel extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		if (empty(Input::getSelectedIDs()))
+		if (empty(Helpers\Input::getSelectedIDs()))
 		{
 			return false;
 		}
 
 		if (!$this->allowEdit())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
 
-		$this->data = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$this->data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		$table      = $this->getTable();
 
 		if ($table->save($this->data))
@@ -221,7 +220,7 @@ abstract class MergeModel extends BaseModel
 			// Set id for new rewrite for existing.
 			$this->data['id'] = $table->id;
 
-			if (!empty($this->assocation) and !$this->updateOrganizations())
+			if (!empty($this->association) and !$this->updateOrganizations())
 			{
 				return false;
 			}
@@ -271,7 +270,7 @@ abstract class MergeModel extends BaseModel
 		$existingQuery = $this->_db->getQuery(true);
 		$existingQuery->select('DISTINCT organizationID');
 		$existingQuery->from('#__organizer_associations');
-		$existingQuery->where("{$this->assocation} = '{$this->data['id']}'");
+		$existingQuery->where("{$this->association} = '{$this->data['id']}'");
 		$this->_db->setQuery($existingQuery);
 		$existing = OrganizerHelper::executeQuery('loadColumn', []);
 
@@ -279,7 +278,7 @@ abstract class MergeModel extends BaseModel
 		{
 			$deletionQuery = $this->_db->getQuery(true);
 			$deletionQuery->delete('#__organizer_associations');
-			$deletionQuery->where("{$this->assocation} = '{$this->data['id']}'");
+			$deletionQuery->where("{$this->association} = '{$this->data['id']}'");
 			$deletionQuery->where("organizationID IN ('" . implode("','", $deprecated) . "')");
 			$this->_db->setQuery($deletionQuery);
 
@@ -296,7 +295,7 @@ abstract class MergeModel extends BaseModel
 		{
 			$insertQuery = $this->_db->getQuery(true);
 			$insertQuery->insert('#__organizer_associations');
-			$insertQuery->columns("organizationID, {$this->assocation}");
+			$insertQuery->columns("organizationID, {$this->association}");
 
 			foreach ($new as $newID)
 			{
@@ -326,7 +325,7 @@ abstract class MergeModel extends BaseModel
 		$selectQuery = $this->_db->getQuery(true);
 		$selectQuery->select('DISTINCT organizationID');
 		$selectQuery->from('#__organizer_associations');
-		$selectQuery->where("{$this->assocation} IN ( $relevantIDs )");
+		$selectQuery->where("{$this->association} IN ( $relevantIDs )");
 		$this->_db->setQuery($selectQuery);
 		$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
 
@@ -376,7 +375,7 @@ abstract class MergeModel extends BaseModel
 
 		foreach ($scheduleIDs as $scheduleID)
 		{
-			$scheduleTable = new SchedulesTable;
+			$scheduleTable = new Tables\Schedules;
 
 			if (!$scheduleTable->load($scheduleID))
 			{

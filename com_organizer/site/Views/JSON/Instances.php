@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Instances as InstancesHelper;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic term related queries
@@ -24,8 +24,8 @@ class Instances extends BaseView
 	 */
 	public function display()
 	{
-		$conditions = InstancesHelper::getConditions();
-		$items      = InstancesHelper::getItems($conditions);
+		$conditions = Helpers\Instances::getConditions();
+		$items      = Helpers\Instances::getItems($conditions);
 		echo json_encode($items, JSON_UNESCAPED_UNICODE);
 	}
 }

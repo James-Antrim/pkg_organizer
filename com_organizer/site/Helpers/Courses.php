@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use Organizer\Tables\Courses as CoursesTable;
+use Organizer\Tables;
 
 /**
  * Provides general functions for course access checks, data retrieval and display.
@@ -69,7 +69,7 @@ class Courses extends ResourceHelper
 	 */
 	public static function getCapacityText($courseID)
 	{
-		$course = new CoursesTable;
+		$course = new Tables\Courses;
 
 		if (!$course->load($courseID))
 		{
@@ -279,7 +279,7 @@ class Courses extends ResourceHelper
 	 */
 	public static function getNames($courseID)
 	{
-		$course = new CoursesTable;
+		$course = new Tables\Courses;
 		if (!$course->load($courseID))
 		{
 			return '';
@@ -403,7 +403,7 @@ class Courses extends ResourceHelper
 	 */
 	public static function getRunText($courseID)
 	{
-		$course = new CoursesTable;
+		$course = new Tables\Courses;
 
 		if (!$course->load($courseID))
 		{
@@ -544,7 +544,7 @@ class Courses extends ResourceHelper
 	 */
 	public static function isFull($courseID)
 	{
-		$table = new CoursesTable;
+		$table = new Tables\Courses;
 		if (!$maxParticipants = $table->getProperty('maxParticipants', $courseID))
 		{
 			return false;

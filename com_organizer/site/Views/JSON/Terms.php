@@ -10,8 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Terms as TermsHelper;
+use Organizer\Helpers;
 
 /**
  * Class answers dynamic term related queries
@@ -25,10 +24,10 @@ class Terms extends BaseView
 	 */
 	public function display()
 	{
-		$function = Input::getTask();
+		$function = Helpers\Input::getTask();
 		if (method_exists('Organizer\\Helpers\\Terms', $function))
 		{
-			echo json_encode(TermsHelper::$function(), JSON_UNESCAPED_UNICODE);
+			echo json_encode(Helpers\Terms::$function(), JSON_UNESCAPED_UNICODE);
 		}
 		else
 		{

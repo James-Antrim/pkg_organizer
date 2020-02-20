@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Tables\Colors as ColorsTable;
+use Organizer\Tables;
 
 /**
  * Class provides generalized functions regarding dates and times.
@@ -26,7 +26,7 @@ class Colors extends ResourceHelper
 	 */
 	public static function getColor($colorID)
 	{
-		$table = new ColorsTable;
+		$table = new Tables\Colors;
 
 		return $table->load($colorID) ? $table->color : '';
 	}

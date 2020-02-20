@@ -8,14 +8,13 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
-$resourceID = Input::getID();
-$view       = Input::getView();
+$resourceID = Helpers\Input::getID();
+$view       = Helpers\Input::getView();
 
 require_once 'language_selection.php';
-echo OrganizerHelper::getApplication()->JComponentTitle;
+echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 echo $this->subtitle;
 echo $this->supplement;
 ?>

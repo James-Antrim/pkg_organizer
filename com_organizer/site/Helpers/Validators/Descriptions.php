@@ -10,10 +10,8 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Organizer\Helpers\Languages;
-use Organizer\Tables\Fields;
-use Organizer\Tables\Methods;
-use Organizer\Tables\Roomtypes;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Provides functions for XML description validation and modeling.
@@ -38,19 +36,19 @@ class Descriptions implements UntisXMLValidator
 			case 'f':
 				$error    .= 'FIELD_INVALID';
 				$resource = 'Fields';
-				$table    = new Fields;
+				$table    = new Tables\Fields;
 
 				break;
 			case 'r':
 				$error    .= 'ROOMTYPE_INVALID';
 				$resource = 'Roomtypes';
-				$table    = new Roomtypes;
+				$table    = new Tables\Roomtypes;
 
 				break;
 			case 'u':
 				$error    .= 'METHOD_INVALID';
 				$resource = 'Methods';
-				$table    = new Methods;
+				$table    = new Tables\Methods;
 
 				break;
 		}
@@ -68,7 +66,7 @@ class Descriptions implements UntisXMLValidator
 		}
 		else
 		{
-			$model->errors[] = sprintf(Languages::_($error), $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_($error), $untisID);
 		}
 
 		return;
@@ -90,7 +88,7 @@ class Descriptions implements UntisXMLValidator
 
 		if (empty($name))
 		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_DESCRIPTION_NAME_MISSING'), $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_DESCRIPTION_NAME_MISSING'), $untisID);
 
 			return;
 		}
@@ -100,14 +98,14 @@ class Descriptions implements UntisXMLValidator
 
 		if (empty($typeFlag))
 		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_DESCRIPTION_TYPE_MISSING'), $name, $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_DESCRIPTION_TYPE_MISSING'), $name, $untisID);
 
 			return;
 		}
 
 		if (!in_array($typeFlag, $validFlags))
 		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_DESCRIPTION_TYPE_INVALID'), $name, $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_DESCRIPTION_TYPE_INVALID'), $name, $untisID);
 
 			return;
 		}

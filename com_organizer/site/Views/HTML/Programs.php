@@ -11,9 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of degree programs into the display context.
@@ -35,29 +33,29 @@ class Programs extends ListView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_PROGRAMS'), 'list');
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_PROGRAMS'), 'list');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'programs.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'programs.edit', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'programs.add', false);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'programs.edit', true);
 		$toolbar->appendButton(
 			'Standard',
 			'upload',
-			Languages::_('ORGANIZER_IMPORT_LSF'),
+			Helpers\Languages::_('ORGANIZER_IMPORT_LSF'),
 			'programs.import',
 			true
 		);
 		$toolbar->appendButton(
 			'Standard',
 			'loop',
-			Languages::_('ORGANIZER_UPDATE_SUBJECTS'),
+			Helpers\Languages::_('ORGANIZER_UPDATE_SUBJECTS'),
 			'programs.update',
 			true
 		);
 		$toolbar->appendButton(
 			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'delete',
-			Languages::_('ORGANIZER_DELETE'),
+			Helpers\Languages::_('ORGANIZER_DELETE'),
 			'programs.delete',
 			true
 		);
@@ -70,7 +68,7 @@ class Programs extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Can::documentTheseOrganizations();
+		return (bool) Helpers\Can::documentTheseOrganizations();
 	}
 
 	/**
@@ -84,10 +82,10 @@ class Programs extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox'     => '',
-			'programName'  => HTML::sort('NAME', 'programName', $direction, $ordering),
-			'degree'       => HTML::sort('DEGREE', 'degree', $direction, $ordering),
-			'accredited'   => HTML::sort('ACCREDITED', 'accredited', $direction, $ordering),
-			'organization' => HTML::sort('ORGANIZATION', 'organization', $direction, $ordering)
+			'programName'  => Helpers\HTML::sort('NAME', 'programName', $direction, $ordering),
+			'degree'       => Helpers\HTML::sort('DEGREE', 'degree', $direction, $ordering),
+			'accredited'   => Helpers\HTML::sort('ACCREDITED', 'accredited', $direction, $ordering),
+			'organization' => Helpers\HTML::sort('ORGANIZATION', 'organization', $direction, $ordering)
 		];
 
 		$this->headers = $headers;

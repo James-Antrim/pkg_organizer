@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers\Can;
-use Organizer\Tables\Programs as ProgramsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing (degree) program data.
@@ -29,7 +29,7 @@ class ProgramEdit extends EditModel
 	{
 		$programID = empty($this->item->id) ? 0 : $this->item->id;
 
-		return Can::document('program', $programID);
+		return Helpers\Can::document('program', $programID);
 	}
 
 	/**
@@ -39,12 +39,12 @@ class ProgramEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return ProgramsTable A Table object
+	 * @return Tables\Programs A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new ProgramsTable;
+		return new Tables\Programs;
 	}
 }

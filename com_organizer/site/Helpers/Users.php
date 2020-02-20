@@ -13,7 +13,7 @@ namespace Organizer\Helpers;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\User;
-use Organizer\Tables\CourseParticipants;
+use Organizer\Tables;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -48,7 +48,7 @@ class Users
 		$deletedCcmIDs = [];
 		foreach ($matchingLessons as $lessonID => $ccmIDs)
 		{
-			$userLessonTable = new CourseParticipants;
+			$userLessonTable = new Tables\CourseParticipants;
 
 			if (!$userLessonTable->load(['userID' => $userID, 'lessonID' => $lessonID]))
 			{
@@ -221,7 +221,7 @@ class Users
 		{
 			try
 			{
-				$userLessonTable = new CourseParticipants;
+				$userLessonTable = new Tables\CourseParticipants;
 				$hasUserLesson   = $userLessonTable->load(['userID' => $userID, 'lessonID' => $lessonID]);
 			}
 			catch (Exception $e)

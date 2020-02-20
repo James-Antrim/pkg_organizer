@@ -12,8 +12,7 @@ namespace Organizer\Models;
 
 use Exception;
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Instances as InstancesHelper;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of instances.
@@ -32,12 +31,12 @@ class Instances extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag = Languages::getTag();
+		$tag = Helpers\Languages::getTag();
 
-		$conditions                     = InstancesHelper::getConditions();
+		$conditions                     = Helpers\Instances::getConditions();
 		$conditions['isEventsRequired'] = true;
 
-		$query = InstancesHelper::getInstanceQuery($conditions);
+		$query = Helpers\Instances::getInstanceQuery($conditions);
 
 		$query->innerJoin('#__organizer_terms AS t ON t.id = u.termID')
 			->select("DISTINCT i.id")
