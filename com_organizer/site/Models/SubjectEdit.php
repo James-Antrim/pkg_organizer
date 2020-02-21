@@ -25,7 +25,7 @@ class SubjectEdit extends EditModel
 	 *
 	 * @return bool  true if the user can access the view, otherwise false
 	 */
-	protected function allowEdit()
+	protected function allow()
 	{
 		$subjectID = empty($this->item->id) ? 0 : $this->item->id;
 

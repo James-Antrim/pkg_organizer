@@ -24,7 +24,7 @@ class Campus extends BaseModel
 	 */
 	protected function allow()
 	{
-		return Helpers\Can::administrate();
+		return Helpers\Can::manage('facilities');
 	}
 
 	/**

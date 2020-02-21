@@ -26,7 +26,7 @@ class ParticipantEdit extends EditModel
 	 *
 	 * @return bool  true if the user can access the view, otherwise false
 	 */
-	protected function allowEdit()
+	protected function allow()
 	{
 		return Helpers\Can::edit('participant', $this->item->id);
 	}
@@ -58,7 +58,7 @@ class ParticipantEdit extends EditModel
 		$this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 		$this->item->id       = $this->item->id ? $this->item->id : $participantID;
 
-		if (!$this->allowEdit())
+		if (!$this->allow())
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 401);
 		}

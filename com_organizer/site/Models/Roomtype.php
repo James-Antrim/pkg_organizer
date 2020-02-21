@@ -23,7 +23,7 @@ class Roomtype extends BaseModel
 	 *
 	 * @return boolean  true if the user may edit the given resource, otherwise false
 	 */
-	protected function allowEdit()
+	protected function allow()
 	{
 		return Helpers\Can::manage('facilities');
 	}

@@ -48,7 +48,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return boolean  true if the user may edit the given resource, otherwise false
 	 */
-	protected function allowEdit()
+	protected function allow()
 	{
 		return Helpers\Can::administrate();
 	}
@@ -68,7 +68,7 @@ abstract class MergeModel extends BaseModel
 			return false;
 		}
 
-		if (!$this->allowEdit())
+		if (!$this->allow())
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
@@ -149,7 +149,7 @@ abstract class MergeModel extends BaseModel
 		$this->selected = Helpers\Input::getSelectedIDs();
 		sort($this->selected);
 
-		if (!$this->allowEdit())
+		if (!$this->allow())
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
@@ -206,7 +206,7 @@ abstract class MergeModel extends BaseModel
 			return false;
 		}
 
-		if (!$this->allowEdit())
+		if (!$this->allow())
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}

@@ -20,6 +20,14 @@ use Organizer\Tables;
 class Monitor extends BaseModel
 {
 	/**
+	 * Authenticates the user
+	 */
+	protected function allow()
+	{
+		return Helpers\Can::manage('facilities');
+	}
+
+	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.

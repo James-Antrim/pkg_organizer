@@ -26,7 +26,7 @@ class PersonEdit extends EditModel
 	 *
 	 * @return bool  true if the user can access the view, otherwise false
 	 */
-	protected function allowEdit()
+	protected function allow()
 	{
 		return Helpers\Can::edit('person', $this->item->id);
 	}

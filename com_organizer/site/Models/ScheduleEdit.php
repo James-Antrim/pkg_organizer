@@ -22,7 +22,7 @@ class ScheduleEdit extends EditModel
 	 *
 	 * @return bool  true if the user can access the edit view, otherwise false
 	 */
-	public function allowEdit()
+	public function allow()
 	{
 		return (bool) Helpers\Can::scheduleTheseOrganizations();
 	}

@@ -41,7 +41,7 @@ class FormModel extends ParentModel
 	 *
 	 * @return bool  true if the user can access the view, otherwise false
 	 */
-	protected function allowEdit()
+	protected function allow()
 	{
 		return Helpers\Can::administrate();
 	}
@@ -59,8 +59,7 @@ class FormModel extends ParentModel
 	 */
 	public function getForm($data = [], $loadData = false)
 	{
-		$allowEdit = $this->allowEdit();
-		if (!$allowEdit)
+		if (!$this->allow())
 		{
 			throw new Exception(Languages::_('ORGANIZER_401'), 401);
 		}

@@ -44,7 +44,7 @@ abstract class EditModel extends AdminModel
 	 *
 	 * @return bool  true if the user can access the view, otherwise false
 	 */
-	protected function allowEdit()
+	protected function allow()
 	{
 		return Helpers\Can::administrate();
 	}
@@ -93,7 +93,7 @@ abstract class EditModel extends AdminModel
 
 		$this->item = parent::getItem($pk);
 
-		if (!$this->allowEdit())
+		if (!$this->allow())
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 401);
 		}
