@@ -2,12 +2,9 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details" label="ATTRIBUTES_SUBJECT_DETAILS">
         <field name="id" type="hidden"/>
-        <field name="campusID" type="Campuses" label="CAMPUS">
-            <option value="">NO_CAMPUS</option>
-        </field>
         <field name="organizationID" type="Organizations" label="ORGANIZATION" access="document" required="true"/>
-        <field name="lsfID" type="Blank" label="LSF_ID" size="70"/>
-        <field name="code" type="Blank" label="MODULE_ID" size="70"/>
+        <field name="lsfID" type="Blank" label="LSF_ID" maxlength="11"/>
+        <field name="code" type="Blank" label="MODULE_ID" maxlength="60"/>
         <field name="duration" type="Integer" label="DURATION" default="1" first="1" last="30" step="1">
             <option value="0">SELECT_DURATION</option>
         </field>
@@ -15,12 +12,6 @@
             <option value="D">GERMAN</option>
             <option value="E">ENGLISH</option>
         </field>
-        <field name="is_prep_course" type="Options" label="PREP_COURSES" class="chzn-color-state" default="0">
-            <option value="1">YES</option>
-            <option value="0">NO</option>
-        </field>
-        <field name="max_participants" type="Integer" label="MAX_PARTICIPANTS" default="300" first="20" last="1000"
-               step="20"/>
         <field name="frequencyID" type="Options" label="AVAILABILITY">
             <option value="">FILTER_AVAILABILITY</option>
             <option value="3">AVAILABILITY_SEMESTER</option>
@@ -36,7 +27,7 @@
         </field>
         <field name="eventIDs" type="SubjectEvents" label="EVENT" role="1"/>
         <field name="spacer1" type="spacer" hr="true"/>
-        <field name="creditpoints" type="Blank" label="CREDIT_POINTS" class="inputbox" hint="3" size="70"/>
+        <field name="creditpoints" type="Blank" label="CREDIT_POINTS" class="inputbox" hint="3" maxlength="5"/>
         <field name="sws" type="Integer" label="SWS" default="0" first="1" last="30" step="1">
             <option value="0">FILTER_SEMESTER_HOURS</option>
         </field>
@@ -59,19 +50,18 @@
             <option value="0">AVAILABILITY_APPT</option>
         </field>
         <field name="spacer2" type="spacer" hr="true"/>
-        <field name="literature" type="Editor" label="ORGANIZER_LITERATURE" description="ORGANIZER_LITERATURE_DESC"
-               size="6"/>
+        <field name="literature" type="Editor" label="ORGANIZER_LITERATURE" description="ORGANIZER_LITERATURE_DESC"/>
     </fieldset>
     <fieldset name="de_texts" label="ATTRIBUTES_DE">
-        <field name="name_de" type="Blank" label="NAME_DE" hint="Grundlagen der Informatik" size="70"/>
-        <field name="shortName_de" type="Blank" label="SHORT_NAME_DE" hint="Grundl. d. Inf." size="70"/>
-        <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" hint="GDI" size="70"/>
-        <field name="method_de" type="Blank" label="METHOD_DE" hint="2 SWS Vorlesung, 2 SWS Übung" size="70"/>
+        <field name="fullName_de" type="Blank" label="FULL_NAME_DE" hint="Grundlagen der Informatik" maxlength="200"/>
+        <field name="shortName_de" type="Blank" label="SHORT_NAME_DE" hint="Grundl. d. Inf." maxlength="50"/>
+        <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" hint="GDI" maxlength="25"/>
+        <field name="method_de" type="Blank" label="METHOD_DE" hint="2 SWS Vorlesung, 2 SWS Übung"/>
         <field name="preliminaryWork_de" type="Blank" label="PRELIMINARY_WORK_DE"
-               hint="Erfolgreicher Abgabe von 6 Hausübungen." size="6"/>
-        <field name="proof_de" type="Blank" label="PROOF_DE" hint="schriftliche Klausur" size="70"/>
+               hint="Erfolgreicher Abgabe von 6 Hausübungen."/>
+        <field name="proof_de" type="Blank" label="PROOF_DE" hint="schriftliche Klausur"/>
         <field name="evaluation_de" type="Blank" label="EVALUATION_DE"
-               hint="gem. § 9 der Allg. Bestimmungen (Teil I der PO)" size="20"/>
+               hint="gem. § 9 der Allg. Bestimmungen (Teil I der PO)"/>
         <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
         <field name="objective_de" type="Editor" label="ORGANIZER_OBJECTIVE_DE"
                description="ORGANIZER_OBJECTIVE_DE_DESC"/>
@@ -86,15 +76,15 @@
                description="ORGANIZER_BONUS_POINTS_DE_DESC"/>
     </fieldset>
     <fieldset name="en_texts" label="ATTRIBUTES_EN">
-        <field name="name_en" type="Blank" label="NAME_EN" hint="Fundamentals of Computer Science" size="70"/>
-        <field name="shortName_en" type="Blank" label="SHORT_NAME_EN" hint="Fund. Comp. Sci." size="70"/>
-        <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" hint="FCS" size="70"/>
-        <field name="method_en" type="Blank" label="METHOD_EN" hint="2 SWS Lecture, 2 SWS Practice" size="70"/>
+        <field name="fullName_en" type="Blank" label="FULL_NAME_EN" hint="Mathematics I" maxlength="200"/>
+        <field name="shortName_en" type="Blank" label="SHORT_NAME_EN" hint="Fund. Comp. Sci." maxlength="50"/>
+        <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" hint="FCS" maxlength="25"/>
+        <field name="method_en" type="Blank" label="METHOD_EN" hint="2 SWS Lecture, 2 SWS Practice"/>
         <field name="preliminaryWork_en" type="Blank" label="PRELIMINARY_WORK_EN"
-               hint="Successful completion of six homework assignments." size="6"/>
-        <field name="proof_en" type="Blank" label="PROOF_EN" hint="Written Exam" size="70"/>
+               hint="Successful completion of six homework assignments."/>
+        <field name="proof_en" type="Blank" label="PROOF_EN" hint="Written Exam"/>
         <field name="evaluation_en" type="Blank" label="EVALUATION_EN"
-               hint="acc. § 9 of the gen. provisions (Part I of the PO)" size="6"/>
+               hint="acc. § 9 of the gen. provisions (Part I of the PO)"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
         <field name="objective_en" type="Editor" label="ORGANIZER_OBJECTIVE_EN"
                description="ORGANIZER_OBJECTIVE_EN_DESC"/>

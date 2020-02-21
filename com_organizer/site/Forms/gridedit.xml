@@ -2,11 +2,11 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="code" type="Blank" label="UNTIS_ID" required="true" size="60"/>
-        <field name="name_de" type="Blank" label="NAME_DE" required="true" size="60"/>
-        <field name="name_en" type="Blank" label="NAME_EN" required="true" size="60"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
         <field name="grid" type="Periods" formsource="grid_blocks" multiple="true" buttons="add,remove"
-               layout="joomla.form.field.subform.repeatable-table" label="GRID" description="ORGANIZER_GRID_DESC"/>
+               layout="joomla.form.field.subform.repeatable-table" label="GRID"/>
         <field name="startDay" type="Options" label="START_DAY" default="1" required="true">
             <option value='1'>MONDAY</option>
             <option value='2'>TUESDAY</option>

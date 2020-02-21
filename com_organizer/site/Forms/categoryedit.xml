@@ -2,12 +2,18 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="name" type="Blank" label="NAME" size="40" required="true"/>
-        <field name="code" type="Blank" label="UNTIS_ID" readonly="true" size="40"/>
-        <field name="programID" type="Programs" label="PROGRAM" access="schedule">
-            <option value="">NO_PROGRAM</option>
-        </field>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" readonly="true"/>
         <field name="organizationID" type="Organizations" label="ORGANIZATIONS" access="schedule" required="true"
                multiple="multiple"/>
+        <field name="active" type="Options" label="ACTIVE_RESOURCE" default="1">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
+        <field name="suppress" type="Options" label="HIDE_RESOURCE" default="0">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
     </fieldset>
 </form>

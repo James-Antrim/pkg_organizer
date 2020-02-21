@@ -2,8 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="name_de" type="Blank" label="NAME_DE" maxlength="60" required="true" size="60"/>
-        <field name="name_en" type="Blank" label="NAME_EN" maxlength="100" required="true" size="100"/>
-        <field name="code" type="Blank" label="CODE" maxlength="60" size="60"/>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="code" type="Blank" label="CODE" maxlength="60"/>
     </fieldset>
 </form>

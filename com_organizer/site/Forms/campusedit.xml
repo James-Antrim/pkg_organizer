@@ -2,22 +2,25 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="name_de" type="Blank" label="NAME_DE" class="required" maxlength="60" required="true" size="60"/>
-        <field name="name_en" type="Blank" label="NAME_EN" class="required validate-alpha" maxlength="60"
-               required="true" size="60"/>
+        <field name="name_de" type="Blank" label="NAME_DE" class="required" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" class="required" maxlength="150" required="true"/>
         <field name="parentID" type="Campuses" label="PARENT_CAMPUS">
             <option value="">NO_PARENT_CAMPUS</option>
         </field>
-        <field name="isCity" type="Options" label="IS_CITY" class="chzn-color-state" default="0">
+        <field name="isCity" type="Options" label="IS_CITY" default="0">
             <option value="1">YES</option>
             <option value="0">NO</option>
         </field>
-        <field name="location" type="Blank" label="LOCATION" class="validate-gps" maxlength="20" size="60"/>
-        <field name="address" type="Blank" label="ADDRESS" class="validate-german-address" maxlength="255" size="60"/>
-        <field name="city" type="Blank" label="CITY" class="validate-alpha-german" maxlength="60" size="60"/>
-        <field name="zipCode" type="Blank" label="ZIP_CODE" class="validate-alphanumeric" maxlength="60" size="60"/>
+        <field name="location" type="Blank" label="LOCATION" class="validate-gps" maxlength="20"/>
+        <field name="address" type="Blank" label="ADDRESS" class="validate-german-address" maxlength="255"/>
+        <field name="city" type="Blank" label="CITY" class="validate-alpha-german" maxlength="60"/>
+        <field name="zipCode" type="Blank" label="ZIP_CODE" class="validate-alphanumeric" maxlength="60"/>
         <field name="gridID" type="Grids" label="GRIDS">
             <option value="">DEFAULT_GRID</option>
+        </field>
+        <field name="active" type="Options" label="ACTIVE_RESOURCE" default="1">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
         </field>
     </fieldset>
 </form>

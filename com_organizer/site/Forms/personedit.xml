@@ -2,15 +2,23 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="code" type="Blank" label="UNTIS_ID" maxlength="50" required="true" size="40"/>
-        <field name="surname" type="Blank" label="SURNAME" class="required" maxlength="255" required="true" size="40"/>
-        <field name="forename" type="Blank" label="FORENAME" maxlength="255" size="40"/>
-        <field name="title" type="Blank" label="TITLE" maxlength="45" size="40"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
+        <field name="surname" type="Blank" label="SURNAME" class="required" maxlength="255" required="true"/>
+        <field name="forename" type="Blank" label="FORENAME" maxlength="255"/>
+        <field name="title" type="Blank" label="TITLE" maxlength="45"/>
         <field name="username" type="Blank" label="USERNAME"/>
         <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" table="organizer_fields"
                textcolumn="name" valuecolumn="id">
             <option value="">NO_FIELD</option>
         </field>
         <field name="organizationID" type="Organizations" label="ORGANIZATIONS" multiple="multiple" required="true"/>
+        <field name="active" type="Options" label="ACTIVE_RESOURCE" default="1">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
+        <field name="suppress" type="Options" label="HIDE_RESOURCE" default="0">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
     </fieldset>
 </form>

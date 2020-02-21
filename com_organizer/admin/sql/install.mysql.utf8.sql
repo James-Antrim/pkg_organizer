@@ -483,7 +483,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_participants` (
     `id`        INT(11)             NOT NULL,
     `forename`  VARCHAR(255)        NOT NULL DEFAULT '',
     `surname`   VARCHAR(255)        NOT NULL DEFAULT '',
-    `address`   VARCHAR(60)         NOT NULL DEFAULT '',
+    `address`   VARCHAR(255)        NOT NULL DEFAULT '',
     `city`      VARCHAR(60)         NOT NULL DEFAULT '',
     `notify`    TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     `programID` INT(11) UNSIGNED             DEFAULT NULL,

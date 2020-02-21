@@ -10,8 +10,7 @@
             <option value="">ALL_CAMPUSES</option>
             <option value="-1">NO_CAMPUS</option>
         </field>
-        <field name="preparatory" type="Options" label="ORGANIZER_PREP_COURSES"
-               description="ORGANIZER_PREP_COURSES_DESC" default="0">
+        <field name="preparatory" type="Options" label="ORGANIZER_PREP_COURSES" default="0">
             <option value="">ORGANIZER_ALL_COURSES</option>
             <option value="1">ORGANIZER_ONLY_PREP_COURSES</option>
             <option value="0">ORGANIZER_NOT_PREP_COURSES</option>

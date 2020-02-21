@@ -35,10 +35,10 @@ class Organizations extends ListModel
 		$select = "o.id, o.shortName_$tag AS shortName, o.name_$tag AS name, a.rules, ";
 		$parts  = ["'index.php?option=com_organizer&view=organization_edit&id='", 'o.id'];
 		$select .= $query->concatenate($parts, '') . ' AS link ';
-		$query->select($select);
-		$query->from('#__organizer_organizations AS o');
-		$query->innerJoin('#__assets AS a ON a.id = o.asset_id');
-		$query->where('o.id IN (' . implode(',', $authorized) . ')');
+		$query->select($select)
+			->from('#__organizer_organizations AS o')
+			->leftJoin('#__assets AS a ON a.id = o.asset_id')
+			->where('o.id IN (' . implode(',', $authorized) . ')');
 
 		$this->setSearchFilter($query, ['shortName_de', 'name_de', 'shortName_en', 'name_en']);
 

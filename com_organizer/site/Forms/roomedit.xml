@@ -2,8 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="code" type="Blank" label="UNTIS_ID" required="true" size="40"/>
-        <field name="name" type="Blank" label="NAME" required="true" size="40"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
+        <field name="name" type="Blank" label="NAME" maxlength="150" required="true"/>
         <field name="buildingID" type="GenericOptions" label="BUILDING" table="organizer_buildings" textcolumn="name"
                valuecolumn="id">
             <option value="">NO_INPUT</option>
@@ -13,5 +13,9 @@
             <option value="">SELECT_ROOMTYPE</option>
         </field>
         <field name="capacity" type="Integer" label="CAPACITY" last="500" step="1"/>
+        <field name="active" type="Options" label="ACTIVE_RESOURCE" default="1">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
     </fieldset>
 </form>

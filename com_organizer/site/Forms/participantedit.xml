@@ -3,13 +3,17 @@
     <fieldset name="details">
         <field name="id" type="hidden" default="0"/>
         <field name="referrer" type="hidden"/>
-        <field name="forename" type="Blank" label="FORENAME" required="true"/>
-        <field name="surname" type="Blank" label="SURNAME" required="true"/>
-        <field name="address" type="Blank" label="ADDRESS" required="true"/>
-        <field name="zipCode" type="Blank" label="ZIP_CODE" required="true"/>
+        <field name="forename" type="Blank" label="FORENAME" maxlength="255" required="true"/>
+        <field name="surname" type="Blank" label="SURNAME" maxlength="255" required="true"/>
+        <field name="address" type="Blank" label="ADDRESS" maxlength="255" required="true"/>
+        <field name="zipCode" type="Blank" label="ZIP_CODE" maxlength="60" required="true"/>
         <field name="city" type="Blank" label="RESIDENCE" required="true"/>
         <field name="programID" type="Programs" label="PROGRAM" class="input-15" required="true">
             <option value="">SELECT_PROGRAM</option>
+        </field>
+        <field name="notify" type="Options" label="NOTIFY_CHANGES" default="0">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
         </field>
     </fieldset>
 </form>

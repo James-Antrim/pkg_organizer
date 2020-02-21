@@ -4,6 +4,7 @@ TODO Add adding colors from the field colors view
 TODO Disable field/organization changes from an existing field color association.
 TODO Create a documentation user & test view/function availability
 TODO Integrate 'active' attributes for person, pool, program, room, subject into documentation output
+TODO Find out if any pool 'name' attributes are not being used and remove them
 
 -----------------------------------------------------------------------------------------------------Phase 1: Curriculum
 
@@ -33,6 +34,9 @@ TODO create a fill file for initialization of tables synchronized in phase 2
 
 TODO adjust thee schedule migration routine to import schedules from thm_organizer
 TODO automatically update resources dependent on currrent thm_organizer data
+TODO methods => kapvo mapping
+TODO adjust both old organizer, new organizer and untis according to any kapvo resolution
+TODO add fields to curriculum resources to map themselves to schedule resources as needed
 
 -----------------------------------------------------------------------------------------------Phase 3: Individual Views
 Room Overview-----------------------------------------------------------------------------------------------------------

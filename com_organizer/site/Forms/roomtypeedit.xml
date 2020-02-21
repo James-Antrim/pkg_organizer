@@ -2,12 +2,12 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="code" type="Blank" label="UNTIS_ID" required="true" size="60"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
         <field type="spacer"/>
-        <field name="name_en" type="Blank" label="NAME_EN" required="true" size="50"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
         <field type="spacer"/>
-        <field name="name_de" type="Blank" label="NAME_DE" required="true" size="50"/>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
         <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
         <field type="spacer"/>
         <field name="minCapacity" type="Integer" label="MIN_CAPACITY" default="-1" first="10" last="9990" step="10">
@@ -15,6 +15,10 @@
         </field>
         <field name="maxCapacity" type="Integer" label="MAX_CAPACITY" default="-1" first="9" last="9999" step="10">
             <option value="-1">NO_INPUT</option>
+        </field>
+        <field name="suppress" type="Options" label="HIDE_RESOURCE" default="0">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
         </field>
     </fieldset>
 </form>
