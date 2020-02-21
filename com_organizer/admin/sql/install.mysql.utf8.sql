@@ -1032,11 +1032,6 @@ ALTER TABLE `#__organizer_monitors`
         ON DELETE SET NULL
         ON UPDATE CASCADE;
 
-ALTER TABLE `#__organizer_organizations`
-    ADD CONSTRAINT `organization_contactID_fk` FOREIGN KEY (`contactID`) REFERENCES `#__users` (`id`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE;
-
 ALTER TABLE `#__organizer_participants`
     ADD CONSTRAINT `participant_programID_fk` FOREIGN KEY (`programID`) REFERENCES `#__organizer_programs` (`id`)
         ON DELETE SET NULL

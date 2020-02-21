@@ -16,7 +16,7 @@ use Joomla\CMS\Table\Table;
 /**
  * Models the organizer_organizations table.
  */
-class Organizations extends Assets
+class Organizations extends BaseTable
 {
 	use Activated, Aliased;
 
@@ -174,7 +174,7 @@ class Organizations extends Assets
 	 */
 	public function check()
 	{
-		if (empty($this->alias))
+		if (!$this->alias)
 		{
 			$this->alias = null;
 		}
