@@ -48,7 +48,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return boolean  true if the user may edit the given resource, otherwise false
 	 */
-	protected function allow()
+	protected function allowMerge()
 	{
 		return Helpers\Can::administrate();
 	}
@@ -149,7 +149,7 @@ abstract class MergeModel extends BaseModel
 		$this->selected = Helpers\Input::getSelectedIDs();
 		sort($this->selected);
 
-		if (!$this->allow())
+		if (!$this->allowMerge())
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
