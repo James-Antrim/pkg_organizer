@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
@@ -17,6 +18,15 @@ use Organizer\Tables;
  */
 class FieldColor extends BaseModel
 {
+	/**
+	 * Authenticates the user
+	 */
+	protected function allow()
+	{
+		// Change this to check documentation access for the chosen organization ID.
+		return Helpers\Can::administrate();
+	}
+
 	/**
 	 * Method to get a table object, load it if necessary.
 	 *
