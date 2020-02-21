@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------------------------------Tonight
 
 TODO Disable field/organization changes from an existing field color association.
-TODO Add a menu item for creating fields.
+TODO Add redirection after creating field from the field colors view.
 TODO Create a documentation user & test view/function availability
 
 -----------------------------------------------------------------------------------------------------Phase 1: Curriculum
@@ -15,6 +15,9 @@ TODO make the frequencies field reference the table
 TODO add language as a filter to subjects
 
 --------------------------------------------------------------------------------------Phase 2: Migration/Synchronization
+
+TODO Ensure merge functionality works for Categories, Groups, Persons and Rooms
+TODO Finish merge functionality for Events and Participants
 
 TODO create a fill file for initialization of tables synchronized in phase 2
 -associations -> fk problems with current stand

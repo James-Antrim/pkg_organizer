@@ -10,6 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
+use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 
 /**
@@ -24,6 +25,29 @@ class Events extends ListView
 		'campus'          => 'link',
 		'maxParticipants' => 'link'
 	];
+
+	/**
+	 * Adds a toolbar and title to the view.
+	 *
+	 * @return void  sets context variables
+	 */
+	protected function addToolBar()
+	{
+		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_EVENTS"), 'list-2');
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "events.edit", true);
+
+		if ($admin = Helpers\Can::administrate())
+		{
+			$toolbar->appendButton(
+				'Standard',
+				'attachment',
+				Helpers\Languages::_('ORGANIZER_MERGE'),
+				'events.mergeView',
+				true
+			);
+		}
+	}
 
 	/**
 	 * Function determines whether the user may access the view.

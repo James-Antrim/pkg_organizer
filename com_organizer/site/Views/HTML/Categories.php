@@ -29,31 +29,15 @@ class Categories extends ListView
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_CATEGORIES'), 'list-2');
 		$toolbar = Toolbar::getInstance();
-
-		if ($admin = Helpers\Can::administrate())
-		{
-			$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'categories.add', false);
-		}
-
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'categories.edit', true);
 
-
-		if ($admin)
+		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
 				'Standard',
 				'attachment',
 				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'categories.mergeView',
-				true
-			);
-
-			$toolbar->appendButton(
-				'Confirm',
-				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-				'delete',
-				Helpers\Languages::_('ORGANIZER_DELETE'),
-				'categories.delete',
 				true
 			);
 		}

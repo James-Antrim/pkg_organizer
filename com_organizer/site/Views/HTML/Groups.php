@@ -40,6 +40,25 @@ class Groups extends ListView
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'groups.edit', true);
 
+		if (Helpers\Can::administrate())
+		{
+			$toolbar->appendButton(
+				'Standard',
+				'attachment',
+				Helpers\Languages::_('ORGANIZER_MERGE'),
+				'groups.mergeView',
+				true
+			);
+
+			$toolbar->appendButton(
+				'Standard',
+				'eye-open',
+				Helpers\Languages::_('ORGANIZER_PUBLISH_EXPIRED_TERMS'),
+				'groups.publishPast',
+				false
+			);
+		}
+
 		$if          = "alert('" . Helpers\Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
 		$else        = "jQuery('#modal-publishing').modal('show'); return true;";
 		$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
@@ -51,24 +70,6 @@ class Groups extends ListView
 		$batchButton .= '</button>';
 
 		$toolbar->appendButton('Custom', $batchButton, 'batch');
-
-		if (Helpers\Can::administrate())
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'attachment',
-				Helpers\Languages::_('ORGANIZER_MERGE'),
-				'groups.mergeView',
-				true
-			);
-			$toolbar->appendButton(
-				'Standard',
-				'eye-open',
-				Helpers\Languages::_('ORGANIZER_PUBLISH_EXPIRED_TERMS'),
-				'groups.publishPast',
-				false
-			);
-		}
 	}
 
 	/**

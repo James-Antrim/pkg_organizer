@@ -10,7 +10,10 @@
 
 namespace Organizer\Controllers;
 
+use Exception;
 use Organizer\Controller;
+use Organizer\Helpers;
+use Organizer\Models;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -20,4 +23,28 @@ class Fields extends Controller
 	protected $listView = 'fields';
 
 	protected $resource = 'field';
+
+	/**
+	 * Save form data to the database.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function save()
+	{
+		$model = new Models\Field;
+		$url   = Helpers\Routing::getRedirectBase() . '&view=';
+		$url   .= Helpers\Can::administrate() ? 'fields' : 'field_colors';
+
+		if ($model->save())
+		{
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+		}
+		else
+		{
+			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+		}
+
+		$this->setRedirect(Route::_($url, false));
+	}
 }

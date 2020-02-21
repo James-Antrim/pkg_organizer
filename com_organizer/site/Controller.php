@@ -338,8 +338,7 @@ class Controller extends BaseController
 	}
 
 	/**
-	 * Save user information from form and if course id defined sign in or out of course
-	 * then redirect to course list view
+	 * Save form data to the database.
 	 *
 	 * @return void
 	 */

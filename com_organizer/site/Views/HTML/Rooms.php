@@ -41,15 +41,6 @@ class Rooms extends ListView
 				'rooms.mergeView',
 				true
 			);
-
-			$toolbar->appendButton(
-				'Confirm',
-				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-				'delete',
-				Helpers\Languages::_('ORGANIZER_DELETE'),
-				'rooms.delete',
-				true
-			);
 		}
 	}
 

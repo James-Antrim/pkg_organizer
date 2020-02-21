@@ -39,6 +39,7 @@ class Persons extends ListView
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'persons.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'persons.edit', true);
+
 		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
