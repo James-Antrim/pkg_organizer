@@ -196,15 +196,38 @@ abstract class ListModel extends ParentModel
 			$this->setState("list.$input", $value);
 		}
 
-		$relevant = (!empty($list['ordering']) and strpos($list['ordering'], 'null') !== false);
-		$ordering = $relevant ? $list['ordering'] : $this->defaultOrdering;
+		$direction    = "ASC";
+		$fullOrdering = "{$this->defaultOrdering} ASC";
+		$ordering     = $this->defaultOrdering;
 
-		$validDirections = ['ASC', 'DESC', ''];
-		$relevant        = (!empty($list['direction']) and in_array(strtoupper($list['direction']), $validDirections));
-		$direction       = $relevant ? $list['direction'] : $this->defaultDirection;
+		if (!empty($list['fullordering']) and strpos($list['fullordering'], 'null') === false)
+		{
+			$pieces          = explode(' ', $list['fullordering']);
+			$validDirections = ['ASC', 'DESC', ''];
 
-		$fullOrdering = "$ordering $direction";
-		Factory::getSession()->set($this->context . '.ordering', $fullOrdering);
+			switch (count($pieces))
+			{
+				case 1:
+					if (in_array($pieces[0], $validDirections))
+					{
+						$direction    = empty($pieces[0]) ? "ASC" : $pieces[0];
+						$fullOrdering = "{$this->defaultDirection} $direction";
+						$ordering     = $this->defaultDirection;
+						break;
+					}
+
+					$direction    = $pieces[0];
+					$fullOrdering = "$pieces[0] ASC";
+					$ordering     = 'ASC';
+					break;
+				case 2:
+					$direction    = !in_array($pieces[1], $validDirections) ? "ASC" : $pieces[1];
+					$ordering     = $pieces[0];
+					$fullOrdering = "$ordering $direction";
+					break;
+			}
+		}
+
 		$this->setState('list.fullordering', $fullOrdering);
 		$this->setState('list.ordering', $ordering);
 		$this->setState('list.direction', $direction);

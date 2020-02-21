@@ -28,9 +28,10 @@ class Fields extends ListView
 	{
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
-		$headers   = [
+
+		$headers = [
 			'checkbox' => '',
-			'field'    => Helpers\HTML::sort('NAME', 'field', $direction, $ordering),
+			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
 			'code'     => Helpers\HTML::sort('CODE', 'code', $direction, $ordering),
 			'colors'   => Helpers\Languages::_('ORGANIZER_COLORS')
 		];
