@@ -86,7 +86,7 @@ class Persons extends BaseTable
 	public function check()
 	{
 		// All three fields can recieve data from at least two systems.
-		$nullColumns = ['code', 'userID', 'username'];
+		$nullColumns = ['alias', 'code', 'userID', 'username'];
 		foreach ($nullColumns as $nullColumn)
 		{
 			if (!strlen($this->$nullColumn))

@@ -108,14 +108,19 @@ class Campuses extends BaseTable
 	 */
 	public function check()
 	{
-		if (empty($this->parentID))
+		if (empty($this->alias))
 		{
-			$this->parentID = null;
+			$this->alias = null;
 		}
 
 		if (empty($this->gridID))
 		{
 			$this->gridID = null;
+		}
+
+		if (empty($this->parentID))
+		{
+			$this->parentID = null;
 		}
 
 		return true;

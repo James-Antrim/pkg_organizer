@@ -174,6 +174,11 @@ class Organizations extends Assets
 	 */
 	public function check()
 	{
+		if (empty($this->alias))
+		{
+			$this->alias = null;
+		}
+
 		if (!$this->contactID)
 		{
 			$this->contactID = null;

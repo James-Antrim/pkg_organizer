@@ -124,6 +124,11 @@ class Courses extends BaseTable
 	 */
 	public function check()
 	{
+		if (empty($this->alias))
+		{
+			$this->alias = null;
+		}
+
 		if (empty($this->campusID))
 		{
 			$this->campusID = null;

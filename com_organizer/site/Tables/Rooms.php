@@ -77,7 +77,7 @@ class Rooms extends BaseTable
 	 */
 	public function check()
 	{
-		$nullColumns = ['buildingID', 'code'];
+		$nullColumns = ['alias', 'buildingID', 'code'];
 		foreach ($nullColumns as $nullColumn)
 		{
 			if (!strlen($this->$nullColumn))

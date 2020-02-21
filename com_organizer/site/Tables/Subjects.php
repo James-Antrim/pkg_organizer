@@ -413,7 +413,7 @@ class Subjects extends BaseTable
 	 */
 	public function check()
 	{
-		$nullColumns = ['fieldID', 'frequencyID', 'instructionLanguage'];
+		$nullColumns = ['alias', 'fieldID', 'frequencyID', 'instructionLanguage'];
 
 		foreach ($nullColumns as $nullColumn)
 		{

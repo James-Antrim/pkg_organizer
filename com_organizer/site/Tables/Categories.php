@@ -61,6 +61,11 @@ class Categories extends BaseTable
 	 */
 	public function check()
 	{
+		if (empty($this->alias))
+		{
+			$this->alias = null;
+		}
+
 		if (empty($this->code))
 		{
 			$this->code = null;

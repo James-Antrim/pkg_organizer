@@ -1,8 +1,9 @@
------------------------------------------------------------------------------------------------------------------Tonight
+-----------------------------------------------------------------------------------------------------------------Initial
 
+TODO Add adding colors from the field colors view
 TODO Disable field/organization changes from an existing field color association.
-TODO Add redirection after creating field from the field colors view.
 TODO Create a documentation user & test view/function availability
+TODO Integrate 'active' attributes for person, pool, program, room, subject into documentation output
 
 -----------------------------------------------------------------------------------------------------Phase 1: Curriculum
 
@@ -16,8 +17,11 @@ TODO add language as a filter to subjects
 
 --------------------------------------------------------------------------------------Phase 2: Migration/Synchronization
 
+TODO Revert left join in Organizations.php to innerJoin
 TODO Ensure merge functionality works for Categories, Groups, Persons and Rooms
 TODO Finish merge functionality for Events and Participants
+TODO Add specific implementation for participants allowMerge function.
+TODO Integrate 'active' attributes for category, event, group, room, subject into schedule output
 
 TODO create a fill file for initialization of tables synchronized in phase 2
 -associations -> fk problems with current stand
@@ -73,7 +77,7 @@ TODO create a strategy around required image files
 -documentation for configuration/uploading
 
 TODO sort out the FILTER and the SELECT text constants
-
+TODO decide what to do with inactive campuses and buildings
 TODO move the event => organization associations from the events table to the associations table
 
 Feature: Tagging--------------------------------------------------------------------------------------------------------
@@ -89,5 +93,9 @@ TODO add resource_field tables to associate resources with multiple fields in ad
 Feature: Degree Management----------------------------------------------------------------------------------------------
 
 TODO add degree management views
+
+Feature: Organization Holidays -----------------------------------------------------------------------------------------
+
+TODO allow organizations to add optional/manual holidays that are only valid for themselves or override the status attributes for themselves.
 
 

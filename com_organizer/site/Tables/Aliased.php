@@ -22,4 +22,19 @@ trait Aliased
 	 * @var string
 	 */
 	public $alias;
+
+	/**
+	 * Set the table column names which are allowed to be null
+	 *
+	 * @return boolean  true
+	 */
+	public function check()
+	{
+		if (empty($this->alias))
+		{
+			$this->alias = null;
+		}
+
+		return true;
+	}
 }

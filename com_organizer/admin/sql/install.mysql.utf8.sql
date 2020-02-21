@@ -1,3 +1,4 @@
+# region create
 CREATE TABLE IF NOT EXISTS `#__organizer_associations` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `organizationID` INT(11) UNSIGNED NOT NULL,
@@ -53,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_buildings` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_campuses` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`    VARCHAR(255)                 DEFAULT '',
+    `alias`    VARCHAR(255)                 DEFAULT NULL,
     `parentID` INT(11) UNSIGNED             DEFAULT NULL,
     `name_de`  VARCHAR(150)        NOT NULL,
     `name_en`  VARCHAR(150)        NOT NULL,
@@ -65,6 +66,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_campuses` (
     `location` VARCHAR(20)         NOT NULL,
     `zipCode`  VARCHAR(60)         NOT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     INDEX `gridID` (`gridID`),
     INDEX `parentID` (`parentID`),
     UNIQUE INDEX `englishName` (`parentID`, `name_en`),
@@ -76,13 +78,14 @@ CREATE TABLE IF NOT EXISTS `#__organizer_campuses` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_categories` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`    VARCHAR(255)                 DEFAULT '',
+    `alias`    VARCHAR(255)                 DEFAULT NULL,
     `code`     VARCHAR(60)                  DEFAULT NULL,
     `name_de`  VARCHAR(150)        NOT NULL,
     `name_en`  VARCHAR(150)        NOT NULL,
     `active`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `suppress` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `code` (`code`)
 )
     ENGINE = InnoDB
@@ -99,45 +102,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_colors` (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
-
-INSERT IGNORE INTO `#__organizer_colors`
-VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
-       (2, 'Hellstgrau', 'Lightest Grey', '#d2d6d9'),
-       (3, 'Hellstrot', 'Lightest Red', '#e6c4cb'),
-       (4, 'Hellstgelb', 'Lightest Yellow', '#fceabf'),
-       (5, 'Hellstcyan', 'Lightest Cyan', '#00ffff'),
-       (6, 'Hellstblau', 'Lightest Blue', '#bfc9dd'),
-       (7, 'Hellgruen', 'Light Green', '#bfdc91'),
-       (8, 'Hellgrau', 'Light Grey', '#a4adb2'),
-       (9, 'Hellrot', 'Light Red', '#cd8996'),
-       (10, 'Hellgelb', 'Light Yellow', '#f9d47f'),
-       (11, 'Hellcyan', 'Light Cyan', '#00e2e2'),
-       (12, 'Hellblau', 'Light Blue', '#7f93bb'),
-       (13, 'Mittelgruen', 'Middling Green', '#a0cb5b'),
-       (14, 'Mittelrot', 'Middling Red', '#b54e62'),
-       (15, 'Mittelgelb', 'Middling Yellow', '#f7bf40'),
-       (16, 'Cyan', 'Cyan', '#00a8a8'),
-       (17, 'Grün', 'Green', '#80ba24'),
-       (18, 'Mittelgrau', 'Middling Grey', '#77858c'),
-       (19, 'Rot', 'Red', '#9c132e'),
-       (20, 'Gelb', 'Yellow', '#f4aa00'),
-       (21, 'Mittelcyan', 'Middling Cyan', '#00c5c5'),
-       (22, 'Mittelblau', 'Middling Blue', '#405e9a'),
-       (23, 'Dunkelgrün', 'Dark Green', '#6ea925'),
-       (24, 'Dunkelgrau', 'Dark Grey', '#283640'),
-       (25, 'Dunkelrot', 'Dark Red', '#82132e'),
-       (26, 'Weiß', 'White', '#ffffff'),
-       (27, 'Grau', 'Grey', '#4a5c66'),
-       (28, 'Schwarz', 'Black', '#000000'),
-       (29, 'Dunkelgelb', 'Dark Yellow', '#f0a400'),
-       (30, 'Dunkelcyan', 'Dark Cyan', '#008b8b'),
-       (31, 'Blau', 'Blue', '#002878'),
-       (32, 'Dunkelblau', 'Dark Blue', '#002856'),
-       (33, 'Hellstlila', 'Lightest Purple', '#ddd1e7'),
-       (34, 'Helllila', 'Light Purple', '#bba3d0'),
-       (35, 'Mittellila', 'Middling Purple', '#9975b9'),
-       (36, 'Lila', 'Purple', '#7647a2'),
-       (37, 'Dunkellila', 'Dark Purple', '#551A8B');
 
 CREATE TABLE IF NOT EXISTS `#__organizer_course_participants` (
     `id`              INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -158,7 +122,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_course_participants` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_courses` (
     `id`               INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias`            VARCHAR(255)              DEFAULT '',
+    `alias`            VARCHAR(255)              DEFAULT NULL,
     `campusID`         INT(11) UNSIGNED          DEFAULT NULL,
     `name_de`          VARCHAR(150)              DEFAULT NULL,
     `name_en`          VARCHAR(150)              DEFAULT NULL,
@@ -171,6 +135,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_courses` (
     `maxParticipants`  INT(4) UNSIGNED           DEFAULT 1000,
     `registrationType` INT(1) UNSIGNED           DEFAULT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     INDEX `campusID` (`campusID`),
     INDEX `termID` (`termID`)
 )
@@ -200,25 +165,16 @@ CREATE TABLE IF NOT EXISTS `#__organizer_curricula` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_degrees` (
     `id`           INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias`        VARCHAR(255) DEFAULT NULL,
     `abbreviation` VARCHAR(25)      NOT NULL,
-    `alias`        VARCHAR(255) DEFAULT '',
     `code`         VARCHAR(60)      NOT NULL,
     `name`         VARCHAR(150)     NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
-
-INSERT IGNORE INTO `#__organizer_degrees`
-VALUES (2, 'B.Eng.', 'beng', 'BE', 'Bachelor of Engineering'),
-       (3, 'B.Sc.', 'bsc', 'BS', 'Bachelor of Science'),
-       (4, 'B.A.', 'ba', 'BA', 'Bachelor of Arts'),
-       (5, 'M.Eng.', 'meng', 'ME', 'Master of Engineering'),
-       (6, 'M.Sc.', 'msc', 'MS', 'Master of Science'),
-       (7, 'M.A.', 'ma', 'MA', 'Master of Arts'),
-       (8, 'M.B.A.', 'mba', 'MB', 'Master of Business Administration and Engineering'),
-       (9, 'M.Ed.', 'med', 'MH', 'Master of Education');
 
 CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators` (
     `id`       INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -235,7 +191,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_events` (
     `id`               INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`            VARCHAR(255)                 DEFAULT '',
+    `alias`            VARCHAR(255)                 DEFAULT NULL,
     `code`             VARCHAR(60)         NOT NULL,
     `name_de`          VARCHAR(150)        NOT NULL,
     `name_en`          VARCHAR(150)        NOT NULL,
@@ -262,6 +218,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_events` (
     `registrationType` INT(1) UNSIGNED              DEFAULT NULL,
     `suppress`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `entry` (`code`, `organizationID`),
     INDEX `campusID` (`campusID`),
     INDEX `code` (`code`),
@@ -288,11 +245,12 @@ CREATE TABLE IF NOT EXISTS `#__organizer_field_colors` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_fields` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias`   VARCHAR(255) DEFAULT '',
+    `alias`   VARCHAR(255) DEFAULT NULL,
     `code`    VARCHAR(60)      NOT NULL,
     `name_de` VARCHAR(150)     NOT NULL,
     `name_en` VARCHAR(150)     NOT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `code` (`code`)
 )
     ENGINE = InnoDB
@@ -310,14 +268,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_frequencies` (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
-
-INSERT IGNORE INTO `#__organizer_frequencies`
-VALUES (0, 'Nach Termin', 'By Appointment'),
-       (1, 'Nur im Sommersemester', 'Only Spring/Summer Term'),
-       (2, 'Nur im Wintersemester', 'Only Fall/Winter Term'),
-       (3, 'Jedes Semester', 'Semesterly'),
-       (4, 'Nach Bedarf', 'As Needed'),
-       (5, 'Einmal im Jahr', 'Yearly');
 
 CREATE TABLE IF NOT EXISTS `#__organizer_grids` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
@@ -349,7 +299,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_group_publishing` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_groups` (
     `id`          INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`       VARCHAR(255)                 DEFAULT '',
+    `alias`       VARCHAR(255)                 DEFAULT NULL,
     `code`        VARCHAR(60)         NOT NULL,
     `name_de`     VARCHAR(150)        NOT NULL,
     `name_en`     VARCHAR(150)        NOT NULL,
@@ -360,6 +310,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_groups` (
     `gridID`      INT(11) UNSIGNED             DEFAULT 1,
     `suppress`    TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `entry` (`code`, `categoryID`),
     INDEX `categoryID` (`categoryID`),
     UNIQUE `code` (`code`),
@@ -462,13 +413,14 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_methods` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias`           VARCHAR(255) DEFAULT '',
+    `alias`           VARCHAR(255) DEFAULT NULL,
     `code`            VARCHAR(60)      NOT NULL,
     `name_de`         VARCHAR(150) DEFAULT NULL,
     `name_en`         VARCHAR(150) DEFAULT NULL,
     `abbreviation_de` VARCHAR(25)  DEFAULT '',
     `abbreviation_en` VARCHAR(25)  DEFAULT '',
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE `code` (`code`)
 )
     ENGINE = InnoDB
@@ -497,7 +449,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_monitors` (
 CREATE TABLE IF NOT EXISTS `#__organizer_organizations` (
     `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `asset_id`        INT(11)                      DEFAULT NULL,
-    `alias`           VARCHAR(255)                 DEFAULT '',
+    `alias`           VARCHAR(255)                 DEFAULT NULL,
     `name_de`         VARCHAR(150)        NOT NULL,
     `name_en`         VARCHAR(150)        NOT NULL,
     `active`          TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
@@ -511,6 +463,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_organizations` (
     `shortName_en`    VARCHAR(50)         NOT NULL,
     `URL`             VARCHAR(255)                 DEFAULT '',
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `abbreviation_de` (`abbreviation_de`),
     UNIQUE INDEX `abbreviation_en` (`abbreviation_en`),
     UNIQUE INDEX `shortName_de` (`shortName_de`),
@@ -544,7 +497,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_participants` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_persons` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`    VARCHAR(255)                 DEFAULT '',
+    `alias`    VARCHAR(255)                 DEFAULT NULL,
     `code`     VARCHAR(60)                  DEFAULT NULL,
     `forename` VARCHAR(255)        NOT NULL DEFAULT '',
     `surname`  VARCHAR(255)        NOT NULL,
@@ -554,6 +507,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_persons` (
     `userID`   INT(11)                      DEFAULT NULL,
     `username` VARCHAR(150)                 DEFAULT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `code` (`code`),
     UNIQUE INDEX `userID` (`userID`),
     UNIQUE INDEX `username` (`username`)
@@ -565,7 +519,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_persons` (
 # organizationID defaults to null so the entry does not get deleted with the organization
 CREATE TABLE IF NOT EXISTS `#__organizer_pools` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias`           VARCHAR(255)     DEFAULT '',
+    `alias`           VARCHAR(255)     DEFAULT NULL,
     `shortName_de`    VARCHAR(50)      DEFAULT '',
     `shortName_en`    VARCHAR(50)      DEFAULT '',
     `organizationID`  INT(11) UNSIGNED DEFAULT NULL,
@@ -581,6 +535,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_pools` (
     `minCrP`          INT(3) UNSIGNED  DEFAULT 0,
     `maxCrP`          INT(3) UNSIGNED  DEFAULT 0,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     INDEX `fieldID` (`fieldID`),
     INDEX `groupID` (`groupID`),
     UNIQUE `lsfID` (`lsfID`),
@@ -606,7 +561,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_prerequisites` (
 # degreeID, frequencyID, organizationID defaults to null so the entry does not get deleted with the organization
 CREATE TABLE IF NOT EXISTS `#__organizer_programs` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`          VARCHAR(255)                 DEFAULT '',
+    `alias`          VARCHAR(255)                 DEFAULT NULL,
     `accredited`     YEAR(4)             NOT NULL,
     `code`           VARCHAR(60)         NOT NULL,
     `degreeID`       INT(11) UNSIGNED             DEFAULT NULL,
@@ -619,6 +574,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs` (
     `frequencyID`    INT(1) UNSIGNED              DEFAULT NULL,
     `organizationID` INT(11) UNSIGNED             DEFAULT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `entry` (`code`, `degreeID`, `accredited`),
     INDEX `categoryID` (`categoryID`),
     INDEX `degreeID` (`degreeID`),
@@ -645,16 +601,10 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roles` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-INSERT IGNORE INTO `#__organizer_roles`
-VALUES (1, 'DOZ', 'TCH', 'Dozent', 'Teacher'),
-       (2, 'TUT', 'TUT', 'Tutor', 'Tutor'),
-       (3, 'AFS', 'SPR', 'Aufsicht', 'Supervisor'),
-       (4, 'REF', 'SPK', 'Referent', 'Speaker');
-
 # roomtypeID defaults to null so the entry does not get deleted with the roomtype
 CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `id`         INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`      VARCHAR(255)                 DEFAULT '',
+    `alias`      VARCHAR(255)                 DEFAULT NULL,
     `code`       VARCHAR(60)                  DEFAULT NULL,
     `name`       VARCHAR(150)        NOT NULL,
     `active`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
@@ -662,6 +612,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `capacity`   INT(4) UNSIGNED              DEFAULT NULL,
     `roomtypeID` INT(11) UNSIGNED             DEFAULT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `code` (`code`),
     INDEX `buildingID` (`buildingID`),
     INDEX `roomtypeID` (`roomtypeID`)
@@ -672,7 +623,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`          VARCHAR(255)                 DEFAULT '',
+    `alias`          VARCHAR(255)                 DEFAULT NULL,
     `code`           VARCHAR(60)         NOT NULL,
     `name_de`        VARCHAR(150)        NOT NULL,
     `name_en`        VARCHAR(150)        NOT NULL,
@@ -682,6 +633,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `maxCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
     `suppress`       TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `code` (`code`)
 )
     ENGINE = InnoDB
@@ -750,7 +702,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons` (
 # organizationID defaults to null so the entry does not get deleted with the organization
 CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `id`                          INT(11) UNSIGNED      NOT NULL AUTO_INCREMENT,
-    `alias`                       VARCHAR(255)                   DEFAULT '',
+    `alias`                       VARCHAR(255)                   DEFAULT NULL,
     `code`                        VARCHAR(60)           NOT NULL DEFAULT '',
     `fullName_de`                 VARCHAR(200)          NOT NULL,
     `fullName_en`                 VARCHAR(200)          NOT NULL,
@@ -799,6 +751,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `usedFor_de`                  TEXT,
     `usedFor_en`                  TEXT,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     INDEX `fieldID` (`fieldID`),
     INDEX `frequencyID` (`frequencyID`),
     UNIQUE INDEX `lsfID` (`lsfID`),
@@ -810,7 +763,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_terms` (
     `id`          INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias`       VARCHAR(255) DEFAULT '',
+    `alias`       VARCHAR(255) DEFAULT NULL,
     `code`        VARCHAR(60)      NOT NULL,
     `name_de`     VARCHAR(150) DEFAULT '',
     `name_en`     VARCHAR(150) DEFAULT '',
@@ -819,6 +772,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_terms` (
     `fullName_en` VARCHAR(200) DEFAULT '',
     `startDate`   DATE             NOT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `entry` (`code`, `startDate`, `endDate`)
 )
     ENGINE = InnoDB
@@ -850,7 +804,74 @@ CREATE TABLE IF NOT EXISTS `#__organizer_units` (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
+# endregion
 
+# region insert
+INSERT IGNORE INTO `#__organizer_colors`
+VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
+       (2, 'Hellstgrau', 'Lightest Grey', '#d2d6d9'),
+       (3, 'Hellstrot', 'Lightest Red', '#e6c4cb'),
+       (4, 'Hellstgelb', 'Lightest Yellow', '#fceabf'),
+       (5, 'Hellstcyan', 'Lightest Cyan', '#00ffff'),
+       (6, 'Hellstblau', 'Lightest Blue', '#bfc9dd'),
+       (7, 'Hellgruen', 'Light Green', '#bfdc91'),
+       (8, 'Hellgrau', 'Light Grey', '#a4adb2'),
+       (9, 'Hellrot', 'Light Red', '#cd8996'),
+       (10, 'Hellgelb', 'Light Yellow', '#f9d47f'),
+       (11, 'Hellcyan', 'Light Cyan', '#00e2e2'),
+       (12, 'Hellblau', 'Light Blue', '#7f93bb'),
+       (13, 'Mittelgruen', 'Middling Green', '#a0cb5b'),
+       (14, 'Mittelrot', 'Middling Red', '#b54e62'),
+       (15, 'Mittelgelb', 'Middling Yellow', '#f7bf40'),
+       (16, 'Cyan', 'Cyan', '#00a8a8'),
+       (17, 'Grün', 'Green', '#80ba24'),
+       (18, 'Mittelgrau', 'Middling Grey', '#77858c'),
+       (19, 'Rot', 'Red', '#9c132e'),
+       (20, 'Gelb', 'Yellow', '#f4aa00'),
+       (21, 'Mittelcyan', 'Middling Cyan', '#00c5c5'),
+       (22, 'Mittelblau', 'Middling Blue', '#405e9a'),
+       (23, 'Dunkelgrün', 'Dark Green', '#6ea925'),
+       (24, 'Dunkelgrau', 'Dark Grey', '#283640'),
+       (25, 'Dunkelrot', 'Dark Red', '#82132e'),
+       (26, 'Weiß', 'White', '#ffffff'),
+       (27, 'Grau', 'Grey', '#4a5c66'),
+       (28, 'Schwarz', 'Black', '#000000'),
+       (29, 'Dunkelgelb', 'Dark Yellow', '#f0a400'),
+       (30, 'Dunkelcyan', 'Dark Cyan', '#008b8b'),
+       (31, 'Blau', 'Blue', '#002878'),
+       (32, 'Dunkelblau', 'Dark Blue', '#002856'),
+       (33, 'Hellstlila', 'Lightest Purple', '#ddd1e7'),
+       (34, 'Helllila', 'Light Purple', '#bba3d0'),
+       (35, 'Mittellila', 'Middling Purple', '#9975b9'),
+       (36, 'Lila', 'Purple', '#7647a2'),
+       (37, 'Dunkellila', 'Dark Purple', '#551A8B');
+
+INSERT IGNORE INTO `#__organizer_degrees`
+VALUES (2, 'B.Eng.', 'beng', 'BE', 'Bachelor of Engineering'),
+       (3, 'B.Sc.', 'bsc', 'BS', 'Bachelor of Science'),
+       (4, 'B.A.', 'ba', 'BA', 'Bachelor of Arts'),
+       (5, 'M.Eng.', 'meng', 'ME', 'Master of Engineering'),
+       (6, 'M.Sc.', 'msc', 'MS', 'Master of Science'),
+       (7, 'M.A.', 'ma', 'MA', 'Master of Arts'),
+       (8, 'M.B.A.', 'mba', 'MB', 'Master of Business Administration and Engineering'),
+       (9, 'M.Ed.', 'med', 'MH', 'Master of Education');
+
+INSERT IGNORE INTO `#__organizer_frequencies`
+VALUES (0, 'Nach Termin', 'By Appointment'),
+       (1, 'Nur im Sommersemester', 'Only Spring/Summer Term'),
+       (2, 'Nur im Wintersemester', 'Only Fall/Winter Term'),
+       (3, 'Jedes Semester', 'Semesterly'),
+       (4, 'Nach Bedarf', 'As Needed'),
+       (5, 'Einmal im Jahr', 'Yearly');
+
+INSERT IGNORE INTO `#__organizer_roles`
+VALUES (1, 'DOZ', 'TCH', 'Dozent', 'Teacher'),
+       (2, 'TUT', 'TUT', 'Tutor', 'Tutor'),
+       (3, 'AFS', 'SPR', 'Aufsicht', 'Supervisor'),
+       (4, 'REF', 'SPK', 'Referent', 'Speaker');
+# endregion
+
+# region reference
 ALTER TABLE `#__organizer_associations`
     ADD CONSTRAINT `association_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `#__organizer_categories` (`id`)
         ON DELETE CASCADE
@@ -1130,3 +1151,4 @@ ALTER TABLE `#__organizer_units`
     ADD CONSTRAINT `unit_termID_fk` FOREIGN KEY (`termID`) REFERENCES `#__organizer_terms` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE;
+# endregion

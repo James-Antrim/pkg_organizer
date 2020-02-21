@@ -149,7 +149,7 @@ class Pools extends BaseTable
 	public function check()
 	{
 		// These can be blank, but non-empty values should be unique.
-		$nullColumns = ['groupID', 'fieldID', 'lsfID'];
+		$nullColumns = ['alias', 'groupID', 'fieldID', 'lsfID'];
 		foreach ($nullColumns as $nullColumn)
 		{
 			if (!strlen($this->$nullColumn))
