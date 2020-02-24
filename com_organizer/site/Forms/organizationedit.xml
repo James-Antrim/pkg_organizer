@@ -2,6 +2,7 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
+        <field name="alias" type="Blank" label="ALIAS" maxlength="255" required="true"/>
         <field name="fullName_de" type="Blank" label="FULL_NAME_DE" maxlength="200" required="true"/>
         <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
         <field name="shortName_de" type="Blank" label="SHORT_NAME_DE" maxlength="50" required="true"/>
@@ -12,10 +13,9 @@
         <field name="shortName_en" type="Blank" label="SHORT_NAME_EN" maxlength="50" required="true"/>
         <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" maxlength="25" required="true"/>
         <field type="spacer"/>
-        <field name="contactID" type="User" label="ORGANIZER_CONTACT_PERSON" description="ORGANIZER_CONTACT_PERSON_DESC"
-               showon="contact_type:0"/>
-        <field name="contact_email" type="Email" label="ORGANIZER_CONTACT_EMAIL" showon="contact_type:1"
-               validate="email"/>
+        <field name="contactID" type="User" label="ORGANIZER_CONTACT_PERSON"
+               description="ORGANIZER_CONTACT_PERSON_DESC"/>
+        <field name="contactEmail" type="Email" label="ORGANIZER_CONTACT_EMAIL" validate="email"/>
         <field name="active" type="Options" label="ACTIVE_RESOURCE" default="1">
             <option value="1">YES</option>
             <option value="0">NO</option>

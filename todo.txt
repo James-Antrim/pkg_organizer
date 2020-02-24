@@ -1,63 +1,108 @@
------------------------------------------------------------------------------------------------------------------Initial
+-------------------------------------------------------------------------------------------------------------01: Initial
+--------------Resources/Tables: Associations, Colors, Degrees, Field Colors, Fields, Frequencies, Organizations, Persons
 
 TODO Add adding colors from the field colors view
 TODO Disable field/organization changes from an existing field color association.
 TODO Create a documentation user & test view/function availability
-TODO Integrate 'active' attributes for person, pool, program, room, subject into documentation output
+TODO Revert left join in Organizations.php to innerJoin after initial save of all organizations
+TODO On save for person should check the users table for a valid user id if none is already existent
+
+------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------02: Curriculum
+-----------------Resources/Tables: Associations, Curricula, Pools, Prerequisites, Programs, Subject Persons and Subjects
+------------------------------------------------------------------------------------------------------------------------
+
+General-----------------------------------------------------------------------------------------------------------------
+
+TODO Pools is missing the column 'active'
+TODO Integrate 'active' attributes for person, pool & program into documentation output
 TODO Find out if any pool 'name' attributes are not being used and remove them
-TODO Add the alias field to the organizations form
-
------------------------------------------------------------------------------------------------------Phase 1: Curriculum
-
-TODO remove references to the thm_organizer curriculum based views => set access rights to administrator
--programs
--pools
--subjects
-
+TODO Set the documentation rubric in the THM Organizer menu to administrator access
+TODO Set the documentation views in the THM Organizer component to administrator access
 TODO make the frequencies field reference the table
-TODO add language as a filter to subjects
 
---------------------------------------------------------------------------------------Phase 2: Migration/Synchronization
+Curriculum View---------------------------------------------------------------------------------------------------------
 
-TODO Revert left join in Organizations.php to innerJoin
-TODO Ensure merge functionality works for Categories, Groups, Persons and Rooms
-TODO Finish merge functionality for Events and Participants
-TODO Add specific implementation for participants allowMerge function.
-TODO Integrate 'active' attributes for category, event, group, room, subject into schedule output
+TODO Replace existing menu items
 
-TODO create a fill file for initialization of tables synchronized in phase 2
--associations -> fk problems with current stand
--instance_persons -> fk problems with current stand
--instance_groups -> cannot verify
--instance_rooms -> migration function?
--participants -> outstanding (+migration function?)
--instance_participants -> migration function?
+SubjectItem View--------------------------------------------------------------------------------------------------------
 
-TODO adjust thee schedule migration routine to import schedules from thm_organizer
-TODO automatically update resources dependent on currrent thm_organizer data
+TODO Link from THM Organizer Schedule view
+
+Subjects View-----------------------------------------------------------------------------------------------------------
+
+TODO Replace existing menu items
+TODO Add instruction language filter
+
+------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------03: FM
+----------------------------------------Resources/Tables: Associations, Buildings, Campuses, Monitors, Room Types, Rooms
+------------------------------------------------------------------------------------------------------------------------
+
+TODO Check the functionality of fm views and correct any problems found
+
+------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------04: Schedules
+-------------------------------------------------------------------------------------Resources/Tables: Schedules & Terms
+------------------------------------------------------------------------------------------------------------------------
+
+TODO Revamp the schedule migration functions for the new circumstances and structure
+TODO Conceptualize and implement a schedule synchronization strategy
+
+------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------05: Planning Resources
+-------Resources/Tables: Associations, Categories, Event Coordinators, Events, Group Publishing, Groups & Subject Events
+------------------------------------------------------------------------------------------------------------------------
+
+TODO Implement migration/synchronization of categories, groups, group publishing and events
+TODO Conceptualize and implement a planning synchronization strategy
+TODO add group association support
+-xml import
+-edit views
+-options fields
+-remove events table organizationID column
+
+------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------06: Planned Resources
+--------------------------------Resources/Tables: Blocks, I-Groups, I-Persons, I-Rooms, Instances, Methods, Roles, Units
+------------------------------------------------------------------------------------------------------------------------
+
+TODO Revamp the configuration migration functions for the new circumstances and structure
+TODO Merge Functionality
+- At this point because the function should be able to affect instances as necessary.
+- Mergeable resources: Categories, Events, Groups, Persons and Rooms
+-- Events is completely new and must correspondingly be implemented from scratch
+- Uncomment buttons
+
+Room Overview View------------------------------------------------------------------------------------------------------
+
+TODO Fix any problems which have arisen with the implementation
+
+Deputat View------------------------------------------------------------------------------------------------------------
+
+TODO Finish implementation
+
+Schedule Item View------------------------------------------------------------------------------------------------------
+
+TODO Integrate 'active' attributes for category, event, group & room into selectable schedule options
+
+TODO automatically update resources dependent on current thm_organizer data
 TODO methods => kapvo mapping
 TODO adjust both old organizer, new organizer and untis according to any kapvo resolution
 TODO add fields to curriculum resources to map themselves to schedule resources as needed
 
------------------------------------------------------------------------------------------------Phase 3: Individual Views
-Room Overview-----------------------------------------------------------------------------------------------------------
-Deputat-----------------------------------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------------Phase 4: Schedule (?) View
----------------------------------------------------------------------------------------------------Phase 5: Course Views
+------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------07: Courses
+-------------------------------------------------Resources/Tables: C-Participants, Courses, I-Participants, Participants
+------------------------------------------------------------------------------------------------------------------------
 
-TODO create a fill file for initialization of tables used in phase 5
--courses
--course_participants
+TODO Merge functionality: Participants
+- Differing merge conditions and effects from other mergeable resources.
 
 TODO default the default sender to the site sender
 
 ----------------------------------------------------------------------------------------------------------------Complete
 
-TODO add event, group, and room association support
--xml import
--edit views
--options fields
--remove events table organizationID column
 
 TODO change the frequency ids from 0-5 to 1-6
 -update frequencies, programs, subjects
