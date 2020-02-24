@@ -1,6 +1,8 @@
 name: Test joomla component installation
 
-on: ['push', 'pulll_request']
+on:
+        - push
+        - pulll_request
 
 jobs:
   build:
