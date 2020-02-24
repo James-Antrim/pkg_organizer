@@ -1,6 +1,6 @@
 name: Test joomla component installation
 
-on: [push]
+on: [push, pulll_request]
 
 jobs:
   build:
@@ -32,3 +32,11 @@ jobs:
           path : extensions/com_organizer
       - name: "Initialize build enviroment"
         run: build/scripts/shell/init.sh
+      - name: "Upload Package"
+        uses: actions/upload-artifact@v1
+        on:
+                tags:
+                        - 'v*'
+        with: 
+                name: "com-organizer"
+                path: "test.zip"
