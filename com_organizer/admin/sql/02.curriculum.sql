@@ -18,13 +18,14 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_programs` (
     UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `entry` (`code`, `degreeID`, `accredited`),
     INDEX `categoryID` (`categoryID`),
+    UNIQUE INDEX `code` (`code`),
     INDEX `degreeID` (`degreeID`),
     INDEX `frequencyID` (`frequencyID`),
     INDEX `organizationID` (`organizationID`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_programs` (`id`, `organizationID`, `code`, `degreeID`, `accredited`, `frequencyID`, `name_de`,
                                                `name_en`, `description_de`, `description_en`)
@@ -82,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_pools` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_pools` (`id`, `organizationID`, `fieldID`, `lsfID`, `abbreviation_de`,
                                             `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
@@ -119,7 +120,7 @@ ALTER TABLE `v7ocf_organizer_pools`
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subjects` (
     `id`                          INT(11) UNSIGNED      NOT NULL AUTO_INCREMENT,
     `alias`                       VARCHAR(255)                   DEFAULT NULL,
-    `code`                        VARCHAR(60)           NOT NULL DEFAULT '',
+    `code`                        VARCHAR(60)                    DEFAULT NULL COLLATE utf8mb4_bin,
     `fullName_de`                 VARCHAR(200)          NOT NULL,
     `fullName_en`                 VARCHAR(200)          NOT NULL,
     `organizationID`              INT(11) UNSIGNED               DEFAULT NULL,
@@ -175,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subjects` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_subjects` (`id`, `organizationID`, `lsfID`, `code`, `abbreviation_de`,
                                                `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
@@ -283,7 +284,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_curricula` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_curricula` (`id`, `parentID`, `programID`, `poolID`, `subjectID`, `level`, `lft`, `ordering`, `rgt`)
 SELECT `id`, `parentID`, `programID`, `poolID`, `subjectID`, `level`, `lft`, `ordering`, `rgt`
@@ -316,7 +317,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_prerequisites` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_prerequisites` (`id`, `subjectID`, `prerequisiteID`)
 SELECT *
@@ -345,7 +346,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subject_persons` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_subject_persons` (`id`, `personID`, `role`, `subjectID`)
 SELECT `id`, `teacherID`, `teacherResp`, `subjectID`

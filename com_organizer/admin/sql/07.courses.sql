@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_courses` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 ALTER TABLE `v7ocf_organizer_courses`
     ADD CONSTRAINT `course_campusID_fk` FOREIGN KEY (`campusID`) REFERENCES `v7ocf_organizer_campuses` (`id`)
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_participants` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 # Data has to be migrated in through software
 
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_course_participants` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 # Data has to be migrated in through software
 
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_participants` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 # Data has to be migrated in through software
 

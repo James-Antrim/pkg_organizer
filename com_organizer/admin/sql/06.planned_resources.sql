@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_blocks` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_blocks` (`date`, `dow`, `startTime`, `endTime`)
 SELECT DISTINCT `schedule_date`, WEEKDAY(`schedule_date`) + 1, `startTime`, `endTime`
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_methods` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_methods` (`id`, `code`, `abbreviation_de`, `abbreviation_en`, `name_de`, `name_en`)
 SELECT DISTINCT `id`, `gpuntisID`, `abbreviation_de`, `abbreviation_en`, `name_de`, `name_en`
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_units` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_units` (`id`, `organizationID`, `termID`, `code`, `comment`, `delta`, `modified`)
 SELECT `id`, `departmentID`, `planningPeriodID`, `gpuntisID`, `comment`, `delta`, `modified`
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instances` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_instances`(`eventID`, `blockID`, `unitID`, `methodID`, `delta`, `modified`)
 SELECT ls.`subjectID` AS eventID,
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roles` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_roles`
 VALUES (1, 'DOZ', 'TCH', 'Dozent', 'Teacher'),
@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_persons` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_instance_persons`(`instanceID`, `personID`, `delta`, `modified`)
 SELECT DISTINCT i.`id`, lt.`teacherID`, lt.`delta`, lt.`modified`
@@ -274,7 +274,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_groups` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_instance_groups`(`assocID`, `groupID`, `delta`, `modified`)
 SELECT DISTINCT ip.`id`, lp.`poolID`, lp.`delta`, lp.`modified`
@@ -307,7 +307,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_rooms` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 # Data has to be migrated in through software
 

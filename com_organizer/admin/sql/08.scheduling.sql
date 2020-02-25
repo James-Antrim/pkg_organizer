@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_holidays` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_holidays` (`id`, `name_de`, `name_en`, `startDate`, `endDate`, `type`)
 VALUES (1, 'Christi Himmelfahrt', 'Ascension Day', '2019-05-30', '2019-05-30', 3),
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_runs` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_runs` (`id`, `name_de`, `name_en`, `termID`, `run`)
 VALUES (1, 'Sommersemester', 'Summer Semester', 11,

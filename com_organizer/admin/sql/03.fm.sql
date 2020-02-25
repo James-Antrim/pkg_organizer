@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_campuses` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_campuses` (`id`, `parentID`, `name_de`, `name_en`, `isCity`, `location`, `address`,
                                                `city`, `zipCode`, `gridID`)
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_buildings` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_buildings` (`id`, `campusID`, `name`, `location`, `address`, `propertyType`)
 SELECT DISTINCT `id`, `campusID`, `name`, `location`, `address`, `propertyType`
@@ -78,7 +78,7 @@ ALTER TABLE `v7ocf_organizer_buildings`
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roomtypes` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`          VARCHAR(255)                 DEFAULT NULL,
-    `code`           VARCHAR(60)         NOT NULL,
+    `code`           VARCHAR(60)         NOT NULL COLLATE utf8mb4_bin,
     `name_de`        VARCHAR(150)        NOT NULL,
     `name_en`        VARCHAR(150)        NOT NULL,
     `description_de` TEXT,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roomtypes` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_roomtypes` (`id`, `code`, `name_de`, `name_en`, `description_de`, `description_en`,
                                                 `minCapacity`, `maxCapacity`)
@@ -115,7 +115,7 @@ WHERE `code` = 'BR';
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_rooms` (
     `id`         INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`      VARCHAR(255)                 DEFAULT NULL,
-    `code`       VARCHAR(60)                  DEFAULT NULL,
+    `code`       VARCHAR(60)                  DEFAULT NULL COLLATE utf8mb4_bin,
     `name`       VARCHAR(150)        NOT NULL,
     `active`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `buildingID` INT(11) UNSIGNED             DEFAULT NULL,
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_rooms` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_rooms` (`id`, `buildingID`, `code`, `name`, `roomtypeID`, `capacity`)
 SELECT DISTINCT `id`, `buildingID`, `gpuntisID`, `name`, `typeID`, `capacity`
@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_monitors` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_monitors` (`id`, `ip`, `roomID`, `useDefaults`, `display`, `scheduleRefresh`,
                                                `contentRefresh`, `interval`, `content`)

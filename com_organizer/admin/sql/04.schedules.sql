@@ -11,11 +11,12 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_terms` (
     `startDate`   DATE             NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `alias` (`alias`),
+    UNIQUE INDEX `code` (`code`),
     UNIQUE INDEX `entry` (`code`, `startDate`, `endDate`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_terms` (`id`, `code`, `startDate`, `endDate`)
 SELECT DISTINCT `id`, `name`, `startDate`, `endDate`
@@ -87,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_schedules` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_schedules` (id, organizationID, termID, userID, creationDate, creationTime,
                                                 schedule, active)

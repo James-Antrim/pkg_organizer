@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_colors` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_colors`
 VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
@@ -58,11 +58,12 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_degrees` (
     `code`         VARCHAR(60)      NOT NULL,
     `name`         VARCHAR(150)     NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `alias` (`alias`)
+    UNIQUE INDEX `alias` (`alias`),
+    UNIQUE INDEX `code` (`code`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_degrees`
 VALUES (2, 'beng', 'B.Eng.', 'BE', 'Bachelor of Engineering'),
@@ -79,7 +80,7 @@ VALUES (2, 'beng', 'B.Eng.', 'BE', 'Bachelor of Engineering'),
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_fields` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`   VARCHAR(255) DEFAULT NULL,
-    `code`    VARCHAR(60)      NOT NULL,
+    `code`    VARCHAR(60)      NOT NULL COLLATE utf8mb4_bin,
     `name_de` VARCHAR(150)     NOT NULL,
     `name_en` VARCHAR(150)     NOT NULL,
     PRIMARY KEY (`id`),
@@ -88,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_fields` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_fields` (`id`, `code`, `name_de`, `name_en`)
 SELECT DISTINCT `id`, `gpuntisID`, `field_de`, `field_en`
@@ -106,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_frequencies` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_frequencies`
 VALUES (0, 'Nach Termin', 'By Appointment'),
@@ -130,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_grids` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_grids` (`id`, `code`, `name_de`, `name_en`, `grid`, `isDefault`)
 SELECT DISTINCT `id`, `gpuntisID`, `name_de`, `name_en`, `grid`, `defaultGrid`
@@ -168,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_organizations` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_organizations` (`id`, `abbreviation_de`, `abbreviation_en`, `shortName_de`,
                                                     `shortName_en`, `name_de`, `name_en`, `fullName_de`, `fullName_en`,
@@ -243,7 +244,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_field_colors` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 # migrate from associations:
 # from groups (plan_pools)
@@ -300,7 +301,7 @@ ALTER TABLE `v7ocf_organizer_field_colors`
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_persons` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`    VARCHAR(255)                 DEFAULT NULL,
-    `code`     VARCHAR(60)                  DEFAULT NULL,
+    `code`     VARCHAR(60)                  DEFAULT NULL COLLATE utf8mb4_bin,
     `forename` VARCHAR(255)        NOT NULL DEFAULT '',
     `surname`  VARCHAR(255)        NOT NULL,
     `active`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
@@ -314,7 +315,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_persons` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_persons` (`id`, `code`, `surname`, `forename`, `username`, `title`)
 SELECT DISTINCT `id`, `gpuntisID`, `surname`, `forename`, `username`, `title`
@@ -339,7 +340,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_associations` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_associations` (`organizationID`, `personID`)
 SELECT `departmentID`, `teacherID`

@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_categories` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`    VARCHAR(255)                 DEFAULT NULL,
-    `code`     VARCHAR(60)                  DEFAULT NULL,
+    `code`     VARCHAR(60)         NOT NULL,
     `name_de`  VARCHAR(150)        NOT NULL,
     `name_en`  VARCHAR(150)        NOT NULL,
     `active`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_categories` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_categories` (`id`, `code`, `name_de`, `name_en`)
 SELECT `id`, `gpuntisID`, `name`, `name`
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_groups` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_groups` (`id`, `code`, `categoryID`, `gridID`, `name_de`, `name_en`, `fullName_de`,
                                              `fullName_en`)
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_group_publishing` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_group_publishing` (id, groupID, termID, published)
 SELECT *
@@ -120,7 +120,7 @@ ALTER TABLE `v7ocf_organizer_associations`
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_events` (
     `id`               INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`            VARCHAR(255)                 DEFAULT NULL,
-    `code`             VARCHAR(60)         NOT NULL,
+    `code`             VARCHAR(60)         NOT NULL COLLATE utf8mb4_bin,
     `name_de`          VARCHAR(150)        NOT NULL,
     `name_en`          VARCHAR(150)        NOT NULL,
     `subjectNo`        VARCHAR(45)         NOT NULL DEFAULT '',
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_events` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_events` (`id`, `code`, `name_de`, `name_en`, `subjectNo`)
 SELECT DISTINCT `id`, `gpuntisID`, `name`, `name`, `subjectNo`
@@ -344,7 +344,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_event_coordinators` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_event_coordinators` (`eventID`, `personID`)
 SELECT DISTINCT `plan_subjectID`, `teacherID`
@@ -373,7 +373,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subject_events` (
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_bin;
+    COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_subject_events` (id, eventID, subjectID)
 SELECT `id`, `plan_subjectID`, `subjectID`
