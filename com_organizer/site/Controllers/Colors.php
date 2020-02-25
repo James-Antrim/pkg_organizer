@@ -10,7 +10,11 @@
 
 namespace Organizer\Controllers;
 
+use Exception;
+use Joomla\CMS\Router\Route;
 use Organizer\Controller;
+use Organizer\Helpers;
+use Organizer\Models;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -20,4 +24,28 @@ class Colors extends Controller
 	protected $listView = 'colors';
 
 	protected $resource = 'color';
+
+	/**
+	 * Save form data to the database.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function save()
+	{
+		$model = new Models\Color;
+		$url   = Helpers\Routing::getRedirectBase() . '&view=';
+		$url   .= Helpers\Can::administrate() ? 'colors' : 'field_colors';
+
+		if ($model->save())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+		}
+
+		$this->setRedirect(Route::_($url, false));
+	}
 }

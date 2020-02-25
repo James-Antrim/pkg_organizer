@@ -16,7 +16,7 @@ use Joomla\CMS\Table\Table;
 /**
  * Models the organizer_organizations table.
  */
-class Organizations extends BaseTable
+class Organizations extends Assets
 {
 	use Activated, Aliased;
 

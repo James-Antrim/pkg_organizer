@@ -15,5 +15,5 @@ namespace Organizer\Views\HTML;
  */
 class OrganizationEdit extends EditView
 {
-	// Everything is taken care of in the inheritance hierarchy.
+	protected $_layout = 'tabs';
 }

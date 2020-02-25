@@ -11,6 +11,7 @@
 namespace Organizer\Controllers;
 
 use Exception;
+use Joomla\CMS\Router\Route;
 use Organizer\Controller;
 use Organizer\Helpers;
 use Organizer\Models;
@@ -38,11 +39,11 @@ class Fields extends Controller
 
 		if ($model->save())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
 		$this->setRedirect(Route::_($url, false));

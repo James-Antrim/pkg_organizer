@@ -156,6 +156,12 @@ Feature: Degree Management------------------------------------------------------
 
 TODO add degree management views
 
+Feature: Department View------------------------------------------------------------------------------------------------
+
+TODO add a department item view
+- descriptive text
+- strategy for structured output of department associated resources
+
 Feature: Frequency Management-------------------------------------------------------------------------------------------
 
 TODO add frequency management views
@@ -165,3 +171,14 @@ Feature: Organization Holidays -------------------------------------------------
 TODO allow organizations to add optional/manual holidays that are only valid for themselves or override the status attributes for themselves.
 
 
+
+
+List View Checklist Template--------------------------------------------------------------------------------------------
+
+TODO check search
+TODO check filtering
+TODO check limiting
+TODO check sorting
+TODO check new
+TODO check edit
+TODO check delete
