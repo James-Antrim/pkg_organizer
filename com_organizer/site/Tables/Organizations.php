@@ -11,12 +11,15 @@
 namespace Organizer\Tables;
 
 use JDatabaseDriver;
+use Joomla\CMS\Access\Rules;
+use Joomla\CMS\Table\Asset;
 use Joomla\CMS\Table\Table;
+use Organizer\Helpers;
 
 /**
  * Models the organizer_organizations table.
  */
-class Organizations extends Assets
+class Organizations extends BaseTable
 {
 	use Activated, Aliased;
 
@@ -42,7 +45,7 @@ class Organizations extends Assets
 	 *
 	 * @var int
 	 */
-	public $asset_id;
+	public $asset_id = null;
 
 	/**
 	 * The id of the user entry referenced.
@@ -168,6 +171,26 @@ class Organizations extends Assets
 	}
 
 	/**
+	 * Overridden bind function
+	 *
+	 * @param   array  $array   named array
+	 * @param   mixed  $ignore  An optional array or space separated list of properties to ignore while binding.
+	 *
+	 * @return mixed  Null if operation was satisfactory, otherwise returns an error string
+	 */
+	public function bind($array, $ignore = '')
+	{
+		if (isset($array['rules']) && is_array($array['rules']))
+		{
+			$this->cleanRules($array['rules']);
+			$rules = new Rules($array['rules']);
+			$this->setRules($rules);
+		}
+
+		return parent::bind($array, $ignore);
+	}
+
+	/**
 	 * Set the table column names which are allowed to be null
 	 *
 	 * @return boolean  true
@@ -185,5 +208,123 @@ class Organizations extends Assets
 		}
 
 		return true;
+	}
+
+	/**
+	 * Removes inherited groups before Joomla erroneously sets the value to 0. Joomla must have something similar, but I
+	 * don't have time to look for it.
+	 *
+	 * @param   array &$rules  the rules from the form
+	 *
+	 * @return void  unsets group indexes with a truly empty value
+	 */
+	private function cleanRules(&$rules)
+	{
+		foreach ($rules as $rule => $groups)
+		{
+			foreach ($groups as $group => $value)
+			{
+				if (empty($value) and $value !== 0)
+				{
+					unset($rules[$rule][$group]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Method to store a row in the database from the Table instance properties. Completely overwrites the method in
+	 * Table because they use the subclass specific update nulls setting for assets which is just stupid.
+	 *
+	 * @param   boolean  $updateNulls  True to update fields even if they are null.
+	 *
+	 * @return boolean  True on success.
+	 */
+	public function store($updateNulls = true)
+	{
+		$keys = $this->_tbl_keys;
+
+		// Implement \JObservableInterface: Pre-processing by observers
+		$this->_observers->update('onBeforeStore', [$updateNulls, $keys]);
+
+		$currentAssetId = 0;
+
+		if ($this->asset_id)
+		{
+			$currentAssetId = $this->asset_id;
+		}
+
+		unset($this->asset_id);
+
+		// If a primary key exists update the object, otherwise insert it.
+		if ($this->hasPrimaryKey())
+		{
+			$result = $this->_db->updateObject($this->_tbl, $this, $this->_tbl_keys, $updateNulls);
+		}
+		else
+		{
+			$result = $this->_db->insertObject($this->_tbl, $this, $this->_tbl_keys[0]);
+		}
+
+		$this->_unlock();
+		$asset = new Asset($this->getDbo());
+		$name  = $this->_getAssetName();
+		$asset->loadByName($name);
+
+		if ($error = $asset->getError())
+		{
+			$this->setError($error);
+
+			return false;
+		}
+
+		$this->asset_id = $asset->id;
+
+		$parentId = $this->_getAssetParentId();
+
+		// New asset or new structuring for existing asset
+		if (!$this->asset_id or $asset->parent_id != $parentId)
+		{
+			$asset->setLocation($parentId, 'last-child');
+		}
+
+		$asset->name      = $name;
+		$asset->parent_id = $parentId;
+		$asset->title     = $this->_getAssetTitle();
+
+		if ($this->_rules instanceof Rules)
+		{
+			$asset->rules = (string) $this->_rules;
+		}
+
+		// Try to create/update the asset.
+		if (!$asset->check() or !$asset->store())
+		{
+			$this->setError($asset->getError());
+
+			return false;
+		}
+
+		// Create an asset_id or heal one that is corrupted.
+		if (!$this->asset_id or ($this->asset_id and $currentAssetId !== $this->asset_id))
+		{
+			$this->asset_id = $asset->id;
+
+			$query = $this->_db->getQuery(true);
+			$query->update('#__organizer_organizations')
+				->set("asset_id = {$this->asset_id}")
+				->where("id = {$this->id}");
+			$this->_db->setQuery($query);
+
+			if (!Helpers\OrganizerHelper::executeQuery('execute'))
+			{
+				return false;
+			}
+		}
+
+		// Implement \JObservableInterface: Post-processing by observers
+		$this->_observers->update('onAfterStore', [&$result]);
+
+		return $result;
 	}
 }
