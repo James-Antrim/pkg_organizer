@@ -32,7 +32,7 @@ class Organizations extends ListModel
 
 		// Create the query
 		$query  = $this->_db->getQuery(true);
-		$select = "o.id, o.shortName_$tag AS shortName, o.name_$tag AS name, a.rules, ";
+		$select = "o.id, o.shortName_$tag AS shortName, o.fullName_$tag AS name, a.rules, ";
 		$parts  = ["'index.php?option=com_organizer&view=organization_edit&id='", 'o.id'];
 		$select .= $query->concatenate($parts, '') . ' AS link ';
 		$query->select($select)
@@ -40,7 +40,18 @@ class Organizations extends ListModel
 			->leftJoin('#__assets AS a ON a.id = o.asset_id')
 			->where('o.id IN (' . implode(',', $authorized) . ')');
 
-		$this->setSearchFilter($query, ['shortName_de', 'name_de', 'shortName_en', 'name_en']);
+		$searchColumns = [
+			'abbreviation_de',
+			'abbreviation_en',
+			'fullName_de',
+			'fullName_en',
+			'name_de',
+			'name_en',
+			'shortName_de',
+			'shortName_en'
+		];
+
+		$this->setSearchFilter($query, $searchColumns);
 
 		$this->setOrdering($query);
 

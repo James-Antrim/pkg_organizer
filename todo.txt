@@ -7,16 +7,105 @@ TODO Create a documentation user & test view/function availability
 TODO Revert left join in Organizations.php to innerJoin after initial save of all organizations
 TODO On save for person should check the users table for a valid user id if none is already existent
 
+Color Edit View---------------------------------------------------------------------------------------------------------
+
+TODO check apply
+TODO check save
+TODO check cancel
+
 Colors View-------------------------------------------------------------------------------------------------------------
 
-TODO check filtering
-TODO check sorting
 TODO check search
+TODO check filtering
+TODO check limiting
+TODO check sorting
 TODO check new
 TODO check edit
 TODO check delete
+TODO check links
 
-Color Edit View---------------------------------------------------------------------------------------------------------
+Degree Edit View--------------------------------------------------------------------------------------------------------
+
+TODO check apply
+TODO check save
+TODO check cancel
+
+Degrees View-------------------------------------------------------------------------------------------------------------
+
+TODO check new
+TODO check edit
+TODO check delete
+TODO check links
+
+Field Color Edit View---------------------------------------------------------------------------------------------------
+
+TODO check save as admin and with restricted access
+TODO check cancel
+TODO field and organization should not be editable for existing entries
+TODO users with restricted access should see a pre-filtered list
+
+Field Colors View-------------------------------------------------------------------------------------------------------
+
+TODO check search
+TODO check filtering
+TODO check limiting
+TODO check sorting
+TODO check new
+TODO check edit
+TODO check delete
+TODO check links
+
+Field Edit View---------------------------------------------------------------------------------------------------------
+
+TODO check apply
+TODO check save
+TODO check cancel
+
+Fields View-------------------------------------------------------------------------------------------------------------
+
+TODO check search
+TODO check filtering
+TODO check limiting
+TODO check sorting
+TODO check new
+TODO check edit
+TODO check delete
+TODO check links
+
+Grid Edit View----------------------------------------------------------------------------------------------------------
+
+TODO check apply
+TODO check save
+TODO check cancel
+
+Grids View--------------------------------------------------------------------------------------------------------------
+
+TODO check search
+TODO check filtering
+TODO check limiting
+TODO check sorting
+TODO check new
+TODO check edit
+TODO check delete
+TODO check links
+
+Organization Edit View----------------------------------------------------------------------------------------------Done
+Organizations View--------------------------------------------------------------------------------------------------Done
+Person Edit View--------------------------------------------------------------------------------------------------------
+
+TODO check apply
+TODO check save
+TODO check cancel
+
+Persons View------------------------------------------------------------------------------------------------------------
+
+TODO check search
+TODO check filtering
+TODO check limiting
+TODO check sorting
+TODO check new
+TODO check edit
+TODO check delete
 
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -171,7 +260,11 @@ Feature: Organization Holidays -------------------------------------------------
 TODO allow organizations to add optional/manual holidays that are only valid for themselves or override the status attributes for themselves.
 
 
+Edit View Checklist Template--------------------------------------------------------------------------------------------
 
+TODO check apply
+TODO check save
+TODO check cancel
 
 List View Checklist Template--------------------------------------------------------------------------------------------
 
