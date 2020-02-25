@@ -799,8 +799,7 @@ class calendarComponent extends iCalBase
 		$min = false,
 		$sec = false,
 		$params = false
-	)
-	{
+	) {
 		if (empty($year))
 		{
 			if ($this->getConfig('allowEmpty'))
@@ -939,8 +938,7 @@ class calendarComponent extends iCalBase
 		$min = false,
 		$sec = false,
 		$params = false
-	)
-	{
+	) {
 		if (!isset($year))
 		{
 			$year = gmdate('Ymd\THis');
@@ -1098,8 +1096,7 @@ class calendarComponent extends iCalBase
 		$sec = false,
 		$tz = false,
 		$params = false
-	)
-	{
+	) {
 		if (empty($year))
 		{
 			if ($this->getConfig('allowEmpty'))
@@ -1284,8 +1281,7 @@ class calendarComponent extends iCalBase
 		$sec = false,
 		$tz = false,
 		$params = false
-	)
-	{
+	) {
 		if (empty($year))
 		{
 			if ($this->getConfig('allowEmpty'))
@@ -1378,8 +1374,7 @@ class calendarComponent extends iCalBase
 		$sec = false,
 		$tz = false,
 		$params = false
-	)
-	{
+	) {
 		if (empty($year))
 		{
 			if ($this->getConfig('allowEmpty'))
@@ -1503,7 +1498,7 @@ class calendarComponent extends iCalBase
 					'min'  => $min,
 					'sec'  => $sec
 				))
-			,
+				,
 				'params' => iCalUtilityFunctions::_setParams($params)
 			);
 		}
@@ -2083,8 +2078,7 @@ class calendarComponent extends iCalBase
 		$min = false,
 		$sec = false,
 		$params = false
-	)
-	{
+	) {
 		if (empty($year))
 		{
 			$year = gmdate('Ymd\THis');
@@ -2801,8 +2795,7 @@ class calendarComponent extends iCalBase
 		$sec = false,
 		$tz = false,
 		$params = false
-	)
-	{
+	) {
 		if (empty($year))
 		{
 			if ($this->getConfig('allowEmpty'))
@@ -3486,8 +3479,7 @@ class calendarComponent extends iCalBase
 		$relatedStart = true,
 		$before = true,
 		$params = false
-	)
-	{
+	) {
 		if (empty($year) && (empty($month) || is_array($month)) && empty($day) && empty($week) && empty($hour) && empty($min) && empty($sec))
 		{
 			if ($this->getConfig('allowEmpty'))
@@ -3581,17 +3573,17 @@ class calendarComponent extends iCalBase
 			$this->trigger          = ['params' => $params];
 			$this->trigger['value'] = array(
 				'year'  => $year
-			,
+				,
 				'month' => $month
-			,
+				,
 				'day'   => $day
-			,
+				,
 				'hour'  => $hour
-			,
+				,
 				'min'   => $min
-			,
+				,
 				'sec'   => $sec
-			,
+				,
 				'tz'    => 'Z'
 			);
 
@@ -6142,14 +6134,14 @@ class calendarComponent extends iCalBase
 			'categories',
 			'comment',
 			'completed'
-		,
+			,
 			'contact',
 			'class',
 			'created',
 			'description',
 			'dtend',
 			'dtstart'
-		,
+			,
 			'dtstamp',
 			'due',
 			'duration',
@@ -6157,31 +6149,31 @@ class calendarComponent extends iCalBase
 			'exrule',
 			'freebusy',
 			'geo'
-		,
+			,
 			'last-modified',
 			'location',
 			'organizer',
 			'percent-complete'
-		,
+			,
 			'priority',
 			'rdate',
 			'recurrence-id',
 			'related-to',
 			'repeat'
-		,
+			,
 			'request-status',
 			'resources',
 			'rrule',
 			'sequence',
 			'status'
-		,
+			,
 			'summary',
 			'transp',
 			'trigger',
 			'tzid',
 			'tzname',
 			'tzoffsetfrom'
-		,
+			,
 			'tzoffsetto',
 			'tzurl',
 			'uid',

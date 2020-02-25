@@ -7,6 +7,18 @@ TODO Create a documentation user & test view/function availability
 TODO Revert left join in Organizations.php to innerJoin after initial save of all organizations
 TODO On save for person should check the users table for a valid user id if none is already existent
 
+Colors View-------------------------------------------------------------------------------------------------------------
+
+TODO check filtering
+TODO check sorting
+TODO check search
+TODO check new
+TODO check edit
+TODO check delete
+
+Color Edit View---------------------------------------------------------------------------------------------------------
+
+
 ------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------02: Curriculum
 -----------------Resources/Tables: Associations, Curricula, Pools, Prerequisites, Programs, Subject Persons and Subjects
@@ -143,6 +155,10 @@ TODO add resource_field tables to associate resources with multiple fields in ad
 Feature: Degree Management----------------------------------------------------------------------------------------------
 
 TODO add degree management views
+
+Feature: Frequency Management-------------------------------------------------------------------------------------------
+
+TODO add frequency management views
 
 Feature: Organization Holidays -----------------------------------------------------------------------------------------
 

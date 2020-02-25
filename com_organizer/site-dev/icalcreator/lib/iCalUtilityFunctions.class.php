@@ -1058,8 +1058,7 @@ class iCalUtilityFunctions
 		$hitVal = null,
 		$elseVal = null,
 		$preSet = null
-	)
-	{
+	) {
 		if ($preSet)
 		{
 			return $preSet;
@@ -1648,7 +1647,8 @@ class iCalUtilityFunctions
 						}
 						if (isset($recur['BYWEEKNO']) || ($recur['FREQ'] == 'WEEKLY'))
 						{
-							$daycnts[$m][$d]['weekno_up'] = (int) date('W', mktime(0, 0, $wkst, $m, $d, $wdate['year']));
+							$daycnts[$m][$d]['weekno_up'] = (int) date('W',
+								mktime(0, 0, $wkst, $m, $d, $wdate['year']));
 						}
 					} // end for( $d   = 1; $d <= $mcnt; $d++ )
 				} // end for( $m = 1; $m <= 12; $m++ )
@@ -2260,8 +2260,7 @@ class iCalUtilityFunctions
 		$caller = null,
 		$objName = null,
 		$tzid = false
-	)
-	{
+	) {
 		$input     = $parno = null;
 		$localtime = (('dtstart' == $caller) && in_array($objName, iCalUtilityFunctions::$tzComps)) ? true : false;
 		iCalUtilityFunctions::_strDate2arr($year);
@@ -2398,7 +2397,8 @@ class iCalUtilityFunctions
 				if (iCalUtilityFunctions::_isOffset($input['value']['tz']))
 				{
 					$d              = $input['value'];
-					$strdate        = sprintf(iCalUtilityFunctions::$fmt['YmdHise'], (int) $d['year'], (int) $d['month'],
+					$strdate        = sprintf(iCalUtilityFunctions::$fmt['YmdHise'], (int) $d['year'],
+						(int) $d['month'],
 						(int) $d['day'], (int) $d['hour'], (int) $d['min'], (int) $d['sec'], $d['tz']);
 					$input['value'] = iCalUtilityFunctions::_strdate2date($strdate, 7);
 					unset($input['value']['unparsedtext'], $input['params']['TZID']);
@@ -2492,7 +2492,8 @@ class iCalUtilityFunctions
 				elseif (isset($input['params']['TZID']) && iCalUtilityFunctions::_isOffset($input['params']['TZID']))
 				{
 					$d              = $input['value'];
-					$strdate        = sprintf(iCalUtilityFunctions::$fmt['YmdHise'], (int) $d['year'], (int) $d['month'],
+					$strdate        = sprintf(iCalUtilityFunctions::$fmt['YmdHise'], (int) $d['year'],
+						(int) $d['month'],
 						(int) $d['day'], (int) $d['hour'], (int) $d['min'], (int) $d['sec'], $input['params']['TZID']);
 					$input['value'] = iCalUtilityFunctions::_strdate2date($strdate, 7);
 					unset($input['value']['unparsedtext'], $input['params']['TZID']);
@@ -2574,8 +2575,7 @@ class iCalUtilityFunctions
 		$min = false,
 		$sec = false,
 		$params = false
-	)
-	{
+	) {
 		$input = null;
 		iCalUtilityFunctions::_strDate2arr($year);
 		if (iCalUtilityFunctions::_isArrayDate($year))
@@ -2646,15 +2646,15 @@ class iCalUtilityFunctions
 		{
 			$input['value'] = array(
 				'year'  => $year
-			,
+				,
 				'month' => $month
-			,
+				,
 				'day'   => $day
-			,
+				,
 				'hour'  => $hour
-			,
+				,
 				'min'   => $min
-			,
+				,
 				'sec'   => $sec
 			);
 			if (isset($tz))
@@ -3048,11 +3048,13 @@ class iCalUtilityFunctions
 	{
 		$val = reset($a['value']);
 		$as  = sprintf(iCalUtilityFunctions::$fmt['Ymd'], (int) $val['year'], (int) $val['month'], (int) $val['day']);
-		$as  .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'], (int) $val['min'],
+		$as  .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'],
+			(int) $val['min'],
 			(int) $val['sec']) : '';
 		$val = reset($b['value']);
 		$bs  = sprintf(iCalUtilityFunctions::$fmt['Ymd'], (int) $val['year'], (int) $val['month'], (int) $val['day']);
-		$bs  .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'], (int) $val['min'],
+		$bs  .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'],
+			(int) $val['min'],
 			(int) $val['sec']) : '';
 
 		return strcmp($as, $bs);
@@ -3073,11 +3075,13 @@ class iCalUtilityFunctions
 	{
 		$val = isset($a['year']) ? $a : $a[0];
 		$as  = sprintf(iCalUtilityFunctions::$fmt['Ymd'], (int) $val['year'], (int) $val['month'], (int) $val['day']);
-		$as  .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'], (int) $val['min'],
+		$as  .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'],
+			(int) $val['min'],
 			(int) $val['sec']) : '';
 		$val = isset($b['year']) ? $b : $b[0];
 		$bs  = sprintf(iCalUtilityFunctions::$fmt['Ymd'], (int) $val['year'], (int) $val['month'], (int) $val['day']);
-		$bs  .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'], (int) $val['min'],
+		$bs  .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'],
+			(int) $val['min'],
 			(int) $val['sec']) : '';
 
 		return strcmp($as, $bs);
@@ -3103,7 +3107,8 @@ class iCalUtilityFunctions
 		}
 		else
 		{
-			$as = sprintf(iCalUtilityFunctions::$fmt['Ymd'], (int) $val['year'], (int) $val['month'], (int) $val['day']);
+			$as = sprintf(iCalUtilityFunctions::$fmt['Ymd'], (int) $val['year'], (int) $val['month'],
+				(int) $val['day']);
 			$as .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'],
 				(int) $val['min'], (int) $val['sec']) : '';
 		}
@@ -3114,7 +3119,8 @@ class iCalUtilityFunctions
 		}
 		else
 		{
-			$bs = sprintf(iCalUtilityFunctions::$fmt['Ymd'], (int) $val['year'], (int) $val['month'], (int) $val['day']);
+			$bs = sprintf(iCalUtilityFunctions::$fmt['Ymd'], (int) $val['year'], (int) $val['month'],
+				(int) $val['day']);
 			$bs .= (isset($val['hour'])) ? sprintf(iCalUtilityFunctions::$fmt['His'], (int) $val['hour'],
 				(int) $val['min'], (int) $val['sec']) : '';
 		}
@@ -3226,7 +3232,8 @@ class iCalUtilityFunctions
 		if (isset($step['day']))
 		{
 			$mcnt = date('t',
-				mktime((int) $date['hour'], (int) $date['min'], (int) $date['sec'], (int) $date['month'], (int) $date['day'],
+				mktime((int) $date['hour'], (int) $date['min'], (int) $date['sec'], (int) $date['month'],
+					(int) $date['day'],
 					(int) $date['year']));
 		}
 		foreach ($step as $stepix => $stepvalue)
@@ -3293,9 +3300,9 @@ class iCalUtilityFunctions
 		}
 		$temp = array(
 			'year'  => (int) substr($work, 0, 4)
-		,
+			,
 			'month' => (int) substr($work, 4, 2)
-		,
+			,
 			'day'   => (int) substr($work, 6, 2)
 		);
 		if (!checkdate($temp['month'], $temp['day'], $temp['year']))

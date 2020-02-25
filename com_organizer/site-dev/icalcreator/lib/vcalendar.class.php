@@ -1444,8 +1444,7 @@ class vcalendar extends iCalBase
 		$flat = false,
 		$any = true,
 		$split = true
-	)
-	{
+	) {
 		/* check  if empty calendar */
 		if (0 >= count($this->components))
 		{

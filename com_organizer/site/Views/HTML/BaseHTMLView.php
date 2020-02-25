@@ -150,15 +150,11 @@ abstract class BaseHTMLView extends BaseView
 
 			$items = [];
 
-			$items[Languages::_('ORGANIZER_COLORS')]       = [
-				'url'    => 'index.php?option=com_organizer&amp;view=colors',
-				'active' => $viewName == 'colors'
-			];
 			$items[Languages::_('ORGANIZER_FIELD_COLORS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=field_colors',
 				'active' => $viewName == 'field_colors'
 			];
-			$items[Languages::_('ORGANIZER_POOLS')]        = [
+			/*$items[Languages::_('ORGANIZER_POOLS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=pools',
 				'active' => $viewName == 'pools'
 			];
@@ -169,7 +165,7 @@ abstract class BaseHTMLView extends BaseView
 			$items[Languages::_('ORGANIZER_SUBJECTS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=subjects',
 				'active' => $viewName == 'subjects'
-			];
+			];*/
 			ksort($items);
 			foreach ($items as $key => $value)
 			{
@@ -215,7 +211,7 @@ abstract class BaseHTMLView extends BaseView
 			);
 		}
 
-		if (Helpers\Can::manage('facilities'))
+		/*if (Helpers\Can::manage('facilities'))
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_FACILITY_MANAGEMENT') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
@@ -247,7 +243,7 @@ abstract class BaseHTMLView extends BaseView
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
-		}
+		}*/
 
 		if (Helpers\Can::administrate())
 		{
@@ -256,34 +252,38 @@ abstract class BaseHTMLView extends BaseView
 
 			$items = [];
 
-			$items[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
-				'url'    => 'index.php?option=com_organizer&amp;view=organizations',
-				'active' => $viewName == 'organizations'
+			$items[Languages::_('ORGANIZER_COLORS')]  = [
+				'url'    => 'index.php?option=com_organizer&amp;view=colors',
+				'active' => $viewName == 'colors'
 			];
-			$items[Languages::_('ORGANIZER_DEGREES')]       = [
+			$items[Languages::_('ORGANIZER_DEGREES')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=degrees',
 				'active' => $viewName == 'degrees'
 			];
-			$items[Languages::_('ORGANIZER_FIELDS')]        = [
+			$items[Languages::_('ORGANIZER_FIELDS')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=fields',
 				'active' => $viewName == 'fields'
 			];
-			$items[Languages::_('ORGANIZER_GRIDS')]         = [
+			$items[Languages::_('ORGANIZER_GRIDS')]   = [
 				'url'    => 'index.php?option=com_organizer&amp;view=grids',
 				'active' => $viewName == 'grids'
 			];
-			$items[Languages::_('ORGANIZER_HOLIDAYS')]      = [
+			/*$items[Languages::_('ORGANIZER_HOLIDAYS')]      = [
 				'url'    => 'index.php?option=com_organizer&amp;view=holidays',
 				'active' => $viewName == 'holidays'
 			];
 			$items[Languages::_('ORGANIZER_METHODS')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=methods',
 				'active' => $viewName == 'methods'
+			];*/
+			$items[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
+				'url'    => 'index.php?option=com_organizer&amp;view=organizations',
+				'active' => $viewName == 'organizations'
 			];
-			$items[Languages::_('ORGANIZER_RUNS')]          = [
+			/*$items[Languages::_('ORGANIZER_RUNS')]          = [
 				'url'    => 'index.php?option=com_organizer&amp;view=runs',
 				'active' => $viewName == 'runs'
-			];
+			];*/
 			ksort($items);
 			foreach ($items as $key => $value)
 			{

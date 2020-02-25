@@ -51,7 +51,7 @@ VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
 # endregion
 
 # region degrees
-CREATE TABLE IF NOT EXISTS `#__organizer_degrees` (
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_degrees` (
     `id`           INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`        VARCHAR(255) DEFAULT NULL,
     `abbreviation` VARCHAR(25)      NOT NULL,
@@ -209,7 +209,7 @@ VALUES (1, 'BAU', 'CE', 'FB 01 BAU', 'CE DEPT 01', 'Fachbereich Bauwesen', 'Civi
        (15, 'IEM', 'IETM', 'FB 11 IEM', 'IETM DEPT 11', 'Fachbereich Informationstechnik-Elektrotechnik-Mechatronik',
         'Information and Electrical Technology, Mechatronics Department',
         'Fachbereich 11 Informationstechnik-Elektrotechnik-Mechatronik',
-        'Information and Electrical Technology, MechatronicsDepartment 11', 'dekanat@bau.thm.de', 'bau',
+        'Information and Electrical Technology, MechatronicsDepartment 11', 'dekanat@iem.thm.de', 'iem',
         'https://www.thm.de/iem'),
        (16, 'M', 'M', 'FB 12 M', 'M DEPT 12', 'Fachbereich Maschinenbau, Mechatronik, Materialtechnology',
         'Mechanical Engineering, Mechatronics, Material Technology Department',
@@ -220,11 +220,11 @@ VALUES (1, 'BAU', 'CE', 'FB 01 BAU', 'CE DEPT 01', 'Fachbereich Bauwesen', 'Civi
         'Fachbereich Mathematik, Naturwissenschaften und Datenverarbeitung',
         'Mathematics, Natural Sciences and Data Processing Department',
         'Fachbereich 13 Mathematik, Naturwissenschaften und Datenverarbeitung',
-        'Mathematics, Natural Sciences and Data Processing Department 13', 'dekanat@bau.thm.de', 'bau',
+        'Mathematics, Natural Sciences and Data Processing Department 13', 'dekanat@mnd.thm.de', 'mnd',
         'https://www.thm.de/mnd'),
        (18, 'WI', 'IE', 'FB 14 WI', 'IE DEPT 14', 'Fachbereich Wirtschaftsingenieurwesen',
         'Industrial Engineering Department', 'Fachbereich 14 Wirtschaftsingenieurwesen',
-        'Industrial Engineering  Department 14', 'dekanat@wi.thm.de', 'bau', 'https://www.thm.de/wi'),
+        'Industrial Engineering  Department 14', 'dekanat@wi.thm.de', 'wi', 'https://www.thm.de/wi'),
        (19, 'FB', 'FB', 'Campus Friedberg', 'Friedberg Campus', 'Campus Friedberg', 'Friedberg Campus', 'Zentralverwaltung Campus Friedberg',
         'Central Administration Friedberg Campus ', 'stundenplaner-fb@thm.de', 'friedberg', 'https://www.thm.de/site');
 # endregion
@@ -319,16 +319,6 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_persons` (
 INSERT IGNORE INTO `v7ocf_organizer_persons` (`id`, `code`, `surname`, `forename`, `username`, `title`)
 SELECT DISTINCT `id`, `gpuntisID`, `surname`, `forename`, `username`, `title`
 FROM `v7ocf_thm_organizer_teachers`;
-
-UPDATE `v7ocf_organizer_persons` AS p
-    INNER JOIN `v7ocf_users` AS u ON u.`username` = p.`username`
-SET p.`userID` = u.`id`
-WHERE p.`username` IS NOT NULL;
-
-ALTER TABLE `v7ocf_organizer_persons`
-    ADD CONSTRAINT `person_userID_fk` FOREIGN KEY (`userID`) REFERENCES `v7ocf_users` (`id`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE;
 # endregion
 
 # region associations
@@ -343,7 +333,6 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_associations` (
     `subjectID`      INT(11) UNSIGNED DEFAULT NULL,
     PRIMARY KEY (`id`),
     INDEX `categoryID` (`categoryID`),
-    INDEX `eventID` (`eventID`),
     INDEX `groupID` (`groupID`),
     INDEX `organizationID` (`organizationID`),
     INDEX `personID` (`personID`)
@@ -352,8 +341,8 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_associations` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_bin;
 
-INSERT IGNORE INTO `v7ocf_organizer_associations` (`id`, `organizationID`, `personID`)
-SELECT (`id`, `departmentID`, `teacherID`)
+INSERT IGNORE INTO `v7ocf_organizer_associations` (`organizationID`, `personID`)
+SELECT `departmentID`, `teacherID`
 FROM `v7ocf_thm_organizer_department_resources`
 WHERE `teacherID` IS NOT NULL;
 
