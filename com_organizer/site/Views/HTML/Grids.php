@@ -80,8 +80,8 @@ class Grids extends ListView
 				$item->endTime   = '';
 			}
 
-			$tip                     = Helpers\Languages::_('ORGANIZER_GRID_DEFAULT_DESC');
-			$item->isDefault         = $this->getToggle('grid', $item->id, $item->isDefault, $tip);
+			$tip                     = Helpers\Languages::_('ORGANIZER_GRID_DESC');
+			$item->isDefault         = $this->getToggle('grids', $item->id, $item->isDefault, $tip);
 			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
 			$index++;
 		}

@@ -1,29 +1,10 @@
+------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------01: Initial
 --------------Resources/Tables: Associations, Colors, Degrees, Field Colors, Fields, Frequencies, Organizations, Persons
+------------------------------------------------------------------------------------------------------------------------
 
-TODO Add adding colors from the field colors view
-TODO Disable field/organization changes from an existing field color association.
-TODO Create a documentation user & test view/function availability
-TODO Revert left join in Organizations.php to innerJoin after initial save of all organizations
-TODO On save for person should check the users table for a valid user id if none is already existent
-
-Color Edit View---------------------------------------------------------------------------------------------------------
-
-TODO check apply
-TODO check save
-TODO check cancel
-
-Colors View-------------------------------------------------------------------------------------------------------------
-
-TODO check search
-TODO check filtering
-TODO check limiting
-TODO check sorting
-TODO check new
-TODO check edit
-TODO check delete
-TODO check links
-
+Color Edit View-----------------------------------------------------------------------------------------------------Done
+Colors View---------------------------------------------------------------------------------------------------------Done
 Degree Edit View----------------------------------------------------------------------------------------------------Done
 Degrees View--------------------------------------------------------------------------------------------------------Done
 Field Color Edit View---------------------------------------------------------------------------------------------------
@@ -32,9 +13,11 @@ TODO check save as admin and with restricted access
 TODO check cancel
 TODO field and organization should not be editable for existing entries
 TODO users with restricted access should see a pre-filtered list
+TODO Disable field/organization changes from an existing field color association.
 
 Field Colors View-------------------------------------------------------------------------------------------------------
 
+TODO Add adding colors
 TODO check search
 TODO check filtering
 TODO check limiting
@@ -44,40 +27,10 @@ TODO check edit
 TODO check delete
 TODO check links
 
-Field Edit View---------------------------------------------------------------------------------------------------------
-
-TODO check apply
-TODO check save
-TODO check cancel
-
-Fields View-------------------------------------------------------------------------------------------------------------
-
-TODO check search
-TODO check filtering
-TODO check limiting
-TODO check sorting
-TODO check new
-TODO check edit
-TODO check delete
-TODO check links
-
-Grid Edit View----------------------------------------------------------------------------------------------------------
-
-TODO check apply
-TODO check save
-TODO check cancel
-
-Grids View--------------------------------------------------------------------------------------------------------------
-
-TODO check search
-TODO check filtering
-TODO check limiting
-TODO check sorting
-TODO check new
-TODO check edit
-TODO check delete
-TODO check links
-
+Field Edit View-----------------------------------------------------------------------------------------------------Done
+Fields View---------------------------------------------------------------------------------------------------------Done
+Grid Edit View------------------------------------------------------------------------------------------------------Done
+Grids View----------------------------------------------------------------------------------------------------------Done
 Organization Edit View----------------------------------------------------------------------------------------------Done
 Organizations View--------------------------------------------------------------------------------------------------Done
 Person Edit View--------------------------------------------------------------------------------------------------------
@@ -96,6 +49,10 @@ TODO check new
 TODO check edit
 TODO check delete
 
+On Install--------------------------------------------------------------------------------------------------------------
+
+TODO Create a documentation user & test view/function availability
+TODO Revert left join in Organizations.php to innerJoin after initial save of all organizations
 
 ------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------02: Curriculum

@@ -45,7 +45,7 @@ class Grid extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		if (!Helpers\Can::administrate())
+		if (!$this->allow())
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
@@ -67,8 +67,60 @@ class Grid extends BaseModel
 		$grid         = ['periods' => $periods, 'startDay' => $data['startDay'], 'endDay' => $data['endDay']];
 		$data['grid'] = json_encode($grid, JSON_UNESCAPED_UNICODE);
 
+		if ($data['isDefault'] and !$this->unDefaultAll())
+		{
+			return false;
+		}
+
 		$table = new Tables\Grids;
 
 		return $table->save($data) ? $table->id : false;
+	}
+
+	/**
+	 * Toggles the default grid.
+	 *
+	 * @return bool true if the default grid was changed successfully, otherwise false
+	 *
+	 * @throws Exception
+	 */
+	public function toggle()
+	{
+		if (!$this->allow())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+		}
+
+		$selected = Helpers\Input::getID();
+		$table    = new Tables\Grids;
+
+		// Entry not found or already set to default
+		if (!$table->load($selected) or $table->isDefault)
+		{
+			return false;
+		}
+
+		if (!$this->unDefaultAll())
+		{
+			return false;
+		}
+
+		$table->isDefault = 1;
+
+		return (bool) $table->store();
+	}
+
+	/**
+	 * Removes the default status from all grids.
+	 *
+	 * @return bool true if the default status was removed from all grids, otherwise false
+	 */
+	private function unDefaultAll()
+	{
+		$query = $this->_db->getQuery(true);
+		$query->update('#__organizer_grids')->set('isDefault = 0');
+		$this->_db->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 }
