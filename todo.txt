@@ -41,7 +41,6 @@ TODO check cancel
 
 Persons View------------------------------------------------------------------------------------------------------------
 
-TODO check search
 TODO check filtering
 TODO check limiting
 TODO check sorting
