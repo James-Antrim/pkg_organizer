@@ -24,19 +24,8 @@ TODO check edit
 TODO check delete
 TODO check links
 
-Degree Edit View--------------------------------------------------------------------------------------------------------
-
-TODO check apply
-TODO check save
-TODO check cancel
-
-Degrees View-------------------------------------------------------------------------------------------------------------
-
-TODO check new
-TODO check edit
-TODO check delete
-TODO check links
-
+Degree Edit View----------------------------------------------------------------------------------------------------Done
+Degrees View--------------------------------------------------------------------------------------------------------Done
 Field Color Edit View---------------------------------------------------------------------------------------------------
 
 TODO check save as admin and with restricted access

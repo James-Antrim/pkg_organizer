@@ -65,14 +65,14 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_degrees` (
     COLLATE = utf8mb4_bin;
 
 INSERT IGNORE INTO `v7ocf_organizer_degrees`
-VALUES (2, 'B.Eng.', 'beng', 'BE', 'Bachelor of Engineering'),
-       (3, 'B.Sc.', 'bsc', 'BS', 'Bachelor of Science'),
-       (4, 'B.A.', 'ba', 'BA', 'Bachelor of Arts'),
-       (5, 'M.Eng.', 'meng', 'ME', 'Master of Engineering'),
-       (6, 'M.Sc.', 'msc', 'MS', 'Master of Science'),
-       (7, 'M.A.', 'ma', 'MA', 'Master of Arts'),
-       (8, 'M.B.A.', 'mba', 'MB', 'Master of Business Administration and Engineering'),
-       (9, 'M.Ed.', 'med', 'MH', 'Master of Education');
+VALUES (2, 'beng', 'B.Eng.', 'BE', 'Bachelor of Engineering'),
+       (3, 'bsc', 'B.Sc.', 'BS', 'Bachelor of Science'),
+       (4, 'ba', 'B.A.', 'BA', 'Bachelor of Arts'),
+       (5, 'meng', 'M.Eng.', 'ME', 'Master of Engineering'),
+       (6, 'msc', 'M.Sc.', 'MS', 'Master of Science'),
+       (7, 'ma', 'M.A.', 'MA', 'Master of Arts'),
+       (8, 'mba', 'M.B.A.', 'MB', 'Master of Business Administration and Engineering'),
+       (9, 'med', 'M.Ed.', 'MH', 'Master of Education');
 # endregion
 
 # region fields
