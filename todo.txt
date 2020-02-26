@@ -1,43 +1,16 @@
 ------------------------------------------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------------------------------01: Initial
---------------Resources/Tables: Associations, Colors, Degrees, Field Colors, Fields, Frequencies, Organizations, Persons
-------------------------------------------------------------------------------------------------------------------------
-
-Color Edit View-----------------------------------------------------------------------------------------------------Done
-Colors View---------------------------------------------------------------------------------------------------------Done
-Degree Edit View----------------------------------------------------------------------------------------------------Done
-Degrees View--------------------------------------------------------------------------------------------------------Done
-Field Color Edit View-----------------------------------------------------------------------------------------------Done
-Field Colors View---------------------------------------------------------------------------------------------------Done
-Field Edit View-----------------------------------------------------------------------------------------------------Done
-Fields View---------------------------------------------------------------------------------------------------------Done
-Grid Edit View------------------------------------------------------------------------------------------------------Done
-Grids View----------------------------------------------------------------------------------------------------------Done
-Organization Edit View----------------------------------------------------------------------------------------------Done
-Organizations View--------------------------------------------------------------------------------------------------Done
-Person Edit View----------------------------------------------------------------------------------------------------Done
-Persons View--------------------------------------------------------------------------------------------------------Done
-On Install--------------------------------------------------------------------------------------------------------------
-
-TODO copy settings
-TODO copy access rights
-TODO create bau fields and field color associations
-
-------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------02: Curriculum
 -----------------Resources/Tables: Associations, Curricula, Pools, Prerequisites, Programs, Subject Persons and Subjects
 ------------------------------------------------------------------------------------------------------------------------
 
 General-----------------------------------------------------------------------------------------------------------------
 
-TODO Revert left join in Organizations.php to innerJoin
 TODO Pools is missing the column 'active'
 TODO Integrate 'active' attributes for person, pool & program into documentation output
 TODO Find out if any pool 'name' attributes are not being used and remove them
-TODO Set the documentation rubric in the THM Organizer menu to administrator access
-TODO Set the documentation views in the THM Organizer component to administrator access
 TODO make the frequencies field reference the table
 TODO ensure coordinators have documentation access
+TODO ensure the constants used in the component configuration settings work
 
 Curriculum View---------------------------------------------------------------------------------------------------------
 
@@ -57,6 +30,8 @@ TODO Add instruction language filter
 ----------------------------------------Resources/Tables: Associations, Buildings, Campuses, Monitors, Room Types, Rooms
 ------------------------------------------------------------------------------------------------------------------------
 
+TODO Set the documentation rubric in the THM Organizer menu to administrator access
+TODO Set the documentation views in the THM Organizer component to administrator access
 TODO Check the functionality of fm views and correct any problems found
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -91,6 +66,7 @@ TODO Merge Functionality
 - Mergeable resources: Categories, Events, Groups, Persons and Rooms
 -- Events is completely new and must correspondingly be implemented from scratch
 - Uncomment buttons
+- Move the icalcreator directory back & uncomment it in the install manifest
 
 Room Overview View------------------------------------------------------------------------------------------------------
 

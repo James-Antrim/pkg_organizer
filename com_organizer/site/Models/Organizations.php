@@ -37,7 +37,7 @@ class Organizations extends ListModel
 		$select .= $query->concatenate($parts, '') . ' AS link ';
 		$query->select($select)
 			->from('#__organizer_organizations AS o')
-			->leftJoin('#__assets AS a ON a.id = o.asset_id')
+			->innerJoin('#__assets AS a ON a.id = o.asset_id')
 			->where('o.id IN (' . implode(',', $authorized) . ')');
 
 		$searchColumns = [

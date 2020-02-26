@@ -28,6 +28,12 @@ INSERT IGNORE INTO `v7ocf_organizer_associations` (`id`, `organizationID`, `cate
 SELECT (`id`, `departmentID`, `programID`)
 FROM `v7ocf_thm_organizer_department_resources`
 WHERE `programID` IS NOT NULL;
+
+
+ALTER TABLE `v7ocf_organizer_programs`
+    ADD CONSTRAINT `program_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `v7ocf_organizer_categories` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE;
 # endregion
 
 # region groups
@@ -74,6 +80,11 @@ ALTER TABLE `v7ocf_organizer_groups`
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     ADD CONSTRAINT `group_gridID_fk` FOREIGN KEY (`gridID`) REFERENCES `v7ocf_organizer_grids` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_pools`
+    ADD CONSTRAINT `pool_groupID_fk` FOREIGN KEY (`groupID`) REFERENCES `v7ocf_organizer_groups` (`id`)
         ON DELETE SET NULL
         ON UPDATE CASCADE;
 # endregion

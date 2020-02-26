@@ -18,10 +18,8 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_programs` (
     UNIQUE INDEX `alias` (`alias`),
     UNIQUE INDEX `entry` (`code`, `degreeID`, `accredited`),
     INDEX `categoryID` (`categoryID`),
-    UNIQUE INDEX `code` (`code`),
     INDEX `degreeID` (`degreeID`),
-    INDEX `frequencyID` (`frequencyID`),
-    INDEX `organizationID` (`organizationID`)
+    INDEX `frequencyID` (`frequencyID`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -41,13 +39,17 @@ SELECT DISTINCT `id`,
                 `description_en`
 FROM `v7ocf_thm_organizer_programs`;
 
-# add associations table insert statement
-INSERT x;
+INSERT IGNORE INTO `v7ocf_organizer_associations` (`programID`, `organizationID`)
+SELECT DISTINCT `id`,
+                `departmentID`
+FROM `v7ocf_thm_organizer_programs`;
+
+ALTER TABLE `v7ocf_organizer_associations`
+    ADD CONSTRAINT `association_programID_fk` FOREIGN KEY (`programID`) REFERENCES `v7ocf_organizer_programs` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
 
 ALTER TABLE `v7ocf_organizer_programs`
-    ADD CONSTRAINT `program_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `v7ocf_organizer_categories` (`id`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE,
     ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `v7ocf_organizer_degrees` (`id`)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
@@ -62,7 +64,6 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_pools` (
     `alias`           VARCHAR(255)     DEFAULT NULL,
     `shortName_de`    VARCHAR(50)      DEFAULT '',
     `shortName_en`    VARCHAR(50)      DEFAULT '',
-    `organizationID`  INT(11) UNSIGNED DEFAULT NULL,
     `lsfID`           INT(11) UNSIGNED DEFAULT NULL,
     `abbreviation_de` VARCHAR(25)      DEFAULT '',
     `abbreviation_en` VARCHAR(25)      DEFAULT '',
@@ -78,18 +79,16 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_pools` (
     UNIQUE INDEX `alias` (`alias`),
     INDEX `fieldID` (`fieldID`),
     INDEX `groupID` (`groupID`),
-    UNIQUE `lsfID` (`lsfID`),
-    INDEX `organizationID` (`organizationID`)
+    UNIQUE `lsfID` (`lsfID`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_pools` (`id`, `organizationID`, `fieldID`, `lsfID`, `abbreviation_de`,
+INSERT IGNORE INTO `v7ocf_organizer_pools` (`id`, `fieldID`, `lsfID`, `abbreviation_de`,
                                             `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
                                             `fullName_en`, `description_de`, `description_en`, `minCrP`, `maxCrP`)
 SELECT DISTINCT `id`,
-                `departmentID`,
                 `fieldID`,
                 `lsfID`,
                 `abbreviation_de`,
@@ -104,14 +103,18 @@ SELECT DISTINCT `id`,
                 `maxCrP`
 FROM `v7ocf_thm_organizer_pools`;
 
-# add associations table insert statement
-INSERT x;
+INSERT IGNORE INTO `v7ocf_organizer_associations` (`poolID`, `organizationID`)
+SELECT DISTINCT `id`,
+                `departmentID`
+FROM `v7ocf_thm_organizer_pools`;
+
+ALTER TABLE `v7ocf_organizer_associations`
+    ADD CONSTRAINT `association_poolID_fk` FOREIGN KEY (`poolID`) REFERENCES `v7ocf_organizer_pools` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
 
 ALTER TABLE `v7ocf_organizer_pools`
     ADD CONSTRAINT `pool_fieldID_fk` FOREIGN KEY (`fieldID`) REFERENCES `v7ocf_organizer_fields` (`id`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE,
-    ADD CONSTRAINT `pool_groupID_fk` FOREIGN KEY (`groupID`) REFERENCES `v7ocf_organizer_groups` (`id`)
         ON DELETE SET NULL
         ON UPDATE CASCADE;
 # endregion
@@ -254,12 +257,6 @@ ALTER TABLE `v7ocf_organizer_subjects`
 
 # region associations
 ALTER TABLE `v7ocf_organizer_associations`
-    ADD CONSTRAINT `association_programID_fk` FOREIGN KEY (`programID`) REFERENCES `v7ocf_organizer_programs` (`id`)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    ADD CONSTRAINT `association_poolID_fk` FOREIGN KEY (`poolID`) REFERENCES `v7ocf_organizer_pools` (`id`)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
     ADD CONSTRAINT `association_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `v7ocf_organizer_subjects` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE;
