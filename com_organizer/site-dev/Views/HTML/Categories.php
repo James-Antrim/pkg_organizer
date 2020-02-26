@@ -33,13 +33,13 @@ class Categories extends ListView
 
 		if (Helpers\Can::administrate())
 		{
-			$toolbar->appendButton(
+			/*$toolbar->appendButton(
 				'Standard',
 				'attachment',
 				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'categories.mergeView',
 				true
-			);
+			);*/
 		}
 	}
 

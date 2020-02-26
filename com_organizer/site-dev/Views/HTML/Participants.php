@@ -127,13 +127,13 @@ class Participants extends ListView
 
 		if ($admin)
 		{
-			$toolbar->appendButton(
+			/*$toolbar->appendButton(
 				'Standard',
 				'attachment',
 				Languages::_('ORGANIZER_MERGE'),
 				'participants.mergeView',
 				true
-			);
+			);*/
 		}
 	}
 

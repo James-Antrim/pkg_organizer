@@ -7,13 +7,13 @@
         <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" readonly="true"/>
         <field name="organizationID" type="Organizations" label="ORGANIZATIONS" access="schedule" required="true"
                multiple="multiple"/>
-        <field name="active" type="Options" label="ACTIVE_RESOURCE" default="1">
-            <option value="1">YES</option>
-            <option value="0">NO</option>
+        <field name="active" type="Options" label="ACTIVE" default="1">
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
         </field>
-        <field name="suppress" type="Options" label="HIDE_RESOURCE" default="0">
-            <option value="1">YES</option>
-            <option value="0">NO</option>
+        <field name="suppress" type="Options" label="SUPPRESS" default="0">
+            <option value="0">SHOWN</option>
+            <option value="1">SUPPRESSED</option>
         </field>
     </fieldset>
 </form>

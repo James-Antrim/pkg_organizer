@@ -12,7 +12,6 @@ namespace Organizer\Models;
 
 use Exception;
 use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
 
 /**
@@ -83,7 +82,7 @@ abstract class MergeModel extends BaseModel
 			}
 			catch (Exception $exc)
 			{
-				OrganizerHelper::message($exc->getMessage(), 'error');
+				Helpers\OrganizerHelper::message($exc->getMessage(), 'error');
 
 				return false;
 			}
@@ -94,7 +93,7 @@ abstract class MergeModel extends BaseModel
 			}
 			catch (Exception $exc)
 			{
-				OrganizerHelper::message($exc->getMessage(), 'error');
+				Helpers\OrganizerHelper::message($exc->getMessage(), 'error');
 
 				return false;
 			}
@@ -120,7 +119,7 @@ abstract class MergeModel extends BaseModel
 			->where("$this->fkColumn IN ($mergeIDs)");
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -135,7 +134,7 @@ abstract class MergeModel extends BaseModel
 		$query->from('#__organizer_schedules');
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -201,11 +200,6 @@ abstract class MergeModel extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		if (empty(Helpers\Input::getSelectedIDs()))
-		{
-			return false;
-		}
-
 		if (!$this->allow())
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
@@ -250,7 +244,7 @@ abstract class MergeModel extends BaseModel
 		$query->where("{$this->fkColumn} IN ( $updateIDs )");
 		$this->_db->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute', false);
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
 	}
 
 	/**
@@ -272,7 +266,7 @@ abstract class MergeModel extends BaseModel
 		$existingQuery->from('#__organizer_associations');
 		$existingQuery->where("{$this->association} = '{$this->data['id']}'");
 		$this->_db->setQuery($existingQuery);
-		$existing = OrganizerHelper::executeQuery('loadColumn', []);
+		$existing = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 
 		if ($deprecated = array_diff($existing, $this->data['organizationID']))
 		{
@@ -282,7 +276,7 @@ abstract class MergeModel extends BaseModel
 			$deletionQuery->where("organizationID IN ('" . implode("','", $deprecated) . "')");
 			$this->_db->setQuery($deletionQuery);
 
-			$deleted = (bool) OrganizerHelper::executeQuery('execute', false, null, true);
+			$deleted = (bool) Helpers\OrganizerHelper::executeQuery('execute', false, null, true);
 			if (!$deleted)
 			{
 				return false;
@@ -302,7 +296,7 @@ abstract class MergeModel extends BaseModel
 				$insertQuery->values("'$newID', '{$this->data['id']}'");
 				$this->_db->setQuery($insertQuery);
 
-				$inserted = (bool) OrganizerHelper::executeQuery('execute', false, null, true);
+				$inserted = (bool) Helpers\OrganizerHelper::executeQuery('execute', false, null, true);
 				if (!$inserted)
 				{
 					return false;
@@ -327,7 +321,7 @@ abstract class MergeModel extends BaseModel
 		$selectQuery->from('#__organizer_associations');
 		$selectQuery->where("{$this->association} IN ( $relevantIDs )");
 		$this->_db->setQuery($selectQuery);
-		$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
+		$organizationIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 
 		if (empty($organizationIDs))
 		{
@@ -339,7 +333,7 @@ abstract class MergeModel extends BaseModel
 			->where("{$this->fkColumn} IN ( $relevantIDs )");
 		$this->_db->setQuery($deleteQuery);
 
-		$deleted = (bool) OrganizerHelper::executeQuery('execute', false, null, true);
+		$deleted = (bool) Helpers\OrganizerHelper::executeQuery('execute', false, null, true);
 		if (!$deleted)
 		{
 			return false;
@@ -357,7 +351,7 @@ abstract class MergeModel extends BaseModel
 
 		$this->_db->setQuery($insertQuery);
 
-		return (bool) OrganizerHelper::executeQuery('execute', false, null, true);
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute', false, null, true);
 	}
 
 	/**

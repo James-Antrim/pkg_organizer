@@ -264,13 +264,13 @@ abstract class ListModel extends ParentModel
 		 */
 		if ($value == '-1')
 		{
-			$query->where("$idColumn = '' OR $idColumn IS NULL");
+			$query->where("$idColumn IS NULL");
 
 			return;
 		}
 
 		// IDs are unique and therefore mutually exclusive => one is enough!
-		$query->where("$idColumn = '$value'");
+		$query->where("$idColumn = $value");
 
 		return;
 	}
@@ -329,32 +329,39 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Provides a default method for setting filters for non-unique values
 	 *
-	 * @param   object &$query        the query object
-	 * @param   array   $filterNames  the filter names. names should be synonymous with db column names.
+	 * @param   object &$query         the query object
+	 * @param   array   $queryColumns  the filter names. names should be synonymous with db column names.
 	 *
 	 * @return void
 	 */
-	protected function setValueFilters(&$query, $filterNames)
+	protected function setValueFilters(&$query, $queryColumns)
 	{
+		$app     = Helpers\OrganizerHelper::getApplication();
+		$filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
+		$lists   = $app->getUserStateFromRequest($this->context . '.list', 'list', [], 'array');
+
 		// The view level filters
-		foreach ($filterNames as $filterName)
+		foreach ($queryColumns as $column)
 		{
-			$queryColumnName = $filterName;
+			$filterName = strpos($column, '.') === false ? $column : explode('.', $column)[1];
 
-			if (strpos($filterName, '.') !== false)
+			if (array_key_exists($filterName, $filters))
 			{
-				$filterName = explode('.', $filterName)[1];
+				$value = $this->state->get("filter.$filterName");
 			}
-
-			$listValue   = $this->state->get("list.$filterName");
-			$filterValue = $this->state->get("filter.$filterName");
-
-			if (empty($listValue) and empty($filterValue))
+			elseif (array_key_exists($filterName, $lists))
+			{
+				$value = $this->state->get("list.$filterName");
+			}
+			else
 			{
 				continue;
 			}
 
-			$value = empty($filterValue) ? $listValue : $filterValue;
+			if ($value === '')
+			{
+				continue;
+			}
 
 			/**
 			 * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
@@ -363,12 +370,12 @@ abstract class ListModel extends ParentModel
 			 */
 			if ($value == '-1')
 			{
-				$query->where("( $queryColumnName = '' OR $queryColumnName IS NULL )");
+				$query->where("( $column = '' OR $column IS NULL )");
 				continue;
 			}
 
 			$value = is_numeric($value) ? $value : "'$value'";
-			$query->where("$queryColumnName = $value");
+			$query->where("$column = $value");
 		}
 	}
 }

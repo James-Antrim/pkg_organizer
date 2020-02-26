@@ -53,14 +53,6 @@ class Persons extends BaseTable
 	public $title;
 
 	/**
-	 * The person's userID.
-	 * INT(11) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $userID;
-
-	/**
 	 * The person's user name.
 	 * VARCHAR(150) DEFAULT NULL
 	 *
@@ -86,7 +78,7 @@ class Persons extends BaseTable
 	public function check()
 	{
 		// All three fields can recieve data from at least two systems.
-		$nullColumns = ['alias', 'code', 'userID', 'username'];
+		$nullColumns = ['alias', 'code', 'username'];
 		foreach ($nullColumns as $nullColumn)
 		{
 			if (!strlen($this->$nullColumn))

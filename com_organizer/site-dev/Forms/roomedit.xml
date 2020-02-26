@@ -13,9 +13,9 @@
             <option value="">SELECT_ROOMTYPE</option>
         </field>
         <field name="capacity" type="Integer" label="CAPACITY" last="500" step="1"/>
-        <field name="active" type="Options" label="ACTIVE_RESOURCE" default="1">
-            <option value="1">YES</option>
-            <option value="0">NO</option>
+        <field name="active" type="Options" label="ACTIVE" default="1">
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
         </field>
     </fieldset>
 </form>

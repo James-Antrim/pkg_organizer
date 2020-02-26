@@ -5,6 +5,16 @@
         <field name="organizationID" type="Organizations" label="ORGANIZATION" onchange="this.form.submit();">
             <option value="">ALL_ORGANIZATIONS</option>
         </field>
+        <field name="active" type="Options" label="ACTIVE" onchange="this.form.submit();">
+            <option value="">ALL_ACTIVATION_STATES</option>
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
+        </field>
+        <field name="suppress" type="Options" label="SUPPRESS" onchange="this.form.submit();">
+            <option value="">ALL_SUPPRESSION_STATES</option>
+            <option value="0">SHOWN</option>
+            <option value="1">SUPPRESSED</option>
+        </field>
     </fields>
     <fields name="list">
         <field name="limit" type="Limitbox" onchange="this.form.submit();"/>

@@ -18,9 +18,9 @@
         <field name="gridID" type="Grids" label="GRIDS">
             <option value="">DEFAULT_GRID</option>
         </field>
-        <field name="active" type="Options" label="ACTIVE_RESOURCE" default="1">
-            <option value="1">YES</option>
-            <option value="0">NO</option>
+        <field name="active" type="Options" label="ACTIVE" default="1">
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
         </field>
     </fieldset>
 </form>

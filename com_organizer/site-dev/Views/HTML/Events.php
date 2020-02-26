@@ -39,13 +39,13 @@ class Events extends ListView
 
 		if ($admin = Helpers\Can::administrate())
 		{
-			$toolbar->appendButton(
+			/*$toolbar->appendButton(
 				'Standard',
 				'attachment',
 				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'events.mergeView',
 				true
-			);
+			);*/
 		}
 	}
 

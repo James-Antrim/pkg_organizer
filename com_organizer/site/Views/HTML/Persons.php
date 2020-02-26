@@ -43,12 +43,21 @@ class Persons extends ListView
 		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
+				'Confirm',
+				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+				'delete',
+				Helpers\Languages::_('ORGANIZER_DELETE'),
+				"persons.delete",
+				true
+			);
+
+			/*$toolbar->appendButton(
 				'Standard',
 				'attachment',
 				Languages::_('ORGANIZER_MERGE'),
 				'persons.mergeView',
 				true
-			);
+			);*/
 		}
 	}
 

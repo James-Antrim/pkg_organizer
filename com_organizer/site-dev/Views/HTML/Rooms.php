@@ -34,13 +34,13 @@ class Rooms extends ListView
 
 		if (Helpers\Can::administrate())
 		{
-			$toolbar->appendButton(
+			/*$toolbar->appendButton(
 				'Standard',
 				'attachment',
 				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'rooms.mergeView',
 				true
-			);
+			);*/
 		}
 	}
 

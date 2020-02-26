@@ -305,7 +305,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_persons` (
     `forename` VARCHAR(255)        NOT NULL DEFAULT '',
     `surname`  VARCHAR(255)        NOT NULL,
     `active`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
-    `suppress` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
+    `suppress` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     `title`    VARCHAR(45)         NOT NULL DEFAULT '',
     `username` VARCHAR(150)                 DEFAULT NULL,
     PRIMARY KEY (`id`),
