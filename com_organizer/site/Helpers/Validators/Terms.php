@@ -120,8 +120,6 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 			return false;
 		}
 
-		echo "<pre>" . print_r($term, true) . "</pre>";
-		echo "<pre>" . print_r($model->schoolYear, true) . "</pre>";
 		$endTimeStamp = strtotime($term->endDate);
 		$invalidEnd   = $endTimeStamp > strtotime($model->schoolYear->endDate);
 

@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
@@ -17,6 +18,19 @@ use Organizer\Tables;
  */
 class ColorEdit extends EditModel
 {
+	/**
+	 * Authenticates the user
+	 */
+	protected function allow()
+	{
+		if (!Helpers\Input::getID())
+		{
+			return (bool) Helpers\Can::documentTheseOrganizations();
+		}
+
+		return Helpers\Can::administrate();
+	}
+
 	/**
 	 * Method to get a table object, load it if necessary.
 	 *

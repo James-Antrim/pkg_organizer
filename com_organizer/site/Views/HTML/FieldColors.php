@@ -18,7 +18,7 @@ use Organizer\Helpers;
  */
 class FieldColors extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'code' => 'link', 'color' => 'value'];
+	protected $rowStructure = ['checkbox' => '', 'field' => 'link', 'organization' => 'link', 'color' => 'value'];
 
 	/**
 	 * Adds a toolbar and title to the view.
@@ -29,7 +29,7 @@ class FieldColors extends ListView
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_FIELD_COLORS"), 'list-2');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'palette', Helpers\Languages::_('ORGANIZER_ADD'), "field_colors.add", false);
+		$toolbar->appendButton('Standard', 'link', Helpers\Languages::_('ORGANIZER_ADD'), "field_colors.add", false);
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "field_colors.edit", true);
 
 		$toolbar->appendButton(
@@ -41,13 +41,8 @@ class FieldColors extends ListView
 			true
 		);
 
-		$toolbar->appendButton(
-			'Standard',
-			'plus-circle',
-			Helpers\Languages::_('ORGANIZER_FIELD_NEW'),
-			"fields.add",
-			false
-		);
+		$toolbar->appendButton('Standard', 'lamp', Helpers\Languages::_('ORGANIZER_FIELD_NEW'), 'fields.add', false);
+		$toolbar->appendButton('Standard', 'palette', Helpers\Languages::_('ORGANIZER_COLOR_NEW'), 'colors.add', false);
 	}
 
 	/**
@@ -70,10 +65,10 @@ class FieldColors extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox' => '',
-			'field'    => Helpers\HTML::sort('NAME', 'field', $direction, $ordering),
-			'code'     => Helpers\HTML::sort('CODE', 'code', $direction, $ordering),
-			'color'    => Helpers\Languages::_('ORGANIZER_COLOR')
+			'checkbox'     => '',
+			'field'        => Helpers\HTML::sort('FIELD', 'field', $direction, $ordering),
+			'organization' => Helpers\HTML::sort('ORGANIZATION', 'organization', $direction, $ordering),
+			'color'        => Helpers\Languages::_('ORGANIZER_COLOR')
 		];
 
 		$this->headers = $headers;
@@ -88,14 +83,11 @@ class FieldColors extends ListView
 	{
 		$index           = 0;
 		$link            = 'index.php?option=com_organizer&view=field_color_edit&id=';
-		$locked          = '<span class="icon-checkedout"></span>';
-		$locked          .= Helpers\Languages::_('ORGANIZER_SELECT_ORGANIZATION');
-		$organizationID  = $this->state->get('filter.organizationID', 0);
 		$structuredItems = [];
 
 		foreach ($this->items as $item)
 		{
-			$item->color = $organizationID ? Helpers\Colors::getListDisplay($item->color, $item->colorID) : $locked;
+			$item->color = Helpers\Colors::getListDisplay($item->color, $item->colorID);
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;

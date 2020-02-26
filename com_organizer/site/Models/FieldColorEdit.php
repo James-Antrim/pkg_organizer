@@ -10,6 +10,8 @@
 
 namespace Organizer\Models;
 
+use Exception;
+use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
@@ -17,6 +19,48 @@ use Organizer\Tables;
  */
 class FieldColorEdit extends EditModel
 {
+	/**
+	 * Authenticates the user
+	 */
+	protected function allow()
+	{
+		if (!$fcID = Helpers\Input::getID())
+		{
+			return (bool) Helpers\Can::documentTheseOrganizations();
+		}
+
+		return Helpers\Can::document('fieldColor', $fcID);
+	}
+
+
+	/**
+	 * Method to get the form
+	 *
+	 * @param   array  $data      Data         (default: array)
+	 * @param   bool   $loadData  Load data  (default: true)
+	 *
+	 * @return mixed Form object on success, False on error.
+	 * @throws Exception => unauthorized access
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getForm($data = [], $loadData = true)
+	{
+		if (!$form = parent::getForm($data, $loadData))
+		{
+			return false;
+		}
+
+		if ($fcID = Helpers\Input::getID())
+		{
+			$form->setFieldAttribute('fieldID', 'disabled', true);
+			$form->setFieldAttribute('organizationID', 'disabled', true);
+		}
+
+		return $form;
+	}
+
+
 	/**
 	 * Method to get a table object, load it if necessary.
 	 *

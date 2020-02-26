@@ -19,9 +19,9 @@ use Organizer\Helpers;
  */
 class FieldColors extends ListModel
 {
-	protected $defaultOrdering = 'name';
+	protected $defaultOrdering = 'field';
 
-	protected $filter_fields = ['colorID', 'organizationID'];
+	protected $filter_fields = ['colorID' => 'colorID', 'organizationID' => 'organizationID'];
 
 	/**
 	 * Filters out form inputs which should not be displayed due to menu settings.
@@ -35,6 +35,7 @@ class FieldColors extends ListModel
 		if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 		{
 			$form->removeField('organizationID', 'filter');
+			unset($this->filter_fields['organizationID']);
 
 			return;
 		}
@@ -50,28 +51,23 @@ class FieldColors extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select("DISTINCT fc.id, fc.colorID, c.name_$tag AS color, f.code, f.name_$tag AS name")
+		$query->select("DISTINCT fc.id, fc.*")
+			->select("c.name_$tag AS color")
+			->select("f.name_$tag AS field")
+			->select("o.shortName_$tag AS organization")
 			->from('#__organizer_field_colors AS fc')
 			->innerJoin('#__organizer_colors AS c ON c.id = fc.colorID')
 			->innerJoin('#__organizer_fields AS f ON f.id = fc.fieldID')
-			->group('f.id');
+			->innerJoin('#__organizer_organizations AS o ON o.id = fc.organizationID');
 
-		$this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code']);
+		// Explicitly set via request
+		$this->setIDFilter($query, 'c.id', 'filter.colorID');
+		$this->setIDFilter($query, 'f.id', 'filter.fieldID');
 
-		$colorID        = Helpers\Input::getFilterID('color');
-		$organizationID = $this->state->get('filter.organizationID');
-
-		if ($colorID or $organizationID)
+		// Explicitly set via request or implicitly set by authorization
+		if ($organizationID = $this->state->get('filter.organizationID'))
 		{
-			if ($colorID)
-			{
-				$query->where("colorID = $colorID");
-			}
-
-			if ($organizationID)
-			{
-				$query->where("organizationID = $organizationID");
-			}
+			$query->where("organizationID = $organizationID");
 		}
 
 		$this->setOrdering($query);

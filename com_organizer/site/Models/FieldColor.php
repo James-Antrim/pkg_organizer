@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -23,8 +24,17 @@ class FieldColor extends BaseModel
 	 */
 	protected function allow()
 	{
-		// Change this to check documentation access for the chosen organization ID.
-		return Helpers\Can::administrate();
+		if ($organizationID = Helpers\Input::getInt('organizationID'))
+		{
+			return Helpers\Can::document('organization', $organizationID);
+		}
+
+		if ($fcID = Helpers\Input::getID())
+		{
+			return Helpers\Can::document('fieldColor', $fcID);
+		}
+
+		return false;
 	}
 
 	/**
@@ -34,12 +44,41 @@ class FieldColor extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Tables\Fields A Table object
+	 * @return Tables\FieldColors A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
 		return new Tables\FieldColors;
+	}
+
+	/**
+	 * Attempts to save the resource.
+	 *
+	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
+	 *
+	 * @return mixed int id of the resource on success, otherwise boolean false
+	 * @throws Exception => unauthorized access
+	 */
+	public function save($data = [])
+	{
+		if (!$this->allow())
+		{
+			throw new Exception(Helpers\Languages::_('COM_ORGANIZER_403'), 403);
+		}
+
+		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$table = $this->getTable();
+
+		if (empty($data['id']))
+		{
+			return $table->save($data) ? $table->id : false;
+		}
+
+		$table->load($data['id']);
+		$table->colorID = $data['colorID'];
+
+		return $table->store();
 	}
 }

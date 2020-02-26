@@ -51,6 +51,6 @@ class OrganizationsField extends OptionsField
 		$options       = parent::getOptions();
 		$organizations = Helpers\Organizations::getOptions(true, $this->getAttribute('access', ''));
 
-		return array_merge($options, $organizations);
+		return count($organizations) > 1 ? array_merge($options, $organizations) : $organizations;
 	}
 }

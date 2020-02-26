@@ -11,6 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
+use Organizer\Tables;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -76,33 +77,65 @@ class Can
 	 * Checks whether the user has access to documentation resources and their respective views.
 	 *
 	 * @param   string     $resourceType  the resource type being checked
-	 * @param   array|int  $resource      the resource id being checked or an array if resource ids to check
+	 * @param   array|int  $resourceID    the resource id being checked or an array if resource ids to check
 	 *
 	 * @return bool true if the user is authorized for facility management functions and views.
 	 */
-	public static function document($resourceType, $resource = null)
+	public static function document($resourceType, $resourceID = null)
 	{
 		if (is_bool($authorized = self::basic()))
 		{
 			return $authorized;
 		}
 
-		$user = Users::getUser();
-
-		if ($resourceType and is_int($resource) and self::isInitialized($resourceType, $resource))
+		$invalidID   = (empty($resourceID) or !is_numeric($resourceID));
+		$invalidType = !in_array($resourceType, ['fieldColor', 'organization', 'pool', 'program', 'subject']);
+		if ($invalidID or $invalidType)
 		{
-			if ($user->authorise('organizer.document', "com_organizer.$resourceType.$resource"))
-			{
-				return true;
-			}
-
-			if ($resourceType === 'subject' and Subjects::coordinates($resource))
-			{
-				return true;
-			}
+			return false;
 		}
 
-		return false;
+		$user = Users::getUser();
+
+		if ($resourceType === 'organization')
+		{
+			$organizationID = $resourceID;
+		}
+		else
+		{
+			$table = null;
+			switch ($resourceType)
+			{
+				case 'fieldColor':
+					$table = new Tables\FieldColors;
+					break;
+				case 'pool':
+					$table = new Tables\Pools;
+					break;
+				case 'program':
+					$table = new Tables\Programs;
+					break;
+				case 'subject':
+					/*if (Subjects::coordinates($resourceID))
+					{
+						return true;
+					}*/
+					$table = new Tables\Subjects;
+					break;
+				default:
+					return false;
+			}
+
+			if (!$table->load($resourceID) or empty($table->organizationID))
+			{
+				return false;
+			}
+
+			$organizationID = $table->organizationID;
+		}
+
+
+		return $user->authorise('organizer.document', "com_organizer.organization.$organizationID");
 	}
 
 	/**
@@ -239,7 +272,7 @@ class Can
 			return $organizationIDs;
 		}
 
-		if (!function_exists($function))
+		if (!method_exists('Organizer\\Helpers\\Can', $function))
 		{
 			return [];
 		}

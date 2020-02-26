@@ -65,18 +65,9 @@ class ColorsField extends OptionsField
 		$query->select("DISTINCT c.id AS value, c.name_$tag AS text, c.color")
 			->from(' #__organizer_colors AS c')
 			->order('text');
-
-		// Filter irrelevant filter colors out.
-		$view = Helpers\Input::getView();;
-		if ($view !== 'field_color_edit')
-		{
-			$query->innerJoin('#__organizer_field_colors AS fc ON fc.colorID = c.id');
-		}
-
 		$dbo->setQuery($query);
 
-		$colors = Helpers\OrganizerHelper::executeQuery('loadAssocList');
-		if (empty($colors))
+		if (!$colors = Helpers\OrganizerHelper::executeQuery('loadAssocList'))
 		{
 			return $options;
 		}

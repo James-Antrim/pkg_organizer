@@ -10,12 +10,13 @@
 
 namespace Organizer\Helpers;
 
+use Joomla\CMS\Factory;
 use Organizer\Tables;
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
  */
-class Fields extends ResourceHelper
+class Fields extends ResourceHelper implements Selectable
 {
 	/**
 	 * Returns the color value associated with the field.
@@ -69,5 +70,42 @@ class Fields extends ResourceHelper
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Retrieves the selectable options for the resource.
+	 *
+	 * @return array the available options
+	 */
+	public static function getOptions()
+	{
+		$options = [];
+		foreach (self::getResources() as $field)
+		{
+			$options[] = HTML::_('select.option', $field['id'], $field['name']);
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Retrieves the resource items.
+	 *
+	 * @param   string  $access  any access restriction which should be performed
+	 *
+	 * @return array the available resources
+	 */
+	public static function getResources()
+	{
+		$tag   = Languages::getTag();
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select("DISTINCT *, name_$tag AS name")
+			->from('#__organizer_fields')
+			->order('name');
+
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadAssocList', []);
 	}
 }

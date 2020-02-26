@@ -54,7 +54,7 @@ $showFilterButton = empty($filters['filter_search']) ? (bool) count($filters) : 
         </button>
     </div>
 <?php endif; ?>
-<?php if (!empty($filters['filter_search'])) : ?>
+<?php if (!empty($filters['filter_search']) or $showFilterButton) : ?>
     <div class="btn-wrapper">
         <button type="button" class="btn hasTooltip js-stools-btn-clear"
                 title="<?php echo Helpers\Languages::tooltip('ORGANIZER_RESET'); ?>">

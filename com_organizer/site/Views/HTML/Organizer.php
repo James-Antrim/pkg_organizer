@@ -47,13 +47,13 @@ class Organizer extends BaseHTMLView
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_MAIN'), 'organizer');
 
-		/*if (Can::administrate())
+		if (Helpers\Can::administrate())
 		{
-			$toolbar = Toolbar::getInstance();
+			/*$toolbar = Toolbar::getInstance();
 			$this->getModel()->showConfigurationMigrationButtons($toolbar);
-			$this->getModel()->showScheduleMigrationButton($toolbar);
-			HTML::setPreferencesButton();
-		}*/
+			$this->getModel()->showScheduleMigrationButton($toolbar);*/
+			Helpers\HTML::setPreferencesButton();
+		}
 	}
 
 	/**
