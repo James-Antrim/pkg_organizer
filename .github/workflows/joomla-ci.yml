@@ -3,6 +3,9 @@ name: Test joomla component installation
 on:
         - push
 
+env:
+        ci_release: false
+
 jobs:
   build:
 
