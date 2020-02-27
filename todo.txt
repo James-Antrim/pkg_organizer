@@ -11,6 +11,7 @@ TODO Find out if any pool 'name' attributes are not being used and remove them
 TODO make the frequencies field reference the table
 TODO ensure coordinators have documentation access
 TODO ensure the constants used in the component configuration settings work
+TODO add passive synchronization of persons
 
 Curriculum View---------------------------------------------------------------------------------------------------------
 
@@ -22,6 +23,7 @@ TODO Link from THM Organizer Schedule view
 
 Subjects View-----------------------------------------------------------------------------------------------------------
 
+TODO stop searching contents -> false positives
 TODO Replace existing menu items
 TODO Add instruction language filter
 
@@ -59,6 +61,14 @@ TODO add group association support
 ---------------------------------------------------------------------------------------------------06: Planned Resources
 --------------------------------Resources/Tables: Blocks, I-Groups, I-Persons, I-Rooms, Instances, Methods, Roles, Units
 ------------------------------------------------------------------------------------------------------------------------
+
+TODO remove the reliance on the roles table
+-create class constants if not existent
+-create language constants
+-but... try to keep them synchronous with the existing role constants from subject persons
+--1 coordinator
+--2 teacher
+--...speaker, tutor, supervisor...
 
 TODO Revamp the configuration migration functions for the new circumstances and structure
 TODO Merge Functionality

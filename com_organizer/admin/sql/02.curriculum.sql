@@ -120,14 +120,14 @@ ALTER TABLE `v7ocf_organizer_pools`
 # endregion
 
 # region subjects
+# lsfID is null because otherwise it defaults to 0 and creates duplicate key errors
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subjects` (
     `id`                          INT(11) UNSIGNED      NOT NULL AUTO_INCREMENT,
     `alias`                       VARCHAR(255)                   DEFAULT NULL,
     `code`                        VARCHAR(60)                    DEFAULT NULL COLLATE utf8mb4_bin,
     `fullName_de`                 VARCHAR(200)          NOT NULL,
     `fullName_en`                 VARCHAR(200)          NOT NULL,
-    `organizationID`              INT(11) UNSIGNED               DEFAULT NULL,
-    `lsfID`                       INT(11) UNSIGNED      NOT NULL,
+    `lsfID`                       INT(11) UNSIGNED               DEFAULT NULL,
     `abbreviation_de`             VARCHAR(25)           NOT NULL DEFAULT '',
     `abbreviation_en`             VARCHAR(25)           NOT NULL DEFAULT '',
     `aids_de`                     TEXT,
@@ -174,27 +174,25 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subjects` (
     UNIQUE INDEX `alias` (`alias`),
     INDEX `fieldID` (`fieldID`),
     INDEX `frequencyID` (`frequencyID`),
-    UNIQUE INDEX `lsfID` (`lsfID`),
-    INDEX `organizationID` (`organizationID`)
+    UNIQUE INDEX `lsfID` (`lsfID`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_subjects` (`id`, `organizationID`, `lsfID`, `code`, `abbreviation_de`,
-                                               `abbreviation_en`, `shortName_de`, `shortName_en`, `fullName_de`,
-                                               `fullName_en`, `description_de`, `description_en`, `objective_de`,
-                                               `objective_en`, `content_de`, `content_en`, `prerequisites_de`,
-                                               `prerequisites_en`, `preliminaryWork_de`, `preliminaryWork_en`,
-                                               `instructionLanguage`, `literature`, `creditpoints`, `expenditure`,
-                                               `present`, `independent`, `proof_de`, `proof_en`, `frequencyID`,
-                                               `method_de`, `method_en`, `fieldID`, `sws`, `aids_de`, `aids_en`,
-                                               `evaluation_de`, `evaluation_en`, `expertise`, `selfCompetence`,
-                                               `methodCompetence`, `socialCompetence`, `recommendedPrerequisites_de`,
-                                               `recommendedPrerequisites_en`, `usedFor_de`, `usedFor_en`, `duration`,
-                                               `bonusPoints_de`, `bonusPoints_en`)
+INSERT IGNORE INTO `v7ocf_organizer_subjects` (`id`, `lsfID`, `code`, `abbreviation_de`, `abbreviation_en`,
+                                               `shortName_de`, `shortName_en`, `fullName_de`, `fullName_en`,
+                                               `description_de`, `description_en`, `objective_de`, `objective_en`,
+                                               `content_de`, `content_en`, `prerequisites_de`, `prerequisites_en`,
+                                               `preliminaryWork_de`, `preliminaryWork_en`, `instructionLanguage`,
+                                               `literature`, `creditpoints`, `expenditure`, `present`, `independent`,
+                                               `proof_de`, `proof_en`, `frequencyID`, `method_de`, `method_en`,
+                                               `fieldID`, `sws`, `aids_de`, `aids_en`, `evaluation_de`, `evaluation_en`,
+                                               `expertise`, `selfCompetence`, `methodCompetence`, `socialCompetence`,
+                                               `recommendedPrerequisites_de`, `recommendedPrerequisites_en`,
+                                               `usedFor_de`, `usedFor_en`, `duration`, `bonusPoints_de`,
+                                               `bonusPoints_en`)
 SELECT DISTINCT `id`,
-                `departmentID`,
                 `lsfID`,
                 `externalID`,
                 `abbreviation_de`,
@@ -243,8 +241,15 @@ SELECT DISTINCT `id`,
                 `bonus_points_en`
 FROM `v7ocf_thm_organizer_subjects`;
 
-# add associations table insert statement
-INSERT x;
+INSERT IGNORE INTO `v7ocf_organizer_associations` (`subjectID`, `organizationID`)
+SELECT DISTINCT `id`,
+                `departmentID`
+FROM `v7ocf_thm_organizer_subjects`;
+
+ALTER TABLE `v7ocf_organizer_associations`
+    ADD CONSTRAINT `association_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `v7ocf_organizer_subjects` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
 
 ALTER TABLE `v7ocf_organizer_subjects`
     ADD CONSTRAINT `subject_fieldID_fk` FOREIGN KEY (`fieldID`) REFERENCES `v7ocf_organizer_fields` (`id`)
@@ -252,13 +257,6 @@ ALTER TABLE `v7ocf_organizer_subjects`
         ON UPDATE CASCADE,
     ADD CONSTRAINT `subject_frequencyID_fk` FOREIGN KEY (`frequencyID`) REFERENCES `v7ocf_organizer_frequencies` (`id`)
         ON DELETE SET NULL
-        ON UPDATE CASCADE;
-# endregion
-
-# region associations
-ALTER TABLE `v7ocf_organizer_associations`
-    ADD CONSTRAINT `association_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `v7ocf_organizer_subjects` (`id`)
-        ON DELETE CASCADE
         ON UPDATE CASCADE;
 # endregion
 
