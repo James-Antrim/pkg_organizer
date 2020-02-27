@@ -38,7 +38,7 @@ jobs:
         run: build/scripts/shell/init.sh
       - name: "Upload Package"
         uses: actions/upload-artifact@v1
-        if: ${{ci_release}}
+        if: ${ci_release}
         with: 
                 name: "com-organizer"
                 path: "test.zip"
