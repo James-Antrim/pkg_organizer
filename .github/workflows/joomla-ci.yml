@@ -1,6 +1,7 @@
 name: Test joomla component installation
 
-on: push
+on:
+        - push
 
 jobs:
   build:
@@ -34,9 +35,7 @@ jobs:
         run: build/scripts/shell/init.sh
       - name: "Upload Package"
         uses: actions/upload-artifact@v1
-        on:
-                tags:
-                        - 'v*'
+        if: github.tags  'v*'
         with: 
                 name: "com-organizer"
                 path: "test.zip"
