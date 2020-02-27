@@ -154,7 +154,7 @@ abstract class BaseHTMLView extends BaseView
 				'url'    => 'index.php?option=com_organizer&amp;view=field_colors',
 				'active' => $viewName == 'field_colors'
 			];
-			/*$items[Languages::_('ORGANIZER_POOLS')]        = [
+			$items[Languages::_('ORGANIZER_POOLS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=pools',
 				'active' => $viewName == 'pools'
 			];
@@ -165,7 +165,7 @@ abstract class BaseHTMLView extends BaseView
 			$items[Languages::_('ORGANIZER_SUBJECTS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=subjects',
 				'active' => $viewName == 'subjects'
-			];*/
+			];
 			ksort($items);
 			foreach ($items as $key => $value)
 			{
