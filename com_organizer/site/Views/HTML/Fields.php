@@ -53,7 +53,7 @@ class Fields extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->colors = Helpers\Fields::getListDisplay($item->id, $organizationID);
+			$item->colors = Helpers\Fields::getFieldColorDisplay($item->id, $organizationID);
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;

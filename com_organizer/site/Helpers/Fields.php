@@ -47,7 +47,40 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @return string the HTML output of the field attribute display
 	 */
-	public static function getListDisplay($fieldID, $organizationID = 0)
+	public static function getFieldColorDisplay($fieldID, $organizationID = 0)
+	{
+		if (!$fieldID)
+		{
+			return '';
+		}
+
+		$organizationIDs = $organizationID ? [$organizationID] : Organizations::getIDs();
+		$return          = '';
+
+		foreach ($organizationIDs as $organizationID)
+		{
+			$table = new Tables\FieldColors;
+			if ($table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID]))
+			{
+				$link         = 'index.php?option=com_organizer&view=field_color_edit&id=' . $table->id;
+				$organization = Organizations::getShortName($organizationID);
+				$text         = HTML::_('link', $link, $organization);
+				$return       .= Colors::getListDisplay($text, $table->colorID);
+			}
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Creates the display for a field item as used in a list view.
+	 *
+	 * @param   int  $fieldID         the id of the field
+	 * @param   int  $organizationID  the id of the organization
+	 *
+	 * @return string the HTML output of the field attribute display
+	 */
+	public static function getColoredDisplay($fieldID, $organizationID = 0)
 	{
 		if (!$fieldID)
 		{

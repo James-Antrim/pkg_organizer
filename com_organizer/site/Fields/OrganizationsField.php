@@ -25,23 +25,6 @@ class OrganizationsField extends OptionsField
 	protected $type = 'Organizations';
 
 	/**
-	 * Method to get the field input markup for organization selection.
-	 * Use the multiple attribute to enable multiselect.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput()
-	{
-		// Add custom js script to update other fields like programs
-		if (!empty($this->class) and $this->class === 'organizationlist')
-		{
-			Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/organizationlist.js');
-		}
-
-		return parent::getInput();
-	}
-
-	/**
 	 * Returns an array of options
 	 *
 	 * @return array  the organization options

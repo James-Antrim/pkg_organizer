@@ -30,21 +30,20 @@ class Pools extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select("DISTINCT p.id, p.name_$tag AS name, p.fieldID")
-			->from('#__organizer_pools AS p');
+		$query->select("DISTINCT p.id, p.fullName_$tag AS name, p.fieldID")
+			->from('#__organizer_pools AS p')
+			->leftJoin('#__organizer_associations AS a ON a.poolID = p.id');
 
 		$authorized = Helpers\Can::documentTheseOrganizations();
-		$query->where('(p.organizationID IN (' . implode(',', $authorized) . ') OR p.organizationID IS NULL)');
+		$query->where('(a.organizationID IN (' . implode(',', $authorized) . ') OR a.organizationID IS NULL)');
 
 		$searchColumns = [
 			'p.name_de',
 			'p.shortName_de',
 			'p.abbreviation_de',
-			'p.description_de',
 			'p.name_en',
 			'p.shortName_en',
-			'p.abbreviation_en',
-			'p.description_en'
+			'p.abbreviation_en'
 		];
 		$this->setSearchFilter($query, $searchColumns);
 		$this->setValueFilters($query, ['organizationID', 'fieldID']);

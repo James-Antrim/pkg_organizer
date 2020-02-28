@@ -188,7 +188,7 @@ class Subjects extends ListView
 
 		foreach ($this->items as $subject)
 		{
-			$access   = Can::document('subject', $subject->id);
+			$access   = Helpers\Can::document('subject', $subject->id);
 			$checkbox = $access ? Helpers\HTML::_('grid.id', $index, $subject->id) : '';
 			$thisLink = ($backend and $access) ? $editLink . $subject->id : $itemLink . $subject->id;
 

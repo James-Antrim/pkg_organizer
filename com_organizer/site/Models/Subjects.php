@@ -84,8 +84,9 @@ class Subjects extends ListModel
 
 		// Create the sql query
 		$query = $dbo->getQuery(true);
-		$query->select("DISTINCT s.id, s.code, s.name_$tag AS name, s.fieldID, s.creditpoints")
-			->from('#__organizer_subjects AS s');
+		$query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditpoints")
+			->from('#__organizer_subjects AS s')
+			->leftJoin('#__organizer_associations AS a ON a.subjectID = s.id');
 
 		$searchFields = [
 			's.name_de',
@@ -95,12 +96,6 @@ class Subjects extends ListModel
 			'shortName_en',
 			'abbreviation_en',
 			'code',
-			'description_de',
-			'objective_de',
-			'content_de',
-			'description_en',
-			'objective_en',
-			'content_en',
 			'lsfID'
 		];
 
@@ -192,8 +187,9 @@ class Subjects extends ListModel
 		if ($this->clientContext === self::BACKEND)
 		{
 			$authorized = Helpers\Can::documentTheseOrganizations();
-			$query->where('(s.organizationID IN (' . implode(',', $authorized) . ') OR s.organizationID IS NULL)');
+			$query->where('(a.organizationID IN (' . implode(',', $authorized) . ') OR a.organizationID IS NULL)');
 		}
+
 		$organizationID = $this->state->get('filter.organizationID');
 		if (empty($organizationID))
 		{
@@ -201,7 +197,7 @@ class Subjects extends ListModel
 		}
 		elseif ($organizationID == '-1')
 		{
-			$query->where('(s.organizationID IS NULL)');
+			$query->where('(a.organizationID IS NULL)');
 		}
 	}
 }

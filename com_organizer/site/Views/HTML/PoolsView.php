@@ -61,7 +61,7 @@ abstract class PoolsView extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->fieldID           = Helpers\Fields::getListDisplay($item->fieldID);
+			$item->fieldID           = Helpers\Fields::getColoredDisplay($item->fieldID);
 			$item->programID         = Helpers\Pools::getProgramName('pool', $item->id);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;

@@ -69,7 +69,6 @@
 
 #region Subjects View---------------------------------------------------------------------------------------------------
 #TODO check search
-#TODO stop searching contents -> false positives
 #TODO check filtering
 #TODO Add instruction language filter
 #TODO check limiting

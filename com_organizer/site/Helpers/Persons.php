@@ -47,8 +47,8 @@ class Persons extends ResourceHelper implements Associated, Selectable
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT t.id, t.forename, t.surname')->from('#__organizer_persons AS t');
-		$query->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = t.id');
+		$query->select('DISTINCT p.id, p.forename, p.surname')->from('#__organizer_persons AS p');
+		$query->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id');
 		$query->innerJoin('#__organizer_curricula AS c ON c.subjectID = sp.subjectID');
 		if (!empty($boundarySet))
 		{
@@ -65,7 +65,7 @@ class Persons extends ResourceHelper implements Associated, Selectable
 			$query->where($where . ')');
 		}
 
-		$query->order('t.surname');
+		$query->order('p.surname, p.forename');
 		$dbo->setQuery($query);
 
 		$persons = OrganizerHelper::executeQuery('loadObjectList');
@@ -123,10 +123,10 @@ class Persons extends ResourceHelper implements Associated, Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('t.id, t.surname, t.forename, t.title, t.username, u.id AS userID, role, code');
-		$query->from('#__organizer_persons AS t');
-		$query->innerJoin('#__organizer_subject_persons AS st ON sp.personID = t.id');
-		$query->leftJoin('#__users AS u ON u.username = t.username');
+		$query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, role, code');
+		$query->from('#__organizer_persons AS p');
+		$query->innerJoin('#__organizer_subject_persons AS st ON sp.personID = p.id');
+		$query->leftJoin('#__users AS u ON u.username = p.username');
 		$query->where("sp.subjectID = '$subjectID' ");
 
 		if (!empty($role))

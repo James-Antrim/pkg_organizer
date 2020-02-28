@@ -45,8 +45,8 @@ class SubjectPersonsField extends OptionsField
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('t.id, t.surname, t.forename')
-			->from('#__organizer_persons AS t')
+		$query->select('p.id, p.surname, p.forename')
+			->from('#__organizer_persons AS p')
 			->order('surname, forename');
 
 		$organizationID = $this->form->getValue('organizationID');
@@ -54,12 +54,12 @@ class SubjectPersonsField extends OptionsField
 		{
 			if (empty($this->value))
 			{
-				$query->innerJoin('#__organizer_associations AS a ON a.personID = t.id');
+				$query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
 				$query->where("organizationID = $organizationID");
 			}
 			else
 			{
-				$query->leftJoin('#__organizer_associations AS a ON a.personID = t.id');
+				$query->leftJoin('#__organizer_associations AS a ON a.personID = p.id');
 				$personIDs  = implode(',', $this->value);
 				$extPersons = "(organizationID != $organizationID AND personID IN ($personIDs))";
 				$query->where("(organizationID = $organizationID OR $extPersons)");

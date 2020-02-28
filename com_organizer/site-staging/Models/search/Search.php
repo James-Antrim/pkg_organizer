@@ -1229,16 +1229,16 @@ class Search extends BaseModel
 		$courseQuery->clear('where');
 		$subjectQuery->clear('where');
 
-		$courseQuery->innerJoin('#__organizer_lesson_persons AS lt ON lt.lessonCourseID = lcrs.id')
-			->innerJoin('#__organizer_persons AS t ON t.id = lt.personID');
+		$courseQuery->innerJoin('#__organizer_lesson_persons AS lt ON lp.lessonCourseID = lcrs.id')
+			->innerJoin('#__organizer_persons AS p ON p.id = lp.personID');
 
 		$subjectQuery->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
-			->innerJoin('#__organizer_persons AS t ON t.id = sp.personID');
+			->innerJoin('#__organizer_persons AS p ON p.id = sp.personID');
 
 		if ($termCount == 1)
 		{
-			$courseQuery->where("t.surname LIKE '%$initialTerm%'");
-			$subjectQuery->where("t.surname LIKE '%$initialTerm%'");
+			$courseQuery->where("p.surname LIKE '%$initialTerm%'");
+			$subjectQuery->where("p.surname LIKE '%$initialTerm%'");
 		}
 		else
 		{
@@ -1256,8 +1256,8 @@ class Search extends BaseModel
 					}
 
 					// lnf/fnf
-					$wherray[] = "(t.surname LIKE '%$outerTerm%' AND t.forename LIKE '%$innerTerm%')";
-					$wherray[] = "(t.surname LIKE '%$innerTerm%' AND t.forename LIKE '%$outerTerm%')";
+					$wherray[] = "(p.surname LIKE '%$outerTerm%' AND p.forename LIKE '%$innerTerm%')";
+					$wherray[] = "(p.surname LIKE '%$innerTerm%' AND p.forename LIKE '%$outerTerm%')";
 				}
 			}
 

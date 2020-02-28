@@ -150,10 +150,10 @@ class Subjects extends Curricula implements Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('t.id, t.surname, t.forename, t.fieldID, t.title, sp.role')
-			->from('#__organizer_persons AS t')
-			->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = t.id')
-			->where("sp.subjectID = '$subjectID'");
+		$query->select('p.id, p.surname, p.forename, p.title, sp.role')
+			->from('#__organizer_persons AS p')
+			->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
+			->where("sp.subjectID = $subjectID");
 
 		if (!empty($role) and is_numeric($role))
 		{
@@ -280,7 +280,7 @@ class Subjects extends Curricula implements Selectable
 
 		$tag = Languages::getTag();
 		$query->select("DISTINCT s.id, s.name_$tag AS name, s.code, s.creditpoints")
-			->select('t.surname, t.forename, t.title, t.username')
+			->select('p.surname, p.forename, p.title, p.username')
 			->from('#__organizer_subjects AS s')
 			->order('name')
 			->group('s.id');
@@ -300,17 +300,15 @@ class Subjects extends Curricula implements Selectable
 
 		if ($personID !== self::ALL)
 		{
-			$query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id');
-			$query->innerJoin('#__organizer_persons AS t ON t.id = sp.personID');
-			$query->where("sp.personID = '$personID'");
+			$query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
+				->where("sp.personID = '$personID'");
 		}
 		else
 		{
-			$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id');
-			$query->innerJoin('#__organizer_persons AS t ON t.id = sp.personID');
-			$query->where("sp.role = '1'");
+			$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.role = '1'");
 		}
 
+		$query->innerJoin('#__organizer_persons AS p ON p.id = sp.personID');
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssocList', []);

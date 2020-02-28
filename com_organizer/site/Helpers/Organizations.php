@@ -40,8 +40,11 @@ class Organizations extends ResourceHelper implements Selectable
 		switch ($access)
 		{
 			case 'document':
-				$table = OrganizerHelper::getPlural($resource);
-				$query->innerJoin("#__organizer_$table AS res ON res.organizationID = o.id");
+				$query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
+				if (in_array($resource, ['pool', 'program', 'subject']))
+				{
+					$query->where("a.{$resource}ID IS NOT NULL");
+				}
 				$allowedIDs = Can::documentTheseOrganizations();
 				break;
 			case 'manage':
