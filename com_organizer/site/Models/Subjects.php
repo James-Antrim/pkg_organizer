@@ -89,10 +89,10 @@ class Subjects extends ListModel
 			->leftJoin('#__organizer_associations AS a ON a.subjectID = s.id');
 
 		$searchFields = [
-			's.name_de',
+			's.fullName_de',
 			'shortName_de',
 			'abbreviation_de',
-			's.name_en',
+			's.fullName_en',
 			'shortName_en',
 			'abbreviation_en',
 			'code',

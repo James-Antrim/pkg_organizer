@@ -22,10 +22,7 @@
 
 #region Pools View------------------------------------------------------------------------------------------------------
 #TODO the program display should also be able to display multiple
-#TODO check search
 #TODO check filtering
-#TODO check limiting
-#TODO check sorting
 #TODO check new
 #TODO check edit
 #TODO check delete
@@ -39,11 +36,8 @@
 #endregion--------------------------------------------------------------------------------------------------------------
 
 #region Programs View---------------------------------------------------------------------------------------------------
-#TODO the organization display should also be able to display multiple
-#TODO check search
+#TODO remove organizations output
 #TODO check filtering
-#TODO check limiting
-#TODO check sorting
 #TODO check new
 #TODO check edit
 #TODO check import
@@ -69,11 +63,8 @@
 #endregion--------------------------------------------------------------------------------------------------------------
 
 #region Subjects View---------------------------------------------------------------------------------------------------
-#TODO check search
 #TODO check filtering
 #TODO Add instruction language filter
-#TODO check limiting
-#TODO check sorting
 #TODO check new
 #TODO check edit
 #TODO check update

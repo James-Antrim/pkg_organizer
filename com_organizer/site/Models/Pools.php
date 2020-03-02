@@ -38,10 +38,10 @@ class Pools extends ListModel
 		$query->where('(a.organizationID IN (' . implode(',', $authorized) . ') OR a.organizationID IS NULL)');
 
 		$searchColumns = [
-			'p.name_de',
+			'p.fullName_de',
 			'p.shortName_de',
 			'p.abbreviation_de',
-			'p.name_en',
+			'p.fullName_en',
 			'p.shortName_en',
 			'p.abbreviation_en'
 		];
