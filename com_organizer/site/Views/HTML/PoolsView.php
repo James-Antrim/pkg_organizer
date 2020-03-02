@@ -41,8 +41,7 @@ abstract class PoolsView extends ListView
 		$headers   = [
 			'checkbox'  => '',
 			'name'      => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-			'programID' => Helpers\Languages::_('ORGANIZER_PROGRAM'),
-			'fieldID'   => Helpers\HTML::sort('FIELD', 'field', $direction, $ordering)
+			'programID' => Helpers\Languages::_('ORGANIZER_PROGRAM')
 		];
 
 		$this->headers = $headers;
@@ -61,8 +60,7 @@ abstract class PoolsView extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->fieldID           = Helpers\Fields::getColoredDisplay($item->fieldID);
-			$item->programID         = Helpers\Pools::getProgramName('pool', $item->id);
+			$item->programID         = Helpers\Pools::getProgramName($item->id);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

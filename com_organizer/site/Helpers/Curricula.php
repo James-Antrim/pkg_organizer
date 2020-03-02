@@ -314,7 +314,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 
 		if ($type === 'pool')
 		{
-			$selected = Pools::getRanges($resourceID);
+			$selected = Pools::getFilteredRanges($resourceID);
 
 			$curriculumIDs  = self::filterIDs($selected);
 			$subordinateIDs = self::getSubOrdinateIDs($selected);
@@ -359,15 +359,14 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	 */
 	public static function getProgramName($resourceID)
 	{
-		$programs = self::getPrograms($resourceID);
-		if (empty($programs))
+		if (!$programs = self::getPrograms($resourceID))
 		{
 			return Languages::_('JNONE');
 		}
 
 		if (count($programs) === 1)
 		{
-			return Programs::getName($programs[0]['id']);
+			return Programs::getName($programs[0]['programID']);
 		}
 		else
 		{

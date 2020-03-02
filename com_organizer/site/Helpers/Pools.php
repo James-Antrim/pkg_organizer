@@ -79,6 +79,29 @@ class Pools extends Curricula implements Selectable
 	}
 
 	/**
+	 * Gets the mapped curricula ranges for the given pool
+	 *
+	 * @param   mixed  $identifiers  int poolID | array ranges of subordinate resources
+	 *
+	 * @return array the pool ranges
+	 */
+	public static function getFilteredRanges($identifiers)
+	{
+		if (!$ranges = self::getRanges($identifiers))
+		{
+			return [];
+		}
+
+		$filteredBoundaries = [];
+		foreach ($ranges as $range)
+		{
+			$filteredBoundaries = self::removeExclusions($range);
+		}
+
+		return $filteredBoundaries;
+	}
+
+	/**
 	 * Retrieves the pool's full name if existent.
 	 *
 	 * @param   int  $poolID  the table's pool id
@@ -154,11 +177,10 @@ class Pools extends Curricula implements Selectable
 	 * Gets the mapped curricula ranges for the given pool
 	 *
 	 * @param   mixed  $identifiers  int poolID | array ranges of subordinate resources
-	 * @param   bool   $exclude      whether subordinate pools should be filtered from the result set
 	 *
 	 * @return array the pool ranges
 	 */
-	public static function getRanges($identifiers, $exclude = true)
+	public static function getRanges($identifiers)
 	{
 		if (!is_numeric($identifiers) and !is_array($identifiers))
 		{
@@ -178,29 +200,16 @@ class Pools extends Curricula implements Selectable
 		}
 		else
 		{
-			$programID = (int) $identifiers;
+			$poolID = (int) $identifiers;
 			if ($identifiers != self::NONE)
 			{
-				$query->where("poolID = $programID");
+				$query->where("poolID = $poolID");
 			}
 		}
 
 		$dbo->setQuery($query);
 
-		$ranges = OrganizerHelper::executeQuery('loadAssocList', []);
-
-		if ($exclude)
-		{
-			$filteredBoundaries = [];
-			foreach ($ranges as $range)
-			{
-				$filteredBoundaries = self::removeExclusions($range);
-			}
-
-			return $filteredBoundaries;
-		}
-
-		return $ranges;
+		return OrganizerHelper::executeQuery('loadAssocList', []);
 	}
 
 	/**
@@ -288,7 +297,7 @@ class Pools extends Curricula implements Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('lft, rgt')->from('#__organizer_curricula')
+		$query->select('*')->from('#__organizer_curricula')
 			->where('poolID IS NOT NULL')
 			->where("lft > '{$range['lft']}' AND rgt < '{$range['rgt']}'")
 			->order('lft');
@@ -311,8 +320,9 @@ class Pools extends Curricula implements Selectable
 			// Not an immediate subordinate
 			if ($exclusion['lft'] != $range['lft'] + 1)
 			{
+				$boundary = $range;
 				// Create a new boundary from the current left to the exclusion
-				$boundary = ['lft' => $range['lft'], 'rgt' => $exclusion['lft']];
+				$boundary['rgt'] = $exclusion['lft'];
 
 				// Change the new left to the other side of the exclusion
 				$range['lft'] = $exclusion['rgt'];
