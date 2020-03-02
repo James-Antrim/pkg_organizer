@@ -7,6 +7,7 @@
 #TODO ensure coordinators have documentation access
 #TODO ensure the constants used in the component configuration settings work
 #TODO add passive synchronization of persons
+#TODO ensure the fields selection only shows associated fields when used as a filter
 
 #region Curriculum View-------------------------------------------------------------------------------------------------
 #TODO stuff

@@ -18,7 +18,7 @@ use Organizer\Helpers;
  */
 class Programs extends ListModel
 {
-	protected $filter_fields = ['degreeID', 'organizationID', 'fieldID', 'frequencyID', 'accredited'];
+	protected $filter_fields = ['degreeID', 'organizationID', 'frequencyID', 'accredited'];
 
 	/**
 	 * Method to get a list of resources from the database.
