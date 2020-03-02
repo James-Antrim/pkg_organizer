@@ -18,8 +18,6 @@ use Organizer\Helpers;
  */
 class Rooms extends ListModel
 {
-	use Filtered;
-
 	protected $defaultOrdering = 'r.name';
 
 	protected $filter_fields = ['campusID', 'buildingID', 'roomtypeID'];
@@ -46,7 +44,7 @@ class Rooms extends ListModel
 
 		$this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en']);
 		$this->setValueFilters($query, ['buildingID', 'roomtypeID']);
-		$this->addCampusFilter($query, 'b');
+		$this->setCampusFilter($query, 'b');
 
 		$this->setOrdering($query);
 

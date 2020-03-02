@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
@@ -238,6 +239,58 @@ abstract class ListModel extends ParentModel
 		$value = $this->getUserStateFromRequest('limitstart', 'limitstart', 0);
 		$start = ($limit != 0 ? (floor($value / $limit) * $limit) : 0);
 		$this->setState('list.start', $start);
+	}
+
+	/**
+	 * Sets a campus filter for a given resource.
+	 *
+	 * @param   JDatabaseQuery &$query  the query to modify
+	 * @param   string          $alias  the alias for the linking table
+	 */
+	public function setCampusFilter(&$query, $alias)
+	{
+		$campusID = $this->state->get('filter.campusID');
+		if (empty($campusID))
+		{
+			return;
+		}
+
+		if ($campusID === '-1')
+		{
+			$query->leftJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
+				->where("campusAlias.id IS NULL");
+
+			return;
+		}
+
+		$query->innerJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
+			->where("(campusAlias.id = $campusID OR campusAlias.parentID = $campusID)");
+	}
+
+	/**
+	 * Adds a date status filter for a given resource.
+	 *
+	 * @param   object &$query   the query object
+	 * @param   string  $status  name of the field in filter
+	 * @param   string  $start   the name of the column containing the resource start date
+	 * @param   string  $end     the name of the column containing the resource end date
+	 */
+	public function setDateStatusFilter(&$query, $status, $start, $end)
+	{
+		$value = $this->state->get("filter." . $status);
+
+		switch ($value)
+		{
+			case '1' :
+				$query->where($end . " < CURDATE()");
+				break;
+			case '2' :
+				$query->where($start . " > CURDATE()");
+				break;
+			case '3' :
+				$query->where("CURDATE() BETWEEN $start AND $end");
+				break;
+		}
 	}
 
 	/**

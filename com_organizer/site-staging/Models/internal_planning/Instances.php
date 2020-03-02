@@ -19,8 +19,6 @@ use Organizer\Helpers;
  */
 class Instances extends ListModel
 {
-	use Filtered;
-
 	protected $defaultOrdering = 'name';
 
 	/**

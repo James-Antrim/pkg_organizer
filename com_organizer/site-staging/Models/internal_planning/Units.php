@@ -18,7 +18,6 @@ use Organizer\Helpers;
  */
 class Units extends ListModel
 {
-	use Filtered;
 	protected $defaultOrdering = 'name';
 
 	/**
