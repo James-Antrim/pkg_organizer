@@ -11,7 +11,6 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
 use Organizer\Tables;
@@ -162,13 +161,12 @@ class Subject extends CurriculumResource
 	 */
 	public function getExistingOrdering($parentID, $resourceID)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = $this->_db->getQuery(true);
 		$query->select('ordering')
 			->from('#__organizer_curricula')
 			->where("parentID = '$parentID'")
 			->where("subjectID = '$resourceID'");
-		$dbo->setQuery($query);
+		$this->_db->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadResult', null);
 	}

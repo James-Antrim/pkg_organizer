@@ -11,7 +11,6 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -75,13 +74,12 @@ class Pool extends CurriculumResource
 	 */
 	protected function getExistingOrdering($parentID, $resourceID)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = $this->_db->getQuery(true);
 		$query->select('ordering')
 			->from('#__organizer_curricula')
 			->where("parentID = '$parentID'")
 			->where("poolID = '$resourceID'");
-		$dbo->setQuery($query);
+		$this->_db->setQuery($query);
 
 		return Helpers\OrganizerHelper::executeQuery('loadResult', null);
 	}

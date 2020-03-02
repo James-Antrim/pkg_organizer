@@ -12,7 +12,6 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
-use Joomla\CMS\Factory;
 use Organizer\Helpers;
 
 /**
@@ -79,11 +78,10 @@ class Subjects extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$dbo = Factory::getDbo();
 		$tag = Helpers\Languages::getTag();
 
 		// Create the sql query
-		$query = $dbo->getQuery(true);
+		$query = $this->_db->getQuery(true);
 		$query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditpoints")
 			->from('#__organizer_subjects AS s')
 			->leftJoin('#__organizer_associations AS a ON a.subjectID = s.id');
