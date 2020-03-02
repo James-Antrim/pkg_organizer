@@ -17,7 +17,7 @@ use Organizer\Helpers;
  */
 abstract class PoolsView extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'programID' => 'link', 'fieldID' => 'value'];
+	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'programID' => 'link'];
 
 	/**
 	 * Function determines whether the user may access the view.

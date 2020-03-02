@@ -212,7 +212,7 @@ class Subjects extends Curricula implements Selectable
 	 */
 	public static function getRanges($subjectID)
 	{
-		if (!is_numeric($subjectID))
+		if (empty($identifiers) or !is_numeric($identifiers))
 		{
 			return [];
 		}

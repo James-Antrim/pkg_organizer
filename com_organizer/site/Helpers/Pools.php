@@ -182,7 +182,7 @@ class Pools extends Curricula implements Selectable
 	 */
 	public static function getRanges($identifiers)
 	{
-		if (!is_numeric($identifiers) and !is_array($identifiers))
+		if (empty($identifiers) or (!is_numeric($identifiers) and !is_array($identifiers)))
 		{
 			return [];
 		}
