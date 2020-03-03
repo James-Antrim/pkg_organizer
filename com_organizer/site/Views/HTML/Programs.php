@@ -18,12 +18,13 @@ use Organizer\Helpers;
  */
 class Programs extends ListView
 {
+	private $documentAccess = false;
+
 	protected $rowStructure = [
-		'checkbox'     => '',
-		'programName'  => 'link',
-		'degree'       => 'link',
-		'accredited'   => 'link',
-		'organization' => 'link'
+		'checkbox'   => '',
+		'name'       => 'link',
+		'degree'     => 'link',
+		'accredited' => 'link'
 	];
 
 	/**
@@ -74,7 +75,9 @@ class Programs extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Helpers\Can::documentTheseOrganizations();
+		$this->documentAccess = (bool) Helpers\Can::documentTheseOrganizations();
+
+		return $this->clientContext === self::BACKEND ? $this->documentAccess : true;
 	}
 
 	/**
@@ -87,11 +90,10 @@ class Programs extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'     => '',
-			'programName'  => Helpers\HTML::sort('NAME', 'programName', $direction, $ordering),
-			'degree'       => Helpers\HTML::sort('DEGREE', 'degree', $direction, $ordering),
-			'accredited'   => Helpers\HTML::sort('ACCREDITED', 'accredited', $direction, $ordering),
-			'organization' => Helpers\HTML::sort('ORGANIZATION', 'organization', $direction, $ordering)
+			'checkbox'   => '',
+			'name'       => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'degree'     => Helpers\HTML::sort('DEGREE', 'degree', $direction, $ordering),
+			'accredited' => Helpers\HTML::sort('ACCREDITED', 'accredited', $direction, $ordering)
 		];
 
 		$this->headers = $headers;

@@ -355,6 +355,51 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
+	 * Sets an organization filter for the given resource.
+	 *
+	 * @param   JDatabaseQuery &$query    the query object
+	 * @param   string          $context  the resource context from which this function was called
+	 * @param   string          $alias    the alias of the table onto which the organizatons table will be joined as
+	 *                                    needed
+	 *
+	 * @return void
+	 */
+	protected function setOrganizationFilter(&$query, $context, $alias)
+	{
+		$authorizedOrgIDs = $this->clientContext === self::BACKEND ?
+			Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
+		$organizationID   = $this->state->get('filter.organizationID', 0);
+
+		if (!$authorizedOrgIDs or !$organizationID)
+		{
+			return;
+		}
+
+		$joinStatement = "#__organizer_associations AS a on a.{$context}ID = $alias.id";
+
+		if ($organizationID == '-1')
+		{
+			$query->leftJoin($joinStatement)->where('a.organizationID IS NULL');
+
+			return;
+		}
+
+		$query->innerJoin($joinStatement);
+
+		if (in_array($organizationID, $authorizedOrgIDs))
+		{
+			$query->where("a.organizationID = $organizationID");
+
+			return;
+		}
+
+		$query->where('(a.organizationID IN (' . implode(',', $authorizedOrgIDs) . ') OR a.organizationID IS NULL)');
+
+		return;
+
+	}
+
+	/**
 	 * Sets the search filter for the query
 	 *
 	 * @param   object &$query        the query to modify

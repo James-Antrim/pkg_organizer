@@ -19,7 +19,12 @@ use Organizer\Helpers;
  */
 class Subjects extends ListModel
 {
-	protected $filter_fields = ['organizationID', 'personID', 'poolID', 'programID'];
+	protected $filter_fields = [
+		'organizationID' => 'organizationID',
+		'personID'       => 'personID',
+		'poolID'         => 'poolID',
+		'programID'      => 'programID'
+	];
 
 	/**
 	 * Filters out form inputs which should not be displayed due to menu settings.
@@ -37,12 +42,14 @@ class Subjects extends ListModel
 			$form->removeField('organizationID', 'filter');
 			$form->removeField('limit', 'list');
 			$form->removeField('programID', 'filter');
+			unset($this->filter_fields['organizationID'], $this->filter_fields['programID']);
 		}
 		elseif ($this->clientContext === self::BACKEND)
 		{
 			if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 			{
 				$form->removeField('organizationID', 'filter');
+				unset($this->filter_fields['organizationID']);
 			}
 		}
 
@@ -83,21 +90,20 @@ class Subjects extends ListModel
 		// Create the sql query
 		$query = $this->_db->getQuery(true);
 		$query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditpoints")
-			->from('#__organizer_subjects AS s')
-			->leftJoin('#__organizer_associations AS a ON a.subjectID = s.id');
+			->from('#__organizer_subjects AS s');
 
 		$searchFields = [
 			's.fullName_de',
-			'shortName_de',
-			'abbreviation_de',
+			's.shortName_de',
+			's.abbreviation_de',
 			's.fullName_en',
-			'shortName_en',
-			'abbreviation_en',
-			'code',
-			'lsfID'
+			's.shortName_en',
+			's.abbreviation_en',
+			's.code',
+			's.lsfID'
 		];
 
-		$this->setOrganizationFilter($query);
+		$this->setOrganizationFilter($query, 'subject', 's');
 		$this->setSearchFilter($query, $searchFields);
 
 		$programID = $this->state->get('filter.programID', '');
@@ -171,31 +177,5 @@ class Subjects extends ListModel
 		}
 
 		return;
-	}
-
-	/**
-	 * Sets restrictions to the subject's organizationID field
-	 *
-	 * @param   JDatabaseQuery &$query  the query to be modified
-	 *
-	 * @return void modifies the query
-	 */
-	private function setOrganizationFilter(&$query)
-	{
-		if ($this->clientContext === self::BACKEND)
-		{
-			$authorized = Helpers\Can::documentTheseOrganizations();
-			$query->where('(a.organizationID IN (' . implode(',', $authorized) . ') OR a.organizationID IS NULL)');
-		}
-
-		$organizationID = $this->state->get('filter.organizationID');
-		if (empty($organizationID))
-		{
-			return;
-		}
-		elseif ($organizationID == '-1')
-		{
-			$query->where('(a.organizationID IS NULL)');
-		}
 	}
 }
