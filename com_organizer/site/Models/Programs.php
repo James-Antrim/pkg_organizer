@@ -13,7 +13,6 @@ namespace Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages;
 
 /**
  * Class retrieves information for a filtered set of (degree) programs.
@@ -57,13 +56,7 @@ class Programs extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag        = Languages::getTag();
-		$query      = $this->_db->getQuery(true);
-		$parts      = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
-		$nameClause = $query->concatenate($parts, '') . ' AS name';
-		$query->select("DISTINCT p.id AS id, p.name_$tag AS name, d.abbreviation AS degree, p.accredited")
-			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
+		$query = Helpers\Programs::getProgramQuery();
 
 		$this->setOrganizationFilter($query, 'program', 'p');
 
