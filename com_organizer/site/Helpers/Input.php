@@ -59,17 +59,7 @@ class Input
 	 */
 	private static function find($property)
 	{
-		if ($value = self::getFilterItems()->get($property, false))
-		{
-			return $value;
-		}
-
 		if ($value = self::getFormItems()->get($property, false))
-		{
-			return $value;
-		}
-
-		if ($value = self::getListItems()->get($property, false))
 		{
 			return $value;
 		}
@@ -147,8 +137,19 @@ class Input
 	 */
 	public static function getFilterIDs($resource)
 	{
+		$filterItems = self::getFilterItems();
+		$listItems   = self::getListItems();
+
 		$pluralIndex = "{$resource}IDs";
-		if ($values = self::find($pluralIndex))
+
+		if ($values = $filterItems->get($pluralIndex, false))
+		{
+			self::formatIDValues($values);
+
+			return $values;
+		}
+
+		if ($values = $listItems->get($pluralIndex, false))
 		{
 			self::formatIDValues($values);
 
@@ -156,7 +157,16 @@ class Input
 		}
 
 		$singularIndex = "{$resource}ID";
-		if ($value = self::find($singularIndex))
+
+		if ($value = $filterItems->get($singularIndex, false))
+		{
+			$values = [$value];
+			self::formatIDValues($values);
+
+			return $values;
+		}
+
+		if ($value = $listItems->get($singularIndex, false))
 		{
 			$values = [$value];
 			self::formatIDValues($values);
