@@ -29,16 +29,16 @@ class Events extends ListModel
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
-		$query->select("DISTINCT ev.id AS id, ev.name_$tag as name, ev.organizationID, ev.campusID")
-			->select("ev.maxParticipants, ev.registrationType, ev.subjectNo, ev.preparatory")
+		$query->select("DISTINCT e.id AS id, e.name_$tag as name, e.organizationID, e.campusID")
+			->select("e.maxParticipants, e.registrationType, e.subjectNo, e.preparatory")
 			->select("o.id AS organizationID, o.shortName_$tag AS organization")
-			->select("cp.id AS campusID, cp.name_$tag AS campus")
-			->from('#__organizer_events AS ev')
-			->leftJoin('#__organizer_organizations AS o ON o.id = ev.organizationID')
-			->leftJoin('#__organizer_campuses AS cp ON cp.id = ev.campusID');
+			->select("c.id AS campusID, c.name_$tag AS campus")
+			->from('#__organizer_events AS e')
+			->leftJoin('#__organizer_organizations AS o ON o.id = e.organizationID')
+			->leftJoin('#__organizer_campuses AS c ON c.id = e.campusID');
 
-		$this->setSearchFilter($query, ['ev.name_de', 'ev.name_en', 'ev.subjectNo']);
-		$this->setValueFilters($query, ['ev.organizationID', 'ev.campusID', 'ev.preparatory']);
+		$this->setSearchFilter($query, ['e.name_de', 'e.name_en', 'e.subjectNo']);
+		$this->setValueFilters($query, ['e.organizationID', 'e.campusID', 'e.preparatory']);
 
 		$this->setOrdering($query);
 

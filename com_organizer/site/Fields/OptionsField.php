@@ -22,6 +22,10 @@ class OptionsField extends FormField
 {
 	use Translated;
 
+	const BACKEND = true, FRONTEND = false;
+
+	public $clientContext;
+
 	/**
 	 * The form field type.
 	 *
@@ -36,6 +40,8 @@ class OptionsField extends FormField
 	 */
 	protected function getInput()
 	{
+		$this->clientContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+
 		$html = array();
 		$attr = '';
 

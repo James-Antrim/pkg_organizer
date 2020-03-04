@@ -35,8 +35,8 @@ class Programs extends Curricula implements Selectable
 	public static function getCurricularOption($range, $parentIDs, $type)
 	{
 		$dbo   = Factory::getDbo();
-		$query = self::getProgramQuery();
-		$query->where("p.id = '{$range['programID']}'");
+		$query = self::getQuery();
+		$query->where("p.id = {$range['programID']}");
 		$dbo->setQuery($query);
 
 		if (!$name = OrganizerHelper::executeQuery('loadResult'))
@@ -48,44 +48,6 @@ class Programs extends Curricula implements Selectable
 		$disabled = $type === 'pool' ? '' : 'disabled';
 
 		return "<option value='{$range['id']}' $selected $disabled>$name</option>";
-	}
-
-	/**
-	 * Creates a basic query for program related items.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	public static function getProgramQuery()
-	{
-		$dbo        = Factory::getDbo();
-		$tag        = Languages::getTag();
-		$query      = $dbo->getQuery(true);
-		$parts      = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
-		$nameClause = $query->concatenate($parts, '') . ' AS name';
-		$query->select("DISTINCT p.id AS id, $nameClause")
-			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
-
-		return $query;
-	}
-
-	/**
-	 * Retrieves the organizationIDs associated with the program
-	 *
-	 * @param   int  $programID  the table id for the program
-	 *
-	 * @return int the organizationID associated with the program's documentation
-	 */
-	public static function getOrganization($programID)
-	{
-		if (empty($programID))
-		{
-			return Languages::_('ORGANIZER_NO_ORGANIZATION');
-		}
-
-		$table = new Tables\Programs;
-
-		return ($table->load($programID) and $organizationID = $table->organizationID) ? $organizationID : 0;
 	}
 
 	/**
@@ -187,12 +149,48 @@ class Programs extends Curricula implements Selectable
 		$options = [];
 		foreach (self::getResources($access) as $program)
 		{
-			$name = "{$program['name']} ({$program['degree']},  {$program['accredited']})";
-
-			$options[] = HTML::_('select.option', $program['id'], $name);
+			$options[] = HTML::_('select.option', $program['id'], $program['name']);
 		}
 
 		return $options;
+	}
+
+	/**
+	 * Retrieves the organizationIDs associated with the program
+	 *
+	 * @param   int  $programID  the table id for the program
+	 *
+	 * @return int the organizationID associated with the program's documentation
+	 */
+	public static function getOrganization($programID)
+	{
+		if (empty($programID))
+		{
+			return Languages::_('ORGANIZER_NO_ORGANIZATION');
+		}
+
+		$table = new Tables\Programs;
+
+		return ($table->load($programID) and $organizationID = $table->organizationID) ? $organizationID : 0;
+	}
+
+	/**
+	 * Creates a basic query for program related items.
+	 *
+	 * @return JDatabaseQuery
+	 */
+	public static function getQuery()
+	{
+		$dbo        = Factory::getDbo();
+		$tag        = Languages::getTag();
+		$query      = $dbo->getQuery(true);
+		$parts      = ["p.name_$tag", "' ('", 'd.abbreviation', "', '", 'p.accredited', "')'"];
+		$nameClause = $query->concatenate($parts, '') . ' AS name';
+		$query->select("DISTINCT p.id AS id, $nameClause")
+			->from('#__organizer_programs AS p')
+			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
+
+		return $query;
 	}
 
 	/**
@@ -245,13 +243,11 @@ class Programs extends Curricula implements Selectable
 	{
 		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$query = self::getQuery();
 
-		$query->select("p.*, p.name_$tag AS name, d.abbreviation AS degree")
-			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
+		$query->select("d.abbreviation AS degree")
 			->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')
-			->order('name ASC, degree ASC, accredited DESC');
+			->order('name');
 
 		if (!empty($access))
 		{

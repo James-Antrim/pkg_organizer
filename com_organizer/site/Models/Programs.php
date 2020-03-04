@@ -56,7 +56,7 @@ class Programs extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$query = Helpers\Programs::getProgramQuery();
+		$query = Helpers\Programs::getQuery();
 
 		$this->setOrganizationFilter($query, 'program', 'p');
 

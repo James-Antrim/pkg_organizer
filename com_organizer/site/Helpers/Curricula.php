@@ -468,10 +468,11 @@ abstract class Curricula extends ResourceHelper implements Selectable
 	 * @param   JDatabaseQuery  $query      the query to be modified
 	 * @param   int             $programID  the id of the program to filter for
 	 * @param   string          $context    the resource context from which this function was called
+	 * @param   string          $alias      the alias of the table referenced in the join
 	 *
 	 * @return void modifies the query
 	 */
-	public static function setProgramFilter(&$query, $programID, $context)
+	public static function setProgramFilter(&$query, $programID, $context, $alias)
 	{
 		if (empty($programID))
 		{
@@ -483,7 +484,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 			return;
 		}
 
-		$query->leftJoin("#__organizer_curricula AS prc on prc.{$context}}ID = p.id");
+		$query->leftJoin("#__organizer_curricula AS prc on prc.{$context}ID = $alias.id");
 
 		if ($programID == self::NONE)
 		{
@@ -493,7 +494,7 @@ abstract class Curricula extends ResourceHelper implements Selectable
 		}
 
 		// Specific association
-		$query->where("prc.lft > '{$ranges[0]['lft']}'");
-		$query->where("prc.rgt < '{$ranges[0]['rgt']}'");
+		$query->where("prc.lft > {$ranges[0]['lft']}");
+		$query->where("prc.rgt < {$ranges[0]['rgt']}");
 	}
 }

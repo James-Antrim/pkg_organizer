@@ -15,7 +15,7 @@ use Joomla\CMS\Factory;
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class Categories implements Associated, Selectable
+class Categories extends ResourceHelper implements Associated, Selectable
 {
 	use Filtered;
 
@@ -36,33 +36,6 @@ class Categories implements Associated, Selectable
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
-	 * Retrieves the category name
-	 *
-	 * @param   int  $categoryID  the table id for the program
-	 *
-	 * @return string the name of the (plan) program, otherwise empty
-	 */
-	public static function getName($categoryID)
-	{
-		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
-
-		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
-		$query->select('cat.name AS catName, ' . $query->concatenate($nameParts, "") . ' AS name');
-
-		$query->from('#__organizer_categories AS cat');
-		$query->leftJoin('#__organizer_programs AS p ON p.categoryID = cat.id');
-		$query->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
-		$query->where("cat.id = '$categoryID'");
-
-		$dbo->setQuery($query);
-		$names = OrganizerHelper::executeQuery('loadAssoc', []);
-
-		return empty($names) ? '' : empty($names['name']) ? $names['catName'] : $names['name'];
 	}
 
 	/**
@@ -100,28 +73,24 @@ class Categories implements Associated, Selectable
 	public static function getProgram($categoryID)
 	{
 		$noName = Languages::_('ORGANIZER_NO_PROGRAM');
-		if (empty($categoryID))
+		if (!$categoryID)
 		{
 			return $noName;
 		}
 
 		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
 
-		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
-		$query->select($query->concatenate($nameParts, "") . ' AS name')
-			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-			->innerJoin('#__organizer_categories AS cat ON cat.id = p.categoryID')
-			->where("p.categoryID = '$categoryID'")
-			->order('p.accredited DESC');
-
-
+		$query = $dbo->getQuery(true);
+		$query->select('DISTINCT id')->from('#__organizer_programs')->where("categoryID = '$categoryID'");
 		$dbo->setQuery($query);
-		$names = OrganizerHelper::executeQuery('loadColumn', []);
 
-		return empty($names) ? $noName : $names[0];
+		if ($programIDs = OrganizerHelper::executeQuery('loadColumn', []))
+		{
+			return count($programIDs) > 1 ?
+				Languages::_('ORGANIZER_MULTIPLE_PROGRAMS') : Programs::getName($programIDs[0]);
+		}
+
+		return $noName;
 	}
 
 	/**
@@ -133,16 +102,11 @@ class Categories implements Associated, Selectable
 	 */
 	public static function getResources($access = '')
 	{
-		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
+		$dbo   = Factory::getDbo();
+		$order = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
 
-		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
-		$query->select('DISTINCT c.*, ' . $query->concatenate($nameParts, "") . ' AS programName')
-			->from('#__organizer_categories AS c')
-			->leftJoin('#__organizer_programs AS p ON p.categoryID = c.id')
-			->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-			->order('c.name');
+		$query = $dbo->getQuery(true);
+		$query->select('*')->from('#__organizer_categories AS c')->order($order);
 
 		if (!empty($access))
 		{

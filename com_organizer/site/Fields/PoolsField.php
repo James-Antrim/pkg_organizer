@@ -30,7 +30,7 @@ class PoolsField extends OptionsField
 	protected function getOptions()
 	{
 		$options = parent::getOptions();
-		$access  = Helpers\OrganizerHelper::getApplication()->isClient('administrator') ? 'document' : '';
+		$access  = $this->clientContext === self::BACKEND ? 'document' : '';
 		$pools   = Helpers\Pools::getOptions($access);
 
 		return array_merge($options, $pools);

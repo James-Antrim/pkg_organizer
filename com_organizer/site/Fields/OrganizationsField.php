@@ -32,7 +32,8 @@ class OrganizationsField extends OptionsField
 	protected function getOptions()
 	{
 		$options       = parent::getOptions();
-		$organizations = Helpers\Organizations::getOptions(true, $this->getAttribute('access', ''));
+		$access        = $this->clientContext === self::BACKEND ? $this->getAttribute('access', '') : '';
+		$organizations = Helpers\Organizations::getOptions(true, $access);
 
 		return count($organizations) > 1 ? array_merge($options, $organizations) : $organizations;
 	}

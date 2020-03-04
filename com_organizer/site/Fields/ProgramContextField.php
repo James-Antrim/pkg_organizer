@@ -170,7 +170,7 @@ class ProgramContextField extends FormField
 	 */
 	private function getOptions()
 	{
-		$query = Helpers\Programs::getProgramQuery();
+		$query = Helpers\Programs::getQuery();
 		$dbo   = Factory::getDbo();
 
 		$query->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')->order('name ASC');

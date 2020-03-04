@@ -36,8 +36,7 @@ class Subjects extends ListModel
 	public function filterFilterForm(&$form)
 	{
 		parent::filterFilterForm($form);
-		$params = Helpers\Input::getParams();
-		if (!empty($params->get('programID')) or !empty($this->state->get('calledPoolID')))
+		if (!empty($this->state->get('staticProgramID')) or !empty($this->state->get('calledPoolID')))
 		{
 			$form->removeField('organizationID', 'filter');
 			$form->removeField('limit', 'list');
@@ -107,7 +106,7 @@ class Subjects extends ListModel
 		$this->setSearchFilter($query, $searchFields);
 
 		$programID = $this->state->get('filter.programID', '');
-		Helpers\Subjects::setProgramFilter($query, $programID, 'subject');
+		Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
 
 		// The selected pool supercedes any original called pool
 		if ($poolID = $this->state->get('filter.poolID', ''))
@@ -161,17 +160,36 @@ class Subjects extends ListModel
 		}
 		else
 		{
-			$programID = Helpers\Input::getParams()->get('programID');
-			if ($poolID = Helpers\Input::getInput()->get->getInt('poolID', 0) or $programID)
+			$app = Helpers\OrganizerHelper::getApplication();
+
+			// Program ID can be set intrinsically by the request or by the menu settings
+			if ($programID = Helpers\Input::getInt('programID'))
 			{
-				if ($poolID)
-				{
-					$this->state->set('calledPoolID', $poolID);
-				}
-				else
-				{
-					$this->state->set('filter.programID', $programID);
-				}
+				$this->state->set('staticProgramID', true);
+				$this->state->set('filter.programID', $programID);
+			}
+			elseif ($programID = Helpers\Input::getParams()->get('programID', 0))
+			{
+				$this->state->set('staticProgramID', true);
+				$this->state->set('filter.programID', $programID);
+			}
+			elseif ($programID = Helpers\Input::getFilterID('program'))
+			{
+				$this->state->set('filter.programID', $programID);
+			}
+			else
+			{
+				$this->state->set('filter.programID', '');
+			}
+
+			// Program ID can be set intrinsically by the request
+			if ($poolID = Helpers\Input::getInt('poolID', 0))
+			{
+				$this->state->set('calledPoolID', $poolID);
+			}
+
+			if ($poolID or $programID)
+			{
 				$this->state->set('list.limit', 0);
 			}
 		}

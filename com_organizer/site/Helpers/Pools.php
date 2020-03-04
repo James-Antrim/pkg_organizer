@@ -269,7 +269,7 @@ class Pools extends Curricula implements Selectable
 		$tag   = Languages::getTag();
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select("DISTINCT p.*, p.name_$tag AS name")
+		$query->select("DISTINCT p.*, p.fullName_$tag AS name")
 			->from('#__organizer_pools AS p')
 			->innerJoin('#__organizer_curricula AS c ON c.poolID = p.id')
 			->where("lft > '{$ranges[0]['lft']}'")

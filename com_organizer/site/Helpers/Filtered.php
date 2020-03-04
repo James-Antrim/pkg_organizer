@@ -91,15 +91,14 @@ trait Filtered
 			return;
 		}
 
-		$tableWithAlias = '#__organizer_associations AS a';
 		if (in_array('-1', $organizationIDs))
 		{
-			$query->leftJoin("$tableWithAlias ON a.{$resource}ID = $alias.$keyColumn")
+			$query->leftJoin("#__organizer_associations AS a ON a.{$resource}ID = $alias.$keyColumn")
 				->where("a.id IS NULL");
 		}
 		else
 		{
-			$query->innerJoin("$tableWithAlias ON a.{$resource}ID = $alias.$keyColumn")
+			$query->innerJoin("#__organizer_associations AS a ON a.{$resource}ID = $alias.$keyColumn")
 				->where("a.organizationID IN (" . implode(',', $organizationIDs) . ")");
 		}
 	}

@@ -22,7 +22,8 @@ class Pools extends ListModel
 	protected $filter_fields = [
 		'organizationID' => 'organizationID',
 		'fieldID'        => 'fieldID',
-		'programID'      => 'programID'];
+		'programID'      => 'programID'
+	];
 
 	/**
 	 * Filters out form inputs which should not be displayed due to menu settings.
@@ -69,7 +70,7 @@ class Pools extends ListModel
 		$this->setValueFilters($query, ['fieldID']);
 
 		$programID = $this->state->get('filter.programID', '');
-		Helpers\Pools::setProgramFilter($query, $programID, 'pool');
+		Helpers\Pools::setProgramFilter($query, $programID, 'pool', 'p');
 
 		$this->setOrdering($query);
 

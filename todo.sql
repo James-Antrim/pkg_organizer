@@ -257,6 +257,7 @@
 #region Stage 09: Front End Schedule Related Views######################################################################
 
 #todo Move the icalcreator directory back & uncomment it in the install manifest
+#todo Revisit access filters for organization options in the frontend context
 
 #region Deputat View
 #todo Finish implementation

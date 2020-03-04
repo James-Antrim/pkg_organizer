@@ -49,7 +49,7 @@ class SubjectSelection extends ListModel
 		$this->setValueFilters($query, ['code', 'fieldID']);
 
 		$programID = $this->state->get('filter.programID', '');
-		Helpers\Subjects::setProgramFilter($query, $programID, 'subject');
+		Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
 		$poolID = $this->state->get('filter.poolID', '');
 		Helpers\Subjects::setPoolFilter($query, $poolID);
 
