@@ -62,18 +62,10 @@
 #endregion--------------------------------------------------------------------------------------------------------------
 
 #region Subjects View---------------------------------------------------------------------------------------------------
-#todo check filtering
-#todo Add instruction language filter
 #todo check new
 #todo check edit
 #todo check update
 #todo check delete
-#region back end
-#todo person filter is missing
-#endregion
-#region front end
-#todo form action is truncated to the view parameter and everything after
-#endregion
 #endregion--------------------------------------------------------------------------------------------------------------
 
 #endregion##############################################################################################################

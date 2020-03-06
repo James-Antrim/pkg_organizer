@@ -20,10 +20,11 @@ use Organizer\Helpers;
 class Subjects extends ListModel
 {
 	protected $filter_fields = [
-		'organizationID' => 'organizationID',
-		'personID'       => 'personID',
-		'poolID'         => 'poolID',
-		'programID'      => 'programID'
+		'instructionLanguage' => 'instructionLanguage',
+		'organizationID'      => 'organizationID',
+		'personID'            => 'personID',
+		'poolID'              => 'poolID',
+		'programID'           => 'programID'
 	];
 
 	/**
@@ -130,6 +131,8 @@ class Subjects extends ListModel
 					->where("sp.personID = $personID");
 			}
 		}
+
+		$this->setValueFilters($query, ['instructionLanguage']);
 
 		$this->setOrdering($query);
 
