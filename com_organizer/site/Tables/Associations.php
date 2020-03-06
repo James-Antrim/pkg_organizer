@@ -72,7 +72,7 @@ class Associations extends BaseTable
 	 */
 	public function __construct(&$dbo = null)
 	{
-		parent::__construct('#__organizer_associatons', 'id', $dbo);
+		parent::__construct('#__organizer_associations', 'id', $dbo);
 	}
 
 	/**

@@ -433,10 +433,11 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @param   JDatabaseQuery  $query   the query to be modified
 	 * @param   int             $poolID  the id of the pool to filter for
+	 * @param   string          $alias   the alias of the table referenced in the join
 	 *
 	 * @return void modifies the query
 	 */
-	public static function setPoolFilter(&$query, $poolID)
+	public static function setPoolFilter(&$query, $poolID, $alias)
 	{
 		if (empty($poolID))
 		{
@@ -448,18 +449,18 @@ abstract class Curricula extends Associated implements Selectable
 			return;
 		}
 
-		$query->leftJoin("#__organizer_curricula AS poc on poc.subjectID = p.id");
 
 		if ($poolID == self::NONE)
 		{
+			$query->leftJoin("#__organizer_curricula AS poc on poc.subjectID = $alias.id");
 			self::filterDisassociated($query, $ranges, 'poc');
 
 			return;
 		}
 
-		// Specific association
-		$query->where("poc.lft > '{$ranges[0]['lft']}'");
-		$query->where("poc.rgt < '{$ranges[0]['rgt']}'");
+		$query->innerJoin("#__organizer_curricula AS poc on poc.subjectID = $alias.id")
+			->where("poc.lft > {$ranges[0]['lft']}")
+			->where("poc.rgt < {$ranges[0]['rgt']}");
 	}
 
 	/**
@@ -484,17 +485,17 @@ abstract class Curricula extends Associated implements Selectable
 			return;
 		}
 
-		$query->leftJoin("#__organizer_curricula AS prc on prc.{$context}ID = $alias.id");
 
 		if ($programID == self::NONE)
 		{
+			$query->leftJoin("#__organizer_curricula AS prc on prc.{$context}ID = $alias.id");
 			self::filterDisassociated($query, $ranges, 'prc');
 
 			return;
 		}
 
-		// Specific association
-		$query->where("prc.lft > {$ranges[0]['lft']}");
-		$query->where("prc.rgt < {$ranges[0]['rgt']}");
+		$query->innerJoin("#__organizer_curricula AS prc on prc.{$context}ID = $alias.id")
+			->where("prc.lft > {$ranges[0]['lft']}")
+			->where("prc.rgt < {$ranges[0]['rgt']}");
 	}
 }

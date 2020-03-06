@@ -325,7 +325,7 @@ class Subjects extends Curricula
 	 * @return boolean  true if the pool is subordinate to the program,
 	 *                   otherwise false
 	 */
-	private static function poolInProgram($poolBoundaries, $programBoundaries)
+	public static function poolInProgram($poolBoundaries, $programBoundaries)
 	{
 		$first = $poolBoundaries[0];
 		$last  = end($poolBoundaries);

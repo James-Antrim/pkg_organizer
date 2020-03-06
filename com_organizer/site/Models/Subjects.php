@@ -36,7 +36,7 @@ class Subjects extends ListModel
 	public function filterFilterForm(&$form)
 	{
 		parent::filterFilterForm($form);
-		if (!empty($this->state->get('staticProgramID')) or !empty($this->state->get('calledPoolID')))
+		if (!empty($this->state->get('calledProgramID')) or !empty($this->state->get('calledPoolID')))
 		{
 			$form->removeField('organizationID', 'filter');
 			$form->removeField('limit', 'list');
@@ -105,17 +105,15 @@ class Subjects extends ListModel
 		$this->setOrganizationFilter($query, 'subject', 's');
 		$this->setSearchFilter($query, $searchFields);
 
-		$programID = $this->state->get('filter.programID', '');
-		Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
+		if ($programID = $this->state->get('filter.programID', ''))
+		{
+			Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
+		}
 
 		// The selected pool supercedes any original called pool
 		if ($poolID = $this->state->get('filter.poolID', ''))
 		{
-			Helpers\Subjects::setPoolFilter($query, $poolID);
-		}
-		elseif ($calledPoolID = $this->state->get('calledPoolID', ''))
-		{
-			Helpers\Subjects::setPoolFilter($query, $calledPoolID);
+			Helpers\Subjects::setPoolFilter($query, $poolID, 's');
 		}
 
 		$personID = $this->state->get('filter.personID', '');
@@ -150,49 +148,203 @@ class Subjects extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
+		$calledPool    = 0;
+		$calledProgram = 0;
+		$poolID        = self::ALL;
+		$programID     = self::ALL;
+
 		if ($this->clientContext === self::BACKEND)
 		{
 			$authorized = Helpers\Can::documentTheseOrganizations();
 			if (count($authorized) === 1)
 			{
-				$this->state->set('filter.organizationID', $authorized[0]);
+				$organizationID = $authorized[0];
+				$this->state->set('filter.organizationID', $organizationID);
+			}
+			else
+			{
+				$organizationID = Helpers\Input::getFilterID('organization', self::ALL);
 			}
 		}
 		else
 		{
-			$app = Helpers\OrganizerHelper::getApplication();
+			$organizationID = Helpers\Input::getFilterID('organization', self::ALL);
 
-			// Program ID can be set intrinsically by the request or by the menu settings
-			if ($programID = Helpers\Input::getInt('programID'))
+			// Program ID can be set by menu settings or the request
+			if ($programID = Helpers\Input::getInt('programID')
+				or $programID = Helpers\Input::getParams()->get('programID', 0)
+				or $programID = $this->state->get('calledProgramID'))
 			{
-				$this->state->set('staticProgramID', true);
-				$this->state->set('filter.programID', $programID);
+				$calledProgram = $programID;
 			}
-			elseif ($programID = Helpers\Input::getParams()->get('programID', 0))
+
+			// Pool ID can be set by the request
+			if ($poolID = Helpers\Input::getInt('poolID', 0)
+				or $poolID = $this->state->get('calledPoolID'))
 			{
-				$this->state->set('staticProgramID', true);
-				$this->state->set('filter.programID', $programID);
+				$calledPool = $poolID;
 			}
-			elseif ($programID = Helpers\Input::getFilterID('program'))
+		}
+
+		$defaultPool = $calledPool ? $calledPool : self::ALL;
+		$poolID      = $calledPool ? $poolID : Helpers\Input::getFilterID('pool', $defaultPool);
+		$programID   = $calledProgram ? $programID : Helpers\Input::getFilterID('program', self::ALL);
+
+		$this->state->set('calledPoolID', false);
+		$this->state->set('calledProgramID', false);
+
+		$this->state->set('filter.poolID', self::ALL);
+		$this->state->set('filter.programID', self::ALL);
+
+		// The existence of the organization id precludes called curriculum parameter use
+		if ($organizationID)
+		{
+			// Pool and program filtering is completely disassociated subjects
+			if ($organizationID === self::NONE)
 			{
+				return;
+			}
+
+			if ($programID)
+			{
+				// Disassociated subjects requested => precludes pool selections
+				if ($programID === self::NONE)
+				{
+					$this->state->set('filter.programID', $programID);
+
+					return;
+				}
+
+				// Selected program is incompatible with the selected organization => precludes pool selections
+				if (!Helpers\Programs::isAssociated($organizationID, $programID))
+				{
+					return;
+				}
+
+			}
+
+			if ($poolID)
+			{
+				if ($poolID === self::NONE)
+				{
+					$this->state->set('filter.poolID', $poolID);
+					$this->state->set('filter.programID', $programID);
+
+					return;
+				}
+
+				if (!Helpers\Pools::isAssociated($organizationID, $poolID))
+				{
+					$this->state->set('filter.poolID', self::ALL);
+					$this->state->set('filter.programID', $programID);
+
+					return;
+				}
+
+				if ($programID)
+				{
+					if (!$prRanges = Helpers\Programs::getRanges($programID))
+					{
+						return;
+					}
+
+					if (!$plRanges = Helpers\Pools::getRanges($poolID)
+						or !Helpers\Subjects::poolInProgram($plRanges, $prRanges))
+					{
+						$this->state->set('filter.poolID', self::ALL);
+						$this->state->set('filter.programID', $programID);
+
+						return;
+					}
+				}
+			}
+
+			// Curriculum filters are either valid or empty
+			$this->state->set('filter.poolID', $poolID);
+			$this->state->set('filter.programID', $programID);
+
+			return;
+		}
+
+		if ($programID === self::NONE)
+		{
+			$this->state->set('filter.programID', $programID);
+
+			return;
+		}
+
+		if (!$poolID)
+		{
+			if ($calledProgram)
+			{
+				$this->state->set('calledProgramID', $calledProgram);
+			}
+
+			$this->state->set('filter.programID', $programID);
+
+			return;
+		}
+
+		if ($poolID === self::NONE)
+		{
+			if ($programID)
+			{
+				if ($calledProgram)
+				{
+					$this->state->set('calledProgramID', $programID);
+				}
+
+				$this->state->set('filter.poolID', $poolID);
 				$this->state->set('filter.programID', $programID);
 			}
 			else
 			{
-				$this->state->set('filter.programID', '');
+				$this->state->set('filter.poolID', self::ALL);
+				$this->state->set('filter.programID', self::NONE);
 			}
 
-			// Program ID can be set intrinsically by the request
-			if ($poolID = Helpers\Input::getInt('poolID', 0))
-			{
-				$this->state->set('calledPoolID', $poolID);
-			}
-
-			if ($poolID or $programID)
-			{
-				$this->state->set('list.limit', 0);
-			}
+			return;
 		}
+
+		// The existence of a program id precludes the pool having been called directly
+		if ($programID)
+		{
+			// None has already been eliminated => the chosen program is invalid => allow reset
+			if (!$prRanges = Helpers\Programs::getRanges($programID))
+			{
+				return;
+			}
+
+
+			$this->state->set('filter.programID', $programID);
+
+			// Pool is invalid or invalid for the chosen program context
+			if (!$plRanges = Helpers\Pools::getRanges($poolID)
+				or !Helpers\Subjects::poolInProgram($plRanges, $prRanges))
+			{
+				return;
+			}
+
+			if ($calledPool)
+			{
+				$this->state->set('calledPoolID', $calledPool);
+			}
+			elseif ($calledProgram)
+			{
+				$this->state->set('calledProgramID', $calledProgram);
+			}
+
+			$this->state->set('filter.poolID', $poolID);
+
+			return;
+		}
+
+		if ($calledPool)
+		{
+			$this->state->set('calledPoolID', $calledPool);
+		}
+
+		$this->state->set('filter.poolID', $poolID);
 
 		return;
 	}

@@ -46,7 +46,7 @@
 #todo prefilter for programs associated with organizations for which documentation authorization exists
 #endregion
 #region front end
-#todo provide links to curriculum and subjects views
+#todo style the links better
 #endregion
 #endregion--------------------------------------------------------------------------------------------------------------
 
@@ -69,10 +69,10 @@
 #todo check update
 #todo check delete
 #region back end
-#todo ???
+#todo person filter is missing
 #endregion
 #region front end
-#todo ???
+#todo form action is truncated to the view parameter and everything after
 #endregion
 #endregion--------------------------------------------------------------------------------------------------------------
 
