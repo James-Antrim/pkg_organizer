@@ -119,7 +119,7 @@ class Input
 	 * @param   string  $resource  the name of the resource upon which the ids being sought reference
 	 * @param   int     $default   the default value
 	 *
-	 * @return array the filter ids
+	 * @return int the filter id
 	 */
 	public static function getFilterID($resource, $default = 0)
 	{

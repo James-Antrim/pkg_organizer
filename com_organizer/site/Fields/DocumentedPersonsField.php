@@ -20,32 +20,22 @@ class DocumentedPersonsField extends OptionsField
 	protected $type = 'DocumentedPersons';
 
 	/**
-	 * Method to get the field input markup for a generic list.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput()
-	{
-		if (empty(Helpers\Input::getInt('programID')))
-		{
-			return '';
-		}
-
-		return parent::getInput();
-	}
-
-	/**
 	 * Method to get the field options.
 	 *
 	 * @return  array  The field option objects.
 	 */
 	protected function getOptions()
 	{
-		$options      = parent::getOptions();
-		$calledPoolID = Helpers\Input::getInput()->get->getInt('poolID', 0);
-		$poolID       = Helpers\Input::getFilterID('pool', $calledPoolID);
-		$programID    = Helpers\Input::getInt('programID');
-		$subjects     = $poolID ? Helpers\Pools::getSubjects($poolID) : Helpers\Programs::getSubjects($programID);
+		$options   = parent::getOptions();
+		$poolID    = Helpers\Input::getFilterID('pool', Helpers\Input::getInt('poolID', 0));
+		$programID = Helpers\Input::getFilterID('program', Helpers\Input::getInt('programID', 0));
+
+		if (!$poolID and !$programID)
+		{
+			return $options;
+		}
+
+		$subjects = $poolID ? Helpers\Pools::getSubjects($poolID) : Helpers\Programs::getSubjects($programID);
 
 		if (empty($subjects))
 		{
