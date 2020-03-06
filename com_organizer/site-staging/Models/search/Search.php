@@ -631,10 +631,7 @@ class Search extends BaseModel
 					$links['subjects'] = "?option=com_organizer&view=subjects&personIDs={$person['id']}";
 				}
 
-				$overlap = array_intersect(
-					$this->authorized,
-					Helpers\Persons::getOrganizationIDs($person['id'])
-				);
+				$overlap = array_intersect($this->authorized, Helpers\Persons::getOrganizationIDs($person['id']));
 
 				$isPerson = $this->personID == $person['id'];
 				if ($teaches and (count($overlap) or $isPerson))

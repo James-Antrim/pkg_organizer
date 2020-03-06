@@ -17,6 +17,8 @@ use Joomla\CMS\Factory;
  */
 class Events extends ResourceHelper
 {
+	static protected $resource = 'event';
+
 	/**
 	 * Check if user is a subject coordinator.
 	 *
@@ -48,26 +50,6 @@ class Events extends ResourceHelper
 		$dbo->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('loadResult');
-	}
-
-	/**
-	 * Retrieves the ids of organizations associated with the resource
-	 *
-	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
-	 *
-	 * @return array the ids of organizations associated with the resource
-	 * @todo make this compatible with Associated
-	 */
-	public static function getOrganizationIDs($resourceID)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('organizationID')
-			->from('#__organizer_events')
-			->where("eventID = $resourceID");
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**

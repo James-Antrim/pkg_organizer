@@ -20,6 +20,8 @@ class Pools extends Curricula implements Selectable
 {
 	use Filtered;
 
+	static protected $resource = 'pool';
+
 	/**
 	 * Creates a text for the required pool credit points
 	 *

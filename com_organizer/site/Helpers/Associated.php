@@ -10,11 +10,18 @@
 
 namespace Organizer\Helpers;
 
+use Joomla\CMS\Factory;
+use Organizer\Tables;
+
 /**
  * Ensures that resources associated with organizations have functions pertaining to those associations.
  */
-interface Associated
+abstract class Associated extends ResourceHelper
 {
+	use Filtered;
+
+	static protected $resource = '';
+
 	/**
 	 * Retrieves the ids of organizations associated with the resource
 	 *
@@ -22,5 +29,37 @@ interface Associated
 	 *
 	 * @return array the ids of organizations associated with the resource
 	 */
-	public static function getOrganizationIDs($resourceID);
+	public static function getOrganizationIDs($resourceID)
+	{
+		$column = static::$resource . 'ID';
+
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('organizationID')
+			->from('#__organizer_associations')
+			->where("$column = $resourceID");
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadColumn', []);
+	}
+
+	/**
+	 * Checks whether a given resource is associated with a given organization.
+	 *
+	 * @param   int  $organizationID  the id of the organization
+	 * @param   int  $resourceID      the id of the resource
+	 *
+	 * @return bool true if the resource is associated with the organization, otherwise false
+	 *
+	 * @since version
+	 */
+	public static function isAssociated($organizationID, $resourceID)
+	{
+		$column = static::$resource . 'ID';
+		$table  = new Tables\Associations;
+
+		return $table->load(['organizationID' => $organizationID, $column => $resourceID]) ? true : false;
+
+
+	}
 }

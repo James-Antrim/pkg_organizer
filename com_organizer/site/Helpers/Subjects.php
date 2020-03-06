@@ -16,8 +16,10 @@ use Organizer\Tables;
 /**
  * Provides general functions for subject access checks, data retrieval and display.
  */
-class Subjects extends Curricula implements Selectable
+class Subjects extends Curricula
 {
+	static protected $resource = 'subject';
+
 	/**
 	 * Check if user one of the subject's coordinators.
 	 *

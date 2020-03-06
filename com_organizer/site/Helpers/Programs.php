@@ -21,7 +21,7 @@ use Organizer\Tables;
  */
 class Programs extends Curricula implements Selectable
 {
-	use Filtered;
+	static protected $resource = 'program';
 
 	/**
 	 * Gets a HTML option based upon a program curriculum association

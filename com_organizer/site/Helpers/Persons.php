@@ -16,15 +16,11 @@ use Organizer\Tables;
 /**
  * Provides general functions for person access checks, data retrieval and display.
  */
-class Persons extends ResourceHelper implements Associated, Selectable
+class Persons extends Associated implements Selectable
 {
-	const COORDINATES = 1;
+	const COORDINATES = 1, NO = 0, TEACHER = 2, YES = 1;
 
-	const NO = 0;
-
-	const TEACHER = 2;
-
-	const YES = 1;
+	static protected $resource = 'person';
 
 	/**
 	 * Retrieves person entries from the database
@@ -178,26 +174,6 @@ class Persons extends ResourceHelper implements Associated, Selectable
 		}
 
 		return $return;
-	}
-
-	/**
-	 * Retrieves the ids of organizations associated with the resource
-	 *
-	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
-	 *
-	 * @return array the ids of organizations associated with the resource
-	 */
-	public static function getOrganizationIDs($resourceID)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('organizationID')
-			->from('#__organizer_associations')
-			->where("personID = $resourceID");
-		$dbo->setQuery($query);
-		$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
-
-		return empty($organizationIDs) ? [] : $organizationIDs;
 	}
 
 	/**

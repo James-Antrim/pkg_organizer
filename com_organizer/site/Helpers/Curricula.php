@@ -12,7 +12,7 @@ namespace Organizer\Helpers;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 
-abstract class Curricula extends ResourceHelper implements Selectable
+abstract class Curricula extends Associated implements Selectable
 {
 	const ALL = '-1', NONE = '-1';
 

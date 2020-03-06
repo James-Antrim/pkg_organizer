@@ -15,30 +15,11 @@ use Joomla\CMS\Factory;
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class Groups extends ResourceHelper implements Selectable
+class Groups extends Associated implements Selectable
 {
 	use Filtered;
 
-	/**
-	 * Retrieves the ids of organizations associated with the resource
-	 *
-	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
-	 *
-	 * @return array the ids of organizations associated with the resource
-	 * @todo make this compatible with Associated
-	 */
-	public static function getOrganizationIDs($resourceID)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT a.id')
-			->from('#__organizer_associations AS a')
-			->innerJoin('#__organizer_groups AS gr ON gr.categoryID = a.categoryID')
-			->where("gr.id  = $resourceID");
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
+	static protected $resource = 'group';
 
 	/**
 	 * Retrieves the selectable options for the resource.
