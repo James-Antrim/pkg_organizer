@@ -110,8 +110,7 @@ class Categories extends ResourceHelper implements Associated, Selectable
 
 		if (!empty($access))
 		{
-			$query->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id');
-			self::addAccessFilter($query, 'a', $access);
+			self::addAccessFilter($query, $access, 'category', 'c');
 		}
 
 		self::addOrganizationFilter($query, 'category', 'c');

@@ -251,7 +251,7 @@ class Programs extends Curricula implements Selectable
 
 		if (!empty($access))
 		{
-			self::addAccessFilter($query, 'p', $access);
+			self::addAccessFilter($query, $access, 'program', 'p');
 		}
 
 		self::addResourceFilter($query, 'organization', 'o', 'p');

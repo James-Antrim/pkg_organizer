@@ -278,7 +278,7 @@ class Pools extends Curricula implements Selectable
 
 		if (!empty($access))
 		{
-			self::addAccessFilter($query, 'p', $access);
+			self::addAccessFilter($query, $access, 'pool', 'p');
 		}
 
 		$dbo->setQuery($query);

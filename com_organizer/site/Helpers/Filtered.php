@@ -20,13 +20,16 @@ trait Filtered
 	/**
 	 * Restricts the query by the organizationIDs for which the user has the given access right.
 	 *
-	 * @param   JDatabaseQuery &$query   the query to modify
-	 * @param   string          $alias   the alias being used for the resource table
-	 * @param   string          $action  the access right to be filtered against
+	 * @param   JDatabaseQuery &$query    the query to modify
+	 * @param   string          $access   the access right to be filtered against
+	 * @param   string          $context  the resource context from which this function was called
+	 * @param   string          $alias    the alias being used for the resource table
 	 */
-	public static function addAccessFilter(&$query, $alias, $action)
+	public static function addAccessFilter(&$query, $access, $context, $alias)
 	{
-		switch ($action)
+		$authorized = [];
+
+		switch ($access)
 		{
 			case 'document':
 				$authorized = Can::documentTheseOrganizations();
@@ -43,7 +46,8 @@ trait Filtered
 		}
 
 		$authorized = implode(',', $authorized);
-		$query->where("$alias.organizationID IN ($authorized)");
+		$query->innerJoin("#__organizer_associations AS a ON a.{$context}ID = $alias.id")
+			->where("a.organizationID IN ($authorized)");
 	}
 
 	/**

@@ -80,16 +80,15 @@ class Groups extends ResourceHelper implements Selectable
 
 		$query = $dbo->getQuery(true);
 		$query->select('gr.*');
-		$query->from('#__organizer_groups AS gr');
+		$query->from('#__organizer_groups AS g');
 
 		if (!empty($access))
 		{
-			$query->innerJoin('#__organizer_associations AS a ON a.categoryID = gr.categoryID');
-			self::addAccessFilter($query, 'a', $access);
+			self::addAccessFilter($query, $access, 'group', 'g');
 		}
 
-		self::addOrganizationFilter($query, 'category', 'gr', 'categoryID');
-		self::addResourceFilter($query, 'category', 'cat', 'gr');
+		self::addOrganizationFilter($query, 'category', 'g', 'categoryID');
+		self::addResourceFilter($query, 'category', 'cat', 'g');
 
 		$dbo->setQuery($query);
 
