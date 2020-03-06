@@ -255,8 +255,8 @@ class Pools extends Curricula implements Selectable
 	 */
 	public static function getResources($access = '')
 	{
-		$programID = Input::getFilterID('program');
-		$poolID    = Input::getInput()->get->getInt('poolID');
+		$programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID');
+		$poolID    = Input::getInt('poolID');
 		if (empty($programID) and empty($poolID))
 		{
 			return [];
@@ -274,8 +274,8 @@ class Pools extends Curricula implements Selectable
 		$query->select("DISTINCT p.*, p.fullName_$tag AS name")
 			->from('#__organizer_pools AS p')
 			->innerJoin('#__organizer_curricula AS c ON c.poolID = p.id')
-			->where("lft > '{$ranges[0]['lft']}'")
-			->where("rgt < '{$ranges[0]['rgt']}'")
+			->where("lft > {$ranges[0]['lft']}")
+			->where("rgt < {$ranges[0]['rgt']}")
 			->order('name ASC');
 
 		if (!empty($access))
