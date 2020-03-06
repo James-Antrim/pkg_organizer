@@ -121,7 +121,7 @@ class Persons extends Associated implements Selectable
 		$query = $dbo->getQuery(true);
 		$query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, role, code');
 		$query->from('#__organizer_persons AS p');
-		$query->innerJoin('#__organizer_subject_persons AS st ON sp.personID = p.id');
+		$query->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id');
 		$query->leftJoin('#__users AS u ON u.username = p.username');
 		$query->where("sp.subjectID = '$subjectID' ");
 
