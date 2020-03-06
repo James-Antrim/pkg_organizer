@@ -16,7 +16,7 @@ require_once 'language_selection.php';
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 <div class="resource-item">
     <div class="curriculum">
-		<?php foreach ($this->item['children'] as $pool) : ?>
+		<?php foreach ($this->item['curriculum'] as $pool) : ?>
 			<?php $this->renderPanel($pool); ?>
 		<?php endforeach; ?>
 		<?php echo $this->disclaimer; ?>

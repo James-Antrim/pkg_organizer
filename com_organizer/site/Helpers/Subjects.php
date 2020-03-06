@@ -250,13 +250,13 @@ class Subjects extends Curricula
 		$tag     = Languages::getTag();
 		$subject = [
 			'abbreviation' => $table->{"abbreviation_$tag"},
-			'bgColor'      => Fields::getColor($table->fieldID),
+			'bgColor'      => Fields::getColor($table->fieldID, self::getOrganizationIDs($table->id)[0]),
 			'creditpoints' => $table->creditpoints,
 			'field'        => Fields::getName($table->fieldID, 'field'),
 			'fieldID'      => $table->fieldID,
 			'id'           => $table->id,
 			'moduleNo'     => $table->code,
-			'name'         => $table->{"name_$tag"},
+			'name'         => $table->{"fullName_$tag"},
 			'shortName'    => $table->{"shortName_$tag"},
 		];
 

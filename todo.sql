@@ -8,10 +8,6 @@
 #todo ensure the constants used in the component configuration settings work
 #todo add passive synchronization of persons
 
-#region Curriculum View-------------------------------------------------------------------------------------------------
-#todo stuff
-#endregion--------------------------------------------------------------------------------------------------------------
-
 #region Pool Edit View--------------------------------------------------------------------------------------------------
 #todo check apply
 #todo check save
@@ -21,7 +17,6 @@
 
 #region Pools View------------------------------------------------------------------------------------------------------
 #todo the program display should also be able to display multiple
-#todo check filtering
 #todo check new
 #todo check edit
 #todo check delete
@@ -35,16 +30,11 @@
 #endregion--------------------------------------------------------------------------------------------------------------
 
 #region Programs View---------------------------------------------------------------------------------------------------
-#todo remove organizations output
-#todo check filtering
 #todo check new
 #todo check edit
 #todo check import
 #todo check update
 #todo check delete
-#region back end
-#todo prefilter for programs associated with organizations for which documentation authorization exists
-#endregion
 #region front end
 #todo style the links better
 #endregion

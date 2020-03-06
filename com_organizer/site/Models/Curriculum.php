@@ -43,7 +43,7 @@ class Curriculum extends ItemModel
 		}
 
 		$curriculum = [];
-		if ($poolID = Helpers\Input::getFilterID('pool'))
+		if ($poolID = Helpers\Input::getInt('poolID'))
 		{
 			$ranges             = Helpers\Pools::getRanges($poolID);
 			$curriculum['name'] = Helpers\Pools::getName($poolID);
@@ -51,7 +51,7 @@ class Curriculum extends ItemModel
 			$curriculum         += array_pop($ranges);
 			Helpers\Pools::getCurriculum($curriculum);
 		}
-		elseif ($programID = Helpers\Input::getFilterID('program'))
+		elseif ($programID = Helpers\Input::getInt('programID'))
 		{
 			$ranges             = Helpers\Programs::getRanges($programID);
 			$curriculum['name'] = Helpers\Programs::getName($programID);

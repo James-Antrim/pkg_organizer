@@ -102,7 +102,7 @@ class Curriculum extends ItemView
 				$itemClass = 'item-pool';
 			}
 
-			$title       = HTML::link($url, $item['name'], $linkAttributes);
+			$title       = Helpers\HTML::link($url, $item['name'], $linkAttributes);
 			$itemContent .= '<div class="item-title">' . $title . '</div>';
 			$itemContent .= $crp ? '<div class="item-crp">' . $crp . '</div>' : '';
 			$itemContent .= $additionalLinks ? '<div class="item-tools">' . $additionalLinks . '</div>' : '';
@@ -133,7 +133,7 @@ class Curriculum extends ItemView
                 <div class="panel-crp"><?php echo $crpText; ?></div>
             </div>
             <div class="panel-body">
-				<?php $this->renderPanelBody($pool['children']); ?>
+				<?php $this->renderPanelBody($pool['curriculum']); ?>
             </div>
         </div>
 		<?php
@@ -142,18 +142,19 @@ class Curriculum extends ItemView
 	/**
 	 * Displays the body of the panel while iterating through child items
 	 *
-	 * @param   array  $children  the subordinate elements to the pool modeled by the panel
+	 * @param   array  $curriculum  the subordinate elements to the pool modeled by the panel
 	 *
 	 * @return  void displays the panel body
 	 */
-	private function renderPanelBody($children)
+	private function renderPanelBody($curriculum)
 	{
 		$maxOrdering = 0;
 		$items       = [];
-		foreach ($children as $child)
+		foreach ($curriculum as $subOrdinate)
 		{
-			$items[$child['ordering']] = $this->getPanelItem($child);
-			$maxOrdering               = $maxOrdering > $child['ordering'] ? $maxOrdering : $child['ordering'];
+			$items[$subOrdinate['ordering']] = $this->getPanelItem($subOrdinate);
+
+			$maxOrdering = $maxOrdering > $subOrdinate['ordering'] ? $maxOrdering : $subOrdinate['ordering'];
 		}
 
 		$trailingBlanks = 5 - $maxOrdering % 5;
