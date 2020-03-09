@@ -218,6 +218,20 @@ class Input
 	}
 
 	/**
+	 * Retrieves the id parameter.
+	 *
+	 * @param string $name the input field name at which the value should be found
+	 *
+	 * @return array the ids
+	 */
+	public static function getIntCollection($name)
+	{
+		$collection = self::getInput()->get($name, [], 'array');
+
+		return self::formatIDValues($collection);
+	}
+
+	/**
 	 * Retrieves the specified parameter.
 	 *
 	 * @param   string  $property  Name of the property to get.
@@ -298,6 +312,8 @@ class Input
 
 	/**
 	 * Returns the selected resource id.
+	 *
+	 * @param   int  $default  the default value
 	 *
 	 * @return int the selected id
 	 */
