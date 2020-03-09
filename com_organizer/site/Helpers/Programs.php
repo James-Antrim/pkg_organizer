@@ -39,7 +39,7 @@ class Programs extends Curricula implements Selectable
 		$query->where("p.id = {$range['programID']}");
 		$dbo->setQuery($query);
 
-		if (!$name = OrganizerHelper::executeQuery('loadResult'))
+		if (!$program = OrganizerHelper::executeQuery('loadAssoc'))
 		{
 			return '';
 		}
@@ -47,7 +47,7 @@ class Programs extends Curricula implements Selectable
 		$selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
 		$disabled = $type === 'pool' ? '' : 'disabled';
 
-		return "<option value='{$range['id']}' $selected $disabled>$name</option>";
+		return "<option value='{$range['id']}' $selected $disabled>{$program['name']}</option>";
 	}
 
 	/**

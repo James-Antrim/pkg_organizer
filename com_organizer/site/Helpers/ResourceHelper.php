@@ -48,9 +48,8 @@ abstract class ResourceHelper
 	 */
 	public static function getNameAttribute($columnName, $resourceID)
 	{
-		$table  = self::getTable();
-		$exists = $table->load($resourceID);
-		if (empty($exists))
+		$table = self::getTable();
+		if (!$table->load($resourceID))
 		{
 			return '';
 		}

@@ -91,10 +91,10 @@ class Subjects extends Curricula
 		$tag = Languages::getTag();
 
 		$query = $dbo->getQuery(true);
-		$query->select("name_$tag as name")
-			->select("shortName_$tag as shortName, abbreviation_$tag as abbreviation, code AS subjectNo")
+		$query->select("fullName_$tag as name, shortName_$tag as shortName, abbreviation_$tag as abbreviation")
+			->select("code AS subjectNo")
 			->from('#__organizer_subjects')
-			->where("id = '$subjectID'");
+			->where("id = $subjectID");
 
 		$dbo->setQuery($query);
 
@@ -214,7 +214,7 @@ class Subjects extends Curricula
 	 */
 	public static function getRanges($subjectID)
 	{
-		if (empty($identifiers) or !is_numeric($identifiers))
+		if (empty($subjectID) or !is_numeric($subjectID))
 		{
 			return [];
 		}

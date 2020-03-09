@@ -72,7 +72,7 @@ class Pools extends Curricula implements Selectable
 			return '';
 		}
 
-		$nameColumn   = "name_$tag";
+		$nameColumn   = "fullName_$tag";
 		$indentedName = Pools::getIndentedName($poolsTable->$nameColumn, $range['level']);
 
 		$selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
@@ -101,20 +101,6 @@ class Pools extends Curricula implements Selectable
 		}
 
 		return $filteredBoundaries;
-	}
-
-	/**
-	 * Retrieves the pool's full name if existent.
-	 *
-	 * @param   int  $poolID  the table's pool id
-	 *
-	 * @return string the full name, otherwise an empty string
-	 */
-	public static function getFullName($poolID)
-	{
-		$table = new Tables\Pools;
-
-		return $table->load($poolID) ? $table->fullName : '';
 	}
 
 	/**
