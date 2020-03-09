@@ -81,15 +81,16 @@ class Curriculum extends ItemView
 
 				$documentLink = Helpers\HTML::link($url, '<span class="icon-file-2"></span>', $documentLinkAttributes);
 
-				$scheduleUrl = "?option=com_organizer&view=schedule_item&subjectIDs={$item['subjectID']}";
+				/*$scheduleUrl = "?option=com_organizer&view=schedule_item&subjectIDs={$item['subjectID']}";
 
 				$scheduleLink = Helpers\HTML::link(
 					$scheduleUrl,
 					'<span class="icon-info-calender"></span>',
 					$scheduleLinkAttributes
-				);
+				);*/
 
-				$additionalLinks .= $documentLink . $scheduleLink;
+				$additionalLinks .= $documentLink/* . $scheduleLink*/
+				;
 
 				$itemClass = 'item-subject';
 			}
