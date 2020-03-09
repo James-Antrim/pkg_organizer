@@ -18,14 +18,14 @@ use Organizer\Helpers;
 /**
  * Class creates a select box for programs to filter the context for subordinate resources.
  */
-class ProgramContextField extends FormField
+class CurriculaField extends FormField
 {
 	use Translated;
 
 	/**
 	 * @var  string
 	 */
-	protected $type = 'ProgramContext';
+	protected $type = 'Curricula';
 
 	/**
 	 * Adds the javascript to the page necessary to refresh the parent pool options
@@ -47,17 +47,13 @@ class ProgramContextField extends FormField
                     let selectedPrograms = programInput.val(),
                         poolUrl;
 
-                    if (selectedPrograms === null)
-                    {
+                    if (selectedPrograms === null) {
                         selectedPrograms = '';
-                    }
-                    else if (Array.isArray(selectedPrograms))
-                    {
+                    } else if (Array.isArray(selectedPrograms)) {
                         selectedPrograms = selectedPrograms.join(',');
                     }
 
-                    if (selectedPrograms.includes('-1') !== false)
-                    {
+                    if (selectedPrograms.includes('-1') !== false) {
                         programInput.find('option').removeAttr('selected');
                         return false;
                     }
@@ -72,19 +68,13 @@ class ProgramContextField extends FormField
                         parentInput.html(options);
                         const newSelectedParents = parentInput.val();
                         let selectedParents = [];
-                        if (newSelectedParents !== null && newSelectedParents.length)
-                        {
-                            if (oldSelectedParents !== null && oldSelectedParents.length)
-                            {
+                        if (newSelectedParents !== null && newSelectedParents.length) {
+                            if (oldSelectedParents !== null && oldSelectedParents.length) {
                                 selectedParents = jQuery.merge(newSelectedParents, oldSelectedParents);
-                            }
-                            else
-                            {
+                            } else {
                                 selectedParents = newSelectedParents;
                             }
-                        }
-                        else if (oldSelectedParents !== null && oldSelectedParents.length)
-                        {
+                        } else if (oldSelectedParents !== null && oldSelectedParents.length) {
                             selectedParents = oldSelectedParents;
                         }
 
@@ -95,36 +85,31 @@ class ProgramContextField extends FormField
                     refreshChosen('jformparentID');
                 });
 
-                function refreshChosen(id)
-                {
+                function refreshChosen(id) {
                     const chosenElement = jQuery('#' + id);
                     chosenElement.chosen('destroy');
                     chosenElement.chosen();
                 }
 
-                function toggleElement(chosenElement, value)
-                {
+                function toggleElement(chosenElement, value) {
                     const parentInput = jQuery('#jformparentID');
                     parentInput.chosen('destroy');
                     jQuery('select#jformparentID option').each(function () {
-                        if (chosenElement === jQuery(this).innerHTML)
-                        {
+                        if (chosenElement === jQuery(this).innerHTML) {
                             jQuery(this).prop('selected', value);
                         }
                     });
                     parentInput.chosen();
                 }
 
-                function addAddHandler()
-                {
+                function addAddHandler() {
                     jQuery('#jformparentID_chzn').find('div.chzn-drop').click(function (element) {
                         toggleElement(element.target.innerHTML, true);
                         addRemoveHandler();
                     });
                 }
 
-                function addRemoveHandler()
-                {
+                function addRemoveHandler() {
                     jQuery('div#jformparentID_chzn').find('a.search-choice-close').click(function (element) {
                         toggleElement(element.target.parentElement.childNodes[0].innerHTML, false);
                         addAddHandler();
