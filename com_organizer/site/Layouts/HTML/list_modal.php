@@ -69,7 +69,7 @@ $type     = $viewName === 'Subject_Selection' ? 's' : 'p';
 <script>
     jQuery(document).ready(function () {
         jQuery('div#toolbar-new button').click(function () {
-            window.parent.closeIframeWindow(<?php echo "'#$viewName-list', '$type'"; ?>);
+            window.parent.closeModal(<?php echo "'#$viewName-list', '$type'"; ?>);
         });
     });
 </script>

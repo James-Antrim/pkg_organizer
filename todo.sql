@@ -7,6 +7,7 @@
 #todo ensure coordinators have documentation access
 #todo ensure the constants used in the component configuration settings work
 #todo add passive synchronization of persons
+#todo move subordinate styles to the default style sheet
 
 #region Pool Edit View--------------------------------------------------------------------------------------------------
 #todo check apply
@@ -277,6 +278,7 @@
 #todo create a strategy around required image files: logo, signature, ...
 #todo clean up the FILTER and the SELECT text constants
 #todo decide what to do with inactive campuses and buildings
+#todo replace jquery use with plain js
 
 #region Frequencies
 #todo change the frequency ids from 0-5 to 1-6

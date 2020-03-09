@@ -31,15 +31,29 @@ class SubOrdinateField extends FormField
 	protected $type = 'SubOrdinate';
 
 	/**
-	 * Generates a text for the management of child elements
+	 * Creates a button template for a given function.
+	 *
+	 * @param   string  $function  the name of the javascript function to call on click
+	 * @param   string  $icon      the class name of the icon to be displayed in the button
+	 * @param   string  $toolTip   the tooltip for the button
+	 *
+	 * @return string the HTML of the button to be displayed
+	 */
+	private function getButton($function, $icon, $toolTip)
+	{
+		return "<button onclick=\"$function('XORDERINGX');\" title=\"$toolTip\"><span class=\"$icon\"></span></button>";
+	}
+
+	/**
+	 * Generates a text for the management of subordinate elements
 	 *
 	 * @return string  the HTML for the input
 	 */
 	public function getInput()
 	{
 		$document = Factory::getDocument();
-		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/children.css');
-		$document->addScript(Uri::root() . 'components/com_organizer/js/children.js');
+		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/subordinates.css');
+		$document->addScript(Uri::root() . 'components/com_organizer/js/subordinates.js');
 
 		$input = '<table id="subOrdinates" class="table-striped">';
 		$input .= '<thead><tr>';
@@ -52,48 +66,13 @@ class SubOrdinateField extends FormField
 
 		$input .= '</tbody>';
 		$input .= '</table>';
-		$input .= '<div class="btn-toolbar" id="children-toolbar"></div>';
+		$input .= '<div class="btn-toolbar" id="subOrdinates-toolbar"></div>';
 
 		return $input;
 	}
 
 	/**
-	 * Retrieves resources subordinate to the resource being edited
-	 *
-	 * @return array  empty if no child data exists
-	 */
-	private function getSubordinateItems()
-	{
-		$resourceID   = $this->form->getValue('id');
-		$contextParts = explode('.', $this->form->getName());
-		$resource     = Helpers\OrganizerHelper::getResource($contextParts[1]);
-
-		$dbo     = Factory::getDbo();
-		$idQuery = $dbo->getQuery(true);
-		$idQuery->select('id')
-			->from('#__organizer_curricula')
-			->where("{$resource}ID = '$resourceID'")
-			->group('id');
-
-		$dbo->setQuery($idQuery);
-
-		if (!$parentID = Helpers\OrganizerHelper::executeQuery('loadResult'))
-		{
-			return [];
-		}
-
-		$subordinateQuery = $dbo->getQuery(true);
-		$subordinateQuery->select('*')
-			->from('#__organizer_curricula')
-			->where("parentID = $parentID")
-			->order('lft ASC');
-		$dbo->setQuery($subordinateQuery);
-
-		return Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'ordering');
-	}
-
-	/**
-	 * Generates the HTML Output for the children field
+	 * Generates the HTML output for the subordinate entries
 	 *
 	 * @return array the HTML strings for the subordinate resources
 	 */
@@ -101,7 +80,7 @@ class SubOrdinateField extends FormField
 	{
 		$rows = [];
 
-		if (!$subOrdinates = $this->getSubordinateItems())
+		if (!$subOrdinates = $this->getSubordinates())
 		{
 			return $rows;
 		}
@@ -153,53 +132,70 @@ class SubOrdinateField extends FormField
 	 */
 	private function getRowTemplate()
 	{
-		$buttonTemplate = "<button onclick=\"XFUNCTIONX('XORDERINGX');\" title=\"XTEXTX\">XICONX</button>";
+		$rowTemplate = '<tr id="subRowXORDERINGX">';
 
-		$rowTemplate = '<tr id="childRowXORDERINGX">';
+		$rowTemplate .= '<td class="sub-name">';
 
-		$rowTemplate .= '<td class="child-name">';
-
-		$rowTemplate .= '<a id="childXORDERINGXLink" href="XLINKX" target="_blank">';
-		$rowTemplate .= '<span id="childXORDERINGXIcon" class="XICONX"></span>';
-		$rowTemplate .= '<span id="childXORDERINGXName">XNAMEX</span>';
+		$rowTemplate .= '<a id="subXORDERINGXLink" href="XLINKX" target="_blank">';
+		$rowTemplate .= '<span id="subXORDERINGXIcon" class="XICONX"></span>';
+		$rowTemplate .= '<span id="subXORDERINGXName">XNAMEX</span>';
 		$rowTemplate .= '</a>';
 
-		$rowTemplate .= '<input type="hidden" name="childXORDERINGX" id="childXORDERINGX" value="XSUBIDX" />';
+		$rowTemplate .= '<input type="hidden" name="subXORDERINGX" id="subXORDERINGX" value="XSUBIDX" />';
 
 		$rowTemplate .= '</td>';
-		$rowTemplate .= '<td class="child-order">';
+		$rowTemplate .= '<td class="sub-order">';
 
-		$firstTemplate = str_replace('XFUNCTIONX', 'setFirst', $buttonTemplate);
-		$firstTemplate = str_replace('XICONX', '<span class="icon-first"></span>', $firstTemplate);
-		$rowTemplate   .= str_replace('XTEXTX', Helpers\Languages::setScript('ORGANIZER_MAKE_FIRST'), $firstTemplate);
+		$rowTemplate .= $this->getButton('setFirst', 'icon-first', Helpers\Languages::setScript('ORGANIZER_MAKE_FIRST'));
+		$rowTemplate .= $this->getButton('moveUp', 'icon-previous', Helpers\Languages::setScript('ORGANIZER_MOVE_UP'));
 
-		$upTemplate  = str_replace('XFUNCTIONX', 'moveUp', $buttonTemplate);
-		$upTemplate  = str_replace('XICONX', '<span class="icon-previous"></span>', $upTemplate);
-		$rowTemplate .= str_replace('XTEXTX', Helpers\Languages::setScript('ORGANIZER_MOVE_UP'), $upTemplate);
-
-		$orderTemplate = '<input type="text" title="Ordering" name="childXORDERINGXOrder" id="childXORDERINGXOrder" ';
-		$orderTemplate .= 'value="XORDERINGX" class="text-area-order" onChange="moveChildToIndex(XORDERINGX);"/>';
+		$orderTemplate = '<input type="text" title="Ordering" name="subXORDERINGXOrder" id="subXORDERINGXOrder" ';
+		$orderTemplate .= 'value="XORDERINGX" class="text-area-order" onChange="moveTo(XORDERINGX);"/>';
 		$rowTemplate   .= $orderTemplate;
 
-		$blankTemplate = str_replace('XFUNCTIONX', 'insertBlank', $buttonTemplate);
-		$blankTemplate = str_replace('XICONX', '<span class="icon-download"></span>', $blankTemplate);
-		$rowTemplate   .= str_replace('XTEXTX', Helpers\Languages::setScript('ORGANIZER_ADD_EMPTY'), $blankTemplate);
-
-		$trashTemplate = str_replace('XFUNCTIONX', 'trash', $buttonTemplate);
-		$trashTemplate = str_replace('XICONX', '<span class="icon-trash"></span>', $trashTemplate);
-		$rowTemplate   .= str_replace('XTEXTX', Helpers\Languages::setScript('ORGANIZER_DELETE'), $trashTemplate);
-
-		$downTemplate = str_replace('XFUNCTIONX', 'moveDown', $buttonTemplate);
-		$downTemplate = str_replace('XICONX', '<span class="icon-next"></span>', $downTemplate);
-		$rowTemplate  .= str_replace('XTEXTX', Helpers\Languages::setScript('ORGANIZER_MOVE_DOWN'), $downTemplate);
-
-		$downTemplate = str_replace('XFUNCTIONX', 'setLast', $buttonTemplate);
-		$downTemplate = str_replace('XICONX', '<span class="icon-last"></span>', $downTemplate);
-		$rowTemplate  .= str_replace('XTEXTX', Helpers\Languages::setScript('ORGANIZER_MAKE_LAST'), $downTemplate);
+		$rowTemplate .= $this->getButton('insertBlank', 'icon-download', Helpers\Languages::setScript('ORGANIZER_ADD_EMPTY'));
+		$rowTemplate .= $this->getButton('trash', 'icon-trash', Helpers\Languages::setScript('ORGANIZER_DELETE'));
+		$rowTemplate .= $this->getButton('moveDown', 'icon-next', Helpers\Languages::setScript('ORGANIZER_MOVE_DOWN'));
+		$rowTemplate .= $this->getButton('setLast', 'icon-last', Helpers\Languages::setScript('ORGANIZER_MAKE_LAST'));
 
 		$rowTemplate .= '</td>';
 		$rowTemplate .= '</tr>';
 
 		return $rowTemplate;
+	}
+
+	/**
+	 * Retrieves resources subordinate to the resource being edited
+	 *
+	 * @return array  empty if no subordinates were found
+	 */
+	private function getSubordinates()
+	{
+		$resourceID   = $this->form->getValue('id');
+		$contextParts = explode('.', $this->form->getName());
+		$resource     = Helpers\OrganizerHelper::getResource($contextParts[1]);
+
+		$dbo     = Factory::getDbo();
+		$idQuery = $dbo->getQuery(true);
+		$idQuery->select('id')
+			->from('#__organizer_curricula')
+			->where("{$resource}ID = '$resourceID'")
+			->group('id');
+
+		$dbo->setQuery($idQuery);
+
+		if (!$parentID = Helpers\OrganizerHelper::executeQuery('loadResult'))
+		{
+			return [];
+		}
+
+		$subOrdinateQuery = $dbo->getQuery(true);
+		$subOrdinateQuery->select('*')
+			->from('#__organizer_curricula')
+			->where("parentID = $parentID")
+			->order('lft ASC');
+		$dbo->setQuery($subOrdinateQuery);
+
+		return Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'ordering');
 	}
 }

@@ -162,28 +162,28 @@ abstract class Curricula extends Associated implements Selectable
 
 		$dbo->setQuery($query);
 
-		if (!$subordinateResources = OrganizerHelper::executeQuery('loadAssocList', [], 'id'))
+		if (!$subOrdinates = OrganizerHelper::executeQuery('loadAssocList', [], 'id'))
 		{
 			return;
 		}
 
 		// Fill data for subordinate resources
-		foreach ($subordinateResources as &$resource)
+		foreach ($subOrdinates as &$subOrdinate)
 		{
-			$resourceData = $resource['poolID'] ?
-				Pools::getResource($resource['poolID']) : Subjects::getResource($resource['subjectID']);
+			$resourceData = $subOrdinate['poolID'] ?
+				Pools::getResource($subOrdinate['poolID']) : Subjects::getResource($subOrdinate['subjectID']);
 
 			// Avoid conflicts between the resource's actual id and the curricula table id
 			unset($resourceData['id']);
 
-			$resource = array_merge($resource, $resourceData);
-			if ($resource['poolID'])
+			$subOrdinate = array_merge($subOrdinate, $resourceData);
+			if ($subOrdinate['poolID'])
 			{
-				self::getCurriculum($resource);
+				self::getCurriculum($subOrdinate);
 			}
 		}
 
-		$curriculum['curriculum'] = $subordinateResources;
+		$curriculum['curriculum'] = $subOrdinates;
 
 		return;
 	}
@@ -266,7 +266,7 @@ abstract class Curricula extends Associated implements Selectable
 		$query->select('id')->from('#__organizer_curricula');
 		$dbo->setQuery($query);
 
-		$subordinateIDs = [];
+		$subOrdinateIDs = [];
 		foreach ($ranges as $range)
 		{
 			$query->clear('where');
@@ -280,7 +280,7 @@ abstract class Curricula extends Associated implements Selectable
 				continue;
 			}
 
-			$subordinateIDs = array_merge($subordinateIDs, $results);
+			$subOrdinateIDs = array_merge($subOrdinateIDs, $results);
 		}
 
 		return OrganizerHelper::executeQuery('loadColumn', []);
@@ -317,10 +317,10 @@ abstract class Curricula extends Associated implements Selectable
 			$selected = Pools::getFilteredRanges($resourceID);
 
 			$curriculumIDs  = self::filterIDs($selected);
-			$subordinateIDs = self::getSubOrdinateIDs($selected);
+			$subOrdinateIDs = self::getSubOrdinateIDs($selected);
 
 			// Pools cannot be subordinated to themselves or any pool subordinated to them.
-			$suppressIDs = array_merge($curriculumIDs, $subordinateIDs);
+			$suppressIDs = array_merge($curriculumIDs, $subOrdinateIDs);
 		}
 		else
 		{
