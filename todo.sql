@@ -208,6 +208,7 @@
 ## options fields
 ## remove events table organizationID column
 #todo move the event => organization associations from the events table to the associations table
+#todo reintegrate subject => events associations in the subject edit view
 
 #endregion##############################################################################################################
 

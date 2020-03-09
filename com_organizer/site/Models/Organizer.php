@@ -27,7 +27,7 @@ class Organizer extends BaseModel
 	 *
 	 * @return bool
 	 */
-	private function getBlockID($date, $blockTimes)
+	/*private function getBlockID($date, $blockTimes)
 	{
 		list($startTime, $endTime) = explode('-', $blockTimes);
 		$startTime = preg_replace('/([\d]{2})$/', ':${1}:00', $startTime);
@@ -36,7 +36,7 @@ class Organizer extends BaseModel
 		$blocks->load(['date' => $date, 'startTime' => $startTime, 'endTime' => $endTime]);
 
 		return empty($blocks->id) ? false : $blocks->id;
-	}
+	}*/
 
 	/**
 	 * Retrieves the defining information for the given term id.
@@ -45,14 +45,14 @@ class Organizer extends BaseModel
 	 *
 	 * @return array the term
 	 */
-	private function getTerm($termID)
+	/*private function getTerm($termID)
 	{
 		$terms = new Tables\Terms;
 		$terms->load($termID);
 
 		return empty($terms->id) ?
 			[] : ['id' => $terms->id, 'startDate' => $terms->startDate, 'endDate' => $terms->endDate];
-	}
+	}*/
 
 	/**
 	 * Retrieves the unit id for the unit with the given identifiers.
@@ -61,13 +61,13 @@ class Organizer extends BaseModel
 	 *
 	 * @return bool
 	 */
-	private function getUnitID($unit)
+	/*private function getUnitID($unit)
 	{
 		$units = new Tables\Units;
 		$units->load($unit);
 
 		return empty($units->id) ? false : $units->id;
-	}
+	}*/
 
 	/**
 	 * Migrates a configuration.
@@ -76,7 +76,7 @@ class Organizer extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false.
 	 */
-	private function migrateConfiguration($configurationID)
+	/*private function migrateConfiguration($configurationID)
 	{
 		// blockID, eventID, unitID => instanceID => personID => roomIDs
 		$blocksConditions = 'b.date = cal.schedule_date AND b.startTime = cal.startTime AND b.endTime = cal.endTime';
@@ -134,14 +134,14 @@ class Organizer extends BaseModel
 		OrganizerHelper::executeQuery('execute');
 
 		return true;
-	}
+	}*/
 
 	/**
 	 * Migrates configurations.
 	 *
 	 * @return bool true on success, otherwise false.
 	 */
-	public function migrateConfigurations()
+	/*public function migrateConfigurations()
 	{
 		$selectQuery = $this->_db->getQuery(true);
 		$selectQuery->select('DISTINCT id')->from('#__organizer_calendar_configuration_map');
@@ -154,7 +154,7 @@ class Organizer extends BaseModel
 		}
 
 		return true;
-	}
+	}*/
 
 	/**
 	 * Migrates associations with a given participant id.
@@ -163,7 +163,7 @@ class Organizer extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false.
 	 */
-	private function migrateParticipantAssociations($participantID)
+	/*private function migrateParticipantAssociations($participantID)
 	{
 		$userLessonsQuery = $this->_db->getQuery(true);
 		$userLessonsQuery->select('*')->from('#__organizer_user_lessons')->where("userID = $participantID");
@@ -221,8 +221,7 @@ class Organizer extends BaseModel
 			$this->_db->setQuery($deleteQuery);
 			OrganizerHelper::executeQuery('execute');
 		}
-
-	}
+	}*/
 
 	/**
 	 * Migrates a schedule.
@@ -231,7 +230,7 @@ class Organizer extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false.
 	 */
-	private function migrateSchedule($scheduleID)
+	/*private function migrateSchedule($scheduleID)
 	{
 		$schedules = new Tables\Schedules;
 		$schedules->load($scheduleID);
@@ -372,14 +371,14 @@ class Organizer extends BaseModel
 		$schedules->migrated = 1;
 
 		return $schedules->store();
-	}
+	}*/
 
 	/**
 	 * Migrates schedules.
 	 *
 	 * @return bool true on success, otherwise false.
 	 */
-	public function migrateSchedules()
+	/*public function migrateSchedules()
 	{
 		$query = $this->_db->getQuery(true);
 		$query->select('id')->from('#__organizer_schedules')->where('migrated = 0');
@@ -392,14 +391,14 @@ class Organizer extends BaseModel
 		}
 
 		return true;
-	}
+	}*/
 
 	/**
 	 * Migrates user lessons.
 	 *
 	 * @return bool true on success, otherwise false.
 	 */
-	public function migrateUserLessons()
+	/*public function migrateUserLessons()
 	{
 		$selectQuery = $this->_db->getQuery(true);
 		$selectQuery->select('DISTINCT userID')->from('#__organizer_user_lessons');
@@ -412,7 +411,7 @@ class Organizer extends BaseModel
 		}
 
 		return true;
-	}
+	}*/
 
 	/**
 	 * Creates or modifies a course participant table entry.
@@ -423,7 +422,7 @@ class Organizer extends BaseModel
 	 *
 	 * @return void
 	 */
-	private function saveCourseParticipant($courseID, $participantID, $userLesson)
+	/*private function saveCourseParticipant($courseID, $participantID, $userLesson)
 	{
 		$cParticipants = new Tables\CourseParticipants;
 		$cParticipant  = ['courseID' => $courseID, 'participantID' => $participantID];
@@ -461,7 +460,7 @@ class Organizer extends BaseModel
 				$cParticipants->store();
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * Creates or modifies an instance participant table entry.
@@ -472,7 +471,7 @@ class Organizer extends BaseModel
 	 *
 	 * @return void
 	 */
-	private function saveInstanceParticipant($instanceID, $participantID, $userLesson)
+	/*private function saveInstanceParticipant($instanceID, $participantID, $userLesson)
 	{
 		$iParticipants = new Tables\InstanceParticipants;
 		$iParticipant  = ['instanceID' => $instanceID, 'participantID' => $participantID];
@@ -481,7 +480,7 @@ class Organizer extends BaseModel
 		{
 			$iParticipants->save($iParticipant);
 		}
-	}
+	}*/
 
 	/**
 	 * Checks whether user lessons or lesson configurations exist which yet need to be migrated. Provides buttons to
@@ -491,7 +490,7 @@ class Organizer extends BaseModel
 	 *
 	 * @return void
 	 */
-	public function showConfigurationMigrationButtons($toolbar)
+	/*public function showConfigurationMigrationButtons($toolbar)
 	{
 		$prefix = $this->_db->getPrefix();
 		$this->_db->setQuery('SHOW TABLES');
@@ -561,7 +560,7 @@ class Organizer extends BaseModel
 				OrganizerHelper::executeQuery('execute');
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * Checks whether schedules exist which yet need to be migrated. Provides a button to trigger schedule migration as
@@ -571,7 +570,7 @@ class Organizer extends BaseModel
 	 *
 	 * @return void
 	 */
-	public function showScheduleMigrationButton($toolbar)
+	/*public function showScheduleMigrationButton($toolbar)
 	{
 		$schedules = new Tables\Schedules;
 		$fields    = $schedules->getFields();
@@ -600,14 +599,14 @@ class Organizer extends BaseModel
 
 			return;
 		}
-	}
+	}*/
 
 	/**
 	 * Adds users who have created schedules to the participants table.
 	 *
 	 * @return void
 	 */
-	private function supplementParticipants()
+	/*private function supplementParticipants()
 	{
 		$participantQuery = $this->_db->getQuery(true);
 		$participantQuery->select('DISTINCT id')->from('#__organizer_participants');
@@ -634,5 +633,5 @@ class Organizer extends BaseModel
 				OrganizerHelper::executeQuery('execute');
 			}
 		}
-	}
+	}*/
 }

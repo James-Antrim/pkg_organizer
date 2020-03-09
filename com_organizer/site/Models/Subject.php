@@ -33,7 +33,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function addEvents($subjectID, $eventIDs)
+	/*private function addEvents($subjectID, $eventIDs)
 	{
 		$query = $this->_db->getQuery(true);
 		$query->insert('#__organizer_subject_events')->columns('subjectID, eventID');
@@ -46,7 +46,7 @@ class Subject extends CurriculumResource
 		$this->_db->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('execute');
-	}
+	}*/
 
 	/**
 	 * Adds a person association. No access checks => this is not directly accessible and requires differing checks
@@ -318,7 +318,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processEvents(&$data)
+	/*private function processEvents(&$data)
 	{
 		if (!isset($data['courseIDs']))
 		{
@@ -340,7 +340,7 @@ class Subject extends CurriculumResource
 		}
 
 		return true;
-	}
+	}*/
 
 	/**
 	 * Processes the persons selected for the subject
@@ -709,10 +709,10 @@ class Subject extends CurriculumResource
 			return false;
 		}
 
-		if (!$this->processEvents($data))
+		/*if (!$this->processEvents($data))
 		{
 			return false;
-		}
+		}*/
 
 		if (!$this->processPrerequisites($data))
 		{
