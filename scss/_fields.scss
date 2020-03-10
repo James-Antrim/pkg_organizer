@@ -1,5 +1,6 @@
 @import "variables";
 
+// Front end styles
 body.tmpl-index div.main {
 
   .chzn-container {
@@ -62,6 +63,39 @@ body.tmpl-index div.main {
   }
 }
 
+// Curriculum Input Styles
+#curriculum {
+  .control-group {
+    float: left;
+    margin-right: 1rem;
+  }
+
+  .controls select {
+    width: auto;
+    max-width: 50rem;
+  }
+}
+
+.subOrdinates {
+  .sub-name {
+    padding-right: 1rem;
+  }
+
+  button, input[type="text"] {
+    margin-right: 4px;
+  }
+
+  input[type="text"] {
+    padding: .2rem .4rem;
+    width: 2em;
+  }
+
+  th:nth-child(2), td:nth-child(2) {
+    width: 17rem;
+  }
+}
+
+// Group publishing styles
 .publishing-container {
   display: flex;
   flex-direction: column;

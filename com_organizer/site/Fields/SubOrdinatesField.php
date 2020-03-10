@@ -19,7 +19,7 @@ use Organizer\Helpers;
 /**
  * Class creates a box for managing subordinated curriculum elements. Change order, remove, add empty element.
  */
-class SubOrdinateField extends FormField
+class SubOrdinatesField extends FormField
 {
 	use Translated;
 
@@ -51,11 +51,9 @@ class SubOrdinateField extends FormField
 	 */
 	public function getInput()
 	{
-		$document = Factory::getDocument();
-		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/subordinates.css');
-		$document->addScript(Uri::root() . 'components/com_organizer/js/subordinates.js');
+		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/subordinates.js');
 
-		$input = '<table id="subOrdinates" class="table-striped">';
+		$input = '<table class="subOrdinates table-striped">';
 		$input .= '<thead><tr>';
 		$input .= '<th>' . Helpers\Languages::_('ORGANIZER_NAME') . '</th>';
 		$input .= '<th>' . Helpers\Languages::_('ORGANIZER_ORDER') . '</th>';
@@ -146,14 +144,16 @@ class SubOrdinateField extends FormField
 		$rowTemplate .= '</td>';
 		$rowTemplate .= '<td class="sub-order">';
 
-		$rowTemplate .= $this->getButton('setFirst', 'icon-first', Helpers\Languages::setScript('ORGANIZER_MAKE_FIRST'));
+		$firstText   = Helpers\Languages::setScript('ORGANIZER_MAKE_FIRST');
+		$rowTemplate .= $this->getButton('setFirst', 'icon-first', $firstText);
 		$rowTemplate .= $this->getButton('moveUp', 'icon-previous', Helpers\Languages::setScript('ORGANIZER_MOVE_UP'));
 
 		$orderTemplate = '<input type="text" title="Ordering" name="subXORDERINGXOrder" id="subXORDERINGXOrder" ';
-		$orderTemplate .= 'value="XORDERINGX" class="text-area-order" onChange="moveTo(XORDERINGX);"/>';
+		$orderTemplate .= 'value="XORDERINGX" onChange="moveTo(XORDERINGX);"/>';
 		$rowTemplate   .= $orderTemplate;
 
-		$rowTemplate .= $this->getButton('insertBlank', 'icon-download', Helpers\Languages::setScript('ORGANIZER_ADD_EMPTY'));
+		$emptyText   = Helpers\Languages::setScript('ORGANIZER_ADD_EMPTY');
+		$rowTemplate .= $this->getButton('insertBlank', 'icon-download', $emptyText);
 		$rowTemplate .= $this->getButton('trash', 'icon-trash', Helpers\Languages::setScript('ORGANIZER_DELETE'));
 		$rowTemplate .= $this->getButton('moveDown', 'icon-next', Helpers\Languages::setScript('ORGANIZER_MOVE_DOWN'));
 		$rowTemplate .= $this->getButton('setLast', 'icon-last', Helpers\Languages::setScript('ORGANIZER_MAKE_LAST'));

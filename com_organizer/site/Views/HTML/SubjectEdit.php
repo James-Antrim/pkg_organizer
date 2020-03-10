@@ -50,16 +50,4 @@ class SubjectEdit extends EditView
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "subjects.save", false);
 		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "subjects.cancel", false);
 	}
-
-	/**
-	 * Adds styles and scripts to the document
-	 *
-	 * @return void  modifies the document
-	 */
-	protected function modifyDocument()
-	{
-		parent::modifyDocument();
-
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/curriculum_settings.css');
-	}
 }

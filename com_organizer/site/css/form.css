@@ -70,6 +70,35 @@ body.tmpl-index div.main .input-15 + .chzn-container {
     width: 15rem !important;
 }
 
+#curriculum .control-group {
+    float: left;
+    margin-right: 1rem;
+}
+
+#curriculum .controls select {
+    width: auto;
+    max-width: 50rem;
+}
+
+.subOrdinates .sub-name {
+    padding-right: 1rem;
+}
+
+.subOrdinates button,
+.subOrdinates input[type="text"] {
+    margin-right: 4px;
+}
+
+.subOrdinates input[type="text"] {
+    padding: .2rem .4rem;
+    width: 2em;
+}
+
+.subOrdinates th:nth-child(2),
+.subOrdinates td:nth-child(2) {
+    width: 17rem;
+}
+
 .publishing-container {
     display: flex;
     flex-direction: column;
