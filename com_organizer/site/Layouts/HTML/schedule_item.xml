@@ -2,7 +2,7 @@
 <form>
     <fields name="params" addfieldprefix="Organizer\Fields">
         <fieldset name="basic" label="ORGANIZER_SETTINGS">
-            <field name="organizationID" type="Organizations" label="ORGANIZATION" class="organizationlist">
+            <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" class="organizationlist">
                 <option value="0">ALL_ORGANIZATIONS</option>
             </field>
             <field name="categoryIDs" type="GenericOptions" label="CATEGORIES" multiple="true"

@@ -24,7 +24,7 @@ class OptionsField extends FormField
 
 	const BACKEND = true, FRONTEND = false;
 
-	public $clientContext;
+	protected $clientContext;
 
 	/**
 	 * The form field type.
