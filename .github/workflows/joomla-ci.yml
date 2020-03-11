@@ -21,8 +21,8 @@ jobs:
         uses: shivammathur/setup-php@v1
         with:
                 php-version: ${{ matrix.php-versions }}
-      #- name: "Install dependencies"
-      #  run: "sudo apt-get install tree"
+      - name: "Install dependencies"
+        run: "sudo apt-get install tree"
       - name: "List PHP Modules"
         run: php -m
       - name: "Checkout build enviroment"
@@ -37,9 +37,7 @@ jobs:
       - name: "Initialize build enviroment"
         run: build/scripts/shell/init.sh
       - name "Generating ZIP-File"
-        run:
-                - ls -la extensions
-                - tree extensions
+        run: tree extensions
       - name: "Upload Package"
         uses: actions/upload-artifact@v1
         if: ${{env.ci_release == true}}
