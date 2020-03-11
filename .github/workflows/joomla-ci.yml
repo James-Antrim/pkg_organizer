@@ -36,8 +36,10 @@ jobs:
           path : extensions/com_organizer
       - name: "Initialize build enviroment"
         run: build/scripts/shell/init.sh
-      - name "Generating ZIP-File"
-        run: tree extensions
+      - name: "Generating ZIP-File"
+        run:
+                - ls -lA extensions
+                - tree extensions
       - name: "Upload Package"
         uses: actions/upload-artifact@v1
         if: ${{env.ci_release == true}}
