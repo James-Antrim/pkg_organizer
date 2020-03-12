@@ -37,7 +37,7 @@ jobs:
       - name: "Initialize build enviroment"
         run: build/scripts/shell/init.sh
       - name: "Generating ZIP-File(s)"
-        run: build/scripts/shell/mkzip.sh
+        run: build/scripts/shell/mkzips.sh
       - name: "Upload Package"
         uses: actions/upload-artifact@v1
         if: ${{env.ci_release == true}}
