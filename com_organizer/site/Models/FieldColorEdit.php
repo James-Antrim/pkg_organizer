@@ -29,7 +29,7 @@ class FieldColorEdit extends EditModel
 			return (bool) Helpers\Can::documentTheseOrganizations();
 		}
 
-		return Helpers\Can::document('fieldColor', $fcID);
+		return Helpers\Can::document('fieldcolor', $fcID);
 	}
 
 

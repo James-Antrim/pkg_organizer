@@ -89,53 +89,88 @@ class Can
 		}
 
 		$invalidID   = (empty($resourceID) or !is_numeric($resourceID));
-		$invalidType = !in_array($resourceType, ['fieldColor', 'organization', 'pool', 'program', 'subject']);
+		$invalidType = !in_array($resourceType, ['fieldcolor', 'organization', 'pool', 'program', 'subject']);
 		if ($invalidID or $invalidType)
+		{
+			return false;
+		}
+
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('DISTINCT organizationID')->from('#__organizer_associations');
+		$organizationIDs = [];
+
+		switch ($resourceType)
+		{
+			case 'fieldcolor':
+				$table = new Tables\FieldColors;
+
+				if (!$table->load($resourceID) or empty($table->organizationID))
+				{
+					return false;
+				}
+
+				$organizationIDs[] = $table->organizationID;
+				break;
+			case 'organization':
+				$organizationIDs[] = $resourceID;
+				break;
+			case 'pool':
+				$query->where("poolID = $resourceID");
+				$dbo->setQuery($query);
+
+				if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
+				{
+					return false;
+				}
+
+				break;
+			case 'program':
+				$query->where("programID = $resourceID");
+				$dbo->setQuery($query);
+
+				if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
+				{
+					return false;
+				}
+
+				break;
+			case 'subject':
+
+				if (Subjects::coordinates($resourceID))
+				{
+					return true;
+				}
+
+				$query->where("subjectID = $resourceID");
+				$dbo->setQuery($query);
+
+				if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
+				{
+					return false;
+				}
+
+				break;
+			default:
+				return false;
+		}
+
+		if (!$organizationIDs)
 		{
 			return false;
 		}
 
 		$user = Users::getUser();
 
-		if ($resourceType === 'organization')
+		foreach ($organizationIDs as $organizationID)
 		{
-			$organizationID = $resourceID;
-		}
-		else
-		{
-			$table = null;
-			switch ($resourceType)
+			if ($user->authorise('organizer.document', "com_organizer.organization.$organizationID"))
 			{
-				case 'fieldColor':
-					$table = new Tables\FieldColors;
-					break;
-				case 'pool':
-					$table = new Tables\Pools;
-					break;
-				case 'program':
-					$table = new Tables\Programs;
-					break;
-				case 'subject':
-					/*if (Subjects::coordinates($resourceID))
-					{
-						return true;
-					}*/
-					$table = new Tables\Subjects;
-					break;
-				default:
-					return false;
+				return true;
 			}
-
-			if (!$table->load($resourceID) or empty($table->organizationID))
-			{
-				return false;
-			}
-
-			$organizationID = $table->organizationID;
 		}
 
-
-		return $user->authorise('organizer.document', "com_organizer.organization.$organizationID");
+		return false;
 	}
 
 	/**
