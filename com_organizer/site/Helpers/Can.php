@@ -56,24 +56,6 @@ class Can
 	}
 
 	/**
-	 * Checks for resources which have not yet been saved as an asset allowing transitional edit access
-	 *
-	 * @param   string  $resourceName  the name of the resource type
-	 * @param   int     $itemID        the id of the item being checked
-	 *
-	 * @return bool  true if the resource has an associated asset, otherwise false
-	 */
-	private static function isInitialized($resourceName, $itemID)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('asset_id')->from("#__organizer_{$resourceName}s")->where("id = '$itemID'");
-		$dbo->setQuery($query);
-
-		return (bool) OrganizerHelper::executeQuery('loadResult');
-	}
-
-	/**
 	 * Checks whether the user has access to documentation resources and their respective views.
 	 *
 	 * @param   string     $resourceType  the resource type being checked
