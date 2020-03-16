@@ -17,12 +17,12 @@ use Organizer\Helpers;
 /**
  * Class creates a select box for organizations.
  */
-class OrganizationsField extends OptionsField
+class OrganizationAssociationsField extends OptionsField
 {
 	/**
 	 * @var  string
 	 */
-	protected $type = 'Organizations';
+	protected $type = 'OrganizationAssociations';
 
 	/**
 	 * Returns an array of options

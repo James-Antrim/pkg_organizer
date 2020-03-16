@@ -2,9 +2,7 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details" label="ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
-        <field name="organizationID" type="Organizations" label="ORGANIZATION" access="document" required="true">
-            <option value="">SELECT_ORGANIZATION</option>
-        </field>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
         <field name="lsfID" type="Blank" label="LSF_ID"/>
         <field name="fieldID" type="GenericOptions" label="FIELD" valuecolumn="id" textcolumn="name" localized="true"
                table="organizer_fields">

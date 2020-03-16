@@ -11,8 +11,7 @@
                textcolumn="name" valuecolumn="id">
             <option value="">NO_FIELD</option>
         </field>
-        <field name="organizationID" type="Organizations" label="ORGANIZATIONS" multiple="multiple" required="true"
-               size="10"/>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
         <field name="active" type="Options" label="ACTIVE" default="1">
             <option value="1">ACTIVE</option>
             <option value="0">INACTIVE</option>
