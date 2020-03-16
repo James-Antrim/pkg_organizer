@@ -31,7 +31,7 @@ class OptionsField extends FormField
 	 *
 	 * @var    string
 	 */
-	protected $type = 'List';
+	protected $type = 'Options';
 
 	/**
 	 * Method to get the field input markup for a generic list.
