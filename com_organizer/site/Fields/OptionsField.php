@@ -42,7 +42,6 @@ class OptionsField extends FormField
 	{
 		$this->clientContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
 
-		$html = array();
 		$attr = '';
 
 		// Initialize some field attributes.
@@ -66,7 +65,7 @@ class OptionsField extends FormField
 		// Get the field options.
 		$options = (array) $this->getOptions();
 
-		$html[] = Helpers\HTML::_(
+		return Helpers\HTML::_(
 			'select.genericlist',
 			$options,
 			$this->name,
@@ -76,8 +75,6 @@ class OptionsField extends FormField
 			$this->value,
 			$this->id
 		);
-
-		return implode($html);
 	}
 
 	/**
