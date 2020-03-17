@@ -26,8 +26,8 @@
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
     </fieldset>
     <fieldset name="curriculum" label="CURRICULUM" displayinitial="0">
-        <field name="curricula" type="Curricula" access="true" label="PROGRAMS" required="false"/>
-        <field name="superOrdinates" type="SuperOrdinates" label="PARENT_POOLS" required="false"/>
-        <field name="subOrdinates" type="SubOrdinates" label="SUBORDINATES"/>
+        <field type="Curricula" label="PROGRAMS"/>
+        <field type="SuperOrdinates" label="SUPERORDINATES"/>
+        <field type="SubOrdinates" label="SUBORDINATES"/>
     </fieldset>
 </form>

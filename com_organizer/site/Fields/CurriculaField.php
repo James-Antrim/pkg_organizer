@@ -28,7 +28,7 @@ class CurriculaField extends FormField
 	protected $type = 'Curricula';
 
 	/**
-	 * Adds the javascript to the page necessary to refresh the parent pool options
+	 * Adds the javascript to the page necessary to refresh the super ordinate resource options
 	 *
 	 * @param   int     $resourceID    the resource's id
 	 * @param   string  $resourceType  the resource's type
@@ -40,84 +40,46 @@ class CurriculaField extends FormField
 		?>
         <script type="text/javascript" charset="utf-8">
             jQuery(document).ready(function () {
-                jQuery('#jformprogramID').change(function () {
-                    const programInput = jQuery('#jformprogramID'),
-                        parentInput = jQuery('#jformparentID'),
-                        oldSelectedParents = parentInput.val();
-                    let selectedPrograms = programInput.val(),
-                        poolUrl;
+                jQuery('#jformcurricula').change(function () {
+                    const cInput = jQuery('#jformcurricula'),
+                        soInput = jQuery('#superordinates'),
+                        oldSOs = soInput.val();
+                    let selectedCurricula = cInput.val(), soURL;
 
-                    if (selectedPrograms === null) {
-                        selectedPrograms = '';
-                    } else if (Array.isArray(selectedPrograms)) {
-                        selectedPrograms = selectedPrograms.join(',');
+                    if (selectedCurricula === null) {
+                        selectedCurricula = '';
+                    } else if (Array.isArray(selectedCurricula)) {
+                        selectedCurricula = selectedCurricula.join(',');
                     }
 
-                    if (selectedPrograms.includes('-1') !== false) {
-                        programInput.find('option').removeAttr('selected');
+                    if (selectedCurricula.includes('-1') !== false) {
+                        cInput.find('option').removeAttr('selected');
                         return false;
                     }
 
-                    poolUrl = '<?php echo Uri::root(); ?>index.php?option=com_organizer';
-                    poolUrl += '&view=super_ordinates&format=json';
-                    poolUrl += "&id=<?php echo $resourceID; ?>";
-                    poolUrl += '&programIDs=' + selectedPrograms;
-                    poolUrl += "&type=<?php echo $resourceType; ?>";
+                    soURL = '<?php echo Uri::root(); ?>index.php?option=com_organizer';
+                    soURL += '&view=super_ordinates&format=json';
+                    soURL += "&id=<?php echo $resourceID; ?>";
+                    soURL += '&curricula=' + selectedCurricula;
+                    soURL += "&type=<?php echo $resourceType; ?>";
 
-                    jQuery.get(poolUrl, function (options) {
-                        parentInput.html(options);
-                        const newSelectedParents = parentInput.val();
-                        let selectedParents = [];
-                        if (newSelectedParents !== null && newSelectedParents.length) {
-                            if (oldSelectedParents !== null && oldSelectedParents.length) {
-                                selectedParents = jQuery.merge(newSelectedParents, oldSelectedParents);
+                    jQuery.get(soURL, function (options) {
+                        soInput.html(options);
+                        const newSOs = soInput.val();
+                        let selectedSOs = [];
+                        if (newSOs !== null && newSOs.length) {
+                            if (oldSOs !== null && oldSOs.length) {
+                                selectedSOs = jQuery.merge(newSOs, oldSOs);
                             } else {
-                                selectedParents = newSelectedParents;
+                                selectedSOs = newSOs;
                             }
-                        } else if (oldSelectedParents !== null && oldSelectedParents.length) {
-                            selectedParents = oldSelectedParents;
+                        } else if (oldSOs !== null && oldSOs.length) {
+                            selectedSOs = oldSOs;
                         }
 
-                        parentInput.val(selectedParents);
-
-                        refreshChosen('jformparentID');
+                        soInput.val(selectedSOs);
                     });
-                    refreshChosen('jformparentID');
                 });
-
-                function refreshChosen(id) {
-                    const chosenElement = jQuery('#' + id);
-                    chosenElement.chosen('destroy');
-                    chosenElement.chosen();
-                }
-
-                function toggleElement(chosenElement, value) {
-                    const parentInput = jQuery('#jformparentID');
-                    parentInput.chosen('destroy');
-                    jQuery('select#jformparentID option').each(function () {
-                        if (chosenElement === jQuery(this).innerHTML) {
-                            jQuery(this).prop('selected', value);
-                        }
-                    });
-                    parentInput.chosen();
-                }
-
-                function addAddHandler() {
-                    jQuery('#jformparentID_chzn').find('div.chzn-drop').click(function (element) {
-                        toggleElement(element.target.innerHTML, true);
-                        addRemoveHandler();
-                    });
-                }
-
-                function addRemoveHandler() {
-                    jQuery('div#jformparentID_chzn').find('a.search-choice-close').click(function (element) {
-                        toggleElement(element.target.parentElement.childNodes[0].innerHTML, false);
-                        addAddHandler();
-                    });
-                }
-
-                addRemoveHandler();
-                addAddHandler();
             });
         </script>
 		<?php
@@ -145,7 +107,7 @@ class CurriculaField extends FormField
 		$programs       = $defaultOptions + $options;
 		$attributes     = ['multiple' => 'multiple', 'size' => '10'];
 
-		return Helpers\HTML::selectBox($programs, 'programID', $attributes, $selectedPrograms, true);
+		return Helpers\HTML::selectBox($programs, 'curricula', $attributes, $selectedPrograms, true);
 	}
 
 	/**

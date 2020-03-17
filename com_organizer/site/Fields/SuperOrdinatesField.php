@@ -28,14 +28,14 @@ class SuperOrdinatesField extends FormField
 	protected $type = 'SuperOrdinates';
 
 	/**
-	 * Returns a select box in which pools can be chosen as a parent node
+	 * Returns a select box in which resources can be chosen as a super ordinates
 	 *
-	 * @return string  the HTML for the parent pool select box
+	 * @return string  the HTML for the super ordinate resources select box
 	 */
 	public function getInput()
 	{
 		$options = $this->getOptions();
-		$select  = '<select id="jformparentID" name="jform[parentID][]" multiple="multiple" size="10">';
+		$select  = '<select id="superordinates" name="jform[superordinates][]" multiple="multiple" size="10">';
 		$select  .= implode('', $options) . '</select>';
 
 		return $select;

@@ -136,7 +136,7 @@
         </field>
     </fieldset>
     <fieldset name="curriculum" label="CURRICULUM" displayinitial="0">
-        <field name="curricula" type="Curricula" label="PROGRAMS"/>
-        <field name="superOrdinates" type="SuperOrdinates" label="PARENT_POOLS"/>
+        <field type="Curricula" label="PROGRAMS"/>
+        <field type="SuperOrdinates" label="SUPERORDINATES"/>
     </fieldset>
 </form>

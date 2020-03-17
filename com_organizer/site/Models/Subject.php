@@ -513,14 +513,14 @@ class Subject extends CurriculumResource
 	 *
 	 * @return boolean
 	 */
-	private function removeEvents($subjectID)
+	/*private function removeEvents($subjectID)
 	{
 		$query = $this->_db->getQuery(true);
 		$query->delete('#__organizer_subject_curricula')->where("subjectID = '$subjectID'");
 		$this->_db->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('execute');
-	}
+	}*/
 
 	/**
 	 * Removes person associations for the given subject and role. No access checks => this is not directly

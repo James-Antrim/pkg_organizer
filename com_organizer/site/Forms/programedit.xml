@@ -33,6 +33,6 @@
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
     </fieldset>
     <fieldset name="curriculum" label="CURRICULUM" displayinitial="0">
-        <field name="subOrdinates" type="SubOrdinates" label="SUBORDINATES"/>
+        <field type="SubOrdinates" label="SUBORDINATES"/>
     </fieldset>
 </form>
