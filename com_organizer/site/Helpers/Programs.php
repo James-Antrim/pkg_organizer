@@ -286,7 +286,7 @@ class Programs extends Curricula implements Selectable
 		$ranges = [];
 		foreach ($programIDs as $programID)
 		{
-			$ranges[] = self::getRanges($programID);
+			$ranges = array_merge($ranges, self::getRanges($programID));
 		}
 
 		return $ranges;
