@@ -30,7 +30,7 @@ class SuperOrdinates extends BaseView
 		$type  = Input::getCMD('type');
 
 		// Pending program ranges are dependant on selected programs.
-		$programIDs    = Helpers\Input::getFilterIDs('program');
+		$programIDs    = Helpers\Input::getIntCollection('programIDs');
 		$programRanges = Helpers\Programs::getPrograms($programIDs);
 
 		$options = Helpers\Pools::getSuperOrdinateOptions($subID, $type, $programRanges);

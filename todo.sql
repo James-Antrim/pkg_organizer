@@ -7,7 +7,7 @@
 #todo ensure coordinators have documentation access
 #todo ensure the constants used in the component configuration settings work
 #todo add passive synchronization of persons
-#todo move subordinate styles to the default style sheet
+#todo create a standard fix for default multiple select handling and include it per default, remove chosen library use
 
 #region Pool Edit View--------------------------------------------------------------------------------------------------
 #todo check apply

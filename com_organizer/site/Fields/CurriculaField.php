@@ -59,10 +59,10 @@ class CurriculaField extends FormField
                     }
 
                     poolUrl = '<?php echo Uri::root(); ?>index.php?option=com_organizer';
-                    poolUrl += '&view=pools&format=json&task=getParentOptions';
+                    poolUrl += '&view=super_ordinates&format=json';
                     poolUrl += "&id=<?php echo $resourceID; ?>";
-                    poolUrl += "&type=<?php echo $resourceType; ?>";
                     poolUrl += '&programIDs=' + selectedPrograms;
+                    poolUrl += "&type=<?php echo $resourceType; ?>";
 
                     jQuery.get(poolUrl, function (options) {
                         parentInput.html(options);
