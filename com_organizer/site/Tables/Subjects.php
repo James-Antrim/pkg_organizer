@@ -261,14 +261,6 @@ class Subjects extends BaseTable
 	public $objective_en;
 
 	/**
-	 * The id of the organization entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $organizationID;
-
-	/**
 	 * The subject's required preliminary work in German.
 	 * TEXT
 	 *
@@ -423,7 +415,7 @@ class Subjects extends BaseTable
 			}
 		}
 
-		$competences = ['expertise', 'self_competence', 'method_competence', 'social_competence'];
+		$competences = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
 
 		foreach ($competences as $competence)
 		{

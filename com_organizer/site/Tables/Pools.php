@@ -108,14 +108,6 @@ class Pools extends BaseTable
 	public $name_en;
 
 	/**
-	 * The id of the organization entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $organizationID;
-
-	/**
 	 * The resource's German shortened name.
 	 * VARCHAR(50) DEFAULT ''
 	 *

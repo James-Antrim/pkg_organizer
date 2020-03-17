@@ -28,7 +28,7 @@ class CourseItem extends ItemModel
 	 *
 	 * @return bool  true if the user can access the view, otherwise false
 	 */
-	protected function allowView()
+	protected function allow()
 	{
 		return true;
 	}
@@ -41,7 +41,7 @@ class CourseItem extends ItemModel
 	 */
 	public function getItem()
 	{
-		$allowView = $this->allowView();
+		$allowView = $this->allow();
 		if (!$allowView)
 		{
 			throw new Exception(Languages::_('ORGANIZER_401'), 401);

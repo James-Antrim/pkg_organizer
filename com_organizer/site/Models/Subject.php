@@ -88,6 +88,22 @@ class Subject extends CurriculumResource
 	}
 
 	/**
+	 * Authorizes the user
+	 */
+	protected function allow()
+	{
+		if (!$id = Helpers\Input::getID())
+		{
+			if (Helpers\Can::documentTheseOrganizations())
+			{
+				return true;
+			}
+		}
+
+		return Helpers\Can::document('subject', $id);
+	}
+
+	/**
 	 * Checks if the property should be displayed. Setting it to NULL if not.
 	 *
 	 * @param   array  &$data      the form data
@@ -667,23 +683,9 @@ class Subject extends CurriculumResource
 	{
 		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
-		if (empty($data['id']))
+		if (!$this->allow())
 		{
-			if (!Helpers\Can::documentTheseOrganizations())
-			{
-				throw new Exception(Languages::_('ORGANIZER_403'), 403);
-			}
-		}
-		elseif (is_numeric($data['id']))
-		{
-			if (!Helpers\Can::document('subject', $data['id']))
-			{
-				throw new Exception(Languages::_('ORGANIZER_403'), 403);
-			}
-		}
-		else
-		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
+			throw new Exception(Languages::_('ORGANIZER_401'), 401);
 		}
 
 		// Prepare the data
@@ -699,8 +701,12 @@ class Subject extends CurriculumResource
 
 		if (!$table->save($data))
 		{
+			echo "<pre>" . print_r($this->getErrors(), true) . "</pre>";
+			die;
+
 			return false;
 		}
+		die;
 
 		$data['id'] = $table->id;
 

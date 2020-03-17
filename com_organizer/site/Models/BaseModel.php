@@ -43,7 +43,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	}
 
 	/**
-	 * Authenticates the user
+	 * Authorizes the user
 	 */
 	protected function allow()
 	{

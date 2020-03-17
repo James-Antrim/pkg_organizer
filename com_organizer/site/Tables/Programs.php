@@ -53,14 +53,6 @@ class Programs extends BaseTable
 	public $degreeID;
 
 	/**
-	 * The id of the organization entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $organizationID;
-
-	/**
 	 * The resource's German description.
 	 * TEXT
 	 *
