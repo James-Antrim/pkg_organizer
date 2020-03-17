@@ -23,7 +23,7 @@ class Curriculum extends ItemModel
 	 *
 	 * @return bool  true if the user can access the view, otherwise false
 	 */
-	protected function allowView()
+	protected function allow()
 	{
 		return true;
 	}
@@ -36,8 +36,7 @@ class Curriculum extends ItemModel
 	 */
 	public function getItem()
 	{
-		$allowView = $this->allowView();
-		if (!$allowView)
+		if (!$this->allow())
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}

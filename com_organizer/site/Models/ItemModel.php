@@ -32,14 +32,4 @@ class ItemModel extends BaseModel
 
 		$this->setContext();
 	}
-
-	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
-	 *
-	 * @return bool  true if the user can access the view, otherwise false
-	 */
-	protected function allowView()
-	{
-		return Helpers\Can::administrate();
-	}
 }
