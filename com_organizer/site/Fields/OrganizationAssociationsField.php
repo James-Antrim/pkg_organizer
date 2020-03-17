@@ -123,7 +123,14 @@ class OrganizationAssociationsField extends OptionsField
 			$options[] = Helpers\HTML::_('select.option', $organizationID, $shortName);
 		}
 
-		$attr = $resource === 'fieldcolor' ? '' : ' multiple';
+		$attr = '';
+
+		if ($resource !== 'fieldcolor')
+		{
+			$attr .= ' multiple';
+			$this->name = $this->name . '[]';
+		}
+
 		$attr .= !empty($this->class) ? ' class="' . $this->class . '"' : '';
 
 		if ($disabled)
