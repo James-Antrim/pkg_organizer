@@ -82,9 +82,9 @@ class Associations extends BaseTable
 	 */
 	public function check()
 	{
-		// All three fields can recieve data from at least two systems.
+		// An association should always be between an organization and another resource.
 		$atLeastOne = false;
-		$keyColumns = ['categoryID', 'eventID', 'groupID', 'personID', 'roomID'];
+		$keyColumns = ['categoryID', 'eventID', 'groupID', 'personID', 'poolID', 'programID', 'subjectID'];
 		foreach ($keyColumns as $keyColumn)
 		{
 			if (!strlen($this->$keyColumn))
