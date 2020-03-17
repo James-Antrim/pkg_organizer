@@ -144,16 +144,12 @@ class Input
 
 		if ($values = $filterItems->get($pluralIndex, false))
 		{
-			self::formatIDValues($values);
-
-			return $values;
+			return self::formatIDValues($values);
 		}
 
 		if ($values = $listItems->get($pluralIndex, false))
 		{
-			self::formatIDValues($values);
-
-			return $values;
+			return self::formatIDValues($values);
 		}
 
 		$singularIndex = "{$resource}ID";
@@ -161,17 +157,15 @@ class Input
 		if ($value = $filterItems->get($singularIndex, false))
 		{
 			$values = [$value];
-			self::formatIDValues($values);
 
-			return $values;
+			return self::formatIDValues($values);
 		}
 
 		if ($value = $listItems->get($singularIndex, false))
 		{
 			$values = [$value];
-			self::formatIDValues($values);
 
-			return $values;
+			return self::formatIDValues($values);
 		}
 
 		return [];
@@ -220,7 +214,7 @@ class Input
 	/**
 	 * Retrieves the id parameter.
 	 *
-	 * @param string $name the input field name at which the value should be found
+	 * @param   string  $name  the input field name at which the value should be found
 	 *
 	 * @return array the ids
 	 */
@@ -349,12 +343,12 @@ class Input
 			// Merge Views
 			if ($selectedIDs = $formItems->get('ids'))
 			{
-				self::formatIDValues($selectedIDs);
-				if (count($selectedIDs))
+				$formattedValues = self::formatIDValues($selectedIDs);
+				if (count($formattedValues))
 				{
-					asort($selectedIDs);
+					asort($formattedValues);
 
-					return $selectedIDs;
+					return $formattedValues;
 				}
 			}
 
@@ -362,9 +356,8 @@ class Input
 			if ($id = $formItems->get('id'))
 			{
 				$selectedIDs = [$id];
-				self::formatIDValues($selectedIDs);
 
-				return $selectedIDs;
+				return self::formatIDValues($selectedIDs);
 			}
 		}
 
@@ -426,12 +419,17 @@ class Input
 		{
 			$idValues = explode(',', $idValues);
 		}
+		elseif (is_array($idValues) and count($idValues) === 1 and preg_match('^(\d+,)*\d+$', $idValues[0]) !== -1)
+		{
+			$idValues = explode(',', $idValues[0]);
+		}
 		elseif (!is_array($idValues))
 		{
 			$idValues = [];
 		}
 
 		$idValues = ArrayHelper::toInteger($idValues);
-		$idValues = array_filter($idValues);
+
+		return array_filter($idValues);
 	}
 }
