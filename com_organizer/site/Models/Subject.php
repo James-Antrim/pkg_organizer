@@ -49,28 +49,7 @@ class Subject extends CurriculumResource
 	}*/
 
 	/**
-	 * Adds a person association. No access checks => this is not directly accessible and requires differing checks
-	 * according to its calling context.
-	 *
-	 * @param   int    $subjectID  the id of the subject
-	 * @param   array  $personID   the id of the person
-	 * @param   int    $role       the person's role for the subject
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	public function addPerson($subjectID, $personID, $role)
-	{
-		$query = $this->_db->getQuery(true);
-		$query->insert('#__organizer_subject_persons')->columns('subjectID, personID, role');
-		$query->values("$subjectID, $personID, $role");
-		$this->_db->setQuery($query);
-
-		return (bool) OrganizerHelper::executeQuery('execute');
-	}
-
-	/**
-	 * Adds a prerequisite association. No access checks => this is not directly accessible and requires differing
-	 * checks according to its calling context.
+	 * Adds a prerequisite association.
 	 *
 	 * @param   int    $subjectID       the id of the subject
 	 * @param   array  $prerequisiteID  the id of the prerequisite
@@ -367,36 +346,43 @@ class Subject extends CurriculumResource
 	 */
 	private function processPersons(&$data)
 	{
-		if (!isset($data['coordinators']) and !isset($data['persons']))
-		{
-			return true;
-		}
-
-		$subjectID = $data['id'];
-
-		if (!$this->removePersons($subjectID))
+		// More efficient to remove all subject persons associations for the subject than iterate the persons table
+		if (!$this->removePersons($data['id']))
 		{
 			return false;
 		}
 
-		$coordinators = array_filter($data['coordinators']);
-		if (!empty($coordinators))
+		$coordinatorsSet = !empty($data['coordinators']);
+		$personsSet      = !empty($data['persons']);
+
+		if (!$coordinatorsSet and !$personsSet)
 		{
-			foreach ($coordinators as $coordinatorID)
+			return true;
+		}
+
+		if ($coordinatorsSet and $persons = array_filter($data['coordinators']))
+		{
+			foreach ($persons as $personID)
 			{
-				if (!$this->addPerson($subjectID, $coordinatorID, self::COORDINATES))
+				$spData = ['personID' => $personID, 'role' => self::COORDINATES, 'subjectID' => $data['id']];
+				$table  = new Tables\SubjectPersons;
+
+				if (!$table->save($spData))
 				{
 					return false;
 				}
 			}
+
 		}
 
-		$persons = array_filter($data['persons']);
-		if (!empty($persons))
+		if ($personsSet and $persons = array_filter($data['persons']))
 		{
 			foreach ($persons as $personID)
 			{
-				if (!$this->addPerson($subjectID, $personID, self::TEACHES))
+				$spData = ['personID' => $personID, 'role' => self::TEACHES, 'subjectID' => $data['id']];
+				$table  = new Tables\SubjectPersons;
+
+				if (!$table->save($spData))
 				{
 					return false;
 				}
@@ -710,15 +696,15 @@ class Subject extends CurriculumResource
 
 		$data['id'] = $table->id;
 
-		if (!$this->processPersons($data))
+		if (!$this->updateAssociations($data['id'], $data['organizationIDs']))
 		{
 			return false;
 		}
 
-		/*if (!$this->processEvents($data))
+		if (!$this->processPersons($data))
 		{
 			return false;
-		}*/
+		}
 
 		if (!$this->processPrerequisites($data))
 		{
@@ -734,6 +720,11 @@ class Subject extends CurriculumResource
 		{
 			return false;
 		}
+
+		/*if (!$this->processEvents($data))
+		{
+			return false;
+		}*/
 
 		return $table->id;
 	}
@@ -871,6 +862,8 @@ class Subject extends CurriculumResource
 		$coordinators = $dataObject->xpath('//verantwortliche');
 		$persons      = $dataObject->xpath('//dozent');
 
+		$this->removePersons($subjectID);
+
 		if (empty($coordinators) and empty($persons))
 		{
 			return true;
@@ -958,7 +951,10 @@ class Subject extends CurriculumResource
 				}
 			}
 
-			if (!$subjectModel->addPerson($subjectID, $personTable->id, $role))
+			$spData  = ['personID' => $personTable->id, 'role' => $role, 'subjectID' => $subjectID];
+			$spTable = new Tables\SubjectPersons;
+
+			if (!$spTable->save($spData))
 			{
 				return false;
 			}

@@ -49,7 +49,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array the curricular ids contained in the ranges
 	 */
-	protected static function filterIDs($ranges)
+	public static function filterIDs($ranges)
 	{
 		$ids = [];
 		foreach ($ranges as $range)
