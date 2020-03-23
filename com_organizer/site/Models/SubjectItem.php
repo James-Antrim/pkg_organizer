@@ -199,8 +199,8 @@ class SubjectItem extends ItemModel
 
 		$query  = $this->_db->getQuery(true);
 		$select = 'DISTINCT pr.id AS id, ';
-		$select .= "s1.id AS preID, s1.name_$tag AS preName, s1.code AS preModuleNumber, ";
-		$select .= "s2.id AS postID, s2.name_$tag AS postName, s2.code AS postModuleNumber";
+		$select .= "s1.id AS preID, s1.fullName_$tag AS preName, s1.code AS preModuleNumber, ";
+		$select .= "s2.id AS postID, s2.fullName_$tag AS postName, s2.code AS postModuleNumber";
 		$query->select($select);
 		$query->from('#__organizer_prerequisites AS pr');
 		$query->innerJoin('#__organizer_curricula AS c1 ON c1.id = pr.prerequisiteID');
