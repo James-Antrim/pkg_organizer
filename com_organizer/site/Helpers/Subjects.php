@@ -206,6 +206,32 @@ class Subjects extends Curricula
 	}
 
 	/**
+	 * Retrieves the ids of subjects registered as prerequisites for a given subject
+	 *
+	 * @param   int  $subjectID  the id of the subject
+	 *
+	 *
+	 * @return array the associated prerequisites
+	 */
+	public static function getPostrequisites($subjectID)
+	{
+		return self::getRequisites($subjectID, 'post');
+	}
+
+	/**
+	 * Retrieves the ids of subjects registered as prerequisites for a given subject
+	 *
+	 * @param   int  $subjectID  the id of the subject
+	 *
+	 *
+	 * @return array the associated prerequisites
+	 */
+	public static function getPrerequisites($subjectID)
+	{
+		return self::getRequisites($subjectID, 'pre');
+	}
+
+	/**
 	 * Gets the mapped curricula ranges for the given resource
 	 *
 	 * @param   mixed  $subjectID  int resourceID
@@ -228,6 +254,39 @@ class Subjects extends Curricula
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssocList', []);
+	}
+
+	/**
+	 * Retrieves the ids of subjects registered as prerequisites for a given subject
+	 *
+	 * @param   int     $subjectID  the id of the subject
+	 * @param   string  $direction  pre|post the direction of the subject dependency
+	 *
+	 * @return array the associated prerequisites
+	 */
+	private static function getRequisites($subjectID, $direction)
+	{
+		if ($direction === 'pre')
+		{
+			$fromColumn = 'subjectID';
+			$toColumn   = 'prerequisiteID';
+		}
+		else
+		{
+			$fromColumn = 'prerequisiteID';
+			$toColumn   = 'subjectID';
+		}
+
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('DISTINCT target.subjectID')
+			->from('#__organizer_curricula AS target')
+			->innerJoin("#__organizer_prerequisites AS p ON p.$toColumn = target.id")
+			->innerJoin("#__organizer_curricula AS source ON source.id = p.$fromColumn")
+			->where("source.subjectID = $subjectID");
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**

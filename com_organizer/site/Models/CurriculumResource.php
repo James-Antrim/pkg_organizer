@@ -15,6 +15,8 @@ use Organizer\Tables;
 
 abstract class CurriculumResource extends BaseModel
 {
+	use Associated;
+
 	CONST POOL = 'K', SUBJECT = 'M';
 
 	protected $resource;

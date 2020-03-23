@@ -299,6 +299,14 @@
 
 #endregion##############################################################################################################
 
+#region Feature: Documentation Export###################################################################################
+#todo export the documentation of an individual subject as pdf
+#todo export the documentation of a program's subjects as pdf (catalog)
+#todo catalogs should have navigation
+#todo catalogs should have requisite links
+#todo catalogs should have curriculum related texts
+#endregion
+
 #region Feature: Internal Planning######################################################################################
 
 #todo bind grids to runs?

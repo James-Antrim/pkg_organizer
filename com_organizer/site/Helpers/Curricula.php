@@ -389,7 +389,7 @@ abstract class Curricula extends Associated implements Selectable
 	}
 
 	/**
-	 * Finds the subject entries subordinate to a particular resource.
+	 * Finds the curriculum entry ids for subject entries subordinate to a particular resource.
 	 *
 	 * @param   int  $resourceID  the id of the resource
 	 * @param   int  $subjectID   the id of a specific subject resource to find in context
