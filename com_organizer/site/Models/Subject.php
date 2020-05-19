@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Exception;
+use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
 use Organizer\Tables;
@@ -251,59 +252,94 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Checks for subjects with the given possible module number associated with to the same programs
+	 * Saves the resource's curriculum information.
 	 *
-	 * @param   array  $possibleModNos  the possible module numbers used in the attribute text
-	 * @param   array  $programs        the programs whose curricula contain the subject
+	 * @param   array  $data  the data from the form
 	 *
-	 * @return array the subject information for subjects with dependencies
+	 * @return bool true on success, otherwise false
 	 */
-	private function parseDependencies($possibleModNos, $programs)
+	protected function processCurricula($data)
 	{
-		$select = 's.id AS subjectID, code, ';
-		$select .= 'abbreviation_de, shortName_de, name_de, abbreviation_en, shortName_en, name_en, ';
-		$select .= 'c.id AS curriculumID, m.lft, m.rgt, ';
+		$data['curricula'] = ArrayHelper::toInteger($data['curricula']);
 
-		$query = $this->_db->getQuery(true);
-		$query->from('#__organizer_subjects AS s')
-			->innerJoin('#__organizer_curricula AS c ON c.subjectID = s.id');
+		$noSelectedPrograms = (empty($data['curricula']) or array_search(-1, $data['curricula']) !== false);
+		$noSelectedPools    = (empty($data['superordinates']) or array_search(-1, $data['superordinates']) !== false);
 
-		$subjects = [];
-		foreach ($possibleModNos as $possibleModuleNumber)
+		if ($noSelectedPrograms or $noSelectedPools)
 		{
-			$possibleModuleNumber = strtoupper($possibleModuleNumber);
-			if (empty(preg_match('/[A-Z0-9]{3,10}/', $possibleModuleNumber)))
+			return $this->deleteRanges($data['id']);
+		}
+
+		// Retrieve the program ranges for sanity checks on the pool ranges
+		$programRanges = [];
+		foreach ($data['curricula'] as $programID)
+		{
+			if ($ranges = Helpers\Programs::getRanges($programID))
+			{
+				$programRanges[] = $ranges[0];
+			}
+		}
+
+		$poolIDs = [];
+		foreach ($data['superordinates'] as $poolCurriculumID)
+		{
+			$table = new Tables\Curricula;
+			if (!$table->load($poolCurriculumID) or !$poolID = $table->poolID)
 			{
 				continue;
 			}
 
-			foreach ($programs as $program)
+			$poolIDs[$poolID] = $poolID;
+		}
+
+		$superOrdinateRanges = [];
+		foreach ($poolIDs as $poolID)
+		{
+			$poolRanges = Helpers\Pools::getRanges($poolID);
+			foreach ($poolRanges as $poolRange)
 			{
-				$query->clear('SELECT');
-				$query->select($select . "'{$program['id']}' AS programID");
-
-				$query->clear('where');
-				$query->where("lft > '{$program['lft']}' AND rgt < '{$program['rgt']}'");
-				$query->where("s.code = '$possibleModuleNumber'");
-				$this->_db->setQuery($query);
-
-				if (!$curriculumSubjects = OrganizerHelper::executeQuery('loadAssocList', [], 'curriculumID'))
+				foreach ($programRanges as $programRange)
 				{
-					continue;
-				}
-
-				if (empty($subjects[$possibleModuleNumber]))
-				{
-					$subjects[$possibleModuleNumber] = $curriculumSubjects;
-				}
-				else
-				{
-					$subjects[$possibleModuleNumber] = $subjects[$possibleModuleNumber] + $curriculumSubjects;
+					if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt'])
+					{
+						$superOrdinateRanges[] = $poolRange;
+						break;
+					}
 				}
 			}
 		}
 
-		return $subjects;
+		$existingRanges = Helpers\Subjects::getRanges($data['id']);
+
+		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
+		{
+			foreach ($existingRanges as $sIndex => $eRange)
+			{
+				// There is an existing relationship
+				if ($eRange['lft'] > $superOrdinateRange['lft'] and $eRange['rgt'] < $superOrdinateRange['rgt'])
+				{
+					// Suppress continued iteration
+					unset($existingRanges[$sIndex]);
+
+					continue 2;
+				}
+			}
+
+			$range = ['subjectID' => $data['id']];
+
+			foreach ($data['parentID'] as $parentID)
+			{
+				$range['parentID'] = $parentID;
+				$range['ordering'] = $this->getOrdering($parentID, $range['subjectID']);
+
+				if (!$this->addRange($range))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -408,7 +444,7 @@ class Subject extends CurriculumResource
 
 		$subjectID = $data['id'];
 
-		if (!$this->removePrerequisites($subjectID))
+		if (!$this->removeDependencies($subjectID))
 		{
 			return false;
 		}
@@ -569,24 +605,6 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Removes pre- & postrequisite associations for the given subject. No access checks => this is not directly
-	 * accessible and requires differing checks according to its calling context.
-	 *
-	 * @param   int  $subjectID  the subject id
-	 *
-	 * @return boolean
-	 */
-	private function removePrerequisites($subjectID)
-	{
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_prerequisites')
-			->where("subjectID = '$subjectID' OR prerequisiteID ='$subjectID'");
-		$this->_db->setQuery($query);
-
-		return (bool) OrganizerHelper::executeQuery('execute');
-	}
-
-	/**
 	 * Parses the prerequisites text and replaces subject references with links to the subjects
 	 *
 	 * @param   string  $subjectID  the id of the subject being processed
@@ -708,12 +726,8 @@ class Subject extends CurriculumResource
 
 		if (!$table->save($data))
 		{
-			echo "<pre>" . print_r($this->getErrors(), true) . "</pre>";
-			die;
-
 			return false;
 		}
-		die;
 
 		$data['id'] = $table->id;
 
@@ -727,17 +741,12 @@ class Subject extends CurriculumResource
 			return false;
 		}
 
+		if (!$this->processCurricula($data))
+		{
+			return false;
+		}
+
 		if (!$this->processPrerequisites($data))
-		{
-			return false;
-		}
-
-		if (!$this->deleteRanges($data['id']))
-		{
-			return false;
-		}
-
-		if (!$this->saveCurriculum($data))
 		{
 			return false;
 		}
@@ -748,31 +757,6 @@ class Subject extends CurriculumResource
 		}*/
 
 		return $table->id;
-	}
-
-	/**
-	 * Saves the resource's curriculum information.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	protected function saveCurriculum($data)
-	{
-		$range = ['subjectID' => $data['id']];
-
-		foreach ($data['parentID'] as $parentID)
-		{
-			$range['parentID'] = $parentID;
-			$range['ordering'] = $this->getOrdering($parentID, $range['subjectID']);
-
-			if (!$this->addRange($range))
-			{
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	/**

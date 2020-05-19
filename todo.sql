@@ -8,6 +8,7 @@
 #todo ensure the constants used in the component configuration settings work
 #todo add passive synchronization of persons
 #todo create a standard fix for default multiple select handling and include it per default, remove chosen library use
+#todo create default selection handling for department, curriculum and superordinate selection boxes
 
 #region Pool Edit View--------------------------------------------------------------------------------------------------
 #todo check apply

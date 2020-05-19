@@ -241,7 +241,7 @@ class Pool extends CurriculumResource
 			return $this->deleteRanges($table->id) ? $table->id : false;
 		}
 
-		return $this->saveCurriculum($data) ? $table->id : false;
+		return $this->processCurricula($data) ? $table->id : false;
 	}
 
 	/**
@@ -251,7 +251,7 @@ class Pool extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	protected function saveCurriculum($data)
+	protected function processCurricula($data)
 	{
 		$range = ['poolID' => $data['id'], 'curriculum' => $this->getFormCurriculum()];
 

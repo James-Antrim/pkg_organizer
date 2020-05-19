@@ -163,7 +163,7 @@ class Program extends CurriculumResource
 		$curriculumID = 0;
 
 		// Curriculum entry doesn't exist and could not be created.
-		if (!Helpers\Programs::getRanges($resourceID) and !$curriculumID = $this->saveCurriculum($resourceID))
+		if (!Helpers\Programs::getRanges($resourceID) and !$curriculumID = $this->processCurricula($resourceID))
 		{
 			return false;
 		}
@@ -228,7 +228,7 @@ class Program extends CurriculumResource
 			return false;
 		}
 
-		return $this->saveCurriculum($table->id) ? $table->id : false;
+		return $this->processCurricula($table->id) ? $table->id : false;
 	}
 
 	/**
@@ -259,7 +259,7 @@ class Program extends CurriculumResource
 			return false;
 		}
 
-		return $this->saveCurriculum($table->id) ? $table->id : false;
+		return $this->processCurricula($table->id) ? $table->id : false;
 	}
 
 	/**
@@ -269,7 +269,7 @@ class Program extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function saveCurriculum($programID)
+	public function processCurricula($programID)
 	{
 		$range = ['parentID' => null, 'programID' => $programID, 'curriculum' => $this->getFormCurriculum()];
 

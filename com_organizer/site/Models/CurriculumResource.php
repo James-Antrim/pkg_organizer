@@ -389,6 +389,15 @@ abstract class CurriculumResource extends BaseModel
 	}
 
 	/**
+	 * Saves the resource's curriculum information.
+	 *
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	abstract protected function processCurricula($data);
+
+	/**
 	 * Creates a resource and resource curriculum hierarchy as necessary.
 	 *
 	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary resource data
@@ -398,15 +407,6 @@ abstract class CurriculumResource extends BaseModel
 	 * @return bool  true on success, otherwise false
 	 */
 	abstract public function processResource(&$XMLObject, $organizationID, $parentID);
-
-	/**
-	 * Saves the resource's curriculum information.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	abstract protected function saveCurriculum($data);
 
 	/**
 	 * Sets the value of a generic attribute if available
