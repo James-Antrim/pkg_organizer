@@ -198,7 +198,7 @@ class Subject extends CurriculumResource
 				return false;
 			}
 
-			if (!$this->resolveDependencies($subjectID))
+			if (!$this->resolveTextDependencies($subjectID))
 			{
 				return false;
 			}
@@ -439,7 +439,7 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Creates a resource and resource curriculum hierarchy as necessary.
+	 * Creates a subject and a curricula table entries as necessary.
 	 *
 	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary resource data
 	 * @param   int     $organizationID  the id of the organization with which the resource is associated
@@ -508,6 +508,27 @@ class Subject extends CurriculumResource
 	}
 
 	/**
+	 * Removes pre- & postrequisite associations for the given subject. No access checks => this is not directly
+	 * accessible and requires differing checks according to its calling context.
+	 *
+	 * @param   int  $subjectID  the subject id
+	 *
+	 * @return boolean
+	 */
+	private function removeDependencies($subjectID)
+	{
+		$rangeIDs      = Helpers\Subjects::filterIDs(Helpers\Subjects::getRanges($subjectID));
+		$rangeIDString = implode(',', $rangeIDs);
+
+		$query = $this->_db->getQuery(true);
+		$query->delete('#__organizer_prerequisites')
+			->where("subjectID IN ($rangeIDString) OR prerequisiteID IN ($rangeIDString)");
+		$this->_db->setQuery($query);
+
+		return (bool) OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
 	 * Removes planSubject associations for the given subject. No access checks => this is not directly accessible and
 	 * requires differing checks according to its calling context.
 	 *
@@ -572,20 +593,20 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function resolveDependencies($subjectID)
+	public function resolveTextDependencies($subjectID)
 	{
 		$table = new Tables\Subjects;
 
 		// Entry doesn't exist. Should not occur.
 		if (!$table->load($subjectID))
 		{
-			return true;
+			return false;
 		}
 
 		// Subject is not associated with a program
-		if (!$programs = Helpers\Subjects::getPrograms($subjectID))
+		if (!$programRanges = Helpers\Subjects::getPrograms($subjectID))
 		{
-			return true;
+			return $this->removeDependencies($subjectID);
 		}
 
 		// Ordered by length for faster in case short is a subset of long.
@@ -614,10 +635,10 @@ class Subject extends CurriculumResource
 		foreach ($reqAttribs as $attribute => $direction)
 		{
 			$originalText   = $table->$attribute;
-			$sanitizedText  = $this->sanitizeText($originalText);
-			$possibleModNos = preg_split('[\ ]', $sanitizedText);
+			$sanitizedText  = Helpers\SubjectsLSF::sanitizeText($originalText);
+			$potentialCodes = preg_split('[\ ]', $sanitizedText);
 
-			if ($dependencies = $this->parseDependencies($possibleModNos, $programs))
+			if ($dependencies = $this->verifyDependencies($potentialCodes, $programRanges))
 			{
 				// Aggregate potential dependencies across language specific attributes
 				if ($direction === 'pre')
@@ -639,12 +660,12 @@ class Subject extends CurriculumResource
 			}
 		}
 
-		if (!$this->saveDependencies($programs, $subjectID, $prerequisites, 'pre'))
+		if (!$this->saveDependencies($programRanges, $subjectID, $prerequisites, 'pre'))
 		{
 			return false;
 		}
 
-		if (!$this->saveDependencies($programs, $subjectID, $postrequisites, 'post'))
+		if (!$this->saveDependencies($programRanges, $subjectID, $postrequisites, 'post'))
 		{
 			return false;
 		}
@@ -792,7 +813,7 @@ class Subject extends CurriculumResource
 				$success = $this->savePrerequisites($subjectIDs, $dependencyIDs);
 			}
 
-			if (empty($success))
+			if (!$success)
 			{
 				return false;
 			}
@@ -961,5 +982,59 @@ class Subject extends CurriculumResource
 		}
 
 		return true;
+	}
+
+	/**
+	 * Checks for subjects with the given possible module number associated with to the same programs.
+	 *
+	 * @param   array  $potentialCodes  the possible code values used in the attribute text
+	 * @param   array  $programRanges   the program ranges whose curricula contain the subject being processed
+	 *
+	 * @return array the subject information for subjects with dependencies
+	 */
+	private function verifyDependencies($potentialCodes, $programRanges)
+	{
+		$select = 's.id AS subjectID, code, ';
+		$select .= 'abbreviation_de, shortName_de, name_de, abbreviation_en, shortName_en, name_en, ';
+		$select .= 'c.id AS curriculumID, m.lft, m.rgt, ';
+
+		$query = $this->_db->getQuery(true);
+		$query->from('#__organizer_subjects AS s')
+			->innerJoin('#__organizer_curricula AS c ON c.subjectID = s.id');
+
+		$subjects = [];
+		foreach ($potentialCodes as $possibleModuleNumber)
+		{
+			$possibleModuleNumber = strtoupper($possibleModuleNumber);
+			if (preg_match('/[A-Z0-9]{3,10}/', $possibleModuleNumber) === false)
+			{
+				continue;
+			}
+
+			foreach ($programRanges as $program)
+			{
+				$query->clear('SELECT');
+				$query->select($select . "'{$program['id']}' AS programID");
+
+				$query->clear('where');
+				$query->where("lft > '{$program['lft']}' AND rgt < '{$program['rgt']}'");
+				$query->where("s.code = '$possibleModuleNumber'");
+				$this->_db->setQuery($query);
+
+				if (!$curriculumSubjects = OrganizerHelper::executeQuery('loadAssocList', [], 'curriculumID'))
+				{
+					continue;
+				}
+
+				if (!array_key_exists($possibleModuleNumber, $subjects))
+				{
+					$subjects[$possibleModuleNumber] = [];
+				}
+
+				$subjects[$possibleModuleNumber] += $curriculumSubjects;
+			}
+		}
+
+		return $subjects;
 	}
 }

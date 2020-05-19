@@ -239,6 +239,7 @@
 #todo Move the icalcreator directory back & uncomment it in the install manifest
 #todo Revisit access filters for organization options in the frontend context
 #todo Link schedules from curricula, programs, subjects & subject views
+#todo Diff the live and dev sites to get iterim component changes
 
 #region Deputat View
 #todo Finish implementation

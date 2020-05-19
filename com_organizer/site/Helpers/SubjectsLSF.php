@@ -435,7 +435,7 @@ class SubjectsLSF
 	 *
 	 * @return mixed|string
 	 */
-	private static function sanitizeText($text)
+	public static function sanitizeText($text)
 	{
 		// Get rid of HTML
 		$text = preg_replace('/<.*?>/', ' ', $text);
