@@ -281,6 +281,7 @@
 #todo clean up the FILTER and the SELECT text constants
 #todo decide what to do with inactive campuses and buildings
 #todo replace jquery use with plain js
+#todo add a addScript/addStyleSheet wrapper function to the html helper which automatically loads the de-/mined files
 
 #region Frequencies
 #todo change the frequency ids from 0-5 to 1-6

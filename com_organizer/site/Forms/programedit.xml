@@ -32,7 +32,7 @@
         <field name="name_en" type="Blank" label="NAME_EN" class="required" maxlength="150" required="true"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
     </fieldset>
-    <fieldset name="curriculum" label="CURRICULUM" displayinitial="0">
+    <fieldset name="associations" label="ASSOCIATIONS" displayinitial="0">
         <field type="SubOrdinates" label="SUBORDINATES"/>
     </fieldset>
 </form>
