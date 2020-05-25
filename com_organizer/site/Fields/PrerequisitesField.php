@@ -52,7 +52,7 @@ class PrerequisitesField extends DependencyOptions
 		$selected = empty($values) ? ' selected' : '';
 		$text     = Helpers\Languages::_('ORGANIZER_NO_PREREQUISITES');
 
-		$defaultOption     = "<option value=\"\"$selected>$text</option>";
+		$defaultOption     = "<option value=\"-1\"$selected>$text</option>";
 		$dependencyOptions = parent::getDependencyOptions($subjectID, $values);
 
 		return [$defaultOption] + $dependencyOptions;
