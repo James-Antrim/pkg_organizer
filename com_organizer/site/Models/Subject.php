@@ -50,24 +50,6 @@ class Subject extends CurriculumResource
 	}*/
 
 	/**
-	 * Adds a prerequisite association.
-	 *
-	 * @param   int    $subjectID       the id of the subject
-	 * @param   array  $prerequisiteID  the id of the prerequisite
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	private function addPrerequisite($subjectID, $prerequisiteID)
-	{
-		$query = $this->_db->getQuery(true);
-		$query->insert('#__organizer_prerequisites')->columns('subjectID, prerequisiteID');
-		$query->values("'$subjectID', '$prerequisiteID'");
-		$this->_db->setQuery($query);
-
-		return (bool) OrganizerHelper::executeQuery('execute');
-	}
-
-	/**
 	 * Authorizes the user
 	 */
 	protected function allow()
@@ -81,6 +63,76 @@ class Subject extends CurriculumResource
 		}
 
 		return Helpers\Can::document('subject', $id);
+	}
+
+	/**
+	 * Associates subject curriculum dependencies.
+	 *
+	 * @param   array  $programRanges       the program ranges
+	 * @param   array  $prerequisiteRanges  the prerequisite ranges
+	 * @param   array  $subjectRanges       the subject ranges
+	 * @param   bool   $pre                 whether or not the function is being called in the prerequisite context this
+	 *                                      influences how possible deprecated entries are detected.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	private function associateDependencies($programRanges, $prerequisiteRanges, $subjectRanges, $pre)
+	{
+		foreach ($programRanges as $programRange)
+		{
+			if (!$rprRanges = $this->filterRanges($programRange, $prerequisiteRanges))
+			{
+				continue;
+			}
+
+			if (!$rsRanges = $this->filterRanges($programRange, $subjectRanges))
+			{
+				continue;
+			}
+
+			// Remove deprecated associations
+			$rprIDs = implode(',', Helpers\Subjects::filterIDs($rprRanges));
+			$rsIDs  = implode(',', Helpers\Subjects::filterIDs($rsRanges));
+			$query  = $this->_db->getQuery(true);
+			$query->delete('#__organizer_prerequisites');
+
+			if ($pre)
+			{
+				$query->where("subjectID IN ($rsIDs)")->where("prerequisiteID NOT IN ($rprIDs)");
+			}
+			else
+			{
+				$query->where("prerequisiteID IN ($rsIDs)")->where("subjectID NOT IN ($rprIDs)");
+			}
+
+			$this->_db->setQuery($query);
+
+			if (!OrganizerHelper::executeQuery('execute'))
+			{
+				return false;
+			}
+
+			foreach ($rprRanges as $rprRange)
+			{
+				foreach ($rsRanges as $rsRange)
+				{
+					$data          = ['subjectID' => $rsRange['id'], 'prerequisiteID' => $rprRange['id']];
+					$prerequisites = new Tables\Prerequisites();
+
+					if ($prerequisites->load($data))
+					{
+						continue;
+					}
+
+					if (!$prerequisites->save($data))
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -145,6 +197,31 @@ class Subject extends CurriculumResource
 		$table = new Tables\Subjects;
 
 		return $table->delete($resourceID);
+	}
+
+	/**
+	 * Filters subject ranges to those relevant to a given program range.
+	 *
+	 * @param   array  $programRange   the program range being iterated
+	 * @param   array  $subjectRanges  the ranges for the given subject
+	 *
+	 * @return array the relevant subject ranges
+	 */
+	private static function filterRanges($programRange, $subjectRanges)
+	{
+		$left           = $programRange['lft'];
+		$relevantRanges = [];
+		$right          = $programRange['rgt'];
+
+		foreach ($subjectRanges as $subjectRange)
+		{
+			if ($subjectRange['lft'] > $left and $subjectRange['rgt'] < $right)
+			{
+				$relevantRanges[] = $subjectRange;
+			}
+		}
+
+		return $relevantRanges;
 	}
 
 	/**
@@ -437,41 +514,50 @@ class Subject extends CurriculumResource
 	 */
 	private function processPrerequisites(&$data)
 	{
-		if (!isset($data['prerequisites']) and !isset($data['postrequisites']))
+		$subjectID = $data['id'];
+
+		if (!$subjectRanges = Helpers\Subjects::getRanges($subjectID))
 		{
 			return true;
 		}
 
-		$subjectID = $data['id'];
+		$programRanges = Helpers\Programs::getRanges($subjectRanges);
 
-		if (!$this->removeDependencies($subjectID))
+		$preRequisites = array_filter($data['prerequisites']);
+		if (!empty($preRequisites) and array_search(self::NONE, $preRequisites) === false)
 		{
-			return false;
-		}
-
-		if (!empty($data['prerequisites']))
-		{
-			foreach ($data['prerequisites'] as $prerequisiteID)
+			$prerequisiteRanges = [];
+			foreach ($preRequisites as $preRequisiteID)
 			{
-				if (!$this->addPrerequisite($subjectID, $prerequisiteID))
-				{
-					return false;
-				}
+				$prerequisiteRanges = array_merge($prerequisiteRanges, Helpers\Subjects::getRanges($preRequisiteID));
 			}
-		}
 
-		if (!empty($data['postrequisites']))
+			$preSuccess = $this->associateDependencies($programRanges, $prerequisiteRanges, $subjectRanges, true);
+		}
+		else
 		{
-			foreach ($data['postrequisites'] as $postrequisiteID)
-			{
-				if (!$this->addPrerequisite($postrequisiteID, $subjectID))
-				{
-					return false;
-				}
-			}
+			$preSuccess = $this->removePreRequisites($subjectID);
 		}
 
-		return true;
+		$postSuccess    = true;
+		$postRequisites = array_filter($data['postrequisites']);
+		if (!empty($postRequisites) and array_search(self::NONE, $postRequisites) === false)
+		{
+			$postRequisiteRanges = [];
+			foreach ($postRequisites as $postRequisiteID)
+			{
+				$postRequisiteRanges = array_merge($postRequisiteRanges, Helpers\Subjects::getRanges($postRequisiteID));
+			}
+
+			$preSuccess = $this->associateDependencies($programRanges, $subjectRanges, $postRequisiteRanges, false);
+		}
+		else
+		{
+			$postSuccess = $this->removePostRequisites($subjectID);
+		}
+
+
+		return ($preSuccess and $postSuccess);
 	}
 
 	/**
