@@ -35,7 +35,7 @@ class Events extends ListView
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_EVENTS"), 'list-2');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "events.edit", true);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'events.edit', true);
 
 		if ($admin = Helpers\Can::administrate())
 		{

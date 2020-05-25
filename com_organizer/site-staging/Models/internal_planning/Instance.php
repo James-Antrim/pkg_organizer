@@ -95,7 +95,7 @@ class Instance extends BaseModel
 		$ipIDs      = [];
 		foreach ($data['resources'] as $person)
 		{
-			$ipData  = ['instanceID' => $instanceID, 'personID' => $person["personID"]];
+			$ipData  = ['instanceID' => $instanceID, 'personID' => $person['personID']];
 			$ipTable = new Tables\InstancePersons;
 			$roleID  = !empty($person['roleID']) ? $person['roleID'] : 1;
 			if ($ipTable->load($ipData))

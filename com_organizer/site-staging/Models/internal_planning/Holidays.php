@@ -49,8 +49,8 @@ class Holidays extends ListModel
 	 */
 	private function setStatusFilter(&$query)
 	{
-		$listValue   = $this->state->get("list.status");
-		$filterValue = $this->state->get("filter.status");
+		$listValue   = $this->state->get('list.status');
+		$filterValue = $this->state->get('filter.status');
 
 		if (empty($listValue) and empty($filterValue))
 		{
@@ -82,8 +82,8 @@ class Holidays extends ListModel
 	 */
 	private function setYearFilter(&$query)
 	{
-		$listValue   = $this->state->get("list.year");
-		$filterValue = $this->state->get("filter.year");
+		$listValue   = $this->state->get('list.year');
+		$filterValue = $this->state->get('filter.year');
 
 		if (empty($listValue) and empty($filterValue))
 		{

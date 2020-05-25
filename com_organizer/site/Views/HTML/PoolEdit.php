@@ -47,7 +47,7 @@ class PoolEdit extends EditView
 		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'list-2');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'pools.apply', false);
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "pools.save", false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'pools.save', false);
 
 		if ($this->item->id)
 		{
@@ -69,6 +69,6 @@ class PoolEdit extends EditView
 			$toolbar->appendButton('Popup', 'book', Helpers\Languages::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
 		}
 
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "pools.cancel", false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'pools.cancel', false);
 	}
 }

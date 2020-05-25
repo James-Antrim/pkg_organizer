@@ -334,7 +334,7 @@ class Courses extends ResourceHelper
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 
-		$query->select("participantID")
+		$query->select('participantID')
 			->from('#__organizer_course_participants')
 			->where("courseID = $courseID")
 			->order('participantID ASC');

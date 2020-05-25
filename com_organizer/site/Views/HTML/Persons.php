@@ -47,7 +47,7 @@ class Persons extends ListView
 				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 				'delete',
 				Helpers\Languages::_('ORGANIZER_DELETE'),
-				"persons.delete",
+				'persons.delete',
 				true
 			);
 

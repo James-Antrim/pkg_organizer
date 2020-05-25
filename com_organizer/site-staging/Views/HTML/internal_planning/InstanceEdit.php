@@ -42,8 +42,8 @@ class InstanceEdit extends EditView
 
 		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'contract-2');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "instances.save", false);
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "instances.cancel", false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'instances.save', false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'instances.cancel', false);
 
 		if ($this->item->id)
 		{

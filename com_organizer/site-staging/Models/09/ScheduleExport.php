@@ -350,15 +350,15 @@ class ScheduleExport extends BaseModel
 		{
 			if (count($poolIDs = Input::getFilterIDs('pool')))
 			{
-				$parameters["poolIDs"] = [$poolIDs];
+				$parameters['poolIDs'] = [$poolIDs];
 			}
 			if (count($personIDs = Input::getFilterIDs('person')))
 			{
-				$parameters["personIDs"] = [$personIDs];
+				$parameters['personIDs'] = [$personIDs];
 			}
 			if (count($roomIDs = Input::getFilterIDs('room')))
 			{
-				$parameters["roomIDs"] = [$roomIDs];
+				$parameters['roomIDs'] = [$roomIDs];
 			}
 		}
 

@@ -619,7 +619,7 @@ class EventList extends FormModel
 		$this->dates = implode(',', $this->dates);
 		if (strlen($this->dates) === 0)
 		{
-			$this->dates = "NULL";
+			$this->dates = 'NULL';
 		}
 	}
 

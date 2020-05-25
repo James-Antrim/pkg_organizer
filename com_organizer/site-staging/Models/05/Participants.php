@@ -107,7 +107,7 @@ class Participants extends ListModel
 
 		if ($courseID = Helpers\Input::getFilterID('course'))
 		{
-			$this->setState("filter.courseID", $courseID);
+			$this->setState('filter.courseID', $courseID);
 		}
 	}
 }

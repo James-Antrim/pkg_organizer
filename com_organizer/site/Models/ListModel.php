@@ -197,7 +197,7 @@ abstract class ListModel extends ParentModel
 			$this->setState("list.$input", $value);
 		}
 
-		$direction    = "ASC";
+		$direction    = 'ASC';
 		$fullOrdering = "{$this->defaultOrdering} ASC";
 		$ordering     = $this->defaultOrdering;
 
@@ -211,7 +211,7 @@ abstract class ListModel extends ParentModel
 				case 1:
 					if (in_array($pieces[0], $validDirections))
 					{
-						$direction    = empty($pieces[0]) ? "ASC" : $pieces[0];
+						$direction    = empty($pieces[0]) ? 'ASC' : $pieces[0];
 						$fullOrdering = "{$this->defaultDirection} $direction";
 						$ordering     = $this->defaultDirection;
 						break;
@@ -222,7 +222,7 @@ abstract class ListModel extends ParentModel
 					$ordering     = 'ASC';
 					break;
 				case 2:
-					$direction    = !in_array($pieces[1], $validDirections) ? "ASC" : $pieces[1];
+					$direction    = !in_array($pieces[1], $validDirections) ? 'ASC' : $pieces[1];
 					$ordering     = $pieces[0];
 					$fullOrdering = "$ordering $direction";
 					break;
@@ -277,7 +277,7 @@ abstract class ListModel extends ParentModel
 	 */
 	public function setDateStatusFilter(&$query, $status, $start, $end)
 	{
-		$value = $this->state->get("filter." . $status);
+		$value = $this->state->get('filter.' . $status);
 
 		switch ($value)
 		{

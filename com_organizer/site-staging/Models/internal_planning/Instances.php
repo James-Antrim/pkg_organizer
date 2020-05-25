@@ -60,7 +60,7 @@ class Instances extends ListModel
 	private function setTimeBlockFilter(&$query)
 	{
 
-		$value   = $this->state->get("filter.timeBlock");
+		$value   = $this->state->get('filter.timeBlock');
 		$timings = explode(",", $value);
 
 		if (sizeof($timings) == 2)

@@ -138,8 +138,8 @@ trait CourseParticipants
 	public function printBadges()
 	{
 		// Reliance on POST requires a different method of redirection
-		$this->input->set('format', "pdf");
-		$this->input->set('view', "badges");
+		$this->input->set('format', 'pdf');
+		$this->input->set('view', 'badges');
 		parent::display();
 	}
 

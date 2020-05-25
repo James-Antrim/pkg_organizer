@@ -47,7 +47,7 @@ class ProgramEdit extends EditView
 		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'list');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'programs.apply', false);
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "programs.save", false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'programs.save', false);
 
 		if ($this->item->id)
 		{
@@ -64,6 +64,6 @@ class ProgramEdit extends EditView
 			$toolbar->appendButton('Popup', 'list', Helpers\Languages::_('ORGANIZER_ADD_POOL'), $poolLink);
 		}
 
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "programs.cancel", false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'programs.cancel', false);
 	}
 }

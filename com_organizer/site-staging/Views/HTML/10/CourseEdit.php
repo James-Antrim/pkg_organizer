@@ -42,7 +42,7 @@ class CourseEdit extends EditView
 
 		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'contract-2');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "courses.save", false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'courses.save', false);
 
 		if ($this->item->id)
 		{
@@ -54,7 +54,7 @@ class CourseEdit extends EditView
 			$toolbar->appendButton('Custom', $button, 'participants');
 		}
 
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "courses.cancel", false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'courses.cancel', false);
 	}
 
 	/**

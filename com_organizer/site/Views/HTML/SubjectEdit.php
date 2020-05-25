@@ -47,7 +47,7 @@ class SubjectEdit extends EditView
 		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'book');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'subjects.apply', false);
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "subjects.save", false);
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "subjects.cancel", false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'subjects.save', false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'subjects.cancel', false);
 	}
 }
