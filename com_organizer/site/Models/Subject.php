@@ -21,7 +21,7 @@ use Organizer\Tables;
  */
 class Subject extends CurriculumResource
 {
-	const COORDINATES = 1, TEACHES = 2;
+	const COORDINATES = 1, NONE = -1, TEACHES = 2;
 
 	protected $resource = 'subject';
 
@@ -262,8 +262,8 @@ class Subject extends CurriculumResource
 	{
 		$data['curricula'] = ArrayHelper::toInteger($data['curricula']);
 
-		$noSelectedPrograms = (empty($data['curricula']) or array_search(-1, $data['curricula']) !== false);
-		$noSelectedPools    = (empty($data['superordinates']) or array_search(-1, $data['superordinates']) !== false);
+		$noSelectedPrograms = (empty($data['curricula']) or array_search(self::NONE, $data['curricula']) !== false);
+		$noSelectedPools    = (empty($data['superordinates']) or array_search(self::NONE, $data['superordinates']) !== false);
 
 		if ($noSelectedPrograms or $noSelectedPools)
 		{
@@ -549,19 +549,16 @@ class Subject extends CurriculumResource
 	 *
 	 * @param   int  $subjectID  the subject id
 	 *
-	 * @return boolean
+	 * @return boolean true on success, otherwise false
 	 */
 	private function removeDependencies($subjectID)
 	{
-		$rangeIDs      = Helpers\Subjects::filterIDs(Helpers\Subjects::getRanges($subjectID));
-		$rangeIDString = implode(',', $rangeIDs);
+		if (!$this->removePreRequisites($subjectID))
+		{
+			return false;
+		}
 
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_prerequisites')
-			->where("subjectID IN ($rangeIDString) OR prerequisiteID IN ($rangeIDString)");
-		$this->_db->setQuery($query);
-
-		return (bool) OrganizerHelper::executeQuery('execute');
+		return $this->removePostRequisites($subjectID);
 	}
 
 	/**
@@ -599,6 +596,46 @@ class Subject extends CurriculumResource
 			$query->where("role = $role");
 		}
 
+		$this->_db->setQuery($query);
+
+		return (bool) OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
+	 * Removes prerequisite associations for the given subject. No access checks => this is not directly
+	 * accessible and requires differing checks according to its calling context.
+	 *
+	 * @param   int  $subjectID  the subject id
+	 *
+	 * @return boolean true on success, otherwise false
+	 */
+	private function removePreRequisites($subjectID)
+	{
+		$rangeIDs      = Helpers\Subjects::filterIDs(Helpers\Subjects::getRanges($subjectID));
+		$rangeIDString = implode(',', $rangeIDs);
+
+		$query = $this->_db->getQuery(true);
+		$query->delete('#__organizer_prerequisites')->where("subjectID IN ($rangeIDString)");
+		$this->_db->setQuery($query);
+
+		return (bool) OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
+	 * Removes pre- & postrequisite associations for the given subject. No access checks => this is not directly
+	 * accessible and requires differing checks according to its calling context.
+	 *
+	 * @param   int  $subjectID  the subject id
+	 *
+	 * @return boolean true on success, otherwise false
+	 */
+	private function removePostRequisites($subjectID)
+	{
+		$rangeIDs      = Helpers\Subjects::filterIDs(Helpers\Subjects::getRanges($subjectID));
+		$rangeIDString = implode(',', $rangeIDs);
+
+		$query = $this->_db->getQuery(true);
+		$query->delete('#__organizer_prerequisites')->where("prerequisiteID IN ($rangeIDString)");
 		$this->_db->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('execute');
