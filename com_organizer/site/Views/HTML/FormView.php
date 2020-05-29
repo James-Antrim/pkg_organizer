@@ -72,8 +72,9 @@ abstract class FormView extends BaseHTMLView
 		Helpers\HTML::_('behavior.formvalidator');
 
 		$document = Factory::getDocument();
-		$document->addScript(Uri::root() . 'components/com_organizer/js/validators.js');
+		$document->addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
 		$document->addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
+		$document->addScript(Uri::root() . 'components/com_organizer/js/validators.js');
 		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
 	}
 }

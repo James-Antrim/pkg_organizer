@@ -28,64 +28,6 @@ class CurriculaField extends FormField
 	protected $type = 'Curricula';
 
 	/**
-	 * Adds the javascript to the page necessary to refresh the super ordinate resource options
-	 *
-	 * @param   int     $resourceID    the resource's id
-	 * @param   string  $resourceType  the resource's type
-	 *
-	 * @return void
-	 */
-	private function addScript($resourceID, $resourceType)
-	{
-		?>
-        <script type="text/javascript" charset="utf-8">
-            jQuery(document).ready(function () {
-                jQuery('#jformcurricula').change(function () {
-                    const cInput = jQuery('#jformcurricula'),
-                        soInput = jQuery('#superordinates'),
-                        oldSOs = soInput.val();
-                    let selectedCurricula = cInput.val(), soURL;
-
-                    if (selectedCurricula === null) {
-                        selectedCurricula = '';
-                    } else if (Array.isArray(selectedCurricula)) {
-                        selectedCurricula = selectedCurricula.join(',');
-                    }
-
-                    if (selectedCurricula.includes('-1') !== false) {
-                        cInput.find('option').removeAttr('selected');
-                        return false;
-                    }
-
-                    soURL = '<?php echo Uri::root(); ?>index.php?option=com_organizer';
-                    soURL += '&view=super_ordinates&format=json';
-                    soURL += "&id=<?php echo $resourceID; ?>";
-                    soURL += '&curricula=' + selectedCurricula;
-                    soURL += "&type=<?php echo $resourceType; ?>";
-
-                    jQuery.get(soURL, function (options) {
-                        soInput.html(options);
-                        const newSOs = soInput.val();
-                        let selectedSOs = [];
-                        if (newSOs !== null && newSOs.length) {
-                            if (oldSOs !== null && oldSOs.length) {
-                                selectedSOs = jQuery.merge(newSOs, oldSOs);
-                            } else {
-                                selectedSOs = newSOs;
-                            }
-                        } else if (oldSOs !== null && oldSOs.length) {
-                            selectedSOs = oldSOs;
-                        }
-
-                        soInput.val(selectedSOs);
-                    });
-                });
-            });
-        </script>
-		<?php
-	}
-
-	/**
 	 * Returns a select box where stored degree program can be chosen
 	 *
 	 * @return string  the HTML for the select box
@@ -95,7 +37,14 @@ class CurriculaField extends FormField
 		$resourceID   = $this->form->getValue('id');
 		$contextParts = explode('.', $this->form->getName());
 		$resourceType = str_replace('edit', '', $contextParts[1]);
-		$this->addScript($resourceID, $resourceType);
+
+		$curriculumParameters = [
+			'rootURL' => Uri::root(),
+			'id'      => $resourceID,
+			'type'    => $resourceType
+		];
+
+		Factory::getDocument()->addScriptOptions('curriculumParameters', $curriculumParameters);
 
 		$ranges = $resourceType === 'pool' ?
 			Helpers\Pools::getRanges($resourceID) : Helpers\Subjects::getRanges($resourceID);
