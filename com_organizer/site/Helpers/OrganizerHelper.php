@@ -204,6 +204,7 @@ class OrganizerHelper
 			'events'        => 'event',
 			'fields'        => 'field',
 			'fieldcolors'   => 'fieldcolor',
+			'methods'       => 'method',
 			'organizations' => 'organization',
 			'participants'  => 'participant',
 			'persons'       => 'person',

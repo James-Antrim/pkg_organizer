@@ -271,11 +271,11 @@ abstract class BaseHTMLView extends BaseView
 			/*$items[Languages::_('ORGANIZER_HOLIDAYS')]      = [
 				'url'    => 'index.php?option=com_organizer&amp;view=holidays',
 				'active' => $viewName == 'holidays'
-			];
+			];*/
 			$items[Languages::_('ORGANIZER_METHODS')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=methods',
 				'active' => $viewName == 'methods'
-			];*/
+			];
 			$items[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=organizations',
 				'active' => $viewName == 'organizations'
