@@ -211,14 +211,14 @@ abstract class BaseHTMLView extends BaseView
 			);
 		}
 
-		/*if (Helpers\Can::manage('facilities'))
+		if (Helpers\Can::manage('facilities'))
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_FACILITY_MANAGEMENT') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
 			$items = [];
 
-			$items[Languages::_('ORGANIZER_BUILDINGS')] = [
+			/*$items[Languages::_('ORGANIZER_BUILDINGS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=buildings',
 				'active' => $viewName == 'buildings'
 			];
@@ -233,7 +233,7 @@ abstract class BaseHTMLView extends BaseView
 			$items[Languages::_('ORGANIZER_ROOMS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=rooms',
 				'active' => $viewName == 'rooms'
-			];
+			];*/
 			$items[Languages::_('ORGANIZER_ROOMTYPES')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=roomtypes',
 				'active' => $viewName == 'roomtypes'
@@ -243,7 +243,7 @@ abstract class BaseHTMLView extends BaseView
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
-		}*/
+		}
 
 		if (Helpers\Can::administrate())
 		{

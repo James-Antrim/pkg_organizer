@@ -22,8 +22,8 @@ class Roomtypes extends ListView
 		'code'        => 'link',
 		'name'        => 'link',
 		'minCapacity' => 'value',
-		'maxCapacity' => 'value',
-		'roomCount'   => 'value'
+		'maxCapacity' => 'value'
+		//'roomCount'   => 'value'
 	];
 
 	/**
@@ -50,8 +50,8 @@ class Roomtypes extends ListView
 			'code'        => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
 			'name'        => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
 			'minCapacity' => Helpers\HTML::sort('MIN_CAPACITY', 'minCapacity', $direction, $ordering),
-			'maxCapacity' => Helpers\HTML::sort('MAX_CAPACITY', 'maxCapacity', $direction, $ordering),
-			'roomCount'   => Helpers\HTML::sort('ROOM_COUNT', 'roomCount', $direction, $ordering)
+			'maxCapacity' => Helpers\HTML::sort('MAX_CAPACITY', 'maxCapacity', $direction, $ordering)
+			//'roomCount'   => Helpers\HTML::sort('ROOM_COUNT', 'roomCount', $direction, $ordering)
 		];
 
 		$this->headers = $headers;
