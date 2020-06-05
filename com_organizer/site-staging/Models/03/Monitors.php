@@ -31,12 +31,9 @@ class Monitors extends ListModel
 	{
 		$query = $this->_db->getQuery(true);
 
-		$select = 'm.id, r.name, m.ip, m.useDefaults, m.display, m.content, ';
-		$parts  = ["'index.php?option=com_organizer&view=monitor_edit&id='", 'm.id'];
-		$select .= $query->concatenate($parts, '') . ' AS link ';
-		$query->select($this->state->get('list.select', $select));
-		$query->from('#__organizer_monitors AS m');
-		$query->leftJoin('#__organizer_rooms AS r ON r.id = m.roomID');
+		$query->select($this->state->get('list.select', 'm.id, r.name, m.ip, m.useDefaults, m.display, m.content'))
+			->from('#__organizer_monitors AS m')
+			->leftJoin('#__organizer_rooms AS r ON r.id = m.roomID');
 
 		$this->setSearchFilter($query, ['r.name', 'm.ip']);
 		$this->setValueFilters($query, ['useDefaults']);

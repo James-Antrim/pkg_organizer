@@ -56,6 +56,7 @@ class Grids extends ListView
 	{
 		$index           = 0;
 		$structuredItems = [];
+		$link            = "index.php?option=com_organizer&view=grid_edit&id=";
 
 		foreach ($this->items as $item)
 		{
@@ -82,7 +83,7 @@ class Grids extends ListView
 
 			$tip                     = Helpers\Languages::_('ORGANIZER_GRID_DESC');
 			$item->isDefault         = $this->getToggle('grids', $item->id, $item->isDefault, $tip);
-			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}
 

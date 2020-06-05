@@ -30,11 +30,8 @@ class Methods extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$select = "id, abbreviation_$tag AS abbreviation, name_$tag AS name, ";
-		$parts  = ["'index.php?option=com_organizer&view=method_edit&id='", 'id'];
-		$select .= $query->concatenate($parts, '') . ' AS link';
-		$query->select($select);
-		$query->from('#__organizer_methods');
+		$query->select("id, abbreviation_$tag AS abbreviation, name_$tag AS name")
+			->from('#__organizer_methods');
 
 		$this->setSearchFilter($query, ['name_de', 'name_en', 'abbreviation_de', 'abbreviation_en']);
 

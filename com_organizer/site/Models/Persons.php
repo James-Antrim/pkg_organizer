@@ -29,12 +29,9 @@ class Persons extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$query  = $this->_db->getQuery(true);
-		$select = 'DISTINCT p.id, surname, forename, username, code, o.id AS organizationID, ';
-		$parts  = ["'index.php?option=com_organizer&view=person_edit&id='", 'p.id'];
-		$select .= $query->concatenate($parts, '') . ' AS link ';
-		$query->select($select);
-		$query->from('#__organizer_persons AS p')
+		$query = $this->_db->getQuery(true);
+		$query->select('DISTINCT p.id, surname, forename, username, code, o.id AS organizationID')
+			->from('#__organizer_persons AS p')
 			->leftJoin('#__organizer_associations AS a ON a.personID = p.id')
 			->leftJoin('#__organizer_organizations AS o ON o.id = a.id');
 

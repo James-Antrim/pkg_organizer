@@ -28,11 +28,8 @@ class Grids extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->getDbo()->getQuery(true);
 
-		$select = "id, name_$tag AS name, grid, isDefault, ";
-		$parts  = ["'index.php?option=com_organizer&view=grid_edit&id='", 'id'];
-		$select .= $query->concatenate($parts, '') . ' AS link';
-		$query->select($select);
-		$query->from('#__organizer_grids');
+		$query->select("id, name_$tag AS name, grid, isDefault")
+			->from('#__organizer_grids');
 		$this->setOrdering($query);
 
 		return $query;

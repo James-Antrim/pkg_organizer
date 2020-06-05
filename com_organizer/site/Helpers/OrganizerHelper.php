@@ -196,18 +196,23 @@ class OrganizerHelper
 		$listViews = [
 			'categories'    => 'category',
 			'courses'       => 'course',
+			'colors'        => 'color',
+			'degrees'       => 'degree',
+			'grids'         => 'grid',
 			'groups'        => 'group',
 			'equipment'     => 'equipment',
 			'events'        => 'event',
+			'fields'        => 'field',
+			'fieldcolors'   => 'fieldcolor',
 			'organizations' => 'organization',
 			'participants'  => 'participant',
+			'persons'       => 'person',
 			'pools'         => 'pool',
 			'programs'      => 'program',
 			'rooms'         => 'room',
 			'roomtypes'     => 'roomtype',
 			'schedules'     => 'schedule',
-			'subjects'      => 'subject',
-			'persons'       => 'person'
+			'subjects'      => 'subject'
 		];
 
 		return $listViews[$initial];

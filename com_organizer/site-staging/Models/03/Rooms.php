@@ -32,11 +32,9 @@ class Rooms extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$linkParts = ["'index.php?option=com_organizer&view=room_edit&id='", 'r.id'];
 		$query->select('r.id, r.code, r.name AS roomName')
 			->select("t.id AS roomtypeID, t.name_$tag AS roomType")
 			->select('b.id AS buildingID, b.name AS buildingName')
-			->select($query->concatenate($linkParts, '') . ' AS link')
 			->from('#__organizer_rooms AS r')
 			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
 			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')

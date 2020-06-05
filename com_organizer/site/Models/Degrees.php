@@ -40,12 +40,10 @@ class Degrees extends ListModel
 	protected function getListQuery()
 	{
 		// Perform the database request
-		$query  = $this->_db->getQuery(true);
-		$select = 'id, name, abbreviation, code, ';
-		$parts  = ["'index.php?option=com_organizer&view=degree_edit&id='", 'id'];
-		$select .= $query->concatenate($parts) . ' AS link';
-		$query->select($select);
-		$query->from('#__organizer_degrees');
+		$query = $this->_db->getQuery(true);
+		$query->select('id, name, abbreviation, code')
+			->from('#__organizer_degrees');
+
 		$columns = ['name', 'abbreviation', 'code'];
 		$this->setSearchFilter($query, $columns);
 		$this->setOrdering($query);

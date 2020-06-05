@@ -12,7 +12,9 @@ namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
+
+// Exception for frequency of use
 
 /**
  * Class loads persistent information a filtered set of persons into the display context.
@@ -99,6 +101,7 @@ class Persons extends ListView
 	{
 		$index           = 0;
 		$structuredItems = [];
+		$link            = "index.php?option=com_organizer&view=person_edit&id=";
 
 		foreach ($this->items as $item)
 		{
@@ -119,7 +122,7 @@ class Persons extends ListView
 				$item->organizationID = Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
 			}
 
-			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}
 

@@ -28,14 +28,11 @@ class Campuses extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$select = "c1.id, c1.name_$tag as name, c2.id as parentID, c2.name_$tag as parentName, ";
-		$select .= 'c1.address, c1.city, c1.zipCode, c1.location, ';
-		$select .= 'c2.address as parentAddress, c2.city as parentCity, c2.zipCode as parentZIPCode, ';
-		$select .= "g1.id as gridID, g1.name_$tag as gridName, ";
-		$select .= "g2.id as parentGridID, g2.name_$tag as parentGridName, ";
-		$parts  = ["'index.php?option=com_organizer&view=campus_edit&id='", 'c1.id'];
-		$select .= $query->concatenate($parts, '') . ' AS link';
-		$query->select($select)
+		$query->select("c1.id, c1.name_$tag as name, c1.address, c1.city, c1.zipCode, c1.location")
+			->select("c2.id as parentID, c2.name_$tag as parentName, c2.address as parentAddress")
+			->select('c2.city as parentCity, c2.zipCode as parentZIPCode')
+			->select("g1.id as gridID, g1.name_$tag as gridName")
+			->select("g2.id as parentGridID, g2.name_$tag as parentGridName")
 			->from('#__organizer_campuses AS c1')
 			->leftJoin('#__organizer_grids AS g1 ON g1.id = c1.gridID')
 			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')

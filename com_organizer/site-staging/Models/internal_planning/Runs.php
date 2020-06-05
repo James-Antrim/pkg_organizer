@@ -29,13 +29,11 @@ class Runs extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag       = Helpers\Languages::getTag();
-		$linkParts = ["'index.php?option=com_organizer&view=run_edit&id='", 'r.id'];
-		$query     = $this->_db->getQuery(true);
+		$tag   = Helpers\Languages::getTag();
+		$query = $this->_db->getQuery(true);
 		$query->select("r.id, r.name_$tag as name, r.run, r.termID, t.name_$tag as term")
-			->select($query->concatenate($linkParts, '') . ' AS link')
-			->leftJoin('#__organizer_terms AS t ON t.id = r.termID')
-			->from('#__organizer_runs AS r');
+			->from('#__organizer_runs AS r')
+			->leftJoin('#__organizer_terms AS t ON t.id = r.termID');
 
 		$this->setSearchFilter($query, ['name_de', 'name_en']);
 		$this->setValueFilters($query, ['termID']);

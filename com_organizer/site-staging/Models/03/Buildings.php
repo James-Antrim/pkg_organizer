@@ -26,13 +26,10 @@ class Buildings extends ListModel
 	{
 		$query = $this->_db->getQuery(true);
 
-		$select = 'b.id, b.name, propertyType, campusID, c1.parentID, b.address, c1.city, c2.city as parentCity, ';
-		$parts  = ["'index.php?option=com_organizer&view=building_edit&id='", 'b.id'];
-		$select .= $query->concatenate($parts, '') . ' AS link';
-		$query->select($select);
-		$query->from('#__organizer_buildings AS b');
-		$query->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
-		$query->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
+		$query->select('b.id, b.name, propertyType, campusID, c1.parentID, b.address, c1.city, c2.city AS parentCity')
+			->from('#__organizer_buildings AS b')
+			->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
+			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
 
 		$this->setSearchFilter($query, ['b.name', 'b.address', 'c1.city', 'c2.city']);
 		$this->setValueFilters($query, ['propertyType']);

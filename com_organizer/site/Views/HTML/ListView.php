@@ -16,7 +16,9 @@ use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use Organizer\Helpers;
-use Organizer\Helpers\HTML; // Exception for frequency of use
+use Organizer\Helpers\HTML;
+
+// Exception for frequency of use
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
@@ -243,9 +245,13 @@ abstract class ListView extends BaseHTMLView
 		$index           = 0;
 		$structuredItems = [];
 
+		$resource    = Helpers\OrganizerHelper::getResource(Helpers\Input::getView());
+		$defaultLink = "index.php?option=com_organizer&view={$resource}_edit&id=";
+
 		foreach ($this->items as $item)
 		{
-			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
+			$link                    = empty($item->link) ? $defaultLink . $item->id : $item->link;
+			$structuredItems[$index] = $this->structureItem($index, $item, $link);
 			$index++;
 		}
 

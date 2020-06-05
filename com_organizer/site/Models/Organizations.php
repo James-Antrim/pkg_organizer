@@ -31,11 +31,8 @@ class Organizations extends ListModel
 		$tag        = Helpers\Languages::getTag();
 
 		// Create the query
-		$query  = $this->_db->getQuery(true);
-		$select = "o.id, o.shortName_$tag AS shortName, o.fullName_$tag AS name, a.rules, ";
-		$parts  = ["'index.php?option=com_organizer&view=organization_edit&id='", 'o.id'];
-		$select .= $query->concatenate($parts, '') . ' AS link ';
-		$query->select($select)
+		$query = $this->_db->getQuery(true);
+		$query->select("o.id, o.shortName_$tag AS shortName, o.fullName_$tag AS name, a.rules")
 			->from('#__organizer_organizations AS o')
 			->innerJoin('#__assets AS a ON a.id = o.asset_id')
 			->where('o.id IN (' . implode(',', $authorized) . ')');
