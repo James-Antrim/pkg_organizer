@@ -74,43 +74,6 @@ ALTER TABLE `v7ocf_organizer_buildings`
         ON UPDATE CASCADE;
 # endregion
 
-# region roomtypes
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roomtypes` (
-    `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`          VARCHAR(255)                 DEFAULT NULL,
-    `code`           VARCHAR(60)         NOT NULL COLLATE utf8mb4_bin,
-    `name_de`        VARCHAR(150)        NOT NULL,
-    `name_en`        VARCHAR(150)        NOT NULL,
-    `description_de` TEXT,
-    `description_en` TEXT,
-    `minCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
-    `maxCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
-    `suppress`       TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-    PRIMARY KEY (`id`),
-    UNIQUE INDEX `alias` (`alias`),
-    UNIQUE INDEX `code` (`code`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-INSERT IGNORE INTO `v7ocf_organizer_roomtypes` (`id`, `code`, `name_de`, `name_en`, `description_de`, `description_en`,
-                                                `minCapacity`, `maxCapacity`)
-SELECT DISTINCT `id`,
-                `gpuntisID`,
-                `name_de`,
-                `name_en`,
-                `description_de`,
-                `description_en`,
-                `min_capacity`,
-                `max_capacity`
-FROM `v7ocf_thm_organizer_room_types`;
-
-UPDATE `v7ocf_organizer_roomtypes`
-SET `suppress` = 1
-WHERE `code` = 'BR';
-# endregion
-
 # region rooms
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_rooms` (
     `id`         INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,

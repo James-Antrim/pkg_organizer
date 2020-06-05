@@ -20,28 +20,6 @@ SELECT DISTINCT `schedule_date`, WEEKDAY(`schedule_date`) + 1, `startTime`, `end
 FROM `v7ocf_thm_organizer_calendar`;
 # endregion
 
-# region methods
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_methods` (
-    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias`           VARCHAR(255) DEFAULT NULL,
-    `code`            VARCHAR(60)      NOT NULL,
-    `name_de`         VARCHAR(150) DEFAULT NULL,
-    `name_en`         VARCHAR(150) DEFAULT NULL,
-    `abbreviation_de` VARCHAR(25)  DEFAULT '',
-    `abbreviation_en` VARCHAR(25)  DEFAULT '',
-    PRIMARY KEY (`id`),
-    UNIQUE INDEX `alias` (`alias`),
-    UNIQUE `code` (`code`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-INSERT IGNORE INTO `v7ocf_organizer_methods` (`id`, `code`, `abbreviation_de`, `abbreviation_en`, `name_de`, `name_en`)
-SELECT DISTINCT `id`, `gpuntisID`, `abbreviation_de`, `abbreviation_en`, `name_de`, `name_en`
-FROM `v7ocf_thm_organizer_methods`;
-# endregion
-
 # region units
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_units` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
