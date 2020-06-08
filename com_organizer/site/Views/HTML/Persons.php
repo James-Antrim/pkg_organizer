@@ -39,20 +39,19 @@ class Persons extends ListView
 	{
 		Helpers\HTML::setTitle(Languages::_('ORGANIZER_TEACHERS'), 'users');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'persons.add', false);
+		/*$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'persons.add', false);*/
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'persons.edit', true);
 
 		if (Helpers\Can::administrate())
 		{
-			$toolbar->appendButton(
+			/*$toolbar->appendButton(
 				'Confirm',
 				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
 				'delete',
 				Helpers\Languages::_('ORGANIZER_DELETE'),
 				'persons.delete',
 				true
-			);
-
+			);*/
 			/*$toolbar->appendButton(
 				'Standard',
 				'attachment',
