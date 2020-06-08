@@ -14,7 +14,7 @@ use JHtmlSidebar;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
 use Organizer\Views\BaseView;
 
 /**
@@ -221,12 +221,12 @@ abstract class BaseHTMLView extends BaseView
 			/*$items[Languages::_('ORGANIZER_BUILDINGS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=buildings',
 				'active' => $viewName == 'buildings'
-			];
-			$items[Languages::_('ORGANIZER_CAMPUSES')]  = [
+			];*/
+			$items[Languages::_('ORGANIZER_CAMPUSES')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=campuses',
 				'active' => $viewName == 'campuses'
 			];
-			$items[Languages::_('ORGANIZER_MONITORS')]  = [
+			/*$items[Languages::_('ORGANIZER_MONITORS')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=monitors',
 				'active' => $viewName == 'monitors'
 			];

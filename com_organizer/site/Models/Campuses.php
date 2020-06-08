@@ -18,6 +18,8 @@ use Organizer\Helpers;
  */
 class Campuses extends ListModel
 {
+	protected $filter_fields = ['city', 'gridID'];
+
 	/**
 	 * Method to get a list of resources from the database.
 	 *
@@ -30,7 +32,7 @@ class Campuses extends ListModel
 
 		$query->select("c1.id, c1.name_$tag as name, c1.address, c1.city, c1.zipCode, c1.location")
 			->select("c2.id as parentID, c2.name_$tag as parentName, c2.address as parentAddress")
-			->select('c2.city as parentCity, c2.zipCode as parentZIPCode')
+			->select('c2.city AS parentCity, c2.zipCode AS parentZIPCode')
 			->select("g1.id as gridID, g1.name_$tag as gridName")
 			->select("g2.id as parentGridID, g2.name_$tag as parentGridName")
 			->from('#__organizer_campuses AS c1')
@@ -58,13 +60,13 @@ class Campuses extends ListModel
 	/**
 	 * Filters according to the selected city.
 	 *
-	 * @param   object &$query  the query object
+	 * @param   object  $query  the query object
 	 *
 	 * @return void
 	 */
-	private function setCityFilter(&$query)
+	private function setCityFilter($query)
 	{
-		$value = $this->state->get('list.city', '');
+		$value = $this->state->get('filter.city', '');
 
 		if ($value === '')
 		{
@@ -89,11 +91,11 @@ class Campuses extends ListModel
 	/**
 	 * Filters according to the selected grid.
 	 *
-	 * @param   object &$query  the query object
+	 * @param   object  $query  the query object
 	 *
 	 * @return void
 	 */
-	private function setGridFilter(&$query)
+	private function setGridFilter($query)
 	{
 		$value = $this->state->get('filter.gridID', '');
 

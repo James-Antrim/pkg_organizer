@@ -60,6 +60,7 @@ class Campuses extends ListView
 	 */
 	protected function structureItems()
 	{
+		$link            = 'index.php?option=com_organizer&view=campus_edit&id=';
 		$structuredItems = [];
 
 		foreach ($this->items as $item)
@@ -101,11 +102,11 @@ class Campuses extends ListView
 			}
 			else
 			{
-				$gridName = Helpers\Languages::_('JNONE');
+				$gridName = Helpers\Languages::_('ORGANIZER_NONE_GIVEN');
 			}
 			$item->gridID = $gridName;
 
-			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 		}
 
 		asort($structuredItems);

@@ -9,7 +9,7 @@
         </field>
         <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();">
             <option value="">ALL_GRIDS</option>
-            <option value="-1">NO_GRID</option>
+            <option value="-1">NONE_GIVEN</option>
         </field>
     </fields>
     <fields name="list">

@@ -128,22 +128,6 @@
 #todo check delete
 #endregion--------------------------------------------------------------------------------------------------------------
 
-#region Roomtype Edit View----------------------------------------------------------------------------------------------
-#todo check apply
-#todo check save
-#todo check cancel
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Roomtypes View--------------------------------------------------------------------------------------------------
-#todo check search
-#todo check filtering
-#todo check limiting
-#todo check sorting
-#todo check new
-#todo check edit
-#todo check delete
-#endregion--------------------------------------------------------------------------------------------------------------
-
 #endregion##############################################################################################################
 
 #region Stage 04: Methods, Schedules & Terms############################################################################
@@ -153,6 +137,7 @@
 #todo methods => kapvo mapping
 #todo adjust both old organizer, new organizer and untis according to any kapvo resolution
 #todo create terms model?
+#todo reactivate person adding/deletion/merge functions
 
 #region Method Edit View------------------------------------------------------------------------------------------------
 #todo check apply
