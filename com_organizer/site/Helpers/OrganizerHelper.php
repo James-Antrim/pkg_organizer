@@ -194,6 +194,7 @@ class OrganizerHelper
 		}
 
 		$listViews = [
+			'campuses'      => 'campus',
 			'categories'    => 'category',
 			'courses'       => 'course',
 			'colors'        => 'color',
