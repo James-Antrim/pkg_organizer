@@ -14,8 +14,6 @@ use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
-// Exception for frequency of use
-
 /**
  * Class loads persistent information a filtered set of persons into the display context.
  */
