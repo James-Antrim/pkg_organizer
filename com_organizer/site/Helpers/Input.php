@@ -419,7 +419,7 @@ class Input
 		{
 			$idValues = explode(',', $idValues);
 		}
-		elseif (is_array($idValues) and count($idValues) === 1 and preg_match('^(\d+,)*\d+$', $idValues[0]) !== -1)
+		elseif (is_array($idValues) and count($idValues) === 1 and preg_match('/^(\d+,)*\d+$/', $idValues[0]) !== -1)
 		{
 			$idValues = explode(',', $idValues[0]);
 		}

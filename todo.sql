@@ -55,78 +55,10 @@
 
 #endregion##############################################################################################################
 
-#region Stage 03: Facility Management###################################################################################
-#Resources/Tables: Buildings, Campuses, Monitors, Room Types, Rooms
+#region Stage 03: Curriculum after actions##############################################################################
 
 #todo Relink curriculum and subjects menu items
 #todo Link new subject views from the old schedule view
-#todo Set the documentation rubric in the THM Organizer menu to administrator access
-#todo Set the documentation views in the THM Organizer component to administrator access
-#todo Check the functionality of fm views and correct any problems found
-
-#region Building Edit View----------------------------------------------------------------------------------------------
-#todo check apply
-#todo check save
-#todo check cancel
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Buildings View--------------------------------------------------------------------------------------------------
-#todo check search
-#todo check filtering
-#todo check limiting
-#todo check sorting
-#todo check new
-#todo check edit
-#todo check delete
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Campus Edit View------------------------------------------------------------------------------------------------
-#todo check apply
-#todo check save
-#todo check cancel
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Campuses View---------------------------------------------------------------------------------------------------
-#todo check search
-#todo check filtering
-#todo check limiting
-#todo check sorting
-#todo check new
-#todo check edit
-#todo check delete
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Monitor Edit View-----------------------------------------------------------------------------------------------
-#todo check apply
-#todo check save
-#todo check cancel
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Monitors View---------------------------------------------------------------------------------------------------
-#todo check search
-#todo check filtering
-#todo check limiting
-#todo check sorting
-#todo check new
-#todo check edit
-#todo check delete
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Room Edit View--------------------------------------------------------------------------------------------------
-#todo check apply
-#todo check save
-#todo check cancel
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Rooms View------------------------------------------------------------------------------------------------------
-#todo check search
-#todo check filtering
-#todo check limiting
-#todo check sorting
-#todo check new
-#todo check edit
-#todo check delete
-#endregion--------------------------------------------------------------------------------------------------------------
 
 #endregion##############################################################################################################
 

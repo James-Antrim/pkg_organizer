@@ -47,7 +47,7 @@ class Roomtypes extends ResourceHelper implements Selectable
 	 *
 	 * @return array the available resources
 	 */
-	public static function getResources($associated = self::YES, $public = self::YES)
+	public static function getResources($associated = self::YES, $suppress = self::NO)
 	{
 		$dbo = Factory::getDbo();
 		$tag = Languages::getTag();
@@ -55,9 +55,9 @@ class Roomtypes extends ResourceHelper implements Selectable
 		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT t.*, t.id AS id, t.name_$tag AS name")->from('#__organizer_roomtypes AS t');
 
-		if ($public !== null)
+		if ($suppress === self::YES or $suppress === self::NO)
 		{
-			$query->where('t.public = ' . $public);
+			$query->where("t.suppress = $suppress");
 		}
 
 		if ($associated === self::YES)

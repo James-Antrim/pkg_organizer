@@ -218,22 +218,22 @@ abstract class BaseHTMLView extends BaseView
 
 			$items = [];
 
-			/*$items[Languages::_('ORGANIZER_BUILDINGS')] = [
+			$items[Languages::_('ORGANIZER_BUILDINGS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=buildings',
 				'active' => $viewName == 'buildings'
-			];*/
-			$items[Languages::_('ORGANIZER_CAMPUSES')] = [
+			];
+			$items[Languages::_('ORGANIZER_CAMPUSES')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=campuses',
 				'active' => $viewName == 'campuses'
 			];
-			/*$items[Languages::_('ORGANIZER_MONITORS')]  = [
+			$items[Languages::_('ORGANIZER_MONITORS')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=monitors',
 				'active' => $viewName == 'monitors'
 			];
 			$items[Languages::_('ORGANIZER_ROOMS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=rooms',
 				'active' => $viewName == 'rooms'
-			];*/
+			];
 			$items[Languages::_('ORGANIZER_ROOMTYPES')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=roomtypes',
 				'active' => $viewName == 'roomtypes'

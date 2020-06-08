@@ -33,40 +33,24 @@ class Buildings extends ListModel
 
 		$this->setSearchFilter($query, ['b.name', 'b.address', 'c1.city', 'c2.city']);
 		$this->setValueFilters($query, ['propertyType']);
-		$this->setCampusFilter($query);
+
+
+		if ($campusID = $this->state->get('filter.campusID', ''))
+		{
+			if ($campusID === '-1')
+			{
+				$query->where('campusID IS NULL');
+
+				return;
+			}
+			else
+			{
+				$query->where("(b.campusID = $campusID OR c1.parentID = $campusID)");
+			}
+		}
+
 		$this->setOrdering($query);
 
 		return $query;
-	}
-
-	/**
-	 * Provides a default method for setting filters for non-unique values
-	 *
-	 * @param   object &$query  the query object
-	 *
-	 * @return void
-	 */
-	private function setCampusFilter(&$query)
-	{
-		$value = $this->state->get('filter.campusID', '');
-
-		if ($value === '')
-		{
-			return;
-		}
-
-		/**
-		 * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
-		 * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
-		 * be extended we could maybe add a parameter for it later.
-		 */
-		if ($value == '-1')
-		{
-			$query->where('campusID IS NULL');
-
-			return;
-		}
-
-		$query->where("(b.campusID = '$value' OR c1.parentID = '$value')");
 	}
 }

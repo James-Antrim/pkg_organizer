@@ -83,6 +83,7 @@ class Monitors extends ListView
 	 */
 	protected function structureItems()
 	{
+		$link            = 'index.php?option=com_organizer&view=monitor_edit&id=';
 		$index           = 0;
 		$structuredItems = [];
 
@@ -105,7 +106,7 @@ class Monitors extends ListView
 			$tip               = Helpers\Languages::_('ORGANIZER_TOGGLE_COMPONENT_SETTINGS');
 			$item->useDefaults = $this->getToggle('monitor', $item->id, $item->useDefaults, $tip);
 
-			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}
 

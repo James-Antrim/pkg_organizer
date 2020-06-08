@@ -63,6 +63,7 @@ class Buildings extends ListView
 	 */
 	protected function structureItems()
 	{
+		$link            = 'index.php?option=com_organizer&view=building_edit&id=';
 		$index           = 0;
 		$structuredItems = [];
 
@@ -89,7 +90,7 @@ class Buildings extends ListView
 					break;
 			}
 
-			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}
 
