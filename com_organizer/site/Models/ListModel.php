@@ -34,8 +34,6 @@ abstract class ListModel extends ParentModel
 
 	protected $defaultLimit = null;
 
-	protected $defaultStart = 0;
-
 	protected $option = 'com_organizer';
 
 	/**
