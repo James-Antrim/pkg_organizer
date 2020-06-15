@@ -135,12 +135,12 @@ class SubjectsLSF
 	/**
 	 * Parses the object and sets subject attributes
 	 *
-	 * @param   Tables\Subjects  &$table    the subject table object
-	 * @param   object &          $subject  an object representing the data from the LSF response
+	 * @param   Tables\Subjects  $table    the subject table object
+	 * @param   object           $subject  an object representing the data from the LSF response
 	 *
 	 * @return void modifies the Table object
 	 */
-	public static function processAttributes(&$table, &$subject)
+	public static function processAttributes($table, $subject)
 	{
 		$table->setColumn('code', (string) $subject->modulecode, '');
 		$table->setColumn('instructionLanguage', (string) $subject->sprache, '');
@@ -154,7 +154,7 @@ class SubjectsLSF
 		$table->setColumn('creditpoints', 0, 0);
 
 		// Attributes that can be set by text or individual fields
-		self::processSpecialFields($subject, $table);
+		self::processSpecialFields($table, $subject);
 
 		$blobs = $subject->xpath('//blobs/blob');
 
@@ -169,12 +169,12 @@ class SubjectsLSF
 	/**
 	 * Sets attributes dealing with required student expenditure
 	 *
-	 * @param   object &$table  the subject data
+	 * @param   object  $table  the subject data
 	 * @param   string  $text   the expenditure text
 	 *
 	 * @return void
 	 */
-	private static function processExpenditures(&$table, $text)
+	private static function processExpenditures($table, $text)
 	{
 		$CrPMatch = [];
 		preg_match('/(\d) CrP/', (string) $text, $CrPMatch);

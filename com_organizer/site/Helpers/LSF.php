@@ -139,28 +139,4 @@ class LSF
 
 		return $header;
 	}
-
-	/**
-	 * Ensures that the title(s) are set and do not contain 'dummy'. This function favors the German title.
-	 *
-	 * @param   object &$resource   the resource being checked
-	 * @param   bool    $isSubject  whether or not the formatting is that of the program or subject soap response
-	 *
-	 * @return bool true if one of the titles has the possibility of being valid, otherwise false
-	 */
-	public static function invalidTitle(&$resource, $isSubject = false)
-	{
-		$titleDE = $isSubject ? trim((string) $resource->modul->titelde) : trim((string) $resource->titelde);
-		$titleEN = $isSubject ? trim((string) $resource->modul->titelen) : trim((string) $resource->titelen);
-		$title   = empty($titleDE) ? $titleEN : $titleDE;
-
-		if (empty($title))
-		{
-			return true;
-		}
-
-		$dummyPos = stripos($title, 'dummy');
-
-		return $dummyPos !== false;
-	}
 }

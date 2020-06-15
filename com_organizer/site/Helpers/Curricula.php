@@ -81,14 +81,13 @@ abstract class Curricula extends Associated implements Selectable
 	/**
 	 * Adds range restrictions for subordinate resources.
 	 *
-	 * @param   JDatabaseQuery &$query       the query to modify
-	 * @param   array           $ranges      the ranges of subordinate resources
-	 * @param   string          $type        the type of subordinate resource to filter for, empty => no filter
-	 * @param   int             $resourceID  the id of a specific subject resource to find in context
+	 * @param   JDatabaseQuery  $query      the query to modify
+	 * @param   array           $ranges     the ranges of subordinate resources
+	 * @param   int             $subjectID  the id of a specific subject resource to find in context
 	 *
 	 * @return void modifies the query
 	 */
-	protected static function filterSubOrdinate(&$query, $ranges, $type = '', $resourceID = 0)
+	protected static function filterSubOrdinate($query, $ranges, $subjectID = 0)
 	{
 		$wherray = [];
 		foreach ($ranges as $range)
@@ -96,18 +95,18 @@ abstract class Curricula extends Associated implements Selectable
 			$wherray[] = "( lft > '{$range['lft']}' AND rgt < '{$range['rgt']}')";
 		}
 
-		$query->where('(' . implode(' OR ', $wherray) . ')');
-
-		if ($type and in_array($type, ['pool', 'subject']))
+		if ($wherray)
 		{
-			if ($resourceID)
-			{
-				$query->where("{$type}ID = $resourceID");
-			}
-			else
-			{
-				$query->where("{$type}ID IS NOT NULL");
-			}
+			$query->where('(' . implode(' OR ', $wherray) . ')');
+		}
+
+		if ($subjectID)
+		{
+			$query->where("subjectID = $subjectID");
+		}
+		else
+		{
+			$query->where("subjectID IS NOT NULL");
 		}
 	}
 
@@ -417,11 +416,10 @@ abstract class Curricula extends Associated implements Selectable
 		$query = $dbo->getQuery(true);
 		$query->select('DISTINCT *')
 			->from('#__organizer_curricula')
-			->where('subjectID IS NOT NULL ')
 			->order('lft');
 
 		$resource = get_called_class();
-		self::filterSubOrdinate($query, $resource::getRanges($resourceID), 'subject', $subjectID);
+		self::filterSubOrdinate($query, $resource::getRanges($resourceID), $subjectID);
 
 		$dbo->setQuery($query);
 
