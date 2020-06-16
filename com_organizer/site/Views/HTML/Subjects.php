@@ -18,7 +18,7 @@ use Organizer\Helpers;
  */
 class Subjects extends ListView
 {
-	const COORDINATES = 1, TEACHES = 2;
+	const ALL = 0, COORDINATES = 1, TEACHES = 2;
 
 	private $documentAccess = false;
 
@@ -112,9 +112,18 @@ class Subjects extends ListView
 				Helpers\HTML::_('grid.checkall') : '';
 		}
 
+		if ($role = (int) Helpers\Input::getParams()->get('role') and $role === self::COORDINATES)
+		{
+			$personsText = Helpers\Languages::_('ORGANIZER_COORDINATORS');
+		}
+		else
+		{
+			$personsText = Helpers\Languages::_('ORGANIZER_TEACHERS');
+		}
+
 		$headers['name']         = Helpers\HTML::sort('NAME', 'name', $direction, $ordering);
 		$headers['code']         = Helpers\HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
-		$headers['persons']      = Helpers\Languages::_('ORGANIZER_TEACHERS');
+		$headers['persons']      = $personsText;
 		$headers['creditpoints'] = Helpers\Languages::_('ORGANIZER_CREDIT_POINTS');
 
 		$this->headers = $headers;
@@ -130,27 +139,35 @@ class Subjects extends ListView
 	private function getPersonDisplay($subject)
 	{
 		$names = [];
+		$role  = (int) Helpers\Input::getParams()->get('role');
 
 		if (count($subject->persons) > 3)
 		{
-			return Helpers\Languages::_('ORGANIZER_TEACHERS_PLACEHOLDER');
+			return $role === self::COORDINATES ?
+				Helpers\Languages::_('ORGANIZER_COORDINATORS_PLACEHOLDER') :
+				Helpers\Languages::_('ORGANIZER_TEACHERS_PLACEHOLDER');
 		}
+
 
 		foreach ($subject->persons as $personID => $person)
 		{
 			$name = $this->getPersonText($person);
 
-			$roles = [];
-			if (isset($person['role'][self::COORDINATES]))
+			if ($role === self::ALL)
 			{
-				$roles[] = Helpers\Languages::_('ORGANIZER_SUBJECT_COORDINATOR_ABBR');
-			}
-			if (isset($person['role'][self::TEACHES]))
-			{
-				$roles[] = Helpers\Languages::_('ORGANIZER_TEACHER_ABBR');
+				$roles = [];
+				if (isset($person['role'][self::COORDINATES]))
+				{
+					$roles[] = Helpers\Languages::_('ORGANIZER_SUBJECT_COORDINATOR_ABBR');
+				}
+				if (isset($person['role'][self::TEACHES]))
+				{
+					$roles[] = Helpers\Languages::_('ORGANIZER_TEACHER_ABBR');
+				}
+
+				$name .= ' (' . implode(', ', $roles) . ')';
 			}
 
-			$name    .= ' (' . implode(', ', $roles) . ')';
 			$names[] = $name;
 		}
 
