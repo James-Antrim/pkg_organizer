@@ -676,7 +676,7 @@ class Subject extends CurriculumResource
 	public function removePersons($subjectID, $role = null)
 	{
 		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_subject_persons')->where("subjectID = '$subjectID'");
+		$query->delete('#__organizer_subject_persons')->where("subjectID = $subjectID");
 		if (!empty($role))
 		{
 			$query->where("role = $role");
@@ -953,23 +953,16 @@ class Subject extends CurriculumResource
 		{
 			foreach ($subjectIDs as $subjectID)
 			{
-				$checkQuery = $this->_db->getQuery(true);
-				$checkQuery->select('COUNT(*)')
-					->from('#__organizer_prerequisites')
-					->where("prerequisiteID = '$prerequisiteID'")
-					->where("subjectID = '$subjectID'");
-				$this->_db->setQuery($checkQuery);
-
-				$entryExists = (bool) OrganizerHelper::executeQuery('loadResult');
-
-				if (!$entryExists)
+				$table = new Tables\Prerequisites();
+				if (!$table->load(['prerequisiteID' => $prerequisiteID, 'subjectID' => $subjectID]))
 				{
-					$insertQuery = $this->_db->getQuery(true);
-					$insertQuery->insert('#__organizer_prerequisites');
-					$insertQuery->columns('prerequisiteID, subjectID');
-					$insertQuery->values("'$prerequisiteID', '$subjectID'");
-					$this->_db->setQuery($insertQuery);
-					OrganizerHelper::executeQuery('execute');
+					$table->prerequisiteID = $prerequisiteID;
+					$table->subjectID      = $subjectID;
+
+					if (!$table->store())
+					{
+						return false;
+					}
 				}
 			}
 		}
@@ -1102,8 +1095,8 @@ class Subject extends CurriculumResource
 	private function verifyDependencies($potentialCodes, $programRanges)
 	{
 		$select = 's.id AS subjectID, code, ';
-		$select .= 'abbreviation_de, shortName_de, name_de, abbreviation_en, shortName_en, name_en, ';
-		$select .= 'c.id AS curriculumID, m.lft, m.rgt, ';
+		$select .= 'abbreviation_de, shortName_de, fullName_de, abbreviation_en, shortName_en, fullName_en, ';
+		$select .= 'c.id AS curriculumID, c.lft, c.rgt, ';
 
 		$query = $this->_db->getQuery(true);
 		$query->from('#__organizer_subjects AS s')
@@ -1120,12 +1113,11 @@ class Subject extends CurriculumResource
 
 			foreach ($programRanges as $program)
 			{
-				$query->clear('SELECT');
-				$query->select($select . "'{$program['id']}' AS programID");
+				$query->clear('SELECT')->clear('where');
 
-				$query->clear('where');
-				$query->where("lft > '{$program['lft']}' AND rgt < '{$program['rgt']}'");
-				$query->where("s.code = '$possibleModuleNumber'");
+				$query->select($select . "'{$program['id']}' AS programID")
+					->where("lft > {$program['lft']} AND rgt < {$program['rgt']}")
+					->where("s.code = '$possibleModuleNumber'");
 				$this->_db->setQuery($query);
 
 				if (!$curriculumSubjects = OrganizerHelper::executeQuery('loadAssocList', [], 'curriculumID'))

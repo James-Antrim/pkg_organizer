@@ -103,10 +103,8 @@ class Subjects extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$headers   = [];
 
-		if ($this->clientContext === self::BACKEND OR $this->documentAccess)
-		{
-			$headers['checkbox'] = '';
-		}
+		$headers['checkbox'] = ($this->clientContext === self::BACKEND and $this->documentAccess) ?
+			Helpers\HTML::_('grid.checkall') : '';
 
 		$headers['name']         = Helpers\HTML::sort('NAME', 'name', $direction, $ordering);
 		$headers['code']         = Helpers\HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
@@ -194,7 +192,7 @@ class Subjects extends ListView
 
 			$structuredItems[$index] = [];
 
-			if ($backend OR $this->documentAccess)
+			if ($backend or $this->documentAccess)
 			{
 				$structuredItems[$index]['checkbox'] = $checkbox;
 			}

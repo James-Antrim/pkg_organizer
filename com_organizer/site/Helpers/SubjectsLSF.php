@@ -249,24 +249,34 @@ class SubjectsLSF
 				}
 				break;
 
+			case 'Bewertung, Note':
+				$table->setColumn('evaluation_de', $germanText, '');
+				$table->setColumn('evaluation_en', $englishText, '');
+				break;
+
 			case 'Bonuspunkte':
 				$table->setColumn('bonusPoints_de', $germanText, '');
 				$table->setColumn('bonusPoints_en', $englishText, '');
 				break;
 
-			case 'Lehrformen':
-				$table->setColumn('method_de', $germanText, '');
-				$table->setColumn('method_en', $englishText, '');
+			case 'Empfohlene Voraussetzungen':
+				$table->setColumn('recommendedPrerequisites_de', $germanText, '');
+				$table->setColumn('recommendedPrerequisites_en', $englishText, '');
 				break;
 
-			case 'Voraussetzungen für die Vergabe von Creditpoints':
-				$table->setColumn('proof_de', $germanText, '');
-				$table->setColumn('proof_en', $englishText, '');
+			case 'Inhalt':
+				$table->setColumn('content_de', $germanText, '');
+				$table->setColumn('content_en', $englishText, '');
 				break;
 
 			case 'Kurzbeschreibung':
 				$table->setColumn('description_de', $germanText, '');
 				$table->setColumn('description_en', $englishText, '');
+				break;
+
+			case 'Lehrformen':
+				$table->setColumn('method_de', $germanText, '');
+				$table->setColumn('method_en', $englishText, '');
 				break;
 
 			case 'Literatur':
@@ -275,34 +285,14 @@ class SubjectsLSF
 				$table->setColumn('literature', $litText, '');
 				break;
 
-			case 'Qualifikations und Lernziele':
-				$table->setColumn('objective_de', $germanText, '');
-				$table->setColumn('objective_en', $englishText, '');
-				break;
-
-			case 'Inhalt':
-				$table->setColumn('content_de', $germanText, '');
-				$table->setColumn('content_en', $englishText, '');
-				break;
-
-			case 'Voraussetzungen':
-				$table->setColumn('prerequisites_de', $germanText, '');
-				$table->setColumn('prerequisites_en', $englishText, '');
-				break;
-
-			case 'Empfohlene Voraussetzungen':
-				$table->setColumn('recommendedPrerequisites_de', $germanText, '');
-				$table->setColumn('recommendedPrerequisites_en', $englishText, '');
-				break;
-
-			case 'Verwendbarkeit des Moduls':
-				$table->setColumn('usedFor_de', $germanText, '');
-				$table->setColumn('usedFor_en', $englishText, '');
-				break;
-
 			case 'Prüfungsvorleistungen':
 				$table->setColumn('preliminaryWork_de', $germanText, '');
 				$table->setColumn('preliminaryWork_en', $englishText, '');
+				break;
+
+			case 'Qualifikations und Lernziele':
+				$table->setColumn('objective_de', $germanText, '');
+				$table->setColumn('objective_en', $englishText, '');
 				break;
 
 			case 'Studienhilfsmittel':
@@ -310,9 +300,19 @@ class SubjectsLSF
 				$table->setColumn('aids_en', $englishText, '');
 				break;
 
-			case 'Bewertung, Note':
-				$table->setColumn('evaluation_de', $germanText, '');
-				$table->setColumn('evaluation_en', $englishText, '');
+			case 'Verwendbarkeit des Moduls':
+				$table->setColumn('usedFor_de', $germanText, '');
+				$table->setColumn('usedFor_en', $englishText, '');
+				break;
+
+			case 'Voraussetzungen':
+				$table->setColumn('prerequisites_de', $germanText, '');
+				$table->setColumn('prerequisites_en', $englishText, '');
+				break;
+
+			case 'Voraussetzungen für die Vergabe von Creditpoints':
+				$table->setColumn('proof_de', $germanText, '');
+				$table->setColumn('proof_en', $englishText, '');
 				break;
 
 			case 'Fachkompetenz':

@@ -10,14 +10,14 @@
 namespace Organizer\Models;
 
 use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
+use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
 
 abstract class CurriculumResource extends BaseModel
 {
 	use Associated;
 
-	CONST POOL = 'K', SUBJECT = 'M';
+	const POOL = 'K', SUBJECT = 'M';
 
 	protected $resource;
 
@@ -426,19 +426,34 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * Set name attributes common to pools and subjects
 	 *
-	 * @param   Tables\BaseTable  $table      the table to modify
-	 * @param   object            $XMLObject  the data source
+	 * @param   Tables\BaseTable  &$table      the table to modify
+	 * @param   object             $XMLObject  the data source
 	 *
 	 * @return void modifies the table object
 	 */
-	protected function setNameAttributes(&$table, &$XMLObject)
+	protected function setNameAttributes(&$table, $XMLObject)
 	{
 		$table->setColumn('abbreviation_de', (string) $XMLObject->kuerzel, '');
 		$table->setColumn('abbreviation_en', (string) $XMLObject->kuerzelen, $table->abbreviation_de);
 		$table->setColumn('shortName_de', (string) $XMLObject->kurzname, '');
 		$table->setColumn('shortName_en', (string) $XMLObject->kurznameen, $table->shortName_de);
-		$table->setColumn('name_de', (string) $XMLObject->titelde, '');
-		$table->setColumn('name_en', (string) $XMLObject->titelen, $table->name_de);
+
+		$deTitle = (string) $XMLObject->titelde;
+		if (!$enTitle = (string) $XMLObject->titelen)
+		{
+			$enTitle = $deTitle;
+		}
+
+		if (property_exists($table, 'name_de'))
+		{
+			$table->name_de = $deTitle;
+			$table->name_en = $enTitle;
+		}
+		else
+		{
+			$table->fullName_de = $deTitle;
+			$table->fullName_en = $enTitle;
+		}
 	}
 
 	/**
@@ -536,15 +551,14 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * Ensures that the title(s) are set and do not contain 'dummy'. This function favors the German title.
 	 *
-	 * @param   object &$resource   the resource being checked
-	 * @param   bool    $isSubject  whether or not the formatting is that of the program or subject soap response
+	 * @param   object  $resource  the resource being checked
 	 *
 	 * @return bool true if one of the titles has the possibility of being valid, otherwise false
 	 */
-	protected function validTitle(&$resource, $isSubject = false)
+	protected function validTitle($resource)
 	{
-		$titleDE = $isSubject ? trim((string) $resource->modul->titelde) : trim((string) $resource->titelde);
-		$titleEN = $isSubject ? trim((string) $resource->modul->titelen) : trim((string) $resource->titelen);
+		$titleDE = trim((string) $resource->titelde);
+		$titleEN = trim((string) $resource->titelen);
 		$title   = empty($titleDE) ? $titleEN : $titleDE;
 
 		if (empty($title))

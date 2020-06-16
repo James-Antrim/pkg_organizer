@@ -111,7 +111,7 @@ class Subjects extends ListModel
 			Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
 		}
 
-		// The selected pool supercedes any original called pool
+		// The selected pool supersedes any original called pool
 		if ($poolID = $this->state->get('filter.poolID', ''))
 		{
 			Helpers\Subjects::setPoolFilter($query, $poolID, 's');
