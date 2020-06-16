@@ -70,9 +70,11 @@ class Subjects extends ListModel
 			return [];
 		}
 
+		$role = Helpers\Input::getParams()->get('role', 1);
+
 		foreach ($items as $item)
 		{
-			$item->persons = Helpers\Subjects::getPersons($item->id);
+			$item->persons = Helpers\Subjects::getPersons($item->id, $role);
 		}
 
 		return $items;
