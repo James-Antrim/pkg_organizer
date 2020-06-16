@@ -102,7 +102,9 @@ abstract class ListView extends BaseHTMLView
 		$this->state         = $this->get('State');
 		$this->filterForm    = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
+
 		$this->setHeaders();
+
 		$this->items      = $this->get('Items');
 		$this->pagination = $this->get('Pagination');
 

@@ -142,6 +142,18 @@ class Subjects extends ListModel
 	}
 
 	/**
+	 * Method to get the total number of items for the data set.
+	 *
+	 * @param   string  $idColumn  the main id column of the list query
+	 *
+	 * @return integer  The total number of items available in the data set.
+	 */
+	public function getTotal($idColumn = null)
+	{
+		return parent::getTotal('s.id');
+	}
+
+	/**
 	 * Method to auto-populate the model state.
 	 *
 	 * @param   string  $ordering   An optional ordering field.
