@@ -98,7 +98,7 @@ abstract class ListModel extends ParentModel
 
 		// Load the total.
 		$query = $this->getListQuery();
-		$query->clear('SELECT')->clear('limit')->clear('offset')->clear('order');
+		$query->clear('select')->clear('limit')->clear('offset')->clear('order');
 		$query->select("COUNT(DISTINCT ($idColumn))");
 		$this->_db->setQuery($query);
 

@@ -1133,7 +1133,7 @@ class Subject extends CurriculumResource
 
 			foreach ($programRanges as $program)
 			{
-				$query->clear('SELECT')->clear('where');
+				$query->clear('select')->clear('where');
 
 				$query->select($select . "{$program['id']} AS programID")
 					->where("lft > {$program['lft']} AND rgt < {$program['rgt']}")

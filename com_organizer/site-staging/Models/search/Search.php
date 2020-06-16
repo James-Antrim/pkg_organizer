@@ -11,8 +11,8 @@
 namespace Organizer\Models;
 
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
-use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
+use Organizer\Helpers\Languages;
+use Organizer\Helpers\OrganizerHelper;
 
 /**
  * Class searches THM Organizer resources for resources and views relevant to the given search query.
@@ -712,7 +712,7 @@ class Search extends BaseModel
 		$this->results['related']['programs'] = $this->processPrograms($programs, $associations);
 
 		// Strong Related programs will not be displayed => no selection and no secondary processing.
-		$query->clear('SELECT');
+		$query->clear('select');
 		$query->clear('where');
 
 		$query->select('DISTINCT d.id');
@@ -775,9 +775,9 @@ class Search extends BaseModel
 
 			foreach ($programs as $program)
 			{
-				$groupQuery->clear('SELECT');
+				$groupQuery->clear('select');
 				$groupQuery->clear('where');
-				$poolQuery->clear('SELECT');
+				$poolQuery->clear('select');
 				$poolQuery->clear('where');
 
 				if (!empty($program['categoryID']))
