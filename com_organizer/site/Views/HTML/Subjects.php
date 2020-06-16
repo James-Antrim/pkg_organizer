@@ -106,8 +106,11 @@ class Subjects extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$headers   = [];
 
-		$headers['checkbox'] = ($this->clientContext === self::BACKEND and $this->documentAccess) ?
-			Helpers\HTML::_('grid.checkall') : '';
+		if ($this->clientContext === self::BACKEND or $this->documentAccess)
+		{
+			$headers['checkbox'] = ($this->clientContext === self::BACKEND and $this->documentAccess) ?
+				Helpers\HTML::_('grid.checkall') : '';
+		}
 
 		$headers['name']         = Helpers\HTML::sort('NAME', 'name', $direction, $ordering);
 		$headers['code']         = Helpers\HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
@@ -127,6 +130,12 @@ class Subjects extends ListView
 	private function getPersonDisplay($subject)
 	{
 		$names = [];
+
+		if (count($subject->persons) > 3)
+		{
+			return Helpers\Languages::_('ORGANIZER_TEACHERS_PLACEHOLDER');
+		}
+
 		foreach ($subject->persons as $personID => $person)
 		{
 			$name = $this->getPersonText($person);
