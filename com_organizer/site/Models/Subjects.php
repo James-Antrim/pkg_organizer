@@ -203,6 +203,11 @@ class Subjects extends ListModel
 			}
 		}
 
+		if ($calledPool or $calledProgram)
+		{
+			$this->setState('list.limit', 0);
+		}
+
 		$defaultPool = $calledPool ? $calledPool : self::ALL;
 		$poolID      = $calledPool ? $poolID : Helpers\Input::getFilterID('pool', $defaultPool);
 		$programID   = $calledProgram ? $programID : Helpers\Input::getFilterID('program', self::ALL);
