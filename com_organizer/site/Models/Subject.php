@@ -13,7 +13,7 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
+use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
 
 /**
@@ -207,7 +207,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return array the relevant subject ranges
 	 */
-	private static function filterRanges($programRange, $subjectRanges)
+	private function filterRanges($programRange, $subjectRanges)
 	{
 		$left           = $programRange['lft'];
 		$relevantRanges = [];
@@ -237,8 +237,8 @@ class Subject extends CurriculumResource
 		$query = $this->_db->getQuery(true);
 		$query->select('ordering')
 			->from('#__organizer_curricula')
-			->where("parentID = '$parentID'")
-			->where("subjectID = '$resourceID'");
+			->where("parentID = $parentID")
+			->where("subjectID = $resourceID");
 		$this->_db->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadResult', null);
@@ -301,16 +301,29 @@ class Subject extends CurriculumResource
 			return false;
 		}
 
-		$client  = new Helpers\LSF;
-		$subject = $client->getModuleByModulid($table->lsfID);
+		$client   = new Helpers\LSF;
+		$response = $client->getModuleByModulid($table->lsfID);
 
-		// The system administrator does not wish to display entries with this value
-		$invalid    = (empty($subject->modul) or empty($subject->modul->sperrmh));
-		$blocked    = $invalid ? true : strtolower((string) $subject->modul->sperrmh) == 'x';
-		$validTitle = $this->validTitle($subject, true);
-
-		if ($blocked or !$validTitle)
+		// Invalid response
+		if (empty($response->modul))
 		{
+			return $this->deleteSingle($table->id);
+		}
+
+		$subject = $response->modul;
+
+		// Suppressed
+		if (!empty($subject->sperrmh) and strtolower((string) $subject->sperrmh) === 'x')
+		{
+			OrganizerHelper::message('ORGANIZER_SUBJECT_SUPPRESSED', 'notice');
+
+			return $this->deleteSingle($table->id);
+		}
+
+		if (!$this->validTitle($subject))
+		{
+			OrganizerHelper::message('ORGANIZER_IMPORT_TITLE_INVALID', 'error');
+
 			return $this->deleteSingle($table->id);
 		}
 
@@ -340,7 +353,10 @@ class Subject extends CurriculumResource
 		$data['curricula'] = ArrayHelper::toInteger($data['curricula']);
 
 		$noSelectedPrograms = (empty($data['curricula']) or array_search(self::NONE, $data['curricula']) !== false);
-		$noSelectedPools    = (empty($data['superordinates']) or array_search(self::NONE, $data['superordinates']) !== false);
+		$noSelectedPools    = (
+			empty($data['superordinates'])
+			or array_search(self::NONE, $data['superordinates']) !== false
+		);
 
 		if ($noSelectedPrograms or $noSelectedPools)
 		{
@@ -752,13 +768,15 @@ class Subject extends CurriculumResource
 
 		// Ordered by length for faster in case short is a subset of long.
 		$checkedAttributes = [
-			'code',
-			'name_de',
-			'shortName_de',
 			'abbreviation_de',
+			'abbreviation_en',
+			'code',
+			'fullName_de',
+			'fullName_en',
+			'name_de',
 			'name_en',
-			'shortName_en',
-			'abbreviation_en'
+			'shortName_de',
+			'shortName_en'
 		];
 
 		// Flag to be set should one of the attribute texts consist only of module information. => Text should be empty.
@@ -775,11 +793,16 @@ class Subject extends CurriculumResource
 
 		foreach ($reqAttribs as $attribute => $direction)
 		{
-			$originalText   = $table->$attribute;
-			$sanitizedText  = Helpers\SubjectsLSF::sanitizeText($originalText);
-			$potentialCodes = preg_split('[\ ]', $sanitizedText);
+			$originalText  = $table->$attribute;
+			$sanitizedText = Helpers\SubjectsLSF::sanitizeText($originalText);
+			preg_match_all('/[\s|$]([A-Za-z0-9]{3,10})[\s|^]/', $sanitizedText, $potentialCodes);
 
-			if ($dependencies = $this->verifyDependencies($potentialCodes, $programRanges))
+			if (empty($potentialCodes) or empty($potentialCodes[1]))
+			{
+				continue;
+			}
+
+			if ($dependencies = $this->verifyDependencies($potentialCodes[1], $programRanges))
 			{
 				// Aggregate potential dependencies across language specific attributes
 				if ($direction === 'pre')
@@ -894,30 +917,31 @@ class Subject extends CurriculumResource
 	 */
 	private function saveDependencies($programs, $subjectID, $dependencies, $type)
 	{
+		$subjectRanges = Helpers\Subjects::getRanges($subjectID);
+
 		foreach ($programs as $program)
 		{
-			$subjectIDs = Helpers\Programs::getSubjectIDs($program['id'], $subjectID);
+			// Program context filtered subject ranges
+			$fsRanges   = $this->filterRanges($program, $subjectRanges);
+			$fsRangeIDs = Helpers\Subjects::filterIDs($fsRanges);
 
-			$dependencyIDs = [];
+			// Program context filtered dependency ranges
+			$fdRangeIDs = [];
 			foreach ($dependencies as $dependency)
 			{
-				foreach ($dependency as $curriculumID => $subjectData)
-				{
-					// A dependency is only relevant in the program context
-					if ($subjectData['programID'] == $program['id'])
-					{
-						$dependencyIDs[$curriculumID] = $curriculumID;
-					}
-				}
+				$fdRanges   = $this->filterRanges($program, $dependency);
+				$fdRangeIDs = array_merge($fdRangeIDs, Helpers\Subjects::filterIDs($fdRanges));
 			}
+
+			array_unique($fdRangeIDs);
 
 			if ($type == 'pre')
 			{
-				$success = $this->savePrerequisites($dependencyIDs, $subjectIDs);
+				$success = $this->savePrerequisites($fdRangeIDs, $fsRangeIDs);
 			}
 			else
 			{
-				$success = $this->savePrerequisites($subjectIDs, $dependencyIDs);
+				$success = $this->savePrerequisites($fsRangeIDs, $fdRangeIDs);
 			}
 
 			if (!$success)
@@ -1106,16 +1130,12 @@ class Subject extends CurriculumResource
 		foreach ($potentialCodes as $possibleModuleNumber)
 		{
 			$possibleModuleNumber = strtoupper($possibleModuleNumber);
-			if (preg_match('/[A-Z0-9]{3,10}/', $possibleModuleNumber) === false)
-			{
-				continue;
-			}
 
 			foreach ($programRanges as $program)
 			{
 				$query->clear('SELECT')->clear('where');
 
-				$query->select($select . "'{$program['id']}' AS programID")
+				$query->select($select . "{$program['id']} AS programID")
 					->where("lft > {$program['lft']} AND rgt < {$program['rgt']}")
 					->where("s.code = '$possibleModuleNumber'");
 				$this->_db->setQuery($query);

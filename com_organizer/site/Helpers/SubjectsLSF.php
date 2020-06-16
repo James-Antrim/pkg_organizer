@@ -39,7 +39,7 @@ class SubjectsLSF
 						$text = str_replace(strtolower($curriculumSubject[$checkedAttribute]), '', $text);
 						$text = str_replace(strtoupper($curriculumSubject[$checkedAttribute]), '', $text);
 					}
-					else
+					elseif (!empty($curriculumSubject[$checkedAttribute]))
 					{
 						$text = str_replace($curriculumSubject[$checkedAttribute], '', $text);
 					}

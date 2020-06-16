@@ -54,7 +54,14 @@ abstract class Curricula extends Associated implements Selectable
 		$ids = [];
 		foreach ($ranges as $range)
 		{
-			$ids[] = $range['id'];
+			if (empty($range['id']))
+			{
+				$ids[] = $range['curriculumID'];
+			}
+			else
+			{
+				$ids[] = $range['id'];
+			}
 		}
 
 		return $ids;
