@@ -277,7 +277,7 @@ class Input
 	 *
 	 * @return Registry
 	 */
-	private static function getListItems()
+	public static function getListItems()
 	{
 		if (self::$listItems === false)
 		{

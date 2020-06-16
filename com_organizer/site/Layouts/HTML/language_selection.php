@@ -8,10 +8,12 @@
  * @link        www.thm.de
  */
 
+use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
 Helpers\HTML::_('searchtools.form', '#languageForm', []);
-$languageAction = Helpers\OrganizerHelper::dynamic() ? "?option=com_organizer&view=$view&id=$resourceID" : '?';
+$languageAction = Helpers\OrganizerHelper::dynamic() ?
+	Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 $selectedTag    = Helpers\Languages::getTag();
 $languages      = [Helpers\Languages::_('ORGANIZER_ENGLISH') => 'en', Helpers\Languages::_('ORGANIZER_GERMAN') => 'de'];
 ksort($languages);
@@ -33,6 +35,9 @@ $options = implode('', $options);
                         <select id="languageTag" name="languageTag" onchange="this.form.submit();">
 							<?php echo $options ?>
                         </select>
+                        <input name="option" type="hidden" value="com_organizer">
+                        <input name="view" type="hidden" value="<?php echo $view ?>">
+                        <input name="id" type="hidden" value="<?php echo $resourceID ?>">
                     </div>
                 </div>
             </div>

@@ -16,6 +16,7 @@ $columnCount = count($this->headers);
 $isSite      = Helpers\OrganizerHelper::getApplication()->isClient('site');
 $items       = $this->items;
 $iteration   = 0;
+$action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 
 if ($isSite)
 {
@@ -31,7 +32,7 @@ if (!empty($this->submenu))
 	<?php if ($isSite) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
-    <form action="<?php echo Uri::current(); ?>" id="adminForm" method="post" name="adminForm">
+    <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
 		<?php require_once 'filters.php'; ?>
         <table class="table table-striped" id="<?php echo $this->get('name'); ?>-list">
             <thead>

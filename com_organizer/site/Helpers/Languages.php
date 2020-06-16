@@ -113,6 +113,12 @@ class Languages extends Text
 			return $requestedTag;
 		}
 
+		$list = Input::getListItems();
+		if ($listTag = $list->get('languageTag'))
+		{
+			return $listTag;
+		}
+
 		$default = explode('-', Factory::getLanguage()->getTag())[0];
 
 		return Input::getParams()->get('initialLanguage', $default);

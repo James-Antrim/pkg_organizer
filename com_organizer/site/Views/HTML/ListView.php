@@ -295,7 +295,13 @@ abstract class ListView extends BaseHTMLView
 
 			if ($propertyType === 'link')
 			{
-				$processedItem[$property] = HTML::_('link', $link, $item->$property);
+				$attributes = [];
+				if ($this->clientContext === self::FRONTEND)
+				{
+					$attributes['target'] = '_blank';
+				}
+
+				$processedItem[$property] = HTML::_('link', $link, $item->$property, $attributes);
 				continue;
 			}
 

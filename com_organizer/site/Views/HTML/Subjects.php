@@ -196,6 +196,12 @@ class Subjects extends ListView
 		$itemLink        = 'index.php?option=com_organizer&view=subject_item&id=';
 		$structuredItems = [];
 
+		$attributes = [];
+		if ($this->clientContext === self::FRONTEND)
+		{
+			$attributes['target'] = '_blank';
+		}
+
 		foreach ($this->items as $subject)
 		{
 			$access   = Helpers\Can::document('subject', $subject->id);
@@ -209,8 +215,8 @@ class Subjects extends ListView
 				$structuredItems[$index]['checkbox'] = $checkbox;
 			}
 
-			$structuredItems[$index]['name']         = Helpers\HTML::_('link', $thisLink, $subject->name);
-			$structuredItems[$index]['code']         = Helpers\HTML::_('link', $thisLink, $subject->code);
+			$structuredItems[$index]['name']         = Helpers\HTML::_('link', $thisLink, $subject->name, $attributes);
+			$structuredItems[$index]['code']         = Helpers\HTML::_('link', $thisLink, $subject->code, $attributes);
 			$structuredItems[$index]['persons']      = $this->getPersonDisplay($subject);
 			$structuredItems[$index]['creditpoints'] = empty($subject->creditpoints) ? '' : $subject->creditpoints;
 
