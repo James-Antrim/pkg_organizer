@@ -7,10 +7,6 @@ body.tmpl-index div.main {
     max-width: inherit;
   }
 
-  .chzn-container, input, select {
-    border: $border-darkest-thick;
-  }
-
   .chzn-container, select {
     width: 10rem !important;
   }

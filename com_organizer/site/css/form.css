@@ -24,14 +24,7 @@ body.tmpl-index div.main .chzn-container {
     max-width: inherit;
 }
 
-body.tmpl-index div.main .chzn-container,
-body.tmpl-index div.main input,
-body.tmpl-index div.main select {
-    border: 2px solid #4a5c66;
-}
-
-body.tmpl-index div.main .chzn-container,
-body.tmpl-index div.main select {
+body.tmpl-index div.main .chzn-container, body.tmpl-index div.main select {
     width: 10rem !important;
 }
 
@@ -39,8 +32,7 @@ body.tmpl-index div.main .chzn-container-multi .chzn-choices li {
     float: none;
 }
 
-body.tmpl-index div.main .chzn-container-multi,
-body.tmpl-index div.main select[multiple] {
+body.tmpl-index div.main .chzn-container-multi, body.tmpl-index div.main select[multiple] {
     height: auto;
     min-height: 2rem;
 }
@@ -49,46 +41,36 @@ body.tmpl-index div.main input[type='date'] {
     margin-bottom: 0;
 }
 
-body.tmpl-index div.main button,
-body.tmpl-index div.main input,
-body.tmpl-index div.main select {
+body.tmpl-index div.main button, body.tmpl-index div.main input, body.tmpl-index div.main select {
     padding: .3rem .5rem;
 }
 
-body.tmpl-index div.main .input-4,
-body.tmpl-index div.main .input-4 + .chzn-container,
-body.tmpl-index div.main .input-mini,
-body.tmpl-index div.main .input-mini + .chzn-container {
+body.tmpl-index div.main .input-4, body.tmpl-index div.main .input-4 + .chzn-container,
+body.tmpl-index div.main .input-mini, body.tmpl-index div.main .input-mini + .chzn-container {
     width: 4rem !important;
 }
 
-body.tmpl-index div.main .input-6,
-body.tmpl-index div.main .input-6 + .chzn-container {
+body.tmpl-index div.main .input-6, body.tmpl-index div.main .input-6 + .chzn-container {
     width: 6rem !important;
 }
 
-body.tmpl-index div.main .input-7,
-body.tmpl-index div.main .input-7 + .chzn-container {
+body.tmpl-index div.main .input-7, body.tmpl-index div.main .input-7 + .chzn-container {
     width: 7rem !important;
 }
 
-body.tmpl-index div.main .input-8,
-body.tmpl-index div.main .input-8 + .chzn-container {
+body.tmpl-index div.main .input-8, body.tmpl-index div.main .input-8 + .chzn-container {
     width: 8rem !important;
 }
 
-body.tmpl-index div.main .input-12,
-body.tmpl-index div.main .input-12 + .chzn-container {
+body.tmpl-index div.main .input-12, body.tmpl-index div.main .input-12 + .chzn-container {
     width: 12rem !important;
 }
 
-body.tmpl-index div.main .input-13,
-body.tmpl-index div.main .input-13 + .chzn-container {
+body.tmpl-index div.main .input-13, body.tmpl-index div.main .input-13 + .chzn-container {
     width: 13rem !important;
 }
 
-body.tmpl-index div.main .input-15,
-body.tmpl-index div.main .input-15 + .chzn-container {
+body.tmpl-index div.main .input-15, body.tmpl-index div.main .input-15 + .chzn-container {
     width: 15rem !important;
 }
 
@@ -120,8 +102,7 @@ body.tmpl-index div.main .btn-toolbar .btn-wrapper {
     margin-right: 5px;
 }
 
-body.tmpl-index div.main .btn-toolbar a.btn,
-body.tmpl-index div.main .btn-toolbar button {
+body.tmpl-index div.main .btn-toolbar a.btn, body.tmpl-index div.main .btn-toolbar button {
     font-size: .9rem;
 }
 
@@ -160,9 +141,7 @@ body.tmpl-index div.main .js-stools-container-bar input {
     width: 12rem;
 }
 
-body.tmpl-index div.main .js-stools-container-bar a.btn,
-body.tmpl-index div.main .js-stools-container-bar input,
-body.tmpl-index div.main .js-stools-container-bar button {
+body.tmpl-index div.main .js-stools-container-bar a.btn, body.tmpl-index div.main .js-stools-container-bar input, body.tmpl-index div.main .js-stools-container-bar button {
     font-family: "Open Sans", Arial, Helvetica, sans-serif;
     font-size: .9rem;
 }
