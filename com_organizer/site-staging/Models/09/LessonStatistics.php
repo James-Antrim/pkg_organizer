@@ -324,7 +324,7 @@ class LessonStatistics extends FormModel
 	 */
 	private function resetAdaptiveClauses()
 	{
-		$this->query->clear('SELECT')
+		$this->query->clear('select')
 			->clear('where')
 			->clear('order');
 	}
