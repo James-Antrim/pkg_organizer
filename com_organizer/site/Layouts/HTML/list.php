@@ -16,7 +16,6 @@ $columnCount = count($this->headers);
 $isSite      = Helpers\OrganizerHelper::getApplication()->isClient('site');
 $items       = $this->items;
 $iteration   = 0;
-$query       = Uri::getInstance()->getQuery();
 
 if ($isSite)
 {
@@ -32,7 +31,7 @@ if (!empty($this->submenu))
 	<?php if ($isSite) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
-    <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm">
+    <form action="<?php echo Uri::current(); ?>" id="adminForm" method="post" name="adminForm">
 		<?php require_once 'filters.php'; ?>
         <table class="table table-striped" id="<?php echo $this->get('name'); ?>-list">
             <thead>
