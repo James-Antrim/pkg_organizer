@@ -30,11 +30,11 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	protected function addRange(&$range)
 	{
-		$parent = $range['parentID'] ? $this->getRange($range['parentID']) : null;
+		$parent = $range['parentID'] ? Helpers\Curricula::getRange($range['parentID']) : null;
 		$left   = $this->getLeft($range['parentID'], $range['ordering']);
 		$level  = $parent ? $parent['level'] + 1 : 0;
 
-		if (!$left or $this->shiftRight($left))
+		if (!$left or !$this->shiftRight($left))
 		{
 			return 0;
 		}
@@ -109,7 +109,7 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	protected function deleteRange($rangeID)
 	{
-		if (!$range = $this->getRange($rangeID))
+		if (!$range = Helpers\Curricula::getRange($rangeID))
 		{
 			return false;
 		}
@@ -270,7 +270,7 @@ abstract class CurriculumResource extends BaseModel
 			->where("ordering < $ordering");
 		$this->_db->setQuery($rgtQuery);
 
-		if (!$rgt = OrganizerHelper::executeQuery('loadResult'))
+		if ($rgt = OrganizerHelper::executeQuery('loadResult'))
 		{
 			return $rgt + 1;
 		}
@@ -311,22 +311,6 @@ abstract class CurriculumResource extends BaseModel
 		}
 
 		return 1;
-	}
-
-	/**
-	 * Retrieves the range for a given id.
-	 *
-	 * @param   int  $rangeID  the id of the range requested
-	 *
-	 * @return array  curriculum range
-	 */
-	protected function getRange($rangeID)
-	{
-		$parentQuery = $this->_db->getQuery(true);
-		$parentQuery->select('*')->from('#__organizer_curricula')->where("id = $rangeID");
-		$this->_db->setQuery($parentQuery);
-
-		return OrganizerHelper::executeQuery('loadAssoc', []);
 	}
 
 	/**

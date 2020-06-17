@@ -230,6 +230,23 @@ abstract class Curricula extends Associated implements Selectable
 	}
 
 	/**
+	 * Retrieves the range for a given id.
+	 *
+	 * @param   int  $rangeID  the id of the range requested
+	 *
+	 * @return array  curriculum range
+	 */
+	public static function getRange($rangeID)
+	{
+		$dbo = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('*')->from('#__organizer_curricula')->where("id = $rangeID");
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadAssoc', []);
+	}
+
+	/**
 	 * Gets the mapped curricula ranges for the given resource
 	 *
 	 * @param   int  $resourceID  the resource ID

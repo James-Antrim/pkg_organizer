@@ -411,17 +411,15 @@ class Subject extends CurriculumResource
 				}
 			}
 
-			$range = ['subjectID' => $data['id']];
+			$range = [
+				'subjectID' => $data['id'],
+				'parentID'  => $superOrdinateRange['id'],
+				'ordering'  => $this->getOrdering($superOrdinateRange['id'], $data['id'])
+			];
 
-			foreach ($data['parentID'] as $parentID)
+			if (!$this->addRange($range))
 			{
-				$range['parentID'] = $parentID;
-				$range['ordering'] = $this->getOrdering($parentID, $range['subjectID']);
-
-				if (!$this->addRange($range))
-				{
-					return false;
-				}
+				return false;
 			}
 		}
 
@@ -431,6 +429,9 @@ class Subject extends CurriculumResource
 		{
 			foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
 			{
+				// The range boundaries will have changed after an add => reload
+				$superOrdinateRange = Helpers\Curricula::getRange($superOrdinateRange['id']);
+
 				// Relationship requested and established
 				if ($sRange['lft'] > $superOrdinateRange['lft'] and $sRange['rgt'] < $superOrdinateRange['rgt'])
 				{
@@ -868,7 +869,7 @@ class Subject extends CurriculumResource
 
 		if (!$this->allow())
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}
 
 		$data['creditpoints'] = (float) $data['creditpoints'];
@@ -888,7 +889,7 @@ class Subject extends CurriculumResource
 
 		$data['id'] = $table->id;
 
-		if (!$this->updateAssociations($data['id'], $data['organizationIDs']))
+		if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs']))
 		{
 			return false;
 		}
