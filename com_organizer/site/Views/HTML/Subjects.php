@@ -51,7 +51,7 @@ class Subjects extends ListView
 			}
 			if ($poolID = $this->state->get('calledPoolID', 0))
 			{
-				$poolName     = Helpers\Pools::getName($poolID);
+				$poolName     = Helpers\Pools::getFullName($poolID);
 				$resourceName .= empty($resourceName) ? $poolName : ", $poolName";
 			}
 		}
