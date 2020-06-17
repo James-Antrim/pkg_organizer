@@ -115,32 +115,47 @@ class OrganizationAssociationsField extends OptionsField
 			$displayed = $authorized;
 		}
 
+		$displayed = array_flip($displayed);
+
+		foreach (array_keys($displayed) as $organizationID)
+		{
+			$displayed[$organizationID] = Helpers\Organizations::getShortName($organizationID);
+		}
+
+		asort($displayed);
+
 		$options = [];
 
-		foreach ($displayed as $organizationID)
+		foreach ($displayed as $organizationID => $shortName)
 		{
-			$shortName = Helpers\Organizations::getShortName($organizationID);
 			$options[] = Helpers\HTML::_('select.option', $organizationID, $shortName);
 		}
 
 		$attr = '';
-
-		if ($resource !== 'fieldcolor')
-		{
-			$attr .= ' multiple';
-			$this->name = $this->name . '[]';
-		}
-
 		$attr .= !empty($this->class) ? ' class="' . $this->class . '"' : '';
 
-		if ($disabled)
+		if ($resource === 'fieldcolor')
 		{
-			$attr .= ' disabled="disabled"';
-			$attr .= ' size="' . count($options) . '"';
+			$attr .= ' required aria-required="true" autofocus';
 		}
 		else
 		{
-			$attr .= ' size="3" required aria-required="true" autofocus';
+			$this->name = $this->name . '[]';
+
+			if (count($options) > 1)
+			{
+				$attr .= ' multiple';
+			}
+
+			if ($disabled)
+			{
+				$attr .= ' disabled="disabled"';
+				$attr .= ' size="' . count($options) . '"';
+			}
+			else
+			{
+				$attr .= ' size="3" required aria-required="true" autofocus';
+			}
 		}
 
 		return Helpers\HTML::_(
