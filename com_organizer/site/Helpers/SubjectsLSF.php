@@ -11,6 +11,7 @@
 namespace Organizer\Helpers;
 
 use Organizer\Tables;
+use SimpleXMLElement;
 
 /**
  * Class provides general functions for retrieving building data.
@@ -327,19 +328,19 @@ class SubjectsLSF
 	/**
 	 * Checks for the existence and viability of seldom used fields
 	 *
-	 * @param   object &$table    the data object
-	 * @param   object &$subject  the subject object
+	 * @param   Tables\Subjects   $table    the data object
+	 * @param   SimpleXMLElement  $subject  the subject object
 	 *
 	 * @return void
 	 */
-	private static function processSpecialFields(&$table, &$subject)
+	private static function processSpecialFields($table, $subject)
 	{
-		if (!empty($table->sws))
+		if (!empty($subject->sws))
 		{
-			$table->setColumn('sws', (int) $table->sws, 0);
+			$table->setColumn('sws', (int) $subject->sws, 0);
 		}
 
-		if (empty($table->lp))
+		if (empty($subject->lp))
 		{
 			$table->setColumn('creditpoints', 0, 0);
 			$table->setColumn('expenditure', 0, 0);
@@ -349,23 +350,23 @@ class SubjectsLSF
 			return;
 		}
 
-		$crp = (float) $table->lp;
+		$crp = (float) $subject->lp;
 
 		$table->setColumn('creditpoints', $crp, 0);
 
-		$expenditure = empty($table->aufwand) ? $crp * 30 : (int) $table->aufwand;
+		$expenditure = empty($subject->aufwand) ? $crp * 30 : (int) $subject->aufwand;
 		$table->setColumn('expenditure', $expenditure, 0);
 
 		$validSum = false;
-		if ($table->praesenzzeit and $table->selbstzeit)
+		if ($subject->praesenzzeit and $subject->selbstzeit)
 		{
-			$validSum = ((int) $table->praesenzzeit + (int) $table->selbstzeit) == $expenditure;
+			$validSum = ((int) $subject->praesenzzeit + (int) $subject->selbstzeit) == $expenditure;
 		}
 
 		if ($validSum)
 		{
-			$table->setColumn('present', (int) $table->praesenzzeit);
-			$table->setColumn('independent', (int) $table->selbstzeit);
+			$table->setColumn('present', (int) $subject->praesenzzeit, 0);
+			$table->setColumn('independent', (int) $subject->selbstzeit, 0);
 
 			return;
 		}
@@ -374,14 +375,14 @@ class SubjectsLSF
 		$presence    = 0;
 
 		// I let required presence time take priority
-		if ($table->praesenzzeit)
+		if ($subject->praesenzzeit)
 		{
-			$presence    = (int) $table->praesenzzeit;
+			$presence    = (int) $subject->praesenzzeit;
 			$independent = $expenditure - $presence;
 		}
-		elseif ($table->selbstzeit)
+		elseif ($subject->selbstzeit)
 		{
-			$independent = (int) $table->selbstzeit;
+			$independent = (int) $subject->selbstzeit;
 			$presence    = $expenditure - $independent;
 		}
 
