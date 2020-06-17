@@ -373,7 +373,7 @@ class Subject extends CurriculumResource
 			}
 		}
 
-		$poolIDs = [];
+		$superOrdinateRanges = [];
 		foreach ($data['superordinates'] as $poolCurriculumID)
 		{
 			$table = new Tables\Curricula;
@@ -382,12 +382,6 @@ class Subject extends CurriculumResource
 				continue;
 			}
 
-			$poolIDs[$poolID] = $poolID;
-		}
-
-		$superOrdinateRanges = [];
-		foreach ($poolIDs as $poolID)
-		{
 			$poolRanges = Helpers\Pools::getRanges($poolID);
 			foreach ($poolRanges as $poolRange)
 			{
@@ -402,18 +396,17 @@ class Subject extends CurriculumResource
 			}
 		}
 
-		$existingRanges = Helpers\Subjects::getRanges($data['id']);
+		$sRanges = Helpers\Subjects::getRanges($data['id']);
 
 		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
 		{
-			foreach ($existingRanges as $sIndex => $eRange)
+			foreach ($sRanges as $sIndex => $sRange)
 			{
 				// There is an existing relationship
-				if ($eRange['lft'] > $superOrdinateRange['lft'] and $eRange['rgt'] < $superOrdinateRange['rgt'])
+				if ($sRange['lft'] > $superOrdinateRange['lft'] and $sRange['rgt'] < $superOrdinateRange['rgt'])
 				{
-					// Suppress continued iteration
-					unset($existingRanges[$sIndex]);
-
+					// Prevent further iteration of an established relationship
+					unset($sRanges[$sIndex]);
 					continue 2;
 				}
 			}
@@ -430,6 +423,25 @@ class Subject extends CurriculumResource
 					return false;
 				}
 			}
+		}
+
+		$sRanges = Helpers\Subjects::getRanges($data['id']);
+
+		foreach ($sRanges as $sIndex => $sRange)
+		{
+			foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
+			{
+				// Relationship requested and established
+				if ($sRange['lft'] > $superOrdinateRange['lft'] and $sRange['rgt'] < $superOrdinateRange['rgt'])
+				{
+					// Prevent further iteration of an established relationship
+					unset($superOrdinateRanges[$sorIndex]);
+					continue 2;
+				}
+			}
+
+			// Remove unrequested existing relationship
+			$this->deleteRange($sRange['id']);
 		}
 
 		return true;
@@ -859,7 +871,6 @@ class Subject extends CurriculumResource
 			throw new Exception(Languages::_('ORGANIZER_401'), 401);
 		}
 
-		// Prepare the data
 		$data['creditpoints'] = (float) $data['creditpoints'];
 
 		$starProperties = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
