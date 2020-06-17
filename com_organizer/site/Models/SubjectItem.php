@@ -222,7 +222,7 @@ class SubjectItem extends ItemModel
 				continue;
 			}
 
-			$programName = $program['name'];
+			$programName = Helpers\Programs::getName($program['programID']);
 			foreach ($dependencies as $dependency)
 			{
 				if ($dependency['preID'] == $subjectID)
