@@ -57,6 +57,7 @@ class Curriculum extends ItemView
 		$itemTemplate = '<div class="item ITEMCLASS">ITEMCONTENT</div>';
 		$itemClass    = 'item-blank';
 		$itemContent  = '';
+
 		if (!empty($item) and !empty($item['name']))
 		{
 			$bgColor = '#ffffff';

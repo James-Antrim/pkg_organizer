@@ -21,6 +21,7 @@ echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 		<?php endforeach; ?>
 		<?php echo $this->disclaimer; ?>
     </div>
+    <?php if (count($this->fields)) : ?>
     <div class="legend">
         <div class="panel-head">
             <div class="panel-title"><?php echo Helpers\Languages::_('ORGANIZER_LEGEND'); ?></div>
@@ -32,4 +33,5 @@ echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
             </div>
 		<?php endforeach; ?>
     </div>
+    <?php endif; ?>
 </div>
