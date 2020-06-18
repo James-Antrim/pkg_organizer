@@ -20,6 +20,8 @@ use Organizer\Helpers;
  */
 class PoolEdit extends EditView
 {
+	use Subordinate;
+
 	protected $_layout = 'tabs';
 
 	/**

@@ -20,6 +20,8 @@ use Organizer\Helpers;
  */
 class SubjectEdit extends EditView
 {
+	use Subordinate;
+
 	protected $_layout = 'tabs';
 
 	/**
@@ -49,17 +51,5 @@ class SubjectEdit extends EditView
 		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'subjects.apply', false);
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'subjects.save', false);
 		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'subjects.cancel', false);
-	}
-
-	/**
-	 * Adds styles and scripts to the document
-	 *
-	 * @return void  modifies the document
-	 */
-	protected function modifyDocument()
-	{
-		parent::modifyDocument();
-
-		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/curricula.js');
 	}
 }
