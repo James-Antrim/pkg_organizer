@@ -11,6 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
+use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
@@ -104,8 +105,49 @@ class Fields extends ResourceHelper implements Selectable
 			->from('#__organizer_fields')
 			->order('name');
 
+		$ranges = [];
+
+		if ($poolID = Input::getFilterID('pool') ? Input::getFilterID('pool') : Input::getInt('poolID'))
+		{
+			$ranges = Helpers\Pools::getSubjects($poolID);
+		}
+		elseif ($programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID'))
+		{
+			$ranges = Helpers\Programs::getSubjects($programID);
+		}
+
+		if ($ranges and $fieldIDs = self::getRelevantIDs($ranges))
+		{
+			$string = implode(',', $fieldIDs);
+			$query->where("id IN ($string)");
+		}
+
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssocList', []);
+	}
+
+	/**
+	 * Retrieves the relevant field ids for the given curriculum context.
+	 *
+	 * @param   array  $subjectRanges  the mapped subject ranges
+	 *
+	 * @return array the field ids associated with the subjects in the given context
+	 */
+	private static function getRelevantIDs($subjectRanges)
+	{
+		$fieldIDs = [];
+
+		foreach ($subjectRanges as $subject)
+		{
+			$table = new Tables\Subjects();
+
+			if ($table->load($subject['subjectID']) and !empty($table->fieldID))
+			{
+				$fieldIDs[$table->fieldID] = $table->fieldID;
+			}
+		}
+
+		return $fieldIDs;
 	}
 }

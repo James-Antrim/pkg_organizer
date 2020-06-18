@@ -19,6 +19,10 @@
             <option value="">ALL_TEACHERS</option>
             <option value="-1">NO_TEACHERS</option>
         </field>
+        <field name="fieldID" type="Fields" label="FIELDS" onchange="this.form.submit();">
+            <option value="">ALL_FIELDS</option>
+            <option value="-1">NO_FIELD</option>
+        </field>
         <field name="instructionLanguage" type="Options" label="INSTRUCTION_LANGUAGE" onchange="this.form.submit();">
             <option value="">ALL_INSTRUCTION_LANGUAGES</option>
             <option value="D">GERMAN</option>

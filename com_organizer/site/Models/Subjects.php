@@ -21,6 +21,7 @@ class Subjects extends ListModel
 {
 	protected $filter_fields = [
 		'instructionLanguage' => 'instructionLanguage',
+		'fieldID'             => 'fieldID',
 		'organizationID'      => 'organizationID',
 		'personID'            => 'personID',
 		'poolID'              => 'poolID',
@@ -134,6 +135,7 @@ class Subjects extends ListModel
 			}
 		}
 
+		$this->setIDFilter($query, 's.fieldID', 'filter.fieldID');
 		$this->setValueFilters($query, ['instructionLanguage']);
 
 		$this->setOrdering($query);
