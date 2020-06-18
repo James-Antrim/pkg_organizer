@@ -14,9 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 soInput = document.getElementById('superordinates'),
                 oldSOs = getMultipleValues('superordinates'),
                 preInput = document.getElementById('prerequisites'),
-                oldPres = getMultipleValues('prerequisites'),
+                oldPres = preInput === null ? [] : getMultipleValues('prerequisites'),
                 postInput = document.getElementById('postrequisites'),
-                oldPosts = getMultipleValues('postrequisites');
+                oldPosts = postInput === null ? [] : getMultipleValues('postrequisites');
 
             let selectedCurricula = getMultipleValues('jformcurricula'), soURL;
 
