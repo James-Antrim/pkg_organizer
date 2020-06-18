@@ -136,7 +136,7 @@
             <option value='3'>THREE_STARS</option>
         </field>
     </fieldset>
-    <fieldset name="associations" label="ASSOCIATIONS" displayinitial="0">
+    <fieldset name="associations" label="ASSOCIATIONS">
         <field type="Curricula" label="PROGRAMS"/>
         <field type="SuperOrdinates" label="SUPERORDINATES"/>
         <field name="spacer4" type="spacer" hr="true"/>

@@ -27,9 +27,12 @@ class SubjectEdit extends EditModel
 	 */
 	protected function allow()
 	{
-		$subjectID = empty($this->item->id) ? 0 : $this->item->id;
+		if ($subjectID = $this->item->id)
+		{
+			return Helpers\Can::document('subject', $subjectID);
+		}
 
-		return Helpers\Can::document('subject', $subjectID);
+		return (bool) Helpers\Can::documentTheseOrganizations();
 	}
 
 	/**
