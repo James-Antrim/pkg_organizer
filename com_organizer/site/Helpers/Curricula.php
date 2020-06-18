@@ -283,6 +283,11 @@ abstract class Curricula extends Associated implements Selectable
 	 */
 	public static function getSubOrdinateIDs($ranges)
 	{
+		if (empty($ranges))
+		{
+			return [];
+		}
+
 		$dbo = Factory::getDbo();
 
 		$query = $dbo->getQuery(true);
