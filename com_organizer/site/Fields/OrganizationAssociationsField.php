@@ -147,6 +147,8 @@ class OrganizationAssociationsField extends OptionsField
 				$attr .= ' multiple';
 			}
 
+			$count = count($options);
+
 			if ($disabled)
 			{
 				$attr .= ' disabled="disabled"';
@@ -154,6 +156,7 @@ class OrganizationAssociationsField extends OptionsField
 			}
 			else
 			{
+				$attr .= $count > 3 ? ' size="3"' : " size=\"$count\"";
 				$attr .= ' size="3" required aria-required="true" autofocus';
 			}
 		}
