@@ -60,6 +60,22 @@ class Pools extends BaseTable
 	public $fieldID;
 
 	/**
+	 * The resource's German name.
+	 * VARCHAR(255) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fullName_de;
+
+	/**
+	 * The resource's English name.
+	 * VARCHAR(255) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fullName_en;
+
+	/**
 	 * The id of the group entry referenced.
 	 * INT(11) UNSIGNED DEFAULT NULL
 	 *
@@ -90,22 +106,6 @@ class Pools extends BaseTable
 	 * @var int
 	 */
 	public $minCrP;
-
-	/**
-	 * The resource's German name.
-	 * VARCHAR(255) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
-
-	/**
-	 * The resource's English name.
-	 * VARCHAR(255) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
 
 	/**
 	 * The resource's German shortened name.
