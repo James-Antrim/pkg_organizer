@@ -97,6 +97,18 @@ class Program extends CurriculumResource
 	}
 
 	/**
+	 * Gets the mapped curricula ranges for the given resource
+	 *
+	 * @param   int  $programID  the resource id
+	 *
+	 * @return array the resource ranges
+	 */
+	protected function getRanges($programID)
+	{
+		return Helpers\Programs::getRanges($programID);
+	}
+
+	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.
@@ -163,7 +175,7 @@ class Program extends CurriculumResource
 		$curriculumID = 0;
 
 		// Curriculum entry doesn't exist and could not be created.
-		if (!Helpers\Programs::getRanges($resourceID) and !$curriculumID = $this->processCurricula($resourceID))
+		if (!$this->getRanges($resourceID) and !$curriculumID = $this->processCurricula($resourceID))
 		{
 			return false;
 		}

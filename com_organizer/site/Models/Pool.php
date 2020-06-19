@@ -85,6 +85,18 @@ class Pool extends CurriculumResource
 	}
 
 	/**
+	 * Gets the mapped curricula ranges for the given resource
+	 *
+	 * @param   int  $poolID  the resource id
+	 *
+	 * @return array the resource ranges
+	 */
+	protected function getRanges($poolID)
+	{
+		return Helpers\Pools::getRanges($poolID);
+	}
+
+	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.
@@ -133,7 +145,7 @@ class Pool extends CurriculumResource
 	 */
 	protected function processCurricula($data)
 	{
-		$pRanges             = Helpers\Pools::getRanges($data['id']);
+		$pRanges             = $this->getRanges($data['id']);
 		$superOrdinateRanges = $this->getSuperOrdinateRanges($data, 'pool');
 
 		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
@@ -161,7 +173,7 @@ class Pool extends CurriculumResource
 			}
 		}
 
-		$pRanges = Helpers\Pools::getRanges($data['id']);
+		$pRanges = $this->getRanges($data['id']);
 
 		foreach ($pRanges as $pIndex => $pRange)
 		{

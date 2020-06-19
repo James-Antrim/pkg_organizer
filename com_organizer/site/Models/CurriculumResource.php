@@ -315,6 +315,15 @@ abstract class CurriculumResource extends BaseModel
 	}
 
 	/**
+	 * Gets the mapped curricula ranges for the given resource
+	 *
+	 * @param   int  $resourceID  the resource id
+	 *
+	 * @return array the resource ranges
+	 */
+	abstract protected function getRanges($resourceID);
+
+	/**
 	 * Method to import data associated with resources from LSF
 	 *
 	 * @return void true on success, otherwise false

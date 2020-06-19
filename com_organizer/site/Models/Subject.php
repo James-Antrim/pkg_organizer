@@ -245,6 +245,18 @@ class Subject extends CurriculumResource
 	}
 
 	/**
+	 * Gets the mapped curricula ranges for the given resource
+	 *
+	 * @param   int  $subjectID  the resource id
+	 *
+	 * @return array the resource ranges
+	 */
+	protected function getRanges($subjectID)
+	{
+		return Helpers\Subjects::getRanges($subjectID);
+	}
+
+	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.
@@ -350,7 +362,7 @@ class Subject extends CurriculumResource
 	 */
 	protected function processCurricula($data)
 	{
-		$sRanges             = Helpers\Subjects::getRanges($data['id']);
+		$sRanges             = $this->getRanges($data['id']);
 		$superOrdinateRanges = $this->getSuperOrdinateRanges($data, 'subject');
 
 		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
@@ -378,7 +390,7 @@ class Subject extends CurriculumResource
 			}
 		}
 
-		$sRanges = Helpers\Subjects::getRanges($data['id']);
+		$sRanges = $this->getRanges($data['id']);
 
 		foreach ($sRanges as $sIndex => $sRange)
 		{
@@ -500,7 +512,7 @@ class Subject extends CurriculumResource
 	{
 		$subjectID = $data['id'];
 
-		if (!$subjectRanges = Helpers\Subjects::getRanges($subjectID))
+		if (!$subjectRanges = $this->getRanges($subjectID))
 		{
 			return true;
 		}
@@ -513,7 +525,7 @@ class Subject extends CurriculumResource
 			$prerequisiteRanges = [];
 			foreach ($preRequisites as $preRequisiteID)
 			{
-				$prerequisiteRanges = array_merge($prerequisiteRanges, Helpers\Subjects::getRanges($preRequisiteID));
+				$prerequisiteRanges = array_merge($prerequisiteRanges, $this->getRanges($preRequisiteID));
 			}
 
 			$preSuccess = $this->associateDependencies($programRanges, $prerequisiteRanges, $subjectRanges, true);
@@ -530,7 +542,7 @@ class Subject extends CurriculumResource
 			$postRequisiteRanges = [];
 			foreach ($postRequisites as $postRequisiteID)
 			{
-				$postRequisiteRanges = array_merge($postRequisiteRanges, Helpers\Subjects::getRanges($postRequisiteID));
+				$postRequisiteRanges = array_merge($postRequisiteRanges, $this->getRanges($postRequisiteID));
 			}
 
 			$preSuccess = $this->associateDependencies($programRanges, $subjectRanges, $postRequisiteRanges, false);
@@ -681,7 +693,7 @@ class Subject extends CurriculumResource
 	 */
 	private function removePreRequisites($subjectID)
 	{
-		$rangeIDs      = Helpers\Subjects::filterIDs(Helpers\Subjects::getRanges($subjectID));
+		$rangeIDs      = Helpers\Subjects::filterIDs($this->getRanges($subjectID));
 		$rangeIDString = implode(',', $rangeIDs);
 
 		$query = $this->_db->getQuery(true);
@@ -701,7 +713,7 @@ class Subject extends CurriculumResource
 	 */
 	private function removePostRequisites($subjectID)
 	{
-		$rangeIDs      = Helpers\Subjects::filterIDs(Helpers\Subjects::getRanges($subjectID));
+		$rangeIDs      = Helpers\Subjects::filterIDs($this->getRanges($subjectID));
 		$rangeIDString = implode(',', $rangeIDs);
 
 		$query = $this->_db->getQuery(true);
@@ -884,7 +896,7 @@ class Subject extends CurriculumResource
 	 */
 	private function saveDependencies($programs, $subjectID, $dependencies, $type)
 	{
-		$subjectRanges = Helpers\Subjects::getRanges($subjectID);
+		$subjectRanges = $this->getRanges($subjectID);
 
 		foreach ($programs as $program)
 		{
