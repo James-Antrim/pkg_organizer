@@ -21,7 +21,7 @@ use Organizer\Tables;
  */
 class Subject extends CurriculumResource
 {
-	const COORDINATES = 1, NONE = -1, TEACHES = 2;
+	const COORDINATES = 1, TEACHES = 2;
 
 	protected $resource = 'subject';
 
@@ -350,53 +350,8 @@ class Subject extends CurriculumResource
 	 */
 	protected function processCurricula($data)
 	{
-		$data['curricula'] = ArrayHelper::toInteger($data['curricula']);
-
-		$noSelectedPrograms = (empty($data['curricula']) or array_search(self::NONE, $data['curricula']) !== false);
-		$noSelectedPools    = (
-			empty($data['superordinates'])
-			or array_search(self::NONE, $data['superordinates']) !== false
-		);
-
-		if ($noSelectedPrograms or $noSelectedPools)
-		{
-			return $this->deleteRanges($data['id']);
-		}
-
-		// Retrieve the program ranges for sanity checks on the pool ranges
-		$programRanges = [];
-		foreach ($data['curricula'] as $programID)
-		{
-			if ($ranges = Helpers\Programs::getRanges($programID))
-			{
-				$programRanges[] = $ranges[0];
-			}
-		}
-
-		$superOrdinateRanges = [];
-		foreach ($data['superordinates'] as $poolCurriculumID)
-		{
-			$table = new Tables\Curricula;
-			if (!$table->load($poolCurriculumID) or !$poolID = $table->poolID)
-			{
-				continue;
-			}
-
-			$poolRanges = Helpers\Pools::getRanges($poolID);
-			foreach ($poolRanges as $poolRange)
-			{
-				foreach ($programRanges as $programRange)
-				{
-					if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt'])
-					{
-						$superOrdinateRanges[] = $poolRange;
-						break;
-					}
-				}
-			}
-		}
-
-		$sRanges = Helpers\Subjects::getRanges($data['id']);
+		$sRanges             = Helpers\Subjects::getRanges($data['id']);
+		$superOrdinateRanges = $this->getSuperOrdinateRanges($data, 'subject');
 
 		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
 		{

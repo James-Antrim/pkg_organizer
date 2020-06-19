@@ -194,7 +194,7 @@ class Programs extends Curricula implements Selectable
 	}
 
 	/**
-	 * Gets the mapped curricula ranges for the given resource
+	 * Gets the mapped curricula ranges for the given resource. Returns array of associations for compatibility reasons.
 	 *
 	 * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
 	 *

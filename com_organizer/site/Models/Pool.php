@@ -125,6 +125,68 @@ class Pool extends CurriculumResource
 	}
 
 	/**
+	 * Saves the resource's curriculum information.
+	 *
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	protected function processCurricula($data)
+	{
+		$pRanges             = Helpers\Pools::getRanges($data['id']);
+		$superOrdinateRanges = $this->getSuperOrdinateRanges($data, 'pool');
+
+		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
+		{
+			foreach ($pRanges as $pIndex => $pRange)
+			{
+				// There is an existing relationship
+				if ($pRange['lft'] > $superOrdinateRange['lft'] and $pRange['rgt'] < $superOrdinateRange['rgt'])
+				{
+					// Prevent further iteration of an established relationship
+					unset($pRanges[$pIndex]);
+					continue 2;
+				}
+			}
+
+			$range = [
+				'poolID'   => $data['id'],
+				'parentID' => $superOrdinateRange['id'],
+				'ordering' => $this->getOrdering($superOrdinateRange['id'], $data['id'])
+			];
+
+			if (!$this->addRange($range))
+			{
+				return false;
+			}
+		}
+
+		$pRanges = Helpers\Pools::getRanges($data['id']);
+
+		foreach ($pRanges as $pIndex => $pRange)
+		{
+			foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
+			{
+				// The range boundaries will have changed after an add => reload
+				$superOrdinateRange = Helpers\Curricula::getRange($superOrdinateRange['id']);
+
+				// Relationship requested and established
+				if ($pRange['lft'] > $superOrdinateRange['lft'] and $pRange['rgt'] < $superOrdinateRange['rgt'])
+				{
+					// Prevent further iteration of an established relationship
+					unset($superOrdinateRanges[$sorIndex]);
+					continue 2;
+				}
+			}
+
+			// Remove unrequested existing relationship
+			$this->deleteRange($pRange['id']);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Creates a pool entry if none exists and calls
 	 *
 	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary subject data
@@ -184,8 +246,6 @@ class Pool extends CurriculumResource
 
 			if (!$this->addRange($range))
 			{
-				Helpers\OrganizerHelper::message('ORGANIZER_POOL_ADD_FAIL', 'error');
-
 				return false;
 			}
 
@@ -235,45 +295,16 @@ class Pool extends CurriculumResource
 
 		$data['id'] = $table->id;
 
-		// If no the form has associations the purge has to take place after the curriculum is modeled.
-		if (empty($data['parentID']))
-		{
-			return $this->deleteRanges($table->id) ? $table->id : false;
-		}
-
-		return $this->processCurricula($data) ? $table->id : false;
-	}
-
-	/**
-	 * Saves the resource's curriculum information.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	protected function processCurricula($data)
-	{
-		$range = ['poolID' => $data['id'], 'curriculum' => $this->getFormCurriculum()];
-
-		// The curriculum has been modelled in the range => purge.
-		if (!$this->deleteRanges($range['poolID']))
+		if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs']))
 		{
 			return false;
 		}
 
-		foreach ($data['parentID'] as $parentID)
+		if (!$this->processCurricula($data))
 		{
-			$range['parentID'] = $parentID;
-			$range['ordering'] = $this->getOrdering($parentID, $range['poolID']);
-
-			if (!$this->addRange($range))
-			{
-				Helpers\OrganizerHelper::message('ORGANIZER_POOL_ADD_FAIL', 'error');
-
-				return false;
-			}
+			return false;
 		}
 
-		return true;
+		return $table->id;
 	}
 }

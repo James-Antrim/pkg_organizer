@@ -9,6 +9,7 @@
 
 namespace Organizer\Models;
 
+use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
@@ -17,7 +18,7 @@ abstract class CurriculumResource extends BaseModel
 {
 	use Associated;
 
-	const POOL = 'K', SUBJECT = 'M';
+	const NONE = -1, POOL = 'K', SUBJECT = 'M';
 
 	protected $resource;
 
@@ -530,6 +531,89 @@ abstract class CurriculumResource extends BaseModel
 		$this->_db->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
+	 * Performs checks to ensure that a superordinate item has been selected as a precursor to the rest of the
+	 * curriculum processing.
+	 *
+	 * @param   array   $data  the form data
+	 * @param   string  $type  the type of subordinate item
+	 *
+	 * @return array the applicable superordinate ranges
+	 */
+	protected function getSuperOrdinateRanges($data, $type)
+	{
+		$data['curricula'] = ArrayHelper::toInteger($data['curricula']);
+
+		// No need to check superordinates if no curriculum was selected
+		if (empty($data['curricula']) or array_search(self::NONE, $data['curricula']) !== false)
+		{
+			$this->deleteRanges($data['id']);
+
+			return [];
+		}
+
+		if (empty($data['superordinates']) or array_search(self::NONE, $data['superordinates']) !== false)
+		{
+			$this->deleteRanges($data['id']);
+
+			return [];
+		}
+
+		// Retrieve the program ranges for sanity checks on the pool ranges
+		$programRanges = [];
+		foreach ($data['curricula'] as $programID)
+		{
+			if ($ranges = Helpers\Programs::getRanges($programID))
+			{
+				$programRanges[$programID] = $ranges[0];
+			}
+		}
+
+		$superOrdinateRanges = [];
+		foreach ($data['superordinates'] as $superOrdinateID)
+		{
+			$table = new Tables\Curricula;
+
+			// Non-existent or invalid entry
+			if (!$table->load($superOrdinateID) or $table->subjectID)
+			{
+				continue;
+			}
+
+			if ($programID = $table->programID)
+			{
+				// Subjects may not be directly associated with programs.
+				if ($type === 'subject')
+				{
+					continue;
+				}
+
+				foreach ($programRanges as $programRange)
+				{
+					if ($programRange['programID'] === $programID)
+					{
+						$superOrdinateRanges[$programRange['id']] = $programRange;
+					}
+				}
+
+				continue;
+			}
+
+			foreach (Helpers\Pools::getRanges($table->poolID) as $poolRange)
+			{
+				foreach ($programRanges as $programRange)
+				{
+					if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt'])
+					{
+						$superOrdinateRanges[$poolRange['id']] = $poolRange;
+					}
+				}
+			}
+		}
+
+		return $superOrdinateRanges;
 	}
 
 	/**
