@@ -10,8 +10,6 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers;
-
 /**
  * Class loads non-item-specific form data.
  */

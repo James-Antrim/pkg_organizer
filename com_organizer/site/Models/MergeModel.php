@@ -20,7 +20,7 @@ use Organizer\Tables;
 abstract class MergeModel extends BaseModel
 {
 	/**
-	 * @var the column name in the organization resources table
+	 * @var string the column name in the organization resources table
 	 */
 	protected $association;
 
@@ -69,7 +69,7 @@ abstract class MergeModel extends BaseModel
 
 		if (!$this->allow())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
 		$table = $this->getTable();
@@ -150,7 +150,7 @@ abstract class MergeModel extends BaseModel
 
 		if (!$this->allowMerge())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 		}
 
 		// Associations have to be updated before entity references are deleted by foreign keys
@@ -240,7 +240,7 @@ abstract class MergeModel extends BaseModel
 
 		$query = $this->_db->getQuery(true);
 		$query->update("#__organizer_$tableSuffix");
-		$query->set("{$this->fkColumn} = '$mergeID'");
+		$query->set("{$this->fkColumn} = $mergeID");
 		$query->where("{$this->fkColumn} IN ( $updateIDs )");
 		$this->_db->setQuery($query);
 
@@ -264,7 +264,7 @@ abstract class MergeModel extends BaseModel
 		$existingQuery = $this->_db->getQuery(true);
 		$existingQuery->select('DISTINCT organizationID');
 		$existingQuery->from('#__organizer_associations');
-		$existingQuery->where("{$this->association} = '{$this->data['id']}'");
+		$existingQuery->where("{$this->association} = {$this->data['id']}");
 		$this->_db->setQuery($existingQuery);
 		$existing = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 
@@ -272,7 +272,7 @@ abstract class MergeModel extends BaseModel
 		{
 			$deletionQuery = $this->_db->getQuery(true);
 			$deletionQuery->delete('#__organizer_associations');
-			$deletionQuery->where("{$this->association} = '{$this->data['id']}'");
+			$deletionQuery->where("{$this->association} = {$this->data['id']}");
 			$deletionQuery->where("organizationID IN ('" . implode("','", $deprecated) . "')");
 			$this->_db->setQuery($deletionQuery);
 

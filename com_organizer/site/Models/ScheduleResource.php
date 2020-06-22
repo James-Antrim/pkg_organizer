@@ -17,7 +17,7 @@ interface ScheduleResource
 	/**
 	 * Processes the data for an individual schedule
 	 *
-	 * @param   Tables\Schedule  $schedule  the schedule being processed
+	 * @param   Tables\Schedules  $schedule  the schedule being processed
 	 *
 	 * @return bool true if the schedule was changed, otherwise false
 	 */

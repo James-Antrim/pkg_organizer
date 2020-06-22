@@ -14,6 +14,7 @@ use Exception;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
+use SimpleXMLElement;
 
 /**
  * Class which manages stored subject data.
@@ -323,11 +324,11 @@ class Subject extends CurriculumResource
 	/**
 	 * Processes the persons selected for the subject
 	 *
-	 * @param   array &$data  the post data
+	 * @param   array  $data  the post data
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processPersons(&$data)
+	private function processPersons($data)
 	{
 		// More efficient to remove all subject persons associations for the subject than iterate the persons table
 		if (!$this->removePersons($data['id']))
@@ -378,11 +379,11 @@ class Subject extends CurriculumResource
 	/**
 	 * Processes the subject pre- & postrequisites selected for the subject
 	 *
-	 * @param   array &$data  the post data
+	 * @param   array  $data  the post data
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processPrerequisites(&$data)
+	private function processPrerequisites($data)
 	{
 		$subjectID = $data['id'];
 
@@ -433,13 +434,13 @@ class Subject extends CurriculumResource
 	/**
 	 * Creates a subject and a curricula table entries as necessary.
 	 *
-	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary resource data
-	 * @param   int     $organizationID  the id of the organization with which the resource is associated
-	 * @param   int     $parentID        the  id of the parent entry in the curricula table
+	 * @param   SimpleXMLElement  $XMLObject       a SimpleXML object containing rudimentary resource data
+	 * @param   int               $organizationID  the id of the organization with which the resource is associated
+	 * @param   int               $parentID        the  id of the parent entry in the curricula table
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function processResource(&$XMLObject, $organizationID, $parentID)
+	public function processResource($XMLObject, $organizationID, $parentID)
 	{
 		$lsfID = (string) (empty($XMLObject->modulid) ? $XMLObject->pordid : $XMLObject->modulid);
 		if (empty($lsfID))
@@ -460,8 +461,7 @@ class Subject extends CurriculumResource
 				return true;
 			}
 
-			$subjects->organizationID = $organizationID;
-			$subjects->lsfID          = $lsfID;
+			$subjects->lsfID = $lsfID;
 
 			if (!$subjects->store())
 			{
@@ -851,12 +851,12 @@ class Subject extends CurriculumResource
 	/**
 	 * Creates an association between persons, subjects and their roles for that subject.
 	 *
-	 * @param   int     $subjectID   the id of the subject
-	 * @param   object &$dataObject  an object containing the lsf response
+	 * @param   int               $subjectID   the id of the subject
+	 * @param   SimpleXMLElement  $dataObject  an object containing the lsf response
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function setPersons($subjectID, &$dataObject)
+	private function setPersons($subjectID, $dataObject)
 	{
 		$coordinators = $dataObject->xpath('//verantwortliche');
 		$persons      = $dataObject->xpath('//dozent');
@@ -887,12 +887,12 @@ class Subject extends CurriculumResource
 	 * Sets subject persons by their role for the subject
 	 *
 	 * @param   int    $subjectID  the subject's id
-	 * @param   array &$persons    an array containing information about the subject's persons
+	 * @param   array  $persons    an array containing information about the subject's persons
 	 * @param   int    $role       the person's role
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
-	private function setPersonsByRoles($subjectID, &$persons, $role)
+	private function setPersonsByRoles($subjectID, $persons, $role)
 	{
 		$subjectModel = new Subject;
 		$removed      = $subjectModel->removePersons($subjectID, $role);

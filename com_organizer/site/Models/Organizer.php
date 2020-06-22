@@ -10,9 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
-use Organizer\Tables;
+use Joomla\CMS\Toolbar\Toolbar;
 
 /**
  * Class which sets permissions for the view.
@@ -486,7 +484,7 @@ class Organizer extends BaseModel
 	 * Checks whether user lessons or lesson configurations exist which yet need to be migrated. Provides buttons to
 	 * trigger migration as necessary. Drops the corresponding tables if all data has been migrated.
 	 *
-	 * @param   Joomla\CMS\Toolbar\Toolbar  $toolbar  the toolbar to add the button to as necessary.
+	 * @param   Toolbar  $toolbar  the toolbar to add the button to as necessary.
 	 *
 	 * @return void
 	 */
@@ -566,7 +564,7 @@ class Organizer extends BaseModel
 	 * Checks whether schedules exist which yet need to be migrated. Provides a button to trigger schedule migration as
 	 * necessary. Drops the migrated column from the database if all schedules have been migrated.
 	 *
-	 * @param   Joomla\CMS\Toolbar\Toolbar  $toolbar  the toolbar to add the button to as necessary.
+	 * @param   Toolbar  $toolbar  the toolbar to add the button to as necessary.
 	 *
 	 * @return void
 	 */

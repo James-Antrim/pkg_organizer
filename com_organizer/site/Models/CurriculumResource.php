@@ -9,10 +9,12 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
+use SimpleXMLElement;
 
 abstract class CurriculumResource extends BaseModel
 {
@@ -411,13 +413,13 @@ abstract class CurriculumResource extends BaseModel
 	 * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
 	 * needed.
 	 *
-	 * @param   object &$collection      the SimpleXML node containing the collection of subordinate elements
-	 * @param   int     $organizationID  the id of the organization with which the resources are associated
-	 * @param   int     $parentID        the id of the curriculum entry for the parent element.
+	 * @param   SimpleXMLElement  $collection      the SimpleXML node containing the collection of subordinate elements
+	 * @param   int               $organizationID  the id of the organization with which the resources are associated
+	 * @param   int               $parentID        the id of the curriculum entry for the parent element.
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	protected function processCollection(&$collection, $organizationID, $parentID)
+	protected function processCollection($collection, $organizationID, $parentID)
 	{
 		$pool    = new Pool;
 		$subject = new Subject;
@@ -460,27 +462,16 @@ abstract class CurriculumResource extends BaseModel
 	abstract protected function processCurricula($data);
 
 	/**
-	 * Creates a resource and resource curriculum hierarchy as necessary.
-	 *
-	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary resource data
-	 * @param   int     $organizationID  the id of the organization with which the resource is associated
-	 * @param   int     $parentID        the  id of the parent entry in the curricula table
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	abstract public function processResource(&$XMLObject, $organizationID, $parentID);
-
-	/**
 	 * Sets the value of a generic attribute if available
 	 *
-	 * @param   object &$table    the array where subject data is being stored
-	 * @param   string  $column   the key where the value should be put
-	 * @param   string  $value    the value string
-	 * @param   string  $default  the default value
+	 * @param   Tables\BaseTable  $table    the array where subject data is being stored
+	 * @param   string            $column   the key where the value should be put
+	 * @param   string            $value    the value string
+	 * @param   string            $default  the default value
 	 *
 	 * @return void
 	 */
-	protected function setAttribute(&$table, $column, $value, $default = '')
+	protected function setAttribute($table, $column, $value, $default = '')
 	{
 		$table->$column = empty($value) ? $default : $value;
 	}
@@ -488,12 +479,12 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * Set name attributes common to pools and subjects
 	 *
-	 * @param   Tables\BaseTable  &$table      the table to modify
-	 * @param   object             $XMLObject  the data source
+	 * @param   Tables\Pools|Tables\Subjects  $table      the table to modify
+	 * @param   SimpleXMLElement              $XMLObject  the data source
 	 *
 	 * @return void modifies the table object
 	 */
-	protected function setNameAttributes(&$table, $XMLObject)
+	protected function setNameAttributes($table, $XMLObject)
 	{
 		$table->setColumn('abbreviation_de', (string) $XMLObject->kuerzel, '');
 		$table->setColumn('abbreviation_en', (string) $XMLObject->kuerzelen, $table->abbreviation_de);

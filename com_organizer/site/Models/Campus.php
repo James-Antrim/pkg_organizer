@@ -46,10 +46,12 @@ class Campus extends BaseModel
 	/**
 	 * Attempts to save the resource.
 	 *
-	 * @return bool true on success, otherwise false
+	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
+	 *
+	 * @return mixed int id of the resource on success, otherwise boolean false
 	 * @throws Exception => unauthorized access
 	 */
-	public function save()
+	public function save($data = [])
 	{
 		if ($parentID = Helpers\Input::getInt('parentID'))
 		{
@@ -62,6 +64,6 @@ class Campus extends BaseModel
 			}
 		}
 
-		return parent::save();
+		return parent::save($data);
 	}
 }

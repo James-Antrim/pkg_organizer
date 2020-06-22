@@ -357,7 +357,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @param   JDatabaseQuery  $query    the query to modify
 	 * @param   string          $context  the resource context from which this function was called
-	 * @param   string          $alias    the alias of the table onto which the organizatons table will be joined as
+	 * @param   string          $alias    the alias of the table onto which the organizations table will be joined as
 	 *                                    needed
 	 *
 	 * @return void

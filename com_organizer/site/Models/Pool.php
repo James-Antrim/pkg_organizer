@@ -13,6 +13,7 @@ namespace Organizer\Models;
 use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
+use SimpleXMLElement;
 
 /**
  * Class which manages stored (subject) pool data.
@@ -46,7 +47,7 @@ class Pool extends CurriculumResource
 	protected function processCurricula($data)
 	{
 		$pRanges             = $this->getRanges($data['id']);
-		$superOrdinateRanges = $this->getSuperOrdinateRanges($data, 'pool');
+		$superOrdinateRanges = $this->getSuperOrdinateRanges($data);
 
 		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
 		{
@@ -101,12 +102,13 @@ class Pool extends CurriculumResource
 	/**
 	 * Creates a pool entry if none exists and calls
 	 *
-	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary subject data
-	 * @param   int     $organizationID  the id of the organization to which this data belongs
+	 * @param   SimpleXMLElement  $XMLObject       a SimpleXML object containing rudimentary subject data
+	 * @param   int               $organizationID  the id of the organization to which this data belongs
+	 * @param   int               $parentID        the id of the parent entry
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function processResource(&$XMLObject, $organizationID, $parentID)
+	public function processResource($XMLObject, $organizationID, $parentID)
 	{
 		$lsfID = empty($XMLObject->pordid) ? (string) $XMLObject->modulid : (string) $XMLObject->pordid;
 		if (empty($lsfID))

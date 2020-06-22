@@ -10,6 +10,8 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
+
 /**
  * Class retrieves the data regarding a filtered set of buildings.
  */
@@ -20,7 +22,7 @@ class Buildings extends ListModel
 	/**
 	 * Method to get a list of resources from the database.
 	 *
-	 * @return \JDatabaseQuery
+	 * @return JDatabaseQuery
 	 */
 	protected function getListQuery()
 	{

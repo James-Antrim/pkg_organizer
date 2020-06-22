@@ -99,9 +99,10 @@ class SubjectItem extends ItemModel
 	 */
 	private function getStructure()
 	{
-		$option   = 'ORGANIZER_';
-		$url      = '?option=com_organizer&view=subject_item&languageTag=' . Languages::getTag() . '&id=';
-		$template = [
+		$option = 'ORGANIZER_';
+		$url    = '?option=com_organizer&view=subject_item&languageTag=' . Languages::getTag() . '&id=';
+
+		return [
 			'subjectID'                => Helpers\Input::getID(),
 			'name'                     => ['label' => Languages::_($option . 'NAME'), 'type' => 'text'],
 			'campus'                   => ['label' => Languages::_($option . 'CAMPUS'), 'type' => 'location'],
@@ -144,8 +145,6 @@ class SubjectItem extends ItemModel
 				'url'   => $url
 			]
 		];
-
-		return $template;
 	}
 
 	/**

@@ -44,16 +44,16 @@ class Monitor extends BaseModel
 	}
 
 	/**
-	 * save
+	 * Attempts to save the resource.
 	 *
-	 * attempts to save the monitor form data
+	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
 	 *
-	 * @return bool true on success, otherwise false
+	 * @return mixed int id of the resource on success, otherwise boolean false
 	 * @throws Exception => unauthorized access
 	 */
-	public function save()
+	public function save($data = [])
 	{
-		$data = Helpers\Input::getFormItems()->toArray();
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		if (empty($data['roomID']))
 		{

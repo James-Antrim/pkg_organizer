@@ -82,21 +82,6 @@ class Program extends CurriculumResource
 	}
 
 	/**
-	 * Creates a resource and resource curriculum hierarchy as necessary.
-	 *
-	 * @param   object &$XMLObject       a SimpleXML object containing rudimentary resource data
-	 * @param   int     $organizationID  the id of the organization with which the resource is associated
-	 * @param   int     $parentID        the  id of the parent entry in the curricula table
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	public function processResource(&$XMLObject, $organizationID, $parentID)
-	{
-		// There is no legitimate call to this method.
-		return false;
-	}
-
-	/**
 	 * Attempts to save the resource.
 	 *
 	 * @param   array  $data  form data
@@ -182,7 +167,7 @@ class Program extends CurriculumResource
 		{
 			if (!Helpers\Can::document('program', $programID))
 			{
-				throw new Exception(Languages::_('ORGANIZER_403'), 403);
+				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 			}
 
 			if (!$subjectIDs = Helpers\Programs::getSubjectIDs($programID))

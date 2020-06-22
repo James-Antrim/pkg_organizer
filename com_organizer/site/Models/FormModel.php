@@ -61,7 +61,7 @@ class FormModel extends ParentModel
 	{
 		if (!$this->allow())
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}
 
 		$name = $this->get('name');
@@ -84,9 +84,9 @@ class FormModel extends ParentModel
 	 * @param   boolean  $clear    Optional argument to force load a new form.
 	 * @param   string   $xpath    An optional xpath to search for the fields.
 	 *
-	 * @return  Form|boolean  \JForm object on success, false on error.
+	 * @return  Form|boolean  Form object on success, false on error.
 	 */
-	protected function loadForm($name, $source = null, $options = array(), $clear = false, $xpath = false)
+	protected function loadForm($name, $source = null, $options = array(), $clear = false, $xpath = '')
 	{
 		Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
 		Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
