@@ -194,20 +194,4 @@ class Instance extends BaseModel
 
 		return Helpers\OrganizerHelper::executeQuery('execute', false) ? true : false;
 	}
-
-	/**
-	 * Method to save existing instances as copies
-	 *
-	 * @param   array  $data  the data to be used to create the instance
-	 *
-	 * @return $saveInstance
-	 */
-	public function save2copy($data = [])
-	{
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-
-		unset($data['id']);
-
-		return $this->save($data);
-	}
 }

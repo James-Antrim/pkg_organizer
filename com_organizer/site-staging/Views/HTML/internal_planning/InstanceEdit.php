@@ -44,17 +44,6 @@ class InstanceEdit extends EditView
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'instances.save', false);
 		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'instances.cancel', false);
-
-		if ($this->item->id)
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'save-copy',
-				Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
-				'instances.save2copy',
-				false
-			);
-		}
 	}
 
 	/**

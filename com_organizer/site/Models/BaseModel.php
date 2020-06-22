@@ -96,20 +96,4 @@ abstract class BaseModel extends BaseDatabaseModel
 
 		return $table->save($data) ? $table->id : false;
 	}
-
-	/**
-	 * Attempts to save an existing resource as a new resource.
-	 *
-	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
-	 *
-	 * @return mixed int id of the new resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
-	 */
-	public function save2copy($data = [])
-	{
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		unset($data['id']);
-
-		return $this->save($data);
-	}
 }

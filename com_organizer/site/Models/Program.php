@@ -162,37 +162,6 @@ class Program extends CurriculumResource
 	}
 
 	/**
-	 * Method to save existing degree programs as copies
-	 *
-	 * @param   array  $data  the data to be used to create the program when called from the program helper
-	 *
-	 * @return Boolean
-	 * @throws Exception => unauthorized access
-	 */
-	public function save2copy($data = [])
-	{
-		if (!Helpers\Can::documentTheseOrganizations())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
-
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		if (isset($data['id']))
-		{
-			unset($data['id']);
-		}
-
-		$table = new Tables\ProgramsTable;
-
-		if (!$table->save($data))
-		{
-			return false;
-		}
-
-		return $this->processCurricula($table->id) ? $table->id : false;
-	}
-
-	/**
 	 * Saves the resource's curriculum information.
 	 *
 	 * @param   int  $programID  the programID
