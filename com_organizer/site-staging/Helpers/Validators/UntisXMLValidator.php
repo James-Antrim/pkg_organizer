@@ -10,6 +10,8 @@
 
 namespace Organizer\Helpers\Validators;
 
+use SimpleXMLElement;
+
 /**
  * Ensures that Helpers which validate Schedule XML Export files have standardized functions.
  */
@@ -18,21 +20,21 @@ interface UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   ScheduleXML &$model    the validating schedule model
-	 * @param   string       $untisID  the id of the resource in Untis
+	 * @param   Schedules  $model    the validating schedule model
+	 * @param   string     $untisID  the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID(&$model, $untisID);
+	public static function setID($model, $untisID);
 
 	/**
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules &$model  the validating schedule model
-	 * @param   object    &$node   the node to be validated
+	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
 	 */
-	public static function validate(&$model, &$node);
+	public static function validate($model, $node);
 }

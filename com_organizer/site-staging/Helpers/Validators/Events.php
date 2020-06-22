@@ -12,6 +12,7 @@ namespace Organizer\Helpers\Validators;
 
 use Organizer\Helpers;
 use Organizer\Tables;
+use SimpleXMLElement;
 use stdClass;
 
 /**
@@ -22,12 +23,12 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules &$model    the validating schedule model
+	 * @param   Schedules  $model    the model for the schedule being validated
 	 * @param   string     $untisID  the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID(&$model, $untisID)
+	public static function setID($model, $untisID)
 	{
 		$event = $model->events->$untisID;
 		$table = new Tables\Events;
@@ -64,11 +65,11 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Creates a warning for missing subject no attributes.
 	 *
-	 * @param   Schedules &$model  the validating schedule model
+	 * @param   Schedules  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
-	public static function setWarnings(&$model)
+	public static function setWarnings($model)
 	{
 		if (!empty($model->warnings['SUNO']))
 		{
@@ -82,12 +83,12 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules &  $model  the validating schedule model
-	 * @param   object &     $node   the node to be validated
+	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
 	 */
-	public static function validate(&$model, &$node)
+	public static function validate($model, $node)
 	{
 		$untisID = str_replace('SU_', '', trim((string) $node[0]['id']));
 		$name    = trim((string) $node->longname);

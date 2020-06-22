@@ -12,8 +12,9 @@ namespace Organizer\Helpers\Validators;
 
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
 use Organizer\Tables;
+use SimpleXMLElement;
 use stdClass;
 
 /**
@@ -24,11 +25,11 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Determines how the missing room attribute will be handled
 	 *
-	 * @param   Schedules &$model  the validating schedule model
+	 * @param   Schedules  $model  the model for the schedule being validated
 	 *
 	 * @return void adds a message to the model warnings array
 	 */
-	private static function createInvalidRoomsMessages(&$model)
+	private static function createInvalidRoomsMessages($model)
 	{
 		foreach ($model->warnings['IIR'] as $untisID => $invalidRooms)
 		{
@@ -53,11 +54,11 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Determines how the missing room attribute will be handled
 	 *
-	 * @param   Schedules &$model  the validating schedule model
+	 * @param   Schedules  $model  the model for the schedule being validated
 	 *
 	 * @return void adds a message to the model warnings array
 	 */
-	private static function createMissingRoomsMessages(&$model)
+	private static function createMissingRoomsMessages($model)
 	{
 		foreach ($model->warnings['IMR'] as $untisID => $DOWs)
 		{
@@ -129,13 +130,13 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Adjusts the template ('occurrence' attribute) to the unit's actual dates.
 	 *
-	 * @param   Schedules &$model   the validating schedule model
-	 * @param   object    &$node    the unit node
-	 * @param   int        $unitID  the id of the unit being iterated
+	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node    the node being validated
+	 * @param   int               $unitID  the id of the unit being iterated
 	 *
 	 * @return mixed   array if valid, otherwise false
 	 */
-	private static function getFilteredOccurrences(&$model, &$node, $unitID)
+	private static function getFilteredOccurrences($model, $node, $unitID)
 	{
 		$rawOccurrences = trim((string) $node->occurence);
 		$unit           = $model->units->$unitID;
@@ -156,12 +157,12 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules &$model    the validating schedule model
+	 * @param   Schedules  $model    the model for the schedule being validated
 	 * @param   string     $untisID  the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID(&$model, $untisID)
+	public static function setID($model, $untisID)
 	{
 		$unit  = $model->units->$untisID;
 		$table = new Tables\Unit;
@@ -207,11 +208,11 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks whether nodes have the expected structure and required information
 	 *
-	 * @param   Schedules &$model  the validating schedule model
+	 * @param   Schedules  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
-	public static function setWarnings(&$model)
+	public static function setWarnings($model)
 	{
 		if (!empty($model->warnings['MID']))
 		{
@@ -234,13 +235,13 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Validates the subjectID and builds dependant structural elements
 	 *
-	 * @param   Schedules &  $model   the validating schedule model
-	 * @param   object &     $node    the unit node
-	 * @param   int          $unitID  the id of the unit being iterated
+	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node    the node being validated
+	 * @param   int               $unitID  the id of the unit being iterated
 	 *
 	 * @return bool  true on success, otherwise boolean false
 	 */
-	private static function validateEvent(&$model, &$node, $unitID)
+	private static function validateEvent($model, $node, $unitID)
 	{
 		$eventID = str_replace('SU_', '', trim((string) $node->lesson_subject[0]['id']));
 
@@ -266,13 +267,13 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Validates the description
 	 *
-	 * @param   Schedules &$model   the validating schedule model
-	 * @param   object    &$node    the unit node
-	 * @param   int        $unitID  the id of the unit being iterated
+	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node    the node being validated
+	 * @param   int               $unitID  the id of the unit being iterated
 	 *
 	 * @return void modifies object properties
 	 */
-	private static function validateMethod(&$model, &$node, $unitID)
+	private static function validateMethod($model, $node, $unitID)
 	{
 		$methodID = trim((string) $node->lesson_description);
 		if (empty($methodID))
@@ -298,12 +299,12 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules &$model  the validating schedule model
-	 * @param   object    &$node   the node to be validated
+	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
 	 */
-	public static function validate(&$model, &$node)
+	public static function validate($model, $node)
 	{
 		// Unit has no instances and should not have been exported
 		if (empty($node->times->count()))
@@ -385,13 +386,13 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Validates the lesson_teacher attribute and sets corresponding schedule elements
 	 *
-	 * @param   Schedules &$model   the validating schedule model
-	 * @param   object    &$node    the unit node
-	 * @param   int        $unitID  the id of the unit being iterated
+	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node    the node being validated
+	 * @param   int               $unitID  the id of the unit being iterated
 	 *
 	 * @return boolean  true if valid, otherwise false
 	 */
-	private static function validatePerson(&$model, &$node, $unitID)
+	private static function validatePerson($model, $node, $unitID)
 	{
 		$personID = str_replace('TR_', '', trim((string) $node->lesson_teacher[0]['id']));
 
@@ -417,13 +418,13 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Validates the groups attribute and sets corresponding schedule elements
 	 *
-	 * @param   Schedules &$model   the validating schedule model
-	 * @param   object    &$node    the unit node
-	 * @param   int        $unitID  the id of the unit being iterated
+	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node    the node being validated
+	 * @param   int               $unitID  the id of the unit being iterated
 	 *
 	 * @return boolean  true if valid, otherwise false
 	 */
-	private static function validateGroups(&$model, &$node, $unitID)
+	private static function validateGroups($model, $node, $unitID)
 	{
 		$rawUntisIDs = str_replace('CL_', '', (string) $node->lesson_classes[0]['id']);
 
@@ -456,12 +457,12 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks for the validity and consistency of date values
 	 *
-	 * @param   Schedules &$model   the validating schedule model
+	 * @param   Schedules  $model   the model for the schedule being validated
 	 * @param   int        $unitID  the id of the unit being iterated
 	 *
 	 * @return boolean  true if dates are valid, otherwise false
 	 */
-	private static function validateDates(&$model, $unitID)
+	private static function validateDates($model, $unitID)
 	{
 		$unit  = $model->units->$unitID;
 		$valid = true;

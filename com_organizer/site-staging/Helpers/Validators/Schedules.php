@@ -107,7 +107,8 @@ class Schedules
 		$validCreationTime = $this->validateText($this->creationTime, 'CREATION_TIME');
 		$valid             = ($valid and $validCreationDate and $validCreationTime);
 
-		$valid = ($valid and Terms::validate($this, $this->schedule->general));
+		Terms::validate($this, $this->schedule->general);
+		$valid = ($valid and !empty($this->term));
 		unset($this->schedule->general);
 
 		$this->validateResources($valid);

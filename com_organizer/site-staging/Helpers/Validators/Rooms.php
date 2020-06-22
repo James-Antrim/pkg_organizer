@@ -12,6 +12,7 @@ namespace Organizer\Helpers\Validators;
 
 use Organizer\Helpers;
 use Organizer\Tables;
+use SimpleXMLElement;
 use stdClass;
 
 /**
@@ -22,12 +23,12 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules &$model    the validating schedule model
+	 * @param   Schedules  $model    the model for the schedule being validated
 	 * @param   string     $untisID  the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID(&$model, $untisID)
+	public static function setID($model, $untisID)
 	{
 		$room  = $model->rooms->$untisID;
 		$table = new Tables\Rooms;
@@ -61,11 +62,11 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks whether nodes have the expected structure and required information
 	 *
-	 * @param   Schedules &$model  the validating schedule model
+	 * @param   Schedules  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
-	public static function setWarnings(&$model)
+	public static function setWarnings($model)
 	{
 		if (!empty($model->warnings['REX']))
 		{
@@ -86,16 +87,16 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether room nodes have the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules &$model     the validating schedule model
-	 * @param   object    &$roomNode  the room node to be validated
+	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
 	 */
-	public static function validate(&$model, &$roomNode)
+	public static function validate($model, $node)
 	{
-		$internalID = strtoupper(str_replace('RM_', '', trim((string) $roomNode[0]['id'])));
+		$internalID = strtoupper(str_replace('RM_', '', trim((string) $node[0]['id'])));
 
-		if ($externalID = strtoupper(trim((string) $roomNode->external_name)))
+		if ($externalID = strtoupper(trim((string) $node->external_name)))
 		{
 			$untisID = $externalID;
 		}
@@ -105,7 +106,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 			$untisID                = $internalID;
 		}
 
-		$roomTypeID  = str_replace('DS_', '', trim((string) $roomNode->room_description[0]['id']));
+		$roomTypeID  = str_replace('DS_', '', trim((string) $node->room_description[0]['id']));
 		$invalidType = (empty($roomTypeID) or empty($model->roomtypes->$roomTypeID));
 		if ($invalidType)
 		{
@@ -117,7 +118,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 			$roomTypeID = $model->roomtypes->$roomTypeID;
 		}
 
-		$capacity      = (int) $roomNode->capacity;
+		$capacity      = (int) $node->capacity;
 		$buildingID    = null;
 		$buildingREGEX = Helpers\Input::getParams()->get('buildingRegex');
 
