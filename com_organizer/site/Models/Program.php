@@ -33,7 +33,7 @@ class Program extends CurriculumResource
 	private function getKeys($programID)
 	{
 		$query = $this->_db->getQuery(true);
-		$query->select('p.code AS program, d.code AS degree, accredited, organizationID')
+		$query->select('p.code AS program, d.code AS degree, p.accredited')
 			->from('#__organizer_programs AS p')
 			->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->where("p.id = '$programID'");
@@ -59,7 +59,7 @@ class Program extends CurriculumResource
 		}
 
 		$client = new Helpers\LSF;
-		if (!$program = $client->getModules($keys['program'], $keys['degree'], $keys['accredited']))
+		if (!$program = $client->getModules($keys))
 		{
 			return false;
 		}

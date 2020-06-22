@@ -10,13 +10,13 @@
 
 namespace Organizer\Helpers;
 
+use SimpleXMLElement;
+
 /**
  * Class provides methods for communication with the LSF curriculum documentation system.
  */
 class LSF
 {
-	public $clientSet = false;
-
 	private $client;
 
 	private $username;
@@ -37,30 +37,11 @@ class LSF
 	}
 
 	/**
-	 * Determines the resource type pool|subject|invalid
-	 *
-	 * @param   object &$resource
-	 *
-	 * @return string pool|subject|invalid
-	 */
-	public static function determineType(&$resource)
-	{
-		$type = (string) $resource->pordtyp;
-
-		if ($type == 'M')
-		{
-			return 'subject';
-		}
-
-		return (isset($resource->modulliste->modul) and $type == 'K') ? 'pool' : 'invalid';
-	}
-
-	/**
 	 * Method to perform a soap request based on a certain lsf query
 	 *
 	 * @param   string  $query  Query structure
 	 *
-	 * @return mixed  SimpleXMLElement if the query was successful, otherwise false
+	 * @return SimpleXMLElement|bool  SimpleXMLElement if the query was successful, otherwise false
 	 */
 	private function getDataXML($query)
 	{
@@ -80,9 +61,7 @@ class LSF
 			return false;
 		}
 
-		$xml = simplexml_load_string("<?xml version='1.0' encoding='utf-8'?>" . $result);
-
-		return $xml;
+		return simplexml_load_string("<?xml version='1.0' encoding='utf-8'?>" . $result);
 	}
 
 	/**
@@ -105,18 +84,16 @@ class LSF
 	 * Performs a soap request, in order to get the xml structure of the given
 	 * configuration
 	 *
-	 * @param   string  $program     degree program code
-	 * @param   string  $degree      associated degree
-	 * @param   string  $accredited  year of accreditation
+	 * @param   array  $keys  the keys required by LSF to uniquely identify a degree program
 	 *
 	 * @return SimpleXMLElement
 	 */
-	public function getModules($program, $degree = null, $accredited = null)
+	public function getModules($keys)
 	{
 		$XML = $this->header('studiengang');
-		$XML .= "<stg>$program</stg>";
-		$XML .= "<abschl>$degree</abschl>";
-		$XML .= "<pversion>$accredited</pversion>";
+		$XML .= "<stg>{$keys['program']}</stg>";
+		$XML .= "<abschl>{$keys['degree']}</abschl>";
+		$XML .= "<pversion>{$keys['accredited']}</pversion>";
 		$XML .= '</condition></SOAPDataService>';
 
 		return self::getDataXML($XML);
