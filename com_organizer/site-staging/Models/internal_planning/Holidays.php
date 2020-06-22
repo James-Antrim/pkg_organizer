@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
 use Organizer\Helpers;
 
 /**
@@ -43,11 +44,11 @@ class Holidays extends ListModel
 	/**
 	 * Adds the filter settings for status of holiday
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void
 	 */
-	private function setStatusFilter(&$query)
+	private function setStatusFilter($query)
 	{
 		$listValue   = $this->state->get('list.status');
 		$filterValue = $this->state->get('filter.status');
@@ -76,11 +77,11 @@ class Holidays extends ListModel
 	/**
 	 * Adds the filter settings for displaying year
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void
 	 */
-	private function setYearFilter(&$query)
+	private function setYearFilter($query)
 	{
 		$listValue   = $this->state->get('list.year');
 		$filterValue = $this->state->get('filter.year');

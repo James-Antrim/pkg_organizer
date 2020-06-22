@@ -29,13 +29,13 @@ class Instances extends ResourceHelper
 	/**
 	 * Adds a delta clause for a joined table.
 	 *
-	 * @param   JDatabaseQuery &$query  the query to be modified
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 * @param   string          $alias  the table alias
 	 * @param   mixed           $delta  string the date for the delta or bool false
 	 *
 	 * @return void modifies the query
 	 */
-	private static function addDeltaClause(&$query, $alias, $delta)
+	private static function addDeltaClause($query, $alias, $delta)
 	{
 		if ($delta)
 		{
@@ -327,7 +327,7 @@ class Instances extends ResourceHelper
 				->where('(gp.published = 1 OR gp.published IS NULL)');
 		}
 
-		if ($conditions['mySchedule'] AND !empty($conditions['userID']))
+		if ($conditions['mySchedule'] and !empty($conditions['userID']))
 		{
 			// Aggregate of selected items and the teacher schedule
 			if (!empty($conditions['personIDs']))

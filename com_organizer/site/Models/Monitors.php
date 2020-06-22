@@ -48,11 +48,11 @@ class Monitors extends ListModel
 	/**
 	 * Adds the filter settings for display behaviour
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void
 	 */
-	private function addDisplayFilter(&$query)
+	private function addDisplayFilter($query)
 	{
 		$requestDisplay = $this->state->get('filter.display', '');
 
@@ -79,11 +79,11 @@ class Monitors extends ListModel
 	/**
 	 * Adds the filter settings for displayed content
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void
 	 */
-	private function addContentFilter(&$query)
+	private function addContentFilter($query)
 	{
 		$params         = Helpers\Input::getParams();
 		$requestContent = $this->state->get('filter.content', '');

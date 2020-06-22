@@ -60,7 +60,7 @@ class Campuses extends ListModel
 	/**
 	 * Filters according to the selected city.
 	 *
-	 * @param   object  $query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void
 	 */
@@ -91,7 +91,7 @@ class Campuses extends ListModel
 	/**
 	 * Filters according to the selected grid.
 	 *
-	 * @param   object  $query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void
 	 */

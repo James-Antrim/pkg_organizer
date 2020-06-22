@@ -20,12 +20,12 @@ trait Filtered
 	/**
 	 * Restricts the query by the organizationIDs for which the user has the given access right.
 	 *
-	 * @param   JDatabaseQuery &$query    the query to modify
+	 * @param   JDatabaseQuery  $query    the query to modify
 	 * @param   string          $access   the access right to be filtered against
 	 * @param   string          $context  the resource context from which this function was called
 	 * @param   string          $alias    the alias being used for the resource table
 	 */
-	public static function addAccessFilter(&$query, $access, $context, $alias)
+	public static function addAccessFilter($query, $access, $context, $alias)
 	{
 		$authorized = [];
 
@@ -53,10 +53,10 @@ trait Filtered
 	/**
 	 * Adds a resource filter for a given resource.
 	 *
-	 * @param   JDatabaseQuery &$query  the query to modify
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 * @param   string          $alias  the alias for the linking table
 	 */
-	public static function addCampusFilter(&$query, $alias)
+	public static function addCampusFilter($query, $alias)
 	{
 		$campusIDs = Input::getFilterIDs('campus');
 		if (empty($campusIDs))
@@ -80,14 +80,14 @@ trait Filtered
 	/**
 	 * Adds a selected organization filter to the query.
 	 *
-	 * @param   JDatabaseQuery &$query      the query to be modified
+	 * @param   JDatabaseQuery  $query      the query to modify
 	 * @param   string          $resource   the name of the organization associated resource
 	 * @param   string          $alias      the alias being used for the resource table
 	 * @param   string          $keyColumn  the name of the column holding the association key
 	 *
 	 * @return void modifies the query
 	 */
-	public static function addOrganizationFilter(&$query, $resource, $alias, $keyColumn = 'id')
+	public static function addOrganizationFilter($query, $resource, $alias, $keyColumn = 'id')
 	{
 		$organizationIDs = Input::getFilterIDs('organization');
 		if (empty($organizationIDs))
@@ -110,12 +110,12 @@ trait Filtered
 	/**
 	 * Adds a resource filter for a given resource.
 	 *
-	 * @param   JDatabaseQuery &$query          the query to modify
+	 * @param   JDatabaseQuery  $query          the query to modify
 	 * @param   string          $resource       the name of the resource associated
 	 * @param   string          $newAlias       the alias for any linked table
 	 * @param   string          $existingAlias  the alias for the linking table
 	 */
-	public static function addResourceFilter(&$query, $resource, $newAlias, $existingAlias)
+	public static function addResourceFilter($query, $resource, $newAlias, $existingAlias)
 	{
 		$resourceIDs = Input::getFilterIDs($resource);
 		if (empty($resourceIDs))

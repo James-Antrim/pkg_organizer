@@ -10,6 +10,7 @@
 
 namespace Organizer\Fields;
 
+use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
 
@@ -168,11 +169,11 @@ class GenericOptionsField extends OptionsField
 	/**
 	 * Resolves the textColumns for concatenated values
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return string  the string to use for text selection
 	 */
-	private function resolveText(&$query)
+	private function resolveText($query)
 	{
 		$textColumn  = $this->getAttribute('textcolumn');
 		$textColumns = explode(',', $textColumn);
@@ -199,11 +200,11 @@ class GenericOptionsField extends OptionsField
 	/**
 	 * Resolves the textColumns for concatenated values
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void modifies the query as necessary
 	 */
-	private function setFrom(&$query)
+	private function setFrom($query)
 	{
 		$tableParameters = $this->getAttribute('table');
 		$tables          = explode(',', $tableParameters);
@@ -252,11 +253,11 @@ class GenericOptionsField extends OptionsField
 	/**
 	 * Adds filter conditions
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void modifies the query as necessary
 	 */
-	private function setWhere(&$query)
+	private function setWhere($query)
 	{
 		$rawConditions = $this->getAttribute('conditions');
 

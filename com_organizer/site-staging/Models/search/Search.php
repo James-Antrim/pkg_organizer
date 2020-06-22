@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Helpers\OrganizerHelper;
@@ -34,12 +35,12 @@ class Search extends BaseModel
 	/**
 	 * Aggregates inclusive conditions into one 'where' clause
 	 *
-	 * @param   object &$query       the query object
-	 * @param   array   $conditions  the conditions to be added to the query
+	 * @param   JDatabaseQuery  $query       the query to modify
+	 * @param   array           $conditions  the conditions to be added to the query
 	 *
 	 * @return void modifies the query
 	 */
-	private function addInclusiveConditions(&$query, $conditions)
+	private function addInclusiveConditions($query, $conditions)
 	{
 		$query->where('(' . implode(' OR ', $conditions) . ')');
 
@@ -98,12 +99,12 @@ class Search extends BaseModel
 	/**
 	 * Filters lessons according to status and term
 	 *
-	 * @param   object &$query   the query object to filter
-	 * @param   int     $termID  the id of the term for lesson results
+	 * @param   JDatabaseQuery  $query   the query to modify
+	 * @param   int             $termID  the id of the term for lesson results
 	 *
 	 * @return void modifies the query
 	 */
-	private function filterLessons(&$query, $termID = null)
+	private function filterLessons($query, $termID = null)
 	{
 		$query->where("(lcrs.delta IS NULL OR lcrs.delta != 'removed')")
 			->where("(l.delta IS NULL OR l.delta != 'removed')");

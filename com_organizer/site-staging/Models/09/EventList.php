@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Uri\Uri;
@@ -343,9 +344,9 @@ class EventList extends FormModel
 	/**
 	 * Filters the database query depending on $this->params['resources'] and the user input
 	 *
-	 * @param   \JDatabaseQuery  $query  the database query
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 */
-	private function filterEvents(&$query)
+	private function filterEvents($query)
 	{
 		foreach ($this->params['resources'] as $resource => $value)
 		{

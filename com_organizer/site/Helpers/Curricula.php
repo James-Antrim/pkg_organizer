@@ -26,7 +26,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return void modifies the query
 	 */
-	protected static function filterDisassociated(&$query, $ranges, $alias)
+	protected static function filterDisassociated($query, $ranges, $alias)
 	{
 		$erray = [];
 
@@ -120,12 +120,12 @@ abstract class Curricula extends Associated implements Selectable
 	/**
 	 * Adds range restrictions for subordinate resources.
 	 *
-	 * @param   JDatabaseQuery &$query   the query to modify
+	 * @param   JDatabaseQuery  $query   the query to modify
 	 * @param   array           $ranges  the ranges of subordinate resources
 	 *
 	 * @return void modifies the query
 	 */
-	protected static function filterSuperOrdinate(&$query, $ranges)
+	protected static function filterSuperOrdinate($query, $ranges)
 	{
 		$wherray = [];
 		foreach ($ranges as $range)
@@ -238,7 +238,7 @@ abstract class Curricula extends Associated implements Selectable
 	 */
 	public static function getRange($rangeID)
 	{
-		$dbo = Factory::getDbo();
+		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 		$query->select('*')->from('#__organizer_curricula')->where("id = $rangeID");
 		$dbo->setQuery($query);
@@ -458,13 +458,13 @@ abstract class Curricula extends Associated implements Selectable
 	/**
 	 * Adds a program filter clause to the given query.
 	 *
-	 * @param   JDatabaseQuery  $query   the query to be modified
+	 * @param   JDatabaseQuery  $query   the query to modify
 	 * @param   int             $poolID  the id of the pool to filter for
 	 * @param   string          $alias   the alias of the table referenced in the join
 	 *
 	 * @return void modifies the query
 	 */
-	public static function setPoolFilter(&$query, $poolID, $alias)
+	public static function setPoolFilter($query, $poolID, $alias)
 	{
 		if (empty($poolID))
 		{
@@ -493,14 +493,14 @@ abstract class Curricula extends Associated implements Selectable
 	/**
 	 * Adds a program filter clause to the given query.
 	 *
-	 * @param   JDatabaseQuery  $query      the query to be modified
+	 * @param   JDatabaseQuery  $query      the query to modify
 	 * @param   int             $programID  the id of the program to filter for
 	 * @param   string          $context    the resource context from which this function was called
 	 * @param   string          $alias      the alias of the table referenced in the join
 	 *
 	 * @return void modifies the query
 	 */
-	public static function setProgramFilter(&$query, $programID, $context, $alias)
+	public static function setProgramFilter($query, $programID, $context, $alias)
 	{
 		if (empty($programID))
 		{

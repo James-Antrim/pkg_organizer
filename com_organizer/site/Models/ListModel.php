@@ -242,10 +242,10 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Sets a campus filter for a given resource.
 	 *
-	 * @param   JDatabaseQuery &$query  the query to modify
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 * @param   string          $alias  the alias for the linking table
 	 */
-	public function setCampusFilter(&$query, $alias)
+	public function setCampusFilter($query, $alias)
 	{
 		$campusID = $this->state->get('filter.campusID');
 		if (empty($campusID))
@@ -268,12 +268,12 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Adds a date status filter for a given resource.
 	 *
-	 * @param   object &$query   the query object
-	 * @param   string  $status  name of the field in filter
-	 * @param   string  $start   the name of the column containing the resource start date
-	 * @param   string  $end     the name of the column containing the resource end date
+	 * @param   JDatabaseQuery  $query   the query to modify
+	 * @param   string          $status  name of the field in filter
+	 * @param   string          $start   the name of the column containing the resource start date
+	 * @param   string          $end     the name of the column containing the resource end date
 	 */
-	public function setDateStatusFilter(&$query, $status, $start, $end)
+	public function setDateStatusFilter($query, $status, $start, $end)
 	{
 		$value = $this->state->get('filter.' . $status);
 
@@ -294,13 +294,13 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Provides a default method for setting filters based on id/unique values
 	 *
-	 * @param   object &$query       the query object
-	 * @param   string  $idColumn    the id column in the table
-	 * @param   string  $filterName  the filter name to look for the id in
+	 * @param   JDatabaseQuery  $query       the query to modify
+	 * @param   string          $idColumn    the id column in the table
+	 * @param   string          $filterName  the filter name to look for the id in
 	 *
 	 * @return void
 	 */
-	protected function setIDFilter(&$query, $idColumn, $filterName)
+	protected function setIDFilter($query, $idColumn, $filterName)
 	{
 		$value = $this->state->get($filterName, '');
 		if ($value === '')
@@ -329,11 +329,11 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Provides a default method for setting the list ordering
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void
 	 */
-	protected function setOrdering(&$query)
+	protected function setOrdering($query)
 	{
 		$defaultOrdering = "{$this->defaultOrdering} {$this->defaultDirection}";
 		$session         = Factory::getSession();
@@ -355,14 +355,14 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Sets an organization filter for the given resource.
 	 *
-	 * @param   JDatabaseQuery &$query    the query object
+	 * @param   JDatabaseQuery  $query    the query to modify
 	 * @param   string          $context  the resource context from which this function was called
 	 * @param   string          $alias    the alias of the table onto which the organizatons table will be joined as
 	 *                                    needed
 	 *
 	 * @return void
 	 */
-	protected function setOrganizationFilter(&$query, $context, $alias)
+	protected function setOrganizationFilter($query, $context, $alias)
 	{
 		$authorizedOrgIDs = $this->clientContext === self::BACKEND ?
 			Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
@@ -400,12 +400,12 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Sets the search filter for the query
 	 *
-	 * @param   object &$query        the query to modify
-	 * @param   array   $columnNames  the column names to use in the search
+	 * @param   JDatabaseQuery  $query        the query to modify
+	 * @param   array           $columnNames  the column names to use in the search
 	 *
 	 * @return void
 	 */
-	protected function setSearchFilter(&$query, $columnNames)
+	protected function setSearchFilter($query, $columnNames)
 	{
 		$userInput = $this->state->get('filter.search', '');
 		if (empty($userInput))
@@ -425,12 +425,12 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Provides a default method for setting filters for non-unique values
 	 *
-	 * @param   object &$query         the query object
-	 * @param   array   $queryColumns  the filter names. names should be synonymous with db column names.
+	 * @param   JDatabaseQuery  $query         the query to modify
+	 * @param   array           $queryColumns  the filter names. names should be synonymous with db column names.
 	 *
 	 * @return void
 	 */
-	protected function setValueFilters(&$query, $queryColumns)
+	protected function setValueFilters($query, $queryColumns)
 	{
 		$app     = Helpers\OrganizerHelper::getApplication();
 		$filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');

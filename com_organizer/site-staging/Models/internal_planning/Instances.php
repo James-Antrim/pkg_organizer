@@ -55,9 +55,9 @@ class Instances extends ListModel
 	/**
 	 * Adds the filter settings for time blocks of an instance
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 */
-	private function setTimeBlockFilter(&$query)
+	private function setTimeBlockFilter($query)
 	{
 
 		$value   = $this->state->get('filter.timeBlock');

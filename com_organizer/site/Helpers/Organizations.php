@@ -22,12 +22,12 @@ class Organizations extends ResourceHelper implements Selectable
 	/**
 	 * Filters organizations according to user access and relevant resource associations.
 	 *
-	 * @param   JDatabaseQuery &$query   the query to be modified.
+	 * @param   JDatabaseQuery  $query   the query to modify
 	 * @param   string          $access  any access restriction which should be performed
 	 *
 	 * @return void modifies the query
 	 */
-	private static function addAccessFilter(&$query, $access)
+	private static function addAccessFilter($query, $access)
 	{
 		$view = Input::getView();
 		if (empty($access) or empty($view))

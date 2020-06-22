@@ -10,6 +10,7 @@
 
 namespace Organizer\Fields;
 
+use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
 
@@ -96,11 +97,11 @@ class MergeAssociationsField extends OptionsField
 	/**
 	 * Resolves the textColumns for localization and concatenation of column names
 	 *
-	 * @param   object &$query  the query object by reference is an optimization, not a necessity
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return string  the string to use for text selection
 	 */
-	private function resolveTextColumn(&$query)
+	private function resolveTextColumn($query)
 	{
 		$textColumn  = $this->getAttribute('textcolumn', '');
 		$textColumns = explode(',', $textColumn);
