@@ -227,7 +227,18 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return mixed int if the resource has an existing ordering, otherwise null
 	 */
-	abstract protected function getExistingOrdering($parentID, $resourceID);
+	protected function getExistingOrdering($parentID, $resourceID)
+	{
+		$column = $this->resource . 'ID';
+		$query  = $this->_db->getQuery(true);
+		$query->select('ordering')
+			->from('#__organizer_curricula')
+			->where("parentID = $parentID")
+			->where("$column = $resourceID");
+		$this->_db->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadResult', null);
+	}
 
 	/**
 	 * Builds the resource's curriculum using the subordinate resources contained in the form.

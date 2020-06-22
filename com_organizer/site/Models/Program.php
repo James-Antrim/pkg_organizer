@@ -24,19 +24,6 @@ class Program extends CurriculumResource
 	protected $resource = 'program';
 
 	/**
-	 * Returns the resource's existing ordering in the context of its parent.
-	 *
-	 * @param   int  $parentID    the parent id (curricula)
-	 * @param   int  $resourceID  the resource id (resource table)
-	 *
-	 * @return mixed int if the resource has an existing ordering, otherwise null
-	 */
-	public function getExistingOrdering($parentID, $resourceID)
-	{
-		return null;
-	}
-
-	/**
 	 * Retrieves program information relevant for soap queries to the LSF system.
 	 *
 	 * @param   int  $programID  the id of the degree program

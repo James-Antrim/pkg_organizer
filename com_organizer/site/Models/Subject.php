@@ -183,26 +183,6 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Returns the resource's existing ordering in the context of its parent.
-	 *
-	 * @param   int  $parentID    the parent id (curricula)
-	 * @param   int  $resourceID  the resource id (resource table)
-	 *
-	 * @return mixed int if the resource has an existing ordering, otherwise null
-	 */
-	public function getExistingOrdering($parentID, $resourceID)
-	{
-		$query = $this->_db->getQuery(true);
-		$query->select('ordering')
-			->from('#__organizer_curricula')
-			->where("parentID = $parentID")
-			->where("subjectID = $resourceID");
-		$this->_db->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadResult', null);
-	}
-
-	/**
 	 * Method to import data associated with resources from LSF
 	 *
 	 * @return bool true on success, otherwise false
@@ -801,6 +781,7 @@ class Subject extends CurriculumResource
 			return false;
 		}
 
+		// Dependant on curricula entries.
 		if (!$this->processPrerequisites($data))
 		{
 			return false;
