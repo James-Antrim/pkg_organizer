@@ -218,7 +218,7 @@ class SubjectsLSF
 		 * this needs to be processed manually.
 		 */
 
-		// German entries are the standard right now.
+		// German entries are the standard.
 		if (empty($property->de->txt))
 		{
 			$germanText  = null;

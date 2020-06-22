@@ -24,17 +24,6 @@ class Pool extends CurriculumResource
 	protected $resource = 'pool';
 
 	/**
-	 * Method to import data associated with resources from LSF
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function import()
-	{
-		// There is no legitimate call to this method.
-		return false;
-	}
-
-	/**
 	 * Method to import data associated with a resource from LSF
 	 *
 	 * @param   int  $resourceID  the id of the program to be imported

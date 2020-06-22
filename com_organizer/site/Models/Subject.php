@@ -51,22 +51,6 @@ class Subject extends CurriculumResource
 	}*/
 
 	/**
-	 * Authorizes the user
-	 */
-	protected function allow()
-	{
-		if (!$id = Helpers\Input::getID())
-		{
-			if (Helpers\Can::documentTheseOrganizations())
-			{
-				return true;
-			}
-		}
-
-		return Helpers\Can::document('subject', $id);
-	}
-
-	/**
 	 * Associates subject curriculum dependencies.
 	 *
 	 * @param   array  $programRanges       the program ranges
@@ -183,31 +167,6 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Method to import data associated with resources from LSF
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function import()
-	{
-		$resourceIDs = Helpers\Input::getSelectedIDs();
-
-		foreach ($resourceIDs as $subjectID)
-		{
-			if (!$this->importSingle($subjectID))
-			{
-				return false;
-			}
-
-			if (!$this->resolveTextDependencies($subjectID))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
 	 * Method to import data associated with a subject from LSF
 	 *
 	 * @param   int  $subjectID  the id of the subject entry
@@ -260,7 +219,12 @@ class Subject extends CurriculumResource
 
 		Helpers\SubjectsLSF::processAttributes($table, $subject);
 
-		return $table->store();
+		if (!$table->store())
+		{
+			return false;
+		}
+
+		return $this->resolveTextDependencies($table->id);
 	}
 
 	/**

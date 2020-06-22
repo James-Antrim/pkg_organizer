@@ -43,26 +43,6 @@ class Program extends CurriculumResource
 	}
 
 	/**
-	 * Method to import data associated with resources from LSF
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function import()
-	{
-		$programIDs = Helpers\Input::getSelectedIDs();
-
-		foreach ($programIDs as $programID)
-		{
-			if (!$this->importSingle($programID))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
 	 * Method to import data associated with a resource from LSF
 	 *
 	 * @param   int  $resourceID  the id of the program to be imported

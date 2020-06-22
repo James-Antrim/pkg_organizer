@@ -72,6 +72,22 @@ abstract class CurriculumResource extends BaseModel
 	}
 
 	/**
+	 * Authorizes the user
+	 */
+	protected function allow()
+	{
+		if (!$id = Helpers\Input::getID())
+		{
+			if (Helpers\Can::documentTheseOrganizations())
+			{
+				return true;
+			}
+		}
+
+		return Helpers\Can::document($this->resource, $id);
+	}
+
+	/**
 	 * Attempts to delete the selected resources and their associations
 	 *
 	 * @return boolean  True if successful, false if an error occurs.
@@ -370,9 +386,20 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * Method to import data associated with resources from LSF
 	 *
-	 * @return void true on success, otherwise false
+	 * @return bool true on success, otherwise false
 	 */
-	abstract public function import();
+	public function import()
+	{
+		foreach (Helpers\Input::getSelectedIDs() as $subjectID)
+		{
+			if (!$this->importSingle($subjectID))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * Method to import data associated with a resource from LSF
