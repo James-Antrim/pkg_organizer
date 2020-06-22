@@ -63,9 +63,9 @@ class Methods extends BaseTable
 	/**
 	 * Declares the associated table
 	 *
-	 * @param   JDatabaseDriver &$dbo  A database connector object
+	 * @param   JDatabaseDriver  $dbo  A database connector object
 	 */
-	public function __construct(&$dbo = null)
+	public function __construct($dbo = null)
 	{
 		parent::__construct('#__organizer_methods', 'id', $dbo);
 	}
