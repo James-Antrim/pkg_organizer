@@ -20,6 +20,8 @@ abstract class CurriculumResource extends BaseModel
 
 	const NONE = -1, POOL = 'K', SUBJECT = 'M';
 
+	protected $class;
+
 	protected $resource;
 
 	/**
@@ -141,7 +143,23 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return boolean true on success, otherwise false
 	 */
-	abstract protected function deleteRanges($resourceID);
+	protected function deleteRanges($resourceID)
+	{
+		$helper = "Organizer\\Helpers\\" . $this->class;
+		if ($rangeIDs = $helper::getRangeIDs($resourceID))
+		{
+			foreach ($rangeIDs as $rangeID)
+			{
+				$success = $this->deleteRange($rangeID);
+				if (!$success)
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * Deletes a single curriculum resource.
@@ -150,7 +168,17 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
-	abstract public function deleteSingle($resourceID);
+	protected function deleteSingle($resourceID)
+	{
+		if (!$this->deleteRanges($resourceID))
+		{
+			return false;
+		}
+
+		$table = $this->getTable();
+
+		return $table->delete($resourceID);
+	}
 
 	/**
 	 * Gets the curriculum for a pool selected as a subordinate resource
@@ -321,7 +349,12 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return array the resource ranges
 	 */
-	abstract protected function getRanges($resourceID);
+	protected function getRanges($resourceID)
+	{
+		$helper = "Organizer\\Helpers\\" . $this->class;
+
+		return $helper::getRanges($resourceID);
+	}
 
 	/**
 	 * Method to import data associated with resources from LSF
@@ -546,12 +579,11 @@ abstract class CurriculumResource extends BaseModel
 	 * Performs checks to ensure that a superordinate item has been selected as a precursor to the rest of the
 	 * curriculum processing.
 	 *
-	 * @param   array   $data  the form data
-	 * @param   string  $type  the type of subordinate item
+	 * @param   array  $data  the form data
 	 *
 	 * @return array the applicable superordinate ranges
 	 */
-	protected function getSuperOrdinateRanges($data, $type)
+	protected function getSuperOrdinateRanges($data)
 	{
 		$data['curricula'] = ArrayHelper::toInteger($data['curricula']);
 
@@ -594,7 +626,7 @@ abstract class CurriculumResource extends BaseModel
 			if ($programID = $table->programID)
 			{
 				// Subjects may not be directly associated with programs.
-				if ($type === 'subject')
+				if ($this->resource === 'subject')
 				{
 					continue;
 				}
@@ -623,6 +655,24 @@ abstract class CurriculumResource extends BaseModel
 		}
 
 		return $superOrdinateRanges;
+	}
+
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\Subjects A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		$table = "Organizer\\Tables\\" . $this->class;
+
+		return new $table();
 	}
 
 	/**

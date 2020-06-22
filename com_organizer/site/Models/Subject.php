@@ -11,7 +11,6 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
@@ -22,6 +21,8 @@ use Organizer\Tables;
 class Subject extends CurriculumResource
 {
 	const COORDINATES = 1, TEACHES = 2;
+
+	protected $class = 'Subjects';
 
 	protected $resource = 'subject';
 
@@ -157,49 +158,6 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Deletes ranges of a specific curriculum resource.
-	 *
-	 * @param   int  $resourceID  the id of the resource in its specific resource table
-	 *
-	 * @return boolean true on success, otherwise false
-	 */
-	protected function deleteRanges($resourceID)
-	{
-		if ($rangeIDs = Helpers\Subjects::getRangeIDs($resourceID))
-		{
-			foreach ($rangeIDs as $rangeID)
-			{
-				$success = $this->deleteRange($rangeID);
-				if (!$success)
-				{
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Deletes a single curriculum resource.
-	 *
-	 * @param   int  $resourceID  the resource id
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	public function deleteSingle($resourceID)
-	{
-		if (!$this->deleteRanges($resourceID))
-		{
-			return false;
-		}
-
-		$table = new Tables\Subjects;
-
-		return $table->delete($resourceID);
-	}
-
-	/**
 	 * Filters subject ranges to those relevant to a given program range.
 	 *
 	 * @param   array  $programRange   the program range being iterated
@@ -242,34 +200,6 @@ class Subject extends CurriculumResource
 		$this->_db->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadResult', null);
-	}
-
-	/**
-	 * Gets the mapped curricula ranges for the given resource
-	 *
-	 * @param   int  $subjectID  the resource id
-	 *
-	 * @return array the resource ranges
-	 */
-	protected function getRanges($subjectID)
-	{
-		return Helpers\Subjects::getRanges($subjectID);
-	}
-
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Subjects A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = [])
-	{
-		return new Tables\Subjects;
 	}
 
 	/**
@@ -363,7 +293,7 @@ class Subject extends CurriculumResource
 	protected function processCurricula($data)
 	{
 		$sRanges             = $this->getRanges($data['id']);
-		$superOrdinateRanges = $this->getSuperOrdinateRanges($data, 'subject');
+		$superOrdinateRanges = $this->getSuperOrdinateRanges($data);
 
 		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
 		{
