@@ -72,7 +72,7 @@ class CurriculaField extends FormField
 		$query->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')->order('name ASC');
 		$dbo->setQuery($query);
 
-		$programs = Helpers\OrganizerHelper::executeQuery('loadAssocList');
+		$programs = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
 		if (empty($programs))
 		{
 			return [];

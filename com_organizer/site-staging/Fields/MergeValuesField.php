@@ -78,7 +78,7 @@ class MergeValuesField extends OptionsField
 		$query->order('value ASC');
 		$dbo->setQuery($query);
 
-		$values = Helpers\OrganizerHelper::executeQuery('loadColumn');
+		$values = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 		if (empty($values))
 		{
 			return [];

@@ -210,7 +210,7 @@ abstract class CurriculumResource extends BaseModel
 		$existingQuery->select('id')->from('#__organizer_curricula')->where("poolID = $poolID");
 		$this->_db->setQuery($existingQuery, 0, 1);
 
-		if (!$firstID = OrganizerHelper::executeQuery('loadResult'))
+		if (!$firstID = OrganizerHelper::executeQuery('loadResult', 0))
 		{
 			return [];
 		}
@@ -253,7 +253,7 @@ abstract class CurriculumResource extends BaseModel
 			->where("$column = $resourceID");
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadResult', null);
+		return OrganizerHelper::executeQuery('loadResult', 0);
 	}
 
 	/**
@@ -313,7 +313,7 @@ abstract class CurriculumResource extends BaseModel
 			$query->select('MAX(rgt) + 1')->from('#__organizer_curricula');
 			$this->_db->setQuery($query);
 
-			$left = OrganizerHelper::executeQuery('loadResult');
+			$left = OrganizerHelper::executeQuery('loadResult', 0);
 
 			return $left ? $left : false;
 		}
@@ -326,7 +326,7 @@ abstract class CurriculumResource extends BaseModel
 			->where("ordering < $ordering");
 		$this->_db->setQuery($rgtQuery);
 
-		if ($rgt = OrganizerHelper::executeQuery('loadResult'))
+		if ($rgt = OrganizerHelper::executeQuery('loadResult', 0))
 		{
 			return $rgt + 1;
 		}
@@ -337,7 +337,7 @@ abstract class CurriculumResource extends BaseModel
 			->from('#__organizer_curricula')
 			->where("id = $parentID");
 		$this->_db->setQuery($lftQuery);
-		$lft = OrganizerHelper::executeQuery('loadResult');
+		$lft = OrganizerHelper::executeQuery('loadResult', 0);
 
 		return empty($lft) ? 0 : $lft + 1;
 	}
@@ -361,12 +361,9 @@ abstract class CurriculumResource extends BaseModel
 		$query->select('MAX(ordering)')->from('#__organizer_curricula')->where("parentID = $parentID");
 		$this->_db->setQuery($query);
 
-		if ($maxOrder = OrganizerHelper::executeQuery('loadResult'))
-		{
-			return $maxOrder + 1;
-		}
+		$maxOrder = OrganizerHelper::executeQuery('loadResult', 0);
 
-		return 1;
+		return $maxOrder + 1;
 	}
 
 	/**

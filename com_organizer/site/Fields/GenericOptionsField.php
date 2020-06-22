@@ -138,7 +138,7 @@ class GenericOptionsField extends OptionsField
 		$dbo->setQuery($query);
 
 		$defaultOptions = parent::getOptions();
-		$resources      = Helpers\OrganizerHelper::executeQuery('loadAssocList');
+		$resources      = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
 		if (empty($resources))
 		{
 			return $defaultOptions;

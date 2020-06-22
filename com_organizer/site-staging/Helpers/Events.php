@@ -49,7 +49,7 @@ class Events extends ResourceHelper
 
 		$dbo->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult');
+		return (bool) OrganizerHelper::executeQuery('loadResult', false);
 	}
 
 	/**
@@ -84,6 +84,6 @@ class Events extends ResourceHelper
 
 		$dbo->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult');
+		return (bool) OrganizerHelper::executeQuery('loadResult', false);
 	}
 }

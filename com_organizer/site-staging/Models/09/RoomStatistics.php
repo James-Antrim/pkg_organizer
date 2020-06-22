@@ -296,7 +296,7 @@ class RoomStatistics extends BaseModel
 		$regexp = '"rooms":\\{("[0-9]+":"[\w]*",)*"' . $roomID . '":("new"|"")';
 		$ringQuery->where("conf.configuration REGEXP '$regexp'");
 		$this->_db->setQuery($ringQuery);
-		$ringData = Helpers\OrganizerHelper::executeQuery('loadAssocList');
+		$ringData = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
 		$lcrsIDs  = Helpers\OrganizerHelper::executeQuery('loadColumn', [], 1);
 
 		if (empty($ringData) or empty($lcrsIDs))
@@ -377,8 +377,7 @@ class RoomStatistics extends BaseModel
 
 		$this->_db->setQuery($query);
 
-		$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult');
-		if (empty($rawGrid))
+		if (!$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult', ''))
 		{
 			return;
 		}

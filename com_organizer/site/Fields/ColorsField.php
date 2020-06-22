@@ -67,7 +67,7 @@ class ColorsField extends OptionsField
 			->order('text');
 		$dbo->setQuery($query);
 
-		if (!$colors = Helpers\OrganizerHelper::executeQuery('loadAssocList'))
+		if (!$colors = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
 		{
 			return $options;
 		}

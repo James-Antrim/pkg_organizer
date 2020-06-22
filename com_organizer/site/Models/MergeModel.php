@@ -276,7 +276,7 @@ abstract class MergeModel extends BaseModel
 			$deletionQuery->where("organizationID IN ('" . implode("','", $deprecated) . "')");
 			$this->_db->setQuery($deletionQuery);
 
-			$deleted = (bool) Helpers\OrganizerHelper::executeQuery('execute', false, null, true);
+			$deleted = (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
 			if (!$deleted)
 			{
 				return false;
@@ -296,7 +296,7 @@ abstract class MergeModel extends BaseModel
 				$insertQuery->values("'$newID', '{$this->data['id']}'");
 				$this->_db->setQuery($insertQuery);
 
-				$inserted = (bool) Helpers\OrganizerHelper::executeQuery('execute', false, null, true);
+				$inserted = (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
 				if (!$inserted)
 				{
 					return false;
@@ -333,7 +333,7 @@ abstract class MergeModel extends BaseModel
 			->where("{$this->fkColumn} IN ( $relevantIDs )");
 		$this->_db->setQuery($deleteQuery);
 
-		$deleted = (bool) Helpers\OrganizerHelper::executeQuery('execute', false, null, true);
+		$deleted = (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
 		if (!$deleted)
 		{
 			return false;
@@ -351,7 +351,7 @@ abstract class MergeModel extends BaseModel
 
 		$this->_db->setQuery($insertQuery);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute', false, null, true);
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
 	}
 
 	/**

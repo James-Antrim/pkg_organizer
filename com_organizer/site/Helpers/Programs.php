@@ -39,7 +39,7 @@ class Programs extends Curricula implements Selectable
 		$query->where("p.id = {$range['programID']}");
 		$dbo->setQuery($query);
 
-		if (!$program = OrganizerHelper::executeQuery('loadAssoc'))
+		if (!$program = OrganizerHelper::executeQuery('loadAssoc', []))
 		{
 			return '';
 		}

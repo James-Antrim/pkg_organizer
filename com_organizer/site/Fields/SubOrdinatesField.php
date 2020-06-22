@@ -184,7 +184,7 @@ class SubOrdinatesField extends FormField
 
 		$dbo->setQuery($idQuery);
 
-		if (!$parentID = Helpers\OrganizerHelper::executeQuery('loadResult'))
+		if (!$parentID = Helpers\OrganizerHelper::executeQuery('loadResult', 0))
 		{
 			return [];
 		}

@@ -64,7 +64,7 @@ class Persons extends Associated implements Selectable
 		$query->order('p.surname, p.forename');
 		$dbo->setQuery($query);
 
-		$persons = OrganizerHelper::executeQuery('loadObjectList');
+		$persons = OrganizerHelper::executeQuery('loadObjectList', []);
 		if (empty($persons))
 		{
 			return '[]';
@@ -135,7 +135,7 @@ class Persons extends Associated implements Selectable
 
 		if ($multiple)
 		{
-			$personList = OrganizerHelper::executeQuery('loadAssocList');
+			$personList = OrganizerHelper::executeQuery('loadAssocList', []);
 			if (empty($personList))
 			{
 				return [];
@@ -249,7 +249,7 @@ class Persons extends Associated implements Selectable
 			->where("username = '{$user->username}'");
 		$dbo->setQuery($query);
 
-		return (int) OrganizerHelper::executeQuery('loadResult');
+		return (int) OrganizerHelper::executeQuery('loadResult', 0);
 	}
 
 	/**
@@ -399,6 +399,6 @@ class Persons extends Associated implements Selectable
 		$query->select('COUNT(*)')->from("#__organizer_{$table}_persons")->where("personID = '$personID'");
 		$dbo->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult');
+		return (bool) OrganizerHelper::executeQuery('loadResult', false);
 	}
 }

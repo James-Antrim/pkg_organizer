@@ -67,10 +67,9 @@ class SubjectPersonsField extends OptionsField
 		}
 
 		$dbo->setQuery($query);
-		$persons = Helpers\OrganizerHelper::executeQuery('loadAssocList', null, 'id');
 
 		$options = parent::getOptions();
-		if (empty($persons))
+		if (!$persons = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id'))
 		{
 			return $options;
 		}

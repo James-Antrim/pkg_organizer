@@ -12,7 +12,9 @@ namespace Organizer\Models;
 
 use Joomla\CMS\Application\ApplicationHelper;
 use Organizer\Helpers;
-use Organizer\Helpers\Input; // Exception for frequency of use
+use Organizer\Helpers\Input;
+
+// Exception for frequency of use
 use Organizer\Tables;
 
 /**
@@ -317,8 +319,7 @@ class ScheduleExport extends BaseModel
 
 		$this->_db->setQuery($query);
 
-		$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult');
-		if (empty($rawGrid))
+		if (!$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult', ''))
 		{
 			return;
 		}

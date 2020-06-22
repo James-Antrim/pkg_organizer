@@ -53,7 +53,7 @@ class MergeOrganizationsField extends OptionsField
 			->order('text ASC');
 		$dbo->setQuery($query);
 
-		$valuePairs = Helpers\OrganizerHelper::executeQuery('loadAssocList');
+		$valuePairs = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
 		if (empty($valuePairs))
 		{
 			return [];

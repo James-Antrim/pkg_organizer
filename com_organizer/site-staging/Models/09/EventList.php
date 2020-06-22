@@ -419,7 +419,7 @@ class EventList extends FormModel
 		$this->filterEvents($query);
 		$this->_db->setQuery($query);
 
-		$events = Helpers\OrganizerHelper::executeQuery('loadAssocList');
+		$events = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
 
 		if (!empty($events))
 		{

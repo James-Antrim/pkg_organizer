@@ -291,7 +291,7 @@ class Pools extends Curricula implements Selectable
 			->order('lft');
 		$dbo->setQuery($query);
 
-		if (!$exclusions = OrganizerHelper::executeQuery('loadAssocList'))
+		if (!$exclusions = OrganizerHelper::executeQuery('loadAssocList', []))
 		{
 			return [$range];
 		}

@@ -102,7 +102,7 @@ abstract class ListModel extends ParentModel
 		$query->select("COUNT(DISTINCT ($idColumn))");
 		$this->_db->setQuery($query);
 
-		$total = (int) Helpers\OrganizerHelper::executeQuery('loadResult');
+		$total = (int) Helpers\OrganizerHelper::executeQuery('loadResult', 0);
 
 		// Add the total to the internal cache.
 		$this->cache[$store] = $total;

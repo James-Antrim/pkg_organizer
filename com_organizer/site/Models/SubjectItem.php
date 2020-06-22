@@ -12,7 +12,9 @@ namespace Organizer\Models;
 
 use Exception;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
+
+// Exception for frequency of use
 use Organizer\Tables;
 
 /**
@@ -67,7 +69,7 @@ class SubjectItem extends ItemModel
 
 		$this->_db->setQuery($query);
 
-		$result = Helpers\OrganizerHelper::executeQuery('loadAssoc');
+		$result = Helpers\OrganizerHelper::executeQuery('loadAssoc', []);
 
 		// This should not occur.
 		if (empty($result['name']))

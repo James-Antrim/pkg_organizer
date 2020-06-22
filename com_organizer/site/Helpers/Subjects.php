@@ -51,7 +51,7 @@ class Subjects extends Curricula
 
 		$dbo->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult');
+		return (bool) OrganizerHelper::executeQuery('loadResult', false);
 	}
 
 	/**
@@ -163,7 +163,7 @@ class Subjects extends Curricula
 		}
 		$dbo->setQuery($query);
 
-		$results = OrganizerHelper::executeQuery('loadAssocList');
+		$results = OrganizerHelper::executeQuery('loadAssocList', []);
 		if (empty($results))
 		{
 			return [];
@@ -430,6 +430,6 @@ class Subjects extends Curricula
 
 		$dbo->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult');
+		return (bool) OrganizerHelper::executeQuery('loadResult', false);
 	}
 }

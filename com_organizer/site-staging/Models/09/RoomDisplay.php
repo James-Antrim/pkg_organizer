@@ -123,7 +123,7 @@ class RoomDisplay extends BaseModel
 			->where("lcrs.delta != 'removed'");
 		$this->_db->setQuery($query);
 
-		$results = Helpers\OrganizerHelper::executeQuery('loadAssocList');
+		$results = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
 		if (empty($results))
 		{
 			return [];
@@ -315,12 +315,9 @@ class RoomDisplay extends BaseModel
 		$query->select('grid')->from('#__organizer_grids')->where('isDefault = 1');
 		$this->_db->setQuery($query);
 
-		$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult');
+		$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult', '');
 
-		if (!empty($rawGrid))
-		{
-			$this->grid = json_decode($rawGrid, true);
-		}
+		$this->grid = json_decode($rawGrid, true);
 	}
 
 	/**

@@ -57,7 +57,7 @@ class Courses extends ResourceHelper
 
 		$dbo->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult');
+		return (bool) OrganizerHelper::executeQuery('loadResult', 0);
 	}
 
 	/**
@@ -515,7 +515,7 @@ class Courses extends ResourceHelper
 
 		$dbo->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult');
+		return (bool) OrganizerHelper::executeQuery('loadResult', 0);
 	}
 
 	/**

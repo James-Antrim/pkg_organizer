@@ -79,7 +79,7 @@ class MergeAssociationsField extends OptionsField
 
 		$dbo->setQuery($query);
 
-		$valuePairs = Helpers\OrganizerHelper::executeQuery('loadAssocList');
+		$valuePairs = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
 		if (empty($valuePairs))
 		{
 			return [];

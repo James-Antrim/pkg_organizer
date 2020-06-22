@@ -33,7 +33,7 @@ class Terms extends ResourceHelper implements Selectable
 			->where("'$date' BETWEEN startDate and endDate");
 		$dbo->setQuery($query);
 
-		return (int) OrganizerHelper::executeQuery('loadResult');
+		return (int) OrganizerHelper::executeQuery('loadResult', 0);
 	}
 
 	/**
@@ -99,7 +99,7 @@ class Terms extends ResourceHelper implements Selectable
 			->order('startDate ASC');
 		$dbo->setQuery($query);
 
-		return (int) OrganizerHelper::executeQuery('loadResult');
+		return (int) OrganizerHelper::executeQuery('loadResult', 0);
 	}
 
 	/**
@@ -153,7 +153,7 @@ class Terms extends ResourceHelper implements Selectable
 			->order('endDate DESC');
 		$dbo->setQuery($query);
 
-		return (int) OrganizerHelper::executeQuery('loadResult');
+		return (int) OrganizerHelper::executeQuery('loadResult', 0);
 	}
 
 	/**

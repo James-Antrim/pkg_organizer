@@ -694,7 +694,7 @@ class Search extends BaseModel
 		$this->addInclusiveConditions($query, $eWherray);
 		$this->_db->setQuery($query);
 
-		$associations = OrganizerHelper::executeQuery('loadAssocList');
+		$associations = OrganizerHelper::executeQuery('loadAssocList', []);
 		if (empty($associations))
 		{
 			return;
@@ -787,7 +787,7 @@ class Search extends BaseModel
 					$groupQuery->where("programID = '{$program['categoryID']}'");
 					$this->_db->setQuery($groupQuery);
 
-					$groupIDs = OrganizerHelper::executeQuery('loadAssocList');
+					$groupIDs = OrganizerHelper::executeQuery('loadAssocList', []);
 				}
 
 				if (!empty($groupIDs))
@@ -807,7 +807,7 @@ class Search extends BaseModel
 					$poolQuery->where("(c.lft > '{$program['lft']}' AND c.rgt < '{$program['rgt']}')");
 					$this->_db->setQuery($poolQuery);
 
-					$poolIDs = OrganizerHelper::executeQuery('loadAssocList');
+					$poolIDs = OrganizerHelper::executeQuery('loadAssocList', []);
 				}
 
 				if (!empty($poolIDs))
@@ -865,7 +865,7 @@ class Search extends BaseModel
 		$this->addInclusiveConditions($query, $wherray);
 		$this->_db->setQuery($query);
 
-		$eRooms = OrganizerHelper::executeQuery('loadAssocList');
+		$eRooms = OrganizerHelper::executeQuery('loadAssocList', []);
 
 		$this->results['exact']['rooms'] = $this->processRooms($eRooms);
 
@@ -952,7 +952,7 @@ class Search extends BaseModel
 			}
 			$this->_db->setQuery($query);
 
-			$sRooms = OrganizerHelper::executeQuery('loadAssocList');
+			$sRooms = OrganizerHelper::executeQuery('loadAssocList', []);
 
 			$this->results['strong']['rooms'] = $this->processRooms($sRooms);
 		}
@@ -981,7 +981,7 @@ class Search extends BaseModel
 		{
 			$this->_db->setQuery($query);
 
-			$rRooms = OrganizerHelper::executeQuery('loadAssocList');
+			$rRooms = OrganizerHelper::executeQuery('loadAssocList', []);
 
 			$this->results['related']['rooms'] = $this->processRooms($rRooms);
 		}
@@ -1326,7 +1326,7 @@ class Search extends BaseModel
 			$this->addInclusiveConditions($query, $wherray);
 			$this->_db->setQuery($query);
 
-			$ePersons = OrganizerHelper::executeQuery('loadAssocList');
+			$ePersons = OrganizerHelper::executeQuery('loadAssocList', []);
 
 			$this->results['exact']['persons'] = $this->processPersons($ePersons);
 		}
@@ -1345,7 +1345,7 @@ class Search extends BaseModel
 		$this->addInclusiveConditions($query, $wherray);
 		$this->_db->setQuery($query);
 
-		$sPersons = OrganizerHelper::executeQuery('loadAssocList');
+		$sPersons = OrganizerHelper::executeQuery('loadAssocList', []);
 
 		$this->results['strong']['persons'] = $this->processPersons($sPersons);
 
@@ -1363,7 +1363,7 @@ class Search extends BaseModel
 		$this->addInclusiveConditions($query, $wherray);
 		$this->_db->setQuery($query);
 
-		$gPersons = OrganizerHelper::executeQuery('loadAssocList');
+		$gPersons = OrganizerHelper::executeQuery('loadAssocList', []);
 
 		$this->results['good']['persons'] = $this->processPersons($gPersons);
 	}
@@ -1434,9 +1434,9 @@ class Search extends BaseModel
 			$this->addInclusiveConditions($categoryQuery, $degreeWherray);
 
 			$this->_db->setQuery($categoryQuery);
-			$categories = OrganizerHelper::executeQuery('loadAssocList');
+			$categories = OrganizerHelper::executeQuery('loadAssocList', []);
 			$this->_db->setQuery($programQuery);
-			$programs = OrganizerHelper::executeQuery('loadAssocList');
+			$programs = OrganizerHelper::executeQuery('loadAssocList', []);
 
 			$programResults['exact'] = $this->processPrograms($programs, $categories);
 		}
@@ -1447,11 +1447,11 @@ class Search extends BaseModel
 
 		$this->addInclusiveConditions($categoryQuery, $wherray);
 		$this->_db->setQuery($categoryQuery);
-		$sGroups = OrganizerHelper::executeQuery('loadAssocList');
+		$sGroups = OrganizerHelper::executeQuery('loadAssocList', []);
 
 		$this->addInclusiveConditions($programQuery, $wherray);
 		$this->_db->setQuery($programQuery);
-		$sPrograms = OrganizerHelper::executeQuery('loadAssocList');
+		$sPrograms = OrganizerHelper::executeQuery('loadAssocList', []);
 
 		$programResults['strong'] = $this->processPrograms($sPrograms, $sGroups);
 
@@ -1464,11 +1464,11 @@ class Search extends BaseModel
 
 		$this->addInclusiveConditions($categoryQuery, $wherray);
 		$this->_db->setQuery($categoryQuery);
-		$gCategories = OrganizerHelper::executeQuery('loadAssocList');
+		$gCategories = OrganizerHelper::executeQuery('loadAssocList', []);
 
 		$this->addInclusiveConditions($programQuery, $wherray);
 		$this->_db->setQuery($programQuery);
-		$gPrograms = OrganizerHelper::executeQuery('loadAssocList');
+		$gPrograms = OrganizerHelper::executeQuery('loadAssocList', []);
 
 		$programResults['good'] = $this->processPrograms($gPrograms, $gCategories);
 		$this->programResults   = $programResults;

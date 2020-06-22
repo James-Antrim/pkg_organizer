@@ -40,8 +40,6 @@ class Buildings extends ListModel
 			if ($campusID === '-1')
 			{
 				$query->where('campusID IS NULL');
-
-				return;
 			}
 			else
 			{

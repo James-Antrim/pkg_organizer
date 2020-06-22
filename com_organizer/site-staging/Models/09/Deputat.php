@@ -655,15 +655,9 @@ class Deputat extends BaseModel
 		$query->where("id = '$this->scheduleID'");
 		$this->_db->setQuery($query);
 
-		$result = Helpers\OrganizerHelper::executeQuery('loadResult');
-		if (empty($result))
-		{
-			$this->schedule = null;
-		}
-		else
-		{
-			$this->schedule = json_decode($result);
-		}
+		$result = Helpers\OrganizerHelper::executeQuery('loadResult', '');
+
+		$this->schedule = json_decode($result);
 	}
 
 	/**
@@ -986,8 +980,8 @@ class Deputat extends BaseModel
 		$query->where("id = '$scheduleID'");
 		$this->_db->setQuery($query);
 
-		$result = Helpers\OrganizerHelper::executeQuery('loadResult');
+		$result = Helpers\OrganizerHelper::executeQuery('loadResult', '');
 
-		return empty($result) ? null : json_decode($result);
+		return json_decode($result);
 	}
 }
