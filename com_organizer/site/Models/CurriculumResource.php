@@ -10,7 +10,6 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
@@ -35,42 +34,82 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	protected function addRange(&$range)
 	{
-		$parent = $range['parentID'] ? Helpers\Curricula::getRange($range['parentID']) : null;
-		$left   = $this->getLeft($range['parentID'], $range['ordering']);
-		$level  = $parent ? $parent['level'] + 1 : 0;
-
-		if (!$left or !$this->shiftRight($left))
-		{
-			return 0;
-		}
-
-		$range['level'] = $level;
-		$range['lft']   = $left;
-		$range['rgt']   = $left + 1;
-
 		$curricula = new Tables\Curricula;
 
-		if ($curricula->save($range))
+		if (empty($range['programID']))
 		{
-			if (!empty($range['curriculum']))
+			// Subordinates must have a parent
+			if (empty($range['parentID']) or !$parent = Helpers\Curricula::getRange($range['parentID']))
 			{
-				foreach ($range['curriculum'] as $subOrdinate)
-				{
-					$subOrdinate['parentID'] = $curricula->id;
-
-					if (!$this->addRange($subOrdinate))
-					{
-						return 0;
-					}
-
-					continue;
-				}
+				return 0;
 			}
 
-			return $curricula->id;
+			// No resource
+			if (empty($range['poolID']) and empty($range['subjectID']))
+			{
+				return 0;
+			}
+
+			$conditions = ['parentID' => $range['parentID']];
+
+			if (empty($range['subjectID']))
+			{
+				$conditions['poolID'] = $range['poolID'];
+			}
+			else
+			{
+				$conditions['subjectID'] = $range['subjectID'];
+			}
+		}
+		else
+		{
+			$conditions = ['programID' => $range['programID']];
+			$parent     = null;
 		}
 
-		return 0;
+
+		if ($curricula->load($conditions))
+		{
+			$curricula->ordering = $range['ordering'];
+			if (!$curricula->store())
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			$range['lft'] = $this->getLeft($range['parentID'], $range['ordering']);
+
+			if (!$range['lft'] or !$this->shiftRight($range['lft']))
+			{
+				return 0;
+			}
+
+			$range['level'] = $parent ? $parent['level'] + 1 : 0;
+			$range['rgt']   = $range['lft'] + 1;
+
+			if (!$curricula->save($range))
+			{
+				return 0;
+			}
+		}
+
+		if (!empty($range['curriculum']))
+		{
+			foreach ($range['curriculum'] as $subOrdinate)
+			{
+				$subOrdinate['parentID'] = $curricula->id;
+
+				if (!$this->addRange($subOrdinate))
+				{
+					return 0;
+				}
+
+				continue;
+			}
+		}
+
+		return $curricula->id;
 	}
 
 	/**
@@ -259,47 +298,6 @@ abstract class CurriculumResource extends BaseModel
 	}
 
 	/**
-	 * Builds the resource's curriculum using the subordinate resources contained in the form.
-	 *
-	 * @return array  an array containing the resource's subordinate resources
-	 */
-	protected function getFormCurriculum()
-	{
-		$index        = 1;
-		$subOrdinates = [];
-		while (Helpers\Input::getInt("child{$index}Order"))
-		{
-			$ordering      = Helpers\Input::getInt("child{$index}Order");
-			$aggregateInfo = Helpers\Input::getCMD("child{$index}");
-
-			if (!empty($aggregateInfo))
-			{
-				$resourceID   = substr($aggregateInfo, 0, strlen($aggregateInfo) - 1);
-				$resourceType = strpos($aggregateInfo, 'p') ? 'pool' : 'subject';
-
-				if ($resourceType == 'subject')
-				{
-					$subOrdinates[$ordering]['poolID']    = null;
-					$subOrdinates[$ordering]['subjectID'] = $resourceID;
-					$subOrdinates[$ordering]['ordering']  = $ordering;
-				}
-
-				if ($resourceType == 'pool')
-				{
-					$subOrdinates[$ordering]['poolID']     = $resourceID;
-					$subOrdinates[$ordering]['subjectID']  = null;
-					$subOrdinates[$ordering]['ordering']   = $ordering;
-					$subOrdinates[$ordering]['curriculum'] = $this->getExistingCurriculum($resourceID);
-				}
-			}
-
-			$index++;
-		}
-
-		return $subOrdinates;
-	}
-
-	/**
 	 * Attempt to determine the left value for the range to be created
 	 *
 	 * @param   int    $parentID  the parent of the item to be inserted
@@ -453,15 +451,6 @@ abstract class CurriculumResource extends BaseModel
 	}
 
 	/**
-	 * Saves the resource's curriculum information.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	abstract protected function processCurricula($data);
-
-	/**
 	 * Sets the value of a generic attribute if available
 	 *
 	 * @param   Tables\BaseTable  $table    the array where subject data is being stored
@@ -599,88 +588,6 @@ abstract class CurriculumResource extends BaseModel
 		$this->_db->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('execute');
-	}
-
-	/**
-	 * Performs checks to ensure that a superordinate item has been selected as a precursor to the rest of the
-	 * curriculum processing.
-	 *
-	 * @param   array  $data  the form data
-	 *
-	 * @return array the applicable superordinate ranges
-	 */
-	protected function getSuperOrdinateRanges($data)
-	{
-		$data['curricula'] = ArrayHelper::toInteger($data['curricula']);
-
-		// No need to check superordinates if no curriculum was selected
-		if (empty($data['curricula']) or array_search(self::NONE, $data['curricula']) !== false)
-		{
-			$this->deleteRanges($data['id']);
-
-			return [];
-		}
-
-		if (empty($data['superordinates']) or array_search(self::NONE, $data['superordinates']) !== false)
-		{
-			$this->deleteRanges($data['id']);
-
-			return [];
-		}
-
-		// Retrieve the program ranges for sanity checks on the pool ranges
-		$programRanges = [];
-		foreach ($data['curricula'] as $programID)
-		{
-			if ($ranges = Helpers\Programs::getRanges($programID))
-			{
-				$programRanges[$programID] = $ranges[0];
-			}
-		}
-
-		$superOrdinateRanges = [];
-		foreach ($data['superordinates'] as $superOrdinateID)
-		{
-			$table = new Tables\Curricula;
-
-			// Non-existent or invalid entry
-			if (!$table->load($superOrdinateID) or $table->subjectID)
-			{
-				continue;
-			}
-
-			if ($programID = $table->programID)
-			{
-				// Subjects may not be directly associated with programs.
-				if ($this->resource === 'subject')
-				{
-					continue;
-				}
-
-				foreach ($programRanges as $programRange)
-				{
-					if ($programRange['programID'] === $programID)
-					{
-						$superOrdinateRanges[$programRange['id']] = $programRange;
-					}
-				}
-
-				continue;
-			}
-
-			foreach (Helpers\Pools::getRanges($table->poolID) as $poolRange)
-			{
-				foreach ($programRanges as $programRange)
-				{
-					if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt'])
-					{
-						$superOrdinateRanges[$poolRange['id']] = $poolRange;
-					}
-				}
-			}
-		}
-
-		return $superOrdinateRanges;
 	}
 
 	/**

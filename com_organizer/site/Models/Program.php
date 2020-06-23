@@ -19,6 +19,8 @@ use Organizer\Tables;
  */
 class Program extends CurriculumResource
 {
+	use SuperOrdinate;
+
 	protected $class = 'Programs';
 
 	protected $resource = 'program';
@@ -45,13 +47,13 @@ class Program extends CurriculumResource
 	/**
 	 * Method to import data associated with a resource from LSF
 	 *
-	 * @param   int  $resourceID  the id of the program to be imported
+	 * @param   int  $programID  the id of the program to be imported
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
-	public function importSingle($resourceID)
+	public function importSingle($programID)
 	{
-		if (!$keys = $this->getKeys($resourceID))
+		if (!$keys = $this->getKeys($programID))
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_LSF_DATA_MISSING', 'error');
 
@@ -70,10 +72,19 @@ class Program extends CurriculumResource
 			return true;
 		}
 
-		$curriculumID = 0;
+		if (!$ranges = $this->getRanges($programID) or empty($ranges[0]))
+		{
+			$range = ['parentID' => null, 'programID' => $programID];
+
+			return $this->addRange($range);
+		}
+		else
+		{
+			$curriculumID = $ranges[0]['id'];
+		}
 
 		// Curriculum entry doesn't exist and could not be created.
-		if (!$this->getRanges($resourceID) and !$curriculumID = $this->processCurricula($resourceID))
+		if (empty($curriculumID))
 		{
 			return false;
 		}
@@ -123,25 +134,7 @@ class Program extends CurriculumResource
 			return false;
 		}
 
-		return $this->processCurricula($table->id) ? $table->id : false;
-	}
-
-	/**
-	 * Saves the resource's curriculum information.
-	 *
-	 * @param   int  $programID  the programID
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function processCurricula($programID)
-	{
-		$range = ['parentID' => null, 'programID' => $programID, 'curriculum' => $this->getFormCurriculum()];
-
-		// The curriculum has been modelled in the range => purge.
-		if (!$this->deleteRanges($range['programID']))
-		{
-			return 0;
-		}
+		$range = ['parentID' => null, 'programID' => $table->id, 'curriculum' => $this->getSubOrdinates()];
 
 		return $this->addRange($range);
 	}

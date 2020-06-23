@@ -21,6 +21,8 @@ use SimpleXMLElement;
  */
 class Subject extends CurriculumResource
 {
+	use SubOrdinate;
+
 	const COORDINATES = 1, TEACHES = 2;
 
 	protected $class = 'Subjects';
@@ -168,7 +170,8 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Method to import data associated with a subject from LSF
+	 * Method to import data associated with a subject from LSF. Import requires an existing subject entry with its
+	 * LSFID set. It does not alter curriculum mappings.
 	 *
 	 * @param   int  $subjectID  the id of the subject entry
 	 *
@@ -237,57 +240,6 @@ class Subject extends CurriculumResource
 	 */
 	protected function processCurricula($data)
 	{
-		$sRanges             = $this->getRanges($data['id']);
-		$superOrdinateRanges = $this->getSuperOrdinateRanges($data);
-
-		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
-		{
-			foreach ($sRanges as $sIndex => $sRange)
-			{
-				// There is an existing relationship
-				if ($sRange['lft'] > $superOrdinateRange['lft'] and $sRange['rgt'] < $superOrdinateRange['rgt'])
-				{
-					// Prevent further iteration of an established relationship
-					unset($sRanges[$sIndex]);
-					continue 2;
-				}
-			}
-
-			$range = [
-				'subjectID' => $data['id'],
-				'parentID'  => $superOrdinateRange['id'],
-				'ordering'  => $this->getOrdering($superOrdinateRange['id'], $data['id'])
-			];
-
-			if (!$this->addRange($range))
-			{
-				return false;
-			}
-		}
-
-		$sRanges = $this->getRanges($data['id']);
-
-		foreach ($sRanges as $sIndex => $sRange)
-		{
-			foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
-			{
-				// The range boundaries will have changed after an add => reload
-				$superOrdinateRange = Helpers\Curricula::getRange($superOrdinateRange['id']);
-
-				// Relationship requested and established
-				if ($sRange['lft'] > $superOrdinateRange['lft'] and $sRange['rgt'] < $superOrdinateRange['rgt'])
-				{
-					// Prevent further iteration of an established relationship
-					unset($superOrdinateRanges[$sorIndex]);
-					continue 2;
-				}
-			}
-
-			// Remove unrequested existing relationship
-			$this->deleteRange($sRange['id']);
-		}
-
-		return true;
 	}
 
 	/**
@@ -543,7 +495,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return boolean
 	 */
-	public function removePersons($subjectID, $role = null)
+	private function removePersons($subjectID, $role = null)
 	{
 		$query = $this->_db->getQuery(true);
 		$query->delete('#__organizer_subject_persons')->where("subjectID = $subjectID");
@@ -604,7 +556,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function resolveTextDependencies($subjectID)
+	private function resolveTextDependencies($subjectID)
 	{
 		$table = new Tables\Subjects;
 
@@ -725,6 +677,8 @@ class Subject extends CurriculumResource
 
 		if (!$table->save($data))
 		{
+			Helpers\OrganizerHelper::message('save failed?');
+
 			return false;
 		}
 
@@ -737,17 +691,27 @@ class Subject extends CurriculumResource
 
 		if (!$this->processPersons($data))
 		{
+			Helpers\OrganizerHelper::message('pp failed');
+
 			return false;
 		}
 
-		if (!$this->processCurricula($data))
+		$superOrdinates = $this->getSuperOrdinates($data);
+
+		if (!$this->addNew($data, $superOrdinates))
 		{
+			Helpers\OrganizerHelper::message('an failed?');
+
 			return false;
 		}
+
+		$this->removeDeprecated($table->id, $superOrdinates);
 
 		// Dependant on curricula entries.
 		if (!$this->processPrerequisites($data))
 		{
+			Helpers\OrganizerHelper::message('porq failed?');
+
 			return false;
 		}
 

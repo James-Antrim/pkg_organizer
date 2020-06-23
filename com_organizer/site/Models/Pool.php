@@ -20,6 +20,8 @@ use SimpleXMLElement;
  */
 class Pool extends CurriculumResource
 {
+	use SubOrdinate, SuperOrdinate;
+
 	protected $class = 'Pools';
 
 	protected $resource = 'pool';
@@ -46,57 +48,6 @@ class Pool extends CurriculumResource
 	 */
 	protected function processCurricula($data)
 	{
-		$pRanges             = $this->getRanges($data['id']);
-		$superOrdinateRanges = $this->getSuperOrdinateRanges($data);
-
-		foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
-		{
-			foreach ($pRanges as $pIndex => $pRange)
-			{
-				// There is an existing relationship
-				if ($pRange['lft'] > $superOrdinateRange['lft'] and $pRange['rgt'] < $superOrdinateRange['rgt'])
-				{
-					// Prevent further iteration of an established relationship
-					unset($pRanges[$pIndex]);
-					continue 2;
-				}
-			}
-
-			$range = [
-				'poolID'   => $data['id'],
-				'parentID' => $superOrdinateRange['id'],
-				'ordering' => $this->getOrdering($superOrdinateRange['id'], $data['id'])
-			];
-
-			if (!$this->addRange($range))
-			{
-				return false;
-			}
-		}
-
-		$pRanges = $this->getRanges($data['id']);
-
-		foreach ($pRanges as $pIndex => $pRange)
-		{
-			foreach ($superOrdinateRanges as $sorIndex => $superOrdinateRange)
-			{
-				// The range boundaries will have changed after an add => reload
-				$superOrdinateRange = Helpers\Curricula::getRange($superOrdinateRange['id']);
-
-				// Relationship requested and established
-				if ($pRange['lft'] > $superOrdinateRange['lft'] and $pRange['rgt'] < $superOrdinateRange['rgt'])
-				{
-					// Prevent further iteration of an established relationship
-					unset($superOrdinateRanges[$sorIndex]);
-					continue 2;
-				}
-			}
-
-			// Remove unrequested existing relationship
-			$this->deleteRange($pRange['id']);
-		}
-
-		return true;
 	}
 
 	/**
@@ -130,8 +81,7 @@ class Pool extends CurriculumResource
 				return true;
 			}
 
-			$pools->organizationID = $organizationID;
-			$pools->lsfID          = $lsfID;
+			$pools->lsfID = $lsfID;
 			$this->setNameAttributes($pools, $XMLObject);
 
 			if (!$pools->store())
@@ -214,10 +164,14 @@ class Pool extends CurriculumResource
 			return false;
 		}
 
-		if (!$this->processCurricula($data))
+		$superOrdinates = $this->getSuperOrdinates($data);
+
+		if (!$this->addNew($data, $superOrdinates))
 		{
 			return false;
 		}
+
+		$this->removeDeprecated($table->id, $superOrdinates);
 
 		return $table->id;
 	}

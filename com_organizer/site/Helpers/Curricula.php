@@ -275,46 +275,6 @@ abstract class Curricula extends Associated implements Selectable
 	}
 
 	/**
-	 * Retrieves the ids of all subordinate resource ranges.
-	 *
-	 * @param   array  $ranges  the current ranges of the pool
-	 *
-	 * @return array  the ids of the subordinate resource ranges
-	 */
-	public static function getSubOrdinateIDs($ranges)
-	{
-		if (empty($ranges))
-		{
-			return [];
-		}
-
-		$dbo = Factory::getDbo();
-
-		$query = $dbo->getQuery(true);
-		$query->select('id')->from('#__organizer_curricula');
-		$dbo->setQuery($query);
-
-		$subOrdinateIDs = [];
-		foreach ($ranges as $range)
-		{
-			$query->clear('where');
-			$query->where("lft > {$range['lft']}")
-				->where("rgt < {$range['rgt']}")
-				->order('lft ASC');
-			$dbo->setQuery($query);
-
-			if (!$results = OrganizerHelper::executeQuery('loadAssocList', []))
-			{
-				continue;
-			}
-
-			$subOrdinateIDs = array_merge($subOrdinateIDs, $results);
-		}
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
 	 * Retrieves a list of options for choosing superordinate entries in the curriculum hierarchy.
 	 *
 	 * @param   int     $resourceID     the id of the resource for which the form is being displayed
@@ -331,39 +291,39 @@ abstract class Curricula extends Associated implements Selectable
 			return $options;
 		}
 
-		$mappableRanges     = self::getMappableRanges($programRanges);
-		$onlyProgramsMapped = count($mappableRanges) === count($programRanges);
+		$mappableRanges = self::getMappableRanges($programRanges);
 
-		// Subjects cannot be subordinated to programs
-		if ($onlyProgramsMapped and $type == 'subject')
+		// The programs have no subordinate resources and subjects cannot be directly subordinated to programs
+		if (count($mappableRanges) === count($programRanges) and $type == 'subject')
 		{
 			return $options;
 		}
 
 		if ($type === 'pool')
 		{
-			$selected = Pools::getFilteredRanges($resourceID);
+			$selected = Pools::getRanges($resourceID);
 
-			$curriculumIDs  = self::filterIDs($selected);
-			$subOrdinateIDs = self::getSubOrdinateIDs($selected);
+			foreach ($mappableRanges as $mIndex => $mRange)
+			{
+				foreach ($selected as $sRange)
+				{
+					if ($mRange['lft'] >= $sRange ['lft'] and $mRange['rgt'] <= $sRange ['rgt'])
+					{
+						unset($mappableRanges[$mIndex]);
+					}
+				}
+			}
 
-			// Pools cannot be subordinated to themselves or any pool subordinated to them.
-			$suppressIDs = array_merge($curriculumIDs, $subOrdinateIDs);
 		}
 		else
 		{
-			$selected    = Subjects::getRanges($resourceID);
-			$suppressIDs = [];
+			$selected = Subjects::getRanges($resourceID);
 		}
 
 		$parentIDs = self::filterParentIDs($selected);
 
 		foreach ($mappableRanges as $mappableRange)
 		{
-			if (in_array($mappableRange['id'], $suppressIDs))
-			{
-				continue;
-			}
 
 			if (!empty($mappableRange['poolID']))
 			{
