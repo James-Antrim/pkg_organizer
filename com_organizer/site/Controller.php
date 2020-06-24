@@ -21,8 +21,6 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
 
-// Exception for frequency of use
-
 /**
  * Class receives user actions and performs access checks and redirection.
  */
@@ -360,6 +358,29 @@ class Controller extends BaseController
 		}
 
 		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Makes call to the models's save2copy function, and redirects to the manager view.
+	 *
+	 * @return void
+	 */
+	public function save2copy()
+	{
+		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+		$model     = new $modelName;
+
+		if ($model->save2copy())
+		{
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+		}
+		else
+		{
+			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
+		$this->setRedirect($url);
 	}
 
 	/**
