@@ -97,7 +97,7 @@ class Program extends CurriculumResource
 	 *
 	 * @param   array  $data  form data
 	 *
-	 * @return mixed int id of the resource on success, otherwise boolean false
+	 * @return int|bool the id of the resource on success, otherwise boolean false
 	 * @throws Exception => invalid request, unauthorized access
 	 */
 	public function save($data = [])
@@ -129,14 +129,35 @@ class Program extends CurriculumResource
 
 		$table = new Tables\Programs;
 
-		if ($table->save($data))
+		if (!$table->save($data))
 		{
 			return false;
 		}
 
 		$range = ['parentID' => null, 'programID' => $table->id, 'curriculum' => $this->getSubOrdinates()];
 
-		return $this->addRange($range);
+		if (!$this->addRange($range))
+		{
+			return false;
+		}
+
+		return $table->id;
+	}
+
+	/**
+	 * Method to save existing degree programs as copies.
+	 *
+	 * @param   array  $data  the data to be used to create the program when called from the program helper
+	 *
+	 * @return int|bool the id of the resource on success, otherwise boolean false
+	 * @throws Exception => unauthorized access
+	 */
+	public function save2copy($data = [])
+	{
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		unset($data['id']);
+
+		return $this->save($data);
 	}
 
 	/**

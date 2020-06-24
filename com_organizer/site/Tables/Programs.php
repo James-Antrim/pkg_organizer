@@ -69,14 +69,6 @@ class Programs extends BaseTable
 	public $description_en;
 
 	/**
-	 * The id of the field entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $fieldID;
-
-	/**
 	 * The id of the frequency entry referenced.
 	 * INT(1) UNSIGNED DEFAULT NULL
 	 *

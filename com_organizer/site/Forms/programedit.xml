@@ -9,10 +9,6 @@
         </field>
         <field name="accredited" type="Blank" label="ACCREDITED" required="true"/>
         <field name="code" type="Blank" label="LSF_FIELD_ID" maxlength="60" required="true"/>
-        <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" required="true"
-               table="organizer_fields" textcolumn="name" valuecolumn="id">
-            <option value="">NO_FIELD</option>
-        </field>
         <field name="frequencyID" type="Options" label="FREQUENCY" default="3">
             <option value="3">AVAILABILITY_SEMESTER</option>
             <option value="5">AVAILABILITY_YEAR</option>

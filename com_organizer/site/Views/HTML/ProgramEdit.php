@@ -51,6 +51,14 @@ class ProgramEdit extends EditView
 
 		if ($this->item->id)
 		{
+			$toolbar->appendButton(
+				'Standard',
+				'save-copy',
+				Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
+				'programs.save2copy',
+				false
+			);
+
 			$poolLink = 'index.php?option=com_organizer&tmpl=component';
 			$poolLink .= "&type=program&id={$this->item->id}&view=pool_selection";
 			$toolbar->appendButton('Popup', 'list', Helpers\Languages::_('ORGANIZER_ADD_POOL'), $poolLink);
