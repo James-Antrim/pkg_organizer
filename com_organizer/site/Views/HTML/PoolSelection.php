@@ -22,6 +22,8 @@ class PoolSelection extends PoolsView
 {
 	protected $_layout = 'list_modal';
 
+	protected $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
+
 	/**
 	 * Method to generate buttons for user interaction
 	 *

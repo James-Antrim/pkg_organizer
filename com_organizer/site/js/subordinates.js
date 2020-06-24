@@ -213,7 +213,7 @@ function getCheckedItems(divID, type)
     jQuery(divID + ' input:checked', iFrame.contents()).each(function () {
         subOrdinates = getSubOrdinates();
         id = jQuery(this).val() + type;
-        name = jQuery(jQuery(this).parent().parent().subOrdinates()[1]).html();
+        name = jQuery(jQuery(this).parent().parent().children()[1]).html();
         addRow(subOrdinates.length, id, name, type);
     });
 }
