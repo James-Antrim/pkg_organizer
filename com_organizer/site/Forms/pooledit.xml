@@ -25,7 +25,7 @@
                required="true"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
     </fieldset>
-    <fieldset name="associations" label="ASSOCIATIONS" displayinitial="0">
+    <fieldset name="associations" label="ASSOCIATIONS">
         <field type="Curricula" label="PROGRAMS"/>
         <field type="SuperOrdinates" label="SUPERORDINATES"/>
         <field type="SubOrdinates" label="SUBORDINATES"/>
