@@ -30,7 +30,7 @@ class SubjectSelection extends ListView
 	protected function addToolBar()
 	{
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'pools.addSubject', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'x', true);
 	}
 
 	/**
@@ -96,7 +96,7 @@ class SubjectSelection extends ListView
 			$structuredItems[$index]             = [];
 			$structuredItems[$index]['checkbox'] = Helpers\HTML::_('grid.id', $index, $subject->id);
 			$structuredItems[$index]['name']     = $name;
-			$structuredItems[$index]['programs'] = $name;
+			$structuredItems[$index]['programs'] = Helpers\Subjects::getProgramName($subject->id);
 
 			$index++;
 		}

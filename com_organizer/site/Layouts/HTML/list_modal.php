@@ -23,7 +23,7 @@ $onlySearch  = (count($filters) === 1 and !empty($filters['filter_search']));
 $showFilters = !($noFilters or $onlySearch);
 
 $viewName = $this->getName();
-$type     = $viewName === 'Subject_Selection' ? 's' : 'p';
+$type     = $viewName === 'SubjectSelection' ? 's' : 'p';
 ?>
 <form action="index.php?" id="adminForm" method="post" name="adminForm">
     <div class="toolbar clearfix">

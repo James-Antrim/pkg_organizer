@@ -28,7 +28,7 @@ class SubjectSelection extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select("DISTINCT s.id, code, name_$tag AS name")->from('#__organizer_subjects AS s');
+		$query->select("DISTINCT s.id, code, fullName_$tag AS name")->from('#__organizer_subjects AS s');
 
 		$searchFields = [
 			'name_de',

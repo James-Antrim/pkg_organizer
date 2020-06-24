@@ -32,7 +32,7 @@ class PoolSelection extends PoolsView
 	protected function addToolBar()
 	{
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'programs.addPool', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'x', true);
 	}
 
 	/**
