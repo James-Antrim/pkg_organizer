@@ -19,7 +19,7 @@ use Organizer\Tables;
  */
 class Program extends CurriculumResource
 {
-	use SuperOrdinate;
+	use Associated, SuperOrdinate;
 
 	protected $class = 'Programs';
 
@@ -130,6 +130,13 @@ class Program extends CurriculumResource
 		$table = new Tables\Programs;
 
 		if (!$table->save($data))
+		{
+			return false;
+		}
+
+		$data['id'] = $table->id;
+
+		if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs']))
 		{
 			return false;
 		}

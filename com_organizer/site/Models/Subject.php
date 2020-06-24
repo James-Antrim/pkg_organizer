@@ -21,7 +21,7 @@ use SimpleXMLElement;
  */
 class Subject extends CurriculumResource
 {
-	use SubOrdinate;
+	use Associated, SubOrdinate;
 
 	const COORDINATES = 1, TEACHES = 2;
 
@@ -229,17 +229,6 @@ class Subject extends CurriculumResource
 		}
 
 		return $this->resolveTextDependencies($table->id);
-	}
-
-	/**
-	 * Saves the resource's curriculum information.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	protected function processCurricula($data)
-	{
 	}
 
 	/**
@@ -677,8 +666,6 @@ class Subject extends CurriculumResource
 
 		if (!$table->save($data))
 		{
-			Helpers\OrganizerHelper::message('save failed?');
-
 			return false;
 		}
 
@@ -691,8 +678,6 @@ class Subject extends CurriculumResource
 
 		if (!$this->processPersons($data))
 		{
-			Helpers\OrganizerHelper::message('pp failed');
-
 			return false;
 		}
 
@@ -700,8 +685,6 @@ class Subject extends CurriculumResource
 
 		if (!$this->addNew($data, $superOrdinates))
 		{
-			Helpers\OrganizerHelper::message('an failed?');
-
 			return false;
 		}
 
@@ -710,8 +693,6 @@ class Subject extends CurriculumResource
 		// Dependant on curricula entries.
 		if (!$this->processPrerequisites($data))
 		{
-			Helpers\OrganizerHelper::message('porq failed?');
-
 			return false;
 		}
 

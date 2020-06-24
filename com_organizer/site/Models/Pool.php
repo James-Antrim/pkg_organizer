@@ -20,7 +20,7 @@ use SimpleXMLElement;
  */
 class Pool extends CurriculumResource
 {
-	use SubOrdinate, SuperOrdinate;
+	use Associated, SubOrdinate, SuperOrdinate;
 
 	protected $class = 'Pools';
 
@@ -37,17 +37,6 @@ class Pool extends CurriculumResource
 	{
 		// There is no legitimate call to this method.
 		return false;
-	}
-
-	/**
-	 * Saves the resource's curriculum information.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	protected function processCurricula($data)
-	{
 	}
 
 	/**

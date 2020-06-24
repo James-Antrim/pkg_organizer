@@ -232,7 +232,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
-	protected function updateDirectAssociation($tableSuffix)
+	/*protected function updateDirectAssociation($tableSuffix)
 	{
 		$updateIDs = $this->selected;
 		$mergeID   = array_shift($updateIDs);
@@ -245,21 +245,21 @@ abstract class MergeModel extends BaseModel
 		$this->_db->setQuery($query);
 
 		return (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
-	}
+	}*/
 
 	/**
 	 * Updates the resource dependent associations
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
-	abstract protected function updateAssociations();
+	/*abstract protected function updateAssociations();*/
 
 	/**
 	 * Updates the associated organizations for a resource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function updateOrganizations()
+	/*private function updateOrganizations()
 	{
 		$existingQuery = $this->_db->getQuery(true);
 		$existingQuery->select('DISTINCT organizationID');
@@ -305,14 +305,14 @@ abstract class MergeModel extends BaseModel
 		}
 
 		return true;
-	}
+	}*/
 
 	/**
 	 * Updates organization resource associations
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
-	protected function updateDRAssociation()
+	/*protected function updateDRAssociation()
 	{
 		$relevantIDs = "'" . implode("', '", $this->selected) . "'";
 
@@ -352,14 +352,14 @@ abstract class MergeModel extends BaseModel
 		$this->_db->setQuery($insertQuery);
 
 		return (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
-	}
+	}*/
 
 	/**
 	 * Updates room data and lesson associations in active schedules
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function updateSchedules()
+	/*private function updateSchedules()
 	{
 		$scheduleIDs = $this->getSchedulesIDs();
 		if (empty($scheduleIDs))
@@ -383,5 +383,5 @@ abstract class MergeModel extends BaseModel
 		}
 
 		return true;
-	}
+	}*/
 }
