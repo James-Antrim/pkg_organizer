@@ -53,7 +53,7 @@ class CurriculaField extends FormField
 		$options          = $this->getOptions();
 
 		$defaultOptions = [Helpers\HTML::_('select.option', '-1', Helpers\Languages::_('ORGANIZER_NONE'))];
-		$programs       = $defaultOptions + $options;
+		$programs       = array_merge($defaultOptions, $options);
 		$attributes     = ['multiple' => 'multiple', 'size' => '10'];
 
 		return Helpers\HTML::selectBox($programs, 'curricula', $attributes, $selectedPrograms, true);
