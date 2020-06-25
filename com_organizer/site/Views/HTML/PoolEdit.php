@@ -51,17 +51,14 @@ class PoolEdit extends EditView
 		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'pools.apply', false);
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'pools.save', false);
 
-		if ($this->item->id)
-		{
-			$baseURL = 'index.php?option=com_organizer&tmpl=component';
-			$baseURL .= "&type=pool&id={$this->item->id}&view=";
+		$baseURL = 'index.php?option=com_organizer&tmpl=component';
+		$baseURL .= "&type=pool&id={$this->item->id}&view=";
 
-			$poolLink = $baseURL . 'pool_selection';
-			$toolbar->appendButton('Popup', 'list', Helpers\Languages::_('ORGANIZER_ADD_POOL'), $poolLink);
+		$poolLink = $baseURL . 'pool_selection';
+		$toolbar->appendButton('Popup', 'list', Helpers\Languages::_('ORGANIZER_ADD_POOL'), $poolLink);
 
-			$subjectLink = $baseURL . 'subject_selection';
-			$toolbar->appendButton('Popup', 'book', Helpers\Languages::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
-		}
+		$subjectLink = $baseURL . 'subject_selection';
+		$toolbar->appendButton('Popup', 'book', Helpers\Languages::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
 
 		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'pools.cancel', false);
 	}
