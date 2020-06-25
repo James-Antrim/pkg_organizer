@@ -286,7 +286,7 @@ abstract class Curricula extends Associated implements Selectable
 	public static function getSuperOrdinateOptions($resourceID, $type, $programRanges)
 	{
 		$options = ['<option value="-1">' . Languages::_('JNONE') . '</option>'];
-		if (empty($resourceID) or empty($type) or empty($programRanges))
+		if (empty($type) or empty($programRanges))
 		{
 			return $options;
 		}
@@ -299,25 +299,30 @@ abstract class Curricula extends Associated implements Selectable
 			return $options;
 		}
 
-		if ($type === 'pool')
-		{
-			$selected = Pools::getRanges($resourceID);
+		$selected = [];
 
-			foreach ($mappableRanges as $mIndex => $mRange)
+		if ($resourceID)
+		{
+			if ($type === 'pool')
 			{
-				foreach ($selected as $sRange)
+				$selected = Pools::getRanges($resourceID);
+
+				foreach ($mappableRanges as $mIndex => $mRange)
 				{
-					if ($mRange['lft'] >= $sRange ['lft'] and $mRange['rgt'] <= $sRange ['rgt'])
+					foreach ($selected as $sRange)
 					{
-						unset($mappableRanges[$mIndex]);
+						if ($mRange['lft'] >= $sRange ['lft'] and $mRange['rgt'] <= $sRange ['rgt'])
+						{
+							unset($mappableRanges[$mIndex]);
+						}
 					}
 				}
-			}
 
-		}
-		else
-		{
-			$selected = Subjects::getRanges($resourceID);
+			}
+			else
+			{
+				$selected = Subjects::getRanges($resourceID);
+			}
 		}
 
 		$parentIDs = self::filterParentIDs($selected);
