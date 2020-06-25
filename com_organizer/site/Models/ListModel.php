@@ -419,7 +419,7 @@ abstract class ListModel extends ParentModel
 			$wherray[] = "$name LIKE '$search'";
 		}
 		$where = implode(' OR ', $wherray);
-		$query->where("( $where )");
+		$query->where("($where)");
 	}
 
 	/**

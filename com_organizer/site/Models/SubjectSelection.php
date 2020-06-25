@@ -31,10 +31,10 @@ class SubjectSelection extends ListModel
 		$query->select("DISTINCT s.id, code, fullName_$tag AS name")->from('#__organizer_subjects AS s');
 
 		$searchFields = [
-			'name_de',
+			'fullName_de',
 			'shortName_de',
 			'abbreviation_de',
-			'name_en',
+			'fullName_en',
 			'shortName_en',
 			'abbreviation_en',
 			'code',
