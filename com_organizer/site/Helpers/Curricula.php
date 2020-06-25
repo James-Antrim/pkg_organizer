@@ -148,6 +148,8 @@ abstract class Curricula extends Associated implements Selectable
 		$invalidRange = (empty($curriculum['lft']) or empty($curriculum['rgt']) or $curriculum['subjectID']);
 		if ($invalidRange)
 		{
+			$curriculum['curriculum'] = [];
+
 			return;
 		}
 
@@ -170,6 +172,8 @@ abstract class Curricula extends Associated implements Selectable
 
 		if (!$subOrdinates = OrganizerHelper::executeQuery('loadAssocList', [], 'id'))
 		{
+			$curriculum['curriculum'] = [];
+
 			return;
 		}
 
