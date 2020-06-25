@@ -69,9 +69,6 @@ class Subjects extends ListView
 				'subjects.import',
 				true
 			);
-		}
-		if (Helpers\Can::administrate())
-		{
 			$toolbar->appendButton(
 				'Confirm',
 				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
