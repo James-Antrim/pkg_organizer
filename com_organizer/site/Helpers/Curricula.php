@@ -158,7 +158,7 @@ abstract class Curricula extends Associated implements Selectable
 			->where("lft > {$curriculum['lft']}")
 			->where("rgt < {$curriculum['rgt']}")
 			->where("level = {$curriculum['level']} + 1")
-			->order('lft');
+			->order('ordering');
 
 		// Only pools should be direct subordinates of programs
 		if ($curriculum['programID'])
