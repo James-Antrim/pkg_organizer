@@ -25,9 +25,12 @@ class PoolEdit extends EditModel
 	 */
 	public function allow()
 	{
-		$poolID = empty($this->item->id) ? 0 : $this->item->id;
+		if ($poolID = $this->item->id)
+		{
+			return Helpers\Can::document('pool', $poolID);
+		}
 
-		return Helpers\Can::document('pool', $poolID);
+		return (bool) Helpers\Can::documentTheseOrganizations();
 	}
 
 	/**
