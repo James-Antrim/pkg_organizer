@@ -256,31 +256,6 @@ class Controller extends BaseController
 	}
 
 	/**
-	 * Makes call to the models's import batch function, and redirects to the manager view.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function import()
-	{
-		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
-
-		if ($model->import())
-		{
-			OrganizerHelper::message('ORGANIZER_IMPORT_SUCCESS');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_IMPORT_FAIL', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view={$this->listView}";
-		$this->setRedirect($url);
-	}
-
-	/**
 	 * Performs access checks, makes call to the models's merge function, and
 	 * redirects to the room manager view
 	 *

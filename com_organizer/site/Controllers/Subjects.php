@@ -17,6 +17,8 @@ use Organizer\Controller;
  */
 class Subjects extends Controller
 {
+	use Imported;
+
 	protected $listView = 'subjects';
 
 	protected $resource = 'subject';

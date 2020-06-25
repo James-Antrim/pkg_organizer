@@ -20,6 +20,8 @@ use Organizer\Models;
  */
 class Programs extends Controller
 {
+	use Imported;
+
 	protected $listView = 'programs';
 
 	protected $resource = 'program';
