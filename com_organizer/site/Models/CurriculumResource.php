@@ -387,9 +387,9 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	public function import()
 	{
-		foreach (Helpers\Input::getSelectedIDs() as $subjectID)
+		foreach (Helpers\Input::getSelectedIDs() as $resourceID)
 		{
-			if (!$this->importSingle($subjectID))
+			if (!$this->importSingle($resourceID))
 			{
 				return false;
 			}
