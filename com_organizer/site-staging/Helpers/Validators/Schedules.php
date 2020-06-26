@@ -31,8 +31,6 @@ class Schedules
 
 	public $events = null;
 
-	public $fields = null;
-
 	public $groups = null;
 
 	public $instances = [];
@@ -161,7 +159,6 @@ class Schedules
 		}
 		unset($this->schedule->departments);
 
-		$this->fields    = new stdClass;
 		$this->methods   = new stdClass;
 		$this->roomtypes = new stdClass;
 		foreach ($this->schedule->descriptions->children() as $node)
@@ -199,7 +196,7 @@ class Schedules
 			Persons::validate($this, $node);
 		}
 		Persons::setWarnings($this);
-		unset($this->fields, $this->schedule->teachers);
+		unset($this->schedule->teachers);
 
 		$this->rooms = new stdClass;
 		foreach ($this->schedule->rooms->children() as $node)

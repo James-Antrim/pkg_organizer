@@ -23,33 +23,33 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the table id if existent.
 	 *
-	 * @param   string  $untisID  the grid name in untis
+	 * @param   string  $code  the grid name in untis
 	 *
 	 * @return mixed int id on success, otherwise null
 	 */
-	public static function getID($untisID)
+	public static function getID($code)
 	{
 		$table = new Tables\Grids;
 
-		return $table->load(['code' => $untisID]) ? $table->id : null;
+		return $table->load(['code' => $code]) ? $table->id : null;
 	}
 
 	/**
 	 * Retrieves the grid id using the grid name. Creates the grid id if unavailable.
 	 *
-	 * @param   Schedules  $model     the model for the schedule being validated
-	 * @param   string     $gridName  the name of the grid
+	 * @param   object  $model     the model for the schedule being validated
+	 * @param   string  $gridName  the name of the grid
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
 	public static function setID($model, $gridName)
 	{
-		if (empty($model->schedule->periods->$gridName))
+		if (empty($model->periods->$gridName))
 		{
 			return;
 		}
 
-		$grid       = $model->schedule->periods->$gridName;
+		$grid       = $model->periods->$gridName;
 		$grid->grid = json_encode($grid, JSON_UNESCAPED_UNICODE);
 		$table      = new Tables\Grids;
 
@@ -67,7 +67,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Sets IDs for the grids collection.
 	 *
-	 * @param   Schedules  $model  the model for the schedule being validated
+	 * @param   object  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
@@ -83,7 +83,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether pool nodes have the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   object            $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void

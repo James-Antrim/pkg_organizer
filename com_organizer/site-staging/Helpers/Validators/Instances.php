@@ -25,9 +25,9 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Adds the data for locating the missing room information to the warnings.
 	 *
-	 * @param   Schedules  $model       the model for the schedule being validated
-	 * @param   int        $untisID     the id of the lesson being iterated
-	 * @param   array      $invalidIDs  the untis ids of rooms which proved to be invalid
+	 * @param   object  $model       the model for the schedule being validated
+	 * @param   int     $untisID     the id of the lesson being iterated
+	 * @param   array   $invalidIDs  the untis ids of rooms which proved to be invalid
 	 */
 	private static function addInvalidRoomData($model, $untisID, $invalidIDs)
 	{
@@ -50,10 +50,10 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Adds the data for locating the missing room information to the warnings.
 	 *
-	 * @param   Schedules  $model      the model for the schedule being validated
-	 * @param   int        $untisID    the id of the lesson being iterated
-	 * @param   int        $currentDT  the current date time in the iteration
-	 * @param   int        $periodNo   the period number of the grid to look for times in
+	 * @param   object  $model      the model for the schedule being validated
+	 * @param   int     $untisID    the id of the lesson being iterated
+	 * @param   int     $currentDT  the current date time in the iteration
+	 * @param   int     $periodNo   the period number of the grid to look for times in
 	 */
 	private static function addMissingRoomData($model, $untisID, $currentDT, $periodNo)
 	{
@@ -113,10 +113,10 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Sets associations between an instance person association and its groups.
 	 *
-	 * @param   Schedules  $model       the model for the schedule being validated
-	 * @param   int        $untisID     the id of the lesson being iterated
-	 * @param   int        $instanceID  the id of the instance being validated
-	 * @param   int        $assocID     the id of the instance person association with which the groups are to be associated
+	 * @param   object  $model       the model for the schedule being validated
+	 * @param   int     $untisID     the id of the lesson being iterated
+	 * @param   int     $instanceID  the id of the instance being validated
+	 * @param   int     $assocID     the id of the instance person association with which the groups are to be associated
 	 *
 	 * @return void
 	 */
@@ -163,7 +163,7 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules         $model        the model for the schedule being validated
+	 * @param   object            $model        the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node         the node being validated
 	 * @param   int               $untisID      the id of the lesson being iterated
 	 * @param   string            $currentDate  the current date being iterated
@@ -226,9 +226,9 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Sets an instance person association.
 	 *
-	 * @param   Schedules  $model       the model for the schedule being validated
-	 * @param   int        $untisID     the id of the lesson being iterated
-	 * @param   int        $instanceID  the id of the instance being validated
+	 * @param   object  $model       the model for the schedule being validated
+	 * @param   int     $untisID     the id of the lesson being iterated
+	 * @param   int     $instanceID  the id of the instance being validated
 	 *
 	 * @return void
 	 */
@@ -286,10 +286,10 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Sets associations between an instance person association and its groups.
 	 *
-	 * @param   Schedules  $model       the model for the schedule being validated
-	 * @param   int        $untisID     the id of the lesson being iterated
-	 * @param   int        $instanceID  the id of the instance being validated
-	 * @param   int        $assocID     the id of the instance person association with which the groups are to be associated
+	 * @param   object  $model       the model for the schedule being validated
+	 * @param   int     $untisID     the id of the lesson being iterated
+	 * @param   int     $instanceID  the id of the instance being validated
+	 * @param   int     $assocID     the id of the instance person association with which the groups are to be associated
 	 *
 	 * @return void
 	 */
@@ -336,7 +336,7 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Iterates over possible occurrences and validates them
 	 *
-	 * @param   Schedules         $model        the model for the schedule being validated
+	 * @param   object            $model        the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node         the node being validated
 	 * @param   int               $untisID      the id of the lesson being iterated
 	 * @param   array             $occurrences  an array of 'occurrences'
@@ -375,7 +375,7 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Validates a lesson instance
 	 *
-	 * @param   Schedules         $model      the model for the schedule being validated
+	 * @param   object            $model      the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node       the node being validated
 	 * @param   int               $untisID    the id of the lesson being iterated
 	 * @param   int               $currentDT  the current date time in the iteration

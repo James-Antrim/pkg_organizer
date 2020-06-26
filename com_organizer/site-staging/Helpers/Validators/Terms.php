@@ -24,8 +24,8 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the term code. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules  $model  the model for the schedule being validated
-	 * @param   string     $code   the textual id of the term
+	 * @param   object  $model  the model for the schedule being validated
+	 * @param   string  $code   the textual id of the term
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
@@ -88,7 +88,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks whether XML node has the expected structure and required information.
 	 *
-	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   object            $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void

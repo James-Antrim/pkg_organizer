@@ -25,7 +25,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Determines how the missing room attribute will be handled
 	 *
-	 * @param   Schedules  $model  the model for the schedule being validated
+	 * @param   object  $model  the model for the schedule being validated
 	 *
 	 * @return void adds a message to the model warnings array
 	 */
@@ -54,7 +54,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Determines how the missing room attribute will be handled
 	 *
-	 * @param   Schedules  $model  the model for the schedule being validated
+	 * @param   object  $model  the model for the schedule being validated
 	 *
 	 * @return void adds a message to the model warnings array
 	 */
@@ -130,7 +130,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Adjusts the template ('occurrence' attribute) to the unit's actual dates.
 	 *
-	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   object            $model   the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node    the node being validated
 	 * @param   int               $unitID  the id of the unit being iterated
 	 *
@@ -157,17 +157,17 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules  $model    the model for the schedule being validated
-	 * @param   string     $untisID  the id of the resource in Untis
+	 * @param   object  $model  the model for the schedule being validated
+	 * @param   string  $code   the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $untisID)
+	public static function setID($model, $code)
 	{
-		$unit  = $model->units->$untisID;
+		$unit  = $model->units->$code;
 		$table = new Tables\Unit;
 
-		if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'code' => $untisID]))
+		if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'code' => $code]))
 		{
 			$altered = false;
 
@@ -208,7 +208,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks whether nodes have the expected structure and required information
 	 *
-	 * @param   Schedules  $model  the model for the schedule being validated
+	 * @param   object  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
@@ -235,7 +235,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Validates the subjectID and builds dependant structural elements
 	 *
-	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   object            $model   the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node    the node being validated
 	 * @param   int               $unitID  the id of the unit being iterated
 	 *
@@ -267,7 +267,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Validates the description
 	 *
-	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   object            $model   the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node    the node being validated
 	 * @param   int               $unitID  the id of the unit being iterated
 	 *
@@ -299,7 +299,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   object            $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
@@ -386,7 +386,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Validates the lesson_teacher attribute and sets corresponding schedule elements
 	 *
-	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   object            $model   the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node    the node being validated
 	 * @param   int               $unitID  the id of the unit being iterated
 	 *
@@ -418,7 +418,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Validates the groups attribute and sets corresponding schedule elements
 	 *
-	 * @param   Schedules         $model   the model for the schedule being validated
+	 * @param   object            $model   the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node    the node being validated
 	 * @param   int               $unitID  the id of the unit being iterated
 	 *
@@ -457,8 +457,8 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks for the validity and consistency of date values
 	 *
-	 * @param   Schedules  $model   the model for the schedule being validated
-	 * @param   int        $unitID  the id of the unit being iterated
+	 * @param   object  $model   the model for the schedule being validated
+	 * @param   int     $unitID  the id of the unit being iterated
 	 *
 	 * @return boolean  true if dates are valid, otherwise false
 	 */

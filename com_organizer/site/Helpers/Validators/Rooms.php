@@ -23,14 +23,14 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules  $model    the model for the schedule being validated
-	 * @param   string     $untisID  the id of the resource in Untis
+	 * @param   object  $model  the model for the schedule being validated
+	 * @param   string  $code   the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $untisID)
+	public static function setID($model, $code)
 	{
-		$room  = $model->rooms->$untisID;
+		$room  = $model->rooms->$code;
 		$table = new Tables\Rooms;
 
 		if ($table->load(['code' => $room->untisID]))
@@ -54,7 +54,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		{
 			$table->save($room);
 		}
-		$model->rooms->$untisID->id = $table->id;
+		$model->rooms->$code->id = $table->id;
 
 		return;
 	}
@@ -62,7 +62,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks whether nodes have the expected structure and required information
 	 *
-	 * @param   Schedules  $model  the model for the schedule being validated
+	 * @param   object  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
@@ -87,7 +87,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether room nodes have the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   object            $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
@@ -102,7 +102,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 		else
 		{
-			$model->warnings['REX'] = empty($model->warnings['REX']) ? 1 : $model->warnings['REX']++;
+			$model->warnings['REX'] = empty($model->warnings['REX']) ? 1 : $model->warnings['REX'] + 1;
 			$untisID                = $internalID;
 		}
 
@@ -110,7 +110,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		$invalidType = (empty($roomTypeID) or empty($model->roomtypes->$roomTypeID));
 		if ($invalidType)
 		{
-			$model->warnings['RT'] = empty($model->warnings['RT']) ? 1 : $model->warnings['RT']++;
+			$model->warnings['RT'] = empty($model->warnings['RT']) ? 1 : $model->warnings['RT'] + 1;
 			$roomTypeID            = null;
 		}
 		else

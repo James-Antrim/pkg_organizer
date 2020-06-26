@@ -23,15 +23,15 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules  $model    the model for the schedule being validated
-	 * @param   string     $untisID  the id of the resource in Untis
+	 * @param   object  $model  the model for the schedule being validated
+	 * @param   string  $code   the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $untisID)
+	public static function setID($model, $code)
 	{
 		$exists       = false;
-		$person       = $model->persons->$untisID;
+		$person       = $model->persons->$code;
 		$table        = new Tables\Persons;
 		$loadCriteria = [];
 
@@ -43,7 +43,7 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 		{
 			$loadCriteria[] = ['surname' => $person->surname, 'forename' => $person->forename];
 		}
-		$loadCriteria[] = ['code' => $person->untisID];
+		$loadCriteria[] = ['code' => $person->code];
 
 		$extPattern = "/^[v]?[A-ZÀ-ÖØ-Þ][a-zß-ÿ]{1,3}([A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þa-zß-ÿ]*)$/";
 		foreach ($loadCriteria as $criteria)
@@ -67,13 +67,13 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 					}
 				}
 
-				$replaceable    = !preg_match($extPattern, $table->untisID);
-				$valid          = preg_match($extPattern, $untisID);
-				$overwriteUntis = ($table->untisID != $untisID and $replaceable and $valid);
+				$replaceable    = !preg_match($extPattern, $table->code);
+				$valid          = preg_match($extPattern, $code);
+				$overwriteUntis = ($table->code != $code and $replaceable and $valid);
 				if ($overwriteUntis)
 				{
-					$table->untisID = $untisID;
-					$altered        = true;
+					$table->code = $code;
+					$altered     = true;
 				}
 
 				if ($altered)
@@ -91,7 +91,7 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 			$table->save($person);
 		}
 
-		$model->persons->$untisID->id = $table->id;
+		$model->persons->$code->id = $table->id;
 
 		return;
 	}
@@ -99,7 +99,7 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks whether nodes have the expected structure and required information
 	 *
-	 * @param   Schedules  $model  the model for the schedule being validated
+	 * @param   object  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
@@ -124,7 +124,7 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether person nodes have the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   object            $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
@@ -139,7 +139,7 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 		else
 		{
-			$model->warnings['PEX'] = empty($model->warnings['PEX']) ? 1 : $model->warnings['PEX']++;
+			$model->warnings['PEX'] = empty($model->warnings['PEX']) ? 1 : $model->warnings['PEX'] + 1;
 			$untisID                = $internalID;
 		}
 
@@ -153,18 +153,14 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		$person           = new stdClass;
 		$person->surname  = $surname;
-		$person->untisID  = $untisID;
+		$person->code     = $untisID;
 		$person->username = trim((string) $node->payrollnumber);
 		$person->title    = trim((string) $node->title);
-
-		$fieldID          = str_replace('DS_', '', trim($node->teacher_description[0]['id']));
-		$fields           = $model->fields;
-		$person->fieldID  = (empty($fieldID) or empty($fields->$fieldID)) ? null : $fields->$fieldID;
 		$person->forename = trim((string) $node->forename);
 
 		if (empty($person->forename))
 		{
-			$model->warnings['PFN'] = empty($model->warnings['PFN']) ? 1 : $model->warnings['PFN']++;
+			$model->warnings['PFN'] = empty($model->warnings['PFN']) ? 1 : $model->warnings['PFN'] + 1;
 		}
 
 		$model->persons->$internalID = $person;

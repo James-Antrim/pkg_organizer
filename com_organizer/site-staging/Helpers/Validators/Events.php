@@ -23,17 +23,17 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules  $model    the model for the schedule being validated
-	 * @param   string     $untisID  the id of the resource in Untis
+	 * @param   object  $model  the model for the schedule being validated
+	 * @param   string  $code   the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $untisID)
+	public static function setID($model, $code)
 	{
-		$event = $model->events->$untisID;
+		$event = $model->events->$code;
 		$table = new Tables\Events;
 
-		if ($table->load(['organizationID' => $event->organizationID, 'code' => $untisID]))
+		if ($table->load(['organizationID' => $event->organizationID, 'code' => $code]))
 		{
 			$altered = false;
 			foreach ($event as $key => $value)
@@ -65,7 +65,7 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Creates a warning for missing subject no attributes.
 	 *
-	 * @param   Schedules  $model  the model for the schedule being validated
+	 * @param   object  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
@@ -83,7 +83,7 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   object            $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
@@ -109,14 +109,8 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 			$subjectNo = '';
 		}
 
-		$fieldID      = str_replace('DS_', '', trim($node->subject_description[0]['id']));
-		$fields       = $model->fields;
-		$invalidField = (empty($fieldID) or empty($fields->$fieldID));
-		$fieldID      = $invalidField ? null : $fields->$fieldID;
-
 		$event                 = new stdClass;
 		$event->organizationID = $model->organizationID;
-		$event->fieldID        = $fieldID;
 		$event->untisID        = $untisID;
 		$event->name_de        = $name;
 		$event->name_en        = $name;

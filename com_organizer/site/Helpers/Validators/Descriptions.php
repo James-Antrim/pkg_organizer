@@ -22,24 +22,18 @@ class Descriptions implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules  $model     the model for the schedule being validated
-	 * @param   string     $untisID   the id of the resource in Untis
-	 * @param   string     $typeFlag  the flag identifying the categorization resource
+	 * @param   object  $model     the model for the schedule being validated
+	 * @param   string  $code      the id of the resource in Untis
+	 * @param   string  $typeFlag  the flag identifying the categorization resource
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $untisID, $typeFlag = '')
+	public static function setID($model, $code, $typeFlag = '')
 	{
 		$error    = 'ORGANIZER_';
 		$resource = '';
 		switch ($typeFlag)
 		{
-			case 'f':
-				$error    .= 'FIELD_INVALID';
-				$resource = 'Fields';
-				$table    = new Tables\Fields;
-
-				break;
 			case 'r':
 				$error    .= 'ROOMTYPE_INVALID';
 				$resource = 'Roomtypes';
@@ -60,14 +54,14 @@ class Descriptions implements UntisXMLValidator
 		}
 
 		// These are set by the administrator, so there is no case for saving a new resource on upload.
-		if ($table->load(['code' => $untisID]))
+		if ($table->load(['code' => $code]))
 		{
-			$property                   = strtolower($resource);
-			$model->$property->$untisID = $table->id;
+			$property                = strtolower($resource);
+			$model->$property->$code = $table->id;
 		}
 		else
 		{
-			$model->errors[] = sprintf(Helpers\Languages::_($error), $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_($error), $code);
 		}
 
 		return;
@@ -77,7 +71,7 @@ class Descriptions implements UntisXMLValidator
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   object            $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void

@@ -60,16 +60,16 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules  $model    the model for the schedule being validated
-	 * @param   string     $untisID  the id of the resource in Untis
+	 * @param   object  $model  the model for the schedule being validated
+	 * @param   string  $code   the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $untisID)
+	public static function setID($model, $code)
 	{
-		$category     = $model->categories->$untisID;
+		$category     = $model->categories->$code;
 		$exists       = false;
-		$loadCriteria = [['code' => $untisID], ['name' => $category->name]];
+		$loadCriteria = [['code' => $code], ['name' => $category->name]];
 		$table        = new Tables\Categories;
 
 		foreach ($loadCriteria as $criterion)
@@ -109,7 +109,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks whether XML node has the expected structure and required information.
 	 *
-	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   object            $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void

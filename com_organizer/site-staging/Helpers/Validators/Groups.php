@@ -23,14 +23,14 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   Schedules  $model    the model for the schedule being validated
-	 * @param   string     $untisID  the id of the resource in Untis
+	 * @param   object  $model  the model for the schedule being validated
+	 * @param   string  $code   the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $untisID)
+	public static function setID($model, $code)
 	{
-		$group = $model->groups->$untisID;
+		$group = $model->groups->$code;
 
 		$table  = new Tables\Groups;
 		$exists = $table->load(['code' => $group->untisID]);
@@ -57,7 +57,7 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 			$table->save($group);
 		}
 
-		$model->groups->$untisID->id = $table->id;
+		$model->groups->$code->id = $table->id;
 
 		return;
 	}
@@ -66,7 +66,7 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   Schedules         $model  the model for the schedule being validated
+	 * @param   object            $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
@@ -128,14 +128,9 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 			return;
 		}
 
-		$fieldID      = str_replace('DS_', '', trim($node->class_description[0]['id']));
-		$fields       = $model->fields;
-		$invalidField = (empty($fieldID) or empty($fields->$fieldID));
-
 		$group             = new stdClass;
 		$group->categoryID = $categoryID;
 		$group->untisID    = $untisID;
-		$group->fieldID    = $invalidField ? null : $fields->$fieldID;
 		$group->fullName   = $fullName;
 		$group->name       = $name;
 		$group->gridID     = Grids::getID($gridName);
