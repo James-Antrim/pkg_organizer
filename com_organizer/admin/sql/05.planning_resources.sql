@@ -358,10 +358,10 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_event_coordinators` (
     COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_event_coordinators` (`eventID`, `personID`)
-SELECT DISTINCT `plan_subjectID`, `teacherID`
-FROM `v7ocf_thm_organizer_subject_teachers` AS st
-         INNER JOIN `v7ocf_thm_organizer_subject_mappings` AS sm ON sm.`subjectID` = st.`subjectID`
-WHERE `teacherResp` = 1;
+SELECT DISTINCT `plan_subjectID`, `personID`
+FROM `v7ocf_organizer_subject_persons` AS sp
+         INNER JOIN `v7ocf_thm_organizer_subject_mappings` AS sm ON sm.`subjectID` = sp.`subjectID`
+WHERE `role` = 1;
 
 ALTER TABLE `v7ocf_organizer_event_coordinators`
     ADD CONSTRAINT `event_coordinator_eventID_fk` FOREIGN KEY (`eventID`) REFERENCES `v7ocf_organizer_events` (`id`)
