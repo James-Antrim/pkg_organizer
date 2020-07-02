@@ -45,6 +45,14 @@ class Subjects extends ListModel
 			$form->removeField('programID', 'filter');
 			unset($this->filter_fields['organizationID'], $this->filter_fields['programID']);
 		}
+		if (!empty($this->state->get('calledPersonID')))
+		{
+			$form->removeField('organizationID', 'filter');
+			$form->removeField('limit', 'list');
+			$form->removeField('personID', 'filter');
+			unset($this->filter_fields['organizationID'], $this->filter_fields['personID']);
+		}
+
 		elseif ($this->clientContext === self::BACKEND)
 		{
 			if (count(Helpers\Can::documentTheseOrganizations()) === 1)
@@ -167,8 +175,10 @@ class Subjects extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
+		$calledPerson  = 0;
 		$calledPool    = 0;
 		$calledProgram = 0;
+		$personID      = self::ALL;
 		$poolID        = self::ALL;
 		$programID     = self::ALL;
 
@@ -203,9 +213,16 @@ class Subjects extends ListModel
 			{
 				$calledPool = $poolID;
 			}
+
+			// Pool ID can be set by the request
+			if ($personID = Helpers\Input::getInt('personID', 0)
+				or $personID = $this->state->get('calledPersonID'))
+			{
+				$calledPerson = $personID;
+			}
 		}
 
-		if ($calledPool or $calledProgram)
+		if ($calledPerson or $calledPool or $calledProgram)
 		{
 			$this->setState('list.limit', 0);
 		}
@@ -214,9 +231,11 @@ class Subjects extends ListModel
 		$poolID      = $calledPool ? $poolID : Helpers\Input::getFilterID('pool', $defaultPool);
 		$programID   = $calledProgram ? $programID : Helpers\Input::getFilterID('program', self::ALL);
 
+		$this->state->set('calledPersonID', false);
 		$this->state->set('calledPoolID', false);
 		$this->state->set('calledProgramID', false);
 
+		$this->state->set('filter.personID', self::ALL);
 		$this->state->set('filter.poolID', self::ALL);
 		$this->state->set('filter.programID', self::ALL);
 
@@ -288,6 +307,14 @@ class Subjects extends ListModel
 			$this->state->set('filter.programID', $programID);
 
 			return;
+		}
+
+		if ($calledPerson)
+		{
+			$this->state->set('calledPersonID', $calledPerson);
+			$this->state->set('filter.personID', $personID);
+			$this->state->set('filter.programID', $programID);
+			$this->state->set('filter.poolID', $poolID);
 		}
 
 		if ($programID === self::NONE)

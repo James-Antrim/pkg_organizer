@@ -45,14 +45,22 @@ class Subjects extends ListView
 		$resourceName = '';
 		if ($this->clientContext == self::FRONTEND)
 		{
-			if ($programID = Helpers\Input::getInt('programID'))
+			if ($personID = $this->state->get('calledPersonID', 0))
 			{
-				$resourceName = Helpers\Programs::getName($programID);
+				$resourceName = Helpers\Persons::getDefaultName($personID);
+				$resourceName .= ": " . Helpers\Languages::_('ORGANIZER_SUBJECTS');
 			}
-			if ($poolID = $this->state->get('calledPoolID', 0))
+			else
 			{
-				$poolName     = Helpers\Pools::getFullName($poolID);
-				$resourceName .= empty($resourceName) ? $poolName : ", $poolName";
+				if ($programID = Helpers\Input::getInt('programID'))
+				{
+					$resourceName = Helpers\Programs::getName($programID);
+				}
+				if ($poolID = $this->state->get('calledPoolID', 0))
+				{
+					$poolName     = Helpers\Pools::getFullName($poolID);
+					$resourceName .= empty($resourceName) ? $poolName : ", $poolName";
+				}
 			}
 		}
 
@@ -109,18 +117,22 @@ class Subjects extends ListView
 				Helpers\HTML::_('grid.checkall') : '';
 		}
 
-		if ($role = (int) Helpers\Input::getParams()->get('role') and $role === self::COORDINATES)
+		$headers['name'] = Helpers\HTML::sort('NAME', 'name', $direction, $ordering);
+		$headers['code'] = Helpers\HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
+
+		if (!$calledPersonID = (int) $this->state->get('calledPersonID', 0))
 		{
-			$personsText = Helpers\Languages::_('ORGANIZER_COORDINATORS');
-		}
-		else
-		{
-			$personsText = Helpers\Languages::_('ORGANIZER_TEACHERS');
+			if ($role = (int) Helpers\Input::getParams()->get('role') and $role === self::COORDINATES)
+			{
+				$personsText = Helpers\Languages::_('ORGANIZER_COORDINATORS');
+			}
+			else
+			{
+				$personsText = Helpers\Languages::_('ORGANIZER_TEACHERS');
+			}
+			$headers['persons'] = $personsText;
 		}
 
-		$headers['name']         = Helpers\HTML::sort('NAME', 'name', $direction, $ordering);
-		$headers['code']         = Helpers\HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
-		$headers['persons']      = $personsText;
 		$headers['creditpoints'] = Helpers\Languages::_('ORGANIZER_CREDIT_POINTS');
 
 		$this->headers = $headers;
@@ -144,7 +156,6 @@ class Subjects extends ListView
 				Helpers\Languages::_('ORGANIZER_COORDINATORS_PLACEHOLDER') :
 				Helpers\Languages::_('ORGANIZER_TEACHERS_PLACEHOLDER');
 		}
-
 
 		foreach ($subject->persons as $personID => $person)
 		{
@@ -216,6 +227,8 @@ class Subjects extends ListView
 			$attributes['target'] = '_blank';
 		}
 
+		$calledPersonID = (int) $this->state->get('calledPersonID', 0);
+
 		foreach ($this->items as $subject)
 		{
 			$access   = Helpers\Can::document('subject', $subject->id);
@@ -229,9 +242,14 @@ class Subjects extends ListView
 				$structuredItems[$index]['checkbox'] = $checkbox;
 			}
 
-			$structuredItems[$index]['name']         = Helpers\HTML::_('link', $thisLink, $subject->name, $attributes);
-			$structuredItems[$index]['code']         = Helpers\HTML::_('link', $thisLink, $subject->code, $attributes);
-			$structuredItems[$index]['persons']      = $this->getPersonDisplay($subject);
+			$structuredItems[$index]['name'] = Helpers\HTML::_('link', $thisLink, $subject->name, $attributes);
+			$structuredItems[$index]['code'] = Helpers\HTML::_('link', $thisLink, $subject->code, $attributes);
+
+			if (!$calledPersonID)
+			{
+				$structuredItems[$index]['persons'] = $this->getPersonDisplay($subject);
+			}
+
 			$structuredItems[$index]['creditpoints'] = empty($subject->creditpoints) ? '' : $subject->creditpoints;
 
 			$index++;
