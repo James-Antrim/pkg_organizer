@@ -56,7 +56,9 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 		// No overwrites for global resources
 		if (!$table->load(['code' => $gridName]))
 		{
-			$table->save($grid);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GRID_INVALID'), $gridName);
+
+			return;
 		}
 
 		$grid->id = $table->id;
