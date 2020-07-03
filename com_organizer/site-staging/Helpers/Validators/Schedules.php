@@ -95,15 +95,14 @@ class Schedules
 		unset($this->schedule->lesson_date_schemes, $this->schedule->lesson_tables, $this->schedule->reductions);
 		unset($this->schedule->reduction_reasons, $this->schedule->studentgroups, $this->schedule->students);
 
-		$valid = true;
-
 		// Creation Date & Time, school year dates, term attributes
 		$this->creationDate = trim((string) $this->schedule[0]['date']);
-		$this->creationTime = trim((string) $this->schedule[0]['time']);
+		$validCreationDate  = $this->validateDate($this->creationDate, 'CREATION_DATE');
 
-		$validCreationDate = $this->validateDate($this->creationDate, 'CREATION_DATE');
-		$validCreationTime = $this->validateText($this->creationTime, 'CREATION_TIME');
-		$valid             = ($valid and $validCreationDate and $validCreationTime);
+		$this->creationTime = trim((string) $this->schedule[0]['time']);
+		$validCreationTime  = $this->validateText($this->creationTime, 'CREATION_TIME');
+
+		$valid = ($validCreationDate and $validCreationTime);
 
 		Terms::validate($this, $this->schedule->general);
 		$valid = ($valid and !empty($this->term));
@@ -117,7 +116,7 @@ class Schedules
 	}
 
 	/**
-	 * Validates a date attribute. Setting it to a schedule property if valid.
+	 * Validates a date attribute.
 	 *
 	 * @param   string &$value     the attribute value passed by reference because of reformatting to Y-m-d
 	 * @param   string  $constant  the unique text constant fragment

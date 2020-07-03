@@ -107,8 +107,8 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 		$term            = new stdClass;
 		$term->endDate   = trim((string) $node->termenddate);
 		$validTED        = $model->validateDate($term->endDate, 'TERM_END_DATE');
-		$term->name      = trim((string) $node->footer);
-		$validTN         = $model->validateText($term->name, 'TERM_NAME', '/[\#\;]/');
+		$term->code      = trim((string) $node->footer);
+		$validTN         = $model->validateText($term->code, 'TERM_NAME', '/[\#\;]/');
 		$term->startDate = trim((string) $node->termbegindate);
 		$validTSD        = $model->validateDate($term->startDate, 'TERM_START_DATE');
 		$valid           = ($valid and $validTED and $validTN and $validTSD);
@@ -139,7 +139,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$model->term = $term;
-		$code        = date('y', $term->endDate) . $term->code;
+		$code        = date('y', strtotime($term->endDate)) . $term->code;
 
 		self::setID($model, $code);
 	}

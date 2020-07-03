@@ -338,7 +338,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		$gridName = (string) $node->timegrid;
 		if (empty($gridName))
 		{
-			$gridName = 'Haupt-Zeitraster';
+			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_GRID_MISSING'), $untisID);
 		}
 
 		$comment = trim((string) $node->text);

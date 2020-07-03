@@ -9,6 +9,7 @@
 #todo add passive synchronization of persons
 #todo create a standard fix for default multiple select handling and include it per default, remove chosen library use
 #todo create default selection handling for department, curriculum and superordinate selection boxes
+#todo add terms management
 
 #region Pool Edit View--------------------------------------------------------------------------------------------------
 #todo check apply
