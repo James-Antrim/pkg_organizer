@@ -15,8 +15,6 @@ namespace Organizer\Helpers;
  */
 interface Selectable
 {
-	const ALL = '', NONE = -1;
-
 	/**
 	 * Retrieves the selectable options for the resource.
 	 *
