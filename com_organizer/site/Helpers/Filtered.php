@@ -58,8 +58,7 @@ trait Filtered
 	 */
 	public static function addCampusFilter($query, $alias)
 	{
-		$campusIDs = Input::getFilterIDs('campus');
-		if (empty($campusIDs))
+		if (!$campusIDs = Input::getFilterIDs('campus'))
 		{
 			return;
 		}
