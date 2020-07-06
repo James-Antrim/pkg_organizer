@@ -24,6 +24,41 @@ class Programs extends Curricula implements Selectable
 	static protected $resource = 'program';
 
 	/**
+	 * Checks if a program exists matching the identification keys. If none exist one is created.
+	 *
+	 * @param   array   $programData  the program data
+	 * @param   string  $initialName  the name to be used if no entry already exists
+	 * @param   int     $categoryID   the id of the category calling this function
+	 *
+	 * @return mixed int on success, otherwise null
+	 * @throws Exception => invalid request, unauthorized access
+	 */
+	public static function create($programData, $initialName, $categoryID)
+	{
+		$programTable = new Tables\Programs;
+		if ($programTable->load($programData))
+		{
+			return $programTable->id;
+		}
+
+		if (empty($initialName))
+		{
+			return null;
+		}
+
+		//$programData['organizationID'] = Input::getInt('organizationID');
+		$programData['organizationID'] = Input::getInt('departmentID');
+		$programData['name_de']        = $initialName;
+		$programData['name_en']        = $initialName;
+		$programData['categoryID']     = $categoryID;
+
+		$model     = new Models\Program;
+		$programID = $model->save($programData);
+
+		return empty($programID) ? null : $programID;
+	}
+
+	/**
 	 * Gets a HTML option based upon a program curriculum association
 	 *
 	 * @param   array   $range      the program curriculum range
@@ -48,38 +83,6 @@ class Programs extends Curricula implements Selectable
 		$disabled = $type === 'pool' ? '' : 'disabled';
 
 		return "<option value='{$range['id']}' $selected $disabled>{$program['name']}</option>";
-	}
-
-	/**
-	 * Attempts to get the real program's id, creating the stub if non-existent.
-	 *
-	 * @param   array   $programData  the program data
-	 * @param   string  $initialName  the name to be used if no entry already exists
-	 *
-	 * @return mixed int on success, otherwise null
-	 * @throws Exception
-	 */
-	public static function getID($programData, $initialName)
-	{
-		$programTable = new Tables\Programs;
-		if ($programTable->load($programData))
-		{
-			return $programTable->id;
-		}
-
-		if (empty($initialName))
-		{
-			return null;
-		}
-
-		$programData['organizationID'] = Input::getInt('organizationID');
-		$programData['name_de']        = $initialName;
-		$programData['name_en']        = $initialName;
-
-		$model     = new Models\Program;
-		$programID = $model->save($programData);
-
-		return empty($programID) ? null : $programID;
 	}
 
 	/**

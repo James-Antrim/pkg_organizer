@@ -69,7 +69,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	{
 		$category     = $model->categories->$code;
 		$exists       = false;
-		$loadCriteria = [['code' => $code], ['name' => $category->name]];
+		$loadCriteria = [['code' => $code], ['name_de' => $category->name_de]];
 		$table        = new Tables\Categories;
 
 		foreach ($loadCriteria as $criterion)
@@ -113,31 +113,33 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws Exception => invalid request, unauthorized access
 	 */
 	public static function validate($model, $node)
 	{
-		$untisID = str_replace('DP_', '', trim((string) $node[0]['id']));
+		$code = str_replace('DP_', '', trim((string) $node[0]['id']));
 
 		$name = (string) $node->longname;
 		if (!isset($name))
 		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_CATEGORY_NAME_MISSING'), $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_CATEGORY_NAME_MISSING'), $code);
 
 			return;
 		}
 
 		$category          = new stdClass;
-		$category->name    = $name;
-		$category->untisID = $untisID;
+		$category->name_de = $name;
+		$category->name_en = $name;
+		$category->code    = $code;
 
-		$programData         = self::parseProgramData($untisID);
-		$filteredName        = trim(substr($name, 0, strpos($name, '(')));
-		$category->programID = empty($programData) ? null : Helpers\Programs::getID($programData, $filteredName);
-
-		$model->categories->$untisID = $category;
-
-		self::setID($model, $untisID);
+		$model->categories->$code = $category;
+		self::setID($model, $code);
 		Helpers\Organizations::setResource($category->id, 'categoryID');
+
+		if ($programData = self::parseProgramData($code))
+		{
+			$programName = trim(substr($name, 0, strpos($name, '(')));
+			Helpers\Programs::create($programData, $programName, $category->id);
+		}
 	}
 }
