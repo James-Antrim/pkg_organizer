@@ -105,11 +105,11 @@ class Terms extends ResourceHelper implements Selectable
 	/**
 	 * Retrieves the selectable options for the resource.
 	 *
-	 * @param   bool  $withDates  if true the start and end date will be displayed as part of the name
+	 * @param   bool  $showDates  if true the start and end date will be displayed as part of the name
 	 *
 	 * @return array the available options
 	 */
-	public static function getOptions($withDates = false)
+	public static function getOptions($showDates = false)
 	{
 		$tag     = Languages::getTag();
 		$options = [];
@@ -118,7 +118,7 @@ class Terms extends ResourceHelper implements Selectable
 		{
 			$name = $term["name_$tag"];
 
-			if ($withDates)
+			if ($showDates)
 			{
 				$startDate = Dates::formatDate($term['startDate']);
 				$endDate = Dates::formatDate($term['endDate']);

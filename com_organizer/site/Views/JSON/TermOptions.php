@@ -24,6 +24,7 @@ class TermOptions extends BaseView
 	 */
 	public function display()
 	{
-		echo json_encode(Helpers\Terms::getOptions(), JSON_UNESCAPED_UNICODE);
+		$showDates = Helpers\Input::getBool('showDates');
+		echo json_encode(Helpers\Terms::getOptions($showDates), JSON_UNESCAPED_UNICODE);
 	}
 }
