@@ -113,14 +113,16 @@ class Terms extends ResourceHelper implements Selectable
 	{
 		$tag     = Languages::getTag();
 		$options = [];
+
 		foreach (Terms::getResources() as $term)
 		{
 			$name = $term["name_$tag"];
+
 			if ($withDates)
 			{
-				$shortSD = Dates::formatDate($term['startDate']);
-				$shortED = Dates::formatDate($term['endDate']);
-				$name    .= " ($shortSD - $shortED)";
+				$startDate = Dates::formatDate($term['startDate']);
+				$endDate = Dates::formatDate($term['endDate']);
+				$name    .= " ($startDate - $endDate)";
 			}
 
 			$options[] = HTML::_('select.option', $term['id'], $name);
