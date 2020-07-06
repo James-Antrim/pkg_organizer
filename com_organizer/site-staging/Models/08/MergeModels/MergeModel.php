@@ -193,7 +193,7 @@ abstract class MergeModel extends BaseModel
 	/**
 	 * Attempts to save the resource.
 	 *
-	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
+	 * @param   array  $data  the data from the form
 	 *
 	 * @return bool true on success, otherwise false
 	 * @throws Exception => unauthorized access

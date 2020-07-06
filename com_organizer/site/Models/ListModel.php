@@ -338,6 +338,7 @@ abstract class ListModel extends ParentModel
 		$defaultOrdering = "{$this->defaultOrdering} {$this->defaultDirection}";
 		$session         = Factory::getSession();
 		$listOrdering    = $this->state->get('list.fullordering', $defaultOrdering);
+
 		if (strpos($listOrdering, 'null') !== false)
 		{
 			$sessionOrdering = $session->get('ordering', '');
@@ -349,6 +350,7 @@ abstract class ListModel extends ParentModel
 				return;
 			}
 		}
+
 		$query->order($listOrdering);
 	}
 

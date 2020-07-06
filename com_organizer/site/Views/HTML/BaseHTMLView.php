@@ -104,44 +104,45 @@ abstract class BaseHTMLView extends BaseView
 			$viewName == 'organizer'
 		);
 
-		/*if (Helpers\Can::scheduleTheseOrganizations())
+		//if (Helpers\Can::scheduleTheseOrganizations())
+		if (Helpers\Can::administrate())
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_SCHEDULING') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
 			$items = [];
 
-			$items[Languages::_('ORGANIZER_GROUPS')]     = [
+			/*$items[Languages::_('ORGANIZER_GROUPS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=groups',
 				'active' => $viewName == 'groups'
-			];
+			];*/
 			$items[Languages::_('ORGANIZER_CATEGORIES')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=categories',
 				'active' => $viewName == 'categories'
 			];
-			$items[Languages::_('ORGANIZER_SCHEDULES')]  = [
+			/*$items[Languages::_('ORGANIZER_SCHEDULES')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=schedules',
 				'active' => $viewName == 'schedules'
 			];
 			$items[Languages::_('ORGANIZER_EVENTS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=events',
 				'active' => $viewName == 'events'
-			];
+			];*/
 			ksort($items);
 
 			// Uploading a schedule should always be the first menu item and will never be the active submenu item.
-			$prepend    = [
+			/*$prepend    = [
 				Languages::_('ORGANIZER_SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
 					'url'    => 'index.php?option=com_organizer&amp;view=schedule_edit',
 					'active' => false
 				]
 			];
-			$items = $prepend + $items;
+			$items = $prepend + $items;*/
 			foreach ($items as $key => $value)
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
-		}*/
+		}
 
 		if (Helpers\Can::documentTheseOrganizations())
 		{

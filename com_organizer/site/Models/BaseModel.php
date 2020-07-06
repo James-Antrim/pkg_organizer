@@ -79,7 +79,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	/**
 	 * Attempts to save the resource.
 	 *
-	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
+	 * @param   array  $data  the data from the form
 	 *
 	 * @return int|bool int id of the resource on success, otherwise boolean false
 	 * @throws Exception => unauthorized access
