@@ -1,41 +1,3 @@
-# region categories
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_categories` (
-    `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`    VARCHAR(255)                 DEFAULT NULL,
-    `code`     VARCHAR(60)         NOT NULL,
-    `name_de`  VARCHAR(150)        NOT NULL,
-    `name_en`  VARCHAR(150)        NOT NULL,
-    `active`   TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
-    `suppress` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-    PRIMARY KEY (`id`),
-    UNIQUE INDEX `alias` (`alias`),
-    UNIQUE INDEX `code` (`code`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-INSERT IGNORE INTO `v7ocf_organizer_categories` (`id`, `code`, `name_de`, `name_en`)
-SELECT `id`, `gpuntisID`, `name`, `name`
-FROM `v7ocf_thm_organizer_plan_programs`;
-
-UPDATE `v7ocf_organizer_programs` AS p
-    INNER JOIN `v7ocf_thm_organizer_plan_programs` AS pp ON pp.`programID` = p.`id`
-SET p.`categoryID` = pp.`id`
-WHERE pp.`programID` IS NOT NULL;
-
-INSERT IGNORE INTO `v7ocf_organizer_associations` (`id`, `organizationID`, `categoryID`)
-SELECT (`id`, `departmentID`, `programID`)
-FROM `v7ocf_thm_organizer_department_resources`
-WHERE `programID` IS NOT NULL;
-
-
-ALTER TABLE `v7ocf_organizer_programs`
-    ADD CONSTRAINT `program_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `v7ocf_organizer_categories` (`id`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE;
-# endregion
-
 # region groups
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_groups` (
     `id`          INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
@@ -119,9 +81,6 @@ ALTER TABLE `v7ocf_organizer_group_publishing`
 
 # region associations
 ALTER TABLE `v7ocf_organizer_associations`
-    ADD CONSTRAINT `association_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `v7ocf_organizer_categories` (`id`)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
     ADD CONSTRAINT `association_groupID_fk` FOREIGN KEY (`groupID`) REFERENCES `v7ocf_organizer_groups` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE;
