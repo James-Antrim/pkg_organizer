@@ -18,7 +18,7 @@ use Organizer\Helpers;
  */
 class Categories extends ListModel
 {
-	protected $defaultOrdering = 'cat.name';
+	protected $defaultOrdering = 'name';
 
 	protected $filter_fields = ['organizationID'];
 
@@ -29,15 +29,16 @@ class Categories extends ListModel
 	 */
 	protected function getListQuery()
 	{
+		$tag = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
-		$query->select('DISTINCT cat.id, cat.code, cat.name')
+		$query->select("DISTINCT cat.id, cat.code, cat.name_$tag AS name")
 			->from('#__organizer_categories AS cat')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
 
 		$authorized = implode(",", Helpers\Can::scheduleTheseOrganizations());
 		$query->where("a.organizationID IN ($authorized)");
 
-		$this->setSearchFilter($query, ['cat.name', 'cat.code']);
+		$this->setSearchFilter($query, ['cat.name_de', 'cat.name_en', 'cat.code']);
 		$this->setValueFilters($query, ['organizationID', 'programID']);
 		$this->setOrdering($query);
 

@@ -10,17 +10,18 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
  * Class which manages event categories.
  */
-class Category extends MergeModel
+class Category extends BaseModel
 {
-	protected $association = 'categoryID';
+	use Associated;
 
-	protected $fkColumn = 'categoryID';
+	protected $resource = 'category';
 
 	/**
 	 * Provides resource specific user access checks
@@ -29,7 +30,17 @@ class Category extends MergeModel
 	 */
 	protected function allow()
 	{
-		return Helpers\Can::edit('categories', $this->selected);
+		if (!$id = Helpers\Input::getID())
+		{
+			if (Helpers\Can::scheduleTheseOrganizations())
+			{
+				return true;
+			}
+		}
+
+		return Helpers\Can::schedule($this->resource, $id);
+		// For merge
+		//return Helpers\Can::edit('categories', $this->selected);
 	}
 
 	/**
@@ -49,17 +60,36 @@ class Category extends MergeModel
 	}
 
 	/**
-	 * Updates key references to the entry being merged.
+	 * Attempts to save the resource.
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return mixed int id of the resource on success, otherwise boolean false
+	 * @throws Exception => unauthorized access
 	 */
-	protected function updateAssociations()
+	public function save($data = [])
 	{
-		if (!$this->updateDRAssociation())
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+
+		if (!$this->allow())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$table = new Tables\Categories();
+
+		if (!$table->save($data))
 		{
 			return false;
 		}
 
-		return $this->updateDirectAssociation('groups');
+		$data['id'] = $table->id;
+
+		if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs']))
+		{
+			return false;
+		}
+
+		return $table->id;
 	}
 }

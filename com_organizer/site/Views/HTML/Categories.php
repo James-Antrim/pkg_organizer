@@ -64,8 +64,8 @@ class Categories extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox' => '',
-			'code'     => Helpers\HTML::sort('UNTIS_ID', 'ppr.code', $direction, $ordering),
-			'name'     => Helpers\HTML::sort('DISPLAY_NAME', 'ppr.name', $direction, $ordering),
+			'code'     => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
+			'name'     => Helpers\HTML::sort('DISPLAY_NAME', 'name', $direction, $ordering),
 			'program'  => Helpers\Languages::_('ORGANIZER_PROGRAM')
 		];
 

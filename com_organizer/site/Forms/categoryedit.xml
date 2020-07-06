@@ -5,8 +5,7 @@
         <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
         <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
         <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" readonly="true"/>
-        <field name="organizationID" type="Organizations" label="ORGANIZATIONS" access="schedule" required="true"
-               multiple="multiple"/>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATIONS" access="schedule" required="true"/>
         <field name="active" type="Options" label="ACTIVE" default="1">
             <option value="1">ACTIVE</option>
             <option value="0">INACTIVE</option>
