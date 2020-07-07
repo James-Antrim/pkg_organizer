@@ -19,8 +19,6 @@ use Organizer\Tables;
  */
 class Group extends MergeModel implements ScheduleResource
 {
-	protected $fkColumn = 'groupID';
-
 	/**
 	 * Provides resource specific user access checks
 	 *

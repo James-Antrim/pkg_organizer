@@ -20,8 +20,6 @@ use Organizer\Tables;
  */
 class Participant extends MergeModel
 {
-	protected $fkColumn = 'participantID';
-
 	/**
 	 * Filters names (city, forename, surname) for actual letters and accepted special characters.
 	 *

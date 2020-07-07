@@ -18,8 +18,6 @@ use Organizer\Tables;
  */
 class Room extends BaseModel
 {
-	protected $fkColumn = 'roomID';
-
 	/**
 	 * Provides user access checks to rooms
 	 *

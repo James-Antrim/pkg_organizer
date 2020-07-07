@@ -18,8 +18,6 @@ use Organizer\Tables;
  */
 class RoomMerge extends MergeModel implements ScheduleResource
 {
-	protected $fkColumn = 'roomID';
-
 	/**
 	 * Provides user access checks to rooms
 	 *

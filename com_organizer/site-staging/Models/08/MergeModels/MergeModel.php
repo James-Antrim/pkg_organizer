@@ -30,12 +30,6 @@ abstract class MergeModel extends BaseModel
 	protected $data = [];
 
 	/**
-	 * The column name referencing this resource in other resource tables.
-	 * @var string
-	 */
-	protected $fkColumn = '';
-
-	/**
 	 * The ids selected by the user
 	 *
 	 * @var array

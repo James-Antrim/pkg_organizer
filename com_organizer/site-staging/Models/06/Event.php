@@ -18,8 +18,6 @@ use Organizer\Tables;
  */
 class Event extends MergeModel implements ScheduleResource
 {
-	protected $fkColumn = 'eventID';
-
 	/**
 	 * Provides resource specific user access checks
 	 *
