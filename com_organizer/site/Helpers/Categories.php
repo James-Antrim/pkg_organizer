@@ -53,7 +53,7 @@ class Categories extends Associated implements Selectable
 	 *
 	 * @return string the name of the (plan) program, otherwise empty
 	 */
-	public static function getProgram($categoryID)
+	public static function getProgramName($categoryID)
 	{
 		$noName = Languages::_('ORGANIZER_NO_PROGRAM');
 		if (!$categoryID)
@@ -64,7 +64,7 @@ class Categories extends Associated implements Selectable
 		$dbo = Factory::getDbo();
 
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT id')->from('#__organizer_programs')->where("categoryID = '$categoryID'");
+		$query->select('DISTINCT id')->from('#__organizer_programs')->where("categoryID = $categoryID");
 		$dbo->setQuery($query);
 
 		if ($programIDs = OrganizerHelper::executeQuery('loadColumn', []))
