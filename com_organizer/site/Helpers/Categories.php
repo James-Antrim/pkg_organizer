@@ -30,7 +30,7 @@ class Categories extends Associated implements Selectable
 	 */
 	public static function getOptions($access = '')
 	{
-		$name = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
+		$name    = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
 		$options = [];
 		foreach (self::getResources($access) as $category)
 		{
@@ -88,7 +88,7 @@ class Categories extends Associated implements Selectable
 		$order = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
 
 		$query = $dbo->getQuery(true);
-		$query->select('*')->from('#__organizer_categories AS c')->order($order);
+		$query->select('c.*')->from('#__organizer_categories AS c')->order($order);
 
 		if (!empty($access))
 		{
