@@ -104,8 +104,7 @@ abstract class BaseHTMLView extends BaseView
 			$viewName == 'organizer'
 		);
 
-		//if (Helpers\Can::scheduleTheseOrganizations())
-		if (Helpers\Can::administrate())
+		if (Helpers\Can::scheduleTheseOrganizations())
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_SCHEDULING') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
