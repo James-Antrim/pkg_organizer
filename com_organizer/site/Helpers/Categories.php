@@ -30,12 +30,11 @@ class Categories extends Associated implements Selectable
 	 */
 	public static function getOptions($access = '')
 	{
+		$name = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
 		$options = [];
 		foreach (self::getResources($access) as $category)
 		{
-			$name = empty($category['programName']) ? $category['name'] : $category['programName'];
-
-			$options[] = HTML::_('select.option', $category['id'], $name);
+			$options[] = HTML::_('select.option', $category['id'], $category[$name]);
 		}
 
 		uasort($options, function ($optionOne, $optionTwo) {
