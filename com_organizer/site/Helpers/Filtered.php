@@ -88,7 +88,8 @@ trait Filtered
 	 */
 	public static function addOrganizationFilter($query, $resource, $alias, $keyColumn = 'id')
 	{
-		$organizationIDs = Input::getFilterIDs('organization');
+		$organizationID  = Input::getInt('organizationID');
+		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
 		if (empty($organizationIDs))
 		{
 			return;
