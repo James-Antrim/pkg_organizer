@@ -33,7 +33,7 @@ use Organizer\Helpers;
         <button class="btn" type="button" data-dismiss="modal">
 			<?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
         </button>
-        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('group.batch');">
+        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('groups.batch');">
 			<?php echo Helpers\Languages::_('ORGANIZER_SAVE'); ?>
         </button>
     </div>
