@@ -57,17 +57,17 @@ body.tmpl-index div.main .input-15, body.tmpl-index div.main .input-15 + .chzn-c
     flex-direction: column;
 }
 
-.publishing-container .period-container {
+.publishing-container .term-container {
     display: flex;
     flex-direction: row;
     margin-bottom: .4rem;
 }
 
-.publishing-container .period-label {
+.publishing-container .term-label {
     width: 6rem;
 }
 
-.publishing-container .period-input select {
+.publishing-container .term-input select {
     width: 4rem;
 }
 

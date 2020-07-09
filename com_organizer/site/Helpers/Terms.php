@@ -18,6 +18,8 @@ use Organizer\Tables;
  */
 class Terms extends ResourceHelper implements Selectable
 {
+	use Numbered;
+
 	/**
 	 * Gets the id of the term whose dates encompass the current date
 	 *
@@ -121,8 +123,8 @@ class Terms extends ResourceHelper implements Selectable
 			if ($showDates)
 			{
 				$startDate = Dates::formatDate($term['startDate']);
-				$endDate = Dates::formatDate($term['endDate']);
-				$name    .= " ($startDate - $endDate)";
+				$endDate   = Dates::formatDate($term['endDate']);
+				$name      .= " ($startDate - $endDate)";
 			}
 
 			$options[] = HTML::_('select.option', $term['id'], $name);

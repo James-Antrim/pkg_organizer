@@ -7,8 +7,7 @@ body.tmpl-index div.main .btn-toolbar .btn-wrapper {
     margin-right: 5px;
 }
 
-body.tmpl-index div.main .btn-toolbar a.btn,
-body.tmpl-index div.main .btn-toolbar button {
+body.tmpl-index div.main .btn-toolbar a.btn, body.tmpl-index div.main .btn-toolbar button {
     font-size: .9rem;
 }
 
@@ -47,9 +46,7 @@ body.tmpl-index div.main .js-stools-container-bar input {
     width: 12rem;
 }
 
-body.tmpl-index div.main .js-stools-container-bar a.btn,
-body.tmpl-index div.main .js-stools-container-bar input,
-body.tmpl-index div.main .js-stools-container-bar button {
+body.tmpl-index div.main .js-stools-container-bar a.btn, body.tmpl-index div.main .js-stools-container-bar input, body.tmpl-index div.main .js-stools-container-bar button {
     font-family: "Open Sans", Arial, Helvetica, sans-serif;
     font-size: .9rem;
 }
@@ -78,16 +75,15 @@ body.tmpl-index div.main .js-stools-container-list .js-stools-field-list {
     margin-right: 0;
 }
 
-.period-container {
+.term-container {
     margin-bottom: .5rem;
 }
 
-.period-label {
+.term-label {
     margin-right: 1rem;
     min-width: 5rem;
 }
 
-.period-label,
-.period-input {
+.term-label, .term-input {
     display: inline-block;
 }

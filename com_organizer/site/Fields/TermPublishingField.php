@@ -34,63 +34,54 @@ class TermPublishingField extends FormField
 	 */
 	protected function getInput()
 	{
-		$tag         = Helpers\Languages::getTag();
-		$today       = date('Y-m-d');
-		$dbo         = Factory::getDbo();
-		$periodQuery = $dbo->getQuery(true);
-		$periodQuery->select("id, name_$tag as name")
-			->from('#__organizer_terms')
-			->where("endDate > '$today'")
-			->order('startDate ASC');
-		$dbo->setQuery($periodQuery);
+		$dbo        = Factory::getDbo();
+		$input      = '';
+		$nameColumn = 'name_' . Helpers\Languages::getTag();
+		$today      = date('Y-m-d');
+		$container  = '<div class="publishing-container">XXXX</div>';
 
-		$periods = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-		if (empty($periods))
+		$no      = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_NO'), 'value' => 0];
+		$yes     = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_YES'), 'value' => 1];
+		$options = [$yes, $no];
+
+		$values = [];
+		if ($groupID = Helpers\Input::getID())
 		{
-			return '';
+			$query = $dbo->getQuery(true);
+			$query->select('termID, published')->from('#__organizer_group_publishing')->where("groupID = $groupID");
+			$dbo->setQuery($query);
+
+			$values = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'termID');
 		}
 
-		$groupID   = Helpers\Input::getID();
-		$poolQuery = $dbo->getQuery(true);
-		$poolQuery->select('termID, published')
-			->from('#__organizer_group_publishing')
-			->where("groupID = '$groupID'");
-		$dbo->setQuery($poolQuery);
-
-		$publishingEntries = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'termID');
-
-		$return = '<div class="publishing-container">';
-		foreach ($periods as $period)
+		foreach (Helpers\Terms::getResources() as $term)
 		{
-			$pID   = "jform_publishing_{$period['id']}";
-			$pName = "jform[publishing][{$period['id']}]";
-
-			$return .= '<div class="period-container">';
-			$return .= '<div class="period-label">' . $period['name'] . '</div>';
-			$return .= '<div class="period-input">';
-			$return .= '<select id="' . $pID . '" name="' . $pName . '" class="chzn-color-state">';
-
-			$no  = Helpers\Languages::_('ORGANIZER_NO');
-			$yes = Helpers\Languages::_('ORGANIZER_YES');
-
-			// Implicitly (new) and explicitly published entries
-			if (!isset($publishingEntries[$period['id']]) or $publishingEntries[$period['id']]['published'])
+			if ($term['endDate'] < $today)
 			{
-				$return .= '<option value="1" selected="selected">' . $yes . '</option>';
-				$return .= '<option value="0">' . $no . '</option>';
-			}
-			else
-			{
-				$return .= '<option value="1">' . $yes . '</option>';
-				$return .= '<option value="0" selected="selected">' . $no . '</option>';
+				continue;
 			}
 
-			$return .= '</select>';
-			$return .= '</div>';
-			$return .= '</div>';
+			$subFieldID   = $this->id . "_{$term['id']}";
+			$subFieldName = $this->name . "[{$term['id']}]";
+			$value        = empty($values[$term['id']]) ? 1 : $values[$term['id']]['published'];
+
+			$input .= '<div class="term-container">';
+			$input .= "<div class=\"term-label\"><label for=\"$subFieldName\">{$term[$nameColumn]}</label></div>";
+			$input .= '<div class="term-input">';
+			$input .= Helpers\HTML::_(
+				'select.genericlist',
+				$options,
+				$subFieldName,
+				null,
+				'value',
+				'text',
+				$value,
+				$subFieldID
+			);
+			$input .= '</div>';
+			$input .= '</div>';
 		}
-		$return .= '</div>';
 
-		return $return;
+		return $input ? str_replace('XXXX', $input, $container) : $input;
 	}
 }

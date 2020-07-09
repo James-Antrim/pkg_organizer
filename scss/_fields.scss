@@ -64,17 +64,17 @@ body.tmpl-index div.main {
   display: flex;
   flex-direction: column;
 
-  .period-container {
+  .term-container {
     display: flex;
     flex-direction: row;
     margin-bottom: .4rem;
   }
 
-  .period-label {
+  .term-label {
     width: 6rem;
   }
 
-  .period-input select {
+  .term-input select {
     width: 4rem;
   }
 }

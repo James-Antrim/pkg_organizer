@@ -1,8 +1,14 @@
 @import "variables";
 
-.modal-body {
+#modal-publishing {
+  left: 70%;
+  width: 30%;
+}
+
+.modal-batch.modal-body {
+  height: 12rem;
   overflow: hidden !important;
-  min-height: 450px;
+  padding: 1rem;
 }
 
 .contentpane.component {
