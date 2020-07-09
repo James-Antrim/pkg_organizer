@@ -117,7 +117,8 @@ trait Filtered
 	 */
 	public static function addResourceFilter($query, $resource, $newAlias, $existingAlias)
 	{
-		$resourceIDs = Input::getFilterIDs($resource);
+		$resourceID  = Input::getInt("{$resource}ID");
+		$resourceIDs = $resourceID ? [$resourceID] : Input::getFilterIDs($resource);
 		if (empty($resourceIDs))
 		{
 			return;

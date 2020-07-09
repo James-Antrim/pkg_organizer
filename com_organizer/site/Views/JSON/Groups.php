@@ -13,9 +13,9 @@ namespace Organizer\Views\JSON;
 use Organizer\Helpers;
 
 /**
- * Class answers dynamic (degree) program related queries
+ * Class answers dynamic event group related queries
  */
-class Categories extends BaseView
+class Groups extends BaseView
 {
 	/**
 	 * loads model data into view context
@@ -24,14 +24,6 @@ class Categories extends BaseView
 	 */
 	public function display()
 	{
-		$function = Helpers\Input::getTask();
-		if (method_exists('Organizer\\Helpers\\Categories', $function))
-		{
-			echo json_encode(Helpers\Categories::$function(), JSON_UNESCAPED_UNICODE);
-		}
-		else
-		{
-			echo false;
-		}
+		echo json_encode(Helpers\Groups::getResources(), JSON_UNESCAPED_UNICODE);
 	}
 }

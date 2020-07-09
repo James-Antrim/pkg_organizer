@@ -30,14 +30,15 @@ class Groups extends Associated implements Selectable
 	 */
 	public static function getOptions($access = '')
 	{
-		$categoryIDs = Input::getFilterIDs('category');
+		$categoryID = Input::getInt('categoryID');
+		$categoryIDs = $categoryID ? [$categoryID] : Input::getFilterIDs('category');
+		$tag         = Languages::getTag();
+		$name        = count($categoryIDs) === 1 ? "name_$tag" : "fullName_$tag";
 		$options     = [];
-		$short       = count($categoryIDs) === 1;
 
 		foreach (self::getResources() as $group)
 		{
-			$name      = $short ? $group['name'] : $group['fullName'];
-			$options[] = HTML::_('select.option', $group['id'], $name);
+			$options[] = HTML::_('select.option', $group['id'], $group[$name]);
 		}
 
 		uasort($options, function ($optionOne, $optionTwo) {
@@ -60,7 +61,7 @@ class Groups extends Associated implements Selectable
 		$dbo = Factory::getDbo();
 
 		$query = $dbo->getQuery(true);
-		$query->select('gr.*');
+		$query->select('g.*');
 		$query->from('#__organizer_groups AS g');
 
 		if (!empty($access))
@@ -68,7 +69,7 @@ class Groups extends Associated implements Selectable
 			self::addAccessFilter($query, $access, 'group', 'g');
 		}
 
-		self::addOrganizationFilter($query, 'category', 'g', 'categoryID');
+		self::addOrganizationFilter($query, 'group', 'g');
 		self::addResourceFilter($query, 'category', 'cat', 'g');
 
 		$dbo->setQuery($query);
