@@ -17,8 +17,17 @@ use Organizer\Tables;
 /**
  * Class which manages stored group data.
  */
-class Group extends MergeModel implements ScheduleResource
+class Group extends BaseModel
 {
+	use Associated;
+
+	/**
+	 * The ids selected by the user
+	 *
+	 * @var array
+	 */
+	protected $selected = [];
+
 	/**
 	 * Provides resource specific user access checks
 	 *
@@ -38,6 +47,7 @@ class Group extends MergeModel implements ScheduleResource
 	public function batch()
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
+
 		if (empty($this->selected))
 		{
 			return false;
@@ -48,7 +58,32 @@ class Group extends MergeModel implements ScheduleResource
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
 
-		return $this->savePublishing();
+		if (!$this->savePublishing())
+		{
+			return false;
+		}
+
+		if ($gridID = Helpers\Input::getBatchItems()['gridID'])
+		{
+			foreach ($this->selected as $groupID)
+			{
+				$table = new Tables\Groups();
+
+				if (!$table->load($groupID))
+				{
+					return false;
+				}
+
+				$table->gridID = $gridID;
+
+				if (!$table->store())
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -65,22 +100,6 @@ class Group extends MergeModel implements ScheduleResource
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
 		return new Tables\Groups;
-	}
-
-	/**
-	 * Merges group entries and cleans association tables.
-	 *
-	 * @return boolean  true on success, otherwise false
-	 * @throws Exception => unauthorized access
-	 */
-	public function merge()
-	{
-		if (!parent::merge())
-		{
-			return false;
-		}
-
-		return $this->savePublishing();
 	}
 
 	/**
@@ -128,8 +147,16 @@ class Group extends MergeModel implements ScheduleResource
 	public function save($data = [])
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
+		$data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
-		if (!parent::save($data))
+		if (!$this->allow())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$table = new Tables\Groups();
+
+		if (!$table->save($data))
 		{
 			return false;
 		}
@@ -139,7 +166,14 @@ class Group extends MergeModel implements ScheduleResource
 			return false;
 		}
 
-		return reset($this->selected);
+		$data['id'] = $table->id;
+
+		if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs']))
+		{
+			return false;
+		}
+
+		return $table->id;
 	}
 
 	/**
@@ -149,22 +183,33 @@ class Group extends MergeModel implements ScheduleResource
 	 */
 	private function savePublishing()
 	{
-		$publishing = Helpers\Input::getFormItems()->get('publishing');
-		if (empty($publishing))
+		$default = false;
+
+		if (!$terms = Helpers\Input::getBatchItems()->get('publishing'))
 		{
-			return true;
+			if (!$terms = Helpers\Input::getFormItems()->get('publishing'))
+			{
+				$default = true;
+				$terms   = array_flip(Helpers\Terms::getIDs());
+			}
 		}
 
 		foreach ($this->selected as $groupID)
 		{
-			foreach ($publishing as $termID => $publish)
+			foreach ($terms as $termID => $publish)
 			{
 				$table = new Tables\GroupPublishing;
 				$data  = ['groupID' => $groupID, 'termID' => $termID];
-				$table->load($data);
-				$data['published'] = $publish;
 
-				if (empty($table->save($data)))
+				// Skip existing entry if no publishing state was specified
+				if ($exists = $table->load($data) and $default)
+				{
+					continue;
+				}
+
+				$data['published'] = $exists ? $publish : 1;
+
+				if (!$table->save($data))
 				{
 					return false;
 				}
@@ -172,131 +217,5 @@ class Group extends MergeModel implements ScheduleResource
 		}
 
 		return true;
-	}
-
-	/**
-	 * Updates key references to the entry being merged.
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	protected function updateAssociations()
-	{
-		if (!$this->updateDirectAssociation('pools'))
-		{
-			return false;
-		}
-
-		return $this->updateInstanceGroups();
-	}
-
-	/**
-	 * Updates the instance groups table to reflect the merge of the groups.
-	 *
-	 * @return bool true on success, otherwise false;
-	 */
-	private function updateInstanceGroups()
-	{
-		if (!$relevantAssocs = $this->getAssociatedResourceIDs('assocID', 'instance_groups'))
-		{
-			return true;
-		}
-
-		$mergeID = reset($this->selected);
-
-		foreach ($relevantAssocs as $assocID)
-		{
-			$delta       = '';
-			$modified    = '';
-			$existing    = new Tables\InstanceGroups;
-			$entryExists = $existing->load(['assocID' => $assocID, 'groupID' => $mergeID]);
-
-			foreach ($this->selected as $groupID)
-			{
-				$igTable        = new Tables\InstanceGroups;
-				$loadConditions = ['assocID' => $assocID, 'groupID' => $groupID];
-				if (!$igTable->load($loadConditions))
-				{
-					continue;
-				}
-
-				if ($igTable->modified > $modified)
-				{
-					$delta    = $igTable->delta;
-					$modified = $igTable->modified;
-				}
-
-				if ($entryExists)
-				{
-					if ($existing->id !== $igTable->id)
-					{
-						$igTable->delete();
-					}
-
-					continue;
-				}
-
-				$entryExists = true;
-				$existing    = $igTable;
-			}
-
-			$existing->delta    = $delta;
-			$existing->groupID  = $mergeID;
-			$existing->modified = $modified;
-			if (!$existing->store())
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Processes the data for an individual schedule
-	 *
-	 * @param   Tables\Schedules  $schedule  the schedule being processed
-	 *
-	 * @return bool true if the schedule was changed, otherwise false
-	 */
-	public function updateSchedule($schedule)
-	{
-		$instances = json_decode($schedule->schedule, true);
-		$mergeID   = reset($this->selected);
-		$relevant  = false;
-
-		foreach ($instances as $instanceID => $persons)
-		{
-			foreach ($persons as $personID => $data)
-			{
-				if (!$relevantGroups = array_intersect($data['groups'], $this->selected))
-				{
-					continue;
-				}
-
-				$relevant = true;
-
-				// Unset all relevant to avoid conditional and unique handling
-				foreach (array_keys($relevantGroups) as $relevantIndex)
-				{
-					unset($instances[$instanceID][$personID]['groups'][$relevantIndex]);
-				}
-
-				// Put the merge id in/back in
-				$instances[$instanceID][$personID]['groups'][] = $mergeID;
-
-				// Resequence to avoid JSON encoding treating the array as associative (object)
-				$instances[$instanceID][$personID]['groups']
-					= array_values($instances[$instanceID][$personID]['groups']);
-			}
-		}
-
-		if ($relevant)
-		{
-			$schedule->schedule = json_encode($instances);
-
-			return true;
-		}
-
-		return false;
 	}
 }

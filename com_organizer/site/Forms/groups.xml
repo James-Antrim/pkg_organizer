@@ -21,5 +21,8 @@
     </fields>
     <fields name="batch">
         <field name="publishing" type="TermPublishing" label="PUBLISHING"/>
+        <field name="gridID" type="Grids" label="GRID">
+            <option value="">SELECT_GRID</option>
+        </field>
     </fields>
 </form>

@@ -32,8 +32,7 @@ class Groups extends Controller
 	 */
 	public function batch()
 	{
-		$modelName = "Organizer\\Models\\" . Helpers\OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model = new Models\Group();
 
 		if ($model->batch())
 		{
