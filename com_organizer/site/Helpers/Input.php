@@ -20,6 +20,8 @@ use Joomla\Utilities\ArrayHelper;
  */
 class Input
 {
+	private static $batchItems = false;
+
 	private static $filter = null;
 
 	private static $filterItems = false;
@@ -75,6 +77,21 @@ class Input
 		}
 
 		return false;
+	}
+
+	/**
+	 * Retrieves the batch items from the request and creates a registry with the data.
+	 *
+	 * @return Registry
+	 */
+	public static function getBatchItems()
+	{
+		if (self::$batchItems === false)
+		{
+			self::$batchItems = new Registry(self::getInput()->get('batch', [], 'array'));
+		}
+
+		return self::$batchItems;
 	}
 
 	/**
