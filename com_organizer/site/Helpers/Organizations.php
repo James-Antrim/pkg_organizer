@@ -19,6 +19,8 @@ use Organizer\Tables;
  */
 class Organizations extends ResourceHelper implements Selectable
 {
+	use Numbered;
+
 	/**
 	 * Filters organizations according to user access and relevant resource associations.
 	 *
@@ -67,25 +69,6 @@ class Organizations extends ResourceHelper implements Selectable
 		}
 
 		$query->where("o.id IN ( '" . implode("', '", $allowedIDs) . "' )");
-	}
-
-	/**
-	 * Retrieves the resource items.
-	 *
-	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available resources
-	 */
-	public static function getIDs()
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
-		$query->select('id')->from('#__organizer_organizations');
-
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -160,7 +143,9 @@ class Organizations extends ResourceHelper implements Selectable
 			return;
 		}
 
-		$data['organizationID'] = Input::getInt('organizationID');
+		// todo remove this on completion of migration
+		$organizationID = Input::getInt('organizationID');
+		$data['organizationID'] = $organizationID ? $organizationID : Input::getInt('departmentID');
 
 		try
 		{

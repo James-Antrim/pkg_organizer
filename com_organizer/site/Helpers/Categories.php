@@ -17,7 +17,7 @@ use Joomla\CMS\Factory;
  */
 class Categories extends Associated implements Selectable
 {
-	use Filtered;
+	use Filtered, Numbered;
 
 	static protected $resource = 'category';
 
