@@ -11,6 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
+use Joomla\Utilities\ArrayHelper;
 use Organizer\Tables;
 
 /**
@@ -245,7 +246,7 @@ class Can
 		$authorized = self::scheduleTheseOrganizations();
 		$helper     = "Organizer\\Helpers\\$helperClass";
 
-		if (is_int($resource))
+		if (is_numeric($resource) and $resource = intval($resource))
 		{
 			$associated = $helper::getOrganizationIDs($resource);
 
@@ -253,10 +254,11 @@ class Can
 		}
 		elseif (is_array($resource))
 		{
+			$resource = ArrayHelper::toInteger($resource);
+
 			foreach ($resource as $resourceID)
 			{
-				$associated = $helper::getOrganizationIDs($resourceID);
-				if (!array_intersect($associated, $authorized))
+				if (!array_intersect($helper::getOrganizationIDs($resourceID), $authorized))
 				{
 					return false;
 				}
