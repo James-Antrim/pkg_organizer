@@ -81,7 +81,7 @@ trait Imported
 
 		if ($resourceID = $model->save() and $model->importSingle($resourceID))
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
 		}
 		else
 		{

@@ -105,7 +105,7 @@ class Schedules extends ListView
 		foreach ($this->items as $item)
 		{
 			$item->active =
-				$this->getToggle('schedule', $item->id, $item->active, Helpers\Languages::_('ORGANIZER_TOGGLE_ACTIVE'));
+				$this->getToggle('schedule', $item->id, $item->active, 'ORGANIZER_TOGGLE_ACTIVE');
 
 			$creationDate  = Helpers\Dates::formatDate($item->creationDate);
 			$creationTime  = Helpers\Dates::formatTime($item->creationTime);

@@ -213,7 +213,7 @@ abstract class ListView extends BaseHTMLView
 		$iconClass = empty($currentValue) ? 'checkbox-unchecked' : 'checkbox-checked';
 		$icon      = '<span class="icon-' . $iconClass . '"></span>';
 
-		$attributes = ['title' => $tip, 'class' => 'hasTooltip'];
+		$attributes = ['title' => Helpers\Languages::_($tip), 'class' => 'hasTooltip'];
 
 		return HTML::_('link', $url, $icon, $attributes);
 	}

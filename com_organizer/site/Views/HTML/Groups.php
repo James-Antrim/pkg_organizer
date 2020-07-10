@@ -15,6 +15,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads persistent information a filtered set of (scheduled subject) pools into the display context.
@@ -24,6 +25,8 @@ class Groups extends ListView
 	protected $rowStructure = [
 		'checkbox' => '',
 		'fullName' => 'link',
+		'this'     => 'value',
+		'next'     => 'value',
 		'name'     => 'link',
 		'grid'     => 'link',
 		'code'     => 'link'
@@ -39,6 +42,18 @@ class Groups extends ListView
 		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_GROUPS'), 'list-2');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'groups.edit', true);
+
+		$if          = "alert('" . Helpers\Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
+		$else        = "jQuery('#modal-publishing').modal('show'); return true;";
+		$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
+		$batchButton = '<button id="group-publishing" data-toggle="modal" class="btn btn-small" ' . $script . '>';
+
+		$title       = Helpers\Languages::_('ORGANIZER_BATCH');
+		$batchButton .= '<span class="icon-stack" title="' . $title . '"></span>' . " $title";
+
+		$batchButton .= '</button>';
+
+		$toolbar->appendButton('Custom', $batchButton, 'batch');
 
 		if (Helpers\Can::administrate())
 		{
@@ -58,18 +73,6 @@ class Groups extends ListView
 				false
 			);
 		}
-
-		$if          = "alert('" . Helpers\Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
-		$else        = "jQuery('#modal-publishing').modal('show'); return true;";
-		$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
-		$batchButton = '<button id="group-publishing" data-toggle="modal" class="btn btn-small" ' . $script . '>';
-
-		$title       = Helpers\Languages::_('ORGANIZER_BATCH');
-		$batchButton .= '<span class="icon-stack" title="' . $title . '"></span>' . " $title";
-
-		$batchButton .= '</button>';
-
-		$toolbar->appendButton('Custom', $batchButton, 'batch');
 	}
 
 	/**
@@ -123,6 +126,8 @@ class Groups extends ListView
 		$headers   = [
 			'checkbox' => Helpers\HTML::_('grid.checkall'),
 			'fullName' => Helpers\HTML::sort('FULL_NAME', 'gr.fullName', $direction, $ordering),
+			'this'     => Helpers\Terms::getName(Helpers\Terms::getCurrentID()),
+			'next'     => Helpers\Terms::getName(Helpers\Terms::getNextID()),
 			'name'     => Helpers\HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
 			'grid'     => Helpers\Languages::_('ORGANIZER_GRID'),
 			'code'     => Helpers\HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
@@ -138,13 +143,27 @@ class Groups extends ListView
 	 */
 	protected function structureItems()
 	{
+		$currentTerm     = Helpers\Terms::getCurrentID();
 		$index           = 0;
 		$link            = 'index.php?option=com_organizer&view=group_edit&id=';
+		$nextTerm        = Helpers\Terms::getNextID();
+		$publishing      = new Tables\GroupPublishing();
 		$structuredItems = [];
 
 		foreach ($this->items as $item)
 		{
-			$item->grid              = Helpers\Grids::getName($item->gridID);
+			$termData   = ['groupID' => $item->id, 'termID' => $currentTerm];
+			$item->grid = Helpers\Grids::getName($item->gridID);
+
+			$thisValue  = $publishing->load($termData) ? $publishing->published : 1;
+			$tip        = $thisValue ? 'ORGANIZER_CLICK_TO_UNPUBLISH' : 'ORGANIZER_CLICK_TO_PUBLISH';
+			$item->this = $this->getToggle('groups', $item->id, $thisValue, $tip, $currentTerm);
+
+			$termData['termID'] = $nextTerm;
+			$nextValue          = $publishing->load($termData) ? $publishing->published : 1;
+			$tip                = $nextValue ? 'ORGANIZER_CLICK_TO_UNPUBLISH' : 'ORGANIZER_CLICK_TO_PUBLISH';
+			$item->next         = $this->getToggle('groups', $item->id, $nextValue, $tip, $nextTerm);
+
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

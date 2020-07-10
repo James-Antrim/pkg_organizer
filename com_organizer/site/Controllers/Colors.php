@@ -39,7 +39,7 @@ class Colors extends Controller
 
 		if ($model->save())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
 		}
 		else
 		{

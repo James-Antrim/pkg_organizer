@@ -122,12 +122,10 @@ class Group extends BaseModel
 				continue;
 			}
 
-			$query->clear('where');
-			$query->where("termID = {$term['id']}");
-
+			$query->clear('where')->where("termID = {$term['id']}");
 			$this->_db->setQuery($query);
-			$success = Helpers\OrganizerHelper::executeQuery('execute');
-			if (!$success)
+
+			if (!Helpers\OrganizerHelper::executeQuery('execute'))
 			{
 				return false;
 			}
@@ -217,5 +215,39 @@ class Group extends BaseModel
 		}
 
 		return true;
+	}
+
+	/**
+	 * Alters the state of a binary property.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
+	 */
+	public function toggle()
+	{
+		$groupID        = Helpers\Input::getID();
+		$this->selected = [$groupID];
+
+		if (!$this->allow())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		if (!$termID = Helpers\Input::getInt('attribute'))
+		{
+			return false;
+		}
+
+		$load  = ['groupID' => $groupID, 'termID' => $termID];
+		$table = new Tables\GroupPublishing();
+
+		if (!$table->load($load))
+		{
+			return false;
+		}
+
+		$table->published = !$table->published;
+
+		return $table->store();
 	}
 }

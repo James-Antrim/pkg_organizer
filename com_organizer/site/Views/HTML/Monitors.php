@@ -103,8 +103,12 @@ class Monitors extends ListView
 				$item->display = $this->displayBehaviour[$item->display];
 			}
 
-			$tip               = Helpers\Languages::_('ORGANIZER_TOGGLE_COMPONENT_SETTINGS');
-			$item->useDefaults = $this->getToggle('monitor', $item->id, $item->useDefaults, $tip);
+			$item->useDefaults = $this->getToggle(
+				'monitor',
+				$item->id,
+				$item->useDefaults,
+				'ORGANIZER_TOGGLE_COMPONENT_SETTINGS'
+			);
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
