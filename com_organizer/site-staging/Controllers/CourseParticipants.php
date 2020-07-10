@@ -32,7 +32,7 @@ trait CourseParticipants
 
 		if ($model->accept())
 		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
 		}
 		else
 		{
@@ -97,7 +97,7 @@ trait CourseParticipants
 
 		if ($model->confirmAttendance())
 		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
 		}
 		else
 		{
@@ -119,7 +119,7 @@ trait CourseParticipants
 
 		if ($model->confirmPayment())
 		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
 		}
 		else
 		{
@@ -167,7 +167,7 @@ trait CourseParticipants
 		{
 			if ($previousState !== self::UNREGISTERED)
 			{
-				OrganizerHelper::message('ORGANIZER_DEREGISTER_SUCCESS', 'success');
+				OrganizerHelper::message('ORGANIZER_DEREGISTER_SUCCESS');
 			}
 			else
 			{
@@ -197,7 +197,7 @@ trait CourseParticipants
 
 		if ($model->remove())
 		{
-			OrganizerHelper::message('ORGANIZER_REMOVE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_REMOVE_SUCCESS');
 		}
 		else
 		{
@@ -219,7 +219,7 @@ trait CourseParticipants
 
 		if ($model->toggle())
 		{
-			OrganizerHelper::message('ORGANIZER_TOGGLE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_TOGGLE_SUCCESS');
 		}
 		else
 		{

@@ -325,7 +325,7 @@ class Controller extends BaseController
 
 		if ($model->save())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
 		}
 		else
 		{
