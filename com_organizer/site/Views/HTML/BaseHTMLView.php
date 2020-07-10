@@ -111,10 +111,10 @@ abstract class BaseHTMLView extends BaseView
 
 			$items = [];
 
-			/*$items[Languages::_('ORGANIZER_GROUPS')]     = [
+			$items[Languages::_('ORGANIZER_GROUPS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=groups',
 				'active' => $viewName == 'groups'
-			];*/
+			];
 			$items[Languages::_('ORGANIZER_CATEGORIES')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=categories',
 				'active' => $viewName == 'categories'
