@@ -125,6 +125,10 @@ trait Filtered
 		{
 			$default = Input::getInt('programIDs');
 		}
+		if ($resource === 'roomtype')
+		{
+			$default = Input::getInt('roomTypeIDs');
+		}
 
 		$resourceID  = Input::getInt("{$resource}ID", $default);
 		$resourceIDs = $resourceID ? [$resourceID] : Input::getFilterIDs($resource);
