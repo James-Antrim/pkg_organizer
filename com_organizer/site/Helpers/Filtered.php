@@ -88,7 +88,9 @@ trait Filtered
 	 */
 	public static function addOrganizationFilter($query, $resource, $alias, $keyColumn = 'id')
 	{
-		$organizationID  = Input::getInt('organizationID');
+		// TODO Remove departments on completion of migration.
+		$departmentID    = Input::getInt('departmentIDs');
+		$organizationID  = Input::getInt('organizationID', $departmentID);
 		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
 		if (empty($organizationIDs))
 		{
@@ -117,7 +119,14 @@ trait Filtered
 	 */
 	public static function addResourceFilter($query, $resource, $newAlias, $existingAlias)
 	{
-		$resourceID  = Input::getInt("{$resource}ID");
+		// TODO Remove (plan) programs on completion of migration.
+		$default = 0;
+		if ($resource === 'category')
+		{
+			$default = Input::getInt('programIDs');
+		}
+
+		$resourceID  = Input::getInt("{$resource}ID", $default);
 		$resourceIDs = $resourceID ? [$resourceID] : Input::getFilterIDs($resource);
 		if (empty($resourceIDs))
 		{
