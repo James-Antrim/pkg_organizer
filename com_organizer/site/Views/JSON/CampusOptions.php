@@ -15,7 +15,7 @@ use Organizer\Helpers;
 /**
  * Class answers dynamic (degree) program related queries
  */
-class Campuses extends BaseView
+class CampusOptions extends BaseView
 {
 	/**
 	 * loads model data into view context
@@ -24,6 +24,6 @@ class Campuses extends BaseView
 	 */
 	public function display()
 	{
-		echo json_encode(Helpers\Campuses::getResources(), JSON_UNESCAPED_UNICODE);
+		echo json_encode(Helpers\Campuses::getOptions(), JSON_UNESCAPED_UNICODE);
 	}
 }
