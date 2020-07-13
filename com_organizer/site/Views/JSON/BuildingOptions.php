@@ -15,7 +15,7 @@ use Organizer\Helpers;
 /**
  * Class answers dynamic (degree) program related queries
  */
-class Buildings extends BaseView
+class BuildingOptions extends BaseView
 {
 	/**
 	 * loads model data into view context
@@ -24,6 +24,6 @@ class Buildings extends BaseView
 	 */
 	public function display()
 	{
-		echo json_encode(Helpers\Buildings::getResources(), JSON_UNESCAPED_UNICODE);
+		echo json_encode(Helpers\Buildings::getOptions(), JSON_UNESCAPED_UNICODE);
 	}
 }
