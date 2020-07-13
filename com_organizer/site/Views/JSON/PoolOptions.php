@@ -13,9 +13,9 @@ namespace Organizer\Views\JSON;
 use Organizer\Helpers;
 
 /**
- * Class answers dynamic organizational related queries
+ * Class answers dynamic subject pool related queries
  */
-class Organizations extends BaseView
+class PoolOptions extends BaseView
 {
 	/**
 	 * loads model data into view context
@@ -24,14 +24,6 @@ class Organizations extends BaseView
 	 */
 	public function display()
 	{
-		$function = Helpers\Input::getTask();
-		if (method_exists('Organizer\\Helpers\\Organizations', $function))
-		{
-			echo json_encode(Helpers\Organizations::$function(), JSON_UNESCAPED_UNICODE);
-		}
-		else
-		{
-			echo false;
-		}
+		echo json_encode(Helpers\Pools::getOptions(), JSON_UNESCAPED_UNICODE);
 	}
 }

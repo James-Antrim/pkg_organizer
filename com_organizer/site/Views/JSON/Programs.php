@@ -24,14 +24,6 @@ class Programs extends BaseView
 	 */
 	public function display()
 	{
-		$function = Helpers\Input::getTask();
-		if (method_exists('Organizer\\Helpers\\Programs', $function))
-		{
-			echo json_encode(Helpers\Programs::$function(), JSON_UNESCAPED_UNICODE);
-		}
-		else
-		{
-			echo false;
-		}
+		echo json_encode(Helpers\Programs::getResources(), JSON_UNESCAPED_UNICODE);
 	}
 }

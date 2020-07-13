@@ -13,9 +13,9 @@ namespace Organizer\Views\JSON;
 use Organizer\Helpers;
 
 /**
- * Class answers dynamic subject related queries
+ * Class answers dynamic (degree) program related queries
  */
-class Subjects extends BaseView
+class ProgramOptions extends BaseView
 {
 	/**
 	 * loads model data into view context
@@ -24,14 +24,6 @@ class Subjects extends BaseView
 	 */
 	public function display()
 	{
-		$function = Helpers\Input::getTask();
-		if (method_exists('Organizer\\Helpers\\Subjects', $function))
-		{
-			echo json_encode(Helpers\Subjects::$function(), JSON_UNESCAPED_UNICODE);
-		}
-		else
-		{
-			echo false;
-		}
+		echo json_encode(Helpers\Programs::getOptions(), JSON_UNESCAPED_UNICODE);
 	}
 }

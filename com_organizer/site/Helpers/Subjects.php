@@ -329,9 +329,10 @@ class Subjects extends Curricula
 	 */
 	public static function getResources()
 	{
+		$poolID    = Input::getInt('poolID', -1);
 		$programID = Input::getInt('programID', -1);
 		$personID  = Input::getInt('personID', -1);
-		if ($programID === -1 and $personID === -1)
+		if ($poolID === -1 and $programID === -1 and $personID === -1)
 		{
 			return [];
 		}

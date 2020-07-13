@@ -10,23 +10,20 @@
 
 namespace Organizer\Views\JSON;
 
-use Exception;
-use Organizer\Models\SubjectItem as Model;
+use Organizer\Helpers;
 
 /**
- * Class loads the subject into the display context.
+ * Class answers dynamic subject related queries
  */
-class SubjectItem extends BaseView
+class Subjects extends BaseView
 {
 	/**
 	 * loads model data into view context
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function display()
 	{
-		$model = new Model;
-		echo json_encode($model->getItem(), JSON_UNESCAPED_UNICODE);
+		echo json_encode(Helpers\Subjects::getResources(), JSON_UNESCAPED_UNICODE);
 	}
 }

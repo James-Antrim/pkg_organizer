@@ -24,14 +24,6 @@ class Roomtypes extends BaseView
 	 */
 	public function display()
 	{
-		$function = Helpers\Input::getTask();
-		if (method_exists('Organizer\\Helpers\\Roomtypes', $function))
-		{
-			echo json_encode(Helpers\Roomtypes::$function(), JSON_UNESCAPED_UNICODE);
-		}
-		else
-		{
-			echo false;
-		}
+		echo json_encode(Helpers\Roomtypes::getResources(), JSON_UNESCAPED_UNICODE);
 	}
 }
