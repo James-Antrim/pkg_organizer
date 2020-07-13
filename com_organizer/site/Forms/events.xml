@@ -2,18 +2,26 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="organizationID" type="Organizations" label="ORGANIZATION" onchange="this.form.submit();">
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" onchange="this.form.submit();">
             <option value="">ALL_ORGANIZATIONS</option>
             <option value="-1">NO_ORGANIZATION</option>
         </field>
+        <!-- The scheduling needs to be present for these filters to work. -->
+        <!--<field name="categoryID" type="Categories" label="CATEGORY" access="schedule" onchange="this.form.submit();">
+            <option value="">ALL_CATEGORIES</option>
+        </field>-->
+        <!--<field name="groupID" type="Groups" label="GROUP" onchange="this.form.submit();">
+            <option value="">ALL_GROUPS</option>
+        </field>-->
         <field name="campusID" type="Campuses" label="CAMPUS" onchange="this.form.submit();">
             <option value="">ALL_CAMPUSES</option>
             <option value="-1">NO_CAMPUS</option>
         </field>
-        <field name="preparatory" type="Options" label="ORGANIZER_PREP_COURSES" default="0">
-            <option value="">ORGANIZER_ALL_COURSES</option>
-            <option value="1">ORGANIZER_ONLY_PREP_COURSES</option>
-            <option value="0">ORGANIZER_NOT_PREP_COURSES</option>
+        <field name="preparatory" type="Options" label="ORGANIZER_PREP_COURSES" default=""
+               onchange="this.form.submit();">
+            <option value="">ALL_COURSES</option>
+            <option value="1">ONLY_PREP_COURSES</option>
+            <option value="0">NOT_PREP_COURSES</option>
         </field>
     </fields>
     <fields name="list">

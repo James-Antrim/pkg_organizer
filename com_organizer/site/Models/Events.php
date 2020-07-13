@@ -18,7 +18,9 @@ use Organizer\Helpers;
  */
 class Events extends ListModel
 {
-	protected $defaultOrdering = 'name,organization';
+	protected $defaultOrdering = 'code';
+
+	protected $filter_fields = ['campusID', 'categoryID', 'groupID', 'organizationID', 'preparatory'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -29,8 +31,7 @@ class Events extends ListModel
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
-		$query->select("DISTINCT e.id AS id, e.name_$tag as name, e.organizationID, e.campusID")
-			->select("e.maxParticipants, e.registrationType, e.subjectNo, e.preparatory")
+		$query->select("DISTINCT e.id AS id, e.name_$tag as name, e.organizationID, e.code")
 			->select("o.id AS organizationID, o.shortName_$tag AS organization")
 			->select("c.id AS campusID, c.name_$tag AS campus")
 			->from('#__organizer_events AS e')

@@ -19,11 +19,10 @@ use Organizer\Helpers;
 class Events extends ListView
 {
 	protected $rowStructure = [
-		'checkbox'        => '',
-		'name'            => 'link',
-		'organization'    => 'link',
-		'campus'          => 'link',
-		'maxParticipants' => 'link'
+		'checkbox'     => '',
+		'code'         => 'link',
+		'name'         => 'link',
+		'organization' => 'link'
 	];
 
 	/**
@@ -69,11 +68,10 @@ class Events extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'        => '',
-			'name'            => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-			'organization'    => Helpers\HTML::sort('ORGANIZATION', 'name', $direction, $ordering),
-			'campus'          => Helpers\Languages::_('ORGANIZER_CAMPUS'),
-			'maxParticipants' => Helpers\Languages::_('ORGANIZER_MAX_PARTICIPANTS')
+			'checkbox'     => '',
+			'code'         => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
+			'name'         => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'organization' => Helpers\HTML::sort('ORGANIZATION', 'name', $direction, $ordering)
 		];
 
 		$this->headers = $headers;
@@ -92,8 +90,6 @@ class Events extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->campus            = Helpers\Campuses::getName($item->campusID);
-			$item->maxParticipants   = empty($item->maxParticipants) ? 1000 : $item->maxParticipants;
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}
