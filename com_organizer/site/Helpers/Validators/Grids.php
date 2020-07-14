@@ -44,12 +44,12 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function setID($model, $gridName)
 	{
-		if (empty($model->periods->$gridName))
+		if (empty($model->grids->$gridName))
 		{
 			return;
 		}
 
-		$grid       = $model->periods->$gridName;
+		$grid       = $model->grids->$gridName;
 		$grid->grid = json_encode($grid, JSON_UNESCAPED_UNICODE);
 		$table      = new Tables\Grids;
 
@@ -75,7 +75,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function setIDs($model)
 	{
-		foreach (array_keys((array) $model->periods) as $gridName)
+		foreach (array_keys((array) $model->grids) as $gridName)
 		{
 			self::setID($model, $gridName);
 		}
@@ -115,13 +115,13 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		// Set the grid if not already existent
-		if (empty($model->periods->$gridName))
+		if (empty($model->grids->$gridName))
 		{
-			$model->periods->$gridName          = new stdClass;
-			$model->periods->$gridName->periods = new stdClass;
+			$model->grids->$gridName          = new stdClass;
+			$model->grids->$gridName->periods = new stdClass;
 		}
 
-		$grid = $model->periods->$gridName;
+		$grid = $model->grids->$gridName;
 
 		if (!isset($grid->startDay) or $grid->startDay > $day)
 		{

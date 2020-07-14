@@ -114,7 +114,7 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 
 			return;
 		}
-		elseif (!$grid = $model->periods->$gridName)
+		elseif (!$grid = $model->grids->$gridName)
 		{
 			$model->errors[] = sprintf(
 				Helpers\Languages::_('ORGANIZER_GROUP_GRID_INCOMPLETE'),

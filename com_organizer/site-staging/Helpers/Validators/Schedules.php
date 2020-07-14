@@ -31,13 +31,13 @@ class Schedules
 
 	public $events = null;
 
+	public $grids = null;
+
 	public $groups = null;
 
 	public $instances = [];
 
 	public $methods = null;
-
-	public $periods = null;
 
 	public $persons = null;
 
@@ -166,7 +166,7 @@ class Schedules
 		}
 		unset($this->schedule->descriptions);
 
-		$this->periods = new stdClass;
+		$this->grids = new stdClass;
 		foreach ($this->schedule->timeperiods->children() as $node)
 		{
 			Grids::validate($this, $node);
@@ -187,7 +187,7 @@ class Schedules
 		{
 			Groups::validate($this, $node);
 		}
-		unset($this->categories, $this->periods, $this->schedule->classes);
+		unset($this->categories, $this->grids, $this->schedule->classes);
 
 		$this->persons = new stdClass;
 		foreach ($this->schedule->teachers->children() as $node)

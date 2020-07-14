@@ -38,10 +38,13 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 			$altered = false;
 			foreach ($event as $key => $value)
 			{
-
-				// Context based changes need no protection.
 				if (property_exists($table, $key))
 				{
+					// Protect manual name adjustment done in Organizer.
+					if (in_array($key, ['name_de', 'name_en']) and !empty($table->$key))
+					{
+						continue;
+					}
 					$table->set($key, $value);
 					$altered = true;
 				}
@@ -90,12 +93,12 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function validate($model, $node)
 	{
-		$untisID = str_replace('SU_', '', trim((string) $node[0]['id']));
-		$name    = trim((string) $node->longname);
+		$code = str_replace('SU_', '', trim((string) $node[0]['id']));
+		$name = trim((string) $node->longname);
 
 		if (empty($name))
 		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_EVENT_NAME_MISSING'), $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_EVENT_NAME_MISSING'), $code);
 
 			return;
 		}
@@ -111,12 +114,12 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		$event                 = new stdClass;
 		$event->organizationID = $model->organizationID;
-		$event->untisID        = $untisID;
+		$event->code           = $code;
 		$event->name_de        = $name;
 		$event->name_en        = $name;
 		$event->subjectNo      = $subjectNo;
 
-		$model->events->$untisID = $event;
-		self::setID($model, $untisID);
+		$model->events->$code = $event;
+		self::setID($model, $code);
 	}
 }
