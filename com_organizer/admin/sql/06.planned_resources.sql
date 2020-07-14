@@ -54,8 +54,8 @@ FROM `v7ocf_thm_organizer_lessons`;
 UPDATE `v7ocf_organizer_units` AS u
     INNER JOIN `v7ocf_thm_organizer_lesson_subjects` AS ls ON ls.`lessonID` = u.`id`
     INNER JOIN `v7ocf_thm_organizer_lesson_pools` AS lp ON lp.`subjectID` = ls.`id`
-    INNER JOIN `v7ocf_thm_organizer_plan_pools` AS pp ON pp.`id` = lp.`poolID`
-SET u.`gridID` = pp.`gridID`
+    INNER JOIN `v7ocf_organizer_groups` AS g ON g.`id` = lp.`poolID`
+SET u.`gridID` = g.`gridID`
 WHERE u.`id` IS NOT NULL;
 
 ALTER TABLE `v7ocf_organizer_units`
