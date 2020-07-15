@@ -20,56 +20,6 @@ SELECT DISTINCT `schedule_date`, WEEKDAY(`schedule_date`) + 1, `startTime`, `end
 FROM `v7ocf_thm_organizer_calendar`;
 # endregion
 
-# region units
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_units` (
-    `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `code`           INT(11) UNSIGNED NOT NULL,
-    `organizationID` INT(11) UNSIGNED NOT NULL,
-    `termID`         INT(11) UNSIGNED NOT NULL,
-    `comment`        VARCHAR(255)              DEFAULT '',
-    `courseID`       INT(11) UNSIGNED          DEFAULT NULL,
-    `delta`          VARCHAR(10)      NOT NULL DEFAULT '',
-    `endDate`        DATE                      DEFAULT NULL,
-    `gridID`         INT(11) UNSIGNED          DEFAULT NULL,
-    `modified`       TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `runID`          INT(11) UNSIGNED          DEFAULT NULL,
-    `startDate`      DATE                      DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE INDEX `entry` (`code`, `organizationID`, `termID`),
-    INDEX `code` (`code`),
-    INDEX `courseID` (`courseID`),
-    INDEX `gridID` (`gridID`),
-    INDEX `organizationID` (`organizationID`),
-    INDEX `runID` (`runID`),
-    INDEX `termID` (`termID`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-INSERT IGNORE INTO `v7ocf_organizer_units` (`id`, `organizationID`, `termID`, `code`, `comment`, `delta`, `modified`)
-SELECT `id`, `departmentID`, `planningPeriodID`, `gpuntisID`, `comment`, `delta`, `modified`
-FROM `v7ocf_thm_organizer_lessons`;
-
-UPDATE `v7ocf_organizer_units` AS u
-    INNER JOIN `v7ocf_thm_organizer_lesson_subjects` AS ls ON ls.`lessonID` = u.`id`
-    INNER JOIN `v7ocf_thm_organizer_lesson_pools` AS lp ON lp.`subjectID` = ls.`id`
-    INNER JOIN `v7ocf_organizer_groups` AS g ON g.`id` = lp.`poolID`
-SET u.`gridID` = g.`gridID`
-WHERE u.`id` IS NOT NULL;
-
-ALTER TABLE `v7ocf_organizer_units`
-    ADD CONSTRAINT `unit_gridID_fk` FOREIGN KEY (`gridID`) REFERENCES `v7ocf_organizer_grids` (`id`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE,
-    ADD CONSTRAINT `unit_organizationID_fk` FOREIGN KEY (`organizationID`) REFERENCES `v7ocf_organizer_organizations` (`id`)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    ADD CONSTRAINT `unit_termID_fk` FOREIGN KEY (`termID`) REFERENCES `v7ocf_organizer_terms` (`id`)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE;
-# endregion
-
 # region instances
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instances` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
