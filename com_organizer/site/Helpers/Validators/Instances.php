@@ -13,6 +13,7 @@ namespace Organizer\Helpers\Validators;
 use Organizer\Helpers;
 use Organizer\Tables;
 use SimpleXMLElement;
+use stdClass;
 
 /**
  * Provides functions for XML lesson validation and modeling.
@@ -111,6 +112,110 @@ class Instances extends Helpers\ResourceHelper
 	}
 
 	/**
+	 * Processes instance information for the new schedule format
+	 *
+	 * @param   object            $model      the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node       the node being validated
+	 * @param   int               $untisID    the id of the lesson being iterated
+	 * @param   string            $currentDT  the current datetime value
+	 *
+	 * @return void
+	 */
+	private static function processInstance($model, $node, $untisID, $currentDT)
+	{
+		$calendar    = $model->schedule->calendar;
+		$currentDate = date('Y-m-d', $currentDT);
+
+		// New format calendar items are created as necessary
+		if (!isset($calendar->$currentDate))
+		{
+			$calendar->$currentDate = new stdClass;
+		}
+
+		$endTime   = trim((string) $node->assigned_endtime);
+		$startTime = trim((string) $node->assigned_starttime);
+
+		$times = $startTime . '-' . $endTime;
+		if (!isset($calendar->$currentDate->$times))
+		{
+			$calendar->$currentDate->$times = new stdClass;
+		}
+
+		if (!isset($calendar->$currentDate->$times->$untisID))
+		{
+			$entry                 = new stdClass;
+			$entry->delta          = '';
+			$entry->configurations = [];
+
+			$calendar->$currentDate->$times->$untisID = $entry;
+		}
+
+		$unit = $model->schedule->lessons->$untisID;
+
+		$config            = new stdClass;
+		$config->lessonID  = $untisID;
+		$config->subjectID = $unit->eventID;
+		$config->teachers  = new stdClass;
+		$config->rooms     = new stdClass;
+
+		$config->teachers->{$unit->personID} = '';
+
+		foreach ($unit->rooms as $roomID)
+		{
+			$config->rooms->{$roomID} = '';
+		}
+
+		$entry         = $calendar->$currentDate->$times->$untisID;
+		$existingIndex = null;
+
+		if (!empty($entry->configurations))
+		{
+			$compConfig = null;
+
+			foreach ($entry->configurations as $configIndex)
+			{
+				$tempConfig = json_decode($model->schedule->configurations[$configIndex]);
+
+				if ($tempConfig->subjectID == $config->subjectID)
+				{
+					$compConfig    = $tempConfig;
+					$existingIndex = $configIndex;
+					break;
+				}
+			}
+
+			if ($compConfig)
+			{
+				foreach ($compConfig->teachers as $teacherID => $emptyDelta)
+				{
+					$config->teachers->$teacherID = $emptyDelta;
+				}
+
+				foreach ($compConfig->rooms as $roomID => $emptyDelta)
+				{
+					$config->rooms->$roomID = $emptyDelta;
+				}
+			}
+		}
+
+		$jsonConfig = json_encode($config);
+
+		if ($existingIndex)
+		{
+			$model->schedule->configurations[$existingIndex] = $jsonConfig;
+
+			return;
+		}
+
+		$model->schedule->configurations[] = $jsonConfig;
+
+		$configKeys  = array_keys($model->schedule->configurations);
+		$configIndex = end($configKeys);
+
+		$entry->configurations[] = $configIndex;
+	}
+
+	/**
 	 * Sets associations between an instance person association and its groups.
 	 *
 	 * @param   object  $model       the model for the schedule being validated
@@ -123,9 +228,10 @@ class Instances extends Helpers\ResourceHelper
 	private static function setGroups($model, $untisID, $instanceID, $assocID)
 	{
 		$instances = &$model->instances;
-		$unit      = $model->units->$untisID;
-		$personID  = $unit->personID;
-		$groups    = $unit->groups;
+		//$unit      = $model->units->$untisID;
+		$unit     = $model->schedule->lessons->$untisID;
+		$personID = $unit->personID;
+		$groups   = $unit->groups;
 
 		if (empty($instances[$instanceID][$personID]['groups']))
 		{
@@ -348,22 +454,26 @@ class Instances extends Helpers\ResourceHelper
 	{
 		// Instance templates for regular units or actual instances for sporadic units
 		$instances = $node->children();
-		$unit      = $model->units->$untisID;
+
+		if (count($instances) == 0)
+		{
+			return;
+		}
+
+		//$unit      = $model->units->$untisID;
+		$unit      = $model->schedule->lessons->$untisID;
 		$currentDT = $unit->startDT;
 
 		foreach ($occurrences as $occurrence)
 		{
 			// Untis uses F for vacation days and 0 for any other date restriction
 			$irrelevant = ($occurrence == self::NO or $occurrence == self::VACATION);
-			if ($irrelevant)
+			if (!$irrelevant)
 			{
-				$currentDT = strtotime('+1 day', $currentDT);
-				continue;
-			}
-
-			foreach ($instances as $instance)
-			{
-				self::validateInstance($model, $instance, $untisID, $currentDT, $valid);
+				foreach ($instances as $instance)
+				{
+					self::validateInstance($model, $instance, $untisID, $currentDT, $valid);
+				}
 			}
 
 			$currentDT = strtotime('+1 day', $currentDT);
@@ -373,7 +483,7 @@ class Instances extends Helpers\ResourceHelper
 	}
 
 	/**
-	 * Validates a lesson instance
+	 * Validates instance dates and rooms.
 	 *
 	 * @param   object            $model      the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node       the node being validated
@@ -381,14 +491,14 @@ class Instances extends Helpers\ResourceHelper
 	 * @param   int               $currentDT  the current date time in the iteration
 	 * @param   bool              $valid      whether or not the planning unit is valid (for purposes of saving)
 	 *
-	 * @return boolean  true if valid, otherwise false
+	 * @return void
 	 */
 	private static function validateInstance($model, $node, $untisID, $currentDT, $valid)
 	{
 		// Current date not applicable for this instance
 		if (trim((string) $node->assigned_day) != date('w', $currentDT))
 		{
-			return true;
+			return;
 		}
 
 		// Sporadic events have specific dates assigned to them.
@@ -397,16 +507,15 @@ class Instances extends Helpers\ResourceHelper
 		// The event is sporadic and does not occur on the date being currently iterated
 		if (!empty($assigned_date) and $assigned_date != $currentDT)
 		{
-			return true;
+			return;
 		}
 
-		$currentDate = date('Y-m-d', $currentDT);
-		$periodNo    = trim((string) $node->assigned_period);
+		$periodNo = trim((string) $node->assigned_period);
+		//$unit        = $model->units->$untisID;
+		$unit        = $model->schedule->lessons->$untisID;
+		$unit->rooms = [];
 
-		$unit          = $model->units->$untisID;
-		$unit->rooms   = [];
-		$roomAttribute = trim((string) $node->assigned_room[0]['id']);
-		if (empty($roomAttribute))
+		if (!$roomAttribute = trim((string) $node->assigned_room[0]['id']))
 		{
 			self::addMissingRoomData($model, $untisID, $currentDT, $periodNo);
 		}
@@ -435,9 +544,8 @@ class Instances extends Helpers\ResourceHelper
 
 		if ($valid)
 		{
-			self::setInstance($model, $node, $untisID, $currentDate);
+			//self::setInstance($model, $node, $untisID, $currentDT);
+			self::processInstance($model, $node, $untisID, $currentDT);
 		}
-
-		return true;
 	}
 }
