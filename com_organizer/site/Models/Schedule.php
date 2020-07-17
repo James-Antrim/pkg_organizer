@@ -13,8 +13,8 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
-use Organizer\Helpers\Validators; // Exception for structure
+use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers\Validators;
 use Organizer\Tables;
 
 /**
@@ -173,6 +173,177 @@ class Schedule extends BaseModel
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadColumn', []);
+	}
+
+	/**
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function move()
+	{
+		$query = "INSERT INTO #__organizer_schedules (id, organizationID, termID, userID, creationDate, creationTime, schedule, active)
+				SELECT id, departmentID, planningPeriodID, userID, creationDate, creationTime, schedule, active
+				FROM #__thm_organizer_schedules
+				WHERE id NOT IN (SELECT id FROM #__organizer_schedules);";
+		$this->_db->setQuery($query);
+
+		return (bool) OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
+	 * Restructures the schedules to the new structure.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function restructure()
+	{
+		return false;
+		/*$query = $this->_db->getQuery(true);
+		$query->select('id')
+			->from('#__organizer_schedules')
+			->where("schedule LIKE '%lessons%'")
+			->order('creationDate')
+			->setLimit(20);
+		$this->_db->setQuery($query);
+
+		if (!$selection = OrganizerHelper::executeQuery('loadColumn', []))
+		{
+			return true;
+		}
+
+		$row  = new Tables\Schedules();
+		$term = new Tables\Terms();
+		$unit = new Tables\Units;
+
+		foreach ($selection as $scheduleID)
+		{
+			if (!$row->load($scheduleID))
+			{
+				continue;
+			}
+
+			$schedule = json_decode($row->schedule, true);
+
+			unset($schedule['creationDate'],
+				$schedule['creationTime'],
+				$schedule['organizationID'],
+				$schedule['endDate'],
+				$schedule['referenceID'],
+				$schedule['startDate'],
+				$schedule['termID']
+			);
+
+			if (!$term->load($row->termID))
+			{
+				return false;
+			}
+
+			$unitKeys = ['organizationID' => $row->organizationID, 'termID' => $row->termID];
+
+			foreach ($schedule['calendar'] as $date => $times)
+			{
+				// Remove empty dates and dates beyond the scope of the terms they were created for
+				if (empty($times) or $date < $term->startDate or $date > $term->endDate)
+				{
+					unset($schedule['calendar'][$date]);
+					continue;
+				}
+
+				foreach ($times as $blockTimes => $units)
+				{
+					if (!$blockID = $this->getBlockID($date, $blockTimes))
+					{
+						unset($schedule['calendar'][$date][$times]);
+						continue;
+					}
+
+					foreach ($units as $untisID => $unitData)
+					{
+						$unitKeys['code'] = $untisID;
+
+						if (!$unit->load($unitKeys))
+						{
+							unset($schedule['calendar'][$date][$blockTimes][$untisID]);
+							continue;
+						}
+
+						$unitConfiguration = $schedule['lessons'][$untisID];
+
+						foreach ($unitData['configurations'] as $key => $configurationIndex)
+						{
+							if (empty($schedule['configurations'][$configurationIndex]))
+							{
+								continue;
+							}
+
+							$instanceConfiguration = json_decode($schedule['configurations'][$configurationIndex],
+								true);
+							$rooms                 = array_keys($instanceConfiguration['rooms']);
+
+							// The event (plan subject) no longer exists or is no longer associated with the unit
+							$eventsTable        = new Tables\Events;
+							$eventExists        = $eventsTable->load($instanceConfiguration['subjectID']);
+							$eventID            = $eventExists ? $eventsTable->id : false;
+							$eventConfiguration = empty($eventConfiguration = $unitConfiguration['subjects'][$eventID]) ?
+								false : $eventConfiguration = $unitConfiguration['subjects'][$eventID];
+							if (!$eventID or !$eventConfiguration)
+							{
+								unset($schedule['configurations'][$configurationIndex]);
+								continue;
+							}
+							if (!$groups = $eventConfiguration['pools'])
+							{
+								unset($unitConfiguration['subjects'][$eventID]);
+								continue;
+							}
+
+							$groups = array_keys($groups);
+
+							$instance = ['blockID' => $blockID, 'unitID' => $unit->id, 'eventID' => $eventID];
+
+							$instancesTable = new Tables\Instances;
+							$instancesTable->load($instance);
+							if (!$instanceID = $instancesTable->id)
+							{
+								$instance['methodID'] = empty($unitConfiguration['methodID']) ?
+									null : $unitConfiguration['methodID'];
+								$instance['delta']    = $unitData['delta'];
+								$instancesTable->save($instance);
+								if (!$instanceID = $instancesTable->id)
+								{
+									continue;
+								}
+							}
+
+							$persons = [];
+							foreach ($instanceConfiguration['teachers'] as $personID => $instancePersonDelta)
+							{
+								$personsTable = new Tables\Persons;
+								if (!$personsTable->load($personID)
+									or !array_key_exists($personID, $eventConfiguration['teachers']))
+								{
+									unset($instanceConfiguration['teachers'][$personID]);
+									continue;
+								}
+								$persons[$personID] = ['groups' => $groups, 'roleID' => 1, 'rooms' => $rooms];
+							}
+
+							if (empty($persons))
+							{
+								continue;
+							}
+
+							$schedule[$instanceID] = $persons;
+						}
+					}
+				}
+			}
+
+			unset($schedule['calendar']);
+			unset($schedule['configurations']);
+			unset($schedule['lessons']);
+		}*/
 	}
 
 	/**

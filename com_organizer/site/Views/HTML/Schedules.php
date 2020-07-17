@@ -36,7 +36,12 @@ class Schedules extends ListView
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_SCHEDULES'), 'calendars');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'schedules.add', false);
+		if (Helpers\Can::administrate())
+		{
+			$toolbar->appendButton('Standard', 'arrow-right-2', 'Move', 'schedules.move', false);
+			//$toolbar->appendButton('Standard', 'tree-2', 'Restructure', 'schedules.restructure', false);
+		}
+		/*$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'schedules.add', false);
 		$toolbar->appendButton(
 			'Standard',
 			'default',
@@ -58,7 +63,7 @@ class Schedules extends ListView
 			Helpers\Languages::_('ORGANIZER_DELETE'),
 			'schedules.delete',
 			true
-		);
+		);*/
 	}
 
 	/**

@@ -48,6 +48,52 @@ class Schedules extends Controller
 	}
 
 	/**
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return void
+	 */
+	public function move()
+	{
+		$model = new Models\Schedule;
+
+		if ($model->move())
+		{
+			Helpers\OrganizerHelper::message('Schedules moved.');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return void
+	 */
+	public function restructure()
+	{
+		$model = new Models\Schedule;
+
+		if ($model->restructure())
+		{
+			Helpers\OrganizerHelper::message('Schedules restructured!');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
 	 * performs access checks, activates/deactivates the chosen schedule in the
 	 * context of its term, and redirects to the schedule manager view
 	 *
