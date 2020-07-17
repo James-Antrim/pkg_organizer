@@ -119,24 +119,24 @@ abstract class BaseHTMLView extends BaseView
 				'url'    => 'index.php?option=com_organizer&amp;view=categories',
 				'active' => $viewName == 'categories'
 			];
-			/*$items[Languages::_('ORGANIZER_SCHEDULES')]  = [
+			$items[Languages::_('ORGANIZER_SCHEDULES')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=schedules',
 				'active' => $viewName == 'schedules'
 			];
 			$items[Languages::_('ORGANIZER_EVENTS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=events',
 				'active' => $viewName == 'events'
-			];*/
+			];
 			ksort($items);
 
 			// Uploading a schedule should always be the first menu item and will never be the active submenu item.
-			/*$prepend    = [
+			$prepend    = [
 				Languages::_('ORGANIZER_SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
 					'url'    => 'index.php?option=com_organizer&amp;view=schedule_edit',
 					'active' => false
 				]
 			];
-			$items = $prepend + $items;*/
+			$items = $prepend + $items;
 			foreach ($items as $key => $value)
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
