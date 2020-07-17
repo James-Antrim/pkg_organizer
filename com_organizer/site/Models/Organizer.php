@@ -37,22 +37,6 @@ class Organizer extends BaseModel
 	}*/
 
 	/**
-	 * Retrieves the defining information for the given term id.
-	 *
-	 * @param   int  $termID  the id of the term sought
-	 *
-	 * @return array the term
-	 */
-	/*private function getTerm($termID)
-	{
-		$terms = new Tables\Terms;
-		$terms->load($termID);
-
-		return empty($terms->id) ?
-			[] : ['id' => $terms->id, 'startDate' => $terms->startDate, 'endDate' => $terms->endDate];
-	}*/
-
-	/**
 	 * Migrates a configuration.
 	 *
 	 * @param   int  $configurationID  the id of the configuration to migrate

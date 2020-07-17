@@ -49,8 +49,7 @@ class Schedules extends ListModel
 		$authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
 		$query->where("o.id IN ($authorized)");
 
-		$this->setValueFilters($query, ['organizationID', 'termID', 'active']);
-
+		$this->setValueFilters($query, ['organizationID', 'termID', 's.active']);
 		$this->setOrdering($query);
 
 		return $query;
