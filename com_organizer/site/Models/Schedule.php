@@ -231,6 +231,74 @@ class Schedule extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
+	public function instanceRooms()
+	{
+		$aWeekAgo  = date('Y-m-d h:i:00', strtotime('-1 Week'));
+
+		$query = $this->_db->getQuery(true);
+		$query->select('DISTINCT ccm.id')
+			->from('#__thm_organizer_calendar_configuration_map AS ccm')
+			->innerJoin('#__thm_organizer_lesson_configurations AS lc ON lc.id = ccm.configurationID');
+
+		$query->where("lc.modified >= '$aWeekAgo'");
+
+		$this->_db->setQuery($query);
+
+		foreach (OrganizerHelper::executeQuery('loadColumn', []) as $mapID)
+		{
+			$query = "SELECT lc.configuration, i.id AS instanceID, lc.modified
+			FROM #__thm_organizer_lesson_configurations AS lc
+			INNER JOIN #__thm_organizer_calendar_configuration_map AS ccm ON ccm.configurationID = lc.id
+			INNER JOIN #__thm_organizer_calendar AS cal ON cal.id = ccm.calendarID
+			INNER JOIN #__organizer_blocks AS b ON b.date = cal.schedule_date AND b.startTime = cal.startTime AND b.endTime = cal.endTime
+			INNER JOIN #__organizer_units AS u ON u.id = cal.lessonID
+			INNER JOIN #__thm_organizer_lesson_subjects AS ls ON ls.id = lc.lessonID AND ls.lessonID = u.id
+			INNER JOIN #__organizer_events AS e ON e.id = ls.subjectID
+			INNER JOIN #__organizer_instances AS i ON i.blockID = b.id AND i.eventID = e.id AND i.unitID = u.id
+			WHERE ccm.id = $mapID;";
+
+			$this->_db->setQuery($query);
+
+			if (!$assoc = OrganizerHelper::executeQuery('loadAssoc', []))
+			{
+				continue;
+			}
+
+			$configuration = json_decode($assoc['configuration'], true);
+
+			foreach ($configuration['teachers'] as $personID => $personDelta)
+			{
+
+				$instancePersons = new Tables\InstancePersons;
+				$instancePersons->load(['instanceID' => $assoc['instanceID'], 'personID' => $personID]);
+
+				if ($assocID = $instancePersons->id)
+				{
+					foreach ($configuration['rooms'] as $roomID => $roomDelta)
+					{
+						$query = "INSERT IGNORE INTO #__organizer_instance_rooms (assocID, roomID, delta, modified)
+								VALUES ($assocID, $roomID, '$roomDelta', '{$assoc['modified']}');";
+						$this->_db->setQuery($query);
+
+						if (!OrganizerHelper::executeQuery('execute'))
+						{
+							OrganizerHelper::message($query, 'error');
+
+							return false;
+						}
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
 	public function instances()
 	{
 		$query = "INSERT IGNORE INTO #__organizer_instances (eventID, blockID, unitID, methodID, delta, modified)

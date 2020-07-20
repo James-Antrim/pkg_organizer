@@ -140,6 +140,29 @@ class Schedules extends Controller
 	}
 
 	/**
+	 * Moves instances from the old table to the new table.
+	 *
+	 * @return void
+	 */
+	public function instanceRooms()
+	{
+		$model = new Models\Schedule;
+
+		if ($model->instanceRooms())
+		{
+			Helpers\OrganizerHelper::message('Instance rooms linked.');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
 	 * Moves schedules from the old table to the new table.
 	 *
 	 * @return void
