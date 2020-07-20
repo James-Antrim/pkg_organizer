@@ -39,6 +39,7 @@ class Schedules extends ListView
 		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton('Standard', 'arrow-right-2', 'Move', 'schedules.move', false);
+			$toolbar->appendButton('Standard', 'square', 'Blocks', 'schedules.migrateBlocks', false);
 			//$toolbar->appendButton('Standard', 'tree-2', 'Restructure', 'schedules.restructure', false);
 		}
 		/*$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'schedules.add', false);

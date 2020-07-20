@@ -176,6 +176,20 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Migrates the blocks from the calendar table of the old component.
+	 * @return bool
+	 */
+	public function migrateBlocks()
+	{
+		$query = "INSERT IGNORE INTO #__organizer_blocks (`date`, `dow`, `startTime`, `endTime`)
+				SELECT DISTINCT schedule_date, WEEKDAY(schedule_date) + 1, startTime, endTime
+				FROM v7ocf_thm_organizer_calendar;";
+		$this->_db->setQuery($query);
+
+		return (bool) OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
 	 * Moves schedules from the old table to the new table.
 	 *
 	 * @return bool true on success, otherwise false

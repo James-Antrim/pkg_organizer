@@ -52,6 +52,29 @@ class Schedules extends Controller
 	 *
 	 * @return void
 	 */
+	public function migrateBlocks()
+	{
+		$model = new Models\Schedule;
+
+		if ($model->migrateBlocks())
+		{
+			Helpers\OrganizerHelper::message('Blocks moved.');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return void
+	 */
 	public function move()
 	{
 		$model = new Models\Schedule;
