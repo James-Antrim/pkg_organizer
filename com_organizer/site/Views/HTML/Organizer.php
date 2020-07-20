@@ -20,8 +20,6 @@ use Organizer\Helpers;
  */
 class Organizer extends BaseHTMLView
 {
-	public $menuItems;
-
 	/**
 	 * Method to get display
 	 *
@@ -49,9 +47,6 @@ class Organizer extends BaseHTMLView
 
 		if (Helpers\Can::administrate())
 		{
-			/*$toolbar = Toolbar::getInstance();
-			$this->getModel()->showConfigurationMigrationButtons($toolbar);
-			$this->getModel()->showScheduleMigrationButton($toolbar);*/
 			Helpers\HTML::setPreferencesButton();
 		}
 	}
