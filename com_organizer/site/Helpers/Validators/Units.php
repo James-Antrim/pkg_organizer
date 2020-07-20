@@ -256,7 +256,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		if (empty($model->events->$eventCode))
 		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_EVENT_INVALID'), $unitID, $eventID);
+			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_EVENT_INVALID'), $unitID, $eventCode);
 
 			return false;
 		}
@@ -508,6 +508,13 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		//$unit         = $model->units->$unitID;
 		$unit    = $model->schedule->lessons->$unitID;
+
+		if (empty($unit->eventID))
+		{
+			// The error would have already been put in place by event validation.
+			return false;
+		}
+
 		$eventID = $unit->eventID;
 		//$unit->groups = [];
 		$groups   = [];
@@ -566,6 +573,13 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		// Backwards compatibility
 		$personID = $model->persons->$personID->id;
 		$unit     = $model->schedule->lessons->$unitID;
+
+		if (empty($unit->eventID))
+		{
+			// Error message already added by the event validation.
+			return false;
+		}
+
 		$eventID  = $unit->eventID;
 
 		$model->schedule->lessons->$unitID->personID = $personID;
