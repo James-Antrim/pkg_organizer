@@ -1,3 +1,5 @@
+#Foreign key fields defaulting to null prevent cascading deletion
+
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_associations` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `organizationID` INT(11) UNSIGNED NOT NULL,
@@ -15,6 +17,23 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_associations` (
     INDEX `programID` (`programID`),
     INDEX `poolID` (`poolID`),
     INDEX `subjectID` (`subjectID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_blocks` (
+    `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `date`      DATE                NOT NULL,
+    `dow`       TINYINT(1) UNSIGNED NOT NULL,
+    `endTime`   TIME                NOT NULL,
+    `startTime` TIME                NOT NULL,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `entry` UNIQUE (`date`, `endTime`, `startTime`),
+    INDEX `date` (`date`),
+    INDEX `dow` (`dow`),
+    INDEX `endTime` (`endTime`),
+    INDEX `startTime` (`startTime`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -126,6 +145,46 @@ VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
        (35, 'Mittellila', 'Middling Purple', '#9975b9'),
        (36, 'Lila', 'Purple', '#7647a2'),
        (37, 'Dunkellila', 'Dark Purple', '#551A8B');
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_course_participants` (
+    `id`              INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `courseID`        INT(11) UNSIGNED NOT NULL,
+    `participantID`   INT(11)          NOT NULL,
+    `attended`        TINYINT(1) UNSIGNED DEFAULT 0,
+    `paid`            TINYINT(1) UNSIGNED DEFAULT 0,
+    `participantDate` DATETIME            DEFAULT NULL,
+    `status`          TINYINT(1) UNSIGNED DEFAULT 0,
+    `statusDate`      DATETIME            DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `courseID` (`courseID`),
+    INDEX `participantID` (`participantID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_courses` (
+    `id`               INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `alias`            VARCHAR(255)              DEFAULT NULL,
+    `campusID`         INT(11) UNSIGNED          DEFAULT NULL,
+    `name_de`          VARCHAR(150)              DEFAULT NULL,
+    `name_en`          VARCHAR(150)              DEFAULT NULL,
+    `termID`           INT(11) UNSIGNED NOT NULL,
+    `deadline`         INT(2) UNSIGNED           DEFAULT 0,
+    `description_de`   TEXT,
+    `description_en`   TEXT,
+    `fee`              INT(3) UNSIGNED           DEFAULT 0,
+    `groups`           VARCHAR(100)     NOT NULL DEFAULT '',
+    `maxParticipants`  INT(4) UNSIGNED           DEFAULT 1000,
+    `registrationType` INT(1) UNSIGNED           DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `alias` (`alias`),
+    INDEX `campusID` (`campusID`),
+    INDEX `termID` (`termID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_curricula` (
     `id`        INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -322,6 +381,82 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_groups` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_groups` (
+    `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `assocID`  INT(20) UNSIGNED NOT NULL COMMENT 'The instance to person association id.',
+    `groupID`  INT(11) UNSIGNED NOT NULL,
+    `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
+    `modified` TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `assocID` (`assocID`),
+    INDEX `groupID` (`groupID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_participants` (
+    `id`            INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `instanceID`    INT(20) UNSIGNED NOT NULL,
+    `participantID` INT(11)          NOT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `instanceID` (`instanceID`),
+    INDEX `participantID` (`participantID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_persons` (
+    `id`         INT(20) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `instanceID` INT(20) UNSIGNED    NOT NULL,
+    `personID`   INT(11) UNSIGNED    NOT NULL,
+    `roleID`     TINYINT(2) UNSIGNED NOT NULL DEFAULT 1,
+    `delta`      VARCHAR(10)         NOT NULL DEFAULT '',
+    `modified`   TIMESTAMP                    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `entry` UNIQUE (`instanceID`, `personID`),
+    INDEX `instanceID` (`instanceID`),
+    INDEX `personID` (`personID`),
+    INDEX `roleID` (`roleID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_rooms` (
+    `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `assocID`  INT(20) UNSIGNED NOT NULL COMMENT 'The instance to person association id.',
+    `roomID`   INT(11) UNSIGNED NOT NULL,
+    `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
+    `modified` TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `assocID` (`assocID`),
+    INDEX `roomID` (`roomID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instances` (
+    `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `blockID`  INT(11) UNSIGNED NOT NULL,
+    `eventID`  INT(11) UNSIGNED NOT NULL,
+    `methodID` INT(11) UNSIGNED          DEFAULT NULL,
+    `unitID`   INT(11) UNSIGNED NOT NULL,
+    `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
+    `modified` TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `entry` UNIQUE (`eventID`, `blockID`, `unitID`),
+    INDEX `blockID` (`blockID`),
+    INDEX `eventID` (`eventID`),
+    INDEX `methodID` (`methodID`),
+    INDEX `unitID` (`unitID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_methods` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`           VARCHAR(255) DEFAULT NULL,
@@ -385,6 +520,22 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_organizations` (
     UNIQUE INDEX `fullName_de` (`fullName_de`),
     UNIQUE INDEX `fullName_en` (`fullName_en`),
     INDEX `contactID` (`contactID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `v7ocf_organizer_participants` (
+    `id`        INT(11)             NOT NULL,
+    `forename`  VARCHAR(255)        NOT NULL DEFAULT '',
+    `surname`   VARCHAR(255)        NOT NULL DEFAULT '',
+    `address`   VARCHAR(255)        NOT NULL DEFAULT '',
+    `city`      VARCHAR(60)         NOT NULL DEFAULT '',
+    `notify`    TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+    `programID` INT(11) UNSIGNED             DEFAULT NULL,
+    `zipCode`   VARCHAR(60)         NOT NULL DEFAULT '',
+    PRIMARY KEY (`id`),
+    INDEX `programID` (`programID`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -641,31 +792,23 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subjects` (
     COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_units` (
-    `id`               INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `code`             INT(11) UNSIGNED NOT NULL,
-    `organizationID`   INT(11) UNSIGNED NOT NULL,
-    `termID`           INT(11) UNSIGNED NOT NULL,
-    `comment`          VARCHAR(255)              DEFAULT '',
-    `courseID`         INT(11) UNSIGNED          DEFAULT NULL,
-    `delta`            VARCHAR(10)      NOT NULL DEFAULT '',
-    `endDate`          DATE                      DEFAULT NULL,
-    `gridID`           INT(11) UNSIGNED          DEFAULT NULL,
-    `modified`         TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `runID`            INT(11) UNSIGNED          DEFAULT NULL,
-    `startDate`        DATE                      DEFAULT NULL,
-    `methodID`         INT(11) UNSIGNED          DEFAULT NULL COMMENT 'Dropped after the creation of instances.',
-    `campusID`         INT(11) UNSIGNED          DEFAULT NULL COMMENT 'Dropped after the creation of courses.',
-    `deadline`         INT(2) UNSIGNED           DEFAULT 0 COMMENT 'Dropped after the creation of courses.',
-    `fee`              INT(3) UNSIGNED           DEFAULT 0 COMMENT 'Dropped after the creation of courses.',
-    `maxParticipants`  INT(4) UNSIGNED           DEFAULT 1000 COMMENT 'Dropped after the creation of courses.',
-    `registrationType` INT(1) UNSIGNED           DEFAULT NULL,
+    `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `code`           INT(11) UNSIGNED NOT NULL,
+    `organizationID` INT(11) UNSIGNED NOT NULL,
+    `termID`         INT(11) UNSIGNED NOT NULL,
+    `comment`        VARCHAR(255)              DEFAULT '',
+    `courseID`       INT(11) UNSIGNED          DEFAULT NULL,
+    `delta`          VARCHAR(10)      NOT NULL DEFAULT '',
+    `endDate`        DATE                      DEFAULT NULL,
+    `gridID`         INT(11) UNSIGNED          DEFAULT NULL,
+    `modified`       TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `runID`          INT(11) UNSIGNED          DEFAULT NULL,
+    `startDate`      DATE                      DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `entry` (`code`, `organizationID`, `termID`),
-    INDEX `campusID` (`campusID`),
     INDEX `code` (`code`),
     INDEX `courseID` (`courseID`),
     INDEX `gridID` (`gridID`),
-    INDEX `methodID` (`methodID`),
     INDEX `organizationID` (`organizationID`),
     INDEX `runID` (`runID`),
     INDEX `termID` (`termID`)
@@ -708,6 +851,22 @@ ALTER TABLE `v7ocf_organizer_campuses`
         ON UPDATE CASCADE,
     ADD CONSTRAINT `campus_parentID_fk` FOREIGN KEY (`parentID`) REFERENCES `v7ocf_organizer_campuses` (`id`)
         ON DELETE SET NULL
+        ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_course_participants`
+    ADD CONSTRAINT `course_participant_courseID_fk` FOREIGN KEY (`courseID`) REFERENCES `v7ocf_organizer_courses` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `course_participant_participantID_fk` FOREIGN KEY (`participantID`) REFERENCES `v7ocf_organizer_participants` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_courses`
+    ADD CONSTRAINT `course_campusID_fk` FOREIGN KEY (`campusID`) REFERENCES `v7ocf_organizer_campuses` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `course_termID_fk` FOREIGN KEY (`termID`) REFERENCES `v7ocf_organizer_terms` (`id`)
+        ON DELETE CASCADE
         ON UPDATE CASCADE;
 
 ALTER TABLE `v7ocf_organizer_curricula`
@@ -767,6 +926,55 @@ ALTER TABLE `v7ocf_organizer_groups`
         ON DELETE SET NULL
         ON UPDATE CASCADE;
 
+ALTER TABLE `v7ocf_organizer_instance_groups`
+    ADD CONSTRAINT `instance_group_assocID_fk` FOREIGN KEY (`assocID`) REFERENCES `v7ocf_organizer_instance_persons` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `instance_group_groupID_fk` FOREIGN KEY (`groupID`) REFERENCES `v7ocf_organizer_groups` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_instance_participants`
+    ADD CONSTRAINT `instance_participant_instanceID_fk` FOREIGN KEY (`instanceID`) REFERENCES `v7ocf_organizer_instances` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `instance_participant_participantID_fk` FOREIGN KEY (`participantID`) REFERENCES `v7ocf_organizer_participants` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_instance_persons`
+    ADD CONSTRAINT `instance_person_instanceID_fk` FOREIGN KEY (`instanceID`) REFERENCES `v7ocf_organizer_instances` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `instance_person_personID_fk` FOREIGN KEY (`personID`) REFERENCES `v7ocf_organizer_persons` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `instance_person_roleID_fk` FOREIGN KEY (`roleID`) REFERENCES `v7ocf_organizer_roles` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_instance_rooms`
+    ADD CONSTRAINT `instance_room_assocID_fk` FOREIGN KEY (`assocID`) REFERENCES `v7ocf_organizer_instance_persons` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `instance_room_roomID_fk` FOREIGN KEY (`roomID`) REFERENCES `v7ocf_organizer_rooms` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_instances`
+    ADD CONSTRAINT `instance_blockID_fk` FOREIGN KEY (`blockID`) REFERENCES `v7ocf_organizer_blocks` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `instance_eventID_fk` FOREIGN KEY (`eventID`) REFERENCES `v7ocf_organizer_events` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `instance_methodID_fk` FOREIGN KEY (`methodID`) REFERENCES `v7ocf_organizer_methods` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `instance_unitID_fk` FOREIGN KEY (`unitID`) REFERENCES `v7ocf_organizer_units` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;
+
 ALTER TABLE `v7ocf_organizer_monitors`
     ADD CONSTRAINT `monitor_roomID_fk` FOREIGN KEY (`roomID`) REFERENCES `v7ocf_organizer_rooms` (`id`)
         ON DELETE SET NULL
@@ -789,6 +997,14 @@ ALTER TABLE `v7ocf_organizer_subjects`
         ON UPDATE CASCADE,
     ADD CONSTRAINT `subject_frequencyID_fk` FOREIGN KEY (`frequencyID`) REFERENCES `v7ocf_organizer_frequencies` (`id`)
         ON DELETE SET NULL
+        ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_participants`
+    ADD CONSTRAINT `participant_programID_fk` FOREIGN KEY (`programID`) REFERENCES `v7ocf_organizer_programs` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `participant_userID_fk` FOREIGN KEY (`id`) REFERENCES `v7ocf_users` (`id`)
+        ON DELETE CASCADE
         ON UPDATE CASCADE;
 
 ALTER TABLE `v7ocf_organizer_pools`
@@ -851,6 +1067,9 @@ ALTER TABLE `v7ocf_organizer_subjects`
         ON UPDATE CASCADE;
 
 ALTER TABLE `v7ocf_organizer_units`
+    ADD CONSTRAINT `unit_courseID_fk` FOREIGN KEY (`courseID`) REFERENCES `v7ocf_organizer_courses` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
     ADD CONSTRAINT `unit_gridID_fk` FOREIGN KEY (`gridID`) REFERENCES `v7ocf_organizer_grids` (`id`)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
