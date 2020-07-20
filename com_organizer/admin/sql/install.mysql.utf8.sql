@@ -156,6 +156,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_course_participants` (
     `status`          TINYINT(1) UNSIGNED DEFAULT 0,
     `statusDate`      DATETIME            DEFAULT NULL,
     PRIMARY KEY (`id`),
+    CONSTRAINT `entry` UNIQUE (`courseID`, `participantID`),
     INDEX `courseID` (`courseID`),
     INDEX `participantID` (`participantID`)
 )
@@ -388,6 +389,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_groups` (
     `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
     `modified` TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
+    CONSTRAINT `entry` UNIQUE (`assocID`, `groupID`),
     INDEX `assocID` (`assocID`),
     INDEX `groupID` (`groupID`)
 )
@@ -400,6 +402,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_participants` (
     `instanceID`    INT(20) UNSIGNED NOT NULL,
     `participantID` INT(11)          NOT NULL,
     PRIMARY KEY (`id`),
+    CONSTRAINT `entry` UNIQUE (`instanceID`, `participantID`),
     INDEX `instanceID` (`instanceID`),
     INDEX `participantID` (`participantID`)
 )
@@ -431,6 +434,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_rooms` (
     `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
     `modified` TIMESTAMP                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
+    CONSTRAINT `entry` UNIQUE (`assocID`, `roomID`),
     INDEX `assocID` (`assocID`),
     INDEX `roomID` (`roomID`)
 )
