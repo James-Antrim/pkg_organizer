@@ -48,15 +48,15 @@ class Schedules extends Controller
 	}
 
 	/**
-	 * Moves schedules from the old table to the new table.
+	 * Moves blocks from the old table to the new table.
 	 *
 	 * @return void
 	 */
-	public function migrateBlocks()
+	public function blocks()
 	{
 		$model = new Models\Schedule;
 
-		if ($model->migrateBlocks())
+		if ($model->blocks())
 		{
 			Helpers\OrganizerHelper::message('Blocks moved.');
 		}
@@ -71,17 +71,63 @@ class Schedules extends Controller
 	}
 
 	/**
-	 * Moves schedules from the old table to the new table.
+	 * Moves instances from the old table to the new table.
 	 *
 	 * @return void
 	 */
-	public function move()
+	public function instances()
 	{
 		$model = new Models\Schedule;
 
-		if ($model->move())
+		if ($model->instances())
 		{
-			Helpers\OrganizerHelper::message('Schedules moved.');
+			Helpers\OrganizerHelper::message('Instances created.');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
+	 * Moves instances from the old table to the new table.
+	 *
+	 * @return void
+	 */
+	public function instanceGroups()
+	{
+		$model = new Models\Schedule;
+
+		if ($model->instanceGroups())
+		{
+			Helpers\OrganizerHelper::message('Instance groups linked.');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
+	 * Moves instances from the old table to the new table.
+	 *
+	 * @return void
+	 */
+	public function instancePersons()
+	{
+		$model = new Models\Schedule;
+
+		if ($model->instancePersons())
+		{
+			Helpers\OrganizerHelper::message('Instance persons linked.');
 		}
 		else
 		{
@@ -105,6 +151,29 @@ class Schedules extends Controller
 		if ($model->restructure())
 		{
 			Helpers\OrganizerHelper::message('Schedules restructured!');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return void
+	 */
+	public function schedules()
+	{
+		$model = new Models\Schedule;
+
+		if ($model->schedules())
+		{
+			Helpers\OrganizerHelper::message('Schedules moved.');
 		}
 		else
 		{

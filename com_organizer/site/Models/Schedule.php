@@ -92,6 +92,20 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Migrates the blocks from the calendar table of the old component.
+	 * @return bool
+	 */
+	public function blocks()
+	{
+		$query = "INSERT IGNORE INTO #__organizer_blocks (`date`, `dow`, `startTime`, `endTime`)
+				SELECT DISTINCT schedule_date, WEEKDAY(schedule_date) + 1, startTime, endTime
+				FROM v7ocf_thm_organizer_calendar;";
+		$this->_db->setQuery($query);
+
+		return (bool) OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
 	 * Sets the selected schedule to inactive.
 	 *
 	 * @return bool
@@ -176,14 +190,19 @@ class Schedule extends BaseModel
 	}
 
 	/**
-	 * Migrates the blocks from the calendar table of the old component.
-	 * @return bool
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return bool true on success, otherwise false
 	 */
-	public function migrateBlocks()
+	public function instanceGroups()
 	{
-		$query = "INSERT IGNORE INTO #__organizer_blocks (`date`, `dow`, `startTime`, `endTime`)
-				SELECT DISTINCT schedule_date, WEEKDAY(schedule_date) + 1, startTime, endTime
-				FROM v7ocf_thm_organizer_calendar;";
+		$query = "INSERT IGNORE INTO #__organizer_instance_groups (assocID, groupID, delta, modified)
+				SELECT DISTINCT ip.id, lp.poolID, lp.delta, lp.modified
+				FROM #__thm_organizer_lesson_pools AS lp
+				INNER JOIN #__thm_organizer_lesson_subjects AS ls ON ls.id = lp.subjectID
+				INNER JOIN #__organizer_instances AS i ON i.eventID = ls.subjectID AND i.unitID = ls.lessonID
+				INNER JOIN #__organizer_instance_persons AS ip ON ip.instanceID = i.id
+				GROUP BY ip.id, lp.poolID;";
 		$this->_db->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('execute');
@@ -194,12 +213,33 @@ class Schedule extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function move()
+	public function instancePersons()
 	{
-		$query = "INSERT INTO #__organizer_schedules (id, organizationID, termID, userID, creationDate, creationTime, schedule, active)
-				SELECT id, departmentID, planningPeriodID, userID, creationDate, creationTime, schedule, active
-				FROM #__thm_organizer_schedules
-				WHERE id NOT IN (SELECT id FROM #__organizer_schedules);";
+		$query = "INSERT IGNORE INTO #__organizer_instance_persons (instanceID, personID, delta, modified)
+				SELECT DISTINCT i.id, lt.teacherID, lt.delta, lt.modified
+				FROM #__thm_organizer_lesson_teachers AS lt
+				INNER JOIN #__thm_organizer_lesson_subjects AS ls ON ls.id = lt.subjectID
+				INNER JOIN #__organizer_instances AS i ON i.eventID = ls.subjectID AND i.unitID = ls.lessonID
+				GROUP BY i.id, lt.teacherID;";
+		$this->_db->setQuery($query);
+
+		return (bool) OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function instances()
+	{
+		$query = "INSERT IGNORE INTO #__organizer_instances (eventID, blockID, unitID, methodID, delta, modified)
+				SELECT ls.subjectID, b.id, u.id, u.methodID, c.delta, c.modified
+				FROM #__thm_organizer_lesson_subjects AS ls
+				INNER JOIN #__organizer_units AS u ON u.id = ls.lessonID
+				INNER JOIN #__thm_organizer_calendar AS c ON c.lessonID = ls.lessonID
+				INNER JOIN #__organizer_blocks AS b ON b.date = c.schedule_date AND b.startTime = c.startTime AND b.endTime = c.endTime
+				GROUP BY ls.subjectID, b.id, u.id;";
 		$this->_db->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('execute');
@@ -358,6 +398,22 @@ class Schedule extends BaseModel
 			unset($schedule['configurations']);
 			unset($schedule['lessons']);
 		}*/
+	}
+
+	/**
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function schedules()
+	{
+		$query = "INSERT INTO #__organizer_schedules (id, organizationID, termID, userID, creationDate, creationTime, schedule, active)
+				SELECT id, departmentID, planningPeriodID, userID, creationDate, creationTime, schedule, active
+				FROM #__thm_organizer_schedules
+				WHERE id NOT IN (SELECT id FROM #__organizer_schedules);";
+		$this->_db->setQuery($query);
+
+		return (bool) OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
