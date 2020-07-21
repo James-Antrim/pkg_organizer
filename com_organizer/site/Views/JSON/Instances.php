@@ -10,6 +10,7 @@
 
 namespace Organizer\Views\JSON;
 
+use Exception;
 use Organizer\Helpers;
 
 /**
@@ -24,8 +25,17 @@ class Instances extends BaseView
 	 */
 	public function display()
 	{
-		$conditions = Helpers\Instances::getConditions();
-		$items      = Helpers\Instances::getItems($conditions);
+		try
+		{
+			$conditions = Helpers\Instances::getConditions();
+		}
+		catch (Exception $exc)
+		{
+			echo json_encode([]);
+			return;
+		}
+
+		$items = Helpers\Instances::getItems($conditions);
 		echo json_encode($items, JSON_UNESCAPED_UNICODE);
 	}
 }

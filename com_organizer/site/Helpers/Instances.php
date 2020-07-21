@@ -73,28 +73,32 @@ class Instances extends ResourceHelper
 		{
 
 			// Instance aggregates
-			if ($courseIDs = Input::getFilterIDs('course'))
+			$courseID = Input::getInt('courseID');
+			if ($courseIDs = $courseID ? [$courseID] : Input::getFilterIDs('course'))
 			{
 				$conditions['courseIDs'] = $courseIDs;
 			}
 
-			if ($organizationIDs = Input::getFilterIDs('organization'))
+			$organizationID = Input::getInt('organizationID');
+			if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization'))
 			{
 				$conditions['organizationIDs'] = $organizationIDs;
 			}
 
-			// Organization specific events
-			if ($eventIDs = Input::getFilterIDs('event'))
+			$eventID = Input::getInt('eventID');
+			if ($eventIDs = $eventID ? [$eventID] : Input::getFilterIDs('event'))
 			{
 				$conditions['eventIDs'] = $eventIDs;
 			}
 
-			if ($groupIDs = Input::getFilterIDs('group'))
+			$groupID = Input::getInt('groupID');
+			if ($groupIDs = $groupID ? [$groupID] : Input::getFilterIDs('group'))
 			{
 				$conditions['groupIDs'] = $groupIDs;
 			}
 
-			if ($personIDs = Input::getFilterIDs('person'))
+			$personID = Input::getInt('personID');
+			if ($personIDs = $personID ? [$personID] : Input::getFilterIDs('person'))
 			{
 				self::filterPersonIDs($personIDs, $conditions['userID']);
 				if (empty($personIDs))
@@ -104,13 +108,15 @@ class Instances extends ResourceHelper
 				$conditions['personIDs'] = $personIDs;
 			}
 
-			if ($roomIDs = Input::getFilterIDs('room'))
+			$roomID = Input::getInt('roomID');
+			if ($roomIDs = $roomID ? [$roomID] : Input::getFilterIDs('room'))
 			{
 				$conditions['roomIDs'] = $roomIDs;
 			}
 
 			// Documented and associated subjects
-			if ($subjectIDs = Input::getFilterIDs('subject'))
+			$subjectID = Input::getInt('subjectID');
+			if ($subjectIDs = $subjectID ? [$subjectID] : Input::getFilterIDs('subject'))
 			{
 				$conditions['subjectIDs'] = $subjectIDs;
 			}
