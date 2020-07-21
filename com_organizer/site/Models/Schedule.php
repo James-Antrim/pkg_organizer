@@ -544,6 +544,53 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Migrates changes made to planning in the last week
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function quickMigration()
+	{
+		$aWeekAgo = date('Y-m-d h:i:00', strtotime('-10 Minutes'));
+
+		if (!$this->blocks($aWeekAgo))
+		{
+			OrganizerHelper::message('Blocks failed.', 'error');
+
+			return false;
+		}
+
+		if (!$this->instances($aWeekAgo))
+		{
+			OrganizerHelper::message('Instances failed.', 'error');
+
+			return false;
+		}
+
+		if (!$this->instancePersons($aWeekAgo))
+		{
+			OrganizerHelper::message('Instance persons failed.', 'error');
+
+			return false;
+		}
+
+		if (!$this->instanceGroups($aWeekAgo))
+		{
+			OrganizerHelper::message('Instance groups failed.', 'error');
+
+			return false;
+		}
+
+		if (!$this->instanceRooms($aWeekAgo))
+		{
+			OrganizerHelper::message('Instance rooms failed.', 'error');
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Sets resources to removed which are no longer valid in the context of a recently activated/uploaded schedule.
 	 *
 	 * @param   int  $activeID  the if of the active schedule

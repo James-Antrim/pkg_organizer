@@ -21,7 +21,7 @@ class RoomOverview extends ListModel
 {
 	const DAY = 1, WEEK = 2;
 
-	protected $defaultLimit = 10;
+	protected $defaultLimit = 25;
 
 	protected $defaultOrdering = 'r.name';
 
@@ -38,11 +38,10 @@ class RoomOverview extends ListModel
 	{
 		parent::filterFilterForm($form);
 
-		$params = Helpers\Input::getParams();
-
-		if ($params->get('campusID', 0))
+		if (Helpers\Input::getParams()->get('campusID', 0))
 		{
 			$form->removeField('campusID', 'filter');
+			unset($this->filter_fields[array_search('campusID', $this->filter_fields)]);
 		}
 	}
 
@@ -102,6 +101,7 @@ class RoomOverview extends ListModel
 		if ($campusID = Helpers\Input::getParams()->get('campusID'))
 		{
 			$defaultGrid = Helpers\Campuses::getGridID($campusID);
+			$this->setState('filter.campusID', $campusID);
 		}
 
 		$this->setState('list.template', (int) $list->get('template', self::DAY));
