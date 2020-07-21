@@ -38,12 +38,9 @@ class Schedules extends ListView
 		$toolbar = Toolbar::getInstance();
 		if (Helpers\Can::administrate())
 		{
-			$toolbar->appendButton('Standard', 'arrow-right-2', 'Schedules', 'schedules.schedules', false);
-			$toolbar->appendButton('Standard', 'grid-2', 'Blocks', 'schedules.blocks', false);
-			$toolbar->appendButton('Standard', 'square', 'Instances', 'schedules.instances', false);
-			$toolbar->appendButton('Standard', 'user', 'Persons', 'schedules.instancePersons', false);
-			$toolbar->appendButton('Standard', 'tree-2', 'Groups', 'schedules.instanceGroups', false);
-			$toolbar->appendButton('Standard', 'enter', 'Rooms', 'schedules.instanceRooms', false);
+			$toolbar->appendButton('Standard', 'play', 'Move Schedules', 'schedules.moveSchedules', false);
+			$toolbar->appendButton('Standard', 'next', 'Migrate Resources', 'schedules.migrateResources', false);
+			$toolbar->appendButton('Standard', 'last', 'Migrate Schedules', 'schedules.migrateSchedules', false);
 			//$toolbar->appendButton('Standard', 'tree-2', 'Restructure', 'schedules.restructure', false);
 		}
 		/*$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'schedules.add', false);

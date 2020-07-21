@@ -92,14 +92,18 @@ class Schedule extends BaseModel
 	}
 
 	/**
-	 * Migrates the blocks from the calendar table of the old component.
-	 * @return bool
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @param   string  $date  the reference modification date
+	 *
+	 * @return bool true on success, otherwise false
 	 */
-	public function blocks()
+	private function blocks($date)
 	{
 		$query = "INSERT IGNORE INTO #__organizer_blocks (`date`, `dow`, `startTime`, `endTime`)
 				SELECT DISTINCT schedule_date, WEEKDAY(schedule_date) + 1, startTime, endTime
-				FROM v7ocf_thm_organizer_calendar;";
+				FROM v7ocf_thm_organizer_calendar
+				WHERE modified >= '$date';";
 		$this->_db->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('execute');
@@ -192,9 +196,11 @@ class Schedule extends BaseModel
 	/**
 	 * Moves schedules from the old table to the new table.
 	 *
+	 * @param   string  $date  the reference modification date
+	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function instanceGroups()
+	private function instanceGroups($date)
 	{
 		$query = "INSERT IGNORE INTO #__organizer_instance_groups (assocID, groupID, delta, modified)
 				SELECT DISTINCT ip.id, lp.poolID, lp.delta, lp.modified
@@ -202,6 +208,7 @@ class Schedule extends BaseModel
 				INNER JOIN #__thm_organizer_lesson_subjects AS ls ON ls.id = lp.subjectID
 				INNER JOIN #__organizer_instances AS i ON i.eventID = ls.subjectID AND i.unitID = ls.lessonID
 				INNER JOIN #__organizer_instance_persons AS ip ON ip.instanceID = i.id
+				WHERE lp.modified >= '$date'
 				GROUP BY ip.id, lp.poolID;";
 		$this->_db->setQuery($query);
 
@@ -211,15 +218,18 @@ class Schedule extends BaseModel
 	/**
 	 * Moves schedules from the old table to the new table.
 	 *
+	 * @param   string  $date  the reference modification date
+	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function instancePersons()
+	private function instancePersons($date)
 	{
 		$query = "INSERT IGNORE INTO #__organizer_instance_persons (instanceID, personID, delta, modified)
 				SELECT DISTINCT i.id, lt.teacherID, lt.delta, lt.modified
 				FROM #__thm_organizer_lesson_teachers AS lt
 				INNER JOIN #__thm_organizer_lesson_subjects AS ls ON ls.id = lt.subjectID
 				INNER JOIN #__organizer_instances AS i ON i.eventID = ls.subjectID AND i.unitID = ls.lessonID
+				WHERE lt.modified >= '$date'
 				GROUP BY i.id, lt.teacherID;";
 		$this->_db->setQuery($query);
 
@@ -229,18 +239,17 @@ class Schedule extends BaseModel
 	/**
 	 * Moves schedules from the old table to the new table.
 	 *
+	 * @param   string  $date  the reference modification date
+	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function instanceRooms()
+	private function instanceRooms($date)
 	{
-		$aWeekAgo  = date('Y-m-d h:i:00', strtotime('-1 Week'));
-
 		$query = $this->_db->getQuery(true);
 		$query->select('DISTINCT ccm.id')
 			->from('#__thm_organizer_calendar_configuration_map AS ccm')
-			->innerJoin('#__thm_organizer_lesson_configurations AS lc ON lc.id = ccm.configurationID');
-
-		$query->where("lc.modified >= '$aWeekAgo'");
+			->innerJoin('#__thm_organizer_lesson_configurations AS lc ON lc.id = ccm.configurationID')
+			->where("lc.modified >= '$date'");
 
 		$this->_db->setQuery($query);
 
@@ -297,9 +306,11 @@ class Schedule extends BaseModel
 	/**
 	 * Moves schedules from the old table to the new table.
 	 *
+	 * @param   string  $date  the reference modification date
+	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function instances()
+	private function instances($date)
 	{
 		$query = "INSERT IGNORE INTO #__organizer_instances (eventID, blockID, unitID, methodID, delta, modified)
 				SELECT ls.subjectID, b.id, u.id, u.methodID, c.delta, c.modified
@@ -307,6 +318,7 @@ class Schedule extends BaseModel
 				INNER JOIN #__organizer_units AS u ON u.id = ls.lessonID
 				INNER JOIN #__thm_organizer_calendar AS c ON c.lessonID = ls.lessonID
 				INNER JOIN #__organizer_blocks AS b ON b.date = c.schedule_date AND b.startTime = c.startTime AND b.endTime = c.endTime
+				WHERE c.modified >= '$date'
 				GROUP BY ls.subjectID, b.id, u.id;";
 		$this->_db->setQuery($query);
 
@@ -314,11 +326,58 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Migrates changes made to planning in the last week
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function migrateResources()
+	{
+		$aWeekAgo = date('Y-m-d h:i:00', strtotime('-1 Week'));
+
+		if (!$this->blocks($aWeekAgo))
+		{
+			OrganizerHelper::message('Blocks failed.', 'error');
+
+			return false;
+		}
+
+		if (!$this->instances($aWeekAgo))
+		{
+			OrganizerHelper::message('Instances failed.', 'error');
+
+			return false;
+		}
+
+		if (!$this->instancePersons($aWeekAgo))
+		{
+			OrganizerHelper::message('Instance persons failed.', 'error');
+
+			return false;
+		}
+
+		if (!$this->instanceGroups($aWeekAgo))
+		{
+			OrganizerHelper::message('Instance groups failed.', 'error');
+
+			return false;
+		}
+
+		if (!$this->instanceRooms($aWeekAgo))
+		{
+			OrganizerHelper::message('Instance rooms failed.', 'error');
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Restructures the schedules to the new structure.
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function restructure()
+	public function migrateSchedules()
 	{
 		return false;
 		/*$query = $this->_db->getQuery(true);
@@ -473,7 +532,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function schedules()
+	public function moveSchedules()
 	{
 		$query = "INSERT INTO #__organizer_schedules (id, organizationID, termID, userID, creationDate, creationTime, schedule, active)
 				SELECT id, departmentID, planningPeriodID, userID, creationDate, creationTime, schedule, active

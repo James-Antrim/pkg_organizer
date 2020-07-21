@@ -48,109 +48,17 @@ class Schedules extends Controller
 	}
 
 	/**
-	 * Moves blocks from the old table to the new table.
-	 *
-	 * @return void
-	 */
-	public function blocks()
-	{
-		$model = new Models\Schedule;
-
-		if ($model->blocks())
-		{
-			Helpers\OrganizerHelper::message('Blocks moved.');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=schedules";
-		$this->setRedirect($url);
-	}
-
-	/**
 	 * Moves instances from the old table to the new table.
 	 *
 	 * @return void
 	 */
-	public function instances()
+	public function migrateResources()
 	{
 		$model = new Models\Schedule;
 
-		if ($model->instances())
+		if ($model->migrateResources())
 		{
-			Helpers\OrganizerHelper::message('Instances created.');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=schedules";
-		$this->setRedirect($url);
-	}
-
-	/**
-	 * Moves instances from the old table to the new table.
-	 *
-	 * @return void
-	 */
-	public function instanceGroups()
-	{
-		$model = new Models\Schedule;
-
-		if ($model->instanceGroups())
-		{
-			Helpers\OrganizerHelper::message('Instance groups linked.');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=schedules";
-		$this->setRedirect($url);
-	}
-
-	/**
-	 * Moves instances from the old table to the new table.
-	 *
-	 * @return void
-	 */
-	public function instancePersons()
-	{
-		$model = new Models\Schedule;
-
-		if ($model->instancePersons())
-		{
-			Helpers\OrganizerHelper::message('Instance persons linked.');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=schedules";
-		$this->setRedirect($url);
-	}
-
-	/**
-	 * Moves instances from the old table to the new table.
-	 *
-	 * @return void
-	 */
-	public function instanceRooms()
-	{
-		$model = new Models\Schedule;
-
-		if ($model->instanceRooms())
-		{
-			Helpers\OrganizerHelper::message('Instance rooms linked.');
+			Helpers\OrganizerHelper::message('Resources migrated.');
 		}
 		else
 		{
@@ -167,11 +75,11 @@ class Schedules extends Controller
 	 *
 	 * @return void
 	 */
-	public function restructure()
+	public function migrateSchedules()
 	{
 		$model = new Models\Schedule;
 
-		if ($model->restructure())
+		if ($model->migrateSchedules())
 		{
 			Helpers\OrganizerHelper::message('Schedules restructured!');
 		}
@@ -190,11 +98,11 @@ class Schedules extends Controller
 	 *
 	 * @return void
 	 */
-	public function schedules()
+	public function moveSchedules()
 	{
 		$model = new Models\Schedule;
 
-		if ($model->schedules())
+		if ($model->moveSchedules())
 		{
 			Helpers\OrganizerHelper::message('Schedules moved.');
 		}
