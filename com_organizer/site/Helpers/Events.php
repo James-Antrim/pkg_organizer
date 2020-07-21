@@ -65,8 +65,9 @@ class Events extends ResourceHelper
 	public static function getUnits($eventID, $date, $interval = 'term')
 	{
 		$dbo   = Factory::getDbo();
+		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT u.id, u.comment, m.code AS method')
+		$query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method")
 			->from('#__organizer_units AS u')
 			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
 			->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')

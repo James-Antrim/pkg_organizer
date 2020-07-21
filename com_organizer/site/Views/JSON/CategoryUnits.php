@@ -24,8 +24,13 @@ class CategoryUnits extends BaseView
 	 */
 	public function display()
 	{
-		$date   = Helpers\Input::getString('date');
-		$date   = strtotime($date) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
+		$date = Helpers\Input::getString('date');
+		$date = strtotime($date) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
+
+		$intervals = ['day', 'week', 'term'];
+		$interval  = Helpers\Input::getString('interval');
+		$interval  = in_array($interval, $intervals) ? $interval : 'term';
+
 		$groups = [];
 
 		foreach (Helpers\Categories::getGroups(Helpers\Input::getInt('categoryID')) as $group)
@@ -38,7 +43,7 @@ class CategoryUnits extends BaseView
 				$event        = (object) $event;
 				$event->units = [];
 
-				foreach (Helpers\Events::getUnits($event->id, $date) as $unit)
+				foreach (Helpers\Events::getUnits($event->id, $date, $interval) as $unit)
 				{
 					$unit           = (object) $unit;
 					$event->units[] = $unit;
