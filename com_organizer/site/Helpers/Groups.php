@@ -22,6 +22,29 @@ class Groups extends Associated implements Selectable
 	static protected $resource = 'group';
 
 	/**
+	 * Retrieves the events associated with a group.
+	 *
+	 * @param $groupID
+	 *
+	 * @return array
+	 */
+	public static function getEvents($groupID)
+	{
+		$dbo   = Factory::getDbo();
+		$tag   = Languages::getTag();
+		$query = $dbo->getQuery(true);
+		$query->select("DISTINCT e.id, e.code, e.name_$tag AS name, e.description_$tag AS description")
+			->from('#__organizer_events AS e')
+			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
+			->where("groupID = $groupID");
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadAssocList', []);
+	}
+
+	/**
 	 * Retrieves the selectable options for the resource.
 	 *
 	 * @param   string  $access  any access restriction which should be performed
@@ -30,7 +53,7 @@ class Groups extends Associated implements Selectable
 	 */
 	public static function getOptions($access = '')
 	{
-		$categoryID = Input::getInt('categoryID');
+		$categoryID  = Input::getInt('categoryID');
 		$categoryIDs = $categoryID ? [$categoryID] : Input::getFilterIDs('category');
 		$tag         = Languages::getTag();
 		$name        = count($categoryIDs) === 1 ? "name_$tag" : "fullName_$tag";

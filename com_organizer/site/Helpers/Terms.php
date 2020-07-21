@@ -23,11 +23,13 @@ class Terms extends ResourceHelper implements Selectable
 	/**
 	 * Gets the id of the term whose dates encompass the current date
 	 *
+	 * @param   string  $date  the reference date
+	 *
 	 * @return int the id of the term for the dates used on success, otherwise 0
 	 */
-	public static function getCurrentID()
+	public static function getCurrentID($date = '')
 	{
-		$date  = date('Y-m-d');
+		$date  = ($date and strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 		$query->select('id')

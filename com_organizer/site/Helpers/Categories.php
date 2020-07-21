@@ -22,6 +22,26 @@ class Categories extends Associated implements Selectable
 	static protected $resource = 'category';
 
 	/**
+	 * Retrieves the groups associated with a category.
+	 *
+	 * @param $categoryID
+	 *
+	 * @return array
+	 */
+	public static function getGroups($categoryID)
+	{
+		$dbo   = Factory::getDbo();
+		$tag   = Languages::getTag();
+		$query = $dbo->getQuery(true);
+		$query->select("id, code, name_$tag AS name")
+			->from('#__organizer_groups AS g')
+			->where("categoryID = $categoryID");
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadAssocList', []);
+	}
+
+	/**
 	 * Retrieves the selectable options for the resource.
 	 *
 	 * @param   string  $access  any access restriction which should be performed
