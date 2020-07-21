@@ -2,7 +2,7 @@
 <form>
     <fields name="params" addfieldprefix="Organizer\Fields">
         <fieldset name="basic" label="ORGANIZER_SETTINGS">
-            <field name="campusID" type="Campuses" label="ORGANIZER_CAMPUS">
+            <field name="campusID" type="Campuses" label="CAMPUS">
                 <option value="">ALL_CAMPUSES</option>
             </field>
         </fieldset>

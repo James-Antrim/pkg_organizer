@@ -15,7 +15,6 @@ use Organizer\Helpers;
 $isSite    = Helpers\OrganizerHelper::getApplication()->isClient('site');
 $rows      = $this->rows;
 $iteration = 0;
-$query     = Uri::getInstance()->getQuery();
 
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 echo $this->subtitle;
@@ -26,7 +25,7 @@ echo $this->supplement;
 	<?php if ($isSite) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
-    <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm">
+    <form action="<?php echo Uri::current(); ?>" id="adminForm" method="post" name="adminForm">
 		<?php require_once 'filters.php'; ?>
         <table class="table table-striped organizer-table">
             <thead><?php echo $this->renderHeaders(); ?></thead>

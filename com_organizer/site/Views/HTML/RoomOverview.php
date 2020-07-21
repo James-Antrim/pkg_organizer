@@ -304,7 +304,7 @@ class RoomOverview extends TableView
 			$tip .= $instance['method'] ? " - {$instance['method']}" : '';
 			$tip .= '</span><br>';
 
-			$tip .= Helpers\Languages::_('ORGANIZER_ORGANISATION') . ":";
+			$tip .= Helpers\Languages::_('ORGANIZER_ORGANIZATION') . ":";
 			$tip .= strlen($instance['organization']) > 20 ? '<br>' : ' ';
 			$tip .= "{$instance['organization']}<br>";
 

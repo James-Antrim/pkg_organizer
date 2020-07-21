@@ -565,9 +565,10 @@ class Instances extends ResourceHelper
 	private static function setGroups(&$person, $conditions)
 	{
 		$dbo   = Factory::getDbo();
+		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$query->select('ig.groupID, ig.delta, g.code AS code, g.name, g.fullName, g.gridID')
+		$query->select("ig.groupID, ig.delta, g.code AS code, g.name_$tag AS name, g.fullName_$tag AS fullName, g.gridID")
 			->from('#__organizer_instance_groups AS ig')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 			->where("ig.assocID = {$person['assocID']}");
@@ -698,8 +699,8 @@ class Instances extends ResourceHelper
 		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
-		$query->select("s.id, s.abbreviation_$tag AS code, s.name_$tag AS fullName, s.shortName_$tag AS name")
-			->select("s.description_$tag AS description, s.organizationID")
+		$query->select("s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName, s.shortName_$tag AS name")
+			->select("s.description_$tag AS description")
 			->from('#__organizer_subjects AS s')
 			->innerJoin('#__organizer_subject_events AS se ON se.subjectID = s.id')
 			->where("se.eventID = {$instance['eventID']}");

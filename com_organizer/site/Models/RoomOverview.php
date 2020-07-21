@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
@@ -18,15 +19,13 @@ use Organizer\Helpers;
  */
 class RoomOverview extends ListModel
 {
-	use Helpers\Filtered;
-
 	const DAY = 1, WEEK = 2;
 
 	protected $defaultLimit = 10;
 
 	protected $defaultOrdering = 'r.name';
 
-	protected $filter_fields = ['buildingID', 'capacity', 'roomtypeID'];
+	protected $filter_fields = ['campusID', 'buildingID', 'capacity', 'roomtypeID'];
 
 	/**
 	 * Filters out form inputs which should not be displayed due to menu settings.
@@ -61,16 +60,16 @@ class RoomOverview extends ListModel
 			->select("t.id AS roomtypeID, t.name_$tag AS typeName, t.description_$tag AS typeDesc")
 			->from('#__organizer_rooms AS r')
 			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
-			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-			->leftJoin('#__organizer_campuses AS c ON (c.id = b.campusID OR c.parentID = b.campusID)');
+			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID');
 
 		// Only display public room types, i.e. no offices or toilets...
-		$query->where('t.public = 1');
+		$query->where('t.suppress = 0');
 
 		$this->setSearchFilter($query, ['r.name']);
-		$this->setValueFilters($query, ['campusID', 'buildingID', 'roomtypeID']);
+		$this->setValueFilters($query, ['buildingID', 'roomtypeID']);
+		$this->setCampusFilter($query, 'b');
 
-		if ($roomIDs = Helpers\Helpers\Input::getFilterIDs('room'))
+		if ($roomIDs = Helpers\Input::getFilterIDs('room'))
 		{
 			$query->where('r.id IN (' . implode(',', $roomIDs) . ')');
 		}
@@ -79,8 +78,6 @@ class RoomOverview extends ListModel
 		{
 			$query->where("r.capacity >= $capacity");
 		}
-
-		$this->addCampusFilter($query, 'b');
 
 		$query->order($this->defaultOrdering);
 
@@ -99,32 +96,16 @@ class RoomOverview extends ListModel
 	{
 		parent::populateState($ordering = null, $direction = null);
 
-		$app = Helpers\OrganizerHelper::getApplication();
-
-		$template = $app->getUserStateFromRequest($this->context . '.list.template', 'list.template', self::DAY, 'INT');
-		$this->setState('list.template', $template);
-
+		$list        = Helpers\Input::getListItems();
+		$date        = strtotime($list->get('date')) ? $list->get('date') : date('Y-m-d');
+		$defaultGrid = Helpers\Grids::getDefault();
 		if ($campusID = Helpers\Input::getParams()->get('campusID'))
 		{
-			$gridID = Helpers\Campuses::getGridID($campusID);
-		}
-		else
-		{
-			$gridID = Helpers\Grids::getDefault();
+			$defaultGrid = Helpers\Campuses::getGridID($campusID);
 		}
 
-		$gridID = $app->getUserStateFromRequest($this->context . '.list.gridID', 'list.gridID', $gridID, 'INT');
-		$this->setState('list.gridID', $gridID);
-
-		$defaultDate = date('Y-m-d');
-		$date        = $app->getUserStateFromRequest($this->context . '.list.gridID', 'list.date', $defaultDate);
-		if (strtotime($date))
-		{
-			$this->setState('list.date', $date);
-		}
-		else
-		{
-			$this->setState('list.date', $defaultDate);
-		}
+		$this->setState('list.template', (int) $list->get('template', self::DAY));
+		$this->setState('list.gridID', (int) $list->get('gridID', $defaultGrid));
+		$this->setState('list.date', $date);
 	}
 }

@@ -203,14 +203,9 @@ body.tmpl-index div.main .js-stools-container-list .js-stools-field-list {
 }
 
 .organizer-table .resource-column {
-    padding-left: .2rem;
-    padding-right: .2rem;
-    width: calc(2.8rem - .4rem);
-}
-
-.organizer-table .data-column .icon-square::before,
-.organizer-table .data-column .icon-grid::before {
-    color: #80ba24;
+    padding-left: .1rem;
+    padding-right: .1rem;
+    width: calc(4rem - .2rem);
 }
 
 .organizer-table .data-column span {
@@ -219,16 +214,16 @@ body.tmpl-index div.main .js-stools-container-list .js-stools-field-list {
 
 .organizer-table thead tr.level-2.columns-36 th.data-column,
 .organizer-table tbody tr.columns-36 td.data-column {
-    padding-left: .2rem;
-    padding-right: .2rem;
-    width: calc((100% - 2.8rem - (.4rem * 36)) / 36);
+    padding-left: .1rem;
+    padding-right: .1rem;
+    width: calc((100% - 4rem - (.2rem * 36)) / 36);
 }
 
 .organizer-table thead tr.level-2.columns-48 th.data-column,
 .organizer-table tbody tr.columns-48 td.data-column {
-    padding-left: 0rem;
-    padding-right: 0rem;
-    width: calc((100% - 2.8rem) / 48);
+    padding-left: 0;
+    padding-right: 0;
+    width: calc((100% - 4rem) / 48);
 }
 
 /* Tooltip styles specific to table views ****************************************************************************/

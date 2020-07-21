@@ -984,25 +984,6 @@ ALTER TABLE `v7ocf_organizer_monitors`
         ON DELETE SET NULL
         ON UPDATE CASCADE;
 
-ALTER TABLE `v7ocf_organizer_schedules`
-    ADD CONSTRAINT `schedule_organizationID_fk` FOREIGN KEY (`organizationID`) REFERENCES `v7ocf_organizer_organizations` (`id`)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    ADD CONSTRAINT `schedule_termID_fk` FOREIGN KEY (`termID`) REFERENCES `v7ocf_organizer_terms` (`id`)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    ADD CONSTRAINT `schedule_userID_fk` FOREIGN KEY (`userID`) REFERENCES `v7ocf_users` (`id`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE;
-
-ALTER TABLE `v7ocf_organizer_subjects`
-    ADD CONSTRAINT `subject_fieldID_fk` FOREIGN KEY (`fieldID`) REFERENCES `v7ocf_organizer_fields` (`id`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE,
-    ADD CONSTRAINT `subject_frequencyID_fk` FOREIGN KEY (`frequencyID`) REFERENCES `v7ocf_organizer_frequencies` (`id`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE;
-
 ALTER TABLE `v7ocf_organizer_participants`
     ADD CONSTRAINT `participant_programID_fk` FOREIGN KEY (`programID`) REFERENCES `v7ocf_organizer_programs` (`id`)
         ON DELETE SET NULL
@@ -1043,6 +1024,17 @@ ALTER TABLE `v7ocf_organizer_rooms`
         ON DELETE SET NULL
         ON UPDATE CASCADE,
     ADD CONSTRAINT `room_roomtypeID_fk` FOREIGN KEY (`roomtypeID`) REFERENCES `v7ocf_organizer_roomtypes` (`id`)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE;
+
+ALTER TABLE `v7ocf_organizer_schedules`
+    ADD CONSTRAINT `schedule_organizationID_fk` FOREIGN KEY (`organizationID`) REFERENCES `v7ocf_organizer_organizations` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `schedule_termID_fk` FOREIGN KEY (`termID`) REFERENCES `v7ocf_organizer_terms` (`id`)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    ADD CONSTRAINT `schedule_userID_fk` FOREIGN KEY (`userID`) REFERENCES `v7ocf_users` (`id`)
         ON DELETE SET NULL
         ON UPDATE CASCADE;
 
