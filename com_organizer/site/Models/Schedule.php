@@ -379,8 +379,7 @@ class Schedule extends BaseModel
 	 */
 	public function migrateSchedules()
 	{
-		return false;
-		/*$query = $this->_db->getQuery(true);
+		$query = $this->_db->getQuery(true);
 		$query->select('id')
 			->from('#__organizer_schedules')
 			->where("schedule LIKE '%lessons%'")
@@ -393,39 +392,45 @@ class Schedule extends BaseModel
 			return true;
 		}
 
-		$row  = new Tables\Schedules();
-		$term = new Tables\Terms();
-		$unit = new Tables\Units;
+		$bTable = new Tables\Blocks();
+		$eTable = new Tables\Events();
+		$iTable = new Tables\Instances();
+		$pTable = new Tables\Persons();
+		$sTable = new Tables\Schedules();
+		$tTable = new Tables\Terms();
+		$uTable = new Tables\Units();
 
 		foreach ($selection as $scheduleID)
 		{
-			if (!$row->load($scheduleID))
+			if (!$sTable->load($scheduleID))
 			{
 				continue;
 			}
 
-			$schedule = json_decode($row->schedule, true);
+			$schedule = json_decode($sTable->schedule, true);
 
 			unset($schedule['creationDate'],
 				$schedule['creationTime'],
-				$schedule['organizationID'],
+				$schedule['departmentID'],
 				$schedule['endDate'],
+				$schedule['organizationID'],
+				$schedule['planningPeriodID'],
 				$schedule['referenceID'],
 				$schedule['startDate'],
 				$schedule['termID']
 			);
 
-			if (!$term->load($row->termID))
+			if (!$tTable->load($sTable->termID))
 			{
 				return false;
 			}
 
-			$unitKeys = ['organizationID' => $row->organizationID, 'termID' => $row->termID];
+			$unitKeys = ['organizationID' => $sTable->organizationID, 'termID' => $sTable->termID];
 
 			foreach ($schedule['calendar'] as $date => $times)
 			{
 				// Remove empty dates and dates beyond the scope of the terms they were created for
-				if (empty($times) or $date < $term->startDate or $date > $term->endDate)
+				if (empty($times) or $date < $tTable->startDate or $date > $tTable->endDate)
 				{
 					unset($schedule['calendar'][$date]);
 					continue;
@@ -433,9 +438,13 @@ class Schedule extends BaseModel
 
 				foreach ($times as $blockTimes => $units)
 				{
-					if (!$blockID = $this->getBlockID($date, $blockTimes))
+					list($startTime, $endTime) = explode('-', $blockTimes);
+					$startTime = preg_replace('/([\d]{2})$/', ':${1}:00', $startTime);
+					$endTime   = preg_replace('/([\d]{2})$/', ':${1}:00', $endTime);
+
+					if (!$bTable->load(['date' => $date, 'startTime' => $startTime, 'endTime' => $endTime]))
 					{
-						unset($schedule['calendar'][$date][$times]);
+						unset($schedule['calendar'][$date][$blockTimes]);
 						continue;
 					}
 
@@ -443,79 +452,77 @@ class Schedule extends BaseModel
 					{
 						$unitKeys['code'] = $untisID;
 
-						if (!$unit->load($unitKeys))
+						if (!$uTable->load($unitKeys))
 						{
 							unset($schedule['calendar'][$date][$blockTimes][$untisID]);
 							continue;
 						}
 
-						$unitConfiguration = $schedule['lessons'][$untisID];
+						$uConfig = $schedule['lessons'][$untisID];
 
-						foreach ($unitData['configurations'] as $key => $configurationIndex)
+						foreach ($unitData['configurations'] as $key => $index)
 						{
-							if (empty($schedule['configurations'][$configurationIndex]))
+							if (empty($schedule['configurations'][$index]))
 							{
 								continue;
 							}
 
-							$instanceConfiguration = json_decode($schedule['configurations'][$configurationIndex],
-								true);
-							$rooms                 = array_keys($instanceConfiguration['rooms']);
+							$iConfig = json_decode($schedule['configurations'][$index], true);
+							$rooms   = array_keys($iConfig['rooms']);
 
-							// The event (plan subject) no longer exists or is no longer associated with the unit
-							$eventsTable        = new Tables\Events;
-							$eventExists        = $eventsTable->load($instanceConfiguration['subjectID']);
-							$eventID            = $eventExists ? $eventsTable->id : false;
-							$eventConfiguration = empty($eventConfiguration = $unitConfiguration['subjects'][$eventID]) ?
-								false : $eventConfiguration = $unitConfiguration['subjects'][$eventID];
-							if (!$eventID or !$eventConfiguration)
+							// The event no longer exists or is no longer associated with the unit
+							if (!$eTable->load($iConfig['subjectID']))
 							{
-								unset($schedule['configurations'][$configurationIndex]);
+								unset($schedule['configurations'][$index]);
 								continue;
 							}
-							if (!$groups = $eventConfiguration['pools'])
+
+							if (empty($uConfig['subjects'][$eTable->id]))
 							{
-								unset($unitConfiguration['subjects'][$eventID]);
+								unset($schedule['configurations'][$index]);
+								continue;
+							}
+
+							$eConfig = $uConfig['subjects'][$eTable->id];
+
+							if (!$groups = $eConfig['pools'])
+							{
+								unset($uConfig['subjects'][$eTable->id]);
 								continue;
 							}
 
 							$groups = array_keys($groups);
 
-							$instance = ['blockID' => $blockID, 'unitID' => $unit->id, 'eventID' => $eventID];
+							$instance = ['blockID' => $bTable->id, 'unitID' => $uTable->id, 'eventID' => $eTable->id];
 
-							$instancesTable = new Tables\Instances;
-							$instancesTable->load($instance);
-							if (!$instanceID = $instancesTable->id)
+							if (!$iTable->load($instance))
 							{
-								$instance['methodID'] = empty($unitConfiguration['methodID']) ?
-									null : $unitConfiguration['methodID'];
+								$instance['methodID'] = empty($uConfig['methodID']) ? null : $uConfig['methodID'];
 								$instance['delta']    = $unitData['delta'];
-								$instancesTable->save($instance);
-								if (!$instanceID = $instancesTable->id)
+
+								if (!$iTable->save($instance))
 								{
 									continue;
 								}
 							}
 
 							$persons = [];
-							foreach ($instanceConfiguration['teachers'] as $personID => $instancePersonDelta)
+
+							foreach (array_keys($iConfig['teachers']) as $personID)
 							{
-								$personsTable = new Tables\Persons;
-								if (!$personsTable->load($personID)
-									or !array_key_exists($personID, $eventConfiguration['teachers']))
+								if (!$pTable->load($personID) or !array_key_exists($personID, $eConfig['teachers']))
 								{
-									unset($instanceConfiguration['teachers'][$personID]);
+									unset($iConfig['teachers'][$personID]);
 									continue;
 								}
+
 								$persons[$personID] = ['groups' => $groups, 'roleID' => 1, 'rooms' => $rooms];
 							}
 
-							if (empty($persons))
+							if ($persons)
 							{
-								continue;
+								$schedule[$iTable->id] = $persons;
 							}
-
-							$schedule[$instanceID] = $persons;
 						}
 					}
 				}
@@ -524,7 +531,16 @@ class Schedule extends BaseModel
 			unset($schedule['calendar']);
 			unset($schedule['configurations']);
 			unset($schedule['lessons']);
-		}*/
+
+			$sTable->schedule = json_encode($schedule, JSON_UNESCAPED_UNICODE);
+
+			if (!$sTable->store())
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
