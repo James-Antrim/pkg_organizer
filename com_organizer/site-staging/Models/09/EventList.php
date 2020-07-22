@@ -595,7 +595,7 @@ class EventList extends FormModel
 				$dates = Helpers\Dates::getMonth($date);
 				break;
 			case 'semester':
-				$dates = Helpers\Dates::getSemester($date);
+				$dates = Helpers\Dates::getTerm($date);
 				break;
 			default:
 				$endDT = strtotime($this->state->get('endDate'));

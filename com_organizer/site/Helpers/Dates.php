@@ -129,13 +129,13 @@ class Dates
 	}
 
 	/**
-	 * Returns the end date and start date of the semester for the given date
+	 * Returns the end date and start date of the term for the given date
 	 *
 	 * @param   string  $date  the date in format Y-m-d
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getSemester($date)
+	public static function getTerm($date)
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);

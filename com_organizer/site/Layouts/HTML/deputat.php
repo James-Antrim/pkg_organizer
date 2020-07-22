@@ -106,6 +106,6 @@ $weeks = $this->params->get('deputat_weeks', 13);
 		}
 		?>
     </form>
-    <a href="https://www.thm.de/semesterplan-dev/service/werkzeug/deputat-fb-bau.html?format=xls">form</a>
+    <a href="https://www.thm.de/dev/organizer/service/werkzeug/deputat-fb-bau.html?format=xls">form</a>
     <a id="dLink" style="display:none;"></a>
 </div>

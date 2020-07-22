@@ -1755,7 +1755,7 @@ const ScheduleApp = function (variables) {
             deleteInstanceMode = document.getElementById('delete-mode-instance'),
             deleteMenu = instanceMenu.getElementsByClassName('delete')[0],
             deletePeriodMode = document.getElementById('delete-mode-period'),
-            deleteSemesterMode = document.getElementById('delete-mode-semester'),
+            deleteSemesterMode = document.getElementById('delete-mode-term'),
             descriptionSpan = instanceMenu.getElementsByClassName('description')[0],
             moduleSpan = instanceMenu.getElementsByClassName('module')[0],
             personsDiv = instanceMenu.getElementsByClassName('persons')[0],
@@ -1764,7 +1764,7 @@ const ScheduleApp = function (variables) {
             saveInstanceMode = document.getElementById('save-mode-instance'),
             saveMenu = instanceMenu.getElementsByClassName('save')[0],
             savePeriodMode = document.getElementById('save-mode-period'),
-            saveSemesterMode = document.getElementById('save-mode-semester'),
+            saveSemesterMode = document.getElementById('save-mode-term'),
             subjectSpan = instanceMenu.getElementsByClassName('subject')[0];
         let currentInstanceID = '0';
 
@@ -2551,7 +2551,7 @@ const ScheduleApp = function (variables) {
 
     /**
      * Save event in users personal schedule
-     * Choose between events of whole semester (1),
+     * Choose between events of whole term (1),
      * just this daytime (2)
      * or only the selected instance of a event (3).
      * @param {string} instanceID - calendar_configuration_map ID

@@ -122,9 +122,9 @@ class Groups extends Associated implements Selectable
 		}
 
 		$interval = Input::getCMD('interval');
-		if (!in_array($interval, ['day', 'week', 'month', 'semester']))
+		if (!in_array($interval, ['day', 'month', 'term', 'week']))
 		{
-			$interval = 'semester';
+			$interval = 'term';
 		}
 
 		$dbo = Factory::getDbo();
@@ -142,7 +142,7 @@ class Groups extends Associated implements Selectable
 		$dateTime = strtotime($date);
 		switch ($interval)
 		{
-			case 'semester':
+			case 'term':
 				$query->innerJoin('#__organizer_terms AS term ON term.id = l.termID')
 					->where("'$date' BETWEEN term.startDate AND term.endDate");
 				break;

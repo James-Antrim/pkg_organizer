@@ -9,7 +9,7 @@
  */
 
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
 
 $activeDay      = date('w');
 $categoryPH     = Languages::_('ORGANIZER_SELECT_CATEGORY');
@@ -286,7 +286,7 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
             <span class="description"></span>
         </div>
         <div class="save">
-            <button id="save-mode-semester">
+            <button id="save-mode-term">
 				<?php echo Languages::_('ORGANIZER_SAVE_EVENT_SEMESTER') ?>
             </button>
             <button id="save-mode-period">
@@ -297,7 +297,7 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
             </button>
         </div>
         <div class="delete">
-            <button id="delete-mode-semester">
+            <button id="delete-mode-term">
 				<?php echo Languages::_('ORGANIZER_DELETE_EVENT_SEMESTER') ?>
             </button>
             <button id="delete-mode-period">

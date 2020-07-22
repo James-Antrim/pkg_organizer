@@ -61,7 +61,7 @@ class Instances extends ResourceHelper
 		$conditions['date']       = Dates::standardizeDate(Input::getCMD('date'));
 
 		$interval               = Input::getCMD('interval', 'week');
-		$validRestrictions      = ['day', 'ics', 'month', 'semester', 'week'];
+		$validRestrictions      = ['day', 'ics', 'month', 'term', 'week'];
 		$conditions['interval'] = in_array($interval, $validRestrictions) ? $interval : 'week';
 
 		self::setDates($conditions);
@@ -79,12 +79,6 @@ class Instances extends ResourceHelper
 				$conditions['courseIDs'] = $courseIDs;
 			}
 
-			$organizationID = Input::getInt('organizationID');
-			if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization'))
-			{
-				$conditions['organizationIDs'] = $organizationIDs;
-			}
-
 			$eventID = Input::getInt('eventID');
 			if ($eventIDs = $eventID ? [$eventID] : Input::getFilterIDs('event'))
 			{
@@ -95,6 +89,12 @@ class Instances extends ResourceHelper
 			if ($groupIDs = $groupID ? [$groupID] : Input::getFilterIDs('group'))
 			{
 				$conditions['groupIDs'] = $groupIDs;
+			}
+
+			$organizationID = Input::getInt('organizationID');
+			if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization'))
+			{
+				$conditions['organizationIDs'] = $organizationIDs;
 			}
 
 			$personID = Input::getInt('personID');
@@ -114,11 +114,16 @@ class Instances extends ResourceHelper
 				$conditions['roomIDs'] = $roomIDs;
 			}
 
-			// Documented and associated subjects
 			$subjectID = Input::getInt('subjectID');
 			if ($subjectIDs = $subjectID ? [$subjectID] : Input::getFilterIDs('subject'))
 			{
 				$conditions['subjectIDs'] = $subjectIDs;
+			}
+
+			$unitID = Input::getInt('unitID');
+			if ($unitIDs = $unitID ? [$unitID] : [])
+			{
+				$conditions['unitIDs'] = $unitIDs;
 			}
 
 			if (!empty($conditions['organizationIDs']))
@@ -180,7 +185,7 @@ class Instances extends ResourceHelper
 				continue;
 			}
 
-			self::setCourse($instance, $conditions);
+			self::setCourse($instance);
 			self::setSubject($instance, $conditions);
 
 			$instances[] = $instance;
@@ -396,6 +401,12 @@ class Instances extends ResourceHelper
 			}
 		}
 
+		if (!empty($conditions['unitIDs']))
+		{
+			$unitIDs = implode(',', $conditions['unitIDs']);
+			$query->where("u.id IN ($unitIDs)");
+		}
+
 		return $query;
 	}
 
@@ -514,8 +525,8 @@ class Instances extends ResourceHelper
 				$dates = Dates::getMonth($date, $startDayNo, $endDayNo);
 				break;
 
-			case 'semester':
-				$dates = Dates::getSemester($date);
+			case 'term':
+				$dates = Dates::getTerm($date);
 				break;
 
 			case 'ics':

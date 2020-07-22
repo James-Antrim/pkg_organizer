@@ -79,7 +79,7 @@ function handleInterval()
 
     switch (drValue)
     {
-        case 'semester':
+        case 'term':
             dateContainer.hide();
             periodsContainer.show();
             useInput.val('termIDs');
