@@ -61,7 +61,10 @@ class Groups extends Associated implements Selectable
 
 		foreach (self::getResources() as $group)
 		{
-			$options[] = HTML::_('select.option', $group['id'], $group[$name]);
+			if ($group['active'])
+			{
+				$options[] = HTML::_('select.option', $group['id'], $group[$name]);
+			}
 		}
 
 		uasort($options, function ($optionOne, $optionTwo) {

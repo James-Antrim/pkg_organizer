@@ -37,9 +37,10 @@ class Persons extends ListModel
 			->leftJoin('#__organizer_associations AS a ON a.personID = p.id')
 			->leftJoin('#__organizer_organizations AS o ON o.id = a.id');
 
+		$this->setActiveFilter($query, 'p');
 		$this->setSearchFilter($query, ['surname', 'forename', 'username', 'code']);
 		$this->setIDFilter($query, 'organizationID', 'filter.organizationID');
-		$this->setValueFilters($query, ['p.active', 'p.suppress']);
+		$this->setValueFilters($query, ['p.suppress']);
 		$this->setOrdering($query);
 
 		return $query;

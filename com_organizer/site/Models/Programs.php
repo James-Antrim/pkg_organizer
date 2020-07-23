@@ -55,12 +55,13 @@ class Programs extends ListModel
 	{
 		$query = Helpers\Programs::getQuery();
 
+		$this->setActiveFilter($query, 'p');
 		$this->setOrganizationFilter($query, 'program', 'p');
 
 		$searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
 		$this->setSearchFilter($query, $searchColumns);
 
-		$this->setValueFilters($query, ['active', 'degreeID', 'frequencyID', 'accredited']);
+		$this->setValueFilters($query, ['degreeID', 'frequencyID', 'accredited']);
 
 		$this->setOrdering($query);
 

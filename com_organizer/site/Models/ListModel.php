@@ -266,6 +266,24 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
+	 * Sets a campus filter for a given resource.
+	 *
+	 * @param   JDatabaseQuery  $query  the query to modify
+	 * @param   string          $alias  the alias for the linking table
+	 */
+	public function setActiveFilter($query, $alias)
+	{
+		$status = (int) $this->state->get('filter.active');
+
+		if ($status === -1)
+		{
+			return;
+		}
+
+		$query->where("$alias.active = $status");
+	}
+
+	/**
 	 * Adds a date status filter for a given resource.
 	 *
 	 * @param   JDatabaseQuery  $query   the query to modify

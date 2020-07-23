@@ -29,7 +29,10 @@ class Rooms extends ResourceHelper implements Selectable
 		$options = [];
 		foreach (self::getResources() as $room)
 		{
-			$options[] = HTML::_('select.option', $room['id'], $room['name']);
+			if ($room['active'])
+			{
+				$options[] = HTML::_('select.option', $room['id'], $room['name']);
+			}
 		}
 
 		return $options;

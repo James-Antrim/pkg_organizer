@@ -16,8 +16,8 @@
                table="organizer_programs" textcolumn="accredited" valuecolumn="accredited">
             <option value="">ALL_ACCREDITATION_YEARS</option>
         </field>
-        <field name="active" type="Options" label="ACTIVE" onchange="this.form.submit();">
-            <option value="">ALL_STATES</option>
+        <field name="active" type="Options" label="ACTIVE" default="1" onchange="this.form.submit();">
+            <option value="-1">ALL_STATES</option>
             <option value="1">ACTIVE</option>
             <option value="0">INACTIVE</option>
         </field>

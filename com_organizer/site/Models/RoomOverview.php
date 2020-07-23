@@ -59,7 +59,9 @@ class RoomOverview extends ListModel
 			->select("t.id AS roomtypeID, t.name_$tag AS typeName, t.description_$tag AS typeDesc")
 			->from('#__organizer_rooms AS r')
 			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
-			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID');
+			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+			->where('r.active = 1')
+			->where('t.suppress = 0');
 
 		// Only display public room types, i.e. no offices or toilets...
 		$query->where('t.suppress = 0');

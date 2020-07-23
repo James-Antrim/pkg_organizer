@@ -29,7 +29,7 @@ trait Activated
 		$app     = Helpers\OrganizerHelper::getApplication();
 		$filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
 
-		if (!array_key_exists('active', $filters))
+		if (!array_key_exists('active', $filters) or $filters['active'] === '')
 		{
 			$this->setState('filter.active', 1);
 		}

@@ -54,7 +54,10 @@ class Categories extends Associated implements Selectable
 		$options = [];
 		foreach (self::getResources($access) as $category)
 		{
-			$options[] = HTML::_('select.option', $category['id'], $category[$name]);
+			if ($category['active'])
+			{
+				$options[] = HTML::_('select.option', $category['id'], $category[$name]);
+			}
 		}
 
 		uasort($options, function ($optionOne, $optionTwo) {

@@ -262,11 +262,14 @@ class Persons extends Associated implements Selectable
 		$options = [];
 		foreach (self::getResources() as $person)
 		{
-			$name     = $person['surname'];
-			$forename = trim($person['forename']);
-			$name     .= $forename ? ", $forename" : '';
+			if ($person['active'])
+			{
+				$name     = $person['surname'];
+				$forename = trim($person['forename']);
+				$name     .= $forename ? ", $forename" : '';
 
-			$options[] = HTML::_('select.option', $person['id'], $name);
+				$options[] = HTML::_('select.option', $person['id'], $name);
+			}
 		}
 
 		return $options;
@@ -286,7 +289,8 @@ class Persons extends Associated implements Selectable
 			return [];
 		}
 
-		$organizationIDs = Input::getFilterIDs('organization');
+		$organizationID  = Input::getInt('organizationID');
+		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
 		$thisPersonID    = self::getIDByUserID();
 		if (empty($organizationIDs) and empty($thisPersonID))
 		{
@@ -306,7 +310,6 @@ class Persons extends Associated implements Selectable
 
 		$query->select('DISTINCT p.*')
 			->from('#__organizer_persons AS p')
-			->innerJoin('#__organizer_instance_persons AS ip ON ip.personID = p.id')
 			->where('p.active = 1')
 			->order('p.surname, p.forename');
 
@@ -327,7 +330,8 @@ class Persons extends Associated implements Selectable
 			if (!empty($selectedPrograms))
 			{
 				$categoryIDs = "'" . str_replace(',', "', '", $selectedCategories) . "'";
-				$query->innerJoin('#__organizer_instance_groups AS ig ON ig.accocID = ip.id')
+				$query->innerJoin('#__organizer_instance_persons AS ip ON ip.personID = p.id')
+					->innerJoin('#__organizer_instance_groups AS ig ON ig.accocID = ip.id')
 					->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
 
 				$where .= " AND g.categoryID in ($categoryIDs)";

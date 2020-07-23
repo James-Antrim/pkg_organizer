@@ -42,8 +42,9 @@ class Rooms extends ListModel
 			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
 			->leftJoin('#__organizer_campuses AS c ON (c.id = b.campusID OR c.parentID = b.campusID)');
 
+		$this->setActiveFilter($query, 'r');
 		$this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en']);
-		$this->setValueFilters($query, ['r.active', 'buildingID', 'roomtypeID']);
+		$this->setValueFilters($query, ['buildingID', 'roomtypeID']);
 		$this->setCampusFilter($query, 'b');
 
 		$this->setOrdering($query);

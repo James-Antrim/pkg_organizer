@@ -41,8 +41,9 @@ class Groups extends ListModel
 			->innerJoin('#__organizer_associations AS a ON a.groupID = gr.id')
 			->where('(a.organizationID IN (' . implode(',', $authorized) . ') OR a.organizationID IS NULL)');
 
+		$this->setActiveFilter($query, 'gr');
 		$this->setSearchFilter($query, ['gr.fullName', 'gr.name', 'gr.code']);
-		$this->setValueFilters($query, ['gr.active', 'gr.categoryID', 'a.organizationID', 'gr.gridID']);
+		$this->setValueFilters($query, ['gr.categoryID', 'a.organizationID', 'gr.gridID']);
 
 		$this->setOrdering($query);
 

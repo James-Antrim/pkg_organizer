@@ -40,8 +40,9 @@ class Categories extends ListModel
 		$authorized = implode(",", Helpers\Can::scheduleTheseOrganizations());
 		$query->where("a.organizationID IN ($authorized)");
 
+		$this->setActiveFilter($query, 'cat');
 		$this->setSearchFilter($query, ['cat.name_de', 'cat.name_en', 'cat.code']);
-		$this->setValueFilters($query, ['active', 'organizationID', 'programID']);
+		$this->setValueFilters($query, ['organizationID', 'programID']);
 		$this->setOrdering($query);
 
 		return $query;
