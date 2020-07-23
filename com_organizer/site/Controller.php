@@ -160,7 +160,7 @@ class Controller extends BaseController
 	 */
 	public function edit()
 	{
-		$this->input->set('view', "{$this->resource}_edit");
+		Helpers\Input::set('view', "{$this->resource}_edit");
 		parent::display();
 	}
 
@@ -308,7 +308,7 @@ class Controller extends BaseController
 		}
 
 		// Reliance on POST requires a different method of redirection
-		$this->input->set('view', "{$this->resource}_merge");
+		Helpers\Input::set('view', "{$this->resource}_merge");
 		parent::display();
 	}
 

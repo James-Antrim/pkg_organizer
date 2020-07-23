@@ -449,4 +449,25 @@ class Input
 
 		return array_filter($idValues);
 	}
+
+	/**
+	 * Sets an input property with a value.
+	 *
+	 * @param   string  $property  the name of the property to set
+	 * @param   mixed   $value     the value to set to the property
+	 * @param   string  $method    the method group of the property
+	 *
+	 * @return void
+	 */
+	public static function set($property, $value, $method = '')
+	{
+		if ($method)
+		{
+			self::getInput()->$method->set($property, $value);
+
+			return;
+		}
+
+		self::getInput()->set($property, $value);
+	}
 }

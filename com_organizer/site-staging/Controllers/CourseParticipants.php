@@ -14,8 +14,12 @@ namespace Organizer\Controllers;
 use Exception;
 use Joomla\CMS\Router\Route;
 use Organizer\Helpers;
-use Organizer\Helpers\Input; // Exception for frequency of use
-use Organizer\Helpers\OrganizerHelper; // Exception for frequency of use
+use Organizer\Helpers\Input;
+
+// Exception for frequency of use
+use Organizer\Helpers\OrganizerHelper;
+
+// Exception for frequency of use
 use Organizer\Models;
 
 trait CourseParticipants
@@ -138,8 +142,8 @@ trait CourseParticipants
 	public function printBadges()
 	{
 		// Reliance on POST requires a different method of redirection
-		$this->input->set('format', 'pdf');
-		$this->input->set('view', 'badges');
+		Helpers\Input::set('format', 'pdf');
+		Helpers\Input::set('view', 'badges');
 		parent::display();
 	}
 
