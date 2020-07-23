@@ -121,7 +121,7 @@ class Instances extends ResourceHelper
 			}
 
 			$unitID = Input::getInt('unitID');
-			if ($unitIDs = $unitID ? [$unitID] : [])
+			if ($unitIDs = $unitID ? [$unitID] : Input::getIntCollection('unitIDs'))
 			{
 				$conditions['unitIDs'] = $unitIDs;
 			}
@@ -404,7 +404,7 @@ class Instances extends ResourceHelper
 		if (!empty($conditions['unitIDs']))
 		{
 			$unitIDs = implode(',', $conditions['unitIDs']);
-			$query->where("u.id IN ($unitIDs)");
+			$query->where("i.unitID IN ($unitIDs)");
 		}
 
 		return $query;
