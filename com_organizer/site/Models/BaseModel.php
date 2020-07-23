@@ -21,6 +21,8 @@ abstract class BaseModel extends BaseDatabaseModel
 {
 	use Named;
 
+	protected $selected = [];
+
 	/**
 	 * BaseModel constructor.
 	 *
@@ -95,5 +97,42 @@ abstract class BaseModel extends BaseDatabaseModel
 		$table = $this->getTable();
 
 		return $table->save($data) ? $table->id : false;
+	}
+
+	/**
+	 * Alters the state of a binary property.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
+	 */
+	public function toggle()
+	{
+		$resourceID = Helpers\Input::getID();
+
+		// Necessary for access checks in mergeable resources.
+		$this->selected = [$resourceID];
+
+		if (!$this->allow())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$attribute = Helpers\Input::getCMD('attribute');
+		$table     = $this->getTable();
+
+		$tableFields = $table->getFields();
+		if (array_key_exists($attribute, $tableFields))
+		{
+			if (!$table->load($resourceID))
+			{
+				return false;
+			}
+
+			$table->$attribute = !$table->$attribute;
+
+			return $table->store();
+		}
+
+		return false;
 	}
 }

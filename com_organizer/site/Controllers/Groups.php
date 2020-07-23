@@ -21,6 +21,8 @@ use Organizer\Models;
  */
 class Groups extends Controller
 {
+	use Activated;
+
 	protected $listView = 'groups';
 
 	protected $resource = 'group';

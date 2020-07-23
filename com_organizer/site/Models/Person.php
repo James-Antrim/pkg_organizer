@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Exception;
+use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -24,6 +25,54 @@ class Person extends BaseModel
 	protected $resource = 'person';
 
 	/**
+	 * Activates persons by id if a selection was made, otherwise by use in the instance_persons table.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
+	 */
+	public function activate()
+	{
+		if ($this->selected = Helpers\Input::getSelectedIDs())
+		{
+			if (!$this->allow())
+			{
+				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			}
+
+			$person = new Tables\Persons();
+			foreach ($this->selected as $selectedID)
+			{
+				if ($person->load($selectedID))
+				{
+					$person->active = 1;
+					$person->store();
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
+		if (!$allowed = Helpers\Can::edit('persons'))
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$dbo = Factory::getDbo();
+
+		$subQuery = $dbo->getQuery(true);
+		$subQuery->select('DISTINCT personID')->from('#__organizer_instance_persons');
+
+		$query = $dbo->getQuery(true);
+		$query->update('#__organizer_persons')->set('active = 1')->where("id IN ($subQuery)");
+		$dbo->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
 	 * Provides user access checks to persons
 	 *
 	 * @return boolean  true if the user may edit the given resource, otherwise false
@@ -31,6 +80,54 @@ class Person extends BaseModel
 	protected function allow()
 	{
 		return Helpers\Can::edit('persons');
+	}
+
+	/**
+	 * Deactivates persons by id if a selection was made, otherwise by lack of use in the instance_persons table.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
+	 */
+	public function deactivate()
+	{
+		if ($this->selected = Helpers\Input::getSelectedIDs())
+		{
+			if (!$this->allow())
+			{
+				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			}
+
+			$person = new Tables\Persons();
+			foreach ($this->selected as $selectedID)
+			{
+				if ($person->load($selectedID))
+				{
+					$person->active = 0;
+					$person->store();
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
+		if (!$allowed = Helpers\Can::edit('persons'))
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$dbo = Factory::getDbo();
+
+		$subQuery = $dbo->getQuery(true);
+		$subQuery->select('DISTINCT personID')->from('#__organizer_instance_persons');
+
+		$query = $dbo->getQuery(true);
+		$query->update('#__organizer_persons')->set('active = 0')->where("id NOT IN ($subQuery)");
+		$dbo->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -59,7 +156,8 @@ class Person extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		if (!$this->allow())
 		{

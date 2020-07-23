@@ -24,8 +24,9 @@ class Persons extends ListView
 		'surname'        => 'link',
 		'forename'       => 'link',
 		'username'       => 'link',
-		'code'           => 'link',
-		'organizationID' => 'link'
+		'active'         => 'value',
+		'organizationID' => 'link',
+		'code'           => 'link'
 	];
 
 	/**
@@ -39,6 +40,20 @@ class Persons extends ListView
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'persons.add', false);
 		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'persons.edit', true);
+		$toolbar->appendButton(
+			'Standard',
+			'eye-open',
+			Helpers\Languages::_('ORGANIZER_ACTIVATE'),
+			'persons.activate',
+			false
+		);
+		$toolbar->appendButton(
+			'Standard',
+			'eye-close',
+			Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
+			'persons.deactivate',
+			false
+		);
 
 		if (Helpers\Can::administrate())
 		{
@@ -82,8 +97,9 @@ class Persons extends ListView
 			'surname'        => Languages::_('ORGANIZER_SURNAME'),
 			'forename'       => Languages::_('ORGANIZER_FORENAME'),
 			'username'       => Languages::_('ORGANIZER_USERNAME'),
-			't.code'         => Languages::_('ORGANIZER_UNTIS_ID'),
-			'organizationID' => Languages::_('ORGANIZER_ORGANIZATION')
+			'active'         => Helpers\Languages::_('ORGANIZER_ACTIVE'),
+			'organizationID' => Languages::_('ORGANIZER_ORGANIZATION'),
+			't.code'         => Languages::_('ORGANIZER_UNTIS_ID')
 		];
 
 		$this->headers = $headers;
@@ -104,7 +120,9 @@ class Persons extends ListView
 		{
 			$item->forename = empty($item->forename) ? '' : $item->forename;
 			$item->username = empty($item->username) ? '' : $item->username;
-			$item->code     = empty($item->code) ? '' : $item->code;
+
+			$tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
+			$item->active = $this->getToggle('persons', $item->id, $item->active, $tip, 'active');
 
 			if (!$organizations = Helpers\Persons::getOrganizationNames($item->id))
 			{
@@ -118,6 +136,8 @@ class Persons extends ListView
 			{
 				$item->organizationID = Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
 			}
+
+			$item->code = empty($item->code) ? '' : $item->code;
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;

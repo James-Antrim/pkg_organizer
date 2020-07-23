@@ -18,7 +18,13 @@ use Organizer\Helpers;
  */
 class Categories extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'code' => 'link', 'name' => 'link', 'program' => 'link'];
+	protected $rowStructure = [
+		'checkbox' => '',
+		'name'     => 'link',
+		'active'   => 'value',
+		'program'  => 'link',
+		'code'     => 'link'
+	];
 
 	/**
 	 * Method to generate buttons for user interaction
@@ -30,6 +36,20 @@ class Categories extends ListView
 		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_CATEGORIES'), 'list-2');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'categories.edit', true);
+		$toolbar->appendButton(
+			'Standard',
+			'eye-open',
+			Helpers\Languages::_('ORGANIZER_ACTIVATE'),
+			'categories.activate',
+			false
+		);
+		$toolbar->appendButton(
+			'Standard',
+			'eye-close',
+			Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
+			'categories.deactivate',
+			false
+		);
 
 		if (Helpers\Can::administrate())
 		{
@@ -64,9 +84,10 @@ class Categories extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox' => '',
-			'code'     => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
 			'name'     => Helpers\HTML::sort('DISPLAY_NAME', 'name', $direction, $ordering),
-			'program'  => Helpers\Languages::_('ORGANIZER_PROGRAM')
+			'active'   => Helpers\Languages::_('ORGANIZER_ACTIVE'),
+			'program'  => Helpers\Languages::_('ORGANIZER_PROGRAM'),
+			'code'     => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering)
 		];
 
 		$this->headers = $headers;
@@ -85,6 +106,9 @@ class Categories extends ListView
 
 		foreach ($this->items as $item)
 		{
+			$tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
+			$item->active = $this->getToggle('categories', $item->id, $item->active, $tip, 'active');
+
 			$item->program           = Helpers\Categories::getName($item->id);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;

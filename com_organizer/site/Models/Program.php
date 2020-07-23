@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Exception;
+use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -21,9 +22,77 @@ class Program extends CurriculumResource
 {
 	use Associated, SuperOrdinate;
 
-	protected $class = 'Programs';
-
 	protected $resource = 'program';
+
+	/**
+	 * Activates programs by id.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
+	 */
+	public function activate()
+	{
+		if (!$selected = Helpers\Input::getSelectedIDs())
+		{
+			return false;
+		}
+
+		if (!$this->allow())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$program = new Tables\Programs();
+		foreach ($selected as $selectedID)
+		{
+			if ($program->load($selectedID))
+			{
+				$program->active = 1;
+				$program->store();
+				continue;
+			}
+
+			return false;
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * Deactivates programs by id.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
+	 */
+	public function deactivate()
+	{
+		if (!$selected = Helpers\Input::getSelectedIDs())
+		{
+			return false;
+		}
+
+		if (!$this->allow())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$program = new Tables\Programs();
+		foreach ($selected as $selectedID)
+		{
+			if ($program->load($selectedID))
+			{
+				$program->active = 0;
+				$program->store();
+				continue;
+			}
+
+			return false;
+		}
+
+		return true;
+
+	}
 
 	/**
 	 * Retrieves program information relevant for soap queries to the LSF system.
@@ -42,6 +111,22 @@ class Program extends CurriculumResource
 		$this->_db->setQuery($query);
 
 		return Helpers\OrganizerHelper::executeQuery('loadAssoc', []);
+	}
+
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\Programs A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\Programs();
 	}
 
 	/**

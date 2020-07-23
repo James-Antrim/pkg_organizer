@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Exception;
+use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -21,12 +22,59 @@ class Group extends BaseModel
 {
 	use Associated;
 
+	protected $resource = 'group';
+
 	/**
-	 * The ids selected by the user
+	 * Activates groups by id if a selection was made, otherwise by use in the instance_groups table.
 	 *
-	 * @var array
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
 	 */
-	protected $selected = [];
+	public function activate()
+	{
+		if ($this->selected = Helpers\Input::getSelectedIDs())
+		{
+			if (!$this->allow())
+			{
+				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			}
+
+			$group = new Tables\Groups();
+			foreach ($this->selected as $selectedID)
+			{
+				if ($group->load($selectedID))
+				{
+					$group->active = 1;
+					$group->store();
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
+		if (!$allowed = Helpers\Can::scheduleTheseOrganizations())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$dbo = Factory::getDbo();
+
+		$subQuery = $dbo->getQuery(true);
+		$subQuery->select('DISTINCT groupID')->from('#__organizer_instance_groups');
+
+		$query = $dbo->getQuery(true);
+		$query->update('#__organizer_groups AS g')
+			->innerJoin('#__organizer_associations AS a ON a.groupID = g.id')
+			->set('active = 1')
+			->where("g.id IN ($subQuery)")
+			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
+		$dbo->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+	}
 
 	/**
 	 * Provides resource specific user access checks
@@ -84,6 +132,58 @@ class Group extends BaseModel
 		}
 
 		return true;
+	}
+
+	/**
+	 * Deactivates groups by id if a selection was made, otherwise by lack of use in the instance_groups table.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
+	 */
+	public function deactivate()
+	{
+		if ($this->selected = Helpers\Input::getSelectedIDs())
+		{
+			if (!$this->allow())
+			{
+				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			}
+
+			$group = new Tables\Groups();
+			foreach ($this->selected as $selectedID)
+			{
+				if ($group->load($selectedID))
+				{
+					$group->active = 0;
+					$group->store();
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
+		if (!$allowed = Helpers\Can::scheduleTheseOrganizations())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$dbo = Factory::getDbo();
+
+		$subQuery = $dbo->getQuery(true);
+		$subQuery->select('DISTINCT groupID')->from('#__organizer_instance_groups');
+
+		$query = $dbo->getQuery(true);
+		$query->update('#__organizer_groups AS g')
+			->innerJoin('#__organizer_associations AS a ON a.groupID = g.id')
+			->set('active = 0')
+			->where("g.id NOT IN ($subQuery)")
+			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
+		$dbo->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -233,21 +333,36 @@ class Group extends BaseModel
 			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}
 
-		if (!$termID = Helpers\Input::getInt('attribute'))
+		$attribute = Helpers\Input::getCMD('attribute');
+
+		if (is_numeric($attribute))
 		{
-			return false;
+			$load  = ['groupID' => $groupID, 'termID' => (int) $attribute];
+			$table = new Tables\GroupPublishing();
+
+			if (!$table->load($load))
+			{
+				return false;
+			}
+
+			$table->published = !$table->published;
+
+			return $table->store();
+		}
+		elseif ($attribute === 'active')
+		{
+			$table = new Tables\Groups();
+
+			if (!$table->load($groupID))
+			{
+				return false;
+			}
+
+			$table->active = !$table->active;
+
+			return $table->store();
 		}
 
-		$load  = ['groupID' => $groupID, 'termID' => $termID];
-		$table = new Tables\GroupPublishing();
-
-		if (!$table->load($load))
-		{
-			return false;
-		}
-
-		$table->published = !$table->published;
-
-		return $table->store();
+		return false;
 	}
 }

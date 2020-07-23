@@ -28,6 +28,7 @@ class Groups extends ListView
 		'this'     => 'value',
 		'next'     => 'value',
 		'name'     => 'link',
+		'active'   => 'value',
 		'grid'     => 'link',
 		'code'     => 'link'
 	];
@@ -54,6 +55,20 @@ class Groups extends ListView
 		$batchButton .= '</button>';
 
 		$toolbar->appendButton('Custom', $batchButton, 'batch');
+		$toolbar->appendButton(
+			'Standard',
+			'eye-open',
+			Helpers\Languages::_('ORGANIZER_ACTIVATE'),
+			'groups.activate',
+			false
+		);
+		$toolbar->appendButton(
+			'Standard',
+			'eye-close',
+			Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
+			'groups.deactivate',
+			false
+		);
 
 		if (Helpers\Can::administrate())
 		{
@@ -129,6 +144,7 @@ class Groups extends ListView
 			'this'     => Helpers\Terms::getName(Helpers\Terms::getCurrentID()),
 			'next'     => Helpers\Terms::getName(Helpers\Terms::getNextID()),
 			'name'     => Helpers\HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
+			'active'   => Helpers\Languages::_('ORGANIZER_ACTIVE'),
 			'grid'     => Helpers\Languages::_('ORGANIZER_GRID'),
 			'code'     => Helpers\HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
 		];
@@ -152,6 +168,9 @@ class Groups extends ListView
 
 		foreach ($this->items as $item)
 		{
+			$tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
+			$item->active = $this->getToggle('groups', $item->id, $item->active, $tip, 'active');
+
 			$termData   = ['groupID' => $item->id, 'termID' => $currentTerm];
 			$item->grid = Helpers\Grids::getName($item->gridID);
 

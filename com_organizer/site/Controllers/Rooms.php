@@ -17,6 +17,8 @@ use Organizer\Controller;
  */
 class Rooms extends Controller
 {
+	use Activated;
+
 	protected $listView = 'rooms';
 
 	protected $resource = 'room';

@@ -19,12 +19,9 @@ use Organizer\Helpers;
  */
 class Programs extends ListModel
 {
-	protected $filter_fields = [
-		'accredited'     => 'accredited',
-		'degreeID'       => 'degreeID',
-		'frequencyID'    => 'frequencyID',
-		'organizationID' => 'organizationID'
-	];
+	use Activated;
+
+	protected $filter_fields = ['accredited', 'degreeID', 'frequencyID', 'organizationID'];
 
 	/**
 	 * Filters out form inputs which should not be displayed due to menu settings.
@@ -63,7 +60,7 @@ class Programs extends ListModel
 		$searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
 		$this->setSearchFilter($query, $searchColumns);
 
-		$this->setValueFilters($query, ['degreeID', 'frequencyID', 'accredited']);
+		$this->setValueFilters($query, ['active', 'degreeID', 'frequencyID', 'accredited']);
 
 		$this->setOrdering($query);
 

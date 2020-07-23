@@ -189,7 +189,7 @@ class Programs extends Curricula implements Selectable
 		$query      = $dbo->getQuery(true);
 		$parts      = ["p.name_$tag", "' ('", 'd.abbreviation', "', '", 'p.accredited', "')'"];
 		$nameClause = $query->concatenate($parts, '') . ' AS name';
-		$query->select("DISTINCT p.id AS id, $nameClause")
+		$query->select("DISTINCT p.id AS id, $nameClause, active")
 			->from('#__organizer_programs AS p')
 			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
 

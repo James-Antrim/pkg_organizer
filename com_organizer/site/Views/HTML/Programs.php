@@ -20,13 +20,6 @@ class Programs extends ListView
 {
 	private $documentAccess = false;
 
-	protected $rowStructure = [
-		'checkbox'   => '',
-		'name'       => 'link',
-		'degree'     => 'link',
-		'accredited' => 'link'
-	];
-
 	/**
 	 * Method to generate buttons for user interaction
 	 *
@@ -70,6 +63,22 @@ class Programs extends ListView
 					true
 				);
 			}
+
+			$toolbar->appendButton(
+				'Standard',
+				'eye-open',
+				Helpers\Languages::_('ORGANIZER_ACTIVATE'),
+				'programs.activate',
+				true
+			);
+
+			$toolbar->appendButton(
+				'Standard',
+				'eye-close',
+				Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
+				'programs.deactivate',
+				true
+			);
 		}
 	}
 
@@ -103,6 +112,10 @@ class Programs extends ListView
 		if ($this->clientContext === self::FRONTEND)
 		{
 			$headers['links'] = '';
+		}
+		else
+		{
+			$headers['active'] = Helpers\Languages::_('ORGANIZER_ACTIVE');
 		}
 
 		$this->headers = $headers;
@@ -156,6 +169,14 @@ class Programs extends ListView
 			$structuredItems[$index]             = [];
 			$structuredItems[$index]['checkbox'] = $checkbox;
 			$structuredItems[$index]['name']     = Helpers\HTML::_('link', $thisLink, $program->name);
+
+			if ($backend)
+			{
+				$tip    = $program->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
+				$toggle = $this->getToggle('programs', $program->id, $program->active, $tip, 'active');
+
+				$structuredItems[$index]['active'] = $toggle;
+			}
 
 			if ($links)
 			{

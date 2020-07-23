@@ -20,7 +20,7 @@ use Organizer\Models;
  */
 class Programs extends Controller
 {
-	use Imported;
+	use Activated, Imported;
 
 	protected $listView = 'programs';
 

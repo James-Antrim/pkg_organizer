@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Exception;
+use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -24,23 +25,122 @@ class Category extends BaseModel
 	protected $resource = 'category';
 
 	/**
+	 * Activates categories by id if a selection was made, otherwise by use in the instance_groups/groups tables.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
+	 */
+	public function activate()
+	{
+		if ($this->selected = Helpers\Input::getSelectedIDs())
+		{
+			if (!$this->allow())
+			{
+				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			}
+
+			$category = new Tables\Categories();
+			foreach ($this->selected as $selectedID)
+			{
+				if ($category->load($selectedID))
+				{
+					$category->active = 1;
+					$category->store();
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
+		if (!$allowed = Helpers\Can::scheduleTheseOrganizations())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$dbo = Factory::getDbo();
+
+		$subQuery = $dbo->getQuery(true);
+		$subQuery->select('DISTINCT categoryID')
+			->from('#__organizer_instance_groups AS ig')
+			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
+
+		$query = $dbo->getQuery(true);
+		$query->update('#__organizer_categories AS c')
+			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
+			->set('active = 1')
+			->where("c.id IN ($subQuery)")
+			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
+		$dbo->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
 	 * Provides resource specific user access checks
 	 *
 	 * @return boolean  true if the user may edit the given resource, otherwise false
 	 */
 	protected function allow()
 	{
-		if (!$id = Helpers\Input::getID())
+		return Helpers\Can::edit('categories', $this->selected);
+	}
+
+	/**
+	 * Deactivates categories by id if a selection was made, otherwise by lack of use in the instance_groups/groups
+	 * tables.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception unauthorized access
+	 */
+	public function deactivate()
+	{
+		if ($this->selected = Helpers\Input::getSelectedIDs())
 		{
-			if (Helpers\Can::scheduleTheseOrganizations())
+			if (!$this->allow())
 			{
-				return true;
+				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 			}
+
+			$category = new Tables\Categories();
+			foreach ($this->selected as $selectedID)
+			{
+				if ($category->load($selectedID))
+				{
+					$category->active = 0;
+					$category->store();
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
 		}
 
-		return Helpers\Can::schedule($this->resource, $id);
-		// For merge
-		//return Helpers\Can::edit('categories', $this->selected);
+		if (!$allowed = Helpers\Can::scheduleTheseOrganizations())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+		}
+
+		$dbo = Factory::getDbo();
+
+		$subQuery = $dbo->getQuery(true);
+		$subQuery->select('DISTINCT categoryID')
+			->from('#__organizer_instance_groups AS ig')
+			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
+
+		$query = $dbo->getQuery(true);
+		$query->update('#__organizer_categories AS c')
+			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
+			->set('active = 0')
+			->where("c.id NOT IN ($subQuery)")
+			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
+		$dbo->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -69,7 +169,8 @@ class Category extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		if (!$this->allow())
 		{

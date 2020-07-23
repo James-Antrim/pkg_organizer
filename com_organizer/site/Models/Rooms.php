@@ -18,6 +18,8 @@ use Organizer\Helpers;
  */
 class Rooms extends ListModel
 {
+	use Activated;
+
 	protected $defaultOrdering = 'r.name';
 
 	protected $filter_fields = ['campusID', 'buildingID', 'roomtypeID'];
@@ -32,7 +34,7 @@ class Rooms extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select('r.id, r.code, r.name AS roomName')
+		$query->select('r.id, r.code, r.name AS roomName, r.active')
 			->select("t.id AS roomtypeID, t.name_$tag AS roomType")
 			->select('b.id AS buildingID, b.name AS buildingName')
 			->from('#__organizer_rooms AS r')
@@ -41,7 +43,7 @@ class Rooms extends ListModel
 			->leftJoin('#__organizer_campuses AS c ON (c.id = b.campusID OR c.parentID = b.campusID)');
 
 		$this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en']);
-		$this->setValueFilters($query, ['buildingID', 'roomtypeID']);
+		$this->setValueFilters($query, ['r.active', 'buildingID', 'roomtypeID']);
 		$this->setCampusFilter($query, 'b');
 
 		$this->setOrdering($query);

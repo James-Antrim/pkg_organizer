@@ -16,6 +16,11 @@
                table="organizer_programs" textcolumn="accredited" valuecolumn="accredited">
             <option value="">ALL_ACCREDITATION_YEARS</option>
         </field>
+        <field name="active" type="Options" label="ACTIVE" onchange="this.form.submit();">
+            <option value="">ALL_STATES</option>
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
+        </field>
         <field name="frequencyID" type="GenericOptions" label="FREQUENCY" localized="true"
                onchange="this.form.submit();"
                table="organizer_frequencies AS f,organizer_programs AS p ON p.frequencyID = f.id" textcolumn="f.name"

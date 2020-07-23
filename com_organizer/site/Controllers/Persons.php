@@ -17,6 +17,8 @@ use Organizer\Controller;
  */
 class Persons extends Controller
 {
+	use Activated;
+
 	protected $listView = 'persons';
 
 	protected $resource = 'person';
