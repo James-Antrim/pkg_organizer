@@ -378,27 +378,4 @@ class Persons extends Associated implements Selectable
 			return -1;
 		});
 	}
-
-	/**
-	 * Checks whether the person is associated with an instance as a teacher
-	 *
-	 * @param   string  $table     the dynamic part of the table name
-	 * @param   int     $personID  the id of the person being checked
-	 *
-	 * @return bool true if the person is associated with an instance in the role teacher
-	 */
-	public static function teaches($table, $personID)
-	{
-		if (empty($table))
-		{
-			return false;
-		}
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('COUNT(*)')->from("#__organizer_{$table}_persons")->where("personID = '$personID'");
-		$dbo->setQuery($query);
-
-		return (bool) OrganizerHelper::executeQuery('loadResult', false);
-	}
 }
