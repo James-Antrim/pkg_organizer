@@ -111,7 +111,7 @@ class Categories extends Associated implements Selectable
 		$order = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
 
 		$query = $dbo->getQuery(true);
-		$query->select('c.*')->from('#__organizer_categories AS c')->order($order);
+		$query->select('DISTINCT c.*')->from('#__organizer_categories AS c')->order($order);
 
 		if (!empty($access))
 		{
