@@ -1,92 +1,48 @@
-#region Stage 02: Curriculum############################################################################################
-#Resources/Tables: Curricula, Pools, Prerequisites, Programs, Subject Persons and Subjects
+#region General#########################################################################################################
 
-#todo Integrate 'active' attributes for person, pool & program into documentation output
-#todo Find out if any pool 'name' attributes are not being used and remove them
-#todo make the frequencies field reference the table
-#todo ensure coordinators have documentation access
-#todo ensure the constants used in the component configuration settings work
-#todo add passive synchronization of persons
 #todo create a standard fix for default multiple select handling and include it per default, remove chosen library use
-#todo create default selection handling for department, curriculum and superordinate selection boxes
 #todo add terms management
-
-#region Pool Edit View--------------------------------------------------------------------------------------------------
-#todo check apply
-#todo check save
-#todo check cancel
-#todo check curriculum construction
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Pools View------------------------------------------------------------------------------------------------------
-#todo the program display should also be able to display multiple
-#todo check new
-#todo check edit
-#todo check delete
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Program Edit View-----------------------------------------------------------------------------------------------
-#todo check apply
-#todo check save
-#todo check cancel
-#todo check curriculum construction
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Programs View---------------------------------------------------------------------------------------------------
-#todo check new
-#todo check edit
-#todo check import
-#todo check update
-#todo check delete
-#region front end
-#todo style the links better
-#endregion
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Subject Edit View-----------------------------------------------------------------------------------------------
-#todo redo js for multiselect
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#region Subjects View---------------------------------------------------------------------------------------------------
-#todo check new
-#todo check edit
-#todo check update
-#todo check delete
-#endregion--------------------------------------------------------------------------------------------------------------
-
-#endregion##############################################################################################################
-
-#region Stage 03: Curriculum after actions##############################################################################
-
-#todo Relink curriculum and subjects menu items
-#todo Link new subject views from the old schedule view
-
-#endregion##############################################################################################################
-
-#region Stage 04: Methods, Schedules & Terms############################################################################
-
-#todo Revamp the schedule migration functions for the new circumstances and structure
-#todo Conceptualize and implement a schedule synchronization strategy
+#todo create terms model?
+#todo redo search
 #todo methods => kapvo mapping
 #todo adjust both old organizer, new organizer and untis according to any kapvo resolution
-#todo create terms model?
-#todo reactivate person adding/deletion/merge functions
+#todo deputat view
+#todo room_display view
+#todo lesson_statistics view
+#todo remove room types from untis & stop validating in organizer
+#todo make rooms primary in organizer & error if not existent
+#todo component setting for currency
+#todo sql binding
+#todo strict typing
+#todo fix unformatted grid output in old schedule output
+#todo sprachenzentrum as organization & associate persons
+#todo unit specific publishing
+#todo untis unit statistic key for organizer unpublished
 
-#region Method Edit View------------------------------------------------------------------------------------------------
-#todo check apply
-#todo check save
-#todo check cancel
 #endregion
 
-#region Methods View----------------------------------------------------------------------------------------------------
-#todo check search
-#todo check filtering
-#todo check limiting
-#todo check sorting
-#todo check new
-#todo check edit
-#todo check delete
+#region Curriculum######################################################################################################
+
+#todo Integrate 'active' attributes for person, pool & program into documentation output
+#todo make the frequencies field reference the table
+#todo ensure coordinators have documentation access
+#todo create default selection handling for department, curriculum and superordinate selection boxes
+#todo program delete
+#todo program apply & import
+#todo program save & update
+#todo improve programs frontend view
+#todo migrate progam data from the main page
+
 #endregion
+
+#region Planning########################################################################################################
+
+#todo finish event editing
+#todo migrate old schedule ajax calls to new helpers
+#todo migrate schedule upload
+#todo migrate schedule activate
+#todo migrate schedule delta
+#todo add schedule delta notification
 
 #region Schedule Edit (Upload) View-------------------------------------------------------------------------------------
 #todo check upload
@@ -104,51 +60,25 @@
 #todo check delete
 #endregion--------------------------------------------------------------------------------------------------------------
 
-#endregion##############################################################################################################
-
-#region Stage 05: Participants##########################################################################################
-
-#todo Revamp the schedule migration functions for the new circumstances and structure
-#todo Conceptualize and implement a schedule synchronization strategy
-#todo should participants be moved up to p4 or p5?
-
-#endregion##############################################################################################################
-
-#region Stage 06: Static Planning Resources#############################################################################
-#Resources/Tables: Categories, Event Coordinators, Events, Group Publishing, Groups & Subject Events
-
-#todo Implement migration/synchronization of categories, groups, group publishing and events
-#todo Conceptualize and implement a planning synchronization strategy
-#todo add group association support
-## xml import
-## edit views
-## options fields
-## remove events table organizationID column
-#todo move the event => organization associations from the events table to the associations table
-#todo reintegrate subject => events associations in the subject edit view
-
-#endregion##############################################################################################################
-
-#region Stage 07: Dynamic Planning Resources############################################################################
-#Resources/Tables: Blocks, I-Groups, I-Participants, I-Persons, I-Rooms, Instances, Units
-
-#region remove roles table use
-#todo create class constants if not existent
-#todo create role language constants
-#todo keep roles synchronous with those used by subject persons 1 => coordinator, 2 => teacher, 3 => ...
 #endregion
 
-#todo Revamp the configuration migration functions for the new circumstances and structure
 
-#endregion##############################################################################################################
+#region Participants####################################################################################################
 
-#region Stage 08: Merge Views###########################################################################################
+#todo instance participants
 
-#todo add passive synchronization for schedule data from old organizer
-#todo merge functionality for categories, events, groups, persons and rooms
-#todo Uncomment buttons
+#endregion
 
-#endregion##############################################################################################################
+#region Merging#########################################################################################################
+#Categories, Groups, Events, Persons & Rooms
+
+#todo delete unused events
+#todo automatically merge events with the same entry key items
+#todo add unique key for event entry key items
+#todo reactivate new functions as appropriate
+#todo add update to modified columns
+
+#endregion
 
 #region Stage 09: Front End Schedule Related Views######################################################################
 
