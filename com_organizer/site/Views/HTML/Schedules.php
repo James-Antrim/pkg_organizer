@@ -41,7 +41,6 @@ class Schedules extends ListView
 			$toolbar->appendButton('Standard', 'play', 'Move Schedules', 'schedules.moveSchedules', false);
 			$toolbar->appendButton('Standard', 'next', 'Migrate Resources', 'schedules.migrateResources', false);
 			$toolbar->appendButton('Standard', 'last', 'Migrate Schedules', 'schedules.migrateSchedules', false);
-			//$toolbar->appendButton('Standard', 'tree-2', 'Restructure', 'schedules.restructure', false);
 		}
 		/*$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'schedules.add', false);
 		$toolbar->appendButton(
