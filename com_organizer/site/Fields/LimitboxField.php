@@ -25,13 +25,6 @@ class LimitboxField extends OptionsField
 	public $type = 'Limitbox';
 
 	/**
-	 * Cached array of the category items.
-	 *
-	 * @var    array
-	 */
-	protected static $options = array();
-
-	/**
 	 * Default options
 	 *
 	 * @var  array
@@ -48,9 +41,9 @@ class LimitboxField extends OptionsField
 		// Accepted modifiers
 		$hash = md5($this->element);
 
-		if (!isset(static::$options[$hash]))
+		if (empty($this->options))
 		{
-			static::$options[$hash] = parent::getOptions();
+			$this->options = parent::getOptions();
 
 			$options = array();
 			$limits  = $this->defaultLimits;
@@ -94,10 +87,10 @@ class LimitboxField extends OptionsField
 					);
 				}
 
-				static::$options[$hash] = array_merge(static::$options[$hash], $options);
+				$this->options = array_merge($this->options, $options);
 			}
 		}
 
-		return static::$options[$hash];
+		return $this->options;
 	}
 }

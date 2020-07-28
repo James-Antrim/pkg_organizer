@@ -26,14 +26,12 @@ class OptionsField extends FormField
 
 	protected $clientContext;
 
-	public $options = [];
-
 	/**
-	 * The form field type.
+	 * Cached array of the category items.
 	 *
-	 * @var    string
+	 * @var    array
 	 */
-	protected $type = 'Options';
+	public $options = [];
 
 	/**
 	 * Method to get the field input markup for a generic list.
