@@ -4,6 +4,21 @@
 @import "pagination";
 @import "variables";
 
+/* Event Styles *******************************************************************************************************/
+
+span.event {
+  font-size: 1rem;
+  font-family: $font-family-header;
+}
+
+span.comment, span.method {
+  font-size: .8rem;
+}
+
+span.comment {
+  font-style: italic;
+}
+
 /* In-Row Tools *******************************************************************************************************/
 
 td a.btn {
