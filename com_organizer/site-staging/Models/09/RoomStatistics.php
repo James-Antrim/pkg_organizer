@@ -341,7 +341,7 @@ class RoomStatistics extends BaseModel
 		switch ($interval)
 		{
 			case 'month':
-				$dates = Helpers\Dates::getMonth($date, $startDoWNo, $endDoWNo);
+				$dates = Helpers\Dates::getMonth($date);
 				break;
 			case 'week':
 			default:
