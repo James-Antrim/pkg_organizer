@@ -52,7 +52,6 @@ class Subjects extends ListModel
 			$form->removeField('personID', 'filter');
 			unset($this->filter_fields['organizationID'], $this->filter_fields['personID']);
 		}
-
 		elseif ($this->clientContext === self::BACKEND)
 		{
 			if (count(Helpers\Can::documentTheseOrganizations()) === 1)
@@ -182,6 +181,8 @@ class Subjects extends ListModel
 		$poolID        = self::ALL;
 		$programID     = self::ALL;
 
+		$organizationID = Helpers\Input::getFilterID('organization', self::ALL);
+
 		if ($this->clientContext === self::BACKEND)
 		{
 			$authorized = Helpers\Can::documentTheseOrganizations();
@@ -190,15 +191,9 @@ class Subjects extends ListModel
 				$organizationID = $authorized[0];
 				$this->state->set('filter.organizationID', $organizationID);
 			}
-			else
-			{
-				$organizationID = Helpers\Input::getFilterID('organization', self::ALL);
-			}
 		}
 		else
 		{
-			$organizationID = Helpers\Input::getFilterID('organization', self::ALL);
-
 			// Program ID can be set by menu settings or the request
 			if ($programID = Helpers\Input::getInt('programID')
 				or $programID = Helpers\Input::getParams()->get('programID', 0)
