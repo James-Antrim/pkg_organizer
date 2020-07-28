@@ -109,21 +109,15 @@ class Dates
 	/**
 	 * Returns the end date and start date of the month for the given date
 	 *
-	 * @param   string  $date      the date
-	 * @param   int     $startDay  0-6 number of the starting day of the week
-	 * @param   int     $endDay    0-6 number of the ending day of the week
+	 * @param   string  $date  the date
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getMonth($date, $startDay = 1, $endDay = 6)
+	public static function getMonth($date)
 	{
-		$dateTime     = strtotime($date);
-		$startDayName = date('l', strtotime("Sunday + $startDay days"));
-		$endDayName   = date('l', strtotime("Sunday + $endDay days"));
-		$monthStart   = date('Y-m-d', strtotime('first day of this month', $dateTime));
-		$startDate    = date('Y-m-d', strtotime("$startDayName this week", strtotime($monthStart)));
-		$monthEnd     = date('Y-m-d', strtotime('last day of this month', $dateTime));
-		$endDate      = date('Y-m-d', strtotime("$endDayName this week", strtotime($monthEnd)));
+		$dateTime  = strtotime($date);
+		$startDate = date('Y-m-d', strtotime('first day of this month', $dateTime));
+		$endDate   = date('Y-m-d 23:59:00', strtotime('last day of this month', $dateTime));
 
 		return ['startDate' => $startDate, 'endDate' => $endDate];
 	}
