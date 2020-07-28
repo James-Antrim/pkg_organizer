@@ -26,6 +26,8 @@ class OptionsField extends FormField
 
 	protected $clientContext;
 
+	public $options = [];
+
 	/**
 	 * The form field type.
 	 *
@@ -63,11 +65,11 @@ class OptionsField extends FormField
 			'' : ' onblur="' . $this->getAttribute('onblur') . '"';
 
 		// Get the field options.
-		$options = (array) $this->getOptions();
+		$this->options = (array) $this->getOptions();
 
 		return Helpers\HTML::_(
 			'select.genericlist',
-			$options,
+			$this->options,
 			$this->name,
 			trim($attr),
 			'value',
