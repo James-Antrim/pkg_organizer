@@ -61,6 +61,22 @@ class Methods extends BaseTable
 	public $name_en;
 
 	/**
+	 * The resource's German plural.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $plural_de;
+
+	/**
+	 * The resource's English plural.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $plural_en;
+
+	/**
 	 * Declares the associated table
 	 *
 	 * @param   JDatabaseDriver  $dbo  A database connector object

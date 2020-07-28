@@ -82,6 +82,18 @@ abstract class ResourceHelper
 	}
 
 	/**
+	 * Attempts to retrieve the plural of the resource.
+	 *
+	 * @param   int  $resourceID  the id of the resource
+	 *
+	 * @return string
+	 */
+	public static function getPlural($resourceID)
+	{
+		return self::getNameAttribute('plural', $resourceID);
+	}
+
+	/**
 	 * Attempts to retrieve the name of the resource.
 	 *
 	 * @param   int  $resourceID  the id of the resource

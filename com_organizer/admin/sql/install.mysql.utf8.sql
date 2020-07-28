@@ -469,6 +469,8 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_methods` (
     `name_en`         VARCHAR(150) DEFAULT NULL,
     `abbreviation_de` VARCHAR(25)  DEFAULT '',
     `abbreviation_en` VARCHAR(25)  DEFAULT '',
+    `plural_de`       VARCHAR(150) DEFAULT NULL,
+    `plural_en`       VARCHAR(150) DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `alias` (`alias`),
     UNIQUE `code` (`code`)
