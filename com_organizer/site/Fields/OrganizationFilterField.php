@@ -30,6 +30,7 @@ class OrganizationFilterField extends OptionsField
 	protected function getInput()
 	{
 		$this->clientContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+		$onchange = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 
 		// Get the field options.
 		$options = (array) $this->getOptions();
@@ -38,7 +39,7 @@ class OrganizationFilterField extends OptionsField
 			'select.genericlist',
 			$options,
 			$this->name,
-			'onchange="this.form.submit();"',
+			$onchange,
 			'value',
 			'text',
 			$this->value,
