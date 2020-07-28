@@ -31,8 +31,8 @@
 
   thead tr.level-2.columns-48 th.data-column,
   tbody tr.columns-48 td.data-column {
-    padding-left: 0rem;
-    padding-right: 0rem;
+    padding-left: 0;
+    padding-right: 0;
     width: calc((100% - 4rem) / 48);
   }
 }
