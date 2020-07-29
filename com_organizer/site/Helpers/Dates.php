@@ -86,7 +86,7 @@ class Dates
 	}
 
 	/**
-	 * Returns the end date and start date of the ICS for the given date
+	 * Returns the end and start dates of a six month period beginning with the date given.
 	 *
 	 * @param   string  $date  the date
 	 *
@@ -113,6 +113,20 @@ class Dates
 		$endDate   = date('Y-m-d 23:59:00', strtotime('last day of this month', $dateTime));
 
 		return ['startDate' => $startDate, 'endDate' => $endDate];
+	}
+
+	/**
+	 * Returns the end and start dates of a three month period beginning with the date given.
+	 *
+	 * @param   string  $date  the date
+	 *
+	 * @return array containing startDate and endDate
+	 */
+	public static function getQuarter($date)
+	{
+		$dateTime = strtotime($date);
+
+		return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+3 month', $dateTime))];
 	}
 
 	/**
