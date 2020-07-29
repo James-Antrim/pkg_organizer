@@ -20,11 +20,7 @@ use Organizer\Tables;
  */
 class Instances extends ResourceHelper
 {
-	const SEMESTER_MODE = 1;
-
-	const BLOCK_MODE = 2;
-
-	const INSTANCE_MODE = 3;
+	const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
 	/**
 	 * Adds a delta clause for a joined table.
@@ -50,24 +46,28 @@ class Instances extends ResourceHelper
 	/**
 	 * Builds the array of parameters used for lesson retrieval.
 	 *
-	 * @return array the paramters used to retrieve lessons.
-	 * @throws Exception unauthorized access to person schedules.
+	 * @return array the parameters used to retrieve lessons.
 	 */
 	public static function getConditions()
 	{
 		$conditions               = [];
 		$conditions['userID']     = Users::getID();
 		$conditions['mySchedule'] = empty($conditions['userID']) ? false : Input::getBool('mySchedule', false);
-		$conditions['date']       = Dates::standardizeDate(Input::getCMD('date'));
 
-		$interval               = Input::getCMD('interval', 'week');
-		$validRestrictions      = ['day', 'ics', 'month', 'term', 'week'];
-		$conditions['interval'] = in_array($interval, $validRestrictions) ? $interval : 'week';
+		$lists = Input::getListItems();
+
+		$interval  = $lists->get('interval', Input::getCMD('interval', 'week'));
+		$intervals = ['day', 'ics', 'month', 'term', 'week'];
+
+		$conditions['date']     = Dates::standardizeDate($lists->get('date', Input::getCMD('date')));
+		$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
 
 		self::setDates($conditions);
 
-		$delta               = Input::getInt('delta', 0);
-		$conditions['delta'] = empty($delta) ? false : date('Y-m-d', strtotime('-' . $delta . ' days'));
+		$delta = Input::getInt('delta', 0);
+
+		$conditions['delta']  = empty($delta) ? false : date('Y-m-d', strtotime('-' . $delta . ' days'));
+		$conditions['status'] = Input::getFilterItems()->get('status', self::NORMAL);
 
 		if (empty($conditions['mySchedule']))
 		{
@@ -101,11 +101,10 @@ class Instances extends ResourceHelper
 			if ($personIDs = $personID ? [$personID] : Input::getFilterIDs('person'))
 			{
 				self::filterPersonIDs($personIDs, $conditions['userID']);
-				if (empty($personIDs))
+				if (!empty($personIDs))
 				{
-					throw new Exception(Languages::_('ORGANIZER_401'), 401);
+					$conditions['personIDs'] = $personIDs;
 				}
-				$conditions['personIDs'] = $personIDs;
 			}
 
 			$roomID = Input::getInt('roomID');
@@ -201,7 +200,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array an array modelling the instance
 	 */
-	private static function getInstance($instanceID)
+	public static function getInstance($instanceID)
 	{
 		$tag = Languages::getTag();
 
@@ -212,12 +211,13 @@ class Instances extends ResourceHelper
 		}
 
 		$instance = [
-			'blockID'        => $instancesTable->blockID,
-			'eventID'        => $instancesTable->eventID,
-			'instanceID'     => $instanceID,
-			'instanceStatus' => $instancesTable->delta,
-			'methodID'       => $instancesTable->methodID,
-			'unitID'         => $instancesTable->unitID
+			'blockID'            => $instancesTable->blockID,
+			'eventID'            => $instancesTable->eventID,
+			'instanceID'         => $instanceID,
+			'instanceStatus'     => $instancesTable->delta,
+			'instanceStatusDate' => $instancesTable->modified,
+			'methodID'           => $instancesTable->methodID,
+			'unitID'             => $instancesTable->unitID
 		];
 
 		unset($instancesTable);
@@ -278,7 +278,8 @@ class Instances extends ResourceHelper
 			'organization'   => Organizations::getShortName($unitsTable->organizationID),
 			'organizationID' => $unitsTable->organizationID,
 			'gridID'         => $unitsTable->gridID,
-			'unitStatus'     => $unitsTable->delta
+			'unitStatus'     => $unitsTable->delta,
+			'unitStatusDate' => $unitsTable->modified,
 		];
 
 		unset($unitsTable);
@@ -324,12 +325,56 @@ class Instances extends ResourceHelper
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id');
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
+			->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
 
-		self::addDeltaClause($query, 'i', $conditions['delta']);
-		self::addDeltaClause($query, 'u', $conditions['delta']);
-		self::addDeltaClause($query, 'ipe', $conditions['delta']);
-		self::addDeltaClause($query, 'ig', $conditions['delta']);
+		$dDate = $conditions['delta'];
+
+		switch ($conditions['status'])
+		{
+			case self::CURRENT:
+
+				$query->where("i.delta != 'removed'");
+				$query->where("u.delta != 'removed'");
+
+				break;
+
+			case self::NEW:
+
+				$query->where("i.delta != 'removed'");
+				$query->where("u.delta != 'removed'");
+				$clause = "((i.delta = 'new' AND i.modified >= '$dDate') ";
+				$clause .= "OR (u.delta = 'new' AND i.modified >= '$dDate'))";
+				$query->where($clause);
+
+				break;
+
+			case self::REMOVED:
+
+				$clause = "((i.delta = 'removed' AND i.modified >= '$dDate') ";
+				$clause .= "OR (u.delta = 'removed' AND i.modified >= '$dDate'))";
+				$query->where($clause);
+
+				break;
+
+			case self::CHANGED:
+
+				$clause = "(((i.delta = 'new' OR i.delta = 'removed') AND i.modified >= '$dDate') ";
+				$clause .= "OR ((u.delta = 'new' OR u.delta = 'removed') AND i.modified >= '$dDate'))";
+				$query->where($clause);
+
+				break;
+
+			case self::NORMAL:
+			default:
+
+				self::addDeltaClause($query, 'i', $dDate);
+				self::addDeltaClause($query, 'u', $dDate);
+				self::addDeltaClause($query, 'ipe', $dDate);
+				self::addDeltaClause($query, 'ig', $dDate);
+
+				break;
+		}
 
 		if (empty($conditions['showUnpublished']))
 		{
@@ -378,9 +423,41 @@ class Instances extends ResourceHelper
 		if (!empty($conditions['roomIDs']))
 		{
 			$roomIDs = implode(',', $conditions['roomIDs']);
-			$query->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id')
-				->where("ir.roomID IN ($roomIDs)");
-			self::addDeltaClause($query, 'ir', $conditions['delta']);
+			$query->where("ir.roomID IN ($roomIDs)");
+
+			switch ($conditions['status'])
+			{
+				case self::CURRENT:
+
+					$query->where("ir.delta != 'removed'");
+
+					break;
+
+				case self::NEW:
+
+					$query->where("(ir.delta = 'new' AND ir.modified >= '$dDate')");
+
+					break;
+
+				case self::REMOVED:
+
+					$query->where("(ir.delta = 'removed' AND i.modified >= '$dDate')");
+
+					break;
+
+				case self::CHANGED:
+
+					$query->where("((ir.delta = 'new' OR ir.delta = 'removed') AND ir.modified >= '$dDate')");
+
+					break;
+
+				case self::NORMAL:
+				default:
+
+					self::addDeltaClause($query, 'ir', $conditions['delta']);
+
+					break;
+			}
 		}
 
 		if (!empty($conditions['eventIDs']) or !empty($conditions['subjectIDs']) or !empty($conditions['isEventsRequired']))
@@ -522,7 +599,7 @@ class Instances extends ResourceHelper
 				break;
 
 			case 'month':
-				$dates = Dates::getMonth($date, $startDayNo, $endDayNo);
+				$dates = Dates::getMonth($date);
 				break;
 
 			case 'term':
@@ -711,15 +788,16 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies the instance
 	 */
-	private static function setSubject(&$instance, $conditions)
+	public static function setSubject(&$instance, $conditions)
 	{
 		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
-		$query->select("s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName, s.shortName_$tag AS name")
+		$query->select("DISTINCT s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName, s.shortName_$tag AS name")
 			->select("s.description_$tag AS description")
 			->from('#__organizer_subjects AS s')
 			->innerJoin('#__organizer_subject_events AS se ON se.subjectID = s.id')
+			->innerJoin('#__organizer_associations AS a ON a.subjectID = s.id')
 			->where("se.eventID = {$instance['eventID']}");
 
 		$dbo->setQuery($query);
@@ -740,7 +818,8 @@ class Instances extends ResourceHelper
 		{
 			foreach ($subjects as $subjectItem)
 			{
-				if (in_array($subjectItem['organizationID'], $conditions['organizationIDs']))
+				$organizationIDs = Subjects::getOrganizationIDs($subjectItem['id']);
+				if (array_intersect($organizationIDs, $conditions['organizationIDs']))
 				{
 					$subject = $subjectItem;
 					break;

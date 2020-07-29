@@ -452,29 +452,15 @@ abstract class ListModel extends ParentModel
 	 */
 	protected function setValueFilters($query, $queryColumns)
 	{
-		$app     = Helpers\OrganizerHelper::getApplication();
-		$filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
-		$lists   = $app->getUserStateFromRequest($this->context . '.list', 'list', [], 'array');
+		$filters = Helpers\Input::getFilterItems();
+		$lists   = Helpers\Input::getListItems();
 
 		// The view level filters
 		foreach ($queryColumns as $column)
 		{
 			$filterName = strpos($column, '.') === false ? $column : explode('.', $column)[1];
 
-			if (array_key_exists($filterName, $filters))
-			{
-				$value = $this->state->get("filter.$filterName");
-			}
-			elseif (array_key_exists($filterName, $lists))
-			{
-				$value = $this->state->get("list.$filterName");
-			}
-			else
-			{
-				continue;
-			}
-
-			if ($value === '')
+			if (!$value = $filters->get($filterName) and !$value = $lists->get($filterName))
 			{
 				continue;
 			}
