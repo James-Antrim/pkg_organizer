@@ -17,7 +17,7 @@ use stdClass;
 /**
  * Class creates a select box for predefined colors.
  */
-class ColorsField extends OptionsField
+class ColorsField extends ColoredOptionsField
 {
 	/**
 	 * Type
@@ -25,29 +25,6 @@ class ColorsField extends OptionsField
 	 * @var    String
 	 */
 	protected $type = 'Colors';
-
-	/**
-	 * Returns a select box which contains the colors
-	 *
-	 * @return string  the HTML for the color select box
-	 */
-	public function getInput()
-	{
-		$onChange = empty($this->getAttribute('onchange')) ?
-			'' : ' onchange="' . $this->getAttribute('onchange') . '"';
-		$html     = '<select name="' . $this->name . '"' . $onChange . '>';
-		$options  = $this->getOptions();
-		foreach ($options as $option)
-		{
-			$style    = isset($option->style) ? ' style="' . $option->style . '"' : '';
-			$selected = $this->value == $option->value ? ' selected="selected"' : '';
-			$html     .= '<option value="' . $option->value . '"' . $selected . $style . '>';
-			$html     .= $option->text . '</option>';
-		}
-		$html .= '</select>';
-
-		return $html;
-	}
 
 	/**
 	 * Method to get the field options.

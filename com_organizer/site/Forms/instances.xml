@@ -24,13 +24,7 @@
         <field name="methodID" type="Methods" label="METHOD" onchange="this.form.submit();">
             <option value="">ALL_METHODS</option>
         </field>
-        <field name="status" type="Options" label="WEEKDAY" onchange="this.form.submit();">
-            <option value="">ALL_INSTANCES</option>
-            <option value="1">CURRENT_INSTANCES</option>
-            <option value="2">NEW_INSTANCES</option>
-            <option value="3">REMOVED_INSTANCES</option>
-            <option value="4">CHANGED_INSTANCES</option>
-        </field>
+        <field name="status" type="InstanceStates" label="STATE" onchange="this.form.submit();"/>
     </fields>
     <fields name="list">
         <field name="date" type="Date" label="DATE" class="input-8" empty="false" onchange="this.form.submit();"/>
