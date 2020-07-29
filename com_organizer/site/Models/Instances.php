@@ -30,8 +30,7 @@ class Instances extends ListModel
 		'organizationID',
 		'personID',
 		'roomID',
-		'status',
-		'dow'
+		'status'
 	];
 
 	protected $defaultOrdering = 'name';
@@ -84,10 +83,16 @@ class Instances extends ListModel
 				unset($this->filter_fields[array_search('organizationID', $this->filter_fields)]);
 			}
 
-			if ($params->get('methodID', 'filter'))
+			if ($params->get('dow') or $methodID = $params->get('methodID'))
 			{
-				$form->removeField('methodID', 'filter');
-				unset($this->filter_fields[array_search('methodID', $this->filter_fields)]);
+				$form->removeField('date', 'list');
+				$form->removeField('interval', 'list');
+
+				if (!empty($methodID))
+				{
+					$form->removeField('methodID', 'filter');
+					unset($this->filter_fields[array_search('methodID', $this->filter_fields)]);
+				}
 			}
 		}
 
@@ -236,16 +241,27 @@ class Instances extends ListModel
 				$this->state->set('filter.organizationID', $organizationID);
 			}
 
-			if ($methodID = $params->get('methodID'))
+			if ($methodID = $params->get('methodID') or $dow = $params->get('dow'))
 			{
-				$filterItems->set('methodID', $methodID);
-				$this->state->set('filter.methodID', $methodID);
-			}
+				$date      = date('Y-m-d');
+				$listItems = Helpers\Input::getListItems();
 
-			if ($dow = $params->get('dow'))
-			{
-				$filterItems->set('dow', $dow);
-				$this->state->set('filter.dow', $dow);
+				$listItems->set('date', $date);
+				$this->state->set('list.date', $date);
+
+				$listItems->set('interval', 'quarter');
+				$this->state->set('list.interval', 'quarter');
+
+				if (empty($dow))
+				{
+					$filterItems->set('methodID', $methodID);
+					$this->state->set('filter.methodID', $methodID);
+				}
+				else
+				{
+					$filterItems->set('dow', $dow);
+					$this->state->set('filter.dow', $dow);
+				}
 			}
 		}
 

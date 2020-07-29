@@ -53,6 +53,8 @@ abstract class ListModel extends ParentModel
 		{
 			$this->defaultLimit = $app->get('list_limit', 50);
 		}
+
+		$this->setContext();
 	}
 
 	/**

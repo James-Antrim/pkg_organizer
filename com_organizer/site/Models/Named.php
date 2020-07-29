@@ -54,9 +54,16 @@ trait Named
 	{
 		if (property_exists($this, 'option'))
 		{
-			$this->option = 'com_thm_organizer';
+			$this->option = 'com_organizer';
 		}
 
-		$this->context = strtolower('com_thm_organizer.' . $this->getName());
+		$this->context = strtolower('com_organizer.' . $this->getName());
+
+		$app = Helpers\OrganizerHelper::getApplication();
+
+		if ($menu = $app->getMenu() and $menuItem = $menu->getActive() and $menuID = $menuItem->id)
+		{
+			$this->context .= '.' . $menuID;
+		}
 	}
 }
