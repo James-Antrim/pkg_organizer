@@ -75,10 +75,12 @@ class Instances extends ListView
 			{
 				$suffix .= ': ' . Helpers\Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
 			}
+
+			$title .= $suffix;
 		}
 
 		// Add menu title support, both direct and via selected filters
-		Helpers\HTML::setTitle($title . $suffix, 'list-2');
+		Helpers\HTML::setTitle($title, 'list-2');
 
 		$toolbar = Toolbar::getInstance();
 	}
@@ -167,7 +169,7 @@ class Instances extends ListView
 			$times .= '<span class="times">' . Helpers\Dates::formatTime($item->startTime) . ' - ';
 			$times .= Helpers\Dates::formatTime($item->endTime) . '</span>';
 
-			$structuredItems[$index]                 = [];
+			$structuredItems[$index] = [];
 			//$structuredItems[$index]['checkbox']     = Helpers\HTML::_('grid.id', $index, $item->instanceID);
 			$structuredItems[$index]['status']       = $status;
 			$structuredItems[$index]['name']         = $name;
