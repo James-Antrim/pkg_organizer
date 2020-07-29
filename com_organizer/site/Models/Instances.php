@@ -181,7 +181,7 @@ class Instances extends ListModel
 		{
 			$query->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
 			$this->setValueFilters($query, ['g.categoryID',]);
-		}echo "<pre>" . print_r((string) $query, true) . "</pre>";
+		}
 
 		return $query;
 	}
