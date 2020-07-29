@@ -43,18 +43,26 @@ if (!empty($this->submenu))
             </tr>
             </thead>
             <tbody <?php echo $this->getAttributesOutput($items); ?>>
-			<?php foreach ($items as $row) : ?>
-                <tr <?php echo $this->getAttributesOutput($row); ?>>
-					<?php
-					foreach ($row as $column)
-					{
-						$colAttributes = $this->getAttributesOutput($column);
-						$colValue      = is_array($column) ? $column['value'] : $column;
-						echo "<td $colAttributes>$colValue</td>";
-					}
-					?>
+			<?php if (count($items)) : ?>
+				<?php foreach ($items as $row) : ?>
+                    <tr <?php echo $this->getAttributesOutput($row); ?>>
+						<?php
+						foreach ($row as $column)
+						{
+							$colAttributes = $this->getAttributesOutput($column);
+							$colValue      = is_array($column) ? $column['value'] : $column;
+							echo "<td $colAttributes>$colValue</td>";
+						}
+						?>
+                    </tr>
+				<?php endforeach; ?>
+			<?php else: ?>
+                <tr>
+                    <td class="empty-result-set" colspan="<?php echo count($this->headers); ?>">
+						<?php echo Helpers\Languages::_('ORGANIZER_EMPTY_RESULT_SET') ?>
+                    </td>
                 </tr>
-			<?php endforeach; ?>
+			<?php endif; ?>
             <tfoot>
             <tr>
                 <td colspan="<?php echo $columnCount; ?>">

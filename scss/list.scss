@@ -4,6 +4,10 @@
 @import "pagination";
 @import "variables";
 
+td.empty-result-set {
+  text-align: center;
+}
+
 /* Event Styles *******************************************************************************************************/
 
 span.event {
