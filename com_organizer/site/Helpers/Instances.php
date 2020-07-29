@@ -57,7 +57,7 @@ class Instances extends ResourceHelper
 		$lists = Input::getListItems();
 
 		$interval  = $lists->get('interval', Input::getCMD('interval', 'week'));
-		$intervals = ['day', 'ics', 'month', 'term', 'week'];
+		$intervals = ['day', 'ics', 'month', 'quarter', 'term', 'week'];
 
 		$conditions['date']     = Dates::standardizeDate($lists->get('date', Input::getCMD('date')));
 		$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
@@ -608,7 +608,7 @@ class Instances extends ResourceHelper
 
 			case 'ics':
 				// ICS calendars get the next 6 months of data
-				$dates = Dates::getICSDates($date, $startDayNo, $endDayNo);
+				$dates = Dates::getHalfYear($date);
 				break;
 
 			case 'week':

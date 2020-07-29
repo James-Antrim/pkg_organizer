@@ -88,22 +88,15 @@ class Dates
 	/**
 	 * Returns the end date and start date of the ICS for the given date
 	 *
-	 * @param   string  $date      the date
-	 * @param   int     $startDay  0-6 number of the starting day of the week
-	 * @param   int     $endDay    0-6 number of the ending day of the week
+	 * @param   string  $date  the date
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getICSDates($date, $startDay = 1, $endDay = 6)
+	public static function getHalfYear($date)
 	{
-		$dateTime     = strtotime($date);
-		$startDayName = date('l', strtotime("Sunday + $startDay days"));
-		$endDayName   = date('l', strtotime("Sunday + $endDay days"));
-		$startDate    = date('Y-m-d', strtotime("$startDayName this week", $dateTime));
-		$previewEnd   = date('Y-m-d', strtotime('+6 month', strtotime($date)));
-		$endDate      = date('Y-m-d', strtotime("$endDayName this week", strtotime($previewEnd)));
+		$dateTime = strtotime($date);
 
-		return ['startDate' => $startDate, 'endDate' => $endDate];
+		return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+6 month', $dateTime))];
 	}
 
 	/**
