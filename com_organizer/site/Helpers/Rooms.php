@@ -11,6 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
+use Organizer\Tables;
 
 /**
  * Class provides general functions for retrieving room data.
@@ -18,6 +19,30 @@ use Joomla\CMS\Factory;
 class Rooms extends ResourceHelper implements Selectable
 {
 	use Filtered;
+
+	/**
+	 * Resolves a text to a room id.
+	 *
+	 * @param   string  $room  the name of the room
+	 *
+	 * @return int the id of the entry
+	 */
+	public static function getID($room)
+	{
+		$table = new Tables\Rooms();
+
+		if ($table->load(['alias' => $room]))
+		{
+			return $table->id;
+		}
+
+		if ($table->load(['name' => $room]))
+		{
+			return $table->id;
+		}
+
+		return 0;
+	}
 
 	/**
 	 * Retrieves a list of resources in the form of name => id.

@@ -111,6 +111,10 @@ class Instances extends ResourceHelper
 			{
 				$conditions['roomIDs'] = $roomIDs;
 			}
+			elseif ($room = Input::getCMD('room') and $roomID = Rooms::getID($room))
+			{
+				$conditions['roomIDs'] = [$roomID];
+			}
 
 			$subjectID = Input::getInt('subjectID');
 			if ($subjectIDs = $subjectID ? [$subjectID] : Input::getFilterIDs('subject'))
