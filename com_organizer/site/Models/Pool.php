@@ -22,7 +22,7 @@ class Pool extends CurriculumResource
 {
 	use Associated, SubOrdinate, SuperOrdinate;
 
-	protected $class = 'Pools';
+	protected $helper = 'Pools';
 
 	protected $resource = 'pool';
 

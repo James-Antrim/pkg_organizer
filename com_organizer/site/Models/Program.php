@@ -22,6 +22,8 @@ class Program extends CurriculumResource
 {
 	use Associated, SuperOrdinate;
 
+	protected $helper = 'Programs';
+
 	protected $resource = 'program';
 
 	/**

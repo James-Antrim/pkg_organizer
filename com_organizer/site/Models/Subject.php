@@ -25,7 +25,7 @@ class Subject extends CurriculumResource
 
 	const COORDINATES = 1, TEACHES = 2;
 
-	protected $class = 'Subjects';
+	protected $helper = 'Subjects';
 
 	protected $resource = 'subject';
 

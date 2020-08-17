@@ -21,7 +21,7 @@ abstract class CurriculumResource extends BaseModel
 
 	const NONE = -1, POOL = 'K', SUBJECT = 'M';
 
-	protected $class;
+	protected $helper;
 
 	protected $resource;
 
@@ -202,7 +202,7 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	protected function deleteRanges($resourceID)
 	{
-		$helper = "Organizer\\Helpers\\" . $this->class;
+		$helper = "Organizer\\Helpers\\" . $this->helper;
 		if ($rangeIDs = $helper::getRangeIDs($resourceID))
 		{
 			foreach ($rangeIDs as $rangeID)
@@ -375,7 +375,7 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	protected function getRanges($resourceID)
 	{
-		$helper = "Organizer\\Helpers\\" . $this->class;
+		$helper = "Organizer\\Helpers\\" . $this->helper;
 
 		return $helper::getRanges($resourceID);
 	}
@@ -603,7 +603,7 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		$table = "Organizer\\Tables\\" . $this->class;
+		$table = "Organizer\\Tables\\" . $this->helper;
 
 		return new $table();
 	}
