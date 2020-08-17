@@ -71,7 +71,6 @@ class Instances extends ResourceHelper
 
 		if (empty($conditions['mySchedule']))
 		{
-
 			// Instance aggregates
 			$courseID = Input::getInt('courseID');
 			if ($courseIDs = $courseID ? [$courseID] : Input::getFilterIDs('course'))

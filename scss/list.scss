@@ -10,17 +10,36 @@ td.empty-result-set {
 
 /* Event Styles *******************************************************************************************************/
 
-span.event {
-  font-size: 1rem;
-  font-family: $font-family-header;
+span.comment {
+  font-style: italic;
 }
 
 span.comment, span.method {
   font-size: .8rem;
 }
 
-span.comment {
-  font-style: italic;
+span.event {
+  font-size: 1rem;
+  font-family: $font-family-header;
+}
+
+td.status-display {
+
+  &.instance-new {
+    background-color: $green-50;
+  }
+
+  &.instance-removed {
+    background-color: $red-25;
+  }
+
+  &.unit-new {
+    background-color: $green-75;
+  }
+
+  &.unit-removed {
+    background-color: $red-50;
+  }
 }
 
 /* In-Row Tools *******************************************************************************************************/

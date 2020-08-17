@@ -201,17 +201,33 @@ td.empty-result-set {
 }
 
 /* Event Styles *******************************************************************************************************/
-span.event {
-    font-size: 1rem;
-    font-family: "THM-Medium", Arial, Helvetica, sans-serif;
+span.comment {
+    font-style: italic;
 }
 
 span.comment, span.method {
     font-size: .8rem;
 }
 
-span.comment {
-    font-style: italic;
+span.event {
+    font-size: 1rem;
+    font-family: "THM-Medium", Arial, Helvetica, sans-serif;
+}
+
+td.status-display.instance-new {
+    background-color: #bfdc91;
+}
+
+td.status-display.instance-removed {
+    background-color: #e6c4cb;
+}
+
+td.status-display.unit-new {
+    background-color: #a0cb5b;
+}
+
+td.status-display.unit-removed {
+    background-color: #cd8996;
 }
 
 /* In-Row Tools *******************************************************************************************************/
