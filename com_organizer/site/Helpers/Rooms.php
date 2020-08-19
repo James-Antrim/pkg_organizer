@@ -18,6 +18,8 @@ use Organizer\Tables;
  */
 class Rooms extends ResourceHelper implements Selectable
 {
+	const ALL = -1;
+
 	use Filtered;
 
 	/**
@@ -116,10 +118,32 @@ class Rooms extends ResourceHelper implements Selectable
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT r.id, r.*")
-			->from('#__organizer_rooms AS r');
+			->from('#__organizer_rooms AS r')
+			->innerJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID');
 
-		self::addResourceFilter($query, 'roomtype', 'rt', 'r');
 		self::addResourceFilter($query, 'building', 'b1', 'r');
+
+		$roomtypeID  = Input::getInt('roomtypeID', self::ALL);
+		$roomtypeIDs = $roomtypeID ? [$roomtypeID] : Input::getFilterIDs('roomtype');
+
+		if (!in_array(self::ALL, $roomtypeIDs))
+		{
+			$query->where("rt.id IN (" . implode(',', $roomtypeIDs) . ")");
+		}
+
+		$active = Input::getInt('active', 1);
+
+		if ($active !== self::ALL)
+		{
+			$query->where("r.active = $active");
+		}
+
+		$suppress = Input::getInt('suppress', 0);
+
+		if ($suppress !== self::ALL)
+		{
+			$query->where("rt.suppress = $suppress");
+		}
 
 		// This join is used specifically to filter campuses independent of buildings.
 		$query->leftJoin('#__organizer_buildings AS b2 ON b2.id = r.buildingID');

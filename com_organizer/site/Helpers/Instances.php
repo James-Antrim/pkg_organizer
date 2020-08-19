@@ -107,7 +107,8 @@ class Instances extends ResourceHelper
 			}
 
 			$roomID = Input::getInt('roomID');
-			if ($roomIDs = $roomID ? [$roomID] : Input::getFilterIDs('room'))
+			$roomIDs = $roomID ? [$roomID] : Input::getIntCollection('roomIDs');
+			if ($roomIDs = $roomIDs ? $roomIDs : Input::getFilterIDs('room'))
 			{
 				$conditions['roomIDs'] = $roomIDs;
 			}
