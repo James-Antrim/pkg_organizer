@@ -80,10 +80,17 @@ trait SubOrdinate
 	 */
 	private function getSuperOrdinates($data)
 	{
+		// No need to check superordinates if no curriculum was selected
+		if (empty($data['curricula']))
+		{
+			$this->deleteRanges($data['id']);
+
+			return [];
+		}
+
 		$data['curricula'] = ArrayHelper::toInteger($data['curricula']);
 
-		// No need to check superordinates if no curriculum was selected
-		if (empty($data['curricula']) or array_search(self::NONE, $data['curricula']) !== false)
+		if (array_search(self::NONE, $data['curricula']) !== false)
 		{
 			$this->deleteRanges($data['id']);
 

@@ -508,14 +508,18 @@ class Subject extends CurriculumResource
 	 */
 	private function removePreRequisites($subjectID)
 	{
-		$rangeIDs      = Helpers\Subjects::filterIDs($this->getRanges($subjectID));
-		$rangeIDString = implode(',', $rangeIDs);
+		if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID)))
+		{
+			$rangeIDString = implode(',', $rangeIDs);
 
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_prerequisites')->where("subjectID IN ($rangeIDString)");
-		$this->_db->setQuery($query);
+			$query = $this->_db->getQuery(true);
+			$query->delete('#__organizer_prerequisites')->where("subjectID IN ($rangeIDString)");
+			$this->_db->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+			return (bool) OrganizerHelper::executeQuery('execute');
+		}
+
+		return true;
 	}
 
 	/**
@@ -528,14 +532,18 @@ class Subject extends CurriculumResource
 	 */
 	private function removePostRequisites($subjectID)
 	{
-		$rangeIDs      = Helpers\Subjects::filterIDs($this->getRanges($subjectID));
-		$rangeIDString = implode(',', $rangeIDs);
+		if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID)))
+		{
+			$rangeIDString = implode(',', $rangeIDs);
 
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_prerequisites')->where("prerequisiteID IN ($rangeIDString)");
-		$this->_db->setQuery($query);
+			$query = $this->_db->getQuery(true);
+			$query->delete('#__organizer_prerequisites')->where("prerequisiteID IN ($rangeIDString)");
+			$this->_db->setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+			return (bool) OrganizerHelper::executeQuery('execute');
+		}
+
+		return true;
 	}
 
 	/**
