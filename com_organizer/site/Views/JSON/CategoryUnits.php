@@ -18,6 +18,8 @@ use Organizer\Tables;
  */
 class CategoryUnits extends BaseView
 {
+	use Planned;
+
 	/**
 	 * loads model data into view context
 	 *
@@ -25,14 +27,10 @@ class CategoryUnits extends BaseView
 	 */
 	public function display()
 	{
-		$date         = Helpers\Input::getString('date');
-		$date         = strtotime($date) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
+		$date         = $this->getDate();
 		$groups       = [];
-		$intervals    = ['day', 'week', 'term'];
-		$interval     = Helpers\Input::getString('interval');
-		$interval     = in_array($interval, $intervals) ? $interval : 'term';
+		$interval     = $this->getInterval();
 		$nameProperty = 'name_' . Helpers\Languages::getTag();
-
 
 		foreach (Helpers\Categories::getGroups(Helpers\Input::getInt('categoryID')) as $group)
 		{

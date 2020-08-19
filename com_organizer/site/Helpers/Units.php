@@ -18,6 +18,32 @@ use Joomla\CMS\Factory;
 class Units extends ResourceHelper
 {
 	/**
+	 * Retrieves the group/category contexts for a given unit/event tub
+	 *
+	 * @param   int  $unitID   the unit id
+	 * @param   int  $eventID  the event id
+	 *
+	 * @return mixed|null
+	 */
+	public static function getContexts($unitID, $eventID)
+	{
+		$dbo   = Factory::getDbo();
+		$tag   = Languages::getTag();
+		$query = $dbo->getQuery(true);
+		$query->select("g.id AS groupID, g.categoryID, g.fullName_$tag AS fqGroup, g.name_$tag AS nqGroup")
+			->from('#__organizer_instances AS i')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
+			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
+			->where("i.eventID = $eventID")
+			->where("i.unitID = $unitID");
+
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadAssocList', [], 'groupID');
+	}
+
+	/**
 	 * Retrieves the id of events associated with the resource
 	 *
 	 * @param   int  $resourceID  the id of the resource for which the associated events are requested
@@ -26,7 +52,6 @@ class Units extends ResourceHelper
 	 */
 	public static function getEventID($resourceID)
 	{
-
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 
