@@ -17,7 +17,7 @@ use Joomla\CMS\Factory;
  */
 class Groups extends Associated implements Selectable
 {
-	use Filtered;
+	use Filtered, Planned;
 
 	static protected $resource = 'group';
 
@@ -119,88 +119,32 @@ class Groups extends Associated implements Selectable
 	}
 
 	/**
-	 * Retrieves a list of subjects associated with a group
+	 * Retrieves the units associated with an event.
 	 *
-	 * @return array the subjects associated with the group
+	 * @param   int     $groupID   the id of the referenced event
+	 * @param   string  $date      the date context for the unit search
+	 * @param   string  $interval  the interval to use as context for units
+	 *
+	 * @return array
 	 */
-	public static function getSubjects()
+	public static function getUnits($groupID, $date, $interval = 'term')
 	{
-		$groupIDs = Input::getFilterIDs('group');
-		if (empty($groupIDs))
-		{
-			return $groupIDs;
-		}
-
-		$groupIDs = implode(',', $groupIDs);
-
-		$date = Input::getCMD('date');
-		if (!Dates::isStandardized($date))
-		{
-			$date = date('Y-m-d');
-		}
-
-		$interval = Input::getCMD('interval');
-		if (!in_array($interval, ['day', 'month', 'term', 'week']))
-		{
-			$interval = 'term';
-		}
-
-		$dbo = Factory::getDbo();
-
+		$dbo   = Factory::getDbo();
+		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT lc.courseID')
-			->from('#__organizer_lesson_courses AS lc')
-			->innerJoin('#__organizer_lessons AS l ON l.id = lc.lessonID')
-			->innerJoin('#__organizer_lesson_groups AS lg ON lg.lessonCourseID = lc.id')
-			->where("lg.groupID IN ($groupIDs)")
-			->where("l.delta != 'removed'")
-			->where("lg.delta != 'removed'")
-			->where("lc.delta != 'removed'");
+		$query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method, eventID")
+			->from('#__organizer_units AS u')
+			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
+			->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')
+			->where("groupID = $groupID")
+			->where("u.delta != 'removed'");
 
-		$dateTime = strtotime($date);
-		switch ($interval)
-		{
-			case 'term':
-				$query->innerJoin('#__organizer_terms AS term ON term.id = l.termID')
-					->where("'$date' BETWEEN term.startDate AND term.endDate");
-				break;
-			case 'month':
-				$monthStart = date('Y-m-d', strtotime('first day of this month', $dateTime));
-				$startDate  = date('Y-m-d', strtotime('Monday this week', strtotime($monthStart)));
-				$monthEnd   = date('Y-m-d', strtotime('last day of this month', $dateTime));
-				$endDate    = date('Y-m-d', strtotime('Sunday this week', strtotime($monthEnd)));
-				$query->innerJoin('#__organizer_calendar AS c ON c.lessonID = l.id')
-					->where("c.schedule_date BETWEEN '$startDate' AND '$endDate'");
-				break;
-			case 'week':
-				$startDate = date('Y-m-d', strtotime('Monday this week', $dateTime));
-				$endDate   = date('Y-m-d', strtotime('Sunday this week', $dateTime));
-				$query->innerJoin('#__organizer_calendar AS c ON c.lessonID = l.id')
-					->where("c.schedule_date BETWEEN '$startDate' AND '$endDate'");
-				break;
-			case 'day':
-				$query->innerJoin('#__organizer_calendar AS c ON c.lessonID = l.id')
-					->where("c.schedule_date = '$date'");
-				break;
-		}
+		self::addUnitDateRestriction($query, $date, $interval);
 
 		$dbo->setQuery($query);
-		$courseIDs = OrganizerHelper::executeQuery('loadColumn', []);
 
-		if (empty($courseIDs))
-		{
-			return [];
-		}
-
-		$subjects = [];
-		foreach ($courseIDs as $courseID)
-		{
-			$name            = Courses::getName($courseID, true);
-			$subjects[$name] = $courseID;
-		}
-
-		ksort($subjects);
-
-		return $subjects;
+		return OrganizerHelper::executeQuery('loadAssocList', []);
 	}
 }

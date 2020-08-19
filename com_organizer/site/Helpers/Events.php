@@ -11,13 +11,14 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use Organizer\Tables;
 
 /**
  * Provides general functions for subject access checks, data retrieval and display.
  */
 class Events extends ResourceHelper
 {
+	use Planned;
+
 	static protected $resource = 'event';
 
 	/**
@@ -73,22 +74,7 @@ class Events extends ResourceHelper
 			->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')
 			->where("eventID = $eventID");
 
-		switch ($interval)
-		{
-			case 'term':
-				$term = new Tables\Terms();
-				$term->load(Terms::getCurrentID($date));
-				$query->where("u.startDate >= '$term->startDate'");
-				$query->where("u.endDate <= '$term->endDate'");
-				break;
-			case 'week':
-				$query->where("'$date' BETWEEN u.startDate AND u.endDate");
-				break;
-			case 'day':
-				$query->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-					->where("b.date = '$date'");
-				break;
-		}
+		self::addUnitDateRestriction($query, $date, $interval);
 
 		$dbo->setQuery($query);
 

@@ -11,6 +11,7 @@
 namespace Organizer\Views\JSON;
 
 use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class answers dynamic (degree) program related queries
@@ -24,40 +25,54 @@ class CategoryUnits extends BaseView
 	 */
 	public function display()
 	{
-		$date = Helpers\Input::getString('date');
-		$date = strtotime($date) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
+		$date         = Helpers\Input::getString('date');
+		$date         = strtotime($date) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
+		$groups       = [];
+		$intervals    = ['day', 'week', 'term'];
+		$interval     = Helpers\Input::getString('interval');
+		$interval     = in_array($interval, $intervals) ? $interval : 'term';
+		$nameProperty = 'name_' . Helpers\Languages::getTag();
 
-		$intervals = ['day', 'week', 'term'];
-		$interval  = Helpers\Input::getString('interval');
-		$interval  = in_array($interval, $intervals) ? $interval : 'term';
-
-		$groups = [];
 
 		foreach (Helpers\Categories::getGroups(Helpers\Input::getInt('categoryID')) as $group)
 		{
-			$group         = (object) $group;
-			$group->events = [];
+			$group['events'] = [];
 
-			foreach (Helpers\Groups::getEvents($group->id) as $event)
+			$groupID = $group['id'];
+			unset($group['id']);
+
+			foreach (Helpers\Groups::getUnits($groupID, $date, $interval) as $unit)
 			{
-				$event        = (object) $event;
-				$event->units = [];
+				$eventID = $unit['eventID'];
+				unset($unit['eventID']);
 
-				foreach (Helpers\Events::getUnits($event->id, $date, $interval) as $unit)
+				if (empty($group['events'][$eventID]))
 				{
-					$unit           = (object) $unit;
-					$event->units[] = $unit;
+					$table = new Tables\Events();
+					if (!$table->load($eventID))
+					{
+						continue;
+					}
+
+					$group['events'][$eventID] = [
+						'code'  => $table->code,
+						'name'  => $table->$nameProperty,
+						'units' => []
+					];
 				}
 
-				if (count($event->units))
+				$unitID = $unit['id'];
+				unset($unit['id']);
+
+				if (empty($group['events'][$eventID]['units'][$unitID]))
 				{
-					$group->events[] = $event;
+					$group['events'][$eventID]['units'][$unitID] = $unit;
 				}
 			}
 
-			if (count($group->events))
+			if (count($group['events']))
 			{
-				$groups[] = $group;
+				$groups[$groupID] = $group;
 			}
 		}
 
