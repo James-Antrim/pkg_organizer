@@ -196,6 +196,10 @@ body.tmpl-index div.main .js-stools-container-list .js-stools-field-list {
     padding: .3rem .5rem;
 }
 
+td.title-column {
+    width: 25rem;
+}
+
 td.empty-result-set {
     text-align: center;
 }

@@ -371,7 +371,7 @@ class Instances extends ListView
 	 *
 	 * @param   object  $item  the event item being iterated
 	 *
-	 * @return string the title
+	 * @return array the title column
 	 */
 	private function getTitle($item)
 	{
@@ -379,7 +379,7 @@ class Instances extends ListView
 		$name .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
 		$name .= empty($item->comment) ? '' : "<br><span class=\"comment\">$item->comment</span>";
 
-		return $name;
+		return ['attributes' => ['class' => 'title-column'], 'value' => $name];
 	}
 
 	/**
@@ -392,7 +392,7 @@ class Instances extends ListView
 		$this->headers = [
 			//'checkbox'     => Helpers\HTML::_('grid.checkall'),
 			'status'  => '',
-			'title'   => Languages::_('ORGANIZER_NAME'),
+			'title'   => ['attributes' => ['class' => 'title-column'], 'value' => Languages::_('ORGANIZER_NAME')],
 			'times'   => Languages::_('ORGANIZER_DATETIME'),
 			'persons' => Languages::_('ORGANIZER_PERSONS'),
 			'groups'  => Languages::_('ORGANIZER_GROUPS'),

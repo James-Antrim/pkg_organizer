@@ -35,7 +35,7 @@ class Instances extends ResourceHelper
 	{
 		if ($delta)
 		{
-			$query->where("($alias.delta != 'removed' OR $alias.modified > '$delta')");
+			$query->where("($alias.delta != 'removed' OR ($alias.delta = 'removed' AND $alias.modified > '$delta'))");
 		}
 		else
 		{

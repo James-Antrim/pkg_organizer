@@ -37,9 +37,14 @@ if (!empty($this->submenu))
         <table class="table table-striped" id="<?php echo $this->get('name'); ?>-list">
             <thead>
             <tr>
-				<?php foreach ($this->headers as $header) : ?>
-                    <th><?php echo $header; ?></th>
-				<?php endforeach; ?>
+				<?php
+				foreach ($this->headers as $header)
+				{
+					$colAttributes = $this->getAttributesOutput($header);
+					$colValue      = is_array($header) ? $header['value'] : $header;
+					echo "<th $colAttributes>$colValue</th>";
+				}
+				?>
             </tr>
             </thead>
             <tbody <?php echo $this->getAttributesOutput($items); ?>>
