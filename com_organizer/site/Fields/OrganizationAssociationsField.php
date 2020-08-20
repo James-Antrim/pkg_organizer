@@ -156,7 +156,7 @@ class OrganizationAssociationsField extends OptionsField
 			}
 			else
 			{
-				$attr .= $count > 3 ? ' size="3"' : " size=\"$count\"";
+				$attr .= $count > 3 ? ' size="10"' : " size=\"$count\"";
 				$attr .= ' size="3" required aria-required="true" autofocus';
 			}
 		}

@@ -42,7 +42,7 @@ class Groups extends ListModel
 			->where('(a.organizationID IN (' . implode(',', $authorized) . ') OR a.organizationID IS NULL)');
 
 		$this->setActiveFilter($query, 'gr');
-		$this->setSearchFilter($query, ['gr.fullName', 'gr.name', 'gr.code']);
+		$this->setSearchFilter($query, ['gr.fullName_de', 'gr.fullName_en', 'gr.name_de', 'gr.name_en', 'gr.code']);
 		$this->setValueFilters($query, ['gr.categoryID', 'a.organizationID', 'gr.gridID']);
 
 		$this->setOrdering($query);
