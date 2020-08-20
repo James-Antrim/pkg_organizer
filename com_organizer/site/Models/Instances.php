@@ -112,32 +112,6 @@ class Instances extends ListModel
 		{
 			$instance = Helpers\Instances::getInstance($instance->id);
 			Helpers\Instances::setPersons($instance, $this->conditions);
-
-			$organizationIDs = [];
-			foreach ($instance['resources'] as $personID => $resources)
-			{
-				foreach ($resources['groups'] as $groupID => $group)
-				{
-					if ($group['status'] !== 'removed')
-					{
-						$organizationIDs = array_merge($organizationIDs, Helpers\Groups::getOrganizationIDs($groupID));
-					}
-				}
-			}
-
-			if ($organizationIDs = array_unique($organizationIDs))
-			{
-				if (count($organizationIDs) > 1)
-				{
-					$instance['organization'] = Helpers\Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
-				}
-				else
-				{
-					$instance['organization']   = Helpers\Organizations::getShortName($organizationIDs[0]);
-					$instance['organizationID'] = $organizationIDs[0];
-				}
-			}
-
 			Helpers\Instances::setSubject($instance, $this->conditions);
 
 			$items[$key] = (object) $instance;
@@ -161,7 +135,7 @@ class Instances extends ListModel
 		$query = Helpers\Instances::getInstanceQuery($conditions);
 
 		$query->select("DISTINCT i.id")
-			->where("b.date BETWEEN '{$conditions['startDate']} 00:00:00' AND '{$conditions['endDate']} 23:59:59'")
+			->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
 			->order('b.date, b.startTime, b.endTime');
 
 		$this->setSearchFilter($query, ['e.name_de', 'e.name_en']);
@@ -265,7 +239,63 @@ class Instances extends ListModel
 			}
 		}
 
-		$this->conditions = Helpers\Instances::getConditions();
-		$this->state->set('list.date', $this->conditions['startDate']);
+		$this->conditions = $this->setConditions();
+	}
+
+	/**
+	 * Builds the array of parameters used for lesson retrieval.
+	 *
+	 * @return array the parameters used to retrieve lessons.
+	 */
+	private function setConditions()
+	{
+		$interval  = $this->state->get('list.interval', 'week');
+		$intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
+
+		$conditions['date']       = Helpers\Dates::standardizeDate($this->state->get('list.date', date('Y-m-d')));
+		$conditions['delta']      = date('Y-m-d', strtotime('-14 days'));
+		$conditions['interval']   = in_array($interval, $intervals) ? $interval : 'week';
+		$conditions['mySchedule'] = false;
+		$conditions['status']     = $this->state->get('filter.status', '');
+
+		// Reliant on date and interval properties
+		Helpers\Instances::setDates($conditions);
+
+		if ($groupID = $this->state->get('filter.groupID'))
+		{
+			$conditions['groupIDs'] = [$groupID];
+		}
+
+		if ($organizationID = $this->state->get('filter.organizationID'))
+		{
+			$conditions['organizationIDs'] = [$organizationID];
+
+			Helpers\Instances::setOrganizationalPublishing($conditions);
+		}
+		else
+		{
+			$conditions['showUnpublished'] = Helpers\Can::administrate();
+		}
+
+		if ($personID = $this->state->get('filter.personID'))
+		{
+			$personIDs = [$personID];
+			Helpers\Instances::filterPersonIDs($personIDs, Helpers\Users::getID());
+
+			if (!empty($personIDs))
+			{
+				$conditions['personIDs'] = $personIDs;
+			}
+		}
+
+		if ($roomID = $this->state->get('filter.roomID'))
+		{
+			$conditions['roomIDs'] = [$roomID];
+		}
+
+
+		$this->state->set('list.date', $conditions['startDate']);
+
+		return $conditions;
 	}
 }

@@ -21,6 +21,21 @@ class Instances extends ListView
 {
 	const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
 
+	private $statusDate;
+
+	/**
+	 * Constructor
+	 *
+	 * @param   array  $config  A named configuration array for object construction.
+	 *
+	 * @since   3.0
+	 */
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
+		$this->statusDate = date('Y-m-d H:i:s', strtotime('-14 days'));
+	}
+
 	/**
 	 * Sets Joomla view title and action buttons
 	 *
@@ -96,6 +111,278 @@ class Instances extends ListView
 	}
 
 	/**
+	 * Lists the instance associated groups.
+	 *
+	 * @param   object  $item  the instance being iterated
+	 *
+	 * @return string
+	 */
+	private function getGroups($item)
+	{
+		$added   = Languages::_('ORGANIZER_GROUP_ADDED_ON');
+		$groups  = [];
+		$removed = Languages::_('ORGANIZER_GROUP_REMOVED_ON');
+
+		foreach ($item->resources as $person)
+		{
+			if (empty($person['groups']))
+			{
+				continue;
+			}
+
+			foreach ($person['groups'] as $group)
+			{
+				$fullName = $group['fullName'];
+
+				if (empty($groups[$fullName]))
+				{
+					$groups[$fullName] = $group;
+					continue;
+				}
+
+				$groups[$fullName]['statusDate'] = max($groups[$fullName]['statusDate'], $group['statusDate']);
+
+				if ($groups[$fullName]['status'] !== $group['status'])
+				{
+					$groups[$fullName]['status'] = '';
+				}
+			}
+		}
+
+		ksort($groups);
+
+		foreach ($groups as $fullName => $group)
+		{
+			$class = '';
+			$title = '';
+
+			if (strlen($fullName) > 45)
+			{
+				$class = 'hasToolTip';
+				$name  = $group['code'];
+				$title = $fullName;
+			}
+			else
+			{
+				$name = $fullName;
+			}
+
+			if ($group['status'] and $group['statusDate'] >= $this->statusDate)
+			{
+				$date = Helpers\Dates::formatDate($group['statusDate']);
+
+				if ($group['status'] === 'new')
+				{
+					if ($class)
+					{
+						$class .= ' status-new';
+						$title .= ': ' . sprintf($added, $date);
+					}
+					else
+					{
+						$class = 'status-new';
+						$title = sprintf($added, $date);
+					}
+				}
+				elseif ($group['status'] === 'removed')
+				{
+					if ($class)
+					{
+						$class .= ' status-removed';
+						$title .= ': ' . sprintf($removed, $date);
+					}
+					else
+					{
+						$class = 'status-removed';
+						$title = sprintf($removed, $date);
+					}
+				}
+			}
+
+			$class = !empty($class) ? 'class="' . $class . '"' : '';
+			$title = !empty($title) ? 'title="' . $title . '"' : '';
+
+			$groups[$fullName] = "<span $class $title>$name</span>";
+		}
+
+		return implode('<br>', $groups);
+	}
+
+	/**
+	 * Lists the instance associated teachers.
+	 *
+	 * @param   object  $item  the instance being iterated
+	 *
+	 * @return string
+	 */
+	private function getPersons($item)
+	{
+		$added   = Languages::_('ORGANIZER_PERSON_ADDED_ON');
+		$persons = [];
+		$removed = Languages::_('ORGANIZER_PERSON_REMOVED_ON');
+
+		foreach ($item->resources as $personID => $person)
+		{
+			$name  = $person['person'];
+			$title = '';
+
+			if ($person['status'] and $person['statusDate'] >= $this->statusDate)
+			{
+				$date = Helpers\Dates::formatDate($person['statusDate']);
+
+				if ($person['status'] === 'new')
+				{
+					$class = 'status-new';
+					$title = 'title="' . sprintf($added, $date) . '"';
+				}
+				elseif ($person['status'] === 'removed')
+				{
+					$class = 'status-removed';
+					$title = 'title="' . sprintf($removed, $date) . '"';
+				}
+			}
+
+			$class = !empty($class) ? 'class="' . $class . '"' : '';
+
+			$persons[$name] = "<span $class $title>$name</span>";
+		}
+
+		ksort($persons);
+
+		return implode('<br>', $persons);
+	}
+
+	/**
+	 * Lists the instance associated groups.
+	 *
+	 * @param   object  $item  the instance being iterated
+	 *
+	 * @return string
+	 */
+	private function getRooms($item)
+	{
+		$added   = Languages::_('ORGANIZER_ROOM_ADDED_ON');
+		$rooms   = [];
+		$removed = Languages::_('ORGANIZER_ROOM_REMOVED_ON');
+
+		foreach ($item->resources as $person)
+		{
+			if (empty($person['rooms']))
+			{
+				continue;
+			}
+
+			foreach ($person['rooms'] as $roomID => $room)
+			{
+				$name = $room['room'];
+
+				if (empty($rooms[$name]))
+				{
+					$rooms[$name] = $room;
+					continue;
+				}
+
+				$rooms[$name]['statusDate'] = max($rooms[$name]['statusDate'], $room['statusDate']);
+
+				if ($rooms[$name]['status'] !== $room['status'])
+				{
+					$rooms[$name]['status'] = '';
+				}
+			}
+		}
+
+		ksort($rooms);
+
+		foreach ($rooms as $name => $room)
+		{
+			$class = '';
+			$title = '';
+
+			if ($room['status'])
+			{
+				$date = Helpers\Dates::formatDate($room['statusDate']);
+
+				if ($room['status'] === 'new')
+				{
+					$class .= 'class="status-new"';
+					$title = 'title="' . sprintf($added, $date) . '"';
+				}
+				elseif ($room['status'] === 'removed')
+				{
+					$class .= 'class="status-removed"';
+					$title = 'title="' . sprintf($removed, $date) . '"';
+				}
+			}
+
+			$rooms[$name] = "<span $class $title>$name</span>";
+		}
+
+		return implode('<br>', $rooms);
+	}
+
+	/**
+	 * Created a structure for displaying status information as necessary.
+	 *
+	 * @param   object  $item  the instance item being iterated
+	 *
+	 * @return array|string
+	 */
+	private function getStatus($item)
+	{
+		$class = 'status-display hasToolTip';
+		$title = '';
+
+		if ($item->unitStatus and $item->unitStatusDate >= $this->statusDate)
+		{
+			$date = Helpers\Dates::formatDate($item->unitStatusDate);
+
+			if ($item->unitStatus === 'new')
+			{
+				$class .= ' unit-new';
+				$title = sprintf(Languages::_('ORGANIZER_UNIT_ADDED_ON'), $date);
+			}
+			elseif ($item->unitStatus === 'removed')
+			{
+				$class .= ' unit-removed';
+				$title = sprintf(Languages::_('ORGANIZER_UNIT_REMOVED_ON'), $date);
+			}
+		}
+		elseif ($item->instanceStatus and $item->instanceStatusDate >= $this->statusDate)
+		{
+			$date = Helpers\Dates::formatDate($item->instanceStatusDate);
+
+			if ($item->instanceStatus === 'new')
+			{
+				$class .= ' instance-new';
+				$title = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $date);
+			}
+			elseif ($item->instanceStatus === 'removed')
+			{
+				$class .= ' instance-removed';
+				$title = sprintf(Languages::_('ORGANIZER_INSTANCE_REMOVED_ON'), $date);
+			}
+		}
+
+		return $title ? ['attributes' => ['class' => $class, 'title' => $title], 'value' => ''] : '';
+	}
+
+	/**
+	 * Creates the event title.
+	 *
+	 * @param   object  $item  the event item being iterated
+	 *
+	 * @return string the title
+	 */
+	private function getTitle($item)
+	{
+		$name = '<span class="event">' . $item->name . '</span>';
+		$name .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
+		$name .= empty($item->comment) ? '' : "<br><span class=\"comment\">$item->comment</span>";
+
+		return $name;
+	}
+
+	/**
 	 * Function to set the object's headers property
 	 *
 	 * @return void sets the object headers property
@@ -104,10 +391,12 @@ class Instances extends ListView
 	{
 		$this->headers = [
 			//'checkbox'     => Helpers\HTML::_('grid.checkall'),
-			'status'       => Languages::_('ORGANIZER_STATUS'),
-			'name'         => Languages::_('ORGANIZER_NAME'),
-			'times'        => Languages::_('ORGANIZER_DATETIME'),
-			'organization' => Languages::_('ORGANIZER_ORGANIZATION')
+			'status'  => '',
+			'title'   => Languages::_('ORGANIZER_NAME'),
+			'times'   => Languages::_('ORGANIZER_DATETIME'),
+			'persons' => Languages::_('ORGANIZER_PERSONS'),
+			'groups'  => Languages::_('ORGANIZER_GROUPS'),
+			'rooms'   => Languages::_('ORGANIZER_ROOMS')
 		];
 	}
 
@@ -118,63 +407,24 @@ class Instances extends ListView
 	 */
 	protected function structureItems()
 	{
-		$index           = 0;
-		$link            = 'index.php?option=com_organizer&view=instance_edit&id=';
+		$index = 0;
+		//$link            = 'index.php?option=com_organizer&view=instance_edit&id=';
 		$structuredItems = [];
-		$template        = '<span class="icon-XICONX hasToolTip" title="XTITLEX"></span>';
 
 		foreach ($this->items as $item)
 		{
-			$icon  = '';
-			$title = '';
-
-			if ($item->unitStatus)
-			{
-				$date = Helpers\Dates::formatDate($item->unitStatusDate);
-
-				if ($item->unitStatus === 'new')
-				{
-					$icon  = 'sun';
-					$title = sprintf(Languages::_('ORGANIZER_UNIT_ADDED_ON'), $date);
-				}
-				elseif ($item->unitStatus === 'removed')
-				{
-					$icon  = 'cancel-circle';
-					$title = sprintf(Languages::_('ORGANIZER_UNIT_REMOVED_ON'), $date);
-				}
-			}
-			elseif ($item->instanceStatus)
-			{
-				$date = Helpers\Dates::formatDate($item->instanceStatusDate);
-
-				if ($item->instanceStatus === 'new')
-				{
-					$icon  = 'plus-circle';
-					$title = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $date);
-				}
-				elseif ($item->instanceStatus === 'removed')
-				{
-					$icon  = 'minus-circle';
-					$title = sprintf(Languages::_('ORGANIZER_INSTANCE_REMOVED_ON'), $date);
-				}
-			}
-
-			$status = $title ? str_replace('XICONX', $icon, str_replace('XTITLEX', $title, $template)) : '';
-
-			$name = '<span class="event">' . $item->name . '</span>';
-			$name .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
-			$name .= empty($item->comment) ? '' : "<br><span class=\"comment\">$item->comment</span>";
-
 			$times = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
 			$times .= '<span class="times">' . Helpers\Dates::formatTime($item->startTime) . ' - ';
 			$times .= Helpers\Dates::formatTime($item->endTime) . '</span>';
 
 			$structuredItems[$index] = [];
 			//$structuredItems[$index]['checkbox']     = Helpers\HTML::_('grid.id', $index, $item->instanceID);
-			$structuredItems[$index]['status']       = $status;
-			$structuredItems[$index]['name']         = $name;
-			$structuredItems[$index]['times']        = $times;
-			$structuredItems[$index]['organization'] = $item->organization;
+			$structuredItems[$index]['status']  = $this->getStatus($item);
+			$structuredItems[$index]['title']   = $this->getTitle($item);
+			$structuredItems[$index]['times']   = $times;
+			$structuredItems[$index]['persons'] = $this->getPersons($item);
+			$structuredItems[$index]['groups']  = $this->getGroups($item);
+			$structuredItems[$index]['rooms']   = $this->getRooms($item);
 
 			$index++;
 		}

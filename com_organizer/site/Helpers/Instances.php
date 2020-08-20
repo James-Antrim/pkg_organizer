@@ -54,50 +54,49 @@ class Instances extends ResourceHelper
 		$conditions['userID']     = Users::getID();
 		$conditions['mySchedule'] = empty($conditions['userID']) ? false : Input::getBool('mySchedule', false);
 
-		$lists = Input::getListItems();
+		$conditions['date'] = Input::getCMD('date', date('Y-m-d'));
 
-		$interval  = $lists->get('interval', Input::getCMD('interval', 'week'));
-		$intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
+		$delta               = Input::getInt('delta', 0);
+		$conditions['delta'] = empty($delta) ? false : date('Y-m-d', strtotime('-' . $delta . ' days'));
 
-		$conditions['date']     = Dates::standardizeDate($lists->get('date', Input::getCMD('date')));
+		$interval               = Input::getCMD('interval', 'week');
+		$intervals              = ['day', 'half', 'month', 'quarter', 'term', 'week'];
 		$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
 
+		// Reliant on date and interval properties
 		self::setDates($conditions);
 
-		$delta = Input::getInt('delta', 0);
-
-		$conditions['delta']  = empty($delta) ? false : date('Y-m-d', strtotime('-' . $delta . ' days'));
-		$conditions['status'] = Input::getFilterItems()->get('status', self::NORMAL);
+		$conditions['status'] = self::NORMAL;
 
 		if (empty($conditions['mySchedule']))
 		{
-			// Instance aggregates
-			$courseID = Input::getInt('courseID');
-			if ($courseIDs = $courseID ? [$courseID] : Input::getFilterIDs('course'))
+			if ($courseID = Input::getInt('courseID'))
 			{
-				$conditions['courseIDs'] = $courseIDs;
+				$conditions['courseIDs'] = [$courseID];
 			}
 
-			$eventID = Input::getInt('eventID');
-			if ($eventIDs = $eventID ? [$eventID] : Input::getFilterIDs('event'))
+			if ($eventID = Input::getInt('eventID'))
 			{
-				$conditions['eventIDs'] = $eventIDs;
+				$conditions['eventIDs'] = [$eventID];
 			}
 
-			$groupID = Input::getInt('groupID');
-			if ($groupIDs = $groupID ? [$groupID] : Input::getFilterIDs('group'))
+			if ($groupID = Input::getInt('groupID'))
 			{
-				$conditions['groupIDs'] = $groupIDs;
+				$conditions['groupIDs'] = [$groupID];
 			}
 
-			$organizationID = Input::getInt('organizationID');
-			if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization'))
+			if ($organizationID = Input::getInt('organizationID'))
 			{
-				$conditions['organizationIDs'] = $organizationIDs;
+				$conditions['organizationIDs'] = [$organizationID];
+
+				self::setOrganizationalPublishing($conditions);
+			}
+			else
+			{
+				$conditions['showUnpublished'] = Can::administrate();
 			}
 
-			$personID = Input::getInt('personID');
-			if ($personIDs = $personID ? [$personID] : Input::getFilterIDs('person'))
+			if ($personID = Input::getInt('personID'))
 			{
 				self::filterPersonIDs($personIDs, $conditions['userID']);
 				if (!empty($personIDs))
@@ -107,8 +106,7 @@ class Instances extends ResourceHelper
 			}
 
 			$roomID = Input::getInt('roomID');
-			$roomIDs = $roomID ? [$roomID] : Input::getIntCollection('roomIDs');
-			if ($roomIDs = $roomIDs ? $roomIDs : Input::getFilterIDs('room'))
+			if ($roomIDs = $roomID ? [$roomID] : Input::getIntCollection('roomIDs'))
 			{
 				$conditions['roomIDs'] = $roomIDs;
 			}
@@ -117,38 +115,15 @@ class Instances extends ResourceHelper
 				$conditions['roomIDs'] = [$roomID];
 			}
 
-			$subjectID = Input::getInt('subjectID');
-			if ($subjectIDs = $subjectID ? [$subjectID] : Input::getFilterIDs('subject'))
+			if ($subjectID = Input::getInt('subjectID'))
 			{
-				$conditions['subjectIDs'] = $subjectIDs;
+				$conditions['subjectIDs'] = [$subjectID];
 			}
 
 			$unitID = Input::getInt('unitID');
 			if ($unitIDs = $unitID ? [$unitID] : Input::getIntCollection('unitIDs'))
 			{
 				$conditions['unitIDs'] = $unitIDs;
-			}
-
-			if (!empty($conditions['organizationIDs']))
-			{
-				$allowedIDs   = Can::scheduleTheseOrganizations();
-				$overlap      = array_intersect($conditions['organizationIDs'], $allowedIDs);
-				$overlapCount = count($overlap);
-
-				// If the user has planning access to all requested organizations show unpublished automatically.
-				if ($overlapCount and $overlapCount == count($conditions['organizationIDs']))
-				{
-					$conditions['organizationIDs'] = $overlap;
-					$conditions['showUnpublished'] = true;
-				}
-				else
-				{
-					$conditions['showUnpublished'] = false;
-				}
-			}
-			else
-			{
-				$conditions['showUnpublished'] = Can::administrate();
 			}
 		}
 		elseif ($personID = Persons::getIDByUserID($conditions['userID']))
@@ -304,7 +279,7 @@ class Instances extends ResourceHelper
 		$query = self::getInstanceQuery($conditions);
 
 		$query->select('DISTINCT i.id')
-			->where("b.date BETWEEN '{$conditions['startDate']} 00:00:00' AND '{$conditions['endDate']} 23:59:59'")
+			->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
 			->order('b.date, b.startTime, b.endTime');
 
 		$dbo->setQuery($query);
@@ -428,40 +403,7 @@ class Instances extends ResourceHelper
 		{
 			$roomIDs = implode(',', $conditions['roomIDs']);
 			$query->where("ir.roomID IN ($roomIDs)");
-
-			switch ($conditions['status'])
-			{
-				case self::CURRENT:
-
-					$query->where("ir.delta != 'removed'");
-
-					break;
-
-				case self::NEW:
-
-					$query->where("(ir.delta = 'new' AND ir.modified >= '$dDate')");
-
-					break;
-
-				case self::REMOVED:
-
-					$query->where("(ir.delta = 'removed' AND i.modified >= '$dDate')");
-
-					break;
-
-				case self::CHANGED:
-
-					$query->where("((ir.delta = 'new' OR ir.delta = 'removed') AND ir.modified >= '$dDate')");
-
-					break;
-
-				case self::NORMAL:
-				default:
-
-					self::addDeltaClause($query, 'ir', $conditions['delta']);
-
-					break;
-			}
+			self::addDeltaClause($query, 'ir', $conditions['delta']);
 		}
 
 		if (!empty($conditions['eventIDs']) or !empty($conditions['subjectIDs']) or !empty($conditions['isEventsRequired']))
@@ -499,7 +441,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void removes unauthorized entries from the array
 	 */
-	private static function filterPersonIDs(&$personIDs, $userID)
+	public static function filterPersonIDs(&$personIDs, $userID)
 	{
 		if (empty($userID))
 		{
@@ -572,7 +514,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies $parameters
 	 */
-	private static function setDates(&$parameters)
+	public static function setDates(&$parameters)
 	{
 		$date     = $parameters['date'];
 		$dateTime = strtotime($date);
@@ -669,7 +611,8 @@ class Instances extends ResourceHelper
 		$tag   = Languages::getTag();
 		$query = $dbo->getQuery(true);
 
-		$query->select("ig.groupID, ig.delta, g.code AS code, g.name_$tag AS name, g.fullName_$tag AS fullName, g.gridID")
+		$query->select('ig.groupID, ig.delta, ig.modified')
+			->select("g.code AS code, g.name_$tag AS name, g.fullName_$tag AS fullName, g.gridID")
 			->from('#__organizer_instance_groups AS ig')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 			->where("ig.assocID = {$person['assocID']}");
@@ -686,16 +629,41 @@ class Instances extends ResourceHelper
 		{
 			$groupID = $groupAssoc['groupID'];
 			$group   = [
-				'code'     => $groupAssoc['code'],
-				'fullName' => $groupAssoc['fullName'],
-				'group'    => $groupAssoc['name'],
-				'status'   => $groupAssoc['delta']
+				'code'       => $groupAssoc['code'],
+				'fullName'   => $groupAssoc['fullName'],
+				'group'      => $groupAssoc['name'],
+				'status'     => $groupAssoc['delta'],
+				'statusDate' => $groupAssoc['modified']
 			];
 
 			$groups[$groupID] = $group;
 		}
 
 		$person['groups'] = $groups;
+	}
+
+	/**
+	 * Set the display of unpublished instances according to the user's access rights
+	 *
+	 * @param   array &$conditions  the conditions for instance retrieval
+	 *
+	 * @return void
+	 */
+	public static function setOrganizationalPublishing(&$conditions)
+	{
+		$allowedIDs   = Can::scheduleTheseOrganizations();
+		$overlap      = array_intersect($conditions['organizationIDs'], $allowedIDs);
+		$overlapCount = count($overlap);
+
+		// If the user has planning access to all requested organizations show unpublished automatically.
+		if ($overlapCount and $overlapCount == count($conditions['organizationIDs']))
+		{
+			$conditions['showUnpublished'] = true;
+		}
+		else
+		{
+			$conditions['showUnpublished'] = false;
+		}
 	}
 
 	/**
@@ -712,7 +680,7 @@ class Instances extends ResourceHelper
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 
-		$query->select('ip.id AS assocID, ip.personID, ip.roleID, ip.delta AS status')
+		$query->select('ip.id AS assocID, ip.personID, ip.roleID, ip.delta AS status, ip.modified')
 			->select("r.abbreviation_$tag AS roleCode, r.name_$tag AS role")
 			->from('#__organizer_instance_persons AS ip')
 			->innerJoin('#__organizer_roles AS r ON r.id = ip.roleID')
@@ -731,12 +699,13 @@ class Instances extends ResourceHelper
 			$assocID  = $personAssoc['assocID'];
 			$personID = $personAssoc['personID'];
 			$person   = [
-				'assocID' => $assocID,
-				'code'    => $personAssoc['roleCode'],
-				'person'  => Persons::getLNFName($personID, true),
-				'role'    => $personAssoc['role'],
-				'roleID'  => $personAssoc['roleID'],
-				'status'  => $personAssoc['status']
+				'assocID'    => $assocID,
+				'code'       => $personAssoc['roleCode'],
+				'person'     => Persons::getLNFName($personID, true),
+				'role'       => $personAssoc['role'],
+				'roleID'     => $personAssoc['roleID'],
+				'status'     => $personAssoc['status'],
+				'statusDate' => $personAssoc['modified']
 			];
 
 			self::setGroups($person, $conditions);
@@ -760,7 +729,7 @@ class Instances extends ResourceHelper
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 
-		$query->select('ir.roomID, ir.delta, r.name')
+		$query->select('ir.roomID, ir.delta, ir.modified, r.name')
 			->from('#__organizer_instance_rooms AS ir')
 			->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
 			->where("ir.assocID = {$person['assocID']}");
@@ -777,8 +746,9 @@ class Instances extends ResourceHelper
 		{
 			$roomID = $room['roomID'];
 			$room   = [
-				'room'   => $room['name'],
-				'status' => $room['delta']
+				'room'       => $room['name'],
+				'status'     => $room['delta'],
+				'statusDate' => $room['modified']
 			];
 
 			$rooms[$roomID] = $room;

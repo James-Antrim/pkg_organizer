@@ -110,7 +110,7 @@ class Dates
 	{
 		$dateTime  = strtotime($date);
 		$startDate = date('Y-m-d', strtotime('first day of this month', $dateTime));
-		$endDate   = date('Y-m-d 23:59:00', strtotime('last day of this month', $dateTime));
+		$endDate   = date('Y-m-d', strtotime('last day of this month', $dateTime));
 
 		return ['startDate' => $startDate, 'endDate' => $endDate];
 	}
