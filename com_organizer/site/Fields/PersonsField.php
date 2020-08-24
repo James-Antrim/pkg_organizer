@@ -17,6 +17,8 @@ use Organizer\Helpers;
  */
 class PersonsField extends OptionsField
 {
+	use Dependent;
+
 	/**
 	 * @var  string
 	 */

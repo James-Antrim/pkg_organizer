@@ -58,18 +58,6 @@ class Instances extends ListModel
 		{
 			$params = Helpers\Input::getParams();
 
-			if (!$groups = $form->getField('groupID', 'filter')->options or count($groups) === 1)
-			{
-				$form->removeField('groupID', 'filter');
-				unset($this->filter_fields[array_search('groupID', $this->filter_fields)]);
-			}
-
-			if (!$persons = $form->getField('personID', 'filter')->options or count($persons) === 1)
-			{
-				$form->removeField('personID', 'filter');
-				unset($this->filter_fields[array_search('personID', $this->filter_fields)]);
-			}
-
 			if ($params->get('campusID'))
 			{
 				$form->removeField('campusID', 'filter');

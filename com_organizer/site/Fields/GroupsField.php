@@ -17,6 +17,7 @@ use Organizer\Helpers;
  */
 class GroupsField extends OptionsField
 {
+	use Dependent;
 
 	/**
 	 * @var  string

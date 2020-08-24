@@ -325,13 +325,11 @@ class Persons extends Associated implements Selectable
 
 			$where = 'a.organizationID IN (' . implode(',', $organizationIDs) . ')';
 
-			$selectedCategories = Input::getFilterIDs('category');
-
-			if (!empty($selectedPrograms))
+			if ($selectedCategories = Input::getFilterIDs('category'))
 			{
 				$categoryIDs = "'" . str_replace(',', "', '", $selectedCategories) . "'";
 				$query->innerJoin('#__organizer_instance_persons AS ip ON ip.personID = p.id')
-					->innerJoin('#__organizer_instance_groups AS ig ON ig.accocID = ip.id')
+					->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
 					->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
 
 				$where .= " AND g.categoryID in ($categoryIDs)";

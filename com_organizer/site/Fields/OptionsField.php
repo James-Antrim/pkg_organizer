@@ -62,8 +62,11 @@ class OptionsField extends FormField
 		$attr .= empty($this->getAttribute('onblur')) ?
 			'' : ' onblur="' . $this->getAttribute('onblur') . '"';
 
-		// Get the field options.
-		$this->options = (array) $this->getOptions();
+		// Check for previous initialization using the dependent trait.
+		if (empty($this->options))
+		{
+			$this->options = (array) $this->getOptions();
+		}
 
 		return Helpers\HTML::_(
 			'select.genericlist',
