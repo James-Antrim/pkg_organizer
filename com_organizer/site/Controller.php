@@ -368,7 +368,7 @@ class Controller extends BaseController
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
 		$model     = new $modelName;
 
-		if ($model->toggle())
+		if (method_exists($model, 'toggle') and $model->toggle())
 		{
 			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
 		}

@@ -36,35 +36,21 @@ class Schedules extends ListView
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_SCHEDULES'), 'calendars');
 		$toolbar = Toolbar::getInstance();
+
 		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton('Standard', 'play', 'Move Schedules', 'schedules.moveSchedules', false);
 			$toolbar->appendButton('Standard', 'next', 'Migrate Resources', 'schedules.migrateResources', false);
 			$toolbar->appendButton('Standard', 'last', 'Migrate Schedules', 'schedules.migrateSchedules', false);
+			$toolbar->appendButton(
+				'Confirm',
+				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+				'delete',
+				Helpers\Languages::_('ORGANIZER_DELETE'),
+				'schedules.delete',
+				true
+			);
 		}
-		/*$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'schedules.add', false);
-		$toolbar->appendButton(
-			'Standard',
-			'default',
-			Helpers\Languages::_('ORGANIZER_ACTIVATE'),
-			'schedules.activate',
-			true
-		);
-		$toolbar->appendButton(
-			'Standard',
-			'tree',
-			Helpers\Languages::_('ORGANIZER_CALCULATE_DELTA'),
-			'schedules.setReference',
-			true
-		);
-		$toolbar->appendButton(
-			'Confirm',
-			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Helpers\Languages::_('ORGANIZER_DELETE'),
-			'schedules.delete',
-			true
-		);*/
 	}
 
 	/**
@@ -84,15 +70,13 @@ class Schedules extends ListView
 	 */
 	public function setHeaders()
 	{
-		$ordering  = $this->state->get('list.ordering');
-		$direction = $this->state->get('list.direction');
-		$headers   = [
+		$headers = [
 			'checkbox'         => '',
-			'organizationName' => Helpers\HTML::sort('ORGANIZATION', 'organizationName', $direction, $ordering),
-			'termName'         => Helpers\HTML::sort('TERM', 'termName', $direction, $ordering),
-			'active'           => Helpers\HTML::sort('STATUS', 'active', $direction, $ordering),
-			'userName'         => Helpers\HTML::sort('USERNAME', 'userName', $direction, $ordering),
-			'created'          => Helpers\HTML::sort('CREATION_DATE', 'created', $direction, $ordering)
+			'organizationName' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
+			'termName'         => Helpers\Languages::_('ORGANIZER_TERM'),
+			'active'           => Helpers\Languages::_('ORGANIZER_STATUS'),
+			'userName'         => Helpers\Languages::_('ORGANIZER_USERNAME'),
+			'created'          => Helpers\Languages::_('ORGANIZER_CREATION_DATE')
 		];
 
 		$this->headers = $headers;
@@ -105,13 +89,14 @@ class Schedules extends ListView
 	 */
 	protected function structureItems()
 	{
+		$icon            = '<span class="icon-XCLASSX"></span>';
 		$index           = 0;
 		$structuredItems = [];
 
 		foreach ($this->items as $item)
 		{
-			$item->active =
-				$this->getToggle('schedule', $item->id, $item->active, 'ORGANIZER_TOGGLE_ACTIVE');
+			$class        = empty($item->active) ? 'checkbox-unchecked' : 'checkbox-checked';
+			$item->active = str_replace('XCLASSX', $class, $icon);
 
 			$creationDate  = Helpers\Dates::formatDate($item->creationDate);
 			$creationTime  = Helpers\Dates::formatTime($item->creationTime);

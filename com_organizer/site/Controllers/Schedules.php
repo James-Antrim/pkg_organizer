@@ -25,29 +25,6 @@ class Schedules extends Controller
 	protected $resource = 'schedule';
 
 	/**
-	 * Performs access checks. Checks if the schedule is already active. If the
-	 * schedule is not already active, calls the activate function of the
-	 * schedule model.
-	 *
-	 * @return void
-	 */
-	public function activate()
-	{
-		$model = new Models\Schedule;
-
-		if ($model->activate())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_ACTIVATE_SUCCESS');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_ACTIVATE_FAIL', 'error');
-		}
-
-		$this->setRedirect("index.php?option=com_organizer&view={$this->listView}");
-	}
-
-	/**
 	 * Moves instances from the old table to the new table.
 	 *
 	 * @return void
@@ -109,30 +86,6 @@ class Schedules extends Controller
 		else
 		{
 			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=schedules";
-		$this->setRedirect($url);
-	}
-
-	/**
-	 * performs access checks, activates/deactivates the chosen schedule in the
-	 * context of its term, and redirects to the schedule manager view
-	 *
-	 * @return void
-	 */
-	public function setReference()
-	{
-		$model = new Models\Schedule;
-
-		if ($model->setReference())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_SUCCESS');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_FAIL', 'error');
 		}
 
 		$url = Helpers\Routing::getRedirectBase();
