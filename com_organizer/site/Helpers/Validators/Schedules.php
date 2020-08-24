@@ -25,8 +25,6 @@ class Schedules
 
 	public $creationTime;
 
-	public $organizationID;
-
 	public $errors = [];
 
 	public $events = null;
@@ -39,13 +37,13 @@ class Schedules
 
 	public $methods = null;
 
+	public $organizationID;
+
 	public $persons = null;
 
 	public $rooms = null;
 
 	public $roomtypes = null;
-
-	public $schedule = null;
 
 	public $schoolYear = null;
 
@@ -57,6 +55,7 @@ class Schedules
 
 	public $warnings = [];
 
+	public $xml = null;
 
 	/**
 	 * Creates a status report based upon object error and warning messages
@@ -67,7 +66,7 @@ class Schedules
 	{
 		if (count($this->errors))
 		{
-			$errorMessage = \JText::_('ORGANIZER_ERROR_HEADER') . '<br />';
+			$errorMessage = Helpers\Languages::_('ORGANIZER_ERROR_HEADER') . '<br />';
 			$errorMessage .= implode('<br />', $this->errors);
 			Helpers\OrganizerHelper::message($errorMessage, 'error');
 		}
@@ -89,30 +88,56 @@ class Schedules
 	{
 		$this->organizationID = Helpers\Input::getInt('organizationID');
 		$formFiles            = Helpers\Input::getInput()->files->get('jform', [], 'array');
-		$this->schedule       = simplexml_load_file($formFiles['file']['tmp_name']);
+		$this->xml            = simplexml_load_file($formFiles['file']['tmp_name']);
 
 		// Unused & mostly unfilled nodes
-		unset($this->schedule->lesson_date_schemes, $this->schedule->lesson_tables, $this->schedule->reductions);
-		unset($this->schedule->reduction_reasons, $this->schedule->studentgroups, $this->schedule->students);
+		unset($this->xml->lesson_date_schemes, $this->xml->lesson_tables, $this->xml->reductions);
+		unset($this->xml->reduction_reasons, $this->xml->studentgroups, $this->xml->students);
 
 		// Creation Date & Time, school year dates, term attributes
-		$this->creationDate = trim((string) $this->schedule[0]['date']);
+		$this->creationDate = trim((string) $this->xml[0]['date']);
 		$validCreationDate  = $this->validateDate($this->creationDate, 'CREATION_DATE');
 
-		$this->creationTime = trim((string) $this->schedule[0]['time']);
-		$validCreationTime  = $this->validateText($this->creationTime, 'CREATION_TIME');
+		$this->creationTime = trim((string) $this->xml[0]['time']);
 
-		$valid = ($validCreationDate and $validCreationTime);
+		$valid = ($validCreationDate and $this->validateCreationTime());
 
-		Terms::validate($this, $this->schedule->general);
+		Terms::validate($this, $this->xml->general);
 		$valid = ($valid and !empty($this->term));
-		unset($this->schedule->general);
+		unset($this->xml->general);
 
 		$this->validateResources($valid);
 
 		$this->printStatusReport();
 
 		return (count($this->errors)) ? false : true;
+	}
+
+	/**
+	 * Validates a text attribute. Sets the attribute if valid.
+	 *
+	 * @return mixed string the text if valid, otherwise bool false
+	 */
+	public function validateCreationTime()
+	{
+		if (empty($this->creationTime))
+		{
+			$this->errors[] = Helpers\Languages::_("ORGANIZER_CREATION_TIME_MISSING");
+
+			return false;
+		}
+
+		if (!preg_match('/^[\d]{6}$/', $this->creationTime))
+		{
+			$this->errors[]     = Helpers\Languages::_("ORGANIZER_CREATION_TIME_INVALID");
+			$this->creationTime = '';
+
+			return false;
+		}
+
+		$this->creationTime = implode(':', str_split($this->creationTime, 2));
+
+		return true;
 	}
 
 	/**
@@ -152,69 +177,69 @@ class Schedules
 	public function validateResources($validTerm)
 	{
 		$this->categories = new stdClass;
-		foreach ($this->schedule->departments->children() as $node)
+		foreach ($this->xml->departments->children() as $node)
 		{
 			Categories::validate($this, $node);
 		}
-		unset($this->schedule->departments);
+		unset($this->xml->departments);
 
 		$this->methods   = new stdClass;
 		$this->roomtypes = new stdClass;
-		foreach ($this->schedule->descriptions->children() as $node)
+		foreach ($this->xml->descriptions->children() as $node)
 		{
 			Descriptions::validate($this, $node);
 		}
-		unset($this->schedule->descriptions);
+		unset($this->xml->descriptions);
 
 		$this->grids = new stdClass;
-		foreach ($this->schedule->timeperiods->children() as $node)
+		foreach ($this->xml->timeperiods->children() as $node)
 		{
 			Grids::validate($this, $node);
 		}
 		Grids::setIDs($this);
-		unset($this->schedule->timeperiods);
+		unset($this->xml->timeperiods);
 
 		$this->events = new stdClass;
-		foreach ($this->schedule->subjects->children() as $node)
+		foreach ($this->xml->subjects->children() as $node)
 		{
 			Events::validate($this, $node);
 		}
 		Events::setWarnings($this);
-		unset($this->schedule->subjects);
+		unset($this->xml->subjects);
 
 		$this->groups = new stdClass;
-		foreach ($this->schedule->classes->children() as $node)
+		foreach ($this->xml->classes->children() as $node)
 		{
 			Groups::validate($this, $node);
 		}
-		unset($this->categories, $this->grids, $this->schedule->classes);
+		unset($this->categories, $this->grids, $this->xml->classes);
 
 		$this->persons = new stdClass;
-		foreach ($this->schedule->teachers->children() as $node)
+		foreach ($this->xml->teachers->children() as $node)
 		{
 			Persons::validate($this, $node);
 		}
 		Persons::setWarnings($this);
-		unset($this->schedule->teachers);
+		unset($this->xml->teachers);
 
 		$this->rooms = new stdClass;
-		foreach ($this->schedule->rooms->children() as $node)
+		foreach ($this->xml->rooms->children() as $node)
 		{
 			Rooms::validate($this, $node);
 		}
 		Rooms::setWarnings($this);
-		unset($this->roomtypes, $this->schedule->rooms);
+		unset($this->roomtypes, $this->xml->rooms);
 
 		if ($validTerm)
 		{
 			$this->units = new stdClass;
-			foreach ($this->schedule->lessons->children() as $node)
+			foreach ($this->xml->lessons->children() as $node)
 			{
 				Units::validate($this, $node);
 			}
 			Units::setWarnings($this);
 		}
-		unset($this->groups, $this->events, $this->methods, $this->persons, $this->schedule, $this->term);
+		unset($this->events, $this->groups, $this->methods, $this->persons, $this->term);
 	}
 
 	/**
@@ -224,7 +249,7 @@ class Schedules
 	 * @param   string  $constant  the unique text constant fragment
 	 * @param   string  $regex     the regex to check the text against
 	 *
-	 * @return mixed string the text if valid, otherwise bool false
+	 * @return bool false if blocking errors were found, otherwise true
 	 */
 	public function validateText($value, $constant, $regex = '')
 	{
