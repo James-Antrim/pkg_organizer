@@ -18,6 +18,16 @@
 #todo sprachenzentrum as organization & associate persons
 #todo unit specific publishing
 #todo untis unit statistic key for organizer unpublished
+#todo add  pdf/xml support for list views
+
+#endregion
+
+#region instances ######################################################################################################
+
+#todo add pdf/xml formats
+#todo add custom interval for 'Veranstaltungen in der Vorlesungsfreie Zeit'
+#todo shorten the OEs of lengthy titles
+#todo add 'termine' to the german title output as appropriate
 
 #endregion
 
