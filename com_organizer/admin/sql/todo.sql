@@ -1,18 +1,6 @@
 # region planning data migrated
 
 #drop methodid fk, index & column from units
-# make table modification automatic when no external dependency exists
-ALTER TABLE `v7ocf_organizer_instances`
-    MODIFY `modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
-ALTER TABLE `v7ocf_organizer_instance_persons`
-    MODIFY `modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
-ALTER TABLE `v7ocf_organizer_instance_groups`
-    MODIFY `modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
-ALTER TABLE `v7ocf_organizer_instance_rooms`
-    MODIFY `modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 # remove events which are not associated with instances
 DELETE
