@@ -18,10 +18,6 @@ use Organizer\Helpers;
  */
 class Schedules extends ListModel
 {
-	protected $defaultOrdering = 'created';
-
-	protected $defaultDirection = 'DESC';
-
 	protected $filter_fields = ['organizationID', 'termID'];
 
 	/**
@@ -44,14 +40,14 @@ class Schedules extends ListModel
 			->from('#__organizer_schedules AS s')
 			->innerJoin('#__organizer_organizations AS o ON o.id = s.organizationID')
 			->innerJoin('#__organizer_terms AS term ON term.id = s.termID')
-			->leftJoin('#__users AS u ON u.id = s.userID');
+			->leftJoin('#__users AS u ON u.id = s.userID')
+			->order('created DESC');
 
 		$authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
 		$query->where("o.id IN ($authorized)");
 
 		$this->setActiveFilter($query, 's');
 		$this->setValueFilters($query, ['organizationID', 'termID']);
-		$this->setOrdering($query);
 
 		return $query;
 	}
