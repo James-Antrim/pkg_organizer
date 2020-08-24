@@ -19,6 +19,7 @@
 #todo unit specific publishing
 #todo untis unit statistic key for organizer unpublished
 #todo add  pdf/xml support for list views
+#todo change the delta column to a signed int -1 'remove', 0 'no change from previous schedule', 1 'new'
 
 #endregion
 
