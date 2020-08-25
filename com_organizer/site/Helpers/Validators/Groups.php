@@ -126,7 +126,7 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 			return;
 		}
 
-		$group             = new stdClass;
+		$group             = new stdClass();
 		$group->categoryID = $category->id;
 		$group->untisID    = $untisID;
 		$group->fullName   = $fullName;

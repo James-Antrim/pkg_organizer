@@ -26,7 +26,7 @@ class SubjectItem extends BaseView
 	 */
 	public function display()
 	{
-		$model = new Model;
+		$model = new Model();
 		echo json_encode($model->getItem(), JSON_UNESCAPED_UNICODE);
 	}
 }

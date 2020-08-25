@@ -96,7 +96,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function validate($model, $node)
 	{
-		$model->schoolYear            = new stdClass;
+		$model->schoolYear            = new stdClass();
 		$model->schoolYear->endDate   = trim((string) $node->schoolyearenddate);
 		$model->schoolYear->startDate = trim((string) $node->schoolyearbegindate);
 
@@ -104,7 +104,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 		$validSYSD = $model->validateDate($model->schoolYear->startDate, 'SCHOOL_YEAR_START_DATE');
 		$valid     = ($validSYED and $validSYSD);
 
-		$term            = new stdClass;
+		$term            = new stdClass();
 		$term->endDate   = trim((string) $node->termenddate);
 		$validTED        = $model->validateDate($term->endDate, 'TERM_END_DATE');
 		$term->code      = trim((string) $node->footer);

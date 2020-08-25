@@ -93,7 +93,7 @@ class OptionsField extends FormField
 		foreach ($this->element->xpath('option') as $optionTag)
 		{
 
-			$option        = new stdClass;
+			$option        = new stdClass();
 			$option->value = (string) $optionTag['value'];
 
 			$text         = trim((string) $optionTag) != '' ? trim((string) $optionTag) : $option->value;

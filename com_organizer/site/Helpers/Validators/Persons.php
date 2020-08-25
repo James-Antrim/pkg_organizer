@@ -151,7 +151,7 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 			return;
 		}
 
-		$person           = new stdClass;
+		$person           = new stdClass();
 		$person->surname  = $surname;
 		$person->code     = $untisID;
 		$person->username = trim((string) $node->payrollnumber);

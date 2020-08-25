@@ -51,14 +51,14 @@ spl_autoload_register(function ($originalClassName) {
 			or interface_exists($namespacedClassName)
 			or trait_exists($namespacedClassName)
 		);
-		if (!$valid AND JDEBUG)
+		if (!$valid and JDEBUG)
 		{
 			echo "<pre>" . print_r('no class!', true) . "</pre>";
 			echo "<pre>class name:              " . print_r($className, true) . "</pre>";
 			echo "<pre>original fq namespace:   " . print_r($originalClassName, true) . "</pre>";
 			echo "<pre>calculated fq namespace: " . print_r($namespacedClassName, true) . "</pre>";
 			echo "<pre>file path:               " . print_r($filepath, true) . "</pre>";
-			$exc = new Exception;
+			$exc = new Exception();
 			echo "<pre>" . print_r($exc->getTraceAsString(), true) . "</pre>";
 			die;
 		}

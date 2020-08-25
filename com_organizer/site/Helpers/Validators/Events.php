@@ -112,7 +112,7 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 			$subjectNo = '';
 		}
 
-		$event                 = new stdClass;
+		$event                 = new stdClass();
 		$event->organizationID = $model->organizationID;
 		$event->code           = $code;
 		$event->name_de        = $name;

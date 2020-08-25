@@ -51,7 +51,7 @@ class ColorsField extends ColoredOptionsField
 
 		foreach ($colors as $color)
 		{
-			$option        = new stdClass;
+			$option        = new stdClass();
 			$option->text  = $color['text'];
 			$option->value = $color['value'];
 

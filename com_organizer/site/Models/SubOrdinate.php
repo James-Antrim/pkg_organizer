@@ -117,7 +117,7 @@ trait SubOrdinate
 		$superOrdinateRanges = [];
 		foreach ($data['superordinates'] as $superOrdinateID)
 		{
-			$table = new Curricula;
+			$table = new Curricula();
 
 			// Non-existent or invalid entry
 			if (!$table->load($superOrdinateID) or $table->subjectID)

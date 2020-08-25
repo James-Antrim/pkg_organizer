@@ -178,22 +178,22 @@ class Schedules
 	 */
 	public function validateResources($validTerm)
 	{
-		$this->categories = new stdClass;
+		$this->categories = new stdClass();
 		foreach ($this->xml->departments->children() as $node)
 		{
 			Categories::validate($this, $node);
 		}
 		unset($this->xml->departments);
 
-		$this->methods   = new stdClass;
-		$this->roomtypes = new stdClass;
+		$this->methods   = new stdClass();
+		$this->roomtypes = new stdClass();
 		foreach ($this->xml->descriptions->children() as $node)
 		{
 			Descriptions::validate($this, $node);
 		}
 		unset($this->xml->descriptions);
 
-		$this->grids = new stdClass;
+		$this->grids = new stdClass();
 		foreach ($this->xml->timeperiods->children() as $node)
 		{
 			Grids::validate($this, $node);
@@ -201,7 +201,7 @@ class Schedules
 		Grids::setIDs($this);
 		unset($this->xml->timeperiods);
 
-		$this->events = new stdClass;
+		$this->events = new stdClass();
 		foreach ($this->xml->subjects->children() as $node)
 		{
 			Events::validate($this, $node);
@@ -209,14 +209,14 @@ class Schedules
 		Events::setWarnings($this);
 		unset($this->xml->subjects);
 
-		$this->groups = new stdClass;
+		$this->groups = new stdClass();
 		foreach ($this->xml->classes->children() as $node)
 		{
 			Groups::validate($this, $node);
 		}
 		unset($this->categories, $this->grids, $this->xml->classes);
 
-		$this->persons = new stdClass;
+		$this->persons = new stdClass();
 		foreach ($this->xml->teachers->children() as $node)
 		{
 			Persons::validate($this, $node);
@@ -224,7 +224,7 @@ class Schedules
 		Persons::setWarnings($this);
 		unset($this->xml->teachers);
 
-		$this->rooms = new stdClass;
+		$this->rooms = new stdClass();
 		foreach ($this->xml->rooms->children() as $node)
 		{
 			Rooms::validate($this, $node);
@@ -234,9 +234,9 @@ class Schedules
 
 		if ($validTerm)
 		{
-			$standardDate = Helpers\Dates::standardizeDate($this->creationDate);
+			$standardDate   = Helpers\Dates::standardizeDate($this->creationDate);
 			$this->modified = date('Y-m-d H:i:s', strtotime("$standardDate $this->creationTime"));
-			$this->units = new stdClass();
+			$this->units    = new stdClass();
 			foreach ($this->xml->lessons->children() as $node)
 			{
 				Units::validate($this, $node);

@@ -419,8 +419,8 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	protected function processCollection($collection, $organizationID, $parentID)
 	{
-		$pool    = new Pool;
-		$subject = new Subject;
+		$pool    = new Pool();
+		$subject = new Subject();
 
 		foreach ($collection as $subOrdinate)
 		{

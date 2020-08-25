@@ -32,7 +32,7 @@ trait Associated
 		{
 			$conditions = ["{$this->resource}ID" => $resourceID, 'organizationID' => $organizationID];
 			$requested  = in_array($organizationID, $organizationIDs);
-			$table      = new Associations;
+			$table      = new Associations();
 
 			if ($table->load($conditions))
 			{

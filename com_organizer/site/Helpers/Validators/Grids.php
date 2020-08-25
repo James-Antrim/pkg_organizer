@@ -117,8 +117,8 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 		// Set the grid if not already existent
 		if (empty($model->grids->$gridName))
 		{
-			$model->grids->$gridName          = new stdClass;
-			$model->grids->$gridName->periods = new stdClass;
+			$model->grids->$gridName          = new stdClass();
+			$model->grids->$gridName->periods = new stdClass();
 		}
 
 		$grid = $model->grids->$gridName;
@@ -135,7 +135,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		$periods = $grid->periods;
 
-		$periods->$periodNo            = new stdClass;
+		$periods->$periodNo            = new stdClass();
 		$periods->$periodNo->startTime = $startTime;
 		$periods->$periodNo->endTime   = $endTime;
 

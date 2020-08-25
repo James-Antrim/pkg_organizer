@@ -847,7 +847,7 @@ class Subject extends CurriculumResource
 	 */
 	private function setPersonsByRoles($subjectID, $persons, $role)
 	{
-		$subjectModel = new Subject;
+		$subjectModel = new Subject();
 		$removed      = $subjectModel->removePersons($subjectID, $role);
 
 		if (!$removed)

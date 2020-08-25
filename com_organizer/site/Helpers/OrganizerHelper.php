@@ -327,7 +327,7 @@ class OrganizerHelper
 
 		if (empty($controllerObj))
 		{
-			$controllerObj = new Controller;
+			$controllerObj = new Controller();
 		}
 
 		try

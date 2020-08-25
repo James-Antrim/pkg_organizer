@@ -63,7 +63,7 @@ class Run extends BaseModel
 		$run         = ['runs' => $runs];
 		$data['run'] = json_encode($run, JSON_UNESCAPED_UNICODE);
 
-		$table = new RunsTable;
+		$table = new Tables\Runs();
 
 		return $table->save($data) ? $table->id : false;
 	}

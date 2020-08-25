@@ -127,7 +127,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 			$buildingID = Helpers\Buildings::getID($matches[1]);
 		}
 
-		$room             = new stdClass;
+		$room             = new stdClass();
 		$room->buildingID = $buildingID;
 		$room->capacity   = $capacity;
 		$room->name       = $untisID;

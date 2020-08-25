@@ -129,7 +129,7 @@ class Instances extends Helpers\ResourceHelper
 		// New format calendar items are created as necessary
 		if (!isset($calendar->$currentDate))
 		{
-			$calendar->$currentDate = new stdClass;
+			$calendar->$currentDate = new stdClass();
 		}
 
 		$endTime   = trim((string) $node->assigned_endtime);
@@ -138,12 +138,12 @@ class Instances extends Helpers\ResourceHelper
 		$times = $startTime . '-' . $endTime;
 		if (!isset($calendar->$currentDate->$times))
 		{
-			$calendar->$currentDate->$times = new stdClass;
+			$calendar->$currentDate->$times = new stdClass();
 		}
 
 		if (!isset($calendar->$currentDate->$times->$untisID))
 		{
-			$entry                 = new stdClass;
+			$entry                 = new stdClass();
 			$entry->delta          = '';
 			$entry->configurations = [];
 
@@ -152,11 +152,11 @@ class Instances extends Helpers\ResourceHelper
 
 		$unit = $model->schedule->lessons->$untisID;
 
-		$config            = new stdClass;
+		$config            = new stdClass();
 		$config->lessonID  = $untisID;
 		$config->subjectID = $unit->eventID;
-		$config->teachers  = new stdClass;
-		$config->rooms     = new stdClass;
+		$config->teachers  = new stdClass();
+		$config->rooms     = new stdClass();
 
 		$config->teachers->{$unit->personID} = '';
 

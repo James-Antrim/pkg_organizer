@@ -269,7 +269,7 @@ class Program extends CurriculumResource
 			return false;
 		}
 
-		$subject = new Subject;
+		$subject = new Subject();
 
 		foreach ($programIDs as $programID)
 		{

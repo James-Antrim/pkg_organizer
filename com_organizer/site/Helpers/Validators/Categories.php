@@ -127,7 +127,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 			return;
 		}
 
-		$category          = new stdClass;
+		$category          = new stdClass();
 		$category->name_de = $name;
 		$category->name_en = $name;
 		$category->code    = $code;
