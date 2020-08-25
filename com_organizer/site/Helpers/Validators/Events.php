@@ -107,9 +107,8 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		if (empty($subjectNo))
 		{
-			$model->warnings['SUNO'] = empty($model->warnings['SUNO']) ? 1 : $model->warnings['SUNO']++;
-
-			$subjectNo = '';
+			$model->warnings['SUNO'] = empty($model->warnings['SUNO']) ? 1 : $model->warnings['SUNO'] + 1;
+			$subjectNo               = '';
 		}
 
 		$event                 = new stdClass();

@@ -298,7 +298,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		$methodID = trim((string) $node->lesson_description);
 		if (empty($methodID))
 		{
-			$model->warnings['MID'] = empty($model->warnings['MID']) ? 1 : $model->warnings['MID']++;
+			$model->warnings['MID'] = empty($model->warnings['MID']) ? 1 : $model->warnings['MID'] + 1;
 
 			return true;
 		}
@@ -507,7 +507,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		//$unit         = $model->units->$unitID;
-		$unit    = $model->schedule->lessons->$unitID;
+		$unit = $model->schedule->lessons->$unitID;
 
 		if (empty($unit->eventID))
 		{
@@ -580,10 +580,10 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			return false;
 		}
 
-		$eventID  = $unit->eventID;
+		$eventID = $unit->eventID;
 
-		$model->schedule->lessons->$unitID->personID = $personID;
-		$unit->subjects->$eventID->teachers->$personID   = '';
+		$model->schedule->lessons->$unitID->personID   = $personID;
+		$unit->subjects->$eventID->teachers->$personID = '';
 
 		return true;
 	}
