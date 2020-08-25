@@ -96,7 +96,7 @@ class OrganizerHelper
 				}
 			}
 
-			return $dbo->$function();
+			return ($result = $dbo->$function()) ? $result : $default;
 		}
 		catch (RuntimeException $exc)
 		{
@@ -110,8 +110,6 @@ class OrganizerHelper
 
 			return $default;
 		}
-
-		return $default;
 	}
 
 	/**
