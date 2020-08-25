@@ -37,6 +37,8 @@ class Schedules
 
 	public $methods = null;
 
+	public $modified = null;
+
 	public $organizationID;
 
 	public $persons = null;
@@ -232,14 +234,16 @@ class Schedules
 
 		if ($validTerm)
 		{
-			$this->units = new stdClass;
+			$standardDate = Helpers\Dates::standardizeDate($this->creationDate);
+			$this->modified = date('Y-m-d H:i:s', strtotime("$standardDate $this->creationTime"));
+			$this->units = new stdClass();
 			foreach ($this->xml->lessons->children() as $node)
 			{
 				Units::validate($this, $node);
 			}
 			Units::setWarnings($this);
 		}
-		unset($this->events, $this->groups, $this->methods, $this->persons, $this->term);
+		unset($this->events, $this->groups, $this->methods, $this->persons, $this->term, $this->xml);
 	}
 
 	/**
