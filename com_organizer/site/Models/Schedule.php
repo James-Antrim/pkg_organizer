@@ -560,7 +560,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return void sets object properties
 	 */
-	private function setDeltaContext($scheduleID)
+	public function setDeltaContext($scheduleID)
 	{
 		$table = new Tables\Schedules;
 		if ($table->load($scheduleID))
@@ -570,11 +570,7 @@ class Schedule extends BaseModel
 			$this->instanceIDs    = array_keys($this->instances);
 			$this->termID         = $table->termID;
 			$this->unitIDs        = $this->getUnitIDs($this->instanceIDs);
-
-			return true;
 		}
-
-		return false;
 	}
 
 	/**
@@ -582,7 +578,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return bool
 	 */
-	private function setRemoved()
+	public function setRemoved()
 	{
 		$this->setRemovedInstances();
 		$this->setRemovedUnits();
