@@ -175,9 +175,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 			foreach ($unit as $key => $value)
 			{
-
-				// Context based changes need no write protection.
-				if (property_exists($table, $key))
+				if (property_exists($table, $key) and $table->$key != $value)
 				{
 					$table->set($key, $value);
 					$altered = true;
@@ -186,14 +184,16 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 			if ($altered)
 			{
-				$table->set('delta', 'changed');
+				$table->delta = 'changed';
 				$table->store();
 			}
-			elseif (!empty($table->delta))
+			elseif ($table->delta)
 			{
-				$table->set('delta', '');
-				$table->store();
+				$table->delta = '';
 			}
+
+			$table->modified = $model->modified;
+			$table->store();
 
 		}
 		else
