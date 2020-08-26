@@ -169,25 +169,21 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'code' => $untisID]))
 		{
-			$altered = false;
-
 			foreach ($unit as $key => $value)
 			{
 				if (property_exists($table, $key) and $table->$key != $value)
 				{
 					$table->set($key, $value);
-					$altered = true;
 				}
 			}
 
-			if ($altered)
-			{
-				$table->delta = 'changed';
-				$table->store();
-			}
-			elseif ($table->delta)
+			if ($table->delta === 'new')
 			{
 				$table->delta = '';
+			}
+			elseif ($table->delta === 'removed')
+			{
+				$table->delta = 'new';
 			}
 
 			$table->modified = $model->modified;

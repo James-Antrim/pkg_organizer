@@ -31,7 +31,7 @@ class Schedules extends Controller
 	 */
 	public function migrateResources()
 	{
-		$model = new Models\Schedule;
+		$model = new Models\Schedule();
 
 		if ($model->migrateResources())
 		{
@@ -54,7 +54,7 @@ class Schedules extends Controller
 	 */
 	public function migrateSchedules()
 	{
-		$model = new Models\Schedule;
+		$model = new Models\Schedule();
 
 		if ($model->migrateSchedules())
 		{
@@ -77,11 +77,34 @@ class Schedules extends Controller
 	 */
 	public function moveSchedules()
 	{
-		$model = new Models\Schedule;
+		$model = new Models\Schedule();
 
 		if ($model->moveSchedules())
 		{
 			Helpers\OrganizerHelper::message('Schedules moved.');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
+	 * Moves schedules from the old table to the new table.
+	 *
+	 * @return void
+	 */
+	public function rebuild()
+	{
+		$model = new Models\Schedule();
+
+		if ($model->rebuild())
+		{
+			Helpers\OrganizerHelper::message('History rebuilt.');
 		}
 		else
 		{

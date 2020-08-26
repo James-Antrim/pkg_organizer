@@ -43,13 +43,16 @@ class Schedules extends ListView
 			$toolbar->appendButton('Standard', 'next', 'Migrate Resources', 'schedules.migrateResources', false);
 			$toolbar->appendButton('Standard', 'last', 'Migrate Schedules', 'schedules.migrateSchedules', false);
 
-			$toolbar->appendButton(
-				'Standard',
-				'loop',
-				Helpers\Languages::_('ORGANIZER_REFRESH_HISTORY'),
-				'schedules.rebuild',
-				true
-			);
+			if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID'))
+			{
+				$toolbar->appendButton(
+					'Standard',
+					'loop',
+					Helpers\Languages::_('ORGANIZER_REFRESH_HISTORY'),
+					'schedules.rebuild',
+					false
+				);
+			}
 
 			/*$toolbar->appendButton(
 				'Standard',

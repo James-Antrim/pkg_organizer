@@ -20,8 +20,8 @@ use stdClass;
  */
 class Instances extends Helpers\ResourceHelper
 {
-	const NO = 0;
-	const VACATION = 'F';
+	// Occurrence values
+	const NO = 0, VACATION = 'F';
 
 	/**
 	 * Adds the data for locating the missing room information to the warnings.
@@ -101,30 +101,35 @@ class Instances extends Helpers\ResourceHelper
 		$endTime      = preg_replace('/([\d]{2})$/', ':${1}:00', $rawEndTime);
 		$startTime    = preg_replace('/([\d]{2})$/', ':${1}:00', $rawStartTime);
 
-		$blocks    = new Tables\Blocks();
-		$blockData = ['date' => $currentDate, 'startTime' => $startTime, 'endTime' => $endTime];
-		if (!$blocks->load($blockData))
+		$block     = new Tables\Blocks();
+		$blockData = [
+			'date'      => $currentDate,
+			'dow'       => date('w', strtotime($currentDate)),
+			'startTime' => $startTime,
+			'endTime'   => $endTime
+		];
+
+		if (!$block->load($blockData))
 		{
-			$blocks->save($blockData);
+			$block->save($blockData);
 		}
 
-		return $blocks->id;
+		return $block->id;
 	}
 
 	/**
 	 * Processes instance information for the new schedule format
 	 *
-	 * @param   object            $model      the model for the schedule being validated
-	 * @param   SimpleXMLElement  $node       the node being validated
-	 * @param   int               $untisID    the untis id of the unit being iterated
-	 * @param   string            $currentDT  the current datetime value
+	 * @param   object            $model        the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node         the node being validated
+	 * @param   int               $untisID      the untis id of the unit being iterated
+	 * @param   string            $currentDate  the date being currently iterated Y-m-d
 	 *
 	 * @return void
 	 */
-	private static function processInstance($model, $node, $untisID, $currentDT)
+	private static function processInstance($model, $node, $untisID, $currentDate)
 	{
-		$calendar    = $model->schedule->calendar;
-		$currentDate = date('Y-m-d', $currentDT);
+		$calendar = $model->schedule->calendar;
 
 		// New format calendar items are created as necessary
 		if (!isset($calendar->$currentDate))
@@ -234,7 +239,8 @@ class Instances extends Helpers\ResourceHelper
 
 		if (empty($instances[$instanceID][$personID]['groups']))
 		{
-			$newGroups                                   = $groups;
+			$newGroups = $groups;
+
 			$instances[$instanceID][$personID]['groups'] = $newGroups;
 		}
 		else
@@ -247,21 +253,8 @@ class Instances extends Helpers\ResourceHelper
 		foreach ($newGroups as $groupID)
 		{
 			$instanceGroup = ['assocID' => $assocID, 'groupID' => $groupID];
-			$table         = new Tables\InstanceGroups;
-
-			if ($table->load($instanceGroup))
-			{
-				if (!empty($table->delta))
-				{
-					$table->set('delta', '');
-					$table->store();
-				}
-			}
-			else
-			{
-				$instanceGroup['delta'] = 'new';
-				$table->save($instanceGroup);
-			}
+			$table         = new Tables\InstanceGroups();
+			self::updateRelation($model, $table, $instanceGroup);
 		}
 	}
 
@@ -284,34 +277,30 @@ class Instances extends Helpers\ResourceHelper
 			'eventID' => $unit->eventID,
 			'unitID'  => $unit->id
 		];
-		$table    = new Tables\Instances;
+
+		$table = new Tables\Instances();
 
 		if ($table->load($instance))
 		{
-			$altered = false;
+			$table->methodID = $methodID;
 
-			if ($table->methodID != $methodID)
+			if ($table->delta === 'new')
 			{
-				$table->set('methodID', $methodID);
-				$altered = true;
+				$table->delta = '';
+			}
+			elseif ($table->delta === 'removed')
+			{
+				$table->delta = 'new';
 			}
 
-			if ($altered)
-			{
-				$table->set('delta', 'changed');
-				$table->store();
-			}
-			elseif (!empty($table->delta))
-			{
-				$table->set('delta', '');
-				$table->store();
-			}
-
+			$table->modified = $model->modified;
+			$table->store();
 		}
 		else
 		{
 			$instance['delta']    = 'new';
 			$instance['methodID'] = $methodID;
+			$instance['modified'] = $model->modified;
 			$table->save($instance);
 		}
 
@@ -323,9 +312,7 @@ class Instances extends Helpers\ResourceHelper
 			$instances[$instanceID] = [];
 		}
 
-		self::setInstancePerson($model, $untisID, $instanceID);
-
-		return;
+		self::setPerson($model, $untisID, $instanceID);
 	}
 
 	/**
@@ -337,7 +324,7 @@ class Instances extends Helpers\ResourceHelper
 	 *
 	 * @return void
 	 */
-	private static function setInstancePerson($model, $untisID, $instanceID)
+	private static function setPerson($model, $untisID, $instanceID)
 	{
 		$instances = &$model->instances;
 		$unit      = $model->units->$untisID;
@@ -349,33 +336,30 @@ class Instances extends Helpers\ResourceHelper
 
 		$instancePerson = ['instanceID' => $instanceID, 'personID' => $personID];
 		$roleID         = $unit->roleID;
-		$table          = new Tables\InstancePersons();
+
+		$table = new Tables\InstancePersons();
+
 		if ($table->load($instancePerson))
 		{
-			$altered = false;
+			$table->roleID = $roleID;
 
-			if ($table->roleID != $roleID)
+			if ($table->delta === 'new')
 			{
-				$table->roleID = $roleID;
-				$altered       = true;
+				$table->delta = '';
+			}
+			elseif ($table->delta === 'removed')
+			{
+				$table->delta = 'new';
 			}
 
-			if ($altered)
-			{
-				$table->set('delta', 'changed');
-				$table->store();
-			}
-			elseif (!empty($table->delta))
-			{
-				$table->set('delta', '');
-				$table->store();
-			}
-
+			$table->modified = $model->modified;
+			$table->store();
 		}
 		else
 		{
-			$instancePerson['delta']  = 'new';
-			$instancePerson['roleID'] = $roleID;
+			$instancePerson['delta']    = 'new';
+			$instancePerson['modified'] = $model->modified;
+			$instancePerson['roleID']   = $roleID;
 			$table->save($instancePerson);
 		}
 
@@ -407,7 +391,8 @@ class Instances extends Helpers\ResourceHelper
 
 		if (empty($instances[$instanceID][$personID]['rooms']))
 		{
-			$newRooms                                   = $rooms;
+			$newRooms = $rooms;
+
 			$instances[$instanceID][$personID]['rooms'] = $newRooms;
 		}
 		else
@@ -420,21 +405,41 @@ class Instances extends Helpers\ResourceHelper
 		foreach ($newRooms as $roomID)
 		{
 			$instanceRoom = ['assocID' => $assocID, 'roomID' => $roomID];
-			$table        = new Tables\InstanceRooms;
+			$table        = new Tables\InstanceRooms();
+			self::updateRelation($model, $table, $instanceRoom);
+		}
+	}
 
-			if ($table->load($instanceRoom))
+	/**
+	 * Updates a relation table
+	 *
+	 * @param   object                            $model  the model for the schedule being validated
+	 * @param   Tables\BaseTable|Tables\Modified  $table  the table to be updated
+	 * @param   array                             $data   the relation keys
+	 *
+	 * @return void creates / updates a table entry
+	 */
+	private static function updateRelation($model, $table, $data)
+	{
+		if ($table->load($data))
+		{
+			if ($table->delta === 'new')
 			{
-				if (!empty($table->delta))
-				{
-					$table->set('delta', '');
-					$table->store();
-				}
+				$table->delta = '';
 			}
-			else
+			elseif ($table->delta === 'removed')
 			{
-				$instanceRoom['delta'] = 'new';
-				$table->save($instanceRoom);
+				$table->delta = 'new';
 			}
+
+			$table->modified = $model->modified;
+			$table->store();
+		}
+		else
+		{
+			$data['delta']    = 'new';
+			$data['modified'] = $model->modified;
+			$table->save($data);
 		}
 	}
 
@@ -540,8 +545,9 @@ class Instances extends Helpers\ResourceHelper
 
 		if ($valid)
 		{
-			//self::setInstance($model, $node, $untisID, $currentDT);
-			self::processInstance($model, $node, $untisID, $currentDT);
+			$currentDate = date('Y-m-d', $currentDT);
+			//self::setInstance($model, $node, $untisID, $currentDate);
+			self::processInstance($model, $node, $untisID, $currentDate);
 		}
 	}
 }
