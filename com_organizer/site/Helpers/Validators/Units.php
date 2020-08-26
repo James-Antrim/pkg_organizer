@@ -139,8 +139,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	private static function getFilteredOccurrences($model, $node, $unitID)
 	{
 		$rawOccurrences = trim((string) $node->occurence);
-		//$unit           = $model->units->$unitID;
-		$unit = $model->schedule->lessons->$unitID;
+		$unit           = $model->units->$unitID;
 
 		// Increases the end value one day (Untis uses inclusive dates)
 		$end = strtotime('+1 day', $unit->endDT);
@@ -165,8 +164,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function setID($model, $code)
 	{
-		//$unit  = $model->units->$code;
-		$unit  = $model->schedule->lessons->$code;
+		$unit  = $model->units->$code;
 		$table = new Tables\Units();
 
 		if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'code' => $code]))
@@ -261,17 +259,15 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			return false;
 		}
 
-		//$model->units->$unitID->eventID = $model->events->$eventID->id;
-
 		// Backwards compatibility from here on.
-		$eventID                                    = $model->events->$eventCode->id;
-		$model->schedule->lessons->$unitID->eventID = $eventID;
+		$eventID                        = $model->events->$eventCode->id;
+		$model->units->$unitID->eventID = $eventID;
 
-		if (empty($model->schedule->lessons->$unitID->subjects))
+		if (empty($model->units->$unitID->subjects))
 		{
-			$model->schedule->lessons->$unitID->subjects = new stdClass();
+			$model->units->$unitID->subjects = new stdClass();
 		}
-		if (empty($model->schedule->lessons->$unitID->subjects->$eventID))
+		if (empty($model->units->$unitID->subjects->$eventID))
 		{
 			$entry            = new stdClass();
 			$entry->delta     = '';
@@ -279,7 +275,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			$entry->pools     = new stdClass();
 			$entry->teachers  = new stdClass();
 
-			$model->schedule->lessons->$unitID->subjects->$eventID = $entry;
+			$model->units->$unitID->subjects->$eventID = $entry;
 		}
 
 		return true;
@@ -311,8 +307,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			return false;
 		}
 
-		//$model->units->$unitID->methodID = $model->methods->$methodID;
-		$model->schedule->lessons->$unitID->methodID = $model->methods->$methodID;
+		$model->units->$unitID->methodID = $model->methods->$methodID;
 
 		return true;
 	}
@@ -373,7 +368,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			$comment = '';
 		}
 
-		if (empty($model->schedule->lessons->$untisID))
+		if (empty($model->units->$untisID))
 		{
 			$unit                 = new stdClass();
 			$unit->organizationID = $model->organizationID;
@@ -393,11 +388,11 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 		else
 		{
-			$unit = $model->schedule->lessons->$untisID;
+			$unit = $model->units->$untisID;
 		}
 
 		//$model->units->$untisID = $unit;
-		$model->schedule->lessons->$untisID = $unit;
+		$model->units->$untisID = $unit;
 
 		$valid = count($model->errors) === 0;
 		if ($valid)
@@ -428,8 +423,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	private static function validateDates($model, $unitID)
 	{
-		//$unit  = $model->units->$unitID;
-		$unit  = $model->schedule->lessons->$unitID;
+		$unit  = $model->units->$unitID;
 		$valid = true;
 
 		if (empty($unit->startDT))
@@ -508,8 +502,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			return false;
 		}
 
-		//$unit         = $model->units->$unitID;
-		$unit = $model->schedule->lessons->$unitID;
+		$unit = $model->units->$unitID;
 
 		if (empty($unit->eventID))
 		{
@@ -575,7 +568,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		// Backwards compatibility
 		$personID = $model->persons->$personID->id;
-		$unit     = $model->schedule->lessons->$unitID;
+		$unit     = $model->units->$unitID;
 
 		if (empty($unit->eventID))
 		{
@@ -585,7 +578,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		$eventID = $unit->eventID;
 
-		$model->schedule->lessons->$unitID->personID   = $personID;
+		$model->units->$unitID->personID               = $personID;
 		$unit->subjects->$eventID->teachers->$personID = '';
 
 		return true;

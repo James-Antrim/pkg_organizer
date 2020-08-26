@@ -150,7 +150,7 @@ class Instances extends Helpers\ResourceHelper
 			$calendar->$currentDate->$times->$untisID = $entry;
 		}
 
-		$unit = $model->schedule->lessons->$untisID;
+		$unit = $model->units->$untisID;
 
 		$config            = new stdClass();
 		$config->lessonID  = $untisID;
@@ -228,10 +228,9 @@ class Instances extends Helpers\ResourceHelper
 	private static function setGroups($model, $untisID, $instanceID, $assocID)
 	{
 		$instances = &$model->instances;
-		//$unit      = $model->units->$untisID;
-		$unit     = $model->schedule->lessons->$untisID;
-		$personID = $unit->personID;
-		$groups   = $unit->groups;
+		$unit      = $model->units->$untisID;
+		$personID  = $unit->personID;
+		$groups    = $unit->groups;
 
 		if (empty($instances[$instanceID][$personID]['groups']))
 		{
@@ -277,7 +276,7 @@ class Instances extends Helpers\ResourceHelper
 	 * @return void modifies the model, setting the id property of the resource
 	 */
 	public static function setInstance($model, $node, $untisID, $currentDate)
-	{// $model, $node, $untisID, $currentDate
+	{
 		$unit     = $model->units->$untisID;
 		$methodID = empty($unit->methodID) ? null : $unit->methodID;
 		$instance = [
@@ -459,8 +458,7 @@ class Instances extends Helpers\ResourceHelper
 
 		// Instance templates for regular units or actual instances for sporadic units
 		$instances = $node->children();
-		//$unit      = $model->units->$untisID;
-		$unit      = $model->schedule->lessons->$untisID;
+		$unit      = $model->units->$untisID;
 		$currentDT = $unit->startDT;
 
 		foreach ($occurrences as $occurrence)
@@ -509,9 +507,8 @@ class Instances extends Helpers\ResourceHelper
 			return;
 		}
 
-		$periodNo = trim((string) $node->assigned_period);
-		//$unit        = $model->units->$untisID;
-		$unit        = $model->schedule->lessons->$untisID;
+		$periodNo    = trim((string) $node->assigned_period);
+		$unit        = $model->units->$untisID;
 		$unit->rooms = [];
 
 		if (!$roomAttribute = trim((string) $node->assigned_room[0]['id']))
