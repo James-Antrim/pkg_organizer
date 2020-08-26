@@ -259,14 +259,16 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			return false;
 		}
 
-		// Backwards compatibility from here on.
-		$eventID                         = $model->events->$eventCode->id;
+		$eventID = $model->events->$eventCode->id;
+
 		$model->units->$untisID->eventID = $eventID;
 
+		// Backwards compatibility from here on.
 		if (empty($model->units->$untisID->subjects))
 		{
 			$model->units->$untisID->subjects = new stdClass();
 		}
+
 		if (empty($model->units->$untisID->subjects->$eventID))
 		{
 			$entry            = new stdClass();
@@ -509,10 +511,9 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			return false;
 		}
 
-		$eventID = $unit->eventID;
-		//$unit->groups = [];
-		$groups     = [];
-		$groupCodes = explode(" ", $rawUntisIDs);
+		$eventID      = $unit->eventID;
+		$unit->groups = [];
+		$groupCodes   = explode(" ", $rawUntisIDs);
 
 		foreach ($groupCodes as $groupCode)
 		{
@@ -523,17 +524,14 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 				continue;
 			}
 
-			//$unit->groups[] = $model->groups->$groupCode->id;
+			$groupID        = $model->groups->$groupCode->id;
+			$unit->groups[] = $groupID;
 
 			// Backwards compatibility.
-			$groupID  = $model->groups->$groupCode->id;
-			$groups[] = $groupID;
-
 			$unit->subjects->$eventID->pools->$groupID = '';
 		}
 
-		//return count($unit->groups) ? true : false;
-		return count($groups) ? true : false;
+		return count($unit->groups) ? true : false;
 	}
 
 	/**
@@ -563,22 +561,19 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			return false;
 		}
 
-		//$model->units->$untisID->personID = $model->persons->$personID->id;
+		$personID                         = $model->persons->$personCode->id;
+		$model->units->$untisID->personID = $personID;
 
 		// Backwards compatibility
-		$personCode = $model->persons->$personCode->id;
-		$unit       = $model->units->$untisID;
+		$unit = $model->units->$untisID;
 
+		// Error message already added by the event validation.
 		if (empty($unit->eventID))
 		{
-			// Error message already added by the event validation.
 			return false;
 		}
 
-		$eventID = $unit->eventID;
-
-		$model->units->$untisID->personID                = $personCode;
-		$unit->subjects->$eventID->teachers->$personCode = '';
+		$unit->subjects->{$unit->eventID}->teachers->$personID = '';
 
 		return true;
 	}
