@@ -101,7 +101,7 @@ class Instances extends Helpers\ResourceHelper
 		$endTime      = preg_replace('/([\d]{2})$/', ':${1}:00', $rawEndTime);
 		$startTime    = preg_replace('/([\d]{2})$/', ':${1}:00', $rawStartTime);
 
-		$blocks    = new Tables\Blocks;
+		$blocks    = new Tables\Blocks();
 		$blockData = ['date' => $currentDate, 'startTime' => $startTime, 'endTime' => $endTime];
 		if (!$blocks->load($blockData))
 		{
@@ -350,7 +350,7 @@ class Instances extends Helpers\ResourceHelper
 
 		$instancePerson = ['instanceID' => $instanceID, 'personID' => $personID];
 		$roleID         = $unit->roleID;
-		$table          = new Tables\InstancePersons;
+		$table          = new Tables\InstancePersons();
 		if ($table->load($instancePerson))
 		{
 			$altered = false;
@@ -452,14 +452,13 @@ class Instances extends Helpers\ResourceHelper
 	 */
 	public static function validateCollection($model, $node, $untisID, $occurrences, $valid)
 	{
-		// Instance templates for regular units or actual instances for sporadic units
-		$instances = $node->children();
-
-		if (count($instances) == 0)
+		if (!$node->count())
 		{
 			return;
 		}
 
+		// Instance templates for regular units or actual instances for sporadic units
+		$instances = $node->children();
 		//$unit      = $model->units->$untisID;
 		$unit      = $model->schedule->lessons->$untisID;
 		$currentDT = $unit->startDT;
@@ -491,7 +490,7 @@ class Instances extends Helpers\ResourceHelper
 	 * @param   int               $currentDT  the current date time in the iteration
 	 * @param   bool              $valid      whether or not the planning unit is valid (for purposes of saving)
 	 *
-	 * @return void
+	 * @return void errors are added to the model's errors property
 	 */
 	private static function validateInstance($model, $node, $untisID, $currentDT, $valid)
 	{

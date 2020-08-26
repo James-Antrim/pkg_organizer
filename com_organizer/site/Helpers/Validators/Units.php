@@ -107,7 +107,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	private static function getRoleID($role)
 	{
-		if (empty($role) or is_numeric($role))
+		if (empty($role) or !preg_match('/^[a-zA-Z]+$/', $role))
 		{
 			return 1;
 		}
@@ -273,11 +273,12 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 		if (empty($model->schedule->lessons->$unitID->subjects->$eventID))
 		{
-			$entry                                                 = new stdClass();
-			$entry->delta                                          = '';
-			$entry->subjectNo                                      = $model->events->$eventCode->subjectNo;
-			$entry->pools                                          = new stdClass();
-			$entry->teachers                                       = new stdClass();
+			$entry            = new stdClass();
+			$entry->delta     = '';
+			$entry->subjectNo = $model->events->$eventCode->subjectNo;
+			$entry->pools     = new stdClass();
+			$entry->teachers  = new stdClass();
+
 			$model->schedule->lessons->$unitID->subjects->$eventID = $entry;
 		}
 
@@ -430,6 +431,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		//$unit  = $model->units->$unitID;
 		$unit  = $model->schedule->lessons->$unitID;
 		$valid = true;
+
 		if (empty($unit->startDT))
 		{
 			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_START_DATE_MISSING'), $unitID);
@@ -517,10 +519,10 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		$eventID = $unit->eventID;
 		//$unit->groups = [];
-		$groups   = [];
-		$groupIDs = explode(" ", $rawUntisIDs);
+		$groups     = [];
+		$groupCodes = explode(" ", $rawUntisIDs);
 
-		foreach ($groupIDs as $groupCode)
+		foreach ($groupCodes as $groupCode)
 		{
 			if (empty($model->groups->$groupCode))
 			{
@@ -529,11 +531,12 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 				continue;
 			}
 
-			//$unit->groups[] = $model->groups->$groupID->id;
+			//$unit->groups[] = $model->groups->$groupCode->id;
 
 			// Backwards compatibility.
-			$groupID                                   = $model->groups->$groupCode->id;
-			$groups[]                                  = $groupID;
+			$groupID  = $model->groups->$groupCode->id;
+			$groups[] = $groupID;
+
 			$unit->subjects->$eventID->pools->$groupID = '';
 		}
 

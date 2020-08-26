@@ -24,8 +24,8 @@ trait Modified
 	public $delta;
 
 	/**
-	 * The timestamp at which the entry was last modified.
-	 * TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	 * The timestamp at which the schedule was generated which modified this entry.
+	 * TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	 *
 	 * @var int
 	 */
