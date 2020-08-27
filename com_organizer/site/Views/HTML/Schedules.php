@@ -91,7 +91,7 @@ class Schedules extends ListView
 	public function setHeaders()
 	{
 		$headers = [
-			'checkbox'         => '',
+			'checkbox'         => Helpers\HTML::_('grid.checkall'),
 			'organizationName' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
 			'termName'         => Helpers\Languages::_('ORGANIZER_TERM'),
 			'active'           => Helpers\Languages::_('ORGANIZER_STATUS'),

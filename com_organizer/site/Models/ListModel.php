@@ -456,13 +456,18 @@ abstract class ListModel extends ParentModel
 	{
 		$filters = Helpers\Input::getFilterItems();
 		$lists   = Helpers\Input::getListItems();
+		$state   = $this->getState();
 
 		// The view level filters
 		foreach ($queryColumns as $column)
 		{
 			$filterName = strpos($column, '.') === false ? $column : explode('.', $column)[1];
 
-			if (!$value = $filters->get($filterName) and !$value = $lists->get($filterName))
+			if (!$value = $filters->get($filterName)
+				and !$value = $lists->get($filterName)
+				and !$value = $state->get("filter.$filterName")
+				and !$value = $state->get("list.$filterName")
+			)
 			{
 				continue;
 			}
