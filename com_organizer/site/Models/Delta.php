@@ -44,36 +44,40 @@ class Delta extends BaseModel
 		$unit           = new Tables\Units();
 		$unitIDs        = [];
 
-		foreach ($instances as $instanceID => $personIDs)
+		foreach ($instances as $instanceID => $persons)
 		{
 			if (!$instance->load($instanceID))
 			{
 				continue;
 			}
 
-			$instance->delta    = $instance->delta === 'removed' ? 'new' : '';
-			$instance->modified = $this->modified;
-			$instance->store();
+			if (!$instance->load($instanceID) or $instance->modified === $this->modified)
+			{
+				$instance->delta    = $instance->delta === 'removed' ? 'new' : '';
+				$instance->modified = $this->modified;
+				$instance->store();
+			}
 
 			$unitIDs[$instance->unitID] = $instance->unitID;
 
-			$personIDS = [];
-			foreach ($personIDs as $personID => $resources)
+			foreach ($persons as $personID => $resources)
 			{
 				if (!$iPerson->load(['instanceID' => $instanceID, 'personID' => $personID]))
 				{
 					continue;
 				}
 
-				$iPerson->delta    = $iPerson->delta === 'removed' ? 'new' : '';
-				$iPerson->modified = $this->modified;
-				$iPerson->store();
-
-				$personIDS[$personID] = $personID;
+				if ($iPerson->modified !== $this->modified)
+				{
+					$iPerson->delta    = $iPerson->delta === 'removed' ? 'new' : '';
+					$iPerson->modified = $this->modified;
+					$iPerson->store();
+				}
 
 				foreach ($resources['groups'] as $groupID)
 				{
-					if (!$iGroup->load(['assocID' => $iPerson->id, 'groupID' => $groupID]))
+					if (!$iGroup->load(['assocID' => $iPerson->id, 'groupID' => $groupID])
+						or $iGroup->modified === $this->modified)
 					{
 						continue;
 					}
@@ -87,7 +91,8 @@ class Delta extends BaseModel
 
 				foreach ($resources['rooms'] as $roomID)
 				{
-					if (!$iRoom->load(['assocID' => $iPerson->id, 'roomID' => $roomID]))
+					if (!$iRoom->load(['assocID' => $iPerson->id, 'roomID' => $roomID])
+						or $iRoom->modified === $this->modified)
 					{
 						continue;
 					}
@@ -100,7 +105,7 @@ class Delta extends BaseModel
 				$this->setRemoved('instance_rooms', ['assocID' => $iPerson->id], 'roomID', $resources['rooms']);
 			}
 
-			$this->setRemoved('instance_persons', ['instanceID' => $instanceID], 'personID', $personIDS);
+			$this->setRemoved('instance_persons', ['instanceID' => $instanceID], 'personID', array_keys($persons));
 
 		}
 
@@ -110,14 +115,17 @@ class Delta extends BaseModel
 
 		foreach ($unitIDs as $unitID)
 		{
-			if (!$unit->load($unitID))
+			if (!$unit->load($unitID) or $unit->modified === $this->modified)
 			{
 				continue;
 			}
 
-			$unit->delta    = $unit->delta === 'removed' ? 'new' : '';
-			$unit->modified = $this->modified;
-			$unit->store();
+			if ($unit->modified !== $this->modified)
+			{
+				$unit->delta    = $unit->delta === 'removed' ? 'new' : '';
+				$unit->modified = $this->modified;
+				$unit->store();
+			}
 
 			$this->setRemoved('instances', ['unitID' => $unitID], 'id', $instanceIDs);
 		}

@@ -31,31 +31,6 @@ class Schedule extends BaseModel
 	private $unitIDs;
 
 	/**
-	 * Sets the selected schedule to inactive.
-	 *
-	 * @param   int  $scheduleID      the id of the schedule to deactivate
-	 * @param   int  $organizationID  the id of the organization context for the schedule to deactivate
-	 * @param   int  $termID          the id of the term context for the schedule to deactivate
-	 *
-	 * @return bool
-	 */
-	private function authorizedDeactivate($scheduleID = 0, $organizationID = 0, $termID = 0)
-	{
-		$conditions = empty($scheduleID) ?
-			['active' => 1, 'organizationID' => $organizationID, 'termID' => $termID] : $scheduleID;
-		$table      = new Tables\Schedules;
-
-		if (!$table->load($conditions))
-		{
-			return false;
-		}
-
-		$table->set('active', 0);
-
-		return $table->store();
-	}
-
-	/**
 	 * Moves schedules from the old table to the new table.
 	 *
 	 * @param   string  $date  the reference modification date
@@ -94,7 +69,7 @@ class Schedule extends BaseModel
 				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 			}
 
-			$schedule = new Tables\Schedules;
+			$schedule = new Tables\Schedules();
 
 			if ($schedule->load($scheduleID) and !$schedule->delete())
 			{
@@ -111,11 +86,12 @@ class Schedule extends BaseModel
 	}
 
 	/**
-	 * Removed duplicate entries (creationDate, creationTime, organizationID, termID) from the schedules table.
+	 * Removed duplicate entries (creationDate, creationTime, organizationID, termID) from the schedules table. No
+	 * authorization checks, because abuse would not result in actual data loss.
 	 *
 	 * @return void
 	 */
-	private function deleteDuplicates()
+	public function deleteDuplicates()
 	{
 		$conditions = 's1.creationDate = s2.creationDate AND s1.creationTime = s2.creationTime
 						AND s1.organizationID = s2.organizationID AND s1.termID = s2.termID';
