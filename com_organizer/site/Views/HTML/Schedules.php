@@ -22,7 +22,6 @@ class Schedules extends ListView
 		'checkbox'         => '',
 		'organizationName' => 'value',
 		'termName'         => 'value',
-		'active'           => 'value',
 		'userName'         => 'value',
 		'created'          => 'value'
 	];
@@ -90,7 +89,6 @@ class Schedules extends ListView
 			'checkbox'         => Helpers\HTML::_('grid.checkall'),
 			'organizationName' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
 			'termName'         => Helpers\Languages::_('ORGANIZER_TERM'),
-			'active'           => Helpers\Languages::_('ORGANIZER_STATUS'),
 			'userName'         => Helpers\Languages::_('ORGANIZER_USERNAME'),
 			'created'          => Helpers\Languages::_('ORGANIZER_CREATION_DATE')
 		];
@@ -105,15 +103,11 @@ class Schedules extends ListView
 	 */
 	protected function structureItems()
 	{
-		$icon            = '<span class="icon-XCLASSX"></span>';
 		$index           = 0;
 		$structuredItems = [];
 
 		foreach ($this->items as $item)
 		{
-			$class        = empty($item->active) ? 'checkbox-unchecked' : 'checkbox-checked';
-			$item->active = str_replace('XCLASSX', $class, $icon);
-
 			$creationDate  = Helpers\Dates::formatDate($item->creationDate);
 			$creationTime  = Helpers\Dates::formatTime($item->creationTime);
 			$item->created = "$creationDate / $creationTime";

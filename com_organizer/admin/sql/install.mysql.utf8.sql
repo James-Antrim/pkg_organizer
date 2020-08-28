@@ -692,13 +692,12 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_rooms` (
     COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_schedules` (
-    `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `organizationID` INT(11) UNSIGNED    NOT NULL,
-    `termID`         INT(11) UNSIGNED    NOT NULL,
-    `active`         TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-    `creationDate`   DATE                         DEFAULT NULL,
-    `creationTime`   TIME                         DEFAULT NULL,
-    `userID`         INT(11)                      DEFAULT NULL,
+    `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `organizationID` INT(11) UNSIGNED NOT NULL,
+    `termID`         INT(11) UNSIGNED NOT NULL,
+    `creationDate`   DATE    DEFAULT NULL,
+    `creationTime`   TIME    DEFAULT NULL,
+    `userID`         INT(11) DEFAULT NULL,
     `schedule`       MEDIUMTEXT,
     PRIMARY KEY (`id`),
     INDEX `organizationID` (`organizationID`),

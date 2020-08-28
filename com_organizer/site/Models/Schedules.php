@@ -32,7 +32,7 @@ class Schedules extends ListModel
 		$query = $dbo->getQuery(true);
 
 		$createdParts = ['s.creationDate', 's.creationTime'];
-		$query->select('s.id, s.active, s.creationDate, s.creationTime')
+		$query->select('s.id, s.creationDate, s.creationTime')
 			->select($query->concatenate($createdParts, ' ') . ' AS created ')
 			->select("o.id AS organizationID, o.shortName_$tag AS organizationName")
 			->select("term.id AS termID, term.name_$tag AS termName")
@@ -46,7 +46,6 @@ class Schedules extends ListModel
 		$authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
 		$query->where("o.id IN ($authorized)");
 
-		$this->setActiveFilter($query, 's');
 		$this->setValueFilters($query, ['organizationID', 'termID']);
 
 		return $query;

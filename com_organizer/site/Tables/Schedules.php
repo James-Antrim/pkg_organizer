@@ -17,8 +17,6 @@ use JDatabaseDriver;
  */
 class Schedules extends BaseTable
 {
-	use Activated;
-
 	/**
 	 * The date of the schedule's creation.
 	 * DATE DEFAULT NULL
