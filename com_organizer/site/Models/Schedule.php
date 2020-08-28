@@ -853,12 +853,10 @@ class Schedule extends BaseModel
 	/**
 	 * Saves a schedule in the database for later use
 	 *
-	 * @param   bool  $notify  true if affected participants/persons should be notified
-	 *
 	 * @return  boolean true on success, otherwise false
 	 * @throws Exception Invalid Request / Unauthorized Access
 	 */
-	public function upload($notify = false)
+	public function upload()
 	{
 		$organizationID = Helpers\Input::getInt('organizationID');
 

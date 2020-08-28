@@ -117,15 +117,13 @@ class Schedules extends Controller
 	}
 
 	/**
-	 * Performs access checks and uses the model's upload function to validate
-	 * and save the file to the database should validation be successful
-	 *
-	 * @param   boolean  $shouldNotify  true if Upload and Notify button is pressed
+	 * Performs access checks and uses the model's upload function to validate and save the file to the database should
+	 * validation be successful.
 	 *
 	 * @return void
 	 * @throws Exception
 	 */
-	public function upload($shouldNotify = false)
+	public function upload()
 	{
 		$url = Helpers\Routing::getRedirectBase();
 		if (JDEBUG)
@@ -137,7 +135,6 @@ class Schedules extends Controller
 			return;
 		}
 
-
 		$form      = $this->input->files->get('jform', [], '[]');
 		$file      = $form['file'];
 		$validType = (!empty($file['type']) and $file['type'] == 'text/xml');
@@ -147,7 +144,7 @@ class Schedules extends Controller
 			if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8')
 			{
 				$model = new Models\Schedule;
-				$view  = $model->upload($shouldNotify) ? 'Schedules' : 'Schedule_Edit';
+				$view  = $model->upload() ? 'Schedules' : 'Schedule_Edit';
 			}
 			else
 			{

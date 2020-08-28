@@ -546,7 +546,9 @@ class Instances extends Helpers\ResourceHelper
 		if ($valid)
 		{
 			$currentDate = date('Y-m-d', $currentDT);
-			//self::setInstance($model, $node, $untisID, $currentDate);
+			self::setInstance($model, $node, $untisID, $currentDate);
+
+			// BC Code
 			self::processInstance($model, $node, $untisID, $currentDate);
 		}
 	}
