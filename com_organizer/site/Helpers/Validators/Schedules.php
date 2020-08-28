@@ -12,6 +12,7 @@ namespace Organizer\Helpers\Validators;
 
 use Exception;
 use Organizer\Helpers;
+use Organizer\Tables;
 use stdClass;
 
 /**
@@ -107,6 +108,22 @@ class Schedules
 		Terms::validate($this, $this->xml->general);
 		$valid = ($valid and !empty($this->term));
 		unset($this->xml->general);
+
+		$contextKeys = [
+			'creationDate'   => $this->creationDate,
+			'creationTime'   => $this->creationTime,
+			'organizationID' => $this->organizationID,
+			'termID'         => $this->termID
+		];
+
+		$schedule = new Tables\Schedules();
+
+		if ($schedule->load($contextKeys))
+		{
+			Helpers\OrganizerHelper::message('SCHEDULE_EXISTS', 'error');
+
+			return false;
+		}
 
 		$this->validateResources($valid);
 

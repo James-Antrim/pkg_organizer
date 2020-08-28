@@ -31,7 +31,6 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function setID($model, $code)
 	{
-		$exists       = false;
 		$loadCriteria = [
 			['code' => $code],
 			['endDate' => $model->term->endDate, 'startDate' => $model->term->startDate]
