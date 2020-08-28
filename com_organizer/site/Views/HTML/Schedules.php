@@ -39,10 +39,6 @@ class Schedules extends ListView
 
 		if (Helpers\Can::administrate())
 		{
-			$toolbar->appendButton('Standard', 'play', 'Move Schedules', 'schedules.moveSchedules', false);
-			$toolbar->appendButton('Standard', 'next', 'Migrate Resources', 'schedules.migrateResources', false);
-			$toolbar->appendButton('Standard', 'last', 'Migrate Schedules', 'schedules.migrateSchedules', false);
-
 			if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID'))
 			{
 				$toolbar->appendButton(

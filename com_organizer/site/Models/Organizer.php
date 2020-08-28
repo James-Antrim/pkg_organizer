@@ -18,25 +18,6 @@ use Joomla\CMS\Toolbar\Toolbar;
 class Organizer extends BaseModel
 {
 	/**
-	 * Retrieves the id of the block matching the parameters
-	 *
-	 * @param   string  $date        the date of the block
-	 * @param   string  $blockTimes  the start and end times of the block aggregated with a - character
-	 *
-	 * @return bool
-	 */
-	/*private function getBlockID($date, $blockTimes)
-	{
-		list($startTime, $endTime) = explode('-', $blockTimes);
-		$startTime = preg_replace('/([\d]{2})$/', ':${1}:00', $startTime);
-		$endTime   = preg_replace('/([\d]{2})$/', ':${1}:00', $endTime);
-		$blocks    = new Tables\Blocks;
-		$blocks->load(['date' => $date, 'startTime' => $startTime, 'endTime' => $endTime]);
-
-		return empty($blocks->id) ? false : $blocks->id;
-	}*/
-
-	/**
 	 * Migrates associations with a given participant id.
 	 *
 	 * @param   int  $participantID  the id of the participant whose date should be migrated
@@ -101,51 +82,6 @@ class Organizer extends BaseModel
 			$this->_db->setQuery($deleteQuery);
 			OrganizerHelper::executeQuery('execute');
 		}
-	}*/
-
-	/**
-	 * Migrates a schedule.
-	 *
-	 * @param   int  $scheduleID  the id of the schedule to migrate
-	 *
-	 * @return bool true on success, otherwise false.
-	 */
-	/*private function migrateSchedule($scheduleID)
-	{
-		$schedules = new Tables\Schedules;
-		$schedules->load($scheduleID);
-
-		if (empty($schedules->id))
-		{
-			return false;
-		}
-
-
-
-		$schedules->schedule = json_encode($schedule, JSON_UNESCAPED_UNICODE);
-		$schedules->migrated = 1;
-
-		return $schedules->store();
-	}*/
-
-	/**
-	 * Migrates schedules.
-	 *
-	 * @return bool true on success, otherwise false.
-	 */
-	/*public function migrateSchedules()
-	{
-		$query = $this->_db->getQuery(true);
-		$query->select('id')->from('#__organizer_schedules')->where('migrated = 0');
-		$this->_db->setQuery($query);
-
-		$scheduleIDs = OrganizerHelper::executeQuery('loadColumn', []);
-		foreach ($scheduleIDs as $scheduleID)
-		{
-			$this->migrateSchedule($scheduleID);
-		}
-
-		return true;
 	}*/
 
 	/**
@@ -314,45 +250,6 @@ class Organizer extends BaseModel
 				$this->_db->setQuery('DROP TABLE `#__organizer_lesson_subjects`');
 				OrganizerHelper::executeQuery('execute');
 			}
-		}
-	}*/
-
-	/**
-	 * Checks whether schedules exist which yet need to be migrated. Provides a button to trigger schedule migration as
-	 * necessary. Drops the migrated column from the database if all schedules have been migrated.
-	 *
-	 * @param   Toolbar  $toolbar  the toolbar to add the button to as necessary.
-	 *
-	 * @return void
-	 */
-	/*public function showScheduleMigrationButton($toolbar)
-	{
-		$schedules = new Tables\Schedules;
-		$fields    = $schedules->getFields();
-		if (array_key_exists('migrated', $fields))
-		{
-			$countQuery = $this->_db->getQuery(true);
-			$countQuery->select('COUNT(*)')->from('#__organizer_schedules')->where('migrated = 0');
-			$this->_db->setQuery($countQuery);
-
-			if (OrganizerHelper::executeQuery('loadResult', 0))
-			{
-				$toolbar->appendButton(
-					'Standard',
-					'calendar',
-					'Migrate Schedules',
-					'organizer.migrateSchedules',
-					false
-				);
-
-				return;
-			}
-
-			$migrationQuery = 'ALTER TABLE #__organizer_schedules DROP COLUMN `migrated`';
-			$this->_db->setQuery($migrationQuery);
-			OrganizerHelper::executeQuery('execute');
-
-			return;
 		}
 	}*/
 

@@ -25,76 +25,7 @@ class Schedules extends Controller
 	protected $resource = 'schedule';
 
 	/**
-	 * Moves instances from the old table to the new table.
-	 *
-	 * @return void
-	 */
-	public function migrateResources()
-	{
-		$model = new Models\Schedule();
-
-		if ($model->migrateResources())
-		{
-			Helpers\OrganizerHelper::message('Resources migrated.');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=schedules";
-		$this->setRedirect($url);
-	}
-
-	/**
-	 * Moves schedules from the old table to the new table.
-	 *
-	 * @return void
-	 */
-	public function migrateSchedules()
-	{
-		$model = new Models\Schedule();
-
-		if ($model->migrateSchedules())
-		{
-			Helpers\OrganizerHelper::message('Schedules restructured!');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=schedules";
-		$this->setRedirect($url);
-	}
-
-	/**
-	 * Moves schedules from the old table to the new table.
-	 *
-	 * @return void
-	 */
-	public function moveSchedules()
-	{
-		$model = new Models\Schedule();
-
-		if ($model->moveSchedules())
-		{
-			Helpers\OrganizerHelper::message('Schedules moved.');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=schedules";
-		$this->setRedirect($url);
-	}
-
-	/**
-	 * Moves schedules from the old table to the new table.
+	 * Rebuilds the delta status of planning resources and relations.
 	 *
 	 * @return void
 	 */
