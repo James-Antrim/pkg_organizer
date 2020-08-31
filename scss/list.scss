@@ -19,13 +19,17 @@ span.comment {
   font-style: italic;
 }
 
-span.comment, span.method {
+span.comment, span.method, span.role-title {
   font-size: .8rem;
 }
 
 span.event {
   font-size: 1rem;
   font-family: $font-family-header;
+}
+
+span.role-title {
+  font-weight: bold;
 }
 
 td.status-display {

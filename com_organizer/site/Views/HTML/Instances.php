@@ -13,6 +13,7 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
+use Organizer\Tables;
 
 /**
  * Class loads persistent information a filtered set of instances into the display context.
@@ -122,8 +123,8 @@ class Instances extends ListView
 	private function getPersons($item)
 	{
 		$added   = Languages::_('ORGANIZER_PERSON_ADDED_ON');
-		$persons = [];
 		$removed = Languages::_('ORGANIZER_PERSON_REMOVED_ON');
+		$roles   = [];
 
 		foreach ($item->resources as $personID => $person)
 		{
@@ -154,12 +155,46 @@ class Instances extends ListView
 
 			$class = !empty($class) ? 'class="' . $class . '"' : '';
 
-			$persons[$name] = "<span $class $title>$name</span>";
+			if (empty($roles[$person['code']]))
+			{
+				$roles[$person['code']] = [];
+			}
+
+			$roles[$person['code']][$name] = "<span $class $title>$name</span>";
 		}
 
-		ksort($persons);
+		if (count($roles) === 1)
+		{
+			$persons = array_shift($roles);
+			ksort($persons);
 
-		return implode('<br>', $persons);
+			return implode('<br>', $persons);
+		}
+
+		$displayRoles = [];
+		$role         = new Tables\Roles();
+		$tag          = Languages::getTag();
+
+		$singularColumn = "name_$tag";
+		$pluralColumn   = "plural_$tag";
+
+		foreach ($roles as $code => $persons)
+		{
+			$roleDisplay = '';
+			if (!$role->load(['code' => $code]))
+			{
+				continue;
+			}
+
+			$roleTitle   = count($persons) > 1 ? $role->$pluralColumn : $role->$singularColumn;
+			$roleDisplay .= "<span class=\"role-title\">$roleTitle:</span><br>";
+
+			ksort($persons);
+			$roleDisplay             .= implode('<br>', $persons);
+			$displayRoles[$role->id] = $roleDisplay;
+		}
+
+		return implode('<br>', $displayRoles);
 	}
 
 	/**
