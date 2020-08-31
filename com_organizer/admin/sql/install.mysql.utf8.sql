@@ -631,25 +631,25 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_programs` (
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roles` (
     `id`              TINYINT(2) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `code`            VARCHAR(25)         NOT NULL,
     `abbreviation_de` VARCHAR(25)         NOT NULL,
     `abbreviation_en` VARCHAR(25)         NOT NULL,
     `name_de`         VARCHAR(150)        NOT NULL,
     `name_en`         VARCHAR(150)        NOT NULL,
+    `plural_de`       VARCHAR(150)        NOT NULL,
+    `plural_en`       VARCHAR(150)        NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `name_de` (`name_de`),
-    UNIQUE INDEX `name_en` (`name_en`),
-    UNIQUE INDEX `abbreviation_de` (`abbreviation_de`),
-    UNIQUE INDEX `abbreviation_en` (`abbreviation_en`)
+    UNIQUE INDEX `code` (`code`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_roles`
-VALUES (1, 'DOZ', 'TCH', 'Dozent', 'Teacher'),
-       (2, 'TUT', 'TUT', 'Tutor', 'Tutor'),
-       (3, 'AFS', 'SPR', 'Aufsicht', 'Supervisor'),
-       (4, 'REF', 'SPK', 'Referent', 'Speaker');
+VALUES (1, 'DOZ', 'DOZ', 'TCH', 'Lehrende', 'Teacher', 'Lehrenden', 'Teachers'),
+       (2, 'TUT', 'TUT', 'TUT', 'Betreuende', 'Tutor', 'Betreuenden', 'Tutors'),
+       (3, 'AFS', 'AFS', 'SPR', 'Aufsicht', 'Supervisor', 'Aufsichten', 'Supervisors'),
+       (4, 'REF', 'REF', 'SPK', 'Referent', 'Speaker', 'Referenten', 'Speakers');
 
 CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roomtypes` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,

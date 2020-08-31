@@ -112,16 +112,12 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			return 1;
 		}
 
-		$role         = strtoupper($role);
-		$conditions[] = "UPPER(name_de) = '$role'";
-		$conditions[] = "UPPER(name_en) = '$role'";
-		$conditions[] = "UPPER(abbreviation_de) = '$role'";
-		$conditions[] = "UPPER(abbreviation_en) = '$role'";
-		$dbo          = Factory::getDbo();
-		$query        = $dbo->getQuery(true);
+		$role  = strtoupper($role);
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
 		$query->select('id')
 			->from('#__organizer_roles')
-			->where($conditions, 'OR');
+			->where("code = '$role'");
 		$dbo->setQuery($query);
 
 		return Helpers\OrganizerHelper::executeQuery('loadResult', 1);
