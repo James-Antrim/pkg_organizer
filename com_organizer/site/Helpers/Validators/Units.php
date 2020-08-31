@@ -386,7 +386,8 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 		else
 		{
-			$unit = $model->units->$untisID;
+			$unit         = $model->units->$untisID;
+			$unit->roleID = self::getRoleID(trim((string) $node->text1));
 		}
 
 		$model->units->$untisID = $unit;
