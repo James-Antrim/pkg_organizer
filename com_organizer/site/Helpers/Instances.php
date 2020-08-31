@@ -339,7 +339,7 @@ class Instances extends ResourceHelper
 			case self::CHANGED:
 
 				$clause = "(((i.delta = 'new' OR i.delta = 'removed') AND i.modified >= '$dDate') ";
-				$clause .= "OR ((u.delta = 'new' OR u.delta = 'removed') AND i.modified >= '$dDate'))";
+				$clause .= "OR ((u.delta = 'new' OR u.delta = 'removed') AND u.modified >= '$dDate'))";
 				$query->where($clause);
 
 				break;
