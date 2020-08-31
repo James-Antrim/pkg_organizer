@@ -196,8 +196,9 @@ body.tmpl-index div.main .js-stools-container-list .js-stools-field-list {
     padding: .3rem .5rem;
 }
 
-td.title-column {
-    width: 25rem;
+td {
+    max-width: 20rem;
+    word-wrap: break-spaces;
 }
 
 td.empty-result-set {

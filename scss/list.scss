@@ -4,8 +4,9 @@
 @import "pagination";
 @import "variables";
 
-td.title-column {
-  width: 25rem;
+td {
+  max-width: 20rem;
+  word-wrap: break-spaces;
 }
 
 td.empty-result-set {
