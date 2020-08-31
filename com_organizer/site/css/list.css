@@ -234,6 +234,16 @@ td.status-display.unit-removed {
     background-color: #cd8996;
 }
 
+td span.status-new {
+    color: #80ba24;
+}
+
+td span.status-removed {
+    color: #4a5c66;
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
 /* In-Row Tools *******************************************************************************************************/
 td a.btn {
     margin-right: .2rem;
