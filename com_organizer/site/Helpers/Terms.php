@@ -173,6 +173,12 @@ class Terms extends ResourceHelper implements Selectable
 
 		$query = $dbo->getQuery(true);
 		$query->select('DISTINCT term.*')->from('#__organizer_terms AS term')->order('startDate');
+
+		if ($view = Input::getView() and $view === 'Schedules')
+		{
+			$query->innerJoin('#__organizer_schedules AS s ON s.termID = term.id');
+		}
+
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssocList', []);
