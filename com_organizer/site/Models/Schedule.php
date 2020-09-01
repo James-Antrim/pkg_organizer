@@ -236,7 +236,7 @@ class Schedule extends BaseModel
 		$timestamp = "$firstSchedule->creationDate $firstSchedule->creationTime";
 		unset($firstSchedule);
 
-		$modified   = date('Y-m-d h:i:s', strtotime('-1 Week', strtotime($timestamp)));
+		$modified   = date('Y-m-d h:i:s', strtotime('-2 Weeks', strtotime($timestamp)));
 		$conditions = ["delta = 'removed'", "modified = '$modified'"];
 
 		$query = $this->_db->getQuery(true);

@@ -616,7 +616,12 @@ class Instances extends ResourceHelper
 			->from('#__organizer_instance_groups AS ig')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 			->where("ig.assocID = {$person['assocID']}");
-		self::addDeltaClause($query, 'ig', $conditions['delta']);
+
+		// If the instance itself has been removed the status of its associations do not play a role
+		if ($conditions['instanceStatus'] !== 'removed')
+		{
+			self::addDeltaClause($query, 'ig', $conditions['delta']);
+		}
 
 		$dbo->setQuery($query);
 		if (!$groupAssocs = OrganizerHelper::executeQuery('loadAssocList', []))
@@ -676,6 +681,8 @@ class Instances extends ResourceHelper
 	 */
 	public static function setPersons(&$instance, $conditions)
 	{
+		$conditions['instanceStatus'] = $instance['instanceStatus'];
+
 		$tag   = Languages::getTag();
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -685,7 +692,12 @@ class Instances extends ResourceHelper
 			->from('#__organizer_instance_persons AS ip')
 			->innerJoin('#__organizer_roles AS r ON r.id = ip.roleID')
 			->where("ip.instanceID = {$instance['instanceID']}");
-		self::addDeltaClause($query, 'ip', $conditions['delta']);
+
+		// If the instance itself has been removed the status of its associations do not play a role
+		if ($conditions['instanceStatus'] !== 'removed')
+		{
+			self::addDeltaClause($query, 'ip', $conditions['delta']);
+		}
 
 		$dbo->setQuery($query);
 		if (!$personAssocs = OrganizerHelper::executeQuery('loadAssocList', []))
@@ -733,7 +745,12 @@ class Instances extends ResourceHelper
 			->from('#__organizer_instance_rooms AS ir')
 			->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
 			->where("ir.assocID = {$person['assocID']}");
-		self::addDeltaClause($query, 'ir', $conditions['delta']);
+
+		// If the instance itself has been removed the status of its associations do not play a role
+		if ($conditions['instanceStatus'] !== 'removed')
+		{
+			self::addDeltaClause($query, 'ir', $conditions['delta']);
+		}
 
 		$dbo->setQuery($query);
 		if (!$roomAssocs = OrganizerHelper::executeQuery('loadAssocList', []))
