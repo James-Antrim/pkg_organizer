@@ -58,14 +58,14 @@ class Schedules extends Controller
 	{
 		$model = new Models\Schedule();
 
-		/*if ($model->reference())
+		if ($model->reference())
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_SUCCESS');
 		}
 		else
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_FAIL', 'error');
-		}*/
+		}
 
 		$url = Helpers\Routing::getRedirectBase();
 		$url .= "&view=schedules";

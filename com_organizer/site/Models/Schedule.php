@@ -42,22 +42,10 @@ class Schedule extends BaseModel
 		$scheduleIDs = Helpers\Input::getSelectedIDs();
 		foreach ($scheduleIDs as $scheduleID)
 		{
-			if (!Helpers\Can::schedule('schedule', $scheduleID))
-			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-			}
-
-			$schedule = new Tables\Schedules();
-
-			if ($schedule->load($scheduleID) and !$schedule->delete())
+			if (!$this->deleteSingle($scheduleID))
 			{
 				return false;
 			}
-
-			$query = $this->_db->getQuery(true);
-			$query->delete('#__thm_organizer_schedules')->where("id = $scheduleID");
-			$this->_db->setQuery($query);
-			OrganizerHelper::executeQuery('execute');
 		}
 
 		return true;
@@ -68,6 +56,7 @@ class Schedule extends BaseModel
 	 * authorization checks, because abuse would not result in actual data loss.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	private function deleteDuplicates()
 	{
@@ -81,24 +70,45 @@ class Schedule extends BaseModel
 			->where('s1.id < s2.id');
 		$this->_db->setQuery($query);
 
-		if (!$duplicatedIDs = OrganizerHelper::executeQuery('loadColumn', []))
+		if (!$duplicateIDs = OrganizerHelper::executeQuery('loadColumn', []))
 		{
 			return;
 		}
 
-		$duplicatedIDs = implode(', ', $duplicatedIDs);
+		foreach ($duplicateIDs as $duplicateID)
+		{
+			$this->deleteSingle($duplicateID);
+		}
+	}
+
+	/**
+	 * Deletes a single internal schedule entry and any corresponding external schedule entry that may exist.
+	 *
+	 * @param $scheduleID
+	 *
+	 * @return bool
+	 * @throws Exception Unauthorized Access
+	 */
+	private function deleteSingle($scheduleID)
+	{
+		if (!Helpers\Can::schedule('schedule', $scheduleID))
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+		}
+
+		$schedule = new Tables\Schedules();
+
+		if ($schedule->load($scheduleID) and !$schedule->delete())
+		{
+			return false;
+		}
 
 		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_schedules')->where("id IN ($duplicatedIDs)");
+		$query->delete('#__thm_organizer_schedules')->where("id = $scheduleID");
 		$this->_db->setQuery($query);
-
 		OrganizerHelper::executeQuery('execute');
 
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__thm_organizer_schedules')->where("id IN ($duplicatedIDs)");
-		$this->_db->setQuery($query);
-
-		OrganizerHelper::executeQuery('execute');
+		return true;
 	}
 
 	/**
@@ -190,6 +200,62 @@ class Schedule extends BaseModel
 		{
 			$this->setCurrent($scheduleID);
 		}
+
+		return true;
+	}
+
+	/**
+	 * Rebuilds the history of a organization / term context.
+	 *
+	 * @return bool
+	 * @throws Exception Unauthorized access
+	 */
+	public function reference()
+	{
+		if (!$referenceID = Helpers\Input::getSelectedID())
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
+		}
+		elseif (!Helpers\Can::schedule('schedule', $referenceID))
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+		}
+
+		$reference = new Tables\Schedules();
+		if (!$reference->load($referenceID))
+		{
+			return false;
+		}
+
+		if (!$scheduleIDs = $this->getContextIDs($reference->organizationID, $reference->termID))
+		{
+			return true;
+		}
+
+		$currentID = array_pop($scheduleIDs);
+		$current   = new Tables\Schedules();
+		if (!$current->load($currentID))
+		{
+			return false;
+		}
+
+		// The entries up to and including the reference id are ignored. The entries after are deleted.
+		$delete = false;
+		foreach ($scheduleIDs as $scheduleID)
+		{
+			if ($delete)
+			{
+				$this->deleteSingle($scheduleID);
+			}
+
+			if ($scheduleID == $referenceID)
+			{
+				$delete = true;
+			}
+		}
+
+		$this->setCurrent($referenceID);
+		$this->setCurrent($currentID);
 
 		return true;
 	}

@@ -47,17 +47,17 @@ class Schedules extends ListView
 				true
 			);*/
 
+			$toolbar->appendButton(
+				'Confirm',
+				Helpers\Languages::_('ORGANIZER_REFERENCE_CONFIRM'),
+				'share-alt',
+				Helpers\Languages::_('ORGANIZER_REFERENCE'),
+				'schedules.reference',
+				true
+			);
+
 			if ($admin)
 			{
-				$toolbar->appendButton(
-					'Confirm',
-					Helpers\Languages::_('ORGANIZER_REFERENCE_CONFIRM'),
-					'share-alt',
-					Helpers\Languages::_('ORGANIZER_REFERENCE'),
-					'schedules.reference',
-					true
-				);
-
 				$toolbar->appendButton(
 					'Standard',
 					'loop',
