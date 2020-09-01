@@ -24,12 +24,6 @@ use Organizer\Tables;
  */
 class Schedule extends BaseModel
 {
-	private $organizationID;
-	private $instanceIDs;
-	private $instances;
-	private $termID;
-	private $unitIDs;
-
 	/**
 	 * Deletes the selected schedules
 	 *
@@ -73,7 +67,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return void
 	 */
-	public function deleteDuplicates()
+	private function deleteDuplicates()
 	{
 		$conditions = 's1.creationDate = s2.creationDate AND s1.creationTime = s2.creationTime
 						AND s1.organizationID = s2.organizationID AND s1.termID = s2.termID';
@@ -159,25 +153,6 @@ class Schedule extends BaseModel
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
 		return new Tables\Schedules;
-	}
-
-	/**
-	 * Retrieves the unit ids associated with the given instanceIDs
-	 *
-	 * @param   array  $instanceIDs  the ids of the currently active instances
-	 *
-	 * @return array the unitIDs associated with the instances
-	 */
-	private function getUnitIDs($instanceIDs)
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT unitID')
-			->from('#__organizer_instances')
-			->where('id IN (' . implode(',', $instanceIDs) . ')');
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -275,123 +250,6 @@ class Schedule extends BaseModel
 			return;
 		}
 		$this->updateBatch('instance_rooms', $irIDs, $conditions);
-	}
-
-	/**
-	 * Sets context variables used to set active or removed schedule items.
-	 *
-	 * @param   int  $scheduleID  the id of the schedule
-	 *
-	 * @return void sets object properties
-	 */
-	public function setDeltaContext($scheduleID)
-	{
-		$table = new Tables\Schedules;
-		if ($table->load($scheduleID))
-		{
-			$this->organizationID = $table->organizationID;
-			$this->instances      = json_decode($table->schedule, true);
-			$this->instanceIDs    = array_keys($this->instances);
-			$this->termID         = $table->termID;
-			$this->unitIDs        = $this->getUnitIDs($this->instanceIDs);
-		}
-	}
-
-	/**
-	 * Sets resources to removed which are no longer valid in the context of a recently activated/uploaded schedule.
-	 *
-	 * @return bool
-	 */
-	public function setRemoved()
-	{
-		$this->setRemovedInstances();
-		$this->setRemovedUnits();
-
-		foreach ($this->instances as $instanceID => $persons)
-		{
-			$personIDs = array_keys($persons);
-			$this->setRemovedResources('instanceID', $instanceID, 'person', $personIDs);
-
-			foreach ($persons as $personID => $associations)
-			{
-				$instancePersons = new Tables\InstancePersons;
-				if (!$instancePersons->load(['instanceID' => $instanceID, 'personID' => $personID]))
-				{
-					continue;
-				}
-				$assocID = $instancePersons->id;
-				$this->setRemovedResources('assocID', $assocID, 'group', $associations['groups']);
-				$roomIDs = empty($associations['rooms']) ? [] : $associations['rooms'];
-				$this->setRemovedResources('assocID', $assocID, 'room', $roomIDs);
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Sets the status of instances to removed which are not a part of the active schedule.
-	 *
-	 * @return void
-	 */
-	private function setRemovedInstances()
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->update('#__organizer_instances')
-			->set("delta = 'removed'")
-			->where('id NOT IN (' . implode(',', $this->instanceIDs) . ')')
-			->where('unitID IN (' . implode(',', $this->unitIDs) . ')')
-			->where("delta != 'removed'");
-		$dbo->setQuery($query);
-
-		OrganizerHelper::executeQuery('execute');
-	}
-
-	/**
-	 * Sets the status of removed resources to removed.
-	 *
-	 * @param   string  $assocColumn   the name of the column referencing the superior association
-	 * @param   int     $assocValue    the id value of the superior association
-	 * @param   string  $resourceName  the name of the resource to change
-	 * @param   array   $resourceIDs   the ids of the currently associated resources
-	 *
-	 * @return void
-	 */
-	private static function setRemovedResources($assocColumn, $assocValue, $resourceName, $resourceIDs)
-	{
-		$column = $resourceName . 'ID';
-		$table  = "#__organizer_instance_{$resourceName}s";
-		$dbo    = Factory::getDbo();
-		$query  = $dbo->getQuery(true);
-		$query->update($table)
-			->set("delta = 'removed'")
-			->where("$assocColumn = $assocValue")
-			->where("$column NOT IN (" . implode(',', $resourceIDs) . ")")
-			->where("delta != 'removed'");
-		$dbo->setQuery($query);
-
-		OrganizerHelper::executeQuery('execute');
-	}
-
-	/**
-	 * Sets the status of units to removed which are not a part of the active schedule.
-	 *
-	 * @return void
-	 */
-	private function setRemovedUnits()
-	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->update('#__organizer_units')
-			->set("delta = 'removed'")
-			->where("organizationID = {$this->organizationID}")
-			->where("termID = {$this->termID}")
-			->where('id NOT IN (' . implode(',', $this->unitIDs) . ')')
-			->where("delta != 'removed'");
-		$dbo->setQuery($query);
-
-		OrganizerHelper::executeQuery('execute');
 	}
 
 	/**

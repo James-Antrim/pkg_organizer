@@ -28,6 +28,7 @@ class Schedules extends Controller
 	 * Rebuilds the delta status of planning resources and relations.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function rebuild()
 	{
