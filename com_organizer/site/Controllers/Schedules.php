@@ -35,11 +35,11 @@ class Schedules extends Controller
 
 		if ($model->rebuild())
 		{
-			Helpers\OrganizerHelper::message('History rebuilt.');
+			Helpers\OrganizerHelper::message('ORGANIZER_REBUILD_SUCCESS');
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('Failbot Activated!', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_REBUILD_FAIL', 'error');
 		}
 
 		$url = Helpers\Routing::getRedirectBase();
@@ -48,8 +48,31 @@ class Schedules extends Controller
 	}
 
 	/**
-	 * Performs access checks and uses the model's upload function to validate and save the file to the database should
-	 * validation be successful.
+	 * Uses the model's reference function to set the marked schedule as the reference in organization/term context.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function reference()
+	{
+		$model = new Models\Schedule();
+
+		/*if ($model->reference())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_SUCCESS');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_FAIL', 'error');
+		}*/
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
+	 * Uses the model's upload function to validate and save the file to the database should validation be successful.
 	 *
 	 * @return void
 	 * @throws Exception
