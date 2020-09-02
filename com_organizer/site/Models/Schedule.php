@@ -168,6 +168,62 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Notifies the points of contact for affected organizations of changes made to the schedule.
+	 *
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function notify()
+	{
+		if (!$selectedIDs = Helpers\Input::getSelectedIDs())
+		{
+			return false;
+		}
+
+		$referenceID = array_shift($selectedIDs);
+
+		if (!Helpers\Can::schedule('schedule', $referenceID))
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+		}
+
+		$reference = new Tables\Schedules();
+		if (!$reference->load($referenceID))
+		{
+			return false;
+		}
+
+		$current = new Tables\Schedules();
+		if (empty($selectedIDs))
+		{
+			if (!$contextIDs = $this->getContextIDs($reference->organizationID, $reference->termID))
+			{
+				return false;
+			}
+
+			$currentID = array_pop($contextIDs);
+		}
+		else
+		{
+			$currentID = array_shift($selectedIDs);
+		}
+
+		// Request manipulation
+		if ($currentID == $referenceID
+			or !$current->load($currentID)
+			or $current->organizationID !== $reference->organizationID
+			or $current->termID !== $reference->termID)
+		{
+			return false;
+		}
+
+		$reference = json_decode($reference->schedule, true);
+		$current   = json_decode($current->schedule, true);
+
+		return true;
+	}
+
+	/**
 	 * Rebuilds the history of a organization / term context.
 	 *
 	 * @return bool

@@ -25,6 +25,30 @@ class Schedules extends Controller
 	protected $resource = 'schedule';
 
 	/**
+	 * Notifies the points of contact for affected organizations of changes made to the schedule.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function notify()
+	{
+		$model = new Models\Schedule();
+
+		if ($model->notify())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_NOTIFY_SUCCESS');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_NOTIFY_FAIL', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
 	 * Rebuilds the delta status of planning resources and relations.
 	 *
 	 * @return void

@@ -152,7 +152,7 @@ class HTML extends HTMLHelper
 	 *
 	 * @return string  the html output for the select box
 	 */
-	public static function selectBox($options, $name, array $attributes = [], $selected = null, $jform = false)
+	public static function selectBox($options, $name, $attributes = [], $selected = null, $jform = false)
 	{
 		$isMultiple = (!empty($attributes['multiple']) and $attributes['multiple'] == 'multiple');
 		$multiple   = $isMultiple ? '[]' : '';
