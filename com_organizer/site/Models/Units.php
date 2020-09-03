@@ -79,7 +79,7 @@ class Units extends ListModel
 		if ($search = $this->state->get('filter.search'))
 		{
 			$query->innerJoin('#__organizer_events AS e ON e.id = i.eventID');
-			$this->setSearchFilter($query, ['e.name_de', 'e.name_en']);
+			$this->setSearchFilter($query, ['e.name_de', 'e.name_en', 'u.code']);
 		}
 
 		$this->setValueFilters($query, ['u.gridID', 'u.runID']);

@@ -48,6 +48,8 @@ class Units extends ListView
 
 		if (Helpers\Can::administrate())
 		{
+			$toolbar->appendButton('Standard', 'plus', Helpers\Languages::_('ORGANIZER_ADD_COURSE'), "units.addCourse",
+				true);
 			/*$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "units.edit", true);
 			$toolbar->appendButton(
 				'Confirm',
@@ -104,6 +106,7 @@ class Units extends ListView
 			'method'   => Languages::_('ORGANIZER_METHOD'),
 			'dates'    => Languages::_('ORGANIZER_DATES'),
 			'grid'     => Languages::_('ORGANIZER_GRID'),
+			'code'     => Languages::_('ORGANIZER_UNTIS_ID'),
 			//'run'      => Languages::_('ORGANIZER_RUN')
 		];
 
@@ -135,6 +138,7 @@ class Units extends ListView
 			$structuredItems[$index]['method']   = $item->method;
 			$structuredItems[$index]['dates']    = "$startDate - $endDate";
 			$structuredItems[$index]['grid']     = $item->grid;
+			$structuredItems[$index]['code']     = $item->code;
 			//$structuredItems[$index]['run']      = Helpers\HTML::_('link', $thisLink, $item->run);
 
 			$index++;
