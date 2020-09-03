@@ -36,15 +36,10 @@ class Units extends ListModel
 	public function getItems()
 	{
 		$items = parent::getItems();
-		$tag   = Helpers\Languages::getTag();
 
 		foreach ($items as $item)
 		{
-			$eventIDs = implode(', ', Helpers\Units::getEventIDs($item->id));
-			$query    = $this->_db->getQuery(true);
-			$query->select("DISTINCT name_$tag")->from('#__organizer_events')->where("id IN ($eventIDs)");
-			$this->_db->setQuery($query);
-			$item->name = implode('<br>', Helpers\OrganizerHelper::executeQuery('loadColumn'));
+			$item->name = Helpers\Units::getEventNames($item->id, '<br>');
 		}
 
 		return $items;

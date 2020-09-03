@@ -63,7 +63,30 @@ class Units extends ResourceHelper
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadColumn', []);
+	}
 
+	/**
+	 * Gets a list of distinct names associated with the unit, optionally converted to a string for later display output.
+	 *
+	 * @param   int     $unitID  the id of the unit
+	 * @param   string  $glue    the string to use to concatenate associated names
+	 *
+	 * @return array|string the names of the associated events
+	 */
+	public static function getEventNames($unitID, $glue = '')
+	{
+		$dbo   = Factory::getDbo();
+		$tag   = Languages::getTag();
+		$query = $dbo->getQuery(true);
+		$query->select("DISTINCT name_$tag")
+			->from('#__organizer_events AS e')
+			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
+			->where("i.unitID = $unitID");
+		$dbo->setQuery($query);
+
+		$eventNames = OrganizerHelper::executeQuery('loadColumn', []);
+
+		return $glue ? implode($glue, $eventNames) : $eventNames;
 	}
 
 	/**
