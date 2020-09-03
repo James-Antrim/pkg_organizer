@@ -239,11 +239,11 @@ td.status-display.unit-removed {
     background-color: #cd8996;
 }
 
-td span.status-new {
+.status-new {
     color: #80ba24;
 }
 
-td span.status-removed {
+.status-removed {
     color: #4a5c66;
     opacity: 0.5;
     text-decoration: line-through;

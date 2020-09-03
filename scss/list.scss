@@ -51,11 +51,11 @@ td.status-display {
   }
 }
 
-td span.status-new {
+.status-new {
   color: $green-100
 }
 
-td span.status-removed {
+.status-removed {
   color: $grey-100;
   opacity: 0.5;
   text-decoration: line-through;
