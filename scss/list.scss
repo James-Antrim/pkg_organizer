@@ -32,7 +32,7 @@ span.role-title {
   font-weight: bold;
 }
 
-td.status-display {
+table.table-striped td.status-display {
 
   &.instance-new {
     background-color: $green-50;

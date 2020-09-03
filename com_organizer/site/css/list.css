@@ -223,19 +223,19 @@ span.role-title {
     font-weight: bold;
 }
 
-td.status-display.instance-new {
+table.table-striped td.status-display.instance-new {
     background-color: #bfdc91;
 }
 
-td.status-display.instance-removed {
+table.table-striped td.status-display.instance-removed {
     background-color: #e6c4cb;
 }
 
-td.status-display.unit-new {
+table.table-striped td.status-display.unit-new {
     background-color: #a0cb5b;
 }
 
-td.status-display.unit-removed {
+table.table-striped td.status-display.unit-removed {
     background-color: #cd8996;
 }
 
