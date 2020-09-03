@@ -92,6 +92,14 @@ class Courses extends BaseTable
 	public $name_en;
 
 	/**
+	 * The id of the organization entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $organizationID;
+
+	/**
 	 * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.
 	 * INT(1) UNSIGNED DEFAULT NULL
 	 *
