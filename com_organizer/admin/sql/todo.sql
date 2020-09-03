@@ -1,4 +1,4 @@
-#region course data migrated
+#region course data migrated & old lessons no longer in use
 
 #drop campusid fk, index & column
 ALTER TABLE `v7ocf_organizer_units`

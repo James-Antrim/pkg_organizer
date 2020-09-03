@@ -33,11 +33,13 @@ class Unit extends BaseModel
 		}
 
 		$unit = new Tables\Units();
+
 		if (!$unit->load($unitID))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_412'), 412);
+			return false;
 		}
-		elseif ($unit->courseID)
+
+		if ($unit->courseID)
 		{
 			return $unit->courseID;
 		}
@@ -48,25 +50,97 @@ class Unit extends BaseModel
 			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}
 
+		$event  = new Tables\Events();
 		$course = new Tables\Courses();
-		$course->organizationID = $unit->organizationID;
 
-		echo "<pre>" . print_r($unitID, true) . "</pre>";
-		echo "<pre>here</pre>";
-		die;
-#insert INTO v7ocf_organizer_courses (campusID, name_de, name_en, termID, deadline, description_de, description_en, fee, maxParticipants, registrationType)
-#SELECT DISTINCT e.campusID, e.name_de, e.name_en, u.termID, e.deadline, e.description_de, e.description_en, e.fee, e.maxParticipants, e.registrationType
-#FROM v7ocf_organizer_events AS e
-#INNER JOIN v7ocf_organizer_instances AS i ON i.`eventID` = e.`id`
-#INNER JOIN v7ocf_organizer_instance_persons AS ip ON ip.instanceID = i.id
-#INNER JOIN v7ocf_organizer_instance_rooms AS ir ON ir.`assocID` = ip.`id`
-#INNER JOIN v7ocf_organizer_rooms AS r ON r.id = ir.`roomID`
-#INNER JOIN v7ocf_organizer_buildings AS b ON b.id = r.`buildingID`
-#INNER JOIN v7ocf_organizer_campuses AS c ON c.id = b.`campusID`
-#INNER JOIN v7ocf_organizer_units AS u ON u.id = i.`unitID`
-#INNER JOIN v7ocf_thm_organizer_user_lessons AS ul ON ul.`lessonID` = u.id
-#WHERE e.`preparatory` = 1 AND ul.`status` = 1
-		return 0;
+		foreach ($eventIDs = Helpers\Units::getEventIDs($unitID) as $eventID)
+		{
+			$event->load($eventID);
+
+			if ($course->name_de === null)
+			{
+				$course->name_de = $event->name_de;
+			}
+			elseif (!strpos($course->name_de, $event->name_de))
+			{
+				$course->name_de .= ' / ' . $event->name_de;
+			}
+
+			if ($course->name_en === null)
+			{
+				$course->name_en = $event->name_en;
+			}
+			elseif (!strpos($course->name_en, $event->name_en))
+			{
+				$course->name_en .= ' / ' . $event->name_en;
+			}
+
+			if ($course->deadline === null or $event->deadline < $course->deadline)
+			{
+				$course->deadline = $event->deadline;
+			}
+
+			if ($course->fee === null or $event->fee < $course->fee)
+			{
+				$course->fee = $event->fee;
+			}
+
+			if ($course->maxParticipants === null or $event->maxParticipants < $course->maxParticipants)
+			{
+				$course->maxParticipants = $event->maxParticipants;
+			}
+
+			if ($course->registrationType === null or $event->registrationType < $course->registrationType)
+			{
+				$course->registrationType = $event->registrationType;
+			}
+		}
+
+		$course->campusID = $this->getCourseCampusID($unitID, $event->campusID);
+		$course->termID   = $unit->termID;
+
+		if (!$course->store())
+		{
+			return 0;
+		}
+
+		$unit->courseID = $course->id;
+		$unit->store();
+
+		return $course->id;
+	}
+
+	/**
+	 * Gets the campus id to associate with a course based on event documentation and planning data.
+	 *
+	 * @param   int  $unitID     the id of the unit from whose data a course is being created
+	 * @param   int  $defaultID  the id of an event associated with the unit
+	 *
+	 * @return int the id of the campus to associate with the course
+	 */
+	private function getCourseCampusID($unitID, $defaultID)
+	{
+		$query = $this->_db->getQuery(true);
+		$query->select('c.id AS campusID, c.parentID, COUNT(*) AS campusCount')
+			->from('#__organizer_campuses AS c')
+			->innerJoin('#__organizer_buildings AS b ON b.campusID = c.id')
+			->innerJoin('#__organizer_rooms AS r ON r.buildingID = b.id')
+			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ir.assocID')
+			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+			->where("i.unitID = $unitID")
+			->group('c.id')
+			->order('campusCount DESC');
+		$this->_db->setQuery($query);
+
+		$plannedCampus = Helpers\OrganizerHelper::executeQuery('loadAssoc', []);
+
+		if ($plannedCampus['campusID'] === $defaultID or $plannedCampus['parentID'] === $defaultID)
+		{
+			return $plannedCampus['campusID'];
+		}
+
+		return $defaultID;
 	}
 
 	/**
