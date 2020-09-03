@@ -13,7 +13,9 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
+
+// Exception for frequency of use
 use Organizer\Tables;
 
 /**

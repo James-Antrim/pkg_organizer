@@ -15,7 +15,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
+
+// Exception for frequency of use
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.

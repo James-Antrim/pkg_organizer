@@ -14,7 +14,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
+
+// Exception for frequency of use
 
 /**
  * Class which loads data into the view output context

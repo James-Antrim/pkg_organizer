@@ -11,7 +11,9 @@
 namespace Organizer\Views\HTML;
 
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
+
+// Exception for frequency of use
 
 /**
  * Class which loads data into the view output context

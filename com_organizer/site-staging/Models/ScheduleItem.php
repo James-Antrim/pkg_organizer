@@ -11,7 +11,9 @@
 namespace Organizer\Models;
 
 use Organizer\Helpers;
-use Organizer\Helpers\Input; // Exception for frequency of use
+use Organizer\Helpers\Input;
+
+// Exception for frequency of use
 
 /**
  * Class retrieves information for use in a schedule display form.

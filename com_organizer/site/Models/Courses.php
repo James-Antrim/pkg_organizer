@@ -19,6 +19,8 @@ use Organizer\Helpers;
  */
 class Courses extends ListModel
 {
+	use Helpers\Filtered;
+
 	protected $defaultOrdering = 'name';
 
 	protected $filter_fields = ['campusID', 'categoryID', 'organizationID', 'groupID', 'personID', 'termID'];
