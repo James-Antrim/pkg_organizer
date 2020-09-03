@@ -24,7 +24,7 @@ abstract class ListModel extends ParentModel
 {
 	use Named;
 
-	const ALL = '', BACKEND = true, FRONTEND = false, NONE = -1;
+	const ALL = '', BACKEND = true, FRONTEND = false, NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
 	protected $clientContext;
 
@@ -442,6 +442,43 @@ abstract class ListModel extends ParentModel
 		}
 		$where = implode(' OR ', $wherray);
 		$query->where("($where)");
+	}
+
+	/**
+	 * Adds a date status filter for a given resource.
+	 *
+	 * @param   JDatabaseQuery  $query  the query to modify
+	 * @param   string          $alias  the column alias
+	 */
+	public function setStatusFilter($query, $alias)
+	{
+		if (!$value = $this->state->get('filter.status'))
+		{
+			return;
+		}
+
+		$modified       = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
+		$modifiedClause = "AND $alias.modified > $modified";
+
+		switch ($value)
+		{
+			case self::CURRENT:
+				$query->where("$alias.delta != 'removed'");
+
+				return;
+			case self::CHANGED:
+				$query->where("(($alias.delta = 'new' $modifiedClause) OR $alias.delta = 'removed')");
+
+				return;
+			case self::NEW:
+				$query->where("($alias.delta = 'new' $modifiedClause)");
+
+				return;
+			case self::REMOVED:
+				$query->where("$alias.delta = 'removed'");
+
+				return;
+		}
 	}
 
 	/**
