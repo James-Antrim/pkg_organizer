@@ -104,6 +104,8 @@ abstract class BaseHTMLView extends BaseView
 			$viewName == 'organizer'
 		);
 
+		$admin = Helpers\Can::administrate();
+
 		if (Helpers\Can::scheduleTheseOrganizations())
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_SCHEDULING') . '</span>';
@@ -123,10 +125,26 @@ abstract class BaseHTMLView extends BaseView
 				'url'    => 'index.php?option=com_organizer&amp;view=schedules',
 				'active' => $viewName == 'schedules'
 			];
-			/*$items[Languages::_('ORGANIZER_EVENTS')]     = [
-				'url'    => 'index.php?option=com_organizer&amp;view=events',
-				'active' => $viewName == 'events'
-			];*/
+
+			if ($admin)
+			{
+				$items[Languages::_('ORGANIZER_COURSES')]      = [
+					'url'    => 'index.php?option=com_organizer&amp;view=courses',
+					'active' => $viewName == 'courses'
+				];
+				$items[Languages::_('ORGANIZER_EVENTS')]       = [
+					'url'    => 'index.php?option=com_organizer&amp;view=events',
+					'active' => $viewName == 'events'
+				];
+				$items[Languages::_('ORGANIZER_PARTICIPANTS')] = [
+					'url'    => 'index.php?option=com_organizer&amp;view=participants',
+					'active' => $viewName == 'participants'
+				];
+				$items[Languages::_('ORGANIZER_UNITS')]        = [
+					'url'    => 'index.php?option=com_organizer&amp;view=units',
+					'active' => $viewName == 'units'
+				];
+			}
 			ksort($items);
 
 			// Uploading a schedule should always be the first menu item and will never be the active submenu item.
@@ -173,33 +191,6 @@ abstract class BaseHTMLView extends BaseView
 			}
 		}
 
-		/*if (Helpers\Can::manage('courses'))
-		{
-			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_EVENT_MANAGEMENT') . '</span>';
-			JHtmlSidebar::addEntry($spanText, '', false);
-
-			$items = [];
-
-			$items[Languages::_('ORGANIZER_COURSES')]      = [
-				'url'    => 'index.php?option=com_organizer&amp;view=courses',
-				'active' => $viewName == 'courses'
-			];
-			$items[Languages::_('ORGANIZER_PARTICIPANTS')] = [
-				'url'    => 'index.php?option=com_organizer&amp;view=participants',
-				'active' => $viewName == 'participants'
-			];
-			$items[Languages::_('ORGANIZER_UNITS')]        = [
-				'url'    => 'index.php?option=com_organizer&amp;view=units',
-				'active' => $viewName == 'units'
-			];
-			ksort($items);
-
-			foreach ($items as $key => $value)
-			{
-				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
-			}
-		}*/
-
 		if (Helpers\Can::manage('persons'))
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_HUMAN_RESOURCES') . '</span>';
@@ -245,7 +236,7 @@ abstract class BaseHTMLView extends BaseView
 			}
 		}
 
-		if (Helpers\Can::administrate())
+		if ($admin)
 		{
 			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_ADMINISTRATION') . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);

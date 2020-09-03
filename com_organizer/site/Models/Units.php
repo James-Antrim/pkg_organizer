@@ -18,7 +18,37 @@ use Organizer\Helpers;
  */
 class Units extends ListModel
 {
-	protected $defaultOrdering = 'name';
+	protected $filter_fields = [
+		//'categoryID',
+		'gridID',
+		//'groupID',
+		//'methodID',
+		'organizationID',
+		'status',
+		'termID',
+	];
+
+	/**
+	 * Method to get an array of data items.
+	 *
+	 * @return  mixed  An array of data items on success, false on failure.
+	 */
+	public function getItems()
+	{
+		$items = parent::getItems();
+		$tag   = Helpers\Languages::getTag();
+
+		foreach ($items as $item)
+		{
+			$eventIDs = implode(', ', Helpers\Units::getEventIDs($item->id));
+			$query    = $this->_db->getQuery(true);
+			$query->select("DISTINCT name_$tag")->from('#__organizer_events')->where("id IN ($eventIDs)");
+			$this->_db->setQuery($query);
+			$item->name = implode('<br>', Helpers\OrganizerHelper::executeQuery('loadColumn'));
+		}
+
+		return $items;
+	}
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -27,36 +57,66 @@ class Units extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag = Helpers\Languages::getTag();
+		$modified       = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
+		$organizationID = $this->state->get('filter.organizationID');
+		$termID         = $this->state->get('filter.termID');
+		$query          = $this->_db->getQuery(true);
+		$tag            = Helpers\Languages::getTag();
 
-		$query    = $this->_db->getQuery(true);
-		$subQuery = $this->_db->getQuery(true);
-
-		$subQuery->select('MIN(date) AS start, MAX(date) AS end, i.unitID')
-			->from('#__organizer_blocks AS b')
-			->innerJoin('#__organizer_instances AS i ON i.blockID = b.id')
-			->where("i.delta!='removed'")
-			->group('i.unitID');
-
-		$query->select('u.id')
-			->select("ev.id as eventID, ev.name_$tag as name")
-			->select("g.id AS gridID, g.name_$tag AS grid")
-			->select("r.id AS runID, r.name_$tag AS run")
-			->select("sq.start, sq.end");
-
-		$query->from('#__organizer_units AS u')
-			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
-			->innerJoin('#__organizer_events AS ev ON ev.id = i.eventID')
-			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+		$query->select('u.id, u.code, u.courseID, u.delta AS status, u.endDate, u.modified, u.startDate')
+			->select("g.name_$tag AS grid")
+			//->select("r.name_$tag AS run")
+			->select("m.name_de AS method")
+			->from('#__organizer_units AS u')
 			->innerJoin('#__organizer_grids AS g ON g.id = u.gridID')
-			->leftJoin('#__organizer_runs AS r ON r.id = u.runID')
-			->innerJoin("($subQuery) AS sq ON sq.unitID = u.id")
+			//->leftJoin('#__organizer_runs AS r ON r.id = u.runID')
+			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
+			->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
+			->innerJoin('#__organizer_methods AS m ON m.id = i.methodID')
+			->where("a.organizationID = $organizationID")
+			->where("(u.delta != 'removed' OR u.modified > '$modified')")
+			->where("u.termid = $termID")
+			->order('u.startDate, u.endDate')
 			->group('u.id');
 
-		$this->setSearchFilter($query, ['ev.name_de', 'ev.name_en']);
-		$this->setValueFilters($query, ['u.organizationID', 'u.termID', 'u.gridID', 'u.runID']);
-		$this->setDateStatusFilter($query, 'status', 'sq.start', 'sq.end');
+		if ($search = $this->state->get('filter.search'))
+		{
+			$query->innerJoin('#__organizer_events AS e ON e.id = i.eventID');
+			$this->setSearchFilter($query, ['e.name_de', 'e.name_en']);
+		}
+
+		$this->setValueFilters($query, ['u.gridID', 'u.runID']);
+		$this->setStatusFilter($query, 'u');
 
 		return $query;
+	}
+
+	/**
+	 * Method to auto-populate the model state.
+	 *
+	 * @param   string  $ordering   An optional ordering field.
+	 * @param   string  $direction  An optional direction (asc|desc).
+	 *
+	 * @return void populates state properties
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		parent::populateState($ordering, $direction);
+
+		// Receive & set filters
+		$filters = Helpers\Input::getFilterItems();
+
+		if (!$filters->get('organizationID'))
+		{
+			$authorized = Helpers\Can::scheduleTheseOrganizations();
+			$this->setState('filter.organizationID', $authorized[0]);
+		}
+
+		if (!$filters->get('termID'))
+		{
+			$this->setState('filter.termID', Helpers\Terms::getCurrentID());
+		}
 	}
 }

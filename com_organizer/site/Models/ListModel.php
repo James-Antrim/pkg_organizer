@@ -470,7 +470,7 @@ abstract class ListModel extends ParentModel
 		}
 
 		$modified       = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
-		$modifiedClause = "AND $alias.modified > $modified";
+		$modifiedClause = "AND $alias.modified > '$modified'";
 
 		switch ($value)
 		{
