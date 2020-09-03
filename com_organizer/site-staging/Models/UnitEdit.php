@@ -28,7 +28,7 @@ class UnitEdit extends EditModel
 	public function getItem($pk = null)
 	{
 		$this->item          = parent::getItem($pk);
-		$this->item->eventID = Helpers\Units::getEventID($this->item->id);
+		$this->item->eventID = Helpers\Units::getEventIDs($this->item->id);
 
 		return $this->item;
 	}
