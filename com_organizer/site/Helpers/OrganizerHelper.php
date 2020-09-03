@@ -212,7 +212,8 @@ class OrganizerHelper
 			'rooms'         => 'room',
 			'roomtypes'     => 'roomtype',
 			'schedules'     => 'schedule',
-			'subjects'      => 'subject'
+			'subjects'      => 'subject',
+			'units'         => 'unit'
 		];
 
 		return $listViews[$initial];
