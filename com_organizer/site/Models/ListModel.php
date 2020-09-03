@@ -75,6 +75,18 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
+	 * Wrapper method for Joomla\CMS\MVC\Model\ListModel which has a mixed return type.
+	 *
+	 * @return  array  An array of data items on success.
+	 */
+	public function getItems()
+	{
+		$items = parent::getItems();
+
+		return $items ? $items : [];
+	}
+
+	/**
 	 * Method to get the total number of items for the data set. Joomla erases critical fields for complex data sets.
 	 * This method fixes the erroneous output of undesired duplicate entries.
 	 *
