@@ -52,8 +52,13 @@ if (!empty($this->submenu))
 				<?php foreach ($items as $row) : ?>
                     <tr <?php echo $this->getAttributesOutput($row); ?>>
 						<?php
-						foreach ($row as $column)
+						foreach ($row as $key => $column)
 						{
+							if ($key === 'attributes')
+							{
+								continue;
+							}
+
 							$colAttributes = $this->getAttributesOutput($column);
 							$colValue      = is_array($column) ? $column['value'] : $column;
 							echo "<td $colAttributes>$colValue</td>";
