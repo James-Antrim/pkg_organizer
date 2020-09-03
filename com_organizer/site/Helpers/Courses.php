@@ -110,10 +110,11 @@ class Courses extends ResourceHelper
 		}
 
 		$runText = '';
-		if (OrganizerHelper::getApplication()->isClient('administrator'))
+
+		/*if (OrganizerHelper::getApplication()->isClient('administrator'))
 		{
 			$runText = self::getRunText($courseID) . '<br>';
-		}
+		}*/
 
 		return $runText . $dates;
 	}
@@ -135,12 +136,9 @@ class Courses extends ResourceHelper
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 
-		$query->select('DISTINCT MIN(date) AS startDate, MAX(date) AS endDate')
-			->from('#__organizer_blocks AS b')
-			->innerJoin('#__organizer_instances AS i ON i.blockID = b.id')
-			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-			->where("u.courseID = $courseID");
-
+		$query->select('DISTINCT MIN(startDate) AS startDate, MAX(endDate) AS endDate')
+			->from('#__organizer_units')
+			->where("courseID = $courseID");
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssoc', []);
@@ -268,52 +266,6 @@ class Courses extends ResourceHelper
 		}
 
 		return implode(' / ', $eventNames);
-	}
-
-	/**
-	 * Attempts to retrieve the names of the resource.
-	 *
-	 * @param   int  $courseID  the id of the resource
-	 *
-	 * @return string
-	 */
-	public static function getNames($courseID)
-	{
-		$course = new Tables\Courses;
-		if (!$course->load($courseID))
-		{
-			return '';
-		}
-
-		$groups = '';
-		if (trim($course->groups))
-		{
-			$groups = trim($course->groups);
-		}
-
-		$nameProperty = 'name_' . Languages::getTag();
-		$names        = [];
-
-		if ($name = trim($course->$nameProperty))
-		{
-			$names[] = [$name];
-		}
-		elseif ($events = self::getEvents($courseID))
-		{
-			foreach ($events as $event)
-			{
-				$names[] = $event['name'];
-			}
-		}
-		else
-		{
-			return '';
-		}
-
-		$names = implode('<br>', $names);
-		$names .= $groups ? '<br>' . Languages::_('ORGANIZER_COURSE_GROUPS') . ": $groups" : '';
-
-		return $names;
 	}
 
 	/**

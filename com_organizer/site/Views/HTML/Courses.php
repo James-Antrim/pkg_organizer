@@ -107,12 +107,20 @@ class Courses extends ListView
 				);
 			}
 
-			if (Helpers\Courses::coordinates())
+			if (Helpers\Can::administrate()) //Helpers\Courses::coordinates())
 			{
-				$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'courses.add', false);
+				//$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'courses.add', false);
+				$toolbar->appendButton(
+					'Standard',
+					'last',
+					'Migrate Participants',
+					'courses.migrateParticipants',
+					false
+				);
 			}
 
-			if (!$frontend)
+			// Implicit authorization by being in the back end
+			if (Helpers\Can::administrate() AND !$frontend)
 			{
 				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit',
 					true);
@@ -197,7 +205,6 @@ class Courses extends ListView
 		{
 			$courseID             = $course->id;
 			$course->dates        = Helpers\Courses::getDateDisplay($courseID);
-			$course->name         = Helpers\Courses::getNames($courseID);
 			$index                = "{$course->name}{$course->dates}{$courseID}";
 			$course->courseStatus = Helpers\Courses::getStatusText($courseID);
 

@@ -73,8 +73,9 @@ class Courses extends ListModel
 	 */
 	protected function getListQuery()
 	{
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
-		$query->select('c.*')
+		$query->select("c.*, c.name_$tag AS name")
 			->from('#__organizer_courses AS c')
 			->innerJoin('#__organizer_units AS u ON u.courseID = c.id')
 			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
