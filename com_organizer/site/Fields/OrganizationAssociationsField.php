@@ -34,9 +34,12 @@ class OrganizationAssociationsField extends OptionsField
 	 */
 	private function getAssociatedOrganizations($resource, $resourceID)
 	{
-		if ($resource === 'fieldcolor')
+		// These tables have a single association making an associations table column unnecessary.
+		$exceptions = ['event' => 'Events', 'fieldcolor' => 'FieldColors'];
+		if (array_key_exists($resource, $exceptions))
 		{
-			$table = new Tables\FieldColors;
+			$tableName = 'Organizer\\Tables\\' . $exceptions[$resource];
+			$table = new $tableName();
 
 			return ($table->load($resourceID) and !empty($table->organizationID)) ? [$table->organizationID] : [];
 		}
