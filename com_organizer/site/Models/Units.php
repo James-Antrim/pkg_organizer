@@ -100,16 +100,13 @@ class Units extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
-		// Receive & set filters
-		$filters = Helpers\Input::getFilterItems();
-
-		if (!$filters->get('organizationID'))
+		if (!$this->state->get('filter.organizationID'))
 		{
 			$authorized = Helpers\Can::scheduleTheseOrganizations();
 			$this->setState('filter.organizationID', $authorized[0]);
 		}
 
-		if (!$filters->get('termID'))
+		if (!$this->state->get('filter.termID'))
 		{
 			$this->setState('filter.termID', Helpers\Terms::getCurrentID());
 		}

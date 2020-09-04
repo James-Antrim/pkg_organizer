@@ -96,7 +96,7 @@ class Unit extends BaseModel
 			}
 		}
 
-		$course->campusID = $this->getCourseCampusID($unitID, $event->campusID);
+		$course->campusID = $this->getCourseCampusID($unit, $event->campusID);
 		$course->termID   = $unit->termID;
 
 		if (!$course->store())
@@ -113,13 +113,18 @@ class Unit extends BaseModel
 	/**
 	 * Gets the campus id to associate with a course based on event documentation and planning data.
 	 *
-	 * @param   int  $unitID     the id of the unit from whose data a course is being created
-	 * @param   int  $defaultID  the id of an event associated with the unit
+	 * @param   Tables\Units  $unit       the unit table
+	 * @param   int           $defaultID  the id of an event associated with the unit
 	 *
 	 * @return int the id of the campus to associate with the course
 	 */
-	private function getCourseCampusID($unitID, $defaultID)
+	private function getCourseCampusID($unit, $defaultID)
 	{
+		if (property_exists($unit, 'campusID') and $campusID = $unit->campusID)
+		{
+			return $campusID;
+		}
+
 		$query = $this->_db->getQuery(true);
 		$query->select('c.id AS campusID, c.parentID, COUNT(*) AS campusCount')
 			->from('#__organizer_campuses AS c')
@@ -128,7 +133,7 @@ class Unit extends BaseModel
 			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ir.assocID')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-			->where("i.unitID = $unitID")
+			->where("i.unitID = $unit->id")
 			->group('c.id')
 			->order('campusCount DESC');
 		$this->_db->setQuery($query);
