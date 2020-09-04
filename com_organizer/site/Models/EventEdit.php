@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
@@ -17,6 +18,16 @@ use Organizer\Tables;
  */
 class EventEdit extends EditModel
 {
+	/**
+	 * Provides resource specific user access checks
+	 *
+	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 */
+	protected function allow()
+	{
+		return Helpers\Can::edit('events', Helpers\Input::getID());
+	}
+
 	/**
 	 * Method to get a table object, load it if necessary.
 	 *

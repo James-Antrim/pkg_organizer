@@ -2,14 +2,14 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details" label="ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
-        <field name="code" type="Blank" label="UNTIS_ID" disabled="true" maxlength="60" required="true"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
         <field name="organizationID" type="OrganizationAssociations" label="ORGANIZATION" disabled="true"
                required="true"/>
         <field name="campusID" type="Campuses" label="CAMPUS" required="true">
             <option value="">NO_CAMPUSES</option>
         </field>
         <field name="subjectNo" type="Blank" label="MODULE_ID" maxlength="45"/>
-        <field name="preparatory" type="Options" label="PREP_COURSE" default="0" required="true">
+        <field name="preparatory" type="Options" label="PREP_COURSE" default="0">
             <option value="1">YES</option>
             <option value="0">NO</option>
         </field>
@@ -50,5 +50,8 @@
         <field name="pretests_en" type="Editor" label="PRETESTS_EN" description="PRETESTS_EN_DESC"/>
         <field name="contact_en" type="Editor" label="GENERAL_CONTACT_EN" description="GENERAL_CONTACT_EN_DESC"/>
         <field name="courseContact_en" type="Editor" label="COURSE_CONTACT_EN" description="COURSE_CONTACT_EN_DESC"/>
+    </fieldset>
+    <fieldset name="coordinators" label="COORDINATORS">
+        <field name="coordinatorIDs" type="Coordinators" label="COORDINATORS" multiple="multiple" size="20"/>
     </fieldset>
 </form>

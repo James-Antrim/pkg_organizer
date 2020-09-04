@@ -10,13 +10,14 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
  * Class which manages stored event data.
  */
-class Event extends MergeModel implements ScheduleResource
+class Event extends BaseModel
 {
 	/**
 	 * Provides resource specific user access checks
@@ -45,6 +46,50 @@ class Event extends MergeModel implements ScheduleResource
 	}
 
 	/**
+	 * Attempts to save the resource.
+	 *
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return int|bool int id of the resource on success, otherwise boolean false
+	 * @throws Exception => unauthorized access
+	 */
+	public function save($data = [])
+	{
+		if (!$eventID = parent::save($data))
+		{
+			return false;
+		}
+
+		$coordinator = new Tables\EventCoordinators();
+		$data        = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		if ($coordinatorIDs = $data['coordinatorIDs'])
+		{
+			foreach ($coordinatorIDs as $coordinatorID)
+			{
+				$assocData = ['eventID' => $eventID, 'personID' => $coordinatorID];
+				if (!$coordinator->load($assocData))
+				{
+					$coordinator->save($assocData);
+				}
+			}
+		}
+
+		$query = $this->_db->getQuery(true);
+		$query->delete('#__organizer_event_coordinators')->where("eventID = $eventID");
+
+		if ($coordinatorIDs)
+		{
+			$coordinatorIDs = implode(', ', $coordinatorIDs);
+			$query->where("personID NOT IN ($coordinatorIDs)");
+		}
+
+		$this->_db->setQuery($query);
+		Helpers\OrganizerHelper::executeQuery('execute');
+
+		return $eventID;
+	}
+
+	/**
 	 * Updates the resource dependent associations
 	 *
 	 * @return boolean  true on success, otherwise false
@@ -57,7 +102,7 @@ class Event extends MergeModel implements ScheduleResource
 	/**
 	 * Processes the data for an individual schedule
 	 *
-	 * @param   Tables\Schedule  $schedule  the schedule being processed
+	 * @param   Tables\Schedules  $schedule  the schedule being processed
 	 *
 	 * @return bool true if the schedule was changed, otherwise false
 	 */

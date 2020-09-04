@@ -19,6 +19,8 @@ use Organizer\Tables;
  */
 class OrganizationAssociationsField extends OptionsField
 {
+	private $singleAssoc = ['event' => 'Events', 'fieldcolor' => 'FieldColors'];
+
 	/**
 	 * @var  string
 	 */
@@ -34,12 +36,10 @@ class OrganizationAssociationsField extends OptionsField
 	 */
 	private function getAssociatedOrganizations($resource, $resourceID)
 	{
-		// These tables have a single association making an associations table column unnecessary.
-		$exceptions = ['event' => 'Events', 'fieldcolor' => 'FieldColors'];
-		if (array_key_exists($resource, $exceptions))
+		if (array_key_exists($resource, $this->singleAssoc))
 		{
-			$tableName = 'Organizer\\Tables\\' . $exceptions[$resource];
-			$table = new $tableName();
+			$tableName = 'Organizer\\Tables\\' . $this->singleAssoc[$resource];
+			$table     = new $tableName();
 
 			return ($table->load($resourceID) and !empty($table->organizationID)) ? [$table->organizationID] : [];
 		}
@@ -137,7 +137,7 @@ class OrganizationAssociationsField extends OptionsField
 		$attr = '';
 		$attr .= !empty($this->class) ? ' class="' . $this->class . '"' : '';
 
-		if ($resource === 'fieldcolor')
+		if (array_key_exists($resource, $this->singleAssoc))
 		{
 			$attr .= ' required aria-required="true" autofocus';
 		}
