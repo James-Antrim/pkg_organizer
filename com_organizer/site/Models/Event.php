@@ -60,13 +60,13 @@ class Event extends BaseModel
 			return false;
 		}
 
-		$coordinator = new Tables\EventCoordinators();
-		$data        = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		if ($coordinatorIDs = $data['coordinatorIDs'])
 		{
 			foreach ($coordinatorIDs as $coordinatorID)
 			{
-				$assocData = ['eventID' => $eventID, 'personID' => $coordinatorID];
+				$coordinator = new Tables\EventCoordinators();
+				$assocData   = ['eventID' => $eventID, 'personID' => $coordinatorID];
 				if (!$coordinator->load($assocData))
 				{
 					$coordinator->save($assocData);
