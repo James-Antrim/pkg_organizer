@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 
 /**
@@ -29,32 +28,26 @@ class CourseEdit extends EditView
 	{
 		if ($this->item->id)
 		{
-			$cancel = 'ORGANIZER_CLOSE';
-			$save   = 'ORGANIZER_SAVE';
-			$title  = "ORGANIZER_COURSE_EDIT";
+			$title = Helpers\Languages::_('ORGANIZER_COURSE_EDIT');
+
+			if ($this->clientContext)
+			{
+				$campus = Helpers\Campuses::getName($this->item->campusID);
+				$dates  = Helpers\Courses::getDateDisplay($this->item->id);
+				$tag    = Helpers\Languages::getTag();
+				$name   = "name_$tag";
+				$name   = $this->item->$name;
+
+				$title .= ": $name - $campus ($dates)";
+			}
 		}
 		else
 		{
-			$cancel = 'ORGANIZER_CANCEL';
-			$save   = 'ORGANIZER_CREATE';
-			$title  = "ORGANIZER_COURSE_NEW";
+			$title = Helpers\Languages::_('ORGANIZER_COURSE_NEW');
 		}
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'contract-2');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'courses.save', false);
-
-		if ($this->item->id)
-		{
-
-			$href   = "index.php?option=com_organizer&view=course_participants&courseID={$this->item->id}";
-			$icon   = '<span class="icon-users"></span>';
-			$text   = Helpers\Languages::_('ORGANIZER_MANAGE_PARTICIPANTS');
-			$button = "<a class=\"btn\" href=\"$href\" target=\"_blank\">$icon$text</a>";
-			$toolbar->appendButton('Custom', $button, 'participants');
-		}
-
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'courses.cancel', false);
+		parent::addToolBar();
+		Helpers\HTML::setTitle($title, 'contract-2');
 	}
 
 	/**
@@ -64,20 +57,17 @@ class CourseEdit extends EditView
 	 */
 	protected function setSubtitle()
 	{
-		$course = $this->item;
-
-		if (empty($course->id))
+		if (empty($this->item->id))
 		{
 			$this->subtitle = '';
 
 			return;
 		}
 
-		$name   = Helpers\Courses::getName($course->id);
-		$dates  = Helpers\Courses::getDateDisplay($course->id);
-		$termID = $course->preparatory ? Helpers\Terms::getNextID($course->termID) : $course->termID;
-		$term   = Helpers\Terms::getName($termID);
+		$campus = Helpers\Campuses::getName($this->item->campusID);
+		$dates  = Helpers\Courses::getDateDisplay($this->item->id);
+		$name   = Helpers\Courses::getName($this->item->id);
 
-		$this->subtitle = "<h6 class=\"sub-title\">$name ($course->id)<br>$term - $dates</h6>";
+		$this->subtitle = "<h6 class=\"sub-title\">$name<br>$campus<br>$dates</h6>";
 	}
 }

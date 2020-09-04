@@ -575,7 +575,7 @@ class Search extends BaseModel
 
 				$subjects[$courseID] = [];
 
-				$text = Helpers\Courses::getName($courseID, true);
+				$text = Helpers\Courses::getName($courseID);
 
 				$subjects[$courseID]['text'] = Languages::_('ORGANIZER_SUBJECT') . ": $text";
 

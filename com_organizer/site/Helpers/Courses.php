@@ -236,39 +236,6 @@ class Courses extends ResourceHelper
 	}
 
 	/**
-	 * Retrieves the name of the course.
-	 *
-	 * @param   int  $courseID  the id of the resource
-	 *
-	 * @return string
-	 */
-	public static function getName($courseID)
-	{
-		if (empty($courseID))
-		{
-			return '';
-		}
-
-		if ($explicitName = parent::getName($courseID))
-		{
-			return $explicitName;
-		}
-
-		if (!$events = self::getEvents($courseID))
-		{
-			return '';
-		}
-
-		$eventNames = [];
-		foreach ($events as $event)
-		{
-			$eventNames[$event['name']] = $event['name'];
-		}
-
-		return implode(' / ', $eventNames);
-	}
-
-	/**
 	 * Gets an array of participant IDs for a given course, optionally filtered by the participant's status
 	 *
 	 * @param   int  $courseID  the course id
