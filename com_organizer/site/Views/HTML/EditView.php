@@ -33,19 +33,22 @@ abstract class EditView extends FormView
 
 		if ($this->item->id)
 		{
-			$title  = "ORGANIZER_{$constant}_EDIT";
+			$apply  = 'ORGANIZER_SAVE';
 			$cancel = 'ORGANIZER_CLOSE';
-			$save   = 'ORGANIZER_SAVE';
+			$save   = 'ORGANIZER_SAVE_CLOSE';
+			$title  = "ORGANIZER_{$constant}_EDIT";
 		}
 		else
 		{
-			$title  = "ORGANIZER_{$constant}_NEW";
+			$apply  = 'ORGANIZER_CREATE';
 			$cancel = 'ORGANIZER_CANCEL';
-			$save   = 'ORGANIZER_CREATE';
+			$save   = 'ORGANIZER_CREATE_CLOSE';
+			$title  = "ORGANIZER_{$constant}_NEW";
 		}
 
 		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
 		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), "$controller.apply", false);
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "$controller.save", false);
 		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "$controller.cancel", false);
 	}
