@@ -35,7 +35,8 @@ class Persons extends ListModel
 		$query->select('DISTINCT p.id, surname, forename, username, p.active, o.id AS organizationID, code')
 			->from('#__organizer_persons AS p')
 			->leftJoin('#__organizer_associations AS a ON a.personID = p.id')
-			->leftJoin('#__organizer_organizations AS o ON o.id = a.id');
+			->leftJoin('#__organizer_organizations AS o ON o.id = a.id')
+			->group('p.id');
 
 		$this->setActiveFilter($query, 'p');
 		$this->setSearchFilter($query, ['surname', 'forename', 'username', 'code']);
