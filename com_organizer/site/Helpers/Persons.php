@@ -236,10 +236,9 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function getIDByUserID($userID = null)
 	{
-		$user = Users::getUser($userID);
-		if (empty($user->id))
+		if (!$user = Users::getUser($userID))
 		{
-			return false;
+			return 0;
 		}
 
 		$dbo   = Factory::getDbo();

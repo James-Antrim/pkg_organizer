@@ -25,17 +25,18 @@ class Courses extends ResourceHelper
 	 * Check if the user is a course coordinator.
 	 *
 	 * @param   int  $courseID  the optional id of the course
+	 * @param   int  $personID  the optional id of the person entry
 	 *
 	 * @return boolean true if the user is a coordinator, otherwise false
 	 */
-	public static function coordinates($courseID = 0)
+	public static function coordinates($courseID = 0, $personID = 0)
 	{
 		if (Can::administrate())
 		{
 			return true;
 		}
 
-		if (!$personID = Persons::getIDByUserID())
+		if (!$personID = $personID ? $personID : Persons::getIDByUserID())
 		{
 			return false;
 		}

@@ -125,24 +125,28 @@ abstract class BaseHTMLView extends BaseView
 				'url'    => 'index.php?option=com_organizer&amp;view=schedules',
 				'active' => $viewName == 'schedules'
 			];
-			$items[Languages::_('ORGANIZER_UNITS')]      = [
-				'url'    => 'index.php?option=com_organizer&amp;view=units',
-				'active' => $viewName == 'units'
-			];
 
 			if ($admin)
 			{
-				$items[Languages::_('ORGANIZER_COURSES')]      = [
+				// Coordinates access here and prefilter in backend
+				$items[Languages::_('ORGANIZER_COURSES')] = [
 					'url'    => 'index.php?option=com_organizer&amp;view=courses',
 					'active' => $viewName == 'courses'
 				];
-				$items[Languages::_('ORGANIZER_EVENTS')]       = [
+				// Coordinates access here and prefilter in backend
+				$items[Languages::_('ORGANIZER_EVENTS')] = [
 					'url'    => 'index.php?option=com_organizer&amp;view=events',
 					'active' => $viewName == 'events'
 				];
+				// Coordinates access here and prefilter in backend
 				$items[Languages::_('ORGANIZER_PARTICIPANTS')] = [
 					'url'    => 'index.php?option=com_organizer&amp;view=participants',
 					'active' => $viewName == 'participants'
+				];
+				// Scheduling access here
+				$items[Languages::_('ORGANIZER_UNITS')] = [
+					'url'    => 'index.php?option=com_organizer&amp;view=units',
+					'active' => $viewName == 'units'
 				];
 			}
 			ksort($items);

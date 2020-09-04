@@ -193,7 +193,7 @@ class Can
 			case 'event':
 			case 'events':
 
-				return self::editScheduleResource('Events', $resource);
+				return Courses::coordinates($resource, Persons::getIDByUserID($user->id));
 
 			case 'group':
 			case 'groups':
