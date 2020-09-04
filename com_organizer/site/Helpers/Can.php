@@ -193,7 +193,7 @@ class Can
 			case 'event':
 			case 'events':
 
-				return Courses::coordinates($resource, Persons::getIDByUserID($user->id));
+				return Events::coordinates($resource, Persons::getIDByUserID($user->id));
 
 			case 'group':
 			case 'groups':

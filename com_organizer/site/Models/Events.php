@@ -38,6 +38,13 @@ class Events extends ListModel
 			->leftJoin('#__organizer_organizations AS o ON o.id = e.organizationID')
 			->leftJoin('#__organizer_campuses AS c ON c.id = e.campusID');
 
+		if (!Helpers\Can::administrate())
+		{
+			$personID = Helpers\Persons::getIDByUserID();
+			$query->innerJoin('#__organizer_event_coordinators AS ec ON ec.eventID = e.id')
+				->where("ec.personID = $personID");
+		}
+
 		$this->setSearchFilter($query, ['e.name_de', 'e.name_en', 'e.subjectNo']);
 		$this->setValueFilters($query, ['e.organizationID', 'e.campusID', 'e.preparatory']);
 

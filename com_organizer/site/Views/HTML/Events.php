@@ -55,7 +55,12 @@ class Events extends ListView
 	 */
 	protected function allowAccess()
 	{
-		return (bool) Helpers\Can::scheduleTheseOrganizations();
+		if (!$this->clientContext)
+		{
+			return false;
+		}
+
+		return Helpers\Can::edit('events');
 	}
 
 	/**
