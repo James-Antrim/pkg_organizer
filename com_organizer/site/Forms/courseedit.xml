@@ -23,7 +23,7 @@
         <field name="name_en" type="Blank" label="NAME_EN" maxlength="150"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
     </fieldset>
-    <fieldset name="units" label="UNITS" displayinitial="0">
+    <!--<fieldset name="units" label="UNITS" displayinitial="0">
         <field name="units" type="Units" label="UNITS"/>
-    </fieldset>
+    </fieldset>-->
 </form>
