@@ -2,6 +2,10 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="status" type="Options" label="STATUS" class="input-13" onchange="this.form.submit();">
+            <option value="">CURRENT_COURSES</option>
+            <option value="-1">ALL_COURSES</option>
+        </field>
         <field name="termID" type="Terms" label="TERM" class="input-13" onchange="this.form.submit();">
             <option value="">ALL_TERMS</option>
             <option value="-1">NO_TERM</option>
@@ -10,21 +14,21 @@
             <option value="">ALL_CAMPUSES</option>
             <option value="-1">NO_CAMPUS</option>
         </field>
-        <field name="organizationID" type="Organizations" label="ORGANIZATION" onchange="this.form.submit();">
+        <!--<field name="organizationID" type="Organizations" label="ORGANIZATION" onchange="this.form.submit();">
             <option value="">ALL_ORGANIZATIONS</option>
             <option value="-1">NO_ORGANIZATION</option>
-        </field>
-        <field name="categoryID" type="Categories" label="CATEGORY" class="input-15" onchange="this.form.submit();">
+        </field>-->
+        <!--<field name="categoryID" type="Categories" label="CATEGORY" class="input-15" onchange="this.form.submit();">
             <option value="">ALL_CATEGORIES</option>
             <option value="-1">NO_CATEGORY</option>
-        </field>
-        <field name="groupID" type="Groups" label="GROUP" class="input-15" onchange="this.form.submit();">
+        </field>-->
+        <!--<field name="groupID" type="Groups" label="GROUP" class="input-15" onchange="this.form.submit();">
             <option value="">ALL_GROUPS</option>
             <option value="-1">NO_GROUP</option>
-        </field>
-        <field name="personID" type="CoursePersons" label="PERSON" onchange="this.form.submit();">
+        </field>-->
+        <!--<field name="personID" type="CoursePersons" label="PERSON" onchange="this.form.submit();">
             <option value="">ALL_PERSONS</option>
-        </field>
+        </field>-->
     </fields>
     <fields name="list">
         <field name="languageTag" type="Options" label="Language" default="de" onchange="this.form.submit();">
