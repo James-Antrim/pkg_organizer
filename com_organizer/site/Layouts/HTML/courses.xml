@@ -5,9 +5,6 @@
             <field name="campusID" type="Campuses" label="CAMPUS">
                 <option value="">All_CAMPUSES</option>
             </field>
-            <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION">
-                <option value="">ALL_ORGANIZATIONS</option>
-            </field>
             <field name="onlyPrepCourses" type="Options" label="COURSE_TYPE">
                 <option value="">ALL_COURSE_TYPES</option>
                 <option value="1">ONLY_PREP_COURSES</option>
