@@ -35,14 +35,13 @@ class Events extends ListModel
 			->select("o.id AS organizationID, o.shortName_$tag AS organization")
 			->select("c.id AS campusID, c.name_$tag AS campus")
 			->from('#__organizer_events AS e')
-			->leftJoin('#__organizer_organizations AS o ON o.id = e.organizationID')
+			->innerJoin('#__organizer_organizations AS o ON o.id = e.organizationID')
 			->leftJoin('#__organizer_campuses AS c ON c.id = e.campusID');
 
-		if (!Helpers\Can::administrate())
+		if ($this->clientContext)
 		{
-			$personID = Helpers\Persons::getIDByUserID();
-			$query->innerJoin('#__organizer_event_coordinators AS ec ON ec.eventID = e.id')
-				->where("ec.personID = $personID");
+			$authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
+			$query->where("o.id IN ($authorized)");
 		}
 
 		$this->setSearchFilter($query, ['e.name_de', 'e.name_en', 'e.subjectNo']);

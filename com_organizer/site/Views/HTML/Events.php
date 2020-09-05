@@ -55,12 +55,13 @@ class Events extends ListView
 	 */
 	protected function allowAccess()
 	{
-		if (!$this->clientContext)
+		if ($this->clientContext)
 		{
-			return false;
+			return Helpers\Can::edit('events');
 		}
 
-		return Helpers\Can::edit('events');
+		// TODO set to true when a concept for frontend viewing is created
+		return false;
 	}
 
 	/**

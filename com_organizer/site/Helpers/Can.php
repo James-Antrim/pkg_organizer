@@ -193,7 +193,7 @@ class Can
 			case 'event':
 			case 'events':
 
-				return Events::coordinates($resource, Persons::getIDByUserID($user->id));
+				return $resource ? Events::coordinates($resource) : (bool) self::scheduleTheseOrganizations();
 
 			case 'group':
 			case 'groups':

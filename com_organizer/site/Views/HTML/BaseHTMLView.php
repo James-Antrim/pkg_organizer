@@ -125,14 +125,10 @@ abstract class BaseHTMLView extends BaseView
 				'url'    => 'index.php?option=com_organizer&amp;view=schedules',
 				'active' => $viewName == 'schedules'
 			];
-
-			if (Helpers\Can::edit('events'))
-			{
-				$items[Languages::_('ORGANIZER_EVENTS')] = [
-					'url'    => 'index.php?option=com_organizer&amp;view=events',
-					'active' => $viewName == 'events'
-				];
-			}
+			$items[Languages::_('ORGANIZER_EVENTS')]     = [
+				'url'    => 'index.php?option=com_organizer&amp;view=events',
+				'active' => $viewName == 'events'
+			];
 
 			if ($admin)
 			{
