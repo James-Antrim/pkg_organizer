@@ -390,6 +390,23 @@ class Courses extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the ids of units associated with the course.
+	 *
+	 * @param   int  $courseID  the id of the course with which the units must be associated
+	 *
+	 * @return array the ids of the associated units
+	 */
+	public static function getUnitIDs($courseID)
+	{
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('DISTINCT id')->from('#__organizer_units')->where("courseID = $courseID");
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadColumn', []);
+	}
+
+	/**
 	 * Check if user has a course responsibility.
 	 *
 	 * @param   int  $courseID  the optional id of the course

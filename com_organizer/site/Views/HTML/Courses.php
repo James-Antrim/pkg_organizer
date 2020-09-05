@@ -120,7 +120,7 @@ class Courses extends ListView
 			}
 
 			// Implicit authorization by being in the back end
-			if (Helpers\Can::administrate() AND !$frontend)
+			if (Helpers\Can::administrate() and !$frontend)
 			{
 				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit',
 					true);
@@ -144,12 +144,12 @@ class Courses extends ListView
 	 */
 	protected function allowAccess()
 	{
-		if ($this->clientContext == self::FRONTEND)
+		if ($this->clientContext)
 		{
-			return true;
+			return (bool) Helpers\Can::scheduleTheseOrganizations();
 		}
 
-		return (Helpers\Can::administrate() or Helpers\Courses::coordinates());
+		return true;
 	}
 
 	/**
