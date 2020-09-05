@@ -23,9 +23,7 @@ use Organizer\Helpers\Languages;
  */
 class Courses extends ListView
 {
-	private $allowNew = false;
-
-	private $params = null;
+	private $manages = false;
 
 	/**
 	 * Constructor
@@ -35,20 +33,13 @@ class Courses extends ListView
 	public function __construct($config = array())
 	{
 		parent::__construct($config);
-		$this->params = Helpers\Input::getParams();
-		$userID       = Factory::getUser()->id;
 
-		$structure = ['id' => 'link', 'name' => 'link', 'dates' => 'value', 'courseStatus' => 'value'];
+		$structure = ['name' => 'link', 'campus' => 'value', 'dates' => 'value', 'status' => 'value'];
 
-		if ($this->clientContext === self::BACKEND)
+		if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::edit('courses'))
 		{
-			$structure = ['checkbox' => ''] + $structure;
-			$structure += ['persons' => 'link', 'groups' => 'link'];
-		}
-
-		if ($userID)
-		{
-			$structure ['userContent'] = 'value';
+			$this->manages = true;
+			$structure     = ['checkbox' => ''] + $structure;
 		}
 
 		$this->rowStructure = $structure;
@@ -63,8 +54,7 @@ class Courses extends ListView
 	{
 		if (empty(Factory::getUser()->id))
 		{
-			$this->supplement =
-				'<div class="tbox-yellow">' . Languages::_('ORGANIZER_COURSE_LOGIN_WARNING') . '</div>';
+			$this->supplement = '<div class="tbox-yellow">' . Languages::_('ORGANIZER_COURSE_LOGIN_WARNING') . '</div>';
 		}
 	}
 
@@ -94,36 +84,88 @@ class Courses extends ListView
 		if (Factory::getUser()->id)
 		{
 			$toolbar = Toolbar::getInstance();
-			if ($frontend)
+			/*if ($frontend)
 			{
-				$buttonText = Helpers\Participants::exists() ?
-					Languages::_('ORGANIZER_PROFILE_EDIT') : Languages::_('ORGANIZER_PROFILE_NEW');
+				if (Helpers\Participants::exists())
+				{
+					$toolbar->appendButton(
+						'Standard',
+						'vcard',
+						Languages::_('ORGANIZER_PROFILE_EDIT'),
+						'participants.edit',
+						false
+					);
+					$toolbar->appendButton(
+						'Standard',
+						'vcard',
+						Languages::_('ORGANIZER_REGISTER'),
+						'courses.register',
+						false
+					);
+					$toolbar->appendButton(
+						'Standard',
+						'vcard',
+						Languages::_('ORGANIZER_DEREGISTER'),
+						'courses.register',
+						false
+					);
+				}
+				else
+				{
+					$toolbar->appendButton(
+						'Standard',
+						'vcard',
+						Languages::_('ORGANIZER_PROFILE_NEW'),
+						'participants.edit',
+						false
+					);
+				}
+			}*/
+
+			if ($this->manages)
+			{
+				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit',
+					true);
+			}
+
+			if (Helpers\Can::administrate())
+			{
+				//$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'courses.add', false);
 				$toolbar->appendButton(
 					'Standard',
 					'vcard',
-					$buttonText,
+					Languages::_('ORGANIZER_PROFILE_EDIT'),
 					'participants.edit',
 					false
 				);
-			}
-
-			if (Helpers\Can::administrate()) //Helpers\Courses::coordinates())
-			{
-				//$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'courses.add', false);
+				$toolbar->appendButton(
+					'Standard',
+					'vcard',
+					Languages::_('ORGANIZER_REGISTER'),
+					'courses.register',
+					false
+				);
+				$toolbar->appendButton(
+					'Standard',
+					'vcard',
+					Languages::_('ORGANIZER_DEREGISTER'),
+					'courses.register',
+					false
+				);
+				$toolbar->appendButton(
+					'Standard',
+					'last',
+					Languages::_('ORGANIZER_MANAGE_PARTICIPANTS'),
+					'courses.manageParticipants',
+					true
+				);
 				$toolbar->appendButton(
 					'Standard',
 					'last',
 					'Migrate Participants',
 					'courses.migrateParticipants',
-					false
+					true
 				);
-			}
-
-			// Implicit authorization by being in the back end
-			if (Helpers\Can::administrate() and !$frontend)
-			{
-				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit',
-					true);
 				$toolbar->appendButton(
 					'Confirm',
 					Languages::_('ORGANIZER_DELETE_CONFIRM'),
@@ -133,7 +175,6 @@ class Courses extends ListView
 					true
 				);
 			}
-
 		}
 	}
 
@@ -159,28 +200,16 @@ class Courses extends ListView
 	 */
 	public function setHeaders()
 	{
-		$backend = $this->clientContext === self::BACKEND;
-		$userID  = Factory::getUser()->id;
-
 		$headers = [
-			'id'           => '#',
-			'name'         => Languages::_('ORGANIZER_NAME'),
-			'dates'        => Languages::_('ORGANIZER_DATES'),
-			'courseStatus' => Languages::_('ORGANIZER_COURSE_STATUS')
+			'name'   => Languages::_('ORGANIZER_NAME'),
+			'campus' => Languages::_('ORGANIZER_CAMPUS'),
+			'dates'  => Languages::_('ORGANIZER_DATES'),
+			'status' => Languages::_('ORGANIZER_COURSE_STATUS')
 		];
 
-		if ($backend)
+		if ($this->manages)
 		{
 			$headers = ['checkbox' => ''] + $headers;
-			$headers += [
-				'persons' => Languages::_('ORGANIZER_PERSONS'),
-				'groups'  => Languages::_('ORGANIZER_GROUPS')
-			];
-		}
-
-		if ($userID)
-		{
-			$headers ['userContent'] = '';
 		}
 
 		$this->headers = $headers;
@@ -193,87 +222,26 @@ class Courses extends ListView
 	 */
 	protected function structureItems()
 	{
-		$backend = $this->clientContext === self::BACKEND;
-		$URL     = Uri::base() . '?option=com_organizer';
-		$URL     .= $backend ? '&view=course_edit&id=' : '&view=course_item&id=';
-		$userID  = Factory::getUser()->id;
+		$URL = Uri::base() . '?option=com_organizer';
+		$URL .= $this->clientContext ? '&view=course_edit&id=' : '&view=course_item&id=';
 
-		$this->allowNew  = Helpers\Courses::coordinates();
 		$structuredItems = [];
 
 		foreach ($this->items as $course)
 		{
-			$courseID             = $course->id;
-			$course->dates        = Helpers\Courses::getDateDisplay($courseID);
-			$index                = "{$course->name}{$course->dates}{$courseID}";
-			$course->courseStatus = Helpers\Courses::getStatusText($courseID);
+			$campus = Helpers\Campuses::getName($course->campusID);
+			$campus .= $this->clientContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
 
-			if ($backend)
-			{
-				$course->persons = implode(', ', Helpers\Courses::getPersons($courseID));
-				$course->groups  = implode(', ', Helpers\Courses::getGroups($courseID));
-			}
+			$course->campus = $campus;
+			$course->dates  = Helpers\Courses::getDateDisplay($course->id);
+			$index          = "{$course->name}{$course->dates}{$course->id}";
+			$course->status = Helpers\Courses::getStatusText($course->id);
 
-			if ($userID)
-			{
-				$course->userContent = $this->getUserContent($courseID);
-			}
-
-			$structuredItems[$index] = $this->structureItem($index, $course, $URL . $courseID);
+			$structuredItems[$index] = $this->structureItem($index, $course, $URL . $course->id);
 		}
 
 		ksort($structuredItems);
 
 		$this->items = $structuredItems;
-	}
-
-	/**
-	 * Generates content for individual courses based on the user's relation to it.
-	 *
-	 * @param   int  $courseID  the id of the course
-	 *
-	 * @return string the user specific HTML to display
-	 */
-	private function getUserContent($courseID)
-	{
-		$participantID = Factory::getUser()->id;
-		$personID      = Helpers\Persons::getIDByUserID($participantID);
-		if (Helpers\Can::administrate() or ($personID and Helpers\Courses::hasResponsibility($courseID, $personID)))
-		{
-			$baseURL  = Uri::base() . '?option=com_organizer';
-			$buttons  = '';
-			$template = '<a class="btn" href="XHREFX">XICONXXTEXTX</a>';
-			if ($this->clientContext === self::FRONTEND)
-			{
-				$button  = str_replace('XHREFX', $baseURL . "&view=course_edit&id=$courseID", $template);
-				$button  = str_replace('XICONX', '<span class="icon-options"></span>', $button);
-				$button  = str_replace('XTEXTX', Languages::_('ORGANIZER_COURSE_MANAGE'), $button);
-				$buttons .= $button;
-			}
-
-			$button  = str_replace('XHREFX', $baseURL . "&view=course_participants&id=$courseID", $template);
-			$button  = str_replace('XICONX', '<span class="icon-users"></span>', $button);
-			$button  = str_replace('XTEXTX', Languages::_('ORGANIZER_MANAGE_PARTICIPANTS'), $button);
-			$buttons .= $button;
-
-			return $buttons;
-		}
-
-		if (Helpers\Courses::isExpired($courseID))
-		{
-			return '';
-		}
-
-		if ($state = Helpers\CourseParticipants::getState($courseID, $participantID))
-		{
-			return '<span class="icon-checkbox-checked"></span>' . Languages::_('ORGANIZER_ACCEPTED');
-		}
-
-		if ($state === self::WAIT_LIST)
-		{
-			return '<span class="icon-checkbox-partial"></span>' . Languages::_('ORGANIZER_WAIT_LIST');
-		}
-
-		return '<span class="icon-checkbox-unchecked"></span>' . Languages::_('ORGANIZER_COURSE_NOT_REGISTERED');
 	}
 }
