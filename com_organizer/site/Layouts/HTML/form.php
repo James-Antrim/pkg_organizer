@@ -30,6 +30,9 @@ if ($isSite)
           class="form-horizontal form-validate" enctype="multipart/form-data">
 		<?php echo $this->form->renderFieldset('details'); ?>
 		<?php echo Helpers\HTML::_('form.token'); ?>
+        <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
+        <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
+		<?php echo Helpers\HTML::_('form.token'); ?>
     </form>
 </div>

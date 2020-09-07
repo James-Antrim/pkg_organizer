@@ -26,8 +26,9 @@ $query   = Uri::getInstance()->getQuery();
 				<?php echo $logo; ?>
             </div>
         </div>
-        <input type="hidden" name="task" value=""/>
         <input type="hidden" name="option" value="com_organizer"/>
+        <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="organizer"/>
+		<?php echo Helpers\HTML::_('form.token'); ?>
     </form>
 </div>

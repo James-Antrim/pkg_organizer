@@ -5,7 +5,7 @@
         <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
         <field name="organizationID" type="OrganizationAssociations" label="ORGANIZATION" disabled="true"
                required="true"/>
-        <field name="campusID" type="Campuses" label="CAMPUS" required="true">
+        <field name="campusID" type="Campuses" label="CAMPUS">
             <option value="">NO_CAMPUSES</option>
         </field>
         <field name="subjectNo" type="Blank" label="MODULE_ID" maxlength="45"/>

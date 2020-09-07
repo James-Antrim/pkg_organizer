@@ -84,7 +84,7 @@ class Courses extends ListView
 		if (Factory::getUser()->id)
 		{
 			$toolbar = Toolbar::getInstance();
-			/*if ($frontend)
+			if ($frontend)
 			{
 				if (Helpers\Participants::exists())
 				{
@@ -120,7 +120,7 @@ class Courses extends ListView
 						false
 					);
 				}
-			}*/
+			}
 
 			if ($this->manages)
 			{
@@ -131,27 +131,6 @@ class Courses extends ListView
 			if (Helpers\Can::administrate())
 			{
 				//$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'courses.add', false);
-				$toolbar->appendButton(
-					'Standard',
-					'vcard',
-					Languages::_('ORGANIZER_PROFILE_EDIT'),
-					'participants.edit',
-					false
-				);
-				$toolbar->appendButton(
-					'Standard',
-					'vcard',
-					Languages::_('ORGANIZER_REGISTER'),
-					'courses.register',
-					false
-				);
-				$toolbar->appendButton(
-					'Standard',
-					'vcard',
-					Languages::_('ORGANIZER_DEREGISTER'),
-					'courses.register',
-					false
-				);
 				$toolbar->appendButton(
 					'Standard',
 					'last',

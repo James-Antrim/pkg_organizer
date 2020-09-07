@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="reference" type="hidden"/>
+        <field name="forename" type="Blank" required="true" label="FORENAME"/>
+        <field name="surname" type="Blank" required="true" label="SURNAME"/>
+        <field name="address" type="Blank" required="true" label="ADDRESS"/>
+        <field name="zip_code" type="Blank" required="true" label="ZIP_CODE"/>
+        <field name="city" type="Blank" required="true" label="RESIDENCE"/>
+        <field name="programID" type="Programs" label="PROGRAM" required="true">
+            <option value="">SELECT_PROGRAM</option>
+        </field>
+    </fieldset>
+</form>

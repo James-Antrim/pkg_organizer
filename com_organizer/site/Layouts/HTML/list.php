@@ -97,9 +97,9 @@ if (!empty($this->submenu))
 			}
 			?>
         </table>
-        <input type="hidden" name="task" value=""/>
         <input type="hidden" name="boxchecked" value="0"/>
         <input type="hidden" name="option" value="com_organizer"/>
+        <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
 		<?php echo Helpers\HTML::_('form.token'); ?>
     </form>
