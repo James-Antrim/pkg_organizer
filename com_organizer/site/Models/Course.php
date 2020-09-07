@@ -19,6 +19,17 @@ use Organizer\Tables;
  */
 class Course extends BaseModel
 {
+
+	/**
+	 * Deregisters the user from the course.
+	 *
+	 * @return bool
+	 */
+	public function deregister()
+	{
+		return true;
+	}
+
 	/**
 	 * Method to get a table object, load it if necessary.
 	 *
@@ -33,6 +44,16 @@ class Course extends BaseModel
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
 		return new Tables\Courses;
+	}
+
+	/**
+	 * Registers the user for the course.
+	 *
+	 * @return bool
+	 */
+	public function register()
+	{
+		return true;
 	}
 
 	/**

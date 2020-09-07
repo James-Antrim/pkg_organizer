@@ -23,11 +23,32 @@ class Courses extends Controller
 {
 	const UNREGISTERED = null;
 
-	use CourseParticipants;
-
 	protected $listView = 'courses';
 
 	protected $resource = 'course';
+
+	/**
+	 * De-/registers a participant from/to a course.
+	 *
+	 * @return void
+	 */
+	public function deregister()
+	{
+		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+
+		$model = new Models\Course();
+
+		if ($model->deregister())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+		}
+
+		$this->setRedirect($referrer);
+	}
 
 	/**
 	 * Saves course information and redirects.
@@ -60,5 +81,35 @@ class Courses extends Controller
 		}
 
 		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * De-/registers a participant from/to a course.
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+		if (!Helpers\Participants::canRegister())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE', 'error');
+		}
+		else
+		{
+			$model = new Models\Course();
+
+			if ($model->register())
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+			}
+			else
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+			}
+		}
+
+
+		$this->setRedirect($referrer);
 	}
 }

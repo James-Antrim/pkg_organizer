@@ -32,9 +32,10 @@ class Participants extends ResourceHelper
 	 *
 	 * @return bool true if the necessary participant information has been set, otherwise false
 	 */
-	public static function canRegister($participantID)
+	public static function canRegister($participantID = 0)
 	{
-		$table = new Tables\Participants;
+		$participantID = $participantID ? $participantID : Users::getID();
+		$table         = new Tables\Participants;
 		if ($table->load($participantID))
 		{
 			$valid = true;

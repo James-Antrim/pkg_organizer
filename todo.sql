@@ -22,6 +22,7 @@
 #todo change the delta column to a signed int -1 'remove', 0 'no change from previous schedule', 1 'new'
 #todo finish and publish subject <-> events processing
 #todo move date formatting to the languages helper
+#todo reformat texts to be built in a speaking order organizer_resource_edit => organizer_edit_resource
 
 #endregion
 

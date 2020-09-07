@@ -158,7 +158,7 @@ trait CourseParticipants
 
 		if (!Helpers\Participants::canRegister($participantID))
 		{
-			OrganizerHelper::message('ORGANIZER_PARTICIPANT_REGISTRATION_INCOMPLETE', 'error');
+			OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE', 'error');
 			$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
 		}
 
