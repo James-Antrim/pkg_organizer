@@ -107,6 +107,8 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	private static function getRoleID($role)
 	{
+		$role = trim($role);
+
 		if (empty($role) or !preg_match('/^[a-zA-Z]+$/', $role))
 		{
 			return 1;
