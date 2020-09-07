@@ -244,7 +244,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array list of participants in course
 	 */
-	public static function getParticipants($courseID, $status = null)
+	public static function getParticipantIDs($courseID, $status = null)
 	{
 		if (empty($courseID))
 		{
@@ -353,40 +353,6 @@ class Courses extends ResourceHelper
 
 		return $runName ? "$runName ($term)" : $term;
 
-	}
-
-	/**
-	 * Generates a status text for the course itself.
-	 *
-	 * @param   int  $courseID  the id of the course
-	 *
-	 * @return string the course status text
-	 */
-	public static function getStatusText($courseID)
-	{
-		if (self::isExpired($courseID))
-		{
-			$status = Languages::_('ORGANIZER_EXPIRED');
-		}
-		elseif (self::isOngoing($courseID))
-		{
-			$status = Languages::_('ORGANIZER_COURSE_ONGOING');
-		}
-		elseif (self::isFull($courseID))
-		{
-			$status = Languages::_('ORGANIZER_COURSE_FULL');
-		}
-		else
-		{
-			$status = Languages::_('ORGANIZER_COURSE_OPEN');
-		}
-
-		if (self::hasResponsibility($courseID))
-		{
-			$status .= '<br>' . self::getCapacityText($courseID);
-		}
-
-		return $status;
 	}
 
 	/**

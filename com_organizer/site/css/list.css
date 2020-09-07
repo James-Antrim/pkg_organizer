@@ -205,7 +205,6 @@ td.empty-result-set {
     text-align: center;
 }
 
-/* Event Styles *******************************************************************************************************/
 span.comment {
     font-style: italic;
 }
@@ -223,6 +222,18 @@ span.role-title {
     font-weight: bold;
 }
 
+table.table-striped .center {
+    text-align: center;
+}
+
+table.table-striped td.status-display.green, table.table-striped td.status-display.unit-new {
+    background-color: #a0cb5b;
+}
+
+table.table-striped td.status-display.grey {
+    background-color: #d2d6d9;
+}
+
 table.table-striped td.status-display.instance-new {
     background-color: #bfdc91;
 }
@@ -231,11 +242,7 @@ table.table-striped td.status-display.instance-removed {
     background-color: #e6c4cb;
 }
 
-table.table-striped td.status-display.unit-new {
-    background-color: #a0cb5b;
-}
-
-table.table-striped td.status-display.unit-removed {
+table.table-striped td.status-display.red, table.table-striped td.status-display.unit-removed {
     background-color: #cd8996;
 }
 

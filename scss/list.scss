@@ -13,8 +13,6 @@ td.empty-result-set {
   text-align: center;
 }
 
-/* Event Styles *******************************************************************************************************/
-
 span.comment {
   font-style: italic;
 }
@@ -32,7 +30,19 @@ span.role-title {
   font-weight: bold;
 }
 
+table.table-striped .center {
+  text-align: center;
+}
+
 table.table-striped td.status-display {
+  
+  &.green, &.unit-new {
+    background-color: $green-75;
+  }
+
+  &.grey {
+    background-color: $grey-25;
+  }
 
   &.instance-new {
     background-color: $green-50;
@@ -42,11 +52,7 @@ table.table-striped td.status-display {
     background-color: $red-25;
   }
 
-  &.unit-new {
-    background-color: $green-75;
-  }
-
-  &.unit-removed {
+  &.red, &.unit-removed {
     background-color: $red-50;
   }
 }

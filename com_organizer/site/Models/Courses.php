@@ -57,6 +57,29 @@ class Courses extends ListModel
 	}
 
 	/**
+	 * Wrapper method for Joomla\CMS\MVC\Model\ListModel which has a mixed return type.
+	 *
+	 * @return  array  An array of data items on success.
+	 */
+	public function getItems()
+	{
+		if (!$items = parent::getItems())
+		{
+			return [];
+		}
+
+		$userID = Helpers\Users::getID();
+
+		foreach ($items as $item)
+		{
+			$item->participants = count(Helpers\Courses::getParticipantIDs($item->id));
+			$item->registered   = Helpers\CourseParticipants::getState($item->id, $userID);
+		}
+
+		return $items ? $items : [];
+	}
+
+	/**
 	 * Method to get a list of resources from the database.
 	 *
 	 * @return JDatabaseQuery

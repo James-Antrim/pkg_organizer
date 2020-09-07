@@ -325,6 +325,7 @@ class CourseItem extends ItemModel
 			{
 				$course['courseText'] = Languages::_($option . 'COURSE_ONGOING');
 			}
+
 			if ($course['registrationStatus'] === self::UNREGISTERED)
 			{
 				$course['registrationText'] = Languages::_($option . 'DEADLINE_EXPIRED');

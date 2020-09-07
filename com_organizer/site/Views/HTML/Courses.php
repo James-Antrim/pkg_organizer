@@ -16,7 +16,6 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
-// Exception for frequency of use
 
 /**
  * Class which loads data into the view output context
@@ -34,12 +33,18 @@ class Courses extends ListView
 	{
 		parent::__construct($config);
 
-		$structure = ['name' => 'link', 'campus' => 'value', 'dates' => 'value', 'status' => 'value'];
+		$structure = [
+			'checkbox'           => '',
+			'name'               => 'link',
+			'campus'             => 'value',
+			'dates'              => 'value',
+			'courseStatus'       => 'value',
+			'registrationStatus' => 'value'
+		];
 
 		if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::edit('courses'))
 		{
 			$this->manages = true;
-			$structure     = ['checkbox' => ''] + $structure;
 		}
 
 		$this->rowStructure = $structure;
@@ -97,24 +102,24 @@ class Courses extends ListView
 					);
 					$toolbar->appendButton(
 						'Standard',
-						'vcard',
+						'enter',
 						Languages::_('ORGANIZER_REGISTER'),
 						'courses.register',
-						false
+						true
 					);
 					$toolbar->appendButton(
 						'Standard',
-						'vcard',
+						'exit',
 						Languages::_('ORGANIZER_DEREGISTER'),
 						'courses.register',
-						false
+						true
 					);
 				}
 				else
 				{
 					$toolbar->appendButton(
 						'Standard',
-						'vcard',
+						'user-plus',
 						Languages::_('ORGANIZER_PROFILE_NEW'),
 						'participants.edit',
 						false
@@ -124,8 +129,7 @@ class Courses extends ListView
 
 			if ($this->manages)
 			{
-				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit',
-					true);
+				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
 			}
 
 			if (Helpers\Can::administrate())
@@ -173,16 +177,19 @@ class Courses extends ListView
 	public function setHeaders()
 	{
 		$headers = [
-			'name'   => Languages::_('ORGANIZER_NAME'),
-			'campus' => Languages::_('ORGANIZER_CAMPUS'),
-			'dates'  => Languages::_('ORGANIZER_DATES'),
-			'status' => Languages::_('ORGANIZER_COURSE_STATUS')
+			'checkbox'           => '',
+			'name'               => Languages::_('ORGANIZER_NAME'),
+			'campus'             => Languages::_('ORGANIZER_CAMPUS'),
+			'dates'              => Languages::_('ORGANIZER_DATES'),
+			'courseStatus'       => [
+				'attributes' => ['class' => 'center'],
+				'value'      => Languages::_('ORGANIZER_COURSE_STATUS')
+			],
+			'registrationStatus' => [
+				'attributes' => ['class' => 'center'],
+				'value'      => Languages::_('ORGANIZER_REGISTRATION_STATUS')
+			]
 		];
-
-		if ($this->manages)
-		{
-			$headers = ['checkbox' => ''] + $headers;
-		}
 
 		$this->headers = $headers;
 	}
@@ -199,15 +206,109 @@ class Courses extends ListView
 
 		$structuredItems = [];
 
+		$today  = Helpers\Dates::standardizeDate();
+		$userID = Helpers\Users::getID();
+
 		foreach ($this->items as $course)
 		{
-			$campus = Helpers\Campuses::getName($course->campusID);
-			$campus .= $this->clientContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
-
+			echo "<pre>" . print_r($course, true) . "</pre>";
+			$campus         = Helpers\Campuses::getName($course->campusID);
+			$campus         .= $this->clientContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
 			$course->campus = $campus;
-			$course->dates  = Helpers\Courses::getDateDisplay($course->id);
-			$index          = "{$course->name}{$course->dates}{$course->id}";
-			$course->status = Helpers\Courses::getStatusText($course->id);
+
+			$course->dates = Helpers\Courses::getDateDisplay($course->id);
+
+			$expired = $course->endDate < $today;
+			$ongoing = ($course->startDate <= $today and $expired);
+
+			if ($course->deadline)
+			{
+				$deadline = date('Y-m-d', strtotime("-{$course->deadline} Days", strtotime($course->startDate)));
+			}
+			else
+			{
+				$deadline = $course->startDate;
+			}
+
+			$closed = (!$expired and !$ongoing and $deadline <= $today);
+
+			$full   = $course->participants >= $course->maxParticipants;
+			$ninety = (!$full and ($course->participants / (int) $course->maxParticipants) >= .9);
+
+
+			if ($expired)
+			{
+				$attributes = ['class' => 'status-display center grey'];
+
+				$course->courseStatus       = [
+					'attributes' => $attributes,
+					'value'      => Languages::_('ORGANIZER_EXPIRED')
+				];
+				$course->registrationStatus = [
+					'attributes' => $attributes,
+					'value'      => Languages::_('ORGANIZER_REGISTRATION_CLOSED')
+				];
+			}
+			else
+			{
+				$course->courseStatus = [];
+				$capacityText         = Languages::_('ORGANIZER_PARTICIPANTS');
+				$capacityText         .= ": $course->participants / $course->maxParticipants<br>";
+
+				if ($ongoing or $full)
+				{
+					$courseAttributes = ['class' => 'status-display center red'];
+				}
+				elseif ($closed or $ninety)
+				{
+					$courseAttributes = ['class' => 'status-display center yellow'];
+				}
+				else
+				{
+					$courseAttributes = ['class' => 'status-display center green'];
+				}
+
+				$course->courseStatus['attributes'] = $courseAttributes;
+
+				if ($ongoing or $closed)
+				{
+					$courseText = Languages::_('ORGANIZER_REGISTRATION_CLOSED');
+				}
+				else
+				{
+					$courseText = sprintf(Languages::_('ORGANIZER_REGISTRATION_CLOSES_ON'), $deadline);
+				}
+
+				$course->courseStatus['value'] = $capacityText . $courseText;
+
+				if ($userID)
+				{
+					if ($course->registered)
+					{
+						$course->registrationStatus = [
+							'attributes' => ['class' => 'status-display center green'],
+							'value'      => Languages::_('ORGANIZER_REGISTERED')
+						];
+					}
+					else
+					{
+						$color                      = ($ongoing or $closed) ? 'red' : 'yellow';
+						$course->registrationStatus = [
+							'attributes' => ['class' => "status-display center $color"],
+							'value'      => Languages::_('ORGANIZER_NOT_REGISTERED')
+						];
+					}
+				}
+				else
+				{
+					$course->registrationStatus = [
+						'attributes' => ['class' => 'status-display center grey'],
+						'value'      => Languages::_('ORGANIZER_NOT_LOGGED_IN')
+					];
+				}
+			}
+
+			$index = "{$course->name}{$course->dates}{$course->id}";
 
 			$structuredItems[$index] = $this->structureItem($index, $course, $URL . $course->id);
 		}

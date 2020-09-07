@@ -27,7 +27,7 @@ trait CourseParticipants
 	 */
 	protected function getParticipants($courseID)
 	{
-		$allParticipants = Helpers\Courses::getParticipants($courseID);
+		$allParticipants = Helpers\Courses::getParticipantIDs($courseID);
 		if ($participantID = Helpers\Input::getInt('participantID'))
 		{
 			$selected = [$participantID];

@@ -21,6 +21,7 @@
 #todo add  pdf/xml support for list views
 #todo change the delta column to a signed int -1 'remove', 0 'no change from previous schedule', 1 'new'
 #todo finish and publish subject <-> events processing
+#todo move date formatting to the languages helper
 
 #endregion
 
