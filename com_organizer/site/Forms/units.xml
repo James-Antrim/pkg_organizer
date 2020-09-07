@@ -3,7 +3,9 @@
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
         <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" onchange="this.form.submit();"
-               access="schedule"/>
+               access="schedule">
+            <option value="">ALL_ORGANIZATIONS</option>
+        </field>
         <field name="termID" type="Terms" label="TERM" onchange="this.form.submit();"/>
         <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();">
             <option value="">ALL_GRIDS</option>

@@ -52,11 +52,10 @@ class Units extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$modified       = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
-		$organizationID = $this->state->get('filter.organizationID');
-		$termID         = $this->state->get('filter.termID');
-		$query          = $this->_db->getQuery(true);
-		$tag            = Helpers\Languages::getTag();
+		$modified = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
+		$termID   = $this->state->get('filter.termID');
+		$query    = $this->_db->getQuery(true);
+		$tag      = Helpers\Languages::getTag();
 
 		$query->select('u.id, u.code, u.courseID, u.delta AS status, u.endDate, u.modified, u.startDate')
 			->select("g.name_$tag AS grid")
@@ -70,11 +69,20 @@ class Units extends ListModel
 			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
 			->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
 			->innerJoin('#__organizer_methods AS m ON m.id = i.methodID')
-			->where("a.organizationID = $organizationID")
 			->where("(u.delta != 'removed' OR u.modified > '$modified')")
 			->where("u.termid = $termID")
 			->order('u.startDate, u.endDate')
 			->group('u.id');
+
+		if ($organizationID = $this->state->get('filter.organizationID'))
+		{
+			$query->where("a.organizationID = $organizationID");
+		}
+		else
+		{
+			$organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
+			$query->where("a.organizationID IN ($organizationIDs)");
+		}
 
 		if ($search = $this->state->get('filter.search'))
 		{
@@ -99,12 +107,6 @@ class Units extends ListModel
 	protected function populateState($ordering = null, $direction = null)
 	{
 		parent::populateState($ordering, $direction);
-
-		if (!$this->state->get('filter.organizationID'))
-		{
-			$authorized = Helpers\Can::scheduleTheseOrganizations();
-			$this->setState('filter.organizationID', $authorized[0]);
-		}
 
 		if (!$this->state->get('filter.termID'))
 		{
