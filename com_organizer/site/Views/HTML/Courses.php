@@ -211,7 +211,6 @@ class Courses extends ListView
 
 		foreach ($this->items as $course)
 		{
-			echo "<pre>" . print_r($course, true) . "</pre>";
 			$campus         = Helpers\Campuses::getName($course->campusID);
 			$campus         .= $this->clientContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
 			$course->campus = $campus;
