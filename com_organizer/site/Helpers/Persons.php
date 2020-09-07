@@ -336,9 +336,10 @@ class Persons extends Associated implements Selectable
 			}
 
 			$wherray[] = $where;
+
+			$query->where(implode(' OR ', $wherray));
 		}
 
-		$query->where(implode(' OR ', $wherray));
 		$dbo->setQuery($query);
 
 		return OrganizerHelper::executeQuery('loadAssocList', []);

@@ -12,7 +12,6 @@ use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
-$isSite    = Helpers\OrganizerHelper::getApplication()->isClient('site');
 $rows      = $this->rows;
 $iteration = 0;
 
@@ -22,7 +21,7 @@ echo $this->supplement;
 
 ?>
 <div id="j-main-container" class="span10">
-	<?php if ($isSite) : ?>
+	<?php if (!$this->clientContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
     <form action="<?php echo Uri::current(); ?>" id="adminForm" method="post" name="adminForm">

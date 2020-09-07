@@ -92,3 +92,18 @@ class CourseItem extends ItemView
 		$this->subtitle = "<h6 class=\"sub-title\">$term $dates</h6>";
 	}
 }
+/*
+					$toolbar->appendButton(
+						'Standard',
+						'enter',
+						Languages::_('ORGANIZER_REGISTER'),
+						'courses.register',
+						true
+					);
+					$toolbar->appendButton(
+						'Standard',
+						'exit',
+						Languages::_('ORGANIZER_DEREGISTER'),
+						'courses.register',
+						true
+					);*/

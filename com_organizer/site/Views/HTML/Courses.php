@@ -34,7 +34,6 @@ class Courses extends ListView
 		parent::__construct($config);
 
 		$structure = [
-			'checkbox'           => '',
 			'name'               => 'link',
 			'campus'             => 'value',
 			'dates'              => 'value',
@@ -45,6 +44,7 @@ class Courses extends ListView
 		if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::edit('courses'))
 		{
 			$this->manages = true;
+			$structure     = ['checkbox' => ''] + $structure;
 		}
 
 		$this->rowStructure = $structure;
@@ -99,20 +99,6 @@ class Courses extends ListView
 						Languages::_('ORGANIZER_PROFILE_EDIT'),
 						'participants.edit',
 						false
-					);
-					$toolbar->appendButton(
-						'Standard',
-						'enter',
-						Languages::_('ORGANIZER_REGISTER'),
-						'courses.register',
-						true
-					);
-					$toolbar->appendButton(
-						'Standard',
-						'exit',
-						Languages::_('ORGANIZER_DEREGISTER'),
-						'courses.register',
-						true
 					);
 				}
 				else
@@ -177,10 +163,10 @@ class Courses extends ListView
 	public function setHeaders()
 	{
 		$headers = [
-			'checkbox'           => '',
-			'name'               => Languages::_('ORGANIZER_NAME'),
-			'campus'             => Languages::_('ORGANIZER_CAMPUS'),
-			'dates'              => Languages::_('ORGANIZER_DATES'),
+			'name'   => Languages::_('ORGANIZER_NAME'),
+			'campus' => Languages::_('ORGANIZER_CAMPUS'),
+			'dates'  => Languages::_('ORGANIZER_DATES'),
+
 			'courseStatus'       => [
 				'attributes' => ['class' => 'center'],
 				'value'      => Languages::_('ORGANIZER_COURSE_STATUS')
@@ -190,6 +176,11 @@ class Courses extends ListView
 				'value'      => Languages::_('ORGANIZER_REGISTRATION_STATUS')
 			]
 		];
+
+		if ($this->manages)
+		{
+			$headers = ['checkbox' => ''] + $headers;
+		}
 
 		$this->headers = $headers;
 	}

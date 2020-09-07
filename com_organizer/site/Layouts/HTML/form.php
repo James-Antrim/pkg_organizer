@@ -12,10 +12,9 @@ use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
-$isSite = Helpers\OrganizerHelper::getApplication()->isClient('site');
-$query  = Uri::getInstance()->getQuery();
+$query = Uri::getInstance()->getQuery();
 
-if ($isSite)
+if (!$this->clientContext)
 {
 	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 	echo $this->subtitle;
@@ -23,7 +22,7 @@ if ($isSite)
 }
 ?>
 <div id="j-main-container" class="span10">
-	<?php if ($isSite) : ?>
+	<?php if (!$this->clientContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm"

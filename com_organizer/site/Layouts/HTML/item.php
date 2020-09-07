@@ -8,6 +8,7 @@
  * @link        www.thm.de
  */
 
+use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 
 $resourceID = Helpers\Input::getID();
@@ -19,6 +20,9 @@ echo $this->subtitle;
 echo $this->supplement;
 ?>
 <div id="j-main-container" class="span10">
+	<?php if (!$this->clientContext) : ?>
+		<?php echo Toolbar::getInstance()->render(); ?>
+	<?php endif; ?>
 	<?php
 	foreach ($this->item as $key => $attribute)
 	{

@@ -13,12 +13,11 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
 $columnCount = count($this->headers);
-$isSite      = Helpers\OrganizerHelper::getApplication()->isClient('site');
 $items       = $this->items;
 $iteration   = 0;
 $action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 
-if ($isSite)
+if (!$this->clientContext)
 {
 	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 	echo $this->subtitle;
@@ -29,7 +28,7 @@ if (!empty($this->submenu))
 	echo '<div id="j-sidebar-container" class="span2">' . $this->submenu . '</div>';
 } ?>
 <div id="j-main-container" class="span10">
-	<?php if ($isSite) : ?>
+	<?php if (!$this->clientContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
     <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
