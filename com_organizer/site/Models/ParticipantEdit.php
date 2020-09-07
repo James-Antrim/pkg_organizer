@@ -79,6 +79,6 @@ class ParticipantEdit extends EditModel
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Participants;
+		return new Tables\Participants();
 	}
 }

@@ -170,6 +170,10 @@ body.tmpl-index div.main .js-stools-container-list .js-stools-field-list {
     margin-right: 0;
 }
 
+div.btn-toolbar + form {
+    margin-top: 2rem;
+}
+
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
     .controls input[type="file"] {
         line-height: 0;

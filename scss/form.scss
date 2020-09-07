@@ -2,6 +2,10 @@
 @import "fields";
 @import "filter_bars";
 
+div.btn-toolbar + form {
+  margin-top: 2rem;
+}
+
 // File upload adjustment for chromium browsers.
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   .controls input[type="file"] {

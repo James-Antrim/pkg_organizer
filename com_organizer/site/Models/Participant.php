@@ -18,7 +18,7 @@ use Organizer\Tables;
 /**
  * Class which manages stored participant data.
  */
-class Participant extends MergeModel
+class Participant extends BaseModel
 {
 	/**
 	 * Filters names (city, forename, surname) for actual letters and accepted special characters.
@@ -83,7 +83,7 @@ class Participant extends MergeModel
 	 *
 	 * @return void modifies the string
 	 */
-	private function normalize(&$item)
+	/*private function normalize(&$item)
 	{
 		if (strpos($item, '-') !== false)
 		{
@@ -95,7 +95,7 @@ class Participant extends MergeModel
 		}
 
 		$item = ucfirst(strtolower($item));
-	}
+	}*/
 
 	/**
 	 * (De-) Registers course participants
@@ -107,7 +107,7 @@ class Participant extends MergeModel
 	 * @return boolean true on success, false on error
 	 * @throws Exception => unauthorized access
 	 */
-	public function register($participantID, $courseID, $state)
+	/*public function register($participantID, $courseID, $state)
 	{
 		if (!Factory::getUser()->id === $participantID)
 		{
@@ -118,7 +118,7 @@ class Participant extends MergeModel
 		$state     = $state == 1 ? $canAccept : 2;
 
 		return Helpers\Participants::changeState($participantID, $courseID, $state);
-	}
+	}*/
 
 	/**
 	 * Attempts to save the resource.
@@ -212,7 +212,7 @@ class Participant extends MergeModel
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
-	protected function updateAssociations()
+	/*protected function updateAssociations()
 	{
 		if (!$this->updateCourseParticipants())
 		{
@@ -225,14 +225,14 @@ class Participant extends MergeModel
 		}
 
 		return $this->updateUsers();
-	}
+	}*/
 
 	/**
 	 * Updates the course participants table to reflect the merge of the participants.
 	 *
 	 * @return bool true on success, otherwise false;
 	 */
-	private function updateCourseParticipants()
+	/*private function updateCourseParticipants()
 	{
 		if (!$relevantCourses = $this->getAssociatedResourceIDs('courseID', 'course_participants'))
 		{
@@ -298,14 +298,14 @@ class Participant extends MergeModel
 		}
 
 		return true;
-	}
+	}*/
 
 	/**
 	 * Updates the instance participants table to reflect the merge of the participants.
 	 *
 	 * @return bool true on success, otherwise false;
 	 */
-	private function updateInstanceParticipants()
+	/*private function updateInstanceParticipants()
 	{
 		if (!$relevantInstances = $this->getAssociatedResourceIDs('instanceID', 'instance_participants'))
 		{
@@ -350,14 +350,14 @@ class Participant extends MergeModel
 		}
 
 		return true;
-	}
+	}*/
 
 	/**
 	 * Updates the users table to reflect the merge of the participants.
 	 *
 	 * @return bool true on success, otherwise false;
 	 */
-	private function updateUsers()
+	/*private function updateUsers()
 	{
 		$mergeID = reset($this->selected);
 		$user    = Helpers\Users::getUser($mergeID);
@@ -394,5 +394,5 @@ class Participant extends MergeModel
 		$user->username = $username;
 
 		return $user->save();
-	}
+	}*/
 }
