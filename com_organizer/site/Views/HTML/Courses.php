@@ -160,13 +160,6 @@ class Courses extends ListView
 					true
 				);
 				$toolbar->appendButton(
-					'Standard',
-					'last',
-					'Migrate Participants',
-					'courses.migrateParticipants',
-					true
-				);
-				$toolbar->appendButton(
 					'Confirm',
 					Languages::_('ORGANIZER_DELETE_CONFIRM'),
 					'delete',

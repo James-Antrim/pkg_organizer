@@ -35,29 +35,6 @@ class Courses extends Controller
 	 * @return void modifies saved course data
 	 * @throws Exception => unauthorized access
 	 */
-	public function migrateParticipants()
-	{
-		$model = new Models\Course;
-
-		if ($model->migrateParticipants())
-		{
-			Helpers\OrganizerHelper::message('Participants migrated.');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('Failbot activated!', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase() . "&view=courses";
-		$this->setRedirect(Route::_($url, false));
-	}
-
-	/**
-	 * Saves course information and redirects.
-	 *
-	 * @return void modifies saved course data
-	 * @throws Exception => unauthorized access
-	 */
 	public function save()
 	{
 		$backend = $this->clientContext === self::BACKEND;
