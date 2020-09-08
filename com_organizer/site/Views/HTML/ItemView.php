@@ -27,6 +27,16 @@ abstract class ItemView extends BaseHTMLView
 	public $item = null;
 
 	/**
+	 * Method to generate buttons for user interaction
+	 *
+	 * @return void
+	 */
+	protected function addToolBar()
+	{
+		// On demand abstract function.
+	}
+
+	/**
 	 * Method to get display
 	 *
 	 * @param   Object  $tpl  template  (default: null)
@@ -36,16 +46,13 @@ abstract class ItemView extends BaseHTMLView
 	public function display($tpl = null)
 	{
 		$this->item = $this->get('Item');
+
 		$this->addDisclaimer();
-		if (method_exists($this, 'setSubtitle'))
-		{
-			$this->setSubtitle();
-		}
-		if (method_exists($this, 'addSupplement'))
-		{
-			$this->addSupplement();
-		}
+		$this->addToolbar();
+		$this->setSubtitle();
+		$this->addSupplement();
 		$this->modifyDocument();
+
 		$defaultConstant = 'ORGANIZER_' . strtoupper(str_replace('Item', '', $this->getName()));
 		$itemName        = is_array($this->item['name']) ? $this->item['name']['value'] : $this->item['name'];
 		Helpers\HTML::setMenuTitle($defaultConstant, $itemName);
@@ -115,5 +122,25 @@ abstract class ItemView extends BaseHTMLView
 			echo '</li>';
 		}
 		echo '</ul>';
+	}
+
+	/**
+	 * Creates a subtitle element .
+	 *
+	 * @return void modifies the course
+	 */
+	protected function setSubtitle()
+	{
+		// On demand abstract function.
+	}
+
+	/**
+	 * Adds supplemental information to the display output.
+	 *
+	 * @return void modifies the object property supplement
+	 */
+	protected function addSupplement()
+	{
+		// On demand abstract function.
 	}
 }

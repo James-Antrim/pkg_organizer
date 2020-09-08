@@ -341,7 +341,7 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
     <div id="reg-manual" class="message pop-up">
         <p>
             <span class="icon-notification"></span>
-            <span><?php echo Languages::_('ORGANIZER_COURSE_MAIL_STATUS_WAIT_LIST'); ?></span>
+            <span><?php echo Languages::_('ORGANIZER_COURSE_MAIL_STATUS_WAITLIST'); ?></span>
         </p>
         <button class="icon-cancel" onclick="this.parentElement.style.display='none';"></button>
     </div>

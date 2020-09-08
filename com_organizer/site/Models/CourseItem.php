@@ -23,8 +23,6 @@ use Organizer\Tables;
  */
 class CourseItem extends ItemModel
 {
-	const EXPIRED = -1, PLANNED = 0, ONGOING = 1, UNREGISTERED = null;
-
 	/**
 	 * Provides a strict access check which can be overwritten by extending classes.
 	 *
@@ -61,27 +59,38 @@ class CourseItem extends ItemModel
 			return [];
 		}
 
+		$course = $this->getStructure();
+
+		$query = $this->_db->getQuery(true);
+		$query->select("MIN(startDate) AS startDate, MAX(endDate) AS endDate")
+			->from('#__organizer_units')
+			->where("courseID = $courseID");
+		$this->_db->setQuery($query);
+
+		if ($dates = Helpers\OrganizerHelper::executeQuery('loadAssoc', []))
+		{
+			$course['endDate']   = $dates['endDate'];
+			$course['startDate'] = $dates['startDate'];
+		}
+
 		$campusID = $courseTable->campusID;
-		$course   = $this->getStructure();
 		$tag      = Languages::getTag();
 
-		$course['campus']['value']  = Helpers\Campuses::getPin($campusID) . ' ' . Helpers\Campuses::getName($campusID);
-		$course['deadline']         = $courseTable->deadline;
-		$course['id']               = $courseID;
-		$course['name']['value']    = $courseTable->{"name_$tag"};
-		$course['registrationType'] = $courseTable->registrationType;
-		$course['termID']           = $courseTable->termID;
+		$course['campus']['value']      = Helpers\Campuses::getPin($campusID) . ' ' . Helpers\Campuses::getName($campusID);
+		$course['campusID']             = $campusID;
+		$course['deadline']             = $courseTable->deadline;
+		$course['description']['value'] = $courseTable->{"description_$tag"} ? $courseTable->{"description_$tag"} : '';
+		$course['fee']['value']         = $courseTable->fee ? $courseTable->fee . ' €' : '';
+		$course['groups']               = $courseTable->groups;
+		$course['id']                   = $courseID;
+		$course['maxParticipants']      = $courseTable->maxParticipants;
+		$course['name']['value']        = $courseTable->{"name_$tag"};
+		$course['participants']         = count(Helpers\Courses::getParticipantIDs($courseID));
+		$course['registrationType']     = $courseTable->registrationType;
+		$course['termID']               = $courseTable->termID;
 
 		$this->setRegistrationTexts($course);
 		$this->setEvents($course);
-
-
-		/*$courseData = [
-			'description'     => $courseTable->{"description_$tag"},
-			'fee'             => $courseTable->fee,
-			'groups'          => $courseTable->groups,
-			'maxParticipants' => $courseTable->maxParticipants,
-		];*/
 
 		return $course;
 	}
@@ -95,40 +104,46 @@ class CourseItem extends ItemModel
 	{
 		$option   = 'ORGANIZER_';
 		$template = [
-			'id'                  => 0,
-			'name'                => ['label' => Languages::_($option . 'NAME'), 'type' => 'text', 'value' => ''],
-			'campus'              => ['label' => Languages::_($option . 'CAMPUS'), 'type' => 'text', 'value' => ''],
-			'speakers'            => ['label' => Languages::_($option . 'SPEAKERS'), 'type' => 'list', 'value' => []],
-			'teachers'            => ['label' => Languages::_($option . 'TEACHERS'), 'type' => 'list', 'value' => []],
-			'tutors'              => ['label' => Languages::_($option . 'TUTORS'), 'type' => 'list', 'value' => []],
-			'description'         => [
+			'id'                 => 0,
+			'name'               => ['label' => Languages::_($option . 'NAME'), 'type' => 'text', 'value' => ''],
+			'fee'                => ['label' => Languages::_($option . 'FEE'), 'type' => 'text', 'value' => ''],
+			'campusID'           => 0,
+			'campus'             => ['label' => Languages::_($option . 'CAMPUS'), 'type' => 'text', 'value' => ''],
+			'speakers'           => ['label' => Languages::_($option . 'SPEAKERS'), 'type' => 'list', 'value' => []],
+			'teachers'           => ['label' => Languages::_($option . 'TEACHERS'), 'type' => 'list', 'value' => []],
+			'tutors'             => ['label' => Languages::_($option . 'TUTORS'), 'type' => 'list', 'value' => []],
+			'description'        => [
 				'label' => Languages::_($option . 'SHORT_DESCRIPTION'),
 				'type'  => 'text',
 				'value' => ''
 			],
-			'content'             => ['label' => Languages::_($option . 'CONTENT'), 'type' => 'text', 'value' => ''],
-			'organization'        => [
+			'content'            => ['label' => Languages::_($option . 'CONTENT'), 'type' => 'text', 'value' => ''],
+			'organization'       => [
 				'label' => Languages::_($option . 'COURSE_ORGANIZATION'),
 				'type'  => 'text',
 				'value' => ''
 			],
-			'pretests'            => ['label' => Languages::_($option . 'PRETESTS'), 'type' => 'text', 'value' => ''],
-			'courseContact'       => [
+			'registration'       => [
+				'label' => Languages::_($option . 'REGISTRATION'),
+				'type'  => 'text',
+				'value' => ''
+			],
+			'pretests'           => ['label' => Languages::_($option . 'PRETESTS'), 'type' => 'text', 'value' => ''],
+			'courseContact'      => [
 				'label' => Languages::_($option . 'COURSE_CONTACTS'),
 				'type'  => 'text',
 				'value' => ''
 			],
-			'contact'             => ['label' => Languages::_($option . 'CONTACTS'), 'type' => 'text', 'value' => ''],
-			'courseStatus'        => null,
-			'courseText'          => null,
-			'deadline'            => null,
-			'events'              => [],
-			'preparatory'         => false,
-			'registrationStatus'  => null,
-			'registrationAllowed' => null,
-			'registrationText'    => null,
-			'registrationType'    => null,
-			'termID'              => null,
+			'contact'            => ['label' => Languages::_($option . 'CONTACTS'), 'type' => 'text', 'value' => ''],
+			'courseStatus'       => null,
+			'courseText'         => null,
+			'deadline'           => null,
+			'events'             => [],
+			'maxParticipants'    => 0,
+			'participants'       => 0,
+			'preparatory'        => false,
+			'registrationStatus' => null,
+			'termID'             => null,
 		];
 
 		return $template;
@@ -187,6 +202,15 @@ class CourseItem extends ItemModel
 					elseif (empty($course['name']['value']))
 					{
 						$course['name']['value'] .= $value;
+					}
+					continue;
+				}
+
+				if ($name == 'fee')
+				{
+					if (!$course['fee']['value'] and strpos($course['name']['value'], $value) === false)
+					{
+						$course['fee']['value'] .= $value . '€';
 					}
 					continue;
 				}
@@ -284,71 +308,101 @@ class CourseItem extends ItemModel
 	 */
 	private function setRegistrationTexts(&$course)
 	{
-		$courseID = $course['id'];
-		$dates    = Helpers\Courses::getDates($courseID);
-		$deadline = date('Y-m-d', strtotime("{$dates['startDate']} - {$course['deadline']} days"));
-		$option   = 'ORGANIZER_';
+		$course['registration']['value'] = $course['registrationType'] ?
+			Languages::_('ORGANIZER_REGISTRATION_MANUAL')
+			: Languages::_('ORGANIZER_REGISTRATION_FIFO');
+		$today                           = Helpers\Dates::standardizeDate();
 
-		if (Helpers\Courses::isExpired($courseID))
+		$expired = $course['endDate'] < $today;
+		$ongoing = ($course['startDate'] <= $today and $expired);
+
+		if ($course['deadline'])
 		{
-			$course['courseStatus'] = self::EXPIRED;
-			$course['courseText']   = Languages::_($option . 'COURSE_EXPIRED');
+			$deadline = date('Y-m-d', strtotime("-{$course['deadline']} Days", strtotime($course['startDate'])));
+		}
+		else
+		{
+			$deadline = $course['startDate'];
+		}
+
+		$closed   = (!$expired and !$ongoing and $deadline <= $today);
+		$deadline = Helpers\Dates::formatDate($deadline);
+
+		$full   = $course['participants'] >= $course['maxParticipants'];
+		$ninety = (!$full and ($course['participants'] / (int) $course['maxParticipants']) >= .9);
+
+		if ($expired)
+		{
+			$course['courseStatus'] = 'grey';
+			$course['courseText']   = Languages::_('ORGANIZER_COURSE_EXPIRED');
 
 			return;
 		}
 
-		$course['courseStatus'] = Helpers\Courses::isOngoing($courseID) ? self::ONGOING : self::PLANNED;
-		$full                   = Helpers\Courses::isFull($courseID);
-		$userID                 = Factory::getUser()->id;
-		if ($userID)
+		$texts = [];
+		if ($ongoing or $full)
 		{
-			$course['registrationStatus'] = Helpers\CourseParticipants::getState($courseID, $userID);
-			if ($course['registrationStatus'] !== self::UNREGISTERED)
+			$course['courseStatus'] = 'red';
+			if ($ongoing)
 			{
-				$course['registrationText'] = $course['registrationStatus'] ?
-					Languages::_($option . 'REGISTRATION_ACCEPTED') : Languages::_($option . 'REGISTRATION_WAIT');
+				$texts['course'] = Languages::_('ORGANIZER_COURSE_ONGOING');
+			}
+			if ($full)
+			{
+				$texts['cRegistration'] = Languages::_('ORGANIZER_COURSE_FULL');
+			}
+		}
+		elseif ($closed or $ninety)
+		{
+			$course['courseStatus'] = 'yellow';
+			if ($closed)
+			{
+				$texts['cRegistration'] = Languages::_('ORGANIZER_DEADLINE_EXPIRED');
+			}
+			elseif ($ninety)
+			{
+				$texts['cRegistration'] = Languages::_('ORGANIZER_COURSE_LIMITED');
+			}
+		}
+
+		$deadlineText = sprintf(Languages::_('ORGANIZER_DEADLINE_TEXT'), $deadline);
+
+		if ($userID = Helpers\Users::getID())
+		{
+			$course['registrationStatus'] = Helpers\CourseParticipants::getState($course['id'], $userID);
+			if ($course['registrationStatus'] === null)
+			{
+				$texts['pRegistration'] = Languages::_('ORGANIZER_COURSE_UNREGISTERED');
+
+				if (!Helpers\Participants::exists())
+				{
+					$texts['profile'] = Languages::_('ORGANIZER_COURSE_PROFILE_REQUIRED');
+				}
+
+				$texts['deadline'] = $deadlineText;
 			}
 			else
 			{
-				$course['registrationText'] = Languages::_($option . 'REGISTRATION_NONE');
+				unset($texts['course'], $texts['cRegistration']);
+				if ($course['registrationStatus'])
+				{
+					$course['courseStatus'] = 'green';
+					$texts['pRegistration'] = Languages::_('ORGANIZER_COURSE_ACCEPTED');
+				}
+				else
+				{
+					$course['courseStatus'] = 'blue';
+					$texts['pRegistration'] = Languages::_('ORGANIZER_COURSE_WAITLIST');
+				}
 			}
 		}
 		else
 		{
-			$course['registrationStatus'] = self::UNREGISTERED;
-			$course['registrationText']   = Languages::_($option . 'COURSE_LOGIN_WARNING');
+			$course['registrationStatus'] = null;
+			$texts['pRegistration']       = Languages::_('ORGANIZER_COURSE_LOGIN_WARNING');
+			$texts['deadline']            = $deadlineText;
 		}
 
-		if ($course['courseStatus'] or $deadline <= date('Y-m-d'))
-		{
-			if ($course['courseStatus'])
-			{
-				$course['courseText'] = Languages::_($option . 'COURSE_ONGOING');
-			}
-
-			if ($course['registrationStatus'] === self::UNREGISTERED)
-			{
-				$course['registrationText'] = Languages::_($option . 'DEADLINE_EXPIRED');
-				if (!$full)
-				{
-					$course['registrationType'] = Languages::_($option . 'REGISTRATION_IN_PERSON');
-				}
-			}
-
-			return;
-		}
-
-		if ($course['registrationStatus'] === self::UNREGISTERED)
-		{
-			$deadline = sprintf(Languages::_($option . 'DEADLINE_TEXT'), Helpers\Dates::formatDate($deadline));
-
-			$course['deadline'] = sprintf(Helpers\Languages::_('ORGANIZER_REGISTRATION_DEADLINE'), $deadline);
-
-			$course['registrationAllowed'] = $full ?
-				Languages::_($option . 'COURSE_FULL') : Languages::_($option . 'COURSE_OPEN');
-
-			$course['registrationType'] = $course['registrationType'] ?
-				Languages::_($option . 'REGISTRATION_MANUAL') : Languages::_($option . 'REGISTRATION_FIFO');
-		}
+		$course['courseText'] = implode('<br>', $texts);
 	}
 }

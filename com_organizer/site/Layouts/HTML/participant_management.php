@@ -10,7 +10,7 @@
  */
 
 use Joomla\CMS\Router\Route;
-use Organizer\Helpers\Languages; //Exception for frequency of use
+use Organizer\Helpers\Languages;
 
 $fieldset = $this->form->getFieldset('participant_management');
 
@@ -23,7 +23,7 @@ $organizationListRoute = Route::_($baseURL . 1, false);
 $participantListRoute  = Route::_($baseURL . 0, false);
 
 $acceptedText = Languages::_('ORGANIZER_ACCEPTED');
-$waitListText = Languages::_('ORGANIZER_WAIT_LIST');
+$waitListText = Languages::_('ORGANIZER_WAITLIST');
 
 $params     = OrganizerHelper::getParams();
 $dateFormat = $params->get('dateFormat', 'd.m.Y') . ' ';
@@ -49,7 +49,7 @@ $dateFormat .= $params->get('timeFormat', 'H.i');
                 <span class="icon-checkbox-checked"></span> <?php echo Languages::_('ORGANIZER_ACCEPT'); ?>
             </button>
             <button class="btn" onclick="listAction(0);">
-                <span class="icon-checkbox-partial"></span> <?php echo Languages::_('ORGANIZER_ADD_WAIT_LIST'); ?>
+                <span class="icon-checkbox-partial"></span> <?php echo Languages::_('ORGANIZER_ADD_WAITLIST'); ?>
             </button>
             <button class="btn" onclick="listAction(2);">
                 <span class="icon-remove"></span> <?php echo Languages::_('ORGANIZER_DELETE'); ?>

@@ -20,7 +20,7 @@ use Organizer\Tables;
 class Participants extends ResourceHelper
 {
 	// Course participant status codes
-	const WAIT_LIST = 0, REGISTERED = 1, REMOVED = 2;
+	const WAITLIST = 0, REGISTERED = 1, REMOVED = 2;
 
 	// Constants providing context for adding/removing instances to/from personal schedules.
 	const SEMESTER_MODE = 1, BLOCK_MODE = 2, INSTANCE_MODE = 3;
@@ -64,7 +64,7 @@ class Participants extends ResourceHelper
 	{
 		switch ($state)
 		{
-			case self::WAIT_LIST:
+			case self::WAITLIST:
 			case self::REGISTERED:
 				$table = new Tables\CourseParticipants;
 

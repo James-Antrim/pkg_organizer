@@ -17,7 +17,7 @@
         <field name="fee" type="Integer" label="COURSE_FEE" default="0" first="0" last="500" step="5"/>
         <field name="maxParticipants" type="Integer" label="MAX_PARTICIPANTS" default="1000" first="20" last="1000"
                step="20"/>
-        <field name="registrationType" type="Options" label="REGISTRATION_TYPE">
+        <field name="registrationType" type="Options" label="REGISTRATION">
             <option value="">NO_REGISTRATION</option>
             <option value="0">FIFO</option>
             <option value="1">MANUAL</option>

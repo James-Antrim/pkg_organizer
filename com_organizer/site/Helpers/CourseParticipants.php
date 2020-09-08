@@ -18,7 +18,7 @@ use Joomla\CMS\Uri\Uri;
  */
 class CourseParticipants extends ResourceHelper
 {
-	const UNREGISTERED = null, WAIT_LIST = 0;
+	const UNREGISTERED = null, WAITLIST = 0;
 
 	/**
 	 * Retrieves the participant's state for the given course

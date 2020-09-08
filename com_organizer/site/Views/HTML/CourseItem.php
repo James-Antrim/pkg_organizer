@@ -10,7 +10,9 @@
 
 namespace Organizer\Views\HTML;
 
+use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
+use Organizer\Helpers\Languages;
 
 /**
  * Class loads the subject into the display context.
@@ -23,6 +25,32 @@ class CourseItem extends ItemView
 	// Course Statuses
 	const EXPIRED = -1, ONGOING = 1;
 
+	public $manages = false;
+	public $participant = false;
+	public $visits = false;
+
+	/**
+	 * Constructor
+	 *
+	 * @param   array  $config  A named configuration array for object construction.
+	 */
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
+
+		if (Helpers\Users::getID())
+		{
+			if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::edit('courses'))
+			{
+				$this->manages = true;
+			}
+			elseif (!$this->clientContext and Helpers\Participants::exists())
+			{
+				$this->participant = true;
+			}
+		}
+	}
+
 	/**
 	 * Adds supplemental information to the display output.
 	 *
@@ -31,52 +59,52 @@ class CourseItem extends ItemView
 	protected function addSupplement()
 	{
 		$course = $this->item;
-		if ($course['courseStatus'] === self::EXPIRED)
-		{
-			$color = '';
-		}
-		elseif ($course['registrationStatus'] === self::ACCEPTED)
-		{
-			$color = 'green';
-		}
-		elseif ($course['courseStatus'] === self::ONGOING)
-		{
-			$color = 'red';
-		}
-		elseif ($course['registrationStatus'] === self::PENDING)
-		{
-			$color = 'blue';
-		}
-		else
-		{
-			$color = 'yellow';
-		}
 
-		$text = '<div class="tbox-' . $color . '">';
-
-		$texts = [];
-		if ($course['courseStatus'] === self::EXPIRED or $course['courseStatus'] === self::ONGOING)
-		{
-			$texts[] = $course['courseText'];
-		}
-		elseif ($course['courseStatus'] !== self::EXPIRED)
-		{
-			$texts[] = $course['registrationText'];
-			if (!$course['courseStatus'] === self::ONGOING)
-			{
-				$texts[] = $course['registrationAllowed'];
-			}
-			if ($course['registrationStatus'] === self::UNREGISTERED)
-			{
-				$texts[] = $course['registrationType'];
-			}
-		}
-
-		$text .= implode(' ', $texts);
-		$text .= '</div>';
+		$text = '<div class="tbox-' . $course['courseStatus'] . '">' . $course['courseText'] . '</div>';
 
 		$this->supplement = $text;
 	}
+
+	/**
+	 * Adds a toolbar and title to the view.
+	 *
+	 * @return void  adds toolbar items to the view
+	 */
+	/*protected function addToolBar()
+	{
+		if (Helpers\Users::getID())
+		{
+			$toolbar = Toolbar::getInstance();
+
+			if ($this->participant)
+			{
+				$toolbar->appendButton(
+					'Standard',
+					'enter',
+					Helpers\Languages::_('ORGANIZER_REGISTER'),
+					'courses.register',
+					true
+				);
+				$toolbar->appendButton(
+					'Standard',
+					'exit',
+					Helpers\Languages::_('ORGANIZER_DEREGISTER'),
+					'courses.register',
+					true
+				);
+			}
+			else
+			{
+				$toolbar->appendButton(
+					'Standard',
+					'user-plus',
+					Languages::_('ORGANIZER_PROFILE_NEW'),
+					'participants.edit',
+					false
+				);
+			}
+		}
+	}*/
 
 	/**
 	 * Creates a subtitle element from the term name and the start and end dates of the course.
@@ -85,25 +113,14 @@ class CourseItem extends ItemView
 	 */
 	protected function setSubtitle()
 	{
-		$dates  = Helpers\Courses::getDateDisplay($this->item['id']);
-		$termID = $this->item['preparatory'] ? Helpers\Terms::getNextID($this->item['termID']) : $this->item['termID'];
-		$term   = Helpers\Terms::getName($termID);
+		$this->subtitle = '<h6 class="sub-title">';
 
-		$this->subtitle = "<h6 class=\"sub-title\">$term $dates</h6>";
+		if ($this->item['campusID'])
+		{
+			$campusName     = Helpers\Campuses::getName($this->item['campusID']);
+			$this->subtitle .= Languages::_('ORGANIZER_CAMPUS') . " $campusName: ";
+		}
+
+		$this->subtitle .= Helpers\Courses::getDateDisplay($this->item['id']) . '</h6>';
 	}
 }
-/*
-					$toolbar->appendButton(
-						'Standard',
-						'enter',
-						Languages::_('ORGANIZER_REGISTER'),
-						'courses.register',
-						true
-					);
-					$toolbar->appendButton(
-						'Standard',
-						'exit',
-						Languages::_('ORGANIZER_DEREGISTER'),
-						'courses.register',
-						true
-					);*/

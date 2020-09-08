@@ -283,7 +283,7 @@ class CourseParticipant extends BaseModel
 			switch ($state)
 			{
 				case 0:
-					$statusText .= Languages::_('ORGANIZER_COURSE_MAIL_STATUS_WAIT_LIST');
+					$statusText .= Languages::_('ORGANIZER_COURSE_MAIL_STATUS_WAITLIST');
 					break;
 				case 1:
 					$statusText .= Languages::_('ORGANIZER_COURSE_MAIL_STATUS_REGISTERED');

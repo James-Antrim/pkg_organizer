@@ -225,7 +225,6 @@ class Courses extends ListView
 			$full   = $course->participants >= $course->maxParticipants;
 			$ninety = (!$full and ($course->participants / (int) $course->maxParticipants) >= .9);
 
-
 			if ($expired)
 			{
 				$attributes = ['class' => 'status-display center grey'];
@@ -236,7 +235,7 @@ class Courses extends ListView
 				];
 				$course->registrationStatus = [
 					'attributes' => $attributes,
-					'value'      => Languages::_('ORGANIZER_REGISTRATION_CLOSED')
+					'value'      => Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT')
 				];
 			}
 			else
@@ -262,11 +261,11 @@ class Courses extends ListView
 
 				if ($ongoing or $closed)
 				{
-					$courseText = Languages::_('ORGANIZER_REGISTRATION_CLOSED');
+					$courseText = Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT');
 				}
 				else
 				{
-					$courseText = sprintf(Languages::_('ORGANIZER_REGISTRATION_CLOSES_ON'), $deadline);
+					$courseText = sprintf(Languages::_('ORGANIZER_DEADLINE_SHORT'), $deadline);
 				}
 
 				$course->courseStatus['value'] = $capacityText . $courseText;
