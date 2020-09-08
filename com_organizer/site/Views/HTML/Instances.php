@@ -155,12 +155,12 @@ class Instances extends ListView
 
 			$class = !empty($class) ? 'class="' . $class . '"' : '';
 
-			if (empty($roles[$person['code']]))
+			if (empty($roles[$person['roleID']]))
 			{
-				$roles[$person['code']] = [];
+				$roles[$person['roleID']] = [];
 			}
 
-			$roles[$person['code']][$name] = "<span $class $title>$name</span>";
+			$roles[$person['roleID']][$name] = "<span $class $title>$name</span>";
 		}
 
 		if (count($roles) === 1)
@@ -178,10 +178,12 @@ class Instances extends ListView
 		$singularColumn = "name_$tag";
 		$pluralColumn   = "plural_$tag";
 
-		foreach ($roles as $code => $persons)
+		ksort($roles);
+
+		foreach ($roles as $roleID => $persons)
 		{
 			$roleDisplay = '';
-			if (!$role->load(['code' => $code]))
+			if (!$role->load($roleID))
 			{
 				continue;
 			}
@@ -258,8 +260,8 @@ class Instances extends ListView
 
 			if (strlen($name) > 45)
 			{
-				$class         = 'hasToolTip';
-				$title         = $name;
+				$class         .= 'hasToolTip';
+				$title         .= $name;
 				$displayedName = $resource['code'];
 			}
 			else
@@ -273,14 +275,24 @@ class Instances extends ListView
 
 				if ($resource['status'] === 'new')
 				{
-					$class .= 'class="status-new"';
-					$title = 'title="' . sprintf($added, $date) . '"';
+					$class .= ' status-new';
+					$title .= ' ' . sprintf($added, $date);
 				}
 				elseif ($resource['status'] === 'removed')
 				{
-					$class .= 'class="status-removed"';
-					$title = 'title="' . sprintf($removed, $date) . '"';
+					$class .= ' status-removed';
+					$title .= ' ' . sprintf($removed, $date);
 				}
+			}
+
+			if ($class = trim($class))
+			{
+				$class = "class=\"$class\"";
+			}
+
+			if ($title = trim($title))
+			{
+				$title = "title=\"$title\"";
 			}
 
 			$resources[$name] = "<span $class $title>$displayedName</span>";
