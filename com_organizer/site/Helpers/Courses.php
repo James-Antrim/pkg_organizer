@@ -220,7 +220,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array the instances which are a part of the course
 	 */
-	public static function getInstances($courseID)
+	public static function getInstanceIDs($courseID)
 	{
 		$dbo = Factory::getDbo();
 
@@ -466,25 +466,6 @@ class Courses extends ResourceHelper
 	}
 
 	/**
-	 * Checks if the course is ongoing
-	 *
-	 * @param   int  $courseID  the id of the course
-	 *
-	 * @return bool true if the course is expired, otherwise false
-	 */
-	public static function isOngoing($courseID)
-	{
-		if ($dates = self::getDates($courseID))
-		{
-			$today = date('Y-m-d');
-
-			return ($today >= $dates['startDate'] and $today <= $dates['endDate']);
-		}
-
-		return false;
-	}
-
-	/**
 	 * Checks if the course is a preparatory course.
 	 *
 	 * @param   int  $courseID  the id of the course
@@ -506,6 +487,21 @@ class Courses extends ResourceHelper
 		$dbo->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('loadResult', 0);
+	}
+
+	/**
+	 * Checks whether the current user participates in the course.
+	 *
+	 * @param   int  $courseID  the id of the course
+	 *
+	 * @return bool true if the user is a course participant, otherwise false
+	 */
+	public static function participates($courseID)
+	{
+		$participantID = Users::getID();
+		$table         = new Tables\CourseParticipants();
+
+		return $table->load(['courseID' => $courseID, 'participantID' => $participantID]);
 	}
 
 	/**

@@ -25,9 +25,9 @@ class CourseItem extends ItemView
 	// Course Statuses
 	const EXPIRED = -1, ONGOING = 1;
 
-	public $manages = false;
-	public $participant = false;
-	public $visits = false;
+	private $manages = false;
+	private $participant = false;
+	private $profile = false;
 
 	/**
 	 * Constructor
@@ -46,7 +46,8 @@ class CourseItem extends ItemView
 			}
 			elseif (!$this->clientContext and Helpers\Participants::exists())
 			{
-				$this->participant = true;
+				$this->profile     = true;
+				$this->participant = Helpers\Courses::participates(Helpers\Input::getID());
 			}
 		}
 	}
@@ -70,41 +71,73 @@ class CourseItem extends ItemView
 	 *
 	 * @return void  adds toolbar items to the view
 	 */
-	/*protected function addToolBar()
+	protected function addToolBar()
 	{
 		if (Helpers\Users::getID())
 		{
 			$toolbar = Toolbar::getInstance();
+			$today   = Helpers\Dates::standardizeDate();
 
-			if ($this->participant)
+			if ($this->item['deadline'])
 			{
-				$toolbar->appendButton(
-					'Standard',
-					'enter',
-					Helpers\Languages::_('ORGANIZER_REGISTER'),
-					'courses.register',
-					true
-				);
-				$toolbar->appendButton(
-					'Standard',
-					'exit',
-					Helpers\Languages::_('ORGANIZER_DEREGISTER'),
-					'courses.register',
-					true
-				);
+				$deadline = date('Y-m-d',
+					strtotime("-{$this->item['deadline']} Days", strtotime($this->item['startDate'])));
 			}
 			else
 			{
-				$toolbar->appendButton(
-					'Standard',
-					'user-plus',
-					Languages::_('ORGANIZER_PROFILE_NEW'),
-					'participants.edit',
-					false
-				);
+				$deadline = $this->item['startDate'];
+			}
+
+			if ($deadline > $today)
+			{
+				if ($this->profile)
+				{
+					if (Helpers\Participants::canRegister())
+					{
+						$link = 'index.php?option=com_organizer&id=' . $this->item['id'] . '&task=';
+						if ($this->participant)
+						{
+							$icon = 'exit';
+							$link .= 'courses.deregister';
+							$text = Languages::_('ORGANIZER_DEREGISTER');
+						}
+						else
+						{
+							$icon = 'enter';
+							$link .= 'courses.register';
+							$text = Languages::_('ORGANIZER_REGISTER');
+						}
+
+						$toolbar->appendButton('Link', $icon, $text, $link);
+					}
+					else
+					{
+						$toolbar->appendButton(
+							'Link',
+							'vcard',
+							Languages::_('ORGANIZER_PROFILE_EDIT'),
+							'index.php?option=com_organizer&view=participant_edit'
+						);
+					}
+				}
+				elseif (!$this->manages)
+				{
+					$toolbar->appendButton(
+						'Link',
+						'user-plus',
+						Languages::_('ORGANIZER_PROFILE_NEW'),
+						'index.php?option=com_organizer&view=participant_edit'
+					);
+				}
+			}
+
+			if ($this->manages)
+			{
+				// Edit Course
+				// Manage participants
 			}
 		}
-	}*/
+	}
 
 	/**
 	 * Creates a subtitle element from the term name and the start and end dates of the course.

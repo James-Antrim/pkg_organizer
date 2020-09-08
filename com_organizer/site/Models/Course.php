@@ -27,6 +27,66 @@ class Course extends BaseModel
 	 */
 	public function deregister()
 	{
+		if ($selectedParticipants = Helpers\Input::getSelectedIDs())
+		{
+			$courseID = Helpers\Input::getInt('courseID');
+		}
+		else
+		{
+			$courseID             = Helpers\Input::getID();
+			$selectedParticipants = ($userID = Helpers\Users::getID()) ? [$userID] : [];
+		}
+
+		if (!$courseID or !$selectedParticipants)
+		{
+			return true;
+		}
+
+		foreach ($selectedParticipants as $participantID)
+		{
+			if (!$this->deregisterIndividual($courseID, $participantID))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Deregisters an individual participant from a given course.
+	 *
+	 * @param   int  $courseID       the course id
+	 * @param   int  $participantID  the participant id
+	 *
+	 * @return bool true if the participant has been deregistered, otherwise false
+	 */
+	private function deregisterIndividual($courseID, $participantID)
+	{
+		$cpData = ['courseID' => $courseID, 'participantID' => $participantID];
+
+		$courseParticipant = new Tables\CourseParticipants();
+		if ($courseParticipant->load($cpData))
+		{
+			if (!$courseParticipant->delete())
+			{
+				return false;
+			}
+		}
+
+		if ($instanceIDs = Helpers\Courses::getInstanceIDs($courseID))
+		{
+			foreach ($instanceIDs as $instanceID)
+			{
+				$ipData              = ['instanceID' => $instanceID, 'participantID' => $participantID];
+				$instanceParticipant = new Tables\InstanceParticipants();
+				if ($instanceParticipant->load($ipData))
+				{
+					$instanceParticipant->delete();
+				}
+			}
+		}
+
 		return true;
 	}
 
@@ -53,6 +113,38 @@ class Course extends BaseModel
 	 */
 	public function register()
 	{
+		$courseID      = Helpers\Input::getID();
+		$participantID = Helpers\Users::getID();
+		$cpData        = ['courseID' => $courseID, 'participantID' => $participantID];
+
+		$courseParticipant = new Tables\CourseParticipants();
+		if (!$courseParticipant->load($cpData))
+		{
+			$cpData['participantDate'] = date('Y-m-d H:i:s');
+			$cpData['status']          = 1;
+			$cpData['statusDate']      = date('Y-m-d H:i:s');
+			$cpData['attended']        = 0;
+			$cpData['paid']            = 0;
+
+			if (!$courseParticipant->save($cpData))
+			{
+				return false;
+			}
+		}
+
+		if ($instanceIDs = Helpers\Courses::getInstanceIDs($courseID))
+		{
+			foreach ($instanceIDs as $instanceID)
+			{
+				$ipData              = ['instanceID' => $instanceID, 'participantID' => $participantID];
+				$instanceParticipant = new Tables\InstanceParticipants();
+				if (!$instanceParticipant->load($ipData))
+				{
+					$instanceParticipant->save($ipData);
+				}
+			}
+		}
+
 		return true;
 	}
 

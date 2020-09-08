@@ -79,7 +79,7 @@ class Participants extends ResourceHelper
 				$data['user_date']     = $now;
 				$data['status_date']   = $now;
 				$data['status']        = $state;
-				$data['configuration'] = Courses::getInstances($courseID);
+				$data['configuration'] = Courses::getInstanceIDs($courseID);
 
 				$success = $table->save($data);
 
