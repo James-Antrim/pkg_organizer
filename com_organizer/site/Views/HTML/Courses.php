@@ -70,17 +70,13 @@ class Courses extends ListView
 	 */
 	protected function addToolBar()
 	{
-		$frontend     = $this->clientContext !== self::BACKEND;
 		$resourceName = '';
-		if ($frontend)
+		if (!$this->clientContext and Helpers\Input::getBool('onlyPrepCourses', false))
 		{
-			if (Helpers\Input::getBool('onlyPrepCourses', false))
+			$resourceName .= Languages::_('ORGANIZER_PREP_COURSES');
+			if ($campusID = $this->state->get('filter.campusID', 0))
 			{
-				$resourceName .= Languages::_('ORGANIZER_PREP_COURSES');
-				if ($campusID = $this->state->get('filter.campusID', 0))
-				{
-					$resourceName .= ' ' . Helpers\Campuses::getName($campusID);
-				}
+				$resourceName .= ' ' . Languages::_('ORGANIZER_CAMPUS') . ' ' . Helpers\Campuses::getName($campusID);
 			}
 		}
 
@@ -89,7 +85,7 @@ class Courses extends ListView
 		if (Factory::getUser()->id)
 		{
 			$toolbar = Toolbar::getInstance();
-			if ($frontend)
+			if (!$this->clientContext and !$this->manages)
 			{
 				if (Helpers\Participants::exists())
 				{
@@ -116,18 +112,18 @@ class Courses extends ListView
 			if ($this->manages)
 			{
 				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
+				$toolbar->appendButton(
+					'Standard',
+					'users',
+					Languages::_('ORGANIZER_MANAGE_PARTICIPANTS'),
+					'courseparticipants.display',
+					true
+				);
 			}
 
 			if (Helpers\Can::administrate())
 			{
 				//$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'courses.add', false);
-				$toolbar->appendButton(
-					'Standard',
-					'last',
-					Languages::_('ORGANIZER_MANAGE_PARTICIPANTS'),
-					'courses.manageParticipants',
-					true
-				);
 				$toolbar->appendButton(
 					'Confirm',
 					Languages::_('ORGANIZER_DELETE_CONFIRM'),
