@@ -49,6 +49,7 @@ if (!$this->clientContext)
 	}
 	echo Helpers\HTML::_('bootstrap.endTabSet');
 	?>
+    <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value=""/>
     <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>

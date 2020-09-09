@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -20,6 +19,14 @@ use Organizer\Tables;
 class Course extends BaseModel
 {
 	const NONE = null, WAITLIST = 0, REGISTERED = 1;
+
+	/**
+	 * Authorizes the user
+	 */
+	protected function allow()
+	{
+		return Helpers\Can::manage('course', Helpers\Input::getID());
+	}
 
 	/**
 	 * Deregisters the user from the course.
@@ -134,13 +141,14 @@ class Course extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return int|bool int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
 	 */
 	public function save($data = [])
 	{
 		if (!$this->allow())
 		{
-			throw new Exception(Helpers\Languages::_('COM_ORGANIZER_403'), 403);
+			$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
+			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 403);
 		}
 
 		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;

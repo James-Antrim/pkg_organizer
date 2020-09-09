@@ -115,7 +115,7 @@ class Courses extends ListView
 				$toolbar->appendButton(
 					'Standard',
 					'users',
-					Languages::_('ORGANIZER_MANAGE_PARTICIPANTS'),
+					Languages::_('ORGANIZER_PARTICIPANTS'),
 					'courseparticipants.display',
 					true
 				);

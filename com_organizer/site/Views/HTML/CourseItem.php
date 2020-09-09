@@ -88,7 +88,7 @@ class CourseItem extends ItemView
 				$deadline = $this->item['startDate'];
 			}
 
-			if ($deadline > $today)
+			if (!$this->manages and $deadline > $today)
 			{
 				if ($this->profile)
 				{
@@ -120,7 +120,7 @@ class CourseItem extends ItemView
 						);
 					}
 				}
-				elseif (!$this->manages)
+				else
 				{
 					$toolbar->appendButton(
 						'Link',
@@ -129,12 +129,6 @@ class CourseItem extends ItemView
 						'index.php?option=com_organizer&view=participant_edit'
 					);
 				}
-			}
-
-			if ($this->manages)
-			{
-				// Edit Course
-				// Manage participants
 			}
 		}
 	}

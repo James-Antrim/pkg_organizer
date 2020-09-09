@@ -321,7 +321,6 @@ class Controller extends BaseController
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
 		$model     = new $modelName;
-		$url       = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
 
 		if ($model->save())
 		{
@@ -332,6 +331,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
+		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
 		$this->setRedirect(Route::_($url, false));
 	}
 

@@ -28,7 +28,7 @@ if (!$this->clientContext)
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm"
           class="form-horizontal form-validate" enctype="multipart/form-data">
 		<?php echo $this->form->renderFieldset('details'); ?>
-		<?php echo Helpers\HTML::_('form.token'); ?>
+        <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>

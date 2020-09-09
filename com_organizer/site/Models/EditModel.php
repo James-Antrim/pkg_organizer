@@ -74,13 +74,14 @@ abstract class EditModel extends AdminModel
 	 * @param   integer  $pk  The id of the primary key.
 	 *
 	 * @return mixed    Object on success, false on failure.
-	 * @throws Exception => unauthorized access
 	 */
 	public function getItem($pk = null)
 	{
+		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 		if (!Factory::getUser()->id)
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
+			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 401);
 		}
 
 		$pk = empty($pk) ? Helpers\Input::getSelectedID() : $pk;
@@ -95,9 +96,8 @@ abstract class EditModel extends AdminModel
 
 		if (!$this->allow())
 		{
-			$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 401);
+			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 403);
 		}
 
 		return $this->item;

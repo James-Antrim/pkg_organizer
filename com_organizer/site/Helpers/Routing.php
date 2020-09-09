@@ -24,21 +24,29 @@ class Routing
 	 */
 	public static function getRedirectBase()
 	{
-		$url = Uri::base();
-		if ($menuID = Input::getItemid())
+		$base = Uri::base();
+
+		if (OrganizerHelper::getApplication()->isClient('administrator'))
 		{
-			$url .= OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->route . '?';
-		}
-		else
-		{
-			$url .= '?option=com_organizer';
+			return "$base?option=com_organizer";
 		}
 
+		$languageQuery = '';
 		if ($tag = Input::getCMD('languageTag'))
 		{
-			$url .= "&languageTag=$tag";
+			$languageQuery .= "languageTag=$tag";
 		}
 
-		return $url;
+		// If the menu is plausible redirect
+		if ($menuID = Input::getItemid() and !OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->home)
+		{
+			$url = $base . OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->route . '?';
+
+			return $languageQuery ? $url . "$languageQuery" : $url;
+		}
+
+		$base = "$base?option=com_organizer";
+
+		return $languageQuery ? $base . "$languageQuery" : $base;
 	}
 }

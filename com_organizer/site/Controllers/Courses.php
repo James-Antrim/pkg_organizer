@@ -51,39 +51,6 @@ class Courses extends Controller
 	}
 
 	/**
-	 * Saves course information and redirects.
-	 *
-	 * @return void modifies saved course data
-	 * @throws Exception => unauthorized access
-	 */
-	public function save()
-	{
-		$backend = $this->clientContext === self::BACKEND;
-		$model   = new Models\Course;
-		$url     = Helpers\Routing::getRedirectBase();
-
-		if ($courseID = $model->save())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
-
-		if ($backend or empty($courseID))
-		{
-			$url .= "&view=courses";
-		}
-		else
-		{
-			$url .= "&view=courses&id=$courseID";
-		}
-
-		$this->setRedirect(Route::_($url, false));
-	}
-
-	/**
 	 * De-/registers a participant from/to a course.
 	 *
 	 * @return void
