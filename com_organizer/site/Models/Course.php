@@ -19,6 +19,7 @@ use Organizer\Tables;
  */
 class Course extends BaseModel
 {
+	const NONE = null, WAITLIST = 0, REGISTERED = 1;
 
 	/**
 	 * Deregisters the user from the course.
@@ -27,42 +28,14 @@ class Course extends BaseModel
 	 */
 	public function deregister()
 	{
-		if ($selectedParticipants = Helpers\Input::getSelectedIDs())
-		{
-			$courseID = Helpers\Input::getInt('courseID');
-		}
-		else
-		{
-			$courseID             = Helpers\Input::getID();
-			$selectedParticipants = ($userID = Helpers\Users::getID()) ? [$userID] : [];
-		}
+		$courseID      = Helpers\Input::getID();
+		$participantID = Helpers\Users::getID();
 
-		if (!$courseID or !$selectedParticipants)
+		if (!$courseID or !$participantID)
 		{
 			return true;
 		}
 
-		foreach ($selectedParticipants as $participantID)
-		{
-			if (!$this->deregisterIndividual($courseID, $participantID))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Deregisters an individual participant from a given course.
-	 *
-	 * @param   int  $courseID       the course id
-	 * @param   int  $participantID  the participant id
-	 *
-	 * @return bool true if the participant has been deregistered, otherwise false
-	 */
-	private function deregisterIndividual($courseID, $participantID)
-	{
 		$cpData = ['courseID' => $courseID, 'participantID' => $participantID];
 
 		$courseParticipant = new Tables\CourseParticipants();
@@ -86,6 +59,8 @@ class Course extends BaseModel
 				}
 			}
 		}
+
+		Helpers\Mailer::registrationUpdate($courseID, $participantID, null);
 
 		return true;
 	}
@@ -121,7 +96,7 @@ class Course extends BaseModel
 		if (!$courseParticipant->load($cpData))
 		{
 			$cpData['participantDate'] = date('Y-m-d H:i:s');
-			$cpData['status']          = 1;
+			$cpData['status']          = self::REGISTERED;
 			$cpData['statusDate']      = date('Y-m-d H:i:s');
 			$cpData['attended']        = 0;
 			$cpData['paid']            = 0;
@@ -132,18 +107,23 @@ class Course extends BaseModel
 			}
 		}
 
-		if ($instanceIDs = Helpers\Courses::getInstanceIDs($courseID))
+		if ($courseParticipant->status === self::REGISTERED)
 		{
-			foreach ($instanceIDs as $instanceID)
+			if ($instanceIDs = Helpers\Courses::getInstanceIDs($courseID))
 			{
-				$ipData              = ['instanceID' => $instanceID, 'participantID' => $participantID];
-				$instanceParticipant = new Tables\InstanceParticipants();
-				if (!$instanceParticipant->load($ipData))
+				foreach ($instanceIDs as $instanceID)
 				{
-					$instanceParticipant->save($ipData);
+					$ipData              = ['instanceID' => $instanceID, 'participantID' => $participantID];
+					$instanceParticipant = new Tables\InstanceParticipants();
+					if (!$instanceParticipant->load($ipData))
+					{
+						$instanceParticipant->save($ipData);
+					}
 				}
 			}
 		}
+
+		Helpers\Mailer::registrationUpdate($courseID, $participantID, $courseParticipant->status);
 
 		return true;
 	}

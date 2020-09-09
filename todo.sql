@@ -26,6 +26,13 @@
 
 #endregion
 
+#region Courses / Participants##########################################################################################
+
+#todo integrate the status wait list into course participant handling
+#todo make lack of dates blocking for registration
+
+#endregion
+
 #region instances ######################################################################################################
 
 #todo add pdf/xml formats

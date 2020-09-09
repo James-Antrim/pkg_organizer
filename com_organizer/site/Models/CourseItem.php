@@ -41,12 +41,6 @@ class CourseItem extends ItemModel
 	 */
 	public function getItem()
 	{
-		$allowView = $this->allow();
-		if (!$allowView)
-		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
-		}
-
 		$courseID = Helpers\Input::getID();
 		if (empty($courseID))
 		{
