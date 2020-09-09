@@ -287,9 +287,14 @@ abstract class ListModel extends ParentModel
 	 */
 	public function setActiveFilter($query, $alias)
 	{
-		$status = (int) $this->state->get('filter.active');
+		$status = $this->state->get('filter.active');
 
-		if ($status === -1)
+		if (!is_numeric($status))
+		{
+			$status = 1;
+		}
+
+		if ($status == -1)
 		{
 			return;
 		}
