@@ -95,7 +95,9 @@ abstract class EditModel extends AdminModel
 
 		if (!$this->allow())
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 401);
+			$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
+			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 401);
 		}
 
 		return $this->item;

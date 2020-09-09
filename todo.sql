@@ -23,6 +23,7 @@
 #todo finish and publish subject <-> events processing
 #todo move date formatting to the languages helper
 #todo reformat texts to be built in a speaking order organizer_resource_edit => organizer_edit_resource
+#todo redo exception handling with redirects (editmodel)
 
 #endregion
 
