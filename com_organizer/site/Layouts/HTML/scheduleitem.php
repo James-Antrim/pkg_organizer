@@ -333,7 +333,7 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
     <div id="reg-fifo" class="message pop-up">
         <p>
             <span class="icon-notification"></span>
-            <span><?php echo Languages::_('ORGANIZER_COURSE_MAIL_STATUS_REGISTERED'); ?></span>
+            <span><?php echo Languages::_('ORGANIZER_REGISTERED'); ?></span>
         </p>
         <button class="icon-cancel" onclick="this.parentElement.style.display='none';"></button>
     </div>
@@ -341,7 +341,7 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
     <div id="reg-manual" class="message pop-up">
         <p>
             <span class="icon-notification"></span>
-            <span><?php echo Languages::_('ORGANIZER_COURSE_MAIL_STATUS_WAITLIST'); ?></span>
+            <span><?php echo Languages::_('ORGANIZER_WAITLIST'); ?></span>
         </p>
         <button class="icon-cancel" onclick="this.parentElement.style.display='none';"></button>
     </div>
