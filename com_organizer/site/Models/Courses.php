@@ -97,6 +97,12 @@ class Courses extends ListModel
 
 		$this->setSearchFilter($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 
+		if ($this->clientContext)
+		{
+			$organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
+			$query->where("u.organizationID in ($organizationIDs)");
+		}
+
 		if (!$this->clientContext and Helpers\Input::getParams()->get('onlyPrepCourses'))
 		{
 			$query->where('e.preparatory = 1');

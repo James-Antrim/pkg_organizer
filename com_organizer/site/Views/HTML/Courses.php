@@ -113,17 +113,17 @@ class Courses extends ListView
 				}
 			}
 
-			/*if ($this->manages)
+			if ($this->manages)
 			{
 				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
-				$toolbar->appendButton(
+				/*$toolbar->appendButton(
 					'Standard',
 					'users',
 					Languages::_('ORGANIZER_PARTICIPANTS'),
 					'course_participants.display',
 					true
-				);
-			}*/
+				);*/
+			}
 
 			if (Helpers\Can::administrate())
 			{
