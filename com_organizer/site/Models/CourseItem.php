@@ -103,6 +103,11 @@ class CourseItem extends ItemModel
 			'fee'                => ['label' => Languages::_($option . 'FEE'), 'type' => 'text', 'value' => ''],
 			'campusID'           => 0,
 			'campus'             => ['label' => Languages::_($option . 'CAMPUS'), 'type' => 'text', 'value' => ''],
+			'organization'       => [
+				'label' => Languages::_($option . 'COURSE_ORGANIZATION'),
+				'type'  => 'text',
+				'value' => ''
+			],
 			'speakers'           => ['label' => Languages::_($option . 'SPEAKERS'), 'type' => 'list', 'value' => []],
 			'teachers'           => ['label' => Languages::_($option . 'TEACHERS'), 'type' => 'list', 'value' => []],
 			'tutors'             => ['label' => Languages::_($option . 'TUTORS'), 'type' => 'list', 'value' => []],
@@ -112,11 +117,6 @@ class CourseItem extends ItemModel
 				'value' => ''
 			],
 			'content'            => ['label' => Languages::_($option . 'CONTENT'), 'type' => 'text', 'value' => ''],
-			'organization'       => [
-				'label' => Languages::_($option . 'COURSE_ORGANIZATION'),
-				'type'  => 'text',
-				'value' => ''
-			],
 			'registration'       => [
 				'label' => Languages::_($option . 'REGISTRATION'),
 				'type'  => 'text',

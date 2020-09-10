@@ -301,7 +301,9 @@ abstract class ListView extends BaseHTMLView
 					$attributes['target'] = '_blank';
 				}
 
-				$processedItem[$property] = HTML::_('link', $link, $item->$property, $attributes);
+				$value = is_array($item->$property) ? $item->$property['value'] : $item->$property;
+
+				$processedItem[$property] = HTML::_('link', $link, $value, $attributes);
 				continue;
 			}
 

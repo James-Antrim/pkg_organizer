@@ -56,10 +56,16 @@ class Units extends ListView
 		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_UNITS"), 'list-2');
 		$toolbar = Toolbar::getInstance();
 
+		$toolbar->appendButton(
+			'Standard',
+			'plus',
+			Helpers\Languages::_('ORGANIZER_ADD_COURSE'),
+			"units.addCourse",
+			true
+		);
+
 		if (Helpers\Can::administrate())
 		{
-			$toolbar->appendButton('Standard', 'plus', Helpers\Languages::_('ORGANIZER_ADD_COURSE'), "units.addCourse",
-				true);
 			/*$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "units.edit", true);
 			$toolbar->appendButton(
 				'Confirm',

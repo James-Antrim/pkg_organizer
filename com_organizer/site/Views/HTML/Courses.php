@@ -48,7 +48,7 @@ class Courses extends ListView
 		}
 		else
 		{
-			$structure = $structure + ['registrationStatus' => 'value'];
+			$structure = $structure + ['registrationStatus' => 'link'];
 		}
 
 		$this->rowStructure = $structure;
