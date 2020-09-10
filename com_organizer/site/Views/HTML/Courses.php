@@ -34,17 +34,21 @@ class Courses extends ListView
 		parent::__construct($config);
 
 		$structure = [
-			'name'               => 'link',
-			'campus'             => 'value',
-			'dates'              => 'value',
-			'courseStatus'       => 'value',
-			'registrationStatus' => 'value'
+			'name'         => 'link',
+			'campus'       => 'value',
+			'dates'        => 'value',
+			'courseStatus' => 'value'
 		];
 
 		if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::edit('courses'))
 		{
 			$this->manages = true;
-			$structure     = ['checkbox' => ''] + $structure;
+			$structure     = ['checkbox' => ''] + $structure + ['registrationStatus' => 'value'];
+			unset($structure['registrationStatus']);
+		}
+		else
+		{
+			$structure = $structure + ['registrationStatus' => 'value'];
 		}
 
 		$this->rowStructure = $structure;
@@ -109,17 +113,17 @@ class Courses extends ListView
 				}
 			}
 
-			if ($this->manages)
+			/*if ($this->manages)
 			{
 				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
 				$toolbar->appendButton(
 					'Standard',
 					'users',
 					Languages::_('ORGANIZER_PARTICIPANTS'),
-					'courseparticipants.display',
+					'course_participants.display',
 					true
 				);
-			}
+			}*/
 
 			if (Helpers\Can::administrate())
 			{
@@ -159,23 +163,27 @@ class Courses extends ListView
 	public function setHeaders()
 	{
 		$headers = [
-			'name'   => Languages::_('ORGANIZER_NAME'),
-			'campus' => Languages::_('ORGANIZER_CAMPUS'),
-			'dates'  => Languages::_('ORGANIZER_DATES'),
-
-			'courseStatus'       => [
+			'name'         => Languages::_('ORGANIZER_NAME'),
+			'campus'       => Languages::_('ORGANIZER_CAMPUS'),
+			'dates'        => Languages::_('ORGANIZER_DATES'),
+			'courseStatus' => [
 				'attributes' => ['class' => 'center'],
 				'value'      => Languages::_('ORGANIZER_COURSE_STATUS')
-			],
-			'registrationStatus' => [
-				'attributes' => ['class' => 'center'],
-				'value'      => Languages::_('ORGANIZER_REGISTRATION_STATUS')
 			]
 		];
 
 		if ($this->manages)
 		{
 			$headers = ['checkbox' => ''] + $headers;
+		}
+		else
+		{
+			$headers = $headers + [
+					'registrationStatus' => [
+						'attributes' => ['class' => 'center'],
+						'value'      => Languages::_('ORGANIZER_REGISTRATION_STATUS')
+					]
+				];
 		}
 
 		$this->headers = $headers;
@@ -216,7 +224,8 @@ class Courses extends ListView
 				$deadline = $course->startDate;
 			}
 
-			$closed = (!$expired and !$ongoing and $deadline <= $today);
+			$closed   = (!$expired and !$ongoing and $deadline <= $today);
+			$deadline = Helpers\Dates::formatDate($deadline);
 
 			$full   = $course->participants >= $course->maxParticipants;
 			$ninety = (!$full and ($course->participants / (int) $course->maxParticipants) >= .9);
@@ -225,14 +234,18 @@ class Courses extends ListView
 			{
 				$attributes = ['class' => 'status-display center grey'];
 
-				$course->courseStatus       = [
+				$course->courseStatus = [
 					'attributes' => $attributes,
 					'value'      => Languages::_('ORGANIZER_EXPIRED')
 				];
-				$course->registrationStatus = [
-					'attributes' => $attributes,
-					'value'      => Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT')
-				];
+
+				if (!$this->manages)
+				{
+					$course->registrationStatus = [
+						'attributes' => $attributes,
+						'value'      => Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT')
+					];
+				}
 			}
 			else
 			{
@@ -261,35 +274,38 @@ class Courses extends ListView
 				}
 				else
 				{
-					$courseText = sprintf(Languages::_('ORGANIZER_DEADLINE_SHORT'), $deadline);
+					$courseText = sprintf(Languages::_('ORGANIZER_DEADLINE_TEXT_SHORT'), $deadline);
 				}
 
 				$course->courseStatus['value'] = $capacityText . $courseText;
 
-				if ($userID)
+				if (!$this->manages)
 				{
-					if ($course->registered)
+					if ($userID)
 					{
-						$course->registrationStatus = [
-							'attributes' => ['class' => 'status-display center green'],
-							'value'      => Languages::_('ORGANIZER_REGISTERED')
-						];
+						if ($course->registered)
+						{
+							$course->registrationStatus = [
+								'attributes' => ['class' => 'status-display center green'],
+								'value'      => Languages::_('ORGANIZER_REGISTERED')
+							];
+						}
+						else
+						{
+							$color                      = ($ongoing or $closed) ? 'red' : 'yellow';
+							$course->registrationStatus = [
+								'attributes' => ['class' => "status-display center $color"],
+								'value'      => Languages::_('ORGANIZER_NOT_REGISTERED')
+							];
+						}
 					}
 					else
 					{
-						$color                      = ($ongoing or $closed) ? 'red' : 'yellow';
 						$course->registrationStatus = [
-							'attributes' => ['class' => "status-display center $color"],
-							'value'      => Languages::_('ORGANIZER_NOT_REGISTERED')
+							'attributes' => ['class' => 'status-display center grey'],
+							'value'      => Languages::_('ORGANIZER_NOT_LOGGED_IN')
 						];
 					}
-				}
-				else
-				{
-					$course->registrationStatus = [
-						'attributes' => ['class' => 'status-display center grey'],
-						'value'      => Languages::_('ORGANIZER_NOT_LOGGED_IN')
-					];
 				}
 			}
 
