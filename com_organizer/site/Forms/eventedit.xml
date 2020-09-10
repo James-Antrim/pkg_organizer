@@ -38,7 +38,7 @@
         <field name="organization_de" type="Editor" label="COURSE_ORGANIZATION_DE"
                description="COURSE_ORGANIZATION_DE_DESC"/>
         <field name="pretests_de" type="Editor" label="PRETESTS_DE" description="PRETESTS_DE_DESC"/>
-        <field name="contact_de" type="Editor" label="GENERAL_CONTACT_DE" description="GENERAL_CONTACT_DE_DESC"/>
+        <field name="contact_de" type="Editor" label="ORGANIZER_CONTACTS_DE" description="ORGANIZER_CONTACTS_DE_DESC"/>
         <field name="courseContact_de" type="Editor" label="COURSE_CONTACT_DE" description="COURSE_CONTACT_DE_DESC"/>
     </fieldset>
     <fieldset name="en" label="ATTRIBUTES_EN">
@@ -48,7 +48,7 @@
         <field name="organization_en" type="Editor" label="COURSE_ORGANIZATION_EN"
                description="COURSE_ORGANIZATION_EN_DESC"/>
         <field name="pretests_en" type="Editor" label="PRETESTS_EN" description="PRETESTS_EN_DESC"/>
-        <field name="contact_en" type="Editor" label="GENERAL_CONTACT_EN" description="GENERAL_CONTACT_EN_DESC"/>
+        <field name="contact_en" type="Editor" label="ORGANIZER_CONTACTS_EN" description="ORGANIZER_CONTACTS_EN_DESC"/>
         <field name="courseContact_en" type="Editor" label="COURSE_CONTACT_EN" description="COURSE_CONTACT_EN_DESC"/>
     </fieldset>
     <fieldset name="coordinators" label="COORDINATORS">
