@@ -33,7 +33,7 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 		$group = $model->groups->$code;
 
 		$table  = new Tables\Groups;
-		$exists = $table->load(['code' => $group->untisID]);
+		$exists = $table->load(['code' => $group->code]);
 
 		if ($exists)
 		{
@@ -73,11 +73,11 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function validate($model, $node)
 	{
-		$untisID  = str_replace('CL_', '', trim((string) $node[0]['id']));
+		$code     = str_replace('CL_', '', trim((string) $node[0]['id']));
 		$fullName = trim((string) $node->longname);
 		if (empty($fullName))
 		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_FULLNAME_MISSING'), $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_FULLNAME_MISSING'), $code);
 
 			return;
 		}
@@ -85,14 +85,14 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 		$name = trim((string) $node->classlevel);
 		if (empty($name))
 		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_NAME_MISSING'), $fullName, $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_NAME_MISSING'), $fullName, $code);
 
 			return;
 		}
 
 		if (!$categoryID = str_replace('DP_', '', trim((string) $node->class_department[0]['id'])))
 		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_CATEGORY_MISSING'), $fullName, $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_CATEGORY_MISSING'), $fullName, $code);
 
 			return;
 		}
@@ -101,7 +101,7 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 			$model->errors[] = sprintf(
 				Helpers\Languages::_('ORGANIZER_GROUP_CATEGORY_INCOMPLETE'),
 				$fullName,
-				$untisID,
+				$code,
 				$categoryID
 			);
 
@@ -110,7 +110,7 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		if (!$gridName = (string) $node->timegrid)
 		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_GRID_MISSING'), $fullName, $untisID);
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_GRID_MISSING'), $fullName, $code);
 
 			return;
 		}
@@ -119,7 +119,7 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 			$model->errors[] = sprintf(
 				Helpers\Languages::_('ORGANIZER_GROUP_GRID_INCOMPLETE'),
 				$fullName,
-				$untisID,
+				$code,
 				$gridName
 			);
 
@@ -128,12 +128,12 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		$group             = new stdClass();
 		$group->categoryID = $category->id;
-		$group->untisID    = $untisID;
+		$group->code       = $code;
 		$group->fullName   = $fullName;
 		$group->name       = $name;
 		$group->gridID     = $grid->id;
 
-		$model->groups->$untisID = $group;
-		self::setID($model, $untisID);
+		$model->groups->$code = $group;
+		self::setID($model, $code);
 	}
 }

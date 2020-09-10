@@ -33,7 +33,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		$room  = $model->rooms->$code;
 		$table = new Tables\Rooms;
 
-		if ($table->load(['code' => $room->untisID]))
+		if ($table->load(['code' => $room->code]))
 		{
 			$altered = false;
 			foreach ($room as $key => $value)
@@ -98,12 +98,13 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		if ($externalID = strtoupper(trim((string) $node->external_name)))
 		{
-			$untisID = $externalID;
+			$code = $externalID;
 		}
 		else
 		{
 			$model->warnings['REX'] = empty($model->warnings['REX']) ? 1 : $model->warnings['REX'] + 1;
-			$untisID                = $internalID;
+
+			$code = $internalID;
 		}
 
 		$roomTypeID  = str_replace('DS_', '', trim((string) $node->room_description[0]['id']));
@@ -111,7 +112,8 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		if ($invalidType)
 		{
 			$model->warnings['RT'] = empty($model->warnings['RT']) ? 1 : $model->warnings['RT'] + 1;
-			$roomTypeID            = null;
+
+			$roomTypeID = null;
 		}
 		else
 		{
@@ -122,7 +124,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		$buildingID    = null;
 		$buildingREGEX = Helpers\Input::getParams()->get('buildingRegex');
 
-		if (!empty($buildingREGEX) and preg_match("/$buildingREGEX/", $untisID, $matches))
+		if (!empty($buildingREGEX) and preg_match("/$buildingREGEX/", $code, $matches))
 		{
 			$buildingID = Helpers\Buildings::getID($matches[1]);
 		}
@@ -130,9 +132,9 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		$room             = new stdClass();
 		$room->buildingID = $buildingID;
 		$room->capacity   = $capacity;
-		$room->name       = $untisID;
+		$room->name       = $code;
 		$room->roomtypeID = $roomTypeID;
-		$room->untisID    = $untisID;
+		$room->code       = $code;
 
 		$model->rooms->$internalID = $room;
 		self::setID($model, $internalID);

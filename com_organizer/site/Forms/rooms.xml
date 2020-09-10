@@ -12,7 +12,7 @@
             <option value="-1">NO_BUILDING</option>
         </field>
         <field name="roomtypeID" type="Roomtypes" label="TYPE" onchange="this.form.submit();">
-            <option value="-1">ALL_ROOMTYPES</option>
+            <option value="">ALL_ROOMTYPES</option>
         </field>
         <field name="active" type="Options" label="ACTIVE" default="1" onchange="this.form.submit();">
             <option value="-1">ALL_STATES</option>
