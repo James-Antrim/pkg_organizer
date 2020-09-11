@@ -51,6 +51,20 @@ class Courses extends Controller
 	}
 
 	/**
+	 * Opens the course participants view for the selected course.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function participants()
+	{
+		// Reliance on POST requires a different method of redirection
+		Helpers\Input::set('id', Helpers\Input::getSelectedIDs()[0]);
+		Helpers\Input::set('view', 'course_participants');
+		parent::display();
+	}
+
+	/**
 	 * De-/registers a participant from/to a course.
 	 *
 	 * @return void

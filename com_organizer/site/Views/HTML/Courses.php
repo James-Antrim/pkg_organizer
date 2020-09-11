@@ -120,7 +120,7 @@ class Courses extends ListView
 					'Standard',
 					'users',
 					Languages::_('ORGANIZER_PARTICIPANTS'),
-					'course_participants.display',
+					'courses.participants',
 					true
 				);*/
 			}
