@@ -141,47 +141,9 @@ class Participants extends ListView
 		$link            = 'index.php?option=com_organizer&view=participant_edit&id=';
 		$structuredItems = [];
 
-		$setCourseToggles = ($courseID = Helpers\Input::getFilterID('course') and $courseID !== -1) ? true : false;
 		foreach ($this->items as $item)
 		{
-			$item->programName = Helpers\Programs::getName($item->programID);
-
-			if ($setCourseToggles)
-			{
-				$item->status = $this->getAssocToggle(
-					'participants',
-					'courseID',
-					$courseID,
-					'participantID',
-					$item->id,
-					$item->status,
-					Languages::_('ORGANIZER_TOGGLE_ACCEPTED'),
-					'status'
-				);
-
-				$item->attended = $this->getAssocToggle(
-					'participants',
-					'courseID',
-					$courseID,
-					'participantID',
-					$item->id,
-					$item->attended,
-					Languages::_('ORGANIZER_TOGGLE_ATTENDED'),
-					'attended'
-				);
-
-				$item->paid = $this->getAssocToggle(
-					'participants',
-					'courseID',
-					$courseID,
-					'participantID',
-					$item->id,
-					$item->paid,
-					Languages::_('ORGANIZER_TOGGLE_PAID'),
-					'paid'
-				);
-			}
-
+			$item->programName       = Helpers\Programs::getName($item->programID);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}
