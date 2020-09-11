@@ -24,24 +24,6 @@ class Participants extends ListModel
 	protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
 	/**
-	 * Filters out form inputs which should not be displayed due to menu settings.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
-	 */
-	protected function filterFilterForm(&$form)
-	{
-		parent::filterFilterForm($form);
-
-		if (!$courseID = Helpers\Input::getFilterID('course'))
-		{
-			$form->removeField('attended', 'filter');
-			$form->removeField('paid', 'filter');
-		}
-	}
-
-	/**
 	 * Method to get a list of resources from the database.
 	 *
 	 * @return JDatabaseQuery
@@ -54,10 +36,10 @@ class Participants extends ListModel
 			->select($query->concatenate(['pa.surname', "', '", 'pa.forename'], '') . ' AS fullName')
 			->from('#__organizer_participants AS pa')
 			->innerJoin('#__users AS u ON u.id = pa.id')
-			->leftJoin('#__organizer_programs AS pr ON pr.id = pa.programID');
+			->innerJoin('#__organizer_programs AS pr ON pr.id = pa.programID');
 
 		$this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
-		$this->setValueFilters($query, ['attended', 'paid', 'programID']);
+		$this->setValueFilters($query, ['programID']);
 
 		if ($courseID = $this->state->get('filter.courseID'))
 		{
@@ -66,7 +48,7 @@ class Participants extends ListModel
 				->where("cp.courseID = $courseID");
 		}
 
-		if (Helpers\Input::getBool('duplicates'))
+		if ($this->state->get('filter.duplicates'))
 		{
 			$likePAFN   = $query->concatenate(["'%'", 'TRIM(pa.forename)', "'%'"], '');
 			$likePA2FN  = $query->concatenate(["'%'", 'TRIM(pa2.forename)', "'%'"], '');

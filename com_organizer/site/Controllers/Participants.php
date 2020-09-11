@@ -22,8 +22,6 @@ class Participants extends Controller
 {
 	const UNREGISTERED = null;
 
-	use CourseParticipants;
-
 	protected $listView = 'participants';
 
 	protected $resource = 'participant';

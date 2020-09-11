@@ -97,6 +97,7 @@ if (!empty($this->submenu))
 			?>
         </table>
         <input type="hidden" name="boxchecked" value="0"/>
+        <input type="hidden" name="id" value="<?php echo Helpers\Input::getID(); ?>"/>
         <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>

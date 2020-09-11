@@ -10,20 +10,20 @@
 
 namespace Organizer\Controllers;
 
-
 use Exception;
 use Joomla\CMS\Router\Route;
+use Organizer\Controller;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
-
-// Exception for frequency of use
 use Organizer\Helpers\OrganizerHelper;
-
-// Exception for frequency of use
 use Organizer\Models;
 
-trait CourseParticipants
+class CourseParticipants extends Controller
 {
+	protected $listView = 'course_participants';
+
+	protected $resource = 'course_participant';
+
 	/**
 	 * Accepts the selected participants into the course.
 	 *
@@ -32,7 +32,7 @@ trait CourseParticipants
 	 */
 	public function accept()
 	{
-		$model = new Models\CourseParticipant;
+		$model = new Models\CourseParticipant();
 
 		if ($model->accept())
 		{
