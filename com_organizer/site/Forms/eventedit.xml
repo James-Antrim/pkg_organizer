@@ -34,10 +34,10 @@
     <fieldset name="de" label="ATTRIBUTES_DE">
         <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
         <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
-        <field name="content_de" type="Editor" label="CONTENT_DE" description="CONTENT_DE_DESC"/>
-        <field name="organization_de" type="Editor" label="COURSE_ORGANIZATION_DE"
-               description="COURSE_ORGANIZATION_DE_DESC"/>
-        <field name="pretests_de" type="Editor" label="PRETESTS_DE" description="PRETESTS_DE_DESC"/>
+        <field name="content_de" type="Editor" label="ORGANIZER_CONTENT_DE" description="ORGANIZER_CONTENT_DE_DESC"/>
+        <field name="organization_de" type="Editor" label="ORGANIZER_COURSE_ORGANIZATION_DE"
+               description="ORGANIZER_COURSE_ORGANIZATION_DE_DESC"/>
+        <field name="pretests_de" type="Editor" label="ORGANIZER_PRETESTS_DE" description="ORGANIZER_PRETESTS_DE_DESC"/>
         <field name="contact_de" type="Editor" label="ORGANIZER_CONTACTS_DE" description="ORGANIZER_CONTACTS_DE_DESC"/>
         <field name="courseContact_de" type="Editor" label="ORGANIZER_COURSE_CONTACTS_DE"
                description="ORGANIZER_COURSE_CONTACTS_DE_DESC"/>
@@ -45,10 +45,10 @@
     <fieldset name="en" label="ATTRIBUTES_EN">
         <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
-        <field name="content_de" type="Editor" label="CONTENT_DE" description="CONTENT_EN_DESC"/>
-        <field name="organization_en" type="Editor" label="COURSE_ORGANIZATION_EN"
-               description="COURSE_ORGANIZATION_EN_DESC"/>
-        <field name="pretests_en" type="Editor" label="PRETESTS_EN" description="PRETESTS_EN_DESC"/>
+        <field name="content_de" type="Editor" label="ORGANIZER_CONTENT_DE" description="ORGANIZER_CONTENT_EN_DESC"/>
+        <field name="organization_en" type="Editor" label="ORGANIZER_COURSE_ORGANIZATION_EN"
+               description="ORGANIZER_COURSE_ORGANIZATION_EN_DESC"/>
+        <field name="pretests_en" type="Editor" label="ORGANIZER_PRETESTS_EN" description="ORGANIZER_PRETESTS_EN_DESC"/>
         <field name="contact_en" type="Editor" label="ORGANIZER_CONTACTS_EN" description="ORGANIZER_CONTACTS_EN_DESC"/>
         <field name="courseContact_en" type="Editor" label="ORGANIZER_COURSE_CONTACTS_EN"
                description="ORGANIZER_COURSE_CONTACTS_EN_DESC"/>
