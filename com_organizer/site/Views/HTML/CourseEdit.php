@@ -64,10 +64,16 @@ class CourseEdit extends EditView
 			return;
 		}
 
-		$campus = Helpers\Campuses::getName($this->item->campusID);
-		$dates  = Helpers\Courses::getDateDisplay($this->item->id);
-		$name   = Helpers\Courses::getName($this->item->id);
+		$subTitle   = [];
+		$subTitle[] = Helpers\Courses::getName($this->item->id);
 
-		$this->subtitle = "<h6 class=\"sub-title\">$name<br>$campus<br>$dates</h6>";
+		if ($this->item->campusID)
+		{
+			$subTitle[] = Helpers\Campuses::getName($this->item->campusID);
+		}
+
+		$subTitle[] = Helpers\Courses::getDateDisplay($this->item->id);
+
+		$this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
 	}
 }
