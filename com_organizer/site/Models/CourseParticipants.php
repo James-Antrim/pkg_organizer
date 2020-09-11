@@ -24,27 +24,6 @@ class CourseParticipants extends Participants
 	protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
 	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
-	 */
-	public function __construct($config = [])
-	{
-		parent::__construct($config);
-
-		$app                  = Helpers\OrganizerHelper::getApplication();
-		$this->clientContext  = $app->isClient('administrator');
-		$this->filterFormName = strtolower(Helpers\OrganizerHelper::getClass($this));
-
-		if (!is_int($this->defaultLimit))
-		{
-			$this->defaultLimit = $app->get('list_limit', 50);
-		}
-
-		$this->setContext();
-	}
-
-	/**
 	 * Method to get a list of resources from the database.
 	 *
 	 * @return JDatabaseQuery
