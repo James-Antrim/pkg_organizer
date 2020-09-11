@@ -111,10 +111,6 @@ class Mailer
 		$mailer->addRecipient($user->email);
 		$mailer->setBody($body);
 		$mailer->setSubject($courseName);
-		if (!$mailer->Send())
-		{
-			echo "<pre>" . print_r($mailer->isError(), true) . "</pre>";
-			die;
-		}
+		$mailer->Send();
 	}
 }

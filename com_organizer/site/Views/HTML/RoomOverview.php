@@ -46,31 +46,6 @@ class RoomOverview extends TableView
 	}
 
 	/**
-	 * Builds the array of conditions used for instance retrieval.
-	 *
-	 * @param   int     $roomID  the id of the room being iterated
-	 * @param   string  $date    the Y-m-d date to be requested
-	 *
-	 * @return array the conditions used to retrieve instances.
-	 */
-	private function getConditions($roomID, $date)
-	{
-		$conditions = [
-			'date'            => $date,
-			'delta'           => false,
-			'endDate'         => $date,
-			'interval'        => 'day',
-			'mySchedule'      => false,
-			'roomIDs'         => [$roomID],
-			'showUnpublished' => Helpers\Can::administrate(),
-			'startDate'       => $date,
-			'userID'          => Helpers\Users::getID()
-		];
-
-		return $conditions;
-	}
-
-	/**
 	 * Gets the cells for an individual day.
 	 *
 	 * @param   object  $room  the room to retrieve the cells for
@@ -81,7 +56,18 @@ class RoomOverview extends TableView
 	private function getDailyCells($room, $date)
 	{
 		$cells      = [];
-		$conditions = $this->getConditions($room->id, $date);
+		$conditions = [
+			'date'            => $date,
+			'delta'           => false,
+			'endDate'         => $date,
+			'interval'        => 'day',
+			'mySchedule'      => false,
+			'roomIDs'         => [$room->id],
+			'showUnpublished' => Helpers\Can::administrate(),
+			'startDate'       => $date,
+			'status'          => 1,
+			'userID'          => Helpers\Users::getID()
+		];
 
 		$instances = Helpers\Instances::getItems($conditions);
 		if (isset($instances['futureDate']) or isset($instances['pastDate']))
