@@ -17,8 +17,6 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
-// Exception for frequency of use
-
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
  */
@@ -41,29 +39,11 @@ class Participants extends ListView
 	 */
 	protected function addToolBar()
 	{
-		$isSite             = $this->clientContext !== self::BACKEND;
-		$courseID           = Helpers\Input::getFilterID('course');
-		$courseParticipants = ($courseID and $isSite);
+		Helpers\HTML::setTitle(Languages::_('ORGANIZER_PARTICIPANTS'), 'users');
 
-		$title = Languages::_('ORGANIZER_PARTICIPANTS');
-		if ($courseParticipants)
+		if (Helpers\Can::administrate())
 		{
-			$teaches = Helpers\Courses::teaches($courseID);
-			$title   .= ': ' . Helpers\Courses::getName($courseID);
-		}
-		else
-		{
-			$teaches = false;
-		}
-
-		Helpers\HTML::setTitle($title, 'users');
-
-		$admin       = Helpers\Can::administrate();
-		$coordinates = $courseID ? Helpers\Courses::coordinates($courseID) : false;
-		$toolbar     = Toolbar::getInstance();
-
-		if ($admin or $coordinates)
-		{
+			$toolbar = Toolbar::getInstance();
 			$toolbar->appendButton(
 				'Standard',
 				'edit',
@@ -71,64 +51,6 @@ class Participants extends ListView
 				'participants.edit',
 				true
 			);
-		}
-
-		if ($courseParticipants)
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'signup',
-				Languages::_('ORGANIZER_ACCEPT'),
-				'participants.accept',
-				true
-			);
-
-			if ($admin or $coordinates)
-			{
-				$toolbar->appendButton(
-					'Standard',
-					'info-euro',
-					Languages::_('ORGANIZER_CONFIRM_PAYMENT'),
-					'participants.confirmPayment',
-					true
-				);
-			}
-
-			$toolbar->appendButton(
-				'Standard',
-				'checkbox-checked',
-				Languages::_('ORGANIZER_CONFIRM_ATTENDANCE'),
-				'participants.confirmAttendance',
-				true
-			);
-
-			if ($admin or $coordinates or $teaches)
-			{
-				$toolbar->appendButton(
-					'Confirm',
-					Languages::_('ORGANIZER_DELETE_CONFIRM'),
-					'user-minus',
-					Languages::_('ORGANIZER_DELETE'),
-					'participants.remove',
-					true
-				);
-			}
-
-			$if          = "alert('" . Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
-			$else        = "jQuery('#modal-circular').modal('show'); return true;";
-			$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
-			$batchButton = '<button id="participant-mail" data-toggle="modal" class="btn btn-small" ' . $script . '>';
-
-			$title       = Languages::_('ORGANIZER_MAIL');
-			$batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
-
-			$batchButton .= '</button>';
-
-			$toolbar->appendButton('Custom', $batchButton, 'batch');
-		}
-
-		if ($admin)
-		{
 			/*$toolbar->appendButton(
 				'Standard',
 				'attachment',
