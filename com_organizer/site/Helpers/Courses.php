@@ -62,6 +62,20 @@ class Courses extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the campus id associated with the course.
+	 *
+	 * @param   int  $courseID  the id of the course
+	 *
+	 * @return string the course capacity text
+	 */
+	public static function getCampusID($courseID)
+	{
+		$course = new Tables\Courses;
+
+		return $course->load($courseID) ? $course->campusID : 0;
+	}
+
+	/**
 	 * Generates a capacity text for active course participants.
 	 *
 	 * @param   int  $courseID  the id of the course
