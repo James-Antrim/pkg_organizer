@@ -59,6 +59,11 @@ class CourseItem extends ItemView
 	 */
 	protected function addSupplement()
 	{
+		if ($this->manages)
+		{
+			return;
+		}
+
 		$course = $this->item;
 
 		$text = '<div class="tbox-' . $course['courseStatus'] . '">' . $course['courseText'] . '</div>';
