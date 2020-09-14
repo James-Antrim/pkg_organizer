@@ -204,9 +204,10 @@ class Courses extends ListView
 
 		foreach ($this->items as $course)
 		{
-			$campus         = Helpers\Campuses::getName($course->campusID);
-			$campus         .= $this->clientContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
-			$course->campus = $campus;
+			$campusName = Helpers\Campuses::getName($course->campusID);
+			$pin        = $this->clientContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
+
+			$course->campus = $campusName . $pin;
 
 			$course->dates = Helpers\Courses::getDateDisplay($course->id);
 
@@ -307,7 +308,7 @@ class Courses extends ListView
 				}
 			}
 
-			$index = "{$course->name}{$course->dates}{$course->id}";
+			$index = "$course->dates $course->name $campusName";
 
 			$structuredItems[$index] = $this->structureItem($index, $course, $URL . $course->id);
 		}
