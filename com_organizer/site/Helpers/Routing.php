@@ -42,11 +42,11 @@ class Routing
 		{
 			$url = $base . OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->route . '?';
 
-			return $languageQuery ? $url . "$languageQuery" : $url;
+			return $languageQuery ? $url . $languageQuery : $url;
 		}
 
 		$base = "$base?option=com_organizer";
 
-		return $languageQuery ? $base . "$languageQuery" : $base;
+		return $languageQuery ? $base . $languageQuery : $base;
 	}
 }

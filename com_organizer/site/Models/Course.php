@@ -18,7 +18,7 @@ use Organizer\Tables;
  */
 class Course extends BaseModel
 {
-	const NONE = null, WAITLIST = 0, REGISTERED = 1;
+	const UNREGISTERED = null, WAITLIST = 0, REGISTERED = 1;
 
 	/**
 	 * Authorizes the user
@@ -40,18 +40,31 @@ class Course extends BaseModel
 
 		if (!$courseID or !$participantID)
 		{
-			return true;
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_400'), 'error');
+
+			return false;
 		}
 
-		$cpData = ['courseID' => $courseID, 'participantID' => $participantID];
+		if (!Helpers\Can::manage('participant', $participantID) or !Helpers\Can::manage('course', $courseID))
+		{
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
+
+			return false;
+		}
+
+		$dates = Helpers\Courses::getDates($courseID);
+
+		if (empty($dates['endDate']) or $dates['endDate'] < date('Y-m-d'))
+		{
+			return false;
+		}
 
 		$courseParticipant = new Tables\CourseParticipants();
-		if ($courseParticipant->load($cpData))
+		$cpData            = ['courseID' => $courseID, 'participantID' => $participantID];
+
+		if (!$courseParticipant->load($cpData) or !$courseParticipant->delete())
 		{
-			if (!$courseParticipant->delete())
-			{
-				return false;
-			}
+			return false;
 		}
 
 		if ($instanceIDs = Helpers\Courses::getInstanceIDs($courseID))

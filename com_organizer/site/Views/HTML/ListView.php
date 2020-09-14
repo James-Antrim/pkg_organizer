@@ -157,6 +157,7 @@ abstract class ListView extends BaseHTMLView
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle";
 		$url .= "&$columnOne=$valueOne&$columnTwo=$valueTwo";
 		$url .= $attribute ? "&attribute=$attribute" : '';
+		$url .= ($menuID = Helpers\Input::getInt('Itemid')) ? "&Itemid=$menuID" : '';
 
 		$iconClass = empty($currentValue) ? 'checkbox-unchecked' : 'checkbox-checked';
 		$icon      = '<span class="icon-' . $iconClass . '"></span>';

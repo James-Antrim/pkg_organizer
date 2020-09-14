@@ -25,7 +25,7 @@ use Organizer\Tables;
  */
 class CourseParticipant extends BaseModel
 {
-	const ACCEPTED = 1, ATTENDED = 1, PAID = 1;
+	const ACCEPTED = 1, ATTENDED = 1, PAID = 1, WAITLIST = 0;
 
 	/**
 	 * Sets the status for the course participant to accepted
@@ -49,7 +49,7 @@ class CourseParticipant extends BaseModel
 	 */
 	private function batch($property, $value)
 	{
-		if (!$courseID = Input::getInt('courseID') or !$participantIDs = Input::getSelectedIDs())
+		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
@@ -73,11 +73,21 @@ class CourseParticipant extends BaseModel
 				return false;
 			}
 
+			if ($table->$property === $value)
+			{
+				continue;
+			}
+
 			$table->$property = $value;
 
 			if (!$table->store())
 			{
 				return false;
+			}
+
+			if ($property === 'status')
+			{
+				Helpers\Mailer::registrationUpdate($courseID, $participantID, $value);
 			}
 		}
 
@@ -232,78 +242,63 @@ class CourseParticipant extends BaseModel
 	 */
 	public function remove()
 	{
-		if (!$courseID = Input::getInt('courseID') or !$participantIDs = Input::getSelectedIDs())
+		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
+			Helpers\OrganizerHelper::message(Languages::_('ORGANIZER_400'), 'error');
+
+			return false;
 		}
 
 		if (!Helpers\Can::manage('course', $courseID))
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::message(Languages::_('ORGANIZER_403'), 'error');
+
+			return false;
 		}
 
-		$query = $this->_db->getQuery('true');
-		$query->select("DISTINCT i.id")
-			->from('#__organizer_instances AS i')
-			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-			->where("u.courseID = $courseID")
-			->order('i.id');
-		$this->_db->setQuery($query);
-		$instances = implode(',', Helpers\OrganizerHelper::executeQuery('loadColumn', []));
+		$dates = Helpers\Courses::getDates($courseID);
+
+		if (empty($dates['endDate']) or $dates['endDate'] < date('Y-m-d'))
+		{
+			return false;
+		}
+
+		$instanceIDs = Helpers\Courses::getInstanceIDs($courseID);
+		$instanceIDs = implode(',', $instanceIDs);
 
 		foreach ($participantIDs as $participantID)
 		{
 			if (!Helpers\Can::manage('participant', $participantID))
 			{
-				throw new Exception(Languages::_('ORGANIZER_403'), 403);
-			}
+				Helpers\OrganizerHelper::message(Languages::_('ORGANIZER_403'), 'error');
 
-			if (!$this->removeAssociations($courseID, $instances, $participantID))
-			{
-				// Break for error handling
 				return false;
 			}
 
-			// Send mail
-			// Aggregate mail for confirmation
-		}
+			$courseParticipant = new Tables\CourseParticipants();
+			$cpData            = ['courseID' => $courseID, 'participantID' => $participantID];
 
-		// Send a confirmation e-mail to the sender.
+			if (!$courseParticipant->load($cpData) or !$courseParticipant->delete())
+			{
+				return false;
+			}
+
+			$participantIDs = implode(',', $participantIDs);
+			$query          = $this->_db->getQuery('true');
+			$query->delete('#__organizer_instance_participants')
+				->where("instanceID IN ($instanceIDs)")
+				->where("participantID = $participantIDs");
+			$this->_db->setQuery($query);
+
+			if (!Helpers\OrganizerHelper::executeQuery('execute'))
+			{
+				return false;
+			}
+
+			Helpers\Mailer::registrationUpdate($courseID, $participantID, null);
+		}
 
 		return true;
-	}
-
-	/**
-	 * Removes the participants associations relevant to the course.
-	 *
-	 * @param   int     $courseID       the course id
-	 * @param   string  $instanceIDs    the instance ids concatenated for use in a where clause
-	 * @param   int     $participantID  the id of the participant
-	 *
-	 * @return bool
-	 */
-	private function removeAssociations($courseID, $instanceIDs, $participantID)
-	{
-		$table = $this->getTable();
-
-		if (!$table->load(['courseID' => $courseID, 'participantID' => $participantID]))
-		{
-			return false;
-		}
-
-		if (!$table->delete())
-		{
-			return false;
-		}
-
-		$query = $this->_db->getQuery('true');
-		$query->delete('#__organizer_instance_participants')
-			->where("instanceID IN ($instanceIDs)")
-			->where("participantID = $participantID");
-		$this->_db->setQuery($query);
-
-		return Helpers\OrganizerHelper::executeQuery('execute') ? true : false;
-
 	}
 
 	/**
@@ -340,6 +335,27 @@ class CourseParticipant extends BaseModel
 
 		$table->$attribute = !$table->$attribute;
 
-		return $table->store();
+		if (!$table->store())
+		{
+			return false;
+		}
+
+		if ($attribute === 'status')
+		{
+			Helpers\Mailer::registrationUpdate($courseID, $participantID, $table->$attribute);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Sets the status for the course participant to accepted
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception invalid / unauthorized access
+	 */
+	public function waitlist()
+	{
+		return $this->batch('status', self::WAITLIST);
 	}
 }

@@ -16,7 +16,6 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
-
 /**
  * Class which loads data into the view output context
  */
@@ -116,18 +115,17 @@ class Courses extends ListView
 			if ($this->manages)
 			{
 				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
-				/*$toolbar->appendButton(
+				$toolbar->appendButton(
 					'Standard',
 					'users',
 					Languages::_('ORGANIZER_PARTICIPANTS'),
 					'courses.participants',
 					true
-				);*/
+				);
 			}
 
 			if (Helpers\Can::administrate())
 			{
-				//$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'courses.add', false);
 				$toolbar->appendButton(
 					'Confirm',
 					Languages::_('ORGANIZER_DELETE_CONFIRM'),

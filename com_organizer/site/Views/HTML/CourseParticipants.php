@@ -16,8 +16,7 @@ use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
-
-// Exception for frequency of use
+use Organizer\Tables;
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
@@ -41,28 +40,18 @@ class CourseParticipants extends Participants
 	 */
 	protected function addToolBar()
 	{
-		$isSite             = $this->clientContext !== self::BACKEND;
-		$courseID           = Helpers\Input::getFilterID('course');
-		$courseParticipants = ($courseID and $isSite);
-
+		$courseID = Helpers\Input::getID();
+		$course   = new Tables\Courses();
+		$course->load($courseID);
 		$title = Languages::_('ORGANIZER_PARTICIPANTS');
-		if ($courseParticipants)
-		{
-			$teaches = Helpers\Courses::teaches($courseID);
-			$title   .= ': ' . Helpers\Courses::getName($courseID);
-		}
-		else
-		{
-			$teaches = false;
-		}
 
 		Helpers\HTML::setTitle($title, 'users');
 
 		$admin       = Helpers\Can::administrate();
-		$coordinates = $courseID ? Helpers\Courses::coordinates($courseID) : false;
+		$coordinates = Helpers\Courses::coordinates($courseID);
 		$toolbar     = Toolbar::getInstance();
 
-		if ($admin or $coordinates)
+		/*if ($admin)
 		{
 			$toolbar->appendButton(
 				'Standard',
@@ -71,61 +60,60 @@ class CourseParticipants extends Participants
 				'participants.edit',
 				true
 			);
-		}
+		}*/
 
-		if ($courseParticipants)
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'signup',
-				Languages::_('ORGANIZER_ACCEPT'),
-				'participants.accept',
-				true
-			);
+		$toolbar->appendButton(
+			'Standard',
+			'checkin',
+			Languages::_('ORGANIZER_ACCEPT'),
+			'course_participants.accept',
+			true
+		);
 
-			if ($admin or $coordinates)
-			{
-				$toolbar->appendButton(
-					'Standard',
-					'info-euro',
-					Languages::_('ORGANIZER_CONFIRM_PAYMENT'),
-					'participants.confirmPayment',
-					true
-				);
-			}
+		$toolbar->appendButton(
+			'Standard',
+			'checkbox-unchecked',
+			Languages::_('ORGANIZER_WAITLIST'),
+			'course_participants.waitlist',
+			true
+		);
 
-			$toolbar->appendButton(
-				'Standard',
-				'checkbox-checked',
-				Languages::_('ORGANIZER_CONFIRM_ATTENDANCE'),
-				'participants.confirmAttendance',
-				true
-			);
+		$toolbar->appendButton(
+			'Standard',
+			'info-euro',
+			Languages::_('ORGANIZER_CONFIRM_PAYMENT'),
+			'course_participants.confirmPayment',
+			true
+		);
 
-			if ($admin or $coordinates or $teaches)
-			{
-				$toolbar->appendButton(
-					'Confirm',
-					Languages::_('ORGANIZER_DELETE_CONFIRM'),
-					'user-minus',
-					Languages::_('ORGANIZER_DELETE'),
-					'participants.remove',
-					true
-				);
-			}
+		$toolbar->appendButton(
+			'Standard',
+			'checkbox-checked',
+			Languages::_('ORGANIZER_CONFIRM_ATTENDANCE'),
+			'course_participants.confirmAttendance',
+			true
+		);
 
-			$if          = "alert('" . Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
-			$else        = "jQuery('#modal-circular').modal('show'); return true;";
-			$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
-			$batchButton = '<button id="participant-mail" data-toggle="modal" class="btn btn-small" ' . $script . '>';
+		$toolbar->appendButton(
+			'Confirm',
+			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			'user-minus',
+			Languages::_('ORGANIZER_DELETE'),
+			'course_participants.remove',
+			true
+		);
 
-			$title       = Languages::_('ORGANIZER_MAIL');
-			$batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
+		/*$if          = "alert('" . Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
+		$else        = "jQuery('#modal-circular').modal('show'); return true;";
+		$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
+		$batchButton = '<button id="participant-mail" data-toggle="modal" class="btn btn-small" ' . $script . '>';
 
-			$batchButton .= '</button>';
+		$title       = Languages::_('ORGANIZER_MAIL');
+		$batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
 
-			$toolbar->appendButton('Custom', $batchButton, 'batch');
-		}
+		$batchButton .= '</button>';
+
+		$toolbar->appendButton('Custom', $batchButton, 'batch');*/
 
 		if ($admin)
 		{
@@ -146,7 +134,7 @@ class CourseParticipants extends Participants
 	 */
 	protected function allowAccess()
 	{
-		if ($courseID = Helpers\Input::getFilterID('course'))
+		if ($courseID = Helpers\Input::getID())
 		{
 			return Helpers\Can::manage('course', $courseID);
 		}
@@ -196,16 +184,34 @@ class CourseParticipants extends Participants
 			'fullName'    => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
 			'email'       => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
 			'programName' => Helpers\HTML::sort('PROGRAM', 'programName', $direction, $ordering),
+			'status'      => Helpers\HTML::sort('STATUS', 'status', $direction, $ordering),
+			'paid'        => Helpers\HTML::sort('PAID', 'paid', $direction, $ordering),
+			'attended'    => Helpers\HTML::sort('ATTENDED', 'attended', $direction, $ordering)
 		];
 
-		if ($courseID = Helpers\Input::getFilterID('course') and $courseID !== -1)
+		$this->headers = $headers;
+	}
+
+	/**
+	 * Creates a subtitle element from the term name and the start and end dates of the course.
+	 *
+	 * @return void modifies the course
+	 */
+	protected function setSubtitle()
+	{
+		$courseID = Helpers\Input::getID();
+
+		$subTitle   = [];
+		$subTitle[] = Helpers\Courses::getName($courseID);
+
+		if ($campusID = Helpers\Courses::getCampusID($courseID))
 		{
-			$headers['status']   = Helpers\HTML::sort('STATUS', 'status', $direction, $ordering);
-			$headers['paid']     = Helpers\HTML::sort('PAID', 'paid', $direction, $ordering);
-			$headers['attended'] = Helpers\HTML::sort('ATTENDED', 'attended', $direction, $ordering);
+			$subTitle[] = Helpers\Campuses::getName($campusID);
 		}
 
-		$this->headers = $headers;
+		$subTitle[] = Helpers\Courses::getDateDisplay($courseID);
+
+		$this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
 	}
 
 	/**
@@ -219,15 +225,20 @@ class CourseParticipants extends Participants
 		$link            = 'index.php?option=com_organizer&view=participant_edit&id=';
 		$structuredItems = [];
 
-		$setCourseToggles = ($courseID = Helpers\Input::getFilterID('course') and $courseID !== -1) ? true : false;
+		$admin     = Helpers\Can::administrate();
+		$checked   = '<span class="icon-checkbox-checked"></span>';
+		$courseID  = Helpers\Input::getID();
+		$expired   = Helpers\Courses::isExpired($courseID);
+		$unchecked = '<span class="icon-checkbox-unchecked"></span>';
+
 		foreach ($this->items as $item)
 		{
 			$item->programName = Helpers\Programs::getName($item->programID);
 
-			if ($setCourseToggles)
+			if (!$expired)
 			{
 				$item->status = $this->getAssocToggle(
-					'participants',
+					'course_participants',
 					'courseID',
 					$courseID,
 					'participantID',
@@ -236,9 +247,16 @@ class CourseParticipants extends Participants
 					Languages::_('ORGANIZER_TOGGLE_ACCEPTED'),
 					'status'
 				);
+			}
+			else
+			{
+				$item->status = $item->status ? $checked : $unchecked;
+			}
 
+			if ($admin or !$item->attended)
+			{
 				$item->attended = $this->getAssocToggle(
-					'participants',
+					'course_participants',
 					'courseID',
 					$courseID,
 					'participantID',
@@ -247,9 +265,16 @@ class CourseParticipants extends Participants
 					Languages::_('ORGANIZER_TOGGLE_ATTENDED'),
 					'attended'
 				);
+			}
+			else
+			{
+				$item->attended = $checked;
+			}
 
+			if ($admin or !$item->paid)
+			{
 				$item->paid = $this->getAssocToggle(
-					'participants',
+					'course_participants',
 					'courseID',
 					$courseID,
 					'participantID',
@@ -258,6 +283,10 @@ class CourseParticipants extends Participants
 					Languages::_('ORGANIZER_TOGGLE_PAID'),
 					'paid'
 				);
+			}
+			else
+			{
+				$item->paid = $checked;
 			}
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);

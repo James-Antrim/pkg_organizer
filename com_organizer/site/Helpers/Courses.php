@@ -569,34 +569,4 @@ class Courses extends ResourceHelper
 	{
 		return self::hasResponsibility($courseID, $personID, self::TUTOR);
 	}
-
-//    /**
-//     * Might move users from state pending to accepted
-//     *
-//     * @param int $courseID lesson id of lesson where participants have to be moved up
-//     *
-//     * @return void
-//     */
-//    public static function refreshWaitList($courseID)
-//    {
-//        $canAccept = self::canAcceptParticipant($courseID);
-//
-//        if ($canAccept) {
-//            $dbo   = Factory::getDbo();
-//            $query = $dbo->getQuery(true);
-//
-//            $query->select('userID');
-//            $query->from('#__organizer_user_lessons');
-//            $query->where("lessonID = '$courseID' and status = '0'");
-//            $query->order('status_date, user_date');
-//
-//            $dbo->setQuery($query);
-//
-//            $nextParticipantID = OrganizerHelper::executeQuery('loadResult');
-//
-//            if (!empty($nextParticipantID)) {
-//                Participants::changeState($nextParticipantID, $courseID, 1);
-//            }
-//        }
-//    }
 }

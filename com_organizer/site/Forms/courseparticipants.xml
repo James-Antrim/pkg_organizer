@@ -3,8 +3,7 @@
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
         <field name="courseID" type="hidden"/>
-        <field name="programID" type="Programs" label="PROGRAM" access="manage" onchange="this.form.submit();"
-               participant="1">
+        <field name="programID" type="Programs" label="PROGRAM" onchange="this.form.submit();" participant="1">
             <option value="">ALL_PROGRAMS</option>
         </field>
         <field name="paid" type="Options" label="PAYMENT_STATUS" onchange="this.form.submit();">

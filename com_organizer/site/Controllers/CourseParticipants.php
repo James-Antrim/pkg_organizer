@@ -43,7 +43,8 @@ class CourseParticipants extends Controller
 			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
+		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
+		$this->setRedirect(Route::_($url, false));
 	}
 
 	/**
@@ -108,7 +109,8 @@ class CourseParticipants extends Controller
 			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
+		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
+		$this->setRedirect(Route::_($url, false));
 	}
 
 	/**
@@ -130,7 +132,8 @@ class CourseParticipants extends Controller
 			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
+		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
+		$this->setRedirect(Route::_($url, false));
 	}
 
 	/**
@@ -208,7 +211,8 @@ class CourseParticipants extends Controller
 			OrganizerHelper::message('ORGANIZER_REMOVE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
+		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
+		$this->setRedirect(Route::_($url, false));
 	}
 
 	/**
@@ -230,6 +234,30 @@ class CourseParticipants extends Controller
 			OrganizerHelper::message('ORGANIZER_TOGGLE_FAIL', 'error');
 		}
 
-		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
+		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getInt('courseID');
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Accepts the selected participants into the course.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function waitlist()
+	{
+		$model = new Models\CourseParticipant();
+
+		if ($model->waitlist())
+		{
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+		}
+		else
+		{
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
+		$this->setRedirect(Route::_($url, false));
 	}
 }

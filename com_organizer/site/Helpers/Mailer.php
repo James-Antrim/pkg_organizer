@@ -94,7 +94,7 @@ class Mailer
 		else
 		{
 			$statusText = $status ? 'ORGANIZER_REGISTERED' : 'ORGANIZER_WAITLIST';
-			$statusText = strtolower(Languages::_($statusText));
+			$statusText = Languages::_($statusText);
 			$body       = sprintf(
 				Languages::_('ORGANIZER_STATUS_CHANGE_BODY'),
 				$courseName,

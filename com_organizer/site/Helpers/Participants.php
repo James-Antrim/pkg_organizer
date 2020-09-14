@@ -52,66 +52,6 @@ class Participants extends ResourceHelper
 	}
 
 	/**
-	 * Changes a participants state.
-	 *
-	 * @param   int  $participantID  the participant's id
-	 * @param   int  $courseID       the course's id
-	 * @param   int  $state          the requested state
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public static function changeState($participantID, $courseID, $state)
-	{
-		switch ($state)
-		{
-			case self::WAITLIST:
-			case self::REGISTERED:
-				$table = new Tables\CourseParticipants;
-
-				$data = [
-					'lessonID' => $courseID,
-					'userID'   => $participantID
-				];
-
-				$table->load($data);
-
-				$now                   = date('Y-m-d H:i:s');
-				$data['user_date']     = $now;
-				$data['status_date']   = $now;
-				$data['status']        = $state;
-				$data['configuration'] = Courses::getInstanceIDs($courseID);
-
-				$success = $table->save($data);
-
-				break;
-
-			case self::REMOVED:
-				$dbo   = Factory::getDbo();
-				$query = $dbo->getQuery(true);
-				$query->delete('#__organizer_user_lessons');
-				$query->where("userID = '$participantID'");
-				$query->where("lessonID = '$courseID'");
-				$dbo->setQuery($query);
-				$success = (bool) OrganizerHelper::executeQuery('execute');
-				if (!$success)
-				{
-					return false;
-				}
-
-				break;
-		}
-
-		if (empty($success))
-		{
-			return false;
-		}
-
-		self::notify($participantID, $courseID, $state);
-
-		return true;
-	}
-
-	/**
 	 * Checks whether a participant entry already exists for the current user.
 	 *
 	 * @return bool true if the user is already associated with a participant, otherwise false
