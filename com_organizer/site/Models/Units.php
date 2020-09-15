@@ -68,7 +68,7 @@ class Units extends ListModel
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
 			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
 			->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
-			->innerJoin('#__organizer_methods AS m ON m.id = i.methodID')
+			->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')
 			->where("(u.delta != 'removed' OR u.modified > '$modified')")
 			->where("u.termid = $termID")
 			->order('u.startDate, u.endDate')
