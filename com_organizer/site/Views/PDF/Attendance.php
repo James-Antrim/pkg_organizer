@@ -12,17 +12,106 @@ namespace Organizer\Views\PDF;
 
 use Exception;
 use Organizer\Helpers;
-use Organizer\Layouts\PDF\Attendance as Layout;
-use Organizer\Views\BaseView;
+use Organizer\Tables;
 
 /**
  * Class loads persistent information about a course into the display context.
  */
 class Attendance extends BaseView
 {
-	use CourseParticipants;
+	use CourseDocumentation;
 
-	protected $_layout = 'Attendance';
+	private $headers;
+
+	private $widths = [
+		'index'        => 10,
+		'name'         => 55,
+		'organization' => 25,
+		'program'      => 85,
+		'room'         => 15
+	];
+
+	/**
+	 * Constructor
+	 */
+	public function __construct()
+	{
+		$this->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+		if (!$this->courseID = Helpers\Input::getID())
+		{
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_400'), 'error');
+			Helpers\OrganizerHelper::getApplication()->redirect($this->referrer, 400);
+		}
+		elseif (!Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
+			Helpers\OrganizerHelper::getApplication()->redirect($this->referrer, 401);
+		}
+		elseif (!Helpers\Can::manage('course', $this->courseID))
+		{
+			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+		}
+
+		parent::__construct();
+
+		$this->setCourseProperties();
+
+		$documentName = "$this->course - $this->campus - $this->startDate - " . Helpers\Languages::_('ORGANIZER_PARTICIPANTS');
+		$this->setNames($documentName);
+		$this->margins(10, 30, -1, 0, 8, 10);
+		$this->showPrintOverhead(true);
+		$this->setHeader();
+
+		$this->headers = [
+			'index'        => '#',
+			'name'         => 'Name',
+			'organization' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
+			'program'      => Helpers\Languages::_('ORGANIZER_PROGRAM'),
+			'room'         => Helpers\Languages::_('ORGANIZER_ROOM')
+		];
+
+		// Adjust for more information
+		if ($this->fee)
+		{
+			$this->headers['paid'] = Helpers\Languages::_('ORGANIZER_PAID');
+			$this->widths['name']  = 42;
+			$this->widths['paid']  = 14;
+			$this->widths['room']  = 14;
+		}
+	}
+
+	/**
+	 * Adds a new page to the document and creates the column headers for the table
+	 *
+	 * @return void
+	 */
+	private function addAttendancePage()
+	{
+		$this->AddPage();
+
+		// create the column headers for the page
+		$this->SetFillColor(210);
+		$this->changeSize(10);
+		$initial = true;
+		foreach (array_keys($this->headers) as $column)
+		{
+			$border = [];
+			if ($initial)
+			{
+				$border['BLRT'] = $this->border;
+				$this->renderCell($this->widths[$column], 7, $this->headers[$column], self::CENTER, 'BLRT', 1);
+				$initial = false;
+				continue;
+			}
+			$border['BRT'] = $this->border;
+			$this->renderCell($this->widths[$column], 7, $this->headers[$column], self::CENTER, 'BRT', 1);
+		}
+		$this->Ln();
+
+		// reset styles
+		$this->SetFillColor(255);
+		$this->changeSize(8);
+	}
 
 	/**
 	 * Method to get display
@@ -36,22 +125,90 @@ class Attendance extends BaseView
 	 */
 	public function display($tpl = null)
 	{
-		if (!$courseID = Helpers\Input::getInt('courseID'))
+		$this->addAttendancePage();
+
+		$itemNo         = 1;
+		$participantIDs = Helpers\Courses::getParticipantIDs($this->courseID);
+
+		foreach ($participantIDs as $participantID)
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
-		}
-		elseif (!Helpers\Can::manage('course', $courseID))
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			$participant = new  Tables\Participants();
+			if (!$participant->load($participantID))
+			{
+				continue;
+			}
+
+			// Get the starting coordinates for later use with borders
+			$startX = $this->GetX();
+			$startY = $this->GetY();
+
+			$maxLength = 0;
+
+			foreach (array_keys($this->headers) as $columnName)
+			{
+				switch ($columnName)
+				{
+					case 'index':
+						$value = $itemNo;
+						break;
+					case 'name':
+						$value = empty($participant->forename) ?
+							$participant->surname : "$participant->surname,  $participant->forename";
+						break;
+					case 'organization':
+						$value = Helpers\Programs::getOrganization($participant->programID, true);
+						break;
+					case 'program':
+						$value = Helpers\Programs::getName($participant->programID);
+						break;
+					default:
+						$value = '';
+						break;
+				}
+
+				$length = $this->renderMultiCell($this->widths[$columnName], 5, $value);
+				if ($length > $maxLength)
+				{
+					$maxLength = $length;
+				}
+			}
+
+			// Reset for borders
+			$this->changePosition($startX, $startY);
+
+			foreach ($this->widths as $index => $width)
+			{
+				$border = $index === 'index' ? ['BLR' => $this->border] : ['BR' => $this->border];
+				$this->renderMultiCell($width, $maxLength * 5, '', self::LEFT, $border);
+			}
+
+			$this->Ln();
+
+			if ($this->getY() > 275)
+			{
+				$this->addAttendancePage();
+			}
+
+			$itemNo++;
 		}
 
-		if (!$participants = $this->getParticipants($courseID))
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
-		}
+		$this->Output($this->filename, 'I');
+		ob_flush();
+	}
 
-		$attendance = new Layout($courseID);
-		$attendance->fill($participants);
-		$attendance->render();
+	/**
+	 * Set header items.
+	 *
+	 * @return void
+	 */
+	public function setHeader()
+	{
+		$dates     = ($this->endDate and $this->endDate != $this->startDate) ?
+			"$this->startDate - $this->endDate" : $this->startDate;
+		$subHeader = $this->campus ? "$this->campus $dates" : $dates;
+
+		$this->setHeaderData('pdf_logo.png', '55', $this->course, $subHeader, self::BLACK, self::WHITE);
+		$this->setFooterData(self::BLACK, self::WHITE);
+		parent::setHeader();
 	}
 }

@@ -21,8 +21,6 @@ class Badges extends BaseView
 {
 	use CourseDocumentation;
 
-	private $referrer;
-
 	/**
 	 * Constructor
 	 */

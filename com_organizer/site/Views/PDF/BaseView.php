@@ -68,6 +68,8 @@ abstract class BaseView extends TCPDF
 
 	protected $headerFont = ['helvetica', '', 10];
 
+	protected $referrer;
+
 	/**
 	 * Performs initial construction of the TCPDF Object.
 	 *

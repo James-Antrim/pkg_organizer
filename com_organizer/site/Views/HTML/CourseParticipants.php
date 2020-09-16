@@ -87,9 +87,9 @@ class CourseParticipants extends Participants
 			true
 		);
 
-
-		$link = 'index.php?option=com_organizer&view=badges&format=pdf&id=' . Helpers\Input::getID();
-		$toolbar->appendButton('Link', 'tags-2', Languages::_('ORGANIZER_DOWNLOAD_BADGES'), $link);
+		$link = 'index.php?option=com_organizer&format=pdf&id=' . Helpers\Input::getID();
+		$toolbar->appendButton('Link', 'tags-2', Languages::_('ORGANIZER_DOWNLOAD_BADGES'), $link . '&view=badges');
+		$toolbar->appendButton('Link', 'list', Languages::_('ORGANIZER_ATTENDANCE'), $link . '&view=attendance');
 
 		/*$if          = "alert('" . Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
 		$else        = "jQuery('#modal-circular').modal('show'); return true;";

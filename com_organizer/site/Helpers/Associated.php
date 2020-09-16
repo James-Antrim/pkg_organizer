@@ -35,7 +35,7 @@ abstract class Associated extends ResourceHelper
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
-		$query->select('organizationID')
+		$query->select('DISTINCT organizationID')
 			->from('#__organizer_associations')
 			->where("$column = $resourceID");
 		$dbo->setQuery($query);

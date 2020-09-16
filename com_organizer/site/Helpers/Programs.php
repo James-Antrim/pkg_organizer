@@ -166,18 +166,21 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @param   int  $programID  the table id for the program
 	 *
-	 * @return int the organizationID associated with the program's documentation
+	 * @return string the organization associated with the program's documentation
 	 */
-	public static function getOrganization($programID)
+	public static function getOrganization($programID, $short = false)
 	{
-		if (empty($programID))
+		if (!$organizationIDs = self::getOrganizationIDs($programID))
 		{
 			return Languages::_('ORGANIZER_NO_ORGANIZATION');
 		}
 
-		$table = new Tables\Programs;
+		if (count($organizationIDs) > 1)
+		{
+			return Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
+		}
 
-		return ($table->load($programID) and $organizationID = $table->organizationID) ? $organizationID : 0;
+		return $short ? Organizations::getShortName($organizationIDs[0]) : Organizations::getName($organizationIDs[0]);
 	}
 
 	/**

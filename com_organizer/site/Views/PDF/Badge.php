@@ -23,8 +23,6 @@ class Badge extends BaseView
 
 	private $participantID;
 
-	private $referrer;
-
 	/**
 	 * Constructor
 	 */
