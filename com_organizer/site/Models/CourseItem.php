@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use Exception;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
@@ -392,8 +393,14 @@ class CourseItem extends ItemModel
 		}
 		else
 		{
+			$currentURL = Uri::getInstance()->toString() . '#login-anchor';
+
 			$course['registrationStatus'] = null;
-			$texts['pRegistration']       = Languages::_('ORGANIZER_COURSE_LOGIN_WARNING');
+			$texts['pRegistration']       = sprintf(
+				Languages::_('ORGANIZER_COURSE_LOGIN_WARNING'),
+				$currentURL,
+				$currentURL
+			);
 			$texts['deadline']            = $deadlineText;
 		}
 

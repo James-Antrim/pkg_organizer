@@ -241,7 +241,11 @@ class Controller extends BaseController
 		$key = strtolower($viewName);
 		if (empty(self::$views[$key][$type][$prefix]))
 		{
-			if ($view = new $name($config))
+			if ($type === 'HTML' and $view = new $name($config))
+			{
+				self::$views[$key][$type][$prefix] = &$view;
+			}
+			elseif ($view = new $name())
 			{
 				self::$views[$key][$type][$prefix] = &$view;
 			}

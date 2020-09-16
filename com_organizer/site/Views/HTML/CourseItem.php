@@ -93,27 +93,29 @@ class CourseItem extends ItemView
 				$deadline = $this->item['startDate'];
 			}
 
+			$link = 'index.php?option=com_organizer';
+
 			if (!$this->manages and $deadline > $today)
 			{
 				if ($this->profile)
 				{
 					if (Helpers\Participants::canRegister())
 					{
-						$link = 'index.php?option=com_organizer&id=' . $this->item['id'] . '&task=';
+						$link .= '&id=' . $this->item['id'];
 						if ($this->participant)
 						{
-							$icon = 'exit';
-							$link .= 'courses.deregister';
-							$text = Languages::_('ORGANIZER_DEREGISTER');
+							$drLink = $link . '&task=courses.deregister';
+							$toolbar->appendButton('Link', 'exit', Languages::_('ORGANIZER_DEREGISTER'), $drLink);
+
+							$link = $link . '&view=badge&format=pdf';
+							$toolbar->appendButton('Link', 'tag-2', Languages::_('ORGANIZER_DOWNLOAD_BADGE'), $link);
 						}
 						else
 						{
-							$icon = 'enter';
-							$link .= 'courses.register';
-							$text = Languages::_('ORGANIZER_REGISTER');
+							$rLink = $link . '&task=courses.register';
+							$toolbar->appendButton('Link', 'enter', Languages::_('ORGANIZER_REGISTER'), $rLink);
 						}
 
-						$toolbar->appendButton('Link', $icon, $text, $link);
 					}
 					else
 					{
@@ -131,7 +133,7 @@ class CourseItem extends ItemView
 						'Link',
 						'user-plus',
 						Languages::_('ORGANIZER_PROFILE_NEW'),
-						'index.php?option=com_organizer&view=participant_edit'
+						$link . '&view=participant_edit'
 					);
 				}
 			}

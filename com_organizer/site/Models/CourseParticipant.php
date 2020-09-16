@@ -197,28 +197,6 @@ class CourseParticipant extends BaseModel
 	}
 
 	/**
-	 * Sets the status for the course participant to attended
-	 *
-	 * @return bool true on success, otherwise false
-	 * @throws Exception invalid / unauthorized access
-	 */
-	public function confirmAttendance()
-	{
-		return $this->batch('attended', self::ATTENDED);
-	}
-
-	/**
-	 * Sets the payment status to paid.
-	 *
-	 * @return bool true on success, otherwise false
-	 * @throws Exception invalid / unauthorized access
-	 */
-	public function confirmPayment()
-	{
-		return $this->batch('paid', self::PAID);
-	}
-
-	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.

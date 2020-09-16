@@ -91,52 +91,6 @@ class CourseParticipants extends Controller
 	}
 
 	/**
-	 * Accepts the selected participants into the course.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function confirmAttendance()
-	{
-		$model = new Models\CourseParticipant;
-
-		if ($model->confirmAttendance())
-		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
-		$this->setRedirect(Route::_($url, false));
-	}
-
-	/**
-	 * Accepts the selected participants into the course.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function confirmPayment()
-	{
-		$model = new Models\CourseParticipant;
-
-		if ($model->confirmPayment())
-		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
-		}
-
-		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
-		$this->setRedirect(Route::_($url, false));
-	}
-
-	/**
 	 * Prints badges for the selected participants.
 	 *
 	 * @return void

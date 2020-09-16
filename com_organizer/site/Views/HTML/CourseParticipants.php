@@ -79,22 +79,6 @@ class CourseParticipants extends Participants
 		);
 
 		$toolbar->appendButton(
-			'Standard',
-			'info-euro',
-			Languages::_('ORGANIZER_CONFIRM_PAYMENT'),
-			'course_participants.confirmPayment',
-			true
-		);
-
-		$toolbar->appendButton(
-			'Standard',
-			'checkbox-checked',
-			Languages::_('ORGANIZER_CONFIRM_ATTENDANCE'),
-			'course_participants.confirmAttendance',
-			true
-		);
-
-		$toolbar->appendButton(
 			'Confirm',
 			Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'user-minus',
@@ -102,6 +86,10 @@ class CourseParticipants extends Participants
 			'course_participants.remove',
 			true
 		);
+
+
+		$link = 'index.php?option=com_organizer&view=badges&format=pdf&id=' . Helpers\Input::getID();
+		$toolbar->appendButton('Link', 'tags-2', Languages::_('ORGANIZER_DOWNLOAD_BADGES'), $link);
 
 		/*$if          = "alert('" . Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
 		$else        = "jQuery('#modal-circular').modal('show'); return true;";

@@ -9,28 +9,55 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\PDF;
+namespace Organizer\Views\PDF;
 
+use Joomla\CMS\Table\Table;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages; // Exception for frequency of use
+use Organizer\Helpers\Languages;
+use Organizer\Tables;
 
 /**
- * Class generates sheets of participant badges based on the participants.
+ * Base PDF export class used for the generation of various course exports.
  */
-class Badges extends BaseLayout
+trait CourseDocumentation
 {
-	use CourseContext;
+	/**
+	 * The campus where the course takes place
+	 * @var string
+	 */
+	protected $campus;
 
-	private $emptyParticipant = [
-		'address'  => '',
-		'city'     => '',
-		'forename' => '',
-		'id'       => '',
-		'surname'  => '',
-		'zipCode'  => ''
-	];
+	/**
+	 * The id of the associated course.
+	 * @var int
+	 */
+	private $courseID;
 
-	private $rectangleStyle = [
+	/**
+	 * The dates as displayed in the generated document.
+	 * @var string
+	 */
+	protected $dates;
+
+	/**
+	 * The course end date
+	 * @var string
+	 */
+	protected $endDate;
+
+	/**
+	 * The fee required for participation in the course
+	 * @var int
+	 */
+	protected $fee;
+
+	/**
+	 * The name of the course
+	 * @var string
+	 */
+	protected $course;
+
+	protected $rectangleStyle = [
 		'width' => 0.1,
 		'cap'   => 'butt',
 		'join'  => 'miter',
@@ -38,36 +65,22 @@ class Badges extends BaseLayout
 		'color' => [0, 0, 0]
 	];
 
-	private $params;
-
 	/**
-	 * Performs initial construction of the TCPDF Object.
-	 *
-	 * @param   int  $courseID  the id of the course for which the badges are valid
+	 * The course start date
+	 * @var string
 	 */
-	public function __construct($courseID)
-	{
-		parent::__construct();
-
-		$this->params = Helpers\Input::getParams();
-		$this->setCourse($courseID);
-
-		$documentName = "$this->name - $this->term - " . Languages::_('ORGANIZER_BADGE_SHEETS');
-		$this->setNames($documentName);
-		$this->margins();
-		$this->showPrintOverhead(false);
-	}
+	protected $startDate;
 
 	/**
 	 * Adds a badge position to the sheet
 	 *
-	 * @param   array  $participant  the participant being iterated
+	 * @param   Table  $participant  the participant being iterated
 	 * @param   int    $xOffset      the reference value for x
 	 * @param   int    $yOffset      the reference value for y
 	 *
 	 * @return void modifies the pdf document
 	 */
-	private function addBadge($participant, $xOffset, $yOffset)
+	protected function addBadge($participant, $xOffset, $yOffset)
 	{
 		$this->SetLineStyle($this->rectangleStyle);
 		$this->Rect($xOffset, $yOffset + 10, 90, 80);
@@ -77,20 +90,30 @@ class Badges extends BaseLayout
 
 		$this->changePosition($xOffset + 70, $yOffset + 15);
 		$this->changeFont(self::REGULAR, 10);
-		$this->renderCell(16, 5, $participant['id'], self::CENTER, self::ALL);
+		$this->renderCell(16, 5, $participant->id, self::CENTER, self::ALL);
 
 		$this->changePosition($left, $yOffset + 29);
 		$this->changeFont(self::BOLD, 12);
-		$headerLine = "$this->name $this->term";
+		$headerLine = $this->course;
 		$this->renderMultiCell(80, 5, $headerLine, self::CENTER);
 
 		$titleOffset = strlen($headerLine) > 35 ? 12 : 2;
 
-		$this->changePosition($left, $yOffset + $titleOffset + 33);
 		$this->changeFont(self::REGULAR, 10);
-		$dateLine = $this->campus ?
-			$this->dates . ' ' . Languages::_('ORGANIZER_CAMPUS') . ' ' . $this->campus : $this->dates;
-		$this->renderMultiCell(80, 5, $dateLine, self::CENTER);
+		$dates = $this->startDate == $this->endDate ? $this->startDate : "$this->startDate - $this->endDate";
+
+		if ($this->campus)
+		{
+			$this->changePosition($left, $yOffset + $titleOffset + 33);
+			$this->renderCell(80, 5, $this->campus, self::CENTER);
+			$this->changePosition($left, $yOffset + $titleOffset + 38);
+			$this->renderCell(80, 5, $dates, self::CENTER);
+		}
+		else
+		{
+			$this->changePosition($left, $yOffset + $titleOffset + 34);
+			$this->renderCell(80, 5, $dates, self::CENTER);
+		}
 
 		$halfTitleOffset = $titleOffset / 2;
 		$this->Ln();
@@ -101,8 +124,8 @@ class Badges extends BaseLayout
 		$this->changePosition($left, $yOffset + 45);
 		$this->changeFont(self::REGULAR, 10);
 
-		$participantName = $participant['surname'];
-		$participantName .= empty($participant['forename']) ? '' : ",  {$participant['forename']}";
+		$participantName = $participant->surname;
+		$participantName .= empty($participant->forename) ? '' : ",  $participant->forename";
 
 		$this->Ln();
 		$this->changePosition($left, $yOffset + 63);
@@ -114,12 +137,12 @@ class Badges extends BaseLayout
 		$this->Ln();
 		$this->changePosition($left, $yOffset + 68);
 		$this->renderCell(20, 5, Languages::_('ORGANIZER_ADDRESS') . ': ');
-		$this->renderCell(65, 5, $participant['address']);
+		$this->renderCell(65, 5, $participant->address);
 
 		$this->Ln();
 		$this->changePosition($left, $yOffset + 73);
 		$this->renderCell(20, 5, Languages::_('ORGANIZER_RESIDENCE') . ': ');
-		$this->renderCell(65, 5, "{$participant['zipCode']} {$participant['city']}");
+		$this->renderCell(65, 5, "$participant->zipCode $participant->city");
 	}
 
 	/**
@@ -130,7 +153,7 @@ class Badges extends BaseLayout
 	 *
 	 * @return void modifies the pdf document
 	 */
-	private function addBadgeBack($xOffset, $yOffset)
+	protected function addBadgeBack($xOffset, $yOffset)
 	{
 		$this->SetLineStyle($this->rectangleStyle);
 		$this->Rect($xOffset, 10 + $yOffset, 90, 80);
@@ -140,7 +163,7 @@ class Badges extends BaseLayout
 		if ($this->fee)
 		{
 			$headerOffset    = 12 + $yOffset;
-			$titleOffset     = 26 + $yOffset;
+			$titleOffset     = 24 + $yOffset;
 			$labelOffset     = 55 + $yOffset;
 			$signatureOffset = 61 + $yOffset;
 			$nameOffset      = 76 + $yOffset;
@@ -150,7 +173,7 @@ class Badges extends BaseLayout
 		else
 		{
 			$headerOffset    = 17 + $yOffset;
-			$titleOffset     = 31 + $yOffset;
+			$titleOffset     = 29 + $yOffset;
 			$labelOffset     = 42 + $yOffset;
 			$signatureOffset = 47 + $yOffset;
 			$nameOffset      = 62 + $yOffset;
@@ -163,16 +186,28 @@ class Badges extends BaseLayout
 		$this->renderCell(80, 5, Languages::_('ORGANIZER_RECEIPT'), self::CENTER);
 
 		$this->changeFont(self::BOLD, 12);
-		$title       = "$this->name $this->term";
-		$titleOffset = strlen($title) > 50 ? $titleOffset - 2 : $titleOffset;
+		$title       = $this->course;
+		$longTitle   = strlen($title) > 50;
+		$titleOffset = $longTitle ? $titleOffset - 3 : $titleOffset;
 		$this->changePosition($badgeCenter, $titleOffset);
 		$this->renderMultiCell(80, 5, $title, self::CENTER);
+
+		$dates      = $this->startDate == $this->endDate ? $this->startDate : "$this->startDate - $this->endDate";
+		$dateOffset = $longTitle ? $titleOffset + 10 : $titleOffset + 6;
+		$this->changePosition($badgeCenter, $dateOffset);
+		$this->changeFont(self::REGULAR, 10);
+		$this->renderMultiCell(80, 5, $dates, self::CENTER);
 
 		if ($this->fee)
 		{
 			$this->changePosition($badgeCenter, 37 + $yOffset);
 			$this->changeFont(self::REGULAR, 11);
-			$this->renderMultiCell(80, 5, Languages::_('ORGANIZER_BADGE_PAYMENT_TEXT'), self::CENTER);
+			$this->renderMultiCell(
+				80,
+				5,
+				sprintf(Languages::_('ORGANIZER_BADGE_PAYMENT_TEXT'), $this->fee),
+				self::CENTER
+			);
 
 			$this->changePosition($badgeCenter, 50 + $yOffset);
 			$this->changeFont(self::ITALIC, 6);
@@ -183,94 +218,43 @@ class Badges extends BaseLayout
 		$this->changePosition($badgeCenter, $labelOffset);
 		$this->renderCell(80, 5, Languages::_('ORGANIZER_REPRESENTATIVE'), self::CENTER);
 
-		if (!empty($this->params->get('signatureFile')))
+		$params = Helpers\Input::getParams();
+		if (!empty($params->get('signatureFile')))
 		{
-			$signaturePath = K_PATH_IMAGES . $this->params->get('signatureFile');
+			$signaturePath = K_PATH_IMAGES . $params->get('signatureFile');
 			$this->Image($signaturePath, $xOffset + 35, $signatureOffset, 20, 0);
 		}
 
 		$this->changeSize(7);
 		$this->changePosition($badgeCenter, $nameOffset);
-		$this->renderCell(80, 5, $this->params->get('representativeName', ''), self::CENTER);
+		$this->renderCell(80, 5, $params->get('representativeName', ''), self::CENTER);
 
 		$this->changeSize(6);
 		$this->changePosition($badgeCenter, $addressOffset);
-		$this->renderCell(80, 5, $this->params->get('address'), self::CENTER);
+		$this->renderCell(80, 5, $params->get('address'), self::CENTER);
 
 		$this->changePosition($badgeCenter, $contactOffset);
-		$this->renderCell(80, 5, $this->params->get('contact'), self::CENTER);
+		$this->renderCell(80, 5, $params->get('contact'), self::CENTER);
 	}
 
 	/**
-	 * Adds the reverse to a badge sheet
+	 * Sets course related object properties.
 	 *
-	 * @return void modifies the pdf document
+	 * @return void
 	 */
-	private function addSheetBack()
+	protected function setCourseProperties()
 	{
-		$this->AddPage('L', '', false, false);
+		$dates        = Helpers\Courses::getDates($this->courseID);
+		$nameProperty = 'name_' . Helpers\Languages::getTag();
 
-		$xOffset = 14;
+		$course = new Tables\Courses();
+		$course->load($this->courseID);
 
-		for ($boxNo = 0; $boxNo < 3; $boxNo++)
-		{
-			for ($level = 0; $level < 2; $level++)
-			{
-				// The next item should be 82 to the right
-				$yOffset = $level * 82;
-
-				$this->addBadgeBack($xOffset, $yOffset);
-			}
-
-			// The next row should be 92 lower
-			$xOffset += 92;
-		}
-	}
-
-	/**
-	 * Renders the document.
-	 *
-	 * @param   array  $participants  the course participants
-	 *
-	 * @return void renders the document and closes the application
-	 */
-	public function fill($participants)
-	{
-		$sheetCount = intval(count($participants) / 6);
-		$badgeCount = $sheetCount * 6;
-
-		$this->AddPage(self::LANDSCAPE);
-
-		$xOffset = 10;
-		$yOffset = 0;
-
-		for ($index = 0; $index < $badgeCount; $index++)
-		{
-			$badgeNumber = $index + 1;
-			$participant = empty($participants[$index]) ? $this->emptyParticipant : $participants[$index];
-			$this->addBadge($participant, $xOffset, $yOffset);
-
-			// End of the sheet
-			if ($badgeNumber % 6 == 0)
-			{
-				$xOffset = 10;
-				$yOffset = 0;
-				$this->addSheetBack();
-
-				if ($badgeNumber < $badgeCount)
-				{
-					$this->AddPage(self::LANDSCAPE);
-				}
-			} // End of the first row on a sheet
-			elseif ($badgeNumber % 3 == 0)
-			{
-				$xOffset = 10;
-				$yOffset = 82;
-			} // Next item
-			else
-			{
-				$xOffset += 92;
-			}
-		}
+		$this->campus    = Helpers\Campuses::getName($course->campusID);
+		$this->course    = $course->$nameProperty;
+		$this->endDate   = Helpers\Dates::formatDate($dates['endDate']);
+		$this->fee       = $course->fee;
+		$this->startDate = Helpers\Dates::formatDate($dates['startDate']);
+		//$this->dates     = $this->startDate === $this->endDate ? $this->startDate : "$this->startDate - $this->endDate";
 	}
 }
