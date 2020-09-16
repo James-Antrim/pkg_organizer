@@ -58,7 +58,8 @@ class Units extends ResourceHelper
 		$query->select('DISTINCT i.eventID')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-			->where("unitID = $unitID");
+			->where("unitID = $unitID")
+			->where("i.delta != 'removed'");
 
 		$dbo->setQuery($query);
 
