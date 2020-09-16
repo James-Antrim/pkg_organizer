@@ -21,6 +21,8 @@ use Organizer\Helpers\Languages;
  */
 class Courses extends ListView
 {
+	private $preparatory;
+
 	private $manages = false;
 
 	/**
@@ -51,6 +53,10 @@ class Courses extends ListView
 		}
 
 		$this->rowStructure = $structure;
+
+		$getPrep           = Helpers\Input::getBool('preparatory', false);
+		$menuPrep          = Helpers\Input::getBool('onlyPrepCourses', false);
+		$this->preparatory = ($getPrep or $menuPrep);
 	}
 
 	/**
@@ -60,9 +66,19 @@ class Courses extends ListView
 	 */
 	protected function addSupplement()
 	{
+		$this->supplement = '';
+
+		if ($this->preparatory)
+		{
+			$this->supplement .= '<div>' . Languages::_('ORGANIZER_PREP_COURSE_SUPPLEMENT') . '</div>';
+		}
+
 		if (empty(Factory::getUser()->id))
 		{
-			$this->supplement = '<div class="tbox-yellow">' . Languages::_('ORGANIZER_COURSE_LOGIN_WARNING') . '</div>';
+			$currentURL       = Uri::getInstance()->toString() . '#login-anchor';
+			$this->supplement .= '<div class="tbox-yellow">';
+			$this->supplement .= sprintf(Languages::_('ORGANIZER_COURSE_LOGIN_WARNING'), $currentURL, $currentURL);
+			$this->supplement .= '</div>';
 		}
 	}
 
@@ -74,7 +90,7 @@ class Courses extends ListView
 	protected function addToolBar()
 	{
 		$resourceName = '';
-		if (!$this->clientContext and Helpers\Input::getBool('onlyPrepCourses', false))
+		if (!$this->clientContext and $this->preparatory)
 		{
 			$resourceName .= Languages::_('ORGANIZER_PREP_COURSES');
 			if ($campusID = $this->state->get('filter.campusID', 0))
