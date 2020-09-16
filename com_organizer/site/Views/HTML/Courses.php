@@ -324,7 +324,7 @@ class Courses extends ListView
 				}
 			}
 
-			$index = "$course->dates $course->name $campusName";
+			$index = "$course->startDate $course->name $campusName";
 
 			$structuredItems[$index] = $this->structureItem($index, $course, $URL . $course->id);
 		}
