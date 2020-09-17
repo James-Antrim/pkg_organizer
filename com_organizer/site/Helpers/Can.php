@@ -326,42 +326,37 @@ class Can
 
 		$user = Users::getUser();
 
-		if ($resourceType === 'courses' or $resourceType === 'course')
+		switch ($resourceType)
 		{
-			return (Courses::coordinates($resource) or Courses::hasResponsibility($resource));
-		}
-
-		if ($resourceType === 'organization' and is_int($resource))
-		{
-			return $user->authorise('organizer.manage', "com_organizer.organization.$resource");
-		}
-
-		if ($resourceType === 'facilities')
-		{
-			return $user->authorise('organizer.fm', 'com_organizer');
-		}
-
-		if ($resourceType === 'participant' and is_int($resource))
-		{
-			$participantCourses = Participants::getCourses($resource);
-
-			foreach ($participantCourses as $courseID)
-			{
-				if (Courses::coordinates($courseID))
+			case 'course':
+			case 'courses':
+				return (Courses::coordinates($resource) or Courses::hasResponsibility($resource));
+			case 'facilities':
+				return $user->authorise('organizer.fm', 'com_organizer');
+			case 'organization':
+				return $user->authorise('organizer.manage', "com_organizer.organization.$resource");
+			case 'participant':
+				if ($resource === $user->id)
 				{
 					return true;
 				}
-			}
 
-			return false;
+				$courseIDs = Participants::getCourses($resource);
+
+				foreach ($courseIDs as $courseID)
+				{
+					if (Courses::coordinates($courseID))
+					{
+						return true;
+					}
+				}
+
+				return false;
+			case 'persons':
+				return $user->authorise('organizer.hr', 'com_organizer');
+			default:
+				return false;
 		}
-
-		if ($resourceType === 'persons')
-		{
-			return $user->authorise('organizer.hr', 'com_organizer');
-		}
-
-		return false;
 	}
 
 	/**

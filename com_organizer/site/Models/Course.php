@@ -45,7 +45,7 @@ class Course extends BaseModel
 			return false;
 		}
 
-		if (!Helpers\Can::manage('participant', $participantID) or !Helpers\Can::manage('course', $courseID))
+		if (!Helpers\Can::manage('participant', $participantID) and !Helpers\Can::manage('course', $courseID))
 		{
 			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
 
