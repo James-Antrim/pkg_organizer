@@ -282,7 +282,7 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function getResources()
 	{
-		$user = Factory::getUser();
+		$user = Users::getUser();
 		if (empty($user->id))
 		{
 			return [];
@@ -315,7 +315,7 @@ class Persons extends Associated implements Selectable
 		$wherray = [];
 		if ($thisPersonID)
 		{
-			$wherray[] = "p.username = '{$user->username}'";
+			$wherray[] = "p.username = '$user->username'";
 		}
 
 		if (count($organizationIDs))

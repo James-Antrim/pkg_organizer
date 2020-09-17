@@ -12,13 +12,13 @@ namespace Organizer\Admin;
 
 require_once JPATH_COMPONENT_SITE . '/autoloader.php';
 
-use Exception;
-use Joomla\CMS\Factory;
 use Organizer\Helpers;
 
-if (!Factory::getUser()->authorise('core.manage', 'com_organizer'))
+if (!Helpers\Users::getUser()->authorise('core.manage', 'com_organizer'))
 {
-	throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+	$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+	Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
+	Helpers\OrganizerHelper::getApplication()->redirect($referrer, 403);
 }
 
 Helpers\OrganizerHelper::setUp();

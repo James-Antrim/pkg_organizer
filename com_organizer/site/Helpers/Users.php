@@ -20,6 +20,10 @@ use Organizer\Tables;
  */
 class Users
 {
+	/**
+	 * The logged in user.
+	 * @var User
+	 */
 	static $user = null;
 
 	/**
@@ -111,14 +115,14 @@ class Users
 	 *
 	 * @param   integer  $userID  The user to load - Can be an integer or string - If string, it is converted to ID automatically.
 	 *
-	 * @return  User object
+	 * @return  User a user object specifically requested ids return a dynamic user, otherwise the current user
 	 */
 	public static function getUser($userID = 0)
 	{
 		// A user was specifically requested by id.
 		if ($userID)
 		{
-			self::$user = Factory::getUser($userID);
+			return User::getInstance($userID);
 		}
 
 		// A static user already exists.
@@ -139,16 +143,17 @@ class Users
 			return self::$user;
 		}
 
-		$requestedUser = Factory::getUser($userName);
-		if (empty($requestedUser->id))
+		$requested = User::getInstance($userName);
+
+		// The requested user does not exist
+		if ($requested->id and password_verify($requested->email . $requested->registerDate, $authentication))
+		{
+			self::$user = $requested;
+		}
+		else
 		{
 			self::$user = $defaultUser;
-
-			return self::$user;
 		}
-
-		$authenticates = password_verify($requestedUser->email . $requestedUser->registerDate, $authentication);
-		self::$user    = $authenticates ? $requestedUser : $defaultUser;
 
 		return self::$user;
 	}
@@ -201,10 +206,9 @@ class Users
 	 */
 	public static function saveEvent()
 	{
-		$userID = Factory::getUser()->id;
-		if (empty($userID))
+		if (!$userID = self::getID())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			throw new Exception(Languages::_('ORGANIZER_401'), 401);
 		}
 
 		$ccmID = Input::getInt('ccmID');

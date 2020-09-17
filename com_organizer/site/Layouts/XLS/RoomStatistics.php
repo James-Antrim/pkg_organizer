@@ -13,7 +13,8 @@ namespace Organizer\Layouts\XLS;
 jimport('phpexcel.library.PHPExcel');
 
 use Joomla\CMS\Application\ApplicationHelper;
-use Joomla\CMS\Factory;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages;
 
 /**
  * Class generates the room statistics XLS file.
@@ -71,9 +72,9 @@ class RoomStatistics
 
 		$this->spreadSheet = new \PHPExcel();
 
-		$userName    = Factory::getUser()->name;
-		$startDate   = Dates::formatDate($this->startDate);
-		$endDate     = Dates::formatDate($this->endDate);
+		$userName    = Helpers\Users::getUser()->name;
+		$startDate   = Helpers\Dates::formatDate($this->startDate);
+		$endDate     = Helpers\Dates::formatDate($this->endDate);
 		$description = sprintf(Languages::_('ORGANIZER_ROOM_STATISTICS_EXPORT_DESCRIPTION'), $startDate, $endDate);
 		$this->spreadSheet->getProperties()->setCreator('THM Organizer')
 			->setLastModifiedBy($userName)
@@ -497,8 +498,8 @@ class RoomStatistics
 
 		foreach ($this->metaData['weeks'] as $weekData)
 		{
-			$startDate          = Dates::formatDate($weekData['startDate']);
-			$endDate            = Dates::formatDate($weekData['endDate']);
+			$startDate          = Helpers\Dates::formatDate($weekData['startDate']);
+			$endDate            = Helpers\Dates::formatDate($weekData['endDate']);
 			$groupTitle         = "$startDate - $endDate";
 			$singleRoomTotal    = $weekData['total'] / count($this->roomData);
 			$singleRoomAdjTotal = $weekData['adjustedTotal'] / count($this->roomData);

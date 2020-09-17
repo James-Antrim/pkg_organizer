@@ -12,6 +12,6 @@ namespace Organizer;
 
 require_once 'autoloader.php';
 
-use Organizer\Helpers\OrganizerHelper; // Exception for structure
+use Organizer\Helpers\OrganizerHelper;
 
 OrganizerHelper::setUp();

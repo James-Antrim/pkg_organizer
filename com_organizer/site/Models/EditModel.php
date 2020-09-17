@@ -11,7 +11,6 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Organizer\Helpers;
@@ -78,7 +77,7 @@ abstract class EditModel extends AdminModel
 	public function getItem($pk = null)
 	{
 		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-		if (!Factory::getUser()->id)
+		if (!Helpers\Users::getID())
 		{
 			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
 			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 401);

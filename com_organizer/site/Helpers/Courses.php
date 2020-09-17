@@ -402,13 +402,9 @@ class Courses extends ResourceHelper
 			return true;
 		}
 
-		if (empty($personID))
+		if (!$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID()))
 		{
-			$user = Factory::getUser();
-			if (!$personID = Persons::getIDByUserID($user->id))
-			{
-				return false;
-			}
+			return false;
 		}
 
 		$dbo   = Factory::getDbo();

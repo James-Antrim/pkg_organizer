@@ -41,7 +41,7 @@ class ParticipantEdit extends EditModel
 	 */
 	public function getItem($participantID = null)
 	{
-		if (!$userID = Factory::getUser()->id)
+		if (!$userID = Helpers\Users::getID())
 		{
 			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
 		}

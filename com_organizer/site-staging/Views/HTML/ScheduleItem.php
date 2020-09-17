@@ -15,8 +15,6 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
-// Exception for frequency of use
-
 /**
  * Class loads the schedule form into the display context.
  */
@@ -116,7 +114,7 @@ class ScheduleItem extends BaseHTMLView
 	 */
 	private function addScriptOptions()
 	{
-		$user = Factory::getUser();
+		$user = Helpers\Users::getUser();
 		$root = Uri::root();
 
 		$variables = [

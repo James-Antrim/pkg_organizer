@@ -11,9 +11,7 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Factory;
 use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper;
 use Organizer\Helpers\Validators;
 use Organizer\Tables;
 
@@ -70,7 +68,7 @@ class Schedule extends BaseModel
 			->where('s1.id < s2.id');
 		$this->_db->setQuery($query);
 
-		if (!$duplicateIDs = OrganizerHelper::executeQuery('loadColumn', []))
+		if (!$duplicateIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
 		{
 			return;
 		}
@@ -106,7 +104,7 @@ class Schedule extends BaseModel
 		$query = $this->_db->getQuery(true);
 		$query->delete('#__thm_organizer_schedules')->where("id = $scheduleID");
 		$this->_db->setQuery($query);
-		OrganizerHelper::executeQuery('execute');
+		Helpers\OrganizerHelper::executeQuery('execute');
 
 		return true;
 	}
@@ -127,7 +125,7 @@ class Schedule extends BaseModel
 		$query->select('id')->from("#__organizer_$suffix")->where("$fkColumn IN ($fkValues)");
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -148,7 +146,7 @@ class Schedule extends BaseModel
 			->order('creationDate, creationTime');
 		$this->_db->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -343,7 +341,7 @@ class Schedule extends BaseModel
 			->where("termID = $termID");
 		$this->_db->setQuery($query);
 
-		if (!$unitIDs = OrganizerHelper::executeQuery('loadColumn', []))
+		if (!$unitIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
 		{
 			return;
 		}
@@ -518,7 +516,7 @@ class Schedule extends BaseModel
 
 		$this->_db->setQuery($query);
 
-		OrganizerHelper::executeQuery('execute');
+		Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -537,7 +535,7 @@ class Schedule extends BaseModel
 		$query->update("#__organizer_$suffix")->set($conditions)->where("id IN ($entryIDs)");
 		$this->_db->setQuery($query);
 
-		OrganizerHelper::executeQuery('execute');
+		Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -574,7 +572,7 @@ class Schedule extends BaseModel
 			'organizationID' => $organizationID,
 			'schedule'       => json_encode($validator->instances),
 			'termID'         => $validator->termID,
-			'userID'         => Factory::getUser()->id
+			'userID'         => Helpers\Users::getID()
 		];
 
 		$newTable = new Tables\Schedules;

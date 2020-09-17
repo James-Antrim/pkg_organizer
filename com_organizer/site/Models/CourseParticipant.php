@@ -123,7 +123,7 @@ class CourseParticipant extends BaseModel
 		//}
 
 		// Get the sender
-		//$sender = Factory::getUser(Input::getParams()->get('mailSender'));
+		//$sender = Helpers\Users::getUser();
 		//if (empty($sender->id))
 		//{
 		//	return false;

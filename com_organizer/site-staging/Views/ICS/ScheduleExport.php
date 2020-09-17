@@ -40,8 +40,7 @@ class ScheduleExport extends BaseView
 	{
 		$model                      = $this->getModel();
 		$this->parameters           = $model->parameters;
-		$this->parameters['mailto'] = empty($this->parameters['userID']) ?
-			'' : Factory::getUser($this->parameters['userID'])->email;
+		$this->parameters['mailto'] = Helpers\Users::getUser()->email;
 
 		$this->createCalendar();
 

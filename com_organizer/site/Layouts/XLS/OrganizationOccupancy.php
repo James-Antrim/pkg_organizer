@@ -13,7 +13,8 @@ namespace Organizer\Layouts\XLS;
 jimport('phpexcel.library.PHPExcel');
 
 use Joomla\CMS\Application\ApplicationHelper;
-use Joomla\CMS\Factory;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages;
 
 /**
  * Class generates the organization statistics XLS file.
@@ -61,9 +62,9 @@ class OrganizationOccupancy
 
 		$this->spreadSheet = new \PHPExcel();
 
-		$userName  = Factory::getUser()->name;
-		$startDate = Dates::formatDate($this->startDate);
-		$endDate   = Dates::formatDate($this->endDate);
+		$userName  = Helpers\Users::getUser()->name;
+		$startDate = Helpers\Dates::formatDate($this->startDate);
+		$endDate   = Helpers\Dates::formatDate($this->endDate);
 
 		$description
 			= sprintf(Languages::_('ORGANIZER_ORGANIZATION_OCCUPANCY_DESC'), $startDate, $endDate);

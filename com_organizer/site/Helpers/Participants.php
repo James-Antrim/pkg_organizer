@@ -60,7 +60,7 @@ class Participants extends ResourceHelper
 	{
 		$participants = new Tables\Participants;
 
-		return $participants->load(Factory::getUser()->id) ? true : false;
+		return $participants->load(Users::getID());
 	}
 
 	/**
@@ -90,14 +90,12 @@ class Participants extends ResourceHelper
 	 */
 	public static function removeInstance()
 	{
-		$ccmID = Input::getInt('ccmID');
-		if (empty($ccmID))
+		if (!$ccmID = Input::getInt('ccmID'))
 		{
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
 
-		$userID = Factory::getUser()->id;
-		if (empty($userID))
+		if (!$userID = Users::getID())
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
@@ -168,7 +166,7 @@ class Participants extends ResourceHelper
 			throw new Exception(Languages::_('ORGANIZER_400'), 400);
 		}
 
-		$userID = Factory::getUser()->id;
+		$userID = Users::getID();
 		if (empty($userID))
 		{
 			throw new Exception(Languages::_('ORGANIZER_403'), 403);

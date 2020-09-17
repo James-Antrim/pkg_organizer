@@ -17,6 +17,8 @@ use Joomla\CMS\Factory;
  */
 class Units extends ResourceHelper
 {
+	CONST TEACHER = 1;
+
 	/**
 	 * Retrieves the group/category contexts for a given unit/event tub
 	 *
@@ -100,11 +102,7 @@ class Units extends ResourceHelper
 	 */
 	public static function teaches($unitID = 0, $personID = 0)
 	{
-		if (!$personID)
-		{
-			$user     = Factory::getUser();
-			$personID = Persons::getIDByUserID($user->id);
-		}
+		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -117,7 +115,7 @@ class Units extends ResourceHelper
 
 		if ($unitID)
 		{
-			$query->where("i.unitID = '$unitID'");
+			$query->where("i.unitID = $unitID");
 		}
 
 		$dbo->setQuery($query);

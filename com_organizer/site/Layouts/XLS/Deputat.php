@@ -11,7 +11,8 @@
 namespace Organizer\Layouts\XLS;
 
 use Joomla\CMS\Application\ApplicationHelper;
-use Joomla\CMS\Factory;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages;
 
 /**
  * Class generates the room statistics XLS file.
@@ -31,9 +32,9 @@ class Deputat
 	{
 		$this->spreadSheet = new \PHPExcel();
 
-		$userName    = Factory::getUser()->name;
+		$userName    = Helpers\Users::getUser()->name;
 		$term        = 'TERM';
-		$date        = \Date::formatDate(date('Y-m-d'));
+		$date        = Helpers\Dates::formatDate(date('Y-m-d'));
 		$description = Languages::sprintf('ORGANIZER_DEPUTAT_DESCRIPTION', $term, $date);
 		$this->spreadSheet->getProperties()->setCreator('THM Organizer')
 			->setLastModifiedBy($userName)

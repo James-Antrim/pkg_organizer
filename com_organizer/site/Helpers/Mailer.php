@@ -40,7 +40,7 @@ class Mailer
 			return;
 		}
 
-		$user = Factory::getUser($participantID);
+		$user = Users::getUser($participantID);
 		if (!$user->id)
 		{
 			return;
@@ -53,7 +53,7 @@ class Mailer
 		}
 
 		$params = Input::getParams();
-		$sender = Factory::getUser($params->get('mailSender'));
+		$sender = Users::getUser($params->get('mailSender'));
 		if (empty($sender->id))
 		{
 			return;

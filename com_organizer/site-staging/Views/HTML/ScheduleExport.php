@@ -29,7 +29,7 @@ class ScheduleExport extends SelectionView
 		parent::modifyDocument();
 
 		$document = Factory::getDocument();
-		$user     = Factory::getUser();
+		$user     = Helpers\Users::getUser();
 
 		if ($user->id)
 		{
@@ -190,7 +190,7 @@ class ScheduleExport extends SelectionView
 	 */
 	protected function setSets()
 	{
-		$user = Factory::getUser();
+		$user = Helpers\Users::getUser();
 
 		if (!empty($user->id))
 		{

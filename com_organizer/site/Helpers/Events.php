@@ -31,11 +31,7 @@ class Events extends ResourceHelper
 	 */
 	public static function coordinates($eventID = 0, $personID = 0)
 	{
-		if (!$personID)
-		{
-			$user     = Factory::getUser();
-			$personID = Persons::getIDByUserID($user->id);
-		}
+		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -46,7 +42,7 @@ class Events extends ResourceHelper
 
 		if ($eventID)
 		{
-			$query->where("eventID = '$eventID'");
+			$query->where("eventID = $eventID");
 		}
 
 		$dbo->setQuery($query);
@@ -91,11 +87,7 @@ class Events extends ResourceHelper
 	 */
 	public static function teaches($eventID = 0, $personID = 0)
 	{
-		if (!$personID)
-		{
-			$user     = Factory::getUser();
-			$personID = Persons::getIDByUserID($user->id);
-		}
+		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);

@@ -73,7 +73,7 @@ class Courses extends ListView
 			$this->supplement .= '<div>' . Languages::_('ORGANIZER_PREP_COURSE_SUPPLEMENT') . '</div>';
 		}
 
-		if (empty(Factory::getUser()->id))
+		if (!Helpers\Users::getID())
 		{
 			$currentURL       = Uri::getInstance()->toString() . '#login-anchor';
 			$this->supplement .= '<div class="tbox-yellow">';
@@ -101,7 +101,7 @@ class Courses extends ListView
 
 		Helpers\HTML::setMenuTitle('ORGANIZER_COURSES', $resourceName, 'contract-2');
 
-		if (Factory::getUser()->id)
+		if (Helpers\Users::getID())
 		{
 			$toolbar = Toolbar::getInstance();
 			if (!$this->clientContext and !$this->manages)

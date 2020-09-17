@@ -12,7 +12,8 @@ namespace Organizer\Layouts\XLS;
 
 jimport('phpexcel.library.PHPExcel');
 
-use Joomla\CMS\Factory;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages;
 
 /**
  * Class generates an XLS file for the schedule where lessons are listed sequentially.
@@ -36,7 +37,7 @@ class ScheduleSequence
 
 		$spreadSheet = new \PHPExcel();
 
-		$userName    = Factory::getUser()->name;
+		$userName    = Helpers\Users::getUser()->name;
 		$description = $this->getDescription();
 		$spreadSheet->getProperties()->setCreator("THM Organizer")
 			->setLastModifiedBy($userName)
@@ -88,13 +89,13 @@ class ScheduleSequence
 	{
 		$this->spreadSheet->setActiveSheetIndex(0);
 
-		$date = Dates::formatDate($date);
+		$date = Helpers\Dates::formatDate($date);
 		$this->spreadSheet->getActiveSheet()->setCellValue("A$row", $date);
 
-		$startTime = Dates::formatTime($lessonInstance['startTime']);
+		$startTime = Helpers\Dates::formatTime($lessonInstance['startTime']);
 		$this->spreadSheet->getActiveSheet()->setCellValue("B$row", $startTime);
 
-		$endTime = Dates::formatTime($lessonInstance['endTime']);
+		$endTime = Helpers\Dates::formatTime($lessonInstance['endTime']);
 		$this->spreadSheet->getActiveSheet()->setCellValue("C$row", $endTime);
 
 		$name = implode(' / ', array_keys($lessonInstance['subjects']));
@@ -191,8 +192,8 @@ class ScheduleSequence
 	private function getDescription()
 	{
 		$lessonDates = array_keys($this->lessons);
-		$startDate   = Dates::formatDate(reset($lessonDates));
-		$endDate     = Dates::formatDate(end($lessonDates));
+		$startDate   = Helpers\Dates::formatDate(reset($lessonDates));
+		$endDate     = Helpers\Dates::formatDate(end($lessonDates));
 
 		return Languages::_('ORGANIZER_SCHEDULE') . " $startDate - $endDate " . $this->parameters['pageTitle'];
 	}

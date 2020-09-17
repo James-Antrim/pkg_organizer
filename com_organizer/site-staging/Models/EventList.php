@@ -361,7 +361,7 @@ class EventList extends FormModel
 
 		if (!empty($this->params['mySchedule']) && (boolean) $this->params['mySchedule'])
 		{
-			$userID      = Factory::getUser()->id;
+			$userID      = Helpers\Users::getID();
 			$personQuery = "";
 			$personID    = Helpers\Persons::getIDByUserID($userID);
 
@@ -376,7 +376,7 @@ class EventList extends FormModel
 				$query->innerJoin('#__organizer_user_lessons AS ul ON ul.lessonID = l.id');
 			}
 
-			$query->where("(ul.userID = {$userID}" . $personQuery . ')');
+			$query->where("(ul.userID = $userID" . $personQuery . ')');
 		}
 	}
 

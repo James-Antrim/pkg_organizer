@@ -30,11 +30,7 @@ class Subjects extends Curricula
 	 */
 	public static function coordinates($subjectID = 0, $personID = 0)
 	{
-		if (!$personID)
-		{
-			$user     = Factory::getUser();
-			$personID = Persons::getIDByUserID($user->id);
-		}
+		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -410,11 +406,7 @@ class Subjects extends Curricula
 	 */
 	public static function teaches($subjectID = 0, $personID = 0)
 	{
-		if (!$personID)
-		{
-			$user     = Factory::getUser();
-			$personID = Persons::getIDByUserID($user->id);
-		}
+		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);

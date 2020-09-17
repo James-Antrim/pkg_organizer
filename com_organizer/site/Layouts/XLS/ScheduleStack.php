@@ -12,7 +12,8 @@ namespace Organizer\Layouts\XLS;
 
 jimport('phpexcel.library.PHPExcel');
 
-use Joomla\CMS\Factory;
+use Organizer\Helpers;
+use Organizer\Helpers\Languages;
 
 /**
  * Class generates an XLS file for the schedule where lessons are listed as aggregates.
@@ -38,7 +39,7 @@ class ScheduleStack
 
 		$spreadSheet = new \PHPExcel();
 
-		$userName    = Factory::getUser()->name;
+		$userName    = Helpers\Users::getUser()->name;
 		$description = $this->getDescription();
 		$spreadSheet->getProperties()->setCreator('THM Organizer')
 			->setLastModifiedBy($userName)
@@ -125,13 +126,13 @@ class ScheduleStack
 	 */
 	private function addEvent($row, $date, $lessonInstance)
 	{
-		$date = Dates::formatDate($date);
+		$date = Helpers\Dates::formatDate($date);
 		$this->spreadSheet->getActiveSheet()->setCellValue("A$row", $date);
 
-		$startTime = Dates::formatTime($lessonInstance['startTime']);
+		$startTime = Helpers\Dates::formatTime($lessonInstance['startTime']);
 		$this->spreadSheet->getActiveSheet()->setCellValue("B$row", $startTime);
 
-		$endTime = Dates::formatTime($lessonInstance['endTime']);
+		$endTime = Helpers\Dates::formatTime($lessonInstance['endTime']);
 		$this->spreadSheet->getActiveSheet()->setCellValue("C$row", $endTime);
 
 		$name = implode(' / ', array_keys($lessonInstance['subjects']));
@@ -197,8 +198,8 @@ class ScheduleStack
 		$this->spreadSheet->setActiveSheetIndex($sheetNumber);
 
 		$rawEndDate = date('Y-m-d', strtotime('+6 day', strtotime($rawStartDate)));
-		$startDate  = Dates::formatDate($rawStartDate);
-		$endDate    = Dates::formatDate($rawEndDate);
+		$startDate  = Helpers\Dates::formatDate($rawStartDate);
+		$endDate    = Helpers\Dates::formatDate($rawEndDate);
 		$dates      = "$startDate - $endDate";
 
 		$this->spreadSheet->getActiveSheet()->setTitle($dates);
@@ -248,8 +249,8 @@ class ScheduleStack
 	private function getDescription()
 	{
 		$lessonDates = array_keys($this->lessons);
-		$startDate   = Dates::formatDate(reset($lessonDates));
-		$endDate     = Dates::formatDate(end($lessonDates));
+		$startDate   = Helpers\Dates::formatDate(reset($lessonDates));
+		$endDate     = Helpers\Dates::formatDate(end($lessonDates));
 
 		return Languages::_('ORGANIZER_SCHEDULE') . " $startDate - $endDate " . $this->parameters['pageTitle'];
 	}

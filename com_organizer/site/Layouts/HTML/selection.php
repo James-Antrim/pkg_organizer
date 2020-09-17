@@ -8,10 +8,8 @@
  * @link        www.thm.de
  */
 
-use Joomla\CMS\Factory;
 use Organizer\Helpers;
 
-$user = Factory::getUser();
 $view = Helpers\Input::getCMD('view');
 require_once 'language_selection.php';
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
