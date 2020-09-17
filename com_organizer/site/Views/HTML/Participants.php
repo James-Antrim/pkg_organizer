@@ -77,22 +77,6 @@ class Participants extends ListView
 	}
 
 	/**
-	 * Method to create a list output
-	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function display($tpl = null)
-	{
-		// Set batch template path
-		$this->batch = ['batch_circular'];
-
-		parent::display($tpl);
-	}
-
-	/**
 	 * Modifies document variables and adds links to external files
 	 *
 	 * @return void

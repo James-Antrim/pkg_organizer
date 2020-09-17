@@ -94,9 +94,11 @@ abstract class ListView extends BaseHTMLView
 	 */
 	public function display($tpl = null)
 	{
+		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 		if (!$this->allowAccess())
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
+			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 403);
 		}
 
 		$this->state         = $this->get('State');
