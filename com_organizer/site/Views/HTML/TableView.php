@@ -50,16 +50,6 @@ abstract class TableView extends BaseHTMLView
 	abstract protected function addToolBar();
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	protected function allowAccess()
-	{
-		return true;
-	}
-
-	/**
 	 * Method to create a list output
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
@@ -69,11 +59,6 @@ abstract class TableView extends BaseHTMLView
 	 */
 	public function display($tpl = null)
 	{
-		if (!$this->allowAccess())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
 		$this->state         = $this->get('State');
 		$this->filterForm    = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
