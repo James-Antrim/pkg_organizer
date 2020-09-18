@@ -28,24 +28,20 @@ class Badge extends BaseView
 	 */
 	public function __construct()
 	{
-		$this->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 		if (!$this->courseID = Helpers\Input::getID())
 		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_400'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($this->referrer, 400);
+			Helpers\OrganizerHelper::error(400);
 		}
 		elseif (!$this->participantID = Helpers\Users::getID())
 		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($this->referrer, 401);
+			Helpers\OrganizerHelper::error(401);
 		}
 
 		$courseParticipant = new Tables\CourseParticipants();
 		$cpKeys            = ['courseID' => $this->courseID, 'participantID' => $this->participantID];
 		if (!$courseParticipant->load($cpKeys))
 		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($this->referrer, 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		parent::__construct(self::LANDSCAPE);

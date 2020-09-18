@@ -36,20 +36,17 @@ class Attendance extends BaseView
 	 */
 	public function __construct()
 	{
-		$this->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 		if (!$this->courseID = Helpers\Input::getID())
 		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_400'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($this->referrer, 400);
+			Helpers\OrganizerHelper::error(400);
 		}
 		elseif (!Helpers\Users::getID())
 		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($this->referrer, 401);
+			Helpers\OrganizerHelper::error(401);
 		}
 		elseif (!Helpers\Can::manage('course', $this->courseID))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		parent::__construct();
