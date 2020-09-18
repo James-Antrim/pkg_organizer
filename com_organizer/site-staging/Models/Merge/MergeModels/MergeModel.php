@@ -12,7 +12,6 @@ namespace Organizer\Models;
 
 use Exception;
 use Organizer\Helpers;
-use Organizer\Tables;
 
 /**
  * Class provides methods for merging resources. Resource specific tasks are implemented in the extending classes.
@@ -37,59 +36,26 @@ abstract class MergeModel extends BaseModel
 	protected $selected = [];
 
 	/**
-	 * Provides resource specific user access checks
-	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
-	 */
-	protected function allowMerge()
-	{
-		return Helpers\Can::administrate();
-	}
-
-	/**
 	 * Attempts to delete resource entries
 	 *
 	 * @return boolean  true on success, otherwise false
-	 * @throws Exception => invalid request or unauthorized access
 	 */
 	public function delete()
 	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-
-		if (empty($this->selected))
+		if (!$this->selected = Helpers\Input::getSelectedIDs())
 		{
 			return false;
 		}
 
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
-
-		$table = $this->getTable();
+		$this->allow();
 
 		foreach ($this->selected as $resourceID)
 		{
-			try
-			{
-				$table->load($resourceID);
-			}
-			catch (Exception $exc)
-			{
-				Helpers\OrganizerHelper::message($exc->getMessage(), 'error');
+			$table = $this->getTable();
 
-				return false;
-			}
-
-			try
+			if ($table->load($resourceID))
 			{
 				$table->delete($resourceID);
-			}
-			catch (Exception $exc)
-			{
-				Helpers\OrganizerHelper::message($exc->getMessage(), 'error');
-
-				return false;
 			}
 		}
 
@@ -135,16 +101,15 @@ abstract class MergeModel extends BaseModel
 	 * Merges resource entries and cleans association tables.
 	 *
 	 * @return boolean  true on success, otherwise false
-	 * @throws Exception => unauthorized access
 	 */
 	public function merge()
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		sort($this->selected);
 
-		if (!$this->allowMerge())
+		if (!Helpers\Can::administrate())
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		// Associations have to be updated before entity references are deleted by foreign keys
@@ -190,15 +155,12 @@ abstract class MergeModel extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception => unauthorized access
+	 * @throws Exception table name not resolved
+	 * @todo overwrite the base get table function to be exception free
 	 */
 	public function save($data = [])
 	{
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
-
+		$this->allow();
 
 		$this->data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		$table      = $this->getTable();

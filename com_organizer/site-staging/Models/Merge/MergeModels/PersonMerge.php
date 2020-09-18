@@ -65,13 +65,21 @@ class PersonMerge extends MergeModel implements ScheduleResource
 	}
 
 	/**
-	 * Provides user access checks to persons
+	 * Authorizes the user.
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return void
 	 */
 	protected function allow()
 	{
-		return Helpers\Can::edit('persons', $this->selected);
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::edit('persons', $this->selected))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
