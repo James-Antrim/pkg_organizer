@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -22,13 +21,21 @@ class PersonEdit extends EditModel
 	protected $association = 'person';
 
 	/**
-	 * Checks for user authorization to access the view.
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the view, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::edit('person', $this->item->id);
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::manage('persons'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -37,7 +44,6 @@ class PersonEdit extends EditModel
 	 * @param   integer  $pk  The id of the primary key.
 	 *
 	 * @return mixed    Object on success, false on failure.
-	 * @throws Exception => unauthorized access
 	 */
 	public function getItem($pk = null)
 	{

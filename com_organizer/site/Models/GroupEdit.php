@@ -19,13 +19,21 @@ use Organizer\Tables;
 class GroupEdit extends EditModel
 {
 	/**
-	 * Checks for user authorization to access the view.
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the edit view, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	public function authorize()
 	{
-		return Helpers\Can::edit('group', $this->item->id);
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::edit('group', (int) $this->item->id))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

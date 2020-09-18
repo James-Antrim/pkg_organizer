@@ -21,15 +21,21 @@ class ProgramEdit extends EditModel
 	public $children = null;
 
 	/**
-	 * Checks for user authorization to access the view.
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the edit view, otherwise false
+	 * @return void
 	 */
-	public function allow()
+	public function authorize()
 	{
-		$programID = empty($this->item->id) ? 0 : $this->item->id;
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
 
-		return Helpers\Can::document('program', $programID);
+		if (!Helpers\Can::document('program', (int) $this->item->id))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

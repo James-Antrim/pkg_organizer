@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -22,13 +21,21 @@ class CategoryEdit extends EditModel
 	protected $association = 'program';
 
 	/**
-	 * Checks for user authorization to access the view.
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the edit view, otherwise false
+	 * @return void
 	 */
-	public function allow()
+	public function authorize()
 	{
-		return Helpers\Can::edit('category', $this->item->id);
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::edit('category', (int) $this->item->id))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -37,7 +44,6 @@ class CategoryEdit extends EditModel
 	 * @param   integer  $pk  The id of the primary key.
 	 *
 	 * @return mixed    Object on success, false on failure.
-	 * @throws Exception => unauthorized access
 	 */
 	public function getItem($pk = null)
 	{

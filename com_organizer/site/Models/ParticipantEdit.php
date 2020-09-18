@@ -10,8 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
-use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Organizer\Helpers;
 use Organizer\Tables;
@@ -21,14 +19,24 @@ use Organizer\Tables;
  */
 class ParticipantEdit extends EditModel
 {
+	private $participantID;
+
 	/**
-	 * Checks for user authorization to access the view
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the view, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::edit('participant', $this->item->id);
+		if (!Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::edit('participant', (int) $this->participantID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -37,16 +45,12 @@ class ParticipantEdit extends EditModel
 	 * @param   integer  $participantID  The id of the primary key.
 	 *
 	 * @return mixed    Object on success, false on failure.
-	 * @throws Exception => unauthorized access
 	 */
 	public function getItem($participantID = null)
 	{
-		if (!$userID = Helpers\Users::getID())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
+		$this->participantID = $participantID ? $participantID : Helpers\Input::getSelectedID(Helpers\Users::getID());
 
-		$participantID = empty($participantID) ? Helpers\Input::getSelectedID($userID) : $participantID;
+		$this->authorize();
 
 		// Prevents duplicate execution from getForm and getItem
 		if (isset($this->item->id) and ($this->item->id === $participantID))
@@ -54,14 +58,12 @@ class ParticipantEdit extends EditModel
 			return $this->item;
 		}
 
-		$this->item           = AdminModel::getItem($participantID);
+		// I assume I skipped parent because of performed access checks.
+		$this->item           = AdminModel::getItem($this->participantID);
 		$this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-		$this->item->id       = $this->item->id ? $this->item->id : $participantID;
 
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 401);
-		}
+		// New participants need the user id as the participant id
+		$this->item->id = $this->item->id ? $this->item->id : $this->participantID;
 
 		return $this->item;
 	}

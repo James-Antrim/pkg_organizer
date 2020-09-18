@@ -19,13 +19,21 @@ use Organizer\Tables;
 class EventEdit extends EditModel
 {
 	/**
-	 * Provides resource specific user access checks
+	 * Checks access to edit the resource.
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	public function authorize()
 	{
-		return Helpers\Can::edit('events', Helpers\Input::getID());
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::edit('events', (int) $this->item->id))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

@@ -21,18 +21,21 @@ class SubjectEdit extends EditModel
 	protected $association;
 
 	/**
-	 * Checks for user authorization to access the view
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the view, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	public function authorize()
 	{
-		if ($subjectID = $this->item->id)
+		if (!Helpers\Users::getUser())
 		{
-			return Helpers\Can::document('subject', $subjectID);
+			Helpers\OrganizerHelper::error(401);
 		}
 
-		return (bool) Helpers\Can::documentTheseOrganizations();
+		if (!Helpers\Can::document('subject', (int) $this->item->id))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

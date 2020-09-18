@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -20,16 +19,24 @@ use Organizer\Tables;
 class FieldColorEdit extends EditModel
 {
 	/**
-	 * Authenticates the user
+	 * Checks access to edit the resource.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	public function authorize()
 	{
-		if (!$fcID = Helpers\Input::getID())
+		if (!Helpers\Users::getUser())
 		{
-			return (bool) Helpers\Can::documentTheseOrganizations();
+			Helpers\OrganizerHelper::error(401);
 		}
 
-		return Helpers\Can::document('fieldcolor', $fcID);
+		if ($fcID = Helpers\Input::getID() and Helpers\Can::document('fieldcolor', $fcID)
+			or Helpers\Can::documentTheseOrganizations())
+		{
+			return;
+		}
+
+		Helpers\OrganizerHelper::error(403);
 	}
 
 
@@ -40,9 +47,6 @@ class FieldColorEdit extends EditModel
 	 * @param   bool   $loadData  Load data  (default: true)
 	 *
 	 * @return mixed Form object on success, False on error.
-	 * @throws Exception => unauthorized access
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getForm($data = [], $loadData = true)
 	{

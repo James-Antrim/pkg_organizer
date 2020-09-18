@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -20,15 +19,21 @@ use Organizer\Tables;
 class CourseEdit extends EditModel
 {
 	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the view, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		$courseID = Helpers\Input::getSelectedID();
+		if (!Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
 
-		return Helpers\Can::manage('course', $courseID);
+		if (!Helpers\Can::manage('course', (int) $this->item->id))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -38,9 +43,6 @@ class CourseEdit extends EditModel
 	 * @param   bool   $loadData  Load data  (default: true)
 	 *
 	 * @return mixed Form object on success, False on error.
-	 * @throws Exception => unauthorized access
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getForm($data = [], $loadData = true)
 	{
@@ -60,7 +62,6 @@ class CourseEdit extends EditModel
 	 * @param   integer  $pk  The id of the primary key.
 	 *
 	 * @return mixed    Object on success, false on failure.
-	 * @throws Exception => unauthorized access
 	 */
 	public function getItem($pk = null)
 	{

@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Organizer\Helpers;
@@ -39,13 +38,21 @@ abstract class EditModel extends AdminModel
 	}
 
 	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the view, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::administrate();
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::administrate())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -55,9 +62,6 @@ abstract class EditModel extends AdminModel
 	 * @param   bool   $loadData  Load data  (default: true)
 	 *
 	 * @return mixed Form object on success, False on error.
-	 * @throws Exception => unauthorized access
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getForm($data = [], $loadData = true)
 	{
@@ -76,13 +80,6 @@ abstract class EditModel extends AdminModel
 	 */
 	public function getItem($pk = null)
 	{
-		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-		if (!Helpers\Users::getID())
-		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 401);
-		}
-
 		$pk = empty($pk) ? Helpers\Input::getSelectedID() : $pk;
 
 		// Prevents duplicate execution from getForm and getItem
@@ -93,11 +90,7 @@ abstract class EditModel extends AdminModel
 
 		$this->item = parent::getItem($pk);
 
-		if (!$this->allow())
-		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 403);
-		}
+		$this->authorize();
 
 		return $this->item;
 	}
@@ -125,7 +118,6 @@ abstract class EditModel extends AdminModel
 	 * Method to load the form data.
 	 *
 	 * @return object
-	 * @throws Exception => unauthorized access
 	 */
 	protected function loadFormData()
 	{

@@ -18,12 +18,21 @@ use Organizer\Helpers;
 class ScheduleEdit extends EditModel
 {
 	/**
-	 * Checks for user authorization to access the view.
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the edit view, otherwise false
+	 * @return void
 	 */
-	public function allow()
+	public function authorize()
 	{
-		return (bool) Helpers\Can::scheduleTheseOrganizations();
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		// This isn't specific because it is only a pseudo-edit view (upload)
+		if (!Helpers\Can::scheduleTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 }

@@ -19,16 +19,21 @@ use Organizer\Tables;
 class ColorEdit extends EditModel
 {
 	/**
-	 * Authenticates the user
+	 * Checks access to edit the resource.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	public function authorize()
 	{
-		if (!Helpers\Input::getID())
+		if (!Helpers\Users::getUser())
 		{
-			return (bool) Helpers\Can::documentTheseOrganizations();
+			Helpers\OrganizerHelper::error(401);
 		}
 
-		return Helpers\Can::administrate();
+		if (!Helpers\Can::documentTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
