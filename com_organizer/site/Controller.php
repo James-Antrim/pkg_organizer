@@ -121,7 +121,7 @@ class Controller extends BaseController
 	{
 		$document = Factory::getDocument();
 		$format   = $this->input->get('format', $document->getType());
-		$name     = $this->input->get('view', $this->default_view);
+		$name     = $this->input->get('view', 'Organizer');
 		$template = $this->input->get('layout', 'default', 'string');
 
 		$view = $this->getView(
