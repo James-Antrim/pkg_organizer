@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -41,14 +40,10 @@ class Grid extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
 	 */
 	public function save($data = [])
 	{
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
+		$this->authorize();
 
 		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
@@ -81,15 +76,10 @@ class Grid extends BaseModel
 	 * Toggles the default grid.
 	 *
 	 * @return bool true if the default grid was changed successfully, otherwise false
-	 *
-	 * @throws Exception
 	 */
 	public function toggle()
 	{
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
+		$this->authorize();
 
 		$selected = Helpers\Input::getID();
 		$table    = new Tables\Grids;

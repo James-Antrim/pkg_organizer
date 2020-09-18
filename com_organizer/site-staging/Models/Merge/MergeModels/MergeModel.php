@@ -47,7 +47,7 @@ abstract class MergeModel extends BaseModel
 			return false;
 		}
 
-		$this->allow();
+		$this->authorize();
 
 		foreach ($this->selected as $resourceID)
 		{
@@ -156,11 +156,11 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 * @throws Exception table name not resolved
-	 * @todo overwrite the base get table function to be exception free
+	 * @todo override parent gettable
 	 */
 	public function save($data = [])
 	{
-		$this->allow();
+		$this->authorize();
 
 		$this->data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		$table      = $this->getTable();

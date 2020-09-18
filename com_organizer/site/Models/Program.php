@@ -10,8 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
-use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -30,7 +28,6 @@ class Program extends CurriculumResource
 	 * Activates programs by id.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function activate()
 	{
@@ -39,14 +36,12 @@ class Program extends CurriculumResource
 			return false;
 		}
 
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
+		$this->authorize();
 
-		$program = new Tables\Programs();
 		foreach ($selected as $selectedID)
 		{
+			$program = new Tables\Programs();
+
 			if ($program->load($selectedID))
 			{
 				$program->active = 1;
@@ -58,14 +53,12 @@ class Program extends CurriculumResource
 		}
 
 		return true;
-
 	}
 
 	/**
 	 * Deactivates programs by id.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function deactivate()
 	{
@@ -74,14 +67,12 @@ class Program extends CurriculumResource
 			return false;
 		}
 
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
+		$this->authorize();
 
-		$program = new Tables\Programs();
 		foreach ($selected as $selectedID)
 		{
+			$program = new Tables\Programs();
+
 			if ($program->load($selectedID))
 			{
 				$program->active = 0;
@@ -185,7 +176,6 @@ class Program extends CurriculumResource
 	 * @param   array  $data  form data
 	 *
 	 * @return int|bool the id of the resource on success, otherwise boolean false
-	 * @throws Exception => invalid request, unauthorized access
 	 */
 	public function save($data = [])
 	{
@@ -199,22 +189,22 @@ class Program extends CurriculumResource
 
 			if (!($documentationAccess or $schedulingAccess))
 			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+				Helpers\OrganizerHelper::error(403);
 			}
 		}
 		elseif (is_numeric($data['id']))
 		{
 			if (!Helpers\Can::document('program', (int) $data['id']))
 			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+				Helpers\OrganizerHelper::error(403);
 			}
 		}
 		else
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
+			Helpers\OrganizerHelper::error(400);
 		}
 
-		$table = new Tables\Programs;
+		$table = new Tables\Programs();
 
 		if (!$table->save($data))
 		{
@@ -244,7 +234,6 @@ class Program extends CurriculumResource
 	 * @param   array  $data  the data to be used to create the program when called from the program helper
 	 *
 	 * @return int|bool the id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
 	 */
 	public function save2copy($data = [])
 	{
@@ -258,7 +247,6 @@ class Program extends CurriculumResource
 	 * Method to update subject data associated with degree programs from LSF
 	 *
 	 * @return bool  true on success, otherwise false
-	 * @throws Exception => unauthorized access
 	 */
 	public function update()
 	{
@@ -275,7 +263,7 @@ class Program extends CurriculumResource
 		{
 			if (!Helpers\Can::document('program', $programID))
 			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+				Helpers\OrganizerHelper::error(403);
 			}
 
 			if (!$subjectIDs = Helpers\Programs::getSubjectIDs($programID))

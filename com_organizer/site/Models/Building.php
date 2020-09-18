@@ -19,11 +19,21 @@ use Organizer\Tables;
 class Building extends BaseModel
 {
 	/**
-	 * Authenticates the user
+	 * Authorizes the user.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::manage('facilities');
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::manage('facilities'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

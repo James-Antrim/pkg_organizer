@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
@@ -28,17 +27,15 @@ class Group extends BaseModel
 	 * Activates groups by id if a selection was made, otherwise by use in the instance_groups table.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function activate()
 	{
-		if ($this->selected = Helpers\Input::getSelectedIDs())
-		{
-			if (!$this->allow())
-			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-			}
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
 
+		// Explicitly selected resources
+		if ($this->selected)
+		{
 			$group = new Tables\Groups();
 			foreach ($this->selected as $selectedID)
 			{
@@ -55,12 +52,9 @@ class Group extends BaseModel
 			return true;
 		}
 
-		if (!$allowed = Helpers\Can::scheduleTheseOrganizations())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
-		$dbo = Factory::getDbo();
+		// Implicitly used resources
+		$allowed = Helpers\Can::scheduleTheseOrganizations();
+		$dbo     = Factory::getDbo();
 
 		$subQuery = $dbo->getQuery(true);
 		$subQuery->select('DISTINCT groupID')->from('#__organizer_instance_groups');
@@ -77,34 +71,36 @@ class Group extends BaseModel
 	}
 
 	/**
-	 * Provides resource specific user access checks
+	 * Authorizes the user.
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::edit('groups', $this->selected);
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::edit('groups', $this->selected))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
 	 * Performs batch processing of groups, specifically their publication per period and their associated grids.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception => unauthorized access
 	 */
 	public function batch()
 	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-
-		if (empty($this->selected))
+		if (!$this->selected = Helpers\Input::getSelectedIDs())
 		{
 			return false;
 		}
 
-		if (!Helpers\Can::edit('groups', $this->selected))
-		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
+		$this->authorize();
 
 		if (!$this->savePublishing())
 		{
@@ -138,17 +134,15 @@ class Group extends BaseModel
 	 * Deactivates groups by id if a selection was made, otherwise by lack of use in the instance_groups table.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function deactivate()
 	{
-		if ($this->selected = Helpers\Input::getSelectedIDs())
-		{
-			if (!$this->allow())
-			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-			}
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
 
+		// Explicitly selected resources
+		if ($this->selected)
+		{
 			$group = new Tables\Groups();
 			foreach ($this->selected as $selectedID)
 			{
@@ -165,12 +159,9 @@ class Group extends BaseModel
 			return true;
 		}
 
-		if (!$allowed = Helpers\Can::scheduleTheseOrganizations())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
-		$dbo = Factory::getDbo();
+		// Implicitly unused resources
+		$allowed = Helpers\Can::scheduleTheseOrganizations();
+		$dbo     = Factory::getDbo();
 
 		$subQuery = $dbo->getQuery(true);
 		$subQuery->select('DISTINCT groupID')->from('#__organizer_instance_groups');
@@ -240,17 +231,13 @@ class Group extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception => unauthorized access
 	 */
 	public function save($data = [])
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
-		$data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$this->authorize();
 
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		$table = new Tables\Groups();
 
@@ -321,17 +308,16 @@ class Group extends BaseModel
 	 * Alters the state of a binary property.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function toggle()
 	{
-		$groupID        = Helpers\Input::getID();
-		$this->selected = [$groupID];
-
-		if (!$this->allow())
+		if (!$groupID = Helpers\Input::getID())
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			return false;
 		}
+
+		$this->selected = [$groupID];
+		$this->authorize();
 
 		$attribute = Helpers\Input::getCMD('attribute');
 

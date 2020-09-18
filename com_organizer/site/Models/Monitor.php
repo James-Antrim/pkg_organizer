@@ -20,11 +20,21 @@ use Organizer\Tables;
 class Monitor extends BaseModel
 {
 	/**
-	 * Authenticates the user
+	 * Authorizes the user.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::manage('facilities');
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::manage('facilities'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -50,9 +60,12 @@ class Monitor extends BaseModel
 	 *
 	 * @return mixed int id of the resource on success, otherwise boolean false
 	 * @throws Exception => unauthorized access
+	 * @todo override parent gettable
 	 */
 	public function save($data = [])
 	{
+		$this->authorize();
+
 		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		if (empty($data['roomID']))
@@ -69,14 +82,10 @@ class Monitor extends BaseModel
 	 * Saves the default behaviour as chosen in the monitor manager
 	 *
 	 * @return boolean  true on success, otherwise false
-	 * @throws Exception => unauthorized access
 	 */
 	public function saveDefaultBehaviour()
 	{
-		if (!Helpers\Can::administrate())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
+		$this->authorize();
 
 		$monitorID   = Helpers\Input::getID();
 		$plausibleID = ($monitorID > 0);
@@ -97,14 +106,10 @@ class Monitor extends BaseModel
 	 * Toggles the monitor's use of default settings
 	 *
 	 * @return boolean  true on success, otherwise false
-	 * @throws Exception => unauthorized access
 	 */
 	public function toggle()
 	{
-		if (!Helpers\Can::manage('facilities'))
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
+		$this->authorize();
 
 		$monitorID = Helpers\Input::getID();
 		$table     = new Tables\Monitors;

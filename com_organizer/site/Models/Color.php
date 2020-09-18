@@ -19,16 +19,21 @@ use Organizer\Tables;
 class Color extends BaseModel
 {
 	/**
-	 * Authenticates the user
+	 * Authorizes the user.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		if (!Helpers\Input::getID())
+		if (!Helpers\Users::getUser())
 		{
-			return (bool) Helpers\Can::documentTheseOrganizations();
+			Helpers\OrganizerHelper::error(401);
 		}
 
-		return Helpers\Can::administrate();
+		if (!Helpers\Can::documentTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

@@ -20,11 +20,21 @@ use Organizer\Tables;
 class Campus extends BaseModel
 {
 	/**
-	 * Authenticates the user
+	 * Authorizes the user.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::manage('facilities');
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::manage('facilities'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -49,7 +59,8 @@ class Campus extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
+	 * @throws Exception table name not resolved
+	 * @todo override parent gettable
 	 */
 	public function save($data = [])
 	{

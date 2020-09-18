@@ -45,29 +45,41 @@ abstract class BaseModel extends BaseDatabaseModel
 	}
 
 	/**
-	 * Authorizes the user
+	 * Authorizes the user.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::administrate();
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::administrate())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
 	 * Removes entries from the database.
 	 *
 	 * @return boolean true on success, otherwise false
-	 * @throws Exception => unauthorized access
+	 * @throws Exception table name not resolved
+	 * @todo override parent gettable
 	 */
 	public function delete()
 	{
-		if (!$this->allow())
+		if (!$this->selected = Helpers\Input::getSelectedIDs())
 		{
-			throw new Exception(Helpers\Languages::_('COM_ORGANIZER_403'), 403);
+			return false;
 		}
 
-		$selectedIDs = Helpers\Input::getSelectedIDs();
-		$success     = true;
-		foreach ($selectedIDs as $selectedID)
+		$this->authorize();
+
+		$success = true;
+		foreach ($this->selected as $selectedID)
 		{
 			$table   = $this->getTable();
 			$success = ($success and $table->delete($selectedID));
@@ -84,14 +96,12 @@ abstract class BaseModel extends BaseDatabaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return int|bool int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
+	 * @throws Exception table name not resolved
+	 * @todo override parent gettable
 	 */
 	public function save($data = [])
 	{
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('COM_ORGANIZER_403'), 403);
-		}
+		$this->authorize();
 
 		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		$table = $this->getTable();
@@ -103,19 +113,17 @@ abstract class BaseModel extends BaseDatabaseModel
 	 * Alters the state of a binary property.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function toggle()
 	{
-		$resourceID = Helpers\Input::getID();
+		if (!$resourceID = Helpers\Input::getID())
+		{
+			return false;
+		}
 
 		// Necessary for access checks in mergeable resources.
 		$this->selected = [$resourceID];
-
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
+		$this->authorize();
 
 		$attribute = Helpers\Input::getCMD('attribute');
 		$table     = $this->getTable();

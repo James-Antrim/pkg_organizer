@@ -22,31 +22,34 @@ class Group extends MergeModel implements ScheduleResource
 	/**
 	 * Provides resource specific user access checks
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return void
 	 */
 	protected function allow()
 	{
-		return Helpers\Can::edit('groups', $this->selected);
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if ($this->selected and !Helpers\Can::edit('groups', $this->selected))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
 	 * Performs batch processing of groups, specifically their publication per period and their associated grids.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception => unauthorized access
 	 */
 	public function batch()
 	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		if (empty($this->selected))
+		if (!$this->selected = Helpers\Input::getSelectedIDs())
 		{
 			return false;
 		}
 
-		if (!Helpers\Can::edit('groups', $this->selected))
-		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
+		$this->allow();
 
 		return $this->savePublishing();
 	}
@@ -71,7 +74,6 @@ class Group extends MergeModel implements ScheduleResource
 	 * Merges group entries and cleans association tables.
 	 *
 	 * @return boolean  true on success, otherwise false
-	 * @throws Exception => unauthorized access
 	 */
 	public function merge()
 	{
@@ -123,7 +125,8 @@ class Group extends MergeModel implements ScheduleResource
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception => unauthorized access
+	 * @throws Exception table name not resolved
+	 * @todo override parent gettable
 	 */
 	public function save($data = [])
 	{

@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
@@ -28,20 +27,19 @@ class Person extends BaseModel
 	 * Activates persons by id if a selection was made, otherwise by use in the instance_persons table.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function activate()
 	{
-		if ($this->selected = Helpers\Input::getSelectedIDs())
-		{
-			if (!$this->allow())
-			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-			}
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
 
-			$person = new Tables\Persons();
+		// Explicitly selected resources
+		if ($this->selected)
+		{
 			foreach ($this->selected as $selectedID)
 			{
+				$person = new Tables\Persons();
+
 				if ($person->load($selectedID))
 				{
 					$person->active = 1;
@@ -55,11 +53,7 @@ class Person extends BaseModel
 			return true;
 		}
 
-		if (!$allowed = Helpers\Can::edit('persons'))
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
+		// Implicitly used resources
 		$dbo = Factory::getDbo();
 
 		$subQuery = $dbo->getQuery(true);
@@ -73,33 +67,40 @@ class Person extends BaseModel
 	}
 
 	/**
-	 * Provides user access checks to persons
+	 * Authorizes the user.
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::edit('persons');
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::edit('persons', $this->selected))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
 	 * Deactivates persons by id if a selection was made, otherwise by lack of use in the instance_persons table.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function deactivate()
 	{
-		if ($this->selected = Helpers\Input::getSelectedIDs())
-		{
-			if (!$this->allow())
-			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-			}
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
 
-			$person = new Tables\Persons();
+		// Explicitly selected resources
+		if ($this->selected)
+		{
 			foreach ($this->selected as $selectedID)
 			{
+				$person = new Tables\Persons();
+
 				if ($person->load($selectedID))
 				{
 					$person->active = 0;
@@ -113,11 +114,7 @@ class Person extends BaseModel
 			return true;
 		}
 
-		if (!$allowed = Helpers\Can::edit('persons'))
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
+		// Implicitly unused resources
 		$dbo = Factory::getDbo();
 
 		$subQuery = $dbo->getQuery(true);
@@ -152,18 +149,13 @@ class Person extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
 	 */
 	public function save($data = [])
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
-		$data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$this->authorize();
 
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
+		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		$table = new Tables\Persons;
 
 		if (!$table->save($data))

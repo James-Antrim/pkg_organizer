@@ -21,11 +21,21 @@ class Course extends BaseModel
 	const UNREGISTERED = null, WAITLIST = 0, REGISTERED = 1;
 
 	/**
-	 * Authorizes the user
+	 * Authorizes the user.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::manage('course', Helpers\Input::getID());
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::manage('course', Helpers\Input::getID()))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -157,12 +167,7 @@ class Course extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		if (!$this->allow())
-		{
-			$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 403);
-		}
+		$this->authorize();
 
 		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		$table = $this->getTable();

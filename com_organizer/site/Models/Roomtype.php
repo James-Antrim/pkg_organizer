@@ -19,13 +19,21 @@ use Organizer\Tables;
 class Roomtype extends BaseModel
 {
 	/**
-	 * Provides room type specific user access checks
+	 * Authorizes the user.
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::manage('facilities');
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::manage('facilities'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

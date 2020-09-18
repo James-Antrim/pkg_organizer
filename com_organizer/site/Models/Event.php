@@ -20,13 +20,21 @@ use Organizer\Tables;
 class Event extends BaseModel
 {
 	/**
-	 * Provides resource specific user access checks
+	 * Authorizes the user.
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::edit('events', $this->selected);
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::edit('events', $this->selected))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -51,7 +59,8 @@ class Event extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return int|bool int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
+	 * @throws Exception table name not resolved
+	 * @todo override parent gettable
 	 */
 	public function save($data = [])
 	{

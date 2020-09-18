@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
@@ -28,20 +27,19 @@ class Category extends BaseModel
 	 * Activates categories by id if a selection was made, otherwise by use in the instance_groups/groups tables.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function activate()
 	{
-		if ($this->selected = Helpers\Input::getSelectedIDs())
-		{
-			if (!$this->allow())
-			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-			}
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
 
-			$category = new Tables\Categories();
+		// Explicitly selected resources
+		if ($this->selected)
+		{
 			foreach ($this->selected as $selectedID)
 			{
+				$category = new Tables\Categories();
+
 				if ($category->load($selectedID))
 				{
 					$category->active = 1;
@@ -55,12 +53,9 @@ class Category extends BaseModel
 			return true;
 		}
 
-		if (!$allowed = Helpers\Can::scheduleTheseOrganizations())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
-		$dbo = Factory::getDbo();
+		// Implicitly used resources
+		$allowed = Helpers\Can::scheduleTheseOrganizations();
+		$dbo     = Factory::getDbo();
 
 		$subQuery = $dbo->getQuery(true);
 		$subQuery->select('DISTINCT categoryID')
@@ -79,13 +74,21 @@ class Category extends BaseModel
 	}
 
 	/**
-	 * Provides resource specific user access checks
+	 * Authorizes the user.
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::edit('categories', $this->selected);
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::edit('categories', $this->selected))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -93,20 +96,19 @@ class Category extends BaseModel
 	 * tables.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function deactivate()
 	{
-		if ($this->selected = Helpers\Input::getSelectedIDs())
-		{
-			if (!$this->allow())
-			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-			}
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
 
-			$category = new Tables\Categories();
+		// Explicitly selected resources
+		if ($this->selected)
+		{
 			foreach ($this->selected as $selectedID)
 			{
+				$category = new Tables\Categories();
+
 				if ($category->load($selectedID))
 				{
 					$category->active = 0;
@@ -120,12 +122,9 @@ class Category extends BaseModel
 			return true;
 		}
 
-		if (!$allowed = Helpers\Can::scheduleTheseOrganizations())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
-		$dbo = Factory::getDbo();
+		// Implicitly unused resources
+		$allowed = Helpers\Can::scheduleTheseOrganizations();
+		$dbo     = Factory::getDbo();
 
 		$subQuery = $dbo->getQuery(true);
 		$subQuery->select('DISTINCT categoryID')
@@ -165,18 +164,13 @@ class Category extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
 	 */
 	public function save($data = [])
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
-		$data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$this->authorize();
 
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
+		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		$table = new Tables\Categories();
 
 		if (!$table->save($data))

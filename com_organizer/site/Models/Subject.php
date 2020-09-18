@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
@@ -651,16 +650,12 @@ class Subject extends CurriculumResource
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
 	 */
 	public function save($data = [])
 	{
 		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
+		$this->authorize();
 
 		$data['creditpoints'] = (float) $data['creditpoints'];
 

@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
@@ -24,20 +23,19 @@ class Room extends BaseModel
 	 * Activates rooms by id if a selection was made, otherwise by use in the instance_rooms table.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function activate()
 	{
-		if ($this->selected = Helpers\Input::getSelectedIDs())
-		{
-			if (!$this->allow())
-			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-			}
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
 
-			$room = new Tables\Rooms();
+		// Explicitly selected resources
+		if ($this->selected)
+		{
 			foreach ($this->selected as $selectedID)
 			{
+				$room = new Tables\Rooms();
+
 				if ($room->load($selectedID))
 				{
 					$room->active = 1;
@@ -51,11 +49,7 @@ class Room extends BaseModel
 			return true;
 		}
 
-		if (!$allowed = Helpers\Can::manage('facilities'))
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
+		// Implicitly used resources
 		$dbo = Factory::getDbo();
 
 		$subQuery = $dbo->getQuery(true);
@@ -69,33 +63,40 @@ class Room extends BaseModel
 	}
 
 	/**
-	 * Provides user access checks to rooms
+	 * Authorizes the user.
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::manage('facilities');
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::manage('facilities'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
 	 * Deactivates rooms by id if a selection was made, otherwise by lack of use in the instance_rooms table.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception unauthorized access
 	 */
 	public function deactivate()
 	{
-		if ($this->selected = Helpers\Input::getSelectedIDs())
-		{
-			if (!$this->allow())
-			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-			}
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
 
-			$room = new Tables\Rooms();
+		// Explicitly selected resources
+		if ($this->selected)
+		{
 			foreach ($this->selected as $selectedID)
 			{
+				$room = new Tables\Rooms();
+
 				if ($room->load($selectedID))
 				{
 					$room->active = 0;
@@ -109,11 +110,7 @@ class Room extends BaseModel
 			return true;
 		}
 
-		if (!$allowed = Helpers\Can::manage('facilities'))
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
+		// Implicitly unused resources
 		$dbo = Factory::getDbo();
 
 		$subQuery = $dbo->getQuery(true);

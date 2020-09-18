@@ -9,7 +9,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
@@ -113,33 +112,32 @@ abstract class CurriculumResource extends BaseModel
 	}
 
 	/**
-	 * Authorizes the user
+	 * Authorizes the user.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		if (!$id = Helpers\Input::getID())
+		if (!Helpers\Users::getUser())
 		{
-			if (Helpers\Can::documentTheseOrganizations())
-			{
-				return true;
-			}
+			Helpers\OrganizerHelper::error(401);
 		}
 
-		return Helpers\Can::document($this->resource, $id);
+		if (($id = Helpers\Input::getID() and !Helpers\Can::document($this->resource, $id))
+			or !Helpers\Can::documentTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
 	 * Attempts to delete the selected resources and their associations
 	 *
 	 * @return boolean  True if successful, false if an error occurs.
-	 * @throws Exception => unauthorized access
 	 */
 	public function delete()
 	{
-		if (!Helpers\Can::documentTheseOrganizations())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
-		}
+		$this->authorize();
 
 		if ($resourceIDs = Helpers\Input::getSelectedIDs())
 		{
@@ -147,7 +145,7 @@ abstract class CurriculumResource extends BaseModel
 			{
 				if (!Helpers\Can::document($this->resource, $resourceID))
 				{
-					throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+					OrganizerHelper::error(403);
 				}
 
 				if (!$this->deleteSingle($resourceID))

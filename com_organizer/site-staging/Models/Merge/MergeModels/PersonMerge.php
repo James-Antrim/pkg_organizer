@@ -69,7 +69,7 @@ class PersonMerge extends MergeModel implements ScheduleResource
 	 *
 	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
 		if (!Helpers\Users::getUser())
 		{
