@@ -63,8 +63,6 @@ abstract class BaseView extends HtmlView
 	 * @param   string  $layout  The layout name or a string in format <template>:<layout file>
 	 *
 	 * @return  string  Previous value.
-	 *
-	 * @throws Exception
 	 */
 	public function setLayout($layout)
 	{
@@ -95,10 +93,7 @@ abstract class BaseView extends HtmlView
 				}
 				if (!$exists)
 				{
-					throw new Exception(
-						sprintf(Helpers\Languages::_('ORGANIZER_LAYOUT_NOT_FOUND'), $layoutName),
-						500
-					);
+					Helpers\OrganizerHelper::error(501);
 				}
 				$this->_layout = strtolower($this->getName());
 			}
