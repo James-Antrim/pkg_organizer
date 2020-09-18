@@ -41,9 +41,17 @@ class FormModel extends ParentModel
 	 *
 	 * @return bool  true if the user can access the view, otherwise false
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Helpers\Can::administrate();
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::administrate())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -59,10 +67,7 @@ class FormModel extends ParentModel
 	 */
 	public function getForm($data = [], $loadData = false)
 	{
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
+		$this->authorize();
 
 		$name = $this->get('name');
 		$form = $this->loadForm($this->context, $name, ['control' => 'jform', 'load_data' => $loadData]);
