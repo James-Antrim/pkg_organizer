@@ -69,6 +69,20 @@ class OrganizerHelper
 	}
 
 	/**
+	 * Performs a redirect on error.
+	 *
+	 * @param   int  $code  the error code
+	 *
+	 * @return void
+	 */
+	public static function error(int $code)
+	{
+		$referrer = Input::getInput()->server->getString('HTTP_REFERER');
+		self::message(Languages::_("ORGANIZER_$code"), 'error');
+		self::getApplication()->redirect($referrer, $code);
+	}
+
+	/**
 	 * Executes a database query
 	 *
 	 * @param   string  $function  the name of the query function to execute
