@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
@@ -93,11 +92,19 @@ class Groups extends ListView
 	/**
 	 * Function determines whether the user may access the view.
 	 *
-	 * @return bool true if the use may access the view, otherwise false
+	 * @return void
 	 */
-	protected function allowAccess()
+	protected function authorize()
 	{
-		return (bool) Helpers\Can::scheduleTheseOrganizations();
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::scheduleTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -106,7 +113,6 @@ class Groups extends ListView
 	 * @param   Object  $tpl  template  (default: null)
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function display($tpl = null)
 	{

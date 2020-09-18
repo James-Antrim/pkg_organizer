@@ -157,16 +157,24 @@ class Courses extends ListView
 	/**
 	 * Function determines whether the user may access the view.
 	 *
-	 * @return bool true if the user may access the view, otherwise false
+	 * @return void
 	 */
-	protected function allowAccess()
+	protected function authorize()
 	{
-		if ($this->clientContext)
+		if (!$this->clientContext)
 		{
-			return (bool) Helpers\Can::scheduleTheseOrganizations();
+			return;
 		}
 
-		return true;
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::scheduleTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

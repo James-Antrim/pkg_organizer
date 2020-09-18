@@ -51,17 +51,19 @@ class Events extends ListView
 	/**
 	 * Function determines whether the user may access the view.
 	 *
-	 * @return bool true if the use may access the view, otherwise false
+	 * @return void
 	 */
-	protected function allowAccess()
+	protected function authorize()
 	{
-		if ($this->clientContext)
+		if (!Helpers\Users::getUser())
 		{
-			return Helpers\Can::edit('events');
+			Helpers\OrganizerHelper::error(401);
 		}
 
-		// TODO set to true when a concept for frontend viewing is created
-		return false;
+		if (!Helpers\Can::edit('events'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

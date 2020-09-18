@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
@@ -59,21 +58,6 @@ class Participants extends ListView
 				true
 			);*/
 		}
-	}
-
-	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	protected function allowAccess()
-	{
-		if ($courseID = Helpers\Input::getFilterID('course'))
-		{
-			return Helpers\Can::manage('course', $courseID);
-		}
-
-		return Helpers\Can::administrate();
 	}
 
 	/**

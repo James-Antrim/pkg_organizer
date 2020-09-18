@@ -42,16 +42,6 @@ class Organizations extends ListView
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	protected function allowAccess()
-	{
-		return Helpers\Can::administrate();
-	}
-
-	/**
 	 * Function to set the object's headers property
 	 *
 	 * @return void sets the object headers property

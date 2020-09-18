@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
@@ -118,16 +117,24 @@ class CourseParticipants extends Participants
 	/**
 	 * Function determines whether the user may access the view.
 	 *
-	 * @return bool true if the use may access the view, otherwise false
+	 * @return void
 	 */
-	protected function allowAccess()
+	protected function authorize()
 	{
-		if ($courseID = Helpers\Input::getID())
+		if (!Helpers\Users::getUser())
 		{
-			return Helpers\Can::manage('course', $courseID);
+			Helpers\OrganizerHelper::error(401);
 		}
 
-		return Helpers\Can::administrate();
+		if (!$courseID = Helpers\Input::getID())
+		{
+			Helpers\OrganizerHelper::error(400);
+		}
+
+		if (!Helpers\Can::administrate() and !Helpers\Can::manage('course', $courseID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -136,7 +143,6 @@ class CourseParticipants extends Participants
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function display($tpl = null)
 	{

@@ -10,15 +10,12 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use Organizer\Helpers;
 use Organizer\Helpers\HTML;
-
-// Exception for frequency of use
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
@@ -77,11 +74,19 @@ abstract class ListView extends BaseHTMLView
 	/**
 	 * Function determines whether the user may access the view.
 	 *
-	 * @return bool true if the use may access the view, otherwise false
+	 * @return void
 	 */
-	protected function allowAccess()
+	protected function authorize()
 	{
-		return Helpers\Can::administrate();
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::administrate())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -90,16 +95,10 @@ abstract class ListView extends BaseHTMLView
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function display($tpl = null)
 	{
-		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-		if (!$this->allowAccess())
-		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
-			Helpers\OrganizerHelper::getApplication()->redirect($referrer, 403);
-		}
+		$this->authorize();
 
 		$this->state         = $this->get('State');
 		$this->filterForm    = $this->get('FilterForm');

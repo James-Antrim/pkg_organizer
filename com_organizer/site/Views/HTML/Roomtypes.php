@@ -29,11 +29,19 @@ class Roomtypes extends ListView
 	/**
 	 * Function determines whether the user may access the view.
 	 *
-	 * @return bool true if the use may access the view, otherwise false
+	 * @return void
 	 */
-	protected function allowAccess()
+	protected function authorize()
 	{
-		return Helpers\Can::manage('facilities');
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::manage('facilities'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

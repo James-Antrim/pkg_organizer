@@ -13,8 +13,6 @@ namespace Organizer\Views\HTML;
 use Organizer\Helpers;
 use Organizer\Helpers\HTML;
 
-// Exception for frequency of use
-
 /**
  * Class loads persistent information a filtered set of holidays into the display context.
  */

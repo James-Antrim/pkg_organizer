@@ -106,11 +106,24 @@ class Instances extends ListView
 	/**
 	 * Function determines whether the user may access the view.
 	 *
-	 * @return bool true if the use may access the view, otherwise false
+	 * @return void
 	 */
-	protected function allowAccess()
+	protected function authorize()
 	{
-		return true;
+		if (!$this->clientContext)
+		{
+			return;
+		}
+
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::scheduleTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**

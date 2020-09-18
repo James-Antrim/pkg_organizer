@@ -138,14 +138,6 @@ abstract class BaseHTMLView extends BaseView
 				'active' => $viewName == 'units'
 			];
 
-			if ($admin)
-			{
-				// Coordinates access here and prefilter in backend
-				$items[Languages::_('ORGANIZER_PARTICIPANTS')] = [
-					'url'    => 'index.php?option=com_organizer&amp;view=participants',
-					'active' => $viewName == 'participants'
-				];
-			}
 			ksort($items);
 
 			// Uploading a schedule should always be the first menu item and will never be the active submenu item.
@@ -271,6 +263,10 @@ abstract class BaseHTMLView extends BaseView
 			$items[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=organizations',
 				'active' => $viewName == 'organizations'
+			];
+			$items[Languages::_('ORGANIZER_PARTICIPANTS')] = [
+				'url'    => 'index.php?option=com_organizer&amp;view=participants',
+				'active' => $viewName == 'participants'
 			];
 			/*$items[Languages::_('ORGANIZER_RUNS')]          = [
 				'url'    => 'index.php?option=com_organizer&amp;view=runs',
