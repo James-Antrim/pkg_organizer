@@ -81,7 +81,7 @@ class CurriculaField extends FormField
 		$options = [];
 		foreach ($programs as $program)
 		{
-			if (!Helpers\Can::document('program', $program['id']))
+			if (!Helpers\Can::document('program', (int) $program['id']))
 			{
 				continue;
 			}

@@ -129,7 +129,7 @@ class Pool extends CurriculumResource
 		}
 		elseif (is_numeric($data['id']))
 		{
-			if (!Helpers\Can::document('pool', $data['id']))
+			if (!Helpers\Can::document('pool', (int) $data['id']))
 			{
 				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 			}

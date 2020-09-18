@@ -93,7 +93,7 @@ class SubjectSelection extends ListView
 
 		foreach ($this->items as $subject)
 		{
-			if (!Helpers\Can::document('subject', $subject->id))
+			if (!Helpers\Can::document('subject', (int) $subject->id))
 			{
 				continue;
 			}

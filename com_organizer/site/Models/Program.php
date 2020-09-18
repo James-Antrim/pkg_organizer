@@ -204,7 +204,7 @@ class Program extends CurriculumResource
 		}
 		elseif (is_numeric($data['id']))
 		{
-			if (!Helpers\Can::document('program', $data['id']))
+			if (!Helpers\Can::document('program', (int) $data['id']))
 			{
 				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
 			}

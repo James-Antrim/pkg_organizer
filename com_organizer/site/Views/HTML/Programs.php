@@ -171,7 +171,7 @@ class Programs extends ListView
 			}
 			else
 			{
-				$access   = Helpers\Can::document('program', $program->id);
+				$access   = Helpers\Can::document('program', (int) $program->id);
 				$checkbox = $access ? Helpers\HTML::_('grid.id', $index, $program->id) : '';
 				$thisLink = $itemLink . $program->id;
 			}
