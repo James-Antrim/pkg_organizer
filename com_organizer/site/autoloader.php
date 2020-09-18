@@ -12,8 +12,6 @@ namespace Organizer;
 
 defined('_JEXEC') or die;
 
-use Exception;
-
 spl_autoload_register(function ($originalClassName) {
 
 	if ($originalClassName === 'TCPDF')
@@ -40,27 +38,10 @@ spl_autoload_register(function ($originalClassName) {
 
 	$classNameParts[] = empty($className) ? 'Organizer' : $className;
 
-	$filepath            = JPATH_ROOT . '/components/com_organizer/' . implode('/', $classNameParts) . '.php';
-	$namespacedClassName = "Organizer\\" . implode('\\', $classNameParts);
+	$filepath = JPATH_ROOT . '/components/com_organizer/' . implode('/', $classNameParts) . '.php';
 
 	if (is_file($filepath))
 	{
 		require_once $filepath;
-		$valid = (
-			class_exists($namespacedClassName)
-			or interface_exists($namespacedClassName)
-			or trait_exists($namespacedClassName)
-		);
-		if (!$valid and JDEBUG)
-		{
-			echo "<pre>" . print_r('no class!', true) . "</pre>";
-			echo "<pre>class name:              " . print_r($className, true) . "</pre>";
-			echo "<pre>original fq namespace:   " . print_r($originalClassName, true) . "</pre>";
-			echo "<pre>calculated fq namespace: " . print_r($namespacedClassName, true) . "</pre>";
-			echo "<pre>file path:               " . print_r($filepath, true) . "</pre>";
-			$exc = new Exception();
-			echo "<pre>" . print_r($exc->getTraceAsString(), true) . "</pre>";
-			die;
-		}
 	}
 });
