@@ -165,6 +165,22 @@ class Controller extends BaseController
 	}
 
 	/**
+	 * Method to get the controller name
+	 *
+	 * @return  string  The name of the dispatcher
+	 */
+	public function getName()
+	{
+		if (empty($this->name))
+		{
+
+			$this->name = OrganizerHelper::getClass($this);
+		}
+
+		return $this->name;
+	}
+
+	/**
 	 * Method to get a model object, loading it if required.
 	 *
 	 * @param   string  $name    The model name. Optional.
@@ -172,7 +188,6 @@ class Controller extends BaseController
 	 * @param   array   $config  Configuration array for model. Optional.
 	 *
 	 * @return  object|boolean  Model object on success; otherwise false on failure.
-	 * @throws Exception
 	 */
 	public function getModel($name = '', $prefix = '', $config = array())
 	{
@@ -214,8 +229,6 @@ class Controller extends BaseController
 	 * @param   array   $config  Configuration array for view. Optional.
 	 *
 	 * @return  HtmlView  Reference to the view or an error.
-	 *
-	 * @throws  Exception
 	 */
 	public function getView($name = '', $type = '', $prefix = 'x', $config = array())
 	{
@@ -251,8 +264,7 @@ class Controller extends BaseController
 			}
 			else
 			{
-				$message = sprintf(Helpers\Languages::_('ORGANIZER_VIEW_NOT_FOUND'), $name, $type, $prefix);
-				throw new Exception($message, 404);
+				OrganizerHelper::error(501);
 			}
 		}
 
