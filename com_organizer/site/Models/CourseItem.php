@@ -25,16 +25,6 @@ use Organizer\Tables;
 class CourseItem extends ItemModel
 {
 	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
-	 *
-	 * @return bool  true if the user can access the view, otherwise false
-	 */
-	protected function allow()
-	{
-		return true;
-	}
-
-	/**
 	 * Loads subject information from the database
 	 *
 	 * @return array  subject data on success, otherwise empty

@@ -23,16 +23,6 @@ use Organizer\Tables;
 class SubjectItem extends ItemModel
 {
 	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
-	 *
-	 * @return bool  true if the user can access the view, otherwise false
-	 */
-	protected function allow()
-	{
-		return true;
-	}
-
-	/**
 	 * Loads subject information from the database
 	 *
 	 * @return array  subject data on success, otherwise empty
@@ -40,12 +30,6 @@ class SubjectItem extends ItemModel
 	 */
 	public function getItem()
 	{
-		$allowView = $this->allow();
-		if (!$allowView)
-		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
-		}
-
 		$subjectID = Helpers\Input::getID();
 		if (empty($subjectID))
 		{

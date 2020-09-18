@@ -19,16 +19,6 @@ use Organizer\Helpers;
 class Curriculum extends ItemModel
 {
 	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
-	 *
-	 * @return bool  true if the user can access the view, otherwise false
-	 */
-	protected function allow()
-	{
-		return true;
-	}
-
-	/**
 	 * Method to get an array of data items.
 	 *
 	 * @return mixed  An array of data items on success, false on failure.
@@ -36,11 +26,6 @@ class Curriculum extends ItemModel
 	 */
 	public function getItem()
 	{
-		if (!$this->allow())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
-		}
-
 		$curriculum = [];
 		if ($poolID = Helpers\Input::getInt('poolID'))
 		{
