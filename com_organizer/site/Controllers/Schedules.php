@@ -30,7 +30,7 @@ class Schedules extends Controller
 	 * @return void
 	 * @throws Exception
 	 */
-	public function notify()
+	/*public function notify()
 	{
 		$model = new Models\Schedule();
 
@@ -46,7 +46,7 @@ class Schedules extends Controller
 		$url = Helpers\Routing::getRedirectBase();
 		$url .= "&view=schedules";
 		$this->setRedirect($url);
-	}
+	}*/
 
 	/**
 	 * Rebuilds the delta status of planning resources and relations.

@@ -171,7 +171,7 @@ class Schedule extends BaseModel
 	 * @return bool
 	 * @throws Exception
 	 */
-	public function notify()
+	/*public function notify()
 	{
 		if (!$selectedIDs = Helpers\Input::getSelectedIDs())
 		{
@@ -219,7 +219,7 @@ class Schedule extends BaseModel
 		$current   = json_decode($current->schedule, true);
 
 		return true;
-	}
+	}*/
 
 	/**
 	 * Rebuilds the history of a organization / term context.
