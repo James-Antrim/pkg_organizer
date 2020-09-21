@@ -646,7 +646,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roles` (
     COLLATE = utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `v7ocf_organizer_roles`
-VALUES (1, 'DOZ', 'DOZ', 'TCH', 'Lehrende', 'Teacher', 'Lehrenden', 'Teachers'),
+VALUES (1, 'DOZ', 'DOZ', 'TCH', 'Lehrende', 'Teacher', 'Lehrende', 'Teachers'),
        (2, 'TUT', 'TUT', 'TUT', 'Betreuende', 'Tutor', 'Betreuenden', 'Tutors'),
        (3, 'AFS', 'AFS', 'SPR', 'Aufsicht', 'Supervisor', 'Aufsichten', 'Supervisors'),
        (4, 'REF', 'REF', 'SPK', 'Referent', 'Speaker', 'Referenten', 'Speakers');

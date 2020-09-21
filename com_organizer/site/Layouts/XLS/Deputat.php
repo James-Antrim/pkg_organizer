@@ -381,7 +381,7 @@ class Deputat
 
 		$this->addColumnHeader("B14", "B16", 'ModulNr');
 
-		$vParaText = '„Die Lehrenden teilen jeweils am Ende eines Semesters unter thematischer Bezeichnung der ';
+		$vParaText = '„Die Lehrende teilen jeweils am Ende eines Semesters unter thematischer Bezeichnung der ';
 		$vParaText .= 'einzelnen Lehrveranstaltungen Art und Umfang ihrer Lehrtätigkeit und die Zahl der ';
 		$vParaText .= 'gegebenenfalls mitwirkenden Lehrkräfte, bei Lehrveranstaltungen mit beschränkter ';
 		$vParaText .= 'Teilnehmerzahl auch die Zahl der teilnehmenden Studierenden sowie der betreuten ';
