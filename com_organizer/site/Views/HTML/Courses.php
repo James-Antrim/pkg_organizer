@@ -41,7 +41,7 @@ class Courses extends ListView
 			'courseStatus' => 'value'
 		];
 
-		if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::edit('courses'))
+		if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::manage('courses'))
 		{
 			$this->manages = true;
 			$structure     = ['checkbox' => ''] + $structure + ['registrationStatus' => 'value'];

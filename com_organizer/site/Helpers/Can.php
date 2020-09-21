@@ -197,6 +197,11 @@ class Can
 
 				return self::editScheduleResource('Categories', $resource);
 
+			case 'course':
+			case 'courses':
+
+				return (Courses::coordinates($resource) or Courses::hasResponsibility($resource));
+
 			case 'event':
 			case 'events':
 
