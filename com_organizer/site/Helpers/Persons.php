@@ -291,10 +291,6 @@ class Persons extends Associated implements Selectable
 		$organizationID  = Input::getInt('organizationID');
 		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
 		$thisPersonID    = self::getIDByUserID();
-		if (empty($organizationIDs) and empty($thisPersonID))
-		{
-			return [];
-		}
 
 		foreach ($organizationIDs as $key => $organizationID)
 		{
@@ -302,6 +298,11 @@ class Persons extends Associated implements Selectable
 			{
 				unset($organizationIDs[$key]);
 			}
+		}
+
+		if (empty($organizationIDs) and empty($thisPersonID))
+		{
+			return [];
 		}
 
 		$dbo   = Factory::getDbo();

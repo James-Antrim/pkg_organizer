@@ -59,21 +59,20 @@ class Can
 	/**
 	 * Checks whether the user has access to documentation resources and their respective views.
 	 *
-	 * @param   string     $resourceType  the resource type being checked
-	 * @param   array|int  $resourceID    the resource id being checked or an array if resource ids to check
+	 * @param   string  $resourceType  the resource type being checked
+	 * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
 	 *
 	 * @return bool true if the user is authorized for facility management functions and views.
 	 */
-	public static function document($resourceType, $resourceID = null)
+	public static function document(string $resourceType, int $resourceID = 0)
 	{
 		if (is_bool($authorized = self::basic()))
 		{
 			return $authorized;
 		}
 
-		$invalidID   = (empty($resourceID) or !is_numeric($resourceID));
 		$invalidType = !in_array($resourceType, ['fieldcolor', 'organization', 'pool', 'program', 'subject']);
-		if ($invalidID or $invalidType)
+		if ($invalidType)
 		{
 			return false;
 		}
@@ -83,64 +82,72 @@ class Can
 		$query->select('DISTINCT organizationID')->from('#__organizer_associations');
 		$organizationIDs = [];
 
-		switch ($resourceType)
+		if ($resourceID)
 		{
-			case 'fieldcolor':
-				$table = new Tables\FieldColors;
+			switch ($resourceType)
+			{
+				case 'fieldcolor':
+					$table = new Tables\FieldColors;
 
-				if (!$table->load($resourceID) or empty($table->organizationID))
-				{
+					if (!$table->load($resourceID) or empty($table->organizationID))
+					{
+						return false;
+					}
+
+					$organizationIDs[] = $table->organizationID;
+					break;
+				case 'organization':
+					$organizationIDs[] = $resourceID;
+					break;
+				case 'pool':
+					$query->where("poolID = $resourceID");
+					$dbo->setQuery($query);
+
+					if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
+					{
+						return false;
+					}
+
+					break;
+				case 'program':
+					$query->where("programID = $resourceID");
+					$dbo->setQuery($query);
+
+					if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
+					{
+						return false;
+					}
+
+					break;
+				case 'subject':
+
+					if (Subjects::coordinates($resourceID))
+					{
+						return true;
+					}
+
+					$query->where("subjectID = $resourceID");
+					$dbo->setQuery($query);
+
+					if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
+					{
+						return false;
+					}
+
+					break;
+				default:
 					return false;
-				}
+			}
 
-				$organizationIDs[] = $table->organizationID;
-				break;
-			case 'organization':
-				$organizationIDs[] = $resourceID;
-				break;
-			case 'pool':
-				$query->where("poolID = $resourceID");
-				$dbo->setQuery($query);
-
-				if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
-				{
-					return false;
-				}
-
-				break;
-			case 'program':
-				$query->where("programID = $resourceID");
-				$dbo->setQuery($query);
-
-				if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
-				{
-					return false;
-				}
-
-				break;
-			case 'subject':
-
-				if (Subjects::coordinates($resourceID))
-				{
-					return true;
-				}
-
-				$query->where("subjectID = $resourceID");
-				$dbo->setQuery($query);
-
-				if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
-				{
-					return false;
-				}
-
-				break;
-			default:
+			if (!$organizationIDs)
+			{
 				return false;
+			}
 		}
-
-		if (!$organizationIDs)
+		else
 		{
-			return false;
+			$dbo->setQuery($query);
+			$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
 		}
 
 		$user = Users::getUser();
@@ -207,7 +214,7 @@ class Can
 					return false;
 				}
 
-				if ($user->id === $resource)
+				if ($user->id == $resource)
 				{
 					return true;
 				}
@@ -217,12 +224,7 @@ class Can
 			case 'person':
 			case 'persons':
 
-				if (self::manage('persons'))
-				{
-					return true;
-				}
-
-				return self::editScheduleResource('Persons', $resource);
+				return $resource ? self::editScheduleResource('Persons', $resource) : self::manage('persons');
 		}
 
 		return false;

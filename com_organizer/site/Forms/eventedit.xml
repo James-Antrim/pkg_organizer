@@ -45,7 +45,7 @@
     <fieldset name="en" label="ATTRIBUTES_EN">
         <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
-        <field name="content_de" type="Editor" label="ORGANIZER_CONTENT_DE" description="ORGANIZER_CONTENT_EN_DESC"/>
+        <field name="content_en" type="Editor" label="ORGANIZER_CONTENT_EN" description="ORGANIZER_CONTENT_EN_DESC"/>
         <field name="organization_en" type="Editor" label="ORGANIZER_COURSE_ORGANIZATION_EN"
                description="ORGANIZER_COURSE_ORGANIZATION_EN_DESC"/>
         <field name="pretests_en" type="Editor" label="ORGANIZER_PRETESTS_EN" description="ORGANIZER_PRETESTS_EN_DESC"/>
