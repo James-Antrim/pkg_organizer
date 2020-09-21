@@ -48,28 +48,6 @@ class CourseParticipants extends Controller
 	}
 
 	/**
-	 * Sends an circular email to all course participants
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function circular()
-	{
-		if (empty($this->getModel('course')->circular()))
-		{
-			OrganizerHelper::message('ORGANIZER_SEND_FAIL', 'error');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_SEND_SUCCESS', 'error');
-		}
-
-		$lessonID = $this->input->get('lessonID');
-		$redirect = Helpers\Routing::getRedirectBase() . "view=courses&lessonID=$lessonID";
-		$this->setRedirect(Route::_($redirect, false));
-	}
-
-	/**
 	 * Changes the participant's course state.
 	 *
 	 * @return void
@@ -88,6 +66,29 @@ class CourseParticipants extends Controller
 		}
 
 		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
+	}
+
+	/**
+	 * Sends an circular email to all course participants
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function notify()
+	{
+		$model = new Models\CourseParticipant();
+
+		if ($model->notify())
+		{
+			OrganizerHelper::message('ORGANIZER_NOTIFY_SUCCESS');
+		}
+		else
+		{
+			OrganizerHelper::message('ORGANIZER_NOTIFY_FAIL', 'error');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
+		$this->setRedirect(Route::_($url, false));
 	}
 
 	/**

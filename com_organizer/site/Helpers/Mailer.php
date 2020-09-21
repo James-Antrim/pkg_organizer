@@ -20,6 +20,43 @@ class Mailer
 	const NONE = null, WAITLIST = 0, REGISTERED = 1;
 
 	/**
+	 * Sends a notification mail to the participant.
+	 *
+	 * @param   int     $participantID  the id of the participant being iterated
+	 * @param   string  $subject        the subject of the notification
+	 * @param   string  $body           the notification message
+	 *
+	 * @return void
+	 */
+	public static function notifyParticipant($participantID, $subject, $body)
+	{
+		$user = Users::getUser($participantID);
+		if (!$user->id)
+		{
+			return;
+		}
+
+		$participant = new Tables\Participants();
+		if (!$participant->load($participantID))
+		{
+			return;
+		}
+
+		$sender = Users::getUser();
+		if (!$sender->id)
+		{
+			return;
+		}
+
+		$mailer = Factory::getMailer();
+		$mailer->setSender([$sender->email, $sender->name]);
+		$mailer->addRecipient($user->email);
+		$mailer->setBody($body);
+		$mailer->setSubject($subject);
+		$mailer->Send();
+	}
+
+	/**
 	 * Sends a mail confirming the registration
 	 *
 	 * @param $courseID

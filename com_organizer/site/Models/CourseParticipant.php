@@ -13,11 +13,7 @@ namespace Organizer\Models;
 use Exception;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
-
-// Exception for frequency of use
 use Organizer\Helpers\Languages;
-
-// Exception for frequency of use
 use Organizer\Tables;
 
 /**
@@ -95,67 +91,6 @@ class CourseParticipant extends BaseModel
 	}
 
 	/**
-	 * Sends a circular mail to all course participants.
-	 *
-	 * @return bool true on success, false on error
-	 * @throws Exception => invalid / unauthorized access
-	 */
-	public function circular()
-	{
-		if (!$courseID = Input::getInt('courseID'))
-		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
-		}
-		elseif (!Helpers\Can::manage('course', $courseID))
-		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
-
-		return true;
-
-		// Get data from input.
-		//$data = Input::getFormItems()->toArray();
-
-		// Validate data
-		//if (empty($data['text']))
-		//{
-		//	return false;
-		//}
-
-		// Get the sender
-		//$sender = Helpers\Users::getUser();
-		//if (empty($sender->id))
-		//{
-		//	return false;
-		//}
-
-		// Get the ids of the intended recipients
-		//$status = include wait list? yes, no, no input
-		//$recipients = Helpers\Courses::getParticipants($courseID, $status);
-
-		//if (empty($recipients))
-		//{
-		//	return false;
-		//}
-
-		// Send the circular
-		//$sent = true;
-		//foreach ($recipients as $recipient)
-		//{
-		//	$mailer = JFactory::getMailer();
-		//	$mailer->setSender([$sender->email, $sender->name]);
-		//	$mailer->setSubject($data['subject']);
-		//	$mailer->setBody($data['text']);
-		//	$mailer->addRecipient($recipient['email']);
-		//	$sent = ($sent and $mailer->Send());
-		//}
-
-		// Send a receipt to responsible persons.
-
-		//return $sent;
-	}
-
-	/**
 	 * Saves data for participants when administrator changes state in manager
 	 *
 	 * @return bool true on success, false on error
@@ -210,6 +145,47 @@ class CourseParticipant extends BaseModel
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
 		return new Tables\CourseParticipants;
+	}
+
+	/**
+	 * Sends a circular mail to all course participants.
+	 *
+	 * @return bool true on success, false on error
+	 * @throws Exception => invalid / unauthorized access
+	 */
+	public function notify()
+	{
+		if (!$courseID = Input::getID())
+		{
+			throw new Exception(Languages::_('ORGANIZER_400'), 400);
+		}
+		elseif (!Helpers\Can::manage('course', $courseID))
+		{
+			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+		}
+
+		$courseParticipants   = Helpers\Courses::getParticipantIDs($courseID);
+		$selectedParticipants = Input::getInput()->get('cids', [], 'array');
+
+		if (empty($courseParticipants) and empty($selectedParticipants))
+		{
+			return false;
+		}
+
+		$participantIDs = $selectedParticipants ? $selectedParticipants : $courseParticipants;
+
+		$form = Input::getBatchItems();
+		if (!$subject = trim($form->get('subject', '')) or !$body = trim($form->get('body', '')))
+		{
+			return false;
+		}
+
+		foreach ($participantIDs as $participantID)
+		{
+			Helpers\Mailer::notifyParticipant($participantID, $subject, $body);
+		}
+
+		return true;
 	}
 
 	/**

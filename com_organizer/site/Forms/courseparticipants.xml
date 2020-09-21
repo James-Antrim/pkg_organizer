@@ -25,4 +25,8 @@
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" onchange="this.form.submit();"/>
     </fields>
+    <fields name="batch">
+        <field name="subject" type="Blank" label="NOTIFY_SUBJECT" maxlength="200"/>
+        <field name="body" type="textarea" label="ORGANIZER_NOTIFY_BODY"/>
+    </fields>
 </form>

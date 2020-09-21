@@ -46,9 +46,8 @@ class CourseParticipants extends Participants
 
 		Helpers\HTML::setTitle($title, 'users');
 
-		$admin       = Helpers\Can::administrate();
-		$coordinates = Helpers\Courses::coordinates($courseID);
-		$toolbar     = Toolbar::getInstance();
+		$admin   = Helpers\Can::administrate();
+		$toolbar = Toolbar::getInstance();
 
 		/*if ($admin)
 		{
@@ -90,17 +89,15 @@ class CourseParticipants extends Participants
 		$toolbar->appendButton('Link', 'tags-2', Languages::_('ORGANIZER_DOWNLOAD_BADGES'), $link . '&view=badges');
 		$toolbar->appendButton('Link', 'list', Languages::_('ORGANIZER_ATTENDANCE'), $link . '&view=attendance');
 
-		/*$if          = "alert('" . Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
-		$else        = "jQuery('#modal-circular').modal('show'); return true;";
-		$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
-		$batchButton = '<button id="participant-mail" data-toggle="modal" class="btn btn-small" ' . $script . '>';
+		$script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
+		$batchButton = "<button id=\"participant-mail\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
 
-		$title       = Languages::_('ORGANIZER_MAIL');
+		$title       = Languages::_('ORGANIZER_NOTIFY');
 		$batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
 
 		$batchButton .= '</button>';
 
-		$toolbar->appendButton('Custom', $batchButton, 'batch');*/
+		$toolbar->appendButton('Custom', $batchButton, 'batch');
 
 		if ($admin)
 		{
@@ -147,7 +144,7 @@ class CourseParticipants extends Participants
 	public function display($tpl = null)
 	{
 		// Set batch template path
-		$this->batch = ['batch_circular'];
+		$this->batch = ['batch_participant_notify'];
 
 		parent::display($tpl);
 	}

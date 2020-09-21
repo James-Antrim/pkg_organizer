@@ -3,6 +3,7 @@
  * @package     Organizer
  * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
+ * @author      Florian Fenzl, <florian.fenzl@mni.thm.de>
  * @copyright   2020 TH Mittelhessen
  * @license     GNU GPL v.3
  * @link        www.thm.de
@@ -11,10 +12,10 @@
 use Organizer\Helpers;
 
 ?>
-<div class="modal hide fade" id="modal-publishing">
+<div class="modal hide fade" id="modal-mail">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&#215;</button>
-        <h3><?php echo Helpers\Languages::_('ORGANIZER_BATCH_GROUPS'); ?></h3>
+        <h3><?php echo Helpers\Languages::_('ORGANIZER_NOTIFY_HEADER'); ?></h3>
     </div>
     <div class="modal-body modal-batch form-horizontal">
 		<?php foreach ($this->filterForm->getGroup('batch') as $batchField) : ?>
@@ -32,8 +33,8 @@ use Organizer\Helpers;
         <button class="btn" type="button" data-dismiss="modal">
 			<?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
         </button>
-        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('groups.batch');">
-			<?php echo Helpers\Languages::_('ORGANIZER_SAVE'); ?>
+        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('course_participants.notify');">
+			<?php echo Helpers\Languages::_('ORGANIZER_NOTIFY'); ?>
         </button>
     </div>
 </div>
