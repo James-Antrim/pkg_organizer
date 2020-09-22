@@ -27,6 +27,6 @@
     </fields>
     <fields name="batch">
         <field name="subject" type="Blank" label="NOTIFY_SUBJECT" maxlength="200"/>
-        <field name="body" type="textarea" label="ORGANIZER_NOTIFY_BODY"/>
+        <field name="body" type="Box" label="NOTIFY_BODY"/>
     </fields>
 </form>

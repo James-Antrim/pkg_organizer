@@ -20,6 +20,11 @@
     width: 17rem;
 }
 
+form textarea {
+    min-height: 9rem;
+    min-width: 15rem;
+}
+
 body.tmpl-index div.main .chzn-container {
     max-width: inherit;
 }

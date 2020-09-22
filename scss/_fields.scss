@@ -1,5 +1,10 @@
 @import "variables";
 
+form textarea {
+  min-height: 9rem;
+  min-width: 15rem;
+}
+
 // Front end styles
 body.tmpl-index div.main {
 
