@@ -39,7 +39,7 @@ abstract class BaseHTMLView extends BaseView
 	 */
 	protected function addDisclaimer()
 	{
-		if ($this->clientContext === self::BACKEND)
+		if ($this->adminContext === self::BACKEND)
 		{
 			return;
 		}
@@ -89,7 +89,7 @@ abstract class BaseHTMLView extends BaseView
 	 */
 	protected function addMenu()
 	{
-		if ($this->clientContext == self::FRONTEND)
+		if ($this->adminContext == self::FRONTEND)
 		{
 			return;
 		}
@@ -264,7 +264,7 @@ abstract class BaseHTMLView extends BaseView
 				'url'    => 'index.php?option=com_organizer&amp;view=organizations',
 				'active' => $viewName == 'organizations'
 			];
-			$items[Languages::_('ORGANIZER_PARTICIPANTS')] = [
+			$items[Languages::_('ORGANIZER_PARTICIPANTS')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=participants',
 				'active' => $viewName == 'participants'
 			];

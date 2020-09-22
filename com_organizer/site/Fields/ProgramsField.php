@@ -30,7 +30,7 @@ class ProgramsField extends OptionsField
 	protected function getOptions()
 	{
 		$options  = parent::getOptions();
-		$access   = $this->clientContext === self::BACKEND ? $this->getAttribute('access', '') : '';
+		$access   = $this->adminContext === self::BACKEND ? $this->getAttribute('access', '') : '';
 		$programs = Helpers\Programs::getOptions($access);
 
 		return array_merge($options, $programs);

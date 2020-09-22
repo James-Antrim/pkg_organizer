@@ -24,7 +24,7 @@ abstract class BaseView extends HtmlView
 {
 	const BACKEND = true, FRONTEND = false;
 
-	public $clientContext;
+	public $adminContext;
 
 	/**
 	 * Constructor
@@ -36,7 +36,7 @@ abstract class BaseView extends HtmlView
 	public function __construct($config = array())
 	{
 		parent::__construct($config);
-		$this->clientContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
 	}
 
 	/**

@@ -89,7 +89,7 @@ class Programs extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!$this->clientContext)
+		if (!$this->adminContext)
 		{
 			return;
 		}
@@ -120,7 +120,7 @@ class Programs extends ListView
 			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
 		];
 
-		if ($this->clientContext === self::FRONTEND)
+		if ($this->adminContext === self::FRONTEND)
 		{
 			$headers['links'] = '';
 		}
@@ -139,7 +139,7 @@ class Programs extends ListView
 	 */
 	protected function structureItems()
 	{
-		$backend  = $this->clientContext === self::BACKEND;
+		$backend  = $this->adminContext === self::BACKEND;
 		$editLink = 'index.php?option=com_organizer&view=program_edit&id=';
 		$itemLink = 'index.php?option=com_organizer&view=program_item&id=';
 		$links    = '';

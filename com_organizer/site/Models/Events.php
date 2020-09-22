@@ -38,7 +38,7 @@ class Events extends ListModel
 			->innerJoin('#__organizer_organizations AS o ON o.id = e.organizationID')
 			->leftJoin('#__organizer_campuses AS c ON c.id = e.campusID');
 
-		if ($this->clientContext)
+		if ($this->adminContext)
 		{
 			$authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
 			$query->where("o.id IN ($authorized)");

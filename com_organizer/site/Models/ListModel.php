@@ -26,7 +26,7 @@ abstract class ListModel extends ParentModel
 
 	const ALL = '', BACKEND = true, FRONTEND = false, NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
-	protected $clientContext;
+	protected $adminContext;
 
 	protected $defaultOrdering = 'name';
 
@@ -46,7 +46,7 @@ abstract class ListModel extends ParentModel
 		parent::__construct($config);
 
 		$app                  = Helpers\OrganizerHelper::getApplication();
-		$this->clientContext  = $app->isClient('administrator');
+		$this->adminContext   = $app->isClient('administrator');
 		$this->filterFormName = strtolower(Helpers\OrganizerHelper::getClass($this));
 
 		if (!is_int($this->defaultLimit))
@@ -66,7 +66,7 @@ abstract class ListModel extends ParentModel
 	 */
 	protected function filterFilterForm(&$form)
 	{
-		if ($this->clientContext === self::BACKEND)
+		if ($this->adminContext === self::BACKEND)
 		{
 			$form->removeField('languageTag', 'list');
 
@@ -403,7 +403,7 @@ abstract class ListModel extends ParentModel
 	 */
 	protected function setOrganizationFilter($query, $context, $alias)
 	{
-		$authorizedOrgIDs = $this->clientContext === self::BACKEND ?
+		$authorizedOrgIDs = $this->adminContext === self::BACKEND ?
 			Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
 		$organizationID   = $this->state->get('filter.organizationID', 0);
 

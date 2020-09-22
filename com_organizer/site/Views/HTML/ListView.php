@@ -298,7 +298,7 @@ abstract class ListView extends BaseHTMLView
 			if ($propertyType === 'link')
 			{
 				$attributes = [];
-				if ($this->clientContext === self::FRONTEND)
+				if ($this->adminContext === self::FRONTEND)
 				{
 					$attributes['target'] = '_blank';
 				}

@@ -40,7 +40,7 @@ abstract class FormView extends BaseHTMLView
 		// Allows for view specific toolbar handling
 		$this->addToolBar();
 
-		if (empty($this->clientContext))
+		if (empty($this->adminContext))
 		{
 			if (method_exists($this, 'setSubtitle'))
 			{

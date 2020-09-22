@@ -20,7 +20,7 @@ echo $this->subtitle;
 echo $this->supplement;
 ?>
 <div id="j-main-container" class="span10">
-	<?php if (!$this->clientContext) : ?>
+	<?php if (!$this->adminContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
 	<?php

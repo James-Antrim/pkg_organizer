@@ -28,7 +28,7 @@ class Controller extends BaseController
 {
 	const BACKEND = true, FRONTEND = false;
 
-	public $clientContext;
+	public $adminContext;
 
 	protected $listView = '';
 
@@ -45,7 +45,7 @@ class Controller extends BaseController
 		$config['model_prefix'] = '';
 		parent::__construct($config);
 
-		$this->clientContext = OrganizerHelper::getApplication()->isClient('administrator');
+		$this->adminContext = OrganizerHelper::getApplication()->isClient('administrator');
 		$this->registerTask('add', 'edit');
 	}
 

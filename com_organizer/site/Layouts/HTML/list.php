@@ -17,7 +17,7 @@ $items       = $this->items;
 $iteration   = 0;
 $action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 
-if (!$this->clientContext)
+if (!$this->adminContext)
 {
 	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 	echo $this->subtitle;
@@ -28,7 +28,7 @@ if (!empty($this->submenu))
 	echo '<div id="j-sidebar-container" class="span2">' . $this->submenu . '</div>';
 } ?>
 <div id="j-main-container" class="span10">
-	<?php if (!$this->clientContext) : ?>
+	<?php if (!$this->adminContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
     <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">

@@ -14,7 +14,7 @@ use Organizer\Helpers;
 
 $query = Uri::getInstance()->getQuery();
 
-if (!$this->clientContext)
+if (!$this->adminContext)
 {
 	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 	echo $this->subtitle;
@@ -22,7 +22,7 @@ if (!$this->clientContext)
 }
 ?>
 <div id="j-main-container" class="span10">
-	<?php if (!$this->clientContext) : ?>
+	<?php if (!$this->adminContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm"

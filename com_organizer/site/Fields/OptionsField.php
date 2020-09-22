@@ -24,7 +24,7 @@ class OptionsField extends FormField
 
 	const BACKEND = true, FRONTEND = false;
 
-	protected $clientContext;
+	protected $adminContext;
 
 	/**
 	 * Cached array of the category items.
@@ -40,7 +40,7 @@ class OptionsField extends FormField
 	 */
 	protected function getInput()
 	{
-		$this->clientContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
 
 		$attr = '';
 

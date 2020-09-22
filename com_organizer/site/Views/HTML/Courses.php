@@ -90,7 +90,7 @@ class Courses extends ListView
 	protected function addToolBar()
 	{
 		$resourceName = '';
-		if (!$this->clientContext and $this->preparatory)
+		if (!$this->adminContext and $this->preparatory)
 		{
 			$resourceName .= Languages::_('ORGANIZER_PREP_COURSES');
 			if ($campusID = $this->state->get('filter.campusID', 0))
@@ -104,7 +104,7 @@ class Courses extends ListView
 		if (Helpers\Users::getID())
 		{
 			$toolbar = Toolbar::getInstance();
-			if (!$this->clientContext and !$this->manages)
+			if (!$this->adminContext and !$this->manages)
 			{
 				if (Helpers\Participants::exists())
 				{
@@ -161,7 +161,7 @@ class Courses extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!$this->clientContext)
+		if (!$this->adminContext)
 		{
 			return;
 		}
@@ -219,7 +219,7 @@ class Courses extends ListView
 	protected function structureItems()
 	{
 		$URL = Uri::base() . '?option=com_organizer';
-		$URL .= $this->clientContext ? '&view=course_edit&id=' : '&view=course_item&id=';
+		$URL .= $this->adminContext ? '&view=course_edit&id=' : '&view=course_item&id=';
 
 		$structuredItems = [];
 
@@ -229,7 +229,7 @@ class Courses extends ListView
 		foreach ($this->items as $course)
 		{
 			$campusName = Helpers\Campuses::getName($course->campusID);
-			$pin        = $this->clientContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
+			$pin        = $this->adminContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
 
 			$course->campus = $campusName . $pin;
 

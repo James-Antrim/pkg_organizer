@@ -46,7 +46,7 @@ class Instances extends ListModel
 	{
 		parent::filterFilterForm($form);
 
-		if ($this->clientContext === self::BACKEND)
+		if ($this->adminContext === self::BACKEND)
 		{
 			if (count(Helpers\Can::scheduleTheseOrganizations()) === 1)
 			{
@@ -177,7 +177,7 @@ class Instances extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
-		if ($this->clientContext === self::BACKEND)
+		if ($this->adminContext === self::BACKEND)
 		{
 			$authorized = Helpers\Can::scheduleTheseOrganizations();
 			if (count($authorized) === 1)

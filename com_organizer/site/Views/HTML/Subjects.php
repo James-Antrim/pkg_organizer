@@ -43,7 +43,7 @@ class Subjects extends ListView
 	protected function addToolBar()
 	{
 		$resourceName = '';
-		if ($this->clientContext == self::FRONTEND)
+		if ($this->adminContext == self::FRONTEND)
 		{
 			if ($personID = $this->state->get('calledPersonID', 0))
 			{
@@ -95,7 +95,7 @@ class Subjects extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!$this->clientContext)
+		if (!$this->adminContext)
 		{
 			return;
 		}
@@ -122,9 +122,9 @@ class Subjects extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$headers   = [];
 
-		if ($this->clientContext === self::BACKEND or $this->documentAccess)
+		if ($this->adminContext === self::BACKEND or $this->documentAccess)
 		{
-			$headers['checkbox'] = ($this->clientContext === self::BACKEND and $this->documentAccess) ?
+			$headers['checkbox'] = ($this->adminContext === self::BACKEND and $this->documentAccess) ?
 				Helpers\HTML::_('grid.checkall') : '';
 		}
 
@@ -226,14 +226,14 @@ class Subjects extends ListView
 	 */
 	protected function structureItems()
 	{
-		$backend         = $this->clientContext === self::BACKEND;
+		$backend         = $this->adminContext === self::BACKEND;
 		$editLink        = 'index.php?option=com_organizer&view=subject_edit&id=';
 		$index           = 0;
 		$itemLink        = 'index.php?option=com_organizer&view=subject_item&id=';
 		$structuredItems = [];
 
 		$attributes = [];
-		if ($this->clientContext === self::FRONTEND)
+		if ($this->adminContext === self::FRONTEND)
 		{
 			$attributes['target'] = '_blank';
 		}

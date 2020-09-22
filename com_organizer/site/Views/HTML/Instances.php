@@ -110,7 +110,7 @@ class Instances extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!$this->clientContext)
+		if (!$this->adminContext)
 		{
 			return;
 		}

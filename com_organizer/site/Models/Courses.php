@@ -36,7 +36,7 @@ class Courses extends ListModel
 	{
 		parent::filterFilterForm($form);
 
-		if ($this->clientContext)
+		if ($this->adminContext)
 		{
 			return;
 		}
@@ -97,13 +97,13 @@ class Courses extends ListModel
 
 		$this->setSearchFilter($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 
-		if ($this->clientContext)
+		if ($this->adminContext)
 		{
 			$organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
 			$query->where("u.organizationID in ($organizationIDs)");
 		}
 
-		if (!$this->clientContext and Helpers\Input::getParams()->get('onlyPrepCourses'))
+		if (!$this->adminContext and Helpers\Input::getParams()->get('onlyPrepCourses'))
 		{
 			$query->where('e.preparatory = 1');
 		}
@@ -135,7 +135,7 @@ class Courses extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
-		if ($this->clientContext === self::FRONTEND)
+		if ($this->adminContext === self::FRONTEND)
 		{
 			$params = Helpers\Input::getParams();
 

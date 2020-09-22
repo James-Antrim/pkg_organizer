@@ -21,7 +21,7 @@ echo $this->supplement;
 
 ?>
 <div id="j-main-container" class="span10">
-	<?php if (!$this->clientContext) : ?>
+	<?php if (!$this->adminContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
     <form action="<?php echo Uri::current(); ?>" id="adminForm" method="post" name="adminForm">

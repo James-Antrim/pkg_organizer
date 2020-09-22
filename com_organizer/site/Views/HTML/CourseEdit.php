@@ -30,7 +30,7 @@ class CourseEdit extends EditView
 		{
 			$title = Helpers\Languages::_('ORGANIZER_COURSE_EDIT');
 
-			if ($this->clientContext)
+			if ($this->adminContext)
 			{
 				$campus = Helpers\Campuses::getName($this->item->campusID);
 				$dates  = Helpers\Courses::getDateDisplay($this->item->id);

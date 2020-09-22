@@ -29,8 +29,8 @@ class OrganizationFilterField extends OptionsField
 	 */
 	protected function getInput()
 	{
-		$this->clientContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
-		$onchange = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
+		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+		$onchange           = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 
 		// Get the field options.
 		$options = (array) $this->getOptions();
@@ -55,7 +55,7 @@ class OrganizationFilterField extends OptionsField
 	protected function getOptions()
 	{
 		$options       = parent::getOptions();
-		$access        = $this->clientContext === self::BACKEND ? $this->getAttribute('access', '') : '';
+		$access        = $this->adminContext === self::BACKEND ? $this->getAttribute('access', '') : '';
 		$organizations = Helpers\Organizations::getOptions(true, $access);
 
 		return count($organizations) > 1 ? array_merge($options, $organizations) : $organizations;
