@@ -76,37 +76,6 @@ class Courses extends ResourceHelper
 	}
 
 	/**
-	 * Generates a capacity text for active course participants.
-	 *
-	 * @param   int  $courseID  the id of the course
-	 *
-	 * @return string the course capacity text
-	 */
-	public static function getCapacityText($courseID)
-	{
-		$course = new Tables\Courses;
-
-		if (!$course->load($courseID))
-		{
-			return '';
-		}
-
-		$max = $course->maxParticipants;
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('COUNT(DISTINCT participantID)')
-			->from('#__organizer_course_participants')
-			->where("courseID = $courseID")
-			->where("status = 1");
-		$dbo->setQuery($query);
-
-		$current = OrganizerHelper::executeQuery('loadResult', 0);
-
-		return "<span class=\"icon-user-check\"></span>$current/$max";
-	}
-
-	/**
 	 * Creates a display of formatted dates for a course
 	 *
 	 * @param   int  $courseID  the id of the course to be loaded
@@ -117,21 +86,10 @@ class Courses extends ResourceHelper
 	{
 		if ($dates = self::getDates($courseID))
 		{
-			$dates = Dates::getDisplay($dates['startDate'], $dates ['endDate']);
-		}
-		else
-		{
-			return '';
+			return Dates::getDisplay($dates['startDate'], $dates ['endDate']);
 		}
 
-		$runText = '';
-
-		/*if (OrganizerHelper::getApplication()->isClient('administrator'))
-		{
-			$runText = self::getRunText($courseID) . '<br>';
-		}*/
-
-		return $runText . $dates;
+		return '';
 	}
 
 	/**
@@ -195,36 +153,6 @@ class Courses extends ResourceHelper
 		}
 
 		return $events;
-	}
-
-	/**
-	 * Gets persons associated with the given course, optionally filtered by event and role.
-	 *
-	 * @param   int  $courseID  the id of the course
-	 *
-	 * @return array the rooms in which the course takes place
-	 */
-	public static function getGroups($courseID)
-	{
-		$dbo = Factory::getDbo();
-
-		$query = $dbo->getQuery('true');
-		$query->select("DISTINCT g.code")
-			->from('#__organizer_groups AS g')
-			->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = g.id')
-			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
-			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-			->where("ig.delta != 'removed'")
-			->where("ip.delta != 'removed'")
-			->where("i.delta != 'removed'")
-			->where("u.delta != 'removed'")
-			->where("u.courseID = $courseID")
-			->order('g.code');
-
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -326,47 +254,6 @@ class Courses extends ResourceHelper
 		}
 
 		return $persons;
-	}
-
-	/**
-	 * Generates a text descriptive of the course run information.
-	 *
-	 * @param   int  $courseID  the id of the course
-	 *
-	 * @return string the course run text
-	 */
-	public static function getRunText($courseID)
-	{
-		$course = new Tables\Courses;
-
-		if (!$course->load($courseID))
-		{
-			return '';
-		}
-
-		if (self::isPreparatory($courseID))
-		{
-			return Terms::getName(Terms::getNextID($course->termID));
-		}
-
-		$term = Terms::getName($course->termID);
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT runID')
-			->from('#__organizer_units AS u')
-			->where("courseID = $courseID");
-		$dbo->setQuery($query);
-
-		if (!$runIDs = OrganizerHelper::executeQuery('loadColumn', []) or COUNT($runIDs) > 1)
-		{
-			return $term;
-		}
-
-		$runName = Runs::getName($runIDs[0]);
-
-		return $runName ? "$runName ($term)" : $term;
-
 	}
 
 	/**
@@ -497,21 +384,6 @@ class Courses extends ResourceHelper
 		$dbo->setQuery($query);
 
 		return (bool) OrganizerHelper::executeQuery('loadResult', 0);
-	}
-
-	/**
-	 * Checks whether the current user participates in the course.
-	 *
-	 * @param   int  $courseID  the id of the course
-	 *
-	 * @return bool true if the user is a course participant, otherwise false
-	 */
-	public static function participates($courseID)
-	{
-		$participantID = Users::getID();
-		$table         = new Tables\CourseParticipants();
-
-		return $table->load(['courseID' => $courseID, 'participantID' => $participantID]);
 	}
 
 	/**

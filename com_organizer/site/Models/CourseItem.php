@@ -24,6 +24,8 @@ use Organizer\Tables;
  */
 class CourseItem extends ItemModel
 {
+	const UNREGISTERED = null;
+
 	/**
 	 * Loads subject information from the database
 	 *
@@ -355,11 +357,12 @@ class CourseItem extends ItemModel
 		if ($userID = Helpers\Users::getID())
 		{
 			$course['registrationStatus'] = Helpers\CourseParticipants::getState($course['id'], $userID);
-			if ($course['registrationStatus'] === null)
+			if ($course['registrationStatus'] === self::UNREGISTERED)
 			{
 				$texts['pRegistration'] = Languages::_('ORGANIZER_COURSE_UNREGISTERED');
 
-				if (!Helpers\Participants::exists())
+				if (!Helpers\Participants::exists()
+					or !Helpers\CourseParticipants::validProfile($course['id'], $userID))
 				{
 					$texts['profile'] = Languages::_('ORGANIZER_COURSE_PROFILE_REQUIRED');
 				}

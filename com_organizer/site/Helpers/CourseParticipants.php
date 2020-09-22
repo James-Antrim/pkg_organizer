@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Uri\Uri;
+use Organizer\Tables;
 
 /**
  * Provides general functions for course access checks, data retrieval and display.
@@ -21,21 +21,47 @@ class CourseParticipants extends ResourceHelper
 	const UNREGISTERED = null, WAITLIST = 0;
 
 	/**
+	 * Determines whether or not the participant has paid for the course.
+	 *
+	 * @param   int  $courseID       the course id
+	 * @param   int  $participantID  the participant id
+	 *
+	 * @return  mixed int if the user has a course participant state, otherwise null
+	 */
+	public static function hasPaid($courseID, $participantID)
+	{
+		$course = new Tables\Courses();
+
+		if (!$course->load($courseID))
+		{
+			return false;
+		}
+		elseif (empty($course->fee))
+		{
+			return true;
+		}
+
+		$courseParticipant = new Tables\CourseParticipants();
+
+		if (!$courseParticipant->load(['courseID' => $courseID, 'participantID' => $participantID]))
+		{
+			return false;
+		}
+
+		return (bool) $courseParticipant->paid;
+	}
+
+	/**
 	 * Retrieves the participant's state for the given course
 	 *
 	 * @param   int  $courseID       the course id
 	 * @param   int  $eventID        the id of the specific course event
 	 * @param   int  $participantID  the id of the participant
 	 *
-	 * @return  mixed int if the user has a course participant state, otherwise null
+	 * @return  int|null int if the user has a course participant state, otherwise null
 	 */
 	public static function getState($courseID, $participantID, $eventID = 0)
 	{
-		if (empty($courseID) or empty($participantID))
-		{
-			return self::UNREGISTERED;
-		}
-
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
 		$query->select('status')
@@ -54,7 +80,14 @@ class CourseParticipants extends ResourceHelper
 
 		$dbo->setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadResult', self::UNREGISTERED);
+		$state = OrganizerHelper::executeQuery('loadResult', self::UNREGISTERED);
+
+		if ($state === self::UNREGISTERED)
+		{
+			return $state;
+		}
+
+		return (int) $state;
 	}
 
 	/**
@@ -65,17 +98,12 @@ class CourseParticipants extends ResourceHelper
 	 *
 	 * @return bool true if the participant entry is incomplete, otherwise false
 	 */
-	public static function incomplete($courseID, $participantID)
+	public static function validProfile($courseID, $participantID)
 	{
-		if (empty($participantID))
+		$participant = new Tables\Participants();
+		if (empty($participantID) or !$participant->load($participantID))
 		{
-			return true;
-		}
-
-		$table = new Tables\Participants;
-		if (!$table->load($participantID))
-		{
-			return true;
+			return false;
 		}
 
 		if (Courses::isPreparatory($courseID))
@@ -90,12 +118,12 @@ class CourseParticipants extends ResourceHelper
 
 		foreach ($requiredProperties as $property)
 		{
-			if (empty($table->get($property)))
+			if (empty($participant->get($property)))
 			{
-				return true;
+				return false;
 			}
 		}
 
-		return false;
+		return true;
 	}
 }

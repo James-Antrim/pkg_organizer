@@ -71,8 +71,11 @@ class Courses extends Controller
 	 */
 	public function register()
 	{
-		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-		if (!Helpers\Participants::canRegister())
+		$courseID      = Helpers\Input::getID();
+		$referrer      = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+		$participantID = Helpers\Users::getID();
+
+		if (!Helpers\CourseParticipants::validProfile($courseID, $participantID))
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE', 'error');
 		}

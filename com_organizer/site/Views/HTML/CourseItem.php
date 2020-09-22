@@ -20,14 +20,12 @@ use Organizer\Helpers\Languages;
 class CourseItem extends ItemView
 {
 	// Participant statuses
-	const UNREGISTERED = null, PENDING = 0, ACCEPTED = 1;
+	const UNREGISTERED = null, WAITLIST = 0, ACCEPTED = 1;
 
 	// Course Statuses
 	const EXPIRED = -1, ONGOING = 1;
 
 	private $manages = false;
-	private $participant = false;
-	private $profile = false;
 
 	/**
 	 * Constructor
@@ -38,17 +36,9 @@ class CourseItem extends ItemView
 	{
 		parent::__construct($config);
 
-		if (Helpers\Users::getID())
+		if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::manage('courses'))
 		{
-			if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::edit('courses'))
-			{
-				$this->manages = true;
-			}
-			elseif (!$this->clientContext and Helpers\Participants::exists())
-			{
-				$this->profile     = true;
-				$this->participant = Helpers\Courses::participates(Helpers\Input::getID());
-			}
+			$this->manages = true;
 		}
 	}
 
@@ -78,64 +68,62 @@ class CourseItem extends ItemView
 	 */
 	protected function addToolBar()
 	{
-		if (Helpers\Users::getID())
+		if (!$this->manages and $participantID = Helpers\Users::getID())
 		{
-			$toolbar = Toolbar::getInstance();
-			$today   = Helpers\Dates::standardizeDate();
+			$courseID        = $this->item['id'];
+			$deadline        = $this->item['deadline'];
+			$link            = 'index.php?option=com_organizer';
+			$maxParticipants = $this->item['maxParticipants'];
+			$participants    = $this->item['participants'];
+			$startDate       = $this->item['startDate'];
+			$today           = Helpers\Dates::standardizeDate();
+			$toolbar         = Toolbar::getInstance();
 
-			if ($this->item['deadline'])
-			{
-				$deadline = date('Y-m-d',
-					strtotime("-{$this->item['deadline']} Days", strtotime($this->item['startDate'])));
-			}
-			else
-			{
-				$deadline = $this->item['startDate'];
-			}
+			$deadline = $deadline ? date('Y-m-d', strtotime("-$deadline Days", strtotime($startDate))) : $startDate;
 
-			$link = 'index.php?option=com_organizer';
-
-			if (!$this->manages and $deadline > $today)
+			if (Helpers\Participants::exists())
 			{
-				if ($this->profile)
+				$toolbar->appendButton(
+					'Link',
+					'vcard',
+					Languages::_('ORGANIZER_PROFILE_EDIT'),
+					'index.php?option=com_organizer&view=participant_edit'
+				);
+
+				if ($deadline > $today)
 				{
-					if (Helpers\Participants::canRegister())
+					$full         = $participants >= $maxParticipants;
+					$link         .= '&id=' . $this->item['id'];
+					$state        = Helpers\CourseParticipants::getState($courseID, $participantID);
+					$validProfile = Helpers\CourseParticipants::validProfile($courseID, $participantID);
+					if (!$full and $state === self::UNREGISTERED and $validProfile)
 					{
-						$link .= '&id=' . $this->item['id'];
-						if ($this->participant)
-						{
-							$drLink = $link . '&task=courses.deregister';
-							$toolbar->appendButton('Link', 'exit', Languages::_('ORGANIZER_DEREGISTER'), $drLink);
+						$rLink = $link . '&task=courses.register';
+						$toolbar->appendButton('Link', 'enter', Languages::_('ORGANIZER_REGISTER'), $rLink);
+					}
+					elseif ($state === self::ACCEPTED or $state === self::WAITLIST)
+					{
+						$drLink = $link . '&task=courses.deregister';
+						$toolbar->appendButton('Link', 'exit', Languages::_('ORGANIZER_DEREGISTER'), $drLink);
 
+						$hasPaid = Helpers\CourseParticipants::hasPaid($courseID, $participantID);
+						if ($state === self::ACCEPTED and $hasPaid)
+						{
 							$link = $link . '&view=badge&format=pdf';
 							$toolbar->appendButton('Link', 'tag-2', Languages::_('ORGANIZER_DOWNLOAD_BADGE'), $link);
 						}
-						else
-						{
-							$rLink = $link . '&task=courses.register';
-							$toolbar->appendButton('Link', 'enter', Languages::_('ORGANIZER_REGISTER'), $rLink);
-						}
+					}
+				}
 
-					}
-					else
-					{
-						$toolbar->appendButton(
-							'Link',
-							'vcard',
-							Languages::_('ORGANIZER_PROFILE_EDIT'),
-							'index.php?option=com_organizer&view=participant_edit'
-						);
-					}
-				}
-				else
-				{
-					$toolbar->appendButton(
-						'Link',
-						'user-plus',
-						Languages::_('ORGANIZER_PROFILE_NEW'),
-						$link . '&view=participant_edit'
-					);
-				}
+			}
+			else
+			{
+				$toolbar->appendButton(
+					'Link',
+					'user-plus',
+					Languages::_('ORGANIZER_PROFILE_NEW'),
+					$link . '&view=participant_edit'
+				);
 			}
 		}
 	}

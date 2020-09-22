@@ -106,48 +106,6 @@ class CourseParticipants extends Controller
 	}
 
 	/**
-	 * De-/registers a participant from/to a course.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
-		$participantID = Input::getInt('participantID');
-
-		if (!Helpers\Participants::canRegister($participantID))
-		{
-			OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE', 'error');
-			$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
-		}
-
-		$courseID      = Input::getInt('participantID');
-		$eventID       = Input::getInt('eventID');
-		$model         = new Models\CourseParticipant;
-		$previousState = Helpers\CourseParticipants::getState($courseID, $participantID, $eventID);
-
-		if ($model->register())
-		{
-			if ($previousState !== self::UNREGISTERED)
-			{
-				OrganizerHelper::message('ORGANIZER_DEREGISTER_SUCCESS');
-			}
-			else
-			{
-				$currentState = Helpers\CourseParticipants::getState($courseID, $participantID, $eventID);
-
-				$msg = $currentState ? 'ORGANIZER_REGISTRATION_ACCEPTED' : 'ORGANIZER_REGISTRATION_WAIT';
-				OrganizerHelper::message($msg);
-			}
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
-		}
-
-		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
-	}
-
-	/**
 	 * Accepts the selected participants into the course.
 	 *
 	 * @return void
