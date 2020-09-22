@@ -1,6 +1,6 @@
 #Foreign key fields defaulting to null prevent cascading deletion
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_associations` (
+CREATE TABLE IF NOT EXISTS `#__organizer_associations` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `organizationID` INT(11) UNSIGNED NOT NULL,
     `categoryID`     INT(11) UNSIGNED DEFAULT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_associations` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_blocks` (
+CREATE TABLE IF NOT EXISTS `#__organizer_blocks` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `date`      DATE                NOT NULL,
     `dow`       TINYINT(1) UNSIGNED NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_blocks` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_buildings` (
+CREATE TABLE IF NOT EXISTS `#__organizer_buildings` (
     `id`           INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `campusID`     INT(11) UNSIGNED             DEFAULT NULL,
     `name`         VARCHAR(150)        NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_buildings` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_campuses` (
+CREATE TABLE IF NOT EXISTS `#__organizer_campuses` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`    VARCHAR(255)                 DEFAULT NULL,
     `parentID` INT(11) UNSIGNED             DEFAULT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_campuses` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_categories` (
+CREATE TABLE IF NOT EXISTS `#__organizer_categories` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`    VARCHAR(255)                 DEFAULT NULL,
     `code`     VARCHAR(60)         NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_categories` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_colors` (
+CREATE TABLE IF NOT EXISTS `#__organizer_colors` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name_de` VARCHAR(150)     NOT NULL,
     `name_en` VARCHAR(150)     NOT NULL,
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_colors` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT INTO `v7ocf_organizer_colors`
+INSERT INTO `#__organizer_colors`
 VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
        (2, 'Hellstgrau', 'Lightest Grey', '#d2d6d9'),
        (3, 'Hellstrot', 'Lightest Red', '#e6c4cb'),
@@ -146,7 +146,7 @@ VALUES (1, 'Hellstgruen', 'Lightest Green', '#dfeec8'),
        (36, 'Lila', 'Purple', '#7647a2'),
        (37, 'Dunkellila', 'Dark Purple', '#551A8B');
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_course_participants` (
+CREATE TABLE IF NOT EXISTS `#__organizer_course_participants` (
     `id`              INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `courseID`        INT(11) UNSIGNED NOT NULL,
     `participantID`   INT(11)          NOT NULL,
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_course_participants` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_courses` (
+CREATE TABLE IF NOT EXISTS `#__organizer_courses` (
     `id`               INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`            VARCHAR(255)              DEFAULT NULL,
     `campusID`         INT(11) UNSIGNED          DEFAULT NULL,
@@ -187,7 +187,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_courses` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_curricula` (
+CREATE TABLE IF NOT EXISTS `#__organizer_curricula` (
     `id`        INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `parentID`  INT(11) UNSIGNED DEFAULT NULL,
     `programID` INT(11) UNSIGNED DEFAULT NULL,
@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_curricula` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_degrees` (
+CREATE TABLE IF NOT EXISTS `#__organizer_degrees` (
     `id`           INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`        VARCHAR(255) DEFAULT NULL,
     `abbreviation` VARCHAR(25)      NOT NULL,
@@ -221,7 +221,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_degrees` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT INTO `v7ocf_organizer_degrees`
+INSERT INTO `#__organizer_degrees`
 VALUES (1, 'beng', 'B.Eng.', 'BE', 'Bachelor of Engineering'),
        (2, 'bsc', 'B.Sc.', 'BS', 'Bachelor of Science'),
        (3, 'ba', 'B.A.', 'BA', 'Bachelor of Arts'),
@@ -231,7 +231,7 @@ VALUES (1, 'beng', 'B.Eng.', 'BE', 'Bachelor of Engineering'),
        (7, 'mba', 'M.B.A.', 'MB', 'Master of Business Administration and Engineering'),
        (8, 'med', 'M.Ed.', 'MH', 'Master of Education');
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_event_coordinators` (
+CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators` (
     `id`       INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `eventID`  INT(11) UNSIGNED NOT NULL,
     `personID` INT(11) UNSIGNED NOT NULL,
@@ -244,7 +244,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_event_coordinators` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_events` (
+CREATE TABLE IF NOT EXISTS `#__organizer_events` (
     `id`               INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`            VARCHAR(255)                 DEFAULT NULL,
     `code`             VARCHAR(60)         NOT NULL COLLATE utf8mb4_bin,
@@ -282,7 +282,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_events` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_field_colors` (
+CREATE TABLE IF NOT EXISTS `#__organizer_field_colors` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `colorID`        INT(11) UNSIGNED NOT NULL,
     `fieldID`        INT(11) UNSIGNED NOT NULL,
@@ -297,7 +297,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_field_colors` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_fields` (
+CREATE TABLE IF NOT EXISTS `#__organizer_fields` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`   VARCHAR(255) DEFAULT NULL,
     `code`    VARCHAR(60)      NOT NULL COLLATE utf8mb4_bin,
@@ -311,7 +311,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_fields` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_frequencies` (
+CREATE TABLE IF NOT EXISTS `#__organizer_frequencies` (
     `id`      INT(1) UNSIGNED NOT NULL,
     `name_de` VARCHAR(150)    NOT NULL,
     `name_en` VARCHAR(150)    NOT NULL,
@@ -323,7 +323,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_frequencies` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT INTO `v7ocf_organizer_frequencies`
+INSERT INTO `#__organizer_frequencies`
 VALUES (1, 'Nach Termin', 'By Appointment'),
        (2, 'Nur im Sommersemester', 'Only Spring/Summer Term'),
        (3, 'Nur im Wintersemester', 'Only Fall/Winter Term'),
@@ -331,7 +331,7 @@ VALUES (1, 'Nach Termin', 'By Appointment'),
        (5, 'Nach Bedarf', 'As Needed'),
        (6, 'Einmal im Jahr', 'Yearly');
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_grids` (
+CREATE TABLE IF NOT EXISTS `#__organizer_grids` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `code`      VARCHAR(60)         NOT NULL,
     `name_de`   VARCHAR(150)                 DEFAULT NULL,
@@ -345,7 +345,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_grids` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_group_publishing` (
+CREATE TABLE IF NOT EXISTS `#__organizer_group_publishing` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `groupID`   INT(11) UNSIGNED    NOT NULL,
     `termID`    INT(11) UNSIGNED    NOT NULL,
@@ -359,7 +359,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_group_publishing` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_groups` (
+CREATE TABLE IF NOT EXISTS `#__organizer_groups` (
     `id`          INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`       VARCHAR(255)                 DEFAULT NULL,
     `code`        VARCHAR(60)         NOT NULL,
@@ -382,7 +382,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_groups` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_groups` (
+CREATE TABLE IF NOT EXISTS `#__organizer_instance_groups` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `assocID`  INT(20) UNSIGNED NOT NULL COMMENT 'The instance to person association id.',
     `groupID`  INT(11) UNSIGNED NOT NULL,
@@ -397,7 +397,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_groups` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_participants` (
+CREATE TABLE IF NOT EXISTS `#__organizer_instance_participants` (
     `id`            INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `instanceID`    INT(20) UNSIGNED NOT NULL,
     `participantID` INT(11)          NOT NULL,
@@ -410,7 +410,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_participants` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_persons` (
+CREATE TABLE IF NOT EXISTS `#__organizer_instance_persons` (
     `id`         INT(20) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `instanceID` INT(20) UNSIGNED    NOT NULL,
     `personID`   INT(11) UNSIGNED    NOT NULL,
@@ -427,7 +427,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_persons` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_rooms` (
+CREATE TABLE IF NOT EXISTS `#__organizer_instance_rooms` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `assocID`  INT(20) UNSIGNED NOT NULL COMMENT 'The instance to person association id.',
     `roomID`   INT(11) UNSIGNED NOT NULL,
@@ -442,7 +442,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instance_rooms` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instances` (
+CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `blockID`  INT(11) UNSIGNED NOT NULL,
     `eventID`  INT(11) UNSIGNED NOT NULL,
@@ -461,7 +461,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_instances` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_methods` (
+CREATE TABLE IF NOT EXISTS `#__organizer_methods` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`           VARCHAR(255) DEFAULT NULL,
     `code`            VARCHAR(60)      NOT NULL,
@@ -481,7 +481,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_methods` (
 
 # todo create a basic list
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_monitors` (
+CREATE TABLE IF NOT EXISTS `#__organizer_monitors` (
     `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `ip`              VARCHAR(15)         NOT NULL,
     `roomID`          INT(11) UNSIGNED             DEFAULT NULL,
@@ -499,7 +499,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_monitors` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_organizations` (
+CREATE TABLE IF NOT EXISTS `#__organizer_organizations` (
     `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `asset_id`        INT(11)                      DEFAULT NULL,
     `alias`           VARCHAR(255)                 DEFAULT NULL,
@@ -531,7 +531,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_organizations` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_participants` (
+CREATE TABLE IF NOT EXISTS `#__organizer_participants` (
     `id`        INT(11)             NOT NULL,
     `forename`  VARCHAR(255)        NOT NULL DEFAULT '',
     `surname`   VARCHAR(255)        NOT NULL DEFAULT '',
@@ -547,7 +547,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_participants` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_persons` (
+CREATE TABLE IF NOT EXISTS `#__organizer_persons` (
     `id`       INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`    VARCHAR(255)                 DEFAULT NULL,
     `code`     VARCHAR(60)                  DEFAULT NULL COLLATE utf8mb4_bin,
@@ -566,7 +566,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_persons` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_pools` (
+CREATE TABLE IF NOT EXISTS `#__organizer_pools` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`           VARCHAR(255)     DEFAULT NULL,
     `shortName_de`    VARCHAR(50)      DEFAULT '',
@@ -592,7 +592,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_pools` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_prerequisites` (
+CREATE TABLE IF NOT EXISTS `#__organizer_prerequisites` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `subjectID`      INT(11) UNSIGNED NOT NULL,
     `prerequisiteID` INT(11) UNSIGNED NOT NULL,
@@ -605,7 +605,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_prerequisites` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_programs` (
+CREATE TABLE IF NOT EXISTS `#__organizer_programs` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`          VARCHAR(255)                 DEFAULT NULL,
     `accredited`     YEAR(4)             NOT NULL,
@@ -629,7 +629,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_programs` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roles` (
+CREATE TABLE IF NOT EXISTS `#__organizer_roles` (
     `id`              TINYINT(2) UNSIGNED NOT NULL AUTO_INCREMENT,
     `code`            VARCHAR(25)         NOT NULL,
     `abbreviation_de` VARCHAR(25)         NOT NULL,
@@ -645,13 +645,13 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roles` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_roles`
+INSERT IGNORE INTO `#__organizer_roles`
 VALUES (1, 'DOZ', 'DOZ', 'TCH', 'Lehrende', 'Teacher', 'Lehrende', 'Teachers'),
        (2, 'TUT', 'TUT', 'TUT', 'Betreuende', 'Tutor', 'Betreuenden', 'Tutors'),
        (3, 'AFS', 'AFS', 'SPR', 'Aufsicht', 'Supervisor', 'Aufsichten', 'Supervisors'),
        (4, 'REF', 'REF', 'SPK', 'Referent', 'Speaker', 'Referenten', 'Speakers');
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roomtypes` (
+CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`          VARCHAR(255)                 DEFAULT NULL,
     `code`           VARCHAR(60)         NOT NULL COLLATE utf8mb4_bin,
@@ -672,7 +672,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_roomtypes` (
 
 # todo create a basic list
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_rooms` (
+CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `id`         INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`      VARCHAR(255)                 DEFAULT NULL,
     `code`       VARCHAR(60)                  DEFAULT NULL COLLATE utf8mb4_bin,
@@ -691,7 +691,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_rooms` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_schedules` (
+CREATE TABLE IF NOT EXISTS `#__organizer_schedules` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `organizationID` INT(11) UNSIGNED NOT NULL,
     `termID`         INT(11) UNSIGNED NOT NULL,
@@ -708,7 +708,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_schedules` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subject_events` (
+CREATE TABLE IF NOT EXISTS `#__organizer_subject_events` (
     `id`        INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `eventID`   INT(11) UNSIGNED NOT NULL,
     `subjectID` INT(11) UNSIGNED NOT NULL,
@@ -721,7 +721,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subject_events` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subject_persons` (
+CREATE TABLE IF NOT EXISTS `#__organizer_subject_persons` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `personID`  INT(11) UNSIGNED    NOT NULL,
     `role`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
@@ -736,7 +736,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subject_persons` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subjects` (
+CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `id`                          INT(11) UNSIGNED      NOT NULL AUTO_INCREMENT,
     `alias`                       VARCHAR(255)                   DEFAULT NULL,
     `code`                        VARCHAR(60)                    DEFAULT NULL,
@@ -796,7 +796,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_subjects` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_units` (
+CREATE TABLE IF NOT EXISTS `#__organizer_units` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `code`           INT(11) UNSIGNED NOT NULL,
     `organizationID` INT(11) UNSIGNED NOT NULL,
@@ -822,17 +822,17 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_units` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-ALTER TABLE `v7ocf_organizer_associations`
-    ADD CONSTRAINT `association_organizationID_fk` FOREIGN KEY (`organizationID`) REFERENCES `v7ocf_organizer_organizations` (`id`)
+ALTER TABLE `#__organizer_associations`
+    ADD CONSTRAINT `association_organizationID_fk` FOREIGN KEY (`organizationID`) REFERENCES `#__organizer_organizations` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    ADD CONSTRAINT `association_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `v7ocf_organizer_categories` (`id`)
+    ADD CONSTRAINT `association_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `#__organizer_categories` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    ADD CONSTRAINT `association_groupID_fk` FOREIGN KEY (`groupID`) REFERENCES `v7ocf_organizer_groups` (`id`)
+    ADD CONSTRAINT `association_groupID_fk` FOREIGN KEY (`groupID`) REFERENCES `#__organizer_groups` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    ADD CONSTRAINT `association_personID_fk` FOREIGN KEY (`personID`) REFERENCES `v7ocf_organizer_persons` (`id`)
+    ADD CONSTRAINT `association_personID_fk` FOREIGN KEY (`personID`) REFERENCES `#__organizer_persons` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     ADD CONSTRAINT `association_poolID_fk` FOREIGN KEY (`poolID`) REFERENCES `v7ocf_organizer_pools` (`id`)

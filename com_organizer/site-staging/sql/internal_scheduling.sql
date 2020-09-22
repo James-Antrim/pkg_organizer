@@ -1,5 +1,5 @@
 # region holidays
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_holidays` (
+CREATE TABLE IF NOT EXISTS `#__organizer_holidays` (
     `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `name_de`   VARCHAR(150)        NOT NULL,
     `name_en`   VARCHAR(150)        NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_holidays` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_holidays` (`id`, `name_de`, `name_en`, `startDate`, `endDate`, `type`)
+INSERT IGNORE INTO `#__organizer_holidays` (`id`, `name_de`, `name_en`, `startDate`, `endDate`, `type`)
 VALUES (1, 'Christi Himmelfahrt', 'Ascension Day', '2019-05-30', '2019-05-30', 3),
        (2, 'Weihnachten', 'Christmas Day ', '2019-12-25', '2019-12-26', 3),
        (3, 'Tag der Deutschen Einheit', 'Day of German Unity', '2019-10-03', '2019-10-03', 3),
@@ -70,7 +70,7 @@ VALUES (1, 'Christi Himmelfahrt', 'Ascension Day', '2019-05-30', '2019-05-30', 3
 # endregion
 
 # region runs
-CREATE TABLE IF NOT EXISTS `v7ocf_organizer_runs` (
+CREATE TABLE IF NOT EXISTS `#__organizer_runs` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name_de` VARCHAR(150)     NOT NULL,
     `name_en` VARCHAR(150)     NOT NULL,
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `v7ocf_organizer_runs` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO `v7ocf_organizer_runs` (`id`, `name_de`, `name_en`, `termID`, `run`)
+INSERT IGNORE INTO `#__organizer_runs` (`id`, `name_de`, `name_en`, `termID`, `run`)
 VALUES (1, 'Sommersemester', 'Summer Semester', 11,
         '{\"runs\":{\"1\":{\"startDate\":\"2020-04-06\",\"endDate\":\"2020-04-09\"},\"2\":{\"startDate\":\"2020-04-14\",\"endDate\":\"2020-04-17\"},\"3\":{\"startDate\":\"2020-04-20\",\"endDate\":\"2020-04-24\"},\"4\":{\"startDate\":\"2020-04-27\",\"endDate\":\"2020-04-30\"},\"5\":{\"startDate\":\"2020-05-04\",\"endDate\":\"2020-05-08\"},\"6\":{\"startDate\":\"2020-05-11\",\"endDate\":\"2020-05-15\"},\"7\":{\"startDate\":\"2020-05-18\",\"endDate\":\"2020-05-20\"},\"8\":{\"startDate\":\"2020-05-25\",\"endDate\":\"2020-05-29\"},\"9\":{\"startDate\":\"2020-06-08\",\"endDate\":\"2020-06-10\"},\"10\":{\"startDate\":\"2020-06-15\",\"endDate\":\"2020-06-19\"},\"11\":{\"startDate\":\"2020-06-22\",\"endDate\":\"2020-06-26\"},\"12\":{\"startDate\":\"2020-06-29\",\"endDate\":\"2020-07-03\"},\"13\":{\"startDate\":\"2020-07-06\",\"endDate\":\"2020-07-10\"}}}'),
        (2, 'Blockveranstaltungen 1', 'Block Event 1', 11,
@@ -147,13 +147,13 @@ VALUES (1, 'Sommersemester', 'Summer Semester', 11,
        (31, 'Projektwoche', 'Project Week', 10,
         '{\"runs\":{\"1\":{\"startDate\":\"2020-01-06\",\"endDate\":\"2020-01-10\"}}}');
 
-ALTER TABLE `v7ocf_organizer_runs`
-    ADD CONSTRAINT `run_termID_fk` FOREIGN KEY (`termID`) REFERENCES `v7ocf_organizer_terms` (`id`)
+ALTER TABLE `#__organizer_runs`
+    ADD CONSTRAINT `run_termID_fk` FOREIGN KEY (`termID`) REFERENCES `#__organizer_terms` (`id`)
         ON DELETE CASCADE
         ON UPDATE CASCADE;
 
-ALTER TABLE `v7ocf_organizer_units`
-    ADD CONSTRAINT `unit_runID_fk` FOREIGN KEY (`runID`) REFERENCES `v7ocf_organizer_runs` (`id`)
+ALTER TABLE `#__organizer_units`
+    ADD CONSTRAINT `unit_runID_fk` FOREIGN KEY (`runID`) REFERENCES `#__organizer_runs` (`id`)
         ON DELETE SET NULL
         ON UPDATE CASCADE;
 # endregion
