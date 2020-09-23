@@ -118,14 +118,14 @@ class CourseParticipants extends Participants
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!$courseID = Helpers\Input::getID())
 		{
 			Helpers\OrganizerHelper::error(400);
+		}
+
+		if (!Helpers\Users::getUser())
+		{
+			Helpers\OrganizerHelper::error(401);
 		}
 
 		if (!Helpers\Can::administrate() and !Helpers\Can::manage('course', $courseID))

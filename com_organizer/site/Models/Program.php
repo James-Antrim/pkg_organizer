@@ -201,7 +201,7 @@ class Program extends CurriculumResource
 		}
 		else
 		{
-			Helpers\OrganizerHelper::error(400);
+			return false;
 		}
 
 		$table = new Tables\Programs();

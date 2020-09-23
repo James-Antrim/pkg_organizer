@@ -29,21 +29,19 @@ class Users
 	/**
 	 * Deletes events from the user's personal schedule
 	 *
-	 * @return string the deleted calendar configuration map IDs
+	 * @return string|false the deleted calendar configuration map IDs on success, otherwise false
 	 * @throws Exception => invalid request / unauthorized access
 	 */
 	public static function deleteUserLesson()
 	{
-		$userID = self::getID();
-		if (empty($userID))
+		if (!$ccmID = Input::getInt('ccmID'))
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			return false;
 		}
 
-		$ccmID = Input::getInt('ccmID');
-		if (empty($ccmID))
+		if (!$userID = self::getID())
 		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
+			throw new Exception(Languages::_('ORGANIZER_403'), 403);
 		}
 
 		$mode            = Input::getInt('mode', self::BLOCK_MODE);
@@ -201,20 +199,18 @@ class Users
 	/**
 	 * Saves event instance references in the personal schedule of the user
 	 *
-	 * @return array saved ccmIDs
-	 * @throws Exception => invalid request / unauthorized access
+	 * @return array|false saved ccmIDs on success, otherwise false
 	 */
 	public static function saveEvent()
 	{
-		if (!$userID = self::getID())
+		if (!$ccmID = Input::getInt('ccmID'))
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			return false;
 		}
 
-		$ccmID = Input::getInt('ccmID');
-		if (empty($ccmID))
+		if (!$userID = self::getID())
 		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
+			OrganizerHelper::error(401);
 		}
 
 		$savedCcmIDs     = [];

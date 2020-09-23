@@ -40,11 +40,13 @@ class Attendance extends BaseView
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
-		elseif (!Helpers\Users::getID())
+
+		if (!Helpers\Users::getID())
 		{
 			Helpers\OrganizerHelper::error(401);
 		}
-		elseif (!Helpers\Can::manage('course', $this->courseID))
+
+		if (!Helpers\Can::manage('course', $this->courseID))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
@@ -111,16 +113,11 @@ class Attendance extends BaseView
 	}
 
 	/**
-	 * Method to get display
-	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+	 * Method to generate output.
 	 *
 	 * @return void
-	 * @throws Exception => invalid request / unauthorized access
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function display($tpl = null)
+	public function display()
 	{
 		$this->addAttendancePage();
 

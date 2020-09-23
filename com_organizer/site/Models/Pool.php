@@ -136,7 +136,7 @@ class Pool extends CurriculumResource
 		}
 		else
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
+			return false;
 		}
 
 		$table = new Tables\Pools;

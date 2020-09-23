@@ -32,7 +32,8 @@ class Badge extends BaseView
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
-		elseif (!$this->participantID = Helpers\Users::getID())
+
+		if (!$this->participantID = Helpers\Users::getID())
 		{
 			Helpers\OrganizerHelper::error(401);
 		}
@@ -55,7 +56,7 @@ class Badge extends BaseView
 	}
 
 	/**
-	 * Generates the PDF file.
+	 * Method to generate output.
 	 *
 	 * @return void
 	 */

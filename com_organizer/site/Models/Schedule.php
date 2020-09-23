@@ -229,16 +229,13 @@ class Schedule extends BaseModel
 	 */
 	public function rebuild()
 	{
-		$organizationID = Helpers\Input::getFilterID('organization');
-		$termID         = Helpers\Input::getFilterID('term');
-
-		if (!$organizationID or !$termID)
+		if (!$organizationID = Helpers\Input::getFilterID('organization') or !$termID = Helpers\Input::getFilterID('term'))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
+			return false;
 		}
 		elseif (!Helpers\Can::schedule('organization', $organizationID))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$this->deleteDuplicates();
@@ -268,11 +265,11 @@ class Schedule extends BaseModel
 	{
 		if (!$referenceID = Helpers\Input::getSelectedID())
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
+			return false;
 		}
 		elseif (!Helpers\Can::schedule('schedule', $referenceID))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$reference = new Tables\Schedules();
@@ -546,15 +543,13 @@ class Schedule extends BaseModel
 	 */
 	public function upload()
 	{
-		$organizationID = Helpers\Input::getInt('organizationID');
-
-		if (empty($organizationID))
+		if (!$organizationID = Helpers\Input::getInt('organizationID'))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
+			return false;
 		}
 		elseif (!Helpers\Can::schedule('organization', $organizationID))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$validator = new Validators\Schedules;

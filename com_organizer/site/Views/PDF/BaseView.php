@@ -129,6 +129,13 @@ abstract class BaseView extends TCPDF
 	}
 
 	/**
+	 * Method to generate output.
+	 *
+	 * @return void
+	 */
+	abstract protected function display();
+
+	/**
 	 * Defines the left, top and right margins.
 	 *
 	 * @param   int  $left   th left margin.

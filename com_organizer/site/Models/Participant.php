@@ -111,12 +111,12 @@ class Participant extends BaseModel
 
 		if (!isset($data['id']))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
+			return false;
 		}
 
 		if (!Helpers\Can::edit('participant', $data['id']))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$numericFields  = ['id', 'programID'];

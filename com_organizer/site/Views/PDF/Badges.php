@@ -29,11 +29,13 @@ class Badges extends BaseView
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
-		elseif (!Helpers\Users::getID())
+
+		if (!Helpers\Users::getID())
 		{
 			Helpers\OrganizerHelper::error(401);
 		}
-		elseif (!Helpers\Can::manage('course', $this->courseID))
+
+		if (!Helpers\Can::manage('course', $this->courseID))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
@@ -75,7 +77,7 @@ class Badges extends BaseView
 	}
 
 	/**
-	 * Generates the PDF file.
+	 * Method to generate output.
 	 *
 	 * @return void
 	 */

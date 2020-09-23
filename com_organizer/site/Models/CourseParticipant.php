@@ -47,19 +47,19 @@ class CourseParticipant extends BaseModel
 	{
 		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
+			return false;
 		}
 
 		if (!Helpers\Can::manage('course', $courseID))
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		foreach ($participantIDs as $participantID)
 		{
 			if (!Helpers\Can::manage('participant', $participantID))
 			{
-				throw new Exception(Languages::_('ORGANIZER_403'), 403);
+				Helpers\OrganizerHelper::error(403);
 			}
 
 			$table = $this->getTable();
@@ -219,14 +219,15 @@ class CourseParticipant extends BaseModel
 		$attribute     = Input::getCMD('attribute', '');
 		$courseID      = Input::getInt('courseID', 0);
 		$participantID = Input::getInt('participantID', 0);
+
 		if (!$attribute or !$courseID or !$participantID)
 		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
+			return false;
 		}
 
 		if (!Helpers\Can::manage('course', $courseID) or !Helpers\Can::manage('participant', $participantID))
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$table = $this->getTable();
