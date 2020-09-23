@@ -30,7 +30,7 @@ class PoolsField extends OptionsField
 	protected function getOptions()
 	{
 		$options = parent::getOptions();
-		$access  = $this->adminContext === self::BACKEND ? 'document' : '';
+		$access  = $this->adminContext ? 'document' : '';
 		$pools   = Helpers\Pools::getOptions($access);
 
 		return array_merge($options, $pools);

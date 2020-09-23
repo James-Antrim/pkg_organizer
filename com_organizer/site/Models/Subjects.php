@@ -52,7 +52,7 @@ class Subjects extends ListModel
 			$form->removeField('personID', 'filter');
 			unset($this->filter_fields['organizationID'], $this->filter_fields['personID']);
 		}
-		elseif ($this->adminContext === self::BACKEND)
+		elseif ($this->adminContext)
 		{
 			if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 			{
@@ -183,7 +183,7 @@ class Subjects extends ListModel
 
 		$organizationID = Helpers\Input::getFilterID('organization', self::ALL);
 
-		if ($this->adminContext === self::BACKEND)
+		if ($this->adminContext)
 		{
 			$authorized = Helpers\Can::documentTheseOrganizations();
 			if (count($authorized) === 1)

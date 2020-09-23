@@ -120,7 +120,7 @@ class Programs extends ListView
 			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
 		];
 
-		if ($this->adminContext === self::FRONTEND)
+		if (!$this->adminContext)
 		{
 			$headers['links'] = '';
 		}
@@ -139,12 +139,11 @@ class Programs extends ListView
 	 */
 	protected function structureItems()
 	{
-		$backend  = $this->adminContext === self::BACKEND;
 		$editLink = 'index.php?option=com_organizer&view=program_edit&id=';
 		$itemLink = 'index.php?option=com_organizer&view=program_item&id=';
 		$links    = '';
 
-		if (!$backend)
+		if (!$this->adminContext)
 		{
 			$template = "<a class=\"hasTooltip\" href=\"URL\" target=\"_blank\" title=\"TIP\">ICON</a>";
 
@@ -164,7 +163,7 @@ class Programs extends ListView
 		foreach ($this->items as $program)
 		{
 			// The backend entries have been prefiltered for access
-			if ($backend)
+			if ($this->adminContext)
 			{
 				$checkbox = Helpers\HTML::_('grid.id', $index, $program->id);
 				$thisLink = $editLink . $program->id;
@@ -181,7 +180,7 @@ class Programs extends ListView
 			$structuredItems[$index]['checkbox'] = $checkbox;
 			$structuredItems[$index]['name']     = Helpers\HTML::_('link', $thisLink, $program->name);
 
-			if ($backend)
+			if ($this->adminContext)
 			{
 				$tip    = $program->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
 				$toggle = $this->getToggle('programs', $program->id, $program->active, $tip, 'active');

@@ -31,7 +31,7 @@ class RoomOverview extends TableView
 	protected function addToolBar()
 	{
 		$resourceName = Helpers\Languages::_('ORGANIZER_ROOM_OVERVIEW');
-		if ($this->adminContext == self::FRONTEND)
+		if (!$this->adminContext)
 		{
 			if ($campusID = Helpers\Input::getInt('campusID'))
 			{

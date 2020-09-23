@@ -55,7 +55,7 @@ class OrganizationFilterField extends OptionsField
 	protected function getOptions()
 	{
 		$options       = parent::getOptions();
-		$access        = $this->adminContext === self::BACKEND ? $this->getAttribute('access', '') : '';
+		$access        = $this->adminContext ? $this->getAttribute('access', '') : '';
 		$organizations = Helpers\Organizations::getOptions(true, $access);
 
 		return count($organizations) > 1 ? array_merge($options, $organizations) : $organizations;

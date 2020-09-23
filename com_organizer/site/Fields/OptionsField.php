@@ -22,8 +22,6 @@ class OptionsField extends FormField
 {
 	use Translated;
 
-	const BACKEND = true, FRONTEND = false;
-
 	protected $adminContext;
 
 	/**

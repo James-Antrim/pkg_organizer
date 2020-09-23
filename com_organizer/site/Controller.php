@@ -26,8 +26,6 @@ use Organizer\Helpers\OrganizerHelper;
  */
 class Controller extends BaseController
 {
-	const BACKEND = true, FRONTEND = false;
-
 	public $adminContext;
 
 	protected $listView = '';

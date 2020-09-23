@@ -135,7 +135,7 @@ class Courses extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
-		if ($this->adminContext === self::FRONTEND)
+		if (!$this->adminContext)
 		{
 			$params = Helpers\Input::getParams();
 

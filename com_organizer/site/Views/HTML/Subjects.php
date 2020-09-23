@@ -43,7 +43,7 @@ class Subjects extends ListView
 	protected function addToolBar()
 	{
 		$resourceName = '';
-		if ($this->adminContext == self::FRONTEND)
+		if (!$this->adminContext)
 		{
 			if ($personID = $this->state->get('calledPersonID', 0))
 			{
@@ -122,9 +122,9 @@ class Subjects extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$headers   = [];
 
-		if ($this->adminContext === self::BACKEND or $this->documentAccess)
+		if ($this->adminContext or $this->documentAccess)
 		{
-			$headers['checkbox'] = ($this->adminContext === self::BACKEND and $this->documentAccess) ?
+			$headers['checkbox'] = ($this->adminContext and $this->documentAccess) ?
 				Helpers\HTML::_('grid.checkall') : '';
 		}
 
@@ -226,14 +226,13 @@ class Subjects extends ListView
 	 */
 	protected function structureItems()
 	{
-		$backend         = $this->adminContext === self::BACKEND;
 		$editLink        = 'index.php?option=com_organizer&view=subject_edit&id=';
 		$index           = 0;
 		$itemLink        = 'index.php?option=com_organizer&view=subject_item&id=';
 		$structuredItems = [];
 
 		$attributes = [];
-		if ($this->adminContext === self::FRONTEND)
+		if (!$this->adminContext)
 		{
 			$attributes['target'] = '_blank';
 		}
@@ -244,11 +243,11 @@ class Subjects extends ListView
 		{
 			$access   = Helpers\Can::document('subject', (int) $subject->id);
 			$checkbox = $access ? Helpers\HTML::_('grid.id', $index, $subject->id) : '';
-			$thisLink = ($backend and $access) ? $editLink . $subject->id : $itemLink . $subject->id;
+			$thisLink = ($this->adminContext and $access) ? $editLink . $subject->id : $itemLink . $subject->id;
 
 			$structuredItems[$index] = [];
 
-			if ($backend or $this->documentAccess)
+			if ($this->adminContext or $this->documentAccess)
 			{
 				$structuredItems[$index]['checkbox'] = $checkbox;
 			}

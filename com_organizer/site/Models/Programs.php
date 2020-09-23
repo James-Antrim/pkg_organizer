@@ -34,7 +34,7 @@ class Programs extends ListModel
 	{
 		parent::filterFilterForm($form);
 
-		if ($this->adminContext === self::BACKEND)
+		if ($this->adminContext)
 		{
 			if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 			{
@@ -80,7 +80,7 @@ class Programs extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
-		if ($this->adminContext === self::BACKEND)
+		if ($this->adminContext)
 		{
 			$authorized = Helpers\Can::documentTheseOrganizations();
 			if (count($authorized) === 1)

@@ -22,8 +22,6 @@ use Organizer\Helpers;
  */
 abstract class BaseView extends HtmlView
 {
-	const BACKEND = true, FRONTEND = false;
-
 	public $adminContext;
 
 	/**

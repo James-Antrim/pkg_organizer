@@ -24,7 +24,7 @@ abstract class ListModel extends ParentModel
 {
 	use Named;
 
-	const ALL = '', BACKEND = true, FRONTEND = false, NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
+	const ALL = '', NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
 	protected $adminContext;
 
@@ -66,7 +66,7 @@ abstract class ListModel extends ParentModel
 	 */
 	protected function filterFilterForm(&$form)
 	{
-		if ($this->adminContext === self::BACKEND)
+		if ($this->adminContext)
 		{
 			$form->removeField('languageTag', 'list');
 
@@ -403,7 +403,7 @@ abstract class ListModel extends ParentModel
 	 */
 	protected function setOrganizationFilter($query, $context, $alias)
 	{
-		$authorizedOrgIDs = $this->adminContext === self::BACKEND ?
+		$authorizedOrgIDs = $this->adminContext ?
 			Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
 		$organizationID   = $this->state->get('filter.organizationID', 0);
 

@@ -39,7 +39,7 @@ abstract class BaseHTMLView extends BaseView
 	 */
 	protected function addDisclaimer()
 	{
-		if ($this->adminContext === self::BACKEND)
+		if ($this->adminContext)
 		{
 			return;
 		}
@@ -89,7 +89,7 @@ abstract class BaseHTMLView extends BaseView
 	 */
 	protected function addMenu()
 	{
-		if ($this->adminContext == self::FRONTEND)
+		if (!$this->adminContext)
 		{
 			return;
 		}
