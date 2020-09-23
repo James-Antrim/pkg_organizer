@@ -70,7 +70,11 @@ class Instances extends ListModel
 				unset($this->filter_fields[array_search('organizationID', $this->filter_fields)]);
 			}
 
-			if ($params->get('dow') or $methodID = $params->get('methodID'))
+			$dow      = $params->get('dow');
+			$endDate  = $params->get('endDate');
+			$methodID = $params->get('methodID');
+
+			if ($dow or $endDate or $methodID)
 			{
 				$form->removeField('date', 'list');
 				$form->removeField('interval', 'list');
@@ -82,8 +86,6 @@ class Instances extends ListModel
 				}
 			}
 		}
-
-		return;
 	}
 
 	/**
@@ -201,26 +203,42 @@ class Instances extends ListModel
 				$this->state->set('filter.organizationID', $organizationID);
 			}
 
-			if ($methodID = $params->get('methodID') or $dow = $params->get('dow'))
+			$dow       = $params->get('dow');
+			$endDate   = $params->get('endDate');
+			$methodID  = $params->get('methodID');
+			$startDate = $params->get('startDate');
+
+			if ($dow or $endDate or $methodID)
 			{
-				$date      = date('Y-m-d');
-				$listItems = Helpers\Input::getListItems();
+				$defaultDate = date('Y-m-d');
+				$date        = ($startDate and $startDate > $defaultDate) ? $startDate : $defaultDate;
+				$listItems   = Helpers\Input::getListItems();
 
 				$listItems->set('date', $date);
 				$this->state->set('list.date', $date);
 
-				$listItems->set('interval', 'quarter');
-				$this->state->set('list.interval', 'quarter');
-
-				if (empty($dow))
+				if ($endDate)
 				{
-					$filterItems->set('methodID', $methodID);
-					$this->state->set('filter.methodID', $methodID);
+					$listItems->set('interval', 'day');
+					$this->state->set('list.interval', 'day');
+					$this->state->set('list.endDate', $endDate);
 				}
 				else
 				{
+					$listItems->set('interval', 'quarter');
+					$this->state->set('list.interval', 'quarter');
+				}
+
+				if ($dow)
+				{
 					$filterItems->set('dow', $dow);
 					$this->state->set('filter.dow', $dow);
+				}
+
+				if ($methodID)
+				{
+					$filterItems->set('methodID', $methodID);
+					$this->state->set('filter.methodID', $methodID);
 				}
 			}
 		}
@@ -246,6 +264,13 @@ class Instances extends ListModel
 
 		// Reliant on date and interval properties
 		Helpers\Instances::setDates($conditions);
+
+		$this->state->set('list.date', $conditions['startDate']);
+
+		if ($endDate = $this->state->get('list.endDate'))
+		{
+			$conditions['endDate'] = $endDate;
+		}
 
 		if ($groupID = $this->state->get('filter.groupID'))
 		{
@@ -278,9 +303,6 @@ class Instances extends ListModel
 		{
 			$conditions['roomIDs'] = [$roomID];
 		}
-
-
-		$this->state->set('list.date', $conditions['startDate']);
 
 		return $conditions;
 	}

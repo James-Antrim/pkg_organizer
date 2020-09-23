@@ -21,6 +21,8 @@
             <field name="methodID" type="Methods" label="METHOD">
                 <option value="">ALL_METHODS</option>
             </field>
+            <field name="startDate" type="Date" label="START_DATE"/>
+            <field name="endDate" type="Date" label="END_DATE"/>
         </fieldset>
     </fields>
 </form>
