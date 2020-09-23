@@ -91,47 +91,6 @@ class CourseParticipant extends BaseModel
 	}
 
 	/**
-	 * Saves data for participants when administrator changes state in manager
-	 *
-	 * @return bool true on success, false on error
-	 * @throws Exception => unauthorized access
-	 */
-	public function changeParticipantState()
-	{
-		$data     = Input::getInput()->getArray();
-		$courseID = Input::getID();
-
-		if (!Helpers\Can::manage('course', $courseID))
-		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
-
-		$participantIDs = $data['checked'];
-		$state          = (int) $data['participantState'];
-		$invalidState   = ($state < 0 or $state > 2);
-
-		if (empty($participantIDs) or empty($courseID) or $invalidState)
-		{
-			return false;
-		}
-
-		foreach ($data['checked'] as $participantID)
-		{
-			if (!Participants::changeState($participantID, $courseID, $state))
-			{
-				return false;
-			}
-
-			if ($state === 0)
-			{
-				Helpers\Courses::refreshWaitList($courseID);
-			}
-		}
-
-		return true;
-	}
-
-	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.
@@ -157,11 +116,11 @@ class CourseParticipant extends BaseModel
 	{
 		if (!$courseID = Input::getID())
 		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
+			return false;
 		}
 		elseif (!Helpers\Can::manage('course', $courseID))
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$courseParticipants   = Helpers\Courses::getParticipantIDs($courseID);
@@ -198,16 +157,12 @@ class CourseParticipant extends BaseModel
 	{
 		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
-			Helpers\OrganizerHelper::message(Languages::_('ORGANIZER_400'), 'error');
-
 			return false;
 		}
 
 		if (!Helpers\Can::manage('course', $courseID))
 		{
-			Helpers\OrganizerHelper::message(Languages::_('ORGANIZER_403'), 'error');
-
-			return false;
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$dates = Helpers\Courses::getDates($courseID);
@@ -224,9 +179,7 @@ class CourseParticipant extends BaseModel
 		{
 			if (!Helpers\Can::manage('participant', $participantID))
 			{
-				Helpers\OrganizerHelper::message(Languages::_('ORGANIZER_403'), 'error');
-
-				return false;
+				Helpers\OrganizerHelper::error(403);
 			}
 
 			$courseParticipant = new Tables\CourseParticipants();

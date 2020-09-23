@@ -328,8 +328,7 @@ class OrganizationOccupancy extends BaseModel
 		$ringQuery->where("conf.configuration REGEXP '$regexp'");
 		$this->_db->setQuery($ringQuery);
 
-		$roomConfigurations = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
-		if (empty($roomConfigurations))
+		if (!$roomConfigurations = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
 		{
 			return false;
 		}

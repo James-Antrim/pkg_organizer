@@ -109,8 +109,7 @@ class Group extends MergeModel implements ScheduleResource
 			$query->where("termID = {$term['id']}");
 
 			$this->_db->setQuery($query);
-			$success = Helpers\OrganizerHelper::executeQuery('execute');
-			if (!$success)
+			if (!Helpers\OrganizerHelper::executeQuery('execute', false))
 			{
 				return false;
 			}

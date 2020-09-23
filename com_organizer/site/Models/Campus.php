@@ -68,6 +68,8 @@ class Campus extends BaseModel
 		{
 			$table = new Tables\Campuses;
 			$table->load($parentID);
+
+			// The chosen superordinate campus is in itself subordinate.
 			if (!empty($table->parentID))
 			{
 				return false;

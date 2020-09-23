@@ -45,10 +45,7 @@ class Course extends BaseModel
 	 */
 	public function deregister()
 	{
-		$courseID      = Helpers\Input::getID();
-		$participantID = Helpers\Users::getID();
-
-		if (!$courseID or !$participantID)
+		if (!$courseID = Helpers\Input::getID() or !$participantID = Helpers\Users::getID())
 		{
 			return false;
 		}
