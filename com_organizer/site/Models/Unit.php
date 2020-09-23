@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -23,7 +22,6 @@ class Unit extends BaseModel
 	 * Creates a course based on the information associated with the given unit.
 	 *
 	 * @return int the id of the newly created course
-	 * @throws Exception
 	 */
 	public function addCourse()
 	{
@@ -41,7 +39,7 @@ class Unit extends BaseModel
 		$authorized = Helpers\Can::scheduleTheseOrganizations();
 		if (!in_array($unit->organizationID, $authorized))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_401'), 401);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$event  = new Tables\Events();

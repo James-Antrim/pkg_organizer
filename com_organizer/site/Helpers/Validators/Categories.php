@@ -10,7 +10,6 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 use SimpleXMLElement;
@@ -113,7 +112,6 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
-	 * @throws Exception => invalid request, unauthorized access
 	 */
 	public static function validate($model, $node)
 	{

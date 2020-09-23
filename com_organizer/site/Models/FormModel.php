@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\FormModel as ParentModel;
 use Organizer\Helpers;
@@ -43,11 +42,6 @@ class FormModel extends ParentModel
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::administrate())
 		{
 			Helpers\OrganizerHelper::error(403);
@@ -61,7 +55,6 @@ class FormModel extends ParentModel
 	 * @param   bool   $loadData  Load data  (default: true)
 	 *
 	 * @return mixed Form object on success, False on error.
-	 * @throws Exception => unauthorized access
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

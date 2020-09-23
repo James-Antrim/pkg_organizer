@@ -55,11 +55,6 @@ class Events extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::edit('events'))
 		{
 			Helpers\OrganizerHelper::error(403);

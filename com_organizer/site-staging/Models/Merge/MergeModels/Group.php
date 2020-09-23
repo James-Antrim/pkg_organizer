@@ -26,11 +26,6 @@ class Group extends MergeModel implements ScheduleResource
 	 */
 	protected function allow()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if ($this->selected and !Helpers\Can::edit('groups', $this->selected))
 		{
 			Helpers\OrganizerHelper::error(403);

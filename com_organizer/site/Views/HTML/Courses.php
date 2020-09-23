@@ -166,11 +166,6 @@ class Courses extends ListView
 			return;
 		}
 
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::scheduleTheseOrganizations())
 		{
 			Helpers\OrganizerHelper::error(403);

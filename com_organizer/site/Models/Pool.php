@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 use SimpleXMLElement;
@@ -114,7 +113,6 @@ class Pool extends CurriculumResource
 	 * @param   array  $data  form data
 	 *
 	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => invalid request, unauthorized access
 	 */
 	public function save($data = [])
 	{
@@ -124,14 +122,14 @@ class Pool extends CurriculumResource
 		{
 			if (!Helpers\Can::documentTheseOrganizations())
 			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+				Helpers\OrganizerHelper::error(403);
 			}
 		}
 		elseif (is_numeric($data['id']))
 		{
 			if (!Helpers\Can::document('pool', (int) $data['id']))
 			{
-				throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+				Helpers\OrganizerHelper::error(403);
 			}
 		}
 		else

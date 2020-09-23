@@ -118,15 +118,10 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (($id = Helpers\Input::getID() and !Helpers\Can::document($this->resource, $id))
 			or !Helpers\Can::documentTheseOrganizations())
 		{
-			Helpers\OrganizerHelper::error(403);
+			OrganizerHelper::error(403);
 		}
 	}
 

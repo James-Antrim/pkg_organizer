@@ -10,7 +10,6 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 use SimpleXMLElement;
@@ -91,7 +90,6 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public static function validate($model, $node)
 	{

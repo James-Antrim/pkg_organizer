@@ -25,11 +25,6 @@ class CourseEdit extends EditModel
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getID())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::manage('course', (int) $this->item->id))
 		{
 			Helpers\OrganizerHelper::error(403);

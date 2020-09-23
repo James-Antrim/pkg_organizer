@@ -12,9 +12,8 @@ namespace Organizer\Views\PDF;
 
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
-use Exception;
+use Organizer\Helpers;
 use Organizer\Views\BaseView;
-use OrganizerTemplateSchedule_Export_PDF;
 
 jimport('tcpdf.tcpdf');
 
@@ -23,6 +22,11 @@ jimport('tcpdf.tcpdf');
  */
 class ScheduleExport extends BaseView
 {
+	/**
+	 * @var bool
+	 */
+	private $compiler;
+
 	public $document;
 
 	/**
@@ -31,7 +35,6 @@ class ScheduleExport extends BaseView
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 *
 	 * @return void
-	 * @throws Exception => library missing
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
@@ -56,7 +59,6 @@ class ScheduleExport extends BaseView
 	 * Imports libraries and sets library variables
 	 *
 	 * @return bool true if the tcpdf library is installed, otherwise false
-	 * @throws Exception => library missing
 	 */
 	private function checkLibraries()
 	{
@@ -64,7 +66,7 @@ class ScheduleExport extends BaseView
 
 		if (!$this->compiler)
 		{
-			throw new Exception(Languages::_('ORGANIZER_501'), 501);
+			Helpers\OrganizerHelper::error(503);
 		}
 
 		return true;

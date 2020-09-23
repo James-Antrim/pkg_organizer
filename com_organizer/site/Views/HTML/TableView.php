@@ -10,11 +10,9 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
 use Joomla\Registry\Registry;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
@@ -55,7 +53,6 @@ abstract class TableView extends BaseHTMLView
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function display($tpl = null)
 	{

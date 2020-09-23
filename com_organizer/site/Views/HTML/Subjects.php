@@ -100,11 +100,6 @@ class Subjects extends ListView
 			return;
 		}
 
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!$this->documentAccess = Helpers\Can::documentTheseOrganizations())
 		{
 			Helpers\OrganizerHelper::error(403);

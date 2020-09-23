@@ -10,13 +10,9 @@
 
 namespace Organizer\Models;
 
-use Exception;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
-
-// Exception for frequency of use
 use Organizer\Tables;
 
 /**
@@ -30,7 +26,6 @@ class CourseItem extends ItemModel
 	 * Loads subject information from the database
 	 *
 	 * @return array  subject data on success, otherwise empty
-	 * @throws Exception
 	 */
 	public function getItem()
 	{

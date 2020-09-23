@@ -10,10 +10,8 @@
 
 namespace Organizer\Helpers;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\User;
-use Organizer\Tables;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -29,25 +27,24 @@ class Users
 	/**
 	 * Deletes events from the user's personal schedule
 	 *
-	 * @return string|false the deleted calendar configuration map IDs on success, otherwise false
-	 * @throws Exception => invalid request / unauthorized access
+	 * @return array the deleted calendar configuration map IDs
 	 */
 	public static function deleteUserLesson()
 	{
+		$deletedCcmIDs = [];
 		if (!$ccmID = Input::getInt('ccmID'))
 		{
-			return false;
+			return $deletedCcmIDs;
 		}
 
 		if (!$userID = self::getID())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			OrganizerHelper::error(403);
 		}
 
-		$mode            = Input::getInt('mode', self::BLOCK_MODE);
+		/*$mode            = Input::getInt('mode', self::BLOCK_MODE);
 		$matchingLessons = self::getMatchingLessons($mode, $ccmID);
 
-		$deletedCcmIDs = [];
 		foreach ($matchingLessons as $lessonID => $ccmIDs)
 		{
 			$userLessonTable = new Tables\CourseParticipants;
@@ -91,7 +88,7 @@ class Users
 
 				$userLessonTable->store();
 			}
-		}
+		}*/
 
 		return $deletedCcmIDs;
 	}
@@ -199,35 +196,29 @@ class Users
 	/**
 	 * Saves event instance references in the personal schedule of the user
 	 *
-	 * @return array|false saved ccmIDs on success, otherwise false
+	 * @return array saved ccmIDs
 	 */
-	public static function saveEvent()
+	public static function saveUserLesson()
 	{
+		$savedCcmIDs = [];
+
 		if (!$ccmID = Input::getInt('ccmID'))
 		{
-			return false;
+			return $savedCcmIDs;
 		}
 
-		if (!$userID = self::getID())
+		if (!$userID = Users::getID())
 		{
-			OrganizerHelper::error(401);
+			OrganizerHelper::error(403);
 		}
 
-		$savedCcmIDs     = [];
-		$mode            = Input::getInt('mode', self::BLOCK_MODE);
+		/*$mode            = Input::getInt('mode', self::BLOCK_MODE);
 		$matchingLessons = self::getMatchingLessons($mode, $ccmID);
 
 		foreach ($matchingLessons as $lessonID => $ccmIDs)
 		{
-			try
-			{
-				$userLessonTable = new Tables\CourseParticipants;
-				$hasUserLesson   = $userLessonTable->load(['userID' => $userID, 'lessonID' => $lessonID]);
-			}
-			catch (Exception $e)
-			{
-				return '[]';
-			}
+			$userLessonTable = new Tables\CourseParticipants;
+			$hasUserLesson   = $userLessonTable->load(['userID' => $userID, 'lessonID' => $lessonID]);
 
 			$conditions = [
 				'userID'      => $userID,
@@ -250,7 +241,7 @@ class Users
 			{
 				$savedCcmIDs = array_merge($savedCcmIDs, $ccmIDs);
 			}
-		}
+		}*/
 
 		return $savedCcmIDs;
 	}

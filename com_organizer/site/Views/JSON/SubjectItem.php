@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\JSON;
 
-use Exception;
 use Organizer\Models\SubjectItem as Model;
 
 /**
@@ -22,7 +21,6 @@ class SubjectItem extends BaseView
 	 * loads model data into view context
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function display()
 	{

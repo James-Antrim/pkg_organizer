@@ -13,16 +13,13 @@ namespace Organizer\Views\HTML;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Helpers;
 
 /**
  * Class loads person workload statistics into the display context.
  */
 class Deputat extends BaseHTMLView
 {
-	public $endCalendar = '';
-
-	public $hoursSelectBox = '';
-
 	public $model = null;
 
 	public $params = null;
@@ -35,8 +32,6 @@ class Deputat extends BaseHTMLView
 
 	public $persons;
 
-	public $typeSelectBox = '';
-
 	/**
 	 * Method to get display
 	 *
@@ -47,15 +42,15 @@ class Deputat extends BaseHTMLView
 	 */
 	public function display($tpl = null)
 	{
-		if (!Access::isAdmin())
+		if (!Helpers\Can::administrate())
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		// Sets js and css
 		$this->modifyDocument();
 
-		$this->params = OrganizerHelper::getParams();
+		$this->params = Helpers\Input::getParams();
 
 		$this->model            = $this->getModel();
 		$this->organizationName = $this->model->organizationName;
@@ -92,7 +87,7 @@ class Deputat extends BaseHTMLView
 		$schedules  = $this->model->getOrganizationSchedules();
 
 		$options    = [];
-		$options[0] = Languages::_('ORGANIZER_FILTER_SCHEDULE');
+		$options[0] = Helpers\Languages::_('ORGANIZER_FILTER_SCHEDULE');
 		foreach ($schedules as $schedule)
 		{
 			$options[$schedule['id']] = $schedule['name'];
@@ -101,7 +96,7 @@ class Deputat extends BaseHTMLView
 		$attribs             = [];
 		$attribs['onChange'] = "jQuery('#reset').val('1');this.form.submit();";
 
-		$this->scheduleSelectBox = HTML::selectBox($options, 'scheduleID', $attribs, $scheduleID);
+		$this->scheduleSelectBox = Helpers\HTML::selectBox($options, 'scheduleID', $attribs, $scheduleID);
 	}
 
 	/**
@@ -114,7 +109,7 @@ class Deputat extends BaseHTMLView
 		$persons = $this->model->persons;
 
 		$options      = [];
-		$options['*'] = Languages::_('JALL');
+		$options['*'] = Helpers\Languages::_('JALL');
 		foreach ($persons as $personID => $personName)
 		{
 			$options[$personID] = $personName;
@@ -122,7 +117,7 @@ class Deputat extends BaseHTMLView
 
 		$attribs         = ['multiple' => 'multiple', 'size' => '10'];
 		$selectedPersons = $this->model->selected;
-		$this->persons   = HTML::selectBox($options, 'persons', $attribs, $selectedPersons);
+		$this->persons   = Helpers\HTML::selectBox($options, 'persons', $attribs, $selectedPersons);
 	}
 
 	/**

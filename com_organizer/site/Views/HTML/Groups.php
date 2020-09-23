@@ -96,11 +96,6 @@ class Groups extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::scheduleTheseOrganizations())
 		{
 			Helpers\OrganizerHelper::error(403);

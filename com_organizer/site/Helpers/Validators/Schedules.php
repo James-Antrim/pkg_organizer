@@ -10,7 +10,6 @@
 
 namespace Organizer\Helpers\Validators;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 use stdClass;
@@ -85,7 +84,6 @@ class Schedules
 	 * for further processing
 	 *
 	 * @return bool true on successful validation w/o errors, false if the schedule was invalid or an error occurred
-	 * @throws Exception
 	 */
 	public function validate()
 	{
@@ -191,7 +189,6 @@ class Schedules
 	 * @param   bool  $validTerm  whether or not the term is valid
 	 *
 	 * @return void true on successful validation w/o errors, false if the schedule was invalid or an error occurred
-	 * @throws Exception
 	 */
 	public function validateResources($validTerm)
 	{

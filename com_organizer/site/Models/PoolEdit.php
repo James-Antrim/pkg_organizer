@@ -26,11 +26,6 @@ class PoolEdit extends EditModel
 	 */
 	public function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::document('pool', (int) $this->item->id))
 		{
 			Helpers\OrganizerHelper::error(403);

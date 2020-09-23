@@ -10,8 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
-use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -103,7 +101,6 @@ class Participant extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
 	 */
 	public function save($data = [])
 	{

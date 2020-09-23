@@ -26,11 +26,6 @@ abstract class PoolsView extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::documentTheseOrganizations())
 		{
 			Helpers\OrganizerHelper::error(403);

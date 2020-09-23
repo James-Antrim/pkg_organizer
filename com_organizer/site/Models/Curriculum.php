@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 
 /**
@@ -22,7 +21,6 @@ class Curriculum extends ItemModel
 	 * Method to get an array of data items.
 	 *
 	 * @return mixed  An array of data items on success, false on failure.
-	 * @throws Exception
 	 */
 	public function getItem()
 	{

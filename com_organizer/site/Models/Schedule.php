@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Helpers\Validators;
 use Organizer\Tables;
@@ -28,13 +27,12 @@ class Schedule extends BaseModel
 	 * Deletes the selected schedules
 	 *
 	 * @return boolean true on successful deletion of all selected schedules, otherwise false
-	 * @throws Exception Unauthorized Access
 	 */
 	public function delete()
 	{
 		if (!Helpers\Can::scheduleTheseOrganizations())
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$scheduleIDs = Helpers\Input::getSelectedIDs();
@@ -54,7 +52,6 @@ class Schedule extends BaseModel
 	 * authorization checks, because abuse would not result in actual data loss.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	private function deleteDuplicates()
 	{
@@ -85,13 +82,12 @@ class Schedule extends BaseModel
 	 * @param $scheduleID
 	 *
 	 * @return bool
-	 * @throws Exception Unauthorized Access
 	 */
 	private function deleteSingle($scheduleID)
 	{
 		if (!Helpers\Can::schedule('schedule', $scheduleID))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$schedule = new Tables\Schedules();
@@ -169,7 +165,6 @@ class Schedule extends BaseModel
 	 * Notifies the points of contact for affected organizations of changes made to the schedule.
 	 *
 	 * @return bool
-	 * @throws Exception
 	 */
 	/*public function notify()
 	{
@@ -182,7 +177,7 @@ class Schedule extends BaseModel
 
 		if (!Helpers\Can::schedule('schedule', $referenceID))
 		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$reference = new Tables\Schedules();
@@ -225,7 +220,6 @@ class Schedule extends BaseModel
 	 * Rebuilds the history of a organization / term context.
 	 *
 	 * @return bool
-	 * @throws Exception Unauthorized access
 	 */
 	public function rebuild()
 	{
@@ -233,7 +227,8 @@ class Schedule extends BaseModel
 		{
 			return false;
 		}
-		elseif (!Helpers\Can::schedule('organization', $organizationID))
+
+		if (!Helpers\Can::schedule('organization', $organizationID))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
@@ -259,7 +254,6 @@ class Schedule extends BaseModel
 	 * Rebuilds the history of a organization / term context.
 	 *
 	 * @return bool
-	 * @throws Exception Unauthorized access
 	 */
 	public function reference()
 	{
@@ -267,7 +261,8 @@ class Schedule extends BaseModel
 		{
 			return false;
 		}
-		elseif (!Helpers\Can::schedule('schedule', $referenceID))
+
+		if (!Helpers\Can::schedule('schedule', $referenceID))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
@@ -539,7 +534,6 @@ class Schedule extends BaseModel
 	 * Saves a schedule in the database for later use
 	 *
 	 * @return  boolean true on success, otherwise false
-	 * @throws Exception Invalid Request / Unauthorized Access
 	 */
 	public function upload()
 	{
@@ -547,7 +541,8 @@ class Schedule extends BaseModel
 		{
 			return false;
 		}
-		elseif (!Helpers\Can::schedule('organization', $organizationID))
+
+		if (!Helpers\Can::schedule('organization', $organizationID))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}

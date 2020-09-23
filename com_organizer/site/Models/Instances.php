@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
@@ -112,7 +111,6 @@ class Instances extends ListModel
 	 * Method to get a list of resources from the database.
 	 *
 	 * @return JDatabaseQuery
-	 * @throws Exception
 	 */
 	protected function getListQuery()
 	{

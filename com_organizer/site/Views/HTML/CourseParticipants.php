@@ -123,12 +123,7 @@ class CourseParticipants extends Participants
 			Helpers\OrganizerHelper::error(400);
 		}
 
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
-		if (!Helpers\Can::administrate() and !Helpers\Can::manage('course', $courseID))
+		if (!Helpers\Can::manage('course', $courseID))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}

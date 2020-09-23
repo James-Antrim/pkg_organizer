@@ -30,11 +30,6 @@ class Badges extends BaseView
 			Helpers\OrganizerHelper::error(400);
 		}
 
-		if (!Helpers\Users::getID())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::manage('course', $this->courseID))
 		{
 			Helpers\OrganizerHelper::error(403);

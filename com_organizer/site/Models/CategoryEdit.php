@@ -27,11 +27,6 @@ class CategoryEdit extends EditModel
 	 */
 	public function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::edit('category', (int) $this->item->id))
 		{
 			Helpers\OrganizerHelper::error(403);

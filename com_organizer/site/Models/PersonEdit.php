@@ -27,11 +27,6 @@ class PersonEdit extends EditModel
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::manage('persons'))
 		{
 			Helpers\OrganizerHelper::error(403);

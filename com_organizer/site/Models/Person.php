@@ -73,11 +73,6 @@ class Person extends BaseModel
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::edit('persons', $this->selected))
 		{
 			Helpers\OrganizerHelper::error(403);

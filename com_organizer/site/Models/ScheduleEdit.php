@@ -24,12 +24,6 @@ class ScheduleEdit extends EditModel
 	 */
 	public function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
-		// This isn't specific because it is only a pseudo-edit view (upload)
 		if (!Helpers\Can::scheduleTheseOrganizations())
 		{
 			Helpers\OrganizerHelper::error(403);

@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\PDF;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -35,7 +34,7 @@ class Badge extends BaseView
 
 		if (!$this->participantID = Helpers\Users::getID())
 		{
-			Helpers\OrganizerHelper::error(401);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$courseParticipant = new Tables\CourseParticipants();

@@ -51,11 +51,6 @@ abstract class BaseModel extends BaseDatabaseModel
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::administrate())
 		{
 			Helpers\OrganizerHelper::error(403);
@@ -67,7 +62,6 @@ abstract class BaseModel extends BaseDatabaseModel
 	 *
 	 * @return boolean true on success, otherwise false
 	 * @throws Exception table name not resolved
-	 * @todo override parent gettable
 	 */
 	public function delete()
 	{
@@ -97,7 +91,6 @@ abstract class BaseModel extends BaseDatabaseModel
 	 *
 	 * @return int|bool int id of the resource on success, otherwise boolean false
 	 * @throws Exception table name not resolved
-	 * @todo override parent gettable
 	 */
 	public function save($data = [])
 	{

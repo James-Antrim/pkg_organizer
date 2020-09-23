@@ -326,12 +326,16 @@ class Can
 	 */
 	public static function manage($resourceType, $resource = null)
 	{
+		$user = Users::getUser();
+		if (empty($user->id))
+		{
+			return false;
+		}
+
 		if (is_bool($authorized = self::basic()))
 		{
 			return $authorized;
 		}
-
-		$user = Users::getUser();
 
 		switch ($resourceType)
 		{

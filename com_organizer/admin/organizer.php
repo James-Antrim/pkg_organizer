@@ -16,9 +16,7 @@ use Organizer\Helpers;
 
 if (!Helpers\Users::getUser()->authorise('core.manage', 'com_organizer'))
 {
-	$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-	Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
-	Helpers\OrganizerHelper::getApplication()->redirect($referrer, 403);
+	Helpers\OrganizerHelper::error(403);
 }
 
 Helpers\OrganizerHelper::setUp();

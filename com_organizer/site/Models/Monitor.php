@@ -26,11 +26,6 @@ class Monitor extends BaseModel
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::manage('facilities'))
 		{
 			Helpers\OrganizerHelper::error(403);

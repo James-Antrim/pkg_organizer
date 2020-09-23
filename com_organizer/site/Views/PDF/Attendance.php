@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\PDF;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -39,11 +38,6 @@ class Attendance extends BaseView
 		if (!$this->courseID = Helpers\Input::getID())
 		{
 			Helpers\OrganizerHelper::error(400);
-		}
-
-		if (!Helpers\Users::getID())
-		{
-			Helpers\OrganizerHelper::error(401);
 		}
 
 		if (!Helpers\Can::manage('course', $this->courseID))

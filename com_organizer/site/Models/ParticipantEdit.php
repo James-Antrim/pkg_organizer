@@ -28,11 +28,6 @@ class ParticipantEdit extends EditModel
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getID())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::edit('participant', (int) $this->participantID))
 		{
 			Helpers\OrganizerHelper::error(403);

@@ -10,7 +10,6 @@
 
 namespace Organizer\Helpers;
 
-use Exception;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Organizer\Models;
@@ -31,7 +30,6 @@ class Programs extends Curricula implements Selectable
 	 * @param   int     $categoryID   the id of the category calling this function
 	 *
 	 * @return mixed int on success, otherwise null
-	 * @throws Exception => invalid request, unauthorized access
 	 */
 	public static function create($programData, $initialName, $categoryID)
 	{

@@ -10,10 +10,8 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
 use Organizer\Tables;
 
 /**
@@ -27,7 +25,6 @@ class CourseParticipant extends BaseModel
 	 * Sets the status for the course participant to accepted
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception invalid / unauthorized access
 	 */
 	public function accept()
 	{
@@ -41,7 +38,6 @@ class CourseParticipant extends BaseModel
 	 * @param   int     $value     the new value for the property
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception invalid / unauthorized access
 	 */
 	private function batch($property, $value)
 	{
@@ -110,7 +106,6 @@ class CourseParticipant extends BaseModel
 	 * Sends a circular mail to all course participants.
 	 *
 	 * @return bool true on success, false on error
-	 * @throws Exception => invalid / unauthorized access
 	 */
 	public function notify()
 	{
@@ -118,7 +113,8 @@ class CourseParticipant extends BaseModel
 		{
 			return false;
 		}
-		elseif (!Helpers\Can::manage('course', $courseID))
+
+		if (!Helpers\Can::manage('course', $courseID))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
@@ -151,7 +147,6 @@ class CourseParticipant extends BaseModel
 	 * Sets the payment status to paid.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception invalid / unauthorized access
 	 */
 	public function remove()
 	{
@@ -212,7 +207,6 @@ class CourseParticipant extends BaseModel
 	 * Toggles binary attributes of the course participant association.
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception invalid / unauthorized access
 	 */
 	public function toggle()
 	{
@@ -260,7 +254,6 @@ class CourseParticipant extends BaseModel
 	 * Sets the status for the course participant to accepted
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception invalid / unauthorized access
 	 */
 	public function waitlist()
 	{

@@ -78,11 +78,6 @@ abstract class ListView extends BaseHTMLView
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Users::getUser())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
 		if (!Helpers\Can::administrate())
 		{
 			Helpers\OrganizerHelper::error(403);
