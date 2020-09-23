@@ -27,14 +27,8 @@ class Unit extends BaseModel
 	 */
 	public function addCourse()
 	{
-		if (!$unitID = Helpers\Input::getSelectedID())
-		{
-			throw new Exception(Helpers\Languages::_('ORGANIZER_400'), 400);
-		}
-
 		$unit = new Tables\Units();
-
-		if (!$unit->load($unitID))
+		if (!$unitID = Helpers\Input::getSelectedID() or !$unit->load($unitID))
 		{
 			return false;
 		}

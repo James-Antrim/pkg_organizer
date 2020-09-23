@@ -558,9 +558,8 @@ class Schedule extends BaseModel
 		}
 
 		$validator = new Validators\Schedules;
-		$valid     = $validator->validate();
 
-		if (!$valid)
+		if (!$validator->validate())
 		{
 			return false;
 		}

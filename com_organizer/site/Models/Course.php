@@ -50,16 +50,12 @@ class Course extends BaseModel
 
 		if (!$courseID or !$participantID)
 		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_400'), 'error');
-
 			return false;
 		}
 
 		if (!Helpers\Can::manage('participant', $participantID) and !Helpers\Can::manage('course', $courseID))
 		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_403'), 'error');
-
-			return false;
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		$dates = Helpers\Courses::getDates($courseID);

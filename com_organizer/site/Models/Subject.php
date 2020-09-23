@@ -816,14 +816,12 @@ class Subject extends CurriculumResource
 			return true;
 		}
 
-		$roleSet = $this->setPersonsByRoles($subjectID, $coordinators, self::COORDINATES);
-		if (!$roleSet)
+		if (!$this->setPersonsByRoles($subjectID, $coordinators, self::COORDINATES))
 		{
 			return false;
 		}
 
-		$teachingSet = $this->setPersonsByRoles($subjectID, $persons, self::TEACHES);
-		if (!$teachingSet)
+		if (!$this->setPersonsByRoles($subjectID, $persons, self::TEACHES))
 		{
 			return false;
 		}
@@ -843,9 +841,8 @@ class Subject extends CurriculumResource
 	private function setPersonsByRoles($subjectID, $persons, $role)
 	{
 		$subjectModel = new Subject();
-		$removed      = $subjectModel->removePersons($subjectID, $role);
 
-		if (!$removed)
+		if (!$subjectModel->removePersons($subjectID, $role))
 		{
 			return false;
 		}
@@ -890,12 +887,9 @@ class Subject extends CurriculumResource
 				}
 			}
 
-			if (!$loaded)
+			if (!$loaded and!$personTable->save($personData))
 			{
-				if (!$personTable->save($personData))
-				{
-					return false;
-				}
+				return false;
 			}
 
 			$spData  = ['personID' => $personTable->id, 'role' => $role, 'subjectID' => $subjectID];

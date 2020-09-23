@@ -70,7 +70,6 @@ class Campus extends BaseModel
 			$table->load($parentID);
 			if (!empty($table->parentID))
 			{
-				// TODO: add a message saying that it failed because the maximum depth was reached.
 				return false;
 			}
 		}
