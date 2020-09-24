@@ -90,14 +90,23 @@ abstract class BaseModel extends BaseDatabaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return int|bool int id of the resource on success, otherwise boolean false
-	 * @throws Exception table name not resolved
 	 */
 	public function save($data = [])
 	{
 		$this->authorize();
 
-		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		$table = $this->getTable();
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+
+		try
+		{
+			$table = $this->getTable();
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+			return false;
+		}
 
 		return $table->save($data) ? $table->id : false;
 	}

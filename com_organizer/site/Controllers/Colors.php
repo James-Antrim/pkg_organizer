@@ -10,7 +10,6 @@
 
 namespace Organizer\Controllers;
 
-use Exception;
 use Joomla\CMS\Router\Route;
 use Organizer\Controller;
 use Organizer\Helpers;
@@ -29,7 +28,6 @@ class Colors extends Controller
 	 * Save form data to the database.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function save()
 	{

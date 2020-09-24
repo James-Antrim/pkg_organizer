@@ -155,30 +155,35 @@ abstract class MergeModel extends BaseModel
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception table name not resolved
-	 * @todo override parent gettable
 	 */
 	public function save($data = [])
 	{
 		$this->authorize();
 
 		$this->data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		$table      = $this->getTable();
 
-		if ($table->save($this->data))
+		try
 		{
-			// Set id for new rewrite for existing.
-			$this->data['id'] = $table->id;
+			$table = $this->getTable();
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage());
 
-			if (!empty($this->association) and !$this->updateOrganizations())
-			{
-				return false;
-			}
-
-			return $table->id;
+			return false;
 		}
 
-		return false;
+		// Merge associations and external data first
+
+		// Set id for new rewrite for existing.
+		/*$this->data['id'] = $table->id;
+
+		if (!empty($this->association) and !$this->updateOrganizations())
+		{
+			return false;
+		}*/
+
+		return $table->save($this->data) ? $table->id : false;
 	}
 
 	/**

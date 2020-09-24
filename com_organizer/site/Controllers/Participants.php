@@ -10,7 +10,6 @@
 
 namespace Organizer\Controllers;
 
-use Exception;
 use Organizer\Controller;
 use Organizer\Helpers;
 use Organizer\Models;
@@ -31,7 +30,6 @@ class Participants extends Controller
 	 * then redirect to course list view
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function save()
 	{

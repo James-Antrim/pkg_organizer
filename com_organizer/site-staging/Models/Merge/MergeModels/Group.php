@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -119,8 +118,6 @@ class Group extends MergeModel implements ScheduleResource
 	 * @param   array  $data  the data from the form
 	 *
 	 * @return bool true on success, otherwise false
-	 * @throws Exception table name not resolved
-	 * @todo override parent gettable
 	 */
 	public function save($data = [])
 	{
