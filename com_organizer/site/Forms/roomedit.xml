@@ -9,7 +9,7 @@
             <option value="">NO_INPUT</option>
         </field>
         <field name="roomtypeID" type="GenericOptions" label="ROOMTYPE" localized="true" table="organizer_roomtypes"
-               textcolumn="name" valuecolumn="id">
+               textcolumn="name" valuecolumn="id" required="true">
             <option value="">SELECT_ROOMTYPE</option>
         </field>
         <field name="capacity" type="Integer" label="CAPACITY" last="500" step="1"/>
