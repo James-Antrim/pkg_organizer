@@ -16,7 +16,7 @@ use Organizer\Tables;
 /**
  * Class which manages stored room data.
  */
-class RoomMerge extends MergeModel implements ScheduleResource
+class Room extends MergeModel implements ScheduleResource
 {
 	/**
 	 * Authorizes the user.

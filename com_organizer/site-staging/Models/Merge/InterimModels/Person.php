@@ -16,7 +16,7 @@ use Organizer\Tables;
 /**
  * Class which manages stored person data.
  */
-class PersonMerge extends MergeModel implements ScheduleResource
+class Person extends MergeModel implements ScheduleResource
 {
 	protected $association = 'personID';
 
