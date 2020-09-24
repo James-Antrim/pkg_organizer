@@ -32,7 +32,7 @@ abstract class MergeView extends FormView
 		$toolbar    = Toolbar::getInstance();
 		$toolbar->appendButton(
 			'Standard',
-			'attachment',
+			'contract',
 			Helpers\Languages::_('ORGANIZER_MERGE'),
 			$controller . '.merge',
 			false

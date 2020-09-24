@@ -67,7 +67,7 @@ class Persons extends ListView
 			);*/
 			/*$toolbar->appendButton(
 				'Standard',
-				'attachment',
+				'contract',
 				Languages::_('ORGANIZER_MERGE'),
 				'persons.mergeView',
 				true

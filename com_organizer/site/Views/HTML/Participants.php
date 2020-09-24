@@ -52,7 +52,7 @@ class Participants extends ListView
 			);
 			/*$toolbar->appendButton(
 				'Standard',
-				'attachment',
+				'contract',
 				Languages::_('ORGANIZER_MERGE'),
 				'participants.mergeView',
 				true

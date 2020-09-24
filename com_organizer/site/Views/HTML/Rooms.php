@@ -55,7 +55,7 @@ class Rooms extends ListView
 		{
 			$toolbar->appendButton(
 				'Standard',
-				'attachment',
+				'contract',
 				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'rooms.mergeView',
 				true
@@ -86,7 +86,7 @@ class Rooms extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'     => '',
+			'checkbox'     => Helpers\HTML::_('grid.checkall'),
 			'roomName'     => Helpers\HTML::sort('NAME', 'roomName', $direction, $ordering),
 			'buildingName' => Helpers\HTML::sort('BUILDING', 'buildingName', $direction, $ordering),
 			'roomType'     => Helpers\HTML::sort('TYPE', 'roomType', $direction, $ordering),

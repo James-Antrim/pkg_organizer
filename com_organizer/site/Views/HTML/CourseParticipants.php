@@ -103,7 +103,7 @@ class CourseParticipants extends Participants
 		{
 			/*$toolbar->appendButton(
 				'Standard',
-				'attachment',
+				'contract',
 				Languages::_('ORGANIZER_MERGE'),
 				'participants.mergeView',
 				true
