@@ -255,6 +255,5 @@ trait CourseDocumentation
 		$this->endDate   = Helpers\Dates::formatDate($dates['endDate']);
 		$this->fee       = $course->fee;
 		$this->startDate = Helpers\Dates::formatDate($dates['startDate']);
-		//$this->dates     = $this->startDate === $this->endDate ? $this->startDate : "$this->startDate - $this->endDate";
 	}
 }

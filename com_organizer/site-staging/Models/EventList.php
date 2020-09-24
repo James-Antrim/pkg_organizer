@@ -667,14 +667,10 @@ class EventList extends FormModel
 		// The current values are meaningless and will be overwritten here
 		foreach ($this->rooms as $roomID)
 		{
-			try
+			if (!$roomsTable->load($roomID))
 			{
-				$roomsTable->load($roomID);
-			}
-			catch (Exception $exc)
-			{
-				Helpers\OrganizerHelper::message($exc->getMessage(), 'error');
 				unset($this->rooms[$roomID]);
+				continue;
 			}
 
 			$roomName       = $roomsTable->name;

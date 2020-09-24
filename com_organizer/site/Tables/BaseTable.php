@@ -10,13 +10,11 @@
 
 namespace Organizer\Tables;
 
-use InvalidArgumentException;
+use Exception;
 use JDatabaseDriver;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
 use Organizer\Helpers;
-use RuntimeException;
-use UnexpectedValueException;
 
 /**
  * Abstract class extending Table by adding a getter and setter method for individual properties and suppresses
@@ -67,8 +65,7 @@ abstract class BaseTable extends Table
 	}
 
 	/**
-	 * Method to load a row from the database by primary key and bind the fields to the Table instance properties. Wraps
-	 * the parent load function in a try catch clause to avoid redundant exception handling in other classes.
+	 * Wraps the parent load function in a try catch clause to avoid redundant exception handling in other classes.
 	 *
 	 * @param   mixed    $keys   An optional primary key value to load the row by, or an array of fields to match.
 	 *                           If not set the instance property value is used.
@@ -82,19 +79,7 @@ abstract class BaseTable extends Table
 		{
 			return parent::load($keys, $reset);
 		}
-		catch (InvalidArgumentException $exception)
-		{
-			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
-
-			return false;
-		}
-		catch (RuntimeException $exception)
-		{
-			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
-
-			return false;
-		}
-		catch (UnexpectedValueException $exception)
+		catch (Exception $exception)
 		{
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
