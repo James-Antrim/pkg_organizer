@@ -169,10 +169,10 @@ class CourseParticipants extends Participants
 			'checkbox'    => Helpers\HTML::_('grid.checkall'),
 			'fullName'    => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
 			'email'       => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
-			'programName' => Helpers\HTML::sort('PROGRAM', 'programName', $direction, $ordering),
-			'status'      => Helpers\HTML::sort('STATUS', 'status', $direction, $ordering),
-			'paid'        => Helpers\HTML::sort('PAID', 'paid', $direction, $ordering),
-			'attended'    => Helpers\HTML::sort('ATTENDED', 'attended', $direction, $ordering)
+			'programName' => Languages::_('ORGANIZER_PROGRAM'),
+			'status'      => Languages::_('ORGANIZER_STATUS'),
+			'paid'        => Languages::_('ORGANIZER_PAID'),
+			'attended'    => Languages::_('ORGANIZER_ATTENDED')
 		];
 
 		$this->headers = $headers;
