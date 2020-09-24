@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
-        <field name="code" type="MergeValues" label="UNTIS_ID"/>
-        <field name="name" type="MergeValues" label="NAME"/>
+        <field name="code" type="MergeValues" label="UNTIS_ID" required="true"/>
+        <field name="name" type="MergeValues" label="NAME" required="true"/>
         <field name="buildingID" type="MergeAssociations" label="BUILDING" textcolumn="b.name" from="rooms AS rm"
                innerJoins="buildings AS b ON b.id = rm.buildingID"/>
         <field name="roomtypeID" type="MergeAssociations" label="ROOMTYPE" textcolumn="name" localized="true"
-               from="rooms AS rm" innerJoins="roomtypes AS rt ON rt.id = rm.roomtypeID"/>
+               from="rooms AS rm" innerJoins="roomtypes AS rt ON rt.id = rm.roomtypeID" required="true"/>
         <field name="capacity" type="MergeValues" label="CAPACITY"/>
+        <field name="active" type="Options" label="ACTIVE" required="true">
+            <option value="">SELECT_VALUE</option>
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
         <field name="ids" type="MergeIDs" hidden="true"/>
     </fieldset>
 </form>
