@@ -13,8 +13,6 @@ namespace Organizer\Models;
 use Joomla\CMS\Application\ApplicationHelper;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
-
-// Exception for frequency of use
 use Organizer\Tables;
 
 /**

@@ -17,8 +17,7 @@ use Joomla\CMS\Table\Table;
 use Organizer\Helpers;
 
 /**
- * Abstract class extending Table by adding a getter and setter method for individual properties and suppresses
- * redundant exceptions from the load function.
+ * Abstract class extending Table.
  */
 abstract class BaseTable extends Table
 {
@@ -65,7 +64,7 @@ abstract class BaseTable extends Table
 	}
 
 	/**
-	 * Wraps the parent load function in a try catch clause to avoid redundant exception handling in other classes.
+	 * Wraps the parent load function in a try catch clause to avoid redundant handling in other classes.
 	 *
 	 * @param   mixed    $keys   An optional primary key value to load the row by, or an array of fields to match.
 	 *                           If not set the instance property value is used.

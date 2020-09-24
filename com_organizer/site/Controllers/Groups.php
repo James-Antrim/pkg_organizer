@@ -10,7 +10,6 @@
 
 namespace Organizer\Controllers;
 
-use Exception;
 use Joomla\CMS\Router\Route;
 use Organizer\Controller;
 use Organizer\Helpers;
@@ -53,7 +52,6 @@ class Groups extends Controller
 	 * Sets the publication status for any group / complete term pairing to true
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function publishPast()
 	{

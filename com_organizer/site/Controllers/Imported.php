@@ -10,7 +10,6 @@
 
 namespace Organizer\Controllers;
 
-use Exception;
 use Joomla\CMS\Router\Route;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
@@ -47,7 +46,6 @@ trait Imported
 	 * Makes call to the models's import batch function, and redirects to the manager view.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function import()
 	{

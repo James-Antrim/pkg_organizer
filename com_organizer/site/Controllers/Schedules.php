@@ -10,7 +10,6 @@
 
 namespace Organizer\Controllers;
 
-use Exception;
 use Organizer\Controller;
 use Organizer\Helpers;
 use Organizer\Models;
@@ -28,7 +27,6 @@ class Schedules extends Controller
 	 * Notifies the points of contact for affected organizations of changes made to the schedule.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	/*public function notify()
 	{
@@ -52,7 +50,6 @@ class Schedules extends Controller
 	 * Rebuilds the delta status of planning resources and relations.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function rebuild()
 	{
@@ -76,7 +73,6 @@ class Schedules extends Controller
 	 * Uses the model's reference function to set the marked schedule as the reference in organization/term context.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function reference()
 	{
@@ -100,7 +96,6 @@ class Schedules extends Controller
 	 * Uses the model's upload function to validate and save the file to the database should validation be successful.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function upload()
 	{

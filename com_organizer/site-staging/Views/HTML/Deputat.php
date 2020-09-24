@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
@@ -38,7 +37,6 @@ class Deputat extends BaseHTMLView
 	 * @param   Object  $tpl  template  (default: null)
 	 *
 	 * @return void
-	 * @throws Exception => unauthorized access
 	 */
 	public function display($tpl = null)
 	{

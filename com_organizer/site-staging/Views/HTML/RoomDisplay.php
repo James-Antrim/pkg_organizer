@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 

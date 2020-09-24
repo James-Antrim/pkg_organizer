@@ -61,7 +61,6 @@ abstract class BaseModel extends BaseDatabaseModel
 	 * Removes entries from the database.
 	 *
 	 * @return boolean true on success, otherwise false
-	 * @throws Exception table name not resolved
 	 */
 	public function delete()
 	{
@@ -73,10 +72,20 @@ abstract class BaseModel extends BaseDatabaseModel
 		$this->authorize();
 
 		$success = true;
-		foreach ($this->selected as $selectedID)
+
+		try
 		{
-			$table   = $this->getTable();
-			$success = ($success and $table->delete($selectedID));
+			foreach ($this->selected as $selectedID)
+			{
+				$table   = $this->getTable();
+				$success = ($success and $table->delete($selectedID));
+			}
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+			return false;
 		}
 
 		// TODO: create a message with an accurate count of successes.

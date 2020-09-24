@@ -82,10 +82,9 @@ class Controller extends BaseController
 	}
 
 	/**
-	 * Makes call to the models's delete function, and redirects to the manager view.
+	 * Makes call to the model's delete function, and redirects to the manager view.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function delete()
 	{

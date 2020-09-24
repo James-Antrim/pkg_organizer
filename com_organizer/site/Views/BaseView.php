@@ -10,7 +10,6 @@
 
 namespace Organizer\Views;
 
-use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Organizer\Helpers;

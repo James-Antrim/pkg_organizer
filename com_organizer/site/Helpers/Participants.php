@@ -10,7 +10,6 @@
 
 namespace Organizer\Helpers;
 
-use Exception;
 use Joomla\CMS\Factory;
 use Organizer\Tables;
 

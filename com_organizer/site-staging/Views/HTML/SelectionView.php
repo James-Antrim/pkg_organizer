@@ -14,11 +14,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\HTML;
-
-// Exception for frequency of use
 use Organizer\Helpers\Languages;
-
-// Exception for frequency of use
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.

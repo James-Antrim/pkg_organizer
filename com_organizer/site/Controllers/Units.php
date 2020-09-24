@@ -10,7 +10,6 @@
 
 namespace Organizer\Controllers;
 
-use Exception;
 use Organizer\Controller;
 use Organizer\Helpers;
 use Organizer\Models\Unit;
@@ -28,7 +27,6 @@ class Units extends Controller
 	 * Creates a course entry based on the data associated with a unit.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function addCourse()
 	{

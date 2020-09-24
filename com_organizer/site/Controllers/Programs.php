@@ -10,7 +10,6 @@
 
 namespace Organizer\Controllers;
 
-use Exception;
 use Organizer\Controller;
 use Organizer\Helpers;
 use Organizer\Models;
@@ -30,7 +29,6 @@ class Programs extends Controller
 	 * Makes call to the models's update batch function, and redirects to the manager view.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function update()
 	{

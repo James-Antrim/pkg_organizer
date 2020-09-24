@@ -144,18 +144,9 @@ class Organizations extends ResourceHelper implements Selectable
 		}
 
 		// todo remove this on completion of migration
-		$organizationID = Input::getInt('organizationID');
+		$organizationID         = Input::getInt('organizationID');
 		$data['organizationID'] = $organizationID ? $organizationID : Input::getInt('departmentID');
 
-		try
-		{
-			$associations->save($data);
-		}
-		catch (Exception $exc)
-		{
-			OrganizerHelper::message($exc->getMessage(), 'error');
-		}
-
-		return;
+		$associations->save($data);
 	}
 }

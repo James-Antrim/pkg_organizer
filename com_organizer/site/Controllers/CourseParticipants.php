@@ -28,7 +28,6 @@ class CourseParticipants extends Controller
 	 * Accepts the selected participants into the course.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function accept()
 	{
@@ -72,7 +71,6 @@ class CourseParticipants extends Controller
 	 * Sends an circular email to all course participants
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function notify()
 	{
@@ -109,7 +107,6 @@ class CourseParticipants extends Controller
 	 * Accepts the selected participants into the course.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function remove()
 	{
@@ -132,7 +129,6 @@ class CourseParticipants extends Controller
 	 * Toggles binary resource properties from a list view.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function toggle()
 	{
@@ -155,7 +151,6 @@ class CourseParticipants extends Controller
 	 * Accepts the selected participants into the course.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function waitlist()
 	{

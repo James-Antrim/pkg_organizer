@@ -16,7 +16,6 @@ use Joomla\CMS\Factory;
 use Organizer\Controller;
 use Organizer\Tables;
 use ReflectionMethod;
-use RuntimeException;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -111,12 +110,6 @@ class OrganizerHelper
 			}
 
 			return ($result = $dbo->$function()) ? $result : $default;
-		}
-		catch (RuntimeException $exc)
-		{
-			self::message($exc->getMessage(), 'error');
-
-			return $default;
 		}
 		catch (Exception $exc)
 		{
@@ -248,7 +241,7 @@ class OrganizerHelper
 	}
 
 	/**
-	 * Inserts an object into the database
+	 * Wrapper for
 	 *
 	 * @param   string   $table   The name of the database table to insert into.
 	 * @param   object  &$object  A reference to an object whose public properties match the table fields.
@@ -259,11 +252,12 @@ class OrganizerHelper
 	public static function insertObject($table, &$object, $key = 'id')
 	{
 		$dbo = Factory::getDbo();
+
 		try
 		{
 			return $dbo->insertObject($table, $object, $key);
 		}
-		catch (RuntimeException $exc)
+		catch (Exception $exc)
 		{
 			self::message($exc->getMessage(), 'error');
 
