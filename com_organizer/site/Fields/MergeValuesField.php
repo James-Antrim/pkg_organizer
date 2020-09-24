@@ -81,13 +81,29 @@ class MergeValuesField extends OptionsField
 		$values = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
 		if (empty($values))
 		{
-			return [];
+			return [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
 		}
 
 		$options = [];
 		foreach ($values as $value)
 		{
+			if (empty($value))
+			{
+				continue;
+			}
 			$options[] = Helpers\HTML::_('select.option', $value, $value);
+		}
+
+		if (empty($options))
+		{
+			$options[] = Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'));
+		}
+		elseif (count($options) > 1)
+		{
+			array_unshift(
+				$options,
+				Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_VALUE'))
+			);
 		}
 
 		return $options;

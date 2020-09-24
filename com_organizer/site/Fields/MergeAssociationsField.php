@@ -31,11 +31,12 @@ class MergeAssociationsField extends OptionsField
 	 */
 	protected function getOptions()
 	{
+		$default     = [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
 		$selectedIDs = Helpers\Input::getSelectedIDs();
 		$valueColumn = $this->getAttribute('name');
 		if (empty($selectedIDs) or empty($valueColumn))
 		{
-			return [];
+			return $default;
 		}
 
 		$dbo        = Factory::getDbo();
@@ -43,7 +44,7 @@ class MergeAssociationsField extends OptionsField
 		$textColumn = $this->resolveTextColumn($query);
 		if (empty($textColumn))
 		{
-			return [];
+			return $default;
 		}
 
 		$query->select("DISTINCT $valueColumn AS value, $textColumn AS text")
@@ -56,7 +57,7 @@ class MergeAssociationsField extends OptionsField
 		$validFrom = preg_match($pattern, $from, $parts);
 		if (!$validFrom)
 		{
-			return [];
+			return $default;
 		}
 
 		$external = (bool) $this->getAttribute('external', false);
@@ -72,7 +73,7 @@ class MergeAssociationsField extends OptionsField
 			$validJoin = preg_match($pattern, $innerJoin, $parts);
 			if (!$validJoin)
 			{
-				return [];
+				return $default;
 			}
 			$query->innerJoin("#__organizer_$innerJoin");
 		}
@@ -82,7 +83,7 @@ class MergeAssociationsField extends OptionsField
 		$valuePairs = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
 		if (empty($valuePairs))
 		{
-			return [];
+			return $default;
 		}
 
 		$options = [];
@@ -91,7 +92,19 @@ class MergeAssociationsField extends OptionsField
 			$options[] = Helpers\HTML::_('select.option', $valuePair['value'], $valuePair['text']);
 		}
 
-		return empty($options) ? [] : $options;
+		if (empty($options))
+		{
+			$options = $default;
+		}
+		elseif (count($options) > 1)
+		{
+			array_unshift(
+				$options,
+				Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_VALUE'))
+			);
+		}
+
+		return $options;
 	}
 
 	/**
