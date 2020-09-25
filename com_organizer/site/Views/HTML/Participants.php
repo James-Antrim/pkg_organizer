@@ -22,13 +22,13 @@ use Organizer\Helpers\Languages;
 class Participants extends ListView
 {
 	protected $rowStructure = [
-		'checkbox'    => '',
-		'fullName'    => 'value',
-		'email'       => 'value',
-		'programName' => 'value',
-		'status'      => 'value',
-		'paid'        => 'value',
-		'attended'    => 'value'
+		'checkbox' => '',
+		'fullName' => 'value',
+		'email'    => 'value',
+		'program'  => 'value',
+		'status'   => 'value',
+		'paid'     => 'value',
+		'attended' => 'value'
 	];
 
 	/**
@@ -82,10 +82,10 @@ class Participants extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'    => Helpers\HTML::_('grid.checkall'),
-			'fullName'    => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
-			'email'       => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
-			'programName' => Helpers\HTML::sort('PROGRAM', 'programName', $direction, $ordering),
+			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
+			'email'    => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
+			'program'  => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering),
 		];
 
 		if ($courseID = Helpers\Input::getFilterID('course') and $courseID !== -1)
@@ -111,7 +111,6 @@ class Participants extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->programName       = Helpers\Programs::getName($item->programID);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

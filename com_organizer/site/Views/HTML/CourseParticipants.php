@@ -23,13 +23,13 @@ use Organizer\Tables;
 class CourseParticipants extends Participants
 {
 	protected $rowStructure = [
-		'checkbox'    => '',
-		'fullName'    => 'value',
-		'email'       => 'value',
-		'programName' => 'value',
-		'status'      => 'value',
-		'paid'        => 'value',
-		'attended'    => 'value'
+		'checkbox' => '',
+		'fullName' => 'value',
+		'email'    => 'value',
+		'program'  => 'value',
+		'status'   => 'value',
+		'paid'     => 'value',
+		'attended' => 'value'
 	];
 
 	/**
@@ -166,13 +166,13 @@ class CourseParticipants extends Participants
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'    => Helpers\HTML::_('grid.checkall'),
-			'fullName'    => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
-			'email'       => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
-			'programName' => Languages::_('ORGANIZER_PROGRAM'),
-			'status'      => Languages::_('ORGANIZER_STATUS'),
-			'paid'        => Languages::_('ORGANIZER_PAID'),
-			'attended'    => Languages::_('ORGANIZER_ATTENDED')
+			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
+			'email'    => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
+			'program'  => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering),
+			'status'   => Languages::_('ORGANIZER_STATUS'),
+			'paid'     => Languages::_('ORGANIZER_PAID'),
+			'attended' => Languages::_('ORGANIZER_ATTENDED')
 		];
 
 		$this->headers = $headers;
@@ -219,8 +219,6 @@ class CourseParticipants extends Participants
 
 		foreach ($this->items as $item)
 		{
-			$item->programName = Helpers\Programs::getName($item->programID);
-
 			if (!$expired)
 			{
 				$item->status = $this->getAssocToggle(

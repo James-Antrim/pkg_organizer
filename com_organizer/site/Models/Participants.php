@@ -30,13 +30,17 @@ class Participants extends ListModel
 	 */
 	protected function getListQuery()
 	{
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
+		$programParts = ["pr.name_$tag", "' ('", 'd.abbreviation', "' '", 'pr.accredited', "')'"];
 		$query->select('pa.id, pa.programID, u.email')
 			->select($query->concatenate(['pa.surname', "', '", 'pa.forename'], '') . ' AS fullName')
 			->from('#__organizer_participants AS pa')
 			->innerJoin('#__users AS u ON u.id = pa.id')
-			->innerJoin('#__organizer_programs AS pr ON pr.id = pa.programID');
+			->innerJoin('#__organizer_programs AS pr ON pr.id = pa.programID')
+			->innerJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
+			->select($query->concatenate($programParts, '') . ' AS program');
 
 		$this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
 		$this->setValueFilters($query, ['programID']);
