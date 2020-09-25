@@ -91,9 +91,13 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 			$table->save($person);
 		}
 
-		$model->persons->$code->id = $table->id;
+		$association = new Tables\Associations();
+		if (!$association->load(['organizationID' => $model->organizationID, 'personID' => $table->id]))
+		{
+			$association->save(['organizationID' => $model->organizationID, 'personID' => $table->id]);
+		}
 
-		return;
+		$model->persons->$code->id = $table->id;
 	}
 
 	/**

@@ -57,9 +57,13 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 			$table->save($group);
 		}
 
-		$model->groups->$code->id = $table->id;
+		$association = new Tables\Associations();
+		if (!$association->load(['groupID' => $table->id, 'organizationID' => $model->organizationID]))
+		{
+			$association->save(['groupID' => $table->id, 'organizationID' => $model->organizationID]);
+		}
 
-		return;
+		$model->groups->$code->id = $table->id;
 	}
 
 	/**
@@ -126,12 +130,14 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 			return;
 		}
 
-		$group             = new stdClass();
-		$group->categoryID = $category->id;
-		$group->code       = $code;
-		$group->fullName   = $fullName;
-		$group->name       = $name;
-		$group->gridID     = $grid->id;
+		$group              = new stdClass();
+		$group->categoryID  = $category->id;
+		$group->code        = $code;
+		$group->fullName_de = $fullName;
+		$group->fullName_en = $fullName;
+		$group->name_de     = $name;
+		$group->name_en     = $name;
+		$group->gridID      = $grid->id;
 
 		$model->groups->$code = $group;
 		self::setID($model, $code);
