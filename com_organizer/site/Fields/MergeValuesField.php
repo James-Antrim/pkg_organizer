@@ -24,34 +24,6 @@ class MergeValuesField extends OptionsField
 	protected $type = 'MergeValues';
 
 	/**
-	 * Method to get the field input markup for a generic list.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput()
-	{
-		// Get the field options.
-		$options = (array) $this->getOptions();
-
-		if (count($options) > 1)
-		{
-			return parent::getInput();
-		}
-
-		$attributes = [
-			$this->class ? "class=\"$this->class\"" : '',
-			'disabled',
-			"id=\"$this->id\"",
-			"name=\"$this->name\"",
-			'readonly',
-			'type="text"',
-			empty($options) ? 'value=""' : 'value="' . $options[0]->value . '"'
-		];
-
-		return '<input ' . implode(' ', $attributes) . '/>';
-	}
-
-	/**
 	 * Returns a select box where resource attributes can be selected
 	 *
 	 * @return array the options for the select box
