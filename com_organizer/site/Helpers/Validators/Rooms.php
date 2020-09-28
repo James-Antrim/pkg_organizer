@@ -31,7 +31,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 	public static function setID($model, $code)
 	{
 		$room  = $model->rooms->$code;
-		$table = new Tables\Rooms;
+		$table = new Tables\Rooms();
 
 		if ($table->load(['code' => $room->code]))
 		{

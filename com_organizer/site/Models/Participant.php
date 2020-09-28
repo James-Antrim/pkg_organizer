@@ -142,7 +142,7 @@ class Participant extends BaseModel
 		$data['zipCode']  = self::cleanAlphaNum($data['zipCode']);
 
 		$success = true;
-		$table   = new Tables\Participants;
+		$table   = new Tables\Participants();
 		if ($table->load($data['id']))
 		{
 			$altered = false;

@@ -33,7 +33,7 @@ abstract class CurriculumResource extends BaseModel
 	 */
 	protected function addRange(&$range)
 	{
-		$curricula = new Tables\Curricula;
+		$curricula = new Tables\Curricula();
 
 		if (empty($range['programID']))
 		{
@@ -168,7 +168,7 @@ abstract class CurriculumResource extends BaseModel
 		}
 
 		// Deletes the range
-		$curricula = new Tables\Curricula;
+		$curricula = new Tables\Curricula();
 
 		if (!$curricula->delete($rangeID))
 		{

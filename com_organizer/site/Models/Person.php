@@ -151,7 +151,7 @@ class Person extends BaseModel
 		$this->authorize();
 
 		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		$table = new Tables\Persons;
+		$table = new Tables\Persons();
 
 		if (!$table->save($data))
 		{

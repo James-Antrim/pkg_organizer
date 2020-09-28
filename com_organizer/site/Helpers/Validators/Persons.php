@@ -30,9 +30,8 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function setID($model, $code)
 	{
-		$exists       = false;
 		$person       = $model->persons->$code;
-		$table        = new Tables\Persons;
+		$table        = new Tables\Persons();
 		$loadCriteria = [];
 
 		if (!empty($person->username))

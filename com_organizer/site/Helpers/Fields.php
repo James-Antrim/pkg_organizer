@@ -29,7 +29,7 @@ class Fields extends ResourceHelper implements Selectable
 	public static function getColor($fieldID, $organizationID)
 	{
 		$default = Input::getParams()->get('backgroundColor', '#f2f5f6');
-		$table   = new Tables\FieldColors;
+		$table   = new Tables\FieldColors();
 		$exists  = $table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID]);
 		if (!$exists or empty($table->colorID))
 		{
@@ -59,7 +59,7 @@ class Fields extends ResourceHelper implements Selectable
 
 		foreach ($organizationIDs as $organizationID)
 		{
-			$table = new Tables\FieldColors;
+			$table = new Tables\FieldColors();
 			if ($table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID]))
 			{
 				$link         = 'index.php?option=com_organizer&view=field_color_edit&id=' . $table->id;

@@ -46,7 +46,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		$plausibleCode = preg_match('/^[A-Z]+[0-9]*$/', $pieces[0]);
 
 		// Degrees are their own managed resource
-		$degrees  = new Tables\Degrees;
+		$degrees  = new Tables\Degrees();
 		$degreeID = $degrees->load(['code' => $pieces[1]]) ? $degrees->id : null;
 
 		// Should be year of accreditation, but ITS likes to pick random years
@@ -67,9 +67,8 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	public static function setID($model, $code)
 	{
 		$category     = $model->categories->$code;
-		$exists       = false;
 		$loadCriteria = [['code' => $code], ['name_de' => $category->name_de]];
-		$table        = new Tables\Categories;
+		$table        = new Tables\Categories();
 
 		foreach ($loadCriteria as $criterion)
 		{

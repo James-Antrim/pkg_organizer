@@ -161,7 +161,7 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function getDefaultName($personID)
 	{
-		$person = new Tables\Persons;
+		$person = new Tables\Persons();
 		$person->load($personID);
 
 		$return = '';
@@ -208,7 +208,7 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function getLNFName($personID, $short = false)
 	{
-		$person = new Tables\Persons;
+		$person = new Tables\Persons();
 		$person->load($personID);
 
 		$return = '';

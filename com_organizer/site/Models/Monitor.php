@@ -84,7 +84,7 @@ class Monitor extends BaseModel
 
 		if ($plausibleID)
 		{
-			$table = new Tables\Monitors;
+			$table = new Tables\Monitors();
 			$table->load($monitorID);
 			$table->set('useDefaults', Helpers\Input::getInt('useDefaults'));
 
@@ -104,7 +104,7 @@ class Monitor extends BaseModel
 		$this->authorize();
 
 		$monitorID = Helpers\Input::getID();
-		$table     = new Tables\Monitors;
+		$table     = new Tables\Monitors();
 		if (empty($monitorID) or !$table->load($monitorID))
 		{
 			return false;

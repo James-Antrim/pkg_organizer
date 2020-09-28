@@ -278,7 +278,7 @@ class Group extends BaseModel
 		{
 			foreach ($terms as $termID => $publish)
 			{
-				$table = new Tables\GroupPublishing;
+				$table = new Tables\GroupPublishing();
 				$data  = ['groupID' => $groupID, 'termID' => $termID];
 
 				// Skip existing entry if no publishing state was specified

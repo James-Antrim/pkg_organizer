@@ -117,7 +117,7 @@ class Schedules extends Controller
 		{
 			if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8')
 			{
-				$model = new Models\Schedule;
+				$model = new Models\Schedule();
 				$view  = $model->upload() ? 'Schedules' : 'Schedule_Edit';
 			}
 			else

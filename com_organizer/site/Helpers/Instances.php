@@ -182,7 +182,7 @@ class Instances extends ResourceHelper
 	{
 		$tag = Languages::getTag();
 
-		$instancesTable = new Tables\Instances;
+		$instancesTable = new Tables\Instances();
 		if (!$instancesTable->load($instanceID))
 		{
 			return [];
@@ -200,7 +200,7 @@ class Instances extends ResourceHelper
 
 		unset($instancesTable);
 
-		$blocksTable = new Tables\Blocks;
+		$blocksTable = new Tables\Blocks();
 		if (!$blocksTable->load($instance['blockID']))
 		{
 			return [];
@@ -214,7 +214,7 @@ class Instances extends ResourceHelper
 
 		unset($blocksTable);
 
-		$eventsTable = new Tables\Events;
+		$eventsTable = new Tables\Events();
 		if (!$eventsTable->load($instance['eventID']))
 		{
 			return [];
@@ -233,7 +233,7 @@ class Instances extends ResourceHelper
 		unset($eventsTable);
 
 		$method       = ['methodCode' => '', 'methodName' => ''];
-		$methodsTable = new Tables\Methods;
+		$methodsTable = new Tables\Methods();
 		if ($methodsTable->load($instance['methodID']))
 		{
 			$method = [
@@ -244,7 +244,7 @@ class Instances extends ResourceHelper
 
 		unset($methodsTable);
 
-		$unitsTable = new Tables\Units;
+		$unitsTable = new Tables\Units();
 		if (!$unitsTable->load($instance['unitID']))
 		{
 			return [];
@@ -576,7 +576,7 @@ class Instances extends ResourceHelper
 	 */
 	private static function setCourse(&$instance)
 	{
-		$coursesTable = new Tables\Courses;
+		$coursesTable = new Tables\Courses();
 		if (empty($instance['courseID']) or !$coursesTable->load($instance['courseID']))
 		{
 			return;

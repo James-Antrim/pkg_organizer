@@ -87,7 +87,7 @@ class Can
 			switch ($resourceType)
 			{
 				case 'fieldcolor':
-					$table = new Tables\FieldColors;
+					$table = new Tables\FieldColors();
 
 					if (!$table->load($resourceID) or empty($table->organizationID))
 					{

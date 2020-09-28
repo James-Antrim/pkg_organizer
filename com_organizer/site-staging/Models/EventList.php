@@ -488,7 +488,7 @@ class EventList extends FormModel
 	private function isRegistered()
 	{
 		$remoteAddress = Helpers\Input::getInput()->server->getString('REMOTE_ADDR', '');
-		$monitorsTable = new Tables\Monitors;
+		$monitorsTable = new Tables\Monitors();
 		if (!$monitorsTable->load(['ip' => $remoteAddress]) or !$roomID = $monitorsTable->roomID)
 		{
 			return false;
@@ -662,7 +662,7 @@ class EventList extends FormModel
 		}
 
 		$rooms      = [];
-		$roomsTable = new Tables\Rooms;
+		$roomsTable = new Tables\Rooms();
 
 		// The current values are meaningless and will be overwritten here
 		foreach ($this->rooms as $roomID)

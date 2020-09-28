@@ -131,7 +131,7 @@ class Organizations extends ResourceHelper implements Selectable
 	 */
 	public static function setResource($resourceID, $column)
 	{
-		$associations = new Tables\Associations;
+		$associations = new Tables\Associations();
 
 		/**
 		 * If associations already exist for the resource, further associations should be made explicitly using the

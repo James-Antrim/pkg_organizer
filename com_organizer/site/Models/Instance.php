@@ -69,7 +69,7 @@ class Instance extends BaseModel
 	{
 		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
-		$table = new Tables\Instances;
+		$table = new Tables\Instances();
 		if (!$table->save($data))
 		{
 			return false;
@@ -96,7 +96,7 @@ class Instance extends BaseModel
 		foreach ($data['resources'] as $person)
 		{
 			$ipData  = ['instanceID' => $instanceID, 'personID' => $person['personID']];
-			$ipTable = new Tables\InstancePersons;
+			$ipTable = new Tables\InstancePersons();
 			$roleID  = !empty($person['roleID']) ? $person['roleID'] : 1;
 			if ($ipTable->load($ipData))
 			{
@@ -139,7 +139,7 @@ class Instance extends BaseModel
 			foreach ($person['groups'] as $group)
 			{
 				$igData  = ['assocID' => $ipID, 'groupID' => $group['groupID']];
-				$igTable = new Tables\InstanceGroups;
+				$igTable = new Tables\InstanceGroups();
 				if (!$this->associate($igTable, $igData))
 				{
 					return false;
@@ -154,7 +154,7 @@ class Instance extends BaseModel
 			foreach ($person['rooms'] as $room)
 			{
 				$irData  = ['assocID' => $ipID, 'roomID' => $room['roomID']];
-				$irTable = new Tables\InstanceRooms;
+				$irTable = new Tables\InstanceRooms();
 				if (!$this->associate($irTable, $irData))
 				{
 					return false;

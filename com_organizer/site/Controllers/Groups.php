@@ -55,7 +55,7 @@ class Groups extends Controller
 	 */
 	public function publishPast()
 	{
-		$group = new Models\Group;
+		$group = new Models\Group();
 
 		if ($group->publishPast())
 		{

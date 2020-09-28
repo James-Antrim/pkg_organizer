@@ -27,7 +27,7 @@ class Campuses extends ResourceHelper implements Selectable
 	 */
 	public static function getGridID($campusID)
 	{
-		$table = new Tables\Campuses;
+		$table = new Tables\Campuses();
 		if (!$table->load($campusID))
 		{
 			return 0;
@@ -55,7 +55,7 @@ class Campuses extends ResourceHelper implements Selectable
 	 */
 	public static function getLocation($campusID)
 	{
-		$table = new Tables\Campuses;
+		$table = new Tables\Campuses();
 		$table->load($campusID);
 
 		return empty($table->location) ? '' : str_replace(' ', '', $table->location);

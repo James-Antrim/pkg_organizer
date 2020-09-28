@@ -67,7 +67,7 @@ class Grid extends BaseModel
 			return false;
 		}
 
-		$table = new Tables\Grids;
+		$table = new Tables\Grids();
 
 		return $table->save($data) ? $table->id : false;
 	}
@@ -82,7 +82,7 @@ class Grid extends BaseModel
 		$this->authorize();
 
 		$selected = Helpers\Input::getID();
-		$table    = new Tables\Grids;
+		$table    = new Tables\Grids();
 
 		// Entry not found or already set to default
 		if (!$table->load($selected) or $table->isDefault)

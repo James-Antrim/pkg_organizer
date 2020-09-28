@@ -139,7 +139,7 @@ class Program extends CurriculumResource
 			return false;
 		}
 
-		$client = new Helpers\LSF;
+		$client = new Helpers\LSF();
 		if (!$program = $client->getModules($keys))
 		{
 			return false;

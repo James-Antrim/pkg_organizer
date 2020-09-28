@@ -294,7 +294,7 @@ class Subjects extends Curricula
 	 */
 	public static function getResource($resourceID)
 	{
-		$table  = new Tables\Subjects;
+		$table  = new Tables\Subjects();
 		$exists = $table->load($resourceID);
 
 		if (!$exists)

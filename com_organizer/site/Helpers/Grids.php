@@ -62,7 +62,7 @@ class Grids extends ResourceHelper
 	 */
 	public static function getGrid($gridID)
 	{
-		$table = new Tables\Grids;
+		$table = new Tables\Grids();
 
 		return $table->getProperty('grid', $gridID, '');
 	}

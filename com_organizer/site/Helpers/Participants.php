@@ -34,7 +34,7 @@ class Participants extends ResourceHelper
 	public static function canRegister($participantID = 0)
 	{
 		$participantID = $participantID ? $participantID : Users::getID();
-		$table         = new Tables\Participants;
+		$table         = new Tables\Participants();
 		if ($table->load($participantID))
 		{
 			$valid = true;
@@ -57,7 +57,7 @@ class Participants extends ResourceHelper
 	 */
 	public static function exists()
 	{
-		$participants = new Tables\Participants;
+		$participants = new Tables\Participants();
 
 		return $participants->load(Users::getID());
 	}

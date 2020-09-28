@@ -263,7 +263,7 @@ class RoomDisplay extends BaseModel
 	{
 		if (!empty($this->monitorID))
 		{
-			$monitorEntry = new Tables\Monitors;
+			$monitorEntry = new Tables\Monitors();
 			$monitorEntry->load($this->monitorID);
 		}
 
@@ -327,11 +327,11 @@ class RoomDisplay extends BaseModel
 	 */
 	private function setRoomData()
 	{
-		$roomsTable = new Tables\Rooms;
+		$roomsTable = new Tables\Rooms();
 
 		if ($remoteAddress = Helpers\Input::getInput()->server->getString('REMOTE_ADDR', ''))
 		{
-			$monitorTable = new Tables\Monitors;
+			$monitorTable = new Tables\Monitors();
 			$registered   = $monitorTable->load(['ip' => $remoteAddress]);
 
 			if ($registered and $monitorTable->roomID and $roomsTable->load($monitorTable->roomID))

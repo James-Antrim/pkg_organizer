@@ -134,12 +134,12 @@ class Person extends MergeModel implements ScheduleResource
 
 		foreach ($relevantEvents as $eventID)
 		{
-			$existing = new Tables\EventCoordinators;
+			$existing = new Tables\EventCoordinators();
 			$exists   = $existing->load(['eventID' => $eventID, 'personID' => $mergeID]);
 
 			foreach ($this->selected as $personID)
 			{
-				$ecTable        = new Tables\EventCoordinators;
+				$ecTable        = new Tables\EventCoordinators();
 				$loadConditions = ['eventID' => $eventID, 'personID' => $personID];
 				if (!$ecTable->load($loadConditions))
 				{
@@ -190,12 +190,12 @@ class Person extends MergeModel implements ScheduleResource
 			$modified = '';
 			$roleID   = '';
 
-			$existing = new Tables\InstancePersons;
+			$existing = new Tables\InstancePersons();
 			$exists   = $existing->load(['instanceID' => $instanceID, 'personID' => $mergeID]);
 
 			foreach ($this->selected as $personID)
 			{
-				$ipTable        = new Tables\InstancePersons;
+				$ipTable        = new Tables\InstancePersons();
 				$loadConditions = ['instanceID' => $instanceID, 'personID' => $personID];
 				if (!$ipTable->load($loadConditions))
 				{
@@ -272,12 +272,12 @@ class Person extends MergeModel implements ScheduleResource
 		{
 			foreach ($roles as $role)
 			{
-				$existing    = new Tables\SubjectPersons;
+				$existing    = new Tables\SubjectPersons();
 				$entryExists = $existing->load(['personID' => $mergeID, 'role' => $role, 'subjectID' => $subjectID]);
 
 				foreach ($this->selected as $personID)
 				{
-					$spTable        = new Tables\SubjectPersons;
+					$spTable        = new Tables\SubjectPersons();
 					$loadConditions = ['personID' => $personID, 'role' => $role, 'subjectID' => $subjectID];
 					if (!$spTable->load($loadConditions))
 					{

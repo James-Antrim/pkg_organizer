@@ -33,7 +33,7 @@ class Programs extends Curricula implements Selectable
 	 */
 	public static function create($programData, $initialName, $categoryID)
 	{
-		$programTable = new Tables\Programs;
+		$programTable = new Tables\Programs();
 		if ($programTable->load($programData))
 		{
 			return $programTable->id;
@@ -50,7 +50,7 @@ class Programs extends Curricula implements Selectable
 		$programData['name_en']        = $initialName;
 		$programData['categoryID']     = $categoryID;
 
-		$model     = new Models\Program;
+		$model     = new Models\Program();
 		$programID = $model->save($programData);
 
 		return empty($programID) ? null : $programID;

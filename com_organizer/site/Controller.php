@@ -55,7 +55,7 @@ class Controller extends BaseController
 	public function apply()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
 		if ($resourceID = $model->save())
 		{
@@ -89,7 +89,7 @@ class Controller extends BaseController
 	public function delete()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
 		if ($model->delete($this->resource))
 		{
@@ -277,7 +277,7 @@ class Controller extends BaseController
 	public function merge()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
 		if ($model->merge($this->resource))
 		{
@@ -349,7 +349,7 @@ class Controller extends BaseController
 	public function save()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
 		if ($model->save())
 		{
@@ -372,7 +372,7 @@ class Controller extends BaseController
 	public function save2copy()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
 		if ($model->save2copy())
 		{
@@ -395,7 +395,7 @@ class Controller extends BaseController
 	public function toggle()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
 		if (method_exists($model, 'toggle') and $model->toggle())
 		{

@@ -321,7 +321,7 @@ class RoomStatistics extends BaseModel
 
 		if ($termID)
 		{
-			$table = new Tables\Terms;
+			$table = new Tables\Terms();
 
 			if ($table->load($termID))
 			{

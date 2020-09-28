@@ -70,7 +70,7 @@ class Courses extends ResourceHelper
 	 */
 	public static function getCampusID($courseID)
 	{
-		$course = new Tables\Courses;
+		$course = new Tables\Courses();
 
 		return $course->load($courseID) ? $course->campusID : 0;
 	}
@@ -344,7 +344,7 @@ class Courses extends ResourceHelper
 	 */
 	public static function isFull($courseID)
 	{
-		$table = new Tables\Courses;
+		$table = new Tables\Courses();
 		if (!$maxParticipants = $table->getProperty('maxParticipants', $courseID))
 		{
 			return false;

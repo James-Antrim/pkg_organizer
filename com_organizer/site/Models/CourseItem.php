@@ -35,7 +35,7 @@ class CourseItem extends ItemModel
 			return [];
 		}
 
-		$courseTable = new Tables\Courses;
+		$courseTable = new Tables\Courses();
 		if (!$courseTable->load($courseID))
 		{
 			return [];

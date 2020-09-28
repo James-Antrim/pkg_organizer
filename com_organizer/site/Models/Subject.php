@@ -178,14 +178,14 @@ class Subject extends CurriculumResource
 	 */
 	public function importSingle($subjectID)
 	{
-		$table = new Tables\Subjects;
+		$table = new Tables\Subjects();
 
 		if (!$table->load($subjectID) or empty($table->lsfID))
 		{
 			return false;
 		}
 
-		$client   = new Helpers\LSF;
+		$client   = new Helpers\LSF();
 		$response = $client->getModuleByModulid($table->lsfID);
 
 		// Invalid response
@@ -289,7 +289,7 @@ class Subject extends CurriculumResource
 			foreach ($persons as $personID)
 			{
 				$spData = ['personID' => $personID, 'role' => self::COORDINATES, 'subjectID' => $data['id']];
-				$table  = new Tables\SubjectPersons;
+				$table  = new Tables\SubjectPersons();
 
 				if (!$table->save($spData))
 				{
@@ -304,7 +304,7 @@ class Subject extends CurriculumResource
 			foreach ($persons as $personID)
 			{
 				$spData = ['personID' => $personID, 'role' => self::TEACHES, 'subjectID' => $data['id']];
-				$table  = new Tables\SubjectPersons;
+				$table  = new Tables\SubjectPersons();
 
 				if (!$table->save($spData))
 				{
@@ -391,7 +391,7 @@ class Subject extends CurriculumResource
 		$blocked = !empty($XMLObject->sperrmh) and strtolower((string) $XMLObject->sperrmh) == 'x';
 		$validTitle = $this->validTitle($XMLObject);
 
-		$subject = new Tables\Subjects;
+		$subject = new Tables\Subjects();
 
 		if (!$subject->load(['lsfID' => $lsfID]))
 		{
@@ -413,7 +413,7 @@ class Subject extends CurriculumResource
 			return $this->deleteSingle($subject->id);
 		}
 
-		$curricula = new Tables\Curricula;
+		$curricula = new Tables\Curricula();
 
 		if (!$curricula->load(['parentID' => $parentID, 'subjectID' => $subject->id]))
 		{
@@ -560,7 +560,7 @@ class Subject extends CurriculumResource
 	 */
 	private function resolveTextDependencies($subjectID)
 	{
-		$table = new Tables\Subjects;
+		$table = new Tables\Subjects();
 
 		// Entry doesn't exist. Should not occur.
 		if (!$table->load($subjectID))
@@ -671,7 +671,7 @@ class Subject extends CurriculumResource
 			$this->cleanStarProperty($data, $property);
 		}
 
-		$table = new Tables\Subjects;
+		$table = new Tables\Subjects();
 
 		if (!$table->save($data))
 		{
@@ -881,7 +881,7 @@ class Subject extends CurriculumResource
 				$loadCriteria[] = ['surname' => $personData['surname'], 'forename' => $personData['forename']];
 			}
 
-			$personTable = new Tables\Persons;
+			$personTable = new Tables\Persons();
 			$loaded      = false;
 
 			foreach ($loadCriteria as $criteria)
@@ -899,7 +899,7 @@ class Subject extends CurriculumResource
 			}
 
 			$spData  = ['personID' => $personTable->id, 'role' => $role, 'subjectID' => $subjectID];
-			$spTable = new Tables\SubjectPersons;
+			$spTable = new Tables\SubjectPersons();
 
 			if (!$spTable->save($spData))
 			{

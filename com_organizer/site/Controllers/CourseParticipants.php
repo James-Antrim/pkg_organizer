@@ -47,27 +47,6 @@ class CourseParticipants extends Controller
 	}
 
 	/**
-	 * Changes the participant's course state.
-	 *
-	 * @return void
-	 */
-	public function changeState()
-	{
-		$model = new Models\CourseParticipant;
-
-		if ($model->changeState())
-		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
-		}
-
-		$this->setRedirect(Input::getInput()->server->getString('HTTP_REFERER'));
-	}
-
-	/**
 	 * Sends an circular email to all course participants
 	 *
 	 * @return void
@@ -110,7 +89,7 @@ class CourseParticipants extends Controller
 	 */
 	public function remove()
 	{
-		$model = new Models\CourseParticipant;
+		$model = new Models\CourseParticipant();
 
 		if ($model->remove())
 		{
@@ -132,7 +111,7 @@ class CourseParticipants extends Controller
 	 */
 	public function toggle()
 	{
-		$model = new Models\CourseParticipant;
+		$model = new Models\CourseParticipant();
 
 		if ($model->toggle())
 		{

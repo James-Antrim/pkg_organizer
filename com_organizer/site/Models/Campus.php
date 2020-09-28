@@ -58,7 +58,7 @@ class Campus extends BaseModel
 	{
 		if ($parentID = Helpers\Input::getInt('parentID'))
 		{
-			$table = new Tables\Campuses;
+			$table = new Tables\Campuses();
 			$table->load($parentID);
 
 			// The chosen superordinate campus is in itself subordinate.

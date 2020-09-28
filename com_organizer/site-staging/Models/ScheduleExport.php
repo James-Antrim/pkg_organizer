@@ -121,7 +121,7 @@ class ScheduleExport extends BaseModel
 			return $titles;
 		}
 
-		$table       = new Tables\Groups;
+		$table       = new Tables\Groups();
 		$oneResource = count($poolIDs) === 1;
 
 		foreach ($poolIDs as $poolID)
@@ -162,7 +162,7 @@ class ScheduleExport extends BaseModel
 			return $titles;
 		}
 
-		$table       = new Tables\Rooms;
+		$table       = new Tables\Rooms();
 		$oneResource = count($roomIDs) === 1;
 
 		foreach ($roomIDs as $roomID)
@@ -270,7 +270,7 @@ class ScheduleExport extends BaseModel
 			return $titles;
 		}
 
-		$table       = new Tables\Persons;
+		$table       = new Tables\Persons();
 		$oneResource = count($personIDs) === 1;
 
 		foreach ($personIDs as $personID)

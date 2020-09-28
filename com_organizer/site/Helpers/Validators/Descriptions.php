@@ -37,13 +37,13 @@ class Descriptions implements UntisXMLValidator
 			case 'r':
 				$error    .= 'ROOMTYPE_INVALID';
 				$resource = 'Roomtypes';
-				$table    = new Tables\Roomtypes;
+				$table    = new Tables\Roomtypes();
 
 				break;
 			case 'u':
 				$error    .= 'METHOD_INVALID';
 				$resource = 'Methods';
-				$table    = new Tables\Methods;
+				$table    = new Tables\Methods();
 
 				break;
 		}

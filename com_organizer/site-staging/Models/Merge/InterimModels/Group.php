@@ -153,7 +153,7 @@ class Group extends MergeModel implements ScheduleResource
 		{
 			foreach ($publishing as $termID => $publish)
 			{
-				$table = new Tables\GroupPublishing;
+				$table = new Tables\GroupPublishing();
 				$data  = ['groupID' => $groupID, 'termID' => $termID];
 				$table->load($data);
 				$data['published'] = $publish;
@@ -201,12 +201,12 @@ class Group extends MergeModel implements ScheduleResource
 		{
 			$delta       = '';
 			$modified    = '';
-			$existing    = new Tables\InstanceGroups;
+			$existing    = new Tables\InstanceGroups();
 			$entryExists = $existing->load(['assocID' => $assocID, 'groupID' => $mergeID]);
 
 			foreach ($this->selected as $groupID)
 			{
-				$igTable        = new Tables\InstanceGroups;
+				$igTable        = new Tables\InstanceGroups();
 				$loadConditions = ['assocID' => $assocID, 'groupID' => $groupID];
 				if (!$igTable->load($loadConditions))
 				{

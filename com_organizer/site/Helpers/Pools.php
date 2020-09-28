@@ -64,7 +64,7 @@ class Pools extends Curricula implements Selectable
 	public static function getCurricularOption($range, $parentIDs)
 	{
 		$tag        = Languages::getTag();
-		$poolsTable = new Tables\Pools;
+		$poolsTable = new Tables\Pools();
 		$poolsTable->load($range['poolID']);
 
 		if (!$poolsTable->load($range['poolID']))
@@ -209,7 +209,7 @@ class Pools extends Curricula implements Selectable
 	 */
 	public static function getResource($resourceID)
 	{
-		$table = new Tables\Pools;
+		$table = new Tables\Pools();
 
 		if (!$table->load($resourceID))
 		{

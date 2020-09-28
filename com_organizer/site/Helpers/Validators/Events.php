@@ -31,7 +31,7 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	public static function setID($model, $code)
 	{
 		$event = $model->events->$code;
-		$table = new Tables\Events;
+		$table = new Tables\Events();
 
 		if ($table->load(['organizationID' => $event->organizationID, 'code' => $code]))
 		{

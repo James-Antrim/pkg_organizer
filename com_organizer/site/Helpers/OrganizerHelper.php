@@ -283,7 +283,7 @@ class OrganizerHelper
 				require_once $mobileCheckPath;
 			}
 
-			$checker = new \Wf_Mobile_Detect;
+			$checker = new \Wf_Mobile_Detect();
 			$isPhone = ($checker->isMobile() and !$checker->isTablet());
 
 			if ($isPhone)
@@ -325,7 +325,7 @@ class OrganizerHelper
 			if (is_file($filepath))
 			{
 				$namespacedClassName = "Organizer\\Controllers\\" . $possibleController;
-				$controllerObj       = new $namespacedClassName;
+				$controllerObj       = new $namespacedClassName();
 			}
 			$task = $handler[1];
 		}

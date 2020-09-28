@@ -33,7 +33,7 @@ class Participants extends Controller
 	 */
 	public function save()
 	{
-		$model = new Models\Participant;
+		$model = new Models\Participant();
 
 		if ($participantID = $model->save())
 		{

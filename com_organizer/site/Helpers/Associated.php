@@ -56,7 +56,7 @@ abstract class Associated extends ResourceHelper
 	public static function isAssociated($organizationID, $resourceID)
 	{
 		$column = static::$resource . 'ID';
-		$table  = new Tables\Associations;
+		$table  = new Tables\Associations();
 
 		return $table->load(['organizationID' => $organizationID, $column => $resourceID]) ? true : false;
 

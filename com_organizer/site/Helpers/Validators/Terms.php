@@ -35,7 +35,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 			['endDate' => $model->term->endDate, 'startDate' => $model->term->startDate]
 		];
 
-		$table = new Tables\Terms;
+		$table = new Tables\Terms();
 
 		foreach ($loadCriteria as $criterion)
 		{

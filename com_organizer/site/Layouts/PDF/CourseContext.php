@@ -77,7 +77,7 @@ trait CourseContext
 
 		$this->name = Helpers\Courses::getName($courseID);
 
-		$table = new Tables\Courses;
+		$table = new Tables\Courses();
 		$table->load($courseID);
 
 		$this->campus = Helpers\Campuses::getName($table->campusID);

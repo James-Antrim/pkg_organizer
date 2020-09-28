@@ -31,7 +31,7 @@ class Fields extends Controller
 	 */
 	public function save()
 	{
-		$model = new Models\Field;
+		$model = new Models\Field();
 		$url   = Helpers\Routing::getRedirectBase() . '&view=';
 		$url   .= Helpers\Can::administrate() ? 'fields' : 'field_colors';
 

@@ -29,7 +29,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function getID($code)
 	{
-		$table = new Tables\Grids;
+		$table = new Tables\Grids();
 
 		return $table->load(['code' => $code]) ? $table->id : null;
 	}
@@ -51,7 +51,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		$grid       = $model->grids->$gridName;
 		$grid->grid = json_encode($grid, JSON_UNESCAPED_UNICODE);
-		$table      = new Tables\Grids;
+		$table      = new Tables\Grids();
 
 		// No overwrites for global resources
 		if (!$table->load(['code' => $gridName]))

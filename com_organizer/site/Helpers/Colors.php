@@ -26,7 +26,7 @@ class Colors extends ResourceHelper
 	 */
 	public static function getColor($colorID)
 	{
-		$table = new Tables\Colors;
+		$table = new Tables\Colors();
 
 		return $table->load($colorID) ? $table->color : '';
 	}

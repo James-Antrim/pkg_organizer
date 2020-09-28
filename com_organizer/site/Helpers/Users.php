@@ -47,7 +47,7 @@ class Users
 
 		foreach ($matchingLessons as $lessonID => $ccmIDs)
 		{
-			$userLessonTable = new Tables\CourseParticipants;
+			$userLessonTable = new Tables\CourseParticipants();
 
 			if (!$userLessonTable->load(['userID' => $userID, 'lessonID' => $lessonID]))
 			{
@@ -217,7 +217,7 @@ class Users
 
 		foreach ($matchingLessons as $lessonID => $ccmIDs)
 		{
-			$userLessonTable = new Tables\CourseParticipants;
+			$userLessonTable = new Tables\CourseParticipants();
 			$hasUserLesson   = $userLessonTable->load(['userID' => $userID, 'lessonID' => $lessonID]);
 
 			$conditions = [

@@ -49,7 +49,7 @@ class Terms extends ResourceHelper implements Selectable
 	 */
 	public static function getEndDate($termID)
 	{
-		$table = new Tables\Terms;
+		$table = new Tables\Terms();
 
 		return $table->load($termID) ? $table->endDate : null;
 	}
@@ -68,7 +68,7 @@ class Terms extends ResourceHelper implements Selectable
 			return null;
 		}
 
-		$table        = new Tables\Terms;
+		$table        = new Tables\Terms();
 		$loadCriteria = ['startDate' => $data['startDate'], 'endDate' => $data['endDate']];
 
 		if ($table->load($loadCriteria))
@@ -193,7 +193,7 @@ class Terms extends ResourceHelper implements Selectable
 	 */
 	public static function getStartDate($termID)
 	{
-		$table = new Tables\Terms;
+		$table = new Tables\Terms();
 
 		return $table->load($termID) ? $table->startDate : null;
 	}

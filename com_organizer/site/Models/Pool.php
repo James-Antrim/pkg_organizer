@@ -143,7 +143,7 @@ class Pool extends CurriculumResource
 			return false;
 		}
 
-		$table = new Tables\Pools;
+		$table = new Tables\Pools();
 
 		if (!$table->save($data))
 		{

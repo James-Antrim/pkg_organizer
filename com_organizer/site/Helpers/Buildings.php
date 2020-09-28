@@ -30,7 +30,7 @@ class Buildings extends ResourceHelper implements Selectable
 	 */
 	public static function getID($name)
 	{
-		$table = new Tables\Buildings;
+		$table = new Tables\Buildings();
 		$data  = ['name' => $name];
 
 		if ($table->load($data))

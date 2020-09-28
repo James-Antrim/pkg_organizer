@@ -64,14 +64,14 @@ class ScheduleExport extends BaseView
 	 */
 	public function createCalendar()
 	{
-		$vCalendar = new \vcalendar;
+		$vCalendar = new \vcalendar();
 		$vCalendar->setConfig('unique_id', $this->parameters['docTitle']);
 		$vCalendar->setConfig('lang', Helpers\Languages::getTag());
 		$vCalendar->setProperty('x-wr-calname', $this->parameters['pageTitle']);
 		$vCalendar->setProperty('X-WR-TIMEZONE', 'Europe/Berlin');
 		$vCalendar->setProperty('METHOD', 'PUBLISH');
 
-		$vTimeZone1 = new \vtimezone;
+		$vTimeZone1 = new \vtimezone();
 		$vTimeZone1->setProperty('TZID', 'Europe/Berlin');
 
 		$vTimeZone2 = new \vtimezone('standard');
@@ -115,7 +115,7 @@ class ScheduleExport extends BaseView
 	 */
 	private function setEvent($date, $lessonInstance)
 	{
-		$vEvent = new \vevent;
+		$vEvent = new \vevent();
 		$vEvent->setProperty('TRANSP', 'OPAQUE');
 		$vEvent->setProperty('SEQUENCE', '0');
 		$vEvent->setProperty('PRIORITY', '5');

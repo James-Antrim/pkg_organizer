@@ -217,7 +217,7 @@ class Organizer extends BaseModel
 	 */
 	/*private function saveCourseParticipant($courseID, $participantID, $userLesson)
 	{
-		$cParticipants = new Tables\CourseParticipants;
+		$cParticipants = new Tables\CourseParticipants();
 		$cParticipant  = ['courseID' => $courseID, 'participantID' => $participantID];
 		$cParticipants->load($cParticipant);
 		if (empty($cParticipants->id))
@@ -266,7 +266,7 @@ class Organizer extends BaseModel
 	 */
 	/*private function saveInstanceParticipant($instanceID, $participantID, $userLesson)
 	{
-		$iParticipants = new Tables\InstanceParticipants;
+		$iParticipants = new Tables\InstanceParticipants();
 		$iParticipant  = ['instanceID' => $instanceID, 'participantID' => $participantID];
 		$iParticipants->load($iParticipant);
 		if (empty($iParticipants->id))

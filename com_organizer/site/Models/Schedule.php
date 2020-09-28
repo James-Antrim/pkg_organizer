@@ -547,7 +547,7 @@ class Schedule extends BaseModel
 			Helpers\OrganizerHelper::error(403);
 		}
 
-		$validator = new Validators\Schedules;
+		$validator = new Validators\Schedules();
 
 		if (!$validator->validate())
 		{
@@ -564,7 +564,7 @@ class Schedule extends BaseModel
 			'userID'         => Helpers\Users::getID()
 		];
 
-		$newTable = new Tables\Schedules;
+		$newTable = new Tables\Schedules();
 		if (!$newTable->save($data))
 		{
 			return false;

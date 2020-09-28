@@ -32,7 +32,7 @@ class Programs extends Controller
 	 */
 	public function update()
 	{
-		$model = new Models\Program;
+		$model = new Models\Program();
 
 		if ($model->update())
 		{
