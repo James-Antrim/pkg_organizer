@@ -10,14 +10,58 @@
 
 namespace Organizer\Models;
 
+use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
  * Class which manages stored room data.
  */
-class Room extends MergeModel implements ScheduleResource
+class Room extends MergeModel
 {
+	/**
+	 * Activates rooms by id if a selection was made, otherwise by use in the instance_rooms table.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function activate()
+	{
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
+
+		// Explicitly selected resources
+		if ($this->selected)
+		{
+			foreach ($this->selected as $selectedID)
+			{
+				$room = new Tables\Rooms();
+
+				if ($room->load($selectedID))
+				{
+					$room->active = 1;
+					$room->store();
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
+		// Implicitly used resources
+		$dbo = Factory::getDbo();
+
+		$subQuery = $dbo->getQuery(true);
+		$subQuery->select('DISTINCT roomID')->from('#__organizer_instance_rooms');
+
+		$query = $dbo->getQuery(true);
+		$query->update('#__organizer_rooms')->set('active = 1')->where("id IN ($subQuery)");
+		$dbo->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+	}
+
 	/**
 	 * Authorizes the user.
 	 *
@@ -29,6 +73,49 @@ class Room extends MergeModel implements ScheduleResource
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
+	}
+
+	/**
+	 * Deactivates rooms by id if a selection was made, otherwise by lack of use in the instance_rooms table.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function deactivate()
+	{
+		$this->selected = Helpers\Input::getSelectedIDs();
+		$this->authorize();
+
+		// Explicitly selected resources
+		if ($this->selected)
+		{
+			foreach ($this->selected as $selectedID)
+			{
+				$room = new Tables\Rooms();
+
+				if ($room->load($selectedID))
+				{
+					$room->active = 0;
+					$room->store();
+					continue;
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
+		// Implicitly unused resources
+		$dbo = Factory::getDbo();
+
+		$subQuery = $dbo->getQuery(true);
+		$subQuery->select('DISTINCT roomID')->from('#__organizer_instance_rooms');
+
+		$query = $dbo->getQuery(true);
+		$query->update('#__organizer_rooms')->set('active = 0')->where("id NOT IN ($subQuery)");
+		$dbo->setQuery($query);
+
+		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -48,7 +135,7 @@ class Room extends MergeModel implements ScheduleResource
 	}
 
 	/**
-	 * Updates key references to the entry being merged.
+	 * Updates the resource dependent associations
 	 *
 	 * @return boolean  true on success, otherwise false
 	 */
@@ -59,117 +146,94 @@ class Room extends MergeModel implements ScheduleResource
 			return false;
 		}
 
-		return $this->updateInstanceRooms();
+		if (!$this->updateLessonConfigurations('rooms'))
+		{
+			return false;
+		}
+
+		return $this->updateAssocAssociations();
 	}
 
 	/**
-	 * Updates the instance groups table to reflect the merge of the groups.
+	 * Updates resource associations in an old format schedule.
 	 *
-	 * @return bool true on success, otherwise false;
+	 * @param   int  $scheduleID  the id of the schedule being iterated
+	 *
+	 * @return bool  true on success, otherwise false
 	 */
-	private function updateInstanceRooms()
+	protected function updateOldSchedule(int $scheduleID)
 	{
-		if (!$relevantAssocs = $this->getAssociatedResourceIDs('assocID', 'instance_rooms'))
+		$query = $this->_db->getQuery(true);
+		$query->select('schedule')
+			->from('#__thm_organizer_schedules')
+			->where("id = $scheduleID");
+		$this->_db->setQuery($query);
+
+		if (!$schedule = Helpers\OrganizerHelper::executeQuery('loadResult', ''))
 		{
 			return true;
 		}
 
-		$mergeID = reset($this->selected);
-
-		foreach ($relevantAssocs as $assocID)
+		// Zombie, but old so just delete
+		if (strpos($schedule, '"configurations":{}') !== false)
 		{
-			$delta       = '';
-			$modified    = '';
-			$existing    = new Tables\InstanceRooms;
-			$entryExists = $existing->load(['assocID' => $assocID, 'roomID' => $mergeID]);
+			$query = $this->_db->getQuery(true);
+			$query->delete('#__thm_organizer_schedules')->where("id = $scheduleID");
+			$this->_db->setQuery($query);
 
-			foreach ($this->selected as $roomID)
+			return (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
+		}
+
+		$schedule = json_decode($schedule, true);
+
+		// The schedule is invalid
+		if (empty($schedule['configurations']))
+		{
+			return false;
+		}
+
+		$mergeID = $this->selected[0];
+
+		foreach ($schedule['configurations'] as $index => $configuration)
+		{
+			$inConfig      = false;
+			$configuration = json_decode($configuration);
+
+			foreach ($configuration->rooms as $roomID => $delta)
 			{
-				$irTable        = new Tables\InstanceRooms;
-				$loadConditions = ['assocID' => $assocID, 'roomID' => $roomID];
-				if (!$irTable->load($loadConditions))
+				if (in_array($roomID, $this->selected))
 				{
-					continue;
+					$inConfig = true;
+
+					// Whether old or new high probability of having to overwrite an attribute this enables standard handling.
+					unset($configuration->rooms->$roomID);
+					$configuration->rooms->$mergeID = $delta;
 				}
-
-				if ($irTable->modified > $modified)
-				{
-					$delta    = $irTable->delta;
-					$modified = $irTable->modified;
-				}
-
-				if ($entryExists)
-				{
-					if ($existing->id !== $irTable->id)
-					{
-						$irTable->delete();
-					}
-
-					continue;
-				}
-
-				$entryExists = true;
-				$existing    = $irTable;
 			}
 
-			$existing->delta    = $delta;
-			$existing->roomID   = $mergeID;
-			$existing->modified = $modified;
-			if (!$existing->store())
+			if ($inConfig)
 			{
-				return false;
+				$schedule->configurations[$index] = json_encode($configuration);
 			}
 		}
 
-		return true;
+		$query = $this->_db->getQuery(true);
+		$query->updated('#__thm_organizer_schedules')
+			->set('')
+			->where("id = $scheduleID");
+		$this->_db->setQuery($query);
 	}
 
 	/**
-	 * Processes the data for an individual schedule
+	 * Updates resource associations in a schedule.
 	 *
-	 * @param   object &$schedule  the schedule being processed
+	 * @param   int  $scheduleID  the id of the schedule being iterated
 	 *
-	 * @return bool true if the schedule was changed, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
-	public function updateSchedule($schedule)
+	protected function updateSchedule(int $scheduleID)
 	{
-		$instances = json_decode($schedule->schedule, true);
-		$mergeID   = reset($this->selected);
-		$relevant  = false;
-
-		foreach ($instances as $instanceID => $persons)
-		{
-			foreach ($persons as $personID => $data)
-			{
-				if (!$relevantRooms = array_intersect($data['rooms'], $this->selected))
-				{
-					continue;
-				}
-
-				$relevant = true;
-
-				// Unset all relevant to avoid conditional and unique handling
-				foreach (array_keys($relevantRooms) as $relevantIndex)
-				{
-					unset($instances[$instanceID][$personID]['rooms'][$relevantIndex]);
-				}
-
-				// Put the merge id in/back in
-				$instances[$instanceID][$personID]['rooms'][] = $mergeID;
-
-				// Resequence to avoid JSON encoding treating the array as associative (object)
-				$instances[$instanceID][$personID]['rooms']
-					= array_values($instances[$instanceID][$personID]['rooms']);
-			}
-		}
-
-		if ($relevant)
-		{
-			$schedule->schedule = json_encode($instances);
-
-			return true;
-		}
-
-		return false;
+		// This would otherwise be identical to groups
+		return $this->updateEndResource($scheduleID, 'rooms');
 	}
 }

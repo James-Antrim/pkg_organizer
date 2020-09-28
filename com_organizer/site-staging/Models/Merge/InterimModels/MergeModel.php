@@ -16,7 +16,7 @@ use Organizer\Helpers;
 /**
  * Class provides methods for merging resources. Resource specific tasks are implemented in the extending classes.
  */
-abstract class MergeModel extends BaseModel
+abstract class InterimMergeModel extends BaseModel
 {
 	/**
 	 * @var string the column name in the organization resources table
@@ -27,40 +27,6 @@ abstract class MergeModel extends BaseModel
 	 * @var array the preprocessed form data
 	 */
 	protected $data = [];
-
-	/**
-	 * The ids selected by the user
-	 *
-	 * @var array
-	 */
-	protected $selected = [];
-
-	/**
-	 * Attempts to delete resource entries
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	public function delete()
-	{
-		if (!$this->selected = Helpers\Input::getSelectedIDs())
-		{
-			return false;
-		}
-
-		$this->authorize();
-
-		foreach ($this->selected as $resourceID)
-		{
-			$table = $this->getTable();
-
-			if ($table->load($resourceID))
-			{
-				$table->delete($resourceID);
-			}
-		}
-
-		return true;
-	}
 
 	/**
 	 * Get the ids of the resources associated over an association table.
@@ -80,73 +46,6 @@ abstract class MergeModel extends BaseModel
 		$this->_db->setQuery($query);
 
 		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
-	 * Retrieves the ids of all saved schedules
-	 *
-	 * @return mixed  array on success, otherwise null
-	 */
-	protected function getSchedulesIDs()
-	{
-		$query = $this->_db->getQuery(true);
-		$query->select('id');
-		$query->from('#__organizer_schedules');
-		$this->_db->setQuery($query);
-
-		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
-	 * Merges resource entries and cleans association tables.
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	public function merge()
-	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		sort($this->selected);
-
-		if (!Helpers\Can::administrate())
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-
-		// Associations have to be updated before entity references are deleted by foreign keys
-		if (!$this->updateAssociations())
-		{
-			return false;
-		}
-
-		$data          = empty($this->data) ? Helpers\Input::getFormItems()->toArray() : $this->data;
-		$deprecatedIDs = $this->selected;
-		$data['id']    = array_shift($deprecatedIDs);
-		$table         = $this->getTable();
-
-		// Remove deprecated entries
-		foreach ($deprecatedIDs as $deprecated)
-		{
-			if (!$table->delete($deprecated))
-			{
-				return false;
-			}
-		}
-
-		// Save the merged values of the current entry
-		if (!$table->save($data))
-		{
-			return false;
-		}
-
-		if ($this instanceof ScheduleResource and !$this->updateSchedules())
-		{
-			return false;
-		}
-
-		// Any further processing should not iterate over deprecated ids.
-		$this->selected = [$data['id']];
-
-		return true;
 	}
 
 	/**
@@ -186,34 +85,6 @@ abstract class MergeModel extends BaseModel
 		return $table->save($this->data) ? $table->id : false;
 	}
 
-	/**
-	 * Updates an association where the associated resource itself has a fk reference to the resource being merged.
-	 *
-	 * @param   string  $tableSuffix  the unique part of the table name
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	/*protected function updateDirectAssociation($tableSuffix)
-	{
-		$updateIDs = $this->selected;
-		$mergeID   = array_shift($updateIDs);
-		$updateIDs = "'" . implode("', '", $updateIDs) . "'";
-
-		$query = $this->_db->getQuery(true);
-		$query->update("#__organizer_$tableSuffix");
-		$query->set("{$this->fkColumn} = $mergeID");
-		$query->where("{$this->fkColumn} IN ( $updateIDs )");
-		$this->_db->setQuery($query);
-
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
-	}*/
-
-	/**
-	 * Updates the resource dependent associations
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	/*abstract protected function updateAssociations();*/
 
 	/**
 	 * Updates the associated organizations for a resource
@@ -310,36 +181,5 @@ abstract class MergeModel extends BaseModel
 		$this->_db->setQuery($insertQuery);
 
 		return (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
-	}*/
-
-	/**
-	 * Updates room data and lesson associations in active schedules
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	/*private function updateSchedules()
-	{
-		$scheduleIDs = $this->getSchedulesIDs();
-		if (empty($scheduleIDs))
-		{
-			return true;
-		}
-
-		foreach ($scheduleIDs as $scheduleID)
-		{
-			$scheduleTable = new Tables\Schedules;
-
-			if (!$scheduleTable->load($scheduleID))
-			{
-				continue;
-			}
-
-			if ($this->updateSchedule($scheduleTable) and !$scheduleTable->store())
-			{
-				return false;
-			}
-		}
-
-		return true;
 	}*/
 }
