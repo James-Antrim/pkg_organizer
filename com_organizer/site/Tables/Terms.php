@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_terms table.
  */
@@ -77,12 +75,10 @@ class Terms extends BaseTable
 	public $startDate;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_terms', 'id', $dbo);
+		parent::__construct('#__organizer_terms');
 	}
 }

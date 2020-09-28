@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_units table.
  */
@@ -92,13 +90,11 @@ class Units extends BaseTable
 	public $termID;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_units', 'id', $dbo);
+		parent::__construct('#__organizer_units');
 	}
 
 	/**

@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_instances table.
  */
@@ -41,12 +39,10 @@ class LessonConfigurations extends BaseTable
 	public $modified;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__thm_organizer_lesson_configurations', 'id', $dbo);
+		parent::__construct('#__thm_organizer_lesson_configurations');
 	}
 }

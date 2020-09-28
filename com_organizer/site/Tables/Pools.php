@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_pools table.
  */
@@ -124,13 +122,11 @@ class Pools extends BaseTable
 	public $shortName_en;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_pools', 'id', $dbo);
+		parent::__construct('#__organizer_pools');
 	}
 
 	/**

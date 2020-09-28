@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_degrees table.
  */
@@ -34,12 +32,10 @@ class Frequencies extends BaseTable
 	public $name_en;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_frequencies', 'id', $dbo);
+		parent::__construct('#__organizer_frequencies');
 	}
 }

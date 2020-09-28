@@ -10,7 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
 
 /**
  * Models the organizer_curricula table.
@@ -82,13 +81,11 @@ class Curricula extends BaseTable
 	public $subjectID;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_curricula', 'id', $dbo);
+		parent::__construct('#__organizer_curricula');
 	}
 
 	/**

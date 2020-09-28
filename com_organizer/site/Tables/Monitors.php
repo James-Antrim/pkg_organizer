@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_monitors table.
  */
@@ -82,12 +80,10 @@ class Monitors extends BaseTable
 	public $useDefaults;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_monitors', 'id', $dbo);
+		parent::__construct('#__organizer_monitors');
 	}
 }

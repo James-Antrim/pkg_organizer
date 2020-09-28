@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_instance_persons table.
  */
@@ -44,12 +42,10 @@ class InstancePersons extends BaseTable
 	public $roleID;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_instance_persons', 'id', $dbo);
+		parent::__construct('#__organizer_instance_persons');
 	}
 }

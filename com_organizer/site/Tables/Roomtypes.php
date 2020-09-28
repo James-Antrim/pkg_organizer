@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_roomtypes table.
  */
@@ -77,12 +75,10 @@ class Roomtypes extends BaseTable
 	public $name_en;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_roomtypes', 'id', $dbo);
+		parent::__construct('#__organizer_roomtypes');
 	}
 }

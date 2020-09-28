@@ -11,7 +11,6 @@
 namespace Organizer\Tables;
 
 use Exception;
-use JDatabaseDriver;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
 use Organizer\Helpers;
@@ -30,18 +29,14 @@ abstract class BaseTable extends Table
 	public $id;
 
 	/**
-	 * Object constructor to set table and key fields.  In most cases this will
-	 * be overridden by child classes to explicitly set the table and key fields
-	 * for a particular database table.
+	 * Object constructor to set table and key fields.
 	 *
-	 * @param   string           $table  Name of the table to model.
-	 * @param   mixed            $key    Name of the primary key field or array of composite primary field names.
-	 * @param   JDatabaseDriver  $db     JDatabaseDriver object.
+	 * @param   string  $table  Name of the table to model.
 	 */
-	public function __construct($table, $key, $db = null)
+	public function __construct(string $table)
 	{
-		$db = empty($db) ? Factory::getDbo() : $db;
-		parent::__construct($table, $key, $db);
+		$dbo = Factory::getDbo();
+		parent::__construct($table, 'id', $dbo);
 	}
 
 	/**

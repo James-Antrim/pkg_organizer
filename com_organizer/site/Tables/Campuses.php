@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_campuses table.
  */
@@ -92,13 +90,11 @@ class Campuses extends BaseTable
 	public $zipCode;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_campuses', 'id', $dbo);
+		parent::__construct('#__organizer_campuses');
 	}
 
 	/**

@@ -10,7 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
 use Joomla\CMS\Access\Rules;
 use Joomla\CMS\Table\Asset;
 use Joomla\CMS\Table\Table;
@@ -120,13 +119,11 @@ class Organizations extends BaseTable
 	public $URL;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_organizations', 'id', $dbo);
+		parent::__construct('#__organizer_organizations');
 	}
 
 	/**

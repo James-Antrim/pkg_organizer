@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_group_publishing table.
  */
@@ -42,12 +40,10 @@ class GroupPublishing extends BaseTable
 	public $termID;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_group_publishing', 'id', $dbo);
+		parent::__construct('#__organizer_group_publishing');
 	}
 }

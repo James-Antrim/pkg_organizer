@@ -10,8 +10,6 @@
 
 namespace Organizer\Tables;
 
-use JDatabaseDriver;
-
 /**
  * Models the organizer_event_coordinators table.
  */
@@ -34,12 +32,10 @@ class EventCoordinators extends BaseTable
 	public $personID;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   JDatabaseDriver  $dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct($dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_event_coordinators', 'id', $dbo);
+		parent::__construct('#__organizer_event_coordinators');
 	}
 }
