@@ -59,9 +59,9 @@ class Pool extends CurriculumResource
 		$noChildren = !isset($XMLObject->modulliste->modul);
 		$validTitle = $this->validTitle($XMLObject);
 
-		$pools = new Tables\Pools;
+		$pool = new Tables\Pools();
 
-		if (!$pools->load(['lsfID' => $lsfID]))
+		if (!$pool->load(['lsfID' => $lsfID]))
 		{
 			// There isn't one and shouldn't be one
 			if ($blocked or !$validTitle or $noChildren)
@@ -69,28 +69,28 @@ class Pool extends CurriculumResource
 				return true;
 			}
 
-			$pools->lsfID = $lsfID;
-			$this->setNameAttributes($pools, $XMLObject);
+			$pool->lsfID = $lsfID;
+			$this->setNameAttributes($pool, $XMLObject);
 
-			if (!$pools->store())
+			if (!$pool->store())
 			{
 				return false;
 			}
 		}
 		elseif ($blocked or !$validTitle or $noChildren)
 		{
-			return $this->deleteSingle($pools->id);
+			return $this->deleteSingle($pool->id);
 		}
 
-		$curricula = new Tables\Curricula;
+		$curricula = new Tables\Curricula();
 
-		if (!$curricula->load(['parentID' => $parentID, 'poolID' => $pools->id]))
+		if (!$curricula->load(['parentID' => $parentID, 'poolID' => $pool->id]))
 		{
 			$range             = [];
 			$range['parentID'] = $parentID;
-			$range['poolID']   = $pools->id;
+			$range['poolID']   = $pool->id;
 
-			$range['ordering'] = $this->getOrdering($parentID, $pools->id);
+			$range['ordering'] = $this->getOrdering($parentID, $pool->id);
 			if (!$this->shiftUp($parentID, $range['ordering']))
 			{
 				return false;
@@ -101,7 +101,13 @@ class Pool extends CurriculumResource
 				return false;
 			}
 
-			$curricula->load(['parentID' => $parentID, 'poolID' => $pools->id]);
+			$curricula->load(['parentID' => $parentID, 'poolID' => $pool->id]);
+		}
+
+		$association = new Tables\Associations();
+		if (!$association->load(['organizationID' => $organizationID, 'poolID' => $pool->id]))
+		{
+			$association->save(['organizationID' => $organizationID, 'poolID' => $pool->id]);
 		}
 
 		return $this->processCollection($XMLObject->modulliste->modul, $organizationID, $curricula->id);

@@ -391,9 +391,9 @@ class Subject extends CurriculumResource
 		$blocked = !empty($XMLObject->sperrmh) and strtolower((string) $XMLObject->sperrmh) == 'x';
 		$validTitle = $this->validTitle($XMLObject);
 
-		$subjects = new Tables\Subjects;
+		$subject = new Tables\Subjects;
 
-		if (!$subjects->load(['lsfID' => $lsfID]))
+		if (!$subject->load(['lsfID' => $lsfID]))
 		{
 			// There isn't one and shouldn't be one
 			if ($blocked or !$validTitle)
@@ -401,26 +401,26 @@ class Subject extends CurriculumResource
 				return true;
 			}
 
-			$subjects->lsfID = $lsfID;
+			$subject->lsfID = $lsfID;
 
-			if (!$subjects->store())
+			if (!$subject->store())
 			{
 				return false;
 			}
 		}
 		elseif ($blocked or !$validTitle)
 		{
-			return $this->deleteSingle($subjects->id);
+			return $this->deleteSingle($subject->id);
 		}
 
 		$curricula = new Tables\Curricula;
 
-		if (!$curricula->load(['parentID' => $parentID, 'subjectID' => $subjects->id]))
+		if (!$curricula->load(['parentID' => $parentID, 'subjectID' => $subject->id]))
 		{
 			$range = [
 				'parentID'  => $parentID,
-				'subjectID' => $subjects->id,
-				'ordering'  => $this->getOrdering($parentID, $subjects->id)
+				'subjectID' => $subject->id,
+				'ordering'  => $this->getOrdering($parentID, $subject->id)
 			];
 
 			if (!$this->shiftUp($parentID, $range['ordering']))
@@ -433,10 +433,16 @@ class Subject extends CurriculumResource
 				return false;
 			}
 
-			$curricula->load(['parentID' => $parentID, 'poolID' => $subjects->id]);
+			$curricula->load(['parentID' => $parentID, 'poolID' => $subject->id]);
 		}
 
-		return $this->importSingle($subjects->id);
+		$association = new Tables\Associations();
+		if (!$association->load(['organizationID' => $organizationID, 'subjectID' => $subject->id]))
+		{
+			$association->save(['organizationID' => $organizationID, 'subjectID' => $subject->id]);
+		}
+
+		return $this->importSingle($subject->id);
 	}
 
 	/**
@@ -887,7 +893,7 @@ class Subject extends CurriculumResource
 				}
 			}
 
-			if (!$loaded and!$personTable->save($personData))
+			if (!$loaded and !$personTable->save($personData))
 			{
 				return false;
 			}
