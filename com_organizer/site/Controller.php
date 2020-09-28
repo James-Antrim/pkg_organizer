@@ -326,6 +326,22 @@ class Controller extends BaseController
 	}
 
 	/**
+	 * Removes deprecated assets associated with the old component
+	 *
+	 * @return void
+	 */
+	public function removeAssets()
+	{
+		$model = new Models\Organizer();
+
+		$model->removeAssets();
+		OrganizerHelper::message('ORGANIZER_DELETE_SUCCESS');
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
 	 * Save form data to the database.
 	 *
 	 * @return void

@@ -10,13 +10,37 @@
 
 namespace Organizer\Models;
 
+use Joomla\CMS\Table\Table;
 use Joomla\CMS\Toolbar\Toolbar;
+use Organizer\Helpers\OrganizerHelper;
 
 /**
  * Class which sets permissions for the view.
  */
 class Organizer extends BaseModel
 {
+	/**
+	 * Removes deprecated assets associated with the old component
+	 *
+	 * @return true
+	 */
+	public function removeAssets()
+	{
+		$query = $this->_db->getQuery(true);
+		$query->select('id')->from('#__assets')->where("name LIKE 'com_thm_organizer.department.%'");
+		$this->_db->setQuery($query);
+
+		$assetIDs = OrganizerHelper::executeQuery('loadColumn', []);
+
+		foreach ($assetIDs as $assetID)
+		{
+			$asset = Table::getInstance('asset');
+			$asset->delete($assetID);
+		}
+
+		return true;
+	}
+
 	/**
 	 * Migrates associations with a given participant id.
 	 *
