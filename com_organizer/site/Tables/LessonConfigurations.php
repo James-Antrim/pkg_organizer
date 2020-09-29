@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Models the organizer_instances table.
+ * Models the thm_organizer_lesson_configurations table.
  */
 class LessonConfigurations extends BaseTable
 {
@@ -24,7 +24,7 @@ class LessonConfigurations extends BaseTable
 	public $configuration;
 
 	/**
-	 * The id of the unit entry referenced.
+	 * The id of the lesson->subject entry referenced.
 	 * INT(11) UNSIGNED NOT NULL
 	 *
 	 * @var int
@@ -32,7 +32,8 @@ class LessonConfigurations extends BaseTable
 	public $lessonID;
 
 	/**
-	 * The time at which this entry was last modified.
+	 * The timestamp at which the schedule was generated which modified this entry.
+	 * TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	 *
 	 * @var int
 	 */
