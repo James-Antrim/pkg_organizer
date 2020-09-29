@@ -25,7 +25,7 @@ class EventCoordinators extends BaseTable
 
 	/**
 	 * The id of the person entry referenced.
-	 * INT(11) DEFAULT NULL
+	 * INT(11) UNSIGNED NOT NULL
 	 *
 	 * @var int
 	 */
