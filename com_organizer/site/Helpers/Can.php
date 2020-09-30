@@ -319,12 +319,12 @@ class Can
 	/**
 	 * Checks whether the user can manage the given resource.
 	 *
-	 * @param   string     $resourceType  the resource type being checked
-	 * @param   array|int  $resource      the resource id being checked or an array if resource ids to check
+	 * @param   string  $resourceType  the resource type being checked
+	 * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
 	 *
 	 * @return bool true if the user is authorized for scheduling functions and views.
 	 */
-	public static function manage($resourceType, $resource = null)
+	public static function manage(string $resourceType, int $resourceID = 0)
 	{
 		$user = Users::getUser();
 		if (empty($user->id))
@@ -341,18 +341,18 @@ class Can
 		{
 			case 'course':
 			case 'courses':
-				return (Courses::coordinates($resource) or Courses::hasResponsibility($resource));
+				return (Courses::coordinates($resourceID) or Courses::hasResponsibility($resourceID));
 			case 'facilities':
 				return $user->authorise('organizer.fm', 'com_organizer');
 			case 'organization':
-				return $user->authorise('organizer.manage', "com_organizer.organization.$resource");
+				return $user->authorise('organizer.manage', "com_organizer.organization.$resourceID");
 			case 'participant':
-				if ($resource === $user->id)
+				if ($resourceID === $user->id)
 				{
 					return true;
 				}
 
-				$courseIDs = Participants::getCourses($resource);
+				$courseIDs = Participants::getCourses($resourceID);
 
 				foreach ($courseIDs as $courseID)
 				{
@@ -428,12 +428,12 @@ class Can
 	/**
 	 * Checks whether the user has privileged access to resource associated views.
 	 *
-	 * @param   string     $resourceType  the resource type being checked
-	 * @param   array|int  $resource      the resource id being checked or an array if resource ids to check
+	 * @param   string  $resourceType  the resource type being checked
+	 * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
 	 *
 	 * @return bool true if the user is authorized for scheduling functions and views.
 	 */
-	public static function view($resourceType, $resource = null)
+	public static function view(string $resourceType, int $resourceID)
 	{
 		if (is_bool($authorized = self::basic()))
 		{
@@ -442,14 +442,14 @@ class Can
 
 		$user = Users::getUser();
 
-		if ($resourceType === 'organization' and is_int($resource))
+		if ($resourceType === 'organization')
 		{
-			if ($user->authorise('organizer.view', "com_organizer.organization.$resource"))
+			if ($user->authorise('organizer.view', "com_organizer.organization.$resourceID"))
 			{
 				return true;
 			}
 
-			return self::manage($resourceType, $resource);
+			return self::manage($resourceType, $resourceID);
 		}
 
 		return false;
