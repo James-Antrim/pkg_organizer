@@ -345,7 +345,7 @@ class Courses extends ResourceHelper
 	public static function isFull($courseID)
 	{
 		$table = new Tables\Courses();
-		if (!$maxParticipants = $table->getProperty('maxParticipants', $courseID))
+		if (!$table->load($courseID) or !$maxParticipants = $table->maxParticipants)
 		{
 			return false;
 		}

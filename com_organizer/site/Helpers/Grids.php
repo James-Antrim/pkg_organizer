@@ -64,7 +64,12 @@ class Grids extends ResourceHelper
 	{
 		$table = new Tables\Grids();
 
-		return $table->getProperty('grid', $gridID, '');
+		if ($table->load($gridID) and $grid = $table->grid)
+		{
+			return $grid;
+		}
+
+		return '';
 	}
 
 	/**

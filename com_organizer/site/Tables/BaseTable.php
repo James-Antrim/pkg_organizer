@@ -40,25 +40,6 @@ abstract class BaseTable extends Table
 	}
 
 	/**
-	 * Gets a given property from a table, loading the table as necessary.
-	 *
-	 * @param   string  $property  the name of the property to retrieve
-	 * @param   mixed   $keys      an optional primary key value to load the row by, or an array of fields to match
-	 * @param   mixed   $default   the default value to return if the property was empty or non-existent
-	 *
-	 * @return mixed the property value on success, otherwise null
-	 */
-	public function getProperty($property, $keys = null, $default = null)
-	{
-		if (empty($this->id) and !$this->load($keys))
-		{
-			return $default;
-		}
-
-		return $this->$property;
-	}
-
-	/**
 	 * Wraps the parent load function in a try catch clause to avoid redundant handling in other classes.
 	 *
 	 * @param   mixed    $keys   An optional primary key value to load the row by, or an array of fields to match.
