@@ -36,7 +36,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		// Two uppercase letter code for the degree. First letter is B (Bachelor) or M (Master)
-		$implausibleDegree = (!ctype_upper($pieces[1]) or !preg_match('/^[B|M]{1}[A-Z]{1,2}$/', $pieces[1]));
+		$implausibleDegree = (!ctype_upper($pieces[1]) or !preg_match('/^[B|M][A-Z]{1,2}$/', $pieces[1]));
 		if ($implausibleDegree)
 		{
 			return [];
@@ -50,7 +50,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		$degreeID = $degrees->load(['code' => $pieces[1]]) ? $degrees->id : null;
 
 		// Should be year of accreditation, but ITS likes to pick random years
-		$plausibleVersion = (ctype_digit($pieces[2]) and preg_match('/^[2]{1}[0-9]{3}$/', $pieces[2]));
+		$plausibleVersion = (ctype_digit($pieces[2]) and preg_match('/^[2][0-9]{3}$/', $pieces[2]));
 
 		return ($plausibleCode and $degreeID and $plausibleVersion) ?
 			['code' => $pieces[0], 'degreeID' => $degreeID, 'accredited' => $pieces[2]] : [];
