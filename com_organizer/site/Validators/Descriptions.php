@@ -28,7 +28,7 @@ class Descriptions implements UntisXMLValidator
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $code, $typeFlag = '')
+	public static function setID($model, string $code, $typeFlag = '')
 	{
 		$error    = 'ORGANIZER_';
 		$resource = '';
@@ -74,7 +74,7 @@ class Descriptions implements UntisXMLValidator
 	 *
 	 * @return void
 	 */
-	public static function validate($model, $node)
+	public static function validate($model, SimpleXMLElement $node)
 	{
 		$untisID = str_replace('DS_', '', trim((string) $node[0]['id']));
 		$name    = trim((string) $node->longname);

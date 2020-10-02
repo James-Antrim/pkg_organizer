@@ -28,7 +28,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $code)
+	public static function setID($model, string $code)
 	{
 		$room  = $model->rooms->$code;
 		$table = new Tables\Rooms();
@@ -91,7 +91,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void
 	 */
-	public static function validate($model, $node)
+	public static function validate($model, SimpleXMLElement $node)
 	{
 		$internalID = strtoupper(str_replace('RM_', '', trim((string) $node[0]['id'])));
 

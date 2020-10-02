@@ -25,7 +25,7 @@ interface UntisXMLValidator
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $code);
+	public static function setID($model, string $code);
 
 	/**
 	 * Checks whether XML node has the expected structure and required
@@ -36,5 +36,5 @@ interface UntisXMLValidator
 	 *
 	 * @return void
 	 */
-	public static function validate($model, $node);
+	public static function validate($model, SimpleXMLElement $node);
 }

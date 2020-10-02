@@ -27,10 +27,10 @@ class Instances extends Helpers\ResourceHelper
 	 * Adds the data for locating the missing room information to the warnings.
 	 *
 	 * @param   object  $model       the model for the schedule being validated
-	 * @param   int     $untisID     the untis id of the unit being iterated
+	 * @param   string  $untisID     the untis id of the unit being iterated
 	 * @param   array   $invalidIDs  the untis ids of rooms which proved to be invalid
 	 */
-	private static function addInvalidRoomData($model, $untisID, $invalidIDs)
+	private static function addInvalidRoomData($model, string $untisID, array $invalidIDs)
 	{
 		if (empty($model->warnings['IIR']))
 		{
@@ -52,11 +52,11 @@ class Instances extends Helpers\ResourceHelper
 	 * Adds the data for locating the missing room information to the warnings.
 	 *
 	 * @param   object  $model      the model for the schedule being validated
-	 * @param   int     $untisID    the untis id of the unit being iterated
+	 * @param   string  $untisID    the untis id of the unit being iterated
 	 * @param   int     $currentDT  the current date time in the iteration
 	 * @param   int     $periodNo   the period number of the grid to look for times in
 	 */
-	private static function addMissingRoomData($model, $untisID, $currentDT, $periodNo)
+	private static function addMissingRoomData($model, string $untisID, int $currentDT, int $periodNo)
 	{
 		if (empty($model->warnings['IMR']))
 		{
@@ -94,7 +94,7 @@ class Instances extends Helpers\ResourceHelper
 	 *
 	 * @return int the id of the block
 	 */
-	private static function getBlockID($node, $currentDate)
+	private static function getBlockID(SimpleXMLElement $node, string $currentDate)
 	{
 		$rawEndTime   = trim((string) $node->assigned_endtime);
 		$rawStartTime = trim((string) $node->assigned_starttime);
@@ -122,12 +122,12 @@ class Instances extends Helpers\ResourceHelper
 	 *
 	 * @param   object            $model        the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node         the node being validated
-	 * @param   int               $untisID      the untis id of the unit being iterated
+	 * @param   string            $untisID      the untis id of the unit being iterated
 	 * @param   string            $currentDate  the date being currently iterated Y-m-d
 	 *
 	 * @return void
 	 */
-	private static function processInstance($model, $node, $untisID, $currentDate)
+	private static function processInstance($model, SimpleXMLElement $node, string $untisID, string $currentDate)
 	{
 		$calendar = $model->schedule->calendar;
 
@@ -224,13 +224,13 @@ class Instances extends Helpers\ResourceHelper
 	 * Sets associations between an instance person association and its groups.
 	 *
 	 * @param   object  $model       the model for the schedule being validated
-	 * @param   int     $untisID     the untis id of the unit being iterated
+	 * @param   string  $untisID     the untis id of the unit being iterated
 	 * @param   int     $instanceID  the id of the instance being validated
 	 * @param   int     $assocID     the id of the instance person association with which the groups are to be associated
 	 *
 	 * @return void
 	 */
-	private static function setGroups($model, $untisID, $instanceID, $assocID)
+	private static function setGroups($model, string $untisID, int $instanceID, int $assocID)
 	{
 		$instances = &$model->instances;
 		$unit      = $model->units->$untisID;
@@ -263,12 +263,12 @@ class Instances extends Helpers\ResourceHelper
 	 *
 	 * @param   object            $model        the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node         the node being validated
-	 * @param   int               $untisID      the untis id of the unit being iterated
+	 * @param   string            $untisID      the untis id of the unit being iterated
 	 * @param   string            $currentDate  the current date being iterated
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setInstance($model, $node, $untisID, $currentDate)
+	public static function setInstance($model, SimpleXMLElement $node, string $untisID, string $currentDate)
 	{
 		$unit     = $model->units->$untisID;
 		$methodID = empty($unit->methodID) ? null : $unit->methodID;
@@ -319,12 +319,12 @@ class Instances extends Helpers\ResourceHelper
 	 * Sets an instance person association.
 	 *
 	 * @param   object  $model       the model for the schedule being validated
-	 * @param   int     $untisID     the untis id of the unit being iterated
+	 * @param   string  $untisID     the untis id of the unit being iterated
 	 * @param   int     $instanceID  the id of the instance being validated
 	 *
 	 * @return void
 	 */
-	private static function setPerson($model, $untisID, $instanceID)
+	private static function setPerson($model, string $untisID, int $instanceID)
 	{
 		$instances = &$model->instances;
 		$unit      = $model->units->$untisID;
@@ -376,13 +376,13 @@ class Instances extends Helpers\ResourceHelper
 	 * Sets associations between an instance person association and its groups.
 	 *
 	 * @param   object  $model       the model for the schedule being validated
-	 * @param   int     $untisID     the untis id of the unit being iterated
+	 * @param   string  $untisID     the untis id of the unit being iterated
 	 * @param   int     $instanceID  the id of the instance being validated
 	 * @param   int     $assocID     the id of the instance person association with which the groups are to be associated
 	 *
 	 * @return void
 	 */
-	private static function setRooms($model, $untisID, $instanceID, $assocID)
+	private static function setRooms($model, string $untisID, int $instanceID, int $assocID)
 	{
 		$instances = &$model->instances;
 		$unit      = $model->units->$untisID;
@@ -419,7 +419,7 @@ class Instances extends Helpers\ResourceHelper
 	 *
 	 * @return void creates / updates a table entry
 	 */
-	private static function updateRelation($model, $table, $data)
+	private static function updateRelation($model, $table, array $data)
 	{
 		if ($table->load($data))
 		{
@@ -448,14 +448,19 @@ class Instances extends Helpers\ResourceHelper
 	 *
 	 * @param   object            $model        the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node         the node being validated
-	 * @param   int               $untisID      the untis id of the unit being iterated
+	 * @param   string            $untisID      the untis id of the unit being iterated
 	 * @param   array             $occurrences  an array of 'occurrences'
 	 * @param   bool              $valid        whether or not the planning unit is valid (for purposes of saving)
 	 *
 	 * @return void
 	 */
-	public static function validateCollection($model, $node, $untisID, $occurrences, $valid)
-	{
+	public static function validateCollection(
+		$model,
+		SimpleXMLElement $node,
+		string $untisID,
+		array $occurrences,
+		bool $valid
+	) {
 		if (!$node->count())
 		{
 			return;
@@ -487,14 +492,19 @@ class Instances extends Helpers\ResourceHelper
 	 *
 	 * @param   object            $model      the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node       the node being validated
-	 * @param   int               $untisID    the untis id of the unit being iterated
+	 * @param   string            $untisID    the untis id of the unit being iterated
 	 * @param   int               $currentDT  the current date time in the iteration
 	 * @param   bool              $valid      whether or not the planning unit is valid (for purposes of saving)
 	 *
 	 * @return void errors are added to the model's errors property
 	 */
-	private static function validateInstance($model, $node, $untisID, $currentDT, $valid)
-	{
+	private static function validateInstance(
+		$model,
+		SimpleXMLElement $node,
+		string $untisID,
+		int $currentDT,
+		bool $valid
+	) {
 		// Current date not applicable for this instance
 		if (trim((string) $node->assigned_day) != date('w', $currentDT))
 		{

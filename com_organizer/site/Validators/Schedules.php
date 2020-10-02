@@ -165,7 +165,7 @@ class Schedules
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function validateDate(&$value, $constant)
+	public function validateDate(string &$value, string $constant)
 	{
 		if (empty($value))
 		{
@@ -190,7 +190,7 @@ class Schedules
 	 *
 	 * @return void true on successful validation w/o errors, false if the schedule was invalid or an error occurred
 	 */
-	public function validateResources($validTerm)
+	public function validateResources(bool $validTerm)
 	{
 		$this->categories = new stdClass();
 		foreach ($this->xml->departments->children() as $node)
@@ -269,7 +269,7 @@ class Schedules
 	 *
 	 * @return bool false if blocking errors were found, otherwise true
 	 */
-	public function validateText($value, $constant, $regex = '')
+	public function validateText(string $value, string $constant, string $regex = '')
 	{
 		if (empty($value))
 		{

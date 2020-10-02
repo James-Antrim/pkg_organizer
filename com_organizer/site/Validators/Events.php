@@ -28,7 +28,7 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $code)
+	public static function setID($model, string $code)
 	{
 		$event = $model->events->$code;
 		$table = new Tables\Events();
@@ -89,7 +89,7 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void
 	 */
-	public static function validate($model, $node)
+	public static function validate($model, SimpleXMLElement $node)
 	{
 		$code = str_replace('SU_', '', trim((string) $node[0]['id']));
 		$name = trim((string) $node->longname);

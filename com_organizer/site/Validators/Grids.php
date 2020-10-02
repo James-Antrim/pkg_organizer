@@ -27,7 +27,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return mixed int id on success, otherwise null
 	 */
-	public static function getID($code)
+	public static function getID(string $code)
 	{
 		$table = new Tables\Grids();
 
@@ -42,7 +42,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $gridName)
+	public static function setID($model, string $gridName)
 	{
 		if (empty($model->grids->$gridName))
 		{
@@ -88,7 +88,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void
 	 */
-	public static function validate($model, $node)
+	public static function validate($model, SimpleXMLElement $node)
 	{
 		// Not actually referenced but evinces data inconsistencies in Untis
 		$exportKey = trim((string) $node[0]['id']);

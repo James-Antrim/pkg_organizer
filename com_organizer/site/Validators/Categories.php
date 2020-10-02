@@ -27,7 +27,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return array empty if the id is implausible
 	 */
-	private static function parseProgramData($untisID)
+	private static function parseProgramData(string $untisID)
 	{
 		$pieces = explode('.', $untisID);
 		if (count($pieces) !== 3)
@@ -64,7 +64,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $code)
+	public static function setID($model, string $code)
 	{
 		$category     = $model->categories->$code;
 		$loadCriteria = [['code' => $code], ['name_de' => $category->name_de]];
@@ -116,7 +116,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void
 	 */
-	public static function validate($model, $node)
+	public static function validate($model, SimpleXMLElement $node)
 	{
 		$code = str_replace('DP_', '', trim((string) $node[0]['id']));
 

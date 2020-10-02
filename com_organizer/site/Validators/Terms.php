@@ -28,7 +28,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, $code)
+	public static function setID($model, string $code)
 	{
 		$loadCriteria = [
 			['code' => $code],
@@ -89,7 +89,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void
 	 */
-	public static function validate($model, $node)
+	public static function validate($model, SimpleXMLElement $node)
 	{
 		$model->schoolYear            = new stdClass();
 		$model->schoolYear->endDate   = trim((string) $node->schoolyearenddate);
