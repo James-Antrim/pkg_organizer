@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Helpers\Validators;
+namespace Organizer\Validators;
 
 use Joomla\CMS\Factory;
 use Organizer\Helpers;

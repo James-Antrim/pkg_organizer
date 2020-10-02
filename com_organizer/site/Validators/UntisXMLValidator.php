@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Helpers\Validators;
+namespace Organizer\Validators;
 
 use SimpleXMLElement;
 
