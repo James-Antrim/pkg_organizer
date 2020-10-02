@@ -88,6 +88,7 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
+	 * @noinspection PhpUndefinedFieldInspection
 	 */
 	public static function validate($model, SimpleXMLElement $node)
 	{

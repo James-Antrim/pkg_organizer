@@ -93,6 +93,7 @@ class Instances extends Helpers\ResourceHelper
 	 * @param   string            $currentDate  the current date being iterated
 	 *
 	 * @return int the id of the block
+	 * @noinspection PhpUndefinedFieldInspection
 	 */
 	private static function getBlockID(SimpleXMLElement $node, string $currentDate)
 	{
@@ -126,6 +127,7 @@ class Instances extends Helpers\ResourceHelper
 	 * @param   string            $currentDate  the date being currently iterated Y-m-d
 	 *
 	 * @return void
+	 * @noinspection PhpUndefinedFieldInspection
 	 */
 	private static function processInstance($model, SimpleXMLElement $node, string $untisID, string $currentDate)
 	{
@@ -497,6 +499,7 @@ class Instances extends Helpers\ResourceHelper
 	 * @param   bool              $valid      whether or not the planning unit is valid (for purposes of saving)
 	 *
 	 * @return void errors are added to the model's errors property
+	 * @noinspection PhpUndefinedFieldInspection
 	 */
 	private static function validateInstance(
 		$model,

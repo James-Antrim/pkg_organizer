@@ -136,6 +136,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	private static function getFilteredOccurrences($model, SimpleXMLElement $node, string $untisID)
 	{
+		/** @noinspection PhpUndefinedFieldInspection */
 		$rawOccurrences = trim((string) $node->occurence);
 		$unit           = $model->units->$untisID;
 
@@ -235,6 +236,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	private static function validateEvent($model, SimpleXMLElement $node, string $untisID)
 	{
+		/** @noinspection PhpUndefinedFieldInspection */
 		$eventCode = str_replace('SU_', '', trim((string) $node->lesson_subject[0]['id']));
 
 		if (empty($eventCode))
@@ -286,6 +288,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	private static function validateMethod($model, SimpleXMLElement $node, string $untisID)
 	{
+		/** @noinspection PhpUndefinedFieldInspection */
 		$methodID = trim((string) $node->lesson_description);
 		if (empty($methodID))
 		{
@@ -314,6 +317,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
+	 * @noinspection PhpUndefinedFieldInspection
 	 */
 	public static function validate($model, SimpleXMLElement $node)
 	{
@@ -487,6 +491,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	private static function validateGroups($model, SimpleXMLElement $node, string $untisID)
 	{
+		/** @noinspection PhpUndefinedFieldInspection */
 		$rawUntisIDs = str_replace('CL_', '', (string) $node->lesson_classes[0]['id']);
 
 		if (empty($rawUntisIDs))
@@ -538,6 +543,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	private static function validatePerson($model, SimpleXMLElement $node, string $untisID)
 	{
+		/** @noinspection PhpUndefinedFieldInspection */
 		$personCode = str_replace('TR_', '', trim((string) $node->lesson_teacher[0]['id']));
 
 		if (empty($personCode))

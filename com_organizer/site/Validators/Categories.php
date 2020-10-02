@@ -120,6 +120,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	{
 		$code = str_replace('DP_', '', trim((string) $node[0]['id']));
 
+		/** @noinspection PhpUndefinedFieldInspection */
 		$name = (string) $node->longname;
 		if (!isset($name))
 		{
