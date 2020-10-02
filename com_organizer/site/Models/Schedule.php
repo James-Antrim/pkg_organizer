@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use Organizer\Helpers;
-use Organizer\Helpers\Validators;
+use Organizer\Validators;
 use Organizer\Tables;
 
 /**
@@ -547,7 +547,7 @@ class Schedule extends BaseModel
 			Helpers\OrganizerHelper::error(403);
 		}
 
-		$validator = new Validators\Schedules();
+		$validator = new Validators\Schedule();
 
 		if (!$validator->validate())
 		{

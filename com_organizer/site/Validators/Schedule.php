@@ -17,7 +17,7 @@ use stdClass;
 /**
  * Provides functions for XML unit validation and persistence.
  */
-class Schedules
+class Schedule
 {
 	public $categories = null;
 
@@ -46,6 +46,8 @@ class Schedules
 	public $rooms = null;
 
 	public $roomtypes = null;
+
+	public $schedule;
 
 	public $schoolYear = null;
 
@@ -118,11 +120,12 @@ class Schedules
 
 		if ($schedule->load($contextKeys))
 		{
-			Helpers\OrganizerHelper::message('SCHEDULE_EXISTS', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_SCHEDULE_EXISTS', 'error');
 
 			return false;
 		}
 
+		$this->schedule = new stdClass();
 		$this->validateResources($valid);
 
 		$this->printStatusReport();
@@ -228,7 +231,9 @@ class Schedules
 		{
 			Groups::validate($this, $node);
 		}
-		unset($this->categories, $this->grids, $this->xml->classes);
+
+		// Grids are not unset here because they are still used in lesson/instance processing.
+		unset($this->categories, $this->xml->classes);
 
 		$this->persons = new stdClass();
 		foreach ($this->xml->teachers->children() as $node)
@@ -248,6 +253,10 @@ class Schedules
 
 		if ($validTerm)
 		{
+			$this->schedule->calendar       = new stdClass();
+			$this->schedule->configurations = [];
+			$this->schedule->lessons        = new stdClass();
+
 			$standardDate   = Helpers\Dates::standardizeDate($this->creationDate);
 			$this->modified = date('Y-m-d H:i:s', strtotime("$standardDate $this->creationTime"));
 			$this->units    = new stdClass();
