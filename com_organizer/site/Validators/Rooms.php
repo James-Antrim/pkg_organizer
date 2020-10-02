@@ -54,9 +54,8 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		{
 			$table->save($room);
 		}
-		$model->rooms->$code->id = $table->id;
 
-		return;
+		$model->rooms->$code->id = $table->id;
 	}
 
 	/**

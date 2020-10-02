@@ -480,8 +480,6 @@ class Instances extends Helpers\ResourceHelper
 
 			$currentDT = strtotime('+1 day', $currentDT);
 		}
-
-		return;
 	}
 
 	/**

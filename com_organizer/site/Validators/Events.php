@@ -61,8 +61,6 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$event->id = $table->id;
-
-		return;
 	}
 
 	/**

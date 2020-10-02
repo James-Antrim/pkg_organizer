@@ -62,8 +62,6 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$grid->id = $table->id;
-
-		return;
 	}
 
 	/**

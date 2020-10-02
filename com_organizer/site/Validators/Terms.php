@@ -79,8 +79,6 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$model->termID = $table->id;
-
-		return;
 	}
 
 	/**

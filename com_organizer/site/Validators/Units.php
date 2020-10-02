@@ -195,8 +195,6 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$unit->id = $table->id;
-
-		return;
 	}
 
 	/**

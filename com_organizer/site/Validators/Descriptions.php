@@ -63,8 +63,6 @@ class Descriptions implements UntisXMLValidator
 		{
 			$model->errors[] = sprintf(Helpers\Languages::_($error), $code);
 		}
-
-		return;
 	}
 
 	/**
