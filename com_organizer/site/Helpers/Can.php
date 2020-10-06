@@ -404,7 +404,13 @@ class Can
 
 		if ($resourceType === 'schedule')
 		{
-			return $user->authorise('organizer.schedule', "com_organizer.schedule.$resource");
+			$schedule = new Tables\Schedules();
+			if (!$schedule->load($resource))
+			{
+				return false;
+			}
+
+			return $user->authorise('organizer.schedule', "com_organizer.organization.$schedule->organizationID");
 		}
 
 		if ($resourceType === 'organization')
