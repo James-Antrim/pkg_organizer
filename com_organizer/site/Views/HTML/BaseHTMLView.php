@@ -141,13 +141,15 @@ abstract class BaseHTMLView extends BaseView
 			ksort($items);
 
 			// Uploading a schedule should always be the first menu item and will never be the active submenu item.
-			/*$prepend    = [
+			$prepend = [
 				Languages::_('ORGANIZER_SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
 					'url'    => 'index.php?option=com_organizer&amp;view=schedule_edit',
 					'active' => false
 				]
 			];
-			$items = $prepend + $items;*/
+
+			$items = $prepend + $items;
+
 			foreach ($items as $key => $value)
 			{
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);

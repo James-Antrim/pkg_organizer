@@ -37,6 +37,14 @@ class Schedules extends ListView
 		$admin   = Helpers\Can::administrate();
 		$toolbar = Toolbar::getInstance();
 
+		$toolbar->appendButton(
+			'Standard',
+			'upload',
+			Helpers\Languages::_('ORGANIZER_UPLOAD'),
+			'schedules.edit',
+			false
+		);
+
 		if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID'))
 		{
 			/*$toolbar->appendButton(
