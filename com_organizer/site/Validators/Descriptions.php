@@ -22,13 +22,13 @@ class Descriptions implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   object  $model     the model for the schedule being validated
-	 * @param   string  $code      the id of the resource in Untis
-	 * @param   string  $typeFlag  the flag identifying the categorization resource
+	 * @param   Schedule  $model     the model for the schedule being validated
+	 * @param   string    $code      the id of the resource in Untis
+	 * @param   string    $typeFlag  the flag identifying the categorization resource
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, string $code, $typeFlag = '')
+	public static function setID(Schedule $model, string $code, $typeFlag = '')
 	{
 		$error    = 'ORGANIZER_';
 		$resource = '';
@@ -69,13 +69,13 @@ class Descriptions implements UntisXMLValidator
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   object            $model  the model for the schedule being validated
+	 * @param   Schedule          $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
 	 * @noinspection PhpUndefinedFieldInspection
 	 */
-	public static function validate($model, SimpleXMLElement $node)
+	public static function validate(Schedule $model, SimpleXMLElement $node)
 	{
 		$untisID = str_replace('DS_', '', trim((string) $node[0]['id']));
 		$name    = trim((string) $node->longname);

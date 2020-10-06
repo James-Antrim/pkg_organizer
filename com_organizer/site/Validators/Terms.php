@@ -23,12 +23,12 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the term code. Creates the resource id if unavailable.
 	 *
-	 * @param   object  $model  the model for the schedule being validated
-	 * @param   string  $code   the textual id of the term
+	 * @param   Schedule  $model  the model for the schedule being validated
+	 * @param   string    $code   the textual id of the term
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, string $code)
+	public static function setID(Schedule $model, string $code)
 	{
 		$loadCriteria = [
 			['code' => $code],
@@ -84,13 +84,13 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Checks whether XML node has the expected structure and required information.
 	 *
-	 * @param   object            $model  the model for the schedule being validated
+	 * @param   Schedule          $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
 	 * @noinspection PhpUndefinedFieldInspection
 	 */
-	public static function validate($model, SimpleXMLElement $node)
+	public static function validate(Schedule $model, SimpleXMLElement $node)
 	{
 		$model->schoolYear            = new stdClass();
 		$model->schoolYear->endDate   = trim((string) $node->schoolyearenddate);

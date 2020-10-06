@@ -23,12 +23,12 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   object  $model  the model for the schedule being validated
-	 * @param   string  $code   the id of the resource in Untis
+	 * @param   Schedule  $model  the model for the schedule being validated
+	 * @param   string    $code   the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, string $code)
+	public static function setID(Schedule $model, string $code)
 	{
 		$event = $model->events->$code;
 		$table = new Tables\Events();
@@ -66,11 +66,11 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Creates a warning for missing subject no attributes.
 	 *
-	 * @param   object  $model  the model for the schedule being validated
+	 * @param   Schedule  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
-	public static function setWarnings($model)
+	public static function setWarnings(Schedule $model)
 	{
 		if (!empty($model->warnings['SUNO']))
 		{
@@ -84,13 +84,13 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   object            $model  the model for the schedule being validated
+	 * @param   Schedule          $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
 	 * @noinspection PhpUndefinedFieldInspection
 	 */
-	public static function validate($model, SimpleXMLElement $node)
+	public static function validate(Schedule $model, SimpleXMLElement $node)
 	{
 		$code = str_replace('SU_', '', trim((string) $node[0]['id']));
 		$name = trim((string) $node->longname);

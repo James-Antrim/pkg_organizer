@@ -26,11 +26,11 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Adds the data for locating the missing room information to the warnings.
 	 *
-	 * @param   object  $model       the model for the schedule being validated
-	 * @param   string  $untisID     the untis id of the unit being iterated
-	 * @param   array   $invalidIDs  the untis ids of rooms which proved to be invalid
+	 * @param   Schedule  $model       the model for the schedule being validated
+	 * @param   string    $untisID     the untis id of the unit being iterated
+	 * @param   array     $invalidIDs  the untis ids of rooms which proved to be invalid
 	 */
-	private static function addInvalidRoomData($model, string $untisID, array $invalidIDs)
+	private static function addInvalidRoomData(Schedule $model, string $untisID, array $invalidIDs)
 	{
 		if (empty($model->warnings['IIR']))
 		{
@@ -51,12 +51,12 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Adds the data for locating the missing room information to the warnings.
 	 *
-	 * @param   object  $model      the model for the schedule being validated
-	 * @param   string  $untisID    the untis id of the unit being iterated
-	 * @param   int     $currentDT  the current date time in the iteration
-	 * @param   int     $periodNo   the period number of the grid to look for times in
+	 * @param   Schedule  $model      the model for the schedule being validated
+	 * @param   string    $untisID    the untis id of the unit being iterated
+	 * @param   int       $currentDT  the current date time in the iteration
+	 * @param   int       $periodNo   the period number of the grid to look for times in
 	 */
-	private static function addMissingRoomData($model, string $untisID, int $currentDT, int $periodNo)
+	private static function addMissingRoomData(Schedule $model, string $untisID, int $currentDT, int $periodNo)
 	{
 		if (empty($model->warnings['IMR']))
 		{
@@ -121,7 +121,7 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Processes instance information for the new schedule format
 	 *
-	 * @param   object            $model        the model for the schedule being validated
+	 * @param   Schedule          $model        the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node         the node being validated
 	 * @param   string            $untisID      the untis id of the unit being iterated
 	 * @param   string            $currentDate  the date being currently iterated Y-m-d
@@ -129,8 +129,12 @@ class Instances extends Helpers\ResourceHelper
 	 * @return void
 	 * @noinspection PhpUndefinedFieldInspection
 	 */
-	private static function processInstance($model, SimpleXMLElement $node, string $untisID, string $currentDate)
-	{
+	private static function processInstance(
+		Schedule $model,
+		SimpleXMLElement $node,
+		string $untisID,
+		string $currentDate
+	) {
 		$calendar = $model->schedule->calendar;
 
 		// New format calendar items are created as necessary
@@ -225,14 +229,14 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Sets associations between an instance person association and its groups.
 	 *
-	 * @param   object  $model       the model for the schedule being validated
-	 * @param   string  $untisID     the untis id of the unit being iterated
-	 * @param   int     $instanceID  the id of the instance being validated
-	 * @param   int     $assocID     the id of the instance person association with which the groups are to be associated
+	 * @param   Schedule  $model       the model for the schedule being validated
+	 * @param   string    $untisID     the untis id of the unit being iterated
+	 * @param   int       $instanceID  the id of the instance being validated
+	 * @param   int       $assocID     the id of the instance person association with which the groups are to be associated
 	 *
 	 * @return void
 	 */
-	private static function setGroups($model, string $untisID, int $instanceID, int $assocID)
+	private static function setGroups(Schedule $model, string $untisID, int $instanceID, int $assocID)
 	{
 		$instances = &$model->instances;
 		$unit      = $model->units->$untisID;
@@ -263,14 +267,14 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   object            $model        the model for the schedule being validated
+	 * @param   Schedule          $model        the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node         the node being validated
 	 * @param   string            $untisID      the untis id of the unit being iterated
 	 * @param   string            $currentDate  the current date being iterated
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setInstance($model, SimpleXMLElement $node, string $untisID, string $currentDate)
+	public static function setInstance(Schedule $model, SimpleXMLElement $node, string $untisID, string $currentDate)
 	{
 		$unit     = $model->units->$untisID;
 		$methodID = empty($unit->methodID) ? null : $unit->methodID;
@@ -320,13 +324,13 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Sets an instance person association.
 	 *
-	 * @param   object  $model       the model for the schedule being validated
-	 * @param   string  $untisID     the untis id of the unit being iterated
-	 * @param   int     $instanceID  the id of the instance being validated
+	 * @param   Schedule  $model       the model for the schedule being validated
+	 * @param   string    $untisID     the untis id of the unit being iterated
+	 * @param   int       $instanceID  the id of the instance being validated
 	 *
 	 * @return void
 	 */
-	private static function setPerson($model, string $untisID, int $instanceID)
+	private static function setPerson(Schedule $model, string $untisID, int $instanceID)
 	{
 		$instances = &$model->instances;
 		$unit      = $model->units->$untisID;
@@ -377,14 +381,14 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Sets associations between an instance person association and its groups.
 	 *
-	 * @param   object  $model       the model for the schedule being validated
-	 * @param   string  $untisID     the untis id of the unit being iterated
-	 * @param   int     $instanceID  the id of the instance being validated
-	 * @param   int     $assocID     the id of the instance person association with which the groups are to be associated
+	 * @param   Schedule  $model       the model for the schedule being validated
+	 * @param   string    $untisID     the untis id of the unit being iterated
+	 * @param   int       $instanceID  the id of the instance being validated
+	 * @param   int       $assocID     the id of the instance person association with which the groups are to be associated
 	 *
 	 * @return void
 	 */
-	private static function setRooms($model, string $untisID, int $instanceID, int $assocID)
+	private static function setRooms(Schedule $model, string $untisID, int $instanceID, int $assocID)
 	{
 		$instances = &$model->instances;
 		$unit      = $model->units->$untisID;
@@ -415,13 +419,13 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Updates a relation table
 	 *
-	 * @param   object                            $model  the model for the schedule being validated
+	 * @param   Schedule                          $model  the model for the schedule being validated
 	 * @param   Tables\BaseTable|Tables\Modified  $table  the table to be updated
 	 * @param   array                             $data   the relation keys
 	 *
 	 * @return void creates / updates a table entry
 	 */
-	private static function updateRelation($model, $table, array $data)
+	private static function updateRelation(Schedule $model, $table, array $data)
 	{
 		if ($table->load($data))
 		{
@@ -448,7 +452,7 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Iterates over possible occurrences and validates them
 	 *
-	 * @param   object            $model        the model for the schedule being validated
+	 * @param   Schedule          $model        the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node         the node being validated
 	 * @param   string            $untisID      the untis id of the unit being iterated
 	 * @param   array             $occurrences  an array of 'occurrences'
@@ -457,7 +461,7 @@ class Instances extends Helpers\ResourceHelper
 	 * @return void
 	 */
 	public static function validateCollection(
-		$model,
+		Schedule $model,
 		SimpleXMLElement $node,
 		string $untisID,
 		array $occurrences,
@@ -492,7 +496,7 @@ class Instances extends Helpers\ResourceHelper
 	/**
 	 * Validates instance dates and rooms.
 	 *
-	 * @param   object            $model      the model for the schedule being validated
+	 * @param   Schedule          $model      the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node       the node being validated
 	 * @param   string            $untisID    the untis id of the unit being iterated
 	 * @param   int               $currentDT  the current date time in the iteration
@@ -502,7 +506,7 @@ class Instances extends Helpers\ResourceHelper
 	 * @noinspection PhpUndefinedFieldInspection
 	 */
 	private static function validateInstance(
-		$model,
+		Schedule $model,
 		SimpleXMLElement $node,
 		string $untisID,
 		int $currentDT,

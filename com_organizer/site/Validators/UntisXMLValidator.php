@@ -20,21 +20,21 @@ interface UntisXMLValidator
 	/**
 	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
 	 *
-	 * @param   object  $model  the validating schedule model
-	 * @param   string  $code   the id of the resource in Untis
+	 * @param   Schedule  $model  the validating schedule model
+	 * @param   string    $code   the id of the resource in Untis
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, string $code);
+	public static function setID(Schedule $model, string $code);
 
 	/**
 	 * Checks whether XML node has the expected structure and required
 	 * information
 	 *
-	 * @param   object            $model  the model for the schedule being validated
+	 * @param   Schedule          $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
 	 */
-	public static function validate($model, SimpleXMLElement $node);
+	public static function validate(Schedule $model, SimpleXMLElement $node);
 }

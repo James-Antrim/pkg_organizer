@@ -37,12 +37,12 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Retrieves the grid id using the grid name. Creates the grid id if unavailable.
 	 *
-	 * @param   object  $model     the model for the schedule being validated
-	 * @param   string  $gridName  the name of the grid
+	 * @param   Schedule  $model     the model for the schedule being validated
+	 * @param   string    $gridName  the name of the grid
 	 *
 	 * @return void modifies the model, setting the id property of the resource
 	 */
-	public static function setID($model, string $gridName)
+	public static function setID(Schedule $model, string $gridName)
 	{
 		if (empty($model->grids->$gridName))
 		{
@@ -67,11 +67,11 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	/**
 	 * Sets IDs for the grids collection.
 	 *
-	 * @param   object  $model  the model for the schedule being validated
+	 * @param   Schedule  $model  the model for the schedule being validated
 	 *
 	 * @return void modifies &$model
 	 */
-	public static function setIDs($model)
+	public static function setIDs(Schedule $model)
 	{
 		foreach (array_keys((array) $model->grids) as $gridName)
 		{
@@ -83,13 +83,13 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * Checks whether pool nodes have the expected structure and required
 	 * information
 	 *
-	 * @param   object            $model  the model for the schedule being validated
+	 * @param   Schedule          $model  the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node   the node being validated
 	 *
 	 * @return void
 	 * @noinspection PhpUndefinedFieldInspection
 	 */
-	public static function validate($model, SimpleXMLElement $node)
+	public static function validate(Schedule $model, SimpleXMLElement $node)
 	{
 		// Not actually referenced but evinces data inconsistencies in Untis
 		$exportKey = trim((string) $node[0]['id']);
