@@ -365,6 +365,72 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Attempts to resolve events to subjects via associations and curriculum mapping.
+	 *
+	 * @param   int  $organizationID  the id of the organization with which the events are associated
+	 *
+	 * @return void
+	 */
+	private function resolveEventSubjects(int $organizationID)
+	{
+		$query = $this->_db->getQuery(true);
+		$query->select('id, subjectNo')
+			->from('#__organizer_events')
+			->where("organizationID = $organizationID")
+			->where("subjectNo != ''");
+		$this->_db->setQuery($query);
+
+		if (!$events = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
+		{
+			return;
+		}
+
+		foreach ($events as $event)
+		{
+			$query = $this->_db->getQuery(true);
+			$query->select('DISTINCT lft, rgt')
+				->from('#__organizer_curricula AS c')
+				->innerJoin('#__organizer_programs AS prg ON prg.id = c.programID')
+				->innerJoin('#__organizer_categories AS cat ON cat.id = prg.categoryID')
+				->innerJoin('#__organizer_groups AS gr ON gr.categoryID = cat.id')
+				->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = gr.id')
+				->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
+				->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+				->where("i.eventID = {$event['id']}");
+			$this->_db->setQuery($query);
+
+			if (!$boundaries = Helpers\OrganizerHelper::executeQuery('loadAssoc', []))
+			{
+				continue;
+			}
+
+			$subjectQuery = $this->_db->getQuery(true);
+			$subjectQuery->select('subjectID')
+				->from('#__organizer_curricula AS m')
+				->innerJoin('#__organizer_subjects as s on m.subjectID = s.id')
+				->where("m.lft > '{$boundaries['lft']}'")
+				->where("m.rgt < '{$boundaries['rgt']}'")
+				->where("s.code = '{$event['subjectNo']}'");
+			$this->_db->setQuery($subjectQuery);
+
+			if (!$subjectID = Helpers\OrganizerHelper::executeQuery('loadResult'))
+			{
+				continue;
+			}
+
+			$data         = ['subjectID' => $subjectID, 'eventID' => $event['id']];
+			$subjectEvent = new Tables\SubjectEvents();
+
+			if ($subjectEvent->load($data))
+			{
+				continue;
+			}
+
+			$subjectEvent->save($data);
+		}
+	}
+
+	/**
 	 * Sets the schedule with the given id as the current one in regard to the status of planned relationships and
 	 * resources in its organization / term context.
 	 *
@@ -554,23 +620,46 @@ class Schedule extends BaseModel
 			return false;
 		}
 
+		$userID = Helpers\Users::getID();
+
+		$validator->schedule->lessons = $validator->units;
+
 		$data = [
-			'active'         => 1,
+			'creationDate'     => $validator->creationDate,
+			'creationTime'     => $validator->creationTime,
+			'departmentID'     => $organizationID,
+			'planningPeriodID' => $validator->termID,
+			'schedule'         => json_encode($validator->schedule),
+			'userID'           => $userID
+		];
+
+		$schedule = new Tables\OldSchedules();
+		if (!$schedule->save($data))
+		{
+			return false;
+		}
+
+		$json = new ScheduleJSON();
+		$json->setReference($schedule->id);
+		unset($validator->schedule);
+
+		$data = [
 			'creationDate'   => $validator->creationDate,
 			'creationTime'   => $validator->creationTime,
 			'organizationID' => $organizationID,
 			'schedule'       => json_encode($validator->instances),
 			'termID'         => $validator->termID,
-			'userID'         => Helpers\Users::getID()
+			'userID'         => $userID
 		];
 
-		$newTable = new Tables\Schedules();
-		if (!$newTable->save($data))
+		$schedule = new Tables\Schedules();
+		if (!$schedule->save($data))
 		{
 			return false;
 		}
 
-		$this->setCurrent($newTable->id);
+		$this->setCurrent($schedule->id);
+		$this->resolveEventSubjects($organizationID);
 
 		return true;
 	}
