@@ -261,7 +261,7 @@ class Programs extends Curricula implements Selectable
 			self::addAccessFilter($query, $access, 'program', 'p');
 		}
 
-		self::addResourceFilter($query, 'organization', 'o', 'p');
+		self::addResourceFilter($query, 'organization', 'o', 'a');
 
 		$useCurrent = self::useCurrent();
 		if ($useCurrent)
@@ -275,6 +275,7 @@ class Programs extends Curricula implements Selectable
 			$conditions .= "AND grouped.accredited = p.accredited ";
 			$query->innerJoin("($subQuery) AS grouped ON $conditions");
 		}
+		echo "<pre>" . print_r((string) $query, true) . "</pre>";
 
 		$dbo->setQuery($query);
 
