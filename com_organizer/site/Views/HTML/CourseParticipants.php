@@ -88,6 +88,12 @@ class CourseParticipants extends Participants
 		$link = 'index.php?option=com_organizer&format=pdf&id=' . Helpers\Input::getID();
 		$toolbar->appendButton('Link', 'tags-2', Languages::_('ORGANIZER_DOWNLOAD_BADGES'), $link . '&view=badges');
 		$toolbar->appendButton('Link', 'list', Languages::_('ORGANIZER_ATTENDANCE'), $link . '&view=attendance');
+		$toolbar->appendButton(
+			'Link',
+			'list-2',
+			Languages::_('ORGANIZER_GROUPED_ATTENDANCE'),
+			$link . '&view=grouped_attendance'
+		);
 
 		$script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
 		$batchButton = "<button id=\"participant-mail\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
