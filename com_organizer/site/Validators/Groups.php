@@ -58,7 +58,7 @@ class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$association = new Tables\Associations();
-		if (!$association->load(['groupID' => $table->id, 'organizationID' => $model->organizationID]))
+		if (!$association->load(['groupID' => $table->id]))
 		{
 			$association->save(['groupID' => $table->id, 'organizationID' => $model->organizationID]);
 		}

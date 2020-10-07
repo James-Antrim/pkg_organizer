@@ -100,7 +100,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$association = new Tables\Associations();
-		if (!$association->load(['categoryID' => $table->id, 'organizationID' => $model->organizationID]))
+		if (!$association->load(['categoryID' => $table->id]))
 		{
 			$association->save(['categoryID' => $table->id, 'organizationID' => $model->organizationID]);
 		}
