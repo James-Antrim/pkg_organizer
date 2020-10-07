@@ -16,13 +16,13 @@ use Organizer\Tables;
 /**
  * Class loads persistent information about a course into the display context.
  */
-class Attendance extends BaseView
+class Attendance extends TableView
 {
 	use CourseDocumentation;
 
-	private $headers;
+	protected $headers;
 
-	private $widths = [
+	protected $widths = [
 		'index'        => 10,
 		'name'         => 55,
 		'organization' => 25,
@@ -74,46 +74,13 @@ class Attendance extends BaseView
 	}
 
 	/**
-	 * Adds a new page to the document and creates the column headers for the table
-	 *
-	 * @return void
-	 */
-	private function addAttendancePage()
-	{
-		$this->AddPage();
-
-		// create the column headers for the page
-		$this->SetFillColor(210);
-		$this->changeSize(10);
-		$initial = true;
-		foreach (array_keys($this->headers) as $column)
-		{
-			$border = [];
-			if ($initial)
-			{
-				$border['BLRT'] = $this->border;
-				$this->renderCell($this->widths[$column], 7, $this->headers[$column], self::CENTER, 'BLRT', 1);
-				$initial = false;
-				continue;
-			}
-			$border['BRT'] = $this->border;
-			$this->renderCell($this->widths[$column], 7, $this->headers[$column], self::CENTER, 'BRT', 1);
-		}
-		$this->Ln();
-
-		// reset styles
-		$this->SetFillColor(255);
-		$this->changeSize(8);
-	}
-
-	/**
 	 * Method to generate output.
 	 *
 	 * @return void
 	 */
 	public function display()
 	{
-		$this->addAttendancePage();
+		$this->addTablePage();
 
 		$itemNo         = 1;
 		$participantIDs = Helpers\Courses::getParticipantIDs($this->courseID);
@@ -170,33 +137,11 @@ class Attendance extends BaseView
 				$this->renderMultiCell($width, $maxLength * 5, '', self::LEFT, $border);
 			}
 
-			$this->Ln();
-
-			if ($this->getY() > 275)
-			{
-				$this->addAttendancePage();
-			}
+			$this->addLine();
 
 			$itemNo++;
 		}
 
-		$this->Output($this->filename, 'I');
-		ob_flush();
-	}
-
-	/**
-	 * Set header items.
-	 *
-	 * @return void
-	 */
-	public function setHeader()
-	{
-		$dates     = ($this->endDate and $this->endDate != $this->startDate) ?
-			"$this->startDate - $this->endDate" : $this->startDate;
-		$subHeader = $this->campus ? "$this->campus $dates" : $dates;
-
-		$this->setHeaderData('pdf_logo.png', '55', $this->course, $subHeader, self::BLACK, self::WHITE);
-		$this->setFooterData(self::BLACK, self::WHITE);
-		parent::setHeader();
+		parent::display();
 	}
 }

@@ -256,4 +256,20 @@ trait CourseDocumentation
 		$this->fee       = $course->fee;
 		$this->startDate = Helpers\Dates::formatDate($dates['startDate']);
 	}
+
+	/**
+	 * Set header items.
+	 *
+	 * @return void
+	 */
+	public function setHeader()
+	{
+		$dates     = ($this->endDate and $this->endDate != $this->startDate) ?
+			"$this->startDate - $this->endDate" : $this->startDate;
+		$subHeader = $this->campus ? "$this->campus $dates" : $dates;
+
+		$this->setHeaderData('pdf_logo.png', '55', $this->course, $subHeader, self::BLACK, self::WHITE);
+		$this->setFooterData(self::BLACK, self::WHITE);
+		parent::setHeader();
+	}
 }
