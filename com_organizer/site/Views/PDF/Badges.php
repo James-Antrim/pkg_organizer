@@ -128,7 +128,6 @@ class Badges extends BaseView
 			}
 		}
 
-		$this->Output($this->filename, 'I');
-		ob_flush();
+		parent::display();
 	}
 }

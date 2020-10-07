@@ -133,7 +133,11 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @return void
 	 */
-	abstract protected function display();
+	public function display()
+	{
+		$this->Output($this->filename, 'I');
+		ob_flush();
+	}
 
 	/**
 	 * Defines the left, top and right margins.

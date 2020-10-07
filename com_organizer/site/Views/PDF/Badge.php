@@ -72,7 +72,6 @@ class Badge extends BaseView
 		$xOffset += 92;
 		$this->addBadgeBack($xOffset, $yOffset);
 
-		$this->Output($this->filename, 'I');
-		ob_flush();
+		parent::display();
 	}
 }
