@@ -275,7 +275,6 @@ class Programs extends Curricula implements Selectable
 			$conditions .= "AND grouped.accredited = p.accredited ";
 			$query->innerJoin("($subQuery) AS grouped ON $conditions");
 		}
-		echo "<pre>" . print_r((string) $query, true) . "</pre>";
 
 		$dbo->setQuery($query);
 
