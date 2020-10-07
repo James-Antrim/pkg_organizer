@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for uploading schedule data.
@@ -28,5 +29,21 @@ class ScheduleEdit extends EditModel
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
+	}
+
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\Schedules A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\Schedules();
 	}
 }

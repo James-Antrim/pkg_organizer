@@ -46,6 +46,6 @@ class SubjectEdit extends EditModel
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Subjects;
+		return new Tables\Subjects();
 	}
 }
