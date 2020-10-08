@@ -42,20 +42,20 @@ class OldSchedules extends BaseTable
 	public $departmentID;
 
 	/**
-	 * The id of the term entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $planningPeriodID;
-
-	/**
 	 * A collection of instance objects modeled by a JSON string.
 	 * MEDIUMTEXT NOT NULL
 	 *
 	 * @var string
 	 */
 	public $schedule;
+
+	/**
+	 * The id of the term entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $termID;
 
 	/**
 	 * The id of the user entry referenced.

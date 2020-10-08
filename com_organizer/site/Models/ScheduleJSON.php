@@ -262,7 +262,7 @@ class ScheduleJSON extends BaseModel
 		$query->select('id')
 			->from('#__thm_organizer_schedules')
 			->where("departmentID = $this->organizationID")
-			->where("planningPeriodID = $this->termID")
+			->where("termID = $this->termID")
 			->where("($diffDate OR $sameDate)")
 			->order('creationDate DESC, creationTime DESC');
 		$this->_db->setQuery($query);
@@ -773,7 +773,7 @@ class ScheduleJSON extends BaseModel
 
 		$this->current        = json_decode($current->schedule);
 		$this->organizationID = $current->departmentID;
-		$this->termID         = $current->planningPeriodID;
+		$this->termID         = $current->termID;
 
 		$reference   = new Tables\OldSchedules();
 		$referenceID = $this->getReferenceID($current);

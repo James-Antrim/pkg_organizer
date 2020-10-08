@@ -145,7 +145,7 @@ class THM_OrganizerModelPlan_Pool extends THM_OrganizerModelMerge
 			foreach ($formData['publishing'] as $periodID => $publish)
 			{
 				$table = \JTable::getInstance('plan_pool_publishing', 'thm_organizerTable');
-				$data  = ['planPoolID' => $pPoolID, 'planningPeriodID' => $periodID];
+				$data  = ['planPoolID' => $pPoolID, 'termID' => $periodID];
 				$table->load($data);
 				$data['published'] = $publish;
 

@@ -625,12 +625,12 @@ class Schedule extends BaseModel
 		$validator->schedule->lessons = $validator->units;
 
 		$data = [
-			'creationDate'     => $validator->creationDate,
-			'creationTime'     => $validator->creationTime,
-			'departmentID'     => $organizationID,
-			'planningPeriodID' => $validator->termID,
-			'schedule'         => json_encode($validator->schedule),
-			'userID'           => $userID
+			'creationDate' => $validator->creationDate,
+			'creationTime' => $validator->creationTime,
+			'departmentID' => $organizationID,
+			'schedule'     => json_encode($validator->schedule),
+			'termID'       => $validator->termID,
+			'userID'       => $userID
 		];
 
 		$schedule = new Tables\OldSchedules();
