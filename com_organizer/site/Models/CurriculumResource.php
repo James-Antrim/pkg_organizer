@@ -95,18 +95,40 @@ abstract class CurriculumResource extends BaseModel
 
 		if (!empty($range['curriculum']))
 		{
+			$subRangeIDs = [];
+
 			foreach ($range['curriculum'] as $subOrdinate)
 			{
 				$subOrdinate['parentID'] = $curricula->id;
 
-				if (!$this->addRange($subOrdinate))
+				if (!$subRangeID = $this->addRange($subOrdinate))
 				{
 					return 0;
 				}
 
+				$subRangeIDs[$subRangeID] = $subRangeID;
 				continue;
 			}
+
+			if ($subRangeIDs = implode(',', $subRangeIDs))
+			{
+				$query = $this->_db->getQuery(true);
+				$query->select('id')
+					->from('#__organizer_curricula')
+					->where("id NOT IN ($subRangeIDs)")
+					->where("parentID = $curricula->id");
+				$this->_db->setQuery($query);
+
+				if ($zombieIDs = OrganizerHelper::executeQuery('loadColumn', []))
+				{
+					foreach ($zombieIDs as $zombieID)
+					{
+						$this->deleteRange($zombieID);
+					}
+				}
+			}
 		}
+
 
 		return $curricula->id;
 	}
@@ -160,7 +182,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function deleteRange($rangeID)
+	protected function deleteRange(int $rangeID)
 	{
 		if (!$range = Helpers\Curricula::getRange($rangeID))
 		{
