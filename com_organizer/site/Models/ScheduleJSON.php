@@ -1009,7 +1009,7 @@ class ScheduleJSON extends BaseModel
 			$newLessonIDs = array_diff($lessonIDs, $refLessonIDs);
 		}
 
-		$lessonIDs = empty($newLessonIDs) ? array_keys((array) $this->current->lessons) : $newLessonIDs;
+		$lessonIDs = isset($newLessonIDs) ? $newLessonIDs : array_keys((array) $this->current->lessons);
 
 		foreach ($lessonIDs as $lessonID)
 		{
