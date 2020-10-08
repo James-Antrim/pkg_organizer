@@ -10,8 +10,6 @@
 
 use Organizer\Helpers;
 
-defined('JPATH_BASE') or die;
-
 // Load the form filters
 $filters = $this->filterForm->getGroup('filter');
 ?>

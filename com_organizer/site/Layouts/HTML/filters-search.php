@@ -8,8 +8,6 @@
  * @link        www.thm.de
  */
 
-defined('JPATH_BASE') or die;
-
 use Joomla\Registry\Registry;
 use Organizer\Helpers;
 

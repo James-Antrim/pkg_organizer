@@ -8,8 +8,6 @@
  * @link        www.thm.de
  */
 
-defined('JPATH_BASE') or die;
-
 // Load the form list fields
 $list = $this->filterForm->getGroup('list');
 ?>
