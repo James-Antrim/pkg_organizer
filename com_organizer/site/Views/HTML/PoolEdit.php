@@ -51,6 +51,17 @@ class PoolEdit extends EditView
 		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'pools.apply', false);
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'pools.save', false);
 
+		if ($this->item->id)
+		{
+			$toolbar->appendButton(
+				'Standard',
+				'save-copy',
+				Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
+				'pools.save2copy',
+				false
+			);
+		}
+
 		$baseURL = 'index.php?option=com_organizer&tmpl=component';
 		$baseURL .= "&type=pool&id={$this->item->id}&view=";
 

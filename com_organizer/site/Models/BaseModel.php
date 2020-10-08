@@ -121,6 +121,21 @@ abstract class BaseModel extends BaseDatabaseModel
 	}
 
 	/**
+	 * Method to save an existing resource as a copy
+	 *
+	 * @param   array  $data  the data to be used to create the program when called from the program helper
+	 *
+	 * @return int|bool the id of the resource on success, otherwise boolean false
+	 */
+	public function save2copy($data = [])
+	{
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		unset($data['id']);
+
+		return $this->save($data);
+	}
+
+	/**
 	 * Alters the state of a binary property.
 	 *
 	 * @return bool true on success, otherwise false

@@ -374,17 +374,19 @@ class Controller extends BaseController
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
 		$model     = new $modelName();
 
-		if ($model->save2copy())
+		if ($newID = $model->save2copy())
 		{
 			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			Helpers\Input::set('id', $newID);
+
+			$url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$newID";
+			$this->setRedirect($url);
 		}
 		else
 		{
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+			parent::display();
 		}
-
-		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
-		$this->setRedirect($url);
 	}
 
 	/**

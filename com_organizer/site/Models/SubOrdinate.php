@@ -28,11 +28,12 @@ trait SubOrdinate
 	 */
 	private function addNew($data, $superOrdinates)
 	{
-		$existingRanges = $this->getRanges($data['id']);
-		$resourceColumn = $this->resource . 'ID';
-		$range          = [
+		$existingRanges  = $this->getRanges($data['id']);
+		$resourceColumn  = $this->resource . 'ID';
+		$getSubordinates = ($this->resource === 'pool' and Helpers\Input::getTask() !== 'pools.save2copy');
+		$range           = [
 			$resourceColumn => $data['id'],
-			'curriculum'    => $this->resource === 'pool' ? $this->getSubOrdinates() : []
+			'curriculum'    => $getSubordinates ? $this->getSubOrdinates() : []
 		];
 
 		foreach ($superOrdinates as $superOrdinate)

@@ -230,21 +230,6 @@ class Program extends CurriculumResource
 	}
 
 	/**
-	 * Method to save existing degree programs as copies.
-	 *
-	 * @param   array  $data  the data to be used to create the program when called from the program helper
-	 *
-	 * @return int|bool the id of the resource on success, otherwise boolean false
-	 */
-	public function save2copy($data = [])
-	{
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		unset($data['id']);
-
-		return $this->save($data);
-	}
-
-	/**
 	 * Method to update subject data associated with degree programs from LSF
 	 *
 	 * @return bool  true on success, otherwise false
