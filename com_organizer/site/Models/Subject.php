@@ -191,6 +191,9 @@ class Subject extends CurriculumResource
 		// Invalid response
 		if (empty($response->modul))
 		{
+			$message = sprintf(Helpers\Languages::_('ORGANIZER_LSF_RESPONSE_EMPTY'), $table->lsfID);
+			OrganizerHelper::message($message, 'notice');
+
 			return $this->deleteSingle($table->id);
 		}
 
@@ -199,7 +202,8 @@ class Subject extends CurriculumResource
 		// Suppressed
 		if (!empty($subject->sperrmh) and strtolower((string) $subject->sperrmh) === 'x')
 		{
-			OrganizerHelper::message('ORGANIZER_SUBJECT_SUPPRESSED', 'notice');
+			$message = sprintf(Helpers\Languages::_('ORGANIZER_SUBJECT_SUPPRESSED'), $table->lsfID);
+			OrganizerHelper::message($message, 'notice');
 
 			return $this->deleteSingle($table->id);
 		}
