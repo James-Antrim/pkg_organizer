@@ -325,9 +325,17 @@ class Persons extends Associated implements Selectable
 
 			$where = 'a.organizationID IN (' . implode(',', $organizationIDs) . ')';
 
-			if ($selectedCategories = Input::getFilterIDs('category'))
+			// TODO Remove (plan) programs on completion of migration.
+			if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID'))
 			{
-				$categoryIDs = "'" . str_replace(',', "', '", $selectedCategories) . "'";
+				$categoryIDs = [$categoryID];
+			}
+
+			$categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
+			$categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
+
+			if ($categoryIDs and $categoryIDs = implode(',', $categoryIDs))
+			{
 				$query->innerJoin('#__organizer_instance_persons AS ip ON ip.personID = p.id')
 					->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
 					->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');

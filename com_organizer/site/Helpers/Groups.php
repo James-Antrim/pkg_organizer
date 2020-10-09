@@ -85,9 +85,13 @@ class Groups extends Associated implements Selectable
 	public static function getResources($access = '')
 	{
 		// TODO Remove (plan) programs on completion of migration.
-		$categoryID  = Input::getInt('programIDs');
-		$categoryID  = Input::getInt("categoryID", $categoryID);
-		$categoryIDs = $categoryID ? [$categoryID] : Input::getFilterIDs('category');
+		if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID'))
+		{
+			$categoryIDs = [$categoryID];
+		}
+
+		$categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
+		$categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
 
 		// TODO Remove departments on completion of migration.
 		$departmentID    = Input::getInt('departmentIDs');

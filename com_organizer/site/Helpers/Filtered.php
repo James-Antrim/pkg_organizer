@@ -122,18 +122,23 @@ trait Filtered
 	public static function addResourceFilter($query, $resource, $newAlias, $existingAlias)
 	{
 		// TODO Remove (plan) programs on completion of migration.
-		$default = 0;
 		if ($resource === 'category')
 		{
-			$default = Input::getInt('programIDs');
+			if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID'))
+			{
+				$resourceIDs = [$categoryID];
+			}
+
+			$resourceIDs = empty($resourceIDs) ? Input::getIntCollection('categoryIDs') : $resourceIDs;
+			$resourceIDs = empty($resourceIDs) ? Input::getFilterIDs('category') : $resourceIDs;
 		}
 		if ($resource === 'roomtype')
 		{
-			$default = Input::getInt('roomTypeIDs');
+			$default     = Input::getInt('roomTypeIDs');
+			$resourceID  = Input::getInt("{$resource}ID", $default);
+			$resourceIDs = $resourceID ? [$resourceID] : Input::getFilterIDs($resource);
 		}
 
-		$resourceID  = Input::getInt("{$resource}ID", $default);
-		$resourceIDs = $resourceID ? [$resourceID] : Input::getFilterIDs($resource);
 		if (empty($resourceIDs))
 		{
 			return;
