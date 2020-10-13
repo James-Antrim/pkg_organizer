@@ -433,6 +433,55 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the persons actively associated with the given instance.
+	 *
+	 * @param   int  $instanceID  the id of the instance
+	 * @param   int  $roleID      the id of the role the person fills
+	 *
+	 * @return array
+	 */
+	public static function getPersonIDs(int $instanceID, int $roleID = 0)
+	{
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('personID')
+			->from('#__organizer_instance_persons')
+			->where("instanceID = $instanceID")
+			->where("delta != 'removed'");
+
+		if ($roleID)
+		{
+			$query->where("roleID = $roleID");
+		}
+
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadColumn', []);
+	}
+
+	/**
+	 * Retrieves the rooms actively associated with the given instance.
+	 *
+	 * @param   int  $instanceID the id of the instance
+	 *
+	 * @return array
+	 */
+	public static function getRoomIDs(int $instanceID)
+	{
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('roomID')
+			->from('#__organizer_instance_rooms AS ir')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ir.assocID')
+			->where("ip.instanceID = $instanceID")
+			->where("ir.delta != 'removed'")
+			->where("ip.delta != 'removed'");
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadColumn', []);
+	}
+
+	/**
 	 * Filters the person ids to view access
 	 *
 	 * @param   array &$personIDs  the person ids.
