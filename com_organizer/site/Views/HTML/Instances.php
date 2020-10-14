@@ -227,7 +227,7 @@ class Instances extends ListView
 
 		foreach ($item->resources as $person)
 		{
-			if (empty($person['rooms']))
+			if (empty($person[$collectionIndex]))
 			{
 				continue;
 			}
