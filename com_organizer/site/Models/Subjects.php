@@ -174,9 +174,9 @@ class Subjects extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
-		$calledPerson  = 0;
-		$calledPool    = 0;
-		$calledProgram = 0;
+		$calledPerson  = false;
+		$calledPool    = false;
+		$calledProgram = false;
 		$personID      = self::ALL;
 		$poolID        = self::ALL;
 		$programID     = self::ALL;
@@ -209,7 +209,7 @@ class Subjects extends ListModel
 				$calledPool = $poolID;
 			}
 
-			// Pool ID can be set by the request
+			// Person ID can be set by the request
 			if ($personID = Helpers\Input::getInt('personID', 0)
 				or $personID = $this->state->get('calledPersonID'))
 			{
@@ -222,15 +222,16 @@ class Subjects extends ListModel
 			$this->setState('list.limit', 0);
 		}
 
+		$personID    = $calledPerson ? $personID : Helpers\Input::getFilterID('person', self::ALL);
 		$defaultPool = $calledPool ? $calledPool : self::ALL;
 		$poolID      = $calledPool ? $poolID : Helpers\Input::getFilterID('pool', $defaultPool);
 		$programID   = $calledProgram ? $programID : Helpers\Input::getFilterID('program', self::ALL);
 
-		$this->state->set('calledPersonID', false);
+		$this->state->set('calledPersonID', $calledPerson);
 		$this->state->set('calledPoolID', false);
 		$this->state->set('calledProgramID', false);
 
-		$this->state->set('filter.personID', self::ALL);
+		$this->state->set('filter.personID', $personID);
 		$this->state->set('filter.poolID', self::ALL);
 		$this->state->set('filter.programID', self::ALL);
 
