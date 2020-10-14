@@ -51,6 +51,47 @@ class Events extends ResourceHelper
 	}
 
 	/**
+	 * Looks up the names of categories (or programs) associated with an event.
+	 *
+	 * @param   int  $eventID the id of the event
+	 *
+	 * @return array the names of the categories (or programs)
+	 */
+	public static function getCategoryNames(int $eventID)
+	{
+		$names = [];
+		$dbo   = Factory::getDbo();
+		$tag   = Languages::getTag();
+
+		$query     = $dbo->getQuery(true);
+		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
+		$query->select("c.name_$tag AS category, " . $query->concatenate($nameParts, "") . ' AS program')
+			->select('c.id')
+			->from('#__organizer_categories AS c')
+			->innerJoin('#__organizer_groups AS g ON g.categoryID = c.id')
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = g.id')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
+			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+			->leftJoin('#__organizer_programs AS p ON p.categoryID = ppr.id')
+			->leftJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
+			->where("i.eventID = $eventID");
+
+		$dbo->setQuery($query);
+
+		if (!$results = OrganizerHelper::executeQuery('loadAssocList', []))
+		{
+			return [];
+		}
+
+		foreach ($results as $result)
+		{
+			$names[$result['id']] = empty($result['program']) ? $result['category'] : $result['program'];
+		}
+
+		return $names;
+	}
+
+	/**
 	 * Retrieves the units associated with an event.
 	 *
 	 * @param   int     $eventID   the id of the referenced event
