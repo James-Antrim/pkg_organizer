@@ -601,36 +601,10 @@ class ScheduleJSON extends BaseModel
 
 		$this->lessonSubjectIDs[$ls->id] = $ls->id;
 
-		foreach (array_keys((array) $lesson->subjects->$eventID->pools) as $groupID)
-		{
-			$this->setNewGroupReference($ls->id, $groupID);
-		}
-
 		foreach (array_keys((array) $lesson->subjects->$eventID->teachers) as $personID)
 		{
 			$this->setNewPersonReference($ls->id, $personID);
 		}
-	}
-
-	/**
-	 * Creates or updates a lesson_pools table entry with the status new.
-	 *
-	 * @param   int  $lsID     the id of the lesson subject entry referenced
-	 * @param   int  $groupID  the id of the group referenced
-	 *
-	 * @return void
-	 */
-	private function setNewGroupReference(int $lsID, int $groupID)
-	{
-		$lpKeys = ['poolID' => $groupID, 'subjectID' => $lsID];
-
-		$lp = new Tables\LessonPools();
-		$lp->load($lpKeys);
-		$lp->bind($lpKeys);
-		$lp->delta = 'new';
-		$lp->store();
-
-		$this->lessonPoolIDs[$lp->id] = $lp->id;
 	}
 
 	/**
@@ -710,7 +684,7 @@ class ScheduleJSON extends BaseModel
 	}
 
 	/**
-	 * Creates or updates a lesson_pools table entry with the status new.
+	 * Creates or updates a lesson_teachers table entry with the status new.
 	 *
 	 * @param   int  $lsID      the id of the lesson subject entry referenced
 	 * @param   int  $personID  the id of the person referenced
@@ -907,43 +881,6 @@ class ScheduleJSON extends BaseModel
 
 					$this->lessonSubjectIDs[$ls->id] = $ls->id;
 
-					$groupIDs    = array_keys((array) $events->$sameEventID->pools);
-					$refGroupIDs = array_keys((array) $refEvents->$sameEventID->pools);
-
-					foreach (array_intersect($groupIDs, $refGroupIDs) as $sameGroupID)
-					{
-						$lpKeys = ['poolID' => $sameGroupID, 'subjectID' => $ls->id];
-
-						$lp = new Tables\LessonPools();
-						$lp->load($lpKeys);
-						$lp->bind($lpKeys);
-
-						$delta = (empty($lp->id) or $lp->delta === 'removed') ? 'new' : '';
-
-						$lp->delta = $delta;
-						$lp->store();
-
-						$this->lessonPoolIDs[$lp->id] = $lp->id;
-					}
-
-					foreach (array_diff($refGroupIDs, $groupIDs) as $removedGroupID)
-					{
-						$lpKeys = ['poolID' => $removedGroupID, 'subjectID' => $ls->id];
-						$lp     = new Tables\LessonPools();
-
-						if ($lp->load($lpKeys) and $lp->delta !== 'removed')
-						{
-							$lp->delta = 'removed';
-							$lp->store();
-							$this->lessonPoolIDs[$lp->id] = $lp->id;
-						}
-					}
-
-					foreach (array_diff($groupIDs, $refGroupIDs) as $newGroupID)
-					{
-						$this->setNewGroupReference($ls->id, $newGroupID);
-					}
-
 					$personIDs    = array_keys((array) $events->$sameEventID->teachers);
 					$refPersonIDs = array_keys((array) $refEvents->$sameEventID->teachers);
 
@@ -1031,7 +968,6 @@ class ScheduleJSON extends BaseModel
 
 		// Ensure no inconsistencies on the edges of the scope
 		$this->setRemoved('lesson_subjects', $this->lessonSubjectIDs, 'lessonID', $this->unitIDs);
-		$this->setRemoved('lesson_pools', $this->lessonPoolIDs, 'subjectID', $this->lessonSubjectIDs);
 		$this->setRemoved('lesson_teachers', $this->lessonTeacherIDs, 'subjectID', $this->lessonSubjectIDs);
 	}
 }
