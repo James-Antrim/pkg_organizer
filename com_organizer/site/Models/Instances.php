@@ -197,7 +197,8 @@ class Instances extends ListModel
 				$this->state->set('filter.campusID', $campusID);
 			}
 
-			if ($organizationID = $params->get('organizationID'))
+			$organizationID = Helpers\Input::getInt('organizationID');
+			if ($organizationID = $params->get('organizationID', $organizationID))
 			{
 				$filterItems->set('organizationID', $organizationID);
 				$this->state->set('filter.organizationID', $organizationID);
