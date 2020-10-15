@@ -45,12 +45,6 @@ class ScheduleJSON extends BaseModel
 	private $lessonConfigurationIDs = [];
 
 	/**
-	 * Array containing already processed lesson pool ids.
-	 * @var array
-	 */
-	private $lessonPoolIDs = [];
-
-	/**
 	 * Array containing already processed lesson subject ids.
 	 * @var array
 	 */

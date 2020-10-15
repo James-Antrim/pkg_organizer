@@ -53,7 +53,7 @@ class Events extends ResourceHelper
 	/**
 	 * Looks up the names of categories (or programs) associated with an event.
 	 *
-	 * @param   int  $eventID the id of the event
+	 * @param   int  $eventID  the id of the event
 	 *
 	 * @return array the names of the categories (or programs)
 	 */
@@ -72,7 +72,7 @@ class Events extends ResourceHelper
 			->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = g.id')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-			->leftJoin('#__organizer_programs AS p ON p.categoryID = ppr.id')
+			->leftJoin('#__organizer_programs AS p ON p.categoryID = c.id')
 			->leftJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
 			->where("i.eventID = $eventID");
 
