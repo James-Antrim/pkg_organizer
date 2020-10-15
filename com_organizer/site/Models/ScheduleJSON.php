@@ -757,7 +757,10 @@ class ScheduleJSON extends BaseModel
 		$this->setUnitReferences();
 		$this->setCalendarReferences();
 
-		$reference->delete();
+		if ($reference->id)
+		{
+			$reference->delete();
+		}
 	}
 
 	/**
