@@ -361,10 +361,6 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$comment = trim((string) $node->text);
-		if (empty($comment) or $comment == '.')
-		{
-			$comment = '';
-		}
 
 		if (empty($model->units->$untisID))
 		{
