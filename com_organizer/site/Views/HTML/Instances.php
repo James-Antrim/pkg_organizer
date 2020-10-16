@@ -371,6 +371,8 @@ class Instances extends ListView
 	 */
 	private function getTitle($item)
 	{
+		$item->comment = $this->resolveLinks($item->comment);
+
 		$name = '<span class="event">' . $item->name . '</span>';
 		$name .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
 		$name .= empty($item->comment) ? '' : "<br><span class=\"comment\">$item->comment</span>";
@@ -394,6 +396,49 @@ class Instances extends ListView
 			'groups'  => Languages::_('ORGANIZER_GROUPS'),
 			'rooms'   => Languages::_('ORGANIZER_ROOMS')
 		];
+	}
+
+	/**
+	 * Resolves any links/link parameters to iconed links.
+	 *
+	 * @param   string  $text  the text to search
+	 *
+	 * @return string
+	 */
+	private function resolveLinks(string $text)
+	{
+		$moodleIcon     = '<span class="icon-moodle hasTooltip" title="Moodle Link"></span>';
+		$moodleURL      = 'https://moodle.thm.de/course/view.php?id=PID';
+		$moodleTemplate = "<a href=\"$moodleURL\" target=\"_blank\">$moodleIcon</a>";
+
+		$template = str_replace('PID', '$4', $moodleTemplate);
+		$text     = preg_replace('/(((https?):\/\/)moodle.thm.de\/course\/view.php\?id=(\d+))/', $template, $text);
+		$template = str_replace('PID', '$1', $moodleTemplate);
+		$text     = preg_replace('/moodle=(\d+)/', $template, $text);
+
+		$netACADIcon = '<span class="icon-cisco hasTooltip" title="Networking Academy Link"></span>';
+		$template    = "<a href=\"$1\" target=\"_blank\">$netACADIcon</a>";
+		$text        = preg_replace('/(((https?):\/\/)\d+.netacad.com\/courses\/\d+)/', $template, $text);
+
+		$panoptoIcon     = '<span class="icon-panopto hasTooltip" title="Panopto Link"></span>';
+		$panoptoURL      = 'https://panopto.thm.de/Panopto/Pages/Viewer.aspx?id=PID';
+		$panoptoTemplate = "<a href=\"$panoptoURL\" target=\"_blank\">$panoptoIcon</a>";
+
+		$template = str_replace('PID', '$4', $panoptoTemplate);
+		$text     = preg_replace(
+			'/(((https?):\/\/)panopto.thm.de\/Panopto\/Pages\/Viewer.aspx\?id=[\d\w\-]+)/',
+			$template,
+			$text
+		);
+		$template = str_replace('PID', '$1', $panoptoTemplate);
+		$text     = preg_replace('/panopto=([\d\w\-]+)/', $template, $text);
+
+		$pilosIcon  = '<span class="icon-pilos hasTooltip" title="Pilos Link"></span>';
+		$pilosREGEX = '/(((https?):\/\/)(pilos\d+.ges.|\d+.pilos-)thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
+		$template   = "<a href=\"$1\" target=\"_blank\">$pilosIcon</a>";
+		$text       = preg_replace($pilosREGEX, $template, $text);
+
+		return $text;
 	}
 
 	/**
