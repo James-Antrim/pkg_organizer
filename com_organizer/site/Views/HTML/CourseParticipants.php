@@ -91,8 +91,8 @@ class CourseParticipants extends Participants
 		$toolbar->appendButton(
 			'Link',
 			'list-2',
-			Languages::_('ORGANIZER_GROUPED_ATTENDANCE'),
-			$link . '&view=grouped_attendance'
+			Languages::_('ORGANIZER_GROUPED_PARTICIPATION'),
+			$link . '&view=grouped_participation'
 		);
 
 		$script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";

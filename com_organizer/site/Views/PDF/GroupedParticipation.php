@@ -11,9 +11,8 @@
 namespace Organizer\Views\PDF;
 
 use Organizer\Helpers;
-use Organizer\Tables\Participants;
 
-class GroupedAttendance extends TableView
+class GroupedParticipation extends TableView
 {
 	use CourseDocumentation;
 
@@ -66,32 +65,11 @@ class GroupedAttendance extends TableView
 	 */
 	public function display()
 	{
-		$index     = 0;
-		$groupings = [];
-		$pps       = Helpers\Courses::getParticipantPrograms($this->courseID);
-
-		foreach ($pps as $pp)
-		{
-			$organization = $pp['organization'];
-
-			if (empty($groupings[$organization]))
-			{
-				$groupings[$organization] = ['participants' => 0];
-			}
-
-			$groupings[$organization]['participants'] = $groupings[$organization]['participants'] + $pp['participants'];
-
-			$groupings[$organization][$index]                 = [];
-			$groupings[$organization][$index]['participants'] = $pp['participants'];
-			$groupings[$organization][$index]['program']      = "{$pp['program']} ({$pp['degree']}, {$pp['year']})";
-			$index++;
-		}
-
-		unset($pps);
+		$groupedParticipation = Helpers\Courses::getGroupedParticipation($this->courseID);
 
 		$this->addTablePage();
 
-		foreach ($groupings as $organization => $programs)
+		foreach ($groupedParticipation as $organization => $programs)
 		{
 			$maxLength = 0;
 			$startX    = $this->GetX();
@@ -133,7 +111,8 @@ class GroupedAttendance extends TableView
 
 				foreach (array_keys($this->headers) as $columnName)
 				{
-					$value  = $columnName === 'grouping' ? ' - ' . $program['program'] : $program['participants'];
+					$value  = $columnName === 'grouping' ?
+						" - {$program['program']} ({$program['degree']}, {$program['year']})" : $program['participants'];
 					$length = $this->renderMultiCell($this->widths[$columnName], 5, $value);
 					if ($length > $maxLength)
 					{

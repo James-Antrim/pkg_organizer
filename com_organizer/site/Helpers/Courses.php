@@ -156,6 +156,76 @@ class Courses extends ResourceHelper
 	}
 
 	/**
+	 * Gets an array of participant IDs for a given course, optionally filtered by the participant's status
+	 *
+	 * @param   int  $courseID  the course id
+	 *
+	 * @return array list of participants in course
+	 */
+	public static function getGroupedParticipation($courseID)
+	{
+		if (empty($courseID))
+		{
+			return [];
+		}
+
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$tag   = Languages::getTag();
+
+		$query->select("pr.id, pr.name_$tag AS program, pr.accredited AS year, COUNT(*) AS participants")
+			->select("d.abbreviation AS degree")
+			//->select("d.abbreviation AS degree, o.fullName_$tag AS organization")
+			->from('#__organizer_programs AS pr')
+			//->innerJoin('#__organizer_associations AS a ON a.programID = pr.id')
+			->innerJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
+			->innerJoin('#__organizer_participants AS pa ON pa.programID = pr.id')
+			->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
+			//->innerJoin('#__organizer_organizations AS o ON o.id = a.organizationID')
+			->where("courseID = $courseID")
+			//->order("o.shortName_$tag, pr.name_$tag, d.abbreviation, pr.accredited DESC")
+			->order("pr.name_$tag, d.abbreviation, pr.accredited DESC")
+			->group("pr.id");
+
+		$dbo->setQuery($query);
+
+		if (!$programCounts = OrganizerHelper::executeQuery('loadAssocList', []))
+		{
+			return $programCounts;
+		}
+
+		$results = [];
+
+		foreach ($programCounts as $key => $programCount)
+		{
+			$organizationIDs = Programs::getOrganizationIDs($programCount['id']);
+			foreach ($organizationIDs as $organizationID)
+			{
+				$organization = Organizations::getFullName($organizationID);
+
+				if (empty($results[$organization]))
+				{
+					$results[$organization] = [
+						'participants'      => $programCount['participants'],
+						$programCount['id'] => $programCount
+					];
+				}
+				else
+				{
+					$results[$organization]['participants']
+						= $results[$organization]['participants'] + $programCount['participants'];
+				}
+
+				$results[$organization][$programCount['id']] = $programCount;
+			}
+		}
+
+		ksort($results);
+
+		return $results;
+	}
+
+	/**
 	 * Gets instances associated with the given course.
 	 *
 	 * @param   int  $courseID  the id of the course
@@ -254,41 +324,6 @@ class Courses extends ResourceHelper
 		}
 
 		return $persons;
-	}
-
-	/**
-	 * Gets an array of participant IDs for a given course, optionally filtered by the participant's status
-	 *
-	 * @param   int  $courseID  the course id
-	 *
-	 * @return array list of participants in course
-	 */
-	public static function getParticipantPrograms($courseID)
-	{
-		if (empty($courseID))
-		{
-			return [];
-		}
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$tag   = Languages::getTag();
-
-		$query->select("pr.id, pr.name_$tag AS program, pr.accredited AS year, COUNT(*) AS participants")
-			->select("d.abbreviation AS degree, o.fullName_$tag AS organization")
-			->from('#__organizer_programs AS pr')
-			->innerJoin('#__organizer_associations AS a ON a.programID = pr.id')
-			->innerJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
-			->innerJoin('#__organizer_participants AS pa ON pa.programID = pr.id')
-			->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
-			->innerJoin('#__organizer_organizations AS o ON o.id = a.organizationID')
-			->where("courseID = $courseID")
-			->order("o.shortName_$tag, pr.name_$tag, d.abbreviation, pr.accredited DESC")
-			->group("pr.id");
-
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList', []);
 	}
 
 	/**
