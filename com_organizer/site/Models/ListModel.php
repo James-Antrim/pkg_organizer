@@ -194,20 +194,6 @@ abstract class ListModel extends ParentModel
 	protected function populateState($ordering = null, $direction = null)
 	{
 		parent::populateState($ordering, $direction);
-		$app = Helpers\OrganizerHelper::getApplication();
-
-		// Receive & set filters
-		$filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
-		foreach ($filters as $input => $value)
-		{
-			$this->setState('filter.' . $input, $value);
-		}
-
-		$list = $app->getUserStateFromRequest($this->context . '.list', 'list', [], 'array');
-		foreach ($list as $input => $value)
-		{
-			$this->setState("list.$input", $value);
-		}
 
 		$direction    = 'ASC';
 		$fullOrdering = "{$this->defaultOrdering} ASC";

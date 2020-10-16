@@ -11,6 +11,7 @@
 namespace Organizer\Helpers;
 
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
 use Joomla\Filter\InputFilter;
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
@@ -197,7 +198,10 @@ class Input
 	{
 		if (self::$filterItems === false)
 		{
-			self::$filterItems = new Registry(self::getInput()->get('filter', [], 'array'));
+			$view     = self::getView();
+			$previous = Factory::getSession()->get('registry')->get("com_organizer.$view.filter", []);
+
+			self::$filterItems = new Registry(self::getInput()->get('filter', $previous, 'array'));
 		}
 
 		return self::$filterItems;
@@ -298,7 +302,9 @@ class Input
 	{
 		if (self::$listItems === false)
 		{
-			self::$listItems = new Registry(self::getInput()->get('list', [], 'array'));
+			$view            = self::getView();
+			$previous        = Factory::getSession()->get('registry')->get("com_organizer.$view.list", []);
+			self::$listItems = new Registry(self::getInput()->get('list', $previous, 'array'));
 		}
 
 		return self::$listItems;

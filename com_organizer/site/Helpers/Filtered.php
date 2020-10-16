@@ -45,9 +45,10 @@ trait Filtered
 				break;
 		}
 
+		// Alias 'aaf' so as not to conflict with the access filter.
 		$authorized = implode(',', $authorized);
-		$query->innerJoin("#__organizer_associations AS a ON a.{$context}ID = $alias.id")
-			->where("a.organizationID IN ($authorized)");
+		$query->innerJoin("#__organizer_associations AS aaf ON aaf.{$context}ID = $alias.id")
+			->where("aaf.organizationID IN ($authorized)");
 	}
 
 	/**
@@ -99,15 +100,16 @@ trait Filtered
 			return;
 		}
 
+		// Alias 'aof' so as not to conflict with the access filter.
 		if (in_array('-1', $organizationIDs))
 		{
-			$query->leftJoin("#__organizer_associations AS a ON a.{$resource}ID = $alias.$keyColumn")
-				->where("a.id IS NULL");
+			$query->leftJoin("#__organizer_associations AS aof ON aof.{$resource}ID = $alias.$keyColumn")
+				->where('aof.id IS NULL');
 		}
 		else
 		{
-			$query->innerJoin("#__organizer_associations AS a ON a.{$resource}ID = $alias.$keyColumn")
-				->where("a.organizationID IN (" . implode(',', $organizationIDs) . ")");
+			$query->innerJoin("#__organizer_associations AS aof ON aof.{$resource}ID = $alias.$keyColumn")
+				->where("aof.organizationID IN (" . implode(',', $organizationIDs) . ")");
 		}
 	}
 
