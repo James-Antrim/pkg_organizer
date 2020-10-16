@@ -203,6 +203,15 @@ class Instances extends ListModel
 				$filterItems->set('organizationID', $organizationID);
 				$this->state->set('filter.organizationID', $organizationID);
 			}
+			elseif ($categoryID = Helpers\Input::getInt('categoryID'))
+			{
+				$filterItems->set('categoryID', $categoryID);
+				$this->state->set('filter.categoryID', $categoryID);
+
+				$organizationID = Helpers\Categories::getOrganizationIDs($categoryID)[0];
+				$filterItems->set('organizationID', $organizationID);
+				$this->state->set('filter.organizationID', $organizationID);
+			}
 
 			$dow       = $params->get('dow');
 			$endDate   = $params->get('endDate');
