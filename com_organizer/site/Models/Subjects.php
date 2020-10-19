@@ -144,7 +144,6 @@ class Subjects extends ListModel
 
 		$this->setIDFilter($query, 's.fieldID', 'filter.fieldID');
 		$this->setValueFilters($query, ['instructionLanguage']);
-
 		$this->setOrdering($query);
 
 		return $query;
