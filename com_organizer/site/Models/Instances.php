@@ -63,6 +63,14 @@ class Instances extends ListModel
 				unset($this->filter_fields[array_search('campusID', $this->filter_fields)]);
 			}
 
+			if ($this->state->get('filter.eventID'))
+			{
+				$form->removeField('campusID', 'filter');
+				$form->removeField('organizationID', 'filter');
+				$form->removeField('categoryID', 'filter');
+				$form->removeField('roomID', 'filter');
+			}
+
 			if ($params->get('organizationID'))
 			{
 				$form->removeField('campusID', 'filter');
@@ -129,25 +137,28 @@ class Instances extends ListModel
 		$this->setSearchFilter($query, ['e.name_de', 'e.name_en']);
 		$this->setValueFilters($query, ['b.dow', 'i.methodID']);
 
-		$filters = Helpers\Input::getFilterItems();
-
-		if ($filters->get('campusID'))
+		if ($this->state->get('filter.campusID'))
 		{
 			$query->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
 				->innerJoin('#__organizer_buildings AS bd ON bd.id = r.buildingID');
 			$this->setCampusFilter($query, 'bd');
 		}
 
-		if ($organizationID = $filters->get('organizationID'))
-		{
-			$query->innerJoin('#__organizer_associations AS ag ON ag.groupID = ig.groupID');
-			$this->setValueFilters($query, ['ag.organizationID']);
-		}
-
-		if ($categoryID = $filters->get('categoryID'))
+		if ($this->state->get('filter.categoryID'))
 		{
 			$query->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
 			$this->setValueFilters($query, ['g.categoryID',]);
+		}
+
+		if ($this->state->get('filter.eventID'))
+		{
+			$this->setValueFilters($query, ['i.eventID',]);
+		}
+
+		if ($this->state->get('filter.organizationID'))
+		{
+			$query->innerJoin('#__organizer_associations AS ag ON ag.groupID = ig.groupID');
+			$this->setValueFilters($query, ['ag.organizationID']);
 		}
 
 		return $query;
@@ -211,6 +222,15 @@ class Instances extends ListModel
 				$organizationID = Helpers\Categories::getOrganizationIDs($categoryID)[0];
 				$filterItems->set('organizationID', $organizationID);
 				$this->state->set('filter.organizationID', $organizationID);
+			}
+
+			if ($eventID = Helpers\Input::getInt('eventID'))
+			{
+				$this->state->set('filter.eventID', $eventID);
+			}
+			else
+			{
+				$this->state->set('filter.eventID', 0);
 			}
 
 			$dow       = $params->get('dow');

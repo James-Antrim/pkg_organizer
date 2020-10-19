@@ -93,6 +93,10 @@ class Instances extends ListView
 			{
 				$suffix .= ': ' . Helpers\Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
 			}
+			elseif ($eventID = $this->state->get('filter.eventID'))
+			{
+				$suffix .= ': ' . Helpers\Events::getName($eventID);
+			}
 
 			$title .= $suffix;
 		}
