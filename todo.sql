@@ -27,6 +27,14 @@
 #sprachenzentrum as organization & associate persons
 #make rooms primary in organizer & error if not existent
 #remove roomtypes from untis
+#make an adapters namespace for classes/files which alter joomla core functionality
+##database adapter (organizer helper)
+##application adapeter (organizer helper)
+##html adapter
+##language adapter
+##input adapter
+##toolbar adapter
+##base mvc files??
 #endregion
 
 #region Quality ########################################################################################################
