@@ -529,7 +529,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	}
 
 	/**
-	 * Validates the lesson_teacher attribute and sets corresponding schedule elements
+	 * Validates the unit's teacher attribute and sets corresponding schedule elements
 	 *
 	 * @param   Schedule          $model    the model for the schedule being validated
 	 * @param   SimpleXMLElement  $node     the node being validated

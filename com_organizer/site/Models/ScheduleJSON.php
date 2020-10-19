@@ -51,12 +51,6 @@ class ScheduleJSON extends BaseModel
 	private $lessonSubjectIDs = [];
 
 	/**
-	 * Array containing already processed lesson pool ids.
-	 * @var array
-	 */
-	private $lessonTeacherIDs = [];
-
-	/**
 	 * The id of the organization entry referenced.
 	 * INT(11) UNSIGNED NOT NULL
 	 *
@@ -594,11 +588,6 @@ class ScheduleJSON extends BaseModel
 		$ls->store();
 
 		$this->lessonSubjectIDs[$ls->id] = $ls->id;
-
-		foreach (array_keys((array) $lesson->subjects->$eventID->teachers) as $personID)
-		{
-			$this->setNewPersonReference($ls->id, $personID);
-		}
 	}
 
 	/**
@@ -675,28 +664,6 @@ class ScheduleJSON extends BaseModel
 		}
 
 		unset($calendar->$date->$time->$lessonID);
-	}
-
-	/**
-	 * Creates or updates a lesson_teachers table entry with the status new.
-	 *
-	 * @param   int  $lsID      the id of the lesson subject entry referenced
-	 * @param   int  $personID  the id of the person referenced
-	 *
-	 * @return void
-	 */
-	private function setNewPersonReference(int $lsID, int $personID)
-	{
-		$ltKeys = ['subjectID' => $lsID, 'teacherID' => $personID];
-
-		$lt = new Tables\LessonTeachers();
-		$lt->load($ltKeys);
-		$lt->delta     = 'new';
-		$lt->subjectID = $lsID;
-		$lt->teacherID = $personID;
-		$lt->store();
-
-		$this->lessonTeacherIDs[$lt->id] = $lt->id;
 	}
 
 	/**
@@ -877,40 +844,6 @@ class ScheduleJSON extends BaseModel
 					$ls->store();
 
 					$this->lessonSubjectIDs[$ls->id] = $ls->id;
-
-					$personIDs    = array_keys((array) $events->$sameEventID->teachers);
-					$refPersonIDs = array_keys((array) $refEvents->$sameEventID->teachers);
-
-					foreach (array_intersect($personIDs, $refPersonIDs) as $samePersonID)
-					{
-						$ltKeys = ['subjectID' => $ls->id, 'teacherID' => $samePersonID];
-
-						$lt = new Tables\LessonTeachers();
-						$lt->load($ltKeys);
-						$lt->bind($ltKeys);
-						$lt->delta = (empty($lt->id) or $lt->delta === 'removed') ? 'new' : '';
-						$lt->store();
-
-						$this->lessonTeacherIDs[$lt->id] = $lt->id;
-					}
-
-					foreach (array_diff($refPersonIDs, $personIDs) as $removedPersonID)
-					{
-						$ltKeys = ['subjectID' => $ls->id, 'teacherID' => $removedPersonID];
-						$lt     = new Tables\LessonTeachers();
-
-						if ($lt->load($ltKeys) and $lt->delta !== 'removed')
-						{
-							$lt->delta = 'removed';
-							$lt->store();
-							$this->lessonTeacherIDs[$lt->id] = $lt->id;
-						}
-					}
-
-					foreach (array_diff($personIDs, $refPersonIDs) as $newPersonID)
-					{
-						$this->setNewPersonReference($ls->id, $newPersonID);
-					}
 				}
 
 				foreach (array_diff($refEventIDs, $eventIDs) as $removedEventID)
@@ -965,6 +898,5 @@ class ScheduleJSON extends BaseModel
 
 		// Ensure no inconsistencies on the edges of the scope
 		$this->setRemoved('lesson_subjects', $this->lessonSubjectIDs, 'lessonID', $this->unitIDs);
-		$this->setRemoved('lesson_teachers', $this->lessonTeacherIDs, 'subjectID', $this->lessonSubjectIDs);
 	}
 }

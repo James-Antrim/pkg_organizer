@@ -104,12 +104,7 @@ class THM_OrganizerModelTeacher extends THM_OrganizerModelMerge
 			return false;
 		}
 
-		$ltUpdated = $this->updateAssociation('lesson_teachers');
-		if (!$ltUpdated)
-		{
-
-			return false;
-		}
+		// update instance persons
 
 		$duplicatesRemoved = $this->removeDuplicateResponsibilities();
 		if (!$duplicatesRemoved)
