@@ -47,8 +47,6 @@ class Schedule
 
 	public $roomtypes = null;
 
-	public $schedule;
-
 	public $schoolYear = null;
 
 	public $term = null;
@@ -125,7 +123,6 @@ class Schedule
 			return false;
 		}
 
-		$this->schedule = new stdClass();
 		$this->validateResources($valid);
 
 		$this->printStatusReport();
@@ -253,10 +250,6 @@ class Schedule
 
 		if ($validTerm)
 		{
-			$this->schedule->calendar       = new stdClass();
-			$this->schedule->configurations = [];
-			$this->schedule->lessons        = new stdClass();
-
 			$standardDate   = Helpers\Dates::standardizeDate($this->creationDate);
 			$this->modified = date('Y-m-d H:i:s', strtotime("$standardDate $this->creationTime"));
 			$this->units    = new stdClass();

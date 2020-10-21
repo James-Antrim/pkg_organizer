@@ -157,7 +157,7 @@ class Instances extends Helpers\ResourceHelper
 		}
 
 		$lc     = new Tables\LessonConfigurations();
-		$lcData = ['lessonID' => $unitID];
+		$lcData = ['lessonID' => $ls->id];
 
 		if (!$lc->load($lcData))
 		{
@@ -171,114 +171,6 @@ class Instances extends Helpers\ResourceHelper
 		{
 			$ccm->save($ccmData);
 		}
-	}
-
-	/**
-	 * Processes instance information for the new schedule format
-	 *
-	 * @param   Schedule          $model        the model for the schedule being validated
-	 * @param   SimpleXMLElement  $node         the node being validated
-	 * @param   string            $untisID      the untis id of the unit being iterated
-	 * @param   string            $currentDate  the date being currently iterated Y-m-d
-	 *
-	 * @return void
-	 * @noinspection PhpUndefinedFieldInspection
-	 */
-	private static function processInstance(
-		Schedule $model,
-		SimpleXMLElement $node,
-		string $untisID,
-		string $currentDate
-	) {
-		$calendar = $model->schedule->calendar;
-
-		// New format calendar items are created as necessary
-		if (!isset($calendar->$currentDate))
-		{
-			$calendar->$currentDate = new stdClass();
-		}
-
-		$endTime   = trim((string) $node->assigned_endtime);
-		$startTime = trim((string) $node->assigned_starttime);
-
-		$times = $startTime . '-' . $endTime;
-		if (!isset($calendar->$currentDate->$times))
-		{
-			$calendar->$currentDate->$times = new stdClass();
-		}
-
-		if (!isset($calendar->$currentDate->$times->$untisID))
-		{
-			$entry                 = new stdClass();
-			$entry->delta          = '';
-			$entry->configurations = [];
-
-			$calendar->$currentDate->$times->$untisID = $entry;
-		}
-
-		$unit = $model->units->$untisID;
-
-		$config            = new stdClass();
-		$config->lessonID  = $untisID;
-		$config->subjectID = $unit->eventID;
-		$config->teachers  = new stdClass();
-		$config->rooms     = new stdClass();
-
-		$config->teachers->{$unit->personID} = '';
-
-		foreach ($unit->rooms as $roomID)
-		{
-			$config->rooms->{$roomID} = '';
-		}
-
-		$entry         = $calendar->$currentDate->$times->$untisID;
-		$existingIndex = null;
-
-		if (!empty($entry->configurations))
-		{
-			$compConfig = null;
-
-			foreach ($entry->configurations as $configIndex)
-			{
-				$tempConfig = json_decode($model->schedule->configurations[$configIndex]);
-
-				if ($tempConfig->subjectID == $config->subjectID)
-				{
-					$compConfig    = $tempConfig;
-					$existingIndex = $configIndex;
-					break;
-				}
-			}
-
-			if ($compConfig)
-			{
-				foreach ($compConfig->teachers as $teacherID => $emptyDelta)
-				{
-					$config->teachers->$teacherID = $emptyDelta;
-				}
-
-				foreach ($compConfig->rooms as $roomID => $emptyDelta)
-				{
-					$config->rooms->$roomID = $emptyDelta;
-				}
-			}
-		}
-
-		$jsonConfig = json_encode($config);
-
-		if ($existingIndex)
-		{
-			$model->schedule->configurations[$existingIndex] = $jsonConfig;
-
-			return;
-		}
-
-		$model->schedule->configurations[] = $jsonConfig;
-
-		$configKeys  = array_keys($model->schedule->configurations);
-		$configIndex = end($configKeys);
-
-		$entry->configurations[] = $configIndex;
 	}
 
 	/**
@@ -620,9 +512,6 @@ class Instances extends Helpers\ResourceHelper
 		{
 			$currentDate = date('Y-m-d', $currentDT);
 			self::setInstance($model, $node, $untisID, $currentDate);
-
-			// BC Code
-			self::processInstance($model, $node, $untisID, $currentDate);
 		}
 	}
 }
