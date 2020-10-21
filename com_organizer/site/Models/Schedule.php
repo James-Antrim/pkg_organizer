@@ -621,26 +621,6 @@ class Schedule extends BaseModel
 		}
 
 		$userID = Helpers\Users::getID();
-
-		$validator->schedule->lessons = $validator->units;
-
-		$data = [
-			'creationDate' => $validator->creationDate,
-			'creationTime' => $validator->creationTime,
-			'departmentID' => $organizationID,
-			'schedule'     => json_encode($validator->schedule),
-			'termID'       => $validator->termID,
-			'userID'       => $userID
-		];
-
-		$schedule = new Tables\OldSchedules();
-		if (!$schedule->save($data))
-		{
-			return false;
-		}
-
-		$json = new ScheduleJSON();
-		$json->setReference($schedule->id);
 		unset($validator->schedule);
 
 		$data = [
