@@ -97,11 +97,6 @@ class Schedule extends BaseModel
 			return false;
 		}
 
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__thm_organizer_schedules')->where("id = $scheduleID");
-		$this->_db->setQuery($query);
-		Helpers\OrganizerHelper::executeQuery('execute');
-
 		return true;
 	}
 
