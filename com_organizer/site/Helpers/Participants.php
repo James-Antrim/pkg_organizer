@@ -22,7 +22,7 @@ class Participants extends ResourceHelper
 	const WAITLIST = 0, REGISTERED = 1, REMOVED = 2;
 
 	// Constants providing context for adding/removing instances to/from personal schedules.
-	const SEMESTER_MODE = 1, BLOCK_MODE = 2, INSTANCE_MODE = 3;
+	const TERM_MODE = 1, BLOCK_MODE = 2, INSTANCE_MODE = 3;
 
 	/**
 	 * Determines whether the necessary participant properties have been set to register for a course.
@@ -55,11 +55,12 @@ class Participants extends ResourceHelper
 	 *
 	 * @return bool true if the user is already associated with a participant, otherwise false
 	 */
-	public static function exists()
+	public static function exists($participantID = 0)
 	{
-		$participants = new Tables\Participants();
+		$participantID = $participantID ? $participantID : Users::getID();
+		$participants  = new Tables\Participants();
 
-		return $participants->load(Users::getID());
+		return $participants->load($participantID);
 	}
 
 	/**

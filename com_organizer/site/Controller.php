@@ -48,6 +48,72 @@ class Controller extends BaseController
 	}
 
 	/**
+	 * Removes deprecated assets associated with the old component
+	 *
+	 * @return void
+	 */
+	public function cleanMappings()
+	{
+		$model = new Models\Organizer();
+
+		if ($model->cleanMappings())
+		{
+			OrganizerHelper::message('Yay!');
+		}
+		else
+		{
+			OrganizerHelper::message('Failbot strikes again. :(');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Removes deprecated assets associated with the old component
+	 *
+	 * @return void
+	 */
+	public function migrateUserLessons()
+	{
+		$model = new Models\Organizer();
+
+		if ($model->migrateUserLessons())
+		{
+			OrganizerHelper::message('Yay!');
+		}
+		else
+		{
+			OrganizerHelper::message('Failbot strikes again. :(');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Removes deprecated assets associated with the old component
+	 *
+	 * @return void
+	 */
+	public function supplementParticipants()
+	{
+		$model = new Models\Organizer();
+
+		if ($model->supplementParticipants())
+		{
+			OrganizerHelper::message('Yay!');
+		}
+		else
+		{
+			OrganizerHelper::message('Failbot strikes again. :(');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
 	 * Makes call to the models's save function, and redirects to the same view.
 	 *
 	 * @return void
@@ -323,22 +389,6 @@ class Controller extends BaseController
 		// Reliance on POST requires a different method of redirection
 		Helpers\Input::set('view', "{$this->resource}_merge");
 		parent::display();
-	}
-
-	/**
-	 * Removes deprecated assets associated with the old component
-	 *
-	 * @return void
-	 */
-	public function removeAssets()
-	{
-		$model = new Models\Organizer();
-
-		$model->removeAssets();
-		OrganizerHelper::message('ORGANIZER_DELETE_SUCCESS');
-
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
 	}
 
 	/**

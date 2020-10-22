@@ -11,7 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Factory;
-//use Joomla\CMS\Toolbar\Toolbar;
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
@@ -47,7 +47,29 @@ class Organizer extends BaseHTMLView
 
 		if (Helpers\Can::administrate())
 		{
-			//$toolbar = Toolbar::getInstance();
+			$toolbar = Toolbar::getInstance();
+			$toolbar->appendButton(
+				'Standard',
+				'user-plus',
+				'Supplement Participants',
+				'organizer.supplementParticipants',
+				false
+			);
+			/*$toolbar->appendButton(
+				'Standard',
+				'next',
+				'Migrate User_Lessons',
+				'organizer.migrateUserLessons',
+				false
+			);*/
+			$toolbar->appendButton(
+				'Standard',
+				'wand',
+				'Clean Mappings',
+				'organizer.cleanMappings',
+				false
+			);
+			Helpers\HTML::setPreferencesButton();
 		}
 	}
 
