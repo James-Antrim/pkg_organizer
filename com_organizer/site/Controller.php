@@ -70,7 +70,7 @@ class Controller extends BaseController
 	}
 
 	/**
-	 * Removes deprecated assets associated with the old component
+	 * Migrates user lessons to instance participants and deletes the entries.
 	 *
 	 * @return void
 	 */
@@ -79,6 +79,28 @@ class Controller extends BaseController
 		$model = new Models\Organizer();
 
 		if ($model->migrateUserLessons())
+		{
+			OrganizerHelper::message('Yay!');
+		}
+		else
+		{
+			OrganizerHelper::message('Failbot strikes again. :(');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Migrates user lessons to instance participants and deletes the entries.
+	 *
+	 * @return void
+	 */
+	public function moveUserLessons()
+	{
+		$model = new Models\Organizer();
+
+		if ($model->moveUserLessons())
 		{
 			OrganizerHelper::message('Yay!');
 		}

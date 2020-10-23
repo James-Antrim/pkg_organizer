@@ -20,6 +20,10 @@ use Organizer\Tables;
  */
 class Organizer extends BaseModel
 {
+	private $assocsAdded = false;
+
+	private $previouslyMapped = [];
+
 	/**
 	 * Removes deprecated assets associated with the old component
 	 *
@@ -107,7 +111,7 @@ class Organizer extends BaseModel
 	 *
 	 * @return void
 	 */
-	public function migrateUserLesson($ulID)
+	private function migrateUserLesson(int $ulID, bool $permanent)
 	{
 		$userLesson = new Tables\UserLessons();
 
@@ -118,7 +122,7 @@ class Organizer extends BaseModel
 
 		if (!Helpers\Participants::exists($userLesson->userID))
 		{
-			$this->supplementParticipants();
+			$this->supplementParticipant($userLesson->userID);
 		}
 
 		$participantID = $userLesson->userID;
@@ -140,13 +144,22 @@ class Organizer extends BaseModel
 
 		foreach ($ccmIDs as $ccmID)
 		{
-			$query->clear('where')->where("i.delta != 'removed'")->where("ccm.id = $ccmID");
-			$this->_db->setQuery($query);
-
-			// Could not be resolved to an instance or was removed
-			if (!$instanceID = OrganizerHelper::executeQuery('loadResult'))
+			if (empty($this->previouslyMapped[$ccmID]))
 			{
-				continue;
+				$query->clear('where')->where("i.delta != 'removed'")->where("ccm.id = $ccmID");
+				$this->_db->setQuery($query);
+
+				// Could not be resolved to an instance or was removed
+				if (!$instanceID = OrganizerHelper::executeQuery('loadResult'))
+				{
+					continue;
+				}
+
+				$this->previouslyMapped[$ccmID] = $instanceID;
+			}
+			else
+			{
+				$instanceID = $this->previouslyMapped[$ccmID];
 			}
 
 			$instanceParticipant = new Tables\InstanceParticipants();
@@ -157,9 +170,13 @@ class Organizer extends BaseModel
 			}
 
 			$instanceParticipant->save($relation);
+			$this->assocsAdded = true;
 		}
 
-		$userLesson->delete();
+		if ($permanent)
+		{
+			$userLesson->delete();
+		}
 	}
 
 	/**
@@ -172,8 +189,42 @@ class Organizer extends BaseModel
 		$selectQuery = $this->_db->getQuery(true);
 		$selectQuery->select('DISTINCT ul.id')
 			->from('#__thm_organizer_user_lessons AS ul')
+			->innerJoin('#__organizer_units AS u ON u.id = ul.lessonID');
+		$this->_db->setQuery($selectQuery);
+
+		if ($results = OrganizerHelper::executeQuery('loadColumn', []))
+		{
+			foreach ($results as $ulID)
+			{
+				$this->migrateUserLesson($ulID, false);
+			}
+		}
+		else
+		{
+			OrganizerHelper::message("User lessons is empty.");
+		}
+
+		if (!$this->assocsAdded)
+		{
+			OrganizerHelper::message('No associations added.');
+		}
+
+		return true;
+	}
+
+	/**
+	 * Migrates user lessons.
+	 *
+	 * @return bool true on success, otherwise false.
+	 */
+	public function moveUserLessons()
+	{
+		$lastWeek    = date('Y-m-d', strtotime('-7 days'));
+		$selectQuery = $this->_db->getQuery(true);
+		$selectQuery->select('DISTINCT ul.id')
+			->from('#__thm_organizer_user_lessons AS ul')
 			->innerJoin('#__organizer_units AS u ON u.id = ul.lessonID')
-			->where("u.endDate < '2020-09-28'")
+			->where("u.endDate < '$lastWeek'")
 			->order('u.endDate')
 			->setLimit(10000);
 		$this->_db->setQuery($selectQuery);
@@ -182,15 +233,38 @@ class Organizer extends BaseModel
 		{
 			foreach ($results as $ulID)
 			{
-				$this->migrateUserLesson($ulID);
+				$this->migrateUserLesson($ulID, true);
 			}
 		}
 		else
 		{
-			OrganizerHelper::message('User lessons ending before 2020-09-28 migrated.');
+			OrganizerHelper::message("User lessons ending before $lastWeek moved permanently.");
 		}
 
 		return true;
+	}
+
+	/**
+	 * Adds an organizer participant based on the information in the users table.
+	 *
+	 * @param   int  $participantID
+	 *
+	 * @return void
+	 */
+	public function supplementParticipant(int $participantID)
+	{
+		$names = Helpers\Users::resolveUserName($participantID);
+		$query = $this->_db->getQuery(true);
+
+		$forename = $query->quote($names['forename']);
+		$surname  = $query->quote($names['surname']);
+
+		$query->insert('#__organizer_participants')
+			->columns('id, forename, surname')
+			->values("$participantID, $forename, $surname");
+		$this->_db->setQuery($query);
+
+		OrganizerHelper::executeQuery('execute');
 	}
 
 	/**
@@ -211,19 +285,9 @@ class Organizer extends BaseModel
 
 		if ($missingParticipantIDs = OrganizerHelper::executeQuery('loadColumn', []))
 		{
-			$insertQuery = $this->_db->getQuery(true);
-			$insertQuery->insert('#__organizer_participants');
-			$insertQuery->columns('id, forename, surname');
 			foreach ($missingParticipantIDs as $participantID)
 			{
-				$names    = Helpers\Users::resolveUserName($participantID);
-				$forename = $insertQuery->quote($names['forename']);
-				$surname  = $insertQuery->quote($names['surname']);
-				$insertQuery->clear('values');
-				$insertQuery->values("$participantID, $forename, $surname");
-				$this->_db->setQuery($insertQuery);
-
-				OrganizerHelper::executeQuery('execute');
+				$this->supplementParticipant($participantID);
 			}
 		}
 		else

@@ -55,13 +55,20 @@ class Organizer extends BaseHTMLView
 				'organizer.supplementParticipants',
 				false
 			);
-			/*$toolbar->appendButton(
+			$toolbar->appendButton(
+				'Standard',
+				'last',
+				'Move User_Lessons',
+				'organizer.moveUserLessons',
+				false
+			);
+			$toolbar->appendButton(
 				'Standard',
 				'next',
 				'Migrate User_Lessons',
 				'organizer.migrateUserLessons',
 				false
-			);*/
+			);
 			$toolbar->appendButton(
 				'Standard',
 				'wand',
