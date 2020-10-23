@@ -433,7 +433,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return void
 	 */
-	public function setCurrent($scheduleID)
+	public function setCurrent(int $scheduleID)
 	{
 		$schedule = new Tables\Schedules();
 
@@ -633,6 +633,28 @@ class Schedule extends BaseModel
 			return false;
 		}
 
+		$referenceID = 0;
+		$refScheduleIDs = $this->getContextIDs($organizationID, $validator->termID);
+
+		// Remove current from iteration.
+		array_pop($refScheduleIDs);
+
+		foreach ($refScheduleIDs AS $refScheduleID)
+		{
+			$refSchedule = new Tables\Schedules();
+			$refSchedule->load($refScheduleID);
+
+			if ($refSchedule->creationDate !== $schedule->creationDate)
+			{
+				$referenceID = $refSchedule->id;
+			}
+			else
+			{
+				$refSchedule->delete();
+			}
+		}
+
+		$this->setCurrent($referenceID);
 		$this->setCurrent($schedule->id);
 		$this->resolveEventSubjects($organizationID);
 
