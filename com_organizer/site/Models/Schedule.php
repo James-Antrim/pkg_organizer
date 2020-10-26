@@ -633,13 +633,13 @@ class Schedule extends BaseModel
 			return false;
 		}
 
-		$referenceID = 0;
+		$referenceID    = 0;
 		$refScheduleIDs = $this->getContextIDs($organizationID, $validator->termID);
 
 		// Remove current from iteration.
 		array_pop($refScheduleIDs);
 
-		foreach ($refScheduleIDs AS $refScheduleID)
+		foreach ($refScheduleIDs as $refScheduleID)
 		{
 			$refSchedule = new Tables\Schedules();
 			$refSchedule->load($refScheduleID);
@@ -654,7 +654,15 @@ class Schedule extends BaseModel
 			}
 		}
 
-		$this->setCurrent($referenceID);
+		if (empty($referenceID))
+		{
+			$this->resetContext($organizationID, $validator->termID, $schedule->id);
+		}
+		else
+		{
+			$this->setCurrent($referenceID);
+		}
+
 		$this->setCurrent($schedule->id);
 		$this->resolveEventSubjects($organizationID);
 
