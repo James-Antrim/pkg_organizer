@@ -15,6 +15,7 @@ namespace Organizer;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Controller\BaseController;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
@@ -272,7 +273,7 @@ class Controller extends BaseController
 	 * @param   string  $prefix  The class prefix. Optional.
 	 * @param   array   $config  Configuration array for model. Optional.
 	 *
-	 * @return  object|boolean  Model object on success; otherwise false on failure.
+	 * @return  BaseDatabaseModel|false  Model object on success; otherwise false on failure.
 	 */
 	public function getModel($name = '', $prefix = '', $config = array())
 	{
