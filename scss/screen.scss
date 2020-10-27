@@ -1,0 +1,124 @@
+@import 'variables';
+
+.event-date {
+  background-color: white;
+  margin-bottom: 10px;
+}
+
+.screen {
+  font-family: $font-family-header;
+  margin: auto 0;
+  line-height: normal;
+  color: $background-grey;
+
+  /************** header *********************************************/
+  .head {
+    padding: 3em 48px;
+    border-bottom: 1px solid #ECECEC;
+    box-shadow: 0 5px 3px #888888;
+    margin-bottom: 10px;
+    position: relative;
+
+    .logo {
+      padding-top: 5px;
+      width: 210px;
+      float: left;
+
+      img {
+        width: 210px;
+        height: 69px;
+      }
+    }
+
+    .title {
+      text-align: center;
+      // anpassen an THM-Schriftgröße des Bildes - manuell
+      font-size: 95px;
+      font-weight: bold;
+      line-height: 72px;
+      margin: 0 205px 0 210px
+    }
+
+    .date-info {
+      text-align: right;
+      color: $thm;
+      font-weight: bold;
+      font-size: 250%;
+      position: absolute;
+      bottom: 39px;
+      right: 48px;
+    }
+  }
+
+  .instances {
+    margin: 0 48px;
+    text-align: center;
+
+    &.current-layout .instance {
+      padding: .2rem 0;
+    }
+
+    .explanation {
+      font-size: 2rem;
+      font-weight: bold;
+      padding: 10px 0;
+    }
+
+    .date-header {
+      background-color: $blue-75;
+      color: $foreground-color;
+      font-size: 1.6rem;
+      padding-top: 6px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .row1 {
+      background-color: $background-color;
+    }
+
+    .instance.active {
+      background: $green-50;
+    }
+
+    .event-times, .event-main {
+      display: inline-block;
+      float: left;
+      height: 100%;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .event-times {
+      font-size: 2.1rem;
+      padding: 1rem 0;
+      width: 7rem;
+    }
+
+    .event-main {
+      width: calc(100% - 7rem);
+    }
+
+    .event-names, .instance-persons, .event-comment {
+      padding-top: .5rem;
+    }
+
+    .event-names {
+      font-size: 2.6rem;
+      font-weight: bold;
+
+      &.fluffy {
+        padding-top: 1.2rem;
+      }
+    }
+
+    .instance-persons {
+      font-size: 2.1rem;
+    }
+
+    .event-comment {
+      font-size: 1.5rem;
+      padding-bottom: .5rem;
+    }
+  }
+}

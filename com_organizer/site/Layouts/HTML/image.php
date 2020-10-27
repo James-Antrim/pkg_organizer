@@ -10,7 +10,7 @@
 
 ?>
 <script type="text/javascript">
-    var timer = null;
+    let timer = null;
 
     function auto_reload()
     {
@@ -18,7 +18,7 @@
     }
 
     window.onload = function () {
-        timer = setTimeout('auto_reload()', <?php echo $this->model->params['contentRefresh']; ?>000);
+        timer = setTimeout('auto_reload()', 60000);
     }
 </script>
-<img class="room-display-content" src="images/organizer/<?php echo $this->model->params['content']; ?>">
+<img class="room-display-content" src="images/organizer/<?php echo $this->model->image; ?>">
