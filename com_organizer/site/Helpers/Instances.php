@@ -21,6 +21,8 @@ class Instances extends ResourceHelper
 {
 	const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
+	const TEACHER = 1;
+
 	/**
 	 * Adds a delta clause for a joined table.
 	 *
@@ -133,6 +135,30 @@ class Instances extends ResourceHelper
 		}
 
 		return $conditions;
+	}
+
+	/**
+	 * Creates a display of formatted dates for a course
+	 *
+	 * @param   int  $instanceID  the id of the course to be loaded
+	 *
+	 * @return string the dates to display
+	 */
+	public static function getDateDisplay($instanceID)
+	{
+		$instance = new Tables\Instances();
+		if (!$instance->load($instanceID) or !$blockID = $instance->blockID)
+		{
+			return '';
+		}
+
+		$block = new Tables\Blocks();
+		if (!$block->load($blockID) or !$date = $block->date)
+		{
+			return '';
+		}
+
+		return Dates::formatDate($date);
 	}
 
 	/**
@@ -430,6 +456,61 @@ class Instances extends ResourceHelper
 		}
 
 		return $query;
+	}
+
+	/**
+	 * Gets the localized name of the event associated with the instance and the name of the instance's method.
+	 *
+	 * @param   int  $instanceID the id of the instance
+	 *
+	 * @return string
+	 */
+	public static function getName(int $instanceID)
+	{
+		$instance = new Tables\Instances();
+		if (!$instance->load($instanceID) or !$eventID = $instance->eventID)
+		{
+			return '';
+		}
+
+		if (!$name = Events::getName($eventID))
+		{
+			return '';
+		}
+
+		if ($methodID = $instance->methodID)
+		{
+			$name .= ' - ' .  Methods::getName($methodID);
+		}
+
+		return $name;
+	}
+
+	/**
+	 * Gets an array of participant IDs for a given instance
+	 *
+	 * @param   int  $instanceID  the instance id
+	 *
+	 * @return array list of participants in course
+	 */
+	public static function getParticipantIDs(int $instanceID)
+	{
+		if (empty($instanceID))
+		{
+			return [];
+		}
+
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+
+		$query->select('participantID')
+			->from('#__organizer_instance_participants')
+			->where("instanceID = $instanceID")
+			->order('participantID');
+
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -884,5 +965,35 @@ class Instances extends ResourceHelper
 		{
 			$instance['description'] = $subject['description'];
 		}
+	}
+
+	/**
+	 * Check if person is associated with an instance as a teacher.
+	 *
+	 * @param   int  $instanceID  the optional id of the instance
+	 * @param   int  $personID    the optional id of the person
+	 *
+	 * @return bool true if the person is an instance teacher, otherwise false
+	 */
+	public static function teaches($instanceID = 0, $personID = 0)
+	{
+		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
+
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+
+		$query->select('COUNT(*)')
+			->from('#__organizer_instance_persons AS ip')
+			->where("ip.personID = $personID")
+			->where('ip.roleID = ' . self::TEACHER);
+
+		if ($instanceID)
+		{
+			$query->where("ip.instanceID = $instanceID");
+		}
+
+		$dbo->setQuery($query);
+
+		return (bool) OrganizerHelper::executeQuery('loadResult', false);
 	}
 }
