@@ -24,7 +24,11 @@ class Instances extends ListView
 
 	private $entryStatus = '';
 
+	private $manages = false;
+
 	private $statusDate;
+
+	private $teaches = false;
 
 	/**
 	 * Constructor
@@ -105,6 +109,17 @@ class Instances extends ListView
 		Helpers\HTML::setTitle($title, 'list-2');
 
 		$toolbar = Toolbar::getInstance();
+
+		if (Helpers\Can::administrate())
+		{
+			$toolbar->appendButton(
+				'Standard',
+				'users',
+				Languages::_('ORGANIZER_PARTICIPANTS'),
+				'instances.participants',
+				true
+			);
+		}
 	}
 
 	/**
@@ -114,15 +129,18 @@ class Instances extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!$this->adminContext)
+		if ($this->adminContext)
 		{
+			if (!$this->manages = Helpers\Can::scheduleTheseOrganizations())
+			{
+				Helpers\OrganizerHelper::error(403);
+			}
+
 			return;
 		}
 
-		if (!Helpers\Can::scheduleTheseOrganizations())
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
+		$this->manages = Helpers\Can::manageTheseOrganizations();
+		$this->teaches = Helpers\Instances::teaches();
 	}
 
 	/**
@@ -392,7 +410,6 @@ class Instances extends ListView
 	public function setHeaders()
 	{
 		$this->headers = [
-			//'checkbox'     => Helpers\HTML::_('grid.checkall'),
 			'status'  => '',
 			'title'   => ['attributes' => ['class' => 'title-column'], 'value' => Languages::_('ORGANIZER_NAME')],
 			'times'   => Languages::_('ORGANIZER_DATETIME'),
@@ -400,6 +417,11 @@ class Instances extends ListView
 			'groups'  => Languages::_('ORGANIZER_GROUPS'),
 			'rooms'   => Languages::_('ORGANIZER_ROOMS')
 		];
+
+		if ($this->manages)
+		{
+			$this->headers = array_merge(['checkbox' => Helpers\HTML::_('grid.checkall')], $this->headers);
+		}
 	}
 
 	/**
@@ -463,7 +485,12 @@ class Instances extends ListView
 			$times .= Helpers\Dates::formatTime($item->endTime) . '</span>';
 
 			$structuredItems[$index] = [];
-			//$structuredItems[$index]['checkbox']     = Helpers\HTML::_('grid.id', $index, $item->instanceID);
+
+			if ($this->manages)
+			{
+				$structuredItems[$index]['checkbox']     = Helpers\HTML::_('grid.id', $index, $item->instanceID);
+			}
+
 			$structuredItems[$index]['status']  = $this->getStatus($item);
 			$structuredItems[$index]['title']   = $this->getTitle($item);
 			$structuredItems[$index]['times']   = $times;

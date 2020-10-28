@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fields name="filter">
+        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="instanceID" type="hidden"/>
+        <field name="programID" type="Programs" label="PROGRAM" onchange="this.form.submit();" participant="1">
+            <option value="">ALL_PROGRAMS</option>
+        </field>
+    </fields>
+    <fields name="list">
+        <field name="limit" type="Limitbox" class="input-mini" onchange="this.form.submit();"/>
+    </fields>
+    <fields name="batch">
+        <field name="subject" type="Blank" label="NOTIFY_SUBJECT" maxlength="200"/>
+        <field name="body" type="Box" label="NOTIFY_BODY"/>
+    </fields>
+</form>
