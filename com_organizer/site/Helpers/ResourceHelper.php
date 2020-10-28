@@ -76,7 +76,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getName($resourceID)
+	public static function getName(int $resourceID)
 	{
 		return self::getNameAttribute('name', $resourceID);
 	}
