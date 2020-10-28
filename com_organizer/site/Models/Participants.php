@@ -24,6 +24,23 @@ class Participants extends ListModel
 	protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
 	/**
+	 * Filters out form inputs which should not be displayed due to menu settings.
+	 *
+	 * @param   Form  $form  the form to be filtered
+	 *
+	 * @return void modifies $form
+	 */
+	public function filterFilterForm(&$form)
+	{
+		parent::filterFilterForm($form);
+
+		if (!$this->adminContext)
+		{
+			$form->removeField('limit', 'list');
+		}
+	}
+
+	/**
 	 * Method to get a list of resources from the database.
 	 *
 	 * @return JDatabaseQuery
@@ -38,19 +55,12 @@ class Participants extends ListModel
 			->select($query->concatenate(['pa.surname', "', '", 'pa.forename'], '') . ' AS fullName')
 			->from('#__organizer_participants AS pa')
 			->innerJoin('#__users AS u ON u.id = pa.id')
-			->innerJoin('#__organizer_programs AS pr ON pr.id = pa.programID')
-			->innerJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
+			->leftJoin('#__organizer_programs AS pr ON pr.id = pa.programID')
+			->leftJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
 			->select($query->concatenate($programParts, '') . ' AS program');
 
 		$this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
 		$this->setValueFilters($query, ['programID']);
-
-		if ($courseID = $this->state->get('filter.courseID'))
-		{
-			$query->select('cp.attended, cp.paid, cp.status')
-				->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
-				->where("cp.courseID = $courseID");
-		}
 
 		if ($this->state->get('filter.duplicates'))
 		{
@@ -66,15 +76,14 @@ class Participants extends ListModel
 			$query->leftJoin("#__organizer_participants AS pa2 ON $conditions")
 				->where('pa.id != pa2.id')
 				->group('pa.id');
-
-			if ($courseID)
-			{
-				$query->innerJoin('#__organizer_course_participants AS cp2 ON cp2.participantID = pa2.id')
-					->where("cp2.courseID = $courseID");
-			}
 		}
 
 		$this->setOrdering($query);
+
+		if (!$this->adminContext)
+		{
+			$query->setLimit(0);
+		}
 
 		return $query;
 	}
