@@ -11,11 +11,13 @@
 
 use Organizer\Helpers;
 
+$task = Helpers\Input::getCMD('view') . '.notify';
+
 ?>
 <div class="modal hide fade" id="modal-mail">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&#215;</button>
-        <h3><?php echo Helpers\Languages::_('ORGANIZER_NOTIFY_HEADER'); ?></h3>
+        <h3><?php echo Helpers\Languages::_('ORGANIZER_NOTIFY_HEADER'); ?>
     </div>
     <div class="modal-body modal-batch form-horizontal">
 		<?php foreach ($this->filterForm->getGroup('batch') as $batchField) : ?>
@@ -33,7 +35,7 @@ use Organizer\Helpers;
         <button class="btn" type="button" data-dismiss="modal">
 			<?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
         </button>
-        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('course_participants.notify');">
+        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton(<?php echo $task; ?>);">
 			<?php echo Helpers\Languages::_('ORGANIZER_NOTIFY'); ?>
         </button>
     </div>
