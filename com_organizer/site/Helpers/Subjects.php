@@ -79,7 +79,7 @@ class Subjects extends Curricula
 	 *
 	 * @return string the subject name
 	 */
-	public static function getName($subjectID = 0, $withNumber = false)
+	public static function getName(int $subjectID = 0, $withNumber = false)
 	{
 		$subjectID = $subjectID ? $subjectID : Input::getID();
 

@@ -68,7 +68,7 @@ class Campuses extends ResourceHelper implements Selectable
 	 *
 	 * @return string the name if the campus could be resolved, otherwise empty
 	 */
-	public static function getName($campusID = null)
+	public static function getName(int $campusID = 0)
 	{
 		if (empty($campusID))
 		{

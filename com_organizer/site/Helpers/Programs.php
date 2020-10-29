@@ -116,7 +116,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @return string the name of the (plan) program, otherwise empty
 	 */
-	public static function getName($programID)
+	public static function getName(int $programID)
 	{
 		if (empty($programID))
 		{
