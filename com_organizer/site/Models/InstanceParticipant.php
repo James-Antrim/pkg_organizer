@@ -19,63 +19,6 @@ use Organizer\Tables;
  */
 class InstanceParticipant extends BaseModel
 {
-	const ACCEPTED = 1, ATTENDED = 1, PAID = 1, WAITLIST = 0;
-
-	/**
-	 * Sets the property the given property to the given value for the selected participants.
-	 *
-	 * @param   string  $property  the property to update
-	 * @param   int     $value     the new value for the property
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	private function batch($property, $value)
-	{
-		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
-		{
-			return false;
-		}
-
-		if (!Helpers\Can::manage('course', $courseID))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-
-		foreach ($participantIDs as $participantID)
-		{
-			if (!Helpers\Can::manage('participant', $participantID))
-			{
-				Helpers\OrganizerHelper::error(403);
-			}
-
-			$table = $this->getTable();
-
-			if (!$table->load(['courseID' => $courseID, 'participantID' => $participantID]))
-			{
-				return false;
-			}
-
-			if ($table->$property === $value)
-			{
-				continue;
-			}
-
-			$table->$property = $value;
-
-			if (!$table->store())
-			{
-				return false;
-			}
-
-			if ($property === 'status')
-			{
-				Helpers\Mailer::registrationUpdate($courseID, $participantID, $value);
-			}
-		}
-
-		return true;
-	}
-
 	/**
 	 * Method to get a table object, load it if necessary.
 	 *
@@ -99,6 +42,7 @@ class InstanceParticipant extends BaseModel
 	 */
 	public function notify()
 	{
+		return false;
 		if (!$instanceID = Input::getID())
 		{
 			return false;
@@ -109,7 +53,7 @@ class InstanceParticipant extends BaseModel
 			Helpers\OrganizerHelper::error(403);
 		}
 
-		$instanceParticipants   = Helpers\Instances::getParticipantIDs($instanceID);
+		$instanceParticipants = Helpers\Instances::getParticipantIDs($instanceID);
 		$selectedParticipants = Input::getInput()->get('cids', [], 'array');
 
 		if (empty($instanceParticipants) and empty($selectedParticipants))

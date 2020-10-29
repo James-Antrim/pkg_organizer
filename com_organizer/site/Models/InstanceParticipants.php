@@ -11,7 +11,6 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
 /**
