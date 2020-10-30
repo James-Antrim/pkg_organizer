@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
+//use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -28,7 +28,7 @@ class Instances extends ListView
 
 	private $statusDate;
 
-	private $teaches = false;
+	//private $teaches = false;
 
 	/**
 	 * Constructor
@@ -108,7 +108,7 @@ class Instances extends ListView
 		// Add menu title support, both direct and via selected filters
 		Helpers\HTML::setTitle($title, 'list-2');
 
-		$toolbar = Toolbar::getInstance();
+		/*$toolbar = Toolbar::getInstance();
 
 		if (Helpers\Can::administrate())
 		{
@@ -119,7 +119,7 @@ class Instances extends ListView
 				'instances.participants',
 				true
 			);
-		}
+		}*/
 	}
 
 	/**
@@ -139,8 +139,8 @@ class Instances extends ListView
 			return;
 		}
 
-		$this->manages = Helpers\Can::manageTheseOrganizations();
-		$this->teaches = Helpers\Instances::teaches();
+		//$this->manages = Helpers\Can::manageTheseOrganizations();
+		//$this->teaches = Helpers\Instances::teaches();
 	}
 
 	/**
@@ -418,10 +418,10 @@ class Instances extends ListView
 			'rooms'   => Languages::_('ORGANIZER_ROOMS')
 		];
 
-		if ($this->manages)
+		/*if ($this->manages)
 		{
 			$this->headers = array_merge(['checkbox' => Helpers\HTML::_('grid.checkall')], $this->headers);
-		}
+		}*/
 	}
 
 	/**
@@ -460,7 +460,7 @@ class Instances extends ListView
 		$text     = preg_replace('/panopto=([\d\w\-]+)/', $template, $text);
 
 		$pilosIcon  = '<span class="icon-pilos hasTooltip" title="Pilos Link"></span>';
-		$pilosREGEX = '/(((https?):\/\/)(pilos\d+.ges.|\d+.pilos-)thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
+		$pilosREGEX = '/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
 		$template   = "<a href=\"$1\" target=\"_blank\">$pilosIcon</a>";
 		$text       = preg_replace($pilosREGEX, $template, $text);
 
@@ -486,10 +486,10 @@ class Instances extends ListView
 
 			$structuredItems[$index] = [];
 
-			if ($this->manages)
+			/*if ($this->manages)
 			{
 				$structuredItems[$index]['checkbox']     = Helpers\HTML::_('grid.id', $index, $item->instanceID);
-			}
+			}*/
 
 			$structuredItems[$index]['status']  = $this->getStatus($item);
 			$structuredItems[$index]['title']   = $this->getTitle($item);
