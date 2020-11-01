@@ -49,114 +49,6 @@ class Controller extends BaseController
 	}
 
 	/**
-	 * Removes deprecated assets associated with the old component
-	 *
-	 * @return void
-	 */
-	public function cleanMappings()
-	{
-		$model = new Models\Organizer();
-
-		if ($model->cleanMappings())
-		{
-			OrganizerHelper::message('Yay!');
-		}
-		else
-		{
-			OrganizerHelper::message('Failbot strikes again. :(');
-		}
-
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
-	}
-
-	/**
-	 * Creates the environment for the proper output of a given JSON string.
-	 *
-	 * @param   string  $response  the preformatted response string
-	 *
-	 * @return void
-	 */
-	protected function jsonResponse(string $response)
-	{
-		$app = OrganizerHelper::getApplication();
-
-		// Send json mime type.
-		$app->setHeader('Content-Type', 'application/json' . '; charset=' . $app->charSet);
-		$app->sendHeaders();
-
-		echo $response;
-
-		$app->close();
-	}
-
-	/**
-	 * Migrates user lessons to instance participants and deletes the entries.
-	 *
-	 * @return void
-	 */
-	public function migrateUserLessons()
-	{
-		$model = new Models\Organizer();
-
-		if ($model->migrateUserLessons())
-		{
-			OrganizerHelper::message('Yay!');
-		}
-		else
-		{
-			OrganizerHelper::message('Failbot strikes again. :(');
-		}
-
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
-	}
-
-	/**
-	 * Migrates user lessons to instance participants and deletes the entries.
-	 *
-	 * @return void
-	 */
-	public function moveUserLessons()
-	{
-		$model = new Models\Organizer();
-
-		if ($model->moveUserLessons())
-		{
-			OrganizerHelper::message('Yay!');
-		}
-		else
-		{
-			OrganizerHelper::message('Failbot strikes again. :(');
-		}
-
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
-	}
-
-	/**
-	 * Removes deprecated assets associated with the old component
-	 *
-	 * @return void
-	 */
-	public function supplementParticipants()
-	{
-		$model = new Models\Organizer();
-
-		if ($model->supplementParticipants())
-		{
-			OrganizerHelper::message('Yay!');
-		}
-		else
-		{
-			OrganizerHelper::message('Failbot strikes again. :(');
-		}
-
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
-	}
-
-	/**
 	 * Makes call to the models's save function, and redirects to the same view.
 	 *
 	 * @return void
@@ -375,6 +267,26 @@ class Controller extends BaseController
 		}
 
 		return self::$views[$key][$type][$prefix];
+	}
+
+	/**
+	 * Creates the environment for the proper output of a given JSON string.
+	 *
+	 * @param   string  $response  the preformatted response string
+	 *
+	 * @return void
+	 */
+	protected function jsonResponse(string $response)
+	{
+		$app = OrganizerHelper::getApplication();
+
+		// Send json mime type.
+		$app->setHeader('Content-Type', 'application/json' . '; charset=' . $app->charSet);
+		$app->sendHeaders();
+
+		echo $response;
+
+		$app->close();
 	}
 
 	/**

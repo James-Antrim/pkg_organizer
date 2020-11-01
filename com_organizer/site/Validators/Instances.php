@@ -119,61 +119,6 @@ class Instances extends Helpers\ResourceHelper
 	}
 
 	/**
-	 * Creates old table structures.
-	 *
-	 * @param   SimpleXMLElement  $node         the node being validated
-	 * @param   string            $currentDate  the current date being iterated
-	 * @param   int               $eventID
-	 * @param   int               $unitID
-	 *
-	 * @return void
-	 */
-	private static function createOldStructure(SimpleXMLElement $node, string $currentDate, int $eventID, int $unitID)
-	{
-		$rawEndTime   = trim((string) $node->assigned_endtime);
-		$rawStartTime = trim((string) $node->assigned_starttime);
-		$endTime      = preg_replace('/([\d]{2})$/', ':${1}:00', $rawEndTime);
-		$startTime    = preg_replace('/([\d]{2})$/', ':${1}:00', $rawStartTime);
-
-		$c     = new Tables\Calendar();
-		$cData = [
-			'endTime'       => $endTime,
-			'lessonID'      => $unitID,
-			'schedule_date' => $currentDate,
-			'startTime'     => $startTime
-		];
-
-		if (!$c->load($cData))
-		{
-			$c->save($cData);
-		}
-
-		$ls     = new Tables\LessonSubjects();
-		$lsData = ['lessonID' => $unitID, 'subjectID' => $eventID];
-
-		if (!$ls->load($lsData))
-		{
-			$ls->save($lsData);
-		}
-
-		$lc     = new Tables\LessonConfigurations();
-		$lcData = ['lessonID' => $ls->id];
-
-		if (!$lc->load($lcData))
-		{
-			$lc->save($lcData);
-		}
-
-		$ccm     = new Tables\CalendarConfigurationMap();
-		$ccmData = ['calendarID' => $c->id, 'configurationID' => $lc->id];
-
-		if (!$ccm->load($ccmData))
-		{
-			$ccm->save($ccmData);
-		}
-	}
-
-	/**
 	 * Sets associations between an instance person association and its groups.
 	 *
 	 * @param   Schedule  $model       the model for the schedule being validated
@@ -224,8 +169,6 @@ class Instances extends Helpers\ResourceHelper
 	public static function setInstance(Schedule $model, SimpleXMLElement $node, string $untisID, string $currentDate)
 	{
 		$unit = $model->units->$untisID;
-
-		self::createOldStructure($node, $currentDate, $unit->eventID, $unit->id);
 
 		$methodID = empty($unit->methodID) ? null : $unit->methodID;
 		$instance = [

@@ -15,7 +15,7 @@ use Joomla\CMS\Factory;
 use Organizer\Tables;
 
 /**
- * Provides functions for XML lesson validation and modeling.
+ * Provides functions for XML instance validation and modeling.
  */
 class Instances extends ResourceHelper
 {
@@ -45,9 +45,9 @@ class Instances extends ResourceHelper
 	}
 
 	/**
-	 * Builds the array of parameters used for lesson retrieval.
+	 * Builds the array of parameters used for instance retrieval.
 	 *
-	 * @return array the parameters used to retrieve lessons.
+	 * @return array the parameters used to retrieve instances.
 	 */
 	public static function getConditions()
 	{

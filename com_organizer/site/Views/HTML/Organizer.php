@@ -47,35 +47,6 @@ class Organizer extends BaseHTMLView
 
 		if (Helpers\Can::administrate())
 		{
-			$toolbar = Toolbar::getInstance();
-			$toolbar->appendButton(
-				'Standard',
-				'user-plus',
-				'Supplement Participants',
-				'organizer.supplementParticipants',
-				false
-			);
-			$toolbar->appendButton(
-				'Standard',
-				'last',
-				'Move User_Lessons',
-				'organizer.moveUserLessons',
-				false
-			);
-			$toolbar->appendButton(
-				'Standard',
-				'next',
-				'Migrate User_Lessons',
-				'organizer.migrateUserLessons',
-				false
-			);
-			$toolbar->appendButton(
-				'Standard',
-				'wand',
-				'Clean Mappings',
-				'organizer.cleanMappings',
-				false
-			);
 			Helpers\HTML::setPreferencesButton();
 		}
 	}
