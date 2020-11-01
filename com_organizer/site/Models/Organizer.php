@@ -235,7 +235,7 @@ class Organizer extends BaseModel
 		}
 		else
 		{
-			OrganizerHelper::message("User lessons ending before $lastWeek moved permanently.");
+			OrganizerHelper::message("User lessons moved permanently.");
 		}
 
 		return true;
