@@ -24,6 +24,32 @@ class InstanceParticipants extends Controller
 	protected $resource = 'instance_participant';
 
 	/**
+	 * Class constructor
+	 *
+	 * @param   array  $config  An optional associative [] of configuration settings.
+	 */
+	public function __construct($config = [])
+	{
+		parent::__construct($config);
+
+		$this->registerTask('add', 'add');
+	}
+
+	/**
+	 * Adds instances to the user's personal schedule.
+	 *
+	 * @return void
+	 */
+	public function add()
+	{
+		$model = new Models\InstanceParticipant();
+
+		$response = json_encode($model->add(), JSON_NUMERIC_CHECK);
+
+		$this->jsonResponse($response);
+	}
+
+	/**
 	 * Sends an circular email to all course participants
 	 *
 	 * @return void
@@ -43,5 +69,19 @@ class InstanceParticipants extends Controller
 
 		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
 		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Removes instances to the user's personal schedule.
+	 *
+	 * @return void
+	 */
+	public function remove()
+	{
+		$model = new Models\InstanceParticipant();
+
+		$response = json_encode($model->remove(), JSON_NUMERIC_CHECK);
+
+		$this->jsonResponse($response);
 	}
 }
