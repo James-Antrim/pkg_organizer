@@ -120,13 +120,11 @@ class Organizer extends BaseModel
 			return;
 		}
 
-		if (!Helpers\Participants::exists($userLesson->userID))
-		{
-			$this->supplementParticipant($userLesson->userID);
-		}
-
+		$participant   = new Participant();
 		$participantID = $userLesson->userID;
-		$ccmIDs        = ArrayHelper::toInteger(json_decode($userLesson->configuration));
+		$participant->supplement($participantID);
+
+		$ccmIDs = ArrayHelper::toInteger(json_decode($userLesson->configuration));
 
 		$cConditions   = 'c.schedule_date = b.date AND c.startTime = b.startTime AND c.endTime = b.endTime';
 		$cConditions   .= ' AND c.lessonID = i.unitID';
@@ -224,7 +222,6 @@ class Organizer extends BaseModel
 		$selectQuery->select('DISTINCT ul.id')
 			->from('#__thm_organizer_user_lessons AS ul')
 			->innerJoin('#__organizer_units AS u ON u.id = ul.lessonID')
-			->where("u.endDate < '$lastWeek'")
 			->order('u.endDate')
 			->setLimit(10000);
 		$this->_db->setQuery($selectQuery);
@@ -245,29 +242,6 @@ class Organizer extends BaseModel
 	}
 
 	/**
-	 * Adds an organizer participant based on the information in the users table.
-	 *
-	 * @param   int  $participantID
-	 *
-	 * @return void
-	 */
-	public function supplementParticipant(int $participantID)
-	{
-		$names = Helpers\Users::resolveUserName($participantID);
-		$query = $this->_db->getQuery(true);
-
-		$forename = $query->quote($names['forename']);
-		$surname  = $query->quote($names['surname']);
-
-		$query->insert('#__organizer_participants')
-			->columns('id, forename, surname')
-			->values("$participantID, $forename, $surname");
-		$this->_db->setQuery($query);
-
-		OrganizerHelper::executeQuery('execute');
-	}
-
-	/**
 	 * Adds users who have created schedules to the participants table.
 	 *
 	 * @return bool
@@ -285,9 +259,11 @@ class Organizer extends BaseModel
 
 		if ($missingParticipantIDs = OrganizerHelper::executeQuery('loadColumn', []))
 		{
+			$participant = new Participant();
+
 			foreach ($missingParticipantIDs as $participantID)
 			{
-				$this->supplementParticipant($participantID);
+				$participant->supplement($participantID);
 			}
 		}
 		else

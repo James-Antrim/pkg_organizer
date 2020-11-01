@@ -182,6 +182,34 @@ class Participant extends BaseModel
 	}
 
 	/**
+	 * Adds an organizer participant based on the information in the users table.
+	 *
+	 * @param   int  $participantID
+	 *
+	 * @return void
+	 */
+	public function supplement(int $participantID)
+	{
+		if (Helpers\Participants::exists($participantID))
+		{
+			return;
+		}
+
+		$names = Helpers\Users::resolveUserName($participantID);
+		$query = $this->_db->getQuery(true);
+
+		$forename = $query->quote($names['forename']);
+		$surname  = $query->quote($names['surname']);
+
+		$query->insert('#__organizer_participants')
+			->columns('id, forename, surname')
+			->values("$participantID, $forename, $surname");
+		$this->_db->setQuery($query);
+
+		Helpers\OrganizerHelper::executeQuery('execute');
+	}
+
+	/**
 	 * Updates the users table to reflect the merge of the participants.
 	 *
 	 * @return bool true on success, otherwise false;

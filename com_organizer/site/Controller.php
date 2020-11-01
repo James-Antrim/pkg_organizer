@@ -71,6 +71,26 @@ class Controller extends BaseController
 	}
 
 	/**
+	 * Creates the environment for the proper output of a given JSON string.
+	 *
+	 * @param   string  $response  the preformatted response string
+	 *
+	 * @return void
+	 */
+	protected function jsonResponse(string $response)
+	{
+		$app = OrganizerHelper::getApplication();
+
+		// Send json mime type.
+		$app->setHeader('Content-Type', 'application/json' . '; charset=' . $app->charSet);
+		$app->sendHeaders();
+
+		echo $response;
+
+		$app->close();
+	}
+
+	/**
 	 * Migrates user lessons to instance participants and deletes the entries.
 	 *
 	 * @return void
