@@ -50,8 +50,6 @@ abstract class Associated extends ResourceHelper
 	 * @param   int  $resourceID      the id of the resource
 	 *
 	 * @return bool true if the resource is associated with the organization, otherwise false
-	 *
-	 * @since version
 	 */
 	public static function isAssociated($organizationID, $resourceID)
 	{

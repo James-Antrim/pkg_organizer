@@ -24,7 +24,6 @@ class BlankField extends FormField
 	 * The form field type.
 	 *
 	 * @var    string
-	 * @since  1.7.0
 	 */
 	protected $type = 'Blank';
 
@@ -32,7 +31,6 @@ class BlankField extends FormField
 	 * The allowable maxlength of the field.
 	 *
 	 * @var    integer
-	 * @since  3.2
 	 */
 	protected $maxLength;
 
@@ -40,8 +38,6 @@ class BlankField extends FormField
 	 * Method to get the field input markup.
 	 *
 	 * @return  string  The field input markup.
-	 *
-	 * @since   1.7.0
 	 */
 	protected function getInput()
 	{

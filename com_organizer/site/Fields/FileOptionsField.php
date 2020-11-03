@@ -18,9 +18,7 @@ use SimpleXMLElement;
 use Organizer\Helpers;
 
 /**
- * Supports an HTML select list of files
- *
- * @since  1.7.0
+ * Supports an HTML select list of files.
  */
 class FileOptionsField extends OptionsField
 {
@@ -28,7 +26,6 @@ class FileOptionsField extends OptionsField
 	 * The form field type.
 	 *
 	 * @var    string
-	 * @since  1.7.0
 	 */
 	protected $type = 'FileList';
 
@@ -36,7 +33,6 @@ class FileOptionsField extends OptionsField
 	 * The filter.
 	 *
 	 * @var    string
-	 * @since  3.2
 	 */
 	protected $filter;
 
@@ -44,7 +40,6 @@ class FileOptionsField extends OptionsField
 	 * The exclude.
 	 *
 	 * @var    string
-	 * @since  3.2
 	 */
 	protected $exclude;
 
@@ -52,7 +47,6 @@ class FileOptionsField extends OptionsField
 	 * The hideNone.
 	 *
 	 * @var    bool
-	 * @since  3.2
 	 */
 	protected $hideNone = false;
 
@@ -60,7 +54,6 @@ class FileOptionsField extends OptionsField
 	 * The hideDefault.
 	 *
 	 * @var    bool
-	 * @since  3.2
 	 */
 	protected $hideDefault = false;
 
@@ -68,7 +61,6 @@ class FileOptionsField extends OptionsField
 	 * The stripExt.
 	 *
 	 * @var    bool
-	 * @since  3.2
 	 */
 	protected $stripExt = false;
 
@@ -76,7 +68,6 @@ class FileOptionsField extends OptionsField
 	 * The directory.
 	 *
 	 * @var    string
-	 * @since  3.2
 	 */
 	protected $directory;
 
@@ -86,8 +77,6 @@ class FileOptionsField extends OptionsField
 	 * @param   string  $name  The property name for which to get the value.
 	 *
 	 * @return  mixed  The property value or null.
-	 *
-	 * @since   3.2
 	 */
 	public function __get($name)
 	{
@@ -112,8 +101,6 @@ class FileOptionsField extends OptionsField
 	 * @param   mixed   $value  The value of the property.
 	 *
 	 * @return  void
-	 *
-	 * @since   3.2
 	 */
 	public function __set($name, $value)
 	{
@@ -148,7 +135,6 @@ class FileOptionsField extends OptionsField
 	 * @return  bool  True on success.
 	 *
 	 * @see     JFormField::setup()
-	 * @since   3.2
 	 */
 	public function setup(SimpleXMLElement $element, $value, $group = null)
 	{
@@ -182,8 +168,6 @@ class FileOptionsField extends OptionsField
 	 * Default attribute may optionally be set to null (no file) or -1 (use a default).
 	 *
 	 * @return  array  The field option objects.
-	 *
-	 * @since   1.7.0
 	 */
 	protected function getOptions()
 	{

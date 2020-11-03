@@ -146,8 +146,6 @@ abstract class BaseView extends TCPDF
 	 * @param   int  $top    the top margin.
 	 * @param   int  $right  the right margin (defaults to left value)
 	 *
-	 * @public
-	 * @since 1.0
 	 * @see   SetAutoPageBreak(), SetFooterMargin(), setHeaderMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
 	 */
 	protected function margins($left = 15, $top = 27, $right = -1, $bottom = 25, $header = 5, $footer = 10)
@@ -184,7 +182,8 @@ abstract class BaseView extends TCPDF
 		$fill = false,
 		$vAlign = self::CENTER,
 		$link = ''
-	) {
+	)
+	{
 		$this->Cell($width, $height, $text, $border, 0, $hAlign, $fill, $link, 0, false, self::TOP, $vAlign);
 	}
 
@@ -205,8 +204,6 @@ abstract class BaseView extends TCPDF
 	 * @param   int     $maxHeight  the maximum height, explicilty set to ensure correct line height in a multicell row
 	 *
 	 * @return int Return the number of cells or 1 for html mode.
-	 * @public
-	 * @since 1.3
 	 * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), SetLineWidth(), Cell(), Write(), SetAutoPageBreak()
 	 */
 	protected function renderMultiCell(
@@ -218,7 +215,8 @@ abstract class BaseView extends TCPDF
 		$fill = false,
 		$vAlign = self::CENTER,
 		$maxHeight = 0
-	) {
+	)
+	{
 		return $this->MultiCell(
 			$width,
 			$height,

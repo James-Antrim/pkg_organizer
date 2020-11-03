@@ -25,8 +25,6 @@ class Units extends ListView
 	 * Constructor
 	 *
 	 * @param   array  $config  A named configuration array for object construction.
-	 *
-	 * @since   3.0
 	 */
 	public function __construct($config = array())
 	{

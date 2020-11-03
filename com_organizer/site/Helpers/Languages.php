@@ -132,8 +132,6 @@ class Languages extends Text
 	 * @param   bool    $interpretBackSlashes  Interpret \t and \n.
 	 *
 	 * @return  string
-	 *
-	 * @since   11.1
 	 */
 	public static function script($string = null, $jsSafe = false, $interpretBackSlashes = true)
 	{
@@ -171,8 +169,6 @@ class Languages extends Text
 	 * @param   bool    $escape   If true will pass texts through htmlspecialchars.
 	 *
 	 * @return  string  The tooltip string
-	 *
-	 * @since   3.1.2
 	 */
 	public static function tooltip($title = '', $content = '', $escape = true)
 	{

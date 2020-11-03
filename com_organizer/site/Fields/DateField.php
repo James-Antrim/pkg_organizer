@@ -24,7 +24,6 @@ class DateField extends FormField
 	 * The form field type.
 	 *
 	 * @var    string
-	 * @since  1.7.0
 	 */
 	protected $type = 'Date';
 
@@ -32,8 +31,6 @@ class DateField extends FormField
 	 * Method to get the field input markup.
 	 *
 	 * @return  string  The field input markup.
-	 *
-	 * @since   1.7.0
 	 */
 	protected function getInput()
 	{
