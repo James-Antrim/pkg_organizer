@@ -137,7 +137,7 @@ class Room extends MergeModel
 	/**
 	 * Updates the resource dependent associations
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	protected function updateAssociations()
 	{

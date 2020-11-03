@@ -17,7 +17,7 @@ use Joomla\CMS\Factory;
  */
 class Units extends ResourceHelper
 {
-	CONST TEACHER = 1;
+	const TEACHER = 1;
 
 	/**
 	 * Retrieves the group/category contexts for a given unit/event tub
@@ -98,7 +98,7 @@ class Units extends ResourceHelper
 	 * @param   int  $unitID    the optional id of the unit
 	 * @param   int  $personID  the optional id of the person
 	 *
-	 * @return boolean true if the person is a unit teacher, otherwise false
+	 * @return bool true if the person is a unit teacher, otherwise false
 	 */
 	public static function teaches($unitID = 0, $personID = 0)
 	{

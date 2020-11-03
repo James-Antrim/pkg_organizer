@@ -51,7 +51,7 @@ class FileOptionsField extends OptionsField
 	/**
 	 * The hideNone.
 	 *
-	 * @var    boolean
+	 * @var    bool
 	 * @since  3.2
 	 */
 	protected $hideNone = false;
@@ -59,7 +59,7 @@ class FileOptionsField extends OptionsField
 	/**
 	 * The hideDefault.
 	 *
-	 * @var    boolean
+	 * @var    bool
 	 * @since  3.2
 	 */
 	protected $hideDefault = false;
@@ -67,7 +67,7 @@ class FileOptionsField extends OptionsField
 	/**
 	 * The stripExt.
 	 *
-	 * @var    boolean
+	 * @var    bool
 	 * @since  3.2
 	 */
 	protected $stripExt = false;
@@ -145,7 +145,7 @@ class FileOptionsField extends OptionsField
 	 * @param   string            $group    The field name group control value. This acts as an array container for the
 	 *                                      field.
 	 *
-	 * @return  boolean  True on success.
+	 * @return  bool  True on success.
 	 *
 	 * @see     JFormField::setup()
 	 * @since   3.2

@@ -140,7 +140,7 @@ abstract class InterimMergeModel extends BaseModel
 	/**
 	 * Updates organization resource associations
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	/*protected function updateDRAssociation()
 	{

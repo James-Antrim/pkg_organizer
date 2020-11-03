@@ -68,7 +68,7 @@ class Holidays extends BaseTable
 	/**
 	 * Checks the start date and end date
 	 *
-	 * @return boolean true on success, otherwise false
+	 * @return bool true on success, otherwise false
 	 */
 	public function check()
 	{

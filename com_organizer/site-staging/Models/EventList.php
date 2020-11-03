@@ -353,13 +353,13 @@ class EventList extends FormModel
 			$query->where("{$this->columnMap[$resource]} = {$value}");
 		}
 
-		if (!empty($this->params['myFinals']) && (boolean) $this->params['myFinals'])
+		if (!empty($this->params['myFinals']) && (bool) $this->params['myFinals'])
 		{
 			$this->params['mySchedule'] = 1;
 			$query->where("m.id = 5");
 		}
 
-		if (!empty($this->params['mySchedule']) && (boolean) $this->params['mySchedule'])
+		if (!empty($this->params['mySchedule']) && (bool) $this->params['mySchedule'])
 		{
 			$userID      = Helpers\Users::getID();
 			$personQuery = "";
@@ -483,7 +483,7 @@ class EventList extends FormModel
 	/**
 	 * Checks whether the accessing agent is a monitor
 	 *
-	 * @return mixed  int roomID on success, otherwise boolean false
+	 * @return mixed  int roomID on success, otherwise bool false
 	 */
 	private function isRegistered()
 	{
@@ -690,10 +690,10 @@ class EventList extends FormModel
 	/**
 	 * Abstract method for getting the form from the model.
 	 *
-	 * @param   array    $data      Data for the form.
-	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
+	 * @param   array  $data      Data for the form.
+	 * @param   bool   $loadData  True if the form is to load its own data (default case), false if not.
 	 *
-	 * @return  Form|boolean  A Form object on success, false on failure
+	 * @return  Form|bool  A Form object on success, false on failure
 	 */
 	public function getForm($data = array(), $loadData = true)
 	{

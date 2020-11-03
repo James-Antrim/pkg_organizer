@@ -27,7 +27,7 @@ class Events extends ResourceHelper
 	 * @param   int  $eventID   the optional id of the subject
 	 * @param   int  $personID  the optional id of the person entry
 	 *
-	 * @return boolean true if the user is a coordinator, otherwise false
+	 * @return bool true if the user is a coordinator, otherwise false
 	 */
 	public static function coordinates($eventID = 0, $personID = 0)
 	{
@@ -124,7 +124,7 @@ class Events extends ResourceHelper
 	 * @param   int  $eventID   the optional id of the subject
 	 * @param   int  $personID  the optional id of the person entry
 	 *
-	 * @return boolean true if the user is a teacher, otherwise false
+	 * @return bool true if the user is a teacher, otherwise false
 	 */
 	public static function teaches($eventID = 0, $personID = 0)
 	{

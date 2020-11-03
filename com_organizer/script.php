@@ -20,7 +20,7 @@ class Com_OrganizerInstallerScript
 	/**
 	 * Creates the directory for images used by the component
 	 *
-	 * @return boolean true if the directory exists, otherwise false
+	 * @return bool true if the directory exists, otherwise false
 	 */
 	private function createImageDirectory()
 	{

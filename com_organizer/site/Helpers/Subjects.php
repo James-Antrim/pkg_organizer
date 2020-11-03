@@ -26,7 +26,7 @@ class Subjects extends Curricula
 	 * @param   int  $subjectID  the optional id of the subject
 	 * @param   int  $personID   the optional id of the person entry
 	 *
-	 * @return boolean true if the user is a coordinator, otherwise false
+	 * @return bool true if the user is a coordinator, otherwise false
 	 */
 	public static function coordinates($subjectID = 0, $personID = 0)
 	{
@@ -74,8 +74,8 @@ class Subjects extends Curricula
 	/**
 	 * Retrieves the subject name
 	 *
-	 * @param   int      $subjectID  the table id for the subject
-	 * @param   boolean  $withNumber
+	 * @param   int   $subjectID  the table id for the subject
+	 * @param   bool  $withNumber
 	 *
 	 * @return string the subject name
 	 */
@@ -378,7 +378,7 @@ class Subjects extends Curricula
 	 * @param   array  $poolBoundaries     the pool's left and right values
 	 * @param   array  $programBoundaries  the program's left and right values
 	 *
-	 * @return boolean  true if the pool is subordinate to the program,
+	 * @return bool  true if the pool is subordinate to the program,
 	 *                   otherwise false
 	 */
 	public static function poolInProgram($poolBoundaries, $programBoundaries)
@@ -402,7 +402,7 @@ class Subjects extends Curricula
 	 * @param   int  $subjectID  the optional id of the subject
 	 * @param   int  $personID   the optional id of the person entry
 	 *
-	 * @return boolean true if the user a teacher for the subject, otherwise false
+	 * @return bool true if the user a teacher for the subject, otherwise false
 	 */
 	public static function teaches($subjectID = 0, $personID = 0)
 	{

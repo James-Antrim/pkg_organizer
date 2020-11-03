@@ -150,7 +150,7 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * Attempts to delete the selected resources and their associations
 	 *
-	 * @return boolean  True if successful, false if an error occurs.
+	 * @return bool  True if successful, false if an error occurs.
 	 */
 	public function delete()
 	{
@@ -213,7 +213,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @param   int  $resourceID  the id of the resource
 	 *
-	 * @return boolean true on success, otherwise false
+	 * @return bool true on success, otherwise false
 	 */
 	protected function deleteRanges($resourceID)
 	{
@@ -238,7 +238,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @param   int  $resourceID  the resource id
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	protected function deleteSingle($resourceID)
 	{
@@ -418,7 +418,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @param   int  $resourceID  the id of the program to be imported
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	abstract public function importSingle($resourceID);
 
@@ -519,7 +519,7 @@ abstract class CurriculumResource extends BaseModel
 	 * @param   int  $parentID  the id of the parent
 	 * @param   int  $ordering  the ordering of the item to be inserted
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	protected function shiftDown($parentID, $ordering)
 	{
@@ -591,7 +591,7 @@ abstract class CurriculumResource extends BaseModel
 	 * @param   int  $parentID  the id of the parent
 	 * @param   int  $ordering  the ordering of the item to be inserted
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	protected function shiftUp($parentID, $ordering)
 	{

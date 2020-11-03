@@ -63,7 +63,7 @@ class Instance extends BaseModel
 	 *
 	 * @param   array  $data  the data to be used to create the instance
 	 *
-	 * @return Boolean
+	 * @return bool
 	 */
 	public function save($data = [])
 	{
@@ -87,7 +87,7 @@ class Instance extends BaseModel
 	 *
 	 * checkAssocID to check the existing assocID or create a new one
 	 *
-	 * @return Boolean
+	 * @return bool
 	 */
 	private function saveResourceData($data)
 	{

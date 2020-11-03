@@ -269,7 +269,7 @@ class OrganizerHelper
 	 * TODO: Including this (someday) to the Joomla Core!
 	 * Checks if the device is a smartphone, based on the 'Mobile Detect' library
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function isSmartphone()
 	{

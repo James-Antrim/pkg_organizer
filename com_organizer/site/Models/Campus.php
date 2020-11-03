@@ -52,7 +52,7 @@ class Campus extends BaseModel
 	 *
 	 * @param   array  $data  the data from the form
 	 *
-	 * @return mixed int id of the resource on success, otherwise boolean false
+	 * @return mixed int id of the resource on success, otherwise bool false
 	 */
 	public function save($data = [])
 	{

@@ -103,7 +103,7 @@ abstract class BaseView extends HtmlView
 	 * Method to add a model to the view.
 	 *
 	 * @param   BaseDatabaseModel  $model    The model to add to the view.
-	 * @param   boolean            $default  Is this the default model?
+	 * @param   bool               $default  Is this the default model?
 	 *
 	 * @return  BaseDatabaseModel  The added model.
 	 */

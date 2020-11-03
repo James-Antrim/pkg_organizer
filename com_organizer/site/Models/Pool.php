@@ -30,7 +30,7 @@ class Pool extends CurriculumResource
 	 *
 	 * @param   int  $resourceID  the id of the program to be imported
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	public function importSingle($resourceID)
 	{
@@ -118,7 +118,7 @@ class Pool extends CurriculumResource
 	 *
 	 * @param   array  $data  form data
 	 *
-	 * @return mixed int id of the resource on success, otherwise boolean false
+	 * @return mixed int id of the resource on success, otherwise bool false
 	 */
 	public function save($data = [])
 	{

@@ -60,7 +60,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	/**
 	 * Removes entries from the database.
 	 *
-	 * @return boolean true on success, otherwise false
+	 * @return bool true on success, otherwise false
 	 */
 	public function delete()
 	{
@@ -98,7 +98,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 *
 	 * @param   array  $data  the data from the form
 	 *
-	 * @return int|bool int id of the resource on success, otherwise boolean false
+	 * @return int|bool int id of the resource on success, otherwise bool false
 	 */
 	public function save($data = [])
 	{
@@ -125,7 +125,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 *
 	 * @param   array  $data  the data to be used to create the program when called from the program helper
 	 *
-	 * @return int|bool the id of the resource on success, otherwise boolean false
+	 * @return int|bool the id of the resource on success, otherwise bool false
 	 */
 	public function save2copy($data = [])
 	{

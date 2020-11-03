@@ -190,7 +190,7 @@ class Organizations extends BaseTable
 	/**
 	 * Set the table column names which are allowed to be null
 	 *
-	 * @return boolean  true
+	 * @return bool  true
 	 */
 	public function check()
 	{
@@ -233,9 +233,9 @@ class Organizations extends BaseTable
 	 * Method to store a row in the database from the Table instance properties. Completely overwrites the method in
 	 * Table because they use the subclass specific update nulls setting for assets which is just stupid.
 	 *
-	 * @param   boolean  $updateNulls  True to update fields even if they are null.
+	 * @param   bool  $updateNulls  True to update fields even if they are null.
 	 *
-	 * @return boolean  True on success.
+	 * @return bool  True on success.
 	 */
 	public function store($updateNulls = true)
 	{

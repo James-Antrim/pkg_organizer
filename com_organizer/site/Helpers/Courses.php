@@ -27,7 +27,7 @@ class Courses extends ResourceHelper
 	 * @param   int  $courseID  the optional id of the course
 	 * @param   int  $personID  the optional id of the person entry
 	 *
-	 * @return boolean true if the user is a coordinator, otherwise false
+	 * @return bool true if the user is a coordinator, otherwise false
 	 */
 	public static function coordinates($courseID = 0, $personID = 0)
 	{
@@ -350,7 +350,7 @@ class Courses extends ResourceHelper
 	 * @param   int  $personID  the optional id of the person
 	 * @param   int  $roleID    the optional if of the person's role
 	 *
-	 * @return boolean true if the user has a course responsibility, otherwise false
+	 * @return bool true if the user has a course responsibility, otherwise false
 	 */
 	public static function hasResponsibility($courseID = 0, $personID = 0, $roleID = 0)
 	{
@@ -462,7 +462,7 @@ class Courses extends ResourceHelper
 	 * @param   int  $courseID  the optional id of the course
 	 * @param   int  $personID  the optional id of the person
 	 *
-	 * @return boolean true if the user is a speaker, otherwise false
+	 * @return bool true if the user is a speaker, otherwise false
 	 */
 	public static function speaks($courseID = 0, $personID = 0)
 	{
@@ -475,7 +475,7 @@ class Courses extends ResourceHelper
 	 * @param   int  $courseID  the optional id of the course
 	 * @param   int  $personID  the optional id of the person
 	 *
-	 * @return boolean true if the user is a supervisor, otherwise false
+	 * @return bool true if the user is a supervisor, otherwise false
 	 */
 	public static function supervises($courseID = 0, $personID = 0)
 	{
@@ -488,7 +488,7 @@ class Courses extends ResourceHelper
 	 * @param   int  $courseID  the optional id of the course
 	 * @param   int  $personID  the optional id of the person
 	 *
-	 * @return boolean true if the user is a course teacher, otherwise false
+	 * @return bool true if the user is a course teacher, otherwise false
 	 */
 	public static function teaches($courseID = 0, $personID = 0)
 	{
@@ -501,7 +501,7 @@ class Courses extends ResourceHelper
 	 * @param   int  $courseID  the optional id of the course
 	 * @param   int  $personID  the optional id of the person
 	 *
-	 * @return boolean true if the user is a tutor, otherwise false
+	 * @return bool true if the user is a tutor, otherwise false
 	 */
 	public static function tutors($courseID = 0, $personID = 0)
 	{

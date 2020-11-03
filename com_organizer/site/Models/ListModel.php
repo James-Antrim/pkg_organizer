@@ -127,13 +127,13 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Method to get a form object.
 	 *
-	 * @param   string          $name     The name of the form.
-	 * @param   string          $source   The form source. Can be XML string if file flag is set to false.
-	 * @param   array           $options  Optional array of options for the form creation.
-	 * @param   boolean         $clear    Optional argument to force load a new form.
-	 * @param   string|boolean  $xpath    An optional xpath to search for the fields.
+	 * @param   string       $name     The name of the form.
+	 * @param   string       $source   The form source. Can be XML string if file flag is set to false.
+	 * @param   array        $options  Optional array of options for the form creation.
+	 * @param   bool         $clear    Optional argument to force load a new form.
+	 * @param   string|bool  $xpath    An optional xpath to search for the fields.
 	 *
-	 * @return  Form|boolean  Form object on success, False on error.
+	 * @return  Form|bool  Form object on success, False on error.
 	 */
 	protected function loadForm($name, $source = null, $options = array(), $clear = false, $xpath = false)
 	{

@@ -21,7 +21,7 @@ abstract class MergeModel extends BaseModel
 	/**
 	 * Merges resource entries and cleans association tables.
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	public function merge()
 	{
@@ -74,7 +74,7 @@ abstract class MergeModel extends BaseModel
 	/**
 	 * Updates the resource dependent associations
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	abstract protected function updateAssociations();
 
@@ -83,7 +83,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @param   string  $tableSuffix  the unique part of the table name
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	protected function updateAssocAssociations()
 	{
@@ -104,16 +104,16 @@ abstract class MergeModel extends BaseModel
 		}
 
 		$initialSize = count($results);
-		$mergeID = $this->selected[0];
-		$nextIndex = 0;
-		$tableClass = "Organizer\\Tables\\Instance" . ucfirst($this->name) . 's';
+		$mergeID     = $this->selected[0];
+		$nextIndex   = 0;
+		$tableClass  = "Organizer\\Tables\\Instance" . ucfirst($this->name) . 's';
 
 		for ($index = 0; $index < $initialSize;)
 		{
 			$assocTable = new $tableClass();
-			$thisAssoc = $results[$index];
-			$nextIndex = $nextIndex ? $nextIndex: $index + 1;
-			$nextAssoc = empty($results[$nextIndex]) ? [] : $results[$nextIndex];
+			$thisAssoc  = $results[$index];
+			$nextIndex  = $nextIndex ? $nextIndex : $index + 1;
+			$nextAssoc  = empty($results[$nextIndex]) ? [] : $results[$nextIndex];
 
 			// Only of its kind
 			if (empty($nextAssoc) or $thisAssoc['assocID'] !== $nextAssoc['assocID'])
@@ -174,8 +174,7 @@ abstract class MergeModel extends BaseModel
 					$nextIndex++;
 					continue 2;
 				}
-			}
-			while (true);
+			} while (true);
 		}
 
 		return true;
@@ -186,7 +185,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @param   string  $tableSuffix  the unique part of the table name
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	protected function updateDirectAssociation($tableSuffix)
 	{

@@ -52,7 +52,7 @@ class Event extends BaseModel
 	 *
 	 * @param   array  $data  the data from the form
 	 *
-	 * @return int|bool int id of the resource on success, otherwise boolean false
+	 * @return int|bool int id of the resource on success, otherwise bool false
 	 */
 	public function save($data = [])
 	{
@@ -93,7 +93,7 @@ class Event extends BaseModel
 	/**
 	 * Updates the resource dependent associations
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	protected function updateAssociations()
 	{

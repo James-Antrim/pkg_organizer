@@ -174,7 +174,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @param   int  $subjectID  the id of the subject entry
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	public function importSingle($subjectID)
 	{
@@ -455,7 +455,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @param   int  $subjectID  the subject id
 	 *
-	 * @return boolean true on success, otherwise false
+	 * @return bool true on success, otherwise false
 	 */
 	private function removeDependencies($subjectID)
 	{
@@ -473,7 +473,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @param   int  $subjectID  the subject id
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	/*private function removeEvents($subjectID)
 	{
@@ -491,7 +491,7 @@ class Subject extends CurriculumResource
 	 * @param   int  $subjectID  the subject id
 	 * @param   int  $role       the person role
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	private function removePersons($subjectID, $role = null)
 	{
@@ -513,7 +513,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @param   int  $subjectID  the subject id
 	 *
-	 * @return boolean true on success, otherwise false
+	 * @return bool true on success, otherwise false
 	 */
 	private function removePreRequisites($subjectID)
 	{
@@ -537,7 +537,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @param   int  $subjectID  the subject id
 	 *
-	 * @return boolean true on success, otherwise false
+	 * @return bool true on success, otherwise false
 	 */
 	private function removePostRequisites($subjectID)
 	{
@@ -659,7 +659,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @param   array  $data  the data from the form
 	 *
-	 * @return mixed int id of the resource on success, otherwise boolean false
+	 * @return mixed int id of the resource on success, otherwise bool false
 	 */
 	public function save($data = [])
 	{
@@ -846,7 +846,7 @@ class Subject extends CurriculumResource
 	 * @param   array  $persons    an array containing information about the subject's persons
 	 * @param   int    $role       the person's role
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	private function setPersonsByRoles($subjectID, $persons, $role)
 	{

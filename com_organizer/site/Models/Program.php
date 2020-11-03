@@ -128,7 +128,7 @@ class Program extends CurriculumResource
 	 *
 	 * @param   int  $programID  the id of the program to be imported
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	public function importSingle($programID)
 	{
@@ -176,7 +176,7 @@ class Program extends CurriculumResource
 	 *
 	 * @param   array  $data  form data
 	 *
-	 * @return int|bool the id of the resource on success, otherwise boolean false
+	 * @return int|bool the id of the resource on success, otherwise bool false
 	 */
 	public function save($data = [])
 	{

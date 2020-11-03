@@ -96,7 +96,7 @@ class Person extends MergeModel implements ScheduleResource
 	/**
 	 * Updates key references to the entry being merged.
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	protected function updateAssociations()
 	{

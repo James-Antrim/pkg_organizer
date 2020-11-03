@@ -232,7 +232,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * @param   SimpleXMLElement  $node     the node being validated
 	 * @param   string            $untisID  the untis id of the unit being iterated
 	 *
-	 * @return bool  true on success, otherwise boolean false
+	 * @return bool  true on success, otherwise bool false
 	 */
 	private static function validateEvent(Schedule $model, SimpleXMLElement $node, string $untisID)
 	{
@@ -413,7 +413,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * @param   Schedule  $model    the model for the schedule being validated
 	 * @param   string    $untisID  the untis id of the unit being iterated
 	 *
-	 * @return boolean  true if dates are valid, otherwise false
+	 * @return bool  true if dates are valid, otherwise false
 	 */
 	private static function validateDates(Schedule $model, string $untisID)
 	{
@@ -483,7 +483,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * @param   SimpleXMLElement  $node     the node being validated
 	 * @param   string            $untisID  the untis id of the unit being iterated
 	 *
-	 * @return boolean  true if valid, otherwise false
+	 * @return bool  true if valid, otherwise false
 	 */
 	private static function validateGroups(Schedule $model, SimpleXMLElement $node, string $untisID)
 	{
@@ -535,7 +535,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 * @param   SimpleXMLElement  $node     the node being validated
 	 * @param   string            $untisID  the untis id of the unit being iterated
 	 *
-	 * @return boolean  true if valid, otherwise false
+	 * @return bool  true if valid, otherwise false
 	 */
 	private static function validatePerson(Schedule $model, SimpleXMLElement $node, string $untisID)
 	{

@@ -27,7 +27,7 @@ class THM_OrganizerModelPlan_Program extends THM_OrganizerModelMerge
 	/**
 	 * Provides resource specific user access checks
 	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
+	 * @return bool  true if the user may edit the given resource, otherwise false
 	 */
 	protected function allowEdit()
 	{
@@ -61,7 +61,7 @@ class THM_OrganizerModelPlan_Program extends THM_OrganizerModelMerge
 	/**
 	 * Updates key references to the entry being merged.
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	protected function updateAssociations()
 	{

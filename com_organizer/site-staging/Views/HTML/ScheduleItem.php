@@ -58,7 +58,7 @@ class ScheduleItem extends BaseHTMLView
 	/**
 	 * mobile device or not
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $isMobile = false;
 

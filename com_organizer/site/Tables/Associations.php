@@ -74,7 +74,7 @@ class Associations extends BaseTable
 	/**
 	 * Set the table column names which are allowed to be null
 	 *
-	 * @return boolean  true
+	 * @return bool  true
 	 */
 	public function check()
 	{

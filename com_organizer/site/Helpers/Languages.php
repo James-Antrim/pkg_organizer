@@ -24,10 +24,10 @@ class Languages extends Text
 	 *
 	 * The function checks if $jsSafe is true, then if $interpretBackslashes is true.
 	 *
-	 * @param   string   $string                The string to translate
-	 * @param   boolean  $jsSafe                Make the result javascript safe
-	 * @param   boolean  $interpretBackSlashes  Interpret \t and \n
-	 * @param   boolean  $script                To indicate that the string will be push in the javascript language store
+	 * @param   string  $string                The string to translate
+	 * @param   bool    $jsSafe                Make the result javascript safe
+	 * @param   bool    $interpretBackSlashes  Interpret \t and \n
+	 * @param   bool    $script                To indicate that the string will be push in the javascript language store
 	 *
 	 * @return  string  The translated string or the key if $script is true
 	 */
@@ -37,15 +37,15 @@ class Languages extends Text
 		{
 			if (array_key_exists('interpretBackSlashes', $jsSafe))
 			{
-				$interpretBackSlashes = (boolean) $jsSafe['interpretBackSlashes'];
+				$interpretBackSlashes = (bool) $jsSafe['interpretBackSlashes'];
 			}
 
 			if (array_key_exists('script', $jsSafe))
 			{
-				$script = (boolean) $jsSafe['script'];
+				$script = (bool) $jsSafe['script'];
 			}
 
-			$jsSafe = array_key_exists('jsSafe', $jsSafe) ? (boolean) $jsSafe['jsSafe'] : false;
+			$jsSafe = array_key_exists('jsSafe', $jsSafe) ? (bool) $jsSafe['jsSafe'] : false;
 		}
 
 		$language = self::getLanguage();
@@ -127,9 +127,9 @@ class Languages extends Text
 	/**
 	 * Translate a string into the current language and stores it in the JavaScript language store.
 	 *
-	 * @param   string   $string                The Text key.
-	 * @param   boolean  $jsSafe                Ensure the output is JavaScript safe.
-	 * @param   boolean  $interpretBackSlashes  Interpret \t and \n.
+	 * @param   string  $string                The Text key.
+	 * @param   bool    $jsSafe                Ensure the output is JavaScript safe.
+	 * @param   bool    $interpretBackSlashes  Interpret \t and \n.
 	 *
 	 * @return  string
 	 *
@@ -166,9 +166,9 @@ class Languages extends Text
 	/**
 	 * Converts a double colon separated string or 2 separate strings to a string ready for bootstrap tooltips
 	 *
-	 * @param   string   $title    The title of the tooltip (or combined '::' separated string).
-	 * @param   string   $content  The content to tooltip.
-	 * @param   boolean  $escape   If true will pass texts through htmlspecialchars.
+	 * @param   string  $title    The title of the tooltip (or combined '::' separated string).
+	 * @param   string  $content  The content to tooltip.
+	 * @param   bool    $escape   If true will pass texts through htmlspecialchars.
 	 *
 	 * @return  string  The tooltip string
 	 *

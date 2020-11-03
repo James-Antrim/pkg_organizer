@@ -26,7 +26,7 @@ class Schedule extends BaseModel
 	/**
 	 * Deletes the selected schedules
 	 *
-	 * @return boolean true on successful deletion of all selected schedules, otherwise false
+	 * @return bool true on successful deletion of all selected schedules, otherwise false
 	 */
 	public function delete()
 	{
@@ -594,7 +594,7 @@ class Schedule extends BaseModel
 	/**
 	 * Saves a schedule in the database for later use
 	 *
-	 * @return  boolean true on success, otherwise false
+	 * @return  bool true on success, otherwise false
 	 */
 	public function upload()
 	{

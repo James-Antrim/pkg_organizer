@@ -52,7 +52,7 @@ class Monitor extends BaseModel
 	 *
 	 * @param   array  $data  the data from the form
 	 *
-	 * @return mixed int id of the resource on success, otherwise boolean false
+	 * @return mixed int id of the resource on success, otherwise bool false
 	 */
 	public function save($data = [])
 	{
@@ -73,7 +73,7 @@ class Monitor extends BaseModel
 	/**
 	 * Saves the default behaviour as chosen in the monitor manager
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	public function saveDefaultBehaviour()
 	{
@@ -97,7 +97,7 @@ class Monitor extends BaseModel
 	/**
 	 * Toggles the monitor's use of default settings
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
 	public function toggle()
 	{

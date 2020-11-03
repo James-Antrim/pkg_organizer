@@ -42,11 +42,11 @@ abstract class BaseTable extends Table
 	/**
 	 * Wraps the parent load function in a try catch clause to avoid redundant handling in other classes.
 	 *
-	 * @param   mixed    $keys   An optional primary key value to load the row by, or an array of fields to match.
+	 * @param   mixed  $keys     An optional primary key value to load the row by, or an array of fields to match.
 	 *                           If not set the instance property value is used.
-	 * @param   boolean  $reset  True to reset the default values before loading the new row.
+	 * @param   bool   $reset    True to reset the default values before loading the new row.
 	 *
-	 * @return  boolean  True if successful, otherwise false
+	 * @return  bool  True if successful, otherwise false
 	 */
 	public function load($keys = null, $reset = true)
 	{

@@ -109,8 +109,8 @@ class Controller extends BaseController
 	/**
 	 * Typical view method for MVC based architecture.
 	 *
-	 * @param   boolean  $cachable   If true, the view output will be cached
-	 * @param   array    $urlparams  An array of safe URL parameters and their variable types.
+	 * @param   bool   $cachable   If true, the view output will be cached
+	 * @param   array  $urlparams  An array of safe URL parameters and their variable types.
 	 *
 	 * @return BaseController  A BaseController object to support chaining.
 	 * @throws Exception
