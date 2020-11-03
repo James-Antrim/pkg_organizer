@@ -92,7 +92,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @param   string  $idColumn  the main id column of the list query
 	 *
-	 * @return integer  The total number of items available in the data set.
+	 * @return int  The total number of items available in the data set.
 	 */
 	public function getTotal($idColumn = null)
 	{

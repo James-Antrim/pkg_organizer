@@ -13,7 +13,7 @@ namespace Organizer\Fields;
 use Organizer\Helpers;
 
 /**
- * Provides a select list of integers with specified first, last and step values.
+ * Provides a select list of int with specified first, last and step values.
  */
 class IntegerField extends OptionsField
 {

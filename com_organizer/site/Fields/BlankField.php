@@ -30,7 +30,7 @@ class BlankField extends FormField
 	/**
 	 * The allowable maxlength of the field.
 	 *
-	 * @var    integer
+	 * @var    int
 	 */
 	protected $maxLength;
 

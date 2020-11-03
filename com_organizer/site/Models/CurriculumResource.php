@@ -536,7 +536,7 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * Shifts left and right values to allow for the values to be inserted
 	 *
-	 * @param   int  $left   the integer value above which left and right values need to be shifted
+	 * @param   int  $left   the int value above which left and right values need to be shifted
 	 * @param   int  $width  the width of the item being deleted
 	 *
 	 * @return bool  true on success, otherwise false
@@ -562,7 +562,7 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * Shifts left and right values to allow for the values to be inserted
 	 *
-	 * @param   int  $left   the integer value above which left and right values
+	 * @param   int  $left   the int value above which left and right values
 	 *                       need to be shifted
 	 *
 	 * @return bool  true on success, otherwise false

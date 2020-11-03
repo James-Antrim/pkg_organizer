@@ -21,11 +21,11 @@ class UnitEdit extends EditModel
 	/**
 	 * Method to get a single record.
 	 *
-	 * @param   integer  $pk  The id of the primary key
+	 * @param   int  $pk  The id of the primary key
 	 *
 	 * @return mixed Object on success, false on failure
 	 */
-	public function getItem($pk = null)
+	public function getItem($pk = 0)
 	{
 		$this->item          = parent::getItem($pk);
 		$this->item->eventID = Helpers\Units::getEventIDs($this->item->id);

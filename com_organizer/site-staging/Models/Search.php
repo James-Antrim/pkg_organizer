@@ -1087,7 +1087,7 @@ class Search extends BaseModel
 				$asNumber = true;
 			}
 
-			// Direct comparison delivers false positives because of how like evaluates integers. Space necessary.
+			// Direct comparison delivers false positives because of how like evaluates int. Space necessary.
 			if ($asNumber)
 			{
 				$courseQuery->where("co.name LIKE '% $term'");
@@ -1135,7 +1135,7 @@ class Search extends BaseModel
 				$asNumber = true;
 			}
 
-			// Direct comparison delivers false positives because of how like evaluates integers. Space necessary.
+			// Direct comparison delivers false positives because of how like evaluates int. Space necessary.
 			if ($asNumber)
 			{
 				$sClause     = "s.name_de LIKE '% $term' OR s.name_en LIKE '% $term' OR ";

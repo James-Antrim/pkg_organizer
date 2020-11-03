@@ -110,7 +110,7 @@ class THM_OrganizerModelPlan_Pool extends THM_OrganizerModelMerge
 	/**
 	 * Attempts to save a resource entry, updating schedule data as necessary.
 	 *
-	 * @return mixed  integer on success, otherwise false
+	 * @return mixed  int on success, otherwise false
 	 * @throws Exception => unauthorized access
 	 */
 	public function save()

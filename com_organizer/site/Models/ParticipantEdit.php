@@ -37,11 +37,11 @@ class ParticipantEdit extends EditModel
 	/**
 	 * Method to get a single record.
 	 *
-	 * @param   integer  $participantID  The id of the primary key.
+	 * @param   int  $participantID  The id of the primary key.
 	 *
 	 * @return mixed    Object on success, false on failure.
 	 */
-	public function getItem($participantID = null)
+	public function getItem($participantID = 0)
 	{
 		$this->participantID = $participantID ? $participantID : Helpers\Input::getSelectedID(Helpers\Users::getID());
 

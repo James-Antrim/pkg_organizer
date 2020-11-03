@@ -39,7 +39,7 @@ class Users
 	 *
 	 * Returns the global {@link User} object, only creating it if it doesn't already exist.
 	 *
-	 * @param   integer  $userID  The user to load - Can be an integer or string - If string, it is converted to ID automatically.
+	 * @param   int  $userID  The user to load - Can be an int or string - If string, it is converted to ID automatically.
 	 *
 	 * @return  User a user object specifically requested ids return a dynamic user, otherwise the current user
 	 */
