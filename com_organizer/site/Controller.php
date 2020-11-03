@@ -336,7 +336,7 @@ class Controller extends BaseController
 		if (count($selectedIDs) == 1)
 		{
 			$msg = Helpers\Languages::_('ORGANIZER_TOO_FEW');
-			$this->setRedirect(Route::_($url, false), $msg, 'warning');
+			$this->setRedirect(Route::_($url, false), $msg, 'notice');
 
 			return;
 		}
