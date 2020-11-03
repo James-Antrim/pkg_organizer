@@ -33,6 +33,8 @@ class InstanceParticipant extends BaseModel
 			return [];
 		}
 
+		$participant = new Participant();
+		$participant->supplement($participantID);
 
 		$instanceIDs = $this->getMatchingInstances();
 
