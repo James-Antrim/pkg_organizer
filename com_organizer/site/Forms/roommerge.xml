@@ -8,8 +8,7 @@
         <field name="roomtypeID" type="MergeAssociations" label="ROOMTYPE" textcolumn="name" localized="true"
                from="rooms AS rm" innerJoins="roomtypes AS rt ON rt.id = rm.roomtypeID" required="true"/>
         <field name="capacity" type="MergeValues" label="CAPACITY"/>
-        <field name="active" type="Options" label="ACTIVE" required="true">
-            <option value="">SELECT_VALUE</option>
+        <field name="active" type="Options" label="ACTIVE" default="1">
             <option value="1">YES</option>
             <option value="0">NO</option>
         </field>

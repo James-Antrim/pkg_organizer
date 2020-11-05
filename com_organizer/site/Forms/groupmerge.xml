@@ -11,6 +11,14 @@
         <field name="publishing" type="TermPublishing" label="PUBLISHING"/>
         <field name="gridID" type="MergeAssociations" label="GRID" textcolumn="gd.name" localized="true"
                from="groups AS gp" innerJoins="grids AS gd ON gd.id = gp.gridID"/>
+        <field name="active" type="Options" label="ACTIVE" default="1">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
+        <field name="suppress" type="Options" label="SUPPRESS" default="0">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
         <field name="ids" type="MergeIDs" hidden="true"/>
     </fieldset>
 </form>
