@@ -51,7 +51,7 @@ class Rooms extends ListView
 			false
 		);
 
-		/*if (Helpers\Can::administrate())
+		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
 				'Standard',
@@ -60,7 +60,7 @@ class Rooms extends ListView
 				'rooms.mergeView',
 				true
 			);
-		}*/
+		}
 	}
 
 	/**

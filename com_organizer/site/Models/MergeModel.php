@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -22,6 +23,7 @@ abstract class MergeModel extends BaseModel
 	 * Merges resource entries and cleans association tables.
 	 *
 	 * @return bool  true on success, otherwise false
+	 * @throws Exception
 	 */
 	public function merge()
 	{
@@ -44,22 +46,21 @@ abstract class MergeModel extends BaseModel
 			return false;
 		}
 
-		die;
 		$data          = empty($this->data) ? Helpers\Input::getFormItems()->toArray() : $this->data;
 		$deprecatedIDs = $this->selected;
 		$data['id']    = array_shift($deprecatedIDs);
 		$table         = $this->getTable();
 
-		// Remove deprecated entries
-		foreach ($deprecatedIDs as $deprecated)
+		// Remove deprecated resources. This has to be performed first to avoid any potential conflicts over unique keys.
+		foreach ($deprecatedIDs as $deprecatedID)
 		{
-			if (!$table->delete($deprecated))
+			if (!$table->delete($deprecatedID))
 			{
 				return false;
 			}
 		}
 
-		// Save the merged values of the current entry
+		// Save the merged data.
 		if (!$table->save($data))
 		{
 			return false;
@@ -79,13 +80,11 @@ abstract class MergeModel extends BaseModel
 	abstract protected function updateAssociations();
 
 	/**
-	 * Updates an association where the associated resource itself has a fk reference to the resource being merged.
-	 *
-	 * @param   string  $tableSuffix  the unique part of the table name
+	 * Updates an instance person association with persons or rooms.
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function updateAssocAssociations()
+	protected function updateIPAssociations()
 	{
 		$fkColumn    = strtolower($this->name) . 'ID';
 		$tableSuffix = strtolower($this->name) . 's';
@@ -115,29 +114,26 @@ abstract class MergeModel extends BaseModel
 			$nextIndex  = $nextIndex ? $nextIndex : $index + 1;
 			$nextAssoc  = empty($results[$nextIndex]) ? [] : $results[$nextIndex];
 
-			// Only of its kind
+			// Unique IP association.
 			if (empty($nextAssoc) or $thisAssoc['assocID'] !== $nextAssoc['assocID'])
 			{
+				// A result cannot be loaded. Should not occur.
 				if (!$assocTable->load($thisAssoc['id']))
 				{
 					return false;
 				}
 
 				$assocTable->$fkColumn = $mergeID;
-
-				if (!$assocTable->store())
-				{
-					return false;
-				}
+				$assocTable->store();
 
 				$index++;
 				$nextIndex++;
 				continue;
 			}
 
-			// Same instance person referenced from here on.
+			// Non-unique IP associations.
 
-			// A later assoc has been added or this one was removed.
+			// A later assoc has been added or this one was removed => this one is redundant.
 			if ($thisAssoc['delta'] === 'removed' or $nextAssoc['delta'] !== 'removed')
 			{
 				$assocTable->delete($thisAssoc['id']);
@@ -155,7 +151,7 @@ abstract class MergeModel extends BaseModel
 				$nextIndex++;
 				$nextAssoc = $results[$nextIndex];
 
-				// Last of its kind
+				// Last result associated with the current IP association.
 				if ($thisAssoc['assocID'] !== $nextAssoc['assocID'])
 				{
 					$assocTable->load($thisAssoc['id']);
@@ -166,7 +162,7 @@ abstract class MergeModel extends BaseModel
 					continue 2;
 				}
 
-				// A later assoc has been added.
+				// An IP association added later is still current.
 				if ($nextAssoc['delta'] !== 'removed')
 				{
 					$assocTable->delete($thisAssoc['id']);
@@ -203,15 +199,6 @@ abstract class MergeModel extends BaseModel
 	}
 
 	/**
-	 * Updates resource associations in an old format schedule.
-	 *
-	 * @param   int  $scheduleID  the id of the schedule being iterated
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	abstract protected function updateOldSchedule(int $scheduleID);
-
-	/**
 	 * Updates resource associations in a schedule.
 	 *
 	 * @param   int  $scheduleID  the id of the schedule being iterated
@@ -239,7 +226,6 @@ abstract class MergeModel extends BaseModel
 
 		foreach ($scheduleIDs as $scheduleID)
 		{
-			$this->updateOldSchedule($scheduleID);
 			$this->updateSchedule($scheduleID);
 		}
 

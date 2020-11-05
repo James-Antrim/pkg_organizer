@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -68,6 +69,7 @@ class Group extends MergeModel implements ScheduleResource
 	 * Merges group entries and cleans association tables.
 	 *
 	 * @return bool  true on success, otherwise false
+	 * @throws Exception
 	 */
 	public function merge()
 	{

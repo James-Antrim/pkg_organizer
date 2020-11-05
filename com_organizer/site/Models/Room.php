@@ -17,7 +17,7 @@ use Organizer\Tables;
 /**
  * Class which manages stored room data.
  */
-class Room extends BaseModel
+class Room extends MergeModel
 {
 	/**
 	 * Activates rooms by id if a selection was made, otherwise by use in the instance_rooms table.
@@ -131,6 +131,33 @@ class Room extends BaseModel
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Rooms;
+		return new Tables\Rooms();
+	}
+
+	/**
+	 * Updates the resource dependent associations
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	protected function updateAssociations()
+	{
+		if (!$this->updateDirectAssociation('monitors'))
+		{
+			return false;
+		}
+
+		return $this->updateIPAssociations();
+	}
+
+	/**
+	 * Updates resource associations in a schedule.
+	 *
+	 * @param   int  $scheduleID  the id of the schedule being iterated
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	protected function updateSchedule(int $scheduleID)
+	{
+		return $this->updateEndResource($scheduleID, 'rooms');
 	}
 }
