@@ -36,7 +36,7 @@ class Rooms extends BaseTable
 	/**
 	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
 	 * software.
-	 * VARCHAR(60) DEFAULT NULL
+	 * VARCHAR(60) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -73,7 +73,7 @@ class Rooms extends BaseTable
 	 */
 	public function check()
 	{
-		$nullColumns = ['alias', 'buildingID', 'code'];
+		$nullColumns = ['alias', 'buildingID'];
 		foreach ($nullColumns as $nullColumn)
 		{
 			if (!strlen($this->$nullColumn))
