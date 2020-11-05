@@ -71,13 +71,13 @@ class Groups extends ListView
 
 		if (Helpers\Can::administrate())
 		{
-			/*$toolbar->appendButton(
+			$toolbar->appendButton(
 				'Standard',
 				'contract',
 				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'groups.mergeView',
 				true
-			);*/
+			);
 
 			$toolbar->appendButton(
 				'Standard',
