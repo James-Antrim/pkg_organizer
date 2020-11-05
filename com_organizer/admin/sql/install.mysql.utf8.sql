@@ -670,7 +670,7 @@ VALUES (1, 'DOZ', 'DOZ', 'TCH', 'Lehrende', 'Teacher', 'Lehrende', 'Teachers'),
 CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `id`         INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `alias`      VARCHAR(255)                 DEFAULT NULL,
-    `code`       VARCHAR(60)                  DEFAULT NULL COLLATE utf8mb4_bin,
+    `code`       VARCHAR(60)         NOT NULL COLLATE utf8mb4_bin,
     `name`       VARCHAR(150)        NOT NULL,
     `active`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `buildingID` INT(11) UNSIGNED             DEFAULT NULL,
