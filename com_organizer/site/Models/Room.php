@@ -139,14 +139,14 @@ class Room extends MergeModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function updateAssociations()
+	protected function updateReferences()
 	{
-		if (!$this->updateDirectAssociation('monitors'))
+		if (!$this->updateReferencingTable('monitors'))
 		{
 			return false;
 		}
 
-		return $this->updateIPAssociations();
+		return $this->updateIPReferences();
 	}
 
 	/**

@@ -23,40 +23,6 @@ class THM_OrganizerModelPlan_Pool extends THM_OrganizerModelMerge
 	protected $tableName = 'plan_pools';
 
 	/**
-	 * Provides resource specific user access checks
-	 *
-	 * @return bool  true if the user may edit the given resource, otherwise false
-	 */
-	protected function allowEdit()
-	{
-		$allIDs = [];
-		if (!empty($this->data['id']))
-		{
-			$allIDs = $allIDs + [$this->data['id']];
-		}
-		if (!empty($this->data['otherIDs']))
-		{
-			$allIDs = $allIDs + $this->data['otherIDs'];
-		}
-
-		return THM_OrganizerHelperPlan_Pools::allowEdit($allIDs);
-	}
-
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return  \JTable  A \JTable object
-	 */
-	public function getTable($name = 'plan_pools', $prefix = 'thm_organizerTable', $options = [])
-	{
-		return \JTable::getInstance($name, $prefix, $options);
-	}
-
-	/**
 	 * Performs batch processing of plan_pools, specifically their publication per period and their associated grids.
 	 *
 	 * @return bool true on success, otherwise false

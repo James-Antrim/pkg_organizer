@@ -98,7 +98,7 @@ class Person extends MergeModel implements ScheduleResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function updateAssociations()
+	protected function updateReferences()
 	{
 		if (!$this->updateDRAssociation())
 		{

@@ -36,7 +36,7 @@ abstract class MergeModel extends BaseModel
 		}
 
 		// Associations have to be updated before entity references are deleted by foreign keys
-		if (!$this->updateAssociations())
+		if (!$this->updateReferences())
 		{
 			return false;
 		}
@@ -73,18 +73,11 @@ abstract class MergeModel extends BaseModel
 	}
 
 	/**
-	 * Updates the resource dependent associations
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	abstract protected function updateAssociations();
-
-	/**
 	 * Updates an instance person association with persons or rooms.
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function updateIPAssociations()
+	protected function updateIPReferences()
 	{
 		$fkColumn    = strtolower($this->name) . 'ID';
 		$tableSuffix = strtolower($this->name) . 's';
@@ -177,20 +170,27 @@ abstract class MergeModel extends BaseModel
 	}
 
 	/**
-	 * Updates an association where the associated resource itself has a fk reference to the resource being merged.
-	 *
-	 * @param   string  $tableSuffix  the unique part of the table name
+	 * Updates the resource dependent associations
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function updateDirectAssociation($tableSuffix)
+	abstract protected function updateReferences();
+
+	/**
+	 * Updates an association where the associated resource itself has a fk reference to the resource being merged.
+	 *
+	 * @param   string  $table  the unique part of the table name
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	protected function updateReferencingTable(string $table)
 	{
 		$fkColumn  = strtolower($this->name) . 'ID';
 		$mergeID   = $this->selected[0];
 		$updateIDs = implode(', ', $this->selected);
 
 		$query = $this->_db->getQuery(true);
-		$query->update("#__organizer_$tableSuffix");
+		$query->update("#__organizer_$table");
 		$query->set("$fkColumn = $mergeID");
 		$query->where("$fkColumn IN ($updateIDs)");
 		$this->_db->setQuery($query);
