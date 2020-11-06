@@ -148,16 +148,4 @@ class Room extends MergeModel
 
 		return $this->updateIPReferences();
 	}
-
-	/**
-	 * Updates resource associations in a schedule.
-	 *
-	 * @param   int  $scheduleID  the id of the schedule being iterated
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	protected function updateSchedule(int $scheduleID)
-	{
-		return $this->updateEndResource($scheduleID, 'rooms');
-	}
 }

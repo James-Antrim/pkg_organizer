@@ -199,13 +199,94 @@ abstract class MergeModel extends BaseModel
 	}
 
 	/**
+	 * Updates resource associations in a schedule instance.
+	 *
+	 * @param   array  &$instance  the instance being iterated
+	 * @param   int     $mergeID   the id onto which the entries will be merged
+	 *
+	 * @return bool true if the instance has been updated, otherwise false
+	 */
+	private function updateInstance(array &$instance, int $mergeID)
+	{
+		$context  = strtolower($this->name) . 's';
+		$relevant = false;
+
+		foreach ($instance as $personID => $resources)
+		{
+			// Array intersect keeps relevant keys from array one.
+			if (!$relevantResources = array_intersect($resources[$context], $this->selected))
+			{
+				continue;
+			}
+
+			$relevant = true;
+
+			// Unset all relevant indexes to avoid conditional/unique handling
+			foreach (array_keys($relevantResources) as $relevantIndex)
+			{
+				unset($instance[$personID][$context][$relevantIndex]);
+			}
+
+			// Put the merge id in/back in
+			$instance[$personID][$context][] = $mergeID;
+
+			// Resequence to avoid JSON encoding treating the array as associative (object)
+			$instance[$personID][$context] = array_values($instance[$personID][$context]);
+		}
+
+		return $relevant;
+	}
+
+	/**
 	 * Updates resource associations in a schedule.
 	 *
 	 * @param   int  $scheduleID  the id of the schedule being iterated
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	abstract protected function updateSchedule(int $scheduleID);
+	private function updateSchedule(int $scheduleID)
+	{
+		$context = strtolower($this->name);
+
+		// Only these resources are referenced in saved schedules.
+		if (!in_array($context, ['group', 'person', 'room']))
+		{
+			return true;
+		}
+
+		$schedule = new Tables\Schedules();
+
+		if (!$schedule->load($scheduleID))
+		{
+			return true;
+		}
+
+		$instances = json_decode($schedule->schedule, true);
+		$mergeID   = $this->selected[0];
+		$relevant  = false;
+
+		foreach ($instances as $instanceID => $instance)
+		{
+			if (in_array($context, ['group', 'room']) and $this->updateInstance($instance, $mergeID))
+			{
+				$instances[$instanceID] = $instance;
+				$relevant               = true;
+			}
+			else
+			{
+				//todo add person handling
+			}
+		}
+
+		if ($relevant)
+		{
+			$schedule->schedule = json_encode($instances);
+
+			return $schedule->store();
+		}
+
+		return true;
+	}
 
 	/**
 	 * Updates resource associations in schedules.
@@ -227,68 +308,6 @@ abstract class MergeModel extends BaseModel
 		foreach ($scheduleIDs as $scheduleID)
 		{
 			$this->updateSchedule($scheduleID);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Updates resource associations in a schedule for groups and rooms, which are structurally identical.
-	 *
-	 * @param   int     $scheduleID  the id of the schedule being iterated
-	 * @param   string  $context     the named index for the resource (groups|rooms)
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	protected function updateEndResource(int $scheduleID, string $context)
-	{
-		if (!in_array($context, ['groups', 'rooms']))
-		{
-			return false;
-		}
-
-		$schedule = new Tables\Schedules();
-
-		if (!$schedule->load($scheduleID))
-		{
-			return true;
-		}
-
-		$instances = json_decode($schedule->schedule, true);
-		$mergeID   = $this->selected[0];
-		$relevant  = false;
-
-		foreach ($instances as $instanceID => $persons)
-		{
-			foreach ($persons as $personID => $data)
-			{
-				if (!$relevantRooms = array_intersect($data[$context], $this->selected))
-				{
-					continue;
-				}
-
-				$relevant = true;
-
-				// Unset all relevant to avoid conditional and unique handling
-				foreach (array_keys($relevantRooms) as $relevantIndex)
-				{
-					unset($instances[$instanceID][$personID][$context][$relevantIndex]);
-				}
-
-				// Put the merge id in/back in
-				$instances[$instanceID][$personID][$context][] = $mergeID;
-
-				// Resequence to avoid JSON encoding treating the array as associative (object)
-				$instances[$instanceID][$personID][$context]
-					= array_values($instances[$instanceID][$personID][$context]);
-			}
-		}
-
-		if ($relevant)
-		{
-			$schedule->schedule = json_encode($instances);
-
-			return $schedule->store();
 		}
 
 		return true;
