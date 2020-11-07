@@ -65,13 +65,13 @@ class Persons extends ListView
 				'persons.delete',
 				true
 			);*/
-			/*$toolbar->appendButton(
+			$toolbar->appendButton(
 				'Standard',
 				'contract',
 				Languages::_('ORGANIZER_MERGE'),
 				'persons.mergeView',
 				true
-			);*/
+			);
 		}
 	}
 
