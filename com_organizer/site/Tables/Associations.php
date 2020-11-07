@@ -24,14 +24,6 @@ class Associations extends BaseTable
 	public $categoryID;
 
 	/**
-	 * The id of the event entry referenced.
-	 * INT(11) DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $eventID;
-
-	/**
 	 * The id of the group entry referenced.
 	 * INT(11) DEFAULT NULL
 	 *
@@ -56,12 +48,28 @@ class Associations extends BaseTable
 	public $personID;
 
 	/**
-	 * The id of the room entry referenced.
+	 * The id of the pool entry referenced.
 	 * INT(11) DEFAULT NULL
 	 *
 	 * @var int
 	 */
-	public $roomID;
+	public $poolID;
+
+	/**
+	 * The id of the program entry referenced.
+	 * INT(11) DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $programID;
+
+	/**
+	 * The id of the subject entry referenced.
+	 * INT(11) DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $subjectID;
 
 	/**
 	 * Declares the associated table.
@@ -80,7 +88,7 @@ class Associations extends BaseTable
 	{
 		// An association should always be between an organization and another resource.
 		$atLeastOne = false;
-		$keyColumns = ['categoryID', 'eventID', 'groupID', 'personID', 'poolID', 'programID', 'subjectID'];
+		$keyColumns = ['categoryID', 'groupID', 'personID', 'poolID', 'programID', 'subjectID'];
 		foreach ($keyColumns as $keyColumn)
 		{
 			if (!strlen($this->$keyColumn))
