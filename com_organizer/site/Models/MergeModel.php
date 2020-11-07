@@ -73,6 +73,66 @@ abstract class MergeModel extends BaseModel
 	}
 
 	/**
+	 * Updates the associations table, ensuring that the merge id is the only one referenced and that there is only one
+	 * association per organization.
+	 *
+	 * If the database at some point allows unique keys over multiple nullable columns and organizer uses such a unique
+	 * key for this table, this function will have to be rewritten with more conditionals.
+	 *
+	 * @return bool
+	 */
+	protected function updateAssociationsReferences()
+	{
+		$fkColumn  = strtolower($this->name) . 'ID';
+		$updateIDs = implode(', ', $this->selected);
+
+		$query = $this->_db->getQuery(true);
+		$query->select("id, $fkColumn, organizationID")
+			->from("#__organizer_associations")
+			->where("$fkColumn IN ($updateIDs)")
+			->order("id");
+		$this->_db->setQuery($query);
+
+		if (!$results = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
+		{
+			return true;
+		}
+
+		$association     = new Tables\Associations();
+		$mergeID         = $this->selected[0];
+		$organizationIDs = [];
+
+		foreach ($results as $result)
+		{
+			// The association to this organization has already been processed.
+			if (in_array($result['organizationID'], $organizationIDs) and !$association->delete($result['id']))
+			{
+				return false;
+			}
+
+			$organizationIDs[] = $result['organizationID'];
+
+			// The association is correct as is.
+			if ($result[$fkColumn] == $mergeID)
+			{
+				continue;
+			}
+
+			$entry = ['id'             => $result['id'],
+			          $fkColumn        => $mergeID,
+			          'organizationID' => $result['organizationID']];
+
+			$entry[$fkColumn] = $mergeID;
+			if (!$association->save($entry))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Updates an instance person association with persons or rooms.
 	 *
 	 * @return bool  true on success, otherwise false

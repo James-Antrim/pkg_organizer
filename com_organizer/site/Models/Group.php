@@ -17,10 +17,14 @@ use Organizer\Tables;
 /**
  * Class which manages stored group data.
  */
-class Group extends BaseModel
+class Group extends MergeModel
 {
 	use Associated;
 
+	/**
+	 * @var string
+	 * @see Associated
+	 */
 	protected $resource = 'group';
 
 	/**
@@ -345,5 +349,25 @@ class Group extends BaseModel
 		}
 
 		return false;
+	}
+
+	/**
+	 * Updates the resource dependent associations
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	protected function updateReferences()
+	{
+		if (!$this->updateAssociationsReferences())
+		{
+			return false;
+		}
+
+		if (!$this->updateReferencingTable('pools'))
+		{
+			return false;
+		}
+
+		return $this->updateIPReferences();
 	}
 }
