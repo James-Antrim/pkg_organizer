@@ -35,6 +35,16 @@ class Users
 	}
 
 	/**
+	 * Resolves the user id
+	 *
+	 * @return string the name of the user
+	 */
+	public static function getName()
+	{
+		return self::getUser()->name;
+	}
+
+	/**
 	 * Get a user object.
 	 *
 	 * Returns the global {@link User} object, only creating it if it doesn't already exist.
