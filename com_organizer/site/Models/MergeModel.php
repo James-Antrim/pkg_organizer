@@ -332,9 +332,27 @@ abstract class MergeModel extends BaseModel
 				$instances[$instanceID] = $instance;
 				$relevant               = true;
 			}
+			// Person
 			else
 			{
-				//todo add person handling
+				if (!$relevantPersons = array_intersect(array_keys($instance), $this->selected))
+				{
+					continue;
+				}
+
+				$relevant = true;
+				ksort($relevantPersons);
+
+				// Use the associations of the maximum personID (last added)
+				$associations = [];
+
+				foreach ($relevantPersons as $personID)
+				{
+					$associations = $instances[$instanceID][$personID];
+					unset($instances[$instanceID][$personID]);
+				}
+
+				$instances[$instanceID][$mergeID] = $associations;
 			}
 		}
 
