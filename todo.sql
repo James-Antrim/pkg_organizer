@@ -98,13 +98,12 @@
 #endregion##############################################################################################################
 
 #region Merging ########################################################################################################
-#Categories, Groups, Events, Participants, Persons & Rooms
+#Categories, Events & Participants
 
 #delete unused events
 #automatically merge events with the same entry key items
 #add unique key for event entry key items
 #reactivate new functions as appropriate
-#add update to modified columns
 
 #endregion
 
