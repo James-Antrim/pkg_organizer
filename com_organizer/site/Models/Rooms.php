@@ -51,4 +51,23 @@ class Rooms extends ListModel
 
 		return $query;
 	}
+
+	/**
+	 * Method to auto-populate the model state.
+	 *
+	 * @param   string  $ordering   An optional ordering field.
+	 * @param   string  $direction  An optional direction (asc|desc).
+	 *
+	 * @return void populates state properties
+	 * @noinspection PhpDocSignatureInspection
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		parent::populateState($ordering, $direction);
+
+		if ($format = Helpers\Input::getCMD('format') and in_array($format, ['pdf', 'xls']))
+		{
+			$this->setState('list.limit', 0);
+		}
+	}
 }
