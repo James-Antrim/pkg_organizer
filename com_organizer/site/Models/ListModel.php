@@ -190,6 +190,7 @@ abstract class ListModel extends ParentModel
 	 * @param   string  $direction  An optional direction (asc|desc).
 	 *
 	 * @return void populates state properties
+	 * @noinspection PhpDocSignatureInspection
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
