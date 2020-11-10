@@ -11,6 +11,7 @@
 namespace Organizer\Layouts\XLS;
 
 
+use Exception;
 use Organizer\Views\XLS\BaseView;
 
 abstract class BaseLayout
@@ -26,9 +27,10 @@ abstract class BaseLayout
 	}
 
 	/**
-	 * Gets the description for the layout.
+	 * Fills the view with formatting and data.
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
 	abstract public function fill();
 

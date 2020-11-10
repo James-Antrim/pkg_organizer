@@ -271,7 +271,7 @@ class Deputat
 				'outline' => [
 					'style' => PHPExcel_Style_Border::BORDER_NONE
 				],
-			],
+			]
 		];
 		$activeSheet->getStyle('A1:C12')->applyFromArray($noOutline);
 	}
