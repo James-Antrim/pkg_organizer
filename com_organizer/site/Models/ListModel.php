@@ -34,6 +34,8 @@ abstract class ListModel extends ParentModel
 
 	protected $defaultLimit = null;
 
+	public $mobile = false;
+
 	protected $option = 'com_organizer';
 
 	/**
@@ -54,6 +56,7 @@ abstract class ListModel extends ParentModel
 			$this->defaultLimit = $app->get('list_limit', 50);
 		}
 
+		$this->mobile = Helpers\OrganizerHelper::isSmartphone();
 		$this->setContext();
 	}
 

@@ -23,6 +23,8 @@ abstract class BaseView extends HtmlView
 {
 	public $adminContext;
 
+	public $mobile = false;
+
 	/**
 	 * Constructor
 	 *
@@ -32,6 +34,7 @@ abstract class BaseView extends HtmlView
 	{
 		parent::__construct($config);
 		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+		$this->mobile     = Helpers\OrganizerHelper::isSmartphone();
 	}
 
 	/**
