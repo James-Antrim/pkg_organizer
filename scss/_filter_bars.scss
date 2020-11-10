@@ -74,3 +74,61 @@ body.tmpl-index div.main {
     margin-right: 0;
   }
 }
+
+body.tmpl-mobile div.main {
+
+  .js-stools-container-bar,
+  .js-stools-field-filter,
+  .js-stools-field-list,
+  .js-stools-container-filters,
+  .js-stools-container-list {
+    margin-right: 0;
+    margin-top: 0;
+    width: 100%;
+  }
+
+  .js-stools-container-bar {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 1rem;
+
+    input[type='text'] {
+      width: calc(100% - 8px);
+    }
+
+    .btn-wrapper {
+      margin-right: .4rem;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    .input-append {
+      font-size: 1rem;
+      width: 80%;
+
+      button {
+        margin: 0;
+        right: 2rem;
+        top: .4rem;
+      }
+    }
+  }
+
+  .js-stools-container-filters,
+  .js-stools-container-list {
+    input, select {
+      width: 100%;
+    }
+
+    input[type='date'] {
+      padding: 6px 4px;
+      width: calc(100% - 10px);
+    }
+  }
+
+  .js-stools-container-filters {
+    margin-top: 0;
+  }
+}

@@ -1,6 +1,5 @@
 @import "fields";
 @import "filter_bars";
-@import "mixins";
 @import "pagination";
 @import "variables";
 
@@ -35,7 +34,7 @@ table.table-striped .center {
 }
 
 table.table-striped td.status-display {
-  
+
   &.green, &.unit-new {
     background-color: $green-75;
   }
@@ -74,23 +73,5 @@ td a.btn {
 
   &:last-child {
     margin-right: 0;
-  }
-}
-
-/* Phone **************************************************************************************************************/
-
-@include breakpoint($mq-phone) {
-  // for all tables. Just display the second column.
-  .table-striped {
-    @include displayAndHideColumns(2);
-  }
-}
-
-/* Tablet *************************************************************************************************************/
-
-@include breakpoint($mq-tablet) {
-  // for all tables. Hide the last columns from the fifth column, so four columns are displayed
-  .table-striped {
-    @include hideColumns(5);
   }
 }
