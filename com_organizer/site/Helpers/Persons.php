@@ -288,7 +288,8 @@ class Persons extends Associated implements Selectable
 			return [];
 		}
 
-		$organizationID  = Input::getInt('organizationID');
+		// TODO remove the deprecated get parameter
+		$organizationID  = Input::getInt('organizationID', Input::getInt('departmentIDs'));
 		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
 		$thisPersonID    = self::getIDByUserID();
 
