@@ -22,6 +22,9 @@ if (is_array($options))
 $filters          = $this->filterForm->getGroup('filter');
 $searchButton     = $options->get('searchButton', true);
 $showFilterButton = empty($filters['filter_search']) ? (bool) count($filters) : count($filters) > 1;
+$filterText = $this->mobile ?
+    "<span class=\"icon-filter\"></span>" : Helpers\Languages::_('ORGANIZER_SEARCH_TOOLS') . '<span class="caret"></span>';
+$resetText = $this->mobile ? "<span class=\"icon-undo-2\"></span>" : Helpers\Languages::_('ORGANIZER_RESET');
 
 ?>
 
@@ -47,16 +50,18 @@ $showFilterButton = empty($filters['filter_search']) ? (bool) count($filters) : 
 <?php if ($showFilterButton) : ?>
     <div class="btn-wrapper hidden-phone">
         <button type="button" class="btn hasTooltip js-stools-btn-filter"
-                title="<?php echo Helpers\Languages::tooltip('ORGANIZER_SEARCH_TOOLS_DESC'); ?>">
-			<?php echo Helpers\Languages::_('ORGANIZER_SEARCH_TOOLS'); ?> <span class="caret"></span>
+                title="<?php echo Helpers\Languages::tooltip('ORGANIZER_SEARCH_TOOLS_DESC'); ?>"
+                aria-label="<?php echo Helpers\Languages::_('ORGANIZER_SEARCH_TOOLS'); ?>">
+			<?php echo $filterText ?>
         </button>
     </div>
 <?php endif; ?>
 <?php if (!empty($filters['filter_search']) or $showFilterButton) : ?>
     <div class="btn-wrapper">
         <button type="button" class="btn hasTooltip js-stools-btn-clear"
-                title="<?php echo Helpers\Languages::tooltip('ORGANIZER_RESET'); ?>">
-			<?php echo Helpers\Languages::_('ORGANIZER_RESET'); ?>
+                title="<?php echo Helpers\Languages::tooltip('ORGANIZER_RESET'); ?>"
+                aria-label="<?php echo Helpers\Languages::_('ORGANIZER_RESET'); ?>">
+			<?php echo $resetText; ?>
         </button>
     </div>
 <?php endif;
