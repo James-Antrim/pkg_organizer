@@ -288,7 +288,7 @@ class Persons extends Associated implements Selectable
 			return [];
 		}
 
-		// TODO remove the deprecated get parameter
+		// TODO Remove departmentIDs on completion of migration.
 		$organizationID  = Input::getInt('organizationID', Input::getInt('departmentIDs'));
 		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
 		$thisPersonID    = self::getIDByUserID();
@@ -326,7 +326,7 @@ class Persons extends Associated implements Selectable
 
 			$where = 'a.organizationID IN (' . implode(',', $organizationIDs) . ')';
 
-			// TODO Remove (plan) programs on completion of migration.
+			// TODO Remove programIDs on completion of migration.
 			if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID'))
 			{
 				$categoryIDs = [$categoryID];

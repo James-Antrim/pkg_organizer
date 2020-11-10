@@ -123,7 +123,8 @@ class Rooms extends ResourceHelper implements Selectable
 
 		self::addResourceFilter($query, 'building', 'b1', 'r');
 
-		$roomtypeID  = Input::getInt('roomtypeID', self::ALL);
+		// TODO Remove roomTypeIDs on completion of migration.
+		$roomtypeID  = Input::getInt('roomtypeID', Input::getInt('roomTypeIDs', self::ALL));
 		$roomtypeIDs = $roomtypeID ? [$roomtypeID] : Input::getFilterIDs('roomtype');
 
 		if (!in_array(self::ALL, $roomtypeIDs))
