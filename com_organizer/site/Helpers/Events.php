@@ -19,7 +19,7 @@ class Events extends ResourceHelper
 {
 	use Planned;
 
-	static protected $resource = 'event';
+	protected static $resource = 'event';
 
 	/**
 	 * Check if user is a subject coordinator.
