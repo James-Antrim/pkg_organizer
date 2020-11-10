@@ -21,9 +21,21 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getAbbreviation($resourceID)
+	public static function getAbbreviation(int $resourceID)
 	{
 		return self::getNameAttribute('abbreviation', $resourceID);
+	}
+
+	/**
+	 * Attempts to retrieve the code of the resource.
+	 *
+	 * @param   int  $resourceID  the id of the resource
+	 *
+	 * @return string
+	 */
+	public static function getCode(int $resourceID)
+	{
+		return self::getNameAttribute('code', $resourceID);
 	}
 
 	/**
@@ -33,7 +45,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getFullName($resourceID)
+	public static function getFullName(int $resourceID)
 	{
 		return self::getNameAttribute('fullName', $resourceID);
 	}
@@ -46,7 +58,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getNameAttribute($columnName, $resourceID)
+	public static function getNameAttribute(string $columnName, int $resourceID)
 	{
 		$table = self::getTable();
 		if (!$table->load($resourceID))
@@ -57,7 +69,7 @@ abstract class ResourceHelper
 		$tableFields = $table->getFields();
 		if (array_key_exists($columnName, $tableFields))
 		{
-			return $table->name;
+			return $table->$columnName;
 		}
 
 		$localizedName = "{$columnName}_" . Languages::getTag();
@@ -88,7 +100,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getPlural($resourceID)
+	public static function getPlural(int $resourceID)
 	{
 		return self::getNameAttribute('plural', $resourceID);
 	}
@@ -100,7 +112,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getShortName($resourceID)
+	public static function getShortName(int $resourceID)
 	{
 		return self::getNameAttribute('shortName', $resourceID);
 	}
