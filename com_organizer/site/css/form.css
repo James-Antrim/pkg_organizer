@@ -172,7 +172,12 @@ body.tmpl-index div.main .js-stools-container-bar .js-stools-btn-filter:hover .c
 
 body.tmpl-index div.main .js-stools-container-list .js-stools-field-list {
     margin-bottom: 0;
+    margin-left: 5px;
     margin-right: 0;
+}
+
+body.tmpl-index div.main .js-stools-container-list .js-stools-field-list input[type='date'] {
+    padding: .35rem .5rem;
 }
 
 body.tmpl-mobile div.main .js-stools-container-bar,
