@@ -398,6 +398,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_participants` (
     `id`            INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `instanceID`    INT(20) UNSIGNED NOT NULL,
     `participantID` INT(11)          NOT NULL,
+    `attended`      TINYINT(1) UNSIGNED DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `entry` (`instanceID`, `participantID`),
     KEY `instanceID` (`instanceID`),
