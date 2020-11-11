@@ -307,7 +307,7 @@ class Subjects extends Curricula
 			'abbreviation' => $table->{"abbreviation_$tag"},
 			'bgColor'      => Fields::getColor($table->fieldID, self::getOrganizationIDs($table->id)[0]),
 			'creditpoints' => $table->creditpoints,
-			'field'        => Fields::getName($table->fieldID, 'field'),
+			'field'        => $table->fieldID ? Fields::getName($table->fieldID) : '',
 			'fieldID'      => $table->fieldID,
 			'id'           => $table->id,
 			'moduleNo'     => $table->code,
