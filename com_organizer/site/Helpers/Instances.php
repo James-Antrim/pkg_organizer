@@ -19,20 +19,20 @@ use Organizer\Tables;
  */
 class Instances extends ResourceHelper
 {
-	const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
+	private const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
-	const TEACHER = 1;
+	private const TEACHER = 1;
 
 	/**
 	 * Adds a delta clause for a joined table.
 	 *
 	 * @param   JDatabaseQuery  $query  the query to modify
 	 * @param   string          $alias  the table alias
-	 * @param   mixed           $delta  string the date for the delta or bool false
+	 * @param   string|bool           $delta  string the date for the delta or bool false
 	 *
 	 * @return void modifies the query
 	 */
-	private static function addDeltaClause($query, $alias, $delta)
+	private static function addDeltaClause(JDatabaseQuery $query, string $alias, $delta)
 	{
 		if ($delta)
 		{
@@ -144,7 +144,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return string the dates to display
 	 */
-	public static function getDateDisplay($instanceID)
+	public static function getDateDisplay(int $instanceID)
 	{
 		$instance = new Tables\Instances();
 		if (!$instance->load($instanceID) or !$blockID = $instance->blockID)
@@ -204,7 +204,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array an array modelling the instance
 	 */
-	public static function getInstance($instanceID)
+	public static function getInstance(int $instanceID)
 	{
 		$tag = Languages::getTag();
 
@@ -215,12 +215,14 @@ class Instances extends ResourceHelper
 		}
 
 		$instance = [
+			'attended'           => 0,
 			'blockID'            => $instancesTable->blockID,
 			'eventID'            => $instancesTable->eventID,
 			'instanceID'         => $instanceID,
 			'instanceStatus'     => $instancesTable->delta,
 			'instanceStatusDate' => $instancesTable->modified,
 			'methodID'           => $instancesTable->methodID,
+			'registered'         => 0,
 			'unitID'             => $instancesTable->unitID
 		];
 
@@ -288,7 +290,39 @@ class Instances extends ResourceHelper
 
 		unset($unitsTable);
 
-		return array_merge($block, $event, $instance, $method, $unit);
+		$instance = array_merge($block, $event, $instance, $method, $unit);
+
+		if ($courseID = $instance['courseID'])
+		{
+			$courseTable = new Tables\Courses();
+			if ($courseTable->load($courseID))
+			{
+				$instance['campusID']         = $courseTable->campusID;
+				$instance['course']           = $courseTable->{"name_$tag"};
+				$instance['deadline']         = $courseTable->deadline;
+				$instance['fee']              = $courseTable->fee;
+				$instance['registrationType'] = $courseTable->registrationType;
+
+				if ($courseTable->{"description_$tag"})
+				{
+					$instance['description'] = $courseTable->{"description_$tag"};
+				}
+			}
+		}
+
+		// TODO Calculate space available. rooms, seats, factoring, presence
+
+		if ($participantID = Users::getID())
+		{
+			$participantsTable = new Tables\InstanceParticipants();
+			if ($participantsTable->load(['instanceID' => $instanceID, 'participantID' => $participantID]))
+			{
+				$instance['attended']           = (int) $participantsTable->attended;
+				$instance['registrationStatus'] = 1;
+			}
+		}
+
+		return $instance;
 	}
 
 	/**
@@ -298,7 +332,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array the ids matching the conditions
 	 */
-	public static function getInstanceIDs($conditions)
+	public static function getInstanceIDs(array $conditions)
 	{
 		$dbo   = Factory::getDbo();
 		$query = self::getInstanceQuery($conditions);
@@ -319,7 +353,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return JDatabaseQuery the query object
 	 */
-	public static function getInstanceQuery($conditions)
+	public static function getInstanceQuery(array $conditions)
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -461,7 +495,7 @@ class Instances extends ResourceHelper
 	/**
 	 * Gets the localized name of the event associated with the instance and the name of the instance's method.
 	 *
-	 * @param   int  $instanceID the id of the instance
+	 * @param   int  $instanceID  the id of the instance
 	 *
 	 * @return string
 	 */
@@ -480,7 +514,7 @@ class Instances extends ResourceHelper
 
 		if ($methodID = $instance->methodID)
 		{
-			$name .= ' - ' .  Methods::getName($methodID);
+			$name .= ' - ' . Methods::getName($methodID);
 		}
 
 		return $name;
@@ -543,7 +577,7 @@ class Instances extends ResourceHelper
 	/**
 	 * Retrieves the rooms actively associated with the given instance.
 	 *
-	 * @param   int  $instanceID the id of the instance
+	 * @param   int  $instanceID  the id of the instance
 	 *
 	 * @return array
 	 */
@@ -570,7 +604,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void removes unauthorized entries from the array
 	 */
-	public static function filterPersonIDs(&$personIDs, $userID)
+	public static function filterPersonIDs(array &$personIDs, int $userID)
 	{
 		if (empty($userID))
 		{
@@ -611,7 +645,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array next and latest available dates
 	 */
-	public static function getJumpDates($conditions)
+	public static function getJumpDates(array $conditions)
 	{
 		$futureQuery = self::getInstanceQuery($conditions);
 		$pastQuery   = clone $futureQuery;
@@ -643,7 +677,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies $parameters
 	 */
-	public static function setDates(&$parameters)
+	public static function setDates(array &$parameters)
 	{
 		$date     = $parameters['date'];
 		$dateTime = strtotime($date);
@@ -704,7 +738,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies the instance
 	 */
-	private static function setCourse(&$instance)
+	private static function setCourse(array &$instance)
 	{
 		$coursesTable = new Tables\Courses();
 		if (empty($instance['courseID']) or !$coursesTable->load($instance['courseID']))
@@ -734,7 +768,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies $person
 	 */
-	private static function setGroups(&$person, $conditions)
+	private static function setGroups(array &$person, array $conditions)
 	{
 		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
@@ -783,7 +817,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void
 	 */
-	public static function setOrganizationalPublishing(&$conditions)
+	public static function setOrganizationalPublishing(array &$conditions)
 	{
 		$allowedIDs   = Can::scheduleTheseOrganizations();
 		$overlap      = array_intersect($conditions['organizationIDs'], $allowedIDs);
@@ -808,7 +842,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies the instance array
 	 */
-	public static function setPersons(&$instance, $conditions)
+	public static function setPersons(array &$instance, array $conditions)
 	{
 		$conditions['instanceStatus'] = $instance['instanceStatus'];
 
@@ -865,7 +899,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies $person
 	 */
-	private static function setRooms(&$person, $conditions)
+	private static function setRooms(array &$person, array $conditions)
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -911,7 +945,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies the instance
 	 */
-	public static function setSubject(&$instance, $conditions)
+	public static function setSubject(array &$instance, array $conditions)
 	{
 		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
