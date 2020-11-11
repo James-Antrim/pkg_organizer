@@ -102,6 +102,9 @@ class InstanceParticipant extends BaseModel
 			->where("i.unitID = {$instance->unitID}")
 			->order('i.id');
 
+		// TODO only return instances that have not yet begun
+		// TODO only return instances that are not full
+
 		switch ($matchingMethod)
 		{
 			case self::BLOCK_MODE:
