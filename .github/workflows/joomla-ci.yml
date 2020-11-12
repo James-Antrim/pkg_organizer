@@ -13,20 +13,12 @@ jobs:
             fail-fast:  false
             matrix:
               php-versions: ['7.2', '7.3', '7.4', '8.0']
-              mysql-versions: ['5.7', '8.0', 'latest']
 
     runs-on: ubuntu-latest
     
     steps:
-      - name: "starting mysql"
+      - name: "Start mysql service"
         run: "sudo systemctl start mysql"
-      #      - name: "Stopping internat MySQL-Server"
-      #        run: "sudo systemctl stop mysql"
-      #      - name: "Setting up MySQL"
-      #        uses: mirromutth/mysql-action@v1.1
-      #        with:
-      #          mysql version: ${{ matrix.mysql-versions }}
-      #          mysql root password: "root"
       - name: "Installing PHP"
         uses: shivammathur/setup-php@v2
         with:
