@@ -18,13 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: "Stopping internat MySQL-Server"
-        run: "sudo systemctl stop mysql"
-      - name: "Setting up MySQL"
-        uses: mirromutth/mysql-action@v1.1
-        with:
-          mysql version: ${{ matrix.mysql-versions }}
-          mysql root password: "root"
+      - name: "starting mysql"
+        run: "sudo systemctl start mysql"
+      #      - name: "Stopping internat MySQL-Server"
+      #        run: "sudo systemctl stop mysql"
+      #      - name: "Setting up MySQL"
+      #        uses: mirromutth/mysql-action@v1.1
+      #        with:
+      #          mysql version: ${{ matrix.mysql-versions }}
+      #          mysql root password: "root"
       - name: "Installing PHP"
         uses: shivammathur/setup-php@v2
         with:
