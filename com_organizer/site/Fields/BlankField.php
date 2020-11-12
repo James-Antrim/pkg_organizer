@@ -51,6 +51,8 @@ class BlankField extends FormField
 			$hint = '';
 		}
 
+		$password = $this->getAttribute('password', false);
+
 		$attributes = [
 			(!$this->autocomplete or $this->autocomplete !== 'off') ?
 				'' : "autocomplete=\"$this->autocomplete\"",
@@ -66,7 +68,7 @@ class BlankField extends FormField
 			$this->readonly ? 'readonly' : '',
 			$this->required ? 'required aria-required="true"' : '',
 			$this->spellcheck ? '' : 'spellcheck="false"',
-			'type="text"',
+			$password ? 'type="password"' : 'type="text"',
 			'value="' . htmlspecialchars($this->value, ENT_COMPAT, 'UTF-8') . '"'
 		];
 
