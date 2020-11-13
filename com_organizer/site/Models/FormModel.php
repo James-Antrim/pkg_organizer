@@ -23,6 +23,8 @@ class FormModel extends ParentModel
 
 	protected $association;
 
+	public $mobile = false;
+
 	/**
 	 * Constructor.
 	 *
@@ -32,6 +34,7 @@ class FormModel extends ParentModel
 	{
 		parent::__construct($config);
 
+		$this->mobile = Helpers\OrganizerHelper::isSmartphone();
 		$this->setContext();
 	}
 
