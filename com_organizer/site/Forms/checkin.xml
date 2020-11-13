@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="username" type="Blank" label="USERNAME" class="required" maxlength="150" required="true"/>
+        <field name="password" type="Blank" label="PASSWORD" class="required" maxlength="150" password="true"
+               required="true"/>
+        <field name="code" type="Blank" label="CODE" class="required" hint="12-8-3237" maxlength="150" required="true"/>
+    </fieldset>
+</form>

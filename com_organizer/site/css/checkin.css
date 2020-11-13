@@ -1,0 +1,64 @@
+body.tmpl-component.html-default,
+body.tmpl-component.html-default .main {
+    background-color: #f2f5f6;
+    height: 100%;
+    padding: 0;
+}
+
+body.tmpl-component.html-default h1, body.tmpl-component.html-default .tail,
+body.tmpl-component.html-default .main h1,
+body.tmpl-component.html-default .main .tail {
+    background-color: #394a59;
+    color: white;
+    margin: 0;
+    padding: .3rem .5rem;
+    text-align: center;
+}
+
+body.tmpl-component.html-default input,
+body.tmpl-component.html-default .main input {
+    width: 100%;
+}
+
+.head {
+    margin-top: 4rem;
+    padding: 1.5rem 1.5rem 1rem;
+}
+
+.head .banner {
+    background-color: #f2f5f6;
+    margin: 0;
+}
+
+.span10 {
+    background-color: white;
+    padding: .5rem;
+}
+
+form {
+    margin-top: 1rem;
+}
+
+form.form-horizontal .control-group {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+form.form-horizontal .control-group.message {
+    display: block;
+    text-align: center;
+}
+
+form.form-horizontal .control-label {
+    width: 30%;
+}
+
+form.form-horizontal .controls {
+    margin-left: 1rem;
+    width: 60%;
+}
+
+.tail {
+    height: 3rem;
+}

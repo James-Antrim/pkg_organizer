@@ -1,0 +1,67 @@
+@import "variables";
+
+body.tmpl-component.html-default,
+body.tmpl-component.html-default .main, {
+  background-color: $background-color;
+  height: 100%;
+  padding: 0;
+
+  h1, .tail {
+    background-color: $font-color;
+    color: $foreground-color;
+    margin: 0;
+    padding: .3rem .5rem;
+    text-align: center;
+  }
+
+  input {
+    width: 100%;
+  }
+}
+
+.head {
+  margin-top: 4rem;
+  padding: 1.5rem 1.5rem 1rem;
+
+  .banner {
+    background-color: $background-color;
+    margin: 0;
+  }
+}
+
+.span10 {
+  background-color: $foreground-color;
+  padding: .5rem;
+}
+
+form {
+  margin-top: 1rem;
+
+  &.form-horizontal {
+
+    .control-group {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+
+      &.message {
+        display: block;
+        text-align: center;
+      }
+    }
+
+    .control-label {
+      width: 30%;
+    }
+
+    .controls {
+      margin-left: 1rem;
+      width: 60%;
+    }
+
+  }
+}
+
+.tail {
+  height: 3rem;
+}
