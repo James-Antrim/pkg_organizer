@@ -58,6 +58,96 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
+	 * Checks the user into instances.
+	 *
+	 * @return void
+	 */
+	public function checkin()
+	{
+		if (!$participantID = Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_401', 'error');
+
+			return;
+		}
+
+		$participant = new Participant();
+		$participant->supplement($participantID);
+
+		$data = Helpers\Input::getFormItems();
+		if (!$code = $data->get('code') or !preg_match('/\d{1,2}-\d{1,3}-\d+-\d{4}/', $code))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_400', 'error');
+
+			return;
+		}
+
+		list($organizationID, $termID, $unitCode, $startTime) = explode('-', $code);
+		$unit = new Tables\Units();
+		if (!$unit->load(['code' => $unitCode, 'organizationID' => $organizationID, 'termID' => $termID]))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
+
+			return;
+		}
+
+		$today = date('Y-m-d');
+		$time  = date('H:i:s', strtotime($startTime));
+		$query = $this->_db->getQuery(true);
+		$query->select('id')->from('#__organizer_blocks AS b')->where("b.date = '$today' AND startTime = '$time'");
+		$this->_db->setQuery($query);
+
+		if (!$blockIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
+
+			return;
+		}
+
+		$blockIDs = implode(',', $blockIDs);
+		$query    = $this->_db->getQuery(true);
+		$query->select('id')
+			->from('#__organizer_instances')
+			->where("blockID IN ($blockIDs)")
+			->where("unitID = $unit->id")
+			->where('open = 1');
+		$this->_db->setQuery($query);
+
+		if (!$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
+
+			return;
+		}
+
+		// Check for planned
+		$query = $this->_db->getQuery(true);
+		$query->select('id')
+			->from('#__organizer_instance_participants')
+			->where("instanceID IN (" . implode(',', $instanceIDs) . ")")
+			->where("participantID = $participantID");
+		$this->_db->setQuery($query);
+
+		if ($plannedIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		{
+			$instanceIDs = array_intersect($plannedIDs, $instanceIDs);
+		}
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			$data                  = ['instanceID' => $instanceID, 'participantID' => $participantID];
+			$instanceParticipation = new Tables\InstanceParticipants();
+			$instanceParticipation->load($data);
+			$data['attended'] = 1;
+			if (!$instanceParticipation->save($data))
+			{
+				Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_FAILED'));
+			}
+		}
+		Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_SUCCEEDED'));
+	}
+
+	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.
