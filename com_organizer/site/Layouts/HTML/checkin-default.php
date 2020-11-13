@@ -22,6 +22,12 @@ if (!$this->adminContext)
 }
 ?>
 <div id="j-main-container" class="span10">
-	<?php echo Toolbar::getInstance()->render(); ?>
-	<?php require_once 'checkin-checkin.php'; ?>
+	<?php if ($count = count($this->instances) and $count > 1) : ?>
+		<?php require_once 'checkin-confirm.php'; ?>
+	<?php elseif ($count and $count === 1) : ?>
+		<?php require_once 'checkin-checkedin.php'; ?>
+	<?php else : ?>
+		<?php echo Toolbar::getInstance()->render(); ?>
+		<?php require_once 'checkin-checkin.php'; ?>
+	<?php endif; ?>
 </div>

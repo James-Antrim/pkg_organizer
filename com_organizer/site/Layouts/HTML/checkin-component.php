@@ -18,6 +18,12 @@ use Organizer\Helpers;
 </div>
 <?php echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 <div id="j-main-container" class="span10">
-	<?php require_once 'checkin-checkin.php'; ?>
+	<?php if ($count = count($this->instances) and $count > 1) : ?>
+		<?php require_once 'checkin-confirm.php'; ?>
+	<?php elseif ($count and $count === 1) : ?>
+		<?php require_once 'checkin-checkedin.php'; ?>
+	<?php else : ?>
+		<?php require_once 'checkin-checkin.php'; ?>
+	<?php endif; ?>
 </div>
 <div class="tail"></div>
