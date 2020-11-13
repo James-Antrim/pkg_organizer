@@ -221,9 +221,10 @@ class Subjects extends ListView
 	 */
 	protected function structureItems()
 	{
-		$editLink        = 'index.php?option=com_organizer&view=subject_edit&id=';
+		$tag = Helpers\Languages::getTag();
+		$editLink        = "index.php?option=com_organizer&view=subject_edit&languageTag=$tag&id=";
 		$index           = 0;
-		$itemLink        = 'index.php?option=com_organizer&view=subject_item&id=';
+		$itemLink        = "index.php?option=com_organizer&view=subject_item&languageTag=$tag&id=";
 		$structuredItems = [];
 
 		$attributes = [];
