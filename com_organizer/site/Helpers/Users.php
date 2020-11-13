@@ -62,7 +62,7 @@ class Users
 		}
 
 		// A static user already exists.
-		if (self::$user)
+		if (self::$user and self::$user->id)
 		{
 			return self::$user;
 		}
