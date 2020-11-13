@@ -441,13 +441,14 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_rooms` (
     COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
-    `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `blockID`  INT(11) UNSIGNED NOT NULL,
-    `eventID`  INT(11) UNSIGNED NOT NULL,
-    `methodID` INT(11) UNSIGNED          DEFAULT NULL,
-    `unitID`   INT(11) UNSIGNED NOT NULL,
-    `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
-    `modified` TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`       INT(20) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `blockID`  INT(11) UNSIGNED    NOT NULL,
+    `eventID`  INT(11) UNSIGNED    NOT NULL,
+    `methodID` INT(11) UNSIGNED             DEFAULT NULL,
+    `unitID`   INT(11) UNSIGNED    NOT NULL,
+    `open`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+    `delta`    VARCHAR(10)         NOT NULL DEFAULT '',
+    `modified` TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     CONSTRAINT `entry` UNIQUE (`eventID`, `blockID`, `unitID`),
     KEY `blockID` (`blockID`),
