@@ -1,8 +1,15 @@
+html {
+    background-color: #f2f5f6;
+    position: relative;
+}
+
 body.tmpl-component.html-default,
 body.tmpl-component.html-default .main {
     background-color: #f2f5f6;
-    height: 100%;
     padding: 0;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 body.tmpl-component.html-default h1, body.tmpl-component.html-default .tail,
@@ -21,8 +28,7 @@ body.tmpl-component.html-default .main input {
 }
 
 .head {
-    margin-top: 4rem;
-    padding: 1.5rem 1.5rem 1rem;
+    padding: 0 1.5rem 1rem;
 }
 
 .head .banner {
@@ -54,9 +60,20 @@ form.form-horizontal .control-label {
     width: 30%;
 }
 
+form.form-horizontal .control-label.inverse {
+    padding-top: 0;
+    text-align: center;
+    width: 60%;
+}
+
 form.form-horizontal .controls {
     margin-left: 1rem;
     width: 60%;
+}
+
+form.form-horizontal .controls.inverse {
+    text-align: center;
+    width: 30%;
 }
 
 .tail {

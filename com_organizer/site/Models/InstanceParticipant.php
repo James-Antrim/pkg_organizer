@@ -91,7 +91,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$today = date('Y-m-d');
+		$today = '2020-11-13';//date('Y-m-d');
 		$time  = date('H:i:s', strtotime($startTime));
 		$query = $this->_db->getQuery(true);
 		$query->select('id')->from('#__organizer_blocks AS b')->where("b.date = '$today' AND startTime = '$time'");
@@ -144,7 +144,54 @@ class InstanceParticipant extends BaseModel
 				Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_FAILED'));
 			}
 		}
+
 		Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_SUCCEEDED'));
+	}
+
+
+	public function confirm()
+	{
+		if (!$participantID = Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_401', 'error');
+
+			return;
+		}
+
+		if (!$instanceID = Helpers\Input::getID())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_400', 'error');
+
+			return;
+		}
+
+		$instance = new Tables\Instances();
+		if (!$instance->load($instanceID))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+
+			return;
+		}
+
+		$query = $this->_db->getQuery(true);
+		$query->select('id')
+			->from('#__organizer_instances')
+			->where("unitID = $instance->unitID")
+			->where("blockID = $instance->blockID")
+			->where("id != $instanceID");
+		$this->_db->setQuery($query);
+
+		if ($instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		{
+			$instanceIDs = implode(',', $instanceIDs);
+
+			$query = $this->_db->getQuery(true);
+			$query->delete('#__organizer_instance_participants')
+				->where("instanceID IN ($instanceIDs)")
+				->where("participantID = $participantID");
+			$this->_db->setQuery($query);
+			Helpers\OrganizerHelper::executeQuery('execute');
+		}
 	}
 
 	/**
