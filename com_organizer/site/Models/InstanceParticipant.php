@@ -91,7 +91,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$today = '2020-11-13';//date('Y-m-d');
+		$today = date('Y-m-d');
 		$time  = date('H:i:s', strtotime($startTime));
 		$query = $this->_db->getQuery(true);
 		$query->select('id')->from('#__organizer_blocks AS b')->where("b.date = '$today' AND startTime = '$time'");

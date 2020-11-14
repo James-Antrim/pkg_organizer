@@ -9,7 +9,8 @@ body.tmpl-component.html-default .main {
     padding: 0;
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(calc(-50% - 2.5rem));
+    width: 100%;
 }
 
 body.tmpl-component.html-default h1, body.tmpl-component.html-default .tail,

@@ -11,7 +11,8 @@ body.tmpl-component.html-default .main, {
   padding: 0;
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(calc(-50% - 2.5rem));
+  width: 100%;
 
   h1, .tail {
     background-color: $font-color;

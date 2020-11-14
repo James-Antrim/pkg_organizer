@@ -191,7 +191,7 @@ class Screen extends BaseModel
 			->order("b.date, b.startTime, b.endTime, e.name_$tag, m.abbreviation_$tag")
 			->group('i.id');
 
-		$today = '2020-11-03';//date('Y-m-d');
+		$today = date('Y-m-d');
 		$time  = date('H:i:s');
 
 		switch ($this->layout)
