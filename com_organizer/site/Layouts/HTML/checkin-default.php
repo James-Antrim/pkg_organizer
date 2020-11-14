@@ -21,6 +21,17 @@ if (!$this->adminContext)
 	echo $this->supplement;
 }
 ?>
+<script type="text/javascript">
+    let timer = null;
+
+    function auto_reload() {
+        window.location = document.URL;
+    }
+
+    window.onload = function () {
+        timer = setTimeout('auto_reload()', 5000);
+    }
+</script>
 <div id="j-main-container" class="span10">
 	<?php if ($count = count($this->instances) and $count > 1) : ?>
 		<?php require_once 'checkin-confirm.php'; ?>

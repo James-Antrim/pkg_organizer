@@ -14,6 +14,12 @@ body.tmpl-component.html-default .main, {
   transform: translateY(calc(-50% - 2.5rem));
   width: 100%;
 
+  #system-messages {
+    bottom: calc(50vh - 7rem);
+    position: fixed;
+    width: 100%;
+  }
+
   h1, .tail {
     background-color: $font-color;
     color: $foreground-color;

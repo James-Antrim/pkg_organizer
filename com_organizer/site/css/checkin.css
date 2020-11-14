@@ -13,6 +13,13 @@ body.tmpl-component.html-default .main {
     width: 100%;
 }
 
+body.tmpl-component.html-default #system-messages,
+body.tmpl-component.html-default .main #system-messages {
+    bottom: calc(50vh - 7rem);
+    position: fixed;
+    width: 100%;
+}
+
 body.tmpl-component.html-default h1, body.tmpl-component.html-default .tail,
 body.tmpl-component.html-default .main h1,
 body.tmpl-component.html-default .main .tail {

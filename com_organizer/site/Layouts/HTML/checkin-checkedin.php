@@ -13,17 +13,6 @@ use Organizer\Helpers;
 
 $instance = $this->instances[0];
 ?>
-<script type="text/javascript">
-    let timer = null;
-
-    function auto_reload() {
-        window.location = document.URL;
-    }
-
-    window.onload = function () {
-        timer = setTimeout('auto_reload()', 60000);
-    }
-</script>
 <form action="#" id="adminForm" method="post" name="adminForm" class="form-horizontal">
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CHECKED_INTO'); ?></div>
     <div class="control-group message"><?php echo $instance['name']; ?></div>

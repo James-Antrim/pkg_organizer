@@ -11,6 +11,17 @@
 use Organizer\Helpers;
 
 ?>
+<script type="text/javascript">
+    let timer = null;
+
+    function auto_reload() {
+        window.location = document.URL;
+    }
+
+    window.onload = function () {
+        timer = setTimeout('auto_reload()', 60000);
+    }
+</script>
 <div class='head'>
     <div class='banner'>
         <div class='logo'><img src="components/com_organizer/images/logo.svg" alt="THM-Logo"/></div>
