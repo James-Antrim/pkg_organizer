@@ -1,6 +1,11 @@
 @import 'variables';
 
-.event-date {
+body, html, div.main {
+  background-color: $grey-50 !important;
+  height: 100%;
+}
+
+.date-container {
   background-color: white;
   margin-bottom: 10px;
 }
@@ -13,10 +18,11 @@
 
   /************** header *********************************************/
   .head {
-    padding: 3em 48px;
+    background-color: $foreground-color;
     border-bottom: 1px solid #ECECEC;
     box-shadow: 0 5px 3px #888888;
     margin-bottom: 10px;
+    padding: 3em 48px;
     position: relative;
 
     .logo {
@@ -51,11 +57,11 @@
   }
 
   .instances {
-    margin: 0 48px;
+    padding: 0 1rem;
     text-align: center;
 
     &.current-layout .instance {
-      padding: .2rem 0;
+      margin: .2rem 0;
     }
 
     .explanation {
@@ -65,12 +71,16 @@
     }
 
     .date-header {
-      background-color: $blue-75;
+      background-color: $grey-100;
       color: $foreground-color;
       font-size: 1.6rem;
       padding-top: 6px;
       text-align: center;
       width: 100%;
+    }
+
+    .row0 {
+      background-color: $foreground-color;
     }
 
     .row1 {
@@ -81,7 +91,7 @@
       background: $green-50;
     }
 
-    .event-times, .event-main {
+    .block-times, .instance-display {
       display: inline-block;
       float: left;
       height: 100%;
@@ -89,17 +99,17 @@
       vertical-align: middle;
     }
 
-    .event-times {
+    .block-times {
       font-size: 2.1rem;
       padding: 1rem 0;
       width: 7rem;
     }
 
-    .event-main {
+    .instance-display {
       width: calc(100% - 7rem);
     }
 
-    .event-names, .instance-persons, .event-comment {
+    .event-names, .instance-persons, .unit-comment {
       padding-top: .5rem;
     }
 
@@ -116,7 +126,7 @@
       font-size: 2.1rem;
     }
 
-    .event-comment {
+    .unit-comment {
       font-size: 1.5rem;
       padding-bottom: .5rem;
     }

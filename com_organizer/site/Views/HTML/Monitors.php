@@ -17,7 +17,7 @@ use Organizer\Helpers;
  */
 class Monitors extends ListView
 {
-	const DAILY = 1, MIXED = 2, CONTENT = 3, EVENT_LIST = 4;
+	const UPCOMING = 0, CURRENT = 1, MIXED = 2, CONTENT = 3;
 
 	public $displayBehaviour = [];
 
@@ -37,10 +37,10 @@ class Monitors extends ListView
 	 */
 	public function __construct($config = array())
 	{
-		$this->displayBehaviour[self::DAILY]      = Helpers\Languages::_('ORGANIZER_DAILY_PLAN');
-		$this->displayBehaviour[self::MIXED]      = Helpers\Languages::_('ORGANIZER_MIXED_PLAN');
-		$this->displayBehaviour[self::CONTENT]    = Helpers\Languages::_('ORGANIZER_CONTENT_DISPLAY');
-		$this->displayBehaviour[self::EVENT_LIST] = Helpers\Languages::_('ORGANIZER_EVENT_LIST');
+		$this->displayBehaviour[self::UPCOMING] = Helpers\Languages::_('ORGANIZER_UPCOMING_INSTANCES');
+		$this->displayBehaviour[self::CURRENT]    = Helpers\Languages::_('ORGANIZER_CURRENT_INSTANCES');
+		$this->displayBehaviour[self::MIXED]    = Helpers\Languages::_('ORGANIZER_MIXED_PLAN');
+		$this->displayBehaviour[self::CONTENT]  = Helpers\Languages::_('ORGANIZER_CONTENT_DISPLAY');
 
 		parent::__construct($config);
 	}

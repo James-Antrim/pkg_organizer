@@ -1,4 +1,9 @@
-.event-date {
+body, html, div.main {
+    background-color: #a4adb2 !important;
+    height: 100%;
+}
+
+.date-container {
     background-color: white;
     margin-bottom: 10px;
 }
@@ -12,10 +17,11 @@
 }
 
 .screen .head {
-    padding: 3em 48px;
+    background-color: white;
     border-bottom: 1px solid #ECECEC;
     box-shadow: 0 5px 3px #888888;
     margin-bottom: 10px;
+    padding: 3em 48px;
     position: relative;
 }
 
@@ -49,12 +55,12 @@
 }
 
 .screen .instances {
-    margin: 0 48px;
+    padding: 0 1rem;
     text-align: center;
 }
 
 .screen .instances.current-layout .instance {
-    padding: .2rem 0;
+    margin: .2rem 0;
 }
 
 .screen .instances .explanation {
@@ -64,12 +70,16 @@
 }
 
 .screen .instances .date-header {
-    background-color: #405e9a;
+    background-color: #4a5c66;
     color: white;
     font-size: 1.6rem;
     padding-top: 6px;
     text-align: center;
     width: 100%;
+}
+
+.screen .instances .row0 {
+    background-color: white;
 }
 
 .screen .instances .row1 {
@@ -80,7 +90,7 @@
     background: #bfdc91;
 }
 
-.screen .instances .event-times, .screen .instances .event-main {
+.screen .instances .block-times, .screen .instances .instance-display {
     display: inline-block;
     float: left;
     height: 100%;
@@ -88,17 +98,17 @@
     vertical-align: middle;
 }
 
-.screen .instances .event-times {
+.screen .instances .block-times {
     font-size: 2.1rem;
     padding: 1rem 0;
     width: 7rem;
 }
 
-.screen .instances .event-main {
+.screen .instances .instance-display {
     width: calc(100% - 7rem);
 }
 
-.screen .instances .event-names, .screen .instances .instance-persons, .screen .instances .event-comment {
+.screen .instances .event-names, .screen .instances .instance-persons, .screen .instances .unit-comment {
     padding-top: .5rem;
 }
 
@@ -115,7 +125,7 @@
     font-size: 2.1rem;
 }
 
-.screen .instances .event-comment {
+.screen .instances .unit-comment {
     font-size: 1.5rem;
     padding-bottom: .5rem;
 }

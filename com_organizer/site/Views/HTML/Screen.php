@@ -18,6 +18,8 @@ use Joomla\CMS\Uri\Uri;
  */
 class Screen extends BaseHTMLView
 {
+	protected $_layout = 'upcoming_instances';
+
 	public $model;
 
 	/**

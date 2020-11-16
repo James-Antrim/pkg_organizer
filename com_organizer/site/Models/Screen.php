@@ -104,9 +104,8 @@ class Screen extends BaseModel
 
 		if (Helpers\Input::getCMD('tmpl') !== 'component')
 		{
-			$URL = Uri::root() . "?layout=$layout&option=com_organizer&room=$name&tmpl=component&view=screen";
-			$URL = $gridID ? $URL . "&gridID=$gridID" : $URL;
-			Helpers\OrganizerHelper::getApplication()->redirect($URL);
+			$query = Helpers\Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
+			Helpers\OrganizerHelper::getApplication()->redirect(Uri::root() . "?$query");
 		}
 
 		$this->room   = ['id' => $roomID, 'name' => $name];

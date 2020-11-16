@@ -61,7 +61,7 @@ $rowNumber = 0;
 				$dates[]   = $instance['date'];
 				$rowNumber = 0;
 
-				echo '<div class="event-date">';
+				echo '<div class="date-container">';
 				echo "<div class=\"date-header\"><span>$date</span></div>";
 			}
 
@@ -71,21 +71,21 @@ $rowNumber = 0;
 			$event        = empty($instance['method']) ? $instance['event'] : "{$instance['event']} - {$instance['method']}"
 			?>
             <div class="<?php echo $rowClass; ?> ym-clearfix instance">
-                <div class="event-times">
+                <div class="block-times">
 					<?php echo Helpers\Dates::formatTime($instance['startTime']); ?><br>
                     -<br>
 					<?php echo Helpers\Dates::formatTime($instance['endTime']); ?>
                 </div>
-                <div class="event-main">
+                <div class="instance-display">
                     <div class="event-names <?php echo $paddingClass; ?>">
 						<?php echo $event; ?>
                     </div>
-                    <div class="event-teachers"><?php echo implode(' / ', $instance['persons']); ?></div>
+                    <div class="instance-persons"><?php echo implode(' / ', $instance['persons']); ?></div>
 					<?php
 					if (!empty($instance['comment']))
 					{
 						?>
-                        <div class="event-comment">
+                        <div class="unit-comment">
                             (<?php echo $instance['comment']; ?>)
                         </div>
 						<?php

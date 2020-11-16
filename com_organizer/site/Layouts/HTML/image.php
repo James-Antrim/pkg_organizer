@@ -8,6 +8,16 @@
  * @link        www.thm.de
  */
 
+use Joomla\CMS\Uri\Uri;
+
+$style = [
+	"background-image: url('" . Uri::base(true) . '/images/organizer/' . $this->model->image . "')",
+    "background-position: center center",
+	"background-repeat: no-repeat",
+	"background-size: contain",
+    "height: 100%"
+]
+
 ?>
 <script type="text/javascript">
     let timer = null;
@@ -18,7 +28,8 @@
     }
 
     window.onload = function () {
+        document.body.style.backgroundImage = '';
         timer = setTimeout('auto_reload()', 60000);
     }
 </script>
-<img class="room-display-content" src="images/organizer/<?php echo $this->model->image; ?>">
+<div class='screen' style="<?php echo implode(';', $style)?>"></div>

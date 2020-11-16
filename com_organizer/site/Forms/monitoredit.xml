@@ -11,8 +11,9 @@
             <option value='1'>YES</option>
             <option value='0'>NO</option>
         </field>
-        <field name="display" type="Options" label="DISPLAY_BEHAVIOUR" required="true">
-            <option value='1'>DAILY_PLAN</option>
+        <field name="display" type="Options" label="DISPLAY_BEHAVIOUR" required="true" default="4">
+            <option value='0'>UPCOMING_INSTANCES</option>
+            <option value='1'>CURRENT_INSTANCES</option>
             <option value='2'>MIXED_PLAN</option>
             <option value='3'>CONTENT_DISPLAY</option>
         </field>

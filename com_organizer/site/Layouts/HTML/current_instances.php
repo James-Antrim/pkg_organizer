@@ -54,16 +54,16 @@ $rowNumber = 0;
 
 			?>
             <div class="<?php echo $rowClass . ' ' . $activeClass; ?> ym-clearfix instance">
-                <div class="event-times">
+                <div class="block-times">
 					<?php echo "$startTime<br>-<br>$endTime"; ?>
                 </div>
-                <div class="event-main">
+                <div class="instance-display">
                     <div class="event-names <?php echo $paddingClass; ?>">
 						<?php echo $event; ?>
                     </div>
                     <div class="instance-persons"><?php echo implode(' / ', $period['persons']); ?></div>
 					<?php if (!empty($period['comment'])): ?>
-                        <div class="event-comment">
+                        <div class="unit-comment">
                             (<?php echo $period['comment']; ?>)
                         </div>
 					<?php endif; ?>
