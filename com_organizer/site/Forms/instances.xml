@@ -28,7 +28,7 @@
     </fields>
     <fields name="list">
         <field name="date" type="Date" label="DATE" class="input-8" empty="false" onchange="this.form.submit();"/>
-        <field name="interval" type="Options" label="Language" onchange="this.form.submit();" default="week">
+        <field name="interval" type="Options" label="Language" onchange="this.form.submit();" default="day">
             <option value="day">DAY</option>
             <option value="week">WEEK</option>
             <option value="month">MONTH</option>
