@@ -37,6 +37,21 @@ CREATE TABLE IF NOT EXISTS `#__organizer_blocks` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `#__organizer_bookings` (
+    `id`      INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `blockID` INT(11) UNSIGNED NOT NULL,
+    `unitID`  INT(11) UNSIGNED NOT NULL,
+    `code`    VARCHAR(60)      NOT NULL,
+    `notes`   TEXT,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `entry` UNIQUE (`blockID`, `unitID`),
+    KEY `blockID` (`blockID`),
+    KEY `unitID` (`unitID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `#__organizer_buildings` (
     `id`           INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
     `campusID`     INT(11) UNSIGNED             DEFAULT NULL,
@@ -441,13 +456,13 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_rooms` (
     COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
-    `id`       INT(20) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `blockID`  INT(11) UNSIGNED    NOT NULL,
-    `eventID`  INT(11) UNSIGNED    NOT NULL,
-    `methodID` INT(11) UNSIGNED             DEFAULT NULL,
-    `unitID`   INT(11) UNSIGNED    NOT NULL,
-    `delta`    VARCHAR(10)         NOT NULL DEFAULT '',
-    `modified` TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `blockID`  INT(11) UNSIGNED NOT NULL,
+    `eventID`  INT(11) UNSIGNED NOT NULL,
+    `methodID` INT(11) UNSIGNED          DEFAULT NULL,
+    `unitID`   INT(11) UNSIGNED NOT NULL,
+    `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
+    `modified` TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     CONSTRAINT `entry` UNIQUE (`eventID`, `blockID`, `unitID`),
     KEY `blockID` (`blockID`),
@@ -863,6 +878,10 @@ ALTER TABLE `#__organizer_associations`
     ADD CONSTRAINT `association_poolID_fk` FOREIGN KEY (`poolID`) REFERENCES `#__organizer_pools` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `association_programID_fk` FOREIGN KEY (`programID`) REFERENCES `#__organizer_programs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `association_subjectID_fk` FOREIGN KEY (`subjectID`) REFERENCES `#__organizer_subjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `#__organizer_bookings`
+    ADD CONSTRAINT `booking_blockID_fk` FOREIGN KEY (`blockID`) REFERENCES `#__organizer_blocks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `booking_unitID_fk` FOREIGN KEY (`unitID`) REFERENCES `#__organizer_units` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_buildings`
     ADD CONSTRAINT `building_campusID_fk` FOREIGN KEY (`campusID`) REFERENCES `#__organizer_campuses` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
