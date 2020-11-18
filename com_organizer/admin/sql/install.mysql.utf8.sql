@@ -446,7 +446,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
     `eventID`  INT(11) UNSIGNED    NOT NULL,
     `methodID` INT(11) UNSIGNED             DEFAULT NULL,
     `unitID`   INT(11) UNSIGNED    NOT NULL,
-    `open`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     `delta`    VARCHAR(10)         NOT NULL DEFAULT '',
     `modified` TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),

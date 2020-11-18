@@ -42,14 +42,6 @@ class Instances extends BaseTable
 	public $methodID;
 
 	/**
-	 * A flag which displays whether the resource is currently open for checkin.
-	 * TINYINT(1) UNSIGNED NOT NULL
-	 *
-	 * @var string
-	 */
-	public $open;
-
-	/**
 	 * The id of the unit entry referenced.
 	 * INT(11) UNSIGNED NOT NULL
 	 *

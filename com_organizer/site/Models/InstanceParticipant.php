@@ -109,8 +109,8 @@ class InstanceParticipant extends BaseModel
 		$query->select('id')
 			->from('#__organizer_instances')
 			->where("blockID IN ($blockIDs)")
-			->where("unitID = $unit->id")
-			->where('open = 1');
+			->where("unitID = $unit->id");
+		// TODO require inner join on the table that identifies by unitID and blockID
 		$this->_db->setQuery($query);
 
 		if (!$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
