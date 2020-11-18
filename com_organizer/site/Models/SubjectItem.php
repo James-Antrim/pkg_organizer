@@ -319,13 +319,13 @@ class SubjectItem extends ItemModel
 	 * Loads an array of names and links into the subject model for subjects for
 	 * which this subject is a prerequisite.
 	 *
-	 * @param   object &$subject  the object containing subject data
+	 * @param   array &$subject  the object containing subject data
 	 *
 	 * @return void
 	 */
-	private function setPersons(&$subject)
+	private function setPersons(array &$subject)
 	{
-		$personData = Helpers\Persons::getDataBySubject($subject['subjectID'], null, true, false);
+		$personData = Helpers\Persons::getDataBySubject($subject['subjectID'], 0, true, false);
 
 		if (empty($personData))
 		{
