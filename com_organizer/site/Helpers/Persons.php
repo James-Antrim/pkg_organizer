@@ -347,7 +347,10 @@ class Persons extends Associated implements Selectable
 			}
 
 			$wherray[] = $where;
+		}
 
+		if ($wherray)
+		{
 			$query->where(implode(' OR ', $wherray));
 		}
 
