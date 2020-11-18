@@ -115,13 +115,13 @@ class RoomStatistics
 		$this->spreadSheet->getDefaultStyle()->getAlignment()
 			->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
 
-		$this->spreadSheet->getDefaultStyle()->applyFromArray(array(
+		$this->spreadSheet->getDefaultStyle()->applyFromArray([
 			'font' => [
 				'name'  => 'arial',
 				'size'  => 12,
 				'color' => ['rgb' => '394A59']
 			]
-		));
+		]);
 
 		$this->addSummarySheet();
 		$this->addWeekSheet();

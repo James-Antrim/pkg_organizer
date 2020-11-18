@@ -32,7 +32,7 @@ $type     = $viewName === 'SubjectSelection' ? 's' : 'p';
 		<?php endforeach; ?>
     </div>
     <div class="js-stools-container-bar">
-		<?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
+		<?php echo LayoutHelper::render('joomla.searchtools.default', ['view' => $this]); ?>
     </div>
     <table class="table table-striped" id="<?php echo $viewName; ?>-list">
         <thead>

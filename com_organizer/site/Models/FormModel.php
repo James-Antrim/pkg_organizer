@@ -87,7 +87,7 @@ class FormModel extends ParentModel
 	 *
 	 * @return  Form|bool  Form object on success, false on error.
 	 */
-	protected function loadForm($name, $source = null, $options = array(), $clear = false, $xpath = '')
+	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = '')
 	{
 		Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
 		Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');

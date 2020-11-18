@@ -20,7 +20,7 @@ $filters = $this->filterForm->getGroup('filter');
 			<?php $dataShowOn = ''; ?>
 			<?php if ($field->showon) : ?>
 				<?php Helpers\HTML::_('bootstrap.framework'); ?>
-				<?php Helpers\HTML::_('script', 'jui/cms.js', array('version' => 'auto', 'relative' => true)); ?>
+				<?php Helpers\HTML::_('script', 'jui/cms.js', ['version' => 'auto', 'relative' => true]); ?>
 				<?php $dataShowOn = " data-showon='" . json_encode($showON, JSON_UNESCAPED_UNICODE) . "'"; ?>
 			<?php endif; ?>
             <div class="js-stools-field-filter"<?php echo $dataShowOn; ?>>

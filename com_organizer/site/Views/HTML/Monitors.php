@@ -35,7 +35,7 @@ class Monitors extends ListView
 	 *
 	 * @param   array  $config  A named configuration array for object construction.
 	 */
-	public function __construct($config = array())
+	public function __construct($config = [])
 	{
 		$this->displayBehaviour[self::UPCOMING] = Helpers\Languages::_('ORGANIZER_UPCOMING_INSTANCES');
 		$this->displayBehaviour[self::CURRENT]    = Helpers\Languages::_('ORGANIZER_CURRENT_INSTANCES');

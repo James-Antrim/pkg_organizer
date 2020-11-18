@@ -28,7 +28,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 *
 	 * @param   array  $config
 	 */
-	public function __construct($config = array())
+	public function __construct($config = [])
 	{
 		try
 		{

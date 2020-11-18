@@ -171,7 +171,7 @@ class FileOptionsField extends OptionsField
 	 */
 	protected function getOptions()
 	{
-		$options = array();
+		$options = [];
 
 		$path = $this->directory;
 

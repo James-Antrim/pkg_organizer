@@ -115,7 +115,7 @@ class Controller extends BaseController
 	 * @return BaseController  A BaseController object to support chaining.
 	 * @throws Exception
 	 */
-	public function display($cachable = false, $urlparams = array())
+	public function display($cachable = false, $urlparams = [])
 	{
 		$document = Factory::getDocument();
 		$format   = $this->input->get('format', $document->getType());
@@ -126,7 +126,7 @@ class Controller extends BaseController
 			$name,
 			$format,
 			'',
-			array('base_path' => $this->basePath, 'layout' => $template)
+			['base_path' => $this->basePath, 'layout' => $template]
 		);
 
 		// Only html views require models
@@ -187,7 +187,7 @@ class Controller extends BaseController
 	 *
 	 * @return  BaseDatabaseModel|false  Model object on success; otherwise false on failure.
 	 */
-	public function getModel($name = '', $prefix = '', $config = array())
+	public function getModel($name = '', $prefix = '', $config = [])
 	{
 		$name = empty($name) ? $this->getName() : $name;
 
@@ -228,12 +228,12 @@ class Controller extends BaseController
 	 *
 	 * @return  HtmlView  Reference to the view or an error.
 	 */
-	public function getView($name = '', $type = '', $prefix = 'x', $config = array())
+	public function getView($name = '', $type = '', $prefix = 'x', $config = [])
 	{
 		// @note We use self so we only access stuff in this class rather than in all classes.
 		if (!isset(self::$views))
 		{
-			self::$views = array();
+			self::$views = [];
 		}
 
 		if (empty($name))

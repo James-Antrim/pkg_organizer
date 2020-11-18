@@ -32,7 +32,7 @@ class CourseItem extends ItemView
 	 *
 	 * @param   array  $config  A named configuration array for object construction.
 	 */
-	public function __construct($config = array())
+	public function __construct($config = [])
 	{
 		parent::__construct($config);
 

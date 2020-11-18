@@ -215,7 +215,7 @@ class HTML extends HTMLHelper
 	{
 		$app    = OrganizerHelper::getApplication();
 		$layout = new FileLayout('joomla.toolbar.title');
-		$html   = $layout->render(array('title' => $title, 'icon' => $icon));
+		$html   = $layout->render(['title' => $title, 'icon' => $icon]);
 
 		$app->JComponentTitle = $html;
 		Factory::getDocument()->setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));

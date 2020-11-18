@@ -31,7 +31,7 @@ class IntegerField extends OptionsField
 	 */
 	protected function getOptions()
 	{
-		$options = array();
+		$options = [];
 
 		// Initialize some field attributes.
 		$first  = (int) $this->element['first'];

@@ -138,7 +138,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return  Form|bool  Form object on success, False on error.
 	 */
-	protected function loadForm($name, $source = null, $options = array(), $clear = false, $xpath = false)
+	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false)
 	{
 		Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
 		Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');

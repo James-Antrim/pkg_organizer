@@ -37,7 +37,7 @@ $resetText = $this->mobile ? "<span class=\"icon-undo-2\"></span>" : Helpers\Lan
 			<?php echo $filters['filter_search']->input; ?>
 			<?php if ($filters['filter_search']->description) : ?>
 				<?php JHtmlBootstrap::tooltip('#filter_search',
-					array('title' => Helpers\Languages::_($filters['filter_search']->description))); ?>
+					['title' => Helpers\Languages::_($filters['filter_search']->description)]); ?>
 			<?php endif; ?>
             <button type="submit" class="btn hasTooltip"
                     title="<?php echo Helpers\Languages::tooltip('ORGANIZER_SEARCH'); ?>"

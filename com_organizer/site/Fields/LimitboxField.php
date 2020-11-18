@@ -29,7 +29,7 @@ class LimitboxField extends OptionsField
 	 *
 	 * @var  array
 	 */
-	protected $defaultLimits = array(5, 10, 15, 20, 25, 30, 50, 100, 200, 500);
+	protected $defaultLimits = [5, 10, 15, 20, 25, 30, 50, 100, 200, 500];
 
 	/**
 	 * Method to get the options to populate to populate list
@@ -45,7 +45,7 @@ class LimitboxField extends OptionsField
 		{
 			$this->options = parent::getOptions();
 
-			$options = array();
+			$options = [];
 			$limits  = $this->defaultLimits;
 
 			// Limits manually specified
@@ -81,10 +81,10 @@ class LimitboxField extends OptionsField
 			{
 				foreach ($limits as $value)
 				{
-					$options[] = (object) array(
+					$options[] = (object) [
 						'value' => $value,
 						'text'  => ($value != 0) ? Helpers\Languages::_('J' . $value) : Helpers\Languages::_('JALL'),
-					);
+					];
 				}
 
 				$this->options = array_merge($this->options, $options);

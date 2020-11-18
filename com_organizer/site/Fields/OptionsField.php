@@ -86,7 +86,7 @@ class OptionsField extends FormField
 	protected function getOptions()
 	{
 		$fieldName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $this->fieldname);
-		$options   = array();
+		$options   = [];
 
 		foreach ($this->element->xpath('option') as $optionTag)
 		{
@@ -133,7 +133,7 @@ class OptionsField extends FormField
 	 *
 	 * @return  OptionsField  For chaining.
 	 */
-	public function addOption($text, $attributes = array())
+	public function addOption($text, $attributes = [])
 	{
 		if ($text && $this->element instanceof SimpleXMLElement)
 		{

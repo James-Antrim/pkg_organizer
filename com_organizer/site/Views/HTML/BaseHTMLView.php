@@ -296,6 +296,6 @@ abstract class BaseHTMLView extends BaseView
 		$document->addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
 		$document->setCharset('utf-8');
 
-		Helpers\HTML::_('bootstrap.tooltip', '.hasTooltip', array('placement' => 'right'));
+		Helpers\HTML::_('bootstrap.tooltip', '.hasTooltip', ['placement' => 'right']);
 	}
 }
