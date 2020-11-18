@@ -148,7 +148,7 @@ class Instances extends ListView
 	 *
 	 * @return string
 	 */
-	private function getPersons($item)
+	private function getPersons(object $item)
 	{
 		$added   = Languages::_('ORGANIZER_PERSON_ADDED_ON');
 		$removed = Languages::_('ORGANIZER_PERSON_REMOVED_ON');
@@ -236,7 +236,7 @@ class Instances extends ListView
 	 *
 	 * @return string
 	 */
-	private function getResource($item, $resourceName, $rIndex)
+	private function getResource(object $item, string $resourceName, string $rIndex)
 	{
 		$constant        = strtoupper($resourceName);
 		$collectionIndex = $resourceName . 's';
@@ -336,7 +336,7 @@ class Instances extends ListView
 	 *
 	 * @return array|string
 	 */
-	private function getStatus($item)
+	private function getStatus(object $item)
 	{
 		$class = 'status-display hasToolTip';
 		$title = '';
@@ -389,7 +389,7 @@ class Instances extends ListView
 	 *
 	 * @return array the title column
 	 */
-	private function getTitle($item)
+	private function getTitle(object $item)
 	{
 		$item->comment = $this->resolveLinks($item->comment);
 
