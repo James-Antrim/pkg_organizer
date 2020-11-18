@@ -18,9 +18,10 @@ use Organizer\Tables;
  */
 class Persons extends Associated implements Selectable
 {
-	const COORDINATES = 1, NO = 0, TEACHER = 2, YES = 1;
+	// TODO move all person related constants here and use this class instead of redefining them
+	private const COORDINATES = 1;
 
-	static protected $resource = 'person';
+	protected static $resource = 'person';
 
 	/**
 	 * Retrieves person entries from the database
@@ -86,7 +87,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return void  removes duplicate list entries dependent on role
 	 */
-	private static function ensureUnique(&$list)
+	private static function ensureUnique(array &$list)
 	{
 		$keysToIds = [];
 		foreach ($list as $key => $item)
@@ -115,7 +116,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return array  an array of person data
 	 */
-	public static function getDataBySubject($subjectID, $role = null, $multiple = false, $unique = true)
+	public static function getDataBySubject(int $subjectID, int $role = 0, bool $multiple = false, bool $unique = true)
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -123,14 +124,14 @@ class Persons extends Associated implements Selectable
 		$query->from('#__organizer_persons AS p');
 		$query->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id');
 		$query->leftJoin('#__users AS u ON u.username = p.username');
-		$query->where("sp.subjectID = '$subjectID' ");
+		$query->where("sp.subjectID = $subjectID");
 
 		if (!empty($role))
 		{
-			$query->where("sp.role = '$role'");
+			$query->where("sp.role = $role");
 		}
 
-		$query->order('surname ASC');
+		$query->order('surname');
 		$dbo->setQuery($query);
 
 		if ($multiple)
@@ -159,7 +160,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return string  the default name of the person
 	 */
-	public static function getDefaultName($personID)
+	public static function getDefaultName(int $personID)
 	{
 		$person = new Tables\Persons();
 		$person->load($personID);
@@ -183,7 +184,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return array the organizations with which the person is associated id => name
 	 */
-	public static function getOrganizationNames($personID)
+	public static function getOrganizationNames(int $personID)
 	{
 		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
@@ -202,11 +203,11 @@ class Persons extends Associated implements Selectable
 	 * Generates a preformatted person text based upon organizer's internal data
 	 *
 	 * @param   int   $personID  the person's id
-	 * @param   bool  $short     Whether or not the person's forename should be abbrevieated
+	 * @param   bool  $short     Whether or not the person's forename should be abbreviated
 	 *
 	 * @return string  the default name of the person
 	 */
-	public static function getLNFName($personID, $short = false)
+	public static function getLNFName(int $personID, bool $short = false)
 	{
 		$person = new Tables\Persons();
 		$person->load($personID);
@@ -234,7 +235,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return int the id of the person entry if existent, otherwise 0
 	 */
-	public static function getIDByUserID($userID = null)
+	public static function getIDByUserID(int $userID = 0)
 	{
 		if (!$user = Users::getUser($userID))
 		{
@@ -360,7 +361,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @param   array &$persons  the persons array to sort.
 	 */
-	public static function nameSort(&$persons)
+	public static function nameSort(array &$persons)
 	{
 		uasort($persons, function ($personOne, $personTwo) {
 			if ($personOne['surname'] == $personTwo['surname'])
@@ -377,7 +378,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @param   array &$persons  the persons array to sort.
 	 */
-	public static function roleSort(&$persons)
+	public static function roleSort(array &$persons)
 	{
 		uasort($persons, function ($personOne, $personTwo) {
 			$roleOne = isset($personOne['role'][self::COORDINATES]);
