@@ -231,15 +231,19 @@ class InstanceParticipant extends BaseModel
 			return [];
 		}
 
+		$today = date('Y-m-d');
+		$now   = date('H:i:s');
+
 		$instanceIDs = [];
 		$query       = $this->_db->getQuery(true);
 		$query->select('i.id')
 			->from('#__organizer_instances AS i')
+			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
 			->where("i.eventID = {$instance->eventID}")
 			->where("i.unitID = {$instance->unitID}")
+			->where("(b.date > '$today' OR (b.date = '$today' AND b.endTime > '$now'))")
 			->order('i.id');
 
-		// TODO only return instances that have not yet begun
 		// TODO only return instances that are not full
 
 		switch ($matchingMethod)
@@ -248,8 +252,7 @@ class InstanceParticipant extends BaseModel
 				$block = new Tables\Blocks();
 				if ($block->load($instance->blockID))
 				{
-					$query->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-						->where("b.dow = {$block->dow}")
+					$query->where("b.dow = {$block->dow}")
 						->where("b.endTime = '{$block->endTime}'")
 						->where("b.startTime = '{$block->startTime}'");
 					$this->_db->setQuery($query);
@@ -257,7 +260,10 @@ class InstanceParticipant extends BaseModel
 				}
 				break;
 			case self::INSTANCE_MODE:
-				$instanceIDs = [$instanceID];
+				$query->where("i.id = $instanceID");
+				$this->_db->setQuery($query);
+				$instanceID  = Helpers\OrganizerHelper::executeQuery('loadResult', 0);
+				$instanceIDs = $instanceID ? [$instanceID] : [];
 				break;
 			case self::TERM_MODE:
 				$this->_db->setQuery($query);
