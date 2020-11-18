@@ -28,7 +28,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @param   JDatabaseQuery  $query  the query to modify
 	 * @param   string          $alias  the table alias
-	 * @param   string|bool           $delta  string the date for the delta or bool false
+	 * @param   string|bool     $delta  string the date for the delta or bool false
 	 *
 	 * @return void modifies the query
 	 */
@@ -159,6 +159,37 @@ class Instances extends ResourceHelper
 		}
 
 		return Dates::formatDate($date);
+	}
+
+	/**
+	 * Retrieves the groupIDs associated with the instance.
+	 *
+	 * @param   int  $instanceID  the id of the instance
+	 *
+	 * @return array
+	 */
+	public static function getGroupIDs(int $instanceID)
+	{
+		$instance = new Tables\Instances();
+		if (!$instance->load($instanceID))
+		{
+			return [];
+		}
+
+		$dbo   = Factory::getDbo();
+		$query = $dbo->getQuery(true);
+		$query->select('DISTINCT groupID')
+			->from('#__organizer_instance_groups AS ig')
+			->where("ig.delta != 'removed'")
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
+			->where("ip.delta != 'removed'")
+			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+			->where("i.blockID = $instance->blockID")
+			->where("i.delta != 'removed'")
+			->where("i.unitID = $instance->unitID");
+		$dbo->setQuery($query);
+
+		return OrganizerHelper::executeQuery('loadColumn', []);
 	}
 
 	/**
@@ -518,6 +549,25 @@ class Instances extends ResourceHelper
 		}
 
 		return $name;
+	}
+
+	/**
+	 * Retrieves the
+	 *
+	 * @param   int  $instanceID
+	 *
+	 * @return array
+	 */
+	public static function getOrganizationIDs(int $instanceID)
+	{
+		$organizationIDs = [];
+
+		foreach (self::getGroupIDs($instanceID) as $groupID)
+		{
+			$organizationIDs = array_merge($organizationIDs, Groups::getOrganizationIDs($groupID));
+		}
+
+		return $organizationIDs;
 	}
 
 	/**

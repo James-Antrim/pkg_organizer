@@ -342,6 +342,14 @@ class Can
 			case 'course':
 			case 'courses':
 				return (Courses::coordinates($resourceID) or Courses::hasResponsibility($resourceID));
+			case 'instance':
+			case 'instances':
+				if (Instances::teaches($resourceID))
+				{
+					return true;
+				}
+
+				return array_intersect(self::manageTheseOrganizations(), Instances::getOrganizationIDs($resourceID)) ? true : false;
 			case 'facilities':
 				return $user->authorise('organizer.fm', 'com_organizer');
 			case 'organization':

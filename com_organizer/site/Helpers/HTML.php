@@ -124,6 +124,30 @@ class HTML extends HTMLHelper
 	}
 
 	/**
+	 * Creates the HTML string for an icon.
+	 *
+	 * @param   string  $name  the name of the icon class
+	 * @param   string  $tip   text to be used as a tooltip
+	 * @param   bool    $aria  true if the screen reader should ignore
+	 *
+	 * @return string
+	 */
+	public static function icon(string $name, string $tip = '', bool $aria = false)
+	{
+		$aria  = $aria ? 'aria-hidden="true"' : '';
+		$class = "class=\"icon-$name\"";
+		$title = '';
+
+		if ($tip)
+		{
+			$class .= ' hasTooltip';
+			$title = "title=\"$tip\"";
+		}
+
+		return "<span $aria $class $title></span>";
+	}
+
+	/**
 	 * Translates an associative array of attributes into a string suitable for use in HTML.
 	 *
 	 * @param   array  $array  the element attributes
@@ -191,16 +215,6 @@ class HTML extends HTMLHelper
 
 		$app->JComponentTitle = $html;
 		Factory::getDocument()->setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
-	}
-
-	public static function setPreferencesButton()
-	{
-		$uri    = (string) Uri::getInstance();
-		$return = urlencode(base64_encode($uri));
-		$link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
-
-		$toolbar = Toolbar::getInstance('toolbar');
-		$toolbar->appendButton('Link', 'options', Languages::_('ORGANIZER_SETTINGS'), $link);
 	}
 
 	/**
