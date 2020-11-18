@@ -721,6 +721,49 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Sets the instance's bookingID
+	 *
+	 * @param   array  &$instance the instance to modify
+	 *
+	 * @return void
+	 */
+	public static function setBooking(array &$instance)
+	{
+		$booking = new Tables\Bookings();
+		$exists = $booking->load(['blockID' => $instance['blockID'], 'unitID' => $instance['unitID']]);
+		$instance['bookingID'] = $exists ? $booking->id : null;
+	}
+
+	/**
+	 * Sets/overwrites attributes based on subject associations.
+	 *
+	 * @param   array &$instance  the array of instance attributes
+	 *
+	 * @return void modifies the instance
+	 */
+	private static function setCourse(array &$instance)
+	{
+		$coursesTable = new Tables\Courses();
+		if (empty($instance['courseID']) or !$coursesTable->load($instance['courseID']))
+		{
+			return;
+		}
+
+		$tag                      = Languages::getTag();
+		$instance['campusID']     = $coursesTable->campusID ? $coursesTable->campusID : $instance['campusID'];
+		$instance['courseGroups'] = $coursesTable->groups ? $coursesTable->groups : '';
+		$instance['courseName']   = $coursesTable->{"name_$tag"} ? $coursesTable->{"name_$tag"} : '';
+		$instance['deadline']     = $coursesTable->deadline ? $coursesTable->deadline : $instance['deadline'];
+		$instance['fee']          = $coursesTable->fee ? $coursesTable->fee : $instance['fee'];
+		$instance['full']         = Courses::isFull($instance['courseID']);
+
+		$instance['description']      = (empty($instance['description']) and $coursesTable->{"description_$tag"}) ?
+			$coursesTable->{"description_$tag"} : $instance['description'];
+		$instance['registrationType'] = $coursesTable->registrationType ?
+			$coursesTable->registrationType : $instance['registrationType'];
+	}
+
+	/**
 	 * Sets the start and end date parameters and adjusts the date parameter as appropriate.
 	 *
 	 * @param   array &$parameters  the parameters used for event retrieval
@@ -779,35 +822,6 @@ class Instances extends ResourceHelper
 		}
 
 		$parameters = array_merge($parameters, $dates);
-	}
-
-	/**
-	 * Sets/overwrites attributes based on subject associations.
-	 *
-	 * @param   array &$instance  the array of instance attributes
-	 *
-	 * @return void modifies the instance
-	 */
-	private static function setCourse(array &$instance)
-	{
-		$coursesTable = new Tables\Courses();
-		if (empty($instance['courseID']) or !$coursesTable->load($instance['courseID']))
-		{
-			return;
-		}
-
-		$tag                      = Languages::getTag();
-		$instance['campusID']     = $coursesTable->campusID ? $coursesTable->campusID : $instance['campusID'];
-		$instance['courseGroups'] = $coursesTable->groups ? $coursesTable->groups : '';
-		$instance['courseName']   = $coursesTable->{"name_$tag"} ? $coursesTable->{"name_$tag"} : '';
-		$instance['deadline']     = $coursesTable->deadline ? $coursesTable->deadline : $instance['deadline'];
-		$instance['fee']          = $coursesTable->fee ? $coursesTable->fee : $instance['fee'];
-		$instance['full']         = Courses::isFull($instance['courseID']);
-
-		$instance['description']      = (empty($instance['description']) and $coursesTable->{"description_$tag"}) ?
-			$coursesTable->{"description_$tag"} : $instance['description'];
-		$instance['registrationType'] = $coursesTable->registrationType ?
-			$coursesTable->registrationType : $instance['registrationType'];
 	}
 
 	/**

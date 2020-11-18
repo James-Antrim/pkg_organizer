@@ -110,6 +110,7 @@ class Instances extends ListModel
 			$instance = Helpers\Instances::getInstance($instance->id);
 			Helpers\Instances::setPersons($instance, $this->conditions);
 			Helpers\Instances::setSubject($instance, $this->conditions);
+			Helpers\Instances::setBooking($instance);
 
 			$items[$key] = (object) $instance;
 		}
