@@ -50,6 +50,26 @@ class InstanceParticipants extends Controller
 	}
 
 	/**
+	 * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
+	 *
+	 * @return void
+	 */
+	public function createBooking ()
+	{
+		$model = new Models\InstanceParticipant();
+
+		if (!$bookingID = $model->createBooking())
+		{
+			OrganizerHelper::message('ORGANIZER_BOOKING_CREATION_FAILED', 'notice');
+			$this->setRedirect(Helpers\Input::getString('referrer'));
+			return;
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=instance_participants&id=$bookingID";
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
 	 * Sends an circular email to all course participants
 	 *
 	 * @return void
