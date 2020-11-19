@@ -12,7 +12,8 @@
     </fields>
     <fields name="batch-mail">
     </fields>
-    <fields name="batch-notes">
+    <fields name="notes">
+        <field name="notes" type="Editor" label="ORGANIZER_NOTES" description="ORGANIZER_NOTES_DESC"/>
     </fields>
     <fields name="batch-participants">
     </fields>

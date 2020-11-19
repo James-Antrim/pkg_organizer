@@ -44,6 +44,16 @@ class Booking extends Participants
 		Helpers\HTML::setTitle($title, 'users');
 
 		$toolbar = Toolbar::getInstance();
+
+		$script      = "onclick=\"jQuery('#modal-notes').modal('show'); return true;\"";
+		$batchButton = "<button id=\"booking-notes\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
+
+		$title       = Languages::_('ORGANIZER_NOTES');
+		$batchButton .= '<span class="icon-pencil-2" title="' . $title . '"></span>' . " $title";
+
+		$batchButton .= '</button>';
+
+		$toolbar->appendButton('Custom', $batchButton, 'batch');
 	}
 
 	/**
@@ -75,7 +85,7 @@ class Booking extends Participants
 	public function display($tpl = null)
 	{
 		// Set batch template path
-		//$this->batch = ['batch_notes'];
+		$this->batch = ['item_notes'];
 
 		parent::display($tpl);
 	}
