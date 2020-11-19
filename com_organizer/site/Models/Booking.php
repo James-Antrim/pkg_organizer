@@ -16,7 +16,7 @@ use Organizer\Helpers;
 /**
  * Class retrieves information for a filtered set of participants.
  */
-class InstanceParticipants extends Participants
+class Booking extends Participants
 {
 	protected $defaultOrdering = 'fullName';
 
@@ -33,9 +33,11 @@ class InstanceParticipants extends Participants
 
 		$this->setValueFilters($query, ['attended', 'paid']);
 
-		$instanceID = Helpers\Input::getID();
+		$bookingID = Helpers\Input::getID();
 		$query->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
-			->where("ip.instanceID = $instanceID");
+			->innerJoin('#__organizer_instances AS i ON i.id = ip.id')
+			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
+			->where("b.id = $bookingID");
 
 		return $query;
 	}

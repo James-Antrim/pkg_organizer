@@ -10,8 +10,10 @@
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" onchange="this.form.submit();"/>
     </fields>
-    <fields name="batch">
-        <field name="subject" type="Blank" label="NOTIFY_SUBJECT" maxlength="200"/>
-        <field name="body" type="Box" label="NOTIFY_BODY"/>
+    <fields name="batch-mail">
+    </fields>
+    <fields name="batch-notes">
+    </fields>
+    <fields name="batch-participants">
     </fields>
 </form>

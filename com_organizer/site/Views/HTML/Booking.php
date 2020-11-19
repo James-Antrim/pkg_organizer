@@ -20,19 +20,14 @@ use Organizer\Tables;
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
  */
-class InstanceParticipants extends Participants
+class Booking extends Participants
 {
-	private $manages = false;
-
 	protected $rowStructure = [
 		'checkbox' => '',
 		'fullName' => 'value',
-		'email'    => 'value',
-		'program'  => 'value',
+		'event'    => 'value',
 		'attended' => 'value'
 	];
-
-	private $teaches = false;
 
 	/**
 	 * Method to generate buttons for user interaction
@@ -41,24 +36,14 @@ class InstanceParticipants extends Participants
 	 */
 	protected function addToolBar()
 	{
-		$instanceID = Helpers\Input::getID();
-		$instance   = new Tables\Instances();
-		$instance->load($instanceID);
-		$title = Languages::_('ORGANIZER_PARTICIPANTS');
+		$bookingID = Helpers\Input::getID();
+		$booking   = new Tables\Bookings();
+		$booking->load($bookingID);
+		$title = Languages::_('ORGANIZER_PARTICIPANTS') . " $booking->code";
 
 		Helpers\HTML::setTitle($title, 'users');
 
 		$toolbar = Toolbar::getInstance();
-
-		$script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
-		$batchButton = "<button id=\"participant-mail\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
-
-		$title       = Languages::_('ORGANIZER_NOTIFY');
-		$batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
-
-		$batchButton .= '</button>';
-
-		$toolbar->appendButton('Custom', $batchButton, 'batch');
 	}
 
 	/**
@@ -68,15 +53,12 @@ class InstanceParticipants extends Participants
 	 */
 	protected function authorize()
 	{
-		if (!$instanceID = Helpers\Input::getID())
+		if (!$bookingID = Helpers\Input::getID())
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
 
-		$this->manages = Helpers\Can::manageTheseOrganizations();
-		$this->teaches = Helpers\Instances::teaches($instanceID);
-
-		if (!$this->manages and !$this->teaches)
+		if (!Helpers\Can::manage('booking', $bookingID))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
@@ -88,11 +70,12 @@ class InstanceParticipants extends Participants
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 *
 	 * @return void
+	 * @noinspection PhpDocSignatureInspection
 	 */
 	public function display($tpl = null)
 	{
 		// Set batch template path
-		$this->batch = ['batch_participant_notify'];
+		//$this->batch = ['batch_notes'];
 
 		parent::display($tpl);
 	}
@@ -135,12 +118,10 @@ class InstanceParticipants extends Participants
 	 */
 	protected function setSubtitle()
 	{
-		$instanceID = Helpers\Input::getID();
+		$bookingID  = Helpers\Input::getID();
+		$subTitle   = Helpers\Bookings::getNames($bookingID);
 
-		$subTitle   = [];
-		$subTitle[] = Helpers\Instances::getName($instanceID);
-
-		$subTitle[] = Helpers\Instances::getDateDisplay($instanceID);
+		$subTitle[] = Helpers\Bookings::getDateTimeDisplay($bookingID);
 
 		$this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
 	}
