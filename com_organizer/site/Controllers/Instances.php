@@ -22,18 +22,4 @@ class Instances extends Controller
 	protected $listView = 'instances';
 
 	protected $resource = 'instance';
-
-	/**
-	 * Opens the course participants view for the selected course.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function participants()
-	{
-		// Reliance on POST requires a different method of redirection
-		Helpers\Input::set('id', Helpers\Input::getSelectedIDs()[0]);
-		Helpers\Input::set('view', 'instance_participants');
-		parent::display();
-	}
 }
