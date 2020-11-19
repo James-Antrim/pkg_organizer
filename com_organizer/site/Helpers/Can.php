@@ -339,6 +339,17 @@ class Can
 
 		switch ($resourceType)
 		{
+			case 'booking':
+			case 'bookings':
+				foreach (Bookings::getInstanceIDs($resourceID) as $instanceID)
+				{
+					if (self::manage('instance', $instanceID))
+					{
+						return true;
+					}
+				}
+
+				return false;
 			case 'course':
 			case 'courses':
 				return (Courses::coordinates($resourceID) or Courses::hasResponsibility($resourceID));
