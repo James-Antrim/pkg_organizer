@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class retrieves information for a filtered set of participants.
@@ -21,6 +22,47 @@ class Booking extends Participants
 	protected $defaultOrdering = 'fullName';
 
 	protected $filter_fields = ['programID'];
+
+	/**
+	 * Creates a new entry in the booking table for the given instance.
+	 *
+	 * @return int the id of the booking entry
+	 */
+	public function add()
+	{
+		if (!$userID = Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!$instanceID = Helpers\Input::getID())
+		{
+			Helpers\OrganizerHelper::error(400);
+		}
+
+		if (!Helpers\Can::manage('instance', $instanceID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+
+		$instance = new Tables\Instances();
+		if (!$instance->load($instanceID))
+		{
+			Helpers\OrganizerHelper::error(412);
+		}
+
+		$booking = new Tables\Bookings();
+		$keys    = ['blockID' => $instance->blockID, 'unitID' => $instance->unitID];
+
+		if (!$booking->load($keys))
+		{
+			$hash         = hash('adler32', (int) $instance->blockID . $instance->unitID);
+			$keys['code'] = substr($hash, 0, 4) . '-' . substr($hash, 4);
+			$booking->save($keys);
+		}
+
+		return $booking->id;
+	}
 
 	/**
 	 * Method to get a list of resources from the database.

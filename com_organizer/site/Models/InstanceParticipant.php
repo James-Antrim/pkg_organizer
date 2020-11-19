@@ -148,47 +148,6 @@ class InstanceParticipant extends BaseModel
 		Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_SUCCEEDED'));
 	}
 
-	/**
-	 * Creates a new entry in the booking table for the given instance.
-	 *
-	 * @return int the id of the booking entry
-	 */
-	public function createBooking()
-	{
-		if (!$userID = Helpers\Users::getID())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
-
-		if (!$instanceID = Helpers\Input::getID())
-		{
-			Helpers\OrganizerHelper::error(400);
-		}
-
-		if (!Helpers\Can::manage('instance', $instanceID))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-
-		$instance = new Tables\Instances();
-		if (!$instance->load($instanceID))
-		{
-			Helpers\OrganizerHelper::error(412);
-		}
-
-		$booking = new Tables\Bookings();
-		$keys = ['blockID' => $instance->blockID, 'unitID' => $instance->unitID];
-
-		if (!$booking->load($keys))
-		{
-			$hash = hash('adler32', (int) $instance->blockID . $instance->unitID);
-			$keys['code'] = substr($hash, 0, 4) . '-' . substr($hash, 4);
-			$booking->save($keys);
-		}
-
-		return $booking->id;
-	}
-
 
 	public function confirm()
 	{
