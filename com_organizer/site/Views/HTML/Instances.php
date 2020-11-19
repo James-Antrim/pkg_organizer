@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-//use Joomla\CMS\Toolbar\Toolbar;
+//use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -20,7 +20,7 @@ use Organizer\Tables;
  */
 class Instances extends ListView
 {
-	const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
+	private const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
 
 	private $entryStatus = '';
 
@@ -28,7 +28,7 @@ class Instances extends ListView
 
 	private $statusDate;
 
-	//private $teaches = false;
+	private $teaches = false;
 
 	/**
 	 * Constructor
@@ -89,7 +89,10 @@ class Instances extends ListView
 
 			if ($organizationID = $params->get('organizationID'))
 			{
-				$suffix .= ': ' . Helpers\Organizations::getFullName($organizationID);
+				$fullName = Helpers\Organizations::getFullName($organizationID);
+				$shortName = Helpers\Organizations::getShortName($organizationID);
+				$name = ($this->mobile or strlen($fullName) > 50) ? $shortName : $fullName;
+				$suffix .= ': ' . $name;
 			}
 			elseif ($campusID = $params->get('campusID'))
 			{
@@ -105,19 +108,6 @@ class Instances extends ListView
 
 		// Add menu title support, both direct and via selected filters
 		Helpers\HTML::setTitle($title, 'list-2');
-
-		/*$toolbar = Toolbar::getInstance();
-
-		if (Helpers\Can::administrate())
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'users',
-				Languages::_('ORGANIZER_PARTICIPANTS'),
-				'instances.participants',
-				true
-			);
-		}*/
 	}
 
 	/**
@@ -137,8 +127,10 @@ class Instances extends ListView
 			return;
 		}
 
-		//$this->manages = Helpers\Can::manageTheseOrganizations();
-		//$this->teaches = Helpers\Instances::teaches();
+		$organizationID = Helpers\Input::getParams()->get('organizationID', 0);
+		$this->manages = $organizationID ?
+			Helpers\Can::manage('organization', $organizationID) : (bool) Helpers\Can::manageTheseOrganizations();
+		$this->teaches = Helpers\Instances::teaches();
 	}
 
 	/**
@@ -416,10 +408,10 @@ class Instances extends ListView
 			'rooms'   => Languages::_('ORGANIZER_ROOMS')
 		];
 
-		/*if ($this->manages)
+		if ($this->manages or $this->teaches)
 		{
-			$this->headers = array_merge(['checkbox' => Helpers\HTML::_('grid.checkall')], $this->headers);
-		}*/
+			//$this->headers = array_merge(['tools' => ''], $this->headers);
+		}
 	}
 
 	/**
@@ -473,7 +465,6 @@ class Instances extends ListView
 	protected function structureItems()
 	{
 		$index = 0;
-		//$link            = 'index.php?option=com_organizer&view=instance_edit&id=';
 		$structuredItems = [];
 
 		foreach ($this->items as $item)
@@ -484,10 +475,10 @@ class Instances extends ListView
 
 			$structuredItems[$index] = [];
 
-			/*if ($this->manages)
+			if ($this->manages or $this->teaches)
 			{
-				$structuredItems[$index]['checkbox']     = Helpers\HTML::_('grid.id', $index, $item->instanceID);
-			}*/
+				//$structuredItems[$index]['tools'] = $this->getTools($item);
+			}
 
 			$structuredItems[$index]['status']  = $this->getStatus($item);
 			$structuredItems[$index]['title']   = $this->getTitle($item);
