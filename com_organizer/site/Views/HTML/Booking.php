@@ -26,7 +26,7 @@ class Booking extends Participants
 		'checkbox' => '',
 		'fullName' => 'value',
 		'event'    => 'value',
-		'attended' => 'value'
+		'program'  => 'value'
 	];
 
 	/**
@@ -104,7 +104,7 @@ class Booking extends Participants
 		$headers   = [
 			'checkbox' => Helpers\HTML::_('grid.checkall'),
 			'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
-			'email'    => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
+			'event'    => Helpers\HTML::sort('EVENT', 'event', $direction, $ordering),
 			'program'  => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering)
 		];
 
@@ -118,8 +118,8 @@ class Booking extends Participants
 	 */
 	protected function setSubtitle()
 	{
-		$bookingID  = Helpers\Input::getID();
-		$subTitle   = Helpers\Bookings::getNames($bookingID);
+		$bookingID = Helpers\Input::getID();
+		$subTitle  = Helpers\Bookings::getNames($bookingID);
 
 		$subTitle[] = Helpers\Bookings::getDateTimeDisplay($bookingID);
 

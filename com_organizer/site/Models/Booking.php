@@ -72,12 +72,15 @@ class Booking extends Participants
 	protected function getListQuery()
 	{
 		$query = parent::getListQuery();
+		$tag = Helpers\Languages::getTag();
 
 		$this->setValueFilters($query, ['attended', 'paid']);
 
 		$bookingID = Helpers\Input::getID();
-		$query->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
+		$query->select("e.name_$tag AS event")
+			->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.id')
+			->innerJoin('#__organizer_events AS e ON e.id = i.eventID')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
 			->where("b.id = $bookingID");
 
