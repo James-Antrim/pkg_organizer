@@ -111,6 +111,7 @@ class Participants extends ListView
 
 		foreach ($this->items as $item)
 		{
+			$item->fullName = $item->forename ? $item->fullName : $item->surname;
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}
