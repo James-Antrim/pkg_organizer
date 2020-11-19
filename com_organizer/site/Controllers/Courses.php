@@ -76,7 +76,7 @@ class Courses extends Controller
 
 		if (!Helpers\CourseParticipants::validProfile($courseID, $participantID))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', 'error');
 		}
 		else
 		{

@@ -26,7 +26,7 @@ class Booking extends Participants
 		'checkbox' => '',
 		'fullName' => 'value',
 		'event'    => 'value',
-		'program'  => 'value'
+		'complete' => 'value'
 	];
 
 	/**
@@ -105,7 +105,7 @@ class Booking extends Participants
 			'checkbox' => Helpers\HTML::_('grid.checkall'),
 			'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
 			'event'    => Helpers\HTML::sort('EVENT', 'event', $direction, $ordering),
-			'program'  => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering)
+			'complete' => Languages::_('ORGANIZER_PROFILE_COMPLETE')
 		];
 
 		$this->headers = $headers;
@@ -124,5 +124,41 @@ class Booking extends Participants
 		$subTitle[] = Helpers\Bookings::getDateTimeDisplay($bookingID);
 
 		$this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
+	}
+
+	/**
+	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
+	 *
+	 * @return void processes the class items property
+	 */
+	protected function structureItems()
+	{
+		$index = 0;
+		$link  = 'index.php?option=com_organizer&view=participant_edit&id=';
+
+		$structuredItems = [];
+
+		foreach ($this->items as $item)
+		{
+			$item->fullName = $item->forename ? $item->fullName : $item->surname;
+
+			if ($item->complete)
+			{
+				$label = Languages::_('ORGANIZER_PROFILE_COMPLETE');
+				$icon  = 'checked';
+			}
+			else
+			{
+				$label = Languages::_('ORGANIZER_PROFILE_INCOMPLETE');
+				$icon  = 'unchecked';
+			}
+
+			$item->complete = Helpers\HTML::icon("checkbox-$icon", $label, true);
+
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+			$index++;
+		}
+
+		$this->items = $structuredItems;
 	}
 }

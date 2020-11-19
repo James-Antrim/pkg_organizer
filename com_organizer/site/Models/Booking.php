@@ -72,7 +72,7 @@ class Booking extends Participants
 	protected function getListQuery()
 	{
 		$query = parent::getListQuery();
-		$tag = Helpers\Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 
 		$this->setValueFilters($query, ['attended', 'paid']);
 
@@ -85,5 +85,30 @@ class Booking extends Participants
 			->where("b.id = $bookingID");
 
 		return $query;
+	}
+
+	/**
+	 * Wrapper method for Joomla\CMS\MVC\Model\ListModel which has a mixed return type.
+	 *
+	 * @return  array  An array of data items on success.
+	 */
+	public function getItems()
+	{
+		foreach ($items = parent::getItems() as $key => $item)
+		{
+			$item->complete = true;
+
+			$columns = ['address', 'city', 'forename', 'surname', 'zipCode'];
+			foreach ($columns as $column)
+			{
+				if (empty($item->$column))
+				{
+					$item->complete = false;
+					continue 2;
+				}
+			}
+		}
+
+		return $items ? $items : [];
 	}
 }
