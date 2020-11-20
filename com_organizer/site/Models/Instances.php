@@ -284,7 +284,7 @@ class Instances extends ListModel
 	 */
 	private function setConditions()
 	{
-		$interval  = $this->state->get('list.interval', 'week');
+		$interval  = $this->state->get('list.interval', 'day');
 		$intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
 
 		$conditions['date']       = Helpers\Dates::standardizeDate($this->state->get('list.date', date('Y-m-d')));
