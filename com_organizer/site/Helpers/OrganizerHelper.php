@@ -13,6 +13,7 @@ namespace Organizer\Helpers;
 use Exception;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Uri\Uri;
 use Organizer\Controller;
 use Organizer\Tables;
 use ReflectionMethod;
@@ -77,8 +78,10 @@ class OrganizerHelper
 	public static function error(int $code)
 	{
 		$referrer = Input::getInput()->server->getString('HTTP_REFERER');
+		$URI = Uri::getInstance();
+		$URL = $referrer === $URI->toString() ? Uri::base() : $referrer;
 		self::message(Languages::_("ORGANIZER_$code"), 'error');
-		self::getApplication()->redirect($referrer, $code);
+		self::getApplication()->redirect($URL, $code);
 	}
 
 	/**
