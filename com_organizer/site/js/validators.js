@@ -1,8 +1,9 @@
 jQuery(document).ready(function () {
     'use strict';
-    document.formvalidator.setHandler('ip',
+
+    document.formvalidator.setHandler('event-code',
         function (value) {
-            return (/^[0-2]*[0-9]*[0-9].[0-2]*[0-9]*[0-9].[0-2]*[0-9]*[0-9].[0-2]*[0-9]*[0-9]$/).test(value);
+            return (/^[a-f\d]{4}-[a-f\d]{4}$/).test(value);
         }
     );
 
@@ -15,6 +16,12 @@ jQuery(document).ready(function () {
     document.formvalidator.setHandler('gps',
         function (value) {
             return (/^[0-9]{1,2}.[0-9]{6},\s*[0-9]{1,2}.[0-9]{6}$/).test(value);
+        }
+    );
+
+    document.formvalidator.setHandler('ip',
+        function (value) {
+            return (/^[0-2]*[0-9]*[0-9].[0-2]*[0-9]*[0-9].[0-2]*[0-9]*[0-9].[0-2]*[0-9]*[0-9]$/).test(value);
         }
     );
 

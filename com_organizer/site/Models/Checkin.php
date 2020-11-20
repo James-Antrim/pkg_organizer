@@ -80,7 +80,7 @@ class Checkin extends FormModel
 		if (!$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
 		{
 			// Upcoming
-			$then  = date('H:i:s', strtotime('+30 minutes'));
+			$then  = date('H:i:s', strtotime('+60 minutes'));
 			$query = $this->getQuery($participantID);
 			$query->where("b.startTime >= '$now'")->where("b.startTime <= '$then'");
 			$this->_db->setQuery($query);

@@ -75,16 +75,7 @@ class InstanceParticipant extends BaseModel
 		$participant->supplement($participantID);
 
 		$data = Helpers\Input::getFormItems();
-		if (!$code = $data->get('code') or !preg_match('/\d{1,2}-\d{1,3}-\d+-\d{4}/', $code))
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_400', 'error');
-
-			return;
-		}
-
-		list($organizationID, $termID, $unitCode, $startTime) = explode('-', $code);
-		$unit = new Tables\Units();
-		if (!$unit->load(['code' => $unitCode, 'organizationID' => $organizationID, 'termID' => $termID]))
+		if (!$code = $data->get('code') or !preg_match('/^[a-f0-9]{4}-[a-f0-9]{4}$/', $code))
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
 
@@ -92,25 +83,16 @@ class InstanceParticipant extends BaseModel
 		}
 
 		$today = date('Y-m-d');
-		$time  = date('H:i:s', strtotime($startTime));
+		$then  = date('H:i:s', strtotime('+60 minutes'));
+
 		$query = $this->_db->getQuery(true);
-		$query->select('id')->from('#__organizer_blocks AS b')->where("b.date = '$today' AND startTime = '$time'");
-		$this->_db->setQuery($query);
-
-		if (!$blockIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
-
-			return;
-		}
-
-		$blockIDs = implode(',', $blockIDs);
-		$query    = $this->_db->getQuery(true);
-		$query->select('id')
-			->from('#__organizer_instances')
-			->where("blockID IN ($blockIDs)")
-			->where("unitID = $unit->id");
-		// TODO require inner join on the table that identifies by unitID and blockID
+		$query->select('i.id')
+			->from('#__organizer_instances AS i')
+			->innerJoin('#__organizer_bookings AS bk ON bk.blockID = i.blockID AND bk.unitID = i.unitID')
+			->where("bk.code = '$code'")
+			->innerJoin('#__organizer_blocks AS bl ON bl.id = i.blockID')
+			->where("bl.date = '$today'")
+			->where("bl.startTime < '$then'");
 		$this->_db->setQuery($query);
 
 		if (!$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
