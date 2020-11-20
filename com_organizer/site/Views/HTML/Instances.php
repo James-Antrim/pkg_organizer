@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-//use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -391,6 +391,52 @@ class Instances extends ListView
 
 		return ['attributes' => ['class' => 'title-column'], 'value' => $name];
 	}
+	/**
+	 * Creates the instance tools for the user.
+	 *
+	 * @param   object  $item
+	 *
+	 * @return array|string
+	 */
+	private function getTools(object $item)
+	{
+		$link = '';
+
+		if (Helpers\Can::manage('instance', $item->instanceID))
+		{
+			$label = '';
+			$icon = '';
+			$today = date('Y-m-d');
+			$URL = Uri::base() . '?option=com_organizer';
+
+			$expired = ($item->date < $today or $item->endTime < date('H:i:s'));
+			$current  = ($item->date === $today and $item->startTime < date('H:i:s', strtotime('+60 minutes')));
+
+			if ($item->bookingID)
+			{
+				$label = Languages::_('ORGANIZER_MANAGE_BOOKING');
+				$icon = Helpers\HTML::icon('users', $label, true);
+				$URL .= '&view=booking&id=' . $item->bookingID;
+			}
+			elseif (!$expired and $current)
+			{
+				$label = Languages::_('ORGANIZER_START_BOOKING');
+				$icon = Helpers\HTML::icon('enter', $label, true);
+				$URL .= '&task=booking.add&id=' . $item->instanceID;
+			}
+
+			if ($label)
+			{
+				$attribs = ['aria-label' => $label, 'target' => '_blank'];
+
+				$link = Helpers\HTML::link($URL, $icon, $attribs);
+			}
+		}
+
+		// TODO add button for participant checkin
+
+		return $link ? ['attributes' => ['class' => 'tools-column'], 'value' => $link] : '';
+	}
 
 	/**
 	 * Function to set the object's headers property
@@ -410,7 +456,7 @@ class Instances extends ListView
 
 		if ($this->manages or $this->teaches)
 		{
-			//$this->headers = array_merge(['tools' => ''], $this->headers);
+			$this->headers = array_merge(['tools' => ''], $this->headers);
 		}
 	}
 
@@ -477,7 +523,7 @@ class Instances extends ListView
 
 			if ($this->manages or $this->teaches)
 			{
-				//$structuredItems[$index]['tools'] = $this->getTools($item);
+				$structuredItems[$index]['tools'] = $this->getTools($item);
 			}
 
 			$structuredItems[$index]['status']  = $this->getStatus($item);
