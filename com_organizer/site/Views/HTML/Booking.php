@@ -39,7 +39,7 @@ class Booking extends Participants
 		$bookingID = Helpers\Input::getID();
 		$booking   = new Tables\Bookings();
 		$booking->load($bookingID);
-		$title = Languages::_('ORGANIZER_PARTICIPANTS') . " $booking->code";
+		$title = Languages::_('ORGANIZER_EVENT_CODE') . ": $booking->code";
 
 		Helpers\HTML::setTitle($title, 'users');
 
