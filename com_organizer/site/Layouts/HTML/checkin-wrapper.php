@@ -10,6 +10,7 @@
 
 use Organizer\Helpers;
 
+$count = count($this->instances);
 ?>
 <script type="text/javascript">
     let timer = null;
@@ -29,7 +30,9 @@ use Organizer\Helpers;
 </div>
 <?php echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 <div id="j-main-container" class="span10">
-	<?php if ($count = count($this->instances) and $count > 1) : ?>
+	<?php if ($count and !$this->complete) : ?>
+		<?php require_once 'checkin-contact.php'; ?>
+	<?php elseif ($count and $count > 1) : ?>
 		<?php require_once 'checkin-confirm.php'; ?>
 	<?php elseif ($count and $count === 1) : ?>
 		<?php require_once 'checkin-checkedin.php'; ?>

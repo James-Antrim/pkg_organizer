@@ -17,6 +17,8 @@ use Organizer\Helpers;
 
 class Checkin extends FormView
 {
+	public $complete = true;
+
 	public $instances = [];
 
 	/**
@@ -31,8 +33,15 @@ class Checkin extends FormView
 	{
 		if ($this->instances)
 		{
-			$title = count($this->instances) > 1 ?
-				Helpers\Languages::_('ORGANIZER_CONFIRM_ATTENDANCE') : Helpers\Languages::_('ORGANIZER_CHECKEDIN');
+			if ($this->complete)
+			{
+				$title = count($this->instances) > 1 ?
+					Helpers\Languages::_('ORGANIZER_CONFIRM_ATTENDANCE') : Helpers\Languages::_('ORGANIZER_CHECKEDIN');
+			}
+			else
+			{
+				$title = Helpers\Languages::_('ORGANIZER_CONTACT_INFORMATION');
+			}
 		}
 		else
 		{
@@ -56,6 +65,16 @@ class Checkin extends FormView
 		$this->instances   = $this->get('Instances');
 		$this->participant = $this->get('Participant');
 		$this->_layout     = 'checkin-wrapper';
+
+		$this->complete = true;
+		if ($this->participant->id)
+		{
+			$requiredColumns = ['address', 'city', 'forename', 'surname', 'zipCode'];
+			foreach ($requiredColumns as $column)
+			{
+				$this->complete = ($this->complete and !empty($this->participant->$column));
+			}
+		}
 
 		parent::display($tpl);
 	}
