@@ -20,6 +20,11 @@ class Checkin extends FormView
 	public $instances = [];
 
 	/**
+	 * @var \Organizer\Tables\Participants
+	 */
+	public $participant;
+
+	/**
 	 * @inheritDoc
 	 */
 	protected function addToolBar()
@@ -48,12 +53,9 @@ class Checkin extends FormView
 	 */
 	public function display($tpl = null)
 	{
-		$this->instances = $this->get('Instances');
-		$template        = Helpers\Input::getCMD('tmpl');
-
-		$layout        = 'checkin-';
-		$layout        .= $template === 'component' ? 'component' : 'default';
-		$this->_layout = $layout;
+		$this->instances   = $this->get('Instances');
+		$this->participant = $this->get('Participant');
+		$this->_layout     = 'checkin-wrapper';
 
 		parent::display($tpl);
 	}

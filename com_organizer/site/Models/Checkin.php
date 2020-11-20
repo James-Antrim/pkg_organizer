@@ -10,10 +10,10 @@
 
 namespace Organizer\Models;
 
-
 use JDatabaseQuery;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
+use Organizer\Tables;
 
 class Checkin extends FormModel
 {
@@ -26,8 +26,8 @@ class Checkin extends FormModel
 	{
 		parent::__construct($config);
 
-		// Force component template for mobile presentation
-		if ($this->mobile and Helpers\Input::getCMD('tmpl') !== 'component')
+		// Force component template
+		if (Helpers\Input::getCMD('tmpl') !== 'component')
 		{
 			$URL = Uri::root() . "?option=com_organizer&view=checkin&tmpl=component";
 			Helpers\OrganizerHelper::getApplication()->redirect($URL);
@@ -42,6 +42,27 @@ class Checkin extends FormModel
 		return true;
 	}
 
+	/**
+	 * Loads participant data for the current user.
+	 *
+	 * @return Tables\Participants
+	 */
+	public function getParticipant()
+	{
+		$participant = new Tables\Participants();
+
+		if ($participantID = Helpers\Users::getID())
+		{
+			$participant->load($participantID);
+		}
+
+		return $participant;
+	}
+
+	/**
+	 * Gets the
+	 * @return array
+	 */
 	public function getInstances()
 	{
 		if (!$participantID = Helpers\Users::getID())
