@@ -8,10 +8,12 @@ html {
 body.tmpl-component.html-default,
 body.tmpl-component.html-default .main, {
   background-color: $background-color;
+  left: 50%;
+  max-width: 40rem;
   padding: 0;
   position: absolute;
   top: 50%;
-  transform: translateY(calc(-50% - 2.5rem));
+  transform: translate(-50%, calc(-50% - 1.5rem));
   width: 100%;
 
   #system-messages {
@@ -29,12 +31,17 @@ body.tmpl-component.html-default .main, {
   }
 
   input {
-    width: 100%;
+    width: calc(100% - 8px);
+
+    &.btn {
+      margin-top: .5rem;
+      width: 100%;
+    }
   }
 }
 
 .head {
-  padding: 0 1.5rem 1rem;
+  padding: 0 20% 1rem;
 
   .banner {
     background-color: $background-color;
@@ -44,45 +51,25 @@ body.tmpl-component.html-default .main, {
 
 .span10 {
   background-color: $foreground-color;
-  padding: .5rem;
+  border-left: $border-dark;
+  border-right: $border-dark;
+  padding: .5rem 0;
+  width: calc(100% - 2px);
 }
 
 form {
   margin-top: 1rem;
+  padding: 0 .5rem;
+  width: calc(100% - 1rem);
 
-  &.form-horizontal {
+  &.form-vertical {
+    display: flex;
+    flex-direction: column;
 
     .control-group {
       display: flex;
-      flex-direction: row;
-      width: 100%;
-
-      &.message {
-        display: block;
-        text-align: center;
-      }
+      flex-direction: column;
     }
-
-    .control-label {
-      width: 30%;
-
-      &.inverse {
-        padding-top: 0;
-        text-align: center;
-        width: 60%;
-      }
-    }
-
-    .controls {
-      margin-left: 1rem;
-      width: 60%;
-
-      &.inverse {
-        text-align: center;
-        width: 30%;
-      }
-    }
-
   }
 }
 

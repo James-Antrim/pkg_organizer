@@ -13,7 +13,7 @@ use Organizer\Helpers;
 
 $link = Uri::base() . '?option=com_organizer&task=checkin.confirm&id=';
 ?>
-<form action="#" id="adminForm" method="post" name="adminForm" class="form-horizontal">
+<form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical">
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CONFIRM_EVENT'); ?></div>
 	<?php foreach ($this->instances as $instance): ?>
         <div class="control-group">

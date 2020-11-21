@@ -13,7 +13,7 @@ use Organizer\Helpers;
 
 $instance = $this->instances[0];
 ?>
-<form action="#" id="adminForm" method="post" name="adminForm" class="form-horizontal">
+<form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical">
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CHECKED_INTO'); ?></div>
     <div class="control-group message"><?php echo $instance['name']; ?></div>
 	<?php if ($instance['method']): ?>

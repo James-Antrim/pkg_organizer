@@ -6,10 +6,12 @@ html {
 body.tmpl-component.html-default,
 body.tmpl-component.html-default .main {
     background-color: #f2f5f6;
+    left: 50%;
+    max-width: 40rem;
     padding: 0;
     position: absolute;
     top: 50%;
-    transform: translateY(calc(-50% - 2.5rem));
+    transform: translate(-50%, calc(-50% - 1.5rem));
     width: 100%;
 }
 
@@ -32,11 +34,17 @@ body.tmpl-component.html-default .main .tail {
 
 body.tmpl-component.html-default input,
 body.tmpl-component.html-default .main input {
+    width: calc(100% - 8px);
+}
+
+body.tmpl-component.html-default input.btn,
+body.tmpl-component.html-default .main input.btn {
+    margin-top: .5rem;
     width: 100%;
 }
 
 .head {
-    padding: 0 1.5rem 1rem;
+    padding: 0 20% 1rem;
 }
 
 .head .banner {
@@ -46,42 +54,26 @@ body.tmpl-component.html-default .main input {
 
 .span10 {
     background-color: white;
-    padding: .5rem;
+    border-left: 1px solid #77858c;
+    border-right: 1px solid #77858c;
+    padding: .5rem 0;
+    width: calc(100% - 2px);
 }
 
 form {
     margin-top: 1rem;
+    padding: 0 .5rem;
+    width: calc(100% - 1rem);
 }
 
-form.form-horizontal .control-group {
+form.form-vertical {
     display: flex;
-    flex-direction: row;
-    width: 100%;
+    flex-direction: column;
 }
 
-form.form-horizontal .control-group.message {
-    display: block;
-    text-align: center;
-}
-
-form.form-horizontal .control-label {
-    width: 30%;
-}
-
-form.form-horizontal .control-label.inverse {
-    padding-top: 0;
-    text-align: center;
-    width: 60%;
-}
-
-form.form-horizontal .controls {
-    margin-left: 1rem;
-    width: 60%;
-}
-
-form.form-horizontal .controls.inverse {
-    text-align: center;
-    width: 30%;
+form.form-vertical .control-group {
+    display: flex;
+    flex-direction: column;
 }
 
 .tail {
