@@ -8,6 +8,7 @@
  * @link        www.thm.de
  */
 
+use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
 $count = count($this->instances);
@@ -25,7 +26,11 @@ $count = count($this->instances);
 </script>
 <div class='head'>
     <div class='banner'>
-        <div class='logo'><img src="components/com_organizer/images/logo.svg" alt="THM-Logo"/></div>
+        <div class='logo'>
+            <a href="<?php echo Uri::base();?>" aria-label="Organizer Home">
+                <img aria-hidden="true" src="components/com_organizer/images/logo.svg" alt="THM-Logo"/>
+            </a>
+        </div>
     </div>
 </div>
 <?php echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
