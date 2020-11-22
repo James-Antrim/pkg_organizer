@@ -783,13 +783,14 @@ class Instances extends ResourceHelper
 		{
 			if ($reqDoW === 6)
 			{
-				$dateTime = strtotime('-1 day', $dateTime);
+				$string = '-1 day';
 			}
 			else
 			{
-				$dateTime = strtotime('+1 day', $dateTime);
+				$string = '+1 day';
 			}
-			$date = date('Y-m-d', strtotime($dateTime));
+
+			$date = date('Y-m-d', strtotime($string, $dateTime));
 		}
 
 		$parameters['date'] = $date;
