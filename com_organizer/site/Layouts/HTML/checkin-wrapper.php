@@ -40,4 +40,3 @@ $count = count($this->instances);
 		<?php require_once 'checkin-checkin.php'; ?>
 	<?php endif; ?>
 </div>
-<div class="tail"></div>

@@ -5,37 +5,39 @@ html {
   position: relative;
 }
 
-body.tmpl-component.html-default,
-body.tmpl-component.html-default .main, {
-  background-color: $background-color;
+body {
   left: 50%;
   max-width: 40rem;
-  padding: 0;
   position: absolute;
   top: 50%;
-  transform: translate(-50%, calc(-50% - 1.5rem));
-  width: 100%;
+  transform: translate(-50%, -55%);
+  width: 100%
+}
 
-  #system-messages {
-    bottom: calc(50vh - 7rem);
-    position: fixed;
-    width: 100%;
-  }
+body.tmpl-component.html-default {
+  background-color: $background-color;
 
-  h1, .tail {
-    background-color: $font-color;
-    color: $foreground-color;
-    margin: 0;
-    padding: .3rem .5rem;
-    text-align: center;
-  }
+  .main {
+    background-color: $background-color;
+    padding: 0 .5rem;
 
-  input {
-    width: calc(100% - 8px);
+    h1 {
+      background-color: $font-color;
+      color: $foreground-color;
+      font-size: 1.5rem;
+      margin: 0;
+      padding: .5rem .3rem .2rem;
+      text-align: center;
+    }
 
-    &.btn {
-      margin-top: .5rem;
-      width: 100%;
+    input {
+      padding: .25rem;
+      text-align: center;
+      width: 20rem;
+
+      &.btn {
+        margin-top: .5rem;
+      }
     }
   }
 }
@@ -45,34 +47,32 @@ body.tmpl-component.html-default .main, {
 
   .banner {
     background-color: $background-color;
-    margin: 0;
   }
 }
 
 .span10 {
   background-color: $foreground-color;
+  border-bottom: $border-dark;
   border-left: $border-dark;
   border-right: $border-dark;
-  padding: .5rem 0;
-  width: calc(100% - 2px);
+  padding: .5rem;
 }
 
 form {
-  margin-top: 1rem;
-  padding: 0 .5rem;
-  width: calc(100% - 1rem);
-
   &.form-vertical {
-    display: flex;
-    flex-direction: column;
+    .control-group,
+    .control-label,
+    .controls {
+      text-align: center;
 
-    .control-group {
-      display: flex;
-      flex-direction: column;
+    }
+
+    .control-label {
+      width: 100%;
     }
   }
-}
 
-.tail {
-  height: 3rem;
+  label {
+    font-weight: bold;
+  }
 }

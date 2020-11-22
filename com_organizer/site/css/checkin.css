@@ -3,44 +3,41 @@ html {
     position: relative;
 }
 
-body.tmpl-component.html-default,
-body.tmpl-component.html-default .main {
-    background-color: #f2f5f6;
+body {
     left: 50%;
     max-width: 40rem;
-    padding: 0;
     position: absolute;
     top: 50%;
-    transform: translate(-50%, calc(-50% - 1.5rem));
+    transform: translate(-50%, -55%);
     width: 100%;
 }
 
-body.tmpl-component.html-default #system-messages,
-body.tmpl-component.html-default .main #system-messages {
-    bottom: calc(50vh - 7rem);
-    position: fixed;
-    width: 100%;
+body.tmpl-component.html-default {
+    background-color: #f2f5f6;
 }
 
-body.tmpl-component.html-default h1, body.tmpl-component.html-default .tail,
-body.tmpl-component.html-default .main h1,
-body.tmpl-component.html-default .main .tail {
+body.tmpl-component.html-default .main {
+    background-color: #f2f5f6;
+    padding: 0 .5rem;
+}
+
+body.tmpl-component.html-default .main h1 {
     background-color: #394a59;
     color: white;
+    font-size: 1.5rem;
     margin: 0;
-    padding: .3rem .5rem;
+    padding: .5rem .3rem .2rem;
     text-align: center;
 }
 
-body.tmpl-component.html-default input,
 body.tmpl-component.html-default .main input {
-    width: calc(100% - 8px);
+    padding: .25rem;
+    text-align: center;
+    width: 20rem;
 }
 
-body.tmpl-component.html-default input.btn,
 body.tmpl-component.html-default .main input.btn {
     margin-top: .5rem;
-    width: 100%;
 }
 
 .head {
@@ -49,33 +46,26 @@ body.tmpl-component.html-default .main input.btn {
 
 .head .banner {
     background-color: #f2f5f6;
-    margin: 0;
 }
 
 .span10 {
     background-color: white;
+    border-bottom: 1px solid #77858c;
     border-left: 1px solid #77858c;
     border-right: 1px solid #77858c;
-    padding: .5rem 0;
-    width: calc(100% - 2px);
+    padding: .5rem;
 }
 
-form {
-    margin-top: 1rem;
-    padding: 0 .5rem;
-    width: calc(100% - 1rem);
+form.form-vertical .control-group,
+form.form-vertical .control-label,
+form.form-vertical .controls {
+    text-align: center;
 }
 
-form.form-vertical {
-    display: flex;
-    flex-direction: column;
+form.form-vertical .control-label {
+    width: 100%;
 }
 
-form.form-vertical .control-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.tail {
-    height: 3rem;
+form label {
+    font-weight: bold;
 }
