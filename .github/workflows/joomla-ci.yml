@@ -4,7 +4,7 @@ on:
         - push
 
 env:
-        ci_release: false
+        ci_release: true
 
 jobs:
   build:
