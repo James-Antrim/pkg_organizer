@@ -25,8 +25,6 @@ jobs:
                 php-version: ${{ matrix.php-versions }}
       - name: "Install dependencies"
         run: "sudo apt-get install tree"
-      - name: "List PHP Modules"
-        run: php -m
       - name: "Checkout build enviroment"
         uses: actions/checkout@v2
         with:
@@ -40,8 +38,11 @@ jobs:
         run: build/scripts/shell/init.sh
       - name: "Generating ZIP-File(s)"
         run: build/scripts/shell/mkzips.sh
-      - name: "Showing fs-tree"
-        run: tree
+      - name: "Upload zip files"
+        uses: actions/upload-artifact@v2
+        with:
+          name: "ZIPs PHP ${{ matrix.php-versions }}"
+          path: "zips/*.zip"
       - name: "Upload Workspace"
         uses: actions/upload-artifact@v2
         #if: ${{env.ci_release == true}}
