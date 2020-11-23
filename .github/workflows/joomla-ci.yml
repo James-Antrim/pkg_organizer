@@ -45,4 +45,4 @@ jobs:
         if: ${{env.ci_release == true}}
         with: 
                 name: "com-organizer"
-                path: "test.zip"
+                path: "zips/com-organizer.zip"
