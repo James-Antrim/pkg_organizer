@@ -58,4 +58,21 @@ class Checkin extends Controller
 		$url = Helpers\Routing::getRedirectBase() . "&view=checkin";
 		$this->setRedirect($url);
 	}
+
+	/**
+	 * Saves the participants contact data.
+	 *
+	 * @return void
+	 */
+	public function contact()
+	{
+		if ($userID = Helpers\Users::getID())
+		{
+			$model = new Models\Participant();
+			$model->save();
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=checkin";
+		$this->setRedirect($url);
+	}
 }

@@ -59,6 +59,7 @@ class Checkin extends FormModel
 			$form->setValue('address', null, $participant->address);
 			$form->setValue('city', null, $participant->city);
 			$form->setValue('forename', null, $participant->forename);
+			$form->setValue('id', null, $participantID);
 			$form->setValue('surname', null, $participant->surname);
 			$form->setValue('zipCode', null, $participant->zipCode);
 		}

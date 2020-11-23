@@ -116,8 +116,22 @@ class Participant extends BaseModel
 			Helpers\OrganizerHelper::error(403);
 		}
 
-		$numericFields  = ['id', 'programID'];
-		$requiredFields = ['address', 'city', 'forename', 'id', 'programID', 'surname', 'zipCode'];
+		$numericFields = ['id', 'programID'];
+
+		switch (Helpers\Input::getTask())
+		{
+			case 'participants.save':
+				$requiredFields = ['address', 'city', 'forename', 'id', 'programID', 'surname', 'zipCode'];
+				break;
+			case 'checkin.contact':
+				$requiredFields = ['address', 'city', 'forename', 'id', 'surname', 'telephone', 'zipCode'];
+				break;
+			default:
+				Helpers\OrganizerHelper::error(501);
+
+				return false;
+
+		}
 
 		foreach ($data as $index => $value)
 		{
@@ -135,11 +149,12 @@ class Participant extends BaseModel
 			}
 		}
 
-		$data['address']  = self::cleanAlphaNum($data['address']);
-		$data['city']     = self::cleanAlpha($data['city']);
-		$data['forename'] = self::cleanAlpha($data['forename']);
-		$data['surname']  = self::cleanAlpha($data['surname']);
-		$data['zipCode']  = self::cleanAlphaNum($data['zipCode']);
+		$data['address']   = self::cleanAlphaNum($data['address']);
+		$data['city']      = self::cleanAlpha($data['city']);
+		$data['forename']  = self::cleanAlpha($data['forename']);
+		$data['surname']   = self::cleanAlpha($data['surname']);
+		$data['telephone'] = empty($data['telephone']) ? self::cleanAlphaNum($data['telephone']) : '';
+		$data['zipCode']   = self::cleanAlphaNum($data['zipCode']);
 
 		$success = true;
 		$table   = new Tables\Participants();
