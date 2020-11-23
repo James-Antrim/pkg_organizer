@@ -12,7 +12,7 @@
             <option value="0">NO</option>
         </field>
         <field name="location" type="Blank" label="LOCATION" class="validate-gps" maxlength="20"/>
-        <field name="address" type="Blank" label="ADDRESS" class="validate-german-address" maxlength="255"/>
+        <field name="address" type="Blank" label="ADDRESS" class="validate-address" maxlength="255"/>
         <field name="city" type="Blank" label="CITY" class="validate-alpha-german" maxlength="60"/>
         <field name="zipCode" type="Blank" label="ZIP_CODE" class="validate-alphanumeric" maxlength="60"/>
         <field name="gridID" type="Grids" label="GRIDS">

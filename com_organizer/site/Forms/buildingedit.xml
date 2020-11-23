@@ -7,7 +7,7 @@
             <option value="">NO_CAMPUS</option>
         </field>
         <field name="location" type="Blank" label="LOCATION" class="validate-gps" maxlength="20"/>
-        <field name="address" type="Blank" label="ADDRESS" class="validate-german-address" maxlength="255"/>
+        <field name="address" type="Blank" label="ADDRESS" class="validate-address" maxlength="255"/>
         <field name="propertyType" type="Options" label="PROPERTY_TYPE">
             <option value="0">UNKNOWN</option>
             <option value="1">OWNED</option>
