@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
+    <fields name="batch"></fields>
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="instanceID" type="hidden"/>
         <field name="programID" type="Programs" label="PROGRAM" onchange="this.form.submit();" participant="1">
             <option value="">ALL_PROGRAMS</option>
         </field>
@@ -10,11 +10,7 @@
     <fields name="list">
         <field name="limit" type="Limitbox" class="input-mini" onchange="this.form.submit();"/>
     </fields>
-    <fields name="batch-mail">
-    </fields>
-    <fields name="notes">
-        <field name="notes" type="Editor" label="ORGANIZER_NOTES" description="ORGANIZER_NOTES_DESC"/>
-    </fields>
-    <fields name="batch-participants">
+    <fields name="supplement">
+        <field name="notes" type="Box" label="NOTES"/>
     </fields>
 </form>

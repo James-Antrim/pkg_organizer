@@ -39,7 +39,7 @@ class Participant extends BaseModel
 	 *
 	 * @return string the cleaned value
 	 */
-	private function cleanAlphaNum($name)
+	private function cleanAlphaNum(string $name)
 	{
 		$name = preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\d\p{N}_.\-\']/', ' ', $name);
 
@@ -153,7 +153,7 @@ class Participant extends BaseModel
 		$data['city']      = self::cleanAlpha($data['city']);
 		$data['forename']  = self::cleanAlpha($data['forename']);
 		$data['surname']   = self::cleanAlpha($data['surname']);
-		$data['telephone'] = empty($data['telephone']) ? self::cleanAlphaNum($data['telephone']) : '';
+		$data['telephone'] = empty($data['telephone']) ? '' : self::cleanAlphaNum($data['telephone']);
 		$data['zipCode']   = self::cleanAlphaNum($data['zipCode']);
 
 		$success = true;

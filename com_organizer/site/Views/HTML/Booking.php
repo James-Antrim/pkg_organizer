@@ -22,6 +22,11 @@ use Organizer\Tables;
  */
 class Booking extends Participants
 {
+	/**
+	 * @var Tables\Bookings
+	 */
+	private $booking;
+
 	protected $rowStructure = [
 		'checkbox' => '',
 		'fullName' => 'value',
@@ -36,16 +41,13 @@ class Booking extends Participants
 	 */
 	protected function addToolBar()
 	{
-		$bookingID = Helpers\Input::getID();
-		$booking   = new Tables\Bookings();
-		$booking->load($bookingID);
-		$title = Languages::_('ORGANIZER_EVENT_CODE') . ": $booking->code";
+		$title = Languages::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}";
 
 		Helpers\HTML::setTitle($title, 'users');
 
 		$toolbar = Toolbar::getInstance();
 
-		$script      = "onclick=\"jQuery('#modal-notes').modal('show'); return true;\"";
+		$script      = "onclick=\"jQuery('#form-modal').modal('show'); return true;\"";
 		$batchButton = "<button id=\"booking-notes\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
 
 		$title       = Languages::_('ORGANIZER_NOTES');
@@ -85,7 +87,8 @@ class Booking extends Participants
 	public function display($tpl = null)
 	{
 		// Set batch template path
-		$this->batch = ['item_notes'];
+		$this->batch   = ['form_modal'];
+		$this->booking = $this->get('Booking');
 
 		parent::display($tpl);
 	}

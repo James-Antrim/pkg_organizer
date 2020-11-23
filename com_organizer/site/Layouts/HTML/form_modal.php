@@ -11,19 +11,22 @@
 
 use Organizer\Helpers;
 
-$task = Helpers\Input::getCMD('view') . '.notes';
+$task = Helpers\Input::getCMD('view') . '.supplement';
 
 ?>
-<div class="modal hide fade" id="modal-notes">
+<div class="modal hide fade form-modal" id="form-modal">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&#215;</button>
-        <h3><?php echo Helpers\Languages::_('ORGANIZER_NOTES'); ?>
+        <h3><?php echo Helpers\Languages::_('ORGANIZER_SUPPLEMENT'); ?>
     </div>
     <div class="modal-body modal-batch form-vertical">
-		<?php foreach ($this->filterForm->getGroup('notes') as $batchField) : ?>
+		<?php foreach ($this->filterForm->getGroup('supplement') as $formField) : ?>
             <div class='control-group'>
+                <div class='control-label'>
+					<?php echo $formField->label; ?>
+                </div>
                 <div class='controls'>
-					<?php echo $batchField->input; ?>
+					<?php echo $formField->input; ?>
                 </div>
             </div>
 		<?php endforeach; ?>
@@ -32,7 +35,7 @@ $task = Helpers\Input::getCMD('view') . '.notes';
         <button class="btn" type="button" data-dismiss="modal">
 			<?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
         </button>
-        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton(<?php echo $task; ?>);">
+        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('<?php echo $task; ?>');">
 			<?php echo Helpers\Languages::_('ORGANIZER_SAVE'); ?>
         </button>
     </div>

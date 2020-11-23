@@ -16,5 +16,8 @@
         <field name="address" type="Blank" label="ADDRESS" class="required validate-address" required="true"/>
         <field name="city" type="Blank" label="RESIDENCE" class="required validate-name" required="true"/>
         <field name="zipCode" type="Blank" label="ZIP_CODE" class="required validate-alphanumeric" required="true"/>
+        <field name="programID" type="Programs" label="PROGRAM" class="input-15">
+            <option value="">SELECT_PROGRAM</option>
+        </field>
     </fieldset>
 </form>

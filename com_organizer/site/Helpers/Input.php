@@ -35,6 +35,8 @@ class Input
 
 	private static $params = false;
 
+	private static $supplementalItems = false;
+
 	/**
 	 * Filters the given source data according to the type parameter.
 	 *
@@ -406,6 +408,21 @@ class Input
 		}
 
 		return self::filter($default, 'string');
+	}
+
+	/**
+	 * Retrieves the batch items from the request and creates a registry with the data.
+	 *
+	 * @return Registry
+	 */
+	public static function getSupplementalItems()
+	{
+		if (self::$supplementalItems === false)
+		{
+			self::$supplementalItems = new Registry(self::getInput()->get('supplement', [], 'array'));
+		}
+
+		return self::$supplementalItems;
 	}
 
 	/**

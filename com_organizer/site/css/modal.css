@@ -20,3 +20,8 @@
     padding: .5rem;
     width: calc(100% - 1rem);
 }
+
+.control-group .controls textarea {
+    height: 8rem;
+    width: calc(100% - 10px);
+}

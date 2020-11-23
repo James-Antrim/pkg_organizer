@@ -75,7 +75,7 @@ class Checkin extends FormView
 		$this->complete = true;
 		if ($this->participant->id)
 		{
-			$requiredColumns = ['address', 'city', 'forename', 'surname', 'zipCode'];
+			$requiredColumns = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
 			foreach ($requiredColumns as $column)
 			{
 				$this->complete = ($this->complete and !empty($this->participant->$column));

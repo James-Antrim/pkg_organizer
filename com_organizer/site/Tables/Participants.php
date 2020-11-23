@@ -64,6 +64,14 @@ class Participants extends BaseTable
 	public $surname;
 
 	/**
+	 * The person's telephone number.
+	 * VARCHAR(60) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $telephone;
+
+	/**
 	 * The ZIP code of the resource.
 	 * VARCHAR(60) NOT NULL DEFAULT ''
 	 *

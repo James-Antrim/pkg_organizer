@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -65,6 +66,20 @@ class Booking extends Participants
 	}
 
 	/**
+	 * Gets the booking table entry, and fills appropriate form field values.
+	 *
+	 * @return Tables\Bookings
+	 */
+	public function getBooking()
+	{
+		$bookingID = Helpers\Input::getID();
+		$booking   = new Tables\Bookings();
+		$booking->load($bookingID);
+
+		return $booking;
+	}
+
+	/**
 	 * Method to get a list of resources from the database.
 	 *
 	 * @return JDatabaseQuery
@@ -84,6 +99,8 @@ class Booking extends Participants
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
 			->where("b.id = $bookingID");
 
+		//->where('ip.attended = 1');
+
 		return $query;
 	}
 
@@ -98,7 +115,7 @@ class Booking extends Participants
 		{
 			$item->complete = true;
 
-			$columns = ['address', 'city', 'forename', 'surname', 'zipCode'];
+			$columns = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
 			foreach ($columns as $column)
 			{
 				if (empty($item->$column))
@@ -110,5 +127,58 @@ class Booking extends Participants
 		}
 
 		return $items ? $items : [];
+	}
+
+	/**
+	 * Method to get a form object.
+	 *
+	 * @param   string          $name     The name of the form.
+	 * @param   string          $source   The form source. Can be XML string if file flag is set to false.
+	 * @param   array           $options  Optional array of options for the form creation.
+	 * @param   boolean         $clear    Optional argument to force load a new form.
+	 * @param   string|boolean  $xpath    An optional xpath to search for the fields.
+	 *
+	 * @return  Form|boolean  Form object on success, False on error.
+	 * @noinspection PhpMissingParamTypeInspection
+	 */
+	protected function loadForm($name, $source = null, $options = array(), $clear = false, $xpath = false)
+	{
+		$form = parent::loadForm($name, $source, $options, $clear, $xpath);
+
+		$booking = $this->getBooking();
+		$form->setValue('notes', 'supplement', $booking->notes);
+
+		return $form;
+	}
+
+	/**
+	 * Saves supplemental information about the entry.
+	 *
+	 * @return bool
+	 */
+	public function supplement()
+	{
+		$bookingID  = Helpers\Input::getID();
+		$supplement = Helpers\Input::getSupplementalItems();
+
+		if (!$bookingID or !$notes = $supplement->get('notes'))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_400');
+
+			return false;
+		}
+
+		$booking = new Tables\Bookings();
+
+		if (!$booking->load($bookingID))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_412');
+
+			return false;
+		}
+
+		$booking->notes = $notes;
+
+		return $booking->store();
 	}
 }

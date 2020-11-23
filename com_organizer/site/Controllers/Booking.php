@@ -56,4 +56,26 @@ class Booking extends Controller
 		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=$bookingID";
 		$this->setRedirect(Route::_($url, false));
 	}
+
+	/**
+	 * Supplements the resource.
+	 *
+	 * @return void
+	 */
+	public function supplement()
+	{
+		$model = new Models\Booking();
+
+		if (!$model->supplement())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+		$this->setRedirect(Route::_($url, false));
+	}
 }
