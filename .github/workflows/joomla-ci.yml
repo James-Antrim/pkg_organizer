@@ -47,4 +47,4 @@ jobs:
         #if: ${{env.ci_release == true}}
         with: 
                 name: "Workspace"
-                path: "*"
+                path: "./"
