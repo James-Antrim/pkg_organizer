@@ -13,21 +13,10 @@ use Organizer\Helpers;
 
 $count = count($this->instances);
 ?>
-<script type="text/javascript">
-    let timer = null;
-
-    function auto_reload() {
-        window.location = document.URL;
-    }
-
-    window.onload = function () {
-        timer = setTimeout('auto_reload()', 60000);
-    }
-</script>
 <div class='head'>
     <div class='banner'>
         <div class='logo'>
-            <a href="<?php echo Uri::base();?>" aria-label="Organizer Home">
+            <a href="<?php echo Uri::base(); ?>" aria-label="Organizer Home">
                 <img aria-hidden="true" src="components/com_organizer/images/logo.svg" alt="THM-Logo"/>
             </a>
         </div>

@@ -13,6 +13,18 @@ use Organizer\Helpers;
 
 $link = Uri::base() . '?option=com_organizer&task=checkin.confirm&id=';
 ?>
+<script type="text/javascript">
+    let timer = null;
+
+    function auto_reload()
+    {
+        window.location = document.URL;
+    }
+
+    window.onload = function () {
+        timer = setTimeout('auto_reload()', 60000);
+    }
+</script>
 <form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical">
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CONFIRM_EVENT'); ?></div>
 	<?php foreach ($this->instances as $instance): ?>
