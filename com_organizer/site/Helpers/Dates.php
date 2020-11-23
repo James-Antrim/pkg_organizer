@@ -43,6 +43,8 @@ class Dates
 		return $formattedDate;
 	}
 
+	// TODO formatEndTime +1 minute
+
 	/**
 	 * Formats the date stored in the database according to the format in the component parameters
 	 *
