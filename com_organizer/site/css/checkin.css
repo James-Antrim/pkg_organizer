@@ -3,17 +3,12 @@ html {
     position: relative;
 }
 
-body {
-    left: 50%;
-    max-width: 40rem;
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -55%);
-    width: 100%;
-}
-
 body.tmpl-component.html-default {
     background-color: #f2f5f6;
+    left: 50%;
+    min-width: 22rem;
+    position: absolute;
+    transform: translateX(-50%);
 }
 
 body.tmpl-component.html-default .main {
