@@ -4,16 +4,16 @@
         <field name="username" type="Blank" label="USERNAME" class="required validate-username" maxlength="150"
                required="true"/>
         <field name="password" type="Blank" label="PASSWORD" class="required validate-password" maxlength="150"
-               password="true"
-               required="true"/>
-        <field name="code" type="Blank" label="EVENT_CODE" class="required validate-event-code" hint="a2c4-e6g8"
+               password="true" required="true"/>
+        <field name="code" type="Blank" label="EVENT_CODE" class="required validate-event-code" hint="xxxx-xxxx"
                maxlength="9" required="true"/>
     </fieldset>
     <fieldset name="participant">
-        <field name="forename" type="Blank" label="FORENAME" class="required"/>
-        <field name="surname" type="Blank" label="SURNAME" class="required"/>
-        <field name="address" type="Blank" label="ADDRESS" class="required"/>
-        <field name="city" type="Blank" label="RESIDENCE" class="required"/>
-        <field name="zipCode" type="Blank" label="ZIP_CODE" class="required"/>
+        <field name="forename" type="Blank" label="FORENAME" class="required validate-name"/>
+        <field name="surname" type="Blank" label="SURNAME" class="required validate-name"/>
+        <field name="telephone" type="Blank" label="TELEPHONE" class="required validate-telephone"/>
+        <field name="address" type="Blank" label="ADDRESS" class="required validate-address"/>
+        <field name="city" type="Blank" label="RESIDENCE" class="required validate-name"/>
+        <field name="zipCode" type="Blank" label="ZIP_CODE" class="required validate-alphanumeric"/>
     </fieldset>
 </form>

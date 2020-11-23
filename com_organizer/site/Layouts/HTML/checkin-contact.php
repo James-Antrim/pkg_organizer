@@ -16,6 +16,7 @@ use Organizer\Helpers;
       class="form-vertical form-validate" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
 	<?php echo $this->form->renderField('surname'); ?>
 	<?php echo $this->form->renderField('forename'); ?>
+	<?php echo $this->form->renderField('telephone'); ?>
 	<?php echo $this->form->renderField('address'); ?>
 	<?php echo $this->form->renderField('city'); ?>
 	<?php echo $this->form->renderField('zipCode'); ?>
