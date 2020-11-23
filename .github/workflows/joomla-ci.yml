@@ -40,6 +40,8 @@ jobs:
         run: build/scripts/shell/init.sh
       - name: "Generating ZIP-File(s)"
         run: build/scripts/shell/mkzips.sh
+      - name: "Showing fs-tree"
+        run: tree
       - name: "Upload Package"
         uses: actions/upload-artifact@v1
         if: ${{env.ci_release == true}}
