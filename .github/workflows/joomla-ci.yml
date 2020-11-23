@@ -42,9 +42,9 @@ jobs:
         run: build/scripts/shell/mkzips.sh
       - name: "Showing fs-tree"
         run: tree
-      - name: "Upload Package"
+      - name: "Upload Workspace"
         uses: actions/upload-artifact@v2
         #if: ${{env.ci_release == true}}
         with: 
-                name: "com_organizer"
-                path: "zips/com_organizer.zip"
+                name: "Workspace"
+                path: "*"
