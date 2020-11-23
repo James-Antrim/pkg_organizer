@@ -43,8 +43,8 @@ jobs:
       - name: "Showing fs-tree"
         run: tree
       - name: "Upload Package"
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: ${{env.ci_release == true}}
         with: 
-                name: "com-organizer"
-                path: "zips/com-organizer.zip"
+                name: "com_organizer"
+                path: "zips/com_organizer.zip"
