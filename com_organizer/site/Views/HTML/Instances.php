@@ -470,13 +470,20 @@ class Instances extends ListView
 	private function resolveLinks(string $text)
 	{
 		$moodleIcon     = '<span class="icon-moodle hasTooltip" title="Moodle Link"></span>';
-		$moodleURL      = 'https://moodle.thm.de/course/view.php?id=PID';
-		$moodleTemplate = "<a href=\"$moodleURL\" target=\"_blank\">$moodleIcon</a>";
+		$moodleURL1      = 'https://moodle.thm.de/course/view.php?id=PID';
+		$moodleURL2      = 'https://moodle.thm.de/course/index.php?categoryid=PID';
+		$moodleTemplate = "<a href=\"MOODLEURL\" target=\"_blank\">$moodleIcon</a>";
 
-		$template = str_replace('PID', '$4', $moodleTemplate);
+		$template = str_replace('PID', '$4', str_replace('MOODLEURL', $moodleURL1, $moodleTemplate));
 		$text     = preg_replace('/(((https?):\/\/)moodle.thm.de\/course\/view.php\?id=(\d+))/', $template, $text);
-		$template = str_replace('PID', '$1', $moodleTemplate);
+		$template = str_replace('PID', '$1', str_replace('MOODLEURL', $moodleURL1, $moodleTemplate));
 		$text     = preg_replace('/moodle=(\d+)/', $template, $text);
+		$template = str_replace('PID', '$4', str_replace('MOODLEURL', $moodleURL2, $moodleTemplate));
+		$text     = preg_replace(
+			'/(((https?):\/\/)moodle\.thm\.de\/course\/index\.php\\?categoryid=(\\d+))/',
+			$template,
+			$text
+		);
 
 		$netACADIcon = '<span class="icon-cisco hasTooltip" title="Networking Academy Link"></span>';
 		$template    = "<a href=\"$1\" target=\"_blank\">$netACADIcon</a>";
