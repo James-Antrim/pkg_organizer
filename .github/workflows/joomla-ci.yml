@@ -46,5 +46,5 @@ jobs:
         uses: actions/upload-artifact@v2
         #if: ${{env.ci_release == true}}
         with: 
-                name: "Workspace"
+                name: "Workspace PHP ${{ matrix.php-versions }}"
                 path: "./"
