@@ -25,13 +25,13 @@ body.tmpl-component.html-default .main h1 {
     text-align: center;
 }
 
-body.tmpl-component.html-default .main input {
+body.tmpl-component.html-default .main input, body.tmpl-component.html-default .main a.btn {
     padding: .25rem;
     text-align: center;
     width: 20rem;
 }
 
-body.tmpl-component.html-default .main input.btn {
+body.tmpl-component.html-default .main input.btn, body.tmpl-component.html-default .main a.btn.btn {
     margin-top: .5rem;
 }
 
@@ -51,6 +51,10 @@ body.tmpl-component.html-default .main input.btn {
     padding: .5rem;
 }
 
+form {
+    margin-bottom: 0;
+}
+
 form.form-vertical .control-group,
 form.form-vertical .control-label,
 form.form-vertical .controls {
@@ -63,4 +67,8 @@ form.form-vertical .control-label {
 
 form label {
     font-weight: bold;
+}
+
+form .control-group.message:first-child {
+    margin-top: .5rem;
 }

@@ -29,12 +29,9 @@ $link = Uri::base() . '?option=com_organizer&task=checkin.confirm&id=';
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CONFIRM_EVENT'); ?></div>
 	<?php foreach ($this->instances as $instance): ?>
         <div class="control-group">
-            <div class="control-label inverse"><?php echo $instance['name']; ?></div>
-            <div class="controls inverse">
-                <a class="btn" href="<?php echo $link . $instance['instanceID']; ?>">
-					<?php echo Helpers\Languages::_('ORGANIZER_CONFIRM'); ?>
-                </a>
-            </div>
+            <a class="btn" href="<?php echo $link . $instance['instanceID']; ?>">
+				<?php echo $instance['name']; ?>
+            </a>
         </div>
 	<?php endforeach; ?>
 </form>

@@ -25,7 +25,7 @@ body.tmpl-component.html-default {
       text-align: center;
     }
 
-    input {
+    input, a.btn {
       padding: .25rem;
       text-align: center;
       width: 20rem;
@@ -54,7 +54,10 @@ body.tmpl-component.html-default {
 }
 
 form {
+  margin-bottom: 0;
+
   &.form-vertical {
+
     .control-group,
     .control-label,
     .controls {
@@ -69,5 +72,9 @@ form {
 
   label {
     font-weight: bold;
+  }
+
+  .control-group.message:first-child {
+    margin-top: .5rem;
   }
 }

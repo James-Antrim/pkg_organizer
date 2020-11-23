@@ -36,7 +36,7 @@ class Checkin extends FormView
 			if ($this->complete)
 			{
 				$title = count($this->instances) > 1 ?
-					Helpers\Languages::_('ORGANIZER_CONFIRM_ATTENDANCE') : Helpers\Languages::_('ORGANIZER_CHECKEDIN');
+					Helpers\Languages::_('ORGANIZER_CONFIRM_ATTENDANCE') : Helpers\Languages::_('ORGANIZER_CHECKIN');
 			}
 			else
 			{
@@ -53,7 +53,13 @@ class Checkin extends FormView
 		if (Helpers\Input::getCMD('tmpl') !== 'component' and !count($this->instances))
 		{
 			$toolbar = Toolbar::getInstance();
-			$toolbar->appendButton('Standard', 'enter', Helpers\Languages::_('ORGANIZER_CHECKIN'), 'checkin.checkin', false);
+			$toolbar->appendButton(
+				'Standard',
+				'enter',
+				Helpers\Languages::_('ORGANIZER_CHECKIN'),
+				'checkin.checkin',
+				false
+			);
 		}
 	}
 

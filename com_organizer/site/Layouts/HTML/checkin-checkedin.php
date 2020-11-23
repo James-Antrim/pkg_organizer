@@ -27,7 +27,7 @@ $instance = $this->instances[0];
 </script>
 <form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical">
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CHECKED_INTO'); ?></div>
-    <div class="control-group message"><?php echo $instance['name']; ?></div>
+    <div class="control-group message"><b><?php echo $instance['name']; ?></b></div>
 	<?php if ($instance['method']): ?>
         <div class="control-group message"><?php echo $instance['method']; ?></div>
 	<?php endif; ?>
