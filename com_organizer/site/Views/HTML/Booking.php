@@ -49,11 +49,16 @@ class Booking extends Participants
 
 		$script      = "onclick=\"jQuery('#form-modal').modal('show'); return true;\"";
 		$batchButton = "<button id=\"booking-notes\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
-
 		$title       = Languages::_('ORGANIZER_NOTES');
 		$batchButton .= '<span class="icon-pencil-2" title="' . $title . '"></span>' . " $title";
-
 		$batchButton .= '</button>';
+
+		// TODO add function to remove participants
+		// TODO add function to batch assign participants to the correct event
+		// TODO add filter for participant events, should the booking be associated with more than one.
+		// TODO add filter for incomplete profiles
+		// TODO add the participant profile view as a menu item
+		// TODO special handling for middle names??
 
 		$toolbar->appendButton('Custom', $batchButton, 'batch');
 	}
