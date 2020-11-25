@@ -16,7 +16,8 @@ body.tmpl-index div.main {
 
   .js-stools-container-bar,
   .js-stools-container-list,
-  .js-stools-container-filters {
+  .js-stools-container-filters,
+  .js-stools-field-list {
     display: flex;
     flex-wrap: wrap;
     margin-bottom: .8rem;
@@ -37,7 +38,8 @@ body.tmpl-index div.main {
     }
   }
 
-  .js-stools-container-bar {
+  .js-stools-container-bar,
+  .js-stools-container-list {
     input {
       width: 12rem;
     }

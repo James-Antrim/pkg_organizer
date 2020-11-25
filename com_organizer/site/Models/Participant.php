@@ -199,13 +199,16 @@ class Participant extends BaseModel
 	/**
 	 * Adds an organizer participant based on the information in the users table.
 	 *
-	 * @param   int  $participantID
+	 * @param   int   $participantID  the id of the participant/user entries
+	 * @param   bool  $force          forces update of the columns derived from information in the user table
 	 *
 	 * @return void
 	 */
-	public function supplement(int $participantID)
+	public function supplement(int $participantID, bool $force = false)
 	{
-		if (Helpers\Participants::exists($participantID))
+		$exists = Helpers\Participants::exists($participantID);
+
+		if ($exists and !$force)
 		{
 			return;
 		}
@@ -216,9 +219,20 @@ class Participant extends BaseModel
 		$forename = $query->quote($names['forename']);
 		$surname  = $query->quote($names['surname']);
 
-		$query->insert('#__organizer_participants')
-			->columns('id, forename, surname')
-			->values("$participantID, $forename, $surname");
+		if (!$exists)
+		{
+			$query->insert('#__organizer_participants')
+				->columns('id, forename, surname')
+				->values("$participantID, $forename, $surname");
+		}
+		else
+		{
+			$query->update('#__organizer_persons')
+				->set("forename = $forename")
+				->set("surname = $surname")
+				->where("id = $participantID");
+		}
+
 		$this->_db->setQuery($query);
 
 		Helpers\OrganizerHelper::executeQuery('execute');

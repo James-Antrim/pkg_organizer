@@ -83,6 +83,7 @@ class InstanceParticipant extends BaseModel
 		}
 
 		$today = date('Y-m-d');
+		$now   = date('H:i:s');
 		$then  = date('H:i:s', strtotime('+60 minutes'));
 
 		$query = $this->_db->getQuery(true);
@@ -92,7 +93,8 @@ class InstanceParticipant extends BaseModel
 			->where("bk.code = '$code'")
 			->innerJoin('#__organizer_blocks AS bl ON bl.id = i.blockID')
 			->where("bl.date = '$today'")
-			->where("bl.startTime < '$then'");
+			->where("bl.startTime < '$then'")
+			->where("bl.endTime > '$now'");
 		$this->_db->setQuery($query);
 
 		if (!$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))

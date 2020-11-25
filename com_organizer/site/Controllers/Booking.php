@@ -62,6 +62,19 @@ class Booking extends Controller
 	 *
 	 * @return void
 	 */
+	public function addParticipant()
+	{
+		$model = new Models\Booking();
+		$model->addParticipant();
+		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Supplements the resource.
+	 *
+	 * @return void
+	 */
 	public function supplement()
 	{
 		$model = new Models\Booking();
