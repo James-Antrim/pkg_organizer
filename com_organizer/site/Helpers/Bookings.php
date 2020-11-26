@@ -29,7 +29,7 @@ class Bookings extends ResourceHelper
 	public static function getDateTimeDisplay(int $bookingID)
 	{
 		$instanceIDs = self::getInstanceIDs($bookingID);
-		$instance = new Tables\Instances();
+		$instance    = new Tables\Instances();
 		if (!$instance->load($instanceIDs[0]))
 		{
 			return '';
@@ -41,8 +41,8 @@ class Bookings extends ResourceHelper
 			return '';
 		}
 
-		$date = Dates::formatDate($block->date);
-		$endTime = Dates::formatTime($block->endTime);
+		$date      = Dates::formatDate($block->date);
+		$endTime   = Dates::formatEndTime($block->endTime);
 		$startTime = Dates::formatTime($block->startTime);
 
 		return "$date $startTime - $endTime";

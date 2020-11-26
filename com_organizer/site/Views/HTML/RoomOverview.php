@@ -128,7 +128,7 @@ class RoomOverview extends TableView
 
 		foreach ($this->grid['periods'] as $number => $data)
 		{
-			$endTime   = Helpers\Dates::formatTime($data['endTime']);
+			$endTime   = Helpers\Dates::formatEndTime($data['endTime']);
 			$startTime = Helpers\Dates::formatTime($data['startTime']);
 			$timeText  = "$startTime - $endTime";
 
@@ -259,7 +259,7 @@ class RoomOverview extends TableView
 		else
 		{
 			$blockNo   = $data['blockNo'];
-			$endTime   = Helpers\Dates::formatTime($this->grid['periods'][$blockNo]['endTime']);
+			$endTime   = Helpers\Dates::formatEndTime($this->grid['periods'][$blockNo]['endTime']);
 			$noGrid    = false;
 			$startTime = Helpers\Dates::formatTime($this->grid['periods'][$blockNo]['startTime']);
 		}

@@ -89,10 +89,10 @@ class Instances extends ListView
 
 			if ($organizationID = $params->get('organizationID'))
 			{
-				$fullName = Helpers\Organizations::getFullName($organizationID);
+				$fullName  = Helpers\Organizations::getFullName($organizationID);
 				$shortName = Helpers\Organizations::getShortName($organizationID);
-				$name = ($this->mobile or strlen($fullName) > 50) ? $shortName : $fullName;
-				$suffix .= ': ' . $name;
+				$name      = ($this->mobile or strlen($fullName) > 50) ? $shortName : $fullName;
+				$suffix    .= ': ' . $name;
 			}
 			elseif ($campusID = $params->get('campusID'))
 			{
@@ -128,9 +128,9 @@ class Instances extends ListView
 		}
 
 		$organizationID = Helpers\Input::getParams()->get('organizationID', 0);
-		$this->manages = $organizationID ?
+		$this->manages  = $organizationID ?
 			Helpers\Can::manage('organization', $organizationID) : (bool) Helpers\Can::manageTheseOrganizations();
-		$this->teaches = Helpers\Instances::teaches();
+		$this->teaches  = Helpers\Instances::teaches();
 	}
 
 	/**
@@ -391,6 +391,7 @@ class Instances extends ListView
 
 		return ['attributes' => ['class' => 'title-column'], 'value' => $name];
 	}
+
 	/**
 	 * Creates the instance tools for the user.
 	 *
@@ -405,24 +406,24 @@ class Instances extends ListView
 		if (Helpers\Can::manage('instance', $item->instanceID))
 		{
 			$label = '';
-			$icon = '';
+			$icon  = '';
 			$today = date('Y-m-d');
-			$URL = Uri::base() . '?option=com_organizer';
+			$URL   = Uri::base() . '?option=com_organizer';
 
 			$expired = ($item->date < $today or $item->endTime < date('H:i:s'));
-			$current  = ($item->date === $today and $item->startTime < date('H:i:s', strtotime('+60 minutes')));
+			$current = ($item->date === $today and $item->startTime < date('H:i:s', strtotime('+60 minutes')));
 
 			if ($item->bookingID)
 			{
 				$label = Languages::_('ORGANIZER_MANAGE_BOOKING');
-				$icon = Helpers\HTML::icon('users', $label, true);
-				$URL .= '&view=booking&id=' . $item->bookingID;
+				$icon  = Helpers\HTML::icon('users', $label, true);
+				$URL   .= '&view=booking&id=' . $item->bookingID;
 			}
 			elseif (!$expired and $current)
 			{
 				$label = Languages::_('ORGANIZER_START_BOOKING');
-				$icon = Helpers\HTML::icon('enter', $label, true);
-				$URL .= '&task=booking.add&id=' . $item->instanceID;
+				$icon  = Helpers\HTML::icon('enter', $label, true);
+				$URL   .= '&task=booking.add&id=' . $item->instanceID;
 			}
 
 			if ($label)
@@ -470,8 +471,8 @@ class Instances extends ListView
 	private function resolveLinks(string $text)
 	{
 		$moodleIcon     = '<span class="icon-moodle hasTooltip" title="Moodle Link"></span>';
-		$moodleURL1      = 'https://moodle.thm.de/course/view.php?id=PID';
-		$moodleURL2      = 'https://moodle.thm.de/course/index.php?categoryid=PID';
+		$moodleURL1     = 'https://moodle.thm.de/course/view.php?id=PID';
+		$moodleURL2     = 'https://moodle.thm.de/course/index.php?categoryid=PID';
 		$moodleTemplate = "<a href=\"MOODLEURL\" target=\"_blank\">$moodleIcon</a>";
 
 		$template = str_replace('PID', '$4', str_replace('MOODLEURL', $moodleURL1, $moodleTemplate));
@@ -517,14 +518,14 @@ class Instances extends ListView
 	 */
 	protected function structureItems()
 	{
-		$index = 0;
+		$index           = 0;
 		$structuredItems = [];
 
 		foreach ($this->items as $item)
 		{
 			$times = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
 			$times .= '<span class="times">' . Helpers\Dates::formatTime($item->startTime) . ' - ';
-			$times .= Helpers\Dates::formatTime($item->endTime) . '</span>';
+			$times .= Helpers\Dates::formatEndTime($item->endTime) . '</span>';
 
 			$structuredItems[$index] = [];
 

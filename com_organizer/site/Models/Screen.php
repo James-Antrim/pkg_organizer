@@ -235,7 +235,7 @@ class Screen extends BaseModel
 
 		foreach ($this->grid as &$period)
 		{
-			$endTime   = Helpers\Dates::formatTime($period['endTime']);
+			$endTime   = Helpers\Dates::formatEndTime($period['endTime']);
 			$startTime = Helpers\Dates::formatTime($period['startTime']);
 
 			$period['comment'] = '';

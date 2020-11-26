@@ -19,8 +19,7 @@ $rowNumber = 0;
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload()
-    {
+    function auto_reload() {
         window.location = document.URL;
     }
 
@@ -74,7 +73,7 @@ $rowNumber = 0;
                 <div class="block-times">
 					<?php echo Helpers\Dates::formatTime($instance['startTime']); ?><br>
                     -<br>
-					<?php echo Helpers\Dates::formatTime($instance['endTime']); ?>
+					<?php echo Helpers\Dates::formatEndTime($instance['endTime']); ?>
                 </div>
                 <div class="instance-display">
                     <div class="event-names <?php echo $paddingClass; ?>">

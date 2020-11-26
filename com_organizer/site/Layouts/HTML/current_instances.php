@@ -18,8 +18,7 @@ $rowNumber = 0;
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload()
-    {
+    function auto_reload() {
         window.location = document.URL;
     }
 
@@ -42,7 +41,7 @@ $rowNumber = 0;
 		<?php
 		foreach ($this->model->grid as $periodNo => $period)
 		{
-			$endTime   = Helpers\Dates::formatTime($period['endTime']);
+			$endTime   = Helpers\Dates::formatEndTime($period['endTime']);
 			$rowClass  = 'row' . ($rowNumber % 2);
 			$startTime = Helpers\Dates::formatTime($period['startTime']);
 
