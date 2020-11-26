@@ -43,6 +43,20 @@ class Dates
 		return $formattedDate;
 	}
 
+	/**
+	 * Formats the date stored in the database according to the format in the component parameters
+	 *
+	 * @param   string  $time  the date to be formatted
+	 *
+	 * @return string|bool  a formatted date string otherwise false
+	 */
+	public static function formatEndTime(string $time)
+	{
+		$timeFormat = Input::getParams()->get('timeFormat', 'H:i');
+
+		return date($timeFormat, strtotime('+1 minute', strtotime($time)));
+	}
+
 	// TODO formatEndTime +1 minute
 
 	/**
@@ -52,7 +66,7 @@ class Dates
 	 *
 	 * @return string|bool  a formatted date string otherwise false
 	 */
-	public static function formatTime($time)
+	public static function formatTime(string $time)
 	{
 		$timeFormat = Input::getParams()->get('timeFormat', 'H:i');
 
@@ -69,7 +83,7 @@ class Dates
 	 *
 	 * @return string|bool  a formatted date string otherwise false
 	 */
-	public static function getDisplay($startDate, $endDate, $withText = false, $short = false)
+	public static function getDisplay(string $startDate, string $endDate, $withText = false, $short = false)
 	{
 		$startDate = self::formatDate($startDate, $withText, $short);
 		$endDate   = self::formatDate($endDate, $withText, $short);
@@ -94,7 +108,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getHalfYear($date)
+	public static function getHalfYear(string $date)
 	{
 		$dateTime = strtotime($date);
 
@@ -108,7 +122,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getMonth($date)
+	public static function getMonth(string $date)
 	{
 		$dateTime  = strtotime($date);
 		$startDate = date('Y-m-d', strtotime('first day of this month', $dateTime));
@@ -124,7 +138,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getQuarter($date)
+	public static function getQuarter(string $date)
 	{
 		$dateTime = strtotime($date);
 
@@ -138,7 +152,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getTerm($date)
+	public static function getTerm(string $date)
 	{
 		$dbo   = Factory::getDbo();
 		$query = $dbo->getQuery(true);
@@ -159,7 +173,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getWeek($date, $startDay = 1, $endDay = 6)
+	public static function getWeek(string $date, $startDay = 1, $endDay = 6)
 	{
 		$dateTime     = strtotime($date);
 		$startDayName = date('l', strtotime("Sunday + $startDay days"));
@@ -177,7 +191,7 @@ class Dates
 	 *
 	 * @return bool
 	 */
-	public static function isStandardized($date)
+	private static function isStandardized(string $date)
 	{
 		$dt = DateTime::createFromFormat('Y-m-d', $date);
 
