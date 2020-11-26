@@ -38,6 +38,10 @@
 #endregion
 
 #region Quality ########################################################################################################
+#avoid re-writing the past when a new schedule is uploaded
+##if a unit is deleted, do not mark the unit itself as removed, but any instances associated with it in the future
+##if an instance from the past is deleted, ignore it
+##...
 #ensure associations are unique despite the dumb shit there
 #write wrappers for core function calls which throw errors
 #reformat text constant word order so that they are written as spoken: organizer_resource_edit => organizer_edit_resource
