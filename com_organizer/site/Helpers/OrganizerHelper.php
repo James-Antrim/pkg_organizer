@@ -77,9 +77,9 @@ class OrganizerHelper
 	 */
 	public static function error(int $code)
 	{
-		$URI = Uri::getInstance();
+		$URI      = Uri::getInstance();
 		$referrer = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
-		$URL = $referrer === $URI->toString() ? Uri::base() : $referrer;
+		$URL      = $referrer === $URI->toString() ? Uri::base() : $referrer;
 		self::message(Languages::_("ORGANIZER_$code"), 'error');
 		self::getApplication()->redirect($URL, $code);
 	}

@@ -149,7 +149,8 @@ abstract class ListView extends BaseHTMLView
 		$currentValue,
 		$tip,
 		$attribute = null
-	) {
+	)
+	{
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle";
 		$url .= "&$columnOne=$valueOne&$columnTwo=$valueTwo";
 		$url .= $attribute ? "&attribute=$attribute" : '';
@@ -301,6 +302,18 @@ abstract class ListView extends BaseHTMLView
 				$value = is_array($item->$property) ? $item->$property['value'] : $item->$property;
 
 				$processedItem[$property] = HTML::_('link', $link, $value, $attributes);
+				continue;
+			}
+
+			if ($propertyType === 'list' and is_array($item->$property))
+			{
+				$list = '<ul>';
+				foreach ($item->$property as $listItem)
+				{
+					$list .= "<li>$listItem</li>";
+				}
+				$list                     .= '<ul>';
+				$processedItem[$property] = $list;
 				continue;
 			}
 
