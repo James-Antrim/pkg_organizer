@@ -25,13 +25,16 @@ body.tmpl-component.html-default {
       text-align: center;
     }
 
-    input, a.btn {
+    input {
       padding: .25rem;
       text-align: center;
       width: 20rem;
 
       &.btn {
+        border: $border-dark-thick;
         margin-top: .5rem;
+        padding: .25rem 1rem;
+        width: auto;
       }
     }
   }
