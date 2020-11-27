@@ -28,6 +28,8 @@ abstract class ListView extends BaseHTMLView
 
 	public $batch = [];
 
+	public $empty = '';
+
 	public $filterForm = null;
 
 	/**
@@ -108,6 +110,8 @@ abstract class ListView extends BaseHTMLView
 		{
 			$this->structureItems();
 		}
+
+		$this->empty = $this->empty ? $this->empty : Helpers\Languages::_('ORGANIZER_EMPTY_RESULT_SET');
 
 		$this->addDisclaimer();
 		if (method_exists($this, 'setSubtitle'))

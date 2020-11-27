@@ -94,6 +94,7 @@ class Booking extends Participants
 		// Set batch template path
 		$this->batch   = ['form_modal'];
 		$this->booking = $this->get('Booking');
+		$this->empty   = Helpers\Languages::_('ORGANIZER_EMPTY_CHECKIN_RESULT_SET');
 		$this->refresh = 60;
 
 		parent::display($tpl);

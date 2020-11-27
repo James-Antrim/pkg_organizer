@@ -83,7 +83,7 @@ if (!empty($this->submenu))
 			<?php else: ?>
                 <tr>
                     <td class="empty-result-set" colspan="<?php echo count($this->headers); ?>">
-						<?php echo Helpers\Languages::_('ORGANIZER_EMPTY_RESULT_SET') ?>
+						<?php echo $this->empty; ?>
                     </td>
                 </tr>
 			<?php endif; ?>
