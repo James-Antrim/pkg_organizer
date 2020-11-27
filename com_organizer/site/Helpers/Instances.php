@@ -267,8 +267,8 @@ class Instances extends ResourceHelper
 
 		$block = [
 			'date'      => $blocksTable->date,
-			'endTime'   => date('H:i', strtotime($blocksTable->endTime)),
-			'startTime' => date('H:i', strtotime($blocksTable->startTime))
+			'endTime'   => Dates::formatEndTime($blocksTable->endTime),
+			'startTime' => Dates::formatTime($blocksTable->startTime)
 		];
 
 		unset($blocksTable);
@@ -723,14 +723,14 @@ class Instances extends ResourceHelper
 	/**
 	 * Sets the instance's bookingID
 	 *
-	 * @param   array  &$instance the instance to modify
+	 * @param   array  &$instance  the instance to modify
 	 *
 	 * @return void
 	 */
 	public static function setBooking(array &$instance)
 	{
-		$booking = new Tables\Bookings();
-		$exists = $booking->load(['blockID' => $instance['blockID'], 'unitID' => $instance['unitID']]);
+		$booking               = new Tables\Bookings();
+		$exists                = $booking->load(['blockID' => $instance['blockID'], 'unitID' => $instance['unitID']]);
 		$instance['bookingID'] = $exists ? $booking->id : null;
 	}
 

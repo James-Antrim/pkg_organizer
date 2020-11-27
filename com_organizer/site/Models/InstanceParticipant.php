@@ -60,7 +60,7 @@ class InstanceParticipant extends BaseModel
 	/**
 	 * Checks the user into instances.
 	 *
-	 * @return void
+	 * @return bool true on success, otherwise false
 	 */
 	public function checkin()
 	{
@@ -68,7 +68,7 @@ class InstanceParticipant extends BaseModel
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_401', 'error');
 
-			return;
+			return false;
 		}
 
 		$participant = new Participant();
@@ -79,7 +79,7 @@ class InstanceParticipant extends BaseModel
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
 
-			return;
+			return false;
 		}
 
 		$today = date('Y-m-d');
@@ -101,7 +101,7 @@ class InstanceParticipant extends BaseModel
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
 
-			return;
+			return false;
 		}
 
 		// Check for planned
@@ -126,13 +126,21 @@ class InstanceParticipant extends BaseModel
 			if (!$instanceParticipation->save($data))
 			{
 				Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_FAILED'));
+
+				return false;
 			}
 		}
 
 		Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_SUCCEEDED'));
+
+		return true;
 	}
 
-
+	/**
+	 * Confirms the instance to which the participant intended to checkin.
+	 *
+	 * @return void
+	 */
 	public function confirm()
 	{
 		if (!$participantID = Helpers\Users::getID())

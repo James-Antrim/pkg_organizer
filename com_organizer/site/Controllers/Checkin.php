@@ -10,6 +10,8 @@
 
 namespace Organizer\Controllers;
 
+use Exception;
+use Joomla\CMS\Factory;
 use Organizer\Controller;
 use Organizer\Helpers;
 use Organizer\Models;
@@ -20,24 +22,33 @@ use Organizer\Models;
 class Checkin extends Controller
 {
 	/**
-	 * Checks the user into the
+	 * Checks the user into a booking.
+	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function checkin()
 	{
-		$data = Helpers\Input::getFormItems();
+		$data    = Helpers\Input::getFormItems();
+		$session = Factory::getSession();
 
 		if (!$userID = Helpers\Users::getID())
 		{
 			$credentials = ['username' => $data->get('username'), 'password' => $data->get('password')];
-			if (!Helpers\OrganizerHelper::getApplication()->login($credentials))
-			{
-				Helpers\OrganizerHelper::message('ORGANIZER_LOGIN_FAILED', 'error');
-			}
+			$username    = Helpers\OrganizerHelper::getApplication()->login($credentials) ? '' : $data->get('username');
+			$session->set('organizer.checkin.username', $username);
 		}
 
-		$model = new Models\InstanceParticipant();
-		$model->checkin();
+		if ($userID = Helpers\Users::getID())
+		{
+			$model = new Models\InstanceParticipant();
+			$code  = $model->checkin() ? '' : $data->get('code');
+			$session->set('organizer.checkin.code', $code);
+		}
+		else
+		{
+			$session->set('organizer.checkin.code', $data->get('code'));
+		}
 
 		$url = Helpers\Routing::getRedirectBase() . "&view=checkin";
 		$this->setRedirect($url);

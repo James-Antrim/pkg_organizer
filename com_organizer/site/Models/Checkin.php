@@ -11,12 +11,15 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Tables;
 
 class Checkin extends FormModel
 {
+	private $participant;
+
 	/**
 	 * Constructor.
 	 *
@@ -32,6 +35,34 @@ class Checkin extends FormModel
 			$URL = Uri::root() . "?option=com_organizer&view=checkin&tmpl=component";
 			Helpers\OrganizerHelper::getApplication()->redirect($URL);
 		}
+
+		$form    = $this->getForm();
+		$session = Factory::getSession();
+
+		if ($username = $session->get('organizer.checkin.username'))
+		{
+			$form->setValue('username', null, $username);
+		}
+		if ($code = $session->get('organizer.checkin.code'))
+		{
+			$form->setValue('code', null, $code);
+		}
+
+		$participant = new Tables\Participants();
+
+		if ($participantID = Helpers\Users::getID())
+		{
+			$participant->load($participantID);
+
+			$form->setValue('address', null, $participant->address);
+			$form->setValue('city', null, $participant->city);
+			$form->setValue('forename', null, $participant->forename);
+			$form->setValue('id', null, $participantID);
+			$form->setValue('surname', null, $participant->surname);
+			$form->setValue('zipCode', null, $participant->zipCode);
+		}
+
+		$this->participant = $participant;
 	}
 
 	/**
@@ -49,22 +80,7 @@ class Checkin extends FormModel
 	 */
 	public function getParticipant()
 	{
-		$participant = new Tables\Participants();
-
-		if ($participantID = Helpers\Users::getID())
-		{
-			$participant->load($participantID);
-
-			$form = $this->getForm();
-			$form->setValue('address', null, $participant->address);
-			$form->setValue('city', null, $participant->city);
-			$form->setValue('forename', null, $participant->forename);
-			$form->setValue('id', null, $participantID);
-			$form->setValue('surname', null, $participant->surname);
-			$form->setValue('zipCode', null, $participant->zipCode);
-		}
-
-		return $participant;
+		return $this->participant;
 	}
 
 	/**

@@ -16,8 +16,7 @@ $instance = $this->instances[0];
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload()
-    {
+    function auto_reload() {
         window.location = document.URL;
     }
 
@@ -32,4 +31,5 @@ $instance = $this->instances[0];
         <div class="control-group message"><?php echo $instance['method']; ?></div>
 	<?php endif; ?>
     <div class="control-group message"><?php echo $instance['startTime'] . ' - ' . $instance['endTime']; ?></div>
+    <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CHECKOUT_REMINDER'); ?></div>
 </form>
