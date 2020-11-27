@@ -2,6 +2,10 @@
 <form>
     <fields name="params" addfieldprefix="Organizer\Fields">
         <fieldset name="basic" label="ORGANIZER_SETTINGS">
+            <field name="my" type="Options" label="PERSONALIZED">
+                <option value="0">NO</option>
+                <option value="1">YES</option>
+            </field>
             <field name="dow" type="Options" label="WEEKDAY">
                 <option value="">ALL_DAYS</option>
                 <option value="1">MONDAY</option>

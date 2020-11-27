@@ -452,14 +452,38 @@ class Instances extends ResourceHelper
 				->where('(gp.published = 1 OR gp.published IS NULL)');
 		}
 
-		if ($conditions['mySchedule'] and !empty($conditions['userID']))
+		if (!empty($conditions['my']))
+		{
+			$wherray = [];
+			if ($userID = Users::getID())
+			{
+				if ($personID = Persons::getIDByUserID($userID))
+				{
+					$wherray[] = "ipe.personID = $personID";
+				}
+				if (Participants::exists($userID))
+				{
+					$query->leftJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id');
+					$wherray[] = "ipa.participantID = $userID";
+				}
+			}
+
+			if ($wherray)
+			{
+				$query->where('(' . implode(' OR ', $wherray) . ')');
+			}
+			else
+			{
+				$query->where('i.id = 0');
+			}
+		}
+		elseif ($conditions['mySchedule'] and !empty($conditions['userID']))
 		{
 			// Aggregate of selected items and the teacher schedule
 			if (!empty($conditions['personIDs']))
 			{
 				$personIDs = implode(',', $conditions['personIDs']);
 				$query->leftJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
-					->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
 					->where("(ipa.participantID = {$conditions['userID']} OR ipe.personID IN ($personIDs))");
 			}
 			else

@@ -53,10 +53,24 @@ class Instances extends ListModel
 				unset($this->filter_fields['organizationID']);
 			}
 		}
+		elseif ($this->state->get('filter.my'))
+		{
+			$form->removeField('campusID', 'filter');
+			$form->removeField('categoryID', 'filter');
+			$form->removeField('date', 'list');
+			$form->removeField('groupID', 'filter');
+			$form->removeField('interval', 'list');
+			$form->removeField('methodID', 'filter');
+			$form->removeField('organizationID', 'filter');
+			$form->removeField('personID', 'filter');
+			$form->removeField('roomID', 'filter');
+			$form->removeField('search', 'filter');
+			$form->removeField('status', 'filter');
+			$this->filter_fields = [];
+		}
 		else
 		{
 			$params = Helpers\Input::getParams();
-
 			if ($params->get('campusID'))
 			{
 				$form->removeField('campusID', 'filter');
@@ -66,8 +80,8 @@ class Instances extends ListModel
 			if ($this->state->get('filter.eventID'))
 			{
 				$form->removeField('campusID', 'filter');
-				$form->removeField('organizationID', 'filter');
 				$form->removeField('categoryID', 'filter');
+				$form->removeField('organizationID', 'filter');
 				$form->removeField('roomID', 'filter');
 			}
 
@@ -87,7 +101,7 @@ class Instances extends ListModel
 				$form->removeField('date', 'list');
 				$form->removeField('interval', 'list');
 
-				if (!empty($methodID))
+				if ($methodID)
 				{
 					$form->removeField('methodID', 'filter');
 					unset($this->filter_fields[array_search('methodID', $this->filter_fields)]);
@@ -132,8 +146,18 @@ class Instances extends ListModel
 		$query = Helpers\Instances::getInstanceQuery($conditions);
 
 		$query->select("DISTINCT i.id")
-			->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
 			->order('b.date, b.startTime, b.endTime');
+
+		if ($conditions['my'])
+		{
+			$date = date('Y-m-d');
+			$now  = date('H:i:s');
+			$query->where("(b.date > '$date' OR (b.date = '$date' AND b.endTime > '$now'))");
+		}
+		else
+		{
+			$query->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'");
+		}
 
 		$this->setSearchFilter($query, ['e.name_de', 'e.name_en']);
 		$this->setValueFilters($query, ['b.dow', 'i.methodID']);
@@ -166,11 +190,7 @@ class Instances extends ListModel
 	}
 
 	/**
-	 * Method to get the total number of items for the data set.
-	 *
-	 * @param   string  $idColumn  the main id column of the list query
-	 *
-	 * @return int  The total number of items available in the data set.
+	 * @inheritdoc
 	 */
 	public function getTotal($idColumn = null)
 	{
@@ -178,12 +198,7 @@ class Instances extends ListModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void populates state properties
+	 * @inheritdoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
@@ -201,75 +216,91 @@ class Instances extends ListModel
 		else
 		{
 			$filterItems = Helpers\Input::getFilterItems();
+			$listItems   = Helpers\Input::getListItems();
 			$params      = Helpers\Input::getParams();
 
-			if ($campusID = $params->get('campusID'))
+			if (Helpers\Input::getInt('my', $params->get('my', 0)))
 			{
-				$filterItems->set('campusID', $campusID);
-				$this->state->set('filter.campusID', $campusID);
+				$this->state->set('filter.my', 1);
 			}
 
-			$organizationID = Helpers\Input::getInt('organizationID');
-			if ($organizationID = $params->get('organizationID', $organizationID))
+			if ($this->state->get('filter.my'))
 			{
-				$filterItems->set('organizationID', $organizationID);
-				$this->state->set('filter.organizationID', $organizationID);
-			}
-			elseif ($categoryID = Helpers\Input::getInt('categoryID'))
-			{
-				$filterItems->set('categoryID', $categoryID);
-				$this->state->set('filter.categoryID', $categoryID);
-
-				$organizationID = Helpers\Categories::getOrganizationIDs($categoryID)[0];
-				$filterItems->set('organizationID', $organizationID);
-				$this->state->set('filter.organizationID', $organizationID);
-			}
-
-			if ($eventID = Helpers\Input::getInt('eventID'))
-			{
-				$this->state->set('filter.eventID', $eventID);
+				$date = date('Y-m-d');
+				$listItems->set('date', $date);
+				$this->state->set('list.date', $date);
+				$listItems->set('interval', 'quarter');
+				$this->state->set('list.interval', 'quarter');
 			}
 			else
 			{
-				$this->state->set('filter.eventID', 0);
-			}
-
-			$dow       = $params->get('dow');
-			$endDate   = $params->get('endDate');
-			$methodID  = $params->get('methodID');
-			$startDate = $params->get('startDate');
-
-			if ($dow or $endDate or $methodID)
-			{
-				$defaultDate = date('Y-m-d');
-				$date        = ($startDate and $startDate > $defaultDate) ? $startDate : $defaultDate;
-				$listItems   = Helpers\Input::getListItems();
-
-				$listItems->set('date', $date);
-				$this->state->set('list.date', $date);
-
-				if ($endDate)
+				if ($campusID = $params->get('campusID'))
 				{
-					$listItems->set('interval', 'day');
-					$this->state->set('list.interval', 'day');
-					$this->state->set('list.endDate', $endDate);
+					$filterItems->set('campusID', $campusID);
+					$this->state->set('filter.campusID', $campusID);
+				}
+
+				$organizationID = Helpers\Input::getInt('organizationID');
+				if ($organizationID = $params->get('organizationID', $organizationID))
+				{
+					$filterItems->set('organizationID', $organizationID);
+					$this->state->set('filter.organizationID', $organizationID);
+				}
+				elseif ($categoryID = Helpers\Input::getInt('categoryID'))
+				{
+					$filterItems->set('categoryID', $categoryID);
+					$this->state->set('filter.categoryID', $categoryID);
+
+					$organizationID = Helpers\Categories::getOrganizationIDs($categoryID)[0];
+					$filterItems->set('organizationID', $organizationID);
+					$this->state->set('filter.organizationID', $organizationID);
+				}
+
+				if ($eventID = Helpers\Input::getInt('eventID'))
+				{
+					$this->state->set('filter.eventID', $eventID);
 				}
 				else
 				{
-					$listItems->set('interval', 'quarter');
-					$this->state->set('list.interval', 'quarter');
+					$this->state->set('filter.eventID', 0);
 				}
 
-				if ($dow)
-				{
-					$filterItems->set('dow', $dow);
-					$this->state->set('filter.dow', $dow);
-				}
+				$dow       = $params->get('dow');
+				$endDate   = $params->get('endDate');
+				$methodID  = $params->get('methodID');
+				$startDate = $params->get('startDate');
 
-				if ($methodID)
+				if ($dow or $endDate or $methodID)
 				{
-					$filterItems->set('methodID', $methodID);
-					$this->state->set('filter.methodID', $methodID);
+					$defaultDate = date('Y-m-d');
+					$date        = ($startDate and $startDate > $defaultDate) ? $startDate : $defaultDate;
+
+					$listItems->set('date', $date);
+					$this->state->set('list.date', $date);
+
+					if ($endDate)
+					{
+						$listItems->set('interval', 'day');
+						$this->state->set('list.interval', 'day');
+						$this->state->set('list.endDate', $endDate);
+					}
+					else
+					{
+						$listItems->set('interval', 'quarter');
+						$this->state->set('list.interval', 'quarter');
+					}
+
+					if ($dow)
+					{
+						$filterItems->set('dow', $dow);
+						$this->state->set('filter.dow', $dow);
+					}
+
+					if ($methodID)
+					{
+						$filterItems->set('methodID', $methodID);
+						$this->state->set('filter.methodID', $methodID);
+					}
 				}
 			}
 		}
@@ -290,6 +321,7 @@ class Instances extends ListModel
 		$conditions['date']       = Helpers\Dates::standardizeDate($this->state->get('list.date', date('Y-m-d')));
 		$conditions['delta']      = date('Y-m-d', strtotime('-14 days'));
 		$conditions['interval']   = in_array($interval, $intervals) ? $interval : 'week';
+		$conditions['my']         = $this->state->get('filter.my');
 		$conditions['mySchedule'] = false;
 		$conditions['status']     = $this->state->get('filter.status', '');
 

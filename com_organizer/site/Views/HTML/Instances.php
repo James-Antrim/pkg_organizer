@@ -55,52 +55,59 @@ class Instances extends ListView
 			$title  = Helpers\Languages::_("ORGANIZER_INSTANCES");
 			$suffix = '';
 
-			if ($dow = $params->get('dow'))
+			if ($this->state->get('filter.my'))
 			{
-				switch ($dow)
+				$title = Helpers\Languages::_("ORGANIZER_MY_INSTANCES");
+			}
+			else
+			{
+				if ($dow = $params->get('dow'))
 				{
-					case self::MONDAY:
-						$title = Helpers\Languages::_("ORGANIZER_MONDAY_INSTANCES");
-						break;
-					case self::TUESDAY:
-						$title = Helpers\Languages::_("ORGANIZER_TUESDAY_INSTANCES");
-						break;
-					case self::WEDNESDAY:
-						$title = Helpers\Languages::_("ORGANIZER_WEDNESDAY_INSTANCES");
-						break;
-					case self::THURSDAY:
-						$title = Helpers\Languages::_("ORGANIZER_THURSDAY_INSTANCES");
-						break;
-					case self::FRIDAY:
-						$title = Helpers\Languages::_("ORGANIZER_FRIDAY_INSTANCES");
-						break;
-					case self::SATURDAY:
-						$title = Helpers\Languages::_("ORGANIZER_SATURDAY_INSTANCES");
-						break;
-					case self::SUNDAY:
-						$title = Helpers\Languages::_("ORGANIZER_SUNDAY_INSTANCES");
-						break;
+					switch ($dow)
+					{
+						case self::MONDAY:
+							$title = Helpers\Languages::_("ORGANIZER_MONDAY_INSTANCES");
+							break;
+						case self::TUESDAY:
+							$title = Helpers\Languages::_("ORGANIZER_TUESDAY_INSTANCES");
+							break;
+						case self::WEDNESDAY:
+							$title = Helpers\Languages::_("ORGANIZER_WEDNESDAY_INSTANCES");
+							break;
+						case self::THURSDAY:
+							$title = Helpers\Languages::_("ORGANIZER_THURSDAY_INSTANCES");
+							break;
+						case self::FRIDAY:
+							$title = Helpers\Languages::_("ORGANIZER_FRIDAY_INSTANCES");
+							break;
+						case self::SATURDAY:
+							$title = Helpers\Languages::_("ORGANIZER_SATURDAY_INSTANCES");
+							break;
+						case self::SUNDAY:
+							$title = Helpers\Languages::_("ORGANIZER_SUNDAY_INSTANCES");
+							break;
+					}
 				}
-			}
-			elseif ($methodID = $params->get('methodID'))
-			{
-				$title = Helpers\Methods::getPlural($methodID);
-			}
+				elseif ($methodID = $params->get('methodID'))
+				{
+					$title = Helpers\Methods::getPlural($methodID);
+				}
 
-			if ($organizationID = $params->get('organizationID'))
-			{
-				$fullName  = Helpers\Organizations::getFullName($organizationID);
-				$shortName = Helpers\Organizations::getShortName($organizationID);
-				$name      = ($this->mobile or strlen($fullName) > 50) ? $shortName : $fullName;
-				$suffix    .= ': ' . $name;
-			}
-			elseif ($campusID = $params->get('campusID'))
-			{
-				$suffix .= ': ' . Helpers\Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
-			}
-			elseif ($eventID = $this->state->get('filter.eventID'))
-			{
-				$suffix .= ': ' . Helpers\Events::getName($eventID);
+				if ($organizationID = $params->get('organizationID'))
+				{
+					$fullName  = Helpers\Organizations::getFullName($organizationID);
+					$shortName = Helpers\Organizations::getShortName($organizationID);
+					$name      = ($this->mobile or strlen($fullName) > 50) ? $shortName : $fullName;
+					$suffix    .= ': ' . $name;
+				}
+				elseif ($campusID = $params->get('campusID'))
+				{
+					$suffix .= ': ' . Helpers\Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
+				}
+				elseif ($eventID = $this->state->get('filter.eventID'))
+				{
+					$suffix .= ': ' . Helpers\Events::getName($eventID);
+				}
 			}
 
 			$title .= $suffix;
@@ -428,7 +435,7 @@ class Instances extends ListView
 
 			if ($label)
 			{
-				$attribs = ['aria-label' => $label, 'target' => '_blank'];
+				$attribs = ['aria-label' => $label, 'class' => 'btn', 'target' => '_blank'];
 
 				$link = Helpers\HTML::link($URL, $icon, $attribs);
 			}
