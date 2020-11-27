@@ -14,6 +14,23 @@ use Organizer\Helpers;
 $resourceID = Helpers\Input::getID();
 $view       = Helpers\Input::getView();
 
+if ($this->refresh)
+{
+	?>
+    <script type="text/javascript">
+        let timer = null;
+
+        function auto_reload() {
+            window.location = document.URL;
+        }
+
+        window.onload = function () {
+            timer = setTimeout('auto_reload()', <?php echo $this->refresh; ?>000);
+        }
+    </script>
+	<?php
+}
+
 require_once 'language_selection.php';
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 echo $this->subtitle;

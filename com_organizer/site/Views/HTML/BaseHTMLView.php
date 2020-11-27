@@ -26,6 +26,8 @@ abstract class BaseHTMLView extends BaseView
 {
 	public $disclaimer = '';
 
+	public $refresh = 0;
+
 	public $submenu = '';
 
 	public $subtitle = '';
