@@ -40,7 +40,7 @@ abstract class BaseView extends PHPExcel
 	protected $name;
 
 	/**
-	 * BaseView constructor.
+	 * @inheritdoc
 	 */
 	public function __construct()
 	{
@@ -65,11 +65,12 @@ abstract class BaseView extends PHPExcel
 	 * Sets context variables and renders the view.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	abstract public function display();
 
 	/**
-	 * Method to get the object name
+	 * Method to get the object name.
 	 *
 	 * The model name by default parsed using the classname, or it can be set
 	 * by passing a $config['name'] in the class constructor

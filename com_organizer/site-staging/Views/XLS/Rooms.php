@@ -17,6 +17,9 @@ use Exception;
  */
 class Rooms extends BaseView
 {
+	/**
+	 * @inheritdoc
+	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -27,10 +30,7 @@ class Rooms extends BaseView
 	}
 
 	/**
-	 * Sets context variables and renders the view.
-	 *
-	 * @return void
-	 * @throws Exception
+	 * @inheritdoc
 	 */
 	public function display()
 	{
