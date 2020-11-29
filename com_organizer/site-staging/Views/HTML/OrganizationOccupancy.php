@@ -14,8 +14,8 @@ define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
 jimport('tcpdf.tcpdf');
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -32,7 +32,7 @@ class OrganizationOccupancy extends SelectionView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/organization_occupancy.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/organization_occupancy.js');
 	}
 
 	private function setBaseFields()

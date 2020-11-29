@@ -10,9 +10,9 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
@@ -69,7 +69,7 @@ class Participants extends ListView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
 	}
 
 	/**
@@ -111,7 +111,7 @@ class Participants extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->fullName = $item->forename ? $item->fullName : $item->surname;
+			$item->fullName          = $item->forename ? $item->fullName : $item->surname;
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

@@ -11,8 +11,8 @@
 namespace Organizer\Views\HTML;
 
 use JHtmlSidebar;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Views\BaseView;
@@ -52,7 +52,7 @@ abstract class BaseHTMLView extends BaseView
 			return;
 		}
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/disclaimer.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/disclaimer.css');
 
 		$attributes = ['target' => '_blank'];
 
@@ -96,7 +96,7 @@ abstract class BaseHTMLView extends BaseView
 			return;
 		}
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/sidebar.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/sidebar.css');
 
 		$viewName = strtolower($this->get('name'));
 
@@ -293,10 +293,9 @@ abstract class BaseHTMLView extends BaseView
 	 */
 	protected function modifyDocument()
 	{
-		$document = Factory::getDocument();
-		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/global.css');
-		$document->addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
-		$document->setCharset('utf-8');
+		Adapters\Document::setCharset();
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/global.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
 
 		Helpers\HTML::_('bootstrap.tooltip', '.hasTooltip', ['placement' => 'right']);
 	}

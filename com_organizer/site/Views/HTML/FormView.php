@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -74,10 +74,9 @@ abstract class FormView extends BaseHTMLView
 
 		Helpers\HTML::_('behavior.formvalidator');
 
-		$document = Factory::getDocument();
-		$document->addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
-		$document->addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
-		$document->addScript(Uri::root() . 'components/com_organizer/js/validators.js');
-		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/validators.js');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
 	}
 }

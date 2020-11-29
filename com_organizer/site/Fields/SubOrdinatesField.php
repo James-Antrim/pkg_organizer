@@ -14,6 +14,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -51,7 +52,7 @@ class SubOrdinatesField extends FormField
 	 */
 	public function getInput()
 	{
-		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/subordinates.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/subordinates.js');
 
 		$input = '<table class="subOrdinates table-striped">';
 		$input .= '<thead><tr>';

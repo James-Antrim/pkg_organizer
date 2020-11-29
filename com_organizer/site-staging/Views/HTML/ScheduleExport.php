@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -28,13 +28,12 @@ class ScheduleExport extends SelectionView
 	{
 		parent::modifyDocument();
 
-		$document = Factory::getDocument();
-		$user     = Helpers\Users::getUser();
+		$user = Helpers\Users::getUser();
 
 		if ($user->id)
 		{
 			$auth = urlencode(password_hash($user->email . $user->registerDate, PASSWORD_BCRYPT));
-			$document->addScriptDeclaration("const username = '$user->username', auth = '$auth';");
+			Adapters\Document::addScriptDeclaration("const username = '$user->username', auth = '$auth';");
 		}
 
 		// ToDo: make this default/chosen format dependent, not seeing impaired
@@ -47,7 +46,7 @@ class ScheduleExport extends SelectionView
 			//$this->hiddenFields = ['xlsWeekFormat', 'grouping'];
 		}
 
-		$document->addScript(Uri::root() . 'components/com_organizer/js/schedule_export.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/schedule_export.js');
 	}
 
 	/**

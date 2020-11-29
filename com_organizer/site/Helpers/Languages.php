@@ -13,6 +13,7 @@ namespace Organizer\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Language;
 use Joomla\CMS\Language\Text;
+use Organizer\Adapters;
 
 /**
  * Provides general functions for language data retrieval and display.
@@ -142,7 +143,7 @@ class Languages extends Text
 		HTML::_('behavior.core');
 
 		// Update Joomla.JText script options
-		Factory::getDocument()->addScriptOptions('joomla.jtext', static::$strings, false);
+		Adapters\Document::addScriptOptions('joomla.jtext', static::$strings, false);
 
 		return static::getScriptStrings();
 	}

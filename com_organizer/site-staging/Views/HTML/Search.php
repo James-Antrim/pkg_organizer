@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 
 /**
  * Class loads the query's results into the display context.
@@ -49,8 +49,7 @@ class Search extends BaseHTMLView
 	{
 		parent::modifyDocument();
 
-		$document = Factory::getDocument();
-		$document->setTitle(Languages::_('ORGANIZER_SEARCH'));
-		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/search.css');
+		Adapters\Document::setTitle(Languages::_('ORGANIZER_SEARCH'));
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/search.css');
 	}
 }

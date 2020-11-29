@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -71,7 +71,7 @@ class Deputat extends BaseHTMLView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/deputat.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/deputat.js');
 	}
 
 	/**

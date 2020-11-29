@@ -10,9 +10,9 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -94,7 +94,7 @@ abstract class ItemView extends BaseHTMLView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
 	}
 
 	/**

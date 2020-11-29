@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
@@ -99,10 +99,9 @@ class ScheduleItem extends BaseHTMLView
 	{
 		$this->addScriptOptions();
 
-		$doc = Factory::getDocument();
-		$doc->addScript(Uri::root() . 'components/com_organizer/js/schedule.js');
-		$doc->addStyleSheet(Uri::root() . 'components/com_organizer/css/schedule_item.css');
-		$doc->addStyleSheet(Uri::root() . 'media/jui/css/icomoon.css');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/schedule.js');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/schedule_item.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'media/jui/css/icomoon.css');
 
 		Helpers\HTML::_('formbehavior.chosen', 'select');
 	}
@@ -165,8 +164,7 @@ class ScheduleItem extends BaseHTMLView
 			}
 		}
 
-		$doc = Factory::getDocument();
-		$doc->addScriptOptions('variables', array_merge($variables, $this->params));
+		Adapters\Document::addScriptOptions('variables', array_merge($variables, $this->params));
 
 		Languages::script('APRIL');
 		Languages::script('AUGUST');

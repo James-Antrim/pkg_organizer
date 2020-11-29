@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 
 /**
  * Class loads room statistic information into the display context.
@@ -27,9 +27,7 @@ class RoomStatistics extends SelectionView
 	{
 		parent::modifyDocument();
 
-		//$this->hiddenFields = ['date'];
-
-		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/room_statistics.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/room_statistics.js');
 	}
 
 	private function setBaseFields()

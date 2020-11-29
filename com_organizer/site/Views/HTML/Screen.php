@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 
 /**
  * Class loads filtered events into the display context.
@@ -38,7 +38,7 @@ class Screen extends BaseHTMLView
 
 		$this->setLayout($this->model->layout);
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/screen.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/screen.css');
 
 		parent::display($tpl);
 	}

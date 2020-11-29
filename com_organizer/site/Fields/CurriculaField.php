@@ -13,6 +13,7 @@ namespace Organizer\Fields;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -44,7 +45,7 @@ class CurriculaField extends FormField
 			'type'    => $resourceType
 		];
 
-		Factory::getDocument()->addScriptOptions('curriculumParameters', $curriculumParameters);
+		Adapters\Document::addScriptOptions('curriculumParameters', $curriculumParameters);
 
 		$ranges = $resourceType === 'pool' ?
 			Helpers\Pools::getRanges($resourceID) : Helpers\Subjects::getRanges($resourceID);

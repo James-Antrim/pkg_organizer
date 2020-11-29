@@ -10,11 +10,9 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Layout\FileLayout;
-use Joomla\CMS\Toolbar\Toolbar;
-use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -214,7 +212,7 @@ class HTML extends HTMLHelper
 		$html = "<h1 class=\"page-title\">$icon$title</h1>";
 
 		$app->JComponentTitle = $html;
-		Factory::getDocument()->setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
+		Adapters\Document::setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
 	}
 
 	/**
@@ -232,7 +230,7 @@ class HTML extends HTMLHelper
 		$html   = $layout->render(['title' => $title, 'icon' => $icon]);
 
 		$app->JComponentTitle = $html;
-		Factory::getDocument()->setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
+		Adapters\Document::setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
 	}
 
 	/**

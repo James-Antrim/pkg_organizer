@@ -10,9 +10,9 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -126,8 +126,8 @@ class Groups extends ListView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/group_publishing.css');
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/group_publishing.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
 	}
 
 	/**

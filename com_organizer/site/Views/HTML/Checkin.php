@@ -13,6 +13,7 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 class Checkin extends FormView
@@ -92,6 +93,6 @@ class Checkin extends FormView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/checkin.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/checkin.css');
 	}
 }

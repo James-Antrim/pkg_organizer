@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 
 /**
  * Class loads lesson statistic information into the display context.
@@ -62,6 +62,6 @@ class LessonStatistics extends BaseHTMLView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/lesson_statistics.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/lesson_statistics.css');
 	}
 }

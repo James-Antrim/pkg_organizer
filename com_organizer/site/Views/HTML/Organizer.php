@@ -10,9 +10,9 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -64,6 +64,7 @@ class Organizer extends BaseHTMLView
 	protected function modifyDocument()
 	{
 		parent::modifyDocument();
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/organizer.css');
+
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/organizer.css');
 	}
 }

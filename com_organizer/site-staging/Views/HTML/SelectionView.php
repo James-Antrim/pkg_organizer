@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
@@ -82,10 +82,9 @@ abstract class SelectionView extends BaseHTMLView
 		Languages::script('ORGANIZER_LIST_SELECTION_WARNING');
 		Languages::script('ORGANIZER_NONE');
 
-		$rootURI  = Uri::root();
-		$document = Factory::getDocument();
-		$document->addScriptDeclaration("const rootURI = '$rootURI';");
-		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/table.css');
+		$rootURI = Uri::root();
+		Adapters\Document::addScriptDeclaration("const rootURI = '$rootURI';");
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/table.css');
 	}
 
 	/**

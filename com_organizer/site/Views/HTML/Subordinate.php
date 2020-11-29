@@ -12,9 +12,8 @@
 
 namespace Organizer\Views\HTML;
 
-
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 
 trait Subordinate
 {
@@ -27,6 +26,6 @@ trait Subordinate
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/curricula.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/curricula.js');
 	}
 }

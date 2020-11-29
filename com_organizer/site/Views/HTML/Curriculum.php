@@ -12,6 +12,7 @@ namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -42,7 +43,7 @@ class Curriculum extends ItemView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/curriculum.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/curriculum.css');
 	}
 
 	/**

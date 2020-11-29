@@ -10,10 +10,10 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
+use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\HTML;
 
@@ -229,7 +229,7 @@ abstract class ListView extends BaseHTMLView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
 	}
 
 	/**

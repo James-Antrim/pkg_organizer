@@ -10,9 +10,9 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -55,6 +55,6 @@ class InstanceEdit extends EditView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addScript(Uri::root() . 'components/com_organizer/js/instances.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/instances.js');
 	}
 }
