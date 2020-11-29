@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -275,11 +275,11 @@ class OrganizationOccupancy extends BaseModel
 	{
 		$options = [];
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('DISTINCT YEAR(schedule_date) AS year')->from('#__organizer_calendar')->order('year');
 
-		$this->_db->setQuery($query);
-		$years = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		Database::setQuery($query);
+		$years = Database::loadColumn();
 
 		if (!empty($years))
 		{
@@ -305,7 +305,7 @@ class OrganizationOccupancy extends BaseModel
 		$cSelect = "c.schedule_date AS date, TIME_FORMAT(c.startTime, '%H:%i') AS startTime, ";
 		$cSelect .= "TIME_FORMAT(c.endTime, '%H:%i') AS endTime";
 
-		$ringQuery = $this->_db->getQuery(true);
+		$ringQuery = Database::getQuery();
 		$ringQuery->select('DISTINCT ccm.id AS ccmID')
 			->from('#__organizer_calendar_configuration_map AS ccm')
 			->select($cSelect)
@@ -326,9 +326,9 @@ class OrganizationOccupancy extends BaseModel
 
 		$regexp = '"rooms":\\{("[0-9]+":"[\w]*",)*"' . $roomID . '":("new"|"")';
 		$ringQuery->where("conf.configuration REGEXP '$regexp'");
-		$this->_db->setQuery($ringQuery);
+		Database::setQuery($ringQuery);
 
-		if (!$roomConfigurations = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$roomConfigurations = Database::loadAssocList())
 		{
 			return false;
 		}
@@ -364,16 +364,15 @@ class OrganizationOccupancy extends BaseModel
 	 */
 	private function setRoomtypes()
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$tag   = Helpers\Languages::getTag();
 
 		$query->select("id, name_$tag AS name, description_$tag AS description");
 		$query->from('#__organizer_roomtypes');
 		$query->order('name');
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		$this->roomtypes = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$this->roomtypes = Database::loadAssocList('id');
 	}
 
 	/**
@@ -385,13 +384,13 @@ class OrganizationOccupancy extends BaseModel
 	 */
 	private function setTerms($year)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('*')->from('#__organizer_terms')
 			->where("(YEAR(startDate) = $year OR YEAR(endDate) = $year)")
 			->order('startDate');
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$this->terms = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$this->terms = Database::loadAssocList('id');
 
 		return empty($this->terms) ? false : true;
 	}

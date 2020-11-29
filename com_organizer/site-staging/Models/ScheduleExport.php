@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Application\ApplicationHelper;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
 use Organizer\Tables;
@@ -85,13 +86,13 @@ class ScheduleExport extends BaseModel
 	public function getGridOptions()
 	{
 		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select("id, name_$tag AS name, isDefault")->from('#__organizer_grids');
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
 		$options = [];
 
-		$grids = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
+		$grids = Database::loadAssocList();
 
 		foreach ($grids as $grid)
 		{
@@ -205,7 +206,7 @@ class ScheduleExport extends BaseModel
 		$oneResource = count($courseIDs) === 1;
 		$tag         = Helpers\Languages::getTag();
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('co.name AS courseName, co.code')
 			->select("s.shortName_$tag AS shortName, s.name_$tag AS name")
 			->from('#__organizer_courses AS co')
@@ -216,8 +217,8 @@ class ScheduleExport extends BaseModel
 		{
 			$query->clear('where');
 			$query->where("co.id = '$courseID'");
-			$this->_db->setQuery($query);
-			$courseNames = Helpers\OrganizerHelper::executeQuery('loadAssoc', []);
+			Database::setQuery($query);
+			$courseNames = Database::loadAssoc();
 
 			if (!empty($courseNames))
 			{
@@ -303,7 +304,7 @@ class ScheduleExport extends BaseModel
 	 */
 	private function setGrid()
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('grid')->from('#__organizer_grids');
 
 		if (empty($this->parameters['gridID']))
@@ -315,9 +316,9 @@ class ScheduleExport extends BaseModel
 			$query->where("id = {$this->parameters['gridID']}");
 		}
 
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult', ''))
+		if (!$rawGrid = Database::loadString())
 		{
 			return;
 		}

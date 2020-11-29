@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -30,7 +31,7 @@ class Runs extends ListModel
 	protected function getListQuery()
 	{
 		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select("r.id, r.name_$tag as name, r.run, r.termID, t.name_$tag as term")
 			->from('#__organizer_runs AS r')
 			->leftJoin('#__organizer_terms AS t ON t.id = r.termID');

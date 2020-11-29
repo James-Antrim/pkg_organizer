@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -29,7 +30,7 @@ class Holidays extends ListModel
 	protected function getListQuery()
 	{
 		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select("id, name_$tag as name, type, startDate, endDate")
 			->from('#__organizer_holidays');
 		$this->setSearchFilter($query, ['name_de', 'name_en', 'startDate', 'endDate']);

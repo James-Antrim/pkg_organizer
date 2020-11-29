@@ -11,9 +11,9 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
 
 /**
  * Class searches THM Organizer resources for resources and views relevant to the given search query.
@@ -126,13 +126,13 @@ class Search extends BaseModel
 	 */
 	private function getDegrees($terms)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('*')
 			->select("REPLACE(LOWER(abbreviation), '.', '') AS stdAbbr")
 			->from('#__organizer_degrees');
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$degrees = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$degrees = Database::loadAssocList('id');
 
 		// Abbreviation or (title and type) matched
 		$exactMatches = [];
@@ -233,7 +233,7 @@ class Search extends BaseModel
 			return [];
 		}
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('id')->from('#__organizer_roomtypes');
 
 		$roomTypeIDs    = [];
@@ -254,8 +254,8 @@ class Search extends BaseModel
 
 				$tempClause = str_replace('XXX', $term, $standardClause);
 				$query->where($tempClause);
-				$this->_db->setQuery($query);
-				$typeResults = OrganizerHelper::executeQuery('loadColumn', []);
+				Database::setQuery($query);
+				$typeResults = Database::loadIntColumn();
 
 				if (!empty($typeResults))
 				{
@@ -273,9 +273,9 @@ class Search extends BaseModel
 			$minCapacityValid = "(minCapacity IS NOT NULL AND minCapacity > '0')";
 			$query->where("($maxCapacityValid OR $minCapacityValid)");
 
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			$typeResults = OrganizerHelper::executeQuery('loadColumn', []);
+			$typeResults = Database::loadIntColumn();
 
 			if (!empty($typeResults))
 			{
@@ -684,7 +684,7 @@ class Search extends BaseModel
 			}
 		}
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('cat.id AS categoryID, o.id AS organizationID')
 			->from('#__organizer_categories AS cat')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.ID')
@@ -692,9 +692,9 @@ class Search extends BaseModel
 
 		// Exact
 		$this->addInclusiveConditions($query, $eWherray);
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$associations = OrganizerHelper::executeQuery('loadAssocList', []);
+		$associations = Database::loadAssocList();
 		if (empty($associations))
 		{
 			return;
@@ -718,8 +718,8 @@ class Search extends BaseModel
 
 		$query->select('DISTINCT d.id');
 		$this->addInclusiveConditions($query, $sWherray);
-		$this->_db->setQuery($query);
-		$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
+		Database::setQuery($query);
+		$organizationIDs = Database::loadIntColumn();
 
 		if (empty($organizationIDs))
 		{
@@ -763,10 +763,10 @@ class Search extends BaseModel
 		}
 
 		// Plan programs have to be found in strings => standardized name as extra temp variable for comparison
-		$groupQuery = $this->_db->getQuery(true);
+		$groupQuery = Database::getQuery();
 		$groupQuery->from('#__organizer_groups');
 
-		$poolQuery = $this->_db->getQuery(true);
+		$poolQuery = Database::getQuery();
 		$poolQuery->from('#__organizer_pools AS pl')
 			->innerJoin('#__organizer_curricula AS c ON c.poolID = pl.id');
 
@@ -785,9 +785,9 @@ class Search extends BaseModel
 				{
 					$groupQuery->select("DISTINCT id, '{$program['name']}' AS program");
 					$groupQuery->where("programID = '{$program['categoryID']}'");
-					$this->_db->setQuery($groupQuery);
+					Database::setQuery($groupQuery);
 
-					$groupIDs = OrganizerHelper::executeQuery('loadAssocList', []);
+					$groupIDs = Database::loadAssocList();
 				}
 
 				if (!empty($groupIDs))
@@ -805,9 +805,9 @@ class Search extends BaseModel
 					}
 
 					$poolQuery->where("(c.lft > '{$program['lft']}' AND c.rgt < '{$program['rgt']}')");
-					$this->_db->setQuery($poolQuery);
+					Database::setQuery($poolQuery);
 
-					$poolIDs = OrganizerHelper::executeQuery('loadAssocList', []);
+					$poolIDs = Database::loadAssocList();
 				}
 
 				if (!empty($poolIDs))
@@ -847,7 +847,7 @@ class Search extends BaseModel
 	{
 		$select = 'r.id , r.name, r.capacity, ';
 		$select .= "rt.name_{$this->tag} as type, rt.description_{$this->tag} as description";
-		$query  = $this->_db->getQuery(true);
+		$query  = Database::getQuery();
 		$query->select($select)
 			->from('#__organizer_rooms AS r')
 			->leftJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID')
@@ -863,9 +863,9 @@ class Search extends BaseModel
 		}
 
 		$this->addInclusiveConditions($query, $wherray);
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$eRooms = OrganizerHelper::executeQuery('loadAssocList', []);
+		$eRooms = Database::loadAssocList();
 
 		$this->results['exact']['rooms'] = $this->processRooms($eRooms);
 
@@ -950,9 +950,9 @@ class Search extends BaseModel
 			{
 				$query->where("rt.id IN ($typeString)");
 			}
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			$sRooms = OrganizerHelper::executeQuery('loadAssocList', []);
+			$sRooms = Database::loadAssocList();
 
 			$this->results['strong']['rooms'] = $this->processRooms($sRooms);
 		}
@@ -979,9 +979,9 @@ class Search extends BaseModel
 
 		if ($performRelatedQuery)
 		{
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			$rRooms = OrganizerHelper::executeQuery('loadAssocList', []);
+			$rRooms = Database::loadAssocList();
 
 			$this->results['related']['rooms'] = $this->processRooms($rRooms);
 		}
@@ -1016,7 +1016,7 @@ class Search extends BaseModel
 		$termCount = count($terms);
 
 		// A course does not necessarily have subject documentation
-		$courseQuery = $this->_db->getQuery(true);
+		$courseQuery = Database::getQuery();
 		$courseQuery->select('DISTINCT co.id AS courseID, s.id AS sID')
 			->from('#__organizer_course AS co')
 			->innerJoin('#__organizer_lesson_courses AS lcrs ON lcrs.courseID = co.id')
@@ -1025,7 +1025,7 @@ class Search extends BaseModel
 			->leftJoin('#__organizer_subjects AS s ON s.id = se.subjectID');
 
 		// Subject documentation does not necessarily have planned lesson instances
-		$subjectQuery = $this->_db->getQuery(true);
+		$subjectQuery = Database::getQuery();
 		$subjectQuery->select('DISTINCT s.id AS sID, co.id AS courseID')
 			->from('#__organizer_subjects AS s')
 			->leftJoin('#__organizer_subject_events AS se ON se.subjectID = s.id')
@@ -1058,10 +1058,10 @@ class Search extends BaseModel
 		$this->filterLessons($subjectQuery);
 		$subjectQuery->where($sClause);
 
-		$this->_db->setQuery($courseQuery);
-		$courses = OrganizerHelper::executeQuery('loadAssocList', [], 'courseID');
-		$this->_db->setQuery($subjectQuery);
-		$subjects = OrganizerHelper::executeQuery('loadAssocList', [], 'sID');
+		Database::setQuery($courseQuery);
+		$courses = Database::loadAssocList('courseID');
+		Database::setQuery($subjectQuery);
+		$subjects = Database::loadAssocList('sID');
 
 		$this->results['exact']['subjects'] = $this->processSubjects($subjects, $courses);
 
@@ -1103,17 +1103,17 @@ class Search extends BaseModel
 		}
 
 		$this->filterLessons($courseQuery);
-		$this->_db->setQuery($courseQuery);
+		Database::setQuery($courseQuery);
 
 		$nameDEClause = '(' . implode(' AND ', $nameDEArray) . ')';
 		$nameENClause = '(' . implode(' AND ', $nameENArray) . ')';
 		$subjectQuery->where("($nameDEClause OR $nameENClause)");
 		$this->filterLessons($subjectQuery);
 
-		$this->_db->setQuery($courseQuery);
-		$courses = OrganizerHelper::executeQuery('loadAssocList', [], 'courseID');
-		$this->_db->setQuery($subjectQuery);
-		$subjects = OrganizerHelper::executeQuery('loadAssocList', [], 'sID');
+		Database::setQuery($courseQuery);
+		$courses = Database::loadAssocList('courseID');
+		Database::setQuery($subjectQuery);
+		$subjects = Database::loadAssocList('sID');
 
 		$this->results['strong']['subjects'] = $this->processSubjects($subjects, $courses);
 
@@ -1168,8 +1168,8 @@ class Search extends BaseModel
 
 		if (!empty($coWherray))
 		{
-			$this->_db->setQuery($courseQuery);
-			$courses = OrganizerHelper::executeQuery('loadAssocList', [], 'courseID');
+			Database::setQuery($courseQuery);
+			$courses = Database::loadAssocList('courseID');
 		}
 		else
 		{
@@ -1178,8 +1178,8 @@ class Search extends BaseModel
 
 		if (!empty($sWherray))
 		{
-			$this->_db->setQuery($subjectQuery);
-			$subjects = OrganizerHelper::executeQuery('loadAssocList', [], 'sID');
+			Database::setQuery($subjectQuery);
+			$subjects = Database::loadAssocList('sID');
 		}
 		else
 		{
@@ -1217,9 +1217,9 @@ class Search extends BaseModel
 
 		$this->filterLessons($subjectQuery);
 		$this->addInclusiveConditions($subjectQuery, $sWherray);
-		$this->_db->setQuery($subjectQuery);
+		Database::setQuery($subjectQuery);
 
-		$subjects = OrganizerHelper::executeQuery('loadAssocList', [], 'sID');
+		$subjects = Database::loadAssocList('sID');
 
 		$this->results['mentioned']['subjects'] = $this->processSubjects($subjects, $courses);
 
@@ -1263,10 +1263,10 @@ class Search extends BaseModel
 			$this->addInclusiveConditions($subjectQuery, $wherray);
 		}
 
-		$this->_db->setQuery($courseQuery);
-		$courses = OrganizerHelper::executeQuery('loadAssocList', [], 'courseID');
-		$this->_db->setQuery($subjectQuery);
-		$subjects = OrganizerHelper::executeQuery('loadAssocList', [], 'sID');
+		Database::setQuery($courseQuery);
+		$courses = Database::loadAssocList('courseID');
+		Database::setQuery($subjectQuery);
+		$subjects = Database::loadAssocList('sID');
 
 		$this->results['related']['subjects'] = $this->processSubjects($subjects, $courses);
 	}
@@ -1295,7 +1295,7 @@ class Search extends BaseModel
 			return;
 		}
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('id , surname, forename, title')
 			->from('#__organizer_persons')
 			->order('forename, surname ASC');
@@ -1324,9 +1324,9 @@ class Search extends BaseModel
 			}
 
 			$this->addInclusiveConditions($query, $wherray);
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			$ePersons = OrganizerHelper::executeQuery('loadAssocList', []);
+			$ePersons = Database::loadAssocList();
 
 			$this->results['exact']['persons'] = $this->processPersons($ePersons);
 		}
@@ -1343,9 +1343,9 @@ class Search extends BaseModel
 		}
 
 		$this->addInclusiveConditions($query, $wherray);
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$sPersons = OrganizerHelper::executeQuery('loadAssocList', []);
+		$sPersons = Database::loadAssocList();
 
 		$this->results['strong']['persons'] = $this->processPersons($sPersons);
 
@@ -1361,9 +1361,9 @@ class Search extends BaseModel
 		}
 
 		$this->addInclusiveConditions($query, $wherray);
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$gPersons = OrganizerHelper::executeQuery('loadAssocList', []);
+		$gPersons = Database::loadAssocList();
 
 		$this->results['good']['persons'] = $this->processPersons($gPersons);
 	}
@@ -1403,14 +1403,14 @@ class Search extends BaseModel
 			$sPPWherray[] = "REPLACE(LCASE(cat.name), '.', '') LIKE '%$term%'";
 		}
 
-		$programQuery = $this->_db->getQuery(true);
+		$programQuery = Database::getQuery();
 		$programQuery->select("p.id, name_{$this->tag} AS name, degreeID, cat.id AS categoryID, lft, rgt")
 			->from('#__organizer_programs AS p')
 			->innerJoin('#__organizer_curricula AS cur ON cur.programID = p.ID')
 			->leftJoin('#__organizer_categories AS cat ON cat.id = p.categoryID');
 
 		// Plan programs have to be found in strings => standardized name as extra temp variable for comparison
-		$categoryQuery = $this->_db->getQuery(true);
+		$categoryQuery = Database::getQuery();
 		$categoryQuery->select("p.id, name_{$this->tag} AS name, degreeID, cat.id AS categoryID, lft, rgt")
 			->from('#__organizer_categories AS cat')
 			->leftJoin('#__organizer_programs AS p ON p.categoryID = cat.ID')
@@ -1433,10 +1433,10 @@ class Search extends BaseModel
 
 			$this->addInclusiveConditions($categoryQuery, $degreeWherray);
 
-			$this->_db->setQuery($categoryQuery);
-			$categories = OrganizerHelper::executeQuery('loadAssocList', []);
-			$this->_db->setQuery($programQuery);
-			$programs = OrganizerHelper::executeQuery('loadAssocList', []);
+			Database::setQuery($categoryQuery);
+			$categories = Database::loadAssocList();
+			Database::setQuery($programQuery);
+			$programs = Database::loadAssocList();
 
 			$programResults['exact'] = $this->processPrograms($programs, $categories);
 		}
@@ -1446,12 +1446,12 @@ class Search extends BaseModel
 		$wherray[] = "(name LIKE '%$firstTerm%')";
 
 		$this->addInclusiveConditions($categoryQuery, $wherray);
-		$this->_db->setQuery($categoryQuery);
-		$sGroups = OrganizerHelper::executeQuery('loadAssocList', []);
+		Database::setQuery($categoryQuery);
+		$sGroups = Database::loadAssocList();
 
 		$this->addInclusiveConditions($programQuery, $wherray);
-		$this->_db->setQuery($programQuery);
-		$sPrograms = OrganizerHelper::executeQuery('loadAssocList', []);
+		Database::setQuery($programQuery);
+		$sPrograms = Database::loadAssocList();
 
 		$programResults['strong'] = $this->processPrograms($sPrograms, $sGroups);
 
@@ -1463,12 +1463,12 @@ class Search extends BaseModel
 		}
 
 		$this->addInclusiveConditions($categoryQuery, $wherray);
-		$this->_db->setQuery($categoryQuery);
-		$gCategories = OrganizerHelper::executeQuery('loadAssocList', []);
+		Database::setQuery($categoryQuery);
+		$gCategories = Database::loadAssocList();
 
 		$this->addInclusiveConditions($programQuery, $wherray);
-		$this->_db->setQuery($programQuery);
-		$gPrograms = OrganizerHelper::executeQuery('loadAssocList', []);
+		Database::setQuery($programQuery);
+		$gPrograms = Database::loadAssocList();
 
 		$programResults['good'] = $this->processPrograms($gPrograms, $gCategories);
 		$this->programResults   = $programResults;

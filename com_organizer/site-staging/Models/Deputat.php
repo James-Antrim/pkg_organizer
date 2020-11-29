@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -480,13 +480,12 @@ class Deputat extends BaseModel
 	{
 		$tag = Helpers\Languages::getTag();
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->select("shortName_$tag")->from('#__organizer_organizations')->where("id = '$organizationID'");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
 
-		if ($name = Helpers\OrganizerHelper::executeQuery('loadResult', ''))
+		if ($name = Database::loadString())
 		{
 			$this->organizationName = Helpers\Languages::_('ORGANIZER_ORGANIZATION') . ' ' . $name;
 		}
@@ -649,13 +648,11 @@ class Deputat extends BaseModel
 	public function setSchedule()
 	{
 		$this->scheduleID = Helpers\Input::getInt('scheduleID');
-		$query            = $this->_db->getQuery(true);
-		$query->select('schedule');
-		$query->from('#__organizer_schedules');
-		$query->where("id = '$this->scheduleID'");
-		$this->_db->setQuery($query);
 
-		$result = Helpers\OrganizerHelper::executeQuery('loadResult', '');
+		$query = Database::getQuery();
+		$query->select('schedule')->from('#__organizer_schedules')->where("id = '$this->scheduleID'");
+		Database::setQuery($query);
+		$result = Database::loadString();
 
 		$this->schedule = json_decode($result);
 	}
@@ -954,15 +951,15 @@ class Deputat extends BaseModel
 	 */
 	private function getPlausibleScheduleIDs($startDate, $endDate)
 	{
-		$query = $this->_db->getQuery(true);
-		$query->select('id');
-		$query->from('#__organizer_schedules');
-		$query->where("startDate = '$startDate'");
-		$query->where("endDate = '$endDate'");
-		$query->where("active = '1'");
-		$this->_db->setQuery($query);
+		$query = Database::getQuery();
+		$query->select('id')
+			->from('#__organizer_schedules')
+			->where("startDate = '$startDate'")
+			->where("endDate = '$endDate'")
+			->where("active = 1");
+		Database::setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -974,13 +971,13 @@ class Deputat extends BaseModel
 	 */
 	private function getSchedule($scheduleID)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('schedule');
 		$query->from('#__organizer_schedules');
 		$query->where("id = '$scheduleID'");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$result = Helpers\OrganizerHelper::executeQuery('loadResult', '');
+		$result = Database::loadString();
 
 		return json_decode($result);
 	}

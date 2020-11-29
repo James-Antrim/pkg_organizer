@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -274,7 +275,7 @@ class RoomStatistics extends BaseModel
 	private function setData($roomID)
 	{
 		$tag       = Helpers\Languages::getTag();
-		$ringQuery = $this->_db->getQuery(true);
+		$ringQuery = Database::getQuery();
 		$ringQuery->select('DISTINCT ccm.id AS ccmID')
 			->from('#__organizer_calendar_configuration_map AS ccm')
 			->select('c.schedule_date AS date, c.startTime, c.endTime')
@@ -295,9 +296,9 @@ class RoomStatistics extends BaseModel
 
 		$regexp = '"rooms":\\{("[0-9]+":"[\w]*",)*"' . $roomID . '":("new"|"")';
 		$ringQuery->where("conf.configuration REGEXP '$regexp'");
-		$this->_db->setQuery($ringQuery);
-		$ringData = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
-		$lcrsIDs  = Helpers\OrganizerHelper::executeQuery('loadColumn', [], 1);
+		Database::setQuery($ringQuery);
+		$ringData = Database::loadAssocList();
+		$lcrsIDs  = Database::loadIntColumn(7);
 
 		if (empty($ringData) or empty($lcrsIDs))
 		{
@@ -363,7 +364,7 @@ class RoomStatistics extends BaseModel
 	 */
 	private function setGrid()
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('grid')->from('#__organizer_grids');
 
 		if (empty($this->parameters['gridID']))
@@ -375,9 +376,9 @@ class RoomStatistics extends BaseModel
 			$query->where("id = {$this->parameters['gridID']}");
 		}
 
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$rawGrid = Helpers\OrganizerHelper::executeQuery('loadResult', ''))
+		if (!$rawGrid = Database::loadString())
 		{
 			return;
 		}
@@ -408,7 +409,7 @@ class RoomStatistics extends BaseModel
 	private function setLSData($lcrsIDs)
 	{
 		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 
 		$select = 'DISTINCT lcrs.id AS lcrsID, ';
 		$query->from('#__organizer_lesson_courses AS lcrs');
@@ -442,9 +443,9 @@ class RoomStatistics extends BaseModel
 		$query->select($select);
 		$query->where("lg.delta != 'removed'");
 		$query->where("lcrs.id IN ('" . implode("', '", $lcrsIDs) . "')");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$results = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'lcrsID');
+		$results = Database::loadAssocList('lcrsID');
 		if (empty($results))
 		{
 			return;
@@ -483,15 +484,15 @@ class RoomStatistics extends BaseModel
 	private function setRoomtypes()
 	{
 		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 
 		$query->select("id, name_$tag AS name, description_$tag AS description")
 			->from('#__organizer_roomtypes')
 			->order('name');
 
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$this->roomtypes = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
+		$this->roomtypes = Database::loadAssocList('id');
 	}
 
 	/**

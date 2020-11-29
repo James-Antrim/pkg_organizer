@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -40,7 +41,7 @@ class LessonStatistics extends FormModel
 		$organizationID = $this->state->get('organizationID');
 		$periodID       = $this->state->get('termID');
 
-		$this->query = $this->_db->getQuery(true);
+		$this->query = Database::getQuery();
 		$this->setBaseQuery();
 
 		if (empty($periodID))
@@ -125,10 +126,9 @@ class LessonStatistics extends FormModel
 		$this->addOrganizationRestriction();
 		$this->addPeriodRestriction();
 
-		$this->_db->setQuery($this->query);
+		Database::setQuery($this->query);
 
-		$categories = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-		if (empty($categories))
+		if (!$categories = Database::loadAssocList('id'))
 		{
 			return [];
 		}
@@ -155,10 +155,9 @@ class LessonStatistics extends FormModel
 
 		$this->addPeriodRestriction();
 
-		$this->_db->setQuery($this->query);
+		Database::setQuery($this->query);
 
-		$organizations = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-		if (empty($organizations))
+		if (!$organizations = Database::loadAssocList('id'))
 		{
 			return [];
 		}
@@ -208,10 +207,9 @@ class LessonStatistics extends FormModel
 		$this->addPeriodRestriction();
 		$this->addCategoryRestriction();
 
-		$this->_db->setQuery($this->query);
+		Database::setQuery($this->query);
 
-		$pools = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-		if (empty($pools))
+		if (!$pools = Database::loadAssocList('id'))
 		{
 			return [];
 		}
@@ -240,10 +238,9 @@ class LessonStatistics extends FormModel
 		$this->addPeriodRestriction();
 		$this->addCategoryRestriction();
 
-		$this->_db->setQuery($this->query);
+		Database::setQuery($this->query);
 
-		$methods = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-		if (empty($methods))
+		if (!$methods = Database::loadAssocList('id'))
 		{
 			return [];
 		}
@@ -276,10 +273,9 @@ class LessonStatistics extends FormModel
 		$this->addOrganizationRestriction();
 		$this->addCategoryRestriction();
 
-		$this->_db->setQuery($this->query);
+		Database::setQuery($this->query);
 
-		$terms = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-		if (empty($terms))
+		if ($terms = Database::loadAssocList('id'))
 		{
 			return [];
 		}
@@ -390,8 +386,8 @@ class LessonStatistics extends FormModel
 					$this->query->where($clause);
 				}
 
-				$this->_db->setQuery($this->query);
-				$lessons = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+				Database::setQuery($this->query);
+				$lessons = Database::loadIntColumn();
 
 				$lessonCounts[$rowID][$columnID] = count($lessons);
 
