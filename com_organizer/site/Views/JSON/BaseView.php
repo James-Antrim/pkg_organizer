@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\JSON;
 
-use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
@@ -19,15 +18,8 @@ use Organizer\Helpers;
  *
  * Class holding methods for displaying presentation data.
  */
-abstract class BaseView extends CMSObject
+abstract class BaseView
 {
-	/**
-	 * The base path of the view
-	 *
-	 * @var    string
-	 */
-	protected $_basePath = null;
-
 	/**
 	 * The base path of the site itself
 	 *
@@ -44,34 +36,20 @@ abstract class BaseView extends CMSObject
 
 	/**
 	 * Constructor
-	 *
-	 * @param   array  $config  A named configuration array for object construction.
 	 */
-	public function __construct($config = [])
+	public function __construct()
 	{
-		parent::__construct($config);
-
 		// Set the view name
 		if (empty($this->name))
 		{
 			$this->name = Helpers\OrganizerHelper::getClass($this);
 		}
 
-		// Set a base path for use by the view
-		if (array_key_exists('base_path', $config))
-		{
-			$this->_basePath = $config['base_path'];
-		}
-		else
-		{
-			$this->_basePath = JPATH_COMPONENT;
-		}
-
 		$this->baseURL = Uri::base(true);
 	}
 
 	/**
-	 * Display the view output
+	 * Display the view output.
 	 */
 	abstract public function display();
 }

@@ -11,7 +11,6 @@
 namespace Organizer\Views\JSON;
 
 use Organizer\Helpers;
-use Organizer\Tables;
 
 /**
  * Class answers dynamic (degree) program related queries

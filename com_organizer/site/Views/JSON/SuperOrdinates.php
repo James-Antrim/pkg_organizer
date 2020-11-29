@@ -12,7 +12,6 @@ namespace Organizer\Views\JSON;
 
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
-use Organizer\Helpers\Programs;
 
 /**
  * Class answers dynamic subject pool related queries
