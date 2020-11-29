@@ -10,7 +10,6 @@
 
 namespace Organizer\Views;
 
-use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Organizer\Helpers;
 
@@ -26,19 +25,17 @@ abstract class BaseView extends HtmlView
 	public $mobile = false;
 
 	/**
-	 * Constructor
-	 *
-	 * @param   array  $config  A named configuration array for object construction.
+	 * @inheritdoc
 	 */
 	public function __construct($config = [])
 	{
 		parent::__construct($config);
 		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
-		$this->mobile     = Helpers\OrganizerHelper::isSmartphone();
+		$this->mobile       = Helpers\OrganizerHelper::isSmartphone();
 	}
 
 	/**
-	 * Method to get the object name
+	 * Method to get the object name. Unlike the parent this method does not throw an exception.
 	 *
 	 * The model name by default parsed using the classname, or it can be set
 	 * by passing a $config['name'] in the class constructor
@@ -56,11 +53,7 @@ abstract class BaseView extends HtmlView
 	}
 
 	/**
-	 * Sets the layout name to use
-	 *
-	 * @param   string  $layout  The layout name or a string in format <template>:<layout file>
-	 *
-	 * @return  string  Previous value.
+	 * @inheritdoc
 	 */
 	public function setLayout($layout)
 	{
@@ -101,12 +94,7 @@ abstract class BaseView extends HtmlView
 	}
 
 	/**
-	 * Method to add a model to the view.
-	 *
-	 * @param   BaseDatabaseModel  $model    The model to add to the view.
-	 * @param   bool               $default  Is this the default model?
-	 *
-	 * @return  BaseDatabaseModel  The added model.
+	 * @inheritdoc
 	 */
 	public function setModel($model, $default = false)
 	{

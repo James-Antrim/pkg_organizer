@@ -26,9 +26,7 @@ class Courses extends ListView
 	private $manages = false;
 
 	/**
-	 * Constructor
-	 *
-	 * @param   array  $config  A named configuration array for object construction.
+	 * @inheritdoc
 	 */
 	public function __construct($config = [])
 	{

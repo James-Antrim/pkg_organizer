@@ -28,9 +28,7 @@ class CourseItem extends ItemView
 	private $manages = false;
 
 	/**
-	 * Constructor
-	 *
-	 * @param   array  $config  A named configuration array for object construction.
+	 * @inheritdoc
 	 */
 	public function __construct($config = [])
 	{

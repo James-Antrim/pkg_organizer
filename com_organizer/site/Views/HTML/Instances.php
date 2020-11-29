@@ -31,9 +31,7 @@ class Instances extends ListView
 	private $teaches = false;
 
 	/**
-	 * Constructor
-	 *
-	 * @param   array  $config  A named configuration array for object construction.
+	 * @inheritdoc
 	 */
 	public function __construct($config = [])
 	{

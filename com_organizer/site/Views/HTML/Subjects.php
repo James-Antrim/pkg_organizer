@@ -25,9 +25,7 @@ class Subjects extends ListView
 	private $params = null;
 
 	/**
-	 * Constructor
-	 *
-	 * @param   array  $config  A named configuration array for object construction.
+	 * @inheritdoc
 	 */
 	public function __construct($config = [])
 	{
@@ -221,7 +219,7 @@ class Subjects extends ListView
 	 */
 	protected function structureItems()
 	{
-		$tag = Helpers\Languages::getTag();
+		$tag             = Helpers\Languages::getTag();
 		$editLink        = "index.php?option=com_organizer&view=subject_edit&languageTag=$tag&id=";
 		$index           = 0;
 		$itemLink        = "index.php?option=com_organizer&view=subject_item&languageTag=$tag&id=";
