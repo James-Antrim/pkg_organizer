@@ -287,7 +287,7 @@ abstract class BaseHTMLView extends BaseView
 	}
 
 	/**
-	 * Modifies document variables and adds links to external files
+	 * Modifies document and adds scripts and styles.
 	 *
 	 * @return void
 	 */

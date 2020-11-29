@@ -35,9 +35,7 @@ class Curriculum extends ItemView
 	}
 
 	/**
-	 * Sets document scripts and styles
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{

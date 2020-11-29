@@ -152,9 +152,7 @@ class CourseParticipants extends Participants
 	}
 
 	/**
-	 * Modifies document variables and adds links to external files
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{

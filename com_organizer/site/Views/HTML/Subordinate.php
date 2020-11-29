@@ -18,9 +18,7 @@ use Organizer\Adapters;
 trait Subordinate
 {
 	/**
-	 * Adds styles and scripts to the document
-	 *
-	 * @return void  modifies the document
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{

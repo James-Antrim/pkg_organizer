@@ -64,9 +64,7 @@ abstract class FormView extends BaseHTMLView
 	abstract protected function addToolBar();
 
 	/**
-	 * Adds styles and scripts to the document
-	 *
-	 * @return void  modifies the document
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{
