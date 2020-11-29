@@ -27,7 +27,7 @@ abstract class TableView extends BaseView
 	{
 		$this->Ln();
 
-		if ($this->getY() > 275)
+		if ($this->GetY() > 275)
 		{
 			$this->addTablePage();
 		}
@@ -48,15 +48,12 @@ abstract class TableView extends BaseView
 		$initial = true;
 		foreach (array_keys($this->headers) as $column)
 		{
-			$border = [];
 			if ($initial)
 			{
-				$border['BLRT'] = $this->border;
 				$this->renderCell($this->widths[$column], 7, $this->headers[$column], self::CENTER, 'BLRT', 1);
 				$initial = false;
 				continue;
 			}
-			$border['BRT'] = $this->border;
 			$this->renderCell($this->widths[$column], 7, $this->headers[$column], self::CENTER, 'BRT', 1);
 		}
 		$this->Ln();

@@ -8,6 +8,8 @@
  * @link        www.thm.de
  */
 
+/** @noinspection PhpTooManyParametersInspection */
+
 namespace Organizer\Views\PDF;
 
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
@@ -24,7 +26,7 @@ use TCPDF;
 abstract class BaseView extends TCPDF
 {
 	// Alignment & Borders
-	const ALL = 1,
+	public const ALL = 1,
 		BOTTOM = 'B',
 		CENTER = 'C',
 		GINSBERG = 'RB',
@@ -37,15 +39,18 @@ abstract class BaseView extends TCPDF
 		VERTICAL = 'LR';
 
 	// Colors
-	const BLACK = [0, 0, 0], WHITE = [255, 255, 255];
+	public const BLACK = [0, 0, 0], WHITE = [255, 255, 255];
 
 	// Font Families
-	const COURIER = 'courier', CURRENT_FAMILY = '', HELVETICA = 'helvetica', TIMES = 'times';
+	public const COURIER = 'courier', CURRENT_FAMILY = '', HELVETICA = 'helvetica', TIMES = 'times';
 
-	const CURRENT_SIZE = null;
+	/**
+	 * @see FontSizePt
+	 */
+	public const CURRENT_SIZE = 12;
 
 	// Font Styles
-	const BOLD = 'B',
+	public const BOLD = 'B',
 		BOLD_ITALIC = 'BI',
 		BOLD_UNDERLINE = 'BU',
 		ITALIC = 'I',
@@ -55,10 +60,10 @@ abstract class BaseView extends TCPDF
 		UNDERLINE = 'U';
 
 	// Orientation
-	const LANDSCAPE = 'l', PORTRAIT = 'p';
+	public const LANDSCAPE = 'l', PORTRAIT = 'p';
 
 	// UOM point (~0.35 mm)
-	const CENTIMETER = 'cm', INCH = 'in', MILLIMETER = 'mm', POINT = 'pt';
+	public const CENTIMETER = 'cm', INCH = 'in', MILLIMETER = 'mm', POINT = 'pt';
 
 	protected $border = ['width' => '.1', 'color' => 220];
 
@@ -82,10 +87,10 @@ abstract class BaseView extends TCPDF
 		parent::__construct($orientation, $unit, $format);
 		$this->SetAuthor(Helpers\Users::getUser()->name);
 		$this->SetCreator('THM Organizer');
-		$this->SetCellPaddings(1, 1.5, 1, 1.5);
-		$this->SetHeaderFont($this->headerFont);
+		$this->setCellPaddings(1, 1.5, 1, 1.5);
+		$this->setHeaderFont($this->headerFont);
 		$this->setImageScale(1.25);
-		$this->SetFooterFont($this->dataFont);
+		$this->setFooterFont($this->dataFont);
 	}
 
 	/**
@@ -111,7 +116,7 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @return void repositions the documents point of reference
 	 */
-	protected function changePosition($horizontal, $vertical)
+	protected function changePosition(int $horizontal, int $vertical)
 	{
 		$this->SetXY($horizontal, $vertical);
 	}
@@ -123,13 +128,13 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @return void sets the font size value for use in rendering until set otherwise
 	 */
-	protected function changeSize($size)
+	protected function changeSize(int $size)
 	{
 		$this->SetFontSize($size);
 	}
 
 	/**
-	 * Method to generate output.
+	 * Method to generate output. Overwriting functions should place class specific code before the parent call.
 	 *
 	 * @return void
 	 */
@@ -142,9 +147,12 @@ abstract class BaseView extends TCPDF
 	/**
 	 * Defines the left, top and right margins.
 	 *
-	 * @param   int  $left   th left margin.
-	 * @param   int  $top    the top margin.
-	 * @param   int  $right  the right margin (defaults to left value)
+	 * @param   int  $left    the left margin
+	 * @param   int  $top     the top margin
+	 * @param   int  $right   the right margin (defaults to left value)
+	 * @param   int  $bottom  the bottom margin
+	 * @param   int  $header  the header margin
+	 * @param   int  $footer  the footer margin
 	 *
 	 * @see   SetAutoPageBreak(), SetFooterMargin(), setHeaderMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
 	 */
@@ -174,9 +182,9 @@ abstract class BaseView extends TCPDF
 	 * @see   AddLink()
 	 */
 	protected function renderCell(
-		$width,
-		$height,
-		$text,
+		int $width,
+		int $height,
+		string $text,
 		$hAlign = self::LEFT,
 		$border = self::NONE,
 		$fill = false,
@@ -201,16 +209,16 @@ abstract class BaseView extends TCPDF
 	 *                              array border settings coded by side
 	 * @param   bool    $fill       true if the cell should render a background color, otherwise false
 	 * @param   string  $vAlign     the cell's vertical alignment
-	 * @param   int     $maxHeight  the maximum height, explicilty set to ensure correct line height in a multicell row
+	 * @param   int     $maxHeight  the maximum height, explicitly set to ensure correct line height in a multi-cell row
 	 *
 	 * @return int Return the number of cells or 1 for html mode.
 	 * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), SetLineWidth(), Cell(), Write(), SetAutoPageBreak()
 	 */
 	protected function renderMultiCell(
-		$width,
-		$height,
-		$text,
-		$hAlign = self::LEFT,
+		int $width,
+		int $height,
+		string $text,
+		string $hAlign = self::LEFT,
 		$border = self::NONE,
 		$fill = false,
 		$vAlign = self::CENTER,
@@ -243,7 +251,7 @@ abstract class BaseView extends TCPDF
 	 * @param   string  $documentTitle  the document title
 	 * @param   string  $fileName       the file name
 	 */
-	protected function setNames($documentTitle, $fileName = '')
+	protected function setNames(string $documentTitle, $fileName = '')
 	{
 		$this->title = $documentTitle;
 
@@ -260,9 +268,9 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @see SetPrintFooter(), SetPrintHeader()
 	 */
-	protected function showPrintOverhead($display)
+	protected function showPrintOverhead(bool $display)
 	{
-		$this->SetPrintHeader($display);
-		$this->SetPrintFooter($display);
+		$this->setPrintHeader($display);
+		$this->setPrintFooter($display);
 	}
 }

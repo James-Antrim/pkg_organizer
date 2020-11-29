@@ -59,9 +59,7 @@ class GroupedParticipation extends TableView
 	}
 
 	/**
-	 * Method to generate output.
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	public function display()
 	{

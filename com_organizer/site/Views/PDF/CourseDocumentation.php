@@ -11,7 +11,6 @@
 
 namespace Organizer\Views\PDF;
 
-use Joomla\CMS\Table\Table;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -74,13 +73,13 @@ trait CourseDocumentation
 	/**
 	 * Adds a badge position to the sheet
 	 *
-	 * @param   Table  $participant  the participant being iterated
-	 * @param   int    $xOffset      the reference value for x
-	 * @param   int    $yOffset      the reference value for y
+	 * @param   Tables\Participants  $participant  the participant being iterated
+	 * @param   int                  $xOffset      the reference value for x
+	 * @param   int                  $yOffset      the reference value for y
 	 *
 	 * @return void modifies the pdf document
 	 */
-	protected function addBadge($participant, $xOffset, $yOffset)
+	protected function addBadge(Tables\Participants $participant, int $xOffset, int $yOffset)
 	{
 		$this->SetLineStyle($this->rectangleStyle);
 		$this->Rect($xOffset, $yOffset + 10, 90, 80);
@@ -153,7 +152,7 @@ trait CourseDocumentation
 	 *
 	 * @return void modifies the pdf document
 	 */
-	protected function addBadgeBack($xOffset, $yOffset)
+	protected function addBadgeBack(int $xOffset, int $yOffset)
 	{
 		$this->SetLineStyle($this->rectangleStyle);
 		$this->Rect($xOffset, 10 + $yOffset, 90, 80);
@@ -270,6 +269,7 @@ trait CourseDocumentation
 
 		$this->setHeaderData('pdf_logo.png', '55', $this->course, $subHeader, self::BLACK, self::WHITE);
 		$this->setFooterData(self::BLACK, self::WHITE);
+		/** @noinspection PhpUndefinedClassInspection */
 		parent::setHeader();
 	}
 }
