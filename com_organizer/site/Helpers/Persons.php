@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -26,7 +26,7 @@ class Persons extends Associated implements Selectable
 	/**
 	 * Retrieves person entries from the database
 	 *
-	 * @return string  the persons who hold courses for the selected program and pool
+	 * @return array  the persons who hold courses for the selected program and pool
 	 */
 	public static function byProgramOrPool()
 	{
@@ -42,11 +42,13 @@ class Persons extends Associated implements Selectable
 			$boundarySet = Programs::getRanges($programID);
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('DISTINCT p.id, p.forename, p.surname')->from('#__organizer_persons AS p');
-		$query->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id');
-		$query->innerJoin('#__organizer_curricula AS c ON c.subjectID = sp.subjectID');
+		$query = Database::getQuery();
+		$query->select('DISTINCT p.id, p.forename, p.surname')
+			->from('#__organizer_persons AS p')
+			->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
+			->innerJoin('#__organizer_curricula AS c ON c.subjectID = sp.subjectID')
+			->order('p.surname, p.forename');
+
 		if (!empty($boundarySet))
 		{
 			$where   = '';
@@ -62,22 +64,19 @@ class Persons extends Associated implements Selectable
 			$query->where($where . ')');
 		}
 
-		$query->order('p.surname, p.forename');
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		$persons = OrganizerHelper::executeQuery('loadObjectList', []);
-		if (empty($persons))
+		if (!$persons = Database::loadObjectList())
 		{
-			return '[]';
+			return [];
 		}
 
 		foreach ($persons as $key => $value)
 		{
-			$persons[$key]->name = empty($value->forename) ?
-				$value->surname : $value->surname . ', ' . $value->forename;
+			$persons[$key]->name = empty($value->forename) ? $value->surname : $value->surname . ', ' . $value->forename;
 		}
 
-		return json_encode($persons);
+		return $persons;
 	}
 
 	/**
@@ -116,28 +115,26 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return array  an array of person data
 	 */
-	public static function getDataBySubject(int $subjectID, int $role = 0, bool $multiple = false, bool $unique = true)
+	public static function getDataBySubject(int $subjectID, $role = 0, $multiple = false, $unique = true)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, role, code');
-		$query->from('#__organizer_persons AS p');
-		$query->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id');
-		$query->leftJoin('#__users AS u ON u.username = p.username');
-		$query->where("sp.subjectID = $subjectID");
+		$query = Database::getQuery();
+		$query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, sp.role, code')
+			->from('#__organizer_persons AS p')
+			->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
+			->leftJoin('#__users AS u ON u.username = p.username')
+			->where("sp.subjectID = $subjectID")
+			->order('surname');
 
-		if (!empty($role))
+		if ($role)
 		{
 			$query->where("sp.role = $role");
 		}
 
-		$query->order('surname');
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
 		if ($multiple)
 		{
-			$personList = OrganizerHelper::executeQuery('loadAssocList', []);
-			if (empty($personList))
+			if (!$personList = Database::loadAssocList())
 			{
 				return [];
 			}
@@ -150,7 +147,7 @@ class Persons extends Associated implements Selectable
 			return $personList;
 		}
 
-		return OrganizerHelper::executeQuery('loadAssoc', []);
+		return Database::loadAssoc();
 	}
 
 	/**
@@ -164,14 +161,14 @@ class Persons extends Associated implements Selectable
 	{
 		$person = new Tables\Persons();
 		$person->load($personID);
-
 		$return = '';
-		if (!empty($person->id))
+
+		if ($person->id)
 		{
-			$title    = empty($person->title) ? '' : "{$person->title} ";
-			$forename = empty($person->forename) ? '' : "{$person->forename} ";
+			$title    = $person->title ? "{$person->title} " : '';
+			$forename = $person->forename ? "{$person->forename} " : '';
 			$surname  = $person->surname;
-			$return   .= $title . $forename . $surname;
+			$return   = $title . $forename . $surname;
 		}
 
 		return $return;
@@ -186,17 +183,15 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function getOrganizationNames(int $personID)
 	{
-		$dbo   = Factory::getDbo();
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
-
 		$query->select("o.shortName_$tag AS name")
 			->from('#__organizer_organizations AS o')
 			->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id')
 			->where("personID = $personID");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadColumn();
 	}
 
 	/**
@@ -211,17 +206,18 @@ class Persons extends Associated implements Selectable
 	{
 		$person = new Tables\Persons();
 		$person->load($personID);
-
 		$return = '';
-		if (!empty($person->id))
+
+		if ($person->id)
 		{
-			if (!empty($person->forename))
+			$return = $person->surname;
+
+			if ($person->forename)
 			{
 				// Getting the first letter by other means can cause encoding problems with 'interesting' first names.
 				$forename = $short ? mb_substr($person->forename, 0, 1) . '.' : $person->forename;
+				$return   .= empty($forename) ? '' : ", $forename";
 			}
-			$return = $person->surname;
-			$return .= empty($forename) ? '' : ", $forename";
 		}
 
 		return $return;
@@ -242,20 +238,17 @@ class Persons extends Associated implements Selectable
 			return 0;
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_persons')
 			->where("username = '{$user->username}'");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (int) OrganizerHelper::executeQuery('loadResult', 0);
+		return Database::loadInt();
 	}
 
 	/**
-	 * Retrieves a list of resources in the form of name => id.
-	 *
-	 * @return array the resources, or empty
+	 * @inheritDoc
 	 */
 	public static function getOptions()
 	{
@@ -276,15 +269,13 @@ class Persons extends Associated implements Selectable
 	}
 
 	/**
-	 * Getter method for persons in database. Only retrieving the IDs here allows for formatting the names according to
-	 * the needs of the calling views.
-	 *
-	 * @return array  the scheduled persons which the user has access to
+	 * @inheritDoc
 	 */
 	public static function getResources()
 	{
 		$user = Users::getUser();
-		if (empty($user->id))
+
+		if (!$user->id)
 		{
 			return [];
 		}
@@ -307,8 +298,7 @@ class Persons extends Associated implements Selectable
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 
 		$query->select('DISTINCT p.*')
 			->from('#__organizer_persons AS p')
@@ -354,9 +344,9 @@ class Persons extends Associated implements Selectable
 			$query->where(implode(' OR ', $wherray));
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Database::loadAssocList();
 	}
 
 	/**
