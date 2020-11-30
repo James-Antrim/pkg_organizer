@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -26,14 +26,13 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @return string the hexadecimal color value associated with the field
 	 */
-	public static function getColor($fieldID, $organizationID)
+	public static function getColor(int $fieldID, int $organizationID)
 	{
-		$default = Input::getParams()->get('backgroundColor', '#f2f5f6');
-		$table   = new Tables\FieldColors();
-		$exists  = $table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID]);
+		$table  = new Tables\FieldColors();
+		$exists = $table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID]);
 		if (!$exists or empty($table->colorID))
 		{
-			return $default;
+			return Input::getParams()->get('backgroundColor', '#f2f5f6');
 		}
 
 		return Colors::getColor($table->colorID);
@@ -47,7 +46,7 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @return string the HTML output of the field attribute display
 	 */
-	public static function getFieldColorDisplay($fieldID, $organizationID = 0)
+	public static function getFieldColorDisplay(int $fieldID, $organizationID = 0)
 	{
 		if (!$fieldID)
 		{
@@ -73,9 +72,7 @@ class Fields extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
-	 *
-	 * @return array the available options
+	 * @inheritDoc
 	 */
 	public static function getOptions()
 	{
@@ -89,17 +86,12 @@ class Fields extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
-	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available resources
+	 * @inheritDoc
 	 */
 	public static function getResources()
 	{
+		$query = Adapters\Database::getQuery(true);
 		$tag   = Languages::getTag();
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT *, name_$tag AS name")
 			->from('#__organizer_fields')
 			->order('name');
@@ -121,9 +113,9 @@ class Fields extends ResourceHelper implements Selectable
 			$query->where("id IN ($string)");
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 
 	/**
@@ -133,7 +125,7 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @return array the field ids associated with the subjects in the given context
 	 */
-	private static function getRelevantIDs($subjectRanges)
+	private static function getRelevantIDs(array $subjectRanges)
 	{
 		$fieldIDs = [];
 

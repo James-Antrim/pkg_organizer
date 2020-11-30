@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -18,12 +18,6 @@ use Organizer\Tables;
  */
 class Participants extends ResourceHelper
 {
-	// Course participant status codes
-	const WAITLIST = 0, REGISTERED = 1, REMOVED = 2;
-
-	// Constants providing context for adding/removing instances to/from personal schedules.
-	const TERM_MODE = 1, BLOCK_MODE = 2, INSTANCE_MODE = 3;
-
 	/**
 	 * Determines whether the necessary participant properties have been set to register for a course.
 	 *
@@ -53,6 +47,8 @@ class Participants extends ResourceHelper
 	/**
 	 * Checks whether a participant entry already exists for the current user.
 	 *
+	 * @param   int  $participantID  the id of the potential participant to check
+	 *
 	 * @return bool true if the user is already associated with a participant, otherwise false
 	 */
 	public static function exists($participantID = 0)
@@ -70,15 +66,14 @@ class Participants extends ResourceHelper
 	 *
 	 * @return array the associated course ids if existent, otherwise empty
 	 */
-	public static function getCourses($participantID)
+	public static function getCourses(int $participantID)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select('courseID')
 			->from('#__organizer_course_participants')
 			->where("participantID = $participantID");
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Adapters\Database::loadIntColumn();
 	}
 }

@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 
 /**
  * Provides general functions for subject access checks, data retrieval and display.
@@ -32,10 +32,7 @@ class Events extends ResourceHelper
 	public static function coordinates($eventID = 0, $personID = 0)
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query    = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_event_coordinators')
 			->where("personID = $personID");
@@ -45,9 +42,9 @@ class Events extends ResourceHelper
 			$query->where("eventID = $eventID");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult', false);
+		return Database::loadBool();
 	}
 
 	/**
@@ -59,11 +56,9 @@ class Events extends ResourceHelper
 	 */
 	public static function getCategoryNames(int $eventID)
 	{
-		$names = [];
-		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
-
-		$query     = $dbo->getQuery(true);
+		$names     = [];
+		$tag       = Languages::getTag();
+		$query     = Database::getQuery();
 		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
 		$query->select("c.name_$tag AS category, " . $query->concatenate($nameParts, "") . ' AS program')
 			->select('c.id')
@@ -75,17 +70,16 @@ class Events extends ResourceHelper
 			->leftJoin('#__organizer_programs AS p ON p.categoryID = c.id')
 			->leftJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
 			->where("i.eventID = $eventID");
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		if (!$results = OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$results = Database::loadAssocList())
 		{
 			return [];
 		}
 
 		foreach ($results as $result)
 		{
-			$names[$result['id']] = empty($result['program']) ? $result['category'] : $result['program'];
+			$names[$result['id']] = $result['program'] ? $result['program'] : $result['category'];
 		}
 
 		return $names;
@@ -100,22 +94,19 @@ class Events extends ResourceHelper
 	 *
 	 * @return array
 	 */
-	public static function getUnits($eventID, $date, $interval = 'term')
+	public static function getUnits(int $eventID, string $date, $interval = 'term')
 	{
-		$dbo   = Factory::getDbo();
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method")
 			->from('#__organizer_units AS u')
 			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
 			->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')
 			->where("eventID = $eventID");
-
 		self::addUnitDateRestriction($query, $date, $interval);
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Database::loadAssocList();
 	}
 
 	/**
@@ -129,10 +120,7 @@ class Events extends ResourceHelper
 	public static function teaches($eventID = 0, $personID = 0)
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query    = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
@@ -144,8 +132,8 @@ class Events extends ResourceHelper
 			$query->where("i.eventID = '$eventID'");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult', false);
+		return Database::loadBool();
 	}
 }

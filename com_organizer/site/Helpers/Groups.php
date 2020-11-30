@@ -10,46 +10,44 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
 class Groups extends Associated implements Selectable
 {
-	use Filtered, Planned;
+	use Filtered;
+	use Planned;
 
-	static protected $resource = 'group';
+	protected static $resource = 'group';
 
 	/**
 	 * Retrieves the events associated with a group.
 	 *
-	 * @param $groupID
+	 * @param   int  $groupID  the id of the group
 	 *
 	 * @return array
 	 */
-	public static function getEvents($groupID)
+	public static function getEvents(int $groupID)
 	{
-		$dbo   = Factory::getDbo();
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT e.id, e.code, e.name_$tag AS name, e.description_$tag AS description")
 			->from('#__organizer_events AS e')
 			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
 			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
 			->where("groupID = $groupID");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Database::loadAssocList();
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
+	 * @inheritDoc
 	 *
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available options
 	 */
 	public static function getOptions($access = '')
 	{
@@ -76,11 +74,9 @@ class Groups extends Associated implements Selectable
 	}
 
 	/**
-	 * Retrieves the resource items.
+	 * @inheritDoc
 	 *
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available resources
 	 */
 	public static function getResources($access = '')
 	{
@@ -103,11 +99,8 @@ class Groups extends Associated implements Selectable
 			return [];
 		}
 
-		$dbo = Factory::getDbo();
-
-		$query = $dbo->getQuery(true);
-		$query->select('g.*');
-		$query->from('#__organizer_groups AS g');
+		$query = Database::getQuery();
+		$query->select('g.*')->from('#__organizer_groups AS g');
 
 		if (!empty($access))
 		{
@@ -116,10 +109,9 @@ class Groups extends Associated implements Selectable
 
 		self::addOrganizationFilter($query, 'group', 'g');
 		self::addResourceFilter($query, 'category', 'cat', 'g');
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Database::loadAssocList();
 	}
 
 	/**
@@ -131,11 +123,10 @@ class Groups extends Associated implements Selectable
 	 *
 	 * @return array
 	 */
-	public static function getUnits($groupID, $date, $interval = 'term')
+	public static function getUnits(int $groupID, string $date, $interval = 'term')
 	{
-		$dbo   = Factory::getDbo();
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method, eventID")
 			->from('#__organizer_units AS u')
 			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
@@ -144,11 +135,9 @@ class Groups extends Associated implements Selectable
 			->leftJoin('#__organizer_methods AS m ON m.id = i.methodID')
 			->where("groupID = $groupID")
 			->where("u.delta != 'removed'");
-
 		self::addUnitDateRestriction($query, $date, $interval);
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Database::loadAssocList();
 	}
 }

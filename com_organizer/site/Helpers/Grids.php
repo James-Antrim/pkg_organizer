@@ -10,18 +10,16 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
  * Class provides general functions for retrieving building data.
  */
-class Grids extends ResourceHelper
+class Grids extends ResourceHelper implements Selectable
 {
 	/**
-	 * Retrieves the selectable options for the resource.
-	 *
-	 * @return array the available options
+	 * @inheritDoc
 	 */
 	public static function getOptions()
 	{
@@ -39,18 +37,15 @@ class Grids extends ResourceHelper
 	 *
 	 * @param   bool  $onlyID  whether or not only the id will be returned, defaults to true
 	 *
-	 * @return mixed
+	 * @return array|int int the id, otherwise the grid table entry as an array
 	 */
 	public static function getDefault($onlyID = true)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select("*")->from('#__organizer_grids')->where('isDefault = 1');
+		Adapters\Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		return $onlyID ?
-			OrganizerHelper::executeQuery('loadResult', []) : OrganizerHelper::executeQuery('loadAssoc', []);
+		return $onlyID ? Adapters\Database::loadInt() : Adapters\Database::loadAssoc();
 	}
 
 	/**
@@ -58,36 +53,27 @@ class Grids extends ResourceHelper
 	 *
 	 * @param   int  $gridID  the grid id
 	 *
-	 * @return mixed string the grid json string on success, otherwise null
+	 * @return string string the grid json string on success, otherwise null
 	 */
-	public static function getGrid($gridID)
+	public static function getGrid(int $gridID)
 	{
 		$table = new Tables\Grids();
+		$table->load($gridID);
 
-		if ($table->load($gridID) and $grid = $table->grid)
-		{
-			return $grid;
-		}
-
-		return '';
+		return $table->grid ? $table->grid : '';
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
-	 * @return array the available resources
+	 * @inheritDoc
 	 */
 	public static function getResources()
 	{
-		$tag = Languages::getTag();
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
+		$tag   = Languages::getTag();
 		$query->select("*, name_$tag as name, isDefault")->from('#__organizer_grids')->order('name');
+		Adapters\Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 
 }

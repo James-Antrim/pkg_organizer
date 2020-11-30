@@ -11,7 +11,6 @@
 namespace Organizer\Helpers;
 
 use JDatabaseQuery;
-use Joomla\CMS\Factory;
 use Organizer\Adapters\Database;
 use Organizer\Models;
 use Organizer\Tables;
@@ -110,15 +109,11 @@ class Programs extends Curricula implements Selectable
 	}
 
 	/**
-	 * Retrieves the program name
-	 *
-	 * @param   int  $programID  the table id for the program
-	 *
-	 * @return string the name of the (plan) program, otherwise empty
+	 * @inheritDoc
 	 */
-	public static function getName(int $programID)
+	public static function getName(int $resourceID)
 	{
-		if (!$programID)
+		if (!$resourceID)
 		{
 			return Languages::_('ORGANIZER_NO_PROGRAM');
 		}
@@ -129,7 +124,7 @@ class Programs extends Curricula implements Selectable
 		$query->select($query->concatenate($parts, "") . ' AS name')
 			->from('#__organizer_programs AS p')
 			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-			->where("p.id = '$programID'");
+			->where("p.id = '$resourceID'");
 
 		Database::setQuery($query);
 
@@ -137,11 +132,9 @@ class Programs extends Curricula implements Selectable
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
+	 * @inheritDoc
 	 *
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available options
 	 */
 	public static function getOptions($access = '')
 	{
@@ -203,13 +196,12 @@ class Programs extends Curricula implements Selectable
 	 */
 	public static function getRanges($identifiers)
 	{
-		if (empty($identifiers) or (!is_numeric($identifiers) and !is_array($identifiers)))
+		if (!$identifiers or (!is_numeric($identifiers) and !is_array($identifiers)))
 		{
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('DISTINCT *')
 			->from('#__organizer_curricula')
 			->where('programID IS NOT NULL ')
@@ -228,39 +220,34 @@ class Programs extends Curricula implements Selectable
 			}
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Database::loadAssocList();
 	}
 
 	/**
-	 * Retrieves the resource items.
+	 * @inheritDoc
 	 *
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available resources
 	 */
 	public static function getResources($access = '')
 	{
-		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
 		$query = self::getQuery();
-
+		$tag   = Languages::getTag();
 		$query->select("d.abbreviation AS degree")
 			->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')
 			->order('name');
 
-		if (!empty($access))
+		if ($access)
 		{
 			self::addAccessFilter($query, $access, 'program', 'p');
 		}
 
 		self::addOrganizationFilter($query, 'program', 'p');
 
-		$useCurrent = self::useCurrent();
-		if ($useCurrent)
+		if (self::useCurrent())
 		{
-			$subQuery = $dbo->getQuery(true);
+			$subQuery = Database::getQuery();
 			$subQuery->select("p2.name_$tag, p2.degreeID, MAX(p2.accredited) AS accredited")
 				->from('#__organizer_programs AS p2')
 				->group("p2.name_$tag, p2.degreeID");
@@ -270,9 +257,9 @@ class Programs extends Curricula implements Selectable
 			$query->innerJoin("($subQuery) AS grouped ON $conditions");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Database::loadAssocList();
 	}
 
 	/**

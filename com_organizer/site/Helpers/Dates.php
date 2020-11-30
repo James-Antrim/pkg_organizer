@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use DateTime;
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 
 /**
  * Class provides generalized functions regarding dates and times.
@@ -56,8 +56,6 @@ class Dates
 
 		return date($timeFormat, strtotime('+1 minute', strtotime($time)));
 	}
-
-	// TODO formatEndTime +1 minute
 
 	/**
 	 * Formats the date stored in the database according to the format in the component parameters
@@ -154,14 +152,13 @@ class Dates
 	 */
 	public static function getTerm(string $date)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select('startDate, endDate')
 			->from('#__organizer_terms')
 			->where("'$date' BETWEEN startDate AND endDate");
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssoc', []);
+		return Adapters\Database::loadAssoc();
 	}
 
 	/**

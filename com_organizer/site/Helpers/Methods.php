@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
@@ -18,9 +18,7 @@ use Joomla\CMS\Factory;
 class Methods extends ResourceHelper implements Selectable
 {
 	/**
-	 * Retrieves a list of resources in the form of name => id.
-	 *
-	 * @return array the resources, or empty
+	 * @inheritDoc
 	 */
 	public static function getOptions()
 	{
@@ -34,22 +32,18 @@ class Methods extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
-	 * @return array the available resources
+	 * @inheritDoc
 	 */
 	public static function getResources()
 	{
-		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
-
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
+		$tag   = Languages::getTag();
 		$query->select("DISTINCT m.*, m.name_$tag AS name")
 			->from('#__organizer_methods AS m')
 			->innerJoin('#__organizer_instances AS i ON i.methodID = m.id')
 			->order('name');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 }

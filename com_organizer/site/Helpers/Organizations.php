@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use JDatabaseQuery;
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -29,10 +29,9 @@ class Organizations extends ResourceHelper implements Selectable
 	 *
 	 * @return void modifies the query
 	 */
-	private static function addAccessFilter($query, $access)
+	private static function addAccessFilter(JDatabaseQuery $query, string $access)
 	{
-		$view = Input::getView();
-		if (empty($access) or empty($view))
+		if (!$access or !$view = Input::getView())
 		{
 			return;
 		}
@@ -72,12 +71,10 @@ class Organizations extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
+	 * @inheritDoc
 	 *
 	 * @param   bool    $short   whether or not abbreviated names should be returned
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available options
 	 */
 	public static function getOptions($short = true, $access = '')
 	{
@@ -98,26 +95,20 @@ class Organizations extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the resource items.
+	 * @inheritDoc
 	 *
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available resources
 	 */
 	public static function getResources($access = '')
 	{
-		$dbo   = Factory::getDbo();
+		$query = Adapters\Database::getQuery();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
-
 		$query->select("DISTINCT o.*, o.shortName_$tag AS shortName, o.name_$tag AS name")
 			->from('#__organizer_organizations AS o');
-
 		self::addAccessFilter($query, $access);
+		Adapters\Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 
 	/**
@@ -129,7 +120,7 @@ class Organizations extends ResourceHelper implements Selectable
 	 *
 	 * @return void
 	 */
-	public static function setResource($resourceID, $column)
+	public static function setResource(int $resourceID, string $column)
 	{
 		$associations = new Tables\Associations();
 
@@ -146,7 +137,6 @@ class Organizations extends ResourceHelper implements Selectable
 		// todo remove this on completion of migration
 		$organizationID         = Input::getInt('organizationID');
 		$data['organizationID'] = $organizationID ? $organizationID : Input::getInt('departmentID');
-
 		$associations->save($data);
 	}
 }
