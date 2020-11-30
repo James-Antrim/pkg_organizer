@@ -230,19 +230,6 @@ class OrganizerHelper
 		return $listViews[$initial];
 	}
 
-	/**
-	 * Instantiates an Organizer table with a given name
-	 *
-	 * @param   string  $name  the table name
-	 *
-	 * @return Tables\BaseTable
-	 */
-	public static function getTable($name)
-	{
-		$fqn = "\\Organizer\\Tables\\$name";
-
-		return new $fqn;
-	}
 
 	/**
 	 * Wrapper for
