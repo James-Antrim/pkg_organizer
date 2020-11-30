@@ -10,8 +10,8 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -34,7 +34,6 @@ class TermPublishingField extends FormField
 	 */
 	protected function getInput()
 	{
-		$dbo        = Factory::getDbo();
 		$input      = '';
 		$nameColumn = 'name_' . Helpers\Languages::getTag();
 		$today      = date('Y-m-d');
@@ -47,11 +46,11 @@ class TermPublishingField extends FormField
 		$values = [];
 		if ($groupID = Helpers\Input::getID())
 		{
-			$query = $dbo->getQuery(true);
+			$query = Adapters\Database::getQuery();
 			$query->select('termID, published')->from('#__organizer_group_publishing')->where("groupID = $groupID");
-			$dbo->setQuery($query);
+			Adapters\Database::setQuery($query);
 
-			$values = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'termID');
+			$values = Adapters\Database::loadAssocList('termID');
 		}
 
 		foreach (Helpers\Terms::getResources() as $term)

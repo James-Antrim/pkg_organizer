@@ -11,7 +11,7 @@
 namespace Organizer\Fields;
 
 use JDatabaseQuery;
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -39,16 +39,14 @@ class MergeAssociationsField extends OptionsField
 			return $default;
 		}
 
-		$dbo        = Factory::getDbo();
-		$query      = $dbo->getQuery(true);
+		$query      = Adapters\Database::getQuery();
 		$textColumn = $this->resolveTextColumn($query);
 		if (empty($textColumn))
 		{
 			return $default;
 		}
 
-		$query->select("DISTINCT $valueColumn AS value, $textColumn AS text")
-			->order('text ASC');
+		$query->select("DISTINCT $valueColumn AS value, $textColumn AS text")->order('text');
 
 		// 1 => table, 2 => alias, 4 => conditions
 		$pattern = '/([a-z_]+) AS ([a-z]+)( ON ([a-z]+\.[A-Za-z]+ = [a-z]+\.[A-Za-z]+))?/';
@@ -75,13 +73,13 @@ class MergeAssociationsField extends OptionsField
 			{
 				return $default;
 			}
+
 			$query->innerJoin("#__organizer_$innerJoin");
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		$valuePairs = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
-		if (empty($valuePairs))
+		if ($valuePairs = Adapters\Database::loadAssocList())
 		{
 			return $default;
 		}

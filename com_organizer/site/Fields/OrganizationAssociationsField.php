@@ -10,9 +10,8 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Helpers;
-use Organizer\Tables;
 
 /**
  * Class creates a select box for organizations.
@@ -44,12 +43,11 @@ class OrganizationAssociationsField extends OptionsField
 			return ($table->load($resourceID) and !empty($table->organizationID)) ? [$table->organizationID] : [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select('DISTINCT organizationID')->from('#__organizer_associations')->where("{$resource}ID = $resourceID");
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		return Adapters\Database::loadIntColumn();
 	}
 
 	/**

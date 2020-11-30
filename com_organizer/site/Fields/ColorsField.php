@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Helpers;
 use stdClass;
 
@@ -36,15 +36,14 @@ class ColorsField extends ColoredOptionsField
 		$options = parent::getOptions();
 
 		$tag = Helpers\Languages::getTag();
-		$dbo = Factory::getDbo();
 
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select("DISTINCT c.id AS value, c.name_$tag AS text, c.color")
 			->from(' #__organizer_colors AS c')
 			->order('text');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		if (!$colors = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$colors = Adapters\Database::loadAssocList())
 		{
 			return $options;
 		}

@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -42,8 +42,7 @@ class MergeOrganizationsField extends OptionsField
 		$textColumn = 'shortName_' . Helpers\Languages::getTag();
 		$table      = $resource === 'category' ? 'categories' : 'persons';
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 
 		$query->select("DISTINCT o.id AS value, o.$textColumn AS text")
 			->from("#__organizer_organizations AS o")
@@ -51,10 +50,9 @@ class MergeOrganizationsField extends OptionsField
 			->innerJoin("#__organizer_$table AS res ON res.id = a.{$resource}ID")
 			->where("res.id IN ( '" . implode("', '", $selectedIDs) . "' )")
 			->order('text ASC');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		$valuePairs = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
-		if (empty($valuePairs))
+		if (!$valuePairs = Adapters\Database::loadAssocList())
 		{
 			return [];
 		}

@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -42,15 +42,14 @@ class MergeValuesField extends OptionsField
 		$column = $this->getAttribute('name');
 		$table  = $resource === 'category' ? 'categories' : "{$resource}s";
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select("DISTINCT $column AS value")
 			->from("#__organizer_$table");
 		$query->where("id IN ( '" . implode("', '", $selectedIDs) . "' )");
 		$query->order('value ASC');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		$values = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		$values = Adapters\Database::loadColumn();
 		if (empty($values))
 		{
 			return [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];

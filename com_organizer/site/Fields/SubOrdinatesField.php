@@ -10,7 +10,6 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
@@ -176,27 +175,26 @@ class SubOrdinatesField extends FormField
 		$contextParts = explode('.', $this->form->getName());
 		$resource     = Helpers\OrganizerHelper::getResource($contextParts[1]);
 
-		$dbo     = Factory::getDbo();
-		$idQuery = $dbo->getQuery(true);
+		$idQuery = Adapters\Database::getQuery();
 		$idQuery->select('id')
 			->from('#__organizer_curricula')
 			->where("{$resource}ID = '$resourceID'")
 			->group('id');
 
-		$dbo->setQuery($idQuery);
+		Adapters\Database::setQuery($idQuery);
 
-		if (!$parentID = Helpers\OrganizerHelper::executeQuery('loadResult', 0))
+		if (!$parentID = Adapters\Database::loadInt())
 		{
 			return [];
 		}
 
-		$subOrdinateQuery = $dbo->getQuery(true);
+		$subOrdinateQuery = Adapters\Database::getQuery();
 		$subOrdinateQuery->select('*')
 			->from('#__organizer_curricula')
 			->where("parentID = $parentID")
 			->order('lft ASC');
-		$dbo->setQuery($subOrdinateQuery);
+		Adapters\Database::setQuery($subOrdinateQuery);
 
-		return Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'ordering');
+		return Adapters\Database::loadAssocList('ordering');
 	}
 }

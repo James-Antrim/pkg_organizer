@@ -10,8 +10,8 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -31,16 +31,15 @@ class SubjectEventsField extends FormField
 	 */
 	public function getInput()
 	{
-		$dbo       = Factory::getDbo();
 		$fieldName = $this->getAttribute('name');
 		$subjectID = Helpers\Input::getID();
 		$tag       = Helpers\Languages::getTag();
 
-		$eQuery = $dbo->getQuery(true);
+		$eQuery = Adapters\Database::getQuery(true);
 		$eQuery->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
-		$dbo->setQuery($eQuery);
+		Adapters\Database::setQuery($eQuery);
 
-		$events = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
+		$events = Adapters\Database::loadAssocList();
 
 		$options = [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_EVENT'))];
 		foreach ($events as $event)
@@ -48,10 +47,10 @@ class SubjectEventsField extends FormField
 			$options[] = Helpers\HTML::_('select.option', $event['value'], $event['name']);
 		}
 
-		$sQuery = $dbo->getQuery(true);
+		$sQuery = Adapters\Database::getQuery(true);
 		$sQuery->select('eventID')->from('#__organizer_subject_events')->where("subjectID = '$subjectID'");
-		$dbo->setQuery($sQuery);
-		$selected = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		Adapters\Database::setQuery($sQuery);
+		$selected = Adapters\Database::loadIntColumn();
 
 
 		$attributes = ['multiple' => 'multiple', 'size' => '10'];

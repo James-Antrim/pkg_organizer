@@ -11,7 +11,7 @@
 namespace Organizer\Fields;
 
 use JDatabaseQuery;
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -124,8 +124,7 @@ class GenericOptionsField extends OptionsField
 	 */
 	protected function getOptions()
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 
 		$valueColumn = $this->getAttribute('valuecolumn');
 		$textColumn  = $this->resolveText($query);
@@ -135,11 +134,10 @@ class GenericOptionsField extends OptionsField
 		$this->setWhere($query);
 		$order = $this->getAttribute('order', 'text ASC');
 		$query->order($order);
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
 		$defaultOptions = parent::getOptions();
-		$resources      = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
-		if (empty($resources))
+		if (!$resources = Adapters\Database::loadAssocList())
 		{
 			return $defaultOptions;
 		}
@@ -173,7 +171,7 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return string  the string to use for text selection
 	 */
-	private function resolveText($query)
+	private function resolveText(JDatabaseQuery $query)
 	{
 		$textColumn  = $this->getAttribute('textcolumn');
 		$textColumns = explode(',', $textColumn);
@@ -204,7 +202,7 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return void modifies the query as necessary
 	 */
-	private function setFrom($query)
+	private function setFrom(JDatabaseQuery $query)
 	{
 		$tableParameters = $this->getAttribute('table');
 		$tables          = explode(',', $tableParameters);
@@ -257,7 +255,7 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return void modifies the query as necessary
 	 */
-	private function setWhere($query)
+	private function setWhere(JDatabaseQuery $query)
 	{
 		$rawConditions = $this->getAttribute('conditions');
 

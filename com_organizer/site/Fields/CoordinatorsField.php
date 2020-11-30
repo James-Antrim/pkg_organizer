@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -32,14 +32,13 @@ class CoordinatorsField extends OptionsField
 	protected function getInput()
 	{
 		$eventID = Helpers\Input::getID();
-		$dbo     = Factory::getDbo();
-		$query   = $dbo->getQuery(true);
+		$query   = Adapters\Database::getQuery();
 		$query->select('DISTINCT personID')
 			->from('#__organizer_event_coordinators')
 			->where("eventID = $eventID");
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		$this->value = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		$this->value = Adapters\Database::loadIntColumn();
 
 		return parent::getInput();
 	}
@@ -60,16 +59,15 @@ class CoordinatorsField extends OptionsField
 			return $options;
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select('DISTINCT p.id, p.forename, p.surname')
 			->from('#__organizer_persons AS p')
 			->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
 			->where("a.organizationID = $organizationID")
 			->order('p.surname, p.forename');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		if (!$persons = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$persons = Adapters\Database::loadAssocList())
 		{
 			return $options;
 		}

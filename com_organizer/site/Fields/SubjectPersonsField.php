@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -43,8 +43,7 @@ class SubjectPersonsField extends OptionsField
 			$this->value[$person['id']] = $person['id'];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select('p.id, p.surname, p.forename')
 			->from('#__organizer_persons AS p')
 			->order('surname, forename');
@@ -54,8 +53,8 @@ class SubjectPersonsField extends OptionsField
 		{
 			if (empty($this->value))
 			{
-				$query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
-				$query->where("organizationID = $organizationID");
+				$query->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
+					->where("organizationID = $organizationID");
 			}
 			else
 			{
@@ -66,10 +65,10 @@ class SubjectPersonsField extends OptionsField
 			}
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
 		$options = parent::getOptions();
-		if (!$persons = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id'))
+		if (!$persons = Adapters\Database::loadAssocList('id'))
 		{
 			return $options;
 		}
