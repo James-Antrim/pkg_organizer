@@ -379,7 +379,7 @@ class Search extends BaseModel
 				}
 
 				$pIndex     = "d{$category['id']}";
-				$programID  = $category['id'];
+				$programID  = (int) $category['id'];
 				$categoryID = $category['categoryID'];
 
 				$results[$pIndex]               = [];

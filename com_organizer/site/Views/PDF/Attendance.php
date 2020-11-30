@@ -109,10 +109,12 @@ class Attendance extends TableView
 							$participant->surname : "$participant->surname,  $participant->forename";
 						break;
 					case 'organization':
-						$value = Helpers\Programs::getOrganization($participant->programID, true);
+						// The participant may not be associated with a program => cast to int to prevent null
+						$value = Helpers\Programs::getOrganization((int) $participant->programID, true);
 						break;
 					case 'program':
-						$value = Helpers\Programs::getName($participant->programID);
+						// The participant may not be associated with a program => cast to int to prevent null
+						$value = Helpers\Programs::getName((int) $participant->programID);
 						break;
 					default:
 						$value = '';

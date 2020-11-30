@@ -23,7 +23,7 @@ interface Selectable
 	public static function getOptions();
 
 	/**
-	 * Retrieves the resource items.
+	 * Retrieves resource items.
 	 *
 	 * @return array the available resources
 	 */

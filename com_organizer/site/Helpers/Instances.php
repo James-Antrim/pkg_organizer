@@ -232,7 +232,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @param   int  $instanceID  the id of the instance
 	 *
-	 * @return array an array modelling the instance
+	 * @return array an array modeling the instance
 	 */
 	public static function getInstance(int $instanceID)
 	{
