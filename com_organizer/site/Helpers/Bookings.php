@@ -10,8 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use JDatabaseQuery;
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -57,16 +56,15 @@ class Bookings extends ResourceHelper
 	 */
 	public static function getInstanceIDs(int $bookingID)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select('DISTINCT i.id')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID and b.unitID = i.unitID')
 			->where("b.id = $bookingID")
 			->order('i.id');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Adapters\Database::loadIntColumn();
 	}
 
 	/**

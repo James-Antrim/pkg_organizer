@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 
 /**
  * Provides general function for data retrieval and display.
@@ -29,9 +29,8 @@ class Units extends ResourceHelper
 	 */
 	public static function getContexts($unitID, $eventID)
 	{
-		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select("g.id AS groupID, g.categoryID, g.fullName_$tag AS fqGroup, g.name_$tag AS nqGroup")
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
@@ -40,9 +39,9 @@ class Units extends ResourceHelper
 			->where("i.eventID = $eventID")
 			->where("i.unitID = $unitID");
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', [], 'groupID');
+		return Adapters\Database::loadAssocList('groupID');
 	}
 
 	/**
@@ -54,8 +53,7 @@ class Units extends ResourceHelper
 	 */
 	public static function getEventIDs($unitID)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 
 		$query->select('DISTINCT i.eventID')
 			->from('#__organizer_instances AS i')
@@ -63,9 +61,9 @@ class Units extends ResourceHelper
 			->where("unitID = $unitID")
 			->where("i.delta != 'removed'");
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Adapters\Database::loadIntColumn();
 	}
 
 	/**
@@ -78,16 +76,15 @@ class Units extends ResourceHelper
 	 */
 	public static function getEventNames($unitID, $glue = '')
 	{
-		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select("DISTINCT name_$tag")
 			->from('#__organizer_events AS e')
 			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
 			->where("i.unitID = $unitID");
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		$eventNames = OrganizerHelper::executeQuery('loadColumn', []);
+		$eventNames = Adapters\Database::loadColumn();
 
 		return $glue ? implode($glue, $eventNames) : $eventNames;
 	}
@@ -104,8 +101,7 @@ class Units extends ResourceHelper
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 
 		$query->select('COUNT(*)')
 			->from('#__organizer_instance_persons AS ip')
@@ -118,8 +114,8 @@ class Units extends ResourceHelper
 			$query->where("i.unitID = $unitID");
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult', false);
+		return Adapters\Database::loadBool();
 	}
 }

@@ -10,8 +10,8 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
 use Joomla\Utilities\ArrayHelper;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -77,8 +77,7 @@ class Can
 			return false;
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select('DISTINCT organizationID')->from('#__organizer_associations');
 		$organizationIDs = [];
 
@@ -101,9 +100,9 @@ class Can
 					break;
 				case 'pool':
 					$query->where("poolID = $resourceID");
-					$dbo->setQuery($query);
+					Adapters\Database::setQuery($query);
 
-					if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
+					if (!$organizationIDs = Adapters\Database::loadIntColumn())
 					{
 						return false;
 					}
@@ -111,9 +110,9 @@ class Can
 					break;
 				case 'program':
 					$query->where("programID = $resourceID");
-					$dbo->setQuery($query);
+					Adapters\Database::setQuery($query);
 
-					if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
+					if (!$organizationIDs = Adapters\Database::loadIntColumn())
 					{
 						return false;
 					}
@@ -127,9 +126,9 @@ class Can
 					}
 
 					$query->where("subjectID = $resourceID");
-					$dbo->setQuery($query);
+					Adapters\Database::setQuery($query);
 
-					if (!$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []))
+					if (!$organizationIDs = Adapters\Database::loadIntColumn())
 					{
 						return false;
 					}
@@ -146,8 +145,8 @@ class Can
 		}
 		else
 		{
-			$dbo->setQuery($query);
-			$organizationIDs = OrganizerHelper::executeQuery('loadColumn', []);
+			Adapters\Database::setQuery($query);
+			$organizationIDs = Adapters\Database::loadIntColumn();
 		}
 
 		$user = Users::getUser();

@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -32,8 +32,7 @@ class Subjects extends Curricula
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
@@ -45,9 +44,9 @@ class Subjects extends Curricula
 			$query->where("subjectID = '$subjectID'");
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult', false);
+		return Adapters\Database::loadBool();
 	}
 
 	/**
@@ -83,19 +82,17 @@ class Subjects extends Curricula
 	{
 		$subjectID = $subjectID ? $subjectID : Input::getID();
 
-		$dbo = Factory::getDbo();
 		$tag = Languages::getTag();
 
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select("fullName_$tag as name, shortName_$tag as shortName, abbreviation_$tag as abbreviation")
 			->select("code AS subjectNo")
 			->from('#__organizer_subjects')
 			->where("id = $subjectID");
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		$names = OrganizerHelper::executeQuery('loadAssoc', []);
-		if (empty($names))
+		if (!$names = Adapters\Database::loadAssoc())
 		{
 			return '';
 		}
@@ -146,8 +143,7 @@ class Subjects extends Curricula
 	 */
 	public static function getPersons($subjectID, $role = null)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select('p.id, p.surname, p.forename, p.title, sp.role')
 			->from('#__organizer_persons AS p')
 			->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
@@ -157,10 +153,10 @@ class Subjects extends Curricula
 		{
 			$query->where("sp.role = $role");
 		}
-		$dbo->setQuery($query);
 
-		$results = OrganizerHelper::executeQuery('loadAssocList', []);
-		if (empty($results))
+		Adapters\Database::setQuery($query);
+
+		if (!$results = Adapters\Database::loadAssocList())
 		{
 			return [];
 		}
@@ -241,15 +237,14 @@ class Subjects extends Curricula
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select('DISTINCT *')
 			->from('#__organizer_curricula')
 			->where("subjectID = $subjectID")
 			->order('lft');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 
 	/**
@@ -273,16 +268,15 @@ class Subjects extends Curricula
 			$toColumn   = 'subjectID';
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select('DISTINCT target.subjectID')
 			->from('#__organizer_curricula AS target')
 			->innerJoin("#__organizer_prerequisites AS p ON p.$toColumn = target.id")
 			->innerJoin("#__organizer_curricula AS source ON source.id = p.$fromColumn")
 			->where("source.subjectID = $subjectID");
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Adapters\Database::loadIntColumn();
 	}
 
 	/**
@@ -333,8 +327,7 @@ class Subjects extends Curricula
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 
 		$tag = Languages::getTag();
 		$query->select("DISTINCT s.id, s.name_$tag AS name, s.code, s.creditpoints")
@@ -367,9 +360,9 @@ class Subjects extends Curricula
 		}
 
 		$query->innerJoin('#__organizer_persons AS p ON p.id = sp.personID');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 
 	/**
@@ -408,8 +401,7 @@ class Subjects extends Curricula
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
@@ -421,8 +413,8 @@ class Subjects extends Curricula
 			$query->where("subjectID = '$subjectID'");
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult', false);
+		return Adapters\Database::loadBool();
 	}
 }

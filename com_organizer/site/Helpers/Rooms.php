@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -72,8 +72,7 @@ class Rooms extends ResourceHelper implements Selectable
 	 */
 	public static function getPlannedRooms()
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select('r.id, r.name, r.roomtypeID')
 			->from('#__organizer_rooms AS r')
 			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
@@ -92,9 +91,9 @@ class Rooms extends ResourceHelper implements Selectable
 			}
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		if (!$results = OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$results = Adapters\Database::loadAssocList())
 		{
 			return [];
 		}
@@ -115,8 +114,7 @@ class Rooms extends ResourceHelper implements Selectable
 	 */
 	public static function getResources()
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select("DISTINCT r.id, r.*")
 			->from('#__organizer_rooms AS r')
 			->innerJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID');
@@ -151,8 +149,8 @@ class Rooms extends ResourceHelper implements Selectable
 		self::addCampusFilter($query, 'b2');
 
 		$query->order('name');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 }

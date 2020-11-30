@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -107,18 +107,17 @@ class Buildings extends ResourceHelper implements Selectable
 	 */
 	public static function getResources()
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 
 		$query->select('DISTINCT b.*, c.parentID')
 			->from('#__organizer_buildings AS b')
-			->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID');
+			->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID')
+			->order('name');;
 
 		self::addCampusFilter($query, 'b');
 
-		$query->order('name');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 }

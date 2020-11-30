@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -76,14 +76,13 @@ class Campuses extends ResourceHelper implements Selectable
 		}
 
 		$tag   = Languages::getTag();
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select("c1.name_$tag as name, c2.name_$tag as parentName")
 			->from('#__organizer_campuses AS c1')
 			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
 			->where("c1.id = '$campusID'");
-		$dbo->setQuery($query);
-		$names = OrganizerHelper::executeQuery('loadAssoc', []);
+		Adapters\Database::setQuery($query);
+		$names = Adapters\Database::loadAssoc();
 
 		if (empty($names))
 		{
@@ -122,8 +121,7 @@ class Campuses extends ResourceHelper implements Selectable
 	{
 		$tag = Languages::getTag();
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select("c1.*, c1.name_$tag AS name")
 			->from('#__organizer_campuses AS c1')
 			->select("c2.name_$tag as parentName")
@@ -145,9 +143,9 @@ class Campuses extends ResourceHelper implements Selectable
 			}
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 
 	/**
