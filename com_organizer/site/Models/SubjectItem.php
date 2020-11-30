@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -32,9 +33,8 @@ class SubjectItem extends ItemModel
 			return [];
 		}
 
-		$tag = Languages::getTag();
-
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery(true);
+		$tag   = Languages::getTag();
 		$query->select("aids_$tag AS aids, f.name_$tag AS availability, bonusPoints_$tag as bonus")
 			->select("content_$tag AS content, creditpoints, description_$tag AS description, duration")
 			->select("evaluation_$tag AS evaluation, expenditure, expertise, instructionLanguage")
@@ -46,12 +46,9 @@ class SubjectItem extends ItemModel
 			->from('#__organizer_subjects AS s')
 			->leftJoin('#__organizer_frequencies AS f ON f.id = s.frequencyID')
 			->where("s.id = '$subjectID'");
+		Database::setQuery($query);
+		$result = Database::loadAssoc();
 
-		$this->_db->setQuery($query);
-
-		$result = Helpers\OrganizerHelper::executeQuery('loadAssoc', []);
-
-		// This should not occur.
 		if (empty($result['name']))
 		{
 			return [];
@@ -128,19 +125,11 @@ class SubjectItem extends ItemModel
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Subjects A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Subjects;
+		return new Tables\Subjects();
 	}
 
 	/**
@@ -150,7 +139,7 @@ class SubjectItem extends ItemModel
 	 *
 	 * @return void modifies the subject array
 	 */
-	private function setCampus(&$subject)
+	private function setCampus(array &$subject)
 	{
 		if (!empty($subject['campus']['value']))
 		{
@@ -165,45 +154,42 @@ class SubjectItem extends ItemModel
 	}
 
 	/**
-	 * Loads an array of names and links into the subject model for subjects for
-	 * which this subject is a prerequisite.
+	 * Loads an array of names and links into the subject model for subjects for which this subject is a prerequisite.
 	 *
-	 * @param   object &$subject  the object containing subject data
+	 * @param   array  &$subject  the object containing subject data
 	 *
 	 * @return void
 	 */
-	private function setDependencies(&$subject)
+	private function setDependencies(array &$subject)
 	{
 		$subjectID = $subject['subjectID'];
-		$tag       = Languages::getTag();
 		$programs  = Helpers\Subjects::getPrograms($subjectID);
-
-		$query  = $this->_db->getQuery(true);
-		$select = 'DISTINCT pr.id AS id, ';
-		$select .= "s1.id AS preID, s1.fullName_$tag AS preName, s1.code AS preModuleNumber, ";
-		$select .= "s2.id AS postID, s2.fullName_$tag AS postName, s2.code AS postModuleNumber";
-		$query->select($select);
-		$query->from('#__organizer_prerequisites AS pr');
-		$query->innerJoin('#__organizer_curricula AS c1 ON c1.id = pr.prerequisiteID');
-		$query->innerJoin('#__organizer_subjects AS s1 ON s1.id = c1.subjectID');
-		$query->innerJoin('#__organizer_curricula AS c2 ON c2.id = pr.subjectID');
-		$query->innerJoin('#__organizer_subjects AS s2 ON s2.id = c2.subjectID');
+		$query     = Database::getQuery();
+		$tag       = Languages::getTag();
+		$query->select('DISTINCT pr.id AS id')
+			->select("s1.id AS preID, s1.fullName_$tag AS preName, s1.code AS preModuleNumber")
+			->select("s2.id AS postID, s2.fullName_$tag AS postName, s2.code AS postModuleNumber")
+			->from('#__organizer_prerequisites AS pr')
+			->innerJoin('#__organizer_curricula AS c1 ON c1.id = pr.prerequisiteID')
+			->innerJoin('#__organizer_subjects AS s1 ON s1.id = c1.subjectID')
+			->innerJoin('#__organizer_curricula AS c2 ON c2.id = pr.subjectID')
+			->innerJoin('#__organizer_subjects AS s2 ON s2.id = c2.subjectID');
 
 		foreach ($programs as $program)
 		{
 			$query->clear('where');
-			$query->where("c1.lft > {$program['lft']} AND c1.rgt < {$program['rgt']}");
-			$query->where("c2.lft > {$program['lft']} AND c2.rgt < {$program['rgt']}");
-			$query->where("(s1.id = $subjectID OR s2.id = $subjectID)");
-			$this->_db->setQuery($query);
+			$query->where("c1.lft > {$program['lft']} AND c1.rgt < {$program['rgt']}")
+				->where("c2.lft > {$program['lft']} AND c2.rgt < {$program['rgt']}")
+				->where("(s1.id = $subjectID OR s2.id = $subjectID)");
+			Database::setQuery($query);
 
-			$dependencies = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-			if (empty($dependencies))
+			if (!$dependencies = Database::loadAssocList('id'))
 			{
 				continue;
 			}
 
 			$programName = Helpers\Programs::getName($program['programID']);
+
 			foreach ($dependencies as $dependency)
 			{
 				if ($dependency['preID'] == $subjectID)
@@ -212,6 +198,7 @@ class SubjectItem extends ItemModel
 					{
 						$subject['postRequisiteModules']['value'] = [];
 					}
+
 					if (empty($subject['postRequisiteModules']['value'][$programName]))
 					{
 						$subject['postRequisiteModules']['value'][$programName] = [];
@@ -228,6 +215,7 @@ class SubjectItem extends ItemModel
 					{
 						$subject['preRequisiteModules']['value'] = [];
 					}
+
 					if (empty($subject['preRequisiteModules']['value'][$programName]))
 					{
 						$subject['preRequisiteModules']['value'][$programName] = [];
@@ -253,13 +241,13 @@ class SubjectItem extends ItemModel
 	}
 
 	/**
-	 * Creates a textual output for the various expenditure values
+	 * Creates a textual output for the various expenditure values.
 	 *
-	 * @param   object &$subject  the object containing subject data
+	 * @param   array &$subject  the object containing subject data
 	 *
 	 * @return void  sets values in the references object
 	 */
-	private function setExpenditureText(&$subject)
+	private function setExpenditureText(array &$subject)
 	{
 		// If there are no credit points set, this text is meaningless.
 		if (!empty($subject['creditpoints']['value']))
@@ -294,30 +282,27 @@ class SubjectItem extends ItemModel
 	}
 
 	/**
-	 * Creates a textual output for the language of instruction
+	 * Creates a textual output for the language of instruction.
 	 *
-	 * @param   object &$subject  the object containing subject data
+	 * @param   array &$subject  the object containing subject data
 	 *
 	 * @return void  sets values in the references object
 	 */
-	private function setInstructionLanguage(&$subject)
+	private function setInstructionLanguage(array &$subject)
 	{
-		switch ($subject['instructionLanguage']['value'])
+		switch (strtoupper((string) $subject['instructionLanguage']['value']))
 		{
 			case 'E':
-			case 'e':
 				$subject['instructionLanguage']['value'] = Languages::_('ORGANIZER_ENGLISH');
 				break;
 			case 'D':
-			case 'd':
 			default:
 				$subject['instructionLanguage']['value'] = Languages::_('ORGANIZER_GERMAN');
 		}
 	}
 
 	/**
-	 * Loads an array of names and links into the subject model for subjects for
-	 * which this subject is a prerequisite.
+	 * Loads an array of names and links into the subject model for subjects for which this subject is a prerequisite.
 	 *
 	 * @param   array &$subject  the object containing subject data
 	 *

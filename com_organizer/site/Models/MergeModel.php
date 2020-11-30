@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Exception;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -84,16 +85,15 @@ abstract class MergeModel extends BaseModel
 	protected function updateAssociationsReferences()
 	{
 		$fkColumn  = strtolower($this->name) . 'ID';
+		$query     = Database::getQuery(true);
 		$updateIDs = implode(', ', $this->selected);
-
-		$query = $this->_db->getQuery(true);
 		$query->select("id, $fkColumn, organizationID")
 			->from("#__organizer_associations")
 			->where("$fkColumn IN ($updateIDs)")
 			->order("id");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$results = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$results = Database::loadAssocList())
 		{
 			return true;
 		}
@@ -118,9 +118,7 @@ abstract class MergeModel extends BaseModel
 				continue;
 			}
 
-			$entry = ['id'             => $result['id'],
-			          $fkColumn        => $mergeID,
-			          'organizationID' => $result['organizationID']];
+			$entry = ['id' => $result['id'], $fkColumn => $mergeID, 'organizationID' => $result['organizationID']];
 
 			$entry[$fkColumn] = $mergeID;
 			if (!$association->save($entry))
@@ -140,17 +138,16 @@ abstract class MergeModel extends BaseModel
 	protected function updateIPReferences()
 	{
 		$fkColumn    = strtolower($this->name) . 'ID';
+		$query       = Database::getQuery();
 		$tableSuffix = strtolower($this->name) . 's';
 		$updateIDs   = implode(', ', $this->selected);
-
-		$query = $this->_db->getQuery(true);
 		$query->select('*')
 			->from("#__organizer_instance_$tableSuffix")
 			->where("$fkColumn IN ($updateIDs)")
 			->order('assocID, modified');
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$results = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$results = Database::loadAssocList())
 		{
 			return true;
 		}
@@ -247,15 +244,12 @@ abstract class MergeModel extends BaseModel
 	{
 		$fkColumn  = strtolower($this->name) . 'ID';
 		$mergeID   = $this->selected[0];
+		$query     = Database::getQuery();
 		$updateIDs = implode(', ', $this->selected);
+		$query->update("#__organizer_$table")->set("$fkColumn = $mergeID")->where("$fkColumn IN ($updateIDs)");
+		Database::setQuery($query);
 
-		$query = $this->_db->getQuery(true);
-		$query->update("#__organizer_$table");
-		$query->set("$fkColumn = $mergeID");
-		$query->where("$fkColumn IN ($updateIDs)");
-		$this->_db->setQuery($query);
-
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute', false);
+		return Database::execute();
 	}
 
 	/**
@@ -373,12 +367,11 @@ abstract class MergeModel extends BaseModel
 	 */
 	private function updateSchedules()
 	{
-		$query = $this->_db->getQuery(true);
-		$query->select('id');
-		$query->from('#__organizer_schedules');
-		$this->_db->setQuery($query);
+		$query = Database::getQuery();
+		$query->select('id')->from('#__organizer_schedules');
+		Database::setQuery($query);
 
-		if (!$scheduleIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		if (!$scheduleIDs = Database::loadIntColumn())
 		{
 			return true;
 		}

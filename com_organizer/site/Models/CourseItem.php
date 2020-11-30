@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -20,7 +21,7 @@ use Organizer\Tables;
  */
 class CourseItem extends ItemModel
 {
-	const UNREGISTERED = null;
+	private const UNREGISTERED = null;
 
 	/**
 	 * Loads subject information from the database
@@ -29,8 +30,7 @@ class CourseItem extends ItemModel
 	 */
 	public function getItem()
 	{
-		$courseID = Helpers\Input::getID();
-		if (empty($courseID))
+		if (!$courseID = Helpers\Input::getID())
 		{
 			return [];
 		}
@@ -42,14 +42,13 @@ class CourseItem extends ItemModel
 		}
 
 		$course = $this->getStructure();
-
-		$query = $this->_db->getQuery(true);
+		$query  = Database::getQuery();
 		$query->select("MIN(startDate) AS startDate, MAX(endDate) AS endDate")
 			->from('#__organizer_units')
 			->where("courseID = $courseID");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if ($dates = Helpers\OrganizerHelper::executeQuery('loadAssoc', []))
+		if ($dates = Database::loadAssoc())
 		{
 			$course['endDate']   = $dates['endDate'];
 			$course['startDate'] = $dates['startDate'];
@@ -84,8 +83,9 @@ class CourseItem extends ItemModel
 	 */
 	private function getStructure()
 	{
-		$option   = 'ORGANIZER_';
-		$template = [
+		$option = 'ORGANIZER_';
+
+		return [
 			'id'                 => 0,
 			'name'               => ['label' => Languages::_($option . 'NAME'), 'type' => 'text', 'value' => ''],
 			'fee'                => ['label' => Languages::_($option . 'FEE'), 'type' => 'text', 'value' => ''],
@@ -127,24 +127,14 @@ class CourseItem extends ItemModel
 			'registrationStatus' => null,
 			'termID'             => null,
 		];
-
-		return $template;
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Courses A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Courses;
+		return new Tables\Courses();
 	}
 
 	/**
@@ -154,15 +144,16 @@ class CourseItem extends ItemModel
 	 *
 	 * @return void modifies the course
 	 */
-	private function setEvents(&$course)
+	private function setEvents(array &$course)
 	{
 		// If the course has its own name, do not create it dynamically
 		$setName = empty($course['name']['value']);
+		$events  = Helpers\Courses::getEvents($course['id']);
 
-		$events = Helpers\Courses::getEvents($course['id']);
 		foreach ($events as $key => $attributes)
 		{
 			$course['preparatory'] = ($course['preparatory'] or $attributes['preparatory']);
+
 			foreach ($attributes as $name => $value)
 			{
 				if ($name == 'id')
@@ -185,6 +176,7 @@ class CourseItem extends ItemModel
 					{
 						$course['name']['value'] .= $value;
 					}
+
 					continue;
 				}
 
@@ -251,6 +243,7 @@ class CourseItem extends ItemModel
 			}
 
 			$event = $this->getStructure();
+
 			foreach (array_keys($event) as $attribute)
 			{
 
@@ -260,7 +253,6 @@ class CourseItem extends ItemModel
 					unset($event[$attribute]);
 					continue;
 				}
-
 
 				if (is_array($event[$attribute]))
 				{
@@ -286,9 +278,11 @@ class CourseItem extends ItemModel
 	/**
 	 * Sets texts pertaining to the registration process.
 	 *
-	 * @param $course
+	 * @param   array  $course  the course to modify
+	 *
+	 * @return void
 	 */
-	private function setRegistrationTexts(&$course)
+	private function setRegistrationTexts(array &$course)
 	{
 		$course['registration']['value'] = $course['registrationType'] ?
 			Languages::_('ORGANIZER_REGISTRATION_MANUAL')
@@ -325,10 +319,12 @@ class CourseItem extends ItemModel
 		if ($ongoing or $full)
 		{
 			$course['courseStatus'] = 'red';
+
 			if ($ongoing)
 			{
 				$texts['course'] = Languages::_('ORGANIZER_COURSE_ONGOING');
 			}
+
 			if ($full)
 			{
 				$texts['cRegistration'] = Languages::_('ORGANIZER_COURSE_FULL');
@@ -352,6 +348,7 @@ class CourseItem extends ItemModel
 		if ($userID = Helpers\Users::getID())
 		{
 			$course['registrationStatus'] = Helpers\CourseParticipants::getState($course['id'], $userID);
+
 			if ($course['registrationStatus'] === self::UNREGISTERED)
 			{
 				$texts['pRegistration'] = Languages::_('ORGANIZER_COURSE_UNREGISTERED');

@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -55,28 +55,23 @@ class Category extends BaseModel
 
 		// Implicitly used resources
 		$allowed = Helpers\Can::scheduleTheseOrganizations();
-		$dbo     = Factory::getDbo();
-
-		$subQuery = $dbo->getQuery(true);
+		$subQuery = Database::getQuery();
 		$subQuery->select('DISTINCT categoryID')
 			->from('#__organizer_instance_groups AS ig')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
-
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->update('#__organizer_categories AS c')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
 			->set('active = 1')
 			->where("c.id IN ($subQuery)")
 			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 
 	/**
-	 * Authorizes the user.
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function authorize()
 	{
@@ -119,46 +114,31 @@ class Category extends BaseModel
 
 		// Implicitly unused resources
 		$allowed = Helpers\Can::scheduleTheseOrganizations();
-		$dbo     = Factory::getDbo();
-
-		$subQuery = $dbo->getQuery(true);
+		$subQuery = Database::getQuery();
 		$subQuery->select('DISTINCT categoryID')
 			->from('#__organizer_instance_groups AS ig')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
-
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->update('#__organizer_categories AS c')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
 			->set('active = 0')
 			->where("c.id NOT IN ($subQuery)")
 			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Categories A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Categories;
+		return new Tables\Categories();
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{

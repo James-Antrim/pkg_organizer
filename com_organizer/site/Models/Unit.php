@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -110,14 +111,9 @@ class Unit extends BaseModel
 	 *
 	 * @return int the id of the campus to associate with the course
 	 */
-	private function getCourseCampusID($unit, $defaultID)
+	private function getCourseCampusID(Tables\Units $unit, int $defaultID)
 	{
-		if (property_exists($unit, 'campusID') and $campusID = $unit->campusID)
-		{
-			return $campusID;
-		}
-
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('c.id AS campusID, c.parentID, COUNT(*) AS campusCount')
 			->from('#__organizer_campuses AS c')
 			->innerJoin('#__organizer_buildings AS b ON b.campusID = c.id')
@@ -128,9 +124,9 @@ class Unit extends BaseModel
 			->where("i.unitID = $unit->id")
 			->group('c.id')
 			->order('campusCount DESC');
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		$plannedCampus = Helpers\OrganizerHelper::executeQuery('loadAssoc', []);
+		$plannedCampus = Database::loadAssoc();
 
 		if ($plannedCampus['campusID'] === $defaultID or $plannedCampus['parentID'] === $defaultID)
 		{
@@ -141,18 +137,10 @@ class Unit extends BaseModel
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Units A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Units;
+		return new Tables\Units();
 	}
 }

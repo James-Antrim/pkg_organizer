@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -50,22 +50,17 @@ class Room extends MergeModel
 		}
 
 		// Implicitly used resources
-		$dbo = Factory::getDbo();
-
-		$subQuery = $dbo->getQuery(true);
+		$subQuery = Database::getQuery(true);
 		$subQuery->select('DISTINCT roomID')->from('#__organizer_instance_rooms');
-
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery(true);
 		$query->update('#__organizer_rooms')->set('active = 1')->where("id IN ($subQuery)");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 
 	/**
-	 * Authorizes the user.
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function authorize()
 	{
@@ -106,28 +101,17 @@ class Room extends MergeModel
 		}
 
 		// Implicitly unused resources
-		$dbo = Factory::getDbo();
-
-		$subQuery = $dbo->getQuery(true);
+		$subQuery = Database::getQuery(true);
 		$subQuery->select('DISTINCT roomID')->from('#__organizer_instance_rooms');
-
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->update('#__organizer_rooms')->set('active = 0')->where("id NOT IN ($subQuery)");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Rooms A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
@@ -135,9 +119,7 @@ class Room extends MergeModel
 	}
 
 	/**
-	 * Updates the resource dependent associations
-	 *
-	 * @return bool  true on success, otherwise false
+	 * @inheritDoc
 	 */
 	protected function updateReferences()
 	{

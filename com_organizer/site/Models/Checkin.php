@@ -13,6 +13,7 @@ namespace Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -43,6 +44,7 @@ class Checkin extends FormModel
 		{
 			$form->setValue('username', null, $username);
 		}
+
 		if ($code = $session->get('organizer.checkin.code'))
 		{
 			$form->setValue('code', null, $code);
@@ -85,7 +87,8 @@ class Checkin extends FormModel
 	}
 
 	/**
-	 * Gets the
+	 * Gets the instances relevant to the booking and person.
+	 *
 	 * @return array
 	 */
 	public function getInstances()
@@ -100,17 +103,17 @@ class Checkin extends FormModel
 		// Ongoing
 		$query = $this->getQuery($participantID);
 		$query->where("b.startTime <= '$now'")->where("b.endTime >= '$now'");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		if (!$instanceIDs = Database::loadColumn())
 		{
 			// Upcoming
 			$then  = date('H:i:s', strtotime('+60 minutes'));
 			$query = $this->getQuery($participantID);
 			$query->where("b.startTime >= '$now'")->where("b.startTime <= '$then'");
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			if (!$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+			if (!$instanceIDs = Database::loadIntColumn())
 			{
 				return [];
 			}
@@ -134,7 +137,7 @@ class Checkin extends FormModel
 	private function getQuery(int $participantID)
 	{
 		$today = date('Y-m-d');
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('instanceID')
 			->from('#__organizer_instance_participants AS ip')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')

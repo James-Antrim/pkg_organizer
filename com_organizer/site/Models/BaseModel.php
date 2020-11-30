@@ -139,6 +139,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 * Alters the state of a binary property.
 	 *
 	 * @return bool true on success, otherwise false
+	 * @throws Exception
 	 */
 	public function toggle()
 	{

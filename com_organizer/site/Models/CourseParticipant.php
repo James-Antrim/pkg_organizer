@@ -10,6 +10,8 @@
 
 namespace Organizer\Models;
 
+use Exception;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
 use Organizer\Tables;
@@ -19,12 +21,13 @@ use Organizer\Tables;
  */
 class CourseParticipant extends BaseModel
 {
-	const ACCEPTED = 1, ATTENDED = 1, PAID = 1, WAITLIST = 0;
+	private const ACCEPTED = 1, WAITLIST = 0;
 
 	/**
 	 * Sets the status for the course participant to accepted
 	 *
 	 * @return bool true on success, otherwise false
+	 * @throws Exception
 	 */
 	public function accept()
 	{
@@ -35,11 +38,12 @@ class CourseParticipant extends BaseModel
 	 * Sets the property the given property to the given value for the selected participants.
 	 *
 	 * @param   string  $property  the property to update
-	 * @param   int     $value     the new value for the property
+	 * @param   mixed   $value     the new value for the property
 	 *
 	 * @return bool true on success, otherwise false
+	 * @throws Exception
 	 */
-	private function batch($property, $value)
+	private function batch(string $property, $value)
 	{
 		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
@@ -87,19 +91,11 @@ class CourseParticipant extends BaseModel
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\CourseParticipants A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\CourseParticipants;
+		return new Tables\CourseParticipants();
 	}
 
 	/**
@@ -185,14 +181,14 @@ class CourseParticipant extends BaseModel
 				return false;
 			}
 
-			$participantIDs = implode(',', $participantIDs);
-			$query          = $this->_db->getQuery('true');
+			// TODO Only delete associations to future instances
+			$query = Database::getQuery();
 			$query->delete('#__organizer_instance_participants')
 				->where("instanceID IN ($instanceIDs)")
-				->where("participantID = $participantIDs");
-			$this->_db->setQuery($query);
+				->where("participantID = $participantID");
+			Database::setQuery($query);
 
-			if (!Helpers\OrganizerHelper::executeQuery('execute'))
+			if (!Database::execute())
 			{
 				return false;
 			}
@@ -204,9 +200,7 @@ class CourseParticipant extends BaseModel
 	}
 
 	/**
-	 * Toggles binary attributes of the course participant association.
-	 *
-	 * @return bool true on success, otherwise false
+	 * @inheritDoc
 	 */
 	public function toggle()
 	{
@@ -254,6 +248,7 @@ class CourseParticipant extends BaseModel
 	 * Sets the status for the course participant to accepted
 	 *
 	 * @return bool true on success, otherwise false
+	 * @throws Exception
 	 */
 	public function waitlist()
 	{
