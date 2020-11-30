@@ -12,6 +12,7 @@ namespace Organizer\Helpers;
 
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Models;
 use Organizer\Tables;
 
@@ -20,7 +21,7 @@ use Organizer\Tables;
  */
 class Programs extends Curricula implements Selectable
 {
-	static protected $resource = 'program';
+	protected static $resource = 'program';
 
 	/**
 	 * Checks if a program exists matching the identification keys. If none exist one is created.
@@ -31,7 +32,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @return mixed int on success, otherwise null
 	 */
-	public static function create($programData, $initialName, $categoryID)
+	public static function create(array $programData, string $initialName, int $categoryID)
 	{
 		$programTable = new Tables\Programs();
 		if ($programTable->load($programData))
@@ -65,14 +66,13 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @return string  HTML option
 	 */
-	public static function getCurricularOption($range, $parentIDs, $type)
+	public static function getCurricularOption(array $range, array $parentIDs, string $type)
 	{
-		$dbo   = Factory::getDbo();
 		$query = self::getQuery();
 		$query->where("p.id = {$range['programID']}");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$program = OrganizerHelper::executeQuery('loadAssoc', []))
+		if (!$program = Database::loadAssoc())
 		{
 			return '';
 		}
@@ -118,24 +118,22 @@ class Programs extends Curricula implements Selectable
 	 */
 	public static function getName(int $programID)
 	{
-		if (empty($programID))
+		if (!$programID)
 		{
 			return Languages::_('ORGANIZER_NO_PROGRAM');
 		}
 
-		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
-
-		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
-		$query->select($query->concatenate($nameParts, "") . ' AS name')
+		$query = Database::getQuery(true);
+		$tag   = Languages::getTag();
+		$parts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
+		$query->select($query->concatenate($parts, "") . ' AS name')
 			->from('#__organizer_programs AS p')
 			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->where("p.id = '$programID'");
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadResult', '');
+		return Database::loadString();
 	}
 
 	/**
@@ -162,11 +160,12 @@ class Programs extends Curricula implements Selectable
 	/**
 	 * Retrieves the organizationIDs associated with the program
 	 *
-	 * @param   int  $programID  the table id for the program
+	 * @param   int   $programID  the table id for the program
+	 * @param   bool  $short      whether or not to display an abbreviated version of fhe organization name
 	 *
 	 * @return string the organization associated with the program's documentation
 	 */
-	public static function getOrganization($programID, $short = false)
+	public static function getOrganization(int $programID, $short = false)
 	{
 		if (!$organizationIDs = self::getOrganizationIDs($programID))
 		{
@@ -188,9 +187,8 @@ class Programs extends Curricula implements Selectable
 	 */
 	public static function getQuery()
 	{
-		$dbo        = Factory::getDbo();
+		$query      = Database::getQuery();
 		$tag        = Languages::getTag();
-		$query      = $dbo->getQuery(true);
 		$parts      = ["p.name_$tag", "' ('", 'd.abbreviation', "', '", 'p.accredited', "')'"];
 		$nameClause = $query->concatenate($parts, '') . ' AS name';
 		$query->select("DISTINCT p.id AS id, $nameClause, p.active")
@@ -201,11 +199,7 @@ class Programs extends Curricula implements Selectable
 	}
 
 	/**
-	 * Gets the mapped curricula ranges for the given resource. Returns array of associations for compatibility reasons.
-	 *
-	 * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
-	 *
-	 * @return array the resource ranges
+	 * @inheritDoc
 	 */
 	public static function getRanges($identifiers)
 	{
@@ -282,16 +276,12 @@ class Programs extends Curricula implements Selectable
 	}
 
 	/**
-	 * Looks up the names of the programs associated with the resource
-	 *
-	 * @param   array  $programIDs  the ids of the program resources
-	 *
-	 * @return array the program ranges
+	 * @inheritDoc
 	 */
-	public static function getPrograms($programIDs)
+	public static function getPrograms($identifiers)
 	{
 		$ranges = [];
-		foreach ($programIDs as $programID)
+		foreach ($identifiers as $programID)
 		{
 			$ranges = array_merge($ranges, self::getRanges($programID));
 		}

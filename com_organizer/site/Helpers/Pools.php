@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -20,16 +20,16 @@ class Pools extends Curricula implements Selectable
 {
 	use Filtered;
 
-	static protected $resource = 'pool';
+	protected static $resource = 'pool';
 
 	/**
 	 * Creates a text for the required pool credit points
 	 *
-	 * @param   object  $pool  the pool
+	 * @param   array  $pool  the pool
 	 *
 	 * @return string  the required amount of credit points
 	 */
-	public static function getCrPText($pool)
+	public static function getCrPText(array $pool)
 	{
 		$minCrPExists = !empty($pool['minCrP']);
 		$maxCrPExists = !empty($pool['maxCrP']);
@@ -38,16 +38,13 @@ class Pools extends Curricula implements Selectable
 			return $pool['maxCrP'] === $pool['minCrP'] ?
 				"{$pool['maxCrP']} CrP" : "{$pool['minCrP']} - {$pool['maxCrP']} CrP";
 		}
-		else
+		elseif ($maxCrPExists)
 		{
-			if ($maxCrPExists)
-			{
-				return "max. {$pool['maxCrP']} CrP";
-			}
-			elseif ($minCrPExists)
-			{
-				return "min. {$pool['minCrP']} CrP";
-			}
+			return "max. {$pool['maxCrP']} CrP";
+		}
+		elseif ($minCrPExists)
+		{
+			return "min. {$pool['minCrP']} CrP";
 		}
 
 		return '';
@@ -61,18 +58,16 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @return string  HTML option
 	 */
-	public static function getCurricularOption($range, $parentIDs)
+	public static function getCurricularOption(array $range, array $parentIDs)
 	{
-		$tag        = Languages::getTag();
 		$poolsTable = new Tables\Pools();
-		$poolsTable->load($range['poolID']);
 
 		if (!$poolsTable->load($range['poolID']))
 		{
 			return '';
 		}
 
-		$nameColumn   = "fullName_$tag";
+		$nameColumn   = 'fullName_' . Languages::getTag();
 		$indentedName = Pools::getIndentedName($poolsTable->$nameColumn, $range['level']);
 
 		$selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
@@ -111,7 +106,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @return string the pool name indented according to the curricular hierarchy
 	 */
-	public static function getIndentedName($name, $level)
+	public static function getIndentedName(string $name, int $level)
 	{
 		$iteration = 0;
 		$indent    = '';
@@ -162,11 +157,7 @@ class Pools extends Curricula implements Selectable
 	}
 
 	/**
-	 * Gets the mapped curricula ranges for the given pool
-	 *
-	 * @param   mixed  $identifiers  int poolID | array ranges of subordinate resources
-	 *
-	 * @return array the pool ranges
+	 * @inheritDoc
 	 */
 	public static function getRanges($identifiers)
 	{
@@ -175,8 +166,7 @@ class Pools extends Curricula implements Selectable
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select('DISTINCT *')
 			->from('#__organizer_curricula')
 			->where('poolID IS NOT NULL ')
@@ -195,23 +185,23 @@ class Pools extends Curricula implements Selectable
 			}
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 
 	/**
-	 * Gets an array modelling the attributes of the resource.
+	 * Gets an array modeling the attributes of the resource.
 	 *
-	 * @param $resourceID
+	 * @param $poolID
 	 *
 	 * @return array
 	 */
-	public static function getResource($resourceID)
+	public static function getPool($poolID)
 	{
 		$table = new Tables\Pools();
 
-		if (!$table->load($resourceID))
+		if (!$table->load($poolID))
 		{
 			return [];
 		}
@@ -233,17 +223,13 @@ class Pools extends Curricula implements Selectable
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
-	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available resources
+	 * @inheritDoc
 	 */
 	public static function getResources($access = '')
 	{
 		$programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID');
 		$poolID    = Input::getInt('poolID');
-		if (empty($programID) and empty($poolID))
+		if (!$programID and !$poolID)
 		{
 			return [];
 		}
@@ -254,9 +240,8 @@ class Pools extends Curricula implements Selectable
 			return [];
 		}
 
+		$query = Adapters\Database::getQuery();
 		$tag   = Languages::getTag();
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT p.*, p.fullName_$tag AS name")
 			->from('#__organizer_pools AS p')
 			->innerJoin('#__organizer_curricula AS c ON c.poolID = p.id')
@@ -269,29 +254,28 @@ class Pools extends Curricula implements Selectable
 			self::addAccessFilter($query, $access, 'pool', 'p');
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 
 	/**
 	 * Retrieves the range of the selected resource exclusive subordinate pools.
 	 *
-	 * @param   int  $range  the original range of a pool
+	 * @param   array  $range  the original range of a pool
 	 *
 	 * @return array  array of arrays with boundary values
 	 */
-	private static function removeExclusions($range)
+	private static function removeExclusions(array $range)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select('*')->from('#__organizer_curricula')
 			->where('poolID IS NOT NULL')
 			->where("lft > '{$range['lft']}' AND rgt < '{$range['rgt']}'")
 			->order('lft');
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		if (!$exclusions = OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$exclusions = Adapters\Database::loadAssocList())
 		{
 			return [$range];
 		}

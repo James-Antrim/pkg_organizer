@@ -18,7 +18,7 @@ use Organizer\Tables;
  */
 class Subjects extends Curricula
 {
-	static protected $resource = 'subject';
+	protected static $resource = 'subject';
 
 	/**
 	 * Check if user one of the subject's coordinators.
@@ -31,9 +31,7 @@ class Subjects extends Curricula
 	public static function coordinates($subjectID = 0, $personID = 0)
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
-
-		$query = Adapters\Database::getQuery(true);
-
+		$query    = Adapters\Database::getQuery(true);
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
 			->where("personID = $personID")
@@ -73,23 +71,20 @@ class Subjects extends Curricula
 	/**
 	 * Retrieves the subject name
 	 *
-	 * @param   int   $subjectID  the table id for the subject
-	 * @param   bool  $withNumber
+	 * @param   int   $subjectID   the table id for the subject
+	 * @param   bool  $withNumber  whether to integrate the subject code directly into the name
 	 *
 	 * @return string the subject name
 	 */
 	public static function getName(int $subjectID = 0, $withNumber = false)
 	{
+		$query     = Adapters\Database::getQuery(true);
 		$subjectID = $subjectID ? $subjectID : Input::getID();
-
-		$tag = Languages::getTag();
-
-		$query = Adapters\Database::getQuery(true);
+		$tag       = Languages::getTag();
 		$query->select("fullName_$tag as name, shortName_$tag as shortName, abbreviation_$tag as abbreviation")
 			->select("code AS subjectNo")
 			->from('#__organizer_subjects')
 			->where("id = $subjectID");
-
 		Adapters\Database::setQuery($query);
 
 		if (!$names = Adapters\Database::loadAssoc())
@@ -104,12 +99,12 @@ class Subjects extends Curricula
 			$suffix .= " ({$names['subjectNo']})";
 		}
 
-		if (!empty($names['name']))
+		if ($names['name'])
 		{
 			return $names['name'] . $suffix;
 		}
 
-		if (!empty($names['shortName']))
+		if ($names['shortName'])
 		{
 			return $names['shortName'] . $suffix;
 		}
@@ -141,7 +136,7 @@ class Subjects extends Curricula
 	 *
 	 * @return array the persons associated with the subject, empty if none were found.
 	 */
-	public static function getPersons($subjectID, $role = null)
+	public static function getPersons(int $subjectID, $role = 0)
 	{
 		$query = Adapters\Database::getQuery(true);
 		$query->select('p.id, p.surname, p.forename, p.title, sp.role')
@@ -149,7 +144,7 @@ class Subjects extends Curricula
 			->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
 			->where("sp.subjectID = $subjectID");
 
-		if (!empty($role) and is_numeric($role))
+		if ($role)
 		{
 			$query->where("sp.role = $role");
 		}
@@ -192,7 +187,7 @@ class Subjects extends Curricula
 	 *
 	 * @return array the associated program names
 	 */
-	public static function getPools($subjectID)
+	public static function getPools(int $subjectID)
 	{
 		return Pools::getRanges(self::getRanges($subjectID));
 	}
@@ -205,7 +200,7 @@ class Subjects extends Curricula
 	 *
 	 * @return array the associated prerequisites
 	 */
-	public static function getPostrequisites($subjectID)
+	public static function getPostrequisites(int $subjectID)
 	{
 		return self::getRequisites($subjectID, 'post');
 	}
@@ -215,24 +210,19 @@ class Subjects extends Curricula
 	 *
 	 * @param   int  $subjectID  the id of the subject
 	 *
-	 *
 	 * @return array the associated prerequisites
 	 */
-	public static function getPrerequisites($subjectID)
+	public static function getPrerequisites(int $subjectID)
 	{
 		return self::getRequisites($subjectID, 'pre');
 	}
 
 	/**
-	 * Gets the mapped curricula ranges for the given resource
-	 *
-	 * @param   mixed  $subjectID  int resourceID
-	 *
-	 * @return array the resource ranges
+	 * @inheritDoc
 	 */
-	public static function getRanges($subjectID)
+	public static function getRanges($identifiers)
 	{
-		if (empty($subjectID) or !is_numeric($subjectID))
+		if (!$identifiers or !is_int($identifiers))
 		{
 			return [];
 		}
@@ -240,7 +230,7 @@ class Subjects extends Curricula
 		$query = Adapters\Database::getQuery(true);
 		$query->select('DISTINCT *')
 			->from('#__organizer_curricula')
-			->where("subjectID = $subjectID")
+			->where("subjectID = $identifiers")
 			->order('lft');
 		Adapters\Database::setQuery($query);
 
@@ -255,7 +245,7 @@ class Subjects extends Curricula
 	 *
 	 * @return array the associated prerequisites
 	 */
-	private static function getRequisites($subjectID, $direction)
+	private static function getRequisites(int $subjectID, string $direction)
 	{
 		if ($direction === 'pre')
 		{
@@ -280,24 +270,24 @@ class Subjects extends Curricula
 	}
 
 	/**
-	 * Gets an array modelling the attributes of the resource.
+	 * Gets an array modeling the attributes of the resource.
 	 *
-	 * @param $resourceID
+	 * @param   int  $subjectID  the id of the subject
 	 *
 	 * @return array
 	 */
-	public static function getResource($resourceID)
+	public static function getSubject(int $subjectID)
 	{
-		$table  = new Tables\Subjects();
-		$exists = $table->load($resourceID);
+		$table = new Tables\Subjects();
 
-		if (!$exists)
+		if (!$table->load($subjectID))
 		{
 			return [];
 		}
 
-		$tag     = Languages::getTag();
-		$subject = [
+		$tag = Languages::getTag();
+
+		return [
 			'abbreviation' => $table->{"abbreviation_$tag"},
 			'bgColor'      => Fields::getColor($table->fieldID, self::getOrganizationIDs($table->id)[0]),
 			'creditpoints' => $table->creditpoints,
@@ -308,14 +298,10 @@ class Subjects extends Curricula
 			'name'         => $table->{"fullName_$tag"},
 			'shortName'    => $table->{"shortName_$tag"},
 		];
-
-		return $subject;
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
-	 * @return array the available resources
+	 * @inheritDoc
 	 */
 	public static function getResources()
 	{
@@ -333,6 +319,8 @@ class Subjects extends Curricula
 		$query->select("DISTINCT s.id, s.name_$tag AS name, s.code, s.creditpoints")
 			->select('p.surname, p.forename, p.title, p.username')
 			->from('#__organizer_subjects AS s')
+			// sp added later
+			->innerJoin('#__organizer_persons AS p ON p.id = sp.personID')
 			->order('name')
 			->group('s.id');
 
@@ -351,15 +339,13 @@ class Subjects extends Curricula
 
 		if ($personID !== self::ALL)
 		{
-			$query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
-				->where("sp.personID = '$personID'");
+			$query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.personID = $personID");
 		}
 		else
 		{
 			$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.role = '1'");
 		}
 
-		$query->innerJoin('#__organizer_persons AS p ON p.id = sp.personID');
 		Adapters\Database::setQuery($query);
 
 		return Adapters\Database::loadAssocList();
@@ -374,7 +360,7 @@ class Subjects extends Curricula
 	 * @return bool  true if the pool is subordinate to the program,
 	 *                   otherwise false
 	 */
-	public static function poolInProgram($poolBoundaries, $programBoundaries)
+	public static function poolInProgram(array $poolBoundaries, array $programBoundaries)
 	{
 		$first = $poolBoundaries[0];
 		$last  = end($poolBoundaries);
@@ -400,9 +386,7 @@ class Subjects extends Curricula
 	public static function teaches($subjectID = 0, $personID = 0)
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
-
-		$query = Adapters\Database::getQuery(true);
-
+		$query    = Adapters\Database::getQuery(true);
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
 			->where("personID = $personID")
