@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Validators;
 use Organizer\Tables;
@@ -24,7 +25,7 @@ class Schedule extends BaseModel
 	private $modified;
 
 	/**
-	 * Deletes the selected schedules
+	 * Deletes the selected schedules.
 	 *
 	 * @return bool true on successful deletion of all selected schedules, otherwise false
 	 */
@@ -58,14 +59,14 @@ class Schedule extends BaseModel
 		$conditions = 's1.creationDate = s2.creationDate AND s1.creationTime = s2.creationTime
 						AND s1.organizationID = s2.organizationID AND s1.termID = s2.termID';
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('s1.id')
 			->from('#__organizer_schedules AS s1')
 			->innerJoin("#__organizer_schedules AS s2 ON $conditions")
 			->where('s1.id < s2.id');
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$duplicateIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		if (!$duplicateIDs = Database::loadIntColumn())
 		{
 			return;
 		}
@@ -92,7 +93,7 @@ class Schedule extends BaseModel
 
 		$schedule = new Tables\Schedules();
 
-		if ($schedule->load($scheduleID) and !$schedule->delete())
+		if (!$schedule->load($scheduleID) or !$schedule->delete())
 		{
 			return false;
 		}
@@ -105,18 +106,18 @@ class Schedule extends BaseModel
 	 *
 	 * @param   string  $suffix    the specific portion of the table name
 	 * @param   string  $fkColumn  the name of the fk column
-	 * @param   string  $fkValues  the fk column values
+	 * @param   array   $fkValues  the fk column values
 	 *
-	 * @return mixed|null
+	 * @return array
 	 */
-	private function getAssociatedIDs($suffix, $fkColumn, $fkValues)
+	private function getAssociatedIDs(string $suffix, string $fkColumn, array $fkValues)
 	{
 		$fkValues = implode(', ', $fkValues);
-		$query    = $this->_db->getQuery(true);
+		$query    = Database::getQuery();
 		$query->select('id')->from("#__organizer_$suffix")->where("$fkColumn IN ($fkValues)");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -127,89 +128,26 @@ class Schedule extends BaseModel
 	 *
 	 * @return array the schedule ids
 	 */
-	private function getContextIDs($organizationID, $termID)
+	private function getContextIDs(int $organizationID, int $termID)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_schedules')
 			->where("organizationID = $organizationID")
 			->where("termID = $termID")
 			->order('creationDate, creationTime');
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Schedules A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Schedules;
+		return new Tables\Schedules();
 	}
-
-	/**
-	 * Notifies the points of contact for affected organizations of changes made to the schedule.
-	 *
-	 * @return bool
-	 */
-	/*public function notify()
-	{
-		if (!$selectedIDs = Helpers\Input::getSelectedIDs())
-		{
-			return false;
-		}
-
-		$referenceID = array_shift($selectedIDs);
-
-		if (!Helpers\Can::schedule('schedule', $referenceID))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-
-		$reference = new Tables\Schedules();
-		if (!$reference->load($referenceID))
-		{
-			return false;
-		}
-
-		$current = new Tables\Schedules();
-		if (empty($selectedIDs))
-		{
-			if (!$contextIDs = $this->getContextIDs($reference->organizationID, $reference->termID))
-			{
-				return false;
-			}
-
-			$currentID = array_pop($contextIDs);
-		}
-		else
-		{
-			$currentID = array_shift($selectedIDs);
-		}
-
-		// Request manipulation
-		if ($currentID == $referenceID
-			or !$current->load($currentID)
-			or $current->organizationID !== $reference->organizationID
-			or $current->termID !== $reference->termID)
-		{
-			return false;
-		}
-
-		$reference = json_decode($reference->schedule, true);
-		$current   = json_decode($current->schedule, true);
-
-		return true;
-	}*/
 
 	/**
 	 * Rebuilds the history of a organization / term context.
@@ -311,7 +249,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return void
 	 */
-	private function resetContext($organizationID, $termID, $baseID)
+	private function resetContext(int $organizationID, int $termID, int $baseID)
 	{
 		$firstSchedule = new Tables\Schedules();
 		$firstSchedule->load($baseID);
@@ -321,41 +259,46 @@ class Schedule extends BaseModel
 		$modified   = date('Y-m-d h:i:s', strtotime('-2 Weeks', strtotime($timestamp)));
 		$conditions = ["delta = 'removed'", "modified = '$modified'"];
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_units')
 			->where("organizationID = $organizationID")
 			->where("termID = $termID");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$unitIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		if (!$unitIDs = Database::loadIntColumn())
 		{
 			return;
 		}
+
 		$this->updateBatch('units', $unitIDs, $conditions);
 
 		if (!$instanceIDs = $this->getAssociatedIDs('instances', 'unitID', $unitIDs))
 		{
 			return;
 		}
+
 		$this->updateBatch('instances', $instanceIDs, $conditions);
 
 		if (!$assocIDs = $this->getAssociatedIDs('instance_persons', 'instanceID', $instanceIDs))
 		{
 			return;
 		}
+
 		$this->updateBatch('instance_persons', $assocIDs, $conditions);
 
 		if (!$igIDs = $this->getAssociatedIDs('instance_groups', 'assocID', $assocIDs))
 		{
 			return;
 		}
+
 		$this->updateBatch('instance_groups', $igIDs, $conditions);
 
 		if (!$irIDs = $this->getAssociatedIDs('instance_rooms', 'assocID', $assocIDs))
 		{
 			return;
 		}
+
 		$this->updateBatch('instance_rooms', $irIDs, $conditions);
 	}
 
@@ -368,21 +311,21 @@ class Schedule extends BaseModel
 	 */
 	private function resolveEventSubjects(int $organizationID)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('id, subjectNo')
 			->from('#__organizer_events')
 			->where("organizationID = $organizationID")
 			->where("subjectNo != ''");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$events = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$events = Database::loadAssocList())
 		{
 			return;
 		}
 
 		foreach ($events as $event)
 		{
-			$query = $this->_db->getQuery(true);
+			$query = Database::getQuery();
 			$query->select('DISTINCT lft, rgt')
 				->from('#__organizer_curricula AS c')
 				->innerJoin('#__organizer_programs AS prg ON prg.id = c.programID')
@@ -392,23 +335,23 @@ class Schedule extends BaseModel
 				->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
 				->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 				->where("i.eventID = {$event['id']}");
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			if (!$boundaries = Helpers\OrganizerHelper::executeQuery('loadAssoc', []))
+			if (!$boundaries = Database::loadAssoc())
 			{
 				continue;
 			}
 
-			$subjectQuery = $this->_db->getQuery(true);
+			$subjectQuery = Database::getQuery();
 			$subjectQuery->select('subjectID')
 				->from('#__organizer_curricula AS m')
 				->innerJoin('#__organizer_subjects as s on m.subjectID = s.id')
 				->where("m.lft > '{$boundaries['lft']}'")
 				->where("m.rgt < '{$boundaries['rgt']}'")
 				->where("s.code = '{$event['subjectNo']}'");
-			$this->_db->setQuery($subjectQuery);
+			Database::setQuery($subjectQuery);
 
-			if (!$subjectID = Helpers\OrganizerHelper::executeQuery('loadResult'))
+			if (!$subjectID = Database::loadInt())
 			{
 				continue;
 			}
@@ -483,8 +426,9 @@ class Schedule extends BaseModel
 
 				foreach ($resources['groups'] as $groupID)
 				{
-					if (!$iGroup->load(['assocID' => $iPerson->id, 'groupID' => $groupID])
-						or $iGroup->modified === $this->modified)
+					$keys = ['assocID' => $iPerson->id, 'groupID' => $groupID];
+
+					if (!$iGroup->load($keys) or $iGroup->modified === $this->modified)
 					{
 						continue;
 					}
@@ -498,8 +442,9 @@ class Schedule extends BaseModel
 
 				foreach ($resources['rooms'] as $roomID)
 				{
-					if (!$iRoom->load(['assocID' => $iPerson->id, 'roomID' => $roomID])
-						or $iRoom->modified === $this->modified)
+					$keys = ['assocID' => $iPerson->id, 'roomID' => $roomID];
+
+					if (!$iRoom->load($keys) or $iRoom->modified === $this->modified)
 					{
 						continue;
 					}
@@ -548,9 +493,9 @@ class Schedule extends BaseModel
 	 *
 	 * @return void
 	 */
-	private function setRemoved($suffix, $fkPairs, $resourceColumn, $resourceIDs)
+	private function setRemoved(string $suffix, array $fkPairs, string $resourceColumn, array $resourceIDs)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->update("#__organizer_$suffix")
 			->set("delta = 'removed'")
 			->set("modified = '$this->modified'")
@@ -567,9 +512,8 @@ class Schedule extends BaseModel
 			$query->where("$resourceColumn NOT IN ($resourceIDs)");
 		}
 
-		$this->_db->setQuery($query);
-
-		Helpers\OrganizerHelper::executeQuery('execute');
+		Database::setQuery($query);
+		Database::execute();
 	}
 
 	/**
@@ -581,14 +525,13 @@ class Schedule extends BaseModel
 	 *
 	 * @return void
 	 */
-	private function updateBatch($suffix, $entryIDs, $conditions)
+	private function updateBatch(string $suffix, array $entryIDs, array $conditions)
 	{
 		$entryIDs = implode(', ', $entryIDs);
-		$query    = $this->_db->getQuery(true);
+		$query    = Database::getQuery();
 		$query->update("#__organizer_$suffix")->set($conditions)->where("id IN ($entryIDs)");
-		$this->_db->setQuery($query);
-
-		Helpers\OrganizerHelper::executeQuery('execute');
+		Database::setQuery($query);
+		Database::execute();
 	}
 
 	/**

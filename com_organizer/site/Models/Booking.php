@@ -10,9 +10,8 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
-use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\User;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -90,11 +89,11 @@ class Booking extends Participants
 		Helpers\Input::getInput()->set('list', ['fullordering' => $listItems->get('fullordering')]);
 
 		$existing  = true;
-		$userQuery = $this->_db->getQuery(true);
+		$userQuery = Database::getQuery();
 		$userQuery->select('id')->from('#__users')->where("username = " . $userQuery->quote($input));
-		$this->_db->setQuery($userQuery);
+		Database::setQuery($userQuery);
 
-		if ($participantID = Helpers\OrganizerHelper::executeQuery('loadResult', 0))
+		if ($participantID = Database::loadInt())
 		{
 			if (!Helpers\Participants::exists($participantID))
 			{
@@ -145,8 +144,7 @@ class Booking extends Participants
 			$response = mb_convert_encoding($response, 'utf-8', $charset);
 			$response = substr($response, strpos($response, '<li>') + 4);
 			$response = substr($response, 0, strpos($response, '</li>'));
-
-			$email = $name = $username = '';
+			$email    = $name = $username = '';
 
 			// Attributes are unique to tags now
 			if (preg_match('/<b>(.*?)<\/b>/', $response, $matches))
@@ -168,17 +166,21 @@ class Booking extends Participants
 				Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
 			}
 
-			$userQuery->clear('where')->where("username = '$username'");
-			$this->_db->setQuery($userQuery);
-			$userNameID = Helpers\OrganizerHelper::executeQuery('loadResult', 0);
+			$userQuery->clear('where');
+			$userQuery->where("username = '$username'");
+			Database::setQuery($userQuery);
+			$userNameID = Database::loadInt();
 
-			$userQuery->clear('where')->where("email = '$email'");
+			$userQuery->clear('where');
+			$userQuery->where("email = '$email'");
+
 			if ($userNameID)
 			{
 				$userQuery->where("id != $userNameID");
 			}
-			$this->_db->setQuery($userQuery);
-			$emailID = Helpers\OrganizerHelper::executeQuery('loadResult', 0);
+
+			Database::setQuery($userQuery);
+			$emailID = Database::loadInt();
 
 			// These cannot be the same because of the email query's construction
 			if ($userNameID and $emailID)
@@ -255,19 +257,8 @@ class Booking extends Participants
 				}
 			}
 
-			$participantID = $userNameID;
-
-			$query = $this->_db->getQuery(true);
-			$query->update('#__users')
-				->set("email = '$email'")
-				->set("name = '$name'")
-				->set("password = ''")
-				->set("username = '$username")
-				->where("id = $participantID");
-
 			$participant = new Participant();
 			$participant->supplement($userNameID, true);
-
 		}
 
 		$instanceIDs = Helpers\Bookings::getInstanceIDs($bookingID);
@@ -275,14 +266,14 @@ class Booking extends Participants
 		// Check for existing entries in an existing participant's personal schedule
 		if ($existing)
 		{
-			$query = $this->_db->getQuery(true);
+			$query = Database::getQuery();
 			$query->select('id')
 				->from('#__organizer_instance_participants')
 				->where("participantID = $participantID")
 				->where('instanceID IN (' . implode(',', $instanceIDs) . ')');
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			if ($ipIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+			if ($ipIDs = Database::loadIntColumn())
 			{
 				foreach ($ipIDs as $ipID)
 				{
@@ -328,15 +319,12 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
-		$query = parent::getListQuery();
-
 		$bookingID = Helpers\Input::getID();
+		$query     = parent::getListQuery();
 		$query->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
@@ -347,16 +335,13 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Wrapper method for Joomla\CMS\MVC\Model\ListModel which has a mixed return type.
-	 *
-	 * @return  array  An array of data items on success.
+	 * @inheritDoc
 	 */
 	public function getItems()
 	{
 		$bookingID = Helpers\Input::getID();
+		$query     = Database::getQuery();
 		$tag       = Helpers\Languages::getTag();
-
-		$query = $this->_db->getQuery(true);
 		$query->select("e.name_$tag AS event")
 			->from('#__organizer_events AS e')
 			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
@@ -377,10 +362,11 @@ class Booking extends Participants
 				}
 			}
 
-			$query->clear('where')->where("b.id = $bookingID")->where("ip.participantID = $item->id");
-			$this->_db->setQuery($query);
+			$query->clear('where');
+			$query->where("b.id = $bookingID")->where("ip.participantID = $item->id");
+			Database::setQuery($query);
 
-			if ($events = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+			if ($events = Database::loadColumn())
 			{
 				$item->event = count($events) > 1 ? Helpers\Languages::_('ORGANIZER_MULTIPLE_EVENTS') : $events[0];
 			}
@@ -395,19 +381,9 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Method to get a form object.
-	 *
-	 * @param   string       $name     The name of the form.
-	 * @param   string       $source   The form source. Can be XML string if file flag is set to false.
-	 * @param   array        $options  Optional array of options for the form creation.
-	 * @param   bool         $clear    Optional argument to force load a new form.
-	 * @param   string|bool  $xpath    An optional xpath to search for the fields.
-	 *
-	 * @return  Form|bool  Form object on success, False on error.
-	 * @noinspection PhpDocSignatureInspection
-	 * @noinspection PhpMissingParamTypeInspection
+	 * @inheritDoc
 	 */
-	protected function loadForm($name, $source = null, $options = array(), $clear = false, $xpath = false)
+	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false)
 	{
 		$form = parent::loadForm($name, $source, $options, $clear, $xpath);
 
@@ -418,13 +394,7 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void populates state properties
-	 * @noinspection PhpDocSignatureInspection
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
@@ -434,7 +404,6 @@ class Booking extends Participants
 		}
 
 		parent::populateState($ordering, $direction);
-
 	}
 
 	/**
@@ -453,10 +422,10 @@ class Booking extends Participants
 		$fqClass   = "Organizer\\Tables\\" . ucfirst($table) . 'Participants';
 		$protected = ['id', 'instanceID', $fkColumn];
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('*')->from("#__organizer_{$table}_participants")->where("instanceID IN ($toID, $fromID)");
-		$this->_db->setQuery($query);
-		$references = Helpers\OrganizerHelper::executeQuery('loadAssocList', []);
+		Database::setQuery($query);
+		$references = Database::loadAssocList();
 
 		// Delete redundant entries buffering necessary values
 		foreach ($references as $reference)

@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -19,7 +20,7 @@ use Organizer\Tables;
 class InstanceParticipant extends BaseModel
 {
 	// Constants providing context for adding/removing instances to/from personal schedules.
-	const TERM_MODE = 1, BLOCK_MODE = 2, INSTANCE_MODE = 3;
+	private const TERM_MODE = 1, BLOCK_MODE = 2, INSTANCE_MODE = 3;
 
 	/**
 	 * Adds instances to the user's personal schedule.
@@ -82,11 +83,10 @@ class InstanceParticipant extends BaseModel
 			return false;
 		}
 
-		$today = date('Y-m-d');
 		$now   = date('H:i:s');
+		$query = Database::getQuery();
 		$then  = date('H:i:s', strtotime('+60 minutes'));
-
-		$query = $this->_db->getQuery(true);
+		$today = date('Y-m-d');
 		$query->select('i.id')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_bookings AS bk ON bk.blockID = i.blockID AND bk.unitID = i.unitID')
@@ -95,9 +95,9 @@ class InstanceParticipant extends BaseModel
 			->where("bl.date = '$today'")
 			->where("bl.startTime < '$then'")
 			->where("bl.endTime > '$now'");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		if (!$instanceIDs = Database::loadIntColumn())
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
 
@@ -105,21 +105,22 @@ class InstanceParticipant extends BaseModel
 		}
 
 		// Check for planned
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_instance_participants')
 			->where("instanceID IN (" . implode(',', $instanceIDs) . ")")
 			->where("participantID = $participantID");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if ($plannedIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		if ($plannedIDs = Database::loadIntColumn())
 		{
 			$instanceIDs = array_intersect($plannedIDs, $instanceIDs);
 		}
 
 		foreach ($instanceIDs as $instanceID)
 		{
-			$data                  = ['instanceID' => $instanceID, 'participantID' => $participantID];
+			$data = ['instanceID' => $instanceID, 'participantID' => $participantID];
+
 			$instanceParticipation = new Tables\InstanceParticipants();
 			$instanceParticipation->load($data);
 			$data['attended'] = 1;
@@ -165,37 +166,28 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_instances')
 			->where("unitID = $instance->unitID")
 			->where("blockID = $instance->blockID")
 			->where("id != $instanceID");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if ($instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []))
+		if ($instanceIDs = Database::loadIntColumn())
 		{
 			$instanceIDs = implode(',', $instanceIDs);
-
-			$query = $this->_db->getQuery(true);
+			$query       = Database::getQuery();
 			$query->delete('#__organizer_instance_participants')
 				->where("instanceID IN ($instanceIDs)")
 				->where("participantID = $participantID");
-			$this->_db->setQuery($query);
-			Helpers\OrganizerHelper::executeQuery('execute');
+			Database::setQuery($query);
+			Database::execute();
 		}
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\InstanceParticipants A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
@@ -215,19 +207,16 @@ class InstanceParticipant extends BaseModel
 		}
 
 		$matchingMethod = Helpers\Input::getInt('method', 2);
-
-		$instance = new Tables\Instances();
+		$instance       = new Tables\Instances();
 
 		if (!$instance->load($instanceID))
 		{
 			return [];
 		}
 
-		$today = date('Y-m-d');
 		$now   = date('H:i:s');
-
-		$instanceIDs = [];
-		$query       = $this->_db->getQuery(true);
+		$query = Database::getQuery();
+		$today = date('Y-m-d');
 		$query->select('i.id')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
@@ -238,6 +227,7 @@ class InstanceParticipant extends BaseModel
 
 		// TODO only return instances that are not full
 
+		$instanceIDs = [];
 		switch ($matchingMethod)
 		{
 			case self::BLOCK_MODE:
@@ -247,19 +237,19 @@ class InstanceParticipant extends BaseModel
 					$query->where("b.dow = {$block->dow}")
 						->where("b.endTime = '{$block->endTime}'")
 						->where("b.startTime = '{$block->startTime}'");
-					$this->_db->setQuery($query);
-					$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+					Database::setQuery($query);
+					$instanceIDs = Database::loadIntColumn();
 				}
 				break;
 			case self::INSTANCE_MODE:
 				$query->where("i.id = $instanceID");
-				$this->_db->setQuery($query);
-				$instanceID  = Helpers\OrganizerHelper::executeQuery('loadResult', 0);
+				Database::setQuery($query);
+				$instanceID  = Database::loadInt();
 				$instanceIDs = $instanceID ? [$instanceID] : [];
 				break;
 			case self::TERM_MODE:
-				$this->_db->setQuery($query);
-				$instanceIDs = Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+				Database::setQuery($query);
+				$instanceIDs = Database::loadIntColumn();
 				break;
 			default:
 				break;
@@ -287,7 +277,7 @@ class InstanceParticipant extends BaseModel
 		}
 
 		$instanceParticipants = Helpers\Instances::getParticipantIDs($instanceID);
-		$selectedParticipants = Input::getInput()->get('cids', [], 'array');
+		$selectedParticipants = Helpers\Input::getInput()->get('cids', [], 'array');
 
 		if (empty($instanceParticipants) and empty($selectedParticipants))
 		{
@@ -296,7 +286,7 @@ class InstanceParticipant extends BaseModel
 
 		$participantIDs = $selectedParticipants ? $selectedParticipants : $instanceParticipants;
 
-		$form = Input::getBatchItems();
+		$form = Helpers\Input::getBatchItems();
 		if (!$subject = trim($form->get('subject', '')) or !$body = trim($form->get('body', '')))
 		{
 			return false;

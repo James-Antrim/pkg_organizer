@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -54,22 +54,17 @@ class Person extends MergeModel
 		}
 
 		// Implicitly used resources
-		$dbo = Factory::getDbo();
-
-		$subQuery = $dbo->getQuery(true);
+		$subQuery = Database::getQuery();
 		$subQuery->select('DISTINCT personID')->from('#__organizer_instance_persons');
-
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->update('#__organizer_persons')->set('active = 1')->where("id IN ($subQuery)");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 
 	/**
-	 * Authorizes the user.
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function authorize()
 	{
@@ -110,16 +105,13 @@ class Person extends MergeModel
 		}
 
 		// Implicitly unused resources
-		$dbo = Factory::getDbo();
-
-		$subQuery = $dbo->getQuery(true);
+		$subQuery = Database::getQuery();
 		$subQuery->select('DISTINCT personID')->from('#__organizer_instance_persons');
-
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->update('#__organizer_persons')->set('active = 0')->where("id NOT IN ($subQuery)");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 
 	/**
@@ -133,38 +125,26 @@ class Person extends MergeModel
 	private function getResourceIDs(string $table, string $fkColumn)
 	{
 		$personIDs = implode(',', $this->selected);
-		$query     = $this->_db->getQuery(true);
+		$query     = Database::getQuery();
 		$query->select("DISTINCT $fkColumn")
 			->from("#__organizer_$table")
 			->where("personID IN ($personIDs)")
 			->order("$fkColumn");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Persons A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Persons;
+		return new Tables\Persons();
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{
@@ -301,9 +281,7 @@ class Person extends MergeModel
 	}
 
 	/**
-	 * Updates the resource dependent associations
-	 *
-	 * @return bool  true on success, otherwise false
+	 * @inheritDoc
 	 */
 	protected function updateReferences()
 	{
@@ -333,12 +311,13 @@ class Person extends MergeModel
 	private function updateSubjectPersons()
 	{
 		$mergeIDs = implode(', ', $this->selected);
-		$query    = $this->_db->getQuery(true);
+		$query    = Database::getQuery();
 		$query->select("DISTINCT subjectID, role")
 			->from("#__organizer_subject_persons")
 			->where("personID IN ($mergeIDs)");
-		$this->_db->setQuery($query);
-		if (!$responsibilities = Helpers\OrganizerHelper::executeQuery('loadAssocList', []))
+		Database::setQuery($query);
+
+		if (!$responsibilities = Database::loadAssocList())
 		{
 			return true;
 		}

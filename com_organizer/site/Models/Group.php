@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -57,27 +57,22 @@ class Group extends MergeModel
 		}
 
 		// Implicitly used resources
-		$allowed = Helpers\Can::scheduleTheseOrganizations();
-		$dbo     = Factory::getDbo();
-
-		$subQuery = $dbo->getQuery(true);
+		$allowed  = Helpers\Can::scheduleTheseOrganizations();
+		$subQuery = Database::getQuery();
 		$subQuery->select('DISTINCT groupID')->from('#__organizer_instance_groups');
-
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->update('#__organizer_groups AS g')
 			->innerJoin('#__organizer_associations AS a ON a.groupID = g.id')
 			->set('active = 1')
 			->where("g.id IN ($subQuery)")
 			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 
 	/**
-	 * Authorizes the user.
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function authorize()
 	{
@@ -159,37 +154,26 @@ class Group extends MergeModel
 		}
 
 		// Implicitly unused resources
-		$allowed = Helpers\Can::scheduleTheseOrganizations();
-		$dbo     = Factory::getDbo();
-
-		$subQuery = $dbo->getQuery(true);
+		$allowed  = Helpers\Can::scheduleTheseOrganizations();
+		$subQuery = Database::getQuery();
 		$subQuery->select('DISTINCT groupID')->from('#__organizer_instance_groups');
-
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->update('#__organizer_groups AS g')
 			->innerJoin('#__organizer_associations AS a ON a.groupID = g.id')
 			->set('active = 0')
 			->where("g.id NOT IN ($subQuery)")
 			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Groups A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Groups;
+		return new Tables\Groups();
 	}
 
 	/**
@@ -199,10 +183,9 @@ class Group extends MergeModel
 	 */
 	public function publishPast()
 	{
+		$query = Database::getQuery();
 		$terms = Helpers\Terms::getResources();
 		$today = date('Y-m-d');
-
-		$query = $this->_db->getQuery(true);
 		$query->update('#__organizer_group_publishing')->set('published = 1');
 
 		foreach ($terms as $term)
@@ -212,10 +195,11 @@ class Group extends MergeModel
 				continue;
 			}
 
-			$query->clear('where')->where("termID = {$term['id']}");
-			$this->_db->setQuery($query);
+			$query->clear('where');
+			$query->where("termID = {$term['id']}");
+			Database::setQuery($query);
 
-			if (!Helpers\OrganizerHelper::executeQuery('execute'))
+			if (!Database::execute())
 			{
 				return false;
 			}
@@ -225,11 +209,7 @@ class Group extends MergeModel
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return bool true on success, otherwise false
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{
@@ -352,9 +332,7 @@ class Group extends MergeModel
 	}
 
 	/**
-	 * Updates the resource dependent associations
-	 *
-	 * @return bool  true on success, otherwise false
+	 * @inheritDoc
 	 */
 	protected function updateReferences()
 	{
