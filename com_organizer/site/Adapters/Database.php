@@ -216,7 +216,7 @@ class Database
 	 *
 	 * @return  array   The return value or an empty array if the query failed.
 	 */
-	public static function loadObjectList($key = '', $class = '')
+	public static function loadObjectList($key = '', $class = 'stdClass')
 	{
 		$dbo = Factory::getDbo();
 		try
