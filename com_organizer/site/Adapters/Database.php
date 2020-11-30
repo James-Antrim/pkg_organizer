@@ -181,6 +181,59 @@ class Database
 	}
 
 	/**
+	 * Method to get the first row of the result set from the database query as an object.
+	 *
+	 * @param   string  $class  The class name to use for the returned row object.
+	 *
+	 * @return  array  The return value or an empty array if the query failed.
+	 */
+	public static function loadObject($class = 'stdClass')
+	{
+		$dbo = Factory::getDbo();
+		try
+		{
+			$result = $dbo->loadObject($class);
+
+			return $result ? $result : [];
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+			return [];
+		}
+	}
+
+	/**
+	 * Method to get an array of the result set rows from the database query where each row is an object.  The array
+	 * of objects can optionally be keyed by a field name, but defaults to a sequential numeric array.
+	 *
+	 * NOTE: Choosing to key the result array by a non-unique field name can result in unwanted
+	 * behavior and should be avoided.
+	 *
+	 * @param   string  $key    The name of a field on which to key the result array.
+	 * @param   string  $class  The class name to use for the returned row objects.
+	 *
+	 * @return  array   The return value or an empty array if the query failed.
+	 */
+	public static function loadObjectList($key = '', $class = '')
+	{
+		$dbo = Factory::getDbo();
+		try
+		{
+			$result = $dbo->loadObjectList($key, $class);
+
+			return $result ? $result : [];
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+			return [];
+		}
+	}
+
+	/**
 	 * Method to get the first field of the first row of the result set from the database query.
 	 *
 	 * @param   mixed  $default  the default return value
