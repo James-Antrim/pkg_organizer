@@ -124,15 +124,11 @@ class Program extends CurriculumResource
 	}
 
 	/**
-	 * Method to import data associated with a resource from LSF
-	 *
-	 * @param   int  $programID  the id of the program to be imported
-	 *
-	 * @return bool  true on success, otherwise false
+	 * @inheritDoc
 	 */
-	public function importSingle($programID)
+	public function importSingle(int $resourceID)
 	{
-		if (!$keys = $this->getKeys($programID))
+		if (!$keys = $this->getKeys($resourceID))
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_LSF_DATA_MISSING', 'error');
 
@@ -151,9 +147,9 @@ class Program extends CurriculumResource
 			return true;
 		}
 
-		if (!$ranges = $this->getRanges($programID) or empty($ranges[0]))
+		if (!$ranges = $this->getRanges($resourceID) or empty($ranges[0]))
 		{
-			$range = ['parentID' => null, 'programID' => $programID];
+			$range = ['parentID' => null, 'programID' => $resourceID, 'ordering' => 0];
 
 			return $this->addRange($range);
 		}
@@ -172,11 +168,7 @@ class Program extends CurriculumResource
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  form data
-	 *
-	 * @return int|bool the id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{
@@ -219,7 +211,7 @@ class Program extends CurriculumResource
 			return false;
 		}
 
-		$range = ['parentID' => null, 'programID' => $table->id, 'curriculum' => $this->getSubOrdinates()];
+		$range = ['parentID' => null, 'programID' => $table->id, 'curriculum' => $this->getSubOrdinates(), 'ordering' => 0];
 
 		if (!$this->addRange($range))
 		{

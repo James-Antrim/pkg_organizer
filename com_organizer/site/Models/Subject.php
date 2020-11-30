@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
@@ -20,9 +21,10 @@ use SimpleXMLElement;
  */
 class Subject extends CurriculumResource
 {
-	use Associated, SubOrdinate;
+	use Associated;
+	use SubOrdinate;
 
-	const COORDINATES = 1, TEACHES = 2;
+	private const COORDINATES = 1, TEACHES = 2;
 
 	protected $helper = 'Subjects';
 
@@ -39,7 +41,7 @@ class Subject extends CurriculumResource
 	 */
 	/*private function addEvents($subjectID, $eventIDs)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->insert('#__organizer_subject_events')->columns('subjectID, eventID');
 
 		foreach ($eventIDs as $eventID)
@@ -47,9 +49,9 @@ class Subject extends CurriculumResource
 			$query->values("'$subjectID', '$eventID'");
 		}
 
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}*/
 
 	/**
@@ -63,7 +65,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function associateDependencies($programRanges, $prerequisiteRanges, $subjectRanges, $pre)
+	private function associateDependencies(array $programRanges, array $prerequisiteRanges, array $subjectRanges, bool $pre)
 	{
 		foreach ($programRanges as $programRange)
 		{
@@ -80,7 +82,7 @@ class Subject extends CurriculumResource
 			// Remove deprecated associations
 			$rprIDs = implode(',', Helpers\Subjects::filterIDs($rprRanges));
 			$rsIDs  = implode(',', Helpers\Subjects::filterIDs($rsRanges));
-			$query  = $this->_db->getQuery(true);
+			$query  = Database::getQuery();
 			$query->delete('#__organizer_prerequisites');
 
 			if ($pre)
@@ -92,9 +94,9 @@ class Subject extends CurriculumResource
 				$query->where("prerequisiteID IN ($rsIDs)")->where("subjectID NOT IN ($rprIDs)");
 			}
 
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			if (!OrganizerHelper::executeQuery('execute'))
+			if (!Database::execute())
 			{
 				return false;
 			}
@@ -130,7 +132,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return void  can change the &$data value at the property name index
 	 */
-	private function cleanStarProperty(&$data, $property)
+	private function cleanStarProperty(array &$data, string $property)
 	{
 		if (!isset($data[$property]))
 		{
@@ -151,7 +153,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return array the relevant subject ranges
 	 */
-	private function filterRanges($programRange, $subjectRanges)
+	private function filterRanges(array $programRange, array $subjectRanges)
 	{
 		$left           = $programRange['lft'];
 		$relevantRanges = [];
@@ -169,18 +171,13 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Method to import data associated with a subject from LSF. Import requires an existing subject entry with its
-	 * LSFID set. It does not alter curriculum mappings.
-	 *
-	 * @param   int  $subjectID  the id of the subject entry
-	 *
-	 * @return bool  true on success, otherwise false
+	 * @inheritDoc
 	 */
-	public function importSingle($subjectID)
+	public function importSingle(int $resourceID)
 	{
 		$table = new Tables\Subjects();
 
-		if (!$table->load($subjectID) or empty($table->lsfID))
+		if (!$table->load($resourceID) or empty($table->lsfID))
 		{
 			return false;
 		}
@@ -241,7 +238,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	/*private function processEvents(&$data)
+	/*private function processEvents(array &$data)
 	{
 		if (!isset($data['courseIDs']))
 		{
@@ -272,7 +269,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processPersons($data)
+	private function processPersons(array $data)
 	{
 		// More efficient to remove all subject persons associations for the subject than iterate the persons table
 		if (!$this->removePersons($data['id']))
@@ -327,7 +324,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processPrerequisites($data)
+	private function processPrerequisites(array $data)
 	{
 		$subjectID = $data['id'];
 
@@ -384,8 +381,9 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function processResource($XMLObject, $organizationID, $parentID)
+	public function processResource(SimpleXMLElement $XMLObject, int $organizationID, int $parentID)
 	{
+		/** @noinspection PhpUndefinedFieldInspection */
 		$lsfID = (string) (empty($XMLObject->modulid) ? $XMLObject->pordid : $XMLObject->modulid);
 		if (empty($lsfID))
 		{
@@ -457,7 +455,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function removeDependencies($subjectID)
+	private function removeDependencies(int $subjectID)
 	{
 		if (!$this->removePreRequisites($subjectID))
 		{
@@ -477,34 +475,35 @@ class Subject extends CurriculumResource
 	 */
 	/*private function removeEvents($subjectID)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->delete('#__organizer_subject_curricula')->where("subjectID = '$subjectID'");
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}*/
 
 	/**
 	 * Removes person associations for the given subject and role. No access checks => this is not directly
 	 * accessible and requires differing checks according to its calling context.
 	 *
-	 * @param   int  $subjectID  the subject id
-	 * @param   int  $role       the person role
+	 * @param   int       $subjectID  the subject id
+	 * @param   int|null  $role       the person role
 	 *
 	 * @return bool
 	 */
-	private function removePersons($subjectID, $role = null)
+	private function removePersons(int $subjectID, $role = null)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->delete('#__organizer_subject_persons')->where("subjectID = $subjectID");
-		if (!empty($role))
+
+		if ($role)
 		{
 			$query->where("role = $role");
 		}
 
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 
 	/**
@@ -515,17 +514,17 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function removePreRequisites($subjectID)
+	private function removePreRequisites(int $subjectID)
 	{
 		if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID)))
 		{
 			$rangeIDString = implode(',', $rangeIDs);
 
-			$query = $this->_db->getQuery(true);
+			$query = Database::getQuery();
 			$query->delete('#__organizer_prerequisites')->where("subjectID IN ($rangeIDString)");
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			return (bool) OrganizerHelper::executeQuery('execute');
+			return Database::execute();
 		}
 
 		return true;
@@ -539,17 +538,17 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function removePostRequisites($subjectID)
+	private function removePostRequisites(int $subjectID)
 	{
 		if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID)))
 		{
 			$rangeIDString = implode(',', $rangeIDs);
 
-			$query = $this->_db->getQuery(true);
+			$query = Database::getQuery();
 			$query->delete('#__organizer_prerequisites')->where("prerequisiteID IN ($rangeIDString)");
-			$this->_db->setQuery($query);
+			Database::setQuery($query);
 
-			return (bool) OrganizerHelper::executeQuery('execute');
+			return Database::execute();
 		}
 
 		return true;
@@ -558,11 +557,11 @@ class Subject extends CurriculumResource
 	/**
 	 * Parses the prerequisites text and replaces subject references with links to the subjects
 	 *
-	 * @param   string  $subjectID  the id of the subject being processed
+	 * @param   int  $subjectID  the id of the subject being processed
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function resolveTextDependencies($subjectID)
+	private function resolveTextDependencies(int $subjectID)
 	{
 		$table = new Tables\Subjects();
 
@@ -655,11 +654,7 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{
@@ -727,7 +722,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool
 	 */
-	private function saveDependencies($programs, $subjectID, $dependencies, $type)
+	private function saveDependencies(array $programs, int $subjectID, array $dependencies, string $type)
 	{
 		$subjectRanges = $this->getRanges($subjectID);
 
@@ -773,16 +768,15 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success otherwise false
 	 */
-	private function savePrerequisites($prerequisiteIDs, $subjectIDs)
+	private function savePrerequisites(array $prerequisiteIDs, array $subjectIDs)
 	{
 		// Delete any and all old prerequisites in case there are now fewer.
 		if ($subjectIDs)
 		{
-			$deleteQuery = $this->_db->getQuery(true);
-			$deleteQuery->delete('#__organizer_prerequisites')
-				->where('subjectID IN (' . implode(',', $subjectIDs) . ')');
-			$this->_db->setQuery($deleteQuery);
-			OrganizerHelper::executeQuery('execute');
+			$deleteQuery = Database::getQuery();
+			$deleteQuery->delete('#__organizer_prerequisites')->where('subjectID IN (' . implode(',', $subjectIDs) . ')');
+			Database::setQuery($deleteQuery);
+			Database::execute();
 		}
 
 		foreach ($prerequisiteIDs as $prerequisiteID)
@@ -814,7 +808,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function setPersons($subjectID, $dataObject)
+	private function setPersons(int $subjectID, SimpleXMLElement $dataObject)
 	{
 		$coordinators = $dataObject->xpath('//verantwortliche');
 		$persons      = $dataObject->xpath('//dozent');
@@ -848,7 +842,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function setPersonsByRoles($subjectID, $persons, $role)
+	private function setPersonsByRoles(int $subjectID, array $persons, int $role)
 	{
 		$subjectModel = new Subject();
 
@@ -922,13 +916,13 @@ class Subject extends CurriculumResource
 	 *
 	 * @return array the subject information for subjects with dependencies
 	 */
-	private function verifyDependencies($potentialCodes, $programRanges)
+	private function verifyDependencies(array $potentialCodes, array $programRanges)
 	{
 		$select = 's.id AS subjectID, code, ';
 		$select .= 'abbreviation_de, shortName_de, fullName_de, abbreviation_en, shortName_en, fullName_en, ';
 		$select .= 'c.id AS curriculumID, c.lft, c.rgt, ';
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->from('#__organizer_subjects AS s')
 			->innerJoin('#__organizer_curricula AS c ON c.subjectID = s.id');
 
@@ -944,9 +938,9 @@ class Subject extends CurriculumResource
 				$query->select($select . "{$program['id']} AS programID")
 					->where("lft > {$program['lft']} AND rgt < {$program['rgt']}")
 					->where("s.code = '$possibleModuleNumber'");
-				$this->_db->setQuery($query);
+				Database::setQuery($query);
 
-				if (!$curriculumSubjects = OrganizerHelper::executeQuery('loadAssocList', [], 'curriculumID'))
+				if (!$curriculumSubjects = Database::loadAssocList('curriculumID'))
 				{
 					continue;
 				}

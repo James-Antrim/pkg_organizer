@@ -19,20 +19,34 @@ use SimpleXMLElement;
  */
 class Pool extends CurriculumResource
 {
-	use Associated, SubOrdinate, SuperOrdinate;
+	use Associated;
+	use SubOrdinate;
+	use SuperOrdinate;
 
 	protected $helper = 'Pools';
 
 	protected $resource = 'pool';
 
 	/**
-	 * Method to import data associated with a resource from LSF
+	 * Method to get a table object, load it if necessary.
 	 *
-	 * @param   int  $resourceID  the id of the program to be imported
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return bool  true on success, otherwise false
+	 * @return Tables\Pools A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function importSingle($resourceID)
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\Pools();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function importSingle(int $resourceID)
 	{
 		// There is no legitimate call to this method.
 		return false;
@@ -47,8 +61,9 @@ class Pool extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function processResource($XMLObject, $organizationID, $parentID)
+	public function processResource(SimpleXMLElement $XMLObject, int $organizationID, int $parentID)
 	{
+		/** @noinspection PhpUndefinedFieldInspection */
 		$lsfID = empty($XMLObject->pordid) ? (string) $XMLObject->modulid : (string) $XMLObject->pordid;
 		if (empty($lsfID))
 		{
@@ -110,15 +125,12 @@ class Pool extends CurriculumResource
 			$association->save(['organizationID' => $organizationID, 'poolID' => $pool->id]);
 		}
 
+		/** @noinspection PhpUndefinedFieldInspection */
 		return $this->processCollection($XMLObject->modulliste->modul, $organizationID, $curricula->id);
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  form data
-	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{
