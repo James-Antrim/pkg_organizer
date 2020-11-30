@@ -68,6 +68,11 @@ form.form-vertical .control-label {
     width: 100%;
 }
 
+form.checkedin .control-group.message:last-child {
+    font-size: .8rem;
+    font-style: italic;
+}
+
 form label {
     font-weight: bold;
 }

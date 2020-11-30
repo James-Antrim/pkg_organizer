@@ -16,8 +16,7 @@ $link = Uri::base() . '?option=com_organizer&task=checkin.confirm&id=';
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload()
-    {
+    function auto_reload() {
         window.location = document.URL;
     }
 
@@ -25,7 +24,7 @@ $link = Uri::base() . '?option=com_organizer&task=checkin.confirm&id=';
         timer = setTimeout('auto_reload()', 60000);
     }
 </script>
-<form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical">
+<form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical confirm">
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CONFIRM_EVENT'); ?></div>
 	<?php foreach ($this->instances as $instance): ?>
         <div class="control-group">

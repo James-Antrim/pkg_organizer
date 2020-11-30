@@ -13,7 +13,7 @@ use Organizer\Helpers;
 
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
-      class="form-vertical form-validate" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
+      class="form-vertical form-validate contact" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
 	<?php echo $this->form->renderField('id'); ?>
 	<?php echo $this->form->renderField('surname'); ?>
 	<?php echo $this->form->renderField('forename'); ?>

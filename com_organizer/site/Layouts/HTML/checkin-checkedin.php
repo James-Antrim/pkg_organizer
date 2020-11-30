@@ -24,7 +24,7 @@ $instance = $this->instances[0];
         timer = setTimeout('auto_reload()', 60000);
     }
 </script>
-<form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical">
+<form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical checkedin">
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CHECKED_INTO'); ?></div>
     <div class="control-group message"><b><?php echo $instance['name']; ?></b></div>
 	<?php if ($instance['method']): ?>

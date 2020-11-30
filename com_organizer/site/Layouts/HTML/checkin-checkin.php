@@ -13,7 +13,7 @@ use Organizer\Helpers;
 
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
-      class="form-vertical form-validate" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
+      class="form-vertical form-validate checkin" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
 	<?php if (!Helpers\Users::getID()): ?>
 		<?php echo $this->form->renderField('username'); ?>
 		<?php echo $this->form->renderField('password'); ?>
