@@ -13,6 +13,7 @@ namespace Organizer\Tables;
 use Joomla\CMS\Access\Rules;
 use Joomla\CMS\Table\Asset;
 use Joomla\CMS\Table\Table;
+use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
@@ -307,13 +308,13 @@ class Organizations extends BaseTable
 		{
 			$this->asset_id = $asset->id;
 
-			$query = $this->_db->getQuery(true);
+			$query = Adapters\Database::getQuery();
 			$query->update('#__organizer_organizations')
 				->set("asset_id = {$this->asset_id}")
 				->where("id = {$this->id}");
-			$this->_db->setQuery($query);
+			Adapters\Database::setQuery($query);
 
-			if (!Helpers\OrganizerHelper::executeQuery('execute'))
+			if (!Adapters\Database::execute())
 			{
 				return false;
 			}

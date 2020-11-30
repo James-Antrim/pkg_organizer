@@ -22,6 +22,26 @@ use Organizer\Helpers;
 class Database
 {
 	/**
+	 * Execute the SQL statement.
+	 *
+	 * @return  bool  True on success, boolean false on failure.
+	 */
+	public static function execute()
+	{
+		$dbo = Factory::getDbo();
+		try
+		{
+			return (bool) $dbo->execute();
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+			return false;
+		}
+	}
+
+	/**
 	 * Get the current query object or a new JDatabaseQuery object.
 	 *
 	 * @param   bool  $new  True to return a new JDatabaseQuery object, otherwise false
