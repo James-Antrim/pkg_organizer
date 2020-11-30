@@ -10,7 +10,7 @@
 
 namespace Organizer\Validators;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -115,14 +115,11 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$role  = strtoupper($role);
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('id')
-			->from('#__organizer_roles')
-			->where("code = '$role'");
-		$dbo->setQuery($query);
+		$query = Adapters\Database::getQuery(true);
+		$query->select('id')->from('#__organizer_roles')->where("code = '$role'");
+		Adapters\Database::setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('loadResult', 1);
+		return Adapters\Database::loadInt(1);
 	}
 
 	/**
