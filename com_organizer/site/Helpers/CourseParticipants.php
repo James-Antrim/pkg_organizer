@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -18,7 +18,7 @@ use Organizer\Tables;
  */
 class CourseParticipants extends ResourceHelper
 {
-	const UNREGISTERED = null, WAITLIST = 0;
+	private const UNREGISTERED = null;
 
 	/**
 	 * Determines whether or not the participant has paid for the course.
@@ -28,7 +28,7 @@ class CourseParticipants extends ResourceHelper
 	 *
 	 * @return  mixed int if the user has a course participant state, otherwise null
 	 */
-	public static function hasPaid($courseID, $participantID)
+	public static function hasPaid(int $courseID, int $participantID)
 	{
 		$course = new Tables\Courses();
 
@@ -60,10 +60,9 @@ class CourseParticipants extends ResourceHelper
 	 *
 	 * @return  int|null int if the user has a course participant state, otherwise null
 	 */
-	public static function getState($courseID, $participantID, $eventID = 0)
+	public static function getState(int $courseID, int $participantID, $eventID = 0)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select('status')
 			->from('#__organizer_course_participants AS cp')
 			->where("cp.courseID = $courseID")
@@ -78,9 +77,9 @@ class CourseParticipants extends ResourceHelper
 				->where("ip.participantID = $participantID");
 		}
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		$state = OrganizerHelper::executeQuery('loadResult', self::UNREGISTERED);
+		$state = Adapters\Database::loadResult();
 
 		if ($state === self::UNREGISTERED)
 		{
@@ -98,7 +97,7 @@ class CourseParticipants extends ResourceHelper
 	 *
 	 * @return bool true if the participant entry is incomplete, otherwise false
 	 */
-	public static function validProfile($courseID, $participantID)
+	public static function validProfile(int $courseID, int $participantID)
 	{
 		$participant = new Tables\Participants();
 		if (empty($participantID) or !$participant->load($participantID))

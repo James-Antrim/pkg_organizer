@@ -10,16 +10,17 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
 class Categories extends Associated implements Selectable
 {
-	use Filtered, Numbered;
+	use Filtered;
+	use Numbered;
 
-	static protected $resource = 'category';
+	protected static $resource = 'category';
 
 	/**
 	 * Retrieves the groups associated with a category.
@@ -30,15 +31,14 @@ class Categories extends Associated implements Selectable
 	 */
 	public static function getGroups($categoryID)
 	{
-		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery();
 		$query->select("id, code, name_$tag AS name")
 			->from('#__organizer_groups AS g')
 			->where("categoryID = $categoryID");
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Categories extends Associated implements Selectable
 	 *
 	 * @return string the name of the (plan) program, otherwise empty
 	 */
-	public static function getProgramName($categoryID)
+	public static function getProgramName(int $categoryID)
 	{
 		$noName = Languages::_('ORGANIZER_NO_PROGRAM');
 		if (!$categoryID)
@@ -83,13 +83,11 @@ class Categories extends Associated implements Selectable
 			return $noName;
 		}
 
-		$dbo = Factory::getDbo();
-
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select('DISTINCT id')->from('#__organizer_programs')->where("categoryID = $categoryID");
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		if ($programIDs = OrganizerHelper::executeQuery('loadColumn', []))
+		if ($programIDs = Adapters\Database::loadIntColumn())
 		{
 			return count($programIDs) > 1 ?
 				Languages::_('ORGANIZER_MULTIPLE_PROGRAMS') : Programs::getName($programIDs[0]);
@@ -107,10 +105,8 @@ class Categories extends Associated implements Selectable
 	 */
 	public static function getResources($access = '')
 	{
-		$dbo   = Factory::getDbo();
 		$order = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
-
-		$query = $dbo->getQuery(true);
+		$query = Adapters\Database::getQuery(true);
 		$query->select('DISTINCT c.*')->from('#__organizer_categories AS c')->order($order);
 
 		if (!empty($access))
@@ -120,8 +116,8 @@ class Categories extends Associated implements Selectable
 
 		self::addOrganizationFilter($query, 'category', 'c');
 
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Adapters\Database::loadAssocList();
 	}
 }

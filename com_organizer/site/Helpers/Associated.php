@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters;
 use Organizer\Tables;
 
 /**
@@ -20,7 +20,7 @@ abstract class Associated extends ResourceHelper
 {
 	use Filtered;
 
-	static protected $resource = '';
+	protected static $resource = '';
 
 	/**
 	 * Retrieves the ids of organizations associated with the resource
@@ -29,18 +29,16 @@ abstract class Associated extends ResourceHelper
 	 *
 	 * @return array the ids of organizations associated with the resource
 	 */
-	public static function getOrganizationIDs($resourceID)
+	public static function getOrganizationIDs(int $resourceID)
 	{
 		$column = static::$resource . 'ID';
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query  = Adapters\Database::getQuery(true);
 		$query->select('DISTINCT organizationID')
 			->from('#__organizer_associations')
 			->where("$column = $resourceID");
-		$dbo->setQuery($query);
+		Adapters\Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Adapters\Database::loadIntColumn();
 	}
 
 	/**
@@ -51,13 +49,11 @@ abstract class Associated extends ResourceHelper
 	 *
 	 * @return bool true if the resource is associated with the organization, otherwise false
 	 */
-	public static function isAssociated($organizationID, $resourceID)
+	public static function isAssociated(int $organizationID, int $resourceID)
 	{
 		$column = static::$resource . 'ID';
 		$table  = new Tables\Associations();
 
-		return $table->load(['organizationID' => $organizationID, $column => $resourceID]) ? true : false;
-
-
+		return $table->load(['organizationID' => $organizationID, $column => $resourceID]);
 	}
 }

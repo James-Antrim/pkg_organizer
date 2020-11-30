@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use JDatabaseQuery;
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -176,8 +176,7 @@ class Instances extends ResourceHelper
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('DISTINCT groupID')
 			->from('#__organizer_instance_groups AS ig')
 			->where("ig.delta != 'removed'")
@@ -187,9 +186,9 @@ class Instances extends ResourceHelper
 			->where("i.blockID = $instance->blockID")
 			->where("i.delta != 'removed'")
 			->where("i.unitID = $instance->unitID");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -365,16 +364,13 @@ class Instances extends ResourceHelper
 	 */
 	public static function getInstanceIDs(array $conditions)
 	{
-		$dbo   = Factory::getDbo();
 		$query = self::getInstanceQuery($conditions);
-
 		$query->select('DISTINCT i.id')
 			->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
 			->order('b.date, b.startTime, b.endTime');
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -386,8 +382,7 @@ class Instances extends ResourceHelper
 	 */
 	public static function getInstanceQuery(array $conditions)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 
 		// TODO: resolve course information (registration type, available capacity) and consequences
 		$query->from('#__organizer_instances AS i')
@@ -608,17 +603,14 @@ class Instances extends ResourceHelper
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query = Database::getQuery();
 		$query->select('participantID')
 			->from('#__organizer_instance_participants')
 			->where("instanceID = $instanceID")
 			->order('participantID');
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -631,8 +623,7 @@ class Instances extends ResourceHelper
 	 */
 	public static function getPersonIDs(int $instanceID, int $roleID = 0)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('personID')
 			->from('#__organizer_instance_persons')
 			->where("instanceID = $instanceID")
@@ -643,9 +634,9 @@ class Instances extends ResourceHelper
 			$query->where("roleID = $roleID");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -657,17 +648,16 @@ class Instances extends ResourceHelper
 	 */
 	public static function getRoomIDs(int $instanceID)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('roomID')
 			->from('#__organizer_instance_rooms AS ir')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ir.assocID')
 			->where("ip.instanceID = $instanceID")
 			->where("ir.delta != 'removed'")
 			->where("ip.delta != 'removed'");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -722,26 +712,26 @@ class Instances extends ResourceHelper
 	public static function getJumpDates(array $conditions)
 	{
 		$futureQuery = self::getInstanceQuery($conditions);
+		$jumpDates   = [];
 		$pastQuery   = clone $futureQuery;
 
 		$futureQuery->select('MIN(date)')->where("date > '" . $conditions['endDate'] . "'");
+		Database::setQuery($futureQuery);
+
+		if ($futureDate = Database::loadString())
+		{
+			$jumpDates['futureDate'] = $futureDate;
+		}
+
 		$pastQuery->select('MAX(date)')->where("date < '" . $conditions['startDate'] . "'");
+		Database::setQuery($pastQuery);
 
-		$dbo     = Factory::getDbo();
-		$results = [];
-		$dbo->setQuery($futureQuery);
-		if ($futureDate = OrganizerHelper::executeQuery('loadResult'))
+		if ($pastDate = Database::loadString())
 		{
-			$results['futureDate'] = $futureDate;
+			$jumpDates['pastDate'] = $pastDate;
 		}
 
-		$dbo->setQuery($pastQuery);
-		if ($pastDate = OrganizerHelper::executeQuery('loadResult'))
-		{
-			$results['pastDate'] = $pastDate;
-		}
-
-		return $results;
+		return $jumpDates;
 	}
 
 	/**
@@ -859,9 +849,8 @@ class Instances extends ResourceHelper
 	 */
 	private static function setGroups(array &$person, array $conditions)
 	{
-		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 
 		$query->select('ig.groupID, ig.delta, ig.modified')
 			->select("g.code AS code, g.name_$tag AS name, g.fullName_$tag AS fullName, g.gridID")
@@ -875,8 +864,8 @@ class Instances extends ResourceHelper
 			self::addDeltaClause($query, 'ig', $conditions['delta']);
 		}
 
-		$dbo->setQuery($query);
-		if (!$groupAssocs = OrganizerHelper::executeQuery('loadAssocList', []))
+		Database::setQuery($query);
+		if (!$groupAssocs = Database::loadAssocList())
 		{
 			return;
 		}
@@ -936,9 +925,7 @@ class Instances extends ResourceHelper
 		$conditions['instanceStatus'] = $instance['instanceStatus'];
 
 		$tag   = Languages::getTag();
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query = Database::getQuery();
 		$query->select('ip.id AS assocID, ip.personID, ip.roleID, ip.delta AS status, ip.modified')
 			->select("r.abbreviation_$tag AS roleCode, r.name_$tag AS role")
 			->from('#__organizer_instance_persons AS ip')
@@ -951,8 +938,8 @@ class Instances extends ResourceHelper
 			self::addDeltaClause($query, 'ip', $conditions['delta']);
 		}
 
-		$dbo->setQuery($query);
-		if (!$personAssocs = OrganizerHelper::executeQuery('loadAssocList', []))
+		Database::setQuery($query);
+		if (!$personAssocs = Database::loadAssocList())
 		{
 			return;
 		}
@@ -990,9 +977,7 @@ class Instances extends ResourceHelper
 	 */
 	private static function setRooms(array &$person, array $conditions)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query = Database::getQuery();
 		$query->select('ir.roomID, ir.delta, ir.modified, r.name')
 			->from('#__organizer_instance_rooms AS ir')
 			->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
@@ -1004,8 +989,8 @@ class Instances extends ResourceHelper
 			self::addDeltaClause($query, 'ir', $conditions['delta']);
 		}
 
-		$dbo->setQuery($query);
-		if (!$roomAssocs = OrganizerHelper::executeQuery('loadAssocList', []))
+		Database::setQuery($query);
+		if (!$roomAssocs = Database::loadAssocList())
 		{
 			return;
 		}
@@ -1036,19 +1021,17 @@ class Instances extends ResourceHelper
 	 */
 	public static function setSubject(array &$instance, array $conditions)
 	{
-		$dbo   = Factory::getDbo();
 		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->select("DISTINCT s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName, s.shortName_$tag AS name")
 			->select("s.description_$tag AS description")
 			->from('#__organizer_subjects AS s')
 			->innerJoin('#__organizer_subject_events AS se ON se.subjectID = s.id')
 			->innerJoin('#__organizer_associations AS a ON a.subjectID = s.id')
 			->where("se.eventID = {$instance['eventID']}");
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		if (!$subjects = OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$subjects = Database::loadAssocList())
 		{
 			$instance['subjectID'] = null;
 			$instance['code']      = '';
@@ -1101,10 +1084,7 @@ class Instances extends ResourceHelper
 	public static function teaches($instanceID = 0, $personID = 0)
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query    = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_instance_persons AS ip')
 			->where("ip.personID = $personID")
@@ -1115,8 +1095,8 @@ class Instances extends ResourceHelper
 			$query->where("ip.instanceID = $instanceID");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult', false);
+		return Database::loadBool();
 	}
 }

@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -19,7 +19,7 @@ use Organizer\Tables;
 class Courses extends ResourceHelper
 {
 	// RoleIDs
-	const TEACHER = 1, TUTOR = 2, SUPERVISOR = 3, SPEAKER = 4;
+	private const TEACHER = 1, TUTOR = 2, SUPERVISOR = 3, SPEAKER = 4;
 
 	/**
 	 * Check if the user is a course coordinator.
@@ -41,9 +41,7 @@ class Courses extends ResourceHelper
 			return false;
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_event_coordinators AS ec')
 			->where("ec.personID = $personID");
@@ -56,9 +54,9 @@ class Courses extends ResourceHelper
 				->where("u.courseID = $courseID");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult', 0);
+		return Database::loadBool();
 	}
 
 	/**
@@ -68,7 +66,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return string the course capacity text
 	 */
-	public static function getCampusID($courseID)
+	public static function getCampusID(int $courseID)
 	{
 		$course = new Tables\Courses();
 
@@ -82,7 +80,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return string the dates to display
 	 */
-	public static function getDateDisplay($courseID)
+	public static function getDateDisplay(int $courseID)
 	{
 		if ($dates = self::getDates($courseID))
 		{
@@ -106,15 +104,13 @@ class Courses extends ResourceHelper
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query = Database::getQuery();
 		$query->select('DISTINCT MIN(startDate) AS startDate, MAX(endDate) AS endDate')
 			->from('#__organizer_units')
 			->where("courseID = $courseID");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssoc', []);
+		return Database::loadAssoc();
 	}
 
 	/**
@@ -124,12 +120,10 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array the events associated with the course
 	 */
-	public static function getEvents($courseID)
+	public static function getEvents(int $courseID)
 	{
-		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
-
-		$query = $dbo->getQuery('true');
+		$tag   = Languages::getTag();
+		$query = Database::getQuery();
 		$query->select("DISTINCT e.id, e.name_$tag AS name, contact_$tag AS contact")
 			->select("courseContact_$tag AS courseContact, content_$tag AS content, e.description_$tag AS description")
 			->select("organization_$tag AS organization, pretests_$tag AS pretests, preparatory")
@@ -138,9 +132,9 @@ class Courses extends ResourceHelper
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where("u.courseID = $courseID")
 			->order('name ASC');
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-		if (!$events = OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$events = Database::loadAssocList())
 		{
 			return [];
 		}
@@ -162,34 +156,27 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array list of participants in course
 	 */
-	public static function getGroupedParticipation($courseID)
+	public static function getGroupedParticipation(int $courseID)
 	{
 		if (empty($courseID))
 		{
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
-
 		$query->select("pr.id, pr.name_$tag AS program, pr.accredited AS year, COUNT(*) AS participants")
 			->select("d.abbreviation AS degree")
-			//->select("d.abbreviation AS degree, o.fullName_$tag AS organization")
 			->from('#__organizer_programs AS pr')
-			//->innerJoin('#__organizer_associations AS a ON a.programID = pr.id')
 			->innerJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
 			->innerJoin('#__organizer_participants AS pa ON pa.programID = pr.id')
 			->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
-			//->innerJoin('#__organizer_organizations AS o ON o.id = a.organizationID')
 			->where("courseID = $courseID")
-			//->order("o.shortName_$tag, pr.name_$tag, d.abbreviation, pr.accredited DESC")
 			->order("pr.name_$tag, d.abbreviation, pr.accredited DESC")
 			->group("pr.id");
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		if (!$programCounts = OrganizerHelper::executeQuery('loadAssocList', []))
+		if (!$programCounts = Database::loadAssocList())
 		{
 			return $programCounts;
 		}
@@ -232,53 +219,48 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array the instances which are a part of the course
 	 */
-	public static function getInstanceIDs($courseID)
+	public static function getInstanceIDs(int $courseID)
 	{
-		$dbo = Factory::getDbo();
-
-		$query = $dbo->getQuery('true');
+		$query = Database::getQuery();
 		$query->select("DISTINCT i.id")
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where("u.courseID = $courseID")
 			->order('i.id');
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
 	 * Gets an array of participant IDs for a given course, optionally filtered by the participant's status
 	 *
-	 * @param   int  $courseID  the course id
-	 * @param   int  $status    the participant status
+	 * @param   int       $courseID  the course id
+	 * @param   int|null  $status    the participant status
 	 *
 	 * @return array list of participants in course
 	 */
-	public static function getParticipantIDs($courseID, $status = null)
+	public static function getParticipantIDs(int $courseID, $status = null)
 	{
 		if (empty($courseID))
 		{
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query = Database::getQuery();
 		$query->select('participantID')
 			->from('#__organizer_course_participants')
 			->where("courseID = $courseID")
-			->order('participantID ASC');
+			->order('participantID');
 
 		if ($status !== null and is_numeric($status))
 		{
 			$query->where("status = $status");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -290,11 +272,9 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array the persons matching the search criteria
 	 */
-	public static function getPersons($courseID, $eventID = 0, $roleIDs = [])
+	public static function getPersons(int $courseID, $eventID = 0, $roleIDs = [])
 	{
-		$dbo = Factory::getDbo();
-
-		$query = $dbo->getQuery('true');
+		$query = Database::getQuery();
 		$query->select("DISTINCT ip.personID")
 			->from('#__organizer_instance_persons AS ip')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
@@ -311,8 +291,8 @@ class Courses extends ResourceHelper
 			$query->where('ip.roleID IN (' . implode(',', $roleIDs) . ')');
 		}
 
-		$dbo->setQuery($query);
-		if (!$personIDs = OrganizerHelper::executeQuery('loadColumn', []))
+		Database::setQuery($query);
+		if (!$personIDs = Database::loadIntColumn())
 		{
 			return [];
 		}
@@ -333,14 +313,13 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array the ids of the associated units
 	 */
-	public static function getUnitIDs($courseID)
+	public static function getUnitIDs(int $courseID)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('DISTINCT id')->from('#__organizer_units')->where("courseID = $courseID");
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadColumn', []);
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -364,9 +343,7 @@ class Courses extends ResourceHelper
 			return false;
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_instance_persons AS ip')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
@@ -383,9 +360,9 @@ class Courses extends ResourceHelper
 			$query->where("ip.roleID = $roleID");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult', 0);
+		return Database::loadBool();
 	}
 
 	/**
@@ -395,7 +372,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the course is expired, otherwise false
 	 */
-	public static function isExpired($courseID)
+	public static function isExpired(int $courseID)
 	{
 		if ($dates = self::getDates($courseID))
 		{
@@ -412,7 +389,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the course is full, otherwise false
 	 */
-	public static function isFull($courseID)
+	public static function isFull(int $courseID)
 	{
 		$table = new Tables\Courses();
 		if (!$table->load($courseID) or !$maxParticipants = $table->maxParticipants)
@@ -420,16 +397,14 @@ class Courses extends ResourceHelper
 			return false;
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_course_participants')
 			->where("courseID = $courseID")
 			->where('status = 1');
-		$dbo->setQuery($query);
-		$count = OrganizerHelper::executeQuery('loadResult', 0);
+		Database::setQuery($query);
 
-		return $count >= $maxParticipants;
+		return Database::loadInt() >= $maxParticipants;
 	}
 
 	/**
@@ -439,11 +414,9 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the course is expired, otherwise false
 	 */
-	public static function isPreparatory($courseID)
+	public static function isPreparatory(int $courseID)
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$query = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_units AS u')
 			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
@@ -451,9 +424,9 @@ class Courses extends ResourceHelper
 			->where("u.courseID = $courseID")
 			->where('e.preparatory = 1');
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult', 0);
+		return Database::loadBool();
 	}
 
 	/**
