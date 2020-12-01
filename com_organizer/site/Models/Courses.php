@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
@@ -26,13 +25,9 @@ class Courses extends ListModel
 	protected $filter_fields = ['campusID', 'status', 'termID'];
 
 	/**
-	 * Filters out form inputs which should not be displayed due to menu settings.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
+	 * @inheritDoc
 	 */
-	protected function filterFilterForm(&$form)
+	protected function filterFilterForm(Form &$form)
 	{
 		parent::filterFilterForm($form);
 
@@ -57,9 +52,7 @@ class Courses extends ListModel
 	}
 
 	/**
-	 * Wrapper method for Joomla\CMS\MVC\Model\ListModel which has a mixed return type.
-	 *
-	 * @return  array  An array of data items on success.
+	 * @inheritDoc
 	 */
 	public function getItems()
 	{
@@ -80,9 +73,7 @@ class Courses extends ListModel
 	}
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
@@ -124,12 +115,7 @@ class Courses extends ListModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void populates state properties
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{

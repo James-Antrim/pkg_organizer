@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
@@ -26,13 +25,9 @@ class Pools extends ListModel
 	];
 
 	/**
-	 * Filters out form inputs which should not be displayed due to menu settings.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
+	 * @inheritDoc
 	 */
-	public function filterFilterForm(&$form)
+	public function filterFilterForm(Form &$form)
 	{
 		if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 		{
@@ -44,9 +39,7 @@ class Pools extends ListModel
 	}
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
@@ -78,12 +71,7 @@ class Pools extends ListModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{

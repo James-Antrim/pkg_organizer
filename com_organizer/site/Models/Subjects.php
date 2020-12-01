@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
@@ -29,13 +28,9 @@ class Subjects extends ListModel
 	];
 
 	/**
-	 * Filters out form inputs which should not be displayed due to menu settings.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
+	 * @inheritDoc
 	 */
-	public function filterFilterForm(&$form)
+	public function filterFilterForm(Form &$form)
 	{
 		parent::filterFilterForm($form);
 		if (!empty($this->state->get('calledProgramID')) or !empty($this->state->get('calledPoolID')))
@@ -65,9 +60,7 @@ class Subjects extends ListModel
 	}
 
 	/**
-	 * Method to get an array of data items.
-	 *
-	 * @return  array  item objects on success, otherwise empty
+	 * @inheritDoc
 	 */
 	public function getItems()
 	{
@@ -89,9 +82,7 @@ class Subjects extends ListModel
 	}
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery  the query object
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
@@ -150,11 +141,7 @@ class Subjects extends ListModel
 	}
 
 	/**
-	 * Method to get the total number of items for the data set.
-	 *
-	 * @param   string  $idColumn  the main id column of the list query
-	 *
-	 * @return int  The total number of items available in the data set.
+	 * @inheritDoc
 	 */
 	public function getTotal($idColumn = null)
 	{
@@ -162,12 +149,7 @@ class Subjects extends ListModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{

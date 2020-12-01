@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
@@ -24,13 +23,9 @@ class FieldColors extends ListModel
 	protected $filter_fields = ['colorID' => 'colorID', 'organizationID' => 'organizationID'];
 
 	/**
-	 * Filters out form inputs which should not be displayed due to menu settings.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
+	 * @inheritDoc
 	 */
-	protected function filterFilterForm(&$form)
+	protected function filterFilterForm(Form &$form)
 	{
 		if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 		{
@@ -42,9 +37,7 @@ class FieldColors extends ListModel
 	}
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
@@ -76,12 +69,7 @@ class FieldColors extends ListModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void populates state properties
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{

@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
@@ -19,7 +18,7 @@ use Organizer\Helpers;
  */
 class RoomOverview extends ListModel
 {
-	const DAY = 1, WEEK = 2;
+	private const DAY = 1;
 
 	protected $defaultLimit = 25;
 
@@ -28,13 +27,9 @@ class RoomOverview extends ListModel
 	protected $filter_fields = ['campusID', 'buildingID', 'capacity', 'roomtypeID'];
 
 	/**
-	 * Filters out form inputs which should not be displayed due to menu settings.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
+	 * @inheritDoc
 	 */
-	protected function filterFilterForm(&$form)
+	protected function filterFilterForm(Form &$form)
 	{
 		parent::filterFilterForm($form);
 
@@ -46,9 +41,7 @@ class RoomOverview extends ListModel
 	}
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
@@ -86,12 +79,7 @@ class RoomOverview extends ListModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void populates state properties
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{

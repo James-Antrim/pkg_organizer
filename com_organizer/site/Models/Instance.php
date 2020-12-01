@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -26,44 +27,33 @@ class Instance extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function associate($assoc, $data)
+	private function associate(Tables\BaseTable $assoc, array $data)
 	{
 		if ($assoc->load($data))
 		{
+			/** @noinspection PhpUndefinedFieldInspection */
 			$assoc->delta = $assoc->delta === 'removed' ? 'new' : '';
 
-			return $assoc->store() ? true : false;
+			return $assoc->store();
 		}
 		else
 		{
 			$data['delta'] = 'new';
 
-			return $assoc->save($data) ? true : false;
+			return $assoc->save($data);
 		}
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Instances A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Instances;
+		return new Tables\Instances();
 	}
 
 	/**
-	 * Method to save instances
-	 *
-	 * @param   array  $data  the data to be used to create the instance
-	 *
-	 * @return bool
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{
@@ -89,15 +79,17 @@ class Instance extends BaseModel
 	 *
 	 * @return bool
 	 */
-	private function saveResourceData($data)
+	private function saveResourceData(array $data)
 	{
 		$instanceID = $data['id'];
 		$ipIDs      = [];
+
 		foreach ($data['resources'] as $person)
 		{
 			$ipData  = ['instanceID' => $instanceID, 'personID' => $person['personID']];
 			$ipTable = new Tables\InstancePersons();
 			$roleID  = !empty($person['roleID']) ? $person['roleID'] : 1;
+
 			if ($ipTable->load($ipData))
 			{
 				if ($ipTable->delta === 'removed')
@@ -134,8 +126,8 @@ class Instance extends BaseModel
 
 			$ipID    = $ipTable->id;
 			$ipIDs[] = $ipID;
+			$igIDs   = [];
 
-			$igIDs = [];
 			foreach ($person['groups'] as $group)
 			{
 				$igData  = ['assocID' => $ipID, 'groupID' => $group['groupID']];
@@ -151,6 +143,7 @@ class Instance extends BaseModel
 			$this->setRemoved('instance_groups', 'assocID', $ipID, $igIDs);
 
 			$irIDs = [];
+
 			foreach ($person['rooms'] as $room)
 			{
 				$irData  = ['assocID' => $ipID, 'roomID' => $room['roomID']];
@@ -181,17 +174,16 @@ class Instance extends BaseModel
 	 *
 	 * @return bool
 	 */
-	private function setRemoved($suffix, $assocColumn, $assocValue, $idValues)
+	private function setRemoved(string $suffix, string $assocColumn, int $assocValue, array $idValues)
 	{
-		$table = "#__organizer_$suffix";
-		$query = $this->_db->getQuery(true);
-		$query->update($table)
+		$query = Database::getQuery();
+		$query->update("#__organizer_$suffix")
 			->set("delta = 'removed'")
 			->where("$assocColumn = $assocValue")
 			->where('id NOT IN (' . implode(',', $idValues) . ')');
 
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('execute', false) ? true : false;
+		return Database::execute();
 	}
 }

@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
@@ -24,13 +23,9 @@ class Participants extends ListModel
 	protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
 	/**
-	 * Filters out form inputs which should not be displayed due to menu settings.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
+	 * @inheritDoc
 	 */
-	public function filterFilterForm(&$form)
+	public function filterFilterForm(Form &$form)
 	{
 		parent::filterFilterForm($form);
 
@@ -41,9 +36,7 @@ class Participants extends ListModel
 	}
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
@@ -89,12 +82,7 @@ class Participants extends ListModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void populates state properties
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{

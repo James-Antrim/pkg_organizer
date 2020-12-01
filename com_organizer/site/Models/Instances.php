@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
@@ -35,13 +34,9 @@ class Instances extends ListModel
 	protected $defaultOrdering = 'name';
 
 	/**
-	 * Filters out form inputs which should not be displayed due to menu settings.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
+	 * @inheritDoc
 	 */
-	public function filterFilterForm(&$form)
+	public function filterFilterForm(Form &$form)
 	{
 		parent::filterFilterForm($form);
 
@@ -111,9 +106,7 @@ class Instances extends ListModel
 	}
 
 	/**
-	 * Method to get an array of data items.
-	 *
-	 * @return  array|bool  An array of data items on success, false on failure.
+	 * @inheritDoc.
 	 */
 	public function getItems()
 	{
@@ -133,9 +126,7 @@ class Instances extends ListModel
 	}
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{

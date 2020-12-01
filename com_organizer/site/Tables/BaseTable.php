@@ -29,9 +29,7 @@ abstract class BaseTable extends Table
 	public $id;
 
 	/**
-	 * Object constructor to set table and key fields.
-	 *
-	 * @param   string  $table  Name of the table to model.
+	 * @inheritDoc
 	 */
 	public function __construct(string $table)
 	{
@@ -80,11 +78,7 @@ abstract class BaseTable extends Table
 	}
 
 	/**
-	 * Allows null values to be set without explicit parameterised calls to the store function.
-	 *
-	 * @param   bool  $updateNulls  true to update fields even if they are null.
-	 *
-	 * @return bool  true on success.
+	 * @inheritDoc
 	 */
 	public function store($updateNulls = true)
 	{

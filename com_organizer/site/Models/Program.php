@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -18,7 +19,8 @@ use Organizer\Tables;
  */
 class Program extends CurriculumResource
 {
-	use Associated, SuperOrdinate;
+	use Associated;
+	use SuperOrdinate;
 
 	protected $helper = 'Programs';
 
@@ -94,29 +96,21 @@ class Program extends CurriculumResource
 	 *
 	 * @return array  empty if the program could not be found
 	 */
-	private function getKeys($programID)
+	private function getKeys(int $programID)
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select('p.code AS program, d.code AS degree, p.accredited, a.organizationID')
 			->from('#__organizer_programs AS p')
 			->leftJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->innerJoin('#__organizer_associations AS a ON a.programID = p.id')
-			->where("p.id = '$programID'");
-		$this->_db->setQuery($query);
+			->where("p.id = $programID");
+		Database::setQuery($query);
 
-		return Helpers\OrganizerHelper::executeQuery('loadAssoc', []);
+		return Database::loadAssoc();
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Programs A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{

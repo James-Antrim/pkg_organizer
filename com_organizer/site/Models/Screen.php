@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -20,7 +21,8 @@ use Organizer\Tables;
  */
 class Screen extends BaseModel
 {
-	const UPCOMING = 0, CURRENT = 1, ALTERNATING = 2, IMAGE = 3;
+	private const UPCOMING = 0, CURRENT = 1, ALTERNATING = 2, IMAGE = 3;
+
 	public $grid;
 
 	public $instances = [];
@@ -41,6 +43,8 @@ class Screen extends BaseModel
 		$imagePath = JPATH_ROOT . '/images/organizer/';
 		$ipData    = ['ip' => Helpers\Input::getInput()->server->getString('REMOTE_ADDR', '')];
 		$monitor   = new Tables\Monitors();
+		$roomID    = 0;
+
 		if (!$monitor->load($ipData) or !$roomID = $monitor->roomID or !$name = Helpers\Rooms::getName($roomID))
 		{
 			if (!$name = Helpers\Input::getCMD('room') or !$roomID = Helpers\Rooms::getID($name))
@@ -162,9 +166,8 @@ class Screen extends BaseModel
 	 */
 	private function setInstances()
 	{
-		$tag = Helpers\Languages::getTag();
-
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
+		$tag   = Helpers\Languages::getTag();
 		$query->select('DISTINCT i.id, b.date, b.endTime, b.startTime')
 			->select("e.id AS eventID, e.name_$tag AS event, m.abbreviation_$tag AS method")
 			->select('u.id AS unitID, u.comment, a.organizationID')
@@ -206,9 +209,9 @@ class Screen extends BaseModel
 				break;
 		}
 
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		if (!$instances = Helpers\OrganizerHelper::executeQuery('loadAssocList', [], 'id'))
+		if (!$instances = Database::loadAssocList('id'))
 		{
 			return;
 		}

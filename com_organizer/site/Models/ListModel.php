@@ -14,6 +14,7 @@ use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use stdClass;
 
@@ -24,7 +25,7 @@ abstract class ListModel extends ParentModel
 {
 	use Named;
 
-	const ALL = '', NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
+	protected const ALL = '', NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
 	protected $adminContext;
 
@@ -39,9 +40,7 @@ abstract class ListModel extends ParentModel
 	protected $option = 'com_organizer';
 
 	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
+	 * @inheritDoc
 	 */
 	public function __construct($config = [])
 	{
@@ -67,7 +66,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return void modifies $form
 	 */
-	protected function filterFilterForm(&$form)
+	protected function filterFilterForm(Form &$form)
 	{
 		if ($this->adminContext)
 		{
@@ -78,8 +77,7 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
-	 * Wrapper method for Joomla\CMS\MVC\Model\ListModel which has a mixed return type.
-	 *
+	 * @inheritDoc
 	 * @return  array  An array of data items on success.
 	 */
 	public function getItems()
@@ -90,12 +88,7 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
-	 * Method to get the total number of items for the data set. Joomla erases critical fields for complex data sets.
-	 * This method fixes the erroneous output of undesired duplicate entries.
-	 *
-	 * @param   string  $idColumn  the main id column of the list query
-	 *
-	 * @return int  The total number of items available in the data set.
+	 * @inheritDoc
 	 */
 	public function getTotal($idColumn = null)
 	{
@@ -117,9 +110,8 @@ abstract class ListModel extends ParentModel
 		$query = $this->getListQuery();
 		$query->clear('select')->clear('limit')->clear('offset')->clear('order');
 		$query->select("COUNT(DISTINCT ($idColumn))");
-		$this->_db->setQuery($query);
-
-		$total = (int) Helpers\OrganizerHelper::executeQuery('loadResult', 0);
+		Database::setQuery($query);
+		$total = Database::loadInt();
 
 		// Add the total to the internal cache.
 		$this->cache[$store] = $total;
@@ -128,15 +120,7 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
-	 * Method to get a form object.
-	 *
-	 * @param   string       $name     The name of the form.
-	 * @param   string       $source   The form source. Can be XML string if file flag is set to false.
-	 * @param   array        $options  Optional array of options for the form creation.
-	 * @param   bool         $clear    Optional argument to force load a new form.
-	 * @param   string|bool  $xpath    An optional xpath to search for the fields.
-	 *
-	 * @return  Form|bool  Form object on success, False on error.
+	 * @inheritDoc
 	 */
 	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false)
 	{
@@ -149,14 +133,12 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
-	 * Method to get the data that should be injected in the form.
-	 *
-	 * @return mixed  The data for the form.
+	 * @inheritDoc
 	 */
 	protected function loadFormData()
 	{
 		// Check the session for previously entered form data.
-		$data = Helpers\OrganizerHelper::getApplication()->getUserState($this->context, new stdClass);
+		$data = Helpers\OrganizerHelper::getApplication()->getUserState($this->context, new stdClass());
 
 		// Pre-create the list options
 		if (!property_exists($data, 'list'))
@@ -187,13 +169,7 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void populates state properties
-	 * @noinspection PhpDocSignatureInspection
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
@@ -263,7 +239,7 @@ abstract class ListModel extends ParentModel
 	 * @param   JDatabaseQuery  $query  the query to modify
 	 * @param   string          $alias  the alias for the linking table
 	 */
-	public function setCampusFilter($query, $alias)
+	public function setCampusFilter(JDatabaseQuery $query, string $alias)
 	{
 		$campusID = $this->state->get('filter.campusID');
 		if (empty($campusID))
@@ -289,7 +265,7 @@ abstract class ListModel extends ParentModel
 	 * @param   JDatabaseQuery  $query  the query to modify
 	 * @param   string          $alias  the alias for the linking table
 	 */
-	public function setActiveFilter($query, $alias)
+	public function setActiveFilter(JDatabaseQuery $query, string $alias)
 	{
 		$status = $this->state->get('filter.active');
 
@@ -314,7 +290,7 @@ abstract class ListModel extends ParentModel
 	 * @param   string          $start   the name of the column containing the resource start date
 	 * @param   string          $end     the name of the column containing the resource end date
 	 */
-	public function setDateStatusFilter($query, $status, $start, $end)
+	public function setDateStatusFilter(JDatabaseQuery $query, string $status, string $start, string $end)
 	{
 		$value = $this->state->get('filter.' . $status);
 
@@ -341,7 +317,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return void
 	 */
-	protected function setIDFilter($query, $idColumn, $filterName)
+	protected function setIDFilter(JDatabaseQuery $query, string $idColumn, string $filterName)
 	{
 		$value = $this->state->get($filterName, '');
 		if ($value === '')
@@ -363,8 +339,6 @@ abstract class ListModel extends ParentModel
 
 		// IDs are unique and therefore mutually exclusive => one is enough!
 		$query->where("$idColumn = $value");
-
-		return;
 	}
 
 	/**
@@ -374,7 +348,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return void
 	 */
-	protected function setOrdering($query)
+	protected function setOrdering(JDatabaseQuery $query)
 	{
 		$defaultOrdering = "{$this->defaultOrdering} {$this->defaultDirection}";
 		$session         = Factory::getSession();
@@ -405,7 +379,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return void
 	 */
-	protected function setOrganizationFilter($query, $context, $alias)
+	protected function setOrganizationFilter(JDatabaseQuery $query, string $context, string $alias)
 	{
 		$authorizedOrgIDs = $this->adminContext ?
 			Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
@@ -435,9 +409,6 @@ abstract class ListModel extends ParentModel
 		}
 
 		$query->where('(a.organizationID IN (' . implode(',', $authorizedOrgIDs) . ') OR a.organizationID IS NULL)');
-
-		return;
-
 	}
 
 	/**
@@ -448,7 +419,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return void
 	 */
-	protected function setSearchFilter($query, $columnNames)
+	protected function setSearchFilter(JDatabaseQuery $query, array $columnNames)
 	{
 		$userInput = $this->state->get('filter.search', '');
 		if (empty($userInput))
@@ -471,7 +442,7 @@ abstract class ListModel extends ParentModel
 	 * @param   JDatabaseQuery  $query  the query to modify
 	 * @param   string          $alias  the column alias
 	 */
-	public function setStatusFilter($query, $alias)
+	public function setStatusFilter(JDatabaseQuery $query, string $alias)
 	{
 		if (!$value = $this->state->get('filter.status'))
 		{
@@ -510,7 +481,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return void
 	 */
-	protected function setValueFilters($query, $queryColumns)
+	protected function setValueFilters(JDatabaseQuery $query, array $queryColumns)
 	{
 		$filters = Helpers\Input::getFilterItems();
 		$lists   = Helpers\Input::getListItems();

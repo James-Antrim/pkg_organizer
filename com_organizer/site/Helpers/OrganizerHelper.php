@@ -85,44 +85,6 @@ class OrganizerHelper
 	}
 
 	/**
-	 * Executes a database query
-	 *
-	 * @param   string  $function  the name of the query function to execute
-	 * @param   mixed   $default   the value to return if an error occurred
-	 * @param   mixed   $args      the arguments to use in the called function
-	 *
-	 * @return mixed the various return values appropriate to the functions called.
-	 */
-	public static function executeQuery($function, $default = null, $args = null)
-	{
-		$dbo = Factory::getDbo();
-		try
-		{
-			if ($args !== null)
-			{
-				if (is_string($args) or is_int($args))
-				{
-					return $dbo->$function($args);
-				}
-				if (is_array($args))
-				{
-					$reflectionMethod = new ReflectionMethod($dbo, $function);
-
-					return $reflectionMethod->invokeArgs($dbo, $args);
-				}
-			}
-
-			return ($result = $dbo->$function()) ? $result : $default;
-		}
-		catch (Exception $exc)
-		{
-			self::message($exc->getMessage(), 'error');
-
-			return $default;
-		}
-	}
-
-	/**
 	 * Surrounds the call to the application with a try catch so that not every function needs to have a throws tag. If
 	 * the application has an error it would have never made it to the component in the first place.
 	 *
@@ -229,7 +191,6 @@ class OrganizerHelper
 
 		return $listViews[$initial];
 	}
-
 
 	/**
 	 * Wrapper for

@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -25,7 +26,7 @@ class Participant extends BaseModel
 	 *
 	 * @return string the cleaned value
 	 */
-	private function cleanAlpha($name)
+	private function cleanAlpha(string $name)
 	{
 		$name = preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}_.\-\']/', ' ', $name);
 
@@ -53,54 +54,21 @@ class Participant extends BaseModel
 	 *
 	 * @return string the cleaned value
 	 */
-	private function cleanSpaces($string)
+	private function cleanSpaces(string $string)
 	{
 		return preg_replace('/ +/', ' ', $string);
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Participants A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Participants;
+		return new Tables\Participants();
 	}
 
 	/**
-	 * Normalized strings used for participant name pieces.
-	 *
-	 * @param   string  $item  the attribute item being normalized.
-	 *
-	 * @return void modifies the string
-	 */
-	/*private function normalize(&$item)
-	{
-		if (strpos($item, '-') !== false)
-		{
-			$compoundParts = explode('-', $item);
-			array_walk($compoundParts, 'normalize');
-			$item = implode('-', $compoundParts);
-
-			return;
-		}
-
-		$item = ucfirst(strtolower($item));
-	}*/
-
-	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{
@@ -214,7 +182,7 @@ class Participant extends BaseModel
 		}
 
 		$names = Helpers\Users::resolveUserName($participantID);
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 
 		$forename = $query->quote($names['forename']);
 		$surname  = $query->quote($names['surname']);
@@ -233,52 +201,8 @@ class Participant extends BaseModel
 				->where("id = $participantID");
 		}
 
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		Helpers\OrganizerHelper::executeQuery('execute');
+		Database::execute();
 	}
-
-	/**
-	 * Updates the users table to reflect the merge of the participants.
-	 *
-	 * @return bool true on success, otherwise false;
-	 */
-	/*private function updateUsers()
-	{
-		$mergeID = reset($this->selected);
-		$user    = Helpers\Users::getUser($mergeID);
-
-		if (empty($user->id))
-		{
-			return false;
-		}
-
-		$email    = '';
-		$name     = '';
-		$pattern  = '/thm.de$/';
-		$username = '';
-
-		foreach ($this->selected as $participantID)
-		{
-			$thisUser = Helpers\Users::getUser($participantID);
-
-			if (preg_match($pattern, $thisUser->email))
-			{
-				$email    = $thisUser->email;
-				$name     = $thisUser->name;
-				$username = $thisUser->username;
-			}
-
-			if ($thisUser->id !== $user->id)
-			{
-				$thisUser->delete();
-			}
-		}
-
-		$user->email    = $email;
-		$user->name     = $name;
-		$user->username = $username;
-
-		return $user->save();
-	}*/
 }

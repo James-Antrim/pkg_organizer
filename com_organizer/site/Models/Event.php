@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -19,9 +20,7 @@ use Organizer\Tables;
 class Event extends BaseModel
 {
 	/**
-	 * Authorizes the user.
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function authorize()
 	{
@@ -32,19 +31,11 @@ class Event extends BaseModel
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Events A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Events;
+		return new Tables\Events();
 	}
 
 	/**
@@ -75,7 +66,7 @@ class Event extends BaseModel
 			}
 		}
 
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->delete('#__organizer_event_coordinators')->where("eventID = $eventID");
 
 		if ($coordinatorIDs)
@@ -84,31 +75,9 @@ class Event extends BaseModel
 			$query->where("personID NOT IN ($coordinatorIDs)");
 		}
 
-		$this->_db->setQuery($query);
-		Helpers\OrganizerHelper::executeQuery('execute');
+		Database::setQuery($query);
+		Database::execute();
 
 		return $eventID;
-	}
-
-	/**
-	 * Updates the resource dependent associations
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	protected function updateAssociations()
-	{
-		return true;
-	}
-
-	/**
-	 * Processes the data for an individual schedule
-	 *
-	 * @param   Tables\Schedules  $schedule  the schedule being processed
-	 *
-	 * @return bool true if the schedule was changed, otherwise false
-	 */
-	public function updateSchedule($schedule)
-	{
-		return true;
 	}
 }

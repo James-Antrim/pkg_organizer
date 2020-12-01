@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -19,27 +20,15 @@ use Organizer\Tables;
 class Grid extends BaseModel
 {
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Grids A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new Tables\Grids;
+		return new Tables\Grids();
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{
@@ -97,7 +86,7 @@ class Grid extends BaseModel
 
 		$table->isDefault = 1;
 
-		return (bool) $table->store();
+		return $table->store();
 	}
 
 	/**
@@ -107,10 +96,10 @@ class Grid extends BaseModel
 	 */
 	private function unDefaultAll()
 	{
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->update('#__organizer_grids')->set('isDefault = 0');
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) Helpers\OrganizerHelper::executeQuery('execute');
+		return Database::execute();
 	}
 }
