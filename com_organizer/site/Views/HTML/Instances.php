@@ -429,10 +429,11 @@ class Instances extends ListView
 			$label = '';
 			$icon  = '';
 			$today = date('Y-m-d');
+			$then = date('H:i:s', strtotime('+2 days'));
 			$URL   = Uri::base() . '?option=com_organizer';
 
-			$expired = ($item->date < $today or $item->endTime < date('H:i:s'));
-			$current = ($item->date === $today and $item->startTime < date('H:i:s', strtotime('+60 minutes')));
+			$expired = ($item->date < $today or ($item->date === $today and $item->endTime < date('H:i:s')));
+			$current = ($item->date < $then);
 
 			if ($item->bookingID)
 			{
@@ -476,7 +477,7 @@ class Instances extends ListView
 
 		if ($this->manages or $this->teaches)
 		{
-			//$this->headers = array_merge(['tools' => ''], $this->headers);
+			$this->headers = array_merge(['tools' => ''], $this->headers);
 		}
 	}
 
@@ -541,14 +542,13 @@ class Instances extends ListView
 		foreach ($this->items as $item)
 		{
 			$times = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
-			$times .= '<span class="times">' . Helpers\Dates::formatTime($item->startTime) . ' - ';
-			$times .= Helpers\Dates::formatEndTime($item->endTime) . '</span>';
+			$times .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
 
 			$structuredItems[$index] = [];
 
 			if ($this->manages or $this->teaches)
 			{
-				//$structuredItems[$index]['tools'] = $this->getTools($item);
+				$structuredItems[$index]['tools'] = $this->getTools($item);
 			}
 
 			$structuredItems[$index]['status']  = $this->getStatus($item);
