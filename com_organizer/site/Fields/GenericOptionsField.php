@@ -11,7 +11,7 @@
 namespace Organizer\Fields;
 
 use JDatabaseQuery;
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -124,20 +124,17 @@ class GenericOptionsField extends OptionsField
 	 */
 	protected function getOptions()
 	{
-		$query = Adapters\Database::getQuery();
-
-		$valueColumn = $this->getAttribute('valuecolumn');
-		$textColumn  = $this->resolveText($query);
-
-		$query->select("DISTINCT $valueColumn AS value, $textColumn AS text");
+		$defaultOptions = parent::getOptions();
+		$query          = Database::getQuery();
+		$order          = $this->getAttribute('order', 'text ASC');
+		$textColumn     = $this->resolveText($query);
+		$valueColumn    = $this->getAttribute('valuecolumn');
+		$query->select("DISTINCT $valueColumn AS value, $textColumn AS text")->order($order);
 		$this->setFrom($query);
 		$this->setWhere($query);
-		$order = $this->getAttribute('order', 'text ASC');
-		$query->order($order);
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		$defaultOptions = parent::getOptions();
-		if (!$resources = Adapters\Database::loadAssocList())
+		if (!$resources = Database::loadAssocList())
 		{
 			return $defaultOptions;
 		}

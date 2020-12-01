@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -166,7 +166,7 @@ class Pools extends Curricula implements Selectable
 			return [];
 		}
 
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select('DISTINCT *')
 			->from('#__organizer_curricula')
 			->where('poolID IS NOT NULL ')
@@ -185,9 +185,9 @@ class Pools extends Curricula implements Selectable
 			}
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 	/**
@@ -240,7 +240,7 @@ class Pools extends Curricula implements Selectable
 			return [];
 		}
 
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
 		$query->select("DISTINCT p.*, p.fullName_$tag AS name")
 			->from('#__organizer_pools AS p')
@@ -254,9 +254,9 @@ class Pools extends Curricula implements Selectable
 			self::addAccessFilter($query, $access, 'pool', 'p');
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 	/**
@@ -268,14 +268,14 @@ class Pools extends Curricula implements Selectable
 	 */
 	private static function removeExclusions(array $range)
 	{
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select('*')->from('#__organizer_curricula')
 			->where('poolID IS NOT NULL')
 			->where("lft > '{$range['lft']}' AND rgt < '{$range['rgt']}'")
 			->order('lft');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if (!$exclusions = Adapters\Database::loadAssocList())
+		if (!$exclusions = Database::loadAssocList())
 		{
 			return [$range];
 		}

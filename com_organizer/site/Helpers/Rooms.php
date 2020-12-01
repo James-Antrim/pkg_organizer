@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -72,7 +72,7 @@ class Rooms extends ResourceHelper implements Selectable
 	 */
 	public static function getPlannedRooms()
 	{
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select('r.id, r.name, r.roomtypeID')
 			->from('#__organizer_rooms AS r')
 			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
@@ -91,9 +91,9 @@ class Rooms extends ResourceHelper implements Selectable
 			}
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if (!$results = Adapters\Database::loadAssocList())
+		if (!$results = Database::loadAssocList())
 		{
 			return [];
 		}
@@ -114,11 +114,11 @@ class Rooms extends ResourceHelper implements Selectable
 	 */
 	public static function getResources()
 	{
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select("DISTINCT r.id, r.*")
 			->from('#__organizer_rooms AS r')
-			->innerJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID');
-
+			->innerJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID')
+			->order('name');
 		self::addResourceFilter($query, 'building', 'b1', 'r');
 
 		// TODO Remove roomTypeIDs on completion of migration.
@@ -147,10 +147,8 @@ class Rooms extends ResourceHelper implements Selectable
 		// This join is used specifically to filter campuses independent of buildings.
 		$query->leftJoin('#__organizer_buildings AS b2 ON b2.id = r.buildingID');
 		self::addCampusFilter($query, 'b2');
+		Database::setQuery($query);
 
-		$query->order('name');
-		Adapters\Database::setQuery($query);
-
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 }

@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -90,7 +90,7 @@ class Fields extends ResourceHelper implements Selectable
 	 */
 	public static function getResources()
 	{
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$tag   = Languages::getTag();
 		$query->select("DISTINCT *, name_$tag AS name")
 			->from('#__organizer_fields')
@@ -113,9 +113,9 @@ class Fields extends ResourceHelper implements Selectable
 			$query->where("id IN ($string)");
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 	/**

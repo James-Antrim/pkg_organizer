@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -43,11 +43,11 @@ class OrganizationAssociationsField extends OptionsField
 			return ($table->load($resourceID) and !empty($table->organizationID)) ? [$table->organizationID] : [];
 		}
 
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select('DISTINCT organizationID')->from('#__organizer_associations')->where("{$resource}ID = $resourceID");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadIntColumn();
+		return Database::loadIntColumn();
 	}
 
 	/**

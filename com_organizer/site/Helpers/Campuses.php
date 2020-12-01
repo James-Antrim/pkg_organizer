@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -76,15 +76,14 @@ class Campuses extends ResourceHelper implements Selectable
 		}
 
 		$tag   = Languages::getTag();
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select("c1.name_$tag as name, c2.name_$tag as parentName")
 			->from('#__organizer_campuses AS c1')
 			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
 			->where("c1.id = '$campusID'");
-		Adapters\Database::setQuery($query);
-		$names = Adapters\Database::loadAssoc();
+		Database::setQuery($query);
 
-		if (empty($names))
+		if (!$names = Database::loadAssoc())
 		{
 			return '';
 		}
@@ -119,9 +118,8 @@ class Campuses extends ResourceHelper implements Selectable
 	 */
 	public static function getResources()
 	{
-		$tag = Languages::getTag();
-
-		$query = Adapters\Database::getQuery(true);
+		$tag   = Languages::getTag();
+		$query = Database::getQuery();
 		$query->select("c1.*, c1.name_$tag AS name")
 			->from('#__organizer_campuses AS c1')
 			->select("c2.name_$tag as parentName")
@@ -143,9 +141,9 @@ class Campuses extends ResourceHelper implements Selectable
 			}
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 	/**

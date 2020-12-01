@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -30,13 +30,13 @@ class Terms extends ResourceHelper implements Selectable
 	public static function getCurrentID($date = '')
 	{
 		$date  = ($date and strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_terms')
 			->where("'$date' BETWEEN startDate and endDate");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadInt();
+		return Database::loadInt();
 	}
 
 	/**
@@ -93,15 +93,14 @@ class Terms extends ResourceHelper implements Selectable
 		}
 
 		$currentEndDate = self::getEndDate($currentID);
-
-		$query = Adapters\Database::getQuery(true);
+		$query          = Database::getQuery(true);
 		$query->select('id')
 			->from('#__organizer_terms')
 			->where("startDate > '$currentEndDate'")
-			->order('startDate ASC');
-		Adapters\Database::setQuery($query);
+			->order('startDate');
+		Database::setQuery($query);
 
-		return Adapters\Database::loadInt();
+		return Database::loadInt();
 	}
 
 	/**
@@ -148,15 +147,14 @@ class Terms extends ResourceHelper implements Selectable
 		}
 
 		$currentStartDate = self::getStartDate($currentID);
-
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select('id')
 			->from('#__organizer_terms')
 			->where("endDate < '$currentStartDate'")
 			->order('endDate DESC');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadInt();
+		return Database::loadInt();
 	}
 
 	/**
@@ -166,7 +164,7 @@ class Terms extends ResourceHelper implements Selectable
 	 */
 	public static function getResources()
 	{
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery();
 		$query->select('DISTINCT term.*')->from('#__organizer_terms AS term')->order('startDate');
 
 		if ($view = Input::getView() and $view === 'Schedules')
@@ -174,9 +172,9 @@ class Terms extends ResourceHelper implements Selectable
 			$query->innerJoin('#__organizer_schedules AS s ON s.termID = term.id');
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 	/**

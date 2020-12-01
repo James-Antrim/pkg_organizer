@@ -11,7 +11,7 @@
 namespace Organizer\Fields;
 
 use JDatabaseQuery;
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -39,8 +39,9 @@ class MergeAssociationsField extends OptionsField
 			return $default;
 		}
 
-		$query      = Adapters\Database::getQuery();
+		$query      = Database::getQuery();
 		$textColumn = $this->resolveTextColumn($query);
+
 		if (empty($textColumn))
 		{
 			return $default;
@@ -77,9 +78,9 @@ class MergeAssociationsField extends OptionsField
 			$query->innerJoin("#__organizer_$innerJoin");
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if ($valuePairs = Adapters\Database::loadAssocList())
+		if ($valuePairs = Database::loadAssocList())
 		{
 			return $default;
 		}

@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
@@ -36,14 +36,14 @@ class Methods extends ResourceHelper implements Selectable
 	 */
 	public static function getResources()
 	{
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
 		$query->select("DISTINCT m.*, m.name_$tag AS name")
 			->from('#__organizer_methods AS m')
 			->innerJoin('#__organizer_instances AS i ON i.methodID = m.id')
 			->order('name');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 }

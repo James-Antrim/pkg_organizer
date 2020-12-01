@@ -10,7 +10,7 @@
 
 namespace Organizer\Validators;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -115,11 +115,11 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$role  = strtoupper($role);
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select('id')->from('#__organizer_roles')->where("code = '$role'");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadInt(1);
+		return Database::loadInt(1);
 	}
 
 	/**

@@ -11,7 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -46,11 +46,11 @@ class TermPublishingField extends FormField
 		$values = [];
 		if ($groupID = Helpers\Input::getID())
 		{
-			$query = Adapters\Database::getQuery();
+			$query = Database::getQuery();
 			$query->select('termID, published')->from('#__organizer_group_publishing')->where("groupID = $groupID");
-			Adapters\Database::setQuery($query);
+			Database::setQuery($query);
 
-			$values = Adapters\Database::loadAssocList('termID');
+			$values = Database::loadAssocList('termID');
 		}
 
 		foreach (Helpers\Terms::getResources() as $term)

@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -39,20 +39,18 @@ class MergeOrganizationsField extends OptionsField
 			return [];
 		}
 
-		$textColumn = 'shortName_' . Helpers\Languages::getTag();
+		$query = Database::getQuery(true);
 		$table      = $resource === 'category' ? 'categories' : 'persons';
-
-		$query = Adapters\Database::getQuery(true);
-
+		$textColumn = 'shortName_' . Helpers\Languages::getTag();
 		$query->select("DISTINCT o.id AS value, o.$textColumn AS text")
 			->from("#__organizer_organizations AS o")
 			->innerJoin("#__organizer_associations AS a ON a.organizationID = o.id")
 			->innerJoin("#__organizer_$table AS res ON res.id = a.{$resource}ID")
 			->where("res.id IN ( '" . implode("', '", $selectedIDs) . "' )")
 			->order('text ASC');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if (!$valuePairs = Adapters\Database::loadAssocList())
+		if (!$valuePairs = Database::loadAssocList())
 		{
 			return [];
 		}

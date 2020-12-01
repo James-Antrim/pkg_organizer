@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
@@ -51,7 +51,7 @@ class Roomtypes extends ResourceHelper implements Selectable
 	{
 		$tag = Languages::getTag();
 
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select("DISTINCT t.*, t.id AS id, t.name_$tag AS name")
 			->from('#__organizer_roomtypes AS t');
 
@@ -77,8 +77,8 @@ class Roomtypes extends ResourceHelper implements Selectable
 		self::addCampusFilter($query, 'b2');
 
 		$query->order('name');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 }

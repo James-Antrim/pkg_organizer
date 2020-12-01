@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -40,17 +40,15 @@ class MergeValuesField extends OptionsField
 		}
 
 		$column = $this->getAttribute('name');
+		$query  = Database::getQuery(true);
 		$table  = $resource === 'category' ? 'categories' : "{$resource}s";
-
-		$query = Adapters\Database::getQuery(true);
 		$query->select("DISTINCT $column AS value")
-			->from("#__organizer_$table");
-		$query->where("id IN ( '" . implode("', '", $selectedIDs) . "' )");
-		$query->order('value ASC');
-		Adapters\Database::setQuery($query);
+			->from("#__organizer_$table")
+			->where("id IN ( '" . implode("', '", $selectedIDs) . "' )")
+			->order('value ASC');
+		Database::setQuery($query);
 
-		$values = Adapters\Database::loadColumn();
-		if (empty($values))
+		if (!$values = Database::loadColumn())
 		{
 			return [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
 		}

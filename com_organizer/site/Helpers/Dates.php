@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use DateTime;
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 
 /**
  * Class provides generalized functions regarding dates and times.
@@ -152,13 +152,13 @@ class Dates
 	 */
 	public static function getTerm(string $date)
 	{
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select('startDate, endDate')
 			->from('#__organizer_terms')
 			->where("'$date' BETWEEN startDate AND endDate");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssoc();
+		return Database::loadAssoc();
 	}
 
 	/**

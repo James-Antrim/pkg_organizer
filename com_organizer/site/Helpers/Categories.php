@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -32,13 +32,13 @@ class Categories extends Associated implements Selectable
 	public static function getGroups($categoryID)
 	{
 		$tag   = Languages::getTag();
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select("id, code, name_$tag AS name")
 			->from('#__organizer_groups AS g')
 			->where("categoryID = $categoryID");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 	/**
@@ -83,11 +83,11 @@ class Categories extends Associated implements Selectable
 			return $noName;
 		}
 
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select('DISTINCT id')->from('#__organizer_programs')->where("categoryID = $categoryID");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if ($programIDs = Adapters\Database::loadIntColumn())
+		if ($programIDs = Database::loadIntColumn())
 		{
 			return count($programIDs) > 1 ?
 				Languages::_('ORGANIZER_MULTIPLE_PROGRAMS') : Programs::getName($programIDs[0]);
@@ -106,7 +106,7 @@ class Categories extends Associated implements Selectable
 	public static function getResources($access = '')
 	{
 		$order = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select('DISTINCT c.*')->from('#__organizer_categories AS c')->order($order);
 
 		if (!empty($access))
@@ -115,9 +115,8 @@ class Categories extends Associated implements Selectable
 		}
 
 		self::addOrganizationFilter($query, 'category', 'c');
+		Database::setQuery($query);
 
-		Adapters\Database::setQuery($query);
-
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 }

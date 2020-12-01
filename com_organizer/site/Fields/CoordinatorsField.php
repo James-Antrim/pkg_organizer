@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -32,13 +32,12 @@ class CoordinatorsField extends OptionsField
 	protected function getInput()
 	{
 		$eventID = Helpers\Input::getID();
-		$query   = Adapters\Database::getQuery();
+		$query   = Database::getQuery();
 		$query->select('DISTINCT personID')
 			->from('#__organizer_event_coordinators')
 			->where("eventID = $eventID");
-		Adapters\Database::setQuery($query);
-
-		$this->value = Adapters\Database::loadIntColumn();
+		Database::setQuery($query);
+		$this->value = Database::loadIntColumn();
 
 		return parent::getInput();
 	}
@@ -59,15 +58,15 @@ class CoordinatorsField extends OptionsField
 			return $options;
 		}
 
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select('DISTINCT p.id, p.forename, p.surname')
 			->from('#__organizer_persons AS p')
 			->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
 			->where("a.organizationID = $organizationID")
 			->order('p.surname, p.forename');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if (!$persons = Adapters\Database::loadAssocList())
+		if (!$persons = Database::loadAssocList())
 		{
 			return $options;
 		}

@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -68,12 +68,12 @@ class Participants extends ResourceHelper
 	 */
 	public static function getCourses(int $participantID)
 	{
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select('courseID')
 			->from('#__organizer_course_participants')
 			->where("participantID = $participantID");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadIntColumn();
+		return Database::loadIntColumn();
 	}
 }

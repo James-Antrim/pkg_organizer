@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 
 /**
  * Provides general function for data retrieval and display.
@@ -30,7 +30,7 @@ class Units extends ResourceHelper
 	public static function getContexts($unitID, $eventID)
 	{
 		$tag   = Languages::getTag();
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery();
 		$query->select("g.id AS groupID, g.categoryID, g.fullName_$tag AS fqGroup, g.name_$tag AS nqGroup")
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
@@ -38,10 +38,9 @@ class Units extends ResourceHelper
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 			->where("i.eventID = $eventID")
 			->where("i.unitID = $unitID");
+		Database::setQuery($query);
 
-		Adapters\Database::setQuery($query);
-
-		return Adapters\Database::loadAssocList('groupID');
+		return Database::loadAssocList('groupID');
 	}
 
 	/**
@@ -53,17 +52,16 @@ class Units extends ResourceHelper
 	 */
 	public static function getEventIDs($unitID)
 	{
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 
 		$query->select('DISTINCT i.eventID')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where("unitID = $unitID")
 			->where("i.delta != 'removed'");
+		Database::setQuery($query);
 
-		Adapters\Database::setQuery($query);
-
-		return Adapters\Database::loadIntColumn();
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -77,14 +75,13 @@ class Units extends ResourceHelper
 	public static function getEventNames($unitID, $glue = '')
 	{
 		$tag   = Languages::getTag();
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select("DISTINCT name_$tag")
 			->from('#__organizer_events AS e')
 			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
 			->where("i.unitID = $unitID");
-		Adapters\Database::setQuery($query);
-
-		$eventNames = Adapters\Database::loadColumn();
+		Database::setQuery($query);
+		$eventNames = Database::loadColumn();
 
 		return $glue ? implode($glue, $eventNames) : $eventNames;
 	}
@@ -101,8 +98,7 @@ class Units extends ResourceHelper
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
-		$query = Adapters\Database::getQuery(true);
-
+		$query = Database::getQuery(true);
 		$query->select('COUNT(*)')
 			->from('#__organizer_instance_persons AS ip')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
@@ -114,8 +110,8 @@ class Units extends ResourceHelper
 			$query->where("i.unitID = $unitID");
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadBool();
+		return Database::loadBool();
 	}
 }

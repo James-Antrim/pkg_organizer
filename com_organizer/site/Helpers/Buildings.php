@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -107,17 +107,14 @@ class Buildings extends ResourceHelper implements Selectable
 	 */
 	public static function getResources()
 	{
-		$query = Adapters\Database::getQuery(true);
-
+		$query = Database::getQuery(true);
 		$query->select('DISTINCT b.*, c.parentID')
 			->from('#__organizer_buildings AS b')
 			->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID')
 			->order('name');;
-
 		self::addCampusFilter($query, 'b');
+		Database::setQuery($query);
 
-		Adapters\Database::setQuery($query);
-
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 }

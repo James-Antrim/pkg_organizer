@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use JDatabaseQuery;
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -101,14 +101,14 @@ class Organizations extends ResourceHelper implements Selectable
 	 */
 	public static function getResources($access = '')
 	{
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
 		$query->select("DISTINCT o.*, o.shortName_$tag AS shortName, o.name_$tag AS name")
 			->from('#__organizer_organizations AS o');
 		self::addAccessFilter($query, $access);
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 	/**

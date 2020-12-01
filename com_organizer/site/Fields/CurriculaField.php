@@ -12,7 +12,7 @@ namespace Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -68,9 +68,9 @@ class CurriculaField extends FormField
 	{
 		$query = Helpers\Programs::getQuery();
 		$query->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')->order('name ASC');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if (!$programs = Adapters\Database::loadAssocList())
+		if (!$programs = Database::loadAssocList())
 		{
 			return [];
 		}

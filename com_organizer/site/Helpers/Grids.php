@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -41,11 +41,11 @@ class Grids extends ResourceHelper implements Selectable
 	 */
 	public static function getDefault($onlyID = true)
 	{
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select("*")->from('#__organizer_grids')->where('isDefault = 1');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return $onlyID ? Adapters\Database::loadInt() : Adapters\Database::loadAssoc();
+		return $onlyID ? Database::loadInt() : Database::loadAssoc();
 	}
 
 	/**
@@ -68,12 +68,12 @@ class Grids extends ResourceHelper implements Selectable
 	 */
 	public static function getResources()
 	{
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
 		$query->select("*, name_$tag as name, isDefault")->from('#__organizer_grids')->order('name');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 }

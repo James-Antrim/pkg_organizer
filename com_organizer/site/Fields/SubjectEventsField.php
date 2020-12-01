@@ -11,7 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -31,29 +31,26 @@ class SubjectEventsField extends FormField
 	 */
 	public function getInput()
 	{
-		$fieldName = $this->getAttribute('name');
+		$query     = Database::getQuery(true);
 		$subjectID = Helpers\Input::getID();
 		$tag       = Helpers\Languages::getTag();
-
-		$eQuery = Adapters\Database::getQuery(true);
-		$eQuery->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
-		Adapters\Database::setQuery($eQuery);
-
-		$events = Adapters\Database::loadAssocList();
-
+		$query->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
+		Database::setQuery($query);
+		$events  = Database::loadAssocList();
 		$options = [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_EVENT'))];
+
 		foreach ($events as $event)
 		{
 			$options[] = Helpers\HTML::_('select.option', $event['value'], $event['name']);
 		}
 
-		$sQuery = Adapters\Database::getQuery(true);
-		$sQuery->select('eventID')->from('#__organizer_subject_events')->where("subjectID = '$subjectID'");
-		Adapters\Database::setQuery($sQuery);
-		$selected = Adapters\Database::loadIntColumn();
-
-
+		$fieldName  = $this->getAttribute('name');
 		$attributes = ['multiple' => 'multiple', 'size' => '10'];
+
+		$query = Database::getQuery(true);
+		$query->select('eventID')->from('#__organizer_subject_events')->where("subjectID = '$subjectID'");
+		Database::setQuery($query);
+		$selected = Database::loadIntColumn();
 
 		return Helpers\HTML::selectBox($options, $fieldName, $attributes, $selected, true);
 	}

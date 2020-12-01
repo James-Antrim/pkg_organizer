@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -31,7 +31,7 @@ class Subjects extends Curricula
 	public static function coordinates($subjectID = 0, $personID = 0)
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
-		$query    = Adapters\Database::getQuery(true);
+		$query    = Database::getQuery(true);
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
 			->where("personID = $personID")
@@ -42,9 +42,9 @@ class Subjects extends Curricula
 			$query->where("subjectID = '$subjectID'");
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadBool();
+		return Database::loadBool();
 	}
 
 	/**
@@ -78,16 +78,16 @@ class Subjects extends Curricula
 	 */
 	public static function getName(int $subjectID = 0, $withNumber = false)
 	{
-		$query     = Adapters\Database::getQuery(true);
+		$query     = Database::getQuery(true);
 		$subjectID = $subjectID ? $subjectID : Input::getID();
 		$tag       = Languages::getTag();
 		$query->select("fullName_$tag as name, shortName_$tag as shortName, abbreviation_$tag as abbreviation")
 			->select("code AS subjectNo")
 			->from('#__organizer_subjects')
 			->where("id = $subjectID");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if (!$names = Adapters\Database::loadAssoc())
+		if (!$names = Database::loadAssoc())
 		{
 			return '';
 		}
@@ -138,7 +138,7 @@ class Subjects extends Curricula
 	 */
 	public static function getPersons(int $subjectID, $role = 0)
 	{
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select('p.id, p.surname, p.forename, p.title, sp.role')
 			->from('#__organizer_persons AS p')
 			->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
@@ -149,9 +149,9 @@ class Subjects extends Curricula
 			$query->where("sp.role = $role");
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if (!$results = Adapters\Database::loadAssocList())
+		if (!$results = Database::loadAssocList())
 		{
 			return [];
 		}
@@ -227,14 +227,14 @@ class Subjects extends Curricula
 			return [];
 		}
 
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select('DISTINCT *')
 			->from('#__organizer_curricula')
 			->where("subjectID = $identifiers")
 			->order('lft');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 	/**
@@ -258,15 +258,15 @@ class Subjects extends Curricula
 			$toColumn   = 'subjectID';
 		}
 
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery(true);
 		$query->select('DISTINCT target.subjectID')
 			->from('#__organizer_curricula AS target')
 			->innerJoin("#__organizer_prerequisites AS p ON p.$toColumn = target.id")
 			->innerJoin("#__organizer_curricula AS source ON source.id = p.$fromColumn")
 			->where("source.subjectID = $subjectID");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadIntColumn();
+		return Database::loadIntColumn();
 	}
 
 	/**
@@ -313,8 +313,7 @@ class Subjects extends Curricula
 			return [];
 		}
 
-		$query = Adapters\Database::getQuery(true);
-
+		$query = Database::getQuery();
 		$tag = Languages::getTag();
 		$query->select("DISTINCT s.id, s.name_$tag AS name, s.code, s.creditpoints")
 			->select('p.surname, p.forename, p.title, p.username')
@@ -346,9 +345,9 @@ class Subjects extends Curricula
 			$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.role = '1'");
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList();
+		return Database::loadAssocList();
 	}
 
 	/**
@@ -386,7 +385,7 @@ class Subjects extends Curricula
 	public static function teaches($subjectID = 0, $personID = 0)
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
-		$query    = Adapters\Database::getQuery(true);
+		$query    = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
 			->where("personID = $personID")
@@ -397,8 +396,8 @@ class Subjects extends Curricula
 			$query->where("subjectID = '$subjectID'");
 		}
 
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadBool();
+		return Database::loadBool();
 	}
 }

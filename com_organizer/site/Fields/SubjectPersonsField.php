@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -43,7 +43,7 @@ class SubjectPersonsField extends OptionsField
 			$this->value[$person['id']] = $person['id'];
 		}
 
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select('p.id, p.surname, p.forename')
 			->from('#__organizer_persons AS p')
 			->order('surname, forename');
@@ -65,10 +65,10 @@ class SubjectPersonsField extends OptionsField
 			}
 		}
 
-		Adapters\Database::setQuery($query);
-
+		Database::setQuery($query);
 		$options = parent::getOptions();
-		if (!$persons = Adapters\Database::loadAssocList('id'))
+
+		if (!$persons = Database::loadAssocList('id'))
 		{
 			return $options;
 		}

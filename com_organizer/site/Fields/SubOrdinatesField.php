@@ -13,7 +13,7 @@ namespace Organizer\Fields;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -171,30 +171,28 @@ class SubOrdinatesField extends FormField
 	 */
 	private function getSubordinates()
 	{
-		$resourceID   = $this->form->getValue('id');
 		$contextParts = explode('.', $this->form->getName());
+		$query        = Database::getQuery();
 		$resource     = Helpers\OrganizerHelper::getResource($contextParts[1]);
-
-		$idQuery = Adapters\Database::getQuery();
-		$idQuery->select('id')
+		$resourceID   = $this->form->getValue('id');
+		$query->select('id')
 			->from('#__organizer_curricula')
 			->where("{$resource}ID = '$resourceID'")
 			->group('id');
+		Database::setQuery($query);
 
-		Adapters\Database::setQuery($idQuery);
-
-		if (!$parentID = Adapters\Database::loadInt())
+		if (!$parentID = Database::loadInt())
 		{
 			return [];
 		}
 
-		$subOrdinateQuery = Adapters\Database::getQuery();
-		$subOrdinateQuery->select('*')
+		$query = Database::getQuery();
+		$query->select('*')
 			->from('#__organizer_curricula')
 			->where("parentID = $parentID")
-			->order('lft ASC');
-		Adapters\Database::setQuery($subOrdinateQuery);
+			->order('lft');
+		Database::setQuery($query);
 
-		return Adapters\Database::loadAssocList('ordering');
+		return Database::loadAssocList('ordering');
 	}
 }

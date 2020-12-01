@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -62,7 +62,7 @@ class CourseParticipants extends ResourceHelper
 	 */
 	public static function getState(int $courseID, int $participantID, $eventID = 0)
 	{
-		$query = Adapters\Database::getQuery(true);
+		$query = Database::getQuery();
 		$query->select('status')
 			->from('#__organizer_course_participants AS cp')
 			->where("cp.courseID = $courseID")
@@ -77,9 +77,8 @@ class CourseParticipants extends ResourceHelper
 				->where("ip.participantID = $participantID");
 		}
 
-		Adapters\Database::setQuery($query);
-
-		$state = Adapters\Database::loadResult();
+		Database::setQuery($query);
+		$state = Database::loadResult();
 
 		if ($state === self::UNREGISTERED)
 		{

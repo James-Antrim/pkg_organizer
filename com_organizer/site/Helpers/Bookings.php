@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -56,15 +56,15 @@ class Bookings extends ResourceHelper
 	 */
 	public static function getInstanceIDs(int $bookingID)
 	{
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select('DISTINCT i.id')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID and b.unitID = i.unitID')
 			->where("b.id = $bookingID")
 			->order('i.id');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadIntColumn();
+		return Database::loadIntColumn();
 	}
 
 	/**

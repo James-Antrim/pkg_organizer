@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Tables;
 
 /**
@@ -32,13 +32,13 @@ abstract class Associated extends ResourceHelper
 	public static function getOrganizationIDs(int $resourceID)
 	{
 		$column = static::$resource . 'ID';
-		$query  = Adapters\Database::getQuery(true);
+		$query  = Database::getQuery(true);
 		$query->select('DISTINCT organizationID')
 			->from('#__organizer_associations')
 			->where("$column = $resourceID");
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		return Adapters\Database::loadIntColumn();
+		return Database::loadIntColumn();
 	}
 
 	/**

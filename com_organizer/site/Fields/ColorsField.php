@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Adapters;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use stdClass;
 
@@ -37,13 +37,13 @@ class ColorsField extends ColoredOptionsField
 
 		$tag = Helpers\Languages::getTag();
 
-		$query = Adapters\Database::getQuery();
+		$query = Database::getQuery();
 		$query->select("DISTINCT c.id AS value, c.name_$tag AS text, c.color")
 			->from(' #__organizer_colors AS c')
 			->order('text');
-		Adapters\Database::setQuery($query);
+		Database::setQuery($query);
 
-		if (!$colors = Adapters\Database::loadAssocList())
+		if (!$colors = Database::loadAssocList())
 		{
 			return $options;
 		}
