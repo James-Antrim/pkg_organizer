@@ -20,13 +20,9 @@ use SimpleXMLElement;
 class Descriptions implements UntisXMLValidator
 {
 	/**
-	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
+	 * @inheritDoc
 	 *
-	 * @param   Schedule  $model     the model for the schedule being validated
-	 * @param   string    $code      the id of the resource in Untis
-	 * @param   string    $typeFlag  the flag identifying the categorization resource
-	 *
-	 * @return void modifies the model, setting the id property of the resource
+	 * @param   string  $typeFlag  the flag identifying the categorization resource
 	 */
 	public static function setID(Schedule $model, string $code, $typeFlag = '')
 	{
@@ -66,14 +62,7 @@ class Descriptions implements UntisXMLValidator
 	}
 
 	/**
-	 * Checks whether XML node has the expected structure and required
-	 * information
-	 *
-	 * @param   Schedule          $model  the model for the schedule being validated
-	 * @param   SimpleXMLElement  $node   the node being validated
-	 *
-	 * @return void
-	 * @noinspection PhpUndefinedFieldInspection
+	 * @inheritDoc
 	 */
 	public static function validate(Schedule $model, SimpleXMLElement $node)
 	{

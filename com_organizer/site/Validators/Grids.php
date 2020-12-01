@@ -80,14 +80,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	}
 
 	/**
-	 * Checks whether pool nodes have the expected structure and required
-	 * information
-	 *
-	 * @param   Schedule          $model  the model for the schedule being validated
-	 * @param   SimpleXMLElement  $node   the node being validated
-	 *
-	 * @return void
-	 * @noinspection PhpUndefinedFieldInspection
+	 * @inheritDoc
 	 */
 	public static function validate(Schedule $model, SimpleXMLElement $node)
 	{

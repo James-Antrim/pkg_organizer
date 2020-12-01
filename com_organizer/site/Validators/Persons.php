@@ -21,12 +21,7 @@ use stdClass;
 class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 {
 	/**
-	 * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
-	 *
-	 * @param   Schedule  $model  the model for the schedule being validated
-	 * @param   string    $code   the id of the resource in Untis
-	 *
-	 * @return void modifies the model, setting the id property of the resource
+	 * @inheritDoc
 	 */
 	public static function setID(Schedule $model, string $code)
 	{
@@ -124,14 +119,7 @@ class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
 	}
 
 	/**
-	 * Checks whether person nodes have the expected structure and required
-	 * information
-	 *
-	 * @param   Schedule          $model  the model for the schedule being validated
-	 * @param   SimpleXMLElement  $node   the node being validated
-	 *
-	 * @return void
-	 * @noinspection PhpUndefinedFieldInspection
+	 * @inheritDoc
 	 */
 	public static function validate(Schedule $model, SimpleXMLElement $node)
 	{

@@ -223,98 +223,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	}
 
 	/**
-	 * Validates the subjectID and builds dependant structural elements
-	 *
-	 * @param   Schedule          $model    the model for the schedule being validated
-	 * @param   SimpleXMLElement  $node     the node being validated
-	 * @param   string            $untisID  the untis id of the unit being iterated
-	 *
-	 * @return bool  true on success, otherwise bool false
-	 */
-	private static function validateEvent(Schedule $model, SimpleXMLElement $node, string $untisID)
-	{
-		/** @noinspection PhpUndefinedFieldInspection */
-		$eventCode = str_replace('SU_', '', trim((string) $node->lesson_subject[0]['id']));
-
-		if (empty($eventCode))
-		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_EVENT_MISSING'), $untisID);
-
-			return false;
-		}
-
-		if (empty($model->events->$eventCode))
-		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_EVENT_INVALID'), $untisID, $eventCode);
-
-			return false;
-		}
-
-		$eventID = $model->events->$eventCode->id;
-
-		$model->units->$untisID->eventID = $eventID;
-
-		// Backwards compatibility from here on.
-		if (empty($model->units->$untisID->subjects))
-		{
-			$model->units->$untisID->subjects = new stdClass();
-		}
-
-		if (empty($model->units->$untisID->subjects->$eventID))
-		{
-			$entry            = new stdClass();
-			$entry->delta     = '';
-			$entry->subjectNo = $model->events->$eventCode->subjectNo;
-			$entry->pools     = new stdClass();
-			$entry->teachers  = new stdClass();
-
-			$model->units->$untisID->subjects->$eventID = $entry;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Validates the description
-	 *
-	 * @param   Schedule          $model    the model for the schedule being validated
-	 * @param   SimpleXMLElement  $node     the node being validated
-	 * @param   string            $untisID  the untis id of the unit being iterated
-	 *
-	 * @return bool true if valid, otherwise false
-	 */
-	private static function validateMethod(Schedule $model, SimpleXMLElement $node, string $untisID)
-	{
-		/** @noinspection PhpUndefinedFieldInspection */
-		$methodID = trim((string) $node->lesson_description);
-		if (empty($methodID))
-		{
-			$model->warnings['MID'] = empty($model->warnings['MID']) ? 1 : $model->warnings['MID'] + 1;
-
-			return true;
-		}
-
-		if (empty($model->methods->$methodID))
-		{
-			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_METHOD_INVALID'), $untisID, $methodID);
-
-			return false;
-		}
-
-		$model->units->$untisID->methodID = $model->methods->$methodID;
-
-		return true;
-	}
-
-	/**
-	 * Checks whether XML node has the expected structure and required
-	 * information
-	 *
-	 * @param   Schedule          $model  the model for the schedule being validated
-	 * @param   SimpleXMLElement  $node   the node being validated
-	 *
-	 * @return void
-	 * @noinspection PhpUndefinedFieldInspection
+	 * @inheritDoc
 	 */
 	public static function validate(Schedule $model, SimpleXMLElement $node)
 	{
@@ -474,6 +383,58 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	}
 
 	/**
+	 * Validates the subjectID and builds dependant structural elements
+	 *
+	 * @param   Schedule          $model    the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node     the node being validated
+	 * @param   string            $untisID  the untis id of the unit being iterated
+	 *
+	 * @return bool  true on success, otherwise bool false
+	 */
+	private static function validateEvent(Schedule $model, SimpleXMLElement $node, string $untisID)
+	{
+		/** @noinspection PhpUndefinedFieldInspection */
+		$eventCode = str_replace('SU_', '', trim((string) $node->lesson_subject[0]['id']));
+
+		if (empty($eventCode))
+		{
+			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_EVENT_MISSING'), $untisID);
+
+			return false;
+		}
+
+		if (empty($model->events->$eventCode))
+		{
+			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_EVENT_INVALID'), $untisID, $eventCode);
+
+			return false;
+		}
+
+		$eventID = $model->events->$eventCode->id;
+
+		$model->units->$untisID->eventID = $eventID;
+
+		// Backwards compatibility from here on.
+		if (empty($model->units->$untisID->subjects))
+		{
+			$model->units->$untisID->subjects = new stdClass();
+		}
+
+		if (empty($model->units->$untisID->subjects->$eventID))
+		{
+			$entry            = new stdClass();
+			$entry->delta     = '';
+			$entry->subjectNo = $model->events->$eventCode->subjectNo;
+			$entry->pools     = new stdClass();
+			$entry->teachers  = new stdClass();
+
+			$model->units->$untisID->subjects->$eventID = $entry;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Validates the groups attribute and sets corresponding schedule elements
 	 *
 	 * @param   Schedule          $model    the model for the schedule being validated
@@ -523,6 +484,38 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		return count($unit->groups) ? true : false;
+	}
+
+	/**
+	 * Validates the description
+	 *
+	 * @param   Schedule          $model    the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node     the node being validated
+	 * @param   string            $untisID  the untis id of the unit being iterated
+	 *
+	 * @return bool true if valid, otherwise false
+	 */
+	private static function validateMethod(Schedule $model, SimpleXMLElement $node, string $untisID)
+	{
+		/** @noinspection PhpUndefinedFieldInspection */
+		$methodID = trim((string) $node->lesson_description);
+		if (empty($methodID))
+		{
+			$model->warnings['MID'] = empty($model->warnings['MID']) ? 1 : $model->warnings['MID'] + 1;
+
+			return true;
+		}
+
+		if (empty($model->methods->$methodID))
+		{
+			$model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_METHOD_INVALID'), $untisID, $methodID);
+
+			return false;
+		}
+
+		$model->units->$untisID->methodID = $model->methods->$methodID;
+
+		return true;
 	}
 
 	/**
