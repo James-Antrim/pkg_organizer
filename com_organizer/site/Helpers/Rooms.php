@@ -47,9 +47,7 @@ class Rooms extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves a list of resources in the form of name => id.
-	 *
-	 * @return array the resources, or empty
+	 * @inheritDoc
 	 */
 	public static function getOptions()
 	{
@@ -108,9 +106,7 @@ class Rooms extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves all room entries which match the given filter criteria. Ordered by their display names.
-	 *
-	 * @return array the rooms matching the filter criteria or empty if none were found
+	 * @inheritDoc
 	 */
 	public static function getResources()
 	{

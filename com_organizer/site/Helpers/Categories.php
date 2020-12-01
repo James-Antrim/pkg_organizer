@@ -42,11 +42,8 @@ class Categories extends Associated implements Selectable
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
-	 *
+	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available options
 	 */
 	public static function getOptions($access = '')
 	{
@@ -97,11 +94,8 @@ class Categories extends Associated implements Selectable
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
+	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available resources
 	 */
 	public static function getResources($access = '')
 	{

@@ -104,11 +104,8 @@ class Terms extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
-	 *
+	 * @inheritDoc
 	 * @param   bool  $showDates  if true the start and end date will be displayed as part of the name
-	 *
-	 * @return array the available options
 	 */
 	public static function getOptions($showDates = false)
 	{
@@ -158,9 +155,7 @@ class Terms extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
-	 * @return array the available resources
+	 * @inheritDoc
 	 */
 	public static function getResources()
 	{

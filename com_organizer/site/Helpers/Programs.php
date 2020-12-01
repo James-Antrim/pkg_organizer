@@ -133,7 +133,6 @@ class Programs extends Curricula implements Selectable
 
 	/**
 	 * @inheritDoc
-	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
 	public static function getOptions($access = '')
@@ -227,7 +226,6 @@ class Programs extends Curricula implements Selectable
 
 	/**
 	 * @inheritDoc
-	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
 	public static function getResources($access = '')

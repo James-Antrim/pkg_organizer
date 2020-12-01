@@ -92,9 +92,7 @@ class Campuses extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
-	 *
-	 * @return array the available options
+	 * @inheritDoc
 	 */
 	public static function getOptions()
 	{
@@ -112,9 +110,7 @@ class Campuses extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
-	 * @return array the available resources
+	 * @inheritDoc
 	 */
 	public static function getResources()
 	{

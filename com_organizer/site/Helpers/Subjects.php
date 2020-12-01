@@ -113,9 +113,7 @@ class Subjects extends Curricula
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
-	 *
-	 * @return array the available options
+	 * @inheritDoc
 	 */
 	public static function getOptions()
 	{

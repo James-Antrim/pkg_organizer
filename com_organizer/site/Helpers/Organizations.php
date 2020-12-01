@@ -72,7 +72,6 @@ class Organizations extends ResourceHelper implements Selectable
 
 	/**
 	 * @inheritDoc
-	 *
 	 * @param   bool    $short   whether or not abbreviated names should be returned
 	 * @param   string  $access  any access restriction which should be performed
 	 */
@@ -96,7 +95,6 @@ class Organizations extends ResourceHelper implements Selectable
 
 	/**
 	 * @inheritDoc
-	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
 	public static function getResources($access = '')

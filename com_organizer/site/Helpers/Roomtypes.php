@@ -19,14 +19,10 @@ class Roomtypes extends ResourceHelper implements Selectable
 {
 	use Filtered;
 
-	const NO = 0;
-
-	const YES = 1;
+	private const NO = 0, YES = 1;
 
 	/**
-	 * Retrieves a list of resources in the form of name => id.
-	 *
-	 * @return array the resources, or empty
+	 * @inheritDoc
 	 */
 	public static function getOptions()
 	{
@@ -40,12 +36,9 @@ class Roomtypes extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
+	 * @inheritDoc
 	 * @param   bool  $associated  whether the type needs to be associated with a room
 	 * @param   bool  $public
-	 *
-	 * @return array the available resources
 	 */
 	public static function getResources($associated = self::YES, $suppress = self::NO)
 	{
