@@ -157,7 +157,7 @@ class Participant extends BaseModel
 				}
 			}
 
-			$success = Helpers\OrganizerHelper::insertObject('#__organizer_participants', $relevantData, 'id');
+			$success = Database::insertObject('#__organizer_participants', $relevantData, 'id');
 
 		}
 

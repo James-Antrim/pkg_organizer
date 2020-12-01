@@ -54,6 +54,31 @@ class Database
 	}
 
 	/**
+	 * Inserts a row into a table based on an object's properties.
+	 *
+	 * @param   string  $table    The name of the database table to insert into.
+	 * @param   object  &$object  A reference to an object whose public properties match the table fields.
+	 * @param   string  $key      The name of the primary key. If provided the object property is updated.
+	 *
+	 * @return  bool    True on success.
+	 */
+	public static function insertObject(string $table, object &$object, $key = 'id')
+	{
+		$dbo = Factory::getDbo();
+
+		try
+		{
+			return $dbo->insertObject($table, $object, $key);
+		}
+		catch (Exception $exc)
+		{
+			Helpers\OrganizerHelper::message($exc->getMessage(), 'error');
+
+			return false;
+		}
+	}
+
+	/**
 	 * Method to get the first row of the result set from the database query as an associative array
 	 * of ['field_name' => 'row_value'].
 	 *
