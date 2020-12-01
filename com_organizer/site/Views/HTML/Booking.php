@@ -35,9 +35,7 @@ class Booking extends Participants
 	];
 
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function addToolBar()
 	{
@@ -64,9 +62,7 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function authorize()
 	{
@@ -82,12 +78,7 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Method to create a list output
-	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 *
-	 * @return void
-	 * @noinspection PhpDocSignatureInspection
+	 * @inheritDoc
 	 */
 	public function display($tpl = null)
 	{
@@ -111,9 +102,7 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritDoc
 	 */
 	protected function setHeaders()
 	{
@@ -130,9 +119,7 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Creates a subtitle element from the term name and the start and end dates of the course.
-	 *
-	 * @return void modifies the course
+	 * @inheritDoc
 	 */
 	protected function setSubtitle()
 	{
@@ -145,9 +132,7 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{

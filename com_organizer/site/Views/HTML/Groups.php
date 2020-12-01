@@ -33,9 +33,7 @@ class Groups extends ListView
 	];
 
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function addToolBar()
 	{
@@ -90,9 +88,7 @@ class Groups extends ListView
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function authorize()
 	{
@@ -103,11 +99,7 @@ class Groups extends ListView
 	}
 
 	/**
-	 * Method to get display
-	 *
-	 * @param   Object  $tpl  template  (default: null)
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	public function display($tpl = null)
 	{
@@ -129,9 +121,7 @@ class Groups extends ListView
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	protected function setHeaders()
 	{
@@ -152,9 +142,7 @@ class Groups extends ListView
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{

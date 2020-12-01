@@ -31,9 +31,7 @@ class Units extends ListView
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function authorize()
 	{
@@ -44,9 +42,7 @@ class Units extends ListView
 	}
 
 	/**
-	 * Adds a toolbar and title to the view.
-	 *
-	 * @return void  sets context variables
+	 * @inheritdoc
 	 */
 	protected function addToolBar()
 	{
@@ -106,9 +102,7 @@ class Units extends ListView
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{
@@ -127,9 +121,7 @@ class Units extends ListView
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{

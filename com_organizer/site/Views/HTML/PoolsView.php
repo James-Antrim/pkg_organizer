@@ -20,9 +20,7 @@ abstract class PoolsView extends ListView
 	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'programID' => 'link'];
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function authorize()
 	{
@@ -33,9 +31,7 @@ abstract class PoolsView extends ListView
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{
@@ -51,9 +47,7 @@ abstract class PoolsView extends ListView
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{

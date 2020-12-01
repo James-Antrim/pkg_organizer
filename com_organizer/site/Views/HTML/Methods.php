@@ -20,9 +20,7 @@ class Methods extends ListView
 	protected $rowStructure = ['checkbox' => '', 'abbreviation' => 'link', 'name' => 'link'];
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{

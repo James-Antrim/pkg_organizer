@@ -21,9 +21,7 @@ class Organizations extends ListView
 	protected $rowStructure = ['checkbox' => '', 'shortName' => 'link', 'name' => 'link'];
 
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function addToolBar()
 	{
@@ -42,9 +40,7 @@ class Organizations extends ListView
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{

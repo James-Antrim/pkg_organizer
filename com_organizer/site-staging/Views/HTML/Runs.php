@@ -20,9 +20,7 @@ class Runs extends ListView
 	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'startDate' => 'link', 'endDate' => 'link'];
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritDoc
 	 */
 	public function setHeaders()
 	{
@@ -39,9 +37,7 @@ class Runs extends ListView
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritDoc
 	 */
 	protected function structureItems()
 	{

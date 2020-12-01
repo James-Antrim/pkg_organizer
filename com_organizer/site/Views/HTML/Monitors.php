@@ -17,7 +17,7 @@ use Organizer\Helpers;
  */
 class Monitors extends ListView
 {
-	const UPCOMING = 0, CURRENT = 1, MIXED = 2, CONTENT = 3;
+	private const UPCOMING = 0, CURRENT = 1, MIXED = 2, CONTENT = 3;
 
 	public $displayBehaviour = [];
 
@@ -44,9 +44,7 @@ class Monitors extends ListView
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function authorize()
 	{
@@ -57,9 +55,7 @@ class Monitors extends ListView
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{
@@ -78,9 +74,7 @@ class Monitors extends ListView
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{

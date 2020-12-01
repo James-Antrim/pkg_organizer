@@ -25,9 +25,7 @@ class PoolSelection extends PoolsView
 	protected $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
 
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function addToolBar()
 	{

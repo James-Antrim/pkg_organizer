@@ -20,9 +20,7 @@ class Colors extends ListView
 	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'color' => 'value'];
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{
@@ -37,9 +35,7 @@ class Colors extends ListView
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{

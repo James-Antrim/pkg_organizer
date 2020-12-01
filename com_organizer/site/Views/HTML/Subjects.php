@@ -18,11 +18,11 @@ use Organizer\Helpers;
  */
 class Subjects extends ListView
 {
-	const ALL = 0, COORDINATES = 1, TEACHES = 2;
+	private const ALL = 0, COORDINATES = 1, TEACHES = 2;
 
 	private $documentAccess = false;
 
-	private $params = null;
+	private $params;
 
 	/**
 	 * @inheritdoc
@@ -34,9 +34,7 @@ class Subjects extends ListView
 	}
 
 	/**
-	 * Sets Joomla view title and action buttons
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function addToolBar()
 	{
@@ -87,9 +85,7 @@ class Subjects extends ListView
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function authorize()
 	{
@@ -105,9 +101,7 @@ class Subjects extends ListView
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{
@@ -149,7 +143,7 @@ class Subjects extends ListView
 	 *
 	 * @return string
 	 */
-	private function getPersonDisplay($subject)
+	private function getPersonDisplay(object $subject)
 	{
 		$names = [];
 		$role  = (int) Helpers\Input::getParams()->get('role');
@@ -193,7 +187,7 @@ class Subjects extends ListView
 	 *
 	 * @return string
 	 */
-	public function getPersonText($person)
+	public function getPersonText(array $person)
 	{
 		$showTitle = (bool) $this->params->get('showTitle');
 
@@ -213,9 +207,7 @@ class Subjects extends ListView
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{

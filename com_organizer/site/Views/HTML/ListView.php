@@ -50,6 +50,16 @@ abstract class ListView extends BaseHTMLView
 	public $state = null;
 
 	/**
+	 * Adds supplemental information to the display output.
+	 *
+	 * @return void modifies the object property supplement
+	 */
+	protected function addSupplement()
+	{
+		$this->supplement = '';
+	}
+
+	/**
 	 * Adds a toolbar and title to the view.
 	 *
 	 * @return void  sets context variables
@@ -74,7 +84,7 @@ abstract class ListView extends BaseHTMLView
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
+	 * Checks user authorization and initiates redirects accordingly.
 	 *
 	 * @return void
 	 */
@@ -87,11 +97,7 @@ abstract class ListView extends BaseHTMLView
 	}
 
 	/**
-	 * Method to create a list output
-	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	public function display($tpl = null)
 	{
@@ -114,18 +120,11 @@ abstract class ListView extends BaseHTMLView
 		$this->empty = $this->empty ? $this->empty : Helpers\Languages::_('ORGANIZER_EMPTY_RESULT_SET');
 
 		$this->addDisclaimer();
-		if (method_exists($this, 'setSubtitle'))
-		{
-			$this->setSubtitle();
-		}
-		if (method_exists($this, 'addSupplement'))
-		{
-			$this->addSupplement();
-		}
-
 		$this->addToolBar();
 		$this->addMenu();
 		$this->modifyDocument();
+		$this->setSubtitle();
+		$this->addSupplement();
 
 		parent::display($tpl);
 	}
@@ -143,16 +142,17 @@ abstract class ListView extends BaseHTMLView
 	 * @param   string  $attribute     the resource attribute to be changed (useful if multiple entries can be toggled)
 	 *
 	 * @return string  a HTML string
+	 * @noinspection PhpTooManyParametersInspection
 	 */
 	protected function getAssocToggle(
-		$controller,
-		$columnOne,
-		$valueOne,
-		$columnTwo,
-		$valueTwo,
-		$currentValue,
-		$tip,
-		$attribute = null
+		string $controller,
+		string $columnOne,
+		int $valueOne,
+		string $columnTwo,
+		int $valueTwo,
+		bool $currentValue,
+		string $tip,
+		$attribute = ''
 	)
 	{
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle";
@@ -238,6 +238,16 @@ abstract class ListView extends BaseHTMLView
 	abstract protected function setHeaders();
 
 	/**
+	 * Creates a subtitle element from the term name and the start and end dates of the course.
+	 *
+	 * @return void modifies the course
+	 */
+	protected function setSubtitle()
+	{
+		$this->subtitle = '';
+	}
+
+	/**
 	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
 	 *
 	 * @return void processes the class items property
@@ -263,13 +273,13 @@ abstract class ListView extends BaseHTMLView
 	/**
 	 * Processes an individual list item resolving it to an array of table data values.
 	 *
-	 * @param   mixed   $index  the row index, typically an int value, but can also be string
-	 * @param   object  $item   the item to be displayed in a table row
-	 * @param   string  $link   the link to the individual resource
+	 * @param   int|string  $index  the row index, typically an int value, but can also be string
+	 * @param   object      $item   the item to be displayed in a table row
+	 * @param   string      $link   the link to the individual resource
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	protected function structureItem($index, $item, $link = '')
+	protected function structureItem($index, object $item, $link = '')
 	{
 		$processedItem = [];
 

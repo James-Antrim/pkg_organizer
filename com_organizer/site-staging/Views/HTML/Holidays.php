@@ -18,12 +18,10 @@ use Organizer\Helpers\HTML;
  */
 class Holidays extends ListView
 {
-	const OPTIONAL = 1, PARTIAL = 2, BLOCKING = 3;
+	private const OPTIONAL = 1, PARTIAL = 2, BLOCKING = 3;
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritDoc
 	 */
 	public function setHeaders()
 	{
@@ -41,9 +39,7 @@ class Holidays extends ListView
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritDoc
 	 */
 	protected function structureItems()
 	{

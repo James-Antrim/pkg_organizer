@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
@@ -58,9 +57,7 @@ class Courses extends ListView
 	}
 
 	/**
-	 * Adds supplemental information to the display output.
-	 *
-	 * @return void modifies the object property supplement
+	 * @inheritDoc
 	 */
 	protected function addSupplement()
 	{
@@ -81,9 +78,7 @@ class Courses extends ListView
 	}
 
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function addToolBar()
 	{
@@ -153,9 +148,7 @@ class Courses extends ListView
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function authorize()
 	{
@@ -171,9 +164,7 @@ class Courses extends ListView
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritDoc
 	 */
 	public function setHeaders()
 	{
@@ -205,9 +196,7 @@ class Courses extends ListView
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritDoc
 	 */
 	protected function structureItems()
 	{

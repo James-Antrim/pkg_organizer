@@ -21,9 +21,7 @@ class Trace extends ListView
 	protected $rowStructure = ['checkbox' => '', 'person' => 'value', 'event' => 'list'];
 
 	/**
-	 * Adds a toolbar and title to the view.
-	 *
-	 * @return void  sets context variables
+	 * @inheritdoc
 	 */
 	protected function addToolBar()
 	{
@@ -33,9 +31,7 @@ class Trace extends ListView
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
 	protected function authorize()
 	{
@@ -46,9 +42,7 @@ class Trace extends ListView
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{
