@@ -139,6 +139,26 @@ class Instances extends ListView
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function display($tpl = null)
+	{
+		if (Helpers\Input::getInt('my'))
+		{
+			if (Helpers\Users::getID())
+			{
+				$this->empty   = Helpers\Languages::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
+			}
+			else
+			{
+				$this->empty   = Helpers\Languages::_('ORGANIZER_401');
+			}
+		}
+
+		parent::display($tpl);
+	}
+
+	/**
 	 * Lists the instance associated teachers.
 	 *
 	 * @param   object  $item  the instance being iterated
