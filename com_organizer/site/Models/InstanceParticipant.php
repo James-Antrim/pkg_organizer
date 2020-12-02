@@ -93,7 +93,7 @@ class InstanceParticipant extends BaseModel
 			->where("bk.code = '$code'")
 			->innerJoin('#__organizer_blocks AS bl ON bl.id = i.blockID')
 			->where("bl.date = '$today'")
-			->where("bl.startTime < '$then'")
+			->where("((bk.startTime IS NOT NULL and bk.startTime < '$then') or bl.startTime < '$then')")
 			->where("bl.endTime > '$now'");
 		Database::setQuery($query);
 

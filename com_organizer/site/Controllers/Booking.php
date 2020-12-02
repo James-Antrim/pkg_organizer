@@ -71,6 +71,50 @@ class Booking extends Controller
 	}
 
 	/**
+	 * Closes a booking manually.
+	 *
+	 * @return void
+	 */
+	public function close()
+	{
+		$model = new Models\Booking();
+
+		if (!$model->close())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Opens/reopens a booking manually.
+	 *
+	 * @return void
+	 */
+	public function open()
+	{
+		$model = new Models\Booking();
+
+		if (!$model->open())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
 	 * Supplements the resource.
 	 *
 	 * @return void

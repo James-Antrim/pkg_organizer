@@ -39,9 +39,11 @@ class Bookings extends ResourceHelper
 			return '';
 		}
 
+		$endTime   = $booking->endTime ? $booking->endTime : $block->endTime;
+		$startTime = $booking->startTime ? $booking->startTime : $block->startTime;
 		$date      = Dates::formatDate($block->date);
-		$endTime   = Dates::formatEndTime($booking->endTime);
-		$startTime = Dates::formatTime($booking->startTime);
+		$endTime   = Dates::formatEndTime($endTime);
+		$startTime = Dates::formatTime($startTime);
 
 		return "$date $startTime - $endTime";
 	}

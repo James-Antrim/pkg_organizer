@@ -50,6 +50,7 @@ class Booking extends Participants
 		$title       = Languages::_('ORGANIZER_NOTES');
 		$batchButton .= '<span class="icon-pencil-2" title="' . $title . '"></span>' . " $title";
 		$batchButton .= '</button>';
+		$toolbar->appendButton('Custom', $batchButton, 'batch');
 
 		// TODO add function to remove participants
 		// TODO add function to batch assign participants to the correct event
@@ -57,8 +58,40 @@ class Booking extends Participants
 		// TODO add filter for incomplete profiles
 		// TODO add the participant profile view as a menu item
 		// TODO special handling for middle names??
+		// TODO ajax refresh??
 
-		$toolbar->appendButton('Custom', $batchButton, 'batch');
+		if (date('Y-m-d') === $this->booking->get('date'))
+		{
+			$defaultEnd   = $this->booking->get('defaultEndTime');
+			$defaultStart = $this->booking->get('defaultStartTime');
+			$end          = $this->booking->endTime ? $this->booking->endTime : $defaultEnd;
+			$now          = date('H:i:s');
+			$start        = $this->booking->startTime ? $this->booking->startTime : $defaultStart;
+			$then         = date('H:i:s', strtotime('-60 minutes', strtotime($defaultStart)));
+			$earlyStart   = ($now > $then and $now < $start);
+			$reOpen       = ($now >= $end and $now < $defaultEnd);
+
+			if ($earlyStart or $reOpen)
+			{
+				if ($earlyStart)
+				{
+					$icon = 'play';
+					$text = Languages::_('ORGANIZER_MANUALLY_OPEN');
+				}
+				else
+				{
+					$icon = 'loop';
+					$text = Languages::_('ORGANIZER_REOPEN');
+				}
+
+				$toolbar->appendButton('Standard', $icon, $text, 'booking.open', false);
+			}
+			elseif ($now > $defaultStart and !$this->booking->endTime)
+			{
+				$text = Languages::_('ORGANIZER_MANUALLY_CLOSE');
+				$toolbar->appendButton('Standard', 'stop', $text, 'booking.close', false);
+			}
+		}
 	}
 
 	/**
@@ -127,6 +160,9 @@ class Booking extends Participants
 		$subTitle  = Helpers\Bookings::getNames($bookingID);
 
 		$subTitle[] = Helpers\Bookings::getDateTimeDisplay($bookingID);
+
+		$count      = Helpers\Bookings::getParticipantCount($bookingID);
+		$subTitle[] = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count);
 
 		$this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
 	}

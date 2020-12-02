@@ -59,11 +59,7 @@ class Booking extends Participants
 		if (!$booking->load($keys))
 		{
 			$hash   = hash('adler32', (int) $instance->blockID . $instance->unitID);
-			$values = [
-				'code'      => substr($hash, 0, 4) . '-' . substr($hash, 4),
-				'endTime'   => $block->endTime,
-				'startTime' => $block->startTime
-			];
+			$values = ['code' => substr($hash, 0, 4) . '-' . substr($hash, 4)];
 			$booking->save(array_merge($keys, $values));
 		}
 
@@ -77,18 +73,16 @@ class Booking extends Participants
 	 */
 	public function addParticipant()
 	{
-		$listItems = Helpers\Input::getListItems();
-		$input     = $listItems->get('username');
+		$this->authorize();
 
-		if (!$bookingID = Helpers\Input::getID() or empty($input) or !$input = trim($input))
+		if (empty($input) or !$input = trim($input))
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
 
-		if (!Helpers\Can::manage('booking', $bookingID))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
+		$bookingID = Helpers\Input::getID();
+		$listItems = Helpers\Input::getListItems();
+		$input     = $listItems->get('username');
 
 		// Manually unset the username so it isn't later added to the state
 		Helpers\Input::getInput()->set('list', ['fullordering' => $listItems->get('fullordering')]);
@@ -310,6 +304,54 @@ class Booking extends Participants
 	}
 
 	/**
+	 * Performs authorization checks for booking dm functions.
+	 *
+	 * @return void
+	 */
+	private function authorize()
+	{
+		if (!$bookingID = Helpers\Input::getID())
+		{
+			Helpers\OrganizerHelper::error(400);
+		}
+
+		if (!Helpers\Can::manage('booking', $bookingID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
+
+	/**
+	 * Closes a booking manually.
+	 *
+	 * @return bool true if a change was made otherwise false,
+	 */
+	public function close()
+	{
+		$this->authorize();
+
+		$block     = new Tables\Blocks();
+		$booking   = new Tables\Bookings();
+		$bookingID = Helpers\Input::getID();
+
+		if (!$booking->load($bookingID) or !$block->load($booking->blockID))
+		{
+			return false;
+		}
+
+		$now = date('H:i:s');
+
+		if ($now > $block->startTime)
+		{
+			$booking->endTime = $now;
+
+			return $booking->store();
+		}
+
+		return false;
+	}
+
+	/**
 	 * Gets the booking table entry, and fills appropriate form field values.
 	 *
 	 * @return Tables\Bookings
@@ -319,6 +361,12 @@ class Booking extends Participants
 		$bookingID = Helpers\Input::getID();
 		$booking   = new Tables\Bookings();
 		$booking->load($bookingID);
+
+		$block = new Tables\Blocks();
+		$block->load($booking->blockID);
+		$booking->set('date', $block->date);
+		$booking->set('defaultEndTime', $block->endTime);
+		$booking->set('defaultStartTime', $block->startTime);
 
 		return $booking;
 	}
@@ -390,15 +438,51 @@ class Booking extends Participants
 	 */
 	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false)
 	{
-		$form = parent::loadForm($name, $source, $options, $clear, $xpath);
-
+		$form    = parent::loadForm($name, $source, $options, $clear, $xpath);
 		$booking = $this->getBooking();
-
-		$count = Helpers\Bookings::getParticipantCount($booking->id);
-		$form->setValue('count', 'list', sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count));
 		$form->setValue('notes', 'supplement', $booking->notes);
 
 		return $form;
+	}
+
+	/**
+	 * Opens/reopens a booking manually.
+	 *
+	 * @return bool true if a change was made otherwise false,
+	 */
+	public function open()
+	{
+		$this->authorize();
+
+		$block     = new Tables\Blocks();
+		$booking   = new Tables\Bookings();
+		$bookingID = Helpers\Input::getID();
+
+		if (!$booking->load($bookingID) or !$block->load($booking->blockID))
+		{
+			return false;
+		}
+
+		$now  = date('H:i:s');
+		$then = date('H:i:s', strtotime('-60 minutes', strtotime($block->startTime)));
+
+		// Early start
+		if ($now > $then and (empty($booking->startTime) or $now < $booking->startTime))
+		{
+			$booking->startTime = $now;
+
+			return $booking->store();
+		}
+
+		// Reopen before default end
+		if ($now > $booking->endTime and $now < $block->endTime)
+		{
+			$booking->endTime = null;
+
+			return $booking->store();
+		}
+
+		return false;
 	}
 
 	/**
@@ -482,7 +566,8 @@ class Booking extends Participants
 	 */
 	public function supplement()
 	{
-		$bookingID  = Helpers\Input::getID();
+		$this->authorize();
+
 		$supplement = Helpers\Input::getSupplementalItems();
 
 		if (!$bookingID or !$notes = $supplement->get('notes'))
