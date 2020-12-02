@@ -23,6 +23,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
                 php-version: ${{ matrix.php-versions }}
+                extensions: "pdo_mysql"
+        env:
+                update: true
       - name: "Install dependencies"
         run: "sudo apt-get install tree"
       - name: "Checkout build enviroment"
