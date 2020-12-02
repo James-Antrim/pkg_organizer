@@ -15,7 +15,19 @@ jobs:
     steps:
       - name: "Install dependencies"
         run: "sudo apt-get install tree"
+      - name: "Checkout build enviroment"
+        uses: actions/checkout@v2
+        with:
+          repository:  jpbm04/ii-ci
+          path: build
       - name: "Checkout sources"
         uses: actions/checkout@v2
         with:
           path : extensions/com_organizer
+      - name: "Build release files"
+        run: build/scripts/shell/release.sh
+      - name: "Upload release as artifact"
+        uses: actions/upload-artifact@v2
+        with:
+          name: "Releasefile"
+          path: "release/*.zip"
