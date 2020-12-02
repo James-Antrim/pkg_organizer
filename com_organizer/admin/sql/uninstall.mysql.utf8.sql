@@ -3,6 +3,7 @@ SET foreign_key_checks = 0;
 
 DROP TABLE IF EXISTS `#__organizer_associations`;
 DROP TABLE IF EXISTS `#__organizer_blocks`;
+DROP TABLE IF EXISTS `#__organizer_bookings`;
 DROP TABLE IF EXISTS `#__organizer_buildings`;
 DROP TABLE IF EXISTS `#__organizer_campuses`;
 DROP TABLE IF EXISTS `#__organizer_categories`;

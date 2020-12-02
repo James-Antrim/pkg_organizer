@@ -38,11 +38,13 @@ CREATE TABLE IF NOT EXISTS `#__organizer_blocks` (
     COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__organizer_bookings` (
-    `id`      INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `blockID` INT(11) UNSIGNED NOT NULL,
-    `unitID`  INT(11) UNSIGNED NOT NULL,
-    `code`    VARCHAR(60)      NOT NULL,
-    `notes`   TEXT,
+    `id`        INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `blockID`   INT(11) UNSIGNED NOT NULL,
+    `unitID`    INT(11) UNSIGNED NOT NULL,
+    `code`      VARCHAR(60)      NOT NULL,
+    `notes`     TEXT,
+    `endTime`   TIME             NOT NULL,
+    `startTime` TIME             NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `entry` UNIQUE (`blockID`, `unitID`),
     KEY `blockID` (`blockID`),
