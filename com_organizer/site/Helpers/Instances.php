@@ -590,6 +590,18 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Gets the count of participants who attended the instance.
+	 *
+	 * @param   int  $instanceID
+	 *
+	 * @return int the number of attending participants
+	 */
+	public static function getParticipantCount(int $instanceID)
+	{
+		return count(self::getParticipantIDs($instanceID));
+	}
+
+	/**
 	 * Gets an array of participant IDs for a given instance
 	 *
 	 * @param   int  $instanceID  the instance id
@@ -607,6 +619,7 @@ class Instances extends ResourceHelper
 		$query->select('participantID')
 			->from('#__organizer_instance_participants')
 			->where("instanceID = $instanceID")
+			->where('attended = 1')
 			->order('participantID');
 		Database::setQuery($query);
 

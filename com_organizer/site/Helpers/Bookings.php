@@ -91,4 +91,25 @@ class Bookings extends ResourceHelper
 
 		return $names;
 	}
+
+	/**
+	 * Gets the count of participants who attended the booking.
+	 *
+	 * @param   int  $bookingID
+	 *
+	 * @return int the number of attending participants
+	 */
+	public static function getParticipantCount(int $bookingID)
+	{
+		$query = Database::getQuery();
+		$query->select('COUNT(DISTINCT ip.participantID)')
+			->from('#__organizer_instance_participants AS ip')
+			->innerJoin('#__organizer_instances AS i on i.id = ip.instanceID')
+			->innerJoin('#__organizer_bookings AS b ON b.unitID = i.unitID AND b.blockID = i.blockID')
+			->where('ip.attended = 1')
+			->where("b.id = $bookingID");
+		Database::setQuery($query);
+
+		return Database::loadInt();
+	}
 }
