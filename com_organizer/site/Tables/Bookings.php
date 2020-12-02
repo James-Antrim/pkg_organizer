@@ -32,12 +32,28 @@ class Bookings extends BaseTable
 	public $code;
 
 	/**
+	 * The end time of the block.
+	 * TIME DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $endTime;
+
+	/**
 	 * Textual notes to the execution of this booking.
 	 * TEXT
 	 *
 	 * @var string
 	 */
 	public $notes;
+
+	/**
+	 * The start time of the block.
+	 * TIME DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $startTime;
 
 	/**
 	 * The id of the unit entry referenced.

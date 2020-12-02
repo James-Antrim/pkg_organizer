@@ -27,22 +27,21 @@ class Bookings extends ResourceHelper
 	 */
 	public static function getDateTimeDisplay(int $bookingID)
 	{
-		$instanceIDs = self::getInstanceIDs($bookingID);
-		$instance    = new Tables\Instances();
-		if (!$instance->load($instanceIDs[0]))
+		$booking = new Tables\Bookings();
+		if (!$booking->load($bookingID))
 		{
 			return '';
 		}
 
 		$block = new Tables\Blocks();
-		if (!$block->load($instance->blockID))
+		if (!$block->load($booking->blockID))
 		{
 			return '';
 		}
 
 		$date      = Dates::formatDate($block->date);
-		$endTime   = Dates::formatEndTime($block->endTime);
-		$startTime = Dates::formatTime($block->startTime);
+		$endTime   = Dates::formatEndTime($booking->endTime);
+		$startTime = Dates::formatTime($booking->startTime);
 
 		return "$date $startTime - $endTime";
 	}
