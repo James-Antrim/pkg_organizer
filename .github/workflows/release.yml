@@ -1,6 +1,6 @@
 name: Release joomla component package
 
-on: push
+on: 
     push:
       tags:
         - 'v*'
