@@ -3,17 +3,14 @@ name: Release joomla component package
 on:
   push:
     tags:
-      - v*
+      - 'v*'
 
 jobs:
   build:
 
-    strategy:
-            fail-fast:  false
-
     runs-on: ubuntu-latest
 
-    name: "Release"
+    name: "Release new version"
     
     steps:
       - name: "Install dependencies"
