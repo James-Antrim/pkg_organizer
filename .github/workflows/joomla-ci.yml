@@ -43,9 +43,9 @@ jobs:
         with:
           name: "ZIPs PHP ${{ matrix.php-versions }}"
           path: "zips/*.zip"
-      - name: "Upload Workspace"
-        uses: actions/upload-artifact@v2
-        #if: ${{env.ci_release == true}}
-        with: 
-                name: "Workspace PHP ${{ matrix.php-versions }}"
-                path: "./"
+            #      - name: "Upload Workspace"
+            #        uses: actions/upload-artifact@v2
+            #        #if: ${{env.ci_release == true}}
+            #        with: 
+            #                name: "Workspace PHP ${{ matrix.php-versions }}"
+            #                path: "./"
