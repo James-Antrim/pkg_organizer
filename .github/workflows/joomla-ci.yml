@@ -12,9 +12,11 @@ jobs:
     strategy:
             fail-fast:  false
             matrix:
-              php-versions: ['7.3', '7.4', '8.0', '8.1']
+              php-versions: ['7.2', '7.3', '7.4', '8.0', '8.1']
 
     runs-on: ubuntu-latest
+
+    name: "PHP ${{ matrix.php-versions }}"
     
     steps:
       - name: "Start mysql service"
@@ -37,8 +39,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           path : extensions/com_organizer
-      - name: "Initialize build enviroment"
-        run: build/scripts/shell/init.sh
+      - name: "Building joomla extensions"
+        run: build/scripts/shell/build.sh
       - name: "Generating ZIP-File(s)"
         run: build/scripts/shell/mkzips.sh
       - name: "Upload zip files"
