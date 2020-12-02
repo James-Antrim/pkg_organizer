@@ -1,9 +1,9 @@
 name: Release joomla component package
 
 on: push
-  #  push:
-  #    tags:
-  #      - '**'
+    push:
+      tags:
+        - 'v*'
 
 jobs:
   build:
