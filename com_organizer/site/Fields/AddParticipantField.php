@@ -41,7 +41,7 @@ class AddParticipantField extends FormField
 			"name=\"$this->name\"",
 			$this->class ? "class=\"$this->class\"" : '',
 			'maxlength="20"',
-			'placeholder="' . Helpers\Languages::_('ORGANIZER_USERNAME') . '"',
+			'placeholder="' . Helpers\Languages::_('ORGANIZER_ADD') . '"',
 			'type="text"'
 		];
 		$input      = '<input ' . implode(' ', $attributes) . '/>';

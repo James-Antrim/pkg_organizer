@@ -388,6 +388,9 @@ class Booking extends Participants
 		$form = parent::loadForm($name, $source, $options, $clear, $xpath);
 
 		$booking = $this->getBooking();
+
+		$count = Helpers\Bookings::getParticipantCount($booking->id);
+		$form->setValue('count', 'list', sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count));
 		$form->setValue('notes', 'supplement', $booking->notes);
 
 		return $form;

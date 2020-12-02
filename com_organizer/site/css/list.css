@@ -291,6 +291,11 @@ span.comment, span.method, span.role-title {
     font-size: .8rem;
 }
 
+span.display-value {
+    padding-right: .4rem;
+    padding-top: .4rem;
+}
+
 span.event {
     font-size: 1rem;
     font-family: "THM-Medium", Arial, Helvetica, sans-serif;
