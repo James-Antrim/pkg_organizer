@@ -2,9 +2,7 @@ name: Test joomla component installation
 
 on:
         - push
-
-env:
-        ci_release: true
+        - pull_request
 
 jobs:
   build:
@@ -39,8 +37,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           path : extensions/com_organizer
-      - name: "Building joomla extensions"
-        run: build/scripts/shell/build.sh
+      - name: "Test installing joomla extensions"
+        run: build/scripts/shell/test.sh
       - name: "Generating ZIP-File(s)"
         run: build/scripts/shell/mkzips.sh
       - name: "Upload zip files"
@@ -50,7 +48,6 @@ jobs:
           path: "zips/*.zip"
             #      - name: "Upload Workspace"
             #        uses: actions/upload-artifact@v2
-            #        #if: ${{env.ci_release == true}}
             #        with: 
             #                name: "Workspace PHP ${{ matrix.php-versions }}"
             #                path: "./"

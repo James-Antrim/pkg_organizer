@@ -1,0 +1,24 @@
+name: Release joomla component package
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build:
+
+    strategy:
+            fail-fast:  false
+
+    runs-on: ubuntu-latest
+
+    name: "Release"
+    
+    steps:
+      - name: "Install dependencies"
+        run: "sudo apt-get install tree"
+      - name: "Checkout sources"
+        uses: actions/checkout@v2
+        with:
+          path : extensions/com_organizer
