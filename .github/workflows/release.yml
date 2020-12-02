@@ -3,7 +3,7 @@ name: Release joomla component package
 on:
   push:
     tags:
-      - 'v*'
+      - '**'
 
 jobs:
   build:
