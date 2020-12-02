@@ -46,8 +46,9 @@ class Booking extends Participants
 			Helpers\OrganizerHelper::error(403);
 		}
 
+		$block    = new Tables\Blocks();
 		$instance = new Tables\Instances();
-		if (!$instance->load($instanceID))
+		if (!$instance->load($instanceID) or !$block->load($instance->blockID))
 		{
 			Helpers\OrganizerHelper::error(412);
 		}
@@ -57,9 +58,13 @@ class Booking extends Participants
 
 		if (!$booking->load($keys))
 		{
-			$hash         = hash('adler32', (int) $instance->blockID . $instance->unitID);
-			$keys['code'] = substr($hash, 0, 4) . '-' . substr($hash, 4);
-			$booking->save($keys);
+			$hash   = hash('adler32', (int) $instance->blockID . $instance->unitID);
+			$values = [
+				'code'      => substr($hash, 0, 4) . '-' . substr($hash, 4),
+				'endTime'   => $block->endTime,
+				'startTime' => $block->startTime
+			];
+			$booking->save(array_merge($keys, $values));
 		}
 
 		return $booking->id;
