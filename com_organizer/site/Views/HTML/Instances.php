@@ -429,7 +429,7 @@ class Instances extends ListView
 			$label = '';
 			$icon  = '';
 			$today = date('Y-m-d');
-			$then = date('H:i:s', strtotime('+2 days'));
+			$then = date('Y-m-d', strtotime('+2 days'));
 			$URL   = Uri::base() . '?option=com_organizer';
 
 			$expired = ($item->date < $today or ($item->date === $today and $item->endTime < date('H:i:s')));
