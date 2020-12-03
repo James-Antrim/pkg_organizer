@@ -76,6 +76,8 @@ class Participant extends BaseModel
 
 		if (!isset($data['id']))
 		{
+			Helpers\OrganizerHelper::message('ORGANIZER_400', 'error');
+
 			return false;
 		}
 
@@ -106,12 +108,18 @@ class Participant extends BaseModel
 			if (in_array($index, $requiredFields))
 			{
 				$data[$index] = trim($value);
+
 				if (empty($data[$index]))
 				{
+					Helpers\OrganizerHelper::message('ORGANIZER_400', 'warning');
+
 					return false;
 				}
+
 				if (in_array($index, $numericFields) and !is_numeric($value))
 				{
+					Helpers\OrganizerHelper::message('ORGANIZER_400', 'warning');
+
 					return false;
 				}
 			}
@@ -124,8 +132,8 @@ class Participant extends BaseModel
 		$data['telephone'] = empty($data['telephone']) ? '' : self::cleanAlphaNum($data['telephone']);
 		$data['zipCode']   = self::cleanAlphaNum($data['zipCode']);
 
-		$success = true;
-		$table   = new Tables\Participants();
+		$table = new Tables\Participants();
+
 		if ($table->load($data['id']))
 		{
 			$altered = false;
@@ -141,27 +149,47 @@ class Participant extends BaseModel
 
 			if ($altered)
 			{
-				$success = $table->store();
-			}
-		}
-		// Manual insertion because the table's primary key is also a foreign key.
-		else
-		{
-			$relevantData = (object) $data;
-
-			foreach ($relevantData as $property => $value)
-			{
-				if (!property_exists($table, $property))
+				if ($table->store())
 				{
-					unset($relevantData->$property);
+					Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_SAVED', 'success');
+
+					return $data['id'];
+				}
+				else
+				{
+					Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_NOT_SAVED', 'error');
+
+					return $data['id'];
 				}
 			}
-
-			$success = Database::insertObject('#__organizer_participants', $relevantData, 'id');
-
+			else
+			{
+				// Nothing changed
+				return $data['id'];
+			}
 		}
 
-		return $success ? $data['id'] : false;
+		// 'Manual' insertion because the table's primary key is also a foreign key.
+		$relevantData = (object) $data;
+
+		foreach ($relevantData as $property => $value)
+		{
+			if (!property_exists($table, $property))
+			{
+				unset($relevantData->$property);
+			}
+		}
+
+		if (Database::insertObject('#__organizer_participants', $relevantData, 'id'))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
+
+			return $data['id'];
+		}
+
+		Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_NOT_ADDED', 'success');
+
+		return false;
 	}
 
 	/**

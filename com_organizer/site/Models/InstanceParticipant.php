@@ -132,7 +132,7 @@ class InstanceParticipant extends BaseModel
 			}
 		}
 
-		Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_SUCCEEDED'));
+		Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_SUCCEEDED'), 'success');
 
 		return true;
 	}
@@ -166,6 +166,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
+		// Get all other instances relevant to the booking
 		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_instances')
@@ -182,8 +183,17 @@ class InstanceParticipant extends BaseModel
 				->where("instanceID IN ($instanceIDs)")
 				->where("participantID = $participantID");
 			Database::setQuery($query);
-			Database::execute();
+
+			if (Database::execute())
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_EVENT_CONFIRMED', 'success');
+			}
+			else
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+			}
 		}
+
 	}
 
 	/**
