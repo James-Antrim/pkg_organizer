@@ -20,6 +20,11 @@ jobs:
         with:
           repository:  jpbm04/ii-ci
           path: build
+      - name: "Checkout pages enviroment"
+        uses: actions/checkout@v2
+        with:
+          repository:  jpbm04/jpbm04.github.io
+          path: pages
       - name: "Checkout sources"
         uses: actions/checkout@v2
         with:
@@ -43,6 +48,8 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+      - name: "Outputting pages folder"
+        run: tree pages
       - name: "Publish release"
         id: publish_release
         uses: actions/upload-release-asset@v1
