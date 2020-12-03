@@ -47,7 +47,6 @@ class Booking extends Controller
 
 		if (!$bookingID = $model->add())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_CREATION_FAILED', 'notice');
 			$this->setRedirect(Helpers\Input::getString('referrer'));
 
 			return;
@@ -78,16 +77,7 @@ class Booking extends Controller
 	public function close()
 	{
 		$model = new Models\Booking();
-
-		if (!$model->close())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
-		}
-
+		$model->close();
 		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
 		$this->setRedirect(Route::_($url, false));
 	}
@@ -100,16 +90,7 @@ class Booking extends Controller
 	public function open()
 	{
 		$model = new Models\Booking();
-
-		if (!$model->open())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
-		}
-
+		$model->open();
 		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
 		$this->setRedirect(Route::_($url, false));
 	}
@@ -122,16 +103,7 @@ class Booking extends Controller
 	public function supplement()
 	{
 		$model = new Models\Booking();
-
-		if (!$model->supplement())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
-		}
-
+		$model->supplement();
 		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
 		$this->setRedirect(Route::_($url, false));
 	}

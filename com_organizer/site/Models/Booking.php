@@ -60,7 +60,15 @@ class Booking extends Participants
 		{
 			$hash   = hash('adler32', (int) $instance->blockID . $instance->unitID);
 			$values = ['code' => substr($hash, 0, 4) . '-' . substr($hash, 4)];
-			$booking->save(array_merge($keys, $values));
+
+			if ($booking->save(array_merge($keys, $values)))
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_CREATED', 'success');
+			}
+			else
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_NOT_CREATED', 'error');
+			}
 		}
 
 		return $booking->id;
@@ -69,7 +77,7 @@ class Booking extends Participants
 	/**
 	 * Adds a participant to the instance(s) of the booking.
 	 *
-	 * @return bool
+	 * @return void
 	 */
 	public function addParticipant()
 	{
@@ -87,10 +95,10 @@ class Booking extends Participants
 		// Manually unset the username so it isn't later added to the state
 		Helpers\Input::getInput()->set('list', ['fullordering' => $listItems->get('fullordering')]);
 
-		$existing  = true;
-		$userQuery = Database::getQuery();
-		$userQuery->select('id')->from('#__users')->where("username = " . $userQuery->quote($input));
-		Database::setQuery($userQuery);
+		$existing = true;
+		$query    = Database::getQuery();
+		$query->select('id')->from('#__users')->where("username = " . $query->quote($input));
+		Database::setQuery($query);
 
 		if ($participantID = Database::loadInt())
 		{
@@ -112,7 +120,7 @@ class Booking extends Participants
 			{
 				Helpers\OrganizerHelper::message('ORGANIZER_503', 'error');
 
-				return false;
+				return;
 			}
 
 			// Determine the response charset
@@ -128,15 +136,15 @@ class Booking extends Participants
 
 			if (!$count = substr_count($response, '<li>'))
 			{
-				Helpers\OrganizerHelper::message('ORGANIZER_EMPTY_RESULT_SET', 'error');
+				Helpers\OrganizerHelper::message('ORGANIZER_EMPTY_RESULT_SET', 'notice');
 
-				return false;
+				return;
 			}
 			elseif ($count > 1)
 			{
-				Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'error');
+				Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
 
-				return false;
+				return;
 			}
 
 			// Convert, remove characters upto and and after li-tags inclusively
@@ -163,22 +171,24 @@ class Booking extends Participants
 			if (!$email or !$name or !$username)
 			{
 				Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+
+				return;
 			}
 
-			$userQuery->clear('where');
-			$userQuery->where("username = '$username'");
-			Database::setQuery($userQuery);
+			$query->clear('where');
+			$query->where("username = '$username'");
+			Database::setQuery($query);
 			$userNameID = Database::loadInt();
 
-			$userQuery->clear('where');
-			$userQuery->where("email = '$email'");
+			$query->clear('where');
+			$query->where("email = '$email'");
 
 			if ($userNameID)
 			{
-				$userQuery->where("id != $userNameID");
+				$query->where("id != $userNameID");
 			}
 
-			Database::setQuery($userQuery);
+			Database::setQuery($query);
 			$emailID = Database::loadInt();
 
 			// These cannot be the same because of the email query's construction
@@ -192,18 +202,20 @@ class Booking extends Participants
 				{
 					if ($userNameParticipant->id)
 					{
-						$deleteID = $emailID;
+						$deleteID      = $emailID;
+						$participantID = $userNameID;
 					}
 					else
 					{
-						$deleteID   = $userNameID;
-						$userNameID = $emailID;
+						$deleteID      = $userNameID;
+						$participantID = $emailID;
 					}
 				}
 				// Merge
 				else
 				{
-					$deleteID = $emailID;
+					$deleteID      = $emailID;
+					$participantID = $userNameID;
 
 					foreach (array_keys($this->_db->getTableColumns('#__organizer_participants')) as $column)
 					{
@@ -219,19 +231,17 @@ class Booking extends Participants
 					}
 
 					$userNameParticipant->store();
-					$this->reReference('course', $userNameID, $emailID, 'courseID');
-					$this->reReference('instance', $userNameID, $emailID, 'instanceID');
+					$this->reReference('course', $participantID, $emailID, 'courseID');
+					$this->reReference('instance', $participantID, $emailID, 'instanceID');
 				}
 
 				$user = new User();
 				$user->load($deleteID);
 				$user->delete();
-
-				// Re-reference otherID references to participantID and delete the entry
 			}
 			elseif ($userNameID or $emailID)
 			{
-				$userNameID = $emailID ? $emailID : $userNameID;
+				$participantID = $userNameID ? $userNameID : $emailID;
 			}
 			else
 			{
@@ -248,11 +258,11 @@ class Booking extends Participants
 				$user->bind($data);
 				$user->save();
 
-				if (!$userNameID = $user->id)
+				if (!$participantID = $user->id)
 				{
-					Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+					Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_NOT_IMPORTED', 'error');
 
-					return false;
+					return;
 				}
 			}
 
@@ -281,11 +291,15 @@ class Booking extends Participants
 					$participation->attended = 1;
 					if (!$participation->store())
 					{
-						return false;
+						Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_NOT_ADDED', 'error');
+
+						return;
 					}
 				}
 
-				return true;
+				Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
+
+				return;
 			}
 		}
 
@@ -296,11 +310,13 @@ class Booking extends Participants
 			$participation      = new Tables\InstanceParticipants();
 			if (!$participation->save($data))
 			{
-				return false;
+				Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_NOT_ADDED', 'error');
+
+				return;
 			}
 		}
 
-		return true;
+		Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
 	}
 
 	/**
@@ -324,7 +340,7 @@ class Booking extends Participants
 	/**
 	 * Closes a booking manually.
 	 *
-	 * @return bool true if a change was made otherwise false,
+	 * @return void
 	 */
 	public function close()
 	{
@@ -336,7 +352,9 @@ class Booking extends Participants
 
 		if (!$booking->load($bookingID) or !$block->load($booking->blockID))
 		{
-			return false;
+			Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+
+			return;
 		}
 
 		$now = date('H:i:s');
@@ -345,10 +363,15 @@ class Booking extends Participants
 		{
 			$booking->endTime = $now;
 
-			return $booking->store();
+			if ($booking->store())
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_CLOSED', 'success');
+
+				return;
+			}
 		}
 
-		return false;
+		Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_NOT_CLOSED', 'notice');
 	}
 
 	/**
@@ -448,7 +471,7 @@ class Booking extends Participants
 	/**
 	 * Opens/reopens a booking manually.
 	 *
-	 * @return bool true if a change was made otherwise false,
+	 * @return void
 	 */
 	public function open()
 	{
@@ -460,7 +483,9 @@ class Booking extends Participants
 
 		if (!$booking->load($bookingID) or !$block->load($booking->blockID))
 		{
-			return false;
+			Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+
+			return;
 		}
 
 		$now  = date('H:i:s');
@@ -471,7 +496,12 @@ class Booking extends Participants
 		{
 			$booking->startTime = $now;
 
-			return $booking->store();
+			if ($booking->store())
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_OPENED', 'success');
+
+				return;
+			}
 		}
 
 		// Reopen before default end
@@ -479,10 +509,15 @@ class Booking extends Participants
 		{
 			$booking->endTime = null;
 
-			return $booking->store();
+			if ($booking->store())
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_REOPENED', 'success');
+			}
+
+			return;
 		}
 
-		return false;
+		Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_NOT_OPENED', 'notice');
 	}
 
 	/**
@@ -562,12 +597,12 @@ class Booking extends Participants
 	/**
 	 * Saves supplemental information about the entry.
 	 *
-	 * @return bool
+	 * @return void
 	 */
 	public function supplement()
 	{
 		$this->authorize();
-
+		$bookingID  = Helpers\Input::getID();
 		$supplement = Helpers\Input::getSupplementalItems();
 
 		if (!$bookingID or !$notes = $supplement->get('notes'))
@@ -581,13 +616,20 @@ class Booking extends Participants
 
 		if (!$booking->load($bookingID))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_412');
+			Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
 
-			return false;
+			return;
 		}
 
 		$booking->notes = $notes;
 
-		return $booking->store();
+		if ($booking->store())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_SAVED', 'success');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_NOT_SAVED', 'success');
+		}
 	}
 }
