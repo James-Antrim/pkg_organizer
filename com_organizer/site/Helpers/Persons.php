@@ -157,7 +157,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return string  the default name of the person
 	 */
-	public static function getDefaultName(int $personID)
+	public static function getDefaultName(int $personID, $short = false)
 	{
 		$person = new Tables\Persons();
 		$person->load($personID);
@@ -165,7 +165,7 @@ class Persons extends Associated implements Selectable
 
 		if ($person->id)
 		{
-			$title    = $person->title ? "{$person->title} " : '';
+			$title    = ($person->title and !$short) ? "{$person->title} " : '';
 			$forename = $person->forename ? "{$person->forename} " : '';
 			$surname  = $person->surname;
 			$return   = $title . $forename . $surname;

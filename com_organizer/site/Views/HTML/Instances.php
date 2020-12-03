@@ -53,7 +53,8 @@ class Instances extends ListView
 
 			if ($this->state->get('filter.my'))
 			{
-				$title = Helpers\Languages::_("ORGANIZER_MY_INSTANCES");
+				$username = ($user = Helpers\Users::getUser() and $user->username) ? " ($user->username)" : '';
+				$title    = Helpers\Languages::_("ORGANIZER_MY_INSTANCES") . $username;
 			}
 			else
 			{
@@ -143,11 +144,11 @@ class Instances extends ListView
 		{
 			if (Helpers\Users::getID())
 			{
-				$this->empty   = Helpers\Languages::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
+				$this->empty = Helpers\Languages::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
 			}
 			else
 			{
-				$this->empty   = Helpers\Languages::_('ORGANIZER_401');
+				$this->empty = Helpers\Languages::_('ORGANIZER_401');
 			}
 		}
 
@@ -429,7 +430,7 @@ class Instances extends ListView
 			$label = '';
 			$icon  = '';
 			$today = date('Y-m-d');
-			$then = date('Y-m-d', strtotime('+2 days'));
+			$then  = date('Y-m-d', strtotime('+2 days'));
 			$URL   = Uri::base() . '?option=com_organizer';
 
 			$expired = ($item->date < $today or ($item->date === $today and $item->endTime < date('H:i:s')));
