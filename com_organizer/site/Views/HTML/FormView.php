@@ -27,11 +27,7 @@ abstract class FormView extends BaseHTMLView
 	public $form = null;
 
 	/**
-	 * Method to get display
-	 *
-	 * @param   Object  $tpl  template  (default: null)
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	public function display($tpl = null)
 	{

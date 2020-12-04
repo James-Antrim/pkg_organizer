@@ -26,9 +26,7 @@ class FormModel extends ParentModel
 	public $mobile = false;
 
 	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
+	 * @inheritDoc
 	 */
 	public function __construct($config = [])
 	{
@@ -41,7 +39,7 @@ class FormModel extends ParentModel
 	/**
 	 * Provides a strict access check which can be overwritten by extending classes.
 	 *
-	 * @return bool  true if the user can access the view, otherwise false
+	 * @return void performs error management via redirects as appropriate
 	 */
 	protected function authorize()
 	{
@@ -52,14 +50,7 @@ class FormModel extends ParentModel
 	}
 
 	/**
-	 * Method to get the form
-	 *
-	 * @param   array  $data      Data         (default: array)
-	 * @param   bool   $loadData  Load data  (default: true)
-	 *
-	 * @return mixed Form object on success, False on error.
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @inheritDoc
 	 */
 	public function getForm($data = [], $loadData = false)
 	{
@@ -77,15 +68,7 @@ class FormModel extends ParentModel
 	}
 
 	/**
-	 * Method to get a form object.
-	 *
-	 * @param   string  $name     The name of the form.
-	 * @param   string  $source   The form source. Can be XML string if file flag is set to false.
-	 * @param   array   $options  Optional array of options for the form creation.
-	 * @param   bool    $clear    Optional argument to force load a new form.
-	 * @param   string  $xpath    An optional xpath to search for the fields.
-	 *
-	 * @return  Form|bool  Form object on success, false on error.
+	 * @inheritDoc
 	 */
 	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = '')
 	{

@@ -22,9 +22,7 @@ class Checkin extends FormModel
 	private $participant;
 
 	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
+	 * @inheritDoc
 	 */
 	public function __construct($config = [])
 	{
