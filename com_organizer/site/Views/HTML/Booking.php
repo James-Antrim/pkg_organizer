@@ -92,6 +92,12 @@ class Booking extends Participants
 				$toolbar->appendButton('Standard', 'stop', $text, 'booking.close', false);
 			}
 		}
+
+		$icon = '<span class="icon-list-3"></span>';
+		$text = Languages::_('ORGANIZER_MY_INSTANCES');
+		$URL = Uri::base() . "?option=com_organizer&view=instances&my=1";
+		$link = Helpers\HTML::link($URL, $icon . $text, ['class' => 'btn']);
+		$toolbar->appendButton('Custom', $link);
 	}
 
 	/**
