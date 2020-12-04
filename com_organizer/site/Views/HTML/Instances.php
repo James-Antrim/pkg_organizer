@@ -451,7 +451,7 @@ class Instances extends ListView
 
 			if ($label)
 			{
-				$attribs = ['aria-label' => $label, 'class' => 'btn', 'target' => '_blank'];
+				$attribs = ['aria-label' => $label, 'class' => 'btn'];
 
 				$link = Helpers\HTML::link($URL, $icon, $attribs);
 			}
