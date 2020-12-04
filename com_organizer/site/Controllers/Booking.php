@@ -96,6 +96,19 @@ class Booking extends Controller
 	}
 
 	/**
+	 * Removes the selected participants from the list of registered participants.
+	 *
+	 * @return void
+	 */
+	public function removeParticipants()
+	{
+		$model = new Models\Booking();
+		$model->removeParticipants();
+		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
 	 * Supplements the resource.
 	 *
 	 * @return void

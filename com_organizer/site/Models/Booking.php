@@ -83,14 +83,15 @@ class Booking extends Participants
 	{
 		$this->authorize();
 
+		$listItems = Helpers\Input::getListItems();
+		$input     = $listItems->get('username');
+
 		if (empty($input) or !$input = trim($input))
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
 
 		$bookingID = Helpers\Input::getID();
-		$listItems = Helpers\Input::getListItems();
-		$input     = $listItems->get('username');
 
 		// Manually unset the username so it isn't later added to the state
 		Helpers\Input::getInput()->set('list', ['fullordering' => $listItems->get('fullordering')]);
@@ -357,9 +358,10 @@ class Booking extends Participants
 			return;
 		}
 
-		$now = date('H:i:s');
+		$now   = date('H:i:s');
+		$today = date('Y-m-d');
 
-		if ($now > $block->startTime)
+		if ($block->date === $today and $now > $block->startTime)
 		{
 			$booking->endTime = $now;
 
@@ -531,6 +533,65 @@ class Booking extends Participants
 		}
 
 		parent::populateState($ordering, $direction);
+	}
+
+	/**
+	 * Removes the selected participants from the list of registered participants.
+	 *
+	 * @return void
+	 */
+	public function removeParticipants()
+	{
+		$this->authorize();
+
+		if (!$participantIDs = Helpers\Input::getSelectedIDs())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_400', 'warning');
+
+			return;
+		}
+
+		$block     = new Tables\Blocks();
+		$booking   = new Tables\Bookings();
+		$bookingID = Helpers\Input::getID();
+
+		if (!$booking->load($bookingID) or !$block->load($booking->blockID))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
+
+			return;
+		}
+
+		if ($block->date < date('Y-m-d'))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_503', 'notice');
+
+			return;
+		}
+
+		if (!$instanceIDs = Helpers\Bookings::getInstanceIDs($bookingID))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
+
+			return;
+		}
+
+		$instanceIDs    = implode(', ', $instanceIDs);
+		$participantIDs = implode(', ', $participantIDs);
+		$query          = Database::getQuery();
+		$query->delete('#__organizer_instance_participants')
+			->where("instanceID IN ($instanceIDs)")
+			->where("participantID IN ($participantIDs)");
+		Database::setQuery($query);
+
+		if (Database::execute())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANTS_REMOVED', 'success');
+
+			return;
+		}
+
+		Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANTS_NOT_REMOVED', 'error');
 	}
 
 	/**

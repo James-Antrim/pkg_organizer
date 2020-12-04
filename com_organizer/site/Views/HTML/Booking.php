@@ -60,7 +60,10 @@ class Booking extends Participants
 		// TODO special handling for middle names??
 		// TODO ajax refresh??
 
-		if (date('Y-m-d') === $this->booking->get('date'))
+		$bookingDate = $this->booking->get('date');
+		$today       = date('Y-m-d');
+
+		if ($today === $bookingDate)
 		{
 			$defaultEnd   = $this->booking->get('defaultEndTime');
 			$defaultStart = $this->booking->get('defaultStartTime');
@@ -95,9 +98,15 @@ class Booking extends Participants
 
 		$icon = '<span class="icon-list-3"></span>';
 		$text = Languages::_('ORGANIZER_MY_INSTANCES');
-		$URL = Uri::base() . "?option=com_organizer&view=instances&my=1";
+		$URL  = Uri::base() . "?option=com_organizer&view=instances&my=1";
 		$link = Helpers\HTML::link($URL, $icon . $text, ['class' => 'btn']);
 		$toolbar->appendButton('Custom', $link);
+
+		if ($today <= $bookingDate)
+		{
+			$text = Languages::_('ORGANIZER_REMOVE_PARTICIPANTS');
+			$toolbar->appendButton('Standard', 'user-minus', $text, 'booking.removeParticipants', true);
+		}
 	}
 
 	/**

@@ -24,6 +24,12 @@
 #endregion
 
 #region Meta ###########################################################################################################
+#consistent message handling
+##no message - user interaction where nothing was done such as saving without changing any resource attributes
+##success - successful user dm interaction
+##notice - unsuccessful user dm interaction due to inconsistent data or any other non-critical error where the user is not at fault
+##warning - unsuccessful user dm interaction where form manipulation most likely occurred
+##error - unsuccessful user dm where hard db errors occurred or form url manipluation definitely occurred
 #sprachenzentrum as organization & associate persons
 #make rooms primary in organizer & error if not existent
 #remove roomtypes from untis
