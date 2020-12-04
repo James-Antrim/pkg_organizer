@@ -77,10 +77,40 @@ class OrganizerHelper
 	 */
 	public static function error(int $code)
 	{
-		$URI      = Uri::getInstance();
-		$referrer = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
-		$URL      = $referrer === $URI->toString() ? Uri::base() : $referrer;
-		self::message(Languages::_("ORGANIZER_$code"), 'error');
+		$URI     = Uri::getInstance();
+		$current = $URI->toString();
+
+		if ($code === 401)
+		{
+			$return   = urlencode(base64_encode($current));
+			$URL      = Uri::base() . "?option=com_users&view=login&return=$return";
+			$severity = 'notice';
+		}
+		else
+		{
+			switch ($code)
+			{
+				case 400:
+				case 404:
+				case 412:
+					$severity = 'notice';
+					break;
+				case 403:
+					$severity = 'warning';
+					break;
+				case 501:
+				case 503:
+				default:
+					$severity = 'error';
+					break;
+
+			}
+
+			$referrer = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
+			$URL      = $referrer === $current ? Uri::base() : $referrer;
+		}
+
+		self::message(Languages::_("ORGANIZER_$code"), $severity);
 		self::getApplication()->redirect($URL, $code);
 	}
 
