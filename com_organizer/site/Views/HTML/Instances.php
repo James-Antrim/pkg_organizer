@@ -129,6 +129,11 @@ class Instances extends ListView
 			return;
 		}
 
+		if (Helpers\Input::getBool('my') and !Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
 		$organizationID = Helpers\Input::getParams()->get('organizationID', 0);
 		$this->manages  = $organizationID ?
 			Helpers\Can::manage('organization', $organizationID) : (bool) Helpers\Can::manageTheseOrganizations();
