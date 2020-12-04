@@ -24,6 +24,7 @@
 #endregion
 
 #region Meta ###########################################################################################################
+#check 403 calls and think about if there should be a 401 check in front of it
 #consistent message handling
 ##no message - user interaction where nothing was done such as saving without changing any resource attributes
 ##success - successful user dm interaction
