@@ -45,11 +45,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: ${{ github.event.repository.name }} ${{ github.ref }}
           draft: false
           prerelease: false
-      - name: "Outputting pages folder"
-        run: tree pages
       - name: "Publish release"
         id: publish_release
         uses: actions/upload-release-asset@v1
@@ -60,3 +58,8 @@ jobs:
           asset_path: release/${{ github.event.repository.name }}.zip
           asset_name: ${{ github.event.repository.name }}.zip
           asset_content_type: application/zip
+      - name "Publish pages"
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          public_dir: pages
