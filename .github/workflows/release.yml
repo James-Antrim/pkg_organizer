@@ -62,6 +62,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           external_repository: jpbm04/jpbm04.github.io
-          target_branch: master
+          publish_branch: master
           deploy_key: ${{ secrets.SSH_DEPLOY_KEY }}
           publish_dir: pages
