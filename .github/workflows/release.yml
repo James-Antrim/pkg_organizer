@@ -58,7 +58,7 @@ jobs:
           asset_path: release/${{ github.event.repository.name }}.zip
           asset_name: ${{ github.event.repository.name }}.zip
           asset_content_type: application/zip
-      - name "Publish pages"
+      - name: "Publish pages"
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
