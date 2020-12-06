@@ -63,5 +63,5 @@ jobs:
         with:
           external_repository: jpbm04/jpbm04.github.io
           target_branch: master
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          deploy_key: ${{ secrets.SSH_DEPLOY_KEY }}
           publish_dir: pages
