@@ -61,7 +61,7 @@ jobs:
       - name: "Publish pages"
         uses: peaceiris/actions-gh-pages@v3
         with:
-          repo: jpbm04/jpbm04.github.io
+          external_repository: jpbm04/jpbm04.github.io
           target_branch: master
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: pages
