@@ -7,10 +7,6 @@
         <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
         <field name="username" type="Blank" label="USERNAME"/>
         <field name="title" type="Blank" label="TITLE" maxlength="45"/>
-        <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" table="organizer_fields"
-               textcolumn="name" valuecolumn="id">
-            <option value="">NO_FIELD</option>
-        </field>
         <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
         <field name="active" type="Options" label="ACTIVE" default="1">
             <option value="1">ACTIVE</option>

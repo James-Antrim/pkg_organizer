@@ -28,7 +28,7 @@ class OrganizationAssociationsField extends OptionsField
 	/**
 	 * Retrieves the organization ids associated with the resource.
 	 *
-	 * @param   string  $resource    the resoure type
+	 * @param   string  $resource    the resource type
 	 * @param   int     $resourceID  the resource id
 	 *
 	 * @return array the ids of the organizations associated with the resource
@@ -100,7 +100,8 @@ class OrganizationAssociationsField extends OptionsField
 
 			$assocCount = count($associated);
 			$authCount  = count($authorized);
-			// The already associated organizations are a
+
+			// The already associated organizations are a subset of the organizations authorized for editing
 			if (count(array_intersect($authorized, $associated)) === $assocCount and $authCount > $assocCount)
 			{
 				$displayed = $authorized;
