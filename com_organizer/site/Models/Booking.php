@@ -493,6 +493,19 @@ class Booking extends Participants
 		$now  = date('H:i:s');
 		$then = date('H:i:s', strtotime('-60 minutes', strtotime($block->startTime)));
 
+		// Reopen before default end
+		if ($booking->endTime and $now > $booking->endTime and $now < $block->endTime)
+		{
+			$booking->endTime = null;
+
+			if ($booking->store())
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_REOPENED', 'success');
+			}
+
+			return;
+		}
+
 		// Early start
 		if ($now > $then and (empty($booking->startTime) or $now < $booking->startTime))
 		{
@@ -504,19 +517,6 @@ class Booking extends Participants
 
 				return;
 			}
-		}
-
-		// Reopen before default end
-		if ($now > $booking->endTime and $now < $block->endTime)
-		{
-			$booking->endTime = null;
-
-			if ($booking->store())
-			{
-				Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_REOPENED', 'success');
-			}
-
-			return;
 		}
 
 		Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_NOT_OPENED', 'notice');
