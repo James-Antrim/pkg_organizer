@@ -58,12 +58,9 @@ class Booking extends Participants
 		$batchButton .= '</button>';
 		$toolbar->appendButton('Custom', $batchButton, 'batch');
 
-		// TODO add function to remove participants
 		// TODO add function to batch assign participants to the correct event
 		// TODO add filter for participant events, should the booking be associated with more than one.
 		// TODO add filter for incomplete profiles
-		// TODO add the participant profile view as a menu item
-		// TODO special handling for middle names??
 		// TODO ajax refresh??
 
 		$bookingDate = $this->booking->get('date');
