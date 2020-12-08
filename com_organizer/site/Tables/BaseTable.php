@@ -13,6 +13,7 @@ namespace Organizer\Tables;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
+use Joomla\Registry\Registry;
 use Organizer\Helpers;
 
 /**
@@ -35,6 +36,32 @@ abstract class BaseTable extends Table
 	{
 		$dbo = Factory::getDbo();
 		parent::__construct($table, 'id', $dbo);
+	}
+
+	/**
+	 * Binds the table properties with data stored in a registry.
+	 *
+	 * @param   Registry  $registry  the registry object
+	 *
+	 * @return bool
+	 */
+	public function bindRegistry(Registry $registry)
+	{
+		if (!$registry instanceof Registry)
+		{
+			return false;
+		}
+
+		// Bind the source value, excluding the ignored fields.
+		foreach ($this->getProperties() as $k => $v)
+		{
+			if ($registry->exists($k))
+			{
+				$this->$k = $registry->get($k);
+			}
+		}
+
+		return true;
 	}
 
 	/**

@@ -10,6 +10,7 @@
             <option name="ORGANIZER_DEPUTAT" msg="ORGANIZER_DEPUTAT_DESC" value="deputat"/>
             <option name="ORGANIZER_EVENT_STATISTICS" msg="ORGANIZER_EVENT_STATISTICS_DESC" value="lesson_statistics"/>
             <option name="ORGANIZER_INSTANCES" msg="ORGANIZER_INSTANCES_DESC" value="instances"/>
+            <option name="ORGANIZER_PROFILE" msg="ORGANIZER_PROFILE_DESC" value="profile"/>
             <option name="ORGANIZER_ROOM_OVERVIEW" msg="ORGANIZER_ROOM_OVERVIEW_DESC" value="room_overview"/>
             <option name="ORGANIZER_ROOM_STATISTICS" msg="ORGANIZER_ROOM_STATISTICS_DESC" value="room_statistics"/>
             <option name="ORGANIZER_SCHEDULE_EXPORT" msg="ORGANIZER_SCHEDULE_EXPORT_DESC" value="schedule_export"/>
