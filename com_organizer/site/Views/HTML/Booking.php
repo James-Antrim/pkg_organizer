@@ -45,6 +45,12 @@ class Booking extends Participants
 
 		$toolbar = Toolbar::getInstance();
 
+		$icon = '<span class="icon-list-3"></span>';
+		$text = Languages::_('ORGANIZER_MY_INSTANCES');
+		$URL  = Uri::base() . "?option=com_organizer&view=instances&my=1";
+		$link = Helpers\HTML::link($URL, $icon . $text, ['class' => 'btn']);
+		$toolbar->appendButton('Custom', $link);
+
 		$script      = "onclick=\"jQuery('#form-modal').modal('show'); return true;\"";
 		$batchButton = "<button id=\"booking-notes\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
 		$title       = Languages::_('ORGANIZER_NOTES');
@@ -96,17 +102,12 @@ class Booking extends Participants
 			}
 		}
 
-		$icon = '<span class="icon-list-3"></span>';
-		$text = Languages::_('ORGANIZER_MY_INSTANCES');
-		$URL  = Uri::base() . "?option=com_organizer&view=instances&my=1";
-		$link = Helpers\HTML::link($URL, $icon . $text, ['class' => 'btn']);
-		$toolbar->appendButton('Custom', $link);
 
-		if ($today <= $bookingDate)
+		/*if ($today <= $bookingDate)
 		{
 			$text = Languages::_('ORGANIZER_REMOVE_PARTICIPANTS');
 			$toolbar->appendButton('Standard', 'user-minus', $text, 'booking.removeParticipants', true);
-		}
+		}*/
 	}
 
 	/**
