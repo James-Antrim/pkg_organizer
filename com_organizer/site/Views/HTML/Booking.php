@@ -25,7 +25,7 @@ class Booking extends Participants
 	/**
 	 * @var Tables\Bookings
 	 */
-	private $booking;
+	public $booking;
 
 	protected $rowStructure = [
 		'checkbox' => '',
@@ -51,6 +51,12 @@ class Booking extends Participants
 		$link = Helpers\HTML::link($URL, $icon . $text, ['class' => 'btn']);
 		$toolbar->appendButton('Custom', $link);
 
+		$icon = '<span class="icon-grid-2"></span>';
+		$text = Languages::_('QR Code');
+		$URL  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
+		$link = Helpers\HTML::link($URL, $icon . $text, ['class' => 'btn', 'target' => '_blank']);
+		$toolbar->appendButton('Custom', $link);
+
 		$script      = "onclick=\"jQuery('#form-modal').modal('show'); return true;\"";
 		$batchButton = "<button id=\"booking-notes\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
 		$title       = Languages::_('ORGANIZER_NOTES');
@@ -65,6 +71,12 @@ class Booking extends Participants
 
 		$bookingDate = $this->booking->get('date');
 		$today       = date('Y-m-d');
+
+		if ($today <= $bookingDate)
+		{
+			$text = Languages::_('ORGANIZER_REMOVE_PARTICIPANTS');
+			$toolbar->appendButton('Standard', 'user-minus', $text, 'booking.removeParticipants', true);
+		}
 
 		if ($today === $bookingDate)
 		{
@@ -99,11 +111,6 @@ class Booking extends Participants
 			}
 		}
 
-		if ($today <= $bookingDate)
-		{
-			$text = Languages::_('ORGANIZER_REMOVE_PARTICIPANTS');
-			$toolbar->appendButton('Standard', 'user-minus', $text, 'booking.removeParticipants', true);
-		}
 	}
 
 	/**
