@@ -102,12 +102,11 @@ class Booking extends Participants
 			}
 		}
 
-
-		/*if ($today <= $bookingDate)
+		if ($today <= $bookingDate)
 		{
 			$text = Languages::_('ORGANIZER_REMOVE_PARTICIPANTS');
 			$toolbar->appendButton('Standard', 'user-minus', $text, 'booking.removeParticipants', true);
-		}*/
+		}
 	}
 
 	/**
