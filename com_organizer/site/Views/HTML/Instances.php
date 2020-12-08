@@ -439,7 +439,7 @@ class Instances extends ListView
 			$URL   = Uri::base() . '?option=com_organizer';
 
 			$expired = ($item->date < $today or ($item->date === $today and $item->endTime < date('H:i:s')));
-			$current = ($item->date < $then);
+			$current = ($item->date <= $then);
 
 			if ($item->bookingID)
 			{
