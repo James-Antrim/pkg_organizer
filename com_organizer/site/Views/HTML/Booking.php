@@ -148,9 +148,15 @@ class Booking extends Participants
 	 */
 	protected function modifyDocument()
 	{
-		parent::modifyDocument();
+		if ($this->_layout === 'qrcode')
+		{
+			Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
+		}
+		else
+		{
+			parent::modifyDocument();
+		}
 
-		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
 	}
 
 	/**

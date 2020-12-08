@@ -1,13 +1,30 @@
 @import "_variables.scss";
 
+html {
+  background-color: $background-color;
+  position: relative;
+}
 
-.qr-code {
-    width: 300px;
+body.tmpl-component.html-default {
+  background-color: $background-color;
+  left: 50%;
+  min-width: 300px;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+
+  .main {
+    background-color: $foreground-color;
+    padding: 0;
 
     h1 {
-        font-size: 3rem;
-        font-weight: bold;
-        margin-bottom: 0;
-        text-align: center;
+      background-color: $font-color;
+      color: $foreground-color;
+      font-size: 3rem;
+      margin: 0;
+      padding-top: .4rem;
+      text-align: center;
     }
+  }
 }
