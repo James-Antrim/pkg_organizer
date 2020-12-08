@@ -31,8 +31,8 @@ class Checkin extends FormModel
 		// Force component template
 		if (Helpers\Input::getCMD('tmpl') !== 'component')
 		{
-			$URL = Uri::root() . "?option=com_organizer&view=checkin&tmpl=component";
-			Helpers\OrganizerHelper::getApplication()->redirect($URL);
+			$query = Helpers\Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
+			Helpers\OrganizerHelper::getApplication()->redirect(Uri::root() . "?$query");
 		}
 
 		$form    = $this->getForm();
@@ -43,7 +43,7 @@ class Checkin extends FormModel
 			$form->setValue('username', null, $username);
 		}
 
-		if ($code = $session->get('organizer.checkin.code'))
+		if ($code = $session->get('organizer.checkin.code') or $code = Helpers\Input::getCMD('code'))
 		{
 			$form->setValue('code', null, $code);
 		}
