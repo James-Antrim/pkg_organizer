@@ -1,0 +1,10 @@
+.qr-code {
+    width: 300px;
+}
+
+.qr-code h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0;
+    text-align: center;
+}

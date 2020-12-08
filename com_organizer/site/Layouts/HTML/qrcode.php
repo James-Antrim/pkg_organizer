@@ -15,7 +15,6 @@ $logoURL    = 'components/com_organizer/images/organizer.png';
 $logo       = Helpers\HTML::_('image', $logoURL, Helpers\Languages::_('ORGANIZER'), ['class' => 'organizer_main_image']);
 $query      = Uri::getInstance()->getQuery();
 $checkinURL = Uri::base() . "?option=com_organizer&view=checkin&code={$this->booking->code}";
-echo "<pre>" . print_r($checkinURL, true) . "</pre>";
 $checkinURL = urlencode(Uri::base() . "?option=com_organizer&view=checkin&code={$this->booking->code}");
 $size       = '300x300';
 //&amp;choe=UTF-8

@@ -150,7 +150,7 @@ class Booking extends Participants
 	{
 		parent::modifyDocument();
 
-		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
 	}
 
 	/**
