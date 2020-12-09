@@ -43,7 +43,6 @@ class Booking extends Participants
 		$expiredText = Languages::_('ORGANIZER_BOOKING_CLOSED');
 		$ongoingText = Languages::_('ORGANIZER_BOOKING_ONGOING');
 		$pendingText = Languages::_('ORGANIZER_BOOKING_PENDING');
-		$statusColor = '';
 		$today       = date('Y-m-d');
 
 		if ($today === $bookingDate)
@@ -52,7 +51,7 @@ class Booking extends Participants
 			$now   = date('H:i:s');
 			$start = $this->booking->startTime ? $this->booking->startTime : $this->booking->get('defaultStartTime');
 
-			if ($now >= $start and $now <= $end)
+			if ($now >= $start and $now < $end)
 			{
 				$statusColor = 'green';
 				$texts[]     = $ongoingText;
