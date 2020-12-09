@@ -23,4 +23,5 @@ $URL = "https://chart.googleapis.com/chart?chs=$size&cht=qr&chl=$checkinURL";
 <div id="j-main-container" class="span10 qr-code">
     <h1><?php echo $this->booking->code; ?></h1>
     <img class="qrcode" src="<?php echo $URL; ?>" alt="QR code">
+    <div class="foot">go.thm.de/checkin</div>
 </div>
