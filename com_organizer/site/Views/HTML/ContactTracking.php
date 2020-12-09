@@ -16,7 +16,7 @@ use Organizer\Helpers;
 /**
  * Class loads persistent information a filtered set of colors into the display context.
  */
-class Trace extends ListView
+class ContactTracking extends ListView
 {
 	protected $rowStructure = ['checkbox' => '', 'person' => 'value', 'event' => 'list'];
 
@@ -25,7 +25,7 @@ class Trace extends ListView
 	 */
 	protected function addToolBar()
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_TRACE"), 'list-2');
+		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_CONTACT_TRACKING"), 'list-2');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'envelope', Helpers\Languages::_('ORGANIZER_NOTIFY'), "", false);
 	}

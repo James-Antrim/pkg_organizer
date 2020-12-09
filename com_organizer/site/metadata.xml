@@ -3,6 +3,7 @@
     <menu>
         <options var="view">
             <option name="ORGANIZER_CHECKIN" msg="ORGANIZER_CHECKIN_DESC" value="checkin"/>
+            <option name="ORGANIZER_CONTACT_TRACKING" msg="ORGANIZER_CONTACT_TRACKING_DESC" value="contact_tracking"/>
             <option name="ORGANIZER_COURSES" msg="ORGANIZER_COURSES_DESC" value="courses"/>
             <option name="ORGANIZER_CURRICULUM" msg="ORGANIZER_CURRICULUM_DESC" value="curriculum"/>
             <option name="ORGANIZER_ORGANIZATION_OCCUPANCY" msg="ORGANIZER_ORGANIZATION_OCCUPANCY_DESC"

@@ -19,7 +19,7 @@ use Organizer\Tables;
 /**
  * Class retrieves information for a filtered set of colors.
  */
-class Trace extends ListModel
+class ContactTracking extends ListModel
 {
 	protected $defaultLimit = 0;
 
@@ -28,9 +28,9 @@ class Trace extends ListModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	/*protected function getListQuery()
 	{
-		$then  = date('Y-m-d', strtotime('-28 days'));
+		/*$then  = date('Y-m-d', strtotime('-28 days'));
 		$query = $this->_db->getQuery(true);
 		$query->select('bo.id AS bookingID, bl.date, bl.startTime, bl.endTime')
 			->select('ipa.participantID, ipe.personID, u.id AS userID, pa.id AS uParticipantID')
@@ -71,12 +71,12 @@ class Trace extends ListModel
 		echo "<pre>" . print_r((string) $query, true) . "</pre>";
 
 		return $query;
-	}
+	}*/
 
 	/**
 	 * @inheritdoc
 	 */
-	public function getItems()
+	/*public function getItems()
 	{
 		$results      = parent::getItems();
 		$bookings     = [];
@@ -165,7 +165,7 @@ class Trace extends ListModel
 			}
 		}
 
-		/*$query = $this->_db->getQuery(true);
+		$query = $this->_db->getQuery(true);
 		$query->select("bo.id AS bookingID, bl.date, bl.startTime, bl.endTime, ipa.participantID, ipe.personID")
 			->from('#__organizer_bookings AS bo')
 			->innerJoin('#__organizer_instances AS i ON i.unitID = bo.unitID AND i.blockID = bo.blockID')
@@ -173,11 +173,44 @@ class Trace extends ListModel
 			->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
 			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
 			->innerJoin('#__organizer_persons AS pe ON pe.id = ipe.personID')
-			->order('bl.date DESC, bl.startTime DESC');*/
+			->order('bl.date DESC, bl.startTime DESC');
 
 		echo "<pre>" . print_r($results, true) . "</pre>";
 		die;
 
 		return $bookings ? $bookings : [];
+	}*/
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		parent::populateState();
+
+		// Attempt to resolve the search
+		// By username for both
+		// By names for both
+
+		$filters = Helpers\Input::getFilterItems();
+
+		if (!$search = $filters->get('search'))
+		{
+			return;
+		}
+
+		$userInput = $this->state->get('filter.search', '');
+		if (empty($userInput))
+		{
+			return;
+		}
+		$search  = '%' . $this->_db->escape($userInput, true) . '%';
+		$wherray = [];
+		foreach ($columnNames as $name)
+		{
+			$wherray[] = "$name LIKE '$search'";
+		}
+		$where = implode(' OR ', $wherray);
+		$query->where("($where)");
 	}
 }
