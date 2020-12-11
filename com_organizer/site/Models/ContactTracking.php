@@ -10,11 +10,9 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
-use Joomla\CMS\User\User;
-use Joomla\CMS\User\UserHelper;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
-use Organizer\Tables;
+use stdClass;
 
 /**
  * Class retrieves information for a filtered set of colors.
@@ -24,162 +22,205 @@ class ContactTracking extends ListModel
 	protected $defaultLimit = 0;
 
 	/**
-	 * Method to get a list of resources from the database.
+	 * Adds entries to the items structure.
 	 *
-	 * @return JDatabaseQuery
+	 * @param   array  &$items  the items to be displayed
+	 * @param   array   $data   the data from the resource
+	 *
+	 * @return void
 	 */
-	/*protected function getListQuery()
+	private function addItem(array &$items, array $data)
 	{
-		/*$then  = date('Y-m-d', strtotime('-28 days'));
+		$date  = $data['date'];
+		$index = "{$data['surname']}-{$data['forename']}-{$data['username']}";
+
+		if (empty($items[$index]))
+		{
+			$name         = $data['surname'];
+			$name         .= $data['forename'] ? ", {$data['forename']}" : '';
+			$item         = new stdClass();
+			$item->person = $name;
+			$item->dates  = [];
+
+			$items[$index] = $item;
+		}
+
+		$item = $items[$index];
+
+		if (empty($item->dates[$date]))
+		{
+			$item->dates[$date] = [];
+		}
+
+		if (empty($item->dates[$date][$data['id']]))
+		{
+			$item->dates[$date][$data['id']] = $data['minutes'];
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getListQuery()
+	{
+		$reach = $this->state->get('filter.reach', 28);
+		$then  = date('Y-m-d', strtotime("-$reach days"));
 		$query = $this->_db->getQuery(true);
-		$query->select('bo.id AS bookingID, bl.date, bl.startTime, bl.endTime')
-			->select('ipa.participantID, ipe.personID, u.id AS userID, pa.id AS uParticipantID')
+		$query->select('bo.id, bo.startTime, bo.endTime')
+			->select('bl.date, bl.startTime AS defaultStart, bl.endTime AS defaultEnd')
 			->from('#__organizer_bookings AS bo')
 			->innerJoin('#__organizer_instances AS i ON i.unitID = bo.unitID AND i.blockID = bo.blockID')
 			->innerJoin('#__organizer_blocks AS bl ON bl.id = bo.blockID')
 			->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
 			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-			->innerJoin('#__organizer_persons AS pe ON pe.id = ipe.personID')
-			->leftJoin('#__users AS u ON u.username = pe.username')
-			->leftJoin('#__organizer_participants AS pa ON pa.id = u.id')
-			->where("bl.date > '$then'")
-			->order('bl.date DESC, bl.startTime DESC');
+			->where("bl.date >= '$then'")
+			->where('ipa.attended = 1')
+			->order('bl.date DESC, bl.startTime DESC')
+			->group('bo.id');
 
-		// TODO filter for ipa.attended
-
-		$search = trim($this->state->get('filter.search', ''));
+		$participantID = $this->state->get('participantID', 0);
+		$personID      = $this->state->get('personID', 0);
 
 		// Force an empty result set if no search terms have been entered
-		if (empty($search))
+		if (!$participantID and !$personID)
 		{
 			$query->where('bo.id = 0');
 		}
 		else
 		{
-			$userName = $query->quote($search, true);
-			$wherray  = ["pe.username = $userName"];
+			$wherray = [];
 
-			if ($participantID = UserHelper::getUserId($search))
+			if ($participantID)
 			{
 				$wherray[] = "ipa.participantID = $participantID";
 			}
 
-			$where = implode(' OR ', $wherray);
-			$query->where("($where)");
+			if ($personID)
+			{
+				$wherray[] = "ipe.personID = $personID";
+			}
+
+			$query->where('(' . implode(' OR ', $wherray) . ')');
 		}
 
-		echo "<pre>" . print_r((string) $query, true) . "</pre>";
-
 		return $query;
-	}*/
+	}
 
 	/**
 	 * @inheritdoc
 	 */
-	/*public function getItems()
+	public function getItems(): array
 	{
-		$results      = parent::getItems();
-		$bookings     = [];
-		$participants = [];
-		$persons      = [];
-		$users        = [];
+		$items         = [];
+		$participantID = $this->state->get('participantID', 0);
+		$personID      = $this->state->get('personID', 0);
 
-		foreach ($results as $result)
+		$participantQuery = Database::getQuery();
+		$participantQuery->select('forename, surname, username')
+			->from('#__organizer_participants AS p')
+			->innerJoin('#__users AS u ON u.id = p.id')
+			->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = p.id')
+			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+			->innerJoin('#__organizer_bookings AS b ON b.unitID = i.unitID AND i.blockID = b.blockID');
+
+		$personQuery = Database::getQuery();
+		$personQuery->select('pr.forename AS defaultForename, pr.surname AS defaultSurname, pr.username')
+			->select('pt.forename, pt.surname')
+			->from('#__organizer_persons AS pr')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.personID = pr.id')
+			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+			->innerJoin('#__organizer_bookings AS b ON b.unitID = i.unitID AND i.blockID = b.blockID')
+			->leftJoin('#__users AS u ON u.username = pr.username')
+			->leftJoin('#__organizer_participants AS pt ON pt.id = u.id');
+
+		foreach (parent::getItems() as $booking)
 		{
-			if (empty($participants[$result['participantID']]))
-			{
-				$participant = new Tables\Participants();
-				if ($participant->load($result['participantID']))
-				{
-					$name = $participant->forename ? "$participant->surname, $participant->forename" : $participant->surname;
+			$data            = ['id' => $booking->id];
+			$data['date']    = $booking->date;
+			$endTime         = $booking->endTime ? $booking->endTime : $booking->defaultEnd;
+			$startTime       = $booking->startTime ? $booking->startTime : $booking->defaultStart;
+			$data['minutes'] = ceil((strtotime($endTime) - strtotime($startTime)) / 60);
 
-					$participants[$result['participantID']] = $name;
-				}
-				else
-				{
-					continue;
-				}
+			$participantQuery->clear('where');
+			$participantQuery->where("b.id = $booking->id")
+				->where('ip.attended = 1')
+				->where("ip.participantID != $participantID");
+			Database::setQuery($participantQuery);
+
+			foreach (Database::loadAssocList() as $person)
+			{
+				$data['forename'] = $person['forename'];
+				$data['surname']  = $person['surname'];
+				$data['username'] = $person['username'];
+
+				$this->addItem($items, $data);
 			}
 
-			$participantIndex = $participants[$result['participantID']];
-			$pUserID          = $result['participantID'];
+			$personQuery->clear('where');
+			$personQuery->where("b.id = $booking->id")
+				->where("ip.delta != 'removed'")
+				->where("ip.personID != $personID");
+			Database::setQuery($personQuery);
 
-			if ($result['uParticipantID'])
+			foreach (Database::loadAssocList() as $person)
 			{
-				if (empty($participants[$result['uParticipantID']]))
-				{
-					$participant = new Tables\Participants();
-					if ($participant->load($result['uParticipantID']))
-					{
-						$name = $participant->forename ? "$participant->surname, $participant->forename" : $participant->surname;
+				$data['forename'] = $person['forename'] ? $person['forename'] : $person['defaultForename'];
+				$data['surname']  = $person['surname'] ? $person['surname'] : $person['defaultSurname'];
+				$data['username'] = $person['username'];
 
-						$participants[$result['uParticipantID']] = $name;
-					}
-					else
-					{
-						$participants[$result['uParticipantID']] = '';
-					}
-				}
-
-				$personIndex = $participants[$result['uParticipantID']];
-				$pUserID     = $result['uParticipantID'];
-			}
-			elseif ($result['userID'])
-			{
-				if (empty($users[$result['userID']]))
-				{
-					if ($pieces = Helpers\Users::resolveUserName($result['userID']))
-					{
-						$name = $pieces['forename'] ? "{$pieces['surname']}, {$pieces['forename']}" : $pieces['surname'];
-
-						$users[$result['userID']] = $name;
-					}
-					else
-					{
-						$users[$result['userID']] = '';
-					}
-				}
-
-				$personIndex = $users[$result['userID']];
-				$pUserID     = $result['userID'];
-			}
-			else
-			{
-				if (empty($persons[$result['personID']]))
-				{
-					$person = new Tables\Persons();
-					if ($person->load($result['personID']))
-					{
-						$name = $person->forename ? "$person->surname, $person->forename" : $person->surname;
-
-						$persons[$result['personID']] = $name;
-					}
-					else
-					{
-						$persons[$result['personID']] = '';
-					}
-				}
-
-				$personIndex = $persons[$result['personID']];
-				$pUserID     = 0;
+				$this->addItem($items, $data);
 			}
 		}
 
-		$query = $this->_db->getQuery(true);
-		$query->select("bo.id AS bookingID, bl.date, bl.startTime, bl.endTime, ipa.participantID, ipe.personID")
-			->from('#__organizer_bookings AS bo')
-			->innerJoin('#__organizer_instances AS i ON i.unitID = bo.unitID AND i.blockID = bo.blockID')
-			->innerJoin('#__organizer_blocks AS bl ON bl.id = bo.blockID')
-			->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
-			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-			->innerJoin('#__organizer_persons AS pe ON pe.id = ipe.personID')
-			->order('bl.date DESC, bl.startTime DESC');
+		foreach ($items as $item)
+		{
+			foreach ($item->dates as $date => $bookings)
+			{
+				$item->dates[$date] = array_sum($bookings);
+			}
+		}
 
-		echo "<pre>" . print_r($results, true) . "</pre>";
-		die;
+		ksort($items);
 
-		return $bookings ? $bookings : [];
-	}*/
+		return $items;
+	}
+
+	/**
+	 * Performs final the final integrity check between the participants and persons result sets.
+	 *
+	 * @param   array  $participantIDs  the participants id results
+	 * @param   array  $personIDs       the persons id results
+	 *
+	 * @return void
+	 */
+	private function finalCheck(array $participantIDs, array $personIDs)
+	{
+		$participantID = $participantIDs ? $participantIDs[0] : 0;
+		$personID      = $personIDs ? $personIDs[0] : 0;
+
+		// User and person resource usernames don't resolve to the same physical person.
+		if ($participantID and $personID and (int) $personID !== Helpers\Persons::getIDByUserID($participantID))
+		{
+			$this->forceEmpty();
+			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+
+			return;
+		}
+
+		$this->state->set('participantID', $participantID);
+		$this->state->set('personID', $personID);
+	}
+
+	/**
+	 * Sets selection criteria to empty values to avoid positive results from previous queries.
+	 *
+	 * @return void
+	 */
+	private function forceEmpty()
+	{
+		$this->state->set('participantID', 0);
+		$this->state->set('personID', 0);
+	}
 
 	/**
 	 * @inheritDoc
@@ -188,29 +229,101 @@ class ContactTracking extends ListModel
 	{
 		parent::populateState();
 
-		// Attempt to resolve the search
-		// By username for both
-		// By names for both
-
 		$filters = Helpers\Input::getFilterItems();
 
 		if (!$search = $filters->get('search'))
 		{
+			$this->forceEmpty();
+
 			return;
 		}
 
-		$userInput = $this->state->get('filter.search', '');
-		if (empty($userInput))
+		$search = explode(' ', $search);
+
+		// Users/participants by username
+		$query = Database::getQuery();
+		$query->select('p.id')
+			->from('#__organizer_participants AS p')
+			->innerJoin('#__users AS u ON u.id = p.id')
+			->where("(u.username = '" . implode("' OR u.username = '", $search) . "')");
+		Database::setQuery($query);
+
+		if ($participantIDs = Database::loadColumn() and count($participantIDs) > 1)
 		{
+			$this->forceEmpty();
+			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+
 			return;
 		}
-		$search  = '%' . $this->_db->escape($userInput, true) . '%';
-		$wherray = [];
-		foreach ($columnNames as $name)
+
+		// Person by username
+		$query = Database::getQuery();
+		$query->select('id')
+			->from('#__organizer_persons')
+			->where("(username = '" . implode("' OR username = '", $search) . "')");
+		Database::setQuery($query);
+
+		if ($personIDs = Database::loadColumn() and count($personIDs) > 1)
 		{
-			$wherray[] = "$name LIKE '$search'";
+			$this->forceEmpty();
+			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+
+			return;
 		}
-		$where = implode(' OR ', $wherray);
-		$query->where("($where)");
+
+		if ($participantIDs or $personIDs)
+		{
+			$this->finalCheck($participantIDs, $personIDs);
+
+			return;
+		}
+
+		// Participants by full name
+		$subQuery = Database::getQuery();
+		$subQuery->select('id, ' . $subQuery->concatenate(['surname', 'forename'], ' ') . ' AS fullName')
+			->from('#__organizer_participants');
+		$query = Database::getQuery();
+		$query->select('p1.id, p2.fullname')
+			->from('#__organizer_participants AS p1')
+			->innerJoin("($subQuery) AS p2 ON p2.id = p1.id")
+			->where("(p2.fullName LIKE '%" . implode("%' AND p2.fullName LIKE '%", $search) . "%')");
+		Database::setQuery($query);
+
+		if ($participantIDs = Database::loadColumn() and count($participantIDs) > 1)
+		{
+			$this->forceEmpty();
+			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+
+			return;
+		}
+
+		// Persons by full name
+		$subQuery = Database::getQuery();
+		$subQuery->select('id, ' . $subQuery->concatenate(['surname', 'forename'], ' ') . ' AS fullName')
+			->from('#__organizer_persons');
+		$query = Database::getQuery();
+		$query->select('p1.id, p2.fullname')
+			->from('#__organizer_persons AS p1')
+			->innerJoin("($subQuery) AS p2 ON p2.id = p1.id")
+			->where("(p2.fullName LIKE '%" . implode("%' AND p2.fullName LIKE '%", $search) . "%')");
+		Database::setQuery($query);
+
+		if ($personIDs = Database::loadColumn() and count($personIDs) > 1)
+		{
+			$this->forceEmpty();
+			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+
+			return;
+		}
+
+		if ($participantIDs or $personIDs)
+		{
+			$this->finalCheck($participantIDs, $personIDs);
+
+			return;
+		}
+
+		// No resolution
+		$this->forceEmpty();
 	}
 }

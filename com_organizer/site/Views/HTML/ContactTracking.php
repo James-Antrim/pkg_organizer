@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
+//use Joomla\CMS\Toolbar\Toolbar;
 use Organizer\Helpers;
 
 /**
@@ -18,7 +18,7 @@ use Organizer\Helpers;
  */
 class ContactTracking extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'person' => 'value', 'event' => 'list'];
+	protected $rowStructure = ['person' => 'value', 'dates' => 'value', 'length' => 'value'];
 
 	/**
 	 * @inheritdoc
@@ -26,8 +26,8 @@ class ContactTracking extends ListView
 	protected function addToolBar()
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_CONTACT_TRACKING"), 'list-2');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'envelope', Helpers\Languages::_('ORGANIZER_NOTIFY'), "", false);
+		//$toolbar = Toolbar::getInstance();
+		//$toolbar->appendButton('Standard', 'envelope', Helpers\Languages::_('ORGANIZER_NOTIFY'), "", false);
 	}
 
 	/**
@@ -47,11 +47,41 @@ class ContactTracking extends ListView
 	public function setHeaders()
 	{
 		$headers = [
-			'checkbox' => '',
-			'person'   => Helpers\Languages::_('ORGANIZER_PERSON'),
-			'event'    => Helpers\Languages::_('ORGANIZER_EVENT')
+			'person' => Helpers\Languages::_('ORGANIZER_PERSON'),
+			'dates'  => Helpers\Languages::_('ORGANIZER_DATES'),
+			'length' => Helpers\Languages::_('ORGANIZER_CONTACT_LENGTH')
 		];
 
 		$this->headers = $headers;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected function structureItems()
+	{
+		$index           = 0;
+		$link            = '';
+		$structuredItems = [];
+
+		foreach ($this->items as $item)
+		{
+			$dates   = [];
+			$lengths = [];
+
+			foreach ($item->dates as $date => $length)
+			{
+				$dates[]   = Helpers\Dates::formatDate($date);
+				$lengths[] = "$length " . Helpers\Languages::_('ORGANIZER_MINUTES');
+			}
+
+			$item->dates  = implode('<br>', $dates);
+			$item->length = implode('<br>', $lengths);
+
+			$structuredItems[$index] = $this->structureItem($index, $item, $link);
+			$index++;
+		}
+
+		$this->items = $structuredItems;
 	}
 }
