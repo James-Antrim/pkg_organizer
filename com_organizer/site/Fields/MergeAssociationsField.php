@@ -80,7 +80,7 @@ class MergeAssociationsField extends OptionsField
 
 		Database::setQuery($query);
 
-		if ($valuePairs = Database::loadAssocList())
+		if (!$valuePairs = Database::loadAssocList())
 		{
 			return $default;
 		}
