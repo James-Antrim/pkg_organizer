@@ -92,7 +92,7 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		{
 			$model->warnings['REX'] = empty($model->warnings['REX']) ? 1 : $model->warnings['REX'] + 1;
 
-			$code = $internalID;
+			$code = strpos($internalID, 'ONLINE') !== false ? 'ONLINE' : $internalID;
 		}
 
 		$roomTypeID  = str_replace('DS_', '', trim((string) $node->room_description[0]['id']));
