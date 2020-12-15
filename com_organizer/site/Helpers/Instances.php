@@ -991,7 +991,7 @@ class Instances extends ResourceHelper
 	private static function setRooms(array &$person, array $conditions)
 	{
 		$query = Database::getQuery();
-		$query->select('ir.roomID, ir.delta, ir.modified, r.name')
+		$query->select('ir.roomID, ir.delta, ir.modified, r.name, r.virtual')
 			->from('#__organizer_instance_rooms AS ir')
 			->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
 			->where("ir.assocID = {$person['assocID']}");
@@ -1015,7 +1015,8 @@ class Instances extends ResourceHelper
 			$room   = [
 				'room'       => $room['name'],
 				'status'     => $room['delta'],
-				'statusDate' => $room['modified']
+				'statusDate' => $room['modified'],
+				'virtual'    => $room['virtual']
 			];
 
 			$rooms[$roomID] = $room;
