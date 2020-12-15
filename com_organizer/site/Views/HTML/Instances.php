@@ -468,6 +468,39 @@ class Instances extends ListView
 	}
 
 	/**
+	 * Determines whether the item is conducted virtually: every person is assigned rooms, all assigned rooms are virtual.
+	 *
+	 * @param   object  $item  the item being iterated
+	 *
+	 * @return bool true if every assigned room is virtual, otherwise false
+	 */
+	private function isVirtual(object $item): bool
+	{
+		$virtual = true;
+
+		if (empty($item->resources))
+		{
+			return false;
+		}
+
+		foreach ($item->resources as $person)
+		{
+
+			if (empty($person['rooms']))
+			{
+				return false;
+			}
+
+			foreach ($person['rooms'] as $room)
+			{
+				$virtual = ($virtual and $room['virtual']);
+			}
+		}
+
+		return $virtual;
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function setHeaders()
@@ -549,12 +582,13 @@ class Instances extends ListView
 		{
 			$times = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
 			$times .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
+			$virtual = $this->isVirtual($item);
 
 			$structuredItems[$index] = [];
 
 			if ($this->manages or $this->teaches)
 			{
-				$structuredItems[$index]['tools'] = $this->getTools($item);
+				$structuredItems[$index]['tools'] = $virtual ? '' : $this->getTools($item);
 			}
 
 			$structuredItems[$index]['status']  = $this->getStatus($item);
