@@ -15,7 +15,8 @@ namespace Organizer\Tables;
  */
 class Rooms extends BaseTable
 {
-	use Activated, Aliased;
+	use Activated;
+	use Aliased;
 
 	/**
 	 * The id of the building entry referenced.
@@ -57,6 +58,14 @@ class Rooms extends BaseTable
 	 * @var int
 	 */
 	public $roomtypeID;
+
+	/**
+	 * A flag which displays whether the room is a virtual room.
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $virtual;
 
 	/**
 	 * Declares the associated table.

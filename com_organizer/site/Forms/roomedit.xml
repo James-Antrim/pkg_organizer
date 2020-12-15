@@ -17,5 +17,9 @@
             <option value="1">ACTIVE</option>
             <option value="0">INACTIVE</option>
         </field>
+        <field name="virtual" type="Options" label="VIRTUAL" default="0">
+            <option value="1">VIRTUAL</option>
+            <option value="0">PHYSICAL</option>
+        </field>
     </fieldset>
 </form>

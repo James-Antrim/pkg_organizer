@@ -147,4 +147,23 @@ class Rooms extends ResourceHelper implements Selectable
 
 		return Database::loadAssocList();
 	}
+
+	/**
+	 * Checks whether or not the room is virtual.
+	 *
+	 * @param   int  $roomID  the id of the room
+	 *
+	 * @return bool true if the room is virtual, otherwise false
+	 */
+	public static function isVirtual(int $roomID): bool
+	{
+		$room = new Tables\Rooms();
+
+		if (!$room->load(($roomID)))
+		{
+			return false;
+		}
+
+		return (bool) $room->virtual;
+	}
 }

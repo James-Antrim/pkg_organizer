@@ -22,7 +22,7 @@ class Rooms extends ListModel
 
 	protected $defaultOrdering = 'r.name';
 
-	protected $filter_fields = ['campusID', 'buildingID', 'roomtypeID'];
+	protected $filter_fields = ['campusID', 'buildingID', 'roomtypeID', 'virtual'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -44,7 +44,7 @@ class Rooms extends ListModel
 
 		$this->setActiveFilter($query, 'r');
 		$this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en']);
-		$this->setValueFilters($query, ['buildingID', 'roomtypeID']);
+		$this->setValueFilters($query, ['buildingID', 'roomtypeID', 'virtual']);
 		$this->setCampusFilter($query, 'b');
 
 		$this->setOrdering($query);
