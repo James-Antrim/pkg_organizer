@@ -339,6 +339,65 @@ class Booking extends Participants
 	}
 
 	/**
+	 * Deletes booking unassociated with attendance.
+	 *
+	 * @return void
+	 */
+	public function clean()
+	{
+		$today = '2020-12-18';//date('Y-m-d');
+		$query = Database::getQuery();
+		$query->select('DISTINCT bk.id')
+			->from('#__organizer_bookings AS bk')
+			->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
+			->where("bl.date < '$today'");
+		Database::setQuery($query);
+
+		if (!$allIDs = Database::loadColumn())
+		{
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
+
+			return;
+		}
+
+		$query->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
+			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
+			->where('ip.attended = 1');
+		Database::setQuery($query);
+
+		if (!$attendedIDs = Database::loadColumn())
+		{
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
+
+			return;
+		}
+
+		if (!$unAttendedIDs = array_diff($allIDs, $attendedIDs))
+		{
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
+
+			return;
+		}
+
+		$query = Database::getQuery();
+		$query->delete('#__organizer_bookings')->where('id IN (' . implode(',', $unAttendedIDs) . ')');
+		Database::setQuery($query);
+
+		if (Database::execute())
+		{
+			$constant = 'ORGANIZER_BOOKINGS_DELETED';
+			$type     = 'success';
+		}
+		else
+		{
+			$constant = 'ORGANIZER_BOOKINGS_NOT_DELETED';
+			$type     = 'error';
+		}
+
+		Helpers\OrganizerHelper::message(Helpers\Languages::_($constant), $type);
+	}
+
+	/**
 	 * Closes a booking manually.
 	 *
 	 * @return void

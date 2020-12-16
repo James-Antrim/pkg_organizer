@@ -47,11 +47,19 @@ class Organizer extends BaseHTMLView
 
 		if (Helpers\Can::administrate())
 		{
+			$toolbar = Toolbar::getInstance();
+			$toolbar->appendButton(
+				'Standard',
+				'trash',
+				Helpers\Languages::_('ORGANIZER_CLEAN_BOOKINGS'),
+				'organizer.cleanBookings',
+				false
+			);
+
 			$uri    = (string) Uri::getInstance();
 			$return = urlencode(base64_encode($uri));
 			$link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
 
-			$toolbar = Toolbar::getInstance('toolbar');
 			$toolbar->appendButton('Link', 'options', Helpers\Languages::_('ORGANIZER_SETTINGS'), $link);
 		}
 	}
