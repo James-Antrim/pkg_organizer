@@ -110,6 +110,30 @@ class Program extends CurriculumResource
 	}
 
 	/**
+	 * Finds the curriculum entry ids for subject entries subordinate to a particular resource.
+	 *
+	 * @param   int  $resourceID  the id of the resource
+	 * @param   int  $subjectID   the id of a specific subject resource to find in context
+	 *
+	 * @return array the associated programs
+	 */
+	private function getSubjectIDs(int $resourceID, $subjectID = 0)
+	{
+		$ranges = Helpers\Programs::getSubjects($resourceID, $subjectID);
+
+		$ids = [];
+		foreach ($ranges as $range)
+		{
+			if ($range['subjectID'])
+			{
+				$ids[] = $range['subjectID'];
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
@@ -238,7 +262,7 @@ class Program extends CurriculumResource
 				Helpers\OrganizerHelper::error(403);
 			}
 
-			if (!$subjectIDs = Helpers\Programs::getSubjectIDs($programID))
+			if (!$subjectIDs = $this->getSubjectIDs($programID))
 			{
 				continue;
 			}

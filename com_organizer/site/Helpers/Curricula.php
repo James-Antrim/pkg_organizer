@@ -384,21 +384,6 @@ abstract class Curricula extends Associated implements Selectable
 	}
 
 	/**
-	 * Finds the curriculum entry ids for subject entries subordinate to a particular resource.
-	 *
-	 * @param   int  $resourceID  the id of the resource
-	 * @param   int  $subjectID   the id of a specific subject resource to find in context
-	 *
-	 * @return array the associated programs
-	 */
-	public static function getSubjectIDs(int $resourceID, $subjectID = 0)
-	{
-		$subjects = self::getSubjects($resourceID, $subjectID);
-
-		return self::filterIDs($subjects);
-	}
-
-	/**
 	 * Finds the subject entries subordinate to a particular resource.
 	 *
 	 * @param   int  $resourceID  the id of the resource
