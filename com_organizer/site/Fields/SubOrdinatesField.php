@@ -13,6 +13,7 @@ namespace Organizer\Fields;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
+use Organizer\Adapters\Document;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
@@ -51,7 +52,7 @@ class SubOrdinatesField extends FormField
 	 */
 	public function getInput()
 	{
-		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/subordinates.js');
+		Document::addScript(Uri::root() . 'components/com_organizer/js/subordinates.js');
 
 		$input = '<table class="subOrdinates table-striped">';
 		$input .= '<thead><tr>';
