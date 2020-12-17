@@ -102,6 +102,72 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Filters schedule instances to those which occur after the schedule's creation date & time.
+	 *
+	 * @return void
+	 */
+	public function filterRelevance()
+	{
+		$query = Database::getQuery();
+		$query->select('id')->from('#__organizer_schedules');
+		Database::setQuery($query);
+
+		if (!$scheduleIDs = Database::loadColumn())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_412', 'warning');
+
+			return;
+		}
+
+		foreach ($scheduleIDs as $scheduleID)
+		{
+			$schedule = new Tables\Schedules();
+
+			if (!$schedule->load($scheduleID))
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_412', 'warning');
+				continue;
+			}
+
+			$startDate = $schedule->creationDate;
+			$startTime = $schedule->creationTime;
+			$instances = json_decode($schedule->schedule, true);
+
+			foreach (array_keys($instances) as $instanceID)
+			{
+				$instance = new Tables\Instances();
+
+				if (!$instance->load($instanceID))
+				{
+					unset($instances[$instanceID]);
+
+					continue;
+				}
+
+				$block = new Tables\Blocks();
+
+				if (!$block->load($instance->blockID))
+				{
+					unset($instances[$instanceID]);
+
+					continue;
+				}
+
+				if ($block->date < $startDate or ($block->date === $startDate and $block->endTime < $startTime))
+				{
+					unset($instances[$instanceID]);
+
+					continue;
+				}
+
+			}
+
+			$schedule->schedule = json_encode($instances);
+			$schedule->store();
+		}
+	}
+
+	/**
 	 * Retrieves the ids of the resources associated with the given fk values.
 	 *
 	 * @param   string  $suffix    the specific portion of the table name

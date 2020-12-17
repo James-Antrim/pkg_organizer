@@ -82,6 +82,17 @@ class Schedules extends ListView
 				);
 			}
 		}
+
+		if ($admin)
+		{
+			$toolbar->appendButton(
+				'Standard',
+				'filter',
+				'Filter Relevance',
+				'schedules.filterRelevance',
+				false
+			);
+		}
 	}
 
 	/**

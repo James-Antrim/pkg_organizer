@@ -47,6 +47,20 @@ class Schedules extends Controller
 	}*/
 
 	/**
+	 * Filters schedule instances to those which occur after the schedule's creation date & time.
+	 *
+	 * @return void
+	 */
+	public function filterRelevance()
+	{
+		$model = new Models\Schedule();
+		$model->filterRelevance();
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=schedules";
+		$this->setRedirect($url);
+	}
+
+	/**
 	 * Rebuilds the delta status of planning resources and relations.
 	 *
 	 * @return void
