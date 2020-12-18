@@ -35,7 +35,12 @@ class ContactTracking extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Can::manageTheseOrganizations())
+		if (!Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::traceContacts())
 		{
 			Helpers\OrganizerHelper::error(403);
 		}

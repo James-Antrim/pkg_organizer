@@ -24,24 +24,25 @@ class Can
 	 *
 	 * @return bool true if the user is an administrator, otherwise false
 	 */
-	public static function administrate()
+	public static function administrate(): bool
 	{
 		$user = Users::getUser();
+
 		if (!$user->id)
 		{
 			return false;
 		}
 
-
 		return ($user->authorise('core.admin') or $user->authorise('core.admin', 'com_organizer'));
 	}
 
 	/**
-	 * Performs ubiquitous authorization checks.
+	 * Performs ubiquitous authorization checks. Functions using this with is_bool() will get a false positive for a null
+	 * return value in their own return value suggestions.
 	 *
 	 * @return bool|null true if the user has administrative authorization, false if the user is a guest, otherwise null
 	 */
-	private static function basic()
+	private static function basic(): ?bool
 	{
 		if (!Users::getID())
 		{
@@ -62,17 +63,16 @@ class Can
 	 * @param   string  $resourceType  the resource type being checked
 	 * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
 	 *
-	 * @return bool true if the user is authorized for facility management functions and views.
+	 * @return bool true if the user is authorized to document the resources of an/the organization
 	 */
-	public static function document(string $resourceType, int $resourceID = 0)
+	public static function document(string $resourceType, int $resourceID = 0): bool
 	{
 		if (is_bool($authorized = self::basic()))
 		{
 			return $authorized;
 		}
 
-		$invalidType = !in_array($resourceType, ['fieldcolor', 'organization', 'pool', 'program', 'subject']);
-		if ($invalidType)
+		if (!in_array($resourceType, ['fieldcolor', 'organization', 'pool', 'program', 'subject']))
 		{
 			return false;
 		}
@@ -167,7 +167,7 @@ class Can
 	 *
 	 * @return array  the organization ids, empty if user has no access
 	 */
-	public static function documentTheseOrganizations()
+	public static function documentTheseOrganizations(): array
 	{
 		return self::getAuthorizedOrganizations('document');
 	}
@@ -175,12 +175,12 @@ class Can
 	/**
 	 * Checks whether the user has access to the participant information
 	 *
-	 * @param   string     $resourceType  the resource type being checked
-	 * @param   array|int  $resource      the resource id being checked or an array if resource ids to check
+	 * @param   string          $resourceType  the resource type being checked
+	 * @param   array|int|null  $resource      the resource id being checked or an array if resource ids to check
 	 *
 	 * @return bool true if the user is authorized to manage courses, otherwise false
 	 */
-	public static function edit($resourceType, $resource = null)
+	public static function edit(string $resourceType, $resource = null): bool
 	{
 		if (is_bool($authorized = self::basic()))
 		{
@@ -241,8 +241,9 @@ class Can
 	 * @param   array|int  $resource     the resource id being checked or an array if resource ids to check
 	 *
 	 * @return bool true if the user is authorized to manage courses, otherwise false
+	 * @noinspection PhpUndefinedMethodInspection
 	 */
-	private static function editScheduleResource($helperClass, $resource)
+	private static function editScheduleResource(string $helperClass, $resource): bool
 	{
 		if (empty($resource))
 		{
@@ -283,7 +284,7 @@ class Can
 	 *
 	 * @return array  the organization ids, empty if user has no access
 	 */
-	private static function getAuthorizedOrganizations($function)
+	private static function getAuthorizedOrganizations(string $function): array
 	{
 		if (!Users::getID())
 		{
@@ -323,14 +324,8 @@ class Can
 	 *
 	 * @return bool true if the user is authorized for scheduling functions and views.
 	 */
-	public static function manage(string $resourceType, int $resourceID = 0)
+	public static function manage(string $resourceType, int $resourceID = 0): bool
 	{
-		$user = Users::getUser();
-		if (empty($user->id))
-		{
-			return false;
-		}
-
 		if (is_bool($authorized = self::basic()))
 		{
 			return $authorized;
@@ -359,13 +354,16 @@ class Can
 					return true;
 				}
 
-				return array_intersect(self::manageTheseOrganizations(), Instances::getOrganizationIDs($resourceID)) ? true : false;
+				$instanceOrganizations = Instances::getOrganizationIDs($resourceID);
+				$managedOrganizations  = self::manageTheseOrganizations();
+
+				return array_intersect($managedOrganizations, $instanceOrganizations) ? true : false;
 			case 'facilities':
-				return $user->authorise('organizer.fm', 'com_organizer');
+				return Users::getUser()->authorise('organizer.fm', 'com_organizer');
 			case 'organization':
-				return $user->authorise('organizer.manage', "com_organizer.organization.$resourceID");
+				return Users::getUser()->authorise('organizer.manage', "com_organizer.organization.$resourceID");
 			case 'participant':
-				if ($resourceID === $user->id)
+				if ($resourceID === Users::getID())
 				{
 					return true;
 				}
@@ -382,7 +380,7 @@ class Can
 
 				return false;
 			case 'persons':
-				return $user->authorise('organizer.hr', 'com_organizer');
+				return Users::getUser()->authorise('organizer.hr', 'com_organizer');
 			default:
 				return false;
 		}
@@ -393,7 +391,7 @@ class Can
 	 *
 	 * @return array  the organization ids, empty if user has no access
 	 */
-	public static function manageTheseOrganizations()
+	public static function manageTheseOrganizations(): array
 	{
 		return self::getAuthorizedOrganizations('manage');
 	}
@@ -401,19 +399,19 @@ class Can
 	/**
 	 * Checks whether the user has access to scheduling resources and their respective views.
 	 *
-	 * @param   string     $resourceType  the resource type being checked
-	 * @param   array|int  $resource      the resource id being checked or an array if resource ids to check
+	 * @param   string  $resourceType  the resource type being checked
+	 * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
 	 *
 	 * @return bool true if the user is authorized for scheduling functions and views.
 	 */
-	public static function schedule($resourceType, $resource = null)
+	public static function schedule(string $resourceType, int $resourceID): bool
 	{
 		if (is_bool($authorized = self::basic()))
 		{
 			return $authorized;
 		}
 
-		if (!$resource)
+		if (!$resourceID)
 		{
 			return false;
 		}
@@ -423,7 +421,8 @@ class Can
 		if ($resourceType === 'schedule')
 		{
 			$schedule = new Tables\Schedules();
-			if (!$schedule->load($resource))
+
+			if (!$schedule->load($resourceID))
 			{
 				return false;
 			}
@@ -433,7 +432,7 @@ class Can
 
 		if ($resourceType === 'organization')
 		{
-			return $user->authorise('organizer.schedule', "com_organizer.organization.$resource");
+			return $user->authorise('organizer.schedule', "com_organizer.organization.$resourceID");
 		}
 
 		return false;
@@ -444,9 +443,24 @@ class Can
 	 *
 	 * @return array  the organization ids, empty if user has no access
 	 */
-	public static function scheduleTheseOrganizations()
+	public static function scheduleTheseOrganizations(): array
 	{
 		return self::getAuthorizedOrganizations('schedule');
+	}
+
+	/**
+	 * Check whether the user is authorized to perform contact tracing.
+	 *
+	 * @return bool|null
+	 */
+	public static function traceContacts(): bool
+	{
+		if (is_bool($authorized = self::basic()))
+		{
+			return $authorized;
+		}
+
+		return Users::getUser()->authorise('organizer.ct', 'com_organizer');
 	}
 
 	/**
@@ -457,7 +471,7 @@ class Can
 	 *
 	 * @return bool true if the user is authorized for scheduling functions and views.
 	 */
-	public static function view(string $resourceType, int $resourceID)
+	public static function view(string $resourceType, int $resourceID): bool
 	{
 		if (is_bool($authorized = self::basic()))
 		{
@@ -484,7 +498,7 @@ class Can
 	 *
 	 * @return array  the organization ids, empty if user has no access
 	 */
-	public static function viewTheseOrganizations()
+	public static function viewTheseOrganizations(): array
 	{
 		return self::getAuthorizedOrganizations('view');
 	}
