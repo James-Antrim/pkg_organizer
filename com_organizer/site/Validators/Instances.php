@@ -13,7 +13,6 @@ namespace Organizer\Validators;
 use Organizer\Helpers;
 use Organizer\Tables;
 use SimpleXMLElement;
-use stdClass;
 
 /**
  * Provides functions for XML lesson validation and modeling.
@@ -21,7 +20,7 @@ use stdClass;
 class Instances extends Helpers\ResourceHelper
 {
 	// Occurrence values
-	const NO = 0, VACATION = 'F';
+	private const NO = 0, VACATION = 'F';
 
 	/**
 	 * Adds the data for locating the missing room information to the warnings.
@@ -93,9 +92,8 @@ class Instances extends Helpers\ResourceHelper
 	 * @param   string            $currentDate  the current date being iterated
 	 *
 	 * @return int the id of the block
-	 * @noinspection PhpUndefinedFieldInspection
 	 */
-	private static function getBlockID(SimpleXMLElement $node, string $currentDate)
+	private static function getBlockID(SimpleXMLElement $node, string $currentDate): int
 	{
 		$rawEndTime   = trim((string) $node->assigned_endtime);
 		$rawStartTime = trim((string) $node->assigned_starttime);
@@ -152,7 +150,11 @@ class Instances extends Helpers\ResourceHelper
 		{
 			$instanceGroup = ['assocID' => $assocID, 'groupID' => $groupID];
 			$table         = new Tables\InstanceGroups();
-			self::updateRelation($model, $table, $instanceGroup);
+
+			if (!$table->load($instanceGroup))
+			{
+				$table->save($instanceGroup);
+			}
 		}
 	}
 
@@ -182,24 +184,11 @@ class Instances extends Helpers\ResourceHelper
 		if ($table->load($instance))
 		{
 			$table->methodID = $methodID;
-
-			if ($table->delta === 'new')
-			{
-				$table->delta = '';
-			}
-			elseif ($table->delta === 'removed')
-			{
-				$table->delta = 'new';
-			}
-
-			$table->modified = $model->modified;
 			$table->store();
 		}
 		else
 		{
-			$instance['delta']    = 'new';
 			$instance['methodID'] = $methodID;
-			$instance['modified'] = $model->modified;
 			$table->save($instance);
 		}
 
@@ -241,24 +230,11 @@ class Instances extends Helpers\ResourceHelper
 		if ($table->load($instancePerson))
 		{
 			$table->roleID = $roleID;
-
-			if ($table->delta === 'new')
-			{
-				$table->delta = '';
-			}
-			elseif ($table->delta === 'removed')
-			{
-				$table->delta = 'new';
-			}
-
-			$table->modified = $model->modified;
 			$table->store();
 		}
 		else
 		{
-			$instancePerson['delta']    = 'new';
-			$instancePerson['modified'] = $model->modified;
-			$instancePerson['roleID']   = $roleID;
+			$instancePerson['roleID'] = $roleID;
 			$table->save($instancePerson);
 		}
 
@@ -305,40 +281,11 @@ class Instances extends Helpers\ResourceHelper
 		{
 			$instanceRoom = ['assocID' => $assocID, 'roomID' => $roomID];
 			$table        = new Tables\InstanceRooms();
-			self::updateRelation($model, $table, $instanceRoom);
-		}
-	}
 
-	/**
-	 * Updates a relation table
-	 *
-	 * @param   Schedule                          $model  the model for the schedule being validated
-	 * @param   Tables\BaseTable|Tables\Modified  $table  the table to be updated
-	 * @param   array                             $data   the relation keys
-	 *
-	 * @return void creates / updates a table entry
-	 */
-	private static function updateRelation(Schedule $model, $table, array $data)
-	{
-		if ($table->load($data))
-		{
-			if ($table->delta === 'new')
+			if (!$table->load($instanceRoom))
 			{
-				$table->delta = '';
+				$table->save($instanceRoom);
 			}
-			elseif ($table->delta === 'removed')
-			{
-				$table->delta = 'new';
-			}
-
-			$table->modified = $model->modified;
-			$table->store();
-		}
-		else
-		{
-			$data['delta']    = 'new';
-			$data['modified'] = $model->modified;
-			$table->save($data);
 		}
 	}
 
@@ -359,7 +306,8 @@ class Instances extends Helpers\ResourceHelper
 		string $untisID,
 		array $occurrences,
 		bool $valid
-	) {
+	)
+	{
 		if (!$node->count())
 		{
 			return;
@@ -372,9 +320,13 @@ class Instances extends Helpers\ResourceHelper
 
 		foreach ($occurrences as $occurrence)
 		{
-			// Untis uses F for vacation days and 0 for any other date restriction
+			// Instances are relevant if they occur after the creation of the schedule itself.
+			$relevant = $currentDT > $model->dateTime;
+
+			// Instances are irrelevant on vacation days or outside scope
 			$irrelevant = ($occurrence == self::NO or $occurrence == self::VACATION);
-			if (!$irrelevant)
+
+			if ($relevant and !$irrelevant)
 			{
 				foreach ($instances as $instance)
 				{
@@ -396,7 +348,6 @@ class Instances extends Helpers\ResourceHelper
 	 * @param   bool              $valid      whether or not the planning unit is valid (for purposes of saving)
 	 *
 	 * @return void errors are added to the model's errors property
-	 * @noinspection PhpUndefinedFieldInspection
 	 */
 	private static function validateInstance(
 		Schedule $model,
@@ -404,7 +355,8 @@ class Instances extends Helpers\ResourceHelper
 		string $untisID,
 		int $currentDT,
 		bool $valid
-	) {
+	)
+	{
 		// Current date not applicable for this instance
 		if (trim((string) $node->assigned_day) != date('w', $currentDT))
 		{

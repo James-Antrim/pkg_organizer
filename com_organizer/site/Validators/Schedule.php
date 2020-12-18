@@ -25,6 +25,8 @@ class Schedule
 
 	public $creationTime;
 
+	public $dateTime;
+
 	public $errors = [];
 
 	public $events = null;
@@ -36,8 +38,6 @@ class Schedule
 	public $instances = [];
 
 	public $methods = null;
-
-	public $modified = null;
 
 	public $organizationID;
 
@@ -85,7 +85,7 @@ class Schedule
 	 *
 	 * @return bool true on successful validation w/o errors, false if the schedule was invalid or an error occurred
 	 */
-	public function validate()
+	public function validate(): bool
 	{
 		$this->organizationID = Helpers\Input::getInt('organizationID');
 		$formFiles            = Helpers\Input::getInput()->files->get('jform', [], 'array');
@@ -98,10 +98,13 @@ class Schedule
 		// Creation Date & Time, school year dates, term attributes
 		$this->creationDate = trim((string) $this->xml[0]['date']);
 		$validCreationDate  = $this->validateDate($this->creationDate, 'CREATION_DATE');
-
 		$this->creationTime = trim((string) $this->xml[0]['time']);
+		$valid              = false;
 
-		$valid = ($validCreationDate and $this->validateCreationTime());
+		if ($valid = ($validCreationDate and $this->validateCreationTime()))
+		{
+			$this->dateTime = strtotime("$this->creationDate $this->creationTime");
+		}
 
 		Terms::validate($this, $this->xml->general);
 		$valid = ($valid and !empty($this->term));
@@ -133,9 +136,9 @@ class Schedule
 	/**
 	 * Validates a text attribute. Sets the attribute if valid.
 	 *
-	 * @return mixed string the text if valid, otherwise bool false
+	 * @return bool true if the creation time is valid, otherwise false
 	 */
-	public function validateCreationTime()
+	public function validateCreationTime(): bool
 	{
 		if (empty($this->creationTime))
 		{
@@ -165,7 +168,7 @@ class Schedule
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function validateDate(string &$value, string $constant)
+	public function validateDate(string &$value, string $constant): bool
 	{
 		if (empty($value))
 		{
@@ -250,13 +253,13 @@ class Schedule
 
 		if ($validTerm)
 		{
-			$standardDate   = Helpers\Dates::standardizeDate($this->creationDate);
-			$this->modified = date('Y-m-d H:i:s', strtotime("$standardDate $this->creationTime"));
-			$this->units    = new stdClass();
+			$this->units = new stdClass();
+
 			foreach ($this->xml->lessons->children() as $node)
 			{
 				Units::validate($this, $node);
 			}
+
 			Units::setWarnings($this);
 		}
 		unset($this->events, $this->groups, $this->methods, $this->persons, $this->term, $this->xml);
@@ -271,7 +274,7 @@ class Schedule
 	 *
 	 * @return bool false if blocking errors were found, otherwise true
 	 */
-	public function validateText(string $value, string $constant, string $regex = '')
+	public function validateText(string $value, string $constant, string $regex = ''): bool
 	{
 		if (empty($value))
 		{

@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Validators;
@@ -25,11 +26,47 @@ class Schedule extends BaseModel
 	private $modified;
 
 	/**
+	 * Updates an table associating an instance with a resource.
+	 *
+	 * @param   Tables\BaseTable|Tables\Modified  $table   the association table to be updated
+	 * @param   array                             $keys    the keys used to identify the association through content
+	 * @param   string                            $delta   the status of the association
+	 * @param   int                               $roleID  the id of the role for instance person associations
+	 *
+	 * @return void
+	 */
+	private function createAssoc($table, array $keys, string $delta, $roleID = 1)
+	{
+		foreach ($keys as $key => $value)
+		{
+			$table->$key = $value;
+		}
+
+		$table->delta    = $delta;
+		$table->modified = $this->modified;
+
+		if (property_exists($table, 'roleID'))
+		{
+			$table->roleID = $roleID;
+		}
+
+		try
+		{
+			$table->store();
+		}
+			// FK fails for resources merged out of existence
+		catch (Exception $exception)
+		{
+			return;
+		}
+	}
+
+	/**
 	 * Deletes the selected schedules.
 	 *
 	 * @return bool true on successful deletion of all selected schedules, otherwise false
 	 */
-	public function delete()
+	public function delete(): bool
 	{
 		if (!Helpers\Can::scheduleTheseOrganizations())
 		{
@@ -84,7 +121,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return bool
 	 */
-	private function deleteSingle($scheduleID)
+	private function deleteSingle($scheduleID): bool
 	{
 		if (!Helpers\Can::schedule('schedule', $scheduleID))
 		{
@@ -176,10 +213,11 @@ class Schedule extends BaseModel
 	 *
 	 * @return array
 	 */
-	private function getAssociatedIDs(string $suffix, string $fkColumn, array $fkValues)
+	private function getAssociatedIDs(string $suffix, string $fkColumn, array $fkValues): array
 	{
 		$fkValues = implode(', ', $fkValues);
 		$query    = Database::getQuery();
+		/** @noinspection SqlResolve */
 		$query->select('id')->from("#__organizer_$suffix")->where("$fkColumn IN ($fkValues)");
 		Database::setQuery($query);
 
@@ -194,7 +232,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return array the schedule ids
 	 */
-	private function getContextIDs(int $organizationID, int $termID)
+	private function getContextIDs(int $organizationID, int $termID): array
 	{
 		$query = Database::getQuery();
 		$query->select('id')
@@ -216,11 +254,91 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Determines whether the instance is temporally relevant to the process.
+	 *
+	 * @param   Tables\Instances  $instance  the instance entry
+	 * @param   string            $date      the schedule's creation date
+	 * @param   string            $time      the schedule's creation time
+	 *
+	 * @return bool
+	 */
+	private function isRelevant(Tables\Instances $instance, string $date, string $time): bool
+	{
+		$block = new Tables\Blocks();
+
+		if (!$block->load($instance->blockID))
+		{
+			return false;
+		}
+
+		$future = $block->date > $date;
+		$late   = ($block->date === $date and $block->startTime > $time);
+
+		return ($future or $late);
+	}
+
+	/**
+	 * Creates/updates a 'new' instance person relation.
+	 *
+	 * @param   array  $instances   the instances of the schedule
+	 * @param   int    $instanceID  the id number of the instance being iterated
+	 * @param   int    $personID    the id number of the person being iterated
+	 *
+	 * @return void
+	 */
+	private function newPerson(array $instances, int $instanceID, int $personID)
+	{
+		$iPerson = new Tables\InstancePersons();
+		$keys    = ['instanceID' => $instanceID, 'personID' => $personID];
+		$roleID  = $instances[$instanceID][$personID]['roleID'];
+
+		if ($iPerson->load($keys))
+		{
+			$this->updateAssoc($iPerson, 'new', $roleID);
+		}
+		else
+		{
+			$this->createAssoc($iPerson, $keys, 'new', $roleID);
+		}
+
+
+		foreach ($instances[$instanceID][$personID]['groups'] as $ID)
+		{
+			$keys  = ['assocID' => $iPerson->id, 'groupID' => $ID];
+			$table = new Tables\InstanceGroups();
+
+			if ($table->load($keys))
+			{
+				$this->updateAssoc($table, 'new');
+			}
+			else
+			{
+				$this->createAssoc($table, $keys, 'new');
+			}
+		}
+
+		foreach ($instances[$instanceID][$personID]['rooms'] as $ID)
+		{
+			$keys  = ['assocID' => $iPerson->id, 'roomID' => $ID];
+			$table = new Tables\InstanceRooms();
+
+			if ($table->load($keys))
+			{
+				$this->updateAssoc($table, 'new');
+			}
+			else
+			{
+				$this->createAssoc($table, $keys, 'new');
+			}
+		}
+	}
+
+	/**
 	 * Rebuilds the history of a organization / term context.
 	 *
 	 * @return bool
 	 */
-	public function rebuild()
+	public function rebuild(): bool
 	{
 		if (!$organizationID = Helpers\Input::getFilterID('organization') or !$termID = Helpers\Input::getFilterID('term'))
 		{
@@ -240,10 +358,12 @@ class Schedule extends BaseModel
 		}
 
 		$this->resetContext($organizationID, $termID, $scheduleIDs[0]);
+		$referenceID = 0;
 
 		foreach ($scheduleIDs as $scheduleID)
 		{
-			$this->setCurrent($scheduleID);
+			$this->setCurrent($scheduleID, $referenceID);
+			$referenceID = $scheduleID;
 		}
 
 		return true;
@@ -254,7 +374,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return bool
 	 */
-	public function reference()
+	public function reference(): bool
 	{
 		if (!$referenceID = Helpers\Input::getSelectedID())
 		{
@@ -299,8 +419,8 @@ class Schedule extends BaseModel
 			}
 		}
 
-		$this->setCurrent($referenceID);
-		$this->setCurrent($currentID);
+		$this->resetContext($current->organizationID, $current->termID, $currentID);
+		$this->setCurrent($currentID, $referenceID);
 
 		return true;
 	}
@@ -323,12 +443,14 @@ class Schedule extends BaseModel
 		unset($firstSchedule);
 
 		$modified   = date('Y-m-d h:i:s', strtotime('-2 Weeks', strtotime($timestamp)));
+		$today      = date('Y-m-d');
 		$conditions = ["delta = 'removed'", "modified = '$modified'"];
 
 		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_units')
 			->where("organizationID = $organizationID")
+			->where("startDate > $today")
 			->where("termID = $termID");
 		Database::setQuery($query);
 
@@ -338,8 +460,20 @@ class Schedule extends BaseModel
 		}
 
 		$this->updateBatch('units', $unitIDs, $conditions);
+		$startTime = date('H:i:s');
 
-		if (!$instanceIDs = $this->getAssociatedIDs('instances', 'unitID', $unitIDs))
+		$query = Database::getQuery();
+		$query->select('DISTINCT i.id')
+			->from('#__organizer_instances AS i')
+			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
+			->where("(b.date > '$today' OR (b.date = '$today' AND b.startTime > '$startTime'))")
+			->where("u.organizationID = $organizationID")
+			->where("u.startDate > $today")
+			->where("u.termID = $termID");
+		Database::setQuery($query);
+
+		if (!$instanceIDs = Database::loadIntColumn())
 		{
 			return;
 		}
@@ -378,6 +512,7 @@ class Schedule extends BaseModel
 	private function resolveEventSubjects(int $organizationID)
 	{
 		$query = Database::getQuery();
+		/** @noinspection SqlResolve */
 		$query->select('id, subjectNo')
 			->from('#__organizer_events')
 			->where("organizationID = $organizationID")
@@ -438,11 +573,12 @@ class Schedule extends BaseModel
 	 * Sets the schedule with the given id as the current one in regard to the status of planned relationships and
 	 * resources in its organization / term context.
 	 *
-	 * @param   int  $scheduleID  the id of the schedule to set as current
+	 * @param   int  $scheduleID   the id of the schedule to set as current
+	 * @param   int  $referenceID  the id of the previously valid schedule
 	 *
 	 * @return void
 	 */
-	public function setCurrent(int $scheduleID)
+	public function setCurrent(int $scheduleID, int $referenceID)
 	{
 		$schedule = new Tables\Schedules();
 
@@ -451,135 +587,265 @@ class Schedule extends BaseModel
 			return;
 		}
 
-		$iGroup         = new Tables\InstanceGroups();
-		$instance       = new Tables\Instances();
-		$instances      = json_decode($schedule->schedule, true);
-		$iPerson        = new Tables\InstancePersons();
-		$iRoom          = new Tables\InstanceRooms();
-		$this->modified = "$schedule->creationDate $schedule->creationTime";
-		$unit           = new Tables\Units();
-		$unitIDs        = [];
+		$instances  = json_decode($schedule->schedule, true);
+		$reference  = new Tables\Schedules();
+		$rInstances = [];
 
-		foreach ($instances as $instanceID => $persons)
+		$this->modified = "$schedule->creationDate $schedule->creationTime";
+
+		if ($referenceID)
 		{
-			if (!$instance->load($instanceID))
+			if (!$reference->load($referenceID))
+			{
+				return;
+			}
+
+			$rInstances = json_decode($reference->schedule, true);
+		}
+
+		$NIUnitIDs = [];
+
+		foreach (array_diff(array_keys($instances), array_keys($rInstances)) as $instanceID)
+		{
+			$instance = new Tables\Instances();
+
+			if (!$instance->load($instanceID) or !$this->isRelevant($instance, $schedule->creationDate, $schedule->creationTime))
 			{
 				continue;
 			}
 
-			if ($instance->modified !== $this->modified)
+			$this->updateAssoc($instance, 'new');
+			$NIUnitIDs[$instance->unitID] = $instance->unitID;
+
+			foreach (array_keys($instances[$instanceID]) as $personID)
 			{
-				$instance->delta    = $instance->delta === 'removed' ? 'new' : '';
-				$instance->modified = $this->modified;
-				$instance->store();
+				$this->newPerson($instances, $instanceID, $personID);
+			}
+		}
+
+		// Static Instance Unit IDs
+		$SIUnitIDs = [];
+
+		foreach (array_intersect(array_keys($instances), array_keys($rInstances)) as $instanceID)
+		{
+			$instance = new Tables\Instances();
+
+			if (!$instance->load($instanceID) or !$this->isRelevant($instance, $schedule->creationDate, $schedule->creationTime))
+			{
+				continue;
 			}
 
-			$unitIDs[$instance->unitID] = $instance->unitID;
+			$this->updateAssoc($instance, '');
+			$SIUnitIDs[$instance->unitID] = $instance->unitID;
 
-			foreach ($persons as $personID => $resources)
+			$personIDs  = array_keys($instances[$instanceID]);
+			$rPersonIDs = array_keys($rInstances[$instanceID]);
+
+			foreach (array_diff($personIDs, $rPersonIDs) as $personID)
 			{
-				if (!$iPerson->load(['instanceID' => $instanceID, 'personID' => $personID]))
+				$this->newPerson($instances, $instanceID, $personID);
+			}
+
+			foreach (array_intersect($personIDs, $rPersonIDs) as $personID)
+			{
+				$iPerson = new Tables\InstancePersons();
+				$keys    = ['instanceID' => $instanceID, 'personID' => $personID];
+				$roleID  = $instances[$instanceID][$personID]['roleID'];
+
+				if ($iPerson->load($keys))
+				{
+					$this->updateAssoc($iPerson, '', $roleID);
+				}
+				else
+				{
+					$this->createAssoc($iPerson, $keys, 'new', $roleID);
+				}
+
+				$IDs  = $instances[$instanceID][$personID]['groups'];
+				$rIDs = $rInstances[$instanceID][$personID]['groups'];
+
+				foreach (array_diff($IDs, $rIDs) as $ID)
+				{
+					$keys  = ['assocID' => $iPerson->id, 'groupID' => $ID];
+					$table = new Tables\InstanceGroups();
+
+					if ($table->load($keys))
+					{
+						$this->updateAssoc($table, 'new');
+					}
+					else
+					{
+						$this->createAssoc($table, $keys, 'new');
+					}
+				}
+
+				foreach (array_intersect($IDs, $rIDs) as $ID)
+				{
+					$keys  = ['assocID' => $iPerson->id, 'groupID' => $ID];
+					$table = new Tables\InstanceGroups();
+
+					if ($table->load($keys))
+					{
+						$this->updateAssoc($table, '');
+					}
+					else
+					{
+						$this->createAssoc($table, $keys, '');
+					}
+				}
+
+				foreach (array_diff($rIDs, $IDs) as $ID)
+				{
+					$keys  = ['assocID' => $iPerson->id, 'groupID' => $ID];
+					$table = new Tables\InstanceGroups();
+
+					if ($table->load($keys))
+					{
+						$this->updateAssoc($table, 'removed');
+					}
+					else
+					{
+						$this->createAssoc($table, $keys, 'removed');
+					}
+				}
+
+				$IDs  = $instances[$instanceID][$personID]['rooms'];
+				$rIDs = $rInstances[$instanceID][$personID]['rooms'];
+
+				foreach (array_diff($IDs, $rIDs) as $ID)
+				{
+					$keys  = ['assocID' => $iPerson->id, 'roomID' => $ID];
+					$table = new Tables\InstanceRooms();
+
+					if ($table->load($keys))
+					{
+						$this->updateAssoc($table, 'new');
+					}
+					else
+					{
+						$this->createAssoc($table, $keys, 'new');
+					}
+				}
+
+				foreach (array_intersect($IDs, $rIDs) as $ID)
+				{
+					$keys  = ['assocID' => $iPerson->id, 'roomID' => $ID];
+					$table = new Tables\InstanceRooms();
+
+					if ($table->load($keys))
+					{
+						$this->updateAssoc($table, '');
+					}
+					else
+					{
+						$this->createAssoc($table, $keys, '');
+					}
+				}
+
+				foreach (array_diff($rIDs, $IDs) as $ID)
+				{
+					$keys  = ['assocID' => $iPerson->id, 'roomID' => $ID];
+					$table = new Tables\InstanceRooms();
+
+					if ($table->load($keys))
+					{
+						$this->updateAssoc($table, 'removed');
+					}
+					else
+					{
+						$this->createAssoc($table, $keys, 'removed');
+					}
+				}
+			}
+
+			foreach (array_diff($rPersonIDs, $personIDs) as $personID)
+			{
+				$iPerson = new Tables\InstancePersons();
+				$ipKeys  = ['instanceID' => $instanceID, 'personID' => $personID];
+
+				if (!$iPerson->load($ipKeys))
 				{
 					continue;
 				}
 
-				if ($iPerson->modified !== $this->modified)
-				{
-					$iPerson->delta    = $iPerson->delta === 'removed' ? 'new' : '';
-					$iPerson->modified = $this->modified;
-					$iPerson->store();
-				}
-
-				foreach ($resources['groups'] as $groupID)
-				{
-					$keys = ['assocID' => $iPerson->id, 'groupID' => $groupID];
-
-					if (!$iGroup->load($keys) or $iGroup->modified === $this->modified)
-					{
-						continue;
-					}
-
-					$iGroup->delta    = $iGroup->delta === 'removed' ? 'new' : '';
-					$iGroup->modified = $this->modified;
-					$iGroup->store();
-				}
-
-				$this->setRemoved('instance_groups', ['assocID' => $iPerson->id], 'groupID', $resources['groups']);
-
-				foreach ($resources['rooms'] as $roomID)
-				{
-					$keys = ['assocID' => $iPerson->id, 'roomID' => $roomID];
-
-					if (!$iRoom->load($keys) or $iRoom->modified === $this->modified)
-					{
-						continue;
-					}
-
-					$iRoom->delta    = $iRoom->delta === 'removed' ? 'new' : '';
-					$iRoom->modified = $this->modified;
-					$iRoom->store();
-				}
-
-				$this->setRemoved('instance_rooms', ['assocID' => $iPerson->id], 'roomID', $resources['rooms']);
+				$iPerson->delta    = 'removed';
+				$iPerson->modified = $this->modified;
+				$iPerson->store();
 			}
-
-			$this->setRemoved('instance_persons', ['instanceID' => $instanceID], 'personID', array_keys($persons));
-
 		}
 
-		$fkPairs = ['organizationID' => $schedule->organizationID, 'termID' => $schedule->termID];
-		$this->setRemoved('units', $fkPairs, 'id', $unitIDs);
-		$instanceIDs = array_keys($instances);
+		// Alternate Time Line Unit IDs
+		$ATLUnitIDs = [];
 
-		foreach ($unitIDs as $unitID)
+		foreach (array_diff(array_keys($rInstances), array_keys($instances)) as $instanceID)
 		{
-			if (!$unit->load($unitID) or $unit->modified === $this->modified)
+			$instance = new Tables\Instances();
+
+			if (!$instance->load($instanceID) or !$this->isRelevant($instance, $schedule->creationDate, $schedule->creationTime))
 			{
 				continue;
 			}
 
-			if ($unit->modified !== $this->modified)
-			{
-				$unit->delta    = $unit->delta === 'removed' ? 'new' : '';
-				$unit->modified = $this->modified;
-				$unit->store();
-			}
+			$this->updateAssoc($instance, 'removed');
+			$ATLUnitIDs[$instance->unitID] = $instance->unitID;
+		}
 
-			$this->setRemoved('instances', ['unitID' => $unitID], 'id', $instanceIDs);
+		/**
+		 * Unchanged Units are those in unchanged instances, past instances, or are shared by new instances and
+		 * removed future instances.
+		 */
+		$unchangedIDs = array_merge($SIUnitIDs, array_intersect($NIUnitIDs, $ATLUnitIDs));
+		foreach ($unchangedIDs as $ID)
+		{
+			$unit = new Tables\Units();
+
+			if ($unit->load($ID))
+			{
+				$this->updateAssoc($unit, '');
+			}
+		}
+
+		foreach (array_diff($NIUnitIDs, $unchangedIDs) as $ID)
+		{
+			$unit = new Tables\Units();
+
+			if ($unit->load($ID))
+			{
+				$this->updateAssoc($unit, 'new');
+			}
+		}
+
+		foreach (array_diff($ATLUnitIDs, $unchangedIDs) as $ID)
+		{
+			$unit = new Tables\Units();
+
+			if ($unit->load($ID))
+			{
+				$this->updateAssoc($unit, 'removed');
+			}
 		}
 	}
 
 	/**
-	 * Sets the resources and relations to removed which are not associated with a given schedule relation / resource.
+	 * Updates an table associating an instance with a resource.
 	 *
-	 * @param   string  $suffix          the specific part of the organizer table name
-	 * @param   array   $fkPairs         the fk key => value pairs defining the context for relevance
-	 * @param   string  $resourceColumn  the identifying resource column
-	 * @param   array   $resourceIDs     the current relation / resource ids
+	 * @param   Tables\BaseTable|Tables\Modified  $table   the association table to be updated
+	 * @param   string                            $delta   the status of the association
+	 * @param   int                               $roleID  the id of the role for instance person associations
 	 *
 	 * @return void
 	 */
-	private function setRemoved(string $suffix, array $fkPairs, string $resourceColumn, array $resourceIDs)
+	private function updateAssoc($table, string $delta, $roleID = 1)
 	{
-		$query = Database::getQuery();
-		$query->update("#__organizer_$suffix")
-			->set("delta = 'removed'")
-			->set("modified = '$this->modified'")
-			->where("delta != 'removed'");
+		$table->delta    = $delta;
+		$table->modified = $this->modified;
 
-		foreach ($fkPairs as $column => $value)
+		if (property_exists($table, 'roleID'))
 		{
-			$query->where("$column = $value");
+			$table->roleID = $roleID;
 		}
 
-		if (count($resourceIDs))
-		{
-			$resourceIDs = implode(', ', $resourceIDs);
-			$query->where("$resourceColumn NOT IN ($resourceIDs)");
-		}
-
-		Database::setQuery($query);
-		Database::execute();
+		$table->store();
 	}
 
 	/**
@@ -605,7 +871,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return  bool true on success, otherwise false
 	 */
-	public function upload()
+	public function upload(): bool
 	{
 		if (!$organizationID = Helpers\Input::getInt('organizationID'))
 		{
@@ -663,16 +929,9 @@ class Schedule extends BaseModel
 			}
 		}
 
-		if (empty($referenceID))
-		{
-			$this->resetContext($organizationID, $validator->termID, $schedule->id);
-		}
-		else
-		{
-			$this->setCurrent($referenceID);
-		}
-
-		$this->setCurrent($schedule->id);
+		// Ensures a clean reset if there were previous schedules that have been removed.
+		$this->resetContext($organizationID, $validator->termID, $schedule->id);
+		$this->setCurrent($schedule->id, $referenceID);
 		$this->resolveEventSubjects($organizationID);
 
 		return true;
