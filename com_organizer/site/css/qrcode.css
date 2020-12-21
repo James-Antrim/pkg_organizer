@@ -35,3 +35,9 @@ body.tmpl-component.html-default .main .foot {
     font-size: 2rem;
     padding-bottom: .6rem;
 }
+
+@media print {
+    body.tmpl-component.html-default {
+        transform: translate(-50%, 50%);
+    }
+}
