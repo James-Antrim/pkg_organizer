@@ -27,8 +27,7 @@ class Instances extends ListModel
 		'methodID',
 		'organizationID',
 		'personID',
-		'roomID',
-		'status'
+		'roomID'
 	];
 
 	protected $defaultOrdering = 'name';
@@ -314,7 +313,7 @@ class Instances extends ListModel
 		$conditions['interval']   = in_array($interval, $intervals) ? $interval : 'week';
 		$conditions['my']         = $this->state->get('filter.my');
 		$conditions['mySchedule'] = false;
-		$conditions['status']     = $this->state->get('filter.status', '');
+		$conditions['status']     = $this->state->get('filter.status', 1);
 
 		// Reliant on date and interval properties
 		Helpers\Instances::setDates($conditions);

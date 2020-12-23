@@ -24,7 +24,7 @@
         <field name="methodID" type="Methods" label="METHOD" onchange="this.form.submit();">
             <option value="">ALL_METHODS</option>
         </field>
-        <field name="status" type="InstanceStates" label="STATE" onchange="this.form.submit();"/>
+        <field name="status" type="InstanceStates" label="STATE" default="1" onchange="this.form.submit();"/>
     </fields>
     <fields name="list">
         <field name="date" type="Date" label="DATE" class="input-8" empty="false" onchange="this.form.submit();"/>

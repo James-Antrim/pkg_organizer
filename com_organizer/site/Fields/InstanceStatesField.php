@@ -33,10 +33,6 @@ class InstanceStatesField extends ColoredOptionsField
 	{
 		return [
 			(object) [
-				'text'  => Helpers\Languages::_('ORGANIZER_ALL_INSTANCES'),
-				'value' => ''
-			],
-			(object) [
 				'text'  => Helpers\Languages::_('ORGANIZER_CURRENT_INSTANCES'),
 				'value' => 1
 			],
