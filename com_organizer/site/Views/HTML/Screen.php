@@ -16,7 +16,7 @@ use Organizer\Adapters;
 /**
  * Class loads filtered events into the display context.
  */
-class Screen extends BaseHTMLView
+class Screen extends BaseView
 {
 	protected $_layout = 'upcoming_instances';
 

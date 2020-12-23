@@ -16,7 +16,7 @@ use Organizer\Adapters;
 /**
  * Class loads the query's results into the display context.
  */
-class Search extends BaseHTMLView
+class Search extends BaseView
 {
 	public $query;
 

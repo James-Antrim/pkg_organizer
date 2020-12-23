@@ -18,7 +18,7 @@ use Organizer\Helpers;
 /**
  * Class modifies the document for the output of a menu like list of resource management views.
  */
-class Organizer extends BaseHTMLView
+class Organizer extends BaseView
 {
 	/**
 	 * Method to get display

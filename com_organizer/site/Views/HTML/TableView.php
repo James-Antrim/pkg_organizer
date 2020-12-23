@@ -18,7 +18,7 @@ use Organizer\Adapters;
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
  */
-abstract class TableView extends BaseHTMLView
+abstract class TableView extends BaseView
 {
 	protected $_layout = 'table';
 

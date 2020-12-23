@@ -17,7 +17,7 @@ use Organizer\Helpers;
 /**
  * Class loads person workload statistics into the display context.
  */
-class Deputat extends BaseHTMLView
+class Deputat extends BaseView
 {
 	public $model = null;
 

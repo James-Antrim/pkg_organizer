@@ -18,7 +18,7 @@ use Organizer\Helpers;
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
  */
-abstract class ItemView extends BaseHTMLView
+abstract class ItemView extends BaseView
 {
 	protected $_layout = 'item';
 

@@ -16,7 +16,7 @@ use Organizer\Adapters;
 /**
  * Class loads lesson statistic information into the display context.
  */
-class LessonStatistics extends BaseHTMLView
+class LessonStatistics extends BaseView
 {
 	public $columns = [];
 

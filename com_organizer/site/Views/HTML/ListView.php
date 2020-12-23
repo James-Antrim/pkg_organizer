@@ -20,7 +20,7 @@ use Organizer\Helpers\HTML;
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
  */
-abstract class ListView extends BaseHTMLView
+abstract class ListView extends BaseView
 {
 	protected $_layout = 'list';
 

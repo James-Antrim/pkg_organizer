@@ -18,7 +18,7 @@ use Organizer\Helpers\Languages;
 /**
  * Class loads the schedule form into the display context.
  */
-class ScheduleItem extends BaseHTMLView
+class ScheduleItem extends BaseView
 {
 	/**
 	 * format for displaying dates

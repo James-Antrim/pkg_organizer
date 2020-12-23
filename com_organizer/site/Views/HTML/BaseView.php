@@ -23,7 +23,7 @@ use Organizer\Views\Named;
  *
  * Class holding methods for displaying presentation data.
  */
-abstract class BaseHTMLView extends HtmlView
+abstract class BaseView extends HtmlView
 {
 	use Named;
 

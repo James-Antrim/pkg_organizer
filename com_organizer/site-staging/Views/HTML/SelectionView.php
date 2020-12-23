@@ -19,7 +19,7 @@ use Organizer\Helpers\Languages;
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
  */
-abstract class SelectionView extends BaseHTMLView
+abstract class SelectionView extends BaseView
 {
 	protected $_layout = 'selection';
 
