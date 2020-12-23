@@ -16,6 +16,7 @@ use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Views\BaseView;
+use Organizer\Views\Named;
 
 /**
  * Base class for a Joomla View
@@ -24,6 +25,8 @@ use Organizer\Views\BaseView;
  */
 abstract class BaseHTMLView extends BaseView
 {
+	use Named;
+
 	public $disclaimer = '';
 
 	public $refresh = 0;

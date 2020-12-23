@@ -16,6 +16,7 @@ define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
 use Joomla\CMS\Application\ApplicationHelper;
 use Organizer\Helpers;
+use Organizer\Views\Named;
 use TCPDF;
 
 /**
@@ -25,6 +26,8 @@ use TCPDF;
  */
 abstract class BaseView extends TCPDF
 {
+	use Named;
+
 	// Alignment & Borders
 	public const ALL = 1,
 		BOTTOM = 'B',
@@ -85,6 +88,7 @@ abstract class BaseView extends TCPDF
 	public function __construct($orientation = self::PORTRAIT, $unit = 'mm', $format = 'A4')
 	{
 		parent::__construct($orientation, $unit, $format);
+		$this->getName();
 		$this->SetAuthor(Helpers\Users::getUser()->name);
 		$this->SetCreator('THM Organizer');
 		$this->setCellPaddings(1, 1.5, 1, 1.5);

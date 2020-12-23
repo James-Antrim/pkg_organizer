@@ -35,24 +35,6 @@ abstract class BaseView extends HtmlView
 	}
 
 	/**
-	 * Method to get the object name. Unlike the parent this method does not throw an exception.
-	 *
-	 * The model name by default parsed using the classname, or it can be set
-	 * by passing a $config['name'] in the class constructor
-	 *
-	 * @return  string  The name of the model
-	 */
-	public function getName()
-	{
-		if (empty($this->_name))
-		{
-			$this->_name = Helpers\OrganizerHelper::getClass($this);
-		}
-
-		return $this->_name;
-	}
-
-	/**
 	 * @inheritdoc
 	 */
 	public function setLayout($layout)

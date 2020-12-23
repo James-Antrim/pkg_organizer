@@ -17,6 +17,7 @@ use Joomla\CMS\Application\ApplicationHelper;
 use Organizer\Helpers;
 use Organizer\Layouts\XLS\BaseLayout;
 use Organizer\Models\BaseModel;
+use Organizer\Views\Named;
 use PHPExcel;
 use PHPExcel_IOFactory;
 
@@ -27,6 +28,8 @@ use PHPExcel_IOFactory;
  */
 abstract class BaseView extends PHPExcel
 {
+	use Named;
+
 	/**
 	 * @var BaseLayout
 	 */
@@ -36,8 +39,6 @@ abstract class BaseView extends PHPExcel
 	 * @var BaseModel
 	 */
 	public $model;
-
-	protected $name;
 
 	/**
 	 * @inheritdoc
@@ -53,7 +54,7 @@ abstract class BaseView extends PHPExcel
 		$layout       = "Organizer\\Layouts\\XLS\\$name\\$layout";
 		$this->layout = new $layout($this);
 
-		$model       = "Organizer\\Models\\" . $this->getName();
+		$model       = "Organizer\\Models\\$name";
 		$this->model = new $model();
 
 		$properties = $this->getProperties();
@@ -68,24 +69,6 @@ abstract class BaseView extends PHPExcel
 	 * @throws Exception
 	 */
 	abstract public function display();
-
-	/**
-	 * Method to get the object name.
-	 *
-	 * The model name by default parsed using the classname, or it can be set
-	 * by passing a $config['name'] in the class constructor
-	 *
-	 * @return  string  The name of the model
-	 */
-	public function getName()
-	{
-		if (empty($this->_name))
-		{
-			$this->name = Helpers\OrganizerHelper::getClass($this);
-		}
-
-		return $this->name;
-	}
 
 	/**
 	 * Renders the document.

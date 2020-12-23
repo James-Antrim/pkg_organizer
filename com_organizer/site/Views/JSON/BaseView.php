@@ -11,7 +11,7 @@
 namespace Organizer\Views\JSON;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers;
+use Organizer\Views\Named;
 
 /**
  * Base class for a Joomla View
@@ -20,6 +20,8 @@ use Organizer\Helpers;
  */
 abstract class BaseView
 {
+	use Named;
+
 	/**
 	 * The base path of the site itself
 	 *
@@ -28,23 +30,11 @@ abstract class BaseView
 	private $baseURL;
 
 	/**
-	 * The class name
-	 *
-	 * @var string the name of the class
-	 */
-	protected $name;
-
-	/**
 	 * Constructor
 	 */
 	public function __construct()
 	{
-		// Set the view name
-		if (empty($this->name))
-		{
-			$this->name = Helpers\OrganizerHelper::getClass($this);
-		}
-
+		$this->getName();
 		$this->baseURL = Uri::base(true);
 	}
 
