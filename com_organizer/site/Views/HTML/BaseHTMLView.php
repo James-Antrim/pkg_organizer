@@ -11,11 +11,11 @@
 namespace Organizer\Views\HTML;
 
 use JHtmlSidebar;
+use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
-use Organizer\Views\BaseView;
 use Organizer\Views\Named;
 
 /**
@@ -23,11 +23,15 @@ use Organizer\Views\Named;
  *
  * Class holding methods for displaying presentation data.
  */
-abstract class BaseHTMLView extends BaseView
+abstract class BaseHTMLView extends HtmlView
 {
 	use Named;
 
+	public $adminContext;
+
 	public $disclaimer = '';
+
+	public $mobile = false;
 
 	public $refresh = 0;
 
@@ -36,6 +40,16 @@ abstract class BaseHTMLView extends BaseView
 	public $subtitle = '';
 
 	public $supplement = '';
+
+	/**
+	 * @inheritdoc
+	 */
+	public function __construct($config = [])
+	{
+		parent::__construct($config);
+		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+		$this->mobile       = Helpers\OrganizerHelper::isSmartphone();
+	}
 
 	/**
 	 * Adds a legal disclaimer to the view.
@@ -301,5 +315,46 @@ abstract class BaseHTMLView extends BaseView
 		Adapters\Document::addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
 
 		Helpers\HTML::_('bootstrap.tooltip', '.hasTooltip', ['placement' => 'right']);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setLayout($layout): string
+	{
+		// I have no idea what this does but don't want to break it.
+		$joomlaValid = strpos($layout, ':') === false;
+
+		// This was explicitly set
+		$nonStandard = $layout !== 'default';
+		if ($joomlaValid and $nonStandard)
+		{
+			$this->_layout = $layout;
+		}
+		else
+		{
+			// Default is not an option anymore.
+			$replace = $this->_layout === 'default';
+			if ($replace)
+			{
+				$layoutName = strtolower($this->getName());
+				$exists     = false;
+				foreach ($this->_path['template'] as $path)
+				{
+					$exists = file_exists("$path$layoutName.php");
+					if ($exists)
+					{
+						break;
+					}
+				}
+				if (!$exists)
+				{
+					Helpers\OrganizerHelper::error(501);
+				}
+				$this->_layout = strtolower($this->getName());
+			}
+		}
+
+		return $this->_layout;
 	}
 }

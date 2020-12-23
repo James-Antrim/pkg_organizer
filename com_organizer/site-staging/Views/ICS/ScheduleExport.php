@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\ICS;
 
-use Joomla\CMS\Factory;
 use Organizer\Helpers;
 use Organizer\Views\BaseView;
 

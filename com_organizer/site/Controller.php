@@ -129,7 +129,7 @@ class Controller extends BaseController
 			['base_path' => $this->basePath, 'layout' => $template]
 		);
 
-		// Only html views require models
+		// Only html views require models to be loaded in this way.
 		if ($format === 'html' and $model = $this->getModel($name))
 		{
 			// Push the model into the view (as default)

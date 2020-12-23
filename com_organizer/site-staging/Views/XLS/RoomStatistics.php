@@ -10,8 +10,6 @@
 
 namespace Organizer\Views\XLS;
 
-use Organizer\Views\BaseView;
-
 /**
  * Class instantiates and renders an XLS File with the room statistics.
  */
