@@ -10,7 +10,10 @@
 
 namespace Organizer\Buttons;
 
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\Toolbar\Button\StandardButton;
+use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters\Document;
 use Organizer\Helpers;
 
 /**
@@ -46,8 +49,32 @@ class NewTab extends StandardButton
 		$task        = 'onclick="' . $this->_getCommand($text, $task, $list) . '"';
 		$text        = Helpers\Languages::_($text);
 
-		Helpers\HTML::_('behavior.core');
+		Document::addScript(Uri::root() . 'components/com_organizer/js/newTab.js');
 
 		return "<button $target $task $buttonClass><span $iconClass $aria></span>$text</button>";
+	}
+
+	/**
+	 * Get the JavaScript command for the button
+	 *
+	 * @param   string   $name  The task name as seen by the user
+	 * @param   string   $task  The task used by the application
+	 * @param   boolean  $list  True is requires a list confirmation.
+	 *
+	 * @return  string   JavaScript command string
+	 */
+	protected function _getCommand($name, $task, $list)
+	{
+		Text::script('JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST');
+
+		$cmd = "newTab('" . $task . "');";
+
+		if ($list)
+		{
+			$alert = "alert(Joomla.JText._('JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST'));";
+			$cmd   = "if (document.adminForm.boxchecked.value == 0) { " . $alert . " } else { " . $cmd . " }";
+		}
+
+		return $cmd;
 	}
 }
