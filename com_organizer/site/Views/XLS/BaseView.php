@@ -38,7 +38,7 @@ abstract class BaseView extends PHPExcel
 	/**
 	 * @var BaseModel
 	 */
-	public $model;
+	protected $model;
 
 	/**
 	 * @inheritdoc

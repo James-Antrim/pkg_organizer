@@ -42,7 +42,7 @@ abstract class BaseLayout
 	abstract public function getDescription();
 
 	/**
-	 * Gets the description for the layout.
+	 * Gets the title for the document.
 	 *
 	 * @return string
 	 */
