@@ -9,10 +9,10 @@
  */
 
 
-namespace Organizer\Views\PDF;
+namespace Organizer\Layouts\PDF;
 
 
-abstract class TableView extends BaseView
+abstract class TableLayout extends BaseLayout
 {
 	protected $headers;
 
@@ -25,9 +25,10 @@ abstract class TableView extends BaseView
 	 */
 	protected function addLine()
 	{
-		$this->Ln();
+		$view = $this->view;
+		$view->Ln();
 
-		if ($this->GetY() > 275)
+		if ($view->GetY() > 275)
 		{
 			$this->addTablePage();
 		}
@@ -40,26 +41,27 @@ abstract class TableView extends BaseView
 	 */
 	protected function addTablePage()
 	{
-		$this->AddPage();
+		$view = $this->view;
+		$view->AddPage();
 
 		// create the column headers for the page
-		$this->SetFillColor(210);
-		$this->changeSize(10);
+		$view->SetFillColor(210);
+		$view->changeSize(10);
 		$initial = true;
 		foreach (array_keys($this->headers) as $column)
 		{
 			if ($initial)
 			{
-				$this->renderCell($this->widths[$column], 7, $this->headers[$column], self::CENTER, 'BLRT', 1);
+				$view->renderCell($this->widths[$column], 7, $this->headers[$column], $view::CENTER, 'BLRT', 1);
 				$initial = false;
 				continue;
 			}
-			$this->renderCell($this->widths[$column], 7, $this->headers[$column], self::CENTER, 'BRT', 1);
+			$view->renderCell($this->widths[$column], 7, $this->headers[$column], $view::CENTER, 'BRT', 1);
 		}
-		$this->Ln();
+		$view->Ln();
 
 		// reset styles
-		$this->SetFillColor(255);
-		$this->changeSize(8);
+		$view->SetFillColor(255);
+		$view->changeSize(8);
 	}
 }

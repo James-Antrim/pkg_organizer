@@ -107,8 +107,14 @@ class CourseItem extends ItemView
 						$hasPaid = Helpers\CourseParticipants::hasPaid($courseID, $participantID);
 						if ($state === self::ACCEPTED and $hasPaid)
 						{
-							$link = $link . '&view=badge&format=pdf';
-							$toolbar->appendButton('Link', 'tag-2', Languages::_('ORGANIZER_DOWNLOAD_BADGE'), $link);
+
+							$toolbar->appendButton(
+								'NewTab',
+								'tags-2',
+								Languages::_('ORGANIZER_DOWNLOAD_BADGE'),
+								'Courses.badge',
+								false
+							);
 						}
 					}
 				}

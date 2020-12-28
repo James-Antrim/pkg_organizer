@@ -8,43 +8,16 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\PDF;
+namespace Organizer\Layouts\PDF\CourseParticipants;
 
 use Organizer\Helpers;
-use Organizer\Tables\Participants;
+use Organizer\Layouts\PDF\BadgeLayout;
 
 /**
  * Class loads persistent information about a course into the display context.
  */
-class Badges extends BaseView
+class Badges extends BadgeLayout
 {
-	use CourseDocumentation;
-
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		if (!$this->courseID = Helpers\Input::getID())
-		{
-			Helpers\OrganizerHelper::error(400);
-		}
-
-		if (!Helpers\Can::manage('course', $this->courseID))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-
-		parent::__construct(self::LANDSCAPE);
-
-		$this->setCourseProperties();
-
-		$documentName = "$this->course - $this->campus - $this->startDate - " . Helpers\Languages::_('ORGANIZER_BADGES');
-		$this->setNames($documentName);
-		$this->margins();
-		$this->showPrintOverhead(false);
-	}
-
 	/**
 	 * Adds the reverse to a badge sheet
 	 *
@@ -52,7 +25,8 @@ class Badges extends BaseView
 	 */
 	private function addSheetBack()
 	{
-		$this->AddPage('L', '', false, false);
+		$view = $this->view;
+		$view->AddPage('L', '', false, false);
 
 		$xOffset = 14;
 
@@ -74,11 +48,10 @@ class Badges extends BaseView
 	/**
 	 * @inheritdoc
 	 */
-	public function display()
+	public function fill(array $data)
 	{
-		$participantIDs = Helpers\Courses::getParticipantIDs($this->courseID);
-
-		$sheetCount       = intval(count($participantIDs) / 6);
+		$view             = $this->view;
+		$sheetCount       = intval(count($data) / 6);
 		$badgeCount       = $sheetCount * 6;
 		$emptyParticipant = new class {
 			public $address = '';
@@ -91,15 +64,11 @@ class Badges extends BaseView
 		$xOffset          = 10;
 		$yOffset          = 0;
 
-		$this->AddPage();
+		$view->AddPage();
 
 		for ($index = 0; $index < $badgeCount; $index++)
 		{
-			$participant = new Participants();
-			if (!$participant->load($participantIDs[$index]))
-			{
-				$participant = $emptyParticipant;
-			}
+			$participant = empty($data[$index]) ? $emptyParticipant : $data[$index];
 			$badgeNumber = $index + 1;
 			$this->addBadge($participant, $xOffset, $yOffset);
 
@@ -112,7 +81,7 @@ class Badges extends BaseView
 
 				if ($badgeNumber < $badgeCount)
 				{
-					$this->AddPage(self::LANDSCAPE);
+					$view->AddPage($view::LANDSCAPE);
 				}
 			} // End of the first row on a sheet
 			elseif ($badgeNumber % 3 == 0)
@@ -125,7 +94,15 @@ class Badges extends BaseView
 				$xOffset += 92;
 			}
 		}
+	}
 
-		parent::display();
+	/**
+	 * Generates the title and sets name related properties.
+	 */
+	public function setTitle()
+	{
+		$view         = $this->view;
+		$documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_BADGES');
+		$view->setNames($documentName);
 	}
 }

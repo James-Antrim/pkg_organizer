@@ -10,8 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 use Organizer\Helpers;
@@ -45,19 +43,7 @@ class CourseParticipants extends Participants
 
 		Helpers\HTML::setTitle($title, 'users');
 
-		$admin   = Helpers\Can::administrate();
-		$toolbar = Toolbar::getInstance();
-
-		/*if ($admin)
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'edit',
-				Languages::_('ORGANIZER_EDIT'),
-				'participants.edit',
-				true
-			);
-		}*/
+		$toolbar = Adapters\Toolbar::getInstance();
 
 		$toolbar->appendButton(
 			'Standard',
@@ -84,14 +70,28 @@ class CourseParticipants extends Participants
 			true
 		);
 
-		$link = 'index.php?option=com_organizer&format=pdf&id=' . Helpers\Input::getID();
-		$toolbar->appendButton('Link', 'tags-2', Languages::_('ORGANIZER_DOWNLOAD_BADGES'), $link . '&view=badges');
-		$toolbar->appendButton('Link', 'list', Languages::_('ORGANIZER_ATTENDANCE'), $link . '&view=attendance');
 		$toolbar->appendButton(
-			'Link',
+			'NewTab',
+			'tags-2',
+			Languages::_('ORGANIZER_DOWNLOAD_BADGES'),
+			'CourseParticipants.badges',
+			false
+		);
+
+		$toolbar->appendButton(
+			'NewTab',
+			'list',
+			Languages::_('ORGANIZER_ATTENDANCE'),
+			'CourseParticipants.attendance',
+			false
+		);
+
+		$toolbar->appendButton(
+			'NewTab',
 			'list-2',
 			Languages::_('ORGANIZER_GROUPED_PARTICIPATION'),
-			$link . '&view=grouped_participation'
+			'CourseParticipants.participation',
+			false
 		);
 
 		$script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
@@ -103,17 +103,6 @@ class CourseParticipants extends Participants
 		$batchButton .= '</button>';
 
 		$toolbar->appendButton('Custom', $batchButton, 'batch');
-
-		if ($admin)
-		{
-			/*$toolbar->appendButton(
-				'Standard',
-				'contract',
-				Languages::_('ORGANIZER_MERGE'),
-				'participants.mergeView',
-				true
-			);*/
-		}
 	}
 
 	/**

@@ -28,6 +28,7 @@ class CourseParticipants extends Controller
 	 * Accepts the selected participants into the course.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function accept()
 	{
@@ -44,6 +45,19 @@ class CourseParticipants extends Controller
 
 		$url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
 		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Prints badges for the selected participants.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function attendance()
+	{
+		Helpers\Input::set('format', 'pdf');
+		Helpers\Input::set('layout', 'Attendance');
+		parent::display();
 	}
 
 	/**
@@ -74,11 +88,23 @@ class CourseParticipants extends Controller
 	 * @return void
 	 * @throws Exception
 	 */
-	public function printBadges()
+	public function badges()
 	{
-		// Reliance on POST requires a different method of redirection
 		Helpers\Input::set('format', 'pdf');
-		Helpers\Input::set('view', 'badges');
+		Helpers\Input::set('layout', 'Badges');
+		parent::display();
+	}
+
+	/**
+	 * Prints badges for the selected participants.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function participation()
+	{
+		Helpers\Input::set('format', 'pdf');
+		Helpers\Input::set('layout', 'Participation');
 		parent::display();
 	}
 
@@ -108,6 +134,7 @@ class CourseParticipants extends Controller
 	 * Toggles binary resource properties from a list view.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function toggle()
 	{
@@ -130,6 +157,7 @@ class CourseParticipants extends Controller
 	 * Accepts the selected participants into the course.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function waitlist()
 	{

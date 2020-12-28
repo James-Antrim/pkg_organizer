@@ -27,6 +27,19 @@ class Courses extends Controller
 	protected $resource = 'course';
 
 	/**
+	 * Prints badges for the selected participants.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function badge()
+	{
+		Helpers\Input::set('format', 'pdf');
+		Helpers\Input::set('layout', 'Badge');
+		parent::display();
+	}
+
+	/**
 	 * De-/registers a participant from/to a course.
 	 *
 	 * @return void

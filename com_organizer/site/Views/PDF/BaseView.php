@@ -16,6 +16,8 @@ define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
 use Joomla\CMS\Application\ApplicationHelper;
 use Organizer\Helpers;
+use Organizer\Layouts\PDF\BaseLayout;
+use Organizer\Models\BaseModel;
 use Organizer\Views\Named;
 use TCPDF;
 
@@ -68,13 +70,23 @@ abstract class BaseView extends TCPDF
 	// UOM point (~0.35 mm)
 	public const CENTIMETER = 'cm', INCH = 'in', MILLIMETER = 'mm', POINT = 'pt';
 
-	protected $border = ['width' => '.1', 'color' => 220];
+	public $border = ['width' => '.1', 'color' => 220];
 
-	protected $dataFont = ['helvetica', '', 8];
+	public $dataFont = ['helvetica', '', 8];
 
 	protected $filename;
 
 	protected $headerFont = ['helvetica', '', 10];
+
+	/**
+	 * @var BaseLayout
+	 */
+	protected $layout;
+
+	/**
+	 * @var BaseModel
+	 */
+	protected $model;
 
 	/**
 	 * Performs initial construction of the TCPDF Object.
@@ -87,14 +99,37 @@ abstract class BaseView extends TCPDF
 	 */
 	public function __construct($orientation = self::PORTRAIT, $unit = 'mm', $format = 'A4')
 	{
+		$this->authorize();
+
 		parent::__construct($orientation, $unit, $format);
-		$this->getName();
 		$this->SetAuthor(Helpers\Users::getUser()->name);
-		$this->SetCreator('THM Organizer');
 		$this->setCellPaddings(1, 1.5, 1, 1.5);
+		$this->SetCreator('THM Organizer');
+		$this->setFooterFont($this->dataFont);
 		$this->setHeaderFont($this->headerFont);
 		$this->setImageScale(1.25);
-		$this->setFooterFont($this->dataFont);
+
+		$name   = $this->getName();
+		$layout = Helpers\Input::getCMD('layout', $name);
+		$layout = Helpers\OrganizerHelper::classDecode($layout);
+		$layout = "Organizer\\Layouts\\PDF\\$name\\$layout";
+		$model  = "Organizer\\Models\\$name";
+
+		$this->layout = new $layout($this);
+		$this->model  = new $model();
+	}
+
+	/**
+	 * Checks user authorization and initiates redirects accordingly.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Can::administrate())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -120,7 +155,7 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @return void repositions the documents point of reference
 	 */
-	protected function changePosition(int $horizontal, int $vertical)
+	public function changePosition(int $horizontal, int $vertical)
 	{
 		$this->SetXY($horizontal, $vertical);
 	}
@@ -132,7 +167,7 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @return void sets the font size value for use in rendering until set otherwise
 	 */
-	protected function changeSize(int $size)
+	public function changeSize(int $size)
 	{
 		$this->SetFontSize($size);
 	}
@@ -144,7 +179,7 @@ abstract class BaseView extends TCPDF
 	 */
 	public function display()
 	{
-		$this->Output($this->filename, 'I');
+		$this->Output($this->filename);
 		ob_flush();
 	}
 
@@ -160,7 +195,7 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @see   SetAutoPageBreak(), SetFooterMargin(), setHeaderMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
 	 */
-	protected function margins($left = 15, $top = 27, $right = -1, $bottom = 25, $header = 5, $footer = 10)
+	public function margins($left = 15, $top = 27, $right = -1, $bottom = 25, $header = 5, $footer = 10)
 	{
 		$this->SetAutoPageBreak(true, $bottom);
 		$this->setFooterMargin($footer);
@@ -185,7 +220,7 @@ abstract class BaseView extends TCPDF
 	 * @return void renders the cell
 	 * @see   AddLink()
 	 */
-	protected function renderCell(
+	public function renderCell(
 		int $width,
 		int $height,
 		string $text,
@@ -218,7 +253,7 @@ abstract class BaseView extends TCPDF
 	 * @return int Return the number of cells or 1 for html mode.
 	 * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), SetLineWidth(), Cell(), Write(), SetAutoPageBreak()
 	 */
-	protected function renderMultiCell(
+	public function renderMultiCell(
 		int $width,
 		int $height,
 		string $text,
@@ -227,7 +262,7 @@ abstract class BaseView extends TCPDF
 		$fill = false,
 		$vAlign = self::CENTER,
 		$maxHeight = 0
-	)
+	): int
 	{
 		return $this->MultiCell(
 			$width,
@@ -255,7 +290,7 @@ abstract class BaseView extends TCPDF
 	 * @param   string  $documentTitle  the document title
 	 * @param   string  $fileName       the file name
 	 */
-	protected function setNames(string $documentTitle, $fileName = '')
+	public function setNames(string $documentTitle, $fileName = '')
 	{
 		$this->title = $documentTitle;
 
@@ -272,7 +307,7 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @see SetPrintFooter(), SetPrintHeader()
 	 */
-	protected function showPrintOverhead(bool $display)
+	public function showPrintOverhead(bool $display)
 	{
 		$this->setPrintHeader($display);
 		$this->setPrintFooter($display);
