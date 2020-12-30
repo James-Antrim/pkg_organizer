@@ -1,12 +1,10 @@
 <?php
 /**
- * @category    Joomla component
- * @package     THM_Organizer
- * @subpackage  com_organizer.helpers
- * @name        Numbered
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2020 TH Mittelhessen
- * @license     GNU GPL v.2
+ * @license     GNU GPL v.3
  * @link        www.thm.de
  */
 
@@ -20,14 +18,10 @@ trait Numbered
 	 *
 	 * @return array the ids of the resource.
 	 */
-	public static function getIDs()
+	public static function getIDs(): array
 	{
-		$ids = [];
-
-		foreach (self::getResources() as $resource)
-		{
-			$ids[] = $resource['id'];
-		}
+		$ids = array_keys(self::getResources());
+		sort($ids);
 
 		return $ids;
 	}

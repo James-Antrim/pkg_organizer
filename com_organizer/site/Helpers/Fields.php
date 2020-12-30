@@ -26,7 +26,7 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @return string the hexadecimal color value associated with the field
 	 */
-	public static function getColor(int $fieldID, int $organizationID)
+	public static function getColor(int $fieldID, int $organizationID): string
 	{
 		$table  = new Tables\FieldColors();
 		$exists = $table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID]);
@@ -46,7 +46,7 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @return string the HTML output of the field attribute display
 	 */
-	public static function getFieldColorDisplay(int $fieldID, $organizationID = 0)
+	public static function getFieldColorDisplay(int $fieldID, $organizationID = 0): string
 	{
 		if (!$fieldID)
 		{
@@ -74,7 +74,7 @@ class Fields extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getOptions()
+	public static function getOptions(): array
 	{
 		$options = [];
 		foreach (self::getResources() as $field)
@@ -88,7 +88,7 @@ class Fields extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getResources()
+	public static function getResources(): array
 	{
 		$query = Database::getQuery(true);
 		$tag   = Languages::getTag();
@@ -115,7 +115,7 @@ class Fields extends ResourceHelper implements Selectable
 
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 
 	/**
@@ -125,7 +125,7 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @return array the field ids associated with the subjects in the given context
 	 */
-	private static function getRelevantIDs(array $subjectRanges)
+	private static function getRelevantIDs(array $subjectRanges): array
 	{
 		$fieldIDs = [];
 

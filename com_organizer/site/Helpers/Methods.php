@@ -20,7 +20,7 @@ class Methods extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getOptions()
+	public static function getOptions(): array
 	{
 		$options = [];
 		foreach (self::getResources() as $method)
@@ -34,7 +34,7 @@ class Methods extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getResources()
+	public static function getResources(): array
 	{
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
@@ -44,6 +44,6 @@ class Methods extends ResourceHelper implements Selectable
 			->order('name');
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 }

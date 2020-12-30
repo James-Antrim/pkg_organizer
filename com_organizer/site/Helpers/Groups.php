@@ -29,7 +29,7 @@ class Groups extends Associated implements Selectable
 	 *
 	 * @return array
 	 */
-	public static function getEvents(int $groupID)
+	public static function getEvents(int $groupID): array
 	{
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
@@ -48,7 +48,7 @@ class Groups extends Associated implements Selectable
 	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($access = '')
+	public static function getOptions($access = ''): array
 	{
 		$categoryID  = Input::getInt('categoryID');
 		$categoryIDs = $categoryID ? [$categoryID] : Input::getFilterIDs('category');
@@ -76,7 +76,7 @@ class Groups extends Associated implements Selectable
 	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = '')
+	public static function getResources($access = ''): array
 	{
 		// TODO Remove (plan) programs on completion of migration.
 		if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID'))
@@ -109,7 +109,7 @@ class Groups extends Associated implements Selectable
 		self::addResourceFilter($query, 'category', 'cat', 'g');
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 
 	/**
@@ -121,7 +121,7 @@ class Groups extends Associated implements Selectable
 	 *
 	 * @return array
 	 */
-	public static function getUnits(int $groupID, string $date, $interval = 'term')
+	public static function getUnits(int $groupID, string $date, $interval = 'term'): array
 	{
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();

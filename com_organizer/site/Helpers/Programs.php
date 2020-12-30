@@ -65,7 +65,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @return string  HTML option
 	 */
-	public static function getCurricularOption(array $range, array $parentIDs, string $type)
+	public static function getCurricularOption(array $range, array $parentIDs, string $type): string
 	{
 		$query = self::getQuery();
 		$query->where("p.id = {$range['programID']}");
@@ -89,7 +89,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @return array the program ids
 	 */
-	public static function getIDs($identifiers)
+	public static function getIDs($identifiers): array
 	{
 		if (!$ranges = self::getRanges($identifiers))
 		{
@@ -135,7 +135,7 @@ class Programs extends Curricula implements Selectable
 	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($access = '')
+	public static function getOptions($access = ''): array
 	{
 		$options = [];
 		foreach (self::getResources($access) as $program)
@@ -157,7 +157,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @return string the organization associated with the program's documentation
 	 */
-	public static function getOrganization(int $programID, $short = false)
+	public static function getOrganization(int $programID, $short = false): string
 	{
 		if (!$organizationIDs = self::getOrganizationIDs($programID))
 		{
@@ -177,7 +177,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @return JDatabaseQuery
 	 */
-	public static function getQuery()
+	public static function getQuery(): JDatabaseQuery
 	{
 		$query      = Database::getQuery();
 		$tag        = Languages::getTag();
@@ -193,7 +193,7 @@ class Programs extends Curricula implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getRanges($identifiers)
+	public static function getRanges($identifiers): array
 	{
 		if (!$identifiers or (!is_numeric($identifiers) and !is_array($identifiers)))
 		{
@@ -228,7 +228,7 @@ class Programs extends Curricula implements Selectable
 	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = '')
+	public static function getResources($access = ''): array
 	{
 		$query = self::getQuery();
 		$tag   = Languages::getTag();
@@ -257,13 +257,13 @@ class Programs extends Curricula implements Selectable
 
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public static function getPrograms($identifiers)
+	public static function getPrograms($identifiers): array
 	{
 		$ranges = [];
 		foreach ($identifiers as $programID)
@@ -279,7 +279,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @return bool
 	 */
-	private static function useCurrent()
+	private static function useCurrent(): bool
 	{
 		$selectedIDs = Input::getSelectedIDs();
 		$useCurrent  = false;

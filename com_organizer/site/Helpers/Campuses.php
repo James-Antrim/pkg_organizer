@@ -25,7 +25,7 @@ class Campuses extends ResourceHelper implements Selectable
 	 *
 	 * @return int the id of the associated grid
 	 */
-	public static function getGridID($campusID)
+	public static function getGridID(int $campusID): int
 	{
 		$table = new Tables\Campuses();
 		if (!$table->load($campusID))
@@ -53,7 +53,7 @@ class Campuses extends ResourceHelper implements Selectable
 	 *
 	 * @return string the HTML for the location link
 	 */
-	public static function getLocation($campusID)
+	public static function getLocation(int $campusID): string
 	{
 		$table = new Tables\Campuses();
 		$table->load($campusID);
@@ -64,13 +64,13 @@ class Campuses extends ResourceHelper implements Selectable
 	/**
 	 * Gets the qualified campus name
 	 *
-	 * @param   int  $campusID  the campus' id
+	 * @param   int  $resourceID  the campus' id
 	 *
 	 * @return string the name if the campus could be resolved, otherwise empty
 	 */
-	public static function getName(int $campusID = 0)
+	public static function getName(int $resourceID = 0): string
 	{
-		if (empty($campusID))
+		if (empty($resourceID))
 		{
 			return '';
 		}
@@ -80,7 +80,7 @@ class Campuses extends ResourceHelper implements Selectable
 		$query->select("c1.name_$tag as name, c2.name_$tag as parentName")
 			->from('#__organizer_campuses AS c1')
 			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
-			->where("c1.id = '$campusID'");
+			->where("c1.id = '$resourceID'");
 		Database::setQuery($query);
 
 		if (!$names = Database::loadAssoc())
@@ -94,7 +94,7 @@ class Campuses extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getOptions()
+	public static function getOptions(): array
 	{
 		$options = [];
 		foreach (self::getResources() as $campus)
@@ -112,7 +112,7 @@ class Campuses extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getResources()
+	public static function getResources(): array
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
@@ -139,17 +139,17 @@ class Campuses extends ResourceHelper implements Selectable
 
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 
 	/**
 	 * Returns a pin icon with a link for the location
 	 *
-	 * @param   mixed  $input  int the id of the campus, string the location coordinates
+	 * @param   int|string  $input  int the id of the campus, string the location coordinates
 	 *
 	 * @return string the html output of the pin
 	 */
-	public static function getPin($input)
+	public static function getPin($input): string
 	{
 		$isID     = is_numeric($input);
 		$location = $isID ? self::getLocation($input) : $input;

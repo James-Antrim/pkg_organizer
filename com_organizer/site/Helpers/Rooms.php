@@ -18,7 +18,7 @@ use Organizer\Tables;
  */
 class Rooms extends ResourceHelper implements Selectable
 {
-	const ALL = -1;
+	private const ALL = -1;
 
 	use Filtered;
 
@@ -29,7 +29,7 @@ class Rooms extends ResourceHelper implements Selectable
 	 *
 	 * @return int the id of the entry
 	 */
-	public static function getID($room)
+	public static function getID(string $room): int
 	{
 		$table = new Tables\Rooms();
 
@@ -49,7 +49,7 @@ class Rooms extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getOptions()
+	public static function getOptions(): array
 	{
 		$options = [];
 		foreach (self::getResources() as $room)
@@ -68,7 +68,7 @@ class Rooms extends ResourceHelper implements Selectable
 	 *
 	 * @return array the rooms used in actual events which meet the filter criteria
 	 */
-	public static function getPlannedRooms()
+	public static function getPlannedRooms(): array
 	{
 		$query = Database::getQuery(true);
 		$query->select('r.id, r.name, r.roomtypeID')
@@ -108,7 +108,7 @@ class Rooms extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getResources()
+	public static function getResources(): array
 	{
 		$query = Database::getQuery(true);
 		$query->select("DISTINCT r.id, r.*")
@@ -133,7 +133,7 @@ class Rooms extends ResourceHelper implements Selectable
 			$query->where("r.active = $active");
 		}
 
-		$suppress = Input::getInt('suppress', 0);
+		$suppress = Input::getInt('suppress');
 
 		if ($suppress !== self::ALL)
 		{

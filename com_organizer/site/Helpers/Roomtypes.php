@@ -24,7 +24,7 @@ class Roomtypes extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getOptions()
+	public static function getOptions(): array
 	{
 		$options = [];
 		foreach (self::getResources() as $type)
@@ -40,7 +40,7 @@ class Roomtypes extends ResourceHelper implements Selectable
 	 * @param   bool  $associated  whether the type needs to be associated with a room
 	 * @param   bool  $public
 	 */
-	public static function getResources($associated = self::YES, $suppress = self::NO)
+	public static function getResources($associated = self::YES, $suppress = self::NO): array
 	{
 		$tag = Languages::getTag();
 
@@ -72,6 +72,6 @@ class Roomtypes extends ResourceHelper implements Selectable
 		$query->order('name');
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 }

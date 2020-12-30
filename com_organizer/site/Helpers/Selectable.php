@@ -20,12 +20,12 @@ interface Selectable
 	 *
 	 * @return array the available options
 	 */
-	public static function getOptions();
+	public static function getOptions(): array;
 
 	/**
 	 * Retrieves resource items.
 	 *
 	 * @return array the available resources
 	 */
-	public static function getResources();
+	public static function getResources(): array;
 }

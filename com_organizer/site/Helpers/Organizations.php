@@ -75,7 +75,7 @@ class Organizations extends ResourceHelper implements Selectable
 	 * @param   bool    $short   whether or not abbreviated names should be returned
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($short = true, $access = '')
+	public static function getOptions($short = true, $access = ''): array
 	{
 		$options = [];
 		foreach (self::getResources($access) as $organization)
@@ -97,7 +97,7 @@ class Organizations extends ResourceHelper implements Selectable
 	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = '')
+	public static function getResources($access = ''): array
 	{
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
@@ -106,7 +106,7 @@ class Organizations extends ResourceHelper implements Selectable
 		self::addAccessFilter($query, $access);
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 
 	/**

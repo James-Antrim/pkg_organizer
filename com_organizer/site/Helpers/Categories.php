@@ -25,11 +25,11 @@ class Categories extends Associated implements Selectable
 	/**
 	 * Retrieves the groups associated with a category.
 	 *
-	 * @param $categoryID
+	 * @param int $categoryID the category id
 	 *
 	 * @return array
 	 */
-	public static function getGroups($categoryID)
+	public static function getGroups(int $categoryID): array
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
@@ -45,7 +45,7 @@ class Categories extends Associated implements Selectable
 	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($access = '')
+	public static function getOptions($access = ''): array
 	{
 		$name    = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
 		$options = [];
@@ -72,7 +72,7 @@ class Categories extends Associated implements Selectable
 	 *
 	 * @return string the name of the (plan) program, otherwise empty
 	 */
-	public static function getProgramName(int $categoryID)
+	public static function getProgramName(int $categoryID): string
 	{
 		$noName = Languages::_('ORGANIZER_NO_PROGRAM');
 		if (!$categoryID)
@@ -97,7 +97,7 @@ class Categories extends Associated implements Selectable
 	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = '')
+	public static function getResources($access = ''): array
 	{
 		$order = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
 		$query = Database::getQuery(true);
@@ -111,6 +111,6 @@ class Categories extends Associated implements Selectable
 		self::addOrganizationFilter($query, 'category', 'c');
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 }

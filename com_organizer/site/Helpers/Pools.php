@@ -29,7 +29,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @return string  the required amount of credit points
 	 */
-	public static function getCrPText(array $pool)
+	public static function getCrPText(array $pool): string
 	{
 		$minCrPExists = !empty($pool['minCrP']);
 		$maxCrPExists = !empty($pool['maxCrP']);
@@ -58,7 +58,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @return string  HTML option
 	 */
-	public static function getCurricularOption(array $range, array $parentIDs)
+	public static function getCurricularOption(array $range, array $parentIDs): string
 	{
 		$poolsTable = new Tables\Pools();
 
@@ -82,7 +82,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @return array the pool ranges
 	 */
-	public static function getFilteredRanges($identifiers)
+	public static function getFilteredRanges($identifiers): array
 	{
 		if (!$ranges = self::getRanges($identifiers))
 		{
@@ -106,7 +106,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @return string the pool name indented according to the curricular hierarchy
 	 */
-	public static function getIndentedName(string $name, int $level)
+	public static function getIndentedName(string $name, int $level): string
 	{
 		$iteration = 0;
 		$indent    = '';
@@ -123,7 +123,7 @@ class Pools extends Curricula implements Selectable
 	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($access = '')
+	public static function getOptions($access = ''): array
 	{
 		$options = [];
 		foreach (self::getResources($access) as $pool)
@@ -139,7 +139,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @return string
 	 */
-	public static function getParentOptions()
+	public static function getParentOptions(): string
 	{
 		$resourceID   = Input::getID();
 		$resourceType = Input::getCMD('type');
@@ -156,7 +156,7 @@ class Pools extends Curricula implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getRanges($identifiers)
+	public static function getRanges($identifiers): array
 	{
 		if (empty($identifiers) or (!is_numeric($identifiers) and !is_array($identifiers)))
 		{
@@ -194,7 +194,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @return array
 	 */
-	public static function getPool($poolID)
+	public static function getPool($poolID): array
 	{
 		$table = new Tables\Pools();
 
@@ -223,7 +223,7 @@ class Pools extends Curricula implements Selectable
 	 * @inheritDoc
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = '')
+	public static function getResources($access = ''): array
 	{
 		$programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID');
 		$poolID    = Input::getInt('poolID');
@@ -254,7 +254,7 @@ class Pools extends Curricula implements Selectable
 
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 
 	/**
@@ -264,7 +264,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @return array  array of arrays with boundary values
 	 */
-	private static function removeExclusions(array $range)
+	private static function removeExclusions(array $range): array
 	{
 		$query = Database::getQuery();
 		$query->select('*')->from('#__organizer_curricula')

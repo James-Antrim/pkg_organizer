@@ -27,7 +27,7 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @return int the id of the term for the dates used on success, otherwise 0
 	 */
-	public static function getCurrentID($date = '')
+	public static function getCurrentID($date = ''): int
 	{
 		$date  = ($date and strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
 		$query = Database::getQuery();
@@ -42,11 +42,11 @@ class Terms extends ResourceHelper implements Selectable
 	/**
 	 * Checks for the term end date for a given term id
 	 *
-	 * @param   string  $termID  the term's id
+	 * @param   int  $termID  the term's id
 	 *
 	 * @return mixed  string the end date of the term could be resolved, otherwise null
 	 */
-	public static function getEndDate($termID)
+	public static function getEndDate(int $termID)
 	{
 		$table = new Tables\Terms();
 
@@ -60,7 +60,7 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @return mixed  int the id if the room could be resolved/added, otherwise null
 	 */
-	public static function getID($data)
+	public static function getID(array $data)
 	{
 		if (empty($data))
 		{
@@ -85,7 +85,7 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @return int the id of the subsequent term if successful, otherwise 0
 	 */
-	public static function getNextID($currentID = 0)
+	public static function getNextID($currentID = 0): int
 	{
 		if (empty($currentID))
 		{
@@ -105,9 +105,10 @@ class Terms extends ResourceHelper implements Selectable
 
 	/**
 	 * @inheritDoc
+	 *
 	 * @param   bool  $showDates  if true the start and end date will be displayed as part of the name
 	 */
-	public static function getOptions($showDates = false)
+	public static function getOptions($showDates = false): array
 	{
 		$tag     = Languages::getTag();
 		$options = [];
@@ -136,7 +137,7 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @return int the id of the subsequent term if successful, otherwise 0
 	 */
-	public static function getPreviousID($currentID = 0)
+	public static function getPreviousID($currentID = 0): int
 	{
 		if (empty($currentID))
 		{
@@ -144,7 +145,7 @@ class Terms extends ResourceHelper implements Selectable
 		}
 
 		$currentStartDate = self::getStartDate($currentID);
-		$query = Database::getQuery(true);
+		$query            = Database::getQuery(true);
 		$query->select('id')
 			->from('#__organizer_terms')
 			->where("endDate < '$currentStartDate'")
@@ -157,7 +158,7 @@ class Terms extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getResources()
+	public static function getResources(): array
 	{
 		$query = Database::getQuery();
 		$query->select('DISTINCT term.*')->from('#__organizer_terms AS term')->order('startDate');
@@ -169,17 +170,17 @@ class Terms extends ResourceHelper implements Selectable
 
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 
 	/**
 	 * Checks for the term start date for a given term id
 	 *
-	 * @param   string  $termID  the term's id
+	 * @param   int  $termID  the term's id
 	 *
 	 * @return mixed  string the end date of the term could be resolved, otherwise null
 	 */
-	public static function getStartDate($termID)
+	public static function getStartDate(int $termID)
 	{
 		$table = new Tables\Terms();
 

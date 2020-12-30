@@ -26,9 +26,9 @@ class Buildings extends ResourceHelper implements Selectable
 	 *
 	 * @param   string  $name  the building name
 	 *
-	 * @return mixed  int the id if the room could be resolved/added, otherwise null
+	 * @return int|null  int the id if the room could be resolved/added, otherwise null
 	 */
-	public static function getID($name)
+	public static function getID(string $name): ?int
 	{
 		$table = new Tables\Buildings();
 		$data  = ['name' => $name];
@@ -44,10 +44,10 @@ class Buildings extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getOptions()
+	public static function getOptions(): array
 	{
-		$buildings = self::getResources();
-		if (empty($buildings))
+		// Array values allows easier manipulation of entries for buildings of the same name on different campuses.
+		if (!$buildings = array_values(self::getResources()))
 		{
 			return $buildings;
 		}
@@ -101,16 +101,16 @@ class Buildings extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getResources()
+	public static function getResources(): array
 	{
 		$query = Database::getQuery(true);
 		$query->select('DISTINCT b.*, c.parentID')
 			->from('#__organizer_buildings AS b')
 			->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID')
-			->order('name');;
+			->order('name');
 		self::addCampusFilter($query, 'b');
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 }

@@ -28,7 +28,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return array  the persons who hold courses for the selected program and pool
 	 */
-	public static function byProgramOrPool()
+	public static function byProgramOrPool(): array
 	{
 		$programID = Input::getInt('programID', -1);
 		$poolID    = Input::getInt('poolID', -1);
@@ -115,7 +115,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return array  an array of person data
 	 */
-	public static function getDataBySubject(int $subjectID, $role = 0, $multiple = false, $unique = true)
+	public static function getDataBySubject(int $subjectID, $role = 0, $multiple = false, $unique = true): array
 	{
 		$query = Database::getQuery();
 		$query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, sp.role, code')
@@ -153,11 +153,12 @@ class Persons extends Associated implements Selectable
 	/**
 	 * Generates a default person text based upon organizer's internal data
 	 *
-	 * @param   int  $personID  the person's id
+	 * @param   int   $personID      the person's id
+	 * @param   bool  $excludeTitle  whether the title should be excluded from the return value
 	 *
 	 * @return string  the default name of the person
 	 */
-	public static function getDefaultName(int $personID, $short = false)
+	public static function getDefaultName(int $personID, $excludeTitle = false): string
 	{
 		$person = new Tables\Persons();
 		$person->load($personID);
@@ -165,7 +166,7 @@ class Persons extends Associated implements Selectable
 
 		if ($person->id)
 		{
-			$title    = ($person->title and !$short) ? "{$person->title} " : '';
+			$title    = ($person->title and !$excludeTitle) ? "{$person->title} " : '';
 			$forename = $person->forename ? "{$person->forename} " : '';
 			$surname  = $person->surname;
 			$return   = $title . $forename . $surname;
@@ -181,7 +182,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return array the organizations with which the person is associated id => name
 	 */
-	public static function getOrganizationNames(int $personID)
+	public static function getOrganizationNames(int $personID): array
 	{
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
@@ -202,7 +203,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return string  the default name of the person
 	 */
-	public static function getLNFName(int $personID, bool $short = false)
+	public static function getLNFName(int $personID, bool $short = false): string
 	{
 		$person = new Tables\Persons();
 		$person->load($personID);
@@ -231,7 +232,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return int the id of the person entry if existent, otherwise 0
 	 */
-	public static function getIDByUserID(int $userID = 0)
+	public static function getIDByUserID(int $userID = 0): int
 	{
 		if (!$user = Users::getUser($userID))
 		{
@@ -250,7 +251,7 @@ class Persons extends Associated implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getOptions()
+	public static function getOptions(): array
 	{
 		$options = [];
 		foreach (self::getResources() as $person)
@@ -271,7 +272,7 @@ class Persons extends Associated implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getResources()
+	public static function getResources(): array
 	{
 		$user = Users::getUser();
 
@@ -346,7 +347,7 @@ class Persons extends Associated implements Selectable
 
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 
 	/**

@@ -21,7 +21,7 @@ class Grids extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getOptions()
+	public static function getOptions(): array
 	{
 		$options = [];
 		foreach (self::getResources() as $grid)
@@ -55,7 +55,7 @@ class Grids extends ResourceHelper implements Selectable
 	 *
 	 * @return string string the grid json string on success, otherwise null
 	 */
-	public static function getGrid(int $gridID)
+	public static function getGrid(int $gridID): string
 	{
 		$table = new Tables\Grids();
 		$table->load($gridID);
@@ -66,14 +66,14 @@ class Grids extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getResources()
+	public static function getResources(): array
 	{
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
 		$query->select("*, name_$tag as name, isDefault")->from('#__organizer_grids')->order('name');
 		Database::setQuery($query);
 
-		return Database::loadAssocList();
+		return Database::loadAssocList('id');
 	}
 
 }
