@@ -22,4 +22,30 @@ class Instances extends Controller
 	protected $listView = 'instances';
 
 	protected $resource = 'instance';
+
+	/**
+	 * Prints badges for the selected participants.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function gridA3()
+	{
+		Helpers\Input::set('format', 'pdf');
+		Helpers\Input::set('layout', 'GridA3');
+		parent::display();
+	}
+
+	/**
+	 * Prints badges for the selected participants.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function gridA4()
+	{
+		Helpers\Input::set('format', 'pdf');
+		Helpers\Input::set('layout', 'GridA4');
+		parent::display();
+	}
 }
