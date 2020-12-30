@@ -88,6 +88,7 @@ class CourseItem extends BaseView
 	 */
 	protected function authorize()
 	{
+		// TODO revamp this to make a authorize according to the layout context course => true, badge = auth
 		if (!$this->courseID = Helpers\Input::getID())
 		{
 			Helpers\OrganizerHelper::error(400);
