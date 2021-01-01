@@ -15,9 +15,10 @@ namespace Organizer\Views\PDF;
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
 use Joomla\CMS\Application\ApplicationHelper;
+use Joomla\Registry\Registry;
 use Organizer\Helpers;
 use Organizer\Layouts\PDF\BaseLayout;
-use Organizer\Models\BaseModel;
+use Organizer\Models;
 use Organizer\Views\Named;
 use TCPDF;
 
@@ -84,9 +85,15 @@ abstract class BaseView extends TCPDF
 	protected $layout;
 
 	/**
-	 * @var BaseModel
+	 * @var Models\BaseModel
 	 */
 	protected $model;
+
+	/**
+	 * TCPDF has it's own 'state' property. This is the state from the submitted form.
+	 * @var Registry
+	 */
+	protected $formState;
 
 	/**
 	 * Performs initial construction of the TCPDF Object.
@@ -115,8 +122,9 @@ abstract class BaseView extends TCPDF
 		$layout = "Organizer\\Layouts\\PDF\\$name\\$layout";
 		$model  = "Organizer\\Models\\$name";
 
-		$this->layout = new $layout($this);
-		$this->model  = new $model();
+		$this->layout    = new $layout($this);
+		$this->model     = new $model();
+		$this->formState = $this->get('state');
 	}
 
 	/**
@@ -170,6 +178,34 @@ abstract class BaseView extends TCPDF
 	public function changeSize(int $size)
 	{
 		$this->SetFontSize($size);
+	}
+
+	/**
+	 * Method to get data from a registered model or a property of the view.
+	 *
+	 * @param   string  $property  the model function name or view property to access
+	 * @param   mixed   $default   the optional default value
+	 *
+	 * @return  mixed  The return value of the method
+	 */
+	public function get(string $property, $default = null)
+	{
+		if ($this->model)
+		{
+			$method = 'get' . ucfirst($property);
+
+			if (method_exists($this->model, $method))
+			{
+				return $this->model->$method();
+			}
+		}
+
+		if (isset($this->$property))
+		{
+			return $this->$property;
+		}
+
+		return $default;
 	}
 
 	/**

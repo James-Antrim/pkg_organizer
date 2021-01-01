@@ -109,7 +109,7 @@ class CourseParticipants extends BaseView
 	public function display()
 	{
 		$this->layout->setTitle();
-		$this->layout->fill($this->model->getItems());
+		$this->layout->fill($this->get('items'));
 
 		parent::display();
 	}
