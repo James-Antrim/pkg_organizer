@@ -16,4 +16,5 @@ function newTab(task) {
     form.task.value = task;
     form.appendChild(button).click();
     form.removeChild(button);
+    window.location.reload(true);
 }
