@@ -18,6 +18,8 @@ use Organizer\Helpers;
  */
 class Instances extends ListModel
 {
+	private const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
+
 	private $conditions = [];
 
 	protected $filter_fields = [
@@ -177,6 +179,82 @@ class Instances extends ListModel
 		}
 
 		return $query;
+	}
+
+	/**
+	 * Creates a dynamic title for the instances view.
+	 *
+	 * @return string
+	 */
+	public function getTitle(): string
+	{
+		$params = Helpers\Input::getParams();
+
+		if ($params->get('show_page_heading') and $title = $params->get('page_title'))
+		{
+			return $title;
+		}
+
+		$title  = Helpers\Languages::_("ORGANIZER_INSTANCES");
+		$suffix = '';
+
+		if ($this->state->get('filter.my'))
+		{
+			$username = ($user = Helpers\Users::getUser() and $user->username) ? " ($user->username)" : '';
+			$title    = Helpers\Languages::_("ORGANIZER_MY_INSTANCES") . $username;
+		}
+		else
+		{
+			if ($dow = $params->get('dow'))
+			{
+				switch ($dow)
+				{
+					case self::MONDAY:
+						$title = Helpers\Languages::_("ORGANIZER_MONDAY_INSTANCES");
+						break;
+					case self::TUESDAY:
+						$title = Helpers\Languages::_("ORGANIZER_TUESDAY_INSTANCES");
+						break;
+					case self::WEDNESDAY:
+						$title = Helpers\Languages::_("ORGANIZER_WEDNESDAY_INSTANCES");
+						break;
+					case self::THURSDAY:
+						$title = Helpers\Languages::_("ORGANIZER_THURSDAY_INSTANCES");
+						break;
+					case self::FRIDAY:
+						$title = Helpers\Languages::_("ORGANIZER_FRIDAY_INSTANCES");
+						break;
+					case self::SATURDAY:
+						$title = Helpers\Languages::_("ORGANIZER_SATURDAY_INSTANCES");
+						break;
+					case self::SUNDAY:
+						$title = Helpers\Languages::_("ORGANIZER_SUNDAY_INSTANCES");
+						break;
+				}
+			}
+			elseif ($methodID = $params->get('methodID'))
+			{
+				$title = Helpers\Methods::getPlural($methodID);
+			}
+
+			if ($organizationID = $params->get('organizationID'))
+			{
+				$fullName  = Helpers\Organizations::getFullName($organizationID);
+				$shortName = Helpers\Organizations::getShortName($organizationID);
+				$name      = ($this->mobile or strlen($fullName) > 50) ? $shortName : $fullName;
+				$suffix    .= ': ' . $name;
+			}
+			elseif ($campusID = $params->get('campusID'))
+			{
+				$suffix .= ': ' . Helpers\Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
+			}
+			elseif ($eventID = $this->state->get('filter.eventID'))
+			{
+				$suffix .= ': ' . Helpers\Events::getName($eventID);
+			}
+		}
+
+		return $title . $suffix;
 	}
 
 	/**

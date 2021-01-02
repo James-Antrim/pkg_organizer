@@ -11,6 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
+//use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -20,8 +21,6 @@ use Organizer\Tables;
  */
 class Instances extends ListView
 {
-	private const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
-
 	private $entryStatus = '';
 
 	private $manages = false;
@@ -44,74 +43,33 @@ class Instances extends ListView
 	 */
 	protected function addToolBar()
 	{
-		$params = Helpers\Input::getParams();
-
-		if (!$params->get('show_page_heading') or !$title = $params->get('page_title'))
-		{
-			$title  = Helpers\Languages::_("ORGANIZER_INSTANCES");
-			$suffix = '';
-
-			if ($this->state->get('filter.my'))
-			{
-				$username = ($user = Helpers\Users::getUser() and $user->username) ? " ($user->username)" : '';
-				$title    = Helpers\Languages::_("ORGANIZER_MY_INSTANCES") . $username;
-			}
-			else
-			{
-				if ($dow = $params->get('dow'))
-				{
-					switch ($dow)
-					{
-						case self::MONDAY:
-							$title = Helpers\Languages::_("ORGANIZER_MONDAY_INSTANCES");
-							break;
-						case self::TUESDAY:
-							$title = Helpers\Languages::_("ORGANIZER_TUESDAY_INSTANCES");
-							break;
-						case self::WEDNESDAY:
-							$title = Helpers\Languages::_("ORGANIZER_WEDNESDAY_INSTANCES");
-							break;
-						case self::THURSDAY:
-							$title = Helpers\Languages::_("ORGANIZER_THURSDAY_INSTANCES");
-							break;
-						case self::FRIDAY:
-							$title = Helpers\Languages::_("ORGANIZER_FRIDAY_INSTANCES");
-							break;
-						case self::SATURDAY:
-							$title = Helpers\Languages::_("ORGANIZER_SATURDAY_INSTANCES");
-							break;
-						case self::SUNDAY:
-							$title = Helpers\Languages::_("ORGANIZER_SUNDAY_INSTANCES");
-							break;
-					}
-				}
-				elseif ($methodID = $params->get('methodID'))
-				{
-					$title = Helpers\Methods::getPlural($methodID);
-				}
-
-				if ($organizationID = $params->get('organizationID'))
-				{
-					$fullName  = Helpers\Organizations::getFullName($organizationID);
-					$shortName = Helpers\Organizations::getShortName($organizationID);
-					$name      = ($this->mobile or strlen($fullName) > 50) ? $shortName : $fullName;
-					$suffix    .= ': ' . $name;
-				}
-				elseif ($campusID = $params->get('campusID'))
-				{
-					$suffix .= ': ' . Helpers\Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
-				}
-				elseif ($eventID = $this->state->get('filter.eventID'))
-				{
-					$suffix .= ': ' . Helpers\Events::getName($eventID);
-				}
-			}
-
-			$title .= $suffix;
-		}
+		$title = $this->get('title');
 
 		// Add menu title support, both direct and via selected filters
 		Helpers\HTML::setTitle($title, 'list-2');
+
+		//$toolbar = Toolbar::getInstance();
+
+		/*$toolbar->appendButton(
+			'NewTab',
+			'file-pdf',
+			Languages::_('ORGANIZER_PDF_GRID_A3'),
+			'Instances.gridA3',
+			false
+		);
+
+		$state            = $this->state;
+		$resourceSelected = ($state->get('filter.groupID') or $state->get('filter.groupID') or $state->get('filter.groupID'));
+		if ($state->get('filter.my') or $resourceSelected)
+		{
+			$toolbar->appendButton(
+				'NewTab',
+				'file-pdf',
+				Languages::_('ORGANIZER_PDF_GRID_A4'),
+				'Instances.gridA4',
+				false
+			);
+		}*/
 	}
 
 	/**
@@ -580,8 +538,8 @@ class Instances extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$times = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
-			$times .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
+			$times   = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
+			$times   .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
 			$virtual = $this->isVirtual($item);
 
 			$structuredItems[$index] = [];
