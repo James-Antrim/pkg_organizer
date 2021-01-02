@@ -25,7 +25,7 @@ abstract class ListView extends BaseView
 	 * TCPDF has it's own 'state' property. This is the state from the submitted form.
 	 * @var Registry
 	 */
-	protected $formState;
+	public $formState;
 
 	/**
 	 * Performs initial construction of the TCPDF Object.

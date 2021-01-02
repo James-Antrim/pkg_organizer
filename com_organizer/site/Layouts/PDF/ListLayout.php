@@ -20,6 +20,11 @@ abstract class ListLayout extends BaseLayout
 	protected $widths;
 
 	/**
+	 * @var ListView
+	 */
+	protected $view;
+
+	/**
 	 * @inheritDoc
 	 */
 	public function __construct(ListView $view)

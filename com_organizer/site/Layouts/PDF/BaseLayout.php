@@ -21,6 +21,9 @@ abstract class BaseLayout
 {
 	protected $filename;
 
+	/**
+	 * @var BaseView
+	 */
 	protected $view;
 
 	/**
