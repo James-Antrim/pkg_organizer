@@ -18,7 +18,7 @@ use Organizer\Helpers;
  */
 class ContactTracking extends ListView
 {
-	protected $rowStructure = ['person' => 'value', 'dates' => 'value', 'length' => 'value'];
+	protected $rowStructure = ['person' => 'value', 'data' => 'value', 'dates' => 'value', 'length' => 'value'];
 
 	/**
 	 * @inheritdoc
@@ -58,6 +58,7 @@ class ContactTracking extends ListView
 	{
 		$headers = [
 			'person' => Helpers\Languages::_('ORGANIZER_PERSON'),
+			'data'   => Helpers\Languages::_('ORGANIZER_CONTACT_INFORMATION'),
 			'dates'  => Helpers\Languages::_('ORGANIZER_DATES'),
 			'length' => Helpers\Languages::_('ORGANIZER_CONTACT_LENGTH')
 		];
@@ -85,8 +86,12 @@ class ContactTracking extends ListView
 				$lengths[] = "$length " . Helpers\Languages::_('ORGANIZER_MINUTES');
 			}
 
+			$data         = [$item->telephone, $item->email, $item->address, "$item->zipCode $item->city"];
+			$data         = array_filter($data);
+			$item->data   = implode('<br>', $data);
 			$item->dates  = implode('<br>', $dates);
 			$item->length = implode('<br>', $lengths);
+			$item->person = "$item->person ($item->username)";
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $link);
 			$index++;

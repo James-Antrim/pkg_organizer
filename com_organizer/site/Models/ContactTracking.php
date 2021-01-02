@@ -36,11 +36,17 @@ class ContactTracking extends ListModel
 
 		if (empty($items[$index]))
 		{
-			$name         = $data['surname'];
-			$name         .= $data['forename'] ? ", {$data['forename']}" : '';
-			$item         = new stdClass();
-			$item->person = $name;
-			$item->dates  = [];
+			$name            = $data['surname'];
+			$name            .= $data['forename'] ? ", {$data['forename']}" : '';
+			$item            = new stdClass();
+			$item->address   = $data['address'] ? $data['address'] : '';
+			$item->city      = $data['city'] ? $data['city'] : '';
+			$item->dates     = [];
+			$item->email     = $data['email'] ? $data['email'] : '';
+			$item->person    = $name;
+			$item->telephone = $data['telephone'] ? $data['telephone'] : '';
+			$item->username  = $data['username'] ? $data['username'] : '';
+			$item->zipCode   = $data['zipCode'] ? $data['zipCode'] : '';
 
 			$items[$index] = $item;
 		}
@@ -63,7 +69,7 @@ class ContactTracking extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$now = date('H:i:s');
+		$now   = date('H:i:s');
 		$reach = $this->state->get('filter.reach', 28);
 		$then  = date('Y-m-d', strtotime("-$reach days"));
 		$today = date('Y-m-d');
@@ -119,7 +125,7 @@ class ContactTracking extends ListModel
 		$personID      = $this->state->get('personID', 0);
 
 		$participantQuery = Database::getQuery();
-		$participantQuery->select('forename, surname, username')
+		$participantQuery->select('p.id AS participantID, forename, surname, username, address, city, email, telephone, zipCode')
 			->from('#__organizer_participants AS p')
 			->innerJoin('#__users AS u ON u.id = p.id')
 			->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = p.id')
@@ -138,10 +144,10 @@ class ContactTracking extends ListModel
 
 		foreach (parent::getItems() as $booking)
 		{
-			$data            = ['id' => $booking->id];
-			$data['date']    = $booking->date;
-			$endTime         = $booking->endTime ? $booking->endTime : $booking->defaultEnd;
-			$startTime       = $booking->startTime ? $booking->startTime : $booking->defaultStart;
+			$data         = ['id' => $booking->id];
+			$data['date'] = $booking->date;
+			$endTime      = $booking->endTime ? $booking->endTime : $booking->defaultEnd;
+			$startTime    = $booking->startTime ? $booking->startTime : $booking->defaultStart;
 
 			// +60 Secondds to be inclusive of the last minute.
 			$data['minutes'] = ceil((strtotime($endTime) + 60 - strtotime($startTime)) / 60);
@@ -154,9 +160,14 @@ class ContactTracking extends ListModel
 
 			foreach (Database::loadAssocList() as $person)
 			{
-				$data['forename'] = $person['forename'];
-				$data['surname']  = $person['surname'];
-				$data['username'] = $person['username'];
+				$data['forename']  = $person['forename'];
+				$data['surname']   = $person['surname'];
+				$data['username']  = $person['username'];
+				$data['address']   = $person['address'];
+				$data['city']      = $person['city'];
+				$data['email']     = $person['email'];
+				$data['telephone'] = $person['telephone'];
+				$data['zipCode']   = $person['zipCode'];
 
 				$this->addItem($items, $data);
 			}
@@ -171,7 +182,7 @@ class ContactTracking extends ListModel
 			{
 				$data['forename'] = $person['forename'] ? $person['forename'] : $person['defaultForename'];
 				$data['surname']  = $person['surname'] ? $person['surname'] : $person['defaultSurname'];
-				$data['username'] = $person['username'];
+				$data['username'] = $person['username'] ? $person['username'] : '';
 
 				$this->addItem($items, $data);
 			}
