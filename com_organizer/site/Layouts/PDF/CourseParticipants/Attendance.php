@@ -11,13 +11,13 @@
 namespace Organizer\Layouts\PDF\CourseParticipants;
 
 use Organizer\Helpers;
-use Organizer\Layouts\PDF\TableLayout;
+use Organizer\Layouts\PDF\ListLayout;
 use Organizer\Views\PDF\ListView;
 
 /**
  * Class loads persistent information about a course into the display context.
  */
-class Attendance extends TableLayout
+class Attendance extends ListLayout
 {
 	protected $headers;
 
@@ -36,8 +36,6 @@ class Attendance extends TableLayout
 	{
 		parent::__construct($view);
 		$view->margins(10, 30, -1, 0, 8);
-		$view->showPrintOverhead(true);
-		$view->setOverhead();
 
 		$this->headers = [
 			'index'        => '#',
@@ -64,7 +62,7 @@ class Attendance extends TableLayout
 	{
 		$itemNo = 1;
 		$view   = $this->view;
-		$this->addTablePage();
+		$this->addListPage();
 
 		foreach ($data as $participant)
 		{

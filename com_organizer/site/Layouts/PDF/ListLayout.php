@@ -11,12 +11,22 @@
 
 namespace Organizer\Layouts\PDF;
 
+use Organizer\Views\PDF\ListView;
 
-abstract class TableLayout extends BaseLayout
+abstract class ListLayout extends BaseLayout
 {
 	protected $headers;
 
 	protected $widths;
+
+	/**
+	 * @inheritDoc
+	 */
+	public function __construct(ListView $view)
+	{
+		parent::__construct($view);
+		$view->showPrintOverhead(true);
+	}
 
 	/**
 	 * Adds a new line, if the length exceeds page length a new page is added.
@@ -30,7 +40,7 @@ abstract class TableLayout extends BaseLayout
 
 		if ($view->GetY() > 275)
 		{
-			$this->addTablePage();
+			$this->addListPage();
 		}
 	}
 
@@ -39,7 +49,7 @@ abstract class TableLayout extends BaseLayout
 	 *
 	 * @return void
 	 */
-	protected function addTablePage()
+	protected function addListPage()
 	{
 		$view = $this->view;
 		$view->AddPage();

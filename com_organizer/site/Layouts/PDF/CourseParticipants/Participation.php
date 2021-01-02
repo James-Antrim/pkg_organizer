@@ -11,10 +11,10 @@
 namespace Organizer\Layouts\PDF\CourseParticipants;
 
 use Organizer\Helpers;
-use Organizer\Layouts\PDF\TableLayout;
+use Organizer\Layouts\PDF\ListLayout;
 use Organizer\Views\PDF\ListView;
 
-class Participation extends TableLayout
+class Participation extends ListLayout
 {
 
 	protected $headers;
@@ -31,8 +31,6 @@ class Participation extends TableLayout
 	{
 		parent::__construct($view);
 		$view->margins(10, 30, -1, 0, 8);
-		$view->showPrintOverhead(true);
-		$view->setOverhead();
 
 		$groupingHeader = Helpers\Languages::_('ORGANIZER_ORGANIZATION') . ' / ';
 		$groupingHeader .= Helpers\Languages::_('ORGANIZER_PROGRAM');
@@ -51,7 +49,7 @@ class Participation extends TableLayout
 		$view                 = $this->view;
 		$groupedParticipation = Helpers\Courses::getGroupedParticipation($view->courseID);
 
-		$this->addTablePage();
+		$this->addListPage();
 
 		foreach ($groupedParticipation as $organization => $programs)
 		{

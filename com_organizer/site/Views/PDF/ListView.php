@@ -47,6 +47,7 @@ abstract class ListView extends BaseView
 	 */
 	public function display()
 	{
+		$this->setOverhead();
 		$this->layout->setTitle();
 		$this->layout->fill($this->get('items'));
 
