@@ -63,8 +63,10 @@ class ContactTracking extends ListModel
 	 */
 	protected function getListQuery()
 	{
+		$now = date('H:i:s');
 		$reach = $this->state->get('filter.reach', 28);
 		$then  = date('Y-m-d', strtotime("-$reach days"));
+		$today = date('Y-m-d');
 		$query = $this->_db->getQuery(true);
 		$query->select('bo.id, bo.startTime, bo.endTime')
 			->select('bl.date, bl.startTime AS defaultStart, bl.endTime AS defaultEnd')
@@ -74,6 +76,7 @@ class ContactTracking extends ListModel
 			->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
 			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
 			->where("bl.date >= '$then'")
+			->where("(bl.date < '$today' OR (bl.date = '$today' AND bl.endTime <= '$now'))")
 			->where('ipa.attended = 1')
 			->order('bl.date DESC, bl.startTime DESC')
 			->group('bo.id');
