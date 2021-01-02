@@ -139,7 +139,9 @@ class ContactTracking extends ListModel
 			$data['date']    = $booking->date;
 			$endTime         = $booking->endTime ? $booking->endTime : $booking->defaultEnd;
 			$startTime       = $booking->startTime ? $booking->startTime : $booking->defaultStart;
-			$data['minutes'] = ceil((strtotime($endTime) - strtotime($startTime)) / 60);
+
+			// +60 Secondds to be inclusive of the last minute.
+			$data['minutes'] = ceil((strtotime($endTime) + 60 - strtotime($startTime)) / 60);
 
 			$participantQuery->clear('where');
 			$participantQuery->where("b.id = $booking->id")
