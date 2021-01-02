@@ -90,12 +90,6 @@ abstract class BaseView extends TCPDF
 	protected $model;
 
 	/**
-	 * TCPDF has it's own 'state' property. This is the state from the submitted form.
-	 * @var Registry
-	 */
-	protected $formState;
-
-	/**
 	 * Performs initial construction of the TCPDF Object.
 	 *
 	 * @param   string  $orientation  page orientation
@@ -122,9 +116,8 @@ abstract class BaseView extends TCPDF
 		$layout = "Organizer\\Layouts\\PDF\\$name\\$layout";
 		$model  = "Organizer\\Models\\$name";
 
-		$this->layout    = new $layout($this);
-		$this->model     = new $model();
-		$this->formState = $this->get('state');
+		$this->layout = new $layout($this);
+		$this->model  = new $model();
 	}
 
 	/**

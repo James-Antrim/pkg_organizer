@@ -12,7 +12,7 @@ namespace Organizer\Layouts\PDF\CourseParticipants;
 
 use Organizer\Helpers;
 use Organizer\Layouts\PDF\TableLayout;
-use Organizer\Views\PDF\CourseParticipants;
+use Organizer\Views\PDF\ListView;
 
 /**
  * Class loads persistent information about a course into the display context.
@@ -32,12 +32,12 @@ class Attendance extends TableLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function __construct(CourseParticipants $view)
+	public function __construct(ListView $view)
 	{
 		parent::__construct($view);
 		$view->margins(10, 30, -1, 0, 8);
 		$view->showPrintOverhead(true);
-		$view->setHeader();
+		$view->setOverhead();
 
 		$this->headers = [
 			'index'        => '#',

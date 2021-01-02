@@ -16,7 +16,7 @@ use Organizer\Tables;
 /**
  * Class loads persistent information about a course into the display context.
  */
-class CourseParticipants extends BaseView
+class CourseParticipants extends ListView
 {
 	/**
 	 * The campus where the course takes place
@@ -65,16 +65,14 @@ class CourseParticipants extends BaseView
 	 */
 	public function __construct()
 	{
-		$this->authorize();
-
 		parent::__construct();
 
 		$dates        = Helpers\Courses::getDates($this->courseID);
 		$nameProperty = 'name_' . Helpers\Languages::getTag();
 
+		// Course Data is on top, because the participants are the actual list items.
 		$course = new Tables\Courses();
 		$course->load($this->courseID);
-
 		$this->campus    = Helpers\Campuses::getName($course->campusID);
 		$this->course    = $course->$nameProperty;
 		$this->endDate   = Helpers\Dates::formatDate($dates['endDate']);
@@ -104,22 +102,11 @@ class CourseParticipants extends BaseView
 	}
 
 	/**
-	 * @inheritdoc
-	 */
-	public function display()
-	{
-		$this->layout->setTitle();
-		$this->layout->fill($this->get('items'));
-
-		parent::display();
-	}
-
-	/**
 	 * Set header items.
 	 *
 	 * @return void
 	 */
-	public function setHeader()
+	public function setOverhead()
 	{
 		$interval  = ($this->endDate and $this->endDate != $this->startDate);
 		$dates     = $interval ? "$this->startDate - $this->endDate" : $this->startDate;
