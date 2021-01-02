@@ -10,7 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-//use Joomla\CMS\Toolbar\Toolbar;
+use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
 /**
@@ -26,8 +26,13 @@ class ContactTracking extends ListView
 	protected function addToolBar()
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_CONTACT_TRACKING"), 'list-2');
-		//$toolbar = Toolbar::getInstance();
-		//$toolbar->appendButton('Standard', 'envelope', Helpers\Languages::_('ORGANIZER_NOTIFY'), "", false);
+
+		if (($this->state->get('participantID') or $this->state->get('personID')) and count($this->items))
+		{
+			$toolbar = Toolbar::getInstance();
+			//$toolbar->appendButton('Standard', 'envelope', Helpers\Languages::_('ORGANIZER_NOTIFY'), '', false);
+			$toolbar->appendButton('NewTab', 'file-pdf', Helpers\Languages::_('Download as PDF'), 'ContactTracking.pdf', false);
+		}
 	}
 
 	/**
