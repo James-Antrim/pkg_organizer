@@ -71,7 +71,6 @@ class ContactTracking extends ListLayout
 						break;
 					case 'person':
 						$value = $person->person;
-						$value .= $person->username ? " ($person->username)" : '';
 						break;
 					case 'data' :
 						$values = [$person->telephone, $person->email, $person->address, "$person->zipCode $person->city"];

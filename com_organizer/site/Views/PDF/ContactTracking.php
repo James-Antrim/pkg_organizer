@@ -11,6 +11,7 @@
 namespace Organizer\Views\PDF;
 
 use Organizer\Helpers;
+use Organizer\Tables\Participants;
 use Organizer\Tables\Persons;
 
 /**
@@ -39,7 +40,7 @@ class ContactTracking extends ListView
 		if ($participantID = $state->get('participantID'))
 		{
 			$user = Helpers\Users::getUser($participantID);
-			$name = "$user->name ($user->username)";
+			$name = $user->name;
 		}
 		elseif ($personID = $state->get('personID'))
 		{
@@ -52,11 +53,6 @@ class ContactTracking extends ListView
 				}
 
 				$name .= "$person->surname ";
-
-				if ($person->username)
-				{
-					$name .= " ($person->username)";
-				}
 			}
 		}
 
@@ -91,13 +87,30 @@ class ContactTracking extends ListView
 	 */
 	public function setOverhead()
 	{
+		$title = Helpers\Languages::_('ORGANIZER_CONTACTS') . ': ' . $this->participantName;
+
 		$then  = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
 		$today = Helpers\Dates::formatDate(date('Y-m-d'));
+		$title .= " $then - $today";
 
-		$title    = Helpers\Languages::_('ORGANIZER_CONTACTS') . ': ' . $this->participantName;
-		$subTitle = "$then - $today";
+		$participant = new Participants();
+		$subTitles   = [];
 
-		$this->setHeaderData('pdf_logo.png', '55', $title, $subTitle, self::BLACK, self::WHITE);
+		if ($participantID = $this->formState->get('participantID') and $participant->load($participantID))
+		{
+			$user        = Helpers\Users::getUser($participantID);
+			$subTitles[] = Helpers\Languages::_('ORGANIZER_EMAIL') . ": $user->email";
+
+			if ($participant->telephone)
+			{
+				$subTitles[] = Helpers\Languages::_('ORGANIZER_TELEPHONE') . ": $participant->telephone";
+			}
+
+			$line3       = [$participant->address, $participant->zipCode, $participant->city];
+			$subTitles[] = Helpers\Languages::_('ORGANIZER_ADDRESS') . ': ' . implode(' ', $line3);
+		}
+
+		$this->setHeaderData('pdf_logo.png', '55', $title, implode("\n", $subTitles), self::BLACK, self::WHITE);
 		$this->setFooterData(self::BLACK, self::WHITE);
 
 		parent::setHeader();
