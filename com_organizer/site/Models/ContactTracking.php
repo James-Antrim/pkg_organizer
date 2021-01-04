@@ -70,8 +70,7 @@ class ContactTracking extends ListModel
 	protected function getListQuery()
 	{
 		$now   = date('H:i:s');
-		$reach = $this->state->get('filter.reach', 28);
-		$then  = date('Y-m-d', strtotime("-$reach days"));
+		$then  = date('Y-m-d', strtotime("-28 days"));
 		$today = date('Y-m-d');
 		$query = $this->_db->getQuery(true);
 		$query->select('bo.id, bo.startTime, bo.endTime')

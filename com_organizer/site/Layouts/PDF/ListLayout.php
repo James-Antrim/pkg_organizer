@@ -17,12 +17,12 @@ abstract class ListLayout extends BaseLayout
 {
 	protected $headers;
 
-	protected $widths;
-
 	/**
 	 * @var ListView
 	 */
 	protected $view;
+
+	protected $widths;
 
 	/**
 	 * @inheritDoc

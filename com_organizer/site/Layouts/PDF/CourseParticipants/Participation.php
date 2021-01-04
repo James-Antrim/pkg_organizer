@@ -16,9 +16,6 @@ use Organizer\Views\PDF\ListView;
 
 class Participation extends ListLayout
 {
-
-	protected $headers;
-
 	protected $widths = [
 		'grouping'     => 130,
 		'participants' => 60

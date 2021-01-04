@@ -19,8 +19,6 @@ use Organizer\Views\PDF\ListView;
  */
 class Attendance extends ListLayout
 {
-	protected $headers;
-
 	protected $widths = [
 		'index'        => 10,
 		'name'         => 55,
@@ -68,8 +66,8 @@ class Attendance extends ListLayout
 		{
 			// Get the starting coordinates for later use with borders
 			$maxLength = 0;
-			$startX = $view->GetX();
-			$startY = $view->GetY();
+			$startX    = $view->GetX();
+			$startY    = $view->GetY();
 
 			foreach (array_keys($this->headers) as $columnName)
 			{
