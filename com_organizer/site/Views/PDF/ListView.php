@@ -45,13 +45,13 @@ abstract class ListView extends BaseView
 	/**
 	 * @inheritdoc
 	 */
-	public function display()
+	public function display($destination = self::DOWNLOAD)
 	{
 		$this->setOverhead();
 		$this->layout->setTitle();
 		$this->layout->fill($this->get('items'));
 
-		parent::display();
+		parent::display($destination);
 	}
 
 	/**

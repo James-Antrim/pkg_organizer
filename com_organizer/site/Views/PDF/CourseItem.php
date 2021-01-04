@@ -110,11 +110,11 @@ class CourseItem extends BaseView
 	/**
 	 * @inheritdoc
 	 */
-	public function display()
+	public function display($destination = self::DOWNLOAD)
 	{
 		$this->layout->setTitle();
 		$this->layout->fill($this->item);
 
-		parent::display();
+		parent::display($destination);
 	}
 }

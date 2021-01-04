@@ -47,6 +47,9 @@ abstract class BaseView extends TCPDF
 	// Colors
 	public const BLACK = [0, 0, 0], WHITE = [255, 255, 255];
 
+	// Destinations
+	public const DOWNLOAD = 'D', INLINE = 'I';
+
 	// Font Families
 	public const COURIER = 'courier', CURRENT_FAMILY = '', HELVETICA = 'helvetica', TIMES = 'times';
 
@@ -204,11 +207,13 @@ abstract class BaseView extends TCPDF
 	/**
 	 * Method to generate output. Overwriting functions should place class specific code before the parent call.
 	 *
+	 * @param   string  $destination
+	 *
 	 * @return void
 	 */
-	public function display()
+	public function display($destination = self::DOWNLOAD)
 	{
-		$this->Output($this->filename);
+		$this->Output($this->filename, $destination);
 		ob_flush();
 	}
 
