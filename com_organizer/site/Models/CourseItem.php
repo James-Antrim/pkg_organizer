@@ -112,11 +112,11 @@ class CourseItem extends ItemModel
 			],
 			'pretests'           => ['label' => Languages::_($option . 'PRETESTS'), 'type' => 'text', 'value' => ''],
 			'courseContact'      => [
-				'label' => Languages::_($option . 'COURSE_CONTACTS'),
+				'label' => Languages::_($option . 'COURSE_POC'),
 				'type'  => 'text',
 				'value' => ''
 			],
-			'contact'            => ['label' => Languages::_($option . 'CONTACTS'), 'type' => 'text', 'value' => ''],
+			'contact'            => ['label' => Languages::_($option . 'POC'), 'type' => 'text', 'value' => ''],
 			'courseStatus'       => null,
 			'courseText'         => null,
 			'deadline'           => null,

@@ -67,10 +67,9 @@ class Attendance extends ListLayout
 		foreach ($data as $participant)
 		{
 			// Get the starting coordinates for later use with borders
+			$maxLength = 0;
 			$startX = $view->GetX();
 			$startY = $view->GetY();
-
-			$maxLength = 0;
 
 			foreach (array_keys($this->headers) as $columnName)
 			{
@@ -97,6 +96,7 @@ class Attendance extends ListLayout
 				}
 
 				$length = $view->renderMultiCell($this->widths[$columnName], 5, $value);
+
 				if ($length > $maxLength)
 				{
 					$maxLength = $length;
