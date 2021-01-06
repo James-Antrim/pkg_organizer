@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
@@ -20,7 +21,7 @@ class Instances extends ListModel
 {
 	private const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
 
-	private $conditions = [];
+	public $conditions = [];
 
 	protected $filter_fields = [
 		'campusID',
@@ -109,7 +110,7 @@ class Instances extends ListModel
 	/**
 	 * @inheritDoc.
 	 */
-	public function getItems()
+	public function getItems(): array
 	{
 		$items = parent::getItems();
 
@@ -129,7 +130,7 @@ class Instances extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
 		$conditions = $this->conditions;
 
@@ -373,6 +374,11 @@ class Instances extends ListModel
 			}
 		}
 
+		if ($format = Helpers\Input::getCMD('format') and $format !== 'html')
+		{
+			$this->state->set('list.limit', 0);
+		}
+
 		$this->conditions = $this->setConditions();
 	}
 
@@ -381,17 +387,38 @@ class Instances extends ListModel
 	 *
 	 * @return array the parameters used to retrieve lessons.
 	 */
-	private function setConditions()
+	private function setConditions(): array
 	{
-		$interval  = $this->state->get('list.interval', 'day');
-		$intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
-
+		$conditions               = [];
 		$conditions['date']       = Helpers\Dates::standardizeDate($this->state->get('list.date', date('Y-m-d')));
 		$conditions['delta']      = date('Y-m-d', strtotime('-14 days'));
-		$conditions['interval']   = in_array($interval, $intervals) ? $interval : 'week';
 		$conditions['my']         = $this->state->get('filter.my');
 		$conditions['mySchedule'] = false;
 		$conditions['status']     = $this->state->get('filter.status', 1);
+
+		switch (Helpers\Input::getCMD('format'))
+		{
+			case 'ics':
+				$conditions['interval'] = 'quarter';
+				break;
+			case 'json':
+				$interval               = $this->state->get('list.interval', 'week');
+				$intervals              = ['day', 'half', 'month', 'quarter', 'term', 'week'];
+				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
+				break;
+			case 'pdf':
+			case 'xls':
+				$interval               = $this->state->get('list.interval', 'week');
+				$intervals              = ['month', 'term', 'week'];
+				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
+				break;
+			case 'html':
+			default:
+				$interval               = $this->state->get('list.interval', 'day');
+				$intervals              = ['day', 'month', 'term', 'week'];
+				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'day';
+				break;
+		}
 
 		// Reliant on date and interval properties
 		Helpers\Instances::setDates($conditions);

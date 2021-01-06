@@ -11,7 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-//use Organizer\Adapters\Toolbar;
+use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -48,9 +48,9 @@ class Instances extends ListView
 		// Add menu title support, both direct and via selected filters
 		Helpers\HTML::setTitle($title, 'list-2');
 
-		//$toolbar = Toolbar::getInstance();
+		$toolbar = Toolbar::getInstance();
 
-		/*$toolbar->appendButton(
+		$toolbar->appendButton(
 			'NewTab',
 			'file-pdf',
 			Languages::_('ORGANIZER_PDF_GRID_A3'),
@@ -69,7 +69,7 @@ class Instances extends ListView
 				'Instances.gridA4',
 				false
 			);
-		}*/
+		}
 	}
 
 	/**
@@ -125,7 +125,7 @@ class Instances extends ListView
 	 *
 	 * @return string
 	 */
-	private function getPersons(object $item)
+	private function getPersons(object $item): string
 	{
 		$added   = Languages::_('ORGANIZER_PERSON_ADDED_ON');
 		$removed = Languages::_('ORGANIZER_PERSON_REMOVED_ON');
@@ -213,7 +213,7 @@ class Instances extends ListView
 	 *
 	 * @return string
 	 */
-	private function getResource(object $item, string $resourceName, string $rIndex)
+	private function getResource(object $item, string $resourceName, string $rIndex): string
 	{
 		$constant        = strtoupper($resourceName);
 		$collectionIndex = $resourceName . 's';
@@ -366,7 +366,7 @@ class Instances extends ListView
 	 *
 	 * @return array the title column
 	 */
-	private function getTitle(object $item)
+	private function getTitle(object $item): array
 	{
 		$item->comment = $this->resolveLinks($item->comment);
 
@@ -479,13 +479,13 @@ class Instances extends ListView
 	}
 
 	/**
-	 * Resolves any links/link parameters to iconed links.
+	 * Resolves any links/link parameters to links with icons.
 	 *
 	 * @param   string  $text  the text to search
 	 *
 	 * @return string
 	 */
-	private function resolveLinks(string $text)
+	private function resolveLinks(string $text): string
 	{
 		$moodleIcon     = '<span class="icon-moodle hasTooltip" title="Moodle Link"></span>';
 		$moodleURL1     = 'https://moodle.thm.de/course/view.php?id=PID';
