@@ -39,6 +39,7 @@ abstract class BaseView extends TCPDF
 		HORIZONTAL = 'BT',
 		JUSTIFY = 'J',
 		LEFT = 'L',
+		MIDDLE = 'M',
 		NONE = 0,
 		RIGHT = 'R',
 		TOP = 'T',
@@ -294,7 +295,7 @@ abstract class BaseView extends TCPDF
 		string $hAlign = self::LEFT,
 		$border = self::NONE,
 		$fill = false,
-		$vAlign = self::CENTER,
+		$vAlign = self::MIDDLE,
 		$maxHeight = 0
 	): int
 	{
