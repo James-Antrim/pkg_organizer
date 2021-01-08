@@ -271,7 +271,8 @@ abstract class BaseView extends TCPDF
 
 	/**
 	 * This method allows printing text with line breaks.
-	 * They can be automatic (as soon as the text reaches the right border of the cell) or explicit (via the \n character). As many cells as necessary are output, one below the other.<br />
+	 * They can be automatic (as soon as the text reaches the right border of the cell) or explicit (via the \n character).
+	 * As many cells as necessary are output, one below the other.<br />
 	 * Text can be aligned, centered or justified. The cell block can be framed and the background painted.
 	 *
 	 * @param   int     $width      the cell width
@@ -317,6 +318,19 @@ abstract class BaseView extends TCPDF
 			$vAlign,
 			false
 		);
+	}
+
+	/**
+	 * Wraps the protected function setPageFormat to make it publicly accessible.
+	 *
+	 * @param   array|string  $format  the format to set the page to string format constant, [width, height], [options]
+	 *
+	 * @return void
+	 * @see TCPDF::setPageOrientation(), TCPDF::getPageSizeFromFormat()
+	 */
+	public function setFormat($format)
+	{
+		$this->setPageFormat($format, $this->CurOrientation);
 	}
 
 	/**

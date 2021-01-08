@@ -10,10 +10,7 @@
 
 namespace Organizer\Layouts\PDF\Instances;
 
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\Grids;
-use Organizer\Helpers\Languages;
-use Organizer\Views\PDF\BaseView;
+use Organizer\Helpers;
 use Organizer\Layouts\PDF\BaseLayout;
 use Organizer\Views\PDF\Instances;
 
@@ -24,7 +21,7 @@ use Organizer\Views\PDF\Instances;
  */
 abstract class GridLayout extends BaseLayout
 {
-	protected const DATA_WIDTH = 45, LINE_HEIGHT = 4.3, PADDING = 1, TIME_WIDTH = 11;
+	protected const PADDING = 2, TIME_WIDTH = 11;
 
 	protected const CORNER_BORDER = [
 		'R' => ['width' => '.5', 'color' => [74, 92, 102]],
@@ -56,6 +53,13 @@ abstract class GridLayout extends BaseLayout
 	protected $instances;
 
 	/**
+	 * The text pertaining to the selected resources.
+	 *
+	 * @var string
+	 */
+	private $resourceHeader;
+
+	/**
 	 * The view document.
 	 * @var Instances
 	 */
@@ -64,11 +68,11 @@ abstract class GridLayout extends BaseLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function __construct(BaseView $view)
+	public function __construct(Instances $view)
 	{
 		parent::__construct($view);
 
-		// 7bottom m because of the footer
+		// 10 bottom m because of the footer
 		$view->margins(5, 25, 5, 10);
 		$view->setCellPaddings('', 1, '', 1);
 		$view->setPageOrientation($view::LANDSCAPE);
@@ -99,9 +103,9 @@ abstract class GridLayout extends BaseLayout
 	protected function addEmptyPage(string $startDate, string $endDate)
 	{
 		$this->addLayoutPage($startDate, $endDate);
-		$endDate   = Dates::formatDate($endDate);
-		$startDate = Dates::formatDate($startDate);
-		$this->view->Cell('', '', sprintf(Languages::_('ORGANIZER_NO_INSTANCES'), $startDate, $endDate));
+		$endDate   = Helpers\Dates::formatDate($endDate);
+		$startDate = Helpers\Dates::formatDate($startDate);
+		$this->view->Cell('', '', sprintf(Helpers\Languages::_('ORGANIZER_NO_INSTANCES'), $startDate, $endDate));
 	}
 
 	/**
@@ -114,9 +118,11 @@ abstract class GridLayout extends BaseLayout
 	 */
 	private function addLayoutPage(string $startDate, string $endDate)
 	{
-		$fEndDate   = Dates::formatDate($endDate);
-		$fStartDate = Dates::formatDate($startDate);
-		$subTitle   = "$fStartDate - $fEndDate";
+		$subTitle = $this->resourceHeader ? $this->resourceHeader . "\n" : '';
+
+		$fEndDate   = Helpers\Dates::formatDate($endDate);
+		$fStartDate = Helpers\Dates::formatDate($startDate);
+		$subTitle   .= "$fStartDate - $fEndDate";
 
 		$view = $this->view;
 		$view->setHeaderData('pdf_logo.png', '55', $view->title, $subTitle, $view::BLACK, $view::WHITE);
@@ -139,7 +145,7 @@ abstract class GridLayout extends BaseLayout
 
 		$bottomMargin = $dimensions['bm'];
 		$pageHeight   = $dimensions['hk'];
-		$rowHeight    = $lines * self::LINE_HEIGHT;
+		$rowHeight    = $lines * $this::LINE_HEIGHT;
 		$yPos         = $view->GetY();
 
 		if (($yPos + $rowHeight + $bottomMargin) > $pageHeight)
@@ -158,7 +164,8 @@ abstract class GridLayout extends BaseLayout
 	 */
 	public function fill($data)
 	{
-		$view      = $this->view;
+		$view = $this->view;
+		$this->setResourceHeader();
 		$endDate   = $view->conditions['endDate'];
 		$startDate = $view->conditions['startDate'];
 
@@ -216,7 +223,7 @@ abstract class GridLayout extends BaseLayout
 				}
 
 				$cells[$row][$date]     = $this->getInstance($instance, $startTime, $endTime);
-				$cells[$row]['lines'][] = $view->getNumLines($cells[$row][$date], self::DATA_WIDTH);
+				$cells[$row]['lines'][] = $view->getNumLines($cells[$row][$date], $this::DATA_WIDTH);
 				$row++;
 			}
 
@@ -284,15 +291,15 @@ abstract class GridLayout extends BaseLayout
 	 */
 	protected function getLabel(array $block): string
 	{
-		$label = 'label_' . Languages::getTag();
+		$label = 'label_' . Helpers\Languages::getTag();
 		if ($block[$label])
 		{
 			return $block[$label];
 		}
 
-		$startTime = Dates::formatTime($block['startTime']);
+		$startTime = Helpers\Dates::formatTime($block['startTime']);
 		$endTime   = date('H:i', strtotime('+1 minute', strtotime($block['endTime'])));
-		$endTime   = Dates::formatTime($endTime);
+		$endTime   = Helpers\Dates::formatTime($endTime);
 
 		return $startTime . "\n-\n" . $endTime;
 	}
@@ -316,8 +323,8 @@ abstract class GridLayout extends BaseLayout
 		// Instance time not coincidental with block
 		if ($instance->startTime != $startTime or $instance->endTime != $endTime)
 		{
-			$formattedStart = Dates::formatTime($startTime);
-			$formattedEnd   = Dates::formatTime($endTime);
+			$formattedStart = Helpers\Dates::formatTime($startTime);
+			$formattedEnd   = Helpers\Dates::formatTime($endTime);
 			$text           .= "$formattedStart - $formattedEnd\n";
 		}
 
@@ -357,17 +364,18 @@ abstract class GridLayout extends BaseLayout
 
 		$name = $instance->name;
 
-		if ($instance->methodCode)
-		{
-			$name .= " - $instance->methodCode";
-		}
-
 		if ($instance->subjectNo)
 		{
 			$name .= " ($instance->subjectNo)";
 		}
 
-		$text .= "$name\n";
+		if ($instance->method)
+		{
+			$name .= "\n$instance->method";
+		}
+
+
+		$text .= "$name";
 
 		$output = [];
 
@@ -408,14 +416,14 @@ abstract class GridLayout extends BaseLayout
 	protected function renderEmptyRow(string $label, string $startDate, string $endDate)
 	{
 		$view  = $this->view;
-		$lines = $view->getNumLines($label, self::DATA_WIDTH);
+		$lines = $view->getNumLines($label, $this::DATA_WIDTH);
 		$this->addPageBreak($lines, $startDate, $endDate);
-		$height = $lines * self::LINE_HEIGHT;
+		$height = $lines * $this::LINE_HEIGHT;
 		$this->renderTimeCell($label, $height, $view::GINSBERG);
 
 		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
 		{
-			$view->renderMultiCell(self::DATA_WIDTH, $height, '', $view::CENTER, $view::GINSBERG);
+			$view->renderMultiCell($this::DATA_WIDTH, $height, '', $view::CENTER, $view::GINSBERG);
 
 			$currentDT = strtotime("+1 day", $currentDT);
 		}
@@ -431,7 +439,22 @@ abstract class GridLayout extends BaseLayout
 	 *
 	 * @return void  modifies the document
 	 */
-	abstract protected function renderGrid(string $startDate, string $endDate);
+	protected function renderGrid(string $startDate, string $endDate)
+	{
+		foreach ($this->grid as $block)
+		{
+			$cells = $this->getCells($startDate, $endDate, $block);
+			$label = $this->getLabel($block);
+
+			if ($cells)
+			{
+				$this->renderRow($label, $cells, $startDate, $endDate);
+				continue;
+			}
+
+			$this->renderEmptyRow($label, $startDate, $endDate);
+		}
+	}
 
 	/**
 	 * Renders the grid headers.
@@ -441,7 +464,29 @@ abstract class GridLayout extends BaseLayout
 	 *
 	 * @return void  modifies the document
 	 */
-	abstract protected function renderHeaders(string $startDate, string $endDate);
+	protected function renderHeaders(string $startDate, string $endDate)
+	{
+		$view = $this->view;
+		$view->SetFont('helvetica', '', 10);
+		$view->SetLineStyle(['width' => 0.5, 'dash' => 0, 'color' => [74, 92, 102]]);
+		$view->renderMultiCell(self::TIME_WIDTH, 0, Helpers\Languages::_('ORGANIZER_TIME'), $view::CENTER, $view::HORIZONTAL);
+
+		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
+		{
+			$view->renderMultiCell(
+				$this::DATA_WIDTH,
+				0,
+				Helpers\Dates::formatDate(date('Y-m-d', $currentDT)),
+				$view::CENTER,
+				$view::HORIZONTAL
+			);
+
+			$currentDT = strtotime("+1 day", $currentDT);
+		}
+
+		$view->Ln();
+		$view->SetFont('helvetica', '', $this::FONT_SIZE);
+	}
 
 	/**
 	 * @param   string  $label      the block label
@@ -457,7 +502,7 @@ abstract class GridLayout extends BaseLayout
 
 		// Less one because of the 'lines' count index
 		$lastIndex = count($cells) - 1;
-		$lLines    = $view->getNumLines($label, self::DATA_WIDTH);
+		$lLines    = $view->getNumLines($label, $this::DATA_WIDTH);
 		$rowNumber = 1;
 
 		foreach ($cells as $index => $row)
@@ -474,13 +519,13 @@ abstract class GridLayout extends BaseLayout
 			if ($this->addPageBreak($lines, $startDate, $endDate) or $rowNumber === 1)
 			{
 				$lines  = max($lLines, $row['lines']);
-				$height = $lines * self::LINE_HEIGHT;
+				$height = $lines * $this::LINE_HEIGHT;
 				$this->renderTimeCell($label, $height, $border);
 			}
 			else
 			{
 				$lines  = $row['lines'];
-				$height = $lines * self::LINE_HEIGHT;
+				$height = $lines * $this::LINE_HEIGHT;
 				$view->renderCell(self::TIME_WIDTH, $height, '', $view::LEFT, $border);
 			}
 
@@ -491,7 +536,7 @@ abstract class GridLayout extends BaseLayout
 			{
 				$date  = date('Y-m-d', $currentDT);
 				$value = empty($row[$date]) ? '' : $row[$date];
-				$view->renderMultiCell(self::DATA_WIDTH, $height, $value, $view::CENTER, $border);
+				$view->renderMultiCell($this::DATA_WIDTH, $height, $value, $view::CENTER, $border);
 
 				$currentDT = strtotime("+1 day", $currentDT);
 			}
@@ -551,8 +596,81 @@ abstract class GridLayout extends BaseLayout
 		}
 
 		$gridID     = array_search(max($gridIDs), $gridIDs);
-		$grid       = json_decode(Grids::getGrid($gridID), true);
+		$grid       = json_decode(Helpers\Grids::getGrid($gridID), true);
 		$this->grid = $grid['periods'];
+	}
+
+	/**
+	 * Sets the subtitle line dedicated to the selected resources.
+	 *
+	 * @return void
+	 */
+	private function setResourceHeader()
+	{
+		$conditions = $this->view->conditions;
+		$resources  = [];
+
+		if (array_key_exists('personIDs', $conditions)
+			and count($conditions['personIDs']) === 1
+			and $person = Helpers\Persons::getName($conditions['personIDs'][0]))
+		{
+			$resources['person'] = $person;
+		}
+
+		if (array_key_exists('categoryIDs', $conditions)
+			and count($conditions['categoryIDs']) === 1
+			and $category = Helpers\Categories::getName($conditions['categoryIDs'][0]))
+		{
+			$resources['group'] = $category;
+		}
+
+		if (array_key_exists('groupIDs', $conditions))
+		{
+			if (count($conditions['groupIDs']) === 1)
+			{
+				$resources['group'] = Helpers\Groups::getFullName($conditions['groupIDs'][0]);
+			}
+			else
+			{
+				$groups    = [];
+				$lastID    = array_pop($conditions['groupIDs']);
+				$lastGroup = Helpers\Groups::getName($lastID);
+
+				// If there was no specific category filter, the groups are not necessarily of the same category and should be ignored.
+				if (array_key_exists('group', $resources))
+				{
+					foreach ($conditions['groupIDs'] as $groupID)
+					{
+						$groups[] = Helpers\Groups::getName($groupID);
+					}
+
+					$resources['group'] .= implode(', ', $groups) . " & $lastGroup";
+				}
+			}
+		}
+
+		if (array_key_exists('roomIDs', $conditions))
+		{
+			if (count($conditions['roomIDs']) === 1)
+			{
+				$resources['room'] = Helpers\Rooms::getName($conditions['roomIDs'][0]);
+			}
+			else
+			{
+				$rooms    = [];
+				$lastID   = array_pop($conditions['roomIDs']);
+				$lastRoom = Helpers\Rooms::getName($lastID);
+
+				foreach ($conditions['roomIDs'] as $roomID)
+				{
+					$rooms[] = Helpers\Rooms::getName($roomID);
+				}
+
+				$resources['room'] .= implode(', ', $rooms) . " & $lastRoom";
+			}
+		}
+
+		$this->resourceHeader = implode(' - ', $resources);
 	}
 
 	/**

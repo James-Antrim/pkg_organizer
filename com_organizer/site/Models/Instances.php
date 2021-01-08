@@ -394,29 +394,32 @@ class Instances extends ListModel
 		$conditions['delta']      = date('Y-m-d', strtotime('-14 days'));
 		$conditions['my']         = $this->state->get('filter.my');
 		$conditions['mySchedule'] = false;
-		$conditions['status']     = $this->state->get('filter.status', 1);
 
 		switch (Helpers\Input::getCMD('format'))
 		{
 			case 'ics':
 				$conditions['interval'] = 'quarter';
+				$conditions['status']   = 1;
 				break;
 			case 'json':
 				$interval               = $this->state->get('list.interval', 'week');
 				$intervals              = ['day', 'half', 'month', 'quarter', 'term', 'week'];
 				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
+				$conditions['status']   = $this->state->get('filter.status', 1);
 				break;
 			case 'pdf':
 			case 'xls':
 				$interval               = $this->state->get('list.interval', 'week');
 				$intervals              = ['month', 'term', 'week'];
 				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
+				$conditions['status']   = 1;
 				break;
 			case 'html':
 			default:
 				$interval               = $this->state->get('list.interval', 'day');
 				$intervals              = ['day', 'month', 'term', 'week'];
 				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'day';
+				$conditions['status']   = $this->state->get('filter.status', 1);
 				break;
 		}
 
@@ -428,6 +431,11 @@ class Instances extends ListModel
 		if ($endDate = $this->state->get('list.endDate'))
 		{
 			$conditions['endDate'] = $endDate;
+		}
+
+		if ($categoryID = $this->state->get('filter.categoryID'))
+		{
+			$conditions['categoryIDs'] = [$categoryID];
 		}
 
 		if ($groupID = $this->state->get('filter.groupID'))
