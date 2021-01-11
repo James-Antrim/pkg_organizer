@@ -135,20 +135,24 @@ class Booking extends Participants
 				}
 			}
 
-			if (!$count = substr_count($response, '<li>'))
+			$count  = substr_count($response, '<li>');
+			$over30 = strpos($response, 'mehr als 30') !== false;
+
+			if ($count > 1 or $over30)
+			{
+				$message = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $input);
+				Helpers\OrganizerHelper::message($message, 'notice');
+
+				return;
+			}
+			elseif (!$count)
 			{
 				Helpers\OrganizerHelper::message('ORGANIZER_EMPTY_RESULT_SET', 'notice');
 
 				return;
 			}
-			elseif ($count > 1)
-			{
-				Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
 
-				return;
-			}
-
-			// Convert, remove characters upto and and after li-tags inclusively
+			// Remove characters upto and and after li-tags inclusively
 			$response = mb_convert_encoding($response, 'utf-8', $charset);
 			$response = substr($response, strpos($response, '<li>') + 4);
 			$response = substr($response, 0, strpos($response, '</li>'));
