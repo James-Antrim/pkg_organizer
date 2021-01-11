@@ -32,7 +32,7 @@ class Checkin extends FormModel
 		if (Helpers\Input::getCMD('tmpl') !== 'component')
 		{
 			$query = Helpers\Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
-			Helpers\OrganizerHelper::getApplication()->redirect(Uri::root() . "?$query");
+			Helpers\OrganizerHelper::getApplication()->redirect(Uri::current() . "?$query");
 		}
 
 		$form    = $this->getForm();
