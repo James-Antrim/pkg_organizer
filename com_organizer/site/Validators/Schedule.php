@@ -103,7 +103,8 @@ class Schedule
 
 		if ($valid = ($validCreationDate and $this->validateCreationTime()))
 		{
-			$this->dateTime = strtotime("$this->creationDate $this->creationTime");
+			// Set the cut off to the day before schedule generation to avoid inconsistencies on the creation date
+			$this->dateTime = strtotime('-1 day', strtotime("$this->creationDate $this->creationTime"));
 		}
 
 		Terms::validate($this, $this->xml->general);
