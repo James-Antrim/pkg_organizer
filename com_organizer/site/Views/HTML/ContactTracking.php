@@ -52,6 +52,26 @@ class ContactTracking extends ListView
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function display($tpl = null)
+	{
+		$filterItems = Helpers\Input::getFilterItems();
+
+		// If a query string was entered feedback is a part of a system message.
+		if ($filterItems->get('search'))
+		{
+			$this->empty = ' ';
+		}
+		else
+		{
+			$this->empty = Helpers\Languages::_('ORGANIZER_ENTER_SEARCH_TERM');
+		}
+
+		parent::display($tpl);
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function setHeaders()

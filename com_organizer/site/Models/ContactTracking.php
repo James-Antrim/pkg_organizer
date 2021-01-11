@@ -212,12 +212,15 @@ class ContactTracking extends ListModel
 	{
 		$participantID = $participantIDs ? $participantIDs[0] : 0;
 		$personID      = $personIDs ? $personIDs[0] : 0;
+		$filters = Helpers\Input::getFilterItems();
+		$search = $filters->get('search');
+		$tooMany = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $search);
 
 		// User and person resource usernames don't resolve to the same physical person.
 		if ($participantID and $personID and (int) $personID !== Helpers\Persons::getIDByUserID($participantID))
 		{
 			$this->forceEmpty();
-			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+			Helpers\OrganizerHelper::message($tooMany, 'notice');
 
 			return;
 		}
@@ -253,6 +256,7 @@ class ContactTracking extends ListModel
 			return;
 		}
 
+		$tooMany = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $search);
 		$search = explode(' ', $search);
 
 		// Users/participants by username
@@ -266,7 +270,7 @@ class ContactTracking extends ListModel
 		if ($participantIDs = Database::loadColumn() and count($participantIDs) > 1)
 		{
 			$this->forceEmpty();
-			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+			Helpers\OrganizerHelper::message($tooMany, 'notice');
 
 			return;
 		}
@@ -281,7 +285,7 @@ class ContactTracking extends ListModel
 		if ($personIDs = Database::loadColumn() and count($personIDs) > 1)
 		{
 			$this->forceEmpty();
-			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+			Helpers\OrganizerHelper::message($tooMany, 'notice');
 
 			return;
 		}
@@ -307,7 +311,7 @@ class ContactTracking extends ListModel
 		if ($participantIDs = Database::loadColumn() and count($participantIDs) > 1)
 		{
 			$this->forceEmpty();
-			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+			Helpers\OrganizerHelper::message($tooMany, 'notice');
 
 			return;
 		}
@@ -326,7 +330,7 @@ class ContactTracking extends ListModel
 		if ($personIDs = Database::loadColumn() and count($personIDs) > 1)
 		{
 			$this->forceEmpty();
-			Helpers\OrganizerHelper::message('ORGANIZER_TOO_MANY_RESULTS', 'notice');
+			Helpers\OrganizerHelper::message($tooMany, 'notice');
 
 			return;
 		}
