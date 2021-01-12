@@ -88,6 +88,16 @@ class ContactTracking extends ListView
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function setSubtitle()
+	{
+		$then           = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
+		$today          = Helpers\Dates::formatDate(date('Y-m-d'));
+		$this->subtitle = Helpers\Languages::_('ORGANIZER_INTERVAL') . ": $then - $today";
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	protected function structureItems()

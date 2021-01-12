@@ -187,15 +187,23 @@ class ContactTracking extends ListModel
 			}
 		}
 
-		foreach ($items as $item)
+		if ($items)
 		{
-			foreach ($item->dates as $date => $bookings)
+			foreach ($items as $item)
 			{
-				$item->dates[$date] = array_sum($bookings);
+				foreach ($item->dates as $date => $bookings)
+				{
+					$item->dates[$date] = array_sum($bookings);
+				}
 			}
-		}
 
-		ksort($items);
+			ksort($items);
+		}
+		elseif ($search = $this->state->get('filter.search'))
+		{
+			$none = sprintf(Helpers\Languages::_('ORGANIZER_EMPTY_CONTACT_RESULT_SET'), $search);
+			Helpers\OrganizerHelper::message($none, 'notice');
+		}
 
 		return $items;
 	}
@@ -212,9 +220,9 @@ class ContactTracking extends ListModel
 	{
 		$participantID = $participantIDs ? $participantIDs[0] : 0;
 		$personID      = $personIDs ? $personIDs[0] : 0;
-		$filters = Helpers\Input::getFilterItems();
-		$search = $filters->get('search');
-		$tooMany = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $search);
+		$filters       = Helpers\Input::getFilterItems();
+		$search        = $filters->get('search');
+		$tooMany       = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $search);
 
 		// User and person resource usernames don't resolve to the same physical person.
 		if ($participantID and $personID and (int) $personID !== Helpers\Persons::getIDByUserID($participantID))
@@ -257,7 +265,7 @@ class ContactTracking extends ListModel
 		}
 
 		$tooMany = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $search);
-		$search = explode(' ', $search);
+		$search  = explode(' ', $search);
 
 		// Users/participants by username
 		$query = Database::getQuery();
