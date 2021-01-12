@@ -390,6 +390,7 @@ class Instances extends ResourceHelper
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
 			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
+			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 			->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
 
 		$dDate = $conditions['delta'];
@@ -398,8 +399,10 @@ class Instances extends ResourceHelper
 		{
 			case self::CURRENT:
 
-				$query->where("i.delta != 'removed'");
-				$query->where("u.delta != 'removed'");
+				$query->where("i.delta != 'removed'")
+					->where("ig.delta != 'removed'")
+					->where("ipe.delta != 'removed'")
+					->where("u.delta != 'removed'");
 
 				break;
 
@@ -488,6 +491,12 @@ class Instances extends ResourceHelper
 			}
 
 			return $query;
+		}
+
+		if (!empty($conditions['categoryIDs']))
+		{
+			$categoryIDs = implode(',', $conditions['categoryIDs']);
+			$query->where("g.categoryID IN ($categoryIDs)");
 		}
 
 		if (!empty($conditions['courseIDs']))
@@ -870,6 +879,11 @@ class Instances extends ResourceHelper
 			->from('#__organizer_instance_groups AS ig')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 			->where("ig.assocID = {$person['assocID']}");
+
+		if (array_key_exists('categoryIDs', $conditions))
+		{
+			$query->where('g.categoryID IN (' . implode($conditions['categoryIDs']) . ')');
+		}
 
 		// If the instance itself has been removed the status of its associations do not play a role
 		if ($conditions['instanceStatus'] !== 'removed')

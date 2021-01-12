@@ -120,7 +120,6 @@ class Instances extends ListModel
 			Helpers\Instances::setPersons($instance, $this->conditions);
 			Helpers\Instances::setSubject($instance, $this->conditions);
 			Helpers\Instances::setBooking($instance);
-
 			$items[$key] = (object) $instance;
 		}
 
@@ -160,12 +159,6 @@ class Instances extends ListModel
 			$query->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
 				->innerJoin('#__organizer_buildings AS bd ON bd.id = r.buildingID');
 			$this->setCampusFilter($query, 'bd');
-		}
-
-		if ($this->state->get('filter.categoryID'))
-		{
-			$query->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
-			$this->setValueFilters($query, ['g.categoryID',]);
 		}
 
 		if ($this->state->get('filter.eventID'))
@@ -417,7 +410,7 @@ class Instances extends ListModel
 			case 'html':
 			default:
 				$interval               = $this->state->get('list.interval', 'day');
-				$intervals              = ['day', 'month', 'term', 'week'];
+				$intervals              = ['day', 'month', 'quarter', 'term', 'week'];
 				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'day';
 				$conditions['status']   = $this->state->get('filter.status', 1);
 				break;
