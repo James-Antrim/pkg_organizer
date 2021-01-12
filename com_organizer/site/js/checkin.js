@@ -6,7 +6,7 @@ function addHyphen(e) {
     code = code.replace(/[^0-9a-f]/g, '');
 
     // The delete key was pressed and the length is now 4, so the hyphen was deleted.
-    hyphenDeleted = e.inputType === 'deleteContentBackward' && field.value.length === 4 && code.length ===4;
+    hyphenDeleted = e.inputType === 'deleteContentBackward' && field.value.length === 4 && code.length === 4;
 
     if (hyphenDeleted) {
         code = code.substr(0, 3);
@@ -20,5 +20,9 @@ function addHyphen(e) {
 }
 
 window.onload = function () {
-    document.getElementById('jform_code').addEventListener('input', addHyphen);
+    const input = document.getElementById('jform_code');
+
+    if (input !== null) {
+        input.addEventListener('input', addHyphen);
+    }
 }

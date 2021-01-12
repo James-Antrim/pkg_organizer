@@ -11,10 +11,11 @@
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
+$userID = Helpers\Users::getID();
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
       class="form-vertical form-validate checkin" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
-	<?php if (!Helpers\Users::getID()): ?>
+	<?php if (!$userID): ?>
 		<?php echo $this->form->renderField('username'); ?>
 		<?php echo $this->form->renderField('password'); ?>
 	<?php endif; ?>
@@ -22,6 +23,13 @@ use Organizer\Helpers;
     <div class="control-group">
         <input class="btn" type="submit" value="<?php echo Helpers\Languages::_('ORGANIZER_CHECKIN'); ?>"/>
     </div>
+	<?php if ($userID): ?>
+        <div class="control-group">
+            <a class="btn" href="<?php echo Uri::getInstance() . '&layout=profile' ?>">
+				<?php echo Helpers\Languages::_('ORGANIZER_PROFILE_EDIT'); ?>
+            </a>
+        </div>
+	<?php endif; ?>
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.checkin"/>
     <input type="hidden" name="view" value="checkin"/>

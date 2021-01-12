@@ -32,4 +32,9 @@ $instance = $this->instances[0];
 	<?php endif; ?>
     <div class="control-group message"><?php echo $instance['startTime'] . ' - ' . $instance['endTime']; ?></div>
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CHECKOUT_REMINDER'); ?></div>
+    <div class="control-group">
+        <a class="btn" href="<?php echo Uri::getInstance() . '&layout=profile' ?>">
+			<?php echo Helpers\Languages::_('ORGANIZER_PROFILE_EDIT'); ?>
+        </a>
+    </div>
 </form>

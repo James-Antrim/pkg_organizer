@@ -19,6 +19,8 @@ class Checkin extends FormView
 {
 	public $complete = true;
 
+	public $edit = false;
+
 	public $instances = [];
 
 	/**
@@ -31,7 +33,11 @@ class Checkin extends FormView
 	 */
 	protected function addToolBar()
 	{
-		if ($this->instances)
+		if ($this->edit)
+		{
+			$title = Helpers\Languages::_('ORGANIZER_CONTACT_INFORMATION');
+		}
+		elseif ($this->instances)
 		{
 			if ($this->complete)
 			{
@@ -68,6 +74,7 @@ class Checkin extends FormView
 	 */
 	public function display($tpl = null)
 	{
+		$this->edit        = Helpers\Input::getCMD('layout') === 'profile';
 		$this->instances   = $this->get('Instances');
 		$this->participant = $this->get('Participant');
 		$this->_layout     = 'checkin-wrapper';

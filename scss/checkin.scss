@@ -37,6 +37,10 @@ body.tmpl-component.html-default {
         width: auto;
       }
     }
+
+    a.btn {
+      border: $border-dark-thick;
+    }
   }
 }
 

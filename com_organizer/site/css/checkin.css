@@ -38,6 +38,10 @@ body.tmpl-component.html-default .main input.btn {
     width: auto;
 }
 
+body.tmpl-component.html-default .main a.btn {
+    border: 2px solid #77858c;
+}
+
 .head {
     padding: 0 20% 1rem;
 }
