@@ -419,8 +419,6 @@ class Instances extends ListModel
 		// Reliant on date and interval properties
 		Helpers\Instances::setDates($conditions);
 
-		$this->state->set('list.date', $conditions['startDate']);
-
 		if ($endDate = $this->state->get('list.endDate'))
 		{
 			$conditions['endDate'] = $endDate;
