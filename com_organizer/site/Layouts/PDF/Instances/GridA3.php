@@ -17,7 +17,7 @@ use Organizer\Views\PDF\Instances;
  */
 class GridA3 extends GridLayout
 {
-	protected const DATA_WIDTH = 66, FONT_SIZE = 6, LINE_HEIGHT = 4;
+	protected const DATA_WIDTH = 66, FONT_SIZE = 6, LINE_HEIGHT = 3.5, LINE_LENGTH = 40;
 
 	public function __construct(Instances $view)
 	{

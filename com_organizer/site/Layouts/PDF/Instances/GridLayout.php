@@ -12,6 +12,7 @@ namespace Organizer\Layouts\PDF\Instances;
 
 use Organizer\Helpers;
 use Organizer\Layouts\PDF\BaseLayout;
+use Organizer\Tables\Roles;
 use Organizer\Views\PDF\Instances;
 
 /**
@@ -195,6 +196,69 @@ abstract class GridLayout extends BaseLayout
 	}
 
 	/**
+	 * Aggregates resource collections of the same type and creates an output text.
+	 *
+	 * @param   array   $resources  the resources to be aggregated
+	 * @param   string  $key        the name key for the resource type
+	 * @param   bool    $showCode   whether the resource code should be displayed in lieu of the name
+	 *
+	 * @return string
+	 */
+	private function getAggregatedResources(array $resources, string $key, bool $showCode = false): string
+	{
+		$aggregate = [];
+
+		foreach ($resources as $set)
+		{
+			$aggregate = array_merge($aggregate, $set);
+		}
+
+		return $this->getResourceText($aggregate, $key, $showCode) . "\n";
+	}
+
+	/**
+	 * Filters the instances to those planned in the block being iterated.
+	 *
+	 * @param   string  $date       the block date
+	 * @param   string  $startTime  the block start time
+	 * @param   string  $endTime    the block end time
+	 *
+	 * @return array the relevant instances
+	 */
+	protected function getBlockInstances(string $date, string $startTime, string $endTime): array
+	{
+		$instances = [];
+
+		foreach ($this->instances as $instance)
+		{
+			if ($instance->date !== $date)
+			{
+				continue;
+			}
+
+			if ($instance->endTime < $startTime)
+			{
+				continue;
+			}
+
+			if ($instance->startTime > $endTime)
+			{
+				continue;
+			}
+
+			$name              = $instance->name;
+			$method            = $instance->methodCode ? $instance->methodCode : 'ZZZ';
+			$instanceID        = $instance->instanceID;
+			$index             = "$name-$method-$instanceID";
+			$instances[$index] = $instance;
+		}
+
+		ksort($instances);
+
+		return $instances;
+	}
+
+	/**
 	 * Gets the text to be displayed in the row cells
 	 *
 	 * @param   string  $startDate  the page start date
@@ -241,48 +305,6 @@ abstract class GridLayout extends BaseLayout
 	}
 
 	/**
-	 * Filters the instances to those planned in the block being iterated.
-	 *
-	 * @param   string  $date       the block date
-	 * @param   string  $startTime  the block start time
-	 * @param   string  $endTime    the block end time
-	 *
-	 * @return array the relevant instances
-	 */
-	protected function getBlockInstances(string $date, string $startTime, string $endTime): array
-	{
-		$instances = [];
-
-		foreach ($this->instances as $instance)
-		{
-			if ($instance->date !== $date)
-			{
-				continue;
-			}
-
-			if ($instance->endTime < $startTime)
-			{
-				continue;
-			}
-
-			if ($instance->startTime > $endTime)
-			{
-				continue;
-			}
-
-			$name              = $instance->name;
-			$method            = $instance->methodCode ? $instance->methodCode : 'ZZZ';
-			$instanceID        = $instance->instanceID;
-			$index             = "$name-$method-$instanceID";
-			$instances[$index] = $instance;
-		}
-
-		ksort($instances);
-
-		return $instances;
-	}
-
-	/**
 	 * Gets the text to be displayed for the given block.
 	 *
 	 * @param   array  $block  the block being iterated
@@ -302,6 +324,49 @@ abstract class GridLayout extends BaseLayout
 		$endTime   = Helpers\Dates::formatTime($endTime);
 
 		return $startTime . "\n-\n" . $endTime;
+	}
+
+	/**
+	 * Creates a text for an individual person, inclusive their group and room assignments as requested.
+	 *
+	 * @param   array  $rolePersons  the persons of a single role in the form personID => name
+	 * @param   array  $persons      the instance person resources hierarchy
+	 * @param   bool   $showGroups   whether person specific groups should be displayed
+	 * @param   bool   $showRooms    whether person specific rooms should be displayed
+	 *
+	 * @return string
+	 */
+	private function getIndividualTexts(array $rolePersons, array $persons, bool $showGroups, bool $showRooms): string
+	{
+		$text = '';
+
+		if ($showGroups or $showRooms)
+		{
+			foreach ($rolePersons as $personID => $name)
+			{
+				$text .= $name;
+
+				if ($showGroups and array_key_exists('groups', $persons[$personID]))
+				{
+					$glue = count($persons[$personID]['groups']) > 2 ? "\n" : ' - ';
+					$text .= $glue . $this->getResourceText($persons[$personID]['groups'], 'group');
+				}
+
+				if ($showRooms and array_key_exists('rooms', $persons[$personID]))
+				{
+					$glue = count($persons[$personID]['rooms']) > 2 ? "\n" : ' - ';
+					$text .= $glue . $this->getResourceText($persons[$personID]['rooms'], 'room');
+				}
+
+				$text .= "\n";
+			}
+		}
+		else
+		{
+			$text .= $this->implode($rolePersons) . "\n";
+		}
+
+		return $text;
 	}
 
 	/**
@@ -328,40 +393,6 @@ abstract class GridLayout extends BaseLayout
 			$text           .= "$formattedStart - $formattedEnd\n";
 		}
 
-		$pools   = [];
-		$persons = [];
-		$rooms   = [];
-
-		/*foreach ($instance['subjects'] as $subject)
-		{
-			// Only if no specific pool was requested individually
-			if (empty($this->parameters['poolIDs']) or count($this->parameters['poolIDs']) > 1)
-			{
-				foreach ($subject['pools'] as $poolID => $pool)
-				{
-					$pools[$poolID] = $pool['code'];
-				}
-			}
-
-			// Only if no specific person was requested individually
-			if (empty($this->parameters['personIDs']) or count($this->parameters['personIDs']) > 1)
-			{
-				foreach ($subject['persons'] as $personID => $personName)
-				{
-					$persons[$personID] = $personName;
-				}
-			}
-
-			// Only if no specific room was requested individually
-			if (empty($this->parameters['roomIDs']) or count($this->parameters['roomIDs']) > 1)
-			{
-				foreach ($subject['rooms'] as $roomID => $roomName)
-				{
-					$rooms[$roomID] = $roomName;
-				}
-			}
-		}*/
-
 		$name = $instance->name;
 
 		if ($instance->subjectNo)
@@ -369,39 +400,315 @@ abstract class GridLayout extends BaseLayout
 			$name .= " ($instance->subjectNo)";
 		}
 
-		if ($instance->method)
+		if ($instance->methodID)
 		{
 			$name .= "\n$instance->method";
 		}
 
-
 		$text .= "$name";
-
-		$output = [];
-
-		/*if (!empty($pools))
-		{
-			$output[] = implode('/', $pools);
-		}
-
-		if (!empty($persons))
-		{
-			$output[] = implode('/', $persons);
-		}
-
-		if (!empty($rooms))
-		{
-			$output[] = implode('/', $rooms);
-		}*/
 
 		if ($instance->comment)
 		{
-			$output[] = $instance->comment;
+			// TODO parse links
+			$text .= "\n$instance->comment";
 		}
 
-		$text .= implode(' ', $output);
+		$text .= "\n";
+
+		$conditions = $this->view->conditions;
+
+		// If there is no category context the group names may overlap.
+		$showGroupCodes = empty($conditions['categoryIDs']);
+
+		// If groups/rooms were restricted their output is redundant.
+		$showGroups  = empty($conditions['groupIDs']);
+		$showPersons = empty($conditions['personIDs']);
+		$showRooms   = empty($conditions['roomIDs']);
+
+		// Aggregation containers
+		$groups      = [];
+		$persons     = (array) $instance->resources;
+		$personTexts = [];
+		$rooms       = [];
+
+		foreach ($persons as $personID => $person)
+		{
+			if (!array_key_exists($person['roleID'], $personTexts))
+			{
+				$personTexts[$person['roleID']] = [];
+			}
+
+			$personTexts[$person['roleID']][$personID] = $person['person'];
+
+			if (array_key_exists('groups', $person))
+			{
+				// The group status creates false negatives using in_array
+				$filteredGroups = [];
+				foreach ($person['groups'] as $groupID => $group)
+				{
+					unset($group['status']);
+					$filteredGroups[$groupID] = $group;
+				}
+
+				if (!in_array($filteredGroups, $groups))
+				{
+					$groups[] = $filteredGroups;
+				}
+			}
+
+			if (array_key_exists('rooms', $person) and !in_array($person['rooms'], $rooms))
+			{
+				// The room status creates false negatives using in_array
+				$filteredRooms = [];
+				foreach ($person['rooms'] as $roomID => $room)
+				{
+					unset($room['status']);
+					$filteredRooms[$roomID] = $room;
+				}
+
+				if (!in_array($filteredRooms, $rooms))
+				{
+					$rooms[] = $filteredRooms;
+				}
+			}
+		}
+
+		// The role ids are in order of relative importance
+		ksort($personTexts);
+
+		$groupCount = count($groups);
+		$roleCount  = count($personTexts);
+		$roomCount  = count($rooms);
+		$tag        = Helpers\Languages::getTag();
+
+		// Status: share and share alike, all persons are assigned the same groups and rooms or none
+		if ($groupCount < 2 and $roomCount < 2)
+		{
+			if ($showPersons)
+			{
+				if ($roleCount === 1)
+				{
+					$text .= $this->getResourceText($persons, 'person') . "\n";
+				}
+				else
+				{
+					foreach ($personTexts as $roleID => $rolePersons)
+					{
+						asort($rolePersons);
+						$text .= $this->getRoleText($roleID, $rolePersons);
+						$text .= $this->getIndividualTexts($rolePersons, $persons, false, false);
+					}
+				}
+			}
+
+			if ($groups and $showGroups)
+			{
+				$text .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . "\n";
+			}
+
+			if ($rooms and $showRooms)
+			{
+				$text .= $this->getResourceText($rooms[0], 'room') . "\n";
+			}
+		}
+		// Status: laser focused, all persons are assigned the same groups or none, rooms may vary between persons
+		elseif ($groupCount < 2)
+		{
+			// Assumption specific room assignments => small number per person => no need to further process rooms per line
+			if ($groups and $showGroups)
+			{
+				$text .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . "\n";
+			}
+
+			if ($showPersons)
+			{
+				if ($roleCount === 1)
+				{
+					$rolePersons = array_shift($personTexts);
+					asort($rolePersons);
+					$text .= $this->getIndividualTexts($rolePersons, $persons, false, $showRooms);
+				}
+				else
+				{
+					foreach ($personTexts as $roleID => $rolePersons)
+					{
+						asort($rolePersons);
+						$text .= $this->getRoleText($roleID, $rolePersons);
+						$text .= $this->getIndividualTexts($rolePersons, $persons, false, $showRooms);
+					}
+				}
+			}
+			elseif ($rooms and $showRooms)
+			{
+				$text .= $this->getAggregatedResources($rooms, 'room');
+			}
+		}
+		// Status: claustrophobic, all persons are assigned the same rooms or none, groups may vary between persons
+		elseif ($roomCount < 2)
+		{
+			if ($showPersons)
+			{
+				if ($roleCount === 1)
+				{
+					$rolePersons = array_shift($personTexts);
+					asort($rolePersons);
+					$text .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
+				}
+				else
+				{
+					foreach ($personTexts as $roleID => $rolePersons)
+					{
+						asort($rolePersons);
+						$text .= $this->getRoleText($roleID, $rolePersons);
+						$text .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
+					}
+				}
+			}
+			elseif ($groups and $showGroups)
+			{
+				$text .= $this->getAggregatedResources($groups, 'group', $showGroupCodes);
+			}
+
+			if ($rooms and $showRooms)
+			{
+				$text .= $this->getResourceText($rooms[0], 'room') . "\n";
+			}
+		}
+		// Status: varying degrees of complexity, most easily handled by individual output,
+		elseif ($showPersons)
+		{
+			// Suppress for less output where differentiation is not necessary.
+			if ($roleCount === 1)
+			{
+				$personTexts = array_shift($personTexts);
+				asort($personTexts);
+				$text .= $this->getIndividualTexts($personTexts, $persons, $showGroups, $showRooms);
+			}
+			else
+			{
+				foreach ($personTexts as $roleID => $rolePersons)
+				{
+					asort($rolePersons);
+					$text .= $this->getRoleText($roleID, $rolePersons);
+					$text .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, $showRooms);
+				}
+			}
+		}
+		else
+		{
+			if ($groups and $showGroups)
+			{
+				$text .= $this->getAggregatedResources($groups, 'group', $showGroupCodes);
+			}
+
+			if ($rooms and $showRooms)
+			{
+				$text .= $this->getAggregatedResources($rooms, 'room');
+			}
+		}
+
+		// Check if return is the last character before shortening
+		$length    = strlen($text);
+		$lastBreak = strrpos($text, "\n");
+
+		if ($lastBreak + 1 === $length)
+		{
+			$text = substr($text, 0, strlen($text) - 1);
+		}
 
 		return $text;
+	}
+
+	/**
+	 * Generates the text for the given resources.
+	 *
+	 * @param   array   $resources  the rooms associated with the person or persons
+	 * @param   string  $name       the name and index of the resource within the respective array
+	 * @param   bool    $code       whether the resource code should be used for the text
+	 *
+	 * @return string
+	 */
+	private function getResourceText(array $resources, string $name, bool $code = false): string
+	{
+		$container = [];
+
+		foreach ($resources as $resourceID => $resource)
+		{
+			$container[] = $code ? $resource['code'] : $resource[$name];
+		}
+
+		return $this->implode($container);
+	}
+
+	/**
+	 * Creates the text for the role being currently iterated.
+	 *
+	 * @param   int    $roleID       the id of the role being iterated
+	 * @param   array  $rolePersons  the persons associated with the role being iterated
+	 *
+	 * @return string
+	 */
+	private function getRoleText(int $roleID, array $rolePersons): string
+	{
+		$role = new Roles();
+		$role->load($roleID);
+		$tag    = Helpers\Languages::getTag();
+		$column = count($rolePersons) > 1 ? "plural_$tag" : "name_$tag";
+
+		return $role->$column . ":\n";
+	}
+
+	/**
+	 * Aggregates resources to string with a soft wrap at $this::BREAK characters.
+	 *
+	 * @param   array  $resources  the resources to be aggregated
+	 *
+	 * @return string
+	 */
+	private function implode(array $resources): string
+	{
+		asort($resources);
+		$lastResource = array_pop($resources);
+
+		if ($resources)
+		{
+			$index  = 0;
+			$length = 0;
+			$texts  = [];
+
+			foreach ($resources as $resource)
+			{
+				if (empty($texts[$index]))
+				{
+					$texts[$index] = $resource;
+				}
+				else
+				{
+					$probe = $texts[$index] . ", $resource";
+
+					if (strlen($probe) > $this::LINE_LENGTH)
+					{
+						$texts[$index] .= ",\n";
+						$index++;
+						$texts[$index] = $resource;
+					}
+					else
+					{
+						$texts[$index] = $probe;
+					}
+				}
+
+				$length = strlen($texts[$index]);
+			}
+
+			$text = implode('', $texts);
+			$text .= ($length + strlen($lastResource)) > $this::LINE_LENGTH ? "\n" : ' ';
+			$text .= "& $lastResource";
+
+			return $text;
+		}
+
+		return $lastResource;
 	}
 
 	/**
