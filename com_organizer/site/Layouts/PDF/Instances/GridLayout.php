@@ -22,6 +22,8 @@ use Organizer\Views\PDF\Instances;
  */
 abstract class GridLayout extends BaseLayout
 {
+	private const OVERPAD = .6;
+
 	protected const PADDING = 2, TIME_WIDTH = 11;
 
 	protected const CORNER_BORDER = [
@@ -146,7 +148,8 @@ abstract class GridLayout extends BaseLayout
 
 		$bottomMargin = $dimensions['bm'];
 		$pageHeight   = $dimensions['hk'];
-		$rowHeight    = $lines * $this::LINE_HEIGHT;
+		$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
+		$rowHeight    = $lines * $this::LINE_HEIGHT - $overPad;
 		$yPos         = $view->GetY();
 
 		if (($yPos + $rowHeight + $bottomMargin) > $pageHeight)
@@ -725,7 +728,8 @@ abstract class GridLayout extends BaseLayout
 		$view  = $this->view;
 		$lines = $view->getNumLines($label, $this::DATA_WIDTH);
 		$this->addPageBreak($lines, $startDate, $endDate);
-		$height = $lines * $this::LINE_HEIGHT;
+		$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
+		$height = $lines * $this::LINE_HEIGHT - $overPad;
 		$this->renderTimeCell($label, $height, $view::GINSBERG);
 
 		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
@@ -826,13 +830,15 @@ abstract class GridLayout extends BaseLayout
 			if ($this->addPageBreak($lines, $startDate, $endDate) or $rowNumber === 1)
 			{
 				$lines  = max($lLines, $row['lines']);
-				$height = $lines * $this::LINE_HEIGHT;
+				$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
+				$height = $lines * $this::LINE_HEIGHT - $overPad;
 				$this->renderTimeCell($label, $height, $border);
 			}
 			else
 			{
 				$lines  = $row['lines'];
-				$height = $lines * $this::LINE_HEIGHT;
+				$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
+				$height = $lines * $this::LINE_HEIGHT - $overPad;
 				$view->renderCell(self::TIME_WIDTH, $height, '', $view::LEFT, $border);
 			}
 
