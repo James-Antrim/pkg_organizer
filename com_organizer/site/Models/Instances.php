@@ -403,7 +403,7 @@ class Instances extends ListModel
 			case 'pdf':
 			case 'xls':
 				$interval               = $this->state->get('list.interval', 'week');
-				$intervals              = ['month', 'term', 'week'];
+				$intervals              = ['month', 'quarter', 'term', 'week'];
 				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
 				$conditions['status']   = 1;
 				break;
