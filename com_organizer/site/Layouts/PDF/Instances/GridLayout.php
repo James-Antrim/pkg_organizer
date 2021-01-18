@@ -452,7 +452,7 @@ abstract class GridLayout extends BaseLayout
 				$filteredGroups = [];
 				foreach ($person['groups'] as $groupID => $group)
 				{
-					unset($group['status']);
+					unset($group['status'], $group['statusDate']);
 					$filteredGroups[$groupID] = $group;
 				}
 
@@ -468,7 +468,7 @@ abstract class GridLayout extends BaseLayout
 				$filteredRooms = [];
 				foreach ($person['rooms'] as $roomID => $room)
 				{
-					unset($room['status']);
+					unset($room['status'], $room['statusDate']);
 					$filteredRooms[$roomID] = $room;
 				}
 
