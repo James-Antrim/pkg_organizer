@@ -96,7 +96,9 @@ class Bookings extends ResourceHelper
 		$names = array_unique($names);
 		asort($names);
 		$names = implode(', ', $names);
-		$names .= $method? " - $method" : '';
+
+		// Removes potentially redundant methods which are also a part of the instance event name.
+		$names .= ($method and strpos($names, $method) === false) ? " - $method" : '';
 
 		return $names;
 	}
