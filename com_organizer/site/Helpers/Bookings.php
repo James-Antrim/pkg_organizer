@@ -25,7 +25,7 @@ class Bookings extends ResourceHelper
 	 *
 	 * @return string the dates to display
 	 */
-	public static function getDateTimeDisplay(int $bookingID)
+	public static function getDateTimeDisplay(int $bookingID): string
 	{
 		$booking = new Tables\Bookings();
 		if (!$booking->load($bookingID))
@@ -55,7 +55,7 @@ class Bookings extends ResourceHelper
 	 *
 	 * @return array the ids matching the conditions
 	 */
-	public static function getInstanceIDs(int $bookingID)
+	public static function getInstanceIDs(int $bookingID): array
 	{
 		$query = Database::getQuery();
 		$query->select('DISTINCT i.id')
@@ -71,11 +71,44 @@ class Bookings extends ResourceHelper
 	/**
 	 * Gets the localized name of the events associated with the booking and the name of the booking's method.
 	 *
+	 * @param   int  $resourceID  the id of the booking entry
+	 *
+	 * @return string
+	 */
+	public static function getName(int $resourceID): string
+	{
+		$method = false;
+		$names  = [];
+
+		foreach (self::getInstanceIDs($resourceID) as $instanceID)
+		{
+			if ($name = Instances::getName($instanceID, false))
+			{
+				$names[] = $name;
+
+				if ($method === false)
+				{
+					$method = Instances::getMethod($instanceID);
+				}
+			}
+		}
+
+		$names = array_unique($names);
+		asort($names);
+		$names = implode(', ', $names);
+		$names .= $method? " - $method" : '';
+
+		return $names;
+	}
+
+	/**
+	 * Gets the localized name of the events associated with the booking and the name of the booking's method.
+	 *
 	 * @param   int  $bookingID  the id of the booking entry
 	 *
 	 * @return array
 	 */
-	public static function getNames(int $bookingID)
+	public static function getNames(int $bookingID): array
 	{
 		$names = [];
 
@@ -100,7 +133,7 @@ class Bookings extends ResourceHelper
 	 *
 	 * @return int the number of attending participants
 	 */
-	public static function getParticipantCount(int $bookingID)
+	public static function getParticipantCount(int $bookingID): int
 	{
 		$query = Database::getQuery();
 		$query->select('COUNT(DISTINCT ip.participantID)')
