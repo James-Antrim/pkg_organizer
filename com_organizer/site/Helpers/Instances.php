@@ -49,15 +49,15 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array the parameters used to retrieve instances.
 	 */
-	public static function getConditions()
+	public static function getConditions(): array
 	{
 		$conditions               = [];
 		$conditions['userID']     = Users::getID();
-		$conditions['mySchedule'] = empty($conditions['userID']) ? false : Input::getBool('mySchedule', false);
+		$conditions['mySchedule'] = empty($conditions['userID']) ? false : Input::getBool('mySchedule');
 
 		$conditions['date'] = Input::getCMD('date', date('Y-m-d'));
 
-		$delta               = Input::getInt('delta', 0);
+		$delta               = Input::getInt('delta');
 		$conditions['delta'] = empty($delta) ? false : date('Y-m-d', strtotime('-' . $delta . ' days'));
 
 		$interval               = Input::getCMD('interval', 'week');
@@ -144,7 +144,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return string the dates to display
 	 */
-	public static function getDateDisplay(int $instanceID)
+	public static function getDateDisplay(int $instanceID): string
 	{
 		$instance = new Tables\Instances();
 		if (!$instance->load($instanceID) or !$blockID = $instance->blockID)
@@ -168,7 +168,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array
 	 */
-	public static function getGroupIDs(int $instanceID)
+	public static function getGroupIDs(int $instanceID): array
 	{
 		$instance = new Tables\Instances();
 		if (!$instance->load($instanceID))
@@ -196,7 +196,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array
 	 */
-	public static function getItems($conditions)
+	public static function getItems($conditions): array
 	{
 		$instanceIDs = self::getInstanceIDs($conditions);
 		if (empty($instanceIDs))
@@ -234,7 +234,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array an array modeling the instance
 	 */
-	public static function getInstance(int $instanceID)
+	public static function getInstance(int $instanceID): array
 	{
 		$tag = Languages::getTag();
 
@@ -362,7 +362,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array the ids matching the conditions
 	 */
-	public static function getInstanceIDs(array $conditions)
+	public static function getInstanceIDs(array $conditions): array
 	{
 		$query = self::getInstanceQuery($conditions);
 		$query->select('DISTINCT i.id')
@@ -380,7 +380,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return JDatabaseQuery the query object
 	 */
-	public static function getInstanceQuery(array $conditions)
+	public static function getInstanceQuery(array $conditions): JDatabaseQuery
 	{
 		$query = Database::getQuery();
 
@@ -558,10 +558,30 @@ class Instances extends ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getName(int $instanceID)
+	public static function getMethod(int $instanceID): string
 	{
 		$instance = new Tables\Instances();
-		if (!$instance->load($instanceID) or !$eventID = $instance->eventID)
+
+		if (!$instance->load($instanceID) or !$methodID = $instance->methodID)
+		{
+			return '';
+		}
+
+		return Methods::getName($methodID);
+	}
+
+	/**
+	 * Gets the localized name of the event associated with the instance and the name of the instance's method.
+	 *
+	 * @param   int   $resourceID  the id of the instance
+	 * @param   bool  $showMethod
+	 *
+	 * @return string
+	 */
+	public static function getName(int $resourceID, bool $showMethod = true): string
+	{
+		$instance = new Tables\Instances();
+		if (!$instance->load($resourceID) or !$eventID = $instance->eventID)
 		{
 			return '';
 		}
@@ -571,7 +591,7 @@ class Instances extends ResourceHelper
 			return '';
 		}
 
-		if ($methodID = $instance->methodID)
+		if ($showMethod and $methodID = $instance->methodID)
 		{
 			$name .= ' - ' . Methods::getName($methodID);
 		}
@@ -586,7 +606,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array
 	 */
-	public static function getOrganizationIDs(int $instanceID)
+	public static function getOrganizationIDs(int $instanceID): array
 	{
 		$organizationIDs = [];
 
@@ -605,7 +625,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return int the number of attending participants
 	 */
-	public static function getParticipantCount(int $instanceID)
+	public static function getParticipantCount(int $instanceID): int
 	{
 		return count(self::getParticipantIDs($instanceID));
 	}
@@ -617,7 +637,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array list of participants in course
 	 */
-	public static function getParticipantIDs(int $instanceID)
+	public static function getParticipantIDs(int $instanceID): array
 	{
 		if (empty($instanceID))
 		{
@@ -643,7 +663,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array
 	 */
-	public static function getPersonIDs(int $instanceID, int $roleID = 0)
+	public static function getPersonIDs(int $instanceID, int $roleID = 0): array
 	{
 		$query = Database::getQuery();
 		$query->select('personID')
@@ -668,7 +688,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array
 	 */
-	public static function getRoomIDs(int $instanceID)
+	public static function getRoomIDs(int $instanceID): array
 	{
 		$query = Database::getQuery();
 		$query->select('roomID')
@@ -731,7 +751,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return array next and latest available dates
 	 */
-	public static function getJumpDates(array $conditions)
+	public static function getJumpDates(array $conditions): array
 	{
 		$futureQuery = self::getInstanceQuery($conditions);
 		$jumpDates   = [];
@@ -1109,7 +1129,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return bool true if the person is an instance teacher, otherwise false
 	 */
-	public static function teaches($instanceID = 0, $personID = 0)
+	public static function teaches($instanceID = 0, $personID = 0): bool
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 		$query    = Database::getQuery();
