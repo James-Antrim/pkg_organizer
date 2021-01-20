@@ -161,7 +161,7 @@ class ContactTracking extends ListLayout
 	 */
 	public function setTitle()
 	{
-		$documentName = Languages::_('ORGANIZER_CONTACTS') . ': ' . $this->view->participantName;
+		$documentName = $this->view->participantName;
 		$this->view->setNames($documentName);
 	}
 }

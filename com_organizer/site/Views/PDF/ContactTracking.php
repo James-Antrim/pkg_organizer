@@ -87,7 +87,7 @@ class ContactTracking extends ListView
 	 */
 	public function setOverhead()
 	{
-		$title = Helpers\Languages::_('ORGANIZER_CONTACTS') . ': ' . $this->participantName;
+		$title = Helpers\Languages::_('ORGANIZER_COVID_CONTACTS') . ': ' . $this->participantName;
 
 		$then  = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
 		$today = Helpers\Dates::formatDate(date('Y-m-d'));
