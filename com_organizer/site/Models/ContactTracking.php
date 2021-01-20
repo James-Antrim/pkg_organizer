@@ -201,7 +201,7 @@ class ContactTracking extends ListModel
 
 				if ($person['role'])
 				{
-					$data['name'] .= ' (*)';
+					$data['name'] .= ' *';
 				}
 
 				$this->addItem($items, array_merge($bData, $data));

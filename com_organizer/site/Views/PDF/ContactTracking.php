@@ -81,13 +81,30 @@ class ContactTracking extends ListView
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function Footer()
+	{
+		//set style for cell border
+		$pageWidth = (0.85 / $this->k);
+		$this->SetLineStyle(['width' => $pageWidth, 'color' => $this->footer_line_color]);
+
+		$pnText = $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
+
+		$this->SetX($this->original_lMargin);
+		$text = Helpers\Languages::_('ORGANIZER_COVID_CONTACT');
+		$this->Cell(0, 0, $text, self::TOP, 0, self::CENTER);
+		$this->Cell(0, 0, $this->getAliasRightShift() . $pnText, self::TOP, 0, self::RIGHT);
+	}
+
+	/**
 	 * Set header items.
 	 *
 	 * @return void
 	 */
 	public function setOverhead()
 	{
-		$title = Helpers\Languages::_('ORGANIZER_COVID_CONTACTS') . ': ' . $this->participantName;
+		$title = Helpers\Languages::_('ORGANIZER_COVID_CONTACTS') . $this->participantName;
 
 		$then  = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
 		$today = Helpers\Dates::formatDate(date('Y-m-d'));
@@ -106,8 +123,11 @@ class ContactTracking extends ListView
 				$subTitles[] = Helpers\Languages::_('ORGANIZER_TELEPHONE') . ": $participant->telephone";
 			}
 
-			$line3       = [$participant->address, $participant->zipCode, $participant->city];
-			$subTitles[] = Helpers\Languages::_('ORGANIZER_ADDRESS') . ': ' . implode(' ', $line3);
+			if ($participant->address or $participant->zipCode or $participant->city)
+			{
+				$line3       = [$participant->address, $participant->zipCode, $participant->city];
+				$subTitles[] = Helpers\Languages::_('ORGANIZER_ADDRESS') . ': ' . implode(' ', $line3);
+			}
 		}
 
 		$this->setHeaderData('pdf_logo.png', '55', $title, implode("\n", $subTitles), self::BLACK, self::WHITE);
