@@ -13,7 +13,7 @@
         <field name="forename" type="Blank" label="FORENAME" class="required validate-name" required="true"/>
         <field name="surname" type="Blank" label="SURNAME" class="required validate-name" required="true"/>
         <field name="telephone" type="Blank" label="TELEPHONE" class="required validate-telephone" required="true"/>
-        <field name="address" type="Blank" label="ADDRESS" class="required validate-address" required="true"/>
+        <field name="address" type="Blank" label="STREET" class="required validate-address" required="true"/>
         <field name="city" type="Blank" label="RESIDENCE" class="required validate-name" required="true"/>
         <field name="zipCode" type="Blank" label="ZIP_CODE" class="required validate-alphanumeric" required="true"/>
         <field name="programID" type="Programs" label="PROGRAM" class="input-15">

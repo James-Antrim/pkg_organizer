@@ -44,7 +44,7 @@ class Campuses extends ListView
 		$headers = [
 			'checkbox' => '',
 			'name'     => Helpers\Languages::_('ORGANIZER_NAME'),
-			'address'  => Helpers\Languages::_('ORGANIZER_ADDRESS'),
+			'address'  => Helpers\Languages::_('ORGANIZER_STREET'),
 			'location' => Helpers\Languages::_('ORGANIZER_LOCATION'),
 			'gridID'   => Helpers\Languages::_('ORGANIZER_GRID')
 		];

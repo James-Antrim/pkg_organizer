@@ -49,7 +49,7 @@ class Buildings extends ListView
 			'name'         => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
 			'campusID'     => Helpers\Languages::_('ORGANIZER_CAMPUS'),
 			'propertyType' => Helpers\Languages::_('ORGANIZER_PROPERTY_TYPE'),
-			'address'      => Helpers\Languages::_('ORGANIZER_ADDRESS')
+			'address'      => Helpers\Languages::_('ORGANIZER_STREET')
 		];
 
 		$this->headers = $headers;

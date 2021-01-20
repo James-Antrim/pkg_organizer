@@ -156,7 +156,7 @@ class Booking extends Participants
 			}
 			elseif ($now > $defaultStart and !$this->booking->endTime)
 			{
-				$text = Languages::_('ORGANIZER_MANUALLY_CLOSE');
+				$text = $now < $defaultEnd ? Languages::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Languages::_('ORGANIZER_MANUALLY_CLOSE_POST');
 				$toolbar->appendButton('Standard', 'stop', $text, 'booking.close', false);
 			}
 		}

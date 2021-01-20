@@ -3,7 +3,7 @@
     <fieldset name="details">
         <field name="surname" type="MergeValues" label="SURNAME"/>
         <field name="forename" type="MergeValues" label="FORENAME"/>
-        <field name="address" type="MergeValues" label="ADDRESS"/>
+        <field name="address" type="MergeValues" label="STREET"/>
         <field name="zipCode" type="MergeValues" label="ZIP_CODE"/>
         <field name="city" type="MergeValues" label="CITY"/>
         <field name="programID" type="MergeAssociations" label="PROGRAM"

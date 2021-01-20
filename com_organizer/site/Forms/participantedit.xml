@@ -6,7 +6,7 @@
         <field name="forename" type="Blank" required="true" class="input-15 required validate-name" label="FORENAME"/>
         <field name="surname" type="Blank" required="true" class="input-15 required validate-name" label="SURNAME"/>
         <field name="telephone" type="Blank" class="input-15 validate-telephone" label="TELEPHONE"/>
-        <field name="address" type="Blank" required="true" class="input-15 required validate-address" label="ADDRESS"/>
+        <field name="address" type="Blank" required="true" class="input-15 required validate-address" label="STREET"/>
         <field name="zipCode" type="Blank" required="true" class="input-15 required validate-alphanumeric"
                label="ZIP_CODE"/>
         <field name="city" type="Blank" required="true" class="input-15 required validate-name" label="RESIDENCE"/>
