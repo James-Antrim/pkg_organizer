@@ -143,8 +143,8 @@ class Instances extends ListModel
 		if ($conditions['my'])
 		{
 			$date = date('Y-m-d');
-			$now  = date('H:i:s');
-			$query->where("(b.date > '$date' OR (b.date = '$date' AND b.endTime > '$now'))");
+			$then = date('H:i:s', strtotime('-30 Minutes'));
+			$query->where("(b.date > '$date' OR (b.date = '$date' AND b.endTime > '$then'))");
 		}
 		else
 		{
