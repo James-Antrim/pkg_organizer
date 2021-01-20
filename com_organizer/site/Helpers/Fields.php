@@ -30,6 +30,7 @@ class Fields extends ResourceHelper implements Selectable
 	{
 		$table  = new Tables\FieldColors();
 		$exists = $table->load(['fieldID' => $fieldID, 'organizationID' => $organizationID]);
+
 		if (!$exists or empty($table->colorID))
 		{
 			return Input::getParams()->get('backgroundColor', '#f2f5f6');

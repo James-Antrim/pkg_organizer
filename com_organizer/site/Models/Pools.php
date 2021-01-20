@@ -34,8 +34,6 @@ class Pools extends ListModel
 			$form->removeField('organizationID', 'filter');
 			unset($this->filter_fields['organizationID']);
 		}
-
-		return;
 	}
 
 	/**
@@ -62,7 +60,7 @@ class Pools extends ListModel
 
 		$this->setValueFilters($query, ['fieldID']);
 
-		$programID = $this->state->get('filter.programID', '');
+		$programID = (int) $this->state->get('filter.programID', 0);
 		Helpers\Pools::setProgramFilter($query, $programID, 'pool', 'p');
 
 		$this->setOrdering($query);
@@ -82,7 +80,5 @@ class Pools extends ListModel
 		{
 			$this->state->set('filter.organizationID', $authorized[0]);
 		}
-
-		return;
 	}
 }

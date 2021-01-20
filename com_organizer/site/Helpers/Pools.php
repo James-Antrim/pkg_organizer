@@ -121,6 +121,7 @@ class Pools extends Curricula implements Selectable
 
 	/**
 	 * @inheritDoc
+	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
 	public static function getOptions($access = ''): array
@@ -203,13 +204,16 @@ class Pools extends Curricula implements Selectable
 			return [];
 		}
 
-		$tag = Languages::getTag();
+		$fieldID         = $table->fieldID ? $table->fieldID : 0;
+		$organizationIDs = self::getOrganizationIDs($table->id);
+		$organizationID  = $organizationIDs ? (int) $organizationIDs[0] : 0;
+		$tag             = Languages::getTag();
 
 		return [
 			'abbreviation' => $table->{"abbreviation_$tag"},
-			'bgColor'      => Fields::getColor($table->fieldID, self::getOrganizationIDs($table->id)[0]),
+			'bgColor'      => Fields::getColor($fieldID, $organizationID),
 			'description'  => $table->{"description_$tag"},
-			'field'        => $fieldID = $table->fieldID ? Fields::getName($table->fieldID) : '',
+			'field'        => $fieldID ? Fields::getName($fieldID) : '',
 			'fieldID'      => $table->fieldID,
 			'id'           => $table->id,
 			'maxCrP'       => $table->maxCrP,
@@ -221,6 +225,7 @@ class Pools extends Curricula implements Selectable
 
 	/**
 	 * @inheritDoc
+	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
 	public static function getResources($access = ''): array

@@ -283,13 +283,16 @@ class Subjects extends Curricula
 			return [];
 		}
 
-		$tag = Languages::getTag();
+		$fieldID         = $table->fieldID ? $table->fieldID : 0;
+		$organizationIDs = self::getOrganizationIDs($table->id);
+		$organizationID  = $organizationIDs ? (int) $organizationIDs[0] : 0;
+		$tag             = Languages::getTag();
 
 		return [
 			'abbreviation' => $table->{"abbreviation_$tag"},
-			'bgColor'      => Fields::getColor($table->fieldID, self::getOrganizationIDs($table->id)[0]),
+			'bgColor'      => Fields::getColor($fieldID, $organizationID),
 			'creditpoints' => $table->creditpoints,
-			'field'        => $table->fieldID ? Fields::getName($table->fieldID) : '',
+			'field'        => $fieldID ? Fields::getName($fieldID) : '',
 			'fieldID'      => $table->fieldID,
 			'id'           => $table->id,
 			'moduleNo'     => $table->code,

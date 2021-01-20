@@ -24,7 +24,7 @@ class Colors extends ResourceHelper
 	 *
 	 * @return string the hex value of the color
 	 */
-	public static function getColor($colorID)
+	public static function getColor(int $colorID): string
 	{
 		$table = new Tables\Colors();
 
@@ -39,7 +39,7 @@ class Colors extends ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getListDisplay($text, $colorID)
+	public static function getListDisplay(string $text, int $colorID): string
 	{
 		$styles = ['text-align:center;'];
 		if (!empty($colorID))
@@ -60,7 +60,7 @@ class Colors extends ResourceHelper
 	 *
 	 * @return string  the hexadecimal value for an appropriate text color
 	 */
-	public static function getDynamicTextColor($bgColor)
+	public static function getDynamicTextColor(string $bgColor): string
 	{
 		$color              = substr($bgColor, 1);
 		$params             = Input::getParams();
