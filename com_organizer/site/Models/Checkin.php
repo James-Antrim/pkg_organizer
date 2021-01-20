@@ -71,6 +71,11 @@ class Checkin extends FormModel
 	 */
 	protected function authorize()
 	{
+		if (Helpers\Input::getCMD('layout') === 'profile' and !Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
 		return true;
 	}
 
