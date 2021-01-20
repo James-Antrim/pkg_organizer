@@ -11,22 +11,26 @@
 namespace Organizer\Layouts\PDF\ContactTracking;
 
 use Organizer\Helpers;
+use Organizer\Helpers\Languages;
 use Organizer\Layouts\PDF\ListLayout;
 use Organizer\Views\PDF\ContactTracking as View;
 
 class ContactTracking extends ListLayout
 {
+	private const BY_DAY = 1, BY_EVENT = 2;
+
 	/**
 	 * @var View
 	 */
 	protected $view;
 
 	protected $widths = [
-		'index'  => 10,
-		'person' => 50,
-		'data'   => 70,
-		'dates'  => 20,
-		'length' => 25
+		'contacts' => 65,
+		'data'     => 70,
+		'dates'    => 20,
+		'index'    => 10,
+		'length'   => 25,
+		'person'   => 50
 	];
 
 	/**
@@ -37,13 +41,26 @@ class ContactTracking extends ListLayout
 		parent::__construct($view);
 		$view->margins(10, 30, -1, 0, 8);
 
-		$this->headers = [
+		$headers = [
 			'index'  => '#',
-			'person' => Helpers\Languages::_('ORGANIZER_PERSON'),
-			'data'   => Helpers\Languages::_('ORGANIZER_CONTACT_INFORMATION'),
-			'dates'  => Helpers\Languages::_('ORGANIZER_DATES'),
-			'length' => Helpers\Languages::_('ORGANIZER_CONTACT_LENGTH')
+			'person' => Languages::_('ORGANIZER_PERSON'),
+			'data'   => Languages::_('ORGANIZER_CONTACT_INFORMATION')
 		];
+
+		$listFormat = (int) Helpers\Input::getListItems()->get('listFormat', self::BY_DAY);
+
+		switch ($listFormat)
+		{
+			case self::BY_EVENT:
+				$otherHeaders = ['contacts' => Languages::_('ORGANIZER_CONTACTS')];
+				break;
+			case self::BY_DAY:
+			default:
+				$otherHeaders = ['dates' => Languages::_('ORGANIZER_DATES'), 'length' => Languages::_('ORGANIZER_CONTACT_LENGTH')];
+				break;
+		}
+
+		$this->headers = array_merge($headers, $otherHeaders);
 	}
 
 	/**
@@ -52,6 +69,7 @@ class ContactTracking extends ListLayout
 	public function fill(array $data)
 	{
 		$itemNo = 1;
+		$mText  = Languages::_('ORGANIZER_MINUTES');
 		$view   = $this->view;
 		$this->addListPage();
 
@@ -66,11 +84,21 @@ class ContactTracking extends ListLayout
 			{
 				switch ($columnName)
 				{
-					case 'index':
-						$value = $itemNo;
-						break;
-					case 'person':
-						$value = $person->person;
+					case 'contacts':
+						$values = [];
+
+						foreach ($person->dates as $date => $events)
+						{
+							$values[] = $date;
+							ksort($events);
+
+							foreach ($events as $event => $minutes)
+							{
+								$values[] = " - $event: $minutes $mText";
+							}
+						}
+
+						$value = implode("\n", $values);
 						break;
 					case 'data' :
 						$values = [$person->telephone, $person->email, $person->address, "$person->zipCode $person->city"];
@@ -85,13 +113,20 @@ class ContactTracking extends ListLayout
 						$values = array_keys($person->dates);
 						$value  = implode("\n", $values);
 						break;
+					case 'index':
+						$value = $itemNo;
+						break;
 					case 'length':
 						$values = [];
-						foreach ($person->dates as $minutes)
+						foreach ($person->dates as $date => $minutes)
 						{
-							$values[] = $minutes . ' ' . Helpers\Languages::_('ORGANIZER_MINUTES');
+							$minutes  = array_sum($minutes);
+							$values[] = "$minutes $mText";
 						}
 						$value = implode("\n", $values);
+						break;
+					case 'person':
+						$value = $person->person;
 						break;
 					default:
 						$value = '';
@@ -109,10 +144,10 @@ class ContactTracking extends ListLayout
 			// Reset for borders
 			$view->changePosition($startX, $startY);
 
-			foreach ($this->widths as $index => $width)
+			foreach (array_keys($this->headers) as $columnName)
 			{
-				$border = $index === 'index' ? ['BLR' => $view->border] : ['BR' => $view->border];
-				$view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
+				$border = $columnName === 'index' ? ['BLR' => $view->border] : ['BR' => $view->border];
+				$view->renderMultiCell($this->widths[$columnName], $maxLength * 5, '', $view::LEFT, $border);
 			}
 
 			$this->addLine();
@@ -126,7 +161,7 @@ class ContactTracking extends ListLayout
 	 */
 	public function setTitle()
 	{
-		$documentName = Helpers\Languages::_('ORGANIZER_CONTACTS') . ': ' . $this->view->participantName;
+		$documentName = Languages::_('ORGANIZER_CONTACTS') . ': ' . $this->view->participantName;
 		$this->view->setNames($documentName);
 	}
 }
