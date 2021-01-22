@@ -151,7 +151,7 @@ abstract class GridLayout extends BaseLayout
 
 		$bottomMargin = $dimensions['bm'];
 		$pageHeight   = $dimensions['hk'];
-		$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
+		$overPad      = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
 		$rowHeight    = $lines * $this::LINE_HEIGHT - $overPad;
 		$yPos         = $view->GetY();
 
@@ -439,6 +439,13 @@ abstract class GridLayout extends BaseLayout
 
 		foreach ($persons as $personID => $person)
 		{
+			// No delta display in pdf
+			if ($person['status'] === 'removed')
+			{
+				unset($persons[$personID]);
+				continue;
+			}
+
 			if (!array_key_exists($person['roleID'], $personTexts))
 			{
 				$personTexts[$person['roleID']] = [];
@@ -452,6 +459,13 @@ abstract class GridLayout extends BaseLayout
 				$filteredGroups = [];
 				foreach ($person['groups'] as $groupID => $group)
 				{
+					// No delta display in pdf
+					if ($group['status'] === 'removed')
+					{
+						unset($persons[$personID]['groups'][$groupID]);
+						continue;
+					}
+
 					unset($group['status'], $group['statusDate']);
 					$filteredGroups[$groupID] = $group;
 				}
@@ -468,6 +482,13 @@ abstract class GridLayout extends BaseLayout
 				$filteredRooms = [];
 				foreach ($person['rooms'] as $roomID => $room)
 				{
+					// No delta display in pdf
+					if ($room['status'] === 'removed')
+					{
+						unset($persons[$personID]['rooms'][$roomID]);
+						continue;
+					}
+
 					unset($room['status'], $room['statusDate']);
 					$filteredRooms[$roomID] = $room;
 				}
@@ -732,7 +753,7 @@ abstract class GridLayout extends BaseLayout
 		$lines = $view->getNumLines($label, $this::DATA_WIDTH);
 		$this->addPageBreak($lines, $startDate, $endDate);
 		$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
-		$height = $lines * $this::LINE_HEIGHT - $overPad;
+		$height  = $lines * $this::LINE_HEIGHT - $overPad;
 		$this->renderTimeCell($label, $height, $view::GINSBERG);
 
 		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
@@ -832,16 +853,16 @@ abstract class GridLayout extends BaseLayout
 			// Time lines have the time output as the minimum height.
 			if ($this->addPageBreak($lines, $startDate, $endDate) or $rowNumber === 1)
 			{
-				$lines  = max($lLines, $row['lines']);
+				$lines   = max($lLines, $row['lines']);
 				$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
-				$height = $lines * $this::LINE_HEIGHT - $overPad;
+				$height  = $lines * $this::LINE_HEIGHT - $overPad;
 				$this->renderTimeCell($label, $height, $border);
 			}
 			else
 			{
-				$lines  = $row['lines'];
+				$lines   = $row['lines'];
 				$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
-				$height = $lines * $this::LINE_HEIGHT - $overPad;
+				$height  = $lines * $this::LINE_HEIGHT - $overPad;
 				$view->renderCell(self::TIME_WIDTH, $height, '', $view::LEFT, $border);
 			}
 
