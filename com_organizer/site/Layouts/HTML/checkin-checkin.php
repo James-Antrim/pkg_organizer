@@ -11,7 +11,12 @@
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
-$userID = Helpers\Users::getID();
+$current          = Uri::getInstance()->toString();
+$return           = urlencode(base64_encode($current));
+$registerURL      = Uri::base() . "?option=com_users&view=registration&return=$return";
+$registrationLink = Helpers\HTML::link($registerURL, Helpers\Languages::_('ORGANIZER_REGISTER_TEXT_LINK'));
+$userID           = Helpers\Users::getID();
+
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
       class="form-vertical form-validate checkin" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
@@ -25,9 +30,13 @@ $userID = Helpers\Users::getID();
     </div>
 	<?php if ($userID): ?>
         <div class="control-group">
-            <a class="btn" href="<?php echo Uri::getInstance() . '&layout=profile' ?>">
+            <a class="btn" href="<?php echo Uri::getInstance() . '&layout=profile'; ?>">
 				<?php echo Helpers\Languages::_('ORGANIZER_PROFILE_EDIT'); ?>
             </a>
+        </div>
+	<?php else: ?>
+        <div class="control-group message register">
+			<?php echo sprintf(Helpers\Languages::_('ORGANIZER_REGISTER_TEXT_FRAME'), '<br>' . $registrationLink); ?>
         </div>
 	<?php endif; ?>
     <input type="hidden" name="option" value="com_organizer"/>

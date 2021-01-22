@@ -84,3 +84,7 @@ form label {
 form .control-group.message:first-child {
     margin-top: .5rem;
 }
+
+form .register a {
+    text-decoration: underline;
+}
