@@ -70,6 +70,17 @@ class Bookings extends Controller
 	}
 
 	/**
+	 * Redirects to the manager from the form.
+	 *
+	 * @return void
+	 */
+	public function cancel()
+	{
+		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+		$this->setRedirect($url);
+	}
+
+	/**
 	 * Closes a booking manually.
 	 *
 	 * @return void
@@ -119,5 +130,48 @@ class Bookings extends Controller
 		$model->supplement();
 		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
 		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Uses the model's upload function to validate and save the file to the database should validation be successful.
+	 *
+	 * @return void
+	 */
+	public function upload()
+	{
+		$url = Helpers\Routing::getRedirectBase();
+		if (JDEBUG)
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
+			$url .= "&view=Schedules";
+			$this->setRedirect($url);
+
+			return;
+		}
+
+		$form  = $this->input->files->get('jform', [], '[]');
+		$file  = $form['file'];
+		$types = [
+			'application/csv',
+			'application/vnd.ms-excel',
+			'application/x-csv',
+			'text/comma-separated-values',
+			'text/csv',
+			'text/plain',
+			'text/tab-separated-values',
+			'text/x-comma-separated-values',
+			'text/x-csv'
+		];
+
+		$validType = (!empty($file['type']) and in_array($file['type'], $types));
+
+		if ($validType and mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8')
+		{
+			$model = new Models\Booking();
+			$model->upload();
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+		$this->setRedirect($url);
 	}
 }

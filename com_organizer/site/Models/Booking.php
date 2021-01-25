@@ -29,7 +29,7 @@ class Booking extends Participants
 	 *
 	 * @return int the id of the booking entry
 	 */
-	public function add()
+	public function add(): int
 	{
 		if (!$userID = Helpers\Users::getID())
 		{
@@ -444,7 +444,7 @@ class Booking extends Participants
 	 *
 	 * @return Tables\Bookings
 	 */
-	public function getBooking()
+	public function getBooking(): Tables\Bookings
 	{
 		$bookingID = Helpers\Input::getID();
 		$booking   = new Tables\Bookings();
@@ -478,7 +478,7 @@ class Booking extends Participants
 	/**
 	 * @inheritDoc
 	 */
-	public function getItems()
+	public function getItems(): array
 	{
 		$bookingID = Helpers\Input::getID();
 		$query     = Database::getQuery();
@@ -733,7 +733,7 @@ class Booking extends Participants
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_400');
 
-			return false;
+			return;
 		}
 
 		$booking = new Tables\Bookings();
@@ -755,5 +755,15 @@ class Booking extends Participants
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_NOT_SAVED', 'success');
 		}
+	}
+
+	/**
+	 * Adds participants to the instances of the given booking as necessary.
+	 * @return void
+	 */
+	public function upload()
+	{
+		$this->authorize();
+		Helpers\OrganizerHelper::message('beep boop need more info', 'error');
 	}
 }

@@ -120,20 +120,32 @@ class Booking extends Participants
 		// TODO ajax refresh??
 
 		$bookingDate = $this->booking->get('date');
+		//$defaultEnd  = '09:00:00';
+		$defaultEnd  = $this->booking->get('defaultEndTime');
+		$now         = date('H:i:s');
 		$today       = date('Y-m-d');
+
+		if ($today > $bookingDate or ($today === $bookingDate and $now > $defaultEnd))
+		{
+			$toolbar->appendButton(
+				'Standard',
+				'upload',
+				Helpers\Languages::_('ORGANIZER_UPLOAD_PARTICIPANTS'),
+				'bookings.edit',
+				false
+			);
+		}
 
 		if ($today <= $bookingDate)
 		{
 			$text = Languages::_('ORGANIZER_REMOVE_PARTICIPANTS');
-			$toolbar->appendButton('Standard', 'user-minus', $text, 'booking.removeParticipants', true);
+			$toolbar->appendButton('Standard', 'user-minus', $text, 'bookings.removeParticipants', true);
 		}
 
 		if ($today === $bookingDate)
 		{
-			$defaultEnd   = $this->booking->get('defaultEndTime');
 			$defaultStart = $this->booking->get('defaultStartTime');
 			$end          = $this->booking->endTime ? $this->booking->endTime : $defaultEnd;
-			$now          = date('H:i:s');
 			$start        = $this->booking->startTime ? $this->booking->startTime : $defaultStart;
 			$then         = date('H:i:s', strtotime('-60 minutes', strtotime($defaultStart)));
 			$earlyStart   = ($now > $then and $now < $start);
@@ -152,12 +164,12 @@ class Booking extends Participants
 					$text = Languages::_('ORGANIZER_REOPEN');
 				}
 
-				$toolbar->appendButton('Standard', $icon, $text, 'booking.open', false);
+				$toolbar->appendButton('Standard', $icon, $text, 'bookings.open', false);
 			}
 			elseif ($now > $defaultStart and !$this->booking->endTime)
 			{
 				$text = $now < $defaultEnd ? Languages::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Languages::_('ORGANIZER_MANUALLY_CLOSE_POST');
-				$toolbar->appendButton('Standard', 'stop', $text, 'booking.close', false);
+				$toolbar->appendButton('Standard', 'stop', $text, 'bookings.close', false);
 			}
 		}
 
