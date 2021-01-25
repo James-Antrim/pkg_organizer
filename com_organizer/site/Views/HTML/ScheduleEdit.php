@@ -19,9 +19,7 @@ use Organizer\Helpers;
 class ScheduleEdit extends EditView
 {
 	/**
-	 * creates the joomla adminstrative toolbar
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function addToolBar()
 	{
