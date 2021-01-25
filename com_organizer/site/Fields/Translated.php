@@ -19,7 +19,7 @@ trait Translated
 	 *
 	 * @return  array
 	 */
-	protected function getLayoutData()
+	protected function getLayoutData(): array
 	{
 		if (!empty($this->element['label']))
 		{

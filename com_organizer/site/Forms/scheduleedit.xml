@@ -2,7 +2,6 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" access="schedule" required="true"/>
-        <field name="file" type="file" label="ORGANIZER_SCHEDULE_FILE" required="true" accept=".xml"
-               description="ORGANIZER_SCHEDULE_FILE_DESC"/>
+        <field name="file" type="File" label="SCHEDULE_FILE" required="true" accept=".xml"/>
     </fieldset>
 </form>
