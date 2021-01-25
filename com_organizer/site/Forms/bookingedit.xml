@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
-        <field name="file" type="File" label="PARTICIPANTS_FILE" required="true" accept=".csv"/>
+        <field name="delineator" type="Blank" label="DELINEATOR" class="required input-mini" default="," maxlength="3"
+               required="true"/>
+        <field name="position" type="Integer" label="COLUMN_NUMBER" class="input-mini" default="1" first="1"
+               last="30" step="1"/>
+        <field name="file" type="File" label="CSV_FILE" required="true" accept=".csv"/>
     </fieldset>
 </form>
