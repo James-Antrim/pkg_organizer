@@ -91,7 +91,7 @@ class FileField extends FormField
 		];
 		$attributes     = array_filter($attributes);
 		$maxSize        = HTML::_('number.bytes', Utility::getMaxUploadSize());
-		$uploadSizeText = Languages::sprintf('JGLOBAL_MAXIMUM_UPLOAD_SIZE_LIMIT', $maxSize);
+		$uploadSizeText = sprintf(Languages::_('ORGANIZER_UPLOAD_SIZE_LIMIT'), $maxSize);
 
 		return '<input ' . implode(' ', $attributes) . '/><br>' . $uploadSizeText;
 	}
