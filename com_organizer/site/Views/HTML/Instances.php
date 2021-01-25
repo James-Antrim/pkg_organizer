@@ -409,7 +409,7 @@ class Instances extends ListView
 			{
 				$label = Languages::_('ORGANIZER_START_BOOKING');
 				$icon  = Helpers\HTML::icon('enter', $label, true);
-				$URL   .= '&task=booking.add&id=' . $item->instanceID;
+				$URL   .= '&task=bookings.add&id=' . $item->instanceID;
 			}
 
 			if ($label)

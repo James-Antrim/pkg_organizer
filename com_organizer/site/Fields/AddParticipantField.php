@@ -50,7 +50,7 @@ class AddParticipantField extends FormField
 		$attributes = [
 			'aria-label="' . Helpers\Languages::_('ORGANIZER_ADD_PARTICIPANT') . '"',
 			'class="btn hasTooltip"',
-			'onclick="Joomla.submitbutton(\'booking.addParticipant\');"',
+			'onclick="Joomla.submitbutton(\'bookings.addParticipant\');"',
 			'title="' . Helpers\Languages::_('ORGANIZER_ADD_PARTICIPANT') . '"',
 			'type="submit"'
 		];

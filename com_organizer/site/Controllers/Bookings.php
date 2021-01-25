@@ -18,7 +18,7 @@ use Organizer\Models;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Booking extends Controller
+class Bookings extends Controller
 {
 	protected $listView = 'bookings';
 
