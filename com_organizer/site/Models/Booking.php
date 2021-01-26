@@ -756,14 +756,4 @@ class Booking extends Participants
 			Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_NOT_SAVED', 'success');
 		}
 	}
-
-	/**
-	 * Adds participants to the instances of the given booking as necessary.
-	 * @return void
-	 */
-	public function upload()
-	{
-		$this->authorize();
-		Helpers\OrganizerHelper::message('beep boop need more info', 'error');
-	}
 }

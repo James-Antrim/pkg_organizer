@@ -120,21 +120,7 @@ class Booking extends Participants
 		// TODO ajax refresh??
 
 		$bookingDate = $this->booking->get('date');
-		//$defaultEnd  = '09:00:00';
-		$defaultEnd  = $this->booking->get('defaultEndTime');
-		$now         = date('H:i:s');
 		$today       = date('Y-m-d');
-
-		if ($today > $bookingDate or ($today === $bookingDate and $now > $defaultEnd))
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'upload',
-				Helpers\Languages::_('ORGANIZER_UPLOAD_PARTICIPANTS'),
-				'bookings.edit',
-				false
-			);
-		}
 
 		if ($today <= $bookingDate)
 		{
@@ -144,8 +130,10 @@ class Booking extends Participants
 
 		if ($today === $bookingDate)
 		{
+			$defaultEnd   = $this->booking->get('defaultEndTime');
 			$defaultStart = $this->booking->get('defaultStartTime');
 			$end          = $this->booking->endTime ? $this->booking->endTime : $defaultEnd;
+			$now          = date('H:i:s');
 			$start        = $this->booking->startTime ? $this->booking->startTime : $defaultStart;
 			$then         = date('H:i:s', strtotime('-60 minutes', strtotime($defaultStart)));
 			$earlyStart   = ($now > $then and $now < $start);
