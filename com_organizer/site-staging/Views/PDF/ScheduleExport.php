@@ -10,8 +10,6 @@
 
 namespace Organizer\Views\PDF;
 
-define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
-
 use Organizer\Helpers;
 use Organizer\Views\BaseView;
 

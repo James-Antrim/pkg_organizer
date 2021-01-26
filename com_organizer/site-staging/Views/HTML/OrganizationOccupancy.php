@@ -10,8 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
-
 jimport('tcpdf.tcpdf');
 
 use Joomla\CMS\Uri\Uri;
