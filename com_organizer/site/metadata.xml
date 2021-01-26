@@ -8,7 +8,6 @@
             <option name="ORGANIZER_CURRICULUM" msg="ORGANIZER_CURRICULUM_DESC" value="curriculum"/>
             <option name="ORGANIZER_ORGANIZATION_OCCUPANCY" msg="ORGANIZER_ORGANIZATION_OCCUPANCY_DESC"
                     value="organization_statistics"/>
-            <option name="ORGANIZER_DEPUTAT" msg="ORGANIZER_DEPUTAT_DESC" value="deputat"/>
             <option name="ORGANIZER_EVENT_STATISTICS" msg="ORGANIZER_EVENT_STATISTICS_DESC" value="lesson_statistics"/>
             <option name="ORGANIZER_INSTANCES" msg="ORGANIZER_INSTANCES_DESC" value="instances"/>
             <option name="ORGANIZER_PROFILE" msg="ORGANIZER_PROFILE_DESC" value="profile"/>
@@ -18,6 +17,7 @@
             <option name="ORGANIZER_SCHEDULE" msg="ORGANIZER_SCHEDULE_DESC" value="schedule_item"/>
             <option name="ORGANIZER_SEARCH" msg="ORGANIZER_SEARCH_DESC" value="search"/>
             <option name="ORGANIZER_SUBJECTS" msg="ORGANIZER_SUBJECTS_DESC" value="subjects"/>
+            <option name="ORGANIZER_WORKLOAD" msg="ORGANIZER_WORKLOAD_DESC" value="workload"/>
         </options>
     </menu>
 </metadata>
