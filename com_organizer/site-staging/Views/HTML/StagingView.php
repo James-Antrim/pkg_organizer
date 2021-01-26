@@ -17,7 +17,7 @@ use Organizer\Helpers;
 /**
  * Class loads person workload statistics into the display context.
  */
-class Deputat extends BaseView
+class StagingView extends BaseView
 {
 	public $model = null;
 
@@ -57,7 +57,7 @@ class Deputat extends BaseView
 		if (!empty($this->model->schedule))
 		{
 			$this->makePersonSelectBox();
-			$this->tables = $this->getDeputatTables();
+			$this->tables = $this->getWorkloadTables();
 		}
 		parent::display($tpl);
 	}
@@ -71,7 +71,7 @@ class Deputat extends BaseView
 	{
 		parent::modifyDocument();
 
-		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/deputat.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/workload.js');
 	}
 
 	/**
@@ -123,20 +123,20 @@ class Deputat extends BaseView
 	 *
 	 * @return string  a HTML string for a consumption table
 	 */
-	public function getDeputatTables()
+	public function getWorkloadTables()
 	{
 		$tables = [];
-		foreach ($this->model->deputat as $personID => $deputat)
+		foreach ($this->model->workload as $personID => $workload)
 		{
-			$displaySummary = !empty($deputat['summary']);
-			$displayTally   = !empty($deputat['tally']);
+			$displaySummary = !empty($workload['summary']);
+			$displayTally   = !empty($workload['tally']);
 
-			$table = '<table class="deputat-table" id="deputat-table-' . $personID . '">';
-			$table .= '<thead class="deputat-table-head-' . $personID . '">';
-			$table .= '<tr class="person-header"><th colspan="5">' . $deputat['name'] . '</th></tr></thead>';
+			$table = '<table class="workload-table" id="workload-table-' . $personID . '">';
+			$table .= '<thead class="workload-table-head-' . $personID . '">';
+			$table .= '<tr class="person-header"><th colspan="5">' . $workload['name'] . '</th></tr></thead>';
 			if ($displaySummary)
 			{
-				$table .= '<tbody class="deputat-table-body" id="deputat-table-body-sum-' . $personID . '">';
+				$table .= '<tbody class="workload-table-body" id="workload-table-body-sum-' . $personID . '">';
 				$table .= '<tr class="sum-header">';
 				$table .= '<th>Lehrveranstaltung</th>';
 				$table .= '<th>Art<br/>(Kürzel)</th>';
@@ -144,12 +144,12 @@ class Deputat extends BaseView
 				$table .= '<th>Wochentag u. Stunde<br/>(bei Blockveranstalt. Datum)</th>';
 				$table .= '<th>Gemeldetes Deputat (SWS)<br/> und Summe</th>';
 				$table .= '</tr>';
-				$table .= $this->getSummaryRows($personID, $deputat);
+				$table .= $this->getSummaryRows($personID, $workload);
 				$table .= '</tbody>';
 			}
 			if ($displayTally)
 			{
-				$table      .= '<tbody class="deputat-table-body" id="deputat-table-body-tally-' . $personID . '">';
+				$table      .= '<tbody class="workload-table-body" id="deputat-table-body-tally-' . $personID . '">';
 				$extraClass = $displaySummary ? 'second-group' : '';
 				$table      .= '<tr class="tally-header ' . $extraClass . '">';
 				$table      .= '<th>Rechtsgrundlage<br/>gemäß LVVO</th>';
@@ -158,7 +158,7 @@ class Deputat extends BaseView
 				$table      .= '<th>Anzahl der Arbeiten</th>';
 				$table      .= '<th>Gemeldetes Deputat (SWS)</th>';
 				$table      .= '</tr>';
-				$table      .= $this->getTallyRows($personID, $deputat);
+				$table      .= $this->getTallyRows($personID, $workload);
 				$table      .= '</tbody>';
 			}
 			$table    .= '</table>';
@@ -172,18 +172,18 @@ class Deputat extends BaseView
 	 * Retrieves a rows containing information about
 	 *
 	 * @param   int    $personID  the personID
-	 * @param   array &$deputat   the table columns
+	 * @param   array &$workload  the table columns
 	 *
 	 * @return string  HTML string for the summary row
 	 */
-	private function getSummaryRows($personID, &$deputat)
+	private function getSummaryRows($personID, &$workload)
 	{
 		$rows      = [];
 		$swsSum    = 0;
 		$realSum   = 0;
-		$weeks     = $this->params->get('deputat_weeks', 13);
+		$weeks     = $this->params->get('workload_weeks', 13);
 		$rowNumber = 0;
-		foreach ($deputat['summary'] as $summary)
+		foreach ($workload['summary'] as $summary)
 		{
 			$rowID       = $personID . '-' . $rowNumber;
 			$remove      = '<a id="remove-data-row-' . $rowID . '" onclick="removeRow(this)">';
@@ -227,15 +227,15 @@ class Deputat extends BaseView
 	 * columns without values.
 	 *
 	 * @param   int    $personID  the personID
-	 * @param   array &$deputat   the table columns
+	 * @param   array &$workload  the table columns
 	 *
 	 * @return string  HTML string for the summary row
 	 */
-	private function getTallyRows($personID, &$deputat)
+	private function getTallyRows($personID, &$workload)
 	{
 		$rows   = [];
 		$swsSum = 0;
-		foreach ($deputat['tally'] as $name => $data)
+		foreach ($workload['tally'] as $name => $data)
 		{
 			$sws    = $data['rate'] * $data['count'];
 			$swsSum += $sws;

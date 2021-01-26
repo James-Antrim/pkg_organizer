@@ -17,7 +17,7 @@ use Organizer\Helpers\Languages;
 /**
  * Class generates the room statistics XLS file.
  */
-class Deputat
+class StagingLayout
 {
 	private $borders;
 
@@ -35,10 +35,10 @@ class Deputat
 		$userName    = Helpers\Users::getUser()->name;
 		$term        = 'TERM';
 		$date        = Helpers\Dates::formatDate(date('Y-m-d'));
-		$description = Languages::sprintf('ORGANIZER_DEPUTAT_DESCRIPTION', $term, $date);
+		$description = Languages::sprintf('ORGANIZER_WORKLOAD_DESCRIPTION', $term, $date);
 		$this->spreadSheet->getProperties()->setCreator('THM Organizer')
 			->setLastModifiedBy($userName)
-			->setTitle(Languages::_('ORGANIZER_DEPUTAT'))
+			->setTitle(Languages::_('ORGANIZER_WORKLOAD'))
 			->setDescription($description);
 		$this->spreadSheet->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
 
@@ -336,7 +336,7 @@ class Deputat
 	}
 
 	/**
-	 * Creates and formats a row to be used for a deputat relevant role listing.
+	 * Creates and formats a row to be used for a workload relevant role listing.
 	 *
 	 * @param   int  $row  the row to add
 	 *
@@ -487,7 +487,7 @@ class Deputat
 	}
 
 	/**
-	 * Adds the section which lists roles for which deputat is calculated
+	 * Adds the section which lists roles for which workload is calculated
 	 *
 	 * @param   int &$row  the current row number
 	 *
@@ -866,7 +866,7 @@ class Deputat
 		$objWriter = PHPExcel_IOFactory::createWriter($this->spreadSheet, 'Excel2007');
 		ob_end_clean();
 		header('Content-type: application/vnd.ms-excel');
-		$docTitle = ApplicationHelper::stringURLSafe(Languages::_('ORGANIZER_DEPUTAT') . '_' . date('Ymd'));
+		$docTitle = ApplicationHelper::stringURLSafe(Languages::_('ORGANIZER_WORKLOAD') . '_' . date('Ymd'));
 		header("Content-Disposition: attachment;filename=$docTitle.xlsx");
 		$objWriter->save('php://output');
 		exit();

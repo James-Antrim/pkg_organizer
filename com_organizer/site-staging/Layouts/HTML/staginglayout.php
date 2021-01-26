@@ -10,16 +10,11 @@
 
 use Joomla\CMS\Uri\Uri;
 
-$showHeading = $this->params->get('show_page_heading', '');
-$title       = $this->params->get('page_title', '');
-if (!empty($this->organizationName))
-{
-	$title .= " - $this->organizationName";
-}
-$weeks = $this->params->get('deputat_weeks', 13);
 ?>
-<div id="deputat" class="deputat">
+<div id="workload" class="workload">
 	<?php
+
+
 	if (!empty($showHeading))
 	{
 		?>
@@ -29,39 +24,10 @@ $weeks = $this->params->get('deputat_weeks', 13);
 		<?php
 	}
 	?>
-    <form id='deputat-form' name='deputat-form' enctype='multipart/form-data' method='post'
+    <form id='workload-form' name='workload-form' enctype='multipart/form-data' method='post'
           action='<?php echo Uri::current(); ?>'>
         <div class="filter-bar">
             <div class="filter-header">
-                <div class="deputat-settings">
-                    <div class="deputat-settings-description">
-						<?php echo Languages::_('ORGANIZER_DEPUTAT_CALCULATION_SETTINGS'); ?>
-                    </div>
-                    <div class="control-group">
-                        <div class="control-label">
-							<?php echo Languages::_('ORGANIZER_DEPUTAT_WEEKS'); ?>
-                        </div>
-                        <div class="controls">
-							<?php echo $weeks . ' ' . Languages::_('ORGANIZER_WEEKS'); ?>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <div class="control-label">
-							<?php echo Languages::_('ORGANIZER_BACHELOR_VALUE'); ?>
-                        </div>
-                        <div class="controls">
-							<?php echo $this->params->get('bachelor_value', 25) . '%'; ?>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <div class="control-label">
-							<?php echo Languages::_('ORGANIZER_MASTER_VALUE'); ?>
-                        </div>
-                        <div class="controls">
-							<?php echo $this->params->get('master_value', 50) . '%'; ?>
-                        </div>
-                    </div>
-                </div>
                 <div class="selection-settings">
                     <div class="control-group">
                         <div class="control-label">
@@ -106,6 +72,6 @@ $weeks = $this->params->get('deputat_weeks', 13);
 		}
 		?>
     </form>
-    <a href="https://www.thm.de/dev/organizer/service/werkzeug/deputat-fb-bau.html?format=xls">form</a>
+    <a href="https://www.thm.de/dev/organizer/service/werkzeug/workload-fb-bau.html?format=xls">form</a>
     <a id="dLink" style="display:none;"></a>
 </div>

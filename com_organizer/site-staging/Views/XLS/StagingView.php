@@ -13,7 +13,7 @@ namespace Organizer\Views\XLS;
 /**
  * Class creates a XLS file for the display of the filtered schedule information.
  */
-class Deputat extends BaseView
+class StagingView extends BaseView
 {
 	use PHPExcelDependent;
 
@@ -27,10 +27,10 @@ class Deputat extends BaseView
 	public function display($tpl = null)
 	{
 		$templateNameParameter = 'thm';
-		$fileName              = 'deputat_' . $templateNameParameter;
+		$fileName              = 'workload_' . $templateNameParameter;
 		require_once __DIR__ . "/tmpl/$fileName.php";
 		$model  = $this->getModel();
-		$export = new \OrganizerTemplateDeputat($model);
+		$export = new \OrganizerTemplateWorkload($model);
 		$export->render();
 		ob_flush();
 	}

@@ -5,7 +5,7 @@
             <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION">
                 <option value="">ALL_ORGANIZATIONS</option>
             </field>
-            <field name="deputat_weeks" type="Integer" label="DEPUTAT_WEEKS" default="13" first="1" last="52" step="1"/>
+            <field name="workload_weeks" type="Integer" label="WORKLOAD_WEEKS" default="13" first="1" last="52" step="1"/>
             <field name="bachelor_value" type="Integer" label="BACHELOR_VALUE" default="25" first="5" last="100"
                    step="5"/>
             <field name="master_value" type="Integer" label="MASTER_VALUE" default="50" first="5" last="100" step="5"/>

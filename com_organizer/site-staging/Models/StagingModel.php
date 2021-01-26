@@ -16,7 +16,7 @@ use Organizer\Helpers;
 /**
  * Class which calculates the number of hours persons taught individual lessons.
  */
-class Deputat extends BaseModel
+class StagingModel extends BaseModel
 {
 	public $scheduleID = null;
 
@@ -26,7 +26,7 @@ class Deputat extends BaseModel
 
 	public $lessonValues = null;
 
-	public $deputat = null;
+	public $workload = null;
 
 	public $selected = [];
 
@@ -48,10 +48,10 @@ class Deputat extends BaseModel
 
 		if (!empty($this->schedule))
 		{
-			$this->calculateDeputat();
+			$this->calculateWorkload();
 			$this->persons = $this->getPersonNames();
 			$this->setSelected();
-			$this->restrictDeputat();
+			$this->restrictWorkload();
 		}
 	}
 
@@ -60,7 +60,7 @@ class Deputat extends BaseModel
 	 *
 	 * @return void sets the instance's lesson values variable
 	 */
-	public function calculateDeputat()
+	public function calculateWorkload()
 	{
 		$this->lessonValues = [];
 
@@ -83,13 +83,13 @@ class Deputat extends BaseModel
 	}
 
 	/**
-	 * Checks for the cross organization deputat of persons belonging to the organization
+	 * Checks for the cross organization workload of persons belonging to the organization
 	 *
 	 * @param   array   $persons    the persons listed in the original schedule
 	 * @param   string  $startDate  the start date of the original schedule
 	 * @param   string  $endDate    the end date of the original schedule
 	 *
-	 * @return void  adds deputat to the lesson values array
+	 * @return void  adds workload to the lesson values array
 	 */
 	private function checkOtherSchedules($persons, $startDate, $endDate)
 	{
@@ -117,13 +117,13 @@ class Deputat extends BaseModel
 	}
 
 	/**
-	 * Converts the individual lessons into the actual deputat
+	 * Converts the individual lessons into the actual workload
 	 *
-	 * @return void  sets the deputat object variable
+	 * @return void  sets the workload object variable
 	 */
 	private function convertLessonValues()
 	{
-		$this->deputat = [];
+		$this->workload = [];
 
 		// Ensures unique ids for block lessons
 		$blockCounter = 1;
@@ -138,15 +138,15 @@ class Deputat extends BaseModel
 					continue;
 				}
 
-				if (empty($this->deputat[$personID]))
+				if (empty($this->workload[$personID]))
 				{
-					$this->deputat[$personID]         = [];
-					$this->deputat[$personID]['name'] = $lessonValues['personName'];
+					$this->workload[$personID]         = [];
+					$this->workload[$personID]['name'] = $lessonValues['personName'];
 				}
 
 				if ($lessonValues['type'] == 'tally')
 				{
-					$this->setTallyDeputat($personID, $lessonValues);
+					$this->setTallyWorkload($personID, $lessonValues);
 					unset($this->lessonValues[$lessonID]);
 					continue;
 				}
@@ -157,15 +157,15 @@ class Deputat extends BaseModel
 				if (count($lessonValues['periods']) > 20)
 				{
 					$blockIndex = "$subjectIndex-$blockCounter";
-					$this->setSummaryDeputat($personID, $lessonValues, $blockIndex);
+					$this->setSummaryWorkload($personID, $lessonValues, $blockIndex);
 
 					// Block lessons are listed individually => no need to compare
 					unset($this->lessonValues[$lessonID]);
 					continue;
 				}
 
-				// The initial summary deputat
-				$this->setSummaryDeputat($personID, $lessonValues, $subjectIndex);
+				// The initial summary workload
+				$this->setSummaryWorkload($personID, $lessonValues, $subjectIndex);
 
 				foreach ($this->lessonValues as $comparisonID => $compPersonIDs)
 				{
@@ -207,7 +207,7 @@ class Deputat extends BaseModel
 			return strcmp($one['name'], $two['name']);
 		}
 
-		usort($this->deputat, 'cmp');
+		usort($this->workload, 'cmp');
 	}
 
 	/**
@@ -440,7 +440,7 @@ class Deputat extends BaseModel
 				$endDT     = strtotime(substr($endTime, 0, 2) . ':' . substr($endTime, 2, 2) . ':00');
 				$hours     = ($endDT - $startDT) / $seconds;
 
-				$this->setDeputatByInstance($schedule, $day, $blockNumber, $lessonID, $hours, $persons);
+				$this->setWorkloadByInstance($schedule, $day, $blockNumber, $lessonID, $hours, $persons);
 			}
 		}
 	}
@@ -493,7 +493,7 @@ class Deputat extends BaseModel
 	}
 
 	/**
-	 * Sets the pertinent deputat information
+	 * Sets the pertinent workload information
 	 *
 	 * @param   object &$schedule     the schedule being processed
 	 * @param   string  $day          the day being iterated
@@ -504,7 +504,7 @@ class Deputat extends BaseModel
 	 *
 	 * @return void  sets object values
 	 */
-	private function setDeputat(&$schedule, $day, $blockNumber, $lessonID, $personID, $hours = 0)
+	private function setWorkload(&$schedule, $day, $blockNumber, $lessonID, $personID, $hours = 0)
 	{
 		$subjectIsRelevant = $this->isSubjectRelevant($schedule, $lessonID);
 		$lessonType        = $this->getType($schedule, $lessonID);
@@ -581,7 +581,7 @@ class Deputat extends BaseModel
 	 *
 	 * @return void
 	 */
-	private function setDeputatByInstance(&$schedule, $day, $blockNumber, $lessonID, $hours, &$persons = null)
+	private function setWorkloadByInstance(&$schedule, $day, $blockNumber, $lessonID, $hours, &$persons = null)
 	{
 		$schedulePersons = $schedule->lessons->$lessonID->persons;
 		foreach ($schedulePersons as $personID => $personDelta)
@@ -612,7 +612,7 @@ class Deputat extends BaseModel
 
 			if (!$irrelevant)
 			{
-				$this->setDeputat($schedule, $day, $blockNumber, $lessonID, $personID, $hours);
+				$this->setWorkload($schedule, $day, $blockNumber, $lessonID, $personID, $hours);
 			}
 		}
 	}
@@ -663,30 +663,30 @@ class Deputat extends BaseModel
 	 * @param   string  $personID      the person's id
 	 * @param   array  &$lessonValues  the values for the lesson being iterated
 	 *
-	 * @return void  sets values in the object variable $deputat
+	 * @return void  sets values in the object variable $workload
 	 */
-	private function setTallyDeputat($personID, &$lessonValues)
+	private function setTallyWorkload($personID, &$lessonValues)
 	{
-		if (empty($this->deputat[$personID]['tally']))
+		if (empty($this->workload[$personID]['tally']))
 		{
-			$this->deputat[$personID]['tally'] = [];
+			$this->workload[$personID]['tally'] = [];
 		}
 
 		$subjectName = $lessonValues['subjectName'];
-		if (empty($this->deputat[$personID]['tally'][$subjectName]))
+		if (empty($this->workload[$personID]['tally'][$subjectName]))
 		{
-			$this->deputat[$personID]['tally'][$subjectName] = [];
+			$this->workload[$personID]['tally'][$subjectName] = [];
 		}
 
-		$this->deputat[$personID]['tally'][$subjectName]['rate'] = $this->getRate($subjectName);
-		if (empty($this->deputat[$personID]['tally'][$subjectName]['count']))
+		$this->workload[$personID]['tally'][$subjectName]['rate'] = $this->getRate($subjectName);
+		if (empty($this->workload[$personID]['tally'][$subjectName]['count']))
 		{
-			$this->deputat[$personID]['tally'][$subjectName]['count'] = 1;
+			$this->workload[$personID]['tally'][$subjectName]['count'] = 1;
 
 			return;
 		}
 
-		$this->deputat[$personID]['tally'][$subjectName]['count']++;
+		$this->workload[$personID]['tally'][$subjectName]['count']++;
 
 		return;
 	}
@@ -698,25 +698,25 @@ class Deputat extends BaseModel
 	 * @param   array  &$lessonValues  the values for the lesson being iterated
 	 * @param   string  $index         the index to be used for the lesson
 	 *
-	 * @return void  sets values in the object variable $deputat
+	 * @return void  sets values in the object variable $workload
 	 */
-	private function setSummaryDeputat($personID, &$lessonValues, $index)
+	private function setSummaryWorkload($personID, &$lessonValues, $index)
 	{
-		if (empty($this->deputat[$personID]['summary']))
+		if (empty($this->workload[$personID]['summary']))
 		{
-			$this->deputat[$personID]['summary'] = [];
+			$this->workload[$personID]['summary'] = [];
 		}
 
-		$this->deputat[$personID]['summary'][$index]              = [];
-		$this->deputat[$personID]['summary'][$index]['name']      = $lessonValues['subjectName'];
-		$this->deputat[$personID]['summary'][$index]['type']      = $lessonValues['lessonType'];
-		$this->deputat[$personID]['summary'][$index]['pools']     = $lessonValues['pools'];
-		$this->deputat[$personID]['summary'][$index]['periods']   = $lessonValues['periods'];
-		$this->deputat[$personID]['summary'][$index]['hours']     = $this->getSummaryHours($lessonValues['periods']);
-		$this->deputat[$personID]['summary'][$index]['startDate'] = $lessonValues['startDate'];
-		$this->deputat[$personID]['summary'][$index]['endDate']   = $lessonValues['endDate'];
-		uksort($this->deputat[$personID]['summary'][$index]['periods'], 'self::periodSort');
-		ksort($this->deputat[$personID]['summary']);
+		$this->workload[$personID]['summary'][$index]              = [];
+		$this->workload[$personID]['summary'][$index]['name']      = $lessonValues['subjectName'];
+		$this->workload[$personID]['summary'][$index]['type']      = $lessonValues['lessonType'];
+		$this->workload[$personID]['summary'][$index]['pools']     = $lessonValues['pools'];
+		$this->workload[$personID]['summary'][$index]['periods']   = $lessonValues['periods'];
+		$this->workload[$personID]['summary'][$index]['hours']     = $this->getSummaryHours($lessonValues['periods']);
+		$this->workload[$personID]['summary'][$index]['startDate'] = $lessonValues['startDate'];
+		$this->workload[$personID]['summary'][$index]['endDate']   = $lessonValues['endDate'];
+		uksort($this->workload[$personID]['summary'][$index]['periods'], 'self::periodSort');
+		ksort($this->workload[$personID]['summary']);
 
 		return;
 	}
@@ -851,20 +851,20 @@ class Deputat extends BaseModel
 	private function aggregate($personID, $subjectIndex, $aggValues)
 	{
 		$aggregatedPools = array_unique(array_merge(
-			$this->deputat[$personID]['summary'][$subjectIndex]['pools'],
+			$this->workload[$personID]['summary'][$subjectIndex]['pools'],
 			$aggValues['pools']
 		));
 
-		$this->deputat[$personID]['summary'][$subjectIndex]['pools'] = $aggregatedPools;
+		$this->workload[$personID]['summary'][$subjectIndex]['pools'] = $aggregatedPools;
 
 		$aggregatedPeriods = array_merge_recursive(
-			$this->deputat[$personID]['summary'][$subjectIndex]['periods'],
+			$this->workload[$personID]['summary'][$subjectIndex]['periods'],
 			$aggValues['periods']
 		);
 
 		uksort($aggregatedPeriods, 'self::periodSort');
-		$this->deputat[$personID]['summary'][$subjectIndex]['periods'] = $aggregatedPeriods;
-		$this->deputat[$personID]['summary'][$subjectIndex]['hours']   = $this->getSummaryHours($aggregatedPeriods);
+		$this->workload[$personID]['summary'][$subjectIndex]['periods'] = $aggregatedPeriods;
+		$this->workload[$personID]['summary'][$subjectIndex]['hours']   = $this->getSummaryHours($aggregatedPeriods);
 	}
 
 	/**
@@ -875,18 +875,18 @@ class Deputat extends BaseModel
 	public function getPersonNames()
 	{
 		$persons = [];
-		foreach ($this->deputat as $personID => $deputat)
+		foreach ($this->workload as $personID => $workload)
 		{
-			$displaySummary = !empty($deputat['summary']);
-			$displayTally   = !empty($deputat['tally']);
+			$displaySummary = !empty($workload['summary']);
+			$displayTally   = !empty($workload['tally']);
 			$display        = ($displaySummary or $displayTally);
 			if (!$display)
 			{
-				unset($this->deputat[$personID]);
+				unset($this->workload[$personID]);
 				continue;
 			}
 
-			$persons[$personID] = $deputat['name'];
+			$persons[$personID] = $workload['name'];
 		}
 
 		asort($persons);
@@ -918,11 +918,11 @@ class Deputat extends BaseModel
 	}
 
 	/**
-	 * Restricts the displayed deputat to the selected persons
+	 * Restricts the displayed workload to the selected persons
 	 *
-	 * @return void  unsets deputat indexes
+	 * @return void  unsets workload indexes
 	 */
-	private function restrictDeputat()
+	private function restrictWorkload()
 	{
 		// Returns a hard false if value is not in array
 		$allSelected = array_search('*', $this->selected);
@@ -931,12 +931,12 @@ class Deputat extends BaseModel
 			return;
 		}
 
-		$indexes = array_keys($this->deputat);
+		$indexes = array_keys($this->workload);
 		foreach ($indexes as $index)
 		{
 			if (!in_array($index, $this->selected))
 			{
-				unset($this->deputat[$index]);
+				unset($this->workload[$index]);
 			}
 		}
 	}
