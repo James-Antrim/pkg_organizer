@@ -23,12 +23,12 @@ $count = count($this->instances);
 <?php echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 <div id="j-main-container" class="span10">
 	<?php if ($this->edit or ($count and !$this->complete)) : ?>
-		<?php require_once 'checkin-contact.php'; ?>
+		<?php require_once 'Checkin/contact.php'; ?>
 	<?php elseif ($count and $count > 1) : ?>
-		<?php require_once 'checkin-confirm.php'; ?>
+		<?php require_once 'Checkin/confirm.php'; ?>
 	<?php elseif ($count and $count === 1) : ?>
-		<?php require_once 'checkin-checkedin.php'; ?>
+		<?php require_once 'Checkin/checkedin.php'; ?>
 	<?php else : ?>
-		<?php require_once 'checkin-checkin.php'; ?>
+		<?php require_once 'Checkin/checkin.php'; ?>
 	<?php endif; ?>
 </div>
