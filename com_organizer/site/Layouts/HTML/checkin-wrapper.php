@@ -8,7 +8,6 @@
  * @link        www.thm.de
  */
 
-use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
 $count = count($this->instances);
