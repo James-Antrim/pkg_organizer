@@ -21,18 +21,9 @@ use Organizer\Adapters;
 class Languages extends Text
 {
 	/**
-	 * Translate function, mimics the php gettext (alias _) function.
-	 *
-	 * The function checks if $jsSafe is true, then if $interpretBackslashes is true.
-	 *
-	 * @param   string  $string                The string to translate
-	 * @param   bool    $jsSafe                Make the result javascript safe
-	 * @param   bool    $interpretBackSlashes  Interpret \t and \n
-	 * @param   bool    $script                To indicate that the string will be push in the javascript language store
-	 *
-	 * @return  string  The translated string or the key if $script is true
+	 * @inheritDoc
 	 */
-	public static function _($string, $jsSafe = false, $interpretBackSlashes = true, $script = false)
+	public static function _($string, $jsSafe = false, $interpretBackSlashes = true, $script = false): string
 	{
 		if (is_array($jsSafe))
 		{
@@ -68,7 +59,7 @@ class Languages extends Text
 	 *
 	 * @return string the constant containing the resolved text for the calling class
 	 */
-	public static function getConstant($className)
+	public static function getConstant(string $className): string
 	{
 		$parts          = preg_split('/([A-Z][a-z]+)/', $className, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 		$delimitedParts = implode('_', $parts);
@@ -81,7 +72,7 @@ class Languages extends Text
 	 *
 	 * @return Language
 	 */
-	private static function getLanguage()
+	public static function getLanguage(): Language
 	{
 		$tag = self::getTag();
 		switch ($tag)
@@ -105,7 +96,7 @@ class Languages extends Text
 	 *
 	 * @return string
 	 */
-	public static function getTag()
+	public static function getTag(): string
 	{
 		$requestedTag = Input::getCMD('languageTag');
 
@@ -132,9 +123,9 @@ class Languages extends Text
 	 * @param   bool    $jsSafe                Ensure the output is JavaScript safe.
 	 * @param   bool    $interpretBackSlashes  Interpret \t and \n.
 	 *
-	 * @return  string
+	 * @return  array
 	 */
-	public static function script($string = null, $jsSafe = false, $interpretBackSlashes = true)
+	public static function script($string = null, $jsSafe = false, $interpretBackSlashes = true): array
 	{
 		// Normalize the key and translate the string.
 		static::$strings[strtoupper($string)] = self::_($string);
@@ -155,7 +146,7 @@ class Languages extends Text
 	 *
 	 * @return string the resolved constant
 	 */
-	public static function setScript($constant)
+	public static function setScript(string $constant): string
 	{
 		self::script($constant);
 
@@ -171,7 +162,7 @@ class Languages extends Text
 	 *
 	 * @return  string  The tooltip string
 	 */
-	public static function tooltip($title = '', $content = '', $escape = true)
+	public static function tooltip($title = '', $content = '', $escape = true): string
 	{
 		// Initialise return value.
 		$result = '';

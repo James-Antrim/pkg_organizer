@@ -10,7 +10,6 @@
 
 namespace Organizer\Buttons;
 
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Document;
@@ -29,15 +28,7 @@ class NewTab extends StandardButton
 	protected $_name = 'NewTab';
 
 	/**
-	 * Fetch the HTML for the button
-	 *
-	 * @param   string  $type  Unused string.
-	 * @param   string  $name  The name of the button icon class.
-	 * @param   string  $text  Button text.
-	 * @param   string  $task  Task associated with the button.
-	 * @param   bool    $list  True to allow lists
-	 *
-	 * @return  string  HTML string for the button
+	 * @inheritDoc
 	 */
 	public function fetchButton($type = 'NewTab', $name = '', $text = '', $task = '', $list = true): string
 	{
@@ -65,8 +56,6 @@ class NewTab extends StandardButton
 	 */
 	protected function _getCommand($name, $task, $list)
 	{
-		Text::script('JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST');
-
 		$cmd = "newTab('" . $task . "');";
 
 		if ($list)
