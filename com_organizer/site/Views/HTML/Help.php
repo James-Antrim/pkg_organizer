@@ -15,6 +15,7 @@ use Organizer\Helpers\Languages;
 
 class Help extends BaseView
 {
+	protected $_layout = 'help-wrapper';
 
 	/**
 	 * Adds a toolbar and title to the view.
@@ -23,10 +24,11 @@ class Help extends BaseView
 	 */
 	protected function addToolBar()
 	{
-		$layout = strtoupper(Helpers\Input::getCMD('layout'));
-		$title  = Languages::_('ORGANIZER_HELP') . ' - ' . Languages::_("ORGANIZER_$layout");
+		//https://www.thm.de/dev/organizer/?option=com_organizer&view=help
+		$layout = strtoupper(Helpers\Input::getCMD('layout', 'toc'));
+		$title  = Languages::_('ORGANIZER_HELP_TOPICS') . ' - ' . Languages::_("ORGANIZER_$layout");
 
-		Helpers\HTML::setTitle($title);
+		Helpers\HTML::setTitle($title, 'info');
 	}
 
 	/**
@@ -34,13 +36,8 @@ class Help extends BaseView
 	 */
 	public function display($tpl = null)
 	{
-		if (!Helpers\Input::getCMD('layout'))
-		{
-			//Helpers\OrganizerHelper::error(400);
-		}
-
-		$this->_layout = 'help-wrapper';
-
+		$this->addToolBar();
+		$this->modifyDocument();
 		parent::display($tpl);
 	}
 }
