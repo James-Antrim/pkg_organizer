@@ -24,11 +24,9 @@ class Help extends BaseView
 	 */
 	protected function addToolBar()
 	{
-		//https://www.thm.de/dev/organizer/?option=com_organizer&view=help
-		$layout = strtoupper(Helpers\Input::getCMD('layout', 'toc'));
-		$title  = Languages::_('ORGANIZER_HELP_TOPICS') . ' - ' . Languages::_("ORGANIZER_$layout");
-
-		Helpers\HTML::setTitle($title, 'info');
+		$topic    = strtoupper(Helpers\Input::getCMD('topic', 'toc'));
+		$constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
+		Helpers\HTML::setTitle(Languages::_($constant), 'info');
 	}
 
 	/**

@@ -10,12 +10,11 @@
 
 use Organizer\Helpers;
 
-$layout = Helpers\Input::getCMD('layout', 'toc');
+$topic = Helpers\Input::getCMD('topic', 'toc');
 
-require_once 'language_selection.php';
+//require_once 'language_selection.php';
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
-require_once "Help/$layout.php";
 ?>
 <div id="j-main-container" class="span10">
-	<?php require_once "Help/$layout.php"; ?>
+	<?php require_once "Help/$topic.php"; ?>
 </div>
