@@ -279,11 +279,13 @@ class OrganizerHelper
 		{
 			$possibleController = self::classDecode($handler[0]);
 			$filepath           = JPATH_ROOT . "/components/com_organizer/Controllers/$possibleController.php";
+
 			if (is_file($filepath))
 			{
 				$namespacedClassName = "Organizer\\Controllers\\" . $possibleController;
 				$controllerObj       = new $namespacedClassName();
 			}
+
 			$task = $handler[1];
 		}
 		else
@@ -304,6 +306,7 @@ class OrganizerHelper
 		{
 			self::message($exception->getMessage(), 'error');
 		}
+
 		$controllerObj->redirect();
 	}
 }
