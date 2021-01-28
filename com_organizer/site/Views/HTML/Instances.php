@@ -73,7 +73,8 @@ class Instances extends ListView
 
 		if ($this->manages or $this->teaches)
 		{
-			$toolbar->appendButton('Help', 'bookings', false);
+			$URL = Uri::base() . "index.php?Itemid=4908";
+			$toolbar->appendButton('Link', 'help', Languages::_('ORGANIZER_HELP'), $URL, true);
 		}
 	}
 
