@@ -1,14 +1,16 @@
 <?php
 /**
- * Joomla! Content Management System
- *
- * @copyright  Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
- * @license    GNU General Public License version 2 or later; see LICENSE.txt
+ * @package     Organizer
+ * @extension   com_organizer
+ * @author      James Antrim, <james.antrim@nm.thm.de>
+ * @copyright   2020 TH Mittelhessen
+ * @license     GNU GPL v.3
+ * @link        www.thm.de
  */
 
 namespace Organizer\Buttons;
 
-use Joomla\CMS\Toolbar\Button\StandardButton;
+use Joomla\CMS\Toolbar\ToolbarButton;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
@@ -16,7 +18,7 @@ use Organizer\Helpers\Languages;
 /**
  * Renders a help popup window button
  */
-class Help extends StandardButton
+class Help extends ToolbarButton
 {
 	/**
 	 * Button type
@@ -28,25 +30,23 @@ class Help extends StandardButton
 	/**
 	 * Fetch the HTML for the button
 	 *
-	 * @param   string  $type  unused
-	 * @param   string  $name  the help topic.
-	 * @param   bool    $text  whether to differentiate the help text
-	 * @param   string  $task  unused
-	 * @param   bool    $list  unused
+	 * @param   string  $type         unused
+	 * @param   string  $topic        the help topic.
+	 * @param   bool    $showContext  whether to differentiate the help text
 	 *
 	 * @return  string
 	 */
-	public function fetchButton($type = 'Help', $name = '', $text = true, $task = '', $list = true): string
+	public function fetchButton($type = 'Help', $topic = '', $showContext = true): string
 	{
-		$attribs  = ['class="btn btn-small"', 'rel="help"', 'onclick="' . $this->getCommand($name) . '"'];
-		$attribs  = implode(' ', $attribs);
-		$constant = ($name and $text) ? 'ORGANIZER_HELP_' . strtoupper($name) : 'ORGANIZER_HELP';
-		$icon     = '<span class="icon-question-sign" aria-hidden="true"></span>';
-		$text     = Languages::_($constant);
+		$attribs     = ['class="btn btn-small"', 'rel="help"', 'onclick="' . $this->getCommand($topic) . '"'];
+		$attribs     = implode(' ', $attribs);
+		$constant    = ($topic and $showContext) ? 'ORGANIZER_HELP_' . strtoupper($topic) : 'ORGANIZER_HELP';
+		$icon        = '<span class="icon-question-sign" aria-hidden="true"></span>';
+		$showContext = Languages::_($constant);
 
 		HTML::_('behavior.core');
 
-		return "<button $attribs>$icon$text</button>";
+		return "<button $attribs>$icon$showContext</button>";
 	}
 
 	/**
