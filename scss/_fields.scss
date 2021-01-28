@@ -30,8 +30,8 @@ body.tmpl-index div.main {
     margin-bottom: 0;
   }
 
-  button, input, select {
-    padding: .3rem .5rem;
+  button, input, select a.btn {
+    padding: .45em .6em .15em .6em;
   }
 
   .input-4, .input-4 + .chzn-container,

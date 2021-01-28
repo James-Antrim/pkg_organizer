@@ -46,8 +46,8 @@ body.tmpl-index div.main input[type='date'] {
     margin-bottom: 0;
 }
 
-body.tmpl-index div.main button, body.tmpl-index div.main input, body.tmpl-index div.main select {
-    padding: .3rem .5rem;
+body.tmpl-index div.main button, body.tmpl-index div.main input, body.tmpl-index div.main select a.btn {
+    padding: .45em .6em .15em .6em;
 }
 
 body.tmpl-index div.main .input-4, body.tmpl-index div.main .input-4 + .chzn-container,
