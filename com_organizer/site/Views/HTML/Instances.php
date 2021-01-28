@@ -70,6 +70,11 @@ class Instances extends ListView
 				false
 			);
 		}
+
+		if ($this->manages or $this->teaches)
+		{
+			$toolbar->appendButton('Help', 'bookings', false);
+		}
 	}
 
 	/**
