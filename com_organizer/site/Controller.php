@@ -347,6 +347,18 @@ class Controller extends BaseController
 	}
 
 	/**
+	 * Creates a pdf file based on form data.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function pdf()
+	{
+		Helpers\Input::set('format', 'pdf');
+		parent::display();
+	}
+
+	/**
 	 * Save form data to the database.
 	 *
 	 * @return void
@@ -415,5 +427,17 @@ class Controller extends BaseController
 
 		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
 		$this->setRedirect($url);
+	}
+
+	/**
+	 * Creates an xls file based on form data.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function xls()
+	{
+		Helpers\Input::set('format', 'xls');
+		parent::display();
 	}
 }
