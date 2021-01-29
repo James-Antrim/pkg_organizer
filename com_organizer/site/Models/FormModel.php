@@ -21,8 +21,6 @@ class FormModel extends ParentModel
 {
 	use Named;
 
-	protected $association;
-
 	public $mobile = false;
 
 	/**
