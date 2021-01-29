@@ -10,10 +10,15 @@
 
 use Organizer\Helpers;
 
+$componentTemplate = Helpers\Input::getCMD('tmpl') === 'component';
 $resourceID = Helpers\Input::getID();
 $view       = Helpers\Input::getView();
-require_once 'language_selection.php';
-echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
+if (!$componentTemplate)
+{
+	require_once 'language_selection.php';
+	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
+}
+?>
 <div class="resource-item">
     <div class="curriculum">
 		<?php foreach ($this->item['curriculum'] as $pool) : ?>
@@ -21,7 +26,7 @@ echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 		<?php endforeach; ?>
 		<?php echo $this->disclaimer; ?>
     </div>
-    <?php if (count($this->fields)) : ?>
+    <?php if (count($this->fields) and !$componentTemplate) : ?>
     <div class="legend">
         <div class="panel-head">
             <div class="panel-title"><?php echo Helpers\Languages::_('ORGANIZER_LEGEND'); ?></div>
