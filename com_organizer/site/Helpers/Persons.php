@@ -282,17 +282,23 @@ class Persons extends Associated implements Selectable
 		}
 
 		// TODO Remove departmentIDs on completion of migration.
-		$organizationID  = Input::getInt('organizationID', Input::getInt('departmentIDs'));
-		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
-		$thisPersonID    = self::getIDByUserID();
-
-		foreach ($organizationIDs as $key => $organizationID)
+		$organizationID = Input::getInt('organizationID', Input::getInt('departmentIDs'));
+		if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization'))
 		{
-			if (!Can::view('organization', $organizationID))
+			foreach ($organizationIDs as $key => $organizationID)
 			{
-				unset($organizationIDs[$key]);
+				if (!Can::view('organization', $organizationID))
+				{
+					unset($organizationIDs[$key]);
+				}
 			}
 		}
+		else
+		{
+			$organizationIDs = Can::manageTheseOrganizations();
+		}
+
+		$thisPersonID = self::getIDByUserID();
 
 		if (empty($organizationIDs) and empty($thisPersonID))
 		{

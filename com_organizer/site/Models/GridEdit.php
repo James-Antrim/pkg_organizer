@@ -3,7 +3,7 @@
  * @package     Organizer
  * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
- * @copyright   2020 TH Mittelhessen
+ * @copyright   2021 TH Mittelhessen
  * @license     GNU GPL v.3
  * @link        www.thm.de
  */
@@ -18,18 +18,12 @@ use Organizer\Tables;
 class GridEdit extends EditModel
 {
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
+	 * @inheritDoc
 	 *
 	 * @return Tables\Grids A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Grids
 	{
-		return new Tables\Grids;
+		return new Tables\Grids();
 	}
 }
