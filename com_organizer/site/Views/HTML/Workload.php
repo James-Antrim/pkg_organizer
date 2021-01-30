@@ -51,15 +51,16 @@ class Workload extends FormView
 		Helpers\HTML::setTitle($title, 'list-2');
 		$toolbar = Adapters\Toolbar::getInstance();
 
-		// TODO Hard refresh / inclusion of calculated workload
-
-		$toolbar->appendButton(
-			'NewTab',
-			'file-xls',
-			Helpers\Languages::_('ORGANIZER_XLS_SPREADSHEET'),
-			'Workloads.xls',
-			false
-		);
+		if (Helpers\Input::getInt('personID'))
+		{
+			$toolbar->appendButton(
+				'NewTab',
+				'file-xls',
+				Helpers\Languages::_('ORGANIZER_DOWNLOAD'),
+				'Workloads.xls',
+				false
+			);
+		}
 	}
 
 	/**

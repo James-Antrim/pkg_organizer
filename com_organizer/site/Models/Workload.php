@@ -34,4 +34,25 @@ class Workload extends FormModel
 
 		// TODO if personID and person not associated with an organization 403
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = '')
+	{
+		$options['load_data'] = true;
+
+		return parent::loadForm($name, $source, $options, $clear, $xpath);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function loadFormData(): array
+	{
+		$personID = Helpers\Input::getInt('personID');
+		$termID = Helpers\Input::getInt('termID', Helpers\Terms::getCurrentID());
+
+		return ['personID' => $personID, 'termID' => $termID];
+	}
 }

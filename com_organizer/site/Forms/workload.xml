@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
-        <field name="termID" type="Terms" label="TERM" class="input-13" onchange="this.form.submit();"/>
-        <field name="personID" type="Persons" label="PERSON" onchange="this.form.submit();" table="organizer_persons"
-               textcolumn="surname" valuecolumn="id">
+        <field name="termID" type="Terms" label="TERM" class="input-13"/>
+        <field name="personID" type="Persons" label="PERSON" onchange="this.form.submit();">
             <option value="">SELECT_PERSON</option>
         </field>
     </fieldset>
