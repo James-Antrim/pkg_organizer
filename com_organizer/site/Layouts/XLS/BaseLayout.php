@@ -29,7 +29,7 @@ abstract class BaseLayout
 	/**
 	 * Fills the view with formatting and data.
 	 *
-	 * @return string
+	 * @return void
 	 * @throws Exception
 	 */
 	abstract public function fill();
@@ -39,12 +39,12 @@ abstract class BaseLayout
 	 *
 	 * @return string
 	 */
-	abstract public function getDescription();
+	abstract public function getDescription(): string;
 
 	/**
 	 * Gets the title for the document.
 	 *
 	 * @return string
 	 */
-	abstract public function getTitle();
+	abstract public function getTitle(): string;
 }

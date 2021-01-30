@@ -25,7 +25,7 @@ class Rooms extends BaseLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function getDescription()
+	public function getDescription(): string
 	{
 		// TODO: Implement getDescription() method.
 		return 'Default description.';
@@ -34,7 +34,7 @@ class Rooms extends BaseLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function getTitle()
+	public function getTitle(): string
 	{
 		// TODO: Implement getTitle() method.
 		return 'Default title.';
