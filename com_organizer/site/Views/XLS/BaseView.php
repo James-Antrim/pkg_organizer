@@ -11,6 +11,7 @@
 namespace Organizer\Views\XLS;
 
 require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
+require_once 'excel_constants.php';
 
 use Exception;
 use Joomla\CMS\Application\ApplicationHelper;
@@ -20,6 +21,7 @@ use Organizer\Models\BaseModel;
 use Organizer\Views\Named;
 use PHPExcel;
 use PHPExcel_IOFactory;
+use PHPExcel_Worksheet;
 
 /**
  * Base class for a Joomla View
@@ -38,7 +40,7 @@ abstract class BaseView extends PHPExcel
 	/**
 	 * @var BaseModel
 	 */
-	protected $model;
+	public $model;
 
 	/**
 	 * @inheritdoc
@@ -90,6 +92,25 @@ abstract class BaseView extends PHPExcel
 		header('Content-type: application/vnd.ms-excel');
 		header("Content-Disposition: attachment;filename=$documentTitle.xlsx");
 		$objWriter->save('php://output');
-		ob_flush();
+		exit();
+	}
+
+	/**
+	 * Set active sheet index
+	 *
+	 * @param   int  $pIndex  Active sheet index
+	 *
+	 * @return PHPExcel_Worksheet
+	 */
+	public function setActiveSheetIndex($pIndex = 0): PHPExcel_Worksheet
+	{
+		try
+		{
+			return parent::setActiveSheetIndex($pIndex);
+		}
+		catch (Exception $exception)
+		{
+			return $this->setActiveSheetIndex($pIndex - 1);
+		}
 	}
 }
