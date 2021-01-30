@@ -115,7 +115,7 @@ class Controller extends BaseController
 	 * @return BaseController  A BaseController object to support chaining.
 	 * @throws Exception
 	 */
-	public function display($cachable = false, $urlparams = [])
+	public function display($cachable = false, $urlparams = []): BaseController
 	{
 		$document = Factory::getDocument();
 		$format   = $this->input->get('format', $document->getType());
@@ -155,19 +155,21 @@ class Controller extends BaseController
 	 * Redirects to the edit view with an item id. Access checks performed in the view.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function edit()
 	{
 		Helpers\Input::set('view', "{$this->resource}_edit");
-		parent::display();
+		$this->display();
 	}
 
 	/**
-	 * Method to get the controller name
+	 * Method to get the controller name. This commentary has to be here otherwise using functions register unhandled
+	 * exceptions.
 	 *
 	 * @return  string  The name of the dispatcher
 	 */
-	public function getName()
+	public function getName(): string
 	{
 		if (empty($this->name))
 		{
@@ -228,7 +230,7 @@ class Controller extends BaseController
 	 *
 	 * @return  HtmlView  Reference to the view or an error.
 	 */
-	public function getView($name = '', $type = '', $prefix = 'x', $config = [])
+	public function getView($name = '', $type = '', $prefix = 'x', $config = []): HtmlView
 	{
 		// @note We use self so we only access stuff in this class rather than in all classes.
 		if (!isset(self::$views))
@@ -319,6 +321,7 @@ class Controller extends BaseController
 	 * the merge view if the automatic merge was unavailable or implausible.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function mergeView()
 	{
@@ -343,7 +346,7 @@ class Controller extends BaseController
 
 		// Reliance on POST requires a different method of redirection
 		Helpers\Input::set('view', "{$this->resource}_merge");
-		parent::display();
+		$this->display();
 	}
 
 	/**
@@ -355,7 +358,7 @@ class Controller extends BaseController
 	public function pdf()
 	{
 		Helpers\Input::set('format', 'pdf');
-		parent::display();
+		$this->display();
 	}
 
 	/**
@@ -385,6 +388,7 @@ class Controller extends BaseController
 	 * Makes call to the models's save2copy function, and redirects to the manager view.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function save2copy()
 	{
@@ -402,7 +406,7 @@ class Controller extends BaseController
 		else
 		{
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-			parent::display();
+			$this->display();
 		}
 	}
 
@@ -438,6 +442,6 @@ class Controller extends BaseController
 	public function xls()
 	{
 		Helpers\Input::set('format', 'xls');
-		parent::display();
+		$this->display();
 	}
 }
