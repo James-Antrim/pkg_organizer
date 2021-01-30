@@ -19,13 +19,10 @@ use Organizer\Helpers;
 class Units extends ListModel
 {
 	protected $filter_fields = [
-		//'categoryID',
 		'gridID',
-		//'groupID',
-		//'methodID',
 		'organizationID',
 		'status',
-		'termID',
+		'termID'
 	];
 
 	/**
