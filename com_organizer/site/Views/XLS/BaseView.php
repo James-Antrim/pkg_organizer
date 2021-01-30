@@ -60,6 +60,8 @@ abstract class BaseView extends PHPExcel
 		$properties = $this->getProperties();
 		$properties->setCreator('Organizer');
 		$properties->setLastModifiedBy(Helpers\Users::getName());
+		$properties->setDescription($this->layout->getDescription());
+		$properties->setTitle($this->layout->getTitle());
 	}
 
 	/**
@@ -68,7 +70,11 @@ abstract class BaseView extends PHPExcel
 	 * @return void
 	 * @throws Exception
 	 */
-	abstract public function display();
+	public function display()
+	{
+		$this->layout->fill();
+		$this->render();
+	}
 
 	/**
 	 * Renders the document.
