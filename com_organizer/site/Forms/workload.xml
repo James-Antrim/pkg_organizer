@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
+        <field name="organizationID" type="OrganizationAssociations" label="ORGANIZATION"
+               onchange="this.form.submit();">
+            <option value="">SELECT_ORGANIZATION</option>
+        </field>
         <field name="termID" type="Terms" label="TERM" class="input-13"/>
         <field name="personID" type="Persons" label="PERSON" onchange="this.form.submit();">
             <option value="">SELECT_PERSON</option>
