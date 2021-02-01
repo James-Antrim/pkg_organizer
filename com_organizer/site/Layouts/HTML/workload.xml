@@ -4,9 +4,6 @@
         <fieldset name="basic" label="ORGANIZER_SETTINGS">
             <field name="workloadWeeks" type="Integer" label="WORKLOAD_WEEKS" default="13" first="1" last="52"
                    step="1"/>
-            <field name="bachelorValue" type="Integer" label="BACHELOR_VALUE" default="25" first="5" last="100"
-                   step="5"/>
-            <field name="masterValue" type="Integer" label="MASTER_VALUE" default="50" first="5" last="100" step="5"/>
         </fieldset>
     </fields>
 </form>
