@@ -176,6 +176,21 @@ class Persons extends Associated implements Selectable
 	}
 
 	/**
+	 * Retrieves the person's surnames.
+	 *
+	 * @param   int  $personID  the person's id
+	 *
+	 * @return string  the default name of the person
+	 */
+	public static function getForename(int $personID): string
+	{
+		$person = new Tables\Persons();
+		$person->load($personID);
+
+		return $person->forename ? $person->forename : '';
+	}
+
+	/**
 	 * Gets the organizations with which the person is associated
 	 *
 	 * @param   int  $personID  the person's id
@@ -354,6 +369,21 @@ class Persons extends Associated implements Selectable
 		Database::setQuery($query);
 
 		return Database::loadAssocList('id');
+	}
+
+	/**
+	 * Retrieves the person's surnames.
+	 *
+	 * @param   int  $personID  the person's id
+	 *
+	 * @return string  the default name of the person
+	 */
+	public static function getSurname(int $personID): string
+	{
+		$person = new Tables\Persons();
+		$person->load($personID);
+
+		return $person->surname ? $person->surname : '';
 	}
 
 	/**
