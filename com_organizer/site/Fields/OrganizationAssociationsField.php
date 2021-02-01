@@ -33,7 +33,7 @@ class OrganizationAssociationsField extends OptionsField
 	 *
 	 * @return array the ids of the organizations associated with the resource
 	 */
-	private function getAssociatedOrganizations($resource, $resourceID)
+	private function getAssociatedOrganizations(string $resource, int $resourceID): array
 	{
 		if (array_key_exists($resource, $this->singleAssoc))
 		{
@@ -57,7 +57,7 @@ class OrganizationAssociationsField extends OptionsField
 	 *
 	 * @return array the ids of the organizations associated with the resource
 	 */
-	private function getAuthorizedOrganizations($resource)
+	private function getAuthorizedOrganizations(string $resource): array
 	{
 		switch ($resource)
 		{
@@ -75,6 +75,10 @@ class OrganizationAssociationsField extends OptionsField
 				{
 					return Helpers\Organizations::getIDs();
 				}
+
+				return [];
+			case 'workload':
+				return Helpers\Can::manageTheseOrganizations();
 			default:
 				return [];
 		}
@@ -85,16 +89,18 @@ class OrganizationAssociationsField extends OptionsField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
-		$contextParts = explode('.', $this->form->getName());
-		$disabled     = false;
-		$resource     = str_replace('edit', '', $contextParts[1]);
-		$resourceID   = Helpers\Input::getID() ? Helpers\Input::getID() : Helpers\Input::getSelectedID();
+		$contextParts    = explode('.', $this->form->getName());
+		$disabled        = false;
+		$resource        = str_replace('edit', '', $contextParts[1]);
+		$resourceID      = Helpers\Input::getID() ? Helpers\Input::getID() : Helpers\Input::getSelectedID();
+		$pseudoResources = ['workload'];
 
 		$authorized = $this->getAuthorizedOrganizations($resource);
+		$pseudo     = in_array($resource, $pseudoResources);
 
-		if ($associated = $this->getAssociatedOrganizations($resource, $resourceID))
+		if (!$pseudo and $associated = $this->getAssociatedOrganizations($resource, $resourceID))
 		{
 			$this->value = $resource === 'fieldcolor' ? $associated[0] : $associated;
 
@@ -140,6 +146,10 @@ class OrganizationAssociationsField extends OptionsField
 		{
 			$attr .= ' required aria-required="true" autofocus';
 		}
+		elseif ($pseudo and $onchange = $this->getAttribute('onchange'))
+		{
+			$attr .= " onchange=\"$onchange\"";
+		}
 		else
 		{
 			$this->name = $this->name . '[]';
@@ -156,7 +166,7 @@ class OrganizationAssociationsField extends OptionsField
 				$attr .= ' disabled="disabled"';
 				$attr .= ' size="' . count($options) . '"';
 			}
-			else
+			elseif (!$pseudo)
 			{
 				$attr .= $count > 3 ? ' size="10"' : " size=\"$count\"";
 				$attr .= ' size="3" required aria-required="true" autofocus';
