@@ -8,14 +8,16 @@
  * @link        www.thm.de
  */
 
-class XLC
+namespace Organizer\Views\XLS;
+
+class XLConstants
 {
 	// General
-	public const NONE = 'none', CONTAINSTEXT = 'containsText';
+	public const CONTAINSTEXT = 'containsText', GENERAL = 'General', NONE = 'none';
 
 	// Alignment
 	public const BOTTOM = 'bottom', CENTER = 'center', CENTER_CONTINUOUS = 'centerContinuous', FILL = 'fill',
-		GENERAL = 'general', JUSTIFY = 'justify', LEFT = 'left', RIGHT = 'right', TOP = 'top';
+		JUSTIFY = 'justify', LEFT = 'left', RIGHT = 'right', TOP = 'top';
 
 	// Borders
 	public const DASHDOT = 'dashDot', DASHDOTDOT = 'dashDotDot', DASHED = 'dashed', DOTTED = 'dotted', DOUBLE = 'double',
@@ -30,6 +32,13 @@ class XLC
 	// Conditions
 	public const CELLIS = 'cellIs', EXPRESSION = 'expression';
 
+	// Date / Time Formats
+	public const DATETIME = 'd/m/y h:mm', DDMMYYYY = 'dd/mm/yy', DMMINUS = 'd-m', DMYSLASH = 'd/m/y',
+		DMYMINUS = 'd-m-y', MYMINUS = 'm-y', TIME1 = 'h:mm AM/PM', TIME2 = 'h:mm:ss AM/PM', TIME3 = 'h:mm',
+		TIME4 = 'h:mm:ss', TIME5 = 'mm:ss', TIME6 = 'h:mm:ss', TIME7 = 'i:s.S', TIME8 = 'h:mm:ss;@',
+		XLSX14 = 'mm-dd-yy', XLSX15 = 'd-mmm-yy', XLSX16 = 'd-mmm', XLSX17 = 'mmm-yy', XLSX22 = 'm/d/yy h:mm',
+		YYYYMMDD = 'yy-mm-dd', YYYYMMDD2 = 'yyyy-mm-dd', YYYYMMDDSLASH = 'yy/mm/dd;@';
+
 	// Fills
 	public const GRADIENT_LINEAR = 'linear', GRADIENT_PATH = 'path', PATTERN_DARKDOWN = 'darkDown',
 		PATTERN_DARKGRAY = 'darkGray', PATTERN_DARKGRID = 'darkGrid', PATTERN_DARKHORIZONTAL = 'darkHorizontal',
@@ -38,6 +47,12 @@ class XLC
 		PATTERN_LIGHTGRAY = 'lightGray', PATTERN_LIGHTGRID = 'lightGrid', PATTERN_LIGHTHORIZONTAL = 'lightHorizontal',
 		PATTERN_LIGHTTRELLIS = 'lightTrellis', PATTERN_LIGHTUP = 'lightUp', PATTERN_LIGHTVERTICAL = 'lightVertical',
 		PATTERN_MEDIUMGRAY = 'mediumGray', SOLID = 'solid';
+
+	// Number Formats
+	public const CURRENCY_USD_SIMPLE = '"$"#,##0.00_-', CURRENCY_USD = '$#,##0_-',
+		CURRENCY_EUR_SIMPLE = '[$EUR ]#,##0.00_-', FORMAT_NUMBER = '0', FORMAT_TEXT = '@', NUMBER_00 = '0.00',
+		NUMBER_COMMA_SEPARATED1 = '#,##0.00', NUMBER_COMMA_SEPARATED2 = '#,##0.00_-', PERCENTAGE = '0%',
+		PERCENTAGE_00 = '0.00%';
 
 	// Operators
 	public const BEGINSWITH = 'beginsWith', BETWEEN = 'between', ENDSWITH = 'endsWith', EQUAL = 'equal',

@@ -264,34 +264,6 @@ class StagingModel extends BaseModel
 	}
 
 	/**
-	 * Gets the rate at which lessons are converted to scholastic weekly hours
-	 *
-	 * @param   string  $subjectName  the 'subject' name
-	 *
-	 * @return float|int  the conversion rate
-	 */
-	private function getRate($subjectName)
-	{
-		$params = Helpers\Input::getParams();
-		if ($subjectName == 'Betreuung von Bachelorarbeiten')
-		{
-			return floatval('0.' . $params->get('bachelor_value', 25));
-		}
-
-		if ($subjectName == 'Betreuung von Diplomarbeiten')
-		{
-			return floatval('0.' . $params->get('master_value', 50));
-		}
-
-		if ($subjectName == 'Betreuung von Masterarbeiten')
-		{
-			return floatval('0.' . $params->get('master_value', 50));
-		}
-
-		return 1;
-	}
-
-	/**
 	 * Creates a concatenated subject name from the relevant subject names for the lesson
 	 *
 	 * @param   object &$schedule  the schedule being processed

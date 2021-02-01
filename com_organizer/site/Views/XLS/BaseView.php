@@ -11,7 +11,6 @@
 namespace Organizer\Views\XLS;
 
 require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
-require_once 'excel_constants.php';
 
 use Exception;
 use Joomla\CMS\Application\ApplicationHelper;
@@ -64,6 +63,34 @@ abstract class BaseView extends PHPExcel
 		$properties->setLastModifiedBy(Helpers\Users::getName());
 		$properties->setDescription($this->layout->getDescription());
 		$properties->setTitle($this->layout->getTitle());
+	}
+
+	/**
+	 * Adds a range to the active sheet.
+	 *
+	 * @param   string      $start
+	 * @param   string      $end
+	 * @param   array       $style
+	 * @param   int|string  $value
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function addRange(string $start, string $end, $style = [], $value = '')
+	{
+		$coords = "$start:$end";
+		$sheet  = $this->getActiveSheet();
+		$sheet->mergeCells($coords);
+
+		if ($style)
+		{
+			$sheet->getStyle($coords)->applyFromArray($style);
+		}
+
+		if ($value)
+		{
+			$sheet->setCellValue($start, $value);
+		}
 	}
 
 	/**

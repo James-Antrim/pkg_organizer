@@ -31,8 +31,6 @@ class Workload extends FormView
 		$texts            = [
 			Helpers\Languages::_('ORGANIZER_WORKLOAD_CALCULATION_SETTINGS'),
 			Helpers\Languages::_('ORGANIZER_WORKLOAD_WEEKS') . ': ' . $params->get('workloadWeeks', 13),
-			Helpers\Languages::_('ORGANIZER_BACHELOR_VALUE') . ': ' . $params->get('bachelorValue', 25) . '%',
-			Helpers\Languages::_('ORGANIZER_MASTER_VALUE') . ': ' . $params->get('masterValue', 50) . '%',
 		];
 		$this->supplement = '<div class="tbox-blue">' . implode('<br>', $texts) . '</div>';
 	}
