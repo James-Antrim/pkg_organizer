@@ -65,7 +65,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function associateDependencies(array $programRanges, array $prerequisiteRanges, array $subjectRanges, bool $pre)
+	private function associateDependencies(array $programRanges, array $prerequisiteRanges, array $subjectRanges, bool $pre): bool
 	{
 		foreach ($programRanges as $programRange)
 		{
@@ -153,7 +153,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return array the relevant subject ranges
 	 */
-	private function filterRanges(array $programRange, array $subjectRanges)
+	private function filterRanges(array $programRange, array $subjectRanges): array
 	{
 		$left           = $programRange['lft'];
 		$relevantRanges = [];
@@ -173,7 +173,7 @@ class Subject extends CurriculumResource
 	/**
 	 * @inheritDoc
 	 */
-	public function importSingle(int $resourceID)
+	public function importSingle(int $resourceID): bool
 	{
 		$table = new Tables\Subjects();
 
@@ -269,7 +269,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processPersons(array $data)
+	private function processPersons(array $data): bool
 	{
 		// More efficient to remove all subject persons associations for the subject than iterate the persons table
 		if (!$this->removePersons($data['id']))
@@ -324,7 +324,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processPrerequisites(array $data)
+	private function processPrerequisites(array $data): bool
 	{
 		$subjectID = $data['id'];
 
@@ -381,9 +381,8 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function processResource(SimpleXMLElement $XMLObject, int $organizationID, int $parentID)
+	public function processResource(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
 	{
-		/** @noinspection PhpUndefinedFieldInspection */
 		$lsfID = (string) (empty($XMLObject->modulid) ? $XMLObject->pordid : $XMLObject->modulid);
 		if (empty($lsfID))
 		{
@@ -455,7 +454,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function removeDependencies(int $subjectID)
+	private function removeDependencies(int $subjectID): bool
 	{
 		if (!$this->removePreRequisites($subjectID))
 		{
@@ -491,7 +490,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool
 	 */
-	private function removePersons(int $subjectID, $role = null)
+	private function removePersons(int $subjectID, $role = null): bool
 	{
 		$query = Database::getQuery();
 		$query->delete('#__organizer_subject_persons')->where("subjectID = $subjectID");
@@ -514,7 +513,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function removePreRequisites(int $subjectID)
+	private function removePreRequisites(int $subjectID): bool
 	{
 		if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID)))
 		{
@@ -538,7 +537,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function removePostRequisites(int $subjectID)
+	private function removePostRequisites(int $subjectID): bool
 	{
 		if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID)))
 		{
@@ -561,7 +560,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function resolveTextDependencies(int $subjectID)
+	private function resolveTextDependencies(int $subjectID): bool
 	{
 		$table = new Tables\Subjects();
 
@@ -722,7 +721,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool
 	 */
-	private function saveDependencies(array $programs, int $subjectID, array $dependencies, string $type)
+	private function saveDependencies(array $programs, int $subjectID, array $dependencies, string $type): bool
 	{
 		$subjectRanges = $this->getRanges($subjectID);
 
@@ -740,7 +739,7 @@ class Subject extends CurriculumResource
 				$fdRangeIDs = array_merge($fdRangeIDs, Helpers\Subjects::filterIDs($fdRanges));
 			}
 
-			array_unique($fdRangeIDs);
+			$fdRangeIDs = array_unique($fdRangeIDs);
 
 			if ($type == 'pre')
 			{
@@ -768,7 +767,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success otherwise false
 	 */
-	private function savePrerequisites(array $prerequisiteIDs, array $subjectIDs)
+	private function savePrerequisites(array $prerequisiteIDs, array $subjectIDs): bool
 	{
 		// Delete any and all old prerequisites in case there are now fewer.
 		if ($subjectIDs)
@@ -808,7 +807,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function setPersons(int $subjectID, SimpleXMLElement $dataObject)
+	private function setPersons(int $subjectID, SimpleXMLElement $dataObject): bool
 	{
 		$coordinators = $dataObject->xpath('//verantwortliche');
 		$persons      = $dataObject->xpath('//dozent');
@@ -842,7 +841,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function setPersonsByRoles(int $subjectID, array $persons, int $role)
+	private function setPersonsByRoles(int $subjectID, array $persons, int $role): bool
 	{
 		$subjectModel = new Subject();
 
@@ -916,7 +915,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return array the subject information for subjects with dependencies
 	 */
-	private function verifyDependencies(array $potentialCodes, array $programRanges)
+	private function verifyDependencies(array $potentialCodes, array $programRanges): array
 	{
 		$select = 's.id AS subjectID, code, ';
 		$select .= 'abbreviation_de, shortName_de, fullName_de, abbreviation_en, shortName_en, fullName_en, ';

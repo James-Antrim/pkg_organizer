@@ -31,7 +31,7 @@ class Program extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function activate()
+	public function activate(): bool
 	{
 		if (!$selected = Helpers\Input::getSelectedIDs())
 		{
@@ -62,7 +62,7 @@ class Program extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function deactivate()
+	public function deactivate(): bool
 	{
 		if (!$selected = Helpers\Input::getSelectedIDs())
 		{
@@ -96,7 +96,7 @@ class Program extends CurriculumResource
 	 *
 	 * @return array  empty if the program could not be found
 	 */
-	private function getKeys(int $programID)
+	private function getKeys(int $programID): array
 	{
 		$query = Database::getQuery();
 		$query->select('p.code AS program, d.code AS degree, p.accredited, a.organizationID')
@@ -117,7 +117,7 @@ class Program extends CurriculumResource
 	 *
 	 * @return array the associated programs
 	 */
-	private function getSubjectIDs(int $resourceID, $subjectID = 0)
+	private function getSubjectIDs(int $resourceID, $subjectID = 0): array
 	{
 		$ranges = Helpers\Programs::getSubjects($resourceID, $subjectID);
 
@@ -135,8 +135,9 @@ class Program extends CurriculumResource
 
 	/**
 	 * @inheritDoc
+	 * @return Tables\Programs
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Programs
 	{
 		return new Tables\Programs();
 	}
@@ -144,7 +145,7 @@ class Program extends CurriculumResource
 	/**
 	 * @inheritDoc
 	 */
-	public function importSingle(int $resourceID)
+	public function importSingle(int $resourceID): bool
 	{
 		if (!$keys = $this->getKeys($resourceID))
 		{
@@ -244,7 +245,7 @@ class Program extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function update()
+	public function update(): bool
 	{
 		$programIDs = Helpers\Input::getSelectedIDs();
 

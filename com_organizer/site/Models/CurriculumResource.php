@@ -19,7 +19,7 @@ abstract class CurriculumResource extends BaseModel
 {
 	use Associated;
 
-	const NONE = -1, POOL = 'K', SUBJECT = 'M';
+	protected const NONE = -1, POOL = 'K', SUBJECT = 'M';
 
 	protected $helper;
 
@@ -32,7 +32,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return int the id of the curriculum row on success, otherwise 0
 	 */
-	protected function addRange(array &$range)
+	protected function addRange(array &$range): int
 	{
 		$curricula = new Tables\Curricula();
 
@@ -67,7 +67,6 @@ abstract class CurriculumResource extends BaseModel
 			$parent     = null;
 		}
 
-
 		if ($curricula->load($conditions))
 		{
 			$curricula->ordering = $range['ordering'];
@@ -78,6 +77,11 @@ abstract class CurriculumResource extends BaseModel
 		}
 		else
 		{
+			if (!empty($range['programID']))
+			{
+				$range['parentID'] = null;
+			}
+
 			$range['lft'] = $this->getLeft($range['parentID'], $range['ordering']);
 
 			if (!$range['lft'] or !$this->shiftRight($range['lft']))
@@ -149,7 +153,7 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * @inheritDoc
 	 */
-	public function delete()
+	public function delete(): bool
 	{
 		$this->authorize();
 
@@ -179,7 +183,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function deleteRange(int $rangeID)
+	protected function deleteRange(int $rangeID): bool
 	{
 		if (!$range = Helpers\Curricula::getRange($rangeID))
 		{
@@ -212,7 +216,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	protected function deleteRanges(int $resourceID)
+	protected function deleteRanges(int $resourceID): bool
 	{
 		$helper = "Organizer\\Helpers\\" . $this->helper;
 
@@ -239,7 +243,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function deleteSingle(int $resourceID)
+	protected function deleteSingle(int $resourceID): bool
 	{
 		if (!$this->deleteRanges($resourceID))
 		{
@@ -258,7 +262,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return array  empty if no child data exists
 	 */
-	protected function getExistingCurriculum(int $poolID)
+	protected function getExistingCurriculum(int $poolID): array
 	{
 		// Subordinate structures are the same for every superordinate resource
 		$query = Database::getQuery();
@@ -314,12 +318,12 @@ abstract class CurriculumResource extends BaseModel
 	/**
 	 * Attempt to determine the left value for the range to be created
 	 *
-	 * @param   int    $parentID  the parent of the item to be inserted
-	 * @param   mixed  $ordering  the targeted ordering on completion
+	 * @param   null|int  $parentID  the parent of the item to be inserted
+	 * @param   mixed     $ordering  the targeted ordering on completion
 	 *
 	 * @return int  int the left value for the range to be created, or 0 on error
 	 */
-	protected function getLeft(int $parentID, $ordering)
+	protected function getLeft(?int $parentID, $ordering): int
 	{
 		if (!$parentID)
 		{
@@ -362,7 +366,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return int  the value of the highest existing ordering or 1 if none exist
 	 */
-	protected function getOrdering(int $parentID, int $resourceID)
+	protected function getOrdering(int $parentID, int $resourceID): int
 	{
 		if ($existingOrdering = $this->getExistingOrdering($parentID, $resourceID))
 		{
@@ -383,7 +387,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return array the resource ranges
 	 */
-	protected function getRanges(int $resourceID)
+	protected function getRanges(int $resourceID): array
 	{
 		$helper = "Organizer\\Helpers\\" . $this->helper;
 
@@ -396,7 +400,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function import()
+	public function import(): bool
 	{
 		foreach (Helpers\Input::getSelectedIDs() as $resourceID)
 		{
@@ -416,7 +420,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	abstract public function importSingle(int $resourceID);
+	abstract public function importSingle(int $resourceID): bool;
 
 	/**
 	 * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
@@ -428,14 +432,13 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	protected function processCollection(SimpleXMLElement $collection, int $organizationID, int $parentID)
+	protected function processCollection(SimpleXMLElement $collection, int $organizationID, int $parentID): bool
 	{
 		$pool    = new Pool();
 		$subject = new Subject();
 
 		foreach ($collection as $subOrdinate)
 		{
-			/** @noinspection PhpUndefinedFieldInspection */
 			$type = (string) $subOrdinate->pordtyp;
 
 			if ($type === self::POOL)
@@ -504,7 +507,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function shiftDown(int $parentID, int $ordering)
+	protected function shiftDown(int $parentID, int $ordering): bool
 	{
 		$query = Database::getQuery();
 		$query->update('#__organizer_curricula')
@@ -524,7 +527,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function shiftLeft(int $left, int $width)
+	protected function shiftLeft(int $left, int $width): bool
 	{
 		$lftQuery = Database::getQuery();
 		$lftQuery->update('#__organizer_curricula')->set("lft = lft - $width")->where("lft > $left");
@@ -550,7 +553,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function shiftRight(int $left)
+	protected function shiftRight(int $left): bool
 	{
 		$lftQuery = Database::getQuery();
 		$lftQuery->update('#__organizer_curricula')->set('lft = lft + 2')->where("lft >= $left");
@@ -576,7 +579,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function shiftUp(int $parentID, int $ordering)
+	protected function shiftUp(int $parentID, int $ordering): bool
 	{
 		$query = Database::getQuery();
 		$query->update('#__organizer_curricula')
@@ -595,8 +598,9 @@ abstract class CurriculumResource extends BaseModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Tables\Subjects A Table object
+	 * @return Tables\BaseTable A Table object
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 * @noinspection PhpMissingReturnTypeInspection polymorphic return value
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
@@ -611,9 +615,8 @@ abstract class CurriculumResource extends BaseModel
 	 * @param   SimpleXMLElement  $resource  the resource being checked
 	 *
 	 * @return bool true if one of the titles has the possibility of being valid, otherwise false
-	 * @noinspection PhpUndefinedFieldInspection
 	 */
-	protected function validTitle(SimpleXMLElement $resource)
+	protected function validTitle(SimpleXMLElement $resource): bool
 	{
 		$titleDE = trim((string) $resource->titelde);
 		$titleEN = trim((string) $resource->titelen);

@@ -28,17 +28,10 @@ class Pool extends CurriculumResource
 	protected $resource = 'pool';
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
+	 * @inheritDoc
 	 * @return Tables\Pools A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Pools
 	{
 		return new Tables\Pools();
 	}
@@ -46,7 +39,7 @@ class Pool extends CurriculumResource
 	/**
 	 * @inheritDoc
 	 */
-	public function importSingle(int $resourceID)
+	public function importSingle(int $resourceID): bool
 	{
 		// There is no legitimate call to this method.
 		return false;
@@ -61,9 +54,8 @@ class Pool extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function processResource(SimpleXMLElement $XMLObject, int $organizationID, int $parentID)
+	public function processResource(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
 	{
-		/** @noinspection PhpUndefinedFieldInspection */
 		$lsfID = empty($XMLObject->pordid) ? (string) $XMLObject->modulid : (string) $XMLObject->pordid;
 		if (empty($lsfID))
 		{
@@ -125,7 +117,6 @@ class Pool extends CurriculumResource
 			$association->save(['organizationID' => $organizationID, 'poolID' => $pool->id]);
 		}
 
-		/** @noinspection PhpUndefinedFieldInspection */
 		return $this->processCollection($XMLObject->modulliste->modul, $organizationID, $curricula->id);
 	}
 
