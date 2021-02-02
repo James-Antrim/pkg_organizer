@@ -16,11 +16,14 @@ use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
+use Organizer\Views\HTML\BaseView as HTMLView;
+use Organizer\Views\JSON\BaseView as JSONView;
+use Organizer\Views\PDF\BaseView as PDFView;
+use Organizer\Views\XLS\BaseView as XLSView;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -228,9 +231,9 @@ class Controller extends BaseController
 	 * @param   string  $prefix  The class prefix. Optional.
 	 * @param   array   $config  Configuration array for view. Optional.
 	 *
-	 * @return  HtmlView  Reference to the view or an error.
+	 * @return  HTMLView|JSONView|PDFView|XLSView  the view object
 	 */
-	public function getView($name = '', $type = '', $prefix = 'x', $config = []): HtmlView
+	public function getView($name = '', $type = '', $prefix = 'x', $config = []) : object
 	{
 		// @note We use self so we only access stuff in this class rather than in all classes.
 		if (!isset(self::$views))
