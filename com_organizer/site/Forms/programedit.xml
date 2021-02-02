@@ -19,6 +19,18 @@
             <option value="1">ACTIVE</option>
             <option value="0">INACTIVE</option>
         </field>
+        <field name="fee" type="Options" label="PROGRAM_FEE" default="0">
+            <option value="0">NO</option>
+            <option value="1">YES</option>
+        </field>
+        <field name="nc" type="Options" label="NC" default="0">
+            <option value="0">NO</option>
+            <option value="1">YES</option>
+        </field>
+        <field name="special" type="Options" label="PROGRAM_SPECIAL" default="0">
+            <option value="0">NO</option>
+            <option value="1">YES</option>
+        </field>
     </fieldset>
     <fieldset name="de" label="ATTRIBUTES_DE">
         <field name="name_de" type="Blank" label="NAME_DE" class="required" maxlength="150" required="true"/>

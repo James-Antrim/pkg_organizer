@@ -67,6 +67,14 @@ class Programs extends BaseTable
 	public $description_en;
 
 	/**
+	 * A flag which displays whether the program has a fee.
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fee;
+
+	/**
 	 * The id of the frequency entry referenced.
 	 * INT(1) UNSIGNED DEFAULT NULL
 	 *
@@ -89,6 +97,22 @@ class Programs extends BaseTable
 	 * @var string
 	 */
 	public $name_en;
+
+	/**
+	 * A flag which displays whether the program has a restricted number of participants.
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $nc;
+
+	/**
+	 * A flag which displays whether the program has special participation requirements
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $special;
 
 	/**
 	 * Declares the associated table.
