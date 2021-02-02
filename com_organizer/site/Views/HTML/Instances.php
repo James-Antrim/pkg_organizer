@@ -35,7 +35,7 @@ class Instances extends ListView
 	public function __construct($config = [])
 	{
 		parent::__construct($config);
-		$this->statusDate = date('Y-m-d H:i:s', strtotime('-14 days'));
+		$this->statusDate = date('Y-m-d 00:00:00', strtotime('-14 days'));
 	}
 
 	/**
@@ -230,6 +230,11 @@ class Instances extends ListView
 
 		foreach ($item->resources as $person)
 		{
+			if (empty($person[$collectionIndex]) or $person['status'] === 'removed')
+			{
+				continue;
+			}
+
 			if (empty($person[$collectionIndex]))
 			{
 				continue;
@@ -237,7 +242,6 @@ class Instances extends ListView
 
 			foreach ($person[$collectionIndex] as $resourceID => $resource)
 			{
-
 				if ($this->entryStatus === 'new' and $resource['status'] === 'removed'
 					or $this->entryStatus === 'removed' and $resource['status'] === 'new')
 				{
