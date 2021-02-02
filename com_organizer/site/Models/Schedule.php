@@ -419,7 +419,6 @@ class Schedule extends BaseModel
 			}
 		}
 
-		$this->resetContext($current->organizationID, $current->termID, $currentID);
 		$this->setCurrent($currentID, $referenceID);
 
 		return true;
@@ -930,7 +929,11 @@ class Schedule extends BaseModel
 		}
 
 		// Ensures a clean reset if there were previous schedules that have been removed.
-		$this->resetContext($organizationID, $validator->termID, $schedule->id);
+		if (!$referenceID)
+		{
+			$this->resetContext($organizationID, $validator->termID, $schedule->id);
+		}
+
 		$this->setCurrent($schedule->id, $referenceID);
 		$this->resolveEventSubjects($organizationID);
 
