@@ -80,9 +80,12 @@ class Organizations extends ResourceHelper implements Selectable
 		$options = [];
 		foreach (self::getResources($access) as $organization)
 		{
-			$name = $short ? $organization['shortName'] : $organization['name'];
+			if ($organization['active'])
+			{
+				$name = $short ? $organization['shortName'] : $organization['name'];
 
-			$options[] = HTML::_('select.option', $organization['id'], $name);
+				$options[] = HTML::_('select.option', $organization['id'], $name);
+			}
 		}
 
 		uasort($options, function ($optionOne, $optionTwo) {
