@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -17,6 +18,10 @@ use Organizer\Helpers;
  */
 class Workload extends FormModel
 {
+	private $organizationIDs;
+
+	public $programs = [];
+
 	/**
 	 * @inheritDoc
 	 */
@@ -27,12 +32,10 @@ class Workload extends FormModel
 			Helpers\OrganizerHelper::error(401);
 		}
 
-		if (!$organizationIDs = Helpers\Can::manageTheseOrganizations())
+		if (!$this->organizationIDs = Helpers\Can::manageTheseOrganizations())
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
-
-		// TODO if personID and person not associated with an organization 403
 	}
 
 	/**
@@ -42,6 +45,10 @@ class Workload extends FormModel
 	{
 		$options['load_data'] = true;
 
+		// Set the organizationID to the input before the options for person are loaded
+		$organizationID = Helpers\Input::getInt('organizationID', $this->organizationIDs[0]);
+		Helpers\Input::set('organizationID', $organizationID);
+
 		return parent::loadForm($name, $source, $options, $clear, $xpath);
 	}
 
@@ -50,9 +57,56 @@ class Workload extends FormModel
 	 */
 	protected function loadFormData(): array
 	{
-		$personID = Helpers\Input::getInt('personID');
-		$termID = Helpers\Input::getInt('termID', Helpers\Terms::getCurrentID());
+		$organizationID = Helpers\Input::getInt('organizationID', $this->organizationIDs[0]);
+		$personID       = Helpers\Input::getInt('personID');
+		$termID         = Helpers\Input::getInt('termID', Helpers\Terms::getCurrentID());
 
-		return ['personID' => $personID, 'termID' => $termID];
+		return ['organizationID' => $organizationID, 'personID' => $personID, 'termID' => $termID];
+	}
+
+	/**
+	 * Set dynamic data.
+	 *
+	 * @return void
+	 */
+	public function setUp()
+	{
+		$this->setPrograms();
+	}
+
+	/**
+	 * Sets program data.
+	 *
+	 * @return void
+	 */
+	private function setPrograms()
+	{
+		$tag   = Helpers\Languages::getTag();
+		$query = Database::getQuery();
+		$query->select("p.id, categoryID, p.degreeID, p.name_$tag AS program, fee, frequencyID, nc, special")
+			->select('d.abbreviation AS degree')
+			->from('#__organizer_programs AS p')
+			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
+			->where('active = 1');
+		Database::setQuery($query);
+
+		$results = Database::loadAssocList();
+
+		foreach ($results as &$program)
+		{
+			$organizationIDs = Helpers\Programs::getOrganizationIDs($program['id']);
+
+			foreach (array_keys($organizations = array_flip($organizationIDs)) as $organizationID)
+			{
+				$organizations[$organizationID] = Helpers\Organizations::getShortName($organizationID);
+			}
+
+			asort($organizations);
+			$program['organizations'] = $organizations;
+			$index                    = "{$program['program']} ({$program['degree']})";
+			$this->programs[$index]   = $program;
+		}
+
+		ksort($this->programs);
 	}
 }

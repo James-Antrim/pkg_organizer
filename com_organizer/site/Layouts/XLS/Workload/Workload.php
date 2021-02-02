@@ -115,6 +115,11 @@ class Workload extends BaseLayout
 	];
 
 	/**
+	 * @var int the id of the organization selected
+	 */
+	private $organizationID;
+
+	/**
 	 * @var int the id of the person whose workload this displays
 	 */
 	private $personID;
@@ -132,8 +137,9 @@ class Workload extends BaseLayout
 	public function __construct(BaseView $view)
 	{
 		parent::__construct($view);
-		$this->personID = Helpers\Input::getInt('personID');
-		$this->termID   = Helpers\Input::getInt('termID');
+		$this->organizationID = Helpers\Input::getInt('organizationID');
+		$this->personID       = Helpers\Input::getInt('personID');
+		$this->termID         = Helpers\Input::getInt('termID');
 	}
 
 	/**
@@ -463,28 +469,73 @@ class Workload extends BaseLayout
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addProgramSheet1()
+	private function addProgramSheet()
 	{
 		$view = $this->view;
 		$view->createSheet();
 		$view->setActiveSheetIndex(2);
 		$sheet = $view->getActiveSheet();
 		$sheet->setTitle('Studiengänge');
-	}
 
-	/**
-	 * Adds the main work sheet to the document.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	private function addProgramSheet2()
-	{
-		$view = $this->view;
-		$view->createSheet();
-		$view->setActiveSheetIndex(2);
-		$sheet = $view->getActiveSheet();
-		$sheet->setTitle('Studiengänge (2)');
+		$sheet->getColumnDimension()->setWidth(90);
+		$sheet->getColumnDimension('B')->setWidth(25);
+		$sheet->getColumnDimension('C')->setWidth(40);
+		$sheet->getColumnDimension('D')->setWidth(25);
+
+		$style = [
+			'alignment' => ['code' => XLConstants::CENTER],
+			'border'    => $this->borders['header'],
+			'fill'      => $this->fills['header']
+		];
+		$sheet->setTitle('Registrations')->getStyle('A1:D1')->applyFromArray($style);
+
+
+		$sheet->setCellValue("A1", Languages::_('ORGANIZER_PROGRAMS'));
+		$sheet->setCellValue("B1", Languages::_('ORGANIZER_PROGRAM_RESTRICTIONS'));
+		$sheet->setCellValue("C1", Languages::_('ORGANIZER_PROGRAMS'));
+		$sheet->setCellValue("D1", Languages::_('ORGANIZER_ORGANIZATIONS'));
+
+		$row = 2;
+
+		foreach ($this->view->model->programs as $name => $program)
+		{
+			$sheet->setCellValue("A$row", $name);
+
+			if ($program['frequencyID'])
+			{
+				$sheet->setCellValue("B$row", Helpers\Frequencies::getName($program['frequencyID']));
+			}
+
+			$restrictions = [];
+
+			if ($program['fee'])
+			{
+				$restrictions[] = Languages::_('ORGANIZER_PROGRAM_FEE');
+			}
+
+			if ($program['nc'])
+			{
+				$restrictions[] = Languages::_('ORGANIZER_NC');
+			}
+
+			if ($program['special'])
+			{
+				$restrictions[] = Languages::_('ORGANIZER_PROGRAM_SPECIAL');
+			}
+
+			$restrictions = $restrictions ? implode(', ', $restrictions) : '-----';
+			$sheet->setCellValue("C$row", $restrictions);
+
+			$organizations = $program['organizations'] ? implode(', ', $program['organizations']) : '';
+			$sheet->setCellValue("D$row", $organizations);
+
+			if ($row % 2 === 1)
+			{
+				$sheet->getStyle("A$row:D$row")->applyFromArray(['fill' => $this->fills['data']]);
+			}
+
+			$row++;
+		}
 	}
 
 	/**
@@ -931,6 +982,7 @@ class Workload extends BaseLayout
 
 		$sheet->getRowDimension('4')->setRowHeight($this->heights['basicField']);
 		$this->addBasicField(4, 'Fachbereich');
+		$sheet->setCellValue('C4', Helpers\Organizations::getShortName($this->organizationID));
 		$sheet->getRowDimension('5')->setRowHeight($this->heights['spacer']);
 
 		$sheet->getRowDimension('6')->setRowHeight($this->heights['basicField']);
@@ -1034,8 +1086,7 @@ class Workload extends BaseLayout
 		$this->view->getDefaultStyle()->getFont()->setName('Arial')->setSize();
 		$this->addInstructionSheet();
 		$this->addWorkSheet();
-		$this->addProgramSheet1();
-		$this->addProgramSheet2();
+		$this->addProgramSheet();
 		$this->view->setActiveSheetIndex(1);
 	}
 
