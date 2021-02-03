@@ -94,7 +94,7 @@ class Dates
 	 *
 	 * @return string the date format
 	 */
-	public static function getFormat()
+	public static function getFormat(): string
 	{
 		return Input::getParams()->get('dateFormat', 'd.m.Y');
 	}
@@ -106,7 +106,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getHalfYear(string $date)
+	public static function getHalfYear(string $date): array
 	{
 		$dateTime = strtotime($date);
 
@@ -120,7 +120,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getMonth(string $date)
+	public static function getMonth(string $date): array
 	{
 		$dateTime  = strtotime($date);
 		$startDate = date('Y-m-d', strtotime('first day of this month', $dateTime));
@@ -133,12 +133,23 @@ class Dates
 	 * Returns the end and start dates of a three month period beginning with the date given.
 	 *
 	 * @param   string  $date  the date
+	 * @param   int     $startDay
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getQuarter(string $date)
+	public static function getQuarter(string $date, $startDay = 1): array
 	{
-		$dateTime = strtotime($date);
+		switch (Input::getCMD('format'))
+		{
+			case 'pdf':
+				$dateTime     = strtotime($date);
+				$startDayName = date('l', strtotime("Sunday + $startDay days"));
+				$dateTime     = strtotime("$startDayName this week", $dateTime);
+				break;
+			default:
+				$dateTime = strtotime($date);
+				break;
+		}
 
 		return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+3 month', $dateTime))];
 	}
@@ -150,7 +161,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getTerm(string $date)
+	public static function getTerm(string $date): array
 	{
 		$query = Database::getQuery();
 		$query->select('startDate, endDate')
@@ -170,7 +181,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getWeek(string $date, $startDay = 1, $endDay = 6)
+	public static function getWeek(string $date, $startDay = 1, $endDay = 6): array
 	{
 		$dateTime     = strtotime($date);
 		$startDayName = date('l', strtotime("Sunday + $startDay days"));
@@ -188,7 +199,7 @@ class Dates
 	 *
 	 * @return bool
 	 */
-	private static function isStandardized(string $date)
+	private static function isStandardized(string $date): bool
 	{
 		$dt = DateTime::createFromFormat('Y-m-d', $date);
 
@@ -202,7 +213,7 @@ class Dates
 	 *
 	 * @return string  date sting in format Y-m-d
 	 */
-	public static function standardizeDate($date = '')
+	public static function standardizeDate($date = ''): string
 	{
 		$default = date('Y-m-d');
 
