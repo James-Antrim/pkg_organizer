@@ -1,6 +1,3 @@
-#migrate schedule calls
-## first to new functions mimicking the output of the old
-## then migrate acceptance to new structures and adjust output accordingly
 #ical
 
 
@@ -19,8 +16,8 @@
 #component setting for currency
 #further integrate the status wait list into course participant handling
 #integrate 'active' attributes for person, pool & program into documentation output
-#give coordinators have documentation access
 #link instance views from documentation resources
+#add relevance output/toggle to the methods view
 #endregion
 
 #region Meta ###########################################################################################################
@@ -30,13 +27,13 @@
 ##success - successful user dm interaction
 ##notice - unsuccessful user dm interaction due to inconsistent data or any other non-critical error where the user is not at fault
 ##warning - unsuccessful user dm interaction where form manipulation most likely occurred
-##error - unsuccessful user dm where hard db errors occurred or form url manipluation definitely occurred
+##error - unsuccessful user dm where hard db errors occurred or form url manipulation definitely occurred
 #sprachenzentrum as organization & associate persons
 #make rooms primary in organizer & error if not existent
 #remove roomtypes from untis
 #make an adapters namespace for classes/files which alter joomla core functionality
 ##database adapter (organizer helper)
-##application adapeter (organizer helper)
+##application adapter (organizer helper)
 ##html adapter
 ##language adapter
 ##input adapter
@@ -75,8 +72,8 @@
 
 #region Deputat ########################################################################################################
 #deputat view
-#methods => kapvo mapping
-#adjust untis according to any kapvo resolution
+#methods => KapVO mapping
+#adjust untis according to any KapVO resolution
 #endregion
 
 #region Documentation Export ###########################################################################################

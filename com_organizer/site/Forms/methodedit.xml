@@ -9,5 +9,9 @@
         <field type="spacer"/>
         <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
         <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" maxlength="25"/>
+        <field name="relevant" type="Options" label="WORKLOAD_RELEVANT" default="1">
+            <option value='1'>YES</option>
+            <option value='0'>NO</option>
+        </field>
     </fieldset>
 </form>

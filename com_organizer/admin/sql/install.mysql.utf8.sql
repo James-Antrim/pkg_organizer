@@ -477,15 +477,16 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
     COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__organizer_methods` (
-    `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alias`           VARCHAR(255) DEFAULT NULL,
-    `code`            VARCHAR(60)      NOT NULL,
-    `name_de`         VARCHAR(150) DEFAULT NULL,
-    `name_en`         VARCHAR(150) DEFAULT NULL,
-    `abbreviation_de` VARCHAR(25)  DEFAULT '',
-    `abbreviation_en` VARCHAR(25)  DEFAULT '',
-    `plural_de`       VARCHAR(150) DEFAULT '',
-    `plural_en`       VARCHAR(150) DEFAULT '',
+    `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `alias`           VARCHAR(255)                 DEFAULT NULL,
+    `code`            VARCHAR(60)         NOT NULL,
+    `name_de`         VARCHAR(150)                 DEFAULT NULL,
+    `name_en`         VARCHAR(150)                 DEFAULT NULL,
+    `abbreviation_de` VARCHAR(25)                  DEFAULT '',
+    `abbreviation_en` VARCHAR(25)                  DEFAULT '',
+    `plural_de`       VARCHAR(150)                 DEFAULT '',
+    `plural_en`       VARCHAR(150)                 DEFAULT '',
+    `relevant`        TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     PRIMARY KEY (`id`),
     UNIQUE KEY `alias` (`alias`),
     UNIQUE `code` (`code`)
@@ -495,21 +496,21 @@ CREATE TABLE IF NOT EXISTS `#__organizer_methods` (
     COLLATE = utf8mb4_unicode_ci;
 
 INSERT INTO `#__organizer_methods`(`id`, `alias`, `code`, `name_de`, `name_en`, `abbreviation_de`, `abbreviation_en`,
-                                   `plural_de`, `plural_en`)
-VALUES (1, NULL, 'KES', 'Klausureinsicht', 'Final Review', 'KES', 'FRV', 'Klausureinsichten', 'Final Reviews'),
-       (2, NULL, 'KLA', 'Klausur', 'Final', 'KLA', 'FIN', 'Klausuren', 'Finals'),
+                                   `plural_de`, `plural_en`, `relevant`)
+VALUES (1, NULL, 'KES', 'Klausureinsicht', 'Final Review', 'KES', 'FRV', 'Klausureinsichten', 'Final Reviews', 0),
+       (2, NULL, 'KLA', 'Klausur', 'Final', 'KLA', 'FIN', 'Klausuren', 'Finals', 0),
        (3, NULL, 'KVB', 'Klausurvorbereitung', 'Final Preparation', 'KVB', 'FPR', 'Klausurvorbereitungen',
-        'Finals Preparations'),
-       (4, NULL, 'LAB', 'Labor', 'Lab Exercise', 'LAB', 'LAB', 'Laboren', 'Lab Exercises'),
-       (5, NULL, 'PRK', 'Praktikum', 'Practice', 'PRK', 'PRC', 'Praktiken', 'Practices'),
-       (6, NULL, 'PRÜ', 'Prüfung', 'Examination', 'PRÜ', 'EXM', 'Prüfungen', 'Examinations'),
-       (7, NULL, 'SEM', 'Seminar', 'Seminar', 'SEM', 'SEM', 'Seminaren', 'Seminars'),
+        'Finals Preparations', 0),
+       (4, NULL, 'LAB', 'Labor', 'Lab Exercise', 'LAB', 'LAB', 'Laboren', 'Lab Exercises', 1),
+       (5, NULL, 'PRK', 'Praktikum', 'Practice', 'PRK', 'PRC', 'Praktiken', 'Practices', 1),
+       (6, NULL, 'PRÜ', 'Prüfung', 'Examination', 'PRÜ', 'EXM', 'Prüfungen', 'Examinations', 0),
+       (7, NULL, 'SEM', 'Seminar', 'Seminar', 'SEM', 'SEM', 'Seminaren', 'Seminars', 1),
        (8, NULL, 'SMU', 'Seminaristische Unterricht', 'Guided Discussion', 'SMU', 'GDS', 'Seminaristische Unterrichte',
-        'Guided Discussions'),
-       (9, NULL, 'TUT', 'Tutorium', 'Tutorium', 'TUT', 'TUT', 'Tutorien', 'Tutoria'),
-       (10, NULL, 'ÜBG', 'Übung', 'Exercise', 'ÜBG', 'EXC', 'Übungen', 'Exercises'),
-       (11, NULL, 'VRL', 'Vorlesung', 'Lecture', 'VRL', 'LCT', 'Vorlesungen', 'Lectures'),
-       (12, NULL, 'PAB', 'Projektarbeit', 'Project', 'PAB', 'PRJ', 'Projektarbeiten', 'Projects');
+        'Guided Discussions', 1),
+       (9, NULL, 'TUT', 'Tutorium', 'Tutorium', 'TUT', 'TUT', 'Tutorien', 'Tutoria', 0),
+       (10, NULL, 'ÜBG', 'Übung', 'Exercise', 'ÜBG', 'EXC', 'Übungen', 'Exercises', 1),
+       (11, NULL, 'VRL', 'Vorlesung', 'Lecture', 'VRL', 'LCT', 'Vorlesungen', 'Lectures', 1),
+       (12, NULL, 'PAB', 'Projektarbeit', 'Project', 'PAB', 'PRJ', 'Projektarbeiten', 'Projects', 1);
 
 CREATE TABLE IF NOT EXISTS `#__organizer_monitors` (
     `id`              INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
@@ -958,6 +959,7 @@ ALTER TABLE `#__organizer_instances`
 ALTER TABLE `#__organizer_monitors`
     ADD CONSTRAINT `monitor_roomID_fk` FOREIGN KEY (`roomID`) REFERENCES `#__organizer_rooms` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
+# noinspection SqlResolve
 ALTER TABLE `#__organizer_participants`
     ADD CONSTRAINT `participant_programID_fk` FOREIGN KEY (`programID`) REFERENCES `#__organizer_programs` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `participant_userID_fk` FOREIGN KEY (`id`) REFERENCES `#__users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -979,6 +981,7 @@ ALTER TABLE `#__organizer_rooms`
     ADD CONSTRAINT `room_buildingID_fk` FOREIGN KEY (`buildingID`) REFERENCES `#__organizer_buildings` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `room_roomtypeID_fk` FOREIGN KEY (`roomtypeID`) REFERENCES `#__organizer_roomtypes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
+# noinspection SqlResolve
 ALTER TABLE `#__organizer_schedules`
     ADD CONSTRAINT `schedule_organizationID_fk` FOREIGN KEY (`organizationID`) REFERENCES `#__organizer_organizations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `schedule_termID_fk` FOREIGN KEY (`termID`) REFERENCES `#__organizer_terms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

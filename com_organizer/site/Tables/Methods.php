@@ -12,6 +12,7 @@ namespace Organizer\Tables;
 
 /**
  * Models the organizer_methods table.
+ * @noinspection PhpUnused
  */
 class Methods extends BaseTable
 {
@@ -73,6 +74,14 @@ class Methods extends BaseTable
 	 * @var string
 	 */
 	public $plural_en;
+
+	/**
+	 * A flag which displays whether the method is relevant for .
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $relevant;
 
 	/**
 	 * Declares the associated table.
