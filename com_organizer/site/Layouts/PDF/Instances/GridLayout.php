@@ -411,7 +411,7 @@ abstract class GridLayout extends BaseLayout
 			$name .= "\n$instance->method";
 		}
 
-		$text .= "$name";
+		$text .= $name;
 
 		if ($instance->comment)
 		{
@@ -440,7 +440,13 @@ abstract class GridLayout extends BaseLayout
 		foreach ($persons as $personID => $person)
 		{
 			// No delta display in pdf
-			if ($person['status'] === 'removed')
+			if ($person['status'] === 'removed' or (!empty($conditions['personIDs']) and !in_array($personID, $conditions['personIDs'])))
+			{
+				unset($persons[$personID]);
+				continue;
+			}
+
+			if (!$showPersons and !in_array($personID, $conditions['personIDs']))
 			{
 				unset($persons[$personID]);
 				continue;
@@ -506,7 +512,6 @@ abstract class GridLayout extends BaseLayout
 		$groupCount = count($groups);
 		$roleCount  = count($personTexts);
 		$roomCount  = count($rooms);
-		$tag        = Helpers\Languages::getTag();
 
 		// Status: share and share alike, all persons are assigned the same groups and rooms or none
 		if ($groupCount < 2 and $roomCount < 2)
