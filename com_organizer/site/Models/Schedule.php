@@ -907,34 +907,37 @@ class Schedule extends BaseModel
 			return false;
 		}
 
-		$referenceID    = 0;
 		$refScheduleIDs = $this->getContextIDs($organizationID, $validator->termID);
 
 		// Remove current from iteration.
 		array_pop($refScheduleIDs);
 
-		foreach ($refScheduleIDs as $refScheduleID)
-		{
-			$refSchedule = new Tables\Schedules();
-			$refSchedule->load($refScheduleID);
-
-			if ($refSchedule->creationDate !== $schedule->creationDate)
-			{
-				$referenceID = $refSchedule->id;
-			}
-			else
-			{
-				$refSchedule->delete();
-			}
-		}
+		// Get the last element without removing it from iteration.
+		$referenceID = end($refScheduleIDs);
 
 		// Ensures a clean reset if there were previous schedules that have been removed.
 		if (!$referenceID)
 		{
 			$this->resetContext($organizationID, $validator->termID, $schedule->id);
+
+			// end() of empty is false this future proofs the typing
+			$referenceID = 0;
 		}
 
 		$this->setCurrent($schedule->id, $referenceID);
+
+		// With the deltas current it is now safe to remove any schedules of the same day as the schedule itself.
+		foreach ($refScheduleIDs as $refScheduleID)
+		{
+			$refSchedule = new Tables\Schedules();
+			$refSchedule->load($refScheduleID);
+
+			if ($refSchedule->creationDate === $schedule->creationDate)
+			{
+				$refSchedule->delete();
+			}
+		}
+
 		$this->resolveEventSubjects($organizationID);
 
 		return true;
