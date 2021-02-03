@@ -59,7 +59,8 @@ class Instances extends ListView
 		);
 
 		$state            = $this->state;
-		$resourceSelected = ($state->get('filter.groupID') or $state->get('filter.groupID') or $state->get('filter.groupID'));
+		$resourceSelected = ($state->get('filter.groupID') or $state->get('filter.personID') or $state->get('filter.roomID'));
+
 		if ($state->get('filter.my') or $resourceSelected)
 		{
 			$toolbar->appendButton(
