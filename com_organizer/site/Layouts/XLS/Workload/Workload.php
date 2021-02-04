@@ -469,6 +469,49 @@ class Workload extends BaseLayout
 	 * @return void
 	 * @throws Exception
 	 */
+	private function addMethodsSheet()
+	{
+		$view = $this->view;
+		$view->createSheet();
+		$view->setActiveSheetIndex(3);
+		$sheet = $view->getActiveSheet();
+		$sheet->setTitle('Lehrmethoden');
+
+		$sheet->getColumnDimension()->setWidth(15);
+		$sheet->getColumnDimension('B')->setWidth(40);
+
+		$style = [
+			'alignment' => ['code' => XLConstants::CENTER],
+			'border'    => $this->borders['header'],
+			'fill'      => $this->fills['header']
+		];
+
+		$sheet->getStyle('A1:B1')->applyFromArray($style);
+		$sheet->setCellValue("A1", Languages::_('ORGANIZER_CODE'));
+		$sheet->setCellValue("B1", Languages::_('ORGANIZER_METHOD'));
+
+		$row = 2;
+
+		foreach ($this->view->model->methods as $code => $method)
+		{
+			$sheet->setCellValue("A$row", $code);
+			$sheet->setCellValue("B$row", $method);
+
+			if ($row % 2 === 1)
+			{
+				$sheet->getStyle("A$row:B$row")->applyFromArray(['fill' => $this->fills['data']]);
+			}
+
+			$row++;
+		}
+	}
+
+	/**
+	 * Adds the main work sheet to the document.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
 	private function addProgramSheet()
 	{
 		$view = $this->view;
@@ -487,9 +530,8 @@ class Workload extends BaseLayout
 			'border'    => $this->borders['header'],
 			'fill'      => $this->fills['header']
 		];
-		$sheet->setTitle('Registrations')->getStyle('A1:D1')->applyFromArray($style);
 
-
+		$sheet->getStyle('A1:D1')->applyFromArray($style);
 		$sheet->setCellValue("A1", Languages::_('ORGANIZER_PROGRAMS'));
 		$sheet->setCellValue("B1", Languages::_('ORGANIZER_PROGRAM_RESTRICTIONS'));
 		$sheet->setCellValue("C1", Languages::_('ORGANIZER_PROGRAMS'));
@@ -1087,6 +1129,7 @@ class Workload extends BaseLayout
 		$this->addInstructionSheet();
 		$this->addWorkSheet();
 		$this->addProgramSheet();
+		$this->addMethodsSheet();
 		$this->view->setActiveSheetIndex(1);
 	}
 
