@@ -296,11 +296,6 @@ class Workload extends BaseLayout
 
 			switch ($current)
 			{
-				// No implementation
-				case self::ELECTIVE:
-				case self::SWS_SHOULD:
-					$cellStyle->applyFromArray($dataStyle);
-					break;
 
 				case self::EVENTS:
 					$cellStyle->applyFromArray($dataStyle);
@@ -309,6 +304,15 @@ class Workload extends BaseLayout
 						$count = count($item['names']);
 						$lines = $count > $lines ? $count : $lines;
 						$sheet->setCellValue($coords, implode("\n", $item['names']));
+					}
+					break;
+				case self::GROUPS:
+					$cellStyle->applyFromArray($indexStyle);
+					if (!empty($item['names']))
+					{
+						$count = count($item['groups']);
+						$lines = $count > $lines ? $count : $lines;
+						$sheet->setCellValue($coords, implode("\n", $item['groups']));
 					}
 					break;
 				case self::HOURS:
@@ -325,6 +329,15 @@ class Workload extends BaseLayout
 					if (!empty($item['method']))
 					{
 						$sheet->setCellValue($coords, $item['method']);
+					}
+					break;
+				case self::PROGRAMS:
+					$cellStyle->applyFromArray($indexStyle);
+					if (!empty($item['programs']))
+					{
+						$count = count($item['programs']);
+						$lines = $count > $lines ? $count : $lines;
+						$sheet->setCellValue($coords, implode("\n", $item['programs']));
 					}
 					break;
 				case self::SUBJECTNOS:
@@ -345,10 +358,10 @@ class Workload extends BaseLayout
 					}
 					$cellStyle->getNumberFormat()->setFormatCode(XLConstants::NUMBER_00);
 					break;
-				case self::GROUPS:
-				case self::PROGRAMS:
+				case self::ELECTIVE:
+				case self::SWS_SHOULD:
 				default:
-					$cellStyle->applyFromArray($indexStyle);
+					$cellStyle->applyFromArray($dataStyle);
 					break;
 			}
 		}
@@ -735,7 +748,7 @@ class Workload extends BaseLayout
 			['text' => $text2]
 		];
 
-		$this->addColumnHeader("H$startRow", "H$endRow", "Studien-\ngang", $comments);
+		$this->addColumnHeader("H$startRow", "H$endRow", "Studiengang", $comments);
 		$this->addColumnHeader("I$startRow", "I$endRow", 'Semester');
 
 		$comments = [
@@ -1216,12 +1229,12 @@ class Workload extends BaseLayout
 
 		$style = ['font' => ['bold' => true, 'size' => 11]];
 		$view->addRange("B$row", "G$row", $style, 'Ich versichere die Richtigkeit der vorstehenden Angaben:');
-		$view->addRange("H$row", "M$row", $style, 'Gegenzeichnung Dekanat:');
+		$view->addRange("I$row", "M$row", $style, 'Gegenzeichnung Dekanat:');
 		$row++;
 		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
 		$view->addRange("B$row", "G$row", [], 'Gießen/Friedberg, den');
-		$view->addRange("H$row", "M$row", [], 'Gießen/Friedberg, den');
+		$view->addRange("I$row", "M$row", [], 'Gießen/Friedberg, den');
 		$row = $row + 3;
 
 		$style = ['borders' => $this->borders['signature'], 'font' => ['size' => 11]];
@@ -1284,20 +1297,20 @@ class Workload extends BaseLayout
 		$pageSetUp->setFitToPage(true);
 
 		$sheet->setShowGridlines(false);
-		$sheet->getColumnDimension()->setWidth(2);
-		$sheet->getColumnDimension('B')->setWidth(15);
+		$sheet->getColumnDimension()->setWidth(1);
+		$sheet->getColumnDimension('B')->setWidth(13.5);
 		$sheet->getColumnDimension('C')->setWidth(10.71);
 		$sheet->getColumnDimension('D')->setWidth(10.71);
-		$sheet->getColumnDimension('E')->setWidth(9.71);
-		$sheet->getColumnDimension('F')->setWidth(10.71);
+		$sheet->getColumnDimension('E')->setWidth(5.71);
+		$sheet->getColumnDimension('F')->setWidth(8.71);
 		$sheet->getColumnDimension('G')->setWidth(11.71);
-		$sheet->getColumnDimension('H')->setWidth(10.86);
-		$sheet->getColumnDimension('I')->setWidth(10.71);
-		$sheet->getColumnDimension('J')->setWidth(10.71);
+		$sheet->getColumnDimension('H')->setWidth(16.86);
+		$sheet->getColumnDimension('I')->setWidth(16.6);
+		$sheet->getColumnDimension('J')->setWidth(8.71);
 		$sheet->getColumnDimension('K')->setWidth(16.43);
 		$sheet->getColumnDimension('L')->setWidth(13.29);
 		$sheet->getColumnDimension('M')->setWidth(12.29);
-		$sheet->getColumnDimension('N')->setWidth(2.29);
+		$sheet->getColumnDimension('N')->setWidth(1);
 
 	}
 
