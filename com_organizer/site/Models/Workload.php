@@ -55,6 +55,11 @@ class Workload extends FormModel
 	private $termID;
 
 	/**
+	 * @var int
+	 */
+	private $weeks;
+
+	/**
 	 * Aggregates by concurrent blocks.
 	 *
 	 * @param   array  $units
@@ -243,6 +248,7 @@ class Workload extends FormModel
 		$this->organizationID = Input::getInt('organizationID', $organizationIDs[0]);
 		$this->personID       = Input::getInt('personID');
 		$this->termID         = Input::getInt('termID', Helpers\Terms::getCurrentID());
+		$this->weeks          = Input::getInt('weeks', 13);
 
 		$incomplete = (!$this->organizationID or !$this->personID or !$this->termID);
 
@@ -267,7 +273,12 @@ class Workload extends FormModel
 	 */
 	protected function loadFormData(): array
 	{
-		return ['organizationID' => $this->organizationID, 'personID' => $this->personID, 'termID' => $this->termID];
+		return [
+			'organizationID' => $this->organizationID,
+			'personID'       => $this->personID,
+			'termID'         => $this->termID,
+			'weeks'          => $this->weeks
+		];
 	}
 
 	/**

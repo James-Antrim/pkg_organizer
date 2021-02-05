@@ -280,7 +280,7 @@ class Workload extends BaseLayout
 	{
 		$sheet = $this->view->getActiveSheet();
 
-		$alignment  = ['vertical' => XLConstants::TOP];
+		$alignment  = ['vertical' => XLConstants::TOP, 'wrap' => true];
 		$border     = $this->borders['data'];
 		$dataStyle  = ['alignment' => $alignment, 'borders' => $border, 'fill' => $this->fills['data']];
 		$indexStyle = ['alignment' => $alignment, 'borders' => $border, 'fill' => $this->fills['index']];
