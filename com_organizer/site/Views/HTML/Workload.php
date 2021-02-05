@@ -19,22 +19,6 @@ use Organizer\Helpers;
  */
 class Workload extends FormView
 {
-
-	/**
-	 * Adds supplemental information about constants used for calculation to the page.
-	 *
-	 * @return void modifies the object property supplement
-	 */
-	protected function addSupplement()
-	{
-		$params           = Helpers\Input::getParams();
-		$texts            = [
-			Helpers\Languages::_('ORGANIZER_WORKLOAD_CALCULATION_SETTINGS'),
-			Helpers\Languages::_('ORGANIZER_WORKLOAD_WEEKS') . ': ' . $params->get('workloadWeeks', 13),
-		];
-		$this->supplement = '<div class="tbox-blue">' . implode('<br>', $texts) . '</div>';
-	}
-
 	/**
 	 * Adds a toolbar and title to the view.
 	 *

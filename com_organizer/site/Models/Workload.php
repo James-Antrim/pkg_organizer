@@ -21,11 +21,18 @@ class Workload extends FormModel
 {
 	private const CURRENT_ITEMS = 1;
 
-	private $bachelors = 0;
+	public $bachelors = 0;
 
-	private $doctors = 0;
+	public $diplomas = 0;
+
+	public $doctors = 0;
 
 	private $conditions;
+
+	/**
+	 * @var array
+	 */
+	public $items;
 
 	/**
 	 * @var array
@@ -34,9 +41,11 @@ class Workload extends FormModel
 
 	private $organizationID;
 
-	private $masters = 0;
+	public $masters = 0;
 
 	private $personID;
+
+	public $projects = 0;
 
 	/**
 	 * @var array
@@ -139,24 +148,45 @@ class Workload extends FormModel
 		$items = array_values($items);
 	}
 
-	private function aggregateByUnit(array $results): array
+	/**
+	 * Aggregates instances by their unitID
+	 *
+	 * @param   array  $instances  the instances to be aggregated
+	 *
+	 * @return array
+	 */
+	private function aggregateByUnit(array $instances): array
 	{
 		$units = [];
 
 		// Aggregate units in first iteration
-		foreach ($results as $unitID => $instance)
+		foreach ($instances as $unitID => $instance)
 		{
 			if ($instance['code'] === 'KOL.B')
 			{
 				$this->bachelors = $this->bachelors + 1;
-				unset($results[$unitID]);
+				unset($instances[$unitID]);
+				continue;
+			}
+
+			if ($instance['code'] === 'KOL.D')
+			{
+				$this->masters = $this->doctors + 1;
+				unset($instances[$unitID]);
 				continue;
 			}
 
 			if ($instance['code'] === 'KOL.M')
 			{
 				$this->masters = $this->masters + 1;
-				unset($results[$unitID]);
+				unset($instances[$unitID]);
+				continue;
+			}
+
+			if ($instance['code'] === 'KOL.P')
+			{
+				$this->masters = $this->doctors + 1;
+				unset($instances[$unitID]);
 				continue;
 			}
 
@@ -378,6 +408,8 @@ class Workload extends FormModel
 		$items = $this->itemize($aggregates);
 		$this->structureOutliers($items);
 		$this->structureRepeaters($items);
+
+		$this->items = $items;
 	}
 
 	/**

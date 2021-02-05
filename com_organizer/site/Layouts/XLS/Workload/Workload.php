@@ -23,6 +23,9 @@ use PHPExcel_Worksheet_Drawing;
  */
 class Workload extends BaseLayout
 {
+	private const ELECTIVE = 'J', EVENTS = 'C', GROUPS = 'I', HOURS = 'K', METHOD = 'F', PROGRAMS = 'H', SWS_IS = 'M',
+		SWS_SHOULD = 'G', SUBJECTNOS = 'B';
+
 	/**
 	 * @var \array[][] Border definitions
 	 */
@@ -124,10 +127,14 @@ class Workload extends BaseLayout
 	 */
 	private $personID;
 
+	private $sumCoords = [];
+
 	/**
 	 * @var int the id of the term where the workload was valid
 	 */
 	private $termID;
+
+	private $weeks;
 
 	/**
 	 * Workload constructor.
@@ -140,6 +147,7 @@ class Workload extends BaseLayout
 		$this->organizationID = Helpers\Input::getInt('organizationID');
 		$this->personID       = Helpers\Input::getInt('personID');
 		$this->termID         = Helpers\Input::getInt('termID');
+		$this->weeks          = Helpers\Input::getInt('weeks', 13);
 	}
 
 	/**
@@ -262,32 +270,91 @@ class Workload extends BaseLayout
 	/**
 	 * Adds an event row at the given row number.
 	 *
-	 * @param   int  $row  the row number
+	 * @param   int    $row   the row number
+	 * @param   array  $item  the item to display in the row
 	 *
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addEventRow(int $row)
+	private function addEventRow(int $row, $item = [])
 	{
-		$sheet  = $this->view->getActiveSheet();
-		$border = $this->borders['data'];
+		$sheet = $this->view->getActiveSheet();
+
+		$alignment  = ['vertical' => XLConstants::TOP];
+		$border     = $this->borders['data'];
+		$dataStyle  = ['alignment' => $alignment, 'borders' => $border, 'fill' => $this->fills['data']];
+		$indexStyle = ['alignment' => $alignment, 'borders' => $border, 'fill' => $this->fills['index']];
 
 		$sheet->mergeCells("C$row:E$row");
 		$sheet->mergeCells("K$row:L$row");
+		$lines = 1;
 
 		for ($current = 'B'; $current <= 'M'; $current++)
 		{
-			$cellStyle = $sheet->getStyle("$current$row");
+			$coords    = "$current$row";
+			$cellStyle = $sheet->getStyle($coords);
 
-			if ($current === 'B' or $current === 'H' or $current === 'I')
+			switch ($current)
 			{
-				$cellStyle->applyFromArray(['borders' => $border, 'fill' => $this->fills['index']]);
+				// No implementation
+				case self::ELECTIVE:
+				case self::SWS_SHOULD:
+					$cellStyle->applyFromArray($dataStyle);
+					break;
 
-				continue;
+				case self::EVENTS:
+					$cellStyle->applyFromArray($dataStyle);
+					if (!empty($item['names']))
+					{
+						$count = count($item['names']);
+						$lines = $count > $lines ? $count : $lines;
+						$sheet->setCellValue($coords, implode("\n", $item['names']));
+					}
+					break;
+				case self::HOURS:
+					$cellStyle->applyFromArray($dataStyle);
+					if (!empty($item['items']))
+					{
+						$count = count($item['items']);
+						$lines = $count > $lines ? $count : $lines;
+						$sheet->setCellValue($coords, implode("\n", $item['items']));
+					}
+					break;
+				case self::METHOD:
+					$cellStyle->applyFromArray($dataStyle);
+					if (!empty($item['method']))
+					{
+						$sheet->setCellValue($coords, $item['method']);
+					}
+					break;
+				case self::SUBJECTNOS:
+					$cellStyle->applyFromArray($indexStyle);
+					if (!empty($item['subjectNos']))
+					{
+						$count = count($item['subjectNos']);
+						$lines = $count > $lines ? $count : $lines;
+						$sheet->setCellValue($coords, implode("\n", $item['subjectNos']));
+					}
+					break;
+				case self::SWS_IS:
+					$cellStyle->applyFromArray($dataStyle);
+					if (!empty($item['minutes']))
+					{
+						$hours = ceil($item['minutes'] / 45);
+						$sheet->setCellValue($coords, $hours / $this->weeks);
+					}
+					$cellStyle->getNumberFormat()->setFormatCode(XLConstants::NUMBER_00);
+					break;
+				case self::GROUPS:
+				case self::PROGRAMS:
+				default:
+					$cellStyle->applyFromArray($indexStyle);
+					break;
 			}
-
-			$cellStyle->applyFromArray(['borders' => $border, 'fill' => $this->fills['data']]);
 		}
+
+		$height = $lines * 12.75;
+		$sheet->getRowDimension($row)->setRowHeight($height);
 	}
 
 	/**
@@ -604,12 +671,12 @@ class Workload extends BaseLayout
 	/**
 	 * Adds the section which lists held lessons to the worksheet
 	 *
-	 * @param   int  $row  the current row number
+	 * @param   int  &$row  the current row number
 	 *
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addSectionA(int $row)
+	private function addSectionA(int &$row)
 	{
 		$this->addSectionHeader($row, "A. Lehrveranstaltungen", true);
 
@@ -700,47 +767,87 @@ class Workload extends BaseLayout
 
 		$this->addColumnHeader("M$startRow", "M$endRow", "Gemeldetes\nDeputat\n(SWS)", $comments, 105);
 
-		$row      = $row + 5;
-		$ownRange = ['start' => $row, 'end' => $row + 11];
-		for ($current = $ownRange['start']; $current <= $ownRange['end']; $current++)
+		$model = $this->view->model;
+		$row   = $row + 5;
+		$start = $row;
+
+		foreach ($model->items as $key => $item)
+		{
+			/*if (empty($item['organizations']) or count($item['organizations']) > 1)
+			{
+				continue;
+			}*/
+
+			$this->addEventRow($row++, $item);
+			unset($model->items[$key]);
+		}
+
+		$end = $row + 2;
+		$own = ['start' => $start, 'end' => $end];
+
+		for ($current = $row; $current <= $end; $current++)
 		{
 			$this->addEventRow($current);
 			$row++;
 		}
 
 		$this->addEventSubHeadRow($row++, 'Mehrere Fachbereiche');
-		$otherRange = ['start' => $row, 'end' => $row + 3];
-		for ($current = $otherRange['start']; $current <= $otherRange['end']; $current++)
+		$start = $row;
+
+		foreach ($model->items as $key => $item)
+		{
+			if (empty($item['organizations']))
+			{
+				continue;
+			}
+
+			$this->addEventRow($row++, $item);
+			unset($model->items[$key]);
+		}
+
+		$end   = $row + 1;
+		$other = ['start' => $start, 'end' => $end];
+
+		for ($current = $row; $current <= $end; $current++)
 		{
 			$this->addEventRow($current);
 			$row++;
 		}
 
-		$this->addEventSubHeadRow($row++, 'Nicht vorgegeaben');
-		$unknownRange = ['start' => $row, 'end' => $row + 1];
-		for ($current = $unknownRange['start']; $current <= $unknownRange['end']; $current++)
+		$this->addEventSubHeadRow($row++, 'Nicht vorgegeben');
+		$start = $row;
+
+		foreach ($model->items as $item)
+		{
+			$this->addEventRow($row++, $item);
+		}
+
+		$end     = $row;
+		$unknown = ['start' => $start, 'end' => $end];
+
+		for ($current = $row; $current <= $end; $current++)
 		{
 			$this->addEventRow($current);
 			$row++;
 		}
 
-		$ranges = [$ownRange, $otherRange, $unknownRange];
+		$ranges = [$own, $other, $unknown];
 
 		$this->addSumRow($row++, 'A', $ranges);
 
 		$sheet = $this->view->getActiveSheet();
-		$sheet->getRowDimension($row)->setRowHeight($this->heights['spacer']);
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 	}
 
 	/**
 	 * Adds the section which lists thesis supervisions
 	 *
-	 * @param   int  $row  the current row number
+	 * @param   int  &$row  the current row number
 	 *
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addSectionB(int $row)
+	private function addSectionB(int &$row)
 	{
 		$comments = [
 			['title' => 'Olaf Berger:', 'text' => 'Laut LVVO und HMWK ist eine maximale Grenze von 2 SWS zu beachten.']
@@ -769,35 +876,37 @@ class Workload extends BaseLayout
 		$this->addColumnHeader("M$startRow", "M$endRow", "Gemeldetes\nDeputat\n(SWS)");
 		$row = $endRow + 1;
 
+		$model = $this->view->model;
+
 		$startRow = $row;
-		$diploma  = ['text' => 'Betreuung von Diplomarbeit(en) ', 'weight' => .4];
+		$diploma  = ['text' => 'Betreuung von Diplomarbeit(en) ', 'weight' => .4, 'value' => $model->diplomas];
 		$this->addSupervisionRow($row++, $diploma);
-		$bachelor = ['text' => 'Betreuung von Bachelorarbeit(en) ', 'weight' => .3];
+		$bachelor = ['text' => 'Betreuung von Bachelorarbeit(en) ', 'weight' => .3, 'value' => $model->bachelors];
 		$this->addSupervisionRow($row++, $bachelor);
-		$master = ['text' => 'Betreuung von Masterarbeit(en)', 'weight' => .6];
+		$master = ['text' => 'Betreuung von Masterarbeit(en)', 'weight' => .6, 'value' => $model->masters];
 		$this->addSupervisionRow($row++, $master);
-		$projects = ['text' => 'Betreuung von Projekt- und Studienarbeiten, BPS', 'weight' => .15];
+		$projects = ['text' => 'Betreuung von Projekt- und Studienarbeiten, BPS', 'weight' => .15, 'value' => $model->projects];
 		$this->addSupervisionRow($row++, $projects);
 		$endRow = $row;
-		$doctor = ['text' => 'Betreuung von Promotionen (bis max 6 Semester)', 'weight' => .65];
+		$doctor = ['text' => 'Betreuung von Promotionen (bis max 6 Semester)', 'weight' => .65, 'value' => $model->doctors];
 		$this->addSupervisionRow($row++, $doctor);
 
 		$ranges = [['start' => $startRow, 'end' => $endRow]];
 		$this->addSumRow($row++, 'B', $ranges);
 
 		$sheet = $this->view->getActiveSheet();
-		$sheet->getRowDimension($row)->setRowHeight($this->heights['spacer']);
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 	}
 
 	/**
 	 * Adds the section which lists roles for which workload is calculated
 	 *
-	 * @param   int  $row  the current row number
+	 * @param   int  &$row  the current row number
 	 *
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addSectionC(int $row)
+	private function addSectionC(int &$row)
 	{
 		$sheet = $this->view->getActiveSheet();
 		$this->addSectionHeader($row++, "C. Deputatsfreistellungen", true);
@@ -884,7 +993,7 @@ class Workload extends BaseLayout
 		$ranges = [['start' => $startRow, 'end' => $endRow]];
 		$this->addSumRow($row++, 'C', $ranges);
 
-		$sheet->getRowDimension($row)->setRowHeight($this->heights['spacer']);
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 	}
 
 	/**
@@ -938,14 +1047,19 @@ class Workload extends BaseLayout
 	 */
 	private function addSumRow(int $row, string $section, $ranges = [])
 	{
-		$sheet  = $this->view->getActiveSheet();
-		$border = $this->borders['header'];
+		$sheet     = $this->view->getActiveSheet();
+		$border    = $this->borders['header'];
+		$dataStyle = [
+			'borders'      => $border,
+			'fill'         => $this->fills['index'],
+			'numberformat' => ['code' => XLConstants::NUMBER_00]
+		];
 
 		$sheet->getStyle("L$row")->applyFromArray(['borders' => $border, 'fill' => $this->fills['header']]);
 		$sheet->getStyle("L$row")->getAlignment()->setHorizontal(XLConstants::CENTER);
 		$sheet->setCellValue("L$row", "Summe $section:");
 		$sheet->getStyle("L$row")->getFont()->setBold(true);
-		$sheet->getStyle("M$row")->applyFromArray(['borders' => $border, 'fill' => $this->fills['index']]);
+		$sheet->getStyle("M$row")->applyFromArray($dataStyle);
 
 		if (count($ranges) === 1)
 		{
@@ -962,6 +1076,7 @@ class Workload extends BaseLayout
 		}
 
 		$sheet->setCellValue("M$row", $formula);
+		$this->sumCoords[] = "M$row";
 	}
 
 	/**
@@ -984,8 +1099,8 @@ class Workload extends BaseLayout
 		$view->addRange("C$row", "F$row", ['borders' => $border], $category['text']);
 		$view->addRange("G$row", "J$row", ['borders' => $border], $category['weight']);
 		$sheet->getStyle("G$row")->getNumberFormat()->setFormatCode(XLConstants::NUMBER_00);
-		$view->addRange("K$row", "L$row", ['borders' => $border]);
-		$sheet->getStyle("K$row")->getNumberFormat()->setFormatCode(XLConstants::FORMAT_NUMBER);
+		$view->addRange("K$row", "L$row", ['borders' => $border], $category['value']);
+		$sheet->getStyle("K$row")->getNumberFormat()->setFormatCode(XLConstants::NUMBER_00);
 		$sheet->getStyle("M$row")->applyFromArray(['borders' => $border]);
 		$sheet->getStyle("M$row")->getNumberFormat()->setFormatCode(XLConstants::NUMBER_00);
 		$sheet->setCellValue("M$row", '=IF(K' . $row . '<>0,G' . $row . '*K' . $row . ',0)');
@@ -1058,66 +1173,87 @@ class Workload extends BaseLayout
 		$text  .= 'Informationen.';
 		$view->addRange('G4', 'K10', $style, $text);
 
-		$this->addSectionA(12);
-		$this->addSectionB(39);
-		$this->addSectionC(51);
+		// The last static row.
+		$row = 12;
 
-		$function = '=SUM(M37,M49,M59)';
-		$this->addFunctionHeader(60, 'D. Gemeldetes Gesamtdeputat (A + B + C) für das Semester', $function);
-		$sheet->getRowDimension(61)->setRowHeight($this->heights['spacer']);
+		$this->addSectionA($row);
+		$this->addSectionB($row);
+		$this->addSectionC($row);
 
-		$this->addSectionHeader(62, "E. Deputatsübertrag aus den Vorsemestern");
-		$view->addRange('B63', 'L63', ['borders' => $this->borders['cell']], 'Deputatsüberhang / -defizit');
+		$function = '=SUM(' . implode(',', $this->sumCoords) . ')';
+		$dRow     = $row;
+		$this->addFunctionHeader($row++, 'D. Gemeldetes Gesamtdeputat (A + B + C) für das Semester', $function);
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
-		$sheet->getStyle('M63')->applyFromArray(['borders' => $this->borders['cell'], 'fill' => $this->fills['data']]);
-		$sheet->getStyle('M63')->getNumberFormat()->setFormatCode(XLConstants::NUMBER_00);
-		$sheet->setCellValue('M63', 0);
-		$sheet->getRowDimension(64)->setRowHeight($this->heights['spacer']);
+		$this->addSectionHeader($row++, "E. Deputatsübertrag aus den Vorsemestern");
+		$eRow = $row;
+		$view->addRange("B$row", "L$row", ['borders' => $this->borders['cell']], 'Deputatsüberhang / -defizit');
+		$sheet->getStyle("M$row")->applyFromArray(['borders' => $this->borders['cell'], 'fill' => $this->fills['data']]);
+		$sheet->getStyle("M$row")->getNumberFormat()->setFormatCode(XLConstants::NUMBER_00);
+		$sheet->setCellValue("M$row", 0);
+		$row++;
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
-		$this->addSectionHeader(65, "F. Soll-Deputat");
-		$sheet->getStyle('M66')->applyFromArray(['borders' => $this->borders['cell'], 'fill' => $this->fills['data']]);
-		$sheet->getStyle('M66')->getNumberFormat()->setFormatCode(XLConstants::NUMBER_00);
-		$sheet->setCellValue('M66', 18);
-		$sheet->getRowDimension(67)->setRowHeight($this->heights['spacer']);
+		$this->addSectionHeader($row++, "F. Soll-Deputat");
+		$fRow = $row;
+		$sheet->getStyle("M$row")->applyFromArray(['borders' => $this->borders['cell'], 'fill' => $this->fills['data']]);
+		$sheet->getStyle("M$row")->getNumberFormat()->setFormatCode(XLConstants::NUMBER_00);
+		$sheet->setCellValue("M$row", 18);
+		$row++;
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
-		$function = '=SUM(M60,M63)-M66';
-		$this->addFunctionHeader(68, 'G. Saldo zum Ende des Semesters und Deputatsübertrag für Folgesemester', $function);
-		$sheet->getStyle('M68')->applyFromArray(['fill' => $this->fills['index']]);
-		$sheet->getRowDimension(69)->setRowHeight($this->heights['spacer']);
+		$function = "=SUM(M{$dRow},M{$eRow})-M{$fRow}";
+		$this->addFunctionHeader($row, 'G. Saldo zum Ende des Semesters und Deputatsübertrag für Folgesemester', $function);
+		$sheet->getStyle("M$row")->applyFromArray(['fill' => $this->fills['index']]);
+		$row++;
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
 		$style = ['borders' => $this->borders['cell'], 'fill' => $this->fills['data']];
-		$this->addSectionHeader(70, "H. Sonstige Mitteilungen");
-		$view->addRange('B71', 'M71', $style);
-		$view->addRange('B72', 'M72', $style);
-		$view->addRange('B73', 'M73', $style);
+		$this->addSectionHeader($row++, "H. Sonstige Mitteilungen");
+		$view->addRange("B$row", "M$row", $style);
+		$row++;
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
 		$style = ['font' => ['bold' => true, 'size' => 11]];
-		$view->addRange('B75', 'G75', $style, 'Ich versichere die Richtigkeit der vorstehenden Angaben:');
-		$view->addRange('H75', 'M75', $style, 'Gegenzeichnung Dekanat:');
+		$view->addRange("B$row", "G$row", $style, 'Ich versichere die Richtigkeit der vorstehenden Angaben:');
+		$view->addRange("H$row", "M$row", $style, 'Gegenzeichnung Dekanat:');
+		$row++;
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
-		$view->addRange('B77', 'G77', [], 'Gießen/Friedberg, den');
-		$view->addRange('H77', 'M77', [], 'Gießen/Friedberg, den');
+		$view->addRange("B$row", "G$row", [], 'Gießen/Friedberg, den');
+		$view->addRange("H$row", "M$row", [], 'Gießen/Friedberg, den');
+		$row = $row + 3;
 
 		$style = ['borders' => $this->borders['signature'], 'font' => ['size' => 11]];
-		$view->addRange('C80', 'F80', $style, 'Datum, Unterschrift');
-		$view->addRange('J80', 'M80', $style, 'Datum, Unterschrift');
+		$view->addRange("C$row", "F$row", $style, 'Datum, Unterschrift');
+		$view->addRange("J$row", "M$row", $style, 'Datum, Unterschrift');
+		$row++;
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
-		$sheet->setCellValue('B84', 'Hinweise');
-		$sheet->setCellValue('B86', 'Prozessbeschreibung zum Umgang mit diesem Berichtsformular:');
+		$sheet->setCellValue("B$row", 'Hinweise');
+		$row++;
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
+		$sheet->setCellValue("B$row", 'Prozessbeschreibung zum Umgang mit diesem Berichtsformular:');
+		$row++;
+		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
 		$text = '(1) Ausfüllen des Excel-Deputatsberichts durch die berichtende Professorin/ den berichtenden ';
 		$text .= 'Professor.';
-		$sheet->setCellValue('B88', $text);
+		$sheet->setCellValue("B$row", $text);
+		$row++;
 		$text = '(2) Ausdruck des Formulars auf Papier durch die berichtende Professorin/ den berichtenden Professor.';
-		$sheet->setCellValue('B89', $text);
-		$sheet->setCellValue('B90', '(3) Versehen mit handschriftlich geleisteter Unterschrift.');
+		$sheet->setCellValue("B$row", $text);
+		$row++;
+		$sheet->setCellValue("B$row", '(3) Versehen mit handschriftlich geleisteter Unterschrift.');
+		$row++;
 		$text = '(4) Rückgabe des Ausdrucks in Papierform an das Dekanat bis zum jeweils gesetzten Termin. ';
 		$text .= 'Archivierung desselben im Dekanat.';
-		$sheet->setCellValue('B91', $text);
+		$sheet->setCellValue("B$row", $text);
+		$row++;
 		$text = 'Ob der B-Bogen noch in elektronischer Form dem Dekanat zugesandt werden sollen, bleibt diesem ';
 		$text .= 'überlassen, dies anzuordnen.';
-		$sheet->setCellValue('B92', $text);
-
+		$sheet->setCellValue("B$row", $text);
+		$row++;
 	}
 
 	/**
@@ -1149,7 +1285,7 @@ class Workload extends BaseLayout
 
 		$sheet->setShowGridlines(false);
 		$sheet->getColumnDimension()->setWidth(2);
-		$sheet->getColumnDimension('B')->setWidth(18);
+		$sheet->getColumnDimension('B')->setWidth(15);
 		$sheet->getColumnDimension('C')->setWidth(10.71);
 		$sheet->getColumnDimension('D')->setWidth(10.71);
 		$sheet->getColumnDimension('E')->setWidth(9.71);
@@ -1158,9 +1294,9 @@ class Workload extends BaseLayout
 		$sheet->getColumnDimension('H')->setWidth(10.86);
 		$sheet->getColumnDimension('I')->setWidth(10.71);
 		$sheet->getColumnDimension('J')->setWidth(10.71);
-		$sheet->getColumnDimension('K')->setWidth(11.43);
+		$sheet->getColumnDimension('K')->setWidth(16.43);
 		$sheet->getColumnDimension('L')->setWidth(13.29);
-		$sheet->getColumnDimension('M')->setWidth(14.29);
+		$sheet->getColumnDimension('M')->setWidth(12.29);
 		$sheet->getColumnDimension('N')->setWidth(2.29);
 
 	}

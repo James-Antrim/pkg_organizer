@@ -9,5 +9,6 @@
         <field name="personID" type="Persons" label="PERSON" onchange="this.form.submit();">
             <option value="">SELECT_PERSON</option>
         </field>
+        <field name="weeks" type="Integer" label="WORKLOAD_WEEKS" default="13" first="1" last="52" step="1"/>
     </fieldset>
 </form>
