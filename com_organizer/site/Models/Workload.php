@@ -613,12 +613,23 @@ class Workload extends FormModel
 			$programs      = empty($instances[$data['instanceID']]['programs']) ?
 				[] : $instances[$data['instanceID']]['programs'];
 
-			// The form doesn't get specific about the individual declarative regulation => string keys and values
-			$program = "{$data['program']} ({$data['degree']})";
+			if ($data['group'])
+			{
+				$groups[$data['group']] = $data['group'];
+			}
 
-			$groups[$data['group']]                 = $data['group'];
-			$organizations[$data['organizationID']] = $data['organization'];
-			$programs[$program]                     = $program;
+			if ($data['organizationID'])
+			{
+				$organizations[$data['organizationID']] = $data['organization'];
+			}
+
+			// The form doesn't get specific about the individual declarative regulation => string keys and values
+			$program = ($data['program'] and $data['degree']) ? "{$data['program']} ({$data['degree']})" : '';
+
+			if ($program)
+			{
+				$programs[$program] = $program;
+			}
 
 			$instances[$data['instanceID']]['groups']        = $groups;
 			$instances[$data['instanceID']]['organizations'] = $organizations;
