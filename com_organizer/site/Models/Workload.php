@@ -96,9 +96,10 @@ class Workload extends FormModel
 				// The blocks are a true subset in at least one direction
 				if (empty(array_diff($keys, $nKeys)) or empty(array_diff($nKeys, $keys)))
 				{
-					$current['events']   = $current['events'] + $next['events'];
-					$current['groups']   = $current['groups'] + $next['groups'];
-					$current['programs'] = $current['programs'] + $next['programs'];
+					$current['events']        = $current['events'] + $next['events'];
+					$current['groups']        = $current['groups'] + $next['groups'];
+					$current['organizations'] = $current['organizations'] + $next['organizations'];
+					$current['programs']      = $current['programs'] + $next['programs'];
 					unset($units[$nIndex]);
 				}
 			}
@@ -200,11 +201,12 @@ class Workload extends FormModel
 			if (empty($units[$instance['unitID']]))
 			{
 				$units[$instance['unitID']] = [
-					'blocks'   => [],
-					'events'   => [],
-					'groups'   => $instance['groups'],
-					'method'   => $instance['method'],
-					'programs' => $instance['programs']
+					'blocks'        => [],
+					'events'        => [],
+					'groups'        => $instance['groups'],
+					'method'        => $instance['method'],
+					'organizations' => $instance['organizations'],
+					'programs'      => $instance['programs']
 				];
 			}
 
@@ -323,12 +325,13 @@ class Workload extends FormModel
 			$eIndex = implode('-', $names) . "-{$aggregate['method']}";
 
 			$items[$eIndex] = [
-				'blocks'     => [],
-				'groups'     => $groups,
-				'method'     => $aggregate['method'],
-				'names'      => $names,
-				'programs'   => $programs,
-				'subjectNos' => $subjectNos
+				'blocks'        => [],
+				'groups'        => $groups,
+				'method'        => $aggregate['method'],
+				'names'         => $names,
+				'organizations' => $aggregate['organizations'],
+				'programs'      => $programs,
+				'subjectNos'    => $subjectNos
 			];
 
 			$blocks =& $items[$eIndex]['blocks'];
@@ -428,10 +431,13 @@ class Workload extends FormModel
 
 		$query = Helpers\Instances::getInstanceQuery($this->conditions);
 		$query->select("i.id AS instanceID, g.name_$tag AS 'group'")
+			->select("a.organizationID, o.shortName_$tag AS organization")
 			->select("p.name_$tag AS program, d.abbreviation AS degree")
 			->innerJoin('#__organizer_programs AS p ON p.categoryID = g.categoryID')
 			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
 			->innerJoin('#__organizer_methods AS m ON m.id = i.methodID')
+			->leftJoin('#__organizer_associations AS a ON a.programID = p.id')
+			->leftJoin('#__organizer_organizations AS o ON o.id = a.organizationID')
 			->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
 			->order('b.date, b.startTime, b.endTime')
 			->where('ipe.roleID = 1')
@@ -600,16 +606,23 @@ class Workload extends FormModel
 				continue;
 			}
 
-			$groups                                   = empty($instances[$data['instanceID']]['groups']) ? [] : $instances[$data['instanceID']]['groups'];
-			$groups[$data['group']]                   = $data['group'];
-			$instances[$data['instanceID']]['groups'] = $groups;
+			$groups        = empty($instances[$data['instanceID']]['groups']) ?
+				[] : $instances[$data['instanceID']]['groups'];
+			$organizations = empty($instances[$data['instanceID']]['organizations']) ?
+				[] : $instances[$data['instanceID']]['organizations'];
+			$programs      = empty($instances[$data['instanceID']]['programs']) ?
+				[] : $instances[$data['instanceID']]['programs'];
 
 			// The form doesn't get specific about the individual declarative regulation => string keys and values
 			$program = "{$data['program']} ({$data['degree']})";
 
-			$programs                                   = empty($instances[$data['instanceID']]['programs']) ? [] : $instances[$data['instanceID']]['programs'];
-			$programs[$program]                         = $program;
-			$instances[$data['instanceID']]['programs'] = $programs;
+			$groups[$data['group']]                 = $data['group'];
+			$organizations[$data['organizationID']] = $data['organization'];
+			$programs[$program]                     = $program;
+
+			$instances[$data['instanceID']]['groups']        = $groups;
+			$instances[$data['instanceID']]['organizations'] = $organizations;
+			$instances[$data['instanceID']]['programs']      = $programs;
 		}
 	}
 

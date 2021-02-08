@@ -786,16 +786,21 @@ class Workload extends BaseLayout
 
 		foreach ($model->items as $key => $item)
 		{
-			/*if (empty($item['organizations']) or count($item['organizations']) > 1)
+			if (empty($item['organizations']))
 			{
 				continue;
-			}*/
+			}
+
+			if (count($item['organizations']) > 1 or !array_key_exists($this->organizationID, $item['organizations']))
+			{
+				continue;
+			}
 
 			$this->addEventRow($row++, $item);
 			unset($model->items[$key]);
 		}
 
-		$end = $row + 2;
+		$end = $row + 1;
 		$own = ['start' => $start, 'end' => $end];
 
 		for ($current = $row; $current <= $end; $current++)
