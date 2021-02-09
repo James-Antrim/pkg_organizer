@@ -48,7 +48,7 @@ abstract class ItemView extends BaseView
 		$this->item = $this->get('Item');
 
 		$this->addDisclaimer();
-		$this->addToolbar();
+		$this->addToolBar();
 		$this->setSubtitle();
 		$this->addSupplement();
 		$this->modifyDocument();
