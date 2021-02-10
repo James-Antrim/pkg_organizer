@@ -15,8 +15,6 @@ namespace Organizer\Views\XLS;
  */
 class Workload extends BaseView
 {
-	public $programs;
-
 	/**
 	 * @inheritdoc
 	 */
@@ -24,6 +22,6 @@ class Workload extends BaseView
 	{
 		parent::__construct();
 
-		$this->programs = $this->model->setUp();
+		$this->model->setUp();
 	}
 }
