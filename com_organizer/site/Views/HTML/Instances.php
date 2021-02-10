@@ -50,6 +50,14 @@ class Instances extends ListView
 
 		$toolbar = Toolbar::getInstance();
 
+		/*$toolbar->appendButton(
+			'NewTab',
+			'file-xls',
+			Languages::_('ORGANIZER_XLS_SPREADSHEET'),
+			'Instances.xls',
+			false
+		);*/
+
 		$toolbar->appendButton(
 			'NewTab',
 			'file-pdf',
@@ -184,28 +192,23 @@ class Instances extends ListView
 		}
 
 		$displayRoles = [];
-		$role         = new Tables\Roles();
-		$tag          = Languages::getTag();
-
-		$singularColumn = "name_$tag";
-		$pluralColumn   = "plural_$tag";
 
 		ksort($roles);
 
 		foreach ($roles as $roleID => $persons)
 		{
 			$roleDisplay = '';
-			if (!$role->load($roleID))
+
+			if (!$roleTitle = Helpers\Roles::getLabel($roleID, count($persons)))
 			{
 				continue;
 			}
 
-			$roleTitle   = count($persons) > 1 ? $role->$pluralColumn : $role->$singularColumn;
 			$roleDisplay .= "<span class=\"role-title\">$roleTitle:</span><br>";
 
 			ksort($persons);
-			$roleDisplay             .= implode('<br>', $persons);
-			$displayRoles[$role->id] = $roleDisplay;
+			$roleDisplay           .= implode('<br>', $persons);
+			$displayRoles[$roleID] = $roleDisplay;
 		}
 
 		return implode('<br>', $displayRoles);
