@@ -32,6 +32,11 @@ abstract class BaseView extends PHPExcel
 	use Named;
 
 	/**
+	 * @var bool
+	 */
+	public $adminContext;
+
+	/**
 	 * @var BaseLayout
 	 */
 	protected $layout;
@@ -49,6 +54,7 @@ abstract class BaseView extends PHPExcel
 		parent::__construct();
 
 		$name = $this->getName();
+		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
 
 		$layout = Helpers\Input::getCMD('layout', $name);
 		$layout = Helpers\OrganizerHelper::classDecode($layout);
