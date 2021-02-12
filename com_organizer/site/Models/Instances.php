@@ -401,13 +401,13 @@ class Instances extends ListModel
 				$conditions['status']   = $this->state->get('filter.status', 1);
 				break;
 			case 'pdf':
-			case 'xls':
 				$interval               = $this->state->get('list.interval', 'week');
 				$intervals              = ['month', 'quarter', 'term', 'week'];
 				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
 				$conditions['status']   = 1;
 				break;
 			case 'html':
+			case 'xls':
 			default:
 				$interval               = $this->state->get('list.interval', 'day');
 				$intervals              = ['day', 'month', 'quarter', 'term', 'week'];

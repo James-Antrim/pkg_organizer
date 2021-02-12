@@ -71,43 +71,11 @@ abstract class ListView extends BaseView
 	/**
 	 * Processes an individual list item resolving it to an array of table data values.
 	 *
-	 * @param   object      $item   the item to be displayed in a table row
+	 * @param   object  $item  the item to be displayed in a table row
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	protected function structureItem(object $item) : array
-	{
-		$processedItem = [];
-
-		foreach ($this->rowStructure as $property => $propertyType)
-		{
-			if (!property_exists($item, $property))
-			{
-				continue;
-			}
-
-			// Individual code will be added to index later
-			if ($propertyType === '')
-			{
-				$processedItem[$property] = $propertyType;
-				continue;
-			}
-
-			if ($propertyType === 'list' and is_array($item->$property))
-			{
-				$processedItem[$property] = implode("\n", $item->$property);
-				continue;
-			}
-
-			if ($propertyType === 'value')
-			{
-				$processedItem[$property] = $item->$property;
-				continue;
-			}
-		}
-
-		return $processedItem;
-	}
+	abstract protected function structureItem(object $item): array;
 
 	/**
 	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
