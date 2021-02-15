@@ -62,7 +62,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function delete()
+	public function delete(): bool
 	{
 		if (!$this->selected = Helpers\Input::getSelectedIDs())
 		{
@@ -141,7 +141,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 * @return bool true on success, otherwise false
 	 * @throws Exception
 	 */
-	public function toggle()
+	public function toggle(): bool
 	{
 		if (!$resourceID = Helpers\Input::getID())
 		{
