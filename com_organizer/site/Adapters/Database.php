@@ -15,6 +15,7 @@ use Joomla\CMS\Factory;
 use JDatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Adapts functions of the document class to avoid exceptions and deprecated warnings.
@@ -26,7 +27,7 @@ class Database
 	 *
 	 * @return  bool  True on success, boolean false on failure.
 	 */
-	public static function execute()
+	public static function execute(): bool
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -48,7 +49,7 @@ class Database
 	 *
 	 * @return  JDatabaseQuery  The current query object or a new object extending the JDatabaseQuery class.
 	 */
-	public static function getQuery($new = true)
+	public static function getQuery($new = true): JDatabaseQuery
 	{
 		return Factory::getDbo()->getQuery($new);
 	}
@@ -62,7 +63,7 @@ class Database
 	 *
 	 * @return  bool    True on success.
 	 */
-	public static function insertObject(string $table, object &$object, $key = 'id')
+	public static function insertObject(string $table, object &$object, $key = 'id'): bool
 	{
 		$dbo = Factory::getDbo();
 
@@ -84,7 +85,7 @@ class Database
 	 *
 	 * @return  array  The return value or an empty array if the query failed.
 	 */
-	public static function loadAssoc()
+	public static function loadAssoc(): array
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -115,7 +116,7 @@ class Database
 	 *
 	 * @return  array   The return value or an empty array if the query failed.
 	 */
-	public static function loadAssocList($key = '', $column = '')
+	public static function loadAssocList($key = '', $column = ''): array
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -155,7 +156,7 @@ class Database
 	 *
 	 * @return  array    The return value or null if the query failed.
 	 */
-	public static function loadColumn($offset = 0)
+	public static function loadColumn($offset = 0): array
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -180,7 +181,7 @@ class Database
 	 *
 	 * @return  int  The return value if successful, otherwise the default value
 	 */
-	public static function loadInt($default = 0)
+	public static function loadInt($default = 0): int
 	{
 		$result = self::loadResult();
 
@@ -195,7 +196,7 @@ class Database
 	 *
 	 * @return  array    The return value or null if the query failed.
 	 */
-	public static function loadIntColumn($offset = 0)
+	public static function loadIntColumn($offset = 0): array
 	{
 		if ($result = self::loadColumn($offset))
 		{
@@ -210,7 +211,7 @@ class Database
 	 *
 	 * @param   string  $class  The class name to use for the returned row object.
 	 *
-	 * @return  array  The return value or an empty array if the query failed.
+	 * @return  object  The return value or an empty array if the query failed.
 	 */
 	public static function loadObject($class = 'stdClass')
 	{
@@ -219,13 +220,13 @@ class Database
 		{
 			$result = $dbo->loadObject($class);
 
-			return $result ? $result : [];
+			return $result ? $result : new stdClass();
 		}
 		catch (Exception $exception)
 		{
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
-			return [];
+			return new stdClass();
 		}
 	}
 
@@ -241,7 +242,7 @@ class Database
 	 *
 	 * @return  array   The return value or an empty array if the query failed.
 	 */
-	public static function loadObjectList($key = '', $class = 'stdClass')
+	public static function loadObjectList($key = '', $class = 'stdClass'): array
 	{
 		$dbo = Factory::getDbo();
 		try
