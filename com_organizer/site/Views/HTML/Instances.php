@@ -14,7 +14,6 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
-use Organizer\Tables;
 
 /**
  * Class loads persistent information a filtered set of instances into the display context.
@@ -50,13 +49,13 @@ class Instances extends ListView
 
 		$toolbar = Toolbar::getInstance();
 
-		/*$toolbar->appendButton(
+		$toolbar->appendButton(
 			'NewTab',
 			'file-xls',
 			Languages::_('ORGANIZER_XLS_SPREADSHEET'),
 			'Instances.xls',
 			false
-		);*/
+		);
 
 		$toolbar->appendButton(
 			'NewTab',
