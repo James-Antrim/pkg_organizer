@@ -19,15 +19,15 @@ use Organizer\Helpers;
  */
 class Holidays extends ListModel
 {
-	const EXPIRED = 1, PENDING = 2, CURRENT = 3;
+	private const EXPIRED = 1, PENDING = 2;
 	protected $defaultOrdering = 'name';
 
 	/**
 	 * Method to get a list of resources from the database.
 	 *
-	 * @return \JDatabaseQuery
+	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = Database::getQuery();
@@ -35,7 +35,7 @@ class Holidays extends ListModel
 			->from('#__organizer_holidays');
 		$this->setSearchFilter($query, ['name_de', 'name_en', 'startDate', 'endDate']);
 		$this->setValueFilters($query, ['type']);
-		$this->setStatusFilter($query);
+		$this->filterStatus($query);
 		$this->setYearFilter($query);
 		$this->setOrdering($query);
 
@@ -49,7 +49,7 @@ class Holidays extends ListModel
 	 *
 	 * @return void
 	 */
-	private function setStatusFilter($query)
+	private function filterStatus(JDatabaseQuery $query)
 	{
 		$listValue   = $this->state->get('list.status');
 		$filterValue = $this->state->get('filter.status');
@@ -64,13 +64,13 @@ class Holidays extends ListModel
 		switch ($value)
 		{
 			case self::EXPIRED :
-				$query->where("endDate < CURDATE()");
+				$query->where('endDate < CURDATE()');
 				break;
 			case self::PENDING:
-				$query->where("startDate > CURDATE()");
+				$query->where('startDate > CURDATE()');
 				break;
 			default:
-				$query->where("endDate BETWEEN CURDATE() AND date_add(CURDATE(), interval 1 YEAR)");
+				$query->where('endDate BETWEEN CURDATE() AND date_add(CURDATE(), interval 1 YEAR)');
 				break;
 		}
 	}
@@ -82,7 +82,7 @@ class Holidays extends ListModel
 	 *
 	 * @return void
 	 */
-	private function setYearFilter($query)
+	private function setYearFilter(JDatabaseQuery $query)
 	{
 		$listValue   = $this->state->get('list.year');
 		$filterValue = $this->state->get('filter.year');

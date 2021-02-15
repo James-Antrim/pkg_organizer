@@ -396,6 +396,19 @@ CREATE TABLE IF NOT EXISTS `#__organizer_groups` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `#__organizer_holidays` (
+    `id`        INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `name_de`   VARCHAR(150)        NOT NULL,
+    `name_en`   VARCHAR(150)        NOT NULL,
+    `startDate` DATE                NOT NULL,
+    `endDate`   DATE                NOT NULL,
+    `type`      TINYINT(1) UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `#__organizer_instance_groups` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `assocID`  INT(20) UNSIGNED NOT NULL COMMENT 'The instance to person association id.',

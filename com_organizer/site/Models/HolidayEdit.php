@@ -13,9 +13,9 @@ namespace Organizer\Models;
 use Organizer\Tables;
 
 /**
- * Class which manages stored holiday data.
+ * Class loads a form for editing holiday data.
  */
-class Holiday extends BaseModel
+class HolidayEdit extends EditModel
 {
 	/**
 	 * Method to get a table object, load it if necessary.
@@ -28,8 +28,8 @@ class Holiday extends BaseModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Holidays
 	{
-		return new Tables\Holidays;
+		return new Tables\Holidays();
 	}
 }

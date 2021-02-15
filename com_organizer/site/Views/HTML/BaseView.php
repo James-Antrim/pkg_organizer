@@ -257,26 +257,26 @@ abstract class BaseView extends HtmlView
 
 			$items = [];
 
-			$items[Languages::_('ORGANIZER_COLORS')]  = [
+			$items[Languages::_('ORGANIZER_COLORS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=colors',
 				'active' => $viewName == 'colors'
 			];
-			$items[Languages::_('ORGANIZER_DEGREES')] = [
+			$items[Languages::_('ORGANIZER_DEGREES')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=degrees',
 				'active' => $viewName == 'degrees'
 			];
-			$items[Languages::_('ORGANIZER_FIELDS')]  = [
+			$items[Languages::_('ORGANIZER_FIELDS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=fields',
 				'active' => $viewName == 'fields'
 			];
-			$items[Languages::_('ORGANIZER_GRIDS')]   = [
+			$items[Languages::_('ORGANIZER_GRIDS')]         = [
 				'url'    => 'index.php?option=com_organizer&amp;view=grids',
 				'active' => $viewName == 'grids'
 			];
-			/*$items[Languages::_('ORGANIZER_HOLIDAYS')]      = [
+			$items[Languages::_('ORGANIZER_HOLIDAYS')]      = [
 				'url'    => 'index.php?option=com_organizer&amp;view=holidays',
 				'active' => $viewName == 'holidays'
-			];*/
+			];
 			$items[Languages::_('ORGANIZER_METHODS')]       = [
 				'url'    => 'index.php?option=com_organizer&amp;view=methods',
 				'active' => $viewName == 'methods'

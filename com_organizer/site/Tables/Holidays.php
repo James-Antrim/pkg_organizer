@@ -70,7 +70,7 @@ class Holidays extends BaseTable
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function check()
+	public function check(): bool
 	{
 		if ($this->endDate < $this->startDate)
 		{
