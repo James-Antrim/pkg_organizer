@@ -19,8 +19,11 @@ use Organizer\Helpers;
  */
 class Holidays extends ListModel
 {
-	private const EXPIRED = 1, PENDING = 2;
-	protected $defaultOrdering = 'name';
+	private const EXPIRED = 1;
+
+	protected $defaultOrdering = 'startDate';
+
+	protected $filter_fields = ['year', 'type', 'status'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -61,17 +64,13 @@ class Holidays extends ListModel
 
 		$value = empty($filterValue) ? $listValue : $filterValue;
 
-		switch ($value)
+		if ((int) $value === self::EXPIRED)
 		{
-			case self::EXPIRED :
-				$query->where('endDate < CURDATE()');
-				break;
-			case self::PENDING:
-				$query->where('startDate > CURDATE()');
-				break;
-			default:
-				$query->where('endDate BETWEEN CURDATE() AND date_add(CURDATE(), interval 1 YEAR)');
-				break;
+			$query->where('endDate < CURDATE()');
+		}
+		else
+		{
+			$query->where('startDate > CURDATE()');
 		}
 	}
 

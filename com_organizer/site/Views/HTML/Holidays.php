@@ -12,13 +12,14 @@ namespace Organizer\Views\HTML;
 
 use Organizer\Helpers;
 use Organizer\Helpers\HTML;
+use Organizer\Helpers\Languages;
 
 /**
  * Class loads persistent information a filtered set of holidays into the display context.
  */
 class Holidays extends ListView
 {
-	private const OPTIONAL = 1, PARTIAL = 2, BLOCKING = 3;
+	private const META = 2, OFFICIAL = 3, SOFT = 1;
 
 	/**
 	 * @inheritDoc
@@ -28,11 +29,11 @@ class Holidays extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'  => '',
-			'name'      => HTML::sort('NAME', 'name', $direction, $ordering),
-			'startDate' => HTML::sort('DATE', 'startDate', $direction, $ordering),
-			'type'      => HTML::sort('TYPE', 'type', $direction, $ordering),
-			'status'    => Helpers\Languages::_('ORGANIZER_STATUS')
+			'checkbox' => '',
+			'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
+			'dates'    => HTML::sort('DATE', 'startDate', $direction, $ordering),
+			'type'     => Languages::_('ORGANIZER_TYPE'),
+			'status'   => Languages::_('ORGANIZER_STATUS')
 		];
 
 		$this->headers = $headers;
@@ -47,43 +48,30 @@ class Holidays extends ListView
 		$link    = 'index.php?option=com_organizer&view=holiday_edit&id=';
 		$items   = [];
 		$typeMap = [
-			self::OPTIONAL => 'ORGANIZER_PLANNING_OPTIONAL',
-			self::PARTIAL  => 'ORGANIZER_PLANNING_MANUAL',
-			self::BLOCKING => 'ORGANIZER_PLANNING_BLOCKED'
+			self::SOFT     => 'ORGANIZER_HOLIDAY_SOFT',
+			self::META     => 'ORGANIZER_HOLIDAY_META',
+			self::OFFICIAL => 'ORGANIZER_HOLIDAY_OFFICIAL'
 		];
 
 		foreach ($this->items as $item)
 		{
+			$today = date('Y-m-d');
+			$year  = date('Y', strtotime($item->startDate));
 
 			$dateString = Helpers\Dates::getDisplay($item->startDate, $item->endDate);
-			$today      = Helpers\Dates::formatDate();
-			$startDate  = Helpers\Dates::formatDate($item->startDate);
-			$endDate    = Helpers\Dates::formatDate($item->endDate);
-			$year       = date('Y', strtotime($item->startDate));
+			$name       = "$item->name ($year)";
+			$status     = $item->endDate < $today ?
+				Languages::_('ORGANIZER_EXPIRED') : Languages::_('ORGANIZER_CURRENT');
+			$type       = $typeMap[$item->type];
 
-			if ($endDate < $today)
-			{
-				$status = Helpers\Languages::_('ORGANIZER_EXPIRED');
-			}
-			elseif ($startDate > $today)
-			{
-				$status = Helpers\Languages::_('ORGANIZER_PENDING');
-			}
-			else
-			{
-				$status = Helpers\Languages::_('ORGANIZER_CURRENT');
-			}
-
-			$name     = $item->name . "($year)";
-			$constant = $typeMap[$item->type];
-
-			$thisLink                   = $link . $item->id;
-			$items[$index]              = [];
-			$items[$index]['checkbox']  = HTML::_('grid.id', $index, $item->id);
-			$items[$index]['name']      = HTML::_('link', $thisLink, $name);
-			$items[$index]['startDate'] = HTML::_('link', $thisLink, $dateString);
-			$items[$index]['type']      = HTML::_('link', $thisLink, Helpers\Languages::_($constant));
-			$items[$index]['status']    = HTML::_('link', $thisLink, $status);
+			$thisLink      = $link . $item->id;
+			$items[$index] = [
+				'checkbox' => HTML::_('grid.id', $index, $item->id),
+				'name'     => HTML::_('link', $thisLink, $name),
+				'dates'    => HTML::_('link', $thisLink, $dateString),
+				'type'     => HTML::_('link', $thisLink, Languages::_($type)),
+				'status'   => HTML::_('link', $thisLink, $status)
+			];
 
 			$index++;
 		}
