@@ -8,9 +8,9 @@
         </field>
         <field name="type" type="Options" label="HOLIDAY_TYPE" onchange="this.form.submit();">
             <option value="">ALL_TYPES</option>
-            <option value="1">HOLIDAY_GAP</option>
-            <option value="3">HOLIDAY_OFFICIAL</option>
-            <option value="2">HOLIDAY_META</option>
+            <option value="1">HOLIDAYS_GAP</option>
+            <option value="3">HOLIDAYS_OFFICIAL</option>
+            <option value="2">HOLIDAYS_CLOSED</option>
         </field>
         <field name="status" type="Options" label="STATE" onchange="this.form.submit();">
             <option value="">CURRENT</option>
