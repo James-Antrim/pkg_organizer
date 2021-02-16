@@ -81,14 +81,6 @@ class Booking extends ListView
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function display($destination = self::INLINE)
-	{
-		parent::display($destination);
-	}
-
-	/**
 	 * Set header items.
 	 *
 	 * @return void
