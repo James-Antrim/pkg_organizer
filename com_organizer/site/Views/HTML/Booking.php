@@ -121,6 +121,17 @@ class Booking extends Participants
 		$bookingDate = $this->booking->get('date');
 		$today       = date('Y-m-d');
 
+		if (count($this->items))
+		{
+			$toolbar->appendButton(
+				'NewTab',
+				'file-pdf',
+				Languages::_('ORGANIZER_ATTENDANCE'),
+				'Bookings.pdf',
+				false
+			);
+		}
+
 		if ($today <= $bookingDate)
 		{
 			$text = Languages::_('ORGANIZER_REMOVE_PARTICIPANTS');
