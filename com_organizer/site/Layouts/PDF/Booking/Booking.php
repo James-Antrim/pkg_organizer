@@ -111,7 +111,7 @@ class Booking extends ListLayout
 	public function setTitle()
 	{
 		$view = $this->view;
-		$name = Languages::_('ORGANIZER_EVENT') . $view->booking->code . Languages::_('ORGANIZER_PARTICIPANTS');
+		$name = Languages::_('ORGANIZER_EVENT') . '-' . $view->booking->code . '-' . Languages::_('ORGANIZER_PARTICIPANTS');
 		$view->setNames($name);
 	}
 }
