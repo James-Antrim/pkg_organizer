@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 use Organizer\Helpers;
@@ -93,7 +92,7 @@ class Booking extends Participants
 
 		Helpers\HTML::setTitle($title, 'users');
 
-		$toolbar = Toolbar::getInstance();
+		$toolbar = Adapters\Toolbar::getInstance();
 
 		$icon = '<span class="icon-list-3"></span>';
 		$text = Languages::_('ORGANIZER_MY_INSTANCES');
@@ -168,6 +167,11 @@ class Booking extends Participants
 	 */
 	protected function authorize()
 	{
+		if (!Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
 		if (!$bookingID = Helpers\Input::getID())
 		{
 			Helpers\OrganizerHelper::error(400);
