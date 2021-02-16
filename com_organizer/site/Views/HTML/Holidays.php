@@ -48,7 +48,7 @@ class Holidays extends ListView
 		$link    = 'index.php?option=com_organizer&view=holiday_edit&id=';
 		$items   = [];
 		$typeMap = [
-			self::SOFT     => 'ORGANIZER_HOLIDAY_SOFT',
+			self::SOFT     => 'ORGANIZER_HOLIDAY_GAP',
 			self::META     => 'ORGANIZER_HOLIDAY_META',
 			self::OFFICIAL => 'ORGANIZER_HOLIDAY_OFFICIAL'
 		];

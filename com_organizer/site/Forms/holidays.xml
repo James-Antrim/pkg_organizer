@@ -8,7 +8,7 @@
         </field>
         <field name="type" type="Options" label="HOLIDAY_TYPE" onchange="this.form.submit();">
             <option value="">ALL_TYPES</option>
-            <option value="1">HOLIDAY_SOFT</option>
+            <option value="1">HOLIDAY_GAP</option>
             <option value="3">HOLIDAY_OFFICIAL</option>
             <option value="2">HOLIDAY_META</option>
         </field>
