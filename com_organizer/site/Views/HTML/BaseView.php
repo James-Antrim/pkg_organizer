@@ -293,6 +293,10 @@ abstract class BaseView extends HtmlView
 				'url'    => 'index.php?option=com_organizer&amp;view=participants',
 				'active' => $viewName == 'participants'
 			];
+			$items[Languages::_('ORGANIZER_TERMS')]         = [
+				'url'    => 'index.php?option=com_organizer&amp;view=terms',
+				'active' => $viewName == 'terms'
+			];
 			ksort($items);
 			foreach ($items as $key => $value)
 			{

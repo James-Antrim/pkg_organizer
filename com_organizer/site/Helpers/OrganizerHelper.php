@@ -15,8 +15,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Controller;
-use Organizer\Tables;
-use ReflectionMethod;
+use Wf_Mobile_Detect;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -30,7 +29,7 @@ class OrganizerHelper
 	 *
 	 * @return string the encoded base class name
 	 */
-	public static function classEncode($className)
+	public static function classEncode(string $className): string
 	{
 		$root      = str_replace(['Edit', 'Merge'], '', $className);
 		$separated = preg_replace('/([a-z])([A-Z])/', '$1_$2', $root);
@@ -45,7 +44,7 @@ class OrganizerHelper
 	 *
 	 * @return string the camel cased class name
 	 */
-	public static function classDecode($encoded)
+	public static function classDecode(string $encoded): string
 	{
 		$className = '';
 		foreach (explode('_', $encoded) as $piece)
@@ -61,11 +60,11 @@ class OrganizerHelper
 	 *
 	 * @return bool true if the view was called dynamically, otherwise false
 	 */
-	public static function dynamic()
+	public static function dynamic(): bool
 	{
 		$app = self::getApplication();
 
-		return (empty($app->getMenu()) or empty($app->getMenu()->getActive())) ? true : false;
+		return (empty($app->getMenu()) or empty($app->getMenu()->getActive()));
 	}
 
 	/**
@@ -120,7 +119,7 @@ class OrganizerHelper
 	 *
 	 * @return CMSApplication|null
 	 */
-	public static function getApplication()
+	public static function getApplication(): ?CMSApplication
 	{
 		try
 		{
@@ -135,11 +134,11 @@ class OrganizerHelper
 	/**
 	 * Gets the name of an object's class without its namespace.
 	 *
-	 * @param   mixed  $object  the object whose namespace free name is requested or the fq name of the class to be loaded
+	 * @param   object|string  $object  the object whose namespace free name is requested or the fq name of the class to be loaded
 	 *
 	 * @return string the name of the class without its namespace
 	 */
-	public static function getClass($object)
+	public static function getClass($object): string
 	{
 		$fqName   = is_string($object) ? $object : get_class($object);
 		$nsParts  = explode('\\', $fqName);
@@ -160,7 +159,7 @@ class OrganizerHelper
 	 *
 	 * @return string the plural of the resource name
 	 */
-	public static function getPlural($resource)
+	public static function getPlural(string $resource): string
 	{
 		switch ($resource)
 		{
@@ -171,7 +170,6 @@ class OrganizerHelper
 				return $resource . 'es';
 			case mb_substr($resource, -2) == 'ry':
 				return mb_substr($resource, 0, mb_strlen($resource) - 1) . 'ies';
-				break;
 			default:
 				return $resource . 's';
 		}
@@ -184,7 +182,7 @@ class OrganizerHelper
 	 *
 	 * @return string the resource name
 	 */
-	public static function getResource($view)
+	public static function getResource(string $view): string
 	{
 		$initial       = strtolower($view);
 		$withoutSuffix = preg_replace('/_?(edit|item|manager|merge|statistics)$/', '', $initial);
@@ -216,6 +214,7 @@ class OrganizerHelper
 			'roomtypes'     => 'roomtype',
 			'schedules'     => 'schedule',
 			'subjects'      => 'subject',
+			'terms'         => 'term',
 			'trace'         => '',
 			'units'         => 'unit'
 		];
@@ -229,7 +228,7 @@ class OrganizerHelper
 	 *
 	 * @return bool
 	 */
-	public static function isSmartphone()
+	public static function isSmartphone(): bool
 	{
 		$mobileCheckPath = JPATH_ROOT . '/components/com_jce/editor/libraries/classes/mobile.php';
 
@@ -238,10 +237,11 @@ class OrganizerHelper
 			if (!class_exists('Wf_Mobile_Detect'))
 			{
 				// Load mobile detect class
+				/** @noinspection PhpIncludeInspection */
 				require_once $mobileCheckPath;
 			}
 
-			$checker = new \Wf_Mobile_Detect();
+			$checker = new Wf_Mobile_Detect();
 			$isPhone = ($checker->isMobile() and !$checker->isTablet());
 
 			if ($isPhone)
@@ -261,7 +261,7 @@ class OrganizerHelper
 	 *
 	 * @return void
 	 */
-	public static function message($message, $type = 'message')
+	public static function message(string $message, $type = 'message')
 	{
 		$message = Languages::_($message);
 		self::getApplication()->enqueueMessage($message, $type);
