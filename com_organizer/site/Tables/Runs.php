@@ -16,6 +16,14 @@ namespace Organizer\Tables;
 class Runs extends BaseTable
 {
 	/**
+	 * The end date of the resource.
+	 * DATE NOT NULL
+	 *
+	 * @var string
+	 */
+	public $endDate;
+
+	/**
 	 * The resource's German name.
 	 * VARCHAR(150) NOT NULL
 	 *

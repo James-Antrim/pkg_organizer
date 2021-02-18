@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
@@ -17,6 +18,37 @@ use Organizer\Tables;
  */
 class RunEdit extends EditModel
 {
+	/**
+	 * Checks user authorization and initiates redirects accordingly.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		if (Helpers\Can::administrate())
+		{
+			return;
+		}
+
+		if (!Helpers\Can::scheduleTheseOrganizations() or Helpers\Input::getID())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getForm($data = [], $loadData = true)
+	{
+		if ($form = parent::getForm($data, $loadData))
+		{
+			$form->setValue('termID', null, $form->getValue('termID', null, Helpers\Terms::getCurrentID()));
+		}
+
+		return $form;
+	}
+
 	/**
 	 * Method to get a table object, load it if necessary.
 	 *
@@ -28,8 +60,8 @@ class RunEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Runs
 	{
-		return new Tables\Runs;
+		return new Tables\Runs();
 	}
 }

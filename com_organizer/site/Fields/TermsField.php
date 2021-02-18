@@ -27,7 +27,7 @@ class TermsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options = parent::getOptions();
 		$terms   = Helpers\Terms::getOptions((bool) $this->getAttribute('withDates'));

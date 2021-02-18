@@ -5,7 +5,7 @@
         <field name="termID" type="Terms" label="TERM" required="true"/>
         <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
         <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
-        <field name="run" type="Runs" formsource="run_blocks" multiple="true" buttons="add,remove"
-               layout="joomla.form.field.subform.repeatable-table" label="ORGANIZER_RUN_SECTION"/>
+        <field name="run" type="Runs" formsource="run_sections" multiple="true" buttons="add,remove"
+               layout="joomla.form.field.subform.repeatable-table" label="ORGANIZER_RUN_SECTIONS"/>
     </fieldset>
 </form>

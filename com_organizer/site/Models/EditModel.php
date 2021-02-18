@@ -51,12 +51,7 @@ abstract class EditModel extends AdminModel
 	}
 
 	/**
-	 * Method to get the form
-	 *
-	 * @param   array  $data      Data         (default: array)
-	 * @param   bool   $loadData  Load data  (default: true)
-	 *
-	 * @return mixed Form object on success, False on error.
+	 * @inheritDoc
 	 */
 	public function getForm($data = [], $loadData = true)
 	{
@@ -91,15 +86,7 @@ abstract class EditModel extends AdminModel
 	}
 
 	/**
-	 * Method to get a form object.
-	 *
-	 * @param   string  $name     The name of the form.
-	 * @param   string  $source   The form source. Can be XML string if file flag is set to false.
-	 * @param   array   $options  Optional array of options for the form creation.
-	 * @param   bool    $clear    Optional argument to force load a new form.
-	 * @param   string  $xpath    An optional xpath to search for the fields.
-	 *
-	 * @return  Form|bool  \JForm object on success, false on error.
+	 * @inheritDoc
 	 */
 	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = '')
 	{

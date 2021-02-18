@@ -148,6 +148,10 @@ abstract class BaseView extends HtmlView
 				'url'    => 'index.php?option=com_organizer&amp;view=groups',
 				'active' => $viewName == 'groups'
 			];
+			$items[Languages::_('ORGANIZER_RUNS')]       = [
+				'url'    => 'index.php?option=com_organizer&amp;view=runs',
+				'active' => $viewName == 'runs'
+			];
 			$items[Languages::_('ORGANIZER_SCHEDULES')]  = [
 				'url'    => 'index.php?option=com_organizer&amp;view=schedules',
 				'active' => $viewName == 'schedules'
@@ -289,10 +293,6 @@ abstract class BaseView extends HtmlView
 				'url'    => 'index.php?option=com_organizer&amp;view=participants',
 				'active' => $viewName == 'participants'
 			];
-			/*$items[Languages::_('ORGANIZER_RUNS')]          = [
-				'url'    => 'index.php?option=com_organizer&amp;view=runs',
-				'active' => $viewName == 'runs'
-			];*/
 			ksort($items);
 			foreach ($items as $key => $value)
 			{

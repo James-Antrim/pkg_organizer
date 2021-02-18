@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use Organizer\Helpers;
-use Organizer\Tables;
+use Organizer\Tables\Runs as Table;
 
 /**
  * Class which manages stored run data.
@@ -19,19 +19,35 @@ use Organizer\Tables;
 class Run extends BaseModel
 {
 	/**
+	 * @inheritDoc
+	 */
+	protected function authorize()
+	{
+		if (Helpers\Can::administrate())
+		{
+			return;
+		}
+
+		if (!Helpers\Can::scheduleTheseOrganizations() or Helpers\Input::getID())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
+
+	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Tables\Runs A Table object
+	 * @return Table A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Table
 	{
-		return new Tables\Runs;
+		return new Table();
 	}
 
 	/**
@@ -39,26 +55,29 @@ class Run extends BaseModel
 	 *
 	 * @param   array  $data  the data from the form
 	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @return int|bool int id of the resource on success, otherwise bool false
 	 */
 	public function save($data = [])
 	{
 		$this->authorize();
 
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$data    = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$endDate = '';
+		$index   = 1;
+		$runs    = [];
 
-		$runs  = [];
-		$index = 1;
 		foreach ($data['run'] as $row)
 		{
+			$endDate      = $endDate < $row['endDate'] ? $row['endDate'] : $endDate;
 			$runs[$index] = $row;
 			++$index;
 		}
 
-		$run         = ['runs' => $runs];
-		$data['run'] = json_encode($run, JSON_UNESCAPED_UNICODE);
+		$data['endDate'] = $endDate;
+		$run             = ['runs' => $runs];
+		$data['run']     = json_encode($run, JSON_UNESCAPED_UNICODE);
 
-		$table = new Tables\Runs();
+		$table = new Table();
 
 		return $table->save($data) ? $table->id : false;
 	}

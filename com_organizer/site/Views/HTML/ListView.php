@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use Organizer\Adapters;
@@ -70,7 +69,7 @@ abstract class ListView extends BaseView
 		$constant = strtoupper($resource);
 
 		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_$constant"), 'list-2');
-		$toolbar = Toolbar::getInstance();
+		$toolbar = Adapters\Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), "$resource.add", false);
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "$resource.edit", true);
 		$toolbar->appendButton(

@@ -14,9 +14,9 @@ use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
 /**
- * Class loads the holiday form into display context.
+ * Class loads the run form into display context.
  */
-class HolidayEdit extends EditView
+class RunEdit extends EditView
 {
 	/**
 	 * Method to generate buttons for user interaction
@@ -29,18 +29,18 @@ class HolidayEdit extends EditView
 		{
 			$cancel = 'ORGANIZER_CLOSE';
 			$save   = 'ORGANIZER_SAVE_CLOSE';
-			$title  = "ORGANIZER_HOLIDAY_EDIT";
+			$title  = "ORGANIZER_RUN_EDIT";
 		}
 		else
 		{
 			$cancel = 'ORGANIZER_CANCEL';
 			$save   = 'ORGANIZER_CREATE_CLOSE';
-			$title  = "ORGANIZER_HOLIDAY_NEW";
+			$title  = "ORGANIZER_RUN_NEW";
 		}
 
 		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "holidays.save", false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "runs.save", false);
 
 		if ($this->item->id)
 		{
@@ -48,11 +48,11 @@ class HolidayEdit extends EditView
 				'Standard',
 				'save-copy',
 				Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
-				'holidays.save2copy',
+				'runs.save2copy',
 				false
 			);
 		}
 
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "holidays.cancel", false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "runs.cancel", false);
 	}
 }
