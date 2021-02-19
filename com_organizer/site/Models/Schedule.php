@@ -448,6 +448,7 @@ class Schedule extends BaseModel
 		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_units')
+			->where("code NOT LIKE '%-%'")
 			->where("organizationID = $organizationID")
 			->where("startDate > $today")
 			->where("termID = $termID");
