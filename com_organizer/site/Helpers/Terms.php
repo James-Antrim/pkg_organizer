@@ -107,14 +107,21 @@ class Terms extends ResourceHelper implements Selectable
 	 * @inheritDoc
 	 *
 	 * @param   bool  $showDates  if true the start and end date will be displayed as part of the name
+	 * @param   bool  $filter     if true only current and future terms will be displayed
 	 */
-	public static function getOptions($showDates = false): array
+	public static function getOptions($showDates = false, $filter = false): array
 	{
 		$tag     = Languages::getTag();
+		$today   = date('Y-m-d');
 		$options = [];
 
 		foreach (Terms::getResources() as $term)
 		{
+			if ($filter and $term['endDate'] < $today)
+			{
+				continue;
+			}
+
 			$name = $term["name_$tag"];
 
 			if ($showDates)

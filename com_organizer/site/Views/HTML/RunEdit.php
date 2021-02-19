@@ -27,20 +27,25 @@ class RunEdit extends EditView
 	{
 		if ($this->item->id)
 		{
-			$cancel = 'ORGANIZER_CLOSE';
-			$save   = 'ORGANIZER_SAVE_CLOSE';
-			$title  = "ORGANIZER_RUN_EDIT";
+			$apply     = 'ORGANIZER_APPLY';
+			$applyIcon = 'apply';
+			$cancel    = 'ORGANIZER_CLOSE';
+			$save      = 'ORGANIZER_SAVE_CLOSE';
+			$title     = "ORGANIZER_RUN_EDIT";
 		}
 		else
 		{
-			$cancel = 'ORGANIZER_CANCEL';
-			$save   = 'ORGANIZER_CREATE_CLOSE';
-			$title  = "ORGANIZER_RUN_NEW";
+			$apply     = 'ORGANIZER_CREATE';
+			$applyIcon = 'save-new';
+			$cancel    = 'ORGANIZER_CANCEL';
+			$save      = 'ORGANIZER_CREATE_CLOSE';
+			$title     = "ORGANIZER_RUN_NEW";
 		}
 
 		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "runs.save", false);
+		$toolbar->appendButton('Standard', $applyIcon, $apply, 'runs.apply', false);
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'runs.save', false);
 
 		if ($this->item->id)
 		{

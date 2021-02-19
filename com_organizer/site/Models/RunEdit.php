@@ -43,7 +43,8 @@ class RunEdit extends EditModel
 	{
 		if ($form = parent::getForm($data, $loadData))
 		{
-			$form->setValue('termID', null, $form->getValue('termID', null, Helpers\Terms::getCurrentID()));
+			$defaultID = Helpers\Input::getFilterID('term', Helpers\Terms::getCurrentID());
+			$form->setValue('termID', null, $form->getValue('termID', null, $defaultID));
 		}
 
 		return $form;

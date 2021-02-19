@@ -29,8 +29,10 @@ class TermsField extends OptionsField
 	 */
 	protected function getOptions(): array
 	{
-		$options = parent::getOptions();
-		$terms   = Helpers\Terms::getOptions((bool) $this->getAttribute('withDates'));
+		$options   = parent::getOptions();
+		$filter    = (bool) $this->getAttribute('filter');
+		$withDates = (bool) $this->getAttribute('withDates');
+		$terms     = Helpers\Terms::getOptions($withDates, $filter);
 
 		return array_merge($options, $terms);
 	}
