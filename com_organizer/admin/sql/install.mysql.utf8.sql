@@ -883,7 +883,7 @@ CREATE TABLE `#__organizer_terms` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_units` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `code`           INT(11) UNSIGNED NOT NULL,
+    `code`           VARCHAR(60)      NOT NULL,
     `organizationID` INT(11) UNSIGNED NOT NULL,
     `termID`         INT(11) UNSIGNED NOT NULL,
     `comment`        VARCHAR(255)              DEFAULT '',

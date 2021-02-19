@@ -242,7 +242,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		// Reset variables passed through the object
 		$rawUntisID = str_replace("LS_", '', trim((string) $node[0]['id']));
-		$untisID    = (int) substr($rawUntisID, 0, strlen($rawUntisID) - 2);
+		$untisID    = substr($rawUntisID, 0, strlen($rawUntisID) - 2);
 
 		$gridID = null;
 		if (!$gridName = trim((string) $node->timegrid))
