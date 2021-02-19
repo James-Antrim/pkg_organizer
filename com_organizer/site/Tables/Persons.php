@@ -15,16 +15,10 @@ namespace Organizer\Tables;
  */
 class Persons extends BaseTable
 {
-	use Activated, Aliased, Suppressed;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
+	use Activated;
+	use Aliased;
+	use Coded;
+	use Suppressed;
 
 	/**
 	 * The person's first and middle names.
@@ -71,9 +65,9 @@ class Persons extends BaseTable
 	 *
 	 * @return bool  true
 	 */
-	public function check()
+	public function check(): bool
 	{
-		// All three fields can recieve data from at least two systems.
+		// All three fields can receive data from at least two systems.
 		$nullColumns = ['alias', 'code', 'username'];
 		foreach ($nullColumns as $nullColumn)
 		{

@@ -15,14 +15,7 @@ namespace Organizer\Tables;
  */
 class Grids extends BaseTable
 {
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
+	use Coded;
 
 	/**
 	 * A grid object modeled by a JSON string, containing the respective start and end times of the grid blocks.

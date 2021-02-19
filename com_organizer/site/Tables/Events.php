@@ -15,7 +15,10 @@ namespace Organizer\Tables;
  */
 class Events extends BaseTable
 {
-	use Activated, Aliased, Suppressed;
+	use Activated;
+	use Aliased;
+	use Coded;
+	use Suppressed;
 
 	/**
 	 * The id of the campus entry referenced.
@@ -24,15 +27,6 @@ class Events extends BaseTable
 	 * @var int
 	 */
 	public $campusID;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The organization's German contact information for a group of courses.
@@ -217,7 +211,7 @@ class Events extends BaseTable
 	 *
 	 * @return bool  true
 	 */
-	public function check()
+	public function check(): bool
 	{
 		if (empty($this->alias))
 		{

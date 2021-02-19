@@ -16,6 +16,7 @@ namespace Organizer\Tables;
 class Subjects extends BaseTable
 {
 	use Aliased;
+	use Coded;
 
 	/**
 	 * The resource's German abbreviation.
@@ -64,15 +65,6 @@ class Subjects extends BaseTable
 	 * @var string
 	 */
 	public $bonusPoints_en;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The subject's contents in German.
@@ -399,7 +391,7 @@ class Subjects extends BaseTable
 	 *
 	 * @return bool  true
 	 */
-	public function check()
+	public function check(): bool
 	{
 		$nullColumns = ['alias', 'fieldID', 'frequencyID', 'instructionLanguage'];
 

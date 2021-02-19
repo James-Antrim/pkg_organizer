@@ -16,15 +16,7 @@ namespace Organizer\Tables;
 class Fields extends BaseTable
 {
 	use Aliased;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
+	use Coded;
 
 	/**
 	 * The resource's German name.

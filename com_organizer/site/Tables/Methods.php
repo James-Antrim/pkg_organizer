@@ -17,6 +17,7 @@ namespace Organizer\Tables;
 class Methods extends BaseTable
 {
 	use Aliased;
+	use Coded;
 
 	/**
 	 * The resource's German abbreviation.
@@ -33,15 +34,6 @@ class Methods extends BaseTable
 	 * @var string
 	 */
 	public $abbreviation_en;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The resource's German name.

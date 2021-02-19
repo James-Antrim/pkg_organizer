@@ -16,6 +16,7 @@ namespace Organizer\Tables;
 class Degrees extends BaseTable
 {
 	use Aliased;
+	use Coded;
 
 	/**
 	 * The resource's abbreviation.
@@ -24,14 +25,6 @@ class Degrees extends BaseTable
 	 * @var string
 	 */
 	public $abbreviation;
-
-	/**
-	 * An abbreviated nomenclature for the resource.
-	 * VARCHAR(60) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The resource's name.

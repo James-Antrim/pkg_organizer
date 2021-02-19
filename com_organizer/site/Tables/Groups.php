@@ -15,7 +15,10 @@ namespace Organizer\Tables;
  */
 class Groups extends BaseTable
 {
-	use Activated, Aliased, Suppressed;
+	use Activated;
+	use Aliased;
+	use Coded;
+	use Suppressed;
 
 	/**
 	 * The id of the category entry referenced.
@@ -24,15 +27,6 @@ class Groups extends BaseTable
 	 * @var int
 	 */
 	public $categoryID;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The resource's German name.

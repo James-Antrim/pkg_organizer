@@ -15,16 +15,10 @@ namespace Organizer\Tables;
  */
 class Categories extends BaseTable
 {
-	use Activated, Aliased, Suppressed;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
+	use Activated;
+	use Aliased;
+	use Coded;
+	use Suppressed;
 
 	/**
 	 * The resource's German name.
@@ -55,7 +49,7 @@ class Categories extends BaseTable
 	 *
 	 * @return bool  true
 	 */
-	public function check()
+	public function check(): bool
 	{
 		if (empty($this->alias))
 		{

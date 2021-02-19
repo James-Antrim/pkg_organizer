@@ -15,16 +15,9 @@ namespace Organizer\Tables;
  */
 class Roomtypes extends BaseTable
 {
-	use Aliased, Suppressed;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
+	use Aliased;
+	use Suppressed;
+	use Coded;
 
 	/**
 	 * The resource's German description.

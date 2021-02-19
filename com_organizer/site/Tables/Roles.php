@@ -15,6 +15,8 @@ namespace Organizer\Tables;
  */
 class Roles extends BaseTable
 {
+	use Coded;
+
 	/**
 	 * The resource's German abbreviation.
 	 * VARCHAR(25) NOT NULL DEFAULT ''
@@ -30,14 +32,6 @@ class Roles extends BaseTable
 	 * @var string
 	 */
 	public $abbreviation_en;
-
-	/**
-	 * An abbreviated nomenclature for the resource.
-	 * VARCHAR(25) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The resource's German name.

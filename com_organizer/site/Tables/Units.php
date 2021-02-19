@@ -15,15 +15,8 @@ namespace Organizer\Tables;
  */
 class Units extends BaseTable
 {
+	use Coded;
 	use Modified;
-
-	/**
-	 * Currently corresponding to the identifier in Untis scheduling software.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * A supplementary text description.
@@ -102,7 +95,7 @@ class Units extends BaseTable
 	 *
 	 * @return bool  true
 	 */
-	public function check()
+	public function check(): bool
 	{
 		$nullColumns = ['courseID', 'endDate', 'gridID', 'runID', 'startDate'];
 

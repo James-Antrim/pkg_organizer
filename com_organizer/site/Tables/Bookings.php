@@ -15,6 +15,8 @@ namespace Organizer\Tables;
  */
 class Bookings extends BaseTable
 {
+	use Coded;
+
 	/**
 	 * The id of the block entry referenced.
 	 * INT(11) UNSIGNED NOT NULL
@@ -22,14 +24,6 @@ class Bookings extends BaseTable
 	 * @var int
 	 */
 	public $blockID;
-
-	/**
-	 * A code used for participants to check into instances for this booking.
-	 * VARCHAR(60) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The end time of the block.

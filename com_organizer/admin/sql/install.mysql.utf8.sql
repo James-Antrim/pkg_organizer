@@ -679,7 +679,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_programs` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_roles` (
     `id`              TINYINT(2) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `code`            VARCHAR(25)         NOT NULL,
+    `code`            VARCHAR(60)         NOT NULL,
     `abbreviation_de` VARCHAR(25)         NOT NULL,
     `abbreviation_en` VARCHAR(25)         NOT NULL,
     `name_de`         VARCHAR(150)        NOT NULL,

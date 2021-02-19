@@ -17,6 +17,7 @@ class Rooms extends BaseTable
 {
 	use Activated;
 	use Aliased;
+	use Coded;
 
 	/**
 	 * The id of the building entry referenced.
@@ -33,15 +34,6 @@ class Rooms extends BaseTable
 	 * @var string
 	 */
 	public $capacity;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software.
-	 * VARCHAR(60) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The resource's name.
@@ -80,7 +72,7 @@ class Rooms extends BaseTable
 	 *
 	 * @return bool  true
 	 */
-	public function check()
+	public function check(): bool
 	{
 		$nullColumns = ['alias', 'buildingID'];
 		foreach ($nullColumns as $nullColumn)

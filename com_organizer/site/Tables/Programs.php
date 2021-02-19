@@ -16,7 +16,9 @@ namespace Organizer\Tables;
  */
 class Programs extends BaseTable
 {
-	use Activated, Aliased;
+	use Activated;
+	use Aliased;
+	use Coded;
 
 	/**
 	 * The year in which the program was accredited.
@@ -33,14 +35,6 @@ class Programs extends BaseTable
 	 * @var int
 	 */
 	public $categoryID;
-
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in the LSF application.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The id of the degree entry referenced.
@@ -127,7 +121,7 @@ class Programs extends BaseTable
 	 *
 	 * @return bool  true
 	 */
-	public function check()
+	public function check(): bool
 	{
 		if (empty($this->alias))
 		{
