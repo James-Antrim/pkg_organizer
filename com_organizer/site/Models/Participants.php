@@ -25,7 +25,7 @@ class Participants extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	public function filterFilterForm(Form &$form)
+	protected function filterFilterForm(Form &$form)
 	{
 		parent::filterFilterForm($form);
 

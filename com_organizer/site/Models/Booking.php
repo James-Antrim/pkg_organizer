@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\User;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
@@ -440,6 +441,28 @@ class Booking extends Participants
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function filterFilterForm(Form &$form)
+	{
+		parent::filterFilterForm($form);
+
+		$bookingID = Helpers\Input::getID();
+
+		if (count(Helpers\Bookings::getInstanceOptions($bookingID)) === 1)
+		{
+			$form->removeField('instanceID', 'filter');
+			unset($this->filter_fields[array_search('instanceID', $this->filter_fields)]);
+		}
+
+		if (count(Helpers\Bookings::getRoomOptions($bookingID)) <= 1)
+		{
+			$form->removeField('roomID', 'filter');
+			unset($this->filter_fields[array_search('roomID', $this->filter_fields)]);
+		}
+	}
+
+	/**
 	 * Gets the booking table entry, and fills appropriate form field values.
 	 *
 	 * @return Tables\Bookings
@@ -485,7 +508,7 @@ class Booking extends Participants
 		$bookingID = Helpers\Input::getID();
 		$query     = Database::getQuery();
 		$tag       = Helpers\Languages::getTag();
-		$query->select("e.name_$tag AS event")
+		$query->select("e.name_$tag AS event, r.name")
 			->from('#__organizer_events AS e')
 			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
