@@ -2,6 +2,13 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="batch"></fields>
     <fields name="filter">
+        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="instanceID" type="BookingInstances" label="INSTANCE" onchange="this.form.submit();">
+            <option value="">ALL_INSTANCES</option>
+        </field>
+        <field name="roomID" type="BookingRooms" label="ROOM" onchange="this.form.submit();">
+            <option value="">ALL_ROOMS</option>
+        </field>
     </fields>
     <fields name="list">
         <field name="username" type="AddParticipant"/>

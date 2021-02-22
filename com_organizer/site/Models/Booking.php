@@ -22,7 +22,7 @@ class Booking extends Participants
 {
 	protected $defaultOrdering = 'fullName';
 
-	protected $filter_fields = ['programID'];
+	protected $filter_fields = ['instanceID'];
 
 	/**
 	 * Creates a new entry in the booking table for the given instance.
@@ -472,6 +472,8 @@ class Booking extends Participants
 			->where("b.id = $bookingID")
 			->where('ip.attended = 1');
 
+		$this->setValueFilters($query, ['instanceID', 'roomID']);
+
 		return $query;
 	}
 
@@ -487,7 +489,8 @@ class Booking extends Participants
 			->from('#__organizer_events AS e')
 			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
-			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id');
+			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
+			->leftJoin('#__organizer_rooms AS r ON r.id = ip.roomID');
 
 		foreach ($items = parent::getItems() as $key => $item)
 		{
