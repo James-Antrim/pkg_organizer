@@ -27,8 +27,10 @@ class Booking extends ListLayout
 
 	protected $widths = [
 		'index' => 10,
-		'name'  => 80,
-		'event' => 90
+		'name'  => 50,
+		'event' => 80,
+		'room'  => 20,
+		'seat'  => 20
 	];
 
 	/**
@@ -42,7 +44,9 @@ class Booking extends ListLayout
 		$this->headers = [
 			'index' => '#',
 			'name'  => Languages::_('ORGANIZER_NAME'),
-			'event' => Languages::_('ORGANIZER_EVENT')
+			'event' => Languages::_('ORGANIZER_EVENT'),
+			'room'  => Languages::_('ORGANIZER_ROOM'),
+			'seat'  => Languages::_('ORGANIZER_SEAT')
 		];
 	}
 
@@ -66,10 +70,6 @@ class Booking extends ListLayout
 			{
 				switch ($columnName)
 				{
-					case 'event':
-						// The participant may not be associated with a program => cast to int to prevent null
-						$value = $participant->event;
-						break;
 					case 'index':
 						$value = $itemNo;
 						break;
@@ -78,7 +78,7 @@ class Booking extends ListLayout
 							$participant->surname : "$participant->surname,  $participant->forename";
 						break;
 					default:
-						$value = '';
+						$value = empty($participant->$columnName) ? '' : $participant->$columnName;
 						break;
 				}
 
