@@ -40,10 +40,41 @@ class InstanceParticipants extends BaseTable
 	public $participantID;
 
 	/**
+	 * The id of the room entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $roomID;
+
+	/**
+	 * The id of the room entry referenced.
+	 * VARCHAR(60) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $seat;
+
+	/**
 	 * Declares the associated table.
 	 */
 	public function __construct()
 	{
 		parent::__construct('#__organizer_instance_participants');
+	}
+
+	/**
+	 * Set the table column names which are allowed to be null
+	 *
+	 * @return bool  true
+	 */
+	public function check(): bool
+	{
+		if (empty($this->roomID))
+		{
+			$this->roomID = null;
+		}
+
+		return true;
 	}
 }

@@ -428,7 +428,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_participants` (
     `id`            INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `instanceID`    INT(20) UNSIGNED NOT NULL,
     `participantID` INT(11)          NOT NULL,
-    `attended`      TINYINT(1) UNSIGNED DEFAULT 0,
+    `roomID`        INT(11) UNSIGNED          DEFAULT NULL,
+    `seat`          VARCHAR(60)      NOT NULL DEFAULT '',
+    `attended`      TINYINT(1) UNSIGNED       DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `entry` (`instanceID`, `participantID`),
     KEY `instanceID` (`instanceID`),
@@ -968,7 +970,8 @@ ALTER TABLE `#__organizer_instance_groups`
 
 ALTER TABLE `#__organizer_instance_participants`
     ADD CONSTRAINT `instance_participant_instanceID_fk` FOREIGN KEY (`instanceID`) REFERENCES `#__organizer_instances` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    ADD CONSTRAINT `instance_participant_participantID_fk` FOREIGN KEY (`participantID`) REFERENCES `#__organizer_participants` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `instance_participant_participantID_fk` FOREIGN KEY (`participantID`) REFERENCES `#__organizer_participants` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `instance_participant_roomID_fk` FOREIGN KEY (`roomID`) REFERENCES `#__organizer_rooms` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_instance_persons`
     ADD CONSTRAINT `instance_person_instanceID_fk` FOREIGN KEY (`instanceID`) REFERENCES `#__organizer_instances` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
