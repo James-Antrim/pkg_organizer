@@ -180,6 +180,28 @@ class Bookings extends ResourceHelper
 	 *
 	 * @return array
 	 */
+	public static function getRooms(int $bookingID): array
+	{
+		$rooms = [];
+
+		foreach (self::getInstanceIDs($bookingID) as $instanceID)
+		{
+			foreach (Instances::getRoomIDs($instanceID) as $roomID)
+			{
+				$rooms[$roomID] = Rooms::getName($roomID);
+			}
+		}
+
+		return $rooms;
+	}
+
+	/**
+	 * Gets instance options for the booking entry.
+	 *
+	 * @param   int  $bookingID  the id of the booking to get instance options for
+	 *
+	 * @return array
+	 */
 	public static function getRoomOptions(int $bookingID): array
 	{
 		$options = [];

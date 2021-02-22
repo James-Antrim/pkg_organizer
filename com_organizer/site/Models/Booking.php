@@ -489,7 +489,7 @@ class Booking extends Participants
 	{
 		$bookingID = Helpers\Input::getID();
 		$query     = parent::getListQuery();
-		$query->select('r.name AS room, ip.seat')
+		$query->select('r.name AS room, ip.id AS ipID, ip.seat')
 			->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
@@ -516,8 +516,27 @@ class Booking extends Participants
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
 			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id');
 
+		$rooms      = Helpers\Bookings::getRooms($bookingID);
+		$updateID   = 0;
+		$updateRoom = '';
+
+		if (count($rooms) === 1)
+		{
+			$updateID   = array_key_first($rooms);
+			$updateRoom = reset($rooms);
+		}
+
 		foreach ($items = parent::getItems() as $key => $item)
 		{
+			if (empty($item->room) and $updateID)
+			{
+				$table = new Tables\InstanceParticipants();
+				$table->load($item->ipID);
+				$table->roomID = $updateID;
+				$table->store();
+				$item->room = $updateRoom;
+			}
+
 			$columns        = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
 			$item->complete = true;
 
