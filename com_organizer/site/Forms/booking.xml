@@ -8,6 +8,7 @@
         </field>
         <field name="roomID" type="BookingRooms" label="ROOM" onchange="this.form.submit();">
             <option value="">ALL_ROOMS</option>
+            <option value="-1">NO_ROOMS</option>
         </field>
     </fields>
     <fields name="list">

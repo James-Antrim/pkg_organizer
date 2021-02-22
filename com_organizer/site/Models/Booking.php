@@ -489,9 +489,11 @@ class Booking extends Participants
 	{
 		$bookingID = Helpers\Input::getID();
 		$query     = parent::getListQuery();
-		$query->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
+		$query->select('r.name AS room, ip.seat')
+			->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
+			->leftJoin('#__organizer_rooms AS r ON r.id = ip.roomID')
 			->where("b.id = $bookingID")
 			->where('ip.attended = 1');
 
@@ -508,18 +510,17 @@ class Booking extends Participants
 		$bookingID = Helpers\Input::getID();
 		$query     = Database::getQuery();
 		$tag       = Helpers\Languages::getTag();
-		$query->select("e.name_$tag AS event, r.name")
+		$query->select("e.name_$tag AS event")
 			->from('#__organizer_events AS e')
 			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
-			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
-			->leftJoin('#__organizer_rooms AS r ON r.id = ip.roomID');
+			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id');
 
 		foreach ($items = parent::getItems() as $key => $item)
 		{
+			$columns        = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
 			$item->complete = true;
 
-			$columns = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
 			foreach ($columns as $column)
 			{
 				if (empty($item->$column))

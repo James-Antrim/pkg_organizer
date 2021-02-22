@@ -30,6 +30,8 @@ class Booking extends Participants
 		'checkbox' => '',
 		'fullName' => 'value',
 		'event'    => 'value',
+		'room'     => 'value',
+		'seat'     => 'value',
 		'complete' => 'value'
 	];
 
@@ -234,7 +236,9 @@ class Booking extends Participants
 		$headers   = [
 			'checkbox' => Helpers\HTML::_('grid.checkall'),
 			'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
-			'event'    => Helpers\HTML::sort('EVENT', 'event', $direction, $ordering),
+			'event'    => Languages::_('ORGANIZER_EVENT'),
+			'room'     => Languages::_('ORGANIZER_ROOM'),
+			'seat'     => Languages::_('ORGANIZER_SEAT'),
 			'complete' => Languages::_('ORGANIZER_PROFILE_COMPLETE')
 		];
 
