@@ -69,6 +69,30 @@ class Bookings extends ResourceHelper
 	}
 
 	/**
+	 * Gets instance options for the booking entry.
+	 *
+	 * @param   int  $bookingID  the id of the booking to get instance options for
+	 *
+	 * @return array
+	 */
+	public static function getInstanceOptions(int $bookingID): array
+	{
+		$options = [];
+
+		foreach (self::getInstanceIDs($bookingID) as $instanceID)
+		{
+			if ($name = Instances::getName($instanceID))
+			{
+				$options[$name] = HTML::_('select.option', $instanceID, $name);
+			}
+		}
+
+		ksort($options);
+
+		return $options;
+	}
+
+	/**
 	 * Gets the localized name of the events associated with the booking and the name of the booking's method.
 	 *
 	 * @param   int  $resourceID  the id of the booking entry
@@ -147,5 +171,30 @@ class Bookings extends ResourceHelper
 		Database::setQuery($query);
 
 		return Database::loadInt();
+	}
+
+	/**
+	 * Gets instance options for the booking entry.
+	 *
+	 * @param   int  $bookingID  the id of the booking to get instance options for
+	 *
+	 * @return array
+	 */
+	public static function getRoomOptions(int $bookingID): array
+	{
+		$options = [];
+
+		foreach (self::getInstanceIDs($bookingID) as $instanceID)
+		{
+			foreach (Instances::getRoomIDs($instanceID) as $roomID)
+			{
+				$name           = Rooms::getName($roomID);
+				$options[$name] = HTML::_('select.option', $roomID, $name);
+			}
+		}
+
+		ksort($options);
+
+		return $options;
 	}
 }
