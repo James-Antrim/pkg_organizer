@@ -126,7 +126,7 @@ class Booking extends Participants
 			$toolbar->appendButton(
 				'NewTab',
 				'file-pdf',
-				Languages::_('ORGANIZER_ATTENDANCE'),
+				Languages::_('ORGANIZER_ATTENDANCE_LIST'),
 				'Bookings.pdf',
 				false
 			);
