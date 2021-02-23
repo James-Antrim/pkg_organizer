@@ -27,7 +27,7 @@ class InstanceParticipant extends BaseModel
 	 *
 	 * @return array
 	 */
-	public function add()
+	public function add(): array
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
@@ -63,7 +63,7 @@ class InstanceParticipant extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function checkin()
+	public function checkin(): bool
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
@@ -138,11 +138,11 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
-	 * Confirms the instance to which the participant intended to checkin.
+	 * Resolves participant instance ambiguity.
 	 *
 	 * @return void
 	 */
-	public function confirm()
+	public function confirmInstance()
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
@@ -193,7 +193,42 @@ class InstanceParticipant extends BaseModel
 				Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
 			}
 		}
+	}
 
+	/**
+	 * Confirms the participant's room and seat.
+	 *
+	 * @return void
+	 */
+	public function confirmSeating()
+	{
+		if (!$participantID = Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_401', 'error');
+
+			return;
+		}
+
+		if (!$instanceID = Helpers\Input::getInt('instanceID') or !$roomID = Helpers\Input::getInt('roomID'))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_400', 'error');
+
+			return;
+		}
+
+		$table = new Tables\InstanceParticipants();
+
+		if (!$table->load(['instanceID' => $instanceID, 'participantID' => $participantID]))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+
+			return;
+		}
+
+		$table->roomID = $roomID;
+		$table->seat   = Helpers\Input::getString('seat');
+
+		$table->store();
 	}
 
 	/**
@@ -209,7 +244,7 @@ class InstanceParticipant extends BaseModel
 	 *
 	 * @return array
 	 */
-	private function getMatchingInstances()
+	private function getMatchingInstances(): array
 	{
 		if (!$instanceID = Helpers\Input::getInt('instanceID'))
 		{
@@ -273,7 +308,7 @@ class InstanceParticipant extends BaseModel
 	 *
 	 * @return bool true on success, false on error
 	 */
-	public function notify()
+	public function notify(): bool
 	{
 		return false;
 		if (!$instanceID = Input::getID())
@@ -315,7 +350,7 @@ class InstanceParticipant extends BaseModel
 	 *
 	 * @return array
 	 */
-	public function remove()
+	public function remove(): array
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{

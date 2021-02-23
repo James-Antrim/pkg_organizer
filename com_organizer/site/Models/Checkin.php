@@ -19,7 +19,20 @@ use Organizer\Tables;
 
 class Checkin extends FormModel
 {
+	/**
+	 * @var array
+	 */
+	private $instances;
+
+	/**
+	 * @var Tables\Participants
+	 */
 	private $participant;
+
+	/**
+	 * @var int|null
+	 */
+	private $roomID;
 
 	/**
 	 * @inheritDoc
@@ -64,6 +77,8 @@ class Checkin extends FormModel
 		}
 
 		$this->participant = $participant;
+
+		$this->setInstances();
 	}
 
 	/**
@@ -75,8 +90,6 @@ class Checkin extends FormModel
 		{
 			Helpers\OrganizerHelper::error(401);
 		}
-
-		return true;
 	}
 
 	/**
@@ -84,7 +97,7 @@ class Checkin extends FormModel
 	 *
 	 * @return Tables\Participants
 	 */
-	public function getParticipant()
+	public function getParticipant(): Tables\Participants
 	{
 		return $this->participant;
 	}
@@ -94,40 +107,9 @@ class Checkin extends FormModel
 	 *
 	 * @return array
 	 */
-	public function getInstances()
+	public function getInstances(): array
 	{
-		if (!$participantID = Helpers\Users::getID())
-		{
-			return [];
-		}
-
-		$now = date('H:i:s');
-
-		// Ongoing
-		$query = $this->getQuery($participantID);
-		$query->where("b.startTime <= '$now'")->where("b.endTime >= '$now'");
-		Database::setQuery($query);
-
-		if (!$instanceIDs = Database::loadColumn())
-		{
-			// Upcoming
-			$then  = date('H:i:s', strtotime('+60 minutes'));
-			$query = $this->getQuery($participantID);
-			$query->where("b.startTime >= '$now'")->where("b.startTime <= '$then'");
-			Database::setQuery($query);
-
-			if (!$instanceIDs = Database::loadIntColumn())
-			{
-				return [];
-			}
-		}
-
-		foreach ($instanceIDs as $index => $instanceID)
-		{
-			$instanceIDs[$index] = Helpers\Instances::getInstance($instanceID);
-		}
-
-		return $instanceIDs;
+		return $this->instances;
 	}
 
 	/**
@@ -137,11 +119,11 @@ class Checkin extends FormModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	private function getQuery(int $participantID)
+	private function getQuery(int $participantID): JDatabaseQuery
 	{
 		$today = date('Y-m-d');
 		$query = Database::getQuery();
-		$query->select('instanceID')
+		$query->select('instanceID, roomID, seat')
 			->from('#__organizer_instance_participants AS ip')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
@@ -150,5 +132,78 @@ class Checkin extends FormModel
 			->where("b.date = '$today'");
 
 		return $query;
+	}
+
+	/**
+	 * Gets the instances relevant to the booking and person.
+	 *
+	 * @return int|null
+	 */
+	public function getRoomID(): ?int
+	{
+		return $this->roomID;
+	}
+
+	/**
+	 * Gets the instance related information.
+	 *
+	 * @return void
+	 */
+	public function setInstances()
+	{
+		$instances = [];
+		$roomID    = null;
+
+		if (!$participantID = $this->participant->id)
+		{
+			$this->instances = $instances;
+			$this->roomID    = $roomID;
+
+			return;
+		}
+
+		$now = date('H:i:s');
+
+		// Ongoing
+		$query = $this->getQuery($participantID);
+		$query->where("b.startTime <= '$now'")->where("b.endTime >= '$now'");
+		Database::setQuery($query);
+
+		if (!$participation = Database::loadAssocList())
+		{
+			// Upcoming
+			$then  = date('H:i:s', strtotime('+60 minutes'));
+			$query = $this->getQuery($participantID);
+			$query->where("b.startTime >= '$now'")->where("b.startTime <= '$then'");
+			Database::setQuery($query);
+
+			$participation = Database::loadAssocList();
+		}
+
+		$form = $this->getForm();
+
+		foreach ($participation as $index => $entry)
+		{
+			$instanceID        = $entry['instanceID'];
+			$instances[$index] = Helpers\Instances::getInstance($instanceID);
+			$form->setValue('instanceID', null, $instanceID);
+
+			if (empty($roomID))
+			{
+				$roomID         = $entry['roomID'];
+				$roomIDs        = Helpers\Instances::getRoomIDs($instanceID);
+				$selectedRoomID = count($roomIDs) === 1 ? reset($roomIDs) : $entry['roomID'];
+				$form->setValue('roomID', null, $selectedRoomID);
+			}
+
+			if ($roomID)
+			{
+				$instances[$index]['room'] = Helpers\Rooms::getName($roomID);
+				$instances[$index]['seat'] = $entry['seat'];
+			}
+		}
+
+		$this->instances = $instances;
+		$this->roomID    = $roomID;
 	}
 }

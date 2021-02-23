@@ -55,15 +55,33 @@ class Checkin extends Controller
 	}
 
 	/**
-	 * Checks the user into the
+	 * Resolves participant instance ambiguity.
+	 *
 	 * @return void
 	 */
-	public function confirm()
+	public function confirmInstance()
 	{
 		if ($userID = Helpers\Users::getID())
 		{
 			$model = new Models\InstanceParticipant();
-			$model->confirm();
+			$model->confirmInstance();
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=checkin";
+		$this->setRedirect($url);
+	}
+
+	/**
+	 * Confirms the participant's room and seat.
+	 *
+	 * @return void
+	 */
+	public function confirmSeating()
+	{
+		if ($userID = Helpers\Users::getID())
+		{
+			$model = new Models\InstanceParticipant();
+			$model->confirmSeating();
 		}
 
 		$url = Helpers\Routing::getRedirectBase() . "&view=checkin";

@@ -14,6 +14,7 @@ use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Document;
 use Organizer\Helpers;
+use Organizer\Tables\Participants as Table;
 
 class Checkin extends FormView
 {
@@ -21,32 +22,43 @@ class Checkin extends FormView
 
 	public $edit = false;
 
-	public $instances = [];
+	/**
+	 * @var array
+	 */
+	public $instances;
 
 	/**
-	 * @var \Organizer\Tables\Participants
+	 * @var Table
 	 */
 	public $participant;
+
+	/**
+	 * @var int|null
+	 */
+	public $roomID;
 
 	/**
 	 * @inheritDoc
 	 */
 	protected function addToolBar()
 	{
-		if ($this->edit)
+		if ($this->edit or !$this->complete)
 		{
 			$title = Helpers\Languages::_('ORGANIZER_CONTACT_INFORMATION');
 		}
 		elseif ($this->instances)
 		{
-			if ($this->complete)
+			if (count($this->instances) > 1)
 			{
-				$title = count($this->instances) > 1 ?
-					Helpers\Languages::_('ORGANIZER_CONFIRM_ATTENDANCE') : Helpers\Languages::_('ORGANIZER_CHECKIN');
+				$title = Helpers\Languages::_('ORGANIZER_CONFIRM_EVENT');
+			}
+			elseif (!$this->roomID)
+			{
+				$title = Helpers\Languages::_('ORGANIZER_CONFIRM_SEATING');
 			}
 			else
 			{
-				$title = Helpers\Languages::_('ORGANIZER_CONTACT_INFORMATION');
+				$title = Helpers\Languages::_('ORGANIZER_CHECKED_IN');
 			}
 		}
 		else
@@ -77,6 +89,7 @@ class Checkin extends FormView
 		$this->edit        = Helpers\Input::getCMD('layout') === 'profile';
 		$this->instances   = $this->get('Instances');
 		$this->participant = $this->get('Participant');
+		$this->roomID      = $this->get('RoomID');
 		$this->_layout     = 'checkin-wrapper';
 
 		$this->complete = true;

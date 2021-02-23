@@ -12,6 +12,18 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
 $instance = $this->instances[0];
+$room     = '';
+
+if (!empty($instance['room']))
+{
+	$room .= $instance['room'];
+
+	if (!empty($instance['seat']))
+	{
+		$room .= ", {$instance['seat']}";
+	}
+}
+
 ?>
 <script type="text/javascript">
     let timer = null;
@@ -29,6 +41,11 @@ $instance = $this->instances[0];
     <div class="control-group message"><b><?php echo $instance['name']; ?></b></div>
 	<?php if ($instance['method']): ?>
         <div class="control-group message"><?php echo $instance['method']; ?></div>
+	<?php endif; ?>
+	<?php if ($room): ?>
+        <div class="control-group message">
+			<?php echo $room; ?>
+        </div>
 	<?php endif; ?>
     <div class="control-group message"><?php echo $instance['startTime'] . ' - ' . $instance['endTime']; ?></div>
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CHECKOUT_REMINDER'); ?></div>

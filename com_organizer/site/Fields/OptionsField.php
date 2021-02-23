@@ -42,6 +42,13 @@ class OptionsField extends FormField
 
 		$attr = '';
 
+		// Check for previous initialization using the dependent trait. Set before other attributes to allow options to
+		// influence them.
+		if (empty($this->options))
+		{
+			$this->options = (array) $this->getOptions();
+		}
+
 		// Initialize some field attributes.
 		$attr .= !empty($this->class) ? ' class="' . $this->class . '"' : '';
 		$attr .= !empty($this->size) ? ' size="' . $this->size . '"' : '';
@@ -59,12 +66,6 @@ class OptionsField extends FormField
 		$attr .= $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 		$attr .= empty($this->getAttribute('onblur')) ?
 			'' : ' onblur="' . $this->getAttribute('onblur') . '"';
-
-		// Check for previous initialization using the dependent trait.
-		if (empty($this->options))
-		{
-			$this->options = (array) $this->getOptions();
-		}
 
 		return Helpers\HTML::_(
 			'select.genericlist',

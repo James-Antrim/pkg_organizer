@@ -23,11 +23,13 @@ $count = count($this->instances);
 <div id="j-main-container" class="span10">
 	<?php if ($this->edit or ($count and !$this->complete)) : ?>
 		<?php require_once 'Checkin/contact.php'; ?>
-	<?php elseif ($count and $count > 1) : ?>
-		<?php require_once 'Checkin/confirm.php'; ?>
-	<?php elseif ($count and $count === 1) : ?>
-		<?php require_once 'Checkin/checkedin.php'; ?>
-	<?php else : ?>
+	<?php elseif (!$count) : ?>
 		<?php require_once 'Checkin/checkin.php'; ?>
+	<?php elseif ($count > 1) : ?>
+		<?php require_once 'Checkin/instance.php'; ?>
+	<?php elseif (!$this->roomID) : ?>
+		<?php require_once 'Checkin/seating.php'; ?>
+	<?php else : ?>
+		<?php require_once 'Checkin/checkedin.php'; ?>
 	<?php endif; ?>
 </div>
