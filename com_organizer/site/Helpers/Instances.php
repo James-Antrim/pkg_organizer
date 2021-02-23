@@ -691,7 +691,7 @@ class Instances extends ResourceHelper
 	public static function getRoomIDs(int $instanceID): array
 	{
 		$query = Database::getQuery();
-		$query->select('roomID')
+		$query->select('DISTINCT roomID')
 			->from('#__organizer_instance_rooms AS ir')
 			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ir.assocID')
 			->where("ip.instanceID = $instanceID")
