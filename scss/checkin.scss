@@ -38,6 +38,10 @@ body.tmpl-component.html-default {
       }
     }
 
+    select {
+      width: 20.5rem;
+    }
+
     a.btn {
       border: $border-dark-thick;
     }
