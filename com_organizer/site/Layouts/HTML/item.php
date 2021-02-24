@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-use Joomla\CMS\Toolbar\Toolbar;
+use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
 $resourceID = Helpers\Input::getID();

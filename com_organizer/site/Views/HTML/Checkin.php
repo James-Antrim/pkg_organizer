@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Document;
 use Organizer\Helpers;
@@ -67,18 +66,6 @@ class Checkin extends FormView
 		}
 
 		Helpers\HTML::setTitle($title);
-
-		if (Helpers\Input::getCMD('tmpl') !== 'component' and !count($this->instances))
-		{
-			$toolbar = Toolbar::getInstance();
-			$toolbar->appendButton(
-				'Standard',
-				'enter',
-				Helpers\Languages::_('ORGANIZER_CHECKIN'),
-				'checkin.checkin',
-				false
-			);
-		}
 	}
 
 	/**

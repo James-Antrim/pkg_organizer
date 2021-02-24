@@ -10,9 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\Toolbar;
-use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
 /**

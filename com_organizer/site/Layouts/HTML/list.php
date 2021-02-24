@@ -8,8 +8,8 @@
  * @link        www.thm.de
  */
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
 $columnCount = count($this->headers);

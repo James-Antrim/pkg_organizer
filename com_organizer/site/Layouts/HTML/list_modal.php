@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Layout\LayoutHelper;
-use Joomla\CMS\Toolbar\Toolbar;
+use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
 $toolbar     = Toolbar::getInstance();
