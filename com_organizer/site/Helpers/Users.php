@@ -22,16 +22,16 @@ class Users
 	 * The logged in user.
 	 * @var User
 	 */
-	static $user = null;
+	private static $user;
 
 	/**
 	 * Resolves the user id
 	 *
 	 * @return int the id of the user
 	 */
-	public static function getID()
+	public static function getID(): int
 	{
-		return self::getUser()->id;
+		return (int) self::getUser()->id;
 	}
 
 	/**
@@ -39,7 +39,7 @@ class Users
 	 *
 	 * @return string the name of the user
 	 */
-	public static function getName()
+	public static function getName(): string
 	{
 		return self::getUser()->name;
 	}
@@ -53,7 +53,7 @@ class Users
 	 *
 	 * @return  User a user object specifically requested ids return a dynamic user, otherwise the current user
 	 */
-	public static function getUser($userID = 0)
+	public static function getUser($userID = 0): User
 	{
 		// A user was specifically requested by id.
 		if ($userID)
@@ -69,7 +69,7 @@ class Users
 
 		$defaultUser    = Factory::getUser();
 		$userName       = Input::getString('username');
-		$authentication = urldecode(Input::getString('auth', ''));
+		$authentication = urldecode(Input::getString('auth'));
 
 		// No authentication parameters => use Joomla
 		if (empty($userName) or empty($authentication))
@@ -101,7 +101,7 @@ class Users
 	 *
 	 * @return array the first and last names of the user
 	 */
-	public static function resolveUserName($userID = 0)
+	public static function resolveUserName($userID = 0): array
 	{
 		$user           = Factory::getUser($userID);
 		$sanitizedName  = trim(preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}\.\-\']/', ' ', $user->name));
