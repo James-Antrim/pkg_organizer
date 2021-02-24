@@ -262,7 +262,7 @@ class Booking extends Participants
 	protected function structureItems()
 	{
 		$index = 0;
-		$link  = 'index.php?option=com_organizer&view=participant_edit&id=';
+		$link  = 'index.php?option=com_organizer&view=instance_participant_edit&id=';
 
 		$structuredItems = [];
 
@@ -283,7 +283,7 @@ class Booking extends Participants
 
 			$item->complete = Helpers\HTML::icon("checkbox-$icon", $label, true);
 
-			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->ipaID);
 			$index++;
 		}
 

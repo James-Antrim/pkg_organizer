@@ -288,13 +288,14 @@ class Booking extends Participants
 				->where('instanceID IN (' . implode(',', $instanceIDs) . ')');
 			Database::setQuery($query);
 
-			if ($ipIDs = Database::loadIntColumn())
+			if ($ipaIDs = Database::loadIntColumn())
 			{
-				foreach ($ipIDs as $ipID)
+				foreach ($ipaIDs as $ipaID)
 				{
 					$participation = new Tables\InstanceParticipants();
-					$participation->load($ipID);
+					$participation->load($ipaID);
 					$participation->attended = 1;
+
 					if (!$participation->store())
 					{
 						Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_NOT_ADDED', 'error');
@@ -489,7 +490,7 @@ class Booking extends Participants
 	{
 		$bookingID = Helpers\Input::getID();
 		$query     = parent::getListQuery();
-		$query->select('r.name AS room, ip.id AS ipID, ip.seat')
+		$query->select('r.name AS room, ip.id AS ipaID, ip.seat')
 			->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
@@ -531,7 +532,7 @@ class Booking extends Participants
 			if (empty($item->room) and $updateID)
 			{
 				$table = new Tables\InstanceParticipants();
-				$table->load($item->ipID);
+				$table->load($item->ipaID);
 				$table->roomID = $updateID;
 				$table->store();
 				$item->room = $updateRoom;
