@@ -62,8 +62,6 @@ class CheckinRoomsField extends OptionsField
 
 		if (count($rooms) === 1)
 		{
-			$this->readonly = true;
-
 			return $rooms;
 		}
 
