@@ -202,7 +202,7 @@ class CourseParticipant extends BaseModel
 	/**
 	 * @inheritDoc
 	 */
-	public function toggle()
+	public function toggle(): bool
 	{
 		$attribute     = Input::getCMD('attribute', '');
 		$courseID      = Input::getInt('courseID', 0);

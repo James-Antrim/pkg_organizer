@@ -66,7 +66,7 @@ class Grid extends BaseModel
 	 *
 	 * @return bool true if the default grid was changed successfully, otherwise false
 	 */
-	public function toggle()
+	public function toggle(): bool
 	{
 		$this->authorize();
 

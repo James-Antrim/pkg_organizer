@@ -99,7 +99,7 @@ class Monitor extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function toggle()
+	public function toggle(): bool
 	{
 		$this->authorize();
 

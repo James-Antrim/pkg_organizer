@@ -288,7 +288,7 @@ class Group extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function toggle()
+	public function toggle(): bool
 	{
 		if (!$groupID = Helpers\Input::getID())
 		{
