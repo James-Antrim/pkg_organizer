@@ -46,14 +46,4 @@ class Participants extends Controller
 
 		$this->setRedirect(Helpers\Input::getString('referrer'));
 	}
-
-	/**
-	 * Redirects to the referring view.
-	 *
-	 * @return void
-	 */
-	public function cancel()
-	{
-		$this->setRedirect(Helpers\Input::getString('referrer'));
-	}
 }

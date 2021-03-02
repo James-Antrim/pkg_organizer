@@ -81,7 +81,10 @@ class Controller extends BaseController
 	 */
 	public function cancel()
 	{
-		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
+		$defaultView = empty($this->listView) ? '' : "&view={$this->listView}";
+		$default     = Helpers\Routing::getRedirectBase() . $defaultView;
+		$referrer    = Helpers\Input::getString('referrer');
+		$url         = $referrer ? $referrer : $default;
 		$this->setRedirect($url);
 	}
 
@@ -233,7 +236,7 @@ class Controller extends BaseController
 	 *
 	 * @return  HTMLView|JSONView|PDFView|XLSView  the view object
 	 */
-	public function getView($name = '', $type = '', $prefix = 'x', $config = []) : object
+	public function getView($name = '', $type = '', $prefix = 'x', $config = []): object
 	{
 		// @note We use self so we only access stuff in this class rather than in all classes.
 		if (!isset(self::$views))
