@@ -45,6 +45,40 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Gets the booking associated with an instance
+	 *
+	 * @param   int  $instanceID  the id of the instance for which to find a booking match
+	 *
+	 * @return Tables\Bookings
+	 */
+	public static function getBooking(int $instanceID): Tables\Bookings
+	{
+		$booking  = new Tables\Bookings();
+		$instance = new Tables\Instances();
+
+		if ($instance->load($instanceID))
+		{
+			$booking->load(['blockID' => $instance->blockID, 'unitID' => $instance->unitID]);
+		}
+
+		return $booking;
+	}
+
+	/**
+	 * Gets the booking associated with an instance
+	 *
+	 * @param   int  $instanceID  the id of the instance for which to find a booking match
+	 *
+	 * @return int the id of the booking entry
+	 */
+	public static function getBookingID(int $instanceID): ?int
+	{
+		$booking = self::getBooking($instanceID);
+
+		return $booking->id;
+	}
+
+	/**
 	 * Builds the array of parameters used for instance retrieval.
 	 *
 	 * @return array the parameters used to retrieve instances.
