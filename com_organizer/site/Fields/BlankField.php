@@ -51,6 +51,7 @@ class BlankField extends FormField
 			$hint = '';
 		}
 
+		$maxLength = $this->getAttribute('maxlength');
 		$password = $this->getAttribute('password', false);
 
 		$attributes = [
@@ -61,7 +62,7 @@ class BlankField extends FormField
 			$this->disabled ? 'disabled' : '',
 			$hint ? "placeholder=\"$hint\"" : '',
 			"id=\"$this->id\"",
-			$this->maxLength ? 'maxlength="' . (int) $this->maxLength . '"' : '',
+			$maxLength  ? 'maxlength="' . (int) $maxLength . '"' : '',
 			"name=\"$this->name\"",
 			!empty($this->onChange) ? "onChange=\"$this->onChange\"" : '',
 			$this->pattern ? 'pattern="' . $this->pattern . '"' : '',
