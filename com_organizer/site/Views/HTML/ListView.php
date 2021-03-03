@@ -43,6 +43,8 @@ abstract class ListView extends BaseView
 
 	protected $rowStructure = [];
 
+	protected $sameTab = false;
+
 	/**
 	 * @var Registry
 	 */
@@ -278,7 +280,7 @@ abstract class ListView extends BaseView
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	protected function structureItem($index, object $item, $link = '')
+	protected function structureItem($index, object $item, $link = ''): array
 	{
 		$processedItem = [];
 
@@ -305,7 +307,7 @@ abstract class ListView extends BaseView
 			if ($propertyType === 'link')
 			{
 				$attributes = [];
-				if (!$this->adminContext)
+				if (!$this->adminContext and !$this->sameTab)
 				{
 					$attributes['target'] = '_blank';
 				}
