@@ -10,6 +10,7 @@
 
 namespace Organizer\Controllers;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Organizer\Controller;
 use Organizer\Helpers;
@@ -61,5 +62,27 @@ class InstanceParticipants extends Controller
 		$response = json_encode($model->remove(), JSON_NUMERIC_CHECK);
 
 		$this->jsonResponse($response);
+	}
+
+	/**
+	 * Save form data to the database.
+	 *
+	 * @return void
+	 */
+	public function save()
+	{
+		$model = new Models\InstanceParticipant();
+
+		if ($model->save())
+		{
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+			Factory::getSession()->set('organizer.participation.referrer', '');
+			$referrer = Helpers\Input::getString('referrer');
+			$this->setRedirect(Route::_($referrer, false));
+		}
+		else
+		{
+			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+		}
 	}
 }

@@ -26,12 +26,17 @@ class Booking extends Participants
 	 */
 	public $booking;
 
+	/**
+	 * @var int
+	 */
+	public $bookingID;
+
 	protected $rowStructure = [
 		'checkbox' => '',
-		'fullName' => 'value',
-		'event'    => 'value',
-		'room'     => 'value',
-		'seat'     => 'value',
+		'fullName' => 'link',
+		'event'    => 'link',
+		'room'     => 'link',
+		'seat'     => 'link',
 		'complete' => 'value'
 	];
 
@@ -136,7 +141,7 @@ class Booking extends Participants
 
 		if ($today <= $bookingDate)
 		{
-			$text = Languages::_('ORGANIZER_REMOVE_PARTICIPANTS');
+			$text = Languages::_('ORGANIZER_DELETE');
 			$toolbar->appendButton('Standard', 'user-minus', $text, 'bookings.removeParticipants', true);
 		}
 
@@ -185,12 +190,12 @@ class Booking extends Participants
 			Helpers\OrganizerHelper::error(401);
 		}
 
-		if (!$bookingID = Helpers\Input::getID())
+		if (!$this->bookingID = Helpers\Input::getID())
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
 
-		if (!Helpers\Can::manage('booking', $bookingID))
+		if (!Helpers\Can::manage('booking', $this->bookingID))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
@@ -206,6 +211,7 @@ class Booking extends Participants
 		$this->booking = $this->get('Booking');
 		$this->empty   = '';
 		$this->refresh = 60;
+		$this->sameTab = true;
 
 		parent::display($tpl);
 	}
@@ -262,7 +268,7 @@ class Booking extends Participants
 	protected function structureItems()
 	{
 		$index = 0;
-		$link  = 'index.php?option=com_organizer&view=instance_participant_edit&id=';
+		$link  = "index.php?option=com_organizer&view=instance_participant_edit&bookingID=$this->bookingID&id=";
 
 		$structuredItems = [];
 

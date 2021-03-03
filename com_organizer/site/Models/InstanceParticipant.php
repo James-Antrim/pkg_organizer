@@ -10,9 +10,12 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
+use Organizer\Helpers\InstanceParticipants as Helper;
 use Organizer\Tables;
+use Organizer\Tables\InstanceParticipants as Table;
 
 /**
  * Class which manages stored course data.
@@ -41,21 +44,41 @@ class InstanceParticipant extends BaseModel
 
 		foreach ($instanceIDs as $key => $instanceID)
 		{
-			$instanceParticipation = new Tables\InstanceParticipants();
-			$keys                  = ['instanceID' => $instanceID, 'participantID' => $participantID];
+			$participation = new Table();
+			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
-			if ($instanceParticipation->load($keys))
+			if ($participation->load($keys))
 			{
 				continue;
 			}
 
-			if (!$instanceParticipation->save($keys))
+			if (!$participation->save($keys))
 			{
 				unset($instanceIDs[$key]);
 			}
 		}
 
 		return array_values($instanceIDs);
+	}
+
+	/**
+	 * Authorizes the user.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		$bookingID = 0;
+
+		if (!$participationID = Helpers\Input::getID() or !$bookingID = Helper::getBookingID($participationID))
+		{
+			Helpers\OrganizerHelper::error(400);
+		}
+
+		if (!Helpers\Can::manage('booking', $bookingID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -121,10 +144,11 @@ class InstanceParticipant extends BaseModel
 		{
 			$data = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
-			$instanceParticipation = new Tables\InstanceParticipants();
-			$instanceParticipation->load($data);
+			$participation = new Table();
+			$participation->load($data);
 			$data['attended'] = 1;
-			if (!$instanceParticipation->save($data))
+
+			if (!$participation->save($data))
 			{
 				Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_FAILED'));
 
@@ -216,7 +240,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$table = new Tables\InstanceParticipants();
+		$table = new Table();
 
 		if (!$table->load(['instanceID' => $instanceID, 'participantID' => $participantID]))
 		{
@@ -232,11 +256,17 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
-	 * @inheritDoc
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return  Table  An instance participants table object
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Table
 	{
-		return new Tables\InstanceParticipants();
+		return new Table();
 	}
 
 	/**
@@ -321,15 +351,15 @@ class InstanceParticipant extends BaseModel
 			Helpers\OrganizerHelper::error(403);
 		}
 
-		$instanceParticipants = Helpers\Instances::getParticipantIDs($instanceID);
-		$selectedParticipants = Helpers\Input::getInput()->get('cids', [], 'array');
+		$participants = Helpers\Instances::getParticipantIDs($instanceID);
+		$selected     = Helpers\Input::getInput()->get('cids', [], 'array');
 
-		if (empty($instanceParticipants) and empty($selectedParticipants))
+		if (empty($participants) and empty($selected))
 		{
 			return false;
 		}
 
-		$participantIDs = $selectedParticipants ? $selectedParticipants : $instanceParticipants;
+		$participantIDs = $selected ? $selected : $participants;
 
 		$form = Helpers\Input::getBatchItems();
 		if (!$subject = trim($form->get('subject', '')) or !$body = trim($form->get('body', '')))
@@ -361,15 +391,51 @@ class InstanceParticipant extends BaseModel
 
 		foreach ($instanceIDs as $key => $instanceID)
 		{
-			$instanceParticipation = new Tables\InstanceParticipants();
-			$keys                  = ['instanceID' => $instanceID, 'participantID' => $participantID];
+			$participation = new Table();
+			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
-			if (!$instanceParticipation->load($keys) or !$instanceParticipation->delete())
+			if (!$participation->load($keys) or !$participation->delete())
 			{
 				unset($instanceIDs[$key]);
 			}
 		}
 
 		return array_values($instanceIDs);
+	}
+
+	/**
+	 * Attempts to save the resource.
+	 *
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return int|bool int id of the resource on success, otherwise bool false
+	 */
+	public function save($data = [])
+	{
+		$this->authorize();
+
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+
+		try
+		{
+			$table = $this->getTable();
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+			return false;
+		}
+
+		if (!$table->load($data['id']))
+		{
+			return false;
+		}
+
+		$table->instanceID = $data['instanceID'];
+		$table->roomID     = $data['roomID'];
+		$table->seat       = $data['seat'];
+
+		return $table->store() ? $table->id : false;
 	}
 }
