@@ -108,6 +108,13 @@ class Schedule
 		}
 
 		Terms::validate($this, $this->xml->general);
+
+		// If the term is expired or invalid there is no need for further validation.
+		if ($this->errors)
+		{
+			return false;
+		}
+
 		$valid = ($valid and !empty($this->term));
 		unset($this->xml->general);
 

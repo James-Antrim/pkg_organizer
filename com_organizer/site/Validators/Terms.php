@@ -107,7 +107,15 @@ class Terms extends Helpers\ResourceHelper implements UntisXMLValidator
 		}
 
 		$endTimeStamp = strtotime($term->endDate);
-		$invalidEnd   = $endTimeStamp > strtotime($model->schoolYear->endDate);
+
+		if ($endTimeStamp < strtotime(date('Y-m-d')))
+		{
+			$model->errors[] = Helpers\Languages::_('ORGANIZER_TERM_EXPIRED');
+
+			return;
+		}
+
+		$invalidEnd = $endTimeStamp > strtotime($model->schoolYear->endDate);
 
 		$startTimeStamp = strtotime($term->startDate);
 		$invalidStart   = $startTimeStamp < strtotime($model->schoolYear->startDate);
