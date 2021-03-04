@@ -94,7 +94,7 @@ class OrganizationAssociationsField extends OptionsField
 		$contextParts    = explode('.', $this->form->getName());
 		$disabled        = false;
 		$resource        = str_replace('edit', '', $contextParts[1]);
-		$resourceID      = Helpers\Input::getID() ? Helpers\Input::getID() : Helpers\Input::getSelectedID();
+		$resourceID      = Helpers\Input::getSelectedID(Helpers\Input::getID());
 		$pseudoResources = ['workload'];
 
 		$authorized = $this->getAuthorizedOrganizations($resource);
