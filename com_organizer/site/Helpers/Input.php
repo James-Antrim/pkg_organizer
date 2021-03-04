@@ -85,21 +85,21 @@ class Input
 	 *
 	 * @param   string  $property  Name of the property to get.
 	 *
-	 * @return mixed the value found, or false if the property could not be found
+	 * @return array|int|string the value found, or false if the property could not be found
 	 */
-	private static function find(string $property): bool
+	private static function find(string $property)
 	{
-		if ($value = self::getFormItems()->get($property, false))
+		if ($value = self::getFormItems()->get($property))
 		{
 			return $value;
 		}
 
-		if ($value = self::getParams()->get($property, false))
+		if ($value = self::getParams()->get($property))
 		{
 			return $value;
 		}
 
-		if ($value = self::getInput()->get($property, false, 'raw'))
+		if ($value = self::getInput()->get($property, null, 'raw'))
 		{
 			return $value;
 		}
