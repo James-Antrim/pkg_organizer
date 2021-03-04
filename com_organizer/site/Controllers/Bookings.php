@@ -10,6 +10,7 @@
 
 namespace Organizer\Controllers;
 
+use Exception;
 use Joomla\CMS\Router\Route;
 use Organizer\Controller;
 use Organizer\Helpers;
@@ -80,6 +81,22 @@ class Bookings extends Controller
 		$model->close();
 		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
 		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Redirects to the edit view with an item id. Access checks performed in the view.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function editParticipants()
+	{
+		$bookingID       = Helpers\Input::getID();
+		$participationID = Helpers\Input::getSelectedID();
+		Helpers\Input::set('id', $participationID);
+		Helpers\Input::set('bookingID', $bookingID);
+		Helpers\Input::set('view', 'instance_participant_edit');
+		$this->display();
 	}
 
 	/**

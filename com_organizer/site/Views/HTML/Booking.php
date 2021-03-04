@@ -121,7 +121,6 @@ class Booking extends Participants
 		$toolbar->appendButton('Custom', $batchButton, 'batch');
 
 		// TODO add function to batch assign participants to the correct event
-		// TODO add filter for participant events, should the booking be associated with more than one.
 		// TODO add filter for incomplete profiles
 		// TODO ajax refresh??
 
@@ -137,12 +136,21 @@ class Booking extends Participants
 				'Bookings.pdf',
 				false
 			);
-		}
 
-		if ($today <= $bookingDate)
-		{
-			$text = Languages::_('ORGANIZER_DELETE');
-			$toolbar->appendButton('Standard', 'user-minus', $text, 'bookings.removeParticipants', true);
+			$toolbar->appendButton(
+				'Standard',
+				'user-check',
+				Languages::_('ORGANIZER_EDIT'),
+				'bookings.editParticipants',
+				true
+			);
+
+			// No easy removal at a later date
+			if ($today <= $bookingDate)
+			{
+				$text = Languages::_('ORGANIZER_DELETE');
+				$toolbar->appendButton('Standard', 'user-minus', $text, 'bookings.removeParticipants', true);
+			}
 		}
 
 		if ($today === $bookingDate)
@@ -274,6 +282,7 @@ class Booking extends Participants
 
 		foreach ($this->items as $item)
 		{
+			$item->id       = $item->ipaID;
 			$item->fullName = $item->forename ? $item->fullName : $item->surname;
 
 			if ($item->complete)
