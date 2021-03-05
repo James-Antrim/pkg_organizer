@@ -36,23 +36,36 @@ class ContactTracking extends ListModel
 
 		if (empty($items[$index]))
 		{
-			$name            = $data['surname'];
-			$name            .= $data['forename'] ? ", {$data['forename']}" : '';
-			$item            = new stdClass();
-			$item->address   = empty($data['address']) ? '' : $data['address'];
-			$item->city      = empty($data['city']) ? '' : $data['city'];
-			$item->dates     = [];
-			$item->email     = empty($data['email']) ? '' : $data['email'];
-			$item->person    = $name;
-			$item->role      = empty($data['role']) ? '' : $data['role'];
-			$item->telephone = empty($data['telephone']) ? '' : $data['telephone'];
-			$item->username  = empty($data['username']) ? '' : $data['username'];
-			$item->zipCode   = empty($data['zipCode']) ? '' : $data['zipCode'];
+			$name             = $data['surname'];
+			$name             .= $data['forename'] ? ", {$data['forename']}" : '';
+			$item             = new stdClass();
+			$item->address    = empty($data['address']) ? '' : $data['address'];
+			$item->bookingIDs = [$data['bookingID'] => $data['bookingID']];
+			$item->city       = empty($data['city']) ? '' : $data['city'];
+			$item->dates      = [];
+			$item->email      = empty($data['email']) ? '' : $data['email'];
+			$item->instances  = $data['instances'];
+			$item->person     = $name;
+			$item->role       = empty($data['role']) ? '' : $data['role'];
+			$item->rooms      = empty($data['rooms']) ? [] : $data['rooms'];
+			$item->telephone  = empty($data['telephone']) ? '' : $data['telephone'];
+			$item->username   = empty($data['username']) ? '' : $data['username'];
+			$item->zipCode    = empty($data['zipCode']) ? '' : $data['zipCode'];
 
 			$items[$index] = $item;
 		}
+		else
+		{
+			$item            = $items[$index];
+			$item->instances = $item->instances + $data['instances'];
+			$item->rooms     = empty($data['rooms']) ? $item->rooms : $item->rooms + $data['rooms'];
 
-		$item = $items[$index];
+			// The same booking is being reprocessed because of additional rooms and should not be summed
+			if (array_key_exists($data['bookingID'], $item->bookingIDs))
+			{
+				return;
+			}
+		}
 
 		if (empty($item->dates[$date]))
 		{
@@ -70,141 +83,217 @@ class ContactTracking extends ListModel
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	protected function getListQuery()
-	{
-		$now   = date('H:i:s');
-		$then  = date('Y-m-d', strtotime("-28 days"));
-		$today = date('Y-m-d');
-		$query = $this->_db->getQuery(true);
-		$query->select('bo.id, bo.startTime, bo.endTime')
-			->select('bl.date, bl.startTime AS defaultStart, bl.endTime AS defaultEnd')
-			->from('#__organizer_bookings AS bo')
-			->innerJoin('#__organizer_instances AS i ON i.unitID = bo.unitID AND i.blockID = bo.blockID')
-			->innerJoin('#__organizer_blocks AS bl ON bl.id = bo.blockID')
-			->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
-			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-			->where("bl.date >= '$then'")
-			->where("(bl.date < '$today' OR (bl.date = '$today' AND bl.endTime <= '$now'))")
-			->where('ipa.attended = 1')
-			->order('bl.date DESC, bl.startTime DESC')
-			->group('bo.id');
-
-		$participantID = $this->state->get('participantID', 0);
-		$personID      = $this->state->get('personID', 0);
-
-		// Force an empty result set if no search terms have been entered
-		if (!$participantID and !$personID)
-		{
-			$query->where('bo.id = 0');
-		}
-		else
-		{
-			$wherray = [];
-
-			if ($participantID)
-			{
-				$wherray[] = "ipa.participantID = $participantID";
-			}
-
-			if ($personID)
-			{
-				$wherray[] = "ipe.personID = $personID";
-			}
-
-			$query->where('(' . implode(' OR ', $wherray) . ')');
-		}
-
-		return $query;
-	}
-
-	/**
 	 * @inheritdoc
 	 */
 	public function getItems(): array
 	{
-		$items         = [];
-		$participantID = $this->state->get('participantID', 0);
-		$personID      = $this->state->get('personID', 0);
-		$tag           = Helpers\Languages::getTag();
+		$items = [];
+		$now   = date('H:i:s');
+		$then  = date('Y-m-d', strtotime("-28 days"));
+		$today = date('Y-m-d');
 
-		$participantQuery = Database::getQuery();
-		$participantQuery->select('p.id AS participantID, forename, surname, username, address, city, email, telephone, zipCode')
-			->from('#__organizer_participants AS p')
-			->innerJoin('#__users AS u ON u.id = p.id')
-			->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = p.id')
-			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-			->innerJoin('#__organizer_bookings AS b ON b.unitID = i.unitID AND i.blockID = b.blockID');
+		$bookings = [];
 
-		$personQuery = Database::getQuery();
-		$personQuery->select('pr.forename AS defaultForename, pr.surname AS defaultSurname, pr.username')
-			->select('pt.forename, pt.surname, address, city, email, telephone, zipCode')
-			->select("r.name_$tag AS role")
-			->from('#__organizer_persons AS pr')
-			->innerJoin('#__organizer_instance_persons AS ip ON ip.personID = pr.id')
-			->innerJoin('#__organizer_roles AS r ON r.id = ip.roleID')
-			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-			->innerJoin('#__organizer_bookings AS b ON b.unitID = i.unitID AND i.blockID = b.blockID')
-			->leftJoin('#__users AS u ON u.username = pr.username')
-			->leftJoin('#__organizer_participants AS pt ON pt.id = u.id');
-
-		foreach (parent::getItems() as $booking)
+		if ($participantID = $this->state->get('participantID'))
 		{
-			$bData         = ['id' => $booking->id, 'name' => Helpers\Bookings::getName($booking->id)];
-			$bData['date'] = $booking->date;
-			$endTime       = $booking->endTime ? $booking->endTime : $booking->defaultEnd;
-			$startTime     = $booking->startTime ? $booking->startTime : $booking->defaultStart;
+			$query = Database::getQuery();
+			$query->from('#__organizer_instance_participants AS ipa')
+				->select('ipa.instanceID, ipa.roomID, ipa.seat')
+				->where('ipa.attended = 1')
+				->where("ipa.participantID = $participantID")
+				->innerJoin('#__organizer_instances AS i ON i.id = ipa.instanceID')
+				->innerJoin('#__organizer_blocks AS bl ON bl.id = i.blockID')
+				->select('bl.date, bl.startTime AS defaultStart, bl.endTime AS defaultEnd')
+				->where("bl.date >= '$then'")
+				->where("(bl.date < '$today' OR (bl.date = '$today' AND bl.endTime <= '$now'))")
+				->innerJoin('#__organizer_bookings AS bo ON bo.blockID = bl.id AND bo.unitID = i.unitID')
+				->select('bo.id AS bookingID, bo.startTime, bo.endTime')
+				->order('bl.date DESC, bl.startTime DESC');
+			Database::setQuery($query);
 
-			// +60 Secondds to be inclusive of the last minute.
-			$bData['minutes'] = ceil((strtotime($endTime) + 60 - strtotime($startTime)) / 60);
-
-			$participantQuery->clear('where');
-			$participantQuery->where("b.id = $booking->id")
-				->where('ip.attended = 1')
-				->where("ip.participantID != $participantID");
-			Database::setQuery($participantQuery);
-
-			foreach (Database::loadAssocList() as $person)
+			foreach (Database::loadAssocList() as $result)
 			{
-				$data              = [];
-				$data['forename']  = $person['forename'];
-				$data['surname']   = $person['surname'];
-				$data['username']  = $person['username'];
-				$data['address']   = $person['address'];
-				$data['city']      = $person['city'];
-				$data['email']     = $person['email'];
-				$data['telephone'] = $person['telephone'];
-				$data['zipCode']   = $person['zipCode'];
+				$date      = $result['date'];
+				$endTime   = $result['endTime'] ? $result['endTime'] : $result['defaultEnd'];
+				$startTime = $result['startTime'] ? $result['startTime'] : $result['defaultStart'];
+				$index     = $date . '-' . $startTime . '-' . $endTime;
 
-				$this->addItem($items, array_merge($bData, $data));
+				if (empty($bookings[$index]))
+				{
+					$bookings[$index] = [
+						'bookingID' => $result['bookingID'],
+						'date'      => $date,
+						'endTime'   => $endTime,
+						'instances' => [$result['instanceID'] => $result['instanceID']],
+						'name'      => Helpers\Bookings::getName($result['bookingID']),
+						'rooms'     => $result['roomID'] ? [$result['roomID'] => $result['roomID']] : [],
+						'seat'      => $result['seat'],
+						'startTime' => $startTime,
+					];
+				}
+				else
+				{
+					$bookings[$index]['instances'][$result['instanceID']] = $result['instanceID'];
+
+					if ($result['roomID'])
+					{
+						$bookings[$index]['rooms'][$result['roomID']] = $result['roomID'];
+					}
+				}
+			}
+		}
+
+		if ($personID = $this->state->get('personID', 0))
+		{
+			$query = Database::getQuery();
+			$query->from('#__organizer_instance_persons AS ipe')
+				->select('ipe.instanceID')
+				->where("ipe.personID = $personID")
+				->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id')
+				->select('ir.roomID')
+				->innerJoin('#__organizer_instances AS i ON i.id = ipe.instanceID')
+				->innerJoin('#__organizer_blocks AS bl ON bl.id = i.blockID')
+				->select('bl.date, bl.startTime AS defaultStart, bl.endTime AS defaultEnd')
+				->where("bl.date >= '$then'")
+				->where("(bl.date < '$today' OR (bl.date = '$today' AND bl.endTime <= '$now'))")
+				->innerJoin('#__organizer_bookings AS bo ON bo.blockID = bl.id AND bo.unitID = i.unitID')
+				->select('bo.id AS bookingID, bo.startTime, bo.endTime')
+				->order('bl.date DESC, bl.startTime DESC');
+			Database::setQuery($query);
+
+			foreach (Database::loadAssocList() as $result)
+			{
+				$date      = $result['date'];
+				$endTime   = $result['endTime'] ? $result['endTime'] : $result['defaultEnd'];
+				$startTime = $result['startTime'] ? $result['startTime'] : $result['defaultStart'];
+				$index     = $date . '-' . $startTime . '-' . $endTime;
+
+				if (empty($bookings[$index]))
+				{
+					$bookings[$index] = [
+						'bookingID' => $result['bookingID'],
+						'date'      => $date,
+						'endTime'   => $endTime,
+						'instances' => [$result['instanceID'] => $result['instanceID']],
+						'name'      => Helpers\Bookings::getName($result['bookingID']),
+						'rooms'     => $result['roomID'] ? [$result['roomID'] => $result['roomID']] : [],
+						'seat'      => null,
+						'startTime' => $startTime,
+					];
+				}
+				else
+				{
+					$bookings[$index]['instances'][$result['instanceID']] = $result['instanceID'];
+
+					if ($result['roomID'])
+					{
+						$bookings[$index]['rooms'][$result['roomID']] = $result['roomID'];
+					}
+				}
+			}
+		}
+
+		krsort($bookings);
+
+		$paQuery = Database::getQuery();
+		$paQuery->from('#__organizer_participants AS p')
+			->select('p.forename, p.surname, p.address, p.city, p.telephone, p.zipCode')
+			->innerJoin('#__users AS u ON u.id = p.id')
+			->select('u.username, u.email')
+			->innerJoin('#__organizer_instance_participants AS ipa ON ipa.participantID = p.id')
+			->select('ipa.participantID, ipa.roomID, ipa.seat');
+
+		$tag     = Helpers\Languages::getTag();
+		$peQuery = Database::getQuery();
+		$peQuery->from('#__organizer_persons AS pe')
+			->select('pe.forename AS defaultForename, pe.surname AS defaultSurname')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.personID = pe.id')
+			->innerJoin('#__organizer_roles AS r ON r.id = ipe.roleID')
+			->select("r.name_$tag AS role")
+			->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id')
+			->select('ir.roomID')
+			->leftJoin('#__users AS u ON u.username = pe.username')
+			->select('u.username, u.email')
+			->leftJoin('#__organizer_participants AS pa ON pa.id = u.id')
+			->select('pa.forename, pa.surname, pa.address, pa.city, pa.telephone, pa.zipCode');
+
+		foreach ($bookings as $booking)
+		{
+			// +60 Seconds to be inclusive of the last minute.
+			$booking['minutes'] = ceil((strtotime($booking['endTime']) + 60 - strtotime($booking['startTime'])) / 60);
+
+			$paQuery->clear('where');
+			$paQuery->where('ipa.instanceID IN (' . implode(',', $booking['instances']) . ')')->where('ipa.attended = 1');
+
+			if ($booking['rooms'])
+			{
+				$paQuery->where('ipa.roomID IN (' . implode(',', $booking['rooms']) . ')');
 			}
 
-			$personQuery->clear('where');
-			$personQuery->where("b.id = $booking->id")
-				->where("ip.delta != 'removed'")
-				->where("ip.personID != $personID");
-			Database::setQuery($personQuery);
+			if ($participantID)
+			{
+				$paQuery->where("ipa.participantID != $participantID");
+			}
+
+			Database::setQuery($paQuery);
 
 			foreach (Database::loadAssocList() as $person)
 			{
-				$data              = [];
-				$data['forename']  = $person['forename'] ? $person['forename'] : $person['defaultForename'];
-				$data['surname']   = $person['surname'] ? $person['surname'] : $person['defaultSurname'];
-				$data['username']  = $person['username'] ? $person['username'] : '';
-				$data['address']   = $person['address'] ? $person['address'] : '';
-				$data['city']      = $person['city'] ? $person['city'] : '';
-				$data['email']     = $person['email'] ? $person['email'] : '';
-				$data['telephone'] = $person['telephone'] ? $person['telephone'] : '';
-				$data['zipCode']   = $person['zipCode'] ? $person['zipCode'] : '';
-				$data              = array_merge($bData, $data);
+				$data = [
+					'address'   => $person['address'],
+					'city'      => $person['city'],
+					'email'     => $person['email'],
+					'forename'  => $person['forename'],
+					'rooms'     => $person['roomID'] ? [$person['roomID'] => $person['roomID']] : [],
+					'seat'      => $person['seat'],
+					'surname'   => $person['surname'],
+					'telephone' => $person['telephone'],
+					'username'  => $person['username'],
+					'zipCode'   => $person['zipCode']
+				];
+
+				$this->addItem($items, array_merge($booking, $data));
+			}
+
+			$peQuery->clear('where');
+			$peQuery->where('ipe.instanceID IN (' . implode(',', $booking['instances']) . ')')
+				->where("ipe.delta != 'removed'")
+				->where("ir.delta != 'removed'");
+
+			if ($booking['rooms'])
+			{
+				$paQuery->where('ir.roomID IN (' . implode(',', $booking['rooms']) . ')');
+			}
+
+			if ($personID)
+			{
+				$peQuery->where("ipe.personID != $personID");
+			}
+
+			Database::setQuery($peQuery);
+
+			foreach (Database::loadAssocList() as $person)
+			{
+				$data = [
+					'address'   => $person['address'] ? $person['address'] : '',
+					'city'      => $person['city'] ? $person['city'] : '',
+					'email'     => $person['email'] ? $person['email'] : '',
+					'forename'  => $person['forename'] ? $person['forename'] : $person['defaultForename'],
+					'rooms'     => $person['roomID'] ? [$person['roomID'] => $person['roomID']] : [],
+					'seat'      => '',
+					'surname'   => $person['surname'] ? $person['surname'] : $person['defaultSurname'],
+					'telephone' => $person['telephone'] ? $person['telephone'] : '',
+					'username'  => $person['username'] ? $person['username'] : '',
+					'zipCode'   => $person['zipCode'] ? $person['zipCode'] : ''
+				];
+				$data = array_merge($booking, $data);
 
 				if ($person['role'])
 				{
 					$data['name'] .= ' *';
 				}
 
-				$this->addItem($items, array_merge($bData, $data));
+				$this->addItem($items, array_merge($booking, $data));
 			}
 		}
 

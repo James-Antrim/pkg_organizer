@@ -153,7 +153,7 @@ class ContactTracking extends ListView
 
 			$item->index  = $index;
 			$item->data   = implode('<br>', $data);
-			$item->person = "$item->person ($item->username)";
+			$item->person .= $item->username ? " ($item->username)" : '';
 
 			switch ($listFormat)
 			{
