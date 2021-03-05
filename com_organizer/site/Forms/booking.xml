@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form addfieldprefix="Organizer\Fields">
-    <fields name="batch"></fields>
+    <fields name="batch">
+        <field name="instanceID" type="BookingInstances" label="EVENT">
+            <option value="">DONT_CHANGE</option>
+        </field>
+        <field name="roomID" type="BookingRooms" label="ROOM">
+            <option value="">DONT_CHANGE</option>
+        </field>
+    </fields>
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
         <field name="instanceID" type="BookingInstances" label="EVENT" onchange="this.form.submit();">

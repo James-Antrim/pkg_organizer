@@ -345,6 +345,52 @@ class Booking extends Participants
 	}
 
 	/**
+	 * Updates the selected participation entries with the selected instance and/or room.
+	 *
+	 * @return bool
+	 */
+	public function batch(): bool
+	{
+		$this->authorize();
+
+		$batch      = Helpers\Input::getBatchItems();
+		$instanceID = (int) $batch->get('instanceID');
+		$roomID     = (int) $batch->get('roomID');
+
+		if (!$instanceID and !$roomID)
+		{
+			return true;
+		}
+
+		foreach (Helpers\Input::getSelectedIDs() as $participationID)
+		{
+			$participation = new Tables\InstanceParticipants();
+
+			if (!$participation->load($participationID))
+			{
+				return false;
+			}
+
+			if ($instanceID)
+			{
+				$participation->instanceID = $instanceID;
+			}
+
+			if ($roomID)
+			{
+				$participation->roomID = $roomID;
+			}
+
+			if (!$participation->store())
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Deletes booking unassociated with attendance.
 	 *
 	 * @return void

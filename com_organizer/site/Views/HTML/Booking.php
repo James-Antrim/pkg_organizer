@@ -137,6 +137,16 @@ class Booking extends Participants
 				false
 			);
 
+			$if          = "window.location.reload(true);";
+			$else        = "jQuery('#modal-participation').modal('show'); return true;";
+			$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
+			$batchButton = '<button id="booking-participation" data-toggle="modal" class="btn btn-small" ' . $script . '>';
+			$title       = Helpers\Languages::_('ORGANIZER_UPDATE');
+			$batchButton .= '<span class="icon-users" title="' . $title . '"></span>' . " $title";
+			$batchButton .= '</button>';
+
+			$toolbar->appendButton('Custom', $batchButton, 'batch');
+
 			$toolbar->appendButton(
 				'Standard',
 				'user-check',
@@ -215,10 +225,9 @@ class Booking extends Participants
 	public function display($tpl = null)
 	{
 		// Set batch template path
-		$this->batch   = ['form_modal'];
+		$this->batch   = ['batch_participation', 'form_modal'];
 		$this->booking = $this->get('Booking');
 		$this->empty   = '';
-		$this->refresh = 60;
 		$this->sameTab = true;
 
 		parent::display($tpl);

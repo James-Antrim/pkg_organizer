@@ -71,6 +71,29 @@ class Bookings extends Controller
 	}
 
 	/**
+	 * Makes call to the models' batch function, and redirects to the view.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function batch()
+	{
+		$model = new Models\Booking();
+
+		if ($model->batch())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
+		}
+
+		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+		$this->setRedirect(Route::_($referrer, false));
+	}
+
+	/**
 	 * Closes a booking manually.
 	 *
 	 * @return void
