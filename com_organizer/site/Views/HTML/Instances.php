@@ -401,7 +401,7 @@ class Instances extends ListView
 	{
 		$link = '';
 
-		if (Helpers\Can::manage('instance', $item->instanceID))
+		if ($item->manageable)
 		{
 			$label = '';
 			$icon  = '';
@@ -557,10 +557,9 @@ class Instances extends ListView
 
 			$structuredItems[$index] = [];
 
-			if ($this->manages or $this->teaches)
-			{
-				$structuredItems[$index]['tools'] = $virtual ? '' : $this->getTools($item);
-			}
+			$item->manageable = (($this->manages or $this->teaches) and Helpers\Can::manage('instance', $item->instanceID));
+
+			$structuredItems[$index]['tools'] = $virtual ? '' : $this->getTools($item);
 
 			$structuredItems[$index]['status']  = $this->getStatus($item);
 			$structuredItems[$index]['title']   = $this->getTitle($item);
