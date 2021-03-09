@@ -18,17 +18,27 @@ body.tmpl-component.html-default {
     background-color: $foreground-color;
     padding: 0;
 
-    h1, .foot {
-      background-color: $font-color;
-      color: $foreground-color;
-      font-size: 3rem;
-      margin: 0;
+    h1, p, .foot {
       padding-top: .4rem;
       text-align: center;
     }
 
+    h1, .foot {
+      background-color: $font-color;
+      color: $foreground-color;
+      margin: 0;
+    }
+
     h1 {
       font-size: 3rem;
+    }
+
+    p {
+      font-weight: bold;
+    }
+
+    p:not(.date) {
+      margin-bottom: 0;
     }
 
     .foot {

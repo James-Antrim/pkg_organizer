@@ -192,6 +192,8 @@ class Bookings extends ResourceHelper
 			}
 		}
 
+		asort($rooms);
+
 		return $rooms;
 	}
 
