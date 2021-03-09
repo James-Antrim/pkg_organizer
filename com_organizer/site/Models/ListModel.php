@@ -25,7 +25,7 @@ abstract class ListModel extends ParentModel
 {
 	use Named;
 
-	protected const ALL = '', NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
+	protected const ALL = 0, NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
 	protected $adminContext;
 
