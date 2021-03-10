@@ -27,7 +27,7 @@ class OrganizationFilterField extends OptionsField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
 		$onchange           = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
@@ -52,7 +52,7 @@ class OrganizationFilterField extends OptionsField
 	 *
 	 * @return array  the organization options
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options       = parent::getOptions();
 		$access        = $this->adminContext ? $this->getAttribute('access', '') : '';
