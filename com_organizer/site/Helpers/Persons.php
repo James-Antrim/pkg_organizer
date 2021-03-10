@@ -421,4 +421,28 @@ class Persons extends Associated implements Selectable
 			return -1;
 		});
 	}
+
+	/**
+	 * Returns the ids of the organizations where the user has previously been assigned as a teacher.
+	 *
+	 * @return array the ids of the relevant organizations
+	 */
+	public static function teachesTheseOrganizations(): array
+	{
+		if (!$personID = self::getIDByUserID())
+		{
+			return [];
+		}
+
+		$query = Database::getQuery();
+		$query->select('DISTINCT a.organizationID')
+			->from('#__organizer_associations AS a')
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = a.groupID')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ig.assocID')
+			->where("ipe.personID = $personID")
+			->where("ipe.roleID = 1");
+		Database::setQuery($query);
+
+		return Database::loadColumn();
+	}
 }

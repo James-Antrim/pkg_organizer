@@ -59,6 +59,12 @@ class Organizations extends ResourceHelper implements Selectable
 				}
 				$allowedIDs = Can::scheduleTheseOrganizations();
 				break;
+			case 'teach':
+				$managedIDs   = Can::manageTheseOrganizations();
+				$scheduledIDs = Can::scheduleTheseOrganizations();
+				$taughtIDs    = Persons::teachesTheseOrganizations();
+				$allowedIDs   = array_merge($managedIDs, $scheduledIDs, $taughtIDs);
+				break;
 			case 'view':
 				$allowedIDs = Can::viewTheseOrganizations();
 				break;
@@ -71,7 +77,37 @@ class Organizations extends ResourceHelper implements Selectable
 	}
 
 	/**
+	 * The default grid for an organization defined by current organization grid usage. 0 if no usage is available.
+	 *
+	 * @param   int  $organizationID
+	 *
+	 * @return int
+	 */
+	public static function getDefaultGrid(int $organizationID): int
+	{
+		$query = Database::getQuery();
+		$query->select('u.gridID, COUNT(*) AS occurrences')
+			->from('#__organizer_units AS u')
+			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
+			->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
+			->where("a.organizationID = $organizationID")
+			->group('u.gridID')
+			->order('occurrences DESC');
+		Database::setQuery($query);
+
+		if ($results = Database::loadAssoc())
+		{
+			return (int) $results['gridID'];
+		}
+
+		return 0;
+	}
+
+	/**
 	 * @inheritDoc
+	 *
 	 * @param   bool    $short   whether or not abbreviated names should be returned
 	 * @param   string  $access  any access restriction which should be performed
 	 */
@@ -98,6 +134,7 @@ class Organizations extends ResourceHelper implements Selectable
 
 	/**
 	 * @inheritDoc
+	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
 	public static function getResources($access = ''): array
