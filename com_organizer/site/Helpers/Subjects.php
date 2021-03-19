@@ -220,7 +220,7 @@ class Subjects extends Curricula
 	 */
 	public static function getRanges($identifiers): array
 	{
-		if (!$identifiers or !is_int($identifiers))
+		if (!$identifiers or !is_numeric($identifiers))
 		{
 			return [];
 		}

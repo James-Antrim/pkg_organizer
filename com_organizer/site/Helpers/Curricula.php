@@ -266,7 +266,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array the resource ranges
 	 */
-	public static function getRanges($identifiers)
+	public static function getRanges($identifiers): array
 	{
 		$self = get_called_class();
 
