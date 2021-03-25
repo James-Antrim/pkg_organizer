@@ -14,6 +14,8 @@ use Organizer\Helpers\Languages;
 
 $referrer = Factory::getSession()->get('organizer.checkin.referrer');
 ?>
+<form id="adminForm" method="post" name="adminForm"
+      class="form-vertical form-validate checkin" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
 <h3>1. Einleitung</h3>
 <p>
     Diese Datenschutzerklärung informiert Sie über die Art, den Umfang und Zweck der Verarbeitung von personenbezogenen
@@ -140,8 +142,6 @@ E-Mail an HDSB über <a href="https://datenschutz.hessen.de/über-uns/kontakt">h
 Telefon: +49 611 1408 – 0<br>
 Telefax: +49 611 1408 – 611<br>
 <br>
-<form id="adminForm" method="post" name="adminForm"
-      class="form-vertical form-validate checkin" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
     <div class="control-group">
         <a class="btn" href="<?php echo $referrer; ?>">
 			<?php echo Languages::_('ORGANIZER_CLOSE'); ?>

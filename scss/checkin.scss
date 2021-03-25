@@ -94,7 +94,7 @@ form {
     margin-top: .5rem;
   }
 
-  .register a {
+  a:not(.btn) {
     text-decoration: underline;
   }
 }

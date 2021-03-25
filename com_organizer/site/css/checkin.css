@@ -89,6 +89,6 @@ form .control-group.message:first-child {
     margin-top: .5rem;
 }
 
-form .register a {
+form a:not(.btn) {
     text-decoration: underline;
 }
