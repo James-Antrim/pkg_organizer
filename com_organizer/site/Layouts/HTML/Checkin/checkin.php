@@ -12,6 +12,9 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
 $current          = Uri::getInstance()->toString();
+$privacyText      = Helpers\Languages::_('ORGANIZER_PRIVACY_POLICY');
+$privacyURL       = Uri::getInstance() . '&layout=privacy';
+$privacyLink      = Helpers\HTML::link($privacyURL, $privacyText);
 $return           = urlencode(base64_encode($current));
 $registerURL      = Uri::base() . "?option=com_users&view=registration&return=$return";
 $registrationLink = Helpers\HTML::link($registerURL, Helpers\Languages::_('ORGANIZER_REGISTER_TEXT_LINK'));
@@ -39,6 +42,9 @@ $userID           = Helpers\Users::getID();
 			<?php echo sprintf(Helpers\Languages::_('ORGANIZER_REGISTER_TEXT_FRAME'), '<br>' . $registrationLink); ?>
         </div>
 	<?php endif; ?>
+    <div class="control-group message">
+		<?php echo $privacyLink; ?>
+    </div>
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.checkin"/>
     <input type="hidden" name="view" value="checkin"/>

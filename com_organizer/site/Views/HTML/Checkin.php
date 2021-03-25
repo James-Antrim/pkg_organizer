@@ -10,6 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Document;
 use Organizer\Helpers;
@@ -20,6 +21,8 @@ class Checkin extends FormView
 	public $complete = true;
 
 	public $edit = false;
+
+	public $privacy = false;
 
 	/**
 	 * @var array
@@ -41,7 +44,11 @@ class Checkin extends FormView
 	 */
 	protected function addToolBar()
 	{
-		if ($this->edit or !$this->complete)
+		if ($this->privacy)
+		{
+			$title = "Besondere Datenschutzhinweis zum THM Checkin-Verfahren im Zusammenhang mit der Coronapandemie";
+		}
+		elseif ($this->edit or !$this->complete)
 		{
 			$title = Helpers\Languages::_('ORGANIZER_CONTACT_INFORMATION');
 		}
@@ -73,7 +80,25 @@ class Checkin extends FormView
 	 */
 	public function display($tpl = null)
 	{
-		$this->edit        = Helpers\Input::getCMD('layout') === 'profile';
+		$session = Factory::getSession();
+		if ($layout = Helpers\Input::getCMD('layout'))
+		{
+			if ($this->privacy = $layout === 'privacy')
+			{
+				if (!$session->get('organizer.checkin.referrer'))
+				{
+					$session->set('organizer.checkin.referrer', Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+				}
+			}
+
+			$this->edit = $layout === 'profile';
+		}
+
+		if (!$layout or $layout !== 'privacy')
+		{
+			$session->set('organizer.checkin.referrer', '');
+		}
+
 		$this->instances   = $this->get('Instances');
 		$this->participant = $this->get('Participant');
 		$this->roomID      = $this->get('RoomID');

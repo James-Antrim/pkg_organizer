@@ -11,10 +11,26 @@
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers;
 
+$privacyText = Helpers\Languages::_('ORGANIZER_PRIVACY_POLICY');
+$privacyURL  = str_replace('profile', 'privacy', Uri::getInstance());
+$privacyLink = Helpers\HTML::link($privacyURL, $privacyText);
+
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
       class="form-vertical form-validate contact" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
 	<?php echo $this->form->renderFieldset('participant'); ?>
+    <div class="control-group control-group-horizontal">
+        <div class="control-label">
+            <label class="required" for="acceptance" id="acceptance-label">
+                Die <?php echo $privacyLink; ?> zur Kontakterfassung<br>habe ich zur Kenntnis genommen.
+                <span class="star">*</span>
+            </label>
+        </div>
+        <div class="controls">
+            <input aria-labelledby="acceptance-label" aria-required="true" class="required" id="acceptance"
+                   type="checkbox"/>
+        </div>
+    </div>
     <div class="control-group">
         <input class="btn" type="submit" value="<?php echo Helpers\Languages::_('ORGANIZER_SAVE'); ?>"/>
     </div>

@@ -21,7 +21,9 @@ $count = count($this->instances);
 </div>
 <?php echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 <div id="j-main-container" class="span10">
-	<?php if ($this->edit or ($count and !$this->complete)) : ?>
+	<?php if ($this->privacy) : ?>
+		<?php require_once 'Checkin/privacy.php'; ?>
+	<?php elseif ($this->edit or ($count and !$this->complete)) : ?>
 		<?php require_once 'Checkin/contact.php'; ?>
 	<?php elseif (!$count) : ?>
 		<?php require_once 'Checkin/checkin.php'; ?>
