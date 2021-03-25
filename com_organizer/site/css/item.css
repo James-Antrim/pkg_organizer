@@ -187,6 +187,10 @@ body.tmpl-mobile div.main .js-stools-container-filters {
     padding-bottom: 0;
 }
 
+.attribute-content ul ul {
+    list-style-type: none;
+}
+
 .attribute-content ul ul li:before {
     content: '-';
     display: block;

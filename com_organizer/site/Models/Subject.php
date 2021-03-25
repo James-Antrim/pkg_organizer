@@ -603,16 +603,23 @@ class Subject extends CurriculumResource
 
 		foreach ($reqAttribs as $attribute => $direction)
 		{
-			$originalText  = $table->$attribute;
-			$sanitizedText = Helpers\SubjectsLSF::sanitizeText($originalText);
-			preg_match_all('/[\s|$]([A-Za-z0-9]{3,10})[\s|^]/', $sanitizedText, $potentialCodes);
+			$originalText   = $table->$attribute;
+			$potentialCodes = [];
 
-			if (empty($potentialCodes) or empty($potentialCodes[1]))
+			foreach (explode(' ', Helpers\SubjectsLSF::sanitizeText($originalText)) as $sanitizedText)
+			{
+				if (preg_match('/([A-Za-z0-9]{3,10})/', $sanitizedText))
+				{
+					$potentialCodes[$sanitizedText] = $sanitizedText;
+				}
+			}
+
+			if (empty($potentialCodes))
 			{
 				continue;
 			}
 
-			if ($dependencies = $this->verifyDependencies($potentialCodes[1], $programRanges))
+			if ($dependencies = $this->verifyDependencies($potentialCodes, $programRanges))
 			{
 				// Aggregate potential dependencies across language specific attributes
 				if ($direction === 'pre')
