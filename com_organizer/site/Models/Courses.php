@@ -20,8 +20,6 @@ class Courses extends ListModel
 {
 	use Helpers\Filtered;
 
-	protected $defaultOrdering = 'name';
-
 	protected $filter_fields = ['campusID', 'status', 'termID'];
 
 	/**
@@ -84,7 +82,8 @@ class Courses extends ListModel
 			->innerJoin('#__organizer_units AS u ON u.courseID = c.id')
 			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
 			->innerJoin('#__organizer_events AS e ON e.id = i.eventID')
-			->group('c.id');
+			->group('c.id')
+			->order('startDate DESC, name ASC');
 
 		$this->setSearchFilter($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 

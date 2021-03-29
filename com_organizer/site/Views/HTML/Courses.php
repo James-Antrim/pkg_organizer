@@ -319,8 +319,6 @@ class Courses extends ListView
 			$structuredItems[$index] = $this->structureItem($index, $course, $URL . $course->id);
 		}
 
-		ksort($structuredItems);
-
 		$this->items = $structuredItems;
 	}
 }
