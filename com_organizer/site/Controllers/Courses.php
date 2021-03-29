@@ -11,6 +11,7 @@
 namespace Organizer\Controllers;
 
 use Exception;
+use Joomla\CMS\Uri\Uri;
 use Organizer\Controller;
 use Organizer\Helpers;
 use Organizer\Models;
@@ -70,10 +71,21 @@ class Courses extends Controller
 	 */
 	public function participants()
 	{
-		// Reliance on POST requires a different method of redirection
-		Helpers\Input::set('id', Helpers\Input::getSelectedIDs()[0]);
-		Helpers\Input::set('view', 'course_participants');
-		parent::display();
+		if (!$courseID = Helpers\Input::getSelectedIDs()[0])
+		{
+			parent::display();
+
+			return;
+		}
+
+		$URL = Uri::base() . "?option=com_organizer&view=course_participants&id=$courseID";
+
+		if ($tag = Helpers\Input::getCMD('languageTag'))
+		{
+			$URL .= "&languageTag=$tag";
+		}
+
+		$this->setRedirect($URL);
 	}
 
 	/**

@@ -225,7 +225,15 @@ abstract class ListModel extends ParentModel
 		$this->setState('list.ordering', $ordering);
 		$this->setState('list.direction', $direction);
 
-		$limit = (isset($list['limit']) && is_numeric($list['limit'])) ? $list['limit'] : $this->defaultLimit;
+		if ($format = Helpers\Input::getCMD('format') and $format === 'pdf')
+		{
+			$limit = 0;
+		}
+		else
+		{
+			$limit = (isset($list['limit']) && is_numeric($list['limit'])) ? $list['limit'] : $this->defaultLimit;
+		}
+
 		$this->setState('list.limit', $limit);
 
 		$value = $this->getUserStateFromRequest('limitstart', 'limitstart', 0);

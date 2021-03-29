@@ -125,7 +125,7 @@ class Courses extends ListView
 			{
 				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
 				$toolbar->appendButton(
-					'Standard',
+					'NewTab',
 					'users',
 					Languages::_('ORGANIZER_PARTICIPANTS'),
 					'courses.participants',
