@@ -496,6 +496,11 @@ class Booking extends Participants
 
 		$bookingID = Helpers\Input::getID();
 
+		if (!$this->adminContext)
+		{
+			$form->removeField('limit', 'list');
+		}
+
 		if (count(Helpers\Bookings::getInstanceOptions($bookingID)) === 1)
 		{
 			$form->removeField('instanceID', 'filter');

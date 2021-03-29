@@ -25,19 +25,6 @@ class Participants extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function filterFilterForm(Form &$form)
-	{
-		parent::filterFilterForm($form);
-
-		if (!$this->adminContext)
-		{
-			$form->removeField('limit', 'list');
-		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	protected function getListQuery()
 	{
 		$tag   = Helpers\Languages::getTag();
