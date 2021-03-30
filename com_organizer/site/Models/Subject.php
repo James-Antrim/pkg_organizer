@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
@@ -182,8 +183,18 @@ class Subject extends CurriculumResource
 			return false;
 		}
 
-		$client   = new Helpers\LSF();
-		$response = $client->getModuleByModulid($table->lsfID);
+		try
+		{
+			$client = new Helpers\LSF();
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_LSF_CLIENT_FAILED', 'error');
+
+			return false;
+		}
+
+		$response = $client->getModule($table->lsfID);
 
 		// Invalid response
 		if (empty($response->modul))

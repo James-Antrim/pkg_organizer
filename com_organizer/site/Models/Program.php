@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
@@ -154,7 +155,17 @@ class Program extends CurriculumResource
 			return false;
 		}
 
-		$client = new Helpers\LSF();
+		try
+		{
+			$client = new Helpers\LSF();
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_LSF_CLIENT_FAILED', 'error');
+
+			return false;
+		}
+
 		if (!$program = $client->getModules($keys))
 		{
 			return false;

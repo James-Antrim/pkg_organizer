@@ -10,8 +10,8 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Tables;
-use SimpleXMLElement;
+use Organizer\Tables\Subjects as Table;
+use SimpleXMLElement as Element;
 
 /**
  * Class provides general functions for retrieving building data.
@@ -27,7 +27,7 @@ class SubjectsLSF
 	 *
 	 * @return bool
 	 */
-	public static function checkContents($text, $attributes, $codeGroupings)
+	public static function checkContents(string $text, array $attributes, array $codeGroupings): bool
 	{
 		foreach ($attributes as $checkedAttribute)
 		{
@@ -58,11 +58,11 @@ class SubjectsLSF
 	 * Checks whether proof and method values are valid and set, and filling them with values
 	 * from other languages if possible
 	 *
-	 * @param   object &$table  the subject object
+	 * @param   Table  $table  the subject object
 	 *
 	 * @return void
 	 */
-	public static function checkProofAndMethod(&$table)
+	public static function checkProofAndMethod(Table $table)
 	{
 		$unusableProofValue = (empty($table->proof_en) or strlen($table->proof_en) < 4);
 
@@ -86,7 +86,7 @@ class SubjectsLSF
 	 *
 	 * @return string  the node without its formatted text shell
 	 */
-	private static function cleanText($text)
+	private static function cleanText(string $text): string
 	{
 		// Gets rid of bullshit encoding from copy and paste from word
 		$text = str_replace(chr(160), ' ', $text);
@@ -97,7 +97,7 @@ class SubjectsLSF
 		$text = str_replace(chr(195) . chr(159), '&szlig;', $text);
 
 		// Remove the formatted text tag
-		$text = preg_replace('/<[\/]?[f|F]ormatted[t|T]ext\>/', '', $text);
+		$text = preg_replace('/<[\/]?[f|F]ormatted[t|T]ext>/', '', $text);
 
 		// Remove non self closing tags with no content and unwanted self closing tags
 		$text = preg_replace('/<((?!br|col|link).)[a-z]*[\s]*\/>/', '', $text);
@@ -138,12 +138,12 @@ class SubjectsLSF
 	/**
 	 * Parses the object and sets subject attributes
 	 *
-	 * @param   Tables\Subjects  $table    the subject table object
-	 * @param   object           $subject  an object representing the data from the LSF response
+	 * @param   Table    $table    the subject table object
+	 * @param   Element  $subject  an object representing the data from the LSF response
 	 *
 	 * @return void modifies the Table object
 	 */
-	public static function processAttributes($table, $subject)
+	public static function processAttributes(Table $table, Element $subject)
 	{
 		$table->setColumn('code', (string) $subject->modulecode, '');
 		$table->setColumn('instructionLanguage', (string) $subject->sprache, '');
@@ -172,12 +172,12 @@ class SubjectsLSF
 	/**
 	 * Sets attributes dealing with required student expenditure
 	 *
-	 * @param   object  $table  the subject data
+	 * @param   Table   $table  the subject data
 	 * @param   string  $text   the expenditure text
 	 *
 	 * @return void
 	 */
-	private static function processExpenditures($table, $text)
+	private static function processExpenditures(Table $table, string $text)
 	{
 		$CrPMatch = [];
 		preg_match('/(\d) CrP/', (string) $text, $CrPMatch);
@@ -206,12 +206,12 @@ class SubjectsLSF
 	/**
 	 * Sets subject properties according to those of the dynamic lsf properties
 	 *
-	 * @param   Tables\Subjects   $table     the subject table object
-	 * @param   SimpleXMLElement  $property  the object containing a text blob
+	 * @param   Table    $table     the subject table object
+	 * @param   Element  $property  the object containing a text blob
 	 *
 	 * @return void
 	 */
-	private static function processObjectAttribute(Tables\Subjects $table, SimpleXMLElement $property)
+	private static function processObjectAttribute(Table $table, Element $property)
 	{
 		$category = (string) $property->kategorie;
 
@@ -223,17 +223,17 @@ class SubjectsLSF
 		// German entries are the standard.
 		if (empty($property->de->txt))
 		{
-			$germanText  = null;
-			$englishText = null;
+			$germanText  = '';
+			$englishText = '';
 		}
 		else
 		{
 			$rawGermanText = (string) $property->de->txt->FormattedText->asXML();
-			$germanText = self::cleanText($rawGermanText);
+			$germanText    = self::cleanText($rawGermanText);
 
 			if (empty($property->en->txt))
 			{
-				$englishText = null;
+				$englishText = '';
 			}
 			else
 			{
@@ -330,12 +330,12 @@ class SubjectsLSF
 	/**
 	 * Checks for the existence and viability of seldom used fields
 	 *
-	 * @param   Tables\Subjects   $table    the data object
-	 * @param   SimpleXMLElement  $subject  the subject object
+	 * @param   Table    $table    the data object
+	 * @param   Element  $subject  the subject object
 	 *
 	 * @return void
 	 */
-	private static function processSpecialFields($table, $subject)
+	private static function processSpecialFields(Table $table, Element $subject)
 	{
 		if (!empty($subject->sws))
 		{
@@ -395,13 +395,13 @@ class SubjectsLSF
 	/**
 	 * Sets business administration organization start attributes
 	 *
-	 * @param   object &$table      the subject table object
+	 * @param   Table   $table      the subject table object
 	 * @param   string  $attribute  the attribute's name in the xml response
 	 * @param   string  $value      the attribute value
 	 *
 	 * @return void
 	 */
-	private static function processStarAttribute(&$table, $attribute, $value)
+	private static function processStarAttribute(Table $table, string $attribute, string $value)
 	{
 		switch ($attribute)
 		{
@@ -419,11 +419,19 @@ class SubjectsLSF
 				break;
 		}
 
-		if ($value === '' or $value === null)
+		if (empty($attributeName))
+		{
+			return;
+		}
+
+		if ($value === '')
 		{
 			$table->$attributeName = null;
+
+			return;
 		}
-		elseif (!is_numeric($value))
+
+		if (!is_numeric($value))
 		{
 			$value = strlen($value);
 		}
@@ -436,16 +444,16 @@ class SubjectsLSF
 	 *
 	 * @param   string  $text  the text to be processed
 	 *
-	 * @return mixed|string
+	 * @return string
 	 */
-	public static function sanitizeText($text)
+	public static function sanitizeText(string $text): string
 	{
 		// Get rid of HTML
 		$text = preg_replace('/<.*?>/', ' ', $text);
 
 		// Remove punctuation
-		$text = preg_replace("/[\!\"§\$\%\&\/\(\)\=\?\`\,]/", ' ', $text);
-		$text = preg_replace("/[\{\}\[\]\\\´\+\*\~\#\'\<\>\|\;\.\:\-\_]/", ' ', $text);
+		$text = preg_replace("/[!\"§\$%&\/()=?`,]/", ' ', $text);
+		$text = preg_replace("/[{}\[\]\\\´+*~#'<>|;.:-_]/", ' ', $text);
 
 		// Remove excess white space
 		$text = trim($text);

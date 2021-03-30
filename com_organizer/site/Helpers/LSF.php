@@ -10,7 +10,9 @@
 
 namespace Organizer\Helpers;
 
+use Exception;
 use SimpleXMLElement;
+use SoapClient;
 
 /**
  * Class provides methods for communication with the LSF curriculum documentation system.
@@ -24,16 +26,18 @@ class LSF
 	private $password;
 
 	/**
-	 * Constructor to set up the client
+	 * Creates the SOAP Client.
+	 *
+	 * @throws Exception
 	 */
 	public function __construct()
 	{
-		$params         = Input::getParams();
+		$params = Input::getParams();
+		$uri    = $params->get('wsURI');
+
 		$this->username = $params->get('wsUsername');
 		$this->password = $params->get('wsPassword');
-		$uri            = $params->get('wsURI');
-		$options        = ['uri' => $uri, 'location' => $uri];
-		$this->client   = new \SoapClient(null, $options);
+		$this->client   = new SoapClient(null, ['uri' => $uri, 'location' => $uri]);
 	}
 
 	/**
@@ -41,9 +45,9 @@ class LSF
 	 *
 	 * @param   string  $query  Query structure
 	 *
-	 * @return SimpleXMLElement|bool  SimpleXMLElement if the query was successful, otherwise false
+	 * @return SimpleXMLElement|false  SimpleXMLElement if the query was successful, otherwise false
 	 */
-	private function getDataXML($query)
+	private function getDataXML(string $query)
 	{
 		$result = $this->client->__soapCall('getDataXML', ['xmlParams' => $query]);
 
@@ -69,9 +73,9 @@ class LSF
 	 *
 	 * @param   int  $moduleID  The module mni number
 	 *
-	 * @return Mixed <void, string, unknown> Returns the xml strucutre of a given lsf module id
+	 * @return SimpleXMLElement|false
 	 */
-	public function getModuleByModulid($moduleID)
+	public function getModule(int $moduleID)
 	{
 		$XML = $this->header('ModuleAll');
 		$XML .= "<modulid>$moduleID</modulid>";
@@ -86,9 +90,9 @@ class LSF
 	 *
 	 * @param   array  $keys  the keys required by LSF to uniquely identify a degree program
 	 *
-	 * @return SimpleXMLElement
+	 * @return SimpleXMLElement|false
 	 */
-	public function getModules($keys)
+	public function getModules(array $keys)
 	{
 		$XML = $this->header('studiengang');
 		$XML .= "<stg>{$keys['program']}</stg>";
@@ -106,7 +110,7 @@ class LSF
 	 *
 	 * @return string  the header of the XML query
 	 */
-	private function header($objectType)
+	private function header(string $objectType): string
 	{
 		$header = '<?xml version="1.0" encoding="UTF-8"?><SOAPDataService>';
 		$header .= "<general><object>$objectType</object></general><user-auth>";
