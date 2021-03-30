@@ -91,6 +91,8 @@ class SubjectsLSF
 		// Gets rid of bullshit encoding from copy and paste from word
 		$text = str_replace(chr(160), ' ', $text);
 		$text = str_replace(chr(194) . chr(167), '&sect;', $text);
+		$text = str_replace(chr(194) . chr(171), '&laquo;', $text);
+		$text = str_replace(chr(194) . chr(187), '&raquo;', $text);
 		$text = str_replace(chr(194), ' ', $text);
 		$text = str_replace(chr(195) . chr(159), '&szlig;', $text);
 
@@ -204,12 +206,12 @@ class SubjectsLSF
 	/**
 	 * Sets subject properties according to those of the dynamic lsf properties
 	 *
-	 * @param   Tables\Subjects & $table     the subject table object
-	 * @param   object &          $property  the object containing a text blob
+	 * @param   Tables\Subjects   $table     the subject table object
+	 * @param   SimpleXMLElement  $property  the object containing a text blob
 	 *
 	 * @return void
 	 */
-	private static function processObjectAttribute(&$table, &$property)
+	private static function processObjectAttribute(Tables\Subjects $table, SimpleXMLElement $property)
 	{
 		$category = (string) $property->kategorie;
 
@@ -227,7 +229,7 @@ class SubjectsLSF
 		else
 		{
 			$rawGermanText = (string) $property->de->txt->FormattedText->asXML();
-			$germanText    = self::cleanText($rawGermanText);
+			$germanText = self::cleanText($rawGermanText);
 
 			if (empty($property->en->txt))
 			{
