@@ -219,7 +219,7 @@ abstract class GridLayout extends BaseLayout
 			$aggregate = array_merge($aggregate, $set);
 		}
 
-		return $this->getResourceText($aggregate, $key, $showCode) . "\n";
+		return $this->getResourceText($aggregate, $key, $showCode) . '<br>';
 	}
 
 	/**
@@ -380,22 +380,22 @@ abstract class GridLayout extends BaseLayout
 
 				if ($showGroups and array_key_exists('groups', $persons[$personID]))
 				{
-					$glue = count($persons[$personID]['groups']) > 2 ? "\n" : ' - ';
+					$glue = count($persons[$personID]['groups']) > 2 ? '<br>' : ' - ';
 					$html .= $glue . $this->getResourceText($persons[$personID]['groups'], 'group');
 				}
 
 				if ($showRooms and array_key_exists('rooms', $persons[$personID]))
 				{
-					$glue = count($persons[$personID]['rooms']) > 2 ? "\n" : ' - ';
+					$glue = count($persons[$personID]['rooms']) > 2 ? '<br>' : ' - ';
 					$html .= $glue . $this->getResourceText($persons[$personID]['rooms'], 'room');
 				}
 
-				$html .= "\n";
+				$html .= '<br>';
 			}
 		}
 		else
 		{
-			$html .= $this->implode($rolePersons) . "\n";
+			$html .= $this->implode($rolePersons) . '<br>';
 		}
 
 		return $html;
@@ -412,7 +412,7 @@ abstract class GridLayout extends BaseLayout
 	 */
 	protected function getInstance(object $instance, string $startTime, string $endTime): string
 	{
-		$html = '';
+		$html = '<div style="font-size: 10px; text-align: center">';
 
 		// Understood end time the exclusive minute at which the instance has ended
 		$iEndTime   = $instance->endTime;
@@ -423,8 +423,11 @@ abstract class GridLayout extends BaseLayout
 		{
 			$formattedStart = Helpers\Dates::formatTime($instance->startTime);
 			$formattedEnd   = Helpers\Dates::formatTime($iEndTime);
-			$html           .= "$formattedStart - $formattedEnd\n";
+
+			$html .= "<span style=\"font-style: italic\">$formattedStart - $formattedEnd</span>";
 		}
+
+		$html .= '<br>';
 
 		$name = $instance->name;
 
@@ -433,20 +436,18 @@ abstract class GridLayout extends BaseLayout
 			$name .= " ($instance->subjectNo)";
 		}
 
+		$html .= "<span style=\"font-size: 10pt;\">$name</span><br>";
+
 		if ($instance->methodID)
 		{
-			$name .= "\n$instance->method";
+			$html .= "<span>$instance->method</span><br>";
 		}
-
-		$html .= $name;
 
 		if ($instance->comment)
 		{
-			// TODO parse links
-			$html .= "\n$instance->comment";
+			$comment = $this->resolveLinks($instance->comment);
+			$html    .= "<span style=\"font-style: italic\">$comment</span><br>";
 		}
-
-		$html .= "\n";
 
 		$conditions = $this->view->conditions;
 
@@ -547,7 +548,7 @@ abstract class GridLayout extends BaseLayout
 			{
 				if ($roleCount === 1)
 				{
-					$html .= $this->getResourceText($persons, 'person') . "\n";
+					$html .= $this->getResourceText($persons, 'person') . '<br>';
 				}
 				else
 				{
@@ -562,12 +563,12 @@ abstract class GridLayout extends BaseLayout
 
 			if ($groups and $showGroups)
 			{
-				$html .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . "\n";
+				$html .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . '<br>';
 			}
 
 			if ($rooms and $showRooms)
 			{
-				$html .= $this->getResourceText($rooms[0], 'room') . "\n";
+				$html .= $this->getResourceText($rooms[0], 'room') . '<br>';
 			}
 		}
 		// Status: laser focused, all persons are assigned the same groups or none, rooms may vary between persons
@@ -576,7 +577,7 @@ abstract class GridLayout extends BaseLayout
 			// Assumption specific room assignments => small number per person => no need to further process rooms per line
 			if ($groups and $showGroups)
 			{
-				$html .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . "\n";
+				$html .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . '<br>';
 			}
 
 			if ($showPersons)
@@ -630,7 +631,7 @@ abstract class GridLayout extends BaseLayout
 
 			if ($rooms and $showRooms)
 			{
-				$html .= $this->getResourceText($rooms[0], 'room') . "\n";
+				$html .= $this->getResourceText($rooms[0], 'room') . '<br>';
 			}
 		}
 		// Status: varying degrees of complexity, most easily handled by individual output,
@@ -668,14 +669,14 @@ abstract class GridLayout extends BaseLayout
 
 		// Check if return is the last character before shortening
 		$length    = strlen($html);
-		$lastBreak = strrpos($html, "\n");
+		$lastBreak = strrpos($html, '<br>');
 
 		if ($lastBreak + 1 === $length)
 		{
 			$html = substr($html, 0, strlen($html) - 1);
 		}
 
-		return $html;
+		return $html . '</div>';
 	}
 
 	/**
@@ -696,7 +697,7 @@ abstract class GridLayout extends BaseLayout
 			$container[] = $code ? $resource['code'] : $resource[$name];
 		}
 
-		return $this->implode($container);
+		return '<span>' . $this->implode($container) . '</span>';
 	}
 
 	/**
@@ -714,7 +715,7 @@ abstract class GridLayout extends BaseLayout
 		$tag    = Helpers\Languages::getTag();
 		$column = count($rolePersons) > 1 ? "plural_$tag" : "name_$tag";
 
-		return $role->$column . ":\n";
+		return $role->$column . ":<br>";
 	}
 
 	/**
@@ -747,7 +748,7 @@ abstract class GridLayout extends BaseLayout
 
 					if (strlen($probe) > $this::LINE_LENGTH)
 					{
-						$texts[$index] .= ",\n";
+						$texts[$index] .= ",<br>";
 						$index++;
 						$texts[$index] = $resource;
 					}
@@ -761,7 +762,7 @@ abstract class GridLayout extends BaseLayout
 			}
 
 			$text = implode('', $texts);
-			$text .= ($length + strlen($lastResource)) > $this::LINE_LENGTH ? "\n" : ' ';
+			$text .= ($length + strlen($lastResource)) > $this::LINE_LENGTH ? '<br>' : ' ';
 			$text .= "& $lastResource";
 
 			return $text;
@@ -875,7 +876,7 @@ abstract class GridLayout extends BaseLayout
 
 		foreach ($cells as $index => $row)
 		{
-			if ($index === 'lines')
+			if ($index === 'lines' or $index === 'height')
 			{
 				continue;
 			}
