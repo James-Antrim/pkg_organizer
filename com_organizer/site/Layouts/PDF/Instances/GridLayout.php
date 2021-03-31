@@ -22,8 +22,6 @@ use Organizer\Views\PDF\Instances;
  */
 abstract class GridLayout extends BaseLayout
 {
-	private const OVERPAD = .6;
-
 	protected const PADDING = 2, TIME_HEIGHT = 15, TIME_WIDTH = 11;
 
 	protected const CORNER_BORDER = [
@@ -138,21 +136,19 @@ abstract class GridLayout extends BaseLayout
 	/**
 	 * Adds a page break as necessary.
 	 *
-	 * @param   int     $lines      the number of lines which will be added in the next row
+	 * @param   float   $rowHeight  the height of the row to be rendered
 	 * @param   string  $startDate  the page start date
 	 * @param   string  $endDate    the page end date
 	 *
 	 * @return bool  true if a page was added, otherwise false
 	 */
-	protected function addPageBreak(int $lines, string $startDate, string $endDate): bool
+	protected function addPageBreak(float $rowHeight, string $startDate, string $endDate): bool
 	{
 		$view       = $this->view;
 		$dimensions = $view->getPageDimensions();
 
 		$bottomMargin = $dimensions['bm'];
 		$pageHeight   = $dimensions['hk'];
-		$overPad      = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
-		$rowHeight    = $lines * $this::LINE_HEIGHT - $overPad;
 		$yPos         = $view->GetY();
 
 		if (($yPos + $rowHeight + $bottomMargin) > $pageHeight)
@@ -274,14 +270,20 @@ abstract class GridLayout extends BaseLayout
 	 */
 	private function getCellHeight(float $width, string $contents): float
 	{
-		$clone = clone $this->view;
-		$clone->AddPage();
-		$x     = $clone->GetX();
-		$start = $clone->GetY();
+		$view        = $this->view;
+		$currentPage = $view->getPage();
+		$currentX    = $view->GetX();
+		$currentY    = $view->GetY();
+		$view->AddPage();
+		$x     = $view->GetX();
+		$start = $view->GetY();
+		$view->writeHTMLCell($width, 15, $x, $start, $contents, self::INSTANCE_BORDER, 1);
+		$height = $view->GetY() - $start;
+		$view->deletePage($view->getPage());
+		$view->setPage($currentPage);
+		$view->changePosition($currentX, $currentY);
 
-		$clone->writeHTMLCell($width, 15, $x, $start, $contents, self::INSTANCE_BORDER, 1);
-
-		return $clone->GetY() - $start;
+		return $height;
 	}
 
 	/**
@@ -309,13 +311,14 @@ abstract class GridLayout extends BaseLayout
 			{
 				if (empty($cells[$row]))
 				{
-					$cells[$row] = ['lines' => []];
+					$cells[$row] = ['height' => []];
 				}
 
 				$contents = $this->getInstance($instance, $startTime, $endTime);
 
-				$cells[$row][$date]     = $contents;
-				$cells[$row]['lines'][] = $view->getNumLines($contents, $this::DATA_WIDTH);
+				$cells[$row][$date]      = $contents;
+				$cells[$row]['height'][] = $this->getCellHeight($this::DATA_WIDTH, $contents);
+
 				$row++;
 			}
 
@@ -324,9 +327,9 @@ abstract class GridLayout extends BaseLayout
 
 		foreach ($cells as $row => $instances)
 		{
-			$subRowLines          = max($cells[$row]['lines']);
-			$cells[$row]['lines'] = $subRowLines;
-			$cells['lines']       = array_key_exists('lines', $cells) ? $cells['lines'] + $subRowLines : $subRowLines;
+			$subRowHeight          = max($cells[$row]['height']);
+			$cells[$row]['height'] = $subRowHeight;
+			$cells['height']       = array_key_exists('height', $cells) ? $cells['height'] + $subRowHeight : $subRowHeight;
 		}
 
 		return $cells;
@@ -787,7 +790,7 @@ abstract class GridLayout extends BaseLayout
 		$x = $view->GetX();
 		$y = $view->GetY();
 
-		$this->addPageBreak(3, $startDate, $endDate);
+		$this->addPageBreak(self::TIME_HEIGHT, $startDate, $endDate);
 		$view->writeHTMLCell(self::TIME_WIDTH, self::TIME_HEIGHT, $x, $y, $label, self::CORNER_BORDER);
 		$x += $this::TIME_WIDTH;
 
@@ -876,7 +879,7 @@ abstract class GridLayout extends BaseLayout
 
 		foreach ($cells as $index => $row)
 		{
-			if ($index === 'lines' or $index === 'height')
+			if ($index === 'height')
 			{
 				continue;
 			}
@@ -885,22 +888,18 @@ abstract class GridLayout extends BaseLayout
 			$x      = $view->GetX();
 			$y      = $view->GetY();
 
-			$lines   = $row['lines'];
-			$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
-			$height  = $lines * $this::LINE_HEIGHT - $overPad;
-
-			if ($this->addPageBreak($lines, $startDate, $endDate))
+			if ($this->addPageBreak($row['height'], $startDate, $endDate))
 			{
 				$y = $view->GetY();
-				$view->writeHTMLCell(self::TIME_WIDTH, $height, $x, $y, $label, $border);
+				$view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $x, $y, $label, $border);
 			}
 			elseif ($rowNumber === 1)
 			{
-				$view->writeHTMLCell(self::TIME_WIDTH, $height, $x, $y, $label, $border);
+				$view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $x, $y, $label, $border);
 			}
 			else
 			{
-				$view->writeHTMLCell(self::TIME_WIDTH, $height, $x, $y, '', $border);
+				$view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $x, $y, '', $border);
 			}
 
 			$border = $rowNumber === $lastIndex ? self::CORNER_BORDER : self::INSTANCE_BORDER;
@@ -911,7 +910,7 @@ abstract class GridLayout extends BaseLayout
 			{
 				$date  = date('Y-m-d', $currentDT);
 				$value = empty($row[$date]) ? '' : $row[$date];
-				$view->writeHTMLCell($this::DATA_WIDTH, $height, $x, $y, $value, $border);
+				$view->writeHTMLCell($this::DATA_WIDTH, $row['height'], $x, $y, $value, $border);
 
 				$x         += $this::DATA_WIDTH;
 				$currentDT = strtotime("+1 day", $currentDT);
