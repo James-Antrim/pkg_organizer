@@ -911,7 +911,7 @@ abstract class GridLayout extends BaseLayout
 			{
 				$date  = date('Y-m-d', $currentDT);
 				$value = empty($row[$date]) ? '' : $row[$date];
-				$view->renderMultiCell($this::DATA_WIDTH, $height, $value, $view::CENTER, $border);
+				$view->writeHTMLCell($this::DATA_WIDTH, $height, $x, $y, $value, $border);
 
 				$x         += $this::DATA_WIDTH;
 				$currentDT = strtotime("+1 day", $currentDT);
