@@ -24,7 +24,7 @@ abstract class GridLayout extends BaseLayout
 {
 	private const OVERPAD = .6;
 
-	protected const PADDING = 2, TIME_WIDTH = 11;
+	protected const PADDING = 2, TIME_HEIGHT = 15, TIME_WIDTH = 11;
 
 	protected const CORNER_BORDER = [
 		'R' => ['width' => '.5', 'color' => [74, 92, 102]],
@@ -242,7 +242,7 @@ abstract class GridLayout extends BaseLayout
 				continue;
 			}
 
-			if ($instance->endTime < $startTime)
+			if ($instance->endTime <= $startTime)
 			{
 				continue;
 			}
@@ -262,6 +262,26 @@ abstract class GridLayout extends BaseLayout
 		ksort($instances);
 
 		return $instances;
+	}
+
+	/**
+	 * Gets an accurate measurement of a cell's rendered height.
+	 *
+	 * @param   float   $width     the width of the column to be rendered
+	 * @param   string  $contents  the contents to be rendered
+	 *
+	 * @return float
+	 */
+	private function getCellHeight(float $width, string $contents): float
+	{
+		$clone = clone $this->view;
+		$clone->AddPage();
+		$x     = $clone->GetX();
+		$start = $clone->GetY();
+
+		$clone->writeHTMLCell($width, 15, $x, $start, $contents, self::INSTANCE_BORDER, 1);
+
+		return $clone->GetY() - $start;
 	}
 
 	/**
@@ -320,16 +340,20 @@ abstract class GridLayout extends BaseLayout
 	protected function getLabel(array $block): string
 	{
 		$label = 'label_' . Helpers\Languages::getTag();
+
 		if ($block[$label])
 		{
-			return $block[$label];
+			$value = $block[$label];
+		}
+		else
+		{
+			$startTime = Helpers\Dates::formatTime($block['startTime']);
+			$endTime   = date('H:i', strtotime('+1 minute', strtotime($block['endTime'])));
+			$endTime   = Helpers\Dates::formatTime($endTime);
+			$value     = $startTime . "\n-\n" . $endTime;
 		}
 
-		$startTime = Helpers\Dates::formatTime($block['startTime']);
-		$endTime   = date('H:i', strtotime('+1 minute', strtotime($block['endTime'])));
-		$endTime   = Helpers\Dates::formatTime($endTime);
-
-		return $startTime . "\n-\n" . $endTime;
+		return $value;
 	}
 
 	/**
@@ -344,35 +368,35 @@ abstract class GridLayout extends BaseLayout
 	 */
 	private function getIndividualTexts(array $rolePersons, array $persons, bool $showGroups, bool $showRooms): string
 	{
-		$text = '';
+		$html = '';
 
 		if ($showGroups or $showRooms)
 		{
 			foreach ($rolePersons as $personID => $name)
 			{
-				$text .= $name;
+				$html .= $name;
 
 				if ($showGroups and array_key_exists('groups', $persons[$personID]))
 				{
 					$glue = count($persons[$personID]['groups']) > 2 ? "\n" : ' - ';
-					$text .= $glue . $this->getResourceText($persons[$personID]['groups'], 'group');
+					$html .= $glue . $this->getResourceText($persons[$personID]['groups'], 'group');
 				}
 
 				if ($showRooms and array_key_exists('rooms', $persons[$personID]))
 				{
 					$glue = count($persons[$personID]['rooms']) > 2 ? "\n" : ' - ';
-					$text .= $glue . $this->getResourceText($persons[$personID]['rooms'], 'room');
+					$html .= $glue . $this->getResourceText($persons[$personID]['rooms'], 'room');
 				}
 
-				$text .= "\n";
+				$html .= "\n";
 			}
 		}
 		else
 		{
-			$text .= $this->implode($rolePersons) . "\n";
+			$html .= $this->implode($rolePersons) . "\n";
 		}
 
-		return $text;
+		return $html;
 	}
 
 	/**
@@ -386,17 +410,18 @@ abstract class GridLayout extends BaseLayout
 	 */
 	protected function getInstance(object $instance, string $startTime, string $endTime): string
 	{
-		$text = '';
+		$html = '';
 
 		// Understood end time the exclusive minute at which the instance has ended
-		$endTime = date('H:i', strtotime('+1 minute', strtotime($endTime)));
+		$iEndTime   = $instance->endTime;
+		$altEndTime = date('H:i', strtotime('+1 minute', strtotime($endTime)));
 
 		// Instance time not coincidental with block
-		if ($instance->startTime != $startTime or $instance->endTime != $endTime)
+		if ($instance->startTime != $startTime or ($iEndTime != $endTime and $iEndTime != $altEndTime))
 		{
-			$formattedStart = Helpers\Dates::formatTime($startTime);
-			$formattedEnd   = Helpers\Dates::formatTime($endTime);
-			$text           .= "$formattedStart - $formattedEnd\n";
+			$formattedStart = Helpers\Dates::formatTime($instance->startTime);
+			$formattedEnd   = Helpers\Dates::formatTime($iEndTime);
+			$html           .= "$formattedStart - $formattedEnd\n";
 		}
 
 		$name = $instance->name;
@@ -411,15 +436,15 @@ abstract class GridLayout extends BaseLayout
 			$name .= "\n$instance->method";
 		}
 
-		$text .= $name;
+		$html .= $name;
 
 		if ($instance->comment)
 		{
 			// TODO parse links
-			$text .= "\n$instance->comment";
+			$html .= "\n$instance->comment";
 		}
 
-		$text .= "\n";
+		$html .= "\n";
 
 		$conditions = $this->view->conditions;
 
@@ -520,27 +545,27 @@ abstract class GridLayout extends BaseLayout
 			{
 				if ($roleCount === 1)
 				{
-					$text .= $this->getResourceText($persons, 'person') . "\n";
+					$html .= $this->getResourceText($persons, 'person') . "\n";
 				}
 				else
 				{
 					foreach ($personTexts as $roleID => $rolePersons)
 					{
 						asort($rolePersons);
-						$text .= $this->getRoleText($roleID, $rolePersons);
-						$text .= $this->getIndividualTexts($rolePersons, $persons, false, false);
+						$html .= $this->getRoleText($roleID, $rolePersons);
+						$html .= $this->getIndividualTexts($rolePersons, $persons, false, false);
 					}
 				}
 			}
 
 			if ($groups and $showGroups)
 			{
-				$text .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . "\n";
+				$html .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . "\n";
 			}
 
 			if ($rooms and $showRooms)
 			{
-				$text .= $this->getResourceText($rooms[0], 'room') . "\n";
+				$html .= $this->getResourceText($rooms[0], 'room') . "\n";
 			}
 		}
 		// Status: laser focused, all persons are assigned the same groups or none, rooms may vary between persons
@@ -549,7 +574,7 @@ abstract class GridLayout extends BaseLayout
 			// Assumption specific room assignments => small number per person => no need to further process rooms per line
 			if ($groups and $showGroups)
 			{
-				$text .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . "\n";
+				$html .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . "\n";
 			}
 
 			if ($showPersons)
@@ -558,21 +583,21 @@ abstract class GridLayout extends BaseLayout
 				{
 					$rolePersons = array_shift($personTexts);
 					asort($rolePersons);
-					$text .= $this->getIndividualTexts($rolePersons, $persons, false, $showRooms);
+					$html .= $this->getIndividualTexts($rolePersons, $persons, false, $showRooms);
 				}
 				else
 				{
 					foreach ($personTexts as $roleID => $rolePersons)
 					{
 						asort($rolePersons);
-						$text .= $this->getRoleText($roleID, $rolePersons);
-						$text .= $this->getIndividualTexts($rolePersons, $persons, false, $showRooms);
+						$html .= $this->getRoleText($roleID, $rolePersons);
+						$html .= $this->getIndividualTexts($rolePersons, $persons, false, $showRooms);
 					}
 				}
 			}
 			elseif ($rooms and $showRooms)
 			{
-				$text .= $this->getAggregatedResources($rooms, 'room');
+				$html .= $this->getAggregatedResources($rooms, 'room');
 			}
 		}
 		// Status: claustrophobic, all persons are assigned the same rooms or none, groups may vary between persons
@@ -584,26 +609,26 @@ abstract class GridLayout extends BaseLayout
 				{
 					$rolePersons = array_shift($personTexts);
 					asort($rolePersons);
-					$text .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
+					$html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
 				}
 				else
 				{
 					foreach ($personTexts as $roleID => $rolePersons)
 					{
 						asort($rolePersons);
-						$text .= $this->getRoleText($roleID, $rolePersons);
-						$text .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
+						$html .= $this->getRoleText($roleID, $rolePersons);
+						$html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
 					}
 				}
 			}
 			elseif ($groups and $showGroups)
 			{
-				$text .= $this->getAggregatedResources($groups, 'group', $showGroupCodes);
+				$html .= $this->getAggregatedResources($groups, 'group', $showGroupCodes);
 			}
 
 			if ($rooms and $showRooms)
 			{
-				$text .= $this->getResourceText($rooms[0], 'room') . "\n";
+				$html .= $this->getResourceText($rooms[0], 'room') . "\n";
 			}
 		}
 		// Status: varying degrees of complexity, most easily handled by individual output,
@@ -614,15 +639,15 @@ abstract class GridLayout extends BaseLayout
 			{
 				$personTexts = array_shift($personTexts);
 				asort($personTexts);
-				$text .= $this->getIndividualTexts($personTexts, $persons, $showGroups, $showRooms);
+				$html .= $this->getIndividualTexts($personTexts, $persons, $showGroups, $showRooms);
 			}
 			else
 			{
 				foreach ($personTexts as $roleID => $rolePersons)
 				{
 					asort($rolePersons);
-					$text .= $this->getRoleText($roleID, $rolePersons);
-					$text .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, $showRooms);
+					$html .= $this->getRoleText($roleID, $rolePersons);
+					$html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, $showRooms);
 				}
 			}
 		}
@@ -630,25 +655,25 @@ abstract class GridLayout extends BaseLayout
 		{
 			if ($groups and $showGroups)
 			{
-				$text .= $this->getAggregatedResources($groups, 'group', $showGroupCodes);
+				$html .= $this->getAggregatedResources($groups, 'group', $showGroupCodes);
 			}
 
 			if ($rooms and $showRooms)
 			{
-				$text .= $this->getAggregatedResources($rooms, 'room');
+				$html .= $this->getAggregatedResources($rooms, 'room');
 			}
 		}
 
 		// Check if return is the last character before shortening
-		$length    = strlen($text);
-		$lastBreak = strrpos($text, "\n");
+		$length    = strlen($html);
+		$lastBreak = strrpos($html, "\n");
 
 		if ($lastBreak + 1 === $length)
 		{
-			$text = substr($text, 0, strlen($text) - 1);
+			$html = substr($html, 0, strlen($html) - 1);
 		}
 
-		return $text;
+		return $html;
 	}
 
 	/**
@@ -756,14 +781,20 @@ abstract class GridLayout extends BaseLayout
 	{
 		$view  = $this->view;
 		$lines = $view->getNumLines($label, $this::DATA_WIDTH);
-		$this->addPageBreak($lines, $startDate, $endDate);
+
+		$x = $view->GetX();
+		$y = $view->GetY();
+
 		$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
 		$height  = $lines * $this::LINE_HEIGHT - $overPad;
+
+		$this->addPageBreak($lines, $startDate, $endDate);
 		$this->renderTimeCell($label, $height, $view::GINSBERG);
 
 		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
 		{
 			$view->renderMultiCell($this::DATA_WIDTH, $height, '', $view::CENTER, $view::GINSBERG);
+			$x += $this::DATA_WIDTH;
 
 			$currentDT = strtotime("+1 day", $currentDT);
 		}
@@ -838,12 +869,12 @@ abstract class GridLayout extends BaseLayout
 	 */
 	protected function renderRow(string $label, array $cells, string $startDate, string $endDate)
 	{
-		$view = $this->view;
-
 		// Less one because of the 'lines' count index
 		$lastIndex = count($cells) - 1;
-		$lLines    = $view->getNumLines($label, $this::DATA_WIDTH);
 		$rowNumber = 1;
+		$view      = $this->view;
+
+		$lLines = $view->getNumLines($label, $this::DATA_WIDTH);
 
 		foreach ($cells as $index => $row)
 		{
@@ -852,27 +883,31 @@ abstract class GridLayout extends BaseLayout
 				continue;
 			}
 
-			$lines  = $rowNumber === 1 ? max($lLines, $row['lines']) : $row['lines'];
 			$border = $rowNumber === $lastIndex ? self::CORNER_BORDER : self::TIME_BORDER;
+			$x      = $view->GetX();
+			$y      = $view->GetY();
 
-			// Time lines have the time output as the minimum height.
-			if ($this->addPageBreak($lines, $startDate, $endDate) or $rowNumber === 1)
+			$lines   = $row['lines'];
+			$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
+			$height  = $lines * $this::LINE_HEIGHT - $overPad;
+
+			if ($this->addPageBreak($lines, $startDate, $endDate))
 			{
-				$lines   = max($lLines, $row['lines']);
-				$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
-				$height  = $lines * $this::LINE_HEIGHT - $overPad;
+				$y = $view->GetY();
+				$this->renderTimeCell($label, $height, $border);
+			}
+			elseif ($rowNumber === 1)
+			{
 				$this->renderTimeCell($label, $height, $border);
 			}
 			else
 			{
-				$lines   = $row['lines'];
-				$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
-				$height  = $lines * $this::LINE_HEIGHT - $overPad;
 				$view->renderCell(self::TIME_WIDTH, $height, '', $view::LEFT, $border);
 			}
 
 			$border = $rowNumber === $lastIndex ? self::CORNER_BORDER : self::INSTANCE_BORDER;
 			$rowNumber++;
+			$x += self::TIME_WIDTH;
 
 			for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
 			{
@@ -880,6 +915,7 @@ abstract class GridLayout extends BaseLayout
 				$value = empty($row[$date]) ? '' : $row[$date];
 				$view->renderMultiCell($this::DATA_WIDTH, $height, $value, $view::CENTER, $border);
 
+				$x         += $this::DATA_WIDTH;
 				$currentDT = strtotime("+1 day", $currentDT);
 			}
 
@@ -901,6 +937,63 @@ abstract class GridLayout extends BaseLayout
 	{
 		$view = $this->view;
 		$view->renderMultiCell(self::TIME_WIDTH, $height, $label, $view::CENTER, $border);
+	}
+
+
+	/**
+	 * Resolves any links/link parameters to links with icons.
+	 *
+	 * @param   string  $text  the text to search
+	 *
+	 * @return string
+	 */
+	private function resolveLinks(string $text): string
+	{
+		$course = Helpers\Languages::_('ORGANIZER_MOODLE_COURSE');
+
+		$courseURL      = 'https://moodle.thm.de/course/view.php?id=CID';
+		$courseTemplate = "<a href=\"MOODLEURL\" target=\"_blank\" style=\"text-decoration: underline\">$course: CID</a>";
+
+		// Complete Course URL
+		$template = str_replace('CID', '$4', str_replace('MOODLEURL', $courseURL, $courseTemplate));
+		$text     = preg_replace('/(((https?):\/\/)moodle.thm.de\/course\/view.php\?id=(\d+))/', $template, $text);
+
+		// Course ID
+		$template = str_replace('CID', '$1', str_replace('MOODLEURL', $courseURL, $courseTemplate));
+		$text     = preg_replace('/moodle=(\d+)/', $template, $text);
+
+		// Category URL
+		$category         = Helpers\Languages::_('ORGANIZER_MOODLE_COURSE');
+		$categoryURL      = 'https://moodle.thm.de/course/index.php?categoryid=CID';
+		$categoryTemplate =
+			"<a href=\"MOODLEURL\" target=\"_blank\" style=\"text-decoration: underline\">$category: CID</a>";
+		$template         = str_replace('CID', '$4', str_replace('MOODLEURL', $categoryURL, $categoryTemplate));
+		$text             = preg_replace(
+			'/(((https?):\/\/)moodle\.thm\.de\/course\/index\.php\\?categoryid=(\\d+))/',
+			$template,
+			$text
+		);
+
+		$template = "<a href=\"$1\" target=\"_blank\">NetAcad</a>";
+		$text     = preg_replace('/(((https?):\/\/)\d+.netacad.com\/courses\/\d+)/', $template, $text);
+
+		$panoptoURL      = 'https://panopto.thm.de/Panopto/Pages/Viewer.aspx?id=PID';
+		$panoptoTemplate = "<a href=\"$panoptoURL\" target=\"_blank\">Panopto</a>";
+
+		$template = str_replace('PID', '$4', $panoptoTemplate);
+		$text     = preg_replace(
+			'/(((https?):\/\/)panopto.thm.de\/Panopto\/Pages\/Viewer.aspx\?id=[\d\w\-]+)/',
+			$template,
+			$text
+		);
+		$template = str_replace('PID', '$1', $panoptoTemplate);
+		$text     = preg_replace('/panopto=([\d\w\-]+)/', $template, $text);
+
+		$pilosREGEX = '/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
+		$template   = "<a href=\"$1\" target=\"_blank\">Pilos</a>";
+		$text       = preg_replace($pilosREGEX, $template, $text);
+
+		return $text;
 	}
 
 	/**
