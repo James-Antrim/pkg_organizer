@@ -352,10 +352,10 @@ abstract class GridLayout extends BaseLayout
 			$startTime = Helpers\Dates::formatTime($block['startTime']);
 			$endTime   = date('H:i', strtotime('+1 minute', strtotime($block['endTime'])));
 			$endTime   = Helpers\Dates::formatTime($endTime);
-			$value     = $startTime . "\n-\n" . $endTime;
+			$value     = $startTime . "<br>-<br>" . $endTime;
 		}
 
-		return $value;
+		return '<div style="font-size: 8.5pt; text-align: center">' . $value . '</div>';
 	}
 
 	/**
@@ -781,21 +781,18 @@ abstract class GridLayout extends BaseLayout
 	 */
 	protected function renderEmptyRow(string $label, string $startDate, string $endDate)
 	{
-		$view  = $this->view;
-		$lines = $view->getNumLines($label, $this::DATA_WIDTH);
+		$view = $this->view;
 
 		$x = $view->GetX();
 		$y = $view->GetY();
 
-		$overPad = ($lines > 3) ? ($lines - 3) * self::OVERPAD : 0;
-		$height  = $lines * $this::LINE_HEIGHT - $overPad;
-
-		$this->addPageBreak($lines, $startDate, $endDate);
-		$this->renderTimeCell($label, $height, $view::GINSBERG);
+		$this->addPageBreak(3, $startDate, $endDate);
+		$view->writeHTMLCell(self::TIME_WIDTH, self::TIME_HEIGHT, $x, $y, $label, self::CORNER_BORDER);
+		$x += $this::TIME_WIDTH;
 
 		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
 		{
-			$view->renderMultiCell($this::DATA_WIDTH, $height, '', $view::CENTER, $view::GINSBERG);
+			$view->writeHTMLCell($this::DATA_WIDTH, self::TIME_HEIGHT, $x, $y, '', self::CORNER_BORDER);
 			$x += $this::DATA_WIDTH;
 
 			$currentDT = strtotime("+1 day", $currentDT);
@@ -876,8 +873,6 @@ abstract class GridLayout extends BaseLayout
 		$rowNumber = 1;
 		$view      = $this->view;
 
-		$lLines = $view->getNumLines($label, $this::DATA_WIDTH);
-
 		foreach ($cells as $index => $row)
 		{
 			if ($index === 'lines')
@@ -896,15 +891,15 @@ abstract class GridLayout extends BaseLayout
 			if ($this->addPageBreak($lines, $startDate, $endDate))
 			{
 				$y = $view->GetY();
-				$this->renderTimeCell($label, $height, $border);
+				$view->writeHTMLCell(self::TIME_WIDTH, $height, $x, $y, $label, $border);
 			}
 			elseif ($rowNumber === 1)
 			{
-				$this->renderTimeCell($label, $height, $border);
+				$view->writeHTMLCell(self::TIME_WIDTH, $height, $x, $y, $label, $border);
 			}
 			else
 			{
-				$view->renderCell(self::TIME_WIDTH, $height, '', $view::LEFT, $border);
+				$view->writeHTMLCell(self::TIME_WIDTH, $height, $x, $y, '', $border);
 			}
 
 			$border = $rowNumber === $lastIndex ? self::CORNER_BORDER : self::INSTANCE_BORDER;
@@ -924,23 +919,6 @@ abstract class GridLayout extends BaseLayout
 			$view->Ln();
 		}
 	}
-
-	/**
-	 * Writes the time cell to the document
-	 *
-	 * @param   string            $label   the block label typically the start and end times, but can also be a label
-	 * @param   float             $height  the cell height
-	 * @param   array|int|string  $border  the TCPDF border value
-	 *
-	 * @return void  modifies the document
-	 * @see \TCPDF::MultiCell()
-	 */
-	protected function renderTimeCell(string $label, float $height, $border = 0)
-	{
-		$view = $this->view;
-		$view->renderMultiCell(self::TIME_WIDTH, $height, $label, $view::CENTER, $border);
-	}
-
 
 	/**
 	 * Resolves any links/link parameters to links with icons.
