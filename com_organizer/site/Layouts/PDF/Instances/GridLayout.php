@@ -312,8 +312,10 @@ abstract class GridLayout extends BaseLayout
 					$cells[$row] = ['lines' => []];
 				}
 
-				$cells[$row][$date]     = $this->getInstance($instance, $startTime, $endTime);
-				$cells[$row]['lines'][] = $view->getNumLines($cells[$row][$date], $this::DATA_WIDTH);
+				$contents = $this->getInstance($instance, $startTime, $endTime);
+
+				$cells[$row][$date]     = $contents;
+				$cells[$row]['lines'][] = $view->getNumLines($contents, $this::DATA_WIDTH);
 				$row++;
 			}
 
