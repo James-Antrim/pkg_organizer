@@ -18,6 +18,10 @@ body.tmpl-component.html-default {
     background-color: $foreground-color;
     padding: 0;
 
+    div.qr-code > div:not(.foot) {
+      margin: 1rem 0 0 2.45rem;
+    }
+
     h1, p, .foot {
       padding-top: .4rem;
       text-align: center;

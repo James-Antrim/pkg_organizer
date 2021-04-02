@@ -18,6 +18,10 @@ body.tmpl-component.html-default .main {
     padding: 0;
 }
 
+body.tmpl-component.html-default .main div.qr-code > div:not(.foot) {
+    margin: 1rem 0 0 2.45rem;
+}
+
 body.tmpl-component.html-default .main h1, body.tmpl-component.html-default .main p, body.tmpl-component.html-default .main .foot {
     padding-top: .4rem;
     text-align: center;
