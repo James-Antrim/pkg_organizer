@@ -122,7 +122,6 @@ class Booking extends Participants
 
 		// TODO add function to batch assign participants to the correct event
 		// TODO add filter for incomplete profiles
-		// TODO ajax refresh??
 
 		$bookingDate = $this->booking->get('date');
 		$today       = date('Y-m-d');
@@ -135,24 +134,6 @@ class Booking extends Participants
 				Languages::_('ORGANIZER_ATTENDANCE_LIST'),
 				'Bookings.pdf',
 				false
-			);
-
-			$if          = "window.location.reload(true);";
-			$else        = "jQuery('#modal-participation').modal('show'); return true;";
-			$script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
-			$batchButton = '<button id="booking-participation" data-toggle="modal" class="btn btn-small" ' . $script . '>';
-			$title       = Helpers\Languages::_('ORGANIZER_UPDATE');
-			$batchButton .= '<span class="icon-users" title="' . $title . '"></span>' . " $title";
-			$batchButton .= '</button>';
-
-			$toolbar->appendButton('Custom', $batchButton, 'batch');
-
-			$toolbar->appendButton(
-				'Standard',
-				'user-check',
-				Languages::_('ORGANIZER_EDIT'),
-				'bookings.editParticipants',
-				true
 			);
 
 			// No easy removal at a later date
@@ -196,6 +177,9 @@ class Booking extends Participants
 			}
 		}
 
+		$URL = Uri::base() . "index.php?Itemid=4908";
+		$toolbar->appendButton('Link', 'help', Languages::_('ORGANIZER_HELP'), $URL, true);
+
 	}
 
 	/**
@@ -228,6 +212,7 @@ class Booking extends Participants
 		$this->batch   = ['batch_participation', 'form_modal'];
 		$this->booking = $this->get('Booking');
 		$this->empty   = '';
+		$this->refresh = 60;
 		$this->sameTab = true;
 
 		parent::display($tpl);

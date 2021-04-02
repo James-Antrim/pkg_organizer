@@ -9,7 +9,6 @@
         </field>
     </fields>
     <fields name="filter">
-        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
         <field name="instanceID" type="BookingInstances" label="EVENT" onchange="this.form.submit();">
             <option value="">ALL_INSTANCES</option>
         </field>
