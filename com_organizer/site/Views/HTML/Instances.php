@@ -477,6 +477,7 @@ class Instances extends ListView
 	public function setHeaders()
 	{
 		$this->headers = [
+			'tools' => '',
 			'status'  => '',
 			'title'   => ['attributes' => ['class' => 'title-column'], 'value' => Languages::_('ORGANIZER_NAME')],
 			'times'   => Languages::_('ORGANIZER_DATETIME'),
@@ -484,11 +485,6 @@ class Instances extends ListView
 			'groups'  => Languages::_('ORGANIZER_GROUPS'),
 			'rooms'   => Languages::_('ORGANIZER_ROOMS')
 		];
-
-		if ($this->manages or $this->teaches)
-		{
-			$this->headers = array_merge(['tools' => ''], $this->headers);
-		}
 	}
 
 	/**
