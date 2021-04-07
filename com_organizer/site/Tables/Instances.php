@@ -27,7 +27,7 @@ class Instances extends BaseTable
 
 	/**
 	 * The id of the event entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
+	 * INT(11) UNSIGNED DEFAULT NULL
 	 *
 	 * @var int
 	 */
@@ -40,6 +40,14 @@ class Instances extends BaseTable
 	 * @var int
 	 */
 	public $methodID;
+
+	/**
+	 * The person's first and middle names.
+	 * VARCHAR(255) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $title;
 
 	/**
 	 * The id of the unit entry referenced.

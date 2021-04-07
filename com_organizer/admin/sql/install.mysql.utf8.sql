@@ -475,9 +475,10 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instance_rooms` (
 CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
     `id`       INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `blockID`  INT(11) UNSIGNED NOT NULL,
-    `eventID`  INT(11) UNSIGNED NOT NULL,
+    `eventID`  INT(11) UNSIGNED          DEFAULT NULL,
     `methodID` INT(11) UNSIGNED          DEFAULT NULL,
     `unitID`   INT(11) UNSIGNED NOT NULL,
+    `title`    VARCHAR(255)     NOT NULL DEFAULT '',
     `delta`    VARCHAR(10)      NOT NULL DEFAULT '',
     `modified` TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -886,7 +887,7 @@ CREATE TABLE `#__organizer_terms` (
 CREATE TABLE IF NOT EXISTS `#__organizer_units` (
     `id`             INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `code`           VARCHAR(60)      NOT NULL,
-    `organizationID` INT(11) UNSIGNED NOT NULL,
+    `organizationID` INT(11) UNSIGNED          DEFAULT NULL,
     `termID`         INT(11) UNSIGNED NOT NULL,
     `comment`        VARCHAR(255)              DEFAULT '',
     `courseID`       INT(11) UNSIGNED          DEFAULT NULL,
