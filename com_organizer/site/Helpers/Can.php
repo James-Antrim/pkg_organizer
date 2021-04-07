@@ -381,6 +381,14 @@ class Can
 				return false;
 			case 'persons':
 				return Users::getUser()->authorise('organizer.hr', 'com_organizer');
+			case 'unit':
+			case 'units':
+				if (Units::teaches($resourceID))
+				{
+					return true;
+				}
+
+				return in_array(Units::getOrganizationID($resourceID), self::manageTheseOrganizations());
 			default:
 				return false;
 		}
