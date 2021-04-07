@@ -97,11 +97,9 @@ abstract class EditModel extends AdminModel
 	}
 
 	/**
-	 * Method to load the form data.
-	 *
-	 * @return object
+	 * @inheritDoc
 	 */
-	protected function loadFormData()
+	protected function loadFormData(): ?object
 	{
 		$resourceIDs = Helpers\Input::getSelectedIDs();
 		$resourceID  = empty($resourceIDs) ? 0 : $resourceIDs[0];
