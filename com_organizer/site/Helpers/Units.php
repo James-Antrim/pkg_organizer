@@ -11,13 +11,14 @@
 namespace Organizer\Helpers;
 
 use Organizer\Adapters\Database;
+use Organizer\Tables\Units as Table;
 
 /**
  * Provides general function for data retrieval and display.
  */
 class Units extends ResourceHelper
 {
-	const TEACHER = 1;
+	private const TEACHER = 1;
 
 	/**
 	 * Retrieves the group/category contexts for a given unit/event tub
@@ -27,7 +28,7 @@ class Units extends ResourceHelper
 	 *
 	 * @return mixed|null
 	 */
-	public static function getContexts($unitID, $eventID)
+	public static function getContexts(int $unitID, int $eventID)
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
@@ -50,7 +51,7 @@ class Units extends ResourceHelper
 	 *
 	 * @return array the ids of events associated with the resource
 	 */
-	public static function getEventIDs($unitID)
+	public static function getEventIDs(int $unitID): array
 	{
 		$query = Database::getQuery(true);
 
@@ -72,7 +73,7 @@ class Units extends ResourceHelper
 	 *
 	 * @return array|string the names of the associated events
 	 */
-	public static function getEventNames($unitID, $glue = '')
+	public static function getEventNames(int $unitID, $glue = '')
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery(true);
@@ -87,6 +88,30 @@ class Units extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the ids of organizations associated with the resource
+	 *
+	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
+	 *
+	 * @return int the id of the organization associated with the unit
+	 */
+	public static function getOrganizationID(int $resourceID): int
+	{
+		$organizationID = 0;
+
+		if ($resourceID)
+		{
+			$table = new Table();
+
+			if ($table->load($resourceID))
+			{
+				$organizationID = $table->id;
+			}
+		}
+
+		return $organizationID;
+	}
+
+	/**
 	 * Check if person is associated with a unit as a teacher.
 	 *
 	 * @param   int  $unitID    the optional id of the unit
@@ -94,7 +119,7 @@ class Units extends ResourceHelper
 	 *
 	 * @return bool true if the person is a unit teacher, otherwise false
 	 */
-	public static function teaches($unitID = 0, $personID = 0)
+	public static function teaches($unitID = 0, $personID = 0): bool
 	{
 		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
 
