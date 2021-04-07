@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Tables;
+use Organizer\Tables\Organizations as Table;
 
 /**
  * Class loads a form for editing organization data.
@@ -24,12 +24,12 @@ class OrganizationEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Tables\Organizations A Table object
+	 * @return Table A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Table
 	{
-		return new Tables\Organizations;
+		return new Table();
 	}
 }
