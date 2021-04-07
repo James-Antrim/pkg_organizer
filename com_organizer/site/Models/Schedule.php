@@ -425,6 +425,78 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Sets instance person associations and subordinate associations to removed.
+	 *
+	 * @param   array  $instances   the collection of instances modeling the reference schedule
+	 * @param   int    $instanceID  the id of the instance being currently iterated
+	 * @param   array  $personIDs   the collection/subset of person ids to set as removed
+	 *
+	 * @return void
+	 */
+	private function removePersons(array $instances, int $instanceID, array $personIDs)
+	{
+		foreach ($personIDs as $personID)
+		{
+			$iPerson = new Tables\InstancePersons();
+			$ipKeys  = ['instanceID' => $instanceID, 'personID' => $personID];
+
+			if (!$iPerson->load($ipKeys))
+			{
+				continue;
+			}
+
+			$iPerson->delta    = 'removed';
+			$iPerson->modified = $this->modified;
+			$iPerson->store();
+
+			foreach ($instances[$instanceID][$personID]['groups'] as $ID)
+			{
+				$this->removeResource('groups', $iPerson->id, $ID);
+			}
+
+			foreach ($instances[$instanceID][$personID]['rooms'] as $ID)
+			{
+				$this->removeResource('rooms', $iPerson->id, $ID);
+			}
+		}
+	}
+
+	/**
+	 * Sets the resource association indicated to removed.
+	 *
+	 * @param   string  $table       the instance resource table suffix
+	 * @param   int     $assocID     the id of the instance persons table entry
+	 * @param   int     $resourceID  the id of the associated resource
+	 *
+	 * @return void
+	 */
+	private function removeResource(string $table, int $assocID, int $resourceID)
+	{
+		switch ($table)
+		{
+			case 'groups':
+				$keys  = ['assocID' => $assocID, 'groupID' => $resourceID];
+				$table = new Tables\InstanceGroups();
+				break;
+			case 'rooms':
+				$keys  = ['assocID' => $assocID, 'roomID' => $resourceID];
+				$table = new Tables\InstanceRooms();
+				break;
+			default:
+				return;
+		}
+
+		if ($table->load($keys))
+		{
+			$this->updateAssoc($table, 'removed');
+		}
+		else
+		{
+			$this->createAssoc($table, $keys, 'removed');
+		}
+	}
+
+	/**
 	 * Resets all associated resources to a removed status with a date of one week before the timestamp of the first
 	 * schedule.
 	 *
@@ -603,6 +675,7 @@ class Schedule extends BaseModel
 			$rInstances = json_decode($reference->schedule, true);
 		}
 
+		// New instances ///////////////////////////////////////////////////////////////////////////////////////////////
 		$NIUnitIDs = [];
 
 		foreach (array_diff(array_keys($instances), array_keys($rInstances)) as $instanceID)
@@ -623,7 +696,7 @@ class Schedule extends BaseModel
 			}
 		}
 
-		// Static Instance Unit IDs
+		// Maintained instances ////////////////////////////////////////////////////////////////////////////////////////
 		$SIUnitIDs = [];
 
 		foreach (array_intersect(array_keys($instances), array_keys($rInstances)) as $instanceID)
@@ -641,11 +714,13 @@ class Schedule extends BaseModel
 			$personIDs  = array_keys($instances[$instanceID]);
 			$rPersonIDs = array_keys($rInstances[$instanceID]);
 
+			// New persons ///////////////////////////////////////////
 			foreach (array_diff($personIDs, $rPersonIDs) as $personID)
 			{
 				$this->newPerson($instances, $instanceID, $personID);
 			}
 
+			// Maintained persons /////////////////////////////////////////
 			foreach (array_intersect($personIDs, $rPersonIDs) as $personID)
 			{
 				$iPerson = new Tables\InstancePersons();
@@ -664,6 +739,7 @@ class Schedule extends BaseModel
 				$IDs  = $instances[$instanceID][$personID]['groups'];
 				$rIDs = $rInstances[$instanceID][$personID]['groups'];
 
+				// New groups //////////////////////////
 				foreach (array_diff($IDs, $rIDs) as $ID)
 				{
 					$keys  = ['assocID' => $iPerson->id, 'groupID' => $ID];
@@ -679,6 +755,7 @@ class Schedule extends BaseModel
 					}
 				}
 
+				// Maintained groups ////////////////////////
 				foreach (array_intersect($IDs, $rIDs) as $ID)
 				{
 					$keys  = ['assocID' => $iPerson->id, 'groupID' => $ID];
@@ -694,24 +771,16 @@ class Schedule extends BaseModel
 					}
 				}
 
+				// Removed groups //////////////////////
 				foreach (array_diff($rIDs, $IDs) as $ID)
 				{
-					$keys  = ['assocID' => $iPerson->id, 'groupID' => $ID];
-					$table = new Tables\InstanceGroups();
-
-					if ($table->load($keys))
-					{
-						$this->updateAssoc($table, 'removed');
-					}
-					else
-					{
-						$this->createAssoc($table, $keys, 'removed');
-					}
+					$this->removeResource('groups', $iPerson->id, $ID);
 				}
 
 				$IDs  = $instances[$instanceID][$personID]['rooms'];
 				$rIDs = $rInstances[$instanceID][$personID]['rooms'];
 
+				// New rooms ///////////////////////////
 				foreach (array_diff($IDs, $rIDs) as $ID)
 				{
 					$keys  = ['assocID' => $iPerson->id, 'roomID' => $ID];
@@ -727,6 +796,7 @@ class Schedule extends BaseModel
 					}
 				}
 
+				// Maintained rooms /////////////////////////
 				foreach (array_intersect($IDs, $rIDs) as $ID)
 				{
 					$keys  = ['assocID' => $iPerson->id, 'roomID' => $ID];
@@ -742,39 +812,18 @@ class Schedule extends BaseModel
 					}
 				}
 
+				// Removed rooms ///////////////////////
 				foreach (array_diff($rIDs, $IDs) as $ID)
 				{
-					$keys  = ['assocID' => $iPerson->id, 'roomID' => $ID];
-					$table = new Tables\InstanceRooms();
-
-					if ($table->load($keys))
-					{
-						$this->updateAssoc($table, 'removed');
-					}
-					else
-					{
-						$this->createAssoc($table, $keys, 'removed');
-					}
+					$this->removeResource('rooms', $iPerson->id, $ID);
 				}
 			}
 
-			foreach (array_diff($rPersonIDs, $personIDs) as $personID)
-			{
-				$iPerson = new Tables\InstancePersons();
-				$ipKeys  = ['instanceID' => $instanceID, 'personID' => $personID];
-
-				if (!$iPerson->load($ipKeys))
-				{
-					continue;
-				}
-
-				$iPerson->delta    = 'removed';
-				$iPerson->modified = $this->modified;
-				$iPerson->store();
-			}
+			// Removed persons //////////////////////////////
+			$this->removePersons($rInstances, $instanceID, array_diff($rPersonIDs, $personIDs));
 		}
 
-		// Alternate Time Line Unit IDs
+		// Removed instances ///////////////////////////////////////////////////////////////////////////////////////////
 		$ATLUnitIDs = [];
 
 		foreach (array_diff(array_keys($rInstances), array_keys($instances)) as $instanceID)
@@ -788,6 +837,8 @@ class Schedule extends BaseModel
 
 			$this->updateAssoc($instance, 'removed');
 			$ATLUnitIDs[$instance->unitID] = $instance->unitID;
+
+			$this->removePersons($rInstances, $instanceID, array_keys($rInstances[$instanceID]));
 		}
 
 		/**
