@@ -112,16 +112,10 @@ class Terms extends ResourceHelper implements Selectable
 	public static function getOptions($showDates = false, $filter = false): array
 	{
 		$tag     = Languages::getTag();
-		$today   = date('Y-m-d');
 		$options = [];
 
-		foreach (Terms::getResources() as $term)
+		foreach (Terms::getResources($filter) as $term)
 		{
-			if ($filter and $term['endDate'] < $today)
-			{
-				continue;
-			}
-
 			$name = $term["name_$tag"];
 
 			if ($showDates)
@@ -164,8 +158,10 @@ class Terms extends ResourceHelper implements Selectable
 
 	/**
 	 * @inheritDoc
+	 *
+	 * @params bool $filter
 	 */
-	public static function getResources(): array
+	public static function getResources($filter = false): array
 	{
 		$query = Database::getQuery();
 		$query->select('DISTINCT term.*')->from('#__organizer_terms AS term')->order('startDate');
@@ -173,6 +169,12 @@ class Terms extends ResourceHelper implements Selectable
 		if ($view = Input::getView() and $view === 'Schedules')
 		{
 			$query->innerJoin('#__organizer_schedules AS s ON s.termID = term.id');
+		}
+
+		if ($filter)
+		{
+			$today = date('Y-m-d');
+			$query->where("term.endDate > '$today'");
 		}
 
 		Database::setQuery($query);
