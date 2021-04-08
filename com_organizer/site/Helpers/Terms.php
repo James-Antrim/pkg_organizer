@@ -79,6 +79,25 @@ class Terms extends ResourceHelper implements Selectable
 	}
 
 	/**
+	 * Checks for the term entry in the database, creating it as necessary.
+	 *
+	 * @param   bool  $filter  if true only current and future terms will be displayed
+	 *
+	 * @return array  the term ids
+	 */
+	public static function getIDs($filter = false): array
+	{
+		$ids = [];
+
+		foreach (self::getResources($filter) as $term)
+		{
+			$ids[] = $term['id'];
+		}
+
+		return $ids;
+	}
+
+	/**
 	 * Retrieves the ID of the term occurring immediately after the reference term.
 	 *
 	 * @param   int  $currentID  the id of the reference term
