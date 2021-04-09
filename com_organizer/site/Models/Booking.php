@@ -494,14 +494,17 @@ class Booking extends Participants
 	{
 		parent::filterFilterForm($form);
 
-		$bookingID = Helpers\Input::getID();
+		//$bookingID = Helpers\Input::getID();
 
 		if (!$this->adminContext)
 		{
 			$form->removeField('limit', 'list');
 		}
 
-		if (count(Helpers\Bookings::getInstanceOptions($bookingID)) === 1)
+		$form->removeField('instanceID', 'filter');
+		$form->removeField('roomID', 'filter');
+
+		/*if (count(Helpers\Bookings::getInstanceOptions($bookingID)) === 1)
 		{
 			$form->removeField('instanceID', 'filter');
 			unset($this->filter_fields[array_search('instanceID', $this->filter_fields)]);
@@ -511,7 +514,7 @@ class Booking extends Participants
 		{
 			$form->removeField('roomID', 'filter');
 			unset($this->filter_fields[array_search('roomID', $this->filter_fields)]);
-		}
+		}*/
 	}
 
 	/**
