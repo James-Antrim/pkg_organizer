@@ -1003,7 +1003,7 @@ class Instances extends ResourceHelper
 	 */
 	public static function setPersons(array &$instance, array $conditions)
 	{
-		$conditions['instanceStatus'] = $instance['instanceStatus'];
+		$conditions['instanceStatus'] = isset($instance['instanceStatus']) ? $instance['instanceStatus'] : 'new';
 
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
