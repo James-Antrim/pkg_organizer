@@ -13,7 +13,9 @@ namespace Organizer\Models;
 use Joomla\CMS\Factory;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
+use Organizer\Helpers\Units as Helper;
 use Organizer\Tables;
+use Organizer\Tables\Units as Table;
 use stdClass;
 
 /**
@@ -21,6 +23,12 @@ use stdClass;
  */
 class UnitEdit extends EditModel
 {
+	public $instances = [];
+
+	public $items = [];
+
+	public $my = false;
+
 	/**
 	 * Checks access to edit the resource.
 	 *
@@ -28,11 +36,38 @@ class UnitEdit extends EditModel
 	 */
 	protected function authorize()
 	{
-		$instanceID = empty($this->item->instanceID) ? 0 : $this->item->instanceID;
-		if (!Helpers\Can::manage('instance', $instanceID))
+		if (!Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
+		if (!Helpers\Can::manage('unit', Helpers\Input::getInt('id')))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
+	}
+
+	/**
+	 * Convert from a table object to a basic object to reduce overhead.
+	 *
+	 * @param   stdClass  $item   the item modelling the data for the view
+	 * @param   Table     $table  the table modelling the data in the database
+	 *
+	 * @return void
+	 */
+	private function fillItem(stdClass $item, Table $table)
+	{
+		$item->id             = $table->id;
+		$item->code           = $table->code;
+		$item->organizationID = $table->organizationID;
+		$item->termID         = $table->termID;
+		$item->comment        = $table->comment;
+		$item->courseID       = $table->courseID;
+		$item->delta          = $table->delta;
+		$item->endDate        = $table->endDate;
+		$item->gridID         = $table->gridID;
+		$item->runID          = $table->runID;
+		$item->startDate      = $table->startDate;
 	}
 
 	/**
@@ -41,7 +76,16 @@ class UnitEdit extends EditModel
 	public function getForm($data = [], $loadData = true)
 	{
 		$form = parent::getForm($data, $loadData);
-		$item = $this->item;
+
+		if ($this->my)
+		{
+			$form->setValue('my', null, 1);
+		}
+		elseif (count($this->items) === 1)
+		{
+			$form->setValue('id', null, $this->items[0]->id);
+		}
+		/*$item = $this->item;
 
 		$previous = Helpers\Input::getFormItems();
 		$session  = Factory::getSession();
@@ -83,7 +127,7 @@ class UnitEdit extends EditModel
 		$form->setValue('date', null, $item->date);
 		$form->setValue('gridID', null, $item->gridID);
 
-		$session->set('organizer.instance', $instance);
+		$session->set('organizer.instance', $instance);*/
 
 		return $form;
 	}
@@ -93,11 +137,67 @@ class UnitEdit extends EditModel
 	 *
 	 * @param   int  $pk  The id of the primary key
 	 *
-	 * @return mixed Object on success, false on failure
+	 * @return object|false Object on success, false on failure
 	 */
 	public function getItem($pk = 0)
 	{
-		$item = parent::getItem($pk);
+		$this->authorize();
+
+		echo "<pre>" . print_r(Helpers\Input::getInput(), true) . "</pre><br>";
+		die;
+
+		if ($this->my = Helpers\Input::getBool('my'))
+		{
+			$code = Helpers\Users::getID() . '-1';
+			$keys = ['code' => $code];
+
+			// Get an organization associated with the user as a teacher
+			$organizations  = Helpers\Organizations::getResources('teach');
+			$organizationID = reset($organizations)['id'];
+			$gridID         = Helpers\Organizations::getDefaultGrid($organizationID);
+
+			foreach (Helpers\Terms::getResources(true) as $term)
+			{
+				$item  = new stdClass();
+				$table = new Table();
+
+				$keys['termID'] = $term['id'];
+
+				if (!$table->load($keys))
+				{
+					$data = [
+						'code'      => $code,
+						'endDate'   => $term['endDate'],
+						'gridID'    => $gridID,
+						'startDate' => $term['startDate'],
+						'termID'    => $term['id'],
+					];
+
+					$table->save($data);
+					// fill blank item
+				}
+
+				$this->fillItem($item, $table);
+				$this->items[] = $item;
+			}
+		}
+		else
+		{
+			// No unit creation outside of the my context right now.
+			if (empty($pk))
+			{
+				Helpers\OrganizerHelper::error(501);
+			}
+
+			$item  = new stdClass();
+			$table = new Tables\Units();
+
+			$table->load($pk);
+			$this->fillItem($item, $table);
+			$items[] = $item;
+		}
+
+		/*
 
 		if ($item->id)
 		{
@@ -123,9 +223,9 @@ class UnitEdit extends EditModel
 		{
 			// if the date has been selected get the user's default unit if existent
 			//$item->resources = [];
-		}
+		}*/
 
-		return $item;
+		return new stdClass();
 	}
 
 	/**
@@ -135,13 +235,13 @@ class UnitEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Tables\Instances A Table object
+	 * @return Tables\Units A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Instances
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Units
 	{
-		return new Tables\Instances();
+		return new Tables\Units();
 	}
 
 	/**

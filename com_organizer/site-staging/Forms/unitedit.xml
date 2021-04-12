@@ -2,13 +2,40 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="code" type="Blank" label="UNTIS_ID" disabled="true" maxlength="11" required="true"/>
+        <field name="my" type="hidden"/>
+        <field name="instances" type="Nested"  label="INSTANCES" buttons="add,remove"
+               layout="joomla.form.field.subform.repeatable" min="0" multiple="true">
+            <form>
+                <field name="date" type="Date" label="DATE" onchange="this.form.submit();"/>
+                <field name="block" type="Blank" label="BLOCK"/>
+                <field name="method" type="Blank" label="METHOD"/>
+                <field name="events" type="Nested"  label="EVENTS" buttons="add,remove"
+                       layout="joomla.form.field.subform.repeatable" min="1" multiple="true">
+                    <form>
+                        <field name="instanceID" type="hidden"/>
+                        <field name="title" type="Blank" label="TITLE"/>
+                        <field name="eventID" type="Blank" label="EVENT"/>
+                        <field name="item" type="Nested"  label="PERSONS" buttons="add,remove"
+                               layout="joomla.form.field.subform.repeatable" min="1" multiple="true">
+                            <form>
+                                <field name="instanceID" type="hidden"/>
+                                <field name="personID" type="Blank" label="PERSON"/>
+                                <field name="roleID" type="Blank" label="ROLE"/>
+                                <field name="groupIDs" type="Blank" label="GROUPS"/>
+                                <field name="roomIDs" type="Blank" label="ROOMS"/>
+                            </form>
+                        </field>
+                    </form>
+                </field>
+            </form>
+        </field>
+        <!--<field name="code" type="Blank" label="UNTIS_ID" disabled="true" maxlength="11" required="true"/>
         <field name="eventID" type="GenericOptions" required="true" label="NAME" localized="true"
                table="organizer_events" textcolumn="name" valuecolumn="id"/>
         <field name="organizationID" type="Organizations" label="ORGANIZATION" required="true"/>
         <field name="termID" type="Terms" label="TERM" required="true"/>
         <field name="gridID" type="Grids" label="GRID"/>
         <field name="runID" type="GenericOptions" required="true" label="RUN" localized="true" table="organizer_runs"
-               textcolumn="name" valuecolumn="id"/>
+               textcolumn="name" valuecolumn="id"/>-->
     </fieldset>
 </form>

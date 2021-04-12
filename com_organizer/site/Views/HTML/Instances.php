@@ -477,7 +477,7 @@ class Instances extends ListView
 	public function setHeaders()
 	{
 		$this->headers = [
-			'tools' => '',
+			'tools'   => '',
 			'status'  => '',
 			'title'   => ['attributes' => ['class' => 'title-column'], 'value' => Languages::_('ORGANIZER_NAME')],
 			'times'   => Languages::_('ORGANIZER_DATETIME'),
