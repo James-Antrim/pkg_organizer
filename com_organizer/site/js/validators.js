@@ -40,4 +40,10 @@ jQuery(document).ready(function () {
             return (/^(\+[\d]+ ?)?( ?((\(0?[\d]*\))|(0?[\d]+(\/| \/)?)))?(([ \-]|[\d]+)+)$/).test(value);
         }
     );
+
+    document.formvalidator.setHandler('time',
+        function (value) {
+            return (/^(([01]?[0-9]|2[0-3]):?[0-5][0-9])$/).test(value);
+        }
+    );
 });
