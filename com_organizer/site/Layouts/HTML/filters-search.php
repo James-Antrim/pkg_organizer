@@ -23,7 +23,7 @@ $filters          = $this->filterForm->getGroup('filter');
 $searchButton     = $options->get('searchButton', true);
 $showFilterButton = empty($filters['filter_search']) ? (bool) count($filters) : count($filters) > 1;
 $filterText = $this->mobile ?
-    "<span class=\"icon-filter\"></span>" : Helpers\Languages::_('ORGANIZER_SEARCH_TOOLS') . '<span class="caret"></span>';
+    "<span class=\"icon-filter\"></span>" : Helpers\Languages::_('ORGANIZER_SEARCH_TOOLS') . ' <span class="caret"></span>';
 $resetText = $this->mobile ? "<span class=\"icon-undo-2\"></span>" : Helpers\Languages::_('ORGANIZER_RESET');
 
 ?>
