@@ -22,6 +22,8 @@ abstract class FormView extends BaseView
 {
 	protected $_layout = 'form';
 
+	protected $orientation = 'horizontal';
+
 	public $params = null;
 
 	public $form = null;
