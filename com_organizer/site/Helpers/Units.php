@@ -88,6 +88,21 @@ class Units extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the grid id for the given unit id.
+	 *
+	 * @param   int  $unitID  the id of the unit
+	 *
+	 * @return int|null
+	 */
+	public static function getGridID(int $unitID): ?int
+	{
+		$table = new Table();
+		$table->load($unitID);
+
+		return $table->gridID;
+	}
+
+	/**
 	 * Retrieves the ids of organizations associated with the resource
 	 *
 	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
