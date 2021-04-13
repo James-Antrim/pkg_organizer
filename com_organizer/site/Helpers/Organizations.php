@@ -63,7 +63,8 @@ class Organizations extends ResourceHelper implements Selectable
 				$managedIDs   = Can::manageTheseOrganizations();
 				$scheduledIDs = Can::scheduleTheseOrganizations();
 				$taughtIDs    = Persons::teachesTheseOrganizations();
-				$allowedIDs   = array_merge($managedIDs, $scheduledIDs, $taughtIDs);
+				$viewedIDs    = Can::viewTheseOrganizations();
+				$allowedIDs   = array_merge($managedIDs, $scheduledIDs, $taughtIDs, $viewedIDs);
 				break;
 			case 'view':
 				$allowedIDs = Can::viewTheseOrganizations();
