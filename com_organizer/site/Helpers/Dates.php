@@ -52,9 +52,7 @@ class Dates
 	 */
 	public static function formatEndTime(string $time)
 	{
-		$timeFormat = Input::getParams()->get('timeFormat', 'H:i');
-
-		return date($timeFormat, strtotime('+1 minute', strtotime($time)));
+		return date('H:i', strtotime('+1 minute', strtotime($time)));
 	}
 
 	/**
@@ -66,9 +64,7 @@ class Dates
 	 */
 	public static function formatTime(string $time)
 	{
-		$timeFormat = Input::getParams()->get('timeFormat', 'H:i');
-
-		return date($timeFormat, strtotime($time));
+		return date('H:i', strtotime($time));
 	}
 
 	/**
