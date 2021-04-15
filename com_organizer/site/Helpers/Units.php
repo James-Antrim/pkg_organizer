@@ -11,6 +11,7 @@
 namespace Organizer\Helpers;
 
 use Organizer\Adapters\Database;
+use Organizer\Tables;
 use Organizer\Tables\Units as Table;
 
 /**
@@ -47,11 +48,12 @@ class Units extends ResourceHelper
 	/**
 	 * Retrieves the id of events associated with the resource
 	 *
-	 * @param   int  $unitID  the id of the resource for which the associated events are requested
+	 * @param   int       $unitID      the id of the unit
+	 * @param   int|null  $instanceID  the id of a related instance for temporal restrictions
 	 *
 	 * @return array the ids of events associated with the resource
 	 */
-	public static function getEventIDs(int $unitID): array
+	public static function getEventIDs(int $unitID, $instanceID = null): array
 	{
 		$query = Database::getQuery(true);
 
@@ -60,6 +62,16 @@ class Units extends ResourceHelper
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->where("unitID = $unitID")
 			->where("i.delta != 'removed'");
+
+		if ($instanceID)
+		{
+			$table = new Tables\Instances();
+			if ($table->load($instanceID))
+			{
+				$query->where("i.blockID = $table->blockID");
+			}
+		}
+
 		Database::setQuery($query);
 
 		return Database::loadIntColumn();
@@ -103,6 +115,41 @@ class Units extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the ids of groups associated with the unit
+	 *
+	 * @param   int       $unitID      the id of the unit
+	 * @param   int|null  $instanceID  the id of a related instance for temporal restrictions
+	 *
+	 * @return array the ids of groups associated with the unit
+	 */
+	public static function getGroupIDs(int $unitID, $instanceID = null): array
+	{
+		$query = Database::getQuery(true);
+
+		$query->select('DISTINCT ig.groupID')
+			->from('#__organizer_instance_groups AS ig')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ig.assocID')
+			->innerJoin('#__organizer_instances AS i ON i.id = ipe.instanceID')
+			->where("i.unitID = $unitID")
+			->where("ig.delta != 'removed'")
+			->where("ipe.delta != 'removed'")
+			->where("i.delta != 'removed'");
+
+		if ($instanceID)
+		{
+			$table = new Tables\Instances();
+			if ($table->load($instanceID))
+			{
+				$query->where("i.blockID = $table->blockID");
+			}
+		}
+
+		Database::setQuery($query);
+
+		return Database::loadIntColumn();
+	}
+
+	/**
 	 * Retrieves the ids of organizations associated with the resource
 	 *
 	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
@@ -124,6 +171,41 @@ class Units extends ResourceHelper
 		}
 
 		return $organizationID;
+	}
+
+	/**
+	 * Retrieves the ids of rooms associated with the unit
+	 *
+	 * @param   int       $unitID      the id of the unit
+	 * @param   int|null  $instanceID  the id of a related instance for temporal restrictions
+	 *
+	 * @return array the ids of rooms associated with the unit
+	 */
+	public static function getRoomIDs(int $unitID, $instanceID = null): array
+	{
+		$query = Database::getQuery(true);
+
+		$query->select('DISTINCT ig.groupID')
+			->from('#__organizer_instance_rooms AS ir')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ig.assocID')
+			->innerJoin('#__organizer_instances AS i ON i.id = ipe.instanceID')
+			->where("i.unitID = $unitID")
+			->where("ir.delta != 'removed'")
+			->where("ipe.delta != 'removed'")
+			->where("i.delta != 'removed'");
+
+		if ($instanceID)
+		{
+			$table = new Tables\Instances();
+			if ($table->load($instanceID))
+			{
+				$query->where("i.blockID = $table->blockID");
+			}
+		}
+
+		Database::setQuery($query);
+
+		return Database::loadIntColumn();
 	}
 
 	/**

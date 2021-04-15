@@ -716,6 +716,26 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the role id for the the given instance and person.
+	 *
+	 * @param   int  $instanceID  the id of the instance
+	 * @param   int  $personID    the id of the person
+	 *
+	 * @return int the id of the role
+	 */
+	public static function getRoleID(int $instanceID, int $personID): int
+	{
+		$table = new Tables\InstancePersons();
+
+		if ($table->load(['instanceID' => $instanceID, 'personID' => $personID]))
+		{
+			return $table->roleID;
+		}
+
+		return 0;
+	}
+
+	/**
 	 * Retrieves the rooms actively associated with the given instance.
 	 *
 	 * @param   int  $instanceID  the id of the instance
