@@ -41,6 +41,12 @@ jQuery(document).ready(function () {
         }
     );
 
+    document.formvalidator.setHandler('text',
+        function (value) {
+            return (/^[A-ZÀ-ÖØ-Þa-zß-ÿ \-0-9:\/']+$/).test(value);
+        }
+    );
+
     document.formvalidator.setHandler('time',
         function (value) {
             return (/^(([01]?[0-9]|2[0-3]):?[0-5][0-9])$/).test(value);
