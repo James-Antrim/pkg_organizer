@@ -17,14 +17,14 @@ use Organizer\Tables\Blocks;
 /**
  * Class creates a select box for predefined colors.
  */
-class BlocksField extends OptionsField
+class InstanceBlockField extends OptionsField
 {
 	/**
 	 * Type
 	 *
 	 * @var    String
 	 */
-	protected $type = 'Blocks';
+	protected $type = 'InstanceBlock';
 
 	/**
 	 * Method to get the field options.
@@ -54,9 +54,18 @@ class BlocksField extends OptionsField
 			return $options;
 		}
 
+		$today = $date === date('Y-m-d');
+		$now = date('H:i');
+
 		foreach ($periods as $period)
 		{
 			$endTime   = Helpers\Dates::formatTime($period['endTime']);
+
+			if ($today and $endTime < $now)
+			{
+				continue;
+			}
+
 			$startTime = Helpers\Dates::formatTime($period['startTime']);
 			$keys      = ['date' => $date, 'endTime' => $endTime, 'startTime' => $startTime];
 
