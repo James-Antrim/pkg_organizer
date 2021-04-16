@@ -150,7 +150,7 @@ class Events extends BaseTable
 
 	/**
 	 * The id of the organization entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
+	 * INT(11) UNSIGNED DEFAULT NULL
 	 *
 	 * @var int
 	 */

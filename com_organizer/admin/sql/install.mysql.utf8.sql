@@ -266,7 +266,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_events` (
     `name_en`          VARCHAR(150)        NOT NULL,
     `subjectNo`        VARCHAR(45)         NOT NULL DEFAULT '',
     `campusID`         INT(11) UNSIGNED             DEFAULT NULL,
-    `organizationID`   INT(11) UNSIGNED             DEFAULT NULL,
+    `organizationID`   INT(11) UNSIGNED    NOT NULL,
     `active`           TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `contact_de`       TEXT,
     `contact_en`       TEXT,
@@ -950,7 +950,7 @@ ALTER TABLE `#__organizer_event_coordinators`
 
 ALTER TABLE `#__organizer_events`
     ADD CONSTRAINT `event_campusID_fk` FOREIGN KEY (`campusID`) REFERENCES `#__organizer_campuses` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-    ADD CONSTRAINT `event_organizationID_fk` FOREIGN KEY (`organizationID`) REFERENCES `#__organizer_organizations` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+    ADD CONSTRAINT `event_organizationID_fk` FOREIGN KEY (`organizationID`) REFERENCES `#__organizer_organizations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_field_colors`
     ADD CONSTRAINT `field_color_colorID_fk` FOREIGN KEY (`colorID`) REFERENCES `#__organizer_colors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
