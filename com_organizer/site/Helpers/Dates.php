@@ -195,7 +195,7 @@ class Dates
 	 *
 	 * @return bool
 	 */
-	private static function isStandardized(string $date): bool
+	public static function isStandardized(string $date): bool
 	{
 		$dt = DateTime::createFromFormat('Y-m-d', $date);
 
