@@ -51,10 +51,27 @@ class OptionsField extends FormField
 
 		// Initialize some field attributes.
 		$attr .= !empty($this->class) ? ' class="' . $this->class . '"' : '';
-		$attr .= !empty($this->size) ? ' size="' . $this->size . '"' : '';
-		$attr .= $this->multiple ? ' multiple' : '';
 		$attr .= $this->required ? ' required aria-required="true"' : '';
 		$attr .= $this->autofocus ? ' autofocus' : '';
+
+		$count = count($this->options);
+		if ($this->multiple)
+		{
+			if ($count >= 2)
+			{
+				$attr .= $this->multiple ? ' multiple' : '';
+
+				if ($count >= 3 and !empty($this->size))
+				{
+					$attr .=  " size=\"$this->size\"";
+				}
+			}
+		}
+		else
+		{
+			$attr .= !empty($this->size) ? ' size="' . $this->size . '"' : '';
+		}
+
 
 		// To avoid user's confusion, readonly="true" should imply disabled="true".
 		if ((bool) $this->readonly == '1' || (bool) $this->disabled)
