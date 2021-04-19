@@ -289,6 +289,7 @@ class Instances extends ResourceHelper
 			'registered'         => 0,
 			'unitID'             => $instancesTable->unitID
 		];
+		$title    = $instancesTable->title;
 
 		unset($instancesTable);
 
@@ -307,20 +308,23 @@ class Instances extends ResourceHelper
 		unset($blocksTable);
 
 		$eventsTable = new Tables\Events();
-		if (!$eventsTable->load($instance['eventID']))
-		{
-			return [];
-		}
 
-		$event = [
-			'campusID'         => $eventsTable->campusID,
-			'deadline'         => $eventsTable->deadline,
-			'description'      => $eventsTable->{"description_$tag"},
-			'fee'              => $eventsTable->fee,
-			'name'             => $eventsTable->{"name_$tag"},
-			'registrationType' => $eventsTable->registrationType,
-			'subjectNo'        => $eventsTable->subjectNo
-		];
+		if ($instance['eventID'] and $eventsTable->load($instance['eventID']))
+		{
+			$event = [
+				'campusID'         => $eventsTable->campusID,
+				'deadline'         => $eventsTable->deadline,
+				'description'      => $eventsTable->{"description_$tag"},
+				'fee'              => $eventsTable->fee,
+				'name'             => $eventsTable->{"name_$tag"},
+				'registrationType' => $eventsTable->registrationType,
+				'subjectNo'        => $eventsTable->subjectNo
+			];
+		}
+		else
+		{
+			$event = ['name' => $title];
+		}
 
 		unset($eventsTable);
 
@@ -558,7 +562,7 @@ class Instances extends ResourceHelper
 			self::addDeltaClause($query, 'ir', $conditions['delta']);
 		}
 
-		if (!empty($conditions['eventIDs']) or !empty($conditions['subjectIDs']) or !empty($conditions['isEventsRequired']))
+		if (!empty($conditions['eventIDs']) or !empty($conditions['subjectIDs']) or !empty($conditions['eventsRequired']))
 		{
 			$query->innerJoin('#__organizer_events AS e ON e.id = i.eventID');
 

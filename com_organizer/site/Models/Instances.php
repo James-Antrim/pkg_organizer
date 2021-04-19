@@ -131,8 +131,6 @@ class Instances extends ListModel
 	{
 		$conditions = $this->conditions;
 
-		$conditions['isEventsRequired'] = true;
-
 		$query = Helpers\Instances::getInstanceQuery($conditions);
 
 		$query->select("DISTINCT i.id")
