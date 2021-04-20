@@ -87,7 +87,7 @@ class Instances extends ResourceHelper
 	{
 		$conditions               = [];
 		$conditions['userID']     = Users::getID();
-		$conditions['mySchedule'] = empty($conditions['userID']) ? false : Input::getBool('mySchedule');
+		$conditions['mySchedule'] = (!empty($conditions['userID']) and Input::getBool('mySchedule'));
 
 		$conditions['date'] = Input::getCMD('date', date('Y-m-d'));
 
@@ -131,7 +131,8 @@ class Instances extends ResourceHelper
 				$conditions['showUnpublished'] = Can::administrate();
 			}
 
-			if ($personID = Input::getInt('personID'))
+			$personID = Input::getInt('personID');
+			if ($personIDs = $personID ? [$personID] : Input::getIntCollection('personIDs'))
 			{
 				self::filterPersonIDs($personIDs, $conditions['userID']);
 				if (!empty($personIDs))
@@ -834,6 +835,46 @@ class Instances extends ResourceHelper
 		return $jumpDates;
 	}
 
+
+	/**
+	 * Check if user has a course responsibility.
+	 *
+	 * @param   int  $instanceID  the optional id of the course
+	 * @param   int  $personID    the optional id of the person
+	 * @param   int  $roleID      the optional if of the person's role
+	 *
+	 * @return bool true if the user has a course responsibility, otherwise false
+	 */
+	public static function hasResponsibility($instanceID = 0, $personID = 0, $roleID = 0): bool
+	{
+		if (Can::administrate())
+		{
+			return true;
+		}
+
+		if (!$personID and !$personID = Persons::getIDByUserID(Users::getID()))
+		{
+			return false;
+		}
+
+		$query = Database::getQuery();
+		$query->select('COUNT(*)')->from('#__organizer_instance_persons')->where("personID = $personID");
+
+		if ($instanceID)
+		{
+			$query->where("instanceID = $instanceID");
+		}
+
+		if ($roleID)
+		{
+			$query->where("roleID = $roleID");
+		}
+
+		Database::setQuery($query);
+
+		return Database::loadBool();
+	}
+
 	/**
 	 * Sets the instance's bookingID
 	 *
@@ -864,17 +905,16 @@ class Instances extends ResourceHelper
 		}
 
 		$tag                      = Languages::getTag();
-		$instance['campusID']     = $coursesTable->campusID ? $coursesTable->campusID : $instance['campusID'];
-		$instance['courseGroups'] = $coursesTable->groups ? $coursesTable->groups : '';
-		$instance['courseName']   = $coursesTable->{"name_$tag"} ? $coursesTable->{"name_$tag"} : '';
-		$instance['deadline']     = $coursesTable->deadline ? $coursesTable->deadline : $instance['deadline'];
-		$instance['fee']          = $coursesTable->fee ? $coursesTable->fee : $instance['fee'];
+		$instance['campusID']     = $coursesTable->campusID ?: $instance['campusID'];
+		$instance['courseGroups'] = $coursesTable->groups ?: '';
+		$instance['courseName']   = $coursesTable->{"name_$tag"} ?: '';
+		$instance['deadline']     = $coursesTable->deadline ?: $instance['deadline'];
+		$instance['fee']          = $coursesTable->fee ?: $instance['fee'];
 		$instance['full']         = Courses::isFull($instance['courseID']);
 
 		$instance['description']      = (empty($instance['description']) and $coursesTable->{"description_$tag"}) ?
 			$coursesTable->{"description_$tag"} : $instance['description'];
-		$instance['registrationType'] = $coursesTable->registrationType ?
-			$coursesTable->registrationType : $instance['registrationType'];
+		$instance['registrationType'] = $coursesTable->registrationType ?: $instance['registrationType'];
 	}
 
 	/**
@@ -888,11 +928,12 @@ class Instances extends ResourceHelper
 	{
 		$date     = $parameters['date'];
 		$dateTime = strtotime($date);
-		$reqDoW   = date('w', $dateTime);
+		$reqDoW   = (int) date('w', $dateTime);
 
 		$startDayNo   = empty($parameters['startDay']) ? 1 : $parameters['startDay'];
 		$endDayNo     = empty($parameters['endDay']) ? 6 : $parameters['endDay'];
 		$displayedDay = ($reqDoW >= $startDayNo and $reqDoW <= $endDayNo);
+
 		if (!$displayedDay)
 		{
 			if ($reqDoW === 6)
@@ -1027,7 +1068,7 @@ class Instances extends ResourceHelper
 	 */
 	public static function setPersons(array &$instance, array $conditions)
 	{
-		$conditions['instanceStatus'] = isset($instance['instanceStatus']) ? $instance['instanceStatus'] : 'new';
+		$conditions['instanceStatus'] = $instance['instanceStatus'] ?? 'new';
 
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
@@ -1189,20 +1230,6 @@ class Instances extends ResourceHelper
 	 */
 	public static function teaches($instanceID = 0, $personID = 0): bool
 	{
-		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
-		$query    = Database::getQuery();
-		$query->select('COUNT(*)')
-			->from('#__organizer_instance_persons AS ip')
-			->where("ip.personID = $personID")
-			->where('ip.roleID = ' . self::TEACHER);
-
-		if ($instanceID)
-		{
-			$query->where("ip.instanceID = $instanceID");
-		}
-
-		Database::setQuery($query);
-
-		return Database::loadBool();
+		return self::hasResponsibility($instanceID, $personID, self::TEACHER);
 	}
 }

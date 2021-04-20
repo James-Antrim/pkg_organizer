@@ -349,7 +349,7 @@ class Can
 				return (Courses::coordinates($resourceID) or Courses::hasResponsibility($resourceID));
 			case 'instance':
 			case 'instances':
-				if (Instances::teaches($resourceID))
+				if (Instances::hasResponsibility($resourceID))
 				{
 					return true;
 				}
@@ -357,7 +357,7 @@ class Can
 				$instanceOrganizations = Instances::getOrganizationIDs($resourceID);
 				$managedOrganizations  = self::manageTheseOrganizations();
 
-				return array_intersect($managedOrganizations, $instanceOrganizations) ? true : false;
+				return (bool) array_intersect($managedOrganizations, $instanceOrganizations);
 			case 'facilities':
 				return Users::getUser()->authorise('organizer.fm', 'com_organizer');
 			case 'organization':
