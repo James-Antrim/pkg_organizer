@@ -104,6 +104,6 @@ abstract class EditModel extends AdminModel
 		$resourceIDs = Helpers\Input::getSelectedIDs();
 		$resourceID  = empty($resourceIDs) ? 0 : $resourceIDs[0];
 
-		return $this->item ? $this->item : $this->getItem($resourceID);
+		return $this->item ?: $this->getItem($resourceID);
 	}
 }
