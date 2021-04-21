@@ -70,7 +70,7 @@ class Input
 	 *
 	 * @return mixed
 	 */
-	private static function filter($source, $type = 'string')
+	public static function filter($source, $type = 'string')
 	{
 		if (empty(self::$filter))
 		{
