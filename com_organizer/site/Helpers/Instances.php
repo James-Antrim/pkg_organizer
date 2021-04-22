@@ -11,6 +11,7 @@
 namespace Organizer\Helpers;
 
 use JDatabaseQuery;
+use Joomla\Utilities\ArrayHelper;
 use Organizer\Adapters\Database;
 use Organizer\Tables;
 
@@ -493,9 +494,36 @@ class Instances extends ResourceHelper
 
 		if (empty($conditions['showUnpublished']))
 		{
-			$gpConditions = "gp.groupID = ig.groupID AND gp.termID = u.termID";
-			$query->leftJoin("#__organizer_group_publishing AS gp ON $gpConditions")
-				->where('(gp.published = 1 OR gp.published IS NULL)');
+			$upQuery = Database::getQuery();
+			$upQuery->select('i.id')
+				->from('#__organizer_instances AS i')
+				->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+				->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
+				->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
+				->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
+				->innerJoin('#__organizer_group_publishing AS gp ON gp.groupID = ig.groupID AND gp.termID = u.termID')
+				->where("i.delta != 'removed'")
+				->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
+				->where("u.delta != 'removed'")
+				->where("ipe.delta != 'removed'")
+				->where("ig.delta != 'removed'")
+				->where('gp.published = 0');
+
+			if (!empty($conditions['organizationIDs']))
+			{
+				$organizationIDs = implode(',', ArrayHelper::toInteger($conditions['organizationIDs']));
+				$upQuery->innerJoin('#__organizer_associations AS ag ON ag.groupID = ig.groupID')
+					->where("ag.organizationID IN ($organizationIDs)");
+			}
+
+			Database::setQuery($upQuery);
+
+			if ($upIDs = Database::loadIntColumn())
+			{
+				$upIDs = implode(',', $upIDs);
+				$query->where("i.id NOT IN ($upIDs)");
+			}
+
 		}
 
 		if (!empty($conditions['my']))
