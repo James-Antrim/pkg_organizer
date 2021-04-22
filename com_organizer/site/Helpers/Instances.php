@@ -32,16 +32,21 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies the query
 	 */
-	private static function addDeltaClause(JDatabaseQuery $query, string $alias, $delta)
+	private static function addDeltaClause(JDatabaseQuery $query, string $alias, $delta, $leftJoin = false)
 	{
+		$wherray = ["$alias.delta != 'removed'"];
+
+		if ($leftJoin)
+		{
+			$wherray[] = "$alias.id IS NULL";
+		}
+
 		if ($delta)
 		{
-			$query->where("($alias.delta != 'removed' OR ($alias.delta = 'removed' AND $alias.modified > '$delta'))");
+			$wherray[] = "($alias.delta = 'removed' AND $alias.modified > '$delta')";
 		}
-		else
-		{
-			$query->where("$alias.delta != 'removed'");
-		}
+
+		$query->where('(' . implode(' OR ', $wherray) . ')');
 	}
 
 	/**
@@ -295,14 +300,16 @@ class Instances extends ResourceHelper
 		unset($instancesTable);
 
 		$blocksTable = new Tables\Blocks();
+
 		if (!$blocksTable->load($instance['blockID']))
 		{
 			return [];
 		}
 
-		$block = [
+		$endTime = empty($instance['eventID']) ? Dates::formatTime($blocksTable->endTime) : Dates::formatEndTime($blocksTable->endTime);
+		$block   = [
 			'date'      => $blocksTable->date,
-			'endTime'   => Dates::formatEndTime($blocksTable->endTime),
+			'endTime'   => $endTime,
 			'startTime' => Dates::formatTime($blocksTable->startTime)
 		];
 
@@ -347,10 +354,12 @@ class Instances extends ResourceHelper
 			return [];
 		}
 
+		$orgName = $unitsTable->organizationID ? Organizations::getShortName($unitsTable->organizationID) : '';
+
 		$unit = [
 			'comment'        => $unitsTable->comment,
 			'courseID'       => $unitsTable->courseID,
-			'organization'   => Organizations::getShortName($unitsTable->organizationID),
+			'organization'   => $orgName,
 			'organizationID' => $unitsTable->organizationID,
 			'gridID'         => $unitsTable->gridID,
 			'unitStatus'     => $unitsTable->delta,
@@ -428,8 +437,8 @@ class Instances extends ResourceHelper
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
-			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
+			->leftJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
+			->leftJoin('#__organizer_groups AS g ON g.id = ig.groupID')
 			->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
 
 		$dDate = $conditions['delta'];
@@ -439,7 +448,7 @@ class Instances extends ResourceHelper
 			case self::CURRENT:
 
 				$query->where("i.delta != 'removed'")
-					->where("ig.delta != 'removed'")
+					->where("(ig.delta != 'removed' OR ig.id IS NULL)")
 					->where("ipe.delta != 'removed'")
 					->where("u.delta != 'removed'");
 
