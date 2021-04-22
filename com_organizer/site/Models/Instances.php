@@ -87,16 +87,16 @@ class Instances extends ListModel
 				unset($this->filter_fields[array_search('organizationID', $this->filter_fields)]);
 			}
 
-			$dow      = $params->get('dow');
-			$endDate  = $params->get('endDate');
-			$methodID = $params->get('methodID');
+			$dow       = $params->get('dow');
+			$endDate   = $params->get('endDate');
+			$methodIDs = $params->get('methodIDs');
 
-			if ($dow or $endDate or $methodID)
+			if ($dow or $endDate or $methodIDs)
 			{
 				$form->removeField('date', 'list');
 				$form->removeField('interval', 'list');
 
-				if ($methodID)
+				if ($methodIDs)
 				{
 					$form->removeField('methodID', 'filter');
 					unset($this->filter_fields[array_search('methodID', $this->filter_fields)]);
@@ -212,9 +212,24 @@ class Instances extends ListModel
 						break;
 				}
 			}
-			elseif ($methodID = $params->get('methodID'))
+			elseif ($methodIDs = $params->get('methodIDs'))
 			{
-				$title = Helpers\Methods::getPlural($methodID);
+				if (count($methodIDs) === 1)
+				{
+					$title = Helpers\Methods::getPlural($methodIDs[0]);
+				}
+				else
+				{
+					$names = [];
+
+					foreach ($methodIDs as $methodID)
+					{
+						$names[] = Helpers\Methods::getPlural($methodID);
+					}
+
+					$lastName = array_pop($names);
+					$title    = implode(', ', $names) . " & $lastName";
+				}
 			}
 
 			if ($organizationID = $params->get('organizationID'))
@@ -305,10 +320,10 @@ class Instances extends ListModel
 
 			$dow       = $params->get('dow');
 			$endDate   = $params->get('endDate');
-			$methodID  = $params->get('methodID');
+			$methodIDs = $params->get('methodIDs');
 			$startDate = $params->get('startDate');
 
-			if ($dow or $endDate or $methodID)
+			if ($dow or $endDate or $methodIDs)
 			{
 				$defaultDate = date('Y-m-d');
 				$date        = ($startDate and $startDate > $defaultDate) ? $startDate : $defaultDate;
@@ -334,10 +349,10 @@ class Instances extends ListModel
 					$this->state->set('filter.dow', $dow);
 				}
 
-				if ($methodID)
+				if ($methodIDs)
 				{
-					$filterItems->set('methodID', $methodID);
-					$this->state->set('filter.methodID', $methodID);
+					$filterItems->set('methodID', $methodIDs);
+					$this->state->set('filter.methodID', $methodIDs);
 				}
 			}
 		}

@@ -22,7 +22,7 @@
             <field name="campusID" type="Campuses" label="CAMPUS">
                 <option value="">ALL_CAMPUSES</option>
             </field>
-            <field name="methodID" type="Methods" label="METHOD">
+            <field name="methodIDs" type="Methods" label="METHOD" multiple="multiple">
                 <option value="">ALL_METHODS</option>
             </field>
             <field name="startDate" type="Date" label="START_DATE"/>

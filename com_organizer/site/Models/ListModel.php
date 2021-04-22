@@ -14,6 +14,7 @@ use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
+use Joomla\Utilities\ArrayHelper;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use stdClass;
@@ -520,8 +521,18 @@ abstract class ListModel extends ParentModel
 				continue;
 			}
 
-			$value = is_numeric($value) ? $value : "'$value'";
-			$query->where("$column = $value");
+			if (is_numeric($value))
+			{
+				$query->where("$column = $value");
+			}
+			elseif (is_string($value))
+			{
+				$query->where("$column = '$value'");
+			}
+			elseif (is_array($value) and $value = implode(',', ArrayHelper::toInteger($value)))
+			{
+				$query->where("$column IN ($value)");
+			}
 		}
 	}
 }
