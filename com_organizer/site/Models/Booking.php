@@ -32,7 +32,7 @@ class Booking extends Participants
 	 */
 	public function add(): int
 	{
-		if (!$userID = Helpers\Users::getID())
+		if (!Helpers\Users::getID())
 		{
 			Helpers\OrganizerHelper::error(401);
 		}
@@ -59,7 +59,7 @@ class Booking extends Participants
 
 		if (!$booking->load($keys))
 		{
-			$hash   = hash('adler32', (int) $instance->blockID . $instance->unitID);
+			$hash   = hash('adler32', $instance->blockID . $instance->unitID);
 			$values = ['code' => substr($hash, 0, 4) . '-' . substr($hash, 4)];
 
 			if ($booking->save(array_merge($keys, $values)))
@@ -247,7 +247,7 @@ class Booking extends Participants
 			}
 			elseif ($userNameID or $emailID)
 			{
-				$participantID = $userNameID ? $userNameID : $emailID;
+				$participantID = $userNameID ?: $emailID;
 			}
 			else
 			{
@@ -581,7 +581,7 @@ class Booking extends Participants
 			$updateRoom = reset($rooms);
 		}
 
-		foreach ($items = parent::getItems() as $key => $item)
+		foreach ($items = parent::getItems() as $item)
 		{
 			if (empty($item->room) and $updateID)
 			{
@@ -600,7 +600,8 @@ class Booking extends Participants
 				if (empty($item->$column))
 				{
 					$item->complete = false;
-					continue;
+
+					break;
 				}
 			}
 
@@ -619,19 +620,7 @@ class Booking extends Participants
 
 		}
 
-		return $items ? $items : [];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false)
-	{
-		$form    = parent::loadForm($name, $source, $options, $clear, $xpath);
-		$booking = $this->getBooking();
-		$form->setValue('notes', 'supplement', $booking->notes);
-
-		return $form;
+		return $items ?: [];
 	}
 
 	/**
@@ -790,50 +779,11 @@ class Booking extends Participants
 			}
 		}
 
-		foreach ($buffer as $index => $entry)
+		foreach ($buffer as $entry)
 		{
 			$table = new $fqClass();
 			$table->load($entry['id']);
 			$table->save($entry);
-		}
-	}
-
-	/**
-	 * Saves supplemental information about the entry.
-	 *
-	 * @return void
-	 */
-	public function supplement()
-	{
-		$this->authorize();
-		$bookingID  = Helpers\Input::getID();
-		$supplement = Helpers\Input::getSupplementalItems();
-
-		if (!$bookingID or !$notes = $supplement->get('notes'))
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_400');
-
-			return;
-		}
-
-		$booking = new Tables\Bookings();
-
-		if (!$booking->load($bookingID))
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
-
-			return;
-		}
-
-		$booking->notes = $notes;
-
-		if ($booking->store())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_SAVED', 'success');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_NOT_SAVED', 'success');
 		}
 	}
 }

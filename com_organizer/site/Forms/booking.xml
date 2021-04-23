@@ -21,7 +21,4 @@
         <field name="username" type="AddParticipant"/>
         <field name="limit" type="Limitbox" class="input-mini" onchange="this.form.submit();"/>
     </fields>
-    <fields name="supplement">
-        <field name="notes" type="Box" label="NOTES"/>
-    </fields>
 </form>

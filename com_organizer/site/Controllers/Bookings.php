@@ -147,17 +147,4 @@ class Bookings extends Controller
 		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
 		$this->setRedirect(Route::_($url, false));
 	}
-
-	/**
-	 * Supplements the resource.
-	 *
-	 * @return void
-	 */
-	public function supplement()
-	{
-		$model = new Models\Booking();
-		$model->supplement();
-		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
-		$this->setRedirect(Route::_($url, false));
-	}
 }

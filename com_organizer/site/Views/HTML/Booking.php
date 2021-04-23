@@ -53,9 +53,9 @@ class Booking extends Participants
 
 		if ($today === $bookingDate)
 		{
-			$end   = $this->booking->endTime ? $this->booking->endTime : $this->booking->get('defaultEndTime');
+			$end   = $this->booking->endTime ?: $this->booking->get('defaultEndTime');
 			$now   = date('H:i:s');
-			$start = $this->booking->startTime ? $this->booking->startTime : $this->booking->get('defaultStartTime');
+			$start = $this->booking->startTime ?: $this->booking->get('defaultStartTime');
 
 			if ($now >= $start and $now < $end)
 			{
@@ -113,16 +113,6 @@ class Booking extends Participants
 		$link = Helpers\HTML::link($URL, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
 		$toolbar->appendButton('Custom', $link);
 
-		$script      = "onclick=\"jQuery('#form-modal').modal('show'); return true;\"";
-		$batchButton = "<button id=\"booking-notes\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
-		$title       = Languages::_('ORGANIZER_NOTES');
-		$batchButton .= '<span class="icon-pencil-2" title="' . $title . '"></span>' . " $title";
-		$batchButton .= '</button>';
-		$toolbar->appendButton('Custom', $batchButton, 'batch');
-
-		// TODO add function to batch assign participants to the correct event
-		// TODO add filter for incomplete profiles
-
 		$bookingDate = $this->booking->get('date');
 		$today       = date('Y-m-d');
 
@@ -148,9 +138,9 @@ class Booking extends Participants
 		{
 			$defaultEnd   = $this->booking->get('defaultEndTime');
 			$defaultStart = $this->booking->get('defaultStartTime');
-			$end          = $this->booking->endTime ? $this->booking->endTime : $defaultEnd;
+			$end          = $this->booking->endTime ?: $defaultEnd;
 			$now          = date('H:i:s');
-			$start        = $this->booking->startTime ? $this->booking->startTime : $defaultStart;
+			$start        = $this->booking->startTime ?: $defaultStart;
 			$then         = date('H:i:s', strtotime('-60 minutes', strtotime($defaultStart)));
 			$earlyStart   = ($now > $then and $now < $start);
 			$reOpen       = ($now >= $end and $now < $defaultEnd);
