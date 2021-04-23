@@ -46,8 +46,19 @@ class Instances extends ListView
 
 		// Add menu title support, both direct and via selected filters
 		Helpers\HTML::setTitle($title, 'list-2');
-
 		$toolbar = Toolbar::getInstance();
+
+//		// Further restrict by assigned rooms?
+//		if (Helpers\Persons::getIDByUserID())
+//		{
+//			$toolbar->appendButton(
+//				'Standard',
+//				'info-calender',
+//				Languages::_('ORGANIZER_NEW_INSTANCE'),
+//				'Instances.appointment',
+//				false
+//			);
+//		}
 
 		$toolbar->appendButton(
 			'NewTab',
@@ -526,15 +537,15 @@ class Instances extends ListView
 			$template,
 			$text
 		);
+
 		$template = str_replace('PID', '$1', $panoptoTemplate);
 		$text     = preg_replace('/panopto=([\d\w\-]+)/', $template, $text);
 
 		$pilosIcon  = '<span class="icon-pilos hasTooltip" title="Pilos Link"></span>';
 		$pilosREGEX = '/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
 		$template   = "<a href=\"$1\" target=\"_blank\">$pilosIcon</a>";
-		$text       = preg_replace($pilosREGEX, $template, $text);
 
-		return $text;
+		return preg_replace($pilosREGEX, $template, $text);
 	}
 
 	/**
