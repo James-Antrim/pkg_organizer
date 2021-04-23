@@ -20,6 +20,8 @@ use Organizer\Helpers\Languages;
  */
 class Instances extends ListView
 {
+//	private $editable = false;
+
 	private $entryStatus = '';
 
 	private $manages = false;
@@ -48,14 +50,36 @@ class Instances extends ListView
 		Helpers\HTML::setTitle($title, 'list-2');
 		$toolbar = Toolbar::getInstance();
 
+		$state = $this->state;
+		$my = $state->get('filter.my');
+
 //		// Further restrict by assigned rooms?
-//		if (Helpers\Persons::getIDByUserID())
+//		if ($my and Helpers\Persons::getIDByUserID())
 //		{
 //			$toolbar->appendButton(
 //				'Standard',
 //				'info-calender',
 //				Languages::_('ORGANIZER_NEW_INSTANCE'),
 //				'Instances.appointment',
+//				false
+//			);
+//		}
+
+//		if ($my)
+//		{
+//			$toolbar->appendButton(
+//				'Standard',
+//				'edit',
+//				Languages::_('ORGANIZER_EDIT'),
+//				'Instances.edit',
+//				false
+//			);
+//
+//			$toolbar->appendButton(
+//				'Standard',
+//				'trash',
+//				Languages::_('ORGANIZER_DELETE'),
+//				'Instances.delete',
 //				false
 //			);
 //		}
@@ -68,24 +92,25 @@ class Instances extends ListView
 			false
 		);
 
-		$toolbar->appendButton(
-			'NewTab',
-			'file-pdf',
-			Languages::_('ORGANIZER_PDF_GRID_A3'),
-			'Instances.gridA3',
-			false
-		);
-
-		$state            = $this->state;
 		$resourceSelected = ($state->get('filter.groupID') or $state->get('filter.personID') or $state->get('filter.roomID'));
 
-		if ($state->get('filter.my') or $resourceSelected)
+		if ($my or $resourceSelected)
 		{
 			$toolbar->appendButton(
 				'NewTab',
 				'file-pdf',
 				Languages::_('ORGANIZER_PDF_GRID_A4'),
 				'Instances.gridA4',
+				false
+			);
+		}
+		else
+		{
+			$toolbar->appendButton(
+				'NewTab',
+				'file-pdf',
+				Languages::_('ORGANIZER_PDF_GRID_A3'),
+				'Instances.gridA3',
 				false
 			);
 		}
