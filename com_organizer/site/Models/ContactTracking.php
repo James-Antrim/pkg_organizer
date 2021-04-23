@@ -114,8 +114,8 @@ class ContactTracking extends ListModel
 			foreach (Database::loadAssocList() as $result)
 			{
 				$date      = $result['date'];
-				$endTime   = $result['endTime'] ? $result['endTime'] : $result['defaultEnd'];
-				$startTime = $result['startTime'] ? $result['startTime'] : $result['defaultStart'];
+				$endTime   = $result['endTime'] ?: $result['defaultEnd'];
+				$startTime = $result['startTime'] ?: $result['defaultStart'];
 				$index     = $date . '-' . $startTime . '-' . $endTime;
 
 				if (empty($bookings[$index]))
@@ -164,8 +164,8 @@ class ContactTracking extends ListModel
 			foreach (Database::loadAssocList() as $result)
 			{
 				$date      = $result['date'];
-				$endTime   = $result['endTime'] ? $result['endTime'] : $result['defaultEnd'];
-				$startTime = $result['startTime'] ? $result['startTime'] : $result['defaultStart'];
+				$endTime   = $result['endTime'] ?: $result['defaultEnd'];
+				$startTime = $result['startTime'] ?: $result['defaultStart'];
 				$index     = $date . '-' . $startTime . '-' . $endTime;
 
 				if (empty($bookings[$index]))
@@ -275,16 +275,16 @@ class ContactTracking extends ListModel
 			foreach (Database::loadAssocList() as $person)
 			{
 				$data = [
-					'address'   => $person['address'] ? $person['address'] : '',
-					'city'      => $person['city'] ? $person['city'] : '',
-					'email'     => $person['email'] ? $person['email'] : '',
-					'forename'  => $person['forename'] ? $person['forename'] : $person['defaultForename'],
+					'address'   => $person['address'] ?: '',
+					'city'      => $person['city'] ?: '',
+					'email'     => $person['email'] ?: '',
+					'forename'  => $person['forename'] ?: $person['defaultForename'],
 					'rooms'     => $person['roomID'] ? [$person['roomID'] => $person['roomID']] : [],
 					'seat'      => '',
-					'surname'   => $person['surname'] ? $person['surname'] : $person['defaultSurname'],
-					'telephone' => $person['telephone'] ? $person['telephone'] : '',
-					'username'  => $person['username'] ? $person['username'] : '',
-					'zipCode'   => $person['zipCode'] ? $person['zipCode'] : ''
+					'surname'   => $person['surname'] ?: $person['defaultSurname'],
+					'telephone' => $person['telephone'] ?: '',
+					'username'  => $person['username'] ?: '',
+					'zipCode'   => $person['zipCode'] ?: ''
 				];
 				$data = array_merge($booking, $data);
 

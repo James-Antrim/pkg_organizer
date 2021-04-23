@@ -101,7 +101,7 @@ class Bookings extends ResourceHelper
 	 */
 	public static function getName(int $resourceID): string
 	{
-		$method = false;
+		$method = '';
 		$names  = [];
 
 		foreach (self::getInstanceIDs($resourceID) as $instanceID)
@@ -110,7 +110,7 @@ class Bookings extends ResourceHelper
 			{
 				$names[] = $name;
 
-				if ($method === false)
+				if (empty($method))
 				{
 					$method = Instances::getMethod($instanceID);
 				}
