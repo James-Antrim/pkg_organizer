@@ -657,9 +657,15 @@ class Instances extends ResourceHelper
 	public static function getName(int $resourceID, bool $showMethod = true): string
 	{
 		$instance = new Tables\Instances();
-		if (!$instance->load($resourceID) or !$eventID = $instance->eventID)
+
+		if (!$instance->load($resourceID))
 		{
 			return '';
+		}
+
+		if (!$eventID = $instance->eventID)
+		{
+			return $instance->title;
 		}
 
 		if (!$name = Events::getName($eventID))
