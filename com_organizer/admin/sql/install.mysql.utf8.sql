@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_bookings` (
     `blockID`   INT(11) UNSIGNED NOT NULL,
     `unitID`    INT(11) UNSIGNED NOT NULL,
     `code`      VARCHAR(60)      NOT NULL,
-    `notes`     TEXT,
     `endTime`   TIME DEFAULT NULL,
     `startTime` TIME DEFAULT NULL,
     PRIMARY KEY (`id`),
