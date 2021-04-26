@@ -298,7 +298,6 @@ abstract class GridLayout extends BaseLayout
 	protected function getCells(string $startDate, string $endDate, array $block): array
 	{
 		$cells = [];
-		$view  = $this->view;
 
 		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
 		{
@@ -327,7 +326,7 @@ abstract class GridLayout extends BaseLayout
 
 		foreach ($cells as $row => $instances)
 		{
-			$subRowHeight          = max($cells[$row]['height']);
+			$subRowHeight          = max($instances['height']);
 			$cells[$row]['height'] = $subRowHeight;
 			$cells['height']       = array_key_exists('height', $cells) ? $cells['height'] + $subRowHeight : $subRowHeight;
 		}
@@ -353,9 +352,13 @@ abstract class GridLayout extends BaseLayout
 		else
 		{
 			$startTime = Helpers\Dates::formatTime($block['startTime']);
-			$endTime   = date('H:i', strtotime('+1 minute', strtotime($block['endTime'])));
-			$endTime   = Helpers\Dates::formatTime($endTime);
-			$value     = $startTime . "<br>-<br>" . $endTime;
+
+			// Special case where the block would otherwise bleed into the next day
+			$endTime = $block['endTime'] === '2359' ? '2358' : $block['endTime'];
+			$endTime = date('H:i', strtotime('+1 minute', strtotime($endTime)));
+			$endTime = Helpers\Dates::formatTime($endTime);
+
+			$value = $startTime . "<br>-<br>" . $endTime;
 		}
 
 		return '<div style="font-size: 8.5pt; text-align: center">' . $value . '</div>';
@@ -695,7 +698,7 @@ abstract class GridLayout extends BaseLayout
 	{
 		$container = [];
 
-		foreach ($resources as $resourceID => $resource)
+		foreach ($resources as $resource)
 		{
 			$container[] = $code ? $resource['code'] : $resource[$name];
 		}
@@ -971,9 +974,8 @@ abstract class GridLayout extends BaseLayout
 
 		$pilosREGEX = '/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
 		$template   = "<a href=\"$1\" target=\"_blank\">Pilos</a>";
-		$text       = preg_replace($pilosREGEX, $template, $text);
 
-		return $text;
+		return preg_replace($pilosREGEX, $template, $text);
 	}
 
 	/**
@@ -1003,14 +1005,14 @@ abstract class GridLayout extends BaseLayout
 			$gridIDs[$instance->gridID] = empty($gridIDs[$instance->gridID]) ? 1 : $gridIDs[$instance->gridID] + 1;
 		}
 
-		if (empty($gridIDs))
-		{
-			$this->grid = [];
+		// Descending by grid use keeping gridID association.
+		arsort($gridIDs);
 
-			return;
+		if (empty($gridIDs) or !$gridID = array_key_first($gridIDs))
+		{
+			$gridID = Helpers\Grids::getDefault();
 		}
 
-		$gridID     = array_search(max($gridIDs), $gridIDs);
 		$grid       = json_decode(Helpers\Grids::getGrid($gridID), true);
 		$this->grid = $grid['periods'];
 	}

@@ -332,7 +332,15 @@ class Instances extends ResourceHelper
 		}
 		else
 		{
-			$event = ['name' => $title];
+			$event = [
+				'campusID'         => null,
+				'deadline'         => 0,
+				'description'      => null,
+				'fee'              => 0,
+				'name'             => $title,
+				'registrationType' => null,
+				'subjectNo'        => ''
+			];
 		}
 
 		unset($eventsTable);
