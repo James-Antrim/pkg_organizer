@@ -22,7 +22,7 @@ class Routing
 	 *
 	 * @return string the root url to redirect to
 	 */
-	public static function getRedirectBase()
+	public static function getRedirectBase(): string
 	{
 		$base = Uri::base();
 
@@ -48,5 +48,64 @@ class Routing
 		$base = "$base?option=com_organizer";
 
 		return $languageQuery ? $base . $languageQuery : $base;
+	}
+
+	/**
+	 * Generates a link to a controller function.
+	 *
+	 * @param   string  $task  the controller and function to be accessed
+	 * @param   int     $id    the optional id of the resource to be displayed in the view
+	 *
+	 * @return string the task url
+	 */
+	public static function getTaskURL(string $task, int $id = 0): string
+	{
+		$url = Uri::base() . "?option=com_organizer&task=$task";
+
+		if ($id)
+		{
+			$url .= "&id=$id";
+		}
+
+		self::supplementTag($url);
+
+		return $url;
+	}
+
+	/**
+	 * Generates a link to a view.
+	 *
+	 * @param   string  $view  the view to be accessed
+	 * @param   int     $id    the optional id of the resource to be displayed in the view
+	 *
+	 * @return string the view url
+	 */
+	public static function getViewURL(string $view, int $id = 0): string
+	{
+		$url = Uri::base() . "?option=com_organizer&view=$view";
+
+		if ($id)
+		{
+			$url .= "&id=$id";
+		}
+
+		self::supplementTag($url);
+
+		return $url;
+	}
+
+	/**
+	 * Supplements the URL with the language tag as necessary.
+	 *
+	 * @param   string  $url  the URL to be supplemented
+	 *
+	 * @return void
+	 */
+	private static function supplementTag(string &$url): void
+	{
+		if ($tag = Input::getCMD('languageTag'))
+		{
+			$url .= "&languageTag=$tag";
+		}
 	}
 }
