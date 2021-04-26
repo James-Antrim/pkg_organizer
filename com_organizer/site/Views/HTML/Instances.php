@@ -20,8 +20,6 @@ use Organizer\Helpers\Languages;
  */
 class Instances extends ListView
 {
-//	private $editable = false;
-
 	private $entryStatus = '';
 
 	private $manages = false;
@@ -51,9 +49,8 @@ class Instances extends ListView
 		$toolbar = Toolbar::getInstance();
 
 		$state = $this->state;
-		$my = $state->get('filter.my');
+		$my    = $state->get('filter.my');
 
-//		// Further restrict by assigned rooms?
 //		if ($my and Helpers\Persons::getIDByUserID())
 //		{
 //			$toolbar->appendButton(
@@ -61,25 +58,6 @@ class Instances extends ListView
 //				'info-calender',
 //				Languages::_('ORGANIZER_NEW_INSTANCE'),
 //				'Instances.appointment',
-//				false
-//			);
-//		}
-
-//		if ($my)
-//		{
-//			$toolbar->appendButton(
-//				'Standard',
-//				'edit',
-//				Languages::_('ORGANIZER_EDIT'),
-//				'Instances.edit',
-//				false
-//			);
-//
-//			$toolbar->appendButton(
-//				'Standard',
-//				'trash',
-//				Languages::_('ORGANIZER_DELETE'),
-//				'Instances.delete',
 //				false
 //			);
 //		}
@@ -181,7 +159,7 @@ class Instances extends ListView
 		$removed = Languages::_('ORGANIZER_PERSON_REMOVED_ON');
 		$roles   = [];
 
-		foreach ($item->resources as $personID => $person)
+		foreach ($item->resources as $person)
 		{
 			$name  = $person['person'];
 			$title = '';
@@ -279,7 +257,7 @@ class Instances extends ListView
 				continue;
 			}
 
-			foreach ($person[$collectionIndex] as $resourceID => $resource)
+			foreach ($person[$collectionIndex] as $resource)
 			{
 				if ($this->entryStatus === 'new' and $resource['status'] === 'removed'
 					or $this->entryStatus === 'removed' and $resource['status'] === 'new')
@@ -419,11 +397,12 @@ class Instances extends ListView
 	{
 		$item->comment = $this->resolveLinks($item->comment);
 
-		$name = '<span class="event">' . $item->name . '</span>';
-		$name .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
-		$name .= empty($item->comment) ? '' : "<br><span class=\"comment\">$item->comment</span>";
+		$name  = '<span class="event">' . $item->name . '</span>';
+		$name  .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
+		$name  .= empty($item->comment) ? '' : "<br><span class=\"comment\">$item->comment</span>";
+		$value = $item->link ? Helpers\HTML::_('link', $item->link, $name) : $name;
 
-		return ['attributes' => ['class' => 'title-column'], 'value' => $name];
+		return ['attributes' => ['class' => 'title-column'], 'value' => $value];
 	}
 
 	/**
@@ -441,24 +420,19 @@ class Instances extends ListView
 		{
 			$label = '';
 			$icon  = '';
-			$today = date('Y-m-d');
-			$then  = date('Y-m-d', strtotime('+2 days'));
 			$URL   = Uri::base() . '?option=com_organizer';
-
-			$expired = ($item->date < $today or ($item->date === $today and $item->endTime < date('H:i:s')));
-			$current = ($item->date <= $then);
 
 			if ($item->bookingID)
 			{
 				$label = Languages::_('ORGANIZER_MANAGE_BOOKING');
 				$icon  = Helpers\HTML::icon('users', $label, true);
-				$URL   .= '&view=booking&id=' . $item->bookingID;
+				$URL   = Helpers\Routing::getViewURL('booking', $item->bookingID);
 			}
-			elseif (!$expired and $current)
+			elseif (!$item->expired and $item->current)
 			{
 				$label = Languages::_('ORGANIZER_START_BOOKING');
 				$icon  = Helpers\HTML::icon('enter', $label, true);
-				$URL   .= '&task=bookings.add&id=' . $item->instanceID;
+				$URL   = Helpers\Routing::getTaskURL('bookings.add', $item->instanceID);
 			}
 
 			if ($label)
@@ -468,8 +442,6 @@ class Instances extends ListView
 				$link = Helpers\HTML::link($URL, $icon, $attribs);
 			}
 		}
-
-		// TODO add button for participant checkin
 
 		return $link ? ['attributes' => ['class' => 'tools-column'], 'value' => $link] : '';
 	}
@@ -583,16 +555,32 @@ class Instances extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$times   = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
-			$times   .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
-			$virtual = $this->isVirtual($item);
+			$item->link = '';
 
-			$structuredItems[$index] = [];
+			$times = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
+			$times .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
 
-			$item->manageable = (($this->manages or $this->teaches) and Helpers\Can::manage('instance', $item->instanceID));
+			if ($item->manageable = Helpers\Can::manage('instance', $item->instanceID))
+			{
+				$today = date('Y-m-d');
+				$then  = date('Y-m-d', strtotime('+2 days'));
 
-			$structuredItems[$index]['tools'] = $virtual ? '' : $this->getTools($item);
+				$item->current = ($item->date <= $then);
+				$item->expired = ($item->date < $today or ($item->date === $today and $item->endTime < date('H:i:s')));
 
+				// An associated booking exists and has participants
+
+				if (!$item->expired and empty($item->eventID))
+				{
+					if (!$item->bookingID or !Helpers\Bookings::getParticipantCount($item->bookingID))
+					{
+						$item->link = Helpers\Routing::getViewURL('InstanceEdit', $item->instanceID);
+					}
+				}
+			}
+
+			$structuredItems[$index]            = [];
+			$structuredItems[$index]['tools']   = $this->isVirtual($item) ? '' : $this->getTools($item);
 			$structuredItems[$index]['status']  = $this->getStatus($item);
 			$structuredItems[$index]['title']   = $this->getTitle($item);
 			$structuredItems[$index]['times']   = $times;
