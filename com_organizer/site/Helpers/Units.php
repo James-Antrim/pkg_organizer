@@ -27,9 +27,9 @@ class Units extends ResourceHelper
 	 * @param   int  $unitID   the unit id
 	 * @param   int  $eventID  the event id
 	 *
-	 * @return mixed|null
+	 * @return array
 	 */
-	public static function getContexts(int $unitID, int $eventID)
+	public static function getContexts(int $unitID, int $eventID): array
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
@@ -185,9 +185,9 @@ class Units extends ResourceHelper
 	{
 		$query = Database::getQuery(true);
 
-		$query->select('DISTINCT ig.groupID')
+		$query->select('DISTINCT ir.roomID')
 			->from('#__organizer_instance_rooms AS ir')
-			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ig.assocID')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
 			->innerJoin('#__organizer_instances AS i ON i.id = ipe.instanceID')
 			->where("i.unitID = $unitID")
 			->where("ir.delta != 'removed'")
@@ -218,7 +218,7 @@ class Units extends ResourceHelper
 	 */
 	public static function teaches($unitID = 0, $personID = 0): bool
 	{
-		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
+		$personID = $personID ?: Persons::getIDByUserID(Users::getID());
 
 		$query = Database::getQuery(true);
 		$query->select('COUNT(*)')
