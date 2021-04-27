@@ -39,10 +39,17 @@ class Bookings extends ResourceHelper
 			return '';
 		}
 
-		$endTime   = $booking->endTime ? $booking->endTime : $block->endTime;
-		$startTime = $booking->startTime ? $booking->startTime : $block->startTime;
+		// It is enough to load a single one, because if the instance does not have an event, there is only one.
+		$instance = new Tables\Instances();
+		if (!$instance->load(['blockID' => $booking->blockID, 'unitID' => $booking->unitID]))
+		{
+			return '';
+		}
+
+		$endTime   = $booking->endTime ?: $block->endTime;
+		$startTime = $booking->startTime ?: $block->startTime;
 		$date      = Dates::formatDate($block->date);
-		$endTime   = Dates::formatEndTime($endTime);
+		$endTime   = $instance->eventID ? Dates::formatEndTime($endTime) : Dates::formatTime($endTime);
 		$startTime = Dates::formatTime($startTime);
 
 		return "$date $startTime - $endTime";
