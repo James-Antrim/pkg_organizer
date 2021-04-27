@@ -9,7 +9,7 @@
  */
 
 echo $this->form->renderField('id');
-echo $this->form->renderField('type');
+echo $this->form->renderField('layout');
 echo $this->form->renderField('date');
 echo $this->form->renderField('startTime');
 echo $this->form->renderField('endTime');
