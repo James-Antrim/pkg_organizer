@@ -409,7 +409,7 @@ class UniNow extends BaseLayout
 						// Auto Checkout = TRUE?
 						break;
 					case 'U':
-						$value = 120;
+						$value = 240;
 						break;
 					case 'V':
 						// Threshold auto = 240?
