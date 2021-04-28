@@ -1094,7 +1094,7 @@ class Instances extends ResourceHelper
 	 */
 	public static function setOrganizationalPublishing(array &$conditions)
 	{
-		$allowedIDs   = Can::scheduleTheseOrganizations();
+		$allowedIDs   = Can::viewTheseOrganizations();
 		$overlap      = array_intersect($conditions['organizationIDs'], $allowedIDs);
 		$overlapCount = count($overlap);
 
