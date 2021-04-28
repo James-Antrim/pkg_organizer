@@ -331,22 +331,32 @@ class UniNow extends BaseLayout
 					case 'Q':
 						// Red
 						break;
+
 					case 'B':
+						$value = $room->buildingName ?: '-';
+						break;
 					case 'C':
-						$value = $room->buildingName ? $room->buildingName : '';
+						$value = $room->buildingName ?: 'Unbekannt';
 						break;
 					case 'D':
 					case 'L':
 						$value = 'ACTIVE';
 						break;
 					case 'E':
-						// City / Campus
+						if ($room->campus)
+						{
+							$value = $room->parent ? "$room->parent / $room->campus" : $room->campus;
+						}
+						else
+						{
+							$value = '';
+						}
 						break;
 					case 'F':
-						// Coordinates
+						$value = $room->location ?: '';
 						break;
 					case 'G':
-						// Building address
+						$value = $room->address ?: '';
 						break;
 					case 'J':
 						$value = $room->code;
@@ -358,10 +368,33 @@ class UniNow extends BaseLayout
 						$value = $room->roomType ? $room->roomType : '';
 						break;
 					case 'N':
-						// Resolve floor
+						if (preg_match("/^[A-Z]{1}\d+.(U?\d+).\d+[A-Za-z]?$/", $room->roomName, $matches))
+						{
+							$symbols = str_split($matches[1]);
+							if ($symbols[0] === '0')
+							{
+								$value = 'Erdgeschoss';
+							}
+							elseif ($symbols[0] === 'U')
+							{
+								$level = implode('', array_splice($symbols, 1));
+								$value = "$level. Untergeschoss";
+							}
+							else
+							{
+								$level = implode('', $symbols);
+								$value = "$level. Etage";
+							}
+						}
+						else
+						{
+							$value = '';
+						}
+
 						break;
 					case 'O':
-						// Capacity - corona factored?
+						// Capacity - corona factoring?
+						$value = $room->capacity ?: '';
 						break;
 					case 'P':
 						// Capacity - absolute
@@ -377,6 +410,7 @@ class UniNow extends BaseLayout
 						break;
 					case 'U':
 						$value = 120;
+						break;
 					case 'V':
 						// Threshold auto = 240?
 						break;
@@ -401,7 +435,7 @@ class UniNow extends BaseLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function getDescription()
+	public function getDescription(): string
 	{
 		return 'An export of the current room inventory of the Organizer component, suitable for import in the UniNow system.';
 	}
@@ -409,7 +443,7 @@ class UniNow extends BaseLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function getTitle()
+	public function getTitle(): string
 	{
 		return 'UniNow Room Export';
 	}

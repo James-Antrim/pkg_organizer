@@ -34,13 +34,15 @@ class Rooms extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select('r.id, r.code, r.name AS roomName, r.active')
+		$query->select('r.id, r.code, r.name AS roomName, r.active, r.capacity')
 			->select("t.id AS roomtypeID, t.name_$tag AS roomType")
-			->select('b.id AS buildingID, b.name AS buildingName')
+			->select('b.id AS buildingID, b.address, b.name AS buildingName, b.location, b.propertyType')
+			->select("c1.name_$tag AS campus, c2.name_$tag AS parent")
 			->from('#__organizer_rooms AS r')
 			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
 			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-			->leftJoin('#__organizer_campuses AS c ON (c.id = b.campusID OR c.parentID = b.campusID)');
+			->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
+			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
 
 		$this->setActiveFilter($query, 'r');
 		$this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en']);

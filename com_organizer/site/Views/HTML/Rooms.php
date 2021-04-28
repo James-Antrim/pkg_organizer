@@ -59,6 +59,14 @@ class Rooms extends ListView
 				true
 			);
 		}
+
+		$toolbar->appendButton(
+			'NewTab',
+			'file-xls',
+			Helpers\Languages::_('ORGANIZER_UNINOW_EXPORT'),
+			'Rooms.UniNow',
+			false
+		);
 	}
 
 	/**

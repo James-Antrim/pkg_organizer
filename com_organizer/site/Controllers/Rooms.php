@@ -10,7 +10,9 @@
 
 namespace Organizer\Controllers;
 
+use Exception;
 use Organizer\Controller;
+use Organizer\Helpers;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -22,4 +24,29 @@ class Rooms extends Controller
 	protected $listView = 'rooms';
 
 	protected $resource = 'room';
+
+	/**
+	 * Creates an xls file based on form data.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function uniNow()
+	{
+		Helpers\Input::set('layout', 'UniNow');
+		Helpers\Input::set('format', 'xls');
+		$this->display();
+	}
+
+	/**
+	 * Creates an xls file based on form data.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function xls()
+	{
+		Helpers\Input::set('format', 'xls');
+		$this->display();
+	}
 }
