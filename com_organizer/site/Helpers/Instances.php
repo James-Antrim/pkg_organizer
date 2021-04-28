@@ -33,14 +33,9 @@ class Instances extends ResourceHelper
 	 *
 	 * @return void modifies the query
 	 */
-	private static function addDeltaClause(JDatabaseQuery $query, string $alias, $delta, $leftJoin = false)
+	private static function addDeltaClause(JDatabaseQuery $query, string $alias, $delta)
 	{
 		$wherray = ["$alias.delta != 'removed'"];
-
-		if ($leftJoin)
-		{
-			$wherray[] = "$alias.id IS NULL";
-		}
 
 		if ($delta)
 		{
