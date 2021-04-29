@@ -25,7 +25,7 @@ class UniNow extends BaseLayout
 	{
 		$sheet = $this->view->getActiveSheet();
 
-		$sheet->getColumnDimension('A')->setWidth(35.43);
+		$sheet->getColumnDimension()->setWidth(35.43);
 
 		$sheet->setCellValue('A1', 'Building ID');
 		/**
@@ -365,10 +365,10 @@ class UniNow extends BaseLayout
 						$value = $room->roomName;
 						break;
 					case 'M':
-						$value = $room->roomType ? $room->roomType : '';
+						$value = $room->roomType ?: '';
 						break;
 					case 'N':
-						if (preg_match("/^[A-Z]{1}\d+.(U?\d+).\d+[A-Za-z]?$/", $room->roomName, $matches))
+						if (preg_match("/^[A-Z]\d+.(U?\d+).\d+[A-Za-z]?$/", $room->roomName, $matches))
 						{
 							$symbols = str_split($matches[1]);
 							if ($symbols[0] === '0')
@@ -456,10 +456,9 @@ class UniNow extends BaseLayout
 	{
 		$sheet = $this->view->getActiveSheet();
 
-		// TODO: setting the default style is not working right now.
 		$sheet->getDefaultStyle()->applyFromArray(['borders' => ['outline' => ['style' => BorderStyle::BORDER_NONE]]]);
 
-		$sheet->getColumnDimension('A')->setWidth(35.43);
+		$sheet->getColumnDimension()->setWidth(35.43);
 		$sheet->getColumnDimension('B')->setWidth(18.14);
 		$sheet->getColumnDimension('C')->setWidth(24);
 		$sheet->getColumnDimension('D')->setWidth(14);
