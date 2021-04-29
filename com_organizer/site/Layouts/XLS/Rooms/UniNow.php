@@ -403,16 +403,14 @@ class UniNow extends BaseLayout
 						// Hard limit to capacity
 						break;
 					case 'S':
+					case 'T':
 						$value = 'TRUE';
 						break;
-					case 'T':
-						// Auto Checkout = TRUE?
-						break;
 					case 'U':
-						$value = 240;
+						$value = 120;
 						break;
 					case 'V':
-						// Threshold auto = 240?
+						$value = 240;
 						break;
 				}
 
