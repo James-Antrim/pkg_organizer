@@ -33,12 +33,7 @@ class Rooms extends ListView
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_ROOMS'), 'enter');
 		$toolbar = Toolbar::getInstance();
-
-		if (Helpers\Can::administrate())
-		{
-			$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'rooms.add', false);
-		}
-
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'rooms.add', false);
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'rooms.edit', true);
 		$toolbar->appendButton(
 			'Standard',
