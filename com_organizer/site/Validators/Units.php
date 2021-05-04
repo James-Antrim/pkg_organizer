@@ -58,8 +58,8 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
      */
     private static function createMissingRoomsMessages(Schedule $model)
     {
-        foreach ($model->warnings['IMR'] as $untisID => $DOWs) {
-            foreach ($DOWs as $dow => $periods) {
+        foreach ($model->warnings['IMR'] as $untisID => $dows) {
+            foreach ($dows as $dow => $periods) {
                 foreach ($periods as $periodNo => $missingDates) {
                     if (count($missingDates) > 2) {
                         $model->warnings[] = sprintf(
@@ -430,7 +430,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
             $unit->subjects->$eventID->pools->$groupID = '';
         }
 
-        return count($unit->groups) ? true : false;
+        return (bool)count($unit->groups);
     }
 
     /**

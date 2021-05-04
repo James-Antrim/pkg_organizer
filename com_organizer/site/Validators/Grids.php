@@ -25,36 +25,31 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
      *
      * @param   string  $code  the grid name in untis
      *
-     * @return mixed int id on success, otherwise null
+     * @return int id on success, otherwise 0
      */
-    public static function getID(string $code)
+    public static function getID(string $code): int
     {
         $table = new Tables\Grids();
 
-        return $table->load(['code' => $code]) ? $table->id : null;
+        return $table->load(['code' => $code]) ? $table->id : 0;
     }
 
     /**
-     * Retrieves the grid id using the grid name. Creates the grid id if unavailable.
-     *
-     * @param   Schedule  $model     the model for the schedule being validated
-     * @param   string    $gridName  the name of the grid
-     *
-     * @return void modifies the model, setting the id property of the resource
+     * @inheritDoc
      */
-    public static function setID(Schedule $model, string $gridName)
+    public static function setID(Schedule $model, string $code)
     {
-        if (empty($model->grids->$gridName)) {
+        if (empty($model->grids->$code)) {
             return;
         }
 
-        $grid       = $model->grids->$gridName;
+        $grid       = $model->grids->$code;
         $grid->grid = json_encode($grid, JSON_UNESCAPED_UNICODE);
         $table      = new Tables\Grids();
 
         // No overwrites for global resources
-        if (!$table->load(['code' => $gridName])) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GRID_INVALID'), $gridName);
+        if (!$table->load(['code' => $code])) {
+            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GRID_INVALID'), $code);
 
             return;
         }

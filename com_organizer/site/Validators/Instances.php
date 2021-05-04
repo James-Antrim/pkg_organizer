@@ -330,10 +330,10 @@ class Instances extends Helpers\ResourceHelper
         }
 
         // Sporadic events have specific dates assigned to them.
-        $assigned_date = strtotime(trim((string)$node->assigned_date));
+        $specificDate = strtotime(trim((string)$node->assigned_date));
 
         // The event is sporadic and does not occur on the date being currently iterated
-        if (!empty($assigned_date) and $assigned_date != $currentDT) {
+        if (!empty($specificDate) and $specificDate != $currentDT) {
             return;
         }
 

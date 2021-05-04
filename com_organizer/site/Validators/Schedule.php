@@ -133,7 +133,7 @@ class Schedule
 
         $this->printStatusReport();
 
-        return (count($this->errors)) ? false : true;
+        return !count($this->errors);
     }
 
     /**

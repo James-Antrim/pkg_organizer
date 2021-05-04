@@ -27,7 +27,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
      *
      * @return array empty if the id is implausible
      */
-    private static function parseProgramData(string $untisID)
+    private static function parseProgramData(string $untisID): array
     {
         $pieces = explode('.', $untisID);
         if (count($pieces) !== 3) {
