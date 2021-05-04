@@ -130,11 +130,10 @@ class Pools extends BaseTable
     }
 
     /**
-     * Set the table column names which are allowed to be null
-     *
-     * @return bool  true
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function check()
+    public function check(): bool
     {
         // These can be blank, but non-empty values should be unique.
         $nullColumns = ['alias', 'groupID', 'fieldID', 'lsfID'];

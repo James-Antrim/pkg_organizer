@@ -66,9 +66,8 @@ class Holidays extends BaseTable
     }
 
     /**
-     * Checks the start date and end date
-     *
-     * @return bool true on success, otherwise false
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function check(): bool
     {

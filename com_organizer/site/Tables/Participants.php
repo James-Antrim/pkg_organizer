@@ -88,11 +88,10 @@ class Participants extends BaseTable
     }
 
     /**
-     * Set the table column names which are allowed to be null
-     *
-     * @return bool  true
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function check()
+    public function check(): bool
     {
         if (!$this->programID) {
             $this->programID = null;

@@ -15,7 +15,8 @@ namespace Organizer\Tables;
  */
 class Campuses extends BaseTable
 {
-    use Activated, Aliased;
+    use Activated;
+    use Aliased;
 
     /**
      * The physical address of the resource.
@@ -98,11 +99,10 @@ class Campuses extends BaseTable
     }
 
     /**
-     * Set the table column names which are allowed to be null
-     *
-     * @return bool  true
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function check()
+    public function check(): bool
     {
         if (empty($this->alias)) {
             $this->alias = null;

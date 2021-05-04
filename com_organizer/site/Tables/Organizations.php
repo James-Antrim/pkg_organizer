@@ -11,6 +11,7 @@
 namespace Organizer\Tables;
 
 use Joomla\CMS\Access\Rules;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Asset;
 use Joomla\CMS\Table\Table;
 use Organizer\Adapters\Database;
@@ -128,22 +129,19 @@ class Organizations extends BaseTable
     }
 
     /**
-     * Method to return the title to use for the asset table.  In tracking the assets a title is kept for each asset so
-     * that there is some context available in a unified access manager.
-     *
-     * @return string  The string to use as the title in the asset table.
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    protected function _getAssetTitle()
+    protected function _getAssetTitle(): string
     {
         return $this->shortName_en;
     }
 
     /**
-     * Sets the organization asset name
-     *
-     * @return string
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    protected function _getAssetName()
+    protected function _getAssetName(): string
     {
         $key = $this->_tbl_key;
 
@@ -151,48 +149,36 @@ class Organizations extends BaseTable
     }
 
     /**
-     * Sets the parent as the component root
-     *
-     * @param   Table  $table  the Table object
-     * @param   int    $id     the resource id
-     *
-     * @return int  the asset id of the component root
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    protected function _getAssetParentId(Table $table = null, $id = null)
+    protected function _getAssetParentId(Table $table = null, $id = null): int
     {
-        $asset = Table::getInstance('Asset');
+        $asset = new Asset(Factory::getDbo());
         $asset->loadByName('com_organizer');
 
         return $asset->id;
     }
 
     /**
-     * Overridden bind function
-     *
-     * @param   array  $array   named array
-     * @param   mixed  $ignore  An optional array or space separated list of properties to ignore while binding.
-     *
-     * @return mixed  Null if operation was satisfactory, otherwise returns an error string
+     * @inheritDoc
      */
-    public function bind($array, $ignore = '')
+    public function bind($src, $ignore = ''): bool
     {
-        if (isset($array['rules']) && is_array($array['rules'])) {
-            $this->cleanRules($array['rules']);
-            $rules = new Rules($array['rules']);
+        if (isset($src['rules']) && is_array($src['rules'])) {
+            $this->cleanRules($src['rules']);
+            $rules = new Rules($src['rules']);
             $this->setRules($rules);
         }
 
-        return parent::bind($array, $ignore);
+        return parent::bind($src, $ignore);
     }
 
     /**
-     * Set the table column names which are allowed to be null
-     *
-     * @return bool  true
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function check()
+    public function check(): bool
     {
         if (!$this->alias) {
             $this->alias = null;
@@ -213,7 +199,7 @@ class Organizations extends BaseTable
      *
      * @return void  unsets group indexes with a truly empty value
      */
-    private function cleanRules(&$rules)
+    private function cleanRules(array &$rules)
     {
         foreach ($rules as $rule => $groups) {
             foreach ($groups as $group => $value) {
@@ -225,14 +211,10 @@ class Organizations extends BaseTable
     }
 
     /**
-     * Method to store a row in the database from the Table instance properties. Completely overwrites the method in
-     * Table because they use the subclass specific update nulls setting for assets which is just stupid.
-     *
-     * @param   bool  $updateNulls  True to update fields even if they are null.
-     *
-     * @return bool  True on success.
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function store($updateNulls = true)
+    public function store($updateNulls = true): bool
     {
         $keys = $this->_tbl_keys;
 
@@ -295,8 +277,8 @@ class Organizations extends BaseTable
 
             $query = Database::getQuery();
             $query->update('#__organizer_organizations')
-                ->set("asset_id = {$this->asset_id}")
-                ->where("id = {$this->id}");
+                ->set("asset_id = $this->asset_id")
+                ->where("id = $this->id");
             Database::setQuery($query);
 
             if (!Database::execute()) {

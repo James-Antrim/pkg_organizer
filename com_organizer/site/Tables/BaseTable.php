@@ -45,16 +45,16 @@ abstract class BaseTable extends Table
      *
      * @return bool
      */
-    public function bindRegistry(Registry $registry)
+    public function bindRegistry(Registry $registry): bool
     {
         if (!$registry instanceof Registry) {
             return false;
         }
 
         // Bind the source value, excluding the ignored fields.
-        foreach ($this->getProperties() as $k => $v) {
-            if ($registry->exists($k)) {
-                $this->$k = $registry->get($k);
+        foreach (array_keys($this->getProperties()) as $property) {
+            if ($registry->exists($property)) {
+                $this->$property = $registry->get($property);
             }
         }
 
@@ -70,7 +70,7 @@ abstract class BaseTable extends Table
      *
      * @return  bool  True if successful, otherwise false
      */
-    public function load($keys = null, $reset = true)
+    public function load($keys = null, $reset = true): bool
     {
         try {
             return parent::load($keys, $reset);
@@ -90,7 +90,7 @@ abstract class BaseTable extends Table
      *
      * @return void modifies the column property value
      */
-    public function setColumn($column, $value, $default)
+    public function setColumn(string $column, $value, $default)
     {
         if (property_exists($this, $column)) {
             $this->$column = empty($value) ? $default : $value;
@@ -100,7 +100,7 @@ abstract class BaseTable extends Table
     /**
      * @inheritDoc
      */
-    public function store($updateNulls = true)
+    public function store($updateNulls = true): bool
     {
         return parent::store($updateNulls);
     }

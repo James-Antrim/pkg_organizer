@@ -89,11 +89,10 @@ class Curricula extends BaseTable
     }
 
     /**
-     * Set the table column names which are allowed to be null
-     *
-     * @return bool  true
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function check()
+    public function check(): bool
     {
         // All three fields can receive data from at least two systems.
         $atLeastOne = false;

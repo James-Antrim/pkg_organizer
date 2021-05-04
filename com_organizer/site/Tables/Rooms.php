@@ -68,9 +68,8 @@ class Rooms extends BaseTable
     }
 
     /**
-     * Set the table column names which are allowed to be null
-     *
-     * @return bool  true
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function check(): bool
     {

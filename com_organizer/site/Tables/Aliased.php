@@ -24,11 +24,10 @@ trait Aliased
     public $alias;
 
     /**
-     * Set the table column names which are allowed to be null
-     *
-     * @return bool  true
+     * @inheritDoc
+     * @noinspection PhpMissingParentCallCommonInspection
      */
-    public function check()
+    public function check(): bool
     {
         if (empty($this->alias)) {
             $this->alias = null;
