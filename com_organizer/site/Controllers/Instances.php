@@ -27,19 +27,6 @@ class Instances extends Controller
 	protected $resource = 'instance';
 
 	/**
-	 * Function to add a new instance not related to an event. Existing appointments can be edited directly using the
-	 * edit function.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function appointment()
-	{
-		Helpers\Input::set('appointment', true);
-		$this->edit();
-	}
-
-	/**
 	 * Ends the instance create/edit process and empties the session container.
 	 *
 	 * @return void
@@ -122,6 +109,8 @@ class Instances extends Controller
 			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
 			$session->set('organizer.instance', '');
 			$this->setRedirect(Route::_($referrer, false));
+
+			return;
 		}
 
 		Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
@@ -133,7 +122,7 @@ class Instances extends Controller
 			$url .= "&id=$id";
 		}
 
-		if (Helpers\Input::getBool('appointment'))
+		if (Helpers\Input::getCMD('layout', 'appointment') === 'appointment')
 		{
 			$url .= '&appointment=1';
 		}

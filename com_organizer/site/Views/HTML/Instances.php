@@ -51,17 +51,6 @@ class Instances extends ListView
 		$state = $this->state;
 		$my    = $state->get('filter.my');
 
-//		if ($my and Helpers\Persons::getIDByUserID())
-//		{
-//			$toolbar->appendButton(
-//				'Standard',
-//				'info-calender',
-//				Languages::_('ORGANIZER_NEW_INSTANCE'),
-//				'Instances.appointment',
-//				false
-//			);
-//		}
-
 		$toolbar->appendButton(
 			'NewTab',
 			'file-xls',

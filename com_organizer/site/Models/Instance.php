@@ -10,7 +10,7 @@
 
 namespace Organizer\Models;
 
-use Organizer\Adapters\Database;
+use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -19,28 +19,35 @@ use Organizer\Tables;
  */
 class Instance extends BaseModel
 {
+	private const LEADER = 5;
+
+	private $personID;
+
 	/**
-	 * Updates an association table's delta value.
-	 *
-	 * @param   Tables\BaseTable  $assoc  the association table to update
-	 * @param   array             $data   the data used to identify/create
-	 *
-	 * @return bool true on success, otherwise false
+	 * @var string
 	 */
-	private function associate(Tables\BaseTable $assoc, array $data)
+	private $modified;
+
+	/**
+	 * Checks access to edit the resource.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
 	{
-		if ($assoc->load($data))
+		if (!Helpers\Users::getID())
 		{
-			/** @noinspection PhpUndefinedFieldInspection */
-			$assoc->delta = $assoc->delta === 'removed' ? 'new' : '';
-
-			return $assoc->store();
+			Helpers\OrganizerHelper::error(401);
 		}
-		else
-		{
-			$data['delta'] = 'new';
 
-			return $assoc->save($data);
+		if (!$this->personID = Helpers\Persons::getIDByUserID())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+
+		if ($instanceID = Helpers\Input::getID() and !Helpers\Can::manage('instance', $instanceID))
+		{
+			Helpers\OrganizerHelper::error(403);
 		}
 	}
 
@@ -57,133 +64,156 @@ class Instance extends BaseModel
 	 */
 	public function save($data = [])
 	{
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		Helpers\OrganizerHelper::error(503);
 
-		$table = new Tables\Instances();
-		if (!$table->save($data))
+		$this->authorize();
+		$data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$this->modified = date('Y-m-d H:i:s');
+
+		if ($data['layout'] === 'appointment')
 		{
+			return $this->saveAppointment($data);
+		}
+
+		// Not implemented, yet
+		Helpers\OrganizerHelper::error(503);
+
+		return false;
+	}
+
+	/**
+	 * Creates/updates an appointment.
+	 *
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return false|int
+	 */
+	private function saveAppointment($data = [])
+	{
+		foreach (['date', 'endTime', 'roomIDs', 'startTime', 'title'] as $required)
+		{
+			if (empty($data[$required]))
+			{
+				// Hard error
+				Helpers\OrganizerHelper::error(400);
+			}
+		}
+
+		$date      = $data['date'];
+		$validDate = (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) and $date >= date('Y-m-d'));
+
+		$now       = date('H:i:s');
+		$endTime   = $this->standardizeTime($date, $data['endTime']);
+		$startTime = $this->standardizeTime($date, $data['startTime']);
+
+		if (!$validDate or !$startTime or !$endTime or $endTime < $startTime or $endTime < $now)
+		{
+			// Improper use
+			Helpers\OrganizerHelper::message('ORGANIZER_INSTANCE_DATE_OR_TIMES_INVALID');
+
 			return false;
 		}
 
-		$data['id'] = $table->id;
-
-		return $this->saveResourceData($data) ? $table->id : false;
-	}
-
-	/**
-	 * Method to check the new instance data and to save it
-	 *
-	 * @param   array  $data  the new instance data
-	 *
-	 * checkAssocID to check the existing assocID or create a new one
-	 *
-	 * @return bool
-	 */
-	private function saveResourceData(array $data)
-	{
-		$instanceID = $data['id'];
-		$ipIDs      = [];
-
-		foreach ($data['resources'] as $person)
+		// Block modelling is hidden from the user => resolve with date and times
+		$bKeys = ['date' => $date, 'endTime' => $endTime, 'startTime' => $startTime];
+		$block = new Tables\Blocks();
+		if (!$block->load($bKeys))
 		{
-			$ipData  = ['instanceID' => $instanceID, 'personID' => $person['personID']];
-			$ipTable = new Tables\InstancePersons();
-			$roleID  = !empty($person['roleID']) ? $person['roleID'] : 1;
-
-			if ($ipTable->load($ipData))
-			{
-				if ($ipTable->delta === 'removed')
-				{
-					$ipTable->delta = 'new';
-				}
-				else
-				{
-					if ($ipTable->roleID != $roleID)
-					{
-						$ipTable->delta  = 'changed';
-						$ipTable->roleID = $roleID;
-					}
-					else
-					{
-						$ipTable->delta = '';
-					}
-				}
-
-				if (!$ipTable->store())
-				{
-					return false;
-				}
-			}
-			else
-			{
-				$ipData['delta']  = 'new';
-				$ipData['roleID'] = $roleID;
-				if (!$ipTable->save($ipData))
-				{
-					return false;
-				}
-			}
-
-			$ipID    = $ipTable->id;
-			$ipIDs[] = $ipID;
-			$igIDs   = [];
-
-			foreach ($person['groups'] as $group)
-			{
-				$igData  = ['assocID' => $ipID, 'groupID' => $group['groupID']];
-				$igTable = new Tables\InstanceGroups();
-				if (!$this->associate($igTable, $igData))
-				{
-					return false;
-				}
-
-				$igIDs[] = $igTable->id;
-			}
-
-			$this->setRemoved('instance_groups', 'assocID', $ipID, $igIDs);
-
-			$irIDs = [];
-
-			foreach ($person['rooms'] as $room)
-			{
-				$irData  = ['assocID' => $ipID, 'roomID' => $room['roomID']];
-				$irTable = new Tables\InstanceRooms();
-				if (!$this->associate($irTable, $irData))
-				{
-					return false;
-				}
-
-				$irIDs[] = $irTable->id;
-			}
-
-			$this->setRemoved('instance_rooms', 'assocID', $ipID, $irIDs);
+			$bKeys['dow'] = date('w', strtotime($date));
+			$block->save($bKeys);
 		}
 
-		$this->setRemoved('instance_persons', 'instanceID', $instanceID, $ipIDs);
+		$blockID = $block->id;
+		unset($block);
 
-		return true;
+		$instance = new Tables\Instances();
+		if ($instanceID = empty($data['id']) ? null : (int) $data['id'])
+		{
+			if (!$instance->load($instanceID))
+			{
+				Helpers\OrganizerHelper::error(412);
+			}
+
+			$unitID = $instance->unitID;
+		}
+		else
+		{
+			$code   = Helpers\Users::getID() . '-1';
+			$termID = Helpers\Terms::getCurrentID($date);
+			$unit  = new Tables\Units();
+			$unit->load(['code' => $code, 'termID' => $termID]);
+
+			$uData = [
+				'code' => $code,
+				'endDate' => (!empty($results['endDate']) and $results['endDate'] > $date) ? $results['endDate'] : $date,
+				'modified' => $this->modified,
+				'organizationID' => null,
+				'startDate' => (!empty($results['startDate']) and $results['startDate'] < $date) ? $results['startDate'] : $date,
+				'termID' => $termID
+			];
+
+			$unit->save($uData);
+			$unitID = $unit->id;
+			unset($unit);
+			$instance->load(['blockID' => $blockID, 'unitID' => $unitID]);
+		}
+
+		$iData    = [
+			'blockID' => $blockID,
+			'eventID' => null,
+			'modified' => $this->modified,
+			'title'    => Helpers\Input::filter($data['title']),
+			'unitID' => $unitID
+		];
+		$instance->save($iData);
+		$instanceID = $instance->id;
+		unset($instance);
+
+		$instancePerson = new Tables\InstancePersons();
+		$ipeKeys        = ['instanceID' => $instanceID, 'personID' => $this->personID];
+		$instancePerson->load($ipeKeys);
+		$ipeKeys['roleID']   = self::LEADER;
+		$ipeKeys['modified'] = $this->modified;
+		$instancePerson->save($ipeKeys);
+		$assocID = $instancePerson->id;
+		unset($instancePerson);
+
+		$existingRooms  = Helpers\Instances::getRoomIDs($instanceID);
+		$requestedRooms = ArrayHelper::toInteger($data['roomIDs']);
+
+		foreach (array_diff($existingRooms, $requestedRooms) as $deprecatedID)
+		{
+			$ir = new Tables\InstanceRooms();
+			$ir->load(['assocID' => $assocID, 'roomID' => $deprecatedID]);
+			$ir->delete();
+		}
+
+		foreach (array_diff($requestedRooms, $existingRooms) as $newID)
+		{
+			$keys = ['assocID' => $assocID, 'modified' => $this->modified, 'roomID' => $newID];
+			$ir   = new Tables\InstanceRooms();
+			$ir->load(['assocID' => $assocID, 'roomID' => $newID]);
+			$ir->save($keys);
+		}
+
+		return $instanceID;
 	}
 
 	/**
-	 * Sets resource associations which are no longer current to 'removed';
+	 * Validates a time attribute syntactically.
 	 *
-	 * @param   string  $suffix       the unique table name ending
-	 * @param   string  $assocColumn  the name of the column referencing an association
-	 * @param   int     $assocValue   the value of the referenced association's id
-	 * @param   array   $idValues     the values of the current resource association ids
+	 * @param   string  $date  the date of the instance
+	 * @param   string  $time  the time being standardized
 	 *
-	 * @return bool
+	 * @return null|string the H:i standardized value, or false if the value syntax was incorrect.
 	 */
-	private function setRemoved(string $suffix, string $assocColumn, int $assocValue, array $idValues)
+	private function standardizeTime(string $date, string $time): ?string
 	{
-		$query = Database::getQuery();
-		$query->update("#__organizer_$suffix")
-			->set("delta = 'removed'")
-			->where("$assocColumn = $assocValue")
-			->where('id NOT IN (' . implode(',', $idValues) . ')');
+		if (!preg_match('/^(([01]?[0-9]|2[0-3]):?[0-5][0-9])$/', $time))
+		{
+			return null;
+		}
 
-		Database::setQuery($query);
-
-		return Database::execute();
+		return date('H:i:s', strtotime("$date $time"));
 	}
 }

@@ -22,7 +22,7 @@ use Organizer\Tables\Instances as Table;
 class InstanceEdit extends EditModel
 {
 	// Default role
-	private const NONE = -1, TEACHER = 1;
+	private const NONE = -1;
 
 	private $personID;
 
@@ -42,6 +42,11 @@ class InstanceEdit extends EditModel
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
+
+		if ($instanceID = Helpers\Input::getID() and !Helpers\Can::manage('instance', $instanceID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -52,7 +57,7 @@ class InstanceEdit extends EditModel
 	 *
 	 * @return string
 	 */
-	private function checkString(string $field, string $pattern)
+	private function checkString(string $field, string $pattern): string
 	{
 		$value = Helpers\Input::getString($field);
 
@@ -68,9 +73,18 @@ class InstanceEdit extends EditModel
 	 */
 	private function getSelection(string $field): array
 	{
-		if ($selection = Helpers\Input::getIntCollection($field))
+		$request = Helpers\Input::getFormItems();
+
+		if ($selection = $request->get($field))
 		{
-			return array_search(-1, $selection) ? [-1] : $selection;
+			$selection = ArrayHelper::toInteger($selection);
+
+			if ($position = array_search(-1, $selection) !== false)
+			{
+				unset($selection[$position]);
+			}
+
+			return count($selection) ? $selection : [-1];
 		}
 
 		return [];
@@ -88,6 +102,18 @@ class InstanceEdit extends EditModel
 		$session  = Factory::getSession();
 		$instance = $session->get('organizer.instance', []);
 
+		// The user did not cancel out and has chosen to edit a different instance => hard reset session instance.
+		if ($this->item->id and $instance and $this->item->id !== $instance['id'])
+		{
+			$instance = [];
+		}
+
+		// Immutable once set
+		if (empty($instance['referrer']))
+		{
+			$instance['referrer'] = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+		}
+
 		$instance['id'] = $this->item->id;
 
 		// Get defaults from session > item
@@ -98,11 +124,11 @@ class InstanceEdit extends EditModel
 		$dGridID    = empty($instance['gridID']) ? $item->gridID : $instance['gridID'];
 		$dGroupIDs  = empty($instance['groupIDs']) ? $item->groupIDs : $instance['groupIDs'];
 		$dRoleID    = empty($instance['roleID']) ? $item->roleID : $instance['roleID'];
-		$dRoomIDs   = empty($instance['roomIDs']) ? $item->eventIDs : $instance['roomIDs'];
-		$dStartTime = empty($instance['startTime']) ? $item->endTime : $instance['startTime'];
+		$dRoomIDs   = empty($instance['roomIDs']) ? $item->roomIDs : $instance['roomIDs'];
+		$dStartTime = empty($instance['startTime']) ? $item->startTime : $instance['startTime'];
 
 		// Interpret request items
-		$rDate      = $this->checkString('date', '/\d{4}-\d{2}-\d{2}/');
+		$rDate      = $this->checkString('date', '/^\d{4}-\d{2}-\d{2}$/');
 		$rEndTime   = $this->checkString('endTime', '/^(([01]?[0-9]|2[0-3]):?[0-5][0-9])$/');
 		$rEventIDs  = $this->getSelection('eventIDs');
 		$rGroupIDs  = $this->getSelection('groupIDs');
@@ -111,20 +137,20 @@ class InstanceEdit extends EditModel
 		/* Interpret nested structures from the advanced form. */
 
 		// Set new values from selection > defaults
-		$instance['advanced']  = empty($request->get('advanced')) ? false : true;
 		$instance['blockID']   = empty($request->get('blockID')) ? $dBlockID : (int) $request->get('blockID');
-		$instance['date']      = $rDate ? $rDate : $dDate;
-		$instance['endTime']   = $rEndTime ? $rEndTime : $dEndTime;
-		$instance['eventIDs']  = $rEventIDs ? $rEventIDs : $dEventIDs;
+		$instance['date']      = $rDate ?: $dDate;
+		$instance['endTime']   = $rEndTime ?: $dEndTime;
+		$instance['eventIDs']  = $rEventIDs ?: $dEventIDs;
 		$instance['gridID']    = empty($request->get('gridID')) ? $dGridID : (int) $request->get('gridID');
-		$instance['groupIDs']  = $rGroupIDs ? $rGroupIDs : $dGroupIDs;
+		$instance['groupIDs']  = $rGroupIDs ?: $dGroupIDs;
+		$instance['layout']    = Helpers\Input::getCMD('layout', 'appointment');
 		$instance['personID']  = $this->personID;
 		$instance['roleID']    = empty($request->get('roleID')) ? $dRoleID : (int) $request->get('roleID');
-		$instance['roomIDs']   = $rRoomIDs ? $rRoomIDs : $dRoomIDs;
-		$instance['startTime'] = $rStartTime ? $rStartTime : $dStartTime;
+		$instance['roomIDs']   = $rRoomIDs ?: $dRoomIDs;
+		$instance['startTime'] = $rStartTime ?: $dStartTime;
 
-
-		//echo "<pre>" . print_r($instance, true) . "</pre><br>";
+		$today            = date('Y-m-d');
+		$instance['date'] = $instance['date'] < $today ? $today : $instance['date'];
 
 		$form->bind($instance);
 
@@ -155,7 +181,7 @@ class InstanceEdit extends EditModel
 		if ($item->id)
 		{
 			$gridID       = Helpers\Units::getGridID($item->unitID);
-			$item->gridID = $gridID ? $gridID : self::NONE;
+			$item->gridID = $gridID ?: self::NONE;
 
 			$block = new Tables\Blocks();
 			$block->load($item->blockID);
@@ -167,7 +193,7 @@ class InstanceEdit extends EditModel
 			$item->eventIDs = Helpers\Units::getEventIDs($item->unitID, $item->id);
 			$item->groupIDs = Helpers\Units::getGroupIDs($item->unitID, $item->id);
 			$item->roleID   = Helpers\Instances::getRoleID($item->id, $this->personID);
-			$item->roomIDs = Helpers\Units::getRoomIDs($item->unitID, $item->id);
+			$item->roomIDs  = Helpers\Units::getRoomIDs($item->unitID, $item->id);
 
 			/**
 			 * separate construction for advanced with the potential for:
@@ -178,18 +204,18 @@ class InstanceEdit extends EditModel
 		else
 		{
 			$item->date      = date('Y-m-d');
-			$item->endTime   = '';
+			$item->endTime   = date('H:i', strtotime('+1 hour'));
 			$item->eventIDs  = [self::NONE];
 			$item->gridID    = self::NONE;
 			$item->groupIDs  = [self::NONE];
 			$item->roleID    = self::NONE;
 			$item->roomIDs   = [self::NONE];
-			$item->startTime = '';
+			$item->startTime = date('H:i');
 		}
 
 		/**
-		 * Set the default grid for an organization for which the person teaches. Will later be ignored if 'none' option
-		 * is selected.
+		 * Set the default grid for an organization for which the person teaches. Will later be ignored the grid id
+		 * field is omitted or if 'none' option is selected.
 		 */
 		if (empty($item->gridID))
 		{
