@@ -750,12 +750,6 @@ class Instances extends ResourceHelper
             return;
         }
 
-        if (empty($userID)) {
-            $personIDs = [];
-
-            return;
-        }
-
         $thisPersonID = Persons::getIDByUserID($userID);
         $authorized   = Can::viewTheseOrganizations();
 
