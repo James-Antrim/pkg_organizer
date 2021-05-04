@@ -25,7 +25,7 @@ class Database
     /**
      * Execute the SQL statement.
      *
-     * @return  bool  True on success, boolean false on failure.
+     * @return  bool  True on success, bool false on failure.
      */
     public static function execute(): bool
     {

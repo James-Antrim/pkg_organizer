@@ -106,7 +106,7 @@ function addPersons(persons) {
 /**
  * Creates a link to a generated ics file
  *
- * @returns {boolean}
+ * @returns {bool}
  */
 function copyLink() {
     const format = jQuery('input[name=format]').val();

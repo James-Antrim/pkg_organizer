@@ -65,7 +65,7 @@ jQuery(document).ready(function () {
      * Fills options of given field with an Ajax request
      * @params {object} field
      * @params {string} request
-     * @params {boolean} keepValue
+     * @params {bool} keepValue
      */
     function insertOptions(field, values, keepValue) {
         const oldValues = field.val();

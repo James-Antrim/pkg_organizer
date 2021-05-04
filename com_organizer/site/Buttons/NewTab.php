@@ -48,9 +48,9 @@ class NewTab extends StandardButton
     /**
      * Get the JavaScript command for the button
      *
-     * @param   string   $name  The task name as seen by the user
-     * @param   string   $task  The task used by the application
-     * @param   boolean  $list  True is requires a list confirmation.
+     * @param   string  $name  The task name as seen by the user
+     * @param   string  $task  The task used by the application
+     * @param   bool    $list  True is requires a list confirmation.
      *
      * @return  string   JavaScript command string
      */

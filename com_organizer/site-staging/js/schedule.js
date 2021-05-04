@@ -19,10 +19,10 @@ jQuery(document).ready(function () {
  * @param {string} variables.exportBase - basic url for exporting schedules
  * @param {Object.<number, Object>} variables.grids - all schedule grids with days and times
  * @param {number} variables.INSTANCE_MODE - mode for saving/deleting single event instances
- * @param {boolean} variables.isMobile - checks type of device
+ * @param {bool} variables.isMobile - checks type of device
  * @param {string} variables.menuID - active menu id (used as session key)
  * @param {number} variables.BLOCK_MODE - mode for saving/deleting all event instances for a single dow/block
- * @param {boolean} variables.userID - indicates whether an user is logged in
+ * @param {bool} variables.userID - indicates whether an user is logged in
  * @param {number} variables.SEMESTER_MODE - mode for saving/deleting all event instances
  * @param {number} variables.showGroups - whether groups are allowed to show
  * @param {string} variables.subjectDetailBase - basic url for subject item
@@ -191,7 +191,7 @@ const ScheduleApp = function (variables) {
 
         /**
          * Increase or decrease displayed month in calendar table.
-         * @param {boolean} increaseMonth
+         * @param {bool} increaseMonth
          */
         this.changeCalendarMonth = function (increaseMonth) {
             if (increaseMonth) {
@@ -206,7 +206,7 @@ const ScheduleApp = function (variables) {
 
         /**
          * Changes the current (date field) date and updates schedules
-         * @param {boolean} increase - increase or decrease date
+         * @param {bool} increase - increase or decrease date
          * @param {string} step - how big the change step is ('day'|'week'|'month')
          */
         this.changeSelectedDate = function (increase, step) {
@@ -261,7 +261,7 @@ const ScheduleApp = function (variables) {
 
         /**
          * Getter for visibility of this calendar
-         * @returns {boolean}
+         * @returns {bool}
          */
         this.isVisible = function () {
             return calendarIsVisible;
@@ -374,7 +374,7 @@ const ScheduleApp = function (variables) {
 
         /**
          * Sends an Ajax request with the actual date to update the schedule
-         * @param {boolean} [updateOthers=false]
+         * @param {bool} [updateOthers=false]
          */
         this.requestUpdate = function (updateOthers) {
             ajaxUrl = ajaxUrl.replace(/(date=)\d{4}-\d{2}-\d{2}/, '$1' + getDateFieldString());
@@ -424,7 +424,7 @@ const ScheduleApp = function (variables) {
 
         /**
          * Creates a pop-up like div with a copy of schedule table, which is movable by user
-         * @param {boolean} [create] - create new pop-up element
+         * @param {bool} [create] - create new pop-up element
          */
         this.popUp = function (create) {
             let cancelBtn, floatDiv = document.getElementById(id + '-pop-up'), titleElement;
@@ -1052,12 +1052,12 @@ const ScheduleApp = function (variables) {
          * @param {string} instance.comment - some comment for the event
          * @param {string} instance.eventDelta - changes of events
          * @param {string} instance.method - method (e.g. lecture) of a event
-         * @param {boolean} instance.regType - 0 for fifo, 1 for manual
+         * @param {bool} instance.regType - 0 for fifo, 1 for manual
          * @param {Object} instance.subjects - subjects of a event
          * @param {string} instance.startTime - instance start time
          * @param {string} instance.endTime - instance end time
-         * @param {boolean} [ownTime=false] - show own time
-         * @returns {HTMLDivElement[]|boolean} HTMLDivElements in an array or false in case of wrong input
+         * @param {bool} [ownTime=false] - show own time
+         * @returns {HTMLDivElement[]|bool} HTMLDivElements in an array or false in case of wrong input
          */
         function createItem(instance, ownTime) {
             const instanceGroups = [],
@@ -1345,7 +1345,7 @@ const ScheduleApp = function (variables) {
          * Checks for a block if the user has events in it already
          * @param {number} rowIndex
          * @param {number} colIndex
-         * @return {boolean}
+         * @return {bool}
          */
         function isOccupiedByUserEvent(rowIndex, colIndex) {
             const userScheduleTable = scheduleObjects.userSchedule.getTable().getTableElement(),
@@ -1359,7 +1359,7 @@ const ScheduleApp = function (variables) {
         /**
          * Checks for a event if it is already saved in the users schedule
          * @param {HTMLElement} event
-         * @return {boolean}
+         * @return {bool}
          */
         function isSavedByUser(event) {
             let eventIndex, events;
@@ -1761,7 +1761,7 @@ const ScheduleApp = function (variables) {
         /**
          * Gets the Schedule object which belongs to the given id
          * @param {string} id
-         * @return {Schedule|boolean}
+         * @return {Schedule|bool}
          */
         this.getScheduleById = function (id) {
             let scheduleIndex;
@@ -1784,7 +1784,7 @@ const ScheduleApp = function (variables) {
 
         /**
          * Returns the currently selected schedule
-         * @returns {Schedule|boolean}
+         * @returns {Schedule|bool}
          */
         this.getActiveSchedule = function () {
             return this.getScheduleById(getSelectedScheduleID());
@@ -1943,7 +1943,7 @@ const ScheduleApp = function (variables) {
 
         /**
          * Loads field which is set in session
-         * @return boolean - success indicator
+         * @return bool - success indicator
          */
         function loadSession() {
             const organization = organizations[variables.menuID], session = sessionFields[variables.menuID];
@@ -2269,7 +2269,7 @@ const ScheduleApp = function (variables) {
      * or only the selected instance of a event (3).
      * @param {string} instanceID - calendar_configuration_map ID
      * @param {number} [taskNumber=1]
-     * @param {boolean} [save=true] - indicate to save or to delete the event
+     * @param {bool} [save=true] - indicate to save or to delete the event
      */
     function handleEvent(instanceID, taskNumber, save) {
         const saving = (typeof save === 'undefined') ? true : save;
@@ -2401,7 +2401,7 @@ const ScheduleApp = function (variables) {
     /**
      * Gets ID of now selected schedule in #selected-schedules HTMLDivElement.
      * Returns false in case no schedule was found.
-     * @returns {string|boolean}
+     * @returns {string|bool}
      */
     function getSelectedScheduleID() {
         const selectedSchedule = document.getElementById('selected-schedules').getElementsByClassName('shown')[0];
@@ -2443,7 +2443,7 @@ const ScheduleApp = function (variables) {
      * Gets the concatenated and selected values of one multiple form field
      * @param {string} fieldID
      * @param {string} [separator=","]
-     * @returns {string|boolean}
+     * @returns {string|bool}
      */
     function getSelectedValues(fieldID, separator) {
         const field = document.getElementById(fieldID),
@@ -2467,7 +2467,7 @@ const ScheduleApp = function (variables) {
 
     /**
      * Goes one day for- or backward in the schedules and takes the date out of the input field with 'date' as id
-     * @param {boolean} increase - goes forward with true or backward with false
+     * @param {bool} increase - goes forward with true or backward with false
      * @param {string} [step="week"] - defines how big the step is as "day", "week" or "month"
      */
     function changeDate(increase, step) {
@@ -2811,7 +2811,7 @@ const ScheduleApp = function (variables) {
     /**
      * Get date string in the components specified format.
      * @see http://stackoverflow.com/a/3067896/6355472
-     * @param {boolean} [shortYear=false]
+     * @param {bool} [shortYear=false]
      * @returns {string}
      */
     Date.prototype.getPresentationFormat = function (shortYear) {
@@ -2848,7 +2848,7 @@ const ScheduleApp = function (variables) {
     if (!Array.prototype.includes) {
         /**
          * @param {*} element
-         * @returns {boolean}
+         * @returns {bool}
          */
         Array.prototype.includes = function (element) {
             return this.indexOf(element) >= 0;
