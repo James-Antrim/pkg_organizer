@@ -17,42 +17,41 @@ use Organizer\Helpers;
  */
 class Roomtypes extends ListView
 {
-	protected $rowStructure = [
-		'checkbox'    => '',
-		'code'        => 'link',
-		'name'        => 'link',
-		'minCapacity' => 'value',
-		'maxCapacity' => 'value'
-		//'roomCount'   => 'value'
-	];
+    protected $rowStructure = [
+        'checkbox'    => '',
+        'code'        => 'link',
+        'name'        => 'link',
+        'minCapacity' => 'value',
+        'maxCapacity' => 'value'
+        //'roomCount'   => 'value'
+    ];
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::manage('facilities'))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::manage('facilities')) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function setHeaders()
-	{
-		$ordering  = $this->state->get('list.ordering');
-		$direction = $this->state->get('list.direction');
-		$headers   = [
-			'checkbox'    => '',
-			'code'        => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
-			'name'        => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-			'minCapacity' => Helpers\HTML::sort('MIN_CAPACITY', 'minCapacity', $direction, $ordering),
-			'maxCapacity' => Helpers\HTML::sort('MAX_CAPACITY', 'maxCapacity', $direction, $ordering)
-			//'roomCount'   => Helpers\HTML::sort('ROOM_COUNT', 'roomCount', $direction, $ordering)
-		];
+    /**
+     * @inheritdoc
+     */
+    public function setHeaders()
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox'    => '',
+            'code'        => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
+            'name'        => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+            'minCapacity' => Helpers\HTML::sort('MIN_CAPACITY', 'minCapacity', $direction, $ordering),
+            'maxCapacity' => Helpers\HTML::sort('MAX_CAPACITY', 'maxCapacity', $direction, $ordering)
+            //'roomCount'   => Helpers\HTML::sort('ROOM_COUNT', 'roomCount', $direction, $ordering)
+        ];
 
-		$this->headers = $headers;
-	}
+        $this->headers = $headers;
+    }
 }

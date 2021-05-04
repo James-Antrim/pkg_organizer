@@ -18,44 +18,44 @@ use Organizer\Helpers;
  */
 class SuperOrdinatesField extends FormField
 {
-	use Translated;
+    use Translated;
 
-	/**
-	 * Type
-	 *
-	 * @var    String
-	 */
-	protected $type = 'SuperOrdinates';
+    /**
+     * Type
+     *
+     * @var    String
+     */
+    protected $type = 'SuperOrdinates';
 
-	/**
-	 * Returns a select box in which resources can be chosen as a super ordinates
-	 *
-	 * @return string  the HTML for the super ordinate resources select box
-	 */
-	public function getInput()
-	{
-		$options = $this->getOptions();
-		$select  = '<select id="superordinates" name="jform[superordinates][]" multiple="multiple" size="10">';
-		$select  .= implode('', $options) . '</select>';
+    /**
+     * Returns a select box in which resources can be chosen as a super ordinates
+     *
+     * @return string  the HTML for the super ordinate resources select box
+     */
+    public function getInput()
+    {
+        $options = $this->getOptions();
+        $select  = '<select id="superordinates" name="jform[superordinates][]" multiple="multiple" size="10">';
+        $select  .= implode('', $options) . '</select>';
 
-		return $select;
-	}
+        return $select;
+    }
 
-	/**
-	 * Gets pool options for a select list. All parameters come from the
-	 *
-	 * @return array  the options
-	 */
-	protected function getOptions()
-	{
-		$resourceID   = Helpers\Input::getID();
-		$contextParts = explode('.', $this->form->getName());
-		$resourceType = str_replace('edit', '', $contextParts[1]);
+    /**
+     * Gets pool options for a select list. All parameters come from the
+     *
+     * @return array  the options
+     */
+    protected function getOptions()
+    {
+        $resourceID   = Helpers\Input::getID();
+        $contextParts = explode('.', $this->form->getName());
+        $resourceType = str_replace('edit', '', $contextParts[1]);
 
-		// Initial program ranges are dependant on existing ranges.
-		$programRanges = $resourceType === 'pool' ?
-			Helpers\Pools::getPrograms($resourceID) : Helpers\Subjects::getPrograms($resourceID);
+        // Initial program ranges are dependant on existing ranges.
+        $programRanges = $resourceType === 'pool' ?
+            Helpers\Pools::getPrograms($resourceID) : Helpers\Subjects::getPrograms($resourceID);
 
-		return Helpers\Pools::getSuperOrdinateOptions($resourceID, $resourceType, $programRanges);
-	}
+        return Helpers\Pools::getSuperOrdinateOptions($resourceID, $resourceType, $programRanges);
+    }
 }

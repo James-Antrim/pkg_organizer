@@ -23,296 +23,279 @@ use stdClass;
  */
 class UnitEdit extends EditModel
 {
-	public $instances = [];
+    public $instances = [];
 
-	public $items = [];
+    public $items = [];
 
-	public $my = false;
+    public $my = false;
 
-	/**
-	 * Checks access to edit the resource.
-	 *
-	 * @return void
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Users::getID())
-		{
-			Helpers\OrganizerHelper::error(401);
-		}
+    /**
+     * Checks access to edit the resource.
+     *
+     * @return void
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Users::getID()) {
+            Helpers\OrganizerHelper::error(401);
+        }
 
-		if (!Helpers\Can::manage('unit', Helpers\Input::getInt('id')))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+        if (!Helpers\Can::manage('unit', Helpers\Input::getInt('id'))) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * Convert from a table object to a basic object to reduce overhead.
-	 *
-	 * @param   stdClass  $item   the item modelling the data for the view
-	 * @param   Table     $table  the table modelling the data in the database
-	 *
-	 * @return void
-	 */
-	private function fillItem(stdClass $item, Table $table)
-	{
-		$item->id             = $table->id;
-		$item->code           = $table->code;
-		$item->organizationID = $table->organizationID;
-		$item->termID         = $table->termID;
-		$item->comment        = $table->comment;
-		$item->courseID       = $table->courseID;
-		$item->delta          = $table->delta;
-		$item->endDate        = $table->endDate;
-		$item->gridID         = $table->gridID;
-		$item->runID          = $table->runID;
-		$item->startDate      = $table->startDate;
-	}
+    /**
+     * Convert from a table object to a basic object to reduce overhead.
+     *
+     * @param   stdClass  $item   the item modelling the data for the view
+     * @param   Table     $table  the table modelling the data in the database
+     *
+     * @return void
+     */
+    private function fillItem(stdClass $item, Table $table)
+    {
+        $item->id             = $table->id;
+        $item->code           = $table->code;
+        $item->organizationID = $table->organizationID;
+        $item->termID         = $table->termID;
+        $item->comment        = $table->comment;
+        $item->courseID       = $table->courseID;
+        $item->delta          = $table->delta;
+        $item->endDate        = $table->endDate;
+        $item->gridID         = $table->gridID;
+        $item->runID          = $table->runID;
+        $item->startDate      = $table->startDate;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getForm($data = [], $loadData = true)
-	{
-		$form = parent::getForm($data, $loadData);
+    /**
+     * @inheritDoc
+     */
+    public function getForm($data = [], $loadData = true)
+    {
+        $form = parent::getForm($data, $loadData);
 
-		if ($this->my)
-		{
-			$form->setValue('my', null, 1);
-		}
-		elseif (count($this->items) === 1)
-		{
-			$form->setValue('id', null, $this->items[0]->id);
-		}
-		/*$item = $this->item;
+        if ($this->my) {
+            $form->setValue('my', null, 1);
+        } elseif (count($this->items) === 1) {
+            $form->setValue('id', null, $this->items[0]->id);
+        }
 
-		$previous = Helpers\Input::getFormItems();
-		$session  = Factory::getSession();
-		$instance = $session->get('organizer.instance', []);
+        /*$item = $this->item;
 
-		// Immutable once set
-		if (!empty($item->organizationID))
-		{
-			$form->removeField('organizationID');
-			$organizationID = $item->organizationID;
-		}
-		else
-		{
-			if ($organizationID = $previous->get('organizationID'))
-			{
-				$instance['organizationID'] = $organizationID;
-			}
-			else
-			{
-				// The authorize function would have blocked the object from getting this far if there was no value here.
-				$organizations  = Helpers\Organizations::getResources('teach');
-				$organizationID = reset($organizations)['id'];
-			}
+        $previous = Helpers\Input::getFormItems();
+        $session  = Factory::getSession();
+        $instance = $session->get('organizer.instance', []);
 
-			$form->setValue('organizationID', null, $organizationID);
-		}
+        // Immutable once set
+        if (!empty($item->organizationID))
+        {
+            $form->removeField('organizationID');
+            $organizationID = $item->organizationID;
+        }
+        else
+        {
+            if ($organizationID = $previous->get('organizationID'))
+            {
+                $instance['organizationID'] = $organizationID;
+            }
+            else
+            {
+                // The authorize function would have blocked the object from getting this far if there was no value here.
+                $organizations  = Helpers\Organizations::getResources('teach');
+                $organizationID = reset($organizations)['id'];
+            }
 
-		$item->organizationID = $organizationID;
+            $form->setValue('organizationID', null, $organizationID);
+        }
 
-		$this->setDate($item);
-		$this->setGridID($item);
-		$this->setBlockID($item);
+        $item->organizationID = $organizationID;
 
-		$instance['blockID'] = $item->blockID;
-		$instance['date']    = $item->date;
-		$instance['gridID']  = $item->gridID;
+        $this->setDate($item);
+        $this->setGridID($item);
+        $this->setBlockID($item);
 
-		$form->setValue('blockID', null, $item->blockID);
-		$form->setValue('date', null, $item->date);
-		$form->setValue('gridID', null, $item->gridID);
+        $instance['blockID'] = $item->blockID;
+        $instance['date']    = $item->date;
+        $instance['gridID']  = $item->gridID;
 
-		$session->set('organizer.instance', $instance);*/
+        $form->setValue('blockID', null, $item->blockID);
+        $form->setValue('date', null, $item->date);
+        $form->setValue('gridID', null, $item->gridID);
 
-		return $form;
-	}
+        $session->set('organizer.instance', $instance);*/
 
-	/**
-	 * Method to get a single record.
-	 *
-	 * @param   int  $pk  The id of the primary key
-	 *
-	 * @return object|false Object on success, false on failure
-	 */
-	public function getItem($pk = 0)
-	{
-		$this->authorize();
+        return $form;
+    }
 
-		echo "<pre>" . print_r(Helpers\Input::getInput(), true) . "</pre><br>";
-		die;
+    /**
+     * Method to get a single record.
+     *
+     * @param   int  $pk  The id of the primary key
+     *
+     * @return object|false Object on success, false on failure
+     */
+    public function getItem($pk = 0)
+    {
+        $this->authorize();
 
-		if ($this->my = Helpers\Input::getBool('my'))
-		{
-			$code = Helpers\Users::getID() . '-1';
-			$keys = ['code' => $code];
+        echo "<pre>" . print_r(Helpers\Input::getInput(), true) . "</pre><br>";
+        die;
 
-			// Get an organization associated with the user as a teacher
-			$organizations  = Helpers\Organizations::getResources('teach');
-			$organizationID = reset($organizations)['id'];
-			$gridID         = Helpers\Organizations::getDefaultGrid($organizationID);
+        if ($this->my = Helpers\Input::getBool('my')) {
+            $code = Helpers\Users::getID() . '-1';
+            $keys = ['code' => $code];
 
-			foreach (Helpers\Terms::getResources(true) as $term)
-			{
-				$item  = new stdClass();
-				$table = new Table();
+            // Get an organization associated with the user as a teacher
+            $organizations  = Helpers\Organizations::getResources('teach');
+            $organizationID = reset($organizations)['id'];
+            $gridID         = Helpers\Organizations::getDefaultGrid($organizationID);
 
-				$keys['termID'] = $term['id'];
+            foreach (Helpers\Terms::getResources(true) as $term) {
+                $item  = new stdClass();
+                $table = new Table();
 
-				if (!$table->load($keys))
-				{
-					$data = [
-						'code'      => $code,
-						'endDate'   => $term['endDate'],
-						'gridID'    => $gridID,
-						'startDate' => $term['startDate'],
-						'termID'    => $term['id'],
-					];
+                $keys['termID'] = $term['id'];
 
-					$table->save($data);
-					// fill blank item
-				}
+                if (!$table->load($keys)) {
+                    $data = [
+                        'code'      => $code,
+                        'endDate'   => $term['endDate'],
+                        'gridID'    => $gridID,
+                        'startDate' => $term['startDate'],
+                        'termID'    => $term['id'],
+                    ];
 
-				$this->fillItem($item, $table);
-				$this->items[] = $item;
-			}
-		}
-		else
-		{
-			// No unit creation outside of the my context right now.
-			if (empty($pk))
-			{
-				Helpers\OrganizerHelper::error(501);
-			}
+                    $table->save($data);
+                    // fill blank item
+                }
 
-			$item  = new stdClass();
-			$table = new Tables\Units();
+                $this->fillItem($item, $table);
+                $this->items[] = $item;
+            }
+        } else {
+            // No unit creation outside of the my context right now.
+            if (empty($pk)) {
+                Helpers\OrganizerHelper::error(501);
+            }
 
-			$table->load($pk);
-			$this->fillItem($item, $table);
-			$items[] = $item;
-		}
+            $item  = new stdClass();
+            $table = new Tables\Units();
 
-		/*
+            $table->load($pk);
+            $this->fillItem($item, $table);
+            $items[] = $item;
+        }
 
-		if ($item->id)
-		{
-			$block = new Tables\Blocks();
-			$block->load($item->blockID);
-			$item->date = $block->date;
+        /*
 
-			$unit = new Tables\Units();
-			$unit->load($item->unitID);
+        if ($item->id)
+        {
+            $block = new Tables\Blocks();
+            $block->load($item->blockID);
+            $item->date = $block->date;
 
-			// Null default on grid deletion
-			$item->gridID = (int) $unit->gridID;
+            $unit = new Tables\Units();
+            $unit->load($item->unitID);
 
-			$item->organizationID = $unit->organizationID;
-			$this->setInstances($item);
-			//$instance = ['instanceID' => $item->id, 'instanceStatus' => $item->delta];
+            // Null default on grid deletion
+            $item->gridID = (int) $unit->gridID;
 
-			//Helpers\Instances::setPersons($instance, ['delta' => '']);
+            $item->organizationID = $unit->organizationID;
+            $this->setInstances($item);
+            //$instance = ['instanceID' => $item->id, 'instanceStatus' => $item->delta];
 
-			//$item->resources = $instance['resources'];
-		}
-		else
-		{
-			// if the date has been selected get the user's default unit if existent
-			//$item->resources = [];
-		}*/
+            //Helpers\Instances::setPersons($instance, ['delta' => '']);
 
-		return new stdClass();
-	}
+            //$item->resources = $instance['resources'];
+        }
+        else
+        {
+            // if the date has been selected get the user's default unit if existent
+            //$item->resources = [];
+        }*/
 
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Units A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Units
-	{
-		return new Tables\Units();
-	}
+        return new stdClass();
+    }
 
-	/**
-	 * Attempts to determine the block to be used for planning the current instance.
-	 *
-	 * @param   object  $item
-	 *
-	 * @return void sets the item's block id
-	 */
-	private function setBlockID(object $item)
-	{
-		$block = new Tables\Blocks();
+    /**
+     * Method to get a table object, load it if necessary.
+     *
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
+     *
+     * @return Tables\Units A Table object
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Tables\Units
+    {
+        return new Tables\Units();
+    }
 
-		// Selected > unit > organization default > 0
-		if ($blockID = Helpers\Input::getFormItems()->get('blockID') and $block->load($blockID))
-		{
-			$item->blockID = $blockID;
-		}
-	}
+    /**
+     * Attempts to determine the block to be used for planning the current instance.
+     *
+     * @param   object  $item
+     *
+     * @return void sets the item's block id
+     */
+    private function setBlockID(object $item)
+    {
+        $block = new Tables\Blocks();
 
-	/**
-	 * Attempts to determine the date to be used for planning the current instance.
-	 *
-	 * @param   object  $item
-	 *
-	 * @return void
-	 */
-	private function setDate(object $item)
-	{
-		if ($date = Helpers\Input::getFormItems()->get('date') and preg_match('/\d{4}-\d{2}-\d{2}/', $date))
-		{
-			$item->date = $date;
-		}
-		elseif (empty($item->date))
-		{
-			$item->date = date('Y-m-d');
-		}
-	}
+        // Selected > unit > organization default > 0
+        if ($blockID = Helpers\Input::getFormItems()->get('blockID') and $block->load($blockID)) {
+            $item->blockID = $blockID;
+        }
+    }
 
-	/**
-	 * Attempts to determine the grid to be used for planning the current instance.
-	 *
-	 * @param   object  $item
-	 *
-	 * @return void sets the item's grid id
-	 */
-	private function setGridID(object $item)
-	{
-		$default = Helpers\Organizations::getDefaultGrid($item->organizationID);
-		$grid    = new Tables\Grids();
+    /**
+     * Attempts to determine the date to be used for planning the current instance.
+     *
+     * @param   object  $item
+     *
+     * @return void
+     */
+    private function setDate(object $item)
+    {
+        if ($date = Helpers\Input::getFormItems()->get('date') and preg_match('/\d{4}-\d{2}-\d{2}/', $date)) {
+            $item->date = $date;
+        } elseif (empty($item->date)) {
+            $item->date = date('Y-m-d');
+        }
+    }
 
-		// Selected > unit > organization default > 0
-		if ($gridID = Helpers\Input::getFormItems()->get('gridID') and $grid->load($gridID))
-		{
-			$item->gridID = $gridID;
-		}
-		elseif (empty($item->gridID))
-		{
-			$item->gridID = $default;
-		}
-	}
+    /**
+     * Attempts to determine the grid to be used for planning the current instance.
+     *
+     * @param   object  $item
+     *
+     * @return void sets the item's grid id
+     */
+    private function setGridID(object $item)
+    {
+        $default = Helpers\Organizations::getDefaultGrid($item->organizationID);
+        $grid    = new Tables\Grids();
 
-	private function setInstances(object $item)
-	{
-		$query = Database::getQuery();
-		$query->select('id, eventID')
-			->from('#__organizer_instances')
-			->where("blockID = $item->blockID")
-			->where("unitID = $item->unitID");
-		Database::setQuery($query);
-		$instances = Database::loadAssocList();
-		echo "<pre>" . print_r($instances, true) . "</pre><br>";
-	}
+        // Selected > unit > organization default > 0
+        if ($gridID = Helpers\Input::getFormItems()->get('gridID') and $grid->load($gridID)) {
+            $item->gridID = $gridID;
+        } elseif (empty($item->gridID)) {
+            $item->gridID = $default;
+        }
+    }
+
+    private function setInstances(object $item)
+    {
+        $query = Database::getQuery();
+        $query->select('id, eventID')
+            ->from('#__organizer_instances')
+            ->where("blockID = $item->blockID")
+            ->where("unitID = $item->unitID");
+        Database::setQuery($query);
+        $instances = Database::loadAssocList();
+        echo "<pre>" . print_r($instances, true) . "</pre><br>";
+    }
 }

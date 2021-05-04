@@ -17,9 +17,9 @@ use Organizer\Controller;
  */
 class Categories extends Controller
 {
-	use Activated;
+    use Activated;
 
-	protected $listView = 'categories';
+    protected $listView = 'categories';
 
-	protected $resource = 'category';
+    protected $resource = 'category';
 }

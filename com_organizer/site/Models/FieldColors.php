@@ -18,68 +18,65 @@ use Organizer\Helpers;
  */
 class FieldColors extends ListModel
 {
-	protected $defaultOrdering = 'field';
+    protected $defaultOrdering = 'field';
 
-	protected $filter_fields = ['colorID' => 'colorID', 'organizationID' => 'organizationID'];
+    protected $filter_fields = ['colorID' => 'colorID', 'organizationID' => 'organizationID'];
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function filterFilterForm(Form &$form)
-	{
-		if (count(Helpers\Can::documentTheseOrganizations()) === 1)
-		{
-			$form->removeField('organizationID', 'filter');
-			unset($this->filter_fields['organizationID']);
+    /**
+     * @inheritDoc
+     */
+    protected function filterFilterForm(Form &$form)
+    {
+        if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
+            $form->removeField('organizationID', 'filter');
+            unset($this->filter_fields['organizationID']);
 
-			return;
-		}
-	}
+            return;
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function getListQuery()
-	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+    /**
+     * @inheritDoc
+     */
+    protected function getListQuery()
+    {
+        $tag   = Helpers\Languages::getTag();
+        $query = $this->_db->getQuery(true);
 
-		$query->select("DISTINCT fc.id, fc.*")
-			->select("c.name_$tag AS color")
-			->select("f.name_$tag AS field")
-			->select("o.shortName_$tag AS organization")
-			->from('#__organizer_field_colors AS fc')
-			->innerJoin('#__organizer_colors AS c ON c.id = fc.colorID')
-			->innerJoin('#__organizer_fields AS f ON f.id = fc.fieldID')
-			->innerJoin('#__organizer_organizations AS o ON o.id = fc.organizationID');
+        $query->select("DISTINCT fc.id, fc.*")
+            ->select("c.name_$tag AS color")
+            ->select("f.name_$tag AS field")
+            ->select("o.shortName_$tag AS organization")
+            ->from('#__organizer_field_colors AS fc')
+            ->innerJoin('#__organizer_colors AS c ON c.id = fc.colorID')
+            ->innerJoin('#__organizer_fields AS f ON f.id = fc.fieldID')
+            ->innerJoin('#__organizer_organizations AS o ON o.id = fc.organizationID');
 
-		// Explicitly set via request
-		$this->setIDFilter($query, 'c.id', 'filter.colorID');
-		$this->setIDFilter($query, 'f.id', 'filter.fieldID');
+        // Explicitly set via request
+        $this->setIDFilter($query, 'c.id', 'filter.colorID');
+        $this->setIDFilter($query, 'f.id', 'filter.fieldID');
 
-		// Explicitly set via request or implicitly set by authorization
-		if ($organizationID = $this->state->get('filter.organizationID'))
-		{
-			$query->where("organizationID = $organizationID");
-		}
+        // Explicitly set via request or implicitly set by authorization
+        if ($organizationID = $this->state->get('filter.organizationID')) {
+            $query->where("organizationID = $organizationID");
+        }
 
-		$this->setOrdering($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function populateState($ordering = null, $direction = null)
-	{
-		parent::populateState($ordering, $direction);
+    /**
+     * @inheritDoc
+     */
+    protected function populateState($ordering = null, $direction = null)
+    {
+        parent::populateState($ordering, $direction);
 
-		$accessibleOrganizations = Helpers\Can::documentTheseOrganizations();
+        $accessibleOrganizations = Helpers\Can::documentTheseOrganizations();
 
-		if (count($accessibleOrganizations) === 1)
-		{
-			$this->setState('filter.organizationID', $accessibleOrganizations[0]);
-		}
-	}
+        if (count($accessibleOrganizations) === 1) {
+            $this->setState('filter.organizationID', $accessibleOrganizations[0]);
+        }
+    }
 }

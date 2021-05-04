@@ -19,32 +19,29 @@ use Organizer\Models\Unit;
  */
 class Units extends Controller
 {
-	protected $listView = 'units';
+    protected $listView = 'units';
 
-	protected $resource = 'unit';
+    protected $resource = 'unit';
 
-	/**
-	 * Creates a course entry based on the data associated with a unit.
-	 *
-	 * @return void
-	 */
-	public function addCourse()
-	{
-		$model = new Unit();
+    /**
+     * Creates a course entry based on the data associated with a unit.
+     *
+     * @return void
+     */
+    public function addCourse()
+    {
+        $model = new Unit();
 
-		if ($resourceID = $model->addCourse())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+        if ($resourceID = $model->addCourse()) {
+            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
 
-			$url = Helpers\Routing::getRedirectBase() . "&view=course_edit&id=$resourceID";
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            $url = Helpers\Routing::getRedirectBase() . "&view=course_edit&id=$resourceID";
+        } else {
+            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 
-			$url = Helpers\Routing::getRedirectBase() . "&view=units";
-		}
+            $url = Helpers\Routing::getRedirectBase() . "&view=units";
+        }
 
-		$this->setRedirect($url);
-	}
+        $this->setRedirect($url);
+    }
 }

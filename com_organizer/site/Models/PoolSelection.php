@@ -15,5 +15,5 @@ namespace Organizer\Models;
  */
 class PoolSelection extends Pools
 {
-	// Everything is taken care of in the inheritance hierarchy.
+    // Everything is taken care of in the inheritance hierarchy.
 }

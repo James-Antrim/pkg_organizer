@@ -20,16 +20,16 @@ use Organizer\Models;
  */
 class Organizer extends Controller
 {
-	/**
-	 * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
-	 *
-	 * @return void
-	 */
-	public function cleanBookings()
-	{
-		$model = new Models\Booking();
-		$model->clean();
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
-	}
+    /**
+     * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
+     *
+     * @return void
+     */
+    public function cleanBookings()
+    {
+        $model = new Models\Booking();
+        $model->clean();
+        $url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+        $this->setRedirect(Route::_($url, false));
+    }
 }

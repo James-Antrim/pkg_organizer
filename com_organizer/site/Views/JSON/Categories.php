@@ -17,13 +17,13 @@ use Organizer\Helpers;
  */
 class Categories extends BaseView
 {
-	/**
-	 * loads model data into view context
-	 *
-	 * @return void
-	 */
-	public function display()
-	{
-		echo json_encode(Helpers\Categories::getResources(), JSON_UNESCAPED_UNICODE);
-	}
+    /**
+     * loads model data into view context
+     *
+     * @return void
+     */
+    public function display()
+    {
+        echo json_encode(Helpers\Categories::getResources(), JSON_UNESCAPED_UNICODE);
+    }
 }

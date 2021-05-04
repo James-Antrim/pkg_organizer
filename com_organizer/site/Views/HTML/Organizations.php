@@ -18,40 +18,40 @@ use Organizer\Helpers;
  */
 class Organizations extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'shortName' => 'link', 'name' => 'link'];
+    protected $rowStructure = ['checkbox' => '', 'shortName' => 'link', 'name' => 'link'];
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function addToolBar()
-	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_ORGANIZATIONS'), 'tree-2');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'organizations.add', false);
-		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'organizations.edit', true);
-		$toolbar->appendButton(
-			'Confirm',
-			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Helpers\Languages::_('ORGANIZER_DELETE'),
-			'organizations.delete',
-			true
-		);
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar()
+    {
+        Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_ORGANIZATIONS'), 'tree-2');
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'organizations.add', false);
+        $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'organizations.edit', true);
+        $toolbar->appendButton(
+            'Confirm',
+            Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+            'delete',
+            Helpers\Languages::_('ORGANIZER_DELETE'),
+            'organizations.delete',
+            true
+        );
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function setHeaders()
-	{
-		$ordering  = $this->state->get('list.ordering');
-		$direction = $this->state->get('list.direction');
-		$headers   = [
-			'checkbox'  => '',
-			'shortName' => Helpers\HTML::sort('SHORT_NAME', 'shortName', $direction, $ordering),
-			'name'      => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
-		];
+    /**
+     * @inheritdoc
+     */
+    public function setHeaders()
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox'  => '',
+            'shortName' => Helpers\HTML::sort('SHORT_NAME', 'shortName', $direction, $ordering),
+            'name'      => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
+        ];
 
-		$this->headers = $headers;
-	}
+        $this->headers = $headers;
+    }
 }

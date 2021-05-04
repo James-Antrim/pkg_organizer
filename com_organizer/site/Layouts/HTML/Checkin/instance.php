@@ -15,11 +15,11 @@ $link = Uri::base() . '?option=com_organizer&task=checkin.confirmInstance&id=';
 ?>
 <form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical confirm">
     <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CONFIRM_EVENT_TEXT'); ?></div>
-	<?php foreach ($this->instances as $instance): ?>
+    <?php foreach ($this->instances as $instance): ?>
         <div class="control-group">
             <a class="btn" href="<?php echo $link . $instance['instanceID']; ?>">
-				<?php echo $instance['name']; ?>
+                <?php echo $instance['name']; ?>
             </a>
         </div>
-	<?php endforeach; ?>
+    <?php endforeach; ?>
 </form>

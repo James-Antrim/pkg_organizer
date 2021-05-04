@@ -14,24 +14,23 @@ use Organizer\Helpers;
 
 $query = Uri::getInstance()->getQuery();
 
-if (!$this->adminContext)
-{
-	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
-	echo $this->subtitle;
-	echo $this->supplement;
+if (!$this->adminContext) {
+    echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
+    echo $this->subtitle;
+    echo $this->supplement;
 }
 ?>
 <div id="j-main-container" class="span10">
-	<?php if (!$this->adminContext) : ?>
-		<?php echo Toolbar::getInstance()->render(); ?>
-	<?php endif; ?>
+    <?php if (!$this->adminContext) : ?>
+        <?php echo Toolbar::getInstance()->render(); ?>
+    <?php endif; ?>
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm"
           class="form-<?php echo $this->orientation; ?> form-validate" enctype="multipart/form-data">
-		<?php echo $this->form->renderFieldset('details'); ?>
+        <?php echo $this->form->renderFieldset('details'); ?>
         <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-		<?php echo Helpers\HTML::_('form.token'); ?>
+        <?php echo Helpers\HTML::_('form.token'); ?>
     </form>
 </div>

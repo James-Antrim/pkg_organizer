@@ -15,5 +15,5 @@ namespace Organizer\Views\HTML;
  */
 class EventEdit extends EditView
 {
-	protected $_layout = 'tabs';
+    protected $_layout = 'tabs';
 }

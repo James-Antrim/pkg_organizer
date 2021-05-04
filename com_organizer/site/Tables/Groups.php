@@ -15,64 +15,64 @@ namespace Organizer\Tables;
  */
 class Groups extends BaseTable
 {
-	use Activated;
-	use Aliased;
-	use Coded;
-	use Suppressed;
+    use Activated;
+    use Aliased;
+    use Coded;
+    use Suppressed;
 
-	/**
-	 * The id of the category entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $categoryID;
+    /**
+     * The id of the category entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $categoryID;
 
-	/**
-	 * The resource's German name.
-	 * VARCHAR(200) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $fullName_de;
+    /**
+     * The resource's German name.
+     * VARCHAR(200) NOT NULL
+     *
+     * @var string
+     */
+    public $fullName_de;
 
-	/**
-	 * The resource's English name.
-	 * VARCHAR(200) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $fullName_en;
+    /**
+     * The resource's English name.
+     * VARCHAR(200) NOT NULL
+     *
+     * @var string
+     */
+    public $fullName_en;
 
-	/**
-	 * The id of the grid entry referenced.
-	 * INT(11) UNSIGNED DEFAULT 1
-	 *
-	 * @var int
-	 */
-	public $gridID;
+    /**
+     * The id of the grid entry referenced.
+     * INT(11) UNSIGNED DEFAULT 1
+     *
+     * @var int
+     */
+    public $gridID;
 
-	/**
-	 * The resource's German name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
+    /**
+     * The resource's German name.
+     * VARCHAR(150) NOT NULL
+     *
+     * @var string
+     */
+    public $name_de;
 
-	/**
-	 * The resource's English name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
+    /**
+     * The resource's English name.
+     * VARCHAR(150) NOT NULL
+     *
+     * @var string
+     */
+    public $name_en;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_groups');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_groups');
+    }
 }

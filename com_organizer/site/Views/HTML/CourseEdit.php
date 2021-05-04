@@ -17,63 +17,57 @@ use Organizer\Helpers;
  */
 class CourseEdit extends EditView
 {
-	protected $_layout = 'tabs';
+    protected $_layout = 'tabs';
 
-	/**
-	 * Adds a toolbar and title to the view.
-	 *
-	 * @return void  adds toolbar items to the view
-	 */
-	protected function addToolBar()
-	{
-		if ($this->item->id)
-		{
-			$title = Helpers\Languages::_('ORGANIZER_COURSE_EDIT');
+    /**
+     * Adds a toolbar and title to the view.
+     *
+     * @return void  adds toolbar items to the view
+     */
+    protected function addToolBar()
+    {
+        if ($this->item->id) {
+            $title = Helpers\Languages::_('ORGANIZER_COURSE_EDIT');
 
-			if ($this->adminContext)
-			{
-				$campus = Helpers\Campuses::getName($this->item->campusID);
-				$dates  = Helpers\Courses::getDateDisplay($this->item->id);
-				$tag    = Helpers\Languages::getTag();
-				$name   = "name_$tag";
-				$name   = $this->item->$name;
+            if ($this->adminContext) {
+                $campus = Helpers\Campuses::getName($this->item->campusID);
+                $dates  = Helpers\Courses::getDateDisplay($this->item->id);
+                $tag    = Helpers\Languages::getTag();
+                $name   = "name_$tag";
+                $name   = $this->item->$name;
 
-				$title .= ": $name - $campus ($dates)";
-			}
-		}
-		else
-		{
-			$title = Helpers\Languages::_('ORGANIZER_COURSE_NEW');
-		}
+                $title .= ": $name - $campus ($dates)";
+            }
+        } else {
+            $title = Helpers\Languages::_('ORGANIZER_COURSE_NEW');
+        }
 
-		parent::addToolBar();
-		Helpers\HTML::setTitle($title, 'contract-2');
-	}
+        parent::addToolBar();
+        Helpers\HTML::setTitle($title, 'contract-2');
+    }
 
-	/**
-	 * Creates a subtitle element from the term name and the start and end dates of the course.
-	 *
-	 * @return void modifies the course
-	 */
-	protected function setSubtitle()
-	{
-		if (empty($this->item->id))
-		{
-			$this->subtitle = '';
+    /**
+     * Creates a subtitle element from the term name and the start and end dates of the course.
+     *
+     * @return void modifies the course
+     */
+    protected function setSubtitle()
+    {
+        if (empty($this->item->id)) {
+            $this->subtitle = '';
 
-			return;
-		}
+            return;
+        }
 
-		$subTitle   = [];
-		$subTitle[] = Helpers\Courses::getName($this->item->id);
+        $subTitle   = [];
+        $subTitle[] = Helpers\Courses::getName($this->item->id);
 
-		if ($this->item->campusID)
-		{
-			$subTitle[] = Helpers\Campuses::getName($this->item->campusID);
-		}
+        if ($this->item->campusID) {
+            $subTitle[] = Helpers\Campuses::getName($this->item->campusID);
+        }
 
-		$subTitle[] = Helpers\Courses::getDateDisplay($this->item->id);
+        $subTitle[] = Helpers\Courses::getDateDisplay($this->item->id);
 
-		$this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
-	}
+        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
+    }
 }

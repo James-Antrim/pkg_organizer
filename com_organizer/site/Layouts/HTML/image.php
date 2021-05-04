@@ -11,10 +11,10 @@
 use Joomla\CMS\Uri\Uri;
 
 $style = [
-	"background-image: url('" . Uri::base(true) . '/images/organizer/' . $this->model->image . "')",
+    "background-image: url('" . Uri::base(true) . '/images/organizer/' . $this->model->image . "')",
     "background-position: center center",
-	"background-repeat: no-repeat",
-	"background-size: contain",
+    "background-repeat: no-repeat",
+    "background-size: contain",
     "height: 100%"
 ]
 
@@ -22,8 +22,7 @@ $style = [
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload()
-    {
+    function auto_reload() {
         window.location = document.URL;
     }
 
@@ -32,4 +31,4 @@ $style = [
         timer = setTimeout('auto_reload()', 60000);
     }
 </script>
-<div class='screen' style="<?php echo implode(';', $style)?>"></div>
+<div class='screen' style="<?php echo implode(';', $style) ?>"></div>

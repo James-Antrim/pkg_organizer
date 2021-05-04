@@ -18,57 +18,53 @@ use Organizer\Helpers;
  */
 class PoolEdit extends EditView
 {
-	use Subordinate;
+    use Subordinate;
 
-	protected $_layout = 'tabs';
+    protected $_layout = 'tabs';
 
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		if ($this->item->id)
-		{
-			$apply  = 'ORGANIZER_APPLY';
-			$cancel = 'ORGANIZER_CLOSE';
-			$save   = 'ORGANIZER_SAVE';
-			$title  = "ORGANIZER_POOL_EDIT";
-		}
-		else
-		{
-			$apply  = 'ORGANIZER_CREATE';
-			$cancel = 'ORGANIZER_CANCEL';
-			$save   = 'ORGANIZER_CREATE';
-			$title  = "ORGANIZER_POOL_NEW";
-		}
+    /**
+     * Method to generate buttons for user interaction
+     *
+     * @return void
+     */
+    protected function addToolBar()
+    {
+        if ($this->item->id) {
+            $apply  = 'ORGANIZER_APPLY';
+            $cancel = 'ORGANIZER_CLOSE';
+            $save   = 'ORGANIZER_SAVE';
+            $title  = "ORGANIZER_POOL_EDIT";
+        } else {
+            $apply  = 'ORGANIZER_CREATE';
+            $cancel = 'ORGANIZER_CANCEL';
+            $save   = 'ORGANIZER_CREATE';
+            $title  = "ORGANIZER_POOL_NEW";
+        }
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'list-2');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'pools.apply', false);
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'pools.save', false);
+        Helpers\HTML::setTitle(Helpers\Languages::_($title), 'list-2');
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'pools.apply', false);
+        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'pools.save', false);
 
-		if ($this->item->id)
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'save-copy',
-				Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
-				'pools.save2copy',
-				false
-			);
-		}
+        if ($this->item->id) {
+            $toolbar->appendButton(
+                'Standard',
+                'save-copy',
+                Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
+                'pools.save2copy',
+                false
+            );
+        }
 
-		$baseURL = 'index.php?option=com_organizer&tmpl=component';
-		$baseURL .= "&type=pool&id={$this->item->id}&view=";
+        $baseURL = 'index.php?option=com_organizer&tmpl=component';
+        $baseURL .= "&type=pool&id={$this->item->id}&view=";
 
-		$poolLink = $baseURL . 'pool_selection';
-		$toolbar->appendButton('Popup', 'list', Helpers\Languages::_('ORGANIZER_ADD_POOL'), $poolLink);
+        $poolLink = $baseURL . 'pool_selection';
+        $toolbar->appendButton('Popup', 'list', Helpers\Languages::_('ORGANIZER_ADD_POOL'), $poolLink);
 
-		$subjectLink = $baseURL . 'subject_selection';
-		$toolbar->appendButton('Popup', 'book', Helpers\Languages::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
+        $subjectLink = $baseURL . 'subject_selection';
+        $toolbar->appendButton('Popup', 'book', Helpers\Languages::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
 
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'pools.cancel', false);
-	}
+        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'pools.cancel', false);
+    }
 }

@@ -16,7 +16,8 @@
         </field>
         <field name="title" type="Blank" label="INSTANCE_TITLE" class="input-15 validate-text" maxlength="255"
                required="true"/>
-        <field name="roomIDs" type="Rooms" label="INSTANCE_ROOMS" class="validate-select" hint="SELECT_ROOMS" multiple="multiple" required="true">
+        <field name="roomIDs" type="Rooms" label="INSTANCE_ROOMS" class="validate-select" hint="SELECT_ROOMS"
+               multiple="multiple" required="true">
             <!--<option value="-1">SELECT_ROOMS</option>-->
         </field>
     </fieldset>

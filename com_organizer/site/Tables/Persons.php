@@ -15,76 +15,74 @@ namespace Organizer\Tables;
  */
 class Persons extends BaseTable
 {
-	use Activated;
-	use Aliased;
-	use Coded;
-	use Suppressed;
+    use Activated;
+    use Aliased;
+    use Coded;
+    use Suppressed;
 
-	/**
-	 * The person's first and middle names.
-	 * VARCHAR(255) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $forename;
+    /**
+     * The person's first and middle names.
+     * VARCHAR(255) NOT NULL DEFAULT ''
+     *
+     * @var string
+     */
+    public $forename;
 
-	/**
-	 * A flag which displays whether the person chooses to display their information publicly.
-	 * TINYINT(1) UNSIGNED DEFAULT 0
-	 *
-	 * @var string
-	 */
-	public $public;
+    /**
+     * A flag which displays whether the person chooses to display their information publicly.
+     * TINYINT(1) UNSIGNED DEFAULT 0
+     *
+     * @var string
+     */
+    public $public;
 
-	/**
-	 * The person's surnames.
-	 * VARCHAR(255) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $surname;
+    /**
+     * The person's surnames.
+     * VARCHAR(255) NOT NULL
+     *
+     * @var string
+     */
+    public $surname;
 
-	/**
-	 * The person's titles.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $title;
+    /**
+     * The person's titles.
+     * VARCHAR(45) NOT NULL DEFAULT ''
+     *
+     * @var string
+     */
+    public $title;
 
-	/**
-	 * The person's user name.
-	 * VARCHAR(150) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $username;
+    /**
+     * The person's user name.
+     * VARCHAR(150) DEFAULT NULL
+     *
+     * @var string
+     */
+    public $username;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_persons');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_persons');
+    }
 
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return bool  true
-	 */
-	public function check(): bool
-	{
-		// All three fields can receive data from at least two systems.
-		$nullColumns = ['alias', 'code', 'username'];
-		foreach ($nullColumns as $nullColumn)
-		{
-			if (!strlen($this->$nullColumn))
-			{
-				$this->$nullColumn = null;
-			}
-		}
+    /**
+     * Set the table column names which are allowed to be null
+     *
+     * @return bool  true
+     */
+    public function check(): bool
+    {
+        // All three fields can receive data from at least two systems.
+        $nullColumns = ['alias', 'code', 'username'];
+        foreach ($nullColumns as $nullColumn) {
+            if (!strlen($this->$nullColumn)) {
+                $this->$nullColumn = null;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

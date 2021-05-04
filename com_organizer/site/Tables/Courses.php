@@ -15,121 +15,119 @@ namespace Organizer\Tables;
  */
 class Courses extends BaseTable
 {
-	use Aliased;
+    use Aliased;
 
-	/**
-	 * The id of the campus entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $campusID;
+    /**
+     * The id of the campus entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $campusID;
 
-	/**
-	 * The number of days before course begin when registration is closed.
-	 * INT(2) UNSIGNED DEFAULT 0
-	 *
-	 * @var int
-	 */
-	public $deadline;
+    /**
+     * The number of days before course begin when registration is closed.
+     * INT(2) UNSIGNED DEFAULT 0
+     *
+     * @var int
+     */
+    public $deadline;
 
-	/**
-	 * The resource's German description.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $description_de;
+    /**
+     * The resource's German description.
+     * TEXT
+     *
+     * @var string
+     */
+    public $description_de;
 
-	/**
-	 * The resource's English description.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $description_en;
+    /**
+     * The resource's English description.
+     * TEXT
+     *
+     * @var string
+     */
+    public $description_en;
 
-	/**
-	 * The fee for participation in the course.
-	 * INT(3) UNSIGNED DEFAULT 0
-	 *
-	 * @var int
-	 */
-	public $fee;
+    /**
+     * The fee for participation in the course.
+     * INT(3) UNSIGNED DEFAULT 0
+     *
+     * @var int
+     */
+    public $fee;
 
-	/**
-	 * A short textual description of which groups should visit the course.
-	 * VARCHAR(100) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $groups;
+    /**
+     * A short textual description of which groups should visit the course.
+     * VARCHAR(100) NOT NULL DEFAULT ''
+     *
+     * @var string
+     */
+    public $groups;
 
-	/**
-	 * The maximum number of participants the course allows.
-	 * INT(4) UNSIGNED DEFAULT 1000
-	 *
-	 * @var int
-	 */
-	public $maxParticipants;
+    /**
+     * The maximum number of participants the course allows.
+     * INT(4) UNSIGNED DEFAULT 1000
+     *
+     * @var int
+     */
+    public $maxParticipants;
 
-	/**
-	 * The resource's German name.
-	 * VARCHAR(150) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
+    /**
+     * The resource's German name.
+     * VARCHAR(150) DEFAULT NULL
+     *
+     * @var string
+     */
+    public $name_de;
 
-	/**
-	 * The resource's English name.
-	 * VARCHAR(150) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
+    /**
+     * The resource's English name.
+     * VARCHAR(150) DEFAULT NULL
+     *
+     * @var string
+     */
+    public $name_en;
 
-	/**
-	 * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.
-	 * INT(1) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $registrationType;
+    /**
+     * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.
+     * INT(1) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $registrationType;
 
-	/**
-	 * The id of the term entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $termID;
+    /**
+     * The id of the term entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     *
+     * @var int
+     */
+    public $termID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_courses');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_courses');
+    }
 
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return bool  true
-	 */
-	public function check()
-	{
-		if (empty($this->alias))
-		{
-			$this->alias = null;
-		}
+    /**
+     * Set the table column names which are allowed to be null
+     *
+     * @return bool  true
+     */
+    public function check()
+    {
+        if (empty($this->alias)) {
+            $this->alias = null;
+        }
 
-		if (empty($this->campusID))
-		{
-			$this->campusID = null;
-		}
+        if (empty($this->campusID)) {
+            $this->campusID = null;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

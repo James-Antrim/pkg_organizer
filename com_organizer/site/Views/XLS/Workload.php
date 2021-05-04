@@ -15,13 +15,13 @@ namespace Organizer\Views\XLS;
  */
 class Workload extends BaseView
 {
-	/**
-	 * @inheritdoc
-	 */
-	public function __construct()
-	{
-		parent::__construct();
+    /**
+     * @inheritdoc
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-		$this->model->setUp();
-	}
+        $this->model->setUp();
+    }
 }

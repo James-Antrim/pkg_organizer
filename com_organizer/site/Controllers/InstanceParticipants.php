@@ -20,69 +20,66 @@ use Organizer\Models;
 
 class InstanceParticipants extends Controller
 {
-	protected $listView = 'instance_participants';
+    protected $listView = 'instance_participants';
 
-	protected $resource = 'instance_participant';
+    protected $resource = 'instance_participant';
 
-	/**
-	 * Class constructor
-	 *
-	 * @param   array  $config  An optional associative [] of configuration settings.
-	 */
-	public function __construct($config = [])
-	{
-		parent::__construct($config);
+    /**
+     * Class constructor
+     *
+     * @param   array  $config  An optional associative [] of configuration settings.
+     */
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
 
-		$this->registerTask('add', 'add');
-	}
+        $this->registerTask('add', 'add');
+    }
 
-	/**
-	 * Adds instances to the user's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function add()
-	{
-		$model = new Models\InstanceParticipant();
+    /**
+     * Adds instances to the user's personal schedule.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $model = new Models\InstanceParticipant();
 
-		$response = json_encode($model->add(), JSON_NUMERIC_CHECK);
+        $response = json_encode($model->add(), JSON_NUMERIC_CHECK);
 
-		$this->jsonResponse($response);
-	}
+        $this->jsonResponse($response);
+    }
 
-	/**
-	 * Removes instances to the user's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function remove()
-	{
-		$model = new Models\InstanceParticipant();
+    /**
+     * Removes instances to the user's personal schedule.
+     *
+     * @return void
+     */
+    public function remove()
+    {
+        $model = new Models\InstanceParticipant();
 
-		$response = json_encode($model->remove(), JSON_NUMERIC_CHECK);
+        $response = json_encode($model->remove(), JSON_NUMERIC_CHECK);
 
-		$this->jsonResponse($response);
-	}
+        $this->jsonResponse($response);
+    }
 
-	/**
-	 * Save form data to the database.
-	 *
-	 * @return void
-	 */
-	public function save()
-	{
-		$model = new Models\InstanceParticipant();
+    /**
+     * Save form data to the database.
+     *
+     * @return void
+     */
+    public function save()
+    {
+        $model = new Models\InstanceParticipant();
 
-		if ($model->save())
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-			Factory::getSession()->set('organizer.participation.referrer', '');
-			$referrer = Helpers\Input::getString('referrer');
-			$this->setRedirect(Route::_($referrer, false));
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
-	}
+        if ($model->save()) {
+            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Factory::getSession()->set('organizer.participation.referrer', '');
+            $referrer = Helpers\Input::getString('referrer');
+            $this->setRedirect(Route::_($referrer, false));
+        } else {
+            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+        }
+    }
 }

@@ -18,97 +18,95 @@ use Organizer\Helpers;
  */
 class Categories extends ListView
 {
-	protected $rowStructure = [
-		'checkbox' => '',
-		'name'     => 'link',
-		'active'   => 'value',
-		'program'  => 'link',
-		'code'     => 'link'
-	];
+    protected $rowStructure = [
+        'checkbox' => '',
+        'name'     => 'link',
+        'active'   => 'value',
+        'program'  => 'link',
+        'code'     => 'link'
+    ];
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function addToolBar()
-	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_CATEGORIES'), 'list-2');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'categories.edit', true);
-		$toolbar->appendButton(
-			'Standard',
-			'eye-open',
-			Helpers\Languages::_('ORGANIZER_ACTIVATE'),
-			'categories.activate',
-			false
-		);
-		$toolbar->appendButton(
-			'Standard',
-			'eye-close',
-			Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
-			'categories.deactivate',
-			false
-		);
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar()
+    {
+        Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_CATEGORIES'), 'list-2');
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'categories.edit', true);
+        $toolbar->appendButton(
+            'Standard',
+            'eye-open',
+            Helpers\Languages::_('ORGANIZER_ACTIVATE'),
+            'categories.activate',
+            false
+        );
+        $toolbar->appendButton(
+            'Standard',
+            'eye-close',
+            Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
+            'categories.deactivate',
+            false
+        );
 
-		/*if (Helpers\Can::administrate())
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'contract',
-				Helpers\Languages::_('ORGANIZER_MERGE'),
-				'categories.mergeView',
-				true
-			);
-		}*/
-	}
+        /*if (Helpers\Can::administrate())
+        {
+            $toolbar->appendButton(
+                'Standard',
+                'contract',
+                Helpers\Languages::_('ORGANIZER_MERGE'),
+                'categories.mergeView',
+                true
+            );
+        }*/
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::scheduleTheseOrganizations())
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::scheduleTheseOrganizations()) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function setHeaders()
-	{
-		$ordering  = $this->state->get('list.ordering');
-		$direction = $this->state->get('list.direction');
-		$headers   = [
-			'checkbox' => '',
-			'name'     => Helpers\HTML::sort('DISPLAY_NAME', 'name', $direction, $ordering),
-			'active'   => Helpers\Languages::_('ORGANIZER_ACTIVE'),
-			'program'  => Helpers\Languages::_('ORGANIZER_PROGRAM'),
-			'code'     => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering)
-		];
+    /**
+     * @inheritdoc
+     */
+    public function setHeaders()
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox' => '',
+            'name'     => Helpers\HTML::sort('DISPLAY_NAME', 'name', $direction, $ordering),
+            'active'   => Helpers\Languages::_('ORGANIZER_ACTIVE'),
+            'program'  => Helpers\Languages::_('ORGANIZER_PROGRAM'),
+            'code'     => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering)
+        ];
 
-		$this->headers = $headers;
-	}
+        $this->headers = $headers;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function structureItems()
-	{
-		$index           = 0;
-		$link            = 'index.php?option=com_organizer&view=category_edit&id=';
-		$structuredItems = [];
+    /**
+     * @inheritdoc
+     */
+    protected function structureItems()
+    {
+        $index           = 0;
+        $link            = 'index.php?option=com_organizer&view=category_edit&id=';
+        $structuredItems = [];
 
-		foreach ($this->items as $item)
-		{
-			$tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
-			$item->active = $this->getToggle('categories', $item->id, $item->active, $tip, 'active');
+        foreach ($this->items as $item) {
+            $tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
+            $item->active = $this->getToggle('categories', $item->id, $item->active, $tip, 'active');
 
-			$item->program           = Helpers\Categories::getName($item->id);
-			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-			$index++;
-		}
+            $item->program           = Helpers\Categories::getName($item->id);
+            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $index++;
+        }
 
-		$this->items = $structuredItems;
-	}
+        $this->items = $structuredItems;
+    }
 }

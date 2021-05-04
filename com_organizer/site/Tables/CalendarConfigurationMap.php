@@ -15,27 +15,27 @@ namespace Organizer\Tables;
  */
 class CalendarConfigurationMap extends BaseTable
 {
-	/**
-	 * The id of the calendar entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $calendarID;
+    /**
+     * The id of the calendar entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     *
+     * @var int
+     */
+    public $calendarID;
 
-	/**
-	 * The id of the configuration entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $configurationID;
+    /**
+     * The id of the configuration entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     *
+     * @var int
+     */
+    public $configurationID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__thm_organizer_calendar_configuration_map');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__thm_organizer_calendar_configuration_map');
+    }
 }

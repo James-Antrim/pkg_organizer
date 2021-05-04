@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Pools extends Controller
 {
-	protected $listView = 'pools';
+    protected $listView = 'pools';
 
-	protected $resource = 'pool';
+    protected $resource = 'pool';
 }

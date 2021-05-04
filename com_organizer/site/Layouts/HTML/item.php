@@ -14,9 +14,8 @@ use Organizer\Helpers;
 $resourceID = Helpers\Input::getID();
 $view       = Helpers\Input::getView();
 
-if ($this->refresh)
-{
-	?>
+if ($this->refresh) {
+    ?>
     <script type="text/javascript">
         let timer = null;
 
@@ -28,7 +27,7 @@ if ($this->refresh)
             timer = setTimeout('auto_reload()', <?php echo $this->refresh; ?>000);
         }
     </script>
-	<?php
+    <?php
 }
 
 require_once 'language_selection.php';
@@ -37,36 +36,33 @@ echo $this->subtitle;
 echo $this->supplement;
 ?>
 <div id="j-main-container" class="span10">
-	<?php if (!$this->adminContext) : ?>
-		<?php echo Toolbar::getInstance()->render(); ?>
-	<?php endif; ?>
-	<?php
-	foreach ($this->item as $key => $attribute)
-	{
-		if (empty($attribute['value']))
-		{
-			continue;
-		}
-		echo '<div class="attribute-item">';
-		echo '<div class="attribute-label">' . $attribute['label'] . '</div>';
-		echo '<div class="attribute-content">';
-		switch ($attribute['type'])
-		{
-			case 'list':
-				$urlAttribs = ['target' => '_blank'];
-				$url        = empty($attribute['url']) ? '' : $attribute['url'];
-				$this->renderListValue($attribute['value'], $url, $urlAttribs);
-				break;
-			case 'star':
-				$this->renderStarValue($attribute['value']);
-				break;
-			case 'text':
-			default:
-				echo $attribute['value'];
-				break;
-		}
-		echo '</div></div>';
-	}
-	echo $this->disclaimer;
-	?>
+    <?php if (!$this->adminContext) : ?>
+        <?php echo Toolbar::getInstance()->render(); ?>
+    <?php endif; ?>
+    <?php
+    foreach ($this->item as $key => $attribute) {
+        if (empty($attribute['value'])) {
+            continue;
+        }
+        echo '<div class="attribute-item">';
+        echo '<div class="attribute-label">' . $attribute['label'] . '</div>';
+        echo '<div class="attribute-content">';
+        switch ($attribute['type']) {
+            case 'list':
+                $urlAttribs = ['target' => '_blank'];
+                $url        = empty($attribute['url']) ? '' : $attribute['url'];
+                $this->renderListValue($attribute['value'], $url, $urlAttribs);
+                break;
+            case 'star':
+                $this->renderStarValue($attribute['value']);
+                break;
+            case 'text':
+            default:
+                echo $attribute['value'];
+                break;
+        }
+        echo '</div></div>';
+    }
+    echo $this->disclaimer;
+    ?>
 </div>

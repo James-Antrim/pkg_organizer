@@ -18,74 +18,71 @@ use Organizer\Models\Instances as Model;
  */
 class Instances extends ListView
 {
-	/**
-	 * @var array
-	 */
-	public $conditions;
+    /**
+     * @var array
+     */
+    public $conditions;
 
-	/**
-	 * @var Model
-	 */
-	protected $model;
+    /**
+     * @var Model
+     */
+    protected $model;
 
-	/**
-	 * @var string
-	 */
-	public $title;
+    /**
+     * @var string
+     */
+    public $title;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct($orientation = self::PORTRAIT, $unit = 'mm', $format = 'A4')
-	{
-		parent::__construct($orientation, $unit, $format);
-		$this->title      = $this->model->getTitle();
-		$this->conditions = $this->model->conditions;
-	}
+    /**
+     * @inheritDoc
+     */
+    public function __construct($orientation = self::PORTRAIT, $unit = 'mm', $format = 'A4')
+    {
+        parent::__construct($orientation, $unit, $format);
+        $this->title      = $this->model->getTitle();
+        $this->conditions = $this->model->conditions;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function authorize()
-	{
-		// State has not been established => redundant checks :(
-		$filters  = Helpers\Input::getFilterItems();
-		$params   = Helpers\Input::getParams();
-		$my       = Helpers\Input::getInt('my', $params->get('my', 0));
-		$personID = $filters->get('personID');
+    /**
+     * @inheritdoc
+     */
+    protected function authorize()
+    {
+        // State has not been established => redundant checks :(
+        $filters  = Helpers\Input::getFilterItems();
+        $params   = Helpers\Input::getParams();
+        $my       = Helpers\Input::getInt('my', $params->get('my', 0));
+        $personID = $filters->get('personID');
 
-		if ($my or $personID)
-		{
-			if (!Helpers\Users::getID())
-			{
-				Helpers\OrganizerHelper::error(401);
-			}
+        if ($my or $personID) {
+            if (!Helpers\Users::getID()) {
+                Helpers\OrganizerHelper::error(401);
+            }
 
-			if ($personID and !in_array($personID, array_keys(Helpers\Persons::getResources())))
-			{
-				Helpers\OrganizerHelper::error(403);
-			}
-		}
-	}
+            if ($personID and !in_array($personID, array_keys(Helpers\Persons::getResources()))) {
+                Helpers\OrganizerHelper::error(403);
+            }
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function display($destination = self::INLINE)
-	{
-		parent::display($destination);
-	}
+    /**
+     * @inheritDoc
+     */
+    public function display($destination = self::INLINE)
+    {
+        parent::display($destination);
+    }
 
-	/**
-	 * Set header items.
-	 *
-	 * @return void
-	 */
-	public function setOverhead()
-	{
-		// Header data is set per page.
-		$this->setFooterData(self::BLACK, self::WHITE);
+    /**
+     * Set header items.
+     *
+     * @return void
+     */
+    public function setOverhead()
+    {
+        // Header data is set per page.
+        $this->setFooterData(self::BLACK, self::WHITE);
 
-		parent::setHeader();
-	}
+        parent::setHeader();
+    }
 }

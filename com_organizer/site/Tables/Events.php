@@ -15,214 +15,212 @@ namespace Organizer\Tables;
  */
 class Events extends BaseTable
 {
-	use Activated;
-	use Aliased;
-	use Coded;
-	use Suppressed;
+    use Activated;
+    use Aliased;
+    use Coded;
+    use Suppressed;
 
-	/**
-	 * The id of the campus entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $campusID;
+    /**
+     * The id of the campus entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $campusID;
 
-	/**
-	 * The organization's German contact information for a group of courses.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $contact_de;
+    /**
+     * The organization's German contact information for a group of courses.
+     * TEXT
+     *
+     * @var string
+     */
+    public $contact_de;
 
-	/**
-	 * The organization's English contact information for a group of courses.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $contact_en;
+    /**
+     * The organization's English contact information for a group of courses.
+     * TEXT
+     *
+     * @var string
+     */
+    public $contact_en;
 
-	/**
-	 * The German description of the event's contents.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $content_de;
+    /**
+     * The German description of the event's contents.
+     * TEXT
+     *
+     * @var string
+     */
+    public $content_de;
 
-	/**
-	 * The English description of the event's contents.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $content_en;
+    /**
+     * The English description of the event's contents.
+     * TEXT
+     *
+     * @var string
+     */
+    public $content_en;
 
-	/**
-	 * The organization's German contact information for courses of this event type.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $courseContact_de;
+    /**
+     * The organization's German contact information for courses of this event type.
+     * TEXT
+     *
+     * @var string
+     */
+    public $courseContact_de;
 
-	/**
-	 * The organization's English contact information for courses of this event type.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $courseContact_en;
+    /**
+     * The organization's English contact information for courses of this event type.
+     * TEXT
+     *
+     * @var string
+     */
+    public $courseContact_en;
 
-	/**
-	 * The number of days before course begin when registration is closed.
-	 * INT(2) UNSIGNED DEFAULT 0
-	 *
-	 * @var int
-	 */
-	public $deadline;
+    /**
+     * The number of days before course begin when registration is closed.
+     * INT(2) UNSIGNED DEFAULT 0
+     *
+     * @var int
+     */
+    public $deadline;
 
-	/**
-	 * The resource's German description.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $description_de;
+    /**
+     * The resource's German description.
+     * TEXT
+     *
+     * @var string
+     */
+    public $description_de;
 
-	/**
-	 * The resource's English description.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $description_en;
+    /**
+     * The resource's English description.
+     * TEXT
+     *
+     * @var string
+     */
+    public $description_en;
 
-	/**
-	 * The fee for participation in the course.
-	 * INT(3) UNSIGNED DEFAULT 0
-	 *
-	 * @var int
-	 */
-	public $fee;
+    /**
+     * The fee for participation in the course.
+     * INT(3) UNSIGNED DEFAULT 0
+     *
+     * @var int
+     */
+    public $fee;
 
-	/**
-	 * The maximum number of participants the course allows.
-	 * INT(4) UNSIGNED DEFAULT 1000
-	 *
-	 * @var int
-	 */
-	public $maxParticipants;
+    /**
+     * The maximum number of participants the course allows.
+     * INT(4) UNSIGNED DEFAULT 1000
+     *
+     * @var int
+     */
+    public $maxParticipants;
 
-	/**
-	 * The resource's German name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
+    /**
+     * The resource's German name.
+     * VARCHAR(150) NOT NULL
+     *
+     * @var string
+     */
+    public $name_de;
 
-	/**
-	 * The resource's English name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
+    /**
+     * The resource's English name.
+     * VARCHAR(150) NOT NULL
+     *
+     * @var string
+     */
+    public $name_en;
 
-	/**
-	 * A German description of how courses implementing this event are organized.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $organization_de;
+    /**
+     * A German description of how courses implementing this event are organized.
+     * TEXT
+     *
+     * @var string
+     */
+    public $organization_de;
 
-	/**
-	 * A English description of how courses implementing this event are organized.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $organization_en;
+    /**
+     * A English description of how courses implementing this event are organized.
+     * TEXT
+     *
+     * @var string
+     */
+    public $organization_en;
 
-	/**
-	 * The id of the organization entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $organizationID;
+    /**
+     * The id of the organization entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $organizationID;
 
-	/**
-	 * A German description how to test one's self to see if one should attend or is qualified to attend courses
-	 * implementing this event.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $pretests_de;
+    /**
+     * A German description how to test one's self to see if one should attend or is qualified to attend courses
+     * implementing this event.
+     * TEXT
+     *
+     * @var string
+     */
+    public $pretests_de;
 
-	/**
-	 * A English description how to test one's self to see if one should attend or is qualified to attend courses
-	 * implementing this event.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $pretests_en;
+    /**
+     * A English description how to test one's self to see if one should attend or is qualified to attend courses
+     * implementing this event.
+     * TEXT
+     *
+     * @var string
+     */
+    public $pretests_en;
 
-	/**
-	 * Whether or not the event is a preparatory event.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-	 *
-	 * @var bool
-	 */
-	public $preparatory;
+    /**
+     * Whether or not the event is a preparatory event.
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
+     *
+     * @var bool
+     */
+    public $preparatory;
 
-	/**
-	 * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.
-	 * INT(1) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $registrationType;
+    /**
+     * The method of processing used to accept course registrations. Values: NULL - None, 0 - FIFO, 1 - Manual.
+     * INT(1) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $registrationType;
 
-	/**
-	 * The resource's alphanumeric identifier in degree program documentation.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $subjectNo;
+    /**
+     * The resource's alphanumeric identifier in degree program documentation.
+     * VARCHAR(45) NOT NULL DEFAULT ''
+     *
+     * @var string
+     */
+    public $subjectNo;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_events');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_events');
+    }
 
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return bool  true
-	 */
-	public function check(): bool
-	{
-		if (empty($this->alias))
-		{
-			$this->alias = null;
-		}
+    /**
+     * Set the table column names which are allowed to be null
+     *
+     * @return bool  true
+     */
+    public function check(): bool
+    {
+        if (empty($this->alias)) {
+            $this->alias = null;
+        }
 
-		if (empty($this->campusID))
-		{
-			$this->campusID = null;
-		}
+        if (empty($this->campusID)) {
+            $this->campusID = null;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

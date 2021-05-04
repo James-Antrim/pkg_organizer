@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class FieldColors extends Controller
 {
-	protected $listView = 'field_colors';
+    protected $listView = 'field_colors';
 
-	protected $resource = 'field_color';
+    protected $resource = 'field_color';
 }

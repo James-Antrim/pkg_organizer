@@ -17,21 +17,21 @@ use Organizer\Helpers;
  */
 class CampusesField extends OptionsField
 {
-	/**
-	 * @var  string
-	 */
-	protected $type = 'Campuses';
+    /**
+     * @var  string
+     */
+    protected $type = 'Campuses';
 
-	/**
-	 * Returns an array of options
-	 *
-	 * @return array  the options
-	 */
-	protected function getOptions()
-	{
-		$options  = parent::getOptions();
-		$campuses = Helpers\Campuses::getOptions();
+    /**
+     * Returns an array of options
+     *
+     * @return array  the options
+     */
+    protected function getOptions()
+    {
+        $options  = parent::getOptions();
+        $campuses = Helpers\Campuses::getOptions();
 
-		return array_merge($options, $campuses);
-	}
+        return array_merge($options, $campuses);
+    }
 }

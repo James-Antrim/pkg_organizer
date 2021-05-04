@@ -15,27 +15,27 @@ use Organizer\Helpers\Languages;
 
 class Help extends BaseView
 {
-	protected $_layout = 'help-wrapper';
+    protected $_layout = 'help-wrapper';
 
-	/**
-	 * Adds a toolbar and title to the view.
-	 *
-	 * @return void  adds toolbar items to the view
-	 */
-	protected function addToolBar()
-	{
-		$topic    = strtoupper(Helpers\Input::getCMD('topic', 'toc'));
-		$constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
-		Helpers\HTML::setTitle(Languages::_($constant), 'info');
-	}
+    /**
+     * Adds a toolbar and title to the view.
+     *
+     * @return void  adds toolbar items to the view
+     */
+    protected function addToolBar()
+    {
+        $topic    = strtoupper(Helpers\Input::getCMD('topic', 'toc'));
+        $constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
+        Helpers\HTML::setTitle(Languages::_($constant), 'info');
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function display($tpl = null)
-	{
-		$this->addToolBar();
-		$this->modifyDocument();
-		parent::display($tpl);
-	}
+    /**
+     * @inheritDoc
+     */
+    public function display($tpl = null)
+    {
+        $this->addToolBar();
+        $this->modifyDocument();
+        parent::display($tpl);
+    }
 }

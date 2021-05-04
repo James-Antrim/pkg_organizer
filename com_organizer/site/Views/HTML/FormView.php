@@ -20,59 +20,56 @@ use Organizer\Helpers;
  */
 abstract class FormView extends BaseView
 {
-	protected $_layout = 'form';
+    protected $_layout = 'form';
 
-	protected $orientation = 'horizontal';
+    protected $orientation = 'horizontal';
 
-	public $params = null;
+    public $params = null;
 
-	public $form = null;
+    public $form = null;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function display($tpl = null)
-	{
-		$this->form = $this->get('Form');
+    /**
+     * @inheritDoc
+     */
+    public function display($tpl = null)
+    {
+        $this->form = $this->get('Form');
 
-		// Allows for view specific toolbar handling
-		$this->addToolBar();
+        // Allows for view specific toolbar handling
+        $this->addToolBar();
 
-		if (empty($this->adminContext))
-		{
-			if (method_exists($this, 'setSubtitle'))
-			{
-				$this->setSubtitle();
-			}
-			if (method_exists($this, 'addSupplement'))
-			{
-				$this->addSupplement();
-			}
-		}
+        if (empty($this->adminContext)) {
+            if (method_exists($this, 'setSubtitle')) {
+                $this->setSubtitle();
+            }
+            if (method_exists($this, 'addSupplement')) {
+                $this->addSupplement();
+            }
+        }
 
-		$this->modifyDocument();
-		parent::display($tpl);
-	}
+        $this->modifyDocument();
+        parent::display($tpl);
+    }
 
-	/**
-	 * Adds a toolbar and title to the view.
-	 *
-	 * @return void  adds toolbar items to the view
-	 */
-	abstract protected function addToolBar();
+    /**
+     * Adds a toolbar and title to the view.
+     *
+     * @return void  adds toolbar items to the view
+     */
+    abstract protected function addToolBar();
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function modifyDocument()
-	{
-		parent::modifyDocument();
+    /**
+     * @inheritDoc
+     */
+    protected function modifyDocument()
+    {
+        parent::modifyDocument();
 
-		Helpers\HTML::_('behavior.formvalidator');
+        Helpers\HTML::_('behavior.formvalidator');
 
-		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
-		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
-		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/validators.js');
-		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
-	}
+        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
+        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
+        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/validators.js');
+        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
+    }
 }

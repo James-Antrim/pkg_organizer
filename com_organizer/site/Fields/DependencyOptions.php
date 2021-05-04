@@ -18,40 +18,36 @@ use Organizer\Helpers;
  */
 abstract class DependencyOptions extends OptionsField
 {
-	/**
-	 * Gets pool options for a select list. All parameters come from the
-	 *
-	 * @param   int    $subjectID  the selected subject
-	 * @param   array  $values     the subjects with which dependencies have already been mapped
-	 *
-	 * @return array  the options
-	 */
-	protected function getDependencyOptions($subjectID, $values)
-	{
-		$programs = Helpers\Subjects::getPrograms($subjectID);
-		$options  = [];
+    /**
+     * Gets pool options for a select list. All parameters come from the
+     *
+     * @param   int    $subjectID  the selected subject
+     * @param   array  $values     the subjects with which dependencies have already been mapped
+     *
+     * @return array  the options
+     */
+    protected function getDependencyOptions($subjectID, $values)
+    {
+        $programs = Helpers\Subjects::getPrograms($subjectID);
+        $options  = [];
 
-		foreach ($programs as $programRange)
-		{
-			if ($subjectRanges = Helpers\Programs::getSubjects($programRange['programID']))
-			{
-				foreach ($subjectRanges as $subjectRange)
-				{
-					$rSubjectID = (int) $subjectRange['subjectID'];
+        foreach ($programs as $programRange) {
+            if ($subjectRanges = Helpers\Programs::getSubjects($programRange['programID'])) {
+                foreach ($subjectRanges as $subjectRange) {
+                    $rSubjectID = (int)$subjectRange['subjectID'];
 
-					if ($rSubjectID === $subjectID or !$name = Helpers\Subjects::getFullName($rSubjectID))
-					{
-						continue;
-					}
+                    if ($rSubjectID === $subjectID or !$name = Helpers\Subjects::getFullName($rSubjectID)) {
+                        continue;
+                    }
 
-					$selected       = in_array($rSubjectID, $values) ? 'selected' : '';
-					$options[$name] = "<option value='$rSubjectID' $selected>$name</option>";
-				}
-			}
-		}
+                    $selected       = in_array($rSubjectID, $values) ? 'selected' : '';
+                    $options[$name] = "<option value='$rSubjectID' $selected>$name</option>";
+                }
+            }
+        }
 
-		ksort($options);
+        ksort($options);
 
-		return $options;
-	}
+        return $options;
+    }
 }

@@ -15,35 +15,35 @@ namespace Organizer\Tables;
  */
 class Colors extends BaseTable
 {
-	/**
-	 * The six digit hexadecimal value of the color with leading #.
-	 * VARCHAR(60) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $color;
+    /**
+     * The six digit hexadecimal value of the color with leading #.
+     * VARCHAR(60) NOT NULL
+     *
+     * @var string
+     */
+    public $color;
 
-	/**
-	 * The resource's German name.
-	 * VARCHAR(60) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
+    /**
+     * The resource's German name.
+     * VARCHAR(60) NOT NULL
+     *
+     * @var string
+     */
+    public $name_de;
 
-	/**
-	 * The resource's English name.
-	 * VARCHAR(60) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
+    /**
+     * The resource's English name.
+     * VARCHAR(60) NOT NULL
+     *
+     * @var string
+     */
+    public $name_en;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_colors');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_colors');
+    }
 }

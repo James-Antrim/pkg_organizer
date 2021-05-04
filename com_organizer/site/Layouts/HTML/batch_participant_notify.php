@@ -20,23 +20,23 @@ $task = Helpers\Input::getCMD('view') . '.notify';
         <h3><?php echo Helpers\Languages::_('ORGANIZER_NOTIFY_HEADER'); ?>
     </div>
     <div class="modal-body modal-batch form-horizontal">
-		<?php foreach ($this->filterForm->getGroup('batch') as $batchField) : ?>
+        <?php foreach ($this->filterForm->getGroup('batch') as $batchField) : ?>
             <div class='control-group'>
                 <div class='control-label'>
-					<?php echo $batchField->label; ?>
+                    <?php echo $batchField->label; ?>
                 </div>
                 <div class='controls'>
-					<?php echo $batchField->input; ?>
+                    <?php echo $batchField->input; ?>
                 </div>
             </div>
-		<?php endforeach; ?>
+        <?php endforeach; ?>
     </div>
     <div class="modal-footer">
         <button class="btn" type="button" data-dismiss="modal">
-			<?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
+            <?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
         </button>
         <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton(<?php echo $task; ?>);">
-			<?php echo Helpers\Languages::_('ORGANIZER_NOTIFY'); ?>
+            <?php echo Helpers\Languages::_('ORGANIZER_NOTIFY'); ?>
         </button>
     </div>
 </div>

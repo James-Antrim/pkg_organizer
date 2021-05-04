@@ -19,26 +19,26 @@ use Organizer\Helpers;
  */
 class CourseParticipants extends Participants
 {
-	protected $defaultOrdering = 'fullName';
+    protected $defaultOrdering = 'fullName';
 
-	protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
+    protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery()
-	{
-		$query = parent::getListQuery();
+    /**
+     * Method to get a list of resources from the database.
+     *
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery()
+    {
+        $query = parent::getListQuery();
 
-		$this->setValueFilters($query, ['attended', 'paid']);
+        $this->setValueFilters($query, ['attended', 'paid']);
 
-		$courseID = Helpers\Input::getID();
-		$query->select('cp.attended, cp.paid, cp.status')
-			->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
-			->where("cp.courseID = $courseID");
+        $courseID = Helpers\Input::getID();
+        $query->select('cp.attended, cp.paid, cp.status')
+            ->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
+            ->where("cp.courseID = $courseID");
 
-		return $query;
-	}
+        return $query;
+    }
 }

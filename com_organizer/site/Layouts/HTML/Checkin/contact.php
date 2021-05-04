@@ -18,7 +18,7 @@ $privacyLink = Helpers\HTML::link($privacyURL, $privacyText);
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
       class="form-vertical form-validate contact" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
-	<?php echo $this->form->renderFieldset('participant'); ?>
+    <?php echo $this->form->renderFieldset('participant'); ?>
     <div class="control-group control-group-horizontal">
         <div class="control-label">
             <label class="required" for="acceptance" id="acceptance-label">
@@ -37,5 +37,5 @@ $privacyLink = Helpers\HTML::link($privacyURL, $privacyText);
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.contact"/>
     <input type="hidden" name="view" value="checkin"/>
-	<?php echo Helpers\HTML::_('form.token'); ?>
+    <?php echo Helpers\HTML::_('form.token'); ?>
 </form>

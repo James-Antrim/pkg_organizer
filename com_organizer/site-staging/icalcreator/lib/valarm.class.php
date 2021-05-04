@@ -34,127 +34,120 @@
  */
 class valarm extends calendarComponent
 {
-	/**
-	 * @var array $action      component property value
-	 * @var array $attach      component property value
-	 * @var array $attendee    component property value
-	 * @var array $description component property value
-	 * @var array $duration    component property value
-	 * @var array $repeat      component property value
-	 * @var array $summary     component property value
-	 * @var array $trigger     component property value
-	 * @access protected
-	 */
-	protected $action;
-	protected $attach;
-	protected $attendee;
-	protected $description;
-	protected $duration;
-	protected $repeat;
-	protected $summary;
-	protected $trigger;
+    /**
+     * @var array $action      component property value
+     * @var array $attach      component property value
+     * @var array $attendee    component property value
+     * @var array $description component property value
+     * @var array $duration    component property value
+     * @var array $repeat      component property value
+     * @var array $summary     component property value
+     * @var array $trigger     component property value
+     * @access protected
+     */
+    protected $action;
+    protected $attach;
+    protected $attendee;
+    protected $description;
+    protected $duration;
+    protected $repeat;
+    protected $summary;
+    protected $trigger;
 
-	/**
-	 * constructor for calendar component VALARM object
-	 *
-	 * @param   array  $config
-	 *
-	 * @author Kjell-Inge Gustafsson, kigkonsult <ical@kigkonsult.se>
-	 *
-	 * @uses   valarm::calendarComponent()
-	 * @uses   valarm::$action
-	 * @uses   valarm::$attach
-	 * @uses   valarm::$attendee
-	 * @uses   valarm::$description
-	 * @uses   valarm::$duration
-	 * @uses   valarm::$repeat
-	 * @uses   valarm::$summary
-	 * @uses   valarm::$trigger
-	 * @uses   valarm::$xprop
-	 * @uses   calendarComponent::setConfig()
-	 */
-	function __construct($config = [])
-	{
-		parent::__construct();
-		$this->action      = '';
-		$this->attach      = '';
-		$this->attendee    = '';
-		$this->description = '';
-		$this->duration    = '';
-		$this->repeat      = '';
-		$this->summary     = '';
-		$this->trigger     = '';
-		$this->xprop       = '';
-		if (defined('ICAL_LANG') && !isset($config['language']))
-		{
-			$config['language'] = ICAL_LANG;
-		}
-		if (!isset($config['allowEmpty']))
-		{
-			$config['allowEmpty'] = true;
-		}
-		if (!isset($config['nl']))
-		{
-			$config['nl'] = "\r\n";
-		}
-		if (!isset($config['format']))
-		{
-			$config['format'] = 'iCal';
-		}
-		if (!isset($config['delimiter']))
-		{
-			$config['delimiter'] = DIRECTORY_SEPARATOR;
-		}
-		$this->setConfig($config);
-	}
+    /**
+     * constructor for calendar component VALARM object
+     *
+     * @param   array  $config
+     *
+     * @author Kjell-Inge Gustafsson, kigkonsult <ical@kigkonsult.se>
+     *
+     * @uses   valarm::calendarComponent()
+     * @uses   valarm::$action
+     * @uses   valarm::$attach
+     * @uses   valarm::$attendee
+     * @uses   valarm::$description
+     * @uses   valarm::$duration
+     * @uses   valarm::$repeat
+     * @uses   valarm::$summary
+     * @uses   valarm::$trigger
+     * @uses   valarm::$xprop
+     * @uses   calendarComponent::setConfig()
+     */
+    function __construct($config = [])
+    {
+        parent::__construct();
+        $this->action      = '';
+        $this->attach      = '';
+        $this->attendee    = '';
+        $this->description = '';
+        $this->duration    = '';
+        $this->repeat      = '';
+        $this->summary     = '';
+        $this->trigger     = '';
+        $this->xprop       = '';
+        if (defined('ICAL_LANG') && !isset($config['language'])) {
+            $config['language'] = ICAL_LANG;
+        }
+        if (!isset($config['allowEmpty'])) {
+            $config['allowEmpty'] = true;
+        }
+        if (!isset($config['nl'])) {
+            $config['nl'] = "\r\n";
+        }
+        if (!isset($config['format'])) {
+            $config['format'] = 'iCal';
+        }
+        if (!isset($config['delimiter'])) {
+            $config['delimiter'] = DIRECTORY_SEPARATOR;
+        }
+        $this->setConfig($config);
+    }
 
-	/**
-	 * create formatted output for calendar component VALARM object instance
-	 *
-	 * @param   array  $xcaldecl
-	 *
-	 * @return string
-	 * @author Kjell-Inge Gustafsson, kigkonsult <ical@kigkonsult.se>
-	 *
-	 * @uses   calendarComponent::_createFormat()
-	 * @uses   calendarComponent::$componentStart1
-	 * @uses   calendarComponent::$componentStart2
-	 * @uses   calendarComponent::$nl
-	 * @uses   calendarComponent::createAction()
-	 * @uses   calendarComponent::createAttach()
-	 * @uses   calendarComponent::createAttendee()
-	 * @uses   calendarComponent::createDescription()
-	 * @uses   calendarComponent::createDuration()
-	 * @uses   calendarComponent::createRepeat()
-	 * @uses   calendarComponent::createSummary()
-	 * @uses   calendarComponent::createTrigger()
-	 * @uses   calendarComponent::createXprop()
-	 * @uses   calendarComponent::$componentEnd1
-	 * @uses   calendarComponent::$componentEnd2
-	 * @uses   calendarComponent::$xcaldecl
-	 */
-	function createComponent(&$xcaldecl)
-	{
-		$objectname = $this->_createFormat();
-		$component  = $this->componentStart1 . $objectname . $this->componentStart2 . $this->nl;
-		$component  .= $this->createAction();
-		$component  .= $this->createAttach();
-		$component  .= $this->createAttendee();
-		$component  .= $this->createDescription();
-		$component  .= $this->createDuration();
-		$component  .= $this->createRepeat();
-		$component  .= $this->createSummary();
-		$component  .= $this->createTrigger();
-		$component  .= $this->createXprop();
-		$component  .= $this->componentEnd1 . $objectname . $this->componentEnd2;
-		if (is_array($this->xcaldecl) && (0 < count($this->xcaldecl)))
-		{
-			foreach ($this->xcaldecl as $localxcaldecl)
-			{
-				$xcaldecl[] = $localxcaldecl;
-			}
-		}
+    /**
+     * create formatted output for calendar component VALARM object instance
+     *
+     * @param   array  $xcaldecl
+     *
+     * @return string
+     * @author Kjell-Inge Gustafsson, kigkonsult <ical@kigkonsult.se>
+     *
+     * @uses   calendarComponent::_createFormat()
+     * @uses   calendarComponent::$componentStart1
+     * @uses   calendarComponent::$componentStart2
+     * @uses   calendarComponent::$nl
+     * @uses   calendarComponent::createAction()
+     * @uses   calendarComponent::createAttach()
+     * @uses   calendarComponent::createAttendee()
+     * @uses   calendarComponent::createDescription()
+     * @uses   calendarComponent::createDuration()
+     * @uses   calendarComponent::createRepeat()
+     * @uses   calendarComponent::createSummary()
+     * @uses   calendarComponent::createTrigger()
+     * @uses   calendarComponent::createXprop()
+     * @uses   calendarComponent::$componentEnd1
+     * @uses   calendarComponent::$componentEnd2
+     * @uses   calendarComponent::$xcaldecl
+     */
+    function createComponent(&$xcaldecl)
+    {
+        $objectname = $this->_createFormat();
+        $component  = $this->componentStart1 . $objectname . $this->componentStart2 . $this->nl;
+        $component  .= $this->createAction();
+        $component  .= $this->createAttach();
+        $component  .= $this->createAttendee();
+        $component  .= $this->createDescription();
+        $component  .= $this->createDuration();
+        $component  .= $this->createRepeat();
+        $component  .= $this->createSummary();
+        $component  .= $this->createTrigger();
+        $component  .= $this->createXprop();
+        $component  .= $this->componentEnd1 . $objectname . $this->componentEnd2;
+        if (is_array($this->xcaldecl) && (0 < count($this->xcaldecl))) {
+            foreach ($this->xcaldecl as $localxcaldecl) {
+                $xcaldecl[] = $localxcaldecl;
+            }
+        }
 
-		return $component;
-	}
+        return $component;
+    }
 }

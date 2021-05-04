@@ -39,9 +39,8 @@
  */
 define('ICALCREATOR_VERSION', 'iCalcreator 2.22');
 /*********************************************************************************/
-if (!defined('ICALCREATOR_LIB_DIR'))
-{
-	define('ICALCREATOR_LIB_DIR', __DIR__ . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR);
+if (!defined('ICALCREATOR_LIB_DIR')) {
+    define('ICALCREATOR_LIB_DIR', __DIR__ . DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR);
 }
 /**
  * iCalLoader
@@ -54,11 +53,10 @@ if (!defined('ICALCREATOR_LIB_DIR'))
  */
 function iCalLoader($class)
 {
-	$file = ICALCREATOR_LIB_DIR . $class . '.class.php';
-	if (file_exists($file))
-	{
-		include $file;
-	}
+    $file = ICALCREATOR_LIB_DIR . $class . '.class.php';
+    if (file_exists($file)) {
+        include $file;
+    }
 }
 
 spl_autoload_register('iCalLoader');

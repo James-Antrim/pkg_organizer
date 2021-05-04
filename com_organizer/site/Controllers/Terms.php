@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Terms extends Controller
 {
-	protected $listView = 'terms';
+    protected $listView = 'terms';
 
-	protected $resource = 'term';
+    protected $resource = 'term';
 }

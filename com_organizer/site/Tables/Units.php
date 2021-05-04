@@ -15,98 +15,96 @@ namespace Organizer\Tables;
  */
 class Units extends BaseTable
 {
-	use Coded;
-	use Modified;
+    use Coded;
+    use Modified;
 
-	/**
-	 * A supplementary text description.
-	 * VARCHAR(255) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $comment;
+    /**
+     * A supplementary text description.
+     * VARCHAR(255) DEFAULT NULL
+     *
+     * @var string
+     */
+    public $comment;
 
-	/**
-	 * The id of the course entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $courseID;
+    /**
+     * The id of the course entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $courseID;
 
-	/**
-	 * The id of the organization entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $organizationID;
+    /**
+     * The id of the organization entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $organizationID;
 
-	/**
-	 * The end date of the resource.
-	 * DATE DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $endDate;
+    /**
+     * The end date of the resource.
+     * DATE DEFAULT NULL
+     *
+     * @var string
+     */
+    public $endDate;
 
-	/**
-	 * The id of the grid entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $gridID;
+    /**
+     * The id of the grid entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $gridID;
 
-	/**
-	 * The id of the run entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $runID;
+    /**
+     * The id of the run entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $runID;
 
-	/**
-	 * The start date of the resource.
-	 * DATE DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $startDate;
+    /**
+     * The start date of the resource.
+     * DATE DEFAULT NULL
+     *
+     * @var string
+     */
+    public $startDate;
 
-	/**
-	 * The id of the term entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $termID;
+    /**
+     * The id of the term entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $termID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_units');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_units');
+    }
 
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return bool  true
-	 */
-	public function check(): bool
-	{
-		$nullColumns = ['courseID', 'endDate', 'gridID', 'runID', 'startDate'];
+    /**
+     * Set the table column names which are allowed to be null
+     *
+     * @return bool  true
+     */
+    public function check(): bool
+    {
+        $nullColumns = ['courseID', 'endDate', 'gridID', 'runID', 'startDate'];
 
-		foreach ($nullColumns as $nullColumn)
-		{
-			if (!$this->$nullColumn)
-			{
-				$this->$nullColumn = null;
-			}
-		}
+        foreach ($nullColumns as $nullColumn) {
+            if (!$this->$nullColumn) {
+                $this->$nullColumn = null;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

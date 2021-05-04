@@ -20,305 +20,263 @@ use Organizer\Helpers\Languages;
  */
 class Courses extends ListView
 {
-	private $preparatory;
+    private $preparatory;
 
-	private $manages = false;
+    private $manages = false;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function __construct($config = [])
-	{
-		parent::__construct($config);
+    /**
+     * @inheritdoc
+     */
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
 
-		$structure = [
-			'name'         => 'link',
-			'campus'       => 'value',
-			'dates'        => 'value',
-			'courseStatus' => 'value'
-		];
+        $structure = [
+            'name'         => 'link',
+            'campus'       => 'value',
+            'dates'        => 'value',
+            'courseStatus' => 'value'
+        ];
 
-		if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::manage('courses'))
-		{
-			$this->manages = true;
-			$structure     = ['checkbox' => ''] + $structure + ['registrationStatus' => 'value'];
-			unset($structure['registrationStatus']);
-		}
-		else
-		{
-			$structure = $structure + ['registrationStatus' => 'link'];
-		}
+        if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::manage('courses')) {
+            $this->manages = true;
+            $structure     = ['checkbox' => ''] + $structure + ['registrationStatus' => 'value'];
+            unset($structure['registrationStatus']);
+        } else {
+            $structure = $structure + ['registrationStatus' => 'link'];
+        }
 
-		$this->rowStructure = $structure;
+        $this->rowStructure = $structure;
 
-		$getPrep           = Helpers\Input::getBool('preparatory', false);
-		$menuPrep          = Helpers\Input::getBool('onlyPrepCourses', false);
-		$this->preparatory = ($getPrep or $menuPrep);
-	}
+        $getPrep           = Helpers\Input::getBool('preparatory', false);
+        $menuPrep          = Helpers\Input::getBool('onlyPrepCourses', false);
+        $this->preparatory = ($getPrep or $menuPrep);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function addSupplement()
-	{
-		$this->supplement = '';
+    /**
+     * @inheritDoc
+     */
+    protected function addSupplement()
+    {
+        $this->supplement = '';
 
-		if ($this->preparatory)
-		{
-			$this->supplement .= '<div>' . Languages::_('ORGANIZER_PREP_COURSE_SUPPLEMENT') . '</div>';
-		}
+        if ($this->preparatory) {
+            $this->supplement .= '<div>' . Languages::_('ORGANIZER_PREP_COURSE_SUPPLEMENT') . '</div>';
+        }
 
-		if (!Helpers\Users::getID())
-		{
-			$currentURL       = Uri::getInstance()->toString() . '#login-anchor';
-			$this->supplement .= '<div class="tbox-yellow">';
-			$this->supplement .= sprintf(Languages::_('ORGANIZER_COURSE_LOGIN_WARNING'), $currentURL, $currentURL);
-			$this->supplement .= '</div>';
-		}
-	}
+        if (!Helpers\Users::getID()) {
+            $currentURL       = Uri::getInstance()->toString() . '#login-anchor';
+            $this->supplement .= '<div class="tbox-yellow">';
+            $this->supplement .= sprintf(Languages::_('ORGANIZER_COURSE_LOGIN_WARNING'), $currentURL, $currentURL);
+            $this->supplement .= '</div>';
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function addToolBar()
-	{
-		$resourceName = '';
-		if (!$this->adminContext and $this->preparatory)
-		{
-			$resourceName .= Languages::_('ORGANIZER_PREP_COURSES');
-			if ($campusID = $this->state->get('filter.campusID', 0))
-			{
-				$resourceName .= ' ' . Languages::_('ORGANIZER_CAMPUS') . ' ' . Helpers\Campuses::getName($campusID);
-			}
-		}
+    /**
+     * @inheritDoc
+     */
+    protected function addToolBar()
+    {
+        $resourceName = '';
+        if (!$this->adminContext and $this->preparatory) {
+            $resourceName .= Languages::_('ORGANIZER_PREP_COURSES');
+            if ($campusID = $this->state->get('filter.campusID', 0)) {
+                $resourceName .= ' ' . Languages::_('ORGANIZER_CAMPUS') . ' ' . Helpers\Campuses::getName($campusID);
+            }
+        }
 
-		Helpers\HTML::setMenuTitle('ORGANIZER_COURSES', $resourceName, 'contract-2');
+        Helpers\HTML::setMenuTitle('ORGANIZER_COURSES', $resourceName, 'contract-2');
 
-		if (Helpers\Users::getID())
-		{
-			$toolbar = Toolbar::getInstance();
-			if (!$this->adminContext and !$this->manages)
-			{
-				if (Helpers\Participants::exists())
-				{
-					$toolbar->appendButton(
-						'Standard',
-						'vcard',
-						Languages::_('ORGANIZER_PROFILE_EDIT'),
-						'participants.edit',
-						false
-					);
-				}
-				else
-				{
-					$toolbar->appendButton(
-						'Standard',
-						'user-plus',
-						Languages::_('ORGANIZER_PROFILE_NEW'),
-						'participants.edit',
-						false
-					);
-				}
-			}
+        if (Helpers\Users::getID()) {
+            $toolbar = Toolbar::getInstance();
+            if (!$this->adminContext and !$this->manages) {
+                if (Helpers\Participants::exists()) {
+                    $toolbar->appendButton(
+                        'Standard',
+                        'vcard',
+                        Languages::_('ORGANIZER_PROFILE_EDIT'),
+                        'participants.edit',
+                        false
+                    );
+                } else {
+                    $toolbar->appendButton(
+                        'Standard',
+                        'user-plus',
+                        Languages::_('ORGANIZER_PROFILE_NEW'),
+                        'participants.edit',
+                        false
+                    );
+                }
+            }
 
-			if ($this->manages)
-			{
-				$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
-				$toolbar->appendButton(
-					'NewTab',
-					'users',
-					Languages::_('ORGANIZER_PARTICIPANTS'),
-					'courses.participants',
-					true
-				);
-			}
+            if ($this->manages) {
+                $toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
+                $toolbar->appendButton(
+                    'NewTab',
+                    'users',
+                    Languages::_('ORGANIZER_PARTICIPANTS'),
+                    'courses.participants',
+                    true
+                );
+            }
 
-			if (Helpers\Can::administrate())
-			{
-				$toolbar->appendButton(
-					'Confirm',
-					Languages::_('ORGANIZER_DELETE_CONFIRM'),
-					'delete',
-					Languages::_('ORGANIZER_DELETE'),
-					'courses.delete',
-					true
-				);
-			}
-		}
-	}
+            if (Helpers\Can::administrate()) {
+                $toolbar->appendButton(
+                    'Confirm',
+                    Languages::_('ORGANIZER_DELETE_CONFIRM'),
+                    'delete',
+                    Languages::_('ORGANIZER_DELETE'),
+                    'courses.delete',
+                    true
+                );
+            }
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function authorize()
-	{
-		if (!$this->adminContext)
-		{
-			return;
-		}
+    /**
+     * @inheritDoc
+     */
+    protected function authorize()
+    {
+        if (!$this->adminContext) {
+            return;
+        }
 
-		if (!Helpers\Can::scheduleTheseOrganizations())
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+        if (!Helpers\Can::scheduleTheseOrganizations()) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function setHeaders()
-	{
-		$headers = [
-			'name'         => Languages::_('ORGANIZER_NAME'),
-			'campus'       => Languages::_('ORGANIZER_CAMPUS'),
-			'dates'        => Languages::_('ORGANIZER_DATES'),
-			'courseStatus' => [
-				'attributes' => ['class' => 'center'],
-				'value'      => Languages::_('ORGANIZER_COURSE_STATUS')
-			]
-		];
+    /**
+     * @inheritDoc
+     */
+    public function setHeaders()
+    {
+        $headers = [
+            'name'         => Languages::_('ORGANIZER_NAME'),
+            'campus'       => Languages::_('ORGANIZER_CAMPUS'),
+            'dates'        => Languages::_('ORGANIZER_DATES'),
+            'courseStatus' => [
+                'attributes' => ['class' => 'center'],
+                'value'      => Languages::_('ORGANIZER_COURSE_STATUS')
+            ]
+        ];
 
-		if ($this->manages)
-		{
-			$headers = ['checkbox' => ''] + $headers;
-		}
-		else
-		{
-			$headers = $headers + [
-					'registrationStatus' => [
-						'attributes' => ['class' => 'center'],
-						'value'      => Languages::_('ORGANIZER_REGISTRATION_STATUS')
-					]
-				];
-		}
+        if ($this->manages) {
+            $headers = ['checkbox' => ''] + $headers;
+        } else {
+            $headers = $headers + [
+                    'registrationStatus' => [
+                        'attributes' => ['class' => 'center'],
+                        'value'      => Languages::_('ORGANIZER_REGISTRATION_STATUS')
+                    ]
+                ];
+        }
 
-		$this->headers = $headers;
-	}
+        $this->headers = $headers;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function structureItems()
-	{
-		$URL = Uri::base() . '?option=com_organizer';
-		$URL .= $this->adminContext ? '&view=course_edit&id=' : '&view=course_item&id=';
+    /**
+     * @inheritDoc
+     */
+    protected function structureItems()
+    {
+        $URL = Uri::base() . '?option=com_organizer';
+        $URL .= $this->adminContext ? '&view=course_edit&id=' : '&view=course_item&id=';
 
-		$structuredItems = [];
+        $structuredItems = [];
 
-		$today  = Helpers\Dates::standardizeDate();
-		$userID = Helpers\Users::getID();
+        $today  = Helpers\Dates::standardizeDate();
+        $userID = Helpers\Users::getID();
 
-		foreach ($this->items as $course)
-		{
-			$campusName = Helpers\Campuses::getName($course->campusID);
-			$pin        = $this->adminContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
+        foreach ($this->items as $course) {
+            $campusName = Helpers\Campuses::getName($course->campusID);
+            $pin        = $this->adminContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
 
-			$course->campus = $campusName . $pin;
+            $course->campus = $campusName . $pin;
 
-			$course->dates = Helpers\Courses::getDateDisplay($course->id);
+            $course->dates = Helpers\Courses::getDateDisplay($course->id);
 
-			$expired = $course->endDate < $today;
-			$ongoing = ($course->startDate <= $today and $expired);
+            $expired = $course->endDate < $today;
+            $ongoing = ($course->startDate <= $today and $expired);
 
-			if ($course->deadline)
-			{
-				$deadline = date('Y-m-d', strtotime("-{$course->deadline} Days", strtotime($course->startDate)));
-			}
-			else
-			{
-				$deadline = $course->startDate;
-			}
+            if ($course->deadline) {
+                $deadline = date('Y-m-d', strtotime("-{$course->deadline} Days", strtotime($course->startDate)));
+            } else {
+                $deadline = $course->startDate;
+            }
 
-			$closed   = (!$expired and !$ongoing and $deadline <= $today);
-			$deadline = Helpers\Dates::formatDate($deadline);
+            $closed   = (!$expired and !$ongoing and $deadline <= $today);
+            $deadline = Helpers\Dates::formatDate($deadline);
 
-			$full   = $course->participants >= $course->maxParticipants;
-			$ninety = (!$full and ($course->participants / (int) $course->maxParticipants) >= .9);
+            $full   = $course->participants >= $course->maxParticipants;
+            $ninety = (!$full and ($course->participants / (int)$course->maxParticipants) >= .9);
 
-			if ($expired)
-			{
-				$attributes = ['class' => 'status-display center grey'];
+            if ($expired) {
+                $attributes = ['class' => 'status-display center grey'];
 
-				$course->courseStatus = [
-					'attributes' => $attributes,
-					'value'      => Languages::_('ORGANIZER_EXPIRED')
-				];
+                $course->courseStatus = [
+                    'attributes' => $attributes,
+                    'value'      => Languages::_('ORGANIZER_EXPIRED')
+                ];
 
-				if (!$this->manages)
-				{
-					$course->registrationStatus = [
-						'attributes' => $attributes,
-						'value'      => Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT')
-					];
-				}
-			}
-			else
-			{
-				$course->courseStatus = [];
-				$capacityText         = Languages::_('ORGANIZER_PARTICIPANTS');
-				$capacityText         .= ": $course->participants / $course->maxParticipants<br>";
+                if (!$this->manages) {
+                    $course->registrationStatus = [
+                        'attributes' => $attributes,
+                        'value'      => Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT')
+                    ];
+                }
+            } else {
+                $course->courseStatus = [];
+                $capacityText         = Languages::_('ORGANIZER_PARTICIPANTS');
+                $capacityText         .= ": $course->participants / $course->maxParticipants<br>";
 
-				if ($ongoing or $full)
-				{
-					$courseAttributes = ['class' => 'status-display center red'];
-				}
-				elseif ($closed or $ninety)
-				{
-					$courseAttributes = ['class' => 'status-display center yellow'];
-				}
-				else
-				{
-					$courseAttributes = ['class' => 'status-display center green'];
-				}
+                if ($ongoing or $full) {
+                    $courseAttributes = ['class' => 'status-display center red'];
+                } elseif ($closed or $ninety) {
+                    $courseAttributes = ['class' => 'status-display center yellow'];
+                } else {
+                    $courseAttributes = ['class' => 'status-display center green'];
+                }
 
-				$course->courseStatus['attributes'] = $courseAttributes;
+                $course->courseStatus['attributes'] = $courseAttributes;
 
-				if ($ongoing or $closed)
-				{
-					$courseText = Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT');
-				}
-				else
-				{
-					$courseText = sprintf(Languages::_('ORGANIZER_DEADLINE_TEXT_SHORT'), $deadline);
-				}
+                if ($ongoing or $closed) {
+                    $courseText = Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT');
+                } else {
+                    $courseText = sprintf(Languages::_('ORGANIZER_DEADLINE_TEXT_SHORT'), $deadline);
+                }
 
-				$course->courseStatus['value'] = $capacityText . $courseText;
+                $course->courseStatus['value'] = $capacityText . $courseText;
 
-				if (!$this->manages)
-				{
-					if ($userID)
-					{
-						if ($course->registered)
-						{
-							$course->registrationStatus = [
-								'attributes' => ['class' => 'status-display center green'],
-								'value'      => Languages::_('ORGANIZER_REGISTERED')
-							];
-						}
-						else
-						{
-							$color                      = ($ongoing or $closed) ? 'red' : 'yellow';
-							$course->registrationStatus = [
-								'attributes' => ['class' => "status-display center $color"],
-								'value'      => Languages::_('ORGANIZER_NOT_REGISTERED')
-							];
-						}
-					}
-					else
-					{
-						$course->registrationStatus = [
-							'attributes' => ['class' => 'status-display center grey'],
-							'value'      => Languages::_('ORGANIZER_NOT_LOGGED_IN')
-						];
-					}
-				}
-			}
+                if (!$this->manages) {
+                    if ($userID) {
+                        if ($course->registered) {
+                            $course->registrationStatus = [
+                                'attributes' => ['class' => 'status-display center green'],
+                                'value'      => Languages::_('ORGANIZER_REGISTERED')
+                            ];
+                        } else {
+                            $color                      = ($ongoing or $closed) ? 'red' : 'yellow';
+                            $course->registrationStatus = [
+                                'attributes' => ['class' => "status-display center $color"],
+                                'value'      => Languages::_('ORGANIZER_NOT_REGISTERED')
+                            ];
+                        }
+                    } else {
+                        $course->registrationStatus = [
+                            'attributes' => ['class' => 'status-display center grey'],
+                            'value'      => Languages::_('ORGANIZER_NOT_LOGGED_IN')
+                        ];
+                    }
+                }
+            }
 
-			$index = "$course->startDate $course->name $campusName";
+            $index = "$course->startDate $course->name $campusName";
 
-			$structuredItems[$index] = $this->structureItem($index, $course, $URL . $course->id);
-		}
+            $structuredItems[$index] = $this->structureItem($index, $course, $URL . $course->id);
+        }
 
-		$this->items = $structuredItems;
-	}
+        $this->items = $structuredItems;
+    }
 }

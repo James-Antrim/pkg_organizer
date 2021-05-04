@@ -18,62 +18,56 @@ use Organizer\Tables;
  */
 class CategoryUnits extends BaseView
 {
-	use Planned;
+    use Planned;
 
-	/**
-	 * loads model data into view context
-	 *
-	 * @return void
-	 */
-	public function display()
-	{
-		$date         = $this->getDate();
-		$groups       = [];
-		$interval     = $this->getInterval();
-		$nameProperty = 'name_' . Helpers\Languages::getTag();
+    /**
+     * loads model data into view context
+     *
+     * @return void
+     */
+    public function display()
+    {
+        $date         = $this->getDate();
+        $groups       = [];
+        $interval     = $this->getInterval();
+        $nameProperty = 'name_' . Helpers\Languages::getTag();
 
-		foreach (Helpers\Categories::getGroups(Helpers\Input::getInt('categoryID')) as $group)
-		{
-			$group['events'] = [];
+        foreach (Helpers\Categories::getGroups(Helpers\Input::getInt('categoryID')) as $group) {
+            $group['events'] = [];
 
-			$groupID = $group['id'];
-			unset($group['id']);
+            $groupID = $group['id'];
+            unset($group['id']);
 
-			foreach (Helpers\Groups::getUnits($groupID, $date, $interval) as $unit)
-			{
-				$eventID = $unit['eventID'];
-				unset($unit['eventID']);
+            foreach (Helpers\Groups::getUnits($groupID, $date, $interval) as $unit) {
+                $eventID = $unit['eventID'];
+                unset($unit['eventID']);
 
-				if (empty($group['events'][$eventID]))
-				{
-					$table = new Tables\Events();
-					if (!$table->load($eventID))
-					{
-						continue;
-					}
+                if (empty($group['events'][$eventID])) {
+                    $table = new Tables\Events();
+                    if (!$table->load($eventID)) {
+                        continue;
+                    }
 
-					$group['events'][$eventID] = [
-						'code'  => $table->code,
-						'name'  => $table->$nameProperty,
-						'units' => []
-					];
-				}
+                    $group['events'][$eventID] = [
+                        'code'  => $table->code,
+                        'name'  => $table->$nameProperty,
+                        'units' => []
+                    ];
+                }
 
-				$unitID = $unit['id'];
-				unset($unit['id']);
+                $unitID = $unit['id'];
+                unset($unit['id']);
 
-				if (empty($group['events'][$eventID]['units'][$unitID]))
-				{
-					$group['events'][$eventID]['units'][$unitID] = $unit;
-				}
-			}
+                if (empty($group['events'][$eventID]['units'][$unitID])) {
+                    $group['events'][$eventID]['units'][$unitID] = $unit;
+                }
+            }
 
-			if (count($group['events']))
-			{
-				$groups[$groupID] = $group;
-			}
-		}
+            if (count($group['events'])) {
+                $groups[$groupID] = $group;
+            }
+        }
 
-		echo json_encode($groups, JSON_UNESCAPED_UNICODE);
-	}
+        echo json_encode($groups, JSON_UNESCAPED_UNICODE);
+    }
 }

@@ -6,8 +6,7 @@
  * @param divID the id of the div
  * @param type the type of the source
  */
-function closeModal(divID, type)
-{
+function closeModal(divID, type) {
     getCheckedItems(divID, type);
     jQuery('button.close').trigger('click');
 }
@@ -24,13 +23,11 @@ window.onload = function () {
 
     poolButton.appendTo(subToolbar);
 
-    if (subjectButton.length)
-    {
+    if (subjectButton.length) {
         subjectButton.appendTo(subToolbar);
     }
 
-    for (var i = 0; i < forms.length; i++)
-    {
+    for (var i = 0; i < forms.length; i++) {
         forms[i].onsubmit = function () {
             return false
         };
@@ -43,8 +40,7 @@ window.onload = function () {
  * @param {int} position the index at which a blank row should be added
  * @returns {void} modifies the dom
  */
-function insertBlank(position)
-{
+function insertBlank(position) {
     let subOrdinates = getSubOrdinates(),
         length = subOrdinates.length,
         newOrder,
@@ -54,8 +50,7 @@ function insertBlank(position)
     addRow(length);
 
     // Increments existing rows starting from the last one.
-    while (position <= length)
-    {
+    while (position <= length) {
         newOrder = length + 1;
         oldIndex = length - 1;
 
@@ -78,8 +73,7 @@ function insertBlank(position)
  *
  * @returns {void}  adds a new row to the end of the table
  */
-function addRow(lastPosition, resourceID = '', resourceName = '', resourceType = '')
-{
+function addRow(lastPosition, resourceID = '', resourceName = '', resourceType = '') {
     let mID = 0,
         name = '',
         icon = '',
@@ -90,21 +84,17 @@ function addRow(lastPosition, resourceID = '', resourceName = '', resourceType =
         resourceHTML,
         orderingHTML;
 
-    if (resourceID !== '')
-    {
+    if (resourceID !== '') {
         mID = resourceID;
     }
-    if (resourceName !== '')
-    {
+    if (resourceName !== '') {
         name = resourceName;
     }
 
     rawID = resourceID.substring(0, resourceID.length - 1);
 
-    if (resourceType !== '')
-    {
-        switch (resourceType)
-        {
+    if (resourceType !== '') {
+        switch (resourceType) {
             case 'p':
                 link = 'index.php?option=com_organizer&view=pool_edit&id=' + rawID;
                 icon = 'icon-list';
@@ -154,8 +144,7 @@ function addRow(lastPosition, resourceID = '', resourceName = '', resourceType =
  * @param {int} position the row position to clear
  * @returns {void} modifies the dom
  */
-function clearSubOrdinates(position)
-{
+function clearSubOrdinates(position) {
     jQuery('#sub' + position + 'Icon').attr('class', '');
     jQuery('#sub' + position + 'Name').text('');
     jQuery('#sub' + position).val('');
@@ -170,8 +159,7 @@ function clearSubOrdinates(position)
  * @param {Object} subOrdinate the element whose data will be used for cloning
  * @returns {void} modifies the dom
  */
-function cloneSubOrdinate(position, subOrdinate)
-{
+function cloneSubOrdinate(position, subOrdinate) {
     jQuery('#sub' + position + 'Icon').attr('class', (subOrdinate.class));
     jQuery('#sub' + position + 'Name').text(subOrdinate.name);
     jQuery('#sub' + position).val(subOrdinate.id);
@@ -188,8 +176,7 @@ function cloneSubOrdinate(position, subOrdinate)
  * @param tip
  * @returns {string}
  */
-function getButton(fName, icon, order, tip)
-{
+function getButton(fName, icon, order, tip) {
     let button = '';
 
     button += '<button onclick="' + fName + '(' + order + ');" title="' + tip + '">';
@@ -205,8 +192,7 @@ function getButton(fName, icon, order, tip)
  * @param {string} type the type of the source
  * @return {void} modifies the dom
  */
-function getCheckedItems(divID, type)
-{
+function getCheckedItems(divID, type) {
     const iFrame = jQuery('iframe');
     let subOrdinates, id, name;
 
@@ -223,16 +209,14 @@ function getCheckedItems(divID, type)
  *
  * @returns {array} the map of the current subOrdinates and their values
  */
-function getSubOrdinates()
-{
+function getSubOrdinates() {
     // -1 Because of the header row.
     const count = document.getElementsByClassName('subOrdinates')[0].rows.length - 1;
     let current = [],
         index,
         order;
 
-    for (index = 0; index < count; index++)
-    {
+    for (index = 0; index < count; index++) {
         order = index + 1;
         current[index] = {};
         current[index].class = jQuery('#sub' + order + 'Icon').attr('class').trim();
@@ -251,13 +235,11 @@ function getSubOrdinates()
  *
  * @returns {void}
  */
-function moveDown(position)
-{
+function moveDown(position) {
     let subOrdinates = getSubOrdinates(), currentOrder = parseInt(position, 10), current, next;
 
     // Element is last or blank
-    if (currentOrder >= subOrdinates.length || (subOrdinates.length === currentOrder + 1 && subOrdinates[currentOrder - 1].name === ""))
-    {
+    if (currentOrder >= subOrdinates.length || (subOrdinates.length === currentOrder + 1 && subOrdinates[currentOrder - 1].name === "")) {
         return;
     }
 
@@ -278,8 +260,7 @@ function moveDown(position)
  *
  * @returns  {void}
  */
-function moveTo(currentPosition)
-{
+function moveTo(currentPosition) {
     let subOrdinates = getSubOrdinates(),
         length = subOrdinates.length,
         subOrdinate = subOrdinates[currentPosition - 1],
@@ -288,18 +269,14 @@ function moveTo(currentPosition)
 
     requestedPosition = parseInt(requestedPosition, 10);
 
-    if (isNaN(requestedPosition) === true || requestedPosition > length || (Number(requestedPosition) === length && subOrdinate.name === ""))
-    {
+    if (isNaN(requestedPosition) === true || requestedPosition > length || (Number(requestedPosition) === length && subOrdinate.name === "")) {
         secondPosOrder.val(currentPosition);
         return;
     }
 
-    if (currentPosition < requestedPosition)
-    {
+    if (currentPosition < requestedPosition) {
         shiftUp(currentPosition, requestedPosition, subOrdinates);
-    }
-    else
-    {
+    } else {
         shiftDown(currentPosition, requestedPosition, subOrdinates);
     }
 
@@ -313,13 +290,11 @@ function moveTo(currentPosition)
  *
  * @returns {void}
  */
-function moveUp(position)
-{
+function moveUp(position) {
     let subOrdinates = getSubOrdinates(), currentOrder = Number(position), current, previous;
 
     // Last or blank element
-    if (currentOrder <= 1 || (subOrdinates.length === currentOrder && subOrdinates[currentOrder - 2].name === ""))
-    {
+    if (currentOrder <= 1 || (subOrdinates.length === currentOrder && subOrdinates[currentOrder - 2].name === "")) {
         return;
     }
 
@@ -342,12 +317,10 @@ function moveUp(position)
  * @param {int} position the position of the subordinate to be moved
  * @returns {void} modifies the dom
  */
-function setFirst(position)
-{
+function setFirst(position) {
     const subOrdinates = getSubOrdinates(), subOrdinate = subOrdinates[position - 1];
 
-    if (subOrdinate.name !== "")
-    {
+    if (subOrdinate.name !== "") {
         shiftDown(position, 1, subOrdinates);
 
         cloneSubOrdinate(1, subOrdinate);
@@ -361,12 +334,10 @@ function setFirst(position)
  * @param {int} position the position of the subordinate to be moved
  * @returns {void} modifies the dom
  */
-function setLast(position)
-{
+function setLast(position) {
     const subOrdinates = getSubOrdinates(), subOrdinate = subOrdinates[position - 1];
 
-    if (subOrdinate.name !== "")
-    {
+    if (subOrdinate.name !== "") {
         shiftUp(position, subOrdinates.length, subOrdinates);
 
         cloneSubOrdinate(subOrdinates.length, subOrdinate);
@@ -381,12 +352,10 @@ function setLast(position)
  * @param {array} subOrdinates the map of the subOrdinates
  * @returns {void} modifies the dom
  */
-function shiftDown(position, stopPosition, subOrdinates)
-{
+function shiftDown(position, stopPosition, subOrdinates) {
     let newPosition, sourcePosition;
 
-    while (position > stopPosition)
-    {
+    while (position > stopPosition) {
         newPosition = position;
         sourcePosition = position - 2;
 
@@ -403,10 +372,8 @@ function shiftDown(position, stopPosition, subOrdinates)
  * @param {array} subOrdinates the map of the subOrdinates
  * @returns {void} modifies the dom
  */
-function shiftUp(position, stopPosition, subOrdinates)
-{
-    while (position < stopPosition)
-    {
+function shiftUp(position, stopPosition, subOrdinates) {
+    while (position < stopPosition) {
         cloneSubOrdinate(position, subOrdinates[position]);
         position++;
     }
@@ -418,8 +385,7 @@ function shiftUp(position, stopPosition, subOrdinates)
  * @param {int} position the current position of the subordinate to be removed
  * @returns  {void} modifies the dom
  */
-function trash(position)
-{
+function trash(position) {
     let subOrdinates = getSubOrdinates(),
         length = subOrdinates.length;
 

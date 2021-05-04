@@ -20,115 +20,100 @@ use stdClass;
  */
 class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
 {
-	/**
-	 * @inheritDoc
-	 */
-	public static function setID(Schedule $model, string $code)
-	{
-		$group = $model->groups->$code;
+    /**
+     * @inheritDoc
+     */
+    public static function setID(Schedule $model, string $code)
+    {
+        $group = $model->groups->$code;
 
-		$table  = new Tables\Groups();
-		$exists = $table->load(['code' => $group->code]);
+        $table  = new Tables\Groups();
+        $exists = $table->load(['code' => $group->code]);
 
-		if ($exists)
-		{
-			$altered = false;
-			foreach ($group as $key => $value)
-			{
-				if (property_exists($table, $key) and empty($table->$key) and !empty($value))
-				{
-					$table->set($key, $value);
-					$altered = true;
-				}
-			}
+        if ($exists) {
+            $altered = false;
+            foreach ($group as $key => $value) {
+                if (property_exists($table, $key) and empty($table->$key) and !empty($value)) {
+                    $table->set($key, $value);
+                    $altered = true;
+                }
+            }
 
-			if ($altered)
-			{
-				$table->store();
-			}
-		}
-		else
-		{
-			$table->save($group);
-		}
+            if ($altered) {
+                $table->store();
+            }
+        } else {
+            $table->save($group);
+        }
 
-		$association = new Tables\Associations();
-		if (!$association->load(['groupID' => $table->id]))
-		{
-			$association->save(['groupID' => $table->id, 'organizationID' => $model->organizationID]);
-		}
+        $association = new Tables\Associations();
+        if (!$association->load(['groupID' => $table->id])) {
+            $association->save(['groupID' => $table->id, 'organizationID' => $model->organizationID]);
+        }
 
-		$model->groups->$code->id = $table->id;
-	}
+        $model->groups->$code->id = $table->id;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public static function validate(Schedule $model, SimpleXMLElement $node)
-	{
-		$code     = str_replace('CL_', '', trim((string) $node[0]['id']));
-		$fullName = trim((string) $node->longname);
-		if (empty($fullName))
-		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_FULLNAME_MISSING'), $code);
+    /**
+     * @inheritDoc
+     */
+    public static function validate(Schedule $model, SimpleXMLElement $node)
+    {
+        $code     = str_replace('CL_', '', trim((string)$node[0]['id']));
+        $fullName = trim((string)$node->longname);
+        if (empty($fullName)) {
+            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_FULLNAME_MISSING'), $code);
 
-			return;
-		}
+            return;
+        }
 
-		$name = trim((string) $node->classlevel);
-		if (empty($name))
-		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_NAME_MISSING'), $fullName, $code);
+        $name = trim((string)$node->classlevel);
+        if (empty($name)) {
+            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_NAME_MISSING'), $fullName, $code);
 
-			return;
-		}
+            return;
+        }
 
-		if (!$categoryID = str_replace('DP_', '', trim((string) $node->class_department[0]['id'])))
-		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_CATEGORY_MISSING'), $fullName, $code);
+        if (!$categoryID = str_replace('DP_', '', trim((string)$node->class_department[0]['id']))) {
+            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_CATEGORY_MISSING'), $fullName, $code);
 
-			return;
-		}
-		elseif (!$category = $model->categories->$categoryID)
-		{
-			$model->errors[] = sprintf(
-				Helpers\Languages::_('ORGANIZER_GROUP_CATEGORY_INCOMPLETE'),
-				$fullName,
-				$code,
-				$categoryID
-			);
+            return;
+        } elseif (!$category = $model->categories->$categoryID) {
+            $model->errors[] = sprintf(
+                Helpers\Languages::_('ORGANIZER_GROUP_CATEGORY_INCOMPLETE'),
+                $fullName,
+                $code,
+                $categoryID
+            );
 
-			return;
-		}
+            return;
+        }
 
-		if (!$gridName = (string) $node->timegrid)
-		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_GRID_MISSING'), $fullName, $code);
+        if (!$gridName = (string)$node->timegrid) {
+            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_GRID_MISSING'), $fullName, $code);
 
-			return;
-		}
-		elseif (!$grid = $model->grids->$gridName)
-		{
-			$model->errors[] = sprintf(
-				Helpers\Languages::_('ORGANIZER_GROUP_GRID_INCOMPLETE'),
-				$fullName,
-				$code,
-				$gridName
-			);
+            return;
+        } elseif (!$grid = $model->grids->$gridName) {
+            $model->errors[] = sprintf(
+                Helpers\Languages::_('ORGANIZER_GROUP_GRID_INCOMPLETE'),
+                $fullName,
+                $code,
+                $gridName
+            );
 
-			return;
-		}
+            return;
+        }
 
-		$group              = new stdClass();
-		$group->categoryID  = $category->id;
-		$group->code        = $code;
-		$group->fullName_de = $fullName;
-		$group->fullName_en = $fullName;
-		$group->name_de     = $name;
-		$group->name_en     = $name;
-		$group->gridID      = $grid->id;
+        $group              = new stdClass();
+        $group->categoryID  = $category->id;
+        $group->code        = $code;
+        $group->fullName_de = $fullName;
+        $group->fullName_en = $fullName;
+        $group->name_de     = $name;
+        $group->name_en     = $name;
+        $group->gridID      = $grid->id;
 
-		$model->groups->$code = $group;
-		self::setID($model, $code);
-	}
+        $model->groups->$code = $group;
+        self::setID($model, $code);
+    }
 }

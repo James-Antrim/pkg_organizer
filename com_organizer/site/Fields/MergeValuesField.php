@@ -18,63 +18,56 @@ use Organizer\Helpers;
  */
 class MergeValuesField extends OptionsField
 {
-	/**
-	 * @var  string
-	 */
-	protected $type = 'MergeValues';
+    /**
+     * @var  string
+     */
+    protected $type = 'MergeValues';
 
-	/**
-	 * Returns a select box where resource attributes can be selected
-	 *
-	 * @return array the options for the select box
-	 */
-	protected function getOptions()
-	{
-		$selectedIDs    = Helpers\Input::getSelectedIDs();
-		$resource       = str_replace('_merge', '', Helpers\Input::getView());
-		$validResources = ['category', 'field', 'group', 'method', 'room', 'roomtype', 'participant', 'person'];
-		$invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
-		if ($invalid)
-		{
-			return [];
-		}
+    /**
+     * Returns a select box where resource attributes can be selected
+     *
+     * @return array the options for the select box
+     */
+    protected function getOptions()
+    {
+        $selectedIDs    = Helpers\Input::getSelectedIDs();
+        $resource       = str_replace('_merge', '', Helpers\Input::getView());
+        $validResources = ['category', 'field', 'group', 'method', 'room', 'roomtype', 'participant', 'person'];
+        $invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
+        if ($invalid) {
+            return [];
+        }
 
-		$column = $this->getAttribute('name');
-		$query  = Database::getQuery(true);
-		$table  = $resource === 'category' ? 'categories' : "{$resource}s";
-		$query->select("DISTINCT $column AS value")
-			->from("#__organizer_$table")
-			->where("id IN ( '" . implode("', '", $selectedIDs) . "' )")
-			->order('value ASC');
-		Database::setQuery($query);
+        $column = $this->getAttribute('name');
+        $query  = Database::getQuery(true);
+        $table  = $resource === 'category' ? 'categories' : "{$resource}s";
+        $query->select("DISTINCT $column AS value")
+            ->from("#__organizer_$table")
+            ->where("id IN ( '" . implode("', '", $selectedIDs) . "' )")
+            ->order('value ASC');
+        Database::setQuery($query);
 
-		if (!$values = Database::loadColumn())
-		{
-			return [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
-		}
+        if (!$values = Database::loadColumn()) {
+            return [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
+        }
 
-		$options = [];
-		foreach ($values as $value)
-		{
-			if (empty($value))
-			{
-				continue;
-			}
-			$options[] = Helpers\HTML::_('select.option', $value, $value);
-		}
+        $options = [];
+        foreach ($values as $value) {
+            if (empty($value)) {
+                continue;
+            }
+            $options[] = Helpers\HTML::_('select.option', $value, $value);
+        }
 
-		if (empty($options))
-		{
-			$options[] = Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'));
-		}
-		elseif (count($options) > 1)
-		{
-			array_unshift(
-				$options,
-				Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_VALUE'))
-			);
-		}
+        if (empty($options)) {
+            $options[] = Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'));
+        } elseif (count($options) > 1) {
+            array_unshift(
+                $options,
+                Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_VALUE'))
+            );
+        }
 
-		return $options;
-	}
+        return $options;
+    }
 }

@@ -13,16 +13,16 @@ namespace Organizer\Helpers;
 
 trait Numbered
 {
-	/**
-	 * Gets the resource ids.
-	 *
-	 * @return array the ids of the resource.
-	 */
-	public static function getIDs(): array
-	{
-		$ids = array_keys(self::getResources());
-		sort($ids);
+    /**
+     * Gets the resource ids.
+     *
+     * @return array the ids of the resource.
+     */
+    public static function getIDs(): array
+    {
+        $ids = array_keys(self::getResources());
+        sort($ids);
 
-		return $ids;
-	}
+        return $ids;
+    }
 }

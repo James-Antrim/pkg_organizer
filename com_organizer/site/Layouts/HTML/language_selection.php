@@ -13,15 +13,14 @@ use Organizer\Helpers;
 
 Helpers\HTML::_('searchtools.form', '#languageForm', []);
 $languageAction = Helpers\OrganizerHelper::dynamic() ?
-	Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
+    Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 $selectedTag    = Helpers\Languages::getTag();
 $languages      = [Helpers\Languages::_('ORGANIZER_ENGLISH') => 'en', Helpers\Languages::_('ORGANIZER_GERMAN') => 'de'];
 ksort($languages);
 $options = [];
-foreach ($languages as $language => $tag)
-{
-	$selected  = $selectedTag === $tag ? ' selected="selected"' : '';
-	$options[] = "<option value=\"$tag\"$selected>$language</option>";
+foreach ($languages as $language => $tag) {
+    $selected  = $selectedTag === $tag ? ' selected="selected"' : '';
+    $options[] = "<option value=\"$tag\"$selected>$language</option>";
 }
 $options = implode('', $options);
 ?>
@@ -33,7 +32,7 @@ $options = implode('', $options);
                 <div class="ordering-select">
                     <div class="js-stools-field-list">
                         <select id="languageTag" name="languageTag" onchange="this.form.submit();">
-							<?php echo $options ?>
+                            <?php echo $options ?>
                         </select>
                         <input name="option" type="hidden" value="com_organizer">
                         <input name="view" type="hidden" value="<?php echo $view ?>">

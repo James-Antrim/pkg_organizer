@@ -19,147 +19,138 @@ use Organizer\Tables;
  */
 class Category extends BaseModel
 {
-	use Associated;
+    use Associated;
 
-	protected $resource = 'category';
+    protected $resource = 'category';
 
-	/**
-	 * Activates categories by id if a selection was made, otherwise by use in the instance_groups/groups tables.
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function activate()
-	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		$this->authorize();
+    /**
+     * Activates categories by id if a selection was made, otherwise by use in the instance_groups/groups tables.
+     *
+     * @return bool true on success, otherwise false
+     */
+    public function activate()
+    {
+        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->authorize();
 
-		// Explicitly selected resources
-		if ($this->selected)
-		{
-			foreach ($this->selected as $selectedID)
-			{
-				$category = new Tables\Categories();
+        // Explicitly selected resources
+        if ($this->selected) {
+            foreach ($this->selected as $selectedID) {
+                $category = new Tables\Categories();
 
-				if ($category->load($selectedID))
-				{
-					$category->active = 1;
-					$category->store();
-					continue;
-				}
+                if ($category->load($selectedID)) {
+                    $category->active = 1;
+                    $category->store();
+                    continue;
+                }
 
-				return false;
-			}
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		// Implicitly used resources
-		$allowed = Helpers\Can::scheduleTheseOrganizations();
-		$subQuery = Database::getQuery();
-		$subQuery->select('DISTINCT categoryID')
-			->from('#__organizer_instance_groups AS ig')
-			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
-		$query = Database::getQuery();
-		$query->update('#__organizer_categories AS c')
-			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
-			->set('active = 1')
-			->where("c.id IN ($subQuery)")
-			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
-		Database::setQuery($query);
+        // Implicitly used resources
+        $allowed  = Helpers\Can::scheduleTheseOrganizations();
+        $subQuery = Database::getQuery();
+        $subQuery->select('DISTINCT categoryID')
+            ->from('#__organizer_instance_groups AS ig')
+            ->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
+        $query = Database::getQuery();
+        $query->update('#__organizer_categories AS c')
+            ->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
+            ->set('active = 1')
+            ->where("c.id IN ($subQuery)")
+            ->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
+        Database::setQuery($query);
 
-		return Database::execute();
-	}
+        return Database::execute();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::edit('categories', $this->selected))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * @inheritDoc
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::edit('categories', $this->selected)) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * Deactivates categories by id if a selection was made, otherwise by lack of use in the instance_groups/groups
-	 * tables.
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function deactivate()
-	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		$this->authorize();
+    /**
+     * Deactivates categories by id if a selection was made, otherwise by lack of use in the instance_groups/groups
+     * tables.
+     *
+     * @return bool true on success, otherwise false
+     */
+    public function deactivate()
+    {
+        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->authorize();
 
-		// Explicitly selected resources
-		if ($this->selected)
-		{
-			foreach ($this->selected as $selectedID)
-			{
-				$category = new Tables\Categories();
+        // Explicitly selected resources
+        if ($this->selected) {
+            foreach ($this->selected as $selectedID) {
+                $category = new Tables\Categories();
 
-				if ($category->load($selectedID))
-				{
-					$category->active = 0;
-					$category->store();
-					continue;
-				}
+                if ($category->load($selectedID)) {
+                    $category->active = 0;
+                    $category->store();
+                    continue;
+                }
 
-				return false;
-			}
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		// Implicitly unused resources
-		$allowed = Helpers\Can::scheduleTheseOrganizations();
-		$subQuery = Database::getQuery();
-		$subQuery->select('DISTINCT categoryID')
-			->from('#__organizer_instance_groups AS ig')
-			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
-		$query = Database::getQuery();
-		$query->update('#__organizer_categories AS c')
-			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
-			->set('active = 0')
-			->where("c.id NOT IN ($subQuery)")
-			->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
-		Database::setQuery($query);
+        // Implicitly unused resources
+        $allowed  = Helpers\Can::scheduleTheseOrganizations();
+        $subQuery = Database::getQuery();
+        $subQuery->select('DISTINCT categoryID')
+            ->from('#__organizer_instance_groups AS ig')
+            ->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
+        $query = Database::getQuery();
+        $query->update('#__organizer_categories AS c')
+            ->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
+            ->set('active = 0')
+            ->where("c.id NOT IN ($subQuery)")
+            ->where('a.organizationID IN (' . implode(', ', $allowed) . ')');
+        Database::setQuery($query);
 
-		return Database::execute();
-	}
+        return Database::execute();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getTable($name = '', $prefix = '', $options = [])
-	{
-		return new Tables\Categories();
-	}
+    /**
+     * @inheritDoc
+     */
+    public function getTable($name = '', $prefix = '', $options = [])
+    {
+        return new Tables\Categories();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function save($data = [])
-	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		$this->authorize();
+    /**
+     * @inheritDoc
+     */
+    public function save($data = [])
+    {
+        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->authorize();
 
-		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		$table = new Tables\Categories();
+        $data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $table = new Tables\Categories();
 
-		if (!$table->save($data))
-		{
-			return false;
-		}
+        if (!$table->save($data)) {
+            return false;
+        }
 
-		$data['id'] = $table->id;
+        $data['id'] = $table->id;
 
-		if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs']))
-		{
-			return false;
-		}
+        if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs'])) {
+            return false;
+        }
 
-		return $table->id;
-	}
+        return $table->id;
+    }
 }

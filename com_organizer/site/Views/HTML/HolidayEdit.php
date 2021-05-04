@@ -18,41 +18,37 @@ use Organizer\Helpers;
  */
 class HolidayEdit extends EditView
 {
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		if ($this->item->id)
-		{
-			$cancel = 'ORGANIZER_CLOSE';
-			$save   = 'ORGANIZER_SAVE_CLOSE';
-			$title  = "ORGANIZER_HOLIDAY_EDIT";
-		}
-		else
-		{
-			$cancel = 'ORGANIZER_CANCEL';
-			$save   = 'ORGANIZER_CREATE_CLOSE';
-			$title  = "ORGANIZER_HOLIDAY_NEW";
-		}
+    /**
+     * Method to generate buttons for user interaction
+     *
+     * @return void
+     */
+    protected function addToolBar()
+    {
+        if ($this->item->id) {
+            $cancel = 'ORGANIZER_CLOSE';
+            $save   = 'ORGANIZER_SAVE_CLOSE';
+            $title  = "ORGANIZER_HOLIDAY_EDIT";
+        } else {
+            $cancel = 'ORGANIZER_CANCEL';
+            $save   = 'ORGANIZER_CREATE_CLOSE';
+            $title  = "ORGANIZER_HOLIDAY_NEW";
+        }
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "holidays.save", false);
+        Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "holidays.save", false);
 
-		if ($this->item->id)
-		{
-			$toolbar->appendButton(
-				'Standard',
-				'save-copy',
-				Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
-				'holidays.save2copy',
-				false
-			);
-		}
+        if ($this->item->id) {
+            $toolbar->appendButton(
+                'Standard',
+                'save-copy',
+                Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
+                'holidays.save2copy',
+                false
+            );
+        }
 
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "holidays.cancel", false);
-	}
+        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "holidays.cancel", false);
+    }
 }

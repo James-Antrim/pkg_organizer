@@ -17,13 +17,13 @@ use Organizer\Helpers;
  */
 class Groups extends BaseView
 {
-	/**
-	 * loads model data into view context
-	 *
-	 * @return void
-	 */
-	public function display()
-	{
-		echo json_encode(Helpers\Groups::getResources(), JSON_UNESCAPED_UNICODE);
-	}
+    /**
+     * loads model data into view context
+     *
+     * @return void
+     */
+    public function display()
+    {
+        echo json_encode(Helpers\Groups::getResources(), JSON_UNESCAPED_UNICODE);
+    }
 }

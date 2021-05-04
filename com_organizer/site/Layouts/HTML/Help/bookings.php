@@ -12,82 +12,82 @@ use Joomla\CMS\Uri\Uri;
 
 $directory       = Uri::base(true) . '/components/com_organizer/Layouts/HTML/Help/bookings-';
 $imageAttribs    = [
-	'height' => "height=\"500px\"",
-	'style'  => "style=\"display: block; margin-left: auto; margin-right: auto;\"",
-	'width'  => "width=\"700px\""
+    'height' => "height=\"500px\"",
+    'style'  => "style=\"display: block; margin-left: auto; margin-right: auto;\"",
+    'width'  => "width=\"700px\""
 ];
 $jcePopUpAttribs = [
-	'class'    => 'class="jcepopup"',
-	'group'    => 'data-mediabox-group="Bookings"',
-	'mediaBox' => 'data-mediabox="1"'
+    'class'    => 'class="jcepopup"',
+    'group'    => 'data-mediabox-group="Bookings"',
+    'mediaBox' => 'data-mediabox="1"'
 ];
 
 $bookingImageAttribs = [
-	'alt' => "alt=\"Screenshot: Booking\"",
-	'src' => "src=\"{$directory}booking.png\""
+    'alt' => "alt=\"Screenshot: Booking\"",
+    'src' => "src=\"{$directory}booking.png\""
 ];
 $bookingImageAttribs = array_merge($imageAttribs, $bookingImageAttribs);
 $bookingPopUpAttribs = [
-	'href' => "href=\"{$directory}booking.png\""
+    'href' => "href=\"{$directory}booking.png\""
 ];
 $bookingPopUpAttribs = array_merge($jcePopUpAttribs, $bookingPopUpAttribs);
 
 $myApptsCaption = '(1) Klicken Sie hier um eine Buchung zu öffnen (2) Online Veranstaltungen brauchen keine Besucherregistrierung';
 
 $myApptsImageAttribs = [
-	'alt' => "alt=\"Screenshot: My Appointments\"",
-	'src' => "src=\"{$directory}my-appointments.png\""
+    'alt' => "alt=\"Screenshot: My Appointments\"",
+    'src' => "src=\"{$directory}my-appointments.png\""
 ];
 $myApptsImageAttribs = array_merge($imageAttribs, $myApptsImageAttribs);
 $myApptsPopUpAttribs = [
-	'caption' => "data-mediabox-caption=\"$myApptsCaption\"",
-	'href'    => "href=\"{$directory}my-appointments.png\""
+    'caption' => "data-mediabox-caption=\"$myApptsCaption\"",
+    'href'    => "href=\"{$directory}my-appointments.png\""
 ];
 $myApptsPopUpAttribs = array_merge($jcePopUpAttribs, $myApptsPopUpAttribs);
 
 $ongoingImageAttribs = [
-	'alt' => "alt=\"Screenshot: Ongoing Booking\"",
-	'src' => "src=\"{$directory}ongoing.png\""
+    'alt' => "alt=\"Screenshot: Ongoing Booking\"",
+    'src' => "src=\"{$directory}ongoing.png\""
 ];
 $ongoingImageAttribs = array_merge($imageAttribs, $ongoingImageAttribs);
 $ongoingPopUpAttribs = [
-	'href' => "href=\"{$directory}ongoing.png\""
+    'href' => "href=\"{$directory}ongoing.png\""
 ];
 $ongoingPopUpAttribs = array_merge($jcePopUpAttribs, $ongoingPopUpAttribs);
 
 $qrcCaption = 'Der QR-Code führt direkt auf die Checkin-Seite und fügt automatisch den Veranstaltungscode ein.';
 
 $qrcImageAttribs = [
-	'alt'   => "alt=\"Example: Booking QR Code\"",
-	'src'   => "src=\"{$directory}qrcode.png\"",
-	'style' => "style=\"margin-left: 2rem; margin-bottom: 2rem; margin-right: 1rem; float: right;\"",
-	'width' => "width=\"200px\""
+    'alt'   => "alt=\"Example: Booking QR Code\"",
+    'src'   => "src=\"{$directory}qrcode.png\"",
+    'style' => "style=\"margin-left: 2rem; margin-bottom: 2rem; margin-right: 1rem; float: right;\"",
+    'width' => "width=\"200px\""
 ];
 $qrcImageAttribs = array_merge($imageAttribs, $qrcImageAttribs);
 $qrcPopUpAttribs = [
-	'caption' => "data-mediabox-caption=\"$qrcCaption\"",
-	'href'    => "href=\"{$directory}qrcode.png\""
+    'caption' => "data-mediabox-caption=\"$qrcCaption\"",
+    'href'    => "href=\"{$directory}qrcode.png\""
 ];
 $qrcPopUpAttribs = array_merge($jcePopUpAttribs, $qrcPopUpAttribs);
 
 $registerCaption = 'Um einen neuen Account anzulegen, klicken Sie bitte auf den Registrierungslink ganz unten.';
 
 $registerImageAttribs = [
-	'alt'   => "alt=\"Screenshot: Registration Link on the Checkin Page\"",
-	'src'   => "src=\"{$directory}register.png\"",
-	'style' => "style=\"margin-left: 2rem; margin-bottom: 2rem; margin-right: 1rem; float: right;\"",
-	'width' => "width=\"200px\""
+    'alt'   => "alt=\"Screenshot: Registration Link on the Checkin Page\"",
+    'src'   => "src=\"{$directory}register.png\"",
+    'style' => "style=\"margin-left: 2rem; margin-bottom: 2rem; margin-right: 1rem; float: right;\"",
+    'width' => "width=\"200px\""
 ];
 $registerImageAttribs = array_merge($imageAttribs, $registerImageAttribs);
 $registerPopUpAttribs = [
-	'caption' => "data-mediabox-caption=\"$registerCaption\"",
-	'href'    => "href=\"{$directory}register.png\""
+    'caption' => "data-mediabox-caption=\"$registerCaption\"",
+    'href'    => "href=\"{$directory}register.png\""
 ];
 $registerPopUpAttribs = array_merge($jcePopUpAttribs, $registerPopUpAttribs);
 
 ?>
 <div style="float:right;">
-	<?php //require_once 'toc.php'; ?>
+    <?php //require_once 'toc.php'; ?>
 </div>
 <br>
 <h3>Veranstaltung Eröffnen</h3>

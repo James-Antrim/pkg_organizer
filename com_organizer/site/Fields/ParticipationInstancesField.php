@@ -17,28 +17,27 @@ use Organizer\Helpers;
  */
 class ParticipationInstancesField extends OptionsField
 {
-	/**
-	 * @var  string
-	 */
-	protected $type = 'ParticipationInstances';
+    /**
+     * @var  string
+     */
+    protected $type = 'ParticipationInstances';
 
-	/**
-	 * Returns an array of booking instance options
-	 *
-	 * @return array  the pool options
-	 */
-	protected function getOptions(): array
-	{
-		$bookingID = Helpers\InstanceParticipants::getBookingID(Helpers\Input::getID());
-		$instances = Helpers\Bookings::getInstanceOptions($bookingID);
+    /**
+     * Returns an array of booking instance options
+     *
+     * @return array  the pool options
+     */
+    protected function getOptions(): array
+    {
+        $bookingID = Helpers\InstanceParticipants::getBookingID(Helpers\Input::getID());
+        $instances = Helpers\Bookings::getInstanceOptions($bookingID);
 
-		if (count($instances) === 1)
-		{
-			return $instances;
-		}
+        if (count($instances) === 1) {
+            return $instances;
+        }
 
-		$options = parent::getOptions();
+        $options = parent::getOptions();
 
-		return array_merge($options, $instances);
-	}
+        return array_merge($options, $instances);
+    }
 }

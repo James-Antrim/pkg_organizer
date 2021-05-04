@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Grids extends Controller
 {
-	protected $listView = 'grids';
+    protected $listView = 'grids';
 
-	protected $resource = 'grid';
+    protected $resource = 'grid';
 }

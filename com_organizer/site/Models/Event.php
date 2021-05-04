@@ -19,65 +19,59 @@ use Organizer\Tables;
  */
 class Event extends BaseModel
 {
-	/**
-	 * @inheritDoc
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::edit('events', $this->selected))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * @inheritDoc
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::edit('events', $this->selected)) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getTable($name = '', $prefix = '', $options = [])
-	{
-		return new Tables\Events();
-	}
+    /**
+     * @inheritDoc
+     */
+    public function getTable($name = '', $prefix = '', $options = [])
+    {
+        return new Tables\Events();
+    }
 
-	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return int|bool int id of the resource on success, otherwise bool false
-	 */
-	public function save($data = [])
-	{
-		if (!$eventID = parent::save($data))
-		{
-			return false;
-		}
+    /**
+     * Attempts to save the resource.
+     *
+     * @param   array  $data  the data from the form
+     *
+     * @return int|bool int id of the resource on success, otherwise bool false
+     */
+    public function save($data = [])
+    {
+        if (!$eventID = parent::save($data)) {
+            return false;
+        }
 
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		if ($coordinatorIDs = $data['coordinatorIDs'])
-		{
-			foreach ($coordinatorIDs as $coordinatorID)
-			{
-				$coordinator = new Tables\EventCoordinators();
-				$assocData   = ['eventID' => $eventID, 'personID' => $coordinatorID];
-				if (!$coordinator->load($assocData))
-				{
-					$coordinator->save($assocData);
-				}
-			}
-		}
+        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        if ($coordinatorIDs = $data['coordinatorIDs']) {
+            foreach ($coordinatorIDs as $coordinatorID) {
+                $coordinator = new Tables\EventCoordinators();
+                $assocData   = ['eventID' => $eventID, 'personID' => $coordinatorID];
+                if (!$coordinator->load($assocData)) {
+                    $coordinator->save($assocData);
+                }
+            }
+        }
 
-		$query = Database::getQuery();
-		$query->delete('#__organizer_event_coordinators')->where("eventID = $eventID");
+        $query = Database::getQuery();
+        $query->delete('#__organizer_event_coordinators')->where("eventID = $eventID");
 
-		if ($coordinatorIDs)
-		{
-			$coordinatorIDs = implode(', ', $coordinatorIDs);
-			$query->where("personID NOT IN ($coordinatorIDs)");
-		}
+        if ($coordinatorIDs) {
+            $coordinatorIDs = implode(', ', $coordinatorIDs);
+            $query->where("personID NOT IN ($coordinatorIDs)");
+        }
 
-		Database::setQuery($query);
-		Database::execute();
+        Database::setQuery($query);
+        Database::execute();
 
-		return $eventID;
-	}
+        return $eventID;
+    }
 }

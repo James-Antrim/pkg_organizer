@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Degrees extends Controller
 {
-	protected $listView = 'degrees';
+    protected $listView = 'degrees';
 
-	protected $resource = 'degree';
+    protected $resource = 'degree';
 }

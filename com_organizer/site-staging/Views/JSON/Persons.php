@@ -17,21 +17,18 @@ use Organizer\Helpers;
  */
 class Persons extends BaseView
 {
-	/**
-	 * loads model data into view context
-	 *
-	 * @return void
-	 */
-	public function display()
-	{
-		$function = Helpers\Input::getTask();
-		if (method_exists('Organizer\\Helpers\\Persons', $function))
-		{
-			echo json_encode(Helpers\Persons::$function(), JSON_UNESCAPED_UNICODE);
-		}
-		else
-		{
-			echo false;
-		}
-	}
+    /**
+     * loads model data into view context
+     *
+     * @return void
+     */
+    public function display()
+    {
+        $function = Helpers\Input::getTask();
+        if (method_exists('Organizer\\Helpers\\Persons', $function)) {
+            echo json_encode(Helpers\Persons::$function(), JSON_UNESCAPED_UNICODE);
+        } else {
+            echo false;
+        }
+    }
 }

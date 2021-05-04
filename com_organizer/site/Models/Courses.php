@@ -18,116 +18,104 @@ use Organizer\Helpers;
  */
 class Courses extends ListModel
 {
-	use Helpers\Filtered;
+    use Helpers\Filtered;
 
-	protected $filter_fields = ['campusID', 'status', 'termID'];
+    protected $filter_fields = ['campusID', 'status', 'termID'];
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function filterFilterForm(Form &$form)
-	{
-		parent::filterFilterForm($form);
+    /**
+     * @inheritDoc
+     */
+    protected function filterFilterForm(Form &$form)
+    {
+        parent::filterFilterForm($form);
 
-		if ($this->adminContext)
-		{
-			return;
-		}
+        if ($this->adminContext) {
+            return;
+        }
 
-		$form->removeField('termID', 'filter');
+        $form->removeField('termID', 'filter');
 
-		$params = Helpers\Input::getParams();
+        $params = Helpers\Input::getParams();
 
-		if ($params->get('campusID'))
-		{
-			$form->removeField('campusID', 'filter');
-		}
+        if ($params->get('campusID')) {
+            $form->removeField('campusID', 'filter');
+        }
 
-		if ($params->get('onlyPrepCourses'))
-		{
-			$form->removeField('search', 'filter');
-		}
-	}
+        if ($params->get('onlyPrepCourses')) {
+            $form->removeField('search', 'filter');
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getItems()
-	{
-		if (!$items = parent::getItems())
-		{
-			return [];
-		}
+    /**
+     * @inheritDoc
+     */
+    public function getItems()
+    {
+        if (!$items = parent::getItems()) {
+            return [];
+        }
 
-		$userID = Helpers\Users::getID();
+        $userID = Helpers\Users::getID();
 
-		foreach ($items as $item)
-		{
-			$item->participants = count(Helpers\Courses::getParticipantIDs($item->id));
-			$item->registered   = Helpers\CourseParticipants::getState($item->id, $userID);
-		}
+        foreach ($items as $item) {
+            $item->participants = count(Helpers\Courses::getParticipantIDs($item->id));
+            $item->registered   = Helpers\CourseParticipants::getState($item->id, $userID);
+        }
 
-		return $items ? $items : [];
-	}
+        return $items ? $items : [];
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function getListQuery()
-	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
-		$query->select("c.*, c.name_$tag AS name, MIN(u.startDate) AS startDate, MAX(u.endDate) AS endDate")
-			->from('#__organizer_courses AS c')
-			->innerJoin('#__organizer_units AS u ON u.courseID = c.id')
-			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
-			->innerJoin('#__organizer_events AS e ON e.id = i.eventID')
-			->group('c.id')
-			->order('startDate DESC, name ASC');
+    /**
+     * @inheritDoc
+     */
+    protected function getListQuery()
+    {
+        $tag   = Helpers\Languages::getTag();
+        $query = $this->_db->getQuery(true);
+        $query->select("c.*, c.name_$tag AS name, MIN(u.startDate) AS startDate, MAX(u.endDate) AS endDate")
+            ->from('#__organizer_courses AS c')
+            ->innerJoin('#__organizer_units AS u ON u.courseID = c.id')
+            ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
+            ->innerJoin('#__organizer_events AS e ON e.id = i.eventID')
+            ->group('c.id')
+            ->order('startDate DESC, name ASC');
 
-		$this->setSearchFilter($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
+        $this->setSearchFilter($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 
-		if ($this->adminContext)
-		{
-			$organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
-			$query->where("u.organizationID in ($organizationIDs)");
-		}
+        if ($this->adminContext) {
+            $organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
+            $query->where("u.organizationID in ($organizationIDs)");
+        }
 
-		if (!$this->adminContext and Helpers\Input::getParams()->get('onlyPrepCourses'))
-		{
-			$query->where('e.preparatory = 1');
-		}
-		else
-		{
-			$this->setValueFilters($query, ['c.termID']);
-		}
+        if (!$this->adminContext and Helpers\Input::getParams()->get('onlyPrepCourses')) {
+            $query->where('e.preparatory = 1');
+        } else {
+            $this->setValueFilters($query, ['c.termID']);
+        }
 
-		if (empty($this->state->get('filter.status')))
-		{
-			$today = date('Y-m-d');
-			$query->where("endDate >= '$today'");
-		}
+        if (empty($this->state->get('filter.status'))) {
+            $today = date('Y-m-d');
+            $query->where("endDate >= '$today'");
+        }
 
-		$this->addCampusFilter($query, 'c');
+        $this->addCampusFilter($query, 'c');
 
-		return $query;
-	}
+        return $query;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function populateState($ordering = null, $direction = null)
-	{
-		parent::populateState($ordering, $direction);
+    /**
+     * @inheritDoc
+     */
+    protected function populateState($ordering = null, $direction = null)
+    {
+        parent::populateState($ordering, $direction);
 
-		if (!$this->adminContext)
-		{
-			$params = Helpers\Input::getParams();
+        if (!$this->adminContext) {
+            $params = Helpers\Input::getParams();
 
-			if ($campusID = $params->get('campusID'))
-			{
-				$this->state->set('filter.campusID', $campusID);
-			}
-		}
-	}
+            if ($campusID = $params->get('campusID')) {
+                $this->state->set('filter.campusID', $campusID);
+            }
+        }
+    }
 }

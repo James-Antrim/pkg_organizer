@@ -8,7 +8,7 @@
         <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();" required="true">
             <option value="">SELECT_GRID</option>
         </field>
-        <field name="blockID" type="Blocks" label="BLOCK"  onchange="this.form.submit();" required="true">
+        <field name="blockID" type="Blocks" label="BLOCK" onchange="this.form.submit();" required="true">
             <option value="">SELECT_BLOCK</option>
         </field>
         <!--<field name="id" type="hidden"/>-->

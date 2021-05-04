@@ -20,41 +20,41 @@ use Organizer\Views\PDF\CourseItem;
  */
 class Badge extends BadgeLayout
 {
-	private $participantID;
+    private $participantID;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct(CourseItem $view)
-	{
-		parent::__construct($view);
-	}
+    /**
+     * @inheritDoc
+     */
+    public function __construct(CourseItem $view)
+    {
+        parent::__construct($view);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function fill(array $data)
-	{
-		$participant = new Tables\Participants();
-		/** @noinspection PhpPossiblePolymorphicInvocationInspection */
-		$participant->load($this->view->participantID);
+    /**
+     * @inheritdoc
+     */
+    public function fill(array $data)
+    {
+        $participant = new Tables\Participants();
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+        $participant->load($this->view->participantID);
 
-		$yOffset = 0;
+        $yOffset = 0;
 
-		$this->view->AddPage();
-		$xOffset = 10;
-		$this->addBadge($participant, $xOffset, $yOffset);
-		$xOffset += 92;
-		$this->addBadgeBack($xOffset, $yOffset);
-	}
+        $this->view->AddPage();
+        $xOffset = 10;
+        $this->addBadge($participant, $xOffset, $yOffset);
+        $xOffset += 92;
+        $this->addBadgeBack($xOffset, $yOffset);
+    }
 
-	/**
-	 * Generates the title and sets name related properties.
-	 */
-	public function setTitle()
-	{
-		$view         = $this->view;
-		$documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_BADGE');
-		$view->setNames($documentName);
-	}
+    /**
+     * Generates the title and sets name related properties.
+     */
+    public function setTitle()
+    {
+        $view         = $this->view;
+        $documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_BADGE');
+        $view->setNames($documentName);
+    }
 }

@@ -40,61 +40,56 @@ $rowNumber = 0;
     </div>
     <div class="instances upcoming-layout">
         <div class="explanation"><?php echo Helpers\Languages::_('ORGANIZER_NEXT_4'); ?></div>
-		<?php foreach ($this->model->instances as $instance)
-		{
-			if ($count >= 4)
-			{
-				break;
-			}
+        <?php foreach ($this->model->instances as $instance) {
+            if ($count >= 4) {
+                break;
+            }
 
-			$newHead       = !in_array($instance['date'], $dates);
-			$closePrevious = ($newHead and count($dates));
+            $newHead       = !in_array($instance['date'], $dates);
+            $closePrevious = ($newHead and count($dates));
 
-			if ($closePrevious)
-			{
-				echo '</div>';
-			}
-			if ($newHead)
-			{
-				$date      = Helpers\Dates::formatDate($instance['date']);
-				$dates[]   = $instance['date'];
-				$rowNumber = 0;
+            if ($closePrevious) {
+                echo '</div>';
+            }
+            if ($newHead) {
+                $date      = Helpers\Dates::formatDate($instance['date']);
+                $dates[]   = $instance['date'];
+                $rowNumber = 0;
 
-				echo '<div class="date-container">';
-				echo "<div class=\"date-header\"><span>$date</span></div>";
-			}
+                echo '<div class="date-container">';
+                echo "<div class=\"date-header\"><span>$date</span></div>";
+            }
 
-			$rowClass = 'row' . ($rowNumber % 2);
-			$rowNumber++;
-			$paddingClass = empty($instance['comment']) ? 'fluffy' : '';
-			$event        = empty($instance['method']) ? $instance['event'] : "{$instance['event']} - {$instance['method']}"
-			?>
+            $rowClass = 'row' . ($rowNumber % 2);
+            $rowNumber++;
+            $paddingClass = empty($instance['comment']) ? 'fluffy' : '';
+            $event        = empty($instance['method']) ? $instance['event'] : "{$instance['event']} - {$instance['method']}"
+            ?>
             <div class="<?php echo $rowClass; ?> ym-clearfix instance">
                 <div class="block-times">
-					<?php echo Helpers\Dates::formatTime($instance['startTime']); ?><br>
+                    <?php echo Helpers\Dates::formatTime($instance['startTime']); ?><br>
                     -<br>
-					<?php echo Helpers\Dates::formatEndTime($instance['endTime']); ?>
+                    <?php echo Helpers\Dates::formatEndTime($instance['endTime']); ?>
                 </div>
                 <div class="instance-display">
                     <div class="event-names <?php echo $paddingClass; ?>">
-						<?php echo $event; ?>
+                        <?php echo $event; ?>
                     </div>
                     <div class="instance-persons"><?php echo implode(' / ', $instance['persons']); ?></div>
-					<?php
-					if (!empty($instance['comment']))
-					{
-						?>
+                    <?php
+                    if (!empty($instance['comment'])) {
+                        ?>
                         <div class="unit-comment">
                             (<?php echo $instance['comment']; ?>)
                         </div>
-						<?php
-					}
-					?>
+                        <?php
+                    }
+                    ?>
                 </div>
             </div>
-			<?php
-			$count++;
-		}
-		?>
+            <?php
+            $count++;
+        }
+        ?>
     </div>
 </div>

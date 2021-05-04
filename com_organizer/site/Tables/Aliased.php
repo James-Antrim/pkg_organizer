@@ -15,26 +15,25 @@ namespace Organizer\Tables;
  */
 trait Aliased
 {
-	/**
-	 * The alias used to reference the resource in an URL
-	 * VARCHAR(255) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $alias;
+    /**
+     * The alias used to reference the resource in an URL
+     * VARCHAR(255) DEFAULT ''
+     *
+     * @var string
+     */
+    public $alias;
 
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return bool  true
-	 */
-	public function check()
-	{
-		if (empty($this->alias))
-		{
-			$this->alias = null;
-		}
+    /**
+     * Set the table column names which are allowed to be null
+     *
+     * @return bool  true
+     */
+    public function check()
+    {
+        if (empty($this->alias)) {
+            $this->alias = null;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

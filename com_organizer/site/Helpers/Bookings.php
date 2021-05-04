@@ -18,214 +18,200 @@ use Organizer\Tables;
  */
 class Bookings extends ResourceHelper
 {
-	/**
-	 * Creates a display of formatted times for a booking.
-	 *
-	 * @param   int  $bookingID  the id of the booking entry
-	 *
-	 * @return string the dates to display
-	 */
-	public static function getDateTimeDisplay(int $bookingID): string
-	{
-		$booking = new Tables\Bookings();
-		if (!$booking->load($bookingID))
-		{
-			return '';
-		}
+    /**
+     * Creates a display of formatted times for a booking.
+     *
+     * @param   int  $bookingID  the id of the booking entry
+     *
+     * @return string the dates to display
+     */
+    public static function getDateTimeDisplay(int $bookingID): string
+    {
+        $booking = new Tables\Bookings();
+        if (!$booking->load($bookingID)) {
+            return '';
+        }
 
-		$block = new Tables\Blocks();
-		if (!$block->load($booking->blockID))
-		{
-			return '';
-		}
+        $block = new Tables\Blocks();
+        if (!$block->load($booking->blockID)) {
+            return '';
+        }
 
-		// It is enough to load a single one, because if the instance does not have an event, there is only one.
-		$instance = new Tables\Instances();
-		if (!$instance->load(['blockID' => $booking->blockID, 'unitID' => $booking->unitID]))
-		{
-			return '';
-		}
+        // It is enough to load a single one, because if the instance does not have an event, there is only one.
+        $instance = new Tables\Instances();
+        if (!$instance->load(['blockID' => $booking->blockID, 'unitID' => $booking->unitID])) {
+            return '';
+        }
 
-		$endTime   = $booking->endTime ?: $block->endTime;
-		$startTime = $booking->startTime ?: $block->startTime;
-		$date      = Dates::formatDate($block->date);
-		$endTime   = $instance->eventID ? Dates::formatEndTime($endTime) : Dates::formatTime($endTime);
-		$startTime = Dates::formatTime($startTime);
+        $endTime   = $booking->endTime ?: $block->endTime;
+        $startTime = $booking->startTime ?: $block->startTime;
+        $date      = Dates::formatDate($block->date);
+        $endTime   = $instance->eventID ? Dates::formatEndTime($endTime) : Dates::formatTime($endTime);
+        $startTime = Dates::formatTime($startTime);
 
-		return "$date $startTime - $endTime";
-	}
+        return "$date $startTime - $endTime";
+    }
 
-	/**
-	 * Retrieves a list of instance IDs for instances which fulfill the requirements.
-	 *
-	 * @param   int  $bookingID  the id of the booking entry
-	 *
-	 * @return array the ids matching the conditions
-	 */
-	public static function getInstanceIDs(int $bookingID): array
-	{
-		$query = Database::getQuery();
-		$query->select('DISTINCT i.id')
-			->from('#__organizer_instances AS i')
-			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID and b.unitID = i.unitID')
-			->where("b.id = $bookingID")
-			->order('i.id');
-		Database::setQuery($query);
+    /**
+     * Retrieves a list of instance IDs for instances which fulfill the requirements.
+     *
+     * @param   int  $bookingID  the id of the booking entry
+     *
+     * @return array the ids matching the conditions
+     */
+    public static function getInstanceIDs(int $bookingID): array
+    {
+        $query = Database::getQuery();
+        $query->select('DISTINCT i.id')
+            ->from('#__organizer_instances AS i')
+            ->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID and b.unitID = i.unitID')
+            ->where("b.id = $bookingID")
+            ->order('i.id');
+        Database::setQuery($query);
 
-		return Database::loadIntColumn();
-	}
+        return Database::loadIntColumn();
+    }
 
-	/**
-	 * Gets instance options for the booking entry.
-	 *
-	 * @param   int  $bookingID  the id of the booking to get instance options for
-	 *
-	 * @return array
-	 */
-	public static function getInstanceOptions(int $bookingID): array
-	{
-		$options = [];
+    /**
+     * Gets instance options for the booking entry.
+     *
+     * @param   int  $bookingID  the id of the booking to get instance options for
+     *
+     * @return array
+     */
+    public static function getInstanceOptions(int $bookingID): array
+    {
+        $options = [];
 
-		foreach (self::getInstanceIDs($bookingID) as $instanceID)
-		{
-			if ($name = Instances::getName($instanceID))
-			{
-				$options[$name] = HTML::_('select.option', $instanceID, $name);
-			}
-		}
+        foreach (self::getInstanceIDs($bookingID) as $instanceID) {
+            if ($name = Instances::getName($instanceID)) {
+                $options[$name] = HTML::_('select.option', $instanceID, $name);
+            }
+        }
 
-		ksort($options);
+        ksort($options);
 
-		return $options;
-	}
+        return $options;
+    }
 
-	/**
-	 * Gets the localized name of the events associated with the booking and the name of the booking's method.
-	 *
-	 * @param   int  $resourceID  the id of the booking entry
-	 *
-	 * @return string
-	 */
-	public static function getName(int $resourceID): string
-	{
-		$method = '';
-		$names  = [];
+    /**
+     * Gets the localized name of the events associated with the booking and the name of the booking's method.
+     *
+     * @param   int  $resourceID  the id of the booking entry
+     *
+     * @return string
+     */
+    public static function getName(int $resourceID): string
+    {
+        $method = '';
+        $names  = [];
 
-		foreach (self::getInstanceIDs($resourceID) as $instanceID)
-		{
-			if ($name = Instances::getName($instanceID, false))
-			{
-				$names[] = $name;
+        foreach (self::getInstanceIDs($resourceID) as $instanceID) {
+            if ($name = Instances::getName($instanceID, false)) {
+                $names[] = $name;
 
-				if (empty($method))
-				{
-					$method = Instances::getMethod($instanceID);
-				}
-			}
-		}
+                if (empty($method)) {
+                    $method = Instances::getMethod($instanceID);
+                }
+            }
+        }
 
-		$names = array_unique($names);
-		asort($names);
-		$names = implode(', ', $names);
+        $names = array_unique($names);
+        asort($names);
+        $names = implode(', ', $names);
 
-		// Removes potentially redundant methods which are also a part of the instance event name.
-		$names .= ($method and strpos($names, $method) === false) ? " - $method" : '';
+        // Removes potentially redundant methods which are also a part of the instance event name.
+        $names .= ($method and strpos($names, $method) === false) ? " - $method" : '';
 
-		return $names;
-	}
+        return $names;
+    }
 
-	/**
-	 * Gets the localized name of the events associated with the booking and the name of the booking's method.
-	 *
-	 * @param   int  $bookingID  the id of the booking entry
-	 *
-	 * @return array
-	 */
-	public static function getNames(int $bookingID): array
-	{
-		$names = [];
+    /**
+     * Gets the localized name of the events associated with the booking and the name of the booking's method.
+     *
+     * @param   int  $bookingID  the id of the booking entry
+     *
+     * @return array
+     */
+    public static function getNames(int $bookingID): array
+    {
+        $names = [];
 
-		foreach (self::getInstanceIDs($bookingID) as $instanceID)
-		{
-			if ($name = Instances::getName($instanceID))
-			{
-				$names[] = $name;
-			}
-		}
+        foreach (self::getInstanceIDs($bookingID) as $instanceID) {
+            if ($name = Instances::getName($instanceID)) {
+                $names[] = $name;
+            }
+        }
 
-		$names = array_unique($names);
-		asort($names);
+        $names = array_unique($names);
+        asort($names);
 
-		return $names;
-	}
+        return $names;
+    }
 
-	/**
-	 * Gets the count of participants who attended the booking.
-	 *
-	 * @param   int  $bookingID
-	 *
-	 * @return int the number of attending participants
-	 */
-	public static function getParticipantCount(int $bookingID): int
-	{
-		$query = Database::getQuery();
-		$query->select('COUNT(DISTINCT ip.participantID)')
-			->from('#__organizer_instance_participants AS ip')
-			->innerJoin('#__organizer_instances AS i on i.id = ip.instanceID')
-			->innerJoin('#__organizer_bookings AS b ON b.unitID = i.unitID AND b.blockID = i.blockID')
-			->where('ip.attended = 1')
-			->where("b.id = $bookingID");
-		Database::setQuery($query);
+    /**
+     * Gets the count of participants who attended the booking.
+     *
+     * @param   int  $bookingID
+     *
+     * @return int the number of attending participants
+     */
+    public static function getParticipantCount(int $bookingID): int
+    {
+        $query = Database::getQuery();
+        $query->select('COUNT(DISTINCT ip.participantID)')
+            ->from('#__organizer_instance_participants AS ip')
+            ->innerJoin('#__organizer_instances AS i on i.id = ip.instanceID')
+            ->innerJoin('#__organizer_bookings AS b ON b.unitID = i.unitID AND b.blockID = i.blockID')
+            ->where('ip.attended = 1')
+            ->where("b.id = $bookingID");
+        Database::setQuery($query);
 
-		return Database::loadInt();
-	}
+        return Database::loadInt();
+    }
 
-	/**
-	 * Gets instance options for the booking entry.
-	 *
-	 * @param   int  $bookingID  the id of the booking to get instance options for
-	 *
-	 * @return array
-	 */
-	public static function getRooms(int $bookingID): array
-	{
-		$rooms = [];
+    /**
+     * Gets instance options for the booking entry.
+     *
+     * @param   int  $bookingID  the id of the booking to get instance options for
+     *
+     * @return array
+     */
+    public static function getRooms(int $bookingID): array
+    {
+        $rooms = [];
 
-		foreach (self::getInstanceIDs($bookingID) as $instanceID)
-		{
-			foreach (Instances::getRoomIDs($instanceID) as $roomID)
-			{
-				$rooms[$roomID] = Rooms::getName($roomID);
-			}
-		}
+        foreach (self::getInstanceIDs($bookingID) as $instanceID) {
+            foreach (Instances::getRoomIDs($instanceID) as $roomID) {
+                $rooms[$roomID] = Rooms::getName($roomID);
+            }
+        }
 
-		asort($rooms);
+        asort($rooms);
 
-		return $rooms;
-	}
+        return $rooms;
+    }
 
-	/**
-	 * Gets instance options for the booking entry.
-	 *
-	 * @param   int  $bookingID  the id of the booking to get instance options for
-	 *
-	 * @return array
-	 */
-	public static function getRoomOptions(int $bookingID): array
-	{
-		$options = [];
+    /**
+     * Gets instance options for the booking entry.
+     *
+     * @param   int  $bookingID  the id of the booking to get instance options for
+     *
+     * @return array
+     */
+    public static function getRoomOptions(int $bookingID): array
+    {
+        $options = [];
 
-		foreach (self::getInstanceIDs($bookingID) as $instanceID)
-		{
-			foreach (Instances::getRoomIDs($instanceID) as $roomID)
-			{
-				$name           = Rooms::getName($roomID);
-				$options[$name] = HTML::_('select.option', $roomID, $name);
-			}
-		}
+        foreach (self::getInstanceIDs($bookingID) as $instanceID) {
+            foreach (Instances::getRoomIDs($instanceID) as $roomID) {
+                $name           = Rooms::getName($roomID);
+                $options[$name] = HTML::_('select.option', $roomID, $name);
+            }
+        }
 
-		ksort($options);
+        ksort($options);
 
-		return $options;
-	}
+        return $options;
+    }
 }

@@ -18,21 +18,21 @@ use Organizer\Helpers\Input;
  */
 class SuperOrdinates extends BaseView
 {
-	/**
-	 * loads model data into view context
-	 *
-	 * @return void
-	 */
-	public function display()
-	{
-		$subID = Input::getID();
-		$type  = Input::getCMD('type');
+    /**
+     * loads model data into view context
+     *
+     * @return void
+     */
+    public function display()
+    {
+        $subID = Input::getID();
+        $type  = Input::getCMD('type');
 
-		// Pending program ranges are dependant on selected programs.
-		$programIDs    = Helpers\Input::getIntCollection('curricula');
-		$programRanges = Helpers\Programs::getPrograms($programIDs);
+        // Pending program ranges are dependant on selected programs.
+        $programIDs    = Helpers\Input::getIntCollection('curricula');
+        $programRanges = Helpers\Programs::getPrograms($programIDs);
 
-		$options = Helpers\Pools::getSuperOrdinateOptions($subID, $type, $programRanges);
-		echo json_encode(implode('', $options), JSON_UNESCAPED_UNICODE);
-	}
+        $options = Helpers\Pools::getSuperOrdinateOptions($subID, $type, $programRanges);
+        echo json_encode(implode('', $options), JSON_UNESCAPED_UNICODE);
+    }
 }

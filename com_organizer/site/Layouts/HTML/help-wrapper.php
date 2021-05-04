@@ -16,5 +16,5 @@ $topic = Helpers\Input::getCMD('topic', 'toc');
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 ?>
 <div id="j-main-container" class="span10">
-	<?php require_once "Help/$topic.php"; ?>
+    <?php require_once "Help/$topic.php"; ?>
 </div>

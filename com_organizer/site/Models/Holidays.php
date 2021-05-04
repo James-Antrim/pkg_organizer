@@ -19,80 +19,75 @@ use Organizer\Helpers;
  */
 class Holidays extends ListModel
 {
-	private const EXPIRED = 1;
+    private const EXPIRED = 1;
 
-	protected $defaultOrdering = 'startDate';
+    protected $defaultOrdering = 'startDate';
 
-	protected $filter_fields = ['year', 'type', 'status'];
+    protected $filter_fields = ['year', 'type', 'status'];
 
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery(): JDatabaseQuery
-	{
-		$tag   = Helpers\Languages::getTag();
-		$query = Database::getQuery();
-		$query->select("id, name_$tag as name, type, startDate, endDate")
-			->from('#__organizer_holidays');
-		$this->setSearchFilter($query, ['name_de', 'name_en', 'startDate', 'endDate']);
-		$this->setValueFilters($query, ['type']);
-		$this->filterStatus($query);
-		$this->setYearFilter($query);
-		$this->setOrdering($query);
+    /**
+     * Method to get a list of resources from the database.
+     *
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery(): JDatabaseQuery
+    {
+        $tag   = Helpers\Languages::getTag();
+        $query = Database::getQuery();
+        $query->select("id, name_$tag as name, type, startDate, endDate")
+            ->from('#__organizer_holidays');
+        $this->setSearchFilter($query, ['name_de', 'name_en', 'startDate', 'endDate']);
+        $this->setValueFilters($query, ['type']);
+        $this->filterStatus($query);
+        $this->setYearFilter($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 
-	/**
-	 * Adds the filter settings for status of holiday
-	 *
-	 * @param   JDatabaseQuery  $query  the query to modify
-	 *
-	 * @return void
-	 */
-	private function filterStatus(JDatabaseQuery $query)
-	{
-		$listValue   = $this->state->get('list.status');
-		$filterValue = $this->state->get('filter.status');
+    /**
+     * Adds the filter settings for status of holiday
+     *
+     * @param   JDatabaseQuery  $query  the query to modify
+     *
+     * @return void
+     */
+    private function filterStatus(JDatabaseQuery $query)
+    {
+        $listValue   = $this->state->get('list.status');
+        $filterValue = $this->state->get('filter.status');
 
-		if (empty($listValue) and empty($filterValue))
-		{
-			return;
-		}
+        if (empty($listValue) and empty($filterValue)) {
+            return;
+        }
 
-		$value = empty($filterValue) ? $listValue : $filterValue;
+        $value = empty($filterValue) ? $listValue : $filterValue;
 
-		if ((int) $value === self::EXPIRED)
-		{
-			$query->where('endDate < CURDATE()');
-		}
-		else
-		{
-			$query->where('startDate > CURDATE()');
-		}
-	}
+        if ((int)$value === self::EXPIRED) {
+            $query->where('endDate < CURDATE()');
+        } else {
+            $query->where('startDate > CURDATE()');
+        }
+    }
 
-	/**
-	 * Adds the filter settings for displaying year
-	 *
-	 * @param   JDatabaseQuery  $query  the query to modify
-	 *
-	 * @return void
-	 */
-	private function setYearFilter(JDatabaseQuery $query)
-	{
-		$listValue   = $this->state->get('list.year');
-		$filterValue = $this->state->get('filter.year');
+    /**
+     * Adds the filter settings for displaying year
+     *
+     * @param   JDatabaseQuery  $query  the query to modify
+     *
+     * @return void
+     */
+    private function setYearFilter(JDatabaseQuery $query)
+    {
+        $listValue   = $this->state->get('list.year');
+        $filterValue = $this->state->get('filter.year');
 
-		if (empty($listValue) and empty($filterValue))
-		{
-			return;
-		}
+        if (empty($listValue) and empty($filterValue)) {
+            return;
+        }
 
-		$value = empty($filterValue) ? $listValue : $filterValue;
+        $value = empty($filterValue) ? $listValue : $filterValue;
 
-		$query->where("Year(startDate) = $value");
-	}
+        $query->where("Year(startDate) = $value");
+    }
 }

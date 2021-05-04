@@ -20,26 +20,26 @@ use Organizer\Views\Named;
  */
 abstract class BaseView
 {
-	use Named;
+    use Named;
 
-	/**
-	 * The base path of the site itself
-	 *
-	 * @var string
-	 */
-	private $baseURL;
+    /**
+     * The base path of the site itself
+     *
+     * @var string
+     */
+    private $baseURL;
 
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		$this->getName();
-		$this->baseURL = Uri::base(true);
-	}
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->getName();
+        $this->baseURL = Uri::base(true);
+    }
 
-	/**
-	 * Display the view output.
-	 */
-	abstract public function display();
+    /**
+     * Display the view output.
+     */
+    abstract public function display();
 }

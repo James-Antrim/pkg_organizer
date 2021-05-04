@@ -15,62 +15,62 @@ namespace Organizer\Tables;
  */
 class Terms extends BaseTable
 {
-	use Aliased;
-	use Coded;
+    use Aliased;
+    use Coded;
 
-	/**
-	 * The end date of the resource.
-	 * DATE DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $endDate;
+    /**
+     * The end date of the resource.
+     * DATE DEFAULT NULL
+     *
+     * @var string
+     */
+    public $endDate;
 
-	/**
-	 * The resource's full German name.
-	 * VARCHAR(200) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $fullName_de;
+    /**
+     * The resource's full German name.
+     * VARCHAR(200) DEFAULT ''
+     *
+     * @var string
+     */
+    public $fullName_de;
 
-	/**
-	 * The resource's full English name.
-	 * VARCHAR(200) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $fullName_en;
+    /**
+     * The resource's full English name.
+     * VARCHAR(200) DEFAULT ''
+     *
+     * @var string
+     */
+    public $fullName_en;
 
-	/**
-	 * The resource's German name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
+    /**
+     * The resource's German name.
+     * VARCHAR(150) NOT NULL
+     *
+     * @var string
+     */
+    public $name_de;
 
-	/**
-	 * The resource's English name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
+    /**
+     * The resource's English name.
+     * VARCHAR(150) NOT NULL
+     *
+     * @var string
+     */
+    public $name_en;
 
-	/**
-	 * The start date of the resource.
-	 * DATE DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $startDate;
+    /**
+     * The start date of the resource.
+     * DATE DEFAULT NULL
+     *
+     * @var string
+     */
+    public $startDate;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_terms');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_terms');
+    }
 }

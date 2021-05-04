@@ -17,13 +17,13 @@ use Organizer\Helpers;
  */
 class GroupOptions extends BaseView
 {
-	/**
-	 * loads model data into view context
-	 *
-	 * @return void
-	 */
-	public function display()
-	{
-		echo json_encode(Helpers\Groups::getOptions(), JSON_UNESCAPED_UNICODE);
-	}
+    /**
+     * loads model data into view context
+     *
+     * @return void
+     */
+    public function display()
+    {
+        echo json_encode(Helpers\Groups::getOptions(), JSON_UNESCAPED_UNICODE);
+    }
 }

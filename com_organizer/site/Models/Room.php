@@ -19,115 +19,107 @@ use Organizer\Tables;
  */
 class Room extends MergeModel
 {
-	/**
-	 * Activates rooms by id if a selection was made, otherwise by use in the instance_rooms table.
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function activate()
-	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		$this->authorize();
+    /**
+     * Activates rooms by id if a selection was made, otherwise by use in the instance_rooms table.
+     *
+     * @return bool true on success, otherwise false
+     */
+    public function activate()
+    {
+        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->authorize();
 
-		// Explicitly selected resources
-		if ($this->selected)
-		{
-			foreach ($this->selected as $selectedID)
-			{
-				$room = new Tables\Rooms();
+        // Explicitly selected resources
+        if ($this->selected) {
+            foreach ($this->selected as $selectedID) {
+                $room = new Tables\Rooms();
 
-				if ($room->load($selectedID))
-				{
-					$room->active = 1;
-					$room->store();
-					continue;
-				}
+                if ($room->load($selectedID)) {
+                    $room->active = 1;
+                    $room->store();
+                    continue;
+                }
 
-				return false;
-			}
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		// Implicitly used resources
-		$subQuery = Database::getQuery(true);
-		$subQuery->select('DISTINCT roomID')->from('#__organizer_instance_rooms');
-		$query = Database::getQuery(true);
-		$query->update('#__organizer_rooms')->set('active = 1')->where("id IN ($subQuery)");
-		Database::setQuery($query);
+        // Implicitly used resources
+        $subQuery = Database::getQuery(true);
+        $subQuery->select('DISTINCT roomID')->from('#__organizer_instance_rooms');
+        $query = Database::getQuery(true);
+        $query->update('#__organizer_rooms')->set('active = 1')->where("id IN ($subQuery)");
+        Database::setQuery($query);
 
-		return Database::execute();
-	}
+        return Database::execute();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::manage('facilities'))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * @inheritDoc
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::manage('facilities')) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * Deactivates rooms by id if a selection was made, otherwise by lack of use in the instance_rooms table.
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function deactivate()
-	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		$this->authorize();
+    /**
+     * Deactivates rooms by id if a selection was made, otherwise by lack of use in the instance_rooms table.
+     *
+     * @return bool true on success, otherwise false
+     */
+    public function deactivate()
+    {
+        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->authorize();
 
-		// Explicitly selected resources
-		if ($this->selected)
-		{
-			foreach ($this->selected as $selectedID)
-			{
-				$room = new Tables\Rooms();
+        // Explicitly selected resources
+        if ($this->selected) {
+            foreach ($this->selected as $selectedID) {
+                $room = new Tables\Rooms();
 
-				if ($room->load($selectedID))
-				{
-					$room->active = 0;
-					$room->store();
-					continue;
-				}
+                if ($room->load($selectedID)) {
+                    $room->active = 0;
+                    $room->store();
+                    continue;
+                }
 
-				return false;
-			}
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		// Implicitly unused resources
-		$subQuery = Database::getQuery(true);
-		$subQuery->select('DISTINCT roomID')->from('#__organizer_instance_rooms');
-		$query = Database::getQuery();
-		$query->update('#__organizer_rooms')->set('active = 0')->where("id NOT IN ($subQuery)");
-		Database::setQuery($query);
+        // Implicitly unused resources
+        $subQuery = Database::getQuery(true);
+        $subQuery->select('DISTINCT roomID')->from('#__organizer_instance_rooms');
+        $query = Database::getQuery();
+        $query->update('#__organizer_rooms')->set('active = 0')->where("id NOT IN ($subQuery)");
+        Database::setQuery($query);
 
-		return Database::execute();
-	}
+        return Database::execute();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getTable($name = '', $prefix = '', $options = [])
-	{
-		return new Tables\Rooms();
-	}
+    /**
+     * @inheritDoc
+     */
+    public function getTable($name = '', $prefix = '', $options = [])
+    {
+        return new Tables\Rooms();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function updateReferences()
-	{
-		if (!$this->updateReferencingTable('monitors'))
-		{
-			return false;
-		}
+    /**
+     * @inheritDoc
+     */
+    protected function updateReferences()
+    {
+        if (!$this->updateReferencingTable('monitors')) {
+            return false;
+        }
 
-		return $this->updateIPReferences();
-	}
+        return $this->updateIPReferences();
+    }
 }

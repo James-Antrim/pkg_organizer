@@ -18,22 +18,22 @@ use Organizer\Helpers;
  */
 class Roomtypes extends ListModel
 {
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery()
-	{
-		$tag = Helpers\Languages::getTag();
+    /**
+     * Method to get a list of resources from the database.
+     *
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery()
+    {
+        $tag = Helpers\Languages::getTag();
 
-		$query     = $this->_db->getQuery(true);
-		$query->select("DISTINCT t.id, t.name_$tag AS name, t.minCapacity, t.maxCapacity, t.code")
-			->from('#__organizer_roomtypes AS t');
+        $query = $this->_db->getQuery(true);
+        $query->select("DISTINCT t.id, t.name_$tag AS name, t.minCapacity, t.maxCapacity, t.code")
+            ->from('#__organizer_roomtypes AS t');
 
-		$this->setSearchFilter($query, ['code', 'name_de', 'name_en', 'minCapacity', 'maxCapacity']);
-		$this->setOrdering($query);
+        $this->setSearchFilter($query, ['code', 'name_de', 'name_en', 'minCapacity', 'maxCapacity']);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 }

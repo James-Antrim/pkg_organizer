@@ -15,68 +15,67 @@ namespace Organizer\Tables;
  */
 class Buildings extends BaseTable
 {
-	use Activated;
+    use Activated;
 
-	/**
-	 * The physical address of the resource.
-	 * VARCHAR(255) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $address;
+    /**
+     * The physical address of the resource.
+     * VARCHAR(255) NOT NULL
+     *
+     * @var string
+     */
+    public $address;
 
-	/**
-	 * The id of the campus entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $campusID;
+    /**
+     * The id of the campus entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     *
+     * @var int
+     */
+    public $campusID;
 
-	/**
-	 * The GPS coordinates of the resource.
-	 * VARCHAR(20) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $location;
+    /**
+     * The GPS coordinates of the resource.
+     * VARCHAR(20) NOT NULL
+     *
+     * @var string
+     */
+    public $location;
 
-	/**
-	 * The resource's name.
-	 * VARCHAR(60) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name;
+    /**
+     * The resource's name.
+     * VARCHAR(60) NOT NULL
+     *
+     * @var string
+     */
+    public $name;
 
-	/**
-	 * The property type. Values: 0 - New/Unknown | 1 - Owned | 2 - Leased/Rented
-	 * INT(1) UNSIGNED  NOT NULL DEFAULT 0
-	 *
-	 * @var int
-	 */
-	public $propertyType;
+    /**
+     * The property type. Values: 0 - New/Unknown | 1 - Owned | 2 - Leased/Rented
+     * INT(1) UNSIGNED  NOT NULL DEFAULT 0
+     *
+     * @var int
+     */
+    public $propertyType;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_buildings');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_buildings');
+    }
 
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return bool  true
-	 */
-	public function check()
-	{
-		if (!$this->campusID)
-		{
-			$this->campusID = null;
-		}
+    /**
+     * Set the table column names which are allowed to be null
+     *
+     * @return bool  true
+     */
+    public function check()
+    {
+        if (!$this->campusID) {
+            $this->campusID = null;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

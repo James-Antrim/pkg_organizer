@@ -19,64 +19,61 @@ use Organizer\Tables;
  */
 class CoordinatorsField extends OptionsField
 {
-	/**
-	 * @var  string
-	 */
-	protected $type = 'Coordinators';
+    /**
+     * @var  string
+     */
+    protected $type = 'Coordinators';
 
-	/**
-	 * Method to get the field input markup.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput()
-	{
-		$eventID = Helpers\Input::getID();
-		$query   = Database::getQuery();
-		$query->select('DISTINCT personID')
-			->from('#__organizer_event_coordinators')
-			->where("eventID = $eventID");
-		Database::setQuery($query);
-		$this->value = Database::loadIntColumn();
+    /**
+     * Method to get the field input markup.
+     *
+     * @return  string  The field input markup.
+     */
+    protected function getInput()
+    {
+        $eventID = Helpers\Input::getID();
+        $query   = Database::getQuery();
+        $query->select('DISTINCT personID')
+            ->from('#__organizer_event_coordinators')
+            ->where("eventID = $eventID");
+        Database::setQuery($query);
+        $this->value = Database::loadIntColumn();
 
-		return parent::getInput();
-	}
+        return parent::getInput();
+    }
 
-	/**
-	 * Method to get the field options.
-	 *
-	 * @return  array  The field option objects.
-	 */
-	public function getOptions()
-	{
-		$eventID = Helpers\Input::getID();
-		$event   = new Tables\Events();
-		$options = [];
+    /**
+     * Method to get the field options.
+     *
+     * @return  array  The field option objects.
+     */
+    public function getOptions()
+    {
+        $eventID = Helpers\Input::getID();
+        $event   = new Tables\Events();
+        $options = [];
 
-		if (!$event->load($eventID) or !$organizationID = $event->organizationID)
-		{
-			return $options;
-		}
+        if (!$event->load($eventID) or !$organizationID = $event->organizationID) {
+            return $options;
+        }
 
-		$query = Database::getQuery();
-		$query->select('DISTINCT p.id, p.forename, p.surname')
-			->from('#__organizer_persons AS p')
-			->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
-			->where("a.organizationID = $organizationID")
-			->order('p.surname, p.forename');
-		Database::setQuery($query);
+        $query = Database::getQuery();
+        $query->select('DISTINCT p.id, p.forename, p.surname')
+            ->from('#__organizer_persons AS p')
+            ->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
+            ->where("a.organizationID = $organizationID")
+            ->order('p.surname, p.forename');
+        Database::setQuery($query);
 
-		if (!$persons = Database::loadAssocList())
-		{
-			return $options;
-		}
+        if (!$persons = Database::loadAssocList()) {
+            return $options;
+        }
 
-		foreach ($persons as $person)
-		{
-			$name      = empty($person['forename']) ? $person['surname'] : "{$person['surname']}, {$person['forename']}";
-			$options[] = Helpers\HTML::_('select.option', $person['id'], $name);
-		}
+        foreach ($persons as $person) {
+            $name      = empty($person['forename']) ? $person['surname'] : "{$person['surname']}, {$person['forename']}";
+            $options[] = Helpers\HTML::_('select.option', $person['id'], $name);
+        }
 
-		return $options;
-	}
+        return $options;
+    }
 }

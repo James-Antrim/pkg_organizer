@@ -17,36 +17,35 @@ use Organizer\Helpers;
  */
 class GridsField extends OptionsField
 {
-	/**
-	 * @var  string
-	 */
-	protected $type = 'Grids';
+    /**
+     * @var  string
+     */
+    protected $type = 'Grids';
 
-	/**
-	 * Method to get the field input markup for a generic list.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput()
-	{
-		if (empty($this->value) and $campusID = Helpers\Input::getParams()->get('campusID'))
-		{
-			$this->value = Helpers\Campuses::getGridID($campusID);
-		}
+    /**
+     * Method to get the field input markup for a generic list.
+     *
+     * @return  string  The field input markup.
+     */
+    protected function getInput()
+    {
+        if (empty($this->value) and $campusID = Helpers\Input::getParams()->get('campusID')) {
+            $this->value = Helpers\Campuses::getGridID($campusID);
+        }
 
-		return parent::getInput();
-	}
+        return parent::getInput();
+    }
 
-	/**
-	 * Returns an array of pool options
-	 *
-	 * @return array  the pool options
-	 */
-	protected function getOptions()
-	{
-		$options  = parent::getOptions();
-		$campuses = Helpers\Grids::getOptions();
+    /**
+     * Returns an array of pool options
+     *
+     * @return array  the pool options
+     */
+    protected function getOptions()
+    {
+        $options  = parent::getOptions();
+        $campuses = Helpers\Grids::getOptions();
 
-		return array_merge($options, $campuses);
-	}
+        return array_merge($options, $campuses);
+    }
 }

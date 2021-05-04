@@ -17,30 +17,29 @@ use Organizer\Helpers\Languages;
  */
 class Terms extends ListModel
 {
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct($config = [])
-	{
-		if (empty($config['filter_fields']))
-		{
-			$config['filter_fields'] = ['name', 'abbreviation', 'code'];
-		}
+    /**
+     * @inheritDoc
+     */
+    public function __construct($config = [])
+    {
+        if (empty($config['filter_fields'])) {
+            $config['filter_fields'] = ['name', 'abbreviation', 'code'];
+        }
 
-		parent::__construct($config);
-	}
+        parent::__construct($config);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function getListQuery()
-	{
-		$tag   = Languages::getTag();
-		$query = $this->_db->getQuery(true);
-		$query->select("id, fullName_$tag as term, startDate, endDate")
-			->from('#__organizer_terms')
-			->order('startDate');
+    /**
+     * @inheritDoc
+     */
+    protected function getListQuery()
+    {
+        $tag   = Languages::getTag();
+        $query = $this->_db->getQuery(true);
+        $query->select("id, fullName_$tag as term, startDate, endDate")
+            ->from('#__organizer_terms')
+            ->order('startDate');
 
-		return $query;
-	}
+        return $query;
+    }
 }

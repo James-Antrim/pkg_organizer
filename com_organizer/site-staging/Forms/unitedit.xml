@@ -3,19 +3,19 @@
     <fieldset name="details">
         <field name="id" type="hidden"/>
         <field name="my" type="hidden"/>
-        <field name="instances" type="Nested"  label="INSTANCES" buttons="add,remove"
+        <field name="instances" type="Nested" label="INSTANCES" buttons="add,remove"
                layout="joomla.form.field.subform.repeatable" min="0" multiple="true">
             <form>
                 <field name="date" type="Date" label="DATE" onchange="this.form.submit();"/>
                 <field name="block" type="Blank" label="BLOCK"/>
                 <field name="method" type="Blank" label="METHOD"/>
-                <field name="events" type="Nested"  label="EVENTS" buttons="add,remove"
+                <field name="events" type="Nested" label="EVENTS" buttons="add,remove"
                        layout="joomla.form.field.subform.repeatable" min="1" multiple="true">
                     <form>
                         <field name="instanceID" type="hidden"/>
                         <field name="title" type="Blank" label="TITLE"/>
                         <field name="eventID" type="Blank" label="EVENT"/>
-                        <field name="item" type="Nested"  label="PERSONS" buttons="add,remove"
+                        <field name="item" type="Nested" label="PERSONS" buttons="add,remove"
                                layout="joomla.form.field.subform.repeatable" min="1" multiple="true">
                             <form>
                                 <field name="instanceID" type="hidden"/>

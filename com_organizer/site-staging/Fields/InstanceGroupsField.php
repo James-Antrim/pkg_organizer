@@ -18,77 +18,77 @@ use Organizer\Helpers;
  */
 class InstanceGroupsField extends OptionsField
 {
-	/**
-	 * Type
-	 *
-	 * @var    String
-	 */
-	protected $type = 'InstanceGroups';
+    /**
+     * Type
+     *
+     * @var    String
+     */
+    protected $type = 'InstanceGroups';
 
-	/**
-	 * Method to get the field options.
-	 *
-	 * @return  array  The field option objects.
-	 */
-	protected function getOptions(): array
-	{
-		$options = parent::getOptions();
+    /**
+     * Method to get the field options.
+     *
+     * @return  array  The field option objects.
+     */
+    protected function getOptions(): array
+    {
+        $options = parent::getOptions();
 
-		/*$tag   = Helpers\Languages::getTag();
-		$query = Database::getQuery();
-		$query->select("DISTINCT e.id, e.name_$tag AS name, e.organizationID")
-			->from('#__organizer_events AS e');
+        /*$tag   = Helpers\Languages::getTag();
+        $query = Database::getQuery();
+        $query->select("DISTINCT e.id, e.name_$tag AS name, e.organizationID")
+            ->from('#__organizer_events AS e');
 
-		$wherray = ['e.organizationID IS NULL'];
+        $wherray = ['e.organizationID IS NULL'];
 
-		if ($plannedIDs = Helpers\Can::scheduleTheseOrganizations())
-		{
-			$plannedIDs = implode(',', $plannedIDs);
-			$wherray[]  = "e.organizationID IN ($plannedIDs)";
-		}
+        if ($plannedIDs = Helpers\Can::scheduleTheseOrganizations())
+        {
+            $plannedIDs = implode(',', $plannedIDs);
+            $wherray[]  = "e.organizationID IN ($plannedIDs)";
+        }
 
-		if ($personID = Helpers\Persons::getIDByUserID())
-		{
-			$query->leftJoin('#__organizer_instances AS i ON i.eventID = e.id')
-				->leftJoin('#__organizer_instance_persons AS ipe on ipe.instanceID = i.id');
-			$wherray[] = "ipe.personID = $personID";
-		}
+        if ($personID = Helpers\Persons::getIDByUserID())
+        {
+            $query->leftJoin('#__organizer_instances AS i ON i.eventID = e.id')
+                ->leftJoin('#__organizer_instance_persons AS ipe on ipe.instanceID = i.id');
+            $wherray[] = "ipe.personID = $personID";
+        }
 
-		$where = implode(' OR ', $wherray);
-		$query->where("($where)");
-		Database::setQuery($query);
-		$events = [];
-		$free   = [];
+        $where = implode(' OR ', $wherray);
+        $query->where("($where)");
+        Database::setQuery($query);
+        $events = [];
+        $free   = [];
 
-		foreach (Database::loadAssocList() as $result)
-		{
-			// Prioritize the events associated with an organization in the first pass.
-			if ($result['organizationID'])
-			{
-				// Associated events can overwrite each other.
-				$events[$result['name']] = $result['id'];
-			}
-			else
-			{
-				$free[$result['name']] = $result['id'];
-			}
-		}
+        foreach (Database::loadAssocList() as $result)
+        {
+            // Prioritize the events associated with an organization in the first pass.
+            if ($result['organizationID'])
+            {
+                // Associated events can overwrite each other.
+                $events[$result['name']] = $result['id'];
+            }
+            else
+            {
+                $free[$result['name']] = $result['id'];
+            }
+        }
 
-		foreach ($free as $name => $id)
-		{
-			if (!isset($events[$name]))
-			{
-				$events[$name] = $id;
-			}
-		}
+        foreach ($free as $name => $id)
+        {
+            if (!isset($events[$name]))
+            {
+                $events[$name] = $id;
+            }
+        }
 
-		ksort($events);
+        ksort($events);
 
-		foreach ($events as $name => $id)
-		{
-			$options[] = Helpers\HTML::_('select.option', $id, $name);
-		}*/
+        foreach ($events as $name => $id)
+        {
+            $options[] = Helpers\HTML::_('select.option', $id, $name);
+        }*/
 
-		return $options;
-	}
+        return $options;
+    }
 }

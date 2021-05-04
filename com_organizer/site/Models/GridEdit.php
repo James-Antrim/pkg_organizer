@@ -17,13 +17,13 @@ use Organizer\Tables;
  */
 class GridEdit extends EditModel
 {
-	/**
-	 * @inheritDoc
-	 *
-	 * @return Tables\Grids A Table object
-	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Grids
-	{
-		return new Tables\Grids();
-	}
+    /**
+     * @inheritDoc
+     *
+     * @return Tables\Grids A Table object
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Tables\Grids
+    {
+        return new Tables\Grids();
+    }
 }

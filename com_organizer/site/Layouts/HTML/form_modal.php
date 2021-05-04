@@ -20,23 +20,23 @@ $task = Helpers\Input::getCMD('view') . '.supplement';
         <h3><?php echo Helpers\Languages::_('ORGANIZER_SUPPLEMENT'); ?>
     </div>
     <div class="modal-body modal-batch form-vertical">
-		<?php foreach ($this->filterForm->getGroup('supplement') as $formField) : ?>
+        <?php foreach ($this->filterForm->getGroup('supplement') as $formField) : ?>
             <div class='control-group'>
                 <div class='control-label'>
-					<?php echo $formField->label; ?>
+                    <?php echo $formField->label; ?>
                 </div>
                 <div class='controls'>
-					<?php echo $formField->input; ?>
+                    <?php echo $formField->input; ?>
                 </div>
             </div>
-		<?php endforeach; ?>
+        <?php endforeach; ?>
     </div>
     <div class="modal-footer">
         <button class="btn" type="button" data-dismiss="modal">
-			<?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
+            <?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
         </button>
         <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('<?php echo $task; ?>');">
-			<?php echo Helpers\Languages::_('ORGANIZER_SAVE'); ?>
+            <?php echo Helpers\Languages::_('ORGANIZER_SAVE'); ?>
         </button>
     </div>
 </div>

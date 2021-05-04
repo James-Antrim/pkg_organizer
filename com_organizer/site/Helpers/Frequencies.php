@@ -15,5 +15,5 @@ namespace Organizer\Helpers;
  */
 class Frequencies extends ResourceHelper
 {
-	// Everything taken care of in inheritance hierarchy.
+    // Everything taken care of in inheritance hierarchy.
 }
