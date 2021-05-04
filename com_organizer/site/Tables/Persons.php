@@ -29,6 +29,14 @@ class Persons extends BaseTable
 	public $forename;
 
 	/**
+	 * A flag which displays whether the person chooses to display their information publicly.
+	 * TINYINT(1) UNSIGNED DEFAULT 0
+	 *
+	 * @var string
+	 */
+	public $public;
+
+	/**
 	 * The person's surnames.
 	 * VARCHAR(255) NOT NULL
 	 *

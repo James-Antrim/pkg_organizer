@@ -11,12 +11,9 @@
         <field name="programID" type="Programs" label="PROGRAM" class="input-15">
             <option value="">SELECT_PROGRAM</option>
         </field>
+        <field name="public" type="Options" label="PUBLIC_RELEASE" class="input-15">
+            <option value="0">NOT_RELEASED</option>
+            <option value="1">RELEASED</option>
+        </field>
     </fieldset>
-    <!--<fieldset name="academic" label="ACADEMIC_INFORMATION">
-    </fieldset>
-    <fieldset name="organizational" label="PERSON_INFORMATION">
-        <field name="personID" type="hidden"/>
-        <field name="active" type="hidden" value="1" />
-        <field name="suppress" type="hidden" value="0" />
-    </fieldset>-->
 </form>

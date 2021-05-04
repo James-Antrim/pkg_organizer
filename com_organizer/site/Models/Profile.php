@@ -54,10 +54,12 @@ class Profile extends FormModel
 		if ($personID = Helpers\Persons::getIDByUserID($user->id) and $person->load($personID))
 		{
 			$form->removeField('programID');
+			$form->setValue('public', null, $person->public);
 			$form->setValue('title', null, $person->title);
 		}
 		else
 		{
+			$form->removeField('public');
 			$form->removeField('title');
 		}
 
