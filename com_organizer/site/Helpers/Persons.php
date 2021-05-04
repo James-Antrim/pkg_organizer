@@ -73,7 +73,7 @@ class Persons extends Associated implements Selectable
 
 		foreach ($persons as $key => $value)
 		{
-			$persons[$key]->name = empty($value->forename) ? $value->surname : $value->surname . ', ' . $value->forename;
+			$value->name = empty($value->forename) ? $value->surname : $value->surname . ', ' . $value->forename;
 		}
 
 		return $persons;
@@ -166,8 +166,8 @@ class Persons extends Associated implements Selectable
 
 		if ($person->id)
 		{
-			$title    = ($person->title and !$excludeTitle) ? "{$person->title} " : '';
-			$forename = $person->forename ? "{$person->forename} " : '';
+			$title    = ($person->title and !$excludeTitle) ? "$person->title " : '';
+			$forename = $person->forename ? "$person->forename " : '';
 			$surname  = $person->surname;
 			$return   = $title . $forename . $surname;
 		}
@@ -187,7 +187,7 @@ class Persons extends Associated implements Selectable
 		$person = new Tables\Persons();
 		$person->load($personID);
 
-		return $person->forename ? $person->forename : '';
+		return $person->forename ?: '';
 	}
 
 	/**
@@ -257,7 +257,7 @@ class Persons extends Associated implements Selectable
 		$query = Database::getQuery();
 		$query->select('id')
 			->from('#__organizer_persons')
-			->where("username = '{$user->username}'");
+			->where("username = '$user->username'");
 		Database::setQuery($query);
 
 		return Database::loadInt();
@@ -289,13 +289,6 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function getResources(): array
 	{
-		$user = Users::getUser();
-
-		if (!$user->id)
-		{
-			return [];
-		}
-
 		// TODO Remove departmentIDs on completion of migration.
 		$organizationID = Input::getInt('organizationID', Input::getInt('departmentIDs'));
 		if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization'))
@@ -313,11 +306,10 @@ class Persons extends Associated implements Selectable
 			$organizationIDs = Can::manageTheseOrganizations();
 		}
 
-		$thisPersonID = self::getIDByUserID();
-
-		if (empty($organizationIDs) and empty($thisPersonID))
+		$userName = '';
+		if ($thisPersonID = self::getIDByUserID())
 		{
-			return [];
+			$userName = Users::getUser()->username;
 		}
 
 		$query = Database::getQuery();
@@ -327,10 +319,11 @@ class Persons extends Associated implements Selectable
 			->where('p.active = 1')
 			->order('p.surname, p.forename');
 
-		$wherray = [];
+		$wherray = ['p.public = 1'];
+
 		if ($thisPersonID)
 		{
-			$wherray[] = "p.username = '$user->username'";
+			$wherray[] = "p.username = '$userName'";
 		}
 
 		if (count($organizationIDs))
@@ -361,10 +354,7 @@ class Persons extends Associated implements Selectable
 			$wherray[] = $where;
 		}
 
-		if ($wherray)
-		{
-			$query->where(implode(' OR ', $wherray));
-		}
+		$query->where('(' . implode(' OR ', $wherray) . ')');
 
 		Database::setQuery($query);
 
@@ -383,7 +373,7 @@ class Persons extends Associated implements Selectable
 		$person = new Tables\Persons();
 		$person->load($personID);
 
-		return $person->surname ? $person->surname : '';
+		return $person->surname ?: '';
 	}
 
 	/**
@@ -401,6 +391,21 @@ class Persons extends Associated implements Selectable
 
 			return $personOne['surname'] > $personTwo['surname'];
 		});
+	}
+
+	/**
+	 * Retrieves the person's public release status.
+	 *
+	 * @param   int  $personID  the person's id
+	 *
+	 * @return bool  the person's public release status
+	 */
+	public static function released(int $personID): bool
+	{
+		$person = new Tables\Persons();
+		$person->load($personID);
+
+		return $person->public;
 	}
 
 	/**

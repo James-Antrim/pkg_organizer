@@ -817,15 +817,15 @@ class Instances extends ResourceHelper
 	 */
 	public static function filterPersonIDs(array &$personIDs, int $userID)
 	{
+		if (Can::administrate() or Can::manage('persons'))
+		{
+			return;
+		}
+
 		if (empty($userID))
 		{
 			$personIDs = [];
 
-			return;
-		}
-
-		if (Can::administrate() or Can::manage('persons'))
-		{
 			return;
 		}
 
@@ -834,7 +834,10 @@ class Instances extends ResourceHelper
 
 		foreach ($personIDs as $key => $personID)
 		{
-			if (!empty($thisPersonID) and $thisPersonID == $personID)
+			// Identity or publicly released
+			$identity = ($thisPersonID and $thisPersonID === $personID);
+			$released = Persons::released($personID);
+			if ($identity or $released)
 			{
 				continue;
 			}

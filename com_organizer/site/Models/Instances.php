@@ -436,7 +436,7 @@ class Instances extends ListModel
 			$conditions['showUnpublished'] = Helpers\Can::administrate();
 		}
 
-		if ($personID = $this->state->get('filter.personID'))
+		if ($personID = (int) $this->state->get('filter.personID'))
 		{
 			$personIDs = [$personID];
 			Helpers\Instances::filterPersonIDs($personIDs, Helpers\Users::getID());

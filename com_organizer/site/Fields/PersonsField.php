@@ -29,7 +29,7 @@ class PersonsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options = parent::getOptions();
 		$persons = Helpers\Persons::getOptions();
