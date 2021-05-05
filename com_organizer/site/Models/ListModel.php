@@ -125,8 +125,11 @@ abstract class ListModel extends ParentModel
 	{
 		Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
 		Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
-		$form = parent::loadForm($name, $source, $options, $clear, $xpath);
-		$this->filterFilterForm($form);
+
+		if ($form = parent::loadForm($name, $source, $options, $clear, $xpath))
+		{
+			$this->filterFilterForm($form);
+		}
 
 		return $form;
 	}
