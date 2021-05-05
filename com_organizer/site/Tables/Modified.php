@@ -15,19 +15,19 @@ namespace Organizer\Tables;
  */
 trait Modified
 {
-    /**
-     * The resource's delta status. Possible values: '', 'new,' 'removed'.
-     * VARCHAR(10) NOT NULL DEFAULT ''
-     *
-     * @var string
-     */
-    public $delta;
+	/**
+	 * The resource's delta status. Possible values: '', 'new,' 'removed'.
+	 * VARCHAR(10) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $delta;
 
-    /**
-     * The timestamp at which the schedule was generated which modified this entry.
-     * TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-     *
-     * @var int
-     */
-    public $modified;
+	/**
+	 * The timestamp at which the schedule was generated which modified this entry.
+	 * TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	 *
+	 * @var int
+	 */
+	public $modified;
 }

@@ -18,97 +18,101 @@ use Organizer\Tables;
  */
 class Monitor extends BaseModel
 {
-    /**
-     * Authorizes the user.
-     *
-     * @return void
-     */
-    protected function authorize()
-    {
-        if (!Helpers\Can::manage('facilities')) {
-            Helpers\OrganizerHelper::error(403);
-        }
-    }
+	/**
+	 * Authorizes the user.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Can::manage('facilities'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
 
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Tables\Monitors A Table object
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return new Tables\Monitors;
-    }
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\Monitors A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\Monitors;
+	}
 
-    /**
-     * Attempts to save the resource.
-     *
-     * @param   array  $data  the data from the form
-     *
-     * @return mixed int id of the resource on success, otherwise bool false
-     */
-    public function save($data = [])
-    {
-        $this->authorize();
+	/**
+	 * Attempts to save the resource.
+	 *
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return mixed int id of the resource on success, otherwise bool false
+	 */
+	public function save($data = [])
+	{
+		$this->authorize();
 
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
-        if (empty($data['roomID'])) {
-            unset($data['roomID']);
-        }
+		if (empty($data['roomID']))
+		{
+			unset($data['roomID']);
+		}
 
-        $data['content'] = $data['content'] == '-1' ? '' : $data['content'];
+		$data['content'] = $data['content'] == '-1' ? '' : $data['content'];
 
-        return parent::save($data);
-    }
+		return parent::save($data);
+	}
 
-    /**
-     * Saves the default behaviour as chosen in the monitor manager
-     *
-     * @return bool  true on success, otherwise false
-     */
-    public function saveDefaultBehaviour()
-    {
-        $this->authorize();
+	/**
+	 * Saves the default behaviour as chosen in the monitor manager
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	public function saveDefaultBehaviour()
+	{
+		$this->authorize();
 
-        $monitorID   = Helpers\Input::getID();
-        $plausibleID = ($monitorID > 0);
+		$monitorID   = Helpers\Input::getID();
+		$plausibleID = ($monitorID > 0);
 
-        if ($plausibleID) {
-            $table = new Tables\Monitors();
-            $table->load($monitorID);
-            $table->set('useDefaults', Helpers\Input::getInt('useDefaults'));
+		if ($plausibleID)
+		{
+			$table = new Tables\Monitors();
+			$table->load($monitorID);
+			$table->set('useDefaults', Helpers\Input::getInt('useDefaults'));
 
-            return $table->store();
-        }
+			return $table->store();
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    /**
-     * Toggles the monitor's use of default settings
-     *
-     * @return bool  true on success, otherwise false
-     */
-    public function toggle(): bool
-    {
-        $this->authorize();
+	/**
+	 * Toggles the monitor's use of default settings
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	public function toggle(): bool
+	{
+		$this->authorize();
 
-        $monitorID = Helpers\Input::getID();
-        $table     = new Tables\Monitors();
-        if (empty($monitorID) or !$table->load($monitorID)) {
-            return false;
-        }
+		$monitorID = Helpers\Input::getID();
+		$table     = new Tables\Monitors();
+		if (empty($monitorID) or !$table->load($monitorID))
+		{
+			return false;
+		}
 
-        $newValue = !$table->useDefaults;
-        $table->set('useDefaults', $newValue);
+		$newValue = !$table->useDefaults;
+		$table->set('useDefaults', $newValue);
 
-        return $table->store();
-    }
+		return $table->store();
+	}
 }

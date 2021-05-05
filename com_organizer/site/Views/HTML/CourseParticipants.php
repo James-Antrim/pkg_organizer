@@ -21,233 +21,247 @@ use Organizer\Tables;
  */
 class CourseParticipants extends Participants
 {
-    protected $rowStructure = [
-        'checkbox' => '',
-        'fullName' => 'value',
-        'email'    => 'value',
-        'program'  => 'value',
-        'status'   => 'value',
-        'paid'     => 'value',
-        'attended' => 'value'
-    ];
+	protected $rowStructure = [
+		'checkbox' => '',
+		'fullName' => 'value',
+		'email'    => 'value',
+		'program'  => 'value',
+		'status'   => 'value',
+		'paid'     => 'value',
+		'attended' => 'value'
+	];
 
-    /**
-     * @inheritdoc
-     */
-    protected function addToolBar()
-    {
-        $courseID = Helpers\Input::getID();
-        $course   = new Tables\Courses();
-        $course->load($courseID);
-        $title = Languages::_('ORGANIZER_PARTICIPANTS');
+	/**
+	 * @inheritdoc
+	 */
+	protected function addToolBar()
+	{
+		$courseID = Helpers\Input::getID();
+		$course   = new Tables\Courses();
+		$course->load($courseID);
+		$title = Languages::_('ORGANIZER_PARTICIPANTS');
 
-        Helpers\HTML::setTitle($title, 'users');
+		Helpers\HTML::setTitle($title, 'users');
 
-        $toolbar = Adapters\Toolbar::getInstance();
+		$toolbar = Adapters\Toolbar::getInstance();
 
-        $toolbar->appendButton(
-            'Standard',
-            'checkin',
-            Languages::_('ORGANIZER_ACCEPT'),
-            'course_participants.accept',
-            true
-        );
+		$toolbar->appendButton(
+			'Standard',
+			'checkin',
+			Languages::_('ORGANIZER_ACCEPT'),
+			'course_participants.accept',
+			true
+		);
 
-        $toolbar->appendButton(
-            'Standard',
-            'checkbox-unchecked',
-            Languages::_('ORGANIZER_WAITLIST'),
-            'course_participants.waitlist',
-            true
-        );
+		$toolbar->appendButton(
+			'Standard',
+			'checkbox-unchecked',
+			Languages::_('ORGANIZER_WAITLIST'),
+			'course_participants.waitlist',
+			true
+		);
 
-        $toolbar->appendButton(
-            'Confirm',
-            Languages::_('ORGANIZER_DELETE_CONFIRM'),
-            'user-minus',
-            Languages::_('ORGANIZER_DELETE'),
-            'course_participants.remove',
-            true
-        );
+		$toolbar->appendButton(
+			'Confirm',
+			Languages::_('ORGANIZER_DELETE_CONFIRM'),
+			'user-minus',
+			Languages::_('ORGANIZER_DELETE'),
+			'course_participants.remove',
+			true
+		);
 
-        $toolbar->appendButton(
-            'NewTab',
-            'tags-2',
-            Languages::_('ORGANIZER_DOWNLOAD_BADGES'),
-            'CourseParticipants.badges',
-            false
-        );
+		$toolbar->appendButton(
+			'NewTab',
+			'tags-2',
+			Languages::_('ORGANIZER_DOWNLOAD_BADGES'),
+			'CourseParticipants.badges',
+			false
+		);
 
-        $toolbar->appendButton(
-            'NewTab',
-            'list',
-            Languages::_('ORGANIZER_ATTENDANCE'),
-            'CourseParticipants.attendance',
-            false
-        );
+		$toolbar->appendButton(
+			'NewTab',
+			'list',
+			Languages::_('ORGANIZER_ATTENDANCE'),
+			'CourseParticipants.attendance',
+			false
+		);
 
-        $toolbar->appendButton(
-            'NewTab',
-            'list-2',
-            Languages::_('ORGANIZER_GROUPED_PARTICIPATION'),
-            'CourseParticipants.participation',
-            false
-        );
+		$toolbar->appendButton(
+			'NewTab',
+			'list-2',
+			Languages::_('ORGANIZER_GROUPED_PARTICIPATION'),
+			'CourseParticipants.participation',
+			false
+		);
 
-        $script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
-        $batchButton = "<button id=\"participant-mail\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
+		$script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
+		$batchButton = "<button id=\"participant-mail\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
 
-        $title       = Languages::_('ORGANIZER_NOTIFY');
-        $batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
+		$title       = Languages::_('ORGANIZER_NOTIFY');
+		$batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
 
-        $batchButton .= '</button>';
+		$batchButton .= '</button>';
 
-        $toolbar->appendButton('Custom', $batchButton, 'batch');
-    }
+		$toolbar->appendButton('Custom', $batchButton, 'batch');
+	}
 
-    /**
-     * @inheritdoc
-     */
-    protected function authorize()
-    {
-        if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
-        }
+	/**
+	 * @inheritdoc
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
 
-        if (!$courseID = Helpers\Input::getID()) {
-            Helpers\OrganizerHelper::error(400);
-        }
+		if (!$courseID = Helpers\Input::getID())
+		{
+			Helpers\OrganizerHelper::error(400);
+		}
 
-        if (!Helpers\Can::manage('course', $courseID)) {
-            Helpers\OrganizerHelper::error(403);
-        }
-    }
+		if (!Helpers\Can::manage('course', $courseID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function display($tpl = null)
-    {
-        // Set batch template path
-        $this->batch = ['batch_participant_notify'];
+	/**
+	 * @inheritdoc
+	 */
+	public function display($tpl = null)
+	{
+		// Set batch template path
+		$this->batch = ['batch_participant_notify'];
 
-        parent::display($tpl);
-    }
+		parent::display($tpl);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument()
-    {
-        parent::modifyDocument();
+	/**
+	 * @inheritDoc
+	 */
+	protected function modifyDocument()
+	{
+		parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
-    }
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+	}
 
-    /**
-     * @inheritdoc
-     */
-    protected function setHeaders()
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
-            'email'    => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
-            'program'  => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering),
-            'status'   => Languages::_('ORGANIZER_STATUS'),
-            'paid'     => Languages::_('ORGANIZER_PAID'),
-            'attended' => Languages::_('ORGANIZER_ATTENDED')
-        ];
+	/**
+	 * @inheritdoc
+	 */
+	protected function setHeaders()
+	{
+		$ordering  = $this->state->get('list.ordering');
+		$direction = $this->state->get('list.direction');
+		$headers   = [
+			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
+			'email'    => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
+			'program'  => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering),
+			'status'   => Languages::_('ORGANIZER_STATUS'),
+			'paid'     => Languages::_('ORGANIZER_PAID'),
+			'attended' => Languages::_('ORGANIZER_ATTENDED')
+		];
 
-        $this->headers = $headers;
-    }
+		$this->headers = $headers;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    protected function setSubtitle()
-    {
-        $courseID = Helpers\Input::getID();
+	/**
+	 * @inheritdoc
+	 */
+	protected function setSubtitle()
+	{
+		$courseID = Helpers\Input::getID();
 
-        $subTitle   = [];
-        $subTitle[] = Helpers\Courses::getName($courseID);
+		$subTitle   = [];
+		$subTitle[] = Helpers\Courses::getName($courseID);
 
-        if ($campusID = Helpers\Courses::getCampusID($courseID)) {
-            $subTitle[] = Helpers\Campuses::getName($campusID);
-        }
+		if ($campusID = Helpers\Courses::getCampusID($courseID))
+		{
+			$subTitle[] = Helpers\Campuses::getName($campusID);
+		}
 
-        $subTitle[] = Helpers\Courses::getDateDisplay($courseID);
+		$subTitle[] = Helpers\Courses::getDateDisplay($courseID);
 
-        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
-    }
+		$this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
+	}
 
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems()
-    {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=participant_edit&id=';
-        $structuredItems = [];
+	/**
+	 * @inheritdoc
+	 */
+	protected function structureItems()
+	{
+		$index           = 0;
+		$link            = 'index.php?option=com_organizer&view=participant_edit&id=';
+		$structuredItems = [];
 
-        $admin     = Helpers\Can::administrate();
-        $checked   = '<span class="icon-checkbox-checked"></span>';
-        $courseID  = Helpers\Input::getID();
-        $expired   = Helpers\Courses::isExpired($courseID);
-        $unchecked = '<span class="icon-checkbox-unchecked"></span>';
+		$admin     = Helpers\Can::administrate();
+		$checked   = '<span class="icon-checkbox-checked"></span>';
+		$courseID  = Helpers\Input::getID();
+		$expired   = Helpers\Courses::isExpired($courseID);
+		$unchecked = '<span class="icon-checkbox-unchecked"></span>';
 
-        foreach ($this->items as $item) {
-            if (!$expired) {
-                $item->status = $this->getAssocToggle(
-                    'course_participants',
-                    'courseID',
-                    $courseID,
-                    'participantID',
-                    $item->id,
-                    $item->status,
-                    Languages::_('ORGANIZER_TOGGLE_ACCEPTED'),
-                    'status'
-                );
-            } else {
-                $item->status = $item->status ? $checked : $unchecked;
-            }
+		foreach ($this->items as $item)
+		{
+			if (!$expired)
+			{
+				$item->status = $this->getAssocToggle(
+					'course_participants',
+					'courseID',
+					$courseID,
+					'participantID',
+					$item->id,
+					$item->status,
+					Languages::_('ORGANIZER_TOGGLE_ACCEPTED'),
+					'status'
+				);
+			}
+			else
+			{
+				$item->status = $item->status ? $checked : $unchecked;
+			}
 
-            if ($admin or !$item->attended) {
-                $item->attended = $this->getAssocToggle(
-                    'course_participants',
-                    'courseID',
-                    $courseID,
-                    'participantID',
-                    $item->id,
-                    $item->attended,
-                    Languages::_('ORGANIZER_TOGGLE_ATTENDED'),
-                    'attended'
-                );
-            } else {
-                $item->attended = $checked;
-            }
+			if ($admin or !$item->attended)
+			{
+				$item->attended = $this->getAssocToggle(
+					'course_participants',
+					'courseID',
+					$courseID,
+					'participantID',
+					$item->id,
+					$item->attended,
+					Languages::_('ORGANIZER_TOGGLE_ATTENDED'),
+					'attended'
+				);
+			}
+			else
+			{
+				$item->attended = $checked;
+			}
 
-            if ($admin or !$item->paid) {
-                $item->paid = $this->getAssocToggle(
-                    'course_participants',
-                    'courseID',
-                    $courseID,
-                    'participantID',
-                    $item->id,
-                    $item->paid,
-                    Languages::_('ORGANIZER_TOGGLE_PAID'),
-                    'paid'
-                );
-            } else {
-                $item->paid = $checked;
-            }
+			if ($admin or !$item->paid)
+			{
+				$item->paid = $this->getAssocToggle(
+					'course_participants',
+					'courseID',
+					$courseID,
+					'participantID',
+					$item->id,
+					$item->paid,
+					Languages::_('ORGANIZER_TOGGLE_PAID'),
+					'paid'
+				);
+			}
+			else
+			{
+				$item->paid = $checked;
+			}
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-            $index++;
-        }
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+			$index++;
+		}
 
-        $this->items = $structuredItems;
-    }
+		$this->items = $structuredItems;
+	}
 }

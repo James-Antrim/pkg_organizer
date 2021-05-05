@@ -18,92 +18,99 @@ use Organizer\Tables;
  */
 class Buildings extends ResourceHelper implements Selectable
 {
-    use Filtered;
+	use Filtered;
 
-    /**
-     * Checks for the building entry in the database, creating it as necessary. Adds the id to the building entry in the
-     * schedule.
-     *
-     * @param   string  $name  the building name
-     *
-     * @return int|null  int the id if the room could be resolved/added, otherwise null
-     */
-    public static function getID(string $name): ?int
-    {
-        $table = new Tables\Buildings();
-        $data  = ['name' => $name];
+	/**
+	 * Checks for the building entry in the database, creating it as necessary. Adds the id to the building entry in the
+	 * schedule.
+	 *
+	 * @param   string  $name  the building name
+	 *
+	 * @return int|null  int the id if the room could be resolved/added, otherwise null
+	 */
+	public static function getID(string $name): ?int
+	{
+		$table = new Tables\Buildings();
+		$data  = ['name' => $name];
 
-        if ($table->load($data)) {
-            return $table->id;
-        }
+		if ($table->load($data))
+		{
+			return $table->id;
+		}
 
-        return $table->save($data) ? $table->id : null;
-    }
+		return $table->save($data) ? $table->id : null;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public static function getOptions(): array
-    {
-        // Array values allows easier manipulation of entries for buildings of the same name on different campuses.
-        if (!$buildings = array_values(self::getResources())) {
-            return $buildings;
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public static function getOptions(): array
+	{
+		// Array values allows easier manipulation of entries for buildings of the same name on different campuses.
+		if (!$buildings = array_values(self::getResources()))
+		{
+			return $buildings;
+		}
 
-        $options = [];
-        for ($index = 0; $index < count($buildings); $index++) {
-            $thisBuilding = $buildings[$index];
-            $buildingName = $thisBuilding['name'];
+		$options = [];
+		for ($index = 0; $index < count($buildings); $index++)
+		{
+			$thisBuilding = $buildings[$index];
+			$buildingName = $thisBuilding['name'];
 
-            $listEnd          = empty($buildings[$index + 1]);
-            $standardHandling = ($listEnd or $thisBuilding['name'] != $buildings[$index + 1]['name']);
+			$listEnd          = empty($buildings[$index + 1]);
+			$standardHandling = ($listEnd or $thisBuilding['name'] != $buildings[$index + 1]['name']);
 
-            if ($standardHandling) {
-                $buildingName .= empty($thisBuilding['campusName']) ? '' : " ({$thisBuilding['campusName']})";
-                $options[]    = HTML::_('select.option', $thisBuilding['id'], $buildingName);
-                continue;
-            }
+			if ($standardHandling)
+			{
+				$buildingName .= empty($thisBuilding['campusName']) ? '' : " ({$thisBuilding['campusName']})";
+				$options[]    = HTML::_('select.option', $thisBuilding['id'], $buildingName);
+				continue;
+			}
 
-            // The campus name is relevant to unique identification
-            $nextBuilding = $buildings[$index + 1];
+			// The campus name is relevant to unique identification
+			$nextBuilding = $buildings[$index + 1];
 
-            $thisCampusID = empty($thisBuilding['parentID']) ? $thisBuilding['campusID'] : $thisBuilding['parentID'];
-            $nextCampusID = empty($nextBuilding['parentID']) ? $nextBuilding['campusID'] : $nextBuilding['parentID'];
+			$thisCampusID = empty($thisBuilding['parentID']) ? $thisBuilding['campusID'] : $thisBuilding['parentID'];
+			$nextCampusID = empty($nextBuilding['parentID']) ? $nextBuilding['campusID'] : $nextBuilding['parentID'];
 
-            $thisBuilding['campusName'] = Campuses::getName($thisCampusID);
-            $nextBuilding['campusName'] = Campuses::getName($nextCampusID);
+			$thisBuilding['campusName'] = Campuses::getName($thisCampusID);
+			$nextBuilding['campusName'] = Campuses::getName($nextCampusID);
 
-            if ($thisBuilding['campusName'] < $nextBuilding['campusName']) {
-                $buildingID   = $thisBuilding['id'];
-                $buildingName .= " ({$thisBuilding['campusName']})";
+			if ($thisBuilding['campusName'] < $nextBuilding['campusName'])
+			{
+				$buildingID   = $thisBuilding['id'];
+				$buildingName .= " ({$thisBuilding['campusName']})";
 
-                $buildings[$index + 1] = $nextBuilding;
-            } else {
-                $buildingID   = $nextBuilding['id'];
-                $buildingName .= " ({$nextBuilding['campusName']})";
+				$buildings[$index + 1] = $nextBuilding;
+			}
+			else
+			{
+				$buildingID   = $nextBuilding['id'];
+				$buildingName .= " ({$nextBuilding['campusName']})";
 
-                $buildings[$index + 1] = $thisBuilding;
-            }
+				$buildings[$index + 1] = $thisBuilding;
+			}
 
-            $options[] = HTML::_('select.option', $buildingID, $buildingName);
-        }
+			$options[] = HTML::_('select.option', $buildingID, $buildingName);
+		}
 
-        return $options;
-    }
+		return $options;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public static function getResources(): array
-    {
-        $query = Database::getQuery(true);
-        $query->select('DISTINCT b.*, c.parentID')
-            ->from('#__organizer_buildings AS b')
-            ->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID')
-            ->order('name');
-        self::addCampusFilter($query, 'b');
-        Database::setQuery($query);
+	/**
+	 * @inheritDoc
+	 */
+	public static function getResources(): array
+	{
+		$query = Database::getQuery(true);
+		$query->select('DISTINCT b.*, c.parentID')
+			->from('#__organizer_buildings AS b')
+			->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID')
+			->order('name');
+		self::addCampusFilter($query, 'b');
+		Database::setQuery($query);
 
-        return Database::loadAssocList('id');
-    }
+		return Database::loadAssocList('id');
+	}
 }

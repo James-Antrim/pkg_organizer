@@ -17,13 +17,13 @@ use Organizer\Adapters;
 
 trait Subordinate
 {
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument()
-    {
-        parent::modifyDocument();
+	/**
+	 * @inheritDoc
+	 */
+	protected function modifyDocument()
+	{
+		parent::modifyDocument();
 
-        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/curricula.js');
-    }
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/curricula.js');
+	}
 }

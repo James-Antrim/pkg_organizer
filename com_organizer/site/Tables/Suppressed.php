@@ -15,11 +15,11 @@ namespace Organizer\Tables;
  */
 trait Suppressed
 {
-    /**
-     * A flag which displays whether associated resources should be suppressed from public display.
-     * TINYINT(1) UNSIGNED NOT NULL
-     *
-     * @var int
-     */
-    public $suppress;
+	/**
+	 * A flag which displays whether associated resources should be suppressed from public display.
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $suppress;
 }

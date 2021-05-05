@@ -19,155 +19,163 @@ use Organizer\Tables;
  */
 class Organizations extends ResourceHelper implements Selectable
 {
-    use Numbered;
+	use Numbered;
 
-    /**
-     * Filters organizations according to user access and relevant resource associations.
-     *
-     * @param   JDatabaseQuery  $query   the query to modify
-     * @param   string          $access  any access restriction which should be performed
-     *
-     * @return void modifies the query
-     */
-    private static function addAccessFilter(JDatabaseQuery $query, string $access)
-    {
-        if (!$access or !$view = Input::getView()) {
-            return;
-        }
+	/**
+	 * Filters organizations according to user access and relevant resource associations.
+	 *
+	 * @param   JDatabaseQuery  $query   the query to modify
+	 * @param   string          $access  any access restriction which should be performed
+	 *
+	 * @return void modifies the query
+	 */
+	private static function addAccessFilter(JDatabaseQuery $query, string $access)
+	{
+		if (!$access or !$view = Input::getView())
+		{
+			return;
+		}
 
-        $resource = OrganizerHelper::getResource($view);
+		$resource = OrganizerHelper::getResource($view);
 
-        switch ($access) {
-            case 'document':
-                $query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
-                if (in_array($resource, ['pool', 'program', 'subject'])) {
-                    $query->where("a.{$resource}ID IS NOT NULL");
-                }
-                $allowedIDs = Can::documentTheseOrganizations();
-                break;
-            case 'manage':
-                $allowedIDs = Can::manageTheseOrganizations();
-                break;
-            case 'schedule':
-                $query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
-                if (in_array($resource, ['category', 'person'])) {
-                    $query->where("a.{$resource}ID IS NOT NULL");
-                }
-                $allowedIDs = Can::scheduleTheseOrganizations();
-                break;
-            case 'teach':
-                $managedIDs   = Can::manageTheseOrganizations();
-                $scheduledIDs = Can::scheduleTheseOrganizations();
-                $taughtIDs    = Persons::teachesTheseOrganizations();
-                $viewedIDs    = Can::viewTheseOrganizations();
-                $allowedIDs   = array_merge($managedIDs, $scheduledIDs, $taughtIDs, $viewedIDs);
-                break;
-            case 'view':
-                $allowedIDs = Can::viewTheseOrganizations();
-                break;
-            default:
-                // Access right does not exist for organization resource.
-                return;
-        }
+		switch ($access)
+		{
+			case 'document':
+				$query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
+				if (in_array($resource, ['pool', 'program', 'subject']))
+				{
+					$query->where("a.{$resource}ID IS NOT NULL");
+				}
+				$allowedIDs = Can::documentTheseOrganizations();
+				break;
+			case 'manage':
+				$allowedIDs = Can::manageTheseOrganizations();
+				break;
+			case 'schedule':
+				$query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
+				if (in_array($resource, ['category', 'person']))
+				{
+					$query->where("a.{$resource}ID IS NOT NULL");
+				}
+				$allowedIDs = Can::scheduleTheseOrganizations();
+				break;
+			case 'teach':
+				$managedIDs   = Can::manageTheseOrganizations();
+				$scheduledIDs = Can::scheduleTheseOrganizations();
+				$taughtIDs    = Persons::teachesTheseOrganizations();
+				$viewedIDs    = Can::viewTheseOrganizations();
+				$allowedIDs   = array_merge($managedIDs, $scheduledIDs, $taughtIDs, $viewedIDs);
+				break;
+			case 'view':
+				$allowedIDs = Can::viewTheseOrganizations();
+				break;
+			default:
+				// Access right does not exist for organization resource.
+				return;
+		}
 
-        $query->where("o.id IN ( '" . implode("', '", $allowedIDs) . "' )");
-    }
+		$query->where("o.id IN ( '" . implode("', '", $allowedIDs) . "' )");
+	}
 
-    /**
-     * The default grid for an organization defined by current organization grid usage. 0 if no usage is available.
-     *
-     * @param   int  $organizationID
-     *
-     * @return int
-     */
-    public static function getDefaultGrid(int $organizationID): int
-    {
-        $query = Database::getQuery();
-        $query->select('u.gridID, COUNT(*) AS occurrences')
-            ->from('#__organizer_units AS u')
-            ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
-            ->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-            ->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
-            ->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
-            ->where("a.organizationID = $organizationID")
-            ->group('u.gridID')
-            ->order('occurrences DESC');
-        Database::setQuery($query);
+	/**
+	 * The default grid for an organization defined by current organization grid usage. 0 if no usage is available.
+	 *
+	 * @param   int  $organizationID
+	 *
+	 * @return int
+	 */
+	public static function getDefaultGrid(int $organizationID): int
+	{
+		$query = Database::getQuery();
+		$query->select('u.gridID, COUNT(*) AS occurrences')
+			->from('#__organizer_units AS u')
+			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
+			->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
+			->where("a.organizationID = $organizationID")
+			->group('u.gridID')
+			->order('occurrences DESC');
+		Database::setQuery($query);
 
-        if ($results = Database::loadAssoc()) {
-            return (int)$results['gridID'];
-        }
+		if ($results = Database::loadAssoc())
+		{
+			return (int) $results['gridID'];
+		}
 
-        return 0;
-    }
+		return 0;
+	}
 
-    /**
-     * @inheritDoc
-     *
-     * @param   bool    $short   whether or not abbreviated names should be returned
-     * @param   string  $access  any access restriction which should be performed
-     */
-    public static function getOptions($short = true, $access = ''): array
-    {
-        $options = [];
-        foreach (self::getResources($access) as $organization) {
-            if ($organization['active']) {
-                $name = $short ? $organization['shortName'] : $organization['name'];
+	/**
+	 * @inheritDoc
+	 *
+	 * @param   bool    $short   whether or not abbreviated names should be returned
+	 * @param   string  $access  any access restriction which should be performed
+	 */
+	public static function getOptions($short = true, $access = ''): array
+	{
+		$options = [];
+		foreach (self::getResources($access) as $organization)
+		{
+			if ($organization['active'])
+			{
+				$name = $short ? $organization['shortName'] : $organization['name'];
 
-                $options[] = HTML::_('select.option', $organization['id'], $name);
-            }
-        }
+				$options[] = HTML::_('select.option', $organization['id'], $name);
+			}
+		}
 
-        uasort($options, function ($optionOne, $optionTwo) {
-            return $optionOne->text > $optionTwo->text;
-        });
+		uasort($options, function ($optionOne, $optionTwo) {
+			return $optionOne->text > $optionTwo->text;
+		});
 
-        // Any out of sequence indexes cause JSON to treat this as an object
-        return array_values($options);
-    }
+		// Any out of sequence indexes cause JSON to treat this as an object
+		return array_values($options);
+	}
 
-    /**
-     * @inheritDoc
-     *
-     * @param   string  $access  any access restriction which should be performed
-     */
-    public static function getResources($access = ''): array
-    {
-        $query = Database::getQuery();
-        $tag   = Languages::getTag();
-        $query->select("DISTINCT o.*, o.shortName_$tag AS shortName, o.name_$tag AS name")
-            ->from('#__organizer_organizations AS o');
-        self::addAccessFilter($query, $access);
-        Database::setQuery($query);
+	/**
+	 * @inheritDoc
+	 *
+	 * @param   string  $access  any access restriction which should be performed
+	 */
+	public static function getResources($access = ''): array
+	{
+		$query = Database::getQuery();
+		$tag   = Languages::getTag();
+		$query->select("DISTINCT o.*, o.shortName_$tag AS shortName, o.name_$tag AS name")
+			->from('#__organizer_organizations AS o');
+		self::addAccessFilter($query, $access);
+		Database::setQuery($query);
 
-        return Database::loadAssocList('id');
-    }
+		return Database::loadAssocList('id');
+	}
 
-    /**
-     * Checks whether the plan resource is already associated with a organization, creating an entry if none already
-     * exists.
-     *
-     * @param   int     $resourceID  the db id for the plan resource
-     * @param   string  $column      the column in which the resource information is stored
-     *
-     * @return void
-     */
-    public static function setResource(int $resourceID, string $column)
-    {
-        $associations = new Tables\Associations();
+	/**
+	 * Checks whether the plan resource is already associated with a organization, creating an entry if none already
+	 * exists.
+	 *
+	 * @param   int     $resourceID  the db id for the plan resource
+	 * @param   string  $column      the column in which the resource information is stored
+	 *
+	 * @return void
+	 */
+	public static function setResource(int $resourceID, string $column)
+	{
+		$associations = new Tables\Associations();
 
-        /**
-         * If associations already exist for the resource, further associations should be made explicitly using the
-         * appropriate edit view.
-         */
-        $data = [$column => $resourceID];
-        if ($associations->load($data)) {
-            return;
-        }
+		/**
+		 * If associations already exist for the resource, further associations should be made explicitly using the
+		 * appropriate edit view.
+		 */
+		$data = [$column => $resourceID];
+		if ($associations->load($data))
+		{
+			return;
+		}
 
-        // todo remove this on completion of migration
-        $organizationID         = Input::getInt('organizationID');
-        $data['organizationID'] = $organizationID ? $organizationID : Input::getInt('departmentID');
-        $associations->save($data);
-    }
+		// todo remove this on completion of migration
+		$organizationID         = Input::getInt('organizationID');
+		$data['organizationID'] = $organizationID ? $organizationID : Input::getInt('departmentID');
+		$associations->save($data);
+	}
 }

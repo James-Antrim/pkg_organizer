@@ -21,80 +21,87 @@ use Organizer\Models;
  */
 class Checkin extends Controller
 {
-    /**
-     * Checks the user into a booking.
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function checkin()
-    {
-        $data    = Helpers\Input::getFormItems();
-        $session = Factory::getSession();
+	/**
+	 * Checks the user into a booking.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function checkin()
+	{
+		$data    = Helpers\Input::getFormItems();
+		$session = Factory::getSession();
 
-        if (!$userID = Helpers\Users::getID()) {
-            $credentials = ['username' => $data->get('username'), 'password' => $data->get('password')];
-            $username    = Helpers\OrganizerHelper::getApplication()->login($credentials) ? '' : $data->get('username');
-            $session->set('organizer.checkin.username', $username);
-        }
+		if (!$userID = Helpers\Users::getID())
+		{
+			$credentials = ['username' => $data->get('username'), 'password' => $data->get('password')];
+			$username    = Helpers\OrganizerHelper::getApplication()->login($credentials) ? '' : $data->get('username');
+			$session->set('organizer.checkin.username', $username);
+		}
 
-        if ($userID = Helpers\Users::getID()) {
-            $model = new Models\InstanceParticipant();
-            $code  = $model->checkin() ? '' : $data->get('code');
-            $session->set('organizer.checkin.code', $code);
-        } else {
-            $session->set('organizer.checkin.code', $data->get('code'));
-        }
+		if ($userID = Helpers\Users::getID())
+		{
+			$model = new Models\InstanceParticipant();
+			$code  = $model->checkin() ? '' : $data->get('code');
+			$session->set('organizer.checkin.code', $code);
+		}
+		else
+		{
+			$session->set('organizer.checkin.code', $data->get('code'));
+		}
 
-        $url = Helpers\Routing::getRedirectBase() . "&view=checkin";
-        $this->setRedirect($url);
-    }
+		$url = Helpers\Routing::getRedirectBase() . "&view=checkin";
+		$this->setRedirect($url);
+	}
 
-    /**
-     * Resolves participant instance ambiguity.
-     *
-     * @return void
-     */
-    public function confirmInstance()
-    {
-        if ($userID = Helpers\Users::getID()) {
-            $model = new Models\InstanceParticipant();
-            $model->confirmInstance();
-        }
+	/**
+	 * Resolves participant instance ambiguity.
+	 *
+	 * @return void
+	 */
+	public function confirmInstance()
+	{
+		if ($userID = Helpers\Users::getID())
+		{
+			$model = new Models\InstanceParticipant();
+			$model->confirmInstance();
+		}
 
-        $url = Helpers\Routing::getRedirectBase() . "&view=checkin";
-        $this->setRedirect($url);
-    }
+		$url = Helpers\Routing::getRedirectBase() . "&view=checkin";
+		$this->setRedirect($url);
+	}
 
-    /**
-     * Confirms the participant's room and seat.
-     *
-     * @return void
-     */
-    public function confirmSeating()
-    {
-        if ($userID = Helpers\Users::getID()) {
-            $model = new Models\InstanceParticipant();
-            $model->confirmSeating();
-        }
+	/**
+	 * Confirms the participant's room and seat.
+	 *
+	 * @return void
+	 */
+	public function confirmSeating()
+	{
+		if ($userID = Helpers\Users::getID())
+		{
+			$model = new Models\InstanceParticipant();
+			$model->confirmSeating();
+		}
 
-        $url = Helpers\Routing::getRedirectBase() . "&view=checkin";
-        $this->setRedirect($url);
-    }
+		$url = Helpers\Routing::getRedirectBase() . "&view=checkin";
+		$this->setRedirect($url);
+	}
 
-    /**
-     * Saves the participants contact data.
-     *
-     * @return void
-     */
-    public function contact()
-    {
-        if ($userID = Helpers\Users::getID()) {
-            $model = new Models\Participant();
-            $model->save();
-        }
+	/**
+	 * Saves the participants contact data.
+	 *
+	 * @return void
+	 */
+	public function contact()
+	{
+		if ($userID = Helpers\Users::getID())
+		{
+			$model = new Models\Participant();
+			$model->save();
+		}
 
-        $url = Helpers\Routing::getRedirectBase() . "&view=checkin";
-        $this->setRedirect($url);
-    }
+		$url = Helpers\Routing::getRedirectBase() . "&view=checkin";
+		$this->setRedirect($url);
+	}
 }

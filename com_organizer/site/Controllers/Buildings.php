@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Buildings extends Controller
 {
-    protected $listView = 'buildings';
+	protected $listView = 'buildings';
 
-    protected $resource = 'building';
+	protected $resource = 'building';
 }

@@ -15,65 +15,66 @@ namespace Organizer\Tables;
  */
 class Instances extends BaseTable
 {
-    use Modified;
+	use Modified;
 
-    /**
-     * The id of the block entry referenced.
-     * INT(11) UNSIGNED NOT NULL
-     *
-     * @var int
-     */
-    public $blockID;
+	/**
+	 * The id of the block entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $blockID;
 
-    /**
-     * The id of the event entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $eventID;
+	/**
+	 * The id of the event entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $eventID;
 
-    /**
-     * The id of the method entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $methodID;
+	/**
+	 * The id of the method entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $methodID;
 
-    /**
-     * The person's first and middle names.
-     * VARCHAR(255) NOT NULL DEFAULT ''
-     *
-     * @var string
-     */
-    public $title;
+	/**
+	 * The person's first and middle names.
+	 * VARCHAR(255) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $title;
 
-    /**
-     * The id of the unit entry referenced.
-     * INT(11) UNSIGNED NOT NULL
-     *
-     * @var int
-     */
-    public $unitID;
+	/**
+	 * The id of the unit entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $unitID;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_instances');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_instances');
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function check(): bool
-    {
-        if (empty($this->methodID)) {
-            $this->methodID = null;
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function check(): bool
+	{
+		if (empty($this->methodID))
+		{
+			$this->methodID = null;
+		}
 
-        return true;
-    }
+		return true;
+	}
 }

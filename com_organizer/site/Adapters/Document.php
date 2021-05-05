@@ -17,81 +17,81 @@ use Joomla\CMS\Factory;
  */
 class Document
 {
-    /**
-     * Adds a linked script to the page
-     *
-     * @param   string  $url      URL to the linked script.
-     * @param   array   $options  Array of options. Example: array('version' => 'auto', 'conditional' => 'lt IE 9')
-     * @param   array   $attribs  Array of attributes. Example: array('id' => 'scriptID', 'async' => 'async', 'data-test' => 1)
-     *
-     * @return  void
-     */
-    public static function addScript(string $url, $options = [], $attribs = [])
-    {
-        /** @noinspection PhpDeprecationInspection */
-        Factory::getDocument()->addScript($url, $options, $attribs);
-    }
+	/**
+	 * Adds a linked script to the page
+	 *
+	 * @param   string  $url      URL to the linked script.
+	 * @param   array   $options  Array of options. Example: array('version' => 'auto', 'conditional' => 'lt IE 9')
+	 * @param   array   $attribs  Array of attributes. Example: array('id' => 'scriptID', 'async' => 'async', 'data-test' => 1)
+	 *
+	 * @return  void
+	 */
+	public static function addScript(string $url, $options = [], $attribs = [])
+	{
+		/** @noinspection PhpDeprecationInspection */
+		Factory::getDocument()->addScript($url, $options, $attribs);
+	}
 
-    /**
-     * Adds a script to the page
-     *
-     * @param   string  $content  Script
-     *
-     * @return  void
-     */
-    public static function addScriptDeclaration(string $content)
-    {
-        Factory::getDocument()->addScriptDeclaration($content);
-    }
+	/**
+	 * Adds a script to the page
+	 *
+	 * @param   string  $content  Script
+	 *
+	 * @return  void
+	 */
+	public static function addScriptDeclaration(string $content)
+	{
+		Factory::getDocument()->addScriptDeclaration($content);
+	}
 
-    /**
-     * Add option for script
-     *
-     * @param   string  $key      Name in Storage
-     * @param   mixed   $options  Scrip options as array or string
-     * @param   bool    $merge    Whether merge with existing (true) or replace (false)
-     *
-     * @return  void
-     */
-    public static function addScriptOptions(string $key, $options, $merge = true)
-    {
-        Factory::getDocument()->addScriptOptions($key, $options, $merge);
-    }
+	/**
+	 * Add option for script
+	 *
+	 * @param   string  $key      Name in Storage
+	 * @param   mixed   $options  Scrip options as array or string
+	 * @param   bool    $merge    Whether merge with existing (true) or replace (false)
+	 *
+	 * @return  void
+	 */
+	public static function addScriptOptions(string $key, $options, $merge = true)
+	{
+		Factory::getDocument()->addScriptOptions($key, $options, $merge);
+	}
 
-    /**
-     * Adds a linked stylesheet to the page
-     *
-     * @param   string  $url      URL to the linked style sheet
-     * @param   array   $options  Array of options. Example: array('version' => 'auto', 'conditional' => 'lt IE 9')
-     * @param   array   $attribs  Array of attributes. Example: array('id' => 'stylesheet', 'data-test' => 1)
-     *
-     * @return  void
-     */
-    public static function addStyleSheet(string $url, $options = [], $attribs = [])
-    {
-        /** @noinspection PhpDeprecationInspection */
-        Factory::getDocument()->addStyleSheet($url, $options, $attribs);
-    }
+	/**
+	 * Adds a linked stylesheet to the page
+	 *
+	 * @param   string  $url      URL to the linked style sheet
+	 * @param   array   $options  Array of options. Example: array('version' => 'auto', 'conditional' => 'lt IE 9')
+	 * @param   array   $attribs  Array of attributes. Example: array('id' => 'stylesheet', 'data-test' => 1)
+	 *
+	 * @return  void
+	 */
+	public static function addStyleSheet(string $url, $options = [], $attribs = [])
+	{
+		/** @noinspection PhpDeprecationInspection */
+		Factory::getDocument()->addStyleSheet($url, $options, $attribs);
+	}
 
-    /**
-     * Sets the document charset to UTF-8.
-     *
-     * @return void
-     */
-    public static function setCharset()
-    {
-        Factory::getDocument()->setCharset('utf-8');
-    }
+	/**
+	 * Sets the document charset to UTF-8.
+	 *
+	 * @return void
+	 */
+	public static function setCharset()
+	{
+		Factory::getDocument()->setCharset('utf-8');
+	}
 
-    /**
-     * Sets the title of the document.
-     *
-     * @param   string  $title  The title to be set
-     *
-     * @return  void
-     */
-    public static function setTitle(string $title)
-    {
-        Factory::getDocument()->setTitle($title);
-    }
+	/**
+	 * Sets the title of the document.
+	 *
+	 * @param   string  $title  The title to be set
+	 *
+	 * @return  void
+	 */
+	public static function setTitle(string $title)
+	{
+		Factory::getDocument()->setTitle($title);
+	}
 }

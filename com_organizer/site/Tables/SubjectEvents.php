@@ -15,27 +15,27 @@ namespace Organizer\Tables;
  */
 class SubjectEvents extends BaseTable
 {
-    /**
-     * The id of the event entry referenced.
-     * INT(11) UNSIGNED NOT NULL
-     *
-     * @var int
-     */
-    public $eventID;
+	/**
+	 * The id of the event entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $eventID;
 
-    /**
-     * The id of the subject entry referenced.
-     * INT(11) UNSIGNED NOT NULL
-     *
-     * @var int
-     */
-    public $subjectID;
+	/**
+	 * The id of the subject entry referenced.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $subjectID;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_subject_events');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_subject_events');
+	}
 }

@@ -20,26 +20,26 @@ use Organizer\Helpers;
  */
 class PoolSelection extends PoolsView
 {
-    protected $_layout = 'list_modal';
+	protected $_layout = 'list_modal';
 
-    protected $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
+	protected $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
 
-    /**
-     * @inheritdoc
-     */
-    protected function addToolBar()
-    {
-        $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'x', true);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	protected function addToolBar()
+	{
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'x', true);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument()
-    {
-        parent::modifyDocument();
+	/**
+	 * @inheritDoc
+	 */
+	protected function modifyDocument()
+	{
+		parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
-    }
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+	}
 }

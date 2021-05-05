@@ -18,42 +18,42 @@ use Organizer\Tables;
  */
 abstract class Associated extends ResourceHelper
 {
-    use Filtered;
+	use Filtered;
 
-    protected static $resource = '';
+	protected static $resource = '';
 
-    /**
-     * Retrieves the ids of organizations associated with the resource
-     *
-     * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
-     *
-     * @return array the ids of organizations associated with the resource
-     */
-    public static function getOrganizationIDs(int $resourceID)
-    {
-        $column = static::$resource . 'ID';
-        $query  = Database::getQuery(true);
-        $query->select('DISTINCT organizationID')
-            ->from('#__organizer_associations')
-            ->where("$column = $resourceID");
-        Database::setQuery($query);
+	/**
+	 * Retrieves the ids of organizations associated with the resource
+	 *
+	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
+	 *
+	 * @return array the ids of organizations associated with the resource
+	 */
+	public static function getOrganizationIDs(int $resourceID)
+	{
+		$column = static::$resource . 'ID';
+		$query  = Database::getQuery(true);
+		$query->select('DISTINCT organizationID')
+			->from('#__organizer_associations')
+			->where("$column = $resourceID");
+		Database::setQuery($query);
 
-        return Database::loadIntColumn();
-    }
+		return Database::loadIntColumn();
+	}
 
-    /**
-     * Checks whether a given resource is associated with a given organization.
-     *
-     * @param   int  $organizationID  the id of the organization
-     * @param   int  $resourceID      the id of the resource
-     *
-     * @return bool true if the resource is associated with the organization, otherwise false
-     */
-    public static function isAssociated(int $organizationID, int $resourceID)
-    {
-        $column = static::$resource . 'ID';
-        $table  = new Tables\Associations();
+	/**
+	 * Checks whether a given resource is associated with a given organization.
+	 *
+	 * @param   int  $organizationID  the id of the organization
+	 * @param   int  $resourceID      the id of the resource
+	 *
+	 * @return bool true if the resource is associated with the organization, otherwise false
+	 */
+	public static function isAssociated(int $organizationID, int $resourceID)
+	{
+		$column = static::$resource . 'ID';
+		$table  = new Tables\Associations();
 
-        return $table->load(['organizationID' => $organizationID, $column => $resourceID]);
-    }
+		return $table->load(['organizationID' => $organizationID, $column => $resourceID]);
+	}
 }

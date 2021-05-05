@@ -19,27 +19,30 @@ use Organizer\Helpers;
 class ParticipantEdit extends EditView
 {
 
-    /**
-     * Method to generate buttons for user interaction
-     *
-     * @return void
-     */
-    protected function addToolBar()
-    {
-        if ($this->item->id) {
-            $own    = Helpers\Users::getID() === $this->item->id;
-            $cancel = 'ORGANIZER_CLOSE';
-            $save   = 'ORGANIZER_SAVE_CLOSE';
-            $title  = $own ? 'ORGANIZER_EDIT_MY_PROFILE' : 'ORGANIZER_PARTICIPANT_EDIT';
-        } else {
-            $cancel = 'ORGANIZER_CANCEL';
-            $save   = 'ORGANIZER_CREATE_CLOSE';
-            $title  = "ORGANIZER_PROFILE_NEW";
-        }
+	/**
+	 * Method to generate buttons for user interaction
+	 *
+	 * @return void
+	 */
+	protected function addToolBar()
+	{
+		if ($this->item->id)
+		{
+			$own    = Helpers\Users::getID() === $this->item->id;
+			$cancel = 'ORGANIZER_CLOSE';
+			$save   = 'ORGANIZER_SAVE_CLOSE';
+			$title  = $own ? 'ORGANIZER_EDIT_MY_PROFILE' : 'ORGANIZER_PARTICIPANT_EDIT';
+		}
+		else
+		{
+			$cancel = 'ORGANIZER_CANCEL';
+			$save   = 'ORGANIZER_CREATE_CLOSE';
+			$title  = "ORGANIZER_PROFILE_NEW";
+		}
 
-        Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
-        $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "participants.save", false);
-        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "participants.cancel", false);
-    }
+		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "participants.save", false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "participants.cancel", false);
+	}
 }

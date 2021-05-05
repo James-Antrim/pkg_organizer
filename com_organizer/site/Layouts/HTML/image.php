@@ -11,11 +11,11 @@
 use Joomla\CMS\Uri\Uri;
 
 $style = [
-    "background-image: url('" . Uri::base(true) . '/images/organizer/' . $this->model->image . "')",
-    "background-position: center center",
-    "background-repeat: no-repeat",
-    "background-size: contain",
-    "height: 100%"
+	"background-image: url('" . Uri::base(true) . '/images/organizer/' . $this->model->image . "')",
+	"background-position: center center",
+	"background-repeat: no-repeat",
+	"background-size: contain",
+	"height: 100%"
 ]
 
 ?>

@@ -18,31 +18,32 @@ use Organizer\Tables;
  */
 class ScheduleEdit extends EditModel
 {
-    /**
-     * Checks access to edit the resource.
-     *
-     * @return void
-     */
-    public function authorize()
-    {
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
-            Helpers\OrganizerHelper::error(403);
-        }
-    }
+	/**
+	 * Checks access to edit the resource.
+	 *
+	 * @return void
+	 */
+	public function authorize()
+	{
+		if (!Helpers\Can::scheduleTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
 
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Tables\Schedules A Table object
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return new Tables\Schedules();
-    }
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\Schedules A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\Schedules();
+	}
 }

@@ -19,28 +19,31 @@ use Organizer\Models;
  */
 class Participants extends Controller
 {
-    const UNREGISTERED = null;
+	const UNREGISTERED = null;
 
-    protected $listView = 'participants';
+	protected $listView = 'participants';
 
-    protected $resource = 'participant';
+	protected $resource = 'participant';
 
-    /**
-     * Save user information from form and if course id defined sign in or out of course
-     * then redirect to course list view
-     *
-     * @return void
-     */
-    public function save()
-    {
-        $model = new Models\Participant();
+	/**
+	 * Save user information from form and if course id defined sign in or out of course
+	 * then redirect to course list view
+	 *
+	 * @return void
+	 */
+	public function save()
+	{
+		$model = new Models\Participant();
 
-        if ($participantID = $model->save()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
-        } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-        }
+		if ($participantID = $model->save())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+		}
 
-        $this->setRedirect(Helpers\Input::getString('referrer'));
-    }
+		$this->setRedirect(Helpers\Input::getString('referrer'));
+	}
 }

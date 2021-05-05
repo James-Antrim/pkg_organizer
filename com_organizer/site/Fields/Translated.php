@@ -14,20 +14,21 @@ use Organizer\Helpers;
 
 trait Translated
 {
-    /**
-     * Method to get the data to be passed to the layout for rendering.
-     *
-     * @return  array
-     */
-    protected function getLayoutData(): array
-    {
-        if (!empty($this->element['label'])) {
-            $labelConstant          = 'ORGANIZER_' . (string)$this->element['label'];
-            $descriptionConstant    = $labelConstant . '_DESC';
-            $this->element['label'] = Helpers\Languages::_($labelConstant);
-            $this->description      = Helpers\Languages::_($descriptionConstant);
-        }
+	/**
+	 * Method to get the data to be passed to the layout for rendering.
+	 *
+	 * @return  array
+	 */
+	protected function getLayoutData(): array
+	{
+		if (!empty($this->element['label']))
+		{
+			$labelConstant          = 'ORGANIZER_' . (string) $this->element['label'];
+			$descriptionConstant    = $labelConstant . '_DESC';
+			$this->element['label'] = Helpers\Languages::_($labelConstant);
+			$this->description      = Helpers\Languages::_($descriptionConstant);
+		}
 
-        return parent::getLayoutData();
-    }
+		return parent::getLayoutData();
+	}
 }

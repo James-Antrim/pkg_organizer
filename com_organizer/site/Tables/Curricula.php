@@ -16,95 +16,97 @@ namespace Organizer\Tables;
  */
 class Curricula extends BaseTable
 {
-    /**
-     * The depth of this element in the curriculum hierarchy.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $level;
+	/**
+	 * The depth of this element in the curriculum hierarchy.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $level;
 
-    /**
-     * The left most value of this resource as viewed on a numbered line.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $lft;
+	/**
+	 * The left most value of this resource as viewed on a numbered line.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $lft;
 
-    /**
-     * The order of this element among its hierarchical siblings.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $ordering;
+	/**
+	 * The order of this element among its hierarchical siblings.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $ordering;
 
-    /**
-     * The id of the range referenced as parent.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $parentID;
+	/**
+	 * The id of the range referenced as parent.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $parentID;
 
-    /**
-     * The id of the pool entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $poolID;
+	/**
+	 * The id of the pool entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $poolID;
 
-    /**
-     * The id of the program entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $programID;
+	/**
+	 * The id of the program entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $programID;
 
-    /**
-     * The right most value of this resource as viewed on a numbered line.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $rgt;
+	/**
+	 * The right most value of this resource as viewed on a numbered line.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $rgt;
 
-    /**
-     * The id of the subject entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $subjectID;
+	/**
+	 * The id of the subject entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $subjectID;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_curricula');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_curricula');
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function check(): bool
-    {
-        // All three fields can receive data from at least two systems.
-        $atLeastOne = false;
-        $keyColumns = ['programID', 'poolID', 'subjectID'];
-        foreach ($keyColumns as $keyColumn) {
-            if (!strlen($this->$keyColumn)) {
-                $this->$keyColumn = null;
-                continue;
-            }
+	/**
+	 * @inheritDoc
+	 */
+	public function check(): bool
+	{
+		// All three fields can receive data from at least two systems.
+		$atLeastOne = false;
+		$keyColumns = ['programID', 'poolID', 'subjectID'];
+		foreach ($keyColumns as $keyColumn)
+		{
+			if (!strlen($this->$keyColumn))
+			{
+				$this->$keyColumn = null;
+				continue;
+			}
 
-            $atLeastOne = true;
-        }
+			$atLeastOne = true;
+		}
 
-        return $atLeastOne;
-    }
+		return $atLeastOne;
+	}
 }

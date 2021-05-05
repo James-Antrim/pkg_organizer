@@ -14,8 +14,9 @@ require_once JPATH_COMPONENT_SITE . '/autoloader.php';
 
 use Organizer\Helpers;
 
-if (!Helpers\Users::getUser()->authorise('core.manage', 'com_organizer')) {
-    Helpers\OrganizerHelper::error(403);
+if (!Helpers\Users::getUser()->authorise('core.manage', 'com_organizer'))
+{
+	Helpers\OrganizerHelper::error(403);
 }
 
 Helpers\OrganizerHelper::setUp();

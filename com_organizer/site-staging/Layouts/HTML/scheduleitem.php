@@ -14,31 +14,32 @@ use Organizer\Helpers\Languages;
 $activeDay      = date('w');
 $categoryPH     = Languages::_('ORGANIZER_SELECT_CATEGORY');
 $datesOfTheWeek = [
-    Helpers\Dates::formatDate('monday this week'),
-    Helpers\Dates::formatDate('tuesday this week'),
-    Helpers\Dates::formatDate('wednesday this week'),
-    Helpers\Dates::formatDate('thursday this week'),
-    Helpers\Dates::formatDate('friday this week'),
-    Helpers\Dates::formatDate('saturday this week'),
-    Helpers\Dates::formatDate('sunday this week')
+	Helpers\Dates::formatDate('monday this week'),
+	Helpers\Dates::formatDate('tuesday this week'),
+	Helpers\Dates::formatDate('wednesday this week'),
+	Helpers\Dates::formatDate('thursday this week'),
+	Helpers\Dates::formatDate('friday this week'),
+	Helpers\Dates::formatDate('saturday this week'),
+	Helpers\Dates::formatDate('sunday this week')
 ];
 $daysOfTheWeek  = [
-    Languages::_('MON'),
-    Languages::_('TUE'),
-    Languages::_('WED'),
-    Languages::_('THU'),
-    Languages::_('FRI'),
-    Languages::_('SAT'),
-    Languages::_('SUN')
+	Languages::_('MON'),
+	Languages::_('TUE'),
+	Languages::_('WED'),
+	Languages::_('THU'),
+	Languages::_('FRI'),
+	Languages::_('SAT'),
+	Languages::_('SUN')
 ];
 $organizationPH = Languages::_('ORGANIZER_SELECT_ORGANIZATION');
 $displayName    = empty($this->model->displayName) ?
-    'THM Organizer  - ' . Languages::_('ORGANIZER_SCHEDULES') : $this->model->displayName;
+	'THM Organizer  - ' . Languages::_('ORGANIZER_SCHEDULES') : $this->model->displayName;
 $grid           = json_decode($this->params['defaultGrid'], true);
 $gridOptions    = '';
-foreach ($this->grids as $gridOption) {
-    $selected    = $gridOption['defaultGrid'] ? 'selected' : '';
-    $gridOptions .= "<option value=\"{$gridOption['id']}\" $selected>{$gridOption['name']}</option>";
+foreach ($this->grids as $gridOption)
+{
+	$selected    = $gridOption['defaultGrid'] ? 'selected' : '';
+	$gridOptions .= "<option value=\"{$gridOption['id']}\" $selected>{$gridOption['name']}</option>";
 }
 $groupPH     = Languages::_('ORGANIZER_SELECT_GROUP');
 $mobile      = $this->isMobile ? 'mobile' : '';
@@ -47,15 +48,18 @@ $personPH    = Languages::_('ORGANIZER_SELECT_PERSON');
 $roomPH      = Languages::_('ORGANIZER_SELECT_ROOM');
 $roomTypePH  = Languages::_('ORGANIZER_SELECT_ROOMTYPE');
 $typeOptions = '';
-if ($this->params['showCategories']) {
-    $typeOptions .= '<option value="category" selected>' . Languages::_('ORGANIZER_EVENT_PLANS') . '</option>';
+if ($this->params['showCategories'])
+{
+	$typeOptions .= '<option value="category" selected>' . Languages::_('ORGANIZER_EVENT_PLANS') . '</option>';
 }
-if ($this->params['showRooms']) {
-    $typeOptions .= '<option value="roomtype">' . Languages::_('ORGANIZER_ROOM_PLANS') . '</option>';
+if ($this->params['showRooms'])
+{
+	$typeOptions .= '<option value="roomtype">' . Languages::_('ORGANIZER_ROOM_PLANS') . '</option>';
 }
 
-if ($this->params['showPersons']) {
-    $typeOptions .= '<option value="person">' . Languages::_('ORGANIZER_PERSON_PLANS') . '</option>';
+if ($this->params['showPersons'])
+{
+	$typeOptions .= '<option value="person">' . Languages::_('ORGANIZER_PERSON_PLANS') . '</option>';
 }
 
 $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
@@ -144,7 +148,7 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
                             <td colspan="7">
                                 <button id="today" type="button" class="today"
                                         onclick="scheduleApp.getCalendar().changeSelectedDate(true, 'week');">
-                                    <?php echo Languages::_('ORGANIZER_TODAY'); ?>
+									<?php echo Languages::_('ORGANIZER_TODAY'); ?>
                                 </button>
                             </td>
                         </tr>
@@ -173,16 +177,16 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
                  aria-labelledby="tab-schedule-form" aria-hidden="false">
                 <div id="organization-input" class="input-wrapper">
                     <select id="organization" data-input="static" data-placeholder="<?php echo $organizationPH; ?>">
-                        <?php foreach (Helpers\Organization::getOptions() as $organization) : ?>
+						<?php foreach (Helpers\Organization::getOptions() as $organization) : ?>
                             <option value="<?php echo $organization->value; ?>">
-                                <?php echo $organization->text; ?>
+								<?php echo $organization->text; ?>
                             </option>
-                        <?php endforeach; ?>
+						<?php endforeach; ?>
                     </select>
                 </div>
                 <div id="type-input" class="input-wrapper">
                     <select id="type" required data-input="static" data-placeholder="<?php echo $typePH; ?>">
-                        <?php echo $typeOptions ?>
+						<?php echo $typeOptions ?>
                     </select>
                 </div>
                 <div id="category-input" class="input-wrapper">
@@ -206,7 +210,7 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
             </div>
             <div class="tab-panel" id="time-selection" role="tabpanel" aria-labelledby="tab-time" aria-hidden="false">
                 <select id="grid" required onchange="scheduleApp.changeGrid();">
-                    <?php echo $gridOptions; ?>
+					<?php echo $gridOptions; ?>
                 </select>
             </div>
 
@@ -214,25 +218,25 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
                 <div class="link-item">
                     <a onclick="scheduleApp.handleExport('pdf.a4');">
                         <span class="icon-file-pdf"></span>
-                        <?php echo Languages::_('ORGANIZER_PDF_DOCUMENT'); ?>
+						<?php echo Languages::_('ORGANIZER_PDF_DOCUMENT'); ?>
                     </a>
                 </div>
                 <div class="link-item">
                     <a onclick="scheduleApp.handleExport('xls.si');">
                         <span class="icon-file-excel"></span>
-                        <?php echo Languages::_('ORGANIZER_XLS_SPREADSHEET'); ?>
+						<?php echo Languages::_('ORGANIZER_XLS_SPREADSHEET'); ?>
                     </a>
                 </div>
                 <div class="link-item">
                     <a onclick="scheduleApp.handleExport('ics');">
                         <span class="icon-info-calender"></span>
-                        <?php echo Languages::_('ORGANIZER_ICS_CALENDAR'); ?>
+						<?php echo Languages::_('ORGANIZER_ICS_CALENDAR'); ?>
                     </a>
                 </div>
                 <div class="link-item">
                     <a href="?option=com_organizer&view=schedule_export" target="_blank">
                         <span class="icon-plus"></span>
-                        <?php echo Languages::_('ORGANIZER_OTHER_EXPORT_OPTIONS'); ?>
+						<?php echo Languages::_('ORGANIZER_OTHER_EXPORT_OPTIONS'); ?>
                     </a>
                 </div>
             </div>
@@ -245,26 +249,26 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
                 <thead>
                 <tr>
                     <th><?php echo Languages::_('ORGANIZER_TIME'); ?></th>
-                    <?php for ($weekday = $grid['startDay'] - 1; $weekday < $grid['endDay']; ++$weekday) : ?>
+					<?php for ($weekday = $grid['startDay'] - 1; $weekday < $grid['endDay']; ++$weekday) : ?>
                         <th <?php echo ($activeDay == $weekday + 1) ? 'class="activeColumn"' : ''; ?>>
-                            <?php echo $daysOfTheWeek[$weekday]; ?>
+							<?php echo $daysOfTheWeek[$weekday]; ?>
                         </th>
-                    <?php endfor; ?>
+					<?php endfor; ?>
                 </tr>
                 </thead>
                 <tbody>
-                <?php for ($period = 1; $period <= count($periods); ++$period) : ?>
+				<?php for ($period = 1; $period <= count($periods); ++$period) : ?>
                     <tr>
                         <td>
-                            <?php echo Dates::formatTime($periods[$period]['startTime']); ?>
+							<?php echo Dates::formatTime($periods[$period]['startTime']); ?>
                             <br> - <br>
-                            <?php echo Dates::formatTime($periods[$period]['endTime']); ?>
+							<?php echo Dates::formatTime($periods[$period]['endTime']); ?>
                         </td>
-                        <?php for ($weekday = $grid['startDay'] - 1; $weekday < $grid['endDay']; ++$weekday) : ?>
+						<?php for ($weekday = $grid['startDay'] - 1; $weekday < $grid['endDay']; ++$weekday) : ?>
                             <td <?php echo ($activeDay == $weekday + 1) ? ' class="activeColumn"' : ''; ?>></td>
-                        <?php endfor; ?>
+						<?php endfor; ?>
                     </tr>
-                <?php endfor; ?>
+				<?php endfor; ?>
                 </tbody>
             </table>
         </div>
@@ -283,24 +287,24 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
         </div>
         <div class="save">
             <button id="save-mode-term">
-                <?php echo Languages::_('ORGANIZER_SAVE_EVENT_SEMESTER') ?>
+				<?php echo Languages::_('ORGANIZER_SAVE_EVENT_SEMESTER') ?>
             </button>
             <button id="save-mode-period">
-                <?php echo Languages::_('ORGANIZER_SAVE_EVENT_PERIOD') ?>
+				<?php echo Languages::_('ORGANIZER_SAVE_EVENT_PERIOD') ?>
             </button>
             <button id="save-mode-instance">
-                <?php echo Languages::_('ORGANIZER_SAVE_EVENT_INSTANCE') ?>
+				<?php echo Languages::_('ORGANIZER_SAVE_EVENT_INSTANCE') ?>
             </button>
         </div>
         <div class="delete">
             <button id="delete-mode-term">
-                <?php echo Languages::_('ORGANIZER_DELETE_EVENT_SEMESTER') ?>
+				<?php echo Languages::_('ORGANIZER_DELETE_EVENT_SEMESTER') ?>
             </button>
             <button id="delete-mode-period">
-                <?php echo Languages::_('ORGANIZER_DELETE_EVENT_PERIOD') ?>
+				<?php echo Languages::_('ORGANIZER_DELETE_EVENT_PERIOD') ?>
             </button>
             <button id="delete-mode-instance">
-                <?php echo Languages::_('ORGANIZER_DELETE_EVENT_INSTANCE') ?>
+				<?php echo Languages::_('ORGANIZER_DELETE_EVENT_INSTANCE') ?>
             </button>
         </div>
     </div>
@@ -310,11 +314,11 @@ $typePH = Languages::_('ORGANIZER_SELECT_PLAN_TYPE');
         <button class="icon-cancel" onclick="this.parentElement.style.display='none';"></button>
         <button id="past-date" onclick="scheduleApp.nextDateEventHandler(event);">
             <span class="icon-arrow-left-2"></span>
-            <?php echo sprintf(Languages::_('ORGANIZER_JUMP_TO_DATE'), date("d.m.Y")); ?>
+			<?php echo sprintf(Languages::_('ORGANIZER_JUMP_TO_DATE'), date("d.m.Y")); ?>
         </button>
         <button id="future-date" onclick="scheduleApp.nextDateEventHandler(event);">
             <span class="icon-arrow-right-2"></span>
-            <?php echo sprintf(Languages::_('ORGANIZER_JUMP_TO_DATE'), date("d.m.Y")); ?>
+			<?php echo sprintf(Languages::_('ORGANIZER_JUMP_TO_DATE'), date("d.m.Y")); ?>
         </button>
     </div>
 

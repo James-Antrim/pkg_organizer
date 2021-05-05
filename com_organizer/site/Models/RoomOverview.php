@@ -18,80 +18,84 @@ use Organizer\Helpers;
  */
 class RoomOverview extends ListModel
 {
-    private const DAY = 1;
+	private const DAY = 1;
 
-    protected $defaultLimit = 25;
+	protected $defaultLimit = 25;
 
-    protected $defaultOrdering = 'r.name';
+	protected $defaultOrdering = 'r.name';
 
-    protected $filter_fields = ['campusID', 'buildingID', 'capacity', 'roomtypeID'];
+	protected $filter_fields = ['campusID', 'buildingID', 'capacity', 'roomtypeID'];
 
-    /**
-     * @inheritDoc
-     */
-    protected function filterFilterForm(Form &$form)
-    {
-        parent::filterFilterForm($form);
+	/**
+	 * @inheritDoc
+	 */
+	protected function filterFilterForm(Form &$form)
+	{
+		parent::filterFilterForm($form);
 
-        if (Helpers\Input::getParams()->get('campusID', 0)) {
-            $form->removeField('campusID', 'filter');
-            unset($this->filter_fields[array_search('campusID', $this->filter_fields)]);
-        }
-    }
+		if (Helpers\Input::getParams()->get('campusID', 0))
+		{
+			$form->removeField('campusID', 'filter');
+			unset($this->filter_fields[array_search('campusID', $this->filter_fields)]);
+		}
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function getListQuery()
-    {
-        $tag   = Helpers\Languages::getTag();
-        $query = $this->_db->getQuery(true);
+	/**
+	 * @inheritDoc
+	 */
+	protected function getListQuery()
+	{
+		$tag   = Helpers\Languages::getTag();
+		$query = $this->_db->getQuery(true);
 
-        $query->select('r.id, r.name AS name, r.capacity')
-            ->select("t.id AS roomtypeID, t.name_$tag AS typeName, t.description_$tag AS typeDesc")
-            ->from('#__organizer_rooms AS r')
-            ->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
-            ->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-            ->where('r.active = 1')
-            ->where('t.suppress = 0');
+		$query->select('r.id, r.name AS name, r.capacity')
+			->select("t.id AS roomtypeID, t.name_$tag AS typeName, t.description_$tag AS typeDesc")
+			->from('#__organizer_rooms AS r')
+			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
+			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+			->where('r.active = 1')
+			->where('t.suppress = 0');
 
-        // Only display public room types, i.e. no offices or toilets...
-        $query->where('t.suppress = 0');
+		// Only display public room types, i.e. no offices or toilets...
+		$query->where('t.suppress = 0');
 
-        $this->setSearchFilter($query, ['r.name']);
-        $this->setValueFilters($query, ['buildingID', 'roomtypeID']);
-        $this->setCampusFilter($query, 'b');
+		$this->setSearchFilter($query, ['r.name']);
+		$this->setValueFilters($query, ['buildingID', 'roomtypeID']);
+		$this->setCampusFilter($query, 'b');
 
-        if ($roomIDs = Helpers\Input::getFilterIDs('room')) {
-            $query->where('r.id IN (' . implode(',', $roomIDs) . ')');
-        }
+		if ($roomIDs = Helpers\Input::getFilterIDs('room'))
+		{
+			$query->where('r.id IN (' . implode(',', $roomIDs) . ')');
+		}
 
-        if ($capacity = Helpers\Input::getInt('capacity')) {
-            $query->where("r.capacity >= $capacity");
-        }
+		if ($capacity = Helpers\Input::getInt('capacity'))
+		{
+			$query->where("r.capacity >= $capacity");
+		}
 
-        $query->order($this->defaultOrdering);
+		$query->order($this->defaultOrdering);
 
-        return $query;
-    }
+		return $query;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function populateState($ordering = null, $direction = null)
-    {
-        parent::populateState($ordering = null, $direction = null);
+	/**
+	 * @inheritDoc
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		parent::populateState($ordering = null, $direction = null);
 
-        $list        = Helpers\Input::getListItems();
-        $date        = strtotime($list->get('date')) ? $list->get('date') : date('Y-m-d');
-        $defaultGrid = Helpers\Grids::getDefault();
-        if ($campusID = Helpers\Input::getParams()->get('campusID')) {
-            $defaultGrid = Helpers\Campuses::getGridID($campusID);
-            $this->setState('filter.campusID', $campusID);
-        }
+		$list        = Helpers\Input::getListItems();
+		$date        = strtotime($list->get('date')) ? $list->get('date') : date('Y-m-d');
+		$defaultGrid = Helpers\Grids::getDefault();
+		if ($campusID = Helpers\Input::getParams()->get('campusID'))
+		{
+			$defaultGrid = Helpers\Campuses::getGridID($campusID);
+			$this->setState('filter.campusID', $campusID);
+		}
 
-        $this->setState('list.template', (int)$list->get('template', self::DAY));
-        $this->setState('list.gridID', (int)$list->get('gridID', $defaultGrid));
-        $this->setState('list.date', $date);
-    }
+		$this->setState('list.template', (int) $list->get('template', self::DAY));
+		$this->setState('list.gridID', (int) $list->get('gridID', $defaultGrid));
+		$this->setState('list.date', $date);
+	}
 }

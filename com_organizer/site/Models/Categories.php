@@ -18,33 +18,33 @@ use Organizer\Helpers;
  */
 class Categories extends ListModel
 {
-    use Activated;
+	use Activated;
 
-    protected $defaultOrdering = 'name';
+	protected $defaultOrdering = 'name';
 
-    protected $filter_fields = ['organizationID'];
+	protected $filter_fields = ['organizationID'];
 
-    /**
-     * Method to get a list of resources from the database.
-     *
-     * @return JDatabaseQuery
-     */
-    protected function getListQuery()
-    {
-        $tag   = Helpers\Languages::getTag();
-        $query = $this->_db->getQuery(true);
-        $query->select("DISTINCT cat.id, cat.code, cat.name_$tag AS name, cat.active")
-            ->from('#__organizer_categories AS cat')
-            ->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
+	/**
+	 * Method to get a list of resources from the database.
+	 *
+	 * @return JDatabaseQuery
+	 */
+	protected function getListQuery()
+	{
+		$tag   = Helpers\Languages::getTag();
+		$query = $this->_db->getQuery(true);
+		$query->select("DISTINCT cat.id, cat.code, cat.name_$tag AS name, cat.active")
+			->from('#__organizer_categories AS cat')
+			->innerJoin('#__organizer_associations AS a ON a.categoryID = cat.id');
 
-        $authorized = implode(",", Helpers\Can::scheduleTheseOrganizations());
-        $query->where("a.organizationID IN ($authorized)");
+		$authorized = implode(",", Helpers\Can::scheduleTheseOrganizations());
+		$query->where("a.organizationID IN ($authorized)");
 
-        $this->setActiveFilter($query, 'cat');
-        $this->setSearchFilter($query, ['cat.name_de', 'cat.name_en', 'cat.code']);
-        $this->setValueFilters($query, ['organizationID', 'programID']);
-        $this->setOrdering($query);
+		$this->setActiveFilter($query, 'cat');
+		$this->setSearchFilter($query, ['cat.name_de', 'cat.name_en', 'cat.code']);
+		$this->setValueFilters($query, ['organizationID', 'programID']);
+		$this->setOrdering($query);
 
-        return $query;
-    }
+		return $query;
+	}
 }

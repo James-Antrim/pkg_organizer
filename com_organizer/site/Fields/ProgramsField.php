@@ -17,22 +17,22 @@ use Organizer\Helpers;
  */
 class ProgramsField extends OptionsField
 {
-    /**
-     * @var  string
-     */
-    protected $type = 'Programs';
+	/**
+	 * @var  string
+	 */
+	protected $type = 'Programs';
 
-    /**
-     * Method to get the field options.
-     *
-     * @return  array  The field option objects.
-     */
-    protected function getOptions()
-    {
-        $options  = parent::getOptions();
-        $access   = $this->adminContext ? $this->getAttribute('access', '') : '';
-        $programs = Helpers\Programs::getOptions($access);
+	/**
+	 * Method to get the field options.
+	 *
+	 * @return  array  The field option objects.
+	 */
+	protected function getOptions()
+	{
+		$options  = parent::getOptions();
+		$access   = $this->adminContext ? $this->getAttribute('access', '') : '';
+		$programs = Helpers\Programs::getOptions($access);
 
-        return array_merge($options, $programs);
-    }
+		return array_merge($options, $programs);
+	}
 }

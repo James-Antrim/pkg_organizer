@@ -17,22 +17,22 @@ use Organizer\Helpers;
  */
 class Degrees extends ListView
 {
-    protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'abbreviation' => 'link', 'code' => 'link'];
+	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'abbreviation' => 'link', 'code' => 'link'];
 
-    /**
-     * @inheritdoc
-     */
-    public function setHeaders()
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox'     => '',
-            'name'         => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-            'abbreviation' => Helpers\HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
-            'code'         => Helpers\HTML::sort('DEGREE_CODE', 'code', $direction, $ordering)
-        ];
+	/**
+	 * @inheritdoc
+	 */
+	public function setHeaders()
+	{
+		$ordering  = $this->state->get('list.ordering');
+		$direction = $this->state->get('list.direction');
+		$headers   = [
+			'checkbox'     => '',
+			'name'         => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'abbreviation' => Helpers\HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
+			'code'         => Helpers\HTML::sort('DEGREE_CODE', 'code', $direction, $ordering)
+		];
 
-        $this->headers = $headers;
-    }
+		$this->headers = $headers;
+	}
 }

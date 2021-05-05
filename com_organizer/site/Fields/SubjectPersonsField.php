@@ -18,60 +18,68 @@ use Organizer\Helpers;
  */
 class SubjectPersonsField extends OptionsField
 {
-    protected $type = 'SubjectPersons';
+	protected $type = 'SubjectPersons';
 
-    /**
-     * Method to get the field options.
-     *
-     * @return  array  The field option objects.
-     */
-    protected function getOptions()
-    {
-        $subjectIDs = Helpers\Input::getSelectedIDs();
-        $role       = $this->getAttribute('role');
-        $invalid    = (empty($subjectIDs) or empty($subjectIDs[0]) or empty($role));
+	/**
+	 * Method to get the field options.
+	 *
+	 * @return  array  The field option objects.
+	 */
+	protected function getOptions()
+	{
+		$subjectIDs = Helpers\Input::getSelectedIDs();
+		$role       = $this->getAttribute('role');
+		$invalid    = (empty($subjectIDs) or empty($subjectIDs[0]) or empty($role));
 
-        if ($invalid) {
-            return [];
-        }
+		if ($invalid)
+		{
+			return [];
+		}
 
-        $existingPersons = Helpers\Subjects::getPersons($subjectIDs[0], $role);
-        $this->value     = [];
-        foreach ($existingPersons as $person) {
-            $this->value[$person['id']] = $person['id'];
-        }
+		$existingPersons = Helpers\Subjects::getPersons($subjectIDs[0], $role);
+		$this->value     = [];
+		foreach ($existingPersons as $person)
+		{
+			$this->value[$person['id']] = $person['id'];
+		}
 
-        $query = Database::getQuery();
-        $query->select('p.id, p.surname, p.forename')
-            ->from('#__organizer_persons AS p')
-            ->order('surname, forename');
+		$query = Database::getQuery();
+		$query->select('p.id, p.surname, p.forename')
+			->from('#__organizer_persons AS p')
+			->order('surname, forename');
 
-        $organizationID = $this->form->getValue('organizationID');
-        if (!empty($organizationID)) {
-            if (empty($this->value)) {
-                $query->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
-                    ->where("organizationID = $organizationID");
-            } else {
-                $query->leftJoin('#__organizer_associations AS a ON a.personID = p.id');
-                $personIDs  = implode(',', $this->value);
-                $extPersons = "(organizationID != $organizationID AND personID IN ($personIDs))";
-                $query->where("(organizationID = $organizationID OR $extPersons)");
-            }
-        }
+		$organizationID = $this->form->getValue('organizationID');
+		if (!empty($organizationID))
+		{
+			if (empty($this->value))
+			{
+				$query->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
+					->where("organizationID = $organizationID");
+			}
+			else
+			{
+				$query->leftJoin('#__organizer_associations AS a ON a.personID = p.id');
+				$personIDs  = implode(',', $this->value);
+				$extPersons = "(organizationID != $organizationID AND personID IN ($personIDs))";
+				$query->where("(organizationID = $organizationID OR $extPersons)");
+			}
+		}
 
-        Database::setQuery($query);
-        $options = parent::getOptions();
+		Database::setQuery($query);
+		$options = parent::getOptions();
 
-        if (!$persons = Database::loadAssocList('id')) {
-            return $options;
-        }
+		if (!$persons = Database::loadAssocList('id'))
+		{
+			return $options;
+		}
 
-        foreach ($persons as $person) {
-            $text      = empty($person['forename']) ?
-                $person['surname'] : "{$person['surname']}, {$person['forename']}";
-            $options[] = Helpers\HTML::_('select.option', $person['id'], $text);
-        }
+		foreach ($persons as $person)
+		{
+			$text      = empty($person['forename']) ?
+				$person['surname'] : "{$person['surname']}, {$person['forename']}";
+			$options[] = Helpers\HTML::_('select.option', $person['id'], $text);
+		}
 
-        return $options;
-    }
+		return $options;
+	}
 }

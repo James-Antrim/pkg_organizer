@@ -19,61 +19,63 @@ use Organizer\Tables;
  */
 class ParticipantEdit extends EditModel
 {
-    private $participantID;
+	private $participantID;
 
-    /**
-     * Checks access to edit the resource.
-     *
-     * @return void
-     */
-    protected function authorize()
-    {
-        if (!Helpers\Can::edit('participant', (int)$this->participantID)) {
-            Helpers\OrganizerHelper::error(403);
-        }
-    }
+	/**
+	 * Checks access to edit the resource.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Can::edit('participant', (int) $this->participantID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
 
-    /**
-     * Method to get a single record.
-     *
-     * @param   int  $participantID  The id of the primary key.
-     *
-     * @return mixed    Object on success, false on failure.
-     */
-    public function getItem($participantID = 0)
-    {
-        $this->participantID = $participantID ? $participantID : Helpers\Input::getSelectedID(Helpers\Users::getID());
+	/**
+	 * Method to get a single record.
+	 *
+	 * @param   int  $participantID  The id of the primary key.
+	 *
+	 * @return mixed    Object on success, false on failure.
+	 */
+	public function getItem($participantID = 0)
+	{
+		$this->participantID = $participantID ? $participantID : Helpers\Input::getSelectedID(Helpers\Users::getID());
 
-        $this->authorize();
+		$this->authorize();
 
-        // Prevents duplicate execution from getForm and getItem
-        if (isset($this->item->id) and ($this->item->id === $participantID)) {
-            return $this->item;
-        }
+		// Prevents duplicate execution from getForm and getItem
+		if (isset($this->item->id) and ($this->item->id === $participantID))
+		{
+			return $this->item;
+		}
 
-        // I assume I skipped parent because of performed access checks.
-        $this->item           = AdminModel::getItem($this->participantID);
-        $this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+		// I assume I skipped parent because of performed access checks.
+		$this->item           = AdminModel::getItem($this->participantID);
+		$this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 
-        // New participants need the user id as the participant id
-        $this->item->id = $this->item->id ? $this->item->id : $this->participantID;
+		// New participants need the user id as the participant id
+		$this->item->id = $this->item->id ? $this->item->id : $this->participantID;
 
-        return $this->item;
-    }
+		return $this->item;
+	}
 
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Tables\Participants A Table object
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return new Tables\Participants();
-    }
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\Participants A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\Participants();
+	}
 }

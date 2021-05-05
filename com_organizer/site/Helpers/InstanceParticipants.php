@@ -17,21 +17,22 @@ use Organizer\Tables;
  */
 class InstanceParticipants
 {
-    /**
-     * Returns the color value for a given colorID.
-     *
-     * @param   int  $participationID  the id of the color
-     *
-     * @return int the id of the booking associated with the participation
-     */
-    public static function getBookingID(int $participationID): int
-    {
-        $participation = new Tables\InstanceParticipants();
+	/**
+	 * Returns the color value for a given colorID.
+	 *
+	 * @param   int  $participationID  the id of the color
+	 *
+	 * @return int the id of the booking associated with the participation
+	 */
+	public static function getBookingID(int $participationID): int
+	{
+		$participation = new Tables\InstanceParticipants();
 
-        if (!$participation->load($participationID)) {
-            return 0;
-        }
+		if (!$participation->load($participationID))
+		{
+			return 0;
+		}
 
-        return Instances::getBookingID($participation->instanceID);
-    }
+		return Instances::getBookingID($participation->instanceID);
+	}
 }

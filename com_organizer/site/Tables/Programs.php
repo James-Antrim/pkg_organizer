@@ -16,119 +16,121 @@ namespace Organizer\Tables;
  */
 class Programs extends BaseTable
 {
-    use Activated;
-    use Aliased;
-    use Coded;
+	use Activated;
+	use Aliased;
+	use Coded;
 
-    /**
-     * The year in which the program was accredited.
-     * YEAR(4) DEFAULT NULL
-     *
-     * @var int
-     */
-    public $accredited;
+	/**
+	 * The year in which the program was accredited.
+	 * YEAR(4) DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $accredited;
 
-    /**
-     * The id of the category entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $categoryID;
+	/**
+	 * The id of the category entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $categoryID;
 
-    /**
-     * The id of the degree entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $degreeID;
+	/**
+	 * The id of the degree entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $degreeID;
 
-    /**
-     * The resource's German description.
-     * TEXT
-     *
-     * @var string
-     */
-    public $description_de;
+	/**
+	 * The resource's German description.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $description_de;
 
-    /**
-     * The resource's English description.
-     * TEXT
-     *
-     * @var string
-     */
-    public $description_en;
+	/**
+	 * The resource's English description.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $description_en;
 
-    /**
-     * A flag which displays whether the program has a fee.
-     * TINYINT(1) UNSIGNED NOT NULL
-     *
-     * @var string
-     */
-    public $fee;
+	/**
+	 * A flag which displays whether the program has a fee.
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fee;
 
-    /**
-     * The id of the frequency entry referenced.
-     * INT(1) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $frequencyID;
+	/**
+	 * The id of the frequency entry referenced.
+	 * INT(1) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $frequencyID;
 
-    /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     *
-     * @var string
-     */
-    public $name_de;
+	/**
+	 * The resource's German name.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_de;
 
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     *
-     * @var string
-     */
-    public $name_en;
+	/**
+	 * The resource's English name.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_en;
 
-    /**
-     * A flag which displays whether the program has a restricted number of participants.
-     * TINYINT(1) UNSIGNED NOT NULL
-     *
-     * @var string
-     */
-    public $nc;
+	/**
+	 * A flag which displays whether the program has a restricted number of participants.
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $nc;
 
-    /**
-     * A flag which displays whether the program has special participation requirements
-     * TINYINT(1) UNSIGNED NOT NULL
-     *
-     * @var string
-     */
-    public $special;
+	/**
+	 * A flag which displays whether the program has special participation requirements
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $special;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_programs');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_programs');
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function check(): bool
-    {
-        if (empty($this->alias)) {
-            $this->alias = null;
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function check(): bool
+	{
+		if (empty($this->alias))
+		{
+			$this->alias = null;
+		}
 
-        if (empty($this->categoryID)) {
-            $this->categoryID = null;
-        }
+		if (empty($this->categoryID))
+		{
+			$this->categoryID = null;
+		}
 
-        return true;
-    }
+		return true;
+	}
 }

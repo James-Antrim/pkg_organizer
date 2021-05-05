@@ -18,28 +18,28 @@ use Organizer\Adapters;
  */
 class Screen extends BaseView
 {
-    protected $_layout = 'upcoming_instances';
+	protected $_layout = 'upcoming_instances';
 
-    public $model;
+	public $model;
 
-    /**
-     * Loads persistent data into the view context
-     *
-     * @param   string  $tpl  the name of the template to load
-     *
-     * @return void
-     */
-    public function display($tpl = null)
-    {
-        //https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=upcoming_instances
-        //https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=current_instances
-        //https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=file
-        $this->model = $this->getModel();
+	/**
+	 * Loads persistent data into the view context
+	 *
+	 * @param   string  $tpl  the name of the template to load
+	 *
+	 * @return void
+	 */
+	public function display($tpl = null)
+	{
+		//https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=upcoming_instances
+		//https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=current_instances
+		//https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=file
+		$this->model = $this->getModel();
 
-        $this->setLayout($this->model->layout);
+		$this->setLayout($this->model->layout);
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/screen.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/screen.css');
 
-        parent::display($tpl);
-    }
+		parent::display($tpl);
+	}
 }

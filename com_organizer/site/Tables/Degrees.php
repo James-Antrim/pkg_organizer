@@ -15,30 +15,30 @@ namespace Organizer\Tables;
  */
 class Degrees extends BaseTable
 {
-    use Aliased;
-    use Coded;
+	use Aliased;
+	use Coded;
 
-    /**
-     * The resource's abbreviation.
-     * VARCHAR(45) NOT NULL DEFAULT ''
-     *
-     * @var string
-     */
-    public $abbreviation;
+	/**
+	 * The resource's abbreviation.
+	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $abbreviation;
 
-    /**
-     * The resource's name.
-     * VARCHAR(255) NOT NULL
-     *
-     * @var string
-     */
-    public $name;
+	/**
+	 * The resource's name.
+	 * VARCHAR(255) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_degrees');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_degrees');
+	}
 }

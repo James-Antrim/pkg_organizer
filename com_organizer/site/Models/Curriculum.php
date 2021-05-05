@@ -17,28 +17,31 @@ use Organizer\Helpers;
  */
 class Curriculum extends ItemModel
 {
-    /**
-     * Method to get an array of data items.
-     *
-     * @return mixed  An array of data items on success, false on failure.
-     */
-    public function getItem()
-    {
-        $curriculum = [];
-        if ($poolID = Helpers\Input::getInt('poolID')) {
-            $ranges             = Helpers\Pools::getRanges($poolID);
-            $curriculum['name'] = Helpers\Pools::getName($poolID);
-            $curriculum['type'] = 'pool';
-            $curriculum         += array_pop($ranges);
-            Helpers\Pools::getCurriculum($curriculum);
-        } elseif ($programID = Helpers\Input::getInt('programID')) {
-            $ranges             = Helpers\Programs::getRanges($programID);
-            $curriculum['name'] = Helpers\Programs::getName($programID);
-            $curriculum['type'] = 'program';
-            $curriculum         += array_pop($ranges);
-            Helpers\Programs::getCurriculum($curriculum);
-        }
+	/**
+	 * Method to get an array of data items.
+	 *
+	 * @return mixed  An array of data items on success, false on failure.
+	 */
+	public function getItem()
+	{
+		$curriculum = [];
+		if ($poolID = Helpers\Input::getInt('poolID'))
+		{
+			$ranges             = Helpers\Pools::getRanges($poolID);
+			$curriculum['name'] = Helpers\Pools::getName($poolID);
+			$curriculum['type'] = 'pool';
+			$curriculum         += array_pop($ranges);
+			Helpers\Pools::getCurriculum($curriculum);
+		}
+		elseif ($programID = Helpers\Input::getInt('programID'))
+		{
+			$ranges             = Helpers\Programs::getRanges($programID);
+			$curriculum['name'] = Helpers\Programs::getName($programID);
+			$curriculum['type'] = 'program';
+			$curriculum         += array_pop($ranges);
+			Helpers\Programs::getCurriculum($curriculum);
+		}
 
-        return $curriculum;
-    }
+		return $curriculum;
+	}
 }

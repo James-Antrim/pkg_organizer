@@ -15,11 +15,11 @@ namespace Organizer\Tables;
  */
 trait Activated
 {
-    /**
-     * A flag which displays whether the resource is currently active.
-     * TINYINT(1) UNSIGNED NOT NULL
-     *
-     * @var string
-     */
-    public $active;
+	/**
+	 * A flag which displays whether the resource is currently active.
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $active;
 }

@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Monitors extends Controller
 {
-    protected $listView = 'monitors';
+	protected $listView = 'monitors';
 
-    protected $resource = 'monitor';
+	protected $resource = 'monitor';
 }

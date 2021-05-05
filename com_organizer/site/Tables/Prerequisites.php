@@ -15,27 +15,27 @@ namespace Organizer\Tables;
  */
 class Prerequisites extends BaseTable
 {
-    /**
-     * The id of the subject entry referenced as being a dependency.
-     * INT(11) UNSIGNED NOT NULL
-     *
-     * @var int
-     */
-    public $prerequisiteID;
+	/**
+	 * The id of the subject entry referenced as being a dependency.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $prerequisiteID;
 
-    /**
-     * The id of the subject entry referenced as requiring a dependency.
-     * INT(11) UNSIGNED NOT NULL
-     *
-     * @var int
-     */
-    public $subjectID;
+	/**
+	 * The id of the subject entry referenced as requiring a dependency.
+	 * INT(11) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $subjectID;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_prerequisites');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_prerequisites');
+	}
 }

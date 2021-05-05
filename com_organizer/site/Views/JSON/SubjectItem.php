@@ -17,14 +17,14 @@ use Organizer\Models\SubjectItem as Model;
  */
 class SubjectItem extends BaseView
 {
-    /**
-     * loads model data into view context
-     *
-     * @return void
-     */
-    public function display()
-    {
-        $model = new Model();
-        echo json_encode($model->getItem(), JSON_UNESCAPED_UNICODE);
-    }
+	/**
+	 * loads model data into view context
+	 *
+	 * @return void
+	 */
+	public function display()
+	{
+		$model = new Model();
+		echo json_encode($model->getItem(), JSON_UNESCAPED_UNICODE);
+	}
 }

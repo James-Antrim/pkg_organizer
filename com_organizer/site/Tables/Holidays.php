@@ -17,65 +17,66 @@ use Organizer\Helpers;
  */
 class Holidays extends BaseTable
 {
-    /**
-     * The end date of the resource.
-     * DATE DEFAULT NULL
-     *
-     * @var string
-     */
-    public $endDate;
+	/**
+	 * The end date of the resource.
+	 * DATE DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $endDate;
 
-    /**
-     * The resource's German name.
-     * VARCHAR(150) NOT NULL
-     *
-     * @var string
-     */
-    public $name_de;
+	/**
+	 * The resource's German name.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_de;
 
-    /**
-     * The resource's English name.
-     * VARCHAR(150) NOT NULL
-     *
-     * @var string
-     */
-    public $name_en;
+	/**
+	 * The resource's English name.
+	 * VARCHAR(150) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_en;
 
-    /**
-     * The start date of the resource.
-     * DATE DEFAULT NULL
-     *
-     * @var string
-     */
-    public $startDate;
+	/**
+	 * The start date of the resource.
+	 * DATE DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $startDate;
 
-    /**
-     * The impact of the holiday on the planning process. Values: 1 - Automatic, 2 - Manual, 3 - Unplannable
-     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 3
-     *
-     * @var int
-     */
-    public $type;
+	/**
+	 * The impact of the holiday on the planning process. Values: 1 - Automatic, 2 - Manual, 3 - Unplannable
+	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 3
+	 *
+	 * @var int
+	 */
+	public $type;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_holidays');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_holidays');
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function check(): bool
-    {
-        if ($this->endDate < $this->startDate) {
-            Helpers\OrganizerHelper::message('ORGANIZER_DATE_CHECK', 'error');
+	/**
+	 * @inheritDoc
+	 */
+	public function check(): bool
+	{
+		if ($this->endDate < $this->startDate)
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_DATE_CHECK', 'error');
 
-            return false;
-        }
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 }

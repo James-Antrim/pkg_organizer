@@ -162,7 +162,7 @@ $referrer = Factory::getSession()->get('organizer.checkin.referrer');
     <br>
     <div class="control-group">
         <a class="btn" href="<?php echo $referrer; ?>">
-            <?php echo Languages::_('ORGANIZER_CLOSE'); ?>
+			<?php echo Languages::_('ORGANIZER_CLOSE'); ?>
         </a>
     </div>
 </form>

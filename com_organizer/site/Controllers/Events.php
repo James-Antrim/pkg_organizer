@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Events extends Controller
 {
-    protected $listView = 'events';
+	protected $listView = 'events';
 
-    protected $resource = 'event';
+	protected $resource = 'event';
 }

@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Roomtypes extends Controller
 {
-    protected $listView = 'roomtypes';
+	protected $listView = 'roomtypes';
 
-    protected $resource = 'roomtype';
+	protected $resource = 'roomtype';
 }

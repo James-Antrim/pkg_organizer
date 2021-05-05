@@ -17,14 +17,14 @@ use Organizer\Helpers;
  */
 class TermOptions extends BaseView
 {
-    /**
-     * loads model data into view context
-     *
-     * @return void
-     */
-    public function display()
-    {
-        $showDates = Helpers\Input::getBool('showDates');
-        echo json_encode(Helpers\Terms::getOptions($showDates), JSON_UNESCAPED_UNICODE);
-    }
+	/**
+	 * loads model data into view context
+	 *
+	 * @return void
+	 */
+	public function display()
+	{
+		$showDates = Helpers\Input::getBool('showDates');
+		echo json_encode(Helpers\Terms::getOptions($showDates), JSON_UNESCAPED_UNICODE);
+	}
 }

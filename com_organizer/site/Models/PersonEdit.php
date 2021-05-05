@@ -18,50 +18,51 @@ use Organizer\Tables;
  */
 class PersonEdit extends EditModel
 {
-    protected $association = 'person';
+	protected $association = 'person';
 
-    /**
-     * Checks access to edit the resource.
-     *
-     * @return void
-     */
-    protected function authorize()
-    {
-        if (!Helpers\Can::manage('persons')) {
-            Helpers\OrganizerHelper::error(403);
-        }
-    }
+	/**
+	 * Checks access to edit the resource.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Can::manage('persons'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
 
-    /**
-     * Method to get a single record.
-     *
-     * @param   int  $pk  The id of the primary key.
-     *
-     * @return mixed    Object on success, false on failure.
-     */
-    public function getItem($pk = 0)
-    {
-        $this->item = parent::getItem($pk);
+	/**
+	 * Method to get a single record.
+	 *
+	 * @param   int  $pk  The id of the primary key.
+	 *
+	 * @return mixed    Object on success, false on failure.
+	 */
+	public function getItem($pk = 0)
+	{
+		$this->item = parent::getItem($pk);
 
-        $this->item->organizationID = $this->item->id ?
-            Helpers\Persons::getOrganizationIDs($this->item->id) : [];
+		$this->item->organizationID = $this->item->id ?
+			Helpers\Persons::getOrganizationIDs($this->item->id) : [];
 
-        return $this->item;
-    }
+		return $this->item;
+	}
 
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Tables\Persons A Table object
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return new Tables\Persons;
-    }
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\Persons A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\Persons;
+	}
 }

@@ -21,90 +21,93 @@ use Organizer\Helpers\Languages;
  */
 class Participants extends ListView
 {
-    protected $rowStructure = [
-        'checkbox' => '',
-        'fullName' => 'value',
-        'email'    => 'value',
-        'program'  => 'value',
-        'status'   => 'value',
-        'paid'     => 'value',
-        'attended' => 'value'
-    ];
+	protected $rowStructure = [
+		'checkbox' => '',
+		'fullName' => 'value',
+		'email'    => 'value',
+		'program'  => 'value',
+		'status'   => 'value',
+		'paid'     => 'value',
+		'attended' => 'value'
+	];
 
-    /**
-     * @inheritdoc
-     */
-    protected function addToolBar()
-    {
-        Helpers\HTML::setTitle(Languages::_('ORGANIZER_PARTICIPANTS'), 'users');
+	/**
+	 * @inheritdoc
+	 */
+	protected function addToolBar()
+	{
+		Helpers\HTML::setTitle(Languages::_('ORGANIZER_PARTICIPANTS'), 'users');
 
-        if (Helpers\Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
-            $toolbar->appendButton(
-                'Standard',
-                'edit',
-                Languages::_('ORGANIZER_EDIT'),
-                'participants.edit',
-                true
-            );
-            /*$toolbar->appendButton(
-                'Standard',
-                'contract',
-                Languages::_('ORGANIZER_MERGE'),
-                'participants.mergeView',
-                true
-            );*/
-        }
-    }
+		if (Helpers\Can::administrate())
+		{
+			$toolbar = Toolbar::getInstance();
+			$toolbar->appendButton(
+				'Standard',
+				'edit',
+				Languages::_('ORGANIZER_EDIT'),
+				'participants.edit',
+				true
+			);
+			/*$toolbar->appendButton(
+				'Standard',
+				'contract',
+				Languages::_('ORGANIZER_MERGE'),
+				'participants.mergeView',
+				true
+			);*/
+		}
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument()
-    {
-        parent::modifyDocument();
+	/**
+	 * @inheritDoc
+	 */
+	protected function modifyDocument()
+	{
+		parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
-    }
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+	}
 
-    /**
-     * @inheritdoc
-     */
-    protected function setHeaders()
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
-            'email'    => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
-            'program'  => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering),
-        ];
+	/**
+	 * @inheritdoc
+	 */
+	protected function setHeaders()
+	{
+		$ordering  = $this->state->get('list.ordering');
+		$direction = $this->state->get('list.direction');
+		$headers   = [
+			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
+			'email'    => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
+			'program'  => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering),
+		];
 
-        if ($courseID = Helpers\Input::getFilterID('course') and $courseID !== -1) {
-            $headers['status']   = Helpers\HTML::sort('STATUS', 'status', $direction, $ordering);
-            $headers['paid']     = Helpers\HTML::sort('PAID', 'paid', $direction, $ordering);
-            $headers['attended'] = Helpers\HTML::sort('ATTENDED', 'attended', $direction, $ordering);
-        }
+		if ($courseID = Helpers\Input::getFilterID('course') and $courseID !== -1)
+		{
+			$headers['status']   = Helpers\HTML::sort('STATUS', 'status', $direction, $ordering);
+			$headers['paid']     = Helpers\HTML::sort('PAID', 'paid', $direction, $ordering);
+			$headers['attended'] = Helpers\HTML::sort('ATTENDED', 'attended', $direction, $ordering);
+		}
 
-        $this->headers = $headers;
-    }
+		$this->headers = $headers;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems()
-    {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=participant_edit&id=';
-        $structuredItems = [];
+	/**
+	 * @inheritdoc
+	 */
+	protected function structureItems()
+	{
+		$index           = 0;
+		$link            = 'index.php?option=com_organizer&view=participant_edit&id=';
+		$structuredItems = [];
 
-        foreach ($this->items as $item) {
-            $item->fullName          = $item->forename ? $item->fullName : $item->surname;
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-            $index++;
-        }
+		foreach ($this->items as $item)
+		{
+			$item->fullName          = $item->forename ? $item->fullName : $item->surname;
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+			$index++;
+		}
 
-        $this->items = $structuredItems;
-    }
+		$this->items = $structuredItems;
+	}
 }

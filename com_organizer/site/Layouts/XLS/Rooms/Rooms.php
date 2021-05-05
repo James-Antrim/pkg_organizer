@@ -14,30 +14,30 @@ use Organizer\Layouts\XLS\BaseLayout;
 
 class Rooms extends BaseLayout
 {
-    /**
-     * @inheritDoc
-     */
-    public function fill()
-    {
-        // TODO: Implement fill() method.
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function fill()
+	{
+		// TODO: Implement fill() method.
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getDescription(): string
-    {
-        // TODO: Implement getDescription() method.
-        return 'Default description.';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getDescription(): string
+	{
+		// TODO: Implement getDescription() method.
+		return 'Default description.';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getTitle(): string
-    {
-        // TODO: Implement getTitle() method.
-        return 'Default title.';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getTitle(): string
+	{
+		// TODO: Implement getTitle() method.
+		return 'Default title.';
+	}
 
 }

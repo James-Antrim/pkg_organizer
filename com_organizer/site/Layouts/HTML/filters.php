@@ -19,20 +19,21 @@ $showFilterButton  = false;
 $showSelector      = false;
 
 // If a filter form exists.
-if (isset($this->filterForm) && !empty($this->filterForm)) {
-    // Checks if the filters button should exist.
-    $filters          = $this->filterForm->getGroup('filter');
-    $showFilterButton = empty($filters['filter_search']) ? (bool)count($filters) : count($filters) > 1;
+if (isset($this->filterForm) && !empty($this->filterForm))
+{
+	// Checks if the filters button should exist.
+	$filters          = $this->filterForm->getGroup('filter');
+	$showFilterButton = empty($filters['filter_search']) ? (bool) count($filters) : count($filters) > 1;
 
-    // Checks if it should show the be hidden.
-    $hideActiveFilters = empty($this->activeFilters);
+	// Checks if it should show the be hidden.
+	$hideActiveFilters = empty($this->activeFilters);
 }
 
 // Set some basic options.
 $options['filtersHidden']       = $hideActiveFilters;
 $options['filterButton']        = $showFilterButton;
 $options['defaultLimit']        = isset($options['defaultLimit']) ?
-    $options['defaultLimit'] : $this->state->get('list.limit');
+	$options['defaultLimit'] : $this->state->get('list.limit');
 $options['searchFieldSelector'] = '#filter_search';
 $options['orderFieldSelector']  = '#list_fullordering';
 
@@ -45,16 +46,16 @@ Helpers\HTML::_('searchtools.form', '#adminForm', $options);
 <div class="js-stools clearfix">
     <div class="clearfix">
         <div class="js-stools-container-bar">
-            <?php require_once 'filters-search.php'; ?>
+			<?php require_once 'filters-search.php'; ?>
         </div>
         <div class="js-stools-container-list hidden-phone hidden-tablet">
-            <?php require_once 'filters-list.php'; ?>
+			<?php require_once 'filters-list.php'; ?>
         </div>
     </div>
     <!-- Filters div -->
-    <?php if ($options['filterButton']) : ?>
+	<?php if ($options['filterButton']) : ?>
         <div class="js-stools-container-filters hidden-phone clearfix<?php echo $filtersActiveClass; ?>">
-            <?php require_once 'filters-filter.php'; ?>
+			<?php require_once 'filters-filter.php'; ?>
         </div>
-    <?php endif; ?>
+	<?php endif; ?>
 </div>

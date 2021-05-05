@@ -18,63 +18,66 @@ use Organizer\Tables;
  */
 class FieldColor extends BaseModel
 {
-    /**
-     * Authorizes the user.
-     *
-     * @return void
-     */
-    protected function authorize()
-    {
-        if ($organizationID = Helpers\Input::getInt('organizationID')
-            and Helpers\Can::document('organization', $organizationID)
-        ) {
-            return;
-        }
+	/**
+	 * Authorizes the user.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		if ($organizationID = Helpers\Input::getInt('organizationID')
+			and Helpers\Can::document('organization', $organizationID)
+		)
+		{
+			return;
+		}
 
-        if ($fcID = Helpers\Input::getID() and Helpers\Can::document('fieldcolor', $fcID)) {
-            return;
-        }
+		if ($fcID = Helpers\Input::getID() and Helpers\Can::document('fieldcolor', $fcID))
+		{
+			return;
+		}
 
-        Helpers\OrganizerHelper::error(403);
-    }
+		Helpers\OrganizerHelper::error(403);
+	}
 
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Tables\FieldColors A Table object
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return new Tables\FieldColors;
-    }
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\FieldColors A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\FieldColors;
+	}
 
-    /**
-     * Attempts to save the resource.
-     *
-     * @param   array  $data  the data from the form
-     *
-     * @return mixed int id of the resource on success, otherwise bool false
-     */
-    public function save($data = [])
-    {
-        $this->authorize();
+	/**
+	 * Attempts to save the resource.
+	 *
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return mixed int id of the resource on success, otherwise bool false
+	 */
+	public function save($data = [])
+	{
+		$this->authorize();
 
-        $data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-        $table = $this->getTable();
+		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$table = $this->getTable();
 
-        if (empty($data['id'])) {
-            return $table->save($data) ? $table->id : false;
-        }
+		if (empty($data['id']))
+		{
+			return $table->save($data) ? $table->id : false;
+		}
 
-        $table->load($data['id']);
-        $table->colorID = $data['colorID'];
+		$table->load($data['id']);
+		$table->colorID = $data['colorID'];
 
-        return $table->store();
-    }
+		return $table->store();
+	}
 }

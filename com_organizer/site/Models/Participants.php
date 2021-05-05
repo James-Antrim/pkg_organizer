@@ -18,63 +18,66 @@ use Organizer\Helpers;
  */
 class Participants extends ListModel
 {
-    protected $defaultOrdering = 'fullName';
+	protected $defaultOrdering = 'fullName';
 
-    protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
+	protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
-    /**
-     * @inheritDoc
-     */
-    protected function getListQuery()
-    {
-        $tag   = Helpers\Languages::getTag();
-        $query = $this->_db->getQuery(true);
+	/**
+	 * @inheritDoc
+	 */
+	protected function getListQuery()
+	{
+		$tag   = Helpers\Languages::getTag();
+		$query = $this->_db->getQuery(true);
 
-        $programParts = ["pr.name_$tag", "' ('", 'd.abbreviation', "' '", 'pr.accredited', "')'"];
-        $query->select('DISTINCT pa.id, pa.*, u.email')
-            ->select($query->concatenate(['pa.surname', "', '", 'pa.forename'], '') . ' AS fullName')
-            ->from('#__organizer_participants AS pa')
-            ->innerJoin('#__users AS u ON u.id = pa.id')
-            ->leftJoin('#__organizer_programs AS pr ON pr.id = pa.programID')
-            ->leftJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
-            ->select($query->concatenate($programParts, '') . ' AS program');
+		$programParts = ["pr.name_$tag", "' ('", 'd.abbreviation', "' '", 'pr.accredited', "')'"];
+		$query->select('DISTINCT pa.id, pa.*, u.email')
+			->select($query->concatenate(['pa.surname', "', '", 'pa.forename'], '') . ' AS fullName')
+			->from('#__organizer_participants AS pa')
+			->innerJoin('#__users AS u ON u.id = pa.id')
+			->leftJoin('#__organizer_programs AS pr ON pr.id = pa.programID')
+			->leftJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
+			->select($query->concatenate($programParts, '') . ' AS program');
 
-        $this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
-        $this->setValueFilters($query, ['programID']);
+		$this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
+		$this->setValueFilters($query, ['programID']);
 
-        if ($this->state->get('filter.duplicates')) {
-            $likePAFN   = $query->concatenate(["'%'", 'TRIM(pa.forename)', "'%'"], '');
-            $likePA2FN  = $query->concatenate(["'%'", 'TRIM(pa2.forename)', "'%'"], '');
-            $conditions = "((pa.forename LIKE $likePA2FN OR pa2.forename LIKE $likePAFN)";
+		if ($this->state->get('filter.duplicates'))
+		{
+			$likePAFN   = $query->concatenate(["'%'", 'TRIM(pa.forename)', "'%'"], '');
+			$likePA2FN  = $query->concatenate(["'%'", 'TRIM(pa2.forename)', "'%'"], '');
+			$conditions = "((pa.forename LIKE $likePA2FN OR pa2.forename LIKE $likePAFN)";
 
-            $conditions .= " AND ";
+			$conditions .= " AND ";
 
-            $likePASN   = $query->concatenate(["'%'", 'TRIM(pa.surname)', "'%'"], '');
-            $likePA2SN  = $query->concatenate(["'%'", 'TRIM(pa2.surname)', "'%'"], '');
-            $conditions .= "(pa.surname LIKE $likePA2SN OR pa2.surname LIKE $likePASN))";
-            $query->leftJoin("#__organizer_participants AS pa2 ON $conditions")
-                ->where('pa.id != pa2.id')
-                ->group('pa.id');
-        }
+			$likePASN   = $query->concatenate(["'%'", 'TRIM(pa.surname)', "'%'"], '');
+			$likePA2SN  = $query->concatenate(["'%'", 'TRIM(pa2.surname)', "'%'"], '');
+			$conditions .= "(pa.surname LIKE $likePA2SN OR pa2.surname LIKE $likePASN))";
+			$query->leftJoin("#__organizer_participants AS pa2 ON $conditions")
+				->where('pa.id != pa2.id')
+				->group('pa.id');
+		}
 
-        $this->setOrdering($query);
+		$this->setOrdering($query);
 
-        if (!$this->adminContext) {
-            $query->setLimit(0);
-        }
+		if (!$this->adminContext)
+		{
+			$query->setLimit(0);
+		}
 
-        return $query;
-    }
+		return $query;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function populateState($ordering = null, $direction = null)
-    {
-        parent::populateState($ordering, $direction);
+	/**
+	 * @inheritDoc
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		parent::populateState($ordering, $direction);
 
-        if ($courseID = Helpers\Input::getFilterID('course')) {
-            $this->setState('filter.courseID', $courseID);
-        }
-    }
+		if ($courseID = Helpers\Input::getFilterID('course'))
+		{
+			$this->setState('filter.courseID', $courseID);
+		}
+	}
 }

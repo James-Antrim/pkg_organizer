@@ -18,123 +18,128 @@ use Organizer\Helpers;
  */
 class Schedules extends ListView
 {
-    protected $rowStructure = [
-        'checkbox'         => '',
-        'organizationName' => 'value',
-        'termName'         => 'value',
-        'userName'         => 'value',
-        'created'          => 'value'
-    ];
+	protected $rowStructure = [
+		'checkbox'         => '',
+		'organizationName' => 'value',
+		'termName'         => 'value',
+		'userName'         => 'value',
+		'created'          => 'value'
+	];
 
-    /**
-     * @inheritdoc
-     */
-    protected function addToolBar()
-    {
-        Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_SCHEDULES'), 'calendars');
-        $admin   = Helpers\Can::administrate();
-        $toolbar = Toolbar::getInstance();
+	/**
+	 * @inheritdoc
+	 */
+	protected function addToolBar()
+	{
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_SCHEDULES'), 'calendars');
+		$admin   = Helpers\Can::administrate();
+		$toolbar = Toolbar::getInstance();
 
-        $toolbar->appendButton(
-            'Standard',
-            'upload',
-            Helpers\Languages::_('ORGANIZER_UPLOAD'),
-            'schedules.edit',
-            false
-        );
+		$toolbar->appendButton(
+			'Standard',
+			'upload',
+			Helpers\Languages::_('ORGANIZER_UPLOAD'),
+			'schedules.edit',
+			false
+		);
 
-        if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID')) {
-            /*$toolbar->appendButton(
-                'Standard',
-                'envelope',
-                Helpers\Languages::_('ORGANIZER_NOTIFY_CHANGES'),
-                'schedules.notify',
-                true
-            );*/
+		if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID'))
+		{
+			/*$toolbar->appendButton(
+				'Standard',
+				'envelope',
+				Helpers\Languages::_('ORGANIZER_NOTIFY_CHANGES'),
+				'schedules.notify',
+				true
+			);*/
 
-            $toolbar->appendButton(
-                'Confirm',
-                Helpers\Languages::_('ORGANIZER_REFERENCE_CONFIRM'),
-                'share-alt',
-                Helpers\Languages::_('ORGANIZER_REFERENCE'),
-                'schedules.reference',
-                true
-            );
+			$toolbar->appendButton(
+				'Confirm',
+				Helpers\Languages::_('ORGANIZER_REFERENCE_CONFIRM'),
+				'share-alt',
+				Helpers\Languages::_('ORGANIZER_REFERENCE'),
+				'schedules.reference',
+				true
+			);
 
-            if ($admin) {
-                $toolbar->appendButton(
-                    'Standard',
-                    'loop',
-                    Helpers\Languages::_('ORGANIZER_REBUILD'),
-                    'schedules.rebuild',
-                    false
-                );
+			if ($admin)
+			{
+				$toolbar->appendButton(
+					'Standard',
+					'loop',
+					Helpers\Languages::_('ORGANIZER_REBUILD'),
+					'schedules.rebuild',
+					false
+				);
 
-                $toolbar->appendButton(
-                    'Confirm',
-                    Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-                    'delete',
-                    Helpers\Languages::_('ORGANIZER_DELETE'),
-                    'schedules.delete',
-                    true
-                );
-            }
-        }
+				$toolbar->appendButton(
+					'Confirm',
+					Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+					'delete',
+					Helpers\Languages::_('ORGANIZER_DELETE'),
+					'schedules.delete',
+					true
+				);
+			}
+		}
 
-        if ($admin) {
-            $toolbar->appendButton(
-                'Standard',
-                'filter',
-                'Filter Relevance',
-                'schedules.filterRelevance',
-                false
-            );
-        }
-    }
+		if ($admin)
+		{
+			$toolbar->appendButton(
+				'Standard',
+				'filter',
+				'Filter Relevance',
+				'schedules.filterRelevance',
+				false
+			);
+		}
+	}
 
-    /**
-     * @inheritdoc
-     */
-    protected function authorize()
-    {
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
-            Helpers\OrganizerHelper::error(403);
-        }
-    }
+	/**
+	 * @inheritdoc
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Can::scheduleTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function setHeaders()
-    {
-        $headers = [
-            'checkbox'         => Helpers\HTML::_('grid.checkall'),
-            'organizationName' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
-            'termName'         => Helpers\Languages::_('ORGANIZER_TERM'),
-            'userName'         => Helpers\Languages::_('ORGANIZER_USERNAME'),
-            'created'          => Helpers\Languages::_('ORGANIZER_CREATION_DATE')
-        ];
+	/**
+	 * @inheritdoc
+	 */
+	public function setHeaders()
+	{
+		$headers = [
+			'checkbox'         => Helpers\HTML::_('grid.checkall'),
+			'organizationName' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
+			'termName'         => Helpers\Languages::_('ORGANIZER_TERM'),
+			'userName'         => Helpers\Languages::_('ORGANIZER_USERNAME'),
+			'created'          => Helpers\Languages::_('ORGANIZER_CREATION_DATE')
+		];
 
-        $this->headers = $headers;
-    }
+		$this->headers = $headers;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems()
-    {
-        $index           = 0;
-        $structuredItems = [];
+	/**
+	 * @inheritdoc
+	 */
+	protected function structureItems()
+	{
+		$index           = 0;
+		$structuredItems = [];
 
-        foreach ($this->items as $item) {
-            $creationDate  = Helpers\Dates::formatDate($item->creationDate);
-            $creationTime  = Helpers\Dates::formatTime($item->creationTime);
-            $item->created = "$creationDate / $creationTime";
+		foreach ($this->items as $item)
+		{
+			$creationDate  = Helpers\Dates::formatDate($item->creationDate);
+			$creationTime  = Helpers\Dates::formatTime($item->creationTime);
+			$item->created = "$creationDate / $creationTime";
 
-            $structuredItems[$index] = $this->structureItem($index, $item);
-            $index++;
-        }
+			$structuredItems[$index] = $this->structureItem($index, $item);
+			$index++;
+		}
 
-        $this->items = $structuredItems;
-    }
+		$this->items = $structuredItems;
+	}
 }

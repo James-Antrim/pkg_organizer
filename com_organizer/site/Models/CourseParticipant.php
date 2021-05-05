@@ -21,211 +21,237 @@ use Organizer\Tables;
  */
 class CourseParticipant extends BaseModel
 {
-    private const ACCEPTED = 1, WAITLIST = 0;
+	private const ACCEPTED = 1, WAITLIST = 0;
 
-    /**
-     * Sets the status for the course participant to accepted
-     *
-     * @return bool true on success, otherwise false
-     * @throws Exception
-     */
-    public function accept()
-    {
-        return $this->batch('status', self::ACCEPTED);
-    }
+	/**
+	 * Sets the status for the course participant to accepted
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception
+	 */
+	public function accept()
+	{
+		return $this->batch('status', self::ACCEPTED);
+	}
 
-    /**
-     * Sets the property the given property to the given value for the selected participants.
-     *
-     * @param   string  $property  the property to update
-     * @param   mixed   $value     the new value for the property
-     *
-     * @return bool true on success, otherwise false
-     * @throws Exception
-     */
-    private function batch(string $property, $value)
-    {
-        if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs()) {
-            return false;
-        }
+	/**
+	 * Sets the property the given property to the given value for the selected participants.
+	 *
+	 * @param   string  $property  the property to update
+	 * @param   mixed   $value     the new value for the property
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception
+	 */
+	private function batch(string $property, $value)
+	{
+		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
+		{
+			return false;
+		}
 
-        if (!Helpers\Can::manage('course', $courseID)) {
-            Helpers\OrganizerHelper::error(403);
-        }
+		if (!Helpers\Can::manage('course', $courseID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 
-        foreach ($participantIDs as $participantID) {
-            if (!Helpers\Can::manage('participant', $participantID)) {
-                Helpers\OrganizerHelper::error(403);
-            }
+		foreach ($participantIDs as $participantID)
+		{
+			if (!Helpers\Can::manage('participant', $participantID))
+			{
+				Helpers\OrganizerHelper::error(403);
+			}
 
-            $table = $this->getTable();
+			$table = $this->getTable();
 
-            if (!$table->load(['courseID' => $courseID, 'participantID' => $participantID])) {
-                return false;
-            }
+			if (!$table->load(['courseID' => $courseID, 'participantID' => $participantID]))
+			{
+				return false;
+			}
 
-            if ($table->$property === $value) {
-                continue;
-            }
+			if ($table->$property === $value)
+			{
+				continue;
+			}
 
-            $table->$property = $value;
+			$table->$property = $value;
 
-            if (!$table->store()) {
-                return false;
-            }
+			if (!$table->store())
+			{
+				return false;
+			}
 
-            if ($property === 'status') {
-                Helpers\Mailer::registrationUpdate($courseID, $participantID, $value);
-            }
-        }
+			if ($property === 'status')
+			{
+				Helpers\Mailer::registrationUpdate($courseID, $participantID, $value);
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return new Tables\CourseParticipants();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\CourseParticipants();
+	}
 
-    /**
-     * Sends a circular mail to all course participants.
-     *
-     * @return bool true on success, false on error
-     */
-    public function notify()
-    {
-        if (!$courseID = Input::getID()) {
-            return false;
-        }
+	/**
+	 * Sends a circular mail to all course participants.
+	 *
+	 * @return bool true on success, false on error
+	 */
+	public function notify()
+	{
+		if (!$courseID = Input::getID())
+		{
+			return false;
+		}
 
-        if (!Helpers\Can::manage('course', $courseID)) {
-            Helpers\OrganizerHelper::error(403);
-        }
+		if (!Helpers\Can::manage('course', $courseID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 
-        $courseParticipants   = Helpers\Courses::getParticipantIDs($courseID);
-        $selectedParticipants = Input::getInput()->get('cids', [], 'array');
+		$courseParticipants   = Helpers\Courses::getParticipantIDs($courseID);
+		$selectedParticipants = Input::getInput()->get('cids', [], 'array');
 
-        if (empty($courseParticipants) and empty($selectedParticipants)) {
-            return false;
-        }
+		if (empty($courseParticipants) and empty($selectedParticipants))
+		{
+			return false;
+		}
 
-        $participantIDs = $selectedParticipants ? $selectedParticipants : $courseParticipants;
+		$participantIDs = $selectedParticipants ? $selectedParticipants : $courseParticipants;
 
-        $form = Input::getBatchItems();
-        if (!$subject = trim($form->get('subject', '')) or !$body = trim($form->get('body', ''))) {
-            return false;
-        }
+		$form = Input::getBatchItems();
+		if (!$subject = trim($form->get('subject', '')) or !$body = trim($form->get('body', '')))
+		{
+			return false;
+		}
 
-        foreach ($participantIDs as $participantID) {
-            Helpers\Mailer::notifyParticipant($participantID, $subject, $body);
-        }
+		foreach ($participantIDs as $participantID)
+		{
+			Helpers\Mailer::notifyParticipant($participantID, $subject, $body);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * Sets the payment status to paid.
-     *
-     * @return bool true on success, otherwise false
-     */
-    public function remove()
-    {
-        if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs()) {
-            return false;
-        }
+	/**
+	 * Sets the payment status to paid.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function remove()
+	{
+		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
+		{
+			return false;
+		}
 
-        if (!Helpers\Can::manage('course', $courseID)) {
-            Helpers\OrganizerHelper::error(403);
-        }
+		if (!Helpers\Can::manage('course', $courseID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 
-        $dates = Helpers\Courses::getDates($courseID);
+		$dates = Helpers\Courses::getDates($courseID);
 
-        if (empty($dates['endDate']) or $dates['endDate'] < date('Y-m-d')) {
-            return false;
-        }
+		if (empty($dates['endDate']) or $dates['endDate'] < date('Y-m-d'))
+		{
+			return false;
+		}
 
-        $instanceIDs = Helpers\Courses::getInstanceIDs($courseID);
-        $instanceIDs = implode(',', $instanceIDs);
+		$instanceIDs = Helpers\Courses::getInstanceIDs($courseID);
+		$instanceIDs = implode(',', $instanceIDs);
 
-        foreach ($participantIDs as $participantID) {
-            if (!Helpers\Can::manage('participant', $participantID)) {
-                Helpers\OrganizerHelper::error(403);
-            }
+		foreach ($participantIDs as $participantID)
+		{
+			if (!Helpers\Can::manage('participant', $participantID))
+			{
+				Helpers\OrganizerHelper::error(403);
+			}
 
-            $courseParticipant = new Tables\CourseParticipants();
-            $cpData            = ['courseID' => $courseID, 'participantID' => $participantID];
+			$courseParticipant = new Tables\CourseParticipants();
+			$cpData            = ['courseID' => $courseID, 'participantID' => $participantID];
 
-            if (!$courseParticipant->load($cpData) or !$courseParticipant->delete()) {
-                return false;
-            }
+			if (!$courseParticipant->load($cpData) or !$courseParticipant->delete())
+			{
+				return false;
+			}
 
-            // TODO Only delete associations to future instances
-            $query = Database::getQuery();
-            $query->delete('#__organizer_instance_participants')
-                ->where("instanceID IN ($instanceIDs)")
-                ->where("participantID = $participantID");
-            Database::setQuery($query);
+			// TODO Only delete associations to future instances
+			$query = Database::getQuery();
+			$query->delete('#__organizer_instance_participants')
+				->where("instanceID IN ($instanceIDs)")
+				->where("participantID = $participantID");
+			Database::setQuery($query);
 
-            if (!Database::execute()) {
-                return false;
-            }
+			if (!Database::execute())
+			{
+				return false;
+			}
 
-            Helpers\Mailer::registrationUpdate($courseID, $participantID, null);
-        }
+			Helpers\Mailer::registrationUpdate($courseID, $participantID, null);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function toggle(): bool
-    {
-        $attribute     = Input::getCMD('attribute', '');
-        $courseID      = Input::getInt('courseID', 0);
-        $participantID = Input::getInt('participantID', 0);
+	/**
+	 * @inheritDoc
+	 */
+	public function toggle(): bool
+	{
+		$attribute     = Input::getCMD('attribute', '');
+		$courseID      = Input::getInt('courseID', 0);
+		$participantID = Input::getInt('participantID', 0);
 
-        if (!$attribute or !$courseID or !$participantID) {
-            return false;
-        }
+		if (!$attribute or !$courseID or !$participantID)
+		{
+			return false;
+		}
 
-        if (!Helpers\Can::manage('course', $courseID) or !Helpers\Can::manage('participant', $participantID)) {
-            Helpers\OrganizerHelper::error(403);
-        }
+		if (!Helpers\Can::manage('course', $courseID) or !Helpers\Can::manage('participant', $participantID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 
-        $table = $this->getTable();
-        if (!property_exists($table, $attribute)) {
-            return false;
-        }
+		$table = $this->getTable();
+		if (!property_exists($table, $attribute))
+		{
+			return false;
+		}
 
-        if (!$table->load(['courseID' => $courseID, 'participantID' => $participantID])) {
-            return false;
-        }
+		if (!$table->load(['courseID' => $courseID, 'participantID' => $participantID]))
+		{
+			return false;
+		}
 
-        $table->$attribute = !$table->$attribute;
+		$table->$attribute = !$table->$attribute;
 
-        if (!$table->store()) {
-            return false;
-        }
+		if (!$table->store())
+		{
+			return false;
+		}
 
-        if ($attribute === 'status') {
-            Helpers\Mailer::registrationUpdate($courseID, $participantID, $table->$attribute);
-        }
+		if ($attribute === 'status')
+		{
+			Helpers\Mailer::registrationUpdate($courseID, $participantID, $table->$attribute);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * Sets the status for the course participant to accepted
-     *
-     * @return bool true on success, otherwise false
-     * @throws Exception
-     */
-    public function waitlist()
-    {
-        return $this->batch('status', self::WAITLIST);
-    }
+	/**
+	 * Sets the status for the course participant to accepted
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception
+	 */
+	public function waitlist()
+	{
+		return $this->batch('status', self::WAITLIST);
+	}
 }

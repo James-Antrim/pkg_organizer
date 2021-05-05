@@ -15,133 +15,135 @@ namespace Organizer\Tables;
  */
 class Pools extends BaseTable
 {
-    use Aliased;
+	use Aliased;
 
-    /**
-     * The resource's German abbreviation.
-     * VARCHAR(25) NOT NULL DEFAULT ''
-     *
-     * @var string
-     */
-    public $abbreviation_de;
+	/**
+	 * The resource's German abbreviation.
+	 * VARCHAR(25) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $abbreviation_de;
 
-    /**
-     * The resource's English abbreviation.
-     * VARCHAR(25) NOT NULL DEFAULT ''
-     *
-     * @var string
-     */
-    public $abbreviation_en;
+	/**
+	 * The resource's English abbreviation.
+	 * VARCHAR(25) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $abbreviation_en;
 
-    /**
-     * The resource's German description.
-     * TEXT
-     *
-     * @var string
-     */
-    public $description_de;
+	/**
+	 * The resource's German description.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $description_de;
 
-    /**
-     * The resource's English description.
-     * TEXT
-     *
-     * @var string
-     */
-    public $description_en;
+	/**
+	 * The resource's English description.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $description_en;
 
-    /**
-     * The id of the field entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $fieldID;
+	/**
+	 * The id of the field entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $fieldID;
 
-    /**
-     * The resource's German name.
-     * VARCHAR(255) NOT NULL
-     *
-     * @var string
-     */
-    public $fullName_de;
+	/**
+	 * The resource's German name.
+	 * VARCHAR(255) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fullName_de;
 
-    /**
-     * The resource's English name.
-     * VARCHAR(255) NOT NULL
-     *
-     * @var string
-     */
-    public $fullName_en;
+	/**
+	 * The resource's English name.
+	 * VARCHAR(255) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $fullName_en;
 
-    /**
-     * The id of the group entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $groupID;
+	/**
+	 * The id of the group entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $groupID;
 
-    /**
-     * The id of the entry in the LSF software module.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $lsfID;
+	/**
+	 * The id of the entry in the LSF software module.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $lsfID;
 
-    /**
-     * The maximum credit points required to be achieved in subjects of this pool.
-     * INT(3) UNSIGNED DEFAULT 0
-     *
-     * @var int
-     */
-    public $maxCrP;
+	/**
+	 * The maximum credit points required to be achieved in subjects of this pool.
+	 * INT(3) UNSIGNED DEFAULT 0
+	 *
+	 * @var int
+	 */
+	public $maxCrP;
 
-    /**
-     * The minimum credit points required to be achieved in subjects of this pool.
-     * INT(3) UNSIGNED DEFAULT 0
-     *
-     * @var int
-     */
-    public $minCrP;
+	/**
+	 * The minimum credit points required to be achieved in subjects of this pool.
+	 * INT(3) UNSIGNED DEFAULT 0
+	 *
+	 * @var int
+	 */
+	public $minCrP;
 
-    /**
-     * The resource's German shortened name.
-     * VARCHAR(50) DEFAULT ''
-     *
-     * @var string
-     */
-    public $shortName_de;
+	/**
+	 * The resource's German shortened name.
+	 * VARCHAR(50) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $shortName_de;
 
-    /**
-     * The resource's English shortened name.
-     * VARCHAR(50) DEFAULT ''
-     *
-     * @var string
-     */
-    public $shortName_en;
+	/**
+	 * The resource's English shortened name.
+	 * VARCHAR(50) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $shortName_en;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_pools');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_pools');
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function check(): bool
-    {
-        // These can be blank, but non-empty values should be unique.
-        $nullColumns = ['alias', 'groupID', 'fieldID', 'lsfID'];
-        foreach ($nullColumns as $nullColumn) {
-            if (!strlen($this->$nullColumn)) {
-                $this->$nullColumn = null;
-            }
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function check(): bool
+	{
+		// These can be blank, but non-empty values should be unique.
+		$nullColumns = ['alias', 'groupID', 'fieldID', 'lsfID'];
+		foreach ($nullColumns as $nullColumn)
+		{
+			if (!strlen($this->$nullColumn))
+			{
+				$this->$nullColumn = null;
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 }

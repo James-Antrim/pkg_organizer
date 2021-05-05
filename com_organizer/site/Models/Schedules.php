@@ -18,56 +18,57 @@ use Organizer\Helpers;
  */
 class Schedules extends ListModel
 {
-    protected $filter_fields = ['organizationID', 'termID'];
+	protected $filter_fields = ['organizationID', 'termID'];
 
-    /**
-     * Method to get a list of resources from the database.
-     *
-     * @return JDatabaseQuery
-     */
-    protected function getListQuery()
-    {
-        $dbo   = $this->getDbo();
-        $tag   = Helpers\Languages::getTag();
-        $query = $dbo->getQuery(true);
+	/**
+	 * Method to get a list of resources from the database.
+	 *
+	 * @return JDatabaseQuery
+	 */
+	protected function getListQuery()
+	{
+		$dbo   = $this->getDbo();
+		$tag   = Helpers\Languages::getTag();
+		$query = $dbo->getQuery(true);
 
-        $createdParts = ['s.creationDate', 's.creationTime'];
-        $query->select('s.id, s.creationDate, s.creationTime')
-            ->select($query->concatenate($createdParts, ' ') . ' AS created ')
-            ->select("o.id AS organizationID, o.shortName_$tag AS organizationName")
-            ->select("term.id AS termID, term.name_$tag AS termName")
-            ->select('u.name AS userName')
-            ->from('#__organizer_schedules AS s')
-            ->innerJoin('#__organizer_organizations AS o ON o.id = s.organizationID')
-            ->innerJoin('#__organizer_terms AS term ON term.id = s.termID')
-            ->leftJoin('#__users AS u ON u.id = s.userID')
-            ->order('created DESC');
+		$createdParts = ['s.creationDate', 's.creationTime'];
+		$query->select('s.id, s.creationDate, s.creationTime')
+			->select($query->concatenate($createdParts, ' ') . ' AS created ')
+			->select("o.id AS organizationID, o.shortName_$tag AS organizationName")
+			->select("term.id AS termID, term.name_$tag AS termName")
+			->select('u.name AS userName')
+			->from('#__organizer_schedules AS s')
+			->innerJoin('#__organizer_organizations AS o ON o.id = s.organizationID')
+			->innerJoin('#__organizer_terms AS term ON term.id = s.termID')
+			->leftJoin('#__users AS u ON u.id = s.userID')
+			->order('created DESC');
 
-        $authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
-        $query->where("o.id IN ($authorized)");
+		$authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
+		$query->where("o.id IN ($authorized)");
 
-        $this->setValueFilters($query, ['organizationID', 'termID']);
+		$this->setValueFilters($query, ['organizationID', 'termID']);
 
-        return $query;
-    }
+		return $query;
+	}
 
-    /**
-     * Method to auto-populate the model state.
-     *
-     * @param   string  $ordering   An optional ordering field.
-     * @param   string  $direction  An optional direction (asc|desc).
-     *
-     * @return void populates state properties
-     */
-    protected function populateState($ordering = null, $direction = null)
-    {
-        parent::populateState($ordering, $direction);
+	/**
+	 * Method to auto-populate the model state.
+	 *
+	 * @param   string  $ordering   An optional ordering field.
+	 * @param   string  $direction  An optional direction (asc|desc).
+	 *
+	 * @return void populates state properties
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		parent::populateState($ordering, $direction);
 
-        $app     = Helpers\OrganizerHelper::getApplication();
-        $filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
+		$app     = Helpers\OrganizerHelper::getApplication();
+		$filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
 
-        if (!array_key_exists('active', $filters) or $filters['active'] === '') {
-            $this->setState('filter.active', -1);
-        }
-    }
+		if (!array_key_exists('active', $filters) or $filters['active'] === '')
+		{
+			$this->setState('filter.active', -1);
+		}
+	}
 }

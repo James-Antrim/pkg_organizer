@@ -12,21 +12,22 @@ namespace Organizer\Fields;
 
 trait Dependent
 {
-    /**
-     * Suppresses field display when there are no options available because of context dependencies.
-     *
-     * @return  string  The field input markup.
-     */
-    protected function getInput()
-    {
-        $this->options = (array)$this->getOptions();
-        $parentOptions = parent::getOptions();
+	/**
+	 * Suppresses field display when there are no options available because of context dependencies.
+	 *
+	 * @return  string  The field input markup.
+	 */
+	protected function getInput()
+	{
+		$this->options = (array) $this->getOptions();
+		$parentOptions = parent::getOptions();
 
-        if (count($this->options) === count($parentOptions)) {
-            return '';
-        }
+		if (count($this->options) === count($parentOptions))
+		{
+			return '';
+		}
 
-        return parent::getInput();
-    }
+		return parent::getInput();
+	}
 
 }

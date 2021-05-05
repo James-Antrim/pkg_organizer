@@ -15,63 +15,64 @@ namespace Organizer\Tables;
  */
 class InstanceParticipants extends BaseTable
 {
-    /**
-     * Whether or not the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
-     * TINYINT(1) UNSIGNED DEFAULT 0
-     *
-     * @var bool
-     */
-    public $attended;
+	/**
+	 * Whether or not the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
+	 * TINYINT(1) UNSIGNED DEFAULT 0
+	 *
+	 * @var bool
+	 */
+	public $attended;
 
-    /**
-     * The id of the instance entry referenced.
-     * INT(20) UNSIGNED NOT NULL
-     *
-     * @var int
-     */
-    public $instanceID;
+	/**
+	 * The id of the instance entry referenced.
+	 * INT(20) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $instanceID;
 
-    /**
-     * The id of the participant entry referenced.
-     * INT(11) NOT NULL
-     *
-     * @var int
-     */
-    public $participantID;
+	/**
+	 * The id of the participant entry referenced.
+	 * INT(11) NOT NULL
+	 *
+	 * @var int
+	 */
+	public $participantID;
 
-    /**
-     * The id of the room entry referenced.
-     * INT(11) UNSIGNED DEFAULT NULL
-     *
-     * @var int
-     */
-    public $roomID;
+	/**
+	 * The id of the room entry referenced.
+	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * @var int
+	 */
+	public $roomID;
 
-    /**
-     * The id of the room entry referenced.
-     * VARCHAR(60) NOT NULL DEFAULT ''
-     *
-     * @var string
-     */
-    public $seat;
+	/**
+	 * The id of the room entry referenced.
+	 * VARCHAR(60) NOT NULL DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $seat;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_instance_participants');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_instance_participants');
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function check(): bool
-    {
-        if (empty($this->roomID)) {
-            $this->roomID = null;
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function check(): bool
+	{
+		if (empty($this->roomID))
+		{
+			$this->roomID = null;
+		}
 
-        return true;
-    }
+		return true;
+	}
 }

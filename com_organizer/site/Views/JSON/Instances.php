@@ -17,15 +17,15 @@ use Organizer\Helpers;
  */
 class Instances extends BaseView
 {
-    /**
-     * loads model data into view context
-     *
-     * @return void
-     */
-    public function display()
-    {
-        $conditions = Helpers\Instances::getConditions();
-        $items      = Helpers\Instances::getItems($conditions);
-        echo json_encode($items, JSON_UNESCAPED_UNICODE);
-    }
+	/**
+	 * loads model data into view context
+	 *
+	 * @return void
+	 */
+	public function display()
+	{
+		$conditions = Helpers\Instances::getConditions();
+		$items      = Helpers\Instances::getItems($conditions);
+		echo json_encode($items, JSON_UNESCAPED_UNICODE);
+	}
 }

@@ -18,31 +18,32 @@ use Organizer\Tables;
  */
 class Roomtype extends BaseModel
 {
-    /**
-     * Authorizes the user.
-     *
-     * @return void
-     */
-    protected function authorize()
-    {
-        if (!Helpers\Can::manage('facilities')) {
-            Helpers\OrganizerHelper::error(403);
-        }
-    }
+	/**
+	 * Authorizes the user.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Can::manage('facilities'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
 
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
-     *
-     * @return Tables\Roomtypes A Table object
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return new Tables\Roomtypes;
-    }
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\Roomtypes A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\Roomtypes;
+	}
 }

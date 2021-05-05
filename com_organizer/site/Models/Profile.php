@@ -18,93 +18,103 @@ use Organizer\Tables;
  */
 class Profile extends FormModel
 {
-    /**
-     * @inheritDoc
-     */
-    protected function authorize()
-    {
-        if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
-        }
+	/**
+	 * @inheritDoc
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getForm($data = [], $loadData = false)
-    {
-        $form = parent::getForm($data, $loadData);
-        $user = Helpers\Users::getUser();
+	/**
+	 * @inheritDoc
+	 */
+	public function getForm($data = [], $loadData = false)
+	{
+		$form = parent::getForm($data, $loadData);
+		$user = Helpers\Users::getUser();
 
-        if (!Helpers\Participants::exists($user->id)) {
-            $model = new Participant();
-            $model->supplement($user->id);
-        }
+		if (!Helpers\Participants::exists($user->id))
+		{
+			$model = new Participant();
+			$model->supplement($user->id);
+		}
 
-        $participant = new Tables\Participants();
-        $participant->load($user->id);
-        $form->bind($participant);
-        $form->setValue('participantID', null, $participant->id);
-        $person = new Tables\Persons();
+		$participant = new Tables\Participants();
+		$participant->load($user->id);
+		$form->bind($participant);
+		$form->setValue('participantID', null, $participant->id);
+		$person = new Tables\Persons();
 
-        if ($personID = Helpers\Persons::getIDByUserID($user->id) and $person->load($personID)) {
-            $form->removeField('programID');
-            $form->setValue('public', null, $person->public);
-            $form->setValue('title', null, $person->title);
-        } else {
-            $form->removeField('public');
-            $form->removeField('title');
-        }
+		if ($personID = Helpers\Persons::getIDByUserID($user->id) and $person->load($personID))
+		{
+			$form->removeField('programID');
+			$form->setValue('public', null, $person->public);
+			$form->setValue('title', null, $person->title);
+		}
+		else
+		{
+			$form->removeField('public');
+			$form->removeField('title');
+		}
 
-        return $form;
-    }
+		return $form;
+	}
 
-    /**
-     * Saves personal information to the participants and persons tables.
-     *
-     * @return void
-     */
-    public function save()
-    {
-        $this->authorize();
-        $userID      = Helpers\Users::getID();
-        $participant = new Tables\Participants();
+	/**
+	 * Saves personal information to the participants and persons tables.
+	 *
+	 * @return void
+	 */
+	public function save()
+	{
+		$this->authorize();
+		$userID      = Helpers\Users::getID();
+		$participant = new Tables\Participants();
 
-        if (!$participant->load($userID)) {
-            Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
+		if (!$participant->load($userID))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
 
-            return;
-        }
+			return;
+		}
 
-        $data = Helpers\Input::getFormItems();
-        $participant->bindRegistry($data);
+		$data = Helpers\Input::getFormItems();
+		$participant->bindRegistry($data);
 
-        if (!$participant->store()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_NOT_SAVED', 'error');
+		if (!$participant->store())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_NOT_SAVED', 'error');
 
-            return;
-        }
+			return;
+		}
 
-        $person = new Tables\Persons();
+		$person = new Tables\Persons();
 
-        if ($personID = Helpers\Persons::getIDByUserID($userID)) {
-            if (!$person->load($personID)) {
-                Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
+		if ($personID = Helpers\Persons::getIDByUserID($userID))
+		{
+			if (!$person->load($personID))
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
 
-                return;
-            }
+				return;
+			}
 
-            $person->bindRegistry($data);
+			$person->bindRegistry($data);
 
-            if (!$person->store()) {
-                Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_NOT_SAVED', 'error');
+			if (!$person->store())
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_NOT_SAVED', 'error');
 
-                return;
-            }
-        }
+				return;
+			}
+		}
 
-        Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_SAVED', 'success');
-    }
+		Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_SAVED', 'success');
+	}
 }

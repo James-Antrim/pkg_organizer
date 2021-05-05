@@ -18,20 +18,20 @@ use Organizer\Helpers;
  */
 class Grids extends ListModel
 {
-    /**
-     * Method to get a list of resources from the database.
-     *
-     * @return JDatabaseQuery
-     */
-    protected function getListQuery()
-    {
-        $tag   = Helpers\Languages::getTag();
-        $query = $this->getDbo()->getQuery(true);
+	/**
+	 * Method to get a list of resources from the database.
+	 *
+	 * @return JDatabaseQuery
+	 */
+	protected function getListQuery()
+	{
+		$tag   = Helpers\Languages::getTag();
+		$query = $this->getDbo()->getQuery(true);
 
-        $query->select("id, name_$tag AS name, grid, isDefault")
-            ->from('#__organizer_grids');
-        $this->setOrdering($query);
+		$query->select("id, name_$tag AS name, grid, isDefault")
+			->from('#__organizer_grids');
+		$this->setOrdering($query);
 
-        return $query;
-    }
+		return $query;
+	}
 }

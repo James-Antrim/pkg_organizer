@@ -20,93 +20,98 @@ use Organizer\Views\PDF\ListView;
  */
 class Booking extends ListLayout
 {
-    /**
-     * @var View
-     */
-    protected $view;
+	/**
+	 * @var View
+	 */
+	protected $view;
 
-    protected $widths = [
-        'index' => 10,
-        'name'  => 50,
-        'event' => 80,
-        'room'  => 20,
-        'seat'  => 20
-    ];
+	protected $widths = [
+		'index' => 10,
+		'name'  => 50,
+		'event' => 80,
+		'room'  => 20,
+		'seat'  => 20
+	];
 
-    /**
-     * @inheritDoc
-     */
-    public function __construct(ListView $view)
-    {
-        parent::__construct($view);
-        $view->margins(10, 30, -1, 0, 8);
+	/**
+	 * @inheritDoc
+	 */
+	public function __construct(ListView $view)
+	{
+		parent::__construct($view);
+		$view->margins(10, 30, -1, 0, 8);
 
-        $this->headers = [
-            'index' => '#',
-            'name'  => Languages::_('ORGANIZER_NAME'),
-            'event' => Languages::_('ORGANIZER_EVENT'),
-            'room'  => Languages::_('ORGANIZER_ROOM'),
-            'seat'  => Languages::_('ORGANIZER_SEAT')
-        ];
-    }
+		$this->headers = [
+			'index' => '#',
+			'name'  => Languages::_('ORGANIZER_NAME'),
+			'event' => Languages::_('ORGANIZER_EVENT'),
+			'room'  => Languages::_('ORGANIZER_ROOM'),
+			'seat'  => Languages::_('ORGANIZER_SEAT')
+		];
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function fill(array $data)
-    {
-        $itemNo = 1;
-        $view   = $this->view;
-        $this->addListPage();
+	/**
+	 * @inheritdoc
+	 */
+	public function fill(array $data)
+	{
+		$itemNo = 1;
+		$view   = $this->view;
+		$this->addListPage();
 
-        foreach ($data as $participant) {
-            // Get the starting coordinates for later use with borders
-            $maxLength = 0;
-            $startX    = $view->GetX();
-            $startY    = $view->GetY();
+		foreach ($data as $participant)
+		{
+			// Get the starting coordinates for later use with borders
+			$maxLength = 0;
+			$startX    = $view->GetX();
+			$startY    = $view->GetY();
 
-            foreach (array_keys($this->headers) as $columnName) {
-                switch ($columnName) {
-                    case 'index':
-                        $value = $itemNo;
-                        break;
-                    case 'name':
-                        $value = empty($participant->forename) ?
-                            $participant->surname : "$participant->surname,  $participant->forename";
-                        break;
-                    default:
-                        $value = empty($participant->$columnName) ? '' : $participant->$columnName;
-                        break;
-                }
+			foreach (array_keys($this->headers) as $columnName)
+			{
+				switch ($columnName)
+				{
+					case 'index':
+						$value = $itemNo;
+						break;
+					case 'name':
+						$value = empty($participant->forename) ?
+							$participant->surname : "$participant->surname,  $participant->forename";
+						break;
+					default:
+						$value = empty($participant->$columnName) ? '' : $participant->$columnName;
+						break;
+				}
 
-                $length = $view->renderMultiCell($this->widths[$columnName], 5, $value);
+				$length = $view->renderMultiCell($this->widths[$columnName], 5, $value);
 
-                if ($length > $maxLength) {
-                    $maxLength = $length;
-                }
-            }
+				if ($length > $maxLength)
+				{
+					$maxLength = $length;
+				}
+			}
 
-            // Reset for borders
-            $view->changePosition($startX, $startY);
+			// Reset for borders
+			$view->changePosition($startX, $startY);
 
-            foreach ($this->widths as $index => $width) {
-                $border = $index === 'index' ? ['BLR' => $view->border] : ['BR' => $view->border];
-                $view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
-            }
+			foreach ($this->widths as $index => $width)
+			{
+				$border = $index === 'index' ? ['BLR' => $view->border] : ['BR' => $view->border];
+				$view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
+			}
 
-            $this->addLine();
+			$this->addLine();
 
-            $itemNo++;
-        }
-    }
+			$itemNo++;
+		}
+	}
 
-    /**
-     * Generates the title and sets name related properties.
-     */
-    public function setTitle()
-    {
-        $view = $this->view;
-        $name = Languages::_('ORGANIZER_EVENT') . '-' . $view->booking->code . '-' . Languages::_('ORGANIZER_PARTICIPANTS');
-        $view->setNames($name);
-    }
+	/**
+	 * Generates the title and sets name related properties.
+	 */
+	public function setTitle()
+	{
+		$view = $this->view;
+		$name = Languages::_('ORGANIZER_EVENT') . '-' . $view->booking->code . '-' . Languages::_('ORGANIZER_PARTICIPANTS');
+		$view->setNames($name);
+	}
 }

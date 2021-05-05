@@ -15,30 +15,30 @@ namespace Organizer\Tables;
  */
 class Fields extends BaseTable
 {
-    use Aliased;
-    use Coded;
+	use Aliased;
+	use Coded;
 
-    /**
-     * The resource's German name.
-     * VARCHAR(60) NOT NULL
-     *
-     * @var string
-     */
-    public $name_de;
+	/**
+	 * The resource's German name.
+	 * VARCHAR(60) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_de;
 
-    /**
-     * The resource's English name.
-     * VARCHAR(60) NOT NULL
-     *
-     * @var string
-     */
-    public $name_en;
+	/**
+	 * The resource's English name.
+	 * VARCHAR(60) NOT NULL
+	 *
+	 * @var string
+	 */
+	public $name_en;
 
-    /**
-     * Declares the associated table.
-     */
-    public function __construct()
-    {
-        parent::__construct('#__organizer_fields');
-    }
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
+	{
+		parent::__construct('#__organizer_fields');
+	}
 }

@@ -12,9 +12,9 @@
 $list = $this->filterForm->getGroup('list');
 ?>
 <?php if ($list) : ?>
-    <?php foreach ($list as $fieldName => $field) : ?>
+	<?php foreach ($list as $fieldName => $field) : ?>
         <div class="js-stools-field-list">
-            <?php echo $field->input; ?>
+			<?php echo $field->input; ?>
         </div>
-    <?php endforeach; ?>
+	<?php endforeach; ?>
 <?php endif; ?>

@@ -18,9 +18,9 @@ use Organizer\Adapters;
  */
 class Search extends BaseView
 {
-    public $query;
+	public $query;
 
-    public $results;
+	public $results;
 
     /**
      * loads model data into view context
@@ -36,18 +36,18 @@ class Search extends BaseView
         $this->query   = OrganizerHelper::getInput()->getString('search', '');
         $this->results = $this->getModel()->getResults();
 
-        $this->modifyDocument();
-        parent::display($tpl);
-    }
+		$this->modifyDocument();
+		parent::display($tpl);
+	}
 
-    /**
-     * Modifies document variables and adds links to external files
-     *
-     * @return void
-     */
-    protected function modifyDocument()
-    {
-        parent::modifyDocument();
+	/**
+	 * Modifies document variables and adds links to external files
+	 *
+	 * @return void
+	 */
+	protected function modifyDocument()
+	{
+		parent::modifyDocument();
 
         Adapters\Document::setTitle(Languages::_('ORGANIZER_SEARCH'));
         Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/search.css');

@@ -19,34 +19,34 @@ use Organizer\Views\PDF\BaseView;
  */
 abstract class BaseLayout
 {
-    protected $filename;
+	protected $filename;
 
-    /**
-     * @var BaseView
-     */
-    protected $view;
+	/**
+	 * @var BaseView
+	 */
+	protected $view;
 
-    /**
-     * Performs initial construction of the TCPDF Object.
-     *
-     * @param   BaseView  $view
-     */
-    public function __construct(BaseView $view)
-    {
-        $this->view = $view;
-    }
+	/**
+	 * Performs initial construction of the TCPDF Object.
+	 *
+	 * @param   BaseView  $view
+	 */
+	public function __construct(BaseView $view)
+	{
+		$this->view = $view;
+	}
 
-    /**
-     * Fills the document with formatted data.
-     *
-     * @param   array  $data  the document data
-     *
-     * @return void
-     */
-    abstract public function fill(array $data);
+	/**
+	 * Fills the document with formatted data.
+	 *
+	 * @param   array  $data  the document data
+	 *
+	 * @return void
+	 */
+	abstract public function fill(array $data);
 
-    /**
-     * Generates the title and sets name related properties.
-     */
-    abstract public function setTitle();
+	/**
+	 * Generates the title and sets name related properties.
+	 */
+	abstract public function setTitle();
 }

@@ -21,92 +21,103 @@ use Organizer\Models;
  */
 class Courses extends Controller
 {
-    const UNREGISTERED = null;
+	const UNREGISTERED = null;
 
-    protected $listView = 'courses';
+	protected $listView = 'courses';
 
-    protected $resource = 'course';
+	protected $resource = 'course';
 
-    /**
-     * Prints badges for the selected participants.
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function badge()
-    {
-        Helpers\Input::set('format', 'pdf');
-        Helpers\Input::set('layout', 'Badge');
-        parent::display();
-    }
+	/**
+	 * Prints badges for the selected participants.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function badge()
+	{
+		Helpers\Input::set('format', 'pdf');
+		Helpers\Input::set('layout', 'Badge');
+		parent::display();
+	}
 
-    /**
-     * De-/registers a participant from/to a course.
-     *
-     * @return void
-     */
-    public function deregister()
-    {
-        $referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+	/**
+	 * De-/registers a participant from/to a course.
+	 *
+	 * @return void
+	 */
+	public function deregister()
+	{
+		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 
-        $model = new Models\Course();
+		$model = new Models\Course();
 
-        if ($model->deregister()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-        } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
-        }
+		if ($model->deregister())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+		}
+		else
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+		}
 
-        $this->setRedirect($referrer);
-    }
+		$this->setRedirect($referrer);
+	}
 
-    /**
-     * Opens the course participants view for the selected course.
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function participants()
-    {
-        if (!$courseID = Helpers\Input::getSelectedIDs()[0]) {
-            parent::display();
+	/**
+	 * Opens the course participants view for the selected course.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function participants()
+	{
+		if (!$courseID = Helpers\Input::getSelectedIDs()[0])
+		{
+			parent::display();
 
-            return;
-        }
+			return;
+		}
 
-        $URL = Uri::base() . "?option=com_organizer&view=course_participants&id=$courseID";
+		$URL = Uri::base() . "?option=com_organizer&view=course_participants&id=$courseID";
 
-        if ($tag = Helpers\Input::getCMD('languageTag')) {
-            $URL .= "&languageTag=$tag";
-        }
+		if ($tag = Helpers\Input::getCMD('languageTag'))
+		{
+			$URL .= "&languageTag=$tag";
+		}
 
-        $this->setRedirect($URL);
-    }
+		$this->setRedirect($URL);
+	}
 
-    /**
-     * De-/registers a participant from/to a course.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        $courseID      = Helpers\Input::getID();
-        $referrer      = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-        $participantID = Helpers\Users::getID();
+	/**
+	 * De-/registers a participant from/to a course.
+	 *
+	 * @return void
+	 */
+	public function register()
+	{
+		$courseID      = Helpers\Input::getID();
+		$referrer      = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+		$participantID = Helpers\Users::getID();
 
-        if (!Helpers\CourseParticipants::validProfile($courseID, $participantID)) {
-            Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', 'error');
-        } else {
-            $model = new Models\Course();
+		if (!Helpers\CourseParticipants::validProfile($courseID, $participantID))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', 'error');
+		}
+		else
+		{
+			$model = new Models\Course();
 
-            if ($model->register()) {
-                Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-            } else {
-                Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
-            }
-        }
+			if ($model->register())
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+			}
+			else
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+			}
+		}
 
 
-        $this->setRedirect($referrer);
-    }
+		$this->setRedirect($referrer);
+	}
 }

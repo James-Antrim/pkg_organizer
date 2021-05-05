@@ -16,10 +16,10 @@ use JFormFieldSubform;
 
 class NestedField extends JFormFieldSubform
 {
-    use Translated;
+	use Translated;
 
-    /**
-     * @var  string
-     */
-    protected $type = 'Nested';
+	/**
+	 * @var  string
+	 */
+	protected $type = 'Nested';
 }

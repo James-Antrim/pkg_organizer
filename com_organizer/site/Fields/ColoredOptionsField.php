@@ -19,32 +19,33 @@ use stdClass;
  */
 abstract class ColoredOptionsField extends OptionsField
 {
-    /**
-     * Type
-     *
-     * @var    String
-     */
-    protected $type = 'ColorOptions';
+	/**
+	 * Type
+	 *
+	 * @var    String
+	 */
+	protected $type = 'ColorOptions';
 
-    /**
-     * Returns a select box which contains the colors
-     *
-     * @return string  the HTML for the color select box
-     */
-    public function getInput()
-    {
-        $onChange = empty($this->getAttribute('onchange')) ?
-            '' : ' onchange="' . $this->getAttribute('onchange') . '"';
-        $html     = '<select name="' . $this->name . '"' . $onChange . '>';
-        $options  = $this->getOptions();
-        foreach ($options as $option) {
-            $style    = isset($option->style) ? ' style="' . $option->style . '"' : '';
-            $selected = $this->value == $option->value ? ' selected="selected"' : '';
-            $html     .= '<option value="' . $option->value . '"' . $selected . $style . '>';
-            $html     .= $option->text . '</option>';
-        }
-        $html .= '</select>';
+	/**
+	 * Returns a select box which contains the colors
+	 *
+	 * @return string  the HTML for the color select box
+	 */
+	public function getInput()
+	{
+		$onChange = empty($this->getAttribute('onchange')) ?
+			'' : ' onchange="' . $this->getAttribute('onchange') . '"';
+		$html     = '<select name="' . $this->name . '"' . $onChange . '>';
+		$options  = $this->getOptions();
+		foreach ($options as $option)
+		{
+			$style    = isset($option->style) ? ' style="' . $option->style . '"' : '';
+			$selected = $this->value == $option->value ? ' selected="selected"' : '';
+			$html     .= '<option value="' . $option->value . '"' . $selected . $style . '>';
+			$html     .= $option->text . '</option>';
+		}
+		$html .= '</select>';
 
-        return $html;
-    }
+		return $html;
+	}
 }

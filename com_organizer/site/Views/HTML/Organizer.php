@@ -20,56 +20,57 @@ use Organizer\Helpers;
  */
 class Organizer extends BaseView
 {
-    /**
-     * Method to get display
-     *
-     * @param   Object  $tpl  template  (default: null)
-     *
-     * @return void
-     */
-    public function display($tpl = null)
-    {
-        $this->addMenu();
-        $this->modifyDocument();
-        $this->addToolBar();
+	/**
+	 * Method to get display
+	 *
+	 * @param   Object  $tpl  template  (default: null)
+	 *
+	 * @return void
+	 */
+	public function display($tpl = null)
+	{
+		$this->addMenu();
+		$this->modifyDocument();
+		$this->addToolBar();
 
-        parent::display($tpl);
-    }
+		parent::display($tpl);
+	}
 
-    /**
-     * Creates a toolbar
-     *
-     * @return void
-     */
-    protected function addToolBar()
-    {
-        Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_MAIN'), 'organizer');
+	/**
+	 * Creates a toolbar
+	 *
+	 * @return void
+	 */
+	protected function addToolBar()
+	{
+		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_MAIN'), 'organizer');
 
-        if (Helpers\Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
-            $toolbar->appendButton(
-                'Standard',
-                'trash',
-                Helpers\Languages::_('ORGANIZER_CLEAN_BOOKINGS'),
-                'organizer.cleanBookings',
-                false
-            );
+		if (Helpers\Can::administrate())
+		{
+			$toolbar = Toolbar::getInstance();
+			$toolbar->appendButton(
+				'Standard',
+				'trash',
+				Helpers\Languages::_('ORGANIZER_CLEAN_BOOKINGS'),
+				'organizer.cleanBookings',
+				false
+			);
 
-            $uri    = (string)Uri::getInstance();
-            $return = urlencode(base64_encode($uri));
-            $link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
+			$uri    = (string) Uri::getInstance();
+			$return = urlencode(base64_encode($uri));
+			$link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
 
-            $toolbar->appendButton('Link', 'options', Helpers\Languages::_('ORGANIZER_SETTINGS'), $link);
-        }
-    }
+			$toolbar->appendButton('Link', 'options', Helpers\Languages::_('ORGANIZER_SETTINGS'), $link);
+		}
+	}
 
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument()
-    {
-        parent::modifyDocument();
+	/**
+	 * @inheritDoc
+	 */
+	protected function modifyDocument()
+	{
+		parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/organizer.css');
-    }
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/organizer.css');
+	}
 }

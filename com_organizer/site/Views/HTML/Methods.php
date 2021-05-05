@@ -17,21 +17,21 @@ use Organizer\Helpers;
  */
 class Methods extends ListView
 {
-    protected $rowStructure = ['checkbox' => '', 'abbreviation' => 'link', 'name' => 'link'];
+	protected $rowStructure = ['checkbox' => '', 'abbreviation' => 'link', 'name' => 'link'];
 
-    /**
-     * @inheritdoc
-     */
-    public function setHeaders()
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox'     => '',
-            'abbreviation' => Helpers\HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
-            'name'         => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
-        ];
+	/**
+	 * @inheritdoc
+	 */
+	public function setHeaders()
+	{
+		$ordering  = $this->state->get('list.ordering');
+		$direction = $this->state->get('list.direction');
+		$headers   = [
+			'checkbox'     => '',
+			'abbreviation' => Helpers\HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
+			'name'         => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
+		];
 
-        $this->headers = $headers;
-    }
+		$this->headers = $headers;
+	}
 }

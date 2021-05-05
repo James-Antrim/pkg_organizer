@@ -21,17 +21,17 @@ $count = count($this->instances);
 </div>
 <?php echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
 <div id="j-main-container" class="span10">
-    <?php if ($this->privacy) : ?>
-        <?php require_once 'Checkin/privacy.php'; ?>
-    <?php elseif ($this->edit or ($count and !$this->complete)) : ?>
-        <?php require_once 'Checkin/contact.php'; ?>
-    <?php elseif (!$count) : ?>
-        <?php require_once 'Checkin/checkin.php'; ?>
-    <?php elseif ($count > 1) : ?>
-        <?php require_once 'Checkin/instance.php'; ?>
-    <?php elseif (!$this->roomID) : ?>
-        <?php require_once 'Checkin/seating.php'; ?>
-    <?php else : ?>
-        <?php require_once 'Checkin/checkedin.php'; ?>
-    <?php endif; ?>
+	<?php if ($this->privacy) : ?>
+		<?php require_once 'Checkin/privacy.php'; ?>
+	<?php elseif ($this->edit or ($count and !$this->complete)) : ?>
+		<?php require_once 'Checkin/contact.php'; ?>
+	<?php elseif (!$count) : ?>
+		<?php require_once 'Checkin/checkin.php'; ?>
+	<?php elseif ($count > 1) : ?>
+		<?php require_once 'Checkin/instance.php'; ?>
+	<?php elseif (!$this->roomID) : ?>
+		<?php require_once 'Checkin/seating.php'; ?>
+	<?php else : ?>
+		<?php require_once 'Checkin/checkedin.php'; ?>
+	<?php endif; ?>
 </div>

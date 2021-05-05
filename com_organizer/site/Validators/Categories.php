@@ -20,107 +20,118 @@ use stdClass;
  */
 class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 {
-    /**
-     * Determines whether the data conveyed in the untisID is plausible for finding a real program.
-     *
-     * @param   string  $untisID  the id used in untis for this program
-     *
-     * @return array empty if the id is implausible
-     */
-    private static function parseProgramData(string $untisID): array
-    {
-        $pieces = explode('.', $untisID);
-        if (count($pieces) !== 3) {
-            return [];
-        }
+	/**
+	 * Determines whether the data conveyed in the untisID is plausible for finding a real program.
+	 *
+	 * @param   string  $untisID  the id used in untis for this program
+	 *
+	 * @return array empty if the id is implausible
+	 */
+	private static function parseProgramData(string $untisID): array
+	{
+		$pieces = explode('.', $untisID);
+		if (count($pieces) !== 3)
+		{
+			return [];
+		}
 
-        // Two uppercase letter code for the degree. First letter is B (Bachelor) or M (Master)
-        $implausibleDegree = (!ctype_upper($pieces[1]) or !preg_match('/^[B|M][A-Z]{1,2}$/', $pieces[1]));
-        if ($implausibleDegree) {
-            return [];
-        }
+		// Two uppercase letter code for the degree. First letter is B (Bachelor) or M (Master)
+		$implausibleDegree = (!ctype_upper($pieces[1]) or !preg_match('/^[B|M][A-Z]{1,2}$/', $pieces[1]));
+		if ($implausibleDegree)
+		{
+			return [];
+		}
 
-        // Some degree program 'subject' identifiers have a number
-        $plausibleCode = preg_match('/^[A-Z]+[0-9]*$/', $pieces[0]);
+		// Some degree program 'subject' identifiers have a number
+		$plausibleCode = preg_match('/^[A-Z]+[0-9]*$/', $pieces[0]);
 
-        // Degrees are their own managed resource
-        $degrees  = new Tables\Degrees();
-        $degreeID = $degrees->load(['code' => $pieces[1]]) ? $degrees->id : null;
+		// Degrees are their own managed resource
+		$degrees  = new Tables\Degrees();
+		$degreeID = $degrees->load(['code' => $pieces[1]]) ? $degrees->id : null;
 
-        // Should be year of accreditation, but ITS likes to pick random years
-        $plausibleVersion = (ctype_digit($pieces[2]) and preg_match('/^[2][0-9]{3}$/', $pieces[2]));
+		// Should be year of accreditation, but ITS likes to pick random years
+		$plausibleVersion = (ctype_digit($pieces[2]) and preg_match('/^[2][0-9]{3}$/', $pieces[2]));
 
-        return ($plausibleCode and $degreeID and $plausibleVersion) ?
-            ['code' => $pieces[0], 'degreeID' => $degreeID, 'accredited' => $pieces[2]] : [];
-    }
+		return ($plausibleCode and $degreeID and $plausibleVersion) ?
+			['code' => $pieces[0], 'degreeID' => $degreeID, 'accredited' => $pieces[2]] : [];
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public static function setID(Schedule $model, string $code)
-    {
-        $category     = $model->categories->$code;
-        $loadCriteria = [['code' => $code], ['name_de' => $category->name_de]];
-        $table        = new Tables\Categories();
+	/**
+	 * @inheritDoc
+	 */
+	public static function setID(Schedule $model, string $code)
+	{
+		$category     = $model->categories->$code;
+		$loadCriteria = [['code' => $code], ['name_de' => $category->name_de]];
+		$table        = new Tables\Categories();
 
-        foreach ($loadCriteria as $criterion) {
-            if ($exists = $table->load($criterion)) {
-                $altered = false;
+		foreach ($loadCriteria as $criterion)
+		{
+			if ($exists = $table->load($criterion))
+			{
+				$altered = false;
 
-                foreach ($category as $key => $value) {
-                    if (property_exists($table, $key) and empty($table->$key) and !empty($value)) {
-                        $table->set($key, $value);
-                        $altered = true;
-                    }
-                }
+				foreach ($category as $key => $value)
+				{
+					if (property_exists($table, $key) and empty($table->$key) and !empty($value))
+					{
+						$table->set($key, $value);
+						$altered = true;
+					}
+				}
 
-                if ($altered) {
-                    $table->store();
-                }
+				if ($altered)
+				{
+					$table->store();
+				}
 
-                break;
-            }
-        }
+				break;
+			}
+		}
 
-        if (!$exists) {
-            $table->save($category);
-        }
+		if (!$exists)
+		{
+			$table->save($category);
+		}
 
-        $association = new Tables\Associations();
-        if (!$association->load(['categoryID' => $table->id])) {
-            $association->save(['categoryID' => $table->id, 'organizationID' => $model->organizationID]);
-        }
+		$association = new Tables\Associations();
+		if (!$association->load(['categoryID' => $table->id]))
+		{
+			$association->save(['categoryID' => $table->id, 'organizationID' => $model->organizationID]);
+		}
 
-        $category->id = $table->id;
-    }
+		$category->id = $table->id;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public static function validate(Schedule $model, SimpleXMLElement $node)
-    {
-        $code = str_replace('DP_', '', trim((string)$node[0]['id']));
+	/**
+	 * @inheritDoc
+	 */
+	public static function validate(Schedule $model, SimpleXMLElement $node)
+	{
+		$code = str_replace('DP_', '', trim((string) $node[0]['id']));
 
-        /** @noinspection PhpUndefinedFieldInspection */
-        $name = (string)$node->longname;
-        if (!isset($name)) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_CATEGORY_NAME_MISSING'), $code);
+		/** @noinspection PhpUndefinedFieldInspection */
+		$name = (string) $node->longname;
+		if (!isset($name))
+		{
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_CATEGORY_NAME_MISSING'), $code);
 
-            return;
-        }
+			return;
+		}
 
-        $category          = new stdClass();
-        $category->name_de = $name;
-        $category->name_en = $name;
-        $category->code    = $code;
+		$category          = new stdClass();
+		$category->name_de = $name;
+		$category->name_en = $name;
+		$category->code    = $code;
 
-        $model->categories->$code = $category;
-        self::setID($model, $code);
-        Helpers\Organizations::setResource($category->id, 'categoryID');
+		$model->categories->$code = $category;
+		self::setID($model, $code);
+		Helpers\Organizations::setResource($category->id, 'categoryID');
 
-        if ($programData = self::parseProgramData($code)) {
-            $programName = trim(substr($name, 0, strpos($name, '(')));
-            Helpers\Programs::create($programData, $programName, $category->id);
-        }
-    }
+		if ($programData = self::parseProgramData($code))
+		{
+			$programName = trim(substr($name, 0, strpos($name, '(')));
+			Helpers\Programs::create($programData, $programName, $category->id);
+		}
+	}
 }

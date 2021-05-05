@@ -17,67 +17,71 @@ use Organizer\Helpers;
  */
 class Grids extends ListView
 {
-    protected $rowStructure = [
-        'checkbox'  => '',
-        'name'      => 'link',
-        'startDay'  => 'value',
-        'endDay'    => 'value',
-        'startTime' => 'value',
-        'endTime'   => 'value',
-        'isDefault' => 'value'
-    ];
+	protected $rowStructure = [
+		'checkbox'  => '',
+		'name'      => 'link',
+		'startDay'  => 'value',
+		'endDay'    => 'value',
+		'startTime' => 'value',
+		'endTime'   => 'value',
+		'isDefault' => 'value'
+	];
 
-    /**
-     * @inheritdoc
-     */
-    public function setHeaders()
-    {
-        $headers = [
-            'checkbox'  => '',
-            'name'      => Helpers\Languages::_('ORGANIZER_NAME'),
-            'startDay'  => Helpers\Languages::_('ORGANIZER_START_DAY'),
-            'endDay'    => Helpers\Languages::_('ORGANIZER_END_DAY'),
-            'startTime' => Helpers\Languages::_('ORGANIZER_START_TIME'),
-            'endTime'   => Helpers\Languages::_('ORGANIZER_END_TIME'),
-            'isDefault' => Helpers\Languages::_('ORGANIZER_DEFAULT')
-        ];
+	/**
+	 * @inheritdoc
+	 */
+	public function setHeaders()
+	{
+		$headers = [
+			'checkbox'  => '',
+			'name'      => Helpers\Languages::_('ORGANIZER_NAME'),
+			'startDay'  => Helpers\Languages::_('ORGANIZER_START_DAY'),
+			'endDay'    => Helpers\Languages::_('ORGANIZER_END_DAY'),
+			'startTime' => Helpers\Languages::_('ORGANIZER_START_TIME'),
+			'endTime'   => Helpers\Languages::_('ORGANIZER_END_TIME'),
+			'isDefault' => Helpers\Languages::_('ORGANIZER_DEFAULT')
+		];
 
-        $this->headers = $headers;
-    }
+		$this->headers = $headers;
+	}
 
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems()
-    {
-        $index           = 0;
-        $structuredItems = [];
-        $link            = "index.php?option=com_organizer&view=grid_edit&id=";
+	/**
+	 * @inheritdoc
+	 */
+	protected function structureItems()
+	{
+		$index           = 0;
+		$structuredItems = [];
+		$link            = "index.php?option=com_organizer&view=grid_edit&id=";
 
-        foreach ($this->items as $item) {
-            $grid = json_decode($item->grid, true);
+		foreach ($this->items as $item)
+		{
+			$grid = json_decode($item->grid, true);
 
-            if (!empty($grid['periods'])) {
-                // 'l' (lowercase L) in date function for full textual day of the week.
-                $startDayConstant = strtoupper(date('l', strtotime("Sunday + {$grid['startDay']} days")));
-                $endDayConstant   = strtoupper(date('l', strtotime("Sunday + {$grid['endDay']} days")));
+			if (!empty($grid['periods']))
+			{
+				// 'l' (lowercase L) in date function for full textual day of the week.
+				$startDayConstant = strtoupper(date('l', strtotime("Sunday + {$grid['startDay']} days")));
+				$endDayConstant   = strtoupper(date('l', strtotime("Sunday + {$grid['endDay']} days")));
 
-                $item->startDay  = Helpers\Languages::_($startDayConstant);
-                $item->endDay    = Helpers\Languages::_($endDayConstant);
-                $item->startTime = Helpers\Dates::formatTime(reset($grid['periods'])['startTime']);
-                $item->endTime   = Helpers\Dates::formatTime(end($grid['periods'])['endTime']);
-            } else {
-                $item->startDay  = '';
-                $item->endDay    = '';
-                $item->startTime = '';
-                $item->endTime   = '';
-            }
+				$item->startDay  = Helpers\Languages::_($startDayConstant);
+				$item->endDay    = Helpers\Languages::_($endDayConstant);
+				$item->startTime = Helpers\Dates::formatTime(reset($grid['periods'])['startTime']);
+				$item->endTime   = Helpers\Dates::formatTime(end($grid['periods'])['endTime']);
+			}
+			else
+			{
+				$item->startDay  = '';
+				$item->endDay    = '';
+				$item->startTime = '';
+				$item->endTime   = '';
+			}
 
-            $item->isDefault         = $this->getToggle('grids', $item->id, $item->isDefault, 'ORGANIZER_GRID_DESC');
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-            $index++;
-        }
+			$item->isDefault         = $this->getToggle('grids', $item->id, $item->isDefault, 'ORGANIZER_GRID_DESC');
+			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+			$index++;
+		}
 
-        $this->items = $structuredItems;
-    }
+		$this->items = $structuredItems;
+	}
 }

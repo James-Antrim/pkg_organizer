@@ -23,30 +23,30 @@ $userID           = Helpers\Users::getID();
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
       class="form-vertical form-validate checkin" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
-    <?php if (!$userID): ?>
-        <?php echo $this->form->renderField('username'); ?>
-        <?php echo $this->form->renderField('password'); ?>
-    <?php endif; ?>
-    <?php echo $this->form->renderField('code'); ?>
+	<?php if (!$userID): ?>
+		<?php echo $this->form->renderField('username'); ?>
+		<?php echo $this->form->renderField('password'); ?>
+	<?php endif; ?>
+	<?php echo $this->form->renderField('code'); ?>
     <div class="control-group">
         <input class="btn" type="submit" value="<?php echo Helpers\Languages::_('ORGANIZER_CHECKIN'); ?>"/>
     </div>
-    <?php if ($userID): ?>
+	<?php if ($userID): ?>
         <div class="control-group">
             <a class="btn" href="<?php echo Uri::getInstance() . '&layout=profile'; ?>">
-                <?php echo Helpers\Languages::_('ORGANIZER_PROFILE_EDIT'); ?>
+				<?php echo Helpers\Languages::_('ORGANIZER_PROFILE_EDIT'); ?>
             </a>
         </div>
-    <?php else: ?>
+	<?php else: ?>
         <div class="control-group message register">
-            <?php echo sprintf(Helpers\Languages::_('ORGANIZER_REGISTER_TEXT_FRAME'), '<br>' . $registrationLink); ?>
+			<?php echo sprintf(Helpers\Languages::_('ORGANIZER_REGISTER_TEXT_FRAME'), '<br>' . $registrationLink); ?>
         </div>
-    <?php endif; ?>
+	<?php endif; ?>
     <div class="control-group message">
-        <?php echo $privacyLink; ?>
+		<?php echo $privacyLink; ?>
     </div>
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.checkin"/>
     <input type="hidden" name="view" value="checkin"/>
-    <?php echo Helpers\HTML::_('form.token'); ?>
+	<?php echo Helpers\HTML::_('form.token'); ?>
 </form>

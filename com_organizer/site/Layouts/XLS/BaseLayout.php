@@ -16,35 +16,35 @@ use Organizer\Views\XLS\BaseView;
 
 abstract class BaseLayout
 {
-    /**
-     * @var BaseView
-     */
-    protected $view;
+	/**
+	 * @var BaseView
+	 */
+	protected $view;
 
-    public function __construct(BaseView $view)
-    {
-        $this->view = $view;
-    }
+	public function __construct(BaseView $view)
+	{
+		$this->view = $view;
+	}
 
-    /**
-     * Fills the view with formatting and data.
-     *
-     * @return void
-     * @throws Exception
-     */
-    abstract public function fill();
+	/**
+	 * Fills the view with formatting and data.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	abstract public function fill();
 
-    /**
-     * Gets the description for the layout.
-     *
-     * @return string
-     */
-    abstract public function getDescription(): string;
+	/**
+	 * Gets the description for the layout.
+	 *
+	 * @return string
+	 */
+	abstract public function getDescription(): string;
 
-    /**
-     * Gets the title for the document.
-     *
-     * @return string
-     */
-    abstract public function getTitle(): string;
+	/**
+	 * Gets the title for the document.
+	 *
+	 * @return string
+	 */
+	abstract public function getTitle(): string;
 }

@@ -18,25 +18,25 @@ use Organizer\Helpers;
  */
 class Methods extends ListModel
 {
-    protected $defaultOrdering = 'abbreviation';
+	protected $defaultOrdering = 'abbreviation';
 
-    /**
-     * Method to get a list of resources from the database.
-     *
-     * @return JDatabaseQuery
-     */
-    protected function getListQuery()
-    {
-        $tag   = Helpers\Languages::getTag();
-        $query = $this->_db->getQuery(true);
+	/**
+	 * Method to get a list of resources from the database.
+	 *
+	 * @return JDatabaseQuery
+	 */
+	protected function getListQuery()
+	{
+		$tag   = Helpers\Languages::getTag();
+		$query = $this->_db->getQuery(true);
 
-        $query->select("id, abbreviation_$tag AS abbreviation, name_$tag AS name")
-            ->from('#__organizer_methods');
+		$query->select("id, abbreviation_$tag AS abbreviation, name_$tag AS name")
+			->from('#__organizer_methods');
 
-        $this->setSearchFilter($query, ['name_de', 'name_en', 'abbreviation_de', 'abbreviation_en']);
+		$this->setSearchFilter($query, ['name_de', 'name_en', 'abbreviation_de', 'abbreviation_en']);
 
-        $this->setOrdering($query);
+		$this->setOrdering($query);
 
-        return $query;
-    }
+		return $query;
+	}
 }

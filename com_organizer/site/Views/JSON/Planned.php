@@ -14,28 +14,28 @@ use Organizer\Helpers;
 
 trait Planned
 {
-    /**
-     * Resolves the date.
-     *
-     * @return false|string
-     */
-    public function getDate()
-    {
-        $date = Helpers\Input::getString('date');
+	/**
+	 * Resolves the date.
+	 *
+	 * @return false|string
+	 */
+	public function getDate()
+	{
+		$date = Helpers\Input::getString('date');
 
-        return ($dts = strtotime($date)) ? date('Y-m-d', $dts) : date('Y-m-d');
-    }
+		return ($dts = strtotime($date)) ? date('Y-m-d', $dts) : date('Y-m-d');
+	}
 
-    /**
-     * Resolves the interval.
-     *
-     * @return string
-     */
-    public function getInterval()
-    {
-        $intervals = ['day', 'week', 'term'];
-        $interval  = Helpers\Input::getString('interval');
+	/**
+	 * Resolves the interval.
+	 *
+	 * @return string
+	 */
+	public function getInterval()
+	{
+		$intervals = ['day', 'week', 'term'];
+		$interval  = Helpers\Input::getString('interval');
 
-        return in_array($interval, $intervals) ? $interval : 'term';
-    }
+		return in_array($interval, $intervals) ? $interval : 'term';
+	}
 }

@@ -15,5 +15,5 @@ namespace Organizer\Helpers;
  */
 class Runs extends ResourceHelper
 {
-    // Just needs the getName function from ResourceHelper so far.
+	// Just needs the getName function from ResourceHelper so far.
 }

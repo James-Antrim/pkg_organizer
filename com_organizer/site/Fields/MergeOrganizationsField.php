@@ -18,50 +18,53 @@ use Organizer\Helpers;
  */
 class MergeOrganizationsField extends OptionsField
 {
-    /**
-     * @var  string
-     */
-    protected $type = 'MergeOrganizations';
+	/**
+	 * @var  string
+	 */
+	protected $type = 'MergeOrganizations';
 
-    /**
-     * Returns a select box where resource attributes can be selected
-     *
-     * @return array the options for the select box
-     */
-    protected function getOptions()
-    {
-        $selectedIDs    = Helpers\Input::getSelectedIDs();
-        $resource       = str_replace('_merge', '', Helpers\Input::getView());
-        $validResources = ['category', 'person'];
-        $invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
-        if ($invalid) {
-            return [];
-        }
+	/**
+	 * Returns a select box where resource attributes can be selected
+	 *
+	 * @return array the options for the select box
+	 */
+	protected function getOptions()
+	{
+		$selectedIDs    = Helpers\Input::getSelectedIDs();
+		$resource       = str_replace('_merge', '', Helpers\Input::getView());
+		$validResources = ['category', 'person'];
+		$invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
+		if ($invalid)
+		{
+			return [];
+		}
 
-        $query      = Database::getQuery(true);
-        $table      = $resource === 'category' ? 'categories' : 'persons';
-        $textColumn = 'shortName_' . Helpers\Languages::getTag();
-        $query->select("DISTINCT o.id AS value, o.$textColumn AS text")
-            ->from("#__organizer_organizations AS o")
-            ->innerJoin("#__organizer_associations AS a ON a.organizationID = o.id")
-            ->innerJoin("#__organizer_$table AS res ON res.id = a.{$resource}ID")
-            ->where("res.id IN ( '" . implode("', '", $selectedIDs) . "' )")
-            ->order('text ASC');
-        Database::setQuery($query);
+		$query      = Database::getQuery(true);
+		$table      = $resource === 'category' ? 'categories' : 'persons';
+		$textColumn = 'shortName_' . Helpers\Languages::getTag();
+		$query->select("DISTINCT o.id AS value, o.$textColumn AS text")
+			->from("#__organizer_organizations AS o")
+			->innerJoin("#__organizer_associations AS a ON a.organizationID = o.id")
+			->innerJoin("#__organizer_$table AS res ON res.id = a.{$resource}ID")
+			->where("res.id IN ( '" . implode("', '", $selectedIDs) . "' )")
+			->order('text ASC');
+		Database::setQuery($query);
 
-        if (!$valuePairs = Database::loadAssocList()) {
-            return [];
-        }
+		if (!$valuePairs = Database::loadAssocList())
+		{
+			return [];
+		}
 
-        $options = [];
-        $values  = [];
-        foreach ($valuePairs as $valuePair) {
-            $options[]                   = Helpers\HTML::_('select.option', $valuePair['value'], $valuePair['text']);
-            $values[$valuePair['value']] = $valuePair['value'];
-        }
+		$options = [];
+		$values  = [];
+		foreach ($valuePairs as $valuePair)
+		{
+			$options[]                   = Helpers\HTML::_('select.option', $valuePair['value'], $valuePair['text']);
+			$values[$valuePair['value']] = $valuePair['value'];
+		}
 
-        $this->value = $values;
+		$this->value = $values;
 
-        return empty($options) ? [] : $options;
-    }
+		return empty($options) ? [] : $options;
+	}
 }

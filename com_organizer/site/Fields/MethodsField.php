@@ -17,21 +17,21 @@ use Organizer\Helpers;
  */
 class MethodsField extends OptionsField
 {
-    /**
-     * @var  string
-     */
-    protected $type = 'Methods';
+	/**
+	 * @var  string
+	 */
+	protected $type = 'Methods';
 
-    /**
-     * Returns a select box where stored buildings can be chosen
-     *
-     * @return array  the available buildings
-     */
-    protected function getOptions()
-    {
-        $defaultOptions = parent::getOptions();
-        $options        = Helpers\Methods::getOptions();
+	/**
+	 * Returns a select box where stored buildings can be chosen
+	 *
+	 * @return array  the available buildings
+	 */
+	protected function getOptions()
+	{
+		$defaultOptions = parent::getOptions();
+		$options        = Helpers\Methods::getOptions();
 
-        return array_merge($defaultOptions, $options);
-    }
+		return array_merge($defaultOptions, $options);
+	}
 }

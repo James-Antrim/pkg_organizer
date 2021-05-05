@@ -15,23 +15,24 @@ namespace Organizer\Tables;
  */
 trait Aliased
 {
-    /**
-     * The alias used to reference the resource in an URL
-     * VARCHAR(255) DEFAULT ''
-     *
-     * @var string
-     */
-    public $alias;
+	/**
+	 * The alias used to reference the resource in an URL
+	 * VARCHAR(255) DEFAULT ''
+	 *
+	 * @var string
+	 */
+	public $alias;
 
-    /**
-     * @inheritDoc
-     */
-    public function check(): bool
-    {
-        if (empty($this->alias)) {
-            $this->alias = null;
-        }
+	/**
+	 * @inheritDoc
+	 */
+	public function check(): bool
+	{
+		if (empty($this->alias))
+		{
+			$this->alias = null;
+		}
 
-        return true;
-    }
+		return true;
+	}
 }
