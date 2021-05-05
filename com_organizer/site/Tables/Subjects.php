@@ -388,7 +388,6 @@ class Subjects extends BaseTable
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function check(): bool
     {

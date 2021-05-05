@@ -118,7 +118,6 @@ class Programs extends BaseTable
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function check(): bool
     {

@@ -130,7 +130,6 @@ class Organizations extends BaseTable
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     protected function _getAssetTitle(): string
     {
@@ -139,7 +138,6 @@ class Organizations extends BaseTable
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     protected function _getAssetName(): string
     {
@@ -150,7 +148,6 @@ class Organizations extends BaseTable
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     protected function _getAssetParentId(Table $table = null, $id = null): int
     {
@@ -176,7 +173,6 @@ class Organizations extends BaseTable
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function check(): bool
     {
@@ -212,7 +208,6 @@ class Organizations extends BaseTable
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function store($updateNulls = true): bool
     {

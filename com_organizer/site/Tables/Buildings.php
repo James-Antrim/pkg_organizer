@@ -67,7 +67,6 @@ class Buildings extends BaseTable
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function check(): bool
     {

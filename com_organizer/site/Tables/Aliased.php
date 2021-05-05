@@ -25,7 +25,6 @@ trait Aliased
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function check(): bool
     {

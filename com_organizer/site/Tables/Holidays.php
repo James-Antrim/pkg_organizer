@@ -67,7 +67,6 @@ class Holidays extends BaseTable
 
     /**
      * @inheritDoc
-     * @noinspection PhpMissingParentCallCommonInspection
      */
     public function check(): bool
     {
