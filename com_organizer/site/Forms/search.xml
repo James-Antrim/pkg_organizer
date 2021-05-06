@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fields name="filter">
+        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+    </fields>
+    <fields name="list">
+        <field name="resource" type="Resources" label="RESOURCE" onchange="this.form.submit();">
+            <option value="">ALL_RESOURCES</option>
+        </field>
+        <field name="languageTag" type="Options" label="Language" onchange="this.form.submit();" default="de">
+            <option value="de">GERMAN</option>
+            <option value="en">ENGLISH</option>
+        </field>
+        <field name="limit" type="limitbox" class="input-mini" onchange="this.form.submit();"/>
+    </fields>
+</form>
