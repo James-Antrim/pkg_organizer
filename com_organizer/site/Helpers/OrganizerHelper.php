@@ -213,6 +213,7 @@ class OrganizerHelper
 			'rooms'         => 'room',
 			'roomtypes'     => 'roomtype',
 			'schedules'     => 'schedule',
+			'search'        => 'search',
 			'subjects'      => 'subject',
 			'terms'         => 'term',
 			'trace'         => '',
