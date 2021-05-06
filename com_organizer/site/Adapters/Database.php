@@ -92,7 +92,7 @@ class Database
 		{
 			$result = $dbo->loadAssoc();
 
-			return $result ? $result : [];
+			return $result ?: [];
 		}
 		catch (Exception $exception)
 		{
@@ -123,7 +123,7 @@ class Database
 		{
 			$result = $dbo->loadAssocList($key, $column);
 
-			return $result ? $result : [];
+			return $result ?: [];
 		}
 		catch (Exception $exception)
 		{
@@ -139,9 +139,9 @@ class Database
 	 *
 	 * @param   bool  $default  the default value
 	 *
-	 * @return  int  The return value if successful, otherwise the default value
+	 * @return  bool  The return value if successful, otherwise the default value
 	 */
-	public static function loadBool($default = false)
+	public static function loadBool($default = false): bool
 	{
 		$result = self::loadResult();
 
@@ -163,7 +163,7 @@ class Database
 		{
 			$result = $dbo->loadColumn($offset);
 
-			return $result ? $result : [];
+			return $result ?: [];
 		}
 		catch (Exception $exception)
 		{
@@ -220,7 +220,7 @@ class Database
 		{
 			$result = $dbo->loadObject($class);
 
-			return $result ? $result : new stdClass();
+			return $result ?: new stdClass();
 		}
 		catch (Exception $exception)
 		{
@@ -249,7 +249,7 @@ class Database
 		{
 			$result = $dbo->loadObjectList($key, $class);
 
-			return $result ? $result : [];
+			return $result ?: [];
 		}
 		catch (Exception $exception)
 		{
@@ -273,7 +273,7 @@ class Database
 		{
 			$result = $dbo->loadResult();
 
-			return $result ? $result : $default;
+			return $result ?: $default;
 		}
 		catch (Exception $exception)
 		{
@@ -289,9 +289,9 @@ class Database
 	 *
 	 * @param   string  $default  the default return value
 	 *
-	 * @return  int  The return value if successful, otherwise the default value
+	 * @return  string  The return value if successful, otherwise the default value
 	 */
-	public static function loadString($default = '')
+	public static function loadString($default = ''): string
 	{
 		$result = self::loadResult();
 
