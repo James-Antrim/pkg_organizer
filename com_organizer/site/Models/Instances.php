@@ -318,6 +318,12 @@ class Instances extends ListModel
 				$this->state->set('filter.eventID', 0);
 			}
 
+			if ($roomID = Helpers\Input::getInt('roomID'))
+			{
+				$filterItems->set('roomID', $roomID);
+				$this->state->set('filter.roomID', $roomID);
+			}
+
 			$dow       = $params->get('dow');
 			$endDate   = $params->get('endDate');
 			$methodIDs = $params->get('methodIDs');
