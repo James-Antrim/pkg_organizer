@@ -16,5 +16,9 @@
             <option value="0">SHOWN</option>
             <option value="1">SUPPRESSED</option>
         </field>
+        <field name="public" type="Options" label="PUBLIC_RELEASE" class="input-15">
+            <option value="0">NOT_RELEASED</option>
+            <option value="1">RELEASED</option>
+        </field>
     </fieldset>
 </form>
