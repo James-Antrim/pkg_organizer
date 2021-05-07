@@ -41,7 +41,7 @@ class Users
 	 */
 	public static function getName(): string
 	{
-		return self::getUser()->name;
+		return (string) self::getUser()->name;
 	}
 
 	/**
