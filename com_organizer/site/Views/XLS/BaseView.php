@@ -122,7 +122,7 @@ abstract class BaseView extends PHPExcel
 		$documentTitle = ApplicationHelper::stringURLSafe($this->getProperties()->getTitle());
 		$objWriter     = PHPExcel_IOFactory::createWriter($this, 'Excel2007');
 		ob_end_clean();
-		header('Content-type: application/vnd.ms-excel');
+		header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		header("Content-Disposition: attachment;filename=$documentTitle.xlsx");
 		$objWriter->save('php://output');
 		exit();
