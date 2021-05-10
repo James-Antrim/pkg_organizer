@@ -36,33 +36,29 @@ class ResourcesField extends ColoredOptionsField
 		$options = parent::getOptions();
 
 		$resources = [
-			Languages::_('ORGANIZER_CATEGORIES')          => [
-				'text'  => Languages::_('ORGANIZER_CATEGORIES'),
-				'value' => 'categories'
+			Languages::_('ORGANIZER_CATEGORIES_AND_PROGRAMS') => [
+				'text'  => Languages::_('ORGANIZER_CATEGORIES_AND_PROGRAMS'),
+				'value' => 'cnp'
 			],
-			Languages::_('ORGANIZER_GROUPS')              => [
-				'text'  => Languages::_('ORGANIZER_GROUPS'),
-				'value' => 'groups'
+			Languages::_('ORGANIZER_EVENTS_AND_SUBJECTS')     => [
+				'text'  => Languages::_('ORGANIZER_EVENTS_AND_SUBJECTS'),
+				'value' => 'ens'
 			],
-			Languages::_('ORGANIZER_PERSONS')             => [
+			Languages::_('ORGANIZER_GROUPS_AND_POOLS')        => [
+				'text'  => Languages::_('ORGANIZER_GROUPS_AND_POOLS'),
+				'value' => 'gnp'
+			],
+			Languages::_('ORGANIZER_ORGANIZATIONS')           => [
+				'text'  => Languages::_('ORGANIZER_ORGANIZATIONS'),
+				'value' => 'organizations'
+			],
+			Languages::_('ORGANIZER_PERSONS')                 => [
 				'text'  => Languages::_('ORGANIZER_PERSONS'),
 				'value' => 'persons'
 			],
-			Languages::_('ORGANIZER_POOLS')               => [
-				'text'  => Languages::_('ORGANIZER_POOLS'),
-				'value' => 'pools'
-			],
-			Languages::_('ORGANIZER_PROGRAMS')            => [
-				'text'  => Languages::_('ORGANIZER_PROGRAMS'),
-				'value' => 'programs'
-			],
-			Languages::_('ORGANIZER_ROOMS')               => [
+			Languages::_('ORGANIZER_ROOMS')                   => [
 				'text'  => Languages::_('ORGANIZER_ROOMS'),
 				'value' => 'rooms'
-			],
-			Languages::_('ORGANIZER_SUBJECTS_AND_EVENTS') => [
-				'text'  => Languages::_('ORGANIZER_SUBJECTS_AND_EVENTS'),
-				'value' => 'subjects'
 			]
 		];
 
