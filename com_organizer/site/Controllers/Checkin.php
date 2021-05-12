@@ -32,14 +32,14 @@ class Checkin extends Controller
 		$data    = Helpers\Input::getFormItems();
 		$session = Factory::getSession();
 
-		if (!$userID = Helpers\Users::getID())
+		if (!Helpers\Users::getID())
 		{
 			$credentials = ['username' => $data->get('username'), 'password' => $data->get('password')];
 			$username    = Helpers\OrganizerHelper::getApplication()->login($credentials) ? '' : $data->get('username');
 			$session->set('organizer.checkin.username', $username);
 		}
 
-		if ($userID = Helpers\Users::getID())
+		if (Helpers\Users::getID())
 		{
 			$model = new Models\InstanceParticipant();
 			$code  = $model->checkin() ? '' : $data->get('code');
@@ -61,7 +61,7 @@ class Checkin extends Controller
 	 */
 	public function confirmInstance()
 	{
-		if ($userID = Helpers\Users::getID())
+		if (Helpers\Users::getID())
 		{
 			$model = new Models\InstanceParticipant();
 			$model->confirmInstance();
@@ -78,7 +78,7 @@ class Checkin extends Controller
 	 */
 	public function confirmSeating()
 	{
-		if ($userID = Helpers\Users::getID())
+		if (Helpers\Users::getID())
 		{
 			$model = new Models\InstanceParticipant();
 			$model->confirmSeating();
@@ -95,7 +95,7 @@ class Checkin extends Controller
 	 */
 	public function contact()
 	{
-		if ($userID = Helpers\Users::getID())
+		if (Helpers\Users::getID())
 		{
 			$model = new Models\Participant();
 			$model->save();
