@@ -63,17 +63,9 @@ class Checkin extends FormModel
 
 		$participant = new Tables\Participants();
 
-		if ($participantID = Helpers\Users::getID())
+		if ($participantID = Helpers\Users::getID() and $participant->load($participantID))
 		{
-			$participant->load($participantID);
-
-			$form->setValue('id', null, $participantID);
-			$form->setValue('address', null, $participant->address);
-			$form->setValue('city', null, $participant->city);
-			$form->setValue('forename', null, $participant->forename);
-			$form->setValue('surname', null, $participant->surname);
-			$form->setValue('telephone', null, $participant->telephone);
-			$form->setValue('zipCode', null, $participant->zipCode);
+			$form->bind($participant);
 		}
 
 		$this->participant = $participant;

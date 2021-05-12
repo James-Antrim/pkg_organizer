@@ -35,14 +35,16 @@ class Checkin extends Controller
 		if (!Helpers\Users::getID())
 		{
 			$credentials = ['username' => $data->get('username'), 'password' => $data->get('password')];
-			$username    = Helpers\OrganizerHelper::getApplication()->login($credentials) ? '' : $data->get('username');
-			$session->set('organizer.checkin.username', $username);
+			Helpers\OrganizerHelper::getApplication()->login($credentials);
+			$session->set('organizer.checkin.username', $data->get('username'));
 		}
 
 		if (Helpers\Users::getID())
 		{
 			$model = new Models\InstanceParticipant();
-			$code  = $model->checkin() ? '' : $data->get('code');
+
+			// Code was invalid, no reason to keep it.
+			$code = $model->checkin() ? $data->get('code') : '';
 			$session->set('organizer.checkin.code', $code);
 		}
 		else
