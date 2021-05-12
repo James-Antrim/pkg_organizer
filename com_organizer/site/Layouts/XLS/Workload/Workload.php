@@ -910,7 +910,7 @@ class Workload extends BaseLayout
 		$this->addSupervisionRow($row++, $doctor);
 
 		$ranges = [['start' => $startRow, 'end' => $endRow]];
-		$this->addSumRow($row++, 'B', $ranges);
+		$this->addSumRow($row++, 'B', $ranges, 2);
 
 		$sheet = $this->view->getActiveSheet();
 		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
@@ -1063,7 +1063,7 @@ class Workload extends BaseLayout
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addSumRow(int $row, string $section, $ranges = [])
+	private function addSumRow(int $row, string $section, $ranges = [], $max = 0)
 	{
 		$sheet     = $this->view->getActiveSheet();
 		$border    = $this->borders['header'];
@@ -1081,7 +1081,8 @@ class Workload extends BaseLayout
 
 		if (count($ranges) === 1)
 		{
-			$formula = "=SUM(M{$ranges[0]['start']}:M{$ranges[0]['end']})";
+			$rangeSum = $max ? "=IF(SUM(MXXX:MYYY)<=2,SUM(MXXX:MYYY),$max)" : "=SUM(MXXX:MYYY)";
+			$formula = str_replace('YYY',$ranges[0]['end'],str_replace('XXX',$ranges[0]['start'],$rangeSum));
 		}
 		else
 		{
