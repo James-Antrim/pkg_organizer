@@ -250,7 +250,7 @@ class Controller extends BaseController
 		}
 
 		$viewName = OrganizerHelper::getClass($name);
-		$type     = strtoupper(preg_replace('/[^A-Z0-9_]/i', '', $type));
+		$type     = preg_replace('/[^A-Z0-9_]/i', '', strtoupper($type));
 		$name     = "Organizer\\Views\\$type\\$viewName";
 
 		$config['base_path']     = JPATH_COMPONENT_SITE . "/Views/$type";

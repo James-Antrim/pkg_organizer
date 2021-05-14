@@ -127,7 +127,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 		$periods->$periodNo->endTime   = $endTime;
 
 		$label = (string) $node->label;
-		if ($label and preg_match("/[a-zA-ZäÄöÖüÜß]+/", $label))
+		if ($label and preg_match("/[A-ZÀ-ÖØ-Þa-zß-ÿ]+/", $label))
 		{
 			$periods->$periodNo->label_de = $label;
 			$periods->$periodNo->label_en = $label;
