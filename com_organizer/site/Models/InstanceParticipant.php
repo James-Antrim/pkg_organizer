@@ -127,9 +127,9 @@ class InstanceParticipant extends BaseModel
 			return false;
 		}
 
-		// Check for planned
+		// Filter for for planned
 		$query = Database::getQuery();
-		$query->select('id')
+		$query->select('instanceID')
 			->from('#__organizer_instance_participants')
 			->where("instanceID IN (" . implode(',', $instanceIDs) . ")")
 			->where("participantID = $participantID");
