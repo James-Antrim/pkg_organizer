@@ -134,6 +134,7 @@ class Instances extends ListModel
 		$query = Helpers\Instances::getInstanceQuery($conditions);
 
 		$query->select("DISTINCT i.id")
+			->leftJoin('#__organizer_events AS e ON e.id = i.eventID')
 			->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
 			->order('b.date, b.startTime, b.endTime');
 
