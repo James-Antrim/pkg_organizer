@@ -295,8 +295,8 @@ class InstanceParticipant extends BaseModel
 		$query->select('i.id')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-			->where("i.eventID = {$instance->eventID}")
-			->where("i.unitID = {$instance->unitID}")
+			->where("i.eventID = $instance->eventID")
+			->where("i.unitID = $instance->unitID")
 			->where("(b.date > '$today' OR (b.date = '$today' AND b.endTime > '$now'))")
 			->order('i.id');
 
@@ -309,9 +309,9 @@ class InstanceParticipant extends BaseModel
 				$block = new Tables\Blocks();
 				if ($block->load($instance->blockID))
 				{
-					$query->where("b.dow = {$block->dow}")
-						->where("b.endTime = '{$block->endTime}'")
-						->where("b.startTime = '{$block->startTime}'");
+					$query->where("b.dow = $block->dow")
+						->where("b.endTime = '$block->endTime'")
+						->where("b.startTime = '$block->startTime'");
 					Database::setQuery($query);
 					$instanceIDs = Database::loadIntColumn();
 				}
@@ -341,7 +341,7 @@ class InstanceParticipant extends BaseModel
 	public function notify(): bool
 	{
 		return false;
-		if (!$instanceID = Input::getID())
+		if (!$instanceID = Helpers\Input::getID())
 		{
 			return false;
 		}
@@ -359,7 +359,7 @@ class InstanceParticipant extends BaseModel
 			return false;
 		}
 
-		$participantIDs = $selected ? $selected : $participants;
+		$participantIDs = $selected ?: $participants;
 
 		$form = Helpers\Input::getBatchItems();
 		if (!$subject = trim($form->get('subject', '')) or !$body = trim($form->get('body', '')))
