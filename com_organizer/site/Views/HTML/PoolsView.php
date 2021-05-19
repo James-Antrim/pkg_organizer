@@ -38,7 +38,7 @@ abstract class PoolsView extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'  => '',
+			'checkbox'  => Helpers\HTML::_('grid.checkall'),
 			'name'      => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
 			'programID' => Helpers\Languages::_('ORGANIZER_PROGRAM')
 		];
