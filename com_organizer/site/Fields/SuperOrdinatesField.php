@@ -32,7 +32,7 @@ class SuperOrdinatesField extends FormField
 	 *
 	 * @return string  the HTML for the super ordinate resources select box
 	 */
-	public function getInput()
+	public function getInput(): string
 	{
 		$options = $this->getOptions();
 		$select  = '<select id="superordinates" name="jform[superordinates][]" multiple="multiple" size="10">';
@@ -46,7 +46,7 @@ class SuperOrdinatesField extends FormField
 	 *
 	 * @return array  the options
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$resourceID   = Helpers\Input::getID();
 		$contextParts = explode('.', $this->form->getName());
@@ -56,6 +56,6 @@ class SuperOrdinatesField extends FormField
 		$programRanges = $resourceType === 'pool' ?
 			Helpers\Pools::getPrograms($resourceID) : Helpers\Subjects::getPrograms($resourceID);
 
-		return Helpers\Pools::getSuperOrdinateOptions($resourceID, $resourceType, $programRanges);
+		return Helpers\Pools::getSuperOptions($resourceID, $resourceType, $programRanges);
 	}
 }

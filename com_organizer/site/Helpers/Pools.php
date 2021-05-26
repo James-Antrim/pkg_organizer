@@ -124,7 +124,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($access = ''): array
+	public static function getOptions(string $access = ''): array
 	{
 		$options = [];
 		foreach (self::getResources($access) as $pool)
@@ -149,7 +149,7 @@ class Pools extends Curricula implements Selectable
 		$programIDs    = Input::getFilterIDs('program');
 		$programRanges = Programs::getPrograms($programIDs);
 
-		$options = self::getSuperOrdinateOptions($resourceID, $resourceType, $programRanges);
+		$options = self::getSuperOptions($resourceID, $resourceType, $programRanges);
 
 		return implode('', $options);
 	}
@@ -204,7 +204,7 @@ class Pools extends Curricula implements Selectable
 			return [];
 		}
 
-		$fieldID         = $table->fieldID ? $table->fieldID : 0;
+		$fieldID         = $table->fieldID ?: 0;
 		$organizationIDs = self::getOrganizationIDs($table->id);
 		$organizationID  = $organizationIDs ? (int) $organizationIDs[0] : 0;
 		$tag             = Languages::getTag();
@@ -228,7 +228,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = ''): array
+	public static function getResources(string $access = ''): array
 	{
 		$programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID');
 		$poolID    = Input::getInt('poolID');

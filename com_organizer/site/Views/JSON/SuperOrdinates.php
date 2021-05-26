@@ -32,7 +32,7 @@ class SuperOrdinates extends BaseView
 		$programIDs    = Helpers\Input::getIntCollection('curricula');
 		$programRanges = Helpers\Programs::getPrograms($programIDs);
 
-		$options = Helpers\Pools::getSuperOrdinateOptions($subID, $type, $programRanges);
+		$options = Helpers\Pools::getSuperOptions($subID, $type, $programRanges);
 		echo json_encode(implode('', $options), JSON_UNESCAPED_UNICODE);
 	}
 }

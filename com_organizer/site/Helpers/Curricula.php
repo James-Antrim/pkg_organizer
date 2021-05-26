@@ -13,9 +13,12 @@ namespace Organizer\Helpers;
 use JDatabaseQuery;
 use Organizer\Adapters\Database;
 
+/**
+ * Class contains methods and method stubs useful in the context of nested curriculum resources.
+ */
 abstract class Curricula extends Associated implements Selectable
 {
-	protected const ALL = '-1', NONE = -1;
+	protected const ALL = -1, NONE = -1;
 
 	/**
 	 * Adds clauses to an array to find subordinate resources in an error state disassociated from a superordinate
@@ -48,7 +51,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array the curricular ids contained in the ranges
 	 */
-	public static function filterIDs(array $ranges)
+	public static function filterIDs(array $ranges): array
 	{
 		$ids = [];
 		foreach ($ranges as $range)
@@ -73,7 +76,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array the curricular ids contained in the ranges
 	 */
-	protected static function filterParentIDs(array $ranges)
+	protected static function filterParentIDs(array $ranges): array
 	{
 		$ids = [];
 		foreach ($ranges as $range)
@@ -93,7 +96,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return void modifies the query
 	 */
-	protected static function filterSubOrdinate(JDatabaseQuery $query, array $ranges, $subjectID = 0)
+	protected static function filterSubOrdinate(JDatabaseQuery $query, array $ranges, int $subjectID = 0)
 	{
 		$wherray = [];
 		foreach ($ranges as $range)
@@ -201,7 +204,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array  an array containing all ranges subordinate to the ranges specified
 	 */
-	private static function getMappableRanges(array $programRanges)
+	private static function getMappableRanges(array $programRanges): array
 	{
 		$query = Database::getQuery();
 		$query->select('*');
@@ -235,7 +238,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array  curriculum range
 	 */
-	public static function getRange(int $rangeID)
+	public static function getRange(int $rangeID): array
 	{
 		$query = Database::getQuery();
 		$query->select('*')->from('#__organizer_curricula')->where("id = $rangeID");
@@ -251,7 +254,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array the resource ranges
 	 */
-	public static function getRangeIDs(int $resourceID)
+	public static function getRangeIDs(int $resourceID): array
 	{
 		$self = get_called_class();
 
@@ -283,7 +286,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array the superordinate resource options
 	 */
-	public static function getSuperOrdinateOptions(int $resourceID, string $type, array $programRanges)
+	public static function getSuperOptions(int $resourceID, string $type, array $programRanges): array
 	{
 		$options = ['<option value="-1">' . Languages::_('ORGANIZER_NONE') . '</option>'];
 		if (!$programRanges or !$type)
@@ -350,7 +353,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return string  string representing the associated program(s)
 	 */
-	public static function getProgramName(int $resourceID)
+	public static function getProgramName(int $resourceID): string
 	{
 		if (!$programs = self::getPrograms($resourceID))
 		{
@@ -375,7 +378,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array the associated programs
 	 */
-	public static function getPrograms($identifiers)
+	public static function getPrograms($identifiers): array
 	{
 		$resource = get_called_class();
 
@@ -391,7 +394,7 @@ abstract class Curricula extends Associated implements Selectable
 	 *
 	 * @return array the associated programs
 	 */
-	public static function getSubjects(int $resourceID, $subjectID = 0)
+	public static function getSubjects(int $resourceID, int $subjectID = 0): array
 	{
 		$query = Database::getQuery();
 		$query->select('DISTINCT *')
