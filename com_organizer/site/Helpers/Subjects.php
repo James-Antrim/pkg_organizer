@@ -28,9 +28,9 @@ class Subjects extends Curricula
 	 *
 	 * @return bool true if the user is a coordinator, otherwise false
 	 */
-	public static function coordinates($subjectID = 0, $personID = 0): bool
+	public static function coordinates(int $subjectID = 0, int $personID = 0): bool
 	{
-		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
+		$personID = $personID ?: Persons::getIDByUserID(Users::getID());
 		$query    = Database::getQuery(true);
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
@@ -76,10 +76,10 @@ class Subjects extends Curricula
 	 *
 	 * @return string the subject name
 	 */
-	public static function getName(int $resourceID = 0, $withNumber = false): string
+	public static function getName(int $resourceID = 0, bool $withNumber = false): string
 	{
 		$query      = Database::getQuery(true);
-		$resourceID = $resourceID ? $resourceID : Input::getID();
+		$resourceID = $resourceID ?: Input::getID();
 		$tag        = Languages::getTag();
 		$query->select("fullName_$tag as name, shortName_$tag as shortName, abbreviation_$tag as abbreviation")
 			->select("code AS subjectNo")
@@ -134,7 +134,7 @@ class Subjects extends Curricula
 	 *
 	 * @return array the persons associated with the subject, empty if none were found.
 	 */
-	public static function getPersons(int $subjectID, $role = 0): array
+	public static function getPersons(int $subjectID, int $role = 0): array
 	{
 		$query = Database::getQuery(true);
 		$query->select('p.id, p.surname, p.forename, p.title, sp.role')
@@ -283,7 +283,7 @@ class Subjects extends Curricula
 			return [];
 		}
 
-		$fieldID         = $table->fieldID ? $table->fieldID : 0;
+		$fieldID         = $table->fieldID ?: 0;
 		$organizationIDs = self::getOrganizationIDs($table->id);
 		$organizationID  = $organizationIDs ? (int) $organizationIDs[0] : 0;
 		$tag             = Languages::getTag();
@@ -383,9 +383,9 @@ class Subjects extends Curricula
 	 *
 	 * @return bool true if the user a teacher for the subject, otherwise false
 	 */
-	public static function teaches($subjectID = 0, $personID = 0): bool
+	public static function teaches(int $subjectID = 0, int $personID = 0): bool
 	{
-		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
+		$personID = $personID ?: Persons::getIDByUserID(Users::getID());
 		$query    = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
