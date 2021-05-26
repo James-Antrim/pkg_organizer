@@ -11,6 +11,8 @@
 namespace Organizer\Helpers;
 
 use Organizer\Adapters\Database;
+use Organizer\Tables\Categories as Category;
+use Organizer\Tables\Groups as Group;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -21,6 +23,47 @@ class Groups extends Associated implements Selectable
 	use Planned;
 
 	protected static $resource = 'group';
+
+	/**
+	 * Returns the category (table entry) associated with a group.
+	 *
+	 * @param   int  $groupID
+	 *
+	 * @return Category
+	 */
+	public static function getCategory(int $groupID): Category
+	{
+		$category = new Category();
+		$group    = new Group();
+
+		if ($group->load($groupID))
+		{
+			$category->load($group->categoryID);
+		}
+
+		return $category;
+	}
+
+	/**
+	 * Gets the name of the category with which the group is associated.
+	 *
+	 * @param   int  $groupID
+	 *
+	 * @return string
+	 */
+	public static function getCategoryName(int $groupID): string
+	{
+		$category = self::getCategory($groupID);
+
+		if (!$category->id)
+		{
+			return Languages::_('ORGANIZER_NO_CATEGORIES');
+		}
+
+		$column = 'name_' . Languages::getTag();
+
+		return $category->$column;
+	}
 
 	/**
 	 * Retrieves the events associated with a group.
@@ -49,7 +92,7 @@ class Groups extends Associated implements Selectable
 	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($access = ''): array
+	public static function getOptions(string $access = ''): array
 	{
 		$categoryID  = Input::getInt('categoryID');
 		$categoryIDs = $categoryID ? [$categoryID] : Input::getFilterIDs('category');
@@ -65,7 +108,8 @@ class Groups extends Associated implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo) {
+		uasort($options, function ($optionOne, $optionTwo)
+		{
 			return $optionOne->text > $optionTwo->text;
 		});
 
@@ -78,7 +122,7 @@ class Groups extends Associated implements Selectable
 	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = ''): array
+	public static function getResources(string $access = ''): array
 	{
 		// TODO Remove (plan) programs on completion of migration.
 		if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID'))
@@ -123,7 +167,7 @@ class Groups extends Associated implements Selectable
 	 *
 	 * @return array
 	 */
-	public static function getUnits(int $groupID, string $date, $interval = 'term'): array
+	public static function getUnits(int $groupID, string $date, string $interval = 'term'): array
 	{
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
