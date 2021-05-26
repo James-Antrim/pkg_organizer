@@ -80,11 +80,33 @@ class Instances extends ListModel
 				$form->removeField('roomID', 'filter');
 			}
 
-			if ($params->get('organizationID'))
+			if ($params->get('organizationID') or Helpers\Input::getInt('organizationID'))
 			{
 				$form->removeField('campusID', 'filter');
 				$form->removeField('organizationID', 'filter');
 				unset($this->filter_fields[array_search('organizationID', $this->filter_fields)]);
+			}
+			elseif (Helpers\Input::getInt('categoryID'))
+			{
+				$form->removeField('campusID', 'filter');
+				$form->removeField('organizationID', 'filter');
+				$form->removeField('categoryID', 'filter');
+				unset(
+					$this->filter_fields[array_search('organizationID', $this->filter_fields)],
+					$this->filter_fields[array_search('categoryID', $this->filter_fields)]
+				);
+			}
+			elseif (Helpers\Input::getInt('groupID'))
+			{
+				$form->removeField('campusID', 'filter');
+				$form->removeField('organizationID', 'filter');
+				$form->removeField('categoryID', 'filter');
+				$form->removeField('groupID', 'filter');
+				unset(
+					$this->filter_fields[array_search('organizationID', $this->filter_fields)],
+					$this->filter_fields[array_search('categoryID', $this->filter_fields)],
+					$this->filter_fields[array_search('groupID', $this->filter_fields)]
+				);
 			}
 
 			$dow       = $params->get('dow');
@@ -302,6 +324,19 @@ class Instances extends ListModel
 			}
 			elseif ($categoryID = Helpers\Input::getInt('categoryID'))
 			{
+				$filterItems->set('categoryID', $categoryID);
+				$this->state->set('filter.categoryID', $categoryID);
+
+				$organizationID = Helpers\Categories::getOrganizationIDs($categoryID)[0];
+				$filterItems->set('organizationID', $organizationID);
+				$this->state->set('filter.organizationID', $organizationID);
+			}
+			elseif ($groupID = Helpers\Input::getInt('groupID'))
+			{
+				$filterItems->set('groupID', $groupID);
+				$this->state->set('filter.groupID', $groupID);
+
+				$categoryID = Helpers\Groups::getCategoryID($groupID);
 				$filterItems->set('categoryID', $categoryID);
 				$this->state->set('filter.categoryID', $categoryID);
 

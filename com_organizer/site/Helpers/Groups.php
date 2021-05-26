@@ -51,6 +51,25 @@ class Groups extends Associated implements Selectable
 	 *
 	 * @return string
 	 */
+	public static function getCategoryID(int $groupID): string
+	{
+		$category = self::getCategory($groupID);
+
+		if (!$category->id)
+		{
+			return 0;
+		}
+
+		return $category->id;
+	}
+
+	/**
+	 * Gets the name of the category with which the group is associated.
+	 *
+	 * @param   int  $groupID
+	 *
+	 * @return string
+	 */
 	public static function getCategoryName(int $groupID): string
 	{
 		$category = self::getCategory($groupID);
