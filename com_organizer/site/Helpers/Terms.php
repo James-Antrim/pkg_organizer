@@ -27,7 +27,7 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @return int the id of the term for the dates used on success, otherwise 0
 	 */
-	public static function getCurrentID($date = ''): int
+	public static function getCurrentID(string $date = ''): int
 	{
 		$date  = ($date and strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
 		$query = Database::getQuery();
@@ -206,9 +206,9 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @param   int  $termID  the term's id
 	 *
-	 * @return mixed  string the end date of the term could be resolved, otherwise null
+	 * @return string|null  string the end date of the term could be resolved, otherwise null
 	 */
-	public static function getStartDate(int $termID)
+	public static function getStartDate(int $termID): ?string
 	{
 		$table = new Tables\Terms();
 
