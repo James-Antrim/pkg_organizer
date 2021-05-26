@@ -29,9 +29,9 @@ class Programs extends Curricula implements Selectable
 	 * @param   string  $initialName  the name to be used if no entry already exists
 	 * @param   int     $categoryID   the id of the category calling this function
 	 *
-	 * @return mixed int on success, otherwise null
+	 * @return int int the created program's id on success, otherwise 0
 	 */
-	public static function create(array $programData, string $initialName, int $categoryID)
+	public static function create(array $programData, string $initialName, int $categoryID): int
 	{
 		$programTable = new Tables\Programs();
 		if ($programTable->load($programData))
@@ -41,7 +41,7 @@ class Programs extends Curricula implements Selectable
 
 		if (empty($initialName))
 		{
-			return null;
+			return 0;
 		}
 
 		$departmentID                  = Input::getInt('departmentID');
@@ -53,7 +53,7 @@ class Programs extends Curricula implements Selectable
 		$model     = new Models\Program();
 		$programID = $model->save($programData);
 
-		return empty($programID) ? null : $programID;
+		return empty($programID) ? 0 : $programID;
 	}
 
 	/**
@@ -111,7 +111,7 @@ class Programs extends Curricula implements Selectable
 	/**
 	 * @inheritDoc
 	 */
-	public static function getName(int $resourceID)
+	public static function getName(int $resourceID): string
 	{
 		if (!$resourceID)
 		{
@@ -136,7 +136,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($access = ''): array
+	public static function getOptions(string $access = ''): array
 	{
 		$options = [];
 		foreach (self::getResources($access) as $program)
@@ -158,7 +158,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @return string the organization associated with the program's documentation
 	 */
-	public static function getOrganization(int $programID, $short = false): string
+	public static function getOrganization(int $programID, bool $short = false): string
 	{
 		if (!$organizationIDs = self::getOrganizationIDs($programID))
 		{
@@ -230,7 +230,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = ''): array
+	public static function getResources(string $access = ''): array
 	{
 		$query = self::getQuery();
 		$tag   = Languages::getTag();
