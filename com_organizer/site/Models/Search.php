@@ -23,6 +23,8 @@ class Search extends ListModel
 {
 	private const TEACHER = 1, SPEAKER = 4;
 
+	private $authorized;
+
 	private $filteredTerms = [];
 
 	private $categoryIDs = [];
@@ -231,6 +233,16 @@ class Search extends ListModel
 	];
 
 	/**
+	 * @inheritDoc
+	 */
+	public function __construct($config = [])
+	{
+		parent::__construct($config);
+
+		$this->authorized = Helpers\Can::manageTheseOrganizations();
+	}
+
+	/**
 	 * Adds clauses to the room query for a capacity or room types.
 	 *
 	 * @param   JDatabaseQuery  $query     the query to be modified
@@ -276,7 +288,6 @@ class Search extends ListModel
 		{
 			switch ($this->state->get('list.resource'))
 			{
-				// Prioritize these...
 				case 'organizations':
 					$this->searchOrganizations($items);
 					break;
@@ -293,7 +304,7 @@ class Search extends ListModel
 					$this->searchEnS($items);
 					break;
 				case 'persons':
-					// $this->searchPersons($items);
+					$this->searchPersons($items);
 					break;
 				case 'rooms':
 					$this->searchRooms($items);
@@ -303,7 +314,7 @@ class Search extends ListModel
 					$this->searchCnP($items);
 					$this->searchGnP($items);
 					$this->searchEnS($items);
-					// $this->searchPersons($items);
+					$this->searchPersons($items);
 					$this->searchRooms($items);
 					break;
 			}
@@ -424,7 +435,7 @@ class Search extends ListModel
 	 *
 	 * @param   array  $resources  the category and program search results
 	 *
-	 * @return array $programs
+	 * @return array the structured results
 	 */
 	private function processCnP(array $resources): array
 	{
@@ -514,7 +525,7 @@ class Search extends ListModel
 	 *
 	 * @param   array  $resources  the event/subject results
 	 *
-	 * @return array $subjects
+	 * @return array the structured results
 	 */
 	private function processEnS(array $resources): array
 	{
@@ -565,7 +576,7 @@ class Search extends ListModel
 	 *
 	 * @param   array  $resources  the category and program search results
 	 *
-	 * @return array $programs
+	 * @return array the structured results
 	 */
 	private function processGnP(array $resources): array
 	{
@@ -627,13 +638,12 @@ class Search extends ListModel
 	 *
 	 * @param   array  $organizationIDs  the organization ids
 	 *
-	 * @return array standardized output of organization entries
+	 * @return array the structured results
 	 */
 	private function processOrganizations(array $organizationIDs): array
 	{
+		$label         = Languages::_('ORGANIZER_ORGANIZATION') . ': ';
 		$organizations = [];
-
-		$label = Languages::_('ORGANIZER_ORGANIZATION') . ': ';
 
 		foreach ($organizationIDs as $organizationID)
 		{
@@ -649,11 +659,60 @@ class Search extends ListModel
 	}
 
 	/**
+	 * Processes person results into a standardized array for output.
+	 *
+	 * @param   array  $personIDs  the category and program search results
+	 *
+	 * @return array the structured results
+	 */
+	private function processPersons(array $personIDs): array
+	{
+		$label   = Languages::_('ORGANIZER_PERSON') . ': ';
+		$persons = [];
+		$userID  = Helpers\Users::getID();
+
+		foreach ($personIDs as $personID)
+		{
+			$links = [];
+
+			$coordinates     = Helpers\Subjects::coordinates(0, $personID);
+			$identity        = ($userID and Helpers\Persons::getIDByUserID($userID) === $personID);
+			$organizationIDs = Helpers\Persons::getOrganizationIDs($personID);
+			$names           = Helpers\Persons::getOrganizationNames($personID);
+			$released        = Helpers\Persons::released($personID);
+			$teaches         = Helpers\Subjects::teaches(0, $personID);
+			$wedge           = ($organizationIDs and array_intersect($this->authorized, $organizationIDs));
+
+			if ($coordinates or $teaches)
+			{
+				$links['subjects'] = "?option=com_organizer&view=subjects&personID=$personID";
+			}
+
+			if ($identity or $released or $wedge)
+			{
+				$links['grid'] = "?option=com_thm_organizer&view=schedule&teacherIDs=$personID";
+				$links['list'] = "?option=com_organizer&view=instances&personID=$personID";
+			}
+
+			if ($links)
+			{
+				$persons[$personID] = [];
+
+				$persons[$personID]['description'] = $names ?: '';
+				$persons[$personID]['text']        = $label . Helpers\Persons::getDefaultName($personID);
+				$persons[$personID]['links']       = $links;
+			}
+		}
+
+		return $persons;
+	}
+
+	/**
 	 * Processes room results into a standardized array for output
 	 *
 	 * @param   array &$results  the room results
 	 *
-	 * @return array of formatted room results
+	 * @return array the structured results
 	 */
 	private function processRooms(array $results): array
 	{
@@ -1903,8 +1962,7 @@ class Search extends ListModel
 	 * Retrieves prioritized group/pool search results. Pools are prioritized in the output for ease of
 	 * comprehension.
 	 *
-	 * @param   array &$items      the container with the results
-	 * @param   bool   $requested  true: results added to output; false: results used for subordinate context
+	 * @param   array &$items  the container with the results
 	 *
 	 * @return void modifies &$items
 	 */
@@ -3018,6 +3076,126 @@ class Search extends ListModel
 	}
 
 	/**
+	 * Retrieves prioritized person search results.
+	 *
+	 * @param   array &$items  the container with the results
+	 *
+	 * @return void modifies &$items
+	 */
+	private function searchPersons(array &$items)
+	{
+		$terms = $this->terms;
+
+		// No names shorter than two characters
+		foreach ($terms as $index => $term)
+		{
+			if (strlen($term) < 2)
+			{
+				unset($terms[$index]);
+			}
+		}
+
+		if (!$terms = array_values($terms))
+		{
+			return;
+		}
+
+		$allIDs = [];
+		$count  = count($terms);
+
+		$query = Database::getQuery();
+		$query->select('id')->from('#__organizer_persons')->order('surname, forename');
+
+		/**
+		 * --EXACT--
+		 * Near matches against both forename and surname
+		 */
+		if ($count >= 2)
+		{
+			$wherray    = [];
+			$innerTerms = $terms;
+
+			foreach ($terms as $outerTerm)
+			{
+				foreach ($innerTerms as $iKey => $innerTerm)
+				{
+					if ($outerTerm == $innerTerm)
+					{
+						unset($innerTerms[$iKey]);
+						continue;
+					}
+
+					// lnf/fnf
+					$wherray[] = "(surname LIKE '%$outerTerm%' AND forename LIKE '%$innerTerm%')";
+					$wherray[] = "(surname LIKE '%$innerTerm%' AND forename LIKE '%$outerTerm%')";
+				}
+			}
+
+			$query->where('(' . implode(' OR ', $wherray) . ')');
+			Database::setQuery($query);
+
+			if ($personIDs = Database::loadIntColumn())
+			{
+				$allIDs = $personIDs;
+
+				$items['exact']['persons'] = $this->processPersons($personIDs);
+			}
+		}
+
+		/**
+		 * --STRONG--
+		 * ~Exact match on surname
+		 */
+		$query->clear('where');
+		$wherray = [];
+
+		if ($allIDs)
+		{
+			$query->where('id NOT IN (' . implode(',', $allIDs) . ')');
+		}
+
+		foreach ($terms as $term)
+		{
+			$wherray[] = "surname LIKE '$term'";
+		}
+
+		$query->where('(' . implode(' OR ', $wherray) . ')');
+		Database::setQuery($query);
+
+		if ($personIDs = Database::loadIntColumn())
+		{
+			$allIDs = array_merge($personIDs, $allIDs);
+
+			$items['strong']['persons'] = $this->processPersons($personIDs);
+		}
+
+		/**
+		 * --GOOD--
+		 * ~Near match on surname
+		 */
+		$query->clear('where');
+		$wherray = [];
+
+		if ($allIDs)
+		{
+			$query->where('id NOT IN (' . implode(',', $allIDs) . ')');
+		}
+
+		foreach ($terms as $term)
+		{
+			$wherray[] = "surname LIKE '%$term%'";
+		}
+
+		$query->where('(' . implode(' OR ', $wherray) . ')');
+		Database::setQuery($query);
+
+		if ($personIDs = Database::loadIntColumn())
+		{
+			$items['good']['persons'] = $this->processPersons($personIDs);
+		}
+	}
+
+	/**
 	 * Sets prioritized room search results.
 	 *
 	 * @param   array &$items  the container with the results
@@ -3511,27 +3689,3 @@ class Search extends ListModel
 		$this->setFilteredTerms();
 	}
 }
-/*
- *
-sp major, 1. semester
-major, 1. semester
-
-3 semester (optional)
-3 semester (optional) praxisphase/auslandssemester/wahlfachsemester
-3./4 semester
-X semester - baumanagement und projektsteuerung
-X semester - infrastrukturplanung
-X semester - konstruktion und tragwerksplanung
-praxisphase/auslandssemester/wahlfachsemester
-wahlfachsemester
-
- automation, 6. semester
- automatisierungstechnik, 4. semester
-3. semester (optional)
-3./4. semester
-4th & 5th semesters
-X semester - construction and structural design
-X semester - construction management and project management
-X semester - infrastructure planning
-abroad study semester / internship / electives
-*/
