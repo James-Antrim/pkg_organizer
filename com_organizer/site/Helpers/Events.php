@@ -29,9 +29,9 @@ class Events extends ResourceHelper
 	 *
 	 * @return bool true if the user is a coordinator, otherwise false
 	 */
-	public static function coordinates($eventID = 0, $personID = 0)
+	public static function coordinates(int $eventID = 0, int $personID = 0): bool
 	{
-		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
+		$personID = $personID ?: Persons::getIDByUserID(Users::getID());
 		$query    = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_event_coordinators')
@@ -54,7 +54,7 @@ class Events extends ResourceHelper
 	 *
 	 * @return array the names of the categories (or programs)
 	 */
-	public static function getCategoryNames(int $eventID)
+	public static function getCategoryNames(int $eventID): array
 	{
 		$names     = [];
 		$tag       = Languages::getTag();
@@ -79,7 +79,7 @@ class Events extends ResourceHelper
 
 		foreach ($results as $result)
 		{
-			$names[$result['id']] = $result['program'] ? $result['program'] : $result['category'];
+			$names[$result['id']] = $result['program'] ?: $result['category'];
 		}
 
 		return $names;
@@ -94,7 +94,7 @@ class Events extends ResourceHelper
 	 *
 	 * @return array
 	 */
-	public static function getUnits(int $eventID, string $date, $interval = 'term')
+	public static function getUnits(int $eventID, string $date, string $interval = 'term'): array
 	{
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
@@ -117,9 +117,9 @@ class Events extends ResourceHelper
 	 *
 	 * @return bool true if the user is a teacher, otherwise false
 	 */
-	public static function teaches($eventID = 0, $personID = 0)
+	public static function teaches(int $eventID = 0, int $personID = 0): bool
 	{
-		$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID());
+		$personID = $personID ?: Persons::getIDByUserID(Users::getID());
 		$query    = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_instances AS i')
