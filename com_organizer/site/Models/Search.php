@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Joomla\CMS\Factory;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
@@ -273,13 +274,6 @@ class Search extends ListModel
 	 */
 	public function getItems(): array
 	{
-		$stateChanged = true;
-
-		if (!$stateChanged)
-		{
-			return $this->items;
-		}
-
 		$this->setTerms();
 
 		$items = ['exact' => [], 'strong' => [], 'good' => [], 'mentioned' => [], 'related' => [],];
@@ -411,10 +405,18 @@ class Search extends ListModel
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
-		// Retrieve container with the previous state
 		parent::populateState();
-		// Compare states and set variable if state has changed
-		// Replace conteiner with this state
+
+		$get     = Helpers\Input::getString('search');
+		$session = Factory::getSession();
+		$pSearch = (string) $session->get('organizer.search.search');
+
+		// No previous and there now is one or previous and the current one is different
+		if ((!$pSearch and $get) or ($pSearch and $pSearch !== $get))
+		{
+			$session->set('organizer.search.search', $get);
+			$this->state->set('filter.search', $get);
+		}
 	}
 
 	/**
