@@ -119,26 +119,6 @@ class Subjects extends BaseTable
 	public $duration;
 
 	/**
-	 * The standard for evaluation in German.
-	 * TEXT
-	 *
-	 * Status: Changed -> "Die Bewertung des Moduls erfolgt gemäß § 9 der Allgemeinen Bestimmungen (Teil I der Prüfungsordnung)."
-	 *
-	 * @var string
-	 */
-	public $evaluation_de;
-
-	/**
-	 * The standard for evaluation in English.
-	 * TEXT
-	 *
-	 * Status: Changed -> "The module evaluation is performed according to § 9 of the gen. provisions (Part I of the exam regulations)."
-	 *
-	 * @var string
-	 */
-	public $evaluation_en;
-
-	/**
 	 * The total number of scholastic hours (45 minutes) estimated to be necessary for this subject.
 	 * INT(4) UNSIGNED NOT NULL DEFAULT
 	 *

@@ -36,9 +36,9 @@ class SubjectItem extends ItemModel
 		$query = Database::getQuery(true);
 		$tag   = Languages::getTag();
 		$query->select("f.name_$tag AS availability, bonusPoints_$tag as bonus, content_$tag AS content, creditpoints")
-			->select("description_$tag AS description, duration, evaluation_$tag AS evaluation, expenditure, expertise")
-			->select("instructionLanguage, method_$tag AS method, methodCompetence, code AS moduleCode")
-			->select("s.fullName_$tag AS name, objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
+			->select("description_$tag AS description, duration, expenditure, expertise, instructionLanguage")
+			->select("method_$tag AS method, methodCompetence, code AS moduleCode, s.fullName_$tag AS name")
+			->select("objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
 			->select("usedFor_$tag AS prerequisiteFor, prerequisites_$tag AS prerequisites, proof_$tag AS proof")
 			->select("recommendedPrerequisites_$tag as recommendedPrerequisites, selfCompetence")
 			->select("socialCompetence, sws, present")
@@ -99,7 +99,11 @@ class SubjectItem extends ItemModel
 			'method'                   => ['label' => Languages::_($option . 'METHOD'), 'type' => 'text'],
 			'preliminaryWork'          => ['label' => Languages::_($option . 'PRELIMINARY_WORK'), 'type' => 'text'],
 			'proof'                    => ['label' => Languages::_($option . 'PROOF'), 'type' => 'text'],
-			'evaluation'               => ['label' => Languages::_($option . 'EVALUATION'), 'type' => 'text'],
+			'evaluation'               => [
+				'label' => Languages::_($option . 'EVALUATION'),
+				'type'  => 'text',
+				'value' => Languages::_($option . 'EVALUATION_TEXT')
+			],
 			'bonus'                    => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
 			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
 			'prerequisites'            => ['label' => Languages::_($option . 'PREREQUISITES'), 'type' => 'text'],

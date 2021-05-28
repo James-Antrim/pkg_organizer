@@ -57,8 +57,6 @@
         <field name="preliminaryWork_de" type="Blank" label="PRELIMINARY_WORK_DE"
                hint="Erfolgreicher Abgabe von 6 Hausübungen."/>
         <field name="proof_de" type="Blank" label="PROOF_DE" hint="schriftliche Klausur"/>
-        <field name="evaluation_de" type="Blank" label="EVALUATION_DE"
-               hint="gem. § 9 der Allg. Bestimmungen (Teil I der PO)"/>
         <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
         <field name="objective_de" type="Editor" label="ORGANIZER_OBJECTIVE_DE"
                description="ORGANIZER_OBJECTIVE_DE_DESC"/>
@@ -78,8 +76,6 @@
         <field name="preliminaryWork_en" type="Blank" label="PRELIMINARY_WORK_EN"
                hint="Successful completion of six homework assignments."/>
         <field name="proof_en" type="Blank" label="PROOF_EN" hint="Written Exam"/>
-        <field name="evaluation_en" type="Blank" label="EVALUATION_EN"
-               hint="acc. § 9 of the gen. provisions (Part I of the PO)"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
         <field name="objective_en" type="Editor" label="ORGANIZER_OBJECTIVE_EN"
                description="ORGANIZER_OBJECTIVE_EN_DESC"/>

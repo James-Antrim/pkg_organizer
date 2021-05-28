@@ -252,11 +252,6 @@ class SubjectsLSF
 				}
 				break;
 
-			case 'Bewertung, Note':
-				$table->setColumn('evaluation_de', $germanText, '');
-				$table->setColumn('evaluation_en', $englishText, '');
-				break;
-
 			case 'Bonuspunkte':
 				$table->setColumn('bonusPoints_de', $germanText, '');
 				$table->setColumn('bonusPoints_en', $englishText, '');

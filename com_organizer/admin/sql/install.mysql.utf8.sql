@@ -820,8 +820,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `description_de`              TEXT,
     `description_en`              TEXT,
     `duration`                    INT(2) UNSIGNED                DEFAULT 1,
-    `evaluation_de`               TEXT,
-    `evaluation_en`               TEXT,
     `expenditure`                 INT(4) UNSIGNED       NOT NULL DEFAULT 0,
     `expertise`                   TINYINT(1) UNSIGNED            DEFAULT NULL,
     `fieldID`                     INT(11) UNSIGNED               DEFAULT NULL,
