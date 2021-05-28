@@ -197,7 +197,7 @@ class Subjects extends BaseTable
 	 *
 	 * @var string
 	 */
-	public $instructionLanguage;
+	public $language;
 
 	/**
 	 * The recommended literature to accompany this subject.
@@ -420,7 +420,7 @@ class Subjects extends BaseTable
 	 */
 	public function check(): bool
 	{
-		$nullColumns = ['alias', 'fieldID', 'frequencyID', 'instructionLanguage', 'lsfID'];
+		$nullColumns = ['alias', 'fieldID', 'frequencyID', 'language', 'lsfID'];
 
 		foreach ($nullColumns as $nullColumn)
 		{

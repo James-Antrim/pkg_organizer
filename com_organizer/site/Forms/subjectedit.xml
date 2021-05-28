@@ -8,7 +8,7 @@
         <field name="duration" type="Integer" label="DURATION" default="1" first="1" last="30" step="1">
             <option value="0">SELECT_DURATION</option>
         </field>
-        <field name="instructionLanguage" type="Options" label="INSTRUCTION_LANGUAGE" default="D">
+        <field name="language" type="Options" label="INSTRUCTION_LANGUAGE" default="D">
             <option value="D">GERMAN</option>
             <option value="E">ENGLISH</option>
         </field>

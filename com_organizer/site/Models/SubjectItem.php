@@ -36,7 +36,7 @@ class SubjectItem extends ItemModel
 		$query = Database::getQuery(true);
 		$tag   = Languages::getTag();
 		$query->select("f.name_$tag AS availability, bonusPoints_$tag as bonus, content_$tag AS content, creditpoints")
-			->select("description_$tag AS description, duration, expenditure, expertise, instructionLanguage")
+			->select("description_$tag AS description, duration, expenditure, expertise, language")
 			->select("literature, method_$tag AS method, methodCompetence, code AS moduleCode, s.fullName_$tag AS name")
 			->select("objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
 			->select("usedFor_$tag AS prerequisiteFor, prerequisites_$tag AS prerequisites, proof_$tag AS proof")
@@ -62,7 +62,7 @@ class SubjectItem extends ItemModel
 		$this->setCampus($subject);
 		$this->setDependencies($subject);
 		$this->setExpenditureText($subject);
-		$this->setInstructionLanguage($subject);
+		$this->setLanguage($subject);
 		$this->setPersons($subject);
 
 		return $subject;
@@ -93,7 +93,7 @@ class SubjectItem extends ItemModel
 			'socialCompetence'         => ['label' => Languages::_($option . 'SOCIAL_COMPETENCE'), 'type' => 'star'],
 			'selfCompetence'           => ['label' => Languages::_($option . 'SELF_COMPETENCE'), 'type' => 'star'],
 			'duration'                 => ['label' => Languages::_($option . 'DURATION'), 'type' => 'text'],
-			'instructionLanguage'      => ['label' => Languages::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
+			'language'                 => ['label' => Languages::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
 			'expenditure'              => ['label' => Languages::_($option . 'EXPENDITURE'), 'type' => 'text'],
 			'sws'                      => ['label' => Languages::_($option . 'SWS'), 'type' => 'text'],
 			'method'                   => ['label' => Languages::_($option . 'METHOD'), 'type' => 'text'],
@@ -290,16 +290,16 @@ class SubjectItem extends ItemModel
 	 *
 	 * @return void  sets values in the references object
 	 */
-	private function setInstructionLanguage(array &$subject)
+	private function setLanguage(array &$subject)
 	{
-		switch (strtoupper((string) $subject['instructionLanguage']['value']))
+		switch (strtoupper((string) $subject['language']['value']))
 		{
 			case 'E':
-				$subject['instructionLanguage']['value'] = Languages::_('ORGANIZER_ENGLISH');
+				$subject['language']['value'] = Languages::_('ORGANIZER_ENGLISH');
 				break;
 			case 'D':
 			default:
-				$subject['instructionLanguage']['value'] = Languages::_('ORGANIZER_GERMAN');
+				$subject['language']['value'] = Languages::_('ORGANIZER_GERMAN');
 		}
 	}
 

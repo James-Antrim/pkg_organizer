@@ -19,12 +19,12 @@ use Organizer\Helpers;
 class Subjects extends ListModel
 {
 	protected $filter_fields = [
-		'instructionLanguage' => 'instructionLanguage',
-		'fieldID'             => 'fieldID',
-		'organizationID'      => 'organizationID',
-		'personID'            => 'personID',
-		'poolID'              => 'poolID',
-		'programID'           => 'programID'
+		'language'       => 'language',
+		'fieldID'        => 'fieldID',
+		'organizationID' => 'organizationID',
+		'personID'       => 'personID',
+		'poolID'         => 'poolID',
+		'programID'      => 'programID'
 	];
 
 	/**
@@ -130,7 +130,7 @@ class Subjects extends ListModel
 		}
 
 		$this->setIDFilter($query, 's.fieldID', 'filter.fieldID');
-		$this->setValueFilters($query, ['instructionLanguage']);
+		$this->setValueFilters($query, ['language']);
 		$this->setOrdering($query);
 
 		return $query;

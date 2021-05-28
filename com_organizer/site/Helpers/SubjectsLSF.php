@@ -146,7 +146,7 @@ class SubjectsLSF
 	public static function processAttributes(Table $table, Element $subject)
 	{
 		$table->setColumn('code', (string) $subject->modulecode, '');
-		$table->setColumn('instructionLanguage', (string) $subject->sprache, '');
+		$table->setColumn('language', (string) $subject->sprache, '');
 		$table->setColumn('frequencyID', (string) $subject->turnus, '');
 
 		$durationExists = preg_match('/\d+/', (string) $subject->dauer, $duration);
