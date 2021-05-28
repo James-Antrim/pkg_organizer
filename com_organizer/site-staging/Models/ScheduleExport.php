@@ -55,7 +55,7 @@ class ScheduleExport extends BaseModel
 			}
 
 			$this->setTitles();
-			$this->lessons = Helpers\Schedules::getLessons($this->parameters);
+			$this->lessons = Helpers\Instances::getInstanceIDs($this->parameters);
 		}
 	}
 
@@ -64,7 +64,7 @@ class ScheduleExport extends BaseModel
 	 *
 	 * @return array an array of organization options
 	 */
-	public function getOrganizationOptions()
+	public function getOrganizationOptions(): array
 	{
 		$organizations = Helpers\Organizations::getOptions(false);
 		$options       = [];
@@ -83,7 +83,7 @@ class ScheduleExport extends BaseModel
 	 *
 	 * @return array an array of grid options
 	 */
-	public function getGridOptions()
+	public function getGridOptions(): array
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = Database::getQuery();
@@ -112,7 +112,7 @@ class ScheduleExport extends BaseModel
 	 *
 	 * @return array the document and page names
 	 */
-	private function getPoolTitles()
+	private function getPoolTitles(): array
 	{
 		$titles  = ['docTitle' => '', 'pageTitle' => ''];
 		$poolIDs = array_values($this->parameters['poolIDs']);
@@ -141,7 +141,7 @@ class ScheduleExport extends BaseModel
 				}
 
 				$titles['docTitle']  .= $code . '_';
-				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $table->code : ", {$table->code}";
+				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $table->code : ", $table->code";
 			}
 		}
 
@@ -153,7 +153,7 @@ class ScheduleExport extends BaseModel
 	 *
 	 * @return array the document and page names
 	 */
-	private function getRoomTitles()
+	private function getRoomTitles(): array
 	{
 		$titles  = ['docTitle' => '', 'pageTitle' => ''];
 		$roomIDs = array_values($this->parameters['roomIDs']);
@@ -170,7 +170,7 @@ class ScheduleExport extends BaseModel
 		{
 			if ($table->load($roomID))
 			{
-				$untisID = ApplicationHelper::stringURLSafe($table->untisID);
+				$untisID = ApplicationHelper::stringURLSafe($table->code);
 
 				if ($oneResource)
 				{
@@ -181,7 +181,7 @@ class ScheduleExport extends BaseModel
 				}
 
 				$titles['docTitle']  .= $untisID . '_';
-				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $table->name : ", {$table->name}";
+				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $table->name : ", $table->name";
 			}
 		}
 
@@ -193,7 +193,7 @@ class ScheduleExport extends BaseModel
 	 *
 	 * @return array the document and page names
 	 */
-	private function getSubjectTitles()
+	private function getSubjectTitles(): array
 	{
 		$courseIDs = array_values($this->parameters['courseIDs']);
 		$titles    = ['docTitle' => '', 'pageTitle' => ''];
@@ -208,7 +208,7 @@ class ScheduleExport extends BaseModel
 
 		$query = Database::getQuery();
 		$query->select('co.name AS courseName, co.code')
-			->select("s.shortName_$tag AS shortName, s.name_$tag AS name")
+			->select("s.name_$tag AS name")
 			->from('#__organizer_courses AS co')
 			->leftJoin('#__organizer_subject_events AS se ON se.courseID = co.id')
 			->leftJoin('#__organizer_subjects AS s ON s.id = se.subjectID');
@@ -249,7 +249,7 @@ class ScheduleExport extends BaseModel
 				}
 
 				$titles['docTitle']  .= $untisID . '_';
-				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $untisID : ", {$untisID}";
+				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $untisID : ", $untisID";
 			}
 		}
 
@@ -261,7 +261,7 @@ class ScheduleExport extends BaseModel
 	 *
 	 * @return array the document and page names
 	 */
-	private function getPersonTitles()
+	private function getPersonTitles(): array
 	{
 		$titles    = ['docTitle' => '', 'pageTitle' => ''];
 		$personIDs = array_values($this->parameters['personIDs']);
@@ -288,9 +288,9 @@ class ScheduleExport extends BaseModel
 				}
 
 				$displayName         = Helpers\Persons::getLNFName($personID, true);
-				$untisID             = ApplicationHelper::stringURLSafe($table->untisID);
+				$untisID             = ApplicationHelper::stringURLSafe($table->code);
 				$titles['docTitle']  .= $untisID . '_';
-				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $displayName : ", {$displayName}";
+				$titles['pageTitle'] .= empty($titles['pageTitle']) ? $displayName : ", $displayName";
 			}
 		}
 

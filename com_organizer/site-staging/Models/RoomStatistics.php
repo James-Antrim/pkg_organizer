@@ -105,7 +105,7 @@ class RoomStatistics extends BaseModel
 	 *
 	 * @return void
 	 */
-	private function aggregateInstances($ringData)
+	private function aggregateInstances(array $ringData)
 	{
 		foreach ($ringData as $instance)
 		{
@@ -163,7 +163,7 @@ class RoomStatistics extends BaseModel
 	 *
 	 * @return array an array of organization options
 	 */
-	public function getOrganizationOptions()
+	public function getOrganizationOptions(): array
 	{
 		$options = [];
 		foreach (Helpers\Organizations::getOptions(false) as $id => $name)
@@ -182,7 +182,7 @@ class RoomStatistics extends BaseModel
 	 *
 	 * @return array the relevant block numbers
 	 */
-	private function getRelevantBlocks($startTime, $endTime)
+	private function getRelevantBlocks(string $startTime, string $endTime): array
 	{
 		$relevantBlocks = [];
 
@@ -207,7 +207,7 @@ class RoomStatistics extends BaseModel
 	 *
 	 * @return array an array of room options
 	 */
-	public function getRoomOptions()
+	public function getRoomOptions(): array
 	{
 		$options = [];
 		foreach ($this->rooms as $roomName => $roomData)
@@ -223,7 +223,7 @@ class RoomStatistics extends BaseModel
 	 *
 	 * @return array an array of person options
 	 */
-	public function getRoomtypeOptions()
+	public function getRoomtypeOptions(): array
 	{
 		$options = [];
 		foreach ($this->roomtypes as $roomtypeID => $roomTypeData)
@@ -272,7 +272,7 @@ class RoomStatistics extends BaseModel
 	 *
 	 * @return bool true if room information was found, otherwise false
 	 */
-	private function setData($roomID)
+	private function setData(int $roomID): bool
 	{
 		$tag       = Helpers\Languages::getTag();
 		$ringQuery = Database::getQuery();
@@ -353,8 +353,6 @@ class RoomStatistics extends BaseModel
 
 		$this->startDate = $dates['startDate'];
 		$this->endDate   = $dates['endDate'];
-
-		return;
 	}
 
 	/**
@@ -406,7 +404,7 @@ class RoomStatistics extends BaseModel
 	 *
 	 * @return void sets object variable indexes
 	 */
-	private function setLSData($lcrsIDs)
+	private function setLSData(array $lcrsIDs)
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = Database::getQuery();
@@ -416,7 +414,7 @@ class RoomStatistics extends BaseModel
 
 		// Subject Data
 		$select .= 'co.id AS courseID, co.name AS courseName, co.subjectNo, co.code AS courseCode, ';
-		$select .= "s.id AS subjectID, s.name_$tag AS subjectName, s.shortName_$tag AS subjectShortName, ";
+		$select .= "s.id AS subjectID, s.name_$tag AS subjectName, ";
 		$select .= "s.abbreviation_$tag AS subjectAbbr, ";
 		$query->innerJoin('#__organizer_courses AS co ON co.id = lcrs.courseID');
 		$query->leftJoin('#__organizer_subject_events AS se ON se.courseID = co.id');
@@ -512,7 +510,7 @@ class RoomStatistics extends BaseModel
 			$this->metaData['days'][$date]['total'] = 0;
 			$this->metaData['days'][$date]['use']   = 0;
 
-			foreach ($this->rooms as $roomName => $roomData)
+			foreach ($this->rooms as $roomData)
 			{
 				$roomUse = empty($this->roomData[$roomData['id']]['days'][$date]) ?
 					0 : $this->roomData[$roomData['id']]['days'][$date];
@@ -540,7 +538,7 @@ class RoomStatistics extends BaseModel
 			{
 				$week['total'] += $this->metaData['days'][$currentDate]['total'];
 				$week['use']   += $this->metaData['days'][$currentDate]['use'];
-				$dailyAverage  = $this->metaData['days'][$currentDate]['use'] / $this->metaData['days'][$date]['total'];
+				$dailyAverage  = $this->metaData['days'][$currentDate]['use'] / $this->metaData['days'][$currentDate]['total'];
 
 				if ($dailyAverage > $this->threshhold)
 				{
@@ -548,7 +546,7 @@ class RoomStatistics extends BaseModel
 					$week['adjustedUse']   += $this->metaData['days'][$currentDate]['use'];
 				}
 
-				foreach ($this->rooms as $roomName => $roomData)
+				foreach ($this->rooms as $roomData)
 				{
 					if (empty($this->roomData[$roomData['id']]['weeks']))
 					{
@@ -589,7 +587,7 @@ class RoomStatistics extends BaseModel
 		$this->metaData['total']         = 0;
 		$this->metaData['use']           = 0;
 
-		foreach ($this->metaData['weeks'] as $weekNo => $weekData)
+		foreach ($this->metaData['weeks'] as $weekData)
 		{
 			$this->metaData['total'] += $weekData['total'];
 			$this->metaData['use']   += $weekData['use'];
