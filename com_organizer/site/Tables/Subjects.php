@@ -200,6 +200,14 @@ class Subjects extends BaseTable
 	public $instructionLanguage;
 
 	/**
+	 * The recommended literature to accompany this subject.
+	 * TEXT
+	 *
+	 * @var string
+	 */
+	public $literature;
+
+	/**
 	 * The id of the entry in the LSF software module.
 	 * INT(11) UNSIGNED DEFAULT NULL
 	 *

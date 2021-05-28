@@ -37,7 +37,7 @@ class SubjectItem extends ItemModel
 		$tag   = Languages::getTag();
 		$query->select("f.name_$tag AS availability, bonusPoints_$tag as bonus, content_$tag AS content, creditpoints")
 			->select("description_$tag AS description, duration, expenditure, expertise, instructionLanguage")
-			->select("method_$tag AS method, methodCompetence, code AS moduleCode, s.fullName_$tag AS name")
+			->select("literature, method_$tag AS method, methodCompetence, code AS moduleCode, s.fullName_$tag AS name")
 			->select("objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
 			->select("usedFor_$tag AS prerequisiteFor, prerequisites_$tag AS prerequisites, proof_$tag AS proof")
 			->select("recommendedPrerequisites_$tag as recommendedPrerequisites, selfCompetence")
