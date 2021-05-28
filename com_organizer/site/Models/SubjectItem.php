@@ -106,6 +106,7 @@ class SubjectItem extends ItemModel
 			],
 			'bonus'                    => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
 			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
+			'literature'               => ['label' => Languages::_($option . 'LITERATURE'), 'type' => 'text'],
 			'prerequisites'            => ['label' => Languages::_($option . 'PREREQUISITES'), 'type' => 'text'],
 			'preRequisiteModules'      => [
 				'label' => Languages::_($option . 'PREREQUISITE_MODULES'),
