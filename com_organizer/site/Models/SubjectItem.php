@@ -25,7 +25,7 @@ class SubjectItem extends ItemModel
 	 *
 	 * @return array  subject data on success, otherwise empty
 	 */
-	public function getItem()
+	public function getItem(): array
 	{
 		$subjectID = Helpers\Input::getID();
 		if (empty($subjectID))
@@ -35,10 +35,9 @@ class SubjectItem extends ItemModel
 
 		$query = Database::getQuery(true);
 		$tag   = Languages::getTag();
-		$query->select("aids_$tag AS aids, f.name_$tag AS availability, bonusPoints_$tag as bonus")
-			->select("content_$tag AS content, creditpoints, description_$tag AS description, duration")
-			->select("evaluation_$tag AS evaluation, expenditure, expertise, instructionLanguage")
-			->select("literature, method_$tag AS method, methodCompetence, code AS moduleCode")
+		$query->select("f.name_$tag AS availability, bonusPoints_$tag as bonus, content_$tag AS content, creditpoints")
+			->select("description_$tag AS description, duration, evaluation_$tag AS evaluation, expenditure, expertise")
+			->select("instructionLanguage, literature, method_$tag AS method, methodCompetence, code AS moduleCode")
 			->select("s.fullName_$tag AS name, objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
 			->select("usedFor_$tag AS prerequisiteFor, prerequisites_$tag AS prerequisites, proof_$tag AS proof")
 			->select("recommendedPrerequisites_$tag as recommendedPrerequisites, selfCompetence")
@@ -74,7 +73,7 @@ class SubjectItem extends ItemModel
 	 *
 	 * @return array the subject template
 	 */
-	private function getStructure()
+	private function getStructure(): array
 	{
 		$option = 'ORGANIZER_';
 		$url    = '?option=com_organizer&view=subject_item&languageTag=' . Languages::getTag() . '&id=';
@@ -104,7 +103,6 @@ class SubjectItem extends ItemModel
 			'bonus'                    => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
 			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
 			'literature'               => ['label' => Languages::_($option . 'LITERATURE'), 'type' => 'text'],
-			'aids'                     => ['label' => Languages::_($option . 'STUDY_AIDS'), 'type' => 'text'],
 			'prerequisites'            => ['label' => Languages::_($option . 'PREREQUISITES'), 'type' => 'text'],
 			'preRequisiteModules'      => [
 				'label' => Languages::_($option . 'PREREQUISITE_MODULES'),

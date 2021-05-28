@@ -71,7 +71,6 @@
         <field name="recommendedPrerequisites_de" type="Editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_DE"
                description="ORGANIZER_RECOMMENDED_PREREQUISITES_DE_DESC"/>
         <field name="usedFor_de" type="Editor" label="ORGANIZER_USED_FOR" description="ORGANIZER_USED_FOR_DE_DESC"/>
-        <field name="aids_de" type="Editor" label="ORGANIZER_AIDS_DE" description="ORGANIZER_AIDS_DE_DESC"/>
         <field name="bonusPoints_de" type="Editor" label="ORGANIZER_BONUS_POINTS_DE"
                description="ORGANIZER_BONUS_POINTS_DE_DESC"/>
     </fieldset>
@@ -94,7 +93,6 @@
         <field name="recommendedPrerequisites_en" type="Editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_EN"
                description="ORGANIZER_RECOMMENDED_PREREQUISITES_EN_DESC"/>
         <field name="usedFor_en" type="Editor" label="ORGANIZER_USED_FOR" description="ORGANIZER_USED_FOR_EN_DESC"/>
-        <field name="aids_en" type="Editor" label="ORGANIZER_AIDS_EN" description="ORGANIZER_AIDS_EN_DESC"/>
         <field name="bonusPoints_en" type="Editor" label="ORGANIZER_BONUS_POINTS_EN"
                description="ORGANIZER_BONUS_POINTS_EN_DESC"/>
     </fieldset>

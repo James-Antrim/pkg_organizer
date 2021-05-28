@@ -179,15 +179,15 @@ class SubjectsLSF
 	 */
 	private static function processExpenditures(Table $table, string $text)
 	{
-		$CrPMatch = [];
-		preg_match('/(\d) CrP/', (string) $text, $CrPMatch);
-		if (!empty($CrPMatch[1]))
+		$crpMatch = [];
+		preg_match('/(\d) CrP/', $text, $crpMatch);
+		if (!empty($crpMatch[1]))
 		{
-			$table->setColumn('creditpoints', $CrPMatch[1], 0);
+			$table->setColumn('creditpoints', $crpMatch[1], 0);
 		}
 
 		$hoursMatches = [];
-		preg_match_all('/(\d+)+ Stunden/', (string) $text, $hoursMatches);
+		preg_match_all('/(\d+)+ Stunden/', $text, $hoursMatches);
 		if (!empty($hoursMatches[1]))
 		{
 			$table->setColumn('expenditure', $hoursMatches[1][0], 0);
@@ -296,11 +296,6 @@ class SubjectsLSF
 			case 'Qualifikations und Lernziele':
 				$table->setColumn('objective_de', $germanText, '');
 				$table->setColumn('objective_en', $englishText, '');
-				break;
-
-			case 'Studienhilfsmittel':
-				$table->setColumn('aids_de', $germanText, '');
-				$table->setColumn('aids_en', $englishText, '');
 				break;
 
 			case 'Verwendbarkeit des Moduls':
@@ -457,8 +452,7 @@ class SubjectsLSF
 
 		// Remove excess white space
 		$text = trim($text);
-		$text = preg_replace('/\s+/', ' ', $text);
 
-		return $text;
+		return preg_replace('/\s+/', ' ', $text);
 	}
 }

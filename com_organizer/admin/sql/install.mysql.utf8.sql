@@ -814,8 +814,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `lsfID`                       INT(11) UNSIGNED               DEFAULT NULL,
     `abbreviation_de`             VARCHAR(25)           NOT NULL DEFAULT '',
     `abbreviation_en`             VARCHAR(25)           NOT NULL DEFAULT '',
-    `aids_de`                     TEXT,
-    `aids_en`                     TEXT,
     `bonusPoints_de`              TEXT,
     `bonusPoints_en`              TEXT,
     `content_de`                  TEXT,
