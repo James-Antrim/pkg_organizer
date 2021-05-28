@@ -81,7 +81,7 @@ class Subjects extends Curricula
 		$query      = Database::getQuery(true);
 		$resourceID = $resourceID ?: Input::getID();
 		$tag        = Languages::getTag();
-		$query->select("fullName_$tag as name, shortName_$tag as shortName, abbreviation_$tag as abbreviation")
+		$query->select("fullName_$tag as name, abbreviation_$tag as abbreviation")
 			->select("code AS subjectNo")
 			->from('#__organizer_subjects')
 			->where("id = $resourceID");
@@ -102,11 +102,6 @@ class Subjects extends Curricula
 		if ($names['name'])
 		{
 			return $names['name'] . $suffix;
-		}
-
-		if ($names['shortName'])
-		{
-			return $names['shortName'] . $suffix;
 		}
 
 		return $names['abbreviation'] . $suffix;
@@ -296,8 +291,7 @@ class Subjects extends Curricula
 			'fieldID'      => $table->fieldID,
 			'id'           => $table->id,
 			'moduleNo'     => $table->code,
-			'name'         => $table->{"fullName_$tag"},
-			'shortName'    => $table->{"shortName_$tag"},
+			'name'         => $table->{"fullName_$tag"}
 		];
 	}
 

@@ -218,8 +218,7 @@ class Pools extends Curricula implements Selectable
 			'id'           => $table->id,
 			'maxCrP'       => $table->maxCrP,
 			'minCrP'       => $table->minCrP,
-			'name'         => $table->{"fullName_$tag"},
-			'shortName'    => $table->{"shortName_$tag"},
+			'name'         => $table->{"fullName_$tag"}
 		];
 	}
 

@@ -23,7 +23,7 @@ class SubjectSelection extends ListModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
@@ -32,10 +32,8 @@ class SubjectSelection extends ListModel
 
 		$searchFields = [
 			'fullName_de',
-			'shortName_de',
 			'abbreviation_de',
 			'fullName_en',
-			'shortName_en',
 			'abbreviation_en',
 			'code',
 			'description_de',

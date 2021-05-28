@@ -15,6 +15,9 @@ use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
 use SimpleXMLElement;
 
+/**
+ * Class provides functions to use managing resources in a nested curriculum structure.
+ */
 abstract class CurriculumResource extends BaseModel
 {
 	use Associated;
@@ -112,7 +115,6 @@ abstract class CurriculumResource extends BaseModel
 				}
 
 				$subRangeIDs[$subRangeID] = $subRangeID;
-				continue;
 			}
 
 			if ($subRangeIDs = implode(',', $subRangeIDs))
@@ -300,9 +302,9 @@ abstract class CurriculumResource extends BaseModel
 	 * @param   int  $parentID    the parent id (curricula)
 	 * @param   int  $resourceID  the resource id (resource table)
 	 *
-	 * @return mixed int if the resource has an existing ordering, otherwise null
+	 * @return int int if the resource has an existing ordering, otherwise null
 	 */
-	protected function getExistingOrdering(int $parentID, int $resourceID)
+	protected function getExistingOrdering(int $parentID, int $resourceID): int
 	{
 		$column = $this->resource . 'ID';
 		$query  = Database::getQuery();
@@ -478,8 +480,6 @@ abstract class CurriculumResource extends BaseModel
 	{
 		$table->setColumn('abbreviation_de', (string) $XMLObject->kuerzel, '');
 		$table->setColumn('abbreviation_en', (string) $XMLObject->kuerzelen, $table->abbreviation_de);
-		$table->setColumn('shortName_de', (string) $XMLObject->kurzname, '');
-		$table->setColumn('shortName_en', (string) $XMLObject->kurznameen, $table->shortName_de);
 
 		$deTitle = (string) $XMLObject->titelde;
 		if (!$enTitle = (string) $XMLObject->titelen)

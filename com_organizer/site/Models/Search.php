@@ -1593,9 +1593,7 @@ class Search extends ListModel
 			's.abbreviation_en',
 			's.code',
 			's.fullName_de',
-			's.fullName_en',
-			's.shortName_de',
-			's.shortName_en'
+			's.fullName_en'
 		];
 
 		// Only one salting: resolve against number/roman?

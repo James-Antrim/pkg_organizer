@@ -12,19 +12,11 @@ namespace Organizer\Helpers;
 
 use Organizer\Tables;
 
+/**
+ * Abstract static class with functions returning name like resource attributes.
+ */
 abstract class ResourceHelper
 {
-	/**
-	 * Attempts to retrieve the name of the resource.
-	 *
-	 * @param   int  $resourceID  the id of the resource
-	 *
-	 * @return string
-	 */
-	public static function getAbbreviation(int $resourceID)
-	{
-		return self::getNameAttribute('abbreviation', $resourceID);
-	}
 
 	/**
 	 * Attempts to retrieve the code of the resource.
@@ -33,7 +25,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getCode(int $resourceID)
+	public static function getCode(int $resourceID): string
 	{
 		return self::getNameAttribute('code', $resourceID);
 	}
@@ -45,7 +37,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getFullName(int $resourceID)
+	public static function getFullName(int $resourceID): string
 	{
 		return self::getNameAttribute('fullName', $resourceID);
 	}
@@ -58,7 +50,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getNameAttribute(string $columnName, int $resourceID)
+	public static function getNameAttribute(string $columnName, int $resourceID): string
 	{
 		$table = self::getTable();
 		if (!$table->load($resourceID))
@@ -88,7 +80,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getName(int $resourceID)
+	public static function getName(int $resourceID): string
 	{
 		return self::getNameAttribute('name', $resourceID);
 	}
@@ -100,7 +92,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getPlural(int $resourceID)
+	public static function getPlural(int $resourceID): string
 	{
 		return self::getNameAttribute('plural', $resourceID);
 	}
@@ -112,7 +104,7 @@ abstract class ResourceHelper
 	 *
 	 * @return string
 	 */
-	public static function getShortName(int $resourceID)
+	public static function getShortName(int $resourceID): string
 	{
 		return self::getNameAttribute('shortName', $resourceID);
 	}
@@ -122,7 +114,7 @@ abstract class ResourceHelper
 	 *
 	 * @return Tables\BaseTable
 	 */
-	public static function getTable()
+	public static function getTable(): Tables\BaseTable
 	{
 		$tableClass = OrganizerHelper::getClass(get_called_class());
 		$fqn        = "\\Organizer\\Tables\\$tableClass";

@@ -496,12 +496,12 @@ class Subject extends CurriculumResource
 	 * Removes person associations for the given subject and role. No access checks => this is not directly
 	 * accessible and requires differing checks according to its calling context.
 	 *
-	 * @param   int       $subjectID  the subject id
-	 * @param   int|null  $role       the person role
+	 * @param   int  $subjectID  the subject id
+	 * @param   int  $role       the person role
 	 *
 	 * @return bool
 	 */
-	private function removePersons(int $subjectID, $role = null): bool
+	private function removePersons(int $subjectID, int $role = 0): bool
 	{
 		$query = Database::getQuery();
 		$query->delete('#__organizer_subject_persons')->where("subjectID = $subjectID");
@@ -595,9 +595,7 @@ class Subject extends CurriculumResource
 			'fullName_de',
 			'fullName_en',
 			'name_de',
-			'name_en',
-			'shortName_de',
-			'shortName_en'
+			'name_en'
 		];
 
 		// Flag to be set should one of the attribute texts consist only of module information. => Text should be empty.
@@ -936,7 +934,7 @@ class Subject extends CurriculumResource
 	private function verifyDependencies(array $potentialCodes, array $programRanges): array
 	{
 		$select = 's.id AS subjectID, code, ';
-		$select .= 'abbreviation_de, shortName_de, fullName_de, abbreviation_en, shortName_en, fullName_en, ';
+		$select .= 'abbreviation_de, fullName_de, abbreviation_en, fullName_en, ';
 		$select .= 'c.id AS curriculumID, c.lft, c.rgt, ';
 
 		$query = Database::getQuery();

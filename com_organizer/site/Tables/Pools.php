@@ -106,22 +106,6 @@ class Pools extends BaseTable
 	public $minCrP;
 
 	/**
-	 * The resource's German shortened name.
-	 * VARCHAR(50) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $shortName_de;
-
-	/**
-	 * The resource's English shortened name.
-	 * VARCHAR(50) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $shortName_en;
-
-	/**
 	 * Declares the associated table.
 	 */
 	public function __construct()

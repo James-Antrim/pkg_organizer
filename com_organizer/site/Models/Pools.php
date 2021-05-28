@@ -50,10 +50,8 @@ class Pools extends ListModel
 
 		$searchColumns = [
 			'p.fullName_de',
-			'p.shortName_de',
 			'p.abbreviation_de',
 			'p.fullName_en',
-			'p.shortName_en',
 			'p.abbreviation_en'
 		];
 		$this->setSearchFilter($query, $searchColumns);

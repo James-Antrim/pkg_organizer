@@ -617,8 +617,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_persons` (
 CREATE TABLE IF NOT EXISTS `#__organizer_pools` (
     `id`              INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `alias`           VARCHAR(255)     DEFAULT NULL,
-    `shortName_de`    VARCHAR(50)      DEFAULT '',
-    `shortName_en`    VARCHAR(50)      DEFAULT '',
     `lsfID`           INT(11) UNSIGNED DEFAULT NULL,
     `abbreviation_de` VARCHAR(25)      DEFAULT '',
     `abbreviation_en` VARCHAR(25)      DEFAULT '',
@@ -845,8 +843,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `recommendedPrerequisites_de` TEXT,
     `recommendedPrerequisites_en` TEXT,
     `selfCompetence`              TINYINT(1) UNSIGNED            DEFAULT NULL,
-    `shortName_de`                VARCHAR(50)           NOT NULL DEFAULT '',
-    `shortName_en`                VARCHAR(50)           NOT NULL DEFAULT '',
     `socialCompetence`            TINYINT(1) UNSIGNED            DEFAULT NULL,
     `sws`                         INT(2) UNSIGNED       NOT NULL DEFAULT 0,
     `usedFor_de`                  TEXT,

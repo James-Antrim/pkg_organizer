@@ -887,7 +887,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return bool true if the user has a course responsibility, otherwise false
 	 */
-	public static function hasResponsibility($instanceID = 0, $personID = 0, $roleID = 0): bool
+	public static function hasResponsibility(int $instanceID = 0, int $personID = 0, int $roleID = 0): bool
 	{
 		if (Can::administrate())
 		{
@@ -1212,7 +1212,7 @@ class Instances extends ResourceHelper
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
-		$query->select("DISTINCT s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName, s.shortName_$tag AS name")
+		$query->select("DISTINCT s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName")
 			->select("s.description_$tag AS description")
 			->from('#__organizer_subjects AS s')
 			->innerJoin('#__organizer_subject_events AS se ON se.subjectID = s.id')
@@ -1254,7 +1254,6 @@ class Instances extends ResourceHelper
 		$instance['subjectID'] = $subject['id'];
 		$instance['code']      = empty($subject['code']) ? '' : $subject['code'];
 		$instance['fullName']  = empty($subject['fullName']) ? '' : $subject['fullName'];
-		$instance['name']      = empty($subject['name']) ? $instance['name'] : $subject['name'];
 
 		if (empty($instance['description']) and !empty($subject['description']))
 		{
@@ -1270,7 +1269,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @return bool true if the person is an instance teacher, otherwise false
 	 */
-	public static function teaches($instanceID = 0, $personID = 0): bool
+	public static function teaches(int $instanceID = 0, int $personID = 0): bool
 	{
 		return self::hasResponsibility($instanceID, $personID, self::TEACHER);
 	}

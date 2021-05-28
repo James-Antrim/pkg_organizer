@@ -93,10 +93,8 @@ class Subjects extends ListModel
 
 		$searchFields = [
 			's.fullName_de',
-			's.shortName_de',
 			's.abbreviation_de',
 			's.fullName_en',
-			's.shortName_en',
 			's.abbreviation_en',
 			's.code',
 			's.lsfID'

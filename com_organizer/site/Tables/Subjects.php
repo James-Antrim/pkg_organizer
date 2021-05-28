@@ -380,26 +380,6 @@ class Subjects extends BaseTable
 	public $selfCompetence;
 
 	/**
-	 * The resource's shortened German name.
-	 * VARCHAR(50) NOT NULL DEFAULT ''
-	 *
-	 * Status: See if it is still used and if it is still passed, if not both -> removed
-	 *
-	 * @var string
-	 */
-	public $shortName_de;
-
-	/**
-	 * The resource's shortened English name.
-	 * VARCHAR(50) NOT NULL DEFAULT ''
-	 *
-	 * Status: See if it is still used and if it is still passed, if not both -> removed
-	 *
-	 * @var string
-	 */
-	public $shortName_en;
-
-	/**
 	 * The quantifier for the level of social competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
 	 * TINYINT(1) UNSIGNED DEFAULT NULL
 	 *
