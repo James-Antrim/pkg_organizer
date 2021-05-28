@@ -277,6 +277,12 @@ class SubjectsLSF
 				$table->setColumn('method_en', $englishText, '');
 				break;
 
+			case 'Literatur':
+				// This should never have been implemented with multiple languages
+				$litText = empty($germanText) ? $englishText : $germanText;
+				$table->setColumn('literature', $litText, '');
+				break;
+
 			case 'Prüfungsvorleistungen':
 				$table->setColumn('preliminaryWork_de', $germanText, '');
 				$table->setColumn('preliminaryWork_en', $englishText, '');
