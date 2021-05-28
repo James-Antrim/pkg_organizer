@@ -49,8 +49,6 @@
             <option value="4">AVAILABILITY_AS_NEEDED</option>
             <option value="0">AVAILABILITY_APPT</option>
         </field>
-        <field name="spacer2" type="spacer" hr="true"/>
-        <field name="literature" type="Editor" label="ORGANIZER_LITERATURE" description="ORGANIZER_LITERATURE_DESC"/>
     </fieldset>
     <fieldset name="de_texts" label="ATTRIBUTES_DE">
         <field name="fullName_de" type="Blank" label="FULL_NAME_DE" hint="Grundlagen der Informatik" maxlength="200"/>
