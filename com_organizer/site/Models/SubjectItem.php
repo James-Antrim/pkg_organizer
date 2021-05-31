@@ -55,7 +55,6 @@ class SubjectItem extends ItemModel
 
 		$code    = empty($result['code']) ? '' : "{$result['code']} ";
 		$subject = $this->getStructure();
-		echo "<pre>" . print_r($result, true) . "</pre><br>";
 
 		foreach ($result as $property => $value)
 		{
