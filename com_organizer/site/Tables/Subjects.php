@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -39,7 +40,7 @@ class Subjects extends BaseTable
 	public $abbreviation_en;
 
 	/**
-	 * A description of ways in which to achieve extra credit for this subject in German.
+	 * A flag denoting whether or not it is possible to achieve extra credit.
 	 * TINYINT(1) UNSIGNED DEFAULT 0
 	 *
 	 * @var bool
@@ -68,13 +69,11 @@ class Subjects extends BaseTable
 
 	/**
 	 * The number of credit points (ECTS) rewarded for successful completion of this subject.
-	 * DOUBLE(4, 1) UNSIGNED NOT NULL DEFAULT 0
-	 *
-	 * Status: Changed -> int
+	 * INT(3) UNSIGNED  NOT NULL DEFAULT 0
 	 *
 	 * @var float
 	 */
-	public $creditpoints;
+	public $creditPoints;
 
 	/**
 	 * The resource's German description.

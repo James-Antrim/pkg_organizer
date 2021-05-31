@@ -154,7 +154,7 @@ class SubjectsLSF
 		$table->setColumn('duration', $durationValue, '1');
 
 		// Ensure reset before iterative processing
-		$table->setColumn('creditpoints', 0, 0);
+		$table->setColumn('creditPoints', 0, 0);
 
 		// Attributes that can be set by text or individual fields
 		self::processSpecialFields($table, $subject);
@@ -163,7 +163,7 @@ class SubjectsLSF
 
 		foreach ($blobs as $objectNode)
 		{
-			self::processObjectAttribute($table, $objectNode);
+			self::processObject($table, $objectNode);
 		}
 
 		self::checkProofAndMethod($table);
@@ -233,7 +233,7 @@ class SubjectsLSF
 		preg_match('/(\d) CrP/', $text, $crpMatch);
 		if (!empty($crpMatch[1]))
 		{
-			$table->setColumn('creditpoints', $crpMatch[1], 0);
+			$table->setColumn('creditPoints', $crpMatch[1], 0);
 		}
 
 		$hoursMatches = [];
@@ -261,7 +261,7 @@ class SubjectsLSF
 	 *
 	 * @return void
 	 */
-	private static function processObjectAttribute(Table $table, Element $property)
+	private static function processObject(Table $table, Element $property)
 	{
 		$category = (string) $property->kategorie;
 
@@ -296,7 +296,7 @@ class SubjectsLSF
 		{
 			case 'Aufteilung des Arbeitsaufwands':
 				// There are int fields handled elsewhere for this hopefully.
-				if (!$table->creditpoints)
+				if (!$table->creditPoints)
 				{
 					self::processExpenditures($table, $germanText);
 				}
@@ -383,7 +383,7 @@ class SubjectsLSF
 
 		if (empty($subject->lp))
 		{
-			$table->setColumn('creditpoints', 0, 0);
+			$table->setColumn('creditPoints', 0, 0);
 			$table->setColumn('expenditure', 0, 0);
 			$table->setColumn('present', 0, 0);
 			$table->setColumn('independent', 0, 0);
@@ -393,7 +393,7 @@ class SubjectsLSF
 
 		$crp = (float) $subject->lp;
 
-		$table->setColumn('creditpoints', $crp, 0);
+		$table->setColumn('creditPoints', $crp, 0);
 
 		$expenditure = empty($subject->aufwand) ? $crp * 30 : (int) $subject->aufwand;
 		$table->setColumn('expenditure', $expenditure, 0);

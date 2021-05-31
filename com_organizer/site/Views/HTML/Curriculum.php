@@ -10,7 +10,6 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 use Organizer\Helpers;
@@ -31,7 +30,7 @@ class Curriculum extends ItemView
 	 */
 	protected function filterAttributes()
 	{
-		return;
+		// Nothing filtered
 	}
 
 	/**
@@ -51,7 +50,7 @@ class Curriculum extends ItemView
 	 *
 	 * @return string the HTML for the panel item
 	 */
-	private function getPanelItem($item)
+	private function getPanelItem(array $item): string
 	{
 		$itemTemplate = '<div class="item ITEMCLASS">ITEMCONTENT</div>';
 		$itemClass    = 'item-blank';
@@ -71,22 +70,23 @@ class Curriculum extends ItemView
 
 			$additionalLinks = '';
 			$linkAttributes  = ['target' => '_blank'];
+
 			if ($item['subjectID'])
 			{
-				$crp = empty($item['creditpoints']) ? '' : "{$item['creditpoints']} CrP";
+				$crp = empty($item['creditPoints']) ? '' : "{$item['creditPoints']} CrP";
 				$url = "?option=com_organizer&view=subject_item&id={$item['subjectID']}";
 
-				$documentLinkAttributes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SUBJECT_ITEM')];
-				$scheduleLinkAttributes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SCHEDULE')];
+				$docAttibutes   = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SUBJECT_ITEM')];
+				$gridAttributes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SCHEDULE')];
 
-				$documentLink = Helpers\HTML::link($url, '<span class="icon-file-2"></span>', $documentLinkAttributes);
+				$documentLink = Helpers\HTML::link($url, '<span class="icon-file-2"></span>', $docAttibutes);
 
 				/*$scheduleUrl = "?option=com_organizer&view=schedule_item&subjectIDs={$item['subjectID']}";
 
 				$scheduleLink = Helpers\HTML::link(
 					$scheduleUrl,
 					'<span class="icon-info-calender"></span>',
-					$scheduleLinkAttributes
+					$gridAttributes
 				);*/
 
 				$additionalLinks .= $documentLink/* . $scheduleLink*/
@@ -112,9 +112,8 @@ class Curriculum extends ItemView
 		}
 
 		$item = str_replace('ITEMCLASS', $itemClass, $itemTemplate);
-		$item = str_replace('ITEMCONTENT', $itemContent, $item);
 
-		return $item;
+		return str_replace('ITEMCONTENT', $itemContent, $item);
 	}
 
 	/**
@@ -124,7 +123,7 @@ class Curriculum extends ItemView
 	 *
 	 * @return void displays HTML
 	 */
-	public function renderPanel($pool)
+	public function renderPanel(array $pool)
 	{
 		$crpText = Helpers\Pools::getCrPText($pool);
 		?>
@@ -147,7 +146,7 @@ class Curriculum extends ItemView
 	 *
 	 * @return  void displays the panel body
 	 */
-	private function renderPanelBody($curriculum)
+	private function renderPanelBody(array $curriculum)
 	{
 		$maxOrdering = 0;
 		$items       = [];

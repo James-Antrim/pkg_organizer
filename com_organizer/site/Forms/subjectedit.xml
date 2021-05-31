@@ -27,7 +27,7 @@
         </field>
         <!--<field name="eventIDs" type="SubjectEvents" label="EVENT" role="1"/>-->
         <field name="spacer1" type="spacer" hr="true"/>
-        <field name="creditpoints" type="Blank" label="CREDIT_POINTS" class="inputbox" hint="3" maxlength="5"/>
+        <field name="creditPoints" type="Integer" label="CREDIT_POINTS" default="6" first="1" last="30" step="1"/>
         <field name="sws" type="Integer" label="SWS" default="0" first="1" last="30" step="1">
             <option value="0">FILTER_SEMESTER_HOURS</option>
         </field>
@@ -49,7 +49,7 @@
             <option value="4">AVAILABILITY_AS_NEEDED</option>
             <option value="0">AVAILABILITY_APPT</option>
         </field>
-        <field name="bonusPoints" type="Options" label="ORGANIZER_BONUS_POINTS">
+        <field name="bonusPoints" type="Options" label="BONUS_POINTS">
             <option value='0'>NO</option>
             <option value='1'>YES</option>
         </field>

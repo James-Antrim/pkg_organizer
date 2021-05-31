@@ -286,7 +286,7 @@ class Subjects extends Curricula
 		return [
 			'abbreviation' => $table->{"abbreviation_$tag"},
 			'bgColor'      => Fields::getColor($fieldID, $organizationID),
-			'creditpoints' => $table->creditpoints,
+			'creditPoints' => $table->creditPoints,
 			'field'        => $fieldID ? Fields::getName($fieldID) : '',
 			'fieldID'      => $table->fieldID,
 			'id'           => $table->id,
@@ -310,7 +310,7 @@ class Subjects extends Curricula
 
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
-		$query->select("DISTINCT s.id, s.name_$tag AS name, s.code, s.creditpoints")
+		$query->select("DISTINCT s.id, s.name_$tag AS name, s.code, s.creditPoints")
 			->select('p.surname, p.forename, p.title, p.username')
 			->from('#__organizer_subjects AS s')
 			// sp added later

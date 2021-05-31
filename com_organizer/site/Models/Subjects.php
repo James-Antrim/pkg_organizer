@@ -88,7 +88,7 @@ class Subjects extends ListModel
 
 		// Create the sql query
 		$query = $this->_db->getQuery(true);
-		$query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditpoints")
+		$query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditPoints")
 			->from('#__organizer_subjects AS s');
 
 		$searchFields = [

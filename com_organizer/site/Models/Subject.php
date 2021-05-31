@@ -66,7 +66,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function associateDependencies(array $programRanges, array $prerequisiteRanges, array $subjectRanges, bool $pre): bool
+	private function associate(array $programRanges, array $prerequisiteRanges, array $subjectRanges, bool $pre): bool
 	{
 		foreach ($programRanges as $programRange)
 		{
@@ -239,7 +239,7 @@ class Subject extends CurriculumResource
 			return false;
 		}
 
-		return $this->resolveTextDependencies($table->id);
+		return $this->resolve($table->id);
 	}
 
 	/**
@@ -355,7 +355,7 @@ class Subject extends CurriculumResource
 				$prerequisiteRanges = array_merge($prerequisiteRanges, $this->getRanges($preRequisiteID));
 			}
 
-			$preSuccess = $this->associateDependencies($programRanges, $prerequisiteRanges, $subjectRanges, true);
+			$preSuccess = $this->associate($programRanges, $prerequisiteRanges, $subjectRanges, true);
 		}
 		else
 		{
@@ -372,7 +372,7 @@ class Subject extends CurriculumResource
 				$postRequisiteRanges = array_merge($postRequisiteRanges, $this->getRanges($postRequisiteID));
 			}
 
-			$preSuccess = $this->associateDependencies($programRanges, $subjectRanges, $postRequisiteRanges, false);
+			$preSuccess = $this->associate($programRanges, $subjectRanges, $postRequisiteRanges, false);
 		}
 		else
 		{
@@ -571,7 +571,7 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function resolveTextDependencies(int $subjectID): bool
+	private function resolve(int $subjectID): bool
 	{
 		$table = new Tables\Subjects();
 
@@ -677,7 +677,7 @@ class Subject extends CurriculumResource
 
 		$this->authorize();
 
-		$data['creditpoints'] = (float) $data['creditpoints'];
+		$data['creditPoints'] = (int) $data['creditPoints'];
 
 		$starProperties = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
 		foreach ($starProperties as $property)

@@ -35,7 +35,7 @@ class SubjectItem extends ItemModel
 
 		$query = Database::getQuery(true);
 		$tag   = Languages::getTag();
-		$query->select("f.name_$tag AS availability, bonusPoints, content_$tag AS content, creditpoints")
+		$query->select("f.name_$tag AS availability, bonusPoints, content_$tag AS content, creditPoints")
 			->select("description_$tag AS description, duration, expenditure, expertise, language")
 			->select("literature, method_$tag AS method, methodCompetence, code, s.fullName_$tag AS name")
 			->select("objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
@@ -265,20 +265,20 @@ class SubjectItem extends ItemModel
 	private function setExpenditureText(array &$subject)
 	{
 		// If there are no credit points set, this text is meaningless.
-		if (!empty($subject['creditpoints']['value']))
+		if (!empty($subject['creditPoints']['value']))
 		{
 			if (empty($subject['expenditure']['value']))
 			{
 				$subject['expenditure']['value'] = sprintf(
 					Languages::_('ORGANIZER_EXPENDITURE_SHORT'),
-					$subject['creditpoints']['value']
+					$subject['creditPoints']['value']
 				);
 			}
 			elseif (empty($subject['present']['value']))
 			{
 				$subject['expenditure']['value'] = sprintf(
 					Languages::_('ORGANIZER_EXPENDITURE_MEDIUM'),
-					$subject['creditpoints']['value'],
+					$subject['creditPoints']['value'],
 					$subject['expenditure']['value']
 				);
 			}
@@ -286,14 +286,14 @@ class SubjectItem extends ItemModel
 			{
 				$subject['expenditure']['value'] = sprintf(
 					Languages::_('ORGANIZER_EXPENDITURE_FULL'),
-					$subject['creditpoints']['value'],
+					$subject['creditPoints']['value'],
 					$subject['expenditure']['value'],
 					$subject['present']['value']
 				);
 			}
 		}
 
-		unset($subject['creditpoints'], $subject['present']);
+		unset($subject['creditPoints'], $subject['present']);
 	}
 
 	/**

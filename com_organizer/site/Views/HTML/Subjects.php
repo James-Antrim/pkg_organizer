@@ -118,7 +118,7 @@ class Subjects extends ListView
 		$headers['name'] = Helpers\HTML::sort('NAME', 'name', $direction, $ordering);
 		$headers['code'] = Helpers\HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
 
-		if (!$calledPersonID = (int) $this->state->get('calledPersonID', 0))
+		if (!$this->state->get('calledPersonID', 0))
 		{
 			if ($role = (int) Helpers\Input::getParams()->get('role') and $role === self::COORDINATES)
 			{
@@ -131,7 +131,7 @@ class Subjects extends ListView
 			$headers['persons'] = $personsText;
 		}
 
-		$headers['creditpoints'] = Helpers\Languages::_('ORGANIZER_CREDIT_POINTS');
+		$headers['creditPoints'] = Helpers\Languages::_('ORGANIZER_CREDIT_POINTS');
 
 		$this->headers = $headers;
 	}
@@ -143,7 +143,7 @@ class Subjects extends ListView
 	 *
 	 * @return string
 	 */
-	private function getPersonDisplay(object $subject)
+	private function getPersonDisplay(object $subject): string
 	{
 		$names = [];
 		$role  = (int) Helpers\Input::getParams()->get('role');
@@ -155,7 +155,7 @@ class Subjects extends ListView
 				Helpers\Languages::_('ORGANIZER_TEACHERS_PLACEHOLDER');
 		}
 
-		foreach ($subject->persons as $personID => $person)
+		foreach ($subject->persons as $person)
 		{
 			$name = $this->getPersonText($person);
 
@@ -187,7 +187,7 @@ class Subjects extends ListView
 	 *
 	 * @return string
 	 */
-	public function getPersonText(array $person)
+	public function getPersonText(array $person): string
 	{
 		$showTitle = (bool) $this->params->get('showTitle');
 
@@ -246,7 +246,7 @@ class Subjects extends ListView
 				$structuredItems[$index]['persons'] = $this->getPersonDisplay($subject);
 			}
 
-			$structuredItems[$index]['creditpoints'] = empty($subject->creditpoints) ? '' : $subject->creditpoints;
+			$structuredItems[$index]['creditPoints'] = empty($subject->creditPoints) ? '' : $subject->creditPoints;
 
 			$index++;
 		}
