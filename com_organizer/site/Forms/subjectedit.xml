@@ -49,6 +49,10 @@
             <option value="4">AVAILABILITY_AS_NEEDED</option>
             <option value="0">AVAILABILITY_APPT</option>
         </field>
+        <field name="bonusPoints" type="Options" label="ORGANIZER_BONUS_POINTS">
+            <option value='0'>NO</option>
+            <option value='1'>YES</option>
+        </field>
         <field name="spacer2" type="spacer" hr="true"/>
         <field name="literature" type="Editor" label="ORGANIZER_LITERATURE" description="ORGANIZER_LITERATURE_DESC"/>
     </fieldset>
@@ -68,8 +72,6 @@
         <field name="recommendedPrerequisites_de" type="Editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_DE"
                description="ORGANIZER_RECOMMENDED_PREREQUISITES_DE_DESC"/>
         <field name="usedFor_de" type="Editor" label="ORGANIZER_USED_FOR" description="ORGANIZER_USED_FOR_DE_DESC"/>
-        <field name="bonusPoints_de" type="Editor" label="ORGANIZER_BONUS_POINTS_DE"
-               description="ORGANIZER_BONUS_POINTS_DE_DESC"/>
     </fieldset>
     <fieldset name="en_texts" label="ATTRIBUTES_EN">
         <field name="fullName_en" type="Blank" label="FULL_NAME_EN" hint="Mathematics I" maxlength="200"/>
@@ -87,8 +89,6 @@
         <field name="recommendedPrerequisites_en" type="Editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_EN"
                description="ORGANIZER_RECOMMENDED_PREREQUISITES_EN_DESC"/>
         <field name="usedFor_en" type="Editor" label="ORGANIZER_USED_FOR" description="ORGANIZER_USED_FOR_EN_DESC"/>
-        <field name="bonusPoints_en" type="Editor" label="ORGANIZER_BONUS_POINTS_EN"
-               description="ORGANIZER_BONUS_POINTS_EN_DESC"/>
     </fieldset>
     <fieldset name="advanced" label="ATTRIBUTES_SUBJECT_ADVANCED">
         <field name="coordinators" type="SubjectPersons" label="SUBJECT_COORDINATORS" multiple="multiple" role="1"

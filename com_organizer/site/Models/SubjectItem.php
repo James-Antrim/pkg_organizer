@@ -35,9 +35,9 @@ class SubjectItem extends ItemModel
 
 		$query = Database::getQuery(true);
 		$tag   = Languages::getTag();
-		$query->select("f.name_$tag AS availability, bonusPoints_$tag as bonus, content_$tag AS content, creditpoints")
+		$query->select("f.name_$tag AS availability, bonusPoints, content_$tag AS content, creditpoints")
 			->select("description_$tag AS description, duration, expenditure, expertise, language")
-			->select("literature, method_$tag AS method, methodCompetence, code AS moduleCode, s.fullName_$tag AS name")
+			->select("literature, method_$tag AS method, methodCompetence, code, s.fullName_$tag AS name")
 			->select("objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
 			->select("usedFor_$tag AS prerequisiteFor, prerequisites_$tag AS prerequisites, proof_$tag AS proof")
 			->select("recommendedPrerequisites_$tag as recommendedPrerequisites, selfCompetence")
@@ -53,9 +53,24 @@ class SubjectItem extends ItemModel
 			return [];
 		}
 
+		$code    = empty($result['code']) ? '' : "{$result['code']} ";
 		$subject = $this->getStructure();
+		echo "<pre>" . print_r($result, true) . "</pre><br>";
+
 		foreach ($result as $property => $value)
 		{
+			if ($property === 'bonusPoints')
+			{
+				$value = '<p>';
+				$value .= $value ? Languages::_('ORGANIZER_YES') : Languages::_('ORGANIZER_NO');
+				$value .= '</p><p>' . Languages::_('ORGANIZER_BONUS_POINTS_TEXT') . '</p>';
+			}
+
+			if ($property === 'name')
+			{
+				$value = $code . $value;
+			}
+
 			$subject[$property]['value'] = $value;
 		}
 
@@ -82,7 +97,6 @@ class SubjectItem extends ItemModel
 			'subjectID'                => Helpers\Input::getID(),
 			'name'                     => ['label' => Languages::_($option . 'NAME'), 'type' => 'text'],
 			'campus'                   => ['label' => Languages::_($option . 'CAMPUS'), 'type' => 'location'],
-			'moduleCode'               => ['label' => Languages::_($option . 'MODULE_CODE'), 'type' => 'text'],
 			'coordinators'             => ['label' => Languages::_($option . 'SUBJECT_COORDINATOR'), 'type' => 'list'],
 			'persons'                  => ['label' => Languages::_($option . 'TEACHERS'), 'type' => 'list'],
 			'description'              => ['label' => Languages::_($option . 'SHORT_DESCRIPTION'), 'type' => 'text'],
@@ -104,7 +118,7 @@ class SubjectItem extends ItemModel
 				'type'  => 'text',
 				'value' => Languages::_($option . 'EVALUATION_TEXT')
 			],
-			'bonus'                    => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
+			'bonusPoints'              => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
 			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
 			'literature'               => ['label' => Languages::_($option . 'LITERATURE'), 'type' => 'text'],
 			'prerequisites'            => ['label' => Languages::_($option . 'PREREQUISITES'), 'type' => 'text'],

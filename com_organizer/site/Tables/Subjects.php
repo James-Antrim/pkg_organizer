@@ -40,23 +40,11 @@ class Subjects extends BaseTable
 
 	/**
 	 * A description of ways in which to achieve extra credit for this subject in German.
-	 * TEXT
+	 * TINYINT(1) UNSIGNED DEFAULT 0
 	 *
-	 * Status: Changed -> Bool
-	 *
-	 * @var string
+	 * @var bool
 	 */
-	public $bonusPoints_de;
-
-	/**
-	 * A description of ways in which to achieve extra credit for this subject in English.
-	 * TEXT
-	 *
-	 * Status: Changed -> Bool
-	 *
-	 * @var string
-	 */
-	public $bonusPoints_en;
+	public $bonusPoints;
 
 	/**
 	 * The subject's contents in German.
@@ -193,7 +181,6 @@ class Subjects extends BaseTable
 	 * VARCHAR(2) NOT NULL DEFAULT 'D'
 	 *
 	 * Status: Unknown, are these still sent as codes? are there codes for any other potential languages?
-	 * Comment: Shorten to language
 	 *
 	 * @var string
 	 */

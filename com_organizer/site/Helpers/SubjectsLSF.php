@@ -177,6 +177,56 @@ class SubjectsLSF
 	 *
 	 * @return void
 	 */
+	private static function processBonus(Table $table, string $text)
+	{
+		// Remove tags and indescriminate left spacing then standardize as lower for comparisions.
+		$text = strtolower(trim(strip_tags($text)));
+
+		$hardNo = (
+			empty($text)
+			or strpos($text, 'nein') !== false
+			or strpos($text, 'kein') !== false
+			or $text === '0'
+			or $text === '-'
+		);
+
+		if ($hardNo)
+		{
+			$table->bonusPoints = false;
+
+			return;
+		}
+
+		// Hard yes
+		if (strpos($text, 'ja') !== false or $text === '1')
+		{
+			$table->bonusPoints = true;
+
+			return;
+		}
+
+		/**
+		 * Only explanatory text => implied no
+		 * Explanatory text for exam prerequisites => implied error => no
+		 */
+		if (strpos($text, 'bonus') === 0 or strpos($text, 'prüfungsvorleistung') === 0)
+		{
+			$table->bonusPoints = false;
+
+			return;
+		}
+
+		$table->bonusPoints = true;
+	}
+
+	/**
+	 * Sets attributes dealing with required student expenditure
+	 *
+	 * @param   Table   $table  the subject data
+	 * @param   string  $text   the expenditure text
+	 *
+	 * @return void
+	 */
 	private static function processExpenditures(Table $table, string $text)
 	{
 		$crpMatch = [];
@@ -253,8 +303,7 @@ class SubjectsLSF
 				break;
 
 			case 'Bonuspunkte':
-				$table->setColumn('bonusPoints_de', $germanText, '');
-				$table->setColumn('bonusPoints_en', $englishText, '');
+				self::processBonus($table, $germanText);
 				break;
 
 			case 'Empfohlene Voraussetzungen':
