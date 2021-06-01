@@ -95,6 +95,7 @@ class SubjectsLSF
 		$text = str_replace(chr(194) . chr(187), '&raquo;', $text);
 		$text = str_replace(chr(194), ' ', $text);
 		$text = str_replace(chr(195) . chr(159), '&szlig;', $text);
+		$text = str_replace(chr(226) . chr(128) . chr(162), '&bull;', $text);
 
 		// Remove the formatted text tag
 		$text = preg_replace('/<[\/]?[f|F]ormatted[t|T]ext>/', '', $text);
@@ -104,6 +105,9 @@ class SubjectsLSF
 
 		// Replace non-blank spaces
 		$text = preg_replace('/&nbsp;/', ' ', $text);
+
+		// Replace windows return entity with <br>
+		$text = preg_replace('/&#13;/', '<br>', $text);
 
 		// Run iterative parsing for nested bullshit.
 		do
@@ -361,7 +365,7 @@ class SubjectsLSF
 			case 'Methodenkompetenz':
 			case 'Sozialkompetenz':
 			case 'Selbstkompetenz':
-				self::processStarAttribute($table, $category, $germanText);
+				self::processStarAttribute($table, $category, $germanText, $englishText);
 				break;
 		}
 	}
@@ -436,46 +440,75 @@ class SubjectsLSF
 	 *
 	 * @param   Table   $table      the subject table object
 	 * @param   string  $attribute  the attribute's name in the xml response
-	 * @param   string  $value      the attribute value
+	 * @param   string  $deValue    the attribute's German value
+	 * @param   string  $enValue    the attribute's English value
 	 *
 	 * @return void
 	 */
-	private static function processStarAttribute(Table $table, string $attribute, string $value)
+	private static function processStarAttribute(Table $table, string $attribute, string $deValue, string $enValue)
 	{
 		switch ($attribute)
 		{
 			case 'Fachkompetenz':
-				$attributeName = 'expertise';
+				$deName     = 'expertise_de';
+				$enName     = 'expertise_en';
+				$scalarName = 'expertise';
 				break;
 			case 'Methodenkompetenz':
-				$attributeName = 'methodCompetence';
+				$deName     = 'methodCompetence_de';
+				$enName     = 'methodCompetence_en';
+				$scalarName = 'methodCompetence';
 				break;
 			case 'Sozialkompetenz':
-				$attributeName = 'socialCompetence';
+				$deName     = 'socialCompetence_de';
+				$enName     = 'socialCompetence_en';
+				$scalarName = 'socialCompetence';
 				break;
 			case 'Selbstkompetenz':
-				$attributeName = 'selfCompetence';
+				$deName     = 'selfCompetence_de';
+				$enName     = 'selfCompetence_en';
+				$scalarName = 'selfCompetence';
 				break;
+			default:
+				return;
 		}
 
-		if (empty($attributeName))
+		if ($deValue === '')
 		{
+			$table->$deName     = '';
+			$table->$enName     = '';
+			$table->$scalarName = null;
+
 			return;
 		}
 
-		if ($value === '')
+		$scalarValue = null;
+
+		// Old scalar valuation - numbers or asterix
+		if (is_numeric($deValue))
 		{
-			$table->$attributeName = null;
+			$scalarValue = (int) $deValue;
+			$scalarValue = $scalarValue < 4 ? $scalarValue : 3;
+			$scalarValue = $scalarValue < 0 ? 0 : $scalarValue;
+		}
+		elseif (preg_match('/^(\*)+$/', $deValue, $occurences))
+		{
+			$scalarValue = count($occurences);
+			$scalarValue = $scalarValue < 4 ? $scalarValue : 3;
+		}
+
+		$table->$scalarName = $scalarValue;
+
+		if ($scalarValue !== null)
+		{
+			$table->$deName = '';
+			$table->$enName = '';
 
 			return;
 		}
 
-		if (!is_numeric($value))
-		{
-			$value = strlen($value);
-		}
-
-		$table->$attributeName = $value;
+		$table->$deName = $deValue;
+		$table->$enName = $enValue;
 	}
 
 	/**

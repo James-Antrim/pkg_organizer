@@ -64,9 +64,15 @@
                hint="Erfolgreicher Abgabe von 6 Hausübungen."/>
         <field name="proof_de" type="Blank" label="PROOF_DE" hint="schriftliche Klausur"/>
         <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
-        <field name="objective_de" type="Editor" label="ORGANIZER_OBJECTIVE_DE"
-               description="ORGANIZER_OBJECTIVE_DE_DESC"/>
         <field name="content_de" type="Editor" label="ORGANIZER_CONTENT_DE" description="ORGANIZER_CONTENT_DE_DESC"/>
+        <field name="expertise_de" type="Editor" label="ORGANIZER_EXPERTISE_DE"
+               description="ORGANIZER_EXPERTISE_DE_DESC"/>
+        <field name="methodCompetence_de" type="Editor" label="ORGANIZER_METHOD_COMPETENCE_DE"
+               description="ORGANIZER_METHOD_COMPETENCE_DE_DESC"/>
+        <field name="selfCompetence_de" type="Editor" label="ORGANIZER_SELF_COMPETENCE_DE"
+               description="ORGANIZER_SELF_COMPETENCE_DE_DESC"/>
+        <field name="socialCompetence_de" type="Editor" label="ORGANIZER_SOCIAL_COMPETENCE_DE"
+               description="ORGANIZER_SOCIAL_COMPETENCE_DE_DESC"/>
         <field name="prerequisites_de" type="Editor" label="ORGANIZER_PREREQUISITES_DE"
                description="ORGANIZER_PREREQUISITES_DE_DESC"/>
         <field name="recommendedPrerequisites_de" type="Editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_DE"
@@ -81,9 +87,15 @@
                hint="Successful completion of six homework assignments."/>
         <field name="proof_en" type="Blank" label="PROOF_EN" hint="Written Exam"/>
         <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
-        <field name="objective_en" type="Editor" label="ORGANIZER_OBJECTIVE_EN"
-               description="ORGANIZER_OBJECTIVE_EN_DESC"/>
         <field name="content_en" type="Editor" label="ORGANIZER_CONTENT_EN" description="ORGANIZER_CONTENT_EN_DESC"/>
+        <field name="expertise_en" type="Editor" label="ORGANIZER_EXPERTISE_EN"
+               description="ORGANIZER_EXPERTISE_EN_DESC"/>
+        <field name="methodCompetence_en" type="Editor" label="ORGANIZER_METHOD_COMPETENCE_EN"
+               description="ORGANIZER_METHOD_COMPETENCE_EN_DESC"/>
+        <field name="selfCompetence_en" type="Editor" label="ORGANIZER_SELF_COMPETENCE_EN"
+               description="ORGANIZER_SELF_COMPETENCE_EN_DESC"/>
+        <field name="socialCompetence_en" type="Editor" label="ORGANIZER_SOCIAL_COMPETENCE_EN"
+               description="ORGANIZER_SOCIAL_COMPETENCE_EN_DESC"/>
         <field name="prerequisites_en" type="Editor" label="ORGANIZER_PREREQUISITES_EN"
                description="ORGANIZER_PREREQUISITES_EN_DESC"/>
         <field name="recommendedPrerequisites_en" type="Editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_EN"
@@ -97,35 +109,6 @@
         </field>
         <field name="persons" type="SubjectPersons" label="TEACHERS" multiple="multiple" role="2" size="12">
             <option value="">UNSPECIFIED_TEACHERS</option>
-        </field>
-        <field name="spacer4" type="spacer" hr="true"/>
-        <field name="expertise" type="Options" label="EXPERTISE" default="">
-            <option value=''>NO_STARS</option>
-            <option value='0'>ZERO_STARS</option>
-            <option value='1'>ONE_STAR</option>
-            <option value='2'>TWO_STARS</option>
-            <option value='3'>THREE_STARS</option>
-        </field>
-        <field name="methodCompetence" type="Options" label="METHOD_COMPETENCE" default="">
-            <option value=''>NO_STARS</option>
-            <option value='0'>ZERO_STARS</option>
-            <option value='1'>ONE_STAR</option>
-            <option value='2'>TWO_STARS</option>
-            <option value='3'>THREE_STARS</option>
-        </field>
-        <field name="selfCompetence" type="Options" label="SELF_COMPETENCE" default="">
-            <option value=''>NO_STARS</option>
-            <option value='0'>ZERO_STARS</option>
-            <option value='1'>ONE_STAR</option>
-            <option value='2'>TWO_STARS</option>
-            <option value='3'>THREE_STARS</option>
-        </field>
-        <field name="socialCompetence" type="Options" label="SOCIAL_COMPETENCE" default="">
-            <option value=''>NO_STARS</option>
-            <option value='0'>ZERO_STARS</option>
-            <option value='1'>ONE_STAR</option>
-            <option value='2'>TWO_STARS</option>
-            <option value='3'>THREE_STARS</option>
         </field>
     </fieldset>
     <fieldset name="associations" label="ASSOCIATIONS">
