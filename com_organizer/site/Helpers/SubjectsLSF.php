@@ -332,7 +332,7 @@ class SubjectsLSF
 
 			case 'Literatur':
 				// This should never have been implemented with multiple languages
-				$litText = empty($germanText) ? $englishText : $germanText;
+				$litText = $germanText ?: $englishText;
 				$table->setColumn('literature', $litText, '');
 				break;
 

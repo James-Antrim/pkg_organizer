@@ -36,12 +36,12 @@ class SubjectItem extends ItemModel
 		$query = Database::getQuery(true);
 		$tag   = Languages::getTag();
 		$query->select("f.name_$tag AS availability, bonusPoints, content_$tag AS content, creditPoints")
-			->select("description_$tag AS description, duration, expenditure, expertise, language")
-			->select("literature, method_$tag AS method, methodCompetence, code, s.fullName_$tag AS name")
-			->select("objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
+			->select("description_$tag AS description, duration, expenditure, expertise, expertise_$tag AS exText")
+			->select("language, literature, method_$tag AS method, methodCompetence, methodCompetence_$tag AS meText")
+			->select("code, s.fullName_$tag AS name, objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
 			->select("usedFor_$tag AS prerequisiteFor, prerequisites_$tag AS prerequisites, proof_$tag AS proof")
 			->select("recommendedPrerequisites_$tag as recommendedPrerequisites, selfCompetence")
-			->select("socialCompetence, sws, present")
+			->select("selfCompetence_$tag AS seText, socialCompetence, socialCompetence_$tag AS soText, sws, present")
 			->from('#__organizer_subjects AS s')
 			->leftJoin('#__organizer_frequencies AS f ON f.id = s.frequencyID')
 			->where("s.id = '$subjectID'");
@@ -58,16 +58,48 @@ class SubjectItem extends ItemModel
 
 		foreach ($result as $property => $value)
 		{
-			if ($property === 'bonusPoints')
+			switch ($property)
 			{
-				$value = '<p>';
-				$value .= $value ? Languages::_('ORGANIZER_YES') : Languages::_('ORGANIZER_NO');
-				$value .= '</p><p>' . Languages::_('ORGANIZER_BONUS_POINTS_TEXT') . '</p>';
-			}
-
-			if ($property === 'name')
-			{
-				$value = $code . $value;
+				case 'bonusPoints':
+					$value = '<p>';
+					$value .= $value ? Languages::_('ORGANIZER_YES') : Languages::_('ORGANIZER_NO');
+					$value .= '</p><p>' . Languages::_('ORGANIZER_BONUS_POINTS_TEXT') . '</p>';
+					break;
+				case 'expertise':
+					if (!empty($result['exText']))
+					{
+						$value                      = $result['exText'];
+						$subject[$property]['type'] = 'text';
+					}
+					unset($result['exText']);
+					break;
+				case 'methodCompetence':
+					if (!empty($result['meText']))
+					{
+						$value                      = $result['meText'];
+						$subject[$property]['type'] = 'text';
+					}
+					unset($result['meText']);
+					break;
+				case 'name':
+					$value = $code . $value;
+					break;
+				case 'selfCompetence':
+					if (!empty($result['seText']))
+					{
+						$value                      = $result['seText'];
+						$subject[$property]['type'] = 'text';
+					}
+					unset($result['seText']);
+					break;
+				case 'socialCompetence':
+					if (!empty($result['soText']))
+					{
+						$value                      = $result['soText'];
+						$subject[$property]['type'] = 'text';
+					}
+					unset($result['soText']);
+					break;
 			}
 
 			$subject[$property]['value'] = $value;
@@ -99,8 +131,8 @@ class SubjectItem extends ItemModel
 			'coordinators'             => ['label' => Languages::_($option . 'SUBJECT_COORDINATOR'), 'type' => 'list'],
 			'persons'                  => ['label' => Languages::_($option . 'TEACHERS'), 'type' => 'list'],
 			'description'              => ['label' => Languages::_($option . 'SHORT_DESCRIPTION'), 'type' => 'text'],
-			'objective'                => ['label' => Languages::_($option . 'OBJECTIVES'), 'type' => 'text'],
 			'content'                  => ['label' => Languages::_($option . 'CONTENT'), 'type' => 'text'],
+			'objective'                => ['label' => Languages::_($option . 'OBJECTIVES'), 'type' => 'text'],
 			'expertise'                => ['label' => Languages::_($option . 'EXPERTISE'), 'type' => 'star'],
 			'methodCompetence'         => ['label' => Languages::_($option . 'METHOD_COMPETENCE'), 'type' => 'star'],
 			'socialCompetence'         => ['label' => Languages::_($option . 'SOCIAL_COMPETENCE'), 'type' => 'star'],
