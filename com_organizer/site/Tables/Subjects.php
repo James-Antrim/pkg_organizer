@@ -119,11 +119,27 @@ class Subjects extends BaseTable
 	 * The quantifier for the level of expertise of this subject. Values: NULL - unset, 0 - none ... 3 - much.
 	 * TINYINT(1) UNSIGNED DEFAULT NULL
 	 *
-	 * Status: Changed -> TEXT + de/en
+	 * @deprecated replaced by localized full text fields
 	 *
 	 * @var int
 	 */
 	public $expertise;
+
+	/**
+	 * The description for expertise learning objectives in German.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $expertise_de;
+
+	/**
+	 * The description for expertise learning objectives in English.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $expertise_en;
 
 	/**
 	 * The id of the field entry referenced.
@@ -227,17 +243,33 @@ class Subjects extends BaseTable
 	 * The quantifier for the level of method competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
 	 * TINYINT(1) UNSIGNED DEFAULT NULL
 	 *
-	 * Status: Changed -> TEXT + de/en
+	 * @deprecated replaced by localized full text fields
 	 *
 	 * @var int
 	 */
 	public $methodCompetence;
 
 	/**
+	 * The description for procedural learning objectives in German.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $methodCompetence_de;
+
+	/**
+	 * The description for procedural learning objectives in English.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $methodCompetence_en;
+
+	/**
 	 * The subject's objectives in German.
 	 * TEXT
 	 *
-	 * Status: Deprecated still display if the 'competence' fields are unfilled.
+	 * @deprecated replaced by competences
 	 *
 	 * @var string
 	 */
@@ -247,7 +279,7 @@ class Subjects extends BaseTable
 	 * The subject's objectives in English.
 	 * TEXT
 	 *
-	 * Status: Deprecated still display if the 'competence' fields are unfilled.
+	 * @deprecated replaced by competences
 	 *
 	 * @var string
 	 */
@@ -347,21 +379,53 @@ class Subjects extends BaseTable
 	 * The quantifier for the level of self competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
 	 * TINYINT(1) UNSIGNED DEFAULT NULL
 	 *
-	 * Status: Changed -> TEXT + de/en
+	 * @deprecated replaced by localized full text fields
 	 *
 	 * @var int
 	 */
 	public $selfCompetence;
 
 	/**
+	 * The description for personal learning objectives in German.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $selfCompetence_de;
+
+	/**
+	 * The description for personal learning objectives in English.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $selfCompetence_en;
+
+	/**
 	 * The quantifier for the level of social competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
 	 * TINYINT(1) UNSIGNED DEFAULT NULL
 	 *
-	 * Status: Changed -> TEXT + de/en
+	 * @deprecated replaced by localized full text fields
 	 *
 	 * @var int
 	 */
 	public $socialCompetence;
+
+	/**
+	 * The description for social learning objectives in German.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $socialCompetence_de;
+
+	/**
+	 * The description for social learning objectives in English.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $socialCompetence_en;
 
 	/**
 	 * The number of scholastic hours (45 minutes) of this course held per week.
