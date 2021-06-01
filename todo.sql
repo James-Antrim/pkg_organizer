@@ -142,13 +142,6 @@
 #automatic generation for list views
 #endregion
 
-#region Search #########################################################################################################
-#add resource_field tables to associate resources with multiple fields in addition to the existing reference
-#rename the existing reference for pools and subjects to display field with appropriate texts
-#field associations with curriculum resources should carry over to the scheduling resources they are associated with
-#search
-#endregion
-
 #region Tagging ########################################################################################################
 #add resource_field tables to associate resources with multiple fields in addition to the existing reference
 #rename the existing reference for pools and subjects to display field with appropriate texts

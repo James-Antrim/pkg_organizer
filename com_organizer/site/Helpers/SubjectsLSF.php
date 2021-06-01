@@ -395,7 +395,7 @@ class SubjectsLSF
 			return;
 		}
 
-		$crp = (float) $subject->lp;
+		$crp = (int) $subject->lp;
 
 		$table->setColumn('creditPoints', $crp, 0);
 

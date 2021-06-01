@@ -51,8 +51,6 @@ class Subjects extends BaseTable
 	 * The subject's contents in German.
 	 * TEXT
 	 *
-	 * Status: Changed? Always a list?
-	 *
 	 * @var string
 	 */
 	public $content_de;
@@ -60,8 +58,6 @@ class Subjects extends BaseTable
 	/**
 	 * The subject's contents in English.
 	 * TEXT
-	 *
-	 * Status: Changed? Always a list?
 	 *
 	 * @var string
 	 */
