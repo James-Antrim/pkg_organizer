@@ -150,6 +150,7 @@ class SubjectItem extends ItemModel
 		$this->setDependencies($subject);
 		$this->setLanguage($subject);
 		$this->setPersons($subject);
+		$this->setPools($subject);
 
 		return $subject;
 	}
@@ -196,19 +197,20 @@ class SubjectItem extends ItemModel
 			// Hard attributes
 			'creditPoints'             => ['label' => Languages::_($option . 'CREDIT_POINTS'), 'type' => 'list'],
 			'method'                   => ['label' => Languages::_($option . 'METHOD'), 'type' => 'list'],
+			'pools'                    => ['label' => Languages::_($option . 'SUBJECT_ITEM_SEMESTER'), 'type' => 'list'],
 			'duration'                 => ['label' => Languages::_($option . 'DURATION'), 'type' => 'text'],
 			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
 			'language'                 => ['label' => Languages::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
 
 			// Testing
 			'preliminaryWork'          => ['label' => Languages::_($option . 'PRELIMINARY_WORK'), 'type' => 'text'],
+			'bonusPoints'              => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
 			'proof'                    => ['label' => Languages::_($option . 'PROOF'), 'type' => 'text'],
 			'evaluation'               => [
 				'label' => Languages::_($option . 'EVALUATION'),
 				'type'  => 'text',
 				'value' => Languages::_('ORGANIZER_EVALUATION_TEXT')
 			],
-			'bonusPoints'              => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
 
 			// Prerequisite for
 			'prerequisiteFor'          => ['label' => Languages::_($option . 'PREREQUISITE_FOR'), 'type' => 'text'],
@@ -413,5 +415,78 @@ class SubjectItem extends ItemModel
 		{
 			$subject['persons']['value'] = $persons;
 		}
+	}
+
+	/**
+	 * Sets the pools to which the subject is assigned.
+	 *
+	 * @param   array  &$subject
+	 *
+	 * @return void
+	 */
+	private function setPools(array &$subject)
+	{
+		$programs   = [];
+		$poolRanges = Helpers\Subjects::getPools($subject['subjectID']);
+
+		foreach (Helpers\Subjects::getPrograms($subject['subjectID']) as $prRange)
+		{
+			$pools           = [];
+			$program         = Helpers\Programs::getName($prRange['programID']);
+			$semesterNumbers = [];
+
+			foreach ($poolRanges as $poRange)
+			{
+				if ($poRange['lft'] < $prRange['lft'] or $poRange['rgt'] > $prRange['rgt'])
+				{
+					continue;
+				}
+
+				$pool = strtolower(Helpers\Pools::getFullName($poRange['poolID']));
+
+				if (strpos($pool, 'semester') === false)
+				{
+					continue;
+				}
+
+				if (preg_match('/(\d+)[^\d]+(\d+)?/', $pool, $numbers))
+				{
+					$semesterNumbers[$numbers[1]] = $numbers[1];
+
+					if (!empty($numbers[2]))
+					{
+						$semesterNumbers[$numbers[2]] = $numbers[2];
+					}
+				}
+			}
+
+			$semester = '';
+
+			if ($semesterNumbers)
+			{
+				$first = min($semesterNumbers);
+				$last  = max($semesterNumbers);
+				$tag   = Languages::getTag();
+
+				if ($first !== $last)
+				{
+					$suffix   = Languages::_('ORGANIZER_SEMESTERS');
+					$semester = $tag === 'en' ? "$first - $last $suffix" : "$first. - $last. $suffix";
+				}
+				else
+				{
+					$suffix   = Languages::_('ORGANIZER_SEMESTER');
+					$semester = $tag === 'en' ? "$first $suffix" : "$first. $suffix";
+				}
+			}
+
+			$semester = $semester ? "$program - $semester" : $program;
+
+			$programs[$program] = $semester;
+		}
+
+		ksort($programs);
+
+		$subject['pools']['value'] = $programs;
 	}
 }
