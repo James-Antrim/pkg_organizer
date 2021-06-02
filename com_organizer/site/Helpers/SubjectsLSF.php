@@ -154,8 +154,8 @@ class SubjectsLSF
 		$table->setColumn('frequencyID', (string) $subject->turnus, '');
 
 		$durationExists = preg_match('/\d+/', (string) $subject->dauer, $duration);
-		$durationValue  = empty($durationExists) ? 1 : $duration[0];
-		$table->setColumn('duration', $durationValue, '1');
+		$durationValue  = empty($durationExists) ? 1 : (int) $duration[0];
+		$table->setColumn('duration', $durationValue, 1);
 
 		// Ensure reset before iterative processing
 		$table->setColumn('creditPoints', 0, 0);

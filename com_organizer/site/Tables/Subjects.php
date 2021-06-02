@@ -93,9 +93,7 @@ class Subjects extends BaseTable
 
 	/**
 	 * The number of terms over which the subject is taught.
-	 * INT(2) UNSIGNED DEFAULT 1
-	 *
-	 * Status: Changed -> tinyint (1|2 = 1)
+	 * TINYINT(1) UNSIGNED DEFAULT 1
 	 *
 	 * @var int
 	 */

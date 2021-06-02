@@ -99,6 +99,10 @@ class SubjectItem extends ItemModel
 
 					$value['evaluation'] = Languages::_('ORGANIZER_EVALUATION_TEXT');
 					break;
+				case 'duration':
+					$constant = $value > 1 ? 'ORGANIZER_SEMESTERS' : 'ORGANIZER_SEMESTER';
+					$value    .= ' ' . Languages::_($constant);
+					break;
 				case 'expertise':
 					if (!empty($result['exText']))
 					{
@@ -194,8 +198,8 @@ class SubjectItem extends ItemModel
 			'creditPoints'             => ['label' => Languages::_($option . 'EVALUATION'), 'type' => 'list'],
 			'method'                   => ['label' => Languages::_($option . 'METHOD'), 'type' => 'list'],
 			'duration'                 => ['label' => Languages::_($option . 'DURATION'), 'type' => 'text'],
-			'language'                 => ['label' => Languages::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
 			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
+			'language'                 => ['label' => Languages::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
 
 			// Testing
 			'preliminaryWork'          => ['label' => Languages::_($option . 'PRELIMINARY_WORK'), 'type' => 'text'],
