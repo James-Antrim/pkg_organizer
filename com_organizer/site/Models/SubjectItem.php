@@ -79,7 +79,7 @@ class SubjectItem extends ItemModel
 					$value        = [];
 					if ($creditPoints)
 					{
-						$value[] = Languages::_('ORGANIZER_CREDIT_POINTS') . ' ' . $creditPoints;
+						$value[] = $creditPoints . ' ' . Languages::_('ORGANIZER_CREDIT_POINTS_ABBR');
 					}
 
 					if ($expenditue = $result['expenditure'])
@@ -97,7 +97,6 @@ class SubjectItem extends ItemModel
 						$value[] = Languages::_('ORGANIZER_INDEPENDENT') . ' ' . $independent . $hours;
 					}
 
-					$value['evaluation'] = Languages::_('ORGANIZER_EVALUATION_TEXT');
 					break;
 				case 'duration':
 					$constant = $value > 1 ? 'ORGANIZER_SEMESTERS' : 'ORGANIZER_SEMESTER';
@@ -195,7 +194,7 @@ class SubjectItem extends ItemModel
 			'selfCompetence'           => ['label' => Languages::_($option . 'SELF_COMPETENCE'), 'type' => 'star'],
 
 			// Hard attributes
-			'creditPoints'             => ['label' => Languages::_($option . 'EVALUATION'), 'type' => 'list'],
+			'creditPoints'             => ['label' => Languages::_($option . 'CREDIT_POINTS'), 'type' => 'list'],
 			'method'                   => ['label' => Languages::_($option . 'METHOD'), 'type' => 'list'],
 			'duration'                 => ['label' => Languages::_($option . 'DURATION'), 'type' => 'text'],
 			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
@@ -204,6 +203,11 @@ class SubjectItem extends ItemModel
 			// Testing
 			'preliminaryWork'          => ['label' => Languages::_($option . 'PRELIMINARY_WORK'), 'type' => 'text'],
 			'proof'                    => ['label' => Languages::_($option . 'PROOF'), 'type' => 'text'],
+			'evaluation'               => [
+				'label' => Languages::_($option . 'EVALUATION'),
+				'type'  => 'text',
+				'value' => Languages::_('ORGANIZER_EVALUATION_TEXT')
+			],
 			'bonusPoints'              => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
 
 			// Prerequisite for
