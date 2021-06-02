@@ -325,8 +325,38 @@ class SubjectItem extends ItemModel
 	{
 		switch (strtoupper((string) $subject['language']['value']))
 		{
+			case 'A':
+				$subject['language']['value'] = Languages::_('ORGANIZER_ARABIAN');
+				break;
+			case 'C':
+				$subject['language']['value'] = Languages::_('ORGANIZER_CHINESE');
+				break;
 			case 'E':
 				$subject['language']['value'] = Languages::_('ORGANIZER_ENGLISH');
+				break;
+			case 'F':
+				$subject['language']['value'] = Languages::_('ORGANIZER_FRENCH');
+				break;
+			case 'G':
+				$subject['language']['value'] = Languages::_('ORGANIZER_GREEK');
+				break;
+			case 'I':
+				$subject['language']['value'] = Languages::_('ORGANIZER_ITALIAN');
+				break;
+			case 'J':
+				$subject['language']['value'] = Languages::_('ORGANIZER_JAPANESE');
+				break;
+			case 'K':
+				$subject['language']['value'] = Languages::_('ORGANIZER_KOREAN');
+				break;
+			case 'P':
+				$subject['language']['value'] = Languages::_('ORGANIZER_POLISH');
+				break;
+			case 'S':
+				$subject['language']['value'] = Languages::_('ORGANIZER_SPANISH');
+				break;
+			case 'T':
+				$subject['language']['value'] = Languages::_('ORGANIZER_TURKISH');
 				break;
 			case 'D':
 			default:
