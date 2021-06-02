@@ -326,8 +326,8 @@ class SubjectsLSF
 				break;
 
 			case 'Lehrformen':
-				$table->setColumn('method_de', $germanText, '');
-				$table->setColumn('method_en', $englishText, '');
+				$table->setColumn('method_de', strip_tags($germanText), '');
+				$table->setColumn('method_en', strip_tags($englishText), '');
 				break;
 
 			case 'Literatur':
@@ -505,6 +505,26 @@ class SubjectsLSF
 			$table->$enName = '';
 
 			return;
+		}
+
+		if (preg_match('/^\d/', $deValue))
+		{
+			$deValue = trim(substr($deValue, 1));
+
+			if (strpos($deValue, '<br>') === 0)
+			{
+				$deValue = trim(substr($deValue, 4));
+			}
+		}
+
+		if (preg_match('/^\d/', $enValue))
+		{
+			$enValue = trim(substr($enValue, 1));
+
+			if (strpos($enValue, '<br>') === 0)
+			{
+				$enValue = trim(substr($enValue, 4));
+			}
 		}
 
 		$table->$deName = $deValue;

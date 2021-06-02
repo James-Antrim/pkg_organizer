@@ -37,11 +37,12 @@ class SubjectItem extends ItemModel
 		$tag   = Languages::getTag();
 		$query->select("f.name_$tag AS availability, bonusPoints, content_$tag AS content, creditPoints")
 			->select("description_$tag AS description, duration, expenditure, expertise, expertise_$tag AS exText")
-			->select("language, literature, method_$tag AS method, methodCompetence, methodCompetence_$tag AS meText")
-			->select("code, s.fullName_$tag AS name, objective_$tag AS objective, preliminaryWork_$tag AS preliminaryWork")
-			->select("usedFor_$tag AS prerequisiteFor, prerequisites_$tag AS prerequisites, proof_$tag AS proof")
+			->select("language, literature, independent, method_$tag AS method, methodCompetence")
+			->select("methodCompetence_$tag AS meText, code, s.fullName_$tag AS name, objective_$tag AS objective")
+			->select("preliminaryWork_$tag AS preliminaryWork, usedFor_$tag AS prerequisiteFor")
+			->select("prerequisites_$tag AS prerequisites, proof_$tag AS proof, present")
 			->select("recommendedPrerequisites_$tag as recommendedPrerequisites, selfCompetence")
-			->select("selfCompetence_$tag AS seText, socialCompetence, socialCompetence_$tag AS soText, sws, present")
+			->select("selfCompetence_$tag AS seText, socialCompetence, socialCompetence_$tag AS soText, sws")
 			->from('#__organizer_subjects AS s')
 			->leftJoin('#__organizer_frequencies AS f ON f.id = s.frequencyID')
 			->where("s.id = '$subjectID'");
@@ -54,10 +55,18 @@ class SubjectItem extends ItemModel
 		}
 
 		$code    = empty($result['code']) ? '' : "{$result['code']} ";
+		$hours   = ' ' . Languages::_('ORGANIZER_HOURS_ABBR');
 		$subject = $this->getStructure();
 
-		foreach ($result as $property => $value)
+		foreach (array_keys($subject) as $property)
 		{
+			if (!array_key_exists($property, $result))
+			{
+				continue;
+			}
+
+			$value = $result[$property];
+
 			switch ($property)
 			{
 				case 'bonusPoints':
@@ -65,13 +74,46 @@ class SubjectItem extends ItemModel
 					$value .= $value ? Languages::_('ORGANIZER_YES') : Languages::_('ORGANIZER_NO');
 					$value .= '</p><p>' . Languages::_('ORGANIZER_BONUS_POINTS_TEXT') . '</p>';
 					break;
+				case 'creditPoints':
+					$creditPoints = $value;
+					$value        = [];
+					if ($creditPoints)
+					{
+						$value[] = Languages::_('ORGANIZER_CREDIT_POINTS') . ' ' . $creditPoints;
+					}
+
+					if ($expenditue = $result['expenditure'])
+					{
+						$value[] = Languages::_('ORGANIZER_EXPENDITURE') . ' ' . $expenditue . $hours;
+					}
+
+					if ($present = $result['present'])
+					{
+						$value[] = Languages::_('ORGANIZER_PRESENT') . ' ' . $present . $hours;
+					}
+
+					if ($independent = $result['independent'])
+					{
+						$value[] = Languages::_('ORGANIZER_INDEPENDENT') . ' ' . $independent . $hours;
+					}
+
+					$value['evaluation'] = Languages::_('ORGANIZER_EVALUATION_TEXT');
+					break;
 				case 'expertise':
 					if (!empty($result['exText']))
 					{
 						$value                      = $result['exText'];
 						$subject[$property]['type'] = 'text';
 					}
-					unset($result['exText']);
+					break;
+				case 'method':
+					$value = preg_split('/, ?/', $value);
+
+					if ($result['sws'])
+					{
+						array_unshift($value, $result['sws'] . ' ' . Languages::_('ORGANIZER_SWS_ABBR'));
+					}
+
 					break;
 				case 'methodCompetence':
 					if (!empty($result['meText']))
@@ -79,7 +121,6 @@ class SubjectItem extends ItemModel
 						$value                      = $result['meText'];
 						$subject[$property]['type'] = 'text';
 					}
-					unset($result['meText']);
 					break;
 				case 'name':
 					$value = $code . $value;
@@ -90,7 +131,6 @@ class SubjectItem extends ItemModel
 						$value                      = $result['seText'];
 						$subject[$property]['type'] = 'text';
 					}
-					unset($result['seText']);
 					break;
 				case 'socialCompetence':
 					if (!empty($result['soText']))
@@ -98,16 +138,13 @@ class SubjectItem extends ItemModel
 						$value                      = $result['soText'];
 						$subject[$property]['type'] = 'text';
 					}
-					unset($result['soText']);
 					break;
 			}
 
 			$subject[$property]['value'] = $value;
 		}
 
-		$this->setCampus($subject);
 		$this->setDependencies($subject);
-		$this->setExpenditureText($subject);
 		$this->setLanguage($subject);
 		$this->setPersons($subject);
 
@@ -127,9 +164,24 @@ class SubjectItem extends ItemModel
 		return [
 			'subjectID'                => Helpers\Input::getID(),
 			'name'                     => ['label' => Languages::_($option . 'NAME'), 'type' => 'text'],
-			'campus'                   => ['label' => Languages::_($option . 'CAMPUS'), 'type' => 'location'],
+
+			// Persons
 			'coordinators'             => ['label' => Languages::_($option . 'SUBJECT_COORDINATOR'), 'type' => 'list'],
 			'persons'                  => ['label' => Languages::_($option . 'TEACHERS'), 'type' => 'list'],
+
+			// Prerequisites
+			'prerequisites'            => ['label' => Languages::_($option . 'PREREQUISITES_LONG'), 'type' => 'text'],
+			'preRequisiteModules'      => [
+				'label' => Languages::_($option . 'PREREQUISITE_MODULES'),
+				'type'  => 'list',
+				'url'   => $url
+			],
+			'recommendedPrerequisites' => [
+				'label' => Languages::_($option . 'RECOMMENDED_PREREQUISITES_LONG'),
+				'type'  => 'text'
+			],
+
+			// Descriptive texts
 			'description'              => ['label' => Languages::_($option . 'SHORT_DESCRIPTION'), 'type' => 'text'],
 			'content'                  => ['label' => Languages::_($option . 'CONTENT'), 'type' => 'text'],
 			'objective'                => ['label' => Languages::_($option . 'OBJECTIVES'), 'type' => 'text'],
@@ -137,37 +189,29 @@ class SubjectItem extends ItemModel
 			'methodCompetence'         => ['label' => Languages::_($option . 'METHOD_COMPETENCE'), 'type' => 'star'],
 			'socialCompetence'         => ['label' => Languages::_($option . 'SOCIAL_COMPETENCE'), 'type' => 'star'],
 			'selfCompetence'           => ['label' => Languages::_($option . 'SELF_COMPETENCE'), 'type' => 'star'],
+
+			// Hard attributes
+			'creditPoints'             => ['label' => Languages::_($option . 'EVALUATION'), 'type' => 'list'],
+			'method'                   => ['label' => Languages::_($option . 'METHOD'), 'type' => 'list'],
 			'duration'                 => ['label' => Languages::_($option . 'DURATION'), 'type' => 'text'],
 			'language'                 => ['label' => Languages::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
-			'expenditure'              => ['label' => Languages::_($option . 'EXPENDITURE'), 'type' => 'text'],
-			'sws'                      => ['label' => Languages::_($option . 'SWS'), 'type' => 'text'],
-			'method'                   => ['label' => Languages::_($option . 'METHOD'), 'type' => 'text'],
+			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
+
+			// Testing
 			'preliminaryWork'          => ['label' => Languages::_($option . 'PRELIMINARY_WORK'), 'type' => 'text'],
 			'proof'                    => ['label' => Languages::_($option . 'PROOF'), 'type' => 'text'],
-			'evaluation'               => [
-				'label' => Languages::_($option . 'EVALUATION'),
-				'type'  => 'text',
-				'value' => Languages::_($option . 'EVALUATION_TEXT')
-			],
 			'bonusPoints'              => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
-			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
-			'literature'               => ['label' => Languages::_($option . 'LITERATURE'), 'type' => 'text'],
-			'prerequisites'            => ['label' => Languages::_($option . 'PREREQUISITES'), 'type' => 'text'],
-			'preRequisiteModules'      => [
-				'label' => Languages::_($option . 'PREREQUISITE_MODULES'),
-				'type'  => 'list',
-				'url'   => $url
-			],
-			'recommendedPrerequisites' => [
-				'label' => Languages::_($option . 'RECOMMENDED_PREREQUISITES'),
-				'type'  => 'text'
-			],
+
+			// Prerequisite for
 			'prerequisiteFor'          => ['label' => Languages::_($option . 'PREREQUISITE_FOR'), 'type' => 'text'],
 			'postRequisiteModules'     => [
 				'label' => Languages::_($option . 'POSTREQUISITE_MODULES'),
 				'type'  => 'list',
 				'url'   => $url
-			]
+			],
+
+			// Other
+			'literature'               => ['label' => Languages::_($option . 'LITERATURE'), 'type' => 'text']
 		];
 	}
 
@@ -177,27 +221,6 @@ class SubjectItem extends ItemModel
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
 		return new Tables\Subjects();
-	}
-
-	/**
-	 * Sets campus information in a form that can be processed by external systems.
-	 *
-	 * @param   array  $subject  the subject being processed.
-	 *
-	 * @return void modifies the subject array
-	 */
-	private function setCampus(array &$subject)
-	{
-		if (!empty($subject['campus']['value']))
-		{
-			$campusID                      = $subject['campus']['value'];
-			$subject['campus']['value']    = Helpers\Campuses::getName($campusID);
-			$subject['campus']['location'] = Helpers\Campuses::getLocation($campusID);
-		}
-		else
-		{
-			unset($subject['campus']);
-		}
 	}
 
 	/**
@@ -285,47 +308,6 @@ class SubjectItem extends ItemModel
 				asort($subject['postRequisiteModules']['value'][$programName]);
 			}
 		}
-	}
-
-	/**
-	 * Creates a textual output for the various expenditure values.
-	 *
-	 * @param   array &$subject  the object containing subject data
-	 *
-	 * @return void  sets values in the references object
-	 */
-	private function setExpenditureText(array &$subject)
-	{
-		// If there are no credit points set, this text is meaningless.
-		if (!empty($subject['creditPoints']['value']))
-		{
-			if (empty($subject['expenditure']['value']))
-			{
-				$subject['expenditure']['value'] = sprintf(
-					Languages::_('ORGANIZER_EXPENDITURE_SHORT'),
-					$subject['creditPoints']['value']
-				);
-			}
-			elseif (empty($subject['present']['value']))
-			{
-				$subject['expenditure']['value'] = sprintf(
-					Languages::_('ORGANIZER_EXPENDITURE_MEDIUM'),
-					$subject['creditPoints']['value'],
-					$subject['expenditure']['value']
-				);
-			}
-			else
-			{
-				$subject['expenditure']['value'] = sprintf(
-					Languages::_('ORGANIZER_EXPENDITURE_FULL'),
-					$subject['creditPoints']['value'],
-					$subject['expenditure']['value'],
-					$subject['present']['value']
-				);
-			}
-		}
-
-		unset($subject['creditPoints'], $subject['present']);
 	}
 
 	/**
