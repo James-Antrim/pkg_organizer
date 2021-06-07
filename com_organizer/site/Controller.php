@@ -81,10 +81,10 @@ class Controller extends BaseController
 	 */
 	public function cancel()
 	{
-		$defaultView = empty($this->listView) ? '' : "&view={$this->listView}";
+		$defaultView = empty($this->listView) ? '' : "&view=$this->listView";
 		$default     = Helpers\Routing::getRedirectBase() . $defaultView;
 		$referrer    = Helpers\Input::getString('referrer');
-		$url         = $referrer ? $referrer : $default;
+		$url         = $referrer ?: $default;
 		$this->setRedirect($url);
 	}
 
@@ -108,7 +108,7 @@ class Controller extends BaseController
 		}
 
 		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view={$this->listView}";
+		$url .= "&view=$this->listView";
 		$this->setRedirect($url);
 	}
 
@@ -318,7 +318,7 @@ class Controller extends BaseController
 		}
 
 		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view={$this->listView}";
+		$url .= "&view=$this->listView";
 		$this->setRedirect($url);
 	}
 
@@ -331,7 +331,7 @@ class Controller extends BaseController
 	 */
 	public function mergeView()
 	{
-		$url = "index.php?option=com_organizer&view={$this->listView}";
+		$url = "index.php?option=com_organizer&view=$this->listView";
 
 		if (JDEBUG)
 		{
@@ -386,7 +386,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
 		$this->setRedirect(Route::_($url, false));
 	}
 
@@ -435,7 +435,7 @@ class Controller extends BaseController
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
 		$this->setRedirect($url);
 	}
 
