@@ -20,7 +20,7 @@ class SubjectEdit extends EditView
 {
 	use Subordinate;
 
-	protected $_layout = 'tabs';
+	protected $layout = 'tabs';
 
 	/**
 	 * Method to generate buttons for user interaction
@@ -29,7 +29,7 @@ class SubjectEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		if ($new = empty($this->item->id))
+		if (empty($this->item->id))
 		{
 			$apply       = Helpers\Languages::_('ORGANIZER_CREATE');
 			$applyImport = Helpers\Languages::_('ORGANIZER_CREATE_IMPORT');

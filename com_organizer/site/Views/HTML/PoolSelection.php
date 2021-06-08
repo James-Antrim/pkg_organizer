@@ -20,7 +20,7 @@ use Organizer\Helpers;
  */
 class PoolSelection extends PoolsView
 {
-	protected $_layout = 'list_modal';
+	protected $layout = 'list_modal';
 
 	protected $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
 

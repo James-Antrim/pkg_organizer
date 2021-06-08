@@ -18,7 +18,7 @@ use Organizer\Helpers;
  */
 class InstanceEdit extends EditView
 {
-	protected $_layout = 'instance-wrapper';
+	protected $layout = 'instance-wrapper';
 
 	/**
 	 * Method to generate buttons for user interaction
@@ -27,7 +27,7 @@ class InstanceEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		$appointment = Helpers\Input::getCMD('layout') === 'appointment';
+		//$appointment = Helpers\Input::getCMD('layout') === 'appointment';
 
 		if ($this->item->id)
 		{
