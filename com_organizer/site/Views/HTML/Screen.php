@@ -18,7 +18,7 @@ use Organizer\Adapters;
  */
 class Screen extends BaseView
 {
-	protected $_layout = 'upcoming_instances';
+	protected $layout = 'upcoming_instances';
 
 	public $model;
 

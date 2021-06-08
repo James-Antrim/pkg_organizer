@@ -17,11 +17,9 @@ use Organizer\Helpers;
  */
 class RoomOverview extends TableView
 {
-	const DAY = 1, TEACHER = 1, WEEK = 2, SPEAKER = 4, LAB = 14, UNKNOWN = 49;
+	private const TEACHER = 1, WEEK = 2, SPEAKER = 4, LAB = 14, UNKNOWN = 49;
 
 	private $grid = null;
-
-	private $gridID = null;
 
 	/**
 	 * Adds a toolbar and title to the view.
@@ -41,8 +39,6 @@ class RoomOverview extends TableView
 		}
 
 		Helpers\HTML::setMenuTitle('ORGANIZER_ROOM_OVERVIEW', $resourceName);
-
-		return;
 	}
 
 	/**
@@ -53,7 +49,7 @@ class RoomOverview extends TableView
 	 *
 	 * @return array the cells for the specific day
 	 */
-	private function getDailyCells($room, $date)
+	private function getDailyCells(object $room, string $date): array
 	{
 		$cells      = [];
 		$conditions = [
@@ -113,7 +109,7 @@ class RoomOverview extends TableView
 	 *
 	 * @return array the blocks of the time grid
 	 */
-	private function getHeaderBlocks($short = false)
+	private function getHeaderBlocks(bool $short = false): array
 	{
 		$blocks = [];
 		if (empty($this->grid['periods']))
@@ -165,11 +161,11 @@ class RoomOverview extends TableView
 	/**
 	 * Processes an individual list item resolving it to an array of table data values.
 	 *
-	 * @param   object  $room  the resource whose information is displayed in the row
+	 * @param   object  $resource  the resource whose information is displayed in the row
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	protected function getRow($room)
+	protected function getRow(object $resource): array
 	{
 		$date = $this->state->get('list.date');
 
@@ -180,17 +176,17 @@ class RoomOverview extends TableView
 			$currentDate = $dates['startDate'];
 			while ($currentDate <= $dates['endDate'])
 			{
-				$dailyCells  = $this->getDailyCells($room, $currentDate);
+				$dailyCells  = $this->getDailyCells($resource, $currentDate);
 				$row         = array_merge($row, $dailyCells);
 				$currentDate = date('Y-m-d', strtotime("$currentDate + 1 days"));
 			}
 		}
 		else
 		{
-			$row = $this->getDailyCells($room, $date);
+			$row = $this->getDailyCells($resource, $date);
 		}
 
-		$label = $this->getRowLabel($room);
+		$label = $this->getRowLabel($resource);
 		array_unshift($row, $label);
 
 		return $row;
@@ -199,41 +195,41 @@ class RoomOverview extends TableView
 	/**
 	 * Creates a label with tooltip for the resource row.
 	 *
-	 * @param   object  $room  the resource to be displayed in the row
+	 * @param   object  $resource  the resource to be displayed in the row
 	 *
 	 * @return array  the label inclusive tooltip to be displayed
 	 */
-	protected function getRowLabel($room)
+	protected function getRowLabel(object $resource): array
 	{
-		$tip = "<div class=\"cellTip\"><span class=\"cellTitle\">$room->name</span>";
-		$tip .= ($room->typeName or $room->capacity) ? "<div class=\"labelTip\">" : '';
+		$tip = "<div class=\"cellTip\"><span class=\"cellTitle\">$resource->name</span>";
+		$tip .= ($resource->typeName or $resource->capacity) ? "<div class=\"labelTip\">" : '';
 
-		if ($room->typeName)
+		if ($resource->typeName)
 		{
-			$tip .= $room->typeName;
-			if ((int) $room->roomtypeID === self::LAB)
+			$tip .= $resource->typeName;
+			if ((int) $resource->roomtypeID === self::LAB)
 			{
-				if (!empty($room->roomDesc))
+				if (!empty($resource->roomDesc))
 				{
-					$tip .= ":<br>$room->roomDesc";
+					$tip .= ":<br>$resource->roomDesc";
 				}
 			}
-			elseif ((int) $room->roomtypeID !== self::UNKNOWN and !empty($room->typeDesc))
+			elseif ((int) $resource->roomtypeID !== self::UNKNOWN and !empty($resource->typeDesc))
 			{
-				$tip .= ":<br>$room->typeDesc";
+				$tip .= ":<br>$resource->typeDesc";
 			}
-			$tip .= $room->capacity ? '<br>' : '';
+			$tip .= $resource->capacity ? '<br>' : '';
 		}
 
-		if ($room->capacity)
+		if ($resource->capacity)
 		{
 			$tip .= Helpers\Languages::_('ORGANIZER_CAPACITY');
-			$tip .= ": $room->capacity";
+			$tip .= ": $resource->capacity";
 		}
 
-		$tip  .= ($room->typeName or $room->capacity) ? '</div></div>' : '</div>';
+		$tip  .= ($resource->typeName or $resource->capacity) ? '</div></div>' : '</div>';
 		$tip  = htmlentities($tip);
-		$text = "<span class=\"hasTooltip\" title=\"$tip\">$room->name</span>";
+		$text = "<span class=\"hasTooltip\" title=\"$tip\">$resource->name</span>";
 
 		$label          = [];
 		$label['label'] = $text;
@@ -248,7 +244,7 @@ class RoomOverview extends TableView
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	protected function getDataCell($data)
+	protected function getDataCell(array $data): array
 	{
 		if (empty($data['blockNo']))
 		{
@@ -400,7 +396,7 @@ class RoomOverview extends TableView
 	 *
 	 * @return void sets attributes specific to individual tables
 	 */
-	protected function setInheritingProperties()
+	protected function setOverrides()
 	{
 		if (!$gridID = $this->state->get('list.gridID') and $campusID = Helpers\Input::getParams()->get('campusID'))
 		{
@@ -412,7 +408,6 @@ class RoomOverview extends TableView
 			$gridID = Helpers\Grids::getDefault();
 		}
 
-		$this->grid   = json_decode(Helpers\Grids::getGrid($gridID), true);
-		$this->gridID = $gridID;
+		$this->grid = json_decode(Helpers\Grids::getGrid($gridID), true);
 	}
 }

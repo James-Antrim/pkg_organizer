@@ -20,7 +20,7 @@ class PoolEdit extends EditView
 {
 	use Subordinate;
 
-	protected $_layout = 'tabs';
+	protected $layout = 'tabs';
 
 	/**
 	 * Method to generate buttons for user interaction

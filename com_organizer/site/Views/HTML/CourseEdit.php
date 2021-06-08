@@ -17,7 +17,7 @@ use Organizer\Helpers;
  */
 class CourseEdit extends EditView
 {
-	protected $_layout = 'tabs';
+	protected $layout = 'tabs';
 
 	/**
 	 * Adds a toolbar and title to the view.

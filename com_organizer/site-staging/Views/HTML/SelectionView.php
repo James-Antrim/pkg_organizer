@@ -21,7 +21,7 @@ use Organizer\Helpers\Languages;
  */
 abstract class SelectionView extends BaseView
 {
-	protected $_layout = 'selection';
+	protected $layout = 'selection';
 
 	protected $hiddenFields = [];
 
@@ -49,7 +49,7 @@ abstract class SelectionView extends BaseView
 	 *
 	 * @return bool true if the view has been configured for seeing impaired users, otherwise false
 	 */
-	protected function isSeeingImpaired()
+	protected function isSeeingImpaired(): bool
 	{
 		return (bool) Helpers\Input::getParams()->get('seeingImpaired');
 	}
@@ -95,7 +95,7 @@ abstract class SelectionView extends BaseView
 	 *
 	 * @return array an array of options
 	 */
-	protected function getOptions(array $values)
+	protected function getOptions(array $values): array
 	{
 		foreach ($values as $value => $constant)
 		{
@@ -128,7 +128,7 @@ abstract class SelectionView extends BaseView
 	 *
 	 * @return void modifies the sets property
 	 */
-	protected function setField($fieldName, $set, $label, $input)
+	protected function setField(string $fieldName, string $set, string $label, string $input)
 	{
 		$descConstant = "{$label}_EXPORT_DESC";
 
@@ -147,12 +147,10 @@ abstract class SelectionView extends BaseView
 	 * @param   array   $values     the value/constant pairs which will define the options
 	 * @param   array   $attribs    optional attributes
 	 * @param   string  $default    a default value
-	 * @param   string  $constant   the text constant for the label, if empty the field name will be used
 	 */
-	protected function setListField($fieldName, $set, $values, $attribs = [], $default = '', $constant = '')
+	protected function setListField(string $fieldName, string $set, array $values, array $attribs = [], string $default = '')
 	{
-		$rawConstant    = empty($constant) ? $fieldName : $constant;
-		$constant       = strtoupper($rawConstant);
+		$constant       = strtoupper($fieldName);
 		$label          = "ORGANIZER_$constant";
 		$selectConstant = "ORGANIZER_SELECT_$constant";
 		$options        = [HTML::_('select.option', '', Languages::_($selectConstant))];
@@ -173,7 +171,7 @@ abstract class SelectionView extends BaseView
 	 *
 	 * @return void modifies the set property
 	 */
-	protected function setResourceField($resource, $set, $attribs = [], $fill = false)
+	protected function setResourceField(string $resource, string $set, array $attribs = [], bool $fill = false)
 	{
 		$rawConstant = strtolower($resource);
 		$plural      = Helpers\OrganizerHelper::getPlural($rawConstant);
@@ -192,8 +190,10 @@ abstract class SelectionView extends BaseView
 		$label          = "ORGANIZER_$constant";
 		$selectConstant = "ORGANIZER_SELECT_$constant";
 		$options        = [HTML::_('select.option', '', Languages::_($selectConstant))];
+
 		if ($fill)
 		{
+			/** @var Helpers\Selectable $helper */
 			$helper  = 'Organizer\\Helpers\\' . ucfirst($plural);
 			$options += $helper::getOptions();
 		}
@@ -241,7 +241,7 @@ abstract class SelectionView extends BaseView
 	 *
 	 * @return void renders HTML
 	 */
-	protected function renderField($fieldName, array $field)
+	protected function renderField(string $fieldName, array $field)
 	{
 		$hidden = in_array($fieldName, $this->hiddenFields) ? 'style="display: none;"' : '';
 		echo "<div class=\"control-group\" $hidden><div class=\"control-label\">";

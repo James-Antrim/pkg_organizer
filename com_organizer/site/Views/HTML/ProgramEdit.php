@@ -18,7 +18,7 @@ use Organizer\Helpers;
  */
 class ProgramEdit extends EditView
 {
-	protected $_layout = 'tabs';
+	protected $layout = 'tabs';
 
 	/**
 	 * Method to generate buttons for user interaction

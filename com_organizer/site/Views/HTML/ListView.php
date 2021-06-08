@@ -21,7 +21,7 @@ use Organizer\Helpers\HTML;
  */
 abstract class ListView extends BaseView
 {
-	protected $_layout = 'list';
+	protected $layout = 'list';
 
 	public $activeFilters = null;
 
@@ -153,8 +153,8 @@ abstract class ListView extends BaseView
 		int $valueTwo,
 		bool $currentValue,
 		string $tip,
-		$attribute = ''
-	)
+		string $attribute = ''
+	): string
 	{
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle";
 		$url .= "&$columnOne=$valueOne&$columnTwo=$valueTwo";
@@ -176,7 +176,7 @@ abstract class ListView extends BaseView
 	 *
 	 * @return string the HTML attribute output for the item
 	 */
-	public function getAttributesOutput(&$element)
+	public function getAttributesOutput(&$element): string
 	{
 		$output = '';
 		if (!is_array($element))
@@ -208,7 +208,7 @@ abstract class ListView extends BaseView
 	 *
 	 * @return string  a HTML string
 	 */
-	protected function getToggle($controller, $resourceID, $currentValue, $tip, $attribute = null)
+	protected function getToggle(string $controller, int $resourceID, bool $currentValue, string $tip, string $attribute = ''): string
 	{
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle&id=$resourceID";
 		$url .= $attribute ? "&attribute=$attribute" : '';
@@ -280,7 +280,7 @@ abstract class ListView extends BaseView
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	protected function structureItem($index, object $item, $link = ''): array
+	protected function structureItem($index, object $item, string $link = ''): array
 	{
 		$processedItem = [];
 
@@ -333,7 +333,6 @@ abstract class ListView extends BaseView
 			if ($propertyType === 'value')
 			{
 				$processedItem[$property] = $item->$property;
-				continue;
 			}
 		}
 

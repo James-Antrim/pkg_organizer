@@ -20,7 +20,7 @@ use Organizer\Helpers;
  */
 class SubjectSelection extends ListView
 {
-	protected $_layout = 'list_modal';
+	protected $layout = 'list_modal';
 
 	/**
 	 * @inheritdoc
