@@ -20,7 +20,7 @@ use Organizer\Helpers;
  */
 abstract class ItemView extends BaseView
 {
-	protected $layout = 'item';
+	protected $_layout = 'item';
 
 	public $form = null;
 
@@ -104,7 +104,7 @@ abstract class ItemView extends BaseView
 	 *
 	 * @return void outputs the items as an html list
 	 */
-	public function renderListValue(array $items, string $url, array $urlAttribs)
+	public function renderListValue($items, $url, $urlAttribs)
 	{
 		echo '<ul>';
 		foreach ($items as $index => $item)

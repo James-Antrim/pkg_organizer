@@ -16,9 +16,6 @@ use Organizer\Adapters\Document;
 use Organizer\Helpers;
 use Organizer\Tables\Participants as Table;
 
-/**
- * Generates the checkin form.
- */
 class Checkin extends FormView
 {
 	public $complete = true;
@@ -103,9 +100,9 @@ class Checkin extends FormView
 		}
 
 		$this->instances   = $this->get('Instances');
-		$this->layout      = 'checkin-wrapper';
 		$this->participant = $this->get('Participant');
 		$this->roomID      = $this->get('RoomID');
+		$this->_layout     = 'checkin-wrapper';
 
 		$this->complete = true;
 		if ($this->participant->id)

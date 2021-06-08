@@ -103,14 +103,14 @@ class Booking extends Participants
 
 		$icon = '<span class="icon-list-3"></span>';
 		$text = Languages::_('ORGANIZER_MY_INSTANCES');
-		$url  = Uri::base() . "?option=com_organizer&view=instances&my=1";
-		$link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn']);
+		$URL  = Uri::base() . "?option=com_organizer&view=instances&my=1";
+		$link = Helpers\HTML::link($URL, $icon . $text, ['class' => 'btn']);
 		$toolbar->appendButton('Custom', $link);
 
 		$icon = '<span class="icon-grid-2"></span>';
 		$text = Languages::_('QR Code');
-		$url  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
-		$link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
+		$URL  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
+		$link = Helpers\HTML::link($URL, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
 		$toolbar->appendButton('Custom', $link);
 
 		$bookingDate = $this->booking->get('date');
@@ -167,8 +167,8 @@ class Booking extends Participants
 			}
 		}
 
-		$url = Uri::base() . "index.php?Itemid=4908";
-		$toolbar->appendButton('Link', 'help', Languages::_('ORGANIZER_HELP'), $url, true);
+		$URL = Uri::base() . "index.php?Itemid=4908";
+		$toolbar->appendButton('Link', 'help', Languages::_('ORGANIZER_HELP'), $URL, true);
 
 	}
 
@@ -213,7 +213,7 @@ class Booking extends Participants
 	 */
 	protected function modifyDocument()
 	{
-		if ($this->layout === 'qrcode')
+		if ($this->_layout === 'qrcode')
 		{
 			Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
 		}

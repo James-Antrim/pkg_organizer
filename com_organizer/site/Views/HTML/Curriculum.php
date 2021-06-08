@@ -19,7 +19,7 @@ use Organizer\Helpers;
  */
 class Curriculum extends ItemView
 {
-	protected $layout = 'curriculum';
+	protected $_layout = 'curriculum';
 
 	public $fields = [];
 
@@ -76,8 +76,8 @@ class Curriculum extends ItemView
 				$crp = empty($item['creditPoints']) ? '' : "{$item['creditPoints']} CrP";
 				$url = "?option=com_organizer&view=subject_item&id={$item['subjectID']}";
 
-				$docAttibutes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SUBJECT_ITEM')];
-				//$gridAttributes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SCHEDULE')];
+				$docAttibutes   = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SUBJECT_ITEM')];
+				$gridAttributes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SCHEDULE')];
 
 				$documentLink = Helpers\HTML::link($url, '<span class="icon-file-2"></span>', $docAttibutes);
 

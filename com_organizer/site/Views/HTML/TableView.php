@@ -11,6 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\Registry\Registry;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 
@@ -19,7 +20,7 @@ use Organizer\Adapters;
  */
 abstract class TableView extends BaseView
 {
-	protected $layout = 'table';
+	protected $_layout = 'table';
 
 	public $activeFilters = null;
 
@@ -60,7 +61,7 @@ abstract class TableView extends BaseView
 		$this->filterForm    = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
 
-		$this->setOverrides();
+		$this->setInheritingProperties();
 		$this->setHeaders();
 		$this->setRows($this->get('Items'));
 		$this->pagination = $this->get('Pagination');
@@ -91,7 +92,7 @@ abstract class TableView extends BaseView
 	 *
 	 * @return string
 	 */
-	private function getHeaderCell(array $cell, string $dataClass, int $colSpan = 0): string
+	private function getHeaderCell($cell, $dataClass, $colSpan = 0)
 	{
 		$attributes = "class=\"$dataClass\"";
 		$attributes .= $colSpan ? " colspan=\"$colSpan\"" : '';
@@ -107,7 +108,7 @@ abstract class TableView extends BaseView
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	abstract protected function getRow(object $resource): array;
+	abstract protected function getRow($resource);
 
 	/**
 	 * Creates a label with tooltip for the resource row.
@@ -116,7 +117,7 @@ abstract class TableView extends BaseView
 	 *
 	 * @return array  the label inclusive tooltip to be displayed
 	 */
-	abstract protected function getRowLabel(object $resource): array;
+	abstract protected function getRowLabel($resource);
 
 	/**
 	 * Creates a table cell.
@@ -125,7 +126,7 @@ abstract class TableView extends BaseView
 	 *
 	 * @return array structured cell information
 	 */
-	abstract protected function getDataCell(array $data): array;
+	abstract protected function getDataCell($data);
 
 	/**
 	 * @inheritDoc
@@ -184,6 +185,8 @@ abstract class TableView extends BaseView
 		{
 			echo "<tr class=\"level-2 $columnClass\">$levelTwo</tr>";
 		}
+
+		return;
 	}
 
 	/**
@@ -225,7 +228,7 @@ abstract class TableView extends BaseView
 	 *
 	 * @return void sets properties of inheriting classes
 	 */
-	abstract protected function setOverrides();
+	abstract protected function setInheritingProperties();
 
 	/**
 	 * Processes the resources for display in rows.
@@ -234,7 +237,7 @@ abstract class TableView extends BaseView
 	 *
 	 * @return void processes the class rows property
 	 */
-	protected function setRows(array $resources)
+	protected function setRows($resources)
 	{
 		$rows = [];
 

@@ -31,8 +31,6 @@ abstract class BaseView extends HtmlView
 
 	public $disclaimer = '';
 
-	protected $layout = 'default';
-
 	public $mobile = false;
 
 	public $refresh = 0;
@@ -81,12 +79,12 @@ abstract class BaseView extends HtmlView
 			$attributes
 		);
 		$ambLink = Helpers\HTML::link(
-			'https://www.thm.de/amb/pruefungsordnungen',
+			'http://www.thm.de/amb/pruefungsordnungen',
 			Languages::_('ORGANIZER_DISCLAIMER_AMB_TITLE'),
 			$attributes
 		);
 		$poLink  = Helpers\HTML::link(
-			'https://www.thm.de/site/studium/sie-studieren/pruefungsordnung.html',
+			'http://www.thm.de/site/studium/sie-studieren/pruefungsordnung.html',
 			Languages::_('ORGANIZER_DISCLAIMER_PO_TITLE'),
 			$attributes
 		);
@@ -310,16 +308,6 @@ abstract class BaseView extends HtmlView
 	}
 
 	/**
-	 * Get the layout. Overwrites the use of the prefixed parent property.
-	 *
-	 * @return  string  The layout name
-	 */
-	public function getLayout(): string
-	{
-		return $this->layout;
-	}
-
-	/**
 	 * Modifies document and adds scripts and styles.
 	 *
 	 * @return void
@@ -338,29 +326,39 @@ abstract class BaseView extends HtmlView
 	 */
 	public function setLayout($layout): string
 	{
-		// Default is not an option anymore.
-		if ($this->layout === 'default')
+		// I have no idea what this does but don't want to break it.
+		$joomlaValid = strpos($layout, ':') === false;
+
+		// This was explicitly set
+		$nonStandard = $layout !== 'default';
+		if ($joomlaValid and $nonStandard)
 		{
-			$layoutName = strtolower($this->getName());
-			$exists     = false;
-
-			foreach ($this->_path['template'] as $path)
+			$this->_layout = $layout;
+		}
+		else
+		{
+			// Default is not an option anymore.
+			$replace = $this->_layout === 'default';
+			if ($replace)
 			{
-				$exists = file_exists("$path$layoutName.php");
-				if ($exists)
+				$layoutName = strtolower($this->getName());
+				$exists     = false;
+				foreach ($this->_path['template'] as $path)
 				{
-					break;
+					$exists = file_exists("$path$layoutName.php");
+					if ($exists)
+					{
+						break;
+					}
 				}
+				if (!$exists)
+				{
+					Helpers\OrganizerHelper::error(501);
+				}
+				$this->_layout = strtolower($this->getName());
 			}
-
-			if (!$exists)
-			{
-				Helpers\OrganizerHelper::error(501);
-			}
-
-			$this->layout = strtolower($this->getName());
 		}
 
-		return $this->layout;
+		return $this->_layout;
 	}
 }

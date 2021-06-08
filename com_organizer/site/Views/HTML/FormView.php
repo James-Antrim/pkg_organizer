@@ -20,7 +20,7 @@ use Organizer\Helpers;
  */
 abstract class FormView extends BaseView
 {
-	protected $layout = 'form';
+	protected $_layout = 'form';
 
 	protected $orientation = 'horizontal';
 
