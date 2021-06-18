@@ -12,7 +12,6 @@ atlassian-ide-plugin.xml
 Thumbs.db
 .*~
 .directory
-.zip
 
 # Specific Local Files #
 ########################
