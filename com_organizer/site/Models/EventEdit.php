@@ -25,6 +25,11 @@ class EventEdit extends EditModel
 	 */
 	public function authorize()
 	{
+		if (!Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::error(401);
+		}
+
 		if (!Helpers\Can::edit('events', (int) $this->item->id))
 		{
 			Helpers\OrganizerHelper::error(403);
