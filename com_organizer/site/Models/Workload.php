@@ -110,6 +110,43 @@ class Workload extends FormModel
 	}
 
 	/**
+	 * Aggregates planned blocks by date.
+	 *
+	 * @param   array  &$items
+	 *
+	 * @return void
+	 */
+	private function aggregateByDate(array &$items)
+	{
+		$count = count($items);
+
+		for ($index = 0; $index < $count; $index++)
+		{
+			$blocks = [];
+
+			foreach ($items[$index]['blocks'] as $block)
+			{
+				$block['minutes'] = ceil((strtotime($block['endTime']) - strtotime($block['startTime'])) / 60);
+
+				if (!empty($blocks[$block['date']]))
+				{
+					$block['endTime']   = $block['endTime'] > $blocks[$block['date']]['endTime'] ?
+						$block['endTime'] : $blocks[$block['date']]['endTime'];
+					$block['minutes']   += $blocks[$block['date']]['minutes'];
+					$block['startTime'] = $block['startTime'] < $blocks[$block['date']]['startTime'] ?
+						$block['startTime'] : $blocks[$block['date']]['startTime'];
+				}
+
+				$blocks[$block['date']] = $block;
+			}
+
+			ksort($blocks);
+
+			$items[$index]['blocks'] = $blocks;
+		}
+	}
+
+	/**
 	 * Aggregates by event and method identity.
 	 *
 	 * @param   array  $items
@@ -339,21 +376,23 @@ class Workload extends FormModel
 			foreach ($aggregate['blocks'] as $block)
 			{
 				$bIndex = "{$block['dow']}-{$block['startTime']}-{$block['endTime']}";
+				$date   = $block['date'];
 
 				if (empty($blocks[$bIndex]))
 				{
-					$blocks[$bIndex] = [
-						'dates'     => [$block['date'] => $block['date']],
-						'dow'       => $block['dow'],
-						'endTime'   => $block['endTime'],
-						'startTime' => $block['startTime']
-					];
+					unset($block['date']);
+					$blocks[$bIndex] = $block;
 				}
 				else
 				{
-					$blocks[$bIndex]['dates'][$block['date']] = $block['date'];
+					$blocks[$bIndex]['minutes'] += $block['minutes'];
 				}
+
+				$blocks[$bIndex]['dates'][$date] = $block['minutes'];
+				ksort($blocks[$bIndex]['dates']);
 			}
+
+			ksort($blocks);
 		}
 
 		ksort($items);
@@ -448,6 +487,7 @@ class Workload extends FormModel
 		$units      = $this->aggregateByUnit($instances);
 		$aggregates = $this->aggregateByBlock($units);
 		$this->aggregateByEvent($aggregates);
+		$this->aggregateByDate($aggregates);
 		$items = $this->itemize($aggregates);
 		$this->structureOutliers($items);
 		$this->structureRepeaters($items);
@@ -524,59 +564,47 @@ class Workload extends FormModel
 			$items[$eIndex]['items']   = [];
 			$items[$eIndex]['minutes'] = 0;
 
-			foreach ($item['blocks'] as $block)
+			foreach ($item['blocks'] as $index => $block)
 			{
 				// Arbitrary cutoff for number of repetitions for a limited event
 				if (count($block['dates']) < 3)
 				{
-					foreach ($block['dates'] as $date)
+					foreach ($block['dates'] as $date => $minutes)
 					{
-						$dates[$date] = ['endDate' => $date, 'minutes' => 0, 'startDate' => $date];
+						$dates[$date] = ['endDate' => $date, 'minutes' => $minutes, 'startDate' => $date];
 					}
+
+					unset($items[$eIndex]['blocks'][$index]);
 				}
 			}
 
-			foreach (array_keys($dates) as $date)
-			{
-				foreach ($item['blocks'] as $bIndex => $block)
-				{
-					if (empty($block['dates'][$date]))
-					{
-						continue;
-					}
-
-					$dates[$date]['minutes'] += ceil((strtotime($block['endTime']) - strtotime($block['startTime'])) / 60);
-					unset($items[$eIndex]['blocks'][$bIndex]['dates'][$date]);
-
-					if (empty($items[$eIndex]['blocks'][$bIndex]['dates']))
-					{
-						unset($items[$eIndex]['blocks'][$bIndex]);
-					}
-				}
-			}
+			ksort($dates);
 
 			if ($dates)
 			{
+				$skip = [];
+
 				foreach ($dates as $date => $data)
 				{
-					if (empty($dates[$date]))
-					{
-						continue;
-					}
-
 					$endDate  = $data['endDate'];
 					$tomorrow = date('Y-m-d', strtotime('+1 Day', strtotime($endDate)));
 
 					while (!empty($dates[$tomorrow]))
 					{
+						$skip[$tomorrow] = $tomorrow;
 						$data['endDate'] = $tomorrow;
 						$data['minutes'] += $dates[$tomorrow]['minutes'];
 						unset($dates[$tomorrow]);
 						$tomorrow = date('Y-m-d', strtotime('+1 Day', strtotime($tomorrow)));
 					}
+
+					if (!in_array($date, $skip))
+					{
+						$dates[$date] = $data;
+					}
 				}
 
-				foreach ($dates as $date => $data)
+				foreach ($dates as $data)
 				{
 					$endDate                   = Helpers\Dates::formatDate($data['endDate']);
 					$startDate                 = Helpers\Dates::formatDate($data['startDate']);
@@ -599,7 +627,7 @@ class Workload extends FormModel
 	 */
 	private function supplement(array &$instances, array $structure)
 	{
-		foreach ($structure as $key => $data)
+		foreach ($structure as $data)
 		{
 			if (empty($instances[$data['instanceID']]))
 			{
@@ -648,17 +676,16 @@ class Workload extends FormModel
 	{
 		foreach ($items as $eIndex => $item)
 		{
-			foreach ($item['blocks'] as $bIndex => $block)
+			foreach ($item['blocks'] as $block)
 			{
-				$length      = ceil((strtotime($block['endTime']) - strtotime($block['startTime'])) / 60);
-				$repetitions = count($block['dates']);
-				$minutes     = $length * $repetitions;
+				$minutes = array_sum($block['dates']);
+				$hours   = ceil($minutes / 45);
 
 				$items[$eIndex]['minutes'] += $minutes;
 
 				$suffix       = strtoupper(date('l', strtotime("Sunday +{$block['dow']} days")));
 				$day          = Helpers\Languages::_("ORGANIZER_$suffix");
-				$hoursDisplay = ceil($minutes / 45) . ' ' . Helpers\Languages::_('ORGANIZER_HOURS_ABBR');
+				$hoursDisplay = $hours . ' ' . Helpers\Languages::_('ORGANIZER_HOURS_ABBR');
 				$endTime      = Helpers\Dates::formatTime($block['endTime']);
 				$startTime    = Helpers\Dates::formatTime($block['startTime']);
 
