@@ -240,7 +240,6 @@ class Workload extends FormModel
 				$units[$instance['unitID']] = [
 					'blocks'        => [],
 					'events'        => [],
-					'groups'        => $instance['groups'],
 					'method'        => $instance['method'],
 					'organizations' => $instance['organizations'],
 					'programs'      => $instance['programs']
@@ -337,10 +336,6 @@ class Workload extends FormModel
 
 		foreach ($aggregates as $aggregate)
 		{
-			$groups = $aggregate['groups'];
-			ksort($groups);
-			$groups = array_values($groups);
-
 			$names      = [];
 			$subjectNos = [];
 
@@ -357,13 +352,11 @@ class Workload extends FormModel
 
 			$programs = $aggregate['programs'];
 			ksort($programs);
-			$programs = array_values($programs);
 
 			$eIndex = implode('-', $names) . "-{$aggregate['method']}";
 
 			$items[$eIndex] = [
 				'blocks'        => [],
-				'groups'        => $groups,
 				'method'        => $aggregate['method'],
 				'names'         => $names,
 				'organizations' => $aggregate['organizations'],
@@ -634,17 +627,10 @@ class Workload extends FormModel
 				continue;
 			}
 
-			$groups        = empty($instances[$data['instanceID']]['groups']) ?
-				[] : $instances[$data['instanceID']]['groups'];
 			$organizations = empty($instances[$data['instanceID']]['organizations']) ?
 				[] : $instances[$data['instanceID']]['organizations'];
 			$programs      = empty($instances[$data['instanceID']]['programs']) ?
 				[] : $instances[$data['instanceID']]['programs'];
-
-			if ($data['group'])
-			{
-				$groups[$data['group']] = $data['group'];
-			}
 
 			if ($data['organizationID'])
 			{
@@ -654,12 +640,16 @@ class Workload extends FormModel
 			// The form doesn't get specific about the individual declarative regulation => string keys and values
 			$program = ($data['program'] and $data['degree']) ? "{$data['program']} ({$data['degree']})" : '';
 
-			if ($program)
+			if (!empty($programs[$program]))
 			{
-				$programs[$program] = $program;
+				$programs[$program][$data['group']] = $data['group'];
+				ksort($programs[$program]);
+			}
+			else
+			{
+				$programs[$program] = [$data['group'] => $data['group']];
 			}
 
-			$instances[$data['instanceID']]['groups']        = $groups;
 			$instances[$data['instanceID']]['organizations'] = $organizations;
 			$instances[$data['instanceID']]['programs']      = $programs;
 		}

@@ -16,6 +16,7 @@ use Organizer\Helpers\Languages;
 use Organizer\Layouts\XLS\BaseLayout;
 use Organizer\Views\XLS\BaseView;
 use Organizer\Views\XLS\XLConstants;
+use PHPExcel_Exception;
 use PHPExcel_Worksheet_Drawing;
 
 /**
@@ -127,6 +128,8 @@ class Workload extends BaseLayout
 	 */
 	private $personID;
 
+	private $separate;
+
 	private $sumCoords = [];
 
 	/**
@@ -146,6 +149,7 @@ class Workload extends BaseLayout
 		parent::__construct($view);
 		$this->organizationID = Helpers\Input::getInt('organizationID');
 		$this->personID       = Helpers\Input::getInt('personID');
+		$this->separate       = Helpers\Input::getBool('separate');
 		$this->termID         = Helpers\Input::getInt('termID');
 		$this->weeks          = Helpers\Input::getInt('weeks', 13);
 	}
@@ -270,13 +274,13 @@ class Workload extends BaseLayout
 	/**
 	 * Adds an event row at the given row number.
 	 *
-	 * @param   int    $row   the row number
-	 * @param   array  $item  the item to display in the row
+	 * @param   int    &$row   the row number
+	 * @param   array   $item  the item to display in the row
 	 *
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addEventRow(int $row, $item = [])
+	private function addEventRow(int &$row, array $item = [])
 	{
 		$sheet = $this->view->getActiveSheet();
 
@@ -287,6 +291,29 @@ class Workload extends BaseLayout
 
 		$sheet->mergeCells("C$row:E$row");
 		$sheet->mergeCells("K$row:L$row");
+
+		$groups   = '';
+		$programs = empty($item['programs']) ? [] : array_keys($item['programs']);
+
+		if ($programs)
+		{
+			if ($this->separate)
+			{
+				$groups = $item['programs'][reset($programs)];
+			}
+			else
+			{
+				$groups = [];
+
+				foreach ($item['programs'] as $theseGroups)
+				{
+					$groups = array_merge($groups, $theseGroups);
+				}
+
+				ksort($groups);
+			}
+		}
+
 		$lines = 1;
 
 		for ($current = 'B'; $current <= 'M'; $current++)
@@ -296,7 +323,6 @@ class Workload extends BaseLayout
 
 			switch ($current)
 			{
-
 				case self::EVENTS:
 					$cellStyle->applyFromArray($dataStyle);
 					if (!empty($item['names']))
@@ -308,11 +334,11 @@ class Workload extends BaseLayout
 					break;
 				case self::GROUPS:
 					$cellStyle->applyFromArray($indexStyle);
-					if (!empty($item['names']))
+					if (!empty($groups))
 					{
-						$count = count($item['groups']);
+						$count = count($groups);
 						$lines = $count > $lines ? $count : $lines;
-						$sheet->setCellValue($coords, implode("\n", $item['groups']));
+						$sheet->setCellValue($coords, implode("\n", $groups));
 					}
 					break;
 				case self::HOURS:
@@ -333,11 +359,18 @@ class Workload extends BaseLayout
 					break;
 				case self::PROGRAMS:
 					$cellStyle->applyFromArray($indexStyle);
-					if (!empty($item['programs']))
+					if ($programs)
 					{
-						$count = count($item['programs']);
-						$lines = $count > $lines ? $count : $lines;
-						$sheet->setCellValue($coords, implode("\n", $item['programs']));
+						if ($this->separate)
+						{
+							$sheet->setCellValue($coords, reset($programs));
+						}
+						else
+						{
+							$count = count($item['programs']);
+							$lines = $count > $lines ? $count : $lines;
+							$sheet->setCellValue($coords, implode("\n", array_keys($item['programs'])));
+						}
 					}
 					break;
 				case self::SUBJECTNOS:
@@ -368,6 +401,22 @@ class Workload extends BaseLayout
 
 		$height = $lines * 12.75;
 		$sheet->getRowDimension($row)->setRowHeight($height);
+
+		if ($this->separate and $programs)
+		{
+			$programs = $item['programs'];
+
+			// The first one has already been taken care of.
+			array_shift($programs);
+
+			foreach ($programs as $program => $groups)
+			{
+				$row++;
+				$this->addProgramRow($row, $program, $groups);
+			}
+		}
+
+		$row++;
 	}
 
 	/**
@@ -541,6 +590,61 @@ class Workload extends BaseLayout
 		$objDrawing->setHeight($height);
 		$objDrawing->setOffsetY($offsetY);
 		$objDrawing->setWorksheet($this->view->getActiveSheet());
+	}
+
+	/**
+	 * @param   int     $row
+	 * @param   string  $program
+	 * @param   array   $groups
+	 *
+	 * @return void
+	 * @throws PHPExcel_Exception
+	 */
+	private function addProgramRow(int &$row, string $program, array $groups)
+	{
+		$sheet = $this->view->getActiveSheet();
+
+		$alignment  = ['vertical' => XLConstants::TOP, 'wrap' => true];
+		$border     = $this->borders['data'];
+		$dataStyle  = ['alignment' => $alignment, 'borders' => $border, 'fill' => $this->fills['data']];
+		$indexStyle = ['alignment' => $alignment, 'borders' => $border, 'fill' => $this->fills['index']];
+
+		$sheet->mergeCells("C$row:E$row");
+		$sheet->mergeCells("K$row:L$row");
+
+		$lines = 1;
+
+		for ($current = 'B'; $current <= 'M'; $current++)
+		{
+			$coords    = "$current$row";
+			$cellStyle = $sheet->getStyle($coords);
+
+			switch ($current)
+			{
+				case self::GROUPS:
+					$cellStyle->applyFromArray($indexStyle);
+					if (!empty($groups))
+					{
+						$count = count($groups);
+						$lines = $count > $lines ? $count : $lines;
+						$sheet->setCellValue($coords, implode("\n", $groups));
+					}
+					break;
+				case self::PROGRAMS:
+					$cellStyle->applyFromArray($indexStyle);
+					$sheet->setCellValue($coords, $program);
+					break;
+				case self::SUBJECTNOS:
+					$cellStyle->applyFromArray($indexStyle);
+					break;
+				default:
+					$cellStyle->applyFromArray($dataStyle);
+					break;
+			}
+		}
+
+		$height = $lines * 12.75;
+		$sheet->getRowDimension($row)->setRowHeight($height);
 	}
 
 	/**
@@ -796,7 +900,7 @@ class Workload extends BaseLayout
 				continue;
 			}
 
-			$this->addEventRow($row++, $item);
+			$this->addEventRow($row, $item);
 			unset($model->items[$key]);
 		}
 
@@ -819,7 +923,7 @@ class Workload extends BaseLayout
 				continue;
 			}
 
-			$this->addEventRow($row++, $item);
+			$this->addEventRow($row, $item);
 			unset($model->items[$key]);
 		}
 
@@ -829,7 +933,6 @@ class Workload extends BaseLayout
 		for ($current = $row; $current <= $end; $current++)
 		{
 			$this->addEventRow($current);
-			$row++;
 		}
 
 		$this->addEventSubHeadRow($row++, 'Nicht vorgegeben');
@@ -837,7 +940,7 @@ class Workload extends BaseLayout
 
 		foreach ($model->items as $item)
 		{
-			$this->addEventRow($row++, $item);
+			$this->addEventRow($row, $item);
 		}
 
 		$end     = $row;
@@ -1082,7 +1185,7 @@ class Workload extends BaseLayout
 		if (count($ranges) === 1)
 		{
 			$rangeSum = $max ? "=IF(SUM(MXXX:MYYY)<=2,SUM(MXXX:MYYY),$max)" : "=SUM(MXXX:MYYY)";
-			$formula = str_replace('YYY',$ranges[0]['end'],str_replace('XXX',$ranges[0]['start'],$rangeSum));
+			$formula  = str_replace('YYY', $ranges[0]['end'], str_replace('XXX', $ranges[0]['start'], $rangeSum));
 		}
 		else
 		{

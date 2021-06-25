@@ -11,5 +11,9 @@
         </field>
         <field name="weeks" type="Integer" label="WORKLOAD_WEEKS" default="13" first="1" onchange="this.form.submit();"
                last="52" step="1"/>
+        <field name="separate" type="Options" label="SEPARATE_PROGRAMS" default="0">
+            <option value="0">NO</option>
+            <option value="1">YES</option>
+        </field>
     </fieldset>
 </form>

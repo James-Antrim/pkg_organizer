@@ -3,6 +3,7 @@
     <fieldset name="details" label="ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
         <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
+        <field name="categoryID" type="Categories" label="CATEGORY"/>
         <field name="degreeID" type="GenericOptions" label="DEGREE" required="true" table="organizer_degrees"
                textcolumn="name" valuecolumn="id">
             <option value="">NO_INPUT</option>

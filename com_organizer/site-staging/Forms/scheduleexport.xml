@@ -24,7 +24,7 @@
         </field>
         <field name="weekDisplay" type="Options" label="WEEK_FORMAT" default="schedule" showon="format:pdf">
             <option value="aggregate">ONE_WORKSHEET_PER_FILE</option>
-            <option value="seperate">ONE_WORKSHEET_PER_WEEK</option>
+            <option value="separate">ONE_WORKSHEET_PER_WEEK</option>
         </field>
         <field name="grouping" type="Options" label="SCHEDULE_GROUPING" default="1" showon="documentSize:a3">
             <option value="none">NONE</option>
