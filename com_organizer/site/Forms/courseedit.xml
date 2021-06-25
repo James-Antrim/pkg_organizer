@@ -17,11 +17,11 @@
     </fieldset>
     <fieldset name="de" label="ATTRIBUTES_DE">
         <field name="name_de" type="Blank" label="NAME_DE" maxlength="150"/>
-        <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
+        <field name="description_de" type="Wiz" label="DESC_DE"/>
     </fieldset>
     <fieldset name="en" label="ATTRIBUTES_EN">
         <field name="name_en" type="Blank" label="NAME_EN" maxlength="150"/>
-        <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
+        <field name="description_en" type="Wiz" label="DESC_EN"/>
     </fieldset>
     <!--<fieldset name="units" label="UNITS" displayinitial="0">
         <field name="units" type="Units" label="UNITS"/>

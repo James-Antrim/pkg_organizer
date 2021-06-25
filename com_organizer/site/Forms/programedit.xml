@@ -35,11 +35,11 @@
     </fieldset>
     <fieldset name="de" label="ATTRIBUTES_DE">
         <field name="name_de" type="Blank" label="NAME_DE" class="required" maxlength="150" required="true"/>
-        <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
+        <field name="description_de" type="Wiz" label="DESC_DE"/>
     </fieldset>
     <fieldset name="en" label="ATTRIBUTES_EN">
         <field name="name_en" type="Blank" label="NAME_EN" class="required" maxlength="150" required="true"/>
-        <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
+        <field name="description_en" type="Wiz" label="DESC_EN"/>
     </fieldset>
     <fieldset name="associations" label="ASSOCIATIONS" displayinitial="0">
         <field type="SubOrdinates" label="SUBORDINATES"/>

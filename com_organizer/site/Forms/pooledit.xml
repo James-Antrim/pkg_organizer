@@ -15,13 +15,13 @@
         <field name="fullName_de" type="Blank" label="FULL_NAME_DE" class="required" maxlength="200" required="true"/>
         <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" class="required" maxlength="25"
                required="true"/>
-        <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
+        <field name="description_de" type="Wiz" label="DESC_DE"/>
     </fieldset>
     <fieldset name="en" label="ATTRIBUTES_EN">
         <field name="fullName_en" type="Blank" label="FULL_NAME_EN" class="required" maxlength="200" required="true"/>
         <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" class="required" maxlength="25"
                required="true"/>
-        <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
+        <field name="description_en" type="Wiz" label="DESC_EN"/>
     </fieldset>
     <fieldset name="associations" label="ASSOCIATIONS">
         <field type="Curricula" label="PROGRAMS"/>

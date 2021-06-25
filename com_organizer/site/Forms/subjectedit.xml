@@ -61,53 +61,41 @@
             <option value='0'>NO</option>
             <option value='1'>YES</option>
         </field>
-        <field name="literature" type="Editor" label="ORGANIZER_LITERATURE" description="ORGANIZER_LITERATURE_DESC"/>
+        <field name="literature" type="Wiz" label="LITERATURE"/>
     </fieldset>
     <fieldset name="de_texts" label="ATTRIBUTES_DE">
         <field name="fullName_de" type="Blank" label="FULL_NAME_DE" hint="Grundlagen der Informatik" maxlength="200"/>
         <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" hint="GDI" maxlength="25"/>
-        <field name="prerequisites_de" type="Editor" label="ORGANIZER_PREREQUISITES_DE"
-               description="ORGANIZER_PREREQUISITES_DE_DESC"/>
-        <field name="recommendedPrerequisites_de" type="Editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_DE"
-               description="ORGANIZER_RECOMMENDED_PREREQUISITES_DE_DESC"/>
-        <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
-        <field name="content_de" type="Editor" label="ORGANIZER_CONTENT_DE" description="ORGANIZER_CONTENT_DE_DESC"/>
-        <field name="expertise_de" type="Editor" label="ORGANIZER_EXPERTISE_DE"
-               description="ORGANIZER_EXPERTISE_DE_DESC"/>
-        <field name="methodCompetence_de" type="Editor" label="ORGANIZER_METHOD_COMPETENCE_DE"
-               description="ORGANIZER_METHOD_COMPETENCE_DE_DESC"/>
-        <field name="socialCompetence_de" type="Editor" label="ORGANIZER_SOCIAL_COMPETENCE_DE"
-               description="ORGANIZER_SOCIAL_COMPETENCE_DE_DESC"/>
-        <field name="selfCompetence_de" type="Editor" label="ORGANIZER_SELF_COMPETENCE_DE"
-               description="ORGANIZER_SELF_COMPETENCE_DE_DESC"/>
+        <field name="prerequisites_de" type="Wiz" label="PREREQUISITES_DE"/>
+        <field name="recommendedPrerequisites_de" type="Wiz" label="RECOMMENDED_PREREQUISITES_DE"/>
+        <field name="description_de" type="Wiz" label="DESC_DE"/>
+        <field name="content_de" type="Wiz" label="CONTENT_DE"/>
+        <field name="expertise_de" type="Wiz" label="EXPERTISE_DE"/>
+        <field name="methodCompetence_de" type="Wiz" label="METHOD_COMPETENCE_DE"/>
+        <field name="socialCompetence_de" type="Wiz" label="SOCIAL_COMPETENCE_DE"/>
+        <field name="selfCompetence_de" type="Wiz" label="SELF_COMPETENCE_DE"/>
         <field name="method_de" type="Blank" label="METHOD_DE" hint="2 SWS Vorlesung, 2 SWS Übung"/>
         <field name="preliminaryWork_de" type="Blank" label="PRELIMINARY_WORK_DE"
                hint="Erfolgreicher Abgabe von 6 Hausübungen."/>
         <field name="proof_de" type="Blank" label="PROOF_DE" hint="schriftliche Klausur"/>
-        <field name="usedFor_de" type="Editor" label="ORGANIZER_USED_FOR" description="ORGANIZER_USED_FOR_DE_DESC"/>
+        <field name="usedFor_de" type="Wiz" label="USED_FOR"/>
     </fieldset>
     <fieldset name="en_texts" label="ATTRIBUTES_EN">
         <field name="fullName_en" type="Blank" label="FULL_NAME_EN" hint="Mathematics I" maxlength="200"/>
         <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" hint="FCS" maxlength="25"/>
-        <field name="prerequisites_en" type="Editor" label="ORGANIZER_PREREQUISITES_EN"
-               description="ORGANIZER_PREREQUISITES_EN_DESC"/>
-        <field name="recommendedPrerequisites_en" type="Editor" label="ORGANIZER_RECOMMENDED_PREREQUISITES_EN"
-               description="ORGANIZER_RECOMMENDED_PREREQUISITES_EN_DESC"/>
-        <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
-        <field name="content_en" type="Editor" label="ORGANIZER_CONTENT_EN" description="ORGANIZER_CONTENT_EN_DESC"/>
-        <field name="expertise_en" type="Editor" label="ORGANIZER_EXPERTISE_EN"
-               description="ORGANIZER_EXPERTISE_EN_DESC"/>
-        <field name="methodCompetence_en" type="Editor" label="ORGANIZER_METHOD_COMPETENCE_EN"
-               description="ORGANIZER_METHOD_COMPETENCE_EN_DESC"/>
-        <field name="socialCompetence_en" type="Editor" label="ORGANIZER_SOCIAL_COMPETENCE_EN"
-               description="ORGANIZER_SOCIAL_COMPETENCE_EN_DESC"/>
-        <field name="selfCompetence_en" type="Editor" label="ORGANIZER_SELF_COMPETENCE_EN"
-               description="ORGANIZER_SELF_COMPETENCE_EN_DESC"/>
+        <field name="prerequisites_en" type="Wiz" label="PREREQUISITES_EN"/>
+        <field name="recommendedPrerequisites_en" type="Wiz" label="RECOMMENDED_PREREQUISITES_EN"/>
+        <field name="description_en" type="Wiz" label="DESC_EN"/>
+        <field name="content_en" type="Wiz" label="CONTENT_EN"/>
+        <field name="expertise_en" type="Wiz" label="EXPERTISE_EN"/>
+        <field name="methodCompetence_en" type="Wiz" label="METHOD_COMPETENCE_EN"/>
+        <field name="socialCompetence_en" type="Wiz" label="SOCIAL_COMPETENCE_EN"/>
+        <field name="selfCompetence_en" type="Wiz" label="SELF_COMPETENCE_EN"/>
         <field name="method_en" type="Blank" label="METHOD_EN" hint="2 SWS Lecture, 2 SWS Practice"/>
         <field name="preliminaryWork_en" type="Blank" label="PRELIMINARY_WORK_EN"
                hint="Successful completion of six homework assignments."/>
         <field name="proof_en" type="Blank" label="PROOF_EN" hint="Written Exam"/>
-        <field name="usedFor_en" type="Editor" label="ORGANIZER_USED_FOR" description="ORGANIZER_USED_FOR_EN_DESC"/>
+        <field name="usedFor_en" type="Wiz" label="USED_FOR"/>
     </fieldset>
     <fieldset name="associations" label="ASSOCIATIONS">
         <!--<field name="eventIDs" type="SubjectEvents" label="EVENT" role="1"/>-->

@@ -5,10 +5,10 @@
         <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
         <field type="spacer"/>
         <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
-        <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
+        <field name="description_en" type="Wiz" label="DESC_EN"/>
         <field type="spacer"/>
         <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
-        <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
+        <field name="description_de" type="Wiz" label="DESC_DE"/>
         <field type="spacer"/>
         <field name="minCapacity" type="Integer" label="MIN_CAPACITY" default="-1" first="10" last="9990" step="10">
             <option value="-1">NO_INPUT</option>
