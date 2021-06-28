@@ -84,8 +84,8 @@ class Instances extends ListView
 
 		if ($this->manages or $this->teaches)
 		{
-			$URL = Uri::base() . "index.php?Itemid=4908";
-			$toolbar->appendButton('Link', 'help', Languages::_('ORGANIZER_HELP'), $URL, true);
+			$url = Uri::base() . "index.php?Itemid=4908";
+			$toolbar->appendButton('Link', 'help', Languages::_('ORGANIZER_HELP'), $url, true);
 		}
 	}
 
@@ -409,26 +409,26 @@ class Instances extends ListView
 		{
 			$label = '';
 			$icon  = '';
-			$URL   = Uri::base() . '?option=com_organizer';
+			$url   = Uri::base() . '?option=com_organizer';
 
 			if ($item->bookingID)
 			{
 				$label = Languages::_('ORGANIZER_MANAGE_BOOKING');
 				$icon  = Helpers\HTML::icon('users', $label, true);
-				$URL   = Helpers\Routing::getViewURL('booking', $item->bookingID);
+				$url   = Helpers\Routing::getViewURL('booking', $item->bookingID);
 			}
 			elseif (!$item->expired and $item->current)
 			{
 				$label = Languages::_('ORGANIZER_START_BOOKING');
 				$icon  = Helpers\HTML::icon('enter', $label, true);
-				$URL   = Helpers\Routing::getTaskURL('bookings.add', $item->instanceID);
+				$url   = Helpers\Routing::getTaskURL('bookings.add', $item->instanceID);
 			}
 
 			if ($label)
 			{
 				$attribs = ['aria-label' => $label, 'class' => 'btn'];
 
-				$link = Helpers\HTML::link($URL, $icon, $attribs);
+				$link = Helpers\HTML::link($url, $icon, $attribs);
 			}
 		}
 
@@ -532,6 +532,20 @@ class Instances extends ListView
 		$template   = "<a href=\"$1\" target=\"_blank\">$pilosIcon</a>";
 
 		return preg_replace($pilosREGEX, $template, $text);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function setSubtitle()
+	{
+		if ($interval = $this->state->get('list.interval') and $interval === 'quarter')
+		{
+			$date = $this->state->get('list.date');
+			$interval = Helpers\Dates::getQuarter($date);
+			$interval = Helpers\Dates::getDisplay($interval['startDate'], $interval['endDate']);
+			$this->subtitle = "<h6 class=\"sub-title\">$interval</h6>" ;
+		}
 	}
 
 	/**

@@ -25,9 +25,9 @@ class Dates
 	 * @param   bool    $withText  if the day name should be part of the output
 	 * @param   bool    $short     if the day name output should be abbreviated
 	 *
-	 * @return string|bool  a formatted date string otherwise false
+	 * @return string  a formatted date string otherwise false
 	 */
-	public static function formatDate($date = '', $withText = false, $short = false)
+	public static function formatDate(string $date = '', bool $withText = false, bool $short = false): string
 	{
 		$date          = empty($date) ? date('Y-m-d') : $date;
 		$formattedDate = date(self::getFormat(), strtotime($date));
@@ -72,15 +72,13 @@ class Dates
 	 *
 	 * @param   string  $startDate  the start date of the resource
 	 * @param   string  $endDate    the end date of the resource
-	 * @param   bool    $withText   if the day name should be part of the output
-	 * @param   bool    $short      if the day name output should be abbreviated
 	 *
-	 * @return string|bool  a formatted date string otherwise false
+	 * @return string  a formatted date string otherwise false
 	 */
-	public static function getDisplay(string $startDate, string $endDate, $withText = false, $short = false)
+	public static function getDisplay(string $startDate, string $endDate): string
 	{
-		$startDate = self::formatDate($startDate, $withText, $short);
-		$endDate   = self::formatDate($endDate, $withText, $short);
+		$startDate = self::formatDate($startDate);
+		$endDate   = self::formatDate($endDate);
 
 		return $startDate === $endDate ? $startDate : "$startDate - $endDate";
 	}
@@ -133,7 +131,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getQuarter(string $date, $startDay = 1): array
+	public static function getQuarter(string $date, int $startDay = 1): array
 	{
 		switch (Input::getCMD('format'))
 		{
@@ -177,7 +175,7 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getWeek(string $date, $startDay = 1, $endDay = 6): array
+	public static function getWeek(string $date, int $startDay = 1, int $endDay = 6): array
 	{
 		$dateTime     = strtotime($date);
 		$startDayName = date('l', strtotime("Sunday + $startDay days"));
@@ -199,7 +197,7 @@ class Dates
 	{
 		$dt = DateTime::createFromFormat('Y-m-d', $date);
 
-		return ($dt !== false and !array_sum($dt->getLastErrors()));
+		return ($dt !== false and !array_sum($dt::getLastErrors()));
 	}
 
 	/**
@@ -209,7 +207,7 @@ class Dates
 	 *
 	 * @return string  date sting in format Y-m-d
 	 */
-	public static function standardizeDate($date = ''): string
+	public static function standardizeDate(string $date = ''): string
 	{
 		$default = date('Y-m-d');
 
@@ -225,6 +223,6 @@ class Dates
 
 		$dt = DateTime::createFromFormat(self::getFormat(), $date);
 
-		return ($dt !== false and !array_sum($dt->getLastErrors())) ? $dt->format('Y-m-d') : $default;
+		return ($dt !== false and !array_sum($dt::getLastErrors())) ? $dt->format('Y-m-d') : $default;
 	}
 }
