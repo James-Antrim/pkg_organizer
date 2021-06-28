@@ -36,7 +36,7 @@ class Programs extends Controller
 
 		if ($model->update())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS', 'success');
 		}
 		else
 		{

@@ -24,12 +24,12 @@ class Events extends ResourceHelper
 	/**
 	 * Check if user is a subject coordinator.
 	 *
-	 * @param   int  $eventID   the optional id of the subject
-	 * @param   int  $personID  the optional id of the person entry
+	 * @param   array|int  $eventIDs  the optional id of the subject
+	 * @param   int        $personID  the optional id of the person entry
 	 *
 	 * @return bool true if the user is a coordinator, otherwise false
 	 */
-	public static function coordinates(int $eventID = 0, int $personID = 0): bool
+	public static function coordinates($eventIDs = 0, int $personID = 0): bool
 	{
 		$personID = $personID ?: Persons::getIDByUserID(Users::getID());
 		$query    = Database::getQuery();
@@ -37,9 +37,10 @@ class Events extends ResourceHelper
 			->from('#__organizer_event_coordinators')
 			->where("personID = $personID");
 
-		if ($eventID)
+		if ($eventIDs)
 		{
-			$query->where("eventID = $eventID");
+			$clause = is_array($eventIDs) ? 'eventID IN (' . implode(',', $eventIDs) . ')' : "eventID = $eventIDs";
+			$query->where($clause);
 		}
 
 		Database::setQuery($query);

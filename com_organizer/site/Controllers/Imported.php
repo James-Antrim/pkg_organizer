@@ -31,7 +31,7 @@ trait Imported
 
 		if ($resourceID = $model->save() and $model->importSingle($resourceID))
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -54,7 +54,7 @@ trait Imported
 
 		if ($model->import())
 		{
-			OrganizerHelper::message('ORGANIZER_IMPORT_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_IMPORT_SUCCESS', 'success');
 		}
 		else
 		{
@@ -79,7 +79,7 @@ trait Imported
 
 		if ($resourceID = $model->save() and $model->importSingle($resourceID))
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{

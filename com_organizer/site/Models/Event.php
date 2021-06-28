@@ -24,7 +24,15 @@ class Event extends BaseModel
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Can::edit('events', $this->selected))
+		if ($this->selected and !Helpers\Can::edit('events', $this->selected))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+		elseif ($eventID = Helpers\Input::getID() and !Helpers\Can::edit('events', $eventID))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+		elseif (!Helpers\Can::edit('events'))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}

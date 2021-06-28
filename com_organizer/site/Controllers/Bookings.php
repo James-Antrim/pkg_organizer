@@ -82,7 +82,7 @@ class Bookings extends Controller
 
 		if ($model->batch())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS', 'success');
 		}
 		else
 		{

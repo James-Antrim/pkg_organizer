@@ -106,7 +106,7 @@ class Instances extends Controller
 
 		if ($model->save())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 			$session->set('organizer.instance', '');
 			$this->setRedirect(Route::_($referrer, false));
 

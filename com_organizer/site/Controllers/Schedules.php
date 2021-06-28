@@ -34,7 +34,7 @@ class Schedules extends Controller
 
 		if ($model->notify())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_NOTIFY_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_NOTIFY_SUCCESS', 'success');
 		}
 		else
 		{
@@ -71,7 +71,7 @@ class Schedules extends Controller
 
 		if ($model->rebuild())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_REBUILD_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_REBUILD_SUCCESS', 'success');
 		}
 		else
 		{
@@ -94,7 +94,7 @@ class Schedules extends Controller
 
 		if ($model->reference())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_SUCCESS', 'success');
 		}
 		else
 		{

@@ -204,7 +204,7 @@ class Can
 			case 'event':
 			case 'events':
 
-				return $resource ? Events::coordinates($resource) : (bool) self::scheduleTheseOrganizations();
+				return $resource ? Events::coordinates($resource) : Events::coordinates() or self::scheduleTheseOrganizations();
 
 			case 'group':
 			case 'groups':

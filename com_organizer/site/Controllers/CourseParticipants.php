@@ -36,7 +36,7 @@ class CourseParticipants extends Controller
 
 		if ($model->accept())
 		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -71,7 +71,7 @@ class CourseParticipants extends Controller
 
 		if ($model->notify())
 		{
-			OrganizerHelper::message('ORGANIZER_NOTIFY_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_NOTIFY_SUCCESS', 'success');
 		}
 		else
 		{
@@ -119,7 +119,7 @@ class CourseParticipants extends Controller
 
 		if ($model->remove())
 		{
-			OrganizerHelper::message('ORGANIZER_REMOVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_REMOVE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -142,7 +142,7 @@ class CourseParticipants extends Controller
 
 		if ($model->toggle())
 		{
-			OrganizerHelper::message('ORGANIZER_TOGGLE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_TOGGLE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -165,7 +165,7 @@ class CourseParticipants extends Controller
 
 		if ($model->waitlist())
 		{
-			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
 		}
 		else
 		{

@@ -37,7 +37,7 @@ class Groups extends Controller
 
 		if ($model->batch())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -59,7 +59,7 @@ class Groups extends Controller
 
 		if ($group->publishPast())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{

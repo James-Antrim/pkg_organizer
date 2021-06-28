@@ -53,7 +53,7 @@ class Courses extends Controller
 
 		if ($model->deregister())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -109,7 +109,7 @@ class Courses extends Controller
 
 			if ($model->register())
 			{
-				Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
+				Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
 			}
 			else
 			{

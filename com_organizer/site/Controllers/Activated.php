@@ -27,7 +27,7 @@ trait Activated
 
 		if ($model->activate())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS', 'success');
 		}
 		else
 		{
@@ -50,7 +50,7 @@ trait Activated
 
 		if ($model->deactivate())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS', 'success');
 		}
 		else
 		{

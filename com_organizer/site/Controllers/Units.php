@@ -34,7 +34,7 @@ class Units extends Controller
 
 		if ($resourceID = $model->addCourse())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 
 			$url = Helpers\Routing::getRedirectBase() . "&view=course_edit&id=$resourceID";
 		}

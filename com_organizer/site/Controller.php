@@ -63,7 +63,7 @@ class Controller extends BaseController
 
 		if ($resourceID = $model->save())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -100,7 +100,7 @@ class Controller extends BaseController
 
 		if ($model->delete($this->resource))
 		{
-			OrganizerHelper::message('ORGANIZER_DELETE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_DELETE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -310,7 +310,7 @@ class Controller extends BaseController
 
 		if ($model->merge($this->resource))
 		{
-			OrganizerHelper::message('ORGANIZER_MERGE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_MERGE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -379,7 +379,7 @@ class Controller extends BaseController
 
 		if ($model->save())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
@@ -403,7 +403,7 @@ class Controller extends BaseController
 
 		if ($newID = $model->save2copy())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 			Helpers\Input::set('id', $newID);
 
 			$url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$newID";
@@ -428,7 +428,7 @@ class Controller extends BaseController
 
 		if (method_exists($model, 'toggle') and $model->toggle())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
