@@ -11,8 +11,6 @@
 namespace Organizer\Calendar;
 
 /**
- * Purpose:
- *
  * Provide a grouping of component properties that define an alarm.
  *
  * Description:
@@ -103,13 +101,29 @@ namespace Organizer\Calendar;
  */
 class VAlarm extends VComponent
 {
+	private $type;
+
+	public function __construct(string $type = 'EMAIL')
+	{
+		$type = strtoupper($type);
+
+		if (!in_array($type, ['AUDIO', 'DISPLAY', 'EMAIL']))
+		{
+			$type = 'EMAIL';
+		}
+
+		$this->type = $type;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
 	public function getProps(&$output)
 	{
-		// TODO if audio or email
-		$this->getAttachments($output);
+		if (in_array($this->type, ['AUDIO', 'EMAIL']))
+		{
+			$this->getAttachments($output);
+		}
 
 		$this->getIANAProps($output);
 		$this->getXProps($output);
@@ -120,7 +134,18 @@ class VAlarm extends VComponent
 	 */
 	protected function setAttachment(string $attachment, string $type = 'URI', array $params = [])
 	{
-		// TODO If audio only one, email any, display none
-		return parent::setAttachment($attachment, $type, $params);
+		// Display gets none.
+		if ($this->type === 'DISPLAY')
+		{
+			return;
+		}
+
+		// Audio can only have one
+		if ($this->type === 'AUDIO')
+		{
+			$this->attachments = [];
+		}
+
+		parent::setAttachment($attachment, $type, $params);
 	}
 }

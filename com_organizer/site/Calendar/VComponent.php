@@ -246,11 +246,10 @@ abstract class VComponent
 	 * @param   string  $token          the iana token
 	 * @param   array   $configuration  an array of items to store as key value pairs. if the value for the key value is
 	 *                                  not set the item is not stored
-	 * @param   string  $type           a $valueType, an-iana type or an x-type
 	 *
 	 * @return void sets entries in the xProps property
 	 */
-	protected function setXProp(string $token, array $configuration, string $type = 'TEXT')
+	protected function setXProp(string $token, array $configuration)
 	{
 		$properties = [];
 
