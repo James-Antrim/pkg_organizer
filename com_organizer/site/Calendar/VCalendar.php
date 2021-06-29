@@ -15,58 +15,63 @@ use Organizer\Helpers\Languages;
 use SimpleXMLElement;
 
 /**
- * Description:
- *
- * The body of the iCalendar object consists of a sequence of calendar properties and one or more calendar components.
- * The calendar properties are attributes that apply to the calendar object as a whole.  The calendar components are
- * collections of properties that express a particular calendar semantic. For example, the calendar component can
- * specify an event, a to-do, a journal entry, time zone information, free/busy time information, or an alarm.
- *
- * An iCalendar object MUST include the "PRODID" and "VERSION" calendar properties.  In addition, it MUST include at
- * least one calendar component. Special forms of iCalendar objects are possible to publish just busy time (i.e., only
- * a "VFREEBUSY" calendar component) or time zone (i.e., only a "VTIMEZONE" calendar component) information.  In
- * addition, a complex iCalendar object that is used to capture a complete snapshot of the contents of a calendar is
- * possible (e.g., composite of many different calendar components). More commonly, an iCalendar object will consist of
- * just a single "VEVENT", "VTODO", or "VJOURNAL" calendar component.  Applications MUST ignore x-comp and iana-comp
- * values they don't recognize.  Applications that support importing iCalendar objects SHOULD support all of the
- * component types defined in this document, and SHOULD NOT silently drop any components as that can lead to user data
- * loss.
- *
- * Format Definition:
- *
- * icalobject = "BEGIN" ":" "VCALENDAR" CRLF
- *              icalbody
- *              "END" ":" "VCALENDAR" CRLF
- *
- * icalbody = calprops component
- *
- * calprops = *(
- *   prodid✓ / version✓ - required, can only once✓
- *   calscale / method - optional, can only once
- *   iana-prop✓ / x-prop✓ - optional, may more than once✓
- * )
- *
- * component = 1*(eventc / todoc / journalc / freebusyc / timezonec / iana-comp / x-comp)
- *
- * iana-comp = "BEGIN" ":" iana-token CRLF
- *              1*contentline
- *              "END" ":" iana-token CRLF
- *
- * x-comp = "BEGIN" ":" x-name CRLF
- *          1*contentline
- *          "END" ":" x-name CRLF
+ * Provide a grouping of components and properties that describe a calendar.
  *
  * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.4
  */
 class VCalendar extends VComponent
 {
+	/**
+	 * @var VComponent[]
+	 */
+	private $components;
+
+	/**
+	 * This property defines the iCalendar object method associated with the calendar object.
+	 *
+	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.7.2
+	 * @var string
+	 */
+	private $method = 'PUBLISH';
+
+	/**
+	 * This property specifies the identifier for the product that created the calendar. This string, however, only
+	 * includes the schedule specific name, as the company and product names are static.
+	 *
+	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.7.3
+	 * @var string
+	 */
 	private $productID;
 
+	/**
+	 * This property specifies the version number of the component at the time at which the calendar was generated.
+	 *
+	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.7.4
+	 * @var string
+	 */
 	private $version;
 
-	public function __construct()
+	/**
+	 * VCalendar constructor.
+	 *
+	 * @param   string  $productID  the name of the calendar
+	 */
+	public function __construct(string $productID)
 	{
+		$this->productID = $productID;
 		$this->setVersion();
+	}
+
+	/**
+	 * Adds components to the calendar.
+	 *
+	 * @param   VComponent  $component
+	 *
+	 * @return void
+	 */
+	public function addComponent(VComponent $component)
+	{
+		$this->components[] = $component;
 	}
 
 	/**
@@ -74,11 +79,22 @@ class VCalendar extends VComponent
 	 */
 	public function getProps(&$output)
 	{
-		$tag      = strtoupper(Languages::getTag());
+		$tag = strtoupper(Languages::getTag());
+
+		$output[] = "BEGIN:VCALENDAR";
 		$output[] = "PRODID:-//Technische Hochschule Mittelhessen//Organizer Component//$this->productID//$tag";
 		$output[] = "VERSION:$this->version";
+		$output[] = "METHOD:$this->method";
+
 		$this->getIANAProps($output);
 		$this->getXProps($output);
+
+		foreach ($this->components as $component)
+		{
+			$component->getProps($output);
+		}
+
+		$output[] = "END:VCALENDAR";
 	}
 
 	/**
