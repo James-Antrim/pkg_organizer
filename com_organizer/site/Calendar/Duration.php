@@ -17,7 +17,7 @@ namespace Organizer\Calendar;
  */
 class Duration extends VComponent
 {
-	private const DAY = 86400, HOUR = 3600, MINUTE = 60, WEEK = 604800;
+	public const DAY = 86400, HOUR = 3600, MINUTE = 60, WEEK = 604800;
 
 	/**
 	 * @var int

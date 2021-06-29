@@ -83,27 +83,37 @@ namespace Organizer\Calendar;
  *
  * audioprop = *(
  *   action / trigger - required, can only once
- *   duration / repeat - optional, can only once, mutually dependent
  * )
  *
  * dispprop = *(
  *   action / description / trigger - required, can only once
- *   duration / repeat - optional, can only once, mutually dependent
  * )
  *
  * emailprop = *(
  *   action / description / trigger / summary - required, can only once
  *   attendee - required, may more than once
- *   duration / repeat - optional, can only once, mutually dependent
  * )
  *
  * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.6
  */
 class VAlarm extends VComponent
 {
+	/**
+	 * @var Duration
+	 */
+	private $duration;
+
+	/**
+	 * @var int
+	 */
+	private $repeat;
+
+	/**
+	 * @var string
+	 */
 	private $type;
 
-	public function __construct(string $type = 'EMAIL')
+	public function __construct(string $type = 'EMAIL', array $params = [])
 	{
 		$type = strtoupper($type);
 
@@ -113,6 +123,19 @@ class VAlarm extends VComponent
 		}
 
 		$this->type = $type;
+
+		if ($params)
+		{
+			if (!empty($params['DURATION']) or !empty($params['REPEAT']))
+			{
+				$validDuration  = (!empty($params['DURATION']) and is_numeric($params['DURATION']));
+				$duration       = $validDuration ? (int) $params['DURATION'] : Duration::MINUTE * 5;
+				$this->duration = new Duration($duration);
+
+				$validRepeat  = (!empty($params['REPEAT']) and is_numeric($params['REPEAT']));
+				$this->repeat = $validRepeat ? (int) $params['REPEAT'] : 1;
+			}
+		}
 	}
 
 	/**
@@ -120,13 +143,23 @@ class VAlarm extends VComponent
 	 */
 	public function getProps(&$output)
 	{
+		$output[] = "BEGIN:VALARM";
+
 		if (in_array($this->type, ['AUDIO', 'EMAIL']))
 		{
 			$this->getAttachments($output);
 		}
 
+		if ($this->duration and $this->repeat)
+		{
+			$output[] = "REPAT:$this->repeat";
+			$this->duration->getProps($output);
+		}
+
 		$this->getIANAProps($output);
 		$this->getXProps($output);
+
+		$output[] = "END:VALARM";
 	}
 
 	/**
