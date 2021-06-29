@@ -62,12 +62,19 @@ namespace Organizer\Calendar;
  * fbprop     = *(
  *   dtstamp / uid - required, can only once
  *   contact / dtstart / dtend / organizer / url - optional, can only once
- *   attendee / comment / freebusy / iana-prop / rstatus / x-prop - optional, may more than once
-* )
+ *   attendee / comment / freebusy / iana-prop✓ / rstatus / x-prop✓ - optional, may more than once
+ * )
  *
  * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.4
  */
 class VFreeBusy extends VComponent
 {
-
+	/**
+	 * @inheritDoc
+	 */
+	public function getProps(&$output)
+	{
+		$this->getIANAProps($output);
+		$this->getXProps($output);
+	}
 }

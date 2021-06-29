@@ -10,6 +10,10 @@
 
 namespace Organizer\Calendar;
 
+use Exception;
+use Organizer\Helpers\Languages;
+use SimpleXMLElement;
+
 /**
  * Description:
  *
@@ -37,9 +41,9 @@ namespace Organizer\Calendar;
  * icalbody = calprops component
  *
  * calprops = *(
- *   prodid / version - required, can only once
+ *   prodid✓ / version✓ - required, can only once✓
  *   calscale / method - optional, can only once
- *   iana-prop / x-prop - optional, may more than once
+ *   iana-prop✓ / x-prop✓ - optional, may more than once✓
  * )
  *
  * component = 1*(eventc / todoc / journalc / freebusyc / timezonec / iana-comp / x-comp)
@@ -56,5 +60,44 @@ namespace Organizer\Calendar;
  */
 class VCalendar extends VComponent
 {
+	private $productID;
 
+	private $version;
+
+	public function __construct()
+	{
+		$this->setVersion();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getProps(&$output)
+	{
+		$tag      = strtoupper(Languages::getTag());
+		$output[] = "PRODID:-//Technische Hochschule Mittelhessen//Organizer Component//$this->productID//$tag";
+		$output[] = "VERSION:$this->version";
+		$this->getIANAProps($output);
+		$this->getXProps($output);
+	}
+
+	/**
+	 * Sets the version to that of the component.
+	 *
+	 * @return void
+	 */
+	private function setVersion()
+	{
+		$manifest = JPATH_ADMINISTRATOR . '/components/com_organizer/com_organizer.xml';
+
+		try
+		{
+			$manifest      = new SimpleXMLElement(file_get_contents($manifest));
+			$this->version = (string) $manifest->version;
+		}
+		catch (Exception $exception)
+		{
+			$this->version = "X.X.X";
+		}
+	}
 }

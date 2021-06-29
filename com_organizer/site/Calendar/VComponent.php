@@ -116,12 +116,13 @@ abstract class VComponent
 	}
 
 	/**
+	 * Adds properties specific the component to the output array.
 	 *
-	 * @param $output
+	 * @param   array  $output
 	 *
-	 * @return mixed
+	 * @return void
 	 */
-	abstract protected function getProps(&$output);
+	abstract public function getProps(array &$output);
 
 	/**
 	 * Adds the component's experimental properties to the output array.

@@ -42,13 +42,20 @@ namespace Organizer\Calendar;
  *   dtstamp / uid - required, can only once
  *   class / created / dtstart / last-mod / organizer / recurid / seq / status / summary / url - optional, can only once
  *   rrule - optional, should only once
- *   attach / attendee / categories / comment / contact / description / exdate / iana-prop / rdate / related / rstatus
- *   / x-prop - optional, may more than once
+ *   attach / attendee / categories / comment / contact / description / exdate / iana-prop✓ / rdate / related / rstatus
+ *   / x-prop✓ - optional, may more than once
  * )
  *
  * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.3
  */
 class VJournal extends VComponent
 {
-
+	/**
+	 * @inheritDoc
+	 */
+	public function getProps(&$output)
+	{
+		$this->getIANAProps($output);
+		$this->getXProps($output);
+	}
 }

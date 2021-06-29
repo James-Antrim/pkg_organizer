@@ -40,13 +40,20 @@ namespace Organizer\Calendar;
  *   / recurid / seq / status / summary / url - optional, can only once
  *   rrule - optional, should only once
  *   due / duration - optional?, can only once?, mutually exclusive, duration requires dtstart
- *   attach / attendee / categories / comment / contact / exdate / iana-prop / rdate / related / resources / rstatus
- *   / x-prop - optional, may more than once
+ *   attach / attendee / categories / comment / contact / exdate / iana-prop✓ / rdate / related / resources / rstatus
+ *   / x-prop✓ - optional, may more than once
  * )
  *
  * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.2
  */
 class VToDo extends VComponent
 {
-
+	/**
+	 * @inheritDoc
+	 */
+	public function getProps(&$output)
+	{
+		$this->getIANAProps($output);
+		$this->getXProps($output);
+	}
 }

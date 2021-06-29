@@ -75,7 +75,7 @@ namespace Organizer\Calendar;
  *               tzid - required, can only once
  *               last-mod / tzurl - optional, can only once
  *               SubTimeZone - required, at least once
- *               iana-prop / x-prop - optional, may more than once
+ *               iana-prop✓ / x-prop✓ - optional, may more than once✓
  *             )
  *             "END" ":" "VTIMEZONE" CRLF
  *
@@ -84,5 +84,12 @@ namespace Organizer\Calendar;
  */
 class VTimeZone extends VComponent
 {
-
+	/**
+	 * @inheritDoc
+	 */
+	public function getProps(&$output)
+	{
+		$this->getIANAProps($output);
+		$this->getXProps($output);
+	}
 }

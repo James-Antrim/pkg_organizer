@@ -63,12 +63,19 @@ namespace Organizer\Calendar;
  * tzprop = *(
  *   dtstart / tzoffsetfrom / tzoffsetto - required, can only once
  *   rrule - optional, should only once
- *   comment / iana-prop / rdate / tzname / x-prop - optional, may more than once
-* )
+ *   comment / iana-prop✓ / rdate / tzname / x-prop✓ - optional, may more than once
+ * )
  *
  * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.5
  */
 class SubTimeZone extends VComponent
 {
-
+	/**
+	 * @inheritDoc
+	 */
+	public function getProps(&$output)
+	{
+		$this->getIANAProps($output);
+		$this->getXProps($output);
+	}
 }

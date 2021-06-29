@@ -100,12 +100,19 @@ namespace Organizer\Calendar;
  *   action / description / trigger / summary - required, can only once
  *   attendee - required, may more than once
  *   duration / repeat - optional, can only once, mutually dependent
- *   attach / iana-prop / x-prop - optional, may more than once
+ *   attach / iana-prop✓ / x-prop✓ - optional, may more than once
  * )
  *
  * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.6
  */
 class VAlarm extends VComponent
 {
-
+	/**
+	 * @inheritDoc
+	 */
+	public function getProps(&$output)
+	{
+		$this->getIANAProps($output);
+		$this->getXProps($output);
+	}
 }
