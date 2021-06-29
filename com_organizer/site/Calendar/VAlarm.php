@@ -86,21 +86,17 @@ namespace Organizer\Calendar;
  * audioprop = *(
  *   action / trigger - required, can only once
  *   duration / repeat - optional, can only once, mutually dependent
- *   attach - optional, can only once
- *   iana-prop / x-prop - optional, may more than once
  * )
  *
  * dispprop = *(
  *   action / description / trigger - required, can only once
  *   duration / repeat - optional, can only once, mutually dependent
- *   iana-prop / x-prop - optional, may more than once
  * )
  *
  * emailprop = *(
  *   action / description / trigger / summary - required, can only once
  *   attendee - required, may more than once
  *   duration / repeat - optional, can only once, mutually dependent
- *   attach / iana-prop✓ / x-prop✓ - optional, may more than once
  * )
  *
  * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.6.6
@@ -112,7 +108,19 @@ class VAlarm extends VComponent
 	 */
 	public function getProps(&$output)
 	{
+		// TODO if audio or email
+		$this->getAttachments($output);
+
 		$this->getIANAProps($output);
 		$this->getXProps($output);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function setAttachment(string $attachment, string $type = 'URI', array $params = [])
+	{
+		// TODO If audio only one, email any, display none
+		return parent::setAttachment($attachment, $type, $params);
 	}
 }

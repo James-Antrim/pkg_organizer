@@ -18,20 +18,36 @@ abstract class VComponent
 	protected const NEWLINE = "\r\n";
 
 	/**
-	 * Stores IANA properties.
+	 * Attach properties.
 	 *
-	 * Description:
+	 * This property is used in "VEVENT", "VTODO", and "VJOURNAL" calendar components to associate a resource (e.g.,
+	 * document) with the calendar component.  This property is used in "VALARM" calendar components to specify an audio
+	 * sound resource or an email message attachment.  This property can be specified as a URI pointing to a resource or
+	 * as inline binary encoded content.
 	 *
-	 * This specification allows other properties registered with IANA to be specified in any calendar components.
-	 * Compliant applications are expected to be able to parse these other IANA-registered properties but can ignore
-	 * them.
+	 * When this property is specified as inline binary encoded content, calendar applications MAY attempt to guess the
+	 * media type of the resource via inspection of its content if and only if the media type of the resource is not
+	 * given by the "FMTTYPE" parameter.  If the media type remains unknown, calendar applications SHOULD treat it as
+	 * type "application/octet-stream".
 	 *
 	 * Format Definition:
 	 *
 	 * iana-prop = iana-token *(";" icalparameter) ":" value CRLF
 	 *
 	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.8.1
-	 * @var array
+	 * @var array[]
+	 */
+	protected $attachments = [];
+
+	/**
+	 * IANA properties.
+	 *
+	 * This specification allows other properties registered with IANA to be specified in any calendar components.
+	 * Compliant applications are expected to be able to parse these other IANA-registered properties but can ignore
+	 * them.
+	 *
+	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.8.1
+	 * @var array[]
 	 */
 	protected $ianaProps = [];
 
@@ -74,7 +90,7 @@ abstract class VComponent
 	];
 
 	/**
-	 * Stores experimental properties.
+	 * Experimental properties.
 	 *
 	 * Description:
 	 *
@@ -90,19 +106,47 @@ abstract class VComponent
 	 * At present, there is no registration authority for names of extension properties and property parameters. The
 	 * value type for this property is TEXT.  Optionally, the value type can be any of the other valid value types.
 	 *
-	 * Format Definition:
-	 *
-	 * x-prop = x-name *(";" icalparameter) ":" value CRLF
-	 *
 	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.8.2
-	 * @var array
+	 * @var array[]
 	 */
 	protected $xProps = [];
 
 	/**
+	 * Adds the component's attachments to the output array.
+	 *
+	 * @param   array  &$output
+	 *
+	 * @return void
+	 */
+	protected function getAttachments(array &$output)
+	{
+		foreach ($this->attachments as $attachment)
+		{
+			$entry = 'ATTACH';
+			$type  = $attachment['TYPE'];
+			$value = ":{$attachment['VALUE']}";
+			unset($attachment['TYPE'], $attachment['VALUE']);
+
+			if ($type === 'BINARY')
+			{
+				$entry .= ";VALUE=$type";
+				$entry .= empty($attachment['ENCODING']) ? ";ENCODING=BASE64" : ";ENCODING={$attachment['ENCODING']}";
+				unset($attachment['ENCODING']);
+			}
+
+			foreach ($attachment as $key => $value)
+			{
+				$entry .= $value === null ? ";$key" : ";$key=$value";
+			}
+
+			$output[] = $entry . $value;
+		}
+	}
+
+	/**
 	 * Adds the component's IANA properties to the output array.
 	 *
-	 * @param   array  $output
+	 * @param   array  &$output
 	 *
 	 * @return void
 	 */
@@ -118,7 +162,7 @@ abstract class VComponent
 	/**
 	 * Adds properties specific the component to the output array.
 	 *
-	 * @param   array  $output
+	 * @param   array  &$output
 	 *
 	 * @return void
 	 */
@@ -127,7 +171,7 @@ abstract class VComponent
 	/**
 	 * Adds the component's experimental properties to the output array.
 	 *
-	 * @param   array  $output
+	 * @param   array  &$output
 	 *
 	 * @return void
 	 */
@@ -147,6 +191,34 @@ abstract class VComponent
 
 			$output[] = $property . $value;
 		}
+	}
+
+	/**
+	 * Sets component attachments.
+	 *
+	 * @param   string  $attachment  the value of the attachment (BINARY or URI string)
+	 * @param   string  $type        the value type
+	 * @param   array   $params      additional parameters
+	 *
+	 * @return void
+	 */
+	protected function setAttachment(string $attachment, string $type = 'URI', array $params = [])
+	{
+		// Invalid type
+		if (!in_array($type, ['BINARY', 'URI']))
+		{
+			return;
+		}
+
+		$prop = ['TYPE' => $type, 'VALUE' => $attachment];
+
+		// Parameter overwritten here
+		foreach ($params as $key => $value)
+		{
+			$prop[strtoupper($key)] = $value;
+		}
+
+		$this->attachments[] = $prop;
 	}
 
 	/**
@@ -213,7 +285,7 @@ abstract class VComponent
 	 * or HTAB).  Any sequence of CRLF followed immediately by a single linear white-space character is ignored (i.e.,
 	 * removed) when processing the content type.
 	 *
-	 * @param   array  $output
+	 * @param   array  &$output
 	 *
 	 * @return void
 	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.1
