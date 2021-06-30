@@ -270,18 +270,12 @@ abstract class GridLayout extends BaseLayout
 	 */
 	private function getCellHeight(float $width, string $contents): float
 	{
-		$view        = $this->view;
-		$currentPage = $view->getPage();
-		$currentX    = $view->GetX();
-		$currentY    = $view->GetY();
+		$view = $this->view;
 		$view->AddPage();
-		$x     = $view->GetX();
 		$start = $view->GetY();
-		$view->writeHTMLCell($width, 15, $x, $start, $contents, self::INSTANCE_BORDER, 1);
+		$view->writeHTMLCell($width, 15, $view->GetX(), $start, $contents, self::INSTANCE_BORDER, 1);
 		$height = $view->GetY() - $start;
 		$view->deletePage($view->getPage());
-		$view->setPage($currentPage);
-		$view->changePosition($currentX, $currentY);
 
 		return $height;
 	}
@@ -817,12 +811,11 @@ abstract class GridLayout extends BaseLayout
 	{
 		foreach ($this->grid as $block)
 		{
-			$cells = $this->getCells($startDate, $endDate, $block);
 			$label = $this->getLabel($block);
 
-			if ($cells)
+			if (!empty($block['cells']))
 			{
-				$this->renderRow($label, $cells, $startDate, $endDate);
+				$this->renderRow($label, $block['cells'], $startDate, $endDate);
 				continue;
 			}
 
@@ -1010,8 +1003,21 @@ abstract class GridLayout extends BaseLayout
 			$gridID = Helpers\Grids::getDefault();
 		}
 
-		$grid       = json_decode(Helpers\Grids::getGrid($gridID), true);
-		$this->grid = $grid['periods'];
+		$grid = json_decode(Helpers\Grids::getGrid($gridID), true);
+		$grid = $grid['periods'];
+
+		$hasCells = false;
+
+		foreach ($grid as $blockNo => $block)
+		{
+			if ($cells = $this->getCells($startDate, $endDate, $block))
+			{
+				$hasCells                = true;
+				$grid[$blockNo]['cells'] = $cells;
+			}
+		}
+
+		$this->grid = $hasCells ? $grid : null;
 	}
 
 	/**
