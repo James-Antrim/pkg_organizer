@@ -82,15 +82,15 @@ namespace Organizer\Calendar;
  *          "END" ":" "VALARM" CRLF
  *
  * audioprop = *(
- *   action / trigger - required, can only once
+ *   trigger - required, can only once
  * )
  *
  * dispprop = *(
- *   action / description / trigger - required, can only once
+ *   description / trigger - required, can only once
  * )
  *
  * emailprop = *(
- *   action / description / trigger / summary - required, can only once
+ *   description / trigger / summary - required, can only once
  *   attendee - required, may more than once
  * )
  *
@@ -98,6 +98,11 @@ namespace Organizer\Calendar;
  */
 class VAlarm extends VComponent
 {
+	/**
+	 * @var string
+	 */
+	private $action;
+
 	/**
 	 * @var Duration
 	 */
@@ -108,21 +113,16 @@ class VAlarm extends VComponent
 	 */
 	private $repeat;
 
-	/**
-	 * @var string
-	 */
-	private $type;
-
-	public function __construct(string $type = 'EMAIL', array $params = [])
+	public function __construct(string $action = 'EMAIL', array $params = [])
 	{
-		$type = strtoupper($type);
+		$action = strtoupper($action);
 
-		if (!in_array($type, ['AUDIO', 'DISPLAY', 'EMAIL']))
+		if (!in_array($action, ['AUDIO', 'DISPLAY', 'EMAIL']))
 		{
-			$type = 'EMAIL';
+			$action = 'EMAIL';
 		}
 
-		$this->type = $type;
+		$this->action = $action;
 
 		if ($params)
 		{
@@ -144,8 +144,9 @@ class VAlarm extends VComponent
 	public function getProps(&$output)
 	{
 		$output[] = "BEGIN:VALARM";
+		$output[] = "ACTION:$this->action";
 
-		if (in_array($this->type, ['AUDIO', 'EMAIL']))
+		if (in_array($this->action, ['AUDIO', 'EMAIL']))
 		{
 			$this->getAttachments($output);
 		}
@@ -168,13 +169,13 @@ class VAlarm extends VComponent
 	protected function setAttachment(string $attachment, string $type = 'URI', array $params = [])
 	{
 		// Display gets none.
-		if ($this->type === 'DISPLAY')
+		if ($this->action === 'DISPLAY')
 		{
 			return;
 		}
 
 		// Audio can only have one
-		if ($this->type === 'AUDIO')
+		if ($this->action === 'AUDIO')
 		{
 			$this->attachments = [];
 		}
