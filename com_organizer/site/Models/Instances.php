@@ -21,6 +21,11 @@ class Instances extends ListModel
 {
 	private const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
 
+	/**
+	 * The conditions used to determine instance relevance.
+	 *
+	 * @var array
+	 */
 	public $conditions = [];
 
 	protected $filter_fields = [
@@ -317,12 +322,26 @@ class Instances extends ListModel
 			}
 
 			$organizationID = Helpers\Input::getInt('organizationID');
+			$categoryID     = Helpers\Input::getInt('categoryID');
+			$groupID        = Helpers\Input::getInt('groupID');
 			if ($organizationID = $params->get('organizationID', $organizationID))
 			{
 				$filterItems->set('organizationID', $organizationID);
 				$this->state->set('filter.organizationID', $organizationID);
+
+				if ($categoryID)
+				{
+					$filterItems->set('categoryID', $categoryID);
+					$this->state->set('filter.categoryID', $categoryID);
+				}
+
+				if ($groupID)
+				{
+					$filterItems->set('groupID', $groupID);
+					$this->state->set('filter.groupID', $groupID);
+				}
 			}
-			elseif ($categoryID = Helpers\Input::getInt('categoryID'))
+			elseif ($categoryID)
 			{
 				$filterItems->set('categoryID', $categoryID);
 				$this->state->set('filter.categoryID', $categoryID);
@@ -330,8 +349,14 @@ class Instances extends ListModel
 				$organizationID = Helpers\Categories::getOrganizationIDs($categoryID)[0];
 				$filterItems->set('organizationID', $organizationID);
 				$this->state->set('filter.organizationID', $organizationID);
+
+				if ($groupID)
+				{
+					$filterItems->set('groupID', $groupID);
+					$this->state->set('filter.groupID', $groupID);
+				}
 			}
-			elseif ($groupID = Helpers\Input::getInt('groupID'))
+			elseif ($groupID)
 			{
 				$filterItems->set('groupID', $groupID);
 				$this->state->set('filter.groupID', $groupID);
@@ -354,6 +379,12 @@ class Instances extends ListModel
 				$this->state->set('filter.eventID', 0);
 			}
 
+			if ($personID = Helpers\Input::getInt('personID'))
+			{
+				$filterItems->set('roomID', $personID);
+				$this->state->set('filter.personID', $personID);
+			}
+
 			if ($roomID = Helpers\Input::getInt('roomID'))
 			{
 				$filterItems->set('roomID', $roomID);
@@ -362,7 +393,8 @@ class Instances extends ListModel
 
 			$dow       = $params->get('dow');
 			$endDate   = $params->get('endDate');
-			$methodIDs = $params->get('methodIDs');
+			$methodIDs = Helpers\Input::getIntCollection('methodID');
+			$methodIDs = $params->get('methodIDs', $methodIDs);
 			$startDate = $params->get('startDate');
 
 			if ($dow or $endDate or $methodIDs)
@@ -483,9 +515,13 @@ class Instances extends ListModel
 			$personIDs = [$personID];
 			Helpers\Instances::filterPersonIDs($personIDs, Helpers\Users::getID());
 
-			if (!empty($personIDs))
+			if ($personIDs)
 			{
 				$conditions['personIDs'] = $personIDs;
+			}
+			else
+			{
+				Helpers\OrganizerHelper::error(403);
 			}
 		}
 
