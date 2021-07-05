@@ -24,6 +24,8 @@ use SimpleXMLElement;
  */
 class Instances
 {
+	private const INITIAL_RELEASE = 0, MEDIUM = 5, SPEAKER = 4, TEACHER = 1, TUTOR = 3;
+
 	/**
 	 * The instances data.
 	 *
@@ -96,46 +98,167 @@ class Instances
 	{
 		$date      = $instance->date;
 		$endTime   = $instance->endTime;
+		$method    = $instance->method ?: '';
 		$startTime = $instance->startTime;
+		$user      = Helpers\Users::getUser();
+
+		$campuses     = [];
+		$coordinates  = [];
+		$lastModified = $instance->instanceStatusDate;
+		$lastModified = $lastModified > $instance->unitStatusDate ? $lastModified : $instance->unitStatusDate;
+		$locations    = [];
+		$pattern      = '/^-?[\d]?[\d].[\d]{6}, ?-?[01]?[\d]{1,2}.[\d]{6}$/';
+		$persons      = [];
+
+		if (!empty($instance->resources))
+		{
+			foreach ($instance->resources as $person)
+			{
+				$lastModified = $lastModified > $person['statusDate'] ? $lastModified : $person['statusDate'];
+
+				if (in_array($person['roleID'], [self::SPEAKER, self::TEACHER])
+					or ($method === 'Tutorium' and $person['roleID'] === self::TUTOR))
+				{
+					$persons[$person['person']] = $person['person'];
+				}
+
+				if (!empty($person['groups']))
+				{
+					foreach ($person['groups'] as $group)
+					{
+						$lastModified = $lastModified > $group['statusDate'] ? $lastModified : $group['statusDate'];
+					}
+				}
+
+				if (!empty($person['rooms']))
+				{
+					foreach ($person['rooms'] as $room)
+					{
+						$lastModified             = $lastModified > $room['statusDate'] ? $lastModified : $room['statusDate'];
+						$locations[$room['room']] = $room['room'];
+
+						if (!empty($room['location']))
+						{
+							if (preg_match($pattern, $room['location']))
+							{
+								$coordinates[$room['location']] = $room['location'];
+							}
+							else
+							{
+								$coordinates['invalid'] = true;
+							}
+						}
+
+						if (!empty($room['campus']))
+						{
+							if (preg_match($pattern, $room['campus']))
+							{
+								$campuses[$room['campus']] = $room['campus'];
+							}
+							else
+							{
+								$campuses['invalid'] = true;
+							}
+						}
+					}
+				}
+			}
+		}
 
 		$ics[] = "BEGIN:VEVENT";
 		$ics[] = $this->stamp;
 		$ics[] = $this->uniqueID;
 		$ics[] = 'DTSTART' . $this->getDateTime("$date $startTime");
 		$ics[] = 'DTEND' . $this->getDateTime("$date $endTime");
-		$ics[] = $this->getLastModified($instance);
+
+		if ($persons)
+		{
+			if (count($persons) === 1)
+			{
+				$description = reset($persons);
+			}
+			else
+			{
+				ksort($persons);
+				$last        = array_pop($persons);
+				$description = implode(', ', $persons) . " & $last";
+			}
+
+			$description = sprintf(Helpers\Languages::_('ORGANIZER_ICS_DESCRIPTION'), $description);
+
+			$ics[] = "DESCRIPTION:$description";
+		}
+
+		//@url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.6
+		$geo = '';
+
+		if (count($coordinates) === 1 and empty($coordinates['invalid']))
+		{
+			$geo = reset($coordinates);
+		}
+		elseif (count($campuses) === 1 and empty($campuses['invalid']))
+		{
+			$geo = reset($campuses);
+		}
+
+		if ($geo)
+		{
+			// RFC 5545 calls for a semicolon in lieu of a comma
+			$ics[] = "GEO:" . str_replace(',', ';', $geo);
+		}
+
+		// @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.7.3
+		$lastModified = strtotime($lastModified);
+		$date         = gmdate('Ymd', $lastModified);
+		$time         = gmdate('His', $lastModified);
+		$ics[]        = "LAST-MODIFIED:{$date}T{$time}Z";
+
+		//@url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.7
+		if ($locations)
+		{
+			if (count($locations) === 1)
+			{
+				$location = reset($locations);
+			}
+			else
+			{
+				ksort($locations);
+				$last     = array_pop($locations);
+				$location = implode(', ', $locations) . " & $last";
+			}
+
+			$ics[] = "LOCATION:$location";
+		}
+
+		// @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.4.3
+		if ($user->email)
+		{
+			$ics[] = "ORGANIZER:mailto:$user->email";
+		}
+
+		// @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.9
+		$ics[] = 'PRIORITY:' . self::MEDIUM;
+
+		/**
+		 * Since the calendar is always dynamically generated, as opposed to laying persistently in a web directory,
+		 * every calendar is an initial release.
+		 *
+		 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.7.4
+		 */
+		$ics[] = 'SEQUENCE:' . self::INITIAL_RELEASE;
+
+		// @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.12
+		$summary = $instance->name;
+		$summary .= $method ? " - $instance->method" : '';
+		$ics[]   = "SUMMARY:$summary";
+
 
 		/**
 		 * The following are OPTIONAL but MUST NOT occur more than once:
 		 *
-		 * created
-		 *
-		 *
 		 * description (TEXT):
 		 * This property provides a more complete description of the calendar component than that provided by the "SUMMARY" property.
 		 * https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.5
-		 *
-		 * geo (CS-FLOAT):
-		 * This property specifies information related to the global position for the activity specified by a calendar component.
-		 * The value MUST be two SEMICOLON-separated FLOAT values.
-		 * https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.6
-		 *
-		 * location
-		 *
-		 *
-		 * organizer
-		 *
-		 *
-		 * priority
-		 *
-		 *
-		 * seq
-		 *
-		 *
-		 * status
-		 *
-		 *
-		 * summary
 		 *
 		 *
 		 * url
@@ -146,8 +269,6 @@ class Instances
 
 		/**
 		 * The following are OPTIONAL, and MAY occur more than once:
-		 *
-		 * attach
 		 * attendee
 		 * categories
 		 * comment
@@ -233,51 +354,6 @@ class Instances
 		$value = date('Ymd', $stamp) . 'T' . date('His', $stamp);
 
 		return ";$this->tzID:$value";
-	}
-
-	/**
-	 * This property specifies the date and time that the information associated with the calendar component was last
-	 * revised in the calendar store.
-	 *
-	 * @param   object  $instance  the instance
-	 *
-	 * @return string the last modified property
-	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.7.3
-	 */
-	private function getLastModified(object $instance): string
-	{
-		$lastModified = $instance->instanceStatusDate;
-		$lastModified = $lastModified > $instance->unitStatusDate ? $lastModified : $instance->unitStatusDate;
-
-		if (!empty($instance->resources))
-		{
-			foreach ($instance->resources as $person)
-			{
-				$lastModified = $lastModified > $person['statusDate'] ? $lastModified : $person['statusDate'];
-
-				if (!empty($person['groups']))
-				{
-					foreach ($person['groups'] as $group)
-					{
-						$lastModified = $lastModified > $group['statusDate'] ? $lastModified : $group['statusDate'];
-					}
-				}
-
-				if (!empty($person['rooms']))
-				{
-					foreach ($person['rooms'] as $room)
-					{
-						$lastModified = $lastModified > $room['statusDate'] ? $lastModified : $room['statusDate'];
-					}
-				}
-			}
-		}
-
-		$stamp = strtotime($lastModified);
-		$date  = gmdate('Ymd', $stamp);
-		$time  = gmdate('His', $stamp);
-
-		return "LAST-MODIFIED:{$date}T{$time}Z";
 	}
 
 	/**

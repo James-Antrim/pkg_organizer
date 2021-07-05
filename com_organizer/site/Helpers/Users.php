@@ -81,7 +81,6 @@ class Users
 
 		$requested = User::getInstance($userName);
 
-		// The requested user does not exist
 		if ($requested->id and password_verify($requested->email . $requested->registerDate, $authentication))
 		{
 			self::$user = $requested;
