@@ -58,7 +58,7 @@ class Campuses extends ResourceHelper implements Selectable
 		$table = new Tables\Campuses();
 		$table->load($campusID);
 
-		return empty($table->location) ? '' : str_replace(' ', '', $table->location);
+		return empty($table->location) ? '' : $table->location;
 	}
 
 	/**
@@ -154,7 +154,7 @@ class Campuses extends ResourceHelper implements Selectable
 		$isID     = is_numeric($input);
 		$location = $isID ? self::getLocation($input) : $input;
 
-		if (!preg_match('/\d{1,2}\.\d{6},[ ]*\d{1,2}\.\d{6}/', $location))
+		if (!preg_match('/^-?[\d]?[\d].[\d]{6},-?[01]?[\d]{1,2}.[\d]{6}$/', $location))
 		{
 			return '';
 		}

@@ -1167,8 +1167,12 @@ class Instances extends ResourceHelper
 	{
 		$query = Database::getQuery();
 		$query->select('ir.roomID, ir.delta, ir.modified, r.name, r.virtual')
+			->select('b.location AS location, c1.location AS campusLocation, c2.location AS defaultLocation')
 			->from('#__organizer_instance_rooms AS ir')
 			->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
+			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+			->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
+			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
 			->where("ir.assocID = {$person['assocID']}");
 
 		// If the instance itself has been removed the status of its associations do not play a role
@@ -1186,8 +1190,23 @@ class Instances extends ResourceHelper
 		$rooms = [];
 		foreach ($roomAssocs as $room)
 		{
+			$location = '';
+			if (!empty($room['location']))
+			{
+				$location = $room['location'];
+			}
+			elseif (!empty($room['campusLocation']))
+			{
+				$location = $room['campusLocation'];
+			}
+			elseif (!empty($room['defaultLocation']))
+			{
+				$location = $room['defaultLocation'];
+			}
+
 			$roomID = $room['roomID'];
 			$room   = [
+				'location'   => $location,
 				'room'       => $room['name'],
 				'status'     => $room['delta'],
 				'statusDate' => $room['modified'],

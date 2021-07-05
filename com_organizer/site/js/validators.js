@@ -15,7 +15,7 @@ jQuery(document).ready(function () {
 
     document.formvalidator.setHandler('gps',
         function (value) {
-            return (/^[0-9]{1,2}.[0-9]{6},\s*[0-9]{1,2}.[0-9]{6}$/).test(value);
+            return (/^-?[\d]?[\d].[\d]{6}, ?-?[01]?[\d]{1,2}.[\d]{6}$/).test(value);
         }
     );
 

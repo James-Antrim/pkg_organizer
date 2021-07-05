@@ -118,6 +118,8 @@ class Campuses extends BaseTable
 			$this->parentID = null;
 		}
 
+		$this->location = str_replace(' ', '', $this->location);
+
 		return true;
 	}
 }

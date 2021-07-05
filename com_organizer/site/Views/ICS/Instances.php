@@ -227,7 +227,7 @@ class Instances
 	 * @return string
 	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.5
 	 */
-	private function getDateTime(string $dateTime = '')
+	private function getDateTime(string $dateTime = ''): string
 	{
 		$stamp = preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $dateTime) === false ? time() : strtotime($dateTime);
 		$value = date('Ymd', $stamp) . 'T' . date('His', $stamp);

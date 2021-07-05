@@ -75,6 +75,8 @@ class Buildings extends BaseTable
 			$this->campusID = null;
 		}
 
+		$this->location = str_replace(' ', '', $this->location);
+
 		return true;
 	}
 }
