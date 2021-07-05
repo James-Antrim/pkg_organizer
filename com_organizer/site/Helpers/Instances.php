@@ -1190,22 +1190,21 @@ class Instances extends ResourceHelper
 		$rooms = [];
 		foreach ($roomAssocs as $room)
 		{
-			$location = '';
-			if (!empty($room['location']))
+			$campus   = '';
+			$location = empty($room['location']) ? '' : $room['location'];
+
+			if (!empty($room['campusLocation']))
 			{
-				$location = $room['location'];
-			}
-			elseif (!empty($room['campusLocation']))
-			{
-				$location = $room['campusLocation'];
+				$campus = $room['campusLocation'];
 			}
 			elseif (!empty($room['defaultLocation']))
 			{
-				$location = $room['defaultLocation'];
+				$campus = $room['defaultLocation'];
 			}
 
 			$roomID = $room['roomID'];
 			$room   = [
+				'campus'     => $campus,
 				'location'   => $location,
 				'room'       => $room['name'],
 				'status'     => $room['delta'],
