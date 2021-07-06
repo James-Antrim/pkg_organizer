@@ -10,15 +10,8 @@ function makeLink() {
         rInput = document.getElementById('filter_roomID');
     let url = variables.ICS_URL, campusID, methodID, my, organizationID, roomID;
 
-    if (typeof variables.my !== "undefined") {
-        my = 1;
-
-        /*if (typeof variables.username !== 'undefined' && typeof variables.auth !== 'undefined') {
-            url += '&username=' + variables.username + '&auth=' + variables.auth;
-        }
-    */
-        //window.prompt('503', url);
-        return;
+    if (typeof variables.my !== "undefined" && typeof variables.auth !== "undefined" && typeof variables.username !== "undefined") {
+        url += '&auth=' + variables.auth + '&my=1' + '&username=' + variables.username;
     } else {
         if (typeof variables.campusID !== "undefined") {
             campusID = variables.campusID;
