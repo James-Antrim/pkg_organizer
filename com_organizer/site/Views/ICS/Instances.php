@@ -11,10 +11,15 @@
 
 namespace Organizer\Views\ICS;
 
+use DateTime;
+use DateTimeZone;
 use Exception;
+use Joomla\CMS\Filter\OutputFilter;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
+use Joomla\Registry\Registry;
 use Organizer\Helpers;
 use Organizer\Models;
-use Organizer\Views\ICS\Components\VCalendar;
 use SimpleXMLElement;
 
 /**
@@ -24,7 +29,7 @@ use SimpleXMLElement;
  */
 class Instances
 {
-	private const INITIAL_RELEASE = 0, MEDIUM = 5, SPEAKER = 4, TEACHER = 1, TUTOR = 3;
+	private const INITIAL_RELEASE = 0, HOUR = 3600, MEDIUM = 5, MINUTE = 60, SPEAKER = 4, TEACHER = 1, TUTOR = 3;
 
 	/**
 	 * The instances data.
@@ -33,6 +38,11 @@ class Instances
 	 */
 	private $instances;
 
+	/**
+	 * The two character language code.
+	 *
+	 * @var string
+	 */
 	private $language;
 
 	/**
@@ -41,6 +51,18 @@ class Instances
 	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.7.2
 	 */
 	private $stamp;
+
+	/**
+	 * @var Registry
+	 */
+	private $state;
+
+	/**
+	 * The full name of the calendar.
+	 *
+	 * @var string
+	 */
+	private $title;
 
 	/**
 	 * This property specifies the text value that uniquely identifies the "VTIMEZONE" calendar component in the scope
@@ -66,23 +88,26 @@ class Instances
 	private $uniqueID;
 
 	/**
+	 * @var User
+	 */
+	private $user;
+
+	/**
 	 * Performs initial construction of the TCPDF Object.
 	 */
 	public function __construct()
 	{
 		$model = new Models\Instances();
 
-		if (!$this->instances = $model->getItems())
-		{
-			Helpers\OrganizerHelper::error(404);
-		}
-
-		$this->language = strtoupper(Helpers\Languages::getTag());
-		$this->tzID     = date_default_timezone_get();
+		$this->language  = strtoupper(Helpers\Languages::getTag());
+		$this->instances = $model->getItems();
+		$this->state     = $model->getState();
+		$this->tzID      = date_default_timezone_get();
+		$this->user      = Helpers\Users::getUser();
 
 		$this->setStamp();
+		$this->setTitles();
 		$this->setVersion();
-		$this->setUID();
 	}
 
 	/**
@@ -100,7 +125,6 @@ class Instances
 		$endTime   = $instance->endTime;
 		$method    = $instance->method ?: '';
 		$startTime = $instance->startTime;
-		$user      = Helpers\Users::getUser();
 
 		$campuses     = [];
 		$coordinates  = [];
@@ -167,9 +191,17 @@ class Instances
 
 		$ics[] = "BEGIN:VEVENT";
 		$ics[] = $this->stamp;
+
+		// TODO this should be unique to the component (event) the ical guys implemented it slightly wrong here.
 		$ics[] = $this->uniqueID;
 		$ics[] = 'DTSTART' . $this->getDateTime("$date $startTime");
 		$ics[] = 'DTEND' . $this->getDateTime("$date $endTime");
+
+		//@url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.2
+		if ($method)
+		{
+			$ics[] = "CATEGORIES:$method";
+		}
 
 		if ($persons)
 		{
@@ -231,13 +263,18 @@ class Instances
 		}
 
 		// @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.4.3
-		if ($user->email)
+		if ($this->user->email)
 		{
-			$ics[] = "ORGANIZER:mailto:$user->email";
+			$ics[] = "ORGANIZER:mailto:$this->user->email";
 		}
 
 		// @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.9
 		$ics[] = 'PRIORITY:' . self::MEDIUM;
+
+		/**
+		 * @TODO add relations to events over the RELATED-TO property
+		 * @URL https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.4.5
+		 */
 
 		/**
 		 * Since the calendar is always dynamically generated, as opposed to laying persistently in a web directory,
@@ -252,15 +289,8 @@ class Instances
 		$summary .= $method ? " - $instance->method" : '';
 		$ics[]   = "SUMMARY:$summary";
 
-
 		/**
 		 * The following are OPTIONAL but MUST NOT occur more than once:
-		 *
-		 * description (TEXT):
-		 * This property provides a more complete description of the calendar component than that provided by the "SUMMARY" property.
-		 * https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.1.5
-		 *
-		 *
 		 * url
 		 *
 		 *
@@ -269,25 +299,11 @@ class Instances
 
 		/**
 		 * The following are OPTIONAL, and MAY occur more than once:
-		 * attendee
-		 * categories
 		 * comment
 		 * contact
-		 * exdate
-		 * rstatus
-		 * related
-		 * resources
-		 * rdate
-		 * x-prop
-		 * iana-prop
 		 */
 
 		//DESCRIPTION:https://moodle.thm.de/course/view.php?id=4221
-		//LOCATION:ONLINE
-		//ORGANIZER:MAILTO:james.antrim@nm.thm.de
-		//PRIORITY:5
-		//SEQUENCE:0
-		//SUMMARY:Leit- und Sicherungstechnik - VRL gehalten von Riesbeck\, T..
 
 		// @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.2.7
 		$ics[] = "TRANSP:OPAQUE";
@@ -312,21 +328,31 @@ class Instances
 	}
 
 	/**
-	 * Method to generate output. Overwriting functions should place class specific code before the parent call.
+	 * Method to generate output/vcalendar. Overwriting functions should place class specific code before the parent call.
 	 *
 	 * @return void
+	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.4
 	 */
 	public function display()
 	{
 		$ics   = [];
-		$ics[] = "BEGIN:VCALENDAR";
+		$ics[] = 'BEGIN:VCALENDAR';
 		$ics[] = "PRODID:-//TH Mittelhessen//NONSGML Organizer $this->version//$this->language";
-		$ics[] = 'VERSION:' . $this->version;
-		$ics[] = "METHOD:PUBLISH";
+		$ics[] = "VERSION:$this->version";
+		$ics[] = 'METHOD:PUBLISH';
+		$ics[] = "X-WR-CALNAME:$this->title";
+		$ics[] = "X-WR-TIMEZONE:$this->tzID";
+		$ics[] = 'BEGIN:VTIMEZONE';
+		$ics[] = "TZID:$this->tzID";
+		$ics[] = 'BEGIN:STANDARD';
+		$ics[] = 'DTSTART:' . $this->getDateTime();
+		$ics[] = 'TZNAME:Standard Time';
+		$ics[] = 'TZOFFSETFROM:' . $this->getOffset('2021-01-01');
+		$ics[] = 'TZOFFSETTO:' . $this->getOffset('2021-07-01');
+		$ics[] = "END:STANDARD";
+		$ics[] = "END:VTIMEZONE";
 
-		//XPROPS
-		//TIMEZONE
-		echo "<pre>" . print_r(reset($this->instances), true) . "</pre><br>";
+		//echo "<pre>" . print_r(reset($this->instances), true) . "</pre><br>";
 
 		foreach ($this->instances as $instance)
 		{
@@ -350,10 +376,55 @@ class Instances
 	 */
 	private function getDateTime(string $dateTime = ''): string
 	{
-		$stamp = preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $dateTime) === false ? time() : strtotime($dateTime);
-		$value = date('Ymd', $stamp) . 'T' . date('His', $stamp);
+		$dateTime = preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $dateTime) ? $dateTime : date('Y-m-d H:i:s');
+		$stamp    = strtotime($dateTime);
+		$value    = date('Ymd', $stamp) . 'T' . date('His', $stamp);
 
 		return ";$this->tzID:$value";
+	}
+
+	/**
+	 * Gets the offset to UTC as a string.
+	 *
+	 * @param   string  $dateTime  the date at which the UTC offset is to be measured.
+	 *
+	 * @return string the formatted offset
+	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.3.3
+	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.3.4
+	 */
+	private function getOffset(string $dateTime): string
+	{
+		try
+		{
+			$dateTime = new DateTime($dateTime, new DateTimeZone($this->tzID));
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+			Helpers\OrganizerHelper::error(500);
+		}
+
+		$offset = $dateTime->getOffset();
+
+		if ($offset < 0)
+		{
+			$sign = '-';
+
+			// Have to get rid of the signage for the sprintf formatting later
+			$offset *= -1;
+		}
+		else
+		{
+			$sign = '+';
+		}
+
+		$hours   = (int) floor($offset / self::HOUR);
+		$hours   = sprintf("%02d", $hours);
+		$offset  = ($offset % self::HOUR);
+		$minutes = (int) floor($offset / self::MINUTE);
+		$minutes = sprintf("%02d", $minutes);
+
+		return "$sign$hours$minutes";
 	}
 
 	/**
@@ -367,6 +438,95 @@ class Instances
 		$time = gmdate('His');
 
 		$this->stamp = "DTSTAMP:{$date}T{$time}Z";
+	}
+
+	/**
+	 * Sets the globally unique id used as a property in every vcomponent as well as the
+	 *
+	 * @return void
+	 */
+	private function setTitles()
+	{
+		$state = $this->state;
+
+		echo "<pre>" . print_r($state, true) . "</pre><br>";
+		$uri  = Uri::getInstance();
+		$user = $this->user;
+
+		$left      = date('Ymd') . 'T' . date('His') . date('T');
+		$middle    = '';
+		$right     = $uri->getHost() . $uri->getPath();
+		$title     = Helpers\Languages::_('ORGANIZER_INSTANCES');
+		$tTemplate = $title . ": %s";
+		$uTemplate = "UID:$left-%s@$right";
+
+		if ($state->get('filter.my') and $user->username)
+		{
+			$this->title    = sprintf($tTemplate, $user->name);
+			$this->uniqueID = sprintf($uTemplate, $user->username);
+
+			return;
+		}
+
+		if ($thisID = (int) $state->get('filter.eventID'))
+		{
+			$this->title    = sprintf($tTemplate, Helpers\Events::getName($thisID));
+			$this->uniqueID = sprintf($uTemplate, Helpers\Events::getCode($thisID));
+
+			return;
+		}
+
+		if ($thisID = (int) $state->get('filter.personID'))
+		{
+			$this->title    = sprintf($tTemplate, Helpers\Persons::getDefaultName($thisID));
+			$this->uniqueID = sprintf($uTemplate, Helpers\Persons::getCode($thisID));
+
+			return;
+		}
+
+		if ($thisID = (int) $state->get('filter.groupID'))
+		{
+			$this->title    = sprintf($tTemplate, Helpers\Groups::getFullName($thisID));
+			$this->uniqueID = sprintf($uTemplate, Helpers\Groups::getCode($thisID));
+
+			return;
+		}
+
+		if ($thisID = (int) $state->get('filter.roomID'))
+		{
+			$this->title    = sprintf($tTemplate, Helpers\Rooms::getName($thisID));
+			$this->uniqueID = sprintf($uTemplate, Helpers\Persons::getCode($thisID));
+
+			return;
+		}
+
+		if ($thisID = (int) $state->get('filter.categoryID'))
+		{
+			$this->title    = sprintf($tTemplate, Helpers\Categories::getName($thisID));
+			$this->uniqueID = sprintf($uTemplate, Helpers\Groups::getCode($thisID));
+
+			return;
+		}
+
+		if ($thisID = (int) $state->get('filter.organizationID'))
+		{
+			$this->title    = sprintf($tTemplate, Helpers\Organizations::getName($thisID));
+			$this->uniqueID = sprintf($uTemplate, Helpers\Organizations::getAbbreviation($thisID));
+
+			return;
+		}
+
+		if ($thisID = (int) $state->get('filter.campusID'))
+		{
+			$campus         = Helpers\Campuses::getName($thisID);
+			$this->title    = sprintf($tTemplate, $campus);
+			$this->uniqueID = sprintf($uTemplate, OutputFilter::stringURLSafe($campus));
+
+			return;
+		}
+
+		$this->title    = $title;
+		$this->uniqueID = "UID:$left-$middle@$right";
 	}
 
 	/**
@@ -387,10 +547,5 @@ class Instances
 		{
 			$this->version = "X.X.X";
 		}
-	}
-
-	private function setUID()
-	{
-		$this->uniqueID = "UID:THEUNIQUEID";
 	}
 }
