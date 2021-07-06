@@ -27,6 +27,7 @@ class Persons extends Associated implements Selectable
 	 * Retrieves person entries from the database
 	 *
 	 * @return array  the persons who hold courses for the selected program and pool
+	 * @todo used by a plugin?
 	 */
 	public static function byProgramOrPool(): array
 	{
@@ -71,7 +72,7 @@ class Persons extends Associated implements Selectable
 			return [];
 		}
 
-		foreach ($persons as $key => $value)
+		foreach ($persons as $value)
 		{
 			$value->name = empty($value->forename) ? $value->surname : $value->surname . ', ' . $value->forename;
 		}
@@ -115,7 +116,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return array  an array of person data
 	 */
-	public static function getDataBySubject(int $subjectID, $role = 0, $multiple = false, $unique = true): array
+	public static function getDataBySubject(int $subjectID, int $role = 0, bool $multiple = false, bool $unique = true): array
 	{
 		$query = Database::getQuery();
 		$query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, sp.role, code')
@@ -158,7 +159,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return string  the default name of the person
 	 */
-	public static function getDefaultName(int $personID, $excludeTitle = false): string
+	public static function getDefaultName(int $personID, bool $excludeTitle = false): string
 	{
 		$person = new Tables\Persons();
 		$person->load($personID);
@@ -383,7 +384,8 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function nameSort(array &$persons)
 	{
-		uasort($persons, function ($personOne, $personTwo) {
+		uasort($persons, function ($personOne, $personTwo)
+		{
 			if ($personOne['surname'] == $personTwo['surname'])
 			{
 				return $personOne['forename'] > $personTwo['forename'];
@@ -415,7 +417,8 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function roleSort(array &$persons)
 	{
-		uasort($persons, function ($personOne, $personTwo) {
+		uasort($persons, function ($personOne, $personTwo)
+		{
 			$roleOne = isset($personOne['role'][self::COORDINATES]);
 			$roleTwo = isset($personTwo['role'][self::COORDINATES]);
 			if ($roleOne or !$roleTwo)

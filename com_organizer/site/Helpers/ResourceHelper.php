@@ -17,6 +17,17 @@ use Organizer\Tables;
  */
 abstract class ResourceHelper
 {
+	/**
+	 * Attempts to retrieve the code of the resource.
+	 *
+	 * @param   int  $resourceID  the id of the resource
+	 *
+	 * @return string
+	 */
+	public static function getAbbreviation(int $resourceID): string
+	{
+		return self::getNameAttribute('abbreviation', $resourceID);
+	}
 
 	/**
 	 * Attempts to retrieve the code of the resource.
