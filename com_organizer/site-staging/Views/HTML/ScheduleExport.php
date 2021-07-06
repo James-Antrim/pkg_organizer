@@ -32,7 +32,9 @@ class ScheduleExport extends SelectionView
 
 		if ($user->id)
 		{
-			$auth = urlencode(password_hash($user->email . $user->registerDate->getTimestamp(), PASSWORD_BCRYPT));
+			// Joomla documented the wrong type for registerDate which is a string
+			/** @noinspection PhpToStringImplementationInspection */
+			$auth = urlencode(password_hash($user->email . $user->registerDate, PASSWORD_BCRYPT));
 			Adapters\Document::addScriptDeclaration("const username = '$user->username', auth = '$auth';");
 		}
 
@@ -50,16 +52,16 @@ class ScheduleExport extends SelectionView
 
 		$attribs = ['multiple' => 'multiple'];
 
-		$this->setResourceField('group', 'content', $attribs, false);
+		$this->setResourceField('group', 'content', $attribs);
 
 		$userID      = Helpers\Users::getID();
 		$showPersons = ($userID and (Helpers\Can::viewTheseOrganizations() or Helpers\Persons::getIDByUserID()));
 		if ($showPersons)
 		{
-			$this->setResourceField('person', 'content', $attribs, false);
+			$this->setResourceField('person', 'content', $attribs);
 		}
 
-		$this->setResourceField('room', 'content', $attribs, false);
+		$this->setResourceField('room', 'content', $attribs);
 
 	}
 

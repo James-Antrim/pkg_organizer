@@ -134,8 +134,10 @@ class ScheduleItem extends BaseView
 			$domain = substr($user->email, strpos($user->email, '@'));
 			if (empty($this->emailFilter) or strpos($domain, $this->emailFilter) !== false)
 			{
+				// Joomla documented the wrong type for registerDate which is a string
+				/** @noinspection PhpToStringImplementationInspection */
+				$variables['auth']     = urlencode(password_hash($user->email . $user->registerDate, PASSWORD_BCRYPT));
 				$variables['userID']   = $user->id;
-				$variables['auth']     = urlencode(password_hash($user->email . $user->registerDate->getTimestamp(), PASSWORD_BCRYPT));
 				$variables['username'] = $user->username;
 			}
 		}

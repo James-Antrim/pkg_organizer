@@ -83,8 +83,9 @@ class Users
 		// If the requested user is the default user no need to authenticate.
 		if ($requested->id and $requested->username !== $defaultUser->username)
 		{
-			// Authenticates
-			if (password_verify($requested->email . $requested->registerDate->getTimestamp(), $authentication))
+			// Joomla documented the wrong type for registerDate which is a string
+			/** @noinspection PhpToStringImplementationInspection */
+			if (password_verify($requested->email . $requested->registerDate, $authentication))
 			{
 				self::$user = $requested;
 			}
@@ -100,7 +101,7 @@ class Users
 	 *
 	 * @return array the first and last names of the user
 	 */
-	public static function resolveUserName($userID = 0): array
+	public static function resolveUserName(int $userID = 0): array
 	{
 		$user           = Factory::getUser($userID);
 		$sanitizedName  = trim(preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}\.\-\']/', ' ', $user->name));
