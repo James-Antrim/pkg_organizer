@@ -135,7 +135,7 @@ class ScheduleItem extends BaseView
 			if (empty($this->emailFilter) or strpos($domain, $this->emailFilter) !== false)
 			{
 				$variables['userID']   = $user->id;
-				$variables['auth']     = urlencode(password_hash($user->email . $user->registerDate, PASSWORD_BCRYPT));
+				$variables['auth']     = urlencode(password_hash($user->email . $user->registerDate->getTimestamp(), PASSWORD_BCRYPT));
 				$variables['username'] = $user->username;
 			}
 		}

@@ -53,7 +53,7 @@ class Users
 	 *
 	 * @return  User a user object specifically requested ids return a dynamic user, otherwise the current user
 	 */
-	public static function getUser($userID = 0): User
+	public static function getUser(int $userID = 0): User
 	{
 		// A user was specifically requested by id.
 		if ($userID)
@@ -70,24 +70,24 @@ class Users
 		$defaultUser    = Factory::getUser();
 		$userName       = Input::getString('username');
 		$authentication = urldecode(Input::getString('auth'));
+		self::$user     = $defaultUser;
 
-		// No authentication parameters => use Joomla
+		// No authentication possible
 		if (empty($userName) or empty($authentication))
 		{
-			self::$user = $defaultUser;
-
 			return self::$user;
 		}
 
 		$requested = User::getInstance($userName);
 
-		if ($requested->id and password_verify($requested->email . $requested->registerDate, $authentication))
+		// If the requested user is the default user no need to authenticate.
+		if ($requested->id and $requested->username !== $defaultUser->username)
 		{
-			self::$user = $requested;
-		}
-		else
-		{
-			self::$user = $defaultUser;
+			// Authenticates
+			if (password_verify($requested->email . $requested->registerDate->getTimestamp(), $authentication))
+			{
+				self::$user = $requested;
+			}
 		}
 
 		return self::$user;

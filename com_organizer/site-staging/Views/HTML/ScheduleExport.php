@@ -32,18 +32,8 @@ class ScheduleExport extends SelectionView
 
 		if ($user->id)
 		{
-			$auth = urlencode(password_hash($user->email . $user->registerDate, PASSWORD_BCRYPT));
+			$auth = urlencode(password_hash($user->email . $user->registerDate->getTimestamp(), PASSWORD_BCRYPT));
 			Adapters\Document::addScriptDeclaration("const username = '$user->username', auth = '$auth';");
-		}
-
-		// ToDo: make this default/chosen format dependent, not seeing impaired
-		if ($this->isSeeingImpaired())
-		{
-			//$this->hiddenFields = ['format', 'pdfWeekFormat', 'displayFormat'];
-		}
-		else
-		{
-			//$this->hiddenFields = ['xlsWeekFormat', 'grouping'];
 		}
 
 		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/schedule_export.js');
