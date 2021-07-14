@@ -57,9 +57,9 @@ class Units extends ListView
 			true
 		);
 
-		if (Helpers\Can::administrate())
+		/*if (Helpers\Can::administrate())
 		{
-			/*$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "units.edit", true);
+			$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "units.edit", true);
 			$toolbar->appendButton(
 				'Confirm',
 				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
@@ -67,8 +67,8 @@ class Units extends ListView
 				Helpers\Languages::_('ORGANIZER_DELETE'),
 				"units.delete",
 				true
-			);*/
-		}
+			);
+		}*/
 	}
 
 	/**
@@ -78,7 +78,7 @@ class Units extends ListView
 	 *
 	 * @return array|string
 	 */
-	private function getStatus($item)
+	private function getStatus(object $item)
 	{
 		$class = 'status-display hasToolTip';
 		$title = '';

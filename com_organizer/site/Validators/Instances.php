@@ -172,6 +172,17 @@ class Instances extends Helpers\ResourceHelper
 	{
 		$unit = $model->units->$untisID;
 
+		// Update the actual run dates of the unit
+		if (!$unit->effEndDate or $unit->effEndDate < $currentDate)
+		{
+			$unit->effEndDate = $currentDate;
+		}
+
+		if (!$unit->effStartDate or $unit->effStartDate > $currentDate)
+		{
+			$unit->effStartDate = $currentDate;
+		}
+
 		$methodID = empty($unit->methodID) ? null : $unit->methodID;
 		$instance = [
 			'blockID' => self::getBlockID($node, $currentDate),

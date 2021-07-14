@@ -268,6 +268,7 @@ class Schedule
 				Units::validate($this, $node);
 			}
 
+			Units::updateDates((array) $this->units);
 			Units::setWarnings($this);
 		}
 		unset($this->events, $this->groups, $this->methods, $this->persons, $this->term, $this->xml);

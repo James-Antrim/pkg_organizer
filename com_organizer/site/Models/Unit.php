@@ -46,7 +46,7 @@ class Unit extends BaseModel
 		$event  = new Tables\Events();
 		$course = new Tables\Courses();
 
-		foreach ($eventIDs = Helpers\Units::getEventIDs($unitID) as $eventID)
+		foreach (Helpers\Units::getEventIDs($unitID) as $eventID)
 		{
 			$event->load($eventID);
 

@@ -29,7 +29,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the user is a coordinator, otherwise false
 	 */
-	public static function coordinates($courseID = 0, $personID = 0)
+	public static function coordinates(int $courseID = 0, int $personID = 0): bool
 	{
 		if (Can::administrate())
 		{
@@ -80,7 +80,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return string the dates to display
 	 */
-	public static function getDateDisplay(int $courseID)
+	public static function getDateDisplay(int $courseID): string
 	{
 		if ($dates = self::getDates($courseID))
 		{
@@ -97,7 +97,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array  the start and end date for the given course
 	 */
-	public static function getDates($courseID = 0)
+	public static function getDates(int $courseID = 0): array
 	{
 		if (empty($courseID))
 		{
@@ -120,7 +120,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array the events associated with the course
 	 */
-	public static function getEvents(int $courseID)
+	public static function getEvents(int $courseID): array
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
@@ -156,7 +156,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array list of participants in course
 	 */
-	public static function getGroupedParticipation(int $courseID)
+	public static function getGroupedParticipation(int $courseID): array
 	{
 		if (empty($courseID))
 		{
@@ -183,7 +183,7 @@ class Courses extends ResourceHelper
 
 		$results = [];
 
-		foreach ($programCounts as $key => $programCount)
+		foreach ($programCounts as $programCount)
 		{
 			$organizationIDs = Programs::getOrganizationIDs($programCount['id']);
 			foreach ($organizationIDs as $organizationID)
@@ -219,7 +219,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array the instances which are a part of the course
 	 */
-	public static function getInstanceIDs(int $courseID)
+	public static function getInstanceIDs(int $courseID): array
 	{
 		$query = Database::getQuery();
 		$query->select("DISTINCT i.id")
@@ -272,7 +272,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array the persons matching the search criteria
 	 */
-	public static function getPersons(int $courseID, $eventID = 0, $roleIDs = [])
+	public static function getPersons(int $courseID, int $eventID = 0, array $roleIDs = []): array
 	{
 		$query = Database::getQuery();
 		$query->select("DISTINCT ip.personID")
@@ -313,7 +313,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return array the ids of the associated units
 	 */
-	public static function getUnitIDs(int $courseID)
+	public static function getUnitIDs(int $courseID): array
 	{
 		$query = Database::getQuery();
 		$query->select('DISTINCT id')->from('#__organizer_units')->where("courseID = $courseID");
@@ -331,7 +331,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the user has a course responsibility, otherwise false
 	 */
-	public static function hasResponsibility($courseID = 0, $personID = 0, $roleID = 0)
+	public static function hasResponsibility(int $courseID = 0, int $personID = 0, int $roleID = 0): bool
 	{
 		if (Can::administrate())
 		{
@@ -372,7 +372,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the course is expired, otherwise false
 	 */
-	public static function isExpired(int $courseID)
+	public static function isExpired(int $courseID): bool
 	{
 		if ($dates = self::getDates($courseID))
 		{
@@ -389,7 +389,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the course is full, otherwise false
 	 */
-	public static function isFull(int $courseID)
+	public static function isFull(int $courseID): bool
 	{
 		$table = new Tables\Courses();
 		if (!$table->load($courseID) or !$maxParticipants = $table->maxParticipants)
@@ -414,7 +414,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the course is expired, otherwise false
 	 */
-	public static function isPreparatory(int $courseID)
+	public static function isPreparatory(int $courseID): bool
 	{
 		$query = Database::getQuery();
 		$query->select('COUNT(*)')
@@ -437,7 +437,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the user is a speaker, otherwise false
 	 */
-	public static function speaks($courseID = 0, $personID = 0)
+	public static function speaks(int $courseID = 0, int $personID = 0): bool
 	{
 		return self::hasResponsibility($courseID, $personID, self::SPEAKER);
 	}
@@ -450,7 +450,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the user is a supervisor, otherwise false
 	 */
-	public static function supervises($courseID = 0, $personID = 0)
+	public static function supervises(int $courseID = 0, int $personID = 0): bool
 	{
 		return self::hasResponsibility($courseID, $personID, self::SUPERVISOR);
 	}
@@ -463,7 +463,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the user is a course teacher, otherwise false
 	 */
-	public static function teaches($courseID = 0, $personID = 0)
+	public static function teaches(int $courseID = 0, int $personID = 0): bool
 	{
 		return self::hasResponsibility($courseID, $personID, self::TEACHER);
 	}
@@ -476,7 +476,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @return bool true if the user is a tutor, otherwise false
 	 */
-	public static function tutors($courseID = 0, $personID = 0)
+	public static function tutors(int $courseID = 0, int $personID = 0): bool
 	{
 		return self::hasResponsibility($courseID, $personID, self::TUTOR);
 	}

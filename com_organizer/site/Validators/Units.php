@@ -29,7 +29,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void adds a message to the model warnings array
 	 */
-	private static function createInvalidRoomsMessages(Schedule $model)
+	private static function addIRMessages(Schedule $model)
 	{
 		foreach ($model->warnings['IIR'] as $untisID => $invalidRooms)
 		{
@@ -58,7 +58,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	 *
 	 * @return void adds a message to the model warnings array
 	 */
-	private static function createMissingRoomsMessages(Schedule $model)
+	private static function addMRMessages(Schedule $model)
 	{
 		foreach ($model->warnings['IMR'] as $untisID => $dows)
 		{
@@ -99,6 +99,33 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 	}
 
 	/**
+	 * Adjusts the temporal template ('occurrence' attribute) to the unit's actual dates.
+	 *
+	 * @param   Schedule          $model    the model for the schedule being validated
+	 * @param   SimpleXMLElement  $node     the node being validated
+	 * @param   string            $untisID  the untis id of the unit being iterated
+	 *
+	 * @return array   the occurrences string modeled by an array
+	 */
+	private static function filterOccurrences(Schedule $model, SimpleXMLElement $node, string $untisID): array
+	{
+		$rawOccurrences = trim((string) $node->occurence);
+		$unit           = $model->units->$untisID;
+
+		// Increases the end value one day (Untis uses inclusive dates)
+		$end = strtotime('+1 day', $unit->endDT);
+
+		// 86400 is the number of seconds in a day 24 * 60 * 60
+		$offset = floor(($unit->startDT - strtotime($model->schoolYear->startDate)) / 86400);
+		$length = floor(($end - $unit->startDT) / 86400);
+
+		$filteredOccurrences = substr($rawOccurrences, $offset, $length);
+
+		// Change occurrences from a string to an array of the appropriate length for iteration
+		return empty($filteredOccurrences) ? [] : str_split($filteredOccurrences);
+	}
+
+	/**
 	 * Gets the id for a named role.
 	 *
 	 * @param   string  $role  the role as specified in the schedule
@@ -120,33 +147,6 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		Database::setQuery($query);
 
 		return Database::loadInt(1);
-	}
-
-	/**
-	 * Adjusts the temporal template ('occurrence' attribute) to the unit's actual dates.
-	 *
-	 * @param   Schedule          $model    the model for the schedule being validated
-	 * @param   SimpleXMLElement  $node     the node being validated
-	 * @param   string            $untisID  the untis id of the unit being iterated
-	 *
-	 * @return array   the occurrences string modeled by an array
-	 */
-	private static function getFilteredOccurrences(Schedule $model, SimpleXMLElement $node, string $untisID): array
-	{
-		$rawOccurrences = trim((string) $node->occurence);
-		$unit           = $model->units->$untisID;
-
-		// Increases the end value one day (Untis uses inclusive dates)
-		$end = strtotime('+1 day', $unit->endDT);
-
-		// 86400 is the number of seconds in a day 24 * 60 * 60
-		$offset = floor(($unit->startDT - strtotime($model->schoolYear->startDate)) / 86400);
-		$length = floor(($end - $unit->startDT) / 86400);
-
-		$filteredOccurrences = substr($rawOccurrences, $offset, $length);
-
-		// Change occurrences from a string to an array of the appropriate length for iteration
-		return empty($filteredOccurrences) ? [] : str_split($filteredOccurrences);
 	}
 
 	/**
@@ -201,12 +201,12 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		if (!empty($model->warnings['IMR']))
 		{
-			self::createMissingRoomsMessages($model);
+			self::addMRMessages($model);
 		}
 
 		if (!empty($model->warnings['IIR']))
 		{
-			self::createInvalidRoomsMessages($model);
+			self::addIRMessages($model);
 		}
 	}
 
@@ -270,6 +270,8 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 			$unit->endDate        = date('Y-m-d', $effEndDT);
 			$unit->endDT          = $effEndDT;
 			$unit->comment        = (empty($comment) or $comment == '.') ? '' : $comment;
+			$unit->effStartDate   = '';
+			$unit->effEndDate     = '';
 
 			// Backwards compatibility
 			$unit->subjects = new stdClass();
@@ -295,7 +297,7 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		$valid = (self::validateMethod($model, $node, $untisID) and $valid);
 
 		// Adjusted dates are used because effective dts are not always accurate for the time frame
-		$filteredOccurrences = self::getFilteredOccurrences($model, $node, $untisID);
+		$filteredOccurrences = self::filterOccurrences($model, $node, $untisID);
 
 		// Cannot produce blocking errors
 		Instances::validateCollection($model, $node->times, $untisID, $filteredOccurrences, $valid);
@@ -544,5 +546,34 @@ class Units extends Helpers\ResourceHelper implements UntisXMLValidator
 		$unit->subjects->{$unit->eventID}->teachers->$personID = '';
 
 		return true;
+	}
+
+	/**
+	 * Updates the start and end dates of units after processing of the instances.
+	 *
+	 * @param   array  $units  the processed units
+	 *
+	 * @return void modifies database entries
+	 */
+	public static function updateDates(array $units)
+	{
+		foreach ($units as $unit)
+		{
+			if (!$unit->id or !$unit->effEndDate or !$unit->effStartDate)
+			{
+				continue;
+			}
+
+			$table = new Tables\Units();
+
+			if (!$table->load($unit->id))
+			{
+				continue;
+			}
+
+			$table->endDate   = $unit->effEndDate;
+			$table->startDate = $unit->effStartDate;
+			$table->store();
+		}
 	}
 }
