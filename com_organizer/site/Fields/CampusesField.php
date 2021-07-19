@@ -27,7 +27,7 @@ class CampusesField extends OptionsField
 	 *
 	 * @return array  the options
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options  = parent::getOptions();
 		$campuses = Helpers\Campuses::getOptions();

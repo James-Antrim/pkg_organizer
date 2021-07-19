@@ -28,7 +28,7 @@ class MergeOrganizationsField extends OptionsField
 	 *
 	 * @return array the options for the select box
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$selectedIDs    = Helpers\Input::getSelectedIDs();
 		$resource       = str_replace('_merge', '', Helpers\Input::getView());

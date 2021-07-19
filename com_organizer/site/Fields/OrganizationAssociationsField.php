@@ -33,7 +33,7 @@ class OrganizationAssociationsField extends OptionsField
 	 *
 	 * @return array the ids of the organizations associated with the resource
 	 */
-	private function getAssociatedOrganizations(string $resource, int $resourceID): array
+	private function getAssociated(string $resource, int $resourceID): array
 	{
 		if (array_key_exists($resource, $this->singleAssoc))
 		{
@@ -57,7 +57,7 @@ class OrganizationAssociationsField extends OptionsField
 	 *
 	 * @return array the ids of the organizations associated with the resource
 	 */
-	private function getAuthorizedOrganizations(string $resource): array
+	private function getAuthorized(string $resource): array
 	{
 		switch ($resource)
 		{
@@ -97,10 +97,10 @@ class OrganizationAssociationsField extends OptionsField
 		$resourceID      = Helpers\Input::getSelectedID(Helpers\Input::getID());
 		$pseudoResources = ['workload'];
 
-		$authorized = $this->getAuthorizedOrganizations($resource);
+		$authorized = $this->getAuthorized($resource);
 		$pseudo     = in_array($resource, $pseudoResources);
 
-		if (!$pseudo and $associated = $this->getAssociatedOrganizations($resource, $resourceID))
+		if (!$pseudo and $associated = $this->getAssociated($resource, $resourceID))
 		{
 			$this->value = $resource === 'fieldcolor' ? $associated[0] : $associated;
 
@@ -139,8 +139,7 @@ class OrganizationAssociationsField extends OptionsField
 			$options[] = Helpers\HTML::_('select.option', $organizationID, $shortName);
 		}
 
-		$attr = '';
-		$attr .= !empty($this->class) ? ' class="' . $this->class . '"' : '';
+		$attr = !empty($this->class) ? ' class="' . $this->class . '"' : '';
 
 		if (array_key_exists($resource, $this->singleAssoc))
 		{

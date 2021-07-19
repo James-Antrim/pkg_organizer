@@ -33,7 +33,7 @@ class CurriculaField extends FormField
 	 *
 	 * @return string  the HTML for the select box
 	 */
-	public function getInput()
+	public function getInput(): string
 	{
 		$resourceID   = $this->form->getValue('id');
 		$contextParts = explode('.', $this->form->getName());
@@ -65,7 +65,7 @@ class CurriculaField extends FormField
 	 *
 	 * @return array HTML options strings
 	 */
-	private function getOptions()
+	private function getOptions(): array
 	{
 		$query = Helpers\Programs::getQuery();
 		$query->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')->order('name ASC');

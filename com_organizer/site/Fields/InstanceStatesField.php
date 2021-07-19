@@ -29,7 +29,7 @@ class InstanceStatesField extends ColoredOptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		return [
 			(object) [

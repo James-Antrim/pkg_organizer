@@ -10,6 +10,9 @@
 
 namespace Organizer\Fields;
 
+/**
+ * Trait for fields whose output should be suppressed if no options beyond those defined in the manifest were found.
+ */
 trait Dependent
 {
 	/**
@@ -17,7 +20,7 @@ trait Dependent
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$this->options = (array) $this->getOptions();
 		$parentOptions = parent::getOptions();

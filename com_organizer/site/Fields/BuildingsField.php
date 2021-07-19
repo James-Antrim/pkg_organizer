@@ -27,7 +27,7 @@ class BuildingsField extends OptionsField
 	 *
 	 * @return array  the available buildings
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$defaultOptions = parent::getOptions();
 		$options        = Helpers\Buildings::getOptions();

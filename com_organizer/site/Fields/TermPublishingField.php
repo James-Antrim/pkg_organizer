@@ -32,7 +32,7 @@ class TermPublishingField extends FormField
 	 *
 	 * @return string  the HTML select box
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$input      = '';
 		$nameColumn = 'name_' . Helpers\Languages::getTag();

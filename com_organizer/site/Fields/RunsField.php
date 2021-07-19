@@ -35,7 +35,7 @@ class RunsField extends JFormFieldSubform
 	 */
 	protected function getInput(): string
 	{
-		$this->value = isset($this->value['runs']) ? $this->value['runs'] : [];
+		$this->value = $this->value['runs'] ?? [];
 
 		return parent::getInput();
 	}

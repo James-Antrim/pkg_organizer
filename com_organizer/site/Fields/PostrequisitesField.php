@@ -30,7 +30,7 @@ class PostrequisitesField extends DependencyOptions
 	 *
 	 * @return string  the HTML for the super ordinate resources select box
 	 */
-	public function getInput()
+	public function getInput(): string
 	{
 		$options = $this->getOptions();
 		$select  = '<select id="postrequisites" name="jform[postrequisites][]" multiple="multiple" size="10">';
@@ -44,7 +44,7 @@ class PostrequisitesField extends DependencyOptions
 	 *
 	 * @return array  the options
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$subjectID = Helpers\Input::getID();
 		$values    = Helpers\Subjects::getPostrequisites($subjectID);

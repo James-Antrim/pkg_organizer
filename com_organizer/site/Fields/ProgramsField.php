@@ -27,7 +27,7 @@ class ProgramsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options  = parent::getOptions();
 		$access   = $this->adminContext ? $this->getAttribute('access', '') : '';

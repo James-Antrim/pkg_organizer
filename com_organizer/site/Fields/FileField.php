@@ -77,7 +77,7 @@ class FileField extends FormField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$attributes     = [
 			$this->accept ? 'accept="' . $this->accept . '"' : '',

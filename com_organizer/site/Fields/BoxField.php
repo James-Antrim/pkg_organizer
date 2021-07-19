@@ -32,12 +32,12 @@ class BoxField extends FormField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		if ($this->hint and $hint = trim($this->hint))
 		{
 			$hint = preg_match('/^[A-Z_]+$/', $hint) ?
-				Helpers\Languages::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT, 'UTF-8');
+				Helpers\Languages::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT);
 		}
 		else
 		{
@@ -62,7 +62,7 @@ class BoxField extends FormField
 		];
 
 		$open  = '<textarea ' . implode(' ', $attributes) . '>';
-		$value = htmlspecialchars($this->value, ENT_COMPAT, 'UTF-8');
+		$value = htmlspecialchars($this->value, ENT_COMPAT);
 
 		return $open . $value . '</textarea>';
 	}

@@ -28,7 +28,7 @@ class CategoriesField extends OptionsField
 	 *
 	 * @return array the options for the select box
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options    = parent::getOptions();
 		$categories = Helpers\Categories::getOptions();

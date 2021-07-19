@@ -26,7 +26,7 @@ abstract class DependencyOptions extends OptionsField
 	 *
 	 * @return array  the options
 	 */
-	protected function getDependencyOptions($subjectID, $values)
+	protected function getDependencyOptions(int $subjectID, array $values): array
 	{
 		$programs = Helpers\Subjects::getPrograms($subjectID);
 		$options  = [];

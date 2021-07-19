@@ -31,7 +31,7 @@ abstract class ColoredOptionsField extends OptionsField
 	 *
 	 * @return string  the HTML for the color select box
 	 */
-	public function getInput()
+	public function getInput(): string
 	{
 		$onChange = empty($this->getAttribute('onchange')) ?
 			'' : ' onchange="' . $this->getAttribute('onchange') . '"';

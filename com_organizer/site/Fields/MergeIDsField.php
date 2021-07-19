@@ -28,7 +28,7 @@ class MergeIDsField extends FormField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$selectedIDs = Helpers\Input::getSelectedIDs();
 		asort($selectedIDs);

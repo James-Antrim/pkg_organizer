@@ -32,7 +32,7 @@ class DateField extends FormField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$empty    = $this->getAttribute('empty', 'true');
 		$onchange = $this->getAttribute('onchange', '');

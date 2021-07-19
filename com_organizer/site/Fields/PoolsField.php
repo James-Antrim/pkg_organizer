@@ -27,7 +27,7 @@ class PoolsField extends OptionsField
 	 *
 	 * @return array  the pool options
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options = parent::getOptions();
 		$access  = $this->adminContext ? 'document' : '';

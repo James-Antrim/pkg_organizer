@@ -33,7 +33,7 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$html = [];
 		$attr = '';
@@ -61,7 +61,7 @@ class GenericOptionsField extends OptionsField
 		$attr .= $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 
 		// Get the field options.
-		$options = (array) $this->getOptions();
+		$options = $this->getOptions();
 
 		// Create a read-only list (no name) with hidden input(s) to store the value(s).
 		if ($isReadOnly)
@@ -87,13 +87,13 @@ class GenericOptionsField extends OptionsField
 
 				foreach ($this->value as $value)
 				{
-					$value  = htmlspecialchars($value, ENT_COMPAT, 'UTF-8');
+					$value  = htmlspecialchars($value, ENT_COMPAT);
 					$html[] = '<input type="hidden" name="' . $this->name . '" value="' . $value . '"/>';
 				}
 			}
 			else
 			{
-				$value  = htmlspecialchars($this->value, ENT_COMPAT, 'UTF-8');
+				$value  = htmlspecialchars($this->value, ENT_COMPAT);
 				$html[] = '<input type="hidden" name="' . $this->name . '" value="' . $value . '"/>';
 			}
 		}
@@ -122,7 +122,7 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$defaultOptions = parent::getOptions();
 		$query          = Database::getQuery();
@@ -168,7 +168,7 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return string  the string to use for text selection
 	 */
-	private function resolveText(JDatabaseQuery $query)
+	private function resolveText(JDatabaseQuery $query): string
 	{
 		$textColumn  = $this->getAttribute('textcolumn');
 		$textColumns = explode(',', $textColumn);
@@ -204,7 +204,7 @@ class GenericOptionsField extends OptionsField
 		$tableParameters = $this->getAttribute('table');
 		$tables          = explode(',', $tableParameters);
 
-		$query->from("#__{$tables[0]}");
+		$query->from("#__$tables[0]");
 		$count = count($tables);
 		if ($count === 1)
 		{
@@ -213,7 +213,7 @@ class GenericOptionsField extends OptionsField
 
 		for ($index = 1; $index < $count; $index++)
 		{
-			$query->innerjoin("#__{$tables[$index]}");
+			$query->innerJoin("#__$tables[$index]");
 		}
 	}
 
@@ -224,7 +224,7 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return void  sets option values
 	 */
-	private function setValueParameters(&$options)
+	private function setValueParameters(array &$options)
 	{
 		$valueParameter = $this->getAttribute('valueParameter', '');
 		if ($valueParameter === '')
@@ -242,6 +242,7 @@ class GenericOptionsField extends OptionsField
 			}
 			$options[$componentParameter] = Helpers\HTML::_('select.option', $componentParameter, $componentParameter);
 		}
+
 		ksort($options);
 	}
 

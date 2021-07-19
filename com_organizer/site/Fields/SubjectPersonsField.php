@@ -25,7 +25,7 @@ class SubjectPersonsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$subjectIDs = Helpers\Input::getSelectedIDs();
 		$role       = $this->getAttribute('role');

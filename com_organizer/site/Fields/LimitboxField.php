@@ -36,7 +36,7 @@ class LimitboxField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		// Accepted modifiers
 		$hash = md5($this->element);

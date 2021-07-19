@@ -39,12 +39,12 @@ class BlankField extends FormField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		if ($this->hint and $hint = trim($this->hint))
 		{
 			$hint = preg_match('/^[A-Z_]+$/', $hint) ?
-				Helpers\Languages::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT, 'UTF-8');
+				Helpers\Languages::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT);
 		}
 		else
 		{
@@ -70,7 +70,7 @@ class BlankField extends FormField
 			$this->required ? 'required aria-required="true"' : '',
 			$this->spellcheck ? '' : 'spellcheck="false"',
 			$password ? 'type="password"' : 'type="text"',
-			'value="' . htmlspecialchars($this->value, ENT_COMPAT, 'UTF-8') . '"'
+			'value="' . htmlspecialchars($this->value, ENT_COMPAT) . '"'
 		];
 
 		return '<input ' . implode(' ', $attributes) . '/>';

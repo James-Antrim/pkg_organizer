@@ -29,7 +29,7 @@ class SubjectEventsField extends FormField
 	 *
 	 * @return string  the HTML output
 	 */
-	public function getInput()
+	public function getInput(): string
 	{
 		$query     = Database::getQuery(true);
 		$subjectID = Helpers\Input::getID();

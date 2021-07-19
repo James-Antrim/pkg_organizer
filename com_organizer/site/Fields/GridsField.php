@@ -27,7 +27,7 @@ class GridsField extends OptionsField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		if (empty($this->value) and $campusID = Helpers\Input::getParams()->get('campusID'))
 		{
@@ -42,7 +42,7 @@ class GridsField extends OptionsField
 	 *
 	 * @return array  the pool options
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options  = parent::getOptions();
 		$campuses = Helpers\Grids::getOptions();

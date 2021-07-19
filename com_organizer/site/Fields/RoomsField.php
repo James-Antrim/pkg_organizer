@@ -27,7 +27,7 @@ class RoomsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options = parent::getOptions();
 		$rooms   = Helpers\Rooms::getOptions();

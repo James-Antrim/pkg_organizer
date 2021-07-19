@@ -13,6 +13,9 @@ namespace Organizer\Fields;
 use Joomla\CMS\Form\FormField;
 use Organizer\Helpers;
 
+/**
+ * Class provides a field by which to add a participant to a given event related resource.
+ */
 class AddParticipantField extends FormField
 {
 	use Translated;
@@ -29,7 +32,7 @@ class AddParticipantField extends FormField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$label = "<label for=\"$this->name\" class=\"element-invisible\">XTEXTX</label>";
 		$label = str_replace('XTEXTX', Helpers\Languages::_('ORGANIZER_ADD_PARTICIPANT'), $label);

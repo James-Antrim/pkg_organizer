@@ -24,11 +24,11 @@ class DocumentedPersonsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options   = parent::getOptions();
-		$poolID    = Helpers\Input::getFilterID('pool', Helpers\Input::getInt('poolID', 0));
-		$programID = Helpers\Input::getFilterID('program', Helpers\Input::getInt('programID', 0));
+		$poolID    = Helpers\Input::getFilterID('pool', Helpers\Input::getInt('poolID'));
+		$programID = Helpers\Input::getFilterID('program', Helpers\Input::getInt('programID'));
 
 		if (!$poolID and !$programID)
 		{

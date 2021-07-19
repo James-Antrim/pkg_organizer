@@ -28,7 +28,7 @@ class TemplatesField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		return Helpers\HTML::getTranslatedOptions($this, $this->element);
 	}

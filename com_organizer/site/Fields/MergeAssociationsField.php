@@ -29,7 +29,7 @@ class MergeAssociationsField extends OptionsField
 	 *
 	 * @return array the options for the select box
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$default     = [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
 		$selectedIDs = Helpers\Input::getSelectedIDs();
@@ -113,7 +113,7 @@ class MergeAssociationsField extends OptionsField
 	 *
 	 * @return string  the string to use for text selection
 	 */
-	private function resolveTextColumn($query)
+	private function resolveTextColumn(JDatabaseQuery $query): string
 	{
 		$textColumn  = $this->getAttribute('textcolumn', '');
 		$textColumns = explode(',', $textColumn);

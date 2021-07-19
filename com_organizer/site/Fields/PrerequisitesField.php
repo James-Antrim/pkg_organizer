@@ -30,7 +30,7 @@ class PrerequisitesField extends DependencyOptions
 	 *
 	 * @return string  the HTML for the super ordinate resources select box
 	 */
-	public function getInput()
+	public function getInput(): string
 	{
 		$options = $this->getOptions();
 		$select  = '<select id="prerequisites" name="jform[prerequisites][]" multiple="multiple" size="10">';
@@ -44,7 +44,7 @@ class PrerequisitesField extends DependencyOptions
 	 *
 	 * @return array  the options
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$subjectID = Helpers\Input::getID();
 		$values    = Helpers\Subjects::getPrerequisites($subjectID);

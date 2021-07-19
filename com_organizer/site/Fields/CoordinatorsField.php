@@ -29,7 +29,7 @@ class CoordinatorsField extends OptionsField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$eventID = Helpers\Input::getID();
 		$query   = Database::getQuery();
@@ -47,7 +47,7 @@ class CoordinatorsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	public function getOptions()
+	public function getOptions(): array
 	{
 		$eventID = Helpers\Input::getID();
 		$event   = new Tables\Events();

@@ -40,7 +40,7 @@ class SubOrdinatesField extends FormField
 	 *
 	 * @return string the HTML of the button to be displayed
 	 */
-	private function getButton($function, $icon, $toolTip)
+	private function getButton(string $function, string $icon, string $toolTip): string
 	{
 		return "<button onclick=\"$function('XORDERINGX');\" title=\"$toolTip\"><span class=\"$icon\"></span></button>";
 	}
@@ -50,7 +50,7 @@ class SubOrdinatesField extends FormField
 	 *
 	 * @return string  the HTML for the input
 	 */
-	public function getInput()
+	public function getInput(): string
 	{
 		Document::addScript(Uri::root() . 'components/com_organizer/js/subordinates.js');
 
@@ -75,7 +75,7 @@ class SubOrdinatesField extends FormField
 	 *
 	 * @return array the HTML strings for the subordinate resources
 	 */
-	private function getRows()
+	private function getRows(): array
 	{
 		$rows = [];
 
@@ -129,7 +129,7 @@ class SubOrdinatesField extends FormField
 	 *
 	 * @return string the template to be used for row generation
 	 */
-	private function getRowTemplate()
+	private function getRowTemplate(): string
 	{
 		$rowTemplate = '<tr id="subRowXORDERINGX">';
 
@@ -170,7 +170,7 @@ class SubOrdinatesField extends FormField
 	 *
 	 * @return array  empty if no subordinates were found
 	 */
-	private function getSubordinates()
+	private function getSubordinates(): array
 	{
 		$contextParts = explode('.', $this->form->getName());
 		$query        = Database::getQuery();

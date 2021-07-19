@@ -36,7 +36,7 @@ class OptionsField extends FormField
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
 
@@ -101,7 +101,7 @@ class OptionsField extends FormField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$fieldName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $this->fieldname);
 		$options   = [];
@@ -151,7 +151,7 @@ class OptionsField extends FormField
 	 *
 	 * @return  OptionsField  For chaining.
 	 */
-	public function addOption($text, $attributes = [])
+	public function addOption(string $text, array $attributes = []): OptionsField
 	{
 		if ($text && $this->element instanceof SimpleXMLElement)
 		{

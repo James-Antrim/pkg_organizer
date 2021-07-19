@@ -12,6 +12,9 @@ namespace Organizer\Fields;
 
 use Organizer\Helpers;
 
+/**
+ * Trait resolves language constants with the addition of the component prefix and languages helper.
+ */
 trait Translated
 {
 	/**
@@ -23,7 +26,7 @@ trait Translated
 	{
 		if (!empty($this->element['label']))
 		{
-			$labelConstant          = 'ORGANIZER_' . (string) $this->element['label'];
+			$labelConstant          = 'ORGANIZER_' . $this->element['label'];
 			$descriptionConstant    = $labelConstant . '_DESC';
 			$this->element['label'] = Helpers\Languages::_($labelConstant);
 			$this->description      = Helpers\Languages::_($descriptionConstant);

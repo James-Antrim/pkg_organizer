@@ -29,7 +29,7 @@ class GroupsField extends OptionsField
 	 *
 	 * @return array the options for the select box
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options = parent::getOptions();
 		$groups  = Helpers\Groups::getOptions();

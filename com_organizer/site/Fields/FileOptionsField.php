@@ -136,7 +136,7 @@ class FileOptionsField extends OptionsField
 	 *
 	 * @see     JFormField::setup()
 	 */
-	public function setup(SimpleXMLElement $element, $value, $group = null)
+	public function setup(SimpleXMLElement $element, $value, $group = null): bool
 	{
 		$return = parent::setup($element, $value, $group);
 
@@ -169,7 +169,7 @@ class FileOptionsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options = [];
 
@@ -229,8 +229,6 @@ class FileOptionsField extends OptionsField
 		}
 
 		// Merge any additional options in the XML definition.
-		$options = array_merge(parent::getOptions(), $options);
-
-		return $options;
+		return array_merge(parent::getOptions(), $options);
 	}
 }
