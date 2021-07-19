@@ -7,6 +7,7 @@
             <option name="ORGANIZER_COURSES" msg="ORGANIZER_COURSES_DESC" value="courses"/>
             <option name="ORGANIZER_CURRICULUM" msg="ORGANIZER_CURRICULUM_DESC" value="curriculum"/>
             <option name="ORGANIZER_EVENT_STATISTICS" msg="ORGANIZER_EVENT_STATISTICS_DESC" value="lesson_statistics"/>
+            <option name="ORGANIZER_EXPORT" msg="ORGANIZER_EXPORT_DESC" value="export"/>
             <option name="ORGANIZER_HELP_TOPICS" msg="ORGANIZER_HELP_TOPICS_DESC" value="help"/>
             <option name="ORGANIZER_INSTANCES" msg="ORGANIZER_INSTANCES_DESC" value="instances"/>
             <option name="ORGANIZER_ORGANIZATION_OCCUPANCY" msg="ORGANIZER_ORGANIZATION_OCCUPANCY_DESC"
