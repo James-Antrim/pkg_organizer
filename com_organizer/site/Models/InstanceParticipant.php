@@ -352,7 +352,7 @@ class InstanceParticipant extends BaseModel
 		}
 
 		$participants = Helpers\Instances::getParticipantIDs($instanceID);
-		$selected     = Helpers\Input::getIntCollection('cids');
+		$selected     = Helpers\Input::getIntCollection('cid');
 
 		if (empty($participants) and empty($selected))
 		{

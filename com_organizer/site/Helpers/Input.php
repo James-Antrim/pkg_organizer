@@ -389,7 +389,7 @@ class Input
 	public static function getSelectedIDs(): array
 	{
 		// List Views
-		$selectedIDs = self::getIntCollection('cids');
+		$selectedIDs = self::getIntCollection('cid');
 
 		if (!empty($selectedIDs))
 		{

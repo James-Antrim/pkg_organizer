@@ -116,7 +116,7 @@ class CourseParticipant extends BaseModel
 		}
 
 		$courseParticipants   = Helpers\Courses::getParticipantIDs($courseID);
-		$selectedParticipants = Input::getIntCollection('cids');
+		$selectedParticipants = Input::getIntCollection('cid');
 
 		if (empty($courseParticipants) and empty($selectedParticipants))
 		{
