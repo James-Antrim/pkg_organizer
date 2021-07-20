@@ -116,14 +116,14 @@ class CourseParticipant extends BaseModel
 		}
 
 		$courseParticipants   = Helpers\Courses::getParticipantIDs($courseID);
-		$selectedParticipants = Input::getInput()->get('cids', [], 'array');
+		$selectedParticipants = Input::getIntCollection('cids');
 
 		if (empty($courseParticipants) and empty($selectedParticipants))
 		{
 			return false;
 		}
 
-		$participantIDs = $selectedParticipants ? $selectedParticipants : $courseParticipants;
+		$participantIDs = $selectedParticipants ?: $courseParticipants;
 
 		$form = Input::getBatchItems();
 		if (!$subject = trim($form->get('subject', '')) or !$body = trim($form->get('body', '')))

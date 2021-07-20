@@ -108,6 +108,19 @@ class Input
 	}
 
 	/**
+	 * Provides a shortcut to retrieve an array from the request.
+	 *
+	 * @param   string  $name     the name of the array item
+	 * @param   array   $default  the default array
+	 *
+	 * @return array
+	 */
+	public static function getArray(string $name = 'jform', array $default = []): array
+	{
+		return self::getInput()->get($name, $default, 'array');
+	}
+
+	/**
 	 * Retrieves the batch items from the request and creates a registry with the data.
 	 *
 	 * @return Registry
@@ -116,7 +129,7 @@ class Input
 	{
 		if (empty(self::$batchItems))
 		{
-			self::$batchItems = new Registry(self::getInput()->get('batch', [], 'array'));
+			self::$batchItems = new Registry(self::getArray('batch'));
 		}
 
 		return self::$batchItems;
@@ -228,7 +241,7 @@ class Input
 			$view     = self::getView();
 			$previous = Factory::getSession()->get('registry')->get("com_organizer.$view.filter", []);
 
-			self::$filterItems = new Registry(self::getInput()->get('filter', $previous, 'array'));
+			self::$filterItems = new Registry(self::getArray('filter', $previous));
 		}
 
 		return self::$filterItems;
@@ -243,7 +256,7 @@ class Input
 	{
 		if (empty(self::$formItems))
 		{
-			self::$formItems = new Registry(self::getInput()->get('jform', [], 'array'));
+			self::$formItems = new Registry(self::getArray());
 		}
 
 		return self::$formItems;
@@ -268,7 +281,7 @@ class Input
 	 */
 	public static function getIntCollection(string $name): array
 	{
-		$collection = self::getInput()->get($name, [], 'array');
+		$collection = self::getArray($name);
 
 		return self::formatIDValues($collection);
 	}
@@ -331,7 +344,7 @@ class Input
 		{
 			$view            = self::getView();
 			$previous        = Factory::getSession()->get('registry')->get("com_organizer.$view.list", []);
-			self::$listItems = new Registry(self::getInput()->get('list', $previous, 'array'));
+			self::$listItems = new Registry(self::getArray('list', $previous));
 		}
 
 		return self::$listItems;
@@ -375,11 +388,8 @@ class Input
 	 */
 	public static function getSelectedIDs(): array
 	{
-		$input = self::getInput();
-
 		// List Views
-		$selectedIDs = $input->get('cid', [], 'array');
-		$selectedIDs = ArrayHelper::toInteger($selectedIDs);
+		$selectedIDs = self::getIntCollection('cids');
 
 		if (!empty($selectedIDs))
 		{
@@ -444,7 +454,7 @@ class Input
 	{
 		if (empty(self::$supplementalItems))
 		{
-			self::$supplementalItems = new Registry(self::getInput()->get('supplement', [], 'array'));
+			self::$supplementalItems = new Registry(self::getArray('supplement'));
 		}
 
 		return self::$supplementalItems;
