@@ -32,6 +32,39 @@ class OptionsField extends FormField
 	public $options = [];
 
 	/**
+	 * Method to add an option to the list field.
+	 *
+	 * @param   string  $text        Text/Language variable of the option.
+	 * @param   array   $attributes  Array of attributes ('name' => 'value' format)
+	 *
+	 * @return  OptionsField  For chaining.
+	 */
+	public function addOption(string $text, array $attributes = []): OptionsField
+	{
+		if ($text && $this->element instanceof SimpleXMLElement)
+		{
+			$child = $this->element->addChild('option', $text);
+
+			foreach ($attributes as $name => $value)
+			{
+				$child->addAttribute($name, $value);
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Allows direct access to the getInput function defined here.
+	 *
+	 * @return string
+	 */
+	protected function getBaseInput(): string
+	{
+		return self::getInput();
+	}
+
+	/**
 	 * Method to get the field input markup for a generic list.
 	 *
 	 * @return  string  The field input markup.
@@ -44,9 +77,9 @@ class OptionsField extends FormField
 
 		// Check for previous initialization using the dependent trait. Set before other attributes to allow options to
 		// influence them.
-		if (empty($this->options))
+		if (!$this->options)
 		{
-			$this->options = (array) $this->getOptions();
+			$this->options = $this->getOptions();
 		}
 
 		// Initialize some field attributes.
@@ -97,6 +130,16 @@ class OptionsField extends FormField
 	}
 
 	/**
+	 * Gets the options defined in the form manifest.
+	 *
+	 * @return array
+	 */
+	protected function getDefaultOptions(): array
+	{
+		return self::getOptions();
+	}
+
+	/**
 	 * Method to get the field options.
 	 *
 	 * @return  array  The field option objects.
@@ -141,29 +184,6 @@ class OptionsField extends FormField
 		reset($options);
 
 		return $options;
-	}
-
-	/**
-	 * Method to add an option to the list field.
-	 *
-	 * @param   string  $text        Text/Language variable of the option.
-	 * @param   array   $attributes  Array of attributes ('name' => 'value' format)
-	 *
-	 * @return  OptionsField  For chaining.
-	 */
-	public function addOption(string $text, array $attributes = []): OptionsField
-	{
-		if ($text && $this->element instanceof SimpleXMLElement)
-		{
-			$child = $this->element->addChild('option', $text);
-
-			foreach ($attributes as $name => $value)
-			{
-				$child->addAttribute($name, $value);
-			}
-		}
-
-		return $this;
 	}
 
 	/**

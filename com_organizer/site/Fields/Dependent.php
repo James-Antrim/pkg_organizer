@@ -22,15 +22,23 @@ trait Dependent
 	 */
 	protected function getInput(): string
 	{
-		$this->options = (array) $this->getOptions();
-		$parentOptions = parent::getOptions();
+		$this->options = $this->getOptions();
 
-		if (count($this->options) === count($parentOptions))
+		if (count($this->options) === count($this->getDefaultOptions()))
 		{
 			return '';
 		}
 
-		return parent::getInput();
+		return $this->getBaseInput();
 	}
 
+	/**
+	 * Checks whether the field input would be displayed.
+	 *
+	 * @return bool
+	 */
+	public function hasInput(): bool
+	{
+		return (bool) self::getInput();
+	}
 }

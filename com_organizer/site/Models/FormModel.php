@@ -48,6 +48,18 @@ class FormModel extends ParentModel
 	}
 
 	/**
+	 * Filters out form inputs which should not be displayed due to previous selections.
+	 *
+	 * @param   Form  $form  the form to be filtered
+	 *
+	 * @return void modifies $form
+	 */
+	protected function filterForm(Form $form)
+	{
+		// Per default no fields are altered
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function getForm($data = [], $loadData = false)
@@ -73,6 +85,12 @@ class FormModel extends ParentModel
 		Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
 		Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
 
-		return parent::loadForm($name, $source, $options, $clear, $xpath);
+
+		if ($form = parent::loadForm($name, $source, $options, $clear, $xpath))
+		{
+			$this->filterForm($form);
+		}
+
+		return $form;
 	}
 }
