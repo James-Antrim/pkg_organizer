@@ -1003,7 +1003,7 @@ class Instances extends ResourceHelper
 				break;
 
 			case 'month':
-				$dates = Dates::getMonth($date);
+				$dates = Dates::getMonth($date, $startDayNo, $endDayNo);
 				break;
 
 			case 'quarter':

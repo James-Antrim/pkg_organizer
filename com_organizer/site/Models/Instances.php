@@ -13,6 +13,8 @@ namespace Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
+use Organizer\Helpers\Input;
+use Organizer\Helpers\Languages;
 
 /**
  * Class retrieves information for a filtered set of instances.
@@ -70,7 +72,7 @@ class Instances extends ListModel
 		}
 		else
 		{
-			$params = Helpers\Input::getParams();
+			$params = Input::getParams();
 			if ($params->get('campusID'))
 			{
 				$form->removeField('campusID', 'filter');
@@ -85,13 +87,13 @@ class Instances extends ListModel
 				$form->removeField('roomID', 'filter');
 			}
 
-			if ($params->get('organizationID') or Helpers\Input::getInt('organizationID'))
+			if ($params->get('organizationID') or Input::getInt('organizationID'))
 			{
 				$form->removeField('campusID', 'filter');
 				$form->removeField('organizationID', 'filter');
 				unset($this->filter_fields[array_search('organizationID', $this->filter_fields)]);
 			}
-			elseif (Helpers\Input::getInt('categoryID'))
+			elseif (Input::getInt('categoryID'))
 			{
 				$form->removeField('campusID', 'filter');
 				$form->removeField('organizationID', 'filter');
@@ -101,7 +103,7 @@ class Instances extends ListModel
 					$this->filter_fields[array_search('categoryID', $this->filter_fields)]
 				);
 			}
-			elseif (Helpers\Input::getInt('groupID'))
+			elseif (Input::getInt('groupID'))
 			{
 				$form->removeField('campusID', 'filter');
 				$form->removeField('organizationID', 'filter');
@@ -196,20 +198,20 @@ class Instances extends ListModel
 	 */
 	public function getTitle(): string
 	{
-		$params = Helpers\Input::getParams();
+		$params = Input::getParams();
 
 		if ($params->get('show_page_heading') and $title = $params->get('page_title'))
 		{
 			return $title;
 		}
 
-		$title  = Helpers\Languages::_("ORGANIZER_INSTANCES");
+		$title  = Languages::_("ORGANIZER_INSTANCES");
 		$suffix = '';
 
 		if ($this->state->get('filter.my'))
 		{
 			$username = ($user = Helpers\Users::getUser() and $user->username) ? " ($user->username)" : '';
-			$title    = Helpers\Languages::_("ORGANIZER_MY_INSTANCES") . $username;
+			$title    = Languages::_("ORGANIZER_MY_INSTANCES") . $username;
 		}
 		else
 		{
@@ -218,25 +220,25 @@ class Instances extends ListModel
 				switch ($dow)
 				{
 					case self::MONDAY:
-						$title = Helpers\Languages::_("ORGANIZER_MONDAY_INSTANCES");
+						$title = Languages::_("ORGANIZER_MONDAY_INSTANCES");
 						break;
 					case self::TUESDAY:
-						$title = Helpers\Languages::_("ORGANIZER_TUESDAY_INSTANCES");
+						$title = Languages::_("ORGANIZER_TUESDAY_INSTANCES");
 						break;
 					case self::WEDNESDAY:
-						$title = Helpers\Languages::_("ORGANIZER_WEDNESDAY_INSTANCES");
+						$title = Languages::_("ORGANIZER_WEDNESDAY_INSTANCES");
 						break;
 					case self::THURSDAY:
-						$title = Helpers\Languages::_("ORGANIZER_THURSDAY_INSTANCES");
+						$title = Languages::_("ORGANIZER_THURSDAY_INSTANCES");
 						break;
 					case self::FRIDAY:
-						$title = Helpers\Languages::_("ORGANIZER_FRIDAY_INSTANCES");
+						$title = Languages::_("ORGANIZER_FRIDAY_INSTANCES");
 						break;
 					case self::SATURDAY:
-						$title = Helpers\Languages::_("ORGANIZER_SATURDAY_INSTANCES");
+						$title = Languages::_("ORGANIZER_SATURDAY_INSTANCES");
 						break;
 					case self::SUNDAY:
-						$title = Helpers\Languages::_("ORGANIZER_SUNDAY_INSTANCES");
+						$title = Languages::_("ORGANIZER_SUNDAY_INSTANCES");
 						break;
 				}
 			}
@@ -269,7 +271,7 @@ class Instances extends ListModel
 			}
 			elseif ($campusID = $params->get('campusID'))
 			{
-				$suffix .= ': ' . Helpers\Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
+				$suffix .= ': ' . Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
 			}
 			elseif ($eventID = $this->state->get('filter.eventID'))
 			{
@@ -306,11 +308,11 @@ class Instances extends ListModel
 		}
 		else
 		{
-			$filterItems = Helpers\Input::getFilterItems();
-			$listItems   = Helpers\Input::getListItems();
-			$params      = Helpers\Input::getParams();
+			$filterItems = Input::getFilterItems();
+			$listItems   = Input::getListItems();
+			$params      = Input::getParams();
 
-			if (Helpers\Input::getInt('my', $params->get('my', 0)))
+			if (Input::getInt('my', $params->get('my', 0)))
 			{
 				$this->state->set('filter.my', 1);
 			}
@@ -321,9 +323,9 @@ class Instances extends ListModel
 				$this->state->set('filter.campusID', $campusID);
 			}
 
-			$organizationID = Helpers\Input::getInt('organizationID');
-			$categoryID     = Helpers\Input::getInt('categoryID');
-			$groupID        = Helpers\Input::getInt('groupID');
+			$organizationID = Input::getInt('organizationID');
+			$categoryID     = Input::getInt('categoryID');
+			$groupID        = Input::getInt('groupID');
 			if ($organizationID = $params->get('organizationID', $organizationID))
 			{
 				$filterItems->set('organizationID', $organizationID);
@@ -370,7 +372,7 @@ class Instances extends ListModel
 				$this->state->set('filter.organizationID', $organizationID);
 			}
 
-			if ($eventID = Helpers\Input::getInt('eventID'))
+			if ($eventID = Input::getInt('eventID'))
 			{
 				$this->state->set('filter.eventID', $eventID);
 			}
@@ -379,21 +381,33 @@ class Instances extends ListModel
 				$this->state->set('filter.eventID', 0);
 			}
 
-			if ($personID = Helpers\Input::getInt('personID'))
+			if ($personID = Input::getInt('personID'))
 			{
 				$filterItems->set('roomID', $personID);
 				$this->state->set('filter.personID', $personID);
 			}
 
-			if ($roomID = Helpers\Input::getInt('roomID'))
+			if ($roomID = Input::getInt('roomID'))
 			{
 				$filterItems->set('roomID', $roomID);
 				$this->state->set('filter.roomID', $roomID);
 			}
 
+			if ($date = Input::getString('date'))
+			{
+				$listItems->set('date', $date);
+				$this->state->set('list.date', $date);
+			}
+
+			if ($interval = Input::getString('interval'))
+			{
+				$listItems->set('interval', $interval);
+				$this->state->set('list.interval', $interval);
+			}
+
 			$dow       = $params->get('dow');
 			$endDate   = $params->get('endDate');
-			$methodIDs = Helpers\Input::getIntCollection('methodID');
+			$methodIDs = Input::getIntCollection('methodID');
 			$methodIDs = $params->get('methodIDs', $methodIDs);
 			$startDate = $params->get('startDate');
 
@@ -431,7 +445,7 @@ class Instances extends ListModel
 			}
 		}
 
-		if ($format = Helpers\Input::getCMD('format') and $format !== 'html')
+		if ($format = Input::getCMD('format') and $format !== 'html')
 		{
 			$this->state->set('list.limit', 0);
 		}
@@ -452,7 +466,7 @@ class Instances extends ListModel
 		$conditions['my']         = $this->state->get('filter.my');
 		$conditions['mySchedule'] = false;
 
-		switch (Helpers\Input::getCMD('format'))
+		switch (Input::getCMD('format'))
 		{
 			case 'ics':
 				$conditions['interval'] = 'quarter';
