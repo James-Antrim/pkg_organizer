@@ -70,7 +70,7 @@ class Input
 	 *
 	 * @return mixed
 	 */
-	public static function filter($source, $type = 'string')
+	public static function filter($source, string $type = 'string')
 	{
 		if (empty(self::$filter))
 		{
@@ -127,12 +127,7 @@ class Input
 	 */
 	public static function getBatchItems(): Registry
 	{
-		if (empty(self::$batchItems))
-		{
-			self::$batchItems = new Registry(self::getArray('batch'));
-		}
-
-		return self::$batchItems;
+		return new Registry(self::getArray('batch'));
 	}
 
 	/**
@@ -179,7 +174,7 @@ class Input
 	 *
 	 * @return int the filter id
 	 */
-	public static function getFilterID(string $resource, $default = 0): int
+	public static function getFilterID(string $resource, int $default = 0): int
 	{
 		$filterIDs = self::getFilterIDs($resource);
 
@@ -254,12 +249,7 @@ class Input
 	 */
 	public static function getFormItems(): Registry
 	{
-		if (empty(self::$formItems))
-		{
-			self::$formItems = new Registry(self::getArray());
-		}
-
-		return self::$formItems;
+		return new Registry(self::getArray());
 	}
 
 	/**
@@ -374,7 +364,7 @@ class Input
 	 *
 	 * @return int the selected id
 	 */
-	public static function getSelectedID($default = 0): int
+	public static function getSelectedID(int $default = 0): int
 	{
 		$selectedIDs = self::getSelectedIDs();
 
@@ -452,12 +442,7 @@ class Input
 	 */
 	public static function getSupplementalItems(): Registry
 	{
-		if (empty(self::$supplementalItems))
-		{
-			self::$supplementalItems = new Registry(self::getArray('supplement'));
-		}
-
-		return self::$supplementalItems;
+		return new Registry(self::getArray('supplement'));
 	}
 
 	/**
@@ -517,7 +502,7 @@ class Input
 	 *
 	 * @return void
 	 */
-	public static function set(string $property, $value, $method = '')
+	public static function set(string $property, $value, string $method = '')
 	{
 		if ($method)
 		{
