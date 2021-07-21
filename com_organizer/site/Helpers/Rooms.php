@@ -166,4 +166,26 @@ class Rooms extends ResourceHelper implements Selectable
 
 		return (bool) $room->virtual;
 	}
+
+	/**
+	 * Checks whether a given room has been assigned to a given campus.
+	 *
+	 * @param   int  $roomID    the id of the room to verify
+	 * @param   int  $campusID  the id of the campus to check against
+	 *
+	 * @return bool
+	 */
+	public static function onCampus(int $roomID, int $campusID): bool
+	{
+		$query = Database::getQuery();
+		$query->select('r.id')
+			->from('#__organizer_rooms AS r')
+			->innerJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+			->innerJoin('#__organizer_campuses AS c ON b.campusID = c.id')
+			->where("r.id = $roomID")
+			->where("(c.id = $campusID OR c.parentID = $campusID)");
+		Database::setQuery($query);
+
+		return Database::loadBool();
+	}
 }
