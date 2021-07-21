@@ -178,9 +178,9 @@ class Terms extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 *
-	 * @params bool $filter
+	 * @param   bool  $filter
 	 */
-	public static function getResources($filter = false): array
+	public static function getResources(bool $filter = false): array
 	{
 		$query = Database::getQuery();
 		$query->select('DISTINCT term.*')->from('#__organizer_terms AS term')->order('startDate');

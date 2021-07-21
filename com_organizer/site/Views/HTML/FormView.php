@@ -10,6 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
+use Joomla\CMS\Form\Form;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 use Organizer\Helpers;
@@ -20,13 +21,22 @@ use Organizer\Helpers;
  */
 abstract class FormView extends BaseView
 {
+	/**
+	 * @var Form
+	 */
+	public $form = null;
+
+	/**
+	 * @inheritdoc
+	 */
 	protected $layout = 'form';
 
+	/**
+	 * The form orientation.
+	 *
+	 * @var string
+	 */
 	protected $orientation = 'horizontal';
-
-	public $params = null;
-
-	public $form = null;
 
 	/**
 	 * @inheritDoc

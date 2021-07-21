@@ -31,6 +31,11 @@ abstract class BaseView extends HtmlView
 
 	public $disclaimer = '';
 
+	/**
+	 * The name of the layout to use during rendering.
+	 *
+	 * @var string
+	 */
 	protected $layout = 'default';
 
 	public $mobile = false;
