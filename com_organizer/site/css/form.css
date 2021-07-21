@@ -256,6 +256,45 @@ span.comment {
     font-style: italic;
 }
 
+.export-container {
+    align-content: space-evenly;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+div.main form#adminForm fieldset {
+    background-color: white;
+    flex-grow: 1;
+    padding: 0 .5rem;
+}
+
+div.main form#adminForm fieldset:last-child {
+    background-color: #f2f5f6;
+    margin-right: .5rem;
+}
+
+div.main form#adminForm fieldset:last-child legend {
+    background-color: #f2f5f6;
+}
+
+div.main form#adminForm fieldset:last-child .controls {
+    margin-left: 40%;
+}
+
+div.main form#adminForm fieldset legend {
+    background-color: white;
+    border-bottom: none;
+    color: #394a59;
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 2rem;
+    margin-bottom: 0;
+    margin-left: -.5rem;
+    padding: 1rem 0 0 2rem;
+    width: calc(100% - 1rem);
+}
+
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
     .controls input[type="file"] {
         line-height: 0;
