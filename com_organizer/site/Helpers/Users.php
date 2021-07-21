@@ -25,7 +25,27 @@ class Users
 	private static $user;
 
 	/**
-	 * Resolves the user id
+	 * Retrieves the name of the current user.
+	 *
+	 * @return string the name of the user
+	 */
+	public static function getAuth(): string
+	{
+		$user = self::getUser();
+
+		if (!$user->email or !$user->registerDate)
+		{
+			return '';
+		}
+
+		// Joomla documented the wrong type for registerDate which is a string
+
+		/** @noinspection PhpToStringImplementationInspection */
+		return urlencode(password_hash($user->email . $user->registerDate, PASSWORD_BCRYPT));
+	}
+
+	/**
+	 * Retrieves the id of the current user entry.
 	 *
 	 * @return int the id of the user
 	 */
@@ -35,7 +55,7 @@ class Users
 	}
 
 	/**
-	 * Resolves the user id
+	 * Retrieves the name of the current user.
 	 *
 	 * @return string the name of the user
 	 */
@@ -92,6 +112,16 @@ class Users
 		}
 
 		return self::$user;
+	}
+
+	/**
+	 * Retrieves the username of the current user.
+	 *
+	 * @return string the name of the user
+	 */
+	public static function getUserName(): string
+	{
+		return (string) self::getUser()->username;
 	}
 
 	/**
