@@ -11,32 +11,38 @@ span.comment {
 }
 
 .export-container {
-  align-content: space-evenly;
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 30rem);
 }
 
 div.main form#adminForm fieldset {
-  background-color: $foreground-color;
-  flex-grow: 1;
   padding: 0 .5rem;
 
-  &:last-child {
+  &.organizer-selection {
     background-color: $background-color;
-    margin-right: .5rem;
 
     legend {
       background-color: $background-color;
     }
+  }
 
-    .controls {
-      margin-left: 40%
+  &.organizer-settings {
+    background-color: $foreground-color;
+
+    legend {
+      background-color: $foreground-color;
     }
   }
 
+  .control-label {
+    width: 40%
+  }
+
+  .controls {
+    margin-left: 50%
+  }
+
   legend {
-    background-color: $foreground-color;
     border-bottom: none;
     color: $font-color-title;
     font-size: 1.1rem;
@@ -47,6 +53,15 @@ div.main form#adminForm fieldset {
     padding: 1rem 0 0 2rem;
     width: calc(100% - 1rem);
   }
+}
+
+input.download-url {
+  margin-bottom: 0;
+}
+
+.btn.copy-button {
+  background-color: $foreground-color;
+  margin-top: -.5rem;
 }
 
 // File upload adjustment for chromium browsers.
