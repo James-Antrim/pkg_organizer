@@ -72,13 +72,15 @@ abstract class ResourceHelper
 		$tableFields = $table->getFields();
 		if (array_key_exists($columnName, $tableFields))
 		{
-			return $table->$columnName;
+			// Some name columns may contain a null value
+			return (string) $table->$columnName;
 		}
 
 		$localizedName = "{$columnName}_" . Languages::getTag();
 		if (array_key_exists($localizedName, $tableFields))
 		{
-			return $table->$localizedName;
+			// Some name columns may contain a null value
+			return (string) $table->$localizedName;
 		}
 
 		return '';
