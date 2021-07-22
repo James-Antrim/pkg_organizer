@@ -11,6 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters\Document;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
@@ -81,6 +82,14 @@ class Instances extends ListView
 				false
 			);
 		}
+
+		$toolbar->appendButton(
+			'Script',
+			'info-calender',
+			Languages::_('ORGANIZER_ICS_CALENDAR'),
+			'onclick',
+			'makeLink()'
+		);
 
 		if ($this->manages or $this->teaches)
 		{
@@ -469,6 +478,48 @@ class Instances extends ListView
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function modifyDocument()
+	{
+		parent::modifyDocument();
+
+		$variables = [
+			'ICS_URL' => Uri::base() . '?option=com_organizer&view=instances&format=ics'
+		];
+
+		$params = Helpers\Input::getParams();
+
+		if ($params->get('my') and Helpers\Users::getID())
+		{
+			$variables['auth']     = Helpers\Users::getAuth();
+			$variables['my']       = 1;
+			$variables['username'] = Helpers\Users::getUserName();
+		}
+		else
+		{
+			if ($campusID = $params->get('campusID'))
+			{
+				$variables['campusID'] = $campusID;
+			}
+
+			if ($methodIDs = $params->get('methodIDs'))
+			{
+				$variables['methodID'] = implode(',', $methodIDs);
+			}
+
+			if ($organizationID = $params->get('organizationID'))
+			{
+				$variables['organizationID'] = $organizationID;
+			}
+		}
+
+		Languages::script('ORGANIZER_GENERATE_LINK');
+		Document::addScriptOptions('variables', $variables);
+		Document::addScript(Uri::root() . 'components/com_organizer/js/ics.js');
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function setHeaders()
@@ -541,10 +592,10 @@ class Instances extends ListView
 	{
 		if ($interval = $this->state->get('list.interval') and $interval === 'quarter')
 		{
-			$date = $this->state->get('list.date');
-			$interval = Helpers\Dates::getQuarter($date);
-			$interval = Helpers\Dates::getDisplay($interval['startDate'], $interval['endDate']);
-			$this->subtitle = "<h6 class=\"sub-title\">$interval</h6>" ;
+			$date           = $this->state->get('list.date');
+			$interval       = Helpers\Dates::getQuarter($date);
+			$interval       = Helpers\Dates::getDisplay($interval['startDate'], $interval['endDate']);
+			$this->subtitle = "<h6 class=\"sub-title\">$interval</h6>";
 		}
 	}
 
