@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="params" addfieldprefix="Organizer\Fields">
+        <fieldset name="basic" label="ORGANIZER_SETTINGS">
+            <field name="my" type="Options" label="PERSONALIZED">
+                <option value="0">NO</option>
+                <option value="1">YES</option>
+            </field>
+            <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION">
+                <option value="">ALL_ORGANIZATIONS</option>
+            </field>
+            <field name="campusID" type="Campuses" label="CAMPUS">
+                <option value="">ALL_CAMPUSES</option>
+            </field>
+        </fieldset>
+    </fields>
+</form>
