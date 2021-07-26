@@ -36,7 +36,7 @@ class Help extends ToolbarButton
 	 *
 	 * @return  string
 	 */
-	public function fetchButton($type = 'Help', $topic = '', $showContext = true): string
+	public function fetchButton(string $type = 'Help', string $topic = '', bool $showContext = true): string
 	{
 		$attribs  = ['class="btn btn-small"', 'rel="help"', 'onclick="' . $this->getCommand($topic) . '"'];
 		$attribs  = implode(' ', $attribs);
@@ -57,7 +57,7 @@ class Help extends ToolbarButton
 	 *
 	 * @return  string  Button CSS Id
 	 */
-	public function fetchId($type = 'Link', $name = '')
+	public function fetchId(string $type = 'Link', string $name = '')
 	{
 		return $this->_parent->getName() . '-' . $name;
 	}
