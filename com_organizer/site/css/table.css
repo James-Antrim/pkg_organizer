@@ -83,6 +83,24 @@ body.tmpl-index div.main .btn-toolbar {
 
 body.tmpl-index div.main .btn-toolbar .btn-wrapper {
     margin-right: 5px;
+    position: relative;
+}
+
+body.tmpl-index div.main .btn-toolbar .btn-wrapper .dropdown-menu {
+    border-radius: 0;
+}
+
+body.tmpl-index div.main .btn-toolbar .btn-wrapper .dropdown-menu .btn {
+    text-align: left;
+}
+
+body.tmpl-index div.main .btn-toolbar .btn-wrapper .dropdown-menu a {
+    border: none;
+    padding: .45em .6em .15em .6em;
+}
+
+body.tmpl-index div.main .btn-toolbar .btn-wrapper .dropdown-menu li button {
+    border: none;
 }
 
 body.tmpl-index div.main .btn-toolbar a.btn, body.tmpl-index div.main .btn-toolbar button {
