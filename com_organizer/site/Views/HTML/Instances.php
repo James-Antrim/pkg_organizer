@@ -13,6 +13,7 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Document;
 use Organizer\Adapters\Toolbar;
+use Organizer\Buttons;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 
@@ -49,47 +50,51 @@ class Instances extends ListView
 		Helpers\HTML::setTitle($title, 'list-2');
 		$toolbar = Toolbar::getInstance();
 
-		$state = $this->state;
-		$my    = $state->get('filter.my');
-
-		$toolbar->appendButton(
+		$gridA3Button = new Buttons\NewTab();
+		$gridA3Button = $gridA3Button->fetchButton(
 			'NewTab',
-			'file-xls',
-			Languages::_('ORGANIZER_XLS_SPREADSHEET'),
-			'Instances.xls',
+			'file-pdf',
+			Languages::_('ORGANIZER_PDF_GRID_A3'),
+			'Instances.gridA3',
 			false
 		);
 
-		$resourceSelected = ($state->get('filter.groupID') or $state->get('filter.personID') or $state->get('filter.roomID'));
+		$gridA4Button = new Buttons\NewTab();
+		$gridA4Button = $gridA4Button->fetchButton(
+			'NewTab',
+			'file-pdf',
+			Languages::_('ORGANIZER_PDF_GRID_A4'),
+			'Instances.gridA4',
+			false
+		);
 
-		if ($my or $resourceSelected)
-		{
-			$toolbar->appendButton(
-				'NewTab',
-				'file-pdf',
-				Languages::_('ORGANIZER_PDF_GRID_A4'),
-				'Instances.gridA4',
-				false
-			);
-		}
-		else
-		{
-			$toolbar->appendButton(
-				'NewTab',
-				'file-pdf',
-				Languages::_('ORGANIZER_PDF_GRID_A3'),
-				'Instances.gridA3',
-				false
-			);
-		}
-
-		$toolbar->appendButton(
+		$icsButton = new Buttons\Script();
+		$icsButton = $icsButton->fetchButton(
 			'Script',
 			'info-calender',
 			Languages::_('ORGANIZER_ICS_CALENDAR'),
 			'onclick',
 			'makeLink()'
 		);
+
+		$xlsButton = new Buttons\NewTab();
+		$xlsButton = $xlsButton->fetchButton(
+			'NewTab',
+			'file-xls',
+			Languages::_('ORGANIZER_XLS_LIST'),
+			'Instances.xls',
+			false
+		);
+
+		$exportButtons = [
+			Languages::_('ORGANIZER_ICS_CALENDAR')    => $icsButton,
+			Languages::_('ORGANIZER_PDF_GRID_A3')     => $gridA3Button,
+			Languages::_('ORGANIZER_PDF_GRID_A4')     => $gridA4Button,
+			Languages::_('ORGANIZER_XLS_SPREADSHEET') => $xlsButton
+		];
+
+		ksort($exportButtons);
+		$toolbar->appendButton('Buttons', 'buttons', Languages::_('ORGANIZER_EXPORT'), $exportButtons, 'download');
 
 		if ($this->manages or $this->teaches)
 		{
