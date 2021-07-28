@@ -24,7 +24,7 @@ class RoomOverview extends ListModel
 
 	protected $defaultOrdering = 'r.name';
 
-	protected $filter_fields = ['campusID', 'buildingID', 'capacity', 'roomtypeID'];
+	protected $filter_fields = ['campusID', 'buildingID', 'effCapacity', 'roomtypeID'];
 
 	/**
 	 * @inheritDoc
@@ -48,7 +48,7 @@ class RoomOverview extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select('r.id, r.name AS name, r.capacity')
+		$query->select('r.id, r.name AS name, r.effCapacity')
 			->select("t.id AS roomtypeID, t.name_$tag AS typeName, t.description_$tag AS typeDesc")
 			->from('#__organizer_rooms AS r')
 			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
@@ -68,9 +68,9 @@ class RoomOverview extends ListModel
 			$query->where('r.id IN (' . implode(',', $roomIDs) . ')');
 		}
 
-		if ($capacity = Helpers\Input::getInt('capacity'))
+		if ($capacity = $this->state->get('filter.effCapacity'))
 		{
-			$query->where("r.capacity >= $capacity");
+			$query->where("r.effCapacity >= $capacity");
 		}
 
 		$query->order($this->defaultOrdering);
@@ -88,6 +88,7 @@ class RoomOverview extends ListModel
 		$list        = Helpers\Input::getListItems();
 		$date        = strtotime($list->get('date')) ? $list->get('date') : date('Y-m-d');
 		$defaultGrid = Helpers\Grids::getDefault();
+
 		if ($campusID = Helpers\Input::getParams()->get('campusID'))
 		{
 			$defaultGrid = Helpers\Campuses::getGridID($campusID);

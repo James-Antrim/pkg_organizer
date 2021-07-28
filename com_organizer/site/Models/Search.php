@@ -244,7 +244,8 @@ class Search extends ListModel
 	}
 
 	/**
-	 * Adds clauses to the room query for a capacity or room types.
+	 * Adds clauses to the room query for a max capacity or room types. Max capacity is used here for consistency with
+	 * room type values.
 	 *
 	 * @param   JDatabaseQuery  $query     the query to be modified
 	 * @param   int             $capacity  the capacity from the terms
@@ -256,11 +257,11 @@ class Search extends ListModel
 	{
 		if ($capacity and $typeIDs)
 		{
-			$query->where("((r.capacity >= $capacity OR r.capacity = 0) AND rt.id IN ($typeIDs))");
+			$query->where("((r.maxCapacity >= $capacity OR r.maxCapacity = 0) AND rt.id IN ($typeIDs))");
 		}
 		elseif ($capacity)
 		{
-			$query->where("r.capacity >= $capacity");
+			$query->where("r.maxCapacity >= $capacity");
 		}
 		elseif ($typeIDs)
 		{
@@ -729,13 +730,13 @@ class Search extends ListModel
 
 			$description = empty($room['description']) ? $room['type'] : $room['description'];
 
-			if (empty($room['capacity']))
+			if (empty($room['effCapacity']))
 			{
 				$capacity = '';
 			}
 			else
 			{
-				$capacity = ' (~' . $room['capacity'] . ' ' . Languages::_('ORGANIZER_SEATS') . ')';
+				$capacity = ' (~' . $room['effCapacity'] . ' ' . Languages::_('ORGANIZER_SEATS') . ')';
 			}
 
 			$rooms[$roomID]['description'] = "$description$capacity";
@@ -3225,7 +3226,7 @@ class Search extends ListModel
 		$terms = array_values($terms);
 
 		$query = Database::getQuery();
-		$query->select('r.id , r.name, r.capacity')
+		$query->select('r.id , r.name, r.effCapacity')
 			->select("rt.name_$tag as type, rt.description_$tag as description")
 			->from('#__organizer_rooms AS r')
 			->leftJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID')

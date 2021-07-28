@@ -394,7 +394,7 @@ class UniNow extends BaseLayout
 						break;
 					case 'O':
 						// Capacity - corona factoring?
-						$value = $room->capacity ?: '';
+						$value = $room->maxCapacity ?: '';
 						break;
 					case 'P':
 						// Capacity - absolute

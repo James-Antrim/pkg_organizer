@@ -34,7 +34,7 @@ class Rooms extends ListModel
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select('r.id, r.code, r.name AS roomName, r.active, r.capacity')
+		$query->select('r.id, r.code, r.name AS roomName, r.active, r.effCapacity')
 			->select("t.id AS roomtypeID, t.name_$tag AS roomType")
 			->select('b.id AS buildingID, b.address, b.name AS buildingName, b.location, b.propertyType')
 			->select("c1.name_$tag AS campus, c2.name_$tag AS parent")

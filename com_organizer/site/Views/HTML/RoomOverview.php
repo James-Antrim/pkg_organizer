@@ -202,7 +202,7 @@ class RoomOverview extends TableView
 	protected function getRowLabel(object $resource): array
 	{
 		$tip = "<div class=\"cellTip\"><span class=\"cellTitle\">$resource->name</span>";
-		$tip .= ($resource->typeName or $resource->capacity) ? "<div class=\"labelTip\">" : '';
+		$tip .= ($resource->typeName or $resource->effCapacity) ? "<div class=\"labelTip\">" : '';
 
 		if ($resource->typeName)
 		{
@@ -218,16 +218,16 @@ class RoomOverview extends TableView
 			{
 				$tip .= ":<br>$resource->typeDesc";
 			}
-			$tip .= $resource->capacity ? '<br>' : '';
+			$tip .= $resource->effCapacity ? '<br>' : '';
 		}
 
-		if ($resource->capacity)
+		if ($resource->effCapacity)
 		{
 			$tip .= Helpers\Languages::_('ORGANIZER_CAPACITY');
-			$tip .= ": $resource->capacity";
+			$tip .= ": $resource->effCapacity";
 		}
 
-		$tip  .= ($resource->typeName or $resource->capacity) ? '</div></div>' : '</div>';
+		$tip  .= ($resource->typeName or $resource->effCapacity) ? '</div></div>' : '</div>';
 		$tip  = htmlentities($tip);
 		$text = "<span class=\"hasTooltip\" title=\"$tip\">$resource->name</span>";
 

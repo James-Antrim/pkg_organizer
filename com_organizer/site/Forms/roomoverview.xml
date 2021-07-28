@@ -13,7 +13,7 @@
         <field name="roomtypeID" type="Roomtypes" label="TYPE" class="input-12" onchange="this.form.submit();">
             <option value="">ALL_ROOMTYPES</option>
         </field>
-        <field name="capacity" type="Integer" label="CAPACITY" first="5" last="500" onchange="this.form.submit();"
+        <field name="effCapacity" type="Integer" label="CAPACITY" first="5" last="500" onchange="this.form.submit();"
                prefix="> " step="5" unit="SEATS">
             <option value="">ALL_SIZES</option>
         </field>

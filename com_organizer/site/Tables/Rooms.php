@@ -28,12 +28,20 @@ class Rooms extends BaseTable
 	public $buildingID;
 
 	/**
+	 * The rooms effective occupancy for participants.
+	 * INT(4) UNSIGNED DEFAULT NULL
+	 *
+	 * @var string
+	 */
+	public $effCapacity;
+
+	/**
 	 * The rooms maximum occupancy for participants.
 	 * INT(4) UNSIGNED DEFAULT NULL
 	 *
 	 * @var string
 	 */
-	public $capacity;
+	public $maxCapacity;
 
 	/**
 	 * The resource's name.
