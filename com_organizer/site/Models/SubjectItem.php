@@ -70,9 +70,8 @@ class SubjectItem extends ItemModel
 			switch ($property)
 			{
 				case 'bonusPoints':
-					$value = '<p>';
-					$value .= $value ? Languages::_('ORGANIZER_YES') : Languages::_('ORGANIZER_NO');
-					$value .= '</p><p>' . Languages::_('ORGANIZER_BONUS_POINTS_TEXT') . '</p>';
+					$value = $value ? Languages::_('ORGANIZER_YES') : Languages::_('ORGANIZER_NO');
+					$value = '<p>' . $value . '</p><p>' . Languages::_('ORGANIZER_BONUS_POINTS_TEXT') . '</p>';
 					break;
 				case 'creditPoints':
 					$creditPoints = $value;
