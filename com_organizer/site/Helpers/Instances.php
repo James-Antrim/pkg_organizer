@@ -86,9 +86,9 @@ class Instances extends ResourceHelper
 	 */
 	public static function getConditions(): array
 	{
-		$conditions               = [];
-		$conditions['userID']     = Users::getID();
-		$conditions['mySchedule'] = (!empty($conditions['userID']) and Input::getBool('mySchedule'));
+		$conditions           = [];
+		$conditions['userID'] = Users::getID();
+		$conditions['my']     = (!empty($conditions['userID']) and Input::getBool('my'));
 
 		$conditions['date'] = Input::getCMD('date', date('Y-m-d'));
 
@@ -104,7 +104,7 @@ class Instances extends ResourceHelper
 
 		$conditions['status'] = self::NORMAL;
 
-		if (empty($conditions['mySchedule']))
+		if (empty($conditions['my']))
 		{
 			if ($courseID = Input::getInt('courseID'))
 			{
@@ -553,23 +553,6 @@ class Instances extends ResourceHelper
 			{
 				$query->where('i.id = 0');
 			}
-		}
-		elseif ($conditions['mySchedule'] and !empty($conditions['userID']))
-		{
-			// Aggregate of selected items and the teacher schedule
-			if (!empty($conditions['personIDs']))
-			{
-				$personIDs = implode(',', $conditions['personIDs']);
-				$query->leftJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
-					->where("(ipa.participantID = {$conditions['userID']} OR ipe.personID IN ($personIDs))");
-			}
-			else
-			{
-				$query->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
-					->where("ipa.participantID = {$conditions['userID']}");
-			}
-
-			return $query;
 		}
 
 		if (!empty($conditions['categoryIDs']))

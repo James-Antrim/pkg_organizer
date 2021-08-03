@@ -400,16 +400,15 @@ class Workload extends FormModel
 	 */
 	private function setConditions()
 	{
-		$conditions               = [];
-		$conditions['date']       = Helpers\Terms::getStartDate($this->termID);
-		$conditions['delta']      = false;
-		$conditions['endDate']    = Helpers\Terms::getEndDate($this->termID);
-		$conditions['interval']   = 'term';
-		$conditions['my']         = false;
-		$conditions['mySchedule'] = false;
-		$conditions['personIDs']  = [$this->personID];
-		$conditions['startDate']  = $conditions['date'];
-		$conditions['status']     = self::CURRENT_ITEMS;
+		$conditions              = [];
+		$conditions['date']      = Helpers\Terms::getStartDate($this->termID);
+		$conditions['delta']     = false;
+		$conditions['endDate']   = Helpers\Terms::getEndDate($this->termID);
+		$conditions['interval']  = 'term';
+		$conditions['my']        = false;
+		$conditions['personIDs'] = [$this->personID];
+		$conditions['startDate'] = $conditions['date'];
+		$conditions['status']    = self::CURRENT_ITEMS;
 
 		$this->conditions = $conditions;
 	}

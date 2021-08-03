@@ -460,11 +460,10 @@ class Instances extends ListModel
 	 */
 	private function setConditions(): array
 	{
-		$conditions               = [];
-		$conditions['date']       = Helpers\Dates::standardizeDate($this->state->get('list.date', date('Y-m-d')));
-		$conditions['delta']      = date('Y-m-d', strtotime('-14 days'));
-		$conditions['my']         = $this->state->get('filter.my');
-		$conditions['mySchedule'] = false;
+		$conditions          = [];
+		$conditions['date']  = Helpers\Dates::standardizeDate($this->state->get('list.date', date('Y-m-d')));
+		$conditions['delta'] = date('Y-m-d', strtotime('-14 days'));
+		$conditions['my']    = $this->state->get('filter.my');
 
 		switch (Input::getCMD('format'))
 		{

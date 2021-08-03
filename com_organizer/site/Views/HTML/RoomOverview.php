@@ -57,7 +57,7 @@ class RoomOverview extends TableView
 			'delta'           => false,
 			'endDate'         => $date,
 			'interval'        => 'day',
-			'mySchedule'      => false,
+			'my'              => false,
 			'roomIDs'         => [$room->id],
 			'showUnpublished' => Helpers\Can::administrate(),
 			'startDate'       => $date,
