@@ -92,6 +92,7 @@ class Document
 	 */
 	public static function setTitle(string $title)
 	{
+		$title = str_replace('&shy;', '', $title);
 		Factory::getDocument()->setTitle($title);
 	}
 }
