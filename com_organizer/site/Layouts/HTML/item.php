@@ -11,9 +11,6 @@
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
-$resourceID = Helpers\Input::getID();
-$view       = Helpers\Input::getView();
-
 if ($this->refresh)
 {
 	?>

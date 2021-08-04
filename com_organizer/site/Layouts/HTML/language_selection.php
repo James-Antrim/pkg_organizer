@@ -36,8 +36,8 @@ $options = implode('', $options);
 							<?php echo $options ?>
                         </select>
                         <input name="option" type="hidden" value="com_organizer">
-                        <input name="view" type="hidden" value="<?php echo $view ?>">
-                        <input name="id" type="hidden" value="<?php echo $resourceID ?>">
+                        <input name="view" type="hidden" value="<?php echo Helpers\Input::getView(); ?>">
+                        <input name="id" type="hidden" value="<?php echo Helpers\Input::getID() ?>">
                     </div>
                 </div>
             </div>
