@@ -144,9 +144,7 @@ class Instances extends ListModel
 		foreach ($items as $key => $instance)
 		{
 			$instance = Helpers\Instances::getInstance($instance->id);
-			Helpers\Instances::setPersons($instance, $this->conditions);
-			Helpers\Instances::setSubject($instance, $this->conditions);
-			Helpers\Instances::setBooking($instance);
+			Helpers\Instances::fill($instance, $this->conditions);
 			$items[$key] = (object) $instance;
 		}
 

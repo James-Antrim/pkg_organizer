@@ -46,6 +46,23 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Calls various functions filling the properties and resources of a single instance.
+	 *
+	 * @param   array  $instance
+	 * @param          $conditions
+	 *
+	 * @return void
+	 */
+	public static function fill(array &$instance, $conditions)
+	{
+		self::setBooking($instance);
+		self::setCourse($instance);
+		self::setParticipation($instance);
+		self::setPersons($instance, $conditions);
+		self::setSubject($instance, $conditions);
+	}
+
+	/**
 	 * Gets the booking associated with an instance
 	 *
 	 * @param   int  $instanceID  the id of the instance for which to find a booking match
@@ -248,15 +265,7 @@ class Instances extends ResourceHelper
 				continue;
 			}
 
-			self::setPersons($instance, $conditions);
-			if (empty($instance['resources']))
-			{
-				continue;
-			}
-
-			self::setCourse($instance);
-			self::setSubject($instance, $conditions);
-
+			self::fill($instance, $conditions);
 			$instances[] = $instance;
 		}
 
@@ -860,7 +869,6 @@ class Instances extends ResourceHelper
 		return $jumpDates;
 	}
 
-
 	/**
 	 * Check if user has a course responsibility.
 	 *
@@ -1081,6 +1089,62 @@ class Instances extends ResourceHelper
 		{
 			$conditions['showUnpublished'] = false;
 		}
+	}
+
+	/**
+	 * Sets the instance's 'busy' (is the instances block used by the user) and 'participates' (does the user have this
+	 * instance in their schedule) properties.
+	 *
+	 * @param   array  $instance  the array containing instance inforation
+	 *
+	 * @return void
+	 */
+	public static function setParticipation(array &$instance)
+	{
+		if (!$userID = Users::getID())
+		{
+			$instance['participates'] = false;
+			$instance['busy']         = false;
+
+			return;
+		}
+
+		$participation = new Tables\InstanceParticipants();
+		if ($participation->load(['instanceID' => $instance['instanceID'], 'participantID' => $userID]))
+		{
+			$instance['participates'] = true;
+			$instance['busy']         = true;
+
+			return;
+		}
+
+		// The times in the instance have been pretreated, so that the endTime is no longer valid for comparisons.
+		$block = new Tables\Blocks();
+		if (!$block->load($instance['blockID']))
+		{
+			$instance['busy'] = false;
+
+			return;
+		}
+
+		$instance['participates'] = false;
+
+		$blockConditions = [
+			"b.startTime <= '$block->startTime' AND b.endTime >= '$block->endTime'",
+			"b.startTime BETWEEN '$block->startTime' AND '$block->endTime'",
+			"b.endTime BETWEEN '$block->startTime' AND '$block->endTime'"
+		];
+		$blockConditions = '((' . implode(') OR (', $blockConditions) . '))';
+
+		$query = Database::getQuery();
+		$query->select('ip.id')
+			->from('#__organizer_instance_participants AS ip')
+			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+			->where($blockConditions)
+			->where("ip.participantID = $userID");
+		Database::setQuery($query);
+		$instance['busy'] = Database::loadBool();
 	}
 
 	/**
