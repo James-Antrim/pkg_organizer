@@ -63,6 +63,26 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Gets the block associated with the instance.
+	 *
+	 * @param   int  $instanceID  the id of the instance
+	 *
+	 * @return Tables\Blocks
+	 */
+	public static function getBlock(int $instanceID): Tables\Blocks
+	{
+		$block    = new Tables\Blocks();
+		$instance = new Tables\Instances();
+
+		if ($instance->load($instanceID) and $blockID = $instance->blockID)
+		{
+			$block->load($blockID);
+		}
+
+		return $block;
+	}
+
+	/**
 	 * Gets the booking associated with an instance
 	 *
 	 * @param   int  $instanceID  the id of the instance for which to find a booking match
@@ -199,19 +219,9 @@ class Instances extends ResourceHelper
 	 */
 	public static function getDateDisplay(int $instanceID): string
 	{
-		$instance = new Tables\Instances();
-		if (!$instance->load($instanceID) or !$blockID = $instance->blockID)
-		{
-			return '';
-		}
+		$block = self::getBlock($instanceID);
 
-		$block = new Tables\Blocks();
-		if (!$block->load($blockID) or !$date = $block->date)
-		{
-			return '';
-		}
-
-		return Dates::formatDate($date);
+		return $block->date ? Dates::formatDate($block->date) : '';
 	}
 
 	/**
@@ -906,6 +916,46 @@ class Instances extends ResourceHelper
 		Database::setQuery($query);
 
 		return Database::loadBool();
+	}
+
+	/**
+	 * Checks if the registrations are already at or above the sum of the effective capacity of the rooms.
+	 *
+	 * @param   int  $instanceID
+	 *
+	 * @return bool
+	 */
+	public static function isFull(int $instanceID): bool
+	{
+		$query = Database::getQuery();
+		$query->select('SUM(r.effCapacity)')
+			->from('#__organizer_rooms AS r')
+			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
+			->where('r.virtual = 0')
+			->where("ipe.instanceID = $instanceID")
+			->where("ir.delta != 'removed'")
+			->where("ipe.delta != 'removed'");
+		Database::setQuery($query);
+
+		if (!$capacity = Database::loadInt())
+		{
+			return true;
+		}
+
+		$query = Database::getQuery();
+		$query->select('COUNT(DISTINCT ipa.id)')
+			->from('#__organizer_instance_participants AS ipa')
+			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
+			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
+			->where("i1.id = $instanceID")
+			->where("i1.delta != 'removed'")
+			->where("i2.delta != 'removed'");
+		Database::setQuery($query);
+
+		$currentCapacity = Database::loadInt();
+
+		return $currentCapacity >= $capacity;
 	}
 
 	/**
