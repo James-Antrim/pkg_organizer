@@ -88,6 +88,7 @@ body.tmpl-index div.main .btn-toolbar .btn-wrapper {
 
 body.tmpl-index div.main .btn-toolbar .btn-wrapper .dropdown-menu {
     border-radius: 0;
+    width: max-content;
 }
 
 body.tmpl-index div.main .btn-toolbar .btn-wrapper .dropdown-menu .btn {
