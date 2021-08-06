@@ -514,7 +514,7 @@ class Instances extends ListModel
 		{
 			$conditions['organizationIDs'] = [$organizationID];
 
-			Helpers\Instances::setOrganizationalPublishing($conditions);
+			Helpers\Instances::setPublishingAccess($conditions);
 		}
 		else
 		{

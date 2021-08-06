@@ -22,8 +22,11 @@ use Organizer\Tables\InstanceParticipants as Table;
  */
 class InstanceParticipant extends BaseModel
 {
-	// Constants providing context for adding/removing instances to/from personal schedules.
+	// Constants providing context for adding/removing instances to/from personal schedules though the old interface.
 	private const TERM_MODE = 1, BLOCK_MODE = 2, INSTANCE_MODE = 3;
+
+	// Constants providing context for adding/removing instances to/from personal schedules though the interface.
+	private const ALL = 4, BLOCK = 2, SELECTED = 3, THIS = 1;
 
 	/**
 	 * Adds instances to the user's personal schedule.
@@ -62,7 +65,7 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
-	 * Authorizes the user.
+	 * Authorizes the user responsible for a booking to edit individual participations.
 	 *
 	 * @return void
 	 */
@@ -256,17 +259,47 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
+	 * Registers participants to instances.
 	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
+	 * @param   int  $method  the manner in which instances are selected.
 	 *
-	 * @return  Table  An instance participants table object
+	 * @return bool
 	 */
-	public function getTable($name = '', $prefix = '', $options = []): Table
+	public function deregister(int $method = self::THIS): bool
 	{
-		return new Table();
+		if (!$participantID = Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
+
+			return false;
+		}
+
+		if (!$instanceIDs = $this->getInstances($method))
+		{
+			// TODO add a message here about not finding any appropriate instances
+			return false;
+		}
+
+		$deregistered = false;
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			$participation = new Table();
+			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
+
+			// Participant was not registered to this instance.
+			if (!$participation->load($keys))
+			{
+				continue;
+			}
+
+			if ($participation->delete())
+			{
+				$deregistered = true;
+			}
+		}
+
+		return $deregistered;
 	}
 
 	/**
@@ -334,6 +367,89 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return  Table  An instance participants table object
+	 */
+	public function getTable($name = '', $prefix = '', $options = []): Table
+	{
+		return new Table();
+	}
+
+	/**
+	 * Finds instances matching the given instance by matching method, inclusive the reference instance.
+	 *
+	 * @param   int  $method  the method for determining relevant instances
+	 *
+	 * @return array
+	 */
+	private function getInstances(int $method = self::THIS): array
+	{
+		if (!$instanceID = Helpers\Input::getInt('id'))
+		{
+			return [];
+		}
+
+		$instance = new Tables\Instances();
+
+		if (!$instance->load($instanceID))
+		{
+			return [];
+		}
+
+		$now   = date('H:i:s');
+		$query = Database::getQuery();
+		$today = date('Y-m-d');
+		$query->select('i.id')
+			->from('#__organizer_instances AS i')
+			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+			->where("i.eventID = $instance->eventID")
+			->where("i.unitID = $instance->unitID")
+			->where("(b.date > '$today' OR (b.date = '$today' AND b.endTime > '$now'))")
+			->order('i.id');
+
+		$instanceIDs = [];
+		switch ($method)
+		{
+			case self::ALL:
+				Database::setQuery($query);
+				$instanceIDs = Database::loadIntColumn();
+				break;
+			// Using selected as a restrictive condition prevents manipulation.
+			case self::SELECTED:
+				$selected = implode(',', Helpers\Input::getSelectedIDs());
+				$query->where("i.id IN ($selected)");
+				Database::setQuery($query);
+				$instanceIDs = Database::loadIntColumn();
+				break;
+			case self::THIS:
+				$query->where("i.id = $instanceID");
+				Database::setQuery($query);
+				$instanceID  = Database::loadInt();
+				$instanceIDs = $instanceID ? [$instanceID] : [];
+				break;
+			case self::BLOCK:
+			default:
+				$block = new Tables\Blocks();
+				if ($block->load($instance->blockID))
+				{
+					$query->where("b.dow = $block->dow")
+						->where("b.endTime = '$block->endTime'")
+						->where("b.startTime = '$block->startTime'");
+					Database::setQuery($query);
+					$instanceIDs = Database::loadIntColumn();
+				}
+				break;
+		}
+
+		return array_values($instanceIDs);
+	}
+
+	/**
 	 * Sends a circular mail to all course participants.
 	 *
 	 * @return bool true on success, false on error
@@ -341,7 +457,7 @@ class InstanceParticipant extends BaseModel
 	public function notify(): bool
 	{
 		return false;
-		if (!$instanceID = Helpers\Input::getID())
+		/*if (!$instanceID = Helpers\Input::getID())
 		{
 			return false;
 		}
@@ -372,7 +488,64 @@ class InstanceParticipant extends BaseModel
 			Helpers\Mailer::notifyParticipant($participantID, $subject, $body);
 		}
 
-		return true;
+		return true;*/
+	}
+
+	/**
+	 * Registers participants to instances.
+	 *
+	 * @param   int  $method  the manner in which instances are selected.
+	 *
+	 * @return bool
+	 */
+	public function register(int $method = self::THIS): bool
+	{
+		if (!$participantID = Helpers\Users::getID())
+		{
+			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
+
+			return false;
+		}
+
+		$participant = new Participant();
+		$participant->supplement($participantID);
+
+		if (!$instanceIDs = $this->getInstances($method))
+		{
+			// TODO add a message here about not finding any appropriate instances
+			return false;
+		}
+
+		$registered = false;
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			$participation = new Table();
+			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
+
+			// Participant is already registered.
+			if ($participation->load($keys))
+			{
+				continue;
+			}
+
+			if (Helpers\Instances::isFull($instanceID))
+			{
+				$block     = Helpers\Instances::getBlock($instanceID);
+				$date      = Helpers\Dates::formatDate($block->date);
+				$endTime   = Helpers\Dates::formatEndTime($block->endTime);
+				$startTime = Helpers\Dates::formatTime($block->startTime);
+				Helpers\OrganizerHelper::message(sprintf(Helpers\Languages::_('ORGANIZER_INSTANCE_FULL'), $date, $startTime, $endTime), 'notice');
+				continue;
+			}
+
+			if ($participation->save($keys))
+			{
+				$registered = true;
+			}
+		}
+
+		return $registered;
 	}
 
 	/**

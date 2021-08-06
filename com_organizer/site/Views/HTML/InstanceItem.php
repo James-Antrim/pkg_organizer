@@ -109,46 +109,9 @@ class InstanceItem extends ListView
 						}
 					}
 				}
-
-				if ($item->instanceID === $instance->instanceID)
-				{
-					if ($item->participates)
-					{
-						$deRegThis = new StandardButton();
-						$deRegThis = $deRegThis->fetchButton(
-							'Standard',
-							'',
-							Languages::_('ORGANIZER_DEREGISTER_THIS'),
-							'InstanceParticipants.deregisterThis',
-							false
-						);
-					}
-					else
-					{
-						$regThis = new StandardButton();
-						$regThis = $regThis->fetchButton(
-							'Standard',
-							'',
-							Languages::_('ORGANIZER_REGISTER_THIS'),
-							'InstanceParticipants.registerThis',
-							false
-						);
-					}
-				}
 			}
 
 			$registrations = [];
-
-			if ($deRegThis)
-			{
-				$deRegThis         = new StandardButton();
-				$deregistrations[] = $deRegThis->fetchButton(
-					'Standard',
-					'square',
-					Languages::_('ORGANIZER_THIS_INSTANCE'),
-					'InstanceParticipants.deregisterThis',
-					false);
-			}
 
 			if ($regThis)
 			{
@@ -157,8 +120,9 @@ class InstanceItem extends ListView
 					'Standard',
 					'square',
 					Languages::_('ORGANIZER_THIS_INSTANCE'),
-					'InstanceParticipants.registerThis',
-					false);
+					'InstanceParticipants.register',
+					false
+				);
 			}
 
 			if ($regBlock)
@@ -169,7 +133,8 @@ class InstanceItem extends ListView
 					'menu',
 					sprintf(Languages::_('ORGANIZER_BLOCK_INSTANCES'), $day, $instance->startTime, $instance->endTime),
 					'InstanceParticipants.registerBlock',
-					false);
+					false
+				);
 			}
 
 			if ($regSelected)
@@ -180,7 +145,8 @@ class InstanceItem extends ListView
 					'checkbox',
 					Languages::_('ORGANIZER_SELECTED_INSTANCES'),
 					'InstanceParticipants.registerSelected',
-					true);
+					true
+				);
 			}
 
 			if ($regAll)
@@ -191,7 +157,8 @@ class InstanceItem extends ListView
 					'grid-2',
 					Languages::_('ORGANIZER_ALL_INSTANCES'),
 					'InstanceParticipants.registerAll',
-					true);
+					false
+				);
 			}
 
 			if ($registrations)
@@ -208,7 +175,7 @@ class InstanceItem extends ListView
 					'Standard',
 					'square',
 					Languages::_('ORGANIZER_THIS_INSTANCE'),
-					'InstanceParticipants.deregisterThis',
+					'InstanceParticipants.deregister',
 					false
 				);
 			}
@@ -245,7 +212,8 @@ class InstanceItem extends ListView
 					'grid-2',
 					Languages::_('ORGANIZER_ALL_INSTANCES'),
 					'InstanceParticipants.deregisterAll',
-					true);
+					false
+				);
 			}
 
 			if ($deregistrations)
