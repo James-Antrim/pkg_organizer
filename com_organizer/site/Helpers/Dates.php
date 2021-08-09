@@ -44,6 +44,21 @@ class Dates
 	}
 
 	/**
+	 * Converts a raw date time into a formatted date time string.
+	 *
+	 * @param   int|string  $dateTime  the raw date time
+	 *
+	 * @return string the formatted date time
+	 */
+	public static function formatDateTime($dateTime): string
+	{
+		$format   = self::getFormat() . ' H:i';
+		$dateTime = is_string($dateTime) ? strtotime($dateTime) : $dateTime;
+
+		return date($format, $dateTime);
+	}
+
+	/**
 	 * Formats the date stored in the database according to the format in the component parameters
 	 *
 	 * @param   string  $time  the date to be formatted

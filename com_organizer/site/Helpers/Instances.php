@@ -211,6 +211,60 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the sum of the effective capacity of physical rooms associated with concurrent instances of the same
+	 * block and unit as the instance identified.
+	 *
+	 * @param   int  $instanceID  the id of the instance
+	 *
+	 * @return int
+	 */
+	public static function getCapacity(int $instanceID): int
+	{
+		$query = Database::getQuery();
+		$query->select('DISTINCT r.id, r.effCapacity')
+			->from('#__organizer_rooms AS r')
+			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
+			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipe.instanceID')
+			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
+			->where('r.virtual = 0')
+			->where("i1.id = $instanceID")
+			->where("ir.delta != 'removed'")
+			->where("ipe.delta != 'removed'");
+		Database::setQuery($query);
+
+		if ($capacities = Database::loadIntColumn(1))
+		{
+			return array_sum($capacities);
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Returns the current number of participants for all concurrent instances  of the same block and unit as the given
+	 * instance.
+	 *
+	 * @param   int  $instanceID
+	 *
+	 * @return int
+	 */
+	public static function getCurrentCapacity(int $instanceID): int
+	{
+		$query = Database::getQuery();
+		$query->select('COUNT(DISTINCT ipa.id)')
+			->from('#__organizer_instance_participants AS ipa')
+			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
+			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
+			->where("i1.id = $instanceID")
+			->where("i1.delta != 'removed'")
+			->where("i2.delta != 'removed'");
+		Database::setQuery($query);
+
+		return Database::loadInt();
+	}
+
+	/**
 	 * Creates a display of formatted dates for a course
 	 *
 	 * @param   int  $instanceID  the id of the course to be loaded
@@ -706,43 +760,6 @@ class Instances extends ResourceHelper
 	}
 
 	/**
-	 * Gets the count of participants who attended the instance.
-	 *
-	 * @param   int  $instanceID
-	 *
-	 * @return int the number of attending participants
-	 */
-	public static function getParticipantCount(int $instanceID): int
-	{
-		return count(self::getParticipantIDs($instanceID));
-	}
-
-	/**
-	 * Gets an array of participant IDs for a given instance
-	 *
-	 * @param   int  $instanceID  the instance id
-	 *
-	 * @return array list of participants in course
-	 */
-	public static function getParticipantIDs(int $instanceID): array
-	{
-		if (empty($instanceID))
-		{
-			return [];
-		}
-
-		$query = Database::getQuery();
-		$query->select('participantID')
-			->from('#__organizer_instance_participants')
-			->where("instanceID = $instanceID")
-			->where('attended = 1')
-			->order('participantID');
-		Database::setQuery($query);
-
-		return Database::loadIntColumn();
-	}
-
-	/**
 	 * Retrieves the persons actively associated with the given instance.
 	 *
 	 * @param   int  $instanceID  the id of the instance
@@ -927,35 +944,12 @@ class Instances extends ResourceHelper
 	 */
 	public static function isFull(int $instanceID): bool
 	{
-		$query = Database::getQuery();
-		$query->select('SUM(r.effCapacity)')
-			->from('#__organizer_rooms AS r')
-			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
-			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
-			->where('r.virtual = 0')
-			->where("ipe.instanceID = $instanceID")
-			->where("ir.delta != 'removed'")
-			->where("ipe.delta != 'removed'");
-		Database::setQuery($query);
-
-		if (!$capacity = Database::loadInt())
+		if (!$capacity = self::getCapacity($instanceID))
 		{
 			return true;
 		}
 
-		$query = Database::getQuery();
-		$query->select('COUNT(DISTINCT ipa.id)')
-			->from('#__organizer_instance_participants AS ipa')
-			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
-			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
-			->where("i1.id = $instanceID")
-			->where("i1.delta != 'removed'")
-			->where("i2.delta != 'removed'");
-		Database::setQuery($query);
-
-		$currentCapacity = Database::loadInt();
-
-		return $currentCapacity >= $capacity;
+		return self::getCurrentCapacity($instanceID) >= $capacity;
 	}
 
 	/**
@@ -1127,6 +1121,9 @@ class Instances extends ResourceHelper
 	 */
 	public static function setParticipation(array &$instance)
 	{
+		$instance['capacity'] = self::getCapacity($instance['instanceID']);
+		$instance['current']  = self::getCurrentCapacity($instance['instanceID']);
+
 		if (!$userID = Users::getID())
 		{
 			$instance['participates'] = false;
