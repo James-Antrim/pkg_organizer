@@ -40,10 +40,15 @@ class InstanceItem extends ListModel
 		$instanceID = Input::getID();
 		$instance   = Helpers\Instances::getInstance($instanceID);
 
+		$startDate = date('Y-m-d');
+		$endDate   = Helpers\Terms::getEndDate(Helpers\Terms::getCurrentID($startDate));
+
 		$this->conditions = [
 			'delta'           => date('Y-m-d 00:00:00', strtotime('-14 days')),
+			'endDate'         => $endDate,
 			'eventIDs'        => [$instance['eventID']],
 			'showUnpublished' => Helpers\Can::manage('instance', $instanceID),
+			'startDate'       => $startDate,
 			'status'          => self::CURRENT,
 			'unitIDs'         => [$instance['unitID']],
 		];
@@ -76,7 +81,7 @@ class InstanceItem extends ListModel
 	{
 		$endTime   = date('H:i:s');
 		$query     = Helpers\Instances::getInstanceQuery($this->conditions);
-		$startDate = date('Y-m-d');
+		$startDate = $this->conditions['startDate'];
 
 		$query->select("DISTINCT i.id")
 			->where("(b.date > '$startDate' OR (b.date = '$startDate' AND b.endTime >= '$endTime'))")
