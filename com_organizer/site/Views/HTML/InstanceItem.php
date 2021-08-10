@@ -11,6 +11,8 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
+use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters\Document;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
@@ -31,9 +33,7 @@ class InstanceItem extends ListView
 
 	private $manages = false;
 
-	private $teaches = false;
-
-	private $userID;
+	private $messages = [];
 
 	protected $rowStructure = [
 		'checkbox' => '',
@@ -42,6 +42,27 @@ class InstanceItem extends ListView
 		'persons'  => 'value',
 		'rooms'    => 'value'
 	];
+
+	private $statusDate;
+
+	private $teaches = false;
+
+	private $userID;
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function addSupplement()
+	{
+		$text = '';
+
+		if ($this->messages)
+		{
+			$text = '<div class="tbox-blue">' . implode('<br>', $this->messages) . '</div>';
+		}
+
+		$this->supplement = $text;
+	}
 
 	/**
 	 * @inheritdoc
@@ -245,8 +266,143 @@ class InstanceItem extends ListView
 	 */
 	public function display($tpl = null)
 	{
-		$this->instance = $this->getModel()->instance;
+		$this->setInstance($this->getModel()->instance);
+
 		parent::display($tpl);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function modifyDocument()
+	{
+		parent::modifyDocument();
+		Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
+	}
+
+	/**
+	 * Renders the persons section of the item.
+	 *
+	 * @return void
+	 */
+	public function renderPersons()
+	{
+		$instance   = $this->instance;
+		$showGroups = $instance->showGroups;
+		$showRoles  = $instance->showRoles;
+		$showRooms  = $instance->showRooms;
+
+		echo '<div class="attribute-item">';
+		echo '<div class="attribute-label">' . Languages::_('ORGANIZER_PERSONS') . '</div>';
+		echo '<div class="attribute-content"><ul>';
+
+		foreach ($instance->persons as $persons)
+		{
+			if ($showRoles)
+			{
+				$personIDs = array_keys($persons);
+				$firstID   = reset($personIDs);
+				echo '<u>' . $instance->resources[$firstID]['role'] . '</u><ul>';
+			}
+
+			foreach (array_keys($persons) as $personID)
+			{
+				$person = $instance->resources[$personID];
+				echo '<li>';
+				$this->renderResource($person['person'], $person['status'], $person['statusDate']);
+
+				if ($instance->showGroups or $instance->showRooms)
+				{
+					echo '<ul>';
+				}
+
+				if ($instance->showGroups and !empty($person['groups']))
+				{
+					echo '<li>' . Languages::_('ORGANIZER_GROUPS') . '<ul>';
+					foreach ($person['groups'] as $group)
+					{
+						echo '<li>';
+						$name = (strlen($group['fullName']) > 80 and $group['status']) ?
+							$group['group'] : $group['fullName'];
+						$this->renderResource($name, $group['status'], $group['statusDate']);
+						echo '</li>';
+					}
+					echo '</ul></li>';
+				}
+
+				if ($instance->showRooms and !empty($person['rooms']))
+				{
+					echo '<li>' . Languages::_('ORGANIZER_ROOMS') . '<ul>';
+					foreach ($person['rooms'] as $room)
+					{
+						echo '<li>';
+						$this->renderResource($room['room'], $room['status'], $room['statusDate']);
+						echo '</li>';
+					}
+					echo '</ul></li>';
+				}
+
+				if ($instance->showGroups or $instance->showRooms)
+				{
+					echo '</ul>';
+				}
+
+				echo '</li>';
+			}
+
+			if ($showRoles)
+			{
+				echo '</ul>';
+			}
+		}
+
+		echo '</ul></div></div>';
+	}
+
+	/**
+	 * Renders the individual resource output.
+	 *
+	 * @param   string  $name      the resource name
+	 * @param   string  $status    the resource's status
+	 * @param   string  $dateTime  the date time of the resource's last status update
+	 *
+	 * @return void
+	 */
+	private function renderResource(string $name, string $status, string $dateTime)
+	{
+		if (!$status or $dateTime < $this->statusDate)
+		{
+			echo $name;
+
+			return;
+		}
+
+		$dateTime = Helpers\Dates::formatDateTime($dateTime);
+		$delta    = $status === 'removed' ?
+			sprintf(Languages::_('ORGANIZER_REMOVED_ON'), $dateTime) : sprintf(Languages::_('ORGANIZER_ADDED_ON'), $dateTime);
+
+		echo "<span class=\"$status\">$name</span> $delta";
+	}
+
+	/**
+	 * Renders the persons section of the item.
+	 *
+	 * @return void
+	 */
+	public function renderResources(string $label, array $resources)
+	{
+		echo '<div class="attribute-item">';
+		echo "<div class=\"attribute-label\">$label</div>";
+		echo '<div class="attribute-content"><ul>';
+
+		foreach ($resources as $name => $data)
+		{
+			echo '<li>';
+			$this->renderResource($name, $data['status'], $data['date']);
+			echo '</li>';
+		}
+
+		echo '</ul></div></div>';
 	}
 
 	/**
@@ -267,6 +423,207 @@ class InstanceItem extends ListView
 		{
 			unset($this->headers['checkbox']);
 		}
+	}
+
+	/**
+	 * Processes the instance to aid in simplifying/supplementing the item display.
+	 *
+	 * @param   object  $instance  the instance data
+	 *
+	 * @return void
+	 */
+	private function setInstance(object $instance)
+	{
+		$this->statusDate = date('Y-m-d 00:00:00', strtotime('-14 days'));
+		$cutOff           = $this->statusDate;
+
+		$message = '';
+		$status  = '';
+
+		$dateTime   = $instance->unitStatusDate;
+		$dtRelevant = ($instance->unitStatus and $dateTime >= $cutOff);
+		$modified   = $instance->unitStatusDate;
+
+		// Set unit baseline for process dating.
+		if ($dtRelevant)
+		{
+			$constant   = $instance->unitStatus === 'removed' ? 'ORGANIZER_UNIT_REMOVED_ON' : 'ORGANIZER_UNIT_ADDED_ON';
+			$status     = $instance->unitStatus;
+			$statusDate = Helpers\Dates::formatDateTime($instance->unitStatusDate);
+			$message    = sprintf(Languages::_($constant), $statusDate);
+		}
+
+		$dateTime = $instance->instanceStatusDate;
+
+		if ($instance->instanceStatus and $dateTime >= $cutOff)
+		{
+			$earlier    = $instance->instanceStatusDate < $instance->unitStatusDate;
+			$later      = $instance->instanceStatusDate > $instance->unitStatusDate;
+			$modified   = $dateTime > $modified ? $dateTime : $modified;
+			$statusDate = Helpers\Dates::formatDateTime($instance->instanceStatusDate);
+
+			// Instance was removed...
+			if ($instance->instanceStatus === 'removed')
+			{
+				$text = Languages::_('ORGANIZER_INSTANCE_REMOVED_ON');
+
+				// ...before the unit was removed.
+				if ($status === 'removed' and $earlier)
+				{
+					$message = sprintf($text, $statusDate);
+				}
+				// ...and the unit was not.
+				elseif ($status !== 'removed' and $later)
+				{
+					$message = sprintf($text, $statusDate);
+				}
+			}
+			// Instance was recently added
+			elseif ($status !== 'removed' and $instance->instanceStatus === 'new')
+			{
+				$message = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $statusDate);
+			}
+		}
+
+		$persons = [];
+
+		// Aggregate resource containers.
+		$groups = [];
+		$rooms  = [];
+
+		// Containers for unique resource configurations.
+		$uniqueGroups = [];
+		$uniqueRooms  = [];
+
+		if ($instance->resources)
+		{
+			foreach ($instance->resources as $personID => $person)
+			{
+				$dateTime   = $person['statusDate'];
+				$dtRelevant = ($person['status'] and $dateTime >= $cutOff);
+
+				// Removed before cut off
+				if (!$dtRelevant and $person['status'] === 'removed')
+				{
+					unset($instance->resources[$personID]);
+					continue;
+				}
+
+				$filteredGroups = [];
+				$filteredRooms  = [];
+				$modified       = $dateTime > $modified ? $dateTime : $modified;
+
+				if (empty($persons[$person['roleID']]))
+				{
+					$persons[$person['roleID']] = [];
+				}
+
+				$persons[$person['roleID']][$personID] = $person['person'];
+
+				if (!empty($person['groups']))
+				{
+					foreach ($person['groups'] as $groupID => $group)
+					{
+						$dateTime   = $group['statusDate'];
+						$dtRelevant = ($group['status'] and $dateTime >= $cutOff);
+
+						// Removed before cut off
+						if (!$dtRelevant and $group['status'] === 'removed')
+						{
+							unset($instance->resources[$personID]['groups'][$groupID]);
+							continue;
+						}
+
+						$name = $group['fullName'];
+						if (empty($groups[$name]) or $dateTime > $groups[$name]['date'])
+						{
+							$groups[$name] = [
+								'date'   => $modified,
+								'status' => $group['status']
+							];
+						}
+
+						$modified = $dateTime > $modified ? $dateTime : $modified;
+
+						$copy = $group;
+						unset($copy['status'], $copy['statusDate']);
+						$filteredGroups[$groupID] = $copy;
+					}
+				}
+
+				if (!in_array($filteredGroups, $uniqueGroups))
+				{
+					$uniqueGroups[] = $filteredGroups;
+				}
+
+				if (!empty($person['rooms']))
+				{
+					foreach ($person['rooms'] as $roomID => $room)
+					{
+						$dateTime   = $room['statusDate'];
+						$dtRelevant = ($room['status'] and $dateTime >= $cutOff);
+
+						// Removed before cut off
+						if (!$dtRelevant and $room['status'] === 'removed')
+						{
+							unset($instance->resources[$personID]['rooms'][$roomID]);
+							continue;
+						}
+
+						$name = $room['room'];
+
+						if (empty($rooms[$name]) or $dateTime > $rooms[$name]['date'])
+						{
+							$rooms[$name] = [
+								'date'   => $modified,
+								'status' => $room['status']
+							];
+						}
+
+						$modified = $dateTime > $modified ? $dateTime : $modified;
+
+						$copy = $room;
+						unset($copy['status'], $copy['statusDate']);
+						$filteredRooms[$roomID] = $copy;
+					}
+				}
+
+				if (!in_array($filteredRooms, $uniqueRooms))
+				{
+					$uniqueRooms[] = $filteredRooms;
+				}
+			}
+		}
+
+		// Alphabetize in role.
+		foreach ($persons as $roleID => $entries)
+		{
+			asort($entries);
+			$persons[$roleID] = $entries;
+		}
+
+		asort($groups);
+		asort($rooms);
+
+		$instance->groups     = $groups;
+		$instance->persons    = $persons;
+		$instance->rooms      = $rooms;
+		$instance->showGroups = count(array_filter($uniqueGroups)) > 1;
+		$instance->showRoles  = count($instance->persons) > 1;
+		$instance->showRooms  = count(array_filter($uniqueRooms)) > 1;
+
+		if ($message)
+		{
+			$this->messages[] = $message;
+		}
+
+		if ($modified)
+		{
+			$modified         = Helpers\Dates::formatDateTime($modified);
+			$this->messages[] = sprintf(Languages::_('ORGANIZER_LAST_UPDATED'), $modified);
+		}
+
+		$this->instance = $instance;
 	}
 
 	/**

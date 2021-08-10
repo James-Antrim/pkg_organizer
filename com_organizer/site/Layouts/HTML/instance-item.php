@@ -11,8 +11,10 @@
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
+use Organizer\Helpers\Languages;
 
 $columnCount = count($this->headers);
+$instance    = $this->instance;
 $items       = $this->items;
 $iteration   = 0;
 $action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
@@ -24,6 +26,22 @@ echo $this->subtitle;
 echo $this->supplement;
 ?>
 <div id="j-main-container" class="span10">
+	<?php if ($instance->description): ?>
+        <div class="attribute-item">
+            <div class="attribute-label"><?php echo Languages::_('ORGANIZER_DESC'); ?></div>
+            <div class="attribute-content"><?php echo $instance->description; ?></div>
+        </div>
+	<?php endif; ?>
+	<?php if ($instance->persons): ?>
+		<?php $this->renderPersons() ?>
+	<?php endif; ?>
+	<?php if (!$instance->showGroups): ?>
+		<?php $this->renderResources(Languages::_('ORGANIZER_GROUPS'), $instance->groups) ?>
+	<?php endif; ?>
+	<?php if (!$instance->showRooms): ?>
+		<?php $this->renderResources(Languages::_('ORGANIZER_ROOMS'), $instance->rooms) ?>
+	<?php endif; ?>
+
     <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
 		<?php echo Toolbar::getInstance()->render(); ?>
 		<?php if (count($items)) : ?>
