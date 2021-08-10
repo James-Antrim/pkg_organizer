@@ -232,3 +232,12 @@ body.tmpl-mobile div.main .js-stools-container-filters {
 .attribute-content li {
     padding-bottom: .8rem;
 }
+
+span.new {
+    color: #69981E;
+}
+
+span.removed {
+    color: #4a5c66;
+    text-decoration: line-through;
+}

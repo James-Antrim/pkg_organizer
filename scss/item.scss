@@ -69,3 +69,12 @@
     padding-bottom: .8rem;
   }
 }
+
+span.new {
+  color: $green-text;
+}
+
+span.removed {
+  color: $grey-100;
+  text-decoration: line-through;
+}
