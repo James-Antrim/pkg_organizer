@@ -27,7 +27,20 @@ trait Modified
 	 * The timestamp at which the schedule was generated which modified this entry.
 	 * TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	 *
-	 * @var int
+	 * @var string
 	 */
 	public $modified;
+
+	/**
+	 * @inheritDoc
+	 */
+	public function check(): bool
+	{
+		if ($this->modified === '0000-00-00 00:00:00')
+		{
+			$this->modified = null;
+		}
+
+		return true;
+	}
 }

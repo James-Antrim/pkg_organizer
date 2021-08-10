@@ -75,6 +75,11 @@ class Instances extends BaseTable
 			$this->methodID = null;
 		}
 
+		if ($this->modified === '0000-00-00 00:00:00')
+		{
+			$this->modified = null;
+		}
+
 		return true;
 	}
 }
