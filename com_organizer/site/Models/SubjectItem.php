@@ -39,9 +39,8 @@ class SubjectItem extends ItemModel
 			->select("description_$tag AS description, duration, expenditure, expertise, expertise_$tag AS exText")
 			->select("language, literature, independent, method_$tag AS method, methodCompetence")
 			->select("methodCompetence_$tag AS meText, code, s.fullName_$tag AS name, objective_$tag AS objective")
-			->select("preliminaryWork_$tag AS preliminaryWork, usedFor_$tag AS prerequisiteFor")
-			->select("prerequisites_$tag AS prerequisites, proof_$tag AS proof, present")
-			->select("recommendedPrerequisites_$tag as recommendedPrerequisites, selfCompetence")
+			->select("preliminaryWork_$tag AS preliminaryWork, prerequisites_$tag AS prerequisites, proof_$tag AS proof")
+			->select("present, recommendedPrerequisites_$tag as recommendedPrerequisites, selfCompetence")
 			->select("selfCompetence_$tag AS seText, socialCompetence, socialCompetence_$tag AS soText, sws")
 			->from('#__organizer_subjects AS s')
 			->leftJoin('#__organizer_frequencies AS f ON f.id = s.frequencyID')
@@ -212,7 +211,11 @@ class SubjectItem extends ItemModel
 			],
 
 			// Prerequisite for
-			'prerequisiteFor'          => ['label' => Languages::_($option . 'PREREQUISITE_FOR'), 'type' => 'text'],
+			'use'                      => [
+				'label' => Languages::_($option . 'PREREQUISITE_FOR'),
+				'type'  => 'text',
+				'value' => Languages::_('ORGANIZER_USE_TEXT')
+			],
 			'postRequisiteModules'     => [
 				'label' => Languages::_($option . 'POSTREQUISITE_MODULES'),
 				'type'  => 'list',
@@ -254,8 +257,15 @@ class SubjectItem extends ItemModel
 			->innerJoin('#__organizer_curricula AS c2 ON c2.id = pr.subjectID')
 			->innerJoin('#__organizer_subjects AS s2 ON s2.id = c2.subjectID');
 
+		$level = '';
+
 		foreach ($programs as $program)
 		{
+			if (!$level)
+			{
+				$level = Helpers\Programs::getLevel($program['programID']);
+			}
+
 			$query->clear('where');
 			$query->where("c1.lft > {$program['lft']} AND c1.rgt < {$program['rgt']}")
 				->where("c2.lft > {$program['lft']} AND c2.rgt < {$program['rgt']}")
@@ -317,6 +327,12 @@ class SubjectItem extends ItemModel
 				asort($subject['postRequisiteModules']['value'][$programName]);
 			}
 		}
+
+		$level    = $level ?: 'Bachelor';
+		$constant = 'ORGANIZER_' . strtoupper($level) . '_PROGRAMS';
+		$programs = Languages::_($constant);
+
+		$subject['use']['value'] = sprintf($subject['use']['value'], $programs);
 	}
 
 	/**

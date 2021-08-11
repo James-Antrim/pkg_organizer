@@ -78,7 +78,6 @@
         <field name="preliminaryWork_de" type="Blank" label="PRELIMINARY_WORK_DE"
                hint="Erfolgreicher Abgabe von 6 Hausübungen."/>
         <field name="proof_de" type="Blank" label="PROOF_DE" hint="schriftliche Klausur"/>
-        <field name="usedFor_de" type="Wiz" label="USED_FOR"/>
     </fieldset>
     <fieldset name="en_texts" label="ATTRIBUTES_EN">
         <field name="fullName_en" type="Blank" label="FULL_NAME_EN" hint="Mathematics I" maxlength="200"/>
@@ -95,7 +94,6 @@
         <field name="preliminaryWork_en" type="Blank" label="PRELIMINARY_WORK_EN"
                hint="Successful completion of six homework assignments."/>
         <field name="proof_en" type="Blank" label="PROOF_EN" hint="Written Exam"/>
-        <field name="usedFor_en" type="Wiz" label="USED_FOR"/>
     </fieldset>
     <fieldset name="associations" label="ASSOCIATIONS">
         <!--<field name="eventIDs" type="SubjectEvents" label="EVENT" role="1"/>-->
@@ -103,6 +101,5 @@
         <field type="SuperOrdinates" label="SUPERORDINATES"/>
         <field name="spacer3" type="spacer" hr="true"/>
         <field type="Prerequisites" label="PREREQUISITES"/>
-        <field type="Postrequisites" label="POSTREQUISITES"/>
     </fieldset>
 </form>

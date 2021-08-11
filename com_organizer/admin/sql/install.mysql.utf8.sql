@@ -852,8 +852,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     `socialCompetence_de`         TEXT,
     `socialCompetence_en`         TEXT,
     `sws`                         INT(2) UNSIGNED  NOT NULL DEFAULT 0,
-    `usedFor_de`                  TEXT,
-    `usedFor_en`                  TEXT,
     PRIMARY KEY (`id`),
     UNIQUE KEY `alias` (`alias`),
     UNIQUE KEY `lsfID` (`lsfID`),

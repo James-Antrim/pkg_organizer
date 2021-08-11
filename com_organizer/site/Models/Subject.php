@@ -329,7 +329,7 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Processes the subject pre- & postrequisites selected for the subject
+	 * Processes the subject prerequisites selected for the subject
 	 *
 	 * @param   array  $data  the post data
 	 *
@@ -355,32 +355,14 @@ class Subject extends CurriculumResource
 				$prerequisiteRanges = array_merge($prerequisiteRanges, $this->getRanges($preRequisiteID));
 			}
 
-			$preSuccess = $this->associate($programRanges, $prerequisiteRanges, $subjectRanges, true);
+			$success = $this->associate($programRanges, $prerequisiteRanges, $subjectRanges, true);
 		}
 		else
 		{
-			$preSuccess = $this->removePreRequisites($subjectID);
+			$success = $this->removePreRequisites($subjectID);
 		}
 
-		$postSuccess    = true;
-		$postRequisites = array_filter($data['postrequisites']);
-		if (!empty($postRequisites) and array_search(self::NONE, $postRequisites) === false)
-		{
-			$postRequisiteRanges = [];
-			foreach ($postRequisites as $postRequisiteID)
-			{
-				$postRequisiteRanges = array_merge($postRequisiteRanges, $this->getRanges($postRequisiteID));
-			}
-
-			$preSuccess = $this->associate($programRanges, $subjectRanges, $postRequisiteRanges, false);
-		}
-		else
-		{
-			$postSuccess = $this->removePostRequisites($subjectID);
-		}
-
-
-		return ($preSuccess and $postSuccess);
+		return $success;
 	}
 
 	/**
@@ -467,12 +449,7 @@ class Subject extends CurriculumResource
 	 */
 	private function removeDependencies(int $subjectID): bool
 	{
-		if (!$this->removePreRequisites($subjectID))
-		{
-			return false;
-		}
-
-		return $this->removePostRequisites($subjectID);
+		return ($this->removePreRequisites($subjectID) and $this->removePostRequisites($subjectID));
 	}
 
 	/**
@@ -541,7 +518,7 @@ class Subject extends CurriculumResource
 	}
 
 	/**
-	 * Removes pre- & postrequisite associations for the given subject. No access checks => this is not directly
+	 * Removes postrequisite associations for the given subject. No access checks => this is not directly
 	 * accessible and requires differing checks according to its calling context.
 	 *
 	 * @param   int  $subjectID  the subject id
@@ -601,16 +578,13 @@ class Subject extends CurriculumResource
 		// Flag to be set should one of the attribute texts consist only of module information. => Text should be empty.
 		$attributeChanged = false;
 
-		$reqAttribs     = [
-			'prerequisites_de' => 'pre',
-			'prerequisites_en' => 'pre',
-			'usedFor_de'       => 'post',
-			'usedFor_en'       => 'post'
+		$reqAttribs    = [
+			'prerequisites_de',
+			'prerequisites_en'
 		];
-		$postrequisites = [];
-		$prerequisites  = [];
+		$prerequisites = [];
 
-		foreach ($reqAttribs as $attribute => $direction)
+		foreach ($reqAttribs as $attribute)
 		{
 			$originalText   = $table->$attribute;
 			$potentialCodes = [];
@@ -630,15 +604,7 @@ class Subject extends CurriculumResource
 
 			if ($dependencies = $this->verifyDependencies($potentialCodes, $programRanges))
 			{
-				// Aggregate potential dependencies across language specific attributes
-				if ($direction === 'pre')
-				{
-					$prerequisites = $prerequisites + $dependencies;
-				}
-				else
-				{
-					$postrequisites = $postrequisites + $dependencies;
-				}
+				$prerequisites = $prerequisites + $dependencies;
 
 				$emptyAttribute = Helpers\SubjectsLSF::checkContents($originalText, $checkedAttributes, $dependencies);
 
@@ -651,11 +617,6 @@ class Subject extends CurriculumResource
 		}
 
 		if (!$this->saveDependencies($programRanges, $subjectID, $prerequisites, 'pre'))
-		{
-			return false;
-		}
-
-		if (!$this->saveDependencies($programRanges, $subjectID, $postrequisites, 'post'))
 		{
 			return false;
 		}

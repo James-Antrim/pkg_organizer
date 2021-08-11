@@ -432,26 +432,6 @@ class Subjects extends BaseTable
 	public $sws;
 
 	/**
-	 * Resources requiring this subject in German.
-	 * TEXT
-	 *
-	 * Status: A whole box of things...
-	 *
-	 * @var string
-	 */
-	public $usedFor_de;
-
-	/**
-	 * Resources requiring this subject in English.
-	 * TEXT
-	 *
-	 * Status: A whole box of things...
-	 *
-	 * @var string
-	 */
-	public $usedFor_en;
-
-	/**
 	 * Declares the associated table.
 	 */
 	public function __construct()

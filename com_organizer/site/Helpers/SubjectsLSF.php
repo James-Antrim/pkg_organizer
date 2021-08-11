@@ -346,11 +346,6 @@ class SubjectsLSF
 				$table->setColumn('objective_en', $englishText, '');
 				break;
 
-			case 'Verwendbarkeit des Moduls':
-				$table->setColumn('usedFor_de', $germanText, '');
-				$table->setColumn('usedFor_en', $englishText, '');
-				break;
-
 			case 'Voraussetzungen':
 				$table->setColumn('prerequisites_de', $germanText, '');
 				$table->setColumn('prerequisites_en', $englishText, '');

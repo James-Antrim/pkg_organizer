@@ -83,6 +83,26 @@ class Programs extends Curricula implements Selectable
 	}
 
 	/**
+	 * Retrieves the id of the degree associated with the program.
+	 *
+	 * @param   int  $programID
+	 *
+	 * @return int
+	 */
+	public static function getDegreeID(int $programID): int
+	{
+		$degreeID = 0;
+		$program  = new Tables\Programs();
+
+		if ($program->load($programID))
+		{
+			$degreeID = $program->degreeID;
+		}
+
+		return $degreeID;
+	}
+
+	/**
 	 * Gets the programIDs for the given resource
 	 *
 	 * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
@@ -106,6 +126,18 @@ class Programs extends Curricula implements Selectable
 		sort($ids);
 
 		return $ids;
+	}
+
+	/**
+	 * Gets the academic level of the program. (Bachelor|Master)
+	 *
+	 * @param   int  $programID  the id of the program
+	 *
+	 * @return string
+	 */
+	public static function getLevel(int $programID): string
+	{
+		return Degrees::getLevel(self::getDegreeID($programID));
 	}
 
 	/**
