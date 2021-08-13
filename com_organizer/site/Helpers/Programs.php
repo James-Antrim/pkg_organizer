@@ -212,9 +212,11 @@ class Programs extends Curricula implements Selectable
 	 */
 	public static function getQuery(): JDatabaseQuery
 	{
+		$tag   = Languages::getTag();
+		$parts = ["p.name_$tag", "' ('", 'd.abbreviation'];
+		$parts = self::useCurrent() ? array_merge($parts, ["')'"]) : array_merge($parts, ["', '", 'p.accredited', "')'"]);
+
 		$query      = Database::getQuery();
-		$tag        = Languages::getTag();
-		$parts      = ["p.name_$tag", "' ('", 'd.abbreviation', "', '", 'p.accredited', "')'"];
 		$nameClause = $query->concatenate($parts, '') . ' AS name';
 		$query->select("DISTINCT p.id AS id, $nameClause, p.active")
 			->from('#__organizer_programs AS p')
