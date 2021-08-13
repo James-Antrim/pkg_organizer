@@ -535,12 +535,12 @@ class SubjectsLSF
 	 */
 	public static function sanitizeText(string $text): string
 	{
-		// Get rid of HTML
-		$text = preg_replace('/<.*?>/', ' ', $text);
+		// Get rid of HTML tags & entities
+		$text = strip_tags($text);
+		$text = html_entity_decode($text);
 
-		// Remove punctuation
-		$text = preg_replace("/[!\"§\$%&\/()=?`,]/", ' ', $text);
-		$text = preg_replace("/[{}\[\]\\\´+*~#'<>|;.:-_]/", ' ', $text);
+		// Remove any non alphanum characters
+		$text = preg_replace("/[^a-zA-Z\d]/", ' ', $text);
 
 		// Remove excess white space
 		$text = trim($text);
