@@ -536,7 +536,7 @@ class SubjectsLSF
 	public static function sanitizeText(string $text): string
 	{
 		// Get rid of HTML tags & entities
-		$text = strip_tags($text);
+		$text = preg_replace('/<[^>]+>/', ' ', $text);
 		$text = html_entity_decode($text);
 
 		// Remove any non alphanum characters
