@@ -246,3 +246,8 @@ span.removed {
     color: #4a5c66;
     text-decoration: line-through;
 }
+
+body.tmpl-mobile .attribute-label {
+    margin-bottom: 1rem;
+    width: calc(100% - 20px);
+}
