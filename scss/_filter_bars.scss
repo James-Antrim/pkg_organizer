@@ -117,29 +117,6 @@ body.tmpl-mobile div.main {
     display: flex;
     flex-direction: row;
     margin-bottom: 1rem;
-
-    input[type='text'] {
-      width: calc(100% - 8px);
-    }
-
-    .btn-wrapper {
-      margin-right: .4rem;
-
-      &:last-child {
-        margin-right: 0;
-      }
-    }
-
-    .input-append {
-      font-size: 1rem;
-      width: 80%;
-
-      button {
-        margin: 0;
-        right: 2rem;
-        top: .4rem;
-      }
-    }
   }
 
   .js-stools-container-filters,
@@ -156,5 +133,33 @@ body.tmpl-mobile div.main {
 
   .js-stools-container-filters {
     margin-top: 0;
+  }
+
+  input[type='text'] {
+    width: calc(100% - 8px);
+  }
+
+  .btn-wrapper {
+    display: inline-block;
+    margin-right: .4rem;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    .btn {
+      font-size: 12px;
+    }
+  }
+
+  .input-append {
+    font-size: 1rem;
+    width: 80%;
+
+    button {
+      margin: 0;
+      right: 2rem;
+      top: .4rem;
+    }
   }
 }
