@@ -257,6 +257,7 @@ class Instances extends ResourceHelper
 			->from('#__organizer_instance_participants AS ipa')
 			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
 			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
+			->where('ipa.registered = 1')
 			->where("i1.id = $instanceID")
 			->where("i1.delta != 'removed'")
 			->where("i2.delta != 'removed'");
@@ -1113,8 +1114,10 @@ class Instances extends ResourceHelper
 	}
 
 	/**
-	 * Sets the instance's 'busy' (is the instances block used by the user) and 'participates' (does the user have this
-	 * instance in their schedule) properties.
+	 * Sets the instance's participation properties:
+	 * - 'busy'       - the user's schedule has an appointment in a block overlapping the instance
+	 * - 'interested' - the user has added this instance to their schedule
+	 * - 'registered' - the user has registered to physically participate in the instance
 	 *
 	 * @param   array  $instance  the array containing instance inforation
 	 *
@@ -1127,8 +1130,9 @@ class Instances extends ResourceHelper
 
 		if (!$userID = Users::getID())
 		{
-			$instance['participates'] = false;
-			$instance['busy']         = false;
+			$instance['busy']       = false;
+			$instance['interested'] = false;
+			$instance['registered'] = false;
 
 			return;
 		}
@@ -1136,8 +1140,9 @@ class Instances extends ResourceHelper
 		$participation = new Tables\InstanceParticipants();
 		if ($participation->load(['instanceID' => $instance['instanceID'], 'participantID' => $userID]))
 		{
-			$instance['participates'] = true;
-			$instance['busy']         = true;
+			$instance['busy']       = true;
+			$instance['interested'] = true;
+			$instance['registered'] = $participation->registered;
 
 			return;
 		}
@@ -1151,7 +1156,8 @@ class Instances extends ResourceHelper
 			return;
 		}
 
-		$instance['participates'] = false;
+		$instance['interested'] = false;
+		$instance['registered'] = false;
 
 		$blockConditions = [
 			"b.startTime <= '$block->startTime' AND b.endTime >= '$block->endTime'",

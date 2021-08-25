@@ -16,7 +16,7 @@ namespace Organizer\Tables;
 class InstanceParticipants extends BaseTable
 {
 	/**
-	 * Whether or not the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
+	 * Whether the participant actually attended the course. Values: 0 - Unattended, 1 - Attended.
 	 * TINYINT(1) UNSIGNED DEFAULT 0
 	 *
 	 * @var bool
@@ -38,6 +38,14 @@ class InstanceParticipants extends BaseTable
 	 * @var int
 	 */
 	public $participantID;
+
+	/**
+	 * Whether the participant has registered to physically attend the instance. Values: 0 - No, 1 - Yes.
+	 * TINYINT(1) UNSIGNED DEFAULT 0
+	 *
+	 * @var bool
+	 */
+	public $registered;
 
 	/**
 	 * The id of the room entry referenced.
