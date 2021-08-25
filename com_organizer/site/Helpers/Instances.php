@@ -253,7 +253,7 @@ class Instances extends ResourceHelper
 	public static function getCurrentCapacity(int $instanceID): int
 	{
 		$query = Database::getQuery();
-		$query->select('COUNT(DISTINCT ipa.id)')
+		$query->select('COUNT(DISTINCT ipa.participantID)')
 			->from('#__organizer_instance_participants AS ipa')
 			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
 			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
@@ -689,6 +689,29 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Returns the current number of participants for all concurrent instances  of the same block and unit as the given
+	 * instance.
+	 *
+	 * @param   int  $instanceID
+	 *
+	 * @return int
+	 */
+	public static function getInterested(int $instanceID): int
+	{
+		$query = Database::getQuery();
+		$query->select('COUNT(DISTINCT ipa.participantID)')
+			->from('#__organizer_instance_participants AS ipa')
+			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
+			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
+			->where("i1.id = $instanceID")
+			->where("i1.delta != 'removed'")
+			->where("i2.delta != 'removed'");
+		Database::setQuery($query);
+
+		return Database::loadInt();
+	}
+
+	/**
 	 * Gets the localized name of the event associated with the instance and the name of the instance's method.
 	 *
 	 * @param   int  $instanceID  the id of the instance
@@ -706,6 +729,7 @@ class Instances extends ResourceHelper
 
 		return Methods::getName($methodID);
 	}
+
 
 	/**
 	 * Gets the localized name of the event associated with the instance and the name of the instance's method.
@@ -1116,8 +1140,10 @@ class Instances extends ResourceHelper
 	/**
 	 * Sets the instance's participation properties:
 	 * - 'busy'       - the user's schedule has an appointment in a block overlapping the instance
-	 * - 'interested' - the user has added this instance to their schedule
+	 * - 'capacity'   - the number of users who may physically attend the instance
+	 * - 'interested' - the number of users who have added this instance to their schedule
 	 * - 'registered' - the user has registered to physically participate in the instance
+	 * - 'scheduled'  - the user has added the instance to their schedule
 	 *
 	 * @param   array  $instance  the array containing instance inforation
 	 *
@@ -1125,14 +1151,15 @@ class Instances extends ResourceHelper
 	 */
 	public static function setParticipation(array &$instance)
 	{
-		$instance['capacity'] = self::getCapacity($instance['instanceID']);
-		$instance['current']  = self::getCurrentCapacity($instance['instanceID']);
+		$instance['capacity']   = self::getCapacity($instance['instanceID']);
+		$instance['current']    = self::getCurrentCapacity($instance['instanceID']);
+		$instance['interested'] = self::getInterested($instance['instanceID']);
 
 		if (!$userID = Users::getID())
 		{
 			$instance['busy']       = false;
-			$instance['interested'] = false;
 			$instance['registered'] = false;
+			$instance['scheduled']  = false;
 
 			return;
 		}
@@ -1141,8 +1168,8 @@ class Instances extends ResourceHelper
 		if ($participation->load(['instanceID' => $instance['instanceID'], 'participantID' => $userID]))
 		{
 			$instance['busy']       = true;
-			$instance['interested'] = true;
 			$instance['registered'] = $participation->registered;
+			$instance['scheduled']  = true;
 
 			return;
 		}
@@ -1156,8 +1183,8 @@ class Instances extends ResourceHelper
 			return;
 		}
 
-		$instance['interested'] = false;
 		$instance['registered'] = false;
+		$instance['scheduled']  = false;
 
 		$blockConditions = [
 			"b.startTime <= '$block->startTime' AND b.endTime >= '$block->endTime'",
