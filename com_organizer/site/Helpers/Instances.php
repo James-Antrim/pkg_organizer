@@ -60,6 +60,7 @@ class Instances extends ResourceHelper
 		self::setParticipation($instance);
 		self::setPersons($instance, $conditions);
 		self::setSubject($instance, $conditions);
+		ksort($instance);
 	}
 
 	/**
