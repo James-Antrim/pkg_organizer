@@ -371,3 +371,10 @@ td a.btn {
 td a.btn:last-child {
     margin-right: 0;
 }
+
+/* MQ Column Removal **************************************************************************************************/
+@media screen and (max-width: 768px) {
+    #Instances-list tr th:nth-child(4), #Instances-list tr th:nth-child(5), #Instances-list tr td:nth-child(4), #Instances-list tr td:nth-child(5) {
+        display: none;
+    }
+}
