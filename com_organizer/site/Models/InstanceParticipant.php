@@ -13,7 +13,10 @@ namespace Organizer\Models;
 use Exception;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
+use Organizer\Helpers\Input;
 use Organizer\Helpers\InstanceParticipants as Helper;
+use Organizer\Helpers\Languages;
+use Organizer\Helpers\OrganizerHelper;
 use Organizer\Tables;
 use Organizer\Tables\InstanceParticipants as Table;
 
@@ -26,12 +29,13 @@ class InstanceParticipant extends BaseModel
 	private const TERM_MODE = 1, BLOCK_MODE = 2, INSTANCE_MODE = 3;
 
 	// Constants providing context for adding/removing instances to/from personal schedules though the interface.
-	private const ALL = 4, BLOCK = 2, SELECTED = 3, THIS = 1;
+	private const BLOCK = 2, SELECTED = 0, THIS = 1;
 
 	/**
 	 * Adds instances to the user's personal schedule.
 	 *
 	 * @return array
+	 * @see com_thm_organizer
 	 */
 	public function add(): array
 	{
@@ -65,7 +69,7 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
-	 * Authorizes the user responsible for a booking to edit individual participations.
+	 * Authorizes users responsible for bookings to edit individual participations.
 	 *
 	 * @return void
 	 */
@@ -73,14 +77,14 @@ class InstanceParticipant extends BaseModel
 	{
 		$bookingID = 0;
 
-		if (!$participationID = Helpers\Input::getID() or !$bookingID = Helper::getBookingID($participationID))
+		if (!$participationID = Input::getID() or !$bookingID = Helper::getBookingID($participationID))
 		{
-			Helpers\OrganizerHelper::error(400);
+			OrganizerHelper::error(400);
 		}
 
 		if (!Helpers\Can::manage('booking', $bookingID))
 		{
-			Helpers\OrganizerHelper::error(403);
+			OrganizerHelper::error(403);
 		}
 	}
 
@@ -93,7 +97,7 @@ class InstanceParticipant extends BaseModel
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_401', 'error');
+			OrganizerHelper::message('ORGANIZER_401', 'error');
 
 			return false;
 		}
@@ -101,10 +105,10 @@ class InstanceParticipant extends BaseModel
 		$participant = new Participant();
 		$participant->supplement($participantID);
 
-		$data = Helpers\Input::getFormItems();
+		$data = Input::getFormItems();
 		if (!$code = $data->get('code') or !preg_match('/^[a-f0-9]{4}-[a-f0-9]{4}$/', $code))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
+			OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
 
 			return false;
 		}
@@ -125,7 +129,7 @@ class InstanceParticipant extends BaseModel
 
 		if (!$instanceIDs = Database::loadIntColumn())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
+			OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
 
 			return false;
 		}
@@ -153,13 +157,13 @@ class InstanceParticipant extends BaseModel
 
 			if (!$participation->save($data))
 			{
-				Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_FAILED'));
+				OrganizerHelper::message(Languages::_('ORGANIZER_CHECKIN_FAILED'));
 
 				return false;
 			}
 		}
 
-		Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_CHECKIN_SUCCEEDED'), 'success');
+		OrganizerHelper::message(Languages::_('ORGANIZER_CHECKIN_SUCCEEDED'), 'success');
 
 		return true;
 	}
@@ -173,14 +177,14 @@ class InstanceParticipant extends BaseModel
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_401', 'error');
+			OrganizerHelper::message('ORGANIZER_401', 'error');
 
 			return;
 		}
 
-		if (!$instanceID = Helpers\Input::getID())
+		if (!$instanceID = Input::getID())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_400', 'error');
+			OrganizerHelper::message('ORGANIZER_400', 'error');
 
 			return;
 		}
@@ -188,7 +192,7 @@ class InstanceParticipant extends BaseModel
 		$instance = new Tables\Instances();
 		if (!$instance->load($instanceID))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+			OrganizerHelper::message('ORGANIZER_412', 'error');
 
 			return;
 		}
@@ -213,11 +217,11 @@ class InstanceParticipant extends BaseModel
 
 			if (Database::execute())
 			{
-				Helpers\OrganizerHelper::message('ORGANIZER_EVENT_CONFIRMED', 'success');
+				OrganizerHelper::message('ORGANIZER_EVENT_CONFIRMED', 'success');
 			}
 			else
 			{
-				Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+				OrganizerHelper::message('ORGANIZER_412', 'error');
 			}
 		}
 	}
@@ -231,14 +235,14 @@ class InstanceParticipant extends BaseModel
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_401', 'error');
+			OrganizerHelper::message('ORGANIZER_401', 'error');
 
 			return;
 		}
 
-		if (!$instanceID = Helpers\Input::getInt('instanceID') or !$roomID = Helpers\Input::getInt('roomID'))
+		if (!$instanceID = Input::getInt('instanceID') or !$roomID = Input::getInt('roomID'))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_400', 'error');
+			OrganizerHelper::message('ORGANIZER_400', 'error');
 
 			return;
 		}
@@ -247,37 +251,33 @@ class InstanceParticipant extends BaseModel
 
 		if (!$table->load(['instanceID' => $instanceID, 'participantID' => $participantID]))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+			OrganizerHelper::message('ORGANIZER_412', 'error');
 
 			return;
 		}
 
 		$table->roomID = $roomID;
-		$table->seat   = Helpers\Input::getString('seat');
+		$table->seat   = Input::getString('seat');
 
 		$table->store();
 	}
 
 	/**
-	 * Registers participants to instances.
-	 *
-	 * @param   int  $method  the manner in which instances are selected.
-	 *
-	 * @return bool
+	 * Deregisters participants from instances.
 	 */
-	public function deregister(int $method = self::THIS): bool
+	public function deregister()
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
+			OrganizerHelper::message(Languages::_('ORGANIZER_401'), 'error');
 
-			return false;
+			return;
 		}
 
-		if (!$instanceIDs = $this->getInstances($method))
+		// This filters out past instances.
+		if (!$instanceIDs = $this->getInstances(self::SELECTED))
 		{
-			// TODO add a message here about not finding any appropriate instances
-			return false;
+			return;
 		}
 
 		$deregistered = false;
@@ -288,6 +288,56 @@ class InstanceParticipant extends BaseModel
 			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
 			// Participant was not registered to this instance.
+			if (!$participation->load($keys) or !$participation->registered)
+			{
+				continue;
+			}
+
+			$keys['registered'] = false;
+
+			if ($participation->save($keys))
+			{
+				$deregistered = true;
+			}
+		}
+
+		if ($deregistered)
+		{
+			OrganizerHelper::message(Languages::_('ORGANIZER_DEREGISTRATION_SUCCESS'));
+		}
+
+		// The other option is that the participant wasn't registered to any of the matching instances => no message.
+	}
+
+	/**
+	 * Removes instances from a participant's personal schedule.
+	 *
+	 * @param   int  $method  the manner in which instances are filtered for removal.
+	 *
+	 * @return void
+	 */
+	public function deschedule(int $method)
+	{
+		if (!$participantID = Helpers\Users::getID())
+		{
+			OrganizerHelper::message(Languages::_('ORGANIZER_401'), 'error');
+
+			return;
+		}
+
+		if (!$instanceIDs = $this->getInstances($method))
+		{
+			return;
+		}
+
+		$descheduled = false;
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			$participation = new Table();
+			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
+
+			// The instance was not in the participant's personal schedule.
 			if (!$participation->load($keys))
 			{
 				continue;
@@ -295,26 +345,33 @@ class InstanceParticipant extends BaseModel
 
 			if ($participation->delete())
 			{
-				$deregistered = true;
+				$descheduled = true;
 			}
 		}
 
-		return $deregistered;
+		if ($descheduled)
+		{
+			OrganizerHelper::message(Languages::_('ORGANIZER_DESCHEDULE_SUCCESS'));
+		}
+
+		// The other option is that the participant didn't have matching instances in their personal schedule anyways => no message.
 	}
 
 	/**
 	 * Finds instances matching the given instance by matching method, inclusive the reference instance.
 	 *
 	 * @return array
+	 * @see com_thm_organizer
+	 * @see self::add(), self::remove()
 	 */
 	private function getMatchingInstances(): array
 	{
-		if (!$instanceID = Helpers\Input::getInt('instanceID'))
+		if (!$instanceID = Input::getInt('instanceID'))
 		{
 			return [];
 		}
 
-		$matchingMethod = Helpers\Input::getInt('method', 2);
+		$matchingMethod = Input::getInt('method', 2);
 		$instance       = new Tables\Instances();
 
 		if (!$instance->load($instanceID))
@@ -381,72 +438,75 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
-	 * Finds instances matching the given instance by matching method, inclusive the reference instance.
+	 * Finds instances matching the given instance by matching method, inclusive the reference instance. Adds system
+	 * message if no results were found.
 	 *
 	 * @param   int  $method  the method for determining relevant instances
 	 *
 	 * @return array
 	 */
-	private function getInstances(int $method = self::THIS): array
+	private function getInstances(int $method): array
 	{
-		if (!$instanceID = Helpers\Input::getInt('id'))
-		{
-			return [];
-		}
-
-		$instance = new Tables\Instances();
-
-		if (!$instance->load($instanceID))
-		{
-			return [];
-		}
-
 		$now   = date('H:i:s');
 		$query = Database::getQuery();
 		$today = date('Y-m-d');
+
 		$query->select('i.id')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-			->where("i.eventID = $instance->eventID")
-			->where("i.unitID = $instance->unitID")
 			->where("(b.date > '$today' OR (b.date = '$today' AND b.endTime > '$now'))")
 			->order('i.id');
 
-		$instanceIDs = [];
 		switch ($method)
 		{
-			case self::ALL:
+			// Called from instance item context, selected ids are not relevant
+			case self::BLOCK:
+				$block      = new Tables\Blocks();
+				$instance   = new Tables\Instances();
+				$instanceID = Input::getID();
+				if (!$instanceID or !$instance->load($instanceID) or !$block->load($instance->blockID))
+				{
+					return [];
+				}
+
+				$query->where("i.eventID = $instance->eventID")
+					->where("i.unitID = $instance->unitID")->where("b.dow = $block->dow")
+					->where("b.endTime = '$block->endTime'")
+					->where("b.startTime = '$block->startTime'");
 				Database::setQuery($query);
 				$instanceIDs = Database::loadIntColumn();
 				break;
-			// Using selected as a restrictive condition prevents manipulation.
+
+			// Called from instance item context, selected ids are not relevant
+			case self::THIS:
+				$instance   = new Tables\Instances();
+				$instanceID = Input::getID();
+
+				$instanceIDs = (!$instanceID or !$instance->load($instanceID)) ? [] : [$instanceID];
+				break;
+
+			// Called from instance_item or instances contexts
 			case self::SELECTED:
-				$selected = implode(',', Helpers\Input::getSelectedIDs());
+			default:
+
+				if (!$instanceIDs = Input::getSelectedIDs())
+				{
+					return [];
+				}
+
+				$selected = implode(',', $instanceIDs);
 				$query->where("i.id IN ($selected)");
 				Database::setQuery($query);
 				$instanceIDs = Database::loadIntColumn();
 				break;
-			case self::THIS:
-				$query->where("i.id = $instanceID");
-				Database::setQuery($query);
-				$instanceID  = Database::loadInt();
-				$instanceIDs = $instanceID ? [$instanceID] : [];
-				break;
-			case self::BLOCK:
-			default:
-				$block = new Tables\Blocks();
-				if ($block->load($instance->blockID))
-				{
-					$query->where("b.dow = $block->dow")
-						->where("b.endTime = '$block->endTime'")
-						->where("b.startTime = '$block->startTime'");
-					Database::setQuery($query);
-					$instanceIDs = Database::loadIntColumn();
-				}
-				break;
+		};
+
+		if (!$instanceIDs = array_values($instanceIDs))
+		{
+			OrganizerHelper::message(Languages::_('ORGANIZER_NO_VALID_INSTANCES'), 'notice');
 		}
 
-		return array_values($instanceIDs);
+		return $instanceIDs;
 	}
 
 	/**
@@ -457,18 +517,18 @@ class InstanceParticipant extends BaseModel
 	public function notify(): bool
 	{
 		return false;
-		/*if (!$instanceID = Helpers\Input::getID())
+		/*if (!$instanceID = Input::getID())
 		{
 			return false;
 		}
 
 		if (!Helpers\Can::manageTheseOrganizations() and !Helpers\Instances::teaches($instanceID))
 		{
-			Helpers\OrganizerHelper::error(403);
+			OrganizerHelper::error(403);
 		}
 
 		$participants = Helpers\Instances::getParticipantIDs($instanceID);
-		$selected     = Helpers\Input::getIntCollection('cid');
+		$selected     = Input::getIntCollection('cid');
 
 		if (empty($participants) and empty($selected))
 		{
@@ -477,7 +537,7 @@ class InstanceParticipant extends BaseModel
 
 		$participantIDs = $selected ?: $participants;
 
-		$form = Helpers\Input::getBatchItems();
+		$form = Input::getBatchItems();
 		if (!$subject = trim($form->get('subject', '')) or !$body = trim($form->get('body', '')))
 		{
 			return false;
@@ -494,26 +554,24 @@ class InstanceParticipant extends BaseModel
 	/**
 	 * Registers participants to instances.
 	 *
-	 * @param   int  $method  the manner in which instances are selected.
-	 *
-	 * @return bool
+	 * @return void
 	 */
-	public function register(int $method = self::THIS): bool
+	public function register()
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
-			Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_401'), 'error');
+			OrganizerHelper::message(Languages::_('ORGANIZER_401'), 'error');
 
-			return false;
+			return;
 		}
 
 		$participant = new Participant();
 		$participant->supplement($participantID);
 
-		if (!$instanceIDs = $this->getInstances($method))
+		// This filters out past instances.
+		if (!$instanceIDs = $this->getInstances(self::SELECTED))
 		{
-			// TODO add a message here about not finding any appropriate instances
-			return false;
+			return;
 		}
 
 		$registered = false;
@@ -524,20 +582,47 @@ class InstanceParticipant extends BaseModel
 			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
 			// Participant is already registered.
-			if ($participation->load($keys))
+			if ($participation->load($keys) and $participation->registered)
 			{
+				continue;
+			}
+
+			$name      = Helpers\Instances::getName($instanceID);
+			$block     = Helpers\Instances::getBlock($instanceID);
+			$date      = Helpers\Dates::formatDate($block->date);
+			$earliest  = Helpers\Dates::formatDate(strtotime('-2 days', strtotime($block->date)));
+			$endTime   = Helpers\Dates::formatEndTime($block->endTime);
+			$startTime = Helpers\Dates::formatTime($block->startTime);
+			$then      = date('Y-m-d', strtotime('+2 days'));
+
+			if (Helpers\Instances::isOnline($instanceID))
+			{
+				OrganizerHelper::message(
+					sprintf(Languages::_('ORGANIZER_INSTANCE_ONLINE'), $name, $date, $startTime, $endTime),
+					'notice'
+				);
+				continue;
+			}
+
+			if ($block->date > $then)
+			{
+				OrganizerHelper::message(
+					sprintf(Languages::_('ORGANIZER_PREMATURE_REGISTRATION'), $name, $date, $startTime, $endTime, $earliest),
+					'notice'
+				);
 				continue;
 			}
 
 			if (Helpers\Instances::isFull($instanceID))
 			{
-				$block     = Helpers\Instances::getBlock($instanceID);
-				$date      = Helpers\Dates::formatDate($block->date);
-				$endTime   = Helpers\Dates::formatEndTime($block->endTime);
-				$startTime = Helpers\Dates::formatTime($block->startTime);
-				Helpers\OrganizerHelper::message(sprintf(Helpers\Languages::_('ORGANIZER_INSTANCE_FULL'), $date, $startTime, $endTime), 'notice');
+				OrganizerHelper::message(
+					sprintf(Languages::_('ORGANIZER_INSTANCE_FULL'), $name, $date, $startTime, $endTime),
+					'notice'
+				);
 				continue;
 			}
+
+			$keys['registered'] = true;
 
 			if ($participation->save($keys))
 			{
@@ -545,7 +630,12 @@ class InstanceParticipant extends BaseModel
 			}
 		}
 
-		return $registered;
+		if ($registered)
+		{
+			OrganizerHelper::message(Languages::_('ORGANIZER_REGISTRATION_SUCCESS'));
+		}
+
+		// The other option is that the participant is already registered to all matching instances => no message.
 	}
 
 	/**
@@ -587,7 +677,7 @@ class InstanceParticipant extends BaseModel
 	{
 		$this->authorize();
 
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
 		try
 		{
@@ -595,7 +685,7 @@ class InstanceParticipant extends BaseModel
 		}
 		catch (Exception $exception)
 		{
-			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+			OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return false;
 		}
@@ -610,5 +700,56 @@ class InstanceParticipant extends BaseModel
 		$table->seat       = $data['seat'];
 
 		return $table->store() ? $table->id : false;
+	}
+
+	/**
+	 * Adds instances to the user's personal schedule.
+	 *
+	 * @param   int  $method  the manner in which instances are selected.
+	 *
+	 * @return void
+	 */
+	public function schedule(int $method)
+	{
+		if (!$participantID = Helpers\Users::getID())
+		{
+			OrganizerHelper::message(Languages::_('ORGANIZER_401'), 'error');
+
+			return;
+		}
+
+		$participant = new Participant();
+		$participant->supplement($participantID);
+
+		if (!$instanceIDs = $this->getInstances($method))
+		{
+			return false;
+		}
+
+		$registered = false;
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			$participation = new Table();
+			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
+
+			// Participant is already registered.
+			if ($participation->load($keys))
+			{
+				continue;
+			}
+
+			if ($participation->save($keys))
+			{
+				$registered = true;
+			}
+		}
+
+		if ($registered)
+		{
+			OrganizerHelper::message('ORGANIZER_SCHEDULE_SUCCESS');
+		}
+
+		// The other option is that all matching instances were already in the participant's personal schedule => no message.
 	}
 }
