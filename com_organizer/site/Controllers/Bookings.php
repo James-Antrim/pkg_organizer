@@ -123,6 +123,36 @@ class Bookings extends Controller
 	}
 
 	/**
+	 * Provides a singular point of entry for creation and management of a booking.
+	 *
+	 * @return void
+	 */
+	public function manage()
+	{
+		if (!$instanceIDs = Helpers\Input::getSelectedIDs())
+		{
+			Helpers\OrganizerHelper::error(400);
+		}
+
+		$instanceID = array_shift($instanceIDs);
+
+		if (!$bookingID = Helpers\Instances::getBookingID($instanceID))
+		{
+			$model = new Models\Booking();
+
+			if (!$bookingID = $model->add())
+			{
+				$this->setRedirect(Helpers\Input::getString('referrer'));
+
+				return;
+			}
+		}
+
+		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=$bookingID";
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
 	 * Opens/reopens a booking manually.
 	 *
 	 * @return void

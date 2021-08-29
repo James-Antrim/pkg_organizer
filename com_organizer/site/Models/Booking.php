@@ -37,10 +37,12 @@ class Booking extends Participants
 			Helpers\OrganizerHelper::error(401);
 		}
 
-		if (!$instanceID = Helpers\Input::getID())
+		if (!$instanceIDs = Helpers\Input::getSelectedIDs())
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
+
+		$instanceID = array_shift($instanceIDs);
 
 		if (!Helpers\Can::manage('instance', $instanceID))
 		{
