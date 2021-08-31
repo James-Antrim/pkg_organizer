@@ -616,7 +616,7 @@ class InstanceParticipant extends BaseModel
 			if (Helpers\Instances::isFull($instanceID))
 			{
 				OrganizerHelper::message(
-					sprintf(Languages::_('ORGANIZER_INSTANCE_FULL'), $name, $date, $startTime, $endTime),
+					sprintf(Languages::_('ORGANIZER_INSTANCE_FULL_MESSAGE'), $name, $date, $startTime, $endTime),
 					'notice'
 				);
 				continue;
