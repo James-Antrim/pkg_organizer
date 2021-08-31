@@ -166,7 +166,7 @@ class Bookings extends ResourceHelper
 	 *
 	 * @return int the number of attending participants
 	 */
-	public static function getParticipantCount(int $bookingID): int
+	public static function getParticipantCount(int $bookingID, int $roomID = 0): int
 	{
 		$query = Database::getQuery();
 		$query->select('COUNT(DISTINCT ip.participantID)')
@@ -175,6 +175,12 @@ class Bookings extends ResourceHelper
 			->innerJoin('#__organizer_bookings AS b ON b.unitID = i.unitID AND b.blockID = i.blockID')
 			->where('ip.attended = 1')
 			->where("b.id = $bookingID");
+
+		if ($roomID)
+		{
+			$query->where("ip.roomID = $roomID");
+		}
+
 		Database::setQuery($query);
 
 		return Database::loadInt();
@@ -195,7 +201,15 @@ class Bookings extends ResourceHelper
 		{
 			foreach (Instances::getRoomIDs($instanceID) as $roomID)
 			{
-				$rooms[$roomID] = Rooms::getName($roomID);
+				$room = new Tables\Rooms();
+				$room->load($roomID);
+
+				if ($room->virtual)
+				{
+					continue;
+				}
+
+				$rooms[$roomID] = $room->name;
 			}
 		}
 
