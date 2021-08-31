@@ -94,6 +94,19 @@ class Bookings extends Controller
 	}
 
 	/**
+	 * Checks the selected participants into the booking.
+	 *
+	 * @return void
+	 */
+	public function checkin()
+	{
+		$model = new Models\Booking();
+		$model->checkin();
+		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
 	 * Closes a booking manually.
 	 *
 	 * @return void

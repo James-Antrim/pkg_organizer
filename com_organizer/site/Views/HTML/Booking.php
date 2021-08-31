@@ -33,6 +33,7 @@ class Booking extends Participants
 
 	protected $rowStructure = [
 		'checkbox' => '',
+		'status'   => 'value',
 		'fullName' => 'link',
 		'event'    => 'link',
 		'room'     => 'link',
@@ -84,8 +85,17 @@ class Booking extends Participants
 			$texts[]     = $expiredText;
 		}
 
-		$count   = Helpers\Bookings::getParticipantCount(Helpers\Input::getID());
-		$texts[] = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count);
+		$count     = Helpers\Bookings::getParticipantCount($this->bookingID);
+		$countText = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count);
+
+		if ($count and $roomID = $this->state->get('filter.roomID'))
+		{
+			$roomCount = Helpers\Bookings::getParticipantCount($this->bookingID, $roomID);
+			$roomCount = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_ROOM_COUNT'), $roomCount);
+			$countText .= " ($roomCount)";
+		}
+
+		$texts[] = $countText;
 
 		$this->supplement = '<div class="tbox-' . $statusColor . '">' . implode('<br>', $texts) . '</div>';
 	}
@@ -127,7 +137,12 @@ class Booking extends Participants
 			);
 
 			// No easy removal at a later date
-			if ($today <= $bookingDate)
+			if ($today === $bookingDate)
+			{
+				$text = Languages::_('ORGANIZER_CHECKIN');
+				$toolbar->appendButton('Standard', 'user-check', $text, 'bookings.checkin', true);
+			}
+			elseif ($today <= $bookingDate)
 			{
 				$text = Languages::_('ORGANIZER_DELETE');
 				$toolbar->appendButton('Standard', 'user-minus', $text, 'bookings.removeParticipants', true);
@@ -233,6 +248,7 @@ class Booking extends Participants
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'status'   => Languages::_('ORGANIZER_STATUS'),
 			'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
 			'event'    => Languages::_('ORGANIZER_EVENT'),
 			'room'     => Languages::_('ORGANIZER_ROOM'),
@@ -268,6 +284,24 @@ class Booking extends Participants
 		{
 			$item->id       = $item->ipaID;
 			$item->fullName = $item->forename ? $item->fullName : $item->surname;
+
+			if ($item->attended and $item->registered)
+			{
+				$label = Languages::_('ORGANIZER_CHECKED_IN');
+				$icon  = 'user-check';
+			}
+			elseif ($item->attended)
+			{
+				$label = Languages::_('ORGANIZER_STOWAWAY');
+				$icon  = 'user-plus';
+			}
+			else
+			{
+				$label = Languages::_('ORGANIZER_REGISTERED');
+				$icon  = 'question';
+			}
+
+			$item->status = Helpers\HTML::icon($icon, $label, true);
 
 			if ($item->complete)
 			{
