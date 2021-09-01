@@ -1,44 +1,94 @@
-#ical
-
-
 #region Bugs ###########################################################################################################
 #new term was localized to '1970'
 #program delete does not work
-#unformatted grid output in old schedule output not displaying as intended
 #/en not being accepted by site & organizer language select displays wrong value when this is enabled
-#mobile output of list views is terrible => especially courses
 #editing a new program has two 'create' buttons
 #endregion
 
 #region Features #######################################################################################################
 #finish subject <=> event handling
 #unit publishing & untis unit statistic key for organizer unpublished
-#component setting for currency
 #further integrate the status wait list into course participant handling
 #integrate 'active' attributes for person, pool & program into documentation output
 #link instance views from documentation resources
 #add relevance output/toggle to the methods view
+#create a csv import routine
+#online evaluation portal? open to people who have attended at least x times?
+#region thm groups
+#crawler?
+#extend profiles to allow thm groups profile urls
+#link groups profiles
+#endregion
+#region rooms
+#add batch processing for rooms (types, equipment, properties,...)
+#capacity filters
+#endregion
+#region routing
+#redo url building and parsing
+#add breadcrumbs for appropriate views
+#endregion
+#tagging
+#region interfaces to system landscape
+#reading access to his-in-one for student information -> not stored!!!
+## has the student completed the requirements of this semester/pool...
+## gpa
+#endregion
+#list and item view pdf exports
+#system plugin function for participation change detection
+#editor-xtd plugin(s) for resources
+#content plugin(s) for resource resolution
+#region extend delta information
+#add new columns created & removed
+#adjust handling to avoid hard coded new/removed
+#endregion
+#region on schedule upload
+#makes as many updates to participant schedules as possible
+## event/method context dependent substitutions
+# participant notifications
+# person notifications
+#endregion
+#region department views
+#resources
+#endregion
+#merge events
 #endregion
 
 #region Meta ###########################################################################################################
-#check 403 calls and think about if there should be a 401 check in front of it
-#consistent message handling
+#standardize tooltip use across component
+#replace JComponentTitle use
+#error suppression through inheritance
+#associate organizations with campuses
+#associated programs with organization (ranked)
+#component setting for currency
+#media queries for individual list views
+#rename instance participants to participations
+#rename event coordinators to coordinators
+#move constants to helpers
+#region update
+#create update.xml
+#implement update mechanisms
+#rudimentary...
+##increment v# in manifest
+##create new zip
+##increment v# in update.xml
+#endregion
+#region message handling
+##messages created in models specific to action
 ##no message - user interaction where nothing was done such as saving without changing any resource attributes
 ##success - successful user dm interaction
 ##notice - unsuccessful user dm interaction due to inconsistent data or any other non-critical error where the user is not at fault
 ##warning - unsuccessful user dm interaction where form manipulation most likely occurred
 ##error - unsuccessful user dm where hard db errors occurred or form url manipulation definitely occurred
+#endregion
 #sprachenzentrum as organization & associate persons
-#make rooms primary in organizer & error if not existent
 #remove roomtypes from untis
-#make an adapters namespace for classes/files which alter joomla core functionality
-##database adapter (organizer helper)
-##application adapter (organizer helper)
-##html adapter
-##language adapter
-##input adapter
-##toolbar adapter
-##base mvc files??
+#region adapters
+#application adapter (organizer helper)
+#html adapter
+#language adapter (after com_thm_organizer dies)
+#input adapter
+#endregion
+#replace tcpdf use
 #endregion
 
 #region Quality ########################################################################################################
