@@ -20,6 +20,8 @@ use Organizer\Tables;
  */
 class Instances extends ResourceHelper
 {
+	public const HYBRID = 0, PRESENCE = 1, VIRTUAL = -1;
+
 	private const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
 	private const TEACHER = 1;
