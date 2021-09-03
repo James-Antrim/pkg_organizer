@@ -92,7 +92,7 @@ class CourseItem extends ItemModel
 			'campusID'           => 0,
 			'campus'             => ['label' => Languages::_($option . 'CAMPUS'), 'type' => 'text', 'value' => ''],
 			'organization'       => [
-				'label' => Languages::_($option . 'COURSE_ORGANIZATION'),
+				'label' => Languages::_($option . 'ORGANIZATIONAL'),
 				'type'  => 'text',
 				'value' => ''
 			],
