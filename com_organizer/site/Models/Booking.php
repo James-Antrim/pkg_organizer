@@ -580,7 +580,7 @@ class Booking extends Participants
 	{
 		$bookingID = Helpers\Input::getID();
 		$query     = parent::getListQuery();
-		$query->select('r.name AS room, ip.id AS ipaID, ip.attended, ip.seat')
+		$query->select('r.name AS room, ip.id AS ipaID, ip.attended, ip.seat, ip.registered')
 			->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
