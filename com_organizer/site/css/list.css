@@ -329,6 +329,10 @@ span.role-title {
     font-weight: bold;
 }
 
+table span[class^='icon-'], table span[class*=' icon-'] {
+    font-size: 1rem;
+}
+
 table.table-striped .center {
     text-align: center;
 }
@@ -375,6 +379,10 @@ td a.btn:last-child {
 
 /* MQ Column Removal **************************************************************************************************/
 @media screen and (max-width: 768px) {
+    #Booking-list tr th:nth-child(4), #Booking-list tr th:nth-child(5), #Booking-list tr th:nth-child(6), #Booking-list tr th:nth-child(7), #Booking-list tr td:nth-child(4), #Booking-list tr td:nth-child(5), #Booking-list tr td:nth-child(6), #Booking-list tr td:nth-child(7) {
+        display: none;
+    }
+
     #Instances-list tr th:nth-child(4), #Instances-list tr th:nth-child(5), #Instances-list tr td:nth-child(4), #Instances-list tr td:nth-child(5) {
         display: none;
     }
