@@ -132,11 +132,6 @@ class Instances extends ListModel
 				}
 			}
 		}
-
-		if (!$this->adminContext and $this->mobile)
-		{
-			$form->removeField('limit', 'list');
-		}
 	}
 
 	/**

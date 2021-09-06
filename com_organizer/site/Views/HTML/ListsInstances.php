@@ -1,6 +1,6 @@
 <?php
 /**
- * @package     Organizer
+ * @package     Organizer\Views\HTML
  * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2021 TH Mittelhessen
@@ -8,374 +8,255 @@
  * @link        www.thm.de
  */
 
-
 namespace Organizer\Views\HTML;
 
-use Organizer\Helpers\Can;
 use Organizer\Helpers\Dates;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Instances as Helper;
 use Organizer\Helpers\Languages;
 use Organizer\Helpers\Roles;
-use Organizer\Helpers\Users;
-use stdClass;
 
+/**
+ * Trait HasResources provides functiouns used by classes with formatted instance resource output.
+ */
 trait ListsInstances
 {
 	/**
-	 * Adds previously set resources to the structured item.
+	 * Lists the instance associated teachers.
 	 *
-	 * @param   array     $index
-	 * @param   stdClass  $instance
+	 * @param   object  $instance  the instance being iterated
 	 *
-	 * @return void
+	 * @return string
 	 */
-	private function addResources(array &$index, stdClass $instance)
+	private function getPersons(object $instance): string
 	{
-		$index['persons'] = $instance->persons;
-		$index['groups']  = $instance->groups;
-		$index['rooms']   = $instance->rooms;
-	}
-
-	/**
-	 * Created a structure for displaying status information as necessary.
-	 *
-	 * @param   stdClass  $instance  the instance item being iterated
-	 *
-	 * @return array|string
-	 */
-	private function getStatus(stdClass $instance)
-	{
-		$userID = Users::getID();
-
-		if ($instance->instanceStatus !== 'removed' and $instance->unitStatus !== 'removed')
-		{
-			if ($instance->expired)
-			{
-				$value = Languages::_('ORGANIZER_EXPIRED');
-			}
-			elseif ($instance->presence === Helper::ONLINE)
-			{
-				$value = Languages::_('ORGANIZER_DIGITAL');
-
-				if ($userID)
-				{
-					if ($instance->manageable)
-					{
-						$value .= '<br>' . $instance->interested . ' ';
-						$value .= HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBERS'));
-					}
-					elseif ($instance->scheduled)
-					{
-						$value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBED'));
-					}
-				}
-			}
-			else
-			{
-				$interested = $instance->interested - $instance->current;
-				$value      = $instance->presence === Helper::HYBRID ? Languages::_('ORGANIZER_HYBRID') : Languages::_('ORGANIZER_PRESENCE');
-
-				if ($userID)
-				{
-					if ($instance->manageable)
-					{
-						if ($interested)
-						{
-							$value .= "<br>$interested ";
-							$value .= HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBERS'));
-						}
-					}
-					elseif ($instance->scheduled)
-					{
-						$value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBED'));
-
-						if ($instance->registered)
-						{
-							$value .= ' ' . HTML::icon('signup', Languages::_('ORGANIZER_REGISTERED'));
-						}
-					}
-				}
-
-				if ($instance->presence !== Helper::ONLINE)
-				{
-					$value .= '<br>';
-
-					if ($instance->premature)
-					{
-						$value .= HTML::icon('unlock', Languages::_('ORGANIZER_REGISTRATION_PREMATURE'));
-						$value .= ' ' . $instance->registrationStart;
-					}
-					elseif ($instance->running)
-					{
-						$value .= HTML::icon('stop', Languages::_('ORGANIZER_REGISTRATION_CLOSED'));
-					}
-					else
-					{
-						if ($instance->full)
-						{
-							$value .= HTML::icon('pause', Languages::_('ORGANIZER_INSTANCE_FULL')) . ' ';
-						}
-						else
-						{
-							$value .= HTML::icon('play', Languages::_('ORGANIZER_REGISTRATION_OPEN'));
-						}
-
-						// Forced output
-						$value .= $instance->capacity ? "$instance->current/$instance->capacity " : "$instance->current ";
-						$value .= HTML::icon('users', Languages::_('ORGANIZER_PARTICIPANTS'));
-					}
-				}
-			}
-		}
-		else
-		{
-			$value = Languages::_('ORGANIZER_REMOVED');
-		}
-
-		return $value;
-	}
-
-	/**
-	 * Gets an icon displaying the instance's (unit's) status as relevant.
-	 *
-	 * @param   stdClass  $instance  the object modeling the instance
-	 *
-	 * @return string an icon representing the status of the instance, empty if the staus is irrelevent
-	 */
-	private function getStatusIcon(stdClass $instance): string
-	{
-		// If removed are here at all, the status holds relevance regardless of date
-		if ($instance->unitStatus === 'removed')
-		{
-			$date  = Dates::formatDate($instance->unitStatusDate);
-			$title = sprintf(Languages::_('ORGANIZER_UNIT_REMOVED_ON'), $date);
-
-			return HTML::icon('minus-circle', $title);
-		}
-
-		if ($instance->instanceStatus === 'removed')
-		{
-			$date  = Dates::formatDate($instance->instanceStatusDate);
-			$title = sprintf(Languages::_('ORGANIZER_INSTANCE_REMOVED_ON'), $date);
-
-			return HTML::icon('minus-circle', $title);
-		}
-
-		elseif ($instance->unitStatus === 'new' and $instance->unitStatusDate >= $this->statusDate)
-		{
-			$date  = Dates::formatDate($instance->unitStatusDate);
-			$title = sprintf(Languages::_('ORGANIZER_UNIT_ADDED_ON'), $date);
-
-			return HTML::icon('plus-circle', $title);
-		}
-
-		if ($instance->instanceStatus === 'new' and $instance->instanceStatusDate >= $this->statusDate)
-		{
-			$date  = Dates::formatDate($instance->instanceStatusDate);
-			$title = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $date);
-
-			return HTML::icon('plus-circle', $title);
-		}
-
-		return '';
-	}
-
-	/**
-	 * Adds derived attributes/resource output for the instances.
-	 *
-	 * @param   array  $instances
-	 *
-	 * @return void
-	 */
-	private function setDerived(array $instances)
-	{
-		foreach ($instances as $instance)
-		{
-			$this->setSingle($instance);
-		}
-	}
-
-	/**
-	 * Determines whether the item is conducted virtually: every person is assigned rooms, all assigned rooms are virtual.
-	 *
-	 * @param   stdClass  $instance  the item being iterated
-	 *
-	 * @return void
-	 */
-	private function setResources(stdClass $instance)
-	{
-		$instance->groups   = '';
-		$instance->persons  = '';
-		$instance->presence = Helper::ONLINE;
-		$instance->rooms    = '';
-		$removed            = ($instance->instanceStatus === 'removed' or $instance->unitStatus === 'removed');
-
-		if (empty($instance->resources))
-		{
-			return;
-		}
-
-		$groups   = [];
-		$presence = false;
-		$roles    = [];
-		$rooms    = [];
-		$virtual  = false;
+		$added   = Languages::_('ORGANIZER_PERSON_ADDED_ON');
+		$removed = Languages::_('ORGANIZER_PERSON_REMOVED_ON');
+		$roles   = [];
 
 		foreach ($instance->resources as $person)
 		{
-			if (($removed and $person['status'] === 'new') or $person['status'] === 'removed')
+			$name  = $person['person'];
+			$title = '';
+
+			if ($this->entryStatus === 'new' and $person['status'] === 'removed'
+				or $this->entryStatus === 'removed' and $person['status'] === 'new')
 			{
 				continue;
 			}
 
-			$name = $person['person'];
+			if (!$this->entryStatus and $person['status'] and $person['statusDate'] >= $this->statusDate)
+			{
+				$date = Dates::formatDate($person['statusDate']);
+
+				if ($person['status'] === 'new')
+				{
+					$class = 'status-new';
+					$title = 'title="' . sprintf($added, $date) . '"';
+				}
+				elseif ($person['status'] === 'removed')
+				{
+					$class = 'status-removed';
+					$title = 'title="' . sprintf($removed, $date) . '"';
+				}
+			}
+
+			$class = !empty($class) ? 'class="' . $class . '"' : '';
 
 			if (empty($roles[$person['roleID']]))
 			{
 				$roles[$person['roleID']] = [];
 			}
 
-			$roles[$person['roleID']][$name] = $name;
-
-			if (!empty($person['groups']))
-			{
-				foreach ($person['groups'] as $group)
-				{
-					if (($removed and $group['status'] === 'new') or $group['status'] === 'removed')
-					{
-						continue;
-					}
-
-					$name = $group['code'];
-
-					if (empty($groups[$name]))
-					{
-						$groups[$name] = $group;
-					}
-				}
-			}
-
-			if (!empty($person['rooms']))
-			{
-				foreach ($person['rooms'] as $room)
-				{
-					if (($removed and $room['status'] === 'new') or $room['status'] === 'removed')
-					{
-						continue;
-					}
-
-					if ($room['virtual'])
-					{
-						$virtual = true;
-						continue;
-					}
-
-					$name     = $room['room'];
-					$presence = true;
-
-					if (empty($rooms[$name]))
-					{
-						$rooms[$name] = $name;
-					}
-				}
-			}
+			$roles[$person['roleID']][$name] = "<span $class $title>$name</span>";
 		}
-
-		ksort($groups);
-
-		foreach ($groups as $code => $group)
-		{
-			$title = "title=\"{$group['fullName']}\"";
-
-			$groups[$code] = "<span class=\"hasToolTip\" $title>{$group['code']}</span>";
-		}
-
-		$instance->groups = implode('<br>', $groups);
 
 		if (count($roles) === 1)
 		{
 			$persons = array_shift($roles);
 			ksort($persons);
 
-			$instance->persons = implode('<br>', $persons);
+			return implode('<br>', $persons);
 		}
-		else
-		{
-			$displayRoles = [];
-			foreach ($roles as $roleID => $persons)
-			{
-				$roleDisplay = '';
 
-				if (!$roleTitle = Roles::getLabel($roleID, count($persons)))
+		$displayRoles = [];
+
+		ksort($roles);
+
+		foreach ($roles as $roleID => $persons)
+		{
+			$roleDisplay = '';
+
+			if (!$roleTitle = Roles::getLabel($roleID, count($persons)))
+			{
+				continue;
+			}
+
+			$roleDisplay .= "<span class=\"role-title\">$roleTitle:</span><br>";
+
+			ksort($persons);
+			$roleDisplay           .= implode('<br>', $persons);
+			$displayRoles[$roleID] = $roleDisplay;
+		}
+
+		return implode('<br>', $displayRoles);
+	}
+
+	/**
+	 * Lists the instance associated resources.
+	 *
+	 * @param   object  $instance      the instance being iterated
+	 * @param   string  $resourceName  the resource type's name
+	 * @param   string  $rIndex        the individual resource's name index
+	 *
+	 * @return string
+	 */
+	private function getResource(object $instance, string $resourceName, string $rIndex): string
+	{
+		$constant        = strtoupper($resourceName);
+		$collectionIndex = $resourceName . 's';
+
+		$added     = Languages::_("ORGANIZER_{$constant}_ADDED_ON");
+		$resources = [];
+		$removed   = Languages::_("ORGANIZER_{$constant}_REMOVED_ON");
+
+		foreach ($instance->resources as $person)
+		{
+			if (empty($person[$collectionIndex]) or $person['status'] === 'removed')
+			{
+				continue;
+			}
+
+			if (empty($person[$collectionIndex]))
+			{
+				continue;
+			}
+
+			foreach ($person[$collectionIndex] as $resource)
+			{
+				if ($this->entryStatus === 'new' and $resource['status'] === 'removed'
+					or $this->entryStatus === 'removed' and $resource['status'] === 'new')
 				{
 					continue;
 				}
 
-				$roleDisplay .= "<span class=\"role-title\">$roleTitle:</span><br>";
+				$name = $resource[$rIndex];
 
-				ksort($persons);
-				$roleDisplay           .= implode('<br>', $persons);
-				$displayRoles[$roleID] = $roleDisplay;
+				if (empty($resources[$name]))
+				{
+					$resources[$name] = $resource;
+					continue;
+				}
+
+				$resources[$name]['statusDate'] =
+					max($resources[$name]['statusDate'], $resource['statusDate']);
+
+				if ($resources[$name]['status'] !== $resource['status'])
+				{
+					$resources[$name]['status'] = '';
+				}
+			}
+		}
+
+		ksort($resources);
+
+		foreach ($resources as $name => $resource)
+		{
+			$class = '';
+			$title = '';
+
+			if (strlen($name) > 45)
+			{
+				$class         .= 'hasToolTip';
+				$title         .= $name;
+				$displayedName = $resource['code'];
+			}
+			else
+			{
+				$displayedName = $name;
 			}
 
-			ksort($roles);
-			$instance->persons = implode('<br>', $displayRoles);
+			if (!$this->entryStatus and $resource['status'] and $resource['statusDate'] >= $this->statusDate)
+			{
+				$date = Dates::formatDate($resource['statusDate']);
+
+				if ($resource['status'] === 'new')
+				{
+					$class .= ' status-new';
+					$title .= ' ' . sprintf($added, $date);
+				}
+				elseif ($resource['status'] === 'removed')
+				{
+					$class .= ' status-removed';
+					$title .= ' ' . sprintf($removed, $date);
+				}
+			}
+
+			if ($class = trim($class))
+			{
+				$class = "class=\"$class\"";
+			}
+
+			if ($title = trim($title))
+			{
+				$title = "title=\"$title\"";
+			}
+
+			$resources[$name] = "<span $class $title>$displayedName</span>";
 		}
 
-		if ($presence and $virtual)
-		{
-			$instance->presence = Helper::HYBRID;
-		}
-		elseif ($presence)
-		{
-			$instance->presence = Helper::PRESENCE;
-		}
-
-		if ($instance->presence === Helper::ONLINE)
-		{
-			$instance->rooms = Languages::_('ORGANIZER_DIGITAL');
-
-			return;
-		}
-
-		ksort($rooms);
-
-		if ($instance->presence === Helper::HYBRID)
-		{
-			array_unshift($rooms, Languages::_('ORGANIZER_DIGITAL'));
-		}
-
-		$instance->rooms = implode('<br>', $rooms);
+		return implode('<br>', $resources);
 	}
 
-	private function setSingle(stdClass $instance)
+	/**
+	 * Created a structure for displaying status information as necessary.
+	 *
+	 * @param   object  $instance  the instance item being iterated
+	 *
+	 * @return array|string
+	 */
+	private function getStatus(object $instance)
 	{
-		$link   = 'index.php?option=com_organizer&view=instance_item&id=';
-		$now    = date('H:i');
-		$today  = date('Y-m-d');
-		$userID = Users::getID();
+		$class = 'status-display hasToolTip';
+		$title = '';
 
-		$this->setResources($instance);
-
-		$instanceID = $instance->instanceID;
-		$isToday    = $instance->date === $today;
-		$then       = date('Y-m-d', strtotime('-2 days', strtotime($instance->date)));
-
-		$instance->expired           = ($instance->date < $today or ($isToday and $instance->endTime < $now));
-		$instance->full              = (!empty($instance->capacity) and $instance->current >= $instance->capacity);
-		$instance->link              = $link . $instanceID;
-		$instance->manageable        = ($userID and Can::manage('instance', $instanceID));
-		$instance->premature         = $today < $then;
-		$instance->registration      = false;
-		$instance->registrationStart = Dates::formatDate($then);
-		$instance->running           = (!$instance->expired and $instance->date === $today and $instance->startTime < $now);
-
-		$validTiming = (!$instance->expired and !$instance->running);
-
-		if ($validTiming and $instance->presence !== Helper::ONLINE and !$instance->full)
+		// If removed are here at all, the status holds relevance irregardless of date
+		if ($instance->unitStatus === 'removed')
 		{
-			$instance->registration = true;
+			$date  = Dates::formatDate($instance->unitStatusDate);
+			$class .= ' unit-removed';
+			$title = sprintf(Languages::_('ORGANIZER_UNIT_REMOVED_ON'), $date);
+
+			$this->entryStatus = 'removed';
 		}
+		elseif ($instance->instanceStatus === 'removed')
+		{
+			$date  = Dates::formatDate($instance->instanceStatusDate);
+			$class .= ' instance-removed';
+			$title = sprintf(Languages::_('ORGANIZER_INSTANCE_REMOVED_ON'), $date);
+
+			$this->entryStatus = 'removed';
+		}
+		elseif ($instance->unitStatus === 'new' and $instance->unitStatusDate >= $this->statusDate)
+		{
+			$date  = Dates::formatDate($instance->unitStatusDate);
+			$class .= ' unit-new';
+			$title = sprintf(Languages::_('ORGANIZER_UNIT_ADDED_ON'), $date);
+
+			$this->entryStatus = 'new';
+		}
+		elseif ($instance->instanceStatus === 'new' and $instance->instanceStatusDate >= $this->statusDate)
+		{
+			$date  = Dates::formatDate($instance->instanceStatusDate);
+			$class .= ' instance-new';
+			$title = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $date);
+
+			$this->entryStatus = 'new';
+		}
+		else
+		{
+			$this->entryStatus = '';
+		}
+
+		return $title ? ['attributes' => ['class' => $class, 'title' => $title], 'value' => ''] : '';
 	}
+
 }

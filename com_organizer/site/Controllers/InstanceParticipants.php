@@ -19,11 +19,11 @@ use Organizer\Helpers\OrganizerHelper;
 use Organizer\Models;
 
 /**
- * Class provides methods for participant interation with instances.
+ * Class provides methods for user interation with instance <-> participant associations.
  */
 class InstanceParticipants extends Controller
 {
-	private const BLOCK = 2, SELECTED = 0, THIS = 1;
+	private const ALL = 4, BLOCK = 2, SELECTED = 3, THIS = 1;
 
 	protected $listView = 'instance_participants';
 
@@ -42,10 +42,9 @@ class InstanceParticipants extends Controller
 	}
 
 	/**
-	 * Adds instances to the participant's personal schedule.
+	 * Adds instances to the user's personal schedule.
 	 *
 	 * @return void
-	 * @see com_thm_organizer
 	 */
 	public function add()
 	{
@@ -57,59 +56,119 @@ class InstanceParticipants extends Controller
 	}
 
 	/**
-	 * Triggers the model to deregister the participant from instances.
+	 * Triggers the model to deregister the user for instances.
 	 *
 	 * @return void
 	 */
-	public function deregister()
+	public function deregister(int $method = self::THIS)
 	{
 		$model = new Models\InstanceParticipant();
-		$model->deregister();
+
+		if ($model->deregister($method))
+		{
+			$message = Languages::_('ORGANIZER_DEREGISTRATION_SUCCESS');
+			$status  = 'success';
+		}
+		else
+		{
+			$message = Languages::_('ORGANIZER_DEREGISTRATION_FAIL');
+			$status  = 'error';
+		}
+
+		OrganizerHelper::message($message, $status);
 		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 		$this->setRedirect(Route::_($referrer, false));
 	}
 
 	/**
-	 * Triggers the model to remove instances from the participant's personal schedule.
+	 * Triggers the model to deregister all the instances of the same event & unit.
 	 *
 	 * @return void
 	 */
-	public function deschedule(int $method = self::SELECTED)
+	public function deregisterAll()
+	{
+		$this->deregister(self::ALL);
+	}
+
+	/**
+	 * Triggers the model to deregister the instances of a single block for the same event & unit.
+	 *
+	 * @return void
+	 */
+	public function deregisterBlock()
+	{
+		$this->deregister(self::BLOCK);
+	}
+
+	/**
+	 * Triggers the model to deregister the selected instances.
+	 *
+	 * @return void
+	 */
+	public function deregisterSelected()
+	{
+		$this->deregister(self::SELECTED);
+	}
+
+	/**
+	 * Triggers the model to register the user for instances.
+	 *
+	 * @return void
+	 */
+	public function register(int $method = self::THIS)
 	{
 		$model = new Models\InstanceParticipant();
-		$model->deschedule($method);
+
+		if ($model->register($method))
+		{
+			$message = Languages::_('ORGANIZER_REGISTRATION_SUCCESS');
+			$status  = 'success';
+		}
+		else
+		{
+			$message = Languages::_('ORGANIZER_REGISTRATION_FAIL');
+			$status  = 'error';
+		}
+
+		OrganizerHelper::message($message, $status);
 		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 		$this->setRedirect(Route::_($referrer, false));
 	}
 
 	/**
-	 * Triggers the model to remove instances of a unique block (dow/times) and event tuple from the participant's personal schedule.
+	 * Triggers the model to register all the instances of the same event & unit.
 	 *
 	 * @return void
 	 */
-	public function descheduleBlock()
+	public function registerAll()
 	{
-		$this->deschedule(self::BLOCK);
+		$this->register(self::ALL);
 	}
 
 	/**
-	 * Triggers the model to register the participant to instances.
+	 * Triggers the model to register the instances of a single block for the same event & unit.
 	 *
 	 * @return void
 	 */
-	public function register()
+	public function registerBlock()
 	{
-		$model = new Models\InstanceParticipant();
-		$model->register();
-		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-		$this->setRedirect(Route::_($referrer, false));
+		$this->register(self::BLOCK);
 	}
 
 	/**
-	 * Removes instances to the participant's personal schedule.
+	 * Triggers the model to register the selected instances.
 	 *
 	 * @return void
-	 * @see com_thm_organizer
+	 */
+	public function registerSelected()
+	{
+		$this->register(self::SELECTED);
+	}
+
+	/**
+	 * Removes instances to the user's personal schedule.
+	 *
+	 * @return void
 	 */
 	public function remove()
 	{
@@ -140,28 +199,5 @@ class InstanceParticipants extends Controller
 		{
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
-	}
-
-	/**
-	 * Triggers the model to add instances to the participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function schedule(int $method = self::SELECTED)
-	{
-		$model = new Models\InstanceParticipant();
-		$model->schedule($method);
-		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-		$this->setRedirect(Route::_($referrer, false));
-	}
-
-	/**
-	 * Triggers the model to add instances of a unique block (dow/times) and event to a participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function scheduleBlock()
-	{
-		$this->schedule(self::BLOCK);
 	}
 }

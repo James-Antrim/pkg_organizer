@@ -74,8 +74,8 @@ class Buildings extends ResourceHelper implements Selectable
 			$thisCampusID = empty($thisBuilding['parentID']) ? $thisBuilding['campusID'] : $thisBuilding['parentID'];
 			$nextCampusID = empty($nextBuilding['parentID']) ? $nextBuilding['campusID'] : $nextBuilding['parentID'];
 
-			$thisBuilding['campusName'] = Campuses::getName($thisCampusID);
-			$nextBuilding['campusName'] = Campuses::getName($nextCampusID);
+			$thisBuilding['campusName'] = Campuses::getName((int)$thisCampusID);
+			$nextBuilding['campusName'] = Campuses::getName((int)$nextCampusID);
 
 			if ($thisBuilding['campusName'] < $nextBuilding['campusName'])
 			{

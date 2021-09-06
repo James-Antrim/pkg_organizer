@@ -20,8 +20,6 @@ use Organizer\Tables;
  */
 class Instances extends ResourceHelper
 {
-	public const HYBRID = 0, ONLINE = -1, PRESENCE = 1;
-
 	private const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
 	private const TEACHER = 1;
@@ -62,7 +60,6 @@ class Instances extends ResourceHelper
 		self::setParticipation($instance);
 		self::setPersons($instance, $conditions);
 		self::setSubject($instance, $conditions);
-		ksort($instance);
 	}
 
 	/**
@@ -255,11 +252,10 @@ class Instances extends ResourceHelper
 	public static function getCurrentCapacity(int $instanceID): int
 	{
 		$query = Database::getQuery();
-		$query->select('COUNT(DISTINCT ipa.participantID)')
+		$query->select('COUNT(DISTINCT ipa.id)')
 			->from('#__organizer_instance_participants AS ipa')
 			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
 			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
-			->where('ipa.registered = 1')
 			->where("i1.id = $instanceID")
 			->where("i1.delta != 'removed'")
 			->where("i2.delta != 'removed'");
@@ -443,7 +439,6 @@ class Instances extends ResourceHelper
 			'organization'   => $orgName,
 			'organizationID' => $unitsTable->organizationID,
 			'gridID'         => $unitsTable->gridID,
-			'termID'         => $unitsTable->termID,
 			'unitStatus'     => $unitsTable->delta,
 			'unitStatusDate' => $unitsTable->modified,
 		];
@@ -481,8 +476,6 @@ class Instances extends ResourceHelper
 				$instance['registrationStatus'] = 1;
 			}
 		}
-
-		ksort($instance);
 
 		return $instance;
 	}
@@ -691,29 +684,6 @@ class Instances extends ResourceHelper
 		}
 
 		return $query;
-	}
-
-	/**
-	 * Returns the current number of participants for all concurrent instances  of the same block and unit as the given
-	 * instance.
-	 *
-	 * @param   int  $instanceID
-	 *
-	 * @return int
-	 */
-	public static function getInterested(int $instanceID): int
-	{
-		$query = Database::getQuery();
-		$query->select('COUNT(DISTINCT ipa.participantID)')
-			->from('#__organizer_instance_participants AS ipa')
-			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
-			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
-			->where("i1.id = $instanceID")
-			->where("i1.delta != 'removed'")
-			->where("i2.delta != 'removed'");
-		Database::setQuery($query);
-
-		return Database::loadInt();
 	}
 
 	/**
@@ -983,31 +953,6 @@ class Instances extends ResourceHelper
 	}
 
 	/**
-	 * Checks whether the instance takes place exclusively online.
-	 *
-	 * @param   int  $instanceID
-	 *
-	 * @return bool
-	 */
-	public static function isOnline(int $instanceID): bool
-	{
-		$query = Database::getQuery();
-		$query->select('r.id')
-			->from('#__organizer_rooms AS r')
-			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
-			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
-			->innerJoin('#__organizer_instances AS i ON i.id = ipe.instanceID')
-			->where('r.virtual = 0')
-			->where("i.id = $instanceID")
-			->where("ir.delta != 'removed'")
-			->where("ipe.delta != 'removed'");
-		Database::setQuery($query);
-
-		// No non-virtual rooms associated
-		return !Database::loadBool();
-	}
-
-	/**
 	 * Sets the instance's bookingID
 	 *
 	 * @param   array  &$instance  the instance to modify
@@ -1167,12 +1112,8 @@ class Instances extends ResourceHelper
 	}
 
 	/**
-	 * Sets the instance's participation properties:
-	 * - 'busy'       - the user's schedule has an appointment in a block overlapping the instance
-	 * - 'capacity'   - the number of users who may physically attend the instance
-	 * - 'interested' - the number of users who have added this instance to their schedule
-	 * - 'registered' - the user has registered to physically participate in the instance
-	 * - 'scheduled'  - the user has added the instance to their schedule
+	 * Sets the instance's 'busy' (is the instances block used by the user) and 'participates' (does the user have this
+	 * instance in their schedule) properties.
 	 *
 	 * @param   array  $instance  the array containing instance inforation
 	 *
@@ -1180,15 +1121,13 @@ class Instances extends ResourceHelper
 	 */
 	public static function setParticipation(array &$instance)
 	{
-		$instance['capacity']   = self::getCapacity($instance['instanceID']);
-		$instance['current']    = self::getCurrentCapacity($instance['instanceID']);
-		$instance['interested'] = self::getInterested($instance['instanceID']);
+		$instance['capacity'] = self::getCapacity($instance['instanceID']);
+		$instance['current']  = self::getCurrentCapacity($instance['instanceID']);
 
 		if (!$userID = Users::getID())
 		{
-			$instance['busy']       = false;
-			$instance['registered'] = false;
-			$instance['scheduled']  = false;
+			$instance['participates'] = false;
+			$instance['busy']         = false;
 
 			return;
 		}
@@ -1196,9 +1135,8 @@ class Instances extends ResourceHelper
 		$participation = new Tables\InstanceParticipants();
 		if ($participation->load(['instanceID' => $instance['instanceID'], 'participantID' => $userID]))
 		{
-			$instance['busy']       = true;
-			$instance['registered'] = $participation->registered;
-			$instance['scheduled']  = true;
+			$instance['participates'] = true;
+			$instance['busy']         = true;
 
 			return;
 		}
@@ -1212,8 +1150,7 @@ class Instances extends ResourceHelper
 			return;
 		}
 
-		$instance['registered'] = false;
-		$instance['scheduled']  = false;
+		$instance['participates'] = false;
 
 		$blockConditions = [
 			"b.startTime <= '$block->startTime' AND b.endTime >= '$block->endTime'",

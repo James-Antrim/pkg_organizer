@@ -128,6 +128,29 @@ body.tmpl-mobile div.main .js-stools-container-bar {
     margin-bottom: 1rem;
 }
 
+body.tmpl-mobile div.main .js-stools-container-bar input[type='text'] {
+    width: calc(100% - 8px);
+}
+
+body.tmpl-mobile div.main .js-stools-container-bar .btn-wrapper {
+    margin-right: .4rem;
+}
+
+body.tmpl-mobile div.main .js-stools-container-bar .btn-wrapper:last-child {
+    margin-right: 0;
+}
+
+body.tmpl-mobile div.main .js-stools-container-bar .input-append {
+    font-size: 1rem;
+    width: 80%;
+}
+
+body.tmpl-mobile div.main .js-stools-container-bar .input-append button {
+    margin: 0;
+    right: 2rem;
+    top: .4rem;
+}
+
 body.tmpl-mobile div.main .js-stools-container-filters input, body.tmpl-mobile div.main .js-stools-container-filters select,
 body.tmpl-mobile div.main .js-stools-container-list input,
 body.tmpl-mobile div.main .js-stools-container-list select {
@@ -142,34 +165,6 @@ body.tmpl-mobile div.main .js-stools-container-list input[type='date'] {
 
 body.tmpl-mobile div.main .js-stools-container-filters {
     margin-top: 0;
-}
-
-body.tmpl-mobile div.main input[type='text'] {
-    width: calc(100% - 8px);
-}
-
-body.tmpl-mobile div.main .btn-wrapper {
-    display: inline-block;
-    margin-right: .4rem;
-}
-
-body.tmpl-mobile div.main .btn-wrapper:last-child {
-    margin-right: 0;
-}
-
-body.tmpl-mobile div.main .btn-wrapper .btn {
-    font-size: 12px;
-}
-
-body.tmpl-mobile div.main .input-append {
-    font-size: 1rem;
-    width: 80%;
-}
-
-body.tmpl-mobile div.main .input-append button {
-    margin: 0;
-    right: 2rem;
-    top: .4rem;
 }
 
 .attribute-item {
@@ -245,9 +240,4 @@ span.new {
 span.removed {
     color: #4a5c66;
     text-decoration: line-through;
-}
-
-body.tmpl-mobile .attribute-label {
-    margin-bottom: 1rem;
-    width: calc(100% - 20px);
 }

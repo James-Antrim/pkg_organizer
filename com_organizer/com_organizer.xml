@@ -15,6 +15,8 @@
         <filename>LICENSE.txt</filename>
         <filename>organizer.php</filename>
         <filename>metadata.xml</filename>
+        <folder>Adapters</folder>
+        <folder>Buttons</folder>
         <folder>Controllers</folder>
         <folder>css</folder>
         <folder>Fields</folder>
@@ -25,6 +27,7 @@
         <folder>Layouts</folder>
         <folder>Models</folder>
         <folder>Tables</folder>
+        <folder>Validators</folder>
         <folder>Views</folder>
     </files>
     <administration>

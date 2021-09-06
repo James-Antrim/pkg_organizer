@@ -212,6 +212,7 @@ class OrganizerHelper
 			'programs'      => 'program',
 			'rooms'         => 'room',
 			'roomtypes'     => 'roomtype',
+            'dintypes'     => 'dintype',
 			'schedules'     => 'schedule',
 			'search'        => 'search',
 			'subjects'      => 'subject',

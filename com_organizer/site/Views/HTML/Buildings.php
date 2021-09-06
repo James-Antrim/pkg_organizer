@@ -90,7 +90,6 @@ class Buildings extends ListView
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}
-
 		$this->items = $structuredItems;
 	}
 }

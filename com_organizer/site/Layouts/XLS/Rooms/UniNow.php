@@ -11,6 +11,8 @@
 namespace Organizer\Layouts\XLS\Rooms;
 
 use Exception;
+use Joomla\CMS\Factory;
+use Organizer\Helpers;
 use Organizer\Layouts\XLS\BaseLayout;
 use PHPExcel_Style_Border as BorderStyle;
 
@@ -294,6 +296,10 @@ class UniNow extends BaseLayout
 		 * example: 120
 		 */
 		$sheet->setCellValue('V1', 'Threshold Auto Checkout');
+		/*added the header names
+        $sheet->setCellValue('W1', 'Room Type Equipment');
+        $sheet->setCellValue('X1', 'DIN 277');
+        $sheet->setCellValue('Y1', 'Room Equipment');
 		/**
 		 * ======
 		 * ID#AAAAKmhoypQ
@@ -317,7 +323,7 @@ class UniNow extends BaseLayout
 
 		foreach ($this->view->model->getItems() as $room)
 		{
-			for ($column = 'A'; $column < 'W'; $column++)
+			for ($column = 'A'; $column <= 'V'; $column++)
 			{
 				$coordinates = "$column$index";
 				$value       = '';
@@ -412,8 +418,55 @@ class UniNow extends BaseLayout
 					case 'V':
 						$value = 240;
 						break;
-				}
+                    /*
+                    case 'W':
+                        $value = '';
+                        if(isset($room->roomtypeID) && !empty($room->roomtypeID)){
+                            try{
+                                $tag   = Helpers\Languages::getTag();
+                                $db = Factory::getDbo();
+                                $query = $db->getQuery(true);
+                                $query->select("name_$tag as equipment_name")->from('#__organizer_roomtype_equipment')
+                                    ->where('roomtypeID='.$room->roomtypeID);
+                                $db->setQuery($query);
+                                $saved_room_type_equipment = $db->loadObjectList();
+                                $room_type_equipment = '';
+                                foreach ($saved_room_type_equipment as $equipment){
+                                    $room_type_equipment .= $equipment->equipment_name.',';
+                                }
+                                $value = !empty($room_type_equipment) ? trim($room_type_equipment,','): '';
+                            }catch (Exception $e){
 
+                            }
+
+                        }
+                        break;
+                    case 'Y':
+                        $value = '';
+                        if(isset($room->id) && !empty($room->id)){
+                            try{
+                                $tag   = Helpers\Languages::getTag();
+                                $db = Factory::getDbo();
+                                $query = $db->getQuery(true);
+                                $query->select("name_$tag as equipment_name")->from('#__organizer_room_equipment')
+                                    ->where('roomID='.$room->id);
+                                $db->setQuery($query);
+                                $saved_room_equipment = $db->loadObjectList();
+                                $room_equipment = '';
+                                foreach ($saved_room_equipment as $equipment){
+                                    $room_equipment .= $equipment->equipment_name.',';
+                                }
+                                $value = !empty($room_equipment) ? trim($room_equipment,','): '';
+                            }catch (Exception $e){
+
+                            }
+
+                        }
+                        break;
+                    case 'X':
+                        $value = $room->din_name;
+                        break;*/
+				}
 				$sheet->setCellValue($coordinates, $value);
 			}
 			$index++;
@@ -480,5 +533,9 @@ class UniNow extends BaseLayout
 		$sheet->getColumnDimension('T')->setWidth(19.71);
 		$sheet->getColumnDimension('U')->setWidth(30.71);
 		$sheet->getColumnDimension('V')->setWidth(24.43);
+		/*
+        $sheet->getColumnDimension('W')->setWidth(24.43);
+        $sheet->getColumnDimension('X')->setWidth(24.43);
+        $sheet->getColumnDimension('Y')->setWidth(24.43);*/
 	}
 }

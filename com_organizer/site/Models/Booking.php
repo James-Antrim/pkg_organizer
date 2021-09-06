@@ -21,11 +21,9 @@ use Organizer\Tables;
  */
 class Booking extends Participants
 {
-	private const ALL_ATTENDEES = 1, IMPROPER = 3, ONLY_REGISTERED = -1, PROPER = 2;
-
 	protected $defaultOrdering = 'fullName';
 
-	protected $filter_fields = ['instanceID', 'roomID', 'status'];
+	protected $filter_fields = ['instanceID'];
 
 	/**
 	 * Creates a new entry in the booking table for the given instance.
@@ -39,12 +37,10 @@ class Booking extends Participants
 			Helpers\OrganizerHelper::error(401);
 		}
 
-		if (!$instanceIDs = Helpers\Input::getSelectedIDs())
+		if (!$instanceID = Helpers\Input::getID())
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
-
-		$instanceID = array_shift($instanceIDs);
 
 		if (!Helpers\Can::manage('instance', $instanceID))
 		{
@@ -400,7 +396,7 @@ class Booking extends Participants
 	 */
 	public function clean()
 	{
-		$today = date('Y-m-d');
+		$today = '2020-12-18';//date('Y-m-d');
 		$query = Database::getQuery();
 		$query->select('DISTINCT bk.id')
 			->from('#__organizer_bookings AS bk')
@@ -453,42 +449,6 @@ class Booking extends Participants
 	}
 
 	/**
-	 * Checks the selected participants into the booking.
-	 *
-	 * @return void
-	 */
-	public function checkin()
-	{
-		$this->authorize();
-
-		if (!$instanceIDs = Helpers\Bookings::getInstanceIDs(Helpers\Input::getID()))
-		{
-			Helpers\OrganizerHelper::error(400);
-		}
-
-		$count = 0;
-
-		foreach (Helpers\Input::getSelectedIDs() as $participationID)
-		{
-			$participation = new Tables\InstanceParticipants();
-
-			if ($participation->load($participationID))
-			{
-				$participation->attended = true;
-
-				if ($participation->store())
-				{
-					$count++;
-				}
-			}
-		}
-
-		$type    = $count ? 'message' : 'notice';
-		$message = sprintf(Helpers\Languages::_('ORGANIZER_CHECKEDIN_COUNT'), $count);
-		Helpers\OrganizerHelper::message($message, $type);
-	}
-
-	/**
 	 * Closes a booking manually.
 	 *
 	 * @return void
@@ -533,14 +493,17 @@ class Booking extends Participants
 	{
 		parent::filterFilterForm($form);
 
-		$bookingID = Helpers\Input::getID();
+		//$bookingID = Helpers\Input::getID();
 
 		if (!$this->adminContext)
 		{
 			$form->removeField('limit', 'list');
 		}
 
-		if (count(Helpers\Bookings::getInstanceOptions($bookingID)) === 1)
+		$form->removeField('instanceID', 'filter');
+		$form->removeField('roomID', 'filter');
+
+		/*if (count(Helpers\Bookings::getInstanceOptions($bookingID)) === 1)
 		{
 			$form->removeField('instanceID', 'filter');
 			unset($this->filter_fields[array_search('instanceID', $this->filter_fields)]);
@@ -550,7 +513,7 @@ class Booking extends Participants
 		{
 			$form->removeField('roomID', 'filter');
 			unset($this->filter_fields[array_search('roomID', $this->filter_fields)]);
-		}
+		}*/
 	}
 
 	/**
@@ -580,32 +543,15 @@ class Booking extends Participants
 	{
 		$bookingID = Helpers\Input::getID();
 		$query     = parent::getListQuery();
-		$query->select('r.name AS room, ip.id AS ipaID, ip.attended, ip.seat, ip.registered')
+		$query->select('r.name AS room, ip.id AS ipaID, ip.seat')
 			->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
 			->leftJoin('#__organizer_rooms AS r ON r.id = ip.roomID')
 			->where("b.id = $bookingID")
-			->where('(ip.attended = 1 or ip.registered = 1)');
+			->where('ip.attended = 1');
 
 		$this->setValueFilters($query, ['instanceID', 'roomID']);
-
-		switch ((int) $this->state->get('filter.status'))
-		{
-			case self::ALL_ATTENDEES:
-				$query->where('ip.attended = 1');
-				break;
-			case self::IMPROPER:
-				$query->where('ip.attended = 1')->where('ip.registered = 0');
-				break;
-			case self::ONLY_REGISTERED:
-				$query->where('ip.attended = 0')->where('ip.registered = 1');
-				break;
-			case self::PROPER:
-				$query->where('ip.attended = 1')->where('ip.registered = 1');
-				break;
-
-		}
 
 		return $query;
 	}

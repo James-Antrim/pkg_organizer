@@ -305,17 +305,14 @@ class Group extends MergeModel
 			$load  = ['groupID' => $groupID, 'termID' => (int) $attribute];
 			$table = new Tables\GroupPublishing();
 
-			if ($table->load($load))
+			if (!$table->load($load))
 			{
-				$table->published = !$table->published;
-
-				return $table->store();
+				return false;
 			}
 
-			// Non-existent entry + toggle => unpublish the future
-			$load['published'] = 0;
+			$table->published = !$table->published;
 
-			return $table->save($load);
+			return $table->store();
 		}
 		elseif ($attribute === 'active')
 		{

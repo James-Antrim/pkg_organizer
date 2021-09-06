@@ -41,7 +41,8 @@ if (!$this->adminContext)
 if (!empty($this->submenu))
 {
 	echo '<div id="j-sidebar-container" class="span2">' . $this->submenu . '</div>';
-} ?>
+}
+?>
 <div id="j-main-container" class="span10">
 	<?php if (!$this->adminContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>

@@ -12,6 +12,8 @@
                textcolumn="name" valuecolumn="id" required="true">
             <option value="">SELECT_ROOMTYPE</option>
         </field>
+        <field name="equipment_list" type="Periods" formsource="equipment_blocks" multiple="true" buttons="add,remove"
+               layout="joomla.form.field.subform.repeatable-table" label="ORGANIZER_EQUIPMENT_LIST"/>
         <field name="maxCapacity" type="Integer" label="MAX_CAPACITY" last="500" step="1"/>
         <field name="effCapacity" type="Integer" label="EFF_CAPACITY" last="500" step="1"/>
         <field name="active" type="Options" label="ACTIVE" default="1">

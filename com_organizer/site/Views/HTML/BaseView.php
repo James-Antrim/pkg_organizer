@@ -250,10 +250,18 @@ abstract class BaseView extends HtmlView
 				'url'    => 'index.php?option=com_organizer&amp;view=rooms',
 				'active' => $viewName == 'rooms'
 			];
+            $items[Languages::_('ORGANIZER_EQUIPMENT')]     = [
+                'url'    => 'index.php?option=com_organizer&amp;view=equipment',
+                'active' => $viewName == 'equipment'
+            ];
 			$items[Languages::_('ORGANIZER_ROOMTYPES')] = [
 				'url'    => 'index.php?option=com_organizer&amp;view=roomtypes',
 				'active' => $viewName == 'roomtypes'
 			];
+            $items[Languages::_('ORGANIZER_DINTYPES')] = [
+                'url'    => 'index.php?option=com_organizer&amp;view=dintypes',
+                'active' => $viewName == 'dintypes'
+            ];
 			ksort($items);
 			foreach ($items as $key => $value)
 			{

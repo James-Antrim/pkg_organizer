@@ -206,6 +206,29 @@ body.tmpl-mobile div.main .js-stools-container-bar {
     margin-bottom: 1rem;
 }
 
+body.tmpl-mobile div.main .js-stools-container-bar input[type='text'] {
+    width: calc(100% - 8px);
+}
+
+body.tmpl-mobile div.main .js-stools-container-bar .btn-wrapper {
+    margin-right: .4rem;
+}
+
+body.tmpl-mobile div.main .js-stools-container-bar .btn-wrapper:last-child {
+    margin-right: 0;
+}
+
+body.tmpl-mobile div.main .js-stools-container-bar .input-append {
+    font-size: 1rem;
+    width: 80%;
+}
+
+body.tmpl-mobile div.main .js-stools-container-bar .input-append button {
+    margin: 0;
+    right: 2rem;
+    top: .4rem;
+}
+
 body.tmpl-mobile div.main .js-stools-container-filters input, body.tmpl-mobile div.main .js-stools-container-filters select,
 body.tmpl-mobile div.main .js-stools-container-list input,
 body.tmpl-mobile div.main .js-stools-container-list select {
@@ -220,34 +243,6 @@ body.tmpl-mobile div.main .js-stools-container-list input[type='date'] {
 
 body.tmpl-mobile div.main .js-stools-container-filters {
     margin-top: 0;
-}
-
-body.tmpl-mobile div.main input[type='text'] {
-    width: calc(100% - 8px);
-}
-
-body.tmpl-mobile div.main .btn-wrapper {
-    display: inline-block;
-    margin-right: .4rem;
-}
-
-body.tmpl-mobile div.main .btn-wrapper:last-child {
-    margin-right: 0;
-}
-
-body.tmpl-mobile div.main .btn-wrapper .btn {
-    font-size: 12px;
-}
-
-body.tmpl-mobile div.main .input-append {
-    font-size: 1rem;
-    width: 80%;
-}
-
-body.tmpl-mobile div.main .input-append button {
-    margin: 0;
-    right: 2rem;
-    top: .4rem;
 }
 
 .main tfoot .limit {
@@ -329,10 +324,6 @@ span.role-title {
     font-weight: bold;
 }
 
-table span[class^='icon-'], table span[class*=' icon-'] {
-    font-size: 1rem;
-}
-
 table.table-striped .center {
     text-align: center;
 }
@@ -369,21 +360,9 @@ table.table-striped td.status-display.red, table.table-striped td.status-display
 
 /* In-Row Tools *******************************************************************************************************/
 td a.btn {
-    margin-bottom: .2rem;
     margin-right: .2rem;
 }
 
 td a.btn:last-child {
     margin-right: 0;
-}
-
-/* MQ Column Removal **************************************************************************************************/
-@media screen and (max-width: 768px) {
-    #Booking-list tr th:nth-child(4), #Booking-list tr th:nth-child(5), #Booking-list tr th:nth-child(6), #Booking-list tr th:nth-child(7), #Booking-list tr td:nth-child(4), #Booking-list tr td:nth-child(5), #Booking-list tr td:nth-child(6), #Booking-list tr td:nth-child(7) {
-        display: none;
-    }
-
-    #Instances-list tr th:nth-child(4), #Instances-list tr th:nth-child(5), #Instances-list tr td:nth-child(4), #Instances-list tr td:nth-child(5) {
-        display: none;
-    }
 }

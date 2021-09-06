@@ -18,7 +18,6 @@ if (is_array($options))
 {
 	$options = new Registry($options);
 }
-
 $filters          = $this->filterForm->getGroup('filter');
 $searchButton     = $options->get('searchButton', true);
 $showFilterButton = empty($filters['filter_search']) ? (bool) count($filters) : count($filters) > 1;

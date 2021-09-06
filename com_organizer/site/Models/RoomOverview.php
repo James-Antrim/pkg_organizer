@@ -53,6 +53,8 @@ class RoomOverview extends ListModel
 			->from('#__organizer_rooms AS r')
 			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
 			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+            ->leftJoin('#__organizer_room_equipment AS re ON r.id = re.roomId')
+            ->leftJoin('#__organizer_roomtype_equipment AS rt_eq ON rt_eq.roomtypeID = t.id')
 			->where('r.active = 1')
 			->where('t.suppress = 0');
 
@@ -60,7 +62,7 @@ class RoomOverview extends ListModel
 		$query->where('t.suppress = 0');
 
 		$this->setSearchFilter($query, ['r.name']);
-		$this->setValueFilters($query, ['buildingID', 'roomtypeID']);
+		$this->setValueFilters($query, ['buildingID', 'r.roomtypeID']);
 		$this->setCampusFilter($query, 'b');
 
 		if ($roomIDs = Helpers\Input::getFilterIDs('room'))
@@ -73,8 +75,14 @@ class RoomOverview extends ListModel
 			$query->where("r.effCapacity >= $capacity");
 		}
 
-		$query->order($this->defaultOrdering);
+        $filter_equipment = $this->state->get('filter.equipmentID');
+        if($filter_equipment > 0){
+            $query->where('rt_eq.equipmentID ='.$this->_db->q($filter_equipment).' OR '.'re.equipmentID ='.$this->_db->q($filter_equipment));
+        }
 
+
+        $query->order($this->defaultOrdering);
+        //echo "<pre>";echo $query;echo "</pre>";
 		return $query;
 	}
 

@@ -10,6 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
+use Joomla\CMS\Factory;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
@@ -23,6 +24,7 @@ class Rooms extends ListView
 		'roomName'     => 'link',
 		'buildingName' => 'link',
 		'roomType'     => 'link',
+       // 'element_ids'     => 'value',
 		'active'       => 'value'
 	];
 
@@ -68,6 +70,14 @@ class Rooms extends ListView
 			'Rooms.UniNow',
 			false
 		);
+
+        $toolbar->appendButton(
+            'NewTab',
+            'file-xls',
+            Helpers\Languages::_('ORGANIZER_FM_EXPORT'),
+            'Rooms.FMExport',
+            false
+        );
 	}
 
 	/**
@@ -93,6 +103,7 @@ class Rooms extends ListView
 			'roomName'     => Helpers\HTML::sort('NAME', 'roomName', $direction, $ordering),
 			'buildingName' => Helpers\HTML::sort('BUILDING', 'buildingName', $direction, $ordering),
 			'roomType'     => Helpers\HTML::sort('TYPE', 'roomType', $direction, $ordering),
+            //'element_ids'     => Helpers\Languages::_('Properties'),
 			'active'       => Helpers\Languages::_('ORGANIZER_ACTIVE')
 		];
 
@@ -112,11 +123,24 @@ class Rooms extends ListView
 		{
 			$tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
 			$item->active = $this->getToggle('rooms', $item->id, $item->active, $tip, 'active');
-
+           // $item->element_ids = $this->getElementList($item->id);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}
 
 		$this->items = $structuredItems;
 	}
+
+	/*function getElementList($room_id){
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
+        $query->select('name_en')->from('#__organizer_roomequipment')->where('roomId ='.$db->q($room_id));
+        $db->setQuery($query);
+        $list = $db->loadObjectList();
+        $equipment_list = array();
+        foreach ($list as $single){
+            $equipment_list[] = $single->name_en;
+        }
+        return implode(',',$equipment_list);
+    }*/
 }
