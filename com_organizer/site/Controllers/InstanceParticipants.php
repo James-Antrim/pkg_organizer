@@ -93,16 +93,6 @@ class InstanceParticipants extends Controller
 	}
 
 	/**
-	 * Triggers the model to remove the current instance from the participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function descheduleThis()
-	{
-		$this->deschedule(self::THIS);
-	}
-
-	/**
 	 * Triggers the model to register the participant to instances.
 	 *
 	 * @return void
@@ -173,15 +163,5 @@ class InstanceParticipants extends Controller
 	public function scheduleBlock()
 	{
 		$this->schedule(self::BLOCK);
-	}
-
-	/**
-	 * Triggers the model to add the current instance to a participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function scheduleThis()
-	{
-		$this->schedule(self::THIS);
 	}
 }

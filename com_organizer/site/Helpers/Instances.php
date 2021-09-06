@@ -20,7 +20,7 @@ use Organizer\Tables;
  */
 class Instances extends ResourceHelper
 {
-	public const HYBRID = 0, PRESENCE = 1, VIRTUAL = -1;
+	public const HYBRID = 0, ONLINE = -1, PRESENCE = 1;
 
 	private const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
@@ -443,6 +443,7 @@ class Instances extends ResourceHelper
 			'organization'   => $orgName,
 			'organizationID' => $unitsTable->organizationID,
 			'gridID'         => $unitsTable->gridID,
+			'termID'         => $unitsTable->termID,
 			'unitStatus'     => $unitsTable->delta,
 			'unitStatusDate' => $unitsTable->modified,
 		];
@@ -480,6 +481,8 @@ class Instances extends ResourceHelper
 				$instance['registrationStatus'] = 1;
 			}
 		}
+
+		ksort($instance);
 
 		return $instance;
 	}

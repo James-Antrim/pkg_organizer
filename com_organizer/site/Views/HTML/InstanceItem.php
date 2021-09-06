@@ -15,7 +15,9 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Document;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
+use Organizer\Helpers\Instances as Helper;
 use Organizer\Helpers\Languages;
+use stdClass;
 
 /**
  * Class loads information about a given instance.
@@ -24,12 +26,22 @@ class InstanceItem extends ListView
 {
 	use ListsInstances;
 
+	private $buttons = [];
+
+	/**
+	 * The relevant status date of the entire instance.
+	 * @var string
+	 */
+	private $dateTime;
+
 	/**
 	 * @var object the data for the instance
 	 */
 	public $instance;
 
 	protected $layout = 'instance-item';
+
+	public $minibar = '';
 
 	private $manages = false;
 
@@ -43,9 +55,13 @@ class InstanceItem extends ListView
 		'rooms'    => 'value'
 	];
 
-	private $statusDate;
+	/**
+	 * The relevant status of the entire instance.
+	 * @var string
+	 */
+	private $status;
 
-	private $teaches = false;
+	private $statusDate;
 
 	private $userID;
 
@@ -54,11 +70,37 @@ class InstanceItem extends ListView
 	 */
 	protected function addSupplement()
 	{
-		$text = '';
+		$color    = 'blue';
+		$instance = $this->instance;
+		$text     = '';
+
+		if ($instance->expired)
+		{
+			$color          = 'grey';
+			$this->messages = [Languages::_('ORGANIZER_INSTANCE_EXPIRED')];
+		}
+		elseif ($instance->registered)
+		{
+			$color            = 'green';
+			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_REGISTERED');
+		}
+		elseif ($instance->scheduled)
+		{
+			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_SCHEDULED');
+
+			if ($instance->presence !== Helper::ONLINE)
+			{
+				$color = 'yellow';
+			}
+		}
+		else
+		{
+			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_NOT_SCHEDULED');
+		}
 
 		if ($this->messages)
 		{
-			$text = '<div class="tbox-blue">' . implode('<br>', $this->messages) . '</div>';
+			$text = "<div class=\"tbox-$color\">" . implode('<br>', $this->messages) . '</div>';
 		}
 
 		$this->supplement = $text;
@@ -76,170 +118,111 @@ class InstanceItem extends ListView
 
 		$toolbar = Toolbar::getInstance();
 
-		if ($this->userID and $this->items)
+		if ($this->userID and $this->buttons)
 		{
-			$day           = Languages::_(strtoupper(date('D', strtotime($instance->date)))) . '.';
-			$deRegThis     = false;
-			$deRegBlock    = false;
-			$deRegSelected = false;
-			$deRegAll      = false;
-			$regThis       = false;
-			$regBlock      = false;
-			$regSelected   = false;
-			$regAll        = false;
-			$thisDOW       = strtoupper(date('l', strtotime($instance->date)));
+			$buttons  = $this->buttons;
+			$day      = Languages::_(strtoupper(date('D', strtotime($instance->date)))) . '.';
+			$minibar  = [];
+			$standard = new StandardButton();
 
-			foreach ($this->getModel()->getItems() as $item)
+			if ($buttons['schedule'])
 			{
-				if ($item->participates)
-				{
-					$deRegAll      = true;
-					$deRegSelected = true;
-				}
-				else
-				{
-					$regAll      = true;
-					$regSelected = true;
-				}
-
-				$sameDOW = (strtoupper(date('l', strtotime($item->date))) === $thisDOW);
-				$sameET  = $item->startTime === $instance->startTime;
-				$sameST  = $item->startTime === $instance->startTime;
-
-				$sameBlock = ($sameDOW and $sameET and $sameST);
-				if ($sameBlock)
-				{
-					$identity = $item->instanceID === $instance->instanceID;
-
-					if ($item->participates)
-					{
-						$deRegBlock = true;
-
-						if ($identity)
-						{
-							$deRegThis = true;
-						}
-					}
-					else
-					{
-						$regBlock = true;
-
-						if ($identity)
-						{
-							$regThis = true;
-						}
-					}
-				}
+				$minibar[] = $standard->fetchButton(
+					'Standard',
+					'bookmark',
+					Languages::_('ORGANIZER_ADD_INSTANCE'),
+					'InstanceParticipants.schedule',
+					false
+				);
+				$toolbar->appendButton(
+					'Standard',
+					'bookmark',
+					Languages::_('ORGANIZER_ADD_INSTANCE'),
+					'InstanceParticipants.schedule',
+					true
+				);
 			}
 
-			$registrations = [];
-
-			if ($regThis)
+			if ($buttons['scheduleBlock'])
 			{
-				$regThis         = new StandardButton();
-				$registrations[] = $regThis->fetchButton(
+				$minibar[] = $standard->fetchButton(
 					'Standard',
-					'square',
-					Languages::_('ORGANIZER_THIS_INSTANCE'),
+					'bookmark',
+					sprintf(Languages::_('ORGANIZER_BLOCK_INSTANCES'), $day, $instance->startTime, $instance->endTime),
+					'InstanceParticipants.scheduleBlock',
+					false
+				);
+			}
+
+			if ($buttons['register'])
+			{
+				$minibar[] = $standard->fetchButton(
+					'Standard',
+					'signup',
+					Languages::_('ORGANIZER_REGISTER'),
 					'InstanceParticipants.register',
 					false
 				);
-			}
-
-			if ($regBlock)
-			{
-				$regBlock        = new StandardButton();
-				$registrations[] = $regBlock->fetchButton(
+				$toolbar->appendButton(
 					'Standard',
-					'menu',
-					sprintf(Languages::_('ORGANIZER_BLOCK_INSTANCES'), $day, $instance->startTime, $instance->endTime),
-					'InstanceParticipants.registerBlock',
-					false
-				);
-			}
-
-			if ($regSelected)
-			{
-				$regSelected     = new StandardButton();
-				$registrations[] = $regSelected->fetchButton(
-					'Standard',
-					'checkbox',
-					Languages::_('ORGANIZER_SELECTED_INSTANCES'),
-					'InstanceParticipants.registerSelected',
+					'signup',
+					Languages::_('ORGANIZER_REGISTER'),
+					'InstanceParticipants.register',
 					true
 				);
 			}
 
-			if ($regAll)
+			if ($buttons['deschedule'])
 			{
-				$regAll          = new StandardButton();
-				$registrations[] = $regAll->fetchButton(
+				$minibar[] = $standard->fetchButton(
 					'Standard',
-					'grid-2',
-					Languages::_('ORGANIZER_ALL_INSTANCES'),
-					'InstanceParticipants.registerAll',
+					'bookmark-2',
+					Languages::_('ORGANIZER_DELETE_INSTANCE'),
+					'InstanceParticipants.deschedule',
 					false
 				);
-			}
-
-			if ($registrations)
-			{
-				$toolbar->appendButton('Buttons', 'buttons', Languages::_('ORGANIZER_REGISTER'), $registrations, 'enter');
-			}
-
-			$deregistrations = [];
-
-			if ($deRegThis)
-			{
-				$deRegThis         = new StandardButton();
-				$deregistrations[] = $deRegThis->fetchButton(
+				$toolbar->appendButton(
 					'Standard',
-					'square',
-					Languages::_('ORGANIZER_THIS_INSTANCE'),
-					'InstanceParticipants.deregister',
-					false
-				);
-			}
-
-			if ($deRegBlock)
-			{
-				$deRegBlock        = new StandardButton();
-				$deregistrations[] = $deRegBlock->fetchButton(
-					'Standard',
-					'menu',
-					sprintf(Languages::_('ORGANIZER_BLOCK_INSTANCES'), $day, $instance->startTime, $instance->endTime),
-					'InstanceParticipants.deregisterBlock',
-					false
-				);
-			}
-
-			if ($deRegSelected)
-			{
-				$deRegSelected     = new StandardButton();
-				$deregistrations[] = $deRegSelected->fetchButton(
-					'Standard',
-					'checkbox',
-					Languages::_('ORGANIZER_SELECTED_INSTANCES'),
-					'InstanceParticipants.deregisterSelected',
+					'bookmark-2',
+					Languages::_('ORGANIZER_DELETE'),
+					'InstanceParticipants.deschedule',
 					true
 				);
 			}
 
-			if ($deRegAll)
+			if ($buttons['descheduleBlock'])
 			{
-				$deRegAll          = new StandardButton();
-				$deregistrations[] = $deRegAll->fetchButton(
+				$minibar[] = $standard->fetchButton(
 					'Standard',
-					'grid-2',
-					Languages::_('ORGANIZER_ALL_INSTANCES'),
-					'InstanceParticipants.deregisterAll',
+					'bookmark-2',
+					sprintf(Languages::_('ORGANIZER_BLOCK_INSTANCES'), $day, $instance->startTime, $instance->endTime),
+					'InstanceParticipants.scheduleBlock',
 					false
 				);
 			}
 
-			if ($deregistrations)
+			if ($buttons['register'])
 			{
-				$toolbar->appendButton('Buttons', 'buttons', Languages::_('ORGANIZER_DEREGISTER'), $deregistrations, 'exit');
+				$minibar[] = $standard->fetchButton(
+					'Standard',
+					'exit',
+					Languages::_('ORGANIZER_DEREGISTER'),
+					'InstanceParticipants.register',
+					false
+				);
+				$toolbar->appendButton(
+					'Standard',
+					'exit',
+					Languages::_('ORGANIZER_DEREGISTER'),
+					'InstanceParticipants.register',
+					true
+				);
+			}
+
+			if ($minibar)
+			{
+				$this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
+				$this->minibar .= implode('', $minibar) . '</div>';
 			}
 		}
 	}
@@ -254,11 +237,14 @@ class InstanceItem extends ListView
 			Helpers\OrganizerHelper::error(400);
 		}
 
-		$iOrganizationIDs = Helpers\Instances::getOrganizationIDs($instanceID);
-		$mOrganizationIDs = Helpers\Can::manageTheseOrganizations();
-		$this->manages    = (bool) array_intersect($iOrganizationIDs, $mOrganizationIDs);
-		$this->teaches    = Helpers\Instances::teaches();
-		$this->userID     = Helpers\Users::getID();
+		if ($this->userID = Helpers\Users::getID())
+		{
+			$this->manages = Helpers\Can::manage('instance', $instanceID);
+
+			return;
+		}
+
+		$this->manages = false;
 	}
 
 	/**
@@ -287,10 +273,7 @@ class InstanceItem extends ListView
 	 */
 	public function renderPersons()
 	{
-		$instance   = $this->instance;
-		$showGroups = $instance->showGroups;
-		$showRoles  = $instance->showRoles;
-		$showRooms  = $instance->showRooms;
+		$instance = $this->instance;
 
 		echo '<div class="attribute-item">';
 		echo '<div class="attribute-label">' . Languages::_('ORGANIZER_PERSONS') . '</div>';
@@ -298,7 +281,7 @@ class InstanceItem extends ListView
 
 		foreach ($instance->persons as $persons)
 		{
-			if ($showRoles)
+			if ($instance->showRoles)
 			{
 				$personIDs = array_keys($persons);
 				$firstID   = reset($personIDs);
@@ -307,56 +290,132 @@ class InstanceItem extends ListView
 
 			foreach (array_keys($persons) as $personID)
 			{
+				$list   = ($instance->showRoles or count($persons) > 1);
 				$person = $instance->resources[$personID];
-				echo '<li>';
+
+				echo $list ? '<li>' : '';
+
 				$this->renderResource($person['person'], $person['status'], $person['statusDate']);
 
-				if ($instance->showGroups or $instance->showRooms)
+				if ($instance->hideGroups or $instance->hideRooms)
 				{
 					echo '<ul>';
 				}
 
-				if ($instance->showGroups and !empty($person['groups']))
+				if ($instance->hideGroups and !empty($person['groups']))
 				{
 					echo '<li>' . Languages::_('ORGANIZER_GROUPS') . '<ul>';
 					foreach ($person['groups'] as $group)
 					{
-						echo '<li>';
+						$list = count($person['groups']) > 1;
+						echo $list ? '<li>' : '';
 						$name = (strlen($group['fullName']) > 80 and $group['status']) ?
 							$group['group'] : $group['fullName'];
 						$this->renderResource($name, $group['status'], $group['statusDate']);
-						echo '</li>';
+						echo $list ? '</li>' : '';
 					}
 					echo '</ul></li>';
 				}
 
-				if ($instance->showRooms and !empty($person['rooms']))
+				if ($instance->hideRooms and !empty($person['rooms']))
 				{
 					echo '<li>' . Languages::_('ORGANIZER_ROOMS') . '<ul>';
 					foreach ($person['rooms'] as $room)
 					{
-						echo '<li>';
+						$list = count($person['rooms']) > 1;
+						echo $list ? '<li>' : '';
 						$this->renderResource($room['room'], $room['status'], $room['statusDate']);
-						echo '</li>';
+						echo $list ? '</li>' : '';
 					}
 					echo '</ul></li>';
 				}
 
-				if ($instance->showGroups or $instance->showRooms)
+				if ($instance->hideGroups or $instance->hideRooms)
 				{
 					echo '</ul>';
 				}
 
-				echo '</li>';
+				echo $list ? '</li>' : '';
 			}
 
-			if ($showRoles)
+			if ($instance->showRoles)
 			{
 				echo '</ul>';
 			}
 		}
 
 		echo '</ul></div></div>';
+	}
+
+	/**
+	 * Renders texts about the organization of the appointment in terms of presence...
+	 *
+	 * @return void
+	 */
+	public function renderOrganizational()
+	{
+		$instance = $this->instance;
+
+		$registration = $instance->registration;
+
+		if ($registration)
+		{
+			echo '<ul>';
+		}
+
+		$formText = '';
+
+		switch ($instance->presence)
+		{
+			case Helper::HYBRID:
+				$formText = Languages::_('ORGANIZER_HYBRID_TEXT');
+				break;
+			case Helper::ONLINE:
+				$formText = Languages::_('ORGANIZER_ONLINE_TEXT');
+				break;
+			case Helper::PRESENCE:
+				$formText = Languages::_('ORGANIZER_PRESENCE_TEXT');
+				break;
+		}
+
+		echo $registration ? "<li>$formText</li>" : $formText;
+
+		if ($instance->registration)
+		{
+			if ($instance->premature)
+			{
+				echo '<li>' . sprintf(Languages::_('ORGANIZER_REGISTRATION_OPENS_ON'),
+						$instance->registrationStart) . '</li>';
+			}
+			elseif ($instance->running)
+			{
+				echo '<li>' . Languages::_('ORGANIZER_REGISTRATION_CLOSED') . '</li>';
+			}
+			else
+			{
+				echo '<li>' . Languages::_('ORGANIZER_REGISTRATION_OPEN') . '</li>';
+
+				if ($instance->capacity)
+				{
+					if ($available = $instance->capacity - $instance->current)
+					{
+						echo '<li>' . sprintf(Languages::_('ORGANIZER_REGISTRATIONS_AVAILABLE_COUNT'),
+								$available) . '</li>';
+					}
+					else
+					{
+						echo '<li>' . Languages::_('ORGANIZER_INSTANCE_FULL') . '</li>';
+					}
+				}
+				// No capacity => no idea
+				else
+				{
+					echo '<li>' . Languages::_('ORGANIZER_REGISTRATIONS_AVAILABLE') . '</li>';
+				}
+			}
+
+			echo '</ul>';
+		}
 	}
 
 	/**
@@ -370,7 +429,11 @@ class InstanceItem extends ListView
 	 */
 	private function renderResource(string $name, string $status, string $dateTime)
 	{
-		if (!$status or $dateTime < $this->statusDate)
+		$implied       = ($dateTime === $this->dateTime and $status === $this->status);
+		$irrelevant    = $dateTime < $this->statusDate;
+		$uninteresting = !$status;
+
+		if ($implied or $irrelevant or $uninteresting)
 		{
 			echo $name;
 
@@ -379,7 +442,8 @@ class InstanceItem extends ListView
 
 		$dateTime = Helpers\Dates::formatDateTime($dateTime);
 		$delta    = $status === 'removed' ?
-			sprintf(Languages::_('ORGANIZER_REMOVED_ON'), $dateTime) : sprintf(Languages::_('ORGANIZER_ADDED_ON'), $dateTime);
+			sprintf(Languages::_('ORGANIZER_REMOVED_ON'), $dateTime) : sprintf(Languages::_('ORGANIZER_ADDED_ON'),
+				$dateTime);
 
 		echo "<span class=\"$status\">$name</span> $delta";
 	}
@@ -397,11 +461,11 @@ class InstanceItem extends ListView
 
 		foreach ($resources as $name => $data)
 		{
-			echo '<li>';
+			$list = count($resources) > 1;
+			echo $list ? '<li>' : '';
 			$this->renderResource($name, $data['status'], $data['date']);
-			echo '</li>';
+			echo $list ? '</li>' : '';
 		}
-
 		echo '</ul></div></div>';
 	}
 
@@ -411,18 +475,13 @@ class InstanceItem extends ListView
 	public function setHeaders()
 	{
 		$this->headers = [
-			'checkbox' => Helpers\HTML::_('grid.checkall'),
-			'status'   => '',
-			'times'    => Languages::_('ORGANIZER_DATETIME'),
+			'checkbox' => $this->userID ? Helpers\HTML::_('grid.checkall') : '',
+			'instance' => Languages::_('ORGANIZER_INSTANCE'),
+			'status'   => Languages::_('ORGANIZER_STATUS'),
 			'persons'  => Languages::_('ORGANIZER_PERSONS'),
 			'groups'   => Languages::_('ORGANIZER_GROUPS'),
 			'rooms'    => Languages::_('ORGANIZER_ROOMS')
 		];
-
-		if (!$this->userID)
-		{
-			unset($this->headers['checkbox']);
-		}
 	}
 
 	/**
@@ -432,25 +491,32 @@ class InstanceItem extends ListView
 	 *
 	 * @return void
 	 */
-	private function setInstance(object $instance)
+	private function setInstance(stdClass $instance)
 	{
+		$this->setSingle($instance);
+
 		$this->statusDate = date('Y-m-d 00:00:00', strtotime('-14 days'));
 		$cutOff           = $this->statusDate;
 
-		$message = '';
-		$status  = '';
+		$bookends = ['new', 'removed'];
+		$message  = '';
+		$status   = '';
 
-		$dateTime   = $instance->unitStatusDate;
-		$dtRelevant = ($instance->unitStatus and $dateTime >= $cutOff);
-		$modified   = $instance->unitStatusDate;
+		$dateTime       = $instance->unitStatusDate;
+		$this->dateTime = $dateTime;
+		$dtRelevant     = ($instance->unitStatus and $dateTime >= $cutOff and in_array($instance->unitStatus,
+				$bookends));
+		$modified       = $instance->unitStatusDate;
 
 		// Set unit baseline for process dating.
 		if ($dtRelevant)
 		{
-			$constant   = $instance->unitStatus === 'removed' ? 'ORGANIZER_UNIT_REMOVED_ON' : 'ORGANIZER_UNIT_ADDED_ON';
-			$status     = $instance->unitStatus;
-			$statusDate = Helpers\Dates::formatDateTime($instance->unitStatusDate);
-			$message    = sprintf(Languages::_($constant), $statusDate);
+			$this->dateTime = $instance->unitStatusDate;
+			$constant       = $instance->unitStatus === 'removed' ? 'ORGANIZER_UNIT_REMOVED_ON' : 'ORGANIZER_UNIT_ADDED_ON';
+			$status         = $instance->unitStatus;
+			$this->status   = $instance->unitStatus;
+			$statusDate     = Helpers\Dates::formatDateTime($instance->unitStatusDate);
+			$message        = sprintf(Languages::_($constant), $statusDate);
 		}
 
 		$dateTime = $instance->instanceStatusDate;
@@ -470,18 +536,23 @@ class InstanceItem extends ListView
 				// ...before the unit was removed.
 				if ($status === 'removed' and $earlier)
 				{
-					$message = sprintf($text, $statusDate);
+					$this->dateTime = $instance->instanceStatusDate;
+					$message        = sprintf($text, $statusDate);
 				}
 				// ...and the unit was not.
 				elseif ($status !== 'removed' and $later)
 				{
-					$message = sprintf($text, $statusDate);
+					$this->dateTime = $instance->instanceStatusDate;
+					$this->status   = $instance->instanceStatus;
+					$message        = sprintf($text, $statusDate);
 				}
 			}
 			// Instance was recently added
 			elseif ($status !== 'removed' and $instance->instanceStatus === 'new')
 			{
-				$message = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $statusDate);
+				$this->dateTime = $instance->instanceStatusDate;
+				$this->status   = $instance->instanceStatus;
+				$message        = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $statusDate);
 			}
 		}
 
@@ -564,7 +635,7 @@ class InstanceItem extends ListView
 						$dtRelevant = ($room['status'] and $dateTime >= $cutOff);
 
 						// Removed before cut off
-						if (!$dtRelevant and $room['status'] === 'removed')
+						if ((!$dtRelevant and $room['status'] === 'removed') or $room['virtual'])
 						{
 							unset($instance->resources[$personID]['rooms'][$roomID]);
 							continue;
@@ -606,18 +677,18 @@ class InstanceItem extends ListView
 		asort($rooms);
 
 		$instance->groups     = $groups;
+		$instance->hideGroups = count(array_filter($uniqueGroups)) > 1;
+		$instance->hideRooms  = count(array_filter($uniqueRooms)) > 1;
 		$instance->persons    = $persons;
 		$instance->rooms      = $rooms;
-		$instance->showGroups = count(array_filter($uniqueGroups)) > 1;
 		$instance->showRoles  = count($instance->persons) > 1;
-		$instance->showRooms  = count(array_filter($uniqueRooms)) > 1;
 
 		if ($message)
 		{
 			$this->messages[] = $message;
 		}
 
-		if ($modified)
+		if ($modified and $status !== 'new' and $status !== 'removed')
 		{
 			$modified         = Helpers\Dates::formatDateTime($modified);
 			$this->messages[] = sprintf(Languages::_('ORGANIZER_LAST_UPDATED'), $modified);
@@ -641,31 +712,105 @@ class InstanceItem extends ListView
 	 */
 	protected function structureItems()
 	{
+		$this->setDerived($this->items);
+
+		$buttons = [
+			'deregister'      => false,
+			'deschedule'      => false,
+			'descheduleBlock' => false,
+			'register'        => false,
+			'schedule'        => false,
+			'scheduleBlock'   => false
+		];
+
+		$instance = $this->instance;
+
+		if (!$instance->expired and !$instance->running)
+		{
+			if ($instance->scheduled)
+			{
+				$buttons['deschedule'] = true;
+
+				if ($instance->registered)
+				{
+					$buttons['deregister']     = true;
+					$buttons['deregisterThis'] = true;
+				}
+			}
+			else
+			{
+				$buttons['schedule'] = true;
+
+				if (!$instance->full and $instance->presence !== Helper::ONLINE)
+				{
+					$buttons['register']     = true;
+					$buttons['registerThis'] = true;
+				}
+			}
+		}
+
 		$index           = 0;
 		$structuredItems = [];
+		$thisDOW         = strtoupper(date('l', strtotime($instance->date)));
 
 		foreach ($this->items as $item)
 		{
-
-			$times = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
-			$times .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
-
-			$structuredItems[$index] = [];
-
-			if ($this->userID)
+			if (!$item->expired and !$item->running)
 			{
-				$structuredItems[$index]['checkbox'] = Helpers\HTML::_('grid.id', $index, $item->instanceID);
+				$sameDOW      = (strtoupper(date('l', strtotime($item->date))) === $thisDOW);
+				$sameET       = $item->startTime === $instance->startTime;
+				$sameST       = $item->startTime === $instance->startTime;
+				$sameBlock    = ($sameDOW and $sameET and $sameST);
+				$sameInstance = $item->intanceID === $instance->instanceID;
+
+				if ($item->scheduled)
+				{
+					$buttons['deschedule'] = true;
+
+					if ($item->registered)
+					{
+						$buttons['deregister'] = true;
+					}
+
+					if ($sameBlock and !$sameInstance and $instance->scheduled)
+					{
+						$buttons['descheduleBlock'] = true;
+					}
+				}
+				else
+				{
+					$buttons['schedule'] = true;
+
+					if (!$item->full and $item->presence !== Helper::ONLINE)
+					{
+						$buttons['register'] = true;
+					}
+
+					if ($sameBlock and !$sameInstance and !$instance->scheduled)
+					{
+						$buttons['scheduleBlock'] = true;
+					}
+				}
 			}
 
-			$structuredItems[$index]['status']  = $this->getStatus($item);
-			$structuredItems[$index]['times']   = $times;
-			$structuredItems[$index]['persons'] = $this->getPersons($item);
-			$structuredItems[$index]['groups']  = $this->getResource($item, 'group', 'fullName');
-			$structuredItems[$index]['rooms']   = $this->getResource($item, 'room', 'room');
+			$times = $item->method ? $item->method . '<br>' : '';
+			$times .= '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
+			$times .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
+
+			$checkbox   = $this->userID ? Helpers\HTML::_('grid.id', $index, $item->instanceID) : '';
+			$statusIcon = $this->getStatusIcon($item);
+			$checkbox   .= ($checkbox and $statusIcon) ? '<br>' . $statusIcon : $statusIcon;
+
+			$structuredItems[$index]             = [];
+			$structuredItems[$index]['checkbox'] = $checkbox;
+			$structuredItems[$index]['instance'] = $times;
+			$structuredItems[$index]['status']   = $this->getStatus($item);
+			$this->addResources($structuredItems[$index], $item);
 
 			$index++;
 		}
 
-		$this->items = $structuredItems;
+		$this->buttons = $buttons;
+		$this->items   = $structuredItems;
 	}
 }

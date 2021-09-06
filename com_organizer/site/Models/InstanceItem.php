@@ -40,8 +40,10 @@ class InstanceItem extends ListModel
 		$instanceID = Input::getID();
 		$instance   = Helpers\Instances::getInstance($instanceID);
 
-		$startDate = date('Y-m-d');
-		$endDate   = Helpers\Terms::getEndDate(Helpers\Terms::getCurrentID($startDate));
+		$endDate    = Helpers\Terms::getEndDate($instance['termID']);
+		$tStartDate = Helpers\Terms::getStartDate($instance['termID']);
+		$today      = date('Y-m-d');
+		$startDate  = $tStartDate > $today ? $tStartDate : $today;
 
 		$this->conditions = [
 			'delta'           => date('Y-m-d 00:00:00', strtotime('-14 days')),
@@ -49,8 +51,7 @@ class InstanceItem extends ListModel
 			'eventIDs'        => [$instance['eventID']],
 			'showUnpublished' => Helpers\Can::manage('instance', $instanceID),
 			'startDate'       => $startDate,
-			'status'          => self::CURRENT,
-			'unitIDs'         => [$instance['unitID']],
+			'status'          => self::CURRENT
 		];
 
 		Helpers\Instances::fill($instance, $this->conditions);
@@ -79,12 +80,14 @@ class InstanceItem extends ListModel
 	 */
 	protected function getListQuery(): JDatabaseQuery
 	{
+		$endDate   = $this->conditions['endDate'];
 		$endTime   = date('H:i:s');
 		$query     = Helpers\Instances::getInstanceQuery($this->conditions);
 		$startDate = $this->conditions['startDate'];
 
 		$query->select("DISTINCT i.id")
 			->where("(b.date > '$startDate' OR (b.date = '$startDate' AND b.endTime >= '$endTime'))")
+			->where("b.date <= '{$endDate}'")
 			->order('b.date, b.startTime, b.endTime');
 
 		return $query;

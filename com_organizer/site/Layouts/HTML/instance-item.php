@@ -11,6 +11,7 @@
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
+use Organizer\Helpers\Instances as Helper;
 use Organizer\Helpers\Languages;
 
 $columnCount = count($this->headers);
@@ -25,7 +26,14 @@ echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 echo $this->subtitle;
 echo $this->supplement;
 ?>
+<?php echo $this->minibar; ?>
 <div id="j-main-container" class="span10">
+	<?php if (!$instance->expired): ?>
+        <div class="attribute-item">
+            <div class="attribute-label"><?php echo Languages::_('ORGANIZER_ORGANIZATIONAL'); ?></div>
+            <div class="attribute-content"><?php echo $this->renderOrganizational(); ?></div>
+        </div>
+	<?php endif; ?>
 	<?php if ($instance->description): ?>
         <div class="attribute-item">
             <div class="attribute-label"><?php echo Languages::_('ORGANIZER_DESC'); ?></div>
@@ -35,80 +43,68 @@ echo $this->supplement;
 	<?php if ($instance->persons): ?>
 		<?php $this->renderPersons() ?>
 	<?php endif; ?>
-	<?php if (!$instance->showGroups): ?>
+	<?php if (!$instance->hideGroups): ?>
 		<?php $this->renderResources(Languages::_('ORGANIZER_GROUPS'), $instance->groups) ?>
 	<?php endif; ?>
-	<?php if (!$instance->showRooms): ?>
+	<?php if (!$instance->hideRooms and $instance->presence !== Helper::ONLINE): ?>
 		<?php $this->renderResources(Languages::_('ORGANIZER_ROOMS'), $instance->rooms) ?>
 	<?php endif; ?>
-
-    <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
-		<?php echo Toolbar::getInstance()->render(); ?>
-		<?php if (count($items)) : ?>
-            <table class="table table-striped" id="<?php echo $this->get('name'); ?>-list">
-                <thead>
-                <tr>
-					<?php
-					foreach ($this->headers as $header)
-					{
-						$colAttributes = $this->getAttributesOutput($header);
-						$colValue      = is_array($header) ? $header['value'] : $header;
-						echo "<th $colAttributes>$colValue</th>";
-					}
-					?>
-                </tr>
-                </thead>
-                <tbody <?php echo $this->getAttributesOutput($items); ?>>
-				<?php foreach ($items as $row) : ?>
-                    <tr <?php echo $this->getAttributesOutput($row); ?>>
-						<?php
-						foreach ($row as $key => $column)
-						{
-							if ($key === 'attributes')
+	<?php if ($this->items): ?>
+        <div class="attribute-item">
+            <div class="attribute-label"><?php echo Languages::_('ORGANIZER_UPCOMING_INSTANCES'); ?></div>
+            <div>TODO: Add a sticky toolbar with de-/schedule and de-/register here</div>
+			<?php echo Toolbar::getInstance()->render(); ?>
+            <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
+				<?php if (count($items)) : ?>
+                    <table class="table table-striped" id="<?php echo $this->get('name'); ?>-list">
+                        <thead>
+                        <tr>
+							<?php
+							foreach ($this->headers as $header)
 							{
-								continue;
+								$colAttributes = $this->getAttributesOutput($header);
+								$colValue      = is_array($header) ? $header['value'] : $header;
+								echo "<th $colAttributes>$colValue</th>";
 							}
+							?>
+                        </tr>
+                        </thead>
+                        <tbody <?php echo $this->getAttributesOutput($items); ?>>
+						<?php foreach ($items as $row) : ?>
+                            <tr <?php echo $this->getAttributesOutput($row); ?>>
+								<?php
+								foreach ($row as $key => $column)
+								{
+									if ($key === 'attributes')
+									{
+										continue;
+									}
 
-							$colAttributes = $this->getAttributesOutput($column);
-							$colValue      = is_array($column) ? $column['value'] : $column;
-							echo "<td $colAttributes>$colValue</td>";
-						}
-						?>
-                    </tr>
-				<?php endforeach; ?>
-                <tfoot>
-                <tr>
-                    <td colspan="<?php echo $columnCount; ?>">
-						<?php echo $this->pagination->getListFooter(); ?>
-                </tr>
-                </tfoot>
-				<?php
-				if (isset($this->batch) && !empty($this->batch))
-				{
-					foreach ($this->batch as $filename)
-					{
-						foreach ($this->_path['template'] as $path)
-						{
-							$exists = file_exists("$path$filename.php");
-							if ($exists)
-							{
-								require_once "$path$filename.php";
-								break;
-							}
-						}
-					}
-				}
-				?>
-            </table>
-		<?php endif; ?>
-        <input type="hidden" name="boxchecked" value="0"/>
-        <input type="hidden" name="id" value="<?php echo Helpers\Input::getID(); ?>"/>
-        <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
-        <input type="hidden" name="option" value="com_organizer"/>
-        <input type="hidden" name="task" value=""/>
-        <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-		<?php echo Helpers\HTML::_('form.token'); ?>
-    </form>
+									$colAttributes = $this->getAttributesOutput($column);
+									$colValue      = is_array($column) ? $column['value'] : $column;
+									echo "<td $colAttributes>$colValue</td>";
+								}
+								?>
+                            </tr>
+						<?php endforeach; ?>
+                        <tfoot>
+                        <tr>
+                            <td colspan="<?php echo $columnCount; ?>">
+								<?php echo $this->pagination->getListFooter(); ?>
+                        </tr>
+                        </tfoot>
+                    </table>
+				<?php endif; ?>
+                <input type="hidden" name="boxchecked" value="0"/>
+                <input type="hidden" name="id" value="<?php echo Helpers\Input::getID(); ?>"/>
+                <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
+                <input type="hidden" name="option" value="com_organizer"/>
+                <input type="hidden" name="task" value=""/>
+                <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
+				<?php echo Helpers\HTML::_('form.token'); ?>
+            </form>
+        </div>
+	<?php endif; ?>
 	<?php echo $this->disclaimer; ?>
 </div>
 
