@@ -49,7 +49,7 @@ class CourseParticipants extends Participants
 			'Standard',
 			'checkin',
 			Languages::_('ORGANIZER_ACCEPT'),
-			'course_participants.accept',
+			'CourseParticipants.accept',
 			true
 		);
 
@@ -57,7 +57,7 @@ class CourseParticipants extends Participants
 			'Standard',
 			'checkbox-unchecked',
 			Languages::_('ORGANIZER_WAITLIST'),
-			'course_participants.waitlist',
+			'CourseParticipants.waitlist',
 			true
 		);
 
@@ -66,7 +66,7 @@ class CourseParticipants extends Participants
 			Languages::_('ORGANIZER_DELETE_CONFIRM'),
 			'user-minus',
 			Languages::_('ORGANIZER_DELETE'),
-			'course_participants.remove',
+			'CourseParticipants.remove',
 			true
 		);
 

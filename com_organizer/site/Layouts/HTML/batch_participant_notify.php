@@ -11,8 +11,6 @@
 
 use Organizer\Helpers;
 
-$task = Helpers\Input::getCMD('view') . '.notify';
-
 ?>
 <div class="modal hide fade" id="modal-mail">
     <div class="modal-header">
@@ -35,7 +33,7 @@ $task = Helpers\Input::getCMD('view') . '.notify';
         <button class="btn" type="button" data-dismiss="modal">
 			<?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
         </button>
-        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton(<?php echo $task; ?>);">
+        <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('CourseParticipants.notify');">
 			<?php echo Helpers\Languages::_('ORGANIZER_NOTIFY'); ?>
         </button>
     </div>
