@@ -779,6 +779,52 @@ CREATE TABLE IF NOT EXISTS `#__organizer_room_dintypes` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `#__organizer_equipment` (
+                                           `id` int(11) NOT NULL AUTO_INCREMENT,
+                                           `code` varchar(50) NOT NULL,
+                                           `name_de` varchar(150) NOT NULL,
+                                           `name_en` varchar(150) NOT NULL,
+                                           `description_de` text DEFAULT NULL,
+                                           `description_en` text DEFAULT NULL,
+                                           PRIMARY KEY (`id`),
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `#__organizer_roomtype_equipment` (
+                                                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                                                    `name_de` varchar(50) NOT NULL,
+                                                    `name_en` varchar(50) NOT NULL,
+                                                    `description_de` text DEFAULT NULL,
+                                                    `description_en` text DEFAULT NULL,
+                                                    `quantity` int(4) DEFAULT 0,
+                                                    `roomtypeID` int(11) DEFAULT NULL,
+                                                    `equipmentID` int(11) DEFAULT NULL,
+                                                    PRIMARY KEY (`id`),
+                                                    KEY `roomtypeID` (`roomtypeID`),
+                                                    KEY `equipmentID` (`equipmentID`)
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `#__organizer_room_equipment` (
+                                                `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+                                                `name_de` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                                `name_en` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                                `description_de` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                                                `description_en` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                                                `quantity` int(4) UNSIGNED DEFAULT NULL,
+                                                `roomID` int(11) UNSIGNED DEFAULT NULL,
+                                                `equipmentID` int(11) UNSIGNED DEFAULT NULL,
+                                                PRIMARY KEY (`id`),
+                                                KEY `roomtypeID` (`roomID`),
+                                                KEY `equipmentID` (`equipmentID`),
+                                                KEY `roomID` (`roomID`)
+) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+
 
 CREATE TABLE IF NOT EXISTS `#__organizer_runs` (
                                                     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
