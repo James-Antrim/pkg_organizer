@@ -87,7 +87,7 @@ class InstanceItem extends ListModel
 
 		$query->select("DISTINCT i.id")
 			->where("(b.date > '$startDate' OR (b.date = '$startDate' AND b.endTime >= '$endTime'))")
-			->where("b.date <= '{$endDate}'")
+			->where("b.date <= '$endDate'")
 			->order('b.date, b.startTime, b.endTime');
 
 		return $query;

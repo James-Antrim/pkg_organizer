@@ -42,9 +42,9 @@ trait ListsInstances
 	 *
 	 * @param   stdClass  $instance  the instance item being iterated
 	 *
-	 * @return array|string
+	 * @return string
 	 */
-	private function getStatus(stdClass $instance)
+	private function getStatus(stdClass $instance): string
 	{
 		$userID = Users::getID();
 
@@ -56,19 +56,21 @@ trait ListsInstances
 			}
 			elseif ($instance->presence === Helper::ONLINE)
 			{
-				$value = Languages::_('ORGANIZER_DIGITAL');
+				$value = Languages::_('ORGANIZER_ONLINE');
 
 				if ($userID)
 				{
+					if ($instance->scheduled)
+					{
+						$value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBED'));
+					}
+
 					if ($instance->manageable)
 					{
 						$value .= '<br>' . $instance->interested . ' ';
 						$value .= HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBERS'));
 					}
-					elseif ($instance->scheduled)
-					{
-						$value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBED'));
-					}
+
 				}
 			}
 			else
@@ -78,21 +80,22 @@ trait ListsInstances
 
 				if ($userID)
 				{
-					if ($instance->manageable)
-					{
-						if ($interested)
-						{
-							$value .= "<br>$interested ";
-							$value .= HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBERS'));
-						}
-					}
-					elseif ($instance->scheduled)
+					if ($instance->scheduled)
 					{
 						$value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBED'));
 
 						if ($instance->registered)
 						{
 							$value .= ' ' . HTML::icon('signup', Languages::_('ORGANIZER_REGISTERED'));
+						}
+					}
+
+					if ($instance->manageable)
+					{
+						if ($interested)
+						{
+							$value .= "<br>$interested ";
+							$value .= HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBERS'));
 						}
 					}
 				}
@@ -141,7 +144,7 @@ trait ListsInstances
 	 *
 	 * @param   stdClass  $instance  the object modeling the instance
 	 *
-	 * @return string an icon representing the status of the instance, empty if the staus is irrelevent
+	 * @return string an icon representing the status of the instance, empty if the status is irrelevant
 	 */
 	private function getStatusIcon(stdClass $instance): string
 	{
@@ -334,7 +337,7 @@ trait ListsInstances
 
 		if ($instance->presence === Helper::ONLINE)
 		{
-			$instance->rooms = Languages::_('ORGANIZER_DIGITAL');
+			$instance->rooms = Languages::_('ORGANIZER_ONLINE');
 
 			return;
 		}
@@ -343,7 +346,7 @@ trait ListsInstances
 
 		if ($instance->presence === Helper::HYBRID)
 		{
-			array_unshift($rooms, Languages::_('ORGANIZER_DIGITAL'));
+			array_unshift($rooms, Languages::_('ORGANIZER_ONLINE'));
 		}
 
 		$instance->rooms = implode('<br>', $rooms);

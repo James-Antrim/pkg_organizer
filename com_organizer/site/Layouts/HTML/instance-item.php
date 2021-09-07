@@ -50,60 +50,57 @@ echo $this->supplement;
 		<?php $this->renderResources(Languages::_('ORGANIZER_ROOMS'), $instance->rooms) ?>
 	<?php endif; ?>
 	<?php if ($this->items): ?>
-        <div class="attribute-item">
-            <div class="attribute-label"><?php echo Languages::_('ORGANIZER_UPCOMING_INSTANCES'); ?></div>
-            <div>TODO: Add a sticky toolbar with de-/schedule and de-/register here</div>
-			<?php echo Toolbar::getInstance()->render(); ?>
-            <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
-				<?php if (count($items)) : ?>
-                    <table class="table table-striped" id="<?php echo $this->get('name'); ?>-list">
-                        <thead>
-                        <tr>
+        <h2 class="section-head"><?php echo Languages::_('ORGANIZER_UPCOMING_INSTANCES'); ?></h2>
+		<?php echo Toolbar::getInstance()->render(); ?>
+        <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
+			<?php if (count($items)) : ?>
+                <table class="table table-striped" id="<?php echo $this->get('name'); ?>-list">
+                    <thead>
+                    <tr>
+						<?php
+						foreach ($this->headers as $header)
+						{
+							$colAttributes = $this->getAttributesOutput($header);
+							$colValue      = is_array($header) ? $header['value'] : $header;
+							echo "<th $colAttributes>$colValue</th>";
+						}
+						?>
+                    </tr>
+                    </thead>
+                    <tbody <?php echo $this->getAttributesOutput($items); ?>>
+					<?php foreach ($items as $row) : ?>
+                        <tr <?php echo $this->getAttributesOutput($row); ?>>
 							<?php
-							foreach ($this->headers as $header)
+							foreach ($row as $key => $column)
 							{
-								$colAttributes = $this->getAttributesOutput($header);
-								$colValue      = is_array($header) ? $header['value'] : $header;
-								echo "<th $colAttributes>$colValue</th>";
+								if ($key === 'attributes')
+								{
+									continue;
+								}
+
+								$colAttributes = $this->getAttributesOutput($column);
+								$colValue      = is_array($column) ? $column['value'] : $column;
+								echo "<td $colAttributes>$colValue</td>";
 							}
 							?>
                         </tr>
-                        </thead>
-                        <tbody <?php echo $this->getAttributesOutput($items); ?>>
-						<?php foreach ($items as $row) : ?>
-                            <tr <?php echo $this->getAttributesOutput($row); ?>>
-								<?php
-								foreach ($row as $key => $column)
-								{
-									if ($key === 'attributes')
-									{
-										continue;
-									}
-
-									$colAttributes = $this->getAttributesOutput($column);
-									$colValue      = is_array($column) ? $column['value'] : $column;
-									echo "<td $colAttributes>$colValue</td>";
-								}
-								?>
-                            </tr>
-						<?php endforeach; ?>
-                        <tfoot>
-                        <tr>
-                            <td colspan="<?php echo $columnCount; ?>">
-								<?php echo $this->pagination->getListFooter(); ?>
-                        </tr>
-                        </tfoot>
-                    </table>
-				<?php endif; ?>
-                <input type="hidden" name="boxchecked" value="0"/>
-                <input type="hidden" name="id" value="<?php echo Helpers\Input::getID(); ?>"/>
-                <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
-                <input type="hidden" name="option" value="com_organizer"/>
-                <input type="hidden" name="task" value=""/>
-                <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-				<?php echo Helpers\HTML::_('form.token'); ?>
-            </form>
-        </div>
+					<?php endforeach; ?>
+                    <tfoot>
+                    <tr>
+                        <td colspan="<?php echo $columnCount; ?>">
+							<?php echo $this->pagination->getListFooter(); ?>
+                    </tr>
+                    </tfoot>
+                </table>
+			<?php endif; ?>
+            <input type="hidden" name="boxchecked" value="0"/>
+            <input type="hidden" name="id" value="<?php echo Helpers\Input::getID(); ?>"/>
+            <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
+            <input type="hidden" name="option" value="com_organizer"/>
+            <input type="hidden" name="task" value=""/>
+            <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
+			<?php echo Helpers\HTML::_('form.token'); ?>
+        </form>
 	<?php endif; ?>
 	<?php echo $this->disclaimer; ?>
 </div>

@@ -264,8 +264,12 @@ class InstanceParticipant extends BaseModel
 
 	/**
 	 * Deregisters participants from instances.
+	 *
+	 * @param   int  $method  the method to be used for resolving the instances to be registered
+	 *
+	 * @return void
 	 */
-	public function deregister()
+	public function deregister(int $method)
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
@@ -275,7 +279,7 @@ class InstanceParticipant extends BaseModel
 		}
 
 		// This filters out past instances.
-		if (!$instanceIDs = $this->getInstances(self::SELECTED))
+		if (!$instanceIDs = $this->getInstances($method))
 		{
 			return;
 		}
@@ -499,7 +503,7 @@ class InstanceParticipant extends BaseModel
 				Database::setQuery($query);
 				$instanceIDs = Database::loadIntColumn();
 				break;
-		};
+		}
 
 		if (!$instanceIDs = array_values($instanceIDs))
 		{
@@ -554,9 +558,11 @@ class InstanceParticipant extends BaseModel
 	/**
 	 * Registers participants to instances.
 	 *
+	 * @param   int  $method  the method to be used for resolving the instances to be registered
+	 *
 	 * @return void
 	 */
-	public function register()
+	public function register(int $method)
 	{
 		if (!$participantID = Helpers\Users::getID())
 		{
@@ -569,7 +575,7 @@ class InstanceParticipant extends BaseModel
 		$participant->supplement($participantID);
 
 		// This filters out past instances.
-		if (!$instanceIDs = $this->getInstances(self::SELECTED))
+		if (!$instanceIDs = $this->getInstances($method))
 		{
 			return;
 		}
@@ -590,7 +596,7 @@ class InstanceParticipant extends BaseModel
 			$name      = Helpers\Instances::getName($instanceID);
 			$block     = Helpers\Instances::getBlock($instanceID);
 			$date      = Helpers\Dates::formatDate($block->date);
-			$earliest  = Helpers\Dates::formatDate(strtotime('-2 days', strtotime($block->date)));
+			$earliest  = Helpers\Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
 			$endTime   = Helpers\Dates::formatEndTime($block->endTime);
 			$startTime = Helpers\Dates::formatTime($block->startTime);
 			$then      = date('Y-m-d', strtotime('+2 days'));
@@ -607,7 +613,8 @@ class InstanceParticipant extends BaseModel
 			if ($block->date > $then)
 			{
 				OrganizerHelper::message(
-					sprintf(Languages::_('ORGANIZER_PREMATURE_REGISTRATION'), $name, $date, $startTime, $endTime, $earliest),
+					sprintf(Languages::_('ORGANIZER_PREMATURE_REGISTRATION'), $name, $date, $startTime, $endTime,
+						$earliest),
 					'notice'
 				);
 				continue;
@@ -723,7 +730,7 @@ class InstanceParticipant extends BaseModel
 
 		if (!$instanceIDs = $this->getInstances($method))
 		{
-			return false;
+			return;
 		}
 
 		$registered = false;
