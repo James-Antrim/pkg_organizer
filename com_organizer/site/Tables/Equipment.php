@@ -50,7 +50,6 @@ class Equipment extends BaseTable
      * @var int
      */
     public $description_en;
-    public $quantity;
 
     /**
      * Declares the associated table.

@@ -15,14 +15,23 @@ class Equipment extends ListModel {
         //$this->setOrdering();
         return $query;
     }
-    function save(){
-        $data = array();
+
+    public function save($data = [])
+    {
+
         $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-        $table = new Tables\Equipment();
-        $table->load($data['id']);
-        $table->bind($data);
-        $table->store();
-        return $table->id;
+        try
+        {
+            $table = new Tables\Equipment();
+        }
+        catch (Exception $exception)
+        {
+            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+            return false;
+        }
+
+        return $table->save($data) ? $table->id : false;
     }
 
     function delete() {
