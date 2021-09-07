@@ -734,12 +734,14 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `name_en`        VARCHAR(150)        NOT NULL,
     `description_de` TEXT,
     `description_en` TEXT,
+    `room_dintypeID` INT (4) UNSIGNED          DEFAULT NULL,
     `minCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
     `maxCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
     `suppress`       TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `alias` (`alias`),
-    UNIQUE KEY `code` (`code`)
+    UNIQUE KEY `code` (`code`),
+    KEY `room_dintypeID` (`room_dintypeID`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -1040,3 +1042,76 @@ ALTER TABLE `#__organizer_units`
     ADD CONSTRAINT `unit_organizationID_fk` FOREIGN KEY (`organizationID`) REFERENCES `#__organizer_organizations` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `unit_runID_fk` FOREIGN KEY (`runID`) REFERENCES `#__organizer_runs` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `unit_termID_fk` FOREIGN KEY (`termID`) REFERENCES `#__organizer_terms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+/* Table structure of room_archetypes table*/
+
+CREATE TABLE IF NOT EXISTS `#__organizer_room_archetypes`(
+    `id`          INT(3) UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `code`        VARCHAR(50)        NOT NULL COLLATE utf8mb4_bin,
+    `name_de`     VARCHAR(50)        NOT NULL,
+    `name_en`     VARCHAR(50)        NOT NULL,
+    `description_de` TEXT,
+    `description_en` TEXT,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `code` (`code`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+/* Table structure of room_dintypes table*/
+
+CREATE TABLE IF NOT EXISTS `#__organizer_room_dintypes` (
+    `id`             INT(3) UNSIGNED          NOT NULL AUTO_INCREMENT,
+    `din_code`       INT(3)                   NOT NULL COLLATE utf8mb4_bin,
+    `name_de`        VARCHAR(50)              NOT NULL,
+    `name_en`        VARCHAR(50)              NOT NULL,
+    `room_archetypeID`  INT(4) UNSIGNED       DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `room_archetypeID` (`room_archetypeID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `#__organizer_equipment` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `code` varchar(50) NOT NULL,
+    `name_de` varchar(150) NOT NULL,
+    `name_en` varchar(150) NOT NULL,
+    `description_de` text DEFAULT NULL,
+    `description_en` text DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `#__organizer_roomtype_equipment` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `name_de` varchar(50) NOT NULL,
+    `name_en` varchar(50) NOT NULL,
+    `description_de` text DEFAULT NULL,
+    `description_en` text DEFAULT NULL,
+    `quantity` int(4) DEFAULT 0,
+    `roomtypeID` int(11) DEFAULT NULL,
+    `equipmentID` int(11) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `roomtypeID` (`roomtypeID`),
+    KEY `equipmentID` (`equipmentID`)
+) ENGINE=InnoDB  DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `#__organizer_room_equipment` (
+     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+     `name_de` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+     `name_en` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+     `description_de` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+     `description_en` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+     `quantity` int(4) unsigned DEFAULT NULL,
+     `roomID` int(11) unsigned DEFAULT NULL,
+     `equipmentID` int(11) unsigned DEFAULT NULL,
+     PRIMARY KEY (`id`),
+     KEY `roomtypeID` (`roomID`),
+     KEY `equipmentID` (`equipmentID`),
+     KEY `roomID` (`roomID`)
+)  ENGINE=InnoDB  DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;

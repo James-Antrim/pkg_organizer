@@ -43,41 +43,48 @@ class RoomOverview extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function getListQuery()
-	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+    protected function getListQuery()
+    {
+        $tag   = Helpers\Languages::getTag();
+        $query = $this->_db->getQuery(true);
 
-		$query->select('r.id, r.name AS name, r.effCapacity')
-			->select("t.id AS roomtypeID, t.name_$tag AS typeName, t.description_$tag AS typeDesc")
-			->from('#__organizer_rooms AS r')
-			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
-			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-			->where('r.active = 1')
-			->where('t.suppress = 0');
+        $query->select('r.id, r.name AS name, r.effCapacity')
+            ->select("t.id AS roomtypeID, t.name_$tag AS typeName, t.description_$tag AS typeDesc")
+            ->from('#__organizer_rooms AS r')
+            ->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
+            ->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+            ->leftJoin('#__organizer_room_equipment AS re ON r.id = re.roomId')
+            ->leftJoin('#__organizer_roomtype_equipment AS rt_eq ON rt_eq.roomtypeID = t.id')
+            ->where('r.active = 1')
+            ->where('t.suppress = 0');
 
-		// Only display public room types, i.e. no offices or toilets...
-		$query->where('t.suppress = 0');
+        // Only display public room types, i.e. no offices or toilets...
+        $query->where('t.suppress = 0');
 
-		$this->setSearchFilter($query, ['r.name']);
-		$this->setValueFilters($query, ['buildingID', 'roomtypeID']);
-		$this->setCampusFilter($query, 'b');
+        $this->setSearchFilter($query, ['r.name']);
+        $this->setValueFilters($query, ['buildingID', 'r.roomtypeID']);
+        $this->setCampusFilter($query, 'b');
 
-		if ($roomIDs = Helpers\Input::getFilterIDs('room'))
-		{
-			$query->where('r.id IN (' . implode(',', $roomIDs) . ')');
-		}
+        if ($roomIDs = Helpers\Input::getFilterIDs('room'))
+        {
+            $query->where('r.id IN (' . implode(',', $roomIDs) . ')');
+        }
 
-		if ($capacity = $this->state->get('filter.effCapacity'))
-		{
-			$query->where("r.effCapacity >= $capacity");
-		}
+        if ($capacity = $this->state->get('filter.effCapacity'))
+        {
+            $query->where("r.effCapacity >= $capacity");
+        }
 
-		$query->order($this->defaultOrdering);
+        $filter_equipment = $this->state->get('filter.equipmentID');
+        if($filter_equipment > 0){
+            $query->where('rt_eq.equipmentID ='.$this->_db->q($filter_equipment).' OR '.'re.equipmentID ='.$this->_db->q($filter_equipment));
+        }
 
-		return $query;
-	}
 
+        $query->order($this->defaultOrdering);
+        //echo "<pre>";echo $query;echo "</pre>";
+        return $query;
+    }
 	/**
 	 * @inheritDoc
 	 */

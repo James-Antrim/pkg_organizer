@@ -17,6 +17,9 @@
                prefix="> " step="5" unit="SEATS">
             <option value="">ALL_SIZES</option>
         </field>
+        <field name="equipmentID" type="Roomequipment" label="Property" class="input-12" onchange="this.form.submit();">
+            <option value="">ALL_PROPERTY</option>
+        </field>
     </fields>
     <fields name="list">
         <field name="template" type="Options" label="DISPLAY_RANGE" class="input-7" default="1"

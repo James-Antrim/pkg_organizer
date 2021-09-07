@@ -13,6 +13,7 @@ namespace Organizer\Models;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
+use Joomla\CMS\Factory;
 
 /**
  * Class which manages stored room data.
@@ -130,4 +131,61 @@ class Room extends MergeModel
 
 		return $this->updateIPReferences();
 	}
+
+    public function save($data = [])
+    {
+        $this->authorize();
+
+        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+
+        try
+        {
+            $table = $this->getTable();
+        }
+        catch (Exception $exception)
+        {
+            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+            return false;
+        }
+
+        $id = $table->save($data) ? $table->id : false;
+        if($id > 0){
+            $db = Factory::getDbo();
+            $query = $db->getQuery(true);
+            $query->select('equipmentID')->from('#__organizer_room_equipment')->where('roomID='.$id);
+            $db->setQuery($query);
+            $saved_roomequipment = $db->loadObjectList();
+
+            if(isset($data['equipment_list']) && !empty($data['equipment_list'])){
+                foreach ($data['equipment_list'] as $equ){
+                    foreach ($saved_roomequipment as $save_key => $save_equ){
+                        if($save_equ->equipmentID == $equ['equipment']){
+                            unset($saved_roomequipment[$save_key]);
+                        }
+                    }
+                    $equipment_table = new Tables\Equipment();
+                    if($equipment_table->load($equ['equipment'])){
+                        $room_equipment_table = new Tables\RoomEquipment();
+                        $room_equipment_table->load(array('roomID' => $id,'equipmentID' => $equ['equipment']));
+                        $room_equipment_table->roomID = $id;
+                        $room_equipment_table->equipmentID = $equ['equipment'];
+                        $room_equipment_table->quantity = $equ['qty'];
+                        $room_equipment_table->name_en = $equipment_table->name_en;
+                        $room_equipment_table->name_de = $equipment_table->name_de;
+                        $room_equipment_table->description_de = $equipment_table->description_de;
+                        $room_equipment_table->description_en = $equipment_table->description_en;
+                        $room_equipment_table->store();
+                    }
+                }
+            }
+
+            foreach ($saved_roomequipment as $saved_equipment){
+                $room_equipment_table = new Tables\RoomEquipment();
+                $room_equipment_table->load(array('roomID' => $id,'equipmentID' => $saved_equipment->equipmentID));
+                $room_equipment_table->delete();
+            }
+        }
+        return $id;
+    }
 }

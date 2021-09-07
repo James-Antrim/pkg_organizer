@@ -38,6 +38,12 @@ class Rooms extends Controller
 		$this->display();
 	}
 
+    public function FMExport(){
+        Helpers\Input::set('layout', 'FMExport');
+        Helpers\Input::set('format', 'xls');
+        $this->display();
+    }
+
 	/**
 	 * Creates an xls file based on form data.
 	 *

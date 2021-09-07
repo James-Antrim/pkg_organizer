@@ -10,6 +10,14 @@
         <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
         <field name="description_de" type="Wiz" label="DESC_DE"/>
         <field type="spacer"/>
+        <field name="equipment_list" type="Periods" formsource="equipment_blocks" multiple="true" buttons="add,remove"
+               layout="joomla.form.field.subform.repeatable-table" label="ORGANIZER_EQUIPMENT_LIST"/>
+        <field name="room_dintypeID" type="GenericOptions" label="ORGANIZER_DIN_TYPES" localized="true"
+               table="organizer_room_dintypes"
+               textcolumn="name" valuecolumn="id" required="true">
+            <option value="0">SELECT_DINTYPE</option>
+        </field>
+        <field type="spacer"/>
         <field name="minCapacity" type="Integer" label="MIN_CAPACITY" default="-1" first="10" last="9990" step="10">
             <option value="-1">NO_INPUT</option>
         </field>
