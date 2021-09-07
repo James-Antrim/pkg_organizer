@@ -79,6 +79,10 @@ class InstanceItem extends ListView
 			$color          = 'grey';
 			$this->messages = [Languages::_('ORGANIZER_INSTANCE_EXPIRED')];
 		}
+		elseif (!$this->userID)
+		{
+			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_LOG_IN_FIRST');
+		}
 		elseif ($instance->registered)
 		{
 			$color            = 'green';
@@ -121,7 +125,6 @@ class InstanceItem extends ListView
 		if ($this->userID and $this->buttons)
 		{
 			$buttons  = $this->buttons;
-			$day      = Languages::_(strtoupper(date('D', strtotime($instance->date)))) . '.';
 			$minibar  = [];
 			$standard = new StandardButton();
 
@@ -131,15 +134,18 @@ class InstanceItem extends ListView
 					'Standard',
 					'bookmark',
 					Languages::_('ORGANIZER_ADD_INSTANCE'),
-					'InstanceParticipants.schedule',
+					'InstanceParticipants.scheduleThis',
 					false
 				);
-				$toolbar->appendButton(
+			}
+			elseif ($buttons['deschedule'])
+			{
+				$minibar[] = $standard->fetchButton(
 					'Standard',
-					'bookmark',
-					Languages::_('ORGANIZER_ADD_INSTANCE'),
-					'InstanceParticipants.schedule',
-					true
+					'bookmark-2',
+					Languages::_('ORGANIZER_DELETE_INSTANCE'),
+					'InstanceParticipants.descheduleThis',
+					false
 				);
 			}
 
@@ -148,45 +154,9 @@ class InstanceItem extends ListView
 				$minibar[] = $standard->fetchButton(
 					'Standard',
 					'bookmark',
-					sprintf(Languages::_('ORGANIZER_BLOCK_INSTANCES'), $day, $instance->startTime, $instance->endTime),
+					Languages::_('ORGANIZER_ADD_BLOCK_INSTANCES'),
 					'InstanceParticipants.scheduleBlock',
 					false
-				);
-			}
-
-			if ($buttons['register'])
-			{
-				$minibar[] = $standard->fetchButton(
-					'Standard',
-					'signup',
-					Languages::_('ORGANIZER_REGISTER'),
-					'InstanceParticipants.register',
-					false
-				);
-				$toolbar->appendButton(
-					'Standard',
-					'signup',
-					Languages::_('ORGANIZER_REGISTER'),
-					'InstanceParticipants.register',
-					true
-				);
-			}
-
-			if ($buttons['deschedule'])
-			{
-				$minibar[] = $standard->fetchButton(
-					'Standard',
-					'bookmark-2',
-					Languages::_('ORGANIZER_DELETE_INSTANCE'),
-					'InstanceParticipants.deschedule',
-					false
-				);
-				$toolbar->appendButton(
-					'Standard',
-					'bookmark-2',
-					Languages::_('ORGANIZER_DELETE'),
-					'InstanceParticipants.deschedule',
-					true
 				);
 			}
 
@@ -195,8 +165,8 @@ class InstanceItem extends ListView
 				$minibar[] = $standard->fetchButton(
 					'Standard',
 					'bookmark-2',
-					sprintf(Languages::_('ORGANIZER_BLOCK_INSTANCES'), $day, $instance->startTime, $instance->endTime),
-					'InstanceParticipants.scheduleBlock',
+					Languages::_('ORGANIZER_DELETE_BLOCK_INSTANCES'),
+					'InstanceParticipants.descheduleBlock',
 					false
 				);
 			}
@@ -205,16 +175,63 @@ class InstanceItem extends ListView
 			{
 				$minibar[] = $standard->fetchButton(
 					'Standard',
-					'exit',
-					Languages::_('ORGANIZER_DEREGISTER'),
-					'InstanceParticipants.register',
+					'signup',
+					Languages::_('ORGANIZER_REGISTER'),
+					'InstanceParticipants.registerThis',
 					false
 				);
+			}
+			elseif ($buttons['deregister'])
+			{
+				$minibar[] = $standard->fetchButton(
+					'Standard',
+					'exit',
+					Languages::_('ORGANIZER_DEREGISTER'),
+					'InstanceParticipants.deregisterThis',
+					false
+				);
+			}
+
+			if ($buttons['scheduleList'])
+			{
+				$toolbar->appendButton(
+					'Standard',
+					'bookmark',
+					Languages::_('ORGANIZER_ADD_INSTANCES'),
+					'InstanceParticipants.schedule',
+					true
+				);
+			}
+
+			if ($buttons['descheduleList'])
+			{
+				$toolbar->appendButton(
+					'Standard',
+					'bookmark-2',
+					Languages::_('ORGANIZER_DELETE_INSTANCES'),
+					'InstanceParticipants.deschedule',
+					true
+				);
+			}
+
+			if ($buttons['registerList'])
+			{
+				$toolbar->appendButton(
+					'Standard',
+					'signup',
+					Languages::_('ORGANIZER_REGISTER'),
+					'InstanceParticipants.register',
+					true
+				);
+			}
+
+			if ($buttons['deregisterList'])
+			{
 				$toolbar->appendButton(
 					'Standard',
 					'exit',
 					Languages::_('ORGANIZER_DEREGISTER'),
-					'InstanceParticipants.register',
+					'InstanceParticipants.deregister',
 					true
 				);
 			}
@@ -487,7 +504,7 @@ class InstanceItem extends ListView
 	/**
 	 * Processes the instance to aid in simplifying/supplementing the item display.
 	 *
-	 * @param   object  $instance  the instance data
+	 * @param   stdClass  $instance  the instance data
 	 *
 	 * @return void
 	 */
@@ -606,19 +623,7 @@ class InstanceItem extends ListView
 						}
 
 						$name = $group['fullName'];
-						if (empty($groups[$name]) or $dateTime > $groups[$name]['date'])
-						{
-							$groups[$name] = [
-								'date'   => $modified,
-								'status' => $group['status']
-							];
-						}
-
-						$modified = $dateTime > $modified ? $dateTime : $modified;
-
-						$copy = $group;
-						unset($copy['status'], $copy['statusDate']);
-						$filteredGroups[$groupID] = $copy;
+						$this->setResource($groups, $filteredGroups, $modified, $groupID, $name, $group);
 					}
 				}
 
@@ -642,20 +647,7 @@ class InstanceItem extends ListView
 						}
 
 						$name = $room['room'];
-
-						if (empty($rooms[$name]) or $dateTime > $rooms[$name]['date'])
-						{
-							$rooms[$name] = [
-								'date'   => $modified,
-								'status' => $room['status']
-							];
-						}
-
-						$modified = $dateTime > $modified ? $dateTime : $modified;
-
-						$copy = $room;
-						unset($copy['status'], $copy['statusDate']);
-						$filteredRooms[$roomID] = $copy;
+						$this->setResource($rooms, $filteredRooms, $modified, $roomID, $name, $room);
 					}
 				}
 
@@ -698,6 +690,41 @@ class InstanceItem extends ListView
 	}
 
 	/**
+	 * @param   array   &$collection  the aggregated collection for the resource
+	 * @param   array   &$filtered    the resource filtered of attributes obfuscating resource uniqueness
+	 * @param   string  &$modified    the date time string denoting the last modification date for the whole instance
+	 * @param   int      $key         the resource's id in the database
+	 * @param   string   $name        the name of the resource
+	 * @param   array    $resource    the resource being iterated
+	 *
+	 * @return void
+	 */
+	private function setResource(
+		array &$collection,
+		array &$filtered,
+		string &$modified,
+		int $key,
+		string $name,
+		array $resource
+	) {
+		$dateTime = $resource['statusDate'];
+
+		if (empty($collection[$name]) or $dateTime > $collection[$name]['date'])
+		{
+			$collection[$name] = [
+				'date'   => $modified,
+				'status' => $resource['status']
+			];
+		}
+
+		$modified = $dateTime > $modified ? $dateTime : $modified;
+
+		$copy = $resource;
+		unset($copy['status'], $copy['statusDate']);
+		$filtered[$key] = $copy;
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	protected function setSubtitle()
@@ -716,11 +743,15 @@ class InstanceItem extends ListView
 
 		$buttons = [
 			'deregister'      => false,
+			'deregisterList'  => false,
 			'deschedule'      => false,
 			'descheduleBlock' => false,
+			'descheduleList'  => false,
 			'register'        => false,
+			'registerList'    => false,
 			'schedule'        => false,
-			'scheduleBlock'   => false
+			'scheduleBlock'   => false,
+			'scheduleList'    => false
 		];
 
 		$instance = $this->instance;
@@ -731,21 +762,20 @@ class InstanceItem extends ListView
 			{
 				$buttons['deschedule'] = true;
 
-				if ($instance->registered)
-				{
-					$buttons['deregister']     = true;
-					$buttons['deregisterThis'] = true;
-				}
 			}
 			else
 			{
 				$buttons['schedule'] = true;
 
-				if (!$instance->full and $instance->presence !== Helper::ONLINE)
-				{
-					$buttons['register']     = true;
-					$buttons['registerThis'] = true;
-				}
+			}
+
+			if ($instance->registered)
+			{
+				$buttons['deregister'] = true;
+			}
+			elseif (!$instance->full and $instance->presence !== Helper::ONLINE and !$instance->premature)
+			{
+				$buttons['register'] = true;
 			}
 		}
 
@@ -761,32 +791,32 @@ class InstanceItem extends ListView
 				$sameET       = $item->startTime === $instance->startTime;
 				$sameST       = $item->startTime === $instance->startTime;
 				$sameBlock    = ($sameDOW and $sameET and $sameST);
-				$sameInstance = $item->intanceID === $instance->instanceID;
+				$sameInstance = $item->instanceID === $instance->instanceID;
 
 				if ($item->scheduled)
 				{
-					$buttons['deschedule'] = true;
+					$buttons['descheduleList'] = true;
 
 					if ($item->registered)
 					{
-						$buttons['deregister'] = true;
+						$buttons['deregisterList'] = true;
 					}
 
-					if ($sameBlock and !$sameInstance and $instance->scheduled)
+					if ($sameBlock and !$sameInstance)
 					{
 						$buttons['descheduleBlock'] = true;
 					}
 				}
 				else
 				{
-					$buttons['schedule'] = true;
+					$buttons['scheduleList'] = true;
 
-					if (!$item->full and $item->presence !== Helper::ONLINE)
+					if (!$item->full and $item->presence !== Helper::ONLINE and !$item->premature)
 					{
-						$buttons['register'] = true;
+						$buttons['registerList'] = true;
 					}
 
-					if ($sameBlock and !$sameInstance and !$instance->scheduled)
+					if ($sameBlock and !$sameInstance)
 					{
 						$buttons['scheduleBlock'] = true;
 					}
