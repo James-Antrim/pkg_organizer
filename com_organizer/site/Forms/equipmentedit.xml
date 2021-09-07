@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="code" type="Blank" label="Code" class="required" maxlength="150" required="true"/>
+        <field name="name_de" type="Blank" label="EQUIPMENT_NAME_DE" class="required" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="EQUIPMENT_NAME_EN" class="required" maxlength="150" required="true"/>
+        <field name="description_de" type="Blank" label="EQUIPMENT_DESCRIPTION_DE" class="required" maxlength="150" required="true"/>
+        <field name="description_en" type="Blank" label="EQUIPMENT_DESCRIPTION_EN" class="required" maxlength="150" required="true"/>
+    </fieldset>
+</form>
