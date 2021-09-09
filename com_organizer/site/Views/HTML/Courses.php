@@ -210,8 +210,9 @@ class Courses extends ListView
 
 		foreach ($this->items as $course)
 		{
-			$campusName = Helpers\Campuses::getName($course->campusID);
-			$pin        = $this->adminContext ? '' : ' ' . Helpers\Campuses::getPin($course->campusID);
+			$campusID = (int) $course->campusID;
+			$campusName = Helpers\Campuses::getName($campusID);
+			$pin        = $this->adminContext ? '' : ' ' . Helpers\Campuses::getPin($campusID);
 
 			$course->campus = $campusName . $pin;
 
