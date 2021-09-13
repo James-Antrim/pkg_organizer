@@ -45,7 +45,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 		// Some degree program 'subject' identifiers have a number
 		$plausibleCode = preg_match('/^[A-Z]+[0-9]*$/', $pieces[0]);
 
-		// Degrees are their own managed resource
+		// Degrees are a managed resource
 		$degrees  = new Tables\Degrees();
 		$degreeID = $degrees->load(['code' => $pieces[1]]) ? $degrees->id : null;
 
@@ -61,32 +61,27 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function setID(Schedule $model, string $code)
 	{
-		$category     = $model->categories->$code;
-		$loadCriteria = [['code' => $code], ['name_de' => $category->name_de]];
-		$table        = new Tables\Categories();
+		$category = $model->categories->$code;
+		$table    = new Tables\Categories();
 
-		foreach ($loadCriteria as $criterion)
+		if ($exists = $table->load(['code' => $code]))
 		{
-			if ($exists = $table->load($criterion))
+			$altered = false;
+
+			foreach ($category as $key => $value)
 			{
-				$altered = false;
-
-				foreach ($category as $key => $value)
+				if (property_exists($table, $key) and empty($table->$key) and !empty($value))
 				{
-					if (property_exists($table, $key) and empty($table->$key) and !empty($value))
-					{
-						$table->set($key, $value);
-						$altered = true;
-					}
+					$table->set($key, $value);
+					$altered = true;
 				}
-
-				if ($altered)
-				{
-					$table->store();
-				}
-
-				break;
 			}
+
+			if ($altered)
+			{
+				$table->store();
+			}
+
 		}
 
 		if (!$exists)
@@ -110,9 +105,7 @@ class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
 	{
 		$code = str_replace('DP_', '', trim((string) $node[0]['id']));
 
-		/** @noinspection PhpUndefinedFieldInspection */
-		$name = (string) $node->longname;
-		if (!isset($name))
+		if (!$name = (string) $node->longname)
 		{
 			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_CATEGORY_NAME_MISSING'), $code);
 

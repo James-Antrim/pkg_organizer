@@ -127,8 +127,7 @@ class Groups extends Associated implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo)
-		{
+		uasort($options, function ($optionOne, $optionTwo) {
 			return $optionOne->text > $optionTwo->text;
 		});
 
@@ -152,10 +151,13 @@ class Groups extends Associated implements Selectable
 		$categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
 		$categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
 
-		// TODO Remove departments on completion of migration.
-		$departmentID    = Input::getInt('departmentIDs');
-		$organizationID  = Input::getInt('organizationID', $departmentID);
-		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
+		if (empty($categoryIDs))
+		{
+			// TODO Remove departments on completion of migration.
+			$departmentID    = Input::getInt('departmentIDs');
+			$organizationID  = Input::getInt('organizationID', $departmentID);
+			$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
+		}
 
 		if (empty($categoryIDs) and empty($organizationIDs))
 		{
@@ -170,8 +172,16 @@ class Groups extends Associated implements Selectable
 			self::addAccessFilter($query, $access, 'group', 'g');
 		}
 
-		self::addOrganizationFilter($query, 'group', 'g');
-		self::addResourceFilter($query, 'category', 'cat', 'g');
+		if (!empty($organizationIDs))
+		{
+			self::addOrganizationFilter($query, 'group', 'g');
+		}
+
+		if (!empty($categoryIDs))
+		{
+			self::addResourceFilter($query, 'category', 'cat', 'g');
+		}
+
 		Database::setQuery($query);
 
 		return Database::loadAssocList('id');

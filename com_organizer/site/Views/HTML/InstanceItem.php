@@ -48,11 +48,11 @@ class InstanceItem extends ListView
 	private $messages = [];
 
 	protected $rowStructure = [
-		'checkbox' => '',
-		'date'     => 'value',
-		'time'     => 'value',
-		'persons'  => 'value',
-		'rooms'    => 'value'
+		'tools'   => '',
+		'date'    => 'value',
+		'time'    => 'value',
+		'persons' => 'value',
+		'rooms'   => 'value'
 	];
 
 	/**
@@ -275,6 +275,23 @@ class InstanceItem extends ListView
 	}
 
 	/**
+	 * Creates the event title.
+	 *
+	 * @param   stdClass  $item  the event item being iterated
+	 *
+	 * @return array the title column
+	 */
+	private function getTitle(stdClass $item): array
+	{
+		$title = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
+		$title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
+		$title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
+
+		return ['attributes' => ['class' => 'title-column'], 'value' => $title];
+	}
+
+
+	/**
 	 * @inheritDoc
 	 */
 	protected function modifyDocument()
@@ -492,7 +509,7 @@ class InstanceItem extends ListView
 	public function setHeaders()
 	{
 		$this->headers = [
-			'checkbox' => $this->userID ? Helpers\HTML::_('grid.checkall') : '',
+			'tools'    => $this->userID ? Helpers\HTML::_('grid.checkall') : '',
 			'instance' => Languages::_('ORGANIZER_INSTANCE'),
 			'status'   => Languages::_('ORGANIZER_STATUS'),
 			'persons'  => Languages::_('ORGANIZER_PERSONS'),
@@ -823,17 +840,9 @@ class InstanceItem extends ListView
 				}
 			}
 
-			$times = $item->method ? $item->method . '<br>' : '';
-			$times .= '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span><br>';
-			$times .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
-
-			$checkbox   = $this->userID ? Helpers\HTML::_('grid.id', $index, $item->instanceID) : '';
-			$statusIcon = $this->getStatusIcon($item);
-			$checkbox   .= ($checkbox and $statusIcon) ? '<br>' . $statusIcon : $statusIcon;
-
 			$structuredItems[$index]             = [];
-			$structuredItems[$index]['checkbox'] = $checkbox;
-			$structuredItems[$index]['instance'] = $times;
+			$structuredItems[$index]['tools']    = $this->getToolsColumn($item, $index);
+			$structuredItems[$index]['instance'] = $this->getTitle($item);
 			$structuredItems[$index]['status']   = $this->getStatus($item);
 			$this->addResources($structuredItems[$index], $item);
 

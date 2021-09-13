@@ -17,6 +17,7 @@ use Organizer\Helpers\HTML;
 use Organizer\Helpers\Instances as Helper;
 use Organizer\Helpers\Languages;
 use Organizer\Helpers\Roles;
+use Organizer\Helpers\Routing;
 use Organizer\Helpers\Users;
 use stdClass;
 
@@ -144,44 +145,116 @@ trait ListsInstances
 	 *
 	 * @param   stdClass  $instance  the object modeling the instance
 	 *
-	 * @return string an icon representing the status of the instance, empty if the status is irrelevant
+	 * @return array|string an icon representing the status of the instance, empty if the status is irrelevant
 	 */
-	private function getStatusIcon(stdClass $instance): string
+	private function getToolsColumn(stdClass $instance, int $index)
 	{
+		$class      = 'status-display hasToolTip';
+		$instanceID = $instance->instanceID;
+		$title      = '';
+		$userID     = Users::getID();
+		$value      = '';
+
 		// If removed are here at all, the status holds relevance regardless of date
 		if ($instance->unitStatus === 'removed')
 		{
 			$date  = Dates::formatDate($instance->unitStatusDate);
+			$class .= ' unit-removed';
 			$title = sprintf(Languages::_('ORGANIZER_UNIT_REMOVED_ON'), $date);
-
-			return HTML::icon('minus-circle', $title);
 		}
-
-		if ($instance->instanceStatus === 'removed')
+		elseif ($instance->instanceStatus === 'removed')
 		{
 			$date  = Dates::formatDate($instance->instanceStatusDate);
+			$class .= ' instance-removed';
 			$title = sprintf(Languages::_('ORGANIZER_INSTANCE_REMOVED_ON'), $date);
-
-			return HTML::icon('minus-circle', $title);
 		}
-
 		elseif ($instance->unitStatus === 'new' and $instance->unitStatusDate >= $this->statusDate)
 		{
-			$date  = Dates::formatDate($instance->unitStatusDate);
-			$title = sprintf(Languages::_('ORGANIZER_UNIT_ADDED_ON'), $date);
-
-			return HTML::icon('plus-circle', $title);
+			$date  = Dates::formatDate($instance->instanceStatusDate);
+			$class .= ' unit-new';
+			$title = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $date);
 		}
-
-		if ($instance->instanceStatus === 'new' and $instance->instanceStatusDate >= $this->statusDate)
+		elseif ($instance->instanceStatus === 'new' and $instance->instanceStatusDate >= $this->statusDate)
 		{
 			$date  = Dates::formatDate($instance->instanceStatusDate);
+			$class .= ' instance-new';
 			$title = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $date);
-
-			return HTML::icon('plus-circle', $title);
 		}
 
-		return '';
+		if ($userID)
+		{
+			if ($this->mobile)
+			{
+				$buttons = [];
+
+				if ($instance->manageable)
+				{
+					$label   = Languages::_('ORGANIZER_MANAGE_BOOKING');
+					$icon    = HTML::icon('users', $label, true);
+					$attribs = ['aria-label' => $label, 'class' => 'btn btn-checkbox'];
+
+					// Always allow management of existing
+					if ($instance->bookingID)
+					{
+						$url       = Routing::getViewURL('booking', $instance->bookingID);
+						$buttons[] = HTML::link($url, $icon, $attribs);
+					}
+					// Never allow creation of bookings for past instances
+					elseif ($instance->registration)
+					{
+						$url       = Routing::getTaskURL('bookings.manage', $instanceID);
+						$buttons[] = HTML::link($url, $icon, $attribs);
+					}
+				}
+				// Virtual and full appointments can still be added to the personal calendar
+				elseif (!$instance->expired and !$instance->running)
+				{
+					if ($instance->interested)
+					{
+						$label = Languages::_('ORGANIZER_REMOVE');
+						$icon  = HTML::icon('bookmark-2', $label, true);
+						$url   = Routing::getTaskURL('InstanceParticipants.deschedule', $instanceID);
+					}
+					else
+					{
+						$label = Languages::_('ORGANIZER_ADD');
+						$icon  = HTML::icon('bookmark', $label, true);
+						$url   = Routing::getTaskURL('InstanceParticipants.schedule', $instanceID);
+					}
+
+					$attribs   = ['aria-label' => $label, 'class' => 'btn'];
+					$buttons[] = HTML::link($url, $icon, $attribs);
+
+					// Not virtual and not full
+					if ($instance->registration)
+					{
+						if ($instance->registered)
+						{
+							$label = Languages::_('ORGANIZER_DEREGISTER');
+							$icon  = HTML::icon('exit', $label, true);
+							$url   = Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
+						}
+						else
+						{
+							$label = Languages::_('ORGANIZER_REGISTER');
+							$icon  = HTML::icon('signup', $label, true);
+							$url   = Routing::getTaskURL('InstanceParticipants.register', $instanceID);
+						}
+
+						$attribs   = ['aria-label' => $label, 'class' => 'btn btn-checkbox'];
+						$buttons[] = HTML::link($url, $icon, $attribs);
+					}
+				}
+
+				$value .= implode('', $buttons);
+			}
+			elseif (!$instance->expired or ($instance->manageable and $instance->bookingID))
+			{
+				$value = HTML::_('grid.id', $index, $instanceID);
+			}
+		}
+
+		return $title ? ['attributes' => ['class' => $class, 'title' => $title], 'value' => $value] : $value;
 	}
 
 	/**

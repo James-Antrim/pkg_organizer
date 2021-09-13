@@ -3,7 +3,7 @@ jQuery(document).ready(function () {
 
     document.formvalidator.setHandler('address',
         function (value) {
-            return (/^([A-ZÀ-ÖØ-Þa-zß-ÿ0-9 \-]+ *)+$/).test(value);
+            return (/^([A-ZÀ-ÖØ-Þa-zß-ÿ0-9 .\-]+ *)+$/).test(value);
         }
     );
 
