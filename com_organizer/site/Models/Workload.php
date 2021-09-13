@@ -282,17 +282,25 @@ class Workload extends FormModel
 			Helpers\OrganizerHelper::error(401);
 		}
 
-		if (!$organizationIDs = Helpers\Can::manageTheseOrganizations())
+		$organizationIDs = Helpers\Can::manageTheseOrganizations();
+		$thisPersonID    = Helpers\Persons::getIDByUserID();
+		$personID        = Input::getInt('personID', $thisPersonID);
+
+		// Someone without extended access requested to access a person other than themselves
+		$unAuthorized = (!$organizationIDs and $personID and $personID != $thisPersonID);
+
+		if ((!$organizationIDs and !$thisPersonID) or $unAuthorized)
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
 
-		$this->organizationID = Input::getInt('organizationID', $organizationIDs[0]);
-		$this->personID       = Input::getInt('personID');
+		$organizationID       = $organizationIDs ? reset($organizationIDs) : 0;
+		$this->organizationID = Input::getInt('organizationID', $organizationID);
+		$this->personID       = Input::getInt('personID', $personID);
 		$this->termID         = Input::getInt('termID', Helpers\Terms::getCurrentID());
 		$this->weeks          = Input::getInt('weeks', 13);
 
-		$incomplete = (!$this->organizationID or !$this->personID or !$this->termID);
+		$incomplete = (!$this->personID or !$this->termID);
 
 		if ($format = Input::getCMD('format') and $format === 'xls' and $incomplete)
 		{
@@ -307,7 +315,14 @@ class Workload extends FormModel
 	{
 		$options['load_data'] = true;
 
-		return parent::loadForm($name, $source, $options, $clear, $xpath);
+		$form = parent::loadForm($name, $source, $options, $clear, $xpath);
+
+		if (empty($this->organizationID))
+		{
+			$form->removeField('organizationID');
+		}
+
+		return $form;
 	}
 
 	/**
