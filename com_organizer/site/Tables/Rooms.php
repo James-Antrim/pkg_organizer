@@ -20,6 +20,14 @@ class Rooms extends BaseTable
 	use Coded;
 
 	/**
+	 * The surface area of the room.
+	 * DOUBLE(6, 2) UNSIGNED NOT NULL DEFAULT 0.00
+	 *
+	 * @var float
+	 */
+	public $area;
+
+	/**
 	 * The id of the building entry referenced.
 	 * INT(11) UNSIGNED DEFAULT NULL
 	 *
