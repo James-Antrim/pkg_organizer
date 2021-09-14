@@ -23,6 +23,12 @@ use stdClass;
 
 trait ListsInstances
 {
+	private $manages = false;
+
+	private $teaches = false;
+
+	private $teachesALL = true;
+
 	/**
 	 * Adds previously set resources to the structured item.
 	 *
@@ -438,10 +444,21 @@ trait ListsInstances
 		$isToday    = $instance->date === $today;
 		$then       = date('Y-m-d', strtotime('-2 days', strtotime($instance->date)));
 
-		$instance->expired           = ($instance->date < $today or ($isToday and $instance->endTime < $now));
-		$instance->full              = (!empty($instance->capacity) and $instance->current >= $instance->capacity);
-		$instance->link              = $link . $instanceID;
-		$instance->manageable        = ($userID and Can::manage('instance', $instanceID));
+		$instance->expired = ($instance->date < $today or ($isToday and $instance->endTime < $now));
+		$instance->full    = (!empty($instance->capacity) and $instance->current >= $instance->capacity);
+		$instance->link    = $link . $instanceID;
+
+		if ($userID and Can::manage('instance', $instanceID))
+		{
+			$instance->manageable = true;
+			$this->teaches        = true;
+		}
+		else
+		{
+			$instance->manageable = false;
+			$this->teachesALL     = false;
+		}
+
 		$instance->premature         = $today < $then;
 		$instance->registration      = false;
 		$instance->registrationStart = Dates::formatDate($then);

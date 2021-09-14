@@ -43,8 +43,6 @@ class InstanceItem extends ListView
 
 	public $minibar = '';
 
-	private $manages = false;
-
 	private $messages = [];
 
 	protected $rowStructure = [
@@ -232,6 +230,28 @@ class InstanceItem extends ListView
 					'exit',
 					Languages::_('ORGANIZER_DEREGISTER'),
 					'InstanceParticipants.deregister',
+					true
+				);
+			}
+
+			if ($buttons['manage'])
+			{
+				$minibar[] = $standard->fetchButton(
+					'NewTab',
+					'users',
+					Languages::_('ORGANIZER_MANAGE_BOOKING'),
+					'bookings.manageThis',
+					false
+				);
+			}
+
+			if ($buttons['manageList'])
+			{
+				$toolbar->appendButton(
+					'NewTab',
+					'users',
+					Languages::_('ORGANIZER_MANAGE_BOOKING'),
+					'bookings.manage',
 					true
 				);
 			}
@@ -764,6 +784,8 @@ class InstanceItem extends ListView
 			'deschedule'      => false,
 			'descheduleBlock' => false,
 			'descheduleList'  => false,
+			'manage'          => false,
+			'manageList'      => false,
 			'register'        => false,
 			'registerList'    => false,
 			'schedule'        => false,
@@ -773,7 +795,7 @@ class InstanceItem extends ListView
 
 		$instance = $this->instance;
 
-		if (!$instance->expired and !$instance->running)
+		if (!$instance->expired and !$instance->running and !$instance->manageable)
 		{
 			if ($instance->scheduled)
 			{
@@ -795,6 +817,10 @@ class InstanceItem extends ListView
 				$buttons['register'] = true;
 			}
 		}
+		elseif ($instance->manageable)
+		{
+			$buttons['manage'] = true;
+		}
 
 		$index           = 0;
 		$structuredItems = [];
@@ -802,7 +828,7 @@ class InstanceItem extends ListView
 
 		foreach ($this->items as $item)
 		{
-			if (!$item->expired and !$item->running)
+			if (!$item->expired and !$item->running and !$item->manageable)
 			{
 				$sameDOW      = (strtoupper(date('l', strtotime($item->date))) === $thisDOW);
 				$sameET       = $item->startTime === $instance->startTime;
@@ -838,6 +864,10 @@ class InstanceItem extends ListView
 						$buttons['scheduleBlock'] = true;
 					}
 				}
+			}
+			elseif ($item->manageable)
+			{
+				$buttons['manageList'] = true;
 			}
 
 			$structuredItems[$index]             = [];
