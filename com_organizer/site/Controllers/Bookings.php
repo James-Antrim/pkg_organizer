@@ -140,14 +140,17 @@ class Bookings extends Controller
 	 *
 	 * @return void
 	 */
-	public function manage()
+	public function manage(int $instanceID = 0)
 	{
-		if (!$instanceIDs = Helpers\Input::getSelectedIDs())
+		if (!$instanceID)
 		{
-			Helpers\OrganizerHelper::error(400);
-		}
+			if (!$instanceIDs = Helpers\Input::getSelectedIDs())
+			{
+				Helpers\OrganizerHelper::error(400);
+			}
 
-		$instanceID = array_shift($instanceIDs);
+			$instanceID = array_shift($instanceIDs);
+		}
 
 		if (!$bookingID = Helpers\Instances::getBookingID($instanceID))
 		{
@@ -163,6 +166,21 @@ class Bookings extends Controller
 
 		$url = Helpers\Routing::getRedirectBase() . "&view=booking&id=$bookingID";
 		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Provides a directed point of entry for creation and management of a booking from an instance.
+	 *
+	 * @return void
+	 */
+	public function manageThis()
+	{
+		if (!$instanceID = Helpers\Input::getID())
+		{
+			Helpers\OrganizerHelper::error(400);
+		}
+
+		$this->manage($instanceID);
 	}
 
 	/**
