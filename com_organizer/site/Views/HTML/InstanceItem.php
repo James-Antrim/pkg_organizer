@@ -95,7 +95,7 @@ class InstanceItem extends ListView
 				$color = 'yellow';
 			}
 		}
-		else
+		elseif (!$instance->manageable)
 		{
 			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_NOT_SCHEDULED');
 		}
@@ -250,7 +250,7 @@ class InstanceItem extends ListView
 				$toolbar->appendButton(
 					'NewTab',
 					'users',
-					Languages::_('ORGANIZER_MANAGE_BOOKING'),
+					Languages::_('ORGANIZER_MANAGE_BOOKINGS'),
 					'bookings.manage',
 					true
 				);
