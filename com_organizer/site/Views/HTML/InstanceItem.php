@@ -248,7 +248,7 @@ class InstanceItem extends ListView
 			if ($buttons['manageList'])
 			{
 				$toolbar->appendButton(
-					'NewTab',
+					'Highlander',
 					'users',
 					Languages::_('ORGANIZER_MANAGE_BOOKINGS'),
 					'bookings.manage',
