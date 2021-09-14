@@ -260,6 +260,29 @@ trait ListsInstances
 			}
 		}
 
+		if ($instance->manageable and $instance->presence !== Helper::ONLINE)
+		{
+			if ($instance->expired)
+			{
+				$value .= '<br>' . HTML::icon('folder-2 red', Languages::_('ORGANIZER_BOOKING_CLOSED'));
+			}
+			elseif (!$instance->premature)
+			{
+				$value .= '<br>';
+
+				if ($instance->running)
+				{
+					$value .= HTML::icon('folder-open green', Languages::_('ORGANIZER_BOOKING_ONGOING'));
+				}
+				else
+				{
+					$value .= HTML::icon('folder-open yellow', Languages::_('ORGANIZER_BOOKING_PENDING'));
+				}
+			}
+
+			// Premature
+		}
+
 		return $title ? ['attributes' => ['class' => $class, 'title' => $title], 'value' => $value] : $value;
 	}
 

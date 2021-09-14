@@ -48,6 +48,18 @@ a {
   }
 }
 
+[class^='icon-'].green:before {
+  color: $green-100;
+}
+
+[class^='icon-'].red:before {
+  color: $red-100;
+}
+
+[class^='icon-'].yellow:before {
+  color: $yellow-100;
+}
+
 h1.page-title span[class*="icon-"] {
   display: none;
 }
