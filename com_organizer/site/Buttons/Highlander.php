@@ -61,7 +61,7 @@ class Highlander extends StandardButton
 		$alert2 = "alert(Joomla.JText._('ORGANIZER_ONLY_ONE_SELECTION'));";
 		$cmd    = "if (document.adminForm.boxchecked.value == 0) { " . $alert1 . " } ";
 		$cmd    .= "else if (document.adminForm.boxchecked.value > 1) { " . $alert2 . " } ";
-		$cmd    .= "else { highlander('" . $task . "');}";
+		$cmd    .= "else { Joomla.submitbutton('" . $task . "');}";
 
 		return $cmd;
 	}
