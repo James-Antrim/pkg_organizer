@@ -734,7 +734,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `name_en`        VARCHAR(150)        NOT NULL,
     `description_de` TEXT,
     `description_en` TEXT,
-    `room_dintypeID` INT (4) UNSIGNED          DEFAULT NULL,
+    `room_dintypeID` INT (3) UNSIGNED          DEFAULT NULL,
     `minCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
     `maxCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
     `suppress`       TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
@@ -1066,7 +1066,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_room_dintypes` (
     `din_code`       INT(3)                   NOT NULL COLLATE utf8mb4_bin,
     `name_de`        VARCHAR(50)              NOT NULL,
     `name_en`        VARCHAR(50)              NOT NULL,
-    `room_archetypeID`  INT(4) UNSIGNED       DEFAULT NULL,
+    `room_archetypeID`  INT(3) UNSIGNED       DEFAULT NULL,
     PRIMARY KEY (`id`),
     KEY `room_archetypeID` (`room_archetypeID`)
 )
