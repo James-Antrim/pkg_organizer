@@ -14,6 +14,7 @@ use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Document;
 use Organizer\Adapters\Toolbar;
+use Organizer\Buttons\Link;
 use Organizer\Helpers;
 use Organizer\Helpers\Instances as Helper;
 use Organizer\Helpers\Languages;
@@ -118,13 +119,14 @@ class InstanceItem extends ListView
 		Helpers\HTML::setTitle($instance->name . $method, 'square');
 		$this->setSubtitle();
 
-		$toolbar = Toolbar::getInstance();
+		$link     = new Link();
+		$minibar  = [];
+		$standard = new StandardButton();
+		$toolbar  = Toolbar::getInstance();
 
 		if ($this->userID and $this->buttons)
 		{
-			$buttons  = $this->buttons;
-			$minibar  = [];
-			$standard = new StandardButton();
+			$buttons = $this->buttons;
 
 			if ($buttons['schedule'])
 			{
@@ -255,12 +257,18 @@ class InstanceItem extends ListView
 					true
 				);
 			}
+		}
 
-			if ($minibar)
-			{
-				$this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
-				$this->minibar .= implode('', $minibar) . '</div>';
-			}
+		if ($instance->subjectID)
+		{
+			$url       = Helpers\Routing::getViewURL('SubjectItem', $instance->subjectID);
+			$minibar[] = $link->fetchButton('Link', 'book', Languages::_('ORGANIZER_SUBJECT_ITEM'), $url, true);
+		}
+
+		if ($minibar)
+		{
+			$this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
+			$this->minibar .= implode('', $minibar) . '</div>';
 		}
 	}
 

@@ -181,10 +181,6 @@ class Booking extends Participants
 				$toolbar->appendButton('Standard', 'stop', $text, 'bookings.close', false);
 			}
 		}
-
-		$url = Uri::base() . "index.php?Itemid=4908";
-		$toolbar->appendButton('Link', 'help', Languages::_('ORGANIZER_HELP'), $url, true);
-
 	}
 
 	/**
@@ -217,7 +213,6 @@ class Booking extends Participants
 		$this->batch   = ['batch_participation', 'form_modal'];
 		$this->booking = $this->get('Booking');
 		$this->empty   = '';
-		$this->refresh = 60;
 		$this->sameTab = true;
 
 		parent::display($tpl);
