@@ -13,6 +13,12 @@ jQuery(document).ready(function () {
         }
     );
 
+    document.formvalidator.setHandler('float',
+        function (value) {
+            return (/^-?[\d]+(.[\d]{1,2})*$/).test(value);
+        }
+    );
+
     document.formvalidator.setHandler('gps',
         function (value) {
             return (/^-?[\d]?[\d].[\d]{6}, ?-?[01]?[\d]{1,2}.[\d]{6}$/).test(value);

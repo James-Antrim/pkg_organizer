@@ -12,7 +12,7 @@ namespace Organizer\Models;
 
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
-use Organizer\Tables;
+use Organizer\Tables\Rooms as Table;
 
 /**
  * Class which manages stored room data.
@@ -34,7 +34,7 @@ class Room extends MergeModel
 		{
 			foreach ($this->selected as $selectedID)
 			{
-				$room = new Tables\Rooms();
+				$room = new Table();
 
 				if ($room->load($selectedID))
 				{
@@ -71,11 +71,39 @@ class Room extends MergeModel
 	}
 
 	/**
+	 * Cleans an individual row for later processing.
+	 * - Replaces escaped quotes "" and commas in quoted values with HTML entities.
+	 * - Removes newline carriage return.
+	 *
+	 * @param   string  $row  the row to clean
+	 *
+	 * @return void modifies the row
+	 */
+	private function cleanRow(string &$row)
+	{
+		$row = str_replace('""', '&quot;', $row);
+		$row = str_replace(chr(13) . chr(10), '', $row);
+
+		if (preg_match_all('/"[^"\n]+"/', $row, $matches))
+		{
+			foreach (array_unique($matches[0]) as $search)
+			{
+				$replace = $search;
+				$replace = trim($replace, '"');
+				$replace = str_replace(',', '&comma;', $replace);
+				$row     = str_replace($search, $replace, $row);
+			}
+		}
+
+
+	}
+
+	/**
 	 * Deactivates rooms by id if a selection was made, otherwise by lack of use in the instance_rooms table.
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function deactivate()
+	public function deactivate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();
@@ -85,7 +113,7 @@ class Room extends MergeModel
 		{
 			foreach ($this->selected as $selectedID)
 			{
-				$room = new Tables\Rooms();
+				$room = new Table();
 
 				if ($room->load($selectedID))
 				{
@@ -111,17 +139,112 @@ class Room extends MergeModel
 	}
 
 	/**
-	 * @inheritDoc
+	 * Imports room data from a csv file.
+	 *
+	 * @return bool
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function import(): bool
 	{
-		return new Tables\Rooms();
+		$this->authorize();
+
+		$input = Helpers\Input::getInput();
+
+		$file = $input->files->get('jform', [], 'array')['file'];
+		$file = fopen($file['tmp_name'], 'r');
+
+		$headers = fgets($file);
+
+		// Excel adds an invisible BOM to the UTF-8 export. Go Excel!
+		$headers = str_replace(chr(239) . chr(187) . chr(191), '', $headers);
+
+		$this->cleanRow($headers);
+		$headers  = explode(',', $headers);
+		$expected = count($headers);
+
+		$codeIndex = array_search('code', $headers);
+
+
+		if ($codeIndex === false)
+		{
+			Helpers\OrganizerHelper::message('No code column.', 'error');
+
+			return false;
+		}
+
+		while (($row = fgets($file)) !== false)
+		{
+			$this->cleanRow($row);
+			$values = explode(',', $row);
+
+			if (count($values) !== $expected)
+			{
+				Helpers\OrganizerHelper::message("Malformed row: $row.", 'error');
+				continue;
+			}
+
+			if (!$code = $values[$codeIndex])
+			{
+				Helpers\OrganizerHelper::message("No code value: $row.", 'error');
+				continue;
+			}
+
+			$room = new Table();
+
+			if (!$room->load(['code' => $code]))
+			{
+				Helpers\OrganizerHelper::message("Room does not exist: $code.", 'error');
+				continue;
+			}
+
+			foreach ($values as $key => $value)
+			{
+				if (!$value = trim($value))
+				{
+					continue;
+				}
+
+				$value = html_entity_decode($value);
+
+				switch ($headers[$key])
+				{
+					case 'area':
+						echo "<pre>area!</pre>";
+						$room->area = (float) $value;
+						break;
+					case 'effCapacity':
+						$room->effCapacity = (int) $value;
+						break;
+					case 'code':
+					case 'room_type':
+					case 'organization':
+					default:
+						echo "<pre>default?</pre>";
+						break;
+				}
+			}
+
+			$room->store();
+		}
+
+		fclose($file);
+
+		Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_IMPORT_SUCCESS'));
+
+		return true;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	protected function updateReferences()
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Table();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function updateReferences(): bool
 	{
 		if (!$this->updateReferencingTable('monitors'))
 		{
