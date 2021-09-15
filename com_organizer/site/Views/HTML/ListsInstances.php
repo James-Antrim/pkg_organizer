@@ -287,6 +287,56 @@ trait ListsInstances
 	}
 
 	/**
+	 * Resolves any links/link parameters to links with icons.
+	 *
+	 * @param   string  $text  the text to search
+	 *
+	 * @return string
+	 */
+	private function resolveLinks(string $text): string
+	{
+		$moodleIcon     = '<span class="icon-moodle hasTooltip" title="Moodle Link"></span>';
+		$moodleURL1     = 'https://moodle.thm.de/course/view.php?id=PID';
+		$moodleURL2     = 'https://moodle.thm.de/course/index.php?categoryid=PID';
+		$moodleTemplate = "<a href=\"MOODLEURL\" target=\"_blank\">$moodleIcon</a>";
+
+		$template = str_replace('PID', '$4', str_replace('MOODLEURL', $moodleURL1, $moodleTemplate));
+		$text     = preg_replace('/(((https?):\/\/)moodle.thm.de\/course\/view.php\?id=(\d+))/', $template, $text);
+		$template = str_replace('PID', '$1', str_replace('MOODLEURL', $moodleURL1, $moodleTemplate));
+		$text     = preg_replace('/moodle=(\d+)/', $template, $text);
+		$template = str_replace('PID', '$4', str_replace('MOODLEURL', $moodleURL2, $moodleTemplate));
+		$text     = preg_replace(
+			'/(((https?):\/\/)moodle\.thm\.de\/course\/index\.php\\?categoryid=(\\d+))/',
+			$template,
+			$text
+		);
+
+		$netACADIcon = '<span class="icon-cisco hasTooltip" title="Networking Academy Link"></span>';
+		$template    = "<a href=\"$1\" target=\"_blank\">$netACADIcon</a>";
+		$text        = preg_replace('/(((https?):\/\/)\d+.netacad.com\/courses\/\d+)/', $template, $text);
+
+		$panoptoIcon     = '<span class="icon-panopto hasTooltip" title="Panopto Link"></span>';
+		$panoptoURL      = 'https://panopto.thm.de/Panopto/Pages/Viewer.aspx?id=PID';
+		$panoptoTemplate = "<a href=\"$panoptoURL\" target=\"_blank\">$panoptoIcon</a>";
+
+		$template = str_replace('PID', '$4', $panoptoTemplate);
+		$text     = preg_replace(
+			'/(((https?):\/\/)panopto.thm.de\/Panopto\/Pages\/Viewer.aspx\?id=[\d\w\-]+)/',
+			$template,
+			$text
+		);
+
+		$template = str_replace('PID', '$1', $panoptoTemplate);
+		$text     = preg_replace('/panopto=([\d\w\-]+)/', $template, $text);
+
+		$pilosIcon  = '<span class="icon-pilos hasTooltip" title="Pilos Link"></span>';
+		$pilosREGEX = '/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
+		$template   = "<a href=\"$1\" target=\"_blank\">$pilosIcon</a>";
+
+		return preg_replace($pilosREGEX, $template, $text);
+	}
+
+	/**
 	 * Adds derived attributes/resource output for the instances.
 	 *
 	 * @param   array  $instances

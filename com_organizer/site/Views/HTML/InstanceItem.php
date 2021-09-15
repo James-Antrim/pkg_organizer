@@ -311,13 +311,14 @@ class InstanceItem extends ListView
 	 */
 	private function getTitle(stdClass $item): array
 	{
-		$title = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
-		$title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
-		$title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
+		$comment = $this->resolveLinks($item->comment);
+		$title   = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
+		$title   .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
+		$title   .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
+		$title   .= empty($comment) ? '' : "<br><span class=\"comment\">$comment</span>";
 
 		return ['attributes' => ['class' => 'title-column'], 'value' => $title];
 	}
-
 
 	/**
 	 * @inheritDoc
@@ -418,9 +419,12 @@ class InstanceItem extends ListView
 	{
 		$instance = $this->instance;
 
+		$comment      = $this->resolveLinks($instance->comment);
 		$registration = $instance->registration;
 
-		if ($registration)
+		$list = ($registration or $comment);
+
+		if ($list)
 		{
 			echo '<ul>';
 		}
@@ -440,7 +444,8 @@ class InstanceItem extends ListView
 				break;
 		}
 
-		echo $registration ? "<li>$formText</li>" : $formText;
+		echo $comment ? "<li>$comment</li>" : '';
+		echo $list ? "<li>$formText</li>" : $formText;
 
 		if ($instance->registration)
 		{
@@ -475,7 +480,10 @@ class InstanceItem extends ListView
 					echo '<li>' . Languages::_('ORGANIZER_REGISTRATIONS_AVAILABLE') . '</li>';
 				}
 			}
+		}
 
+		if ($list)
+		{
 			echo '</ul>';
 		}
 	}
