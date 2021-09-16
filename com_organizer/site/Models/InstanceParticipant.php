@@ -627,6 +627,26 @@ class InstanceParticipant extends BaseModel
 				continue;
 			}
 
+			$query = Database::getQuery();
+			$query->select('i.id')
+				->from('#__organizer_instance_participants AS ip')
+				->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+				->where("i.id != $instanceID")
+				->where("i.blockID = $block->id")
+				->where('ip.registered = 1');
+			Database::setQuery($query);
+
+			if ($otherInstanceID = Database::loadInt())
+			{
+				$otherName = Helpers\Instances::getName($otherInstanceID);
+				OrganizerHelper::message(
+					sprintf(Languages::_('ORGANIZER_INSTANCE_PREVIOUS_ENGAGEMENT'), $date, $startTime, $endTime,
+						$otherName),
+					'notice'
+				);
+				continue;
+			}
+
 			if (Helpers\Instances::isFull($instanceID))
 			{
 				OrganizerHelper::message(
