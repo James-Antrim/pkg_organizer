@@ -580,10 +580,17 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$registered = false;
+		$registered  = false;
+		$responsible = false;
 
 		foreach ($instanceIDs as $instanceID)
 		{
+			if (Helpers\Instances::hasResponsibility($instanceID))
+			{
+				$responsible = true;
+				continue;
+			}
+
 			$participation = new Table();
 			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
@@ -640,6 +647,10 @@ class InstanceParticipant extends BaseModel
 		if ($registered)
 		{
 			OrganizerHelper::message(Languages::_('ORGANIZER_REGISTRATION_SUCCESS'));
+		}
+		elseif ($responsible)
+		{
+			OrganizerHelper::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', 'notice');
 		}
 
 		// The other option is that the participant is already registered to all matching instances => no message.
@@ -767,10 +778,17 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$registered = false;
+		$registered  = false;
+		$responsible = false;
 
 		foreach ($instanceIDs as $instanceID)
 		{
+			if (Helpers\Instances::hasResponsibility($instanceID))
+			{
+				$responsible = true;
+				continue;
+			}
+
 			$participation = new Table();
 			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
@@ -789,6 +807,10 @@ class InstanceParticipant extends BaseModel
 		if ($registered)
 		{
 			OrganizerHelper::message('ORGANIZER_SCHEDULE_SUCCESS');
+		}
+		elseif ($responsible)
+		{
+			OrganizerHelper::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', 'notice');
 		}
 
 		// The other option is that all matching instances were already in the participant's personal schedule => no message.
