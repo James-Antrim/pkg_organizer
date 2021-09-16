@@ -21,19 +21,12 @@ if (!$componentTemplate = Helpers\Input::getCMD('tmpl') === 'component')
 		<?php foreach ($this->item['curriculum'] as $pool) : ?>
 			<?php $this->renderPanel($pool); ?>
 		<?php endforeach; ?>
+		<?php if ($componentTemplate): ?>
+			<?php $this->renderLegend(); ?>
+		<?php endif; ?>
 		<?php echo $this->disclaimer; ?>
     </div>
 	<?php if (count($this->fields) and !$componentTemplate) : ?>
-        <div class="legend">
-            <div class="panel-head">
-                <div class="panel-title"><?php echo Helpers\Languages::_('ORGANIZER_LEGEND'); ?></div>
-            </div>
-			<?php foreach ($this->fields as $hex => $field) : ?>
-                <div class="legend-item">
-                    <div class="item-color" style="background-color: <?php echo $hex; ?>;"></div>
-                    <div class="item-title"><?php echo $field; ?></div>
-                </div>
-			<?php endforeach; ?>
-        </div>
+		<?php $this->renderLegend(); ?>
 	<?php endif; ?>
 </div>

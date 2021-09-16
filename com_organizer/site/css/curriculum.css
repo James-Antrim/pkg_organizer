@@ -68,3 +68,8 @@ div.curriculum .panel-row {
     margin-bottom: .4rem;
     min-height: 6rem;
 }
+
+.tmpl-component div.curriculum .legend {
+    padding-left: 0;
+    width: 100%;
+}

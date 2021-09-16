@@ -117,6 +117,27 @@ class Curriculum extends ItemView
 	}
 
 	/**
+	 * Renders the panel resolving the colors to the corresponding competences.
+	 * @return void
+	 */
+	public function renderLegend()
+	{
+		?>
+        <div class="legend">
+            <div class="panel-head">
+                <div class="panel-title"><?php echo Helpers\Languages::_('ORGANIZER_LEGEND'); ?></div>
+            </div>
+			<?php foreach ($this->fields as $hex => $field) : ?>
+                <div class="legend-item">
+                    <div class="item-color" style="background-color: <?php echo $hex; ?>;"></div>
+                    <div class="item-title"><?php echo $field; ?></div>
+                </div>
+			<?php endforeach; ?>
+        </div>
+		<?php
+	}
+
+	/**
 	 * Outputs the pool information in the form of a panel
 	 *
 	 * @param   array  $pool  the pool to be displayed
