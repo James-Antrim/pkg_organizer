@@ -290,7 +290,28 @@ class Booking extends Participants
 	protected function structureItems()
 	{
 		$index = 0;
-		$link  = "index.php?option=com_organizer&view=instance_participant_edit&bookingID=$this->bookingID&id=";
+
+		$bookingDate = $this->booking->get('date');
+		$link        = '';
+		$now         = date('H:i:s');
+		$start       = $this->booking->get('defaultStartTime');
+		$started     = false;
+		$today       = date('Y-m-d');
+
+		if ($today < $bookingDate)
+		{
+			$started = true;
+		}
+		elseif ($today === $bookingDate)
+		{
+			$start   = $this->booking->startTime ?: $start;
+			$started = $now > $start;
+		}
+
+		if ($started)
+		{
+			$link = "index.php?option=com_organizer&view=instance_participant_edit&bookingID=$this->bookingID&id=";
+		}
 
 		$structuredItems = [];
 
@@ -298,6 +319,7 @@ class Booking extends Participants
 		{
 			$item->id       = $item->ipaID;
 			$item->fullName = $item->forename ? $item->fullName : $item->surname;
+			$thisLink       = $link ? $link . $item->ipaID : '';
 
 			if ($item->attended and $item->registered)
 			{
@@ -331,7 +353,7 @@ class Booking extends Participants
 
 			$item->complete = Helpers\HTML::icon("checkbox-$icon", $label, true);
 
-			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->ipaID);
+			$structuredItems[$index] = $this->structureItem($index, $item, $thisLink);
 			$index++;
 		}
 
