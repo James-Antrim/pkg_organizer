@@ -23,9 +23,24 @@ class Booking extends Participants
 {
 	private const ALL_ATTENDEES = 1, IMPROPER = 3, ONLY_REGISTERED = -1, PROPER = 2;
 
+	/**
+	 * @var Tables\Bookings
+	 */
+	public $booking;
+
 	protected $defaultOrdering = 'fullName';
 
 	protected $filter_fields = ['instanceID', 'roomID', 'status'];
+
+	/**
+	 * @inheritDoc
+	 */
+	public function __construct($config = [])
+	{
+		parent::__construct($config);
+
+		$this->booking = $this->getBooking();
+	}
 
 	/**
 	 * Creates a new entry in the booking table for the given instance.
@@ -544,6 +559,17 @@ class Booking extends Participants
 		if (!$this->adminContext)
 		{
 			$form->removeField('limit', 'list');
+		}
+
+		$bookingDate = $this->booking->get('date');
+		$now        = date('H:i:s');
+		$start = $this->booking->startTime ?: $this->booking->get('defaultStartTime');
+		$started    = $now > $start;
+		$today       = date('Y-m-d');
+
+		if ($today > $bookingDate or !$started)
+		{
+			$form->removeField('username', 'list');
 		}
 
 		if (count(Helpers\Bookings::getInstanceOptions($bookingID)) === 1)

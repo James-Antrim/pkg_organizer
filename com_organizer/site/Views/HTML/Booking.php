@@ -32,6 +32,8 @@ class Booking extends Participants
 	 */
 	public $bookingID;
 
+	private $hasRegistered = false;
+
 	protected $rowStructure = [
 		'checkbox' => '',
 		'status'   => 'value',
@@ -129,6 +131,29 @@ class Booking extends Participants
 		$bookingDate = $this->booking->get('date');
 		$today       = date('Y-m-d');
 
+		$earlyStart = false;
+		$end        = $this->booking->get('defaultEndTime');
+		$expired    = $today > $bookingDate;
+		$isToday    = $today === $bookingDate;
+		$notOver    = true;
+		$now        = date('H:i:s');
+		$reOpen     = false;
+		$start      = $this->booking->get('defaultStartTime');
+		$started    = false;
+
+		if ($isToday)
+		{
+			$earlyStart = date('H:i:s', strtotime('-60 minutes', strtotime($this->booking->get('defaultStartTime'))));
+			$end        = $this->booking->endTime ?: $end;
+			$ended      = $now >= $end;
+			$start      = $this->booking->startTime ?: $start;
+			$started    = $now > $start;
+
+			$earlyStart = ($now > $earlyStart and $now < $start);
+			$notOver    = $now < $this->booking->get('defaultEndTime');
+			$reOpen     = ($ended and $notOver);
+		}
+
 		if (count($this->items))
 		{
 			$toolbar->appendButton(
@@ -140,29 +165,20 @@ class Booking extends Participants
 			);
 
 			// No easy removal at a later date
-			if ($today === $bookingDate)
+			if ($isToday and $now >= $start and $this->hasRegistered)
 			{
 				$text = Languages::_('ORGANIZER_CHECKIN');
 				$toolbar->appendButton('Standard', 'user-check', $text, 'bookings.checkin', true);
 			}
-			elseif ($today <= $bookingDate)
+			elseif (!$expired)
 			{
 				$text = Languages::_('ORGANIZER_DELETE');
 				$toolbar->appendButton('Standard', 'user-minus', $text, 'bookings.removeParticipants', true);
 			}
 		}
 
-		if ($today === $bookingDate)
+		if ($isToday)
 		{
-			$defaultEnd   = $this->booking->get('defaultEndTime');
-			$defaultStart = $this->booking->get('defaultStartTime');
-			$end          = $this->booking->endTime ?: $defaultEnd;
-			$now          = date('H:i:s');
-			$start        = $this->booking->startTime ?: $defaultStart;
-			$then         = date('H:i:s', strtotime('-60 minutes', strtotime($defaultStart)));
-			$earlyStart   = ($now > $then and $now < $start);
-			$reOpen       = ($now >= $end and $now < $defaultEnd);
-
 			if ($earlyStart or $reOpen)
 			{
 				if ($earlyStart)
@@ -178,9 +194,9 @@ class Booking extends Participants
 
 				$toolbar->appendButton('Standard', $icon, $text, 'bookings.open', false);
 			}
-			elseif ($now > $defaultStart and !$this->booking->endTime)
+			elseif ($started and !$this->booking->endTime)
 			{
-				$text = $now < $defaultEnd ? Languages::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Languages::_('ORGANIZER_MANUALLY_CLOSE_POST');
+				$text = $notOver ? Languages::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Languages::_('ORGANIZER_MANUALLY_CLOSE_POST');
 				$toolbar->appendButton('Standard', 'stop', $text, 'bookings.close', false);
 			}
 		}
@@ -214,7 +230,7 @@ class Booking extends Participants
 	{
 		// Set batch template path
 		$this->batch   = ['batch_participation', 'form_modal'];
-		$this->booking = $this->get('Booking');
+		$this->booking = $this->getModel()->booking;
 		$this->empty   = '';
 		$this->sameTab = true;
 
@@ -295,8 +311,9 @@ class Booking extends Participants
 			}
 			else
 			{
-				$label = Languages::_('ORGANIZER_REGISTERED');
-				$icon  = 'question';
+				$this->hasRegistered = true;
+				$label               = Languages::_('ORGANIZER_REGISTERED');
+				$icon                = 'question';
 			}
 
 			$item->status = Helpers\HTML::icon($icon, $label, true);
