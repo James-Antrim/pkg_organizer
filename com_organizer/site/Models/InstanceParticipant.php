@@ -688,7 +688,7 @@ class InstanceParticipant extends BaseModel
 
 		try
 		{
-			$table = $this->getTable();
+			$table = new Table();
 		}
 		catch (Exception $exception)
 		{
@@ -706,7 +706,41 @@ class InstanceParticipant extends BaseModel
 		$table->roomID     = $data['roomID'];
 		$table->seat       = $data['seat'];
 
-		return $table->store() ? $table->id : false;
+		$query = Database::getQuery();
+		$query->select('ip.*')
+			->from('#__organizer_instance_participants AS ip')
+			->innerJoin('#__organizer_instances AS i1 ON i1.id = ip.instanceID')
+			->innerJoin('#__organizer_bookings AS b ON b.blockID = i1.blockID AND b.unitID = i1.unitID')
+			->innerJoin('#__organizer_instances AS i2 ON i2.blockID = b.blockID AND i2.unitID = b.unitID')
+			->where("i2.id = $table->instanceID")
+			->where("ip.participantID = $table->participantID");
+		Database::setQuery($query);
+
+		$otherIDs = [];
+		foreach (Database::loadAssocList() as $entry)
+		{
+			if ($entry['id'] !== $table->id)
+			{
+				$otherIDs[$entry['id']] = $entry['id'];
+			}
+
+			$table->registered = $table->registered ?: !empty($entry['registered']);
+		}
+
+		// The other entries must first be deleted to avoid collision with unique instanceID/participantID constraint.
+		foreach ($otherIDs as $otherID)
+		{
+			$otherTable = new Table();
+
+			if (!$otherTable->load($otherID))
+			{
+				continue;
+			}
+
+			$otherTable->delete();
+		}
+
+		return $table->store();
 	}
 
 	/**

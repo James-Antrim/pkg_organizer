@@ -19,6 +19,23 @@ use Organizer\Tables;
 class Bookings extends ResourceHelper
 {
 	/**
+	 * Retrieves the number of current registrations for the booking.
+	 *
+	 * @param   int  $bookingID
+	 *
+	 * @return int
+	 */
+	public static function getCapacity(int $bookingID): int
+	{
+		if (!$instanceIDs = self::getInstanceIDs($bookingID))
+		{
+			return 0;
+		}
+
+		return Instances::getCapacity($instanceIDs[0]);
+	}
+
+	/**
 	 * Creates a display of formatted times for a booking.
 	 *
 	 * @param   int  $bookingID  the id of the booking entry
@@ -184,6 +201,23 @@ class Bookings extends ResourceHelper
 		Database::setQuery($query);
 
 		return Database::loadInt();
+	}
+
+	/**
+	 * Retrieves the number of current registrations for the booking.
+	 *
+	 * @param   int  $bookingID
+	 *
+	 * @return int
+	 */
+	public static function getRegistrations(int $bookingID): int
+	{
+		if (!$instanceIDs = self::getInstanceIDs($bookingID))
+		{
+			return 0;
+		}
+
+		return Instances::getCurrentCapacity($instanceIDs[0]);
 	}
 
 	/**

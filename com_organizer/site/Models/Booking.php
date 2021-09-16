@@ -120,7 +120,13 @@ class Booking extends Participants
 			$input   = mb_convert_encoding($input, 'ISO-8859-1', 'utf-8');
 			$content = http_build_query(['name' => $input]);
 			$header  = "Content-type: application/x-www-form-urlencoded\r\n";
-			$context = stream_context_create(['http' => ['header' => $header, 'method' => 'POST', 'content' => $content]]);
+			$context = stream_context_create([
+				'http' => [
+					'header'  => $header,
+					'method'  => 'POST',
+					'content' => $content
+				]
+			]);
 
 			if (!$response = file_get_contents('https://scripts.its.thm.de/emsearch/emsearch.cgi', false, $context))
 			{
@@ -484,7 +490,7 @@ class Booking extends Participants
 		}
 
 		$type    = $count ? 'message' : 'notice';
-		$message = sprintf(Helpers\Languages::_('ORGANIZER_CHECKEDIN_COUNT'), $count);
+		$message = sprintf(Helpers\Languages::_('ORGANIZER_CHECKED_IN_COUNT'), $count);
 		Helpers\OrganizerHelper::message($message, $type);
 	}
 
@@ -604,8 +610,9 @@ class Booking extends Participants
 			case self::PROPER:
 				$query->where('ip.attended = 1')->where('ip.registered = 1');
 				break;
-
 		}
+
+		$query->group('participantID');
 
 		return $query;
 	}
@@ -634,15 +641,26 @@ class Booking extends Participants
 			$updateRoom = reset($rooms);
 		}
 
+		$warning      = Helpers\HTML::icon('warning-2 yellow');
+		$eventWarning = $warning . ' ' . Helpers\Languages::_('ORGANIZER_SELECT_EVENT');
+		$roomWarning  = $warning . ' ' . Helpers\Languages::_('ORGANIZER_SELECT_ROOM');
+
 		foreach ($items = parent::getItems() as $item)
 		{
-			if (empty($item->room) and $updateID)
+			if (empty($item->room))
 			{
-				$table = new Tables\InstanceParticipants();
-				$table->load($item->ipaID);
-				$table->roomID = $updateID;
-				$table->store();
-				$item->room = $updateRoom;
+				if ($updateID)
+				{
+					$table = new Tables\InstanceParticipants();
+					$table->load($item->ipaID);
+					$table->roomID = $updateID;
+					$table->store();
+					$item->room = $updateRoom;
+				}
+				else
+				{
+					$item->room = $roomWarning;
+				}
 			}
 
 			$columns        = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
@@ -664,7 +682,7 @@ class Booking extends Participants
 
 			if ($events = Database::loadColumn())
 			{
-				$item->event = count($events) > 1 ? Helpers\Languages::_('ORGANIZER_MULTIPLE_EVENTS') : $events[0];
+				$item->event = count($events) > 1 ? $eventWarning : $events[0];
 			}
 			else
 			{

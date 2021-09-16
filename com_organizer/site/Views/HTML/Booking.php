@@ -13,6 +13,7 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 use Organizer\Helpers;
+use Organizer\Helpers\Bookings as Helper;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
 
@@ -85,12 +86,14 @@ class Booking extends Participants
 			$texts[]     = $expiredText;
 		}
 
-		$count     = Helpers\Bookings::getParticipantCount($this->bookingID);
-		$countText = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count);
+		$count         = Helper::getParticipantCount($this->bookingID);
+		$registrations = Helper::getRegistrations($this->bookingID);
+		$capacity      = Helper::getCapacity($this->bookingID);
+		$countText     = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count, $registrations, $capacity);
 
 		if ($count and $roomID = $this->state->get('filter.roomID'))
 		{
-			$roomCount = Helpers\Bookings::getParticipantCount($this->bookingID, $roomID);
+			$roomCount = Helper::getParticipantCount($this->bookingID, $roomID);
 			$roomCount = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_ROOM_COUNT'), $roomCount);
 			$countText .= " ($roomCount)";
 		}
@@ -260,8 +263,8 @@ class Booking extends Participants
 	protected function setSubtitle()
 	{
 		$bookingID      = Helpers\Input::getID();
-		$subTitle       = Helpers\Bookings::getNames($bookingID);
-		$subTitle[]     = Helpers\Bookings::getDateTimeDisplay($bookingID);
+		$subTitle       = Helper::getNames($bookingID);
+		$subTitle[]     = Helper::getDateTimeDisplay($bookingID);
 		$this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
 	}
 
