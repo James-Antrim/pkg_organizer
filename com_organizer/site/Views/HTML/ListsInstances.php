@@ -506,7 +506,6 @@ trait ListsInstances
 
 	private function setSingle(stdClass $instance)
 	{
-		$link   = 'index.php?option=com_organizer&view=instance_item&id=';
 		$now    = date('H:i');
 		$today  = date('Y-m-d');
 		$userID = Users::getID();
@@ -519,7 +518,7 @@ trait ListsInstances
 
 		$instance->expired = ($instance->date < $today or ($isToday and $instance->endTime < $now));
 		$instance->full    = (!empty($instance->capacity) and $instance->current >= $instance->capacity);
-		$instance->link    = $link . $instanceID;
+		$instance->link    = Routing::getViewURL('InstanceItem', $instanceID);
 
 		if ($userID and Can::manage('instance', $instanceID))
 		{
