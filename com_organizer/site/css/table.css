@@ -45,6 +45,10 @@ body.tmpl-index div.main .input-8, body.tmpl-index div.main .input-8 + .chzn-con
     width: 8rem !important;
 }
 
+body.tmpl-index div.main .input-10, body.tmpl-index div.main .input-10 + .chzn-container {
+    width: 10rem !important;
+}
+
 body.tmpl-index div.main .input-12, body.tmpl-index div.main .input-12 + .chzn-container {
     width: 12rem !important;
 }
