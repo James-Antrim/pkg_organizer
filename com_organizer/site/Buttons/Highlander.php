@@ -25,7 +25,7 @@ class Highlander extends StandardButton
 	 *
 	 * @var    string
 	 */
-	protected $_name = 'NewTab';
+	protected $_name = 'Highlander';
 
 	/**
 	 * @inheritDoc
