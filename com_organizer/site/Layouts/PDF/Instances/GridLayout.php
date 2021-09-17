@@ -14,6 +14,7 @@ use Organizer\Helpers;
 use Organizer\Layouts\PDF\BaseLayout;
 use Organizer\Tables\Roles;
 use Organizer\Views\PDF\Instances;
+use stdClass;
 
 /**
  * Base class for a Joomla View
@@ -165,7 +166,7 @@ abstract class GridLayout extends BaseLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function fill($data)
+	public function fill(array $data)
 	{
 		$view = $this->view;
 		$this->setResourceHeader();
@@ -249,7 +250,7 @@ abstract class GridLayout extends BaseLayout
 			}
 
 			$name              = $instance->name;
-			$method            = $instance->methodCode ? $instance->methodCode : 'ZZZ';
+			$method            = $instance->methodCode ?: 'ZZZ';
 			$instanceID        = $instance->instanceID;
 			$index             = "$name-$method-$instanceID";
 			$instances[$index] = $instance;
@@ -322,7 +323,8 @@ abstract class GridLayout extends BaseLayout
 		{
 			$subRowHeight          = max($instances['height']);
 			$cells[$row]['height'] = $subRowHeight;
-			$cells['height']       = array_key_exists('height', $cells) ? $cells['height'] + $subRowHeight : $subRowHeight;
+			$cells['height']       = array_key_exists('height', $cells) ?
+				$cells['height'] + $subRowHeight : $subRowHeight;
 		}
 
 		return $cells;
@@ -404,13 +406,13 @@ abstract class GridLayout extends BaseLayout
 	/**
 	 * Creates the text to be output for the lesson instance
 	 *
-	 * @param   object  $instance   the instance information
-	 * @param   string  $startTime  the block start time
-	 * @param   string  $endTime    the block end time
+	 * @param   stdClass  $instance   the instance information
+	 * @param   string    $startTime  the block start time
+	 * @param   string    $endTime    the block end time
 	 *
 	 * @return string the html for the instance text
 	 */
-	protected function getInstance(object $instance, string $startTime, string $endTime): string
+	protected function getInstance(stdClass $instance, string $startTime, string $endTime): string
 	{
 		$html = '<div style="font-size: 10px; text-align: center">';
 
@@ -467,8 +469,10 @@ abstract class GridLayout extends BaseLayout
 
 		foreach ($persons as $personID => $person)
 		{
+			$irrelevant = (!empty($conditions['personIDs']) and !in_array($personID, $conditions['personIDs']));
+
 			// No delta display in pdf
-			if ($person['status'] === 'removed' or (!empty($conditions['personIDs']) and !in_array($personID, $conditions['personIDs'])))
+			if ($person['status'] === 'removed' or $irrelevant)
 			{
 				unset($persons[$personID]);
 				continue;
@@ -765,7 +769,7 @@ abstract class GridLayout extends BaseLayout
 			return $text;
 		}
 
-		return $lastResource;
+		return $lastResource ?: '';
 	}
 
 	/**
@@ -836,7 +840,13 @@ abstract class GridLayout extends BaseLayout
 		$view = $this->view;
 		$view->SetFont('helvetica', '', 10);
 		$view->SetLineStyle(['width' => 0.5, 'dash' => 0, 'color' => [74, 92, 102]]);
-		$view->renderMultiCell(self::TIME_WIDTH, 0, Helpers\Languages::_('ORGANIZER_TIME'), $view::CENTER, $view::HORIZONTAL);
+		$view->renderMultiCell(
+			self::TIME_WIDTH,
+			0,
+			Helpers\Languages::_('ORGANIZER_TIME'),
+			$view::CENTER,
+			$view::HORIZONTAL
+		);
 
 		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
 		{
@@ -1018,6 +1028,22 @@ abstract class GridLayout extends BaseLayout
 		}
 
 		$this->grid = $hasCells ? $grid : null;
+
+
+		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
+		{
+			$date = date('Y-m-d', $currentDT);
+
+			foreach ($this->instances as $key => $instance)
+			{
+				if ($instance->date < $date)
+				{
+					unset($this->instances[$key]);
+				}
+			}
+
+			$currentDT = strtotime("+1 day", $currentDT);
+		}
 	}
 
 	/**
