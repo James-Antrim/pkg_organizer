@@ -108,6 +108,13 @@ td a.btn {
       }
     }
   }
+  #InstanceItem-list {
+    tr th, tr td {
+      &:nth-child(4), &:nth-child(5), &:nth-child(6) {
+        display: none;
+      }
+    }
+  }
   #Instances-list {
     tr th, tr td {
       &:nth-child(4), &:nth-child(5) {

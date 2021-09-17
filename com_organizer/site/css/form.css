@@ -257,8 +257,9 @@ body.tmpl-mobile div.main .btn-wrapper:last-child {
     margin-right: 0;
 }
 
-body.tmpl-mobile div.main .btn-wrapper .btn {
+body.tmpl-mobile div.main .btn {
     font-size: 12px;
+    margin: 0 4px 4px 0;
 }
 
 body.tmpl-mobile div.main .input-append {

@@ -313,8 +313,10 @@ class InstanceItem extends ListView
 	{
 		$comment = $this->resolveLinks($item->comment);
 		$title   = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
+		$title   .= $this->mobile ? '<br>' : '';
 		$title   .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
 		$title   .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
+		$title   = Helpers\HTML::link($item->link, $title);
 		$title   .= empty($comment) ? '' : "<br><span class=\"comment\">$comment</span>";
 
 		return ['attributes' => ['class' => 'title-column'], 'value' => $title];
@@ -545,7 +547,7 @@ class InstanceItem extends ListView
 	public function setHeaders()
 	{
 		$this->headers = [
-			'tools'    => $this->userID ? Helpers\HTML::_('grid.checkall') : '',
+			'tools'    => ($this->userID and !$this->mobile) ? Helpers\HTML::_('grid.checkall') : '',
 			'instance' => Languages::_('ORGANIZER_INSTANCE'),
 			'status'   => Languages::_('ORGANIZER_STATUS'),
 			'persons'  => Languages::_('ORGANIZER_PERSONS'),
@@ -893,6 +895,15 @@ class InstanceItem extends ListView
 			$this->addResources($structuredItems[$index], $item);
 
 			$index++;
+		}
+
+		if ($this->mobile)
+		{
+			$buttons['deregisterList'] = false;
+			$buttons['descheduleList'] = false;
+			$buttons['manageList']     = false;
+			$buttons['registerList']   = false;
+			$buttons['scheduleList']   = false;
 		}
 
 		$this->buttons = $buttons;

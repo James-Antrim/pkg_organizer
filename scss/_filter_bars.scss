@@ -146,10 +146,11 @@ body.tmpl-mobile div.main {
     &:last-child {
       margin-right: 0;
     }
+  }
 
-    .btn {
-      font-size: 12px;
-    }
+  .btn {
+    font-size: 12px;
+    margin: 0 4px 4px 0;
   }
 
   .input-append {
