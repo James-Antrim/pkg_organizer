@@ -168,10 +168,13 @@ class Courses extends ListView
 	 */
 	public function setHeaders()
 	{
+		$ordering  = $this->state->get('list.ordering');
+		$direction = $this->state->get('list.direction');
+
 		$headers = [
-			'name'         => Languages::_('ORGANIZER_NAME'),
+			'name'         => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
 			'campus'       => Languages::_('ORGANIZER_CAMPUS'),
-			'dates'        => Languages::_('ORGANIZER_DATES'),
+			'dates'        => Helpers\HTML::sort('DATES', 'dates', $direction, $ordering),
 			'courseStatus' => [
 				'attributes' => ['class' => 'center'],
 				'value'      => Languages::_('ORGANIZER_COURSE_STATUS')

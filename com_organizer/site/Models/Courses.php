@@ -82,8 +82,34 @@ class Courses extends ListModel
 			->innerJoin('#__organizer_units AS u ON u.courseID = c.id')
 			->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
 			->innerJoin('#__organizer_events AS e ON e.id = i.eventID')
-			->group('c.id')
-			->order('startDate DESC, name ASC');
+			->group('c.id');
+
+		$direction = $this->state->get('list.direction');
+
+		switch ($this->state->get('list.ordering'))
+		{
+			case 'dates':
+				if ($direction === 'DESC')
+				{
+					$query->order('u.endDate DESC');
+				}
+				else
+				{
+					$query->order('u.startDate ASC');
+				}
+				break;
+			case 'name':
+			default:
+				if ($direction === 'DESC')
+				{
+					$query->order("c.name_$tag DESC");
+				}
+				else
+				{
+					$query->order("c.name_$tag ASC");
+				}
+				break;
+		}
 
 		$this->setSearchFilter($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 
