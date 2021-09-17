@@ -71,6 +71,10 @@ table.table-striped td.status-display {
   &.unit-removed {
     border-left: 5px solid $red-50;
   }
+
+  &.yellow {
+    background-color: $yellow-100;
+  }
 }
 
 .status-new {
