@@ -122,24 +122,18 @@ class Booking extends Participants
 		$link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn']);
 		$toolbar->appendButton('Custom', $link);
 
-		$icon = '<span class="icon-grid-2"></span>';
-		$text = Languages::_('QR Code');
-		$url  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
-		$link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
-		$toolbar->appendButton('Custom', $link);
-
 		$bookingDate = $this->booking->get('date');
 		$today       = date('Y-m-d');
-
-		$earlyStart = false;
-		$end        = $this->booking->get('defaultEndTime');
-		$expired    = $today > $bookingDate;
-		$isToday    = $today === $bookingDate;
-		$notOver    = true;
-		$now        = date('H:i:s');
-		$reOpen     = false;
-		$start      = $this->booking->get('defaultStartTime');
-		$started    = false;
+		$earlyStart  = false;
+		$end         = $this->booking->get('defaultEndTime');
+		$ended       = false;
+		$expired     = $today > $bookingDate;
+		$isToday     = $today === $bookingDate;
+		$notOver     = true;
+		$now         = date('H:i:s');
+		$reOpen      = false;
+		$start       = $this->booking->get('defaultStartTime');
+		$started     = false;
 
 		if ($isToday)
 		{
@@ -152,6 +146,15 @@ class Booking extends Participants
 			$earlyStart = ($now > $earlyStart and $now < $start);
 			$notOver    = $now < $this->booking->get('defaultEndTime');
 			$reOpen     = ($ended and $notOver);
+		}
+
+		if (!$expired and !($isToday and $ended))
+		{
+			$icon = '<span class="icon-grid-2"></span>';
+			$text = Languages::_('QR Code');
+			$url  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
+			$link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
+			$toolbar->appendButton('Custom', $link);
 		}
 
 		if (count($this->items))
