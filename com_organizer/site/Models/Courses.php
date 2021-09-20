@@ -20,6 +20,8 @@ class Courses extends ListModel
 {
 	use Helpers\Filtered;
 
+	protected $defaultOrdering = 'dates';
+
 	protected $filter_fields = ['campusID', 'status', 'termID'];
 
 	/**
@@ -88,18 +90,7 @@ class Courses extends ListModel
 
 		switch ($this->state->get('list.ordering'))
 		{
-			case 'dates':
-				if ($direction === 'DESC')
-				{
-					$query->order('u.endDate DESC');
-				}
-				else
-				{
-					$query->order('u.startDate ASC');
-				}
-				break;
 			case 'name':
-			default:
 				if ($direction === 'DESC')
 				{
 					$query->order("c.name_$tag DESC");
@@ -107,6 +98,17 @@ class Courses extends ListModel
 				else
 				{
 					$query->order("c.name_$tag ASC");
+				}
+				break;
+			case 'dates':
+			default:
+				if ($direction === 'DESC')
+				{
+					$query->order('u.endDate DESC');
+				}
+				else
+				{
+					$query->order('u.startDate ASC');
 				}
 				break;
 		}
