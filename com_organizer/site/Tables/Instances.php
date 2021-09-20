@@ -18,12 +18,28 @@ class Instances extends BaseTable
 	use Modified;
 
 	/**
+	 * The number of participants who checked into this instance.
+	 * INT(4) UNSIGNED NOT NULL DEFAULT 0
+	 *
+	 * @var int
+	 */
+	public $attended;
+
+	/**
 	 * The id of the block entry referenced.
 	 * INT(11) UNSIGNED NOT NULL
 	 *
 	 * @var int
 	 */
 	public $blockID;
+
+	/**
+	 * The number of participants who added this instance to their personal schedule.
+	 * INT(4) UNSIGNED NOT NULL DEFAULT 0
+	 *
+	 * @var int
+	 */
+	public $bookmarked;
 
 	/**
 	 * The id of the event entry referenced.
@@ -40,6 +56,14 @@ class Instances extends BaseTable
 	 * @var int
 	 */
 	public $methodID;
+
+	/**
+	 * The number of participants who registered to participate in this instance.
+	 * INT(4) UNSIGNED NOT NULL DEFAULT 0
+	 *
+	 * @var int
+	 */
+	public $registered;
 
 	/**
 	 * The person's first and middle names.
