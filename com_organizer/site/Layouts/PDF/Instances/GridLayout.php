@@ -456,8 +456,10 @@ abstract class GridLayout extends BaseLayout
 		// If there is no category context the group names may overlap.
 		$showGroupCodes = empty($conditions['categoryIDs']);
 
+		$my = !empty($conditions['my']);
+
 		// If groups/rooms were restricted their output is redundant.
-		$showGroups  = empty($conditions['groupIDs']);
+		$showGroups  = (!$my and empty($conditions['groupIDs']));
 		$showPersons = empty($conditions['personIDs']);
 		$showRooms   = empty($conditions['roomIDs']);
 
