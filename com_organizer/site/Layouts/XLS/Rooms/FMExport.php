@@ -47,9 +47,9 @@ class FMExport extends BaseLayout
         //Archetypes
         $sheet->setCellValue('I1', Helpers\Languages::_('ORGANIZER_FM_ROOM_ARCHETYPE'));
         //DIN
-        $sheet->setCellValue('J1', Helpers\Languages::_('ORGANIZER_FM_ROOM_DIN'));
+        $sheet->setCellValue('J1', Helpers\Languages::_('ORGANIZER_FM_ROOM_DINTYPE'));
         //DIN Types
-        $sheet->setCellValue('K1', Helpers\Languages::_('ORGANIZER_FM_ROOM_DINTYPES'));
+        $sheet->setCellValue('K1', Helpers\Languages::_('ORGANIZER_FM_ROOM_DIN'));
         //Room Type equipment
         $sheet->setCellValue('L1', Helpers\Languages::_('ORGANIZER_FM_ROOM_TYPE_EQUIPMENT'));
         //Room Equipment
@@ -151,10 +151,10 @@ class FMExport extends BaseLayout
                         }
                         break;
                     case 'J':
-                        $value = $room->din_name;
+                        $value = $room->din_code;
                         break;
                     case 'K':
-                        $value = $room->din_code;
+                        $value = $room->din_name;
                         break;
                     case 'L':
                         $value = '';
@@ -254,8 +254,8 @@ class FMExport extends BaseLayout
         $sheet->getColumnDimension('G')->setWidth(23);
         $sheet->getColumnDimension('H')->setWidth(20);
         $sheet->getColumnDimension('I')->setWidth(35);
-        $sheet->getColumnDimension('J')->setWidth(25);
-        $sheet->getColumnDimension('K')->setWidth(15);
+        $sheet->getColumnDimension('J')->setWidth(15);
+        $sheet->getColumnDimension('K')->setWidth(25);
         $sheet->getColumnDimension('L')->setWidth(35);
         $sheet->getColumnDimension('M')->setWidth(25);
     }
