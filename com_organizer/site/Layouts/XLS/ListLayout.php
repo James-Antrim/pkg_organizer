@@ -120,7 +120,8 @@ abstract class ListLayout extends BaseLayout
 		{
 			$coords = "{$header['column']}1";
 			$sheet->getColumnDimension($header['column'])->setWidth($header['width']);
-			$sheet->setCellValue($coords, $header['text']);
+			$text = str_replace('&shy;', '', $header['text']);
+			$sheet->setCellValue($coords, $text);
 			$sheet->getStyle($coords)->applyFromArray($style);
 		}
 
