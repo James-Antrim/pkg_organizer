@@ -111,8 +111,8 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @param   int   $subjectID  the subject's id
 	 * @param   int   $role       represents the person's role for the subject
-	 * @param   bool  $multiple   whether or not multiple results are desired
-	 * @param   bool  $unique     whether or not unique results are desired
+	 * @param   bool  $multiple   whether multiple results are desired
+	 * @param   bool  $unique     whether unique results are desired
 	 *
 	 * @return array  an array of person data
 	 */
@@ -219,7 +219,7 @@ class Persons extends Associated implements Selectable
 	 * Generates a preformatted person text based upon organizer's internal data
 	 *
 	 * @param   int   $personID  the person's id
-	 * @param   bool  $short     Whether or not the person's forename should be abbreviated
+	 * @param   bool  $short     whether the person's forename should be abbreviated
 	 *
 	 * @return string  the default name of the person
 	 */
@@ -363,11 +363,15 @@ class Persons extends Associated implements Selectable
 			$wherray[] = "(a.organizationID = $organizationID and p.public = 1) ";
 		}
 
-		$query->where('(' . implode(' OR ', $wherray) . ')');
+		if ($wherray)
+		{
+			$query->where('(' . implode(' OR ', $wherray) . ')');
+			Database::setQuery($query);
 
-		Database::setQuery($query);
+			return Database::loadAssocList('id');
+		}
 
-		return Database::loadAssocList('id');
+		return [];
 	}
 
 	/**
