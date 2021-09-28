@@ -21,7 +21,7 @@ class Debug
 	 * Tears down a UTF-8 string into it's bytes and displays them as numeric values and displayed characters. Useful
 	 * for determining problems with LSF entries which are never translated into valid HTML.
 	 *
-	 * @param   string  $string the string to be examined
+	 * @param   string  $string  the string to be examined
 	 *
 	 * @return void
 	 * @noinspection PhpUnused

@@ -67,6 +67,10 @@ body.tmpl-index div.main .input-8, body.tmpl-index div.main .input-8 + .chzn-con
     width: 8rem !important;
 }
 
+body.tmpl-index div.main .input-10, body.tmpl-index div.main .input-10 + .chzn-container {
+    width: 10rem !important;
+}
+
 body.tmpl-index div.main .input-12, body.tmpl-index div.main .input-12 + .chzn-container {
     width: 12rem !important;
 }
@@ -257,8 +261,9 @@ body.tmpl-mobile div.main .btn-wrapper:last-child {
     margin-right: 0;
 }
 
-body.tmpl-mobile div.main .btn-wrapper .btn {
+body.tmpl-mobile div.main .btn {
     font-size: 12px;
+    margin: 0 4px 4px 0;
 }
 
 body.tmpl-mobile div.main .input-append {

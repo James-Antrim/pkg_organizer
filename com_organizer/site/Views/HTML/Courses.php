@@ -168,10 +168,13 @@ class Courses extends ListView
 	 */
 	public function setHeaders()
 	{
+		$ordering  = $this->state->get('list.ordering');
+		$direction = $this->state->get('list.direction');
+
 		$headers = [
-			'name'         => Languages::_('ORGANIZER_NAME'),
+			'name'         => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
 			'campus'       => Languages::_('ORGANIZER_CAMPUS'),
-			'dates'        => Languages::_('ORGANIZER_DATES'),
+			'dates'        => Helpers\HTML::sort('DATES', 'dates', $direction, $ordering),
 			'courseStatus' => [
 				'attributes' => ['class' => 'center'],
 				'value'      => Languages::_('ORGANIZER_COURSE_STATUS')
@@ -210,7 +213,7 @@ class Courses extends ListView
 
 		foreach ($this->items as $course)
 		{
-			$campusID = (int) $course->campusID;
+			$campusID   = (int) $course->campusID;
 			$campusName = Helpers\Campuses::getName($campusID);
 			$pin        = $this->adminContext ? '' : ' ' . Helpers\Campuses::getPin($campusID);
 
@@ -219,7 +222,7 @@ class Courses extends ListView
 			$course->dates = Helpers\Courses::getDateDisplay($course->id);
 
 			$expired = $course->endDate < $today;
-			$ongoing = ($course->startDate <= $today and $expired);
+			$ongoing = ($course->startDate <= $today and !$expired);
 
 			if ($course->deadline)
 			{
@@ -255,21 +258,42 @@ class Courses extends ListView
 			}
 			else
 			{
+				$class                = 'status-display center hasTip';
 				$course->courseStatus = [];
 				$capacityText         = Languages::_('ORGANIZER_PARTICIPANTS');
 				$capacityText         .= ": $course->participants / $course->maxParticipants<br>";
 
-				if ($ongoing or $full)
+				if ($ongoing)
 				{
-					$courseAttributes = ['class' => 'status-display center red'];
+					$courseAttributes = [
+						'class' => $class . ' red',
+						'title' => Languages::_('ORGANIZER_COURSE_ONGOING')
+					];
 				}
-				elseif ($closed or $ninety)
+				elseif ($closed)
 				{
-					$courseAttributes = ['class' => 'status-display center yellow'];
+					$courseAttributes = [
+						'class' => $class . ' yellow',
+						'title' => Languages::_('ORGANIZER_COURSE_CLOSED')
+					];
+				}
+				elseif ($full)
+				{
+					$courseAttributes = ['class' => $class . ' red', 'title' => Languages::_('ORGANIZER_COURSE_FULL')];
+				}
+				elseif ($ninety)
+				{
+					$courseAttributes = [
+						'class' => $class . ' yellow',
+						'title' => Languages::_('ORGANIZER_COURSE_LIMITED')
+					];
 				}
 				else
 				{
-					$courseAttributes = ['class' => 'status-display center green'];
+					$courseAttributes = [
+						'class' => $class . ' green',
+						'title' => Languages::_('ORGANIZER_COURSE_OPEN')
+					];
 				}
 
 				$course->courseStatus['attributes'] = $courseAttributes;

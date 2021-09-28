@@ -71,6 +71,10 @@ table.table-striped td.status-display {
   &.unit-removed {
     border-left: 5px solid $red-50;
   }
+
+  &.yellow {
+    background-color: $yellow-100;
+  }
 }
 
 .status-new {
@@ -104,6 +108,13 @@ td a.btn {
   #Booking-list {
     tr th, tr td {
       &:nth-child(4), &:nth-child(5), &:nth-child(6), &:nth-child(7) {
+        display: none;
+      }
+    }
+  }
+  #InstanceItem-list {
+    tr th, tr td {
+      &:nth-child(4), &:nth-child(5), &:nth-child(6) {
         display: none;
       }
     }

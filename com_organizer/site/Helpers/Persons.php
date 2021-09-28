@@ -111,13 +111,17 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @param   int   $subjectID  the subject's id
 	 * @param   int   $role       represents the person's role for the subject
-	 * @param   bool  $multiple   whether or not multiple results are desired
-	 * @param   bool  $unique     whether or not unique results are desired
+	 * @param   bool  $multiple   whether multiple results are desired
+	 * @param   bool  $unique     whether unique results are desired
 	 *
 	 * @return array  an array of person data
 	 */
-	public static function getDataBySubject(int $subjectID, int $role = 0, bool $multiple = false, bool $unique = true): array
-	{
+	public static function getDataBySubject(
+		int $subjectID,
+		int $role = 0,
+		bool $multiple = false,
+		bool $unique = true
+	): array {
 		$query = Database::getQuery();
 		$query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, sp.role, code')
 			->from('#__organizer_persons AS p')
@@ -215,7 +219,7 @@ class Persons extends Associated implements Selectable
 	 * Generates a preformatted person text based upon organizer's internal data
 	 *
 	 * @param   int   $personID  the person's id
-	 * @param   bool  $short     Whether or not the person's forename should be abbreviated
+	 * @param   bool  $short     whether the person's forename should be abbreviated
 	 *
 	 * @return string  the default name of the person
 	 */
@@ -314,13 +318,12 @@ class Persons extends Associated implements Selectable
 		}
 
 		$query = Database::getQuery();
-
 		$query->select('DISTINCT p.*')
 			->from('#__organizer_persons AS p')
 			->where('p.active = 1')
 			->order('p.surname, p.forename');
 
-		$wherray = ['p.public = 1'];
+		$wherray = [];
 
 		if ($thisPersonID)
 		{
@@ -354,12 +357,21 @@ class Persons extends Associated implements Selectable
 
 			$wherray[] = $where;
 		}
+		elseif ($organizationID)
+		{
+			$query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
+			$wherray[] = "(a.organizationID = $organizationID and p.public = 1) ";
+		}
 
-		$query->where('(' . implode(' OR ', $wherray) . ')');
+		if ($wherray)
+		{
+			$query->where('(' . implode(' OR ', $wherray) . ')');
+			Database::setQuery($query);
 
-		Database::setQuery($query);
+			return Database::loadAssocList('id');
+		}
 
-		return Database::loadAssocList('id');
+		return [];
 	}
 
 	/**
@@ -384,8 +396,7 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function nameSort(array &$persons)
 	{
-		uasort($persons, function ($personOne, $personTwo)
-		{
+		uasort($persons, function ($personOne, $personTwo) {
 			if ($personOne['surname'] == $personTwo['surname'])
 			{
 				return $personOne['forename'] > $personTwo['forename'];
@@ -417,8 +428,7 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function roleSort(array &$persons)
 	{
-		uasort($persons, function ($personOne, $personTwo)
-		{
+		uasort($persons, function ($personOne, $personTwo) {
 			$roleOne = isset($personOne['role'][self::COORDINATES]);
 			$roleTwo = isset($personTwo['role'][self::COORDINATES]);
 			if ($roleOne or !$roleTwo)

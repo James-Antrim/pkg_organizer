@@ -14,6 +14,7 @@ use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Document;
 use Organizer\Adapters\Toolbar;
+use Organizer\Buttons\Link;
 use Organizer\Helpers;
 use Organizer\Helpers\Instances as Helper;
 use Organizer\Helpers\Languages;
@@ -42,8 +43,6 @@ class InstanceItem extends ListView
 	protected $layout = 'instance-item';
 
 	public $minibar = '';
-
-	private $manages = false;
 
 	private $messages = [];
 
@@ -97,7 +96,7 @@ class InstanceItem extends ListView
 				$color = 'yellow';
 			}
 		}
-		else
+		elseif (!$instance->manageable)
 		{
 			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_NOT_SCHEDULED');
 		}
@@ -120,13 +119,14 @@ class InstanceItem extends ListView
 		Helpers\HTML::setTitle($instance->name . $method, 'square');
 		$this->setSubtitle();
 
-		$toolbar = Toolbar::getInstance();
+		$link     = new Link();
+		$minibar  = [];
+		$standard = new StandardButton();
+		$toolbar  = Toolbar::getInstance();
 
 		if ($this->userID and $this->buttons)
 		{
-			$buttons  = $this->buttons;
-			$minibar  = [];
-			$standard = new StandardButton();
+			$buttons = $this->buttons;
 
 			if ($buttons['schedule'])
 			{
@@ -236,11 +236,39 @@ class InstanceItem extends ListView
 				);
 			}
 
-			if ($minibar)
+			if ($buttons['manage'])
 			{
-				$this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
-				$this->minibar .= implode('', $minibar) . '</div>';
+				$minibar[] = $standard->fetchButton(
+					'NewTab',
+					'users',
+					Languages::_('ORGANIZER_MANAGE_BOOKING'),
+					'bookings.manageThis',
+					false
+				);
 			}
+
+			if ($buttons['manageList'])
+			{
+				$toolbar->appendButton(
+					'Highlander',
+					'users',
+					Languages::_('ORGANIZER_MANAGE_BOOKINGS'),
+					'bookings.manage',
+					true
+				);
+			}
+		}
+
+		if ($instance->subjectID)
+		{
+			$url       = Helpers\Routing::getViewURL('SubjectItem', $instance->subjectID);
+			$minibar[] = $link->fetchButton('Link', 'book', Languages::_('ORGANIZER_SUBJECT_ITEM'), $url, true);
+		}
+
+		if ($minibar)
+		{
+			$this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
+			$this->minibar .= implode('', $minibar) . '</div>';
 		}
 	}
 
@@ -283,13 +311,16 @@ class InstanceItem extends ListView
 	 */
 	private function getTitle(stdClass $item): array
 	{
-		$title = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
-		$title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
-		$title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
+		$comment = $this->resolveLinks($item->comment);
+		$title   = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
+		$title   .= $this->mobile ? '<br>' : '';
+		$title   .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
+		$title   .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
+		$title   = Helpers\HTML::link($item->link, $title);
+		$title   .= empty($comment) ? '' : "<br><span class=\"comment\">$comment</span>";
 
 		return ['attributes' => ['class' => 'title-column'], 'value' => $title];
 	}
-
 
 	/**
 	 * @inheritDoc
@@ -390,9 +421,12 @@ class InstanceItem extends ListView
 	{
 		$instance = $this->instance;
 
+		$comment      = $this->resolveLinks($instance->comment);
 		$registration = $instance->registration;
 
-		if ($registration)
+		$list = ($registration or $comment);
+
+		if ($list)
 		{
 			echo '<ul>';
 		}
@@ -412,7 +446,8 @@ class InstanceItem extends ListView
 				break;
 		}
 
-		echo $registration ? "<li>$formText</li>" : $formText;
+		echo $comment ? "<li>$comment</li>" : '';
+		echo $list ? "<li>$formText</li>" : $formText;
 
 		if ($instance->registration)
 		{
@@ -447,7 +482,10 @@ class InstanceItem extends ListView
 					echo '<li>' . Languages::_('ORGANIZER_REGISTRATIONS_AVAILABLE') . '</li>';
 				}
 			}
+		}
 
+		if ($list)
+		{
 			echo '</ul>';
 		}
 	}
@@ -509,7 +547,7 @@ class InstanceItem extends ListView
 	public function setHeaders()
 	{
 		$this->headers = [
-			'tools'    => $this->userID ? Helpers\HTML::_('grid.checkall') : '',
+			'tools'    => ($this->userID and !$this->mobile) ? Helpers\HTML::_('grid.checkall') : '',
 			'instance' => Languages::_('ORGANIZER_INSTANCE'),
 			'status'   => Languages::_('ORGANIZER_STATUS'),
 			'persons'  => Languages::_('ORGANIZER_PERSONS'),
@@ -764,6 +802,8 @@ class InstanceItem extends ListView
 			'deschedule'      => false,
 			'descheduleBlock' => false,
 			'descheduleList'  => false,
+			'manage'          => false,
+			'manageList'      => false,
 			'register'        => false,
 			'registerList'    => false,
 			'schedule'        => false,
@@ -773,7 +813,7 @@ class InstanceItem extends ListView
 
 		$instance = $this->instance;
 
-		if (!$instance->expired and !$instance->running)
+		if (!$instance->expired and !$instance->running and !$instance->manageable)
 		{
 			if ($instance->scheduled)
 			{
@@ -795,6 +835,10 @@ class InstanceItem extends ListView
 				$buttons['register'] = true;
 			}
 		}
+		elseif ($instance->manageable)
+		{
+			$buttons['manage'] = true;
+		}
 
 		$index           = 0;
 		$structuredItems = [];
@@ -802,7 +846,7 @@ class InstanceItem extends ListView
 
 		foreach ($this->items as $item)
 		{
-			if (!$item->expired and !$item->running)
+			if (!$item->expired and !$item->running and !$item->manageable)
 			{
 				$sameDOW      = (strtoupper(date('l', strtotime($item->date))) === $thisDOW);
 				$sameET       = $item->startTime === $instance->startTime;
@@ -839,6 +883,10 @@ class InstanceItem extends ListView
 					}
 				}
 			}
+			elseif ($item->manageable)
+			{
+				$buttons['manageList'] = true;
+			}
 
 			$structuredItems[$index]             = [];
 			$structuredItems[$index]['tools']    = $this->getToolsColumn($item, $index);
@@ -847,6 +895,15 @@ class InstanceItem extends ListView
 			$this->addResources($structuredItems[$index], $item);
 
 			$index++;
+		}
+
+		if ($this->mobile)
+		{
+			$buttons['deregisterList'] = false;
+			$buttons['descheduleList'] = false;
+			$buttons['manageList']     = false;
+			$buttons['registerList']   = false;
+			$buttons['scheduleList']   = false;
 		}
 
 		$this->buttons = $buttons;

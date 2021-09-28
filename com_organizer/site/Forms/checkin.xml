@@ -22,6 +22,6 @@
         <field name="roomID" type="CheckinRooms" label="ROOM" class="required" required="true">
             <option value="">SELECT_ROOM</option>
         </field>
-        <field name="seat" type="Blank" label="CHECKIN_SEAT"/>
+        <field name="seat" type="Blank" label="CHECKIN_SEAT" class="required validate-alphanumeric"/>
     </fieldset>
 </form>

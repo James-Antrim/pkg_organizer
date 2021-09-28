@@ -234,19 +234,19 @@ abstract class BaseView extends HtmlView
 
 			$items = [];
 
-			$items[Languages::_('ORGANIZER_BUILDINGS')] = [
+			$items[Languages::_('ORGANIZER_BUILDINGS')]    = [
 				'url'    => 'index.php?option=com_organizer&amp;view=buildings',
 				'active' => $viewName == 'buildings'
 			];
-			$items[Languages::_('ORGANIZER_CAMPUSES')]  = [
+			$items[Languages::_('ORGANIZER_CAMPUSES')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=campuses',
 				'active' => $viewName == 'campuses'
 			];
-			$items[Languages::_('ORGANIZER_MONITORS')]  = [
+			$items[Languages::_('ORGANIZER_MONITORS')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=monitors',
 				'active' => $viewName == 'monitors'
 			];
-			$items[Languages::_('ORGANIZER_ROOMS')]     = [
+			$items[Languages::_('ORGANIZER_ROOMS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=rooms',
 				'active' => $viewName == 'rooms'
 			];
@@ -254,7 +254,11 @@ abstract class BaseView extends HtmlView
                 'url'    => 'index.php?option=com_organizer&amp;view=equipment',
                 'active' => $viewName == 'equipment'
             ];
-			$items[Languages::_('ORGANIZER_ROOMTYPES')] = [
+			$items[Languages::_('ORGANIZER_ROOMS_IMPORT')] = [
+				'url'    => 'index.php?option=com_organizer&amp;view=rooms_import',
+				'active' => $viewName == 'rooms_import'
+			];
+			$items[Languages::_('ORGANIZER_ROOMTYPES')]    = [
 				'url'    => 'index.php?option=com_organizer&amp;view=roomtypes',
 				'active' => $viewName == 'roomtypes'
 			];

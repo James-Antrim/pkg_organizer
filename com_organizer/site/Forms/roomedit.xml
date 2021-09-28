@@ -16,6 +16,7 @@
                layout="joomla.form.field.subform.repeatable-table" label="ORGANIZER_EQUIPMENT_LIST"/>
         <field name="maxCapacity" type="Integer" label="MAX_CAPACITY" last="500" step="1"/>
         <field name="effCapacity" type="Integer" label="EFF_CAPACITY" last="500" step="1"/>
+        <field name="area" type="Blank" label="SURFACE_AREA" class="required validate-float" required="true"/>
         <field name="active" type="Options" label="ACTIVE" default="1">
             <option value="1">ACTIVE</option>
             <option value="0">INACTIVE</option>

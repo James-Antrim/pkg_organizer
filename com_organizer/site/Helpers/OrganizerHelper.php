@@ -185,7 +185,7 @@ class OrganizerHelper
 	public static function getResource(string $view): string
 	{
 		$initial       = strtolower($view);
-		$withoutSuffix = preg_replace('/_?(edit|item|manager|merge|statistics)$/', '', $initial);
+		$withoutSuffix = preg_replace('/_?(edit|import|item|manager|merge|statistics)$/', '', $initial);
 		if ($withoutSuffix !== $initial)
 		{
 			return $withoutSuffix;

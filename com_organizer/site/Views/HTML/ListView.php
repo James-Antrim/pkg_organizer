@@ -15,6 +15,7 @@ use Joomla\Registry\Registry;
 use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\HTML;
+use stdClass;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
@@ -154,8 +155,7 @@ abstract class ListView extends BaseView
 		bool $currentValue,
 		string $tip,
 		string $attribute = ''
-	): string
-	{
+	): string {
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle";
 		$url .= "&$columnOne=$valueOne&$columnTwo=$valueTwo";
 		$url .= $attribute ? "&attribute=$attribute" : '';
@@ -208,8 +208,13 @@ abstract class ListView extends BaseView
 	 *
 	 * @return string  a HTML string
 	 */
-	protected function getToggle(string $controller, int $resourceID, bool $currentValue, string $tip, string $attribute = ''): string
-	{
+	protected function getToggle(
+		string $controller,
+		int $resourceID,
+		bool $currentValue,
+		string $tip,
+		string $attribute = ''
+	): string {
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle&id=$resourceID";
 		$url .= $attribute ? "&attribute=$attribute" : '';
 
@@ -280,7 +285,7 @@ abstract class ListView extends BaseView
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	protected function structureItem($index, object $item, string $link = ''): array
+	protected function structureItem($index, stdClass $item, string $link = ''): array
 	{
 		$processedItem = [];
 
@@ -314,7 +319,7 @@ abstract class ListView extends BaseView
 
 				$value = is_array($item->$property) ? $item->$property['value'] : $item->$property;
 
-				$processedItem[$property] = HTML::_('link', $link, $value, $attributes);
+				$processedItem[$property] = $link ? HTML::_('link', $link, $value, $attributes) : $value;
 				continue;
 			}
 

@@ -580,10 +580,17 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$registered = false;
+		$registered  = false;
+		$responsible = false;
 
 		foreach ($instanceIDs as $instanceID)
 		{
+			if (Helpers\Instances::hasResponsibility($instanceID))
+			{
+				$responsible = true;
+				continue;
+			}
+
 			$participation = new Table();
 			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
@@ -620,6 +627,26 @@ class InstanceParticipant extends BaseModel
 				continue;
 			}
 
+			$query = Database::getQuery();
+			$query->select('i.id')
+				->from('#__organizer_instance_participants AS ip')
+				->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+				->where("i.id != $instanceID")
+				->where("i.blockID = $block->id")
+				->where('ip.registered = 1');
+			Database::setQuery($query);
+
+			if ($otherInstanceID = Database::loadInt())
+			{
+				$otherName = Helpers\Instances::getName($otherInstanceID);
+				OrganizerHelper::message(
+					sprintf(Languages::_('ORGANIZER_INSTANCE_PREVIOUS_ENGAGEMENT'), $date, $startTime, $endTime,
+						$otherName),
+					'notice'
+				);
+				continue;
+			}
+
 			if (Helpers\Instances::isFull($instanceID))
 			{
 				OrganizerHelper::message(
@@ -640,6 +667,10 @@ class InstanceParticipant extends BaseModel
 		if ($registered)
 		{
 			OrganizerHelper::message(Languages::_('ORGANIZER_REGISTRATION_SUCCESS'));
+		}
+		elseif ($responsible)
+		{
+			OrganizerHelper::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', 'notice');
 		}
 
 		// The other option is that the participant is already registered to all matching instances => no message.
@@ -688,7 +719,7 @@ class InstanceParticipant extends BaseModel
 
 		try
 		{
-			$table = $this->getTable();
+			$table = new Table();
 		}
 		catch (Exception $exception)
 		{
@@ -706,7 +737,41 @@ class InstanceParticipant extends BaseModel
 		$table->roomID     = $data['roomID'];
 		$table->seat       = $data['seat'];
 
-		return $table->store() ? $table->id : false;
+		$query = Database::getQuery();
+		$query->select('ip.*')
+			->from('#__organizer_instance_participants AS ip')
+			->innerJoin('#__organizer_instances AS i1 ON i1.id = ip.instanceID')
+			->innerJoin('#__organizer_bookings AS b ON b.blockID = i1.blockID AND b.unitID = i1.unitID')
+			->innerJoin('#__organizer_instances AS i2 ON i2.blockID = b.blockID AND i2.unitID = b.unitID')
+			->where("i2.id = $table->instanceID")
+			->where("ip.participantID = $table->participantID");
+		Database::setQuery($query);
+
+		$otherIDs = [];
+		foreach (Database::loadAssocList() as $entry)
+		{
+			if ($entry['id'] !== $table->id)
+			{
+				$otherIDs[$entry['id']] = $entry['id'];
+			}
+
+			$table->registered = $table->registered ?: !empty($entry['registered']);
+		}
+
+		// The other entries must first be deleted to avoid collision with unique instanceID/participantID constraint.
+		foreach ($otherIDs as $otherID)
+		{
+			$otherTable = new Table();
+
+			if (!$otherTable->load($otherID))
+			{
+				continue;
+			}
+
+			$otherTable->delete();
+		}
+
+		return $table->store();
 	}
 
 	/**
@@ -733,10 +798,17 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$registered = false;
+		$registered  = false;
+		$responsible = false;
 
 		foreach ($instanceIDs as $instanceID)
 		{
+			if (Helpers\Instances::hasResponsibility($instanceID))
+			{
+				$responsible = true;
+				continue;
+			}
+
 			$participation = new Table();
 			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
@@ -755,6 +827,10 @@ class InstanceParticipant extends BaseModel
 		if ($registered)
 		{
 			OrganizerHelper::message('ORGANIZER_SCHEDULE_SUCCESS');
+		}
+		elseif ($responsible)
+		{
+			OrganizerHelper::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', 'notice');
 		}
 
 		// The other option is that all matching instances were already in the participant's personal schedule => no message.

@@ -11,7 +11,7 @@
         <field name="programID" type="Programs" label="PROGRAM" class="input-15">
             <option value="">SELECT_PROGRAM</option>
         </field>
-        <field name="public" type="Options" label="PUBLIC_RELEASE" class="input-15">
+        <field name="public" type="Options" label="PUBLIC_RELEASE" class="input-15" default="0">
             <option value="0">NOT_RELEASED</option>
             <option value="1">RELEASED</option>
         </field>

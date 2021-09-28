@@ -33,7 +33,7 @@ class Workload extends FormView
 		Helpers\HTML::setTitle($title, 'list-2');
 		$toolbar = Adapters\Toolbar::getInstance();
 
-		if (Helpers\Input::getInt('personID'))
+		if ($this->form->getValue('personID'))//Helpers\Input::getInt('personID'))
 		{
 			$toolbar->appendButton(
 				'NewTab',

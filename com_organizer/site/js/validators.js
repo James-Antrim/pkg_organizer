@@ -7,9 +7,21 @@ jQuery(document).ready(function () {
         }
     );
 
+    document.formvalidator.setHandler('alphanumeric',
+        function (value) {
+            return (/^([A-ZÀ-ÖØ-Þa-zß-ÿ0-9]+ *)+$/).test(value);
+        }
+    );
+
     document.formvalidator.setHandler('event-code',
         function (value) {
             return (/^[a-f\d]{4}-[a-f\d]{4}$/).test(value);
+        }
+    );
+
+    document.formvalidator.setHandler('float',
+        function (value) {
+            return (/^-?[\d]+(.[\d]{1,2})*$/).test(value);
         }
     );
 

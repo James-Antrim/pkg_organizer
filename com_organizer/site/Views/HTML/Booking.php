@@ -13,6 +13,7 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 use Organizer\Helpers;
+use Organizer\Helpers\Bookings as Helper;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
 
@@ -30,6 +31,8 @@ class Booking extends Participants
 	 * @var int
 	 */
 	public $bookingID;
+
+	private $hasRegistered = false;
 
 	protected $rowStructure = [
 		'checkbox' => '',
@@ -85,12 +88,14 @@ class Booking extends Participants
 			$texts[]     = $expiredText;
 		}
 
-		$count     = Helpers\Bookings::getParticipantCount($this->bookingID);
-		$countText = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count);
+		$count         = Helper::getParticipantCount($this->bookingID);
+		$registrations = Helper::getRegistrations($this->bookingID);
+		$capacity      = Helper::getCapacity($this->bookingID);
+		$countText     = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count, $registrations, $capacity);
 
 		if ($count and $roomID = $this->state->get('filter.roomID'))
 		{
-			$roomCount = Helpers\Bookings::getParticipantCount($this->bookingID, $roomID);
+			$roomCount = Helper::getParticipantCount($this->bookingID, $roomID);
 			$roomCount = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_ROOM_COUNT'), $roomCount);
 			$countText .= " ($roomCount)";
 		}
@@ -117,14 +122,40 @@ class Booking extends Participants
 		$link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn']);
 		$toolbar->appendButton('Custom', $link);
 
-		$icon = '<span class="icon-grid-2"></span>';
-		$text = Languages::_('QR Code');
-		$url  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
-		$link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
-		$toolbar->appendButton('Custom', $link);
-
 		$bookingDate = $this->booking->get('date');
 		$today       = date('Y-m-d');
+		$earlyStart  = false;
+		$end         = $this->booking->get('defaultEndTime');
+		$ended       = false;
+		$expired     = $today > $bookingDate;
+		$isToday     = $today === $bookingDate;
+		$notOver     = true;
+		$now         = date('H:i:s');
+		$reOpen      = false;
+		$start       = $this->booking->get('defaultStartTime');
+		$started     = false;
+
+		if ($isToday)
+		{
+			$earlyStart = date('H:i:s', strtotime('-60 minutes', strtotime($this->booking->get('defaultStartTime'))));
+			$end        = $this->booking->endTime ?: $end;
+			$ended      = $now >= $end;
+			$start      = $this->booking->startTime ?: $start;
+			$started    = $now > $start;
+
+			$earlyStart = ($now > $earlyStart and $now < $start);
+			$notOver    = $now < $this->booking->get('defaultEndTime');
+			$reOpen     = ($ended and $notOver);
+		}
+
+		if (!$expired and !($isToday and $ended))
+		{
+			$icon = '<span class="icon-grid-2"></span>';
+			$text = Languages::_('QR Code');
+			$url  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
+			$link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
+			$toolbar->appendButton('Custom', $link);
+		}
 
 		if (count($this->items))
 		{
@@ -137,29 +168,20 @@ class Booking extends Participants
 			);
 
 			// No easy removal at a later date
-			if ($today === $bookingDate)
+			if ($isToday and $now >= $start and $this->hasRegistered)
 			{
 				$text = Languages::_('ORGANIZER_CHECKIN');
 				$toolbar->appendButton('Standard', 'user-check', $text, 'bookings.checkin', true);
 			}
-			elseif ($today <= $bookingDate)
+			elseif (!$expired)
 			{
 				$text = Languages::_('ORGANIZER_DELETE');
 				$toolbar->appendButton('Standard', 'user-minus', $text, 'bookings.removeParticipants', true);
 			}
 		}
 
-		if ($today === $bookingDate)
+		if ($isToday)
 		{
-			$defaultEnd   = $this->booking->get('defaultEndTime');
-			$defaultStart = $this->booking->get('defaultStartTime');
-			$end          = $this->booking->endTime ?: $defaultEnd;
-			$now          = date('H:i:s');
-			$start        = $this->booking->startTime ?: $defaultStart;
-			$then         = date('H:i:s', strtotime('-60 minutes', strtotime($defaultStart)));
-			$earlyStart   = ($now > $then and $now < $start);
-			$reOpen       = ($now >= $end and $now < $defaultEnd);
-
 			if ($earlyStart or $reOpen)
 			{
 				if ($earlyStart)
@@ -175,16 +197,12 @@ class Booking extends Participants
 
 				$toolbar->appendButton('Standard', $icon, $text, 'bookings.open', false);
 			}
-			elseif ($now > $defaultStart and !$this->booking->endTime)
+			elseif ($started and !$this->booking->endTime)
 			{
-				$text = $now < $defaultEnd ? Languages::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Languages::_('ORGANIZER_MANUALLY_CLOSE_POST');
+				$text = $notOver ? Languages::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Languages::_('ORGANIZER_MANUALLY_CLOSE_POST');
 				$toolbar->appendButton('Standard', 'stop', $text, 'bookings.close', false);
 			}
 		}
-
-		$url = Uri::base() . "index.php?Itemid=4908";
-		$toolbar->appendButton('Link', 'help', Languages::_('ORGANIZER_HELP'), $url, true);
-
 	}
 
 	/**
@@ -215,9 +233,8 @@ class Booking extends Participants
 	{
 		// Set batch template path
 		$this->batch   = ['batch_participation', 'form_modal'];
-		$this->booking = $this->get('Booking');
+		$this->booking = $this->getModel()->booking;
 		$this->empty   = '';
-		$this->refresh = 60;
 		$this->sameTab = true;
 
 		parent::display($tpl);
@@ -265,8 +282,8 @@ class Booking extends Participants
 	protected function setSubtitle()
 	{
 		$bookingID      = Helpers\Input::getID();
-		$subTitle       = Helpers\Bookings::getNames($bookingID);
-		$subTitle[]     = Helpers\Bookings::getDateTimeDisplay($bookingID);
+		$subTitle       = Helper::getNames($bookingID);
+		$subTitle[]     = Helper::getDateTimeDisplay($bookingID);
 		$this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
 	}
 
@@ -276,7 +293,28 @@ class Booking extends Participants
 	protected function structureItems()
 	{
 		$index = 0;
-		$link  = "index.php?option=com_organizer&view=instance_participant_edit&bookingID=$this->bookingID&id=";
+
+		$bookingDate = $this->booking->get('date');
+		$link        = '';
+		$now         = date('H:i:s');
+		$start       = $this->booking->get('defaultStartTime');
+		$started     = false;
+		$today       = date('Y-m-d');
+
+		if ($today < $bookingDate)
+		{
+			$started = true;
+		}
+		elseif ($today === $bookingDate)
+		{
+			$start   = $this->booking->startTime ?: $start;
+			$started = $now > $start;
+		}
+
+		if ($started)
+		{
+			$link = "index.php?option=com_organizer&view=instance_participant_edit&bookingID=$this->bookingID&id=";
+		}
 
 		$structuredItems = [];
 
@@ -284,6 +322,7 @@ class Booking extends Participants
 		{
 			$item->id       = $item->ipaID;
 			$item->fullName = $item->forename ? $item->fullName : $item->surname;
+			$thisLink       = $link ? $link . $item->ipaID : '';
 
 			if ($item->attended and $item->registered)
 			{
@@ -297,8 +336,9 @@ class Booking extends Participants
 			}
 			else
 			{
-				$label = Languages::_('ORGANIZER_REGISTERED');
-				$icon  = 'question';
+				$this->hasRegistered = true;
+				$label               = Languages::_('ORGANIZER_REGISTERED');
+				$icon                = 'question';
 			}
 
 			$item->status = Helpers\HTML::icon($icon, $label, true);
@@ -316,7 +356,7 @@ class Booking extends Participants
 
 			$item->complete = Helpers\HTML::icon("checkbox-$icon", $label, true);
 
-			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->ipaID);
+			$structuredItems[$index] = $this->structureItem($index, $item, $thisLink);
 			$index++;
 		}
 

@@ -23,6 +23,12 @@ use stdClass;
 
 trait ListsInstances
 {
+	private $manages = false;
+
+	private $teaches = false;
+
+	private $teachesALL = true;
+
 	/**
 	 * Adds previously set resources to the structured item.
 	 *
@@ -254,7 +260,80 @@ trait ListsInstances
 			}
 		}
 
+		if ($instance->manageable and $instance->presence !== Helper::ONLINE)
+		{
+			if ($instance->expired)
+			{
+				$value .= '<br>' . HTML::icon('folder-2 red', Languages::_('ORGANIZER_BOOKING_CLOSED'));
+			}
+			elseif (!$instance->premature)
+			{
+				$value .= '<br>';
+
+				if ($instance->running)
+				{
+					$value .= HTML::icon('folder-open green', Languages::_('ORGANIZER_BOOKING_ONGOING'));
+				}
+				else
+				{
+					$value .= HTML::icon('folder-open yellow', Languages::_('ORGANIZER_BOOKING_PENDING'));
+				}
+			}
+
+			// Premature
+		}
+
 		return $title ? ['attributes' => ['class' => $class, 'title' => $title], 'value' => $value] : $value;
+	}
+
+	/**
+	 * Resolves any links/link parameters to links with icons.
+	 *
+	 * @param   string  $text  the text to search
+	 *
+	 * @return string
+	 */
+	private function resolveLinks(string $text): string
+	{
+		$moodleIcon     = '<span class="icon-moodle hasTooltip" title="Moodle Link"></span>';
+		$moodleURL1     = 'https://moodle.thm.de/course/view.php?id=PID';
+		$moodleURL2     = 'https://moodle.thm.de/course/index.php?categoryid=PID';
+		$moodleTemplate = "<a href=\"MOODLEURL\" target=\"_blank\">$moodleIcon</a>";
+
+		$template = str_replace('PID', '$4', str_replace('MOODLEURL', $moodleURL1, $moodleTemplate));
+		$text     = preg_replace('/(((https?):\/\/)moodle.thm.de\/course\/view.php\?id=(\d+))/', $template, $text);
+		$template = str_replace('PID', '$1', str_replace('MOODLEURL', $moodleURL1, $moodleTemplate));
+		$text     = preg_replace('/moodle=(\d+)/', $template, $text);
+		$template = str_replace('PID', '$4', str_replace('MOODLEURL', $moodleURL2, $moodleTemplate));
+		$text     = preg_replace(
+			'/(((https?):\/\/)moodle\.thm\.de\/course\/index\.php\\?categoryid=(\\d+))/',
+			$template,
+			$text
+		);
+
+		$netACADIcon = '<span class="icon-cisco hasTooltip" title="Networking Academy Link"></span>';
+		$template    = "<a href=\"$1\" target=\"_blank\">$netACADIcon</a>";
+		$text        = preg_replace('/(((https?):\/\/)\d+.netacad.com\/courses\/\d+)/', $template, $text);
+
+		$panoptoIcon     = '<span class="icon-panopto hasTooltip" title="Panopto Link"></span>';
+		$panoptoURL      = 'https://panopto.thm.de/Panopto/Pages/Viewer.aspx?id=PID';
+		$panoptoTemplate = "<a href=\"$panoptoURL\" target=\"_blank\">$panoptoIcon</a>";
+
+		$template = str_replace('PID', '$4', $panoptoTemplate);
+		$text     = preg_replace(
+			'/(((https?):\/\/)panopto.thm.de\/Panopto\/Pages\/Viewer.aspx\?id=[\d\w\-]+)/',
+			$template,
+			$text
+		);
+
+		$template = str_replace('PID', '$1', $panoptoTemplate);
+		$text     = preg_replace('/panopto=([\d\w\-]+)/', $template, $text);
+
+		$pilosIcon  = '<span class="icon-pilos hasTooltip" title="Pilos Link"></span>';
+		$pilosREGEX = '/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
+		$template   = "<a href=\"$1\" target=\"_blank\">$pilosIcon</a>";
+
+		return preg_replace($pilosREGEX, $template, $text);
 	}
 
 	/**
@@ -427,7 +506,6 @@ trait ListsInstances
 
 	private function setSingle(stdClass $instance)
 	{
-		$link   = 'index.php?option=com_organizer&view=instance_item&id=';
 		$now    = date('H:i');
 		$today  = date('Y-m-d');
 		$userID = Users::getID();
@@ -438,10 +516,21 @@ trait ListsInstances
 		$isToday    = $instance->date === $today;
 		$then       = date('Y-m-d', strtotime('-2 days', strtotime($instance->date)));
 
-		$instance->expired           = ($instance->date < $today or ($isToday and $instance->endTime < $now));
-		$instance->full              = (!empty($instance->capacity) and $instance->current >= $instance->capacity);
-		$instance->link              = $link . $instanceID;
-		$instance->manageable        = ($userID and Can::manage('instance', $instanceID));
+		$instance->expired = ($instance->date < $today or ($isToday and $instance->endTime < $now));
+		$instance->full    = (!empty($instance->capacity) and $instance->current >= $instance->capacity);
+		$instance->link    = Routing::getViewURL('InstanceItem', $instanceID);
+
+		if ($userID and Can::manage('instance', $instanceID))
+		{
+			$instance->manageable = true;
+			$this->teaches        = true;
+		}
+		else
+		{
+			$instance->manageable = false;
+			$this->teachesALL     = false;
+		}
+
 		$instance->premature         = $today < $then;
 		$instance->registration      = false;
 		$instance->registrationStart = Dates::formatDate($then);

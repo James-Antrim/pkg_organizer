@@ -19,6 +19,40 @@ use Organizer\Helpers;
  */
 class Curriculum extends ItemView
 {
+	private $baggage = [
+		'/Audio([a-zß-ÿ])/'              => 'Audio&shy;$1',
+		'/Berufs([a-zß-ÿ])/'             => 'Berufs&shy;$1',
+		'/Betriebs([a-zß-ÿ])/'           => 'Betriebs&shy;$1',
+		'/Energie([a-zß-ÿ])/'            => 'Energie&shy;$1',
+		'/Event([a-zß-ÿ])/'              => 'Event&shy;$1',
+		'/Inter([a-zß-ÿ])/'              => 'Inter&shy;$1',
+		'/Multi([a-zß-ÿ])/'              => 'Multi&shy;$1',
+		'/Kommunikations([a-zß-ÿ])/'     => 'Kommuni&shy;kations&shy;$1',
+		'/Kommunikation/'                => 'Kommuni&shy;kation',
+		'/Sicherheits([a-zß-ÿ])/'        => 'Sicherheits&shy;$1',
+		'/Text([a-zß-ÿ])/'               => 'Text&shy;$1',
+		'/Unternehmens([a-zß-ÿ])/'       => 'Unter&shy;nehmens&shy;$1',
+		'/Veranstaltungs([a-zß-ÿ])/'     => 'Veran&shy;staltungs&shy;$1',
+		'/Wahl([a-zß-ÿ])/'               => 'Wahl&shy;$1',
+		'/([a-zß-ÿ])führung($| )/'       => '$1&shy;führung$2',
+		'/([a-zß-ÿ])gestaltung($| )/'    => '$1&shy;gestaltung$2',
+		'/([a-zß-ÿ])isierung($| )/'      => '$1&shy;isierung$2',
+		'/([a-zß-ÿ])kunde($| )/'         => '$1&shy;kunde$2',
+		'/([a-zß-ÿ])lehre($| )/'         => '$1&shy;lehre$2',
+		'/([a-zß-ÿ])leitung($| )/'       => '$1&shy;leitung$2',
+		'/([a-zß-ÿ])management($| )/'    => '$1&shy;management$2',
+		'/([a-zß-ÿ])module($| )/'        => '$1&shy;module$2',
+		'/([a-zß-ÿ])modul($| )/'         => '$1&shy;modul$2',
+		'/([a-zß-ÿ])planung($| )/'       => '$1&shy;planung$2',
+		'/([a-zß-ÿ])produktion($| )/'    => '$1&shy;produktion$2',
+		'/([a-zß-ÿ])schaftliches($| |)/' => '$1&shy;schaftliches$2',
+		'/([a-zß-ÿ])technik($| )/'       => '$1&shy;technik$2',
+		'/([a-zß-ÿ])technologie($| )/'   => '$1&shy;technologie$2',
+		'/([a-zß-ÿ])technology($| )/'    => '$1&shy;technology$2',
+		'/([a-zß-ÿ])wesen($| )/'         => '$1&shy;wesen$2',
+		'/([a-zß-ÿ])wesens($| )/'        => '$1&shy;wesens$2',
+	];
+
 	protected $layout = 'curriculum';
 
 	public $fields = [];
@@ -103,6 +137,8 @@ class Curriculum extends ItemView
 				$itemClass = 'item-pool';
 			}
 
+			$this->unpack($item['name']);
+
 			$title       = Helpers\HTML::link($url, $item['name'], $linkAttributes);
 			$itemContent .= '<div class="item-title">' . $title . '</div>';
 			$itemContent .= $crp ? '<div class="item-crp">' . $crp . '</div>' : '';
@@ -114,6 +150,27 @@ class Curriculum extends ItemView
 		$item = str_replace('ITEMCLASS', $itemClass, $itemTemplate);
 
 		return str_replace('ITEMCONTENT', $itemContent, $item);
+	}
+
+	/**
+	 * Renders the panel resolving the colors to the corresponding competences.
+	 * @return void
+	 */
+	public function renderLegend()
+	{
+		?>
+        <div class="legend">
+            <div class="panel-head">
+                <div class="panel-title"><?php echo Helpers\Languages::_('ORGANIZER_LEGEND'); ?></div>
+            </div>
+			<?php foreach ($this->fields as $hex => $field) : ?>
+                <div class="legend-item">
+                    <div class="item-color" style="background-color: <?php echo $hex; ?>;"></div>
+                    <div class="item-title"><?php echo $field; ?></div>
+                </div>
+			<?php endforeach; ?>
+        </div>
+		<?php
 	}
 
 	/**
@@ -174,6 +231,19 @@ class Curriculum extends ItemView
 			{
 				echo '</div>';
 			}
+		}
+	}
+
+	/**
+	 * @param   string  $text
+	 *
+	 * @return void
+	 */
+	private function unpack(string &$text)
+	{
+		foreach ($this->baggage as $pattern => $replace)
+		{
+			$text = preg_replace($pattern, $replace, $text);
 		}
 	}
 }

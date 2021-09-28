@@ -26,6 +26,8 @@ class Instances extends ResourceHelper
 
 	private const TEACHER = 1;
 
+	public const BOOKMARKS = 1, REGISTRATIONS = 2;
+
 	/**
 	 * Adds a delta clause for a joined table.
 	 *
@@ -611,23 +613,34 @@ class Instances extends ResourceHelper
 
 		if (!empty($conditions['my']))
 		{
+			$my      = (int) $conditions['my'];
 			$wherray = [];
 			if ($userID = Users::getID())
 			{
-				if ($personID = Persons::getIDByUserID($userID))
+				$exists = Participants::exists($userID);
+				if ($my === self::REGISTRATIONS and $exists)
 				{
-					$wherray[] = "ipe.personID = $personID";
+					$query->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
+						->where("ipa.participantID = $userID")
+						->where("ipa.registered = 1");
 				}
-				if (Participants::exists($userID))
+				else
 				{
-					$query->leftJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id');
-					$wherray[] = "ipa.participantID = $userID";
-				}
-			}
+					if ($personID = Persons::getIDByUserID($userID))
+					{
+						$wherray[] = "ipe.personID = $personID";
+					}
+					if ($exists)
+					{
+						$query->leftJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id');
+						$wherray[] = "ipa.participantID = $userID";
+					}
 
-			if ($wherray)
-			{
-				$query->where('(' . implode(' OR ', $wherray) . ')');
+					if ($wherray)
+					{
+						$query->where('(' . implode(' OR ', $wherray) . ')');
+					}
+				}
 			}
 			else
 			{
