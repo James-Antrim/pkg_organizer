@@ -14,6 +14,7 @@ use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
+use Organizer\Helpers\Instances as Helper;
 use Organizer\Helpers\Languages;
 
 /**
@@ -49,6 +50,8 @@ class Instances extends ListModel
 	{
 		parent::filterFilterForm($form);
 
+		$params = Input::getParams();
+
 		if ($this->adminContext)
 		{
 			if (count(Helpers\Can::scheduleTheseOrganizations()) === 1)
@@ -57,7 +60,7 @@ class Instances extends ListModel
 				unset($this->filter_fields['organizationID']);
 			}
 		}
-		elseif ($this->state->get('filter.my'))
+		elseif ($params->get('my'))
 		{
 			$form->removeField('campusID', 'filter');
 			$form->removeField('categoryID', 'filter');
@@ -72,7 +75,11 @@ class Instances extends ListModel
 		}
 		else
 		{
-			$params = Input::getParams();
+			if (!Helpers\Users::getID())
+			{
+				$form->removeField('my', 'list');
+			}
+
 			if ($params->get('campusID'))
 			{
 				$form->removeField('campusID', 'filter');
@@ -148,8 +155,8 @@ class Instances extends ListModel
 
 		foreach ($items as $key => $instance)
 		{
-			$instance = Helpers\Instances::getInstance($instance->id);
-			Helpers\Instances::fill($instance, $this->conditions);
+			$instance = Helper::getInstance($instance->id);
+			Helper::fill($instance, $this->conditions);
 			$items[$key] = (object) $instance;
 		}
 
@@ -163,7 +170,7 @@ class Instances extends ListModel
 	{
 		$conditions = $this->conditions;
 
-		$query = Helpers\Instances::getInstanceQuery($conditions);
+		$query = Helper::getInstanceQuery($conditions);
 
 		$query->select("DISTINCT i.id")
 			->leftJoin('#__organizer_events AS e ON e.id = i.eventID')
@@ -211,10 +218,12 @@ class Instances extends ListModel
 		$title  = Languages::_("ORGANIZER_INSTANCES");
 		$suffix = '';
 
-		if ($this->state->get('filter.my'))
+		if ($my = (int) $this->state->get('list.my'))
 		{
 			$username = ($user = Helpers\Users::getUser() and $user->username) ? " ($user->username)" : '';
-			$title    = Languages::_("ORGANIZER_MY_INSTANCES") . $username;
+			$title    = $my === Helper::BOOKMARKS ?
+				Languages::_("ORGANIZER_MY_INSTANCES") : Languages::_("ORGANIZER_MY_REGISTRATIONS");
+			$title    .= $username;
 		}
 		else
 		{
@@ -315,9 +324,9 @@ class Instances extends ListModel
 			$listItems   = Input::getListItems();
 			$params      = Input::getParams();
 
-			if (Input::getInt('my', $params->get('my', 0)))
+			if ($my = $listItems->get('my', $params->get('my')))
 			{
-				$this->state->set('filter.my', 1);
+				$this->state->set('list.my', $my);
 			}
 
 			if ($campusID = $params->get('campusID'))
@@ -466,7 +475,7 @@ class Instances extends ListModel
 		$conditions          = [];
 		$conditions['date']  = Helpers\Dates::standardizeDate($this->state->get('list.date', date('Y-m-d')));
 		$conditions['delta'] = date('Y-m-d', strtotime('-14 days'));
-		$conditions['my']    = $this->state->get('filter.my');
+		$conditions['my']    = $this->state->get('list.my');
 
 		switch (Input::getCMD('format'))
 		{
@@ -498,7 +507,7 @@ class Instances extends ListModel
 		}
 
 		// Reliant on date and interval properties
-		Helpers\Instances::setDates($conditions);
+		Helper::setDates($conditions);
 
 		if ($endDate = $this->state->get('list.endDate'))
 		{
@@ -519,7 +528,7 @@ class Instances extends ListModel
 		{
 			$conditions['organizationIDs'] = [$organizationID];
 
-			Helpers\Instances::setPublishingAccess($conditions);
+			Helper::setPublishingAccess($conditions);
 		}
 		else
 		{
@@ -529,7 +538,7 @@ class Instances extends ListModel
 		if ($personID = (int) $this->state->get('filter.personID'))
 		{
 			$personIDs = [$personID];
-			Helpers\Instances::filterPersonIDs($personIDs, Helpers\Users::getID());
+			Helper::filterPersonIDs($personIDs, Helpers\Users::getID());
 
 			if ($personIDs)
 			{

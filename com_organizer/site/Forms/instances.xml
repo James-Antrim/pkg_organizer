@@ -27,15 +27,23 @@
         <field name="status" type="InstanceStates" label="STATE" default="1" onchange="this.form.submit();"/>
     </fields>
     <fields name="list">
-        <field name="date" type="Date" label="DATE" class="input-8" empty="false" onchange="this.form.submit();"/>
-        <field name="interval" type="Options" label="Language" onchange="this.form.submit();" default="day">
+        <field name="my" type="Options" label="MY_INSTANCES" class="input-8" default="-1"
+               onchange="this.form.submit();">
+            <option value="">ALL_INSTANCES</option>
+            <option value="1">MY_INSTANCES</option>
+            <option value="2">MY_REGISTRATIONS</option>
+        </field>
+        <field name="date" type="Date" label="DATE" class="input-7" empty="false" onchange="this.form.submit();"/>
+        <field name="interval" type="Options" label="Language" class="input-10" onchange="this.form.submit();"
+               default="day">
             <option value="day">DAY</option>
             <option value="week">WEEK</option>
             <option value="month">MONTH</option>
             <option value="quarter">THREE_MONTHS</option>
             <option value="term">TERM</option>
         </field>
-        <field name="languageTag" type="Options" label="Language" onchange="this.form.submit();" default="de">
+        <field name="languageTag" type="Options" label="Language" class="input-6" onchange="this.form.submit();"
+               default="de">
             <option value="de">GERMAN</option>
             <option value="en">ENGLISH</option>
         </field>

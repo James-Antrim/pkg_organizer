@@ -45,6 +45,10 @@ body.tmpl-index div.main .input-8, body.tmpl-index div.main .input-8 + .chzn-con
     width: 8rem !important;
 }
 
+body.tmpl-index div.main .input-10, body.tmpl-index div.main .input-10 + .chzn-container {
+    width: 10rem !important;
+}
+
 body.tmpl-index div.main .input-12, body.tmpl-index div.main .input-12 + .chzn-container {
     width: 12rem !important;
 }
@@ -235,8 +239,9 @@ body.tmpl-mobile div.main .btn-wrapper:last-child {
     margin-right: 0;
 }
 
-body.tmpl-mobile div.main .btn-wrapper .btn {
+body.tmpl-mobile div.main .btn {
     font-size: 12px;
+    margin: 0 4px 4px 0;
 }
 
 body.tmpl-mobile div.main .input-append {
@@ -337,7 +342,7 @@ table.table-striped .center {
     text-align: center;
 }
 
-table.table-striped td.status-display.green, table.table-striped td.status-display.unit-new {
+table.table-striped td.status-display.green {
     background-color: #a0cb5b;
 }
 
@@ -346,15 +351,27 @@ table.table-striped td.status-display.grey {
 }
 
 table.table-striped td.status-display.instance-new {
-    background-color: #bfdc91;
+    border-left: 5px solid #bfdc91;
 }
 
 table.table-striped td.status-display.instance-removed {
-    background-color: #e6c4cb;
+    border-left: 5px solid #e6c4cb;
 }
 
-table.table-striped td.status-display.red, table.table-striped td.status-display.unit-removed {
+table.table-striped td.status-display.red {
     background-color: #cd8996;
+}
+
+table.table-striped td.status-display.unit-new {
+    border-left: 5px solid #a0cb5b;
+}
+
+table.table-striped td.status-display.unit-removed {
+    border-left: 5px solid #cd8996;
+}
+
+table.table-striped td.status-display.yellow {
+    background-color: #f4aa00;
 }
 
 .status-new {
@@ -385,6 +402,10 @@ td a.btn:last-child {
 /* MQ Column Removal **************************************************************************************************/
 @media screen and (max-width: 768px) {
     #Booking-list tr th:nth-child(4), #Booking-list tr th:nth-child(5), #Booking-list tr th:nth-child(6), #Booking-list tr th:nth-child(7), #Booking-list tr td:nth-child(4), #Booking-list tr td:nth-child(5), #Booking-list tr td:nth-child(6), #Booking-list tr td:nth-child(7) {
+        display: none;
+    }
+
+    #InstanceItem-list tr th:nth-child(4), #InstanceItem-list tr th:nth-child(5), #InstanceItem-list tr th:nth-child(6), #InstanceItem-list tr td:nth-child(4), #InstanceItem-list tr td:nth-child(5), #InstanceItem-list tr td:nth-child(6) {
         display: none;
     }
 
