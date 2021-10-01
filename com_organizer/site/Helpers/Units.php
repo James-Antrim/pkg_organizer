@@ -22,6 +22,45 @@ class Units extends ResourceHelper
 	private const TEACHER = 1;
 
 	/**
+	 * Gets the campus id to associate with a course based on event documentation and planning data.
+	 *
+	 * @param   int       $unitID     the id of the unit
+	 * @param   int|null  $defaultID  the id of a campus associated with an event associated with the unit
+	 *
+	 * @return int|null the id of the campus to associate with the course
+	 */
+	public static function getCampusID(int $unitID, ?int $defaultID): ?int
+	{
+		$query = Database::getQuery();
+		$query->select('c.id AS campusID, c.parentID, COUNT(*) AS campusCount')
+			->from('#__organizer_campuses AS c')
+			->innerJoin('#__organizer_buildings AS b ON b.campusID = c.id')
+			->innerJoin('#__organizer_rooms AS r ON r.buildingID = b.id')
+			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ir.assocID')
+			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+			->where("i.unitID = $unitID")
+			->where("r.virtual = 0")
+			->group('c.id')
+			->order('campusCount DESC');
+		Database::setQuery($query);
+
+		$plannedCampus = Database::loadAssoc();
+
+		if ($defaultID)
+		{
+			if ($plannedCampus['campusID'] === $defaultID or $plannedCampus['parentID'] === $defaultID)
+			{
+				return $plannedCampus['campusID'];
+			}
+
+			return $defaultID;
+		}
+
+		return $plannedCampus['campusID'];
+	}
+
+	/**
 	 * Retrieves the group/category contexts for a given unit/event tub
 	 *
 	 * @param   int  $unitID   the unit id
@@ -53,7 +92,7 @@ class Units extends ResourceHelper
 	 *
 	 * @return array the ids of events associated with the resource
 	 */
-	public static function getEventIDs(int $unitID, $instanceID = null): array
+	public static function getEventIDs(int $unitID, ?int $instanceID = null): array
 	{
 		$query = Database::getQuery(true);
 
@@ -85,7 +124,7 @@ class Units extends ResourceHelper
 	 *
 	 * @return array|string the names of the associated events
 	 */
-	public static function getEventNames(int $unitID, $glue = '')
+	public static function getEventNames(int $unitID, string $glue = '')
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery(true);
@@ -122,7 +161,7 @@ class Units extends ResourceHelper
 	 *
 	 * @return array the ids of groups associated with the unit
 	 */
-	public static function getGroupIDs(int $unitID, $instanceID = null): array
+	public static function getGroupIDs(int $unitID, ?int $instanceID = null): array
 	{
 		$query = Database::getQuery(true);
 
@@ -181,7 +220,7 @@ class Units extends ResourceHelper
 	 *
 	 * @return array the ids of rooms associated with the unit
 	 */
-	public static function getRoomIDs(int $unitID, $instanceID = null): array
+	public static function getRoomIDs(int $unitID, ?int $instanceID = null): array
 	{
 		$query = Database::getQuery(true);
 
@@ -216,7 +255,7 @@ class Units extends ResourceHelper
 	 *
 	 * @return bool true if the person is a unit teacher, otherwise false
 	 */
-	public static function teaches($unitID = 0, $personID = 0): bool
+	public static function teaches(int $unitID = 0, int $personID = 0): bool
 	{
 		$personID = $personID ?: Persons::getIDByUserID(Users::getID());
 

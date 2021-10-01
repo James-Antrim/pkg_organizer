@@ -139,31 +139,35 @@ abstract class BaseView extends HtmlView
 
 			$items = [];
 
-			$items[Languages::_('ORGANIZER_CATEGORIES')] = [
+			$items[Languages::_('ORGANIZER_CATEGORIES')]     = [
 				'url'    => 'index.php?option=com_organizer&amp;view=categories',
 				'active' => $viewName == 'categories'
 			];
-			$items[Languages::_('ORGANIZER_COURSES')]    = [
+			$items[Languages::_('ORGANIZER_COURSES')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=courses',
 				'active' => $viewName == 'courses'
 			];
-			$items[Languages::_('ORGANIZER_EVENTS')]     = [
+			$items[Languages::_('ORGANIZER_COURSES_IMPORT')] = [
+				'url'    => 'index.php?option=com_organizer&amp;view=courses_import',
+				'active' => $viewName == 'courses_import'
+			];
+			$items[Languages::_('ORGANIZER_EVENTS')]         = [
 				'url'    => 'index.php?option=com_organizer&amp;view=events',
 				'active' => $viewName == 'events'
 			];
-			$items[Languages::_('ORGANIZER_GROUPS')]     = [
+			$items[Languages::_('ORGANIZER_GROUPS')]         = [
 				'url'    => 'index.php?option=com_organizer&amp;view=groups',
 				'active' => $viewName == 'groups'
 			];
-			$items[Languages::_('ORGANIZER_RUNS')]       = [
+			$items[Languages::_('ORGANIZER_RUNS')]           = [
 				'url'    => 'index.php?option=com_organizer&amp;view=runs',
 				'active' => $viewName == 'runs'
 			];
-			$items[Languages::_('ORGANIZER_SCHEDULES')]  = [
+			$items[Languages::_('ORGANIZER_SCHEDULES')]      = [
 				'url'    => 'index.php?option=com_organizer&amp;view=schedules',
 				'active' => $viewName == 'schedules'
 			];
-			$items[Languages::_('ORGANIZER_UNITS')]      = [
+			$items[Languages::_('ORGANIZER_UNITS')]          = [
 				'url'    => 'index.php?option=com_organizer&amp;view=units',
 				'active' => $viewName == 'units'
 			];

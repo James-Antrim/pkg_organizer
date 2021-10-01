@@ -14,6 +14,7 @@ use Exception;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Controller;
 use Organizer\Helpers;
+use Organizer\Helpers\OrganizerHelper;
 use Organizer\Models;
 
 /**
@@ -21,8 +22,6 @@ use Organizer\Models;
  */
 class Courses extends Controller
 {
-	const UNREGISTERED = null;
-
 	protected $listView = 'courses';
 
 	protected $resource = 'course';
@@ -53,14 +52,59 @@ class Courses extends Controller
 
 		if ($model->deregister())
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
 		}
 		else
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+			OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 		}
 
 		$this->setRedirect($referrer);
+	}
+
+	/**
+	 * Makes call to the model's import function, and redirects to the manager view if the file .
+	 *
+	 * @return void
+	 */
+	public function import()
+	{
+		$url  = Helpers\Routing::getRedirectBase();
+		$view = 'Courses';
+
+		if (JDEBUG)
+		{
+			OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
+			$url .= "&view=$view";
+			$this->setRedirect($url);
+
+			return;
+		}
+
+		$form = $this->input->files->get('jform', [], '[]');
+		$file = $form['file'];
+
+		if (!empty($file['type']) and $file['type'] === 'text/plain')
+		{
+			if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8')
+			{
+				$model = new Models\Course();
+				$view  = $model->import() ? 'Courses' : 'CoursesImport';
+			}
+			else
+			{
+				$view = 'CoursesImport';
+				OrganizerHelper::message('ORGANIZER_FILE_ENCODING_INVALID', 'error');
+			}
+		}
+		else
+		{
+			$view = 'CoursesImport';
+			OrganizerHelper::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', 'error');
+		}
+
+		$url .= "&view=$view";
+		$this->setRedirect($url);
 	}
 
 	/**
@@ -78,14 +122,14 @@ class Courses extends Controller
 			return;
 		}
 
-		$URL = Uri::base() . "?option=com_organizer&view=course_participants&id=$courseID";
+		$url = Uri::base() . "?option=com_organizer&view=course_participants&id=$courseID";
 
 		if ($tag = Helpers\Input::getCMD('languageTag'))
 		{
-			$URL .= "&languageTag=$tag";
+			$url .= "&languageTag=$tag";
 		}
 
-		$this->setRedirect($URL);
+		$this->setRedirect($url);
 	}
 
 	/**
@@ -101,7 +145,7 @@ class Courses extends Controller
 
 		if (!Helpers\CourseParticipants::validProfile($courseID, $participantID))
 		{
-			Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', 'error');
+			OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', 'error');
 		}
 		else
 		{
@@ -109,11 +153,11 @@ class Courses extends Controller
 
 			if ($model->register())
 			{
-				Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+				OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
 			}
 			else
 			{
-				Helpers\OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+				OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
 			}
 		}
 

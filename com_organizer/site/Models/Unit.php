@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -89,7 +88,7 @@ class Unit extends BaseModel
 			}
 		}
 
-		$course->campusID = $this->getCourseCampusID($unit, $event->campusID);
+		$course->campusID = Helpers\Units::getCampusID($unit->id, $event->campusID);
 		$course->termID   = $unit->termID;
 
 		if (!$course->store())
@@ -101,39 +100,6 @@ class Unit extends BaseModel
 		$unit->store();
 
 		return $course->id;
-	}
-
-	/**
-	 * Gets the campus id to associate with a course based on event documentation and planning data.
-	 *
-	 * @param   Tables\Units  $unit       the unit table
-	 * @param   int           $defaultID  the id of an event associated with the unit
-	 *
-	 * @return int the id of the campus to associate with the course
-	 */
-	private function getCourseCampusID(Tables\Units $unit, int $defaultID)
-	{
-		$query = Database::getQuery();
-		$query->select('c.id AS campusID, c.parentID, COUNT(*) AS campusCount')
-			->from('#__organizer_campuses AS c')
-			->innerJoin('#__organizer_buildings AS b ON b.campusID = c.id')
-			->innerJoin('#__organizer_rooms AS r ON r.buildingID = b.id')
-			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
-			->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ir.assocID')
-			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-			->where("i.unitID = $unit->id")
-			->group('c.id')
-			->order('campusCount DESC');
-		Database::setQuery($query);
-
-		$plannedCampus = Database::loadAssoc();
-
-		if ($plannedCampus['campusID'] === $defaultID or $plannedCampus['parentID'] === $defaultID)
-		{
-			return $plannedCampus['campusID'];
-		}
-
-		return $defaultID;
 	}
 
 	/**
