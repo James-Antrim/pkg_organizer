@@ -12,6 +12,7 @@ namespace Organizer\Views\HTML;
 
 use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
+use stdClass;
 
 /**
  * Class loads the query's results into the display context.
@@ -70,12 +71,12 @@ class Search extends ListView
 	 * Processes an individual list item resolving it to an array of table data values.
 	 *
 	 * @param   int|string  $index  the row index, typically an int value, but can also be string
-	 * @param   object      $item   the item to be displayed in a table row
+	 * @param   stdClass    $item   the item to be displayed in a table row
 	 * @param   string      $link   the link to the individual resource
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	protected function structureItem($index, object $item, $link = ''): array
+	protected function structureItem($index, stdClass $item, string $link = ''): array
 	{
 		$processedItem = ['result' => '', 'links' => []];
 
