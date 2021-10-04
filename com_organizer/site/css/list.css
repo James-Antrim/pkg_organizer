@@ -305,7 +305,7 @@ body.tmpl-mobile div.main .input-append button {
 
 td {
     max-width: 20rem;
-    word-wrap: break-spaces;
+    word-wrap: normal;
 }
 
 td.empty-result-set {
