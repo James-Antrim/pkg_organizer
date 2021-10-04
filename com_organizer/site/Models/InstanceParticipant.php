@@ -633,7 +633,8 @@ class InstanceParticipant extends BaseModel
 				->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 				->where("i.id != $instanceID")
 				->where("i.blockID = $block->id")
-				->where('ip.registered = 1');
+				->where('ip.registered = 1')
+				->where("ip.participantID = $participantID");
 			Database::setQuery($query);
 
 			if ($otherInstanceID = Database::loadInt())
