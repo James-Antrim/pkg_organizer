@@ -147,14 +147,6 @@ class Export extends FormView
 	/**
 	 * @inheritDoc
 	 */
-	public function display($tpl = null)
-	{
-		parent::display($tpl);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	protected function modifyDocument()
 	{
 		parent::modifyDocument();

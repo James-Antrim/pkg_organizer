@@ -45,17 +45,6 @@ class Export extends FormModel
 			}
 			else
 			{
-				/*$campusID = empty($form['campusID']) ? 0 : $form['campusID'];
-				$roomID   = empty($form['roomID']) ? 0 : $form['roomID'];
-
-				if ($campusID and $roomID)
-				{
-					if (!Helpers\Rooms::onCampus($roomID, $campusID))
-					{
-						unset($form['roomID']);
-					}
-				}*/
-
 				$categoryID     = empty($form['categoryID']) ? 0 : $form['categoryID'];
 				$organizationID = empty($form['organizationID']) ? 0 : $form['organizationID'];
 				$groupID        = empty($form['groupID']) ? 0 : $form['groupID'];

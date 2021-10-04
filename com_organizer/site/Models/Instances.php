@@ -324,7 +324,7 @@ class Instances extends ListModel
 			$listItems   = Input::getListItems();
 			$params      = Input::getParams();
 
-			if ($my = $listItems->get('my', $params->get('my')))
+			if ($my = $listItems->get('my', Input::getInt('my', $params->get('my'))))
 			{
 				$this->state->set('list.my', $my);
 			}
