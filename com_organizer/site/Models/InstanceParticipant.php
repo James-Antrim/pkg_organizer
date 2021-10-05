@@ -69,7 +69,7 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
-	 * Authorizes users responsible for bookings to edit individual participations.
+	 * Authorizes users responsible for bookings to edit individual participation.
 	 *
 	 * @return void
 	 */
@@ -134,7 +134,7 @@ class InstanceParticipant extends BaseModel
 			return false;
 		}
 
-		// Filter for for planned
+		// Filter for planned
 		$query = Database::getQuery();
 		$query->select('instanceID')
 			->from('#__organizer_instance_participants')
@@ -283,6 +283,8 @@ class InstanceParticipant extends BaseModel
 		{
 			return;
 		}
+
+		$this->supplementCourseInstances($instanceIDs);
 
 		$deregistered = false;
 
@@ -442,6 +444,54 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
+	 * Finds instances matching the given instance by course and date.
+	 *
+	 * @return void
+	 */
+	private function supplementCourseInstances(array &$instanceIDs)
+	{
+		$now             = date('H:i:s');
+		$supplementalIDs = [];
+		$today           = date('Y-m-d');
+		$then            = date('Y-m-d', strtotime('+2 days'));
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			$instance = new Tables\Instances();
+			$instance->load($instanceID);
+
+			$query = Database::getQuery();
+			$query->select('i1.id')
+				->from('#__organizer_instances AS i1')
+				->innerJoin('#__organizer_blocks AS b1 ON b1.id = i1.blockID')
+				->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i1.id')
+				->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ip.id')
+				->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
+				->innerJoin('#__organizer_units AS u1 ON u1.id = i1.unitID')
+				->innerJoin('#__organizer_units AS u2 ON u2.courseID = u1.courseID')
+				->innerJoin('#__organizer_instances AS i2 on i2.unitID = u2.id')
+				->innerJoin('#__organizer_blocks AS b2 ON b2.id = i2.blockID')
+				->where("i1.id != $instanceID")
+				->where("r.virtual = 0")
+				->where('u1.courseID IS NOT NULL')
+				->where("i2.id = $instanceID")
+				->where("(b1.startTime > b2.endTime or b1.endTime < b2.startTime)")
+				->where("b1.date = b2.date")
+				->where("(b1.date > '$today' OR (b1.date = '$today' and b1.startTime > '$now'))")
+				->where("b1.date <= '$then'");
+
+			Database::setQuery($query);
+			$results = Database::loadIntColumn();
+
+			$supplementalIDs = array_merge($supplementalIDs, $results);
+		}
+
+		$instanceIDs = array_merge($instanceIDs, $supplementalIDs);
+		$instanceIDs = array_unique($instanceIDs);
+		$instanceIDs = array_filter($instanceIDs);
+	}
+
+	/**
 	 * Finds instances matching the given instance by matching method, inclusive the reference instance. Adds system
 	 * message if no results were found.
 	 *
@@ -458,7 +508,11 @@ class InstanceParticipant extends BaseModel
 		$query->select('i.id')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+			->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
+			->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ip.id')
+			->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
 			->where("(b.date > '$today' OR (b.date = '$today' AND b.endTime > '$now'))")
+			->where("r.virtual = 0")
 			->order('i.id');
 
 		switch ($method)
@@ -579,6 +633,8 @@ class InstanceParticipant extends BaseModel
 		{
 			return;
 		}
+
+		$this->supplementCourseInstances($instanceIDs);
 
 		$registered  = false;
 		$responsible = false;
@@ -710,9 +766,9 @@ class InstanceParticipant extends BaseModel
 	 *
 	 * @param   array  $data  the data from the form
 	 *
-	 * @return int|bool int id of the resource on success, otherwise bool false
+	 * @return bool int id of the resource on success, otherwise bool false
 	 */
-	public function save($data = [])
+	public function save($data = []): bool
 	{
 		$this->authorize();
 

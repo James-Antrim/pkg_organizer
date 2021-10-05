@@ -317,7 +317,14 @@ class InstanceItem extends ListView
 		$title   .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
 		$title   .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
 		$title   = Helpers\HTML::link($item->link, $title);
-		$title   .= empty($comment) ? '' : "<br><span class=\"comment\">$comment</span>";
+
+		if ($item->courseID)
+		{
+			$title .= '<br>' . Helpers\HTML::icon('link hasToolTip', Languages::_('ORGANIZER_REGISTRATION_LINKED'));
+			$title .= " #$item->courseID";
+		}
+
+		$title .= empty($comment) ? '' : "<br><span class=\"comment\">$comment</span>";
 
 		return ['attributes' => ['class' => 'title-column'], 'value' => $title];
 	}

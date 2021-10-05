@@ -32,6 +32,8 @@ class Instances extends ListView
 	 */
 	private $allowEdit = false;
 
+	private $courses = [];
+
 	private $expired = true;
 
 	/**
@@ -241,6 +243,13 @@ class Instances extends ListView
 		$title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span><br>';
 		$title .= Helpers\HTML::_('link', $item->link, $name, ['target' => '_blank']);
 		$title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
+
+		if ($item->courseID)
+		{
+			$title .= '<br>' . Helpers\HTML::icon('link hasToolTip', Languages::_('ORGANIZER_REGISTRATION_LINKED'));
+			$title .= " #$item->courseID";
+		}
+
 		$title .= empty($comment) ? '' : "<br><span class=\"comment\">$comment</span>";
 
 		return ['attributes' => ['class' => 'title-column'], 'value' => $title];
