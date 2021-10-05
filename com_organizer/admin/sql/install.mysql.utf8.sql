@@ -710,9 +710,11 @@ VALUES (1, 'DOZ', 'DOZ', 'TCH', 'Lehrende', 'Teacher', 'Lehrende', 'Teachers'),
 
 CREATE TABLE IF NOT EXISTS `#__organizer_room_archetypes` (
     `id`             INT(2) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `code`           VARCHAR(60)     NOT NULL,
+    `code`           VARCHAR(10)     NOT NULL,
     `name_de`        VARCHAR(150)    NOT NULL,
     `name_en`        VARCHAR(150)    NOT NULL,
+    `fullName_de`    VARCHAR(200)    NOT NULL,
+    `fullName_en`    VARCHAR(200)    NOT NULL,
     `description_de` TEXT,
     `description_en` TEXT,
     PRIMARY KEY (`id`),
@@ -722,17 +724,17 @@ CREATE TABLE IF NOT EXISTS `#__organizer_room_archetypes` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
-INSERT INTO `#__organizer_room_archetypes` (`id`, `code`, `name_de`, `name_en`, `description_de`, `description_en`)
-VALUES (1, 'NF 0', 'NF 0 - Offene Flächen', 'NF 0 - Outdoor Areas', 'Außenbereiche und Flächen in nicht allseits umschlossenen Räumen', 'Outdoor and partially exposed areas'),
-       (2, 'NF 1', 'NF 1 - Wohnen & Aufenthalt', 'NF 1 - Residential Rooms', 'Wohn- & Aufenthaltsräume', 'Residential rooms'),
-       (3, 'NF 2', 'NF 2 - Büroarbeit', 'NF 2 - Office Rooms', 'Büroräume und Räume welche Büroarbeit unterstützen', 'Offices and rooms that support them'),
-       (4, 'NF 3', 'NF 3 - Produktion & Experimente', 'NF 3 - Rooms for Material Processing', 'Räume in der Arbeit mit Materialien zwecks Produktion oder Experimente durchgeführt wird', 'Rooms in which materials are processed for production or as an experiment'),
-       (5, 'NF 4', 'NF 4 - Lagern, Verteilen & Verkaufen', 'NF 4 - Rooms for Inventory Management', 'Räume in der die Arbeit mit Inventar betätigt wird', 'Rooms for dealing with the distribution, storage and retail of inventory'),
-       (6, 'NF 5', 'NF 5 - Bildung, Unterricht & Kultur', 'NF 5 - Rooms for Education & Culture', 'Bildung, Unterricht und Kultur', 'Education, Teaching and Culture'),
-       (7, 'NF 6', 'NF 6 - Heilen & Pflegen', 'NF 6 - Medical & Nursing Rooms', 'Räume in der medizinische- oder Pflegepersonal ihr Beruf ausüben', 'Room which are designed for doctors and nurses carry out their duties in'),
-       (8, 'NF 7', 'NF 7 - Sonstige Nutzung', 'NF 7 - Utility Rooms', 'Toiletten, Garderoben & vielen anderen zweck-gebundene Räume', 'Rooms used for utility purposes'),
-       (9, 'NF 8', 'NF 8 - Betriebstechnische Anlagen', 'NF 8 - Building Utility Rooms', 'Betriebstechnische Anlagen für die Ver- u. Entsorgung des Bauwerks selbst', 'Rooms which hold the utilities, which run the building in which the room is in.'),
-       (10, 'NF 9', 'NF 9 - Verkehrserschließung und -sicherung', 'NF 9 - Human Conveyance', 'Verkehrserschließung und -sicherung für Personen', 'Rooms which exist for people to move about or be moved about the building that they are in.');
+INSERT INTO `#__organizer_room_archetypes` (`id`, `code`, `name_de`, `name_en`, `fullName_de`, `fullName_en`, `description_de`, `description_en`)
+VALUES (1, 'NF 1', 'Wohnen & Aufenthalt', 'Residential', 'NF 1 - Wohnen und Aufenthalt', 'NF 1 - Residential rooms', 'Wohn- & Aufenthaltsräume', 'Residential rooms'),
+       (2, 'NF 2', 'Büroarbeit', 'Office Work', 'NF 2 - Büroarbeit', 'NF 2 - Office Work', 'Büroräume und Räume welche Büroarbeit unterstützen', 'Offices and rooms that support them'),
+       (3, 'NF 3', 'Produktion & Experimente', 'Making & Experimenting', 'NF 3 - Produktion, Hand- und Maschinenarbeit, Experimente', 'NF 3 - Production, Manual or Machine Labor, Experiments', 'Räume in der Arbeit mit Materialien zwecks Produktion oder Experimente durchgeführt wird', 'Rooms in which materials are processed for production or as an experiment.'),
+       (4, 'NF 4', 'Inventar Verwaltung', 'Inventory Management', 'NF 4 - Lagern, Verteilen, Verkaufen', 'NF 4 - Storage, Distribution, Sales', 'Räume in der die Arbeit mit Inventar betätigt wird', 'Rooms for dealing with the distribution, storage and retail of inventory'),
+       (5, 'NF 5', 'Bildung & Kultur', 'Education & Culture', 'NF 5 - Bildung, Unterricht und Kultur', 'NF 5 - Education and Culture', 'Bildung, Unterricht und Kultur', 'Education, Teaching and Culture'),
+       (6, 'NF 6', 'Heilen & Pflegen', 'Medical & Nursing', 'NF 6 - Heilen und Pflegen', 'NF 6 - Healing and Nursing', 'Räume in der medizinische- oder Pflegepersonal ihr Beruf ausüben', 'Room which are designed for doctors and nurses carry out their duties in'),
+       (7, 'NF 7', 'Sonstige Nutzungen', 'Other Usages', 'NF 7 - Sonstige Nutzungen', 'NF 7 - Other Usages', 'Toiletten, Garderoben & vielen anderen zweck-gebundene Räume', 'Rooms used for utility purposes'),
+       (8, 'NF 8', 'Betriebstechnische Anlagen', 'Building Utility', 'NF 8 - Betriebstechnische Anlagen', 'NF 8 - Building Utilities', 'Betriebstechnische Anlagen für die Ver- u. Entsorgung des Bauwerks selbst', 'Rooms which hold the utilities, which run the building in which the room is in.'),
+       (9, 'NF 9', 'Personenverkehr', 'Human Conveyance', 'NF 9 - Verkehrserschließung und -sicherung', 'NF 9 - Human Conveyance', 'Verkehrserschließung und -sicherung für Personen', 'Rooms which exist for people to move about or be moved about the building that they are in.'),
+       (10, 'NF 0', 'Offene Flächen', 'Outdoor Areas', 'NF 0 - Flächen in nicht allseits umschlossenen Räumen', 'NF 0 - Outdoor and partially exposed areas', 'Außenbereiche und Flächen in nicht allseits umschlossenen Räumen', 'Outdoor and partially exposed areas');
 
 CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `id`          INT(11) UNSIGNED      NOT NULL AUTO_INCREMENT,
