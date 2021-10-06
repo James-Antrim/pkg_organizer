@@ -131,10 +131,7 @@ class Courses extends ListView
 					'courses.participants',
 					true
 				);
-			}
 
-			if (Helpers\Can::administrate())
-			{
 				$toolbar->appendButton(
 					'Confirm',
 					Languages::_('ORGANIZER_DELETE_CONFIRM'),
@@ -226,7 +223,7 @@ class Courses extends ListView
 
 			if ($course->deadline)
 			{
-				$deadline = date('Y-m-d', strtotime("-{$course->deadline} Days", strtotime($course->startDate)));
+				$deadline = date('Y-m-d', strtotime("-$course->deadline Days", strtotime($course->startDate)));
 			}
 			else
 			{
