@@ -287,6 +287,29 @@ trait ListsInstances
 	}
 
 	/**
+	 * Generates the common portion of the instance title for listed instances.
+	 *
+	 * @param   stdClass  $instance  the object containing instance information
+	 * @param   string    $title     the already processed portion of the title
+	 *
+	 * @return array
+	 */
+	private function liGetTitle(stdClass $instance, string $title): array
+	{
+		$comment = $this->resolveLinks($instance->comment);
+
+		if ($instance->courseID)
+		{
+			$title .= '<br>' . HTML::icon('link hasToolTip', Languages::_('ORGANIZER_REGISTRATION_LINKED')) . ' ';
+			$title .= Languages::_('ORGANIZER_INSTANCE_SERIES') . ": $instance->courseID";
+		}
+
+		$title .= empty($comment) ? '' : "<br><span class=\"comment\">$comment</span>";
+
+		return ['attributes' => ['class' => 'title-column'], 'value' => $title];
+	}
+
+	/**
 	 * Resolves any links/link parameters to links with icons.
 	 *
 	 * @param   string  $text  the text to search
@@ -504,6 +527,13 @@ trait ListsInstances
 		$instance->rooms = implode('<br>', $rooms);
 	}
 
+	/**
+	 * Sets derived attributes for a single instance.
+	 *
+	 * @param   stdClass  $instance
+	 *
+	 * @return void
+	 */
 	private function setSingle(stdClass $instance)
 	{
 		$now    = date('H:i');

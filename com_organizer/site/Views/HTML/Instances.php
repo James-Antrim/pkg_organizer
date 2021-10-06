@@ -236,23 +236,14 @@ class Instances extends ListView
 	 */
 	private function getTitle(stdClass $item): array
 	{
-		$comment = $this->resolveLinks($item->comment);
-		$name    = '<span class="event">' . $item->name . '</span>';
+		$name = '<span class="event">' . $item->name . '</span>';
 
 		$title = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
 		$title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span><br>';
 		$title .= Helpers\HTML::_('link', $item->link, $name, ['target' => '_blank']);
 		$title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
 
-		if ($item->courseID)
-		{
-			$title .= '<br>' . Helpers\HTML::icon('link hasToolTip', Languages::_('ORGANIZER_REGISTRATION_LINKED'));
-			$title .= " #$item->courseID";
-		}
-
-		$title .= empty($comment) ? '' : "<br><span class=\"comment\">$comment</span>";
-
-		return ['attributes' => ['class' => 'title-column'], 'value' => $title];
+		return $this->liGetTitle($item, $title);
 	}
 
 	/**
