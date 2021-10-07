@@ -32,7 +32,14 @@ class Checkin extends FormModel
 	/**
 	 * @var int|null
 	 */
-	private $roomID;
+	private $roomID = null;
+
+	/**
+	 * The seat entered by the participant
+	 *
+	 * @var null|string
+	 */
+	private $seat = null;
 
 	/**
 	 * @inheritDoc
@@ -85,7 +92,7 @@ class Checkin extends FormModel
 	}
 
 	/**
-	 * Loads participant data for the current user.
+	 * Loads participant data for the current user. Used implicitly in view: $this->get('Participant').
 	 *
 	 * @return Tables\Participants
 	 */
@@ -137,6 +144,16 @@ class Checkin extends FormModel
 	}
 
 	/**
+	 * Gets the instances relevant to the booking and person.
+	 *
+	 * @return null|string
+	 */
+	public function getSeat(): ?string
+	{
+		return $this->seat;
+	}
+
+	/**
 	 * Gets the instance related information.
 	 *
 	 * @return void
@@ -145,11 +162,11 @@ class Checkin extends FormModel
 	{
 		$instances = [];
 		$roomID    = null;
+		$seat      = null;
 
 		if (!$participantID = $this->participant->id)
 		{
 			$this->instances = $instances;
-			$this->roomID    = $roomID;
 
 			return;
 		}
@@ -176,8 +193,9 @@ class Checkin extends FormModel
 
 		foreach ($participation as $index => $entry)
 		{
-			$instanceID        = $entry['instanceID'];
-			$instances[$index] = Helpers\Instances::getInstance($instanceID);
+			$instanceID                = $entry['instanceID'];
+			$instances[$index]         = Helpers\Instances::getInstance($instanceID);
+			$instances[$index]['seat'] = $entry['seat'];
 			$form->setValue('instanceID', null, $instanceID);
 
 			if (empty($roomID))
@@ -188,14 +206,21 @@ class Checkin extends FormModel
 				$form->setValue('roomID', null, $selectedRoomID);
 			}
 
+			if ($seat === null and $entry['seat'] !== null)
+			{
+				$seat = $entry['seat'];
+				$form->setValue('seat', null, $seat);
+			}
+
 			if ($roomID)
 			{
 				$instances[$index]['room'] = Helpers\Rooms::getName($roomID);
-				$instances[$index]['seat'] = $entry['seat'];
 			}
+
 		}
 
 		$this->instances = $instances;
 		$this->roomID    = $roomID;
+		$this->seat      = $seat;
 	}
 }

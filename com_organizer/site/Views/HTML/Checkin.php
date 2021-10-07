@@ -43,6 +43,11 @@ class Checkin extends FormView
 	public $roomID;
 
 	/**
+	 * @var null|string
+	 */
+	public $seat;
+
+	/**
 	 * @inheritDoc
 	 */
 	protected function addToolBar()
@@ -61,7 +66,7 @@ class Checkin extends FormView
 			{
 				$title = Helpers\Languages::_('ORGANIZER_CONFIRM_EVENT');
 			}
-			elseif (!$this->roomID)
+			elseif (!$this->roomID or $this->seat === null)
 			{
 				$title = Helpers\Languages::_('ORGANIZER_CONFIRM_SEATING');
 			}
@@ -84,13 +89,17 @@ class Checkin extends FormView
 	public function display($tpl = null)
 	{
 		$session = Factory::getSession();
+
 		if ($layout = Helpers\Input::getCMD('layout'))
 		{
 			if ($this->privacy = $layout === 'privacy')
 			{
 				if (!$session->get('organizer.checkin.referrer'))
 				{
-					$session->set('organizer.checkin.referrer', Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+					$session->set(
+						'organizer.checkin.referrer',
+						Helpers\Input::getInput()->server->getString('HTTP_REFERER')
+					);
 				}
 			}
 
@@ -106,8 +115,10 @@ class Checkin extends FormView
 		$this->layout      = 'checkin-wrapper';
 		$this->participant = $this->get('Participant');
 		$this->roomID      = $this->get('RoomID');
+		$this->seat        = $this->get('Seat');
 
 		$this->complete = true;
+
 		if ($this->participant->id)
 		{
 			$requiredColumns = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
