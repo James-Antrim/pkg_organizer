@@ -29,7 +29,7 @@ $count = count($this->instances);
 		<?php require_once 'Checkin/instance.php'; ?>
 	<?php elseif (!$this->roomID or $this->seat === null) : ?>
 		<?php require_once 'Checkin/seating.php'; ?>
-	<?php elseif ($this->edit or ($count and !$this->complete)) : ?>
+	<?php elseif ($this->edit or !$this->complete) : ?>
 		<?php require_once 'Checkin/contact.php'; ?>
 	<?php else : ?>
 		<?php require_once 'Checkin/checkedin.php'; ?>
