@@ -94,8 +94,6 @@ class Room extends MergeModel
 				$row     = str_replace($search, $replace, $row);
 			}
 		}
-
-
 	}
 
 	/**

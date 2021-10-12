@@ -235,7 +235,8 @@ class Instances extends ResourceHelper
 			->where('r.virtual = 0')
 			->where("i1.id = $instanceID")
 			->where("ir.delta != 'removed'")
-			->where("ipe.delta != 'removed'");
+			->where("ipe.delta != 'removed'")
+			->order('r.effCapacity DESC');
 		Database::setQuery($query);
 
 		if ($capacities = Database::loadIntColumn(1))
@@ -989,7 +990,7 @@ class Instances extends ResourceHelper
 	{
 		if (!$capacity = self::getCapacity($instanceID))
 		{
-			return true;
+			return false;
 		}
 
 		return self::getCurrentCapacity($instanceID) >= $capacity;

@@ -132,8 +132,9 @@ trait ListsInstances
 						}
 
 						// Forced output
-						$value .= $instance->capacity ? "$instance->current/$instance->capacity " : "$instance->current ";
-						$value .= HTML::icon('users', Languages::_('ORGANIZER_PARTICIPANTS'));
+						$capacity = $instance->capacity ?: 'X';
+						$value    .= "$instance->current/$capacity ";
+						$value    .= HTML::icon('users', Languages::_('ORGANIZER_PARTICIPANTS'));
 					}
 				}
 			}
