@@ -434,7 +434,7 @@ class InstanceItem extends ListView
 		switch ($instance->presence)
 		{
 			case Helper::HYBRID:
-				$formText = Languages::_('ORGANIZER_HYBRID_TEXT');
+				$formText = Languages::_('ORGANIZER_HYBRID');
 				break;
 			case Helper::ONLINE:
 				$formText = Languages::_('ORGANIZER_ONLINE_TEXT');
@@ -753,13 +753,14 @@ class InstanceItem extends ListView
 	 * @return void
 	 */
 	private function setResource(
-		array &$collection,
-		array &$filtered,
+		array  &$collection,
+		array  &$filtered,
 		string &$modified,
-		int $key,
+		int    $key,
 		string $name,
-		array $resource
-	) {
+		array  $resource
+	)
+	{
 		$dateTime = $resource['statusDate'];
 
 		if (empty($collection[$name]) or $dateTime > $collection[$name]['date'])
