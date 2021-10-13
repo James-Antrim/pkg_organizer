@@ -523,10 +523,27 @@ class Instances extends ResourceHelper
 		$query->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-			->leftJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
-			->leftJoin('#__organizer_groups AS g ON g.id = ig.groupID')
-			->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id');
+
+		if (!empty($conditions['groupIDs']))
+		{
+			$query->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id');
+		}
+		else
+		{
+			$query->leftJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id');
+		}
+
+		$query->leftJoin('#__organizer_groups AS g ON g.id = ig.groupID');
+
+		if (!empty($conditions['roomIDs']))
+		{
+			$query->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
+		}
+		else
+		{
+			$query->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
+		}
 
 		$dDate = $conditions['delta'];
 
@@ -537,6 +554,7 @@ class Instances extends ResourceHelper
 				$query->where("i.delta != 'removed'")
 					->where("(ig.delta != 'removed' OR ig.id IS NULL)")
 					->where("ipe.delta != 'removed'")
+					->where("(ir.delta != 'removed' OR ir.id IS NULL)")
 					->where("u.delta != 'removed'");
 
 				break;
@@ -574,6 +592,7 @@ class Instances extends ResourceHelper
 				self::addDeltaClause($query, 'u', $dDate);
 				self::addDeltaClause($query, 'ipe', $dDate);
 				self::addDeltaClause($query, 'ig', $dDate);
+				self::addDeltaClause($query, 'ir', $dDate);
 
 				break;
 		}
@@ -677,7 +696,6 @@ class Instances extends ResourceHelper
 		{
 			$roomIDs = implode(',', $conditions['roomIDs']);
 			$query->where("ir.roomID IN ($roomIDs)");
-			self::addDeltaClause($query, 'ir', $conditions['delta']);
 		}
 
 		if (!empty($conditions['eventIDs']) or !empty($conditions['subjectIDs']) or !empty($conditions['eventsRequired']))
