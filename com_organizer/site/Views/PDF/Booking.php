@@ -11,6 +11,7 @@
 namespace Organizer\Views\PDF;
 
 use Organizer\Helpers;
+use Organizer\Helpers\Bookings as Helper;
 use Organizer\Models\Booking as Model;
 use Organizer\Tables;
 
@@ -48,6 +49,13 @@ class Booking extends ListView
 	protected $model;
 
 	/**
+	 * The number of lines used by the header texts.
+	 *
+	 * @var int
+	 */
+	public $overhead;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct()
@@ -55,8 +63,8 @@ class Booking extends ListView
 		parent::__construct();
 
 		$this->booking  = $this->model->getBooking();
-		$this->events   = Helpers\Bookings::getName($this->bookingID);
-		$this->dateTime = Helpers\Bookings::getDateTimeDisplay($this->bookingID);
+		$this->events   = Helper::getName($this->bookingID);
+		$this->dateTime = Helper::getDateTimeDisplay($this->bookingID);
 	}
 
 	/**
@@ -103,8 +111,36 @@ class Booking extends ListView
 			$subTitle = [Helpers\Languages::_('ORGANIZER_MULTIPLE_EVENTS')];
 		}
 
-		$subTitle[] = $this->dateTime;
-		$subTitle   = implode("\n", $subTitle);
+		$room = '';
+
+		if ($roomID = $this->formState->get('filter.roomID'))
+		{
+			$room = ', ' . Helpers\Languages::_('ORGANIZER_ROOM') . ' ' . Helpers\Rooms::getName($roomID);
+		}
+
+		$subTitle[] = $this->dateTime . $room;
+
+		switch ($this->formState->get('filter.status'))
+		{
+			case Helper::ALL:
+				$subTitle[] = Helpers\Languages::_('ORGANIZER_CHECKED_IN_OR_REGISTERED_PARTICIPANTS');
+				break;
+			case Helper::ATTENDEES:
+				$subTitle[] = Helpers\Languages::_('ORGANIZER_CHECKED_IN_PARTICIPANTS');
+				break;
+			case Helper::IMPROPER:
+				$subTitle[] = Helpers\Languages::_('ORGANIZER_CHECKED_IN_NOT_REGISTERED_PARTICIPANTS');
+				break;
+			case Helper::ONLY_REGISTERED:
+				$subTitle[] = Helpers\Languages::_('ORGANIZER_REGISTERED_NOT_CHECKED_IN_PARTICIPANTS');
+				break;
+			case Helper::PROPER:
+				$subTitle[] = Helpers\Languages::_('ORGANIZER_CHECKED_IN_AND_REGISTERED_PARTICIPANTS');
+				break;
+		}
+
+		$this->overhead = max(4, count($subTitle));
+		$subTitle       = implode("\n", $subTitle);
 
 		$this->setHeaderData('pdf_logo.png', '55', $title, $subTitle, self::BLACK, self::WHITE);
 		$this->setFooterData(self::BLACK, self::WHITE);

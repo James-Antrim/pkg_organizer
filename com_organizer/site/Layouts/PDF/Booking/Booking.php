@@ -39,7 +39,6 @@ class Booking extends ListLayout
 	public function __construct(ListView $view)
 	{
 		parent::__construct($view);
-		$view->margins(10, 30, -1, 0, 8);
 
 		$this->headers = [
 			'index' => '#',
@@ -57,6 +56,9 @@ class Booking extends ListLayout
 	{
 		$itemNo = 1;
 		$view   = $this->view;
+		$height = 7.5 * $view->overhead;
+		$view->margins(10, $height, -1, 0, 8);
+
 		$this->addListPage();
 
 		foreach ($data as $participant)
