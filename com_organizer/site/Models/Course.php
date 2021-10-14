@@ -133,6 +133,11 @@ class Course extends BaseModel
 		{
 			$row = str_replace(chr(13) . chr(10), '', $row);
 
+			if (!$row = trim($row))
+			{
+				continue;
+			}
+
 			if (!preg_match('/^[\d\, ]+$/', $row))
 			{
 				Helpers\OrganizerHelper::message("Malformed row: $row.", 'error');
