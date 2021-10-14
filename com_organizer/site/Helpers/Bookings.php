@@ -18,6 +18,8 @@ use Organizer\Tables;
  */
 class Bookings extends ResourceHelper
 {
+	public const ALL = '', ATTENDEES = 1, IMPROPER = 3, ONLY_REGISTERED = -1, PROPER = 2;
+
 	/**
 	 * Retrieves the number of current registrations for the booking.
 	 *

@@ -14,6 +14,7 @@ use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\User;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
+use Organizer\Helpers\Bookings as Helper;
 use Organizer\Tables;
 
 /**
@@ -21,8 +22,6 @@ use Organizer\Tables;
  */
 class Booking extends Participants
 {
-	private const ALL_ATTENDEES = 1, IMPROPER = 3, ONLY_REGISTERED = -1, PROPER = 2;
-
 	/**
 	 * @var Tables\Bookings
 	 */
@@ -300,7 +299,7 @@ class Booking extends Participants
 			$participant->supplement($userNameID, true);
 		}
 
-		$instanceIDs = Helpers\Bookings::getInstanceIDs($bookingID);
+		$instanceIDs = Helper::getInstanceIDs($bookingID);
 
 		// Check for existing entries in an existing participant's personal schedule
 		if ($existing)
@@ -482,7 +481,7 @@ class Booking extends Participants
 	{
 		$this->authorize();
 
-		if (!$instanceIDs = Helpers\Bookings::getInstanceIDs(Helpers\Input::getID()))
+		if (!Helper::getInstanceIDs(Helpers\Input::getID()))
 		{
 			Helpers\OrganizerHelper::error(400);
 		}
@@ -572,13 +571,13 @@ class Booking extends Participants
 			$form->removeField('username', 'list');
 		}
 
-		if (count(Helpers\Bookings::getInstanceOptions($bookingID)) === 1)
+		if (count(Helper::getInstanceOptions($bookingID)) === 1)
 		{
 			$form->removeField('instanceID', 'filter');
 			unset($this->filter_fields[array_search('instanceID', $this->filter_fields)]);
 		}
 
-		if (count(Helpers\Bookings::getRoomOptions($bookingID)) <= 1)
+		if (count(Helper::getRoomOptions($bookingID)) <= 1)
 		{
 			$form->removeField('roomID', 'filter');
 			unset($this->filter_fields[array_search('roomID', $this->filter_fields)]);
@@ -624,16 +623,16 @@ class Booking extends Participants
 
 		switch ((int) $this->state->get('filter.status'))
 		{
-			case self::ALL_ATTENDEES:
+			case Helper::ATTENDEES:
 				$query->where('ip.attended = 1');
 				break;
-			case self::IMPROPER:
+			case Helper::IMPROPER:
 				$query->where('ip.attended = 1')->where('ip.registered = 0');
 				break;
-			case self::ONLY_REGISTERED:
+			case Helper::ONLY_REGISTERED:
 				$query->where('ip.attended = 0')->where('ip.registered = 1');
 				break;
-			case self::PROPER:
+			case Helper::PROPER:
 				$query->where('ip.attended = 1')->where('ip.registered = 1');
 				break;
 		}
@@ -657,7 +656,7 @@ class Booking extends Participants
 			->innerJoin('#__organizer_bookings AS b ON b.blockID = i.blockID AND b.unitID = i.unitID')
 			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id');
 
-		$rooms      = Helpers\Bookings::getRooms($bookingID);
+		$rooms      = Helper::getRooms($bookingID);
 		$updateID   = 0;
 		$updateRoom = '';
 
