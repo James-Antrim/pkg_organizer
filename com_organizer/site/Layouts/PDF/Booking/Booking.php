@@ -92,17 +92,8 @@ class Booking extends ListLayout
 				}
 			}
 
-			// Reset for borders
-			$view->changePosition($startX, $startY);
-
-			foreach ($this->widths as $index => $width)
-			{
-				$border = $index === 'index' ? ['BLR' => $view->border] : ['BR' => $view->border];
-				$view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
-			}
-
+			$this->addLineBorders($startX, $startY, $maxLength);
 			$this->addLine();
-
 			$itemNo++;
 		}
 	}

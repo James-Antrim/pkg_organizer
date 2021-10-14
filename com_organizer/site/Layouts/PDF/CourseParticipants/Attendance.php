@@ -12,13 +12,18 @@ namespace Organizer\Layouts\PDF\CourseParticipants;
 
 use Organizer\Helpers;
 use Organizer\Layouts\PDF\ListLayout;
-use Organizer\Views\PDF\ListView;
+use Organizer\Views\PDF\CourseParticipants;
 
 /**
  * Class loads persistent information about a course into the display context.
  */
 class Attendance extends ListLayout
 {
+	/**
+	 * @var CourseParticipants
+	 */
+	protected $view;
+
 	protected $widths = [
 		'index'        => 10,
 		'name'         => 55,
@@ -30,7 +35,7 @@ class Attendance extends ListLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function __construct(ListView $view)
+	public function __construct(CourseParticipants $view)
 	{
 		parent::__construct($view);
 		$view->margins(10, 30, -1, 0, 8);
@@ -101,17 +106,8 @@ class Attendance extends ListLayout
 				}
 			}
 
-			// Reset for borders
-			$view->changePosition($startX, $startY);
-
-			foreach ($this->widths as $index => $width)
-			{
-				$border = $index === 'index' ? ['BLR' => $view->border] : ['BR' => $view->border];
-				$view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
-			}
-
+			$this->addLineBorders($startX, $startY, $maxLength);
 			$this->addLine();
-
 			$itemNo++;
 		}
 	}
