@@ -14,6 +14,7 @@ use Organizer\Helpers;
 use Organizer\Helpers\Bookings as Helper;
 use Organizer\Models\Booking as Model;
 use Organizer\Tables;
+use TCPDF_FONTS;
 
 /**
  * Class loads persistent information about a course into the display context.
@@ -94,6 +95,37 @@ class Booking extends ListView
 	public function display($destination = self::INLINE)
 	{
 		parent::display($destination);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function Footer()
+	{
+		if ($this->formState->get('filter.status') === Helper::ALL)
+		{
+			//set style for cell border
+			$pageWidth = (0.85 / $this->k);
+			$this->SetLineStyle(['width' => $pageWidth, 'color' => $this->footer_line_color]);
+			$this->SetX($this->original_lMargin);
+
+			$pageFont = $this->getFontFamily();
+			$this->SetFont('zapfdingbats');
+			$this->renderCell(3, 0, TCPDF_FONTS::unichr(51), self::LEFT, self::TOP);
+			$this->SetFont($pageFont);
+			$this->renderCell(25, 0, Helpers\Languages::_('ORGANIZER_CHECKED_IN'), self::LEFT, self::TOP);
+			$this->SetFont('zapfdingbats');
+			$this->renderCell(3, 0, TCPDF_FONTS::unichr(46), self::LEFT, self::TOP);
+			$this->SetFont($pageFont);
+			$this->renderCell(25, 0, Helpers\Languages::_('ORGANIZER_REGISTERED'), self::LEFT, self::TOP);
+
+			$pnText = $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
+			$this->Cell(0, 0, $this->getAliasRightShift() . $pnText, self::TOP, 0, self::RIGHT);
+
+			return;
+		}
+
+		parent::Footer();
 	}
 
 	/**

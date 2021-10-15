@@ -10,10 +10,10 @@
 
 namespace Organizer\Layouts\PDF\Booking;
 
+use Organizer\Helpers\Bookings as Helper;
 use Organizer\Helpers\Languages;
 use Organizer\Layouts\PDF\ListLayout;
 use Organizer\Views\PDF\Booking as View;
-use Organizer\Views\PDF\ListView;
 
 /**
  * Class loads persistent information about a course into the display context.
@@ -25,29 +25,7 @@ class Booking extends ListLayout
 	 */
 	protected $view;
 
-	protected $widths = [
-		'index' => 10,
-		'name'  => 50,
-		'event' => 80,
-		'room'  => 20,
-		'seat'  => 20
-	];
-
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct(ListView $view)
-	{
-		parent::__construct($view);
-
-		$this->headers = [
-			'index' => '#',
-			'name'  => Languages::_('ORGANIZER_NAME'),
-			'event' => Languages::_('ORGANIZER_EVENT'),
-			'room'  => Languages::_('ORGANIZER_ROOM'),
-			'seat'  => Languages::_('ORGANIZER_SEAT')
-		];
-	}
+	protected $widths = [];
 
 	/**
 	 * @inheritdoc
@@ -58,7 +36,7 @@ class Booking extends ListLayout
 		$view   = $this->view;
 		$height = 7.5 * $view->overhead;
 		$view->margins(10, $height, -1, 0, 8);
-
+		$this->setColumns();
 		$this->addListPage();
 
 		foreach ($data as $participant)
@@ -79,6 +57,10 @@ class Booking extends ListLayout
 						$value = empty($participant->forename) ?
 							$participant->surname : "$participant->surname,  $participant->forename";
 						break;
+					case 'attended':
+					case 'registered':
+						$value = empty($participant->$columnName) ? '' : 'X';
+						break;
 					default:
 						$value = empty($participant->$columnName) ? '' : $participant->$columnName;
 						break;
@@ -95,6 +77,82 @@ class Booking extends ListLayout
 			$this->addLineBorders($startX, $startY, $maxLength);
 			$this->addLine();
 			$itemNo++;
+		}
+	}
+
+	/**
+	 * Sets the names and widths of columns dependent upon booking properties and selected filters.
+	 *
+	 * @return void
+	 */
+	private function setColumns()
+	{
+		$this->headers = [
+			'checkbox'   => '',
+			'index'      => '#',
+			'name'       => Languages::_('ORGANIZER_NAME'),
+			'attended'   => '51',
+			'registered' => '46',
+			'event'      => Languages::_('ORGANIZER_EVENT'),
+			'room'       => Languages::_('ORGANIZER_ROOM'),
+			'seat'       => Languages::_('ORGANIZER_SEAT')
+		];
+
+		$view     = $this->view;
+		$showCR   = $view->formState->get('filter.status') === Helper::ALL;
+		$showRoom = (count(Helper::getRooms($view->bookingID)) > 1 and !$view->formState->get('filter.roomID'));
+
+		if ($showCR and $showRoom)
+		{
+			$this->widths = [
+				'checkbox'   => 5,
+				'index'      => 10,
+				'name'       => 50,
+				'attended'   => 7,
+				'registered' => 7,
+				'event'      => 76,
+				'room'       => 15,
+				'seat'       => 10
+			];
+		}
+		elseif ($showCR)
+		{
+			unset($this->headers['room']);
+
+			$this->widths = [
+				'checkbox'   => 5,
+				'index'      => 10,
+				'name'       => 55,
+				'attended'   => 8,
+				'registered' => 8,
+				'event'      => 90,
+				'seat'       => 10
+			];
+		}
+		elseif ($showRoom)
+		{
+			unset($this->headers['attended'], $this->headers['registered']);
+
+			$this->widths = [
+				'checkbox' => 5,
+				'index'    => 10,
+				'name'     => 55,
+				'event'    => 85,
+				'room'     => 15,
+				'seat'     => 10
+			];
+		}
+		else
+		{
+			unset($this->headers['attended'], $this->headers['registered'], $this->headers['room']);
+
+			$this->widths = [
+				'checkbox' => 5,
+				'index'    => 10,
+				'name'     => 60,
+				'event'    => 90,
+				'seat'     => 15
+			];
 		}
 	}
 

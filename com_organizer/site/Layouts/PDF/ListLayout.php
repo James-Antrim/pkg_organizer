@@ -12,6 +12,7 @@
 namespace Organizer\Layouts\PDF;
 
 use Organizer\Views\PDF\ListView;
+use TCPDF_FONTS;
 
 abstract class ListLayout extends BaseLayout
 {
@@ -62,18 +63,28 @@ abstract class ListLayout extends BaseLayout
 		// create the column headers for the page
 		$view->SetFillColor(210);
 		$view->changeSize(10);
-		$initial = true;
-		foreach (array_keys($this->headers) as $column)
-		{
-			if ($initial)
-			{
-				$view->renderCell($this->widths[$column], 7, $this->headers[$column], $view::CENTER, 'BLRT', 1);
-				$initial = false;
-				continue;
-			}
+		$columns = array_keys($this->headers);
+		$initial = reset($columns);
 
-			$view->renderCell($this->widths[$column], 7, $this->headers[$column], $view::CENTER, 'BRT', 1);
+		foreach ($columns as $column)
+		{
+			$border = $column === $initial ? 'BLRT' : 'BRT';
+			$header = $this->headers[$column];
+
+			if ($header >= '0' and $header < '256')
+			{
+				$font   = $view->getFontFamily();
+				$header = (int) $header;
+				$view->SetFont('zapfdingbats');
+				$view->renderCell($this->widths[$column], 7, TCPDF_FONTS::unichr($header), $view::CENTER, $border, 1);
+				$view->SetFont($font);
+			}
+			else
+			{
+				$view->renderCell($this->widths[$column], 7, $header, $view::CENTER, $border, 1);
+			}
 		}
+
 		$view->Ln();
 
 		// reset styles
@@ -96,9 +107,12 @@ abstract class ListLayout extends BaseLayout
 
 		$view->changePosition($startX, $startY);
 
+		$columns = array_keys($this->widths);
+		$initial = reset($columns);
+
 		foreach ($this->widths as $index => $width)
 		{
-			$border = $index === 'index' ? ['BLR' => $view->border] : ['BR' => $view->border];
+			$border = $index === $initial ? ['BLR' => $view->border] : ['BR' => $view->border];
 			$view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
 		}
 	}
