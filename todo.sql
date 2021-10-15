@@ -4,12 +4,12 @@
 #link instance views to/from documentation resources
 #add compactor functions for tables whose ids are not stored in json schedules
 #add function to clean duplicate associations
+#drop sy 20/21
 #endregion
 
 #region Bugs ###########################################################################################################
 #/en not being accepted by site & organizer language select displays wrong value when this is enabled
 #editing a new program has two 'create' buttons
-#module association is not being created from imported schedule key
 #endregion
 
 #region Features #######################################################################################################

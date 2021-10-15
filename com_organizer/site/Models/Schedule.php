@@ -26,7 +26,7 @@ class Schedule extends BaseModel
 	private $modified;
 
 	/**
-	 * Updates an table associating an instance with a resource.
+	 * Updates a table associating an instance with a resource.
 	 *
 	 * @param   Tables\BaseTable|Tables\Modified  $table   the association table to be updated
 	 * @param   array                             $keys    the keys used to identify the association through content
@@ -35,7 +35,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return void
 	 */
-	private function createAssoc($table, array $keys, string $delta, $roleID = 1)
+	private function createAssoc($table, array $keys, string $delta, int $roleID = 1)
 	{
 		foreach ($keys as $key => $value)
 		{
@@ -192,8 +192,6 @@ class Schedule extends BaseModel
 				if ($block->date < $startDate or ($block->date === $startDate and $block->endTime < $startTime))
 				{
 					unset($instances[$instanceID]);
-
-					continue;
 				}
 
 			}
@@ -333,7 +331,7 @@ class Schedule extends BaseModel
 	}
 
 	/**
-	 * Rebuilds the history of a organization / term context.
+	 * Rebuilds the history of an organization / term context.
 	 *
 	 * @return bool
 	 */
@@ -369,7 +367,7 @@ class Schedule extends BaseModel
 	}
 
 	/**
-	 * Rebuilds the history of a organization / term context.
+	 * Rebuilds the history of an organization / term context.
 	 *
 	 * @return bool
 	 */
@@ -606,7 +604,8 @@ class Schedule extends BaseModel
 				->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = gr.id')
 				->innerJoin('#__organizer_instance_persons AS ip ON ip.id = ig.assocID')
 				->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-				->where("i.eventID = {$event['id']}");
+				->where("i.eventID = {$event['id']}")
+				->order('lft DESC');
 			Database::setQuery($query);
 
 			if (!$boundaries = Database::loadAssoc())
@@ -681,7 +680,8 @@ class Schedule extends BaseModel
 		{
 			$instance = new Tables\Instances();
 
-			if (!$instance->load($instanceID) or !$this->isRelevant($instance, $schedule->creationDate, $schedule->creationTime))
+			if (!$instance->load($instanceID) or !$this->isRelevant($instance, $schedule->creationDate,
+					$schedule->creationTime))
 			{
 				continue;
 			}
@@ -702,7 +702,8 @@ class Schedule extends BaseModel
 		{
 			$instance = new Tables\Instances();
 
-			if (!$instance->load($instanceID) or !$this->isRelevant($instance, $schedule->creationDate, $schedule->creationTime))
+			if (!$instance->load($instanceID)
+				or !$this->isRelevant($instance, $schedule->creationDate, $schedule->creationTime))
 			{
 				continue;
 			}
@@ -829,7 +830,8 @@ class Schedule extends BaseModel
 		{
 			$instance = new Tables\Instances();
 
-			if (!$instance->load($instanceID) or !$this->isRelevant($instance, $schedule->creationDate, $schedule->creationTime))
+			if (!$instance->load($instanceID)
+				or !$this->isRelevant($instance, $schedule->creationDate, $schedule->creationTime))
 			{
 				continue;
 			}
@@ -877,7 +879,7 @@ class Schedule extends BaseModel
 	}
 
 	/**
-	 * Updates an table associating an instance with a resource.
+	 * Updates a table associating an instance with a resource.
 	 *
 	 * @param   Tables\BaseTable|Tables\Modified  $table   the association table to be updated
 	 * @param   string                            $delta   the status of the association
@@ -885,7 +887,7 @@ class Schedule extends BaseModel
 	 *
 	 * @return void
 	 */
-	private function updateAssoc($table, string $delta, $roleID = 1)
+	private function updateAssoc($table, string $delta, int $roleID = 1)
 	{
 		$table->delta    = $delta;
 		$table->modified = $this->modified;
