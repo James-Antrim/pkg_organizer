@@ -201,7 +201,7 @@ abstract class CurriculumResource extends BaseModel
 		}
 
 		// Reduces the ordering of siblings with a greater ordering
-		if (!$this->shiftDown($range['parentID'], $range['ordering']))
+		if (!empty($range['parentID']) and !$this->shiftDown($range['parentID'], $range['ordering']))
 		{
 			return false;
 		}

@@ -1,17 +1,15 @@
 #region list ###########################################################################################################
-#add supplemental text to instance attendance lists according to the filters used in their generation
 #add resource names to instances pdf file names
 #add the option to create group plans when only the organization or category has been selected
-#link instance views from documentation resources
+#link instance views to/from documentation resources
 #add compactor functions for tables whose ids are not stored in json schedules
 #add function to clean duplicate associations
 #endregion
 
 #region Bugs ###########################################################################################################
-#new term was localized to '1970'
-#program delete does not work
 #/en not being accepted by site & organizer language select displays wrong value when this is enabled
 #editing a new program has two 'create' buttons
+#module association is not being created from imported schedule key
 #endregion
 
 #region Features #######################################################################################################
