@@ -37,7 +37,8 @@ class Instances extends ListLayout
 		$view->createSheet();
 		$view->setActiveSheetIndex($pageNo);
 		$sheet = $view->getActiveSheet();
-		$sheet->setTitle(Languages::_('ORGANIZER_GLOSSARY') . ' - ' . Languages::_('ORGANIZER_GROUPS'));
+		$title = str_replace('&shy;', '', Languages::_('ORGANIZER_GLOSSARY') . ' - ' . Languages::_('ORGANIZER_GROUPS'));
+		$sheet->setTitle($title);
 
 		$sheet->getColumnDimension()->setWidth(20);
 		$sheet->getColumnDimension('B')->setWidth(120);
