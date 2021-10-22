@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="periods">
+        <field name="equipment" type="Roomequipmentlist"  label="EQUIPMENT" localized="true"  required="true">
+            <option value="">SELECT_EQUIPMENT</option>
+        </field>
+        <field name="qty" type="number" label="ORGANIZER_EQUIPMENT_QTY" />
+    </fieldset>
+</form>

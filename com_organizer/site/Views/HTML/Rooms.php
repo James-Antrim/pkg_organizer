@@ -12,6 +12,7 @@ namespace Organizer\Views\HTML;
 
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
+use Joomla\CMS\Factory;
 
 /**
  * Class loads persistent information a filtered set of rooms into the display context.
@@ -68,6 +69,14 @@ class Rooms extends ListView
 			'Rooms.UniNow',
 			false
 		);
+
+        $toolbar->appendButton(
+            'NewTab',
+            'file-xls',
+            Helpers\Languages::_('ORGANIZER_FM_EXPORT'),
+            'Rooms.FMExport',
+            false
+        );
 	}
 
 	/**

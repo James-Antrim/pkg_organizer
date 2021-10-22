@@ -10,8 +10,8 @@
 
 namespace Organizer\Views\XLS;
 
-require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
-
+//require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
+require_once JPATH_ROOT . '/libraries/phpexcel/vendor/autoload.php';
 use Exception;
 use Joomla\CMS\Application\ApplicationHelper;
 use Organizer\Helpers;

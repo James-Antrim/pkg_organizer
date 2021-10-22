@@ -48,8 +48,8 @@ class Roomtypes extends ResourceHelper implements Selectable
 		$query = Database::getQuery(true);
 		$query->select("DISTINCT t.*, t.id AS id, t.name_$tag AS name")
 			->from('#__organizer_roomtypes AS t');
-
-		if ($suppress === self::YES or $suppress === self::NO)
+        $app = \Joomla\CMS\Factory::getApplication();
+		if (($suppress === self::YES or $suppress === self::NO) && $app->isClient('site'))
 		{
 			$query->where("t.suppress = $suppress");
 		}

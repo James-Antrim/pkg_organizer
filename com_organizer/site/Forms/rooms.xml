@@ -14,6 +14,14 @@
         <field name="roomtypeID" type="Roomtypes" label="TYPE" onchange="this.form.submit();">
             <option value="">ALL_ROOMTYPES</option>
         </field>
+        <field name="room_archetypeID" type="GenericOptions" label="ARCHE_TYPES" onchange="this.form.submit();"
+               table="organizer_room_archetypes" textcolumn="name_en" valuecolumn="id">
+            <option value="">ALL_ARCHE_TYPES</option>
+        </field>
+        <field name="equipmentID" type="GenericOptions" label="PROPERTY" onchange="this.form.submit();"
+               table="organizer_equipment" textcolumn="name_en" valuecolumn="id">
+            <option value="">ALL_PROPERTY</option>
+        </field>
         <field name="active" type="Options" label="ACTIVE" default="1" onchange="this.form.submit();">
             <option value="-1">ALL_STATES</option>
             <option value="1">ACTIVE</option>
