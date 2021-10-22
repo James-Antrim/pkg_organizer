@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\AdminModel;
+use Joomla\CMS\Object\CMSObject;
 use Organizer\Helpers;
 
 /**
@@ -99,7 +100,7 @@ abstract class EditModel extends AdminModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function loadFormData(): ?object
+	protected function loadFormData(): ?CMSObject
 	{
 		$resourceIDs = Helpers\Input::getSelectedIDs();
 		$resourceID  = empty($resourceIDs) ? 0 : $resourceIDs[0];

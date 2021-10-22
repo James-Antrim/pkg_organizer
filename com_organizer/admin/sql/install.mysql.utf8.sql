@@ -736,10 +736,10 @@ VALUES (1, 'NF 1', 'Wohnen & Aufenthalt', 'Residential', 'NF 1 - Wohnen und Aufe
        (9, 'NF 9', 'Personenverkehr', 'Human Conveyance', 'NF 9 - Verkehrserschließung und -sicherung', 'NF 9 - Human Conveyance', 'Verkehrserschließung und -sicherung für Personen', 'Rooms which exist for people to move about or be moved about the building that they are in.'),
        (10, 'NF 0', 'Offene Flächen', 'Outdoor Areas', 'NF 0 - Flächen in nicht allseits umschlossenen Räumen', 'NF 0 - Outdoor and partially exposed areas', 'Außenbereiche und Flächen in nicht allseits umschlossenen Räumen', 'Outdoor and partially exposed areas');
 
-CREATE TABLE IF NOT EXISTS `#__organizer_room_dintypes` (
+CREATE TABLE IF NOT EXISTS `#__organizer_dintypes` (
     `id`          INT(3) UNSIGNED NOT NULL,
-    `name_de`     VARCHAR(255)     NOT NULL,
-    `name_en`     VARCHAR(255)     NOT NULL,
+    `name_de`     VARCHAR(255)    NOT NULL,
+    `name_en`     VARCHAR(255)    NOT NULL,
     `archetypeID` INT(2) UNSIGNED NOT NULL,
     PRIMARY KEY (`id`),
     KEY `room_archetypeID` (`archetypeID`)
@@ -1053,8 +1053,8 @@ ALTER TABLE `#__organizer_programs`
     ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `#__organizer_degrees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_frequencyID_fk` FOREIGN KEY (`frequencyID`) REFERENCES `#__organizer_frequencies` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
-ALTER TABLE `#__organizer_room_dintypes`
-    ADD CONSTRAINT `room_din_archetypeID_fk` FOREIGN KEY (`archetypeID`) REFERENCES `#__organizer_room_archetypes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `#__organizer_dintypes`
+    ADD CONSTRAINT `dintype_archetypeID_fk` FOREIGN KEY (`archetypeID`) REFERENCES `#__organizer_room_archetypes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_rooms`
     ADD CONSTRAINT `room_buildingID_fk` FOREIGN KEY (`buildingID`) REFERENCES `#__organizer_buildings` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,

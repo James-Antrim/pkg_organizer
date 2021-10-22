@@ -10,6 +10,8 @@
 
 namespace Organizer\Helpers;
 
+require_once JPATH_ROOT . '/components/com_jce/editor/libraries/classes/mobile.php';
+
 use Exception;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
@@ -197,6 +199,7 @@ class OrganizerHelper
 			'courses'       => 'course',
 			'colors'        => 'color',
 			'degrees'       => 'degree',
+			'dintypes'      => 'dintype',
 			'grids'         => 'grid',
 			'groups'        => 'group',
 			'equipment'     => 'equipment',
@@ -231,27 +234,9 @@ class OrganizerHelper
 	 */
 	public static function isSmartphone(): bool
 	{
-		$mobileCheckPath = JPATH_ROOT . '/components/com_jce/editor/libraries/classes/mobile.php';
+		$checker = new Wf_Mobile_Detect();
 
-		if (file_exists($mobileCheckPath))
-		{
-			if (!class_exists('Wf_Mobile_Detect'))
-			{
-				// Load mobile detect class
-				/** @noinspection PhpIncludeInspection */
-				require_once $mobileCheckPath;
-			}
-
-			$checker = new Wf_Mobile_Detect();
-			$isPhone = ($checker->isMobile() and !$checker->isTablet());
-
-			if ($isPhone)
-			{
-				return true;
-			}
-		}
-
-		return false;
+		return ($checker->isMobile() and !$checker->isTablet());
 	}
 
 	/**
@@ -262,7 +247,7 @@ class OrganizerHelper
 	 *
 	 * @return void
 	 */
-	public static function message(string $message, $type = 'message')
+	public static function message(string $message, string $type = 'message')
 	{
 		$message = Languages::_($message);
 		self::getApplication()->enqueueMessage($message, $type);
