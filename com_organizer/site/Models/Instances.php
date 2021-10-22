@@ -498,8 +498,8 @@ class Instances extends ListModel
 			case 'html':
 			case 'xls':
 			default:
-				$default                = empty($conditions['my']) ? 'day' : 'quarter';
-				$interval               = $this->state->get('list.interval', 'day');
+				$default                = $this->mobile ? 'day' : 'week';
+				$interval               = $this->state->get('list.interval');
 				$intervals              = ['day', 'month', 'quarter', 'term', 'week'];
 				$conditions['interval'] = in_array($interval, $intervals) ? $interval : $default;
 				$conditions['status']   = $this->state->get('filter.status', 1);
