@@ -10,7 +10,6 @@
 #remove bookings that have been made deprecated by scheduling changes
 #make further joins during checkin to ensure that the booking should exist
 #remove registrations that have been made deprecated by scheduling changes
-#replace select room with 'not checked in' for registrations in the booking view
 #rework so that classDecode/-Encode is not necessary??
 #english switch
 #endregion
