@@ -13,8 +13,10 @@ namespace Organizer\Tables;
 /**
  * Models the organizer_colors table.
  */
-class Dintypes extends Zeros
+class Surfaces extends BaseTable
 {
+	use Coded;
+
 	/**
 	 * The resource's German name.
 	 * VARCHAR(255) NOT NULL
@@ -32,10 +34,18 @@ class Dintypes extends Zeros
 	public $name_en;
 
 	/**
+	 * The id of the Net Room Surface / Netto-Raumfläche referenced by the specific code
+	 * INT(2) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $typeID;
+
+	/**
 	 * Declares the associated table.
 	 */
 	public function __construct()
 	{
-		parent::__construct('#__organizer_dintypes');
+		parent::__construct('#__organizer_surfacetypes');
 	}
 }
