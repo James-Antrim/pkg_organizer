@@ -46,6 +46,6 @@ class Surfaces extends BaseTable
 	 */
 	public function __construct()
 	{
-		parent::__construct('#__organizer_surfacetypes');
+		parent::__construct('#__organizer_surfaces');
 	}
 }

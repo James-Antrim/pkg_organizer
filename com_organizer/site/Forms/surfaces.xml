@@ -2,8 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="archetypeID" type="GenericOptions" label="ORGANIZER_ARCHETYPES" localized="true"
-               onchange="this.form.submit();" table="organizer_room_archetypes" textcolumn="name" valuecolumn="id">
+        <field name="typeID" type="GenericOptions" label="ORGANIZER_ARCHETYPES" localized="true"
+               onchange="this.form.submit();" table="organizer_surfacetypes" textcolumn="name" valuecolumn="id">
             <option value="">ALL_ARCHETYPES</option>
         </field>
     </fields>

@@ -16,9 +16,9 @@ use Organizer\Helpers;
 /**
  * Class retrieves information for a filtered set of colors.
  */
-class Dintypes extends ListModel
+class Surfaces extends ListModel
 {
-	protected $filter_fields = ['archetypeID'];
+	protected $filter_fields = ['typeID'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -29,25 +29,9 @@ class Dintypes extends ListModel
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
-
-		$query->select("id, LPAD(id, 3, '0') AS code, name_$tag AS name")->from('#__organizer_dintypes');
-
-		$term = $this->state->get('filter.search', '');
-		if ($term !== '')
-		{
-			if (is_numeric($term))
-			{
-				$term = (int) $term;
-				$query->where("id = $term");
-
-			}
-			else
-			{
-				$this->setSearchFilter($query, ['name_de', 'name_en']);
-			}
-		}
-
-		$this->setValueFilters($query, ['archetypeID']);
+		$query->select("id, code, name_$tag AS name")->from('#__organizer_surfaces')->order('code');
+		$this->setSearchFilter($query, ['code', 'name_de', 'name_en']);
+		$this->setValueFilters($query, ['typeID']);
 
 		return $query;
 	}

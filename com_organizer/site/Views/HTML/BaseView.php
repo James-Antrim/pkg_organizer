@@ -250,6 +250,10 @@ abstract class BaseView extends HtmlView
 				'url'    => 'index.php?option=com_organizer&amp;view=monitors',
 				'active' => $viewName == 'monitors'
 			];
+			$items[Languages::_('ORGANIZER_SURFACES')]     = [
+				'url'    => 'index.php?option=com_organizer&amp;view=surfaces',
+				'active' => $viewName == 'surfaces'
+			];
 			$items[Languages::_('ORGANIZER_ROOMS')]        = [
 				'url'    => 'index.php?option=com_organizer&amp;view=rooms',
 				'active' => $viewName == 'rooms'

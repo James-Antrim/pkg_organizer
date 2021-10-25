@@ -199,7 +199,6 @@ class OrganizerHelper
 			'courses'       => 'course',
 			'colors'        => 'color',
 			'degrees'       => 'degree',
-			'dintypes'      => 'dintype',
 			'grids'         => 'grid',
 			'groups'        => 'group',
 			'equipment'     => 'equipment',
@@ -218,6 +217,7 @@ class OrganizerHelper
 			'schedules'     => 'schedule',
 			'search'        => 'search',
 			'subjects'      => 'subject',
+			'surfaces'      => 'surface',
 			'terms'         => 'term',
 			'trace'         => '',
 			'units'         => 'unit'

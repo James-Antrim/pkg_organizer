@@ -15,9 +15,9 @@ use Organizer\Controller;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Dintypes extends Controller
+class Surfaces extends Controller
 {
-	protected $listView = 'dintypes';
+	protected $listView = 'surfaces';
 
-	protected $resource = 'dintype';
+	protected $resource = 'surface';
 }
