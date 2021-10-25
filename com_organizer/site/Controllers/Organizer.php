@@ -27,8 +27,8 @@ class Organizer extends Controller
 	 */
 	public function cleanBookings()
 	{
-		$model = new Models\Booking();
-		$model->clean();
+		$model = new Models\Schedule();
+		$model->cleanBookings(true);
 		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
 		$this->setRedirect(Route::_($url, false));
 	}

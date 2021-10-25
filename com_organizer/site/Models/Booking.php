@@ -72,6 +72,12 @@ class Booking extends Participants
 			Helpers\OrganizerHelper::error(412);
 		}
 
+		if ($instance->delta === 'removed')
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_DEPRECATED_INSTANCE', 'notice');
+			return 0;
+		}
+
 		$booking = new Tables\Bookings();
 		$keys    = ['blockID' => $instance->blockID, 'unitID' => $instance->unitID];
 

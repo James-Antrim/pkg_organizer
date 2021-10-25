@@ -13,8 +13,8 @@ namespace Organizer\Models;
 use Exception;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
-use Organizer\Validators;
 use Organizer\Tables;
+use Organizer\Validators;
 
 /**
  * Class which manages stored schedule data.
@@ -24,6 +24,107 @@ use Organizer\Tables;
 class Schedule extends BaseModel
 {
 	private $modified;
+
+	/**
+	 * Cleans bookings according to their current status derived by the state of associated instances, optionally cleans
+	 * unattended past bookings.
+	 *
+	 * @param   bool  $cleanUnattended  whether unattended bookings in the past should be cleaned as well
+	 *
+	 * @return void
+	 */
+	public function cleanBookings(bool $cleanUnattended = false)
+	{
+		// Bookings deprecated through scheduling changes.
+
+		$today = date('Y-m-d');
+
+		$query = Database::getQuery();
+		$query->select('DISTINCT bk.id')
+			->from('#__organizer_bookings AS bk')
+			->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
+			->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
+			->where("i.delta != 'removed'");
+		Database::setQuery($query);
+
+		$currentIDs = Database::loadIntColumn();
+
+		$query = Database::getQuery();
+		$query->select('DISTINCT bk.id')
+			->from('#__organizer_bookings AS bk')
+			->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
+			->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
+			->where("i.delta = 'removed'");
+		Database::setQuery($query);
+
+		$mixedIDs = Database::loadIntColumn();
+
+		if ($deprecatedIDs = array_diff($mixedIDs, $currentIDs))
+		{
+			$this->deleteBookings($deprecatedIDs);
+		}
+
+		if (!$cleanUnattended)
+		{
+			return;
+		}
+
+		// Unused bookings in the past
+
+		$query = Database::getQuery();
+		$query->select('DISTINCT bk.id')
+			->from('#__organizer_bookings AS bk')
+			->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
+			->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
+			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
+			->where("bl.date < '$today'")
+			->where('ip.attended = 1');
+		Database::setQuery($query);
+
+		$usedIDs = Database::loadIntColumn();
+
+		$query = Database::getQuery();
+		$query->select('DISTINCT bk.id')
+			->from('#__organizer_bookings AS bk')
+			->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
+			->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
+			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
+			->where("bl.date < '$today'")
+			->where('ip.attended = 0');
+		Database::setQuery($query);
+
+		$mixedIDs = Database::loadIntColumn();
+
+		if ($unusedIDs = array_diff($mixedIDs, $usedIDs))
+		{
+			$this->deleteBookings($unusedIDs);
+		}
+	}
+
+	/**
+	 * Removes booking and participation entries made irrelevant by scheduling changes.
+	 *
+	 * @return void
+	 */
+	private function cleanRegistrations()
+	{
+		$query = Database::getQuery();
+		$query->select('DISTINCT i.id')
+			->from('#__organizer_instances AS i')
+			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
+			->where("i.delta = 'removed'");
+		Database::setQuery($query);
+
+		if ($deprecated = Database::loadColumn())
+		{
+			$deprecated = implode(',', $deprecated);
+			$query      = Database::getQuery();
+			$query->delete('#__organizer_instance_participants')->where("instanceID IN ($deprecated)");
+			Database::setQuery($query);
+			Database::execute();
+		}
+	}
 
 	/**
 	 * Updates a table associating an instance with a resource.
@@ -82,6 +183,23 @@ class Schedule extends BaseModel
 		}
 
 		return true;
+	}
+
+	/**
+	 * Deletes
+	 *
+	 * @param   array  $bookingIDs
+	 *
+	 * @return void
+	 */
+	private function deleteBookings(array $bookingIDs)
+	{
+		$query = Database::getQuery();
+		$query->delete('#__organizer_bookings')->where('id IN (' . implode(',', $bookingIDs) . ')');
+
+		$query = Database::getQuery();
+		Database::setQuery($query);
+		Database::execute();
 	}
 
 	/**
@@ -991,6 +1109,8 @@ class Schedule extends BaseModel
 			}
 		}
 
+		$this->cleanBookings();
+		$this->cleanRegistrations();
 		$this->resolveEventSubjects($organizationID);
 
 		return true;
