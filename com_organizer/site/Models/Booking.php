@@ -673,7 +673,6 @@ class Booking extends Participants
 		}
 
 		$warning      = Helpers\HTML::icon('warning-2 yellow');
-		$checkWarning = Helpers\Languages::_('ORGANIZER_NOT_CHECKED_IN');
 		$eventWarning = $warning . ' ' . Helpers\Languages::_('ORGANIZER_SELECT_EVENT');
 		$roomWarning  = $warning . ' ' . Helpers\Languages::_('ORGANIZER_SELECT_ROOM');
 
@@ -693,10 +692,6 @@ class Booking extends Participants
 				{
 					$item->room = $roomWarning;
 				}
-			}
-			elseif (!$item->attended)
-			{
-				$item->room = $checkWarning;
 			}
 
 			$columns        = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
