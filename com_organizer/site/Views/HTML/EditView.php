@@ -18,5 +18,48 @@ use Organizer\Helpers;
  */
 abstract class EditView extends FormView
 {
-	// Inherited
+	public $item = null;
+
+	/**
+	 * Method to generate buttons for user interaction
+	 *
+	 * @return void
+	 */
+	protected function addToolBar()
+	{
+		$resource   = Helpers\OrganizerHelper::classEncode($this->getName());
+		$constant   = strtoupper($resource);
+		$controller = Helpers\OrganizerHelper::getPlural($resource);
+
+		if ($this->item->id)
+		{
+			$cancel = 'ORGANIZER_CLOSE';
+			$save   = 'ORGANIZER_SAVE_CLOSE';
+			$title  = "ORGANIZER_{$constant}_EDIT";
+		}
+		else
+		{
+			$cancel = 'ORGANIZER_CANCEL';
+			$save   = 'ORGANIZER_CREATE_CLOSE';
+			$title  = "ORGANIZER_{$constant}_NEW";
+		}
+
+		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "$controller.save", false);
+		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "$controller.cancel", false);
+	}
+
+	/**
+	 * Method to get display
+	 *
+	 * @param   Object  $tpl  template  (default: null)
+	 *
+	 * @return void
+	 */
+	public function display($tpl = null)
+	{
+		$this->item = $this->getModel()->getItem(Helpers\Input::getSelectedID());
+		parent::display($tpl);
+	}
 }

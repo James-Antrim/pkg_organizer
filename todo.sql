@@ -5,11 +5,7 @@
 #add compactor functions for tables whose ids are not stored in json schedules
 #add function to clean duplicate associations
 #drop sy 20/21
-#controller, forms, models, views for dintypes
 #suppress organization context for person and room instances
-#remove bookings that have been made deprecated by scheduling changes
-#make further joins during checkin to ensure that the booking should exist
-#remove registrations that have been made deprecated by scheduling changes
 #rework so that classDecode/-Encode is not necessary??
 #english switch
 #endregion

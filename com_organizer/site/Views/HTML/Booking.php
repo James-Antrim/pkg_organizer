@@ -38,9 +38,9 @@ class Booking extends Participants
 		'checkbox' => '',
 		'status'   => 'value',
 		'fullName' => 'link',
-		'event'    => 'link',
-		'room'     => 'link',
-		'seat'     => 'link',
+		'event'    => 'value',
+		'room'     => 'value',
+		'seat'     => 'value',
 		'complete' => 'value'
 	];
 
@@ -167,12 +167,12 @@ class Booking extends Participants
 				false
 			);
 
-			// No easy removal at a later date
-			if ($isToday and $now >= $start and $this->hasRegistered)
+			if (($expired or ($isToday and $now >= $start)) and $this->hasRegistered)
 			{
 				$text = Languages::_('ORGANIZER_CHECKIN');
 				$toolbar->appendButton('Standard', 'user-check', $text, 'bookings.checkin', true);
 			}
+			// No easy removal at a later date
 			elseif (!$expired)
 			{
 				$text = Languages::_('ORGANIZER_DELETE');
@@ -298,22 +298,16 @@ class Booking extends Participants
 		$link        = '';
 		$now         = date('H:i:s');
 		$start       = $this->booking->get('defaultStartTime');
-		$started     = false;
 		$today       = date('Y-m-d');
 
-		if ($today < $bookingDate)
+		if ($today >= $bookingDate)
 		{
-			$started = true;
-		}
-		elseif ($today === $bookingDate)
-		{
-			$start   = $this->booking->startTime ?: $start;
-			$started = $now > $start;
-		}
+			$start = $this->booking->startTime ?: $start;
 
-		if ($started)
-		{
-			$link = "index.php?option=com_organizer&view=instance_participant_edit&bookingID=$this->bookingID&id=";
+			if (!($today === $bookingDate) or $now > $start)
+			{
+				$link = "index.php?option=com_organizer&view=instance_participant_edit&bookingID=$this->bookingID&id=";
+			}
 		}
 
 		$structuredItems = [];
@@ -322,7 +316,7 @@ class Booking extends Participants
 		{
 			$item->id       = $item->ipaID;
 			$item->fullName = $item->forename ? $item->fullName : $item->surname;
-			$thisLink       = $link ? $link . $item->ipaID : '';
+			$thisLink       = ($link and $item->attended) ? $link . $item->ipaID : '';
 
 			if ($item->attended and $item->registered)
 			{

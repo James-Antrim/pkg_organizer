@@ -2,8 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="code" type="Integer" label="CODE" first="0" last="999" step="1"/>
-        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
-        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="code" type="Blank" label="CODE" class="validate-numeric" maxlength="3" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" class="validate-name" maxlength="150" required="true"/>
+        <field name="name_de" type="Blank" label="NAME_DE" class="validate-name" maxlength="150" required="true"/>
     </fieldset>
 </form>
