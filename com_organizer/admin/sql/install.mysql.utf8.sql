@@ -761,7 +761,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `alias`          VARCHAR(255)                 DEFAULT NULL,
     `code`           VARCHAR(60)         NOT NULL COLLATE utf8mb4_bin,
     `name_de`        VARCHAR(150)        NOT NULL,
     `name_en`        VARCHAR(150)        NOT NULL,

@@ -15,7 +15,6 @@ namespace Organizer\Tables;
  */
 class Roomtypes extends BaseTable
 {
-	use Aliased;
 	use Suppressed;
 	use Coded;
 
