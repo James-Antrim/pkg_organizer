@@ -766,11 +766,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `name_en`        VARCHAR(150)        NOT NULL,
     `description_de` TEXT,
     `description_en` TEXT,
-    `minCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
-    `maxCapacity`    INT(4) UNSIGNED              DEFAULT NULL,
+    `capacity`       INT(4) UNSIGNED              DEFAULT NULL,
     `suppress`       TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `alias` (`alias`),
     UNIQUE KEY `code` (`code`)
 )
     ENGINE = InnoDB

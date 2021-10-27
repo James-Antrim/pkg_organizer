@@ -878,8 +878,7 @@ class Search extends ListModel
 			if ($capacity)
 			{
 				// Opens conjunctive clause and cap from type
-				$query->where("(minCapacity IS NULL OR minCapacity = 0 OR minCapacity <= $capacity)");
-				$query->where("(maxCapacity IS NULL OR maxCapacity = 0 OR maxCapacity >= $capacity)");
+				$query->where("capacity >= $capacity");
 			}
 
 			Database::setQuery($query);
@@ -899,12 +898,7 @@ class Search extends ListModel
 
 		if ($capacity)
 		{
-			// If the existing capacity is not valid, it is also irrelevant.
-			$maxCapacityValid = "(maxCapacity IS NOT NULL AND maxCapacity > 0)";
-			$minCapacityValid = "(minCapacity IS NOT NULL AND minCapacity > 0)";
-			$query->where("($maxCapacityValid OR $minCapacityValid)")
-				->where("(minCapacity IS NULL OR minCapacity = '0' OR minCapacity <= '$capacity')")
-				->where("(maxCapacity IS NULL OR maxCapacity = '0' OR maxCapacity >= '$capacity')");
+			$query->where("capacity >= $capacity");
 
 			Database::setQuery($query);
 

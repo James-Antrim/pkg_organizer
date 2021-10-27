@@ -18,11 +18,10 @@ use Organizer\Helpers;
 class Roomtypes extends ListView
 {
 	protected $rowStructure = [
-		'checkbox'    => '',
-		'code'        => 'link',
-		'name'        => 'link',
-		'minCapacity' => 'value',
-		'maxCapacity' => 'value'
+		'checkbox' => '',
+		'code'     => 'link',
+		'name'     => 'link',
+		'capacity' => 'value'
 		//'roomCount'   => 'value'
 	];
 
@@ -45,11 +44,10 @@ class Roomtypes extends ListView
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'    => '',
-			'code'        => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
-			'name'        => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-			'minCapacity' => Helpers\HTML::sort('MIN_CAPACITY', 'minCapacity', $direction, $ordering),
-			'maxCapacity' => Helpers\HTML::sort('MAX_CAPACITY', 'maxCapacity', $direction, $ordering)
+			'checkbox' => '',
+			'code'     => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
+			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'capacity' => Helpers\HTML::sort('CAPACITY', 'capacity', $direction, $ordering),
 			//'roomCount'   => Helpers\HTML::sort('ROOM_COUNT', 'roomCount', $direction, $ordering)
 		];
 

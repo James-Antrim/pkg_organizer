@@ -40,15 +40,7 @@ class Roomtypes extends BaseTable
 	 *
 	 * @var string
 	 */
-	public $maxCapacity;
-
-	/**
-	 * The minimum occupancy for rooms of this type.
-	 * INT(4) UNSIGNED DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $minCapacity;
+	public $capacity;
 
 	/**
 	 * The resource's German name.

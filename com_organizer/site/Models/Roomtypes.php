@@ -28,10 +28,10 @@ class Roomtypes extends ListModel
 		$tag = Helpers\Languages::getTag();
 
 		$query = $this->_db->getQuery(true);
-		$query->select("DISTINCT t.id, t.name_$tag AS name, t.minCapacity, t.maxCapacity, t.code")
+		$query->select("DISTINCT t.id, t.name_$tag AS name, t.capacity, t.code")
 			->from('#__organizer_roomtypes AS t');
 
-		$this->setSearchFilter($query, ['code', 'name_de', 'name_en', 'minCapacity', 'maxCapacity']);
+		$this->setSearchFilter($query, ['code', 'name_de', 'name_en', 'capacity']);
 		$this->setOrdering($query);
 
 		return $query;
