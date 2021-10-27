@@ -331,7 +331,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		if (!$instanceIDs = $this->getInstances($method))
+		if (!$instanceIDs = $this->getInstances($method, true))
 		{
 			return;
 		}
@@ -495,11 +495,12 @@ class InstanceParticipant extends BaseModel
 	 * Finds instances matching the given instance by matching method, inclusive the reference instance. Adds system
 	 * message if no results were found.
 	 *
-	 * @param   int  $method  the method for determining relevant instances
+	 * @param   int   $method  the method for determining relevant instances
+	 * @param   bool  $virtual whether virtual instances are permissible in the result set
 	 *
 	 * @return array
 	 */
-	private function getInstances(int $method): array
+	private function getInstances(int $method, bool $virtual = false): array
 	{
 		$now   = date('H:i:s');
 		$query = Database::getQuery();
@@ -512,8 +513,12 @@ class InstanceParticipant extends BaseModel
 			->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ip.id')
 			->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
 			->where("(b.date > '$today' OR (b.date = '$today' AND b.endTime > '$now'))")
-			->where("r.virtual = 0")
 			->order('i.id');
+
+		if (!$virtual)
+		{
+			$query->where("r.virtual = 0");
+		}
 
 		switch ($method)
 		{
@@ -850,7 +855,7 @@ class InstanceParticipant extends BaseModel
 		$participant = new Participant();
 		$participant->supplement($participantID);
 
-		if (!$instanceIDs = $this->getInstances($method))
+		if (!$instanceIDs = $this->getInstances($method, true))
 		{
 			return;
 		}
