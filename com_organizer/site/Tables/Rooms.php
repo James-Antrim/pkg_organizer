@@ -44,6 +44,14 @@ class Rooms extends BaseTable
 	public $effCapacity;
 
 	/**
+	 * The id of the corresponding flooring entry
+	 * INT(3) UNSIGNED
+	 *
+	 * @var int
+	 */
+	public $flooringID;
+
+	/**
 	 * The rooms maximum occupancy for participants.
 	 * INT(4) UNSIGNED DEFAULT NULL
 	 *

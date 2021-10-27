@@ -169,6 +169,23 @@ class Room extends MergeModel
 			return false;
 		}
 
+		$floorings = [
+			1  => 'PVC',
+			2  => 'Betonwerkstein',
+			3  => 'Dielen',
+			4  => 'Estrich',
+			5  => 'Fliesen',
+			6  => 'Gitterrost',
+			7  => 'Holz',
+			8  => 'Kautschuk',
+			9  => 'Linoleum',
+			10 => 'Parkett (nicht versiegelt)',
+			11 => 'Parkett (versiegelt)',
+			12 => 'Riffelblech',
+			13 => 'Schutzmatten (Gummi)',
+			14 => 'Teppich'
+		];
+
 		while (($row = fgets($file)) !== false)
 		{
 			$this->cleanRow($row);
@@ -212,9 +229,15 @@ class Room extends MergeModel
 					case 'effCapacity':
 						$room->effCapacity = (int) $value;
 						break;
-					case 'code':
+					case 'flooring':
+						$room->flooringID = array_search($value, $floorings) ?: 1;
+						break;
 					case 'room_type':
 					case 'organization':
+						//soon
+						break;
+					// Already used to load
+					case 'code':
 					default:
 						echo "<pre>default?</pre>";
 						break;

@@ -324,6 +324,34 @@ CREATE TABLE IF NOT EXISTS `#__organizer_fields` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `#__organizer_flooring` (
+    `id`      INT(3) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name_de` VARCHAR(150)    NOT NULL,
+    `name_en` VARCHAR(150)    NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+INSERT INTO `#__organizer_flooring` (`id`, `name_de`, `name_en`)
+VALUES (1, 'PVC', 'PVC'),
+       (2, 'Betonwerkstein', 'Cast Stone'),
+       (3, 'Dielen', 'Planks'),
+       (4, 'Estrich', 'Screed'),
+       (5, 'Fliesen', 'Tiles'),
+       (6, 'Gitterrost', 'Grating'),
+       (7, 'Holz', 'Wood'),
+       (8, 'Kautschuk', 'Rubber'),
+       (9, 'Linoleum', 'Linoleum'),
+       (10, 'Parkett (nicht versiegelt)', 'Parquet (Unsealed)'),
+       (11, 'Parkett (versiegelt)', 'Parquet (Sealed)'),
+       (12, 'Riffelblech', 'Tread Plate'),
+       (13, 'Schutzmatten (Gummi)', 'Protective Mats (Rubber)'),
+       (14, 'Teppich', 'Carpet');
+
 CREATE TABLE IF NOT EXISTS `#__organizer_frequencies` (
     `id`      INT(1) UNSIGNED NOT NULL,
     `name_de` VARCHAR(150)    NOT NULL,
@@ -717,6 +745,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `area`        DOUBLE(6, 2) UNSIGNED NOT NULL DEFAULT 0.00,
     `buildingID`  INT(11) UNSIGNED               DEFAULT NULL,
     `maxCapacity` INT(4) UNSIGNED       NOT NULL DEFAULT 0,
+    `flooringID`  INT(3) UNSIGNED                DEFAULT 1,
     `effCapacity` INT(4) UNSIGNED       NOT NULL DEFAULT 0,
     `roomtypeID`  INT(11) UNSIGNED               DEFAULT NULL,
     `virtual`     TINYINT(1) UNSIGNED   NOT NULL DEFAULT 0,
@@ -1057,6 +1086,7 @@ ALTER TABLE `#__organizer_programs`
 
 ALTER TABLE `#__organizer_rooms`
     ADD CONSTRAINT `room_buildingID_fk` FOREIGN KEY (`buildingID`) REFERENCES `#__organizer_buildings` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `room_flooringID_fk` FOREIGN KEY (`flooringID`) REFERENCES `#__organizer_flooring` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `room_roomtypeID_fk` FOREIGN KEY (`roomtypeID`) REFERENCES `#__organizer_roomtypes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_runs`

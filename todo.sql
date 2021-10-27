@@ -7,7 +7,13 @@
 #drop sy 20/21
 #suppress organization context for person and room instances
 #rework so that classDecode/-Encode is not necessary??
+#equipment management
 #english switch
+#instances export suppress columns/resources
+#instances export aggregate 'the same' appointment for teachers
+#move simple get/set functions from helpers/models to tables
+#overwrite bind function to use types (and attributes)
+#purge data
 #endregion
 
 #region Bugs ###########################################################################################################
