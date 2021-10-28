@@ -28,7 +28,7 @@ class Search extends ListView
 	/**
 	 * @inheritDoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		HTML::setTitle(Languages::_('ORGANIZER_SEARCH'), 'list-2');
 	}

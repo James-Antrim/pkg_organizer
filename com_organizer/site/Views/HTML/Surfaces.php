@@ -20,6 +20,14 @@ class Surfaces extends ListView
 	protected $rowStructure = ['checkbox' => '', 'code' => 'link', 'name' => 'link'];
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function addToolBar(bool $delete = false)
+	{
+		parent::addToolBar($delete);
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function setHeaders()

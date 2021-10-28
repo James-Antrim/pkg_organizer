@@ -49,7 +49,7 @@ class ContactTracking extends ListView
 	/**
 	 * @inheritdoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		Helpers\HTML::setTitle(Languages::_("ORGANIZER_CONTACT_TRACKING"), 'list-2');
 
@@ -116,7 +116,9 @@ class ContactTracking extends ListView
 				break;
 			case self::BY_DAY:
 			default:
-				$otherHeaders = ['dates' => Languages::_('ORGANIZER_DATES'), 'length' => Languages::_('ORGANIZER_CONTACT_LENGTH')];
+				$otherHeaders = ['dates'  => Languages::_('ORGANIZER_DATES'),
+				                 'length' => Languages::_('ORGANIZER_CONTACT_LENGTH')
+				];
 				break;
 
 		}

@@ -36,7 +36,7 @@ class Subjects extends ListView
 	/**
 	 * @inheritdoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		$resourceName = '';
 		if (!$this->adminContext)

@@ -26,6 +26,14 @@ class Roomtypes extends ListView
 	];
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function addToolBar(bool $delete = false)
+	{
+		parent::addToolBar($delete);
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	protected function authorize()

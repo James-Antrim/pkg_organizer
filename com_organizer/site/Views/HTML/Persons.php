@@ -32,7 +32,7 @@ class Persons extends ListView
 	/**
 	 * @inheritdoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		Helpers\HTML::setTitle(Languages::_('ORGANIZER_TEACHERS'), 'users');
 		$toolbar = Toolbar::getInstance();

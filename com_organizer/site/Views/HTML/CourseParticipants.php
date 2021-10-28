@@ -34,7 +34,7 @@ class CourseParticipants extends Participants
 	/**
 	 * @inheritdoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		$courseID = Helpers\Input::getID();
 		$course   = new Tables\Courses();

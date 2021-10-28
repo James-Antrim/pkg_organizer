@@ -66,7 +66,7 @@ abstract class ListView extends BaseView
 	 *
 	 * @return void  sets context variables
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		$resource = Helpers\OrganizerHelper::classEncode($this->getName());
 		$constant = strtoupper($resource);
@@ -75,14 +75,18 @@ abstract class ListView extends BaseView
 		$toolbar = Adapters\Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), "$resource.add", false);
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "$resource.edit", true);
-		$toolbar->appendButton(
-			'Confirm',
-			Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Helpers\Languages::_('ORGANIZER_DELETE'),
-			"$resource.delete",
-			true
-		);
+
+		if ($delete)
+		{
+			$toolbar->appendButton(
+				'Confirm',
+				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+				'delete',
+				Helpers\Languages::_('ORGANIZER_DELETE'),
+				"$resource.delete",
+				true
+			);
+		}
 	}
 
 	/**

@@ -43,7 +43,7 @@ class Runs extends ListView
 	/**
 	 * @inheritDoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_RUNS"), 'list-2');
 		$toolbar = Toolbar::getInstance();

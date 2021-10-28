@@ -80,7 +80,7 @@ class Courses extends ListView
 	/**
 	 * @inheritDoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		$resourceName = '';
 		if (!$this->adminContext and $this->preparatory)

@@ -108,7 +108,7 @@ class Booking extends Participants
 	/**
 	 * @inheritDoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		$title = Languages::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}";
 

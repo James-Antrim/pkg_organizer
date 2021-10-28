@@ -56,7 +56,7 @@ class Instances extends ListView
 	/**
 	 * @inheritdoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		$title = $this->get('title');
 
