@@ -768,6 +768,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `description_en` TEXT,
     `capacity`       INT(4) UNSIGNED              DEFAULT NULL,
     `suppress`       TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+    `surfaceID`      INT(5) UNSIGNED     NOT NULL DEFAULT 1000,
     PRIMARY KEY (`id`),
     UNIQUE KEY `code` (`code`)
 )
@@ -1085,6 +1086,9 @@ ALTER TABLE `#__organizer_rooms`
     ADD CONSTRAINT `room_buildingID_fk` FOREIGN KEY (`buildingID`) REFERENCES `#__organizer_buildings` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `room_flooringID_fk` FOREIGN KEY (`flooringID`) REFERENCES `#__organizer_flooring` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `room_roomtypeID_fk` FOREIGN KEY (`roomtypeID`) REFERENCES `#__organizer_roomtypes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `#__organizer_roomtypes`
+    ADD CONSTRAINT `roomtype_surfaceID_fk` FOREIGN KEY (`surfaceID`) REFERENCES `#__organizer_surfaces` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_runs`
     ADD CONSTRAINT `run_termID_fk` FOREIGN KEY (`termID`) REFERENCES `#__organizer_terms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
