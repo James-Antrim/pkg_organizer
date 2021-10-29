@@ -489,6 +489,7 @@ class Instances
 	 *
 	 * @return void
 	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.4
+	 * @throws Exception
 	 */
 	public function display()
 	{
@@ -501,13 +502,34 @@ class Instances
 		$ics[] = "X-WR-TIMEZONE:$this->tzID";
 		$ics[] = 'BEGIN:VTIMEZONE';
 		$ics[] = "TZID:$this->tzID";
+
+		$year         = date('Y');
+		$januaryOne   = "$year-01-01";
+		$winter       = $this->getDTObject($januaryOne);
+		$winterAbbr   = $winter->format('T');
+		$winterOffset = $this->getOffset($winter);
+		$julyOne      = "$year-07-01";
+		$summer       = $this->getDTObject($julyOne);
+		$summerAbbr   = $summer->format('T');
+		$summerOffset = $this->getOffset($summer);
+
 		$ics[] = 'BEGIN:STANDARD';
-		$ics[] = 'DTSTART' . $this->getDateTime();
-		$ics[] = 'TZNAME:Standard Time';
-		$ics[] = 'TZOFFSETFROM:' . $this->getOffset('2021-01-01');
-		$ics[] = 'TZOFFSETTO:' . $this->getOffset('2021-07-01');
+		$ics[] = "TZNAME:$winterAbbr";
+		$ics[] = 'DTSTART:19701025T030000';
+		$ics[] = 'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU';
+		$ics[] = "TZOFFSETFROM:$summerOffset";
+		$ics[] = "TZOFFSETTO:$winterOffset";
 		$ics[] = "END:STANDARD";
+
+		$ics[] = 'BEGIN:DAYLIGHT';
+		$ics[] = "TZNAME:$summerAbbr";
+		$ics[] = 'DTSTART:19700329T020000';
+		$ics[] = 'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU';
+		$ics[] = "TZOFFSETFROM:$winterOffset";
+		$ics[] = "TZOFFSETTO:$summerOffset";
+		$ics[] = "END:DAYLIGHT";
 		$ics[] = "END:VTIMEZONE";
+
 
 		foreach ($this->instances as $instance)
 		{
@@ -578,33 +600,35 @@ class Instances
 	private function getDateTime(string $dateTime = ''): string
 	{
 		$dateTime = preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $dateTime) ? $dateTime : date('Y-m-d H:i:s');
-		$stamp    = strtotime($dateTime);
-		$value    = date('Ymd', $stamp) . 'T' . date('His', $stamp);
+		$dateTime = $this->getDTObject($dateTime);
+		$tzAbbr   = $dateTime->format('T');
+		$value    = $dateTime->format('Ymd') . 'T' . $dateTime->format('His');
 
-		return ";TZID=$this->tzID:$value";
+		return ";TZID=$tzAbbr:$value";
+	}
+
+	/**
+	 * @param   string  $dateTime
+	 *
+	 * @return DateTime|null
+	 * @throws Exception
+	 */
+	private function getDTObject(string $dateTime): DateTime
+	{
+		return new DateTime($dateTime, new DateTimeZone($this->tzID));
 	}
 
 	/**
 	 * Gets the offset to UTC as a string.
 	 *
-	 * @param   string  $dateTime  the date at which the UTC offset is to be measured.
+	 * @param   DateTime  $dateTime  the date at which the UTC offset is to be measured.
 	 *
 	 * @return string the formatted offset
 	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.3.3
 	 * @url https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.3.4
 	 */
-	private function getOffset(string $dateTime): string
+	private function getOffset(DateTime $dateTime): string
 	{
-		try
-		{
-			$dateTime = new DateTime($dateTime, new DateTimeZone($this->tzID));
-		}
-		catch (Exception $exception)
-		{
-			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
-			Helpers\OrganizerHelper::error(500);
-		}
-
 		$offset = $dateTime->getOffset();
 
 		if ($offset < 0)
@@ -671,7 +695,8 @@ class Instances
 		$moodleCategory = 'URL:https://moodle.thm.de/course/index.php?categoryid=PID';
 
 		// Moodle Category
-		if (preg_match('/(((https?):\/\/)moodle\.thm\.de\/course\/index\.php\\?categoryid=(\\d+))/', $comment, $matches))
+		if (preg_match('/(((https?):\/\/)moodle\.thm\.de\/course\/index\.php\\?categoryid=(\\d+))/', $comment,
+			$matches))
 		{
 			$comment = trim(str_replace($matches[0], '', $comment));
 
@@ -696,7 +721,8 @@ class Instances
 		$panopto = 'URL:https://panopto.thm.de/Panopto/Pages/Viewer.aspx?id=PID';
 
 		// Panopto 1
-		if (preg_match('/(((https?):\/\/)panopto.thm.de\/Panopto\/Pages\/Viewer.aspx\?id=[\d\w\-]+)/', $comment, $matches))
+		if (preg_match('/(((https?):\/\/)panopto.thm.de\/Panopto\/Pages\/Viewer.aspx\?id=[\d\w\-]+)/', $comment,
+			$matches))
 		{
 			$comment = trim(str_replace($matches[0], '', $comment));
 
@@ -718,7 +744,8 @@ class Instances
 		}
 
 		// Pilos
-		if (preg_match('/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/', $comment, $matches))
+		if (preg_match('/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/', $comment,
+			$matches))
 		{
 			$thisURL = $matches[0];
 			$comment = trim(str_replace($thisURL, '', $comment));
