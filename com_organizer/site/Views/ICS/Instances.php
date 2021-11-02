@@ -8,7 +8,6 @@
  * @link        www.thm.de
  */
 
-
 namespace Organizer\Views\ICS;
 
 use DateTime;
@@ -600,11 +599,10 @@ class Instances
 	private function getDateTime(string $dateTime = ''): string
 	{
 		$dateTime = preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $dateTime) ? $dateTime : date('Y-m-d H:i:s');
-		$dateTime = $this->getDTObject($dateTime);
-		$tzAbbr   = $dateTime->format('T');
-		$value    = $dateTime->format('Ymd') . 'T' . $dateTime->format('His');
+		$stamp    = strtotime($dateTime);
+		$value    = date('Ymd', $stamp) . 'T' . date('His', $stamp);
 
-		return ";TZID=$tzAbbr:$value";
+		return ";TZID=$this->tzID:$value";
 	}
 
 	/**
