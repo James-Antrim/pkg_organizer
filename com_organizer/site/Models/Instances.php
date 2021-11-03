@@ -126,6 +126,7 @@ class Instances extends ListModel
 			$dow       = $params->get('dow');
 			$endDate   = $params->get('endDate');
 			$methodIDs = $params->get('methodIDs');
+			$methodIDs = array_filter($methodIDs);
 
 			if ($dow or $endDate or $methodIDs)
 			{
