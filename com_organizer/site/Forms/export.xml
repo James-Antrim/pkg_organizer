@@ -26,10 +26,6 @@
         </field>
     </fieldset>
     <fieldset name="settings" label="SETTINGS">
-        <field name="languageTag" type="Options" label="LANGUAGE" onchange="this.form.submit();" default="de">
-            <option value="de">GERMAN</option>
-            <option value="en">ENGLISH</option>
-        </field>
         <field name="format" type="Options" label="EXPORT_TEMPLATE" default="pdf.GridA4" onchange="this.form.submit();">
             <option value="pdf.GridA3">PDF_GRID_A3</option>
             <option value="pdf.GridA4">PDF_GRID_A4</option>

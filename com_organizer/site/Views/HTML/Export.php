@@ -36,11 +36,18 @@ class Export extends FormView
 	protected function addToolBar()
 	{
 		Helpers\HTML::setTitle(Languages::_('ORGANIZER_EXPORT_TITLE'), 'list-2');
-		$tag     = Helpers\Languages::getTag();
 		$toolbar = Toolbar::getInstance();
 
-		$fields = ['campusID' => 0, 'categoryID' => 0, 'groupID' => 0, 'my' => 0, 'organizationID' => 0, 'personID' => 0, 'roomID' => 0];
-		$form   = ($task = Helpers\Input::getTask() and $task === 'export.reset') ? ['languageTag' => $tag] : Helpers\Input::getArray();
+		$fields = [
+			'campusID'       => 0,
+			'categoryID'     => 0,
+			'groupID'        => 0,
+			'my'             => 0,
+			'organizationID' => 0,
+			'personID'       => 0,
+			'roomID'         => 0
+		];
+		$form   = ($task = Helpers\Input::getTask() and $task === 'export.reset') ? [] : Helpers\Input::getArray();
 
 		foreach (array_keys($fields) as $field)
 		{
@@ -77,10 +84,6 @@ class Export extends FormView
 		$layout = empty($format[1]) ? '' : "&layout=$format[1]";
 		$format = $format[0];
 		$url    .= "&format=$format$layout";
-
-		$languages = ['de', 'en'];
-		$tag       = (!empty($form['languageTag']) and in_array($form['languageTag'], $languages)) ? $form['languageTag'] : 'de';
-		$url       .= "&languageTag=$tag";
 
 		$authRequired = (!empty($fields['my']) or !empty($fields['personID']));
 
@@ -122,7 +125,8 @@ class Export extends FormView
 			}
 
 			$intervals = ['month', 'quarter', 'term', 'week'];
-			$interval  = (empty($form['interval']) or !in_array($form['interval'], $intervals)) ? 'week' : $form['interval'];
+			$interval  = (empty($form['interval']) or !in_array($form['interval'], $intervals)) ?
+				'week' : $form['interval'];
 			$url       .= "&interval=$interval";
 
 			$toolbar->appendButton('Link', "file-$format", Languages::_('ORGANIZER_DOWNLOAD'), $url, true);

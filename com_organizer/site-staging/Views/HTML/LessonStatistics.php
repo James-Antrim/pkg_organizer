@@ -37,7 +37,6 @@ class LessonStatistics extends BaseView
 	 */
 	public function display($tpl = null)
 	{
-		// Use language_selection layout
 		$this->state = $this->get('State');
 		$this->form  = $this->get('Form');
 		$this->form->setValue('termID', null, $this->state->get('termID'));

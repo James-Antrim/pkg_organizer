@@ -122,14 +122,7 @@ class Courses extends Controller
 			return;
 		}
 
-		$url = Uri::base() . "?option=com_organizer&view=course_participants&id=$courseID";
-
-		if ($tag = Helpers\Input::getCMD('languageTag'))
-		{
-			$url .= "&languageTag=$tag";
-		}
-
-		$this->setRedirect($url);
+		$this->setRedirect(Uri::base() . "?option=com_organizer&view=course_participants&id=$courseID");
 	}
 
 	/**

@@ -17,7 +17,8 @@ if ($this->refresh)
     <script type="text/javascript">
         let timer = null;
 
-        function auto_reload() {
+        function auto_reload()
+        {
             window.location = document.URL;
         }
 
@@ -28,7 +29,6 @@ if ($this->refresh)
 	<?php
 }
 
-require_once 'language_selection.php';
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 echo $this->subtitle;
 echo $this->supplement;

@@ -103,6 +103,7 @@ class Mailer
 		}
 		else
 		{
+			// TODO see what variable Joomla needs set here and set it.
 			$tag = explode('-', $userParams['language'])[0];
 			Input::set('languageTag', $tag);
 		}

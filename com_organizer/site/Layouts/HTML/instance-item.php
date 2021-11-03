@@ -21,7 +21,6 @@ $iteration   = 0;
 $action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 $resourceID  = Helpers\Input::getID();
 
-require_once 'language_selection.php';
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 echo $this->subtitle;
 echo $this->supplement;

@@ -17,7 +17,6 @@ $categoryID     = $this->state->get('categoryID');
 $showTable      = (!empty($this->columns) and !empty($this->rows));
 
 ?>
-<!-- use language_selection layout -->
 <div class="lesson-statistics-view">
     <h1 class="componentheading"><?php echo Languages::_('ORGANIZER_EVENT_STATISTICS'); ?></h1>
     <form enctype="multipart/form-data" method="post"

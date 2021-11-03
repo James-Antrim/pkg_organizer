@@ -12,12 +12,10 @@
             <option name="ORGANIZER_INSTANCES" msg="ORGANIZER_INSTANCES_DESC" value="instances"/>
             <option name="ORGANIZER_ORGANIZATION_OCCUPANCY" msg="ORGANIZER_ORGANIZATION_OCCUPANCY_DESC"
                     value="organization_statistics"/>
-            <option name="ORGANIZER_PLAN" msg="ORGANIZER_PLAN_DESC" value="plan"/>
             <option name="ORGANIZER_PROFILE" msg="ORGANIZER_PROFILE_DESC" value="profile"/>
             <option name="ORGANIZER_ROOM_OVERVIEW" msg="ORGANIZER_ROOM_OVERVIEW_DESC" value="room_overview"/>
             <option name="ORGANIZER_ROOM_STATISTICS" msg="ORGANIZER_ROOM_STATISTICS_DESC" value="room_statistics"/>
             <option name="ORGANIZER_SCHEDULE_EXPORT" msg="ORGANIZER_SCHEDULE_EXPORT_DESC" value="schedule_export"/>
-            <option name="ORGANIZER_SCHEDULE" msg="ORGANIZER_SCHEDULE_DESC" value="schedule_item"/>
             <option name="ORGANIZER_SEARCH" msg="ORGANIZER_SEARCH_DESC" value="search"/>
             <option name="ORGANIZER_SUBJECTS" msg="ORGANIZER_SUBJECTS_DESC" value="subjects"/>
             <option name="ORGANIZER_WORKLOAD" msg="ORGANIZER_WORKLOAD_DESC" value="workload"/>

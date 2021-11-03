@@ -1,69 +1,93 @@
-function makeLink() {
+function makeLink()
+{
     const variables = Joomla.getOptions('variables', {}),
         cmInput = document.getElementById('filter_campusID'),
         ctInput = document.getElementById('filter_categoryID'),
         gInput = document.getElementById('filter_groupID'),
         mInput = document.getElementById('filter_methodID'),
+        // TODO replace this with the Joomla variable
         lInput = document.getElementById('list_languageTag'),
         oInput = document.getElementById('filter_organizationID'),
         pInput = document.getElementById('filter_personID'),
         rInput = document.getElementById('filter_roomID');
     let url = variables.ICS_URL, campusID, methodID, my, organizationID, roomID;
 
-    if (typeof variables.my !== "undefined" && typeof variables.auth !== "undefined" && typeof variables.username !== "undefined") {
+    if (typeof variables.my !== "undefined" && typeof variables.auth !== "undefined" && typeof variables.username !== "undefined")
+    {
         url += '&auth=' + variables.auth + '&my=1' + '&username=' + variables.username;
-    } else {
-        if (typeof variables.campusID !== "undefined") {
+    }
+    else
+    {
+        if (typeof variables.campusID !== "undefined")
+        {
             campusID = variables.campusID;
-        } else if (cmInput !== null && cmInput.value) {
+        }
+        else if (cmInput !== null && cmInput.value)
+        {
             campusID = cmInput.value;
         }
 
-        if (typeof campusID !== "undefined") {
+        if (typeof campusID !== "undefined")
+        {
             url += '&campusID=' + campusID;
         }
 
-        if (ctInput !== null && ctInput.value) {
+        if (ctInput !== null && ctInput.value)
+        {
             url += '&categoryID=' + ctInput.value;
         }
 
-        if (typeof variables.dow !== "undefined") {
+        if (typeof variables.dow !== "undefined")
+        {
             url += '&dow=' + variables.dow;
         }
 
-        if (gInput !== null && gInput.value) {
+        if (gInput !== null && gInput.value)
+        {
             url += '&groupID=' + gInput.value;
         }
 
-        if (lInput !== null && lInput.value) {
+        // TODO replace this with the Joomla variable
+        if (lInput !== null && lInput.value)
+        {
             url += '&languageTag=' + lInput.value;
         }
 
-        if (typeof variables.methodID !== "undefined") {
+        if (typeof variables.methodID !== "undefined")
+        {
             methodID = variables.methodID;
-        } else if (mInput !== null && mInput.value) {
+        }
+        else if (mInput !== null && mInput.value)
+        {
             methodID = mInput.value;
         }
 
-        if (typeof methodID !== "undefined") {
+        if (typeof methodID !== "undefined")
+        {
             url += '&methodID=' + methodID;
         }
 
-        if (typeof variables.organizationID !== "undefined") {
+        if (typeof variables.organizationID !== "undefined")
+        {
             organizationID = variables.organizationID;
-        } else if (oInput !== null && oInput.value) {
+        }
+        else if (oInput !== null && oInput.value)
+        {
             organizationID = oInput.value;
         }
 
-        if (typeof organizationID !== "undefined") {
+        if (typeof organizationID !== "undefined")
+        {
             url += '&organizationID=' + organizationID;
         }
 
-        if (pInput !== null && pInput.value) {
+        if (pInput !== null && pInput.value)
+        {
             url += '&personID=' + pInput.value;
         }
 
-        if (rInput !== null && rInput.value) {
+        if (rInput !== null && rInput.value)
+        {
             url += '&roomID=' + rInput.value;
         }
     }

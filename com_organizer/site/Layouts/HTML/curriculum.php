@@ -12,7 +12,6 @@ use Organizer\Helpers;
 
 if (!$componentTemplate = Helpers\Input::getCMD('tmpl') === 'component')
 {
-	require_once 'language_selection.php';
 	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 }
 ?>

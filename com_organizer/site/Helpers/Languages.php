@@ -74,18 +74,7 @@ class Languages extends Text
 	 */
 	public static function getLanguage(): Language
 	{
-		$tag = self::getTag();
-		switch ($tag)
-		{
-			case 'en':
-				$language = Language::getInstance('en-GB');
-				break;
-			case 'de':
-			default:
-				$language = Language::getInstance('de-DE');
-				break;
-		}
-
+		$language = Factory::getLanguage();
 		$language->load('com_organizer', JPATH_ADMINISTRATOR . '/components/com_organizer');
 
 		return $language;
@@ -98,22 +87,7 @@ class Languages extends Text
 	 */
 	public static function getTag(): string
 	{
-		$requestedTag = Input::getCMD('languageTag');
-
-		if (!empty($requestedTag))
-		{
-			return $requestedTag;
-		}
-
-		$list = Input::getListItems();
-		if ($listTag = $list->get('languageTag'))
-		{
-			return $listTag;
-		}
-
-		$default = explode('-', Factory::getLanguage()->getTag())[0];
-
-		return Input::getParams()->get('initialLanguage', $default);
+		return explode('-', Factory::getLanguage()->getTag())[0];
 	}
 
 	/**

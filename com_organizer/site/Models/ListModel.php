@@ -69,10 +69,7 @@ abstract class ListModel extends ParentModel
 	 */
 	protected function filterFilterForm(Form &$form)
 	{
-		if ($this->adminContext)
-		{
-			$form->removeField('languageTag', 'list');
-		}
+		// No implementation is the default implementation.
 	}
 
 	/**

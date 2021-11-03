@@ -12,7 +12,6 @@ use Organizer\Helpers;
 
 $topic = Helpers\Input::getCMD('topic', 'toc');
 
-//require_once 'language_selection.php';
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 ?>
 <div id="j-main-container" class="span10">

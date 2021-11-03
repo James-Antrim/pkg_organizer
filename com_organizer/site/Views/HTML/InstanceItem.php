@@ -112,7 +112,7 @@ class InstanceItem extends ListView
 	/**
 	 * @inheritdoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		$instance = $this->instance;
 		$method   = $instance->method ? " - $instance->method" : '';
@@ -753,14 +753,13 @@ class InstanceItem extends ListView
 	 * @return void
 	 */
 	private function setResource(
-		array  &$collection,
-		array  &$filtered,
+		array &$collection,
+		array &$filtered,
 		string &$modified,
-		int    $key,
+		int $key,
 		string $name,
-		array  $resource
-	)
-	{
+		array $resource
+	) {
 		$dateTime = $resource['statusDate'];
 
 		if (empty($collection[$name]) or $dateTime > $collection[$name]['date'])

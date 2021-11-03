@@ -31,23 +31,13 @@ class Routing
 			return "$base?option=com_organizer";
 		}
 
-		$languageQuery = '';
-		if ($tag = Input::getCMD('languageTag'))
-		{
-			$languageQuery .= "languageTag=$tag";
-		}
-
 		// If the menu is plausible redirect
 		if ($menuID = Input::getItemid() and !OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->home)
 		{
-			$url = $base . OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->route . '?';
-
-			return $languageQuery ? $url . $languageQuery : $url;
+			return $base . OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->route . '?';
 		}
 
-		$base = "$base?option=com_organizer";
-
-		return $languageQuery ? $base . $languageQuery : $base;
+		return "$base?option=com_organizer";
 	}
 
 	/**
@@ -66,8 +56,6 @@ class Routing
 		{
 			$url .= "&id=$id";
 		}
-
-		self::supplementTag($url);
 
 		return $url;
 	}
@@ -89,23 +77,6 @@ class Routing
 			$url .= "&id=$id";
 		}
 
-		self::supplementTag($url);
-
 		return $url;
-	}
-
-	/**
-	 * Supplements the URL with the language tag as necessary.
-	 *
-	 * @param   string  $url  the URL to be supplemented
-	 *
-	 * @return void
-	 */
-	private static function supplementTag(string &$url): void
-	{
-		if ($tag = Input::getCMD('languageTag'))
-		{
-			$url .= "&languageTag=$tag";
-		}
 	}
 }

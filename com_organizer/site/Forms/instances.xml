@@ -42,11 +42,6 @@
             <option value="quarter">THREE_MONTHS</option>
             <option value="term">TERM</option>
         </field>
-        <field name="languageTag" type="Options" label="Language" class="input-6" onchange="this.form.submit();"
-               default="de">
-            <option value="de">GERMAN</option>
-            <option value="en">ENGLISH</option>
-        </field>
         <field name="limit" type="limitbox" class="input-mini" onchange="this.form.submit();"/>
     </fields>
 </form>

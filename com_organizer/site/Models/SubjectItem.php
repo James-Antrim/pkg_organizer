@@ -161,7 +161,7 @@ class SubjectItem extends ItemModel
 	private function getStructure(): array
 	{
 		$option = 'ORGANIZER_';
-		$url    = '?option=com_organizer&view=subject_item&languageTag=' . Languages::getTag() . '&id=';
+		$url    = '?option=com_organizer&view=subject_item&id=';
 
 		return [
 			'subjectID'                => Helpers\Input::getID(),
@@ -195,7 +195,10 @@ class SubjectItem extends ItemModel
 			// Hard attributes
 			'creditPoints'             => ['label' => Languages::_($option . 'CREDIT_POINTS'), 'type' => 'list'],
 			'method'                   => ['label' => Languages::_($option . 'METHOD'), 'type' => 'list'],
-			'pools'                    => ['label' => Languages::_($option . 'SUBJECT_ITEM_SEMESTER'), 'type' => 'list'],
+			'pools'                    => [
+				'label' => Languages::_($option . 'SUBJECT_ITEM_SEMESTER'),
+				'type'  => 'list'
+			],
 			'duration'                 => ['label' => Languages::_($option . 'DURATION'), 'type' => 'text'],
 			'availability'             => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
 			'language'                 => ['label' => Languages::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],

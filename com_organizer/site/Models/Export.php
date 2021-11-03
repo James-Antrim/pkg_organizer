@@ -28,8 +28,7 @@ class Export extends FormModel
 		// Resolve potential inconsistencies cause by user choices before the form is initialized.
 		if ($task = Input::getTask() and $task === 'export.reset')
 		{
-			// The language should not be reset with the rest.
-			$form = ['languageTag' => Helpers\Languages::getTag()];
+			$form = [];
 		}
 		else
 		{
