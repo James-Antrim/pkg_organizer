@@ -254,7 +254,7 @@ class Instances extends ListModel
 						break;
 				}
 			}
-			elseif ($methodIDs = $params->get('methodIDs'))
+			elseif ($methodIDs = $params->get('methodIDs') and $methodIDs = array_filter($methodIDs))
 			{
 				if (count($methodIDs) === 1)
 				{
