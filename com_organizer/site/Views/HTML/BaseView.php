@@ -16,6 +16,7 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
+use Organizer\Helpers\Routing;
 use Organizer\Views\Named;
 
 /**
@@ -126,7 +127,7 @@ abstract class BaseView extends HtmlView
 
 		JHtmlSidebar::addEntry(
 			'<span class="icon-home"></span>' . Languages::_('ORGANIZER'),
-			'index.php?option=com_organizer&amp;view=organizer',
+			Routing::getViewURL('Organizer'),
 			$viewName == 'organizer'
 		);
 
@@ -140,35 +141,35 @@ abstract class BaseView extends HtmlView
 			$items = [];
 
 			$items[Languages::_('ORGANIZER_CATEGORIES')]     = [
-				'url'    => 'index.php?option=com_organizer&amp;view=categories',
+				'url'    => Routing::getViewURL('Categories'),
 				'active' => $viewName == 'categories'
 			];
 			$items[Languages::_('ORGANIZER_COURSES')]        = [
-				'url'    => 'index.php?option=com_organizer&amp;view=courses',
+				'url'    => Routing::getViewURL('Courses'),
 				'active' => $viewName == 'courses'
 			];
 			$items[Languages::_('ORGANIZER_COURSES_IMPORT')] = [
-				'url'    => 'index.php?option=com_organizer&amp;view=courses_import',
+				'url'    => Routing::getViewURL('CoursesImport'),
 				'active' => $viewName == 'courses_import'
 			];
 			$items[Languages::_('ORGANIZER_EVENTS')]         = [
-				'url'    => 'index.php?option=com_organizer&amp;view=events',
+				'url'    => Routing::getViewURL('Events'),
 				'active' => $viewName == 'events'
 			];
 			$items[Languages::_('ORGANIZER_GROUPS')]         = [
-				'url'    => 'index.php?option=com_organizer&amp;view=groups',
+				'url'    => Routing::getViewURL('Groups'),
 				'active' => $viewName == 'groups'
 			];
 			$items[Languages::_('ORGANIZER_RUNS')]           = [
-				'url'    => 'index.php?option=com_organizer&amp;view=runs',
+				'url'    => Routing::getViewURL('Runs'),
 				'active' => $viewName == 'runs'
 			];
 			$items[Languages::_('ORGANIZER_SCHEDULES')]      = [
-				'url'    => 'index.php?option=com_organizer&amp;view=schedules',
+				'url'    => Routing::getViewURL('Schedules'),
 				'active' => $viewName == 'schedules'
 			];
 			$items[Languages::_('ORGANIZER_UNITS')]          = [
-				'url'    => 'index.php?option=com_organizer&amp;view=units',
+				'url'    => Routing::getViewURL('Units'),
 				'active' => $viewName == 'units'
 			];
 
@@ -177,7 +178,7 @@ abstract class BaseView extends HtmlView
 			// Uploading a schedule should always be the first menu item and will never be the active submenu item.
 			$prepend = [
 				Languages::_('ORGANIZER_SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
-					'url'    => 'index.php?option=com_organizer&amp;view=schedule_edit',
+					'url'    => Routing::getViewURL('ScheduleEdit'),
 					'active' => false
 				]
 			];
@@ -198,19 +199,19 @@ abstract class BaseView extends HtmlView
 			$items = [];
 
 			$items[Languages::_('ORGANIZER_FIELD_COLORS')] = [
-				'url'    => 'index.php?option=com_organizer&amp;view=field_colors',
+				'url'    => Routing::getViewURL('FieldColors'),
 				'active' => $viewName == 'field_colors'
 			];
 			$items[Languages::_('ORGANIZER_POOLS')]        = [
-				'url'    => 'index.php?option=com_organizer&amp;view=pools',
+				'url'    => Routing::getViewURL('Pools'),
 				'active' => $viewName == 'pools'
 			];
 			$items[Languages::_('ORGANIZER_PROGRAMS')]     = [
-				'url'    => 'index.php?option=com_organizer&amp;view=programs',
+				'url'    => Routing::getViewURL('Programs'),
 				'active' => $viewName == 'programs'
 			];
 			$items[Languages::_('ORGANIZER_SUBJECTS')]     = [
-				'url'    => 'index.php?option=com_organizer&amp;view=subjects',
+				'url'    => Routing::getViewURL('Subjects'),
 				'active' => $viewName == 'subjects'
 			];
 			ksort($items);
@@ -226,7 +227,7 @@ abstract class BaseView extends HtmlView
 			JHtmlSidebar::addEntry($spanText, '', false);
 			JHtmlSidebar::addEntry(
 				Languages::_('ORGANIZER_PERSONS'),
-				'index.php?option=com_organizer&amp;view=persons',
+				Routing::getViewURL('Persons'),
 				$viewName == 'persons'
 			);
 		}
@@ -239,31 +240,31 @@ abstract class BaseView extends HtmlView
 			$items = [];
 
 			$items[Languages::_('ORGANIZER_BUILDINGS')]    = [
-				'url'    => 'index.php?option=com_organizer&amp;view=buildings',
+				'url'    => Routing::getViewURL('Buildings'),
 				'active' => $viewName == 'buildings'
 			];
 			$items[Languages::_('ORGANIZER_CAMPUSES')]     = [
-				'url'    => 'index.php?option=com_organizer&amp;view=campuses',
+				'url'    => Routing::getViewURL('Campuses'),
 				'active' => $viewName == 'campuses'
 			];
 			$items[Languages::_('ORGANIZER_MONITORS')]     = [
-				'url'    => 'index.php?option=com_organizer&amp;view=monitors',
+				'url'    => Routing::getViewURL('Monitors'),
 				'active' => $viewName == 'monitors'
 			];
 			$items[Languages::_('ORGANIZER_SURFACES')]     = [
-				'url'    => 'index.php?option=com_organizer&amp;view=surfaces',
+				'url'    => Routing::getViewURL('Surfaces'),
 				'active' => $viewName == 'surfaces'
 			];
 			$items[Languages::_('ORGANIZER_ROOMS')]        = [
-				'url'    => 'index.php?option=com_organizer&amp;view=rooms',
+				'url'    => Routing::getViewURL('Rooms'),
 				'active' => $viewName == 'rooms'
 			];
 			$items[Languages::_('ORGANIZER_ROOMS_IMPORT')] = [
-				'url'    => 'index.php?option=com_organizer&amp;view=rooms_import',
+				'url'    => Routing::getViewURL('RoomsImport'),
 				'active' => $viewName == 'rooms_import'
 			];
 			$items[Languages::_('ORGANIZER_ROOMTYPES')]    = [
-				'url'    => 'index.php?option=com_organizer&amp;view=roomtypes',
+				'url'    => Routing::getViewURL('Roomtypes'),
 				'active' => $viewName == 'roomtypes'
 			];
 			ksort($items);
@@ -281,39 +282,39 @@ abstract class BaseView extends HtmlView
 			$items = [];
 
 			$items[Languages::_('ORGANIZER_COLORS')]        = [
-				'url'    => 'index.php?option=com_organizer&amp;view=colors',
+				'url'    => Routing::getViewURL('Colors'),
 				'active' => $viewName == 'colors'
 			];
 			$items[Languages::_('ORGANIZER_DEGREES')]       = [
-				'url'    => 'index.php?option=com_organizer&amp;view=degrees',
+				'url'    => Routing::getViewURL('Degrees'),
 				'active' => $viewName == 'degrees'
 			];
 			$items[Languages::_('ORGANIZER_FIELDS')]        = [
-				'url'    => 'index.php?option=com_organizer&amp;view=fields',
+				'url'    => Routing::getViewURL('Fields'),
 				'active' => $viewName == 'fields'
 			];
 			$items[Languages::_('ORGANIZER_GRIDS')]         = [
-				'url'    => 'index.php?option=com_organizer&amp;view=grids',
+				'url'    => Routing::getViewURL('Grids'),
 				'active' => $viewName == 'grids'
 			];
 			$items[Languages::_('ORGANIZER_HOLIDAYS')]      = [
-				'url'    => 'index.php?option=com_organizer&amp;view=holidays',
+				'url'    => Routing::getViewURL('Holidays'),
 				'active' => $viewName == 'holidays'
 			];
 			$items[Languages::_('ORGANIZER_METHODS')]       = [
-				'url'    => 'index.php?option=com_organizer&amp;view=methods',
+				'url'    => Routing::getViewURL('Methods'),
 				'active' => $viewName == 'methods'
 			];
 			$items[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
-				'url'    => 'index.php?option=com_organizer&amp;view=organizations',
+				'url'    => Routing::getViewURL('Organizations'),
 				'active' => $viewName == 'organizations'
 			];
 			$items[Languages::_('ORGANIZER_PARTICIPANTS')]  = [
-				'url'    => 'index.php?option=com_organizer&amp;view=participants',
+				'url'    => Routing::getViewURL('Participants'),
 				'active' => $viewName == 'participants'
 			];
 			$items[Languages::_('ORGANIZER_TERMS')]         = [
-				'url'    => 'index.php?option=com_organizer&amp;view=terms',
+				'url'    => Routing::getViewURL('Terms'),
 				'active' => $viewName == 'terms'
 			];
 			ksort($items);

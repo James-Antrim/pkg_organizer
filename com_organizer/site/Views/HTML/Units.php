@@ -83,7 +83,7 @@ class Units extends ListView
 		$class = 'status-display hasToolTip';
 		$title = '';
 
-		// If removed are here at all, the status holds relevance irregardless of date
+		// If removed are here at all, the status holds relevance regardless of date
 		if ($item->status === 'removed')
 		{
 			$date  = Helpers\Dates::formatDate($item->modified);
@@ -125,9 +125,7 @@ class Units extends ListView
 	 */
 	protected function structureItems()
 	{
-		$index = 0;
-		//$link  = "index.php?option=com_organizer&view=unit_edit&id=";
-
+		$index           = 0;
 		$structuredItems = [];
 
 		foreach ($this->items as $item)
@@ -135,7 +133,6 @@ class Units extends ListView
 			$endDate   = Helpers\Dates::formatDate($item->endDate);
 			$startDate = Helpers\Dates::formatDate($item->startDate);
 
-			// $thisLink = $link . $item->id;
 			$structuredItems[$index]             = [];
 			$structuredItems[$index]['checkbox'] = Helpers\HTML::_('grid.id', $index, $item->id);
 			$structuredItems[$index]['status']   = $this->getStatus($item);
@@ -144,7 +141,6 @@ class Units extends ListView
 			$structuredItems[$index]['dates']    = "$startDate - $endDate";
 			$structuredItems[$index]['grid']     = $item->grid;
 			$structuredItems[$index]['code']     = $item->code;
-			//$structuredItems[$index]['run']      = Helpers\HTML::_('link', $thisLink, $item->run);
 
 			$index++;
 		}

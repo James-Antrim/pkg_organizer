@@ -12,6 +12,7 @@ namespace Organizer\Views\HTML;
 
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
+use Organizer\Helpers\Routing;
 
 /**
  * Class loads persistent information a filtered set of subjects into the display context.
@@ -211,9 +212,7 @@ class Subjects extends ListView
 	 */
 	protected function structureItems()
 	{
-		$editLink        = "index.php?option=com_organizer&view=subject_edit&id=";
 		$index           = 0;
-		$itemLink        = "index.php?option=com_organizer&view=subject_item&id=";
 		$structuredItems = [];
 
 		$attributes = [];
@@ -228,7 +227,8 @@ class Subjects extends ListView
 		{
 			$access   = Helpers\Can::document('subject', (int) $subject->id);
 			$checkbox = $access ? Helpers\HTML::_('grid.id', $index, $subject->id) : '';
-			$thisLink = ($this->adminContext and $access) ? $editLink . $subject->id : $itemLink . $subject->id;
+			$thisLink = ($this->adminContext and $access) ?
+				Routing::getViewURL('SubjectEdit', $subject->id) : Routing::getViewURL('SubjectItem', $subject->id);
 
 			$structuredItems[$index] = [];
 
