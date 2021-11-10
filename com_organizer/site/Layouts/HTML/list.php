@@ -12,26 +12,13 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
+require_once 'refresh.php';
+
 $columnCount = count($this->headers);
 $items       = $this->items;
 $iteration   = 0;
 $action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
-if ($this->refresh)
-{
-	?>
-    <script type="text/javascript">
-        let timer = null;
 
-        function auto_reload() {
-            window.location = document.URL;
-        }
-
-        window.onload = function () {
-            timer = setTimeout('auto_reload()', <?php echo $this->refresh; ?>000);
-        }
-    </script>
-	<?php
-}
 if (!$this->adminContext)
 {
 	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;

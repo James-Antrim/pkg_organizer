@@ -11,23 +11,7 @@
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
-if ($this->refresh)
-{
-	?>
-    <script type="text/javascript">
-        let timer = null;
-
-        function auto_reload()
-        {
-            window.location = document.URL;
-        }
-
-        window.onload = function () {
-            timer = setTimeout('auto_reload()', <?php echo $this->refresh; ?>000);
-        }
-    </script>
-	<?php
-}
+require_once 'refresh.php';
 
 echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
 echo $this->subtitle;
