@@ -141,7 +141,7 @@ class Events extends BaseTable
 	public $organization_de;
 
 	/**
-	 * A English description of how courses implementing this event are organized.
+	 * An English description of how courses implementing this event are organized.
 	 * TEXT
 	 *
 	 * @var string
@@ -166,7 +166,7 @@ class Events extends BaseTable
 	public $pretests_de;
 
 	/**
-	 * A English description how to test one's self to see if one should attend or is qualified to attend courses
+	 * An English description how to test one's self to see if one should attend or is qualified to attend courses
 	 * implementing this event.
 	 * TEXT
 	 *
@@ -175,7 +175,7 @@ class Events extends BaseTable
 	public $pretests_en;
 
 	/**
-	 * Whether or not the event is a preparatory event.
+	 * Whether the event is a preparatory event.
 	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
 	 *
 	 * @var bool
@@ -219,6 +219,11 @@ class Events extends BaseTable
 		if (empty($this->campusID))
 		{
 			$this->campusID = null;
+		}
+
+		if (empty($this->registrationType) and !is_numeric($this->registrationType))
+		{
+			$this->registrationType = null;
 		}
 
 		return true;
