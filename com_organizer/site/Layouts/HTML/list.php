@@ -21,9 +21,7 @@ $action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::
 
 if (!$this->adminContext)
 {
-	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
-	echo $this->subtitle;
-	echo $this->supplement;
+	require_once 'titles.php';
 }
 if (!empty($this->submenu))
 {

@@ -21,9 +21,7 @@ $iteration   = 0;
 $action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 $resourceID  = Helpers\Input::getID();
 
-echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
-echo $this->subtitle;
-echo $this->supplement;
+require_once 'titles.php';
 ?>
 <?php echo $this->minibar; ?>
 <div id="j-main-container" class="span10">

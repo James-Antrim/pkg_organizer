@@ -16,9 +16,7 @@ $query = Uri::getInstance()->getQuery();
 
 if (!$this->adminContext)
 {
-	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
-	echo $this->subtitle;
-	echo $this->supplement;
+	require_once 'titles.php';
 }
 ?>
 <div id="j-main-container" class="span10">

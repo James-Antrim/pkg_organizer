@@ -16,9 +16,7 @@ $query = Uri::getInstance()->getQuery();
 
 if (!$this->adminContext)
 {
-	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
-	echo $this->subtitle;
-	echo $this->supplement;
+	require_once 'titles.php';
 }
 ?>
 <?php if (!$this->adminContext) : ?>
@@ -33,7 +31,7 @@ if (!$this->adminContext)
 	foreach ($this->form->getFieldSets() as $set)
 	{
 		$isInitialized  = (bool) $this->form->getValue('id');
-		$displayInitial = isset($set->displayinitial) ? $set->displayinitial : true;
+		$displayInitial = !isset($set->displayinitial) || $set->displayinitial;
 
 		if ($displayInitial or $isInitialized)
 		{

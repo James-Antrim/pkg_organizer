@@ -9,13 +9,9 @@
  */
 
 use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
 
 require_once 'refresh.php';
-
-echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
-echo $this->subtitle;
-echo $this->supplement;
+require_once 'titles.php';
 ?>
 <div id="j-main-container" class="span10">
 	<?php if (!$this->adminContext) : ?>

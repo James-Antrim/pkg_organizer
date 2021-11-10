@@ -15,9 +15,7 @@ use Organizer\Helpers;
 $rows      = $this->rows;
 $iteration = 0;
 
-echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
-echo $this->subtitle;
-echo $this->supplement;
+require_once 'titles.php';
 
 ?>
 <div id="j-main-container" class="span10">
