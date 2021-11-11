@@ -207,18 +207,23 @@ class Subject extends CurriculumResource
 
 		$subject = $response->modul;
 
-		// Suppressed
-		if (!empty($subject->sperrmh) and strtolower((string) $subject->sperrmh) === 'x')
+		if (!$this->validTitle($subject))
 		{
-			$message = sprintf(Helpers\Languages::_('ORGANIZER_SUBJECT_SUPPRESSED'), $table->lsfID);
-			OrganizerHelper::message($message, 'notice');
+			$message = sprintf(Helpers\Languages::_('ORGANIZER_IMPORT_TITLE_INVALID'), $table->lsfID);
+			OrganizerHelper::message($message, 'error');
 
 			return $this->deleteSingle($table->id);
 		}
 
-		if (!$this->validTitle($subject))
+		$tag           = Helpers\Languages::getTag();
+		$titleProperty = "titel$tag";
+		$title         = $subject->$titleProperty;
+
+		// Suppressed
+		if (!empty($subject->sperrmh) and strtolower((string) $subject->sperrmh) === 'x')
 		{
-			OrganizerHelper::message('ORGANIZER_IMPORT_TITLE_INVALID', 'error');
+			$message = sprintf(Helpers\Languages::_('ORGANIZER_SUBJECT_SUPPRESSED'), $title, $table->lsfID);
+			OrganizerHelper::message($message, 'notice');
 
 			return $this->deleteSingle($table->id);
 		}
@@ -750,7 +755,8 @@ class Subject extends CurriculumResource
 		if ($subjectIDs)
 		{
 			$deleteQuery = Database::getQuery();
-			$deleteQuery->delete('#__organizer_prerequisites')->where('subjectID IN (' . implode(',', $subjectIDs) . ')');
+			$deleteQuery->delete('#__organizer_prerequisites')->where('subjectID IN (' . implode(',',
+					$subjectIDs) . ')');
 			Database::setQuery($deleteQuery);
 			Database::execute();
 		}
