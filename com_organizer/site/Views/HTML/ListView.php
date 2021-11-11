@@ -15,6 +15,7 @@ use Joomla\Registry\Registry;
 use Organizer\Adapters;
 use Organizer\Helpers;
 use Organizer\Helpers\HTML;
+use Organizer\Models\ListModel;
 use stdClass;
 
 /**
@@ -39,6 +40,11 @@ abstract class ListView extends BaseView
 	public $headers = [];
 
 	public $items = null;
+
+	/**
+	 * @var ListModel
+	 */
+	protected $model;
 
 	public $pagination = null;
 
@@ -284,7 +290,7 @@ abstract class ListView extends BaseView
 	 * Processes an individual list item resolving it to an array of table data values.
 	 *
 	 * @param   int|string  $index  the row index, typically an int value, but can also be string
-	 * @param   object      $item   the item to be displayed in a table row
+	 * @param   stdClass    $item   the item to be displayed in a table row
 	 * @param   string      $link   the link to the individual resource
 	 *
 	 * @return array an array of property columns with their values

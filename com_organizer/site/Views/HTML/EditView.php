@@ -12,6 +12,7 @@ namespace Organizer\Views\HTML;
 
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
+use Organizer\Models\EditModel;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
@@ -19,6 +20,11 @@ use Organizer\Helpers;
 abstract class EditView extends FormView
 {
 	public $item = null;
+
+	/**
+	 * @var EditModel
+	 */
+	protected $model;
 
 	/**
 	 * Method to generate buttons for user interaction

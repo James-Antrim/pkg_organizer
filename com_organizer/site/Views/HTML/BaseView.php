@@ -11,6 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use JHtmlSidebar;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
@@ -40,6 +41,15 @@ abstract class BaseView extends HtmlView
 	protected $layout = 'default';
 
 	public $mobile = false;
+
+	/**
+	 * Inheritance stems from BaseDatabaseModel, not BaseModel. BaseDatabaseModel is higher in the Joomla internal
+	 * hierarchy used for Joomla Admin, Form, List, ... models which in turn are the parents for the Organizer abstract
+	 * classes of similar names.
+	 *
+	 * @var BaseDatabaseModel
+	 */
+	protected $model;
 
 	public $refresh = 0;
 
@@ -384,5 +394,15 @@ abstract class BaseView extends HtmlView
 		}
 
 		return $this->layout;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setModel($model, $default = false): BaseDatabaseModel
+	{
+		$this->model = parent::setModel($model, $default);
+
+		return $this->model;
 	}
 }

@@ -13,6 +13,8 @@
 #move simple get/set functions from helpers/models to tables
 #overwrite bind function to use types (and attributes)
 #purge data
+#instances filter anstehend, abgelaufen, alle
+#jump to next
 #endregion
 
 #region Bugs ###########################################################################################################
