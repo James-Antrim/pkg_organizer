@@ -20,6 +20,43 @@ use Organizer\Adapters;
  */
 class Languages extends Text
 {
+	private static $baggage = [
+		'/Audio([a-zß-ÿ])/'              => 'Audio&shy;$1',
+		'/Berufs([a-zß-ÿ])/'             => 'Berufs&shy;$1',
+		'/Betriebs([a-zß-ÿ])/'           => 'Betriebs&shy;$1',
+		'/Energie([a-zß-ÿ])/'            => 'Energie&shy;$1',
+		'/Event([a-zß-ÿ])/'              => 'Event&shy;$1',
+		'/Inter([a-zß-ÿ])/'              => 'Inter&shy;$1',
+		'/Multi([a-zß-ÿ])/'              => 'Multi&shy;$1',
+		'/Kommunikations([a-zß-ÿ])/'     => 'Kommuni&shy;kations&shy;$1',
+		'/Kommunikation/'                => 'Kommuni&shy;kation',
+		'/Sicherheits([a-zß-ÿ])/'        => 'Sicherheits&shy;$1',
+		'/Text([a-zß-ÿ])/'               => 'Text&shy;$1',
+		'/Unternehmens([a-zß-ÿ])/'       => 'Unter&shy;nehmens&shy;$1',
+		'/Veranstaltungs([a-zß-ÿ])/'     => 'Veran&shy;staltungs&shy;$1',
+		'/Wahl([a-zß-ÿ])/'               => 'Wahl&shy;$1',
+		'/([a-zß-ÿ])führung($| )/'       => '$1&shy;führung$2',
+		'/([a-zß-ÿ])gestaltung($| )/'    => '$1&shy;gestaltung$2',
+		'/([a-zß-ÿ])isierung($| )/'      => '$1&shy;isierung$2',
+		'/([a-zß-ÿ])kunde($| )/'         => '$1&shy;kunde$2',
+		'/([a-zß-ÿ])lehre($| )/'         => '$1&shy;lehre$2',
+		'/([a-zß-ÿ])leitung($| )/'       => '$1&shy;leitung$2',
+		'/([a-zß-ÿ])management($| )/'    => '$1&shy;management$2',
+		'/([a-zß-ÿ])module($| )/'        => '$1&shy;module$2',
+		'/([a-zß-ÿ])modul($| )/'         => '$1&shy;modul$2',
+		'/([a-zß-ÿ])planung($| )/'       => '$1&shy;planung$2',
+		'/([a-zß-ÿ])produktion($| )/'    => '$1&shy;produktion$2',
+		'/([a-zß-ÿ])recht($| )/'        => '$1&shy;recht$2',
+		'/([a-zß-ÿ])schaftliches($| )/' => '$1&shy;schaftliches$2',
+		'/([a-zß-ÿ])schaften($| )/'     => '$1&shy;schaften$2',
+		'/([a-zß-ÿ])schaft($| )/'       => '$1&shy;schaft$2',
+		'/([a-zß-ÿ])technik($| )/'       => '$1&shy;technik$2',
+		'/([a-zß-ÿ])technologie($| )/'   => '$1&shy;technologie$2',
+		'/([a-zß-ÿ])technology($| )/'    => '$1&shy;technology$2',
+		'/([a-zß-ÿ])wesen($| )/'         => '$1&shy;wesen$2',
+		'/([a-zß-ÿ])wesens($| )/'        => '$1&shy;wesens$2',
+	];
+
 	/**
 	 * @inheritDoc
 	 */
@@ -37,7 +74,7 @@ class Languages extends Text
 				$script = (bool) $jsSafe['script'];
 			}
 
-			$jsSafe = array_key_exists('jsSafe', $jsSafe) ? (bool) $jsSafe['jsSafe'] : false;
+			$jsSafe = !empty($jsSafe['jsSafe']);
 		}
 
 		$language = self::getLanguage();
@@ -136,7 +173,7 @@ class Languages extends Text
 	 *
 	 * @return  string  The tooltip string
 	 */
-	public static function tooltip($title = '', $content = '', $escape = true): string
+	public static function tooltip(string $title = '', string $content = '', bool $escape = true): string
 	{
 		// Initialise return value.
 		$result = '';
@@ -172,5 +209,18 @@ class Languages extends Text
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param   string  $text
+	 *
+	 * @return void
+	 */
+	public static function unpack(string &$text)
+	{
+		foreach (self::$baggage as $pattern => $replace)
+		{
+			$text = preg_replace($pattern, $replace, $text);
+		}
 	}
 }
