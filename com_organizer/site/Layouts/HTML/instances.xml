@@ -2,6 +2,10 @@
 <form>
     <fields name="params" addfieldprefix="Organizer\Fields">
         <fieldset name="basic" label="ORGANIZER_SETTINGS">
+            <field name="layout" type="Options" label="PRESENTATION">
+                <option value="0">LIST</option>
+                <option value="1">GRID</option>
+            </field>
             <field name="my" type="Options" label="PERSONALIZED">
                 <option value="0">NO</option>
                 <option value="1">YES</option>

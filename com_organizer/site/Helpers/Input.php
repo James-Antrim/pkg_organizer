@@ -89,17 +89,17 @@ class Input
 	 */
 	private static function find(string $property)
 	{
+		if ($value = self::getInput()->get($property, null, 'raw'))
+		{
+			return $value;
+		}
+
 		if ($value = self::getFormItems()->get($property))
 		{
 			return $value;
 		}
 
 		if ($value = self::getParams()->get($property))
-		{
-			return $value;
-		}
-
-		if ($value = self::getInput()->get($property, null, 'raw'))
 		{
 			return $value;
 		}

@@ -1,0 +1,122 @@
+@import "fields";
+@import "filter_bars";
+@import "variables";
+
+#adminForm {
+  margin-bottom: 0;
+}
+
+.instances-grid {
+  display: grid;
+  grid-template-rows: 3rem repeat(auto-fill, auto);
+  text-align: center;
+
+  &.columns-1 {
+    grid-template-columns: 1fr;
+  }
+
+  &.columns-2 {
+    grid-template-columns: repeat(2, 1fr);
+
+    &.with-times {
+      grid-template-columns: 4rem repeat(1, 1fr);
+    }
+  }
+
+  &.columns-3 {
+    grid-template-columns: repeat(3, 1fr);
+
+    &.with-times {
+      grid-template-columns: 4rem repeat(2, 1fr);
+    }
+  }
+
+  &.columns-4 {
+    grid-template-columns: repeat(4, 1fr);
+
+    &.with-times {
+      grid-template-columns: 4rem repeat(3, 1fr);
+    }
+  }
+
+  &.columns-5 {
+    grid-template-columns: repeat(5, 1fr);
+
+    &.with-times {
+      grid-template-columns: 4rem repeat(4, 1fr);
+    }
+  }
+
+  &.columns-6 {
+    grid-template-columns: repeat(6, 1fr);
+
+    &.with-times {
+      grid-template-columns: 4rem repeat(5, 1fr);
+    }
+  }
+
+  &.columns-7 {
+    grid-template-columns: repeat(7, 10.4rem);
+
+    &.with-times {
+      grid-template-columns: 4rem repeat(6, 10.4rem);
+    }
+  }
+
+  & > div {
+    background-color: $foreground-color;
+    border-right: $border-middle-thick;
+    border-bottom: $border-middle-thick;
+    color: $font-color;
+    padding: .1rem .2rem;
+
+    &.grid-header {
+      align-items: center;
+      background-color: $background-foot;
+      border-right: $border-white-thick;
+      border-bottom: $border-white-thick;
+      color: $foreground-color;
+      display: grid;
+      justify-items: center;
+
+      &.times {
+        display: block;
+        padding-top: .5rem;
+      }
+    }
+
+    &.block-busy {
+      background-color: $blue-50;
+    }
+
+    &.column-end {
+      border-bottom: none;
+    }
+
+    &.row-end {
+      border-right: none;
+    }
+
+    .grid-item {
+      border: $border-light;
+      margin: .1rem 0;
+
+      &.new {
+        color: $green-text;
+      }
+
+      &.removed {
+        color: $grey-75;
+        text-decoration: line-through;
+      }
+    }
+
+    & > div {
+      background-color: $foreground-color;
+    }
+
+    .notice {
+      text-align: right;
+    }
+  }
+}
