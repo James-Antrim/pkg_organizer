@@ -410,7 +410,7 @@ class Instances extends ListView
 		foreach ($this->items as $item)
 		{
 			$cClass = 'grid-item';
-			$iClass = 'notification-circle';
+			$iClass = 'warning-2';
 			$notice = '';
 
 			// If removed are here at all, the status holds relevance regardless of date

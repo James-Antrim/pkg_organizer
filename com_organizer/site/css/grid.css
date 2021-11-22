@@ -316,13 +316,21 @@ body.tmpl-mobile div.main .input-append button {
     padding: .4rem .1rem;
 }
 
-.instances-grid > div .grid-item.new {
-    color: #69981E;
+.instances-grid > div .grid-item.new .icon-warning-2::before {
+    color: #80ba24;
 }
 
 .instances-grid > div .grid-item.removed {
-    color: #4a5c66;
+    color: #77858c;
     text-decoration: line-through;
+}
+
+.instances-grid > div .grid-item.removed .icon-warning-2::before {
+    color: #9c132e;
+}
+
+.instances-grid > div .grid-item.removed a {
+    color: #77858c;
 }
 
 .instances-grid > div .grid-item:last-child {

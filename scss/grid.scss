@@ -60,13 +60,22 @@
       margin: .2rem 0 .4rem 0;
       padding: .4rem .1rem;
 
-      &.new {
-        color: $green-text;
+      &.new .icon-warning-2::before {
+        color: $green-100;
       }
 
       &.removed {
-        color: $grey-100;
+        color: $grey-75;
         text-decoration: line-through;
+
+        .icon-warning-2::before {
+          color: $red-100;
+        }
+
+        a {
+          color: $grey-75;
+
+        }
       }
 
       &:last-child {
