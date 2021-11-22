@@ -50,6 +50,8 @@ class Instances extends ListModel
 
 	public $layout;
 
+	public $noDate = false;
+
 	/**
 	 * @inheritDoc
 	 */
@@ -154,6 +156,7 @@ class Instances extends ListModel
 
 			if ($dow or $endDate or $methodIDs)
 			{
+				$this->noDate = true;
 				$form->removeField('date', 'list');
 				$form->removeField('interval', 'list');
 
@@ -192,7 +195,14 @@ class Instances extends ListModel
 		{
 			if (!$gridID = $this->state->get('list.gridID'))
 			{
-				$gridID = array_search(max($usedGrids), $usedGrids);
+				if ($usedGrids)
+				{
+					$gridID = array_search(max($usedGrids), $usedGrids);
+				}
+				else
+				{
+					$gridID = Helpers\Grids::getDefault();
+				}
 			}
 
 			$grid = new Tables\Grids();
@@ -213,10 +223,7 @@ class Instances extends ListModel
 
 		$query = Helper::getInstanceQuery($conditions);
 
-		$query->select("DISTINCT i.id")
-			->leftJoin('#__organizer_events AS e ON e.id = i.eventID')
-			->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
-			->order('b.date, b.startTime, b.endTime');
+		$query->select("DISTINCT i.id")->order('b.date, b.startTime, b.endTime');
 
 		$this->setSearchFilter($query, ['e.name_de', 'e.name_en']);
 		$this->setValueFilters($query, ['b.dow', 'i.methodID']);
@@ -226,17 +233,6 @@ class Instances extends ListModel
 			$query->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
 				->innerJoin('#__organizer_buildings AS bd ON bd.id = r.buildingID');
 			$this->setCampusFilter($query, 'bd');
-		}
-
-		if ($this->state->get('filter.eventID'))
-		{
-			$this->setValueFilters($query, ['i.eventID',]);
-		}
-
-		if ($this->state->get('filter.organizationID'))
-		{
-			$query->innerJoin('#__organizer_associations AS ag ON ag.groupID = ig.groupID');
-			$this->setValueFilters($query, ['ag.organizationID']);
 		}
 
 		return $query;

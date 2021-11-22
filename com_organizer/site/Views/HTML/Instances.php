@@ -44,6 +44,8 @@ class Instances extends ListView
 	 */
 	protected $model;
 
+	public $noInstances = true;
+
 	private $premature = true;
 
 	/**
@@ -53,6 +55,8 @@ class Instances extends ListView
 	private $registration = false;
 
 	private $statusDate;
+
+	protected $structureEmpty = true;
 
 	/**
 	 * @inheritdoc
@@ -70,11 +74,11 @@ class Instances extends ListView
 	 */
 	protected function addSupplement()
 	{
-		if (empty($this->items))
+		if ($this->noInstances)
 		{
 			$supplement = '<div class="tbox-yellow">';
 
-			if ($dates = Helper::getJumpDates($this->model->conditions))
+			if (!$this->model->noDate and $dates = Helper::getJumpDates($this->model->conditions))
 			{
 				$supplement .= Languages::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
 				$supplement .= '<ul><li>';
@@ -748,7 +752,11 @@ class Instances extends ListView
 	 */
 	protected function structureItems()
 	{
-		$this->setDerived($this->items);
+		if (!empty($this->items))
+		{
+			$this->noInstances = false;
+			$this->setDerived($this->items);
+		}
 
 		if ($this->model->layout === Helper::GRID)
 		{

@@ -531,27 +531,17 @@ class Instances extends ResourceHelper
 		// TODO: resolve course information (registration type, available capacity) and consequences
 		$query->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+			->leftJoin('#__organizer_events AS e ON e.id = i.eventID')
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id');
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
+			->leftJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
+			->leftJoin('#__organizer_groups AS g ON g.id = ig.groupID')
+			->leftJoin('#__organizer_group_publishing AS gp ON gp.groupID = ig.groupID AND gp.termID = u.termID')
+			->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
 
-		if (!empty($conditions['groupIDs']))
+		if (empty($conditions['showUnpublished']))
 		{
-			$query->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id');
-		}
-		else
-		{
-			$query->leftJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id');
-		}
-
-		$query->leftJoin('#__organizer_groups AS g ON g.id = ig.groupID');
-
-		if (!empty($conditions['roomIDs']))
-		{
-			$query->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
-		}
-		else
-		{
-			$query->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
+			$query->where('(gp.published = 1 OR gp.id IS NULL)');
 		}
 
 		$dDate = $conditions['delta'];
@@ -606,55 +596,22 @@ class Instances extends ResourceHelper
 				break;
 		}
 
-		if (empty($conditions['showUnpublished']))
+		switch ($jump)
 		{
-			$upQuery = Database::getQuery();
-			$upQuery->select('i.id')
-				->from('#__organizer_instances AS i')
-				->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-				->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-				->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-				->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
-				->innerJoin('#__organizer_group_publishing AS gp ON gp.groupID = ig.groupID AND gp.termID = u.termID')
-				->where("i.delta != 'removed'")
-				->where("u.delta != 'removed'")
-				->where("ipe.delta != 'removed'")
-				->where("ig.delta != 'removed'")
-				->where('gp.published = 0');
-
-			switch ($jump)
-			{
-				case self::FUTURE:
-					$lowDate  = date('Y-m-d', strtotime('+1 day', strtotime($conditions['endDate'])));
-					$highDate = date('Y-m-d', strtotime('+3 months', strtotime($conditions['endDate'])));
-					$upQuery->where("b.date BETWEEN '$lowDate' AND '$highDate'");
-					break;
-				case self::PAST:
-					$lowDate  = date('Y-m-d', strtotime('-3 months', strtotime($conditions['startDate'])));
-					$highDate = date('Y-m-d', strtotime('-1 day', strtotime($conditions['startDate'])));
-					$upQuery->where("b.date BETWEEN '$lowDate' AND '$highDate'");
-					break;
-				case self::NONE:
-				default:
-					$upQuery->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'");
-					break;
-			}
-
-			if (!empty($conditions['organizationIDs']))
-			{
-				$organizationIDs = implode(',', ArrayHelper::toInteger($conditions['organizationIDs']));
-				$upQuery->innerJoin('#__organizer_associations AS ag ON ag.groupID = ig.groupID')
-					->where("ag.organizationID IN ($organizationIDs)");
-			}
-
-			Database::setQuery($upQuery);
-
-			if ($upIDs = Database::loadIntColumn())
-			{
-				$upIDs = implode(',', $upIDs);
-				$query->where("i.id NOT IN ($upIDs)");
-			}
-
+			case self::FUTURE:
+				$lowDate  = date('Y-m-d', strtotime('+1 day', strtotime($conditions['endDate'])));
+				$highDate = date('Y-m-d', strtotime('+3 months', strtotime($conditions['endDate'])));
+				$query->where("b.date BETWEEN '$lowDate' AND '$highDate'");
+				break;
+			case self::PAST:
+				$lowDate  = date('Y-m-d', strtotime('-3 months', strtotime($conditions['startDate'])));
+				$highDate = date('Y-m-d', strtotime('-1 day', strtotime($conditions['startDate'])));
+				$query->where("b.date BETWEEN '$lowDate' AND '$highDate'");
+				break;
+			case self::NONE:
+			default:
+				$query->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'");
+				break;
 		}
 
 		if (!empty($conditions['my']))
@@ -694,39 +651,11 @@ class Instances extends ResourceHelper
 			}
 		}
 
-		if (!empty($conditions['categoryIDs']))
-		{
-			$categoryIDs = implode(',', $conditions['categoryIDs']);
-			$query->where("g.categoryID IN ($categoryIDs)");
-		}
+		$filterOrganization = true;
 
-		if (!empty($conditions['courseIDs']))
+		if (!empty($conditions['eventIDs']) or !empty($conditions['subjectIDs']))
 		{
-			$courseIDs = implode(',', $conditions['courseIDs']);
-			$query->where("u.courseID IN ($courseIDs)");
-		}
-
-		if (!empty($conditions['groupIDs']))
-		{
-			$groupIDs = implode(',', $conditions['groupIDs']);
-			$query->where("ig.groupID IN ($groupIDs)");
-		}
-
-		if (!empty($conditions['personIDs']))
-		{
-			$personIDs = implode(',', $conditions['personIDs']);
-			$query->where("ipe.personID IN ($personIDs)");
-		}
-
-		if (!empty($conditions['roomIDs']))
-		{
-			$roomIDs = implode(',', $conditions['roomIDs']);
-			$query->where("ir.roomID IN ($roomIDs)");
-		}
-
-		if (!empty($conditions['eventIDs']) or !empty($conditions['subjectIDs']) or !empty($conditions['eventsRequired']))
-		{
-			$query->innerJoin('#__organizer_events AS e ON e.id = i.eventID');
+			$filterOrganization = false;
 
 			if (!empty($conditions['eventIDs']))
 			{
@@ -741,11 +670,50 @@ class Instances extends ResourceHelper
 					->where("se.subjectID IN ($subjectIDs)");
 			}
 		}
-
-		if (!empty($conditions['unitIDs']))
+		elseif (!empty($conditions['unitIDs']))
 		{
 			$unitIDs = implode(',', $conditions['unitIDs']);
 			$query->where("i.unitID IN ($unitIDs)");
+		}
+		elseif (!empty($conditions['courseIDs']))
+		{
+			$filterOrganization = false;
+			$courseIDs          = implode(',', $conditions['courseIDs']);
+			$query->where("u.courseID IN ($courseIDs)");
+		}
+		elseif (!empty($conditions['groupIDs']))
+		{
+			$filterOrganization = false;
+			$groupIDs           = implode(',', $conditions['groupIDs']);
+			$query->where("ig.groupID IN ($groupIDs)");
+		}
+		elseif (!empty($conditions['categoryIDs']))
+		{
+			$filterOrganization = false;
+			$categoryIDs        = implode(',', $conditions['categoryIDs']);
+			$query->where("g.categoryID IN ($categoryIDs)");
+		}
+
+		if (!empty($conditions['personIDs']))
+		{
+			$filterOrganization = false;
+			$personIDs          = implode(',', $conditions['personIDs']);
+			$query->where("ipe.personID IN ($personIDs)");
+		}
+
+		if (!empty($conditions['roomIDs']))
+		{
+			$filterOrganization = false;
+			$roomIDs            = implode(',', $conditions['roomIDs']);
+			$query->where("ir.roomID IN ($roomIDs)");
+		}
+
+		if ($filterOrganization and !empty($conditions['organizationIDs']))
+		{
+			$organizationIDs = implode(',', ArrayHelper::toInteger($conditions['organizationIDs']));
+			$query->leftJoin('#__organizer_associations AS ac ON ac.categoryID = g.categoryID')
+				->leftJoin('#__organizer_associations AS ag ON ag.groupID = ig.groupID')
+				->where("(ac.organizationID IN ($organizationIDs) OR ag.organizationID IN ($organizationIDs))");
 		}
 
 		return $query;

@@ -52,6 +52,8 @@ abstract class ListView extends BaseView
 
 	protected $sameTab = false;
 
+	protected $structureEmpty = false;
+
 	/**
 	 * @var Registry
 	 */
@@ -124,7 +126,7 @@ abstract class ListView extends BaseView
 		$this->items      = $this->get('Items');
 		$this->pagination = $this->get('Pagination');
 
-		if ($this->items)
+		if ($this->items or $this->structureEmpty)
 		{
 			$this->structureItems();
 		}

@@ -11,7 +11,7 @@
 namespace Organizer\Helpers;
 
 use Organizer\Adapters\Database;
-use Organizer\Tables;
+use Organizer\Tables\Grids as Table;
 
 /**
  * Class provides general functions for retrieving building data.
@@ -35,17 +35,27 @@ class Grids extends ResourceHelper implements Selectable
 	/**
 	 * Retrieves the default grid.
 	 *
-	 * @param   bool  $onlyID  whether or not only the id will be returned, defaults to true
+	 * @param   bool  $onlyID  whether only the id will be returned, defaults to true
 	 *
-	 * @return array|int int the id, otherwise the grid table entry as an array
+	 * @return int|Table int the id, otherwise the grid table entry
 	 */
-	public static function getDefault($onlyID = true)
+	public static function getDefault(bool $onlyID = true)
 	{
 		$query = Database::getQuery();
-		$query->select("*")->from('#__organizer_grids')->where('isDefault = 1');
+		$query->select('id')->from('#__organizer_grids')->where('isDefault = 1');
 		Database::setQuery($query);
 
-		return $onlyID ? Database::loadInt() : Database::loadAssoc();
+		$gridID = Database::loadInt();
+
+		if ($onlyID)
+		{
+			return $gridID;
+		}
+
+		$table = new Table();
+		$table->load($gridID);
+
+		return $table;
 	}
 
 	/**
@@ -57,10 +67,10 @@ class Grids extends ResourceHelper implements Selectable
 	 */
 	public static function getGrid(int $gridID): string
 	{
-		$table = new Tables\Grids();
+		$table = new Table();
 		$table->load($gridID);
 
-		return $table->grid ? $table->grid : '';
+		return $table->grid ?: '';
 	}
 
 	/**
