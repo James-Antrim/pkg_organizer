@@ -1,11 +1,6 @@
 # IDE Generated Files #
 #######################
-.buildpath
-.project
-.settings
 .idea
-nbproject/
-atlassian-ide-plugin.xml
 
 # OS Generated Files #
 ######################
