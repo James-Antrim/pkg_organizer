@@ -14,7 +14,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Organizer\Controller;
 use Organizer\Helpers;
-use Organizer\Helpers\Languages;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Models;
 
@@ -57,6 +56,39 @@ class InstanceParticipants extends Controller
 	}
 
 	/**
+	 * Triggers the model to add instances to the participant's personal schedule.
+	 *
+	 * @return void
+	 */
+	public function bookmark(int $method = self::SELECTED)
+	{
+		$model = new Models\InstanceParticipant();
+		$model->bookmark($method);
+		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+		$this->setRedirect(Route::_($referrer, false));
+	}
+
+	/**
+	 * Triggers the model to add instances of a unique block (dow/times) and event to a participant's personal schedule.
+	 *
+	 * @return void
+	 */
+	public function bookmarkBlock()
+	{
+		$this->bookmark(self::BLOCK);
+	}
+
+	/**
+	 * Triggers the model to add the current instance to a participant's personal schedule.
+	 *
+	 * @return void
+	 */
+	public function bookmarkThis()
+	{
+		$this->bookmark(self::THIS);
+	}
+
+	/**
 	 * Triggers the model to deregister the participant from instances.
 	 *
 	 * @return void
@@ -77,39 +109,6 @@ class InstanceParticipants extends Controller
 	public function deregisterThis()
 	{
 		$this->deregister(self::THIS);
-	}
-
-	/**
-	 * Triggers the model to remove instances from the participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function deschedule(int $method = self::SELECTED)
-	{
-		$model = new Models\InstanceParticipant();
-		$model->deschedule($method);
-		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-		$this->setRedirect(Route::_($referrer, false));
-	}
-
-	/**
-	 * Triggers the model to remove instances of a unique block (dow/times) and event tuple from the participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function descheduleBlock()
-	{
-		$this->deschedule(self::BLOCK);
-	}
-
-	/**
-	 * Triggers the model to remove the current instance from the participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function descheduleThis()
-	{
-		$this->deschedule(self::THIS);
 	}
 
 	/**
@@ -151,6 +150,39 @@ class InstanceParticipants extends Controller
 	}
 
 	/**
+	 * Triggers the model to remove instances from the participant's personal schedule.
+	 *
+	 * @return void
+	 */
+	public function removeBookmark(int $method = self::SELECTED)
+	{
+		$model = new Models\InstanceParticipant();
+		$model->removeBookmark($method);
+		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+		$this->setRedirect(Route::_($referrer, false));
+	}
+
+	/**
+	 * Triggers the model to remove instances of a unique block (dow/times) and event tuple from the participant's personal schedule.
+	 *
+	 * @return void
+	 */
+	public function removeBookmarkBlock()
+	{
+		$this->removeBookmark(self::BLOCK);
+	}
+
+	/**
+	 * Triggers the model to remove the current instance from the participant's personal schedule.
+	 *
+	 * @return void
+	 */
+	public function removeBookmarkThis()
+	{
+		$this->removeBookmark(self::THIS);
+	}
+
+	/**
 	 * Save form data to the database.
 	 *
 	 * @return void
@@ -170,38 +202,5 @@ class InstanceParticipants extends Controller
 		{
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
-	}
-
-	/**
-	 * Triggers the model to add instances to the participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function schedule(int $method = self::SELECTED)
-	{
-		$model = new Models\InstanceParticipant();
-		$model->schedule($method);
-		$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-		$this->setRedirect(Route::_($referrer, false));
-	}
-
-	/**
-	 * Triggers the model to add instances of a unique block (dow/times) and event to a participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function scheduleBlock()
-	{
-		$this->schedule(self::BLOCK);
-	}
-
-	/**
-	 * Triggers the model to add the current instance to a participant's personal schedule.
-	 *
-	 * @return void
-	 */
-	public function scheduleThis()
-	{
-		$this->schedule(self::THIS);
 	}
 }

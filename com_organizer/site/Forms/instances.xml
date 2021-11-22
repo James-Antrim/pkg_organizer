@@ -33,7 +33,12 @@
             <option value="1">MY_INSTANCES</option>
             <option value="2">MY_REGISTRATIONS</option>
         </field>
-        <field name="date" type="Date" label="DATE" class="input-7" empty="false" onchange="this.form.submit();"/>
+        <field name="date" type="Date" label="DATE" class="input-8" empty="false" onchange="this.form.submit();"/>
+        <field name="layout" type="Options" label="PRESENTATION" class="input-10" onchange="this.form.submit();">
+            <option value="0">LIST</option>
+            <option value="1">GRID</option>
+        </field>
+        <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();"/>
         <field name="interval" type="Options" label="Language" class="input-10" onchange="this.form.submit();"
                default="day">
             <option value="day">DAY</option>

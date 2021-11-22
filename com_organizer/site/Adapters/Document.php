@@ -26,7 +26,7 @@ class Document
 	 *
 	 * @return  void
 	 */
-	public static function addScript(string $url, $options = [], $attribs = [])
+	public static function addScript(string $url, array $options = [], array $attribs = [])
 	{
 		/** @noinspection PhpDeprecationInspection */
 		Factory::getDocument()->addScript($url, $options, $attribs);
@@ -45,7 +45,7 @@ class Document
 	}
 
 	/**
-	 * Add option for script
+	 * Add option for script. Static wrapper for dynamic function.
 	 *
 	 * @param   string  $key      Name in Storage
 	 * @param   mixed   $options  Scrip options as array or string
@@ -53,13 +53,13 @@ class Document
 	 *
 	 * @return  void
 	 */
-	public static function addScriptOptions(string $key, $options, $merge = true)
+	public static function addScriptOptions(string $key, $options, bool $merge = true)
 	{
 		Factory::getDocument()->addScriptOptions($key, $options, $merge);
 	}
 
 	/**
-	 * Adds a linked stylesheet to the page
+	 * Adds a linked stylesheet to the page.
 	 *
 	 * @param   string  $url      URL to the linked style sheet
 	 * @param   array   $options  Array of options. Example: array('version' => 'auto', 'conditional' => 'lt IE 9')
@@ -67,7 +67,7 @@ class Document
 	 *
 	 * @return  void
 	 */
-	public static function addStyleSheet(string $url, $options = [], $attribs = [])
+	public static function addStyleSheet(string $url, array $options = [], array $attribs = [])
 	{
 		/** @noinspection PhpDeprecationInspection */
 		Factory::getDocument()->addStyleSheet($url, $options, $attribs);
@@ -80,6 +80,7 @@ class Document
 	 */
 	public static function setCharset()
 	{
+		/** @noinspection PhpRedundantOptionalArgumentInspection */
 		Factory::getDocument()->setCharset('utf-8');
 	}
 
@@ -92,7 +93,6 @@ class Document
 	 */
 	public static function setTitle(string $title)
 	{
-		$title = str_replace('&shy;', '', $title);
 		Factory::getDocument()->setTitle($title);
 	}
 }

@@ -82,8 +82,11 @@ abstract class ListLayout extends BaseLayout
 	 * @return void
 	 * @throws Exception
 	 */
-	protected function addListSheet(string $name, string $orientation = XLConstants::LANDSCAPE, string $paper = XLConstants::A4)
-	{
+	protected function addListSheet(
+		string $name,
+		string $orientation = XLConstants::LANDSCAPE,
+		string $paper = XLConstants::A4
+	) {
 		$view = $this->view;
 		$view->createSheet();
 		$view->setActiveSheetIndex();
@@ -120,8 +123,7 @@ abstract class ListLayout extends BaseLayout
 		{
 			$coords = "{$header['column']}1";
 			$sheet->getColumnDimension($header['column'])->setWidth($header['width']);
-			$text = str_replace('&shy;', '', $header['text']);
-			$sheet->setCellValue($coords, $text);
+			$sheet->setCellValue($coords, $header['text']);
 			$sheet->getStyle($coords)->applyFromArray($style);
 		}
 
@@ -181,7 +183,7 @@ abstract class ListLayout extends BaseLayout
 			$row++;
 		}
 
-		$sheet->setAutoFilter("A1:{$lastColumn}{$lastRow}");
+		$sheet->setAutoFilter("A1:$lastColumn$lastRow");
 	}
 
 }

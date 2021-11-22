@@ -16,6 +16,7 @@ use Organizer\Helpers;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\Instances as Helper;
 use Organizer\Helpers\Languages;
+use Organizer\Tables;
 
 /**
  * Class retrieves information for a filtered set of instances.
@@ -31,6 +32,8 @@ class Instances extends ListModel
 	 */
 	public $conditions = [];
 
+	protected $defaultOrdering = 'name';
+
 	protected $filter_fields = [
 		'campusID',
 		'categoryID',
@@ -41,7 +44,11 @@ class Instances extends ListModel
 		'roomID'
 	];
 
-	protected $defaultOrdering = 'name';
+	public $grid;
+
+	public $gridID;
+
+	public $layout;
 
 	/**
 	 * @inheritDoc
@@ -51,6 +58,23 @@ class Instances extends ListModel
 		parent::filterFilterForm($form);
 
 		$params = Input::getParams();
+		$layout = $params->get('layout');
+
+		// Layout set in the menu
+		if (is_numeric($layout))
+		{
+			$form->removeField('layout', 'list');
+		}
+
+		if ($this->layout === Helper::LIST)
+		{
+			$form->removeField('gridID', 'list');
+		}
+		else
+		{
+			$form->removeField('interval', 'list');
+			$form->removeField('limit', 'list');
+		}
 
 		if ($this->adminContext)
 		{
@@ -154,11 +178,27 @@ class Instances extends ListModel
 	{
 		$items = parent::getItems();
 
+		$usedGrids = [];
+
 		foreach ($items as $key => $instance)
 		{
-			$instance = Helper::getInstance($instance->id);
+			$instance                       = Helper::getInstance($instance->id);
+			$usedGrids[$instance['gridID']] = empty($usedGrids[$instance['gridID']]) ? 1 : $usedGrids[$instance['gridID']] + 1;
 			Helper::fill($instance, $this->conditions);
 			$items[$key] = (object) $instance;
+		}
+
+		if ($this->layout === Helper::GRID)
+		{
+			if (!$gridID = $this->state->get('list.gridID'))
+			{
+				$gridID = array_search(max($usedGrids), $usedGrids);
+			}
+
+			$grid = new Tables\Grids();
+			$grid->load($gridID);
+			$this->grid   = json_decode($grid->grid, true);
+			$this->gridID = $gridID;
 		}
 
 		return $items;
@@ -216,7 +256,7 @@ class Instances extends ListModel
 			return $title;
 		}
 
-		$title  = Languages::_("ORGANIZER_INSTANCES");
+		$title  = $this->layout === Helper::GRID ? Languages::_('ORGANIZER_SCHEDULE') : Languages::_("ORGANIZER_INSTANCES");
 		$suffix = '';
 
 		if ($my = (int) $this->state->get('list.my'))
@@ -228,6 +268,7 @@ class Instances extends ListModel
 		}
 		else
 		{
+			// Replace the title
 			if ($dow = $params->get('dow'))
 			{
 				switch ($dow)
@@ -275,7 +316,24 @@ class Instances extends ListModel
 				}
 			}
 
-			if ($organizationID = $params->get('organizationID'))
+			// Which resource
+			if ($eventID = $this->state->get('filter.eventID'))
+			{
+				$suffix .= ': ' . Helpers\Events::getName($eventID);
+			}
+			elseif ($personID = $this->state->get('filter.personID'))
+			{
+				$suffix .= ': ' . Helpers\Persons::getDefaultName($personID);
+			}
+			elseif ($groupID = $this->state->get('filter.groupID'))
+			{
+				$suffix .= ': ' . Helpers\Groups::getFullName($groupID);
+			}
+			elseif ($categoryID = $this->state->get('filter.categoryID'))
+			{
+				$suffix .= ': ' . Helpers\Categories::getName($categoryID);
+			}
+			elseif ($organizationID = $params->get('organizationID'))
 			{
 				$fullName  = Helpers\Organizations::getFullName($organizationID);
 				$shortName = Helpers\Organizations::getShortName($organizationID);
@@ -286,10 +344,7 @@ class Instances extends ListModel
 			{
 				$suffix .= ': ' . Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
 			}
-			elseif ($eventID = $this->state->get('filter.eventID'))
-			{
-				$suffix .= ': ' . Helpers\Events::getName($eventID);
-			}
+
 		}
 
 		return $title . $suffix;
@@ -310,6 +365,8 @@ class Instances extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
+		$layout = Helper::LIST;
+
 		if ($this->adminContext)
 		{
 			$authorized = Helpers\Can::scheduleTheseOrganizations();
@@ -324,6 +381,29 @@ class Instances extends ListModel
 			$filterItems = Input::getFilterItems();
 			$listItems   = Input::getListItems();
 			$params      = Input::getParams();
+			$menuLayout  = $params->get('layout');
+
+			if (is_numeric($menuLayout) and $menuLayout)
+			{
+				$layout   = (int) $menuLayout;
+				$layout   = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
+				$interval = $this->mobile ? 'day' : 'week';
+				$listItems->set('interval', $interval);
+				$this->state->set('list.interval', $interval);
+			}
+			else
+			{
+				$layout = (int) $listItems->get('layout', Helper::LIST);
+
+				if ($interval = Input::getString('interval'))
+				{
+					$listItems->set('interval', $interval);
+					$this->state->set('list.interval', $interval);
+				}
+			}
+
+			$this->layout = $layout;
+			$this->state->set('list.layout', $layout);
 
 			if ($my = $listItems->get('my', Input::getInt('my', $params->get('my'))))
 			{
@@ -339,6 +419,7 @@ class Instances extends ListModel
 			$organizationID = Input::getInt('organizationID');
 			$categoryID     = Input::getInt('categoryID');
 			$groupID        = Input::getInt('groupID');
+
 			if ($organizationID = $params->get('organizationID', $organizationID))
 			{
 				$filterItems->set('organizationID', $organizationID);
@@ -412,12 +493,6 @@ class Instances extends ListModel
 				$this->state->set('list.date', $date);
 			}
 
-			if ($interval = Input::getString('interval'))
-			{
-				$listItems->set('interval', $interval);
-				$this->state->set('list.interval', $interval);
-			}
-
 			$dow       = $params->get('dow');
 			$endDate   = $params->get('endDate');
 			$methodIDs = Input::getIntCollection('methodID');
@@ -459,7 +534,7 @@ class Instances extends ListModel
 			}
 		}
 
-		if ($format = Input::getCMD('format') and $format !== 'html')
+		if ($layout === Helper::GRID or ($format = Input::getCMD('format') and $format !== 'html'))
 		{
 			$this->state->set('list.limit', 0);
 		}

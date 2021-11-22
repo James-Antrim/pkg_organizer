@@ -87,9 +87,9 @@ class InstanceItem extends ListView
 			$color            = 'green';
 			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_REGISTERED');
 		}
-		elseif ($instance->scheduled)
+		elseif ($instance->bookmarked)
 		{
-			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_SCHEDULED');
+			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_BOOKMARKED');
 
 			if ($instance->presence !== Helper::ONLINE)
 			{
@@ -98,7 +98,7 @@ class InstanceItem extends ListView
 		}
 		elseif (!$instance->manageable)
 		{
-			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_NOT_SCHEDULED');
+			$this->messages[] = Languages::_('ORGANIZER_INSTANCE_NOT_BOOKMARKED');
 		}
 
 		if ($this->messages)
@@ -134,7 +134,7 @@ class InstanceItem extends ListView
 					'Standard',
 					'bookmark',
 					Languages::_('ORGANIZER_ADD_INSTANCE'),
-					'InstanceParticipants.scheduleThis',
+					'InstanceParticipants.bookmarkThis',
 					false
 				);
 			}
@@ -144,7 +144,7 @@ class InstanceItem extends ListView
 					'Standard',
 					'bookmark-2',
 					Languages::_('ORGANIZER_DELETE_INSTANCE'),
-					'InstanceParticipants.descheduleThis',
+					'InstanceParticipants.removeBookmarkThis',
 					false
 				);
 			}
@@ -155,7 +155,7 @@ class InstanceItem extends ListView
 					'Standard',
 					'bookmark',
 					Languages::_('ORGANIZER_ADD_BLOCK_INSTANCES'),
-					'InstanceParticipants.scheduleBlock',
+					'InstanceParticipants.bookmarkBlock',
 					false
 				);
 			}
@@ -166,7 +166,7 @@ class InstanceItem extends ListView
 					'Standard',
 					'bookmark-2',
 					Languages::_('ORGANIZER_DELETE_BLOCK_INSTANCES'),
-					'InstanceParticipants.descheduleBlock',
+					'InstanceParticipants.removeBookmarkBlock',
 					false
 				);
 			}
@@ -198,7 +198,7 @@ class InstanceItem extends ListView
 					'Standard',
 					'bookmark',
 					Languages::_('ORGANIZER_ADD_INSTANCES'),
-					'InstanceParticipants.schedule',
+					'InstanceParticipants.bookmark',
 					true
 				);
 			}
@@ -209,7 +209,7 @@ class InstanceItem extends ListView
 					'Standard',
 					'bookmark-2',
 					Languages::_('ORGANIZER_DELETE_INSTANCES'),
-					'InstanceParticipants.deschedule',
+					'InstanceParticipants.removeBookmark',
 					true
 				);
 			}
@@ -813,7 +813,7 @@ class InstanceItem extends ListView
 
 		if (!$instance->expired and !$instance->running and !$instance->manageable)
 		{
-			if ($instance->scheduled)
+			if ($instance->bookmarked)
 			{
 				$buttons['deschedule'] = true;
 
@@ -852,7 +852,7 @@ class InstanceItem extends ListView
 				$sameBlock    = ($sameDOW and $sameET and $sameST);
 				$sameInstance = $item->instanceID === $instance->instanceID;
 
-				if ($item->scheduled)
+				if ($item->bookmarked)
 				{
 					$buttons['descheduleList'] = true;
 

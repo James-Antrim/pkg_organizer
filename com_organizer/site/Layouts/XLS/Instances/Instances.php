@@ -37,7 +37,7 @@ class Instances extends ListLayout
 		$view->createSheet();
 		$view->setActiveSheetIndex($pageNo);
 		$sheet = $view->getActiveSheet();
-		$title = str_replace('&shy;', '', Languages::_('ORGANIZER_GLOSSARY') . ' - ' . Languages::_('ORGANIZER_GROUPS'));
+		$title = Languages::_('ORGANIZER_GLOSSARY') . ' - ' . Languages::_('ORGANIZER_GROUPS');
 		$sheet->setTitle($title);
 
 		$sheet->getColumnDimension()->setWidth(20);
@@ -69,7 +69,7 @@ class Instances extends ListLayout
 			$row++;
 		}
 
-		$sheet->setAutoFilter("A1:B{$lastRow}");
+		$sheet->setAutoFilter("A1:B$lastRow");
 	}
 
 	/**

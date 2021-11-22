@@ -20,13 +20,35 @@ use Organizer\Tables;
  */
 class Instances extends ResourceHelper
 {
-	public const HYBRID = 0, ONLINE = -1, PRESENCE = 1;
-
+	/**
+	 * Delta constants
+	 */
 	private const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
-	private const TEACHER = 1;
+	/**
+	 * Jump constants
+	 */
+	private const NONE = 0, FUTURE = 1, PAST = 2;
 
+	/**
+	 * Layout constants
+	 */
+	public const LIST = 0, GRID = 1;
+
+	/**
+	 * Participation constants
+	 */
 	public const BOOKMARKS = 1, REGISTRATIONS = 2;
+
+	/**
+	 * Presence constants
+	 */
+	public const HYBRID = 0, ONLINE = -1, PRESENCE = 1;
+
+	/**
+	 * Role constant
+	 */
+	private const TEACHER = 1;
 
 	/**
 	 * Adds a delta clause for a joined table.
@@ -272,20 +294,6 @@ class Instances extends ResourceHelper
 	}
 
 	/**
-	 * Creates a display of formatted dates for a course
-	 *
-	 * @param   int  $instanceID  the id of the course to be loaded
-	 *
-	 * @return string the dates to display
-	 */
-	public static function getDateDisplay(int $instanceID): string
-	{
-		$block = self::getBlock($instanceID);
-
-		return $block->date ? Dates::formatDate($block->date) : '';
-	}
-
-	/**
 	 * Retrieves the groupIDs associated with the instance.
 	 *
 	 * @param   int  $instanceID  the id of the instance
@@ -512,10 +520,11 @@ class Instances extends ResourceHelper
 	 * Builds a general query to find instances matching the given conditions.
 	 *
 	 * @param   array  $conditions  the conditions for filtering the query
+	 * @param   int    $jump        the jump direction if applicable
 	 *
 	 * @return JDatabaseQuery the query object
 	 */
-	public static function getInstanceQuery(array $conditions): JDatabaseQuery
+	public static function getInstanceQuery(array $conditions, int $jump = self::NONE): JDatabaseQuery
 	{
 		$query = Database::getQuery();
 
@@ -608,11 +617,28 @@ class Instances extends ResourceHelper
 				->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
 				->innerJoin('#__organizer_group_publishing AS gp ON gp.groupID = ig.groupID AND gp.termID = u.termID')
 				->where("i.delta != 'removed'")
-				->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
 				->where("u.delta != 'removed'")
 				->where("ipe.delta != 'removed'")
 				->where("ig.delta != 'removed'")
 				->where('gp.published = 0');
+
+			switch ($jump)
+			{
+				case self::FUTURE:
+					$lowDate  = date('Y-m-d', strtotime('+1 day', strtotime($conditions['endDate'])));
+					$highDate = date('Y-m-d', strtotime('+3 months', strtotime($conditions['endDate'])));
+					$upQuery->where("b.date BETWEEN '$lowDate' AND '$highDate'");
+					break;
+				case self::PAST:
+					$lowDate  = date('Y-m-d', strtotime('-3 months', strtotime($conditions['startDate'])));
+					$highDate = date('Y-m-d', strtotime('-1 day', strtotime($conditions['startDate'])));
+					$upQuery->where("b.date BETWEEN '$lowDate' AND '$highDate'");
+					break;
+				case self::NONE:
+				default:
+					$upQuery->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'");
+					break;
+			}
 
 			if (!empty($conditions['organizationIDs']))
 			{
@@ -848,7 +874,7 @@ class Instances extends ResourceHelper
 	}
 
 	/**
-	 * Retrieves the role id for the the given instance and person.
+	 * Retrieves the role id for the given instance and person.
 	 *
 	 * @param   int  $instanceID  the id of the instance
 	 * @param   int  $personID    the id of the person
@@ -935,27 +961,27 @@ class Instances extends ResourceHelper
 	 */
 	public static function getJumpDates(array $conditions): array
 	{
-		$futureQuery = self::getInstanceQuery($conditions);
-		$jumpDates   = [];
-		$pastQuery   = clone $futureQuery;
+		$dates = [];
 
-		$futureQuery->select('MIN(date)')->where("date > '" . $conditions['endDate'] . "'");
-		Database::setQuery($futureQuery);
-
-		if ($futureDate = Database::loadString())
-		{
-			$jumpDates['futureDate'] = $futureDate;
-		}
-
+		$pastQuery = self::getInstanceQuery($conditions, self::PAST);
 		$pastQuery->select('MAX(date)')->where("date < '" . $conditions['startDate'] . "'");
 		Database::setQuery($pastQuery);
 
 		if ($pastDate = Database::loadString())
 		{
-			$jumpDates['pastDate'] = $pastDate;
+			$dates['pastDate'] = $pastDate;
 		}
 
-		return $jumpDates;
+		$futureQuery = self::getInstanceQuery($conditions, self::FUTURE);
+		$futureQuery->select('MIN(date)')->where("date > '" . $conditions['endDate'] . "'");
+		Database::setQuery($futureQuery);
+
+		if ($futureDate = Database::loadString())
+		{
+			$dates['futureDate'] = $futureDate;
+		}
+
+		return $dates;
 	}
 
 	/**
@@ -1200,13 +1226,13 @@ class Instances extends ResourceHelper
 
 	/**
 	 * Sets the instance's participation properties:
+	 * - 'bookmarked'  - the user has added the instance to their schedule
 	 * - 'busy'       - the user's schedule has an appointment in a block overlapping the instance
 	 * - 'capacity'   - the number of users who may physically attend the instance
 	 * - 'interested' - the number of users who have added this instance to their schedule
 	 * - 'registered' - the user has registered to physically participate in the instance
-	 * - 'scheduled'  - the user has added the instance to their schedule
 	 *
-	 * @param   array  $instance  the array containing instance inforation
+	 * @param   array  $instance  the array containing instance information
 	 *
 	 * @return void
 	 */
@@ -1218,9 +1244,9 @@ class Instances extends ResourceHelper
 
 		if (!$userID = Users::getID())
 		{
+			$instance['bookmarked'] = false;
 			$instance['busy']       = false;
 			$instance['registered'] = false;
-			$instance['scheduled']  = false;
 
 			return;
 		}
@@ -1228,9 +1254,9 @@ class Instances extends ResourceHelper
 		$participation = new Tables\InstanceParticipants();
 		if ($participation->load(['instanceID' => $instance['instanceID'], 'participantID' => $userID]))
 		{
+			$instance['bookmarked'] = true;
 			$instance['busy']       = true;
 			$instance['registered'] = $participation->registered;
-			$instance['scheduled']  = true;
 
 			return;
 		}
@@ -1244,25 +1270,9 @@ class Instances extends ResourceHelper
 			return;
 		}
 
+		$instance['bookmarked'] = false;
 		$instance['registered'] = false;
-		$instance['scheduled']  = false;
-
-		$blockConditions = [
-			"b.startTime <= '$block->startTime' AND b.endTime >= '$block->endTime'",
-			"b.startTime BETWEEN '$block->startTime' AND '$block->endTime'",
-			"b.endTime BETWEEN '$block->startTime' AND '$block->endTime'"
-		];
-		$blockConditions = '((' . implode(') OR (', $blockConditions) . '))';
-
-		$query = Database::getQuery();
-		$query->select('ip.id')
-			->from('#__organizer_instance_participants AS ip')
-			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
-			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-			->where($blockConditions)
-			->where("ip.participantID = $userID");
-		Database::setQuery($query);
-		$instance['busy'] = Database::loadBool();
+		$instance['busy']       = InstanceParticipants::isBusy($block->date, $block->startTime, $block->endTime);
 	}
 
 	/**

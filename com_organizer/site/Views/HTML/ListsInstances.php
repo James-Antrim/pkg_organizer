@@ -45,6 +45,28 @@ trait ListsInstances
 	}
 
 	/**
+	 * Searches for a pattern specified link in commentary text. If found it is added to the tools and removed from the
+	 * text.
+	 *
+	 * @param   string   $pattern  the pattern to search for
+	 * @param   int      $key      the matches index number for the discovered id
+	 * @param   string  &$text     the text to search in
+	 * @param   array   &$tools    the container to add discovered tools to
+	 * @param   string   $URL      the static portion of the dynamic link
+	 * @param   string   $link     the HTML a-Tag which will be added to the tools
+	 *
+	 * @return void
+	 */
+	private function findTool(string $pattern, int $key, string &$text, array &$tools, string $URL, string $link)
+	{
+		if (preg_match($pattern, $text, $matches))
+		{
+			$tools[] = str_replace('URL', $URL . $matches[$key], $link);
+			$text    = preg_replace($pattern, '', $text);
+		}
+	}
+
+	/**
 	 * Created a structure for displaying status information as necessary.
 	 *
 	 * @param   stdClass  $instance  the instance item being iterated
@@ -67,9 +89,9 @@ trait ListsInstances
 
 				if ($userID)
 				{
-					if ($instance->scheduled)
+					if ($instance->bookmarked)
 					{
-						$value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBED'));
+						$value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_BOOKMARKED'));
 					}
 
 					if ($instance->manageable)
@@ -87,9 +109,9 @@ trait ListsInstances
 
 				if ($userID)
 				{
-					if ($instance->scheduled)
+					if ($instance->bookmarked)
 					{
-						$value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBED'));
+						$value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_BOOKMARKED'));
 
 						if ($instance->registered)
 						{
@@ -216,24 +238,24 @@ trait ListsInstances
 				// Virtual and full appointments can still be added to the personal calendar
 				elseif (!$instance->expired and !$instance->running)
 				{
-					if ($instance->interested)
+					if ($instance->bookmarked)
 					{
-						$label = Languages::_('ORGANIZER_REMOVE');
+						$label = Languages::_('ORGANIZER_REMOVE_BOOKMARK');
 						$icon  = HTML::icon('bookmark-2', $label, true);
-						$url   = Routing::getTaskURL('InstanceParticipants.deschedule', $instanceID);
+						$url   = Routing::getTaskURL('InstanceParticipants.removeBookmark', $instanceID);
 					}
 					else
 					{
-						$label = Languages::_('ORGANIZER_ADD');
+						$label = Languages::_('ORGANIZER_BOOKMARK');
 						$icon  = HTML::icon('bookmark', $label, true);
-						$url   = Routing::getTaskURL('InstanceParticipants.schedule', $instanceID);
+						$url   = Routing::getTaskURL('InstanceParticipants.bookmark', $instanceID);
 					}
 
 					$attribs   = ['aria-label' => $label, 'class' => 'btn'];
 					$buttons[] = HTML::link($url, $icon, $attribs);
 
 					// Not virtual and not full
-					if ($instance->registration)
+					if ($instance->registration and !$instance->premature)
 					{
 						if ($instance->registered)
 						{
@@ -313,51 +335,94 @@ trait ListsInstances
 	/**
 	 * Resolves any links/link parameters to links with icons.
 	 *
-	 * @param   string  $text  the text to search
+	 * @param   string      $text  the text to search
+	 * @param   array|null  $tools
 	 *
 	 * @return string
 	 */
-	private function resolveLinks(string $text): string
+	private function resolveLinks(string $text, array &$tools = null): string
 	{
-		$moodleIcon     = '<span class="icon-moodle hasTooltip" title="Moodle Link"></span>';
-		$moodleURL1     = 'https://moodle.thm.de/course/view.php?id=PID';
-		$moodleURL2     = 'https://moodle.thm.de/course/index.php?categoryid=PID';
-		$moodleTemplate = "<a href=\"MOODLEURL\" target=\"_blank\">$moodleIcon</a>";
+		$icon     = '<span class="icon-moodle hasTooltip" title="Moodle Link"></span>';
+		$pattern1 = '/(((https?):\/\/)moodle.thm.de\/course\/view.php\?id=(\d+))/';
+		$pattern2 = '/moodle=(\d+)/';
+		$pattern3 = '/(((https?):\/\/)moodle\.thm\.de\/course\/index\.php\\?categoryid=(\\d+))/';
+		$link     = "<a href=\"URL\" target=\"_blank\">$icon</a>";
 
-		$template = str_replace('PID', '$4', str_replace('MOODLEURL', $moodleURL1, $moodleTemplate));
-		$text     = preg_replace('/(((https?):\/\/)moodle.thm.de\/course\/view.php\?id=(\d+))/', $template, $text);
-		$template = str_replace('PID', '$1', str_replace('MOODLEURL', $moodleURL1, $moodleTemplate));
-		$text     = preg_replace('/moodle=(\d+)/', $template, $text);
-		$template = str_replace('PID', '$4', str_replace('MOODLEURL', $moodleURL2, $moodleTemplate));
-		$text     = preg_replace(
-			'/(((https?):\/\/)moodle\.thm\.de\/course\/index\.php\\?categoryid=(\\d+))/',
-			$template,
-			$text
-		);
+		if ($tools)
+		{
+			$URL1 = 'https://moodle.thm.de/course/view.php?id=';
+			$URL2 = 'https://moodle.thm.de/course/index.php?categoryid=';
 
-		$netACADIcon = '<span class="icon-cisco hasTooltip" title="Networking Academy Link"></span>';
-		$template    = "<a href=\"$1\" target=\"_blank\">$netACADIcon</a>";
-		$text        = preg_replace('/(((https?):\/\/)\d+.netacad.com\/courses\/\d+)/', $template, $text);
+			self::findTool($pattern1, 4, $text, $tools, $URL1, $link);
+			self::findTool($pattern2, 1, $text, $tools, $URL1, $link);
+			self::findTool($pattern3, 4, $text, $tools, $URL2, $link);
+		}
+		else
+		{
+			$URL1 = 'https://moodle.thm.de/course/view.php?id=PID';
+			$URL2 = 'https://moodle.thm.de/course/index.php?categoryid=PID';
 
-		$panoptoIcon     = '<span class="icon-panopto hasTooltip" title="Panopto Link"></span>';
-		$panoptoURL      = 'https://panopto.thm.de/Panopto/Pages/Viewer.aspx?id=PID';
-		$panoptoTemplate = "<a href=\"$panoptoURL\" target=\"_blank\">$panoptoIcon</a>";
+			$template = str_replace('PID', '$4', str_replace('URL', $URL1, $link));
+			$text     = preg_replace($pattern1, $template, $text);
+			$template = str_replace('PID', '$1', str_replace('URL', $URL1, $link));
+			$text     = preg_replace($pattern2, $template, $text);
+			$template = str_replace('PID', '$4', str_replace('URL', $URL2, $link));
+			$text     = preg_replace($pattern3, $template, $text);
+		}
 
-		$template = str_replace('PID', '$4', $panoptoTemplate);
-		$text     = preg_replace(
-			'/(((https?):\/\/)panopto.thm.de\/Panopto\/Pages\/Viewer.aspx\?id=[\d\w\-]+)/',
-			$template,
-			$text
-		);
+		$icon    = '<span class="icon-cisco hasTooltip" title="Networking Academy Link"></span>';
+		$pattern = '/(((https?):\/\/)\d+.netacad.com\/courses\/\d+)/';
 
-		$template = str_replace('PID', '$1', $panoptoTemplate);
-		$text     = preg_replace('/panopto=([\d\w\-]+)/', $template, $text);
+		if ($tools and preg_match($pattern, $text, $matches))
+		{
+			$tools[] = "<a href=\"$matches[1]\" target=\"_blank\">$icon</a>";
+			$text    = preg_replace($pattern, '', $text);
+		}
+		else
+		{
+			$template = "<a href=\"$1\" target=\"_blank\">$icon</a>";
+			$text     = preg_replace($pattern, $template, $text);
+		}
 
-		$pilosIcon  = '<span class="icon-pilos hasTooltip" title="Pilos Link"></span>';
-		$pilosREGEX = '/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
-		$template   = "<a href=\"$1\" target=\"_blank\">$pilosIcon</a>";
+		$icon     = '<span class="icon-panopto hasTooltip" title="Panopto Link"></span>';
+		$pattern1 = '/(((https?):\/\/)panopto.thm.de\/Panopto\/Pages\/Viewer.aspx\?id=[\d\w\-]+)/';
+		$pattern2 = '/panopto=([\d\w\-]+)/';
 
-		return preg_replace($pilosREGEX, $template, $text);
+		if ($tools)
+		{
+			$URL  = 'https://panopto.thm.de/Panopto/Pages/Viewer.aspx?id=';
+			$link = "<a href=\"URL\" target=\"_blank\">$icon</a>";
+
+			self::findTool($pattern1, 4, $text, $tools, $URL, $link);
+			self::findTool($pattern2, 1, $text, $tools, $URL, $link);
+		}
+		else
+		{
+			$URL  = 'https://panopto.thm.de/Panopto/Pages/Viewer.aspx?id=PID';
+			$link = "<a href=\"$URL\" target=\"_blank\">$icon</a>";
+
+			$template = str_replace('PID', '$4', $link);
+			$text     = preg_replace($pattern1, $template, $text);
+
+			$template = str_replace('PID', '$1', $link);
+			$text     = preg_replace($pattern2, $template, $text);
+		}
+
+		$icon    = '<span class="icon-pilos hasTooltip" title="Pilos Link"></span>';
+		$pattern = '/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
+
+		if ($tools and preg_match($pattern, $text, $matches))
+		{
+			$tools[] = "<a href=\"$matches[1]\" target=\"_blank\">$icon</a>";
+			$text    = preg_replace($pattern, '', $text);
+		}
+		else
+		{
+			$template = "<a href=\"$1\" target=\"_blank\">$icon</a>";
+			$text     = preg_replace($pattern, $template, $text);
+		}
+
+		return $text;
 	}
 
 	/**
@@ -470,14 +535,16 @@ trait ListsInstances
 			$groups[$code] = "<span class=\"hasToolTip\" $title>{$group['code']}</span>";
 		}
 
-		$instance->groups = implode('<br>', $groups);
+		$glue = (isset($this->model->layout) and $this->model->layout === Helper::GRID) ? ', ' : '<br>';
+
+		$instance->groups = implode($glue, $groups);
 
 		if (count($roles) === 1)
 		{
 			$persons = array_shift($roles);
 			ksort($persons);
 
-			$instance->persons = implode('<br>', $persons);
+			$instance->persons = implode($glue, $persons);
 		}
 		else
 		{
@@ -494,7 +561,7 @@ trait ListsInstances
 				$roleDisplay .= "<span class=\"role-title\">$roleTitle:</span><br>";
 
 				ksort($persons);
-				$roleDisplay           .= implode('<br>', $persons);
+				$roleDisplay           .= implode($glue, $persons);
 				$displayRoles[$roleID] = $roleDisplay;
 			}
 
@@ -525,7 +592,7 @@ trait ListsInstances
 			array_unshift($rooms, Languages::_('ORGANIZER_ONLINE'));
 		}
 
-		$instance->rooms = implode('<br>', $rooms);
+		$instance->rooms = implode($glue, $rooms);
 	}
 
 	/**

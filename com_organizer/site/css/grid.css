@@ -262,6 +262,7 @@ body.tmpl-mobile div.main .input-append button {
 .instances-grid {
     display: grid;
     grid-template-rows: 3rem repeat(auto-fill, auto);
+    padding-bottom: 1rem;
     text-align: center;
 }
 
@@ -270,57 +271,20 @@ body.tmpl-mobile div.main .input-append button {
 }
 
 .instances-grid.columns-2 {
-    grid-template-columns: repeat(2, 1fr);
-}
-
-.instances-grid.columns-2.with-times {
-    grid-template-columns: 4rem repeat(1, 1fr);
-}
-
-.instances-grid.columns-3 {
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.instances-grid.columns-3.with-times {
-    grid-template-columns: 4rem repeat(2, 1fr);
-}
-
-.instances-grid.columns-4 {
-    grid-template-columns: repeat(4, 1fr);
-}
-
-.instances-grid.columns-4.with-times {
-    grid-template-columns: 4rem repeat(3, 1fr);
-}
-
-.instances-grid.columns-5 {
-    grid-template-columns: repeat(5, 1fr);
-}
-
-.instances-grid.columns-5.with-times {
-    grid-template-columns: 4rem repeat(4, 1fr);
+    grid-template-columns: 3.5rem repeat(1, 1fr);
 }
 
 .instances-grid.columns-6 {
     grid-template-columns: repeat(6, 1fr);
 }
 
-.instances-grid.columns-6.with-times {
-    grid-template-columns: 4rem repeat(5, 1fr);
-}
-
 .instances-grid.columns-7 {
-    grid-template-columns: repeat(7, 10.4rem);
-}
-
-.instances-grid.columns-7.with-times {
-    grid-template-columns: 4rem repeat(6, 10.4rem);
+    grid-template-columns: 3.4rem repeat(6, 10.5rem);
 }
 
 .instances-grid > div {
     background-color: white;
-    border-right: 2px solid #a4adb2;
-    border-bottom: 2px solid #a4adb2;
+    border-bottom: 5px solid #dfeec8;
     color: #394a59;
     padding: .1rem .2rem;
 }
@@ -328,8 +292,6 @@ body.tmpl-mobile div.main .input-append button {
 .instances-grid > div.grid-header {
     align-items: center;
     background-color: #4a5c66;
-    border-right: 2px solid white;
-    border-bottom: 2px solid white;
     color: white;
     display: grid;
     justify-items: center;
@@ -337,15 +299,11 @@ body.tmpl-mobile div.main .input-append button {
 
 .instances-grid > div.grid-header.times {
     display: block;
-    padding-top: .5rem;
+    padding: .5rem 0;
 }
 
 .instances-grid > div.block-busy {
     background-color: #7f93bb;
-}
-
-.instances-grid > div.column-end {
-    border-bottom: none;
 }
 
 .instances-grid > div.row-end {
@@ -353,8 +311,9 @@ body.tmpl-mobile div.main .input-append button {
 }
 
 .instances-grid > div .grid-item {
-    border: 1px solid #d2d6d9;
-    margin: .1rem 0;
+    background-color: #f2f5f6;
+    margin: .2rem 0 .4rem 0;
+    padding: .4rem .1rem;
 }
 
 .instances-grid > div .grid-item.new {
@@ -362,8 +321,26 @@ body.tmpl-mobile div.main .input-append button {
 }
 
 .instances-grid > div .grid-item.removed {
-    color: #77858c;
+    color: #4a5c66;
     text-decoration: line-through;
+}
+
+.instances-grid > div .grid-item:last-child {
+    margin-bottom: .2rem;
+}
+
+.instances-grid > div .grid-item .grid-tools {
+    margin-top: .4rem;
+}
+
+.instances-grid > div .grid-item .grid-tools [class^="icon-"] {
+    font-size: 1.1rem;
+    margin-right: .4rem;
+}
+
+.instances-grid > div.break {
+    background-color: #dfeec8;
+    color: #394a59;
 }
 
 .instances-grid > div > div {

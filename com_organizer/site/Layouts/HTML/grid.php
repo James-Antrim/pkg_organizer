@@ -58,7 +58,7 @@ $lastRow    = end($rows);
 
 						if ($column === 'times')
 						{
-							$class .= 'grid-header times"';
+							$class .= 'grid-header times';
 						}
                         elseif ($column === $lastColumn)
 						{
@@ -73,6 +73,11 @@ $lastRow    = end($rows);
 						if ($busy)
 						{
 							$class .= ' block-busy';
+						}
+
+						if (!empty($row['type']) and $row['type'] === 'break')
+						{
+							$class .= ' break';
 						}
 
 						$class = trim($class);

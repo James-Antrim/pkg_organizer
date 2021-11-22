@@ -89,6 +89,68 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
+	 * Adds instances to the user's personal schedule.
+	 *
+	 * @param   int  $method  the manner in which instances are selected.
+	 *
+	 * @return void
+	 */
+	public function bookmark(int $method)
+	{
+		if (!$participantID = Helpers\Users::getID())
+		{
+			OrganizerHelper::message(Languages::_('ORGANIZER_401'), 'error');
+
+			return;
+		}
+
+		$participant = new Participant();
+		$participant->supplement($participantID);
+
+		if (!$instanceIDs = $this->getInstances($method, true))
+		{
+			return;
+		}
+
+		$registered  = false;
+		$responsible = false;
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			if (Helpers\Instances::hasResponsibility($instanceID))
+			{
+				$responsible = true;
+				continue;
+			}
+
+			$participation = new Table();
+			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
+
+			// Participant is already registered.
+			if ($participation->load($keys))
+			{
+				continue;
+			}
+
+			if ($participation->save($keys))
+			{
+				$registered = true;
+			}
+		}
+
+		if ($registered)
+		{
+			OrganizerHelper::message('ORGANIZER_SCHEDULE_SUCCESS');
+		}
+		elseif ($responsible)
+		{
+			OrganizerHelper::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', 'notice');
+		}
+
+		// The other option is that all matching instances were already in the participant's personal schedule => no message.
+	}
+
+	/**
 	 * Checks the user into instances.
 	 *
 	 * @return bool true on success, otherwise false
@@ -316,54 +378,6 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
-	 * Removes instances from a participant's personal schedule.
-	 *
-	 * @param   int  $method  the manner in which instances are filtered for removal.
-	 *
-	 * @return void
-	 */
-	public function deschedule(int $method)
-	{
-		if (!$participantID = Helpers\Users::getID())
-		{
-			OrganizerHelper::message(Languages::_('ORGANIZER_401'), 'error');
-
-			return;
-		}
-
-		if (!$instanceIDs = $this->getInstances($method, true))
-		{
-			return;
-		}
-
-		$descheduled = false;
-
-		foreach ($instanceIDs as $instanceID)
-		{
-			$participation = new Table();
-			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
-
-			// The instance was not in the participant's personal schedule.
-			if (!$participation->load($keys))
-			{
-				continue;
-			}
-
-			if ($participation->delete())
-			{
-				$descheduled = true;
-			}
-		}
-
-		if ($descheduled)
-		{
-			OrganizerHelper::message(Languages::_('ORGANIZER_DESCHEDULE_SUCCESS'));
-		}
-
-		// The other option is that the participant didn't have matching instances in their personal schedule anyways => no message.
-	}
-
-	/**
 	 * Finds instances matching the given instance by matching method, inclusive the reference instance.
 	 *
 	 * @return array
@@ -495,8 +509,8 @@ class InstanceParticipant extends BaseModel
 	 * Finds instances matching the given instance by matching method, inclusive the reference instance. Adds system
 	 * message if no results were found.
 	 *
-	 * @param   int   $method  the method for determining relevant instances
-	 * @param   bool  $virtual whether virtual instances are permissible in the result set
+	 * @param   int   $method   the method for determining relevant instances
+	 * @param   bool  $virtual  whether virtual instances are permissible in the result set
 	 *
 	 * @return array
 	 */
@@ -767,6 +781,54 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
+	 * Removes instances from a participant's personal schedule.
+	 *
+	 * @param   int  $method  the manner in which instances are filtered for removal.
+	 *
+	 * @return void
+	 */
+	public function removeBookmark(int $method)
+	{
+		if (!$participantID = Helpers\Users::getID())
+		{
+			OrganizerHelper::message(Languages::_('ORGANIZER_401'), 'error');
+
+			return;
+		}
+
+		if (!$instanceIDs = $this->getInstances($method, true))
+		{
+			return;
+		}
+
+		$removed = false;
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			$participation = new Table();
+			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
+
+			// The instance was not in the participant's personal schedule.
+			if (!$participation->load($keys))
+			{
+				continue;
+			}
+
+			if ($participation->delete())
+			{
+				$removed = true;
+			}
+		}
+
+		if ($removed)
+		{
+			OrganizerHelper::message(Languages::_('ORGANIZER_DESCHEDULE_SUCCESS'));
+		}
+
+		// The other option is that the participant didn't have matching instances in their personal schedule anyways => no message.
+	}
+
+	/**
 	 * Attempts to save the resource.
 	 *
 	 * @param   array  $data  the data from the form
@@ -834,67 +896,5 @@ class InstanceParticipant extends BaseModel
 		}
 
 		return $table->store();
-	}
-
-	/**
-	 * Adds instances to the user's personal schedule.
-	 *
-	 * @param   int  $method  the manner in which instances are selected.
-	 *
-	 * @return void
-	 */
-	public function schedule(int $method)
-	{
-		if (!$participantID = Helpers\Users::getID())
-		{
-			OrganizerHelper::message(Languages::_('ORGANIZER_401'), 'error');
-
-			return;
-		}
-
-		$participant = new Participant();
-		$participant->supplement($participantID);
-
-		if (!$instanceIDs = $this->getInstances($method, true))
-		{
-			return;
-		}
-
-		$registered  = false;
-		$responsible = false;
-
-		foreach ($instanceIDs as $instanceID)
-		{
-			if (Helpers\Instances::hasResponsibility($instanceID))
-			{
-				$responsible = true;
-				continue;
-			}
-
-			$participation = new Table();
-			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
-
-			// Participant is already registered.
-			if ($participation->load($keys))
-			{
-				continue;
-			}
-
-			if ($participation->save($keys))
-			{
-				$registered = true;
-			}
-		}
-
-		if ($registered)
-		{
-			OrganizerHelper::message('ORGANIZER_SCHEDULE_SUCCESS');
-		}
-		elseif ($responsible)
-		{
-			OrganizerHelper::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', 'notice');
-		}
-
-		// The other option is that all matching instances were already in the participant's personal schedule => no message.
 	}
 }
