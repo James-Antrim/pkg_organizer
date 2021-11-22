@@ -445,7 +445,7 @@ class Instances extends ListView
 
 			$times = '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span><br>';
 			$title = $item->name;
-			$iKey  = $title;
+			$key   = $title;
 			Languages::unpack($title);
 			$title = '<span class="event">' . $title . '</span>';
 			$title = HTML::_('link', $item->link, $title);
@@ -457,8 +457,10 @@ class Instances extends ListView
 			else
 			{
 				$method = "<br><span class=\"method\">$item->method</span>";
-				$iKey   .= "-$item->method";
+				$key    .= $item->method;
 			}
+
+			$key .= "$item->instanceID";
 
 			$persons = '';
 
@@ -597,6 +599,9 @@ class Instances extends ListView
 				{
 					continue;
 				}
+
+				$blockKey = str_replace(':', '', "$item->startTime$item->endTime");
+				$iKey     = $blockKey . $key;
 
 				$entry = $cClass ? "<div class=\"$cClass\"><div class=\"notice\">$notice</div>" : '<div>';
 				$entry .= ($items['startTime'] !== $item->startTime or $item->endTime !== $items['endTime']) ? $times : '';
