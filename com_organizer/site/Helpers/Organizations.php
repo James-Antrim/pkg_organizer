@@ -125,7 +125,8 @@ class Organizations extends ResourceHelper implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo) {
+		uasort($options, function ($optionOne, $optionTwo)
+		{
 			return $optionOne->text > $optionTwo->text;
 		});
 
@@ -173,9 +174,7 @@ class Organizations extends ResourceHelper implements Selectable
 			return;
 		}
 
-		// todo remove this on completion of migration
-		$organizationID         = Input::getInt('organizationID');
-		$data['organizationID'] = $organizationID ? $organizationID : Input::getInt('departmentID');
+		$data['organizationID'] = Input::getInt('organizationID');
 		$associations->save($data);
 	}
 }

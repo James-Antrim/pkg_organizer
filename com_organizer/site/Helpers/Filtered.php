@@ -91,9 +91,7 @@ trait Filtered
 	 */
 	public static function addOrganizationFilter($query, $resource, $alias, $keyColumn = 'id')
 	{
-		// TODO Remove departments on completion of migration.
-		$departmentID    = Input::getInt('departmentIDs');
-		$organizationID  = Input::getInt('organizationID', $departmentID);
+		$organizationID  = Input::getInt('organizationID');
 		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
 		if (empty($organizationIDs))
 		{

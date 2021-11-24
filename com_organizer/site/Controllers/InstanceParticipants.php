@@ -41,21 +41,6 @@ class InstanceParticipants extends Controller
 	}
 
 	/**
-	 * Adds instances to the participant's personal schedule.
-	 *
-	 * @return void
-	 * @see com_thm_organizer
-	 */
-	public function add()
-	{
-		$model = new Models\InstanceParticipant();
-
-		$response = json_encode($model->add(), JSON_NUMERIC_CHECK);
-
-		$this->jsonResponse($response);
-	}
-
-	/**
 	 * Triggers the model to add instances to the participant's personal schedule.
 	 *
 	 * @return void
@@ -132,21 +117,6 @@ class InstanceParticipants extends Controller
 	public function registerThis()
 	{
 		$this->register(self::THIS);
-	}
-
-	/**
-	 * Removes instances to the participant's personal schedule.
-	 *
-	 * @return void
-	 * @see com_thm_organizer
-	 */
-	public function remove()
-	{
-		$model = new Models\InstanceParticipant();
-
-		$response = json_encode($model->remove(), JSON_NUMERIC_CHECK);
-
-		$this->jsonResponse($response);
 	}
 
 	/**

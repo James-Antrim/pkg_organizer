@@ -1,9 +1,7 @@
 <?php
 /**
- * @category    Joomla component
- * @package     THM_Organizer
- * @subpackage  com_thm_organizer.<subdirectory>
- * @name        Subordinate
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2020 TH Mittelhessen
  * @license     GNU GPL v.2

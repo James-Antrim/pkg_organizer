@@ -117,11 +117,12 @@ class Persons extends Associated implements Selectable
 	 * @return array  an array of person data
 	 */
 	public static function getDataBySubject(
-		int $subjectID,
-		int $role = 0,
+		int  $subjectID,
+		int  $role = 0,
 		bool $multiple = false,
 		bool $unique = true
-	): array {
+	): array
+	{
 		$query = Database::getQuery();
 		$query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, sp.role, code')
 			->from('#__organizer_persons AS p')
@@ -294,8 +295,7 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function getResources(): array
 	{
-		// TODO Remove departmentIDs on completion of migration.
-		$organizationID = Input::getInt('organizationID', Input::getInt('departmentIDs'));
+		$organizationID = Input::getInt('organizationID');
 		if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization'))
 		{
 			foreach ($organizationIDs as $key => $organizationID)
@@ -396,7 +396,8 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function nameSort(array &$persons)
 	{
-		uasort($persons, function ($personOne, $personTwo) {
+		uasort($persons, function ($personOne, $personTwo)
+		{
 			if ($personOne['surname'] == $personTwo['surname'])
 			{
 				return $personOne['forename'] > $personTwo['forename'];
@@ -428,7 +429,8 @@ class Persons extends Associated implements Selectable
 	 */
 	public static function roleSort(array &$persons)
 	{
-		uasort($persons, function ($personOne, $personTwo) {
+		uasort($persons, function ($personOne, $personTwo)
+		{
 			$roleOne = isset($personOne['role'][self::COORDINATES]);
 			$roleTwo = isset($personTwo['role'][self::COORDINATES]);
 			if ($roleOne or !$roleTwo)

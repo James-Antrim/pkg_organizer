@@ -504,8 +504,8 @@ class Search extends ListModel
 
 			if ($categoryID)
 			{
-				$links['grid'] = "?option=com_thm_organizer&view=schedule&programIDs=$programID";
-				$links['list'] = "?option=com_organizer&view=instances&categoryID=$categoryID";
+				$links['grid'] = "?option=com_organizer&view=instances&categoryID=$categoryID&layout=grid";
+				$links['list'] = "?option=com_organizer&view=instances&categoryID=$categoryID&layout=list";
 			}
 
 			// Nothing to link => entry is pointless
@@ -559,8 +559,8 @@ class Search extends ListModel
 
 			if ($eventID)
 			{
-				$links['grid'] = "?option=com_thm_organizer&view=schedule&subjectIDs=$eventID";
-				$links['list'] = "?option=com_organizer&view=instances&eventID=$eventID";
+				$links['grid'] = "?option=com_organizer&view=instances&eventID=$eventID&layout=grid";
+				$links['list'] = "?option=com_organizer&view=instances&eventID=$eventID&layout=list";
 			}
 
 			$results[$key] = [];
@@ -617,8 +617,8 @@ class Search extends ListModel
 
 			if ($groupID)
 			{
-				$links['grid'] = "?option=com_thm_organizer&view=schedule&poolIDs=$groupID";
-				$links['list'] = "?option=com_organizer&view=instances&groupID=$groupID";
+				$links['grid'] = "?option=com_organizer&view=instances&groupID=$groupID&layout=grid";
+				$links['list'] = "?option=com_organizer&view=instances&groupID=$groupID&layout=list";
 			}
 
 			// Nothing to link => entry is pointless
@@ -650,8 +650,8 @@ class Search extends ListModel
 
 		foreach ($organizationIDs as $organizationID)
 		{
-			$links['grid'] = "?option=com_thm_organizer&view=schedule&departmentIDs=$organizationID";
-			$links['list'] = "?option=com_organizer&view=instances&organizationID=$organizationID";
+			$links['grid'] = "?option=com_organizer&view=instances&organizationID=$organizationID&layout=grid";
+			$links['list'] = "?option=com_organizer&view=instances&organizationID=$organizationID&layout=list";
 
 			$organizations[$organizationID]          = ['description' => ''];
 			$organizations[$organizationID]['text']  = $label . Helpers\Organizations::getName($organizationID);
@@ -693,8 +693,8 @@ class Search extends ListModel
 
 			if ($identity or $released or $wedge)
 			{
-				$links['grid'] = "?option=com_thm_organizer&view=schedule&teacherIDs=$personID";
-				$links['list'] = "?option=com_organizer&view=instances&personID=$personID";
+				$links['grid'] = "?option=com_organizer&view=instances&personID=$personID&layout=grid";
+				$links['list'] = "?option=com_organizer&view=instances&personID=$personID&layout=list";
 			}
 
 			if ($links)
@@ -742,8 +742,8 @@ class Search extends ListModel
 			$rooms[$roomID]['description'] = "$description$capacity";
 
 			$rooms[$roomID]['links'] = [
-				'grid' => "?option=com_thm_organizer&view=schedule&roomIDs={$room['id']}",
-				'list' => "?option=com_organizer&view=instances&roomID={$room['id']}"
+				'grid' => "?option=com_organizer&view=instances&roomID={$room['id']}&layout=grid",
+				'list' => "?option=com_organizer&view=instances&roomID={$room['id']}&layout=list"
 			];
 		}
 

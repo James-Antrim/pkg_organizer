@@ -127,7 +127,8 @@ class Groups extends Associated implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo) {
+		uasort($options, function ($optionOne, $optionTwo)
+		{
 			return $optionOne->text > $optionTwo->text;
 		});
 
@@ -153,9 +154,7 @@ class Groups extends Associated implements Selectable
 
 		if (empty($categoryIDs))
 		{
-			// TODO Remove departments on completion of migration.
-			$departmentID    = Input::getInt('departmentIDs');
-			$organizationID  = Input::getInt('organizationID', $departmentID);
+			$organizationID  = Input::getInt('organizationID');
 			$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
 		}
 

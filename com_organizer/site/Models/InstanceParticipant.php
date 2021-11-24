@@ -32,43 +32,6 @@ class InstanceParticipant extends BaseModel
 	private const BLOCK = 2, SELECTED = 0, THIS = 1;
 
 	/**
-	 * Adds instances to the user's personal schedule.
-	 *
-	 * @return array
-	 * @see com_thm_organizer
-	 */
-	public function add(): array
-	{
-		if (!$participantID = Helpers\Users::getID())
-		{
-			return [];
-		}
-
-		$participant = new Participant();
-		$participant->supplement($participantID);
-
-		$instanceIDs = $this->getMatchingInstances();
-
-		foreach ($instanceIDs as $key => $instanceID)
-		{
-			$participation = new Table();
-			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
-
-			if ($participation->load($keys))
-			{
-				continue;
-			}
-
-			if (!$participation->save($keys))
-			{
-				unset($instanceIDs[$key]);
-			}
-		}
-
-		return array_values($instanceIDs);
-	}
-
-	/**
 	 * Authorizes users responsible for bookings to edit individual participation.
 	 *
 	 * @return void
@@ -378,72 +341,6 @@ class InstanceParticipant extends BaseModel
 	}
 
 	/**
-	 * Finds instances matching the given instance by matching method, inclusive the reference instance.
-	 *
-	 * @return array
-	 * @see com_thm_organizer
-	 * @see self::add(), self::remove()
-	 */
-	private function getMatchingInstances(): array
-	{
-		if (!$instanceID = Input::getInt('instanceID'))
-		{
-			return [];
-		}
-
-		$matchingMethod = Input::getInt('method', 2);
-		$instance       = new Tables\Instances();
-
-		if (!$instance->load($instanceID))
-		{
-			return [];
-		}
-
-		$now   = date('H:i:s');
-		$query = Database::getQuery();
-		$today = date('Y-m-d');
-		$query->select('i.id')
-			->from('#__organizer_instances AS i')
-			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-			->where("i.eventID = $instance->eventID")
-			->where("i.unitID = $instance->unitID")
-			->where("(b.date > '$today' OR (b.date = '$today' AND b.endTime > '$now'))")
-			->order('i.id');
-
-		// TODO only return instances that are not full
-
-		$instanceIDs = [];
-		switch ($matchingMethod)
-		{
-			case self::BLOCK_MODE:
-				$block = new Tables\Blocks();
-				if ($block->load($instance->blockID))
-				{
-					$query->where("b.dow = $block->dow")
-						->where("b.endTime = '$block->endTime'")
-						->where("b.startTime = '$block->startTime'");
-					Database::setQuery($query);
-					$instanceIDs = Database::loadIntColumn();
-				}
-				break;
-			case self::INSTANCE_MODE:
-				$query->where("i.id = $instanceID");
-				Database::setQuery($query);
-				$instanceID  = Database::loadInt();
-				$instanceIDs = $instanceID ? [$instanceID] : [];
-				break;
-			case self::TERM_MODE:
-				Database::setQuery($query);
-				$instanceIDs = Database::loadIntColumn();
-				break;
-			default:
-				break;
-		}
-
-		return array_values($instanceIDs);
-	}
-
-	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.
@@ -750,34 +647,6 @@ class InstanceParticipant extends BaseModel
 		}
 
 		// The other option is that the participant is already registered to all matching instances => no message.
-	}
-
-	/**
-	 * Removes instances from the user's personal schedule.
-	 *
-	 * @return array
-	 */
-	public function remove(): array
-	{
-		if (!$participantID = Helpers\Users::getID())
-		{
-			return [];
-		}
-
-		$instanceIDs = $this->getMatchingInstances();
-
-		foreach ($instanceIDs as $key => $instanceID)
-		{
-			$participation = new Table();
-			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
-
-			if (!$participation->load($keys) or !$participation->delete())
-			{
-				unset($instanceIDs[$key]);
-			}
-		}
-
-		return array_values($instanceIDs);
 	}
 
 	/**

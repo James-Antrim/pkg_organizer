@@ -44,8 +44,7 @@ class Programs extends Curricula implements Selectable
 			return 0;
 		}
 
-		$departmentID                  = Input::getInt('departmentID');
-		$programData['organizationID'] = Input::getInt('organizationID', $departmentID);
+		$programData['organizationID'] = Input::getInt('organizationID');
 		$programData['name_de']        = $initialName;
 		$programData['name_en']        = $initialName;
 		$programData['categoryID']     = $categoryID;
