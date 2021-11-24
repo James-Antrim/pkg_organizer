@@ -1,11 +1,8 @@
 #region list ###########################################################################################################
 #add resource names to instances pdf file names
 #add the option to create group plans when only the organization or category has been selected
-#link instance views to/from documentation resources
 #add compactor functions for tables whose ids are not stored in json schedules
 #add function to clean duplicate associations
-#drop sy 20/21
-#suppress organization context for person and room instances
 #rework so that classDecode/-Encode is not necessary??
 #equipment management
 #instances export suppress columns/resources
@@ -14,7 +11,12 @@
 #tables: overwrite bind function to use types (and attributes)
 #purge data
 #instances filter anstehend, abgelaufen, alle
-#jump to next
+#add support for the language switch for dynamic content
+#rename instance participants to participations
+#add start and end time fields to participations
+#add a checkout view
+#add checkin for appointments where no person is responsible
+#add dedicated placeholders for no person responsible
 #endregion
 
 #region Bugs ###########################################################################################################
