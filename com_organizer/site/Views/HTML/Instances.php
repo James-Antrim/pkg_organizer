@@ -760,6 +760,13 @@ class Instances extends ListView
 
 		if ($this->model->layout === Helper::GRID)
 		{
+
+			// Prevent setting the grid id without having the context from items at least once
+			if (empty($this->items))
+			{
+				$this->filterForm->removeField('gridID', 'list');
+			}
+
 			$this->layout = 'grid';
 			$this->structureGrid();
 

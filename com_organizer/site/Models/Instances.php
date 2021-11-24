@@ -48,11 +48,6 @@ class Instances extends ListModel
 
 	public $gridID;
 
-	/**
-	 * @var bool
-	 */
-	private $hasItems;
-
 	public $layout;
 
 	public $noDate = false;
@@ -84,12 +79,6 @@ class Instances extends ListModel
 		{
 			$form->removeField('interval', 'list');
 			$form->removeField('limit', 'list');
-
-			// Prevent setting the grid id without having the context from items at least once
-			if (!$this->hasItems)
-			{
-				$form->removeField('gridID', 'list');
-			}
 		}
 
 		if ($this->adminContext)
@@ -234,12 +223,8 @@ class Instances extends ListModel
 	 */
 	protected function getListQuery(): JDatabaseQuery
 	{
-		$conditions = $this->conditions;
-
-		$query = Helper::getInstanceQuery($conditions);
-
+		$query = Helper::getInstanceQuery($this->conditions);
 		$query->select("DISTINCT i.id")->order('b.date, b.startTime, b.endTime');
-
 		$this->setSearchFilter($query, ['e.name_de', 'e.name_en']);
 		$this->setValueFilters($query, ['b.dow', 'i.methodID']);
 
@@ -394,34 +379,35 @@ class Instances extends ListModel
 			$params      = Input::getParams();
 			$menuLayout  = $params->get('layout');
 
-			if (is_numeric($menuLayout) and $menuLayout)
+			if (is_numeric($menuLayout))
 			{
-				$layout   = (int) $menuLayout;
-				$layout   = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
-				$interval = $this->mobile ? 'day' : 'week';
-				$listItems->set('interval', $interval);
-				$this->state->set('list.interval', $interval);
+				$layout = (int) $menuLayout;
+				$layout = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
 			}
 			elseif ($getLayout = Input::getString('layout') and in_array($getLayout, ['grid', 'list']))
 			{
-				$layout   = $getLayout === 'grid' ? Helper::GRID : Helper::LIST;
-				$interval = $this->mobile ? 'day' : 'week';
-				$listItems->set('interval', $interval);
-				$this->state->set('list.interval', $interval);
+				$layout = $getLayout === 'grid' ? Helper::GRID : Helper::LIST;
 			}
 			else
 			{
 				$layout = (int) $listItems->get('layout', Helper::LIST);
-
-				if ($interval = Input::getString('interval'))
-				{
-					$listItems->set('interval', $interval);
-					$this->state->set('list.interval', $interval);
-				}
 			}
 
 			$this->layout = $layout;
 			$this->state->set('list.layout', $layout);
+
+			if ($layout === Helper::GRID)
+			{
+				$interval = $this->mobile ? 'day' : 'week';
+				$listItems->set('interval', $interval);
+				$this->state->set('list.interval', $interval);
+			}
+			elseif ($layout === Helper::LIST)
+			{
+				$interval = Input::getString('interval', 'day');
+				$listItems->set('interval', $interval);
+				$this->state->set('list.interval', $interval);
+			}
 
 			if ($my = $listItems->get('my', Input::getInt('my', $params->get('my'))))
 			{
