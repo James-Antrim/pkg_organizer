@@ -48,6 +48,11 @@ class Instances extends ListModel
 
 	public $gridID;
 
+	/**
+	 * @var bool
+	 */
+	private $hasItems;
+
 	public $layout;
 
 	public $noDate = false;
@@ -59,11 +64,14 @@ class Instances extends ListModel
 	{
 		parent::filterFilterForm($form);
 
-		$params = Input::getParams();
-		$layout = $params->get('layout');
+		$params     = Input::getParams();
+		$getLayout  = Input::getString('layout');
+		$getSet     = ($getLayout and in_array($getLayout, ['grid', 'list']));
+		$menuLayout = $params->get('layout');
+		$menuSet    = (is_numeric($menuLayout) and in_array($menuLayout, [Helper::LIST, Helper::GRID]));
 
 		// Layout set in the menu
-		if (is_numeric($layout))
+		if ($getSet or $menuSet)
 		{
 			$form->removeField('layout', 'list');
 		}
@@ -76,6 +84,12 @@ class Instances extends ListModel
 		{
 			$form->removeField('interval', 'list');
 			$form->removeField('limit', 'list');
+
+			// Prevent setting the grid id without having the context from items at least once
+			if (!$this->hasItems)
+			{
+				$form->removeField('gridID', 'list');
+			}
 		}
 
 		if ($this->adminContext)
@@ -152,7 +166,7 @@ class Instances extends ListModel
 			$dow       = $params->get('dow');
 			$endDate   = $params->get('endDate');
 			$methodIDs = $params->get('methodIDs');
-			$methodIDs = array_filter($methodIDs);
+			$methodIDs = $methodIDs ? array_filter($methodIDs) : null;
 
 			if ($dow or $endDate or $methodIDs)
 			{
@@ -179,7 +193,8 @@ class Instances extends ListModel
 	 */
 	public function getItems(): array
 	{
-		$items = parent::getItems();
+		$items          = parent::getItems();
+		$this->hasItems = (bool) $items;
 
 		$usedGrids = [];
 
@@ -383,6 +398,13 @@ class Instances extends ListModel
 			{
 				$layout   = (int) $menuLayout;
 				$layout   = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
+				$interval = $this->mobile ? 'day' : 'week';
+				$listItems->set('interval', $interval);
+				$this->state->set('list.interval', $interval);
+			}
+			elseif ($getLayout = Input::getString('layout') and in_array($getLayout, ['grid', 'list']))
+			{
+				$layout   = $getLayout === 'grid' ? Helper::GRID : Helper::LIST;
 				$interval = $this->mobile ? 'day' : 'week';
 				$listItems->set('interval', $interval);
 				$this->state->set('list.interval', $interval);
