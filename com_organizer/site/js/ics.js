@@ -5,8 +5,6 @@ function makeLink()
         ctInput = document.getElementById('filter_categoryID'),
         gInput = document.getElementById('filter_groupID'),
         mInput = document.getElementById('filter_methodID'),
-        // TODO replace this with the Joomla variable
-        lInput = document.getElementById('list_languageTag'),
         oInput = document.getElementById('filter_organizationID'),
         pInput = document.getElementById('filter_personID'),
         rInput = document.getElementById('filter_roomID');
@@ -45,12 +43,6 @@ function makeLink()
         if (gInput !== null && gInput.value)
         {
             url += '&groupID=' + gInput.value;
-        }
-
-        // TODO replace this with the Joomla variable
-        if (lInput !== null && lInput.value)
-        {
-            url += '&languageTag=' + lInput.value;
         }
 
         if (typeof variables.methodID !== "undefined")
