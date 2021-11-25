@@ -62,7 +62,7 @@ class Organizations extends ResourceHelper implements Selectable
 			case 'teach':
 				$managedIDs   = Can::manageTheseOrganizations();
 				$scheduledIDs = Can::scheduleTheseOrganizations();
-				$taughtIDs    = Persons::teachesTheseOrganizations();
+				$taughtIDs    = Persons::taughtOrganizations();
 				$viewedIDs    = Can::viewTheseOrganizations();
 				$allowedIDs   = array_merge($managedIDs, $scheduledIDs, $taughtIDs, $viewedIDs);
 				break;

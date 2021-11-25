@@ -143,8 +143,7 @@ class Groups extends Associated implements Selectable
 	 */
 	public static function getResources(string $access = ''): array
 	{
-		// TODO Remove (plan) programs on completion of migration.
-		if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID'))
+		if ($categoryID = Input::getInt('categoryID'))
 		{
 			$categoryIDs = [$categoryID];
 		}

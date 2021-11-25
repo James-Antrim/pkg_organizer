@@ -182,8 +182,7 @@ class Instances extends ListModel
 	 */
 	public function getItems(): array
 	{
-		$items          = parent::getItems();
-		$this->hasItems = (bool) $items;
+		$items = parent::getItems();
 
 		$usedGrids = [];
 
@@ -402,9 +401,8 @@ class Instances extends ListModel
 				$listItems->set('interval', $interval);
 				$this->state->set('list.interval', $interval);
 			}
-			elseif ($layout === Helper::LIST)
+			elseif ($layout === Helper::LIST and $interval = Input::getString('interval'))
 			{
-				$interval = Input::getString('interval', 'day');
 				$listItems->set('interval', $interval);
 				$this->state->set('list.interval', $interval);
 			}

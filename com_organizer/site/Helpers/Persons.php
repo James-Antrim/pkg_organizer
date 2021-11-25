@@ -336,8 +336,7 @@ class Persons extends Associated implements Selectable
 
 			$where = 'a.organizationID IN (' . implode(',', $organizationIDs) . ')';
 
-			// TODO Remove programIDs on completion of migration.
-			if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID'))
+			if ($categoryID = Input::getInt('categoryID'))
 			{
 				$categoryIDs = [$categoryID];
 			}
@@ -447,7 +446,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @return array the ids of the relevant organizations
 	 */
-	public static function teachesTheseOrganizations(): array
+	public static function taughtOrganizations(): array
 	{
 		if (!$personID = self::getIDByUserID())
 		{

@@ -310,11 +310,9 @@ class Subjects extends Curricula
 
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
-		$query->select("DISTINCT s.id, s.name_$tag AS name, s.code, s.creditPoints")
+		$query->select("DISTINCT s.id, s.fullName_$tag AS name, s.code, s.creditPoints")
 			->select('p.surname, p.forename, p.title, p.username')
 			->from('#__organizer_subjects AS s')
-			// sp added later
-			->innerJoin('#__organizer_persons AS p ON p.id = sp.personID')
 			->order('name')
 			->group('s.id');
 
@@ -325,7 +323,7 @@ class Subjects extends Curricula
 
 			foreach ($ranges as $boundaries)
 			{
-				$wherray[] = "(m.lft >= '{$boundaries['lft']}' AND m.rgt <= '{$boundaries['rgt']}')";
+				$wherray[] = "(c.lft >= '{$boundaries['lft']}' AND c.rgt <= '{$boundaries['rgt']}')";
 			}
 
 			$query->where('(' . implode(' OR ', $wherray) . ')');
@@ -339,6 +337,8 @@ class Subjects extends Curricula
 		{
 			$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.role = '1'");
 		}
+
+		$query->leftJoin('#__organizer_persons AS p ON p.id = sp.personID');
 
 		Database::setQuery($query);
 

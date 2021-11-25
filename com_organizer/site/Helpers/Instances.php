@@ -170,19 +170,24 @@ class Instances extends ResourceHelper
 
 		if (empty($conditions['my']))
 		{
-			if ($courseID = Input::getInt('courseID'))
-			{
-				$conditions['courseIDs'] = [$courseID];
-			}
-
 			if ($eventID = Input::getInt('eventID'))
 			{
 				$conditions['eventIDs'] = [$eventID];
 			}
 
+			if ($courseID = Input::getInt('courseID'))
+			{
+				$conditions['courseIDs'] = [$courseID];
+			}
+
 			if ($groupID = Input::getInt('groupID'))
 			{
 				$conditions['groupIDs'] = [$groupID];
+			}
+
+			if ($categoryID = Input::getInt('categoryID'))
+			{
+				$conditions['categoryIDs'] = [$categoryID];
 			}
 
 			if ($organizationID = Input::getInt('organizationID'))
