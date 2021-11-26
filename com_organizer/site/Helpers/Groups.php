@@ -127,8 +127,7 @@ class Groups extends Associated implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo)
-		{
+		uasort($options, function ($optionOne, $optionTwo) {
 			return $optionOne->text > $optionTwo->text;
 		});
 

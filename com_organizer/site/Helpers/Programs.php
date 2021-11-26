@@ -213,7 +213,8 @@ class Programs extends Curricula implements Selectable
 	{
 		$tag   = Languages::getTag();
 		$parts = ["p.name_$tag", "' ('", 'd.abbreviation'];
-		$parts = self::useCurrent() ? array_merge($parts, ["')'"]) : array_merge($parts, ["', '", 'p.accredited', "')'"]);
+		$parts = self::useCurrent() ?
+			array_merge($parts, ["')'"]) : array_merge($parts, ["', '", 'p.accredited', "')'"]);
 
 		$query      = Database::getQuery();
 		$nameClause = $query->concatenate($parts, '') . ' AS name';

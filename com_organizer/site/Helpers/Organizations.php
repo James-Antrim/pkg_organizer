@@ -125,8 +125,7 @@ class Organizations extends ResourceHelper implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo)
-		{
+		uasort($options, function ($optionOne, $optionTwo) {
 			return $optionOne->text > $optionTwo->text;
 		});
 

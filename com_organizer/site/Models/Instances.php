@@ -593,14 +593,19 @@ class Instances extends ListModel
 			$conditions['endDate'] = $endDate;
 		}
 
-		if ($categoryID = $this->state->get('filter.categoryID'))
+		if ($eventID = Input::getInt('eventID'))
 		{
-			$conditions['categoryIDs'] = [$categoryID];
+			$conditions['eventIDs'] = [$eventID];
 		}
 
 		if ($groupID = $this->state->get('filter.groupID'))
 		{
 			$conditions['groupIDs'] = [$groupID];
+		}
+
+		if ($categoryID = $this->state->get('filter.categoryID'))
+		{
+			$conditions['categoryIDs'] = [$categoryID];
 		}
 
 		if ($organizationID = $this->state->get('filter.organizationID'))
