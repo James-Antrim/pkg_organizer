@@ -256,6 +256,7 @@ class RoomOverview extends TableView
 		{
 			$blockNo   = $data['blockNo'];
 			$endTime   = Helpers\Dates::formatEndTime($this->grid['periods'][$blockNo]['endTime']);
+			$endTime   = $endTime !== '00:00' ?: '23:59';
 			$noGrid    = false;
 			$startTime = Helpers\Dates::formatTime($this->grid['periods'][$blockNo]['startTime']);
 		}
