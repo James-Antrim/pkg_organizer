@@ -30,6 +30,23 @@ div.curriculum {
     width: 1rem;
   }
 
+  .item-tools {
+    margin-top: .3rem;
+
+    a {
+      margin-right: .6rem;
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      [class^='icon-'] {
+        font-size: 1.2rem;
+        margin-right: 0;
+      }
+    }
+  }
+
   .item-body {
     display: flex;
     flex-direction: column;

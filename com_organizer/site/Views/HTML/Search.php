@@ -122,7 +122,7 @@ class Search extends ListView
 					break;
 			}
 
-			$links[] = HTML::link($link, $icon . $text, $attribs);
+			$links[] = HTML::link(Uri::base() . $link, $icon . $text, $attribs);
 		}
 
 		$processedItem['links'] = implode(' ', $links);

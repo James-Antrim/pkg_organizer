@@ -161,7 +161,7 @@ class SubjectItem extends ItemModel
 	private function getStructure(): array
 	{
 		$option = 'ORGANIZER_';
-		$url    = '?option=com_organizer&view=subject_item&id=';
+		$url    = '?option=com_organizer&view=SubjectItem&id=';
 
 		return [
 			'subjectID'                => Helpers\Input::getID(),

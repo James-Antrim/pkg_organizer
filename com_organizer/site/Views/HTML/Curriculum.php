@@ -13,6 +13,8 @@ namespace Organizer\Views\HTML;
 use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters;
 use Organizer\Helpers;
+use Organizer\Helpers\HTML;
+use Organizer\Helpers\Languages;
 
 /**
  * Loads curriculum information into the display context.
@@ -52,6 +54,7 @@ class Curriculum extends ItemView
 	 */
 	private function getPanelItem(array $item): string
 	{
+		$base         = Uri::base() . '?option=com_organizer&view=';
 		$itemTemplate = '<div class="item ITEMCLASS">ITEMCONTENT</div>';
 		$itemClass    = 'item-blank';
 		$itemContent  = '';
@@ -69,43 +72,41 @@ class Curriculum extends ItemView
 			$itemContent .= '<div class="item-body">';
 
 			$additionalLinks = '';
-			$linkAttributes  = ['target' => '_blank'];
+			$attributes      = ['target' => '_blank'];
 
 			if ($item['subjectID'])
 			{
 				$crp = empty($item['creditPoints']) ? '' : "{$item['creditPoints']} CrP";
-				$url = "?option=com_organizer&view=subject_item&id={$item['subjectID']}";
+				$url = $base . "SubjectItem&id={$item['subjectID']}";
 
-				$docAttributes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SUBJECT_ITEM')];
-				//$gridAttributes = $linkAttributes + ['title' => Helpers\Languages::_('ORGANIZER_SCHEDULE')];
+				$icon            = HTML::icon('book', Languages::_('ORGANIZER_SUBJECT_ITEM'));
+				$additionalLinks .= HTML::link($url, $icon, $attributes);
 
-				$documentLink = Helpers\HTML::link($url, '<span class="icon-file-2"></span>', $docAttributes);
+				if (!empty($item['eventID']))
+				{
+					$iUrl = $base . "Instances&eventID={$item['eventID']}&layout=";
 
-				/*$scheduleUrl = "?option=com_organizer&view=schedule_item&subjectIDs={$item['subjectID']}";
+					$icon            = HTML::icon('info-calender', Languages::_('ORGANIZER_SCHEDULE'));
+					$additionalLinks .= HTML::link($iUrl . 'grid', $icon, $attributes);
 
-				$scheduleLink = Helpers\HTML::link(
-					$scheduleUrl,
-					'<span class="icon-info-calender"></span>',
-					$gridAttributes
-				);*/
-
-				$additionalLinks .= $documentLink/* . $scheduleLink*/
-				;
+					$icon            = HTML::icon('list', Languages::_('ORGANIZER_INSTANCES'));
+					$additionalLinks .= HTML::link($iUrl . 'list', $icon, $attributes);
+				}
 
 				$itemClass = 'item-subject';
 			}
 			else
 			{
 				$crp = Helpers\Pools::getCrPText($item);
-				$url = '?option=com_organizer&view=subjects';
+				$url = $base . 'Subjects';
 				$url .= "&programID={$this->item['programID']}&poolID={$item['poolID']}";
 
 				$itemClass = 'item-pool';
 			}
 
-			Helpers\Languages::unpack($item['name']);
+			Languages::unpack($item['name']);
 
-			$title       = Helpers\HTML::link($url, $item['name'], $linkAttributes);
+			$title       = HTML::link($url, $item['name'], $attributes);
 			$itemContent .= '<div class="item-title">' . $title . '</div>';
 			$itemContent .= $crp ? '<div class="item-crp">' . $crp . '</div>' : '';
 			$itemContent .= $additionalLinks ? '<div class="item-tools">' . $additionalLinks . '</div>' : '';
@@ -127,10 +128,10 @@ class Curriculum extends ItemView
 		?>
         <div class="legend">
             <div class="panel-head">
-                <div class="panel-title"><?php echo Helpers\Languages::_('ORGANIZER_LEGEND'); ?></div>
+                <div class="panel-title"><?php echo Languages::_('ORGANIZER_LEGEND'); ?></div>
             </div>
 			<?php foreach ($this->fields as $hex => $field) : ?>
-		        <?php Helpers\Languages::unpack($field); ?>
+				<?php Languages::unpack($field); ?>
                 <div class="legend-item">
                     <div class="item-color" style="background-color: <?php echo $hex; ?>;"></div>
                     <div class="item-title"><?php echo $field; ?></div>

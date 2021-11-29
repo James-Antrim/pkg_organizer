@@ -48,6 +48,22 @@ class Subjects extends Curricula
 	}
 
 	/**
+	 * Retrieves the event ID associated with the subject.
+	 *
+	 * @param   int  $subjectID  the id of the referencing subject
+	 *
+	 * @return int the id of the referenced event
+	 */
+	public static function getEventID(int $subjectID): int
+	{
+		$query = Database::getQuery();
+		$query->select('eventID')->from('#__organizer_subject_events')->where("subjectID = $subjectID");
+		Database::setQuery($query);
+
+		return Database::loadInt();
+	}
+
+	/**
 	 * Retrieves the left and right boundaries of the nested program or pool
 	 *
 	 * @return array
@@ -278,6 +294,7 @@ class Subjects extends Curricula
 			return [];
 		}
 
+		$eventID         = Subjects::getEventID($subjectID);
 		$fieldID         = $table->fieldID ?: 0;
 		$organizationIDs = self::getOrganizationIDs($table->id);
 		$organizationID  = $organizationIDs ? (int) $organizationIDs[0] : 0;
@@ -287,6 +304,7 @@ class Subjects extends Curricula
 			'abbreviation' => $table->{"abbreviation_$tag"},
 			'bgColor'      => Fields::getColor($fieldID, $organizationID),
 			'creditPoints' => $table->creditPoints,
+			'eventID'      => $eventID,
 			'field'        => $fieldID ? Fields::getName($fieldID) : '',
 			'fieldID'      => $table->fieldID,
 			'id'           => $table->id,

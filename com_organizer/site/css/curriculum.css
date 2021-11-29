@@ -26,6 +26,23 @@ div.curriculum .item-color {
     width: 1rem;
 }
 
+div.curriculum .item-tools {
+    margin-top: .3rem;
+}
+
+div.curriculum .item-tools a {
+    margin-right: .6rem;
+}
+
+div.curriculum .item-tools a:last-child {
+    margin-right: 0;
+}
+
+div.curriculum .item-tools a [class^='icon-'] {
+    font-size: 1.2rem;
+    margin-right: 0;
+}
+
 div.curriculum .item-body {
     display: flex;
     flex-direction: column;
