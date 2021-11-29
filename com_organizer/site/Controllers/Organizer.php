@@ -32,4 +32,17 @@ class Organizer extends Controller
 		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
 		$this->setRedirect(Route::_($url, false));
 	}
+
+	/**
+	 * Updates all instance participation numbers.
+	 *
+	 * @return void
+	 */
+	public function updateNumbers()
+	{
+		$model = new Models\Instance();
+		$model->updateNumbers();
+		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+		$this->setRedirect(Route::_($url, false));
+	}
 }

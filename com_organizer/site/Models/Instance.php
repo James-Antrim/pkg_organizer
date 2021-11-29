@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -215,5 +216,21 @@ class Instance extends BaseModel
 		}
 
 		return date('H:i:s', strtotime("$date $time"));
+	}
+
+	/**
+	 * Updates the participation numbers of any currently referenced instance.
+	 * @return void
+	 */
+	public function updateNumbers()
+	{
+		$query = Database::getQuery();
+		$query->select('DISTINCT instanceID')->from('#__organizer_instance_participants');
+		Database::setQuery($query);
+
+		foreach (Database::loadIntColumn() as $instanceID)
+		{
+			Helpers\Instances::updateNumbers($instanceID);
+		}
 	}
 }

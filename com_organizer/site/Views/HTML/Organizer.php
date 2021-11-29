@@ -56,6 +56,15 @@ class Organizer extends BaseView
 				false
 			);
 
+			$toolbar = Toolbar::getInstance();
+			$toolbar->appendButton(
+				'Standard',
+				'bars',
+				'Update Participation Numbers',
+				'organizer.updateNumbers',
+				false
+			);
+
 			$uri    = (string) Uri::getInstance();
 			$return = urlencode(base64_encode($uri));
 			$link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
