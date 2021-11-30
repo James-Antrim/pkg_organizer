@@ -25,11 +25,56 @@ use Organizer\Tables\InstanceParticipants as Table;
  */
 class InstanceParticipant extends BaseModel
 {
-	// Constants providing context for adding/removing instances to/from personal schedules though the old interface.
-	private const TERM_MODE = 1, BLOCK_MODE = 2, INSTANCE_MODE = 3;
-
 	// Constants providing context for adding/removing instances to/from personal schedules though the interface.
 	private const BLOCK = 2, SELECTED = 0, THIS = 1;
+
+	/**
+	 * Finds instances matching the given instance by course and date.
+	 *
+	 * @return void
+	 */
+	private function addCourseInstances(array &$instanceIDs)
+	{
+		$now             = date('H:i:s');
+		$supplementalIDs = [];
+		$today           = date('Y-m-d');
+		$then            = date('Y-m-d', strtotime('+2 days'));
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			$instance = new Tables\Instances();
+			$instance->load($instanceID);
+
+			$query = Database::getQuery();
+			$query->select('i1.id')
+				->from('#__organizer_instances AS i1')
+				->innerJoin('#__organizer_blocks AS b1 ON b1.id = i1.blockID')
+				->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i1.id')
+				->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ip.id')
+				->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
+				->innerJoin('#__organizer_units AS u1 ON u1.id = i1.unitID')
+				->innerJoin('#__organizer_units AS u2 ON u2.courseID = u1.courseID')
+				->innerJoin('#__organizer_instances AS i2 on i2.unitID = u2.id')
+				->innerJoin('#__organizer_blocks AS b2 ON b2.id = i2.blockID')
+				->where("i1.id != $instanceID")
+				->where("r.virtual = 0")
+				->where('u1.courseID IS NOT NULL')
+				->where("i2.id = $instanceID")
+				->where("(b1.startTime > b2.endTime or b1.endTime < b2.startTime)")
+				->where("b1.date = b2.date")
+				->where("(b1.date > '$today' OR (b1.date = '$today' and b1.startTime > '$now'))")
+				->where("b1.date <= '$then'");
+
+			Database::setQuery($query);
+			$results = Database::loadIntColumn();
+
+			$supplementalIDs = array_merge($supplementalIDs, $results);
+		}
+
+		$instanceIDs = array_merge($instanceIDs, $supplementalIDs);
+		$instanceIDs = array_unique($instanceIDs);
+		$instanceIDs = array_filter($instanceIDs);
+	}
 
 	/**
 	 * Authorizes users responsible for bookings to edit individual participation.
@@ -75,7 +120,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$registered  = false;
+		$bookmarked  = false;
 		$responsible = false;
 
 		foreach ($instanceIDs as $instanceID)
@@ -89,7 +134,7 @@ class InstanceParticipant extends BaseModel
 			$participation = new Table();
 			$keys          = ['instanceID' => $instanceID, 'participantID' => $participantID];
 
-			// Participant is already registered.
+			// Participant already has the appointment bookmarked.
 			if ($participation->load($keys))
 			{
 				continue;
@@ -97,11 +142,12 @@ class InstanceParticipant extends BaseModel
 
 			if ($participation->save($keys))
 			{
-				$registered = true;
+				$bookmarked = true;
+				Helpers\Instances::updateNumbers($instanceID);
 			}
 		}
 
-		if ($registered)
+		if ($bookmarked)
 		{
 			OrganizerHelper::message('ORGANIZER_SCHEDULE_SUCCESS');
 		}
@@ -159,7 +205,7 @@ class InstanceParticipant extends BaseModel
 			return false;
 		}
 
-		// Filter for planned
+		// Filter for bookmarked/registered
 		$query = Database::getQuery();
 		$query->select('instanceID')
 			->from('#__organizer_instance_participants')
@@ -186,6 +232,8 @@ class InstanceParticipant extends BaseModel
 
 				return false;
 			}
+
+			Helpers\Instances::updateNumbers($instanceID);
 		}
 
 		OrganizerHelper::message(Languages::_('ORGANIZER_CHECKIN_SUCCEEDED'), 'success');
@@ -231,18 +279,15 @@ class InstanceParticipant extends BaseModel
 			->where("id != $instanceID");
 		Database::setQuery($query);
 
-		if ($instanceIDs = Database::loadIntColumn())
+		foreach (Database::loadIntColumn() as $instanceID)
 		{
-			$instanceIDs = implode(',', $instanceIDs);
-			$query       = Database::getQuery();
-			$query->delete('#__organizer_instance_participants')
-				->where("instanceID IN ($instanceIDs)")
-				->where("participantID = $participantID");
-			Database::setQuery($query);
+			$participation = new Tables\InstanceParticipants();
 
-			if (Database::execute())
+			if ($participation->load(['instanceID' => $instanceID, 'participantID' => $participantID]))
 			{
+				$participation->delete();
 				OrganizerHelper::message('ORGANIZER_EVENT_CONFIRMED', 'success');
+				Helpers\Instances::updateNumbers($instanceID);
 			}
 			else
 			{
@@ -309,7 +354,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$this->supplementCourseInstances($instanceIDs);
+		$this->addCourseInstances($instanceIDs);
 
 		$deregistered = false;
 
@@ -329,6 +374,7 @@ class InstanceParticipant extends BaseModel
 			if ($participation->save($keys))
 			{
 				$deregistered = true;
+				Helpers\Instances::updateNumbers($instanceID);
 			}
 		}
 
@@ -352,54 +398,6 @@ class InstanceParticipant extends BaseModel
 	public function getTable($name = '', $prefix = '', $options = []): Table
 	{
 		return new Table();
-	}
-
-	/**
-	 * Finds instances matching the given instance by course and date.
-	 *
-	 * @return void
-	 */
-	private function supplementCourseInstances(array &$instanceIDs)
-	{
-		$now             = date('H:i:s');
-		$supplementalIDs = [];
-		$today           = date('Y-m-d');
-		$then            = date('Y-m-d', strtotime('+2 days'));
-
-		foreach ($instanceIDs as $instanceID)
-		{
-			$instance = new Tables\Instances();
-			$instance->load($instanceID);
-
-			$query = Database::getQuery();
-			$query->select('i1.id')
-				->from('#__organizer_instances AS i1')
-				->innerJoin('#__organizer_blocks AS b1 ON b1.id = i1.blockID')
-				->innerJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i1.id')
-				->innerJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ip.id')
-				->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
-				->innerJoin('#__organizer_units AS u1 ON u1.id = i1.unitID')
-				->innerJoin('#__organizer_units AS u2 ON u2.courseID = u1.courseID')
-				->innerJoin('#__organizer_instances AS i2 on i2.unitID = u2.id')
-				->innerJoin('#__organizer_blocks AS b2 ON b2.id = i2.blockID')
-				->where("i1.id != $instanceID")
-				->where("r.virtual = 0")
-				->where('u1.courseID IS NOT NULL')
-				->where("i2.id = $instanceID")
-				->where("(b1.startTime > b2.endTime or b1.endTime < b2.startTime)")
-				->where("b1.date = b2.date")
-				->where("(b1.date > '$today' OR (b1.date = '$today' and b1.startTime > '$now'))")
-				->where("b1.date <= '$then'");
-
-			Database::setQuery($query);
-			$results = Database::loadIntColumn();
-
-			$supplementalIDs = array_merge($supplementalIDs, $results);
-		}
-
-		$instanceIDs = array_merge($instanceIDs, $supplementalIDs);
-		$instanceIDs = array_unique($instanceIDs);
-		$instanceIDs = array_filter($instanceIDs);
 	}
 
 	/**
@@ -550,7 +548,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		$this->supplementCourseInstances($instanceIDs);
+		$this->addCourseInstances($instanceIDs);
 
 		$registered  = false;
 		$responsible = false;
@@ -634,6 +632,7 @@ class InstanceParticipant extends BaseModel
 			if ($participation->save($keys))
 			{
 				$registered = true;
+				Helpers\Instances::updateNumbers($instanceID);
 			}
 		}
 
@@ -686,6 +685,7 @@ class InstanceParticipant extends BaseModel
 			if ($participation->delete())
 			{
 				$removed = true;
+				Helpers\Instances::updateNumbers($instanceID);
 			}
 		}
 
@@ -710,17 +710,7 @@ class InstanceParticipant extends BaseModel
 
 		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
-		try
-		{
-			$table = new Table();
-		}
-		catch (Exception $exception)
-		{
-			OrganizerHelper::message($exception->getMessage(), 'error');
-
-			return false;
-		}
-
+		$table = new Table();
 		if (!$table->load($data['id']))
 		{
 			return false;
@@ -740,30 +730,32 @@ class InstanceParticipant extends BaseModel
 			->where("ip.participantID = $table->participantID");
 		Database::setQuery($query);
 
-		$otherIDs = [];
+		$instanceIDs = [];
 		foreach (Database::loadAssocList() as $entry)
 		{
+			$instanceIDs[$entry['instanceID']] = $entry['instanceID'];
+			$table->registered                 = $table->registered ?: !empty($entry['registered']);
+
 			if ($entry['id'] !== $table->id)
 			{
-				$otherIDs[$entry['id']] = $entry['id'];
-			}
+				$otherTable = new Table();
 
-			$table->registered = $table->registered ?: !empty($entry['registered']);
+				if (!$otherTable->load($entry['id']))
+				{
+					continue;
+				}
+
+				$otherTable->delete();
+			}
 		}
 
-		// The other entries must first be deleted to avoid collision with unique instanceID/participantID constraint.
-		foreach ($otherIDs as $otherID)
+		$success = $table->store();
+
+		foreach ($instanceIDs as $instanceID)
 		{
-			$otherTable = new Table();
-
-			if (!$otherTable->load($otherID))
-			{
-				continue;
-			}
-
-			$otherTable->delete();
+			Helpers\Instances::updateNumbers($instanceID);
 		}
 
-		return $table->store();
+		return $success;
 	}
 }

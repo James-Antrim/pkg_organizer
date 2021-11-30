@@ -753,13 +753,14 @@ class InstanceItem extends ListView
 	 * @return void
 	 */
 	private function setResource(
-		array &$collection,
-		array &$filtered,
+		array  &$collection,
+		array  &$filtered,
 		string &$modified,
-		int $key,
+		int    $key,
 		string $name,
-		array $resource
-	) {
+		array  $resource
+	)
+	{
 		$dateTime = $resource['statusDate'];
 
 		if (empty($collection[$name]) or $dateTime > $collection[$name]['date'])
@@ -833,7 +834,7 @@ class InstanceItem extends ListView
 				$buttons['register'] = true;
 			}
 		}
-		elseif ($instance->manageable)
+		elseif ($instance->manageable and !$instance->premature)
 		{
 			$buttons['manage'] = true;
 		}
@@ -881,7 +882,7 @@ class InstanceItem extends ListView
 					}
 				}
 			}
-			elseif ($item->manageable)
+			elseif ($item->manageable and !$item->premature)
 			{
 				$buttons['manageList'] = true;
 			}

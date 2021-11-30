@@ -195,7 +195,7 @@ class Instances extends ListView
 					);
 				}
 
-				if ($this->manages or $this->teaches)
+				if (($this->manages or $this->teaches) and !$this->premature)
 				{
 					$toolbar->appendButton(
 						'Highlander',

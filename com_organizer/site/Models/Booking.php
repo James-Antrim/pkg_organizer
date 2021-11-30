@@ -75,6 +75,7 @@ class Booking extends Participants
 		if ($instance->delta === 'removed')
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_DEPRECATED_INSTANCE', 'notice');
+
 			return 0;
 		}
 
@@ -118,7 +119,7 @@ class Booking extends Participants
 
 		$bookingID = Helpers\Input::getID();
 
-		// Manually unset the username so it isn't later added to the state
+		// Manually unset the username, so it isn't later added to the state
 		Helpers\Input::getInput()->set('list', ['fullordering' => $listItems->get('fullordering')]);
 
 		$existing = true;
@@ -331,6 +332,8 @@ class Booking extends Participants
 
 						return;
 					}
+
+					Helpers\Instances::updateNumbers($participation->instanceID);
 				}
 
 				Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
@@ -350,6 +353,8 @@ class Booking extends Participants
 
 				return;
 			}
+
+			Helpers\Instances::updateNumbers($instanceID);
 		}
 
 		Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
@@ -504,6 +509,7 @@ class Booking extends Participants
 
 				if ($participation->store())
 				{
+					Helpers\Instances::updateNumbers($participation->instanceID);
 					$count++;
 				}
 			}
@@ -567,9 +573,9 @@ class Booking extends Participants
 		}
 
 		$bookingDate = $this->booking->get('date');
-		$now        = date('H:i:s');
-		$start = $this->booking->startTime ?: $this->booking->get('defaultStartTime');
-		$started    = $now > $start;
+		$now         = date('H:i:s');
+		$start       = $this->booking->startTime ?: $this->booking->get('defaultStartTime');
+		$started     = $now > $start;
 		$today       = date('Y-m-d');
 
 		if ($today > $bookingDate or !$started)
@@ -817,12 +823,16 @@ class Booking extends Participants
 				return;
 			}
 
+			$instanceID = $table->instanceID;
+
 			if (!$table->delete())
 			{
 				Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANTS_NOT_REMOVED', 'error');
 
 				return;
 			}
+
+			Helpers\Instances::updateNumbers($instanceID);
 		}
 
 		Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANTS_REMOVED', 'success');
