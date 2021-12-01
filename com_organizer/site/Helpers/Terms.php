@@ -44,9 +44,9 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @param   int  $termID  the term's id
 	 *
-	 * @return mixed  string the end date of the term could be resolved, otherwise null
+	 * @return string|null  string the end date of the term could be resolved, otherwise null
 	 */
-	public static function getEndDate(int $termID)
+	public static function getEndDate(int $termID): ?string
 	{
 		$table = new Tables\Terms();
 
@@ -58,9 +58,9 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @param   array  $data  the term's data
 	 *
-	 * @return mixed  int the id if the room could be resolved/added, otherwise null
+	 * @return int|null  int the id if the room could be resolved/added, otherwise null
 	 */
-	public static function getID(array $data)
+	public static function getID(array $data): ?int
 	{
 		if (empty($data))
 		{
@@ -85,7 +85,7 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @return array  the term ids
 	 */
-	public static function getIDs($filter = false): array
+	public static function getIDs(bool $filter = false): array
 	{
 		$ids = [];
 
@@ -104,7 +104,7 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @return int the id of the subsequent term if successful, otherwise 0
 	 */
-	public static function getNextID($currentID = 0): int
+	public static function getNextID(int $currentID = 0): int
 	{
 		if (empty($currentID))
 		{
@@ -128,7 +128,7 @@ class Terms extends ResourceHelper implements Selectable
 	 * @param   bool  $showDates  if true the start and end date will be displayed as part of the name
 	 * @param   bool  $filter     if true only current and future terms will be displayed
 	 */
-	public static function getOptions($showDates = false, $filter = false): array
+	public static function getOptions(bool $showDates = false, bool $filter = false): array
 	{
 		$tag     = Languages::getTag();
 		$options = [];
@@ -157,7 +157,7 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @return int the id of the subsequent term if successful, otherwise 0
 	 */
-	public static function getPreviousID($currentID = 0): int
+	public static function getPreviousID(int $currentID = 0): int
 	{
 		if (empty($currentID))
 		{
