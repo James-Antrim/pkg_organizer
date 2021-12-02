@@ -78,6 +78,26 @@ class Organizations extends ResourceHelper implements Selectable
 	}
 
 	/**
+	 * Gets the categories associated with a given organization.
+	 *
+	 * @param   int  $organizationID
+	 *
+	 * @return array
+	 */
+	public static function getCategories(int $organizationID): array
+	{
+		$tag   = Languages::getTag();
+		$query = Database::getQuery();
+		$query->select("id, code, name_$tag AS name")
+			->from('#__organizer_categories AS c')
+			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
+			->where("a.organizationID = $organizationID");
+		Database::setQuery($query);
+
+		return Database::loadAssocList();
+	}
+
+	/**
 	 * The default grid for an organization defined by current organization grid usage. 0 if no usage is available.
 	 *
 	 * @param   int  $organizationID
@@ -109,10 +129,10 @@ class Organizations extends ResourceHelper implements Selectable
 	/**
 	 * @inheritDoc
 	 *
-	 * @param   bool    $short   whether or not abbreviated names should be returned
+	 * @param   bool    $short   whether abbreviated names should be returned
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($short = true, $access = ''): array
+	public static function getOptions(bool $short = true, string $access = ''): array
 	{
 		$options = [];
 		foreach (self::getResources($access) as $organization)
@@ -125,7 +145,8 @@ class Organizations extends ResourceHelper implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo) {
+		uasort($options, function ($optionOne, $optionTwo)
+		{
 			return $optionOne->text > $optionTwo->text;
 		});
 
@@ -138,7 +159,7 @@ class Organizations extends ResourceHelper implements Selectable
 	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = ''): array
+	public static function getResources(string $access = ''): array
 	{
 		$query = Database::getQuery();
 		$tag   = Languages::getTag();
@@ -151,7 +172,7 @@ class Organizations extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Checks whether the plan resource is already associated with a organization, creating an entry if none already
+	 * Checks whether the plan resource is already associated with an organization, creating an entry if none already
 	 * exists.
 	 *
 	 * @param   int     $resourceID  the db id for the plan resource
