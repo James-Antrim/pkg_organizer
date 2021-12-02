@@ -144,6 +144,38 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the sum of the effective capacity of physical rooms associated with concurrent instances of the same
+	 * block and unit as the instance identified.
+	 *
+	 * @param   int  $instanceID  the id of the instance
+	 *
+	 * @return int
+	 */
+	public static function getCapacity(int $instanceID): int
+	{
+		$query = Database::getQuery();
+		$query->select('DISTINCT r.id, r.effCapacity')
+			->from('#__organizer_rooms AS r')
+			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
+			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipe.instanceID')
+			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
+			->where('r.virtual = 0')
+			->where("i1.id = $instanceID")
+			->where("ir.delta != 'removed'")
+			->where("ipe.delta != 'removed'")
+			->order('r.effCapacity DESC');
+		Database::setQuery($query);
+
+		if ($capacities = Database::loadIntColumn(1))
+		{
+			return array_sum($capacities);
+		}
+
+		return 0;
+	}
+
+	/**
 	 * Builds the array of parameters used for instance retrieval.
 	 *
 	 * @return array the parameters used to retrieve instances.
@@ -240,38 +272,6 @@ class Instances extends ResourceHelper
 		}
 
 		return $conditions;
-	}
-
-	/**
-	 * Retrieves the sum of the effective capacity of physical rooms associated with concurrent instances of the same
-	 * block and unit as the instance identified.
-	 *
-	 * @param   int  $instanceID  the id of the instance
-	 *
-	 * @return int
-	 */
-	public static function getCapacity(int $instanceID): int
-	{
-		$query = Database::getQuery();
-		$query->select('DISTINCT r.id, r.effCapacity')
-			->from('#__organizer_rooms AS r')
-			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
-			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
-			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipe.instanceID')
-			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
-			->where('r.virtual = 0')
-			->where("i1.id = $instanceID")
-			->where("ir.delta != 'removed'")
-			->where("ipe.delta != 'removed'")
-			->order('r.effCapacity DESC');
-		Database::setQuery($query);
-
-		if ($capacities = Database::loadIntColumn(1))
-		{
-			return array_sum($capacities);
-		}
-
-		return 0;
 	}
 
 	/**
