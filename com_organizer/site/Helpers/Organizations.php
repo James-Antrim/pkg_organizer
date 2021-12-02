@@ -84,7 +84,7 @@ class Organizations extends ResourceHelper implements Selectable
 	 *
 	 * @return array
 	 */
-	public static function getCategories(int $organizationID): array
+	public static function getCategories(int $organizationID, bool $active = true): array
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
@@ -92,6 +92,12 @@ class Organizations extends ResourceHelper implements Selectable
 			->from('#__organizer_categories AS c')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
 			->where("a.organizationID = $organizationID");
+
+		if ($active)
+		{
+			$query->where('c.active = 1');
+		}
+
 		Database::setQuery($query);
 
 		return Database::loadAssocList();

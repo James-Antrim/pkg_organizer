@@ -29,13 +29,19 @@ class Categories extends Associated implements Selectable
 	 *
 	 * @return array
 	 */
-	public static function getGroups(int $categoryID): array
+	public static function getGroups(int $categoryID, bool $active): array
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
 		$query->select("id, code, name_$tag AS name")
 			->from('#__organizer_groups AS g')
 			->where("categoryID = $categoryID");
+
+		if ($active)
+		{
+			$query->where('active = 1');
+		}
+
 		Database::setQuery($query);
 
 		return Database::loadAssocList();
@@ -58,7 +64,8 @@ class Categories extends Associated implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo) {
+		uasort($options, function ($optionOne, $optionTwo)
+		{
 			return $optionOne->text > $optionTwo->text;
 		});
 

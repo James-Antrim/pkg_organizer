@@ -104,7 +104,7 @@ class Input
 			return $value;
 		}
 
-		return false;
+		return null;
 	}
 
 	/**
@@ -140,12 +140,14 @@ class Input
 	 */
 	public static function getBool(string $property, $default = false): bool
 	{
-		if ($value = self::find($property))
+		$value = self::find($property);
+
+		if ($value === null)
 		{
-			return self::filter($value, 'bool');
+			return self::filter($default, 'bool');
 		}
 
-		return self::filter($default, 'bool');
+		return self::filter($value, 'bool');
 	}
 
 	/**
