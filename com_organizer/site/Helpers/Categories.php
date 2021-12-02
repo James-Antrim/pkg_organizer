@@ -29,7 +29,7 @@ class Categories extends Associated implements Selectable
 	 *
 	 * @return array
 	 */
-	public static function getGroups(int $categoryID, bool $active): array
+	public static function getGroups(int $categoryID, bool $active = true): array
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
