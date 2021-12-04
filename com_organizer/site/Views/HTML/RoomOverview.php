@@ -112,19 +112,33 @@ class RoomOverview extends TableView
 	private function getHeaderBlocks(bool $short = false): array
 	{
 		$blocks = [];
-		if (empty($this->grid['periods']))
-		{
-			$blocks[] = ['text' => ''];
+		$grid   = $this->grid;
 
+		if (empty($grid['periods']))
+		{
 			return $blocks;
+		}
+
+		// Suppress blocks for all day display
+		if (count($grid['periods']) === 1)
+		{
+			$block     = reset($grid['periods']);
+			$endTime   = Helpers\Dates::formatEndTime($block['endTime']);
+			$startTime = Helpers\Dates::formatTime($block['startTime']);
+
+			if ($endTime === '00:00' and $endTime === $startTime)
+			{
+				return $blocks;
+			}
 		}
 
 		$blocks     = [];
 		$labelIndex = 'label_' . Helpers\Languages::getTag();
 
-		foreach ($this->grid['periods'] as $number => $data)
+		foreach ($grid['periods'] as $number => $data)
 		{
 			$endTime   = Helpers\Dates::formatEndTime($data['endTime']);
+			$endTime   = $endTime !== '00:00' ? $endTime : '23:59';
 			$startTime = Helpers\Dates::formatTime($data['startTime']);
 			$timeText  = "$startTime - $endTime";
 
@@ -249,14 +263,16 @@ class RoomOverview extends TableView
 		if (empty($data['blockNo']))
 		{
 			$noGrid    = true;
+			$dEndTime  = '';
 			$endTime   = '';
 			$startTime = '';
 		}
 		else
 		{
 			$blockNo   = $data['blockNo'];
-			$endTime   = Helpers\Dates::formatEndTime($this->grid['periods'][$blockNo]['endTime']);
-			$endTime   = $endTime !== '00:00' ?: '23:59';
+			$endTime   = $this->grid['periods'][$blockNo]['endTime'];
+			$dEndTime  = Helpers\Dates::formatEndTime($endTime);
+			$dEndTime  = $dEndTime !== '00:00' ? $dEndTime : '23:59';
 			$noGrid    = false;
 			$startTime = Helpers\Dates::formatTime($this->grid['periods'][$blockNo]['startTime']);
 		}
@@ -342,7 +358,7 @@ class RoomOverview extends TableView
 				$iconClass    = count($tips) > 1 ? 'grid' : 'square';
 				$date         = Helpers\Dates::formatDate($data['date'], true);
 				$cellTip      = '<div class="cellTip">';
-				$cellTip      .= "<span class=\"cellTitle\">$date<br>$startTime - $endTime</span>";
+				$cellTip      .= "<span class=\"cellTitle\">$date<br>$startTime - $dEndTime</span>";
 				$cellTip      .= implode('', $tips);
 				$cellTip      .= '<div>';
 				$cellTip      = htmlentities($cellTip);
