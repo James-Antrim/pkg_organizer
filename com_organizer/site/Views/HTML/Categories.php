@@ -38,27 +38,27 @@ class Categories extends ListView
 			'Standard',
 			'eye-open',
 			Helpers\Languages::_('ORGANIZER_ACTIVATE'),
-			'categories.activate',
+			'Categories.activate',
 			false
 		);
 		$toolbar->appendButton(
 			'Standard',
 			'eye-close',
 			Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
-			'categories.deactivate',
+			'Categories.deactivate',
 			false
 		);
 
-		/*if (Helpers\Can::administrate())
+		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
 				'Standard',
-				'contract',
-				Helpers\Languages::_('ORGANIZER_MERGE'),
-				'categories.mergeView',
+				'delete',
+				Helpers\Languages::_('ORGANIZER_DELETE'),
+				'Categories.delete',
 				true
 			);
-		}*/
+		}
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Categories extends ListView
 	protected function structureItems()
 	{
 		$index           = 0;
-		$link            = 'index.php?option=com_organizer&view=category_edit&id=';
+		$link            = 'index.php?option=com_organizer&view=CategoryEdit&id=';
 		$structuredItems = [];
 
 		foreach ($this->items as $item)
