@@ -88,7 +88,7 @@ class Organizations extends ResourceHelper implements Selectable
 	{
 		$tag   = Languages::getTag();
 		$query = Database::getQuery();
-		$query->select("id, code, name_$tag AS name")
+		$query->select("c.id, code, name_$tag AS name")
 			->from('#__organizer_categories AS c')
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
 			->where("a.organizationID = $organizationID");
