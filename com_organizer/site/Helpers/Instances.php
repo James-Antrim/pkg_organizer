@@ -176,6 +176,26 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Retrieves the
+	 *
+	 * @param   int  $instanceID
+	 *
+	 * @return array
+	 */
+	public static function getCategoryIDs(int $instanceID): array
+	{
+		$categoryIDs = [];
+
+		foreach (self::getGroupIDs($instanceID) as $groupID)
+		{
+			$categoryID = Groups::getCategoryID($groupID);
+			$categoryIDs[$categoryID] = $categoryID;
+		}
+
+		return $categoryIDs;
+	}
+
+	/**
 	 * Builds the array of parameters used for instance retrieval.
 	 *
 	 * @return array the parameters used to retrieve instances.
