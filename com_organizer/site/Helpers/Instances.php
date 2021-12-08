@@ -90,6 +90,27 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Returns the number of in-person participants for the given instance.
+	 *
+	 * @param   int  $instanceID
+	 *
+	 * @return int
+	 */
+	public static function getAttended(int $instanceID): int
+	{
+		$query = Database::getQuery();
+		$query->select('i.attended')
+			->from('#__organizer_instances AS i')
+			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
+			->where("i.id = $instanceID")
+			->where("i.delta != 'removed'")
+			->where("u.delta != 'removed'");
+		Database::setQuery($query);
+
+		return Database::loadInt();
+	}
+
+	/**
 	 * Gets the block associated with the instance.
 	 *
 	 * @param   int  $instanceID  the id of the instance
@@ -188,7 +209,7 @@ class Instances extends ResourceHelper
 
 		foreach (self::getGroupIDs($instanceID) as $groupID)
 		{
-			$categoryID = Groups::getCategoryID($groupID);
+			$categoryID               = Groups::getCategoryID($groupID);
 			$categoryIDs[$categoryID] = $categoryID;
 		}
 
@@ -661,7 +682,7 @@ class Instances extends ResourceHelper
 					if ($personID = Persons::getIDByUserID($userID))
 					{
 						$filterOrganization = false;
-						$wherray[] = "ipe.personID = $personID";
+						$wherray[]          = "ipe.personID = $personID";
 					}
 					if ($exists)
 					{
@@ -982,6 +1003,44 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Checks whether the instance takes place exclusively online.
+	 *
+	 * @param   int  $instanceID
+	 *
+	 * @return bool
+	 */
+	public static function getPresence(int $instanceID): int
+	{
+		$query = Database::getQuery();
+		$query->select('DISTINCT r.virtual')
+			->from('#__organizer_rooms AS r')
+			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
+			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
+			->innerJoin('#__organizer_instances AS i ON i.id = ipe.instanceID')
+			->where("i.id = $instanceID")
+			->where("ir.delta != 'removed'")
+			->where("ipe.delta != 'removed'");
+		Database::setQuery($query);
+
+		$results = Database::loadIntColumn();
+
+		$online   = array_search(0, $results);
+		$presence = array_search(1, $results);
+
+		if ($presence === false)
+		{
+			return self::ONLINE;
+		}
+
+		if ($online === false)
+		{
+			return self::PRESENCE;
+		}
+
+		return self::HYBRID;
+	}
+
+	/**
 	 * Check if user has a course responsibility.
 	 *
 	 * @param   int  $instanceID  the optional id of the course
@@ -1035,31 +1094,6 @@ class Instances extends ResourceHelper
 		}
 
 		return self::getCurrentCapacity($instanceID) >= $capacity;
-	}
-
-	/**
-	 * Checks whether the instance takes place exclusively online.
-	 *
-	 * @param   int  $instanceID
-	 *
-	 * @return bool
-	 */
-	public static function isOnline(int $instanceID): bool
-	{
-		$query = Database::getQuery();
-		$query->select('r.id')
-			->from('#__organizer_rooms AS r')
-			->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
-			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ir.assocID')
-			->innerJoin('#__organizer_instances AS i ON i.id = ipe.instanceID')
-			->where('r.virtual = 0')
-			->where("i.id = $instanceID")
-			->where("ir.delta != 'removed'")
-			->where("ipe.delta != 'removed'");
-		Database::setQuery($query);
-
-		// No non-virtual rooms associated
-		return !Database::loadBool();
 	}
 
 	/**

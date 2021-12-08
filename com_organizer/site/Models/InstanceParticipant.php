@@ -578,7 +578,7 @@ class InstanceParticipant extends BaseModel
 			$startTime = Helpers\Dates::formatTime($block->startTime);
 			$then      = date('Y-m-d', strtotime('+2 days'));
 
-			if (Helpers\Instances::isOnline($instanceID))
+			if (Helpers\Instances::getPresence($instanceID) === Helpers\Instances::ONLINE)
 			{
 				OrganizerHelper::message(
 					sprintf(Languages::_('ORGANIZER_INSTANCE_ONLINE'), $name, $date, $startTime, $endTime),

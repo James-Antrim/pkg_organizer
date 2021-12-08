@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="conditions">
+        <field name="statistic" type="Options" label="CALCULATION">
+            <option value="">SELECT_STATISTIC</option>
+            <option value="1">METHOD_USE</option>
+            <option value="2">PLANNED_PRESENCE_TYPE</option>
+            <option value="3">PRESENCE_USE</option>
+        </field>
+        <field name="termID" type="Terms" label="TERM"/>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION">
+            <option value="">ALL_ORGANIZATIONS</option>
+        </field>
+        <field name="categoryID" type="Categories" label="CATEGORY">
+            <option value="">ALL_CATEGORIES</option>
+        </field>
+    </fieldset>
+</form>
