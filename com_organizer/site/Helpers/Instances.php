@@ -639,15 +639,19 @@ class Instances extends ResourceHelper
 				break;
 		}
 
+		$filterOrganization = true;
+
 		if (!empty($conditions['my']))
 		{
 			$my      = (int) $conditions['my'];
 			$wherray = [];
+
 			if ($userID = Users::getID())
 			{
 				$exists = Participants::exists($userID);
 				if ($my === self::REGISTRATIONS and $exists)
 				{
+					$filterOrganization = false;
 					$query->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
 						->where("ipa.participantID = $userID")
 						->where("ipa.registered = 1");
@@ -656,10 +660,12 @@ class Instances extends ResourceHelper
 				{
 					if ($personID = Persons::getIDByUserID($userID))
 					{
+						$filterOrganization = false;
 						$wherray[] = "ipe.personID = $personID";
 					}
 					if ($exists)
 					{
+						$filterOrganization = false;
 						$query->leftJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id');
 						$wherray[] = "ipa.participantID = $userID";
 					}
@@ -675,8 +681,6 @@ class Instances extends ResourceHelper
 				$query->where('i.id = 0');
 			}
 		}
-
-		$filterOrganization = true;
 
 		if (!empty($conditions['eventIDs']) or !empty($conditions['subjectIDs']))
 		{
