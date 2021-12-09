@@ -1024,8 +1024,8 @@ class Instances extends ResourceHelper
 
 		$results = Database::loadIntColumn();
 
-		$online   = array_search(0, $results);
-		$presence = array_search(1, $results);
+		$online   = array_search(1, $results);
+		$presence = array_search(0, $results);
 
 		if ($presence === false)
 		{
