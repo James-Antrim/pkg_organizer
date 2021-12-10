@@ -466,9 +466,7 @@ class Workload extends FormModel
 			->select('b.id AS blockID, b.date, b.dow, b.startTime, b.endTime')
 			->select("e.id AS eventID, e.code, e.name_$tag AS event, e.subjectNo")
 			->select('m.code AS method')
-			->innerJoin('#__organizer_events AS e ON e.id = i.eventID')
 			->innerJoin('#__organizer_methods AS m ON m.id = i.methodID')
-			->where("b.date BETWEEN '{$conditions['startDate']}' AND '{$conditions['endDate']}'")
 			->order('b.date, b.startTime, b.endTime')
 			->where('ipe.roleID = 1')
 			->where('m.relevant = 1');
