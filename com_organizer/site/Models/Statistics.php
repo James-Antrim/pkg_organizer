@@ -357,6 +357,11 @@ class Statistics extends FormModel
 				break;
 		}
 
+		if (count($grid) === 2)
+		{
+			$grid = [];
+		}
+
 		return $grid;
 	}
 
@@ -462,7 +467,7 @@ class Statistics extends FormModel
 		if ($statistic === View::METHOD_USE)
 		{
 			$grid['headers'] = [
-				'method' => Helpers\Languages::_('ORGANIZER_METHOD'),
+				'method' => Helpers\Languages::_('ORGANIZER_METHOD_SIMPLE'),
 				'sum'    => Helpers\Languages::_('ORGANIZER_SUM')
 			];
 			foreach ($columns as $columnID => $columnName)

@@ -78,7 +78,7 @@ class Statistics extends FormView
 	 */
 	protected function modifyDocument()
 	{
-		parent::modifyDocument();
+		BaseView::modifyDocument();
 
 		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/statistics.css');
 	}

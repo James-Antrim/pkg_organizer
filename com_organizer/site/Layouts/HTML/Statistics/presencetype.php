@@ -34,6 +34,8 @@ foreach ($headers as $key => $header)
 	echo "<div class=\"$class\">$header</div>";
 }
 
+$sumIcon = '<span class="icon-sum hasTooltip" ' . Languages::_('ORGANIZER_SUM') . '>&sum;</span>';
+
 foreach ($sums as $key => $sum)
 {
 	$class = 'sum-row';
@@ -54,7 +56,7 @@ foreach ($sums as $key => $sum)
 
 		if ($total)
 		{
-			$sum = "<div>$total</div>";
+			$sum = "<div>$sumIcon $total</div>";
 
 			$presenceIcon = HTML::icon('user', Languages::_('ORGANIZER_PRESENCE') . ": $presence / $total");
 			$percent      = (int) (($presence / $total) * 100);
@@ -70,7 +72,7 @@ foreach ($sums as $key => $sum)
 		}
 		else
 		{
-			$sum = 0;
+			$sum = '-';
 		}
 	}
 
@@ -99,7 +101,7 @@ foreach ($this->grid as $row)
 
 			if ($total)
 			{
-				$sum = "<div>$total</div>";
+				$sum = "<div>$sumIcon $total</div>";
 
 				$presenceIcon = HTML::icon('user', Languages::_('ORGANIZER_PRESENCE') . ": $presence / $total");
 				$percent      = (int) (($presence / $total) * 100);

@@ -259,18 +259,13 @@ body.tmpl-mobile div.main .input-append button {
     margin-bottom: 0;
 }
 
+#adminForm .js-stools-field-filter {
+    margin: 0 .5rem .5rem 0;
+}
+
 .statistics-grid {
     display: grid;
     padding-bottom: 1rem;
-    /* noch breiter */
-}
-
-.statistics-grid.methods-use .data-row, .statistics-grid.methods-use .sum-row {
-    height: 4rem;
-}
-
-.statistics-grid.presence-type .data-row, .statistics-grid.presence-type .sum-row {
-    height: 5rem;
 }
 
 .statistics-grid.columns-3 {
@@ -317,6 +312,10 @@ body.tmpl-mobile div.main .input-append button {
     grid-template-columns: 6rem repeat(12, 5rem);
 }
 
+.statistics-grid.columns-14 {
+    grid-template-columns: 6rem repeat(13, 4.6rem);
+}
+
 .statistics-grid.columns-15 {
     grid-template-columns: 6rem repeat(14, 4.2rem);
 }
@@ -327,6 +326,82 @@ body.tmpl-mobile div.main .input-append button {
 
 .statistics-grid.columns-17 {
     grid-template-columns: 6rem repeat(16, 3.7rem);
+}
+
+.statistics-grid.columns-18 {
+    grid-template-columns: 6rem repeat(17, 3.5rem);
+}
+
+.statistics-grid.methods-use.columns-3 {
+    grid-template-columns: 8rem repeat(2, 29rem);
+}
+
+.statistics-grid.methods-use.columns-4 {
+    grid-template-columns: 8rem repeat(3, 19.3rem);
+}
+
+.statistics-grid.methods-use.columns-5 {
+    grid-template-columns: 8rem repeat(4, 14.5rem);
+}
+
+.statistics-grid.methods-use.columns-6 {
+    grid-template-columns: 8rem repeat(5, 11.6rem);
+}
+
+.statistics-grid.methods-use.columns-7 {
+    grid-template-columns: 8rem repeat(6, 9.6rem);
+}
+
+.statistics-grid.methods-use.columns-8 {
+    grid-template-columns: 8rem repeat(7, 8.3rem);
+}
+
+.statistics-grid.methods-use.columns-9 {
+    grid-template-columns: 8rem repeat(8, 7.2rem);
+}
+
+.statistics-grid.methods-use.columns-10 {
+    grid-template-columns: 8rem repeat(9, 6.4rem);
+}
+
+.statistics-grid.methods-use.columns-11 {
+    grid-template-columns: 8rem repeat(10, 5.8rem);
+}
+
+.statistics-grid.methods-use.columns-12 {
+    grid-template-columns: 8rem repeat(11, 5.2rem);
+}
+
+.statistics-grid.methods-use.columns-13 {
+    grid-template-columns: 8rem repeat(12, 4.8rem);
+}
+
+.statistics-grid.methods-use.columns-14 {
+    grid-template-columns: 8rem repeat(13, 4.4rem);
+}
+
+.statistics-grid.methods-use.columns-15 {
+    grid-template-columns: 8rem repeat(14, 4.1rem);
+}
+
+.statistics-grid.methods-use.columns-16 {
+    grid-template-columns: 8rem repeat(15, 3.8rem);
+}
+
+.statistics-grid.methods-use.columns-17 {
+    grid-template-columns: 8rem repeat(16, 3.6rem);
+}
+
+.statistics-grid.methods-use .data-row, .statistics-grid.methods-use .sum-row {
+    height: 4rem;
+}
+
+.statistics-grid.methods-use .data-row.header-column {
+    padding: 0 .6rem;
+}
+
+.statistics-grid.presence-type .data-row, .statistics-grid.presence-type .sum-row {
+    height: 5rem;
 }
 
 .statistics-grid .header-row {
