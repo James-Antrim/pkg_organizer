@@ -793,7 +793,7 @@ class Instances extends ResourceHelper
 	}
 
 	/**
-	 * Gets the localized name of the event associated with the instance and the name of the instance's method.
+	 * Gets the localized name of the method associated with the instance.
 	 *
 	 * @param   int  $instanceID  the id of the instance
 	 *
@@ -809,6 +809,25 @@ class Instances extends ResourceHelper
 		}
 
 		return Methods::getName($methodID);
+	}
+
+	/**
+	 * Gets the code of the method associated with the instance.
+	 *
+	 * @param   int  $instanceID  the id of the instance
+	 *
+	 * @return string
+	 */
+	public static function getMethodCode(int $instanceID): string
+	{
+		$instance = new Tables\Instances();
+
+		if (!$instance->load($instanceID) or !$methodID = $instance->methodID)
+		{
+			return '';
+		}
+
+		return Methods::getCode($methodID);
 	}
 
 	/**

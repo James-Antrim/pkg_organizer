@@ -449,7 +449,11 @@ class InstanceItem extends ListView
 
 		if ($instance->registration)
 		{
-			if ($instance->premature)
+			if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
+			{
+				echo '<li>' . Languages::_('ORGANIZER_REGISTRATION_EXTERNAL') . '</li>';
+			}
+			elseif ($instance->premature)
 			{
 				echo '<li>' . sprintf(Languages::_('ORGANIZER_REGISTRATION_OPENS_ON'),
 						$instance->registrationStart) . '</li>';
@@ -825,11 +829,16 @@ class InstanceItem extends ListView
 
 			}
 
+			$notFinal     = Helper::getMethodCode($instance->instanceID) !== Helpers\Methods::FINALCODE;
+			$notFull      = !$instance->full;
+			$notOnline    = $instance->presence !== Helper::ONLINE;
+			$notPremature = !$instance->premature;
+
 			if ($instance->registered)
 			{
 				$buttons['deregister'] = true;
 			}
-			elseif (!$instance->full and $instance->presence !== Helper::ONLINE and !$instance->premature)
+			elseif ($notFinal and $notFull and $notOnline and $notPremature)
 			{
 				$buttons['register'] = true;
 			}
@@ -871,7 +880,12 @@ class InstanceItem extends ListView
 				{
 					$buttons['scheduleList'] = true;
 
-					if (!$item->full and $item->presence !== Helper::ONLINE and !$item->premature)
+					$notFinal     = Helper::getMethodCode($item->instanceID) !== Helpers\Methods::FINALCODE;
+					$notFull      = !$item->full;
+					$notOnline    = $item->presence !== Helper::ONLINE;
+					$notPremature = !$item->premature;
+
+					if ($notFinal and $notFull and $notOnline and $notPremature)
 					{
 						$buttons['registerList'] = true;
 					}

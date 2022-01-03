@@ -18,6 +18,11 @@ use Organizer\Adapters\Database;
 class Methods extends ResourceHelper implements Selectable
 {
 	/**
+	 * Code constants
+	 */
+	public const FINALCODE = 'KLA';
+
+	/**
 	 * @inheritDoc
 	 */
 	public static function getOptions(): array

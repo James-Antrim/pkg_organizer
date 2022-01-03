@@ -11,6 +11,7 @@
 
 namespace Organizer\Views\HTML;
 
+use Organizer\Helpers;
 use Organizer\Helpers\Can;
 use Organizer\Helpers\Dates;
 use Organizer\Helpers\HTML;
@@ -129,7 +130,13 @@ trait ListsInstances
 					}
 				}
 
-				if ($instance->presence !== Helper::ONLINE)
+				if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
+				{
+					$attribs = ['class' => 'hasTip', 'target' => '_blank', 'title' => Languages::_('ORGANIZER_FINALS_REGISTRATION')];
+					$icon    = HTML::icon('out');
+					$value   = HTML::link('https://ecampus.thm.de', $icon, $attribs);
+				}
+				elseif ($instance->presence !== Helper::ONLINE)
 				{
 					$value .= '<br>';
 
@@ -255,23 +262,34 @@ trait ListsInstances
 					$buttons[] = HTML::link($url, $icon, $attribs);
 
 					// Not virtual and not full
-					if ($instance->registration and !$instance->premature)
+					if ($instance->registration)
 					{
-						if ($instance->registered)
-						{
-							$label = Languages::_('ORGANIZER_DEREGISTER');
-							$icon  = HTML::icon('exit', $label, true);
-							$url   = Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
-						}
-						else
-						{
-							$label = Languages::_('ORGANIZER_REGISTER');
-							$icon  = HTML::icon('signup', $label, true);
-							$url   = Routing::getTaskURL('InstanceParticipants.register', $instanceID);
-						}
+						$attribs = ['aria-label' => $label, 'class' => 'btn btn-checkbox'];
 
-						$attribs   = ['aria-label' => $label, 'class' => 'btn btn-checkbox'];
-						$buttons[] = HTML::link($url, $icon, $attribs);
+						if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
+						{
+							$label     = Languages::_('ORGANIZER_REGISTRATION_EXTERNAL_TIP');
+							$icon      = HTML::icon('out', $label, true);
+							$url       = "https://ecampus.thm.de";
+							$buttons[] = HTML::link($url, $icon, $attribs);
+						}
+						elseif (!$instance->premature)
+						{
+							if ($instance->registered)
+							{
+								$label = Languages::_('ORGANIZER_DEREGISTER');
+								$icon  = HTML::icon('exit', $label, true);
+								$url   = Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
+							}
+							else
+							{
+								$label = Languages::_('ORGANIZER_REGISTER');
+								$icon  = HTML::icon('signup', $label, true);
+								$url   = Routing::getTaskURL('InstanceParticipants.register', $instanceID);
+							}
+
+							$buttons[] = HTML::link($url, $icon, $attribs);
+						}
 					}
 				}
 

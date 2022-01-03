@@ -554,6 +554,13 @@ class Instances extends ListView
 						{
 							$tools[] = HTML::icon('stop', Languages::_('ORGANIZER_REGISTRATION_CLOSED'));
 						}
+						elseif (Helper::getMethodCode($item->instanceID) === Helpers\Methods::FINALCODE)
+						{
+							$tip     = Languages::_('ORGANIZER_REGISTRATION_EXTERNAL_TIP');
+							$icon    = HTML::icon('out', $tip);
+							$url     = "https://ecampus.thm.de";
+							$tools[] = HTML::link($url, $icon, ['aria-label' => $tip]);
+						}
 						elseif ($item->premature)
 						{
 							$text    = Languages::_('ORGANIZER_REGISTRATION_BEGINS_ON');
@@ -799,7 +806,7 @@ class Instances extends ListView
 				$this->premature = false;
 			}
 
-			if ($item->registration === true)
+			if (Helper::getMethodCode($item->instanceID) !== Helpers\Methods::FINALCODE and $item->registration === true)
 			{
 				$this->registration = true;
 			}

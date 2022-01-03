@@ -578,6 +578,15 @@ class InstanceParticipant extends BaseModel
 			$startTime = Helpers\Dates::formatTime($block->startTime);
 			$then      = date('Y-m-d', strtotime('+2 days'));
 
+			if (Helpers\Instances::getMethodCode($instanceID) === Helpers\Methods::FINALCODE)
+			{
+				OrganizerHelper::message(
+					sprintf(Languages::_('ORGANIZER_INSTANCE_EXTERNAL_REGISTRATION'), $name, $date, $startTime, $endTime),
+					'notice'
+				);
+				continue;
+			}
+
 			if (Helpers\Instances::getPresence($instanceID) === Helpers\Instances::ONLINE)
 			{
 				OrganizerHelper::message(
