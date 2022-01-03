@@ -18,6 +18,7 @@
 #add checkin for appointments where no person is responsible
 #add dedicated placeholders for no person responsible
 #restyle the curriculm view to use css grids for container items.
+#let subject names be overwritten on upload?
 #endregion
 
 #region Bugs ###########################################################################################################

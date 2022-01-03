@@ -121,7 +121,10 @@ class Courses extends ListModel
 			$query->where("u.organizationID in ($organizationIDs)");
 		}
 
-		if (!$this->adminContext and Helpers\Input::getParams()->get('onlyPrepCourses'))
+		$params      = Helpers\Input::getParams();
+		$preparatory = ($params->get('onlyPrepCourses') or Helpers\Input::getBool('preparatory'));
+
+		if (!$this->adminContext and $preparatory)
 		{
 			$query->where('e.preparatory = 1');
 		}
