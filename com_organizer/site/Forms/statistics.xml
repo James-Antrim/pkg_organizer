@@ -6,6 +6,7 @@
             <option value="1">METHOD_USE</option>
             <option value="2">PLANNED_PRESENCE_TYPE</option>
             <option value="3">PRESENCE_USE</option>
+            <option value="4">REGISTRATIONS</option>
         </field>
         <field name="termID" type="Terms" label="TERM" class="input-8"/>
         <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION">

@@ -46,6 +46,9 @@ require_once 'titles.php';
 			case View::METHOD_USE:
 				require_once 'Statistics/methoduse.php';
 				break;
+			case View::REGISTRATIONS:
+				require_once 'Statistics/registrations.php';
+				break;
 			case View::PLANNED_PRESENCE_TYPE:
 				require_once 'Statistics/presencetype.php';
 				break;

@@ -21,7 +21,7 @@ use Organizer\Helpers;
  */
 class Statistics extends FormView
 {
-	public const METHOD_USE = 1, PLANNED_PRESENCE_TYPE = 2, PRESENCE_USE = 3;
+	public const METHOD_USE = 1, PLANNED_PRESENCE_TYPE = 2, PRESENCE_USE = 3, REGISTRATIONS = 4;
 
 	public $filterForm;
 
@@ -98,6 +98,9 @@ class Statistics extends FormView
 
 		switch ($this->state->get('conditions.statistic'))
 		{
+			case self::REGISTRATIONS:
+				$text = sprintf(Helpers\Languages::_('ORGANIZER_REGISTRATIONS_DESC'), $startDate, $endDate);
+				break;
 			case self::METHOD_USE:
 				$text = sprintf(Helpers\Languages::_('ORGANIZER_METHOD_USE_DESC'), $startDate, $endDate);
 				break;

@@ -13,7 +13,6 @@ namespace Organizer\Models;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Views\HTML\Statistics as View;
-use ParagonIE\Sodium\Core\Curve25519\H;
 
 /**
  * Class calculates lesson statistics and loads them into the view context.
@@ -186,6 +185,7 @@ class Statistics extends FormModel
 					}
 				}
 
+				// The true total is increased whether the rooms have a capacity value
 				$grid['sum']['sum']['total']   = $grid['sum']['sum']['total'] + $attended;
 				$grid[$monday]['sum']['total'] = $grid[$monday]['sum']['total'] + $attended;
 
@@ -212,33 +212,108 @@ class Statistics extends FormModel
 			}
 		}
 
-		// Unused Rows
-		foreach (array_diff(array_keys($grid), $usedMondays) as $unusedMonday)
+		$this->filterUnused($grid, $columnKeys, $usedMondays, $usedResources);
+	}
+
+	/**
+	 * Populates the grid with non-attendance data.
+	 *
+	 * @param   array  &$grid       the structure of the data as it will be presented
+	 * @param   array   $instances  the raw data for the appointments
+	 *
+	 * @return void
+	 */
+	private function fillRegistrations(array &$grid, array $instances)
+	{
+		$state          = $this->state;
+		$categoryID     = $state->get('conditions.categoryID');
+		$columnKeys     = array_keys($grid['headers']);
+		$organizationID = $state->get('conditions.organizationID');
+		$usedKeys       = [];
+		$usedMondays    = [];
+		$usedResources  = [];
+
+		foreach ($instances as $instance)
 		{
-			if (in_array($unusedMonday, ['headers', 'sum']))
+			$instanceID = $instance['instanceID'];
+			$presence   = Helpers\Instances::getPresence($instanceID);
+
+			if ($presence === Helpers\Instances::ONLINE)
 			{
 				continue;
 			}
 
-			unset($grid[$unusedMonday]);
-		}
+			$attendence    = Helpers\Bookings::getParticipantCount($instance['bookingID']);
+			$registrations = Helpers\Instances::getCurrentCapacity($instanceID);
 
-		// Unused columns
-		foreach ($unusedResources = array_diff($columnKeys, $usedResources) as $key => $value)
-		{
-			if (in_array($value, ['week', 'sum']))
+			$monday       = date('Y-m-d', strtotime('monday this week', strtotime($instance['date'])));
+			$attended     = Helpers\Instances::getAttended($instanceID);
+			$noShows      = ($registrations - $attendence) > 0 ? ($registrations - $attendence) : 0;
+			$registered   = Helpers\Instances::getRegistered($instanceID);
+			$unregistered = ($attendence - $registrations) > 0 ? ($attendence - $registrations) : 0;
+			$uniqueKey    = "{$instance['unitID']}-{$instance['blockID']}";
+			$updateUnique = false;
+
+			if (empty($usedKeys[$uniqueKey]))
 			{
-				unset($unusedResources[$key]);
+				$updateUnique         = true;
+				$usedKeys[$uniqueKey] = 1;
+
+				if ($attended or $registered)
+				{
+					$usedMondays[$monday] = $monday;
+				}
+			}
+
+			if ($categoryID)
+			{
+				$resourceIDs = Helpers\Instances::getGroupIDs($instanceID);
+			}
+			elseif ($organizationID)
+			{
+				$resourceIDs = Helpers\Instances::getCategoryIDs($instanceID);
+			}
+			else
+			{
+				$resourceIDs = Helpers\Instances::getOrganizationIDs($instanceID);
+			}
+
+			if ($columnIDs = array_intersect($columnKeys, $resourceIDs))
+			{
+				$grid['sum']['sum']['attended']     = $grid['sum']['sum']['attended'] + $attended;
+				$grid['sum']['sum']['registered']   = $grid['sum']['sum']['registered'] + $registered;
+				$grid[$monday]['sum']['attended']   = $grid[$monday]['sum']['attended'] + $attended;
+				$grid[$monday]['sum']['registered'] = $grid[$monday]['sum']['registered'] + $registered;
+
+				if ($updateUnique)
+				{
+					$grid['sum']['sum']['no-shows']       = $grid['sum']['sum']['no-shows'] + $noShows;
+					$grid[$monday]['sum']['no-shows']     = $grid[$monday]['sum']['no-shows'] + $noShows;
+					$grid['sum']['sum']['unregistered']   = $grid['sum']['sum']['unregistered'] + $unregistered;
+					$grid[$monday]['sum']['unregistered'] = $grid[$monday]['sum']['unregistered'] + $unregistered;
+				}
+
+				foreach ($columnIDs as $columnID)
+				{
+					$usedResources[$columnID] = $columnID;
+
+					$grid['sum'][$columnID]['attended']     = $grid['sum'][$columnID]['attended'] + $attended;
+					$grid['sum'][$columnID]['registered']   = $grid['sum'][$columnID]['registered'] + $registered;
+					$grid[$monday][$columnID]['attended']   = $grid[$monday][$columnID]['attended'] + $attended;
+					$grid[$monday][$columnID]['registered'] = $grid[$monday][$columnID]['registered'] + $registered;
+
+					if ($updateUnique)
+					{
+						$grid['sum'][$columnID]['no-shows']       = $grid['sum'][$columnID]['no-shows'] + $noShows;
+						$grid[$monday][$columnID]['no-shows']     = $grid[$monday][$columnID]['no-shows'] + $noShows;
+						$grid['sum'][$columnID]['unregistered']   = $grid['sum'][$columnID]['unregistered'] + $unregistered;
+						$grid[$monday][$columnID]['unregistered'] = $grid[$monday][$columnID]['unregistered'] + $unregistered;
+					}
+				}
 			}
 		}
 
-		foreach (array_keys($grid) as $monday)
-		{
-			foreach ($unusedResources as $unusedResource)
-			{
-				unset($grid[$monday][$unusedResource]);
-			}
-		}
+		$this->filterUnused($grid, $columnKeys, $usedMondays, $usedResources);
 	}
 
 	/**
@@ -298,6 +373,21 @@ class Statistics extends FormModel
 			}
 		}
 
+		$this->filterUnused($grid, $columnKeys, $usedMondays, $usedResources);
+	}
+
+	/**
+	 * Removed grid columns and rows with no data to present.
+	 *
+	 * @param   array  &$grid
+	 * @param   array   $columnKeys
+	 * @param   array   $usedMondays
+	 * @param   array   $usedResources
+	 *
+	 * @return void
+	 */
+	private function filterUnused(array &$grid, array $columnKeys, array $usedMondays, array $usedResources)
+	{
 		// Unused Rows
 		foreach (array_diff(array_keys($grid), $usedMondays) as $unusedMonday)
 		{
@@ -346,6 +436,9 @@ class Statistics extends FormModel
 		{
 			case View::METHOD_USE:
 				$this->fillMethodUse($grid, $instances);
+				break;
+			case View::REGISTRATIONS:
+				$this->fillRegistrations($grid, $instances);
 				break;
 			case View::PLANNED_PRESENCE_TYPE:
 				$this->fillTypeUse($grid, $instances);
@@ -408,13 +501,22 @@ class Statistics extends FormModel
 			}
 		}
 
-		$statistic = $state->get('conditions.statistic');
+		$statistic = (int) $state->get('conditions.statistic');
 
-		if ($statistic === View::PRESENCE_USE)
+		if ($statistic === View::PRESENCE_USE or $statistic === View::REGISTRATIONS)
 		{
-			$today = date('Y-m-d');
+			$finals = new \Organizer\Tables\Methods();
+			$finals->load(['code' => 'KLA']);
 			$now   = date('H:i:s');
-			$query->where("(b.date < '$today' OR (b.date = '$today' and b.endTime < '$now'))");
+			$today = date('Y-m-d');
+			$query->where("i.methodID != $finals->id")
+				->where("(b.date < '$today' OR (b.date = '$today' and b.endTime < '$now'))");
+
+			if ($statistic === View::REGISTRATIONS)
+			{
+				$query->innerJoin('#__organizer_bookings AS book ON book.blockID = i.blockID AND book.unitID = i.unitID')
+					->select('book.id AS bookingID');
+			}
 		}
 
 		Database::setQuery($query);
@@ -520,7 +622,16 @@ class Statistics extends FormModel
 
 			$template = [];
 
-			if ($statistic === View::PLANNED_PRESENCE_TYPE)
+			if ($statistic === View::REGISTRATIONS)
+			{
+				$template = [
+					'attended'     => 0,
+					'no-shows'     => 0,
+					'registered'   => 0,
+					'unregistered' => 0
+				];
+			}
+			elseif ($statistic === View::PLANNED_PRESENCE_TYPE)
 			{
 				$template = [
 					Helpers\Instances::HYBRID   => 0,

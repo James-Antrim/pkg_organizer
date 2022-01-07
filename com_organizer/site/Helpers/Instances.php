@@ -326,11 +326,9 @@ class Instances extends ResourceHelper
 	public static function getCurrentCapacity(int $instanceID): int
 	{
 		$query = Database::getQuery();
-		$query->select('COUNT(DISTINCT ipa.participantID)')
-			->from('#__organizer_instance_participants AS ipa')
-			->innerJoin('#__organizer_instances AS i2 ON i2.id = ipa.instanceID')
+		$query->select('SUM(i2.registered)')
+			->from('#__organizer_instances AS i2')
 			->innerJoin('#__organizer_instances AS i1 ON i1.unitID = i2.unitID AND i1.blockID = i2.blockID')
-			->where('ipa.registered = 1')
 			->where("i1.id = $instanceID")
 			->where("i1.delta != 'removed'")
 			->where("i2.delta != 'removed'");
@@ -911,6 +909,27 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Returns the number of in-person participants for the given instance.
+	 *
+	 * @param   int  $instanceID
+	 *
+	 * @return int
+	 */
+	public static function getRegistered(int $instanceID): int
+	{
+		$query = Database::getQuery();
+		$query->select('i.registered')
+			->from('#__organizer_instances AS i')
+			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
+			->where("i.id = $instanceID")
+			->where("i.delta != 'removed'")
+			->where("u.delta != 'removed'");
+		Database::setQuery($query);
+
+		return Database::loadInt();
+	}
+
+	/**
 	 * Retrieves the role id for the given instance and person.
 	 *
 	 * @param   int  $instanceID  the id of the instance
@@ -1026,7 +1045,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @param   int  $instanceID
 	 *
-	 * @return bool
+	 * @return int
 	 */
 	public static function getPresence(int $instanceID): int
 	{
