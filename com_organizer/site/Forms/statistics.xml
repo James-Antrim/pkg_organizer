@@ -9,7 +9,7 @@
             <option value="4">REGISTRATIONS</option>
         </field>
         <field name="termID" type="Terms" label="TERM" class="input-8"/>
-        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION">
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" onchange="updateCategories();">
             <option value="">ALL_ORGANIZATIONS</option>
         </field>
         <field name="categoryID" type="Categories" label="CATEGORY">

@@ -80,6 +80,7 @@ class Statistics extends FormView
 	{
 		BaseView::modifyDocument();
 
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/statistics.js');
 		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/statistics.css');
 	}
 
