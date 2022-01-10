@@ -403,7 +403,7 @@ class Instances extends ListModel
 			}
 			elseif ($layout === Helper::LIST)
 			{
-				$interval = Input::getString('interval', 'day');
+				$interval = $listItems->get('interval', Input::getInt('interval', 'day'));
 				$listItems->set('interval', $interval);
 				$this->state->set('list.interval', $interval);
 			}
