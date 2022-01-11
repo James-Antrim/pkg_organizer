@@ -31,7 +31,7 @@ class Schedules extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_SCHEDULES'), 'calendars');
+		$this->setTitle('ORGANIZER_SCHEDULES');
 		$admin   = Helpers\Can::administrate();
 		$toolbar = Toolbar::getInstance();
 

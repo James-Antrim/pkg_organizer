@@ -42,7 +42,7 @@ class InstanceEdit extends EditView
 			$title  = 'ORGANIZER_INSTANCE_NEW';
 		}
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'contract-2');
+		$this->setTitle($title);
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'instances.save', false);
 

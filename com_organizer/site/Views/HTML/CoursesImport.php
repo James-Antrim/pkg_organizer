@@ -24,7 +24,7 @@ class CoursesImport extends EditView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_COURSES_IMPORT'), 'upload');
+		$this->setTitle('ORGANIZER_COURSES_IMPORT');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton(
 			'Standard',

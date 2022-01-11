@@ -51,7 +51,7 @@ class ContactTracking extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Languages::_("ORGANIZER_CONTACT_TRACKING"), 'list-2');
+		$this->setTitle('ORGANIZER_CONTACT_TRACKING');
 
 		if (($this->state->get('participantID') or $this->state->get('personID')) and count($this->items))
 		{

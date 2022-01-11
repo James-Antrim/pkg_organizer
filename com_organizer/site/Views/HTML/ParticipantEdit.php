@@ -40,7 +40,7 @@ class ParticipantEdit extends EditView
 			$title  = "ORGANIZER_PROFILE_NEW";
 		}
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
+		$this->setTitle($title);
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "participants.save", false);
 		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "participants.cancel", false);

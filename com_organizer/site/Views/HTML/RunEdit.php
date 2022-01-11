@@ -42,7 +42,7 @@ class RunEdit extends EditView
 			$title     = "ORGANIZER_RUN_NEW";
 		}
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
+		$this->setTitle($title);
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', $applyIcon, $apply, 'runs.apply', false);
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'runs.save', false);

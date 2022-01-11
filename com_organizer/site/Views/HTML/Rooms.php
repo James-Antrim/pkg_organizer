@@ -31,7 +31,7 @@ class Rooms extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_ROOMS'), 'enter');
+		$this->setTitle('ORGANIZER_ROOMS');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'rooms.add', false);
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'rooms.edit', true);

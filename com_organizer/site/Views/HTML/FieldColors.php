@@ -25,7 +25,7 @@ class FieldColors extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_FIELD_COLORS"), 'list-2');
+		$this->setTitle('ORGANIZER_FIELD_COLORS');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'link', Helpers\Languages::_('ORGANIZER_ADD'), "field_colors.add", false);
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "field_colors.edit", true);

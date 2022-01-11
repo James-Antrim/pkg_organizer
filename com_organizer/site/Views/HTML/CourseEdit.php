@@ -47,7 +47,7 @@ class CourseEdit extends EditView
 		}
 
 		parent::addToolBar();
-		Helpers\HTML::setTitle($title, 'contract-2');
+		$this->setTitle($title);
 	}
 
 	/**

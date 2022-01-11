@@ -25,7 +25,7 @@ class Organizations extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_ORGANIZATIONS'), 'tree-2');
+		$this->setTitle('ORGANIZER_ORGANIZATIONS');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'organizations.add', false);
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'organizations.edit', true);

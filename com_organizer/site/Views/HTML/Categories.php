@@ -31,7 +31,7 @@ class Categories extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_CATEGORIES'), 'list-2');
+		$this->setTitle('ORGANIZER_CATEGORIES');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'categories.edit', true);
 		$toolbar->appendButton(

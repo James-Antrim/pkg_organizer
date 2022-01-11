@@ -41,7 +41,7 @@ class Statistics extends FormView
 	 */
 	protected function addToolBar()
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_STATISTICS'), 'bars');
+		$this->setTitle('ORGANIZER_STATISTICS');
 		$toolbar = Adapters\Toolbar::getInstance();
 		$toolbar->appendButton(
 			'Standard',

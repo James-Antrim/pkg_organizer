@@ -15,7 +15,7 @@ use Organizer\Adapters;
 use Organizer\Helpers;
 
 /**
- * Class loads person workload statistics into the display context.
+ * Class loads personnal workload statistics into the display context.
  */
 class Workload extends FormView
 {
@@ -26,11 +26,7 @@ class Workload extends FormView
 	 */
 	protected function addToolBar()
 	{
-		$params      = Helpers\Input::getParams();
-		$showHeading = (bool) $params->get('show_page_heading', false);
-		$pageTitle   = $params->get('page_title', '');
-		$title       = ($pageTitle and $showHeading) ? $pageTitle : Helpers\Languages::_('ORGANIZER_WORKLOAD');
-		Helpers\HTML::setTitle($title, 'list-2');
+		$this->setTitle('ORGANIZER_WORKLOAD');
 		$toolbar = Adapters\Toolbar::getInstance();
 
 		if ($this->form->getValue('personID'))//Helpers\Input::getInt('personID'))

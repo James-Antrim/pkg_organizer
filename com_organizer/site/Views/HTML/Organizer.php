@@ -43,7 +43,7 @@ class Organizer extends BaseView
 	 */
 	protected function addToolBar()
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_MAIN'), 'organizer');
+		$this->setTitle('ORGANIZER_MAIN');
 
 		if (Helpers\Can::administrate())
 		{

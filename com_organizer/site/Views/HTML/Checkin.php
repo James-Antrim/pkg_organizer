@@ -58,29 +58,29 @@ class Checkin extends FormView
 		}
 		elseif ($this->edit or !$this->complete)
 		{
-			$title = Helpers\Languages::_('ORGANIZER_CONTACT_INFORMATION');
+			$title = 'ORGANIZER_CONTACT_INFORMATION';
 		}
 		elseif ($this->instances)
 		{
 			if (count($this->instances) > 1)
 			{
-				$title = Helpers\Languages::_('ORGANIZER_CONFIRM_EVENT');
+				$title = 'ORGANIZER_CONFIRM_EVENT';
 			}
 			elseif (!$this->roomID or $this->seat === null)
 			{
-				$title = Helpers\Languages::_('ORGANIZER_CONFIRM_SEATING');
+				$title = 'ORGANIZER_CONFIRM_SEATING';
 			}
 			else
 			{
-				$title = Helpers\Languages::_('ORGANIZER_CHECKED_IN');
+				$title = 'ORGANIZER_CHECKED_IN';
 			}
 		}
 		else
 		{
-			$title = Helpers\Languages::_('ORGANIZER_CHECKIN');
+			$title = 'ORGANIZER_CHECKIN';
 		}
 
-		Helpers\HTML::setTitle($title);
+		$this->setTitle($title);
 	}
 
 	/**

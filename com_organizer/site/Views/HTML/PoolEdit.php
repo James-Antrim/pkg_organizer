@@ -44,7 +44,7 @@ class PoolEdit extends EditView
 			$title  = "ORGANIZER_POOL_NEW";
 		}
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'list-2');
+		$this->setTitle($title);
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'pools.apply', false);
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'pools.save', false);

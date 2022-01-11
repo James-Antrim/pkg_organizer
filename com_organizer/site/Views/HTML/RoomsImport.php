@@ -24,7 +24,7 @@ class RoomsImport extends EditView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_ROOMS_IMPORT'), 'upload');
+		$this->setTitle('ORGANIZER_ROOMS_IMPORT');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton(
 			'Standard',

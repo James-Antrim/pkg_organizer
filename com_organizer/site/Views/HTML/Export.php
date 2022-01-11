@@ -35,7 +35,7 @@ class Export extends FormView
 	 */
 	protected function addToolBar()
 	{
-		Helpers\HTML::setTitle(Languages::_('ORGANIZER_EXPORT_TITLE'), 'list-2');
+		$this->setTitle('ORGANIZER_EXPORT_TITLE');
 		$toolbar = Toolbar::getInstance();
 
 		$fields = [

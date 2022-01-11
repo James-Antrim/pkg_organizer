@@ -97,23 +97,20 @@ class Instances extends ListView
 
 				$supplement .= implode('</li><li>', $dates) . '</li></ul>';
 			}
-			else
+			elseif (Helpers\Input::getInt('my'))
 			{
-				if (Helpers\Input::getInt('my'))
+				if (Helpers\Users::getID())
 				{
-					if (Helpers\Users::getID())
-					{
-						$supplement .= Languages::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
-					}
-					else
-					{
-						$supplement .= Languages::_('ORGANIZER_401');
-					}
+					$supplement .= Languages::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
 				}
 				else
 				{
-					$supplement .= Languages::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
+					$supplement .= Languages::_('ORGANIZER_401');
 				}
+			}
+			else
+			{
+				$supplement .= Languages::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
 			}
 
 			$supplement .= '</div>';
@@ -127,10 +124,7 @@ class Instances extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		$title = $this->get('title');
-
-		// Add menu title support, both direct and via selected filters
-		HTML::setTitle($title, 'list-2');
+		$this->setTitle($this->get('title'));
 		$toolbar  = Toolbar::getInstance();
 		$newTab   = new Buttons\NewTab();
 		$script   = new Buttons\Script();

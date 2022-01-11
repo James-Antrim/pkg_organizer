@@ -78,8 +78,8 @@ abstract class ListView extends BaseView
 	{
 		$resource = Helpers\OrganizerHelper::classEncode($this->getName());
 		$constant = strtoupper($resource);
+		$this->setTitle("ORGANIZER_$constant");
 
-		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_$constant"), 'list-2');
 		$toolbar = Adapters\Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), "$resource.add", false);
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "$resource.edit", true);
@@ -161,13 +161,14 @@ abstract class ListView extends BaseView
 	protected function getAssocToggle(
 		string $controller,
 		string $columnOne,
-		int $valueOne,
+		int    $valueOne,
 		string $columnTwo,
-		int $valueTwo,
-		bool $currentValue,
+		int    $valueTwo,
+		bool   $currentValue,
 		string $tip,
 		string $attribute = ''
-	): string {
+	): string
+	{
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle";
 		$url .= "&$columnOne=$valueOne&$columnTwo=$valueTwo";
 		$url .= $attribute ? "&attribute=$attribute" : '';
@@ -222,11 +223,12 @@ abstract class ListView extends BaseView
 	 */
 	protected function getToggle(
 		string $controller,
-		int $resourceID,
-		bool $currentValue,
+		int    $resourceID,
+		bool   $currentValue,
 		string $tip,
 		string $attribute = ''
-	): string {
+	): string
+	{
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle&id=$resourceID";
 		$url .= $attribute ? "&attribute=$attribute" : '';
 

@@ -36,7 +36,7 @@ class Participants extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Languages::_('ORGANIZER_PARTICIPANTS'), 'users');
+		$this->setTitle('ORGANIZER_PARTICIPANTS');
 
 		if (Helpers\Can::administrate())
 		{

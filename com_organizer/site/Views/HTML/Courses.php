@@ -92,7 +92,7 @@ class Courses extends ListView
 			}
 		}
 
-		Helpers\HTML::setMenuTitle('ORGANIZER_COURSES', $resourceName, 'contract-2');
+		$this->setTitle('ORGANIZER_COURSES', $resourceName);
 
 		if (Helpers\Users::getID())
 		{
@@ -200,8 +200,8 @@ class Courses extends ListView
 	 */
 	protected function structureItems()
 	{
-		$URL = Uri::base() . '?option=com_organizer';
-		$URL .= $this->adminContext ? '&view=course_edit&id=' : '&view=course_item&id=';
+		$url = Uri::base() . '?option=com_organizer';
+		$url .= $this->adminContext ? '&view=course_edit&id=' : '&view=course_item&id=';
 
 		$structuredItems = [];
 
@@ -338,7 +338,7 @@ class Courses extends ListView
 
 			$index = "$course->startDate $course->name $campusName";
 
-			$structuredItems[$index] = $this->structureItem($index, $course, $URL . $course->id);
+			$structuredItems[$index] = $this->structureItem($index, $course, $url . $course->id);
 		}
 
 		$this->items = $structuredItems;

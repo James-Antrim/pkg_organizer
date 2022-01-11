@@ -46,7 +46,7 @@ class Units extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_UNITS"), 'list-2');
+		$this->setTitle('ORGANIZER_UNITS');
 		$toolbar = Toolbar::getInstance();
 
 		$toolbar->appendButton(

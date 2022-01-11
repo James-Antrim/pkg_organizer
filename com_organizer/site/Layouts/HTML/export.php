@@ -17,7 +17,7 @@ $script = "document.getElementById('download-url').select();";
 $script .= "document.getElementById('download-url').setSelectionRange(0,99999);";
 $script .= "document.execCommand('copy');";
 
-echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
+echo $this->title;
 ?>
     <form action="<?php echo Uri::current(); ?>" id="adminForm" method="post" name="adminForm"
           class="form-horizontal form-validate" enctype="multipart/form-data">

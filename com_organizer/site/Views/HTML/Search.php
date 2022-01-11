@@ -10,6 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
+use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
 use stdClass;
@@ -30,7 +31,7 @@ class Search extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_SEARCH'), 'list-2');
+		$this->setTitle('ORGANIZER_SEARCH');
 	}
 
 	/**

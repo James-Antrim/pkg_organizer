@@ -45,7 +45,7 @@ class Runs extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_RUNS"), 'list-2');
+		$this->setTitle('ORGANIZER_RUNS');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), "runs.add", false);
 
@@ -113,7 +113,7 @@ class Runs extends ListView
 
 				ksort($sections);
 
-				$item->endDate = Helpers\Dates::formatDate($item->endDate);;
+				$item->endDate   = Helpers\Dates::formatDate($item->endDate);
 				$item->sections  = count($runs);
 				$item->startDate = Helpers\Dates::formatDate($startDate);
 			}

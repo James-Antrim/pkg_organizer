@@ -37,7 +37,7 @@ class Groups extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_GROUPS'), 'list-2');
+		$this->setTitle('ORGANIZER_GROUPS');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'groups.edit', true);
 

@@ -19,7 +19,7 @@ $count = count($this->instances);
         </div>
     </div>
 </div>
-<?php echo Helpers\OrganizerHelper::getApplication()->JComponentTitle; ?>
+<?php echo $this->title; ?>
 <div id="j-main-container" class="span10">
 	<?php if ($this->privacy) : ?>
 		<?php require_once 'Checkin/privacy.php'; ?>

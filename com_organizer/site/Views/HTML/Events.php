@@ -30,20 +30,20 @@ class Events extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_("ORGANIZER_EVENTS"), 'list-2');
+		$this->setTitle('ORGANIZER_EVENTS');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'events.edit', true);
 
-		if ($admin = Helpers\Can::administrate())
+		/*if ($admin = Helpers\Can::administrate())
 		{
-			/*$toolbar->appendButton(
+			$toolbar->appendButton(
 				'Standard',
 				'contract',
 				Helpers\Languages::_('ORGANIZER_MERGE'),
 				'events.mergeView',
 				true
-			);*/
-		}
+			);
+		}*/
 	}
 
 	/**

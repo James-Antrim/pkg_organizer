@@ -12,7 +12,7 @@ use Organizer\Helpers;
 
 if (!$componentTemplate = Helpers\Input::getCMD('tmpl') === 'component')
 {
-	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
+	echo $this->title;
 }
 ?>
 <div class="resource-item">

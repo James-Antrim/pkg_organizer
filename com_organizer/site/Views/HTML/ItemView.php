@@ -55,7 +55,7 @@ abstract class ItemView extends BaseView
 
 		$defaultConstant = 'ORGANIZER_' . strtoupper(str_replace('Item', '', $this->getName()));
 		$itemName        = is_array($this->item['name']) ? $this->item['name']['value'] : $this->item['name'];
-		Helpers\HTML::setMenuTitle($defaultConstant, $itemName);
+		$this->setTitle($defaultConstant, $itemName);
 		unset($this->item['name']);
 
 		// This has to be after the title has been set so that it isn't prematurely removed.
@@ -102,7 +102,7 @@ abstract class ItemView extends BaseView
 	 *
 	 * @param   array  $items  the items to be displayed.
 	 *
-	 * @return void outputs the items as an html list
+	 * @return void outputs the items as a html list
 	 */
 	public function renderListValue(array $items, string $url, array $urlAttribs)
 	{

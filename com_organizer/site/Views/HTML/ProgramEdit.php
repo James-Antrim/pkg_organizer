@@ -42,7 +42,7 @@ class ProgramEdit extends EditView
 			$title  = "ORGANIZER_PROGRAM_NEW";
 		}
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'list');
+		$this->setTitle($title);
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'programs.apply', false);
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'programs.save', false);

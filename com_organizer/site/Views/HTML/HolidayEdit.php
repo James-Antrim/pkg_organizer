@@ -38,7 +38,7 @@ class HolidayEdit extends EditView
 			$title  = "ORGANIZER_HOLIDAY_NEW";
 		}
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
+		$this->setTitle($title);
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "holidays.save", false);
 

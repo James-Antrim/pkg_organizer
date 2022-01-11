@@ -25,7 +25,7 @@ class Programs extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_PROGRAMS'), 'list');
+		$this->setTitle('ORGANIZER_PROGRAMS');
 
 		if ($this->documentAccess)
 		{

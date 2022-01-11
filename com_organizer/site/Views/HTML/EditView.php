@@ -50,7 +50,7 @@ abstract class EditView extends FormView
 			$title  = "ORGANIZER_{$constant}_NEW";
 		}
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'cog');
+		$this->setTitle($title);
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "$controller.save", false);
 		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "$controller.cancel", false);

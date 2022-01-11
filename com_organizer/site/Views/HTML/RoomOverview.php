@@ -38,7 +38,7 @@ class RoomOverview extends TableView
 			}
 		}
 
-		Helpers\HTML::setMenuTitle('ORGANIZER_ROOM_OVERVIEW', $resourceName);
+		$this->setTitle('ORGANIZER_ROOM_OVERVIEW', $resourceName);
 	}
 
 	/**

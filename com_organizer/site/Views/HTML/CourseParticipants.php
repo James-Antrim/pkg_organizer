@@ -36,12 +36,11 @@ class CourseParticipants extends Participants
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
+		$this->setTitle('ORGANIZER_PARTICIPANTS');
+
 		$courseID = Helpers\Input::getID();
 		$course   = new Tables\Courses();
 		$course->load($courseID);
-		$title = Languages::_('ORGANIZER_PARTICIPANTS');
-
-		Helpers\HTML::setTitle($title, 'users');
 
 		$toolbar = Adapters\Toolbar::getInstance();
 

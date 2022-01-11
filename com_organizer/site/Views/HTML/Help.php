@@ -29,7 +29,7 @@ class Help extends BaseView
 	{
 		$topic    = strtoupper(Helpers\Input::getCMD('topic', 'toc'));
 		$constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
-		Helpers\HTML::setTitle(Languages::_($constant), 'info');
+		$this->setTitle($constant);
 	}
 
 	/**

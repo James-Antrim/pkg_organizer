@@ -11,6 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use JHtmlSidebar;
+use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
@@ -32,6 +33,8 @@ abstract class BaseView extends HtmlView
 	public $adminContext;
 
 	public $disclaimer = '';
+
+	public $form;
 
 	/**
 	 * The name of the layout to use during rendering.
@@ -58,6 +61,8 @@ abstract class BaseView extends HtmlView
 	public $subtitle = '';
 
 	public $supplement = '';
+
+	public $title = '';
 
 	/**
 	 * @inheritdoc
@@ -404,5 +409,40 @@ abstract class BaseView extends HtmlView
 		$this->model = parent::setModel($model, $default);
 
 		return $this->model;
+	}
+
+	/**
+	 * Prepares the title for standard HTML output.
+	 *
+	 * @param   string  $standard     the title to display
+	 * @param   string  $conditional  the conditional title to display
+	 *
+	 * @return void
+	 */
+	protected function setTitle(string $standard, string $conditional = '')
+	{
+		$app    = Helpers\OrganizerHelper::getApplication();
+		$params = Helpers\Input::getParams();
+
+		if ($params->get('show_page_heading') and $params->get('page_title'))
+		{
+			$title = $params->get('page_title');
+		}
+		else
+		{
+			$title = empty($conditional) ? Languages::_($standard) : $conditional;
+		}
+
+		$layout = new FileLayout('joomla.toolbar.title');
+		$title  = $layout->render(['title' => $title]);
+
+		// Backend => Joomla standard title/toolbar output property declared dynamically by Joomla
+		/** @noinspection PhpUndefinedFieldInspection */
+		$app->JComponentTitle = $title;
+
+		// Frontend => self developed title/toolbar output
+		$this->title = $title;
+
+		Adapters\Document::setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
 	}
 }

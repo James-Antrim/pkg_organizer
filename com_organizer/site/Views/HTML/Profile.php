@@ -25,7 +25,7 @@ class Profile extends FormView
 	 */
 	protected function addToolBar()
 	{
-		Helpers\HTML::setTitle(Helpers\Languages::_('ORGANIZER_MY_PROFILE'), 'vcard');
+		$this->setTitle('ORGANIZER_MY_PROFILE');
 
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'profile.save', false);

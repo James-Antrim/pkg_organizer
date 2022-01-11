@@ -112,7 +112,7 @@ class Booking extends Participants
 	{
 		$title = Languages::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}";
 
-		Helpers\HTML::setTitle($title, 'users');
+		$this->setTitle($title);
 
 		$toolbar = Adapters\Toolbar::getInstance();
 

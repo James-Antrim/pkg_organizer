@@ -49,7 +49,7 @@ class SubjectEdit extends EditView
 			$title       = Helpers\Languages::_('ORGANIZER_SUBJECT_EDIT');
 		}
 
-		Helpers\HTML::setTitle(Helpers\Languages::_($title), 'book');
+		$this->setTitle($title);
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'save-new', $apply, 'subjects.apply', false);
 		$toolbar->appendButton('Standard', 'file-add', $applyImport, 'subjects.applyImport', false);

@@ -8,9 +8,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\OrganizerHelper;
-
-echo OrganizerHelper::getApplication()->JComponentTitle;
+echo $this->title;
 echo $this->subtitle;
 echo $this->supplement;
 

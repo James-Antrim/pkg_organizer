@@ -116,7 +116,7 @@ class InstanceItem extends ListView
 	{
 		$instance = $this->instance;
 		$method   = $instance->method ? " - $instance->method" : '';
-		Helpers\HTML::setTitle($instance->name . $method, 'square');
+		$this->setTitle($instance->name . $method);
 		$this->setSubtitle();
 
 		$link     = new Link();

@@ -18,6 +18,9 @@
 #add checkin for appointments where no person is responsible
 #add dedicated placeholders for no person responsible
 #restyle the curriculm view to use css grids for container items.
+#replace unnecessary double quotes
+#event merge view
+#participant merge view
 #endregion
 
 #region Features #######################################################################################################
@@ -68,7 +71,7 @@
 
 #region Meta ###########################################################################################################
 #update phpexcel
-#standardize tooltip use across component
+#standardize tooltip use across component 'hasPopover' vs 'hasTooltip' vs 'hasTip'?
 #replace JComponentTitle use
 #error suppression through inheritance
 #associate organizations with campuses

@@ -18,7 +18,7 @@ $layout = Helpers\Input::getCMD('type', 'appointment');
 
 if (!$this->adminContext)
 {
-	echo Helpers\OrganizerHelper::getApplication()->JComponentTitle;
+	echo $this->title;
 	echo $this->subtitle;
 	echo $this->supplement;
 }

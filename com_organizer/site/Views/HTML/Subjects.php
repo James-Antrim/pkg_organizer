@@ -61,7 +61,7 @@ class Subjects extends ListView
 			}
 		}
 
-		Helpers\HTML::setMenuTitle('ORGANIZER_SUBJECTS', $resourceName, 'book');
+		$this->setTitle('ORGANIZER_SUBJECTS', $resourceName);
 		$toolbar = Toolbar::getInstance();
 		if ($this->documentAccess)
 		{
