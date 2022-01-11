@@ -20,11 +20,6 @@
 #restyle the curriculm view to use css grids for container items.
 #endregion
 
-#region Bugs ###########################################################################################################
-#/en not being accepted by site & organizer language select displays wrong value when this is enabled
-#editing a new program has two 'create' buttons
-#endregion
-
 #region Features #######################################################################################################
 #finish subject <=> event handling
 #unit publishing & untis unit statistic key for organizer unpublished

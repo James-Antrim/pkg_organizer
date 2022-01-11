@@ -38,7 +38,7 @@ class ProgramEdit extends EditView
 		{
 			$apply  = 'ORGANIZER_CREATE';
 			$cancel = 'ORGANIZER_CANCEL';
-			$save   = 'ORGANIZER_CREATE';
+			$save   = 'ORGANIZER_CREATE_CLOSE';
 			$title  = "ORGANIZER_PROGRAM_NEW";
 		}
 
