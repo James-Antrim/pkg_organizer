@@ -18,6 +18,8 @@ use Organizer\Helpers;
  */
 class Roomtypes extends ListModel
 {
+	protected $filter_fields = ['surfaceID' => 'surfaceID'];
+
 	/**
 	 * Method to get a list of resources from the database.
 	 *
@@ -29,9 +31,12 @@ class Roomtypes extends ListModel
 
 		$query = $this->_db->getQuery(true);
 		$query->select("DISTINCT t.id, t.name_$tag AS name, t.capacity, t.code")
-			->from('#__organizer_roomtypes AS t');
+			->select($query->concatenate(['s.code', "' - '", "s.name_$tag"], '') . ' AS surface')
+			->from('#__organizer_roomtypes AS t')
+			->innerJoin('#__organizer_surfaces AS s ON s.id = t.surfaceID');
 
-		$this->setSearchFilter($query, ['code', 'name_de', 'name_en', 'capacity']);
+		$this->setIDFilter($query, 's.id', 'filter.surfaceID');
+		$this->setSearchFilter($query, ['t.code', 't.name_de', 't.name_en', 't.capacity']);
 		$this->setOrdering($query);
 
 		return $query;

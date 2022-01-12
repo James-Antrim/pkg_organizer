@@ -21,8 +21,8 @@ class Roomtypes extends ListView
 		'checkbox' => '',
 		'code'     => 'link',
 		'name'     => 'link',
-		'capacity' => 'value'
-		//'roomCount'   => 'value'
+		'capacity' => 'value',
+		'surface'  => 'value'
 	];
 
 	/**
@@ -55,8 +55,8 @@ class Roomtypes extends ListView
 			'checkbox' => '',
 			'code'     => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
 			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-			'capacity' => Helpers\HTML::sort('CAPACITY', 'capacity', $direction, $ordering),
-			//'roomCount'   => Helpers\HTML::sort('ROOM_COUNT', 'roomCount', $direction, $ordering)
+			'capacity' => Helpers\HTML::sort('MAX_CAPACITY', 'capacity', $direction, $ordering),
+			'surface'  => Helpers\HTML::sort('SURFACE', 'surface', $direction, $ordering)
 		];
 
 		$this->headers = $headers;
