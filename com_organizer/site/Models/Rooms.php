@@ -61,17 +61,24 @@ class Rooms extends ListModel
 			->select("c1.name_$tag AS campus, c2.name_$tag AS parent")
 			->from('#__organizer_rooms AS r');
 
-		if (Helpers\Input::getInt('campusID'))
+		$campusID = (int) $this->state->get('filter.campusID');
+		if ($campusID and $campusID !== self::NONE)
 		{
 			$query->innerJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
 				->innerJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-				->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
+				->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
+				->where("(c1.id = $campusID OR c1.parentID = $campusID)");
 		}
 		else
 		{
 			$query->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
 				->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
 				->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
+
+			if ($campusID and $campusID === self::NONE)
+			{
+				$query->where('r.buildingID IS NULL');
+			}
 		}
 
 		$query->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
@@ -79,7 +86,6 @@ class Rooms extends ListModel
 		$this->setActiveFilter($query, 'r');
 		$this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en']);
 		$this->setValueFilters($query, ['buildingID', 'roomtypeID', 'virtual']);
-		$this->setCampusFilter($query, 'b');
 
 		$this->setOrdering($query);
 
@@ -102,6 +108,11 @@ class Rooms extends ListModel
 		if ($format = Helpers\Input::getCMD('format') and in_array($format, ['pdf', 'xls']))
 		{
 			$this->setState('list.limit', 0);
+		}
+
+		if ($campusID = Helpers\Input::getInt('campusID'))
+		{
+			$this->setState('filter.campusID', $campusID);
 		}
 	}
 }
