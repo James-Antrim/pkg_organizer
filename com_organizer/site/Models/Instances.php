@@ -383,9 +383,9 @@ class Instances extends ListModel
 				$layout = (int) $menuLayout;
 				$layout = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
 			}
-			elseif ($getLayout = Input::getString('layout') and in_array($getLayout, ['grid', 'list']))
+			elseif ($getLayout = strtolower(Input::getString('layout')) and in_array($getLayout, ['grid', 'grida3', 'grida4', 'list']))
 			{
-				$layout = $getLayout === 'grid' ? Helper::GRID : Helper::LIST;
+				$layout = strpos($getLayout, 'grid') === 0 ? Helper::GRID : Helper::LIST;
 			}
 			else
 			{
@@ -397,7 +397,15 @@ class Instances extends ListModel
 
 			if ($layout === Helper::GRID)
 			{
-				$interval = $this->mobile ? 'day' : 'week';
+				if (Input::getCMD('format') === 'html')
+				{
+					$interval = $this->mobile ? 'day' : 'week';
+				}
+				else
+				{
+					$interval = Input::getCMD('interval', 'week');
+				}
+
 				$listItems->set('interval', $interval);
 				$this->state->set('list.interval', $interval);
 			}
