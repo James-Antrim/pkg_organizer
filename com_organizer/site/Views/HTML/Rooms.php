@@ -31,43 +31,54 @@ class Rooms extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		$this->setTitle('ORGANIZER_ROOMS');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'rooms.add', false);
-		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'rooms.edit', true);
-		$toolbar->appendButton(
-			'Standard',
-			'eye-open',
-			Helpers\Languages::_('ORGANIZER_ACTIVATE'),
-			'rooms.activate',
-			false
-		);
-		$toolbar->appendButton(
-			'Standard',
-			'eye-close',
-			Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
-			'rooms.deactivate',
-			false
-		);
+		$title = Helpers\Languages::_('ORGANIZER_ROOMS');
 
-		if (Helpers\Can::administrate())
+		if ($campusID = Helpers\Input::getInt('campusID'))
 		{
+			$title .= ': ' . Helpers\Languages::_('ORGANIZER_CAMPUS');
+			$title .= ' ' . Helpers\Campuses::getName($campusID);
+		}
+		$this->setTitle($title);
+
+		if (Helpers\Can::manage('facilities'))
+		{
+			$toolbar = Toolbar::getInstance();
+			$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'rooms.add', false);
+			$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'rooms.edit', true);
 			$toolbar->appendButton(
 				'Standard',
-				'contract',
-				Helpers\Languages::_('ORGANIZER_MERGE'),
-				'rooms.mergeView',
-				true
+				'eye-open',
+				Helpers\Languages::_('ORGANIZER_ACTIVATE'),
+				'rooms.activate',
+				false
+			);
+			$toolbar->appendButton(
+				'Standard',
+				'eye-close',
+				Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
+				'rooms.deactivate',
+				false
+			);
+
+			if (Helpers\Can::administrate())
+			{
+				$toolbar->appendButton(
+					'Standard',
+					'contract',
+					Helpers\Languages::_('ORGANIZER_MERGE'),
+					'rooms.mergeView',
+					true
+				);
+			}
+
+			$toolbar->appendButton(
+				'NewTab',
+				'file-xls',
+				Helpers\Languages::_('ORGANIZER_UNINOW_EXPORT'),
+				'Rooms.UniNow',
+				false
 			);
 		}
-
-		$toolbar->appendButton(
-			'NewTab',
-			'file-xls',
-			Helpers\Languages::_('ORGANIZER_UNINOW_EXPORT'),
-			'Rooms.UniNow',
-			false
-		);
 	}
 
 	/**
@@ -75,7 +86,7 @@ class Rooms extends ListView
 	 */
 	protected function authorize()
 	{
-		if (!Helpers\Can::manage('facilities'))
+		if ($this->adminContext and !Helpers\Can::manage('facilities'))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}

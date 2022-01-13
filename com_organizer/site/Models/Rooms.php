@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
 /**
@@ -25,11 +26,31 @@ class Rooms extends ListModel
 	protected $filter_fields = ['campusID', 'buildingID', 'roomtypeID', 'virtual'];
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function filterFilterForm(Form &$form)
+	{
+		if (Helpers\Input::getParams()->get('campusID'))
+		{
+			$form->removeField('campusID', 'filter');
+
+			// No virtual rooms in a physical area
+			$form->removeField('virtual', 'filter');
+			unset($this->filter_fields['campusID'], $this->filter_fields['virtual']);
+		}
+
+		if (!$this->adminContext)
+		{
+			$form->removeField('active', 'filter');
+		}
+	}
+
+	/**
 	 * Method to get a list of resources from the database.
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
@@ -38,11 +59,22 @@ class Rooms extends ListModel
 			->select("t.id AS roomtypeID, t.name_$tag AS roomType")
 			->select('b.id AS buildingID, b.address, b.name AS buildingName, b.location, b.propertyType')
 			->select("c1.name_$tag AS campus, c2.name_$tag AS parent")
-			->from('#__organizer_rooms AS r')
-			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
-			->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-			->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
-			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
+			->from('#__organizer_rooms AS r');
+
+		if (Helpers\Input::getInt('campusID'))
+		{
+			$query->innerJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
+				->innerJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+				->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
+		}
+		else
+		{
+			$query->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
+				->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+				->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
+		}
+
+		$query->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
 
 		$this->setActiveFilter($query, 'r');
 		$this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en']);
