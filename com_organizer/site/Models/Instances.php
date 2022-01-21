@@ -582,6 +582,7 @@ class Instances extends ListModel
 				$intervals              = ['month', 'quarter', 'term', 'week'];
 				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
 				$conditions['status']   = 1;
+				$conditions['separate'] = Input::getBool('separate');
 				break;
 			case 'html':
 			case 'xls':

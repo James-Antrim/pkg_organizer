@@ -83,6 +83,7 @@ class Export extends FormView
 		$format = explode('.', $format);
 		$layout = empty($format[1]) ? '' : "&layout=$format[1]";
 		$format = $format[0];
+		$layout .= ($format === 'pdf' and !empty($form['separate'])) ? '&separate=1' : '';
 		$url    .= "&format=$format$layout";
 
 		$authRequired = (!empty($fields['my']) or !empty($fields['personID']));

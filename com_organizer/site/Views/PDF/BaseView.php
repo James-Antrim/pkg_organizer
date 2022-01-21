@@ -15,7 +15,6 @@ namespace Organizer\Views\PDF;
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
 use Joomla\CMS\Application\ApplicationHelper;
-use Joomla\Registry\Registry;
 use Organizer\Helpers;
 use Organizer\Layouts\PDF\BaseLayout;
 use Organizer\Models;
@@ -146,7 +145,7 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @return void sets the font attribute values for use in rendering until set otherwise
 	 */
-	public function changeFont($style = self::REGULAR, $size = self::CURRENT_SIZE, $family = self::CURRENT_FAMILY)
+	public function changeFont(string $style = self::REGULAR, int $size = self::CURRENT_SIZE, string $family = self::CURRENT_FAMILY)
 	{
 		$this->SetFont($family, $style, $size);
 	}
@@ -212,7 +211,7 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @return void
 	 */
-	public function display($destination = self::DOWNLOAD)
+	public function display(string $destination = self::DOWNLOAD)
 	{
 		$this->Output($this->filename, $destination);
 		ob_flush();
@@ -230,7 +229,7 @@ abstract class BaseView extends TCPDF
 	 *
 	 * @see   SetAutoPageBreak(), SetFooterMargin(), setHeaderMargin(), SetLeftMargin(), SetRightMargin(), SetTopMargin()
 	 */
-	public function margins($left = 15, $top = 27, $right = -1, $bottom = 25, $header = 5, $footer = 10)
+	public function margins(int $left = 15, int $top = 27, int $right = -1, int $bottom = 25, int $header = 5, int $footer = 10)
 	{
 		$this->SetAutoPageBreak(true, $bottom);
 		$this->setFooterMargin($footer);
@@ -256,14 +255,14 @@ abstract class BaseView extends TCPDF
 	 * @see   AddLink()
 	 */
 	public function renderCell(
-		int $width,
-		int $height,
+		int    $width,
+		int    $height,
 		string $text,
-		$hAlign = self::LEFT,
-		$border = self::NONE,
-		$fill = false,
-		$vAlign = self::CENTER,
-		$link = ''
+		string $hAlign = self::LEFT,
+		       $border = self::NONE,
+		bool   $fill = false,
+		string $vAlign = self::CENTER,
+		       $link = ''
 	)
 	{
 		$this->Cell($width, $height, $text, $border, 0, $hAlign, $fill, $link, 0, false, self::TOP, $vAlign);
@@ -290,14 +289,14 @@ abstract class BaseView extends TCPDF
 	 * @see   SetFont(), SetDrawColor(), SetFillColor(), SetTextColor(), SetLineWidth(), Cell(), Write(), SetAutoPageBreak()
 	 */
 	public function renderMultiCell(
-		int $width,
-		int $height,
+		int    $width,
+		int    $height,
 		string $text,
 		string $hAlign = self::LEFT,
-		$border = self::NONE,
-		$fill = false,
-		$vAlign = self::MIDDLE,
-		$maxHeight = 0
+		       $border = self::NONE,
+		bool   $fill = false,
+		string $vAlign = self::MIDDLE,
+		int    $maxHeight = 0
 	): int
 	{
 		return $this->MultiCell(
@@ -339,13 +338,11 @@ abstract class BaseView extends TCPDF
 	 * @param   string  $documentTitle  the document title
 	 * @param   string  $fileName       the file name
 	 */
-	public function setNames(string $documentTitle, $fileName = '')
+	public function setNames(string $documentTitle, string $fileName = '')
 	{
-		$this->title = $documentTitle;
-
-		$fileName = $fileName ? $fileName : $documentTitle;
-		$fileName = str_replace(' ', '', $fileName);
-
+		$this->title    = $documentTitle;
+		$fileName       = $fileName ?: $documentTitle;
+		$fileName       = preg_replace('/ +/', ' ', $fileName);
 		$this->filename = ApplicationHelper::stringURLSafe($fileName) . '.pdf';
 	}
 

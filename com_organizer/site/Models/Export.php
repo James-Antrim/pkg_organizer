@@ -105,7 +105,7 @@ class Export extends FormModel
 			$form->removeField('my');
 		}
 
-		if (Input::getBool('my'))
+		if ($my = Input::getBool('my'))
 		{
 			//$form->removeField('campusID');
 			$form->removeField('organizationID');
@@ -114,9 +114,18 @@ class Export extends FormModel
 			$form->removeField('personID');
 			$form->removeField('roomID');
 		}
-		elseif (!Input::getInt('organizationID') and !Input::getInt('categoryID'))
+		elseif (!$organizationID = Input::getInt('organizationID') and !$categoryID = Input::getInt('categoryID'))
 		{
 			$form->removeField('groupID');
+		}
+
+		$atomic      = ($my or Input::getInt('groupID') or Input::getInt('personID') or Input::getInt('roomID'));
+		$noAggregate = (empty($organizationID) and empty($categoryID));
+		$pdf         = (!$format = Input::getFormItems()->get('format') or strpos($format, 'pdf') === 0);
+
+		if ($atomic or $noAggregate or !$pdf)
+		{
+			$form->removeField('separate');
 		}
 	}
 

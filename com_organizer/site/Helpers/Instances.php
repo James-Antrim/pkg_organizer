@@ -525,8 +525,6 @@ class Instances extends ResourceHelper
 			}
 		}
 
-		// TODO Calculate space available. rooms, seats, factoring, presence
-
 		if ($participantID = Users::getID())
 		{
 			$participantsTable = new Tables\InstanceParticipants();
@@ -572,14 +570,13 @@ class Instances extends ResourceHelper
 	{
 		$query = Database::getQuery();
 
-		// TODO: resolve course information (registration type, available capacity) and consequences
 		$query->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-			->leftJoin('#__organizer_events AS e ON e.id = i.eventID')
 			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
 			->innerJoin('#__organizer_instance_persons AS ipe ON ipe.instanceID = i.id')
-			->leftJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
-			->leftJoin('#__organizer_groups AS g ON g.id = ig.groupID')
+			->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ipe.id')
+			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
+			->leftJoin('#__organizer_events AS e ON e.id = i.eventID')
 			->leftJoin('#__organizer_group_publishing AS gp ON gp.groupID = ig.groupID AND gp.termID = u.termID')
 			->leftJoin('#__organizer_instance_rooms AS ir ON ir.assocID = ipe.id');
 
@@ -595,7 +592,7 @@ class Instances extends ResourceHelper
 			case self::CURRENT:
 
 				$query->where("i.delta != 'removed'")
-					->where("(ig.delta != 'removed' OR ig.id IS NULL)")
+					->where("ig.delta != 'removed'")
 					->where("ipe.delta != 'removed'")
 					->where("(ir.delta != 'removed' OR ir.id IS NULL)")
 					->where("u.delta != 'removed'");
@@ -737,8 +734,7 @@ class Instances extends ResourceHelper
 		}
 		elseif (!empty($conditions['categoryIDs']))
 		{
-			$filterOrganization = false;
-			$categoryIDs        = implode(',', $conditions['categoryIDs']);
+			$categoryIDs = implode(',', $conditions['categoryIDs']);
 			$query->where("g.categoryID IN ($categoryIDs)");
 		}
 
@@ -759,9 +755,8 @@ class Instances extends ResourceHelper
 		if ($filterOrganization and !empty($conditions['organizationIDs']))
 		{
 			$organizationIDs = implode(',', ArrayHelper::toInteger($conditions['organizationIDs']));
-			$query->leftJoin('#__organizer_associations AS ac ON ac.categoryID = g.categoryID')
-				->leftJoin('#__organizer_associations AS ag ON ag.groupID = ig.groupID')
-				->where("(ac.organizationID IN ($organizationIDs) OR ag.organizationID IN ($organizationIDs))");
+			$query->innerJoin('#__organizer_associations AS a ON a.groupID = ig.groupID')
+				->where("a.organizationID IN ($organizationIDs)");
 		}
 
 		return $query;
@@ -1267,6 +1262,13 @@ class Instances extends ResourceHelper
 		if ($conditions['instanceStatus'] !== 'removed')
 		{
 			self::addDeltaClause($query, 'ig', $conditions['delta']);
+		}
+
+		if ($conditions['organizationIDs'])
+		{
+			$organizationIDs = implode(',', ArrayHelper::toInteger($conditions['organizationIDs']));
+			$query->innerJoin('#__organizer_associations AS a ON a.groupID = g.id')
+				->where("a.organizationID IN ($organizationIDs)");
 		}
 
 		Database::setQuery($query);

@@ -127,7 +127,8 @@ class Groups extends Associated implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo) {
+		uasort($options, function ($optionOne, $optionTwo)
+		{
 			return $optionOne->text > $optionTwo->text;
 		});
 
@@ -150,11 +151,13 @@ class Groups extends Associated implements Selectable
 		$categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
 		$categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
 
-		if (empty($categoryIDs))
+		if ($organizationID = Input::getInt('organizationID'))
 		{
-			$organizationID  = Input::getInt('organizationID');
-			$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
+			$organizationIDs = [$organizationID];
 		}
+
+		$organizationIDs = empty($organizationIDs) ? Input::getIntCollection('organizationIDs') : $organizationIDs;
+		$organizationIDs = empty($organizationIDs) ? Input::getFilterIDs('organization') : $organizationIDs;
 
 		if (empty($categoryIDs) and empty($organizationIDs))
 		{
