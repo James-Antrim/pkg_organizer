@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS `#__organizer_course_participants`;
 DROP TABLE IF EXISTS `#__organizer_courses`;
 DROP TABLE IF EXISTS `#__organizer_curricula`;
 DROP TABLE IF EXISTS `#__organizer_degrees`;
+DROP TABLE IF EXISTS `#__organizer_equipment`;
 DROP TABLE IF EXISTS `#__organizer_event_coordinators`;
 DROP TABLE IF EXISTS `#__organizer_events`;
 DROP TABLE IF EXISTS `#__organizer_field_colors`;

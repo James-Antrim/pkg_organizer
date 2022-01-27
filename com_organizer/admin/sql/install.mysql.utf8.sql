@@ -244,6 +244,41 @@ VALUES (1, 'beng', 'B.Eng.', 'BE', 'Bachelor of Engineering'),
        (7, 'mba', 'M.B.A.', 'MB', 'Master of Business Administration and Engineering'),
        (8, 'med', 'M.Ed.', 'MH', 'Master of Education');
 
+CREATE TABLE IF NOT EXISTS `#__organizer_equipment` (
+    `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `code`    VARCHAR(60)  DEFAULT NULL,
+    `name_de` VARCHAR(150) DEFAULT NULL,
+    `name_en` VARCHAR(150) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+INSERT INTO `#__organizer_equipment`
+VALUES (1, 'B', 'Beamer', 'Projectors'),
+       (2, 'D', 'Dokumentenkameras', 'Document Cameras'),
+       (3, 'M', 'Mediaboxen', 'Mediabox'),
+       (4, 'O', 'Overhead-Projektoren', 'Overhead Projector'),
+       (5, 'T', 'Tafeln', 'Blackboard'),
+       (6, 'W', 'Whiteboards', 'Whiteboard'),
+       (7, NULL, 'Desinfektionsmittelspender', 'Disinfectant Dispensers'),
+       (8, NULL, 'Handtuch-Papierspender', 'Paper Towel Dispensers'),
+       (9, NULL, 'Hygienebehälter', 'Feminine Hygiene Disposal Containers'),
+       (10, NULL, 'Leinwände', 'Projection Screens'),
+       (11, NULL, 'Mülleimer', 'Trash Cans'),
+       (12, NULL, 'Pulte', 'Podiums'),
+       (13, NULL, 'Seifenspender', 'Soap Dispenser'),
+       (14, NULL, 'Stuhle', 'Chairs'),
+       (15, NULL, 'Tische', 'Tables'),
+       (16, NULL, 'Toiletten', 'Toilets'),
+       (17, NULL, 'Urinale', 'Urinals'),
+       (18, NULL, 'Waschbecken', 'Sink'),
+       (19, NULL, 'Zeichenmaterial', 'Blackboard Teaching Aids');
+
 CREATE TABLE IF NOT EXISTS `#__organizer_event_coordinators` (
     `id`       INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `eventID`  INT(11) UNSIGNED NOT NULL,
