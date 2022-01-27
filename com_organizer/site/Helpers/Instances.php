@@ -1259,12 +1259,12 @@ class Instances extends ResourceHelper
 		}
 
 		// If the instance itself has been removed the status of its associations do not play a role
-		if ($conditions['instanceStatus'] !== 'removed')
+		if (!empty($conditions['instanceStatus']) and $conditions['instanceStatus'] !== 'removed')
 		{
 			self::addDeltaClause($query, 'ig', $conditions['delta']);
 		}
 
-		if ($conditions['organizationIDs'])
+		if (!empty($conditions['organizationIDs']))
 		{
 			$organizationIDs = implode(',', ArrayHelper::toInteger($conditions['organizationIDs']));
 			$query->innerJoin('#__organizer_associations AS a ON a.groupID = g.id')
