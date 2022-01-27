@@ -1,6 +1,4 @@
 #region list ###########################################################################################################
-#add resource names to instances pdf file names
-#add the option to create group plans when only the organization or category has been selected
 #add compactor functions for tables whose ids are not stored in json schedules
 #add function to clean duplicate associations
 #rework so that classDecode/-Encode is not necessary??
@@ -97,7 +95,6 @@
 ##warning - unsuccessful user dm interaction where form manipulation most likely occurred
 ##error - unsuccessful user dm where hard db errors occurred or form url manipulation definitely occurred
 #endregion
-#sprachenzentrum as organization & associate persons
 #remove roomtypes from untis
 #region adapters
 #application adapter (organizer helper)

@@ -333,7 +333,7 @@ abstract class ListView extends BaseView
 
 				$value = is_array($item->$property) ? $item->$property['value'] : $item->$property;
 
-				$processedItem[$property] = $link ? HTML::_('link', $link, $value, $attributes) : $value;
+				$processedItem[$property] = ($link and $value) ? HTML::_('link', $link, $value, $attributes) : '';
 				continue;
 			}
 
