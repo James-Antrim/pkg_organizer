@@ -40,4 +40,17 @@ class Equipment extends BaseTable
 	{
 		parent::__construct('#__organizer_equipment');
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function check(): bool
+	{
+		if (empty($this->code))
+		{
+			$this->code = null;
+		}
+
+		return true;
+	}
 }

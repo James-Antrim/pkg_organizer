@@ -10,14 +10,29 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use JDatabaseQuery;
 use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class retrieves information for a filtered set of room types.
  */
 class Equipment extends ListModel
 {
+	/**
+	 * Authorizes the user.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Can::manage('facilities'))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
+
 	/**
 	 * Method to get a list of resources from the database.
 	 *
@@ -35,5 +50,48 @@ class Equipment extends ListModel
 		$this->setOrdering($query);
 
 		return $query;
+	}
+
+	/**
+	 * Method to get a table object, load it if necessary.
+	 *
+	 * @param   string  $name     The table name. Optional.
+	 * @param   string  $prefix   The class prefix. Optional.
+	 * @param   array   $options  Configuration array for model. Optional.
+	 *
+	 * @return Tables\Equipment  A Table object
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function getTable($name = '', $prefix = '', $options = [])
+	{
+		return new Tables\Equipment();
+	}
+
+	/**
+	 * Attempts to save the resource.
+	 *
+	 * @param   array  $data  the data from the form
+	 *
+	 * @return int|bool int id of the resource on success, otherwise bool false
+	 */
+	public function save(array $data = [])
+	{
+		$this->authorize();
+
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+
+		try
+		{
+			$table = $this->getTable();
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+			return false;
+		}
+
+		return $table->save($data) ? $table->id : false;
 	}
 }
