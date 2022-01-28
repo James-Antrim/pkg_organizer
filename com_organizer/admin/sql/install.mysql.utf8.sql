@@ -771,6 +771,19 @@ VALUES (1, 'DOZ', 'DOZ', 'TCH', 'Lehrende', 'Teacher', 'Lehrende', 'Teachers'),
        (3, 'AFS', 'AFS', 'SPR', 'Aufsicht', 'Supervisor', 'Aufsichten', 'Supervisors'),
        (4, 'REF', 'REF', 'SPK', 'Referent', 'Speaker', 'Referenten', 'Speakers');
 
+CREATE TABLE IF NOT EXISTS `#__organizer_room_equipment` (
+    `id`          INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `equipmentID` INT(11) UNSIGNED          DEFAULT NULL,
+    `roomID`      INT(11) UNSIGNED          DEFAULT NULL,
+    `description` VARCHAR(255)     NOT NULL DEFAULT '',
+    `quantity`    INT(4) UNSIGNED           DEFAULT 1,
+    PRIMARY KEY (`id`),
+    KEY `entry` (`equipmentID`, `roomID`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     `id`          INT(11) UNSIGNED      NOT NULL AUTO_INCREMENT,
     `alias`       VARCHAR(255)                   DEFAULT NULL,
@@ -1116,6 +1129,10 @@ ALTER TABLE `#__organizer_programs`
     ADD CONSTRAINT `program_categoryID_fk` FOREIGN KEY (`categoryID`) REFERENCES `#__organizer_categories` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_degreeID_fk` FOREIGN KEY (`degreeID`) REFERENCES `#__organizer_degrees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
     ADD CONSTRAINT `program_frequencyID_fk` FOREIGN KEY (`frequencyID`) REFERENCES `#__organizer_frequencies` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `#__organizer_room_equipment`
+    ADD CONSTRAINT `room_equipment_equipmentID_fk` FOREIGN KEY (`equipmentID`) REFERENCES `#__organizer_equipment` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    ADD CONSTRAINT `room_equipment_roomID_fk` FOREIGN KEY (`roomID`) REFERENCES `#__organizer_rooms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_rooms`
     ADD CONSTRAINT `room_buildingID_fk` FOREIGN KEY (`buildingID`) REFERENCES `#__organizer_buildings` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
