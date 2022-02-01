@@ -21,7 +21,8 @@ use Organizer\Adapters;
 class Languages extends Text
 {
 	private static $baggage = [
-		'/([^ ])&([^ ])/'                       => '$1 & $2',
+		// 's' so as not to replace &shy; with & shy;
+		'/([^ ])&([^ s])/'                      => '$1 & $2',
 		'/([^ ])& /'                            => '$1 & ',
 		'/ &([^ ])/'                            => ' & $1',
 		'/([a-zß-ÿ\.])\/([A-ZÀ-ÖØ-Þ])/'         => '$1 / $2',
@@ -90,7 +91,7 @@ class Languages extends Text
 		'/([a-zß-ÿ])verfahren($| )/'            => '$1&shy;verfahren$2',
 		'/([a-zß-ÿ])wirtschaft($| )/'           => '$1&shy;wirtschaft$2',
 		'/([a-zß-ÿ])wesen([s]?)($| )/'          => '$1&shy;wesen$2$3',
-		'/([a-zß-ÿ])schaft($| )/'               => '$1&shy;schaft$2',
+		'/([a-zß-ÿ])schaft($| )/'               => '$1&shy;schaft$2'
 	];
 
 	/**
