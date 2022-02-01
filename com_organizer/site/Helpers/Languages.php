@@ -24,7 +24,7 @@ class Languages extends Text
 		// 's' so as not to replace &shy; with & shy;
 		'/([^ ])&([^ s])/'                      => '$1 & $2',
 		'/([^ ])& /'                            => '$1 & ',
-		'/ &([^ ])/'                            => ' & $1',
+		'/ &([^ s])/'                           => ' & $1',
 		'/([a-zß-ÿ\.])\/([A-ZÀ-ÖØ-Þ])/'         => '$1 / $2',
 		'/Audio([a-zß-ÿ])/'                     => 'Audio&shy;$1',
 		'/Berufs([a-zß-ÿ])/'                    => 'Berufs&shy;$1',
