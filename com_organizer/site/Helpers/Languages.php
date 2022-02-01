@@ -96,6 +96,7 @@ class Languages extends Text
 
 	/**
 	 * @inheritDoc
+	 * @noinspection PhpMethodNamingConventionInspection
 	 */
 	public static function _($string, $jsSafe = false, $interpretBackSlashes = true, $script = false): string
 	{
