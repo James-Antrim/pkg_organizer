@@ -10,12 +10,7 @@
 
 namespace Organizer\Models;
 
-use Exception;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Mappings;
-use Organizer\Helpers\Pools;
-use Organizer\Helpers\Programs;
+use Organizer\Helpers;
 
 /**
  * Class loads curriculum information into the view context.
@@ -23,51 +18,30 @@ use Organizer\Helpers\Programs;
 class Curriculum extends ItemModel
 {
 	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
-	 *
-	 * @return bool  true if the user can access the view, otherwise false
-	 */
-	protected function allowView()
-	{
-		return true;
-	}
-
-	/**
 	 * Method to get an array of data items.
 	 *
 	 * @return mixed  An array of data items on success, false on failure.
-	 * @throws Exception
 	 */
 	public function getItem()
 	{
-		$allowView = $this->allowView();
-		if (!$allowView)
+		$curriculum = [];
+		if ($poolID = Helpers\Input::getInt('poolID'))
 		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
+			$ranges             = Helpers\Pools::getRanges($poolID);
+			$curriculum['name'] = Helpers\Pools::getName($poolID);
+			$curriculum['type'] = 'pool';
+			$curriculum         += array_pop($ranges);
+			Helpers\Pools::getCurriculum($curriculum);
+		}
+		elseif ($programID = Helpers\Input::getInt('programID'))
+		{
+			$ranges             = Helpers\Programs::getRanges($programID);
+			$curriculum['name'] = Helpers\Programs::getName($programID);
+			$curriculum['type'] = 'program';
+			$curriculum         += array_pop($ranges);
+			Helpers\Programs::getCurriculum($curriculum);
 		}
 
-		$resource = [];
-		if ($poolID = Input::getFilterID('pool'))
-		{
-			$mappings         = Mappings::getMappings('pool', $poolID);
-			$resource['name'] = Pools::getName($poolID);
-			$resource['type'] = 'pool';
-		}
-		elseif ($programID = Input::getFilterID('program'))
-		{
-			$mappings         = Mappings::getMappings('program', $programID);
-			$resource['name'] = Programs::getName($programID);
-			$resource['type'] = 'program';
-		}
-		else
-		{
-			return $resource;
-		}
-
-		$mapping  = array_pop($mappings);
-		$resource += $mapping;
-		Mappings::getChildren($resource);
-
-		return $resource;
+		return $curriculum;
 	}
 }

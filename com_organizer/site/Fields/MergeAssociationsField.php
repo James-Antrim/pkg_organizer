@@ -10,11 +10,9 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Helpers;
 
 /**
  * Class creates a generalized select box for selection of a single id column value among those already selected.
@@ -31,25 +29,25 @@ class MergeAssociationsField extends OptionsField
 	 *
 	 * @return array the options for the select box
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
-		$selectedIDs = Input::getSelectedIDs();
+		$default     = [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
+		$selectedIDs = Helpers\Input::getSelectedIDs();
 		$valueColumn = $this->getAttribute('name');
 		if (empty($selectedIDs) or empty($valueColumn))
 		{
-			return [];
+			return $default;
 		}
 
-		$dbo        = Factory::getDbo();
-		$query      = $dbo->getQuery(true);
+		$query      = Database::getQuery();
 		$textColumn = $this->resolveTextColumn($query);
+
 		if (empty($textColumn))
 		{
-			return [];
+			return $default;
 		}
 
-		$query->select("DISTINCT $valueColumn AS value, $textColumn AS text")
-			->order('text ASC');
+		$query->select("DISTINCT $valueColumn AS value, $textColumn AS text")->order('text');
 
 		// 1 => table, 2 => alias, 4 => conditions
 		$pattern = '/([a-z_]+) AS ([a-z]+)( ON ([a-z]+\.[A-Za-z]+ = [a-z]+\.[A-Za-z]+))?/';
@@ -58,7 +56,7 @@ class MergeAssociationsField extends OptionsField
 		$validFrom = preg_match($pattern, $from, $parts);
 		if (!$validFrom)
 		{
-			return [];
+			return $default;
 		}
 
 		$external = (bool) $this->getAttribute('external', false);
@@ -74,36 +72,48 @@ class MergeAssociationsField extends OptionsField
 			$validJoin = preg_match($pattern, $innerJoin, $parts);
 			if (!$validJoin)
 			{
-				return [];
+				return $default;
 			}
+
 			$query->innerJoin("#__organizer_$innerJoin");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		$valuePairs = OrganizerHelper::executeQuery('loadAssocList');
-		if (empty($valuePairs))
+		if (!$valuePairs = Database::loadAssocList())
 		{
-			return [];
+			return $default;
 		}
 
 		$options = [];
 		foreach ($valuePairs as $valuePair)
 		{
-			$options[] = HTML::_('select.option', $valuePair['value'], $valuePair['text']);
+			$options[] = Helpers\HTML::_('select.option', $valuePair['value'], $valuePair['text']);
 		}
 
-		return empty($options) ? [] : $options;
+		if (empty($options))
+		{
+			$options = $default;
+		}
+		elseif (count($options) > 1)
+		{
+			array_unshift(
+				$options,
+				Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_VALUE'))
+			);
+		}
+
+		return $options;
 	}
 
 	/**
 	 * Resolves the textColumns for localization and concatenation of column names
 	 *
-	 * @param   object &$query  the query object by reference is an optimization, not a necessity
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return string  the string to use for text selection
 	 */
-	private function resolveTextColumn(&$query)
+	private function resolveTextColumn(JDatabaseQuery $query): string
 	{
 		$textColumn  = $this->getAttribute('textcolumn', '');
 		$textColumns = explode(',', $textColumn);
@@ -111,7 +121,7 @@ class MergeAssociationsField extends OptionsField
 
 		if ($localized)
 		{
-			$textColumns[0] = $textColumns[0] . '_' . Languages::getTag();
+			$textColumns[0] = $textColumns[0] . '_' . Helpers\Languages::getTag();
 		}
 
 		$glue = $this->getAttribute('glue');

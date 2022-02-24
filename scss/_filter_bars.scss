@@ -7,6 +7,25 @@ body.tmpl-index div.main {
 
     .btn-wrapper {
       margin-right: 5px;
+      position: relative;
+
+      .dropdown-menu {
+        border-radius: 0;
+        width: max-content;
+
+        .btn {
+          text-align: left;
+        }
+
+        a {
+          border: none;
+          padding: .45em .6em .15em .6em;
+        }
+
+        li button {
+          border: none;
+        }
+      }
     }
 
     a.btn, button {
@@ -16,7 +35,8 @@ body.tmpl-index div.main {
 
   .js-stools-container-bar,
   .js-stools-container-list,
-  .js-stools-container-filters {
+  .js-stools-container-filters,
+  .js-stools-field-list {
     display: flex;
     flex-wrap: wrap;
     margin-bottom: .8rem;
@@ -37,7 +57,8 @@ body.tmpl-index div.main {
     }
   }
 
-  .js-stools-container-bar {
+  .js-stools-container-bar,
+  .js-stools-container-list {
     input {
       width: 12rem;
     }
@@ -71,6 +92,75 @@ body.tmpl-index div.main {
 
   .js-stools-container-list .js-stools-field-list {
     margin-bottom: 0;
+    margin-left: 5px;
     margin-right: 0;
+
+    input[type='date'] {
+      padding: .35rem .5rem;
+    }
+  }
+}
+
+body.tmpl-mobile div.main {
+
+  .js-stools-container-bar,
+  .js-stools-field-filter,
+  .js-stools-field-list,
+  .js-stools-container-filters,
+  .js-stools-container-list {
+    margin-right: 0;
+    margin-top: 0;
+    width: 100%;
+  }
+
+  .js-stools-container-bar {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 1rem;
+  }
+
+  .js-stools-container-filters,
+  .js-stools-container-list {
+    input, select {
+      width: 100%;
+    }
+
+    input[type='date'] {
+      padding: 6px 4px;
+      width: calc(100% - 10px);
+    }
+  }
+
+  .js-stools-container-filters {
+    margin-top: 0;
+  }
+
+  input[type='text'] {
+    width: calc(100% - 8px);
+  }
+
+  .btn-wrapper {
+    display: inline-block;
+    margin-right: .4rem;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .btn {
+    font-size: 12px;
+    margin: 0 4px 4px 0;
+  }
+
+  .input-append {
+    font-size: 1rem;
+    width: 80%;
+
+    button {
+      margin: 0;
+      right: 2rem;
+      top: .4rem;
+    }
   }
 }

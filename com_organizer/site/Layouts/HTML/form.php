@@ -8,29 +8,28 @@
  * @link        www.thm.de
  */
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Adapters\Toolbar;
+use Organizer\Helpers;
 
-$isSite = OrganizerHelper::getApplication()->isClient('site');
-$query  = Uri::getInstance()->getQuery();
+$query = Uri::getInstance()->getQuery();
 
-if ($isSite)
+if (!$this->adminContext)
 {
-	echo OrganizerHelper::getApplication()->JComponentTitle;
-	echo $this->subtitle;
-	echo $this->supplement;
+	require_once 'titles.php';
 }
 ?>
 <div id="j-main-container" class="span10">
-	<?php if ($isSite) : ?>
+	<?php if (!$this->adminContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm"
-          class="form-horizontal form-validate" enctype="multipart/form-data">
+          class="form-<?php echo $this->orientation; ?> form-validate" enctype="multipart/form-data">
 		<?php echo $this->form->renderFieldset('details'); ?>
-		<?php echo HTML::_('form.token'); ?>
+        <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
+        <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
+        <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
+		<?php echo Helpers\HTML::_('form.token'); ?>
     </form>
 </div>

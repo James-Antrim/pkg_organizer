@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fields name="filter">
+        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="campusID" type="Campuses" label="CAMPUS" onchange="this.form.submit();">
+            <option value="">ALL_CAMPUSES</option>
+            <option value="-1">NO_CAMPUS</option>
+        </field>
+        <field name="buildingID" type="Buildings" label="BUILDING" onchange="this.form.submit();">
+            <option value="">ALL_BUILDINGS</option>
+            <option value="-1">NO_BUILDING</option>
+        </field>
+        <field name="roomtypeID" type="Roomtypes" label="TYPE" onchange="this.form.submit();">
+            <option value="">ALL_ROOMTYPES</option>
+        </field>
+        <field name="surfaceID" type="Surfaces" label="TYPE" onchange="this.form.submit();">
+            <option value="">ALL_SURFACES</option>
+        </field>
+        <field name="active" type="Options" label="ACTIVE" default="1" onchange="this.form.submit();">
+            <option value="-1">ALL_STATES</option>
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
+        </field>
+        <field name="virtual" type="Options" label="VIRTUAL" onchange="this.form.submit();">
+            <option value="">ALL_STATES</option>
+            <option value="1">VIRTUAL</option>
+            <option value="0">PHYSICAL</option>
+        </field>
+    </fields>
+    <fields name="list">
+        <field name="limit" type="Limitbox" onchange="this.form.submit();"/>
+    </fields>
+</form>

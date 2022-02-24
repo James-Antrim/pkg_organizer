@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="termID" type="Terms" label="TERM" filter="true" required="true"/>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="run" type="Runs" formsource="run_sections" multiple="true" buttons="add,remove"
+               layout="joomla.form.field.subform.repeatable-table" label="ORGANIZER_RUN_SECTIONS"/>
+    </fieldset>
+</form>

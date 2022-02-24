@@ -13,49 +13,55 @@ namespace Organizer\Helpers;
 use JDatabaseQuery;
 
 /**
- * Class contains functions for department filtering.
+ * Class contains functions for organization filtering.
  */
 trait Filtered
 {
 	/**
-	 * Restricts the query by the departmentIDs for which the user has the given access right.
+	 * Restricts the query by the organizationIDs for which the user has the given access right.
 	 *
-	 * @param   JDatabaseQuery &$query   the query to modify
-	 * @param   string          $alias   the alias being used for the resource table
-	 * @param   string          $action  the access right to be filtered against
+	 * @param   JDatabaseQuery  $query    the query to modify
+	 * @param   string          $access   the access right to be filtered against
+	 * @param   string          $context  the resource context from which this function was called
+	 * @param   string          $alias    the alias being used for the resource table
 	 */
-	public static function addAccessFilter(&$query, $alias, $action)
+	public static function addAccessFilter($query, $access, $context, $alias)
 	{
-		switch ($action)
+		$authorized = [];
+
+		switch ($access)
 		{
 			case 'document':
-				$authorizedDepts = Can::documentTheseDepartments();
+				$authorized = Can::documentTheseOrganizations();
 				break;
 			case 'manage':
-				$authorizedDepts = Can::manageTheseDepartments();
+				$authorized = Can::manageTheseOrganizations();
 				break;
 			case 'schedule':
-				$authorizedDepts = Can::scheduleTheseDepartments();
+				$authorized = Can::scheduleTheseOrganizations();
 				break;
 			case 'view':
-				$authorizedDepts = Can::viewTheseDepartments();
+				$authorized = Can::viewTheseOrganizations();
 				break;
 		}
 
-		$authorizedDepts = implode(',', $authorizedDepts);
-		$query->where("$alias.departmentID IN ($authorizedDepts)");
+		// Alias 'aaf' so as not to conflict with the access filter.
+		$authorized = implode(',', $authorized);
+		$query->innerJoin("#__organizer_associations AS aaf ON aaf.{$context}ID = $alias.id")
+			->where("aaf.organizationID IN ($authorized)");
 	}
 
 	/**
 	 * Adds a resource filter for a given resource.
 	 *
-	 * @param   JDatabaseQuery &$query  the query to modify
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 * @param   string          $alias  the alias for the linking table
 	 */
-	public static function addCampusFilter(&$query, $alias)
+	public static function addCampusFilter($query, $alias)
 	{
-		$campusIDs = Input::getFilterIDs('campus');
-		if (empty($campusIDs))
+		$campusID  = Input::getInt('campusID');
+		$campusIDs = $campusID ? [$campusID] : Input::getFilterIDs('campus');
+		if (!$campusIDs)
 		{
 			return;
 		}
@@ -74,47 +80,65 @@ trait Filtered
 	}
 
 	/**
-	 * Adds a selected department filter to the query.
+	 * Adds a selected organization filter to the query.
 	 *
-	 * @param   JDatabaseQuery &$query      the query to be modified
-	 * @param   string          $resource   the name of the department associated resource
+	 * @param   JDatabaseQuery  $query      the query to modify
+	 * @param   string          $resource   the name of the organization associated resource
 	 * @param   string          $alias      the alias being used for the resource table
 	 * @param   string          $keyColumn  the name of the column holding the association key
 	 *
 	 * @return void modifies the query
 	 */
-	public static function addDeptSelectionFilter(&$query, $resource, $alias, $keyColumn = 'id')
+	public static function addOrganizationFilter($query, $resource, $alias, $keyColumn = 'id')
 	{
-		$departmentIDs = Input::getFilterIDs('department');
-		if (empty($departmentIDs))
+		$organizationID  = Input::getInt('organizationID');
+		$organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
+		if (empty($organizationIDs))
 		{
 			return;
 		}
 
-		$tableWithAlias = '#__organizer_department_resources AS drAlias';
-		if (in_array('-1', $departmentIDs))
+		// Alias 'aof' so as not to conflict with the access filter.
+		if (in_array('-1', $organizationIDs))
 		{
-			$query->leftJoin("$tableWithAlias ON drAlias.{$resource}ID = $alias.$keyColumn")
-				->where("drAlias.id IS NULL");
+			$query->leftJoin("#__organizer_associations AS aof ON aof.{$resource}ID = $alias.$keyColumn")
+				->where('aof.id IS NULL');
 		}
 		else
 		{
-			$query->innerJoin("$tableWithAlias ON drAlias.{$resource}ID = $alias.$keyColumn")
-				->where("drAlias.departmentID IN (" . implode(',', $departmentIDs) . ")");
+			$query->innerJoin("#__organizer_associations AS aof ON aof.{$resource}ID = $alias.$keyColumn")
+				->where("aof.organizationID IN (" . implode(',', $organizationIDs) . ")");
 		}
 	}
 
 	/**
 	 * Adds a resource filter for a given resource.
 	 *
-	 * @param   JDatabaseQuery &$query          the query to modify
+	 * @param   JDatabaseQuery  $query          the query to modify
 	 * @param   string          $resource       the name of the resource associated
 	 * @param   string          $newAlias       the alias for any linked table
 	 * @param   string          $existingAlias  the alias for the linking table
 	 */
-	public static function addResourceFilter(&$query, $resource, $newAlias, $existingAlias)
+	public static function addResourceFilter($query, $resource, $newAlias, $existingAlias)
 	{
-		$resourceIDs = Input::getFilterIDs($resource);
+		// TODO Remove (plan) programs on completion of migration.
+		if ($resource === 'category')
+		{
+			if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID'))
+			{
+				$resourceIDs = [$categoryID];
+			}
+
+			$resourceIDs = empty($resourceIDs) ? Input::getIntCollection('categoryIDs') : $resourceIDs;
+			$resourceIDs = empty($resourceIDs) ? Input::getFilterIDs('category') : $resourceIDs;
+		}
+		if ($resource === 'roomtype')
+		{
+			$default     = Input::getInt('roomTypeIDs');
+			$resourceID  = Input::getInt("{$resource}ID", $default);
+			$resourceIDs = $resourceID ? [$resourceID] : Input::getFilterIDs($resource);
+		}
+
 		if (empty($resourceIDs))
 		{
 			return;

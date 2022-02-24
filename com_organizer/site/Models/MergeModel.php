@@ -11,10 +11,9 @@
 namespace Organizer\Models;
 
 use Exception;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\Schedules as SchedulesTable;
+use Organizer\Adapters\Database;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class provides methods for merging resources. Resource specific tasks are implemented in the extending classes.
@@ -22,166 +21,48 @@ use Organizer\Tables\Schedules as SchedulesTable;
 abstract class MergeModel extends BaseModel
 {
 	/**
-	 * @var array the preprocessed form data
-	 */
-	protected $data = [];
-
-	/**
-	 * @var the column name in the department resources table
-	 */
-	protected $deptResource;
-
-	/**
-	 * The column name referencing this resource in other resource tables.
-	 * @var string
-	 */
-	protected $fkColumn = '';
-
-	/**
-	 * The ids selected by the user
-	 *
-	 * @var array
-	 */
-	protected $selected = [];
-
-	/**
-	 * Provides resource specific user access checks
-	 *
-	 * @return boolean  true if the user may edit the given resource, otherwise false
-	 */
-	protected function allowEdit()
-	{
-		return Can::administrate();
-	}
-
-	/**
-	 * Attempts to delete resource entries
-	 *
-	 * @return boolean  true on success, otherwise false
-	 * @throws Exception => invalid request or unauthorized access
-	 */
-	public function delete()
-	{
-		$this->selected = Input::getSelectedIDs();
-
-		if (empty($this->selected))
-		{
-			return false;
-		}
-
-		if (!$this->allowEdit())
-		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
-
-		$table = $this->getTable();
-
-		foreach ($this->selected as $resourceID)
-		{
-			try
-			{
-				$table->load($resourceID);
-			}
-			catch (Exception $exc)
-			{
-				OrganizerHelper::message($exc->getMessage(), 'error');
-
-				return false;
-			}
-
-			try
-			{
-				$table->delete($resourceID);
-			}
-			catch (Exception $exc)
-			{
-				OrganizerHelper::message($exc->getMessage(), 'error');
-
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Get the ids of the resources associated over an association table.
-	 *
-	 * @param   string  $assocColumn  the name of the column which has the associated ids
-	 * @param   string  $assocTable   the unique part of the association table name
-	 *
-	 * @return array the associated ids
-	 */
-	protected function getAssociatedResourceIDs($assocColumn, $assocTable)
-	{
-		$mergeIDs = implode(', ', $this->selected);
-		$query    = $this->_db->getQuery(true);
-		$query->select("DISTINCT $assocColumn")
-			->from("#__organizer_$assocTable")
-			->where("$this->fkColumn IN ($mergeIDs)");
-		$this->_db->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
-	 * Retrieves the ids of all saved schedules
-	 *
-	 * @return mixed  array on success, otherwise null
-	 */
-	protected function getSchedulesIDs()
-	{
-		$query = $this->_db->getQuery(true);
-		$query->select('id');
-		$query->from('#__organizer_schedules');
-		$this->_db->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadColumn', []);
-	}
-
-	/**
 	 * Merges resource entries and cleans association tables.
 	 *
-	 * @return boolean  true on success, otherwise false
-	 * @throws Exception => unauthorized access
+	 * @return bool  true on success, otherwise false
+	 * @throws Exception
 	 */
 	public function merge()
 	{
-		$this->selected = Input::getSelectedIDs();
+		$this->selected = Helpers\Input::getSelectedIDs();
 		sort($this->selected);
 
-		if (!$this->allowEdit())
+		if (!Helpers\Can::administrate())
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
+			Helpers\OrganizerHelper::error(403);
 		}
 
 		// Associations have to be updated before entity references are deleted by foreign keys
-		if (!$this->updateAssociations())
+		if (!$this->updateReferences())
 		{
 			return false;
 		}
 
-		$data          = empty($this->data) ? Input::getFormItems()->toArray() : $this->data;
+		if (!$this->updateSchedules())
+		{
+			return false;
+		}
+
+		$data          = empty($this->data) ? Helpers\Input::getFormItems()->toArray() : $this->data;
 		$deprecatedIDs = $this->selected;
 		$data['id']    = array_shift($deprecatedIDs);
 		$table         = $this->getTable();
 
-		// Remove deprecated entries
-		foreach ($deprecatedIDs as $deprecated)
+		// Remove deprecated resources. This has to be performed first to avoid any potential conflicts over unique keys.
+		foreach ($deprecatedIDs as $deprecatedID)
 		{
-			if (!$table->delete($deprecated))
+			if (!$table->delete($deprecatedID))
 			{
 				return false;
 			}
 		}
 
-		// Save the merged values of the current entry
+		// Save the merged data.
 		if (!$table->save($data))
-		{
-			return false;
-		}
-
-		if ($this instanceof ScheduleResource and !$this->updateSchedules())
 		{
 			return false;
 		}
@@ -193,121 +74,56 @@ abstract class MergeModel extends BaseModel
 	}
 
 	/**
-	 * Attempts to save the resource.
+	 * Updates the associations table, ensuring that the merge id is the only one referenced and that there is only one
+	 * association per organization.
 	 *
-	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
+	 * If the database at some point allows unique keys over multiple nullable columns and organizer uses such a unique
+	 * key for this table, this function will have to be rewritten with more conditionals.
 	 *
-	 * @return bool true on success, otherwise false
-	 * @throws Exception => unauthorized access
+	 * @return bool
 	 */
-	public function save($data = [])
+	protected function updateAssociationsReferences()
 	{
-		if (empty(Input::getSelectedIDs()))
+		$fkColumn  = strtolower($this->name) . 'ID';
+		$query     = Database::getQuery(true);
+		$updateIDs = implode(', ', $this->selected);
+		$query->select("id, $fkColumn, organizationID")
+			->from("#__organizer_associations")
+			->where("$fkColumn IN ($updateIDs)")
+			->order("id");
+		Database::setQuery($query);
+
+		if (!$results = Database::loadAssocList())
 		{
-			return false;
+			return true;
 		}
 
-		if (!$this->allowEdit())
+		$association     = new Tables\Associations();
+		$mergeID         = $this->selected[0];
+		$organizationIDs = [];
+
+		foreach ($results as $result)
 		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
-
-
-		$this->data = empty($data) ? Input::getFormItems()->toArray() : $data;
-		$table      = $this->getTable();
-
-		if ($table->save($this->data))
-		{
-			// Set id for new rewrite for existing.
-			$this->data['id'] = $table->id;
-
-			if (!empty($this->deptResource) and !$this->updateDepartments())
+			// The association to this organization has already been processed.
+			if (in_array($result['organizationID'], $organizationIDs) and !$association->delete($result['id']))
 			{
 				return false;
 			}
 
-			return $table->id;
-		}
+			$organizationIDs[] = $result['organizationID'];
 
-		return false;
-	}
+			// The association is correct as is.
+			if ($result[$fkColumn] == $mergeID)
+			{
+				continue;
+			}
 
-	/**
-	 * Updates an association where the associated resource itself has a fk reference to the resource being merged.
-	 *
-	 * @param   string  $tableSuffix  the unique part of the table name
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	protected function updateDirectAssociation($tableSuffix)
-	{
-		$updateIDs = $this->selected;
-		$mergeID   = array_shift($updateIDs);
-		$updateIDs = "'" . implode("', '", $updateIDs) . "'";
+			$entry = ['id' => $result['id'], $fkColumn => $mergeID, 'organizationID' => $result['organizationID']];
 
-		$query = $this->_db->getQuery(true);
-		$query->update("#__organizer_$tableSuffix");
-		$query->set("{$this->fkColumn} = '$mergeID'");
-		$query->where("{$this->fkColumn} IN ( $updateIDs )");
-		$this->_db->setQuery($query);
-
-		return (bool) OrganizerHelper::executeQuery('execute', false);
-	}
-
-	/**
-	 * Updates the resource dependent associations
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	abstract protected function updateAssociations();
-
-	/**
-	 * Updates the associated departments for a resource
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	private function updateDepartments()
-	{
-		$existingQuery = $this->_db->getQuery(true);
-		$existingQuery->select('DISTINCT departmentID');
-		$existingQuery->from('#__organizer_department_resources');
-		$existingQuery->where("{$this->deptResource} = '{$this->data['id']}'");
-		$this->_db->setQuery($existingQuery);
-		$existing = OrganizerHelper::executeQuery('loadColumn', []);
-
-		if ($deprecated = array_diff($existing, $this->data['departmentID']))
-		{
-			$deletionQuery = $this->_db->getQuery(true);
-			$deletionQuery->delete('#__organizer_department_resources');
-			$deletionQuery->where("{$this->deptResource} = '{$this->data['id']}'");
-			$deletionQuery->where("departmentID IN ('" . implode("','", $deprecated) . "')");
-			$this->_db->setQuery($deletionQuery);
-
-			$deleted = (bool) OrganizerHelper::executeQuery('execute', false, null, true);
-			if (!$deleted)
+			$entry[$fkColumn] = $mergeID;
+			if (!$association->save($entry))
 			{
 				return false;
-			}
-		}
-
-		$new = array_diff($this->data['departmentID'], $existing);
-
-		if (!empty($new))
-		{
-			$insertQuery = $this->_db->getQuery(true);
-			$insertQuery->insert('#__organizer_department_resources');
-			$insertQuery->columns("departmentID, {$this->deptResource}");
-
-			foreach ($new as $newID)
-			{
-				$insertQuery->values("'$newID', '{$this->data['id']}'");
-				$this->_db->setQuery($insertQuery);
-
-				$inserted = (bool) OrganizerHelper::executeQuery('execute', false, null, true);
-				if (!$inserted)
-				{
-					return false;
-				}
 			}
 		}
 
@@ -315,78 +131,253 @@ abstract class MergeModel extends BaseModel
 	}
 
 	/**
-	 * Updates department resource associations
+	 * Updates an instance person association with persons or rooms.
 	 *
-	 * @return boolean  true on success, otherwise false
+	 * @return bool  true on success, otherwise false
 	 */
-	protected function updateDRAssociation()
+	protected function updateIPReferences()
 	{
-		$relevantIDs = "'" . implode("', '", $this->selected) . "'";
+		$fkColumn    = strtolower($this->name) . 'ID';
+		$query       = Database::getQuery();
+		$tableSuffix = strtolower($this->name) . 's';
+		$updateIDs   = implode(', ', $this->selected);
+		$query->select('*')
+			->from("#__organizer_instance_$tableSuffix")
+			->where("$fkColumn IN ($updateIDs)")
+			->order('assocID, modified');
+		Database::setQuery($query);
 
-		$departmentQuery = $this->_db->getQuery(true);
-		$departmentQuery->select('DISTINCT departmentID');
-		$departmentQuery->from('#__organizer_department_resources');
-		$departmentQuery->where("{$this->deptResource} IN ( $relevantIDs )");
-		$this->_db->setQuery($departmentQuery);
-		$deptIDs = OrganizerHelper::executeQuery('loadColumn', []);
-
-		if (empty($deptIDs))
+		if (!$results = Database::loadAssocList())
 		{
 			return true;
 		}
 
-		$deleteQuery = $this->_db->getQuery(true);
-		$deleteQuery->delete('#__organizer_department_resources')
-			->where("{$this->fkColumn} IN ( $relevantIDs )");
-		$this->_db->setQuery($deleteQuery);
+		$initialSize = count($results);
+		$mergeID     = $this->selected[0];
+		$nextIndex   = 0;
+		$tableClass  = "Organizer\\Tables\\Instance" . ucfirst($this->name) . 's';
 
-		$deleted = (bool) OrganizerHelper::executeQuery('execute', false, null, true);
-		if (!$deleted)
+		for ($index = 0; $index < $initialSize;)
 		{
-			return false;
+			$assocTable = new $tableClass();
+			$thisAssoc  = $results[$index];
+			$nextIndex  = $nextIndex ? $nextIndex : $index + 1;
+			$nextAssoc  = empty($results[$nextIndex]) ? [] : $results[$nextIndex];
+
+			// Unique IP association.
+			if (empty($nextAssoc) or $thisAssoc['assocID'] !== $nextAssoc['assocID'])
+			{
+				// A result cannot be loaded. Should not occur.
+				if (!$assocTable->load($thisAssoc['id']))
+				{
+					return false;
+				}
+
+				$assocTable->$fkColumn = $mergeID;
+				$assocTable->store();
+
+				$index++;
+				$nextIndex++;
+				continue;
+			}
+
+			// Non-unique IP associations.
+
+			// A later assoc has been added or this one was removed => this one is redundant.
+			if ($thisAssoc['delta'] === 'removed' or $nextAssoc['delta'] !== 'removed')
+			{
+				$assocTable->delete($thisAssoc['id']);
+				$index++;
+				$nextIndex++;
+				continue;
+			}
+
+			// As long as the later entries associated with the same entry are removed, remove them.
+			do
+			{
+				$assocTable->delete($nextAssoc['id']);
+				unset($results[$nextIndex]);
+
+				$nextIndex++;
+				$nextAssoc = $results[$nextIndex];
+
+				// Last result associated with the current IP association.
+				if ($thisAssoc['assocID'] !== $nextAssoc['assocID'])
+				{
+					$assocTable->load($thisAssoc['id']);
+					$assocTable->$fkColumn = $mergeID;
+					$assocTable->store();
+					$index = $nextIndex;
+					$nextIndex++;
+					continue 2;
+				}
+
+				// An IP association added later is still current.
+				if ($nextAssoc['delta'] !== 'removed')
+				{
+					$assocTable->delete($thisAssoc['id']);
+					$index = $nextIndex;
+					$nextIndex++;
+					continue 2;
+				}
+			} while (true);
 		}
 
-		$mergeID     = reset($this->selected);
-		$insertQuery = $this->_db->getQuery(true);
-		$insertQuery->insert('#__organizer_department_resources');
-		$insertQuery->columns("departmentID, {$this->fkColumn}");
-
-		foreach ($deptIDs as $deptID)
-		{
-			$insertQuery->values("'$deptID', $mergeID");
-		}
-
-		$this->_db->setQuery($insertQuery);
-
-		return (bool) OrganizerHelper::executeQuery('execute', false, null, true);
+		return true;
 	}
 
 	/**
-	 * Updates room data and lesson associations in active schedules
+	 * Updates the resource dependent associations
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	abstract protected function updateReferences();
+
+	/**
+	 * Updates an association where the associated resource itself has a fk reference to the resource being merged.
+	 *
+	 * @param   string  $table  the unique part of the table name
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	protected function updateReferencingTable(string $table)
+	{
+		$fkColumn  = strtolower($this->name) . 'ID';
+		$mergeID   = $this->selected[0];
+		$query     = Database::getQuery();
+		$updateIDs = implode(', ', $this->selected);
+		$query->update("#__organizer_$table")->set("$fkColumn = $mergeID")->where("$fkColumn IN ($updateIDs)");
+		Database::setQuery($query);
+
+		return Database::execute();
+	}
+
+	/**
+	 * Updates resource associations in a schedule instance.
+	 *
+	 * @param   array  &$instance  the instance being iterated
+	 * @param   int     $mergeID   the id onto which the entries will be merged
+	 *
+	 * @return bool true if the instance has been updated, otherwise false
+	 */
+	private function updateInstance(array &$instance, int $mergeID)
+	{
+		$context  = strtolower($this->name) . 's';
+		$relevant = false;
+
+		foreach ($instance as $personID => $resources)
+		{
+			// Array intersect keeps relevant keys from array one.
+			if (!$relevantResources = array_intersect($resources[$context], $this->selected))
+			{
+				continue;
+			}
+
+			$relevant = true;
+
+			// Unset all relevant indexes to avoid conditional/unique handling
+			foreach (array_keys($relevantResources) as $relevantIndex)
+			{
+				unset($instance[$personID][$context][$relevantIndex]);
+			}
+
+			// Put the merge id in/back in
+			$instance[$personID][$context][] = $mergeID;
+
+			// Resequence to avoid JSON encoding treating the array as associative (object)
+			$instance[$personID][$context] = array_values($instance[$personID][$context]);
+		}
+
+		return $relevant;
+	}
+
+	/**
+	 * Updates resource associations in a schedule.
+	 *
+	 * @param   int  $scheduleID  the id of the schedule being iterated
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	private function updateSchedule(int $scheduleID)
+	{
+		$context = strtolower($this->name);
+
+		// Only these resources are referenced in saved schedules.
+		if (!in_array($context, ['group', 'person', 'room']))
+		{
+			return true;
+		}
+
+		$schedule = new Tables\Schedules();
+
+		if (!$schedule->load($scheduleID))
+		{
+			return true;
+		}
+
+		$instances = json_decode($schedule->schedule, true);
+		$mergeID   = $this->selected[0];
+		$relevant  = false;
+
+		foreach ($instances as $instanceID => $instance)
+		{
+			if (in_array($context, ['group', 'room']) and $this->updateInstance($instance, $mergeID))
+			{
+				$instances[$instanceID] = $instance;
+				$relevant               = true;
+			} // Person
+			else
+			{
+				if (!$relevantPersons = array_intersect(array_keys($instance), $this->selected))
+				{
+					continue;
+				}
+
+				$relevant = true;
+				ksort($relevantPersons);
+
+				// Use the associations of the maximum personID (last added)
+				$associations = [];
+
+				foreach ($relevantPersons as $personID)
+				{
+					$associations = $instances[$instanceID][$personID];
+					unset($instances[$instanceID][$personID]);
+				}
+
+				$instances[$instanceID][$mergeID] = $associations;
+			}
+		}
+
+		if ($relevant)
+		{
+			$schedule->schedule = json_encode($instances);
+
+			return $schedule->store();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Updates resource associations in schedules.
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
 	private function updateSchedules()
 	{
-		$scheduleIDs = $this->getSchedulesIDs();
-		if (empty($scheduleIDs))
+		$query = Database::getQuery();
+		$query->select('id')->from('#__organizer_schedules');
+		Database::setQuery($query);
+
+		if (!$scheduleIDs = Database::loadIntColumn())
 		{
 			return true;
 		}
 
 		foreach ($scheduleIDs as $scheduleID)
 		{
-			$scheduleTable = new SchedulesTable;
-
-			if (!$scheduleTable->load($scheduleID))
-			{
-				continue;
-			}
-
-			if ($this->updateSchedule($scheduleTable) and !$scheduleTable->store())
-			{
-				return false;
-			}
+			$this->updateSchedule($scheduleID);
 		}
 
 		return true;

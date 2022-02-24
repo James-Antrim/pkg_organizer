@@ -8,54 +8,70 @@
  * @link        www.thm.de
  */
 
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Adapters\Toolbar;
+use Organizer\Helpers;
+
+require_once 'refresh.php';
 
 $columnCount = count($this->headers);
-$isSite      = OrganizerHelper::getApplication()->isClient('site');
 $items       = $this->items;
 $iteration   = 0;
-$query       = Uri::getInstance()->getQuery();
+$action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 
-if ($isSite)
+if (!$this->adminContext)
 {
-	echo OrganizerHelper::getApplication()->JComponentTitle;
-	echo $this->subtitle;
-	echo $this->supplement;
+	require_once 'titles.php';
 }
 if (!empty($this->submenu))
 {
 	echo '<div id="j-sidebar-container" class="span2">' . $this->submenu . '</div>';
 } ?>
 <div id="j-main-container" class="span10">
-	<?php if ($isSite) : ?>
+	<?php if (!$this->adminContext) : ?>
 		<?php echo Toolbar::getInstance()->render(); ?>
 	<?php endif; ?>
-    <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm">
+    <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
 		<?php require_once 'filters.php'; ?>
         <table class="table table-striped" id="<?php echo $this->get('name'); ?>-list">
             <thead>
             <tr>
-				<?php foreach ($this->headers as $header) : ?>
-                    <th><?php echo $header; ?></th>
-				<?php endforeach; ?>
+				<?php
+				foreach ($this->headers as $header)
+				{
+					$colAttributes = $this->getAttributesOutput($header);
+					$colValue      = is_array($header) ? $header['value'] : $header;
+					echo "<th $colAttributes>$colValue</th>";
+				}
+				?>
             </tr>
             </thead>
             <tbody <?php echo $this->getAttributesOutput($items); ?>>
-			<?php foreach ($items as $row) : ?>
-                <tr <?php echo $this->getAttributesOutput($row); ?>>
-					<?php
-					foreach ($row as $column)
-					{
-						$colAttributes = $this->getAttributesOutput($column);
-						$colValue      = is_array($column) ? $column['value'] : $column;
-						echo "<td $colAttributes>$colValue</td>";
-					}
-					?>
+			<?php if (count($items)) : ?>
+				<?php foreach ($items as $row) : ?>
+                    <tr <?php echo $this->getAttributesOutput($row); ?>>
+						<?php
+						foreach ($row as $key => $column)
+						{
+							if ($key === 'attributes')
+							{
+								continue;
+							}
+
+							$colAttributes = $this->getAttributesOutput($column);
+							$colValue      = is_array($column) ? $column['value'] : $column;
+							echo "<td $colAttributes>$colValue</td>";
+						}
+						?>
+                    </tr>
+				<?php endforeach; ?>
+			<?php else: ?>
+                <tr>
+                    <td class="empty-result-set" colspan="<?php echo count($this->headers); ?>">
+						<?php echo $this->empty; ?>
+                    </td>
                 </tr>
-			<?php endforeach; ?>
+			<?php endif; ?>
             <tfoot>
             <tr>
                 <td colspan="<?php echo $columnCount; ?>">
@@ -80,11 +96,13 @@ if (!empty($this->submenu))
 			}
 			?>
         </table>
-        <input type="hidden" name="task" value=""/>
         <input type="hidden" name="boxchecked" value="0"/>
+        <input type="hidden" name="id" value="<?php echo Helpers\Input::getID(); ?>"/>
+        <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
         <input type="hidden" name="option" value="com_organizer"/>
+        <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-		<?php echo HTML::_('form.token'); ?>
+		<?php echo Helpers\HTML::_('form.token'); ?>
     </form>
 	<?php echo $this->disclaimer; ?>
 </div>

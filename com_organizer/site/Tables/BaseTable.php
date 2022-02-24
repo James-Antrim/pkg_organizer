@@ -10,91 +10,78 @@
 
 namespace Organizer\Tables;
 
-use InvalidArgumentException;
-use JDatabaseDriver;
+use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
-use Organizer\Helpers\OrganizerHelper;
-use RuntimeException;
-use UnexpectedValueException;
+use Joomla\Registry\Registry;
+use Organizer\Helpers;
 
 /**
- * Abstract class for use by resource tables whose access rules are to be stored in the Joomla assets table.
+ * Abstract class extending Table.
  */
 abstract class BaseTable extends Table
 {
 	/**
 	 * The primary key.
-	 * INT(11) UNSIGNED NOT NULL AUTO_INCREMENT
+	 * INT (UN)SIGNED (11|20) NOT NULL AUTO_INCREMENT
 	 *
 	 * @var int
 	 */
 	public $id;
 
 	/**
-	 * Object constructor to set table and key fields.  In most cases this will
-	 * be overridden by child classes to explicitly set the table and key fields
-	 * for a particular database table.
-	 *
-	 * @param   string           $table  Name of the table to model.
-	 * @param   mixed            $key    Name of the primary key field or array of composite primary field names.
-	 * @param   JDatabaseDriver  $db     JDatabaseDriver object.
+	 * @inheritDoc
 	 */
-	public function __construct($table, $key, $db = null)
+	public function __construct(string $table)
 	{
-		$db = empty($db) ? Factory::getDbo() : $db;
-		parent::__construct($table, $key, $db);
+		$dbo = Factory::getDbo();
+		parent::__construct($table, 'id', $dbo);
 	}
 
 	/**
-	 * Gets a given property from a table, loading the table as necessary.
+	 * Binds the table properties with data stored in a registry.
 	 *
-	 * @param   string  $property  the name of the property to retrieve
-	 * @param   mixed   $keys      an optional primary key value to load the row by, or an array of fields to match
-	 * @param   mixed   $default   the default value to return if the property was empty or non-existent
+	 * @param   Registry  $registry  the registry object
 	 *
-	 * @return mixed the property value on success, otherwise null
+	 * @return bool
 	 */
-	public function getProperty($property, $keys = null, $default = null)
+	public function bindRegistry(Registry $registry): bool
 	{
-		if (empty($this->id) and !$this->load($keys))
+		if (!$registry instanceof Registry)
 		{
-			return $default;
+			return false;
 		}
 
-		return $this->$property;
+		// Bind the source value, excluding the ignored fields.
+		foreach (array_keys($this->getProperties()) as $property)
+		{
+			if ($registry->exists($property))
+			{
+				$this->$property = $registry->get($property);
+			}
+		}
+
+		return true;
 	}
 
 	/**
-	 * Method to load a row from the database by primary key and bind the fields to the Table instance properties.
+	 * Wraps the parent load function in a try catch clause to avoid redundant handling in other classes.
 	 *
-	 * @param   mixed    $keys   An optional primary key value to load the row by, or an array of fields to match.
+	 * @param   mixed  $keys     An optional primary key value to load the row by, or an array of fields to match.
 	 *                           If not set the instance property value is used.
-	 * @param   boolean  $reset  True to reset the default values before loading the new row.
+	 * @param   bool   $reset    True to reset the default values before loading the new row.
 	 *
-	 * @return  boolean  True if successful, otherwise false
+	 * @return  bool  True if successful, otherwise false
 	 */
-	public function load($keys = null, $reset = true)
+	public function load($keys = null, $reset = true): bool
 	{
 		try
 		{
 			return parent::load($keys, $reset);
 		}
-		catch (InvalidArgumentException $exception)
+		catch (Exception $exception)
 		{
-			OrganizerHelper::message($exception->getMessage(), 'error');
-
-			return false;
-		}
-		catch (RuntimeException $exception)
-		{
-			OrganizerHelper::message($exception->getMessage(), 'error');
-
-			return false;
-		}
-		catch (UnexpectedValueException $exception)
-		{
-			OrganizerHelper::message($exception->getMessage(), 'error');
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return false;
 		}
@@ -103,21 +90,25 @@ abstract class BaseTable extends Table
 	/**
 	 * Sets a given property from a table, loading the table as necessary.
 	 *
-	 * @param   string  $property  the name of the property to set
-	 * @param   mixed   $value     the value to set the property to
-	 * @param   mixed   $keys      an optional primary key value to load the row by, or an array of fields to match
+	 * @param   string  $column   the name of the property to set
+	 * @param   mixed   $value    the value to set the property to
+	 * @param   mixed   $default  the default value to use if the value parameter is empty
 	 *
-	 * @return bool true on success, otherwise false
+	 * @return void modifies the column property value
 	 */
-	public function setProperty($property, $value, $keys = null)
+	public function setColumn(string $column, $value, $default)
 	{
-		if (empty($this->id) and !$this->load($keys))
+		if (property_exists($this, $column))
 		{
-			return false;
+			$this->$column = empty($value) ? $default : $value;
 		}
+	}
 
-		$this->$property = $value;
-
-		return $this->store();
+	/**
+	 * @inheritDoc
+	 */
+	public function store($updateNulls = true): bool
+	{
+		return parent::store($updateNulls);
 	}
 }

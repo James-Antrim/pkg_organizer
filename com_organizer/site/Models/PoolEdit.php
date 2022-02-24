@@ -10,25 +10,26 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Can;
-use Organizer\Tables\Pools as PoolsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing (subject) pool data.
  */
 class PoolEdit extends EditModel
 {
-	/**
-	 * Checks for user authorization to access the view.
-	 *
-	 * @return bool  true if the user can access the edit view, otherwise false
-	 */
-	public function allowEdit()
-	{
-		$poolID = empty($this->item->id) ? 0 : $this->item->id;
 
-		return Can::document('pool', $poolID);
+	/**
+	 * Checks access to edit the resource.
+	 *
+	 * @return void
+	 */
+	public function authorize()
+	{
+		if (!Helpers\Can::document('pool', (int) $this->item->id))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -38,12 +39,12 @@ class PoolEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return Tables\Pools A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new PoolsTable;
+		return new Tables\Pools;
 	}
 }

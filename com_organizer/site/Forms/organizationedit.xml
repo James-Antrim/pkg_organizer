@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details" label="ATTRIBUTES_BASIC">
+        <field name="asset_id" type="hidden" filter="unset"/>f
+        <field name="id" type="hidden"/>
+        <field name="URL" type="Blank" label="URL" maxlength="255"/>
+        <field name="alias" type="Blank" label="ALIAS" maxlength="255"/>
+        <field name="contactID" type="User" label="ORGANIZER_CONTACT_PERSON"
+               description="ORGANIZER_CONTACT_PERSON_DESC"/>
+        <field name="contactEmail" type="Email" label="ORGANIZER_CONTACT_EMAIL" validate="email"/>
+        <field name="active" type="Options" label="ACTIVE" default="1">
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
+        </field>
+    </fieldset>
+    <fieldset name="de" label="ATTRIBUTES_DE">
+        <field name="fullName_de" type="Blank" label="FULL_NAME_DE" maxlength="200" required="true"/>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="shortName_de" type="Blank" label="SHORT_NAME_DE" maxlength="50" required="true"/>
+        <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" maxlength="25" required="true"/>
+    </fieldset>
+    <fieldset name="en" label="ATTRIBUTES_EN">
+        <field name="fullName_en" type="Blank" label="FULL_NAME_EN" maxlength="200" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="shortName_en" type="Blank" label="SHORT_NAME_EN" maxlength="50" required="true"/>
+        <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" maxlength="25" required="true"/>
+    </fieldset>
+    <fieldset name="rules" label="PERMISSIONS">
+        <field name="rules" type="Rules" label="JCONFIG_PERMISSIONS_LABEL" validate="rules" filter="rules"
+               component="com_organizer" section="organization"/>
+    </fieldset>
+</form>

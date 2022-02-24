@@ -11,8 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class creates text input.
@@ -25,7 +24,6 @@ class DateField extends FormField
 	 * The form field type.
 	 *
 	 * @var    string
-	 * @since  1.7.0
 	 */
 	protected $type = 'Date';
 
@@ -33,21 +31,19 @@ class DateField extends FormField
 	 * Method to get the field input markup.
 	 *
 	 * @return  string  The field input markup.
-	 *
-	 * @since   1.7.0
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$empty    = $this->getAttribute('empty', 'true');
 		$onchange = $this->getAttribute('onchange', '');
 
 		if ($this->value)
 		{
-			$value = Dates::standardizeDate($this->value);
+			$value = Helpers\Dates::standardizeDate($this->value);
 		}
 		else
 		{
-			$value = $empty === 'false' ? Dates::standardizeDate() : '';
+			$value = $empty === 'false' ? Helpers\Dates::standardizeDate() : '';
 		}
 
 		$attributes = [

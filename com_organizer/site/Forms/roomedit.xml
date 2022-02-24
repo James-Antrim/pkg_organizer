@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
+        <field name="name" type="Blank" label="NAME" maxlength="150" required="true"/>
+        <field name="buildingID" type="GenericOptions" label="BUILDING" table="organizer_buildings" textcolumn="name"
+               valuecolumn="id">
+            <option value="">NO_INPUT</option>
+        </field>
+        <field name="roomtypeID" type="GenericOptions" label="ROOMTYPE" localized="true" table="organizer_roomtypes"
+               textcolumn="name" valuecolumn="id" required="true">
+            <option value="">SELECT_ROOMTYPE</option>
+        </field>
+        <field name="maxCapacity" type="Integer" label="MAX_CAPACITY" last="500" step="1"/>
+        <field name="effCapacity" type="Integer" label="EFF_CAPACITY" last="500" step="1"/>
+        <field name="area" type="Blank" label="SURFACE_AREA" class="required validate-float" required="true"/>
+        <field name="active" type="Options" label="ACTIVE" default="1">
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
+        </field>
+        <field name="virtual" type="Options" label="VIRTUAL" default="0">
+            <option value="1">VIRTUAL</option>
+            <option value="0">PHYSICAL</option>
+        </field>
+    </fieldset>
+</form>

@@ -10,18 +10,17 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\Toolbar;
-use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Adapters\Toolbar;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information about a subject into the display context.
  */
 class SubjectEdit extends EditView
 {
-	protected $_layout = 'tabs';
+	use Subordinate;
+
+	protected $layout = 'tabs';
 
 	/**
 	 * Method to generate buttons for user interaction
@@ -30,33 +29,32 @@ class SubjectEdit extends EditView
 	 */
 	protected function addToolBar()
 	{
-		$new   = empty($this->item->id);
-		$title = $new ? Languages::_('ORGANIZER_SUBJECT_NEW') : Languages::_('ORGANIZER_SUBJECT_EDIT');
-		HTML::setTitle($title, 'book');
-		$toolbar   = Toolbar::getInstance();
-		$applyText = $new ? Languages::_('ORGANIZER_CREATE') : Languages::_('ORGANIZER_APPLY');
-		$toolbar->appendButton('Standard', 'apply', $applyText, 'subjects.apply', false);
-		$toolbar->appendButton('Standard', 'save', Languages::_('ORGANIZER_SAVE'), 'subjects.save', false);
-		$toolbar->appendButton(
-			'Standard',
-			'save-new',
-			Languages::_('ORGANIZER_SAVE2NEW'),
-			'subjects.save2new',
-			false
-		);
-		$cancelText = $new ? Languages::_('ORGANIZER_CANCEL') : Languages::_('ORGANIZER_CLOSE');
-		$toolbar->appendButton('Standard', 'cancel', $cancelText, 'subjects.cancel', false);
-	}
+		if (empty($this->item->id))
+		{
+			$apply       = Helpers\Languages::_('ORGANIZER_CREATE');
+			$applyImport = Helpers\Languages::_('ORGANIZER_CREATE_IMPORT');
+			$cancel      = Helpers\Languages::_('ORGANIZER_CLOSE');
+			$save        = Helpers\Languages::_('ORGANIZER_CREATE_CLOSE');
+			$saveImport  = Helpers\Languages::_('ORGANIZER_CREATE_IMPORT_CLOSE');
+			$title       = Helpers\Languages::_('ORGANIZER_SUBJECT_NEW');
 
-	/**
-	 * Adds styles and scripts to the document
-	 *
-	 * @return void  modifies the document
-	 */
-	protected function modifyDocument()
-	{
-		parent::modifyDocument();
+		}
+		else
+		{
+			$apply       = Helpers\Languages::_('ORGANIZER_APPLY');
+			$applyImport = Helpers\Languages::_('ORGANIZER_APPLY_UPDATE');
+			$cancel      = Helpers\Languages::_('ORGANIZER_CANCEL');
+			$save        = Helpers\Languages::_('ORGANIZER_SAVE');
+			$saveImport  = Helpers\Languages::_('ORGANIZER_SAVE_UPDATE');
+			$title       = Helpers\Languages::_('ORGANIZER_SUBJECT_EDIT');
+		}
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/mappings.css');
+		$this->setTitle($title);
+		$toolbar = Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'save-new', $apply, 'subjects.apply', false);
+		$toolbar->appendButton('Standard', 'file-add', $applyImport, 'subjects.applyImport', false);
+		$toolbar->appendButton('Standard', 'publish', $save, 'subjects.save', false);
+		$toolbar->appendButton('Standard', 'file-check', $saveImport, 'subjects.saveImport', false);
+		$toolbar->appendButton('Standard', 'cancel', $cancel, 'subjects.cancel', false);
 	}
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="params" addfieldprefix="Organizer\Fields">
+        <fieldset name="basic" label="ORGANIZER_SETTINGS">
+            <field name="layout" type="Options" label="PRESENTATION">
+                <option value="0">LIST</option>
+                <option value="1">GRID</option>
+            </field>
+            <field name="my" type="Options" label="PERSONALIZED">
+                <option value="0">NO</option>
+                <option value="1">YES</option>
+            </field>
+            <field name="dow" type="Options" label="WEEKDAY">
+                <option value="">ALL_DAYS</option>
+                <option value="1">MONDAY</option>
+                <option value="2">TUESDAY</option>
+                <option value="3">WEDNESDAY</option>
+                <option value="4">THURSDAY</option>
+                <option value="5">FRIDAY</option>
+                <option value="6">SATURDAY</option>
+                <option value="7">SUNDAY</option>
+            </field>
+            <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION">
+                <option value="">ALL_ORGANIZATIONS</option>
+            </field>
+            <field name="campusID" type="Campuses" label="CAMPUS">
+                <option value="">ALL_CAMPUSES</option>
+            </field>
+            <field name="methodIDs" type="Methods" label="METHOD" multiple="multiple">
+                <option value="">ALL_METHODS</option>
+            </field>
+            <field name="startDate" type="Date" label="START_DATE"/>
+            <field name="endDate" type="Date" label="END_DATE"/>
+        </fieldset>
+    </fields>
+</form>

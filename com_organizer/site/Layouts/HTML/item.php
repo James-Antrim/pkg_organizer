@@ -8,18 +8,15 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Adapters\Toolbar;
 
-$resourceID = Input::getID();
-$view       = Input::getView();
-
-require_once 'language_selection.php';
-echo OrganizerHelper::getApplication()->JComponentTitle;
-echo $this->subtitle;
-echo $this->supplement;
+require_once 'refresh.php';
+require_once 'titles.php';
 ?>
 <div id="j-main-container" class="span10">
+	<?php if (!$this->adminContext) : ?>
+		<?php echo Toolbar::getInstance()->render(); ?>
+	<?php endif; ?>
 	<?php
 	foreach ($this->item as $key => $attribute)
 	{

@@ -8,30 +8,24 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
-$resourceID = Input::getID();
-$view       = Input::getView();
-require_once 'language_selection.php';
-echo OrganizerHelper::getApplication()->JComponentTitle; ?>
+if (!$componentTemplate = Helpers\Input::getCMD('tmpl') === 'component')
+{
+	echo $this->title;
+}
+?>
 <div class="resource-item">
     <div class="curriculum">
-		<?php foreach ($this->item['children'] as $pool) : ?>
+		<?php foreach ($this->item['curriculum'] as $pool) : ?>
 			<?php $this->renderPanel($pool); ?>
 		<?php endforeach; ?>
+		<?php if ($componentTemplate): ?>
+			<?php $this->renderLegend(); ?>
+		<?php endif; ?>
 		<?php echo $this->disclaimer; ?>
     </div>
-    <div class="legend">
-        <div class="panel-head">
-            <div class="panel-title"><?php echo Languages::_('ORGANIZER_LEGEND'); ?></div>
-        </div>
-		<?php foreach ($this->fields as $hex => $field) : ?>
-            <div class="legend-item">
-                <div class="item-color" style="background-color: <?php echo $hex; ?>;"></div>
-                <div class="item-title"><?php echo $field; ?></div>
-            </div>
-		<?php endforeach; ?>
-    </div>
+	<?php if (count($this->fields) and !$componentTemplate) : ?>
+		<?php $this->renderLegend(); ?>
+	<?php endif; ?>
 </div>

@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the lesson_groups table.
+ * Models the organizer_prerequisites table.
  */
 class Prerequisites extends BaseTable
 {
@@ -32,12 +32,10 @@ class Prerequisites extends BaseTable
 	public $subjectID;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct(&$dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_prerequisites', 'id', $dbo);
+		parent::__construct('#__organizer_prerequisites');
 	}
 }

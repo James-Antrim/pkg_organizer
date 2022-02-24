@@ -2,11 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details" label="ATTRIBUTES_BASIC">
         <field name="id" type="hidden"/>
-        <field name="asset_id" type="hidden" filter="unset"/>
-        <field name="departmentID" type="Departments" label="DEPARTMENT" access="document" required="true">
-            <option value="">SELECT_DEPARTMENT</option>
-        </field>
-        <field name="lsfID" type="Blank" label="LSF_ID" size="40"/>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
+        <field name="lsfID" type="Blank" label="LSF_ID"/>
         <field name="fieldID" type="GenericOptions" label="FIELD" valuecolumn="id" textcolumn="name" localized="true"
                table="organizer_fields">
             <option value="">NO_FIELD</option>
@@ -15,22 +12,20 @@
         <field name="maxCrP" type="Integer" label="CRP_MAX" required="true" first="0" last="120" step="1" default="24"/>
     </fieldset>
     <fieldset name="de" label="ATTRIBUTES_DE">
-        <field name="name_de" type="Blank" label="NAME_DE" class="required" required="true" size="40"/>
-        <field name="shortName_de" type="Blank" label="SHORT_NAME_DE" size="40"/>
-        <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" size="40"/>
-        <field name="description_de" type="Editor" label="ORGANIZER_DESC_DE" description="ORGANIZER_DESC_DE_DESC"/>
+        <field name="fullName_de" type="Blank" label="FULL_NAME_DE" class="required" maxlength="200" required="true"/>
+        <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" class="required" maxlength="25"
+               required="true"/>
+        <field name="description_de" type="Wiz" label="DESC_DE"/>
     </fieldset>
     <fieldset name="en" label="ATTRIBUTES_EN">
-        <field name="name_en" type="Blank" label="NAME_EN" class="required" required="true" size="40"/>
-        <field name="shortName_en" type="Blank" label="SHORT_NAME_EN" size="40"/>
-        <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" size="40"/>
-        <field name="description_en" type="Editor" label="ORGANIZER_DESC_EN" description="ORGANIZER_DESC_EN_DESC"/>
+        <field name="fullName_en" type="Blank" label="FULL_NAME_EN" class="required" maxlength="200" required="true"/>
+        <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" class="required" maxlength="25"
+               required="true"/>
+        <field name="description_en" type="Wiz" label="DESC_EN"/>
     </fieldset>
-    <fieldset name="mappings" label="ATTRIBUTES_STRUCTURE" displayinitial="0">
-        <field name="programID" type="ProgramMappings" access="true" label="PROGRAMS"
-               description="ORGANIZER_PROGRAMS_DESC" required="false"/>
-        <field name="parentID" type="ParentPool" label="PARENT_POOLS" description="ORGANIZER_PARENT_POOLS_DESC"
-               required="false"/>
-        <field name="children" type="Children" label="CHILDREN" description="ORGANIZER_CHILDREN_DESC"/>
+    <fieldset name="associations" label="ASSOCIATIONS">
+        <field type="Curricula" label="PROGRAMS"/>
+        <field type="SuperOrdinates" label="SUPERORDINATES"/>
+        <field type="SubOrdinates" label="SUBORDINATES"/>
     </fieldset>
 </form>

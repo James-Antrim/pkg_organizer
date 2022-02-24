@@ -10,7 +10,9 @@
 
 namespace Organizer\Helpers;
 
+use JInput;
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
 use Joomla\Filter\InputFilter;
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
@@ -20,17 +22,45 @@ use Joomla\Utilities\ArrayHelper;
  */
 class Input
 {
-	private static $filter = null;
+	/**
+	 * @var Registry
+	 */
+	private static $batchItems;
 
-	private static $filterItems = false;
+	/**
+	 * @var InputFilter
+	 */
+	private static $filter;
 
-	private static $formItems = false;
+	/**
+	 * @var Registry
+	 */
+	private static $filterItems;
 
-	private static $input = null;
+	/**
+	 * @var Registry
+	 */
+	private static $formItems;
 
-	private static $listItems = false;
+	/**
+	 * @var JInput
+	 */
+	private static $input;
 
-	private static $params = false;
+	/**
+	 * @var Registry
+	 */
+	private static $listItems;
+
+	/**
+	 * @var Registry
+	 */
+	private static $params;
+
+	/**
+	 * @var Registry
+	 */
+	private static $supplementalItems;
 
 	/**
 	 * Filters the given source data according to the type parameter.
@@ -40,7 +70,7 @@ class Input
 	 *
 	 * @return mixed
 	 */
-	private static function filter($source, $type = 'string')
+	public static function filter($source, string $type = 'string')
 	{
 		if (empty(self::$filter))
 		{
@@ -55,36 +85,49 @@ class Input
 	 *
 	 * @param   string  $property  Name of the property to get.
 	 *
-	 * @return mixed the value found, or false if the property could not be found
+	 * @return array|int|string the value found, or false if the property could not be found
 	 */
-	private static function find($property)
+	private static function find(string $property)
 	{
-		if ($value = self::getFilterItems()->get($property, false))
+		if ($value = self::getInput()->get($property, null, 'raw'))
 		{
 			return $value;
 		}
 
-		if ($value = self::getFormItems()->get($property, false))
+		if ($value = self::getFormItems()->get($property))
 		{
 			return $value;
 		}
 
-		if ($value = self::getListItems()->get($property, false))
+		if ($value = self::getParams()->get($property))
 		{
 			return $value;
 		}
 
-		if ($value = self::getParams()->get($property, false))
-		{
-			return $value;
-		}
+		return null;
+	}
 
-		if ($value = self::getInput()->get($property, false, 'raw'))
-		{
-			return $value;
-		}
+	/**
+	 * Provides a shortcut to retrieve an array from the request.
+	 *
+	 * @param   string  $name     the name of the array item
+	 * @param   array   $default  the default array
+	 *
+	 * @return array
+	 */
+	public static function getArray(string $name = 'jform', array $default = []): array
+	{
+		return self::getInput()->get($name, $default, 'array');
+	}
 
-		return false;
+	/**
+	 * Retrieves the batch items from the request and creates a registry with the data.
+	 *
+	 * @return Registry
+	 */
+	public static function getBatchItems(): Registry
+	{
+		return new Registry(self::getArray('batch'));
 	}
 
 	/**
@@ -95,14 +138,16 @@ class Input
 	 *
 	 * @return bool
 	 */
-	public static function getBool($property, $default = false)
+	public static function getBool(string $property, $default = false): bool
 	{
-		if ($value = self::find($property))
+		$value = self::find($property);
+
+		if ($value === null)
 		{
-			return self::filter($value, 'bool');
+			return self::filter($default, 'bool');
 		}
 
-		return self::filter($default, 'bool');
+		return self::filter($value, 'bool');
 	}
 
 	/**
@@ -113,7 +158,7 @@ class Input
 	 *
 	 * @return string
 	 */
-	public static function getCMD($property, $default = '')
+	public static function getCMD(string $property, $default = ''): string
 	{
 		if ($value = self::find($property))
 		{
@@ -129,9 +174,9 @@ class Input
 	 * @param   string  $resource  the name of the resource upon which the ids being sought reference
 	 * @param   int     $default   the default value
 	 *
-	 * @return array the filter ids
+	 * @return int the filter id
 	 */
-	public static function getFilterID($resource, $default = 0)
+	public static function getFilterID(string $resource, int $default = 0): int
 	{
 		$filterIDs = self::getFilterIDs($resource);
 
@@ -145,23 +190,37 @@ class Input
 	 *
 	 * @return array the filter ids
 	 */
-	public static function getFilterIDs($resource)
+	public static function getFilterIDs(string $resource): array
 	{
-		$pluralIndex = "{$resource}IDs";
-		if ($values = self::find($pluralIndex))
-		{
-			self::formatIDValues($values);
+		$filterItems = self::getFilterItems();
+		$listItems   = self::getListItems();
 
-			return $values;
+		$pluralIndex = "{$resource}IDs";
+
+		if ($values = $filterItems->get($pluralIndex, false))
+		{
+			return self::formatIDValues($values);
+		}
+
+		if ($values = $listItems->get($pluralIndex, false))
+		{
+			return self::formatIDValues($values);
 		}
 
 		$singularIndex = "{$resource}ID";
-		if ($value = self::find($singularIndex))
+
+		if ($value = $filterItems->get($singularIndex, false))
 		{
 			$values = [$value];
-			self::formatIDValues($values);
 
-			return $values;
+			return self::formatIDValues($values);
+		}
+
+		if ($value = $listItems->get($singularIndex, false))
+		{
+			$values = [$value];
+
+			return self::formatIDValues($values);
 		}
 
 		return [];
@@ -172,11 +231,14 @@ class Input
 	 *
 	 * @return Registry
 	 */
-	public static function getFilterItems()
+	public static function getFilterItems(): Registry
 	{
-		if (self::$filterItems === false)
+		if (empty(self::$filterItems))
 		{
-			self::$filterItems = new Registry(self::getInput()->get('filter', [], 'array'));
+			$view     = self::getView();
+			$previous = Factory::getSession()->get('registry')->get("com_organizer.$view.filter", []);
+
+			self::$filterItems = new Registry(self::getArray('filter', $previous));
 		}
 
 		return self::$filterItems;
@@ -187,14 +249,9 @@ class Input
 	 *
 	 * @return Registry with the request data if available
 	 */
-	public static function getFormItems()
+	public static function getFormItems(): Registry
 	{
-		if (self::$formItems === false)
-		{
-			self::$formItems = new Registry(self::getInput()->get('jform', [], 'array'));
-		}
-
-		return self::$formItems;
+		return new Registry(self::getArray());
 	}
 
 	/**
@@ -202,9 +259,23 @@ class Input
 	 *
 	 * @return int
 	 */
-	public static function getID()
+	public static function getID(): int
 	{
 		return self::getInt('id');
+	}
+
+	/**
+	 * Retrieves the id parameter.
+	 *
+	 * @param   string  $name  the input field name at which the value should be found
+	 *
+	 * @return array the ids
+	 */
+	public static function getIntCollection(string $name): array
+	{
+		$collection = self::getArray($name);
+
+		return self::formatIDValues($collection);
 	}
 
 	/**
@@ -215,7 +286,7 @@ class Input
 	 *
 	 * @return int
 	 */
-	public static function getInt($property, $default = 0)
+	public static function getInt(string $property, $default = 0): int
 	{
 		if ($value = self::find($property))
 		{
@@ -230,7 +301,7 @@ class Input
 	 *
 	 * @return int
 	 */
-	public static function getItemid()
+	public static function getItemid(): int
 	{
 		$app     = OrganizerHelper::getApplication();
 		$default = (empty($app->getMenu()) or empty($app->getMenu()->getActive())) ?
@@ -242,9 +313,9 @@ class Input
 	/**
 	 * Returns the application's input object.
 	 *
-	 * @return \JInput
+	 * @return JInput
 	 */
-	public static function getInput()
+	public static function getInput(): JInput
 	{
 		if (empty(self::$input))
 		{
@@ -259,11 +330,13 @@ class Input
 	 *
 	 * @return Registry
 	 */
-	private static function getListItems()
+	public static function getListItems(): Registry
 	{
-		if (self::$listItems === false)
+		if (empty(self::$listItems))
 		{
-			self::$listItems = new Registry(self::getInput()->get('list', [], 'array'));
+			$view            = self::getView();
+			$previous        = Factory::getSession()->get('registry')->get("com_organizer.$view.list", []);
+			self::$listItems = new Registry(self::getArray('list', $previous));
 		}
 
 		return self::$listItems;
@@ -274,7 +347,7 @@ class Input
 	 *
 	 * @return Registry
 	 */
-	public static function getParams()
+	public static function getParams(): Registry
 	{
 		if (empty(self::$params))
 		{
@@ -289,9 +362,11 @@ class Input
 	/**
 	 * Returns the selected resource id.
 	 *
+	 * @param   int  $default  the default value
+	 *
 	 * @return int the selected id
 	 */
-	public static function getSelectedID($default = 0)
+	public static function getSelectedID(int $default = 0): int
 	{
 		$selectedIDs = self::getSelectedIDs();
 
@@ -303,13 +378,10 @@ class Input
 	 *
 	 * @return array the selected ids
 	 */
-	public static function getSelectedIDs()
+	public static function getSelectedIDs(): array
 	{
-		$input = self::getInput();
-
 		// List Views
-		$selectedIDs = $input->get('cid', [], 'array');
-		$selectedIDs = ArrayHelper::toInteger($selectedIDs);
+		$selectedIDs = self::getIntCollection('cid');
 
 		if (!empty($selectedIDs))
 		{
@@ -323,12 +395,12 @@ class Input
 			// Merge Views
 			if ($selectedIDs = $formItems->get('ids'))
 			{
-				self::formatIDValues($selectedIDs);
-				if (count($selectedIDs))
+				$formattedValues = self::formatIDValues($selectedIDs);
+				if (count($formattedValues))
 				{
-					asort($selectedIDs);
+					asort($formattedValues);
 
-					return $selectedIDs;
+					return $formattedValues;
 				}
 			}
 
@@ -336,9 +408,8 @@ class Input
 			if ($id = $formItems->get('id'))
 			{
 				$selectedIDs = [$id];
-				self::formatIDValues($selectedIDs);
 
-				return $selectedIDs;
+				return self::formatIDValues($selectedIDs);
 			}
 		}
 
@@ -356,14 +427,24 @@ class Input
 	 *
 	 * @return string
 	 */
-	public static function getString($property, $default = '')
+	public static function getString(string $property, $default = ''): string
 	{
 		if ($value = self::find($property))
 		{
-			return self::filter($value, 'string');
+			return self::filter($value);
 		}
 
-		return self::filter($default, 'string');
+		return self::filter($default);
+	}
+
+	/**
+	 * Retrieves the batch items from the request and creates a registry with the data.
+	 *
+	 * @return Registry
+	 */
+	public static function getSupplementalItems(): Registry
+	{
+		return new Registry(self::getArray('supplement'));
 	}
 
 	/**
@@ -371,10 +452,9 @@ class Input
 	 *
 	 * @return string
 	 */
-	public static function getTask()
+	public static function getTask(): string
 	{
-		// TODO add parameters and parsing of/for the controller.task format
-		return self::getCmd('task');
+		return self::getCMD('task');
 	}
 
 	/**
@@ -382,7 +462,7 @@ class Input
 	 *
 	 * @return string
 	 */
-	public static function getView()
+	public static function getView(): string
 	{
 		return self::getCMD('view');
 	}
@@ -394,11 +474,15 @@ class Input
 	 *
 	 * @return array the id values, empty if the values were invalid or the input was not an array or a string
 	 */
-	public static function formatIDValues(&$idValues)
+	public static function formatIDValues(&$idValues): array
 	{
 		if (is_string($idValues))
 		{
 			$idValues = explode(',', $idValues);
+		}
+		elseif (is_array($idValues) and count($idValues) === 1 and preg_match('/^(\d+,)*\d+$/', $idValues[0]) !== -1)
+		{
+			$idValues = explode(',', $idValues[0]);
 		}
 		elseif (!is_array($idValues))
 		{
@@ -406,6 +490,28 @@ class Input
 		}
 
 		$idValues = ArrayHelper::toInteger($idValues);
-		$idValues = array_filter($idValues);
+
+		return array_filter($idValues);
+	}
+
+	/**
+	 * Sets an input property with a value.
+	 *
+	 * @param   string  $property  the name of the property to set
+	 * @param   mixed   $value     the value to set to the property
+	 * @param   string  $method    the method group of the property
+	 *
+	 * @return void
+	 */
+	public static function set(string $property, $value, string $method = '')
+	{
+		if ($method)
+		{
+			self::getInput()->$method->set($property, $value);
+
+			return;
+		}
+
+		self::getInput()->set($property, $value);
 	}
 }

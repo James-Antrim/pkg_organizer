@@ -10,38 +10,36 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Languages;
+use Organizer\Adapters;
+use Organizer\Adapters\Toolbar;
+use Organizer\Helpers;
 
 /**
  * Class loads pool information into the display context.
  */
 class PoolSelection extends PoolsView
 {
-	protected $_layout = 'list_modal';
+	protected $layout = 'list_modal';
+
+	protected $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
 
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'programs.addPool', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'x', true);
 	}
 
 	/**
-	 * Modifies document variables and adds links to external files
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
 	}
 }

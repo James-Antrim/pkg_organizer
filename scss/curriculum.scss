@@ -1,6 +1,6 @@
 @import 'variables';
 
-.curriculum {
+div.curriculum {
 
   .item, .legend-item, .resource-item, .panel-head, .panel-row {
     display: flex;
@@ -28,6 +28,23 @@
   .item-color {
     min-width: 1rem;
     width: 1rem;
+  }
+
+  .item-tools {
+    margin-top: .3rem;
+
+    a {
+      margin-right: .6rem;
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      [class^='icon-'] {
+        font-size: 1.2rem;
+        margin-right: 0;
+      }
+    }
   }
 
   .item-body {
@@ -72,4 +89,9 @@
     margin-bottom: .4rem;
     min-height: 6rem;
   }
+}
+
+.tmpl-component div.curriculum .legend {
+  padding-left: 0;
+  width: 100%;
 }

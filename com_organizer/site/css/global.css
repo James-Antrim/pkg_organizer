@@ -46,6 +46,18 @@ a [class^='icon-'], a [class*=' icon-'] {
     margin-right: .2rem;
 }
 
+[class^='icon-'].green:before {
+    color: #80ba24;
+}
+
+[class^='icon-'].red:before {
+    color: #9c132e;
+}
+
+[class^='icon-'].yellow:before {
+    color: #f4aa00;
+}
+
 h1.page-title span[class*="icon-"] {
     display: none;
 }

@@ -1,13 +1,15 @@
 @import "variables";
 
+form textarea {
+  min-height: 9rem;
+  min-width: 15rem;
+}
+
+// Front end styles
 body.tmpl-index div.main {
 
   .chzn-container {
     max-width: inherit;
-  }
-
-  .chzn-container, input, select {
-    border: $border-darkest-thick;
   }
 
   .chzn-container, select {
@@ -28,8 +30,8 @@ body.tmpl-index div.main {
     margin-bottom: 0;
   }
 
-  button, input, select {
-    padding: .3rem .5rem;
+  button, input, select a.btn {
+    padding: .45em .6em .15em .6em;
   }
 
   .input-4, .input-4 + .chzn-container,
@@ -49,6 +51,10 @@ body.tmpl-index div.main {
     width: 8rem !important;
   }
 
+  .input-10, .input-10 + .chzn-container {
+    width: 10rem !important;
+  }
+
   .input-12, .input-12 + .chzn-container {
     width: 12rem !important;
   }
@@ -62,21 +68,22 @@ body.tmpl-index div.main {
   }
 }
 
+// Group publishing styles
 .publishing-container {
   display: flex;
   flex-direction: column;
 
-  .period-container {
+  .term-container {
     display: flex;
     flex-direction: row;
     margin-bottom: .4rem;
   }
 
-  .period-label {
+  .term-label {
     width: 6rem;
   }
 
-  .period-input select {
+  .term-input select {
     width: 4rem;
   }
 }

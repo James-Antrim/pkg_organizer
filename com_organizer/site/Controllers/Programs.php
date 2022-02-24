@@ -10,65 +10,40 @@
 
 namespace Organizer\Controllers;
 
-use Exception;
 use Organizer\Controller;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Routing;
-use Organizer\Models\ProgramLSF;
+use Organizer\Helpers;
+use Organizer\Models;
 
 /**
  * Class receives user actions and performs access checks and redirection.
  */
 class Programs extends Controller
 {
+	use Activated, Imported;
+
 	protected $listView = 'programs';
 
 	protected $resource = 'program';
 
 	/**
-	 * Makes call to the models's import batch function, and redirects to the manager view.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function import()
-	{
-		$model = new ProgramLSF;
-
-		if ($model->import())
-		{
-			OrganizerHelper::message('ORGANIZER_IMPORT_SUCCESS');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_IMPORT_FAIL', 'error');
-		}
-
-		$url = Routing::getRedirectBase();
-		$url .= "&view={$this->listView}";
-		$this->setRedirect($url);
-	}
-
-	/**
 	 * Makes call to the models's update batch function, and redirects to the manager view.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function update()
 	{
-		$model = new ProgramLSF;
+		$model = new Models\Program();
 
 		if ($model->update())
 		{
-			OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS');
+			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS', 'success');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
+			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase();
+		$url = Helpers\Routing::getRedirectBase();
 		$url .= "&view={$this->listView}";
 		$this->setRedirect($url);
 	}

@@ -12,12 +12,7 @@ namespace Organizer\Models;
 
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Named;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Helpers;
 
 /**
  * Class which manages stored building data.
@@ -26,12 +21,14 @@ abstract class BaseModel extends BaseDatabaseModel
 {
 	use Named;
 
+	protected $selected = [];
+
 	/**
 	 * BaseModel constructor.
 	 *
 	 * @param   array  $config
 	 */
-	public function __construct($config = array())
+	public function __construct($config = [])
 	{
 		try
 		{
@@ -39,7 +36,7 @@ abstract class BaseModel extends BaseDatabaseModel
 		}
 		catch (Exception $exception)
 		{
-			OrganizerHelper::message($exception->getMessage(), 'error');
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return;
 		}
@@ -48,32 +45,47 @@ abstract class BaseModel extends BaseDatabaseModel
 	}
 
 	/**
-	 * Authenticates the user
+	 * Authorizes the user.
+	 *
+	 * @return void
 	 */
-	protected function allow()
+	protected function authorize()
 	{
-		return Can::administrate();
+		if (!Helpers\Can::administrate())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
 	 * Removes entries from the database.
 	 *
-	 * @return boolean true on success, otherwise false
-	 * @throws Exception => unauthorized access
+	 * @return bool true on success, otherwise false
 	 */
-	public function delete()
+	public function delete(): bool
 	{
-		if (!$this->allow())
+		if (!$this->selected = Helpers\Input::getSelectedIDs())
 		{
-			throw new Exception(Languages::_('COM_ORGANIZER_403'), 403);
+			return false;
 		}
 
-		$selectedIDs = Input::getSelectedIDs();
-		$success     = true;
-		foreach ($selectedIDs as $selectedID)
+		$this->authorize();
+
+		$success = true;
+
+		try
 		{
-			$table   = $this->getTable();
-			$success = ($success and $table->delete($selectedID));
+			foreach ($this->selected as $selectedID)
+			{
+				$table   = $this->getTable();
+				$success = ($success and $table->delete($selectedID));
+			}
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+			return false;
 		}
 
 		// TODO: create a message with an accurate count of successes.
@@ -84,37 +96,78 @@ abstract class BaseModel extends BaseDatabaseModel
 	/**
 	 * Attempts to save the resource.
 	 *
-	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
+	 * @param   array  $data  the data from the form
 	 *
-	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
+	 * @return int|bool int id of the resource on success, otherwise bool false
 	 */
 	public function save($data = [])
 	{
-		if (!$this->allow())
-		{
-			throw new Exception(Languages::_('COM_ORGANIZER_403'), 403);
-		}
+		$this->authorize();
 
-		$data  = empty($data) ? Input::getFormItems()->toArray() : $data;
-		$table = $this->getTable();
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+
+		try
+		{
+			$table = $this->getTable();
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+
+			return false;
+		}
 
 		return $table->save($data) ? $table->id : false;
 	}
 
 	/**
-	 * Attempts to save an existing resource as a new resource.
+	 * Method to save an existing resource as a copy
 	 *
-	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
+	 * @param   array  $data  the data to be used to create the program when called from the program helper
 	 *
-	 * @return mixed int id of the new resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
+	 * @return int|bool the id of the resource on success, otherwise bool false
 	 */
 	public function save2copy($data = [])
 	{
-		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		unset($data['id']);
 
 		return $this->save($data);
+	}
+
+	/**
+	 * Alters the state of a binary property.
+	 *
+	 * @return bool true on success, otherwise false
+	 * @throws Exception
+	 */
+	public function toggle(): bool
+	{
+		if (!$resourceID = Helpers\Input::getID())
+		{
+			return false;
+		}
+
+		// Necessary for access checks in mergeable resources.
+		$this->selected = [$resourceID];
+		$this->authorize();
+
+		$attribute = Helpers\Input::getCMD('attribute');
+		$table     = $this->getTable();
+
+		$tableFields = $table->getFields();
+		if (array_key_exists($attribute, $tableFields))
+		{
+			if (!$table->load($resourceID))
+			{
+				return false;
+			}
+
+			$table->$attribute = !$table->$attribute;
+
+			return $table->store();
+		}
+
+		return false;
 	}
 }

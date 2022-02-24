@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="fullName_de" type="Blank" label="FULL_NAME_DE" maxlength="200" required="true"/>
+        <field name="fullName_en" type="Blank" label="FULL_NAME_EN" maxlength="200" required="true"/>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" readonly="true"/>
+        <field name="organizationIDs" type="OrganizationAssociations" label="ORGANIZATION"/>
+        <field name="categoryID" type="Categories" label="CATEGORY" required="true"/>
+        <field name="publishing" type="TermPublishing" label="PUBLISHING"/>
+        <field name="gridID" type="Grids" label="GRID"/>
+        <field name="active" type="Options" label="ACTIVE" default="1">
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
+        </field>
+        <field name="suppress" type="Options" label="SUPPRESS" default="0">
+            <option value="0">SHOWN</option>
+            <option value="1">SUPPRESSED</option>
+        </field>
+    </fieldset>
+</form>

@@ -10,20 +10,16 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Languages;
+use Organizer\Adapters;
+use Organizer\Adapters\Toolbar;
+use Organizer\Helpers;
 
 /**
  * Class modifies the document for the output of a menu like list of resource management views.
  */
-class Organizer extends BaseHTMLView
+class Organizer extends BaseView
 {
-	public $menuItems;
-
 	/**
 	 * Method to get display
 	 *
@@ -47,25 +43,43 @@ class Organizer extends BaseHTMLView
 	 */
 	protected function addToolBar()
 	{
-		HTML::setTitle(Languages::_('ORGANIZER_MAIN'), 'organizer');
+		$this->setTitle('ORGANIZER_MAIN');
 
-		/*if (Can::administrate())
+		if (Helpers\Can::administrate())
 		{
 			$toolbar = Toolbar::getInstance();
-			$this->getModel()->showConfigurationMigrationButtons($toolbar);
-			$this->getModel()->showScheduleMigrationButton($toolbar);
-			HTML::setPreferencesButton();
-		}*/
+			$toolbar->appendButton(
+				'Standard',
+				'trash',
+				Helpers\Languages::_('ORGANIZER_CLEAN_BOOKINGS'),
+				'organizer.cleanBookings',
+				false
+			);
+
+			$toolbar = Toolbar::getInstance();
+			$toolbar->appendButton(
+				'Standard',
+				'bars',
+				'Update Participation Numbers',
+				'organizer.updateNumbers',
+				false
+			);
+
+			$uri    = (string) Uri::getInstance();
+			$return = urlencode(base64_encode($uri));
+			$link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
+
+			$toolbar->appendButton('Link', 'options', Helpers\Languages::_('ORGANIZER_SETTINGS'), $link);
+		}
 	}
 
 	/**
-	 * Modifies document variables and adds links to external files
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{
 		parent::modifyDocument();
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/organizer.css');
+
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/organizer.css');
 	}
 }

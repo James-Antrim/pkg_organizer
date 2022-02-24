@@ -10,13 +10,15 @@
 
 namespace Organizer\Helpers;
 
+use Exception;
+use SimpleXMLElement;
+use SoapClient;
+
 /**
  * Class provides methods for communication with the LSF curriculum documentation system.
  */
 class LSF
 {
-	public $clientSet = false;
-
 	private $client;
 
 	private $username;
@@ -24,35 +26,18 @@ class LSF
 	private $password;
 
 	/**
-	 * Constructor to set up the client
+	 * Creates the SOAP Client.
+	 *
+	 * @throws Exception
 	 */
 	public function __construct()
 	{
-		$params         = Input::getParams();
+		$params = Input::getParams();
+		$uri    = $params->get('wsURI');
+
 		$this->username = $params->get('wsUsername');
 		$this->password = $params->get('wsPassword');
-		$uri            = $params->get('wsURI');
-		$options        = ['uri' => $uri, 'location' => $uri];
-		$this->client   = new \SoapClient(null, $options);
-	}
-
-	/**
-	 * Determines the resource type pool|subject|invalid
-	 *
-	 * @param   object &$resource
-	 *
-	 * @return string pool|subject|invalid
-	 */
-	public static function determineType(&$resource)
-	{
-		$type = (string) $resource->pordtyp;
-
-		if ($type == 'M')
-		{
-			return 'subject';
-		}
-
-		return (isset($resource->modulliste->modul) and $type == 'K') ? 'pool' : 'invalid';
+		$this->client   = new SoapClient(null, ['uri' => $uri, 'location' => $uri]);
 	}
 
 	/**
@@ -60,9 +45,9 @@ class LSF
 	 *
 	 * @param   string  $query  Query structure
 	 *
-	 * @return mixed  SimpleXMLElement if the query was successful, otherwise false
+	 * @return SimpleXMLElement|false  SimpleXMLElement if the query was successful, otherwise false
 	 */
-	private function getDataXML($query)
+	private function getDataXML(string $query)
 	{
 		$result = $this->client->__soapCall('getDataXML', ['xmlParams' => $query]);
 
@@ -80,9 +65,7 @@ class LSF
 			return false;
 		}
 
-		$xml = simplexml_load_string("<?xml version='1.0' encoding='utf-8'?>" . $result);
-
-		return $xml;
+		return simplexml_load_string("<?xml version='1.0' encoding='utf-8'?>" . $result);
 	}
 
 	/**
@@ -90,9 +73,9 @@ class LSF
 	 *
 	 * @param   int  $moduleID  The module mni number
 	 *
-	 * @return Mixed <void, string, unknown> Returns the xml strucutre of a given lsf module id
+	 * @return SimpleXMLElement|false
 	 */
-	public function getModuleByModulid($moduleID)
+	public function getModule(int $moduleID)
 	{
 		$XML = $this->header('ModuleAll');
 		$XML .= "<modulid>$moduleID</modulid>";
@@ -105,18 +88,16 @@ class LSF
 	 * Performs a soap request, in order to get the xml structure of the given
 	 * configuration
 	 *
-	 * @param   string  $program  degree program code
-	 * @param   string  $degree   associated degree
-	 * @param   string  $year     year of accreditation
+	 * @param   array  $keys  the keys required by LSF to uniquely identify a degree program
 	 *
-	 * @return SimpleXMLElement
+	 * @return SimpleXMLElement|false
 	 */
-	public function getModules($program, $degree = null, $year = null)
+	public function getModules(array $keys)
 	{
 		$XML = $this->header('studiengang');
-		$XML .= "<stg>$program</stg>";
-		$XML .= "<abschl>$degree</abschl>";
-		$XML .= "<pversion>$year</pversion>";
+		$XML .= "<stg>{$keys['program']}</stg>";
+		$XML .= "<abschl>{$keys['degree']}</abschl>";
+		$XML .= "<pversion>{$keys['accredited']}</pversion>";
 		$XML .= '</condition></SOAPDataService>';
 
 		return self::getDataXML($XML);
@@ -129,7 +110,7 @@ class LSF
 	 *
 	 * @return string  the header of the XML query
 	 */
-	private function header($objectType)
+	private function header(string $objectType): string
 	{
 		$header = '<?xml version="1.0" encoding="UTF-8"?><SOAPDataService>';
 		$header .= "<general><object>$objectType</object></general><user-auth>";
@@ -138,29 +119,5 @@ class LSF
 		$header .= '</user-auth><condition>';
 
 		return $header;
-	}
-
-	/**
-	 * Ensures that the title(s) are set and do not contain 'dummy'. This function favors the German title.
-	 *
-	 * @param   object &$resource   the resource being checked
-	 * @param   bool    $isSubject  whether or not the formatting is that of the program or subject soap response
-	 *
-	 * @return bool true if one of the titles has the possibility of being valid, otherwise false
-	 */
-	public static function invalidTitle(&$resource, $isSubject = false)
-	{
-		$titleDE = $isSubject ? trim((string) $resource->modul->titelde) : trim((string) $resource->titelde);
-		$titleEN = $isSubject ? trim((string) $resource->modul->titelen) : trim((string) $resource->titelen);
-		$title   = empty($titleDE) ? $titleEN : $titleDE;
-
-		if (empty($title))
-		{
-			return true;
-		}
-
-		$dummyPos = stripos($title, 'dummy');
-
-		return $dummyPos !== false;
 	}
 }

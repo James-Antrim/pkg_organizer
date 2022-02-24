@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -10,32 +11,19 @@
 
 namespace Organizer\Tables;
 
-use Joomla\CMS\Table\Table;
-
 /**
- * Class instantiates a Table Object associated with the subjects table.
+ * Models the organizer_subjects table.
  */
-class Subjects extends Assets
+class Subjects extends BaseTable
 {
-	/**
-	 * The subject's supplementary materials in German.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $aids_de;
-
-	/**
-	 * The subject's supplementary materials in English.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $aids_en;
+	use Aliased;
+	use Coded;
 
 	/**
 	 * The resource's German abbreviation.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * VARCHAR(25) NOT NULL DEFAULT ''
+	 *
+	 * Status: Unknown
 	 *
 	 * @var string
 	 */
@@ -43,55 +31,25 @@ class Subjects extends Assets
 
 	/**
 	 * The resource's English abbreviation.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * VARCHAR(25) NOT NULL DEFAULT ''
+	 *
+	 * Status: Unknown
 	 *
 	 * @var string
 	 */
 	public $abbreviation_en;
 
 	/**
-	 * The id used by Joomla as a reference to its assets table.
-	 * INT(11) NOT NULL
+	 * A flag denoting whether or not it is possible to achieve extra credit.
+	 * TINYINT(1) UNSIGNED DEFAULT 0
 	 *
-	 * @var int
+	 * @var bool
 	 */
-	public $asset_id;
-
-	/**
-	 * A description of ways in which to achieve extra credit for this subject in German.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $bonusPoints_de;
-
-	/**
-	 * A description of ways in which to achieve extra credit for this subject in English.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $bonusPoints_en;
-
-	/**
-	 * The number of credit points (ECTS) rewarded for successful completion of this subject.
-	 * DOUBLE(4, 1) UNSIGNED NOT NULL DEFAULT 0
-	 *
-	 * @var float
-	 */
-	public $creditpoints;
-
-	/**
-	 * The resource's code. (String ID)
-	 * VARCHAR(45) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $code;
+	public $bonusPoints;
 
 	/**
 	 * The subject's contents in German.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
@@ -99,23 +57,25 @@ class Subjects extends Assets
 
 	/**
 	 * The subject's contents in English.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
 	public $content_en;
 
 	/**
-	 * The id of the department entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
+	 * The number of credit points (ECTS) rewarded for successful completion of this subject.
+	 * INT(3) UNSIGNED  NOT NULL DEFAULT 0
 	 *
-	 * @var int
+	 * @var float
 	 */
-	public $departmentID;
+	public $creditPoints;
 
 	/**
 	 * The resource's German description.
 	 * TEXT
+	 *
+	 * Status: Changed -> maximum length of displayed characters is now 300?
 	 *
 	 * @var string
 	 */
@@ -125,37 +85,25 @@ class Subjects extends Assets
 	 * The resource's English description.
 	 * TEXT
 	 *
+	 * Status: Changed -> maximum length of displayed characters is now 300?
+	 *
 	 * @var string
 	 */
 	public $description_en;
 
 	/**
 	 * The number of terms over which the subject is taught.
-	 * INT(2) UNSIGNED DEFAULT 1
+	 * TINYINT(1) UNSIGNED DEFAULT 1
 	 *
 	 * @var int
 	 */
 	public $duration;
 
 	/**
-	 * The standard for evaluation in German.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $evaluation_de;
-
-	/**
-	 * The standard for evaluation in English.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $evaluation_en;
-
-	/**
 	 * The total number of scholastic hours (45 minutes) estimated to be necessary for this subject.
 	 * INT(4) UNSIGNED NOT NULL DEFAULT
+	 *
+	 * Status: Unchanged
 	 *
 	 * @var int
 	 */
@@ -165,13 +113,33 @@ class Subjects extends Assets
 	 * The quantifier for the level of expertise of this subject. Values: NULL - unset, 0 - none ... 3 - much.
 	 * TINYINT(1) UNSIGNED DEFAULT NULL
 	 *
+	 * @deprecated replaced by localized full text fields
+	 *
 	 * @var int
 	 */
 	public $expertise;
 
 	/**
+	 * The description for expertise learning objectives in German.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $expertise_de;
+
+	/**
+	 * The description for expertise learning objectives in English.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $expertise_en;
+
+	/**
 	 * The id of the field entry referenced.
 	 * INT(11) UNSIGNED DEFAULT NULL
+	 *
+	 * Status: Unchanged (as yet internal)
 	 *
 	 * @var int
 	 */
@@ -181,13 +149,37 @@ class Subjects extends Assets
 	 * The id of the frequency entry referenced.
 	 * INT(1) UNSIGNED DEFAULT NULL
 	 *
+	 * Status: Changed -> tinyint(1) (keep semesterly, yearly and on demand)
+	 *
 	 * @var int
 	 */
 	public $frequencyID;
 
 	/**
+	 * The resource's German full name.
+	 * VARCHAR(200) NOT NULL
+	 *
+	 * Status: Unchanged
+	 *
+	 * @var string
+	 */
+	public $fullName_de;
+
+	/**
+	 * The resource's English full name.
+	 * VARCHAR(200) NOT NULL
+	 *
+	 * Status: Unchanged
+	 *
+	 * @var string
+	 */
+	public $fullName_en;
+
+	/**
 	 * The total number of scholastic hours (45 minutes) independent estimated to be necessary for this subject.
 	 * INT(4) UNSIGNED NOT NULL DEFAULT
+	 *
+	 * Status: Unchanged
 	 *
 	 * @var int
 	 */
@@ -197,13 +189,15 @@ class Subjects extends Assets
 	 * The code for the language of instruction for this course.
 	 * VARCHAR(2) NOT NULL DEFAULT 'D'
 	 *
+	 * Status: Unknown, are these still sent as codes? are there codes for any other potential languages?
+	 *
 	 * @var string
 	 */
-	public $instructionLanguage;
+	public $language;
 
 	/**
 	 * The recommended literature to accompany this subject.
-	 * TEXT NOT NULL
+	 * TEXT
 	 *
 	 * @var string
 	 */
@@ -213,6 +207,8 @@ class Subjects extends Assets
 	 * The id of the entry in the LSF software module.
 	 * INT(11) UNSIGNED DEFAULT NULL
 	 *
+	 * Status: Unknown
+	 *
 	 * @var int
 	 */
 	public $lsfID;
@@ -220,6 +216,8 @@ class Subjects extends Assets
 	/**
 	 * The German description for the way in which this subject is taught.
 	 * TEXT
+	 *
+	 * Status: A whole box of things...
 	 *
 	 * @var string
 	 */
@@ -229,6 +227,8 @@ class Subjects extends Assets
 	 * The English description for the way in which this subject is taught.
 	 * TEXT
 	 *
+	 * Status: A whole box of things...
+	 *
 	 * @var string
 	 */
 	public $method_en;
@@ -237,29 +237,33 @@ class Subjects extends Assets
 	 * The quantifier for the level of method competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
 	 * TINYINT(1) UNSIGNED DEFAULT NULL
 	 *
+	 * @deprecated replaced by localized full text fields
+	 *
 	 * @var int
 	 */
 	public $methodCompetence;
 
 	/**
-	 * The resource's German name.
-	 * VARCHAR(255) NOT NULL
+	 * The description for procedural learning objectives in German.
+	 * TEXT
 	 *
-	 * @var string
+	 * @var int
 	 */
-	public $name_de;
+	public $methodCompetence_de;
 
 	/**
-	 * The resource's English name.
-	 * VARCHAR(255) NOT NULL
+	 * The description for procedural learning objectives in English.
+	 * TEXT
 	 *
-	 * @var string
+	 * @var int
 	 */
-	public $name_en;
+	public $methodCompetence_en;
 
 	/**
 	 * The subject's objectives in German.
-	 * TEXT NOT NULL
+	 * TEXT
+	 *
+	 * @deprecated replaced by competences
 	 *
 	 * @var string
 	 */
@@ -267,7 +271,9 @@ class Subjects extends Assets
 
 	/**
 	 * The subject's objectives in English.
-	 * TEXT NOT NULL
+	 * TEXT
+	 *
+	 * @deprecated replaced by competences
 	 *
 	 * @var string
 	 */
@@ -277,6 +283,8 @@ class Subjects extends Assets
 	 * The subject's required preliminary work in German.
 	 * TEXT
 	 *
+	 * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
+	 *
 	 * @var string
 	 */
 	public $preliminaryWork_de;
@@ -284,6 +292,8 @@ class Subjects extends Assets
 	/**
 	 * The subject's required preliminary work in English.
 	 * TEXT
+	 *
+	 * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
 	 *
 	 * @var string
 	 */
@@ -293,13 +303,17 @@ class Subjects extends Assets
 	 * The textual description of the subject's prerequisites in German.
 	 * TEXT NOT NULL
 	 *
+	 * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
+	 *
 	 * @var string
 	 */
 	public $prerequisites_de;
 
 	/**
 	 * The textual description of the subject's prerequisites in English.
-	 * TEXT NOT NULL
+	 * TEXT
+	 *
+	 * Status: Unknown. Notwendige Voraussetzungen, Prüfungsvorleistung?
 	 *
 	 * @var string
 	 */
@@ -309,13 +323,17 @@ class Subjects extends Assets
 	 * The total number of scholastic hours (45 minutes) present estimated to be necessary for this subject.
 	 * INT(4) UNSIGNED NOT NULL DEFAULT
 	 *
+	 * Status: Unchanged
+	 *
 	 * @var int
 	 */
 	public $present;
 
 	/**
 	 * The description of how credit points are awarded for this subject in German.
-	 * TEXT NOT NULL
+	 * TEXT
+	 *
+	 * Status: Prüfungsleistung?
 	 *
 	 * @var string
 	 */
@@ -323,7 +341,9 @@ class Subjects extends Assets
 
 	/**
 	 * The description of how credit points are awarded for this subject in English.
-	 * TEXT NOT NULL
+	 * TEXT
+	 *
+	 * Status: Prüfungsleistung?
 	 *
 	 * @var string
 	 */
@@ -333,6 +353,8 @@ class Subjects extends Assets
 	 * The textual description of the subject's recommended prerequisites in German.
 	 * TEXT
 	 *
+	 * Status: Unknown. Empfohlene Voraussetzungen
+	 *
 	 * @var string
 	 */
 	public $recommendedPrerequisites_de;
@@ -340,6 +362,8 @@ class Subjects extends Assets
 	/**
 	 * The textual description of the subject's recommended prerequisites in English.
 	 * TEXT
+	 *
+	 * Status: Unknown. Empfohlene Voraussetzungen
 	 *
 	 * @var string
 	 */
@@ -349,124 +373,103 @@ class Subjects extends Assets
 	 * The quantifier for the level of self competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
 	 * TINYINT(1) UNSIGNED DEFAULT NULL
 	 *
+	 * @deprecated replaced by localized full text fields
+	 *
 	 * @var int
 	 */
 	public $selfCompetence;
 
 	/**
-	 * The resource's shortened German name.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * The description for personal learning objectives in German.
+	 * TEXT
 	 *
-	 * @var string
+	 * @var int
 	 */
-	public $shortName_de;
+	public $selfCompetence_de;
 
 	/**
-	 * The resource's shortened English name.
-	 * VARCHAR(45) NOT NULL DEFAULT ''
+	 * The description for personal learning objectives in English.
+	 * TEXT
 	 *
-	 * @var string
+	 * @var int
 	 */
-	public $shortName_en;
+	public $selfCompetence_en;
 
 	/**
 	 * The quantifier for the level of social competence of this subject. Values: NULL - unset, 0 - none ... 3 - much.
 	 * TINYINT(1) UNSIGNED DEFAULT NULL
+	 *
+	 * @deprecated replaced by localized full text fields
 	 *
 	 * @var int
 	 */
 	public $socialCompetence;
 
 	/**
+	 * The description for social learning objectives in German.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $socialCompetence_de;
+
+	/**
+	 * The description for social learning objectives in English.
+	 * TEXT
+	 *
+	 * @var int
+	 */
+	public $socialCompetence_en;
+
+	/**
 	 * The number of scholastic hours (45 minutes) of this course held per week.
 	 * INT(2) UNSIGNED NOT NULL DEFAULT 0
+	 *
+	 * Status: A whole box of things...
 	 *
 	 * @var int
 	 */
 	public $sws;
 
 	/**
-	 * Resources requiring this subject in German.
-	 * TEXT
-	 *
-	 * @var string
+	 * Declares the associated table.
 	 */
-	public $usedFor_de;
-
-	/**
-	 * Resources requiring this subject in English.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $usedFor_en;
-
-	/**
-	 * Declares the associated table
-	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
-	 */
-	public function __construct(&$dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_subjects', 'id', $dbo);
+		parent::__construct('#__organizer_subjects');
 	}
 
 	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return boolean  true
+	 * @inheritDoc
 	 */
-	public function check()
+	public function check(): bool
 	{
-		$nullColumns = [
-			'campusID',
-			'expertise',
-			'fieldID',
-			'frequencyID',
-			'instructionLanguage',
-			'lsfID',
-			'methodCompetence',
-			'selfCompetence',
-			'socialCompetence'
-		];
+		$nullColumns = ['alias', 'fieldID', 'frequencyID', 'language', 'lsfID'];
 
 		foreach ($nullColumns as $nullColumn)
 		{
-			if (!strlen($this->$nullColumn))
+			if (!$this->$nullColumn)
 			{
 				$this->$nullColumn = null;
 			}
 		}
 
+		$competences = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
+
+		foreach ($competences as $competence)
+		{
+			// Truly empty
+			if (!strlen($this->$competence))
+			{
+				$this->$competence = null;
+				continue;
+			}
+
+			$value = (int) $this->$competence;
+
+			$this->$competence = ($value < 0 or $value > 3) ? null : $value;
+		}
+
 		return true;
-	}
-
-	/**
-	 * Sets the department asset name
-	 *
-	 * @return string
-	 */
-	protected function _getAssetName()
-	{
-		return "com_organizer.subject.$this->id";
-	}
-
-	/**
-	 * Sets the parent as the component root
-	 *
-	 * @param   Table    $table  A Table object for the asset parent.
-	 * @param   integer  $id     Id to look up
-	 *
-	 * @return int  the asset id of the component root
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	protected function _getAssetParentId(Table $table = null, $id = null)
-	{
-		$asset = Table::getInstance('Asset');
-		$name  = empty($this->departmentID) ? 'com_organizer' : "com_organizer.department.$this->departmentID";
-		$asset->loadByName($name);
-
-		return $asset->id;
 	}
 }

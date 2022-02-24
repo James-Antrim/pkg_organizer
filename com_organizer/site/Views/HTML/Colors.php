@@ -10,11 +10,7 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Colors as Helper;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of colors into the display context.
@@ -24,57 +20,22 @@ class Colors extends ListView
 	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'color' => 'value'];
 
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		HTML::setTitle(Languages::_('ORGANIZER_COLORS'), 'palette');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'colors.add', false);
-		$toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'colors.edit', true);
-		$toolbar->appendButton(
-			'Confirm',
-			Languages::_('ORGANIZER_DELETE_CONFIRM'),
-			'delete',
-			Languages::_('ORGANIZER_DELETE'),
-			'colors.delete',
-			true
-		);
-	}
-
-	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	protected function allowAccess()
-	{
-		return Can::administrate();
-	}
-
-	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox' => '',
-			'name'     => HTML::sort('NAME', 'name', $direction, 'name'),
-			'color'    => Languages::_('ORGANIZER_COLOR')
+			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
+			'color'    => Helpers\Languages::_('ORGANIZER_COLOR')
 		];
 
 		$this->headers = $headers;
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{
@@ -84,7 +45,7 @@ class Colors extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->color             = Helper::getListDisplay($item->color, $item->id);
+			$item->color             = Helpers\Colors::getListDisplay($item->color, $item->id);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

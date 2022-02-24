@@ -10,52 +10,73 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Mappings;
+use Joomla\CMS\Form\Form;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of (subject) pools.
  */
 class Pools extends ListModel
 {
-	protected $filter_fields = ['departmentID', 'fieldID', 'programID'];
+	protected $filter_fields = [
+		'organizationID' => 'organizationID',
+		'fieldID'        => 'fieldID',
+		'programID'      => 'programID'
+	];
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
+	 * @inheritDoc
+	 */
+	public function filterFilterForm(Form &$form)
+	{
+		if (count(Helpers\Can::documentTheseOrganizations()) === 1)
+		{
+			$form->removeField('organizationID', 'filter');
+			unset($this->filter_fields['organizationID']);
+		}
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select("DISTINCT p.id, p.name_$tag AS name, p.fieldID")
-			->from('#__organizer_pools AS p');
+		$query->select("DISTINCT p.id, p.fullName_$tag AS name, p.fieldID")->from('#__organizer_pools AS p');
 
-		$authorizedDepts = Can::documentTheseDepartments();
-		$query->where('(p.departmentID IN (' . implode(',', $authorizedDepts) . ') OR p.departmentID IS NULL)');
+		$this->setOrganizationFilter($query, 'pool', 'p');
 
 		$searchColumns = [
-			'p.name_de',
-			'p.shortName_de',
+			'p.fullName_de',
 			'p.abbreviation_de',
-			'p.description_de',
-			'p.name_en',
-			'p.shortName_en',
-			'p.abbreviation_en',
-			'p.description_en'
+			'p.fullName_en',
+			'p.abbreviation_en'
 		];
 		$this->setSearchFilter($query, $searchColumns);
-		$this->setValueFilters($query, ['departmentID', 'fieldID']);
 
-		$programID = $this->state->get('filter.programID', '');
-		Mappings::setResourceIDFilter($query, $programID, 'program', 'pool');
+		$this->setValueFilters($query, ['fieldID']);
+
+		$programID = (int) $this->state->get('filter.programID', 0);
+		Helpers\Pools::setProgramFilter($query, $programID, 'pool', 'p');
 
 		$this->setOrdering($query);
 
 		return $query;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		parent::populateState($ordering, $direction);
+
+		$authorized = Helpers\Can::documentTheseOrganizations();
+		if (count($authorized) === 1)
+		{
+			$this->state->set('filter.organizationID', $authorized[0]);
+		}
 	}
 }

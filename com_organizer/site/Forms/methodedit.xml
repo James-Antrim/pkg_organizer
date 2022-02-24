@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
+        <field type="spacer"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="abbreviation_en" type="Blank" label="ABBREVIATION_EN" maxlength="25"/>
+        <field type="spacer"/>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="abbreviation_de" type="Blank" label="ABBREVIATION_DE" maxlength="25"/>
+        <field name="relevant" type="Options" label="WORKLOAD_RELEVANT" default="1">
+            <option value='1'>YES</option>
+            <option value='0'>NO</option>
+        </field>
+    </fieldset>
+</form>

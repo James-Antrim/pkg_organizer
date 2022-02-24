@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fields name="filter">
+        <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
+        <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" onchange="this.form.submit();"
+               access="schedule">
+            <option value="">ALL_ORGANIZATIONS</option>
+        </field>
+        <field name="termID" type="Terms" label="TERM" onchange="this.form.submit();"/>
+        <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();">
+            <option value="">ALL_GRIDS</option>
+            <option value="-1">NO_GRID</option>
+        </field>
+        <!--<field name="runID" type="GenericOptions" label="RUNS" localized="true" onchange="this.form.submit();"
+               table="organizer_runs" textcolumn="name" valuecolumn="id">
+            <option value="">ALL_RUNS</option>
+            <option value="-1">NO_RUN</option>
+        </field>-->
+        <field name="status" type="UnitStates" label="STATE" onchange="this.form.submit();"/>
+    </fields>
+    <fields name="list">
+        <field name="limit" type="Limitbox" onchange="this.form.submit();"/>
+    </fields>
+</form>

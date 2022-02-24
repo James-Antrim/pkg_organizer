@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="referrer" type="hidden"/>
+        <field name="instanceID" type="ParticipationInstances" label="EVENT" class="input-13" required="true">
+            <option value="">SELECT_EVENT</option>
+        </field>
+        <field name="roomID" type="ParticipationRooms" label="ROOM" class="input-13" required="true">
+            <option value="">SELECT_ROOM</option>
+        </field>
+        <field name="seat" type="Blank" label="SEAT" maxlength="60" class="validate-alphanumeric input-12"
+               required="true"/>
+    </fieldset>
+</form>

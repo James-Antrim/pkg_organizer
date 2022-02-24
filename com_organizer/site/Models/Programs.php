@@ -10,45 +10,73 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Languages;
+use Joomla\CMS\Form\Form;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of (degree) programs.
  */
 class Programs extends ListModel
 {
-	protected $filter_fields = ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'version'];
+	use Activated;
+
+	protected $filter_fields = ['accredited', 'degreeID', 'frequencyID', 'organizationID'];
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
+	 * @inheritDoc
+	 */
+	public function filterFilterForm(Form &$form)
+	{
+		parent::filterFilterForm($form);
+
+		if ($this->adminContext)
+		{
+			if (count(Helpers\Can::documentTheseOrganizations()) === 1)
+			{
+				$form->removeField('organizationID', 'filter');
+				unset($this->filter_fields['organizationID']);
+			}
+		}
+
+		return;
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
-		$authorizedDepts = Can::documentTheseDepartments();
-		$tag             = Languages::getTag();
+		$query = Helpers\Programs::getQuery();
 
-		$query     = $this->_db->getQuery(true);
-		$linkParts = ["'index.php?option=com_organizer&view=program_edit&id='", 'dp.id'];
-		$query->select("DISTINCT dp.id AS id, dp.name_$tag AS programName, version")
-			->select($query->concatenate($linkParts, '') . ' AS link')
-			->from('#__organizer_programs AS dp')
-			->select('d.abbreviation AS degree')
-			->leftJoin('#__organizer_degrees AS d ON d.id = dp.degreeID')
-			->leftJoin('#__organizer_fields AS f ON f.id = dp.fieldID')
-			->select("dpt.shortName_$tag AS department")
-			->leftJoin('#__organizer_departments AS dpt ON dp.departmentID = dpt.id')
-			->where('(dp.departmentID IN (' . implode(',', $authorizedDepts) . ') OR dp.departmentID IS NULL)');
+		$this->setActiveFilter($query, 'p');
+		$this->setOrganizationFilter($query, 'program', 'p');
 
-		$searchColumns = ['dp.name_de', 'dp.name_en', 'version', 'd.name', 'description_de', 'description_en'];
+		$searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
 		$this->setSearchFilter($query, $searchColumns);
-		$this->setValueFilters($query, ['degreeID', 'departmentID', 'fieldID', 'frequencyID', 'version']);
+
+		$this->setValueFilters($query, ['degreeID', 'frequencyID', 'accredited']);
 
 		$this->setOrdering($query);
 
 		return $query;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function populateState($ordering = null, $direction = null)
+	{
+		parent::populateState($ordering, $direction);
+
+		if ($this->adminContext)
+		{
+			$authorized = Helpers\Can::documentTheseOrganizations();
+			if (count($authorized) === 1)
+			{
+				$this->state->set('filter.organizationID', $authorized[0]);
+			}
+		}
+
+		return;
 	}
 }

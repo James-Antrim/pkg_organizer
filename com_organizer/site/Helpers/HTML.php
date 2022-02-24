@@ -10,11 +10,10 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Layout\FileLayout;
-use Joomla\CMS\Toolbar\Toolbar;
-use Joomla\CMS\Uri\Uri;
+use Organizer\Fields\FieldsField;
+use Organizer\Views\HTML\BaseView;
+use SimpleXMLElement;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -24,12 +23,12 @@ class HTML extends HTMLHelper
 	/**
 	 * Creates a dynamically translated label.
 	 *
-	 * @param   mixed   $view       the view this method is applied to
-	 * @param   string  $inputName  the name of the form field whose label should be generated
+	 * @param   BaseView  $view       the view this method is applied to
+	 * @param   string    $inputName  the name of the form field whose label should be generated
 	 *
 	 * @return string the HMTL for the field label
 	 */
-	public static function getLabel($view, $inputName)
+	public static function getLabel(BaseView $view, string $inputName): string
 	{
 		$title  = Languages::_($view->form->getField($inputName)->title);
 		$tip    = Languages::_($view->form->getField($inputName)->description);
@@ -42,11 +41,11 @@ class HTML extends HTMLHelper
 	/**
 	 * Creates an array of option objects from an array.
 	 *
-	 * @param $array
+	 * @param   array  $array
 	 *
 	 * @return array the HMTL for the field label
 	 */
-	public static function getOptions(array $array)
+	public static function getOptions(array $array): array
 	{
 		$options = [];
 		foreach ($array as $key => $item)
@@ -84,12 +83,12 @@ class HTML extends HTMLHelper
 	/**
 	 * Gets an array of dynamically translated default options.
 	 *
-	 * @param   object  $field    the field object.
-	 * @param   object  $element  the field's xml signature. passed separately to get around its protected status.
+	 * @param   FieldsField       $field    the field object.
+	 * @param   SimpleXMLElement  $element  the field's xml signature. passed separately to get around its protected status.
 	 *
 	 * @return array the default options.
 	 */
-	public static function getTranslatedOptions($field, $element)
+	public static function getTranslatedOptions(FieldsField $field, SimpleXMLElement $element): array
 	{
 		$options = [];
 
@@ -124,13 +123,37 @@ class HTML extends HTMLHelper
 	}
 
 	/**
+	 * Creates the HTML string for an icon.
+	 *
+	 * @param   string  $name  the name of the icon class
+	 * @param   string  $tip   text to be used as a tooltip
+	 * @param   bool    $aria  true if the screen reader should ignore
+	 *
+	 * @return string
+	 */
+	public static function icon(string $name, string $tip = '', bool $aria = false): string
+	{
+		$aria  = $aria ? 'aria-hidden="true"' : '';
+		$class = "class=\"icon-$name\"";
+		$title = '';
+
+		if ($tip)
+		{
+			$class .= ' hasTooltip';
+			$title = "title=\"$tip\"";
+		}
+
+		return "<span $aria $class $title></span>";
+	}
+
+	/**
 	 * Translates an associative array of attributes into a string suitable for use in HTML.
 	 *
 	 * @param   array  $array  the element attributes
 	 *
 	 * @return string the HTML string containing the attributes
 	 */
-	public static function implodeAttributes(array $array)
+	public static function implodeAttributes(array $array): string
 	{
 		$attributes = [];
 		foreach ($array as $key => $value)
@@ -148,11 +171,11 @@ class HTML extends HTMLHelper
 	 * @param   string  $name        the name of the element
 	 * @param   mixed   $attributes  optional attributes: object, array, or string in the form key => value(,)+
 	 * @param   mixed   $selected    optional selected items
-	 * @param   bool    $jform       whether or not the element will be wrapped by a 'jform' element
+	 * @param   bool    $jform       whether the element will be wrapped by a 'jform' element
 	 *
 	 * @return string  the html output for the select box
 	 */
-	public static function selectBox($options, $name, array $attributes = [], $selected = null, $jform = false)
+	public static function selectBox($options, string $name, $attributes = [], $selected = null, bool $jform = false): string
 	{
 		$isMultiple = (!empty($attributes['multiple']) and $attributes['multiple'] == 'multiple');
 		$multiple   = $isMultiple ? '[]' : '';
@@ -160,64 +183,6 @@ class HTML extends HTMLHelper
 		$name = $jform ? "jform[$name]$multiple" : "$name$multiple";
 
 		return self::_('select.genericlist', $options, $name, $attributes, 'value', 'text', $selected);
-	}
-
-	/**
-	 * Sets the title for the view and the document.
-	 *
-	 * @param   string  $default       the default value if a specific resource could not be resolved.
-	 * @param   string  $resourceName  the name of the specific resource
-	 * @param   string  $icon          The hyphen-separated names of the icon class
-	 *
-	 * @return  void
-	 */
-	public static function setMenuTitle($default, $resourceName = '', $icon = '')
-	{
-		$app    = OrganizerHelper::getApplication();
-		$params = Input::getParams();
-
-		if ($params->get('show_page_heading') and $params->get('page_title'))
-		{
-			$title = $params->get('page_title');
-		}
-		else
-		{
-			$title = empty($resourceName) ? Languages::_($default) : $resourceName;
-		}
-
-		$icon = $icon ? "<span class=\"icon-$icon\"></span>" : '';
-
-		$html = "<h1 class=\"page-title\">$icon$title</h1>";
-
-		$app->JComponentTitle = $html;
-		Factory::getDocument()->setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
-	}
-
-	public static function setPreferencesButton()
-	{
-		$uri    = (string) Uri::getInstance();
-		$return = urlencode(base64_encode($uri));
-		$link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
-
-		$toolbar = Toolbar::getInstance('toolbar');
-		$toolbar->appendButton('Link', 'options', Languages::_('ORGANIZER_SETTINGS'), $link);
-	}
-
-	/**
-	 * Sets the title for the view and the document.
-	 *
-	 * @param   string  $title  The title.
-	 * @param   string  $icon   The hyphen-separated names of the icon class
-	 *
-	 * @return  void
-	 */
-	public static function setTitle($title, $icon = 'generic.png')
-	{
-		$app                  = OrganizerHelper::getApplication();
-		$layout               = new FileLayout('joomla.toolbar.title');
-		$html                 = $layout->render(array('title' => $title, 'icon' => $icon));
-		$app->JComponentTitle = $html;
-		Factory::getDocument()->setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
 	}
 
 	/**
@@ -230,7 +195,7 @@ class HTML extends HTMLHelper
 	 *
 	 * @return mixed
 	 */
-	public static function sort($constant, $column, $direction, $ordering)
+	public static function sort(string $constant, string $column, string $direction, string $ordering)
 	{
 		$text = Languages::_("ORGANIZER_$constant");
 

@@ -1,5 +1,68 @@
+@import "associations";
 @import "fields";
 @import "filter_bars";
+
+div.btn-toolbar + form {
+  margin-top: 2rem;
+}
+
+span.comment {
+  font-style: italic;
+}
+
+.export-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 30rem);
+}
+
+div.main form#adminForm fieldset {
+  padding: 0 .5rem;
+
+  &.organizer-selection {
+    background-color: $background-color;
+
+    legend {
+      background-color: $background-color;
+    }
+  }
+
+  &.organizer-settings {
+    background-color: $foreground-color;
+
+    legend {
+      background-color: $foreground-color;
+    }
+  }
+
+  .control-label {
+    width: 40%
+  }
+
+  .controls {
+    margin-left: 50%
+  }
+
+  legend {
+    border-bottom: none;
+    color: $font-color-title;
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 2rem;
+    margin-bottom: 0;
+    margin-left: -.5rem;
+    padding: 1rem 0 0 2rem;
+    width: calc(100% - 1rem);
+  }
+}
+
+input.download-url {
+  margin-bottom: 0;
+}
+
+.btn.copy-button {
+  background-color: $foreground-color;
+  margin-top: -.5rem;
+}
 
 // File upload adjustment for chromium browsers.
 @media screen and (-webkit-min-device-pixel-ratio: 0) {

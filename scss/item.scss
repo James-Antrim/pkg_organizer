@@ -42,6 +42,8 @@
 
     ul {
 
+      list-style-type: none;
+
       li:before {
         content: '-';
         display: block;
@@ -66,4 +68,18 @@
   li {
     padding-bottom: .8rem;
   }
+}
+
+span.new {
+  color: $green-text;
+}
+
+span.removed {
+  color: $grey-100;
+  text-decoration: line-through;
+}
+
+body.tmpl-mobile .attribute-label {
+  margin-bottom: 1rem;
+  width: calc(100% - 20px);
 }

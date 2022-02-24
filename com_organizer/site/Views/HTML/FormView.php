@@ -10,30 +10,36 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Form;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Adapters;
+use Organizer\Helpers;
 
 /**
  * Class loads a non-item based resource form (merge) into the display context. Specific resource determined by
  * extending class.
  */
-abstract class FormView extends BaseHTMLView
+abstract class FormView extends BaseView
 {
-	protected $_layout = 'form';
-
-	public $params = null;
-
+	/**
+	 * @var Form
+	 */
 	public $form = null;
 
 	/**
-	 * Method to get display
+	 * @inheritdoc
+	 */
+	protected $layout = 'form';
+
+	/**
+	 * The form orientation.
 	 *
-	 * @param   Object  $tpl  template  (default: null)
-	 *
-	 * @return void
+	 * @var string
+	 */
+	protected $orientation = 'horizontal';
+
+	/**
+	 * @inheritDoc
 	 */
 	public function display($tpl = null)
 	{
@@ -42,13 +48,16 @@ abstract class FormView extends BaseHTMLView
 		// Allows for view specific toolbar handling
 		$this->addToolBar();
 
-		if (method_exists($this, 'setSubtitle'))
+		if (empty($this->adminContext))
 		{
-			$this->setSubtitle();
-		}
-		if (method_exists($this, 'addSupplement'))
-		{
-			$this->addSupplement();
+			if (method_exists($this, 'setSubtitle'))
+			{
+				$this->setSubtitle();
+			}
+			if (method_exists($this, 'addSupplement'))
+			{
+				$this->addSupplement();
+			}
 		}
 
 		$this->modifyDocument();
@@ -63,19 +72,17 @@ abstract class FormView extends BaseHTMLView
 	abstract protected function addToolBar();
 
 	/**
-	 * Adds styles and scripts to the document
-	 *
-	 * @return void  modifies the document
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{
 		parent::modifyDocument();
 
-		HTML::_('behavior.formvalidator');
+		Helpers\HTML::_('behavior.formvalidator');
 
-		$document = Factory::getDocument();
-		$document->addScript(Uri::root() . 'components/com_organizer/js/validators.js');
-		$document->addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
-		$document->addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/validators.js');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
 	}
 }

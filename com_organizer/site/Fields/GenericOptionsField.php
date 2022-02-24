@@ -10,11 +10,9 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Helpers;
 
 /**
  * Class replaces form field type sql by using Joomla's database objects to avoid database language dependency. While
@@ -35,7 +33,7 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		$html = [];
 		$attr = '';
@@ -47,7 +45,7 @@ class GenericOptionsField extends OptionsField
 		$attr        .= $this->required ? ' required aria-required="true"' : '';
 		$attr        .= $this->autofocus ? ' autofocus' : '';
 		$placeHolder = $this->getAttribute('placeholder', '');
-		$attr        .= empty($placeHolder) ? '' : ' placeholder="' . Languages::_($placeHolder) . '"';
+		$attr        .= empty($placeHolder) ? '' : ' placeholder="' . Helpers\Languages::_($placeHolder) . '"';
 
 		$isReadOnly     = ($this->readonly == '1' or $this->readonly == 'true');
 		$this->readonly = (string) $isReadOnly;
@@ -63,12 +61,12 @@ class GenericOptionsField extends OptionsField
 		$attr .= $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 
 		// Get the field options.
-		$options = (array) $this->getOptions();
+		$options = $this->getOptions();
 
 		// Create a read-only list (no name) with hidden input(s) to store the value(s).
 		if ($isReadOnly)
 		{
-			$html[] = HTML::_(
+			$html[] = Helpers\HTML::_(
 				'select.genericlist',
 				$options,
 				'',
@@ -89,19 +87,19 @@ class GenericOptionsField extends OptionsField
 
 				foreach ($this->value as $value)
 				{
-					$value  = htmlspecialchars($value, ENT_COMPAT, 'UTF-8');
+					$value  = htmlspecialchars($value, ENT_COMPAT);
 					$html[] = '<input type="hidden" name="' . $this->name . '" value="' . $value . '"/>';
 				}
 			}
 			else
 			{
-				$value  = htmlspecialchars($this->value, ENT_COMPAT, 'UTF-8');
+				$value  = htmlspecialchars($this->value, ENT_COMPAT);
 				$html[] = '<input type="hidden" name="' . $this->name . '" value="' . $value . '"/>';
 			}
 		}
 		else // Create a regular list.
 		{
-			$html[] = HTML::_(
+			$html[] = Helpers\HTML::_(
 				'select.genericlist',
 				$options,
 				$this->name,
@@ -124,24 +122,19 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
-		$valueColumn = $this->getAttribute('valuecolumn');
-		$textColumn  = $this->resolveText($query);
-
-		$query->select("DISTINCT $valueColumn AS value, $textColumn AS text");
+		$defaultOptions = parent::getOptions();
+		$query          = Database::getQuery();
+		$order          = $this->getAttribute('order', 'text ASC');
+		$textColumn     = $this->resolveText($query);
+		$valueColumn    = $this->getAttribute('valuecolumn');
+		$query->select("DISTINCT $valueColumn AS value, $textColumn AS text")->order($order);
 		$this->setFrom($query);
 		$this->setWhere($query);
-		$order = $this->getAttribute('order', 'text ASC');
-		$query->order($order);
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		$defaultOptions = parent::getOptions();
-		$resources      = OrganizerHelper::executeQuery('loadAssocList');
-		if (empty($resources))
+		if (!$resources = Database::loadAssocList())
 		{
 			return $defaultOptions;
 		}
@@ -161,7 +154,7 @@ class GenericOptionsField extends OptionsField
 				}
 			}
 
-			$options[$resource['text']] = HTML::_('select.option', $resource['value'], $resource['text']);
+			$options[$resource['text']] = Helpers\HTML::_('select.option', $resource['value'], $resource['text']);
 		}
 		$this->setValueParameters($options);
 
@@ -171,11 +164,11 @@ class GenericOptionsField extends OptionsField
 	/**
 	 * Resolves the textColumns for concatenated values
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return string  the string to use for text selection
 	 */
-	private function resolveText(&$query)
+	private function resolveText(JDatabaseQuery $query): string
 	{
 		$textColumn  = $this->getAttribute('textcolumn');
 		$textColumns = explode(',', $textColumn);
@@ -183,7 +176,7 @@ class GenericOptionsField extends OptionsField
 		$localized = $this->getAttribute('localized', false);
 		if ($localized)
 		{
-			$tag = Languages::getTag();
+			$tag = Helpers\Languages::getTag();
 			foreach ($textColumns as $key => $value)
 			{
 				$textColumns[$key] = $value . '_' . $tag;
@@ -202,16 +195,16 @@ class GenericOptionsField extends OptionsField
 	/**
 	 * Resolves the textColumns for concatenated values
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void modifies the query as necessary
 	 */
-	private function setFrom(&$query)
+	private function setFrom(JDatabaseQuery $query)
 	{
 		$tableParameters = $this->getAttribute('table');
 		$tables          = explode(',', $tableParameters);
 
-		$query->from("#__{$tables[0]}");
+		$query->from("#__$tables[0]");
 		$count = count($tables);
 		if ($count === 1)
 		{
@@ -220,7 +213,7 @@ class GenericOptionsField extends OptionsField
 
 		for ($index = 1; $index < $count; $index++)
 		{
-			$query->innerjoin("#__{$tables[$index]}");
+			$query->innerJoin("#__$tables[$index]");
 		}
 	}
 
@@ -231,7 +224,7 @@ class GenericOptionsField extends OptionsField
 	 *
 	 * @return void  sets option values
 	 */
-	private function setValueParameters(&$options)
+	private function setValueParameters(array &$options)
 	{
 		$valueParameter = $this->getAttribute('valueParameter', '');
 		if ($valueParameter === '')
@@ -239,7 +232,7 @@ class GenericOptionsField extends OptionsField
 			return;
 		}
 		$valueParameters     = explode(',', $valueParameter);
-		$componentParameters = Input::getParams();
+		$componentParameters = Helpers\Input::getParams();
 		foreach ($valueParameters as $parameter)
 		{
 			$componentParameter = $componentParameters->get($parameter);
@@ -247,19 +240,20 @@ class GenericOptionsField extends OptionsField
 			{
 				continue;
 			}
-			$options[$componentParameter] = HTML::_('select.option', $componentParameter, $componentParameter);
+			$options[$componentParameter] = Helpers\HTML::_('select.option', $componentParameter, $componentParameter);
 		}
+
 		ksort($options);
 	}
 
 	/**
 	 * Adds filter conditions
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void modifies the query as necessary
 	 */
-	private function setWhere(&$query)
+	private function setWhere(JDatabaseQuery $query)
 	{
 		$rawConditions = $this->getAttribute('conditions');
 

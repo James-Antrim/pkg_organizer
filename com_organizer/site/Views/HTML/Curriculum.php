@@ -10,18 +10,18 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use Organizer\Adapters;
+use Organizer\Helpers;
 use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
-use Organizer\Helpers\Pools;
 
 /**
- * Class loads curriculum information into the display context.
+ * Loads curriculum information into the display context.
  */
 class Curriculum extends ItemView
 {
-	protected $_layout = 'curriculum';
+	protected $layout = 'curriculum';
 
 	public $fields = [];
 
@@ -32,19 +32,17 @@ class Curriculum extends ItemView
 	 */
 	protected function filterAttributes()
 	{
-		return;
+		// Nothing filtered
 	}
 
 	/**
-	 * Sets document scripts and styles
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/curriculum.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/curriculum.css');
 	}
 
 	/**
@@ -54,11 +52,13 @@ class Curriculum extends ItemView
 	 *
 	 * @return string the HTML for the panel item
 	 */
-	private function getPanelItem($item)
+	private function getPanelItem(array $item): string
 	{
+		$base         = Uri::base() . '?option=com_organizer&view=';
 		$itemTemplate = '<div class="item ITEMCLASS">ITEMCONTENT</div>';
 		$itemClass    = 'item-blank';
 		$itemContent  = '';
+
 		if (!empty($item) and !empty($item['name']))
 		{
 			$bgColor = '#ffffff';
@@ -72,35 +72,41 @@ class Curriculum extends ItemView
 			$itemContent .= '<div class="item-body">';
 
 			$additionalLinks = '';
-			$linkAttributes  = ['target' => '_blank'];
+			$attributes      = ['target' => '_blank'];
+
 			if ($item['subjectID'])
 			{
-				$crp = empty($item['creditpoints']) ? '' : "{$item['creditpoints']} CrP";
-				$url = "?option=com_organizer&view=subject_item&id={$item['subjectID']}";
+				$crp = empty($item['creditPoints']) ? '' : "{$item['creditPoints']} CrP";
+				$url = $base . "SubjectItem&id={$item['subjectID']}";
 
-				$documentLinkAttributes = $linkAttributes + ['title' => Languages::_('ORGANIZER_SUBJECT_ITEM')];
-				$scheduleLinkAttributes = $linkAttributes + ['title' => Languages::_('ORGANIZER_SCHEDULE')];
+				$icon            = HTML::icon('book', Languages::_('ORGANIZER_SUBJECT_ITEM'));
+				$additionalLinks .= HTML::link($url, $icon, $attributes);
 
-				$documentLink = HTML::link($url, '<span class="icon-file-2"></span>', $documentLinkAttributes);
+				if (!empty($item['eventID']))
+				{
+					$iUrl = $base . "Instances&eventID={$item['eventID']}&layout=";
 
-				$scheduleUrl = "?option=com_organizer&view=schedule_item&subjectIDs={$item['subjectID']}";
+					$icon            = HTML::icon('info-calender', Languages::_('ORGANIZER_SCHEDULE'));
+					$additionalLinks .= HTML::link($iUrl . 'grid', $icon, $attributes);
 
-				$scheduleLink    =
-					HTML::link($scheduleUrl, '<span class="icon-info-calender"></span>', $scheduleLinkAttributes);
-				$additionalLinks .= $documentLink . $scheduleLink;
+					$icon            = HTML::icon('list', Languages::_('ORGANIZER_INSTANCES'));
+					$additionalLinks .= HTML::link($iUrl . 'list', $icon, $attributes);
+				}
 
 				$itemClass = 'item-subject';
 			}
 			else
 			{
-				$crp = Pools::getCrPText($item);
-				$url = '?option=com_organizer&view=subjects';
+				$crp = Helpers\Pools::getCrPText($item);
+				$url = $base . 'Subjects';
 				$url .= "&programID={$this->item['programID']}&poolID={$item['poolID']}";
 
 				$itemClass = 'item-pool';
 			}
 
-			$title       = HTML::link($url, $item['name'], $linkAttributes);
+			Languages::unpack($item['name']);
+
+			$title       = HTML::link($url, $item['name'], $attributes);
 			$itemContent .= '<div class="item-title">' . $title . '</div>';
 			$itemContent .= $crp ? '<div class="item-crp">' . $crp . '</div>' : '';
 			$itemContent .= $additionalLinks ? '<div class="item-tools">' . $additionalLinks . '</div>' : '';
@@ -109,9 +115,30 @@ class Curriculum extends ItemView
 		}
 
 		$item = str_replace('ITEMCLASS', $itemClass, $itemTemplate);
-		$item = str_replace('ITEMCONTENT', $itemContent, $item);
 
-		return $item;
+		return str_replace('ITEMCONTENT', $itemContent, $item);
+	}
+
+	/**
+	 * Renders the panel resolving the colors to the corresponding competences.
+	 * @return void
+	 */
+	public function renderLegend()
+	{
+		?>
+        <div class="legend">
+            <div class="panel-head">
+                <div class="panel-title"><?php echo Languages::_('ORGANIZER_LEGEND'); ?></div>
+            </div>
+			<?php foreach ($this->fields as $hex => $field) : ?>
+				<?php Languages::unpack($field); ?>
+                <div class="legend-item">
+                    <div class="item-color" style="background-color: <?php echo $hex; ?>;"></div>
+                    <div class="item-title"><?php echo $field; ?></div>
+                </div>
+			<?php endforeach; ?>
+        </div>
+		<?php
 	}
 
 	/**
@@ -121,9 +148,9 @@ class Curriculum extends ItemView
 	 *
 	 * @return void displays HTML
 	 */
-	public function renderPanel($pool)
+	public function renderPanel(array $pool)
 	{
-		$crpText = Pools::getCrPText($pool);
+		$crpText = Helpers\Pools::getCrPText($pool);
 		?>
         <div class="panel">
             <div class="panel-head">
@@ -131,7 +158,7 @@ class Curriculum extends ItemView
                 <div class="panel-crp"><?php echo $crpText; ?></div>
             </div>
             <div class="panel-body">
-				<?php $this->renderPanelBody($pool['children']); ?>
+				<?php $this->renderPanelBody($pool['curriculum']); ?>
             </div>
         </div>
 		<?php
@@ -140,18 +167,19 @@ class Curriculum extends ItemView
 	/**
 	 * Displays the body of the panel while iterating through child items
 	 *
-	 * @param   array  $children  the subordinate elements to the pool modeled by the panel
+	 * @param   array  $curriculum  the subordinate elements to the pool modeled by the panel
 	 *
 	 * @return  void displays the panel body
 	 */
-	private function renderPanelBody($children)
+	private function renderPanelBody(array $curriculum)
 	{
 		$maxOrdering = 0;
 		$items       = [];
-		foreach ($children as $child)
+		foreach ($curriculum as $subOrdinate)
 		{
-			$items[$child['ordering']] = $this->getPanelItem($child);
-			$maxOrdering               = $maxOrdering > $child['ordering'] ? $maxOrdering : $child['ordering'];
+			$items[$subOrdinate['ordering']] = $this->getPanelItem($subOrdinate);
+
+			$maxOrdering = $maxOrdering > $subOrdinate['ordering'] ? $maxOrdering : $subOrdinate['ordering'];
 		}
 
 		$trailingBlanks = 5 - $maxOrdering % 5;

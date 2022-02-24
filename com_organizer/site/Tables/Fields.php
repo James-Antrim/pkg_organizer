@@ -11,17 +11,12 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the fields table.
+ * Models the organizer_fields table.
  */
-class Fields extends Nullable
+class Fields extends BaseTable
 {
-	/**
-	 * The id of the color entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $colorID;
+	use Aliased;
+	use Coded;
 
 	/**
 	 * The resource's German name.
@@ -40,39 +35,10 @@ class Fields extends Nullable
 	public $name_en;
 
 	/**
-	 * The resource's identifier in Untis scheduling software.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
+	 * Declares the associated table.
 	 */
-	public $untisID;
-
-	/**
-	 * Declares the associated table
-	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
-	 */
-	public function __construct(&$dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_fields', 'id', $dbo);
-	}
-
-	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return boolean  true
-	 */
-	public function check()
-	{
-		$nullColumns = ['colorID'];
-		foreach ($nullColumns as $nullColumn)
-		{
-			if (!strlen($this->$nullColumn))
-			{
-				$this->$nullColumn = null;
-			}
-		}
-
-		return true;
+		parent::__construct('#__organizer_fields');
 	}
 }

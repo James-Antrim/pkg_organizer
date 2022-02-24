@@ -10,75 +10,66 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Adapters;
+use Organizer\Adapters\Toolbar;
+use Organizer\Helpers;
 
 /**
  * Class loads subject information into the display context.
  */
 class SubjectSelection extends ListView
 {
-	protected $_layout = 'list_modal';
+	protected $layout = 'list_modal';
 
 	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
+	 * @inheritdoc
 	 */
-	protected function addToolBar()
+	protected function addToolBar(bool $delete = true)
 	{
 		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'pools.addSubject', true);
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'x', true);
 	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
+	 * @inheritdoc
 	 */
-	protected function allowAccess()
+	protected function authorize()
 	{
-		return (bool) Can::documentTheseDepartments();
+		if (!Helpers\Can::documentTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
-	 * Modifies document variables and adds links to external files
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	protected function setHeaders()
 	{
 		$direction = $this->state->get('list.direction');
 		$ordering  = $this->state->get('list.ordering');
 		$headers   = [
-			'checkbox' => HTML::_('grid.checkall'),
-			'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
-			'program'  => Languages::_('ORGANIZER_PROGRAMS')
+			'checkbox' => Helpers\HTML::_('grid.checkall'),
+			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'program'  => Helpers\Languages::_('ORGANIZER_PROGRAMS')
 		];
 
 		$this->headers = $headers;
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{
@@ -87,7 +78,7 @@ class SubjectSelection extends ListView
 
 		foreach ($this->items as $subject)
 		{
-			if (!Can::document('subject', $subject->id))
+			if (!Helpers\Can::document('subject', (int) $subject->id))
 			{
 				continue;
 			}
@@ -96,9 +87,9 @@ class SubjectSelection extends ListView
 			$name .= empty($subject->code) ? '' : " - $subject->code";
 
 			$structuredItems[$index]             = [];
-			$structuredItems[$index]['checkbox'] = HTML::_('grid.id', $index, $subject->id);
+			$structuredItems[$index]['checkbox'] = Helpers\HTML::_('grid.id', $index, $subject->id);
 			$structuredItems[$index]['name']     = $name;
-			$structuredItems[$index]['programs'] = $name;
+			$structuredItems[$index]['programs'] = Helpers\Subjects::getProgramName($subject->id);
 
 			$index++;
 		}

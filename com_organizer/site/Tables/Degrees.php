@@ -11,10 +11,13 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the degrees table.
+ * Models the organizer_degrees table.
  */
 class Degrees extends BaseTable
 {
+	use Aliased;
+	use Coded;
+
 	/**
 	 * The resource's abbreviation.
 	 * VARCHAR(45) NOT NULL DEFAULT ''
@@ -22,14 +25,6 @@ class Degrees extends BaseTable
 	 * @var string
 	 */
 	public $abbreviation;
-
-	/**
-	 * The resource's code. (String ID)
-	 * VARCHAR(10) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $code;
 
 	/**
 	 * The resource's name.
@@ -40,12 +35,10 @@ class Degrees extends BaseTable
 	public $name;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct(&$dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_degrees', 'id', $dbo);
+		parent::__construct('#__organizer_degrees');
 	}
 }

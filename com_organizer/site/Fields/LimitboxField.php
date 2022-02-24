@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Field to load a list of possible item count limits
@@ -25,34 +25,27 @@ class LimitboxField extends OptionsField
 	public $type = 'Limitbox';
 
 	/**
-	 * Cached array of the category items.
-	 *
-	 * @var    array
-	 */
-	protected static $options = array();
-
-	/**
 	 * Default options
 	 *
 	 * @var  array
 	 */
-	protected $defaultLimits = array(5, 10, 15, 20, 25, 30, 50, 100, 200, 500);
+	protected $defaultLimits = [5, 10, 15, 20, 25, 30, 50, 100, 200, 500];
 
 	/**
 	 * Method to get the options to populate to populate list
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		// Accepted modifiers
 		$hash = md5($this->element);
 
-		if (!isset(static::$options[$hash]))
+		if (empty($this->options))
 		{
-			static::$options[$hash] = parent::getOptions();
+			$this->options = parent::getOptions();
 
-			$options = array();
+			$options = [];
 			$limits  = $this->defaultLimits;
 
 			// Limits manually specified
@@ -88,16 +81,16 @@ class LimitboxField extends OptionsField
 			{
 				foreach ($limits as $value)
 				{
-					$options[] = (object) array(
+					$options[] = (object) [
 						'value' => $value,
-						'text'  => ($value != 0) ? Languages::_('J' . $value) : Languages::_('JALL'),
-					);
+						'text'  => ($value != 0) ? Helpers\Languages::_('J' . $value) : Helpers\Languages::_('JALL'),
+					];
 				}
 
-				static::$options[$hash] = array_merge(static::$options[$hash], $options);
+				$this->options = array_merge($this->options, $options);
 			}
 		}
 
-		return static::$options[$hash];
+		return $this->options;
 	}
 }

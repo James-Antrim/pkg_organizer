@@ -10,150 +10,165 @@
 
 namespace Organizer\Models;
 
-use Exception;
-use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
-use Organizer\Tables\Pools as PoolsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
+use SimpleXMLElement;
 
 /**
  * Class which manages stored (subject) pool data.
  */
-class Pool extends BaseModel
+class Pool extends CurriculumResource
 {
+	use Associated;
+	use SubOrdinate;
+	use SuperOrdinate;
+
+	protected $helper = 'Pools';
+
+	protected $resource = 'pool';
+
 	/**
-	 * Attempts to delete the selected subject pool entries and related mappings
-	 *
-	 * @return boolean true on success, otherwise false
-	 * @throws Exception => unauthorized access
+	 * @inheritDoc
+	 * @return Tables\Pools A Table object
 	 */
-	public function delete()
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Pools
 	{
-		if (!Can::documentTheseDepartments())
-		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
-
-		if ($poolIDs = Input::getSelectedIDs())
-		{
-			foreach ($poolIDs as $poolID)
-			{
-				if (!Can::document('pool', $poolID))
-				{
-					throw new Exception(Languages::_('ORGANIZER_403'), 403);
-				}
-
-				if (!$this->deleteSingle($poolID))
-				{
-					return false;
-				}
-			}
-		}
-
-		return true;
+		return new Tables\Pools();
 	}
 
 	/**
-	 * Removes a single pool and mappings. No access checks because of the contexts in which it is called.
-	 *
-	 * @param   int  $poolID  the pool id
-	 *
-	 * @return boolean  true on success, otherwise false
+	 * @inheritDoc
 	 */
-	public function deleteSingle($poolID)
+	public function importSingle(int $resourceID): bool
 	{
-		$model = new Mapping;
+		// There is no legitimate call to this method.
+		return false;
+	}
 
-		if (!$model->deleteByResourceID($poolID, 'pool'))
+	/**
+	 * Creates a pool entry if none exists and calls
+	 *
+	 * @param   SimpleXMLElement  $XMLObject       a SimpleXML object containing rudimentary subject data
+	 * @param   int               $organizationID  the id of the organization to which this data belongs
+	 * @param   int               $parentID        the id of the parent entry
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	public function processResource(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
+	{
+		$lsfID = empty($XMLObject->pordid) ? (string) $XMLObject->modulid : (string) $XMLObject->pordid;
+		if (empty($lsfID))
 		{
 			return false;
 		}
 
-		$table = new PoolsTable;
+		$blocked = !empty($XMLObject->sperrmh) and strtolower((string) $XMLObject->sperrmh) === 'x';
+		$noChildren = !isset($XMLObject->modulliste->modul);
+		$validTitle = $this->validTitle($XMLObject);
 
-		return $table->delete($poolID);
+		$pool = new Tables\Pools();
+
+		if (!$pool->load(['lsfID' => $lsfID]))
+		{
+			// There isn't one and shouldn't be one
+			if ($blocked or !$validTitle or $noChildren)
+			{
+				return true;
+			}
+
+			$pool->lsfID = $lsfID;
+			$this->setNameAttributes($pool, $XMLObject);
+
+			if (!$pool->store())
+			{
+				return false;
+			}
+		}
+		elseif ($blocked or !$validTitle or $noChildren)
+		{
+			return $this->deleteSingle($pool->id);
+		}
+
+		$curricula = new Tables\Curricula();
+
+		if (!$curricula->load(['parentID' => $parentID, 'poolID' => $pool->id]))
+		{
+			$range             = [];
+			$range['parentID'] = $parentID;
+			$range['poolID']   = $pool->id;
+
+			$range['ordering'] = $this->getOrdering($parentID, $pool->id);
+			if (!$this->shiftUp($parentID, $range['ordering']))
+			{
+				return false;
+			}
+
+			if (!$this->addRange($range))
+			{
+				return false;
+			}
+
+			$curricula->load(['parentID' => $parentID, 'poolID' => $pool->id]);
+		}
+
+		$association = new Tables\Associations();
+		if (!$association->load(['organizationID' => $organizationID, 'poolID' => $pool->id]))
+		{
+			$association->save(['organizationID' => $organizationID, 'poolID' => $pool->id]);
+		}
+
+		return $this->processCollection($XMLObject->modulliste->modul, $organizationID, $curricula->id);
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Table A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = [])
-	{
-		return new PoolsTable;
-	}
-
-	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
-	 *
-	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
+	 * @inheritDoc
 	 */
 	public function save($data = [])
 	{
-		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
 		if (empty($data['id']))
 		{
-			if (!Can::documentTheseDepartments())
+			if (!Helpers\Can::documentTheseOrganizations())
 			{
-				throw new Exception(Languages::_('ORGANIZER_403'), 403);
+				Helpers\OrganizerHelper::error(403);
 			}
 		}
 		elseif (is_numeric($data['id']))
 		{
-			if (!Can::document('pool', $data['id']))
+			if (!Helpers\Can::document('pool', (int) $data['id']))
 			{
-				throw new Exception(Languages::_('ORGANIZER_403'), 403);
+				Helpers\OrganizerHelper::error(403);
 			}
 		}
 		else
 		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
+			return false;
 		}
 
-		if (empty($data['fieldID']))
-		{
-			unset($data['fieldID']);
-		}
-
-		$table = new PoolsTable;
+		$table = new Tables\Pools();
 
 		if (!$table->save($data))
 		{
 			return false;
 		}
 
-		$mappingsIrrelevant = (empty($data['programID']) or empty($data['parentID']));
+		$data['id'] = $table->id;
 
-		// Successfully inserted a new pool
-		if ($mappingsIrrelevant)
+		if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs']))
 		{
-			return $table->id;
-		} // Process mapping information
-		else
-		{
-			$model      = new Mapping;
-			$data['id'] = $table->id;
-
-			// No mappings desired
-			if (empty($data['parentID']))
-			{
-				return $model->deleteByResourceID($table->id, 'pool') ? $table->id : false;
-			}
-			else
-			{
-				return $model->savePool($data) ? $table->id : false;
-			}
+			return false;
 		}
+
+		$superOrdinates = $this->getSuperOrdinates($data);
+
+		if (!$this->addNew($data, $superOrdinates))
+		{
+			return false;
+		}
+
+		$this->removeDeprecated($table->id, $superOrdinates);
+
+		return $table->id;
 	}
 }

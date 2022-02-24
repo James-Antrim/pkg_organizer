@@ -10,11 +10,13 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
-use Organizer\Helpers\Named;
-use Organizer\Helpers\OrganizerHelper;
+use Joomla\Utilities\ArrayHelper;
+use Organizer\Adapters\Database;
+use Organizer\Helpers;
 use stdClass;
 
 /**
@@ -24,9 +26,9 @@ abstract class ListModel extends ParentModel
 {
 	use Named;
 
-	const FRONTEND = false, BACKEND = true;
+	protected const ALL = 0, NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
-	protected $clientContext;
+	protected $adminContext;
 
 	protected $defaultOrdering = 'name';
 
@@ -34,27 +36,28 @@ abstract class ListModel extends ParentModel
 
 	protected $defaultLimit = null;
 
-	protected $defaultStart = 0;
+	public $mobile = false;
 
 	protected $option = 'com_organizer';
 
 	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
+	 * @inheritDoc
 	 */
 	public function __construct($config = [])
 	{
 		parent::__construct($config);
 
-		$app                  = OrganizerHelper::getApplication();
-		$this->clientContext  = $app->isClient('administrator');
-		$this->filterFormName = strtolower(OrganizerHelper::getClass($this));
+		$app                  = Helpers\OrganizerHelper::getApplication();
+		$this->adminContext   = $app->isClient('administrator');
+		$this->filterFormName = strtolower(Helpers\OrganizerHelper::getClass($this));
 
 		if (!is_int($this->defaultLimit))
 		{
 			$this->defaultLimit = $app->get('list_limit', 50);
 		}
+
+		$this->mobile = Helpers\OrganizerHelper::isSmartphone();
+		$this->setContext();
 	}
 
 	/**
@@ -64,23 +67,24 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return void modifies $form
 	 */
-	protected function filterFilterForm(&$form)
+	protected function filterFilterForm(Form &$form)
 	{
-		if ($this->clientContext === self::BACKEND)
-		{
-			$form->removeField('languageTag', 'list');
-
-			return;
-		}
+		// No implementation is the default implementation.
 	}
 
 	/**
-	 * Method to get the total number of items for the data set. Joomla erases critical fields for complex data sets.
-	 * This method fixes the erroneous output of undesired duplicate entries.
-	 *
-	 * @param   string  $idColumn  the main id column of the list query
-	 *
-	 * @return integer  The total number of items available in the data set.
+	 * @inheritDoc
+	 * @return  array  An array of data items on success.
+	 */
+	public function getItems(): array
+	{
+		$items = parent::getItems();
+
+		return $items ?: [];
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	public function getTotal($idColumn = null)
 	{
@@ -100,11 +104,10 @@ abstract class ListModel extends ParentModel
 
 		// Load the total.
 		$query = $this->getListQuery();
-		$query->clear('SELECT')->clear('limit')->clear('offset')->clear('order');
+		$query->clear('select')->clear('limit')->clear('offset')->clear('order');
 		$query->select("COUNT(DISTINCT ($idColumn))");
-		$this->_db->setQuery($query);
-
-		$total = (int) OrganizerHelper::executeQuery('loadResult');
+		Database::setQuery($query);
+		$total = Database::loadInt();
 
 		// Add the total to the internal cache.
 		$this->cache[$store] = $total;
@@ -113,35 +116,28 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
-	 * Method to get a form object.
-	 *
-	 * @param   string          $name     The name of the form.
-	 * @param   string          $source   The form source. Can be XML string if file flag is set to false.
-	 * @param   array           $options  Optional array of options for the form creation.
-	 * @param   boolean         $clear    Optional argument to force load a new form.
-	 * @param   string|boolean  $xpath    An optional xpath to search for the fields.
-	 *
-	 * @return  Form|boolean  Form object on success, False on error.
+	 * @inheritDoc
 	 */
-	protected function loadForm($name, $source = null, $options = array(), $clear = false, $xpath = false)
+	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false)
 	{
 		Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
 		Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
-		$form = parent::loadForm($name, $source, $options, $clear, $xpath);
-		$this->filterFilterForm($form);
+
+		if ($form = parent::loadForm($name, $source, $options, $clear, $xpath))
+		{
+			$this->filterFilterForm($form);
+		}
 
 		return $form;
 	}
 
 	/**
-	 * Method to get the data that should be injected in the form.
-	 *
-	 * @return mixed  The data for the form.
+	 * @inheritDoc
 	 */
 	protected function loadFormData()
 	{
 		// Check the session for previously entered form data.
-		$data = OrganizerHelper::getApplication()->getUserState($this->context, new stdClass);
+		$data = Helpers\OrganizerHelper::getApplication()->getUserState($this->context, new stdClass());
 
 		// Pre-create the list options
 		if (!property_exists($data, 'list'))
@@ -172,17 +168,12 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void populates state properties
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
 		parent::populateState($ordering, $direction);
-		$app = OrganizerHelper::getApplication();
+		$app = Helpers\OrganizerHelper::getApplication();
 
 		// Receive & set filters
 		$filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
@@ -197,20 +188,51 @@ abstract class ListModel extends ParentModel
 			$this->setState("list.$input", $value);
 		}
 
-		$relevant = (!empty($list['ordering']) and strpos($list['ordering'], 'null') !== false);
-		$ordering = $relevant ? $list['ordering'] : $this->defaultOrdering;
+		$direction    = 'ASC';
+		$fullOrdering = "$this->defaultOrdering ASC";
+		$ordering     = $this->defaultOrdering;
 
-		$validDirections = ['ASC', 'DESC', ''];
-		$relevant        = (!empty($list['direction']) and in_array(strtoupper($list['direction']), $validDirections));
-		$direction       = $relevant ? $list['direction'] : $this->defaultDirection;
+		if (!empty($list['fullordering']) and strpos($list['fullordering'], 'null') === false)
+		{
+			$pieces          = explode(' ', $list['fullordering']);
+			$validDirections = ['ASC', 'DESC', ''];
 
-		$fullOrdering = "$ordering $direction";
-		Factory::getSession()->set($this->context . '.ordering', $fullOrdering);
+			switch (count($pieces))
+			{
+				case 1:
+					if (in_array($pieces[0], $validDirections))
+					{
+						$direction    = empty($pieces[0]) ? 'ASC' : $pieces[0];
+						$fullOrdering = "$this->defaultDirection $direction";
+						$ordering     = $this->defaultDirection;
+						break;
+					}
+
+					$direction    = $pieces[0];
+					$fullOrdering = "$pieces[0] ASC";
+					$ordering     = 'ASC';
+					break;
+				case 2:
+					$direction    = !in_array($pieces[1], $validDirections) ? 'ASC' : $pieces[1];
+					$ordering     = $pieces[0];
+					$fullOrdering = "$ordering $direction";
+					break;
+			}
+		}
+
 		$this->setState('list.fullordering', $fullOrdering);
 		$this->setState('list.ordering', $ordering);
 		$this->setState('list.direction', $direction);
 
-		$limit = (isset($list['limit']) && is_numeric($list['limit'])) ? $list['limit'] : $this->defaultLimit;
+		if ($format = Helpers\Input::getCMD('format') and $format === 'pdf')
+		{
+			$limit = 0;
+		}
+		else
+		{
+			$limit = (isset($list['limit']) && is_numeric($list['limit'])) ? $list['limit'] : $this->defaultLimit;
+		}
+
 		$this->setState('list.limit', $limit);
 
 		$value = $this->getUserStateFromRequest('limitstart', 'limitstart', 0);
@@ -219,15 +241,64 @@ abstract class ListModel extends ParentModel
 	}
 
 	/**
+	 * Sets a campus filter for a given resource.
+	 *
+	 * @param   JDatabaseQuery  $query  the query to modify
+	 * @param   string          $alias  the alias for the linking table
+	 */
+	public function setCampusFilter(JDatabaseQuery $query, string $alias)
+	{
+		$campusID = $this->state->get('filter.campusID');
+		if (empty($campusID))
+		{
+			return;
+		}
+
+		if ($campusID === '-1')
+		{
+			$query->leftJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
+				->where("campusAlias.id IS NULL");
+
+			return;
+		}
+
+		$query->innerJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
+			->where("(campusAlias.id = $campusID OR campusAlias.parentID = $campusID)");
+	}
+
+	/**
+	 * Sets a campus filter for a given resource.
+	 *
+	 * @param   JDatabaseQuery  $query  the query to modify
+	 * @param   string          $alias  the alias for the linking table
+	 */
+	public function setActiveFilter(JDatabaseQuery $query, string $alias)
+	{
+		$status = $this->state->get('filter.active');
+
+		if (!is_numeric($status))
+		{
+			$status = 1;
+		}
+
+		if ($status == -1)
+		{
+			return;
+		}
+
+		$query->where("$alias.active = $status");
+	}
+
+	/**
 	 * Provides a default method for setting filters based on id/unique values
 	 *
-	 * @param   object &$query       the query object
-	 * @param   string  $idColumn    the id column in the table
-	 * @param   array   $filterName  the filter name to look for the id in
+	 * @param   JDatabaseQuery  $query       the query to modify
+	 * @param   string          $idColumn    the id column in the table
+	 * @param   string          $filterName  the filter name to look for the id in
 	 *
 	 * @return void
 	 */
-	protected function setIDFilter(&$query, $idColumn, $filterName)
+	protected function setIDFilter(JDatabaseQuery $query, string $idColumn, string $filterName)
 	{
 		$value = $this->state->get($filterName, '');
 		if ($value === '')
@@ -242,29 +313,28 @@ abstract class ListModel extends ParentModel
 		 */
 		if ($value == '-1')
 		{
-			$query->where("$idColumn = '' OR $idColumn IS NULL");
+			$query->where("$idColumn IS NULL");
 
 			return;
 		}
 
 		// IDs are unique and therefore mutually exclusive => one is enough!
-		$query->where("$idColumn = '$value'");
-
-		return;
+		$query->where("$idColumn = $value");
 	}
 
 	/**
 	 * Provides a default method for setting the list ordering
 	 *
-	 * @param   object &$query  the query object
+	 * @param   JDatabaseQuery  $query  the query to modify
 	 *
 	 * @return void
 	 */
-	protected function setOrdering(&$query)
+	protected function setOrdering(JDatabaseQuery $query)
 	{
-		$defaultOrdering = "{$this->defaultOrdering} {$this->defaultDirection}";
+		$defaultOrdering = "$this->defaultOrdering $this->defaultDirection";
 		$session         = Factory::getSession();
 		$listOrdering    = $this->state->get('list.fullordering', $defaultOrdering);
+
 		if (strpos($listOrdering, 'null') !== false)
 		{
 			$sessionOrdering = $session->get('ordering', '');
@@ -276,18 +346,61 @@ abstract class ListModel extends ParentModel
 				return;
 			}
 		}
+
 		$query->order($listOrdering);
+	}
+
+	/**
+	 * Sets an organization filter for the given resource.
+	 *
+	 * @param   JDatabaseQuery  $query    the query to modify
+	 * @param   string          $context  the resource context from which this function was called
+	 * @param   string          $alias    the alias of the table onto which the organizations table will be joined as
+	 *                                    needed
+	 *
+	 * @return void
+	 */
+	protected function setOrganizationFilter(JDatabaseQuery $query, string $context, string $alias)
+	{
+		$authorizedOrgIDs = $this->adminContext ?
+			Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
+		$organizationID   = $this->state->get('filter.organizationID', 0);
+
+		if (!$authorizedOrgIDs or !$organizationID)
+		{
+			return;
+		}
+
+		$joinStatement = "#__organizer_associations AS a on a.{$context}ID = $alias.id";
+
+		if ($organizationID == '-1')
+		{
+			$query->leftJoin($joinStatement)->where('a.organizationID IS NULL');
+
+			return;
+		}
+
+		$query->innerJoin($joinStatement);
+
+		if (in_array($organizationID, $authorizedOrgIDs))
+		{
+			$query->where("a.organizationID = $organizationID");
+
+			return;
+		}
+
+		$query->where('(a.organizationID IN (' . implode(',', $authorizedOrgIDs) . ') OR a.organizationID IS NULL)');
 	}
 
 	/**
 	 * Sets the search filter for the query
 	 *
-	 * @param   object &$query        the query to modify
-	 * @param   array   $columnNames  the column names to use in the search
+	 * @param   JDatabaseQuery  $query        the query to modify
+	 * @param   array           $columnNames  the column names to use in the search
 	 *
 	 * @return void
 	 */
-	protected function setSearchFilter(&$query, $columnNames)
+	protected function setSearchFilter(JDatabaseQuery $query, array $columnNames)
 	{
 		$userInput = $this->state->get('filter.search', '');
 		if (empty($userInput))
@@ -301,38 +414,73 @@ abstract class ListModel extends ParentModel
 			$wherray[] = "$name LIKE '$search'";
 		}
 		$where = implode(' OR ', $wherray);
-		$query->where("( $where )");
+		$query->where("($where)");
+	}
+
+	/**
+	 * Adds a date status filter for a given resource.
+	 *
+	 * @param   JDatabaseQuery  $query  the query to modify
+	 * @param   string          $alias  the column alias
+	 */
+	public function setStatusFilter(JDatabaseQuery $query, string $alias)
+	{
+		if (!$value = $this->state->get('filter.status'))
+		{
+			return;
+		}
+
+		$modified       = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
+		$modifiedClause = "AND $alias.modified > '$modified'";
+
+		switch ($value)
+		{
+			case self::CURRENT:
+				$query->where("$alias.delta != 'removed'");
+
+				return;
+			case self::CHANGED:
+				$query->where("(($alias.delta = 'new' $modifiedClause) OR $alias.delta = 'removed')");
+
+				return;
+			case self::NEW:
+				$query->where("($alias.delta = 'new' $modifiedClause)");
+
+				return;
+			case self::REMOVED:
+				$query->where("$alias.delta = 'removed'");
+
+				return;
+		}
 	}
 
 	/**
 	 * Provides a default method for setting filters for non-unique values
 	 *
-	 * @param   object &$query        the query object
-	 * @param   array   $filterNames  the filter names. names should be synonymous with db column names.
+	 * @param   JDatabaseQuery  $query         the query to modify
+	 * @param   array           $queryColumns  the filter names. names should be synonymous with db column names.
 	 *
 	 * @return void
 	 */
-	protected function setValueFilters(&$query, $filterNames)
+	protected function setValueFilters(JDatabaseQuery $query, array $queryColumns)
 	{
+		$filters = Helpers\Input::getFilterItems();
+		$lists   = Helpers\Input::getListItems();
+		$state   = $this->getState();
+
 		// The view level filters
-		foreach ($filterNames as $filterName)
+		foreach ($queryColumns as $column)
 		{
-			$queryColumnName = $filterName;
+			$filterName = strpos($column, '.') === false ? $column : explode('.', $column)[1];
 
-			if (strpos($filterName, '.') !== false)
-			{
-				$filterName = explode('.', $filterName)[1];
-			}
-
-			$listValue   = $this->state->get("list.$filterName");
-			$filterValue = $this->state->get("filter.$filterName");
-
-			if (empty($listValue) and empty($filterValue))
+			if (!$value = $filters->get($filterName)
+				and !$value = $lists->get($filterName)
+				and !$value = $state->get("filter.$filterName")
+				and !$value = $state->get("list.$filterName")
+			)
 			{
 				continue;
 			}
-
-			$value = empty($filterValue) ? $listValue : $filterValue;
 
 			/**
 			 * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
@@ -341,12 +489,22 @@ abstract class ListModel extends ParentModel
 			 */
 			if ($value == '-1')
 			{
-				$query->where("( $queryColumnName = '' OR $queryColumnName IS NULL )");
+				$query->where("( $column = '' OR $column IS NULL )");
 				continue;
 			}
 
-			$value = is_numeric($value) ? $value : "'$value'";
-			$query->where("$queryColumnName = $value");
+			if (is_numeric($value))
+			{
+				$query->where("$column = $value");
+			}
+			elseif (is_string($value))
+			{
+				$query->where("$column = '$value'");
+			}
+			elseif (is_array($value) and $value = implode(',', ArrayHelper::toInteger($value)))
+			{
+				$query->where("$column IN ($value)");
+			}
 		}
 	}
 }

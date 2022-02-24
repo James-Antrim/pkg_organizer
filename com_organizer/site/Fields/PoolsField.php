@@ -10,8 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Pools;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for (subject) pools.
@@ -28,11 +27,11 @@ class PoolsField extends OptionsField
 	 *
 	 * @return array  the pool options
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options = parent::getOptions();
-		$access  = OrganizerHelper::getApplication()->isClient('administrator') ? 'document' : '';
-		$pools   = Pools::getOptions($access);
+		$access  = $this->adminContext ? 'document' : '';
+		$pools   = Helpers\Pools::getOptions($access);
 
 		return array_merge($options, $pools);
 	}

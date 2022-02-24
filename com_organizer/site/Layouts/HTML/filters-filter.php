@@ -8,9 +8,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\HTML;
-
-defined('JPATH_BASE') or die;
+use Organizer\Helpers;
 
 // Load the form filters
 $filters = $this->filterForm->getGroup('filter');
@@ -21,8 +19,8 @@ $filters = $this->filterForm->getGroup('filter');
 		<?php if ($fieldName !== 'filter_search') : ?>
 			<?php $dataShowOn = ''; ?>
 			<?php if ($field->showon) : ?>
-				<?php HTML::_('bootstrap.framework'); ?>
-				<?php HTML::_('script', 'jui/cms.js', array('version' => 'auto', 'relative' => true)); ?>
+				<?php Helpers\HTML::_('bootstrap.framework'); ?>
+				<?php Helpers\HTML::_('script', 'jui/cms.js', ['version' => 'auto', 'relative' => true]); ?>
 				<?php $dataShowOn = " data-showon='" . json_encode($showON, JSON_UNESCAPED_UNICODE) . "'"; ?>
 			<?php endif; ?>
             <div class="js-stools-field-filter"<?php echo $dataShowOn; ?>>

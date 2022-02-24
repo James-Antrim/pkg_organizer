@@ -10,11 +10,6 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Named;
-use Organizer\Helpers\OrganizerHelper;
-
 /**
  * Class loads non-item-specific form data.
  */
@@ -34,15 +29,5 @@ class ItemModel extends BaseModel
 		parent::__construct($config);
 
 		$this->setContext();
-	}
-
-	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
-	 *
-	 * @return bool  true if the user can access the view, otherwise false
-	 */
-	protected function allowView()
-	{
-		return Can::administrate();
 	}
 }

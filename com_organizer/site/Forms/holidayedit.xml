@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="startDate" type="Date" label="START_DATE" default="today" required="true" showtime="false"/>
+        <field name="endDate" type="Date" label="END_DATE" default="today" required="true" showtime="false"/>
+        <field name="type" type="Options" label="HOLIDAY_TYPE" required="true">
+            <option value="1">HOLIDAYS_GAP</option>
+            <option value="3">HOLIDAYS_OFFICIAL</option>
+            <option value="2">HOLIDAYS_CLOSED</option>
+        </field>
+    </fieldset>
+</form>

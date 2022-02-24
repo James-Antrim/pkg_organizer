@@ -11,9 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Joomla\CMS\Factory;
-use Organizer\Helpers\Mappings;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of subjects. Modal view.
@@ -25,20 +23,17 @@ class SubjectSelection extends ListModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
-		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$tag   = Helpers\Languages::getTag();
+		$query = $this->_db->getQuery(true);
 
-		$query->select("DISTINCT s.id, code, name_$tag AS name")->from('#__organizer_subjects AS s');
+		$query->select("DISTINCT s.id, code, fullName_$tag AS name")->from('#__organizer_subjects AS s');
 
 		$searchFields = [
-			'name_de',
-			'shortName_de',
+			'fullName_de',
 			'abbreviation_de',
-			'name_en',
-			'shortName_en',
+			'fullName_en',
 			'abbreviation_en',
 			'code',
 			'description_de',
@@ -51,10 +46,15 @@ class SubjectSelection extends ListModel
 		$this->setSearchFilter($query, $searchFields);
 		$this->setValueFilters($query, ['code', 'fieldID']);
 
-		$programID = $this->state->get('filter.programID', '');
-		Mappings::setResourceIDFilter($query, $programID, 'program', 'subject');
-		$poolID = $this->state->get('filter.poolID', '');
-		Mappings::setResourceIDFilter($query, $poolID, 'pool', 'subject');
+		if ($programID = $this->state->get('filter.programID', ''))
+		{
+			Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
+		}
+
+		if ($poolID = $this->state->get('filter.poolID', ''))
+		{
+			Helpers\Subjects::setPoolFilter($query, $poolID, 's');
+		}
 
 		$this->setOrdering($query);
 

@@ -10,18 +10,16 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
 use Joomla\Registry\Registry;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Languages;
+use Organizer\Adapters;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
  */
-abstract class TableView extends BaseHTMLView
+abstract class TableView extends BaseView
 {
-	protected $_layout = 'table';
+	protected $layout = 'table';
 
 	public $activeFilters = null;
 
@@ -50,35 +48,19 @@ abstract class TableView extends BaseHTMLView
 	abstract protected function addToolBar();
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	protected function allowAccess()
-	{
-		return true;
-	}
-
-	/**
 	 * Method to create a list output
 	 *
 	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function display($tpl = null)
 	{
-		if (!$this->allowAccess())
-		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
-		}
-
 		$this->state         = $this->get('State');
 		$this->filterForm    = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
 
-		$this->setInheritingProperties();
+		$this->setOverrides();
 		$this->setHeaders();
 		$this->setRows($this->get('Items'));
 		$this->pagination = $this->get('Pagination');
@@ -109,7 +91,7 @@ abstract class TableView extends BaseHTMLView
 	 *
 	 * @return string
 	 */
-	private function getHeaderCell($cell, $dataClass, $colSpan = 0)
+	private function getHeaderCell(array $cell, string $dataClass, int $colSpan = 0): string
 	{
 		$attributes = "class=\"$dataClass\"";
 		$attributes .= $colSpan ? " colspan=\"$colSpan\"" : '';
@@ -125,7 +107,7 @@ abstract class TableView extends BaseHTMLView
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	abstract protected function getRow($resource);
+	abstract protected function getRow(object $resource): array;
 
 	/**
 	 * Creates a label with tooltip for the resource row.
@@ -134,7 +116,7 @@ abstract class TableView extends BaseHTMLView
 	 *
 	 * @return array  the label inclusive tooltip to be displayed
 	 */
-	abstract protected function getRowLabel($resource);
+	abstract protected function getRowLabel(object $resource): array;
 
 	/**
 	 * Creates a table cell.
@@ -143,18 +125,16 @@ abstract class TableView extends BaseHTMLView
 	 *
 	 * @return array structured cell information
 	 */
-	abstract protected function getDataCell($data);
+	abstract protected function getDataCell(array $data): array;
 
 	/**
-	 * Modifies document variables and adds links to external files
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/table.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/table.css');
 	}
 
 	/**
@@ -204,8 +184,6 @@ abstract class TableView extends BaseHTMLView
 		{
 			echo "<tr class=\"level-2 $columnClass\">$levelTwo</tr>";
 		}
-
-		return;
 	}
 
 	/**
@@ -247,7 +225,7 @@ abstract class TableView extends BaseHTMLView
 	 *
 	 * @return void sets properties of inheriting classes
 	 */
-	abstract protected function setInheritingProperties();
+	abstract protected function setOverrides();
 
 	/**
 	 * Processes the resources for display in rows.
@@ -256,7 +234,7 @@ abstract class TableView extends BaseHTMLView
 	 *
 	 * @return void processes the class rows property
 	 */
-	protected function setRows($resources)
+	protected function setRows(array $resources)
 	{
 		$rows = [];
 

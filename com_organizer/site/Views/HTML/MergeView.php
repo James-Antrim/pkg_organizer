@@ -10,10 +10,8 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Toolbar;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Adapters\Toolbar;
+use Organizer\Helpers;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
@@ -27,22 +25,23 @@ abstract class MergeView extends FormView
 	 */
 	protected function addToolBar()
 	{
-		$name = OrganizerHelper::getClass($this);
-		HTML::setTitle(Languages::_(Languages::getConstant($name)));
+		$name = Helpers\OrganizerHelper::getClass($this);
+		$this->setTitle(Helpers\Languages::getConstant($name));
+
 		$resource   = str_replace('merge', '', strtolower($name));
-		$controller = OrganizerHelper::getPlural($resource);
+		$controller = Helpers\OrganizerHelper::getPlural($resource);
 		$toolbar    = Toolbar::getInstance();
 		$toolbar->appendButton(
 			'Standard',
-			'attachment',
-			Languages::_('ORGANIZER_MERGE'),
+			'contract',
+			Helpers\Languages::_('ORGANIZER_MERGE'),
 			$controller . '.merge',
 			false
 		);
 		$toolbar->appendButton(
 			'Standard',
 			'cancel',
-			Languages::_('ORGANIZER_CANCEL'),
+			Helpers\Languages::_('ORGANIZER_CANCEL'),
 			$controller . '.cancel',
 			false
 		);

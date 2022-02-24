@@ -8,8 +8,7 @@
  * @link        www.thm.de
  */
 
-use Joomla\CMS\Filesystem\File;
-use Joomla\CMS\Filesystem\Folder;
+use Joomla\CMS\Filesystem;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 
@@ -21,11 +20,11 @@ class Com_OrganizerInstallerScript
 	/**
 	 * Creates the directory for images used by the component
 	 *
-	 * @return boolean true if the directory exists, otherwise false
+	 * @return bool true if the directory exists, otherwise false
 	 */
 	private function createImageDirectory()
 	{
-		return Folder::create(JPATH_ROOT . '/images/organizer');
+		return Filesystem\Folder::create(JPATH_ROOT . '/images/organizer');
 	}
 
 	/**
@@ -144,32 +143,32 @@ class Com_OrganizerInstallerScript
 			}
 		}
 
-		$adminFiles = Folder::files(JPATH_ADMINISTRATOR . '/components/com_organizer');
+		$adminFiles = Filesystem\Folder::files(JPATH_ADMINISTRATOR . '/components/com_organizer');
 
 		foreach ($adminFiles as $adminFile)
 		{
-			File::delete(JPATH_ADMINISTRATOR . '/components/com_organizer/' . $adminFile);
+			Filesystem\File::delete(JPATH_ADMINISTRATOR . '/components/com_organizer/' . $adminFile);
 		}
 
-		$adminFolders = Folder::folders(JPATH_ADMINISTRATOR . '/components/com_organizer');
+		$adminFolders = Filesystem\Folder::folders(JPATH_ADMINISTRATOR . '/components/com_organizer');
 
 		foreach ($adminFolders as $adminFolder)
 		{
-			Folder::delete(JPATH_ADMINISTRATOR . '/components/com_organizer/' . $adminFolder);
+			Filesystem\Folder::delete(JPATH_ADMINISTRATOR . '/components/com_organizer/' . $adminFolder);
 		}
 
-		$siteFiles = Folder::files(JPATH_ROOT . '/components/com_organizer');
+		$siteFiles = Filesystem\Folder::files(JPATH_ROOT . '/components/com_organizer');
 
 		foreach ($siteFiles as $siteFile)
 		{
-			File::delete(JPATH_ROOT . '/components/com_organizer/' . $siteFile);
+			Filesystem\File::delete(JPATH_ROOT . '/components/com_organizer/' . $siteFile);
 		}
 
-		$siteFolders = Folder::folders(JPATH_ROOT . '/components/com_organizer');
+		$siteFolders = Filesystem\Folder::folders(JPATH_ROOT . '/components/com_organizer');
 
 		foreach ($siteFolders as $siteFolder)
 		{
-			Folder::delete(JPATH_ROOT . '/components/com_organizer/' . $siteFolder);
+			Filesystem\Folder::delete(JPATH_ROOT . '/components/com_organizer/' . $siteFolder);
 		}*/
 	}
 
@@ -184,7 +183,7 @@ class Com_OrganizerInstallerScript
 	 */
 	public function uninstall($parent)
 	{
-		if (!Folder::delete(JPATH_ROOT . '/images/organizer'))
+		if (!Filesystem\Folder::delete(JPATH_ROOT . '/images/organizer'))
 		{
 			echo Text::_('The directory located at &quot;/images/organizer&quot; could not be removed.');
 		}

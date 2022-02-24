@@ -2,9 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fieldset name="details">
         <field name="id" type="hidden"/>
-        <field name="name_de" type="Blank" label="NAME_DE" required="true" size="60"/>
-        <field name="name_en" type="Blank" label="NAME_EN" required="true" size="60"/>
-        <field name="color" type="Color" size="10" required="true" label="ORGANIZER_COLOR"
-               description="ORGANIZER_COLOR_DESC"/>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="color" type="Color" required="true" label="ORGANIZER_COLOR"/>
     </fieldset>
 </form>

@@ -22,21 +22,59 @@ class Routing
 	 *
 	 * @return string the root url to redirect to
 	 */
-	public static function getRedirectBase()
+	public static function getRedirectBase(): string
 	{
-		$url = Uri::base();
-		if ($menuID = Input::getItemid())
+		$base = Uri::base();
+
+		if (OrganizerHelper::getApplication()->isClient('administrator'))
 		{
-			$url .= OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->route . '?';
-		}
-		else
-		{
-			$url .= '?option=com_organizer';
+			return "$base?option=com_organizer";
 		}
 
-		if ($tag = Input::getCMD('languageTag'))
+		// If the menu is plausible redirect
+		if ($menuID = Input::getItemid() and !OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->home)
 		{
-			$url .= "&languageTag=$tag";
+			return $base . OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->route . '?';
+		}
+
+		return "$base?option=com_organizer";
+	}
+
+	/**
+	 * Generates a link to a controller function.
+	 *
+	 * @param   string  $task  the controller and function to be accessed
+	 * @param   int     $id    the optional id of the resource to be displayed in the view
+	 *
+	 * @return string the task url
+	 */
+	public static function getTaskURL(string $task, int $id = 0): string
+	{
+		$url = Uri::base() . "?option=com_organizer&task=$task";
+
+		if ($id)
+		{
+			$url .= "&id=$id";
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Generates a link to a view.
+	 *
+	 * @param   string  $view  the view to be accessed
+	 * @param   int     $id    the optional id of the resource to be displayed in the view
+	 *
+	 * @return string the view url
+	 */
+	public static function getViewURL(string $view, int $id = 0): string
+	{
+		$url = Uri::base() . "?option=com_organizer&view=$view";
+
+		if ($id)
+		{
+			$url .= "&id=$id";
 		}
 
 		return $url;

@@ -11,8 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 use SimpleXMLElement;
 use stdClass;
 
@@ -23,29 +22,89 @@ class OptionsField extends FormField
 {
 	use Translated;
 
+	protected $adminContext;
+
 	/**
-	 * The form field type.
+	 * Cached array of the category items.
 	 *
-	 * @var    string
+	 * @var    array
 	 */
-	protected $type = 'List';
+	public $options = [];
+
+	/**
+	 * Method to add an option to the list field.
+	 *
+	 * @param   string  $text        Text/Language variable of the option.
+	 * @param   array   $attributes  Array of attributes ('name' => 'value' format)
+	 *
+	 * @return  OptionsField  For chaining.
+	 */
+	public function addOption(string $text, array $attributes = []): OptionsField
+	{
+		if ($text && $this->element instanceof SimpleXMLElement)
+		{
+			$child = $this->element->addChild('option', $text);
+
+			foreach ($attributes as $name => $value)
+			{
+				$child->addAttribute($name, $value);
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Allows direct access to the getInput function defined here.
+	 *
+	 * @return string
+	 */
+	protected function getBaseInput(): string
+	{
+		return self::getInput();
+	}
 
 	/**
 	 * Method to get the field input markup for a generic list.
 	 *
 	 * @return  string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
-		$html = array();
+		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+
 		$attr = '';
+
+		// Check for previous initialization using the dependent trait. Set before other attributes to allow options to
+		// influence them.
+		if (!$this->options)
+		{
+			$this->options = $this->getOptions();
+		}
 
 		// Initialize some field attributes.
 		$attr .= !empty($this->class) ? ' class="' . $this->class . '"' : '';
-		$attr .= !empty($this->size) ? ' size="' . $this->size . '"' : '';
-		$attr .= $this->multiple ? ' multiple' : '';
 		$attr .= $this->required ? ' required aria-required="true"' : '';
 		$attr .= $this->autofocus ? ' autofocus' : '';
+
+		$count = count($this->options);
+		if ($this->multiple)
+		{
+			if ($count >= 2)
+			{
+				$attr .= $this->multiple ? ' multiple' : '';
+
+				if ($count >= 3 and !empty($this->size))
+				{
+					$attr .= " size=\"$this->size\"";
+				}
+			}
+		}
+		else
+		{
+			$attr .= !empty($this->size) ? ' size="' . $this->size . '"' : '';
+		}
+
 
 		// To avoid user's confusion, readonly="true" should imply disabled="true".
 		if ((bool) $this->readonly == '1' || (bool) $this->disabled)
@@ -58,12 +117,9 @@ class OptionsField extends FormField
 		$attr .= empty($this->getAttribute('onblur')) ?
 			'' : ' onblur="' . $this->getAttribute('onblur') . '"';
 
-		// Get the field options.
-		$options = (array) $this->getOptions();
-
-		$html[] = HTML::_(
+		return Helpers\HTML::_(
 			'select.genericlist',
-			$options,
+			$this->options,
 			$this->name,
 			trim($attr),
 			'value',
@@ -71,8 +127,16 @@ class OptionsField extends FormField
 			$this->value,
 			$this->id
 		);
+	}
 
-		return implode($html);
+	/**
+	 * Gets the options defined in the form manifest.
+	 *
+	 * @return array
+	 */
+	protected function getDefaultOptions(): array
+	{
+		return self::getOptions();
 	}
 
 	/**
@@ -80,19 +144,19 @@ class OptionsField extends FormField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$fieldName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $this->fieldname);
-		$options   = array();
+		$options   = [];
 
 		foreach ($this->element->xpath('option') as $optionTag)
 		{
 
-			$option        = new stdClass;
+			$option        = new stdClass();
 			$option->value = (string) $optionTag['value'];
 
 			$text         = trim((string) $optionTag) != '' ? trim((string) $optionTag) : $option->value;
-			$option->text = Languages::alt('ORGANIZER_' . $text, $fieldName);
+			$option->text = Helpers\Languages::alt('ORGANIZER_' . $text, $fieldName);
 
 			$option->class = (string) $optionTag['class'];
 
@@ -120,29 +184,6 @@ class OptionsField extends FormField
 		reset($options);
 
 		return $options;
-	}
-
-	/**
-	 * Method to add an option to the list field.
-	 *
-	 * @param   string  $text        Text/Language variable of the option.
-	 * @param   array   $attributes  Array of attributes ('name' => 'value' format)
-	 *
-	 * @return  OptionsField  For chaining.
-	 */
-	public function addOption($text, $attributes = array())
-	{
-		if ($text && $this->element instanceof SimpleXMLElement)
-		{
-			$child = $this->element->addChild('option', $text);
-
-			foreach ($attributes as $name => $value)
-			{
-				$child->addAttribute($name, $value);
-			}
-		}
-
-		return $this;
 	}
 
 	/**

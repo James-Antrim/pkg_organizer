@@ -10,11 +10,8 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Subjects;
+use Organizer\Adapters\Database;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for the association of persons with subject documentation.
@@ -28,9 +25,9 @@ class SubjectPersonsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
-		$subjectIDs = Input::getSelectedIDs();
+		$subjectIDs = Helpers\Input::getSelectedIDs();
 		$role       = $this->getAttribute('role');
 		$invalid    = (empty($subjectIDs) or empty($subjectIDs[0]) or empty($role));
 
@@ -39,41 +36,39 @@ class SubjectPersonsField extends OptionsField
 			return [];
 		}
 
-		$existingPersons = Subjects::getPersons($subjectIDs[0], $role);
+		$existingPersons = Helpers\Subjects::getPersons($subjectIDs[0], $role);
 		$this->value     = [];
 		foreach ($existingPersons as $person)
 		{
 			$this->value[$person['id']] = $person['id'];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('t.id, t.surname, t.forename')
-			->from('#__organizer_persons AS t')
+		$query = Database::getQuery();
+		$query->select('p.id, p.surname, p.forename')
+			->from('#__organizer_persons AS p')
 			->order('surname, forename');
 
-		$departmentID = $this->form->getValue('departmentID');
-		if (!empty($departmentID))
+		$organizationID = $this->form->getValue('organizationID');
+		if (!empty($organizationID))
 		{
 			if (empty($this->value))
 			{
-				$query->innerJoin('#__organizer_department_resources AS dr ON dr.personID = t.id');
-				$query->where("departmentID = $departmentID");
+				$query->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
+					->where("organizationID = $organizationID");
 			}
 			else
 			{
-				$query->leftJoin('#__organizer_department_resources AS dr ON dr.personID = t.id');
+				$query->leftJoin('#__organizer_associations AS a ON a.personID = p.id');
 				$personIDs  = implode(',', $this->value);
-				$extPersons = "(departmentID != $departmentID AND personID IN ($personIDs))";
-				$query->where("(departmentID = $departmentID OR $extPersons)");
+				$extPersons = "(organizationID != $organizationID AND personID IN ($personIDs))";
+				$query->where("(organizationID = $organizationID OR $extPersons)");
 			}
 		}
 
-		$dbo->setQuery($query);
-		$persons = OrganizerHelper::executeQuery('loadAssocList', null, 'id');
-
+		Database::setQuery($query);
 		$options = parent::getOptions();
-		if (empty($persons))
+
+		if (!$persons = Database::loadAssocList('id'))
 		{
 			return $options;
 		}
@@ -82,7 +77,7 @@ class SubjectPersonsField extends OptionsField
 		{
 			$text      = empty($person['forename']) ?
 				$person['surname'] : "{$person['surname']}, {$person['forename']}";
-			$options[] = HTML::_('select.option', $person['id'], $text);
+			$options[] = Helpers\HTML::_('select.option', $person['id'], $text);
 		}
 
 		return $options;

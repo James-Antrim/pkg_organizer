@@ -10,13 +10,14 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Groups;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for plan programs.
  */
 class GroupsField extends OptionsField
 {
+	use Dependent;
 
 	/**
 	 * @var  string
@@ -28,10 +29,10 @@ class GroupsField extends OptionsField
 	 *
 	 * @return array the options for the select box
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options = parent::getOptions();
-		$groups  = Groups::getOptions();
+		$groups  = Helpers\Groups::getOptions();
 
 		return array_merge($options, $groups);
 	}

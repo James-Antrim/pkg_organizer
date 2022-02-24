@@ -10,11 +10,10 @@
 
 namespace Organizer\Controllers;
 
-use Exception;
+use Joomla\CMS\Router\Route;
 use Organizer\Controller;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Routing;
-use Organizer\Models\Organizer as Model;
+use Organizer\Helpers;
+use Organizer\Models;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -22,71 +21,28 @@ use Organizer\Models\Organizer as Model;
 class Organizer extends Controller
 {
 	/**
-	 * Makes call to migrate the data
+	 * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
-	public function migrateConfigurations()
+	public function cleanBookings()
 	{
-		$model = new Model;
-
-		if ($model->migrateConfigurations())
-		{
-			OrganizerHelper::message('Configurations have been migrated');
-		}
-		else
-		{
-			OrganizerHelper::message('Configurations have not been migrated', 'error');
-		}
-
-		$url = Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect($url);
+		$model = new Models\Schedule();
+		$model->cleanBookings(true);
+		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+		$this->setRedirect(Route::_($url, false));
 	}
 
 	/**
-	 * Makes call to migrate the data
+	 * Updates all instance participation numbers.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
-	public function migrateSchedules()
+	public function updateNumbers()
 	{
-		$model = new Model;
-
-		if ($model->migrateSchedules())
-		{
-			OrganizerHelper::message('Schedules have been migrated');
-		}
-		else
-		{
-			OrganizerHelper::message('Schedules have not been migrated', 'error');
-		}
-
-		$url = Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect($url);
-	}
-
-	/**
-	 * Makes call to migrate the data
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function migrateUserLessons()
-	{
-		$model = new Model;
-
-		if ($model->migrateUserLessons())
-		{
-			OrganizerHelper::message('User lessons have been migrated');
-		}
-		else
-		{
-			OrganizerHelper::message('User lessons have not been migrated', 'error');
-		}
-
-		$url = Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect($url);
+		$model = new Models\Instance();
+		$model->updateNumbers();
+		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+		$this->setRedirect(Route::_($url, false));
 	}
 }

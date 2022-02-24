@@ -10,21 +10,31 @@
 
 namespace Organizer\Views\HTML;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
+use Organizer\Adapters;
+use Organizer\Helpers;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
  */
-abstract class ItemView extends BaseHTMLView
+abstract class ItemView extends BaseView
 {
-	protected $_layout = 'item';
+	protected $layout = 'item';
 
 	public $form = null;
 
 	public $item = null;
+
+	/**
+	 * Method to generate buttons for user interaction
+	 *
+	 * @return void
+	 */
+	protected function addToolBar()
+	{
+		// On demand abstract function.
+	}
 
 	/**
 	 * Method to get display
@@ -36,19 +46,16 @@ abstract class ItemView extends BaseHTMLView
 	public function display($tpl = null)
 	{
 		$this->item = $this->get('Item');
+
 		$this->addDisclaimer();
-		if (method_exists($this, 'setSubtitle'))
-		{
-			$this->setSubtitle();
-		}
-		if (method_exists($this, 'addSupplement'))
-		{
-			$this->addSupplement();
-		}
+		$this->addToolBar();
+		$this->setSubtitle();
+		$this->addSupplement();
 		$this->modifyDocument();
+
 		$defaultConstant = 'ORGANIZER_' . strtoupper(str_replace('Item', '', $this->getName()));
 		$itemName        = is_array($this->item['name']) ? $this->item['name']['value'] : $this->item['name'];
-		HTML::setMenuTitle($defaultConstant, $itemName);
+		$this->setTitle($defaultConstant, $itemName);
 		unset($this->item['name']);
 
 		// This has to be after the title has been set so that it isn't prematurely removed.
@@ -87,7 +94,7 @@ abstract class ItemView extends BaseHTMLView
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
 	}
 
 	/**
@@ -95,9 +102,9 @@ abstract class ItemView extends BaseHTMLView
 	 *
 	 * @param   array  $items  the items to be displayed.
 	 *
-	 * @return void outputs the items as an html list
+	 * @return void outputs the items as a html list
 	 */
-	public function renderListValue($items, $url, $urlAttribs)
+	public function renderListValue(array $items, string $url, array $urlAttribs)
 	{
 		echo '<ul>';
 		foreach ($items as $index => $item)
@@ -110,10 +117,30 @@ abstract class ItemView extends BaseHTMLView
 			}
 			else
 			{
-				echo empty($url) ? $item : HTML::link(Route::_($url . $index), $item, $urlAttribs);
+				echo empty($url) ? $item : Helpers\HTML::link(Route::_($url . $index), $item, $urlAttribs);
 			}
 			echo '</li>';
 		}
 		echo '</ul>';
+	}
+
+	/**
+	 * Creates a subtitle element .
+	 *
+	 * @return void modifies the course
+	 */
+	protected function setSubtitle()
+	{
+		// On demand abstract function.
+	}
+
+	/**
+	 * Adds supplemental information to the display output.
+	 *
+	 * @return void modifies the object property supplement
+	 */
+	protected function addSupplement()
+	{
+		// On demand abstract function.
 	}
 }

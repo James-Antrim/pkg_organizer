@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Categories;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for plan programs.
@@ -28,10 +28,10 @@ class CategoriesField extends OptionsField
 	 *
 	 * @return array the options for the select box
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options    = parent::getOptions();
-		$categories = Categories::getOptions();
+		$categories = Helpers\Categories::getOptions();
 
 		return array_merge($options, $categories);
 	}

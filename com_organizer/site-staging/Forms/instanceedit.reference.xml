@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="organizationID" type="UnitOrganization" label="ORGANIZATION"
+               onchange="this.form.submit();"/>
+        <field name="date" type="Date" label="DATE" class="input-8" empty="false" onchange="this.form.submit();"
+               required="true"/>
+        <field name="gridID" type="Grids" label="GRID" onchange="this.form.submit();" required="true">
+            <option value="">SELECT_GRID</option>
+        </field>
+        <field name="blockID" type="Blocks" label="BLOCK" onchange="this.form.submit();" required="true">
+            <option value="">SELECT_BLOCK</option>
+        </field>
+        <!--<field name="id" type="hidden"/>-->
+        <!--<field name="unitID" type="hidden"/>-->
+        <!--<field name="my" type="hidden"/>-->
+        <!--<field name="eventID" type="GenericOptions" required="true" label="EVENT" valuecolumn="id" textcolumn="name"
+               localized="true" table="organizer_events" onchange="disableBtns()"/>-->
+        <!--<field name="methodID" type="GenericOptions" required="true" label="METHOD" valuecolumn="id" textcolumn="name"
+               localized="true" table="organizer_methods"/>-->
+        <!--<field name="resources" type="InstanceResources" formsource="instance_persons" multiple="true"
+               buttons="add,remove" layout="joomla.form.field.subform.repeatable-table"
+               label="ORGANIZER_INSTANCE_PERSONS"/>-->
+    </fieldset>
+</form>

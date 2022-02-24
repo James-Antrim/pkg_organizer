@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Terms;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for terms.
@@ -27,10 +27,12 @@ class TermsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
-		$options = parent::getOptions();
-		$terms   = Terms::getOptions((bool) $this->getAttribute('withDates'));
+		$options   = parent::getOptions();
+		$filter    = (bool) $this->getAttribute('filter');
+		$withDates = (bool) $this->getAttribute('withDates');
+		$terms     = Helpers\Terms::getOptions($withDates, $filter);
 
 		return array_merge($options, $terms);
 	}

@@ -10,6 +10,7 @@
 
 namespace Organizer\Fields;
 
+use JFormFieldSubform;
 use Joomla\CMS\Form\FormHelper;
 
 FormHelper::loadFieldClass('subform');
@@ -18,7 +19,7 @@ FormHelper::loadFieldClass('subform');
  * Class loads multiple/repeatable period blocks from database and make it possible to advance them.
  * This needs an own form field to load the values, maybe because the dates are saved as json string.
  */
-class RunsField extends \JFormFieldSubform
+class RunsField extends JFormFieldSubform
 {
 	/**
 	 * Type
@@ -32,9 +33,9 @@ class RunsField extends \JFormFieldSubform
 	 *
 	 * @return string  The field input markup.
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
-		$this->value = isset($this->value['runs']) ? $this->value['runs'] : [];
+		$this->value = $this->value['runs'] ?? [];
 
 		return parent::getInput();
 	}

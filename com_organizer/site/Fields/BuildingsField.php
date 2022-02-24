@@ -10,8 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Buildings;
-use Organizer\Helpers\HTML;
+use Organizer\Helpers;
 
 /**
  * Class creates a form field for building selection.
@@ -28,10 +27,10 @@ class BuildingsField extends OptionsField
 	 *
 	 * @return array  the available buildings
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$defaultOptions = parent::getOptions();
-		$options        = Buildings::getOptions();
+		$options        = Helpers\Buildings::getOptions();
 
 		return array_merge($defaultOptions, $options);
 	}

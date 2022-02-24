@@ -10,52 +10,44 @@
 
 namespace Organizer\Views\HTML;
 
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Fields;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Mappings;
+use Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of (subject) pools into the display context.
  */
 abstract class PoolsView extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'programID' => 'link', 'fieldID' => 'value'];
+	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'programID' => 'link'];
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
+	 * @inheritdoc
 	 */
-	protected function allowAccess()
+	protected function authorize()
 	{
-		return (bool) Can::documentTheseDepartments();
+		if (!Helpers\Can::documentTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
-	 * Function to set the object's headers property
-	 *
-	 * @return void sets the object headers property
+	 * @inheritdoc
 	 */
 	public function setHeaders()
 	{
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
 		$headers   = [
-			'checkbox'  => '',
-			'name'      => HTML::sort('NAME', 'name', $direction, $ordering),
-			'programID' => Languages::_('ORGANIZER_PROGRAM'),
-			'fieldID'   => HTML::sort('FIELD', 'field', $direction, $ordering)
+			'checkbox'  => Helpers\HTML::_('grid.checkall'),
+			'name'      => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+			'programID' => Helpers\Languages::_('ORGANIZER_PROGRAM')
 		];
 
 		$this->headers = $headers;
 	}
 
 	/**
-	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-	 *
-	 * @return void processes the class items property
+	 * @inheritdoc
 	 */
 	protected function structureItems()
 	{
@@ -65,8 +57,7 @@ abstract class PoolsView extends ListView
 
 		foreach ($this->items as $item)
 		{
-			$item->fieldID           = Fields::getListDisplay($item->fieldID);
-			$item->programID         = Mappings::getProgramName('pool', $item->id);
+			$item->programID         = Helpers\Pools::getProgramName($item->id);
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
 			$index++;
 		}

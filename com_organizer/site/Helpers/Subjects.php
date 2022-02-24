@@ -10,33 +10,28 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
-use Organizer\Tables\Subjects as SubjectsTable;
+use Organizer\Adapters\Database;
+use Organizer\Tables;
 
 /**
  * Provides general functions for subject access checks, data retrieval and display.
  */
-class Subjects extends ResourceHelper implements Selectable
+class Subjects extends Curricula
 {
+	protected static $resource = 'subject';
+
 	/**
 	 * Check if user one of the subject's coordinators.
 	 *
 	 * @param   int  $subjectID  the optional id of the subject
 	 * @param   int  $personID   the optional id of the person entry
 	 *
-	 * @return boolean true if the user is a coordinator, otherwise false
+	 * @return bool true if the user is a coordinator, otherwise false
 	 */
-	public static function coordinates($subjectID = 0, $personID = 0)
+	public static function coordinates(int $subjectID = 0, int $personID = 0): bool
 	{
-		if (!$personID)
-		{
-			$user     = Factory::getUser();
-			$personID = Persons::getIDByUserID($user->id);
-		}
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$personID = $personID ?: Persons::getIDByUserID(Users::getID());
+		$query    = Database::getQuery(true);
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
 			->where("personID = $personID")
@@ -47,9 +42,25 @@ class Subjects extends ResourceHelper implements Selectable
 			$query->where("subjectID = '$subjectID'");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult');
+		return Database::loadBool();
+	}
+
+	/**
+	 * Retrieves the event ID associated with the subject.
+	 *
+	 * @param   int  $subjectID  the id of the referencing subject
+	 *
+	 * @return int the id of the referenced event
+	 */
+	public static function getEventID(int $subjectID): int
+	{
+		$query = Database::getQuery();
+		$query->select('eventID')->from('#__organizer_subject_events')->where("subjectID = $subjectID");
+		Database::setQuery($query);
+
+		return Database::loadInt();
 	}
 
 	/**
@@ -57,19 +68,15 @@ class Subjects extends ResourceHelper implements Selectable
 	 *
 	 * @return array
 	 */
-	private static function getBoundaries()
+	private static function getFilterRanges(): array
 	{
-		$programBoundaries = Mappings::getMappings('program', Input::getInt('programID'));
-
-		if (empty($programBoundaries))
+		if (!$programBoundaries = Programs::getRanges(Input::getInt('programID')))
 		{
 			return [];
 		}
 
-		$poolBoundaries = Mappings::getMappings('pool', Input::getInt('poolID'));
-
-		$validBoundaries = (!empty($poolBoundaries) and self::poolInProgram($poolBoundaries, $programBoundaries));
-		if ($validBoundaries)
+		if ($poolBoundaries = Pools::getRanges(Input::getInt('poolID'))
+			and self::poolInProgram($poolBoundaries, $programBoundaries))
 		{
 			return $poolBoundaries;
 		}
@@ -80,28 +87,23 @@ class Subjects extends ResourceHelper implements Selectable
 	/**
 	 * Retrieves the subject name
 	 *
-	 * @param   int      $subjectID  the table id for the subject
-	 * @param   boolean  $withNumber
+	 * @param   int   $resourceID  the table id for the subject
+	 * @param   bool  $withNumber  whether to integrate the subject code directly into the name
 	 *
 	 * @return string the subject name
 	 */
-	public static function getName($subjectID = 0, $withNumber = false)
+	public static function getName(int $resourceID = 0, bool $withNumber = false): string
 	{
-		$subjectID = $subjectID ? $subjectID : Input::getID();
-
-		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
-
-		$query = $dbo->getQuery(true);
-		$query->select("name_$tag as name")
-			->select("shortName_$tag as shortName, abbreviation_$tag as abbreviation, code AS subjectNo")
+		$query      = Database::getQuery(true);
+		$resourceID = $resourceID ?: Input::getID();
+		$tag        = Languages::getTag();
+		$query->select("fullName_$tag as name, abbreviation_$tag as abbreviation")
+			->select("code AS subjectNo")
 			->from('#__organizer_subjects')
-			->where("id = '$subjectID'");
+			->where("id = $resourceID");
+		Database::setQuery($query);
 
-		$dbo->setQuery($query);
-
-		$names = OrganizerHelper::executeQuery('loadAssoc', []);
-		if (empty($names))
+		if (!$names = Database::loadAssoc())
 		{
 			return '';
 		}
@@ -113,25 +115,18 @@ class Subjects extends ResourceHelper implements Selectable
 			$suffix .= " ({$names['subjectNo']})";
 		}
 
-		if (!empty($names['name']))
+		if ($names['name'])
 		{
 			return $names['name'] . $suffix;
-		}
-
-		if (!empty($names['shortName']))
-		{
-			return $names['shortName'] . $suffix;
 		}
 
 		return $names['abbreviation'] . $suffix;
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
-	 *
-	 * @return array the available options
+	 * @inheritDoc
 	 */
-	public static function getOptions()
+	public static function getOptions(): array
 	{
 		$options = [];
 		foreach (self::getResources() as $subject)
@@ -150,23 +145,22 @@ class Subjects extends ResourceHelper implements Selectable
 	 *
 	 * @return array the persons associated with the subject, empty if none were found.
 	 */
-	public static function getPersons($subjectID, $role = null)
+	public static function getPersons(int $subjectID, int $role = 0): array
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('t.id, t.surname, t.forename, t.fieldID, t.title, st.role')
-			->from('#__organizer_persons AS t')
-			->innerJoin('#__organizer_subject_persons AS st ON st.personID = t.id')
-			->where("st.subjectID = '$subjectID'");
+		$query = Database::getQuery(true);
+		$query->select('p.id, p.surname, p.forename, p.title, sp.role')
+			->from('#__organizer_persons AS p')
+			->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
+			->where("sp.subjectID = $subjectID");
 
-		if (!empty($role) and is_numeric($role))
+		if ($role)
 		{
-			$query->where("st.role = $role");
+			$query->where("sp.role = $role");
 		}
-		$dbo->setQuery($query);
 
-		$results = OrganizerHelper::executeQuery('loadAssocList');
-		if (empty($results))
+		Database::setQuery($query);
+
+		if (!$results = Database::loadAssocList())
 		{
 			return [];
 		}
@@ -196,135 +190,177 @@ class Subjects extends ResourceHelper implements Selectable
 	}
 
 	/**
-	 * Looks up the names of the programs associated with the subject
+	 * Looks up the names of the pools associated with the subject
 	 *
 	 * @param   int  $subjectID  the id of the (plan) subject
 	 *
 	 * @return array the associated program names
 	 */
-	public static function getPrograms($subjectID)
+	public static function getPools(int $subjectID): array
 	{
-		$dbo   = Factory::getDbo();
-		$names = [];
-		$tag   = Languages::getTag();
-
-		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.version', "')'"];
-		$query->select('cat.name AS categoryName, ' . $query->concatenate($nameParts, "") . ' AS name')
-			->select('p.id')
-			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
-			->innerJoin('#__organizer_mappings AS m1 ON m1.programID = p.id')
-			->innerJoin('#__organizer_mappings AS m2 ON m1.lft < m2.lft AND m1.rgt > m2.rgt')
-			->leftJoin('#__organizer_categories AS cat ON cat.id = p.categoryID')
-			->where("m2.subjectID = '$subjectID'");
-
-		$dbo->setQuery($query);
-
-		$results = OrganizerHelper::executeQuery('loadAssocList', []);
-		if (empty($results))
-		{
-			return $results;
-		}
-
-		foreach ($results as $result)
-		{
-			$names[$result['id']] = empty($result['name']) ? $result['categoryName'] : $result['name'];
-		}
-
-		return $names;
+		return Pools::getRanges(self::getRanges($subjectID));
 	}
 
 	/**
-	 * Gets an array modelling the attributes of the resource.
+	 * Retrieves the ids of subjects registered as prerequisites for a given subject
 	 *
-	 * @param $resourceID
+	 * @param   int  $subjectID  the id of the subject
+	 *
+	 *
+	 * @return array the associated prerequisites
+	 */
+	public static function getPostrequisites(int $subjectID): array
+	{
+		return self::getRequisites($subjectID, 'post');
+	}
+
+	/**
+	 * Retrieves the ids of subjects registered as prerequisites for a given subject
+	 *
+	 * @param   int  $subjectID  the id of the subject
+	 *
+	 * @return array the associated prerequisites
+	 */
+	public static function getPrerequisites(int $subjectID): array
+	{
+		return self::getRequisites($subjectID, 'pre');
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getRanges($identifiers): array
+	{
+		if (!$identifiers or !is_numeric($identifiers))
+		{
+			return [];
+		}
+
+		$query = Database::getQuery(true);
+		$query->select('DISTINCT *')
+			->from('#__organizer_curricula')
+			->where("subjectID = $identifiers")
+			->order('lft');
+		Database::setQuery($query);
+
+		return Database::loadAssocList();
+	}
+
+	/**
+	 * Retrieves the ids of subjects registered as prerequisites for a given subject
+	 *
+	 * @param   int     $subjectID  the id of the subject
+	 * @param   string  $direction  pre|post the direction of the subject dependency
+	 *
+	 * @return array the associated prerequisites
+	 */
+	private static function getRequisites(int $subjectID, string $direction): array
+	{
+		if ($direction === 'pre')
+		{
+			$fromColumn = 'subjectID';
+			$toColumn   = 'prerequisiteID';
+		}
+		else
+		{
+			$fromColumn = 'prerequisiteID';
+			$toColumn   = 'subjectID';
+		}
+
+		$query = Database::getQuery(true);
+		$query->select('DISTINCT target.subjectID')
+			->from('#__organizer_curricula AS target')
+			->innerJoin("#__organizer_prerequisites AS p ON p.$toColumn = target.id")
+			->innerJoin("#__organizer_curricula AS source ON source.id = p.$fromColumn")
+			->where("source.subjectID = $subjectID");
+		Database::setQuery($query);
+
+		return Database::loadIntColumn();
+	}
+
+	/**
+	 * Gets an array modeling the attributes of the resource.
+	 *
+	 * @param   int  $subjectID  the id of the subject
 	 *
 	 * @return array
 	 */
-	public static function getResource($resourceID)
+	public static function getSubject(int $subjectID): array
 	{
-		$table  = new SubjectsTable;
-		$exists = $table->load($resourceID);
+		$table = new Tables\Subjects();
 
-		if (!$exists)
+		if (!$table->load($subjectID))
 		{
 			return [];
 		}
 
-		$tag     = Languages::getTag();
-		$subject = [
+		$eventID         = Subjects::getEventID($subjectID);
+		$fieldID         = $table->fieldID ?: 0;
+		$organizationIDs = self::getOrganizationIDs($table->id);
+		$organizationID  = $organizationIDs ? (int) $organizationIDs[0] : 0;
+		$tag             = Languages::getTag();
+
+		return [
 			'abbreviation' => $table->{"abbreviation_$tag"},
-			'bgColor'      => Fields::getColor($table->fieldID),
-			'creditpoints' => $table->creditpoints,
-			'field'        => Fields::getName($table->fieldID, 'field'),
+			'bgColor'      => Fields::getColor($fieldID, $organizationID),
+			'creditPoints' => $table->creditPoints,
+			'eventID'      => $eventID,
+			'field'        => $fieldID ? Fields::getName($fieldID) : '',
 			'fieldID'      => $table->fieldID,
 			'id'           => $table->id,
 			'moduleNo'     => $table->code,
-			'name'         => $table->{"name_$tag"},
-			'shortName'    => $table->{"shortName_$tag"},
+			'name'         => $table->{"fullName_$tag"}
 		];
-
-		return $subject;
 	}
 
 	/**
-	 * Retrieves the resource items.
-	 *
-	 * @return array the available resources
+	 * @inheritDoc
 	 */
-	public static function getResources()
+	public static function getResources(): array
 	{
+		$poolID    = Input::getInt('poolID', -1);
 		$programID = Input::getInt('programID', -1);
 		$personID  = Input::getInt('personID', -1);
-		if ($programID === -1 and $personID === -1)
+		if ($poolID === -1 and $programID === -1 and $personID === -1)
 		{
 			return [];
 		}
 
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
-		$tag = Languages::getTag();
-		$query->select("DISTINCT s.id, s.name_$tag AS name, s.code, s.creditpoints")
-			->select('t.surname, t.forename, t.title, t.username')
+		$query = Database::getQuery();
+		$tag   = Languages::getTag();
+		$query->select("DISTINCT s.id, s.fullName_$tag AS name, s.code, s.creditPoints")
+			->select('p.surname, p.forename, p.title, p.username')
 			->from('#__organizer_subjects AS s')
 			->order('name')
 			->group('s.id');
 
-		$boundarySet = self::getBoundaries();
-		if (!empty($boundarySet))
+		if ($ranges = self::getFilterRanges())
 		{
-			$query->innerJoin('#__organizer_mappings AS m ON m.subjectID = s.id');
-			$where   = '';
-			$initial = true;
-			foreach ($boundarySet as $boundaries)
+			$query->innerJoin('#__organizer_curricula AS c ON c.subjectID = s.id');
+			$wherray = [];
+
+			foreach ($ranges as $boundaries)
 			{
-				$where   .= $initial ?
-					"((m.lft >= '{$boundaries['lft']}' AND m.rgt <= '{$boundaries['rgt']}')"
-					: " OR (m.lft >= '{$boundaries['lft']}' AND m.rgt <= '{$boundaries['rgt']}')";
-				$initial = false;
+				$wherray[] = "(c.lft >= '{$boundaries['lft']}' AND c.rgt <= '{$boundaries['rgt']}')";
 			}
 
-			$query->where($where . ')');
+			$query->where('(' . implode(' OR ', $wherray) . ')');
 		}
 
-		if ($personID !== -1)
+		if ($personID !== self::ALL)
 		{
-			$query->innerJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id');
-			$query->innerJoin('#__organizer_persons AS t ON st.personID = t.id');
-			$query->where("st.personID = '$personID'");
+			$query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.personID = $personID");
 		}
 		else
 		{
-			$query->leftJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id');
-			$query->innerJoin('#__organizer_persons AS t ON st.personID = t.id');
-			$query->where("st.role = '1'");
+			$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.role = '1'");
 		}
 
-		$dbo->setQuery($query);
+		$query->leftJoin('#__organizer_persons AS p ON p.id = sp.personID');
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		Database::setQuery($query);
+
+		return Database::loadAssocList('id');
 	}
 
 	/**
@@ -333,10 +369,10 @@ class Subjects extends ResourceHelper implements Selectable
 	 * @param   array  $poolBoundaries     the pool's left and right values
 	 * @param   array  $programBoundaries  the program's left and right values
 	 *
-	 * @return boolean  true if the pool is subordinate to the program,
+	 * @return bool  true if the pool is subordinate to the program,
 	 *                   otherwise false
 	 */
-	private static function poolInProgram($poolBoundaries, $programBoundaries)
+	public static function poolInProgram(array $poolBoundaries, array $programBoundaries): bool
 	{
 		$first = $poolBoundaries[0];
 		$last  = end($poolBoundaries);
@@ -357,19 +393,12 @@ class Subjects extends ResourceHelper implements Selectable
 	 * @param   int  $subjectID  the optional id of the subject
 	 * @param   int  $personID   the optional id of the person entry
 	 *
-	 * @return boolean true if the user a teacher for the subject, otherwise false
+	 * @return bool true if the user a teacher for the subject, otherwise false
 	 */
-	public static function teaches($subjectID = 0, $personID = 0)
+	public static function teaches(int $subjectID = 0, int $personID = 0): bool
 	{
-		if (!$personID)
-		{
-			$user     = Factory::getUser();
-			$personID = Persons::getIDByUserID($user->id);
-		}
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-
+		$personID = $personID ?: Persons::getIDByUserID(Users::getID());
+		$query    = Database::getQuery();
 		$query->select('COUNT(*)')
 			->from('#__organizer_subject_persons')
 			->where("personID = $personID")
@@ -380,8 +409,8 @@ class Subjects extends ResourceHelper implements Selectable
 			$query->where("subjectID = '$subjectID'");
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('loadResult');
+		return Database::loadBool();
 	}
 }

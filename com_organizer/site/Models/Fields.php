@@ -11,16 +11,16 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of fields (of expertise).
  */
 class Fields extends ListModel
 {
-	protected $defaultOrdering = 'field';
+	protected $defaultOrdering = 'name';
 
-	protected $filter_fields = ['colorID'];
+	protected $filter_fields = ['colorID', 'organizationID'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -29,16 +29,39 @@ class Fields extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$query->select("f.id, untisID, f.name_$tag AS field, f.colorID")
-			->from('#__organizer_fields AS f')
-			->select("c.name_$tag AS color")
-			->leftJoin('#__organizer_colors AS c ON f.colorID = c.id');
+		$query->select("DISTINCT f.id, code, f.name_$tag AS name")->from('#__organizer_fields AS f');
 
-		$this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'untisID', 'color']);
-		$this->setValueFilters($query, ['colorID']);
+		$this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code']);
+
+		$colorID        = Helpers\Input::getFilterID('color');
+		$organizationID = Helpers\Input::getFilterID('organization');
+		if ($colorID or $organizationID)
+		{
+			if ($colorID === self::NONE or $organizationID === self::NONE)
+			{
+				$query->leftJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
+			}
+			else
+			{
+				$query->innerJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
+			}
+
+			if ($colorID)
+			{
+				$colorFilter = $colorID === self::NONE ? 'colorID IS NULL' : "colorID = $colorID";
+				$query->where($colorFilter);
+			}
+
+			if ($organizationID)
+			{
+				$organizationFilter = $organizationID === self::NONE ?
+					'organizationID IS NULL' : "organizationID = $organizationID";
+				$query->where($organizationFilter);
+			}
+		}
 
 		$this->setOrdering($query);
 

@@ -11,28 +11,22 @@
 
 namespace Organizer\Tables;
 
-use Joomla\CMS\Table\Table;
-
 /**
- * Class instantiates a Table Object associated with the programs table.
+ * Models the organizer_programs table.
  */
-class Programs extends Assets
+class Programs extends BaseTable
 {
-	/**
-	 * A flag which displays whether the resource is currently active.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-	 *
-	 * @var bool
-	 */
-	public $active;
+	use Activated;
+	use Aliased;
+	use Coded;
 
 	/**
-	 * The id used by Joomla as a reference to its assets table.
-	 * INT(11) NOT NULL
+	 * The year in which the program was accredited.
+	 * YEAR(4) DEFAULT NULL
 	 *
 	 * @var int
 	 */
-	public $asset_id;
+	public $accredited;
 
 	/**
 	 * The id of the category entry referenced.
@@ -43,28 +37,12 @@ class Programs extends Assets
 	public $categoryID;
 
 	/**
-	 * The resource's code. (String ID)
-	 * VARCHAR(20) DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $code;
-
-	/**
 	 * The id of the degree entry referenced.
 	 * INT(11) UNSIGNED DEFAULT NULL
 	 *
 	 * @var int
 	 */
 	public $degreeID;
-
-	/**
-	 * The id of the department entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $departmentID;
 
 	/**
 	 * The resource's German description.
@@ -83,12 +61,12 @@ class Programs extends Assets
 	public $description_en;
 
 	/**
-	 * The id of the field entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
+	 * A flag which displays whether the program has a fee.
+	 * TINYINT(1) UNSIGNED NOT NULL
 	 *
-	 * @var int
+	 * @var string
 	 */
-	public $fieldID;
+	public $fee;
 
 	/**
 	 * The id of the frequency entry referenced.
@@ -100,7 +78,7 @@ class Programs extends Assets
 
 	/**
 	 * The resource's German name.
-	 * VARCHAR(60) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
@@ -108,74 +86,51 @@ class Programs extends Assets
 
 	/**
 	 * The resource's English name.
-	 * VARCHAR(60) NOT NULL
+	 * VARCHAR(150) NOT NULL
 	 *
 	 * @var string
 	 */
 	public $name_en;
 
 	/**
-	 * The year in which the program was accredited.
-	 * YEAR(4) DEFAULT NULL
+	 * A flag which displays whether the program has a restricted number of participants.
+	 * TINYINT(1) UNSIGNED NOT NULL
 	 *
-	 * @var int
+	 * @var string
 	 */
-	public $version;
+	public $nc;
 
 	/**
-	 * Declares the associated table
+	 * A flag which displays whether the program has special participation requirements
+	 * TINYINT(1) UNSIGNED NOT NULL
 	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * @var string
 	 */
-	public function __construct(&$dbo = null)
+	public $special;
+
+	/**
+	 * Declares the associated table.
+	 */
+	public function __construct()
 	{
-		parent::__construct('#__organizer_programs', 'id', $dbo);
+		parent::__construct('#__organizer_programs');
 	}
 
 	/**
-	 * Set the table column names which are allowed to be null
-	 *
-	 * @return boolean  true
+	 * @inheritDoc
 	 */
-	public function check()
+	public function check(): bool
 	{
-		$nullColumns = ['fieldID'];
-		foreach ($nullColumns as $nullColumn)
+		if (empty($this->alias))
 		{
-			if (!strlen($this->$nullColumn))
-			{
-				$this->$nullColumn = null;
-			}
+			$this->alias = null;
+		}
+
+		if (empty($this->categoryID))
+		{
+			$this->categoryID = null;
 		}
 
 		return true;
-	}
-
-	/**
-	 * Sets the department asset name
-	 *
-	 * @return string
-	 */
-	protected function _getAssetName()
-	{
-		return "com_organizer.program.$this->id";
-	}
-
-	/**
-	 * Sets the parent as the component root
-	 *
-	 * @param   Table    $table  A Table object for the asset parent.
-	 * @param   integer  $id     Id to look up
-	 *
-	 * @return int  the asset id of the component root
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	protected function _getAssetParentId(Table $table = null, $id = null)
-	{
-		$asset = Table::getInstance('Asset');
-		$asset->loadByName("com_organizer.department.$this->departmentID");
-
-		return $asset->id;
 	}
 }

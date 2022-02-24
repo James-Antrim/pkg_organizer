@@ -10,8 +10,7 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
-use Organizer\Tables\Degrees as DegreesTable;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing degree data.
@@ -25,12 +24,12 @@ class DegreeEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return Tables\Degrees A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new DegreesTable;
+		return new Tables\Degrees;
 	}
 }

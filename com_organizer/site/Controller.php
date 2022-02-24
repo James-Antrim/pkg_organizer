@@ -15,22 +15,22 @@ namespace Organizer;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Controller\BaseController;
-use Joomla\CMS\MVC\View\HtmlView;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Routing;
+use Organizer\Views\HTML\BaseView as HTMLView;
+use Organizer\Views\JSON\BaseView as JSONView;
+use Organizer\Views\PDF\BaseView as PDFView;
+use Organizer\Views\XLS\BaseView as XLSView;
 
 /**
  * Class receives user actions and performs access checks and redirection.
  */
 class Controller extends BaseController
 {
-	const BACKEND = true, FRONTEND = false;
-
-	public $clientContext;
+	public $adminContext;
 
 	protected $listView = '';
 
@@ -47,7 +47,7 @@ class Controller extends BaseController
 		$config['model_prefix'] = '';
 		parent::__construct($config);
 
-		$this->clientContext = OrganizerHelper::getApplication()->isClient('administrator');
+		$this->adminContext = OrganizerHelper::getApplication()->isClient('administrator');
 		$this->registerTask('add', 'edit');
 	}
 
@@ -59,18 +59,18 @@ class Controller extends BaseController
 	public function apply()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
 		if ($resourceID = $model->save())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$resourceID";
+		$url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$resourceID";
 		$this->setRedirect($url);
 	}
 
@@ -81,59 +81,61 @@ class Controller extends BaseController
 	 */
 	public function cancel()
 	{
-		$url = Routing::getRedirectBase() . "&view={$this->listView}";
+		$defaultView = empty($this->listView) ? '' : "&view=$this->listView";
+		$default     = Helpers\Routing::getRedirectBase() . $defaultView;
+		$referrer    = Helpers\Input::getString('referrer');
+		$url         = $referrer ?: $default;
 		$this->setRedirect($url);
 	}
 
 	/**
-	 * Makes call to the models's delete function, and redirects to the manager view.
+	 * Makes call to the model's delete function, and redirects to the manager view.
 	 *
 	 * @return void
-	 * @throws Exception
 	 */
 	public function delete()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
 		if ($model->delete($this->resource))
 		{
-			OrganizerHelper::message('ORGANIZER_DELETE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_DELETE_SUCCESS', 'success');
 		}
 		else
 		{
 			OrganizerHelper::message('ORGANIZER_DELETE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase();
-		$url .= "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=$this->listView";
 		$this->setRedirect($url);
 	}
 
 	/**
 	 * Typical view method for MVC based architecture.
 	 *
-	 * @param   boolean  $cachable   If true, the view output will be cached
-	 * @param   array    $urlparams  An array of safe URL parameters and their variable types.
+	 * @param   bool   $cachable   If true, the view output will be cached
+	 * @param   array  $urlparams  An array of safe URL parameters and their variable types.
 	 *
 	 * @return BaseController  A BaseController object to support chaining.
 	 * @throws Exception
 	 */
-	public function display($cachable = false, $urlparams = array())
+	public function display($cachable = false, $urlparams = []): BaseController
 	{
 		$document = Factory::getDocument();
 		$format   = $this->input->get('format', $document->getType());
-		$name     = $this->input->get('view', $this->default_view);
+		$name     = $this->input->get('view', 'Organizer');
 		$template = $this->input->get('layout', 'default', 'string');
 
 		$view = $this->getView(
 			$name,
 			$format,
 			'',
-			array('base_path' => $this->basePath, 'layout' => $template)
+			['base_path' => $this->basePath, 'layout' => $template]
 		);
 
-		// Only html views require models
+		// Only html views require models to be loaded in this way.
 		if ($format === 'html' and $model = $this->getModel($name))
 		{
 			// Push the model into the view (as default)
@@ -159,11 +161,29 @@ class Controller extends BaseController
 	 * Redirects to the edit view with an item id. Access checks performed in the view.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function edit()
 	{
-		$this->input->set('view', "{$this->resource}_edit");
-		parent::display();
+		Helpers\Input::set('view', "{$this->resource}_edit");
+		$this->display();
+	}
+
+	/**
+	 * Method to get the controller name. This commentary has to be here otherwise using functions register unhandled
+	 * exceptions.
+	 *
+	 * @return  string  The name of the dispatcher
+	 */
+	public function getName(): string
+	{
+		if (empty($this->name))
+		{
+
+			$this->name = OrganizerHelper::getClass($this);
+		}
+
+		return $this->name;
 	}
 
 	/**
@@ -173,10 +193,9 @@ class Controller extends BaseController
 	 * @param   string  $prefix  The class prefix. Optional.
 	 * @param   array   $config  Configuration array for model. Optional.
 	 *
-	 * @return  object|boolean  Model object on success; otherwise false on failure.
-	 * @throws Exception
+	 * @return  BaseDatabaseModel|false  Model object on success; otherwise false on failure.
 	 */
-	public function getModel($name = '', $prefix = '', $config = array())
+	public function getModel($name = '', $prefix = '', $config = [])
 	{
 		$name = empty($name) ? $this->getName() : $name;
 
@@ -215,16 +234,14 @@ class Controller extends BaseController
 	 * @param   string  $prefix  The class prefix. Optional.
 	 * @param   array   $config  Configuration array for view. Optional.
 	 *
-	 * @return  HtmlView  Reference to the view or an error.
-	 *
-	 * @throws  Exception
+	 * @return  HTMLView|JSONView|PDFView|XLSView  the view object
 	 */
-	public function getView($name = '', $type = '', $prefix = 'x', $config = array())
+	public function getView($name = '', $type = '', $prefix = 'x', $config = []): object
 	{
 		// @note We use self so we only access stuff in this class rather than in all classes.
 		if (!isset(self::$views))
 		{
-			self::$views = array();
+			self::$views = [];
 		}
 
 		if (empty($name))
@@ -233,7 +250,7 @@ class Controller extends BaseController
 		}
 
 		$viewName = OrganizerHelper::getClass($name);
-		$type     = strtoupper(preg_replace('/[^A-Z0-9_]/i', '', $type));
+		$type     = preg_replace('/[^A-Z0-9_]/i', '', strtoupper($type));
 		$name     = "Organizer\\Views\\$type\\$viewName";
 
 		$config['base_path']     = JPATH_COMPONENT_SITE . "/Views/$type";
@@ -243,18 +260,41 @@ class Controller extends BaseController
 		$key = strtolower($viewName);
 		if (empty(self::$views[$key][$type][$prefix]))
 		{
-			if ($view = new $name($config))
+			if ($type === 'HTML' and $view = new $name($config))
+			{
+				self::$views[$key][$type][$prefix] = &$view;
+			}
+			elseif ($view = new $name())
 			{
 				self::$views[$key][$type][$prefix] = &$view;
 			}
 			else
 			{
-				$message = sprintf(Languages::_('ORGANIZER_VIEW_NOT_FOUND'), $name, $type, $prefix);
-				throw new Exception($message, 404);
+				OrganizerHelper::error(501);
 			}
 		}
 
 		return self::$views[$key][$type][$prefix];
+	}
+
+	/**
+	 * Creates the environment for the proper output of a given JSON string.
+	 *
+	 * @param   string  $response  the preformatted response string
+	 *
+	 * @return void
+	 */
+	protected function jsonResponse(string $response)
+	{
+		$app = OrganizerHelper::getApplication();
+
+		// Send json mime type.
+		$app->setHeader('Content-Type', 'application/json' . '; charset=' . $app->charSet);
+		$app->sendHeaders();
+
+		echo $response;
+
+		$app->close();
 	}
 
 	/**
@@ -266,19 +306,19 @@ class Controller extends BaseController
 	public function merge()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
 		if ($model->merge($this->resource))
 		{
-			OrganizerHelper::message('ORGANIZER_MERGE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_MERGE_SUCCESS', 'success');
 		}
 		else
 		{
 			OrganizerHelper::message('ORGANIZER_MERGE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase();
-		$url .= "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=$this->listView";
 		$this->setRedirect($url);
 	}
 
@@ -287,10 +327,11 @@ class Controller extends BaseController
 	 * the merge view if the automatic merge was unavailable or implausible.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function mergeView()
 	{
-		$url = "index.php?option=com_organizer&view={$this->listView}";
+		$url = "index.php?option=com_organizer&view=$this->listView";
 
 		if (JDEBUG)
 		{
@@ -300,83 +341,52 @@ class Controller extends BaseController
 			return;
 		}
 
-		$selectedIDs = Input::getSelectedIDs();
+		$selectedIDs = Helpers\Input::getSelectedIDs();
 		if (count($selectedIDs) == 1)
 		{
-			$msg = Languages::_('ORGANIZER_TOO_FEW');
-			$this->setRedirect(Route::_($url, false), $msg, 'warning');
+			$msg = Helpers\Languages::_('ORGANIZER_TOO_FEW');
+			$this->setRedirect(Route::_($url, false), $msg, 'notice');
 
 			return;
 		}
 
 		// Reliance on POST requires a different method of redirection
-		$this->input->set('view', "{$this->resource}_merge");
-		parent::display();
+		Helpers\Input::set('view', "{$this->resource}_merge");
+		$this->display();
 	}
 
 	/**
-	 * Save user information from form and if course id defined sign in or out of course
-	 * then redirect to course list view
+	 * Creates a pdf file based on form data.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function pdf()
+	{
+		Helpers\Input::set('format', 'pdf');
+		$this->display();
+	}
+
+	/**
+	 * Save form data to the database.
 	 *
 	 * @return void
 	 */
 	public function save()
 	{
-		$resourceID = $this->getModel($this->resource)->save();
+		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+		$model     = new $modelName();
 
-		$isBackend = OrganizerHelper::getApplication()->isClient('administrator');
-		$requestID = Input::getID();
-		$lessonID  = $this->resource == 'course' ? $requestID : Input::getInt('lessonID');
-		$url       = Routing::getRedirectBase();
-		if (empty($resourceID))
+		if ($model->save())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-
-			if ($isBackend)
-			{
-				$url .= "&view={$this->listView}";
-			}
-			else
-			{
-				switch ($this->resource)
-				{
-					case 'participant':
-						$url .= '&view=participant_edit';
-						break;
-					case 'subject':
-						$url .= "&view=subject_edit&id={$requestID}";
-						$url .= empty($lessonID) ? '' : "&lessonID=$lessonID";
-						break;
-					default:
-						$url .= "&view=courses";
-						$url .= empty($lessonID) ? '' : "&lessonID=$lessonID";
-						break;
-				}
-			}
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-
-			if ($isBackend)
-			{
-				$url .= "&view={$this->listView}";
-			}
-			else
-			{
-				switch ($this->resource)
-				{
-					case 'participant':
-						$url .= '&view=course_list';
-						break;
-					default:
-						$url .= "&view=courses";
-						$url .= empty($lessonID) ? '' : "&lessonID=$lessonID";
-						break;
-				}
-			}
+			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
+		$url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
 		$this->setRedirect(Route::_($url, false));
 	}
 
@@ -384,46 +394,26 @@ class Controller extends BaseController
 	 * Makes call to the models's save2copy function, and redirects to the manager view.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	public function save2copy()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
-		if ($model->save2copy())
+		if ($newID = $model->save2copy())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+			Helpers\Input::set('id', $newID);
+
+			$url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$newID";
+			$this->setRedirect($url);
 		}
 		else
 		{
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+			$this->display();
 		}
-
-		$url = Routing::getRedirectBase() . "&view={$this->listView}";
-		$this->setRedirect($url);
-	}
-
-	/**
-	 * Makes call to the models's save2new function, and redirects to the edit view.
-	 *
-	 * @return void
-	 */
-	public function save2new()
-	{
-		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
-
-		if ($model->save())
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
-
-		$url = Routing::getRedirectBase() . "&view={$this->resource}_edit&id=0";
-		$this->setRedirect($url);
 	}
 
 	/**
@@ -434,18 +424,30 @@ class Controller extends BaseController
 	public function toggle()
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName;
+		$model     = new $modelName();
 
-		if ($model->toggle())
+		if (method_exists($model, 'toggle') and $model->toggle())
 		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS');
+			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}
 		else
 		{
 			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Routing::getRedirectBase() . "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
 		$this->setRedirect($url);
+	}
+
+	/**
+	 * Creates an xls file based on form data.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function xls()
+	{
+		Helpers\Input::set('format', 'xls');
+		$this->display();
 	}
 }

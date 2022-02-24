@@ -10,50 +10,30 @@
 
 namespace Organizer\Helpers;
 
-use Exception;
-use Joomla\CMS\Factory;
-use Organizer\Models\Program;
-use Organizer\Tables\Participants;
-use Organizer\Tables\Programs as ProgramsTable;
+use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Models;
+use Organizer\Tables;
 
 /**
  * Provides general functions for program access checks, data retrieval and display.
  */
-class Programs extends ResourceHelper implements Selectable
+class Programs extends Curricula implements Selectable
 {
-	use Filtered;
+	protected static $resource = 'program';
 
 	/**
-	 * Retrieves the departmentIDs associated with the program
-	 *
-	 * @param   int  $programID  the table id for the program
-	 *
-	 * @return int the departmentID associated with the program's documentation
-	 */
-	public static function getDepartment($programID)
-	{
-		if (empty($programID))
-		{
-			return Languages::_('ORGANIZER_NO_DEPARTMENT');
-		}
-
-		$table = new ProgramsTable;
-
-		return ($table->load($programID) and $departmentID = $table->departmentID) ? $departmentID : 0;
-	}
-
-	/**
-	 * Attempts to get the real program's id, creating the stub if non-existent.
+	 * Checks if a program exists matching the identification keys. If none exist one is created.
 	 *
 	 * @param   array   $programData  the program data
 	 * @param   string  $initialName  the name to be used if no entry already exists
+	 * @param   int     $categoryID   the id of the category calling this function
 	 *
-	 * @return mixed int on success, otherwise null
-	 * @throws Exception
+	 * @return int int the created program's id on success, otherwise 0
 	 */
-	public static function getID($programData, $initialName)
+	public static function create(array $programData, string $initialName, int $categoryID): int
 	{
-		$programTable = new ProgramsTable;
+		$programTable = new Tables\Programs();
 		if ($programTable->load($programData))
 		{
 			return $programTable->id;
@@ -61,129 +41,291 @@ class Programs extends ResourceHelper implements Selectable
 
 		if (empty($initialName))
 		{
-			return null;
+			return 0;
 		}
 
-		$programData['departmentID'] = Input::getInt('departmentID');
-		$programData['name_de']      = $initialName;
-		$programData['name_en']      = $initialName;
+		$programData['organizationID'] = Input::getInt('organizationID');
+		$programData['name_de']        = $initialName;
+		$programData['name_en']        = $initialName;
+		$programData['categoryID']     = $categoryID;
 
-		$model     = new Program;
+		$model     = new Models\Program();
 		$programID = $model->save($programData);
 
-		return empty($programID) ? null : $programID;
+		return empty($programID) ? 0 : $programID;
 	}
 
 	/**
-	 * Retrieves the program name
+	 * Gets a HTML option based upon a program curriculum association
 	 *
-	 * @param   int  $programID  the table id for the program
+	 * @param   array   $range      the program curriculum range
+	 * @param   array   $parentIDs  the selected parents
+	 * @param   string  $type       the resource type of the form
 	 *
-	 * @return string the name of the (plan) program, otherwise empty
+	 * @return string  HTML option
 	 */
-	public static function getName($programID)
+	public static function getCurricularOption(array $range, array $parentIDs, string $type): string
 	{
-		if (empty($programID))
+		$query = self::getQuery();
+		$query->where("p.id = {$range['programID']}");
+		Database::setQuery($query);
+
+		if (!$program = Database::loadAssoc())
+		{
+			return '';
+		}
+
+		$selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
+		$disabled = $type === 'pool' ? '' : 'disabled';
+
+		return "<option value='{$range['id']}' $selected $disabled>{$program['name']}</option>";
+	}
+
+	/**
+	 * Retrieves the id of the degree associated with the program.
+	 *
+	 * @param   int  $programID
+	 *
+	 * @return int
+	 */
+	public static function getDegreeID(int $programID): int
+	{
+		$degreeID = 0;
+		$program  = new Tables\Programs();
+
+		if ($program->load($programID))
+		{
+			$degreeID = $program->degreeID;
+		}
+
+		return $degreeID;
+	}
+
+	/**
+	 * Gets the programIDs for the given resource
+	 *
+	 * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
+	 *
+	 * @return array the program ids
+	 */
+	public static function getIDs($identifiers): array
+	{
+		if (!$ranges = self::getRanges($identifiers))
+		{
+			return [];
+		}
+
+		$ids = [];
+		foreach ($ranges as $range)
+		{
+			$ids[] = $range['programID'];
+		}
+
+		$ids = array_unique($ids);
+		sort($ids);
+
+		return $ids;
+	}
+
+	/**
+	 * Gets the academic level of the program. (Bachelor|Master)
+	 *
+	 * @param   int  $programID  the id of the program
+	 *
+	 * @return string
+	 */
+	public static function getLevel(int $programID): string
+	{
+		return Degrees::getLevel(self::getDegreeID($programID));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getName(int $resourceID): string
+	{
+		if (!$resourceID)
 		{
 			return Languages::_('ORGANIZER_NO_PROGRAM');
 		}
 
-		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
-
-		$query     = $dbo->getQuery(true);
-		$nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.version', "')'"];
-		$query->select($query->concatenate($nameParts, "") . ' AS name')
+		$query = Database::getQuery(true);
+		$tag   = Languages::getTag();
+		$parts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
+		$query->select($query->concatenate($parts, "") . ' AS name')
 			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON p.degreeID = d.id')
-			->where("p.id = '$programID'");
+			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
+			->where("p.id = '$resourceID'");
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadResult', '');
+		return Database::loadString();
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
+	 * @inheritDoc
 	 *
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available options
 	 */
-	public static function getOptions($access = '')
+	public static function getOptions(string $access = ''): array
 	{
 		$options = [];
 		foreach (self::getResources($access) as $program)
 		{
-			$name = "{$program['name']} ({$program['degree']},  {$program['version']})";
-
-			$options[] = HTML::_('select.option', $program['id'], $name);
+			if ($program['active'])
+			{
+				$options[] = HTML::_('select.option', $program['id'], $program['name']);
+			}
 		}
 
 		return $options;
 	}
 
 	/**
-	 * Retrieves the resource items.
+	 * Retrieves the organizationIDs associated with the program
 	 *
-	 * @param   string  $access  any access restriction which should be performed
+	 * @param   int   $programID  the table id for the program
+	 * @param   bool  $short      whether or not to display an abbreviated version of fhe organization name
 	 *
-	 * @return array the available resources
+	 * @return string the organization associated with the program's documentation
 	 */
-	public static function getResources($access = '')
+	public static function getOrganization(int $programID, bool $short = false): string
 	{
-		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
-
-		$query->select("dp.*, dp.name_$tag AS name, d.abbreviation AS degree")
-			->from('#__organizer_programs AS dp')
-			->innerJoin('#__organizer_degrees AS d ON dp.degreeID = d.id')
-			->innerJoin('#__organizer_mappings AS m ON dp.id = m.programID')
-			->order('name ASC, degree ASC, version DESC');
-
-		if (!empty($access))
+		if (!$organizationIDs = self::getOrganizationIDs($programID))
 		{
-			self::addAccessFilter($query, 'dp', $access);
+			return Languages::_('ORGANIZER_NO_ORGANIZATION');
 		}
 
-		self::addResourceFilter($query, 'department', 'dept', 'dp');
-
-		$useCurrent = self::useCurrent();
-		if ($useCurrent)
+		if (count($organizationIDs) > 1)
 		{
-			$subQuery = $dbo->getQuery(true);
-			$subQuery->select("dp2.name_$tag, dp2.degreeID, MAX(dp2.version) AS version")
-				->from('#__organizer_programs AS dp2')
-				->group("dp2.name_$tag, dp2.degreeID");
-			$conditions = "grouped.name_$tag = dp.name_$tag ";
-			$conditions .= "AND grouped.degreeID = dp.degreeID ";
-			$conditions .= "AND grouped.version = dp.version ";
-			$query->innerJoin("($subQuery) AS grouped ON $conditions");
+			return Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
 		}
 
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return $short ? Organizations::getShortName($organizationIDs[0]) : Organizations::getName($organizationIDs[0]);
 	}
 
 	/**
-	 * Determines whether only the latest version of a program should be displayed in the list.
+	 * Creates a basic query for program related items.
+	 *
+	 * @return JDatabaseQuery
+	 */
+	public static function getQuery(): JDatabaseQuery
+	{
+		$tag   = Languages::getTag();
+		$parts = ["p.name_$tag", "' ('", 'd.abbreviation'];
+		$parts = self::useCurrent() ?
+			array_merge($parts, ["')'"]) : array_merge($parts, ["', '", 'p.accredited', "')'"]);
+
+		$query      = Database::getQuery();
+		$nameClause = $query->concatenate($parts, '') . ' AS name';
+		$query->select("DISTINCT p.id AS id, $nameClause, p.active")
+			->from('#__organizer_programs AS p')
+			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
+
+		return $query;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getRanges($identifiers): array
+	{
+		if (!$identifiers or (!is_numeric($identifiers) and !is_array($identifiers)))
+		{
+			return [];
+		}
+
+		$query = Database::getQuery();
+		$query->select('DISTINCT *')
+			->from('#__organizer_curricula')
+			->where('programID IS NOT NULL ')
+			->order('lft');
+
+		if (is_array($identifiers))
+		{
+			self::filterSuperOrdinate($query, $identifiers);
+		}
+		else
+		{
+			$programID = (int) $identifiers;
+			if ($identifiers != self::NONE)
+			{
+				$query->where("programID = $programID");
+			}
+		}
+
+		Database::setQuery($query);
+
+		return Database::loadAssocList();
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @param   string  $access  any access restriction which should be performed
+	 */
+	public static function getResources(string $access = ''): array
+	{
+		$query = self::getQuery();
+		$tag   = Languages::getTag();
+		$query->select("d.abbreviation AS degree")
+			->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')
+			->order('name');
+
+		if ($access)
+		{
+			self::addAccessFilter($query, $access, 'program', 'p');
+		}
+
+		self::addOrganizationFilter($query, 'program', 'p');
+
+		if (self::useCurrent())
+		{
+			$subQuery = Database::getQuery();
+			$subQuery->select("p2.name_$tag, p2.degreeID, MAX(p2.accredited) AS accredited")
+				->from('#__organizer_programs AS p2')
+				->group("p2.name_$tag, p2.degreeID");
+			$conditions = "grouped.name_$tag = p.name_$tag ";
+			$conditions .= "AND grouped.degreeID = p.degreeID ";
+			$conditions .= "AND grouped.accredited = p.accredited ";
+			$query->innerJoin("($subQuery) AS grouped ON $conditions");
+		}
+
+		Database::setQuery($query);
+
+		return Database::loadAssocList('id');
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getPrograms($identifiers): array
+	{
+		$ranges = [];
+		foreach ($identifiers as $programID)
+		{
+			$ranges = array_merge($ranges, self::getRanges($programID));
+		}
+
+		return $ranges;
+	}
+
+	/**
+	 * Determines whether only the latest accreditation version of a program should be displayed in the list.
 	 *
 	 * @return bool
 	 */
-	private static function useCurrent()
+	private static function useCurrent(): bool
 	{
-		$useCurrent  = false;
-		$view        = Input::getView();
 		$selectedIDs = Input::getSelectedIDs();
-		if ($view === 'participant_edit')
-		{
-			$participantID = empty($selectedIDs) ? Factory::getUser() : $selectedIDs[0];
-			$table         = new Participants;
-			$exists        = $table->load($participantID);
+		$useCurrent  = false;
 
-			if (!$exists)
+		if (Input::getView() === 'participant_edit')
+		{
+			$participantID = empty($selectedIDs) ? Users::getID() : $selectedIDs[0];
+			$table         = new Tables\Participants();
+
+			if (!$table->load($participantID))
 			{
 				$useCurrent = true;
 			}

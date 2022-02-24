@@ -11,7 +11,7 @@
 namespace Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class creates text input.
@@ -24,15 +24,13 @@ class BlankField extends FormField
 	 * The form field type.
 	 *
 	 * @var    string
-	 * @since  1.7.0
 	 */
 	protected $type = 'Blank';
 
 	/**
 	 * The allowable maxlength of the field.
 	 *
-	 * @var    integer
-	 * @since  3.2
+	 * @var    int
 	 */
 	protected $maxLength;
 
@@ -40,20 +38,21 @@ class BlankField extends FormField
 	 * Method to get the field input markup.
 	 *
 	 * @return  string  The field input markup.
-	 *
-	 * @since   1.7.0
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
 		if ($this->hint and $hint = trim($this->hint))
 		{
 			$hint = preg_match('/^[A-Z_]+$/', $hint) ?
-				Languages::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT, 'UTF-8');
+				Helpers\Languages::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT);
 		}
 		else
 		{
 			$hint = '';
 		}
+
+		$maxLength = $this->getAttribute('maxlength');
+		$password  = $this->getAttribute('password', false);
 
 		$attributes = [
 			(!$this->autocomplete or $this->autocomplete !== 'off') ?
@@ -63,15 +62,15 @@ class BlankField extends FormField
 			$this->disabled ? 'disabled' : '',
 			$hint ? "placeholder=\"$hint\"" : '',
 			"id=\"$this->id\"",
-			$this->maxLength ? 'maxlength="' . (int) $this->maxLength . '"' : '',
+			$maxLength ? 'maxlength="' . (int) $maxLength . '"' : '',
 			"name=\"$this->name\"",
 			!empty($this->onChange) ? "onChange=\"$this->onChange\"" : '',
 			$this->pattern ? 'pattern="' . $this->pattern . '"' : '',
 			$this->readonly ? 'readonly' : '',
 			$this->required ? 'required aria-required="true"' : '',
 			$this->spellcheck ? '' : 'spellcheck="false"',
-			'type="text"',
-			'value="' . htmlspecialchars($this->value, ENT_COMPAT, 'UTF-8') . '"'
+			$password ? 'type="password"' : 'type="text"',
+			'value="' . htmlspecialchars($this->value, ENT_COMPAT) . '"'
 		];
 
 		return '<input ' . implode(' ', $attributes) . '/>';

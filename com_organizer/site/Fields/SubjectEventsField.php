@@ -10,15 +10,12 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Adapters\Database;
+use Organizer\Helpers;
 
 /**
- * Class creates a select box for explicitly mapping subject documentation to plan subjects. This is also done
+ * Class creates a select box for explicitly associating subjects with events. This is also done
  * implicitly during the schedule import process according to degree programs and the subject's module number.
  */
 class SubjectEventsField extends FormField
@@ -32,41 +29,29 @@ class SubjectEventsField extends FormField
 	 *
 	 * @return string  the HTML output
 	 */
-	public function getInput()
+	public function getInput(): string
 	{
-		$fieldName = $this->getAttribute('name');
-		$subjectID = Input::getID();
+		$query     = Database::getQuery(true);
+		$subjectID = Helpers\Input::getID();
+		$tag       = Helpers\Languages::getTag();
+		$query->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
+		Database::setQuery($query);
+		$events  = Database::loadAssocList();
+		$options = [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_EVENT'))];
 
-		$dbo          = Factory::getDbo();
-		$subjectQuery = $dbo->getQuery(true);
-		$subjectQuery->select('eventID');
-		$subjectQuery->from('#__organizer_subject_events');
-		$subjectQuery->where("subjectID = '$subjectID'");
-		$dbo->setQuery($subjectQuery);
-		$selected = OrganizerHelper::executeQuery('loadColumn', []);
-
-		$tag        = Languages::getTag();
-		$eventQuery = $dbo->getQuery(true);
-		$eventQuery->select("id AS value, name_$tag AS name");
-		$eventQuery->from('#__organizer_events');
-		$eventQuery->order('name');
-		$dbo->setQuery($eventQuery);
-
-		$events = OrganizerHelper::executeQuery('loadAssocList');
-		if (empty($events))
+		foreach ($events as $event)
 		{
-			$events = [];
+			$options[] = Helpers\HTML::_('select.option', $event['value'], $event['name']);
 		}
 
-		$options = [];
-		foreach ($events as $course)
-		{
-			$options[] = HTML::_('select.option', $course['value'], $course['name']);
-		}
+		$fieldName  = $this->getAttribute('name');
+		$attributes = ['multiple' => 'multiple', 'size' => '10'];
 
-		$attributes       = ['multiple' => 'multiple', 'size' => '10'];
-		$selectedMappings = empty($selected) ? [] : $selected;
+		$query = Database::getQuery(true);
+		$query->select('eventID')->from('#__organizer_subject_events')->where("subjectID = '$subjectID'");
+		Database::setQuery($query);
+		$selected = Database::loadIntColumn();
 
-		return HTML::selectBox($options, $fieldName, $attributes, $selectedMappings, true);
+		return Helpers\HTML::selectBox($options, $fieldName, $attributes, $selected, true);
 	}
 }

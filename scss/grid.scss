@@ -1,0 +1,108 @@
+@import "fields";
+@import "filter_bars";
+@import "variables";
+
+#adminForm {
+  margin-bottom: 0;
+}
+
+.instances-grid {
+  display: grid;
+  grid-template-rows: 3rem repeat(auto-fill, auto);
+  padding-bottom: 1rem;
+  text-align: center;
+
+  &.columns-1 {
+    grid-template-columns: 1fr;
+  }
+
+  &.columns-2 {
+    grid-template-columns: 3.5rem repeat(1, 1fr);
+  }
+
+  &.columns-6 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  &.columns-7 {
+    grid-template-columns: 3.4rem repeat(6, 10.5rem);
+  }
+
+  & > div {
+    background-color: $foreground-color;
+    border-bottom: 5px solid $background-green;
+    color: $font-color;
+    padding: .1rem .2rem;
+
+    &.grid-header {
+      align-items: center;
+      background-color: $background-foot;
+      color: $foreground-color;
+      display: grid;
+      justify-items: center;
+
+      &.times {
+        display: block;
+        padding: .5rem 0;
+      }
+    }
+
+    &.block-busy {
+      background-color: $blue-50;
+    }
+
+    &.row-end {
+      border-right: none;
+    }
+
+    .grid-item {
+      background-color: $background-color;
+      margin: .2rem 0 .4rem 0;
+      padding: .4rem .1rem;
+
+      &.new .icon-warning-2::before {
+        color: $green-100;
+      }
+
+      &.removed {
+        color: $grey-75;
+        text-decoration: line-through;
+
+        .icon-warning-2::before {
+          color: $red-100;
+        }
+
+        a {
+          color: $grey-75;
+
+        }
+      }
+
+      &:last-child {
+        margin-bottom: .2rem;
+      }
+
+      .grid-tools {
+        margin-top: .4rem;
+
+        [class^="icon-"] {
+          font-size: 1.1rem;
+          margin-right: .4rem;
+        }
+      }
+    }
+
+    &.break {
+      background-color: $background-green;
+      color: $font-color;
+    }
+
+    & > div {
+      background-color: $foreground-color;
+    }
+
+    .notice {
+      text-align: right;
+    }
+  }
+}

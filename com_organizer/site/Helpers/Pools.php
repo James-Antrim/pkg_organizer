@@ -10,57 +10,26 @@
 
 namespace Organizer\Helpers;
 
-use Joomla\CMS\Factory;
-use Organizer\Tables\Pools as PoolsTable;
+use Organizer\Adapters\Database;
+use Organizer\Tables;
 
 /**
  * Provides general functions for (subject) pool access checks, data retrieval and display.
  */
-class Pools extends ResourceHelper implements Selectable
+class Pools extends Curricula implements Selectable
 {
 	use Filtered;
 
-	/**
-	 * Fills the options array with HTML pool options
-	 *
-	 * @param   array   &$options              an array to store the options in
-	 * @param   array   &$programMappings      mappings belonging to one of the requested programs
-	 * @param   array   &$unelectableMappings  mappings which would lead to data inconsistency
-	 * @param   array   &$parentIDs            previously mapped parents
-	 * @param   boolean  $resourceType         the resource's type
-	 *
-	 * @return void
-	 */
-	private static function fillOptions(&$options, &$programMappings, &$unelectableMappings, &$parentIDs, $resourceType)
-	{
-		foreach ($programMappings as $mapping)
-		{
-			if (!empty($mapping['subjectID'])
-				or (!empty($unelectableMappings) and in_array($mapping['id'], $unelectableMappings))
-			)
-			{
-				continue;
-			}
-
-			if (!empty($mapping['poolID']))
-			{
-				$options[] = Mappings::getPoolOption($mapping, $parentIDs);
-			}
-			else
-			{
-				$options[] = Mappings::getProgramOption($mapping, $parentIDs, $resourceType);
-			}
-		}
-	}
+	protected static $resource = 'pool';
 
 	/**
 	 * Creates a text for the required pool credit points
 	 *
-	 * @param   object  $pool  the pool
+	 * @param   array  $pool  the pool
 	 *
 	 * @return string  the required amount of credit points
 	 */
-	public static function getCrPText($pool)
+	public static function getCrPText(array $pool): string
 	{
 		$minCrPExists = !empty($pool['minCrP']);
 		$maxCrPExists = !empty($pool['maxCrP']);
@@ -69,43 +38,93 @@ class Pools extends ResourceHelper implements Selectable
 			return $pool['maxCrP'] === $pool['minCrP'] ?
 				"{$pool['maxCrP']} CrP" : "{$pool['minCrP']} - {$pool['maxCrP']} CrP";
 		}
-		else
+		elseif ($maxCrPExists)
 		{
-			if ($maxCrPExists)
-			{
-				return "max. {$pool['maxCrP']} CrP";
-			}
-			elseif ($minCrPExists)
-			{
-				return "min. {$pool['minCrP']} CrP";
-			}
+			return "max. {$pool['maxCrP']} CrP";
+		}
+		elseif ($minCrPExists)
+		{
+			return "min. {$pool['minCrP']} CrP";
 		}
 
 		return '';
 	}
 
 	/**
-	 * Retrieves the pool's full name if existent.
+	 * Gets a HTML option based upon a pool curriculum association
 	 *
-	 * @param   int  $poolID  the table's pool id
+	 * @param   array  $range      the curriculum range entry
+	 * @param   array  $parentIDs  the selected parents
 	 *
-	 * @return string the full name, otherwise an empty string
+	 * @return string  HTML option
 	 */
-	public static function getFullName($poolID)
+	public static function getCurricularOption(array $range, array $parentIDs): string
 	{
-		$table = new PoolsTable;
+		$poolsTable = new Tables\Pools();
 
-		return $table->load($poolID) ? $table->fullName : '';
+		if (!$poolsTable->load($range['poolID']))
+		{
+			return '';
+		}
+
+		$nameColumn   = 'fullName_' . Languages::getTag();
+		$indentedName = Pools::getIndentedName($poolsTable->$nameColumn, $range['level']);
+
+		$selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
+
+		return "<option value='{$range['id']}' $selected>$indentedName</option>";
 	}
 
 	/**
-	 * Retrieves the selectable options for the resource.
+	 * Gets the mapped curricula ranges for the given pool
+	 *
+	 * @param   mixed  $identifiers  int poolID | array ranges of subordinate resources
+	 *
+	 * @return array the pool ranges
+	 */
+	public static function getFilteredRanges($identifiers): array
+	{
+		if (!$ranges = self::getRanges($identifiers))
+		{
+			return [];
+		}
+
+		$filteredBoundaries = [];
+		foreach ($ranges as $range)
+		{
+			$filteredBoundaries = self::removeExclusions($range);
+		}
+
+		return $filteredBoundaries;
+	}
+
+	/**
+	 * Creates a name for use in a list of options implicitly displaying the pool hierarchy.
+	 *
+	 * @param   string  $name   the name of the pool
+	 * @param   int     $level  the structural depth
+	 *
+	 * @return string the pool name indented according to the curricular hierarchy
+	 */
+	public static function getIndentedName(string $name, int $level): string
+	{
+		$iteration = 0;
+		$indent    = '';
+		while ($iteration < $level)
+		{
+			$indent .= '&nbsp;&nbsp;&nbsp;';
+			$iteration++;
+		}
+
+		return $indent . '|_' . $name;
+	}
+
+	/**
+	 * @inheritDoc
 	 *
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available options
 	 */
-	public static function getOptions($access = '')
+	public static function getOptions(string $access = ''): array
 	{
 		$options = [];
 		foreach (self::getResources($access) as $pool)
@@ -121,208 +140,186 @@ class Pools extends ResourceHelper implements Selectable
 	 *
 	 * @return string
 	 */
-	public static function getParentOptions()
+	public static function getParentOptions(): string
 	{
-		$resourceID     = Input::getID();
-		$resourceType   = Input::getCMD('type');
-		$programIDs     = Input::getFilterIDs('program');
-		$programEntries = self::getProgramEntries($programIDs);
-		$options        = [];
-		$options[]      = '<option value="-1">' . Languages::_('JNONE') . '</option>';
+		$resourceID   = Input::getID();
+		$resourceType = Input::getCMD('type');
 
-		$invalidRequest = (empty($resourceID) or empty($resourceType));
-		$none           = ($invalidRequest or empty($programEntries));
-		if ($none)
-		{
-			return $options[0];
-		}
+		// Pending program ranges are dependant on selected programs.
+		$programIDs    = Input::getFilterIDs('program');
+		$programRanges = Programs::getPrograms($programIDs);
 
-		$programMappings     = Mappings::getProgramMappings($programEntries);
-		$onlyProgramMappings = count($programEntries) == count($programMappings);
-		if ($onlyProgramMappings and $resourceType == 'subject')
-		{
-			return $options[0];
-		}
-
-		$mappings = $mappingIDs = $parentIDs = [];
-		Mappings::setMappingData($resourceID, $resourceType, $mappings, $mappingIDs, $parentIDs);
-		$unSelectableMappings = self::getUnselectableMappings($mappings, $mappingIDs, $resourceType);
-		self::fillOptions($options, $programMappings, $unSelectableMappings, $parentIDs, $resourceType);
+		$options = self::getSuperOptions($resourceID, $resourceType, $programRanges);
 
 		return implode('', $options);
 	}
 
 	/**
-	 * Retrieves the mappings of superordinate programs
-	 *
-	 * @param   array  $programIDs  the requested program ids
-	 *
-	 * @return array  the superordinate program mappings
+	 * @inheritDoc
 	 */
-	private static function getProgramEntries($programIDs)
+	public static function getRanges($identifiers): array
 	{
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select('id, programID, lft, rgt');
-		$query->from('#__organizer_mappings');
-		$query->where("programID IN ( '" . implode("', '", $programIDs) . "' )");
-		$query->order('lft ASC');
-		$dbo->setQuery($query);
-
-		return OrganizerHelper::executeQuery('loadAssocList');
-	}
-
-	/**
-	 * Gets an array modelling the attributes of the resource.
-	 *
-	 * @param $resourceID
-	 *
-	 * @return array
-	 */
-	public static function getResource($resourceID)
-	{
-		$table = new PoolsTable;
-
-		if (!$table->load($resourceID))
+		if (empty($identifiers) or (!is_numeric($identifiers) and !is_array($identifiers)))
 		{
 			return [];
 		}
 
-		$tag  = Languages::getTag();
-		$pool = [
+		$query = Database::getQuery();
+		$query->select('DISTINCT *')
+			->from('#__organizer_curricula')
+			->where('poolID IS NOT NULL ')
+			->order('lft');
+
+		if (is_array($identifiers))
+		{
+			self::filterSuperOrdinate($query, $identifiers);
+		}
+		else
+		{
+			$poolID = (int) $identifiers;
+			if ($identifiers != self::NONE)
+			{
+				$query->where("poolID = $poolID");
+			}
+		}
+
+		Database::setQuery($query);
+
+		return Database::loadAssocList();
+	}
+
+	/**
+	 * Gets an array modeling the attributes of the resource.
+	 *
+	 * @param $poolID
+	 *
+	 * @return array
+	 */
+	public static function getPool($poolID): array
+	{
+		$table = new Tables\Pools();
+
+		if (!$table->load($poolID))
+		{
+			return [];
+		}
+
+		$fieldID         = $table->fieldID ?: 0;
+		$organizationIDs = self::getOrganizationIDs($table->id);
+		$organizationID  = $organizationIDs ? (int) $organizationIDs[0] : 0;
+		$tag             = Languages::getTag();
+
+		return [
 			'abbreviation' => $table->{"abbreviation_$tag"},
-			'bgColor'      => Fields::getColor($table->fieldID),
+			'bgColor'      => Fields::getColor($fieldID, $organizationID),
 			'description'  => $table->{"description_$tag"},
-			'field'        => Fields::getName($table->fieldID),
+			'field'        => $fieldID ? Fields::getName($fieldID) : '',
 			'fieldID'      => $table->fieldID,
 			'id'           => $table->id,
 			'maxCrP'       => $table->maxCrP,
 			'minCrP'       => $table->minCrP,
-			'name'         => $table->{"name_$tag"},
-			'shortName'    => $table->{"shortName_$tag"},
+			'name'         => $table->{"fullName_$tag"}
 		];
-
-		return $pool;
 	}
 
 	/**
-	 * Retrieves the resource items.
+	 * @inheritDoc
 	 *
 	 * @param   string  $access  any access restriction which should be performed
-	 *
-	 * @return array the available resources
 	 */
-	public static function getResources($access = '')
+	public static function getResources(string $access = ''): array
 	{
-		$programID = Input::getFilterID('program');
-		$poolID    = Input::getInput()->get->getInt('poolID');
-		if (empty($programID) and empty($poolID))
+		$programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID');
+		$poolID    = Input::getInt('poolID');
+		if (!$programID and !$poolID)
 		{
 			return [];
 		}
 
-		$ranges = $poolID ?
-			Mappings::getResourceRanges('pool', $poolID) : Mappings::getResourceRanges('program', $programID);
+		$ranges = $poolID ? self::getRanges($poolID) : Programs::getRanges($programID);
 		if (empty($ranges))
 		{
 			return [];
 		}
 
+		$query = Database::getQuery();
 		$tag   = Languages::getTag();
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
-		$query->select("DISTINCT p.*, p.name_$tag AS name")
+		$query->select("DISTINCT p.*, p.fullName_$tag AS name")
 			->from('#__organizer_pools AS p')
-			->innerJoin('#__organizer_mappings AS m ON p.id = m.poolID')
-			->where("lft > '{$ranges[0]['lft']}'")
-			->where("rgt < '{$ranges[0]['rgt']}'")
+			->innerJoin('#__organizer_curricula AS c ON c.poolID = p.id')
+			->where("lft > {$ranges[0]['lft']}")
+			->where("rgt < {$ranges[0]['rgt']}")
 			->order('name ASC');
 
 		if (!empty($access))
 		{
-			self::addAccessFilter($query, 'p', $access);
+			self::addAccessFilter($query, $access, 'pool', 'p');
 		}
 
-		$dbo->setQuery($query);
+		Database::setQuery($query);
 
-		return OrganizerHelper::executeQuery('loadAssocList', []);
+		return Database::loadAssocList('id');
 	}
 
 	/**
-	 * Retrieves an array of mappings which should not be available for selection
-	 * as the parent of the resource
+	 * Retrieves the range of the selected resource exclusive subordinate pools.
 	 *
-	 * @param   array  &$mappings      the existing mappings of the resource
-	 * @param   array  &$mappingIDs    the mapping ids for the resource
-	 * @param   string  $resourceType  the resource's type
+	 * @param   array  $range  the original range of a pool
 	 *
-	 * @return array  the ids which should be unselectable
+	 * @return array  array of arrays with boundary values
 	 */
-	private static function getUnselectableMappings(&$mappings, &$mappingIDs, $resourceType)
+	private static function removeExclusions(array $range): array
 	{
-		if ($resourceType == 'subject')
+		$query = Database::getQuery();
+		$query->select('*')->from('#__organizer_curricula')
+			->where('poolID IS NOT NULL')
+			->where("lft > '{$range['lft']}' AND rgt < '{$range['rgt']}'")
+			->order('lft');
+		Database::setQuery($query);
+
+		if (!$exclusions = Database::loadAssocList())
 		{
-			return [];
+			return [$range];
 		}
 
-		$children = Mappings::getChildMappingIDs($mappings);
-
-		return array_merge($mappingIDs, $children);
-	}
-
-	/**
-	 * Retrieves pool entries from the database based upon selected program and
-	 * person
-	 *
-	 * @return string  the subjects which fit the selected resource
-	 */
-	public static function poolsByProgramOrPerson()
-	{
-		$selectedProgram = Input::getInt('programID');
-		if (empty($selectedProgram) or $selectedProgram == '-1')
+		$ranges = [];
+		foreach ($exclusions as $exclusion)
 		{
-			return '[]';
+			// Subordinate has no own subordinates => has no impact on output
+			if ($exclusion['lft'] + 1 == $exclusion['rgt'])
+			{
+				continue;
+			}
+
+			// Not an immediate subordinate
+			if ($exclusion['lft'] != $range['lft'] + 1)
+			{
+				$boundary = $range;
+				// Create a new boundary from the current left to the exclusion
+				$boundary['rgt'] = $exclusion['lft'];
+
+				// Change the new left to the other side of the exclusion
+				$range['lft'] = $exclusion['rgt'];
+
+				$ranges[] = $boundary;
+				continue;
+			}
+
+			// Change the new left to the other side of the exclusion
+			$range['lft'] = $exclusion['rgt'];
+
+			if ($range['lft'] >= $range['rgt'])
+			{
+				break;
+			}
 		}
 
-		$programBounds = Mappings::getMappings('program', $selectedProgram);
-		$personClauses = Mappings::getPersonMappingClauses();
-
-		if (empty($programBounds))
+		// Remnants after exclusions still exist
+		if ($range['lft'] < $range['rgt'])
 		{
-			return '[]';
+			$ranges[] = $range;
 		}
 
-		$dbo   = Factory::getDbo();
-		$tag   = Languages::getTag();
-		$query = $dbo->getQuery(true);
-		$query->select("p.id, p.name_{$tag} AS name, m.level");
-		$query->from('#__organizer_pools AS p');
-		$query->innerJoin('#__organizer_mappings AS m ON m.poolID = p.id');
-		if (!empty($programBounds[0]))
-		{
-			$query->where("m.lft >= '{$programBounds[0]['lft']}'");
-			$query->where("m.rgt <= '{$programBounds[0]['rgt']}'");
-		}
-
-		if (!empty($personClauses))
-		{
-			$query->where('( ( ' . implode(') OR (', $personClauses) . ') )');
-		}
-
-		$query->order('lft');
-		$dbo->setQuery($query);
-
-		$pools = OrganizerHelper::executeQuery('loadObjectList');
-		if (empty($pools))
-		{
-			return '[]';
-		}
-
-		foreach ($pools as $key => $value)
-		{
-			$pools[$key]->name = Mappings::getIndentedPoolName($value->name, $value->level, false);
-		}
-
-		return $pools;
+		return $ranges;
 	}
 }

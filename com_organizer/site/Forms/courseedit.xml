@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details" label="ATTRIBUTES_BASIC">
+        <field name="id" type="hidden"/>
+        <field name="groups" type="Blank" label="COURSE_GROUPS" hint="Gruppe A; Zug 1, Gruppe B, ..." maxlength="100"/>
+        <field name="termID" type="Terms" label="TERM" disabled="true"/>
+        <field name="campusID" type="Campuses" label="CAMPUS"/>
+        <field name="deadline" type="Integer" label="DEADLINE" default="0" first="0" last="30" step="1"/>
+        <field name="fee" type="Integer" label="FEE" default="0" first="0" last="500" step="5"/>
+        <field name="maxParticipants" type="Integer" label="MAX_PARTICIPANTS" default="1000" first="20" last="1000"
+               step="20"/>
+        <field name="registrationType" type="Options" label="REGISTRATION">
+            <option value="">NO_REGISTRATION</option>
+            <option value="0">FIFO</option>
+            <option value="1">MANUAL</option>
+        </field>
+    </fieldset>
+    <fieldset name="de" label="ATTRIBUTES_DE">
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150"/>
+        <field name="description_de" type="Wiz" label="DESC_DE"/>
+    </fieldset>
+    <fieldset name="en" label="ATTRIBUTES_EN">
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150"/>
+        <field name="description_en" type="Wiz" label="DESC_EN"/>
+    </fieldset>
+    <!--<fieldset name="units" label="UNITS" displayinitial="0">
+        <field name="units" type="Units" label="UNITS"/>
+    </fieldset>-->
+</form>

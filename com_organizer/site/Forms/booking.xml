@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fields name="batch">
+        <field name="instanceID" type="BookingInstances" label="EVENT">
+            <option value="">DONT_CHANGE</option>
+        </field>
+        <field name="roomID" type="BookingRooms" label="ROOM">
+            <option value="">DONT_CHANGE</option>
+        </field>
+    </fields>
+    <fields name="filter">
+        <field name="status" type="Options" label="EVENT" onchange="this.form.submit();">
+            <option value="">SELECT_STATUS</option>
+            <option value="-1">NOT_CHECKED_IN</option>
+            <option value="1">CHECKED_IN</option>
+            <option value="2">CHECKED_IN_REGISTERED</option>
+            <option value="3">CHECKED_IN_UNREGISTERED</option>
+        </field>
+        <field name="instanceID" type="BookingInstances" label="EVENT" onchange="this.form.submit();">
+            <option value="">ALL_INSTANCES</option>
+        </field>
+        <field name="roomID" type="BookingRooms" label="ROOM" onchange="this.form.submit();">
+            <option value="">ALL_ROOMS</option>
+            <option value="-1">NO_ROOMS</option>
+        </field>
+    </fields>
+    <fields name="list">
+        <field name="username" type="AddParticipant"/>
+        <field name="limit" type="Limitbox" class="input-mini" onchange="this.form.submit();"/>
+    </fields>
+</form>

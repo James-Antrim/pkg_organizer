@@ -10,9 +10,8 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Can;
-use Organizer\Tables\Programs as ProgramsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class loads a form for editing (degree) program data.
@@ -22,15 +21,16 @@ class ProgramEdit extends EditModel
 	public $children = null;
 
 	/**
-	 * Checks for user authorization to access the view.
+	 * Checks access to edit the resource.
 	 *
-	 * @return bool  true if the user can access the edit view, otherwise false
+	 * @return void
 	 */
-	public function allowEdit()
+	public function authorize()
 	{
-		$programID = empty($this->item->id) ? 0 : $this->item->id;
-
-		return Can::document('program', $programID);
+		if (!Helpers\Can::document('program', (int) $this->item->id))
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
 	}
 
 	/**
@@ -40,12 +40,12 @@ class ProgramEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return Tables\Programs A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new ProgramsTable;
+		return new Tables\Programs;
 	}
 }

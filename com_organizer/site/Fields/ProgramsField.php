@@ -10,7 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\Programs;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for (degree) programs.
@@ -27,10 +27,11 @@ class ProgramsField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
 		$options  = parent::getOptions();
-		$programs = Programs::getOptions($this->getAttribute('access', ''));
+		$access   = $this->adminContext ? $this->getAttribute('access', '') : '';
+		$programs = Helpers\Programs::getOptions($access);
 
 		return array_merge($options, $programs);
 	}

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details" label="ATTRIBUTES_BASIC">
+        <field name="id" type="hidden"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
+        <field name="organizationID" type="OrganizationAssociations" label="ORGANIZATION" disabled="true"
+               required="true"/>
+        <field name="campusID" type="Campuses" label="CAMPUS">
+            <option value="">NO_CAMPUSES</option>
+        </field>
+        <field name="subjectNo" type="Blank" label="MODULE_ID" maxlength="45"/>
+        <field name="preparatory" type="Options" label="PREP_COURSE" default="0">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
+        <field name="deadline" type="Integer" label="DEADLINE" default="0" first="0" last="30" step="1"/>
+        <field name="fee" type="Integer" label="FEE" default="0" first="0" last="500" step="5"/>
+        <field name="maxParticipants" type="Integer" label="MAX_PARTICIPANTS" default="1000" first="20" last="1000"
+               step="20"/>
+        <field name="registrationType" type="Options" label="REGISTRATION">
+            <option value="">NO_REGISTRATION</option>
+            <option value="0">FIFO</option>
+            <option value="1">MANUAL</option>
+        </field>
+        <field name="active" type="Options" label="ACTIVE" default="1">
+            <option value="1">ACTIVE</option>
+            <option value="0">INACTIVE</option>
+        </field>
+        <field name="suppress" type="Options" label="SUPPRESS" default="0">
+            <option value="0">SHOWN</option>
+            <option value="1">SUPPRESSED</option>
+        </field>
+    </fieldset>
+    <fieldset name="de" label="ATTRIBUTES_DE">
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="description_de" type="Wiz" label="DESC_DE"/>
+        <field name="content_de" type="Wiz" label="CONTENT_DE"/>
+        <field name="organization_de" type="Wiz" label="COURSE_ORGANIZATION_DE"/>
+        <field name="pretests_de" type="Wiz" label="PRETESTS_DE"/>
+        <field name="contact_de" type="Wiz" label="POC_DE"/>
+        <field name="courseContact_de" type="Wiz" label="COURSE_POC_DE"/>
+    </fieldset>
+    <fieldset name="en" label="ATTRIBUTES_EN">
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="description_en" type="Wiz" label="DESC_EN"/>
+        <field name="content_en" type="Wiz" label="CONTENT_EN"/>
+        <field name="organization_en" type="Wiz" label="COURSE_ORGANIZATION_EN"/>
+        <field name="pretests_en" type="Wiz" label="PRETESTS_EN"/>
+        <field name="contact_en" type="Wiz" label="POC_EN"/>
+        <field name="courseContact_en" type="Wiz" label="COURSE_POC_EN"/>
+    </fieldset>
+    <fieldset name="coordinators" label="COORDINATORS">
+        <field name="coordinatorIDs" type="Coordinators" label="COORDINATORS" multiple="multiple" size="20"/>
+    </fieldset>
+</form>

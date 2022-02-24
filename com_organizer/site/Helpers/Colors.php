@@ -10,7 +10,7 @@
 
 namespace Organizer\Helpers;
 
-use Organizer\Tables\Colors as ColorsTable;
+use Organizer\Tables;
 
 /**
  * Class provides generalized functions regarding dates and times.
@@ -24,9 +24,9 @@ class Colors extends ResourceHelper
 	 *
 	 * @return string the hex value of the color
 	 */
-	public static function getColor($colorID)
+	public static function getColor(int $colorID): string
 	{
-		$table = new ColorsTable;
+		$table = new Tables\Colors();
 
 		return $table->load($colorID) ? $table->color : '';
 	}
@@ -35,11 +35,11 @@ class Colors extends ResourceHelper
 	 * Creates a container to output text with a system specific color.
 	 *
 	 * @param   string  $text     the text to display
-	 * @param   ing     $colorID  the id of the color
+	 * @param   int     $colorID  the id of the color
 	 *
 	 * @return string
 	 */
-	public static function getListDisplay($text, $colorID)
+	public static function getListDisplay(string $text, int $colorID): string
 	{
 		$styles = ['text-align:center;'];
 		if (!empty($colorID))
@@ -60,7 +60,7 @@ class Colors extends ResourceHelper
 	 *
 	 * @return string  the hexadecimal value for an appropriate text color
 	 */
-	public static function getDynamicTextColor($bgColor)
+	public static function getDynamicTextColor(string $bgColor): string
 	{
 		$color              = substr($bgColor, 1);
 		$params             = Input::getParams();

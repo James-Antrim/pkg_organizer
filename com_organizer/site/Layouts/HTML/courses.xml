@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="params" addfieldprefix="Organizer\Fields">
+        <fieldset name="basic" label="ORGANIZER_SETTINGS">
+            <field name="campusID" type="Campuses" label="CAMPUS">
+                <option value="">All_CAMPUSES</option>
+            </field>
+            <field name="onlyPrepCourses" type="Options" label="COURSE_TYPE">
+                <option value="">ALL_COURSE_TYPES</option>
+                <option value="1">ONLY_PREP_COURSES</option>
+                <option value="-1">NOT_PREP_COURSES</option>
+            </field>
+        </fieldset>
+    </fields>
+</form>

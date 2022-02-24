@@ -11,7 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of colors.
@@ -25,13 +25,11 @@ class Colors extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Languages::getTag();
+		$tag   = Helpers\Languages::getTag();
 		$query = $this->_db->getQuery(true);
 
-		$select = "id, name_$tag AS name, color, ";
-		$parts  = ["'index.php?option=com_organizer&view=color_edit&id='", 'id'];
-		$select .= $query->concatenate($parts, '') . ' AS link';
-		$query->select($select)->from('#__organizer_colors');
+		$query->select("id, name_$tag AS name, color")
+			->from('#__organizer_colors');
 
 		$this->setSearchFilter($query, ['name_de', 'name_en', 'color']);
 		$this->setValueFilters($query, ['color']);

@@ -11,7 +11,7 @@
 namespace Organizer\Tables;
 
 /**
- * Class instantiates a Table Object associated with the colors table.
+ * Models the organizer_colors table.
  */
 class Colors extends BaseTable
 {
@@ -40,12 +40,10 @@ class Colors extends BaseTable
 	public $name_en;
 
 	/**
-	 * Declares the associated table
-	 *
-	 * @param   \JDatabaseDriver &$dbo  A database connector object
+	 * Declares the associated table.
 	 */
-	public function __construct(&$dbo = null)
+	public function __construct()
 	{
-		parent::__construct('#__organizer_colors', 'id', $dbo);
+		parent::__construct('#__organizer_colors');
 	}
 }

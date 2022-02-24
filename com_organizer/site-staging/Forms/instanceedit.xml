@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="layout" type="hidden"/>
+        <field name="date" type="Date" label="INSTANCE_DATE" class="input-8" empty="false"
+               onchange="this.form.submit();"
+               required="true"/>
+        <field name="gridID" type="Grids" label="INSTANCE_GRID" onchange="this.form.submit();" required="true">
+            <option value="-1">NONE</option>
+        </field>
+        <field name="startTime" type="Time" label="INSTANCE_START_TIME" class="input-6 validate-time" required="true"/>
+        <field name="endTime" type="Time" label="INSTANCE_END_TIME" class="input-6 validate-time" required="true"/>
+        <field name="blockID" type="InstanceBlock" label="INSTANCE_BLOCK" required="true">
+            <option value="">SELECT_BLOCK</option>
+        </field>
+        <field name="title" type="Blank" label="INSTANCE_TITLE" class="input-15 validate-text" maxlength="255"
+               required="true"/>
+        <field name="roomIDs" type="Rooms" label="INSTANCE_ROOMS" class="validate-select" hint="SELECT_ROOMS"
+               multiple="multiple" required="true">
+            <!--<option value="-1">SELECT_ROOMS</option>-->
+        </field>
+    </fieldset>
+    <fieldset name="simple">
+        <!-- person is assumed -->
+        <!--<field name="personID" type="hidden"/>
+        <field name="roleID" type="Roles" label="INSTANCE_ROLE" required="true">
+            <option value="">SELECT_ROLE</option>
+        </field>
+        <field name="eventIDs" type="InstanceEvents" label="INSTANCE_EVENTS" default="-1" multiple="multiple">
+            <option value="-1">NO_EVENTS</option>
+        </field>
+        <field name="methodID" type="Methods" label="INSTANCE_METHOD"  showon="eventIDs!:-1">
+            <option value="-1">NO_METHOD</option>
+        </field>
+        <field name="groupIDs" type="InstanceGroups" label="INSTANCE_GROUPS">
+            <option value="-1">NO_GROUPS</option>
+        </field>-->
+    </fieldset>
+    <fieldset name="advanced">
+        <!--<field name="eventID" type="GenericOptions" required="true" label="EVENT" valuecolumn="id" textcolumn="name"
+               localized="true" table="organizer_events" onchange="disableBtns()"/>-->
+        <!--<field name="methodID" type="GenericOptions" required="true" label="METHOD" valuecolumn="id" textcolumn="name"
+               localized="true" table="organizer_methods"/>-->
+        <!--<field name="resources" type="InstanceResources" formsource="instance_persons" multiple="true"
+               buttons="add,remove" layout="joomla.form.field.subform.repeatable-table"
+               label="ORGANIZER_INSTANCE_PERSONS"/>-->
+    </fieldset>
+</form>

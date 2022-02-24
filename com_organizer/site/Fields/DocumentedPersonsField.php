@@ -10,12 +10,7 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Mappings;
-use Organizer\Helpers\Subjects;
+use Organizer\Helpers;
 
 /**
  * Class creates a select box for the association of persons with subject documentation.
@@ -25,42 +20,32 @@ class DocumentedPersonsField extends OptionsField
 	protected $type = 'DocumentedPersons';
 
 	/**
-	 * Method to get the field input markup for a generic list.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput()
-	{
-		if (empty(Input::getInt('programID')))
-		{
-			return '';
-		}
-
-		return parent::getInput();
-	}
-
-	/**
 	 * Method to get the field options.
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
-		$options      = parent::getOptions();
-		$calledPoolID = Input::getInput()->get->getInt('poolID', 0);
-		$poolID       = Input::getFilterID('pool', $calledPoolID);
-		$programID    = Input::getInt('programID');
-		$subjectIDs   = $poolID ? Mappings::getPoolSubjects($poolID) : Mappings::getProgramSubjects($programID);
+		$options   = parent::getOptions();
+		$poolID    = Helpers\Input::getFilterID('pool', Helpers\Input::getInt('poolID'));
+		$programID = Helpers\Input::getFilterID('program', Helpers\Input::getInt('programID'));
 
-		if (empty($subjectIDs))
+		if (!$poolID and !$programID)
+		{
+			return $options;
+		}
+
+		$subjects = $poolID ? Helpers\Pools::getSubjects($poolID) : Helpers\Programs::getSubjects($programID);
+
+		if (empty($subjects))
 		{
 			return $options;
 		}
 
 		$aggregatedPersons = [];
-		foreach ($subjectIDs as $subjectID)
+		foreach ($subjects as $subject)
 		{
-			$subjectPersons = Subjects::getPersons($subjectID);
+			$subjectPersons = Helpers\Subjects::getPersons($subject['subjectID']);
 			if (empty($subjectPersons))
 			{
 				continue;
@@ -73,7 +58,7 @@ class DocumentedPersonsField extends OptionsField
 
 		foreach ($aggregatedPersons as $name => $person)
 		{
-			$options[] = HTML::_('select.option', $person['id'], $name);
+			$options[] = Helpers\HTML::_('select.option', $person['id'], $name);
 		}
 
 		return $options;

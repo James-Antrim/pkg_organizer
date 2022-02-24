@@ -10,8 +10,8 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Table\Table;
-use Organizer\Tables\Colors as ColorsTable;
+use Organizer\Helpers;
+use Organizer\Tables;
 
 /**
  * Class which manages stored color data.
@@ -19,18 +19,31 @@ use Organizer\Tables\Colors as ColorsTable;
 class Color extends BaseModel
 {
 	/**
+	 * Authorizes the user.
+	 *
+	 * @return void
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Can::documentTheseOrganizations())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
+
+	/**
 	 * Method to get a table object, load it if necessary.
 	 *
 	 * @param   string  $name     The table name. Optional.
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Table A Table object
+	 * @return Tables\Colors A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
-		return new ColorsTable;
+		return new Tables\Colors;
 	}
 }

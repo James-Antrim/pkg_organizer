@@ -11,81 +11,118 @@
 namespace Organizer\Models;
 
 use Exception;
-use Joomla\CMS\Table\Table;
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Input;
+use Organizer\Adapters\Database;
+use Organizer\Helpers;
 use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables\Subjects as SubjectsTable;
+use Organizer\Tables;
+use SimpleXMLElement;
 
 /**
  * Class which manages stored subject data.
  */
-class Subject extends BaseModel
+class Subject extends CurriculumResource
 {
-	const COORDINATES = 1;
+	use Associated;
+	use SubOrdinate;
 
-	const TEACHES = 2;
+	private const COORDINATES = 1, TEACHES = 2;
 
-	/**
-	 * Adds a prerequisite association. No access checks => this is not directly accessible and requires differing
-	 * checks according to its calling context.
-	 *
-	 * @param   int    $subjectID       the id of the subject
-	 * @param   array  $prerequisiteID  the id of the prerequisite
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	private function addPrerequisite($subjectID, $prerequisiteID)
-	{
-		$query = $this->_db->getQuery(true);
-		$query->insert('#__organizer_prerequisites')->columns('subjectID, prerequisiteID');
-		$query->values("'$subjectID', '$prerequisiteID'");
-		$this->_db->setQuery($query);
+	protected $helper = 'Subjects';
 
-		return (bool) OrganizerHelper::executeQuery('execute');
-	}
+	protected $resource = 'subject';
 
 	/**
 	 * Adds a Subject => Event association. No access checks => this is not directly accessible and requires
 	 * differing checks according to its calling context.
 	 *
 	 * @param   int    $subjectID  the id of the subject
-	 * @param   array  $courseIDs  the id of the planSubject
+	 * @param   array  $eventIDs   the ids of the events
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function addSubjectMappings($subjectID, $courseIDs)
+	/*private function addEvents($subjectID, $eventIDs)
 	{
-		$query = $this->_db->getQuery(true);
-		$query->insert('#__organizer_subject_mappings')->columns('subjectID, courseID');
-		foreach ($courseIDs as $courseID)
+		$query = Database::getQuery();
+		$query->insert('#__organizer_subject_events')->columns('subjectID, eventID');
+
+		foreach ($eventIDs as $eventID)
 		{
-			$query->values("'$subjectID', '$courseID'");
+			$query->values("'$subjectID', '$eventID'");
 		}
 
-		$this->_db->setQuery($query);
+		Database::setQuery($query);
 
-		return (bool) OrganizerHelper::executeQuery('execute');
-	}
+		return Database::execute();
+	}*/
 
 	/**
-	 * Adds a person association. No access checks => this is not directly accessible and requires differing checks
-	 * according to its calling context.
+	 * Associates subject curriculum dependencies.
 	 *
-	 * @param   int    $subjectID  the id of the subject
-	 * @param   array  $personID   the id of the person
-	 * @param   int    $role       the person's role for the subject
+	 * @param   array  $programRanges       the program ranges
+	 * @param   array  $prerequisiteRanges  the prerequisite ranges
+	 * @param   array  $subjectRanges       the subject ranges
+	 * @param   bool   $pre                 whether or not the function is being called in the prerequisite context this
+	 *                                      influences how possible deprecated entries are detected.
 	 *
-	 * @return bool  true on success, otherwise false
+	 * @return bool true on success, otherwise false
 	 */
-	public function addPerson($subjectID, $personID, $role)
+	private function associate(array $programRanges, array $prerequisiteRanges, array $subjectRanges, bool $pre): bool
 	{
-		$query = $this->_db->getQuery(true);
-		$query->insert('#__organizer_subject_persons')->columns('subjectID, personID, role');
-		$query->values("$subjectID, $personID, $role");
-		$this->_db->setQuery($query);
+		foreach ($programRanges as $programRange)
+		{
+			if (!$rprRanges = $this->filterRanges($programRange, $prerequisiteRanges))
+			{
+				continue;
+			}
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+			if (!$rsRanges = $this->filterRanges($programRange, $subjectRanges))
+			{
+				continue;
+			}
+
+			// Remove deprecated associations
+			$rprIDs = implode(',', Helpers\Subjects::filterIDs($rprRanges));
+			$rsIDs  = implode(',', Helpers\Subjects::filterIDs($rsRanges));
+			$query  = Database::getQuery();
+			$query->delete('#__organizer_prerequisites');
+
+			if ($pre)
+			{
+				$query->where("subjectID IN ($rsIDs)")->where("prerequisiteID NOT IN ($rprIDs)");
+			}
+			else
+			{
+				$query->where("prerequisiteID IN ($rsIDs)")->where("subjectID NOT IN ($rprIDs)");
+			}
+
+			Database::setQuery($query);
+
+			if (!Database::execute())
+			{
+				return false;
+			}
+
+			foreach ($rprRanges as $rprRange)
+			{
+				foreach ($rsRanges as $rsRange)
+				{
+					$data          = ['subjectID' => $rsRange['id'], 'prerequisiteID' => $rprRange['id']];
+					$prerequisites = new Tables\Prerequisites();
+
+					if ($prerequisites->load($data))
+					{
+						continue;
+					}
+
+					if (!$prerequisites->save($data))
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -96,7 +133,7 @@ class Subject extends BaseModel
 	 *
 	 * @return void  can change the &$data value at the property name index
 	 */
-	private function cleanStarProperty(&$data, $property)
+	private function cleanStarProperty(array &$data, string $property)
 	{
 		if (!isset($data[$property]))
 		{
@@ -110,153 +147,114 @@ class Subject extends BaseModel
 	}
 
 	/**
-	 * Attempts to delete the selected subject entries and related mappings
+	 * Filters subject ranges to those relevant to a given program range.
 	 *
-	 * @return boolean true on success, otherwise false
-	 * @throws Exception => unauthorized access
+	 * @param   array  $programRange   the program range being iterated
+	 * @param   array  $subjectRanges  the ranges for the given subject
+	 *
+	 * @return array the relevant subject ranges
 	 */
-	public function delete()
+	private function filterRanges(array $programRange, array $subjectRanges): array
 	{
-		if (!Can::documentTheseDepartments())
-		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
+		$left           = $programRange['lft'];
+		$relevantRanges = [];
+		$right          = $programRange['rgt'];
 
-		if ($subjectIDs = Input::getSelectedIDs())
+		foreach ($subjectRanges as $subjectRange)
 		{
-			foreach ($subjectIDs as $subjectID)
+			if ($subjectRange['lft'] > $left and $subjectRange['rgt'] < $right)
 			{
-				if (!Can::document('subject', $subjectID))
-				{
-					throw new Exception(Languages::_('ORGANIZER_403'), 403);
-				}
-
-				if (!$this->deleteSingle($subjectID))
-				{
-					return false;
-				}
+				$relevantRanges[] = $subjectRange;
 			}
 		}
 
-		return true;
+		return $relevantRanges;
 	}
 
 	/**
-	 * Deletes an individual subject entry in the mappings and subjects tables. No access checks => this is not directly
-	 * accessible and requires differing checks according to its calling context.
-	 *
-	 * @param   int  $subjectID  the id of the subject to be deleted
-	 *
-	 * @return boolean  true if successful, otherwise false
+	 * @inheritDoc
 	 */
-	public function deleteSingle($subjectID)
+	public function importSingle(int $resourceID): bool
 	{
-		$table        = new SubjectsTable;
-		$mappingModel = new Mapping;
+		$table = new Tables\Subjects();
 
-		if (!$mappingModel->deleteByResourceID($subjectID, 'subject'))
+		if (!$table->load($resourceID) or empty($table->lsfID))
 		{
 			return false;
 		}
 
-		if (!$table->delete($subjectID))
+		try
+		{
+			$client = new Helpers\LSF();
+		}
+		catch (Exception $exception)
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_LSF_CLIENT_FAILED', 'error');
+
+			return false;
+		}
+
+		$response = $client->getModule($table->lsfID);
+
+		// Invalid response
+		if (empty($response->modul))
+		{
+			$message = sprintf(Helpers\Languages::_('ORGANIZER_LSF_RESPONSE_EMPTY'), $table->lsfID);
+			OrganizerHelper::message($message, 'notice');
+
+			return $this->deleteSingle($table->id);
+		}
+
+		$subject = $response->modul;
+
+		if (!$this->validTitle($subject))
+		{
+			$message = sprintf(Helpers\Languages::_('ORGANIZER_IMPORT_TITLE_INVALID'), $table->lsfID);
+			OrganizerHelper::message($message, 'error');
+
+			return $this->deleteSingle($table->id);
+		}
+
+		$tag           = Helpers\Languages::getTag();
+		$titleProperty = "titel$tag";
+		$title         = $subject->$titleProperty;
+
+		// Suppressed
+		if (!empty($subject->sperrmh) and strtolower((string) $subject->sperrmh) === 'x')
+		{
+			$message = sprintf(Helpers\Languages::_('ORGANIZER_SUBJECT_SUPPRESSED'), $title, $table->lsfID);
+			OrganizerHelper::message($message, 'notice');
+
+			return $this->deleteSingle($table->id);
+		}
+
+		if (!$this->setPersons($table->id, $subject))
+		{
+			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+
+			return false;
+		}
+
+		$this->setNameAttributes($table, $subject);
+
+		Helpers\SubjectsLSF::processAttributes($table, $subject);
+
+		if (!$table->store())
 		{
 			return false;
 		}
 
-		return true;
+		return $this->resolve($table->id);
 	}
 
 	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Table A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = [])
-	{
-		return new SubjectsTable;
-	}
-
-	/**
-	 * Processes the mappings of the subject selected
-	 *
-	 * @param   array &$data  the post data
-	 *
-	 * @return boolean  true on success, otherwise false
-	 */
-	private function processFormMappings(&$data)
-	{
-		$model = new Mapping;
-
-		// No mappings desired
-		if (empty($data['parentID']))
-		{
-			return $model->deleteByResourceID($data['id'], 'subject');
-		}
-
-		return $model->saveSubject($data);
-	}
-
-	/**
-	 * Processes the subject pre- & postrequisites selected for the subject
-	 *
-	 * @param   array &$data  the post data
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	private function processFormPrerequisites(&$data)
-	{
-		if (!isset($data['prerequisites']) and !isset($data['postrequisites']))
-		{
-			return true;
-		}
-
-		$subjectID = $data['id'];
-
-		if (!$this->removePrerequisites($subjectID))
-		{
-			return false;
-		}
-
-		if (!empty($data['prerequisites']))
-		{
-			foreach ($data['prerequisites'] as $prerequisiteID)
-			{
-				if (!$this->addPrerequisite($subjectID, $prerequisiteID))
-				{
-					return false;
-				}
-			}
-		}
-
-		if (!empty($data['postrequisites']))
-		{
-			foreach ($data['postrequisites'] as $postrequisiteID)
-			{
-				if (!$this->addPrerequisite($postrequisiteID, $subjectID))
-				{
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Processes the subject mappings selected for the subject
+	 * Processes the events to be associated with the subject
 	 *
 	 * @param   array &$data  the post data
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function processFormSubjectMappings(&$data)
+	/*private function processEvents(array &$data)
 	{
 		if (!isset($data['courseIDs']))
 		{
@@ -265,13 +263,476 @@ class Subject extends BaseModel
 
 		$subjectID = $data['id'];
 
-		if (!$this->removeSubjectMappings($subjectID))
+		if (!$this->removeEvents($subjectID))
 		{
 			return false;
 		}
-		if (!empty($data['planSubjectIDs']))
+		if (!empty($data['eventIDs']))
 		{
-			if (!$this->addSubjectMappings($subjectID, $data['courseIDs']))
+			if (!$this->addEvents($subjectID, $data['eventIDs']))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}*/
+
+	/**
+	 * Processes the persons selected for the subject
+	 *
+	 * @param   array  $data  the post data
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	private function processPersons(array $data): bool
+	{
+		// More efficient to remove all subject persons associations for the subject than iterate the persons table
+		if (!$this->removePersons($data['id']))
+		{
+			return false;
+		}
+
+		$coordinatorsSet = !empty($data['coordinators']);
+		$personsSet      = !empty($data['persons']);
+
+		if (!$coordinatorsSet and !$personsSet)
+		{
+			return true;
+		}
+
+		if ($coordinatorsSet and $persons = array_filter($data['coordinators']))
+		{
+			foreach ($persons as $personID)
+			{
+				$spData = ['personID' => $personID, 'role' => self::COORDINATES, 'subjectID' => $data['id']];
+				$table  = new Tables\SubjectPersons();
+
+				if (!$table->save($spData))
+				{
+					return false;
+				}
+			}
+
+		}
+
+		if ($personsSet and $persons = array_filter($data['persons']))
+		{
+			foreach ($persons as $personID)
+			{
+				$spData = ['personID' => $personID, 'role' => self::TEACHES, 'subjectID' => $data['id']];
+				$table  = new Tables\SubjectPersons();
+
+				if (!$table->save($spData))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Processes the subject prerequisites selected for the subject
+	 *
+	 * @param   array  $data  the post data
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	private function processPrerequisites(array $data): bool
+	{
+		$subjectID = $data['id'];
+
+		if (!$subjectRanges = $this->getRanges($subjectID))
+		{
+			return true;
+		}
+
+		$programRanges = Helpers\Programs::getRanges($subjectRanges);
+
+		$preRequisites = array_filter($data['prerequisites']);
+		if (!empty($preRequisites) and array_search(self::NONE, $preRequisites) === false)
+		{
+			$prerequisiteRanges = [];
+			foreach ($preRequisites as $preRequisiteID)
+			{
+				$prerequisiteRanges = array_merge($prerequisiteRanges, $this->getRanges($preRequisiteID));
+			}
+
+			$success = $this->associate($programRanges, $prerequisiteRanges, $subjectRanges, true);
+		}
+		else
+		{
+			$success = $this->removePreRequisites($subjectID);
+		}
+
+		return $success;
+	}
+
+	/**
+	 * Creates a subject and a curricula table entries as necessary.
+	 *
+	 * @param   SimpleXMLElement  $XMLObject       a SimpleXML object containing rudimentary resource data
+	 * @param   int               $organizationID  the id of the organization with which the resource is associated
+	 * @param   int               $parentID        the  id of the parent entry in the curricula table
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	public function processResource(SimpleXMLElement $XMLObject, int $organizationID, int $parentID): bool
+	{
+		$lsfID = (string) (empty($XMLObject->modulid) ? $XMLObject->pordid : $XMLObject->modulid);
+		if (empty($lsfID))
+		{
+			return false;
+		}
+
+		$blocked = !empty($XMLObject->sperrmh) and strtolower((string) $XMLObject->sperrmh) == 'x';
+		$validTitle = $this->validTitle($XMLObject);
+
+		$subject = new Tables\Subjects();
+
+		if (!$subject->load(['lsfID' => $lsfID]))
+		{
+			// There isn't one and shouldn't be one
+			if ($blocked or !$validTitle)
+			{
+				return true;
+			}
+
+			$subject->lsfID = $lsfID;
+
+			if (!$subject->store())
+			{
+				return false;
+			}
+		}
+		elseif ($blocked or !$validTitle)
+		{
+			return $this->deleteSingle($subject->id);
+		}
+
+		$curricula = new Tables\Curricula();
+
+		if (!$curricula->load(['parentID' => $parentID, 'subjectID' => $subject->id]))
+		{
+			$range = [
+				'parentID'  => $parentID,
+				'subjectID' => $subject->id,
+				'ordering'  => $this->getOrdering($parentID, $subject->id)
+			];
+
+			if (!$this->shiftUp($parentID, $range['ordering']))
+			{
+				return false;
+			}
+
+			if (!$this->addRange($range))
+			{
+				return false;
+			}
+
+			$curricula->load(['parentID' => $parentID, 'poolID' => $subject->id]);
+		}
+
+		$association = new Tables\Associations();
+		if (!$association->load(['organizationID' => $organizationID, 'subjectID' => $subject->id]))
+		{
+			$association->save(['organizationID' => $organizationID, 'subjectID' => $subject->id]);
+		}
+
+		return $this->importSingle($subject->id);
+	}
+
+	/**
+	 * Removes pre- & postrequisite associations for the given subject. No access checks => this is not directly
+	 * accessible and requires differing checks according to its calling context.
+	 *
+	 * @param   int  $subjectID  the subject id
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	private function removeDependencies(int $subjectID): bool
+	{
+		return ($this->removePreRequisites($subjectID) and $this->removePostRequisites($subjectID));
+	}
+
+	/**
+	 * Removes planSubject associations for the given subject. No access checks => this is not directly accessible and
+	 * requires differing checks according to its calling context.
+	 *
+	 * @param   int  $subjectID  the subject id
+	 *
+	 * @return bool
+	 */
+	/*private function removeEvents($subjectID)
+	{
+		$query = Database::getQuery();
+		$query->delete('#__organizer_subject_curricula')->where("subjectID = '$subjectID'");
+		Database::setQuery($query);
+
+		return Database::execute();
+	}*/
+
+	/**
+	 * Removes person associations for the given subject and role. No access checks => this is not directly
+	 * accessible and requires differing checks according to its calling context.
+	 *
+	 * @param   int  $subjectID  the subject id
+	 * @param   int  $role       the person role
+	 *
+	 * @return bool
+	 */
+	private function removePersons(int $subjectID, int $role = 0): bool
+	{
+		$query = Database::getQuery();
+		$query->delete('#__organizer_subject_persons')->where("subjectID = $subjectID");
+
+		if ($role)
+		{
+			$query->where("role = $role");
+		}
+
+		Database::setQuery($query);
+
+		return Database::execute();
+	}
+
+	/**
+	 * Removes prerequisite associations for the given subject. No access checks => this is not directly
+	 * accessible and requires differing checks according to its calling context.
+	 *
+	 * @param   int  $subjectID  the subject id
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	private function removePreRequisites(int $subjectID): bool
+	{
+		if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID)))
+		{
+			$rangeIDString = implode(',', $rangeIDs);
+
+			$query = Database::getQuery();
+			$query->delete('#__organizer_prerequisites')->where("subjectID IN ($rangeIDString)");
+			Database::setQuery($query);
+
+			return Database::execute();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Removes postrequisite associations for the given subject. No access checks => this is not directly
+	 * accessible and requires differing checks according to its calling context.
+	 *
+	 * @param   int  $subjectID  the subject id
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	private function removePostRequisites(int $subjectID): bool
+	{
+		if ($rangeIDs = Helpers\Subjects::filterIDs($this->getRanges($subjectID)))
+		{
+			$rangeIDString = implode(',', $rangeIDs);
+
+			$query = Database::getQuery();
+			$query->delete('#__organizer_prerequisites')->where("prerequisiteID IN ($rangeIDString)");
+			Database::setQuery($query);
+
+			return Database::execute();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Parses the prerequisites text and replaces subject references with links to the subjects
+	 *
+	 * @param   int  $subjectID  the id of the subject being processed
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	private function resolve(int $subjectID): bool
+	{
+		$table = new Tables\Subjects();
+
+		// Entry doesn't exist. Should not occur.
+		if (!$table->load($subjectID))
+		{
+			return false;
+		}
+
+		// Subject is not associated with a program
+		if (!$programRanges = Helpers\Subjects::getPrograms($subjectID))
+		{
+			return $this->removeDependencies($subjectID);
+		}
+
+		// Ordered by length for faster in case short is a subset of long.
+		$checkedAttributes = [
+			'abbreviation_de',
+			'abbreviation_en',
+			'code',
+			'fullName_de',
+			'fullName_en',
+			'name_de',
+			'name_en'
+		];
+
+		// Flag to be set should one of the attribute texts consist only of module information. => Text should be empty.
+		$attributeChanged = false;
+
+		$reqAttribs    = [
+			'prerequisites_de',
+			'prerequisites_en'
+		];
+		$prerequisites = [];
+
+		foreach ($reqAttribs as $attribute)
+		{
+			$originalText   = $table->$attribute;
+			$potentialCodes = [];
+
+			foreach (explode(' ', Helpers\SubjectsLSF::sanitizeText($originalText)) as $sanitizedText)
+			{
+				if (preg_match('/([A-Za-z0-9]{3,10})/', $sanitizedText))
+				{
+					$potentialCodes[$sanitizedText] = $sanitizedText;
+				}
+			}
+
+			if (empty($potentialCodes))
+			{
+				continue;
+			}
+
+			if ($dependencies = $this->verifyDependencies($potentialCodes, $programRanges))
+			{
+				$prerequisites = $prerequisites + $dependencies;
+
+				$emptyAttribute = Helpers\SubjectsLSF::checkContents($originalText, $checkedAttributes, $dependencies);
+
+				if ($emptyAttribute)
+				{
+					$table->$attribute = '';
+					$attributeChanged  = true;
+				}
+			}
+		}
+
+		if (!$this->saveDependencies($programRanges, $subjectID, $prerequisites, 'pre'))
+		{
+			return false;
+		}
+
+		if ($attributeChanged)
+		{
+			return $table->store();
+		}
+
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function save($data = [])
+	{
+		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+
+		$this->authorize();
+
+		$data['creditPoints'] = (int) $data['creditPoints'];
+
+		$starProperties = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
+		foreach ($starProperties as $property)
+		{
+			$this->cleanStarProperty($data, $property);
+		}
+
+		$table = new Tables\Subjects();
+
+		if (!$table->save($data))
+		{
+			return false;
+		}
+
+		$data['id'] = $table->id;
+
+		if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs']))
+		{
+			return false;
+		}
+
+		if (!$this->processPersons($data))
+		{
+			return false;
+		}
+
+		$superOrdinates = $this->getSuperOrdinates($data);
+
+		if (!$this->addNew($data, $superOrdinates))
+		{
+			return false;
+		}
+
+		$this->removeDeprecated($table->id, $superOrdinates);
+
+		// Dependant on curricula entries.
+		if (!$this->processPrerequisites($data))
+		{
+			return false;
+		}
+
+		/*if (!$this->processEvents($data))
+		{
+			return false;
+		}*/
+
+		return $table->id;
+	}
+
+	/**
+	 * Saves the dependencies to the prerequisites table
+	 *
+	 * @param   array   $programs      the programs that the schedule should be associated with
+	 * @param   int     $subjectID     the id of the subject being processed
+	 * @param   array   $dependencies  the subject dependencies
+	 * @param   string  $type          the type (direction) of dependency: pre|post
+	 *
+	 * @return bool
+	 */
+	private function saveDependencies(array $programs, int $subjectID, array $dependencies, string $type): bool
+	{
+		$subjectRanges = $this->getRanges($subjectID);
+
+		foreach ($programs as $program)
+		{
+			// Program context filtered subject ranges
+			$fsRanges   = $this->filterRanges($program, $subjectRanges);
+			$fsRangeIDs = Helpers\Subjects::filterIDs($fsRanges);
+
+			// Program context filtered dependency ranges
+			$fdRangeIDs = [];
+			foreach ($dependencies as $dependency)
+			{
+				$fdRanges   = $this->filterRanges($program, $dependency);
+				$fdRangeIDs = array_merge($fdRangeIDs, Helpers\Subjects::filterIDs($fdRanges));
+			}
+
+			$fdRangeIDs = array_unique($fdRangeIDs);
+
+			if ($type == 'pre')
+			{
+				$success = $this->savePrerequisites($fdRangeIDs, $fsRangeIDs);
+			}
+			else
+			{
+				$success = $this->savePrerequisites($fsRangeIDs, $fdRangeIDs);
+			}
+
+			if (!$success)
 			{
 				return false;
 			}
@@ -281,46 +742,39 @@ class Subject extends BaseModel
 	}
 
 	/**
-	 * Processes the persons selected for the subject
+	 * Saves the prerequisite relation.
 	 *
-	 * @param   array &$data  the post data
+	 * @param   array  $prerequisiteIDs  ids for prerequisite subject entries in the program curriculum context
+	 * @param   array  $subjectIDs       ids for subject entries in the program curriculum context
 	 *
-	 * @return bool  true on success, otherwise false
+	 * @return bool true on success otherwise false
 	 */
-	private function processFormPersons(&$data)
+	private function savePrerequisites(array $prerequisiteIDs, array $subjectIDs): bool
 	{
-		if (!isset($data['coordinators']) and !isset($data['persons']))
+		// Delete any and all old prerequisites in case there are now fewer.
+		if ($subjectIDs)
 		{
-			return true;
+			$deleteQuery = Database::getQuery();
+			$deleteQuery->delete('#__organizer_prerequisites')->where('subjectID IN (' . implode(',',
+					$subjectIDs) . ')');
+			Database::setQuery($deleteQuery);
+			Database::execute();
 		}
 
-		$subjectID = $data['id'];
-
-		if (!$this->removePersons($subjectID))
+		foreach ($prerequisiteIDs as $prerequisiteID)
 		{
-			return false;
-		}
-
-		$coordinators = array_filter($data['coordinators']);
-		if (!empty($coordinators))
-		{
-			foreach ($coordinators as $coordinatorID)
+			foreach ($subjectIDs as $subjectID)
 			{
-				if (!$this->addPerson($subjectID, $coordinatorID, self::COORDINATES))
+				$table = new Tables\Prerequisites();
+				if (!$table->load(['prerequisiteID' => $prerequisiteID, 'subjectID' => $subjectID]))
 				{
-					return false;
-				}
-			}
-		}
+					$table->prerequisiteID = $prerequisiteID;
+					$table->subjectID      = $subjectID;
 
-		$persons = array_filter($data['persons']);
-		if (!empty($persons))
-		{
-			foreach ($persons as $personID)
-			{
-				if (!$this->addPerson($subjectID, $personID, self::TEACHES))
-				{
-					return false;
+					if (!$table->store())
+					{
+						return false;
+					}
 				}
 			}
 		}
@@ -329,128 +783,159 @@ class Subject extends BaseModel
 	}
 
 	/**
-	 * Removes pre- & postrequisite associations for the given subject. No access checks => this is not directly
-	 * accessible and requires differing checks according to its calling context.
+	 * Creates an association between persons, subjects and their roles for that subject.
 	 *
-	 * @param   int  $subjectID  the subject id
+	 * @param   int               $subjectID   the id of the subject
+	 * @param   SimpleXMLElement  $dataObject  an object containing the lsf response
 	 *
-	 * @return boolean
+	 * @return bool  true on success, otherwise false
 	 */
-	private function removePrerequisites($subjectID)
+	private function setPersons(int $subjectID, SimpleXMLElement $dataObject): bool
 	{
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_prerequisites')
-			->where("subjectID = '$subjectID' OR prerequisiteID ='$subjectID'");
-		$this->_db->setQuery($query);
+		$coordinators = $dataObject->xpath('//verantwortliche');
+		$persons      = $dataObject->xpath('//dozent');
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		$this->removePersons($subjectID);
+
+		if (empty($coordinators) and empty($persons))
+		{
+			return true;
+		}
+
+		if (!$this->setPersonsByRoles($subjectID, $coordinators, self::COORDINATES))
+		{
+			return false;
+		}
+
+		if (!$this->setPersonsByRoles($subjectID, $persons, self::TEACHES))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
-	 * Removes planSubject associations for the given subject. No access checks => this is not directly accessible and
-	 * requires differing checks according to its calling context.
+	 * Sets subject persons by their role for the subject
 	 *
-	 * @param   int  $subjectID  the subject id
+	 * @param   int    $subjectID  the subject's id
+	 * @param   array  $persons    an array containing information about the subject's persons
+	 * @param   int    $role       the person's role
 	 *
-	 * @return boolean
+	 * @return bool  true on success, otherwise false
 	 */
-	private function removeSubjectMappings($subjectID)
+	private function setPersonsByRoles(int $subjectID, array $persons, int $role): bool
 	{
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_subject_mappings')->where("subjectID = '$subjectID'");
-		$this->_db->setQuery($query);
+		$subjectModel = new Subject();
 
-		return (bool) OrganizerHelper::executeQuery('execute');
+		if (!$subjectModel->removePersons($subjectID, $role))
+		{
+			return false;
+		}
+
+		if (empty($persons))
+		{
+			return true;
+		}
+
+		$surnameAttribute  = $role == self::COORDINATES ? 'nachname' : 'personal.nachname';
+		$forenameAttribute = $role == self::COORDINATES ? 'vorname' : 'personal.vorname';
+
+		foreach ($persons as $person)
+		{
+			$personData             = [];
+			$personData['surname']  = trim((string) $person->personinfo->$surnameAttribute);
+			$personData['username'] = trim((string) $person->hgnr);
+
+			if (empty($personData['surname']) or empty($personData['username']))
+			{
+				continue;
+			}
+
+			$loadCriteria           = [];
+			$loadCriteria[]         = ['username' => $personData['username']];
+			$personData['forename'] = (string) $person->personinfo->$forenameAttribute;
+
+			if (!empty($personData['forename']))
+			{
+				$loadCriteria[] = ['surname' => $personData['surname'], 'forename' => $personData['forename']];
+			}
+
+			$personTable = new Tables\Persons();
+			$loaded      = false;
+
+			foreach ($loadCriteria as $criteria)
+			{
+				if ($personTable->load($criteria))
+				{
+					$loaded = true;
+					break;
+				}
+			}
+
+			if (!$loaded and !$personTable->save($personData))
+			{
+				return false;
+			}
+
+			$spData  = ['personID' => $personTable->id, 'role' => $role, 'subjectID' => $subjectID];
+			$spTable = new Tables\SubjectPersons();
+
+			if (!$spTable->save($spData))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
-	 * Removes person associations for the given subject and role. No access checks => this is not directly
-	 * accessible and requires differing checks according to its calling context.
+	 * Checks for subjects with the given possible module number associated with to the same programs.
 	 *
-	 * @param   int  $subjectID  the subject id
-	 * @param   int  $role       the person role
+	 * @param   array  $potentialCodes  the possible code values used in the attribute text
+	 * @param   array  $programRanges   the program ranges whose curricula contain the subject being processed
 	 *
-	 * @return boolean
+	 * @return array the subject information for subjects with dependencies
 	 */
-	public function removePersons($subjectID, $role = null)
+	private function verifyDependencies(array $potentialCodes, array $programRanges): array
 	{
-		$query = $this->_db->getQuery(true);
-		$query->delete('#__organizer_subject_persons')->where("subjectID = '$subjectID'");
-		if (!empty($role))
+		$select = 's.id AS subjectID, code, ';
+		$select .= 'abbreviation_de, fullName_de, abbreviation_en, fullName_en, ';
+		$select .= 'c.id AS curriculumID, c.lft, c.rgt, ';
+
+		$query = Database::getQuery();
+		$query->from('#__organizer_subjects AS s')
+			->innerJoin('#__organizer_curricula AS c ON c.subjectID = s.id');
+
+		$subjects = [];
+		foreach ($potentialCodes as $possibleModuleNumber)
 		{
-			$query->where("role = $role");
+			$possibleModuleNumber = strtoupper($possibleModuleNumber);
+
+			foreach ($programRanges as $program)
+			{
+				$query->clear('select')->clear('where');
+
+				$query->select($select . "{$program['id']} AS programID")
+					->where("lft > {$program['lft']} AND rgt < {$program['rgt']}")
+					->where("s.code = '$possibleModuleNumber'");
+				Database::setQuery($query);
+
+				if (!$curriculumSubjects = Database::loadAssocList('curriculumID'))
+				{
+					continue;
+				}
+
+				if (!array_key_exists($possibleModuleNumber, $subjects))
+				{
+					$subjects[$possibleModuleNumber] = [];
+				}
+
+				$subjects[$possibleModuleNumber] += $curriculumSubjects;
+			}
 		}
 
-		$this->_db->setQuery($query);
-
-		return (bool) OrganizerHelper::executeQuery('execute');
-	}
-
-	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  form data which has been preprocessed by inheriting classes.
-	 *
-	 * @return mixed int id of the resource on success, otherwise boolean false
-	 * @throws Exception => unauthorized access
-	 */
-	public function save($data = [])
-	{
-		$data = empty($data) ? Input::getFormItems()->toArray() : $data;
-
-		if (!isset($data['id']))
-		{
-			throw new Exception(Languages::_('ORGANIZER_400'), 400);
-		}
-		elseif (!Can::document('subject', $data['id']))
-		{
-			throw new Exception(Languages::_('ORGANIZER_403'), 403);
-		}
-
-		$data['creditpoints'] = (float) $data['creditpoints'];
-
-		$starProperties = ['expertise', 'selfCompetence', 'methodCompetence', 'socialCompetence'];
-		foreach ($starProperties as $property)
-		{
-			$this->cleanStarProperty($data, $property);
-		}
-
-		$table = new SubjectsTable;
-
-		if (!$table->save($data))
-		{
-			return false;
-		}
-
-		$processMappings = (!empty($data['id']) and isset($data['parentID']));
-		$data['id']      = $table->id;
-
-		if (!$this->processFormPersons($data))
-		{
-			return false;
-		}
-
-		if (!$this->processFormSubjectMappings($data))
-		{
-			return false;
-		}
-
-		if (!$this->processFormPrerequisites($data))
-		{
-			return false;
-		}
-
-		if ($processMappings and !$this->processFormMappings($data))
-		{
-			return false;
-		}
-
-		$lessonID = Input::getInt('lessonID');
-		if (!empty($lessonID))
-		{
-			Courses::refreshWaitList($lessonID);
-		}
-
-		return $table->id;
+		return $subjects;
 	}
 }

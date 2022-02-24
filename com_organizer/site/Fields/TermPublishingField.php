@@ -10,11 +10,9 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Adapters\Database;
+use Organizer\Helpers;
 
 /**
  * Class creates a form field for enabling or disabling publishing for specific plan (subject) pools for specific
@@ -34,62 +32,55 @@ class TermPublishingField extends FormField
 	 *
 	 * @return string  the HTML select box
 	 */
-	protected function getInput()
+	protected function getInput(): string
 	{
-		$tag         = Languages::getTag();
-		$today       = date('Y-m-d');
-		$dbo         = Factory::getDbo();
-		$periodQuery = $dbo->getQuery(true);
-		$periodQuery->select("id, name_$tag as name")
-			->from('#__organizer_terms')
-			->where("endDate > '$today'")
-			->order('startDate ASC');
-		$dbo->setQuery($periodQuery);
+		$input      = '';
+		$nameColumn = 'name_' . Helpers\Languages::getTag();
+		$today      = date('Y-m-d');
+		$container  = '<div class="publishing-container">XXXX</div>';
 
-		$periods = OrganizerHelper::executeQuery('loadAssocList', [], 'id');
-		if (empty($periods))
+		$no      = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_NO'), 'value' => 0];
+		$yes     = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_YES'), 'value' => 1];
+		$options = [$yes, $no];
+
+		$values = [];
+		if ($groupID = Helpers\Input::getID())
 		{
-			return '';
+			$query = Database::getQuery();
+			$query->select('termID, published')->from('#__organizer_group_publishing')->where("groupID = $groupID");
+			Database::setQuery($query);
+
+			$values = Database::loadAssocList('termID');
 		}
 
-		$groupID   = Input::getID();
-		$poolQuery = $dbo->getQuery(true);
-		$poolQuery->select('termID, published')
-			->from('#__organizer_group_publishing')
-			->where("groupID = '$groupID'");
-		$dbo->setQuery($poolQuery);
-
-		$publishingEntries = OrganizerHelper::executeQuery('loadAssocList', [], 'termID');
-
-		$return = '<div class="publishing-container">';
-		foreach ($periods as $period)
+		foreach (Helpers\Terms::getResources() as $term)
 		{
-			$pID   = "jform_publishing_{$period['id']}";
-			$pName = "jform[publishing][{$period['id']}]";
-
-			$return .= '<div class="period-container">';
-			$return .= '<div class="period-label">' . $period['name'] . '</div>';
-			$return .= '<div class="period-input">';
-			$return .= '<select id="' . $pID . '" name="' . $pName . '" class="chzn-color-state">';
-
-			// Implicitly (new) and explicitly published entries
-			if (!isset($publishingEntries[$period['id']]) or $publishingEntries[$period['id']]['published'])
+			if ($term['endDate'] < $today)
 			{
-				$return .= '<option value="1" selected="selected">' . Languages::_('ORGANIZER_YES') . '</option>';
-				$return .= '<option value="0">' . Languages::_('ORGANIZER_NO') . '</option>';
-			}
-			else
-			{
-				$return .= '<option value="1">' . Languages::_('ORGANIZER_YES') . '</option>';
-				$return .= '<option value="0" selected="selected">' . Languages::_('ORGANIZER_NO') . '</option>';
+				continue;
 			}
 
-			$return .= '</select>';
-			$return .= '</div>';
-			$return .= '</div>';
+			$subFieldID   = $this->id . "_{$term['id']}";
+			$subFieldName = $this->name . "[{$term['id']}]";
+			$value        = empty($values[$term['id']]) ? 1 : $values[$term['id']]['published'];
+
+			$input .= '<div class="term-container">';
+			$input .= "<div class=\"term-label\"><label for=\"$subFieldName\">{$term[$nameColumn]}</label></div>";
+			$input .= '<div class="term-input">';
+			$input .= Helpers\HTML::_(
+				'select.genericlist',
+				$options,
+				$subFieldName,
+				null,
+				'value',
+				'text',
+				$value,
+				$subFieldID
+			);
+			$input .= '</div>';
+			$input .= '</div>';
 		}
-		$return .= '</div>';
 
-		return $return;
+		return $input ? str_replace('XXXX', $input, $container) : $input;
 	}
 }

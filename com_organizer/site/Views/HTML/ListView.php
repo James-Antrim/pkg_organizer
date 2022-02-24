@@ -10,23 +10,26 @@
 
 namespace Organizer\Views\HTML;
 
-use Exception;
-use Joomla\Registry\Registry;
-use Organizer\Helpers\HTML;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Languages;
+use Joomla\Registry\Registry;
+use Organizer\Adapters;
+use Organizer\Helpers;
+use Organizer\Helpers\HTML;
+use Organizer\Models\ListModel;
+use stdClass;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
  */
-abstract class ListView extends BaseHTMLView
+abstract class ListView extends BaseView
 {
-	protected $_layout = 'list';
+	protected $layout = 'list';
 
 	public $activeFilters = null;
 
 	public $batch = [];
+
+	public $empty;
 
 	public $filterForm = null;
 
@@ -38,9 +41,18 @@ abstract class ListView extends BaseHTMLView
 
 	public $items = null;
 
+	/**
+	 * @var ListModel
+	 */
+	protected $model;
+
 	public $pagination = null;
 
 	protected $rowStructure = [];
+
+	protected $sameTab = false;
+
+	protected $structureEmpty = false;
 
 	/**
 	 * @var Registry
@@ -48,59 +60,85 @@ abstract class ListView extends BaseHTMLView
 	public $state = null;
 
 	/**
+	 * Adds supplemental information to the display output.
+	 *
+	 * @return void modifies the object property supplement
+	 */
+	protected function addSupplement()
+	{
+		$this->supplement = '';
+	}
+
+	/**
 	 * Adds a toolbar and title to the view.
 	 *
 	 * @return void  sets context variables
 	 */
-	abstract protected function addToolBar();
+	protected function addToolBar(bool $delete = true)
+	{
+		$resource = Helpers\OrganizerHelper::classEncode($this->getName());
+		$constant = strtoupper($resource);
+		$this->setTitle("ORGANIZER_$constant");
+
+		$toolbar = Adapters\Toolbar::getInstance();
+		$toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), "$resource.add", false);
+		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "$resource.edit", true);
+
+		if ($delete)
+		{
+			$toolbar->appendButton(
+				'Confirm',
+				Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+				'delete',
+				Helpers\Languages::_('ORGANIZER_DELETE'),
+				"$resource.delete",
+				true
+			);
+		}
+	}
 
 	/**
-	 * Function determines whether the user may access the view.
-	 *
-	 * @return bool true if the use may access the view, otherwise false
-	 */
-	abstract protected function allowAccess();
-
-	/**
-	 * Method to create a list output
-	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+	 * Checks user authorization and initiates redirects accordingly.
 	 *
 	 * @return void
-	 * @throws Exception
+	 */
+	protected function authorize()
+	{
+		if (!Helpers\Can::administrate())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	public function display($tpl = null)
 	{
-		if (!$this->allowAccess())
-		{
-			throw new Exception(Languages::_('ORGANIZER_401'), 401);
-		}
+		$this->authorize();
 
 		$this->state         = $this->get('State');
 		$this->filterForm    = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
+
 		$this->setHeaders();
+
 		$this->items      = $this->get('Items');
 		$this->pagination = $this->get('Pagination');
 
-		if ($this->items)
+		if ($this->items or $this->structureEmpty)
 		{
 			$this->structureItems();
 		}
 
-		$this->addDisclaimer();
-		if (method_exists($this, 'setSubtitle'))
-		{
-			$this->setSubtitle();
-		}
-		if (method_exists($this, 'addSupplement'))
-		{
-			$this->addSupplement();
-		}
+		$this->empty = $this->empty !== null ? $this->empty : Helpers\Languages::_('ORGANIZER_EMPTY_RESULT_SET');
 
+		$this->addDisclaimer();
 		$this->addToolBar();
 		$this->addMenu();
 		$this->modifyDocument();
+		$this->setSubtitle();
+		$this->addSupplement();
 
 		parent::display($tpl);
 	}
@@ -118,20 +156,23 @@ abstract class ListView extends BaseHTMLView
 	 * @param   string  $attribute     the resource attribute to be changed (useful if multiple entries can be toggled)
 	 *
 	 * @return string  a HTML string
+	 * @noinspection PhpTooManyParametersInspection
 	 */
 	protected function getAssocToggle(
-		$controller,
-		$columnOne,
-		$valueOne,
-		$columnTwo,
-		$valueTwo,
-		$currentValue,
-		$tip,
-		$attribute = null
-	) {
+		string $controller,
+		string $columnOne,
+		int    $valueOne,
+		string $columnTwo,
+		int    $valueTwo,
+		bool   $currentValue,
+		string $tip,
+		string $attribute = ''
+	): string
+	{
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle";
 		$url .= "&$columnOne=$valueOne&$columnTwo=$valueTwo";
 		$url .= $attribute ? "&attribute=$attribute" : '';
+		$url .= ($menuID = Helpers\Input::getInt('Itemid')) ? "&Itemid=$menuID" : '';
 
 		$iconClass = empty($currentValue) ? 'checkbox-unchecked' : 'checkbox-checked';
 		$icon      = '<span class="icon-' . $iconClass . '"></span>';
@@ -148,7 +189,7 @@ abstract class ListView extends BaseHTMLView
 	 *
 	 * @return string the HTML attribute output for the item
 	 */
-	public function getAttributesOutput(&$element)
+	public function getAttributesOutput(&$element): string
 	{
 		$output = '';
 		if (!is_array($element))
@@ -180,7 +221,13 @@ abstract class ListView extends BaseHTMLView
 	 *
 	 * @return string  a HTML string
 	 */
-	protected function getToggle($controller, $resourceID, $currentValue, $tip, $attribute = null)
+	protected function getToggle(
+		string $controller,
+		int    $resourceID,
+		bool   $currentValue,
+		string $tip,
+		string $attribute = ''
+	): string
 	{
 		$url = Uri::base() . "?option=com_organizer&task=$controller.toggle&id=$resourceID";
 		$url .= $attribute ? "&attribute=$attribute" : '';
@@ -188,21 +235,19 @@ abstract class ListView extends BaseHTMLView
 		$iconClass = empty($currentValue) ? 'checkbox-unchecked' : 'checkbox-checked';
 		$icon      = '<span class="icon-' . $iconClass . '"></span>';
 
-		$attributes = ['title' => $tip, 'class' => 'hasTooltip'];
+		$attributes = ['title' => Helpers\Languages::_($tip), 'class' => 'hasTooltip'];
 
 		return HTML::_('link', $url, $icon, $attributes);
 	}
 
 	/**
-	 * Modifies document variables and adds links to external files
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function modifyDocument()
 	{
 		parent::modifyDocument();
 
-		Factory::getDocument()->addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
+		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
 	}
 
 	/**
@@ -211,6 +256,16 @@ abstract class ListView extends BaseHTMLView
 	 * @return void sets the object headers property
 	 */
 	abstract protected function setHeaders();
+
+	/**
+	 * Creates a subtitle element from the term name and the start and end dates of the course.
+	 *
+	 * @return void modifies the course
+	 */
+	protected function setSubtitle()
+	{
+		$this->subtitle = '';
+	}
 
 	/**
 	 * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
@@ -222,9 +277,13 @@ abstract class ListView extends BaseHTMLView
 		$index           = 0;
 		$structuredItems = [];
 
+		$resource    = Helpers\OrganizerHelper::getResource(Helpers\Input::getView());
+		$defaultLink = "index.php?option=com_organizer&view={$resource}_edit&id=";
+
 		foreach ($this->items as $item)
 		{
-			$structuredItems[$index] = $this->structureItem($index, $item, $item->link);
+			$link                    = empty($item->link) ? $defaultLink . $item->id : $item->link;
+			$structuredItems[$index] = $this->structureItem($index, $item, $link);
 			$index++;
 		}
 
@@ -234,13 +293,13 @@ abstract class ListView extends BaseHTMLView
 	/**
 	 * Processes an individual list item resolving it to an array of table data values.
 	 *
-	 * @param   mixed   $index  the row index, typically an int value, but can also be string
-	 * @param   object  $item   the item to be displayed in a table row
-	 * @param   string  $link   the link to the individual resource
+	 * @param   int|string  $index  the row index, typically an int value, but can also be string
+	 * @param   stdClass    $item   the item to be displayed in a table row
+	 * @param   string      $link   the link to the individual resource
 	 *
 	 * @return array an array of property columns with their values
 	 */
-	protected function structureItem($index, $item, $link = '')
+	protected function structureItem($index, stdClass $item, string $link = ''): array
 	{
 		$processedItem = [];
 
@@ -266,14 +325,33 @@ abstract class ListView extends BaseHTMLView
 
 			if ($propertyType === 'link')
 			{
-				$processedItem[$property] = HTML::_('link', $link, $item->$property);
+				$attributes = [];
+				if (!$this->adminContext and !$this->sameTab)
+				{
+					$attributes['target'] = '_blank';
+				}
+
+				$value = is_array($item->$property) ? $item->$property['value'] : $item->$property;
+
+				$processedItem[$property] = ($link and $value) ? HTML::_('link', $link, $value, $attributes) : '';
+				continue;
+			}
+
+			if ($propertyType === 'list' and is_array($item->$property))
+			{
+				$list = '<ul>';
+				foreach ($item->$property as $listItem)
+				{
+					$list .= "<li>$listItem</li>";
+				}
+				$list                     .= '<ul>';
+				$processedItem[$property] = $list;
 				continue;
 			}
 
 			if ($propertyType === 'value')
 			{
 				$processedItem[$property] = $item->$property;
-				continue;
 			}
 		}
 

@@ -10,10 +10,8 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
+use Organizer\Adapters\Database;
+use Organizer\Helpers;
 
 /**
  * Class creates a generalized select box for selection of a single column value among those already selected.
@@ -26,42 +24,14 @@ class MergeValuesField extends OptionsField
 	protected $type = 'MergeValues';
 
 	/**
-	 * Method to get the field input markup for a generic list.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput()
-	{
-		// Get the field options.
-		$options = (array) $this->getOptions();
-
-		if (count($options) > 1)
-		{
-			return parent::getInput();
-		}
-
-		$attributes = [
-			$this->class ? "class=\"$this->class\"" : '',
-			'disabled',
-			"id=\"$this->id\"",
-			"name=\"$this->name\"",
-			'readonly',
-			'type="text"',
-			empty($options) ? 'value=""' : 'value="' . $options[0]->value . '"'
-		];
-
-		return '<input ' . implode(' ', $attributes) . '/>';
-	}
-
-	/**
 	 * Returns a select box where resource attributes can be selected
 	 *
 	 * @return array the options for the select box
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
-		$selectedIDs    = Input::getSelectedIDs();
-		$resource       = str_replace('_merge', '', Input::getView());
+		$selectedIDs    = Helpers\Input::getSelectedIDs();
+		$resource       = str_replace('_merge', '', Helpers\Input::getView());
 		$validResources = ['category', 'field', 'group', 'method', 'room', 'roomtype', 'participant', 'person'];
 		$invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
 		if ($invalid)
@@ -70,26 +40,39 @@ class MergeValuesField extends OptionsField
 		}
 
 		$column = $this->getAttribute('name');
+		$query  = Database::getQuery(true);
 		$table  = $resource === 'category' ? 'categories' : "{$resource}s";
-
-		$dbo   = Factory::getDbo();
-		$query = $dbo->getQuery(true);
 		$query->select("DISTINCT $column AS value")
-			->from("#__organizer_$table");
-		$query->where("id IN ( '" . implode("', '", $selectedIDs) . "' )");
-		$query->order('value ASC');
-		$dbo->setQuery($query);
+			->from("#__organizer_$table")
+			->where("id IN ( '" . implode("', '", $selectedIDs) . "' )")
+			->order('value ASC');
+		Database::setQuery($query);
 
-		$values = OrganizerHelper::executeQuery('loadColumn');
-		if (empty($values))
+		if (!$values = Database::loadColumn())
 		{
-			return [];
+			return [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
 		}
 
 		$options = [];
 		foreach ($values as $value)
 		{
-			$options[] = HTML::_('select.option', $value, $value);
+			if (empty($value))
+			{
+				continue;
+			}
+			$options[] = Helpers\HTML::_('select.option', $value, $value);
+		}
+
+		if (empty($options))
+		{
+			$options[] = Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'));
+		}
+		elseif (count($options) > 1)
+		{
+			array_unshift(
+				$options,
+				Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_VALUE'))
+			);
 		}
 
 		return $options;

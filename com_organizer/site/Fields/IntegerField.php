@@ -10,11 +10,10 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use Organizer\Helpers;
 
 /**
- * Provides a select list of integers with specified first, last and step values.
+ * Provides a select list of int with specified first, last and step values.
  */
 class IntegerField extends OptionsField
 {
@@ -30,9 +29,9 @@ class IntegerField extends OptionsField
 	 *
 	 * @return  array  The field option objects.
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
-		$options = array();
+		$options = [];
 
 		// Initialize some field attributes.
 		$first  = (int) $this->element['first'];
@@ -64,9 +63,9 @@ class IntegerField extends OptionsField
 			{
 				$text = empty($prefix) ? '' : $prefix;
 				$text .= $number;
-				$text .= empty($unit) ? '' : ' ' . Languages::_("ORGANIZER_$unit");
+				$text .= empty($unit) ? '' : ' ' . Helpers\Languages::_("ORGANIZER_$unit");
 
-				$options[] = HTML::_('select.option', $number, $text);
+				$options[] = Helpers\HTML::_('select.option', $number, $text);
 			}
 		}
 		else
@@ -76,15 +75,13 @@ class IntegerField extends OptionsField
 			{
 				$text = empty($prefix) ? '' : $prefix;
 				$text .= $number;
-				$text .= empty($unit) ? '' : ' ' . Languages::_("ORGANIZER_$unit");
+				$text .= empty($unit) ? '' : ' ' . Helpers\Languages::_("ORGANIZER_$unit");
 
-				$options[] = HTML::_('select.option', $number, $text);
+				$options[] = Helpers\HTML::_('select.option', $number, $text);
 			}
 		}
 
 		// Merge any additional options in the XML definition.
-		$options = array_merge(parent::getOptions(), $options);
-
-		return $options;
+		return array_merge(parent::getOptions(), $options);
 	}
 }

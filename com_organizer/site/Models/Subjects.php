@@ -10,56 +10,57 @@
 
 namespace Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
-use Organizer\Helpers\Can;
-use Joomla\CMS\Factory;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Mappings;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Subjects as SubjectsHelper;
+use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of subjects.
  */
 class Subjects extends ListModel
 {
-	protected $filter_fields = ['departmentID', 'personID', 'poolID', 'programID'];
+	protected $filter_fields = [
+		'language'       => 'language',
+		'fieldID'        => 'fieldID',
+		'organizationID' => 'organizationID',
+		'personID'       => 'personID',
+		'poolID'         => 'poolID',
+		'programID'      => 'programID'
+	];
 
 	/**
-	 * Filters out form inputs which should not be displayed due to menu settings.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
+	 * @inheritDoc
 	 */
-	public function filterFilterForm(&$form)
+	public function filterFilterForm(Form &$form)
 	{
 		parent::filterFilterForm($form);
-		$params = Input::getParams();
-		if (!empty($params->get('programID')) or !empty($this->state->get('calledPoolID')))
+		if (!empty($this->state->get('calledProgramID')) or !empty($this->state->get('calledPoolID')))
 		{
-			$form->removeField('departmentID', 'filter');
+			$form->removeField('organizationID', 'filter');
 			$form->removeField('limit', 'list');
 			$form->removeField('programID', 'filter');
+			unset($this->filter_fields['organizationID'], $this->filter_fields['programID']);
 		}
-		elseif ($this->clientContext === self::BACKEND)
+		if (!empty($this->state->get('calledPersonID')))
 		{
-			if (count(Can::documentTheseDepartments()) === 1)
+			$form->removeField('organizationID', 'filter');
+			$form->removeField('limit', 'list');
+			$form->removeField('personID', 'filter');
+			unset($this->filter_fields['organizationID'], $this->filter_fields['personID']);
+		}
+		elseif ($this->adminContext)
+		{
+			if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 			{
-				$form->removeField('departmentID', 'filter');
+				$form->removeField('organizationID', 'filter');
+				unset($this->filter_fields['organizationID']);
 			}
 		}
-
-		return;
 	}
 
 	/**
-	 * Method to get an array of data items.
-	 *
-	 * @return  array  item objects on success, otherwise empty
+	 * @inheritDoc
 	 */
-	public function getItems()
+	public function getItems(): array
 	{
 		$items = parent::getItems();
 
@@ -68,60 +69,49 @@ class Subjects extends ListModel
 			return [];
 		}
 
+		$role = Helpers\Input::getParams()->get('role', 1);
+
 		foreach ($items as $item)
 		{
-			$item->persons = SubjectsHelper::getPersons($item->id);
+			$item->persons = Helpers\Subjects::getPersons($item->id, $role);
 		}
 
 		return $items;
 	}
 
 	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery  the query object
+	 * @inheritDoc
 	 */
 	protected function getListQuery()
 	{
-		$dbo = Factory::getDbo();
-		$tag = Languages::getTag();
+		$tag = Helpers\Languages::getTag();
 
 		// Create the sql query
-		$query = $dbo->getQuery(true);
-		$query->select("DISTINCT s.id, s.code, s.name_$tag AS name, s.fieldID, s.creditpoints")
+		$query = $this->_db->getQuery(true);
+		$query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditPoints")
 			->from('#__organizer_subjects AS s');
 
 		$searchFields = [
-			's.name_de',
-			'shortName_de',
-			'abbreviation_de',
-			's.name_en',
-			'shortName_en',
-			'abbreviation_en',
-			'code',
-			'description_de',
-			'objective_de',
-			'content_de',
-			'description_en',
-			'objective_en',
-			'content_en',
-			'lsfID'
+			's.fullName_de',
+			's.abbreviation_de',
+			's.fullName_en',
+			's.abbreviation_en',
+			's.code',
+			's.lsfID'
 		];
 
-		$this->setDepartmentFilter($query);
+		$this->setOrganizationFilter($query, 'subject', 's');
 		$this->setSearchFilter($query, $searchFields);
 
-		$programID = $this->state->get('filter.programID', '');
-		Mappings::setResourceIDFilter($query, $programID, 'program', 'subject');
+		if ($programID = $this->state->get('filter.programID', ''))
+		{
+			Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
+		}
 
-		// The selected pool supercedes any original called pool
+		// The selected pool supersedes any original called pool
 		if ($poolID = $this->state->get('filter.poolID', ''))
 		{
-			Mappings::setResourceIDFilter($query, $poolID, 'pool', 'subject');
-		}
-		elseif ($calledPoolID = $this->state->get('calledPoolID', ''))
-		{
-			Mappings::setResourceIDFilter($query, $calledPoolID, 'pool', 'subject');
+			Helpers\Subjects::setPoolFilter($query, $poolID, 's');
 		}
 
 		$personID = $this->state->get('filter.personID', '');
@@ -129,83 +119,255 @@ class Subjects extends ListModel
 		{
 			if ($personID === '-1')
 			{
-				$query->leftJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id')
-					->where('st.subjectID IS NULL');
+				$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
+					->where('sp.subjectID IS NULL');
 			}
 			else
 			{
-				$query->innerJoin('#__organizer_subject_persons AS st ON st.subjectID = s.id')
-					->where("st.personID = $personID");
+				$query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
+					->where("sp.personID = $personID");
 			}
 		}
 
+		$this->setIDFilter($query, 's.fieldID', 'filter.fieldID');
+		$this->setValueFilters($query, ['language']);
 		$this->setOrdering($query);
 
 		return $query;
 	}
 
 	/**
-	 * Sets restrictions to the subject's departmentID field
-	 *
-	 * @param   JDatabaseQuery &$query  the query to be modified
-	 *
-	 * @return void modifies the query
+	 * @inheritDoc
 	 */
-	private function setDepartmentFilter(&$query)
+	public function getTotal($idColumn = null)
 	{
-		if ($this->clientContext === self::BACKEND)
-		{
-			$authorizedDepts = Can::documentTheseDepartments();
-			$query->where('(s.departmentID IN (' . implode(',', $authorizedDepts) . ') OR s.departmentID IS NULL)');
-		}
-		$departmentID = $this->state->get('filter.departmentID');
-		if (empty($departmentID))
-		{
-			return;
-		}
-		elseif ($departmentID == '-1')
-		{
-			$query->where('(s.departmentID IS NULL)');
-		}
+		return parent::getTotal('s.id');
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
 		parent::populateState($ordering, $direction);
 
-		if ($this->clientContext === self::BACKEND)
+		$calledPerson  = false;
+		$calledPool    = false;
+		$calledProgram = false;
+		$personID      = self::ALL;
+		$poolID        = self::ALL;
+		$programID     = self::ALL;
+
+		$organizationID = Helpers\Input::getFilterID('organization', self::ALL);
+
+		if ($this->adminContext)
 		{
-			$authorizedDepartments = Can::documentTheseDepartments();
-			if (count($authorizedDepartments) === 1)
+			$authorized = Helpers\Can::documentTheseOrganizations();
+			if (count($authorized) === 1)
 			{
-				$this->state->set('filter.departmentID', $authorizedDepartments[0]);
+				$organizationID = $authorized[0];
+				$this->state->set('filter.organizationID', $organizationID);
 			}
 		}
 		else
 		{
-			$programID = Input::getParams()->get('programID');
-			if ($poolID = Input::getInput()->get->getInt('poolID', 0) or $programID)
+			// Program ID can be set by menu settings or the request
+			if ($programID = Helpers\Input::getInt('programID')
+				or $programID = Helpers\Input::getParams()->get('programID', 0)
+				or $programID = $this->state->get('calledProgramID'))
 			{
-				if ($poolID)
-				{
-					$this->state->set('calledPoolID', $poolID);
-				}
-				else
-				{
-					$this->state->set('filter.programID', $programID);
-				}
-				$this->state->set('list.limit', 0);
+				$calledProgram = $programID;
+			}
+
+			// Pool ID can be set by the request
+			if ($poolID = Helpers\Input::getInt('poolID')
+				or $poolID = $this->state->get('calledPoolID'))
+			{
+				$calledPool = $poolID;
+			}
+
+			// Person ID can be set by the request
+			if ($personID = Helpers\Input::getInt('personID')
+				or $personID = $this->state->get('calledPersonID'))
+			{
+				$calledPerson = $personID;
 			}
 		}
 
-		return;
+		if ($calledPerson or $calledPool or $calledProgram)
+		{
+			$this->setState('list.limit', 0);
+		}
+
+		$personID    = $calledPerson ? $personID : Helpers\Input::getFilterID('person', self::ALL);
+		$defaultPool = $calledPool ?: self::ALL;
+		$poolID      = $calledPool ? $poolID : Helpers\Input::getFilterID('pool', $defaultPool);
+		$programID   = $calledProgram ? $programID : Helpers\Input::getFilterID('program', self::ALL);
+
+		$this->state->set('calledPersonID', $calledPerson);
+		$this->state->set('calledPoolID', false);
+		$this->state->set('calledProgramID', false);
+
+		$this->state->set('filter.personID', $personID);
+		$this->state->set('filter.poolID', self::ALL);
+		$this->state->set('filter.programID', self::ALL);
+
+		// The existence of the organization id precludes called curriculum parameter use
+		if ($organizationID)
+		{
+			// Pool and program filtering is completely disassociated subjects
+			if ($organizationID === self::NONE)
+			{
+				return;
+			}
+
+			if ($programID)
+			{
+				// Disassociated subjects requested => precludes pool selections
+				if ($programID === self::NONE)
+				{
+					$this->state->set('filter.programID', $programID);
+
+					return;
+				}
+
+				// Selected program is incompatible with the selected organization => precludes pool selections
+				if (!Helpers\Programs::isAssociated($organizationID, $programID))
+				{
+					return;
+				}
+
+			}
+
+			if ($poolID)
+			{
+				if ($poolID === self::NONE)
+				{
+					$this->state->set('filter.poolID', $poolID);
+					$this->state->set('filter.programID', $programID);
+
+					return;
+				}
+
+				if (!Helpers\Pools::isAssociated($organizationID, $poolID))
+				{
+					$this->state->set('filter.poolID', self::ALL);
+					$this->state->set('filter.programID', $programID);
+
+					return;
+				}
+
+				if ($programID)
+				{
+					if (!$prRanges = Helpers\Programs::getRanges($programID))
+					{
+						return;
+					}
+
+					if (!$plRanges = Helpers\Pools::getRanges($poolID)
+						or !Helpers\Subjects::poolInProgram($plRanges, $prRanges))
+					{
+						$this->state->set('filter.poolID', self::ALL);
+						$this->state->set('filter.programID', $programID);
+
+						return;
+					}
+				}
+			}
+
+			// Curriculum filters are either valid or empty
+			$this->state->set('filter.poolID', $poolID);
+			$this->state->set('filter.programID', $programID);
+
+			return;
+		}
+
+		if ($calledPerson)
+		{
+			$this->state->set('calledPersonID', $calledPerson);
+			$this->state->set('filter.personID', $personID);
+			$this->state->set('filter.programID', $programID);
+			$this->state->set('filter.poolID', $poolID);
+		}
+
+		if ($programID === self::NONE)
+		{
+			$this->state->set('filter.programID', $programID);
+
+			return;
+		}
+
+		if (!$poolID)
+		{
+			if ($calledProgram)
+			{
+				$this->state->set('calledProgramID', $calledProgram);
+			}
+
+			$this->state->set('filter.programID', $programID);
+
+			return;
+		}
+
+		if ($poolID === self::NONE)
+		{
+			if ($programID)
+			{
+				if ($calledProgram)
+				{
+					$this->state->set('calledProgramID', $programID);
+				}
+
+				$this->state->set('filter.poolID', $poolID);
+				$this->state->set('filter.programID', $programID);
+			}
+			else
+			{
+				$this->state->set('filter.poolID', self::ALL);
+				$this->state->set('filter.programID', self::NONE);
+			}
+
+			return;
+		}
+
+		// The existence of a program id precludes the pool having been called directly
+		if ($programID)
+		{
+			// None has already been eliminated => the chosen program is invalid => allow reset
+			if (!$prRanges = Helpers\Programs::getRanges($programID))
+			{
+				return;
+			}
+
+
+			$this->state->set('filter.programID', $programID);
+
+			// Pool is invalid or invalid for the chosen program context
+			if (!$plRanges = Helpers\Pools::getRanges($poolID)
+				or !Helpers\Subjects::poolInProgram($plRanges, $prRanges))
+			{
+				return;
+			}
+
+			if ($calledPool)
+			{
+				$this->state->set('calledPoolID', $calledPool);
+			}
+			elseif ($calledProgram)
+			{
+				$this->state->set('calledProgramID', $calledProgram);
+			}
+
+			$this->state->set('filter.poolID', $poolID);
+
+			return;
+		}
+
+		if ($calledPool)
+		{
+			$this->state->set('calledPoolID', $calledPool);
+		}
+
+		$this->state->set('filter.poolID', $poolID);
 	}
 }

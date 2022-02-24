@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="code" type="Blank" label="UNTIS_ID" maxlength="60" required="true"/>
+        <field name="surfaceID" type="GenericOptions" label="SURFACE" localized="true" required="true"
+               table="organizer_surfaces" textcolumn="name" valuecolumn="id">
+            <option value="">SELECT_SURFACE</option>
+        </field>
+        <field name="name_de" type="Blank" label="NAME_DE" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" maxlength="150" required="true"/>
+        <field name="capacity" type="Integer" label="CAPACITY" default="-1" first="9" last="999" step="1">
+            <option value="-1">NO_INPUT</option>
+        </field>
+        <field name="suppress" type="Options" label="SUPPRESS" default="0">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
+        <field name="description_de" type="Wiz" label="DESC_DE"/>
+        <field name="description_en" type="Wiz" label="DESC_EN"/>
+    </fieldset>
+</form>
