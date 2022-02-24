@@ -11,6 +11,3 @@ Features include:
     <li>Usage Statistic Display and Export</li>
     <li>General Resource Administration</li>    
 </ul>
-
-
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jpbm04_com_organizer&metric=alert_status)](https://sonarcloud.io/dashboard?id=jpbm04_com_organizer)
