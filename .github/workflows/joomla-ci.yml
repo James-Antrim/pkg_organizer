@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-
+  
     strategy:
             fail-fast:  false
             matrix:
@@ -26,12 +26,10 @@ jobs:
                 extensions: "pdo_mysql"
         env:
                 update: true
-      - name: "Install dependencies"
-        run: "sudo apt-get install tree"
       - name: "Checkout build enviroment"
         uses: actions/checkout@v2
         with:
-          repository:  jpbm04/ii-ci
+          repository:  ${GITHUB_REPOSITORY%/*}/ii-ci
           path: build
       - name: "Checkout sources"
         uses: actions/checkout@v2
@@ -46,8 +44,3 @@ jobs:
         with:
           name: "ZIPs PHP ${{ matrix.php-versions }}"
           path: "zips/*.zip"
-            #      - name: "Upload Workspace"
-            #        uses: actions/upload-artifact@v2
-            #        with: 
-            #                name: "Workspace PHP ${{ matrix.php-versions }}"
-            #                path: "./"
