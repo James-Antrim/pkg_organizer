@@ -29,7 +29,7 @@ jobs:
       - name: "Checkout build enviroment"
         uses: actions/checkout@v2
         with:
-          repository:  ${GITHUB_REPOSITORY%/*}/ii-ci
+          repository:  ${{ GITHUB_REPOSITORY_OWNER }}/ii-ci
           path: build
       - name: "Checkout sources"
         uses: actions/checkout@v2
