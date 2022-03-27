@@ -40,7 +40,7 @@ jobs:
       - name: "Generating ZIP-File(s)"
         run: build/scripts/shell/mkzips.sh
       - name: "Upload zip files"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: "ZIPs PHP ${{ matrix.php-versions }}"
           path: "zips/*.zip"
