@@ -13,8 +13,6 @@ jobs:
     name: "Release new version"
     
     steps:
-      - name: "Install dependencies"
-        run: "sudo apt-get install tree"
       - name: "Checkout build enviroment"
         uses: actions/checkout@v2
         with:
