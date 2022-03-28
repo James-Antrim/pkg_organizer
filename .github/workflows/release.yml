@@ -32,7 +32,7 @@ jobs:
         env:
           HOSTUSER: jpbm04
       - name: "Upload release as artifact"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: "Releasefile"
           path: "release/*.zip"
