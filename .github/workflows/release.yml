@@ -29,8 +29,6 @@ jobs:
           path : extensions/com_organizer
       - name: "Build release files"
         run: build/scripts/shell/release.sh
-        env:
-          HOSTUSER: jpbm04
       - name: "Upload release as artifact"
         uses: actions/upload-artifact@v3
         with:
