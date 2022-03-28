@@ -34,7 +34,7 @@ jobs:
       - name: "Checkout sources"
         uses: actions/checkout@v2
         with:
-          path : extensions/com_organizer
+          path : extensions/${{ github.repository }}
       - name: "Test installing joomla extensions"
         run: build/scripts/shell/test.sh
       - name: "Generating ZIP-File(s)"
