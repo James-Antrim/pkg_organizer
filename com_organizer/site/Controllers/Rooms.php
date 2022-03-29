@@ -74,7 +74,7 @@ class Rooms extends Controller
 	}
 
 	/**
-	 * Creates an xls file based on form data.
+	 * Creates an UniNow xls file based on form data.
 	 *
 	 * @return void
 	 * @throws Exception
