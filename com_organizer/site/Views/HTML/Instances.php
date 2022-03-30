@@ -626,47 +626,63 @@ class Instances extends ListView
 	{
 		parent::modifyDocument();
 
-		$variables = [
-			'ICS_URL' => Uri::base() . '?option=com_organizer&view=instances&format=ics'
+		$state = $this->model->getState();
+		$url   = '';
+
+		$fields = [
+			'campusID'       => $state->get('filter.campusID', 0),
+			'categoryID'     => $state->get('filter.categoryID', 0),
+			'eventID'        => $state->get('filter.eventID', 0),
+			'groupID'        => $state->get('filter.groupID', 0),
+			'methodID'       => $state->get('filter.methodID', 0),
+			'my'             => $state->get('list.my', 0),
+			'organizationID' => $state->get('filter.organizationID', 0),
+			'personID'       => $state->get('filter.personID', 0),
+			'roomID'         => $state->get('filter.roomID', 0)
 		];
 
-		if ($this->mobile)
+		foreach ($fields as $field => $value)
 		{
-			$date    = $this->model->conditions['date'];
-			$stamp   = strtotime($date);
-			$tOffset = ((int) date('w', $stamp) === 6) ? '+2 days' : '+1 day';
-			$yOffset = ((int) date('w', $stamp) === 1) ? '-2 days' : '-1 day';
-
-			$variables['tomorrow']  = date('Y-m-d', strtotime($tOffset, $stamp));
-			$variables['yesterday'] = date('Y-m-d', strtotime($yOffset, $stamp));
-		}
-
-		$list   = Helpers\Input::getListItems();
-		$params = Helpers\Input::getParams();
-
-		if (($params->get('my') or $list->get('my')) and Helpers\Users::getID())
-		{
-			$variables['auth']     = Helpers\Users::getAuth();
-			$variables['my']       = 1;
-			$variables['username'] = Helpers\Users::getUserName();
-		}
-		else
-		{
-			if ($campusID = $params->get('campusID'))
+			if (empty($value))
 			{
-				$variables['campusID'] = $campusID;
-			}
-
-			if ($methodIDs = $params->get('methodIDs'))
-			{
-				$variables['methodID'] = implode(',', $methodIDs);
-			}
-
-			if ($organizationID = $params->get('organizationID'))
-			{
-				$variables['organizationID'] = $organizationID;
+				unset($fields[$field]);
 			}
 		}
+
+		if ($fields)
+		{
+			$authRequired = (!empty($fields['my']) or !empty($fields['personID']));
+
+			if (!$username = Helpers\Users::getUserName() and $authRequired)
+			{
+				Helpers\OrganizerHelper::error(401);
+
+				return;
+			}
+
+			$url = Uri::base() . '?option=com_organizer&view=instances&format=ics';
+
+			// Resource links
+			if (empty($fields['my']))
+			{
+				foreach ($fields as $field => $value)
+				{
+					$url .= "&$field=$value";
+				}
+			}
+			// 'My' link
+			else
+			{
+				$url .= "&my=1";
+			}
+
+			if ($authRequired)
+			{
+				$url .= "&username=$username&auth=" . Helpers\Users::getAuth();
+			}
+		}
+
+		$variables = ['ICS_URL' => $url];
 
 		Languages::script('ORGANIZER_GENERATE_LINK');
 		Document::addScriptOptions('variables', $variables);
