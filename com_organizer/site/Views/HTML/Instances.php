@@ -641,9 +641,10 @@ class Instances extends ListView
 			$variables['yesterday'] = date('Y-m-d', strtotime($yOffset, $stamp));
 		}
 
+		$list   = Helpers\Input::getListItems();
 		$params = Helpers\Input::getParams();
 
-		if ($params->get('my') and Helpers\Users::getID())
+		if (($params->get('my') or $list->get('my')) and Helpers\Users::getID())
 		{
 			$variables['auth']     = Helpers\Users::getAuth();
 			$variables['my']       = 1;
