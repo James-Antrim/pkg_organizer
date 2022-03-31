@@ -129,16 +129,12 @@ class Dates
 	 *
 	 * @return array containing startDate and endDate
 	 */
-	public static function getMonth(string $date, int $startDay = 1, int $endDay = 6): array
+	public static function getMonth(string $date): array
 	{
 		$dateTime     = strtotime($date);
-		$startDayName = date('l', strtotime("Sunday + $startDay days"));
 		$startDT      = strtotime('first day of this month', $dateTime);
-		$startDT      = strtotime("$startDayName this week", $startDT);
 		$startDate    = date('Y-m-d', $startDT);
-		$endDayName   = date('l', strtotime("Sunday + $endDay days"));
 		$endDT        = strtotime('last day of this month', $dateTime);
-		$endDT        = strtotime("$endDayName this week", $endDT);
 		$endDate      = date('Y-m-d', $endDT);
 
 		return ['startDate' => $startDate, 'endDate' => $endDate];
