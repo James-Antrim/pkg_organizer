@@ -171,7 +171,7 @@ class InstanceItem extends ListView
 				);
 			}
 
-			if ($buttons['register'])
+			/*if ($buttons['register'])
 			{
 				$minibar[] = $standard->fetchButton(
 					'Standard',
@@ -190,7 +190,7 @@ class InstanceItem extends ListView
 					'InstanceParticipants.deregisterThis',
 					false
 				);
-			}
+			}*/
 
 			if ($buttons['scheduleList'])
 			{
@@ -214,7 +214,7 @@ class InstanceItem extends ListView
 				);
 			}
 
-			if ($buttons['registerList'])
+			/*if ($buttons['registerList'])
 			{
 				$toolbar->appendButton(
 					'Standard',
@@ -234,7 +234,7 @@ class InstanceItem extends ListView
 					'InstanceParticipants.deregister',
 					true
 				);
-			}
+			}*/
 
 			if ($buttons['manage'])
 			{
@@ -757,14 +757,13 @@ class InstanceItem extends ListView
 	 * @return void
 	 */
 	private function setResource(
-		array  &$collection,
-		array  &$filtered,
+		array &$collection,
+		array &$filtered,
 		string &$modified,
-		int    $key,
+		int $key,
 		string $name,
-		array  $resource
-	)
-	{
+		array $resource
+	) {
 		$dateTime = $resource['statusDate'];
 
 		if (empty($collection[$name]) or $dateTime > $collection[$name]['date'])
@@ -800,15 +799,15 @@ class InstanceItem extends ListView
 		$this->setDerived($this->items);
 
 		$buttons = [
-			'deregister'      => false,
-			'deregisterList'  => false,
+			//'deregister'      => false,
+			//'deregisterList'  => false,
 			'deschedule'      => false,
 			'descheduleBlock' => false,
 			'descheduleList'  => false,
 			'manage'          => false,
 			'manageList'      => false,
-			'register'        => false,
-			'registerList'    => false,
+			//'register'        => false,
+			//'registerList'    => false,
 			'schedule'        => false,
 			'scheduleBlock'   => false,
 			'scheduleList'    => false
@@ -829,7 +828,7 @@ class InstanceItem extends ListView
 
 			}
 
-			$notFinal     = Helper::getMethodCode($instance->instanceID) !== Helpers\Methods::FINALCODE;
+			/*$notFinal     = Helper::getMethodCode($instance->instanceID) !== Helpers\Methods::FINALCODE;
 			$notFull      = !$instance->full;
 			$notOnline    = $instance->presence !== Helper::ONLINE;
 			$notPremature = !$instance->premature;
@@ -841,7 +840,7 @@ class InstanceItem extends ListView
 			elseif ($notFinal and $notFull and $notOnline and $notPremature)
 			{
 				$buttons['register'] = true;
-			}
+			}*/
 		}
 		elseif ($instance->manageable and !$instance->premature)
 		{
@@ -866,7 +865,7 @@ class InstanceItem extends ListView
 				{
 					$buttons['descheduleList'] = true;
 
-					if ($item->registered)
+					/*if ($item->registered)
 					{
 						$buttons['deregisterList'] = true;
 					}
@@ -874,13 +873,13 @@ class InstanceItem extends ListView
 					if ($sameBlock and !$sameInstance)
 					{
 						$buttons['descheduleBlock'] = true;
-					}
+					}*/
 				}
 				else
 				{
 					$buttons['scheduleList'] = true;
 
-					$notFinal     = Helper::getMethodCode($item->instanceID) !== Helpers\Methods::FINALCODE;
+					/*$notFinal     = Helper::getMethodCode($item->instanceID) !== Helpers\Methods::FINALCODE;
 					$notFull      = !$item->full;
 					$notOnline    = $item->presence !== Helper::ONLINE;
 					$notPremature = !$item->premature;
@@ -888,7 +887,7 @@ class InstanceItem extends ListView
 					if ($notFinal and $notFull and $notOnline and $notPremature)
 					{
 						$buttons['registerList'] = true;
-					}
+					}*/
 
 					if ($sameBlock and !$sameInstance)
 					{

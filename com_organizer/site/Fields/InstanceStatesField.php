@@ -37,7 +37,6 @@ class InstanceStatesField extends ColoredOptionsField
 				'value' => 1
 			],
 			(object) [
-				'style' => "background-color:#f9d47f;",
 				'text'  => Helpers\Languages::_('ORGANIZER_CHANGED_INSTANCES'),
 				'value' => 4
 			],

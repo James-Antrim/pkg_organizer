@@ -389,6 +389,11 @@ table.table-striped td.status-display.yellow {
     font-size: 1.4rem;
 }
 
+.bookmarked {
+    border: 2px solid #7f93bb;
+    margin-top: 2px;
+}
+
 /* In-Row Tools *******************************************************************************************************/
 td a.btn {
     margin-bottom: .2rem;

@@ -92,6 +92,11 @@ table.table-striped td.status-display {
   font-size: 1.4rem;
 }
 
+.bookmarked {
+  border: 2px solid $blue-50;
+  margin-top: 2px;
+}
+
 /* In-Row Tools *******************************************************************************************************/
 
 td a.btn {
