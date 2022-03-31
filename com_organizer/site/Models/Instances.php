@@ -373,7 +373,9 @@ class Instances extends ListModel
 		}
 		else
 		{
+			$app         = Helpers\OrganizerHelper::getApplication();
 			$filterItems = Input::getFilterItems();
+			$layouts     = ['grid', 'grida3', 'grida4', 'list'];
 			$listItems   = Input::getListItems();
 			$params      = Input::getParams();
 			$menuLayout  = $params->get('layout');
@@ -383,7 +385,7 @@ class Instances extends ListModel
 				$layout = (int) $menuLayout;
 				$layout = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
 			}
-			elseif ($getLayout = strtolower(Input::getString('layout')) and in_array($getLayout, ['grid', 'grida3', 'grida4', 'list']))
+			elseif ($getLayout = strtolower(Input::getString('layout')) and in_array($getLayout, $layouts))
 			{
 				$layout = strpos($getLayout, 'grid') === 0 ? Helper::GRID : Helper::LIST;
 			}
@@ -427,9 +429,17 @@ class Instances extends ListModel
 				$this->state->set('filter.campusID', $campusID);
 			}
 
-			$organizationID = Input::getInt('organizationID');
-			$categoryID     = Input::getInt('categoryID');
-			$groupID        = Input::getInt('groupID');
+			$fc = "$this->context.filter.";
+			$fp = "filter_";
+			$lc = "$this->context.list.";
+			$lp = "list_";
+
+			$organizationID = $app->getUserStateFromRequest("{$fc}organizationID", "{$fp}organizationID", 0, 'int');
+			$organizationID = Input::getInt('organizationID', $organizationID);
+			$categoryID     = $app->getUserStateFromRequest("{$fc}categoryID", "{$fp}categoryID", 0, 'int');
+			$categoryID     = Input::getInt('categoryID', $categoryID);
+			$groupID        = $app->getUserStateFromRequest("{$fc}groupID", "{$fp}groupID", 0, 'int');
+			$groupID        = Input::getInt('groupID', $groupID);
 
 			if ($organizationID = $params->get('organizationID', $organizationID))
 			{
@@ -477,7 +487,8 @@ class Instances extends ListModel
 				$this->state->set('filter.organizationID', $organizationID);
 			}
 
-			if ($eventID = Input::getInt('eventID'))
+			$eventID = $app->getUserStateFromRequest("{$fc}eventID", "{$fp}eventID", 0, 'int');
+			if ($eventID = Input::getInt('eventID', $eventID))
 			{
 				$this->state->set('filter.eventID', $eventID);
 			}
@@ -486,19 +497,22 @@ class Instances extends ListModel
 				$this->state->set('filter.eventID', 0);
 			}
 
-			if ($personID = Input::getInt('personID'))
+			$personID = $app->getUserStateFromRequest("{$fc}personID", "{$fp}personID", 0, 'int');
+			if ($personID = Input::getInt('personID', $personID))
 			{
-				$filterItems->set('roomID', $personID);
+				$filterItems->set('personID', $personID);
 				$this->state->set('filter.personID', $personID);
 			}
 
-			if ($roomID = Input::getInt('roomID'))
+			$roomID = $app->getUserStateFromRequest("{$fc}roomID", "{$fp}roomID", 0, 'int');
+			if ($roomID = Input::getInt('roomID', $roomID))
 			{
 				$filterItems->set('roomID', $roomID);
 				$this->state->set('filter.roomID', $roomID);
 			}
 
-			if ($date = Input::getString('date'))
+			$date = $app->getUserStateFromRequest("{$lc}date", "{$lp}date", '', 'string');
+			if ($date = Input::getString('date', $date))
 			{
 				$listItems->set('date', $date);
 				$this->state->set('list.date', $date);
@@ -560,7 +574,13 @@ class Instances extends ListModel
 	 */
 	private function setConditions(): array
 	{
-		$conditions          = [];
+		$app        = Helpers\OrganizerHelper::getApplication();
+		$conditions = [];
+		$fc         = "$this->context.filter.";
+		$fp         = "filter_";
+		$lc         = "$this->context.list.";
+		$lp         = "list_";
+
 		$conditions['date']  = Helpers\Dates::standardizeDate($this->state->get('list.date', date('Y-m-d')));
 		$conditions['delta'] = date('Y-m-d', strtotime('-14 days'));
 		$conditions['my']    = $this->state->get('list.my');
@@ -587,11 +607,16 @@ class Instances extends ListModel
 			case 'html':
 			case 'xls':
 			default:
-				$default                = $this->mobile ? 'day' : 'week';
-				$interval               = $this->state->get('list.interval');
-				$intervals              = ['day', 'month', 'quarter', 'term', 'week'];
-				$conditions['interval'] = in_array($interval, $intervals) ? $interval : $default;
-				$conditions['status']   = $this->state->get('filter.status', 1);
+				$default   = $this->mobile ? 'day' : 'week';
+				$interval  = $app->getUserStateFromRequest("{$lc}interval", "{$lp}interval", $default, 'string');
+				$intervals = ['day', 'month', 'quarter', 'term', 'week'];
+				$interval  = in_array($interval, $intervals) ? $interval : $default;
+				$this->state->set('list.interval', $interval);
+				$conditions['interval'] = $interval;
+
+				$status = $app->getUserStateFromRequest("{$fc}interval", "{$fp}interval", 1, 'int');
+				$this->state->set('filter.status', $status);
+				$conditions['status'] = $status;
 				break;
 		}
 
