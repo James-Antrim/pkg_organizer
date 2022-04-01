@@ -13,7 +13,7 @@ $list = $this->filterForm->getGroup('list');
 ?>
 <?php if ($list) : ?>
 	<?php foreach ($list as $fieldName => $field) : ?>
-        <div class="js-stools-field-list">
+        <div class="js-stools-field-list <?php echo $field->getType(); ?>">
 			<?php echo $field->input; ?>
         </div>
 	<?php endforeach; ?>

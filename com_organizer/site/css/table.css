@@ -204,6 +204,22 @@ body.tmpl-mobile div.main .js-stools-container-list {
     width: 100%;
 }
 
+body.tmpl-mobile div.main .js-stools-container-list {
+    text-align: left;
+}
+
+body.tmpl-mobile div.main .js-stools-field-list.Date {
+    width: 80%;
+}
+
+body.tmpl-mobile div.main .js-stools-field-list.Page {
+    width: 5%;
+}
+
+body.tmpl-mobile div.main .js-stools-field-list.Page:first-child {
+    margin-right: 16px;
+}
+
 body.tmpl-mobile div.main .js-stools-container-bar {
     display: flex;
     flex-direction: row;
