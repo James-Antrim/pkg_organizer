@@ -12,10 +12,28 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 
-$query  = Uri::getInstance()->getQuery();
-$script = "document.getElementById('download-url').select();";
-$script .= "document.getElementById('download-url').setSelectionRange(0,99999);";
-$script .= "document.execCommand('copy');";
+$query    = Uri::getInstance()->getQuery();
+$script   = "document.getElementById('download-url').select();";
+$script   .= "document.getElementById('download-url').setSelectionRange(0,99999);";
+$script   .= "document.execCommand('copy');";
+$interval = Helpers\Input::getString('interval', 'week');
+
+switch ($interval)
+{
+	case 'month':
+		$interval = Helpers\Languages::_('ORGANIZER_SELECTED_MONTH');
+		break;
+	case 'quarter':
+		$interval = Helpers\Languages::_('ORGANIZER_QUARTER');
+		break;
+	case 'term':
+		$interval = Helpers\Languages::_('ORGANIZER_SELECTED_TERM');
+		break;
+	case 'week':
+	default:
+		$interval = Helpers\Languages::_('ORGANIZER_SELECTED_WEEK');
+		break;
+}
 
 echo $this->title;
 ?>
@@ -38,6 +56,16 @@ echo $this->title;
 
 				foreach ($fields as $field)
 				{
+					if ($field->getAttribute('name') === 'format')
+					{
+						$options = $field->__get('options');
+						foreach ($options as $option)
+						{
+							$option->text = sprintf($option->text, $interval);
+						}
+						$field->__set('options', $options);
+					}
+
 					echo $field->renderField();
 				}
 

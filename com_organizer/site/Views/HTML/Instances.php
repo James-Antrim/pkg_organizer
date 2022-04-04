@@ -126,14 +126,16 @@ class Instances extends ListView
 	{
 		$this->setTitle($this->get('title'));
 		$toolbar  = Toolbar::getInstance();
+		$link     = new Buttons\Link();
 		$newTab   = new Buttons\NewTab();
 		$script   = new Buttons\Script();
 		$standard = new StandardButton();
+		$expURL   = Helpers\Routing::getViewURL('export');
 
 		if ($this->mobile)
 		{
-			$toolbar->appendButton('Script', 'info-calender', Languages::_('ORGANIZER_ICS_CALENDAR'), 'onclick',
-				'makeLink()');
+			$toolbar->appendButton('Script', 'info-calender', Languages::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');;
+			$toolbar->appendButton('Link', 'equalizer', Languages::_('ORGANIZER_ADVANCED_EXPORT'), $expURL);
 		}
 		else
 		{
@@ -239,6 +241,11 @@ class Instances extends ListView
 			];
 
 			ksort($exportButtons);
+
+			$expText                 = Languages::_('ORGANIZER_ADVANCED_EXPORT');
+			$expButton               = $link->fetchButton('Link', 'equalizer', $expText, $expURL);
+			$exportButtons[$expText] = $expButton;
+
 			$toolbar->appendButton('Buttons', 'buttons', Languages::_('ORGANIZER_EXPORT'), $exportButtons, 'download');
 		}
 	}

@@ -26,9 +26,10 @@
         </field>
     </fieldset>
     <fieldset name="settings" label="SETTINGS">
-        <field name="format" type="Options" label="EXPORT_TEMPLATE" default="pdf.GridA4" onchange="this.form.submit();">
-            <option value="pdf.GridA3">PDF_GRID_A3</option>
-            <option value="pdf.GridA4">PDF_GRID_A4</option>
+        <field name="format" type="Options" label="EXPORT_TEMPLATE" class="input-15" default="pdf.GridA4"
+               onchange="this.form.submit();">
+            <option value="pdf.GridA3">PDF_A3</option>
+            <option value="pdf.GridA4">PDF_A4</option>
             <option value="xls.Instances">XLS_LIST</option>
             <option value="ics">ICS_URL</option>
         </field>

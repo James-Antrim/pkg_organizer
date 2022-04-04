@@ -33,6 +33,21 @@ trait Dependent
 	}
 
 	/**
+	 * Suppresses the label display when there are no options available.
+	 *
+	 * @return string
+	 */
+	protected function getLabel(): string
+	{
+		if (!$this->getInput())
+		{
+			return '';
+		}
+
+		return parent::getLabel();
+	}
+
+	/**
 	 * Checks whether the field input would be displayed.
 	 *
 	 * @return bool
