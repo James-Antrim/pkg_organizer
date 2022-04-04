@@ -23,7 +23,7 @@ class Instances extends ResourceHelper
 	/**
 	 * Delta constants
 	 */
-	private const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
+	public const NORMAL = '', CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
 	/**
 	 * Jump constants
