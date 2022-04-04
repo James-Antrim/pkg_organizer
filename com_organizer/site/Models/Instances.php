@@ -462,7 +462,7 @@ class Instances extends ListModel
 
 			if ($groupID)
 			{
-				$conditions['groupIDs'] = [$categoryID];
+				$conditions['groupIDs'] = [$groupID];
 				$filterItems->set('groupID', $groupID);
 				$this->state->set('filter.groupID', $groupID);
 			}
