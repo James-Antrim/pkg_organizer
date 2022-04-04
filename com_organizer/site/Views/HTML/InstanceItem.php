@@ -447,7 +447,7 @@ class InstanceItem extends ListView
 		echo $comment ? "<li>$comment</li>" : '';
 		echo $list ? "<li>$formText</li>" : $formText;
 
-		if ($instance->registration)
+		/*if ($instance->registration)
 		{
 			if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
 			{
@@ -484,7 +484,7 @@ class InstanceItem extends ListView
 					echo '<li>' . Languages::_('ORGANIZER_REGISTRATIONS_AVAILABLE') . '</li>';
 				}
 			}
-		}
+		}*/
 
 		if ($list)
 		{

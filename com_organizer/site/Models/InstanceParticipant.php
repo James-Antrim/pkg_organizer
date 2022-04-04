@@ -596,7 +596,7 @@ class InstanceParticipant extends BaseModel
 				continue;
 			}
 
-			if ($block->date > $then)
+			/*if ($block->date > $then)
 			{
 				OrganizerHelper::message(
 					sprintf(Languages::_('ORGANIZER_PREMATURE_REGISTRATION'), $name, $date, $startTime, $endTime,
@@ -604,7 +604,7 @@ class InstanceParticipant extends BaseModel
 					'notice'
 				);
 				continue;
-			}
+			}*/
 
 			$query = Database::getQuery();
 			$query->select('i.id')
