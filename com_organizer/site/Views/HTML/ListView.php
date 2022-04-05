@@ -248,6 +248,7 @@ abstract class ListView extends BaseView
 		parent::modifyDocument();
 
 		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
+		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/list.js');
 	}
 
 	/**

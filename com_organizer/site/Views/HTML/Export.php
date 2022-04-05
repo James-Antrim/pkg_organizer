@@ -148,30 +148,4 @@ class Export extends FormView
 			false
 		);
 	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function modifyDocument()
-	{
-		parent::modifyDocument();
-
-		$variables = [
-			'ICS_URL' => Uri::base() . '?option=com_organizer&view=instances&format=ics'
-		];
-
-		$user = Helpers\Users::getUser();
-
-		if ($user->id)
-		{
-			// Joomla documented the wrong type for registerDate which is a string
-			/** @noinspection PhpToStringImplementationInspection */
-			$variables['auth']     = urlencode(password_hash($user->email . $user->registerDate, PASSWORD_BCRYPT));
-			$variables['username'] = $user->username;
-		}
-
-		Languages::script('ORGANIZER_GENERATE_LINK');
-		Document::addScriptOptions('variables', $variables);
-		Document::addScript(Uri::root() . 'components/com_organizer/js/ics.js');
-	}
 }

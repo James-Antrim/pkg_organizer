@@ -32,6 +32,23 @@ class OptionsField extends FormField
 	public $options = [];
 
 	/**
+	 * Method to get certain otherwise inaccessible properties from the form field object.
+	 *
+	 * @param   string  $name  The property name for which to get the value.
+	 *
+	 * @return  mixed  The property value or null.
+	 */
+	public function __get($name)
+	{
+		if ($name == 'options')
+		{
+			return $this->getOptions();
+		}
+
+		return parent::__get($name);
+	}
+
+	/**
 	 * Method to add an option to the list field.
 	 *
 	 * @param   string  $text        Text/Language variable of the option.
@@ -184,22 +201,5 @@ class OptionsField extends FormField
 		reset($options);
 
 		return $options;
-	}
-
-	/**
-	 * Method to get certain otherwise inaccessible properties from the form field object.
-	 *
-	 * @param   string  $name  The property name for which to get the value.
-	 *
-	 * @return  mixed  The property value or null.
-	 */
-	public function __get($name)
-	{
-		if ($name == 'options')
-		{
-			return $this->getOptions();
-		}
-
-		return parent::__get($name);
 	}
 }

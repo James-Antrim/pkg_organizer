@@ -18,6 +18,15 @@ use Organizer\Helpers;
 trait Translated
 {
 	/**
+	 * Gets the field's protected type attribute
+	 * @return string
+	 */
+	public function getType(): string
+	{
+		return $this->type;
+	}
+
+	/**
 	 * Method to get the data to be passed to the layout for rendering.
 	 *
 	 * @return  array

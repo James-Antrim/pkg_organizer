@@ -130,7 +130,7 @@ trait ListsInstances
 					}
 				}
 
-				if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
+				/*if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
 				{
 					$attribs = ['class' => 'hasTip', 'target' => '_blank', 'title' => Languages::_('ORGANIZER_FINALS_REGISTRATION')];
 					$icon    = HTML::icon('out');
@@ -165,7 +165,7 @@ trait ListsInstances
 						$value    .= "$instance->current/$capacity ";
 						$value    .= HTML::icon('users', Languages::_('ORGANIZER_PARTICIPANTS'));
 					}
-				}
+				}*/
 			}
 		}
 		else
@@ -262,7 +262,7 @@ trait ListsInstances
 					$buttons[] = HTML::link($url, $icon, $attribs);
 
 					// Not virtual and not full
-					if ($instance->registration)
+					/*if ($instance->registration)
 					{
 						$attribs = ['aria-label' => $label, 'class' => 'btn btn-checkbox'];
 
@@ -290,7 +290,7 @@ trait ListsInstances
 
 							$buttons[] = HTML::link($url, $icon, $attribs);
 						}
-					}
+					}*/
 				}
 
 				$value .= implode('', $buttons);

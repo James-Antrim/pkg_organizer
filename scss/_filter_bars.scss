@@ -113,6 +113,25 @@ body.tmpl-mobile div.main {
     width: 100%;
   }
 
+  .js-stools-container-list {
+    text-align: left;
+  }
+
+  .js-stools-field-list {
+
+    &.Date {
+      width: 80%;
+    }
+
+    &.Page {
+      width: 5%;
+
+      &:first-child {
+        margin-right: 16px;
+      }
+    }
+  }
+
   .js-stools-container-bar {
     display: flex;
     flex-direction: row;

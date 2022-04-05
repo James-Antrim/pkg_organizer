@@ -175,6 +175,11 @@ class Instances extends ListModel
 		{
 			$form->removeField('limit', 'list');
 		}
+
+		if ($this->state->get('list.interval') === 'quarter')
+		{
+			$form->removeField('date', 'list');
+		}
 	}
 
 	/**
@@ -183,6 +188,12 @@ class Instances extends ListModel
 	public function getItems(): array
 	{
 		$items = parent::getItems();
+
+		// Prevents out of memory errors.
+		if (count($items) >= 12500)
+		{
+			Helpers\OrganizerHelper::error(413);
+		}
 
 		$usedGrids = [];
 
@@ -360,295 +371,289 @@ class Instances extends ListModel
 	{
 		parent::populateState($ordering, $direction);
 
-		$layout = Helper::LIST;
+		$app         = Helpers\OrganizerHelper::getApplication();
+		$conditions  = ['delta' => date('Y-m-d', strtotime('-14 days'))];
+		$filterItems = Input::getFilterItems();
+		$listItems   = Input::getListItems();
+		$params      = Input::getParams();
 
-		if ($this->adminContext)
+		$fc = "$this->context.filter.";
+		$fp = "filter_";
+		$lc = "$this->context.list.";
+		$lp = "list_";
+
+		// What? Personal...
+		$methodIDs        = [];
+		$personal         = (int) $params->get('my');
+		$personal         = ($personal or $app->getUserStateFromRequest("{$lc}my", "{$lp}my", 0, 'int'));
+		$personal         = ($personal or Input::getInt('my'));
+		$personal         = ($personal or (int) $listItems->get('my'));
+		$conditions['my'] = $personal;
+		$listItems->set('my', $personal);
+		$this->state->set('list.my', $personal);
+
+		// or attribute/resource based.
+		if (!$personal)
 		{
-			$authorized = Helpers\Can::scheduleTheseOrganizations();
-			if (count($authorized) === 1)
-			{
-				$organizationID = $authorized[0];
-				$this->state->set('filter.organizationID', $organizationID);
-			}
-		}
-		else
-		{
-			$filterItems = Input::getFilterItems();
-			$listItems   = Input::getListItems();
-			$params      = Input::getParams();
-			$menuLayout  = $params->get('layout');
+			$campusID = $params->get('campusID', 0);
+			$campusID = $app->getUserStateFromRequest("{$fc}campusID", "{$fp}campusID", $campusID, 'int');
+			$campusID = Input::getInt('$campusID', $campusID);
 
-			if (is_numeric($menuLayout))
+			if ($campusID)
 			{
-				$layout = (int) $menuLayout;
-				$layout = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
-			}
-			elseif ($getLayout = strtolower(Input::getString('layout')) and in_array($getLayout, ['grid', 'grida3', 'grida4', 'list']))
-			{
-				$layout = strpos($getLayout, 'grid') === 0 ? Helper::GRID : Helper::LIST;
-			}
-			else
-			{
-				$layout = (int) $listItems->get('layout', Helper::LIST);
-			}
-
-			$this->layout = $layout;
-			$this->state->set('list.layout', $layout);
-
-			if ($layout === Helper::GRID)
-			{
-				if (Input::getCMD('format') === 'html')
-				{
-					$interval = $this->mobile ? 'day' : 'week';
-				}
-				else
-				{
-					$interval = Input::getCMD('interval', 'week');
-				}
-
-				$listItems->set('interval', $interval);
-				$this->state->set('list.interval', $interval);
-			}
-			elseif ($layout === Helper::LIST)
-			{
-				$interval = $listItems->get('interval', Input::getInt('interval', 'day'));
-				$listItems->set('interval', $interval);
-				$this->state->set('list.interval', $interval);
-			}
-
-			if ($my = $listItems->get('my', Input::getInt('my', $params->get('my'))))
-			{
-				$this->state->set('list.my', $my);
-			}
-
-			if ($campusID = $params->get('campusID'))
-			{
+				$conditions['campusIDs'] = [$campusID];
 				$filterItems->set('campusID', $campusID);
 				$this->state->set('filter.campusID', $campusID);
 			}
 
-			$organizationID = Input::getInt('organizationID');
-			$categoryID     = Input::getInt('categoryID');
-			$groupID        = Input::getInt('groupID');
+			$organizationID = 0;
 
-			if ($organizationID = $params->get('organizationID', $organizationID))
+			if ($this->adminContext)
 			{
+				// Empty would have already resulted in a redirect from the view authorization check.
+				$authorized = Helpers\Can::scheduleTheseOrganizations();
+				if (count($authorized) === 1)
+				{
+					$organizationID = $authorized[0];
+				}
+			}
+			else
+			{
+				$organizationID = $app->getUserStateFromRequest("{$fc}organizationID", "{$fp}organizationID", 0, 'int');
+				$organizationID = Input::getInt('organizationID', $organizationID);
+				$organizationID = $params->get('organizationID', $organizationID);
+			}
+
+			$categoryID = $app->getUserStateFromRequest("{$fc}categoryID", "{$fp}categoryID", 0, 'int');
+			$categoryID = Input::getInt('categoryID', $categoryID);
+			$groupID    = $app->getUserStateFromRequest("{$fc}groupID", "{$fp}groupID", 0, 'int');
+			$groupID    = Input::getInt('groupID', $groupID);
+
+			if ($organizationID)
+			{
+				$conditions['organizationIDs'] = [$organizationID];
 				$filterItems->set('organizationID', $organizationID);
 				$this->state->set('filter.organizationID', $organizationID);
-
+				Helper::setPublishingAccess($conditions);
+			}
+			else
+			{
 				if ($categoryID)
 				{
-					$filterItems->set('categoryID', $categoryID);
-					$this->state->set('filter.categoryID', $categoryID);
+					$organizationID                = Helpers\Categories::getOrganizationIDs($categoryID)[0];
+					$conditions['organizationIDs'] = [$organizationID];
+				}
+				elseif ($groupID)
+				{
+					$categoryID                    = Helpers\Groups::getCategoryID($groupID);
+					$organizationID                = Helpers\Categories::getOrganizationIDs($categoryID)[0];
+					$conditions['organizationIDs'] = [$organizationID];
 				}
 
-				if ($groupID)
-				{
-					$filterItems->set('groupID', $groupID);
-					$this->state->set('filter.groupID', $groupID);
-				}
+				$conditions['showUnpublished'] = Helpers\Can::administrate();
 			}
-			elseif ($categoryID)
+
+			if ($categoryID)
 			{
+				$conditions['categoryIDs'] = [$categoryID];
 				$filterItems->set('categoryID', $categoryID);
 				$this->state->set('filter.categoryID', $categoryID);
-
-				$organizationID = Helpers\Categories::getOrganizationIDs($categoryID)[0];
-				$filterItems->set('organizationID', $organizationID);
-				$this->state->set('filter.organizationID', $organizationID);
-
-				if ($groupID)
-				{
-					$filterItems->set('groupID', $groupID);
-					$this->state->set('filter.groupID', $groupID);
-				}
 			}
-			elseif ($groupID)
+
+			if ($groupID)
 			{
+				$conditions['groupIDs'] = [$groupID];
 				$filterItems->set('groupID', $groupID);
 				$this->state->set('filter.groupID', $groupID);
-
-				$categoryID = Helpers\Groups::getCategoryID($groupID);
-				$filterItems->set('categoryID', $categoryID);
-				$this->state->set('filter.categoryID', $categoryID);
-
-				$organizationID = Helpers\Categories::getOrganizationIDs($categoryID)[0];
-				$filterItems->set('organizationID', $organizationID);
-				$this->state->set('filter.organizationID', $organizationID);
 			}
 
 			if ($eventID = Input::getInt('eventID'))
 			{
+				$conditions['eventIDs'] = [$eventID];
 				$this->state->set('filter.eventID', $eventID);
 			}
-			else
+
+			$personID = $app->getUserStateFromRequest("{$fc}personID", "{$fp}personID", 0, 'int');
+			if ($personID = Input::getInt('personID', $personID))
 			{
-				$this->state->set('filter.eventID', 0);
+				$personIDs = [$personID];
+				Helper::filterPersonIDs($personIDs, Helpers\Users::getID());
+
+				if ($personIDs)
+				{
+					$conditions['personIDs'] = $personIDs;
+					$filterItems->set('personID', $personID);
+					$this->state->set('filter.personID', $personID);
+				}
+				else
+				{
+					// Unauthorized access to personal information.
+					Helpers\OrganizerHelper::error(403);
+				}
 			}
 
-			if ($personID = Input::getInt('personID'))
+			$roomID = $app->getUserStateFromRequest("{$fc}roomID", "{$fp}roomID", 0, 'int');
+			if ($roomID = Input::getInt('roomID', $roomID))
 			{
-				$filterItems->set('roomID', $personID);
-				$this->state->set('filter.personID', $personID);
-			}
-
-			if ($roomID = Input::getInt('roomID'))
-			{
+				$conditions['roomIDs'] = [$roomID];
 				$filterItems->set('roomID', $roomID);
 				$this->state->set('filter.roomID', $roomID);
 			}
 
-			if ($date = Input::getString('date'))
+			$methodIDs = $params->get('methodIDs') ?: Input::getIntCollection('methodID');
+			if ($methodIDs = array_filter($methodIDs))
 			{
-				$listItems->set('date', $date);
-				$this->state->set('list.date', $date);
+				$conditions['methodIDs'] = $methodIDs;
+				$filterItems->set('methodID', $methodIDs);
+				$this->state->set('filter.methodID', $methodIDs);
 			}
+		}
 
-			$dow       = $params->get('dow');
-			$endDate   = $params->get('endDate');
-			$methodIDs = Input::getIntCollection('methodID');
-			$methodIDs = $params->get('methodIDs', $methodIDs);
-			$methodIDs = array_filter($methodIDs);
-			$startDate = $params->get('startDate');
+		// When/how
+		$date    = date('Y-m-d');
+		$endDate = $params->get('endDate');
+		$status  = Helper::CURRENT;
 
-			if ($dow or $endDate or $methodIDs)
-			{
-				$defaultDate = date('Y-m-d');
-				$date        = ($startDate and $startDate > $defaultDate) ? $startDate : $defaultDate;
+		switch ($format = Input::getCMD('format'))
+		{
+			case 'ics':
+				// When/how is fixed in this format
+				$interval = 'quarter';
+				$layout   = Helper::LIST;
+				break;
 
-				$listItems->set('date', $date);
-				$this->state->set('list.date', $date);
+			case 'json':
+				$date      = Input::getString('date', $date);
+				$interval  = Input::getString('interval');
+				$intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
+				$interval  = in_array($interval, $intervals) ? $interval : 'week';
+				$layout    = Helper::LIST;
+				break;
 
-				if ($endDate)
+			case 'pdf':
+				$conditions['separate'] = Input::getBool('separate');
+				$date                   = Input::getString('date', $date);
+				$interval               = Input::getString('interval');
+				$intervals              = ['month', 'quarter', 'term', 'week'];
+				$interval               = in_array($interval, $intervals) ? $interval : 'week';
+				$layout                 = Helper::GRID;
+				break;
+
+			case 'xls':
+				$date      = Input::getString('date', $date);
+				$interval  = Input::getString('interval');
+				$intervals = ['day', 'month', 'quarter', 'term', 'week'];
+				$interval  = in_array($interval, $intervals) ? $interval : 'week';
+				$layout    = Helper::LIST;
+				$status    = $app->getUserStateFromRequest("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
+				break;
+
+			case 'html':
+			default:
+
+				$date     = $app->getUserStateFromRequest("{$lc}date", "{$lp}date", '', 'string');
+				$date     = Input::getString('date', $date);
+				$date     = Helpers\Dates::standardizeDate($date);
+				$status   = $app->getUserStateFromRequest("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
+				$status   = Input::getInt('status', $status);
+				$statuses = [Helper::CHANGED, Helper::CURRENT, Helper::NEW, Helper::REMOVED];
+				$status   = in_array($status, $statuses) ? $status : Helper::CURRENT;
+
+				if (Helpers\OrganizerHelper::dynamic())
 				{
-					$listItems->set('interval', 'day');
-					$this->state->set('list.interval', 'day');
-					$this->state->set('list.endDate', $endDate);
+					$sLayout = $app->getUserStateFromRequest("{$lc}layout", "{$lp}layout", Helper::LIST, 'int');
+					$gLayout = strpos(strtolower(Input::getString('layout')), 'grid') === 0;
+					$layout  = ($sLayout or $gLayout) ? Helper::GRID : Helper::LIST;
+
+					if ($layout === Helper::GRID)
+					{
+						$interval = $this->mobile ? 'day' : 'week';
+					}
+					else
+					{
+						$sInterval = $app->getUserStateFromRequest("{$lc}interval", "{$lp}interval", '', 'string');
+						$interval  = Input::getString('interval', $sInterval);
+						$intervals = ['day', 'month', 'quarter', 'term', 'week'];
+						$interval  = in_array($interval, $intervals) ? $interval : 'day';
+					}
 				}
 				else
 				{
-					$listItems->set('interval', 'quarter');
-					$this->state->set('list.interval', 'quarter');
+					$layout = (int) $params->get('layout');
+					$layout = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
+
+					if ($layout === Helper::GRID)
+					{
+						$interval = $this->mobile ? 'day' : 'week';
+					}
+					else
+					{
+						$dow       = $params->get('dow');
+						$methodIDs = array_filter($params->get('methodIDs'));
+						$startDate = $params->get('startDate');
+
+						// Menu constricted list conditions
+						if ($dow or $endDate or $methodIDs)
+						{
+							$date = ($startDate and $startDate > $date) ? $startDate : $date;
+
+							if ($endDate)
+							{
+								$interval = 'half';
+								$listItems->set('endDate', $endDate);
+								$this->state->set('list.endDate', $endDate);
+							}
+							else
+							{
+								$interval = 'quarter';
+							}
+
+							if ($dow)
+							{
+								$filterItems->set('dow', $dow);
+								$this->state->set('filter.dow', $dow);
+							}
+						}
+						else
+						{
+							$sInterval = $app->getUserStateFromRequest("{$lc}interval", "{$lp}interval", '', 'string');
+							$interval  = Input::getString('interval', $sInterval);
+							$intervals = ['day', 'month', 'quarter', 'term', 'week'];
+							$interval  = in_array($interval, $intervals) ? $interval : 'day';
+						}
+					}
 				}
 
-				if ($dow)
-				{
-					$filterItems->set('dow', $dow);
-					$this->state->set('filter.dow', $dow);
-				}
-
-				if ($methodIDs)
-				{
-					$filterItems->set('methodID', $methodIDs);
-					$this->state->set('filter.methodID', $methodIDs);
-				}
-			}
-		}
-
-		if ($layout === Helper::GRID or ($format = Input::getCMD('format') and $format !== 'html'))
-		{
-			$this->state->set('list.limit', 0);
-		}
-
-		$this->conditions = $this->setConditions();
-	}
-
-	/**
-	 * Builds the array of parameters used for lesson retrieval.
-	 *
-	 * @return array the parameters used to retrieve lessons.
-	 */
-	private function setConditions(): array
-	{
-		$conditions          = [];
-		$conditions['date']  = Helpers\Dates::standardizeDate($this->state->get('list.date', date('Y-m-d')));
-		$conditions['delta'] = date('Y-m-d', strtotime('-14 days'));
-		$conditions['my']    = $this->state->get('list.my');
-
-		switch (Input::getCMD('format'))
-		{
-			case 'ics':
-				$conditions['interval'] = 'quarter';
-				$conditions['status']   = 1;
-				break;
-			case 'json':
-				$interval               = $this->state->get('list.interval', 'week');
-				$intervals              = ['day', 'half', 'month', 'quarter', 'term', 'week'];
-				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
-				$conditions['status']   = $this->state->get('filter.status', 1);
-				break;
-			case 'pdf':
-				$interval               = $this->state->get('list.interval', 'week');
-				$intervals              = ['month', 'quarter', 'term', 'week'];
-				$conditions['interval'] = in_array($interval, $intervals) ? $interval : 'week';
-				$conditions['status']   = 1;
-				$conditions['separate'] = Input::getBool('separate');
-				break;
-			case 'html':
-			case 'xls':
-			default:
-				$default                = $this->mobile ? 'day' : 'week';
-				$interval               = $this->state->get('list.interval');
-				$intervals              = ['day', 'month', 'quarter', 'term', 'week'];
-				$conditions['interval'] = in_array($interval, $intervals) ? $interval : $default;
-				$conditions['status']   = $this->state->get('filter.status', 1);
 				break;
 		}
 
-		// Reliant on date and interval properties
+		$conditions['date']     = $date;
+		$conditions['interval'] = $interval;
+		$listItems->set('date', $date);
+		$listItems->set('interval', $interval);
+		$this->state->set('list.date', $date);
+		$this->state->set('list.interval', $interval);
 		Helper::setDates($conditions);
 
-		if ($endDate = $this->state->get('list.endDate'))
+		if ($endDate)
 		{
 			$conditions['endDate'] = $endDate;
 		}
 
-		if ($eventID = Input::getInt('eventID'))
+		$this->layout = $layout;
+		$listItems->set('layout', $layout);
+		$this->state->set('list.layout', $layout);
+
+		$conditions['status'] = $status;
+		$filterItems->set('status', $status);
+		$this->state->set('filter.status', $status);
+
+		// No pagination or implicit restriction to a day/week
+		if ($format !== 'html' or $layout === Helper::GRID)
 		{
-			$conditions['eventIDs'] = [$eventID];
+			$this->state->set('list.limit', 0);
 		}
 
-		if ($groupID = $this->state->get('filter.groupID'))
-		{
-			$conditions['groupIDs'] = [$groupID];
-		}
-
-		if ($categoryID = $this->state->get('filter.categoryID'))
-		{
-			$conditions['categoryIDs'] = [$categoryID];
-		}
-
-		if ($organizationID = $this->state->get('filter.organizationID'))
-		{
-			$conditions['organizationIDs'] = [$organizationID];
-
-			Helper::setPublishingAccess($conditions);
-		}
-		else
-		{
-			$conditions['showUnpublished'] = Helpers\Can::administrate();
-		}
-
-		if ($personID = (int) $this->state->get('filter.personID'))
-		{
-			$personIDs = [$personID];
-			Helper::filterPersonIDs($personIDs, Helpers\Users::getID());
-
-			if ($personIDs)
-			{
-				$conditions['personIDs'] = $personIDs;
-			}
-			else
-			{
-				Helpers\OrganizerHelper::error(403);
-			}
-		}
-
-		if ($roomID = $this->state->get('filter.roomID'))
-		{
-			$conditions['roomIDs'] = [$roomID];
-		}
-
-		return $conditions;
+		$this->conditions = $conditions;
 	}
 }

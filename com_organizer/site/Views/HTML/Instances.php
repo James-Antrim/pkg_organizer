@@ -126,14 +126,16 @@ class Instances extends ListView
 	{
 		$this->setTitle($this->get('title'));
 		$toolbar  = Toolbar::getInstance();
+		$link     = new Buttons\Link();
 		$newTab   = new Buttons\NewTab();
 		$script   = new Buttons\Script();
 		$standard = new StandardButton();
+		$expURL   = Helpers\Routing::getViewURL('export');
 
 		if ($this->mobile)
 		{
-			$toolbar->appendButton('Script', 'info-calender', Languages::_('ORGANIZER_ICS_CALENDAR'), 'onclick',
-				'makeLink()');
+			$toolbar->appendButton('Script', 'info-calender', Languages::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');;
+			$toolbar->appendButton('Link', 'equalizer', Languages::_('ORGANIZER_ADVANCED_EXPORT'), $expURL);
 		}
 		else
 		{
@@ -144,14 +146,14 @@ class Instances extends ListView
 					$add    = $standard->fetchButton(
 						'Standard',
 						'bookmark',
-						Languages::_('ORGANIZER_ADD_MY_INSTANCES'),
+						Languages::_('ORGANIZER_BOOKMARK'),
 						'InstanceParticipants.bookmark',
 						true
 					);
 					$remove = $standard->fetchButton(
 						'Standard',
 						'bookmark-2',
-						Languages::_('ORGANIZER_DELETE_MY_INSTANCES'),
+						Languages::_('ORGANIZER_REMOVE_BOOKMARK'),
 						'InstanceParticipants.removeBookmark',
 						true
 					);
@@ -164,7 +166,7 @@ class Instances extends ListView
 					);
 				}
 
-				if ($this->registration and !$this->premature and !$this->teachesALL)
+				/*if ($this->registration and !$this->premature and !$this->teachesALL)
 				{
 					$register   = $standard->fetchButton(
 						'Standard',
@@ -187,7 +189,7 @@ class Instances extends ListView
 						[$register, $deregister],
 						'signup'
 					);
-				}
+				}*/
 
 				if (($this->manages or $this->teaches) and !$this->premature)
 				{
@@ -201,46 +203,49 @@ class Instances extends ListView
 				}
 			}
 
-			$gridA3Button = $newTab->fetchButton(
-				'NewTab',
-				'file-pdf',
-				Languages::_('ORGANIZER_PDF_GRID_A3'),
-				'Instances.gridA3',
-				false
-			);
+			switch ((string) $this->state->get('list.interval'))
+			{
+				case 'month':
+					$interval = Languages::_('ORGANIZER_SELECTED_MONTH');
+					break;
+				case 'quarter':
+					$interval = Languages::_('ORGANIZER_QUARTER');
+					break;
+				case 'term':
+					$interval = Languages::_('ORGANIZER_SELECTED_TERM');
+					break;
+				case 'week':
+					$interval = Languages::_('ORGANIZER_SELECTED_WEEK');
+					break;
+				case 'day':
+				case '0':
+				default:
+					$interval = Languages::_('ORGANIZER_SELECTED_DAY');
+					break;
+			}
 
-			$gridA4Button = $newTab->fetchButton(
-				'NewTab',
-				'file-pdf',
-				Languages::_('ORGANIZER_PDF_GRID_A4'),
-				'Instances.gridA4',
-				false
-			);
-
-			$icsButton = $script->fetchButton(
-				'Script',
-				'info-calender',
-				Languages::_('ORGANIZER_ICS_CALENDAR'),
-				'onclick',
-				'makeLink()'
-			);
-
-			$xlsButton = $newTab->fetchButton(
-				'NewTab',
-				'file-xls',
-				Languages::_('ORGANIZER_XLS_LIST'),
-				'Instances.xls',
-				false
-			);
+			$icsText     = Languages::_('ORGANIZER_ICS_URL');
+			$icsButton   = $script->fetchButton('Script', 'info-calender', $icsText, 'onclick', 'makeLink()');
+			$pdfA3Text   = Languages::sprintf('ORGANIZER_PDF_A3', $interval);
+			$pdfA3Button = $newTab->fetchButton('NewTab', 'file-pdf', $pdfA3Text, 'Instances.gridA3', false);
+			$pdfA4Text   = Languages::sprintf('ORGANIZER_PDF_A4', $interval);
+			$pdfA4Button = $newTab->fetchButton('NewTab', 'file-pdf', $pdfA4Text, 'Instances.gridA4', false);
+			$xlsText     = Languages::sprintf('ORGANIZER_XLS_LIST', $interval);
+			$xlsButton   = $newTab->fetchButton('NewTab', 'file-xls', $xlsText, 'Instances.xls', false);
 
 			$exportButtons = [
-				Languages::_('ORGANIZER_ICS_CALENDAR')    => $icsButton,
-				Languages::_('ORGANIZER_PDF_GRID_A3')     => $gridA3Button,
-				Languages::_('ORGANIZER_PDF_GRID_A4')     => $gridA4Button,
-				Languages::_('ORGANIZER_XLS_SPREADSHEET') => $xlsButton
+				$icsText   => $icsButton,
+				$pdfA3Text => $pdfA3Button,
+				$pdfA4Text => $pdfA4Button,
+				$xlsText   => $xlsButton
 			];
 
 			ksort($exportButtons);
+
+			$expText                 = Languages::_('ORGANIZER_ADVANCED_EXPORT');
+			$expButton               = $link->fetchButton('Link', 'equalizer', $expText, $expURL);
+			$exportButtons[$expText] = $expButton;
+
 			$toolbar->appendButton('Buttons', 'buttons', Languages::_('ORGANIZER_EXPORT'), $exportButtons, 'download');
 		}
 	}
@@ -542,7 +547,7 @@ class Instances extends ListView
 						$tools[] = HTML::link($url, $icon, ['aria-label' => $label]);
 					}
 
-					if ($item->presence !== Helper::ONLINE)
+					/*if ($item->presence !== Helper::ONLINE)
 					{
 						if ($item->running)
 						{
@@ -580,7 +585,7 @@ class Instances extends ListView
 							$url     = Helpers\Routing::getTaskURL('InstanceParticipants.register', $instanceID);
 							$tools[] = HTML::link($url, $icon, ['aria-label' => $tip]);
 						}
-					}
+					}*/
 				}
 			}
 
@@ -626,46 +631,63 @@ class Instances extends ListView
 	{
 		parent::modifyDocument();
 
-		$variables = [
-			'ICS_URL' => Uri::base() . '?option=com_organizer&view=instances&format=ics'
+		$state = $this->model->getState();
+		$url   = '';
+
+		$fields = [
+			'campusID'       => $state->get('filter.campusID', 0),
+			'categoryID'     => $state->get('filter.categoryID', 0),
+			'eventID'        => $state->get('filter.eventID', 0),
+			'groupID'        => $state->get('filter.groupID', 0),
+			'methodID'       => $state->get('filter.methodID', 0),
+			'my'             => $state->get('list.my', 0),
+			'organizationID' => $state->get('filter.organizationID', 0),
+			'personID'       => $state->get('filter.personID', 0),
+			'roomID'         => $state->get('filter.roomID', 0)
 		];
 
-		if ($this->mobile)
+		foreach ($fields as $field => $value)
 		{
-			$date    = $this->model->conditions['date'];
-			$stamp   = strtotime($date);
-			$tOffset = ((int) date('w', $stamp) === 6) ? '+2 days' : '+1 day';
-			$yOffset = ((int) date('w', $stamp) === 1) ? '-2 days' : '-1 day';
-
-			$variables['tomorrow']  = date('Y-m-d', strtotime($tOffset, $stamp));
-			$variables['yesterday'] = date('Y-m-d', strtotime($yOffset, $stamp));
-		}
-
-		$params = Helpers\Input::getParams();
-
-		if ($params->get('my') and Helpers\Users::getID())
-		{
-			$variables['auth']     = Helpers\Users::getAuth();
-			$variables['my']       = 1;
-			$variables['username'] = Helpers\Users::getUserName();
-		}
-		else
-		{
-			if ($campusID = $params->get('campusID'))
+			if (empty($value))
 			{
-				$variables['campusID'] = $campusID;
-			}
-
-			if ($methodIDs = $params->get('methodIDs'))
-			{
-				$variables['methodID'] = implode(',', $methodIDs);
-			}
-
-			if ($organizationID = $params->get('organizationID'))
-			{
-				$variables['organizationID'] = $organizationID;
+				unset($fields[$field]);
 			}
 		}
+
+		if ($fields)
+		{
+			$authRequired = (!empty($fields['my']) or !empty($fields['personID']));
+
+			if (!$username = Helpers\Users::getUserName() and $authRequired)
+			{
+				Helpers\OrganizerHelper::error(401);
+
+				return;
+			}
+
+			$url = Uri::base() . '?option=com_organizer&view=instances&format=ics';
+
+			// Resource links
+			if (empty($fields['my']))
+			{
+				foreach ($fields as $field => $value)
+				{
+					$url .= "&$field=$value";
+				}
+			}
+			// 'My' link
+			else
+			{
+				$url .= "&my=1";
+			}
+
+			if ($authRequired)
+			{
+				$url .= "&username=$username&auth=" . Helpers\Users::getAuth();
+			}
+		}
+
+		$variables = ['ICS_URL' => $url];
 
 		Languages::script('ORGANIZER_GENERATE_LINK');
 		Document::addScriptOptions('variables', $variables);
@@ -790,9 +812,16 @@ class Instances extends ListView
 
 		foreach ($this->items as $item)
 		{
+			$listItems[$index] = [];
+
 			if (!$item->expired)
 			{
 				$this->expired = false;
+
+				if ($item->bookmarked)
+				{
+					$listItems[$index]['attributes'] = ['class' => 'bookmarked'];
+				}
 			}
 
 			if (!$item->premature)
@@ -805,7 +834,6 @@ class Instances extends ListView
 				$this->registration = true;
 			}
 
-			$listItems[$index]           = [];
 			$listItems[$index]['tools']  = $this->getToolsColumn($item, $index);
 			$listItems[$index]['title']  = $this->getTitle($item);
 			$listItems[$index]['status'] = $this->getStatus($item);

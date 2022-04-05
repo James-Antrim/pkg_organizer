@@ -1,6 +1,8 @@
 # IDE Generated Files #
 #######################
 .idea
+.github
+.sonarcloud.properties
 
 # OS Generated Files #
 ######################

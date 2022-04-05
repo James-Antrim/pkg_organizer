@@ -29,6 +29,7 @@ class Languages extends Text
 		'/Audio([a-zß-ÿ])/'                     => 'Audio&shy;$1',
 		'/Berufs([a-zß-ÿ])/'                    => 'Berufs&shy;$1',
 		'/Betriebs([a-zß-ÿ])/'                  => 'Betriebs&shy;$1',
+		'/([E|e])inführung(s?)([a-zß-ÿ])/'      => '$1inführung$2&shy;$3',
 		'/Energie([a-zß-ÿ])/'                   => 'Energie&shy;$1',
 		'/Event([a-zß-ÿ])/'                     => 'Event&shy;$1',
 		'/Inter([a-zß-ÿ])/'                     => 'Inter&shy;$1',
@@ -36,6 +37,7 @@ class Languages extends Text
 		'/Kommunikation/'                       => 'Kommuni&shy;kation',
 		'/Landschafts([a-zß-ÿ])/'               => 'Land&shy;schafts&shy;$1',
 		'/Multi([a-zß-ÿ])/'                     => 'Multi&shy;$1',
+		'/Studien([a-zß-ÿ])/'                   => 'Studien&shy;$1',
 		'/Sicherheits([a-zß-ÿ])/'               => 'Sicherheits&shy;$1',
 		'/Text([a-zß-ÿ])/'                      => 'Text&shy;$1',
 		'/Unternehmens([a-zß-ÿ])/'              => 'Unter&shy;nehmens&shy;$1',
@@ -46,7 +48,7 @@ class Languages extends Text
 		'/([a-zß-ÿ])bearbeitung($| )/'          => '$1&shy;bearbeitung$2',
 		'/([a-zß-ÿ])berechnung($| )/'           => '$1&shy;berechnung$2',
 		'/([a-zß-ÿ])bewertung($| )/'            => '$1&shy;bewertung$2',
-		'/([a-zß-ÿ])entwicklung([s]?)($| )/'    => '$1&shy;entwicklung$2$3',
+		'/([a-zß-ÿ])entwicklung(s?)($| )/'      => '$1&shy;entwicklung$2$3',
 		'/([a-zß-ÿ])fachliche($| )/'            => '$1&shy;fachliche$2',
 		'/([a-zß-ÿ])förderung($| )/'            => '$1&shy;förderung$2',
 		'/([a-zß-ÿ])führung($| )/'              => '$1&shy;führung$2',
@@ -70,6 +72,7 @@ class Languages extends Text
 		'/([a-zß-ÿ])orientierte([mnrs]?)($| )/' => '$1&shy;orientierte$2$3',
 		'/([a-zß-ÿ])planung($| )/'              => '$1&shy;planung$2',
 		'/([a-zß-ÿ])produktion($| )/'           => '$1&shy;produktion$2',
+		'/([a-zß-ÿ])programm($| )/'             => '$1&shy;programm$2',
 		'/([a-zß-ÿ])projekt($| )/'              => '$1&shy;projekt$2',
 		'/([a-zß-ÿ])rechnen($| )/'              => '$1&shy;rechnen$2',
 		'/([a-zß-ÿ])rechnung($| )/'             => '$1&shy;rechnung$2',
@@ -90,7 +93,7 @@ class Languages extends Text
 		'/([a-zß-ÿ])verarbeitung($| )/'         => '$1&shy;verarbeitung$2',
 		'/([a-zß-ÿ])verfahren($| )/'            => '$1&shy;verfahren$2',
 		'/([a-zß-ÿ])wirtschaft($| )/'           => '$1&shy;wirtschaft$2',
-		'/([a-zß-ÿ])wesen([s]?)($| )/'          => '$1&shy;wesen$2$3',
+		'/([a-zß-ÿ])wesen(s?)($| )/'            => '$1&shy;wesen$2$3',
 		'/([a-zß-ÿ])schaft($| )/'               => '$1&shy;schaft$2'
 	];
 

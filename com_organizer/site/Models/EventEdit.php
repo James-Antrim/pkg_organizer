@@ -47,8 +47,8 @@ class EventEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Events
 	{
-		return new Tables\Events;
+		return new Tables\Events();
 	}
 }

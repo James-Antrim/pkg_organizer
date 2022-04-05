@@ -129,4 +129,18 @@ class Instances extends Controller
 
 		$this->setRedirect(Route::_($url, false));
 	}
+
+	/**
+	 * Creates an xls file based on form data.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	public function xls()
+	{
+		// prevents parameter name from biting here
+		Helpers\Input::set('layout', 'Instances');
+		Helpers\Input::set('format', 'xls');
+		$this->display();
+	}
 }
