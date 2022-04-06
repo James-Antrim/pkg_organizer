@@ -1,14 +1,42 @@
-#region list ###########################################################################################################
-#add compactor functions for tables whose ids are not stored in json schedules
-#add function to clean duplicate associations
-#rework so that classDecode/-Encode is not necessary??
+#region fm #############################################################################################################
+#clean & update list
+##remove entries with no identification
+##outsource redundant information to validatable items and add validation
 #equipment management
+#endregion
+
+#region curricula ######################################################################################################
+#the program/pool add x feature has wierd state problems
+#the program/pool add x feature should not attempt to close implicitly if no selection has been made
+#endregion
+
+#region schedule #######################################################################################################
+#add loading overlay
+#add email notification for schedule changes
+#extend delta implementation for explicit created and removed dates
+##extend personal profiles for opt-in for notifications
+##add function comparing former and current personal and professional plans
+##add button to explicitly use said function
+#add filter style to more explicitly signal that the filter bar and the filter button are dependent on one another
+#firefox is resubmitting forms after the newtab button has been used
+#valarm options for the ics export from the export view
+#no actions, no checkbox
+#export aggregates 'the same' appointment for teachers
+#schedule export link includes filter/list selections made
+##add to form/state and redirect w/o GET
+#endregion
+
+#region tasks ##########################################################################################################
+#table compactor function for tables not referenced in schedules
+#duplicate removal function for the associations table
+#endregion
+
+#region list ###########################################################################################################
+#rework so that classDecode/-Encode is not necessary??
 #instances export suppress columns/resources
-#instances export aggregate 'the same' appointment for teachers
 #tables: move simple get/set functions from helpers/models to tables
 #tables: overwrite bind function to use types (and attributes)
 #purge data
-#instances filter anstehend, abgelaufen, alle
 #add support for the language switch for dynamic content
 #rename instance participants to participations
 #add start and end time fields to participations
