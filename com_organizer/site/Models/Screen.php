@@ -97,8 +97,6 @@ class Screen extends BaseModel
 			}
 		}
 
-		$gridID = Helpers\Input::getInt('gridID');
-
 		if (empty($layout))
 		{
 			$layouts = ['current_instances', 'image', 'upcoming_instances'];
@@ -112,18 +110,13 @@ class Screen extends BaseModel
 			Helpers\OrganizerHelper::getApplication()->redirect(Uri::root() . "?$query");
 		}
 
+		$gridLayouts  = ['current_instances', 'upcoming_instances'];
 		$this->room   = ['id' => $roomID, 'name' => $name];
 		$this->layout = $layout;
 
-		switch ($layout)
+		if (in_array($layout, $gridLayouts))
 		{
-			case 'current_instances':
-				$this->setGrid($gridID);
-				$this->setInstances();
-				break;
-			case 'upcoming_instances':
-				$this->setInstances();
-				break;
+			$this->setInstances();
 		}
 	}
 
@@ -168,9 +161,12 @@ class Screen extends BaseModel
 	{
 		$query = Database::getQuery();
 		$tag   = Helpers\Languages::getTag();
-		$query->select('DISTINCT i.id, b.date, b.endTime, b.startTime')
-			->select("e.id AS eventID, e.name_$tag AS event, m.abbreviation_$tag AS method")
-			->select('u.id AS unitID, u.comment, a.organizationID')
+		$query->select('DISTINCT i.id')
+			->select('b.date, b.endTime, b.startTime')
+			->select("e.id AS eventID, e.name_$tag AS event")
+			->select("m.abbreviation_$tag AS method")
+			->select('u.id AS unitID, u.gridID, u.comment')
+			->select('a.organizationID')
 			->from('#__organizer_instances AS i')
 			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
 			->innerJoin('#__organizer_events AS e ON e.id = i.eventID')
@@ -216,7 +212,7 @@ class Screen extends BaseModel
 			return;
 		}
 
-		if (empty($this->grid))
+		if ($this->layout === 'upcoming_instances')
 		{
 			foreach ($instances as $instanceID => $instance)
 			{
@@ -235,6 +231,17 @@ class Screen extends BaseModel
 
 			return;
 		}
+
+		$defaultGrid = Helpers\Grids::getDefault();
+		$grids       = [];
+		foreach ($instances as $instance)
+		{
+			$gridID         = empty($instance['gridID']) ? $defaultGrid : $instance['gridID'];
+			$grids[$gridID] = empty($grids[$gridID]) ? 1 : $grids[$gridID] + 1;
+		}
+
+		$gridID = array_search(max($grids), $grids);
+		$this->setGrid($gridID);
 
 		foreach ($this->grid as &$period)
 		{
@@ -263,8 +270,8 @@ class Screen extends BaseModel
 					$period['persons'][$personID] = Helpers\Persons::getLNFName($personID, true);
 				}
 
-				$period['comment'] = $period['comment'] ? $period['comment'] : $instance['comment'];
-				$period['method']  = $period['method'] ? $period['method'] : $instance['method'];
+				$period['comment'] = $period['comment'] ?: $instance['comment'];
+				$period['method']  = $period['method'] ?: $instance['method'];
 			}
 		}
 	}
