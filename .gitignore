@@ -1,17 +1,4 @@
-# IDE Generated Files #
-#######################
 .idea
 .github
 .sonarcloud.properties
-
-# OS Generated Files #
-######################
-Thumbs.db
-.*~
-.directory
-
-# Specific Local Files #
-########################
-/com_organizer/admin/sql/updates/mysql/organizer*
-/examples
-/examples/*
+examples
