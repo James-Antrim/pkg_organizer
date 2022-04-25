@@ -531,12 +531,15 @@ class Instances extends ListModel
 				break;
 
 			case 'pdf':
+
 				$conditions['separate'] = Input::getBool('separate');
-				$date                   = Input::getString('date', $date);
-				$interval               = Input::getString('interval');
-				$intervals              = ['month', 'quarter', 'term', 'week'];
-				$interval               = in_array($interval, $intervals) ? $interval : 'week';
-				$layout                 = Helper::GRID;
+
+				$date      = $app->getUserStateFromRequest("{$lc}date", "{$lp}date", '', 'string');
+				$date      = Input::getString('date', $date);
+				$interval  = Input::getString('interval');
+				$intervals = ['month', 'quarter', 'term', 'week'];
+				$interval  = in_array($interval, $intervals) ? $interval : 'week';
+				$layout    = Helper::GRID;
 				break;
 
 			case 'xls':
