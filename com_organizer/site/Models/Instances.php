@@ -183,6 +183,25 @@ class Instances extends ListModel
 	}
 
 	/**
+	 * Standardizes date value retrieval across views and request methods.
+	 *
+	 * @return string
+	 */
+	private function getDate(): string
+	{
+		$app = Helpers\OrganizerHelper::getApplication();
+
+		// Instances view
+		$date = $app->getUserStateFromRequest("$this->context.list.date", "list_date", '', 'string');
+
+		// Export view, GET, POST
+		$date = Input::getString('date', $date);
+
+		// Defaults to today
+		return Helpers\Dates::standardizeDate($date);
+	}
+
+	/**
 	 * @inheritDoc.
 	 */
 	public function getItems(): array
@@ -383,7 +402,6 @@ class Instances extends ListModel
 		$lp = "list_";
 
 		// What? Personal...
-		$methodIDs        = [];
 		$personal         = (int) $params->get('my');
 		$personal         = ($personal or $app->getUserStateFromRequest("{$lc}my", "{$lp}my", 0, 'int'));
 		$personal         = ($personal or Input::getInt('my'));
@@ -523,6 +541,7 @@ class Instances extends ListModel
 				break;
 
 			case 'json':
+				// Always GET
 				$date      = Input::getString('date', $date);
 				$interval  = Input::getString('interval');
 				$intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
@@ -531,11 +550,9 @@ class Instances extends ListModel
 				break;
 
 			case 'pdf':
-
 				$conditions['separate'] = Input::getBool('separate');
 
-				$date      = $app->getUserStateFromRequest("{$lc}date", "{$lp}date", '', 'string');
-				$date      = Input::getString('date', $date);
+				$date      = $this->getDate();
 				$interval  = Input::getString('interval');
 				$intervals = ['month', 'quarter', 'term', 'week'];
 				$interval  = in_array($interval, $intervals) ? $interval : 'week';
@@ -543,7 +560,7 @@ class Instances extends ListModel
 				break;
 
 			case 'xls':
-				$date      = Input::getString('date', $date);
+				$date      = $this->getDate();
 				$interval  = Input::getString('interval');
 				$intervals = ['day', 'month', 'quarter', 'term', 'week'];
 				$interval  = in_array($interval, $intervals) ? $interval : 'week';
@@ -553,10 +570,7 @@ class Instances extends ListModel
 
 			case 'html':
 			default:
-
-				$date     = $app->getUserStateFromRequest("{$lc}date", "{$lp}date", '', 'string');
-				$date     = Input::getString('date', $date);
-				$date     = Helpers\Dates::standardizeDate($date);
+				$date     = $this->getDate();
 				$status   = $app->getUserStateFromRequest("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
 				$status   = Input::getInt('status', $status);
 				$statuses = [Helper::CHANGED, Helper::CURRENT, Helper::NEW, Helper::REMOVED];
