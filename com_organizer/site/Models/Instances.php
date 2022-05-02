@@ -202,6 +202,22 @@ class Instances extends ListModel
 	}
 
 	/**
+	 * Standardizes interval value retrieval across views and request methods.
+	 *
+	 * @return string
+	 */
+	private function getInterval(): string
+	{
+		$app = Helpers\OrganizerHelper::getApplication();
+
+		// Instances view
+		$interval = $app->getUserStateFromRequest("$this->context.list.interval", "list_interval", '', 'string');
+
+		// Export view, GET, POST
+		return Input::getString('interval', $interval);
+	}
+
+	/**
 	 * @inheritDoc.
 	 */
 	public function getItems(): array
@@ -553,7 +569,7 @@ class Instances extends ListModel
 				$conditions['separate'] = Input::getBool('separate');
 
 				$date      = $this->getDate();
-				$interval  = Input::getString('interval');
+				$interval  = $this->getInterval();
 				$intervals = ['month', 'quarter', 'term', 'week'];
 				$interval  = in_array($interval, $intervals) ? $interval : 'week';
 				$layout    = Helper::GRID;
@@ -561,7 +577,7 @@ class Instances extends ListModel
 
 			case 'xls':
 				$date      = $this->getDate();
-				$interval  = Input::getString('interval');
+				$interval  = $this->getInterval();
 				$intervals = ['day', 'month', 'quarter', 'term', 'week'];
 				$interval  = in_array($interval, $intervals) ? $interval : 'week';
 				$layout    = Helper::LIST;
@@ -588,8 +604,7 @@ class Instances extends ListModel
 					}
 					else
 					{
-						$sInterval = $app->getUserStateFromRequest("{$lc}interval", "{$lp}interval", '', 'string');
-						$interval  = Input::getString('interval', $sInterval);
+						$interval  = $this->getInterval();
 						$intervals = ['day', 'month', 'quarter', 'term', 'week'];
 						$interval  = in_array($interval, $intervals) ? $interval : 'day';
 					}
