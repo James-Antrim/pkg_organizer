@@ -271,8 +271,8 @@ class RoomOverview extends TableView
 		{
 			$blockNo   = $data['blockNo'];
 			$endTime   = $this->grid['periods'][$blockNo]['endTime'];
-			$dEndTime  = Helpers\Dates::formatEndTime($endTime);
-			$dEndTime  = $dEndTime !== '00:00' ? $dEndTime : '23:59';
+			$endTime   = Helpers\Dates::formatEndTime($endTime);
+			$dEndTime  = $endTime !== '00:00' ? $endTime : '23:59';
 			$noGrid    = false;
 			$startTime = Helpers\Dates::formatTime($this->grid['periods'][$blockNo]['startTime']);
 		}
@@ -286,7 +286,11 @@ class RoomOverview extends TableView
 		{
 			if (!$noGrid)
 			{
-				if ($instance['endTime'] <= $startTime or $instance['startTime'] >= $endTime)
+				$allDay   = $startTime === $endTime;
+				$tooEarly = $instance['endTime'] <= $startTime;
+				$tooLate  = $instance['startTime'] >= $endTime;
+
+				if (!$allDay and ($tooEarly or $tooLate))
 				{
 					continue;
 				}
