@@ -1,0 +1,63 @@
+name: Release joomla component package
+
+on: 
+    push:
+      tags:
+        - 'v*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    name: "Release new version"
+    
+    steps:
+      - name: "Checkout build enviroment"
+        uses: actions/checkout@v2
+        with:
+          repository:  thm-mni-ii/ii-ci
+          path: build
+      - name: "Checkout pages enviroment"
+        uses: actions/checkout@v2
+        with:
+          repository:  thm-mni-ii/thm-mni-ii.github.io
+          path: pages
+      - name: "Checkout sources"
+        uses: actions/checkout@v2
+        with:
+          path : extensions/com_organizer
+      - name: "Build release files"
+        run: build/scripts/shell/release.sh
+      - name: "Upload release as artifact"
+        uses: actions/upload-artifact@v3
+        with:
+          name: "Releasefile"
+          path: "release/*.zip"
+      - name: "Create release"
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.event.repository.name }} ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: "Publish release"
+        id: publish_release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release/${{ github.event.repository.name }}.zip
+          asset_name: ${{ github.event.repository.name }}.zip
+          asset_content_type: application/zip
+      - name: "Publish pages"
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          external_repository: thm-mni-ii/thm-mni-ii.github.io
+          publish_branch: master
+          deploy_key: ${{ secrets.SSH_DEPLOY_KEY }}
+          publish_dir: pages

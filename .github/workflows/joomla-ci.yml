@@ -1,0 +1,46 @@
+name: Test joomla component installation
+
+on:
+        - push
+        - pull_request
+
+jobs:
+  build:
+  
+    strategy:
+            fail-fast:  false
+            matrix:
+              php-versions: ['7.4', '8.0', '8.1', '8.2']
+
+    runs-on: ubuntu-latest
+
+    name: "PHP ${{ matrix.php-versions }}"
+    
+    steps:
+      - name: "Start mysql service"
+        run: "sudo systemctl start mysql"
+      - name: "Installing PHP"
+        uses: shivammathur/setup-php@v2
+        with:
+                php-version: ${{ matrix.php-versions }}
+                extensions: "pdo_mysql"
+        env:
+                update: true
+      - name: "Checkout build enviroment"
+        uses: actions/checkout@v2
+        with:
+          repository:  thm-mni-ii/ii-ci
+          path: build
+      - name: "Checkout sources"
+        uses: actions/checkout@v2
+        with:
+          path : extensions/com_organizer
+      - name: "Test installing joomla extensions"
+        run: build/scripts/shell/test.sh
+      - name: "Generating ZIP-File(s)"
+        run: build/scripts/shell/mkzips.sh
+      - name: "Upload zip files"
+        uses: actions/upload-artifact@v3
+        with:
+          name: "ZIPs PHP ${{ matrix.php-versions }}"
+          path: "zips/*.zip"
