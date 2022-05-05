@@ -324,6 +324,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_events` (
     UNIQUE KEY `alias` (`alias`),
     KEY `campusID` (`campusID`),
     KEY `code` (`code`),
+    UNIQUE KEY `entry` (`code`, `organizationID`),
     KEY `organizationID` (`organizationID`)
 )
     ENGINE = InnoDB
