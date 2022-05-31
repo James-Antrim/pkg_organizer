@@ -45,7 +45,7 @@ class Rooms extends BaseTable
 
 	/**
 	 * The id of the corresponding flooring entry
-	 * INT(3) UNSIGNED
+	 * SMALLINT(3) UNSIGNED
 	 *
 	 * @var int
 	 */
