@@ -712,6 +712,7 @@ class Instances extends ResourceHelper
 						$filterOrganization = false;
 						$wherray[]          = "ipe.personID = $personID";
 					}
+
 					if ($exists)
 					{
 						$filterOrganization = false;
@@ -722,6 +723,10 @@ class Instances extends ResourceHelper
 					if ($wherray)
 					{
 						$query->where('(' . implode(' OR ', $wherray) . ')');
+					}
+					else
+					{
+						$query->where('i.id = 0');
 					}
 				}
 			}
