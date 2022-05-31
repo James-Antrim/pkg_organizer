@@ -266,10 +266,6 @@ abstract class BaseView extends HtmlView
 				'url'    => Routing::getViewURL('Monitors'),
 				'active' => $viewName == 'monitors'
 			];
-			$items[Languages::_('ORGANIZER_SURFACES')]     = [
-				'url'    => Routing::getViewURL('Surfaces'),
-				'active' => $viewName == 'surfaces'
-			];
 			$items[Languages::_('ORGANIZER_ROOMS')]        = [
 				'url'    => Routing::getViewURL('Rooms'),
 				'active' => $viewName == 'rooms'
