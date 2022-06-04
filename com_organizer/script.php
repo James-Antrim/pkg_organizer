@@ -24,7 +24,7 @@ class Com_OrganizerInstallerScript
 	 */
 	private function createImageDirectory()
 	{
-		return Filesystem\Folder::create(JPATH_ROOT . '/images/organizer');
+		return null; //Filesystem\Folder::create(JPATH_ROOT . '/images/organizer');
 	}
 
 	/**
