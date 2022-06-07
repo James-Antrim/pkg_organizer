@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="Organizer\Fields">
+    <fieldset name="details">
+        <field name="id" type="hidden"/>
+        <field name="name_de" type="Blank" label="NAME_DE" class="required" maxlength="150" required="true"/>
+        <field name="name_en" type="Blank" label="NAME_EN" class="required" maxlength="150" required="true"/>
+        <field name="maxValuation" type="Integer" label="MAX_SURFACE_PERFORMANCE_VALUE" default="0" first="0" last="300"
+               step="10"/>
+        <field name="valuation" type="Blank" label="CALCULATED_SURFACE_PERFORMANCE_VALUE" class="required validate-float"
+               default="0.00" required="true"/>
+        <field name="days" type="Blank" label="CLEANING_DAYS_PER_MONTH" class="required validate-float" default="0.00"
+               required="true"/>
+        <field name="relevant" type="Options" label="COST_ACCOUNTING_RELEVANT" default="1">
+            <option value="1">YES</option>
+            <option value="0">NO</option>
+        </field>
+    </fieldset>
+</form>

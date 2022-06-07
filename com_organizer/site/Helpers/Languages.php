@@ -92,6 +92,7 @@ class Languages extends Text
 		'/([a-zß-ÿ])unterstützung($| )/'        => '$1&shy;unterstützung$2',
 		'/([a-zß-ÿ])verarbeitung($| )/'         => '$1&shy;verarbeitung$2',
 		'/([a-zß-ÿ])verfahren($| )/'            => '$1&shy;verfahren$2',
+		'/([a-zß-ÿ])verwaltung($| )/'           => '$1&shy;verwaltung$2',
 		'/([a-zß-ÿ])wirtschaft($| )/'           => '$1&shy;wirtschaft$2',
 		'/([a-zß-ÿ])wesen(s?)($| )/'            => '$1&shy;wesen$2$3',
 		'/([a-zß-ÿ])schaft($| )/'               => '$1&shy;schaft$2'

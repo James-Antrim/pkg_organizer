@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS `#__organizer_bookings`;
 DROP TABLE IF EXISTS `#__organizer_buildings`;
 DROP TABLE IF EXISTS `#__organizer_campuses`;
 DROP TABLE IF EXISTS `#__organizer_categories`;
+DROP TABLE IF EXISTS `#__organizer_cleaning_groups`;
 DROP TABLE IF EXISTS `#__organizer_colors`;
 DROP TABLE IF EXISTS `#__organizer_course_participants`;
 DROP TABLE IF EXISTS `#__organizer_courses`;

@@ -150,7 +150,9 @@ abstract class BaseView extends HtmlView
 
 		if (Helpers\Can::scheduleTheseOrganizations())
 		{
-			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_SCHEDULING') . '</span>';
+			$spanText = Languages::_('ORGANIZER_SCHEDULING');
+			Languages::unpack($spanText);
+			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
 			$items = [];
@@ -202,13 +204,16 @@ abstract class BaseView extends HtmlView
 
 			foreach ($items as $key => $value)
 			{
+				Languages::unpack($key);
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
 		}
 
 		if (Helpers\Can::documentTheseOrganizations())
 		{
-			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_DOCUMENTATION') . '</span>';
+			$spanText = Languages::_('ORGANIZER_DOCUMENTATION');
+			Languages::unpack($spanText);
+			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
 			$items = [];
@@ -232,13 +237,16 @@ abstract class BaseView extends HtmlView
 			ksort($items);
 			foreach ($items as $key => $value)
 			{
+				Languages::unpack($key);
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
 		}
 
 		if (Helpers\Can::manage('persons'))
 		{
-			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_HUMAN_RESOURCES') . '</span>';
+			$spanText = Languages::_('ORGANIZER_HUMAN_RESOURCES');
+			Languages::unpack($spanText);
+			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 			JHtmlSidebar::addEntry(
 				Languages::_('ORGANIZER_PERSONS'),
@@ -249,45 +257,54 @@ abstract class BaseView extends HtmlView
 
 		if (Helpers\Can::manage('facilities'))
 		{
-			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_FACILITY_MANAGEMENT') . '</span>';
+			$spanText = Languages::_('ORGANIZER_FACILITY_MANAGEMENT');
+			Languages::unpack($spanText);
+			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
 			$items = [];
 
-			$items[Languages::_('ORGANIZER_BUILDINGS')]    = [
+			$items[Languages::_('ORGANIZER_BUILDINGS')]       = [
 				'url'    => Routing::getViewURL('Buildings'),
 				'active' => $viewName == 'buildings'
 			];
-			$items[Languages::_('ORGANIZER_CAMPUSES')]     = [
+			$items[Languages::_('ORGANIZER_CAMPUSES')]        = [
 				'url'    => Routing::getViewURL('Campuses'),
 				'active' => $viewName == 'campuses'
 			];
-			$items[Languages::_('ORGANIZER_MONITORS')]     = [
+			$items[Languages::_('ORGANIZER_CLEANING_GROUPS')] = [
+				'url'    => Routing::getViewURL('CleaningGroups'),
+				'active' => $viewName == 'cleaning_groups'
+			];
+			$items[Languages::_('ORGANIZER_MONITORS')]        = [
 				'url'    => Routing::getViewURL('Monitors'),
 				'active' => $viewName == 'monitors'
 			];
-			$items[Languages::_('ORGANIZER_ROOMS')]        = [
+			$items[Languages::_('ORGANIZER_ROOMS')]           = [
 				'url'    => Routing::getViewURL('Rooms'),
 				'active' => $viewName == 'rooms'
 			];
-			$items[Languages::_('ORGANIZER_ROOMS_IMPORT')] = [
+			/*$items[Languages::_('ORGANIZER_ROOMS_IMPORT')] = [
 				'url'    => Routing::getViewURL('RoomsImport'),
 				'active' => $viewName == 'rooms_import'
-			];
-			$items[Languages::_('ORGANIZER_ROOMTYPES')]    = [
+			];*/
+			$items[Languages::_('ORGANIZER_ROOMTYPES')] = [
 				'url'    => Routing::getViewURL('Roomtypes'),
 				'active' => $viewName == 'roomtypes'
 			];
 			ksort($items);
 			foreach ($items as $key => $value)
 			{
+				Languages::unpack($key);
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
 		}
 
 		if ($admin)
 		{
-			$spanText = '<span class="menu-spacer">' . Languages::_('ORGANIZER_ADMINISTRATION') . '</span>';
+			$spanText = Languages::_('ORGANIZER_ADMINISTRATION');
+			Languages::unpack($spanText);
+			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
 			JHtmlSidebar::addEntry($spanText, '', false);
 
 			$items = [];
@@ -331,6 +348,7 @@ abstract class BaseView extends HtmlView
 			ksort($items);
 			foreach ($items as $key => $value)
 			{
+				Languages::unpack($key);
 				JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
 			}
 		}

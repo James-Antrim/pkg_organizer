@@ -109,6 +109,40 @@ CREATE TABLE IF NOT EXISTS `#__organizer_categories` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `#__organizer_cleaning_groups` (
+    `id`           TINYINT(2) UNSIGNED   NOT NULL AUTO_INCREMENT,
+    `name_de`      VARCHAR(150)          NOT NULL,
+    `name_en`      VARCHAR(150)          NOT NULL,
+    `days`         DOUBLE(6, 2) UNSIGNED NOT NULL,
+    `maxValuation` SMALLINT(3) UNSIGNED  NOT NULL,
+    `relevant`     TINYINT(1) UNSIGNED   NOT NULL DEFAULT 1,
+    `valuation`    DOUBLE(6, 2) UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+
+INSERT INTO `#__organizer_cleaning_groups` (`id`, `name_de`, `name_en`, `days`, `maxValuation`, `relevant`, `valuation`)
+VALUES (1, 'Keine Reinigung  / nach Bedarf', 'No Cleaning / On Demand', 0, 0, 1, 0.00),
+       (2, 'Besprechungsräume', 'Meeting Rooms', 4.35, 200, 1, 162.20),
+       (3, 'Büroräume', 'Offices', 4.35, 160, 1, 129.76),
+       (4, 'Eingangshallen', 'Entrances', 21, 200, 1, 162.20),
+       (5, 'Hörsäle', 'Lecture Halls', 10.51, 150, 1, 121.65),
+       (6, 'Funktionsräume', 'Function Rooms', 4.35, 150, 1, 121.65),
+       (7, 'Labore', 'Laboratories', 10.51, 140, 1, 113.54),
+       (8, 'Garderoben & Umkleideräume', 'Changing & Cloak Rooms', 21, 200, 1, 162.20),
+       (9, 'Aufenthaltsräume', 'Lounges', 21, 110, 1, 89.21),
+       (10, 'Sanitärräume', 'Sanitary Rooms', 21, 60, 1, 48.66),
+       (11, 'Teeküchen', 'Kitchenettes', 21, 60, 1, 48.66),
+       (12, 'Treppenhäuser', 'Stairwells', 4.35, 130, 1, 105.43),
+       (13, 'Übungsräume', 'Training Rooms', 10.51, 150, 1, 121.65),
+       (14, 'Verkehrsflächen, frequentiert', 'Frequented Conveyance Areas', 4.35, 250, 1, 202.75),
+       (15, 'Werkstätten', 'Workshops', 10.51, 140, 1, 113.54),
+       (16, 'Externe Verwaltung', 'External Management', 0, 0, 0, 0.00);
+
 CREATE TABLE IF NOT EXISTS `#__organizer_colors` (
     `id`      INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name_de` VARCHAR(150)     NOT NULL,
