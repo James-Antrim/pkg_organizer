@@ -288,6 +288,10 @@ abstract class BaseView extends HtmlView
 				'url'    => Routing::getViewURL('RoomsImport'),
 				'active' => $viewName == 'rooms_import'
 			];*/
+			$items[Languages::_('ORGANIZER_ROOMKEYS')]  = [
+				'url'    => Routing::getViewURL('Roomkeys'),
+				'active' => $viewName == 'roomkeys'
+			];
 			$items[Languages::_('ORGANIZER_ROOMTYPES')] = [
 				'url'    => Routing::getViewURL('Roomtypes'),
 				'active' => $viewName == 'roomtypes'

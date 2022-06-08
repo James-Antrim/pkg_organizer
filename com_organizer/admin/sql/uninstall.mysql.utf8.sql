@@ -38,6 +38,7 @@ DROP TABLE IF EXISTS `#__organizer_prerequisites`;
 DROP TABLE IF EXISTS `#__organizer_programs`;
 DROP TABLE IF EXISTS `#__organizer_roles`;
 DROP TABLE IF EXISTS `#__organizer_room_equipment`;
+DROP TABLE IF EXISTS `#__organizer_roomkeys`;
 DROP TABLE IF EXISTS `#__organizer_rooms`;
 DROP TABLE IF EXISTS `#__organizer_roomtypes`;
 DROP TABLE IF EXISTS `#__organizer_runs`;
