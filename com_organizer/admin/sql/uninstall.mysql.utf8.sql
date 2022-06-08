@@ -48,6 +48,7 @@ DROP TABLE IF EXISTS `#__organizer_subject_persons`;
 DROP TABLE IF EXISTS `#__organizer_subjects`;
 DROP TABLE IF EXISTS `#__organizer_terms`;
 DROP TABLE IF EXISTS `#__organizer_units`;
+DROP TABLE IF EXISTS `#__organizer_use_codes`;
 DROP TABLE IF EXISTS `#__organizer_use_groups`;
 
 SET foreign_key_checks = 1;
