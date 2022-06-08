@@ -628,16 +628,12 @@ class Instances extends ListModel
 						if ($dow or $endDate or $methodIDs)
 						{
 							$date = ($startDate and $startDate > $date) ? $startDate : $date;
+							$interval = 'half';
 
 							if ($endDate)
 							{
-								$interval = 'half';
 								$listItems->set('endDate', $endDate);
 								$this->state->set('list.endDate', $endDate);
-							}
-							else
-							{
-								$interval = 'quarter';
 							}
 
 							if ($dow)

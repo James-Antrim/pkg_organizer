@@ -162,7 +162,7 @@ class Dates
 				break;
 		}
 
-		return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+100 days', $dateTime))];
+		return ['startDate' => date('Y-m-d', $dateTime), 'endDate' => date('Y-m-d', strtotime('+90 days', $dateTime))];
 	}
 
 	/**
