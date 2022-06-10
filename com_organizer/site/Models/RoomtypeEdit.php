@@ -42,8 +42,8 @@ class RoomtypeEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Roomtypes
 	{
-		return new Tables\Roomtypes;
+		return new Tables\Roomtypes();
 	}
 }

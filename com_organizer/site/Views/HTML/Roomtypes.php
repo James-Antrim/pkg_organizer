@@ -19,10 +19,9 @@ class Roomtypes extends ListView
 {
 	protected $rowStructure = [
 		'checkbox' => '',
-		'code'     => 'link',
+		'rns'      => 'link',
 		'name'     => 'link',
-		'capacity' => 'value',
-		'surface'  => 'value'
+		'useCode'  => 'link'
 	];
 
 	/**
@@ -53,10 +52,9 @@ class Roomtypes extends ListView
 		$direction = $this->state->get('list.direction');
 		$headers   = [
 			'checkbox' => '',
-			'code'     => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
+			'rns'      => Helpers\HTML::sort('ROOMKEY', 'rns', $direction, $ordering),
 			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-			'capacity' => Helpers\HTML::sort('MAX_CAPACITY', 'capacity', $direction, $ordering),
-			'surface'  => Helpers\HTML::sort('SURFACE', 'surface', $direction, $ordering)
+			'useCode'  => Helpers\HTML::sort('USE_CODE_TEXT', 'useCode', $direction, $ordering)
 		];
 
 		$this->headers = $headers;
