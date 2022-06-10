@@ -838,9 +838,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomkeys` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+#Normed
 INSERT INTO `#__organizer_roomkeys` (`id`, `key`, `name_de`, `name_en`, `cleaningID`, `useID`)
-VALUES (0, '000', 'Organisatiorische Flächen', 'Organizational Areas', 1, 0),
-       (11, '011', 'Wohnflächen im Freien', 'Outdoor Residential Areas', 1, 0),
+VALUES (11, '011', 'Wohnflächen im Freien', 'Outdoor Residential Areas', 1, 0),
        (12, '012', 'Gemeinschaftsflächen im Freien', 'Outdoor Socialization Areas', 1, 0),
        (13, '013', 'Pausenflächen im Freien', 'Outdoor Break Areas', 1, 0),
        (14, '014', 'Warteflächen im Freien', 'Outdoor Waiting Areas', 1, 0),
@@ -1246,17 +1246,20 @@ CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
     COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
-    `id`             INT(11) UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `code`           VARCHAR(60)         NOT NULL COLLATE utf8mb4_bin,
-    `name_de`        VARCHAR(150)        NOT NULL,
-    `name_en`        VARCHAR(150)        NOT NULL,
+    `id`             INT(11) UNSIGNED     NOT NULL AUTO_INCREMENT,
+    `code`           VARCHAR(60)                   DEFAULT NULL COLLATE utf8mb4_bin,
+    `name_de`        VARCHAR(150)         NOT NULL,
+    `name_en`        VARCHAR(150)         NOT NULL,
+    `usecode`        SMALLINT(4) UNSIGNED NOT NULL,
     `description_de` TEXT,
     `description_en` TEXT,
-    `capacity`       INT(4) UNSIGNED              DEFAULT NULL,
-    `suppress`       TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-    `surfaceID`      INT(5) UNSIGNED     NOT NULL DEFAULT 1000,
+    `capacity`       INT(4) UNSIGNED               DEFAULT NULL,
+    `suppress`       TINYINT(1) UNSIGNED  NOT NULL DEFAULT 0,
+    `surfaceID`      INT(5) UNSIGNED      NOT NULL DEFAULT 1000,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `code` (`code`)
+    UNIQUE KEY `code` (`code`),
+    UNIQUE KEY `name_de` (`name_de`),
+    UNIQUE KEY `name_en` (`name_en`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
@@ -1456,11 +1459,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_use_codes` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+#Normed
 INSERT INTO `#__organizer_use_codes` (`id`, `code`, `name_de`, `name_en`, `keyID`, `cat6`, `cat12`)
-VALUES (1, '0001', 'Raum im Umbau', 'Room Under Construction', 0, 0, 0),
-       (2, '0002', 'externer Raum', 'External Room', 0, 0, 0),
-       (3, '0003', 'Platzhalterraum', 'Placeholder Room', 0, 0, 0),
-       (110, '0110', 'Wohnfläche im Freien', 'Outdoor Residential Area', 11, 0, 0),
+VALUES (110, '0110', 'Wohnfläche im Freien', 'Outdoor Residential Area', 11, 0, 0),
        (120, '0120', 'Gemeinschaftsfläche im Freien', 'Outdoor Socialization Area', 12, 0, 0),
        (130, '0130', 'Pausenfläche im Freien', 'Outdoor Break Area', 13, 0, 0),
        (140, '0140', 'Wartefläche im Freien', 'Outdoor Waiting Area', 14, 0, 0),
@@ -2050,9 +2051,9 @@ CREATE TABLE IF NOT EXISTS `#__organizer_use_groups` (
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_unicode_ci;
 
+#Normed
 INSERT INTO `#__organizer_use_groups` (`id`, `name_de`, `name_en`)
-VALUES (0, 'Flächen in nicht allseits umschlossenen Räumen', 'Outdoor and partially exposed areas'),
-       (1, 'Wohnen und Aufenthalt', 'Residential and Social'),
+VALUES (1, 'Wohnen und Aufenthalt', 'Residential and Social'),
        (2, 'Büroarbeit', 'Office Work'),
        (3, 'Produktion, Hand- und Maschinenarbeit, Experimente', 'Production, Manual or Machine Labor, Experiments'),
        (4, 'Lagern, Verteilen, Verkaufen', 'Storage, Distribution, Sales'),
@@ -2176,6 +2177,7 @@ ALTER TABLE `#__organizer_rooms`
     ADD CONSTRAINT `room_roomtypeID_fk` FOREIGN KEY (`roomtypeID`) REFERENCES `#__organizer_roomtypes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_roomtypes`
+    ADD CONSTRAINT `roomtype_codeID_fk` FOREIGN KEY (`usecode`) REFERENCES `#__organizer_use_codes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     ADD CONSTRAINT `roomtype_surfaceID_fk` FOREIGN KEY (`surfaceID`) REFERENCES `#__organizer_surfaces` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `#__organizer_runs`

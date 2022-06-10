@@ -59,6 +59,14 @@ class Roomtypes extends BaseTable
 	public $name_en;
 
 	/**
+	 * The id of the normed use code with which the type is associated.
+	 * SMALLINT(4) UNSIGNED NOT NULL
+	 *
+	 * @var int
+	 */
+	public $usecode;
+
+	/**
 	 * Declares the associated table.
 	 */
 	public function __construct()
