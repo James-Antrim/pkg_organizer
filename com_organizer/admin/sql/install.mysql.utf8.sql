@@ -1247,7 +1247,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_rooms` (
 
 CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `id`             INT(11) UNSIGNED     NOT NULL AUTO_INCREMENT,
-    `code`           VARCHAR(60)                   DEFAULT NULL COLLATE utf8mb4_bin,
     `name_de`        VARCHAR(150)         NOT NULL,
     `name_en`        VARCHAR(150)         NOT NULL,
     `usecode`        SMALLINT(4) UNSIGNED NOT NULL,
@@ -1256,7 +1255,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `capacity`       INT(4) UNSIGNED               DEFAULT NULL,
     `suppress`       TINYINT(1) UNSIGNED  NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `code` (`code`),
     UNIQUE KEY `name_de` (`name_de`),
     UNIQUE KEY `name_en` (`name_en`)
 )

@@ -16,7 +16,6 @@ namespace Organizer\Tables;
 class Roomtypes extends BaseTable
 {
 	use Suppressed;
-	use Coded;
 
 	/**
 	 * The resource's German description.

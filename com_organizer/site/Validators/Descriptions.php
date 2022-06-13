@@ -19,41 +19,25 @@ use SimpleXMLElement;
  */
 class Descriptions implements UntisXMLValidator
 {
+	// Untis: Unterricht
+	private const APPOINTMENT = 'u';
+
 	/**
 	 * @inheritDoc
 	 *
 	 * @param   string  $typeFlag  the flag identifying the categorization resource
 	 */
-	public static function setID(Schedule $model, string $code, $typeFlag = '')
+	public static function setID(Schedule $model, string $code, string $typeFlag = '')
 	{
-		$error    = 'ORGANIZER_';
-		$resource = '';
-		switch ($typeFlag)
-		{
-			case 'r':
-				$error    .= 'ROOMTYPE_INVALID';
-				$resource = 'Roomtypes';
-				$table    = new Tables\Roomtypes();
-
-				break;
-			case 'u':
-				$error    .= 'METHOD_INVALID';
-				$resource = 'Methods';
-				$table    = new Tables\Methods();
-
-				break;
-		}
-
-		if (empty($table))
-		{
-			return;
-		}
+		$error    = 'ORGANIZER_METHOD_INVALID';
+		$method   = new Tables\Methods();
+		$resource = 'Methods';
 
 		// These are set by the administrator, so there is no case for saving a new resource on upload.
-		if ($table->load(['code' => $code]))
+		if ($method->load(['code' => $code]))
 		{
 			$property                = strtolower($resource);
-			$model->$property->$code = $table->id;
+			$model->$property->$code = $method->id;
 		}
 		else
 		{
@@ -66,29 +50,20 @@ class Descriptions implements UntisXMLValidator
 	 */
 	public static function validate(Schedule $model, SimpleXMLElement $node)
 	{
+		$typeFlag   = strtolower(trim((string) $node->flags));
+
+		// Only those explicitly used for appointments are still relevant.
+		if (empty($typeFlag) or $typeFlag !== self::APPOINTMENT)
+		{
+			return;
+		}
+
 		$untisID = str_replace('DS_', '', trim((string) $node[0]['id']));
 		$name    = trim((string) $node->longname);
 
 		if (empty($name))
 		{
 			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_DESCRIPTION_NAME_MISSING'), $untisID);
-
-			return;
-		}
-
-		$typeFlag   = strtolower(trim((string) $node->flags));
-		$validFlags = ['f', 'r', 'u'];
-
-		if (empty($typeFlag))
-		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_DESCRIPTION_TYPE_MISSING'), $name, $untisID);
-
-			return;
-		}
-
-		if (!in_array($typeFlag, $validFlags))
-		{
-			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_DESCRIPTION_TYPE_INVALID'), $name, $untisID);
 
 			return;
 		}
