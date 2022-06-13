@@ -1255,7 +1255,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_roomtypes` (
     `description_en` TEXT,
     `capacity`       INT(4) UNSIGNED               DEFAULT NULL,
     `suppress`       TINYINT(1) UNSIGNED  NOT NULL DEFAULT 0,
-    `surfaceID`      INT(5) UNSIGNED               DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `code` (`code`),
     UNIQUE KEY `name_de` (`name_de`),
@@ -1379,20 +1378,6 @@ CREATE TABLE IF NOT EXISTS `#__organizer_subjects` (
     KEY `code` (`code`),
     KEY `fieldID` (`fieldID`),
     KEY `frequencyID` (`frequencyID`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4
-    COLLATE = utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `#__organizer_surfaces` (
-    `id`      INT(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `code`    VARCHAR(3)      NOT NULL,
-    `name_de` VARCHAR(255)    NOT NULL,
-    `name_en` VARCHAR(255)    NOT NULL,
-    `typeID`  INT(2) UNSIGNED NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `typeID` (`typeID`),
-    UNIQUE KEY `code` (`code`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4

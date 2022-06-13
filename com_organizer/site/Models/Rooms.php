@@ -23,7 +23,7 @@ class Rooms extends ListModel
 
 	protected $defaultOrdering = 'r.name';
 
-	protected $filter_fields = ['campusID', 'buildingID', 'roomtypeID', 'virtual'];
+	protected $filter_fields = ['buildingID', 'campusID', 'cleaningID', 'keyID', 'roomtypeID', 'virtual'];
 
 	/**
 	 * @inheritDoc
@@ -59,20 +59,21 @@ class Rooms extends ListModel
 			->select("t.id AS roomtypeID, t.name_$tag AS roomType")
 			->select('b.id AS buildingID, b.address, b.name AS buildingName, b.location, b.propertyType')
 			->select("c1.name_$tag AS campus, c2.name_$tag AS parent")
-			->from('#__organizer_rooms AS r');
+			->from('#__organizer_rooms AS r')
+			->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
+			->leftJoin('#__organizer_use_codes AS uc ON uc.id = t.usecode')
+			->leftJoin('#__organizer_roomkeys AS rk ON rk.id = uc.keyID');
 
 		$campusID = (int) $this->state->get('filter.campusID');
 		if ($campusID and $campusID !== self::NONE)
 		{
-			$query->innerJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
-				->innerJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+			$query->innerJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
 				->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
 				->where("(c1.id = $campusID OR c1.parentID = $campusID)");
 		}
 		else
 		{
-			$query->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
-				->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
+			$query->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
 				->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
 
 			if ($campusID and $campusID === self::NONE)
@@ -84,7 +85,9 @@ class Rooms extends ListModel
 		$query->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
 
 		$this->setActiveFilter($query, 'r');
-		$this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en']);
+		$this->setIDFilter($query, 'rk.id', 'filter.keyID');
+		$this->setIDFilter($query, 'rk.cleaningID', 'filter.cleaningID');
+		$this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en', 'uc.code']);
 		$this->setValueFilters($query, ['buildingID', 'roomtypeID', 'virtual']);
 
 		$this->setOrdering($query);
@@ -93,13 +96,7 @@ class Rooms extends ListModel
 	}
 
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * @param   string  $ordering   An optional ordering field.
-	 * @param   string  $direction  An optional direction (asc|desc).
-	 *
-	 * @return void populates state properties
-	 * @noinspection PhpDocSignatureInspection
+	 * @inheritDoc
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{

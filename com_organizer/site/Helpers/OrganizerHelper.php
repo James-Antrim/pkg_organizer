@@ -217,7 +217,6 @@ class OrganizerHelper
 			'schedules'     => 'schedule',
 			'search'        => 'search',
 			'subjects'      => 'subject',
-			'surfaces'      => 'surface',
 			'terms'         => 'term',
 			'trace'         => '',
 			'units'         => 'unit'
