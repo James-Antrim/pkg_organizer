@@ -7,9 +7,9 @@
         <field name="startDate" type="Date" label="START_DATE" default="today" required="true" showtime="false"/>
         <field name="endDate" type="Date" label="END_DATE" default="today" required="true" showtime="false"/>
         <field name="type" type="Options" label="HOLIDAY_TYPE" required="true">
-            <option value="1">HOLIDAYS_GAP</option>
-            <option value="3">HOLIDAYS_OFFICIAL</option>
-            <option value="2">HOLIDAYS_CLOSED</option>
+            <option value="1">GAP_DAY</option>
+            <option value="3">HOLIDAYS</option>
+            <option value="2">CLOSED_DAYS</option>
         </field>
     </fieldset>
 </form>
