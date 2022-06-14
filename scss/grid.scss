@@ -97,6 +97,27 @@
       color: $font-color;
     }
 
+    &.closed, &.gap, &.holiday {
+      color: $font-color;
+      font-weight: bold;
+
+      &.empty {
+        padding-top: 1rem;
+      }
+    }
+
+    &.gap {
+      background-color: $yellow-25;
+    }
+
+    &.holiday {
+      background-color: $yellow-75;
+    }
+
+    &.closed {
+      background-color: $red-25;
+    }
+
     & > div {
       background-color: $foreground-color;
     }

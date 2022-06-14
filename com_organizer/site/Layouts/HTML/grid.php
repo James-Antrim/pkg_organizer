@@ -43,10 +43,17 @@ $lastRow    = end($rows);
 					<?php
 					foreach ($columns as $column)
 					{
+						$empty = false;
 						if (is_array($row[$column]))
 						{
 							$busy  = $row[$column]['busy'];
 							$value = $row[$column]['instances'];
+
+							if (!$value and !empty($row[$column]['label']))
+							{
+								$empty = true;
+								$value = $row[$column]['label'];
+							}
 						}
 						else
 						{
@@ -75,7 +82,16 @@ $lastRow    = end($rows);
 							$class .= ' block-busy';
 						}
 
-						if (!empty($row['type']) and $row['type'] === 'break')
+						if (!empty($row[$column]['type']))
+						{
+							$class .= " {$row[$column]['type']}";
+
+							if ($empty)
+							{
+								$class .= " empty";
+							}
+						}
+                        elseif (!empty($row['type']) and $row['type'] === 'break')
 						{
 							$class .= ' break';
 						}

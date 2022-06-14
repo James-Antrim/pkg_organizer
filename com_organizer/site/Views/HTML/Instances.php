@@ -134,7 +134,7 @@ class Instances extends ListView
 
 		if ($this->mobile)
 		{
-			$toolbar->appendButton('Script', 'info-calender', Languages::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');;
+			$toolbar->appendButton('Script', 'info-calender', Languages::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');
 			$toolbar->appendButton('Link', 'equalizer', Languages::_('ORGANIZER_ADVANCED_EXPORT'), $expURL);
 		}
 		else
@@ -334,6 +334,7 @@ class Instances extends ListView
 	private function getGrid(array $blocks, array &$headers, bool $allDay): array
 	{
 		$conditions = $this->model->conditions;
+		$holidays   = $this->model->holidays;
 		$rawGrid    = $this->model->grid;
 
 		$endDate   = $conditions['endDate'];
@@ -341,10 +342,20 @@ class Instances extends ListView
 		$startDate = $conditions['startDate'];
 		$startDoW  = empty($rawGrid['startDay']) ? 1 : $rawGrid['startDay'];
 		$grid      = [];
+
 		for ($current = $startDate; $current <= $endDate;)
 		{
 			$currentDT = strtotime($current);
 			$day       = date('w', $currentDT);
+
+			$dayLabel = '';
+			$dayType  = '';
+
+			if (!empty($holidays[$current]))
+			{
+				$dayLabel = $holidays[$current]['name'];
+				$dayType  = $holidays[$current]['type'];
+			}
 
 			if ($day >= $startDoW and $day <= $endDoW)
 			{
@@ -368,11 +379,18 @@ class Instances extends ListView
 
 					// Create a container for instances to appear
 					$grid[$key][$current] = ['busy' => $busy, 'instances' => []];
+
+					if ($dayLabel)
+					{
+						$grid[$key][$current]['label'] = $dayLabel;
+						$grid[$key][$current]['type']  = $dayType;
+					}
 				}
 			}
 
 			$current = date('Y-m-d', strtotime('+1 Day', $currentDT));
 		}
+
 
 		return $grid;
 	}

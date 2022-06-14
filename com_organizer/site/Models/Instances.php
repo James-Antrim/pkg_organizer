@@ -48,6 +48,8 @@ class Instances extends ListModel
 
 	public $gridID;
 
+	public $holidays;
+
 	public $layout;
 
 	public $noDate = false;
@@ -258,6 +260,8 @@ class Instances extends ListModel
 			$grid->load($gridID);
 			$this->grid   = json_decode($grid->grid, true);
 			$this->gridID = $gridID;
+
+			$this->holidays = Helpers\Holidays::getRelevant($this->conditions['startDate'], $this->conditions['endDate']);
 		}
 
 		return $items;
@@ -627,7 +631,7 @@ class Instances extends ListModel
 						// Menu constricted list conditions
 						if ($dow or $endDate or $methodIDs)
 						{
-							$date = ($startDate and $startDate > $date) ? $startDate : $date;
+							$date     = ($startDate and $startDate > $date) ? $startDate : $date;
 							$interval = 'half';
 
 							if ($endDate)
