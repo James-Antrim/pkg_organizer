@@ -39,7 +39,7 @@ class Holidays extends ListModel
 			->innerJoin('#__organizer_terms AS t ON t.startDate <= h.startDate AND t.endDate >= h.endDate');
 
 		$this->setIDFilter($query, 't.id', 'filter.termID');
-		$this->setSearchFilter($query, ['name_de', 'name_en']);
+		$this->setSearchFilter($query, ['h.name_de', 'h.name_en']);
 		$this->setValueFilters($query, ['type']);
 
 		switch ((int) $this->state->get('filter.status'))

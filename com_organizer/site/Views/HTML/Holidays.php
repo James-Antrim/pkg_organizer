@@ -58,9 +58,15 @@ class Holidays extends ListView
 			$today = date('Y-m-d');
 
 			$dateString = Helpers\Dates::getDisplay($item->startDate, $item->endDate);
-			$name       = "$item->name ($item->term)";
-			$status     = $item->endDate < $today ? Languages::_('ORGANIZER_EXPIRED') : Languages::_('ORGANIZER_CURRENT');
-			$type       = $typeMap[$item->type];
+			$name       = $item->name;
+
+			if (!$this->state->get('filter.termID'))
+			{
+				$name .= ". ($item->term)";
+			}
+
+			$status = $item->endDate < $today ? Languages::_('ORGANIZER_EXPIRED') : Languages::_('ORGANIZER_CURRENT');
+			$type   = $typeMap[$item->type];
 
 			$thisLink      = $link . $item->id;
 			$items[$index] = [
