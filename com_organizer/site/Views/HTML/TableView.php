@@ -156,7 +156,7 @@ abstract class TableView extends BaseView
 			{
 				if ($header['columns'])
 				{
-					$colspan           = count($header['columns']);
+					$colspan           = count($header['columns']) ?: 1;
 					$this->columnCount += $colspan;
 					foreach ($header['columns'] as $column)
 					{
@@ -177,7 +177,8 @@ abstract class TableView extends BaseView
 			$levelOne .= $this->getHeaderCell($header, $dataClass, $colspan);
 		}
 
-		$columnClass = "columns-$this->columnCount";
+		$this->columnCount = max($this->columnCount, count($this->headers));
+		$columnClass       = "columns-$this->columnCount";
 		echo "<tr class=\"$columnClass\">$levelOne</tr>";
 
 		if ($levelTwo)

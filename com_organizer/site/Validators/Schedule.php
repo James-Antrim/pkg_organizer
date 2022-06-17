@@ -45,8 +45,6 @@ class Schedule
 
 	public $rooms = null;
 
-	public $roomtypes = null;
-
 	public $schoolYear = null;
 
 	public $term = null;
@@ -211,7 +209,6 @@ class Schedule
 		unset($this->xml->departments);
 
 		$this->methods   = new stdClass();
-		$this->roomtypes = new stdClass();
 		foreach ($this->xml->descriptions->children() as $node)
 		{
 			Descriptions::validate($this, $node);
@@ -257,7 +254,7 @@ class Schedule
 			Rooms::validate($this, $node);
 		}
 		Rooms::setWarnings($this);
-		unset($this->roomtypes, $this->xml->rooms);
+		unset($this->xml->rooms);
 
 		if ($validTerm)
 		{

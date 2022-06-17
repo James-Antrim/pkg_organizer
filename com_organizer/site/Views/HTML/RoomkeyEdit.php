@@ -10,11 +10,10 @@
 
 namespace Organizer\Views\HTML;
 
-
 /**
- * Class loads the din nrf form into display context.
+ * Class loads the building form into display context.
  */
-class SurfaceEdit extends EditView
+class RoomkeyEdit extends EditView
 {
 	// Everything is taken care of in the inheritance hierarchy.
 }

@@ -48,6 +48,8 @@ class Instances extends ListModel
 
 	public $gridID;
 
+	public $holidays;
+
 	public $layout;
 
 	public $noDate = false;
@@ -183,6 +185,41 @@ class Instances extends ListModel
 	}
 
 	/**
+	 * Standardizes date value retrieval across views and request methods.
+	 *
+	 * @return string
+	 */
+	private function getDate(): string
+	{
+		$app = Helpers\OrganizerHelper::getApplication();
+
+		// Instances view
+		$date = $app->getUserStateFromRequest("$this->context.list.date", "list_date", '', 'string');
+
+		// Export view, GET, POST
+		$date = Input::getString('date', $date);
+
+		// Defaults to today
+		return Helpers\Dates::standardizeDate($date);
+	}
+
+	/**
+	 * Standardizes interval value retrieval across views and request methods.
+	 *
+	 * @return string
+	 */
+	private function getInterval(): string
+	{
+		$app = Helpers\OrganizerHelper::getApplication();
+
+		// Instances view
+		$interval = $app->getUserStateFromRequest("$this->context.list.interval", "list_interval", '', 'string');
+
+		// Export view, GET, POST
+		return Input::getString('interval', $interval);
+	}
+
+	/**
 	 * @inheritDoc.
 	 */
 	public function getItems(): array
@@ -223,6 +260,8 @@ class Instances extends ListModel
 			$grid->load($gridID);
 			$this->grid   = json_decode($grid->grid, true);
 			$this->gridID = $gridID;
+
+			$this->holidays = Helpers\Holidays::getRelevant($this->conditions['startDate'], $this->conditions['endDate']);
 		}
 
 		return $items;
@@ -383,7 +422,6 @@ class Instances extends ListModel
 		$lp = "list_";
 
 		// What? Personal...
-		$methodIDs        = [];
 		$personal         = (int) $params->get('my');
 		$personal         = ($personal or $app->getUserStateFromRequest("{$lc}my", "{$lp}my", 0, 'int'));
 		$personal         = ($personal or Input::getInt('my'));
@@ -523,6 +561,7 @@ class Instances extends ListModel
 				break;
 
 			case 'json':
+				// Always GET
 				$date      = Input::getString('date', $date);
 				$interval  = Input::getString('interval');
 				$intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
@@ -532,16 +571,17 @@ class Instances extends ListModel
 
 			case 'pdf':
 				$conditions['separate'] = Input::getBool('separate');
-				$date                   = Input::getString('date', $date);
-				$interval               = Input::getString('interval');
-				$intervals              = ['month', 'quarter', 'term', 'week'];
-				$interval               = in_array($interval, $intervals) ? $interval : 'week';
-				$layout                 = Helper::GRID;
+
+				$date      = $this->getDate();
+				$interval  = $this->getInterval();
+				$intervals = ['month', 'quarter', 'term', 'week'];
+				$interval  = in_array($interval, $intervals) ? $interval : 'week';
+				$layout    = Helper::GRID;
 				break;
 
 			case 'xls':
-				$date      = Input::getString('date', $date);
-				$interval  = Input::getString('interval');
+				$date      = $this->getDate();
+				$interval  = $this->getInterval();
 				$intervals = ['day', 'month', 'quarter', 'term', 'week'];
 				$interval  = in_array($interval, $intervals) ? $interval : 'week';
 				$layout    = Helper::LIST;
@@ -550,10 +590,7 @@ class Instances extends ListModel
 
 			case 'html':
 			default:
-
-				$date     = $app->getUserStateFromRequest("{$lc}date", "{$lp}date", '', 'string');
-				$date     = Input::getString('date', $date);
-				$date     = Helpers\Dates::standardizeDate($date);
+				$date     = $this->getDate();
 				$status   = $app->getUserStateFromRequest("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
 				$status   = Input::getInt('status', $status);
 				$statuses = [Helper::CHANGED, Helper::CURRENT, Helper::NEW, Helper::REMOVED];
@@ -571,8 +608,7 @@ class Instances extends ListModel
 					}
 					else
 					{
-						$sInterval = $app->getUserStateFromRequest("{$lc}interval", "{$lp}interval", '', 'string');
-						$interval  = Input::getString('interval', $sInterval);
+						$interval  = $this->getInterval();
 						$intervals = ['day', 'month', 'quarter', 'term', 'week'];
 						$interval  = in_array($interval, $intervals) ? $interval : 'day';
 					}
@@ -595,17 +631,13 @@ class Instances extends ListModel
 						// Menu constricted list conditions
 						if ($dow or $endDate or $methodIDs)
 						{
-							$date = ($startDate and $startDate > $date) ? $startDate : $date;
+							$date     = ($startDate and $startDate > $date) ? $startDate : $date;
+							$interval = 'half';
 
 							if ($endDate)
 							{
-								$interval = 'half';
 								$listItems->set('endDate', $endDate);
 								$this->state->set('list.endDate', $endDate);
-							}
-							else
-							{
-								$interval = 'quarter';
 							}
 
 							if ($dow)

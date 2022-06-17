@@ -10,25 +10,45 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
- * Class loads a form for editing din nrf data.
+ * Class loads a form for editing building data.
  */
-class SurfaceEdit extends EditModel
+class RoomkeyEdit extends EditModel
 {
 	/**
 	 * Checks access to edit the resource.
 	 *
 	 * @return void
 	 */
-	public function authorize()
+	protected function authorize()
 	{
 		if (!Helpers\Can::manage('facilities'))
 		{
 			Helpers\OrganizerHelper::error(403);
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getItem($pk = 0)
+	{
+		parent::getItem($pk);
+
+		if ($this->item and !empty($this->item->useID))
+		{
+			$tag   = Helpers\Languages::getTag();
+			$query = Database::getQuery();
+			$query->select("name_$tag")->from('#__organizer_use_groups')->where("id = {$this->item->useID}");
+			Database::setQuery($query);
+			$this->item->useGroup = Database::loadString();
+		}
+
+		return $this->item;
 	}
 
 	/**
@@ -38,12 +58,12 @@ class SurfaceEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Tables\Surfaces A Table object
+	 * @return Tables\Roomkeys  A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Surfaces
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Roomkeys
 	{
-		return new Tables\Surfaces();
+		return new Tables\Roomkeys();
 	}
 }

@@ -11,6 +11,7 @@
 namespace Organizer\Views\HTML;
 
 use Organizer\Helpers;
+use Organizer\Helpers\Holidays as Helper;
 use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
 
@@ -19,8 +20,6 @@ use Organizer\Helpers\Languages;
  */
 class Holidays extends ListView
 {
-	private const META = 2, OFFICIAL = 3, SOFT = 1;
-
 	/**
 	 * @inheritDoc
 	 */
@@ -28,10 +27,11 @@ class Holidays extends ListView
 	{
 		$ordering  = $this->state->get('list.ordering');
 		$direction = $this->state->get('list.direction');
-		$headers   = [
+
+		$headers = [
 			'checkbox' => '',
 			'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
-			'dates'    => HTML::sort('DATE', 'startDate', $direction, $ordering),
+			'dates'    => Languages::_('ORGANIZER_DATES'),
 			'type'     => Languages::_('ORGANIZER_TYPE'),
 			'status'   => Languages::_('ORGANIZER_STATUS')
 		];
@@ -48,21 +48,25 @@ class Holidays extends ListView
 		$link    = 'index.php?option=com_organizer&view=holiday_edit&id=';
 		$items   = [];
 		$typeMap = [
-			self::SOFT     => 'ORGANIZER_HOLIDAYS_GAP',
-			self::META     => 'ORGANIZER_HOLIDAYS_CLOSED',
-			self::OFFICIAL => 'ORGANIZER_HOLIDAYS_OFFICIAL'
+			Helper::GAP     => 'ORGANIZER_GAP_DAYS',
+			Helper::CLOSED  => 'ORGANIZER_CLOSED_DAYS',
+			Helper::HOLIDAY => 'ORGANIZER_HOLIDAYS'
 		];
 
 		foreach ($this->items as $item)
 		{
 			$today = date('Y-m-d');
-			$year  = date('Y', strtotime($item->startDate));
 
 			$dateString = Helpers\Dates::getDisplay($item->startDate, $item->endDate);
-			$name       = "$item->name ($year)";
-			$status     = $item->endDate < $today ?
-				Languages::_('ORGANIZER_EXPIRED') : Languages::_('ORGANIZER_CURRENT');
-			$type       = $typeMap[$item->type];
+			$name       = $item->name;
+
+			if (!$this->state->get('filter.termID'))
+			{
+				$name .= ". ($item->term)";
+			}
+
+			$status = $item->endDate < $today ? Languages::_('ORGANIZER_EXPIRED') : Languages::_('ORGANIZER_CURRENT');
+			$type   = $typeMap[$item->type];
 
 			$thisLink      = $link . $item->id;
 			$items[$index] = [

@@ -72,6 +72,39 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Adds a delta clause for a joined table.
+	 *
+	 * @param   JDatabaseQuery  $query       the query to modify
+	 * @param   string          $alias       the table alias
+	 * @param   array           $conditions  the conditions for queries
+	 *
+	 * @return void modifies the query
+	 */
+	private static function addResourceDelta(JDatabaseQuery $query, string $alias, array $conditions)
+	{
+		if (!empty($conditions['instanceStatus']) and $conditions['instanceStatus'] !== 'removed')
+		{
+			$query->where("$alias.delta != 'removed'");
+
+			return;
+		}
+
+		switch ($conditions['status'])
+		{
+			case self::CURRENT:
+			case self::NEW:
+			case self::REMOVED:
+				$query->where("$alias.delta != 'removed'");
+				break;
+			case self::CHANGED:
+			case self::NORMAL:
+			default:
+				self::addDeltaClause($query, $alias, $conditions['delta']);
+				break;
+		}
+	}
+
+	/**
 	 * Calls various functions filling the properties and resources of a single instance.
 	 *
 	 * @param   array  $instance
@@ -594,15 +627,15 @@ class Instances extends ResourceHelper
 				$query->where("i.delta != 'removed'")
 					->where("ig.delta != 'removed'")
 					->where("ipe.delta != 'removed'")
-					->where("(ir.delta != 'removed' OR ir.id IS NULL)")
+					->where("ir.delta != 'removed'")
 					->where("u.delta != 'removed'");
 
 				break;
 
 			case self::NEW:
 
-				$query->where("i.delta != 'removed'");
-				$query->where("u.delta != 'removed'");
+				self::addDeltaClause($query, 'i', false);
+				self::addDeltaClause($query, 'u', false);
 				$clause = "((i.delta = 'new' AND i.modified >= '$dDate') ";
 				$clause .= "OR (u.delta = 'new' AND i.modified >= '$dDate'))";
 				$query->where($clause);
@@ -679,6 +712,7 @@ class Instances extends ResourceHelper
 						$filterOrganization = false;
 						$wherray[]          = "ipe.personID = $personID";
 					}
+
 					if ($exists)
 					{
 						$filterOrganization = false;
@@ -689,6 +723,10 @@ class Instances extends ResourceHelper
 					if ($wherray)
 					{
 						$query->where('(' . implode(' OR ', $wherray) . ')');
+					}
+					else
+					{
+						$query->where('i.id = 0');
 					}
 				}
 			}
@@ -1258,11 +1296,7 @@ class Instances extends ResourceHelper
 			$query->where('g.categoryID IN (' . implode($conditions['categoryIDs']) . ')');
 		}
 
-		// If the instance itself has been removed the status of its associations do not play a role
-		if (!empty($conditions['instanceStatus']) and $conditions['instanceStatus'] !== 'removed')
-		{
-			self::addDeltaClause($query, 'ig', $conditions['delta']);
-		}
+		self::addResourceDelta($query, 'ig', $conditions);
 
 		if (!empty($conditions['organizationIDs']))
 		{
@@ -1366,11 +1400,7 @@ class Instances extends ResourceHelper
 			->innerJoin('#__organizer_roles AS r ON r.id = ip.roleID')
 			->where("ip.instanceID = {$instance['instanceID']}");
 
-		// If the instance itself has been removed the status of its associations do not play a role
-		if ($conditions['instanceStatus'] !== 'removed')
-		{
-			self::addDeltaClause($query, 'ip', $conditions['delta']);
-		}
+		self::addResourceDelta($query, 'ip', $conditions);
 
 		Database::setQuery($query);
 		if (!$personAssocs = Database::loadAssocList())
@@ -1445,11 +1475,7 @@ class Instances extends ResourceHelper
 			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
 			->where("ir.assocID = {$person['assocID']}");
 
-		// If the instance itself has been removed the status of its associations do not play a role
-		if ($conditions['instanceStatus'] !== 'removed')
-		{
-			self::addDeltaClause($query, 'ir', $conditions['delta']);
-		}
+		self::addResourceDelta($query, 'ir', $conditions);
 
 		Database::setQuery($query);
 		if (!$roomAssocs = Database::loadAssocList())

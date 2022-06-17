@@ -3,7 +3,7 @@
  * @package     Organizer
  * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
- * @copyright   2021 TH Mittelhessen
+ * @copyright   2020 TH Mittelhessen
  * @license     GNU GPL v.3
  * @link        www.thm.de
  */
@@ -15,9 +15,9 @@ use Organizer\Controller;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Surfaces extends Controller
+class CleaningGroups extends Controller
 {
-	protected $listView = 'surfaces';
+	protected $listView = 'CleaningGroups';
 
-	protected $resource = 'surface';
+	protected $resource = 'CleaningGroup';
 }

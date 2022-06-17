@@ -24,7 +24,7 @@ class Buildings extends ListModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
 		$query = $this->_db->getQuery(true);
 
@@ -33,9 +33,9 @@ class Buildings extends ListModel
 			->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
 			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
 
+		$this->setActiveFilter($query, 'b');
 		$this->setSearchFilter($query, ['b.name', 'b.address', 'c1.city', 'c2.city']);
 		$this->setValueFilters($query, ['propertyType']);
-
 
 		if ($campusID = $this->state->get('filter.campusID', ''))
 		{

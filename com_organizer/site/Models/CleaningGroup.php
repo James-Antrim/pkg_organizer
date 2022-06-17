@@ -14,12 +14,12 @@ use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
- * Class loads a form for editing room type data.
+ * Class which manages stored building data.
  */
-class RoomtypeEdit extends EditModel
+class CleaningGroup extends BaseModel
 {
 	/**
-	 * Checks access to edit the resource.
+	 * Authorizes the user.
 	 *
 	 * @return void
 	 */
@@ -38,12 +38,34 @@ class RoomtypeEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Tables\Roomtypes A Table object
+	 * @return Tables\CleaningGroups  A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Roomtypes
+	public function getTable($name = '', $prefix = '', $options = []): Tables\CleaningGroups
 	{
-		return new Tables\Roomtypes();
+		return new Tables\CleaningGroups();
+	}
+
+	/**
+	 * Toggles the monitor's use of default settings
+	 *
+	 * @return bool  true on success, otherwise false
+	 */
+	public function toggle(): bool
+	{
+		$this->authorize();
+
+		$groupID = Helpers\Input::getID();
+		$group   = new Tables\CleaningGroups();
+		if (!$groupID or !$group->load($groupID))
+		{
+			return false;
+		}
+
+		$newValue = !$group->relevant;
+		$group->set('relevant', $newValue);
+
+		return $group->store();
 	}
 }

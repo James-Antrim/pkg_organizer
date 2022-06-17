@@ -2,9 +2,10 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="typeID" type="GenericOptions" label="ORGANIZER_ARCHETYPES" localized="true"
-               onchange="this.form.submit();" table="organizer_surfacetypes" textcolumn="name" valuecolumn="id">
-            <option value="">ALL_ARCHETYPES</option>
+        <field name="relevant" type="Options" label="ORGANIZER_EXPORTED" onchange="this.form.submit();">
+            <option value="">COST_ACCOUNTING_IGNORED</option>
+            <option value="0">COST_ACCOUNTING_IRRELEVANT</option>
+            <option value="1">COST_ACCOUNTING_RELEVANT</option>
         </field>
     </fields>
     <fields name="list">

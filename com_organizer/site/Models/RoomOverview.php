@@ -83,10 +83,15 @@ class RoomOverview extends ListModel
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
-		parent::populateState($ordering = null, $direction = null);
+		parent::populateState($ordering, $direction);
 
-		$list        = Helpers\Input::getListItems();
-		$date        = strtotime($list->get('date')) ? $list->get('date') : date('Y-m-d');
+		$app  = Helpers\OrganizerHelper::getApplication();
+		$list = Helpers\Input::getListItems();
+
+		$date = $app->getUserStateFromRequest("$this->context.list.date", "list_date", '', 'string');
+		$date = (string) $list->get('date', $date);
+		$date = Helpers\Dates::standardizeDate($date);
+
 		$defaultGrid = Helpers\Grids::getDefault();
 
 		if ($campusID = Helpers\Input::getParams()->get('campusID'))
@@ -95,8 +100,14 @@ class RoomOverview extends ListModel
 			$this->setState('filter.campusID', $campusID);
 		}
 
-		$this->setState('list.template', (int) $list->get('template', self::DAY));
-		$this->setState('list.gridID', (int) $list->get('gridID', $defaultGrid));
+		$gridID = $app->getUserStateFromRequest("$this->context.list.gridID", "list_gridID", $defaultGrid, 'int');
+		$gridID = (int) $list->get('gridID', $gridID);
+
+		$template = $app->getUserStateFromRequest("$this->context.list.template", "list_template", self::DAY, 'int');
+		$template = (int) $list->get('template', $template);
+
 		$this->setState('list.date', $date);
+		$this->setState('list.gridID', $gridID);
+		$this->setState('list.template', $template);
 	}
 }

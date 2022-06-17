@@ -13,17 +13,15 @@ jobs:
     name: "Release new version"
     
     steps:
-      - name: "Install dependencies"
-        run: "sudo apt-get install tree"
       - name: "Checkout build enviroment"
         uses: actions/checkout@v2
         with:
-          repository:  jpbm04/ii-ci
+          repository:  thm-mni-ii/ii-ci
           path: build
       - name: "Checkout pages enviroment"
         uses: actions/checkout@v2
         with:
-          repository:  jpbm04/jpbm04.github.io
+          repository:  thm-mni-ii/thm-mni-ii.github.io
           path: pages
       - name: "Checkout sources"
         uses: actions/checkout@v2
@@ -31,10 +29,8 @@ jobs:
           path : extensions/com_organizer
       - name: "Build release files"
         run: build/scripts/shell/release.sh
-        env:
-          HOSTUSER: jpbm04
       - name: "Upload release as artifact"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: "Releasefile"
           path: "release/*.zip"
@@ -61,7 +57,7 @@ jobs:
       - name: "Publish pages"
         uses: peaceiris/actions-gh-pages@v3
         with:
-          external_repository: jpbm04/jpbm04.github.io
+          external_repository: thm-mni-ii/thm-mni-ii.github.io
           publish_branch: master
           deploy_key: ${{ secrets.SSH_DEPLOY_KEY }}
           publish_dir: pages

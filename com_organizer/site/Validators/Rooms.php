@@ -28,26 +28,26 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		$room  = $model->rooms->$code;
 		$table = new Tables\Rooms();
 
-		if ($table->load(['code' => $room->code]))
+		if (!$table->load(['code' => $room->code]))
 		{
-			$altered = false;
-			foreach ($room as $key => $value)
-			{
-				if (property_exists($table, $key) and empty($table->$key) and !empty($value))
-				{
-					$table->set($key, $value);
-					$altered = true;
-				}
-			}
+			$model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_ROOM_MISSING_FROM_INVENTORY'), $code);
 
-			if ($altered)
+			return;
+		}
+
+		$altered = false;
+		foreach ($room as $key => $value)
+		{
+			if (property_exists($table, $key) and empty($table->$key) and !empty($value))
 			{
-				$table->store();
+				$table->set($key, $value);
+				$altered = true;
 			}
 		}
-		else
+
+		if ($altered)
 		{
-			$table->save($room);
+			$table->store();
 		}
 
 		$model->rooms->$code->id = $table->id;
@@ -67,13 +67,6 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 			$warningCount = $model->warnings['REX'];
 			unset($model->warnings['REX']);
 			$model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_ROOM_EXTERNAL_IDS_MISSING'), $warningCount);
-		}
-
-		if (!empty($model->warnings['RT']))
-		{
-			$warningCount = $model->warnings['RT'];
-			unset($model->warnings['RT']);
-			$model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_ROOMTYPES_MISSING'), $warningCount);
 		}
 	}
 
@@ -95,19 +88,6 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 			$code = strpos($internalID, 'ONLINE') !== false ? 'ONLINE' : $internalID;
 		}
 
-		$roomTypeID  = str_replace('DS_', '', trim((string) $node->room_description[0]['id']));
-		$invalidType = (empty($roomTypeID) or empty($model->roomtypes->$roomTypeID));
-		if ($invalidType)
-		{
-			$model->warnings['RT'] = empty($model->warnings['RT']) ? 1 : $model->warnings['RT'] + 1;
-
-			$roomTypeID = null;
-		}
-		else
-		{
-			$roomTypeID = $model->roomtypes->$roomTypeID;
-		}
-
 		$capacity      = (int) $node->capacity;
 		$buildingID    = null;
 		$buildingREGEX = Helpers\Input::getParams()->get('buildingRegex');
@@ -122,7 +102,6 @@ class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
 		$room->effCapacity = $capacity;
 		$room->maxCapacity = $capacity;
 		$room->name        = $code;
-		$room->roomtypeID  = $roomTypeID;
 		$room->code        = $code;
 
 		$model->rooms->$internalID = $room;

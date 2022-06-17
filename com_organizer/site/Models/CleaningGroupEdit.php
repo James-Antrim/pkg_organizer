@@ -14,9 +14,9 @@ use Organizer\Helpers;
 use Organizer\Tables;
 
 /**
- * Class loads a form for editing room type data.
+ * Class loads a form for editing building data.
  */
-class RoomtypeEdit extends EditModel
+class CleaningGroupEdit extends EditModel
 {
 	/**
 	 * Checks access to edit the resource.
@@ -38,12 +38,12 @@ class RoomtypeEdit extends EditModel
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return Tables\Roomtypes A Table object
+	 * @return Tables\CleaningGroups  A Table object
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Roomtypes
+	public function getTable($name = '', $prefix = '', $options = []): Tables\CleaningGroups
 	{
-		return new Tables\Roomtypes();
+		return new Tables\CleaningGroups();
 	}
 }

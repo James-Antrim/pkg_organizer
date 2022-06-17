@@ -19,11 +19,11 @@ use Organizer\Helpers;
  */
 class Holidays extends ListModel
 {
-	private const EXPIRED = 1;
+	private const EXPIRED = 1, NOT_EXPIRED = 0;
 
 	protected $defaultOrdering = 'startDate';
 
-	protected $filter_fields = ['year', 'type', 'status'];
+	protected $filter_fields = ['termID', 'type'];
 
 	/**
 	 * Method to get a list of resources from the database.
@@ -34,65 +34,37 @@ class Holidays extends ListModel
 	{
 		$tag   = Helpers\Languages::getTag();
 		$query = Database::getQuery();
-		$query->select("id, name_$tag as name, type, startDate, endDate")
-			->from('#__organizer_holidays');
-		$this->setSearchFilter($query, ['name_de', 'name_en', 'startDate', 'endDate']);
+		$query->select("h.*, h.name_$tag as name, t.name_$tag as term")
+			->from('#__organizer_holidays AS h')
+			->innerJoin('#__organizer_terms AS t ON t.startDate <= h.startDate AND t.endDate >= h.endDate');
+
+		$this->setIDFilter($query, 't.id', 'filter.termID');
+		$this->setSearchFilter($query, ['h.name_de', 'h.name_en']);
 		$this->setValueFilters($query, ['type']);
-		$this->filterStatus($query);
-		$this->setYearFilter($query);
+
+		switch ((int) $this->state->get('filter.status'))
+		{
+			case self::EXPIRED:
+				$query->where('h.endDate < CURDATE()');
+				break;
+			case self::NOT_EXPIRED:
+				$query->where('h.endDate >= CURDATE()');
+				break;
+		}
+
 		$this->setOrdering($query);
 
 		return $query;
 	}
 
 	/**
-	 * Adds the filter settings for status of holiday
-	 *
-	 * @param   JDatabaseQuery  $query  the query to modify
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
-	private function filterStatus(JDatabaseQuery $query)
+	protected function populateState($ordering = null, $direction = null)
 	{
-		$listValue   = $this->state->get('list.status');
-		$filterValue = $this->state->get('filter.status');
+		parent::populateState($ordering, $direction);
 
-		if (empty($listValue) and empty($filterValue))
-		{
-			return;
-		}
-
-		$value = empty($filterValue) ? $listValue : $filterValue;
-
-		if ((int) $value === self::EXPIRED)
-		{
-			$query->where('endDate < CURDATE()');
-		}
-		else
-		{
-			$query->where('startDate > CURDATE()');
-		}
-	}
-
-	/**
-	 * Adds the filter settings for displaying year
-	 *
-	 * @param   JDatabaseQuery  $query  the query to modify
-	 *
-	 * @return void
-	 */
-	private function setYearFilter(JDatabaseQuery $query)
-	{
-		$listValue   = $this->state->get('list.year');
-		$filterValue = $this->state->get('filter.year');
-
-		if (empty($listValue) and empty($filterValue))
-		{
-			return;
-		}
-
-		$value = empty($filterValue) ? $listValue : $filterValue;
-
-		$query->where("Year(startDate) = $value");
+		$status = (int) $this->state->get('filter.status');
+		$this->setState('filter.status', $status);
 	}
 }

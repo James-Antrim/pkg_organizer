@@ -367,6 +367,27 @@ body.tmpl-mobile div.main .input-append button {
     color: #394a59;
 }
 
+.instances-grid > div.closed, .instances-grid > div.gap, .instances-grid > div.holiday {
+    color: #394a59;
+    font-weight: bold;
+}
+
+.instances-grid > div.closed.empty, .instances-grid > div.gap.empty, .instances-grid > div.holiday.empty {
+    padding-top: 1rem;
+}
+
+.instances-grid > div.gap {
+    background-color: #fceabf;
+}
+
+.instances-grid > div.holiday {
+    background-color: #f7bf40;
+}
+
+.instances-grid > div.closed {
+    background-color: #e6c4cb;
+}
+
 .instances-grid > div > div {
     background-color: white;
 }
