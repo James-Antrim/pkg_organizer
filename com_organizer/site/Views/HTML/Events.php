@@ -34,7 +34,7 @@ class Events extends ListView
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'events.edit', true);
 
-		/*if ($admin = Helpers\Can::administrate())
+		if (Helpers\Can::administrate())
 		{
 			$toolbar->appendButton(
 				'Standard',
@@ -43,7 +43,7 @@ class Events extends ListView
 				'events.mergeView',
 				true
 			);
-		}*/
+		}
 	}
 
 	/**

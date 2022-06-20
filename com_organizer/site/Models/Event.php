@@ -17,7 +17,7 @@ use Organizer\Tables;
 /**
  * Class which manages stored event data.
  */
-class Event extends BaseModel
+class Event extends MergeModel
 {
 	/**
 	 * @inheritDoc
@@ -87,5 +87,121 @@ class Event extends BaseModel
 		Database::execute();
 
 		return $eventID;
+	}
+
+	/**
+	 * Updates the event coordinators table to reflect the merge of the events.
+	 *
+	 * @return bool true on success, otherwise false;
+	 */
+	private function updateEventCoordinators(): bool
+	{
+		if (!$personIDs = $this->getReferencedIDs('event_coordinators', 'personID'))
+		{
+			return true;
+		}
+
+		$mergeID = reset($this->selected);
+
+		foreach ($personIDs as $personID)
+		{
+			$existing = null;
+
+			foreach ($this->selected as $currentID)
+			{
+				$eventCoordinator = new Tables\EventCoordinators();
+				$loadConditions   = ['eventID' => $currentID, 'personID' => $personID];
+
+				// The current personID is not associated with the current eventID
+				if (!$eventCoordinator->load($loadConditions))
+				{
+					continue;
+				}
+
+				// An existing association with the current eventID has already been found, remove potential duplicate.
+				if ($existing)
+				{
+					$eventCoordinator->delete();
+					continue;
+				}
+
+				$eventCoordinator->eventID = $mergeID;
+				$existing                  = $eventCoordinator;
+			}
+
+			if ($existing and !$existing->store())
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function updateReferences(): bool
+	{
+		if (!$this->updateEventCoordinators())
+		{
+			return false;
+		}
+
+		if (!$this->updateReferencingTable('instances'))
+		{
+			return false;
+		}
+
+		return $this->updateSubjectEvents();
+	}
+
+	/**
+	 * Updates the subject events table to reflect the merge of the events.
+	 *
+	 * @return bool true on success, otherwise false;
+	 */
+	private function updateSubjectEvents(): bool
+	{
+		if (!$subjectIDs = $this->getReferencedIDs('subject_events', 'subjectID'))
+		{
+			return true;
+		}
+
+		$mergeID = reset($this->selected);
+
+		foreach ($subjectIDs as $subjectID)
+		{
+			$existing = null;
+
+			foreach ($this->selected as $currentID)
+			{
+				$eventSubject   = new Tables\SubjectEvents();
+				$loadConditions = ['eventID' => $currentID, 'subjectID' => $subjectID];
+
+				// The current subjectID is not associated with the current eventID
+				if (!$eventSubject->load($loadConditions))
+				{
+					continue;
+				}
+
+				// An existing association with the current eventID has already been found, remove potential duplicate.
+				if ($existing)
+				{
+					$eventSubject->delete();
+					continue;
+				}
+
+				$eventSubject->eventID = $mergeID;
+				$existing              = $eventSubject;
+			}
+
+			if ($existing and !$existing->store())
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
