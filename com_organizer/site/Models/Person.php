@@ -28,7 +28,7 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function activate()
+	public function activate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();
@@ -79,7 +79,7 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function deactivate()
+	public function deactivate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();
@@ -122,7 +122,7 @@ class Person extends MergeModel
 	 *
 	 * @return array the ids of the resources associated
 	 */
-	private function getResourceIDs(string $table, string $fkColumn)
+	private function getResourceIDs(string $table, string $fkColumn): array
 	{
 		$personIDs = implode(',', $this->selected);
 		$query     = Database::getQuery();
@@ -174,7 +174,7 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false;
 	 */
-	private function updateEventCoordinators()
+	private function updateEventCoordinators(): bool
 	{
 		if (!$eventIDs = $this->getResourceIDs('event_coordinators', 'eventID'))
 		{
@@ -223,7 +223,7 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false;
 	 */
-	private function updateInstancePersons()
+	private function updateInstancePersons(): bool
 	{
 		if (!$instanceIDs = $this->getResourceIDs('instance_persons', 'instanceID'))
 		{
@@ -283,7 +283,7 @@ class Person extends MergeModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function updateReferences()
+	protected function updateReferences(): bool
 	{
 		if (!$this->updateAssociationsReferences())
 		{
@@ -308,7 +308,7 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false;
 	 */
-	private function updateSubjectPersons()
+	private function updateSubjectPersons(): bool
 	{
 		$mergeIDs = implode(', ', $this->selected);
 		$query    = Database::getQuery();

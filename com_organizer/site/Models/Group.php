@@ -32,7 +32,7 @@ class Group extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function activate()
+	public function activate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();
@@ -87,7 +87,7 @@ class Group extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function batch()
+	public function batch(): bool
 	{
 		if (!$this->selected = Helpers\Input::getSelectedIDs())
 		{
@@ -129,7 +129,7 @@ class Group extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function deactivate()
+	public function deactivate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();
@@ -181,7 +181,7 @@ class Group extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false.
 	 */
-	public function publishPast()
+	public function publishPast(): bool
 	{
 		$query = Database::getQuery();
 		$terms = Helpers\Terms::getResources();
@@ -245,7 +245,7 @@ class Group extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	private function savePublishing()
+	private function savePublishing(): bool
 	{
 		$default = false;
 
@@ -337,7 +337,7 @@ class Group extends MergeModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function updateReferences()
+	protected function updateReferences(): bool
 	{
 		if (!$this->updateAssociationsReferences())
 		{
