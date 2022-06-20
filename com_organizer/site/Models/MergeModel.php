@@ -21,6 +21,27 @@ use Organizer\Tables;
 abstract class MergeModel extends BaseModel
 {
 	/**
+	 * Gets the resource ids associated with persons in association tables.
+	 *
+	 * @param   string  $table     the unique portion of the table name
+	 * @param   string  $fkColumn  the name of the fk column referencing the other resource
+	 *
+	 * @return array the ids of the resources associated
+	 */
+	protected function getReferencedIDs(string $table, string $fkColumn): array
+	{
+		$selectedIDs = implode(',', $this->selected);
+		$query       = Database::getQuery();
+		$query->select("DISTINCT $fkColumn")
+			->from("#__organizer_$table")
+			->where("personID IN ($selectedIDs)")
+			->order("$fkColumn");
+		Database::setQuery($query);
+
+		return Database::loadIntColumn();
+	}
+
+	/**
 	 * Merges resource entries and cleans association tables.
 	 *
 	 * @return bool  true on success, otherwise false
