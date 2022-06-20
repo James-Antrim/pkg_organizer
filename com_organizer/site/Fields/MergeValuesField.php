@@ -10,7 +10,6 @@
 
 namespace Organizer\Fields;
 
-use Organizer\Adapters\Database;
 use Organizer\Helpers;
 
 /**
@@ -18,6 +17,8 @@ use Organizer\Helpers;
  */
 class MergeValuesField extends OptionsField
 {
+	use Mergeable;
+
 	/**
 	 * @var  string
 	 */
@@ -30,51 +31,16 @@ class MergeValuesField extends OptionsField
 	 */
 	protected function getOptions(): array
 	{
-		$selectedIDs    = Helpers\Input::getSelectedIDs();
-		$resource       = str_replace('_merge', '', Helpers\Input::getView());
-		$validResources = ['category', 'field', 'group', 'method', 'room', 'roomtype', 'participant', 'person'];
-		$invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
-		if ($invalid)
+		if (!$this->validate())
 		{
 			return [];
 		}
 
-		$column = $this->getAttribute('name');
-		$query  = Database::getQuery(true);
-		$table  = $resource === 'category' ? 'categories' : "{$resource}s";
-		$query->select("DISTINCT $column AS value")
-			->from("#__organizer_$table")
-			->where("id IN ( '" . implode("', '", $selectedIDs) . "' )")
-			->order('value ASC');
-		Database::setQuery($query);
-
-		if (!$values = Database::loadColumn())
+		if (!$values = $this->getValues())
 		{
-			return [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
+			return [Helpers\HTML::_('select.option', '-1', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
 		}
 
-		$options = [];
-		foreach ($values as $value)
-		{
-			if (empty($value))
-			{
-				continue;
-			}
-			$options[] = Helpers\HTML::_('select.option', $value, $value);
-		}
-
-		if (empty($options))
-		{
-			$options[] = Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'));
-		}
-		elseif (count($options) > 1)
-		{
-			array_unshift(
-				$options,
-				Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_VALUE'))
-			);
-		}
-
-		return $options;
+		return $this->createOptions($values);
 	}
 }

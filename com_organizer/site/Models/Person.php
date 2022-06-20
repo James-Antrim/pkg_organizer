@@ -166,10 +166,10 @@ class Person extends MergeModel
 		{
 			$existing = null;
 
-			foreach ($this->selected as $personID)
+			foreach ($this->selected as $currentID)
 			{
 				$eventCoordinator = new Tables\EventCoordinators();
-				$loadConditions   = ['eventID' => $eventID, 'personID' => $personID];
+				$loadConditions   = ['eventID' => $eventID, 'personID' => $currentID];
 
 				// The current personID is not associated with the current eventID
 				if (!$eventCoordinator->load($loadConditions))

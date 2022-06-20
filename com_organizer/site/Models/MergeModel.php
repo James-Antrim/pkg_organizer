@@ -30,11 +30,12 @@ abstract class MergeModel extends BaseModel
 	 */
 	protected function getReferencedIDs(string $table, string $fkColumn): array
 	{
-		$selectedIDs = implode(',', $this->selected);
-		$query       = Database::getQuery();
+		$resourceColumn = strtolower($this->name) . 'ID';
+		$selectedIDs    = implode(',', $this->selected);
+		$query          = Database::getQuery();
 		$query->select("DISTINCT $fkColumn")
 			->from("#__organizer_$table")
-			->where("personID IN ($selectedIDs)")
+			->where("$resourceColumn IN ($selectedIDs)")
 			->order("$fkColumn");
 		Database::setQuery($query);
 
