@@ -148,12 +148,15 @@ class Event extends MergeModel
 			return false;
 		}
 
-		if (!$this->updateReferencingTable('instances'))
+		if (!$this->updateSubjectEvents())
 		{
 			return false;
 		}
 
-		return $this->updateSubjectEvents();
+		//todo: rework the events -> instances consolidation to account for multiple merging events assigned to the same unit
+
+		// This can fail in rare instances where the ~two events were assigned to the same unit.
+		return $this->updateReferencingTable('instances');
 	}
 
 	/**
