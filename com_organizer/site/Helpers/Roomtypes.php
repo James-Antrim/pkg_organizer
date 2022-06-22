@@ -17,7 +17,7 @@ use Organizer\Adapters\Database;
  */
 class Roomtypes extends ResourceHelper implements Selectable
 {
-	use Filtered;
+	use Filtered, Suppressed;
 
 	private const NO = 0, YES = 1;
 

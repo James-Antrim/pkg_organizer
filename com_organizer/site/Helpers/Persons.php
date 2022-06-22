@@ -18,6 +18,8 @@ use Organizer\Tables;
  */
 class Persons extends Associated implements Selectable
 {
+	use Suppressed;
+
 	// TODO move all person related constants here and use this class instead of redefining them
 	private const COORDINATES = 1;
 
