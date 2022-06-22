@@ -23,7 +23,7 @@ trait Suppressed
 	 */
 	public static function getSuppressed(int $resourceID): bool
 	{
-		$table = @ResourceHelper::getTable();
+		$table = self::getTable();
 		if ($table->load($resourceID))
 		{
 			/* @var $table SuppressedTable */
