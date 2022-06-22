@@ -18,7 +18,7 @@ use stdClass;
 /**
  * Provides general functions for course access checks, data retrieval and display.
  */
-class Events extends Helpers\ResourceHelper implements UntisXMLValidator
+class Events implements UntisXMLValidator
 {
 	/**
 	 * @inheritDoc
@@ -67,10 +67,10 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 	 */
 	public static function setWarnings(Schedule $model)
 	{
-		if (!empty($model->warnings['SUNO']))
+		if (!empty($model->warnings['SubjectNumber']))
 		{
-			$warningCount = $model->warnings['SUNO'];
-			unset($model->warnings['SUNO']);
+			$warningCount = $model->warnings['SubjectNumber'];
+			unset($model->warnings['SubjectNumber']);
 			$model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_EVENT_SUBJECTNOS_MISSING'), $warningCount);
 		}
 	}
@@ -94,8 +94,10 @@ class Events extends Helpers\ResourceHelper implements UntisXMLValidator
 
 		if (empty($subjectNo))
 		{
-			$model->warnings['SUNO'] = empty($model->warnings['SUNO']) ? 1 : $model->warnings['SUNO'] + 1;
-			$subjectNo               = '';
+			$model->warnings['SubjectNumber'] = empty($model->warnings['SubjectNumber']) ?
+				1 : $model->warnings['SubjectNumber'] + 1;
+
+			$subjectNo = '';
 		}
 
 		$event                 = new stdClass();

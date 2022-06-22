@@ -18,7 +18,7 @@ use stdClass;
 /**
  * Class provides general functions for retrieving room data.
  */
-class Rooms extends Helpers\ResourceHelper implements UntisXMLValidator
+class Rooms implements UntisXMLValidator
 {
 	/**
 	 * @inheritDoc

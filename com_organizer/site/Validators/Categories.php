@@ -18,7 +18,7 @@ use stdClass;
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class Categories extends Helpers\ResourceHelper implements UntisXMLValidator
+class Categories implements UntisXMLValidator
 {
 	/**
 	 * Determines whether the data conveyed in the untisID is plausible for finding a real program.

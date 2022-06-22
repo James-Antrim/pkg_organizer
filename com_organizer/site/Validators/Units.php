@@ -11,7 +11,6 @@
 namespace Organizer\Validators;
 
 use Organizer\Adapters\Database;
-use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
 use SimpleXMLElement;
@@ -20,7 +19,7 @@ use stdClass;
 /**
  * Provides functions for XML unit validation and persistence.
  */
-class Units extends Helpers\ResourceHelper implements UntisXMLValidator
+class Units implements UntisXMLValidator
 {
 	/**
 	 * Determines how the missing room attribute will be handled
