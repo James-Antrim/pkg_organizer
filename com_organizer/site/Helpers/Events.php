@@ -17,7 +17,7 @@ use Organizer\Adapters\Database;
  */
 class Events extends ResourceHelper
 {
-	use Planned;
+	use Planned, Suppressed;
 
 	protected static $resource = 'event';
 

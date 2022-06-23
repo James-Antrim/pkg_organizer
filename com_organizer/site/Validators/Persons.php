@@ -18,7 +18,7 @@ use stdClass;
 /**
  * Provides general functions for person access checks, data retrieval and display.
  */
-class Persons extends Helpers\ResourceHelper implements UntisXMLValidator
+class Persons implements UntisXMLValidator
 {
 	/**
 	 * @inheritDoc

@@ -15,14 +15,14 @@ use Organizer\Helpers;
 /**
  * Class creates a generalized select box for selection of a single column value among those already selected.
  */
-class MergeValuesField extends OptionsField
+class MergeHTMLField extends OptionsField
 {
 	use Mergeable;
 
 	/**
 	 * @var  string
 	 */
-	protected $type = 'MergeValues';
+	protected $type = 'MergeHTML';
 
 	/**
 	 * Returns a select box where resource attributes can be selected
@@ -39,6 +39,13 @@ class MergeValuesField extends OptionsField
 		if (!$values = $this->getValues())
 		{
 			return [Helpers\HTML::_('select.option', '-1', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
+		}
+
+		$values = array_unique($values);
+
+		foreach ($values as &$value)
+		{
+			$value = preg_replace('/ style="[^"]+"/', '', $value);
 		}
 
 		return $this->createOptions($values);

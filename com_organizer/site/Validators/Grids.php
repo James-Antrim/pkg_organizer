@@ -18,7 +18,7 @@ use stdClass;
 /**
  * Class provides general functions for retrieving building data.
  */
-class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
+class Grids implements UntisXMLValidator
 {
 	/**
 	 * Retrieves the table id if existent.
@@ -60,7 +60,7 @@ class Grids extends Helpers\ResourceHelper implements UntisXMLValidator
 	}
 
 	/**
-	 * Sets IDs for the grids collection.
+	 * Sets IDs for the collection of grids.
 	 *
 	 * @param   Schedule  $model  the model for the schedule being validated
 	 *

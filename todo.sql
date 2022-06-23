@@ -45,7 +45,6 @@
 #add dedicated placeholders for no person responsible
 #restyle the curriculm view to use css grids for container items.
 #replace unnecessary double quotes
-#event merge view
 #participant merge view
 #endregion
 
@@ -92,7 +91,6 @@
 #region department views
 #resources
 #endregion
-#merge events
 #endregion
 
 #region Meta ###########################################################################################################
@@ -187,7 +185,6 @@
 #region Merging ########################################################################################################
 #Categories, Events & Participants
 #delete unused events
-#automatically merge events with the same entry key items
 #add unique key for event entry key items
 #reactivate new functions as appropriate
 #endregion

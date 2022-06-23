@@ -18,7 +18,7 @@ use stdClass;
 /**
  * Provides general functions for campus access checks, data retrieval and display.
  */
-class Groups extends Helpers\ResourceHelper implements UntisXMLValidator
+class Groups implements UntisXMLValidator
 {
 	/**
 	 * @inheritDoc

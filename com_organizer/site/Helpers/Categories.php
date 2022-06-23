@@ -17,15 +17,15 @@ use Organizer\Adapters\Database;
  */
 class Categories extends Associated implements Selectable
 {
-	use Filtered;
-	use Numbered;
+	use Filtered, Numbered, Suppressed;
 
 	protected static $resource = 'category';
 
 	/**
 	 * Retrieves the groups associated with a category.
 	 *
-	 * @param   int  $categoryID  the category id
+	 * @param   int   $categoryID  the category id
+	 * @param   bool  $active      whether to retrieve only active categories
 	 *
 	 * @return array
 	 */
@@ -52,7 +52,7 @@ class Categories extends Associated implements Selectable
 	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getOptions($access = ''): array
+	public static function getOptions(string $access = ''): array
 	{
 		$name    = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
 		$options = [];
@@ -106,7 +106,7 @@ class Categories extends Associated implements Selectable
 	 *
 	 * @param   string  $access  any access restriction which should be performed
 	 */
-	public static function getResources($access = ''): array
+	public static function getResources(string $access = ''): array
 	{
 		$order = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
 		$query = Database::getQuery(true);

@@ -21,12 +21,34 @@ use Organizer\Tables;
 abstract class MergeModel extends BaseModel
 {
 	/**
+	 * Gets the resource ids associated with persons in association tables.
+	 *
+	 * @param   string  $table     the unique portion of the table name
+	 * @param   string  $fkColumn  the name of the fk column referencing the other resource
+	 *
+	 * @return array the ids of the resources associated
+	 */
+	protected function getReferencedIDs(string $table, string $fkColumn): array
+	{
+		$resourceColumn = strtolower($this->name) . 'ID';
+		$selectedIDs    = implode(',', $this->selected);
+		$query          = Database::getQuery();
+		$query->select("DISTINCT $fkColumn")
+			->from("#__organizer_$table")
+			->where("$resourceColumn IN ($selectedIDs)")
+			->order("$fkColumn");
+		Database::setQuery($query);
+
+		return Database::loadIntColumn();
+	}
+
+	/**
 	 * Merges resource entries and cleans association tables.
 	 *
 	 * @return bool  true on success, otherwise false
 	 * @throws Exception
 	 */
-	public function merge()
+	public function merge(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		sort($this->selected);
@@ -82,7 +104,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return bool
 	 */
-	protected function updateAssociationsReferences()
+	protected function updateAssociationsReferences(): bool
 	{
 		$fkColumn  = strtolower($this->name) . 'ID';
 		$query     = Database::getQuery(true);
@@ -135,7 +157,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function updateIPReferences()
+	protected function updateIPReferences(): bool
 	{
 		$fkColumn    = strtolower($this->name) . 'ID';
 		$query       = Database::getQuery();
@@ -161,7 +183,7 @@ abstract class MergeModel extends BaseModel
 		{
 			$assocTable = new $tableClass();
 			$thisAssoc  = $results[$index];
-			$nextIndex  = $nextIndex ? $nextIndex : $index + 1;
+			$nextIndex  = $nextIndex ?: $index + 1;
 			$nextAssoc  = empty($results[$nextIndex]) ? [] : $results[$nextIndex];
 
 			// Unique IP association.
@@ -231,7 +253,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	abstract protected function updateReferences();
+	abstract protected function updateReferences(): bool;
 
 	/**
 	 * Updates an association where the associated resource itself has a fk reference to the resource being merged.
@@ -240,7 +262,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	protected function updateReferencingTable(string $table)
+	protected function updateReferencingTable(string $table): bool
 	{
 		$fkColumn  = strtolower($this->name) . 'ID';
 		$mergeID   = $this->selected[0];
@@ -260,7 +282,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return bool true if the instance has been updated, otherwise false
 	 */
-	private function updateInstance(array &$instance, int $mergeID)
+	private function updateInstance(array &$instance, int $mergeID): bool
 	{
 		$context  = strtolower($this->name) . 's';
 		$relevant = false;
@@ -296,7 +318,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @param   int  $scheduleID  the id of the schedule being iterated
 	 *
-	 * @return bool  true on success, otherwise false
+	 * @return void
 	 */
 	private function updateSchedule(int $scheduleID)
 	{
@@ -305,14 +327,14 @@ abstract class MergeModel extends BaseModel
 		// Only these resources are referenced in saved schedules.
 		if (!in_array($context, ['group', 'person', 'room']))
 		{
-			return true;
+			return;
 		}
 
 		$schedule = new Tables\Schedules();
 
 		if (!$schedule->load($scheduleID))
 		{
-			return true;
+			return;
 		}
 
 		$instances = json_decode($schedule->schedule, true);
@@ -352,11 +374,8 @@ abstract class MergeModel extends BaseModel
 		if ($relevant)
 		{
 			$schedule->schedule = json_encode($instances);
-
-			return $schedule->store();
+			$schedule->store();
 		}
-
-		return true;
 	}
 
 	/**
@@ -364,7 +383,7 @@ abstract class MergeModel extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	private function updateSchedules()
+	private function updateSchedules(): bool
 	{
 		$query = Database::getQuery();
 		$query->select('id')->from('#__organizer_schedules');

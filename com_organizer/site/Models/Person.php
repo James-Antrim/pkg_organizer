@@ -28,7 +28,7 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function activate()
+	public function activate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();
@@ -79,7 +79,7 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function deactivate()
+	public function deactivate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();
@@ -112,27 +112,6 @@ class Person extends MergeModel
 		Database::setQuery($query);
 
 		return Database::execute();
-	}
-
-	/**
-	 * Gets the resource ids associated with persons in association tables.
-	 *
-	 * @param   string  $table     the unique portion of the table name
-	 * @param   string  $fkColumn  the name of the fk column referencing the other resource
-	 *
-	 * @return array the ids of the resources associated
-	 */
-	private function getResourceIDs(string $table, string $fkColumn)
-	{
-		$personIDs = implode(',', $this->selected);
-		$query     = Database::getQuery();
-		$query->select("DISTINCT $fkColumn")
-			->from("#__organizer_$table")
-			->where("personID IN ($personIDs)")
-			->order("$fkColumn");
-		Database::setQuery($query);
-
-		return Database::loadIntColumn();
 	}
 
 	/**
@@ -174,9 +153,9 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false;
 	 */
-	private function updateEventCoordinators()
+	private function updateEventCoordinators(): bool
 	{
-		if (!$eventIDs = $this->getResourceIDs('event_coordinators', 'eventID'))
+		if (!$eventIDs = $this->getReferencedIDs('event_coordinators', 'eventID'))
 		{
 			return true;
 		}
@@ -187,10 +166,10 @@ class Person extends MergeModel
 		{
 			$existing = null;
 
-			foreach ($this->selected as $personID)
+			foreach ($this->selected as $currentID)
 			{
 				$eventCoordinator = new Tables\EventCoordinators();
-				$loadConditions   = ['eventID' => $eventID, 'personID' => $personID];
+				$loadConditions   = ['eventID' => $eventID, 'personID' => $currentID];
 
 				// The current personID is not associated with the current eventID
 				if (!$eventCoordinator->load($loadConditions))
@@ -223,9 +202,9 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false;
 	 */
-	private function updateInstancePersons()
+	private function updateInstancePersons(): bool
 	{
-		if (!$instanceIDs = $this->getResourceIDs('instance_persons', 'instanceID'))
+		if (!$instanceIDs = $this->getReferencedIDs('instance_persons', 'instanceID'))
 		{
 			return true;
 		}
@@ -283,7 +262,7 @@ class Person extends MergeModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function updateReferences()
+	protected function updateReferences(): bool
 	{
 		if (!$this->updateAssociationsReferences())
 		{
@@ -308,7 +287,7 @@ class Person extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false;
 	 */
-	private function updateSubjectPersons()
+	private function updateSubjectPersons(): bool
 	{
 		$mergeIDs = implode(', ', $this->selected);
 		$query    = Database::getQuery();

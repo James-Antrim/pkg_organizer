@@ -24,7 +24,7 @@ class Room extends MergeModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function activate()
+	public function activate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();

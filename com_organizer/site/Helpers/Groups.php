@@ -19,8 +19,7 @@ use Organizer\Tables\Groups as Group;
  */
 class Groups extends Associated implements Selectable
 {
-	use Filtered;
-	use Planned;
+	use Filtered, Planned, Suppressed;
 
 	protected static $resource = 'group';
 

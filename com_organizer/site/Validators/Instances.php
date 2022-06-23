@@ -17,7 +17,7 @@ use SimpleXMLElement;
 /**
  * Provides functions for XML lesson validation and modeling.
  */
-class Instances extends Helpers\ResourceHelper
+class Instances
 {
 	// Occurrence values
 	private const NO = 0, VACATION = 'F';
@@ -307,7 +307,7 @@ class Instances extends Helpers\ResourceHelper
 	 * @param   SimpleXMLElement  $node         the node being validated
 	 * @param   string            $untisID      the untis id of the unit being iterated
 	 * @param   array             $occurrences  an array of 'occurrences'
-	 * @param   bool              $valid        whether or not the planning unit is valid (for purposes of saving)
+	 * @param   bool              $valid        whether the planning unit is valid (for purposes of saving)
 	 *
 	 * @return void
 	 */
@@ -317,8 +317,7 @@ class Instances extends Helpers\ResourceHelper
 		string $untisID,
 		array $occurrences,
 		bool $valid
-	)
-	{
+	) {
 		if (!$node->count())
 		{
 			return;
@@ -356,7 +355,7 @@ class Instances extends Helpers\ResourceHelper
 	 * @param   SimpleXMLElement  $node       the node being validated
 	 * @param   string            $untisID    the untis id of the unit being iterated
 	 * @param   int               $currentDT  the current date time in the iteration
-	 * @param   bool              $valid      whether or not the planning unit is valid (for purposes of saving)
+	 * @param   bool              $valid      whether the planning unit is valid (for purposes of saving)
 	 *
 	 * @return void errors are added to the model's errors property
 	 */
@@ -366,8 +365,7 @@ class Instances extends Helpers\ResourceHelper
 		string $untisID,
 		int $currentDT,
 		bool $valid
-	)
-	{
+	) {
 		// Current date not applicable for this instance
 		if (trim((string) $node->assigned_day) != date('w', $currentDT))
 		{
