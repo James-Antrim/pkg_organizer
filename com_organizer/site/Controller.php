@@ -24,6 +24,7 @@ use Organizer\Views\HTML\BaseView as HTMLView;
 use Organizer\Views\JSON\BaseView as JSONView;
 use Organizer\Views\PDF\BaseView as PDFView;
 use Organizer\Views\XLS\BaseView as XLSView;
+use Organizer\Views\XML\BaseView as XMLView;
 
 /**
  * Class receives user actions and performs access checks and redirection.
@@ -234,7 +235,7 @@ class Controller extends BaseController
 	 * @param   string  $prefix  The class prefix. Optional.
 	 * @param   array   $config  Configuration array for view. Optional.
 	 *
-	 * @return  HTMLView|JSONView|PDFView|XLSView  the view object
+	 * @return  HTMLView|JSONView|PDFView|XLSView|XMLView  the view object
 	 */
 	public function getView($name = '', $type = '', $prefix = 'x', $config = []): object
 	{
@@ -249,9 +250,17 @@ class Controller extends BaseController
 			$name = $this->getName();
 		}
 
-		$viewName = OrganizerHelper::getClass($name);
-		$type     = preg_replace('/[^A-Z0-9_]/i', '', strtoupper($type));
-		$name     = "Organizer\\Views\\$type\\$viewName";
+		$viewName       = OrganizerHelper::getClass($name);
+		$xmlDerivatives = ['CalDEV' => 'CALDEV', 'WebDAV' => 'WEBDAV'];
+		$type           = preg_replace('/[^A-Z0-9_]/i', '', strtoupper($type));
+
+		if ($derivative = array_search($type, $xmlDerivatives))
+		{
+			$type     = 'XML';
+			$viewName = $derivative;
+		}
+
+		$name = "Organizer\\Views\\$type\\$viewName";
 
 		$config['base_path']     = JPATH_COMPONENT_SITE . "/Views/$type";
 		$config['helper_path']   = JPATH_COMPONENT_SITE . "/Helpers";
