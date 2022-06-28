@@ -135,6 +135,29 @@ class Languages extends Text
 	}
 
 	/**
+	 * Converts an array of values into a list string.
+	 *
+	 * @param   array  $array  the array to reformat
+	 * @param   bool   $and    whether the last entry should be separated with ampersand
+	 *
+	 * @return string the reformatted
+	 */
+	public static function array2string(array $array, bool $and = true): string
+	{
+		asort($array);
+
+		if ($and)
+		{
+			$last = array_pop($array);
+
+			// Did the array originally have more than one item
+			return $array ? implode(', ', $array) . ', & ' . $last : $last;
+		}
+
+		return implode(', ', $array);
+	}
+
+	/**
 	 * Returns a language constant corresponding to the given class name.
 	 *
 	 * @param   string  $className  the name of the class
