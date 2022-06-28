@@ -11,10 +11,9 @@
 namespace Organizer\Helpers;
 
 use JDatabaseQuery;
-use JDatabaseQueryMysqli;
 use Joomla\Utilities\ArrayHelper;
 
-class Query extends JDatabaseQueryMysqli
+class Query
 {
 	/**
 	 * @param   string          $column  the column to filter against
