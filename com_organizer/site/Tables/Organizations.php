@@ -281,7 +281,7 @@ class Organizations extends BaseTable
 		}
 
 		// Create an asset_id or heal one that is corrupted.
-		if (!$this->asset_id or ($this->asset_id and $currentAssetId !== $this->asset_id))
+		if (!$this->asset_id or $currentAssetId !== $this->asset_id)
 		{
 			$this->asset_id = $asset->id;
 

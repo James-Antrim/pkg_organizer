@@ -27,7 +27,7 @@ class Pools extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	public function filterFilterForm(Form &$form)
+	public function filterFilterForm(Form $form)
 	{
 		if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 		{

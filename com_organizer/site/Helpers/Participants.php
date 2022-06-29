@@ -27,18 +27,17 @@ class Participants extends ResourceHelper
 	 */
 	public static function canRegister($participantID = 0)
 	{
-		$participantID = $participantID ? $participantID : Users::getID();
+		$participantID = $participantID ?: Users::getID();
 		$table         = new Tables\Participants();
 		if ($table->load($participantID))
 		{
-			$valid = true;
-			$valid = ($valid and (bool) $table->address);
-			$valid = ($valid and (bool) $table->city);
-			$valid = ($valid and (bool) $table->forename);
-			$valid = ($valid and (bool) $table->programID);
-			$valid = ($valid and (bool) $table->surname);
+			$valid = (bool) $table->address;
+			$valid = ($valid and $table->city);
+			$valid = ($valid and $table->forename);
+			$valid = ($valid and $table->programID);
+			$valid = ($valid and $table->surname);
 
-			return ($valid and (bool) $table->zipCode);
+			return ($valid and $table->zipCode);
 		}
 
 		return false;
@@ -53,7 +52,7 @@ class Participants extends ResourceHelper
 	 */
 	public static function exists($participantID = 0)
 	{
-		$participantID = $participantID ? $participantID : Users::getID();
+		$participantID = $participantID ?: Users::getID();
 		$participants  = new Tables\Participants();
 
 		return $participants->load($participantID);

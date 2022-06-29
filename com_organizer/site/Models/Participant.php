@@ -180,7 +180,7 @@ class Participant extends BaseModel
 			}
 		}
 
-		if (Database::insertObject('#__organizer_participants', $relevantData, 'id'))
+		if (Database::insertObject('#__organizer_participants', $relevantData))
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
 

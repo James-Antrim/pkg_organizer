@@ -109,7 +109,7 @@ class OptionsField extends FormField
 		{
 			if ($count >= 2)
 			{
-				$attr .= $this->multiple ? ' multiple' : '';
+				$attr .= ' multiple';
 
 				if ($count >= 3 and !empty($this->size))
 				{

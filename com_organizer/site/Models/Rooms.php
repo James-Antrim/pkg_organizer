@@ -28,7 +28,7 @@ class Rooms extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function filterFilterForm(Form &$form)
+	protected function filterFilterForm(Form $form)
 	{
 		if (Helpers\Input::getParams()->get('campusID'))
 		{

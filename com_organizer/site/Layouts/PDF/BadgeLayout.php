@@ -77,14 +77,13 @@ abstract class BadgeLayout extends BaseLayout
 			$view->changePosition($left, $yOffset + $titleOffset + 33);
 			$view->renderCell(80, 5, $view->campus, $view::CENTER);
 			$view->changePosition($left, $yOffset + $titleOffset + 38);
-			$view->renderCell(80, 5, $dates, $view::CENTER);
 		}
 		else
 		{
 			$view->changePosition($left, $yOffset + $titleOffset + 34);
-			$view->renderCell(80, 5, $dates, $view::CENTER);
 		}
 
+		$view->renderCell(80, 5, $dates, $view::CENTER);
 		$halfTitleOffset = $titleOffset / 2;
 		$view->Ln();
 		$view->changeFont($view::BOLD, 20);

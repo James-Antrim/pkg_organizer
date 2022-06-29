@@ -532,7 +532,7 @@ class Workload extends BaseLayout
 		$sheet->getColumnDimension('C')->setWidth(5);
 		$sheet->getRowDimension('1')->setRowHeight('85');
 
-		$this->addLogo('B1', 60, 25);
+		$this->addLogo(25);
 
 		$text = 'Mit dem ablaufenden Wintersemester 2017/18 wird ein leicht veränderter B-Bogen in Umlauf ';
 		$text .= 'gesetzt. Er dient einer dezi\ndieteren Kostenrechnung. Bitte nutzen Sie ausschließlich diesen ';
@@ -573,21 +573,19 @@ class Workload extends BaseLayout
 	/**
 	 * Adds the THM Logo to a cell.
 	 *
-	 * @param   string  $cell     the cell coordinates
-	 * @param   int     $height   the display height of the logo
-	 * @param   int     $offsetY  the offset from the top of the cell
+	 * @param   int  $offsetY  the offset from the top of the cell
 	 *
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addLogo(string $cell, int $height, int $offsetY)
+	private function addLogo(int $offsetY)
 	{
 		$objDrawing = new PHPExcel_Worksheet_Drawing();
 		$objDrawing->setName('THM Logo');
 		$objDrawing->setDescription('THM Logo');
 		$objDrawing->setPath(JPATH_COMPONENT_SITE . '/images/logo.png');
-		$objDrawing->setCoordinates($cell);
-		$objDrawing->setHeight($height);
+		$objDrawing->setCoordinates('B1');
+		$objDrawing->setHeight(60);
 		$objDrawing->setOffsetY($offsetY);
 		$objDrawing->setWorksheet($this->view->getActiveSheet());
 	}
@@ -1245,7 +1243,7 @@ class Workload extends BaseLayout
 		$this->formatWorkSheet();
 
 		$sheet->getRowDimension('1')->setRowHeight('66');
-		$this->addLogo('B1', 60, 10);
+		$this->addLogo(10);
 
 		$sheet->getRowDimension('2')->setRowHeight('22.5');
 		$style = [

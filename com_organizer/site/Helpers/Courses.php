@@ -36,7 +36,7 @@ class Courses extends ResourceHelper
 			return true;
 		}
 
-		if (!$personID = $personID ? $personID : Persons::getIDByUserID())
+		if (!$personID = $personID ?: Persons::getIDByUserID())
 		{
 			return false;
 		}
@@ -338,7 +338,7 @@ class Courses extends ResourceHelper
 			return true;
 		}
 
-		if (!$personID = $personID ? $personID : Persons::getIDByUserID(Users::getID()))
+		if (!$personID = $personID ?: Persons::getIDByUserID(Users::getID()))
 		{
 			return false;
 		}

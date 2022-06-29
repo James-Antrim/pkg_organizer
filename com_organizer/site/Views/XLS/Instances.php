@@ -109,9 +109,8 @@ class Instances extends ListView
 		}
 
 		$lastName = array_pop($names);
-		$text     = $names ? ' - ' . implode(', ', $names) . ' & ' . $lastName : ' - ' . $lastName;
 
-		return $text;
+		return $names ? ' - ' . implode(', ', $names) . ' & ' . $lastName : ' - ' . $lastName;
 	}
 
 	/**
@@ -124,7 +123,7 @@ class Instances extends ListView
 	 *
 	 * @return array
 	 */
-	private function getPersonTexts(array $container, array &$persons, bool $showGroups, bool $showRooms): array
+	private function getPersonTexts(array $container, array $persons, bool $showGroups, bool $showRooms): array
 	{
 		$names = [];
 

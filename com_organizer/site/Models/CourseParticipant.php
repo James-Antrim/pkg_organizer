@@ -204,9 +204,9 @@ class CourseParticipant extends BaseModel
 	 */
 	public function toggle(): bool
 	{
-		$attribute     = Input::getCMD('attribute', '');
-		$courseID      = Input::getInt('courseID', 0);
-		$participantID = Input::getInt('participantID', 0);
+		$attribute     = Input::getCMD('attribute');
+		$courseID      = Input::getInt('courseID');
+		$participantID = Input::getInt('participantID');
 
 		if (!$attribute or !$courseID or !$participantID)
 		{

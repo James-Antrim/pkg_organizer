@@ -24,6 +24,19 @@ class Participants extends ListModel
 	/**
 	 * @inheritDoc
 	 */
+	public function __construct($config = [])
+	{
+		parent::__construct($config);
+
+		if (!$this->adminContext)
+		{
+			$this->defaultLimit = 0;
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function getListQuery()
 	{
 		$tag   = Helpers\Languages::getTag();
@@ -58,11 +71,6 @@ class Participants extends ListModel
 		}
 
 		$this->setOrdering($query);
-
-		if (!$this->adminContext)
-		{
-			$query->setLimit(0);
-		}
 
 		return $query;
 	}

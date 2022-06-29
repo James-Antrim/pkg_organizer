@@ -38,7 +38,6 @@ class Programs extends ListModel
 			}
 		}
 
-		return;
 	}
 
 	/**
@@ -77,6 +76,5 @@ class Programs extends ListModel
 			}
 		}
 
-		return;
 	}
 }
