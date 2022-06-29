@@ -27,7 +27,7 @@ trait SuperOrdinate
 		while (Input::getInt("sub{$index}Order"))
 		{
 			$ordering      = Input::getInt("sub{$index}Order");
-			$aggregateInfo = Input::getCMD("sub{$index}");
+			$aggregateInfo = Input::getCMD("sub$index");
 
 			if (!empty($aggregateInfo))
 			{

@@ -1324,7 +1324,7 @@ class Workload extends BaseLayout
 		$row++;
 		$sheet->getRowDimension($row++)->setRowHeight($this->heights['spacer']);
 
-		$function = "=SUM(M{$dRow},M{$eRow})-M{$fRow}";
+		$function = "=SUM(M$dRow,M$eRow)-M$fRow";
 		$this->addFunctionHeader($row, 'G. Saldo zum Ende des Semesters und Deputatsübertrag für Folgesemester', $function);
 		$sheet->getStyle("M$row")->applyFromArray(['fill' => $this->fills['index']]);
 		$row++;

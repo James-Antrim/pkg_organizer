@@ -133,7 +133,7 @@ class Campuses extends ResourceHelper implements Selectable
 			// Not self
 			if (count($selectedIDs))
 			{
-				$query->where("c1.id != {$selectedIDs[0]}");
+				$query->where("c1.id != $selectedIDs[0]");
 			}
 		}
 
