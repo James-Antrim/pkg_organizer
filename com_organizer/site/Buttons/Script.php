@@ -50,6 +50,7 @@ class Script extends ToolbarButton
 	 * @param   string  $name  The name of the button.
 	 *
 	 * @return  string  Button CSS Id
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function fetchId($type = 'Script', $name = '')
 	{

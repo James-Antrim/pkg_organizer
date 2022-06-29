@@ -10,10 +10,6 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Factory;
-use Organizer\Helpers;
-use stdClass;
-
 /**
  * Class creates a select box for predefined colors.
  */

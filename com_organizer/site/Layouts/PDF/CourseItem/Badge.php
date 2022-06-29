@@ -20,8 +20,6 @@ use Organizer\Views\PDF\CourseItem;
  */
 class Badge extends BadgeLayout
 {
-	private $participantID;
-
 	/**
 	 * @inheritDoc
 	 */

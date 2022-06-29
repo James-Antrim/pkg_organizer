@@ -11,7 +11,6 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of persons.

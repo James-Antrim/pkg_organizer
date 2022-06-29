@@ -50,7 +50,7 @@ class FieldColorEdit extends EditModel
 			return false;
 		}
 
-		if ($fcID = Helpers\Input::getID())
+		if (Helpers\Input::getID())
 		{
 			$form->setFieldAttribute('fieldID', 'disabled', true);
 			$form->setFieldAttribute('organizationID', 'disabled', true);

@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Form\Form;
 use Organizer\Helpers;
 
 /**

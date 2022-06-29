@@ -10,7 +10,6 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Form\FormField;
 use Organizer\Helpers;
 
 /**

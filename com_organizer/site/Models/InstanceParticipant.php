@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
@@ -570,13 +569,13 @@ class InstanceParticipant extends BaseModel
 				continue;
 			}
 
-			$name      = Helpers\Instances::getName($instanceID);
-			$block     = Helpers\Instances::getBlock($instanceID);
-			$date      = Helpers\Dates::formatDate($block->date);
-			$earliest  = Helpers\Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
+			$name  = Helpers\Instances::getName($instanceID);
+			$block = Helpers\Instances::getBlock($instanceID);
+			$date  = Helpers\Dates::formatDate($block->date);
+			//$earliest  = Helpers\Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
 			$endTime   = Helpers\Dates::formatEndTime($block->endTime);
 			$startTime = Helpers\Dates::formatTime($block->startTime);
-			$then      = date('Y-m-d', strtotime('+2 days'));
+			//$then      = date('Y-m-d', strtotime('+2 days'));
 
 			if (Helpers\Instances::getMethodCode($instanceID) === Helpers\Methods::FINALCODE)
 			{

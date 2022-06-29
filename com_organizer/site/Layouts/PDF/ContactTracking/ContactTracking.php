@@ -118,7 +118,7 @@ class ContactTracking extends ListLayout
 						break;
 					case 'length':
 						$values = [];
-						foreach ($person->dates as $date => $minutes)
+						foreach ($person->dates as $minutes)
 						{
 							$minutes  = array_sum($minutes);
 							$values[] = "$minutes $mText";

@@ -11,8 +11,6 @@
 namespace Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
-use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Document;
 use Organizer\Helpers;
 
 /**

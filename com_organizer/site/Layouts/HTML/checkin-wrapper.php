@@ -8,8 +8,6 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers;
-
 $count = count($this->instances);
 ?>
 <div class='head'>

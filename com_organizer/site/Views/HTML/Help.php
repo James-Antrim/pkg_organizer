@@ -11,7 +11,6 @@
 namespace Organizer\Views\HTML;
 
 use Organizer\Helpers;
-use Organizer\Helpers\Languages;
 
 /**
  * Generates a view explaining the calling view.

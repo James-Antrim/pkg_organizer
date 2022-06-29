@@ -38,9 +38,6 @@ class LimitboxField extends OptionsField
 	 */
 	protected function getOptions(): array
 	{
-		// Accepted modifiers
-		$hash = md5($this->element);
-
 		if (empty($this->options))
 		{
 			$this->options = parent::getOptions();
