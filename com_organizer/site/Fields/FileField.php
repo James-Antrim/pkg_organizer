@@ -86,7 +86,7 @@ class FileField extends FormField
 			$this->multiple ? 'multiple' : '',
 			"name=\"$this->name\"",
 			$this->required ? 'required aria-required="true"' : '',
-			$this->size ? 'size="' . (int) $this->size . '"' : '',
+			$this->size ? 'size="' . $this->size . '"' : '',
 			'type="file"',
 		];
 		$attributes     = array_filter($attributes);

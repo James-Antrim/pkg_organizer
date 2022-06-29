@@ -33,7 +33,7 @@ class UnitOrganizationField extends OptionsField
 		$onchange           = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 
 		// Get the field options.
-		$options = (array) $this->getOptions();
+		$options = $this->getOptions();
 
 		return Helpers\HTML::_(
 			'select.genericlist',

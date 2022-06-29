@@ -48,7 +48,7 @@ class CourseParticipants extends ResourceHelper
 			return false;
 		}
 
-		return (bool) $courseParticipant->paid;
+		return $courseParticipant->paid;
 	}
 
 	/**

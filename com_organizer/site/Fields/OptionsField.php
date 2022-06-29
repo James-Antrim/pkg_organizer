@@ -124,7 +124,7 @@ class OptionsField extends FormField
 
 
 		// To avoid user's confusion, readonly="true" should imply disabled="true".
-		if ((bool) $this->readonly == '1' || (bool) $this->disabled)
+		if ($this->readonly or $this->disabled)
 		{
 			$attr .= ' disabled="disabled"';
 		}
