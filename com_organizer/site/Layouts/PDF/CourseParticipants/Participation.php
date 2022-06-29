@@ -12,7 +12,7 @@ namespace Organizer\Layouts\PDF\CourseParticipants;
 
 use Organizer\Helpers;
 use Organizer\Layouts\PDF\ListLayout;
-use Organizer\Views\PDF\ListView;
+use Organizer\Views\PDF\CourseParticipants;
 
 class Participation extends ListLayout
 {
@@ -24,7 +24,7 @@ class Participation extends ListLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function __construct(ListView $view)
+	public function __construct(CourseParticipants $view)
 	{
 		parent::__construct($view);
 		$view->margins(10, 30, -1, 0, 8);
@@ -43,6 +43,7 @@ class Participation extends ListLayout
 	 */
 	public function fill(array $data)
 	{
+		/* @var CourseParticipants $view */
 		$view                 = $this->view;
 		$groupedParticipation = Helpers\Courses::getGroupedParticipation($view->courseID);
 
@@ -117,6 +118,7 @@ class Participation extends ListLayout
 	 */
 	public function setTitle()
 	{
+		/* @var CourseParticipants $view */
 		$view         = $this->view;
 		$documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_ATTENDANCE');
 		$view->setNames($documentName);

@@ -57,7 +57,7 @@ class Instances extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	public function filterFilterForm(Form &$form)
+	public function filterFilterForm(Form $form)
 	{
 		parent::filterFilterForm($form);
 

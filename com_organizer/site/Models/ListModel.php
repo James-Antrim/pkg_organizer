@@ -67,7 +67,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return void modifies $form
 	 */
-	protected function filterFilterForm(Form &$form)
+	protected function filterFilterForm(Form $form)
 	{
 		// No implementation is the default implementation.
 	}

@@ -27,7 +27,7 @@ class Courses extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function filterFilterForm(Form &$form)
+	protected function filterFilterForm(Form $form)
 	{
 		parent::filterFilterForm($form);
 

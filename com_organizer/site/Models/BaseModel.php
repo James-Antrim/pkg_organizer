@@ -13,6 +13,7 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Organizer\Helpers;
+use Organizer\Tables\BaseTable;
 
 /**
  * Class which manages stored building data.
@@ -108,6 +109,7 @@ abstract class BaseModel extends BaseDatabaseModel
 
 		try
 		{
+			/* @var BaseTable $table */
 			$table = $this->getTable();
 		}
 		catch (Exception $exception)

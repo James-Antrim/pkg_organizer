@@ -51,6 +51,7 @@ class Badge extends BadgeLayout
 	 */
 	public function setTitle()
 	{
+		/* @var CourseItem $view */
 		$view         = $this->view;
 		$documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_BADGE');
 		$view->setNames($documentName);

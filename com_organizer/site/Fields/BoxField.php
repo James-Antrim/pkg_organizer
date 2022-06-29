@@ -21,6 +21,13 @@ class BoxField extends FormField
 	use Translated;
 
 	/**
+	 * The allowable maxlength of the field.
+	 *
+	 * @var    integer
+	 */
+	protected $maxLength;
+
+	/**
 	 * The form field type.
 	 *
 	 * @var    string
@@ -45,14 +52,13 @@ class BoxField extends FormField
 		}
 
 		$attributes = [
-			(!$this->autocomplete or $this->autocomplete !== 'off') ?
-				'' : "autocomplete=\"$this->autocomplete\"",
+			(!$this->autocomplete or $this->autocomplete !== 'off') ? '' : "autocomplete=\"$this->autocomplete\"",
 			$this->autofocus ? 'autofocus' : '',
 			$this->class ? "class=\"$this->class\"" : '',
 			$this->disabled ? 'disabled' : '',
 			$hint ? "placeholder=\"$hint\"" : '',
 			"id=\"$this->id\"",
-			$this->maxLength ? 'maxlength="' . (int) $this->maxLength . '"' : '',
+			$this->maxLength ? "maxlength=\"$this->maxLength\"" : '',
 			"name=\"$this->name\"",
 			!empty($this->onChange) ? "onChange=\"$this->onChange\"" : '',
 			$this->pattern ? 'pattern="' . $this->pattern . '"' : '',

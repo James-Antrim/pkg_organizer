@@ -44,6 +44,7 @@ trait Dependent
 			return '';
 		}
 
+		/** @noinspection PhpMultipleClassDeclarationsInspection */
 		return parent::getLabel();
 	}
 

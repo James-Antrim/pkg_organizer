@@ -10,9 +10,9 @@
 
 namespace Organizer\Layouts\PDF;
 
-use Organizer\Helpers\Languages;
-use Organizer\Views\PDF\BaseView;
 use Organizer\Helpers;
+use Organizer\Helpers\Languages;
+use Organizer\Views\PDF\CourseParticipants;
 
 /**
  * Base class for a Joomla View
@@ -32,7 +32,7 @@ abstract class BadgeLayout extends BaseLayout
 	/**
 	 * @inheritDoc
 	 */
-	public function __construct(BaseView $view)
+	public function __construct(CourseParticipants $view)
 	{
 		parent::__construct($view);
 		$view->margins();
@@ -51,6 +51,7 @@ abstract class BadgeLayout extends BaseLayout
 	 */
 	protected function addBadge(object $participant, int $xOffset, int $yOffset)
 	{
+		/* @var CourseParticipants $view */
 		$view = $this->view;
 		$view->SetLineStyle($this->rectangleStyle);
 		$view->Rect($xOffset, $yOffset + 10, 90, 80);
@@ -124,6 +125,7 @@ abstract class BadgeLayout extends BaseLayout
 	 */
 	protected function addBadgeBack(int $xOffset, int $yOffset)
 	{
+		/* @var CourseParticipants $view */
 		$view = $this->view;
 		$view->SetLineStyle($this->rectangleStyle);
 		$view->Rect($xOffset, 10 + $yOffset, 90, 80);

@@ -131,11 +131,11 @@ class Dates
 	 */
 	public static function getMonth(string $date): array
 	{
-		$dateTime     = strtotime($date);
-		$startDT      = strtotime('first day of this month', $dateTime);
-		$startDate    = date('Y-m-d', $startDT);
-		$endDT        = strtotime('last day of this month', $dateTime);
-		$endDate      = date('Y-m-d', $endDT);
+		$dateTime  = strtotime($date);
+		$startDT   = strtotime('first day of this month', $dateTime);
+		$startDate = date('Y-m-d', $startDT);
+		$endDT     = strtotime('last day of this month', $dateTime);
+		$endDate   = date('Y-m-d', $endDT);
 
 		return ['startDate' => $startDate, 'endDate' => $endDate];
 	}
@@ -150,15 +150,14 @@ class Dates
 	 */
 	public static function getQuarter(string $date, int $startDay = 1): array
 	{
+		$dateTime = strtotime($date);
 		switch (Input::getCMD('format'))
 		{
 			case 'pdf':
-				$dateTime     = strtotime($date);
 				$startDayName = date('l', strtotime("Sunday + $startDay days"));
 				$dateTime     = strtotime("$startDayName this week", $dateTime);
 				break;
 			default:
-				$dateTime = strtotime($date);
 				break;
 		}
 

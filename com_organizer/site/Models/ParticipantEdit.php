@@ -54,10 +54,13 @@ class ParticipantEdit extends EditModel
 		}
 
 		// I assume I skipped parent because of performed access checks.
-		$this->item           = AdminModel::getItem($this->participantID);
+		$this->item = AdminModel::getItem($this->participantID);
+
+		/** @noinspection PhpUndefinedFieldInspection */
 		$this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 
 		// New participants need the user id as the participant id
+		/** @noinspection PhpPossiblePolymorphicInvocationInspection */
 		$this->item->id = $this->item->id ?: $this->participantID;
 
 		return $this->item;

@@ -12,6 +12,7 @@ namespace Organizer\Layouts\PDF\CourseParticipants;
 
 use Organizer\Helpers;
 use Organizer\Layouts\PDF\BadgeLayout;
+use Organizer\Views\PDF\CourseParticipants;
 
 /**
  * Class loads persistent information about a course into the display context.
@@ -101,6 +102,7 @@ class Badges extends BadgeLayout
 	 */
 	public function setTitle()
 	{
+		/* @var CourseParticipants $view */
 		$view         = $this->view;
 		$documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_BADGES');
 		$view->setNames($documentName);

@@ -30,7 +30,7 @@ class Subjects extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	public function filterFilterForm(Form &$form)
+	public function filterFilterForm(Form $form)
 	{
 		parent::filterFilterForm($form);
 		if (!empty($this->state->get('calledProgramID')) or !empty($this->state->get('calledPoolID')))
