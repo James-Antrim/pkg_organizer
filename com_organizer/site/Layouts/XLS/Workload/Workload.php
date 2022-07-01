@@ -211,7 +211,7 @@ class Workload extends BaseLayout
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addColumnHeader(string $startCell, string $endCell, string $text, $comments = [], $height = 200)
+	private function addColumnHeader(string $startCell, string $endCell, string $text, array $comments = [], int $height = 200)
 	{
 		$view  = $this->view;
 		$style = [
@@ -491,7 +491,7 @@ class Workload extends BaseLayout
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addInstruction(int $row, float $height, string $text, $bold = false)
+	private function addInstruction(int $row, float $height, string $text, bool $bold = false)
 	{
 		$sheet  = $this->view->getActiveSheet();
 		$coords = 'B' . $row;
@@ -1127,7 +1127,7 @@ class Workload extends BaseLayout
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addSectionHeader(int $row, string $text, $break = false, $comments = [], $cHeight = 200)
+	private function addSectionHeader(int $row, string $text, bool $break = false, array $comments = [], int $cHeight = 200)
 	{
 		$view  = $this->view;
 		$sheet = $view->getActiveSheet();
@@ -1164,7 +1164,7 @@ class Workload extends BaseLayout
 	 * @return void
 	 * @throws Exception
 	 */
-	private function addSumRow(int $row, string $section, $ranges = [], $max = 0)
+	private function addSumRow(int $row, string $section, array $ranges = [], $max = 0)
 	{
 		$sheet     = $this->view->getActiveSheet();
 		$border    = $this->borders['header'];

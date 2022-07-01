@@ -26,15 +26,20 @@ class Script extends ToolbarButton
 	/**
 	 * Fetch the HTML for the button
 	 *
-	 * @param   string  $type    unused
-	 * @param   string  $icon    the unique icon suffix
-	 * @param   string  $text    displayed text
+	 * @param   string  $type  unused
+	 * @param   string  $icon  the unique icon suffix
+	 * @param   string  $text  displayed text
 	 * @param   string  $script  the script to use
 	 *
 	 * @return  string  HTML string for the button
 	 */
-	public function fetchButton(string $type = 'Link', string $icon = 'back', string $text = '', string $event = '', string $script = ''): string
-	{
+	public function fetchButton(
+		string $type = 'Link',
+		string $icon = 'back',
+		string $text = '',
+		string $event = '',
+		string $script = ''
+	): string {
 		$attribs = ['class="btn btn-small"', "$event=\"$script\""];
 
 		$attribs = implode(' ', $attribs);
@@ -52,7 +57,7 @@ class Script extends ToolbarButton
 	 * @return  string  Button CSS Id
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function fetchId($type = 'Script', $name = '')
+	public function fetchId(string $type = 'Script', string $name = ''): string
 	{
 		return $this->_parent->getName() . '-' . $name;
 	}

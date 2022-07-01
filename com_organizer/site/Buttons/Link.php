@@ -34,8 +34,13 @@ class Link extends ToolbarButton
 	 *
 	 * @return  string  HTML string for the button
 	 */
-	public function fetchButton($type = 'Link', $icon = 'back', $text = '', $url = null, bool $newTab = false): string
-	{
+	public function fetchButton(
+		string $type = 'Link',
+		string $icon = 'back',
+		string $text = '',
+		string $url = '',
+		bool $newTab = false
+	): string {
 		$attribs = ['class="btn btn-small"', 'rel="help"', "href=\"$url\""];
 
 		if ($newTab)
@@ -58,7 +63,7 @@ class Link extends ToolbarButton
 	 * @return  string  Button CSS Id
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function fetchId($type = 'Link', $name = '')
+	public function fetchId(string $type = 'Link', string $name = ''): string
 	{
 		return $this->_parent->getName() . '-' . $name;
 	}

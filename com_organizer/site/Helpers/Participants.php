@@ -25,7 +25,7 @@ class Participants extends ResourceHelper
 	 *
 	 * @return bool true if the necessary participant information has been set, otherwise false
 	 */
-	public static function canRegister($participantID = 0)
+	public static function canRegister(int $participantID = 0): bool
 	{
 		$participantID = $participantID ?: Users::getID();
 		$table         = new Tables\Participants();
@@ -50,7 +50,7 @@ class Participants extends ResourceHelper
 	 *
 	 * @return bool true if the user is already associated with a participant, otherwise false
 	 */
-	public static function exists($participantID = 0)
+	public static function exists(int $participantID = 0): bool
 	{
 		$participantID = $participantID ?: Users::getID();
 		$participants  = new Tables\Participants();
@@ -63,9 +63,9 @@ class Participants extends ResourceHelper
 	 *
 	 * @param   int  $participantID  the id of the participant
 	 *
-	 * @return array the associated course ids if existent, otherwise empty
+	 * @return int[] the associated course ids if existent, otherwise empty
 	 */
-	public static function getCourses(int $participantID)
+	public static function getCourseIDs(int $participantID): array
 	{
 		$query = Database::getQuery();
 		$query->select('courseID')

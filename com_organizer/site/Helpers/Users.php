@@ -134,7 +134,7 @@ class Users
 	public static function resolveUserName(int $userID = 0): array
 	{
 		$user           = Factory::getUser($userID);
-		$sanitizedName  = trim(preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}\.\-\']/', ' ', $user->name));
+		$sanitizedName  = trim(preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}.\-\']/', ' ', $user->name));
 		$nameFragments  = array_filter(explode(" ", $sanitizedName));
 		$surname        = array_pop($nameFragments);
 		$nameSupplement = '';

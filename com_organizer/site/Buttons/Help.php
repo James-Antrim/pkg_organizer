@@ -58,7 +58,7 @@ class Help extends ToolbarButton
 	 * @return  string  Button CSS Id
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function fetchId(string $type = 'Link', string $name = '')
+	public function fetchId(string $type = 'Link', string $name = ''): string
 	{
 		return $this->_parent->getName() . '-' . $name;
 	}

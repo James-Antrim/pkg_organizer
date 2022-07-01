@@ -47,7 +47,7 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @return string the HTML output of the field attribute display
 	 */
-	public static function getFieldColorDisplay(int $fieldID, $organizationID = 0): string
+	public static function getFieldColorDisplay(int $fieldID, int $organizationID = 0): string
 	{
 		if (!$fieldID)
 		{

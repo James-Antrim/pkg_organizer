@@ -44,7 +44,6 @@ class CourseParticipant extends BaseModel
 	 */
 	private function batch($value): bool
 	{
-		$property = 'status';
 		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
 			return false;

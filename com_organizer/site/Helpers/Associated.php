@@ -27,9 +27,9 @@ abstract class Associated extends ResourceHelper
 	 *
 	 * @param   int  $resourceID  the id of the resource for which the associated organizations are requested
 	 *
-	 * @return array the ids of organizations associated with the resource
+	 * @return int[] the ids of organizations associated with the resource
 	 */
-	public static function getOrganizationIDs(int $resourceID)
+	public static function getOrganizationIDs(int $resourceID): array
 	{
 		$column = static::$resource . 'ID';
 		$query  = Database::getQuery(true);
@@ -49,7 +49,7 @@ abstract class Associated extends ResourceHelper
 	 *
 	 * @return bool true if the resource is associated with the organization, otherwise false
 	 */
-	public static function isAssociated(int $organizationID, int $resourceID)
+	public static function isAssociated(int $organizationID, int $resourceID): bool
 	{
 		$column = static::$resource . 'ID';
 		$table  = new Tables\Associations();

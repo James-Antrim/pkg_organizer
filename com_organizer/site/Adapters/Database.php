@@ -49,7 +49,7 @@ class Database
 	 *
 	 * @return  JDatabaseQuery  The current query object or a new object extending the JDatabaseQuery class.
 	 */
-	public static function getQuery($new = true): JDatabaseQuery
+	public static function getQuery(bool $new = true): JDatabaseQuery
 	{
 		return Factory::getDbo()->getQuery($new);
 	}
@@ -63,7 +63,7 @@ class Database
 	 *
 	 * @return  bool    True on success.
 	 */
-	public static function insertObject(string $table, object &$object, $key = 'id'): bool
+	public static function insertObject(string $table, object &$object, string $key = 'id'): bool
 	{
 		$dbo = Factory::getDbo();
 
@@ -116,7 +116,7 @@ class Database
 	 *
 	 * @return  array   The return value or an empty array if the query failed.
 	 */
-	public static function loadAssocList($key = '', $column = ''): array
+	public static function loadAssocList(string $key = '', string $column = ''): array
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -141,7 +141,7 @@ class Database
 	 *
 	 * @return  bool  The return value if successful, otherwise the default value
 	 */
-	public static function loadBool($default = false): bool
+	public static function loadBool(bool $default = false): bool
 	{
 		$result = self::loadResult();
 
@@ -156,7 +156,7 @@ class Database
 	 *
 	 * @return  array    The return value or null if the query failed.
 	 */
-	public static function loadColumn($offset = 0): array
+	public static function loadColumn(int $offset = 0): array
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -181,7 +181,7 @@ class Database
 	 *
 	 * @return  int  The return value if successful, otherwise the default value
 	 */
-	public static function loadInt($default = 0): int
+	public static function loadInt(int $default = 0): int
 	{
 		$result = self::loadResult();
 
@@ -194,9 +194,9 @@ class Database
 	 *
 	 * @param   int  $offset  The row offset to use to build the result array.
 	 *
-	 * @return  array    The return value or null if the query failed.
+	 * @return  int[]    The return value or null if the query failed.
 	 */
-	public static function loadIntColumn($offset = 0): array
+	public static function loadIntColumn(int $offset = 0): array
 	{
 		if ($result = self::loadColumn($offset))
 		{
@@ -213,7 +213,7 @@ class Database
 	 *
 	 * @return  object  The return value or an empty array if the query failed.
 	 */
-	public static function loadObject($class = 'stdClass')
+	public static function loadObject(string $class = 'stdClass')
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -242,7 +242,7 @@ class Database
 	 *
 	 * @return  array   The return value or an empty array if the query failed.
 	 */
-	public static function loadObjectList($key = '', $class = 'stdClass'): array
+	public static function loadObjectList(string $key = '', string $class = 'stdClass'): array
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -291,7 +291,7 @@ class Database
 	 *
 	 * @return  string  The return value if successful, otherwise the default value
 	 */
-	public static function loadString($default = ''): string
+	public static function loadString(string $default = ''): string
 	{
 		$result = self::loadResult();
 
@@ -307,7 +307,7 @@ class Database
 	 *
 	 * @return  void
 	 */
-	public static function setQuery($query, $offset = 0, $limit = 0)
+	public static function setQuery($query, int $offset = 0, int $limit = 0)
 	{
 		Factory::getDbo()->setQuery($query, $offset, $limit);
 	}

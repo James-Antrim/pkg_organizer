@@ -28,7 +28,7 @@ class Mailer
 	 *
 	 * @return void
 	 */
-	public static function notifyParticipant($participantID, $subject, $body)
+	public static function notifyParticipant(int $participantID, string $subject, string $body)
 	{
 		$user = Users::getUser($participantID);
 		if (!$user->id)

@@ -368,7 +368,7 @@ class Can
 					return true;
 				}
 
-				$courseIDs = Participants::getCourses($resourceID);
+				$courseIDs = Participants::getCourseIDs($resourceID);
 
 				foreach ($courseIDs as $courseID)
 				{

@@ -20,14 +20,13 @@ class SubjectItem extends ItemView
 	/**
 	 * Renders a number of stars appropriate to the value
 	 *
-	 * @param   string  $value  the value of the star attribute
+	 * @param   int|null  $value  the value of the star attribute
 	 *
 	 * @return void outputs HTML
 	 */
-	public function renderStarValue($value)
+	public function renderStarValue(?int $value)
 	{
-		$invalid = (is_null($value) or $value > 3);
-		if ($invalid)
+		if (is_null($value))
 		{
 			return;
 		}

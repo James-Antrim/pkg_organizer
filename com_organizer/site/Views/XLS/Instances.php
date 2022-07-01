@@ -94,7 +94,7 @@ class Instances extends ListView
 	 *
 	 * @return string
 	 */
-	private function getPersonResources(array $persons, int $personID, string $key, string $oKey, $rKey = ''): string
+	private function getPersonResources(array $persons, int $personID, string $key, string $oKey, string $rKey = ''): string
 	{
 		$names = [];
 

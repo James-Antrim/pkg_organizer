@@ -137,12 +137,23 @@ class Subject extends CurriculumResource
 	{
 		if (!isset($data[$property]))
 		{
+			$data[$property] = 'NULL';
+
 			return;
 		}
 
-		if ($data[$property] == '-1')
+		$value = (int) $data[$property];
+		if ($value >= 3)
 		{
-			$data[$property] = 'NULL';
+			$data[$property] = 3;
+		}
+		elseif ($value >= 0)
+		{
+			$data[$property] = $value;
+		}
+		else
+		{
+			$data[$property] = null;
 		}
 	}
 

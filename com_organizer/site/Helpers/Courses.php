@@ -238,9 +238,9 @@ class Courses extends ResourceHelper
 	 * @param   int       $courseID  the course id
 	 * @param   int|null  $status    the participant status
 	 *
-	 * @return array list of participants in course
+	 * @return int [] the participant IDs
 	 */
-	public static function getParticipantIDs(int $courseID, $status = null)
+	public static function getParticipantIDs(int $courseID, int $status = null): array
 	{
 		if (empty($courseID))
 		{

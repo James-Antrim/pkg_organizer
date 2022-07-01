@@ -55,12 +55,12 @@ class CourseParticipants extends ResourceHelper
 	 * Retrieves the participant's state for the given course
 	 *
 	 * @param   int  $courseID       the course id
-	 * @param   int  $eventID        the id of the specific course event
 	 * @param   int  $participantID  the id of the participant
+	 * @param   int  $eventID        the id of the specific course event
 	 *
 	 * @return  int|null int if the user has a course participant state, otherwise null
 	 */
-	public static function getState(int $courseID, int $participantID, $eventID = 0)
+	public static function getState(int $courseID, int $participantID, int $eventID = 0): ?int
 	{
 		$query = Database::getQuery();
 		$query->select('status')
@@ -96,7 +96,7 @@ class CourseParticipants extends ResourceHelper
 	 *
 	 * @return bool true if the participant entry is incomplete, otherwise false
 	 */
-	public static function validProfile(int $courseID, int $participantID)
+	public static function validProfile(int $courseID, int $participantID): bool
 	{
 		$participant = new Tables\Participants();
 		if (empty($participantID) or !$participant->load($participantID))
