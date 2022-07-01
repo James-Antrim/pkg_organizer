@@ -140,7 +140,7 @@ class Category extends BaseModel
 	/**
 	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();

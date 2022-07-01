@@ -64,7 +64,7 @@ class Campuses extends ListModel
 	 *
 	 * @return void
 	 */
-	private function setCityFilter($query)
+	private function setCityFilter(JDatabaseQuery $query)
 	{
 		$value = $this->state->get('filter.city', '');
 
@@ -95,7 +95,7 @@ class Campuses extends ListModel
 	 *
 	 * @return void
 	 */
-	private function setGridFilter($query)
+	private function setGridFilter(JDatabaseQuery $query)
 	{
 		$value = $this->state->get('filter.gridID', '');
 

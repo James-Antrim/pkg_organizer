@@ -637,7 +637,7 @@ class Subject extends CurriculumResource
 	/**
 	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 

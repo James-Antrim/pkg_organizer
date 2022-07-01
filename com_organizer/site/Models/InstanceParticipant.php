@@ -712,7 +712,7 @@ class InstanceParticipant extends BaseModel
 	 *
 	 * @return bool int id of the resource on success, otherwise bool false
 	 */
-	public function save($data = []): bool
+	public function save(array $data = []): bool
 	{
 		$this->authorize();
 

@@ -53,7 +53,7 @@ class Event extends MergeModel
 	 *
 	 * @return int|bool int id of the resource on success, otherwise bool false
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		if (!$eventID = parent::save($data))
 		{

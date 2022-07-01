@@ -35,20 +35,16 @@ class ParticipantEdit extends EditModel
 	}
 
 	/**
-	 * Method to get a single record.
-	 *
-	 * @param   int  $participantID  The id of the primary key.
-	 *
-	 * @return mixed    Object on success, false on failure.
+	 * @inheritDoc
 	 */
-	public function getItem($participantID = 0)
+	public function getItem($pk = 0)
 	{
-		$this->participantID = $participantID ?: Helpers\Input::getSelectedID(Helpers\Users::getID());
+		$this->participantID = $pk ?: Helpers\Input::getSelectedID(Helpers\Users::getID());
 
 		$this->authorize();
 
 		// Prevents duplicate execution from getForm and getItem
-		if (isset($this->item->id) and ($this->item->id === $participantID))
+		if (isset($this->item->id) and ($this->item->id === $pk))
 		{
 			return $this->item;
 		}

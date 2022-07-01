@@ -30,7 +30,7 @@ class Grid extends BaseModel
 	/**
 	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$this->authorize();
 

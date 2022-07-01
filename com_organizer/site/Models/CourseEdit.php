@@ -32,12 +32,7 @@ class CourseEdit extends EditModel
 	}
 
 	/**
-	 * Method to get the form
-	 *
-	 * @param   array  $data      Data         (default: array)
-	 * @param   bool   $loadData  Load data  (default: true)
-	 *
-	 * @return mixed Form object on success, False on error.
+	 * @inheritDoc
 	 */
 	public function getForm($data = [], $loadData = true)
 	{
