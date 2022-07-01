@@ -10,7 +10,10 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\Extended;
 use Organizer\Helpers;
 
 /**
@@ -87,9 +90,9 @@ class Subjects extends ListModel
 		$tag = Helpers\Languages::getTag();
 
 		// Create the sql query
-		$query = $this->_db->getQuery(true);
+		$query = Database::getQuery();
 		$query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditPoints")
-			->from('#__organizer_subjects AS s');
+			->fromX('subjects', 's');
 
 		$searchFields = [
 			's.fullName_de',

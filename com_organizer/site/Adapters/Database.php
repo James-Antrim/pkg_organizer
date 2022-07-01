@@ -51,7 +51,21 @@ class Database
 	 */
 	public static function getQuery(bool $new = true): JDatabaseQuery
 	{
-		return Factory::getDbo()->getQuery($new);
+		$dbo = Factory::getDbo();
+
+		if (strtolower($dbo->getName()) !== 'mysqli')
+		{
+			Helpers\OrganizerHelper::error(501);
+		}
+
+		if ($new)
+		{
+			return new Queries\QueryMySQLi();
+		}
+		else
+		{
+			return $dbo->getQuery();
+		}
 	}
 
 	/**
