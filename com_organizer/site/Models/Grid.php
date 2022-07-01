@@ -94,7 +94,7 @@ class Grid extends BaseModel
 	 *
 	 * @return bool true if the default status was removed from all grids, otherwise false
 	 */
-	private function unDefaultAll()
+	private function unDefaultAll(): bool
 	{
 		$query = Database::getQuery();
 		$query->update('#__organizer_grids')->set('isDefault = 0');

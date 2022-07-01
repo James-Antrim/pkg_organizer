@@ -42,8 +42,8 @@ class GroupEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Groups
 	{
-		return new Tables\Groups;
+		return new Tables\Groups();
 	}
 }

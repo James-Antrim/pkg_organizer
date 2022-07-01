@@ -42,9 +42,9 @@ class Campus extends BaseModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Campuses
 	{
-		return new Tables\Campuses;
+		return new Tables\Campuses();
 	}
 
 	/**

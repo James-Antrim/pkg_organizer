@@ -42,9 +42,9 @@ class Monitor extends BaseModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Monitors
 	{
-		return new Tables\Monitors;
+		return new Tables\Monitors();
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Monitor extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function saveDefaultBehaviour()
+	public function saveDefaultBehaviour(): bool
 	{
 		$this->authorize();
 

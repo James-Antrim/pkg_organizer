@@ -59,8 +59,8 @@ class CategoryEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Categories
 	{
-		return new Tables\Categories;
+		return new Tables\Categories();
 	}
 }

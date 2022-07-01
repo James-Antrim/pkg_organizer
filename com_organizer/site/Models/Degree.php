@@ -28,8 +28,8 @@ class Degree extends BaseModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Degrees
 	{
-		return new Tables\Degrees;
+		return new Tables\Degrees();
 	}
 }

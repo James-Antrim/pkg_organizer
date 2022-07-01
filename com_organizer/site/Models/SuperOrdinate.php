@@ -19,7 +19,7 @@ trait SuperOrdinate
 	 *
 	 * @return array  an array containing the resource's subordinate resources
 	 */
-	private function getSubOrdinates()
+	private function getSubOrdinates(): array
 	{
 		$index        = 1;
 		$subOrdinates = [];

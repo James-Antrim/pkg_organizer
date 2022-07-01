@@ -42,8 +42,8 @@ class Building extends BaseModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Buildings
 	{
-		return new Tables\Buildings;
+		return new Tables\Buildings();
 	}
 }

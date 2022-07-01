@@ -28,7 +28,7 @@ class Category extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function activate()
+	public function activate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();
@@ -87,7 +87,7 @@ class Category extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function deactivate()
+	public function deactivate(): bool
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();

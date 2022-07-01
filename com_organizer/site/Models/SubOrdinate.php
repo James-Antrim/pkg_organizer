@@ -24,7 +24,7 @@ trait SubOrdinate
 	 *
 	 * @return bool
 	 */
-	private function addNew($data, $superOrdinates)
+	private function addNew($data, $superOrdinates): bool
 	{
 		$existingRanges  = $this->getRanges($data['id']);
 		$resourceColumn  = $this->resource . 'ID';
@@ -77,7 +77,7 @@ trait SubOrdinate
 	 *
 	 * @return array the applicable superordinate ranges
 	 */
-	private function getSuperOrdinates($data)
+	private function getSuperOrdinates($data): array
 	{
 		// No need to check superordinates if no curriculum was selected
 		if (empty($data['curricula']))

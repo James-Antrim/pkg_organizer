@@ -26,7 +26,7 @@ class Participant extends BaseModel
 	 *
 	 * @return string the cleaned value
 	 */
-	private function cleanAlpha(string $name)
+	private function cleanAlpha(string $name): string
 	{
 		$name = preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}_.\-\']/', ' ', $name);
 
@@ -40,7 +40,7 @@ class Participant extends BaseModel
 	 *
 	 * @return string the cleaned value
 	 */
-	private function cleanAlphaNum(string $name)
+	private function cleanAlphaNum(string $name): string
 	{
 		$name = preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\d\p{N}_.\-\']/', ' ', $name);
 
@@ -54,7 +54,7 @@ class Participant extends BaseModel
 	 *
 	 * @return string the cleaned value
 	 */
-	private function cleanSpaces(string $string)
+	private function cleanSpaces(string $string): string
 	{
 		return preg_replace('/ +/', ' ', $string);
 	}

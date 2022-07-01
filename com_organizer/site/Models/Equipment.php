@@ -63,7 +63,7 @@ class Equipment extends ListModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Equipment
 	{
 		return new Tables\Equipment();
 	}

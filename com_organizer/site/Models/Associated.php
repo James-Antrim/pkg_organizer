@@ -26,7 +26,7 @@ trait Associated
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	protected function updateAssociations($resourceID, $organizationIDs)
+	protected function updateAssociations($resourceID, $organizationIDs): bool
 	{
 		foreach (Helpers\Organizations::getIDs() as $organizationID)
 		{

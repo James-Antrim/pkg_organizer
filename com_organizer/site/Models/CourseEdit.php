@@ -86,8 +86,8 @@ class CourseEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Courses
 	{
-		return new Tables\Courses;
+		return new Tables\Courses();
 	}
 }

@@ -29,7 +29,7 @@ class CourseParticipant extends BaseModel
 	 * @return bool true on success, otherwise false
 	 * @throws Exception
 	 */
-	public function accept()
+	public function accept(): bool
 	{
 		return $this->batch('status', self::ACCEPTED);
 	}
@@ -43,7 +43,7 @@ class CourseParticipant extends BaseModel
 	 * @return bool true on success, otherwise false
 	 * @throws Exception
 	 */
-	private function batch(string $property, $value)
+	private function batch(string $property, $value): bool
 	{
 		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
@@ -103,7 +103,7 @@ class CourseParticipant extends BaseModel
 	 *
 	 * @return bool true on success, false on error
 	 */
-	public function notify()
+	public function notify(): bool
 	{
 		if (!$courseID = Input::getID())
 		{
@@ -144,7 +144,7 @@ class CourseParticipant extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function remove()
+	public function remove(): bool
 	{
 		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
@@ -250,7 +250,7 @@ class CourseParticipant extends BaseModel
 	 * @return bool true on success, otherwise false
 	 * @throws Exception
 	 */
-	public function waitlist()
+	public function waitlist(): bool
 	{
 		return $this->batch('status', self::WAITLIST);
 	}

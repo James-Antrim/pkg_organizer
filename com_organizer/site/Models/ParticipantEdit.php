@@ -77,7 +77,7 @@ class ParticipantEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Participants
 	{
 		return new Tables\Participants();
 	}

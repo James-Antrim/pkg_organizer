@@ -28,7 +28,7 @@ class CourseItem extends ItemModel
 	 *
 	 * @return array  subject data on success, otherwise empty
 	 */
-	public function getItem()
+	public function getItem(): array
 	{
 		if (!$courseID = Helpers\Input::getID())
 		{
@@ -81,7 +81,7 @@ class CourseItem extends ItemModel
 	 *
 	 * @return array the course template
 	 */
-	private function getStructure()
+	private function getStructure(): array
 	{
 		$option = 'ORGANIZER_';
 
