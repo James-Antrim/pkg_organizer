@@ -1857,7 +1857,7 @@ class Search extends ListModel
 			->leftJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
 			->leftJoin('#__organizer_persons AS p1 ON p1.id = ip.personID')
 			->leftJoin('#__organizer_event_coordinators AS ec ON ec.eventID = e.id')
-			->leftJoin('#__organizer_persons AS p2  ON p2.id = ec.personID')
+			->leftJoin('#__organizer_persons AS p2 ON p2.id = ec.personID')
 			->where('(roleID IS NULL OR roleID IN (' . implode(',', $relevantRoles) . '))')
 			->where("i.delta != 'removed'")
 			->where("u.delta != 'removed'")
