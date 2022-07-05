@@ -10,9 +10,509 @@
 
 namespace Organizer\Adapters\Queries;
 
+use JDatabaseDriver;
+use JDatabaseQuery;
 use JDatabaseQueryMysqli;
+use Joomla\CMS\Factory;
+use Joomla\Utilities\ArrayHelper;
+use Organizer\Helpers\OrganizerHelper;
 
 class QueryMySQLi extends JDatabaseQueryMysqli
 {
-	use Extended;
+	/**
+	 * @inheritDoc
+	 */
+	public function __construct(JDatabaseDriver $db = null)
+	{
+		$db = !($db instanceof JDatabaseDriver) ? Factory::getDbo() : $db;
+		parent::__construct($db);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function andWhere($conditions, $glue = 'OR'): QueryMySQLi
+	{
+		return $this->extendWhere('AND', $conditions, $glue);
+	}
+
+	/**
+	 * Wraps the JDatabaseQuery function to ensure return type compatibility.
+	 *
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function call($columns): QueryMySQLi
+	{
+		return parent::call($columns);
+	}
+
+	/**
+	 * Wraps the the clear function in its own function to minimize the display of "<statement> or DELIMITER expected" errors.
+	 *
+	 * @inheritDoc
+	 *
+	 * @return  QueryMySQLi  returns this object to allow chaining
+	 */
+	public function clear($clause = null): QueryMySQLi
+	{
+		return parent::clear($clause);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function columns($columns): QueryMySQLi
+	{
+		$columns = $this->resolveColumns($columns);
+
+		return parent::columns($columns);
+	}
+
+	/**
+	 * Add a table name to the DELETE clause of the query.
+	 *
+	 * @param   string  $table  the unique part of an organizer table name, or a complete table name
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function delete($table = null): QueryMySQLi
+	{
+		$table = $this->resolveTable($table);
+
+		return parent::delete($table);
+	}
+
+	/**
+	 * Adds the table to delete from in a query, optionally with a value filter.
+	 *
+	 * @param   string          $table   the unique part of an organizer table name, or a complete table name, optionally with alias
+	 * @param   string          $where   the optional column to filter against
+	 * @param   int[]|string[]  $in      the optional values to filter against
+	 * @param   bool            $negate  if the predicate should be negated
+	 * @param   bool            $quote   if the values should be quoted
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function deleteX(
+		string $table,
+		string $where = '',
+		array $in = [],
+		bool $negate = false,
+		bool $quote = false
+	): QueryMySQLi {
+		$table = $this->resolveTable($table);
+		$this->delete($table);
+
+		if ($where and $in)
+		{
+			$this->wherein($where, $in, $negate, $quote);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function extendWhere($outerGlue, $conditions, $innerGlue = 'AND'): QueryMySQLi
+	{
+		return parent::extendWhere($outerGlue, $conditions, $innerGlue);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function from($tables, $subQueryAlias = null): QueryMySQLi
+	{
+		if ($tables instanceof JDatabaseQuery)
+		{
+			return parent::from($tables, $subQueryAlias);
+		}
+
+		$tables = $this->resolveTables($tables);
+
+		return parent::from($tables);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function group($columns): QueryMySQLi
+	{
+		$columns = $this->resolveColumns($columns);
+
+		return parent::group($columns);
+	}
+
+	//todo: having?
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function innerJoin($condition): QueryMySQLi
+	{
+		return $this->join('INNER', $condition);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function insert($table, $incrementField = false): QueryMySQLi
+	{
+		$table = $this->resolveTable($table);
+
+		return parent::insert($table, $incrementField);
+	}
+
+	/**
+	 * Add a JOIN clause to the query.
+	 *
+	 * @param   string  $type        the type of join, prepended to the JOIN keyword
+	 * @param   string  $conditions  the join conditions
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function join($type, $conditions): QueryMySQLi
+	{
+		[$table, $conditions] = preg_split("/ ON /i", $conditions);
+		$join = $this->resolveTable($table);
+
+		$keyWord = 'ON';
+		foreach (preg_split("/ AND /i", $conditions) as $condition)
+		{
+			$operand = '=';
+			if (strpos($condition, '<') !== false)
+			{
+				$operand = '<';
+			}
+			elseif (strpos($condition, '>') !== false)
+			{
+				$operand = '>';
+			}
+
+			[$left, $right] = explode(" $operand ", $condition);
+			$left  = $this->resolveColumn($left);
+			$right = $this->resolveColumn($right);
+
+			$join .= " $keyWord $left = $right";
+
+			if ($keyWord === 'ON')
+			{
+				$keyWord = 'AND';
+			}
+		}
+
+		return parent::join($type, $join);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function leftJoin($condition): QueryMySQLi
+	{
+		return $this->join('LEFT', $condition);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function order($columns): QueryMySQLi
+	{
+		$this->resolveColumns($columns);
+
+		return parent::order($columns);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function orWhere($conditions, $glue = 'AND'): QueryMySQLi
+	{
+		return $this->extendWhere('OR', $conditions, $glue);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function outerJoin($condition): QueryMySQLi
+	{
+		return $this->join('OUTER', $condition);
+	}
+
+	/**
+	 * Explicitly resolves the passed column to query appropriate quoting.
+	 *
+	 * @param   string  $column  the 'column' to be resolved
+	 *
+	 * @return string
+	 */
+	private function resolveColumn(string $column): string
+	{
+		// Ignore function and recursive calls.
+		if (strpos($column, '(') !== false or strpos($column, '`') === 0)
+		{
+			return $column;
+		}
+
+		$columnAlias = null;
+		if (stripos($column, ' AS '))
+		{
+			[$column, $columnAlias] = preg_split("/ AS /i", $column);
+		}
+
+		$thingOne = $column;
+		$thingTwo = '';
+		if (strpos($column, '.'))
+		{
+			[$thingOne, $thingTwo] = explode('.', $column);
+		}
+
+		if ($thingTwo)
+		{
+			$column     = $thingTwo;
+			$tableAlias = $thingOne;
+		}
+		else
+		{
+			$column     = $thingOne;
+			$tableAlias = '';
+		}
+
+		if (strpos($column, '*'))
+		{
+			// A column alias for a star select makes no
+			return $tableAlias ? $this->quoteName($column) . '.*' : $column;
+		}
+
+		$column = $tableAlias ? "$tableAlias.$column" : $column;
+
+		return $this->quoteName($column, $columnAlias);
+	}
+
+	/**
+	 * Explicitly resolves the passed columns to query appropriate quoting.
+	 *
+	 * @param   array|string  $columns  the unique part of an organizer table name, or a complete table name
+	 *
+	 * @return array
+	 */
+	private function resolveColumns($columns): array
+	{
+		$return = [];
+		if (is_array($columns))
+		{
+			foreach ($columns as $column)
+			{
+				$return[] = $this->resolveColumn($column);
+			}
+		}
+		elseif (is_string($columns))
+		{
+			$columns = explode(',', $columns);
+
+			foreach ($columns as $column)
+			{
+				$return[] = $this->resolveColumn($column);
+			}
+		}
+		else
+		{
+			OrganizerHelper::error(400);
+		}
+
+		return $return;
+	}
+
+	/**
+	 * Supplements the component internal common portions of a table name. Already complete table names are not changed.
+	 *
+	 * @param   string  $table  the unique part of an organizer table name, or a complete table name
+	 *
+	 * @return string
+	 */
+	private function resolveTable(string $table): string
+	{
+		// A recursive call has been made.
+		if (strpos($table, '`') === 0)
+		{
+			return $table;
+		}
+
+		$alias = null;
+		if (stripos($table, ' AS '))
+		{
+			[$table, $alias] = preg_split("/ AS /i", $table);
+		}
+
+		$table = strpos($table, '#_') === 0 ? $table : "#__organizer_$table";
+
+		return $this->quoteName($table, $alias);
+	}
+
+	/**
+	 * Supplements the component internal common portions of a table name. Already complete table names are not changed.
+	 *
+	 * @param   array|string  $tables  the unique part of an organizer table name, or a complete table name
+	 *
+	 * @return array
+	 */
+	private function resolveTables($tables): array
+	{
+		$return = [];
+		if (is_array($tables))
+		{
+			foreach ($tables as $table)
+			{
+				$return[] = $this->resolveTable($table);
+			}
+		}
+		elseif (is_string($tables))
+		{
+			$return = [$this->resolveTable($tables)];
+		}
+		else
+		{
+			OrganizerHelper::error(400);
+		}
+
+		return $return;
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function rightJoin($condition): QueryMySQLi
+	{
+		return $this->join('RIGHT', $condition);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function select($columns): QueryMySQLi
+	{
+		return parent::select($columns);
+	}
+
+	/**
+	 * Provides a shortcut signature for a simple select query.
+	 *
+	 * @param   array|string    $select  the 'columns' to select
+	 * @param   array|string    $from    the unique part of an organizer table name, or a complete table name
+	 * @param   string          $where   the optional column to filter against
+	 * @param   int[]|string[]  $in      the optional values to filter against
+	 * @param   bool            $negate  if the predicate should be negated
+	 * @param   bool            $quote   if the values should be quoted
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function selectX(
+		$select,
+		$from,
+		string $where = '',
+		array $in = [],
+		bool $negate = false,
+		bool $quote = false
+	): QueryMySQLi {
+
+		$select = $this->resolveColumns($select);
+		$from   = $this->resolveTables($from);
+
+		$this->select($select)->from($from);
+
+		if ($where and $in)
+		{
+			$this->wherein($where, $in, $negate, $quote);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function set($conditions, $glue = ','): QueryMySQLi
+	{
+		return parent::set($conditions, $glue);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function update($table): QueryMySQLi
+	{
+		$table = $this->resolveTable($table);
+
+		return parent::update($table);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function values($values): QueryMySQLi
+	{
+		return parent::values($values);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function where($conditions, $glue = 'AND'): QueryMySQLi
+	{
+		return parent::where($conditions, $glue);
+	}
+
+	/**
+	 * Adds value filter conditions to a query (WHERE <column> <NOT> IN <value set>).
+	 *
+	 * @param   string          $where   the column to filter against
+	 * @param   int[]|string[]  $in      the values to filter against
+	 * @param   bool            $negate  if the predicate should be negated
+	 * @param   bool            $quote   if the values should be quoted
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function wherein(string $where, array $in, bool $negate = false, bool $quote = false): QueryMySQLi
+	{
+		$in        = $quote ? "'" . implode("','", $in) . "'" : implode(',', ArrayHelper::toInteger($in));
+		$predicate = $negate ? " NOT IN ($in)" : " IN ($in)";
+
+		return $this->where($this->quoteName($where) . $predicate);
+	}
 }

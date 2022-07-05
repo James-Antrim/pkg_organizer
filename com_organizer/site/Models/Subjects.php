@@ -92,7 +92,7 @@ class Subjects extends ListModel
 		// Create the sql query
 		$query = Database::getQuery();
 		$query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditPoints")
-			->fromX('subjects', 's');
+			->from('subjects AS s');
 
 		$searchFields = [
 			's.fullName_de',
