@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Joomla\Utilities\ArrayHelper;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
@@ -60,9 +61,11 @@ class Event extends MergeModel
 			return false;
 		}
 
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		if ($coordinatorIDs = $data['coordinatorIDs'])
+		$data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+		$coordinatorIDs = isset($data['coordinatorIDs']) ?? [];
+		if ($coordinatorIDs)
 		{
+			$coordinatorIDs = ArrayHelper::toInteger($coordinatorIDs);
 			foreach ($coordinatorIDs as $coordinatorID)
 			{
 				$coordinator = new Tables\EventCoordinators();
