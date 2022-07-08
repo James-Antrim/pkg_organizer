@@ -223,7 +223,7 @@ class Room extends MergeModel
 				switch ($headers[$key])
 				{
 					case 'area':
-						echo "<pre>area!</pre>";
+						//echo "<pre>area!</pre>";
 						$room->area = (float) $value;
 						break;
 					case 'effCapacity':
@@ -239,7 +239,7 @@ class Room extends MergeModel
 					// Already used to load
 					case 'code':
 					default:
-						echo "<pre>default?</pre>";
+						//echo "<pre>default?</pre>";
 						break;
 				}
 			}

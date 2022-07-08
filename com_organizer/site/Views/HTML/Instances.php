@@ -699,9 +699,6 @@ class Instances extends ListView
 				foreach ($fields as $field => $value)
 				{
 					$value = is_array($value) ? (string) $value : $value;
-					echo "<pre>" . print_r($url, true) . "</pre>";
-					echo "<pre>" . print_r($field, true) . "</pre>";
-					echo "<pre>" . print_r($value, true) . "</pre>";
 					$url .= "&$field=$value";
 				}
 			}
