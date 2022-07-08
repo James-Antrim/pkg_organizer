@@ -11,6 +11,7 @@
 namespace Organizer\Fields;
 
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a select box for organizations.
@@ -50,7 +51,7 @@ class OrganizationFilterField extends OptionsField
 	/**
 	 * Returns an array of options
 	 *
-	 * @return array  the organization options
+	 * @return stdClass[]  the organization options
 	 */
 	protected function getOptions(): array
 	{

@@ -16,7 +16,7 @@ trait Numbered
 	/**
 	 * Gets the resource ids.
 	 *
-	 * @return array the ids of the resource.
+	 * @return int[] the ids of the resource.
 	 */
 	public static function getIDs(): array
 	{

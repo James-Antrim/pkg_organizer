@@ -123,7 +123,7 @@ class OrganizationOccupancy extends BaseModel
 
 				foreach ($this->calendarData[$currentDate] as $times => $roomOrgs)
 				{
-					list($startTime, $endTime) = explode('-', $times);
+					[$startTime, $endTime] = explode('-', $times);
 					$minutes = round((strtotime($endTime) - strtotime($startTime)) / 60);
 
 					foreach ($roomOrgs as $roomID => $organizations)
@@ -237,7 +237,7 @@ class OrganizationOccupancy extends BaseModel
 	/**
 	 * Retrieves room options
 	 *
-	 * @return array an array of room options
+	 * @return string[] id => name
 	 */
 	public function getRoomOptions()
 	{
@@ -253,7 +253,7 @@ class OrganizationOccupancy extends BaseModel
 	/**
 	 * Retrieves room type options
 	 *
-	 * @return array an array of person options
+	 * @return string[] id => name
 	 */
 	public function getRoomtypeOptions()
 	{
@@ -269,7 +269,7 @@ class OrganizationOccupancy extends BaseModel
 	/**
 	 * Creates year selection options
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function getYearOptions()
 	{

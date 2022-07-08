@@ -83,7 +83,7 @@ class Terms extends ResourceHelper implements Selectable
 	 *
 	 * @param   bool  $filter  if true only current and future terms will be displayed
 	 *
-	 * @return array  the term ids
+	 * @return int[]  the term ids
 	 */
 	public static function getIDs(bool $filter = false): array
 	{
@@ -91,7 +91,7 @@ class Terms extends ResourceHelper implements Selectable
 
 		foreach (self::getResources($filter) as $term)
 		{
-			$ids[] = $term['id'];
+			$ids[] = (int) $term['id'];
 		}
 
 		return $ids;

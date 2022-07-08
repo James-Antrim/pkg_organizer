@@ -11,6 +11,7 @@
 namespace Organizer\Fields;
 
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a select box for superordinate pool resources.
@@ -41,7 +42,7 @@ class PrerequisitesField extends DependencyOptions
 	/**
 	 * Gets pool options for a select list. All parameters come from the
 	 *
-	 * @return array  the options
+	 * @return stdClass[]  the options
 	 */
 	protected function getOptions(): array
 	{

@@ -26,9 +26,9 @@ class CourseParticipants extends ResourceHelper
 	 * @param   int  $courseID       the course id
 	 * @param   int  $participantID  the participant id
 	 *
-	 * @return  mixed int if the user has a course participant state, otherwise null
+	 * @return  bool
 	 */
-	public static function hasPaid(int $courseID, int $participantID)
+	public static function hasPaid(int $courseID, int $participantID): bool
 	{
 		$course = new Tables\Courses();
 

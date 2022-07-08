@@ -291,7 +291,7 @@ class Instances extends ListView
 	 * @param   array  $periods  the raw periods data
 	 * @param   bool   $allDay   whether the grid consists of a single block for the whole day
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	private function getBlocks(array $periods, bool &$allDay): array
 	{
@@ -329,7 +329,7 @@ class Instances extends ListView
 	 * @param   array  &$headers  the column headers
 	 * @param   bool    $allDay   whether the grid consists of a single block lasting the whole day
 	 *
-	 * @return array the grid structure to fill with appointments
+	 * @return array[] the grid structure to fill with appointments
 	 */
 	private function getGrid(array $blocks, array &$headers, bool $allDay): array
 	{
@@ -664,9 +664,17 @@ class Instances extends ListView
 			'roomID'         => $state->get('filter.roomID', 0)
 		];
 
+		$params = Helpers\Input::getParams();
+
 		foreach ($fields as $field => $value)
 		{
-			if (empty($value))
+			if (empty($value) or $params->get($field))
+			{
+				unset($fields[$field]);
+				continue;
+			}
+
+			if ($field === 'methodID' and $params->get('methodIDs'))
 			{
 				unset($fields[$field]);
 			}
@@ -690,6 +698,10 @@ class Instances extends ListView
 			{
 				foreach ($fields as $field => $value)
 				{
+					$value = is_array($value) ? (string) $value : $value;
+					echo "<pre>" . print_r($url, true) . "</pre>";
+					echo "<pre>" . print_r($field, true) . "</pre>";
+					echo "<pre>" . print_r($value, true) . "</pre>";
 					$url .= "&$field=$value";
 				}
 			}

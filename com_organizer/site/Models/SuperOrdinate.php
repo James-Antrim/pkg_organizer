@@ -17,7 +17,7 @@ trait SuperOrdinate
 	/**
 	 * Builds the resource's curriculum using the subordinate resources contained in the form.
 	 *
-	 * @return array  an array containing the resource's subordinate resources
+	 * @return array[]  an array containing the resource's subordinate resources
 	 */
 	private function getSubOrdinates(): array
 	{

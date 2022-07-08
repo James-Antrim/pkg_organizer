@@ -20,6 +20,7 @@ class UniNow extends BaseLayout
 	 * Adds the column headers to the document.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	private function addColumnHeaders()
 	{
@@ -309,6 +310,12 @@ class UniNow extends BaseLayout
 		 */
 	}
 
+	/**
+	 * Adds rows to the export.
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
 	private function addRows()
 	{
 		// The first row is used by the header

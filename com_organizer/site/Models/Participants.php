@@ -10,6 +10,8 @@
 
 namespace Organizer\Models;
 
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -39,8 +41,9 @@ class Participants extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$programParts = ["pr.name_$tag", "' ('", 'd.abbreviation', "' '", 'pr.accredited', "')'"];
 		$query->select('DISTINCT pa.id, pa.*, u.email')

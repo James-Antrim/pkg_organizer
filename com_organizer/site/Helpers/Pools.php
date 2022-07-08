@@ -80,7 +80,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @param   mixed  $identifiers  int poolID | array ranges of subordinate resources
 	 *
-	 * @return array the pool ranges
+	 * @return array[] the pool ranges
 	 */
 	public static function getFilteredRanges($identifiers): array
 	{
@@ -206,7 +206,7 @@ class Pools extends Curricula implements Selectable
 
 		$fieldID         = $table->fieldID ?: 0;
 		$organizationIDs = self::getOrganizationIDs($table->id);
-		$organizationID  = $organizationIDs ? (int) $organizationIDs[0] : 0;
+		$organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
 		$tag             = Languages::getTag();
 
 		return [
@@ -266,7 +266,7 @@ class Pools extends Curricula implements Selectable
 	 *
 	 * @param   array  $range  the original range of a pool
 	 *
-	 * @return array  array of arrays with boundary values
+	 * @return array[]  boundary values
 	 */
 	private static function removeExclusions(array $range): array
 	{

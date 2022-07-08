@@ -128,7 +128,7 @@ class Database
 	 * @param   string  $column  An optional column name. Instead of the whole row, only this column value will be in
 	 *                           the result array.
 	 *
-	 * @return  array   The return value or an empty array if the query failed.
+	 * @return  array[]   The return value or an empty array if the query failed.
 	 */
 	public static function loadAssocList(string $key = '', string $column = ''): array
 	{

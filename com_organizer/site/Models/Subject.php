@@ -163,7 +163,7 @@ class Subject extends CurriculumResource
 	 * @param   array  $programRange   the program range being iterated
 	 * @param   array  $subjectRanges  the ranges for the given subject
 	 *
-	 * @return array the relevant subject ranges
+	 * @return array[] the relevant subject ranges
 	 */
 	private function filterRanges(array $programRange, array $subjectRanges): array
 	{
@@ -907,7 +907,7 @@ class Subject extends CurriculumResource
 	 * @param   array  $potentialCodes  the possible code values used in the attribute text
 	 * @param   array  $programRanges   the program ranges whose curricula contain the subject being processed
 	 *
-	 * @return array the subject information for subjects with dependencies
+	 * @return array[] the subject information for subjects with dependencies
 	 */
 	private function verifyDependencies(array $potentialCodes, array $programRanges): array
 	{

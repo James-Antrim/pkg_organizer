@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -25,11 +27,11 @@ class Schedules extends ListModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
-		$dbo   = $this->getDbo();
-		$tag   = Helpers\Languages::getTag();
-		$query = $dbo->getQuery(true);
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$createdParts = ['s.creationDate', 's.creationTime'];
 		$query->select('s.id, s.creationDate, s.creationTime')

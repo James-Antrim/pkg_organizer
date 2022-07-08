@@ -149,7 +149,7 @@ class OptionsField extends FormField
 	/**
 	 * Gets the options defined in the form manifest.
 	 *
-	 * @return array
+	 * @return stdClass[]
 	 */
 	protected function getDefaultOptions(): array
 	{
@@ -159,7 +159,7 @@ class OptionsField extends FormField
 	/**
 	 * Method to get the field options.
 	 *
-	 * @return  array  The field option objects.
+	 * @return  stdClass[]  The field option objects.
 	 */
 	protected function getOptions(): array
 	{

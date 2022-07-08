@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -32,7 +33,8 @@ class Holidays extends ListModel
 	 */
 	protected function getListQuery(): JDatabaseQuery
 	{
-		$tag   = Helpers\Languages::getTag();
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
 		$query->select("h.*, h.name_$tag as name, t.name_$tag as term")
 			->from('#__organizer_holidays AS h')

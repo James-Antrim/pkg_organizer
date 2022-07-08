@@ -76,9 +76,9 @@ class Units extends ListView
 	 *
 	 * @param   object  $item  the instance item being iterated
 	 *
-	 * @return array|string
+	 * @return array[]
 	 */
-	private function getStatus(object $item)
+	private function getStatus(object $item): array
 	{
 		$class = 'status-display hasToolTip';
 		$title = '';
@@ -98,7 +98,7 @@ class Units extends ListView
 
 		}
 
-		return $title ? ['attributes' => ['class' => $class, 'title' => $title], 'value' => ''] : '';
+		return $title ? ['attributes' => ['class' => $class, 'title' => $title], 'value' => ''] : [];
 	}
 
 	/**

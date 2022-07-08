@@ -11,6 +11,7 @@
 namespace Organizer\Fields;
 
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a generalized select box for selection of a single column value among those already selected.
@@ -27,7 +28,7 @@ class MergeValuesField extends OptionsField
 	/**
 	 * Returns a select box where resource attributes can be selected
 	 *
-	 * @return array the options for the select box
+	 * @return stdClass[] the options for the select box
 	 */
 	protected function getOptions(): array
 	{

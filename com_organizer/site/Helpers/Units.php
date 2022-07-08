@@ -66,7 +66,7 @@ class Units extends ResourceHelper
 	 * @param   int  $unitID   the unit id
 	 * @param   int  $eventID  the event id
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public static function getContexts(int $unitID, int $eventID): array
 	{
@@ -90,7 +90,7 @@ class Units extends ResourceHelper
 	 * @param   int       $unitID      the id of the unit
 	 * @param   int|null  $instanceID  the id of a related instance for temporal restrictions
 	 *
-	 * @return array the ids of events associated with the resource
+	 * @return int[] the ids of events associated with the resource
 	 */
 	public static function getEventIDs(int $unitID, ?int $instanceID = null): array
 	{
@@ -122,7 +122,7 @@ class Units extends ResourceHelper
 	 * @param   int     $unitID  the id of the unit
 	 * @param   string  $glue    the string to use to concatenate associated names
 	 *
-	 * @return array|string the names of the associated events
+	 * @return string|string[] the names of the associated events
 	 */
 	public static function getEventNames(int $unitID, string $glue = '')
 	{
@@ -159,7 +159,7 @@ class Units extends ResourceHelper
 	 * @param   int       $unitID      the id of the unit
 	 * @param   int|null  $instanceID  the id of a related instance for temporal restrictions
 	 *
-	 * @return array the ids of groups associated with the unit
+	 * @return int[] the ids of groups associated with the unit
 	 */
 	public static function getGroupIDs(int $unitID, ?int $instanceID = null): array
 	{
@@ -218,7 +218,7 @@ class Units extends ResourceHelper
 	 * @param   int       $unitID      the id of the unit
 	 * @param   int|null  $instanceID  the id of a related instance for temporal restrictions
 	 *
-	 * @return array the ids of rooms associated with the unit
+	 * @return int[] the ids of rooms associated with the unit
 	 */
 	public static function getRoomIDs(int $unitID, ?int $instanceID = null): array
 	{

@@ -11,6 +11,7 @@
 namespace Organizer\Fields;
 
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a form field for building selection.
@@ -25,7 +26,7 @@ class FieldsField extends OptionsField
 	/**
 	 * Returns a select box where stored buildings can be chosen
 	 *
-	 * @return array  the available buildings
+	 * @return stdClass[]  the available buildings
 	 */
 	protected function getOptions(): array
 	{

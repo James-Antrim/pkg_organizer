@@ -420,7 +420,7 @@ class Statistics extends FormModel
 	/**
 	 * Retrieves the raw data from the database.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public function getGrid(): array
 	{
@@ -461,7 +461,7 @@ class Statistics extends FormModel
 	/**
 	 * Gets relevant instances from the database.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public function getInstances(): array
 	{
@@ -527,7 +527,7 @@ class Statistics extends FormModel
 	/**
 	 * Generates a grid to organize the instance data.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	private function getStructure(): array
 	{

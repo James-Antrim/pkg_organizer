@@ -106,7 +106,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
 	 *
-	 * @return array the program ids
+	 * @return int[] the program ids
 	 */
 	public static function getIDs($identifiers): array
 	{
@@ -118,7 +118,7 @@ class Programs extends Curricula implements Selectable
 		$ids = [];
 		foreach ($ranges as $range)
 		{
-			$ids[] = $range['programID'];
+			$ids[] = (int) $range['programID'];
 		}
 
 		$ids = array_unique($ids);

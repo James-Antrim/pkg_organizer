@@ -124,7 +124,19 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 */
 	public function extendWhere($outerGlue, $conditions, $innerGlue = 'AND'): QueryMySQLi
 	{
-		return parent::extendWhere($outerGlue, $conditions, $innerGlue);
+		if ($this->where)
+		{
+			return parent::extendWhere($outerGlue, $conditions, $innerGlue);
+		}
+
+		if ($innerGlue === 'OR')
+		{
+			$conditions = '(' . implode(' OR ', $conditions) . ')';
+
+			return $this->where($conditions);
+		}
+
+		return $this->where($conditions);
 	}
 
 	/**
@@ -169,6 +181,19 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	}
 
 	/**
+	 * Shortcut to explicit inner joins with standardized condition aggregation.
+	 *
+	 * @param   string  $table       the table being joined
+	 * @param   array   $conditions  the conditions for the join
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function innerJoinX(string $table, array $conditions): QueryMySQLi
+	{
+		return $this->joinX('INNER', $table, $conditions);
+	}
+
+	/**
 	 * @inheritDoc
 	 *
 	 * @return QueryMySQLi returns this object to allow chaining
@@ -191,32 +216,55 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	public function join($type, $conditions): QueryMySQLi
 	{
 		[$table, $conditions] = preg_split("/ ON /i", $conditions);
+		$conditions = preg_split("/ AND /i", $conditions);
+
 		$join = $this->resolveTable($table);
+		$join .= $this->joinConditions($conditions);
 
+		return parent::join($type, $join);
+	}
+
+	/**
+	 * Formats and aggregates join conditions.
+	 *
+	 * @param   array  $conditions
+	 *
+	 * @return string the aggregated conditions
+	 */
+	private function joinConditions(array $conditions): string
+	{
+		$join    = '';
 		$keyWord = 'ON';
-		foreach (preg_split("/ AND /i", $conditions) as $condition)
-		{
-			$operand = '=';
-			if (strpos($condition, '<') !== false)
-			{
-				$operand = '<';
-			}
-			elseif (strpos($condition, '>') !== false)
-			{
-				$operand = '>';
-			}
 
-			[$left, $right] = explode(" $operand ", $condition);
+		foreach ($conditions as $condition)
+		{
+			[$left, $right] = explode(" = ", $condition);
 			$left  = $this->resolveColumn($left);
 			$right = $this->resolveColumn($right);
-
-			$join .= " $keyWord $left = $right";
+			$join  .= " $keyWord $left = $right";
 
 			if ($keyWord === 'ON')
 			{
 				$keyWord = 'AND';
 			}
 		}
+
+		return $join;
+	}
+
+	/**
+	 * Add a JOIN clause to the query.
+	 *
+	 * @param   string  $type        the type of join, prepended to the JOIN keyword
+	 * @param   string  $table       the table being joined
+	 * @param   array   $conditions  the join conditions
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function joinX(string $type, string $table, array $conditions): QueryMySQLi
+	{
+		$join = $this->resolveTable($table);
+		$join .= $this->joinConditions($conditions);
 
 		return parent::join($type, $join);
 	}
@@ -229,6 +277,19 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	public function leftJoin($condition): QueryMySQLi
 	{
 		return $this->join('LEFT', $condition);
+	}
+
+	/**
+	 * Shortcut to explicit inner joins with standardized condition aggregation.
+	 *
+	 * @param   string  $table       the table being joined
+	 * @param   array   $conditions  the conditions for the join
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function leftJoinX(string $table, array $conditions): QueryMySQLi
+	{
+		return $this->joinX('LEFT', $table, $conditions);
 	}
 
 	/**
@@ -278,6 +339,8 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 			return $column;
 		}
 
+		$column = trim($column);
+
 		$columnAlias = null;
 		if (stripos($column, ' AS '))
 		{
@@ -318,7 +381,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 *
 	 * @param   array|string  $columns  the unique part of an organizer table name, or a complete table name
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	private function resolveColumns($columns): array
 	{
@@ -378,7 +441,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 *
 	 * @param   array|string  $tables  the unique part of an organizer table name, or a complete table name
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	private function resolveTables($tables): array
 	{

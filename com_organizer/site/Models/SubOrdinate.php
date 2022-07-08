@@ -75,7 +75,7 @@ trait SubOrdinate
 	 *
 	 * @param   array  $data  the form data
 	 *
-	 * @return array the applicable superordinate ranges
+	 * @return array[] the applicable superordinate ranges
 	 */
 	private function getSuperOrdinates(array $data): array
 	{

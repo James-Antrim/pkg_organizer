@@ -11,6 +11,7 @@
 namespace Organizer\Fields;
 
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a select box for (subject) pools.
@@ -40,7 +41,7 @@ class GridsField extends OptionsField
 	/**
 	 * Returns an array of pool options
 	 *
-	 * @return array  the pool options
+	 * @return stdClass[]  the pool options
 	 */
 	protected function getOptions(): array
 	{

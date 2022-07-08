@@ -11,6 +11,7 @@
 namespace Organizer\Fields;
 
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a select box for plan programs.
@@ -26,7 +27,7 @@ class CategoriesField extends OptionsField
 	/**
 	 * Returns a select box where resource attributes can be selected
 	 *
-	 * @return array the options for the select box
+	 * @return stdClass[] the options for the select box
 	 */
 	protected function getOptions(): array
 	{

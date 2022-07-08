@@ -54,7 +54,7 @@ abstract class GridLayout extends BaseLayout
 	/**
 	 * The planned instances.
 	 *
-	 * @var array
+	 * @var stdClass[]
 	 */
 	protected $instances;
 
@@ -231,8 +231,7 @@ abstract class GridLayout extends BaseLayout
 		{
 			$groups = $this->scrapeGroups();
 
-			uasort($groups, function ($groupOne, $groupTwo)
-			{
+			uasort($groups, function ($groupOne, $groupTwo) {
 				return $groupOne['fullName'] > $groupTwo['fullName'];
 			});
 
@@ -274,7 +273,7 @@ abstract class GridLayout extends BaseLayout
 	 * @param   string  $startTime  the block start time
 	 * @param   string  $endTime    the block end time
 	 *
-	 * @return array the relevant instances
+	 * @return stdClass[] the relevant instances
 	 */
 	protected function getBlockInstances(string $date, string $startTime, string $endTime): array
 	{
@@ -1086,9 +1085,9 @@ abstract class GridLayout extends BaseLayout
 
 	/**
 	 * Retrieves the individual groups associated with the instances and replaces the groups arrays with their respective
-	 * idss to reduce memory overhead.
+	 * ids to reduce memory overhead.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	private function scrapeGroups(): array
 	{

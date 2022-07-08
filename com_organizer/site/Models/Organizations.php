@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -30,8 +32,8 @@ class Organizations extends ListModel
 		$authorized = Helpers\Can::manageTheseOrganizations();
 		$tag        = Helpers\Languages::getTag();
 
-		// Create the query
-		$query = $this->_db->getQuery(true);
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 		$query->select("o.id, o.shortName_$tag AS shortName, o.fullName_$tag AS name, a.rules")
 			->from('#__organizer_organizations AS o')
 			->innerJoin('#__assets AS a ON a.id = o.asset_id')

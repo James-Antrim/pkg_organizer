@@ -64,9 +64,9 @@ class Courses extends ResourceHelper
 	 *
 	 * @param   int  $courseID  the id of the course
 	 *
-	 * @return string the course capacity text
+	 * @return int  the id of the associated campus
 	 */
-	public static function getCampusID(int $courseID)
+	public static function getCampusID(int $courseID): int
 	{
 		$course = new Tables\Courses();
 
@@ -95,7 +95,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @param   int  $courseID  id of course to be loaded
 	 *
-	 * @return array  the start and end date for the given course
+	 * @return string[]  the start and end date for the given course
 	 */
 	public static function getDates(int $courseID = 0): array
 	{
@@ -118,7 +118,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @param   int  $courseID  the id of the course
 	 *
-	 * @return array the events associated with the course
+	 * @return array[] the events associated with the course
 	 */
 	public static function getEvents(int $courseID): array
 	{
@@ -154,7 +154,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @param   int  $courseID  the course id
 	 *
-	 * @return array list of participants in course
+	 * @return array[] list of participants in course
 	 */
 	public static function getGroupedParticipation(int $courseID): array
 	{
@@ -217,7 +217,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @param   int  $courseID  the id of the course
 	 *
-	 * @return array the instances which are a part of the course
+	 * @return int[] the instances which are a part of the course
 	 */
 	public static function getInstanceIDs(int $courseID): array
 	{
@@ -270,7 +270,7 @@ class Courses extends ResourceHelper
 	 * @param   int    $eventID   the id of the event
 	 * @param   array  $roleIDs   the id of the roles the persons should have
 	 *
-	 * @return array the persons matching the search criteria
+	 * @return string[] the persons matching the search criteria
 	 */
 	public static function getPersons(int $courseID, int $eventID = 0, array $roleIDs = []): array
 	{
@@ -311,7 +311,7 @@ class Courses extends ResourceHelper
 	 *
 	 * @param   int  $courseID  the id of the course with which the units must be associated
 	 *
-	 * @return array the ids of the associated units
+	 * @return int[] the ids of the associated units
 	 */
 	public static function getUnitIDs(int $courseID): array
 	{

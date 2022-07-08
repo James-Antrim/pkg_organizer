@@ -121,7 +121,7 @@ class Instances extends ListView
 	 * @param   bool   $showGroups  whether or not groups should be shown for individuals
 	 * @param   bool   $showRooms   whether or not rooms should be shown for individuals
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	private function getPersonTexts(array $container, array $persons, bool $showGroups, bool $showRooms): array
 	{
@@ -207,15 +207,13 @@ class Instances extends ListView
 	}
 
 	/**
-	 * @param   object  $instance
-	 *
-	 * @return array
+	 * @inheritDoc
 	 */
-	protected function structureItem(object $instance): array
+	protected function structureItem(object $item): array
 	{
 		// Aggregation containers
 		$groups      = [];
-		$persons     = (array) $instance->resources;
+		$persons     = (array) $item->resources;
 		$speakers    = [];
 		$supervisors = [];
 		$teachers    = [];
@@ -277,10 +275,10 @@ class Instances extends ListView
 		$showRooms  = count($rooms) > 1;
 
 		return [
-			'date'        => Helpers\Dates::formatDate($instance->date),
-			'times'       => "$instance->startTime - $instance->endTime",
-			'title'       => $instance->name,
-			'method'      => $instance->methodCode,
+			'date'        => Helpers\Dates::formatDate($item->date),
+			'times'       => "$item->startTime - $item->endTime",
+			'title'       => $item->name,
+			'method'      => $item->methodCode,
 			'groups'      => $groupNames,
 			'rooms'       => $roomNames,
 			'teachers'    => $this->getPersonTexts($teachers, $persons, $showGroups, $showRooms),

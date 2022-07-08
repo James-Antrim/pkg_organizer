@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -29,7 +31,8 @@ class Roomtypes extends ListModel
 	{
 		$tag = Helpers\Languages::getTag();
 
-		$query = $this->_db->getQuery(true);
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 		$query->select("DISTINCT t.id, t.name_$tag AS name, k.key AS rns")
 			->select($query->concatenate(["c.name_$tag", "' ('", 'c.code', "')'"], '') . ' AS useCode')
 			->from('#__organizer_roomtypes AS t')

@@ -25,7 +25,7 @@ class Categories implements UntisXMLValidator
 	 *
 	 * @param   string  $untisID  the id used in untis for this program
 	 *
-	 * @return array empty if the id is implausible
+	 * @return string[] empty if the id is implausible
 	 */
 	private static function parseProgramData(string $untisID): array
 	{

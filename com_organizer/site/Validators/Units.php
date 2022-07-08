@@ -104,7 +104,7 @@ class Units implements UntisXMLValidator
 	 * @param   SimpleXMLElement  $node     the node being validated
 	 * @param   string            $untisID  the untis id of the unit being iterated
 	 *
-	 * @return array   the occurrences string modeled by an array
+	 * @return string[]   the occurrences string modeled by an array
 	 */
 	private static function filterOccurrences(Schedule $model, SimpleXMLElement $node, string $untisID): array
 	{

@@ -80,9 +80,10 @@ class Organizations extends ResourceHelper implements Selectable
 	/**
 	 * Gets the categories associated with a given organization.
 	 *
-	 * @param   int  $organizationID
+	 * @param   int   $organizationID  the organization to filter categories against
+	 * @param   bool  $active          whether to filter out inactive categories
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public static function getCategories(int $organizationID, bool $active = true): array
 	{
@@ -151,8 +152,7 @@ class Organizations extends ResourceHelper implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo)
-		{
+		uasort($options, function ($optionOne, $optionTwo) {
 			return $optionOne->text > $optionTwo->text;
 		});
 

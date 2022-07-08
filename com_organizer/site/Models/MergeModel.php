@@ -26,7 +26,7 @@ abstract class MergeModel extends BaseModel
 	 * @param   string  $table     the unique portion of the table name
 	 * @param   string  $fkColumn  the name of the fk column referencing the other resource
 	 *
-	 * @return array the ids of the resources associated
+	 * @return int[] the ids of the resources associated
 	 */
 	protected function getReferencedIDs(string $table, string $fkColumn): array
 	{

@@ -114,7 +114,7 @@ class InstanceParticipant extends BaseModel
 		$participant = new Participant();
 		$participant->supplement($participantID);
 
-		if (!$instanceIDs = $this->getInstances($method, true))
+		if (!$instanceIDs = $this->getInstanceIDs($method, true))
 		{
 			return;
 		}
@@ -348,7 +348,7 @@ class InstanceParticipant extends BaseModel
 		}
 
 		// This filters out past instances.
-		if (!$instanceIDs = $this->getInstances($method))
+		if (!$instanceIDs = $this->getInstanceIDs($method))
 		{
 			return;
 		}
@@ -406,9 +406,9 @@ class InstanceParticipant extends BaseModel
 	 * @param   int   $method   the method for determining relevant instances
 	 * @param   bool  $virtual  whether virtual instances are permissible in the result set
 	 *
-	 * @return array
+	 * @return int[]
 	 */
-	private function getInstances(int $method, bool $virtual = false): array
+	private function getInstanceIDs(int $method, bool $virtual = false): array
 	{
 		$now   = date('H:i:s');
 		$query = Database::getQuery();
@@ -542,7 +542,7 @@ class InstanceParticipant extends BaseModel
 		$participant->supplement($participantID);
 
 		// This filters out past instances.
-		if (!$instanceIDs = $this->getInstances($method))
+		if (!$instanceIDs = $this->getInstanceIDs($method))
 		{
 			return;
 		}
@@ -672,7 +672,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		if (!$instanceIDs = $this->getInstances($method, true))
+		if (!$instanceIDs = $this->getInstanceIDs($method, true))
 		{
 			return;
 		}

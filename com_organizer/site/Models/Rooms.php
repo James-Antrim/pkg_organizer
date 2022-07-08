@@ -12,6 +12,8 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -52,8 +54,9 @@ class Rooms extends ListModel
 	 */
 	protected function getListQuery(): JDatabaseQuery
 	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$query->select('r.id, r.code, r.name AS roomName, r.active, r.effCapacity')
 			->select("t.id AS roomtypeID, t.name_$tag AS roomType")

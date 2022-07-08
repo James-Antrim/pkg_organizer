@@ -13,6 +13,7 @@ namespace Organizer\Fields;
 use JDatabaseQuery;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a select box for booking instances.
@@ -27,7 +28,7 @@ class CheckinRoomsField extends OptionsField
 	/**
 	 * Returns an array of booking room options
 	 *
-	 * @return array  the pool options
+	 * @return stdClass[]  the pool options
 	 */
 	protected function getOptions(): array
 	{

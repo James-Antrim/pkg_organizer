@@ -16,7 +16,6 @@ use Organizer\Helpers\Languages;
 use Organizer\Layouts\XLS\BaseLayout;
 use Organizer\Views\XLS\BaseView;
 use Organizer\Views\XLS\XLConstants;
-use PHPExcel_Exception;
 use PHPExcel_Worksheet_Drawing;
 
 /**
@@ -596,9 +595,9 @@ class Workload extends BaseLayout
 	 * @param   array   $groups
 	 *
 	 * @return void
-	 * @throws PHPExcel_Exception
+	 * @throws Exception
 	 */
-	private function addProgramRow(int &$row, string $program, array $groups)
+	private function addProgramRow(int $row, string $program, array $groups)
 	{
 		$sheet = $this->view->getActiveSheet();
 
@@ -1393,6 +1392,7 @@ class Workload extends BaseLayout
 	 * Adds formatting attributes for the work sheet.
 	 *
 	 * @return void
+	 * @throws Exception
 	 */
 	private function formatWorkSheet()
 	{

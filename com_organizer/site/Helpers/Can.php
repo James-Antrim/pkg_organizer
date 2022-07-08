@@ -165,7 +165,7 @@ class Can
 	/**
 	 * Gets the ids of organizations for which the user is authorized documentation access
 	 *
-	 * @return array  the organization ids, empty if user has no access
+	 * @return int[]  the organization ids, empty if user has no access
 	 */
 	public static function documentTheseOrganizations(): array
 	{
@@ -282,7 +282,7 @@ class Can
 	 *
 	 * @param   string  $function  the action for authorization
 	 *
-	 * @return array  the organization ids, empty if user has no access
+	 * @return int[]  the organization ids, empty if user has no access
 	 */
 	private static function getAuthorizedOrganizations(string $function): array
 	{
@@ -397,7 +397,7 @@ class Can
 	/**
 	 * Gets the ids of organizations for which the user is authorized managing access
 	 *
-	 * @return array  the organization ids, empty if user has no access
+	 * @return int[]  the organization ids, empty if user has no access
 	 */
 	public static function manageTheseOrganizations(): array
 	{
@@ -449,7 +449,7 @@ class Can
 	/**
 	 * Gets the ids of organizations for which the user is authorized scheduling access
 	 *
-	 * @return array  the organization ids, empty if user has no access
+	 * @return int[]  the organization ids, empty if user has no access
 	 */
 	public static function scheduleTheseOrganizations(): array
 	{
@@ -504,7 +504,7 @@ class Can
 	/**
 	 * Gets the ids of organizations for which the user is authorized privileged view access
 	 *
-	 * @return array  the organization ids, empty if user has no access
+	 * @return int[]  the organization ids, empty if user has no access
 	 */
 	public static function viewTheseOrganizations(): array
 	{

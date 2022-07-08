@@ -59,12 +59,13 @@ class Mailer
 	/**
 	 * Sends a mail confirming the registration
 	 *
-	 * @param $courseID
-	 * @param $participantID
+	 * @param   int       $courseID       the course id
+	 * @param   int       $participantID  the participant id
+	 * @param   int|null  $status         the participant's status
 	 *
 	 * @return void
 	 */
-	public static function registrationUpdate($courseID, $participantID, $status)
+	public static function registrationUpdate(int $courseID, int $participantID, ?int $status)
 	{
 		$course = new Tables\Courses();
 		if (!$course->load($courseID))

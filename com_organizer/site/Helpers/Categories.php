@@ -27,7 +27,7 @@ class Categories extends Associated implements Selectable
 	 * @param   int   $categoryID  the category id
 	 * @param   bool  $active      whether to retrieve only active categories
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public static function getGroups(int $categoryID, bool $active = true): array
 	{
@@ -64,8 +64,7 @@ class Categories extends Associated implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo)
-		{
+		uasort($options, function ($optionOne, $optionTwo) {
 			return $optionOne->text > $optionTwo->text;
 		});
 

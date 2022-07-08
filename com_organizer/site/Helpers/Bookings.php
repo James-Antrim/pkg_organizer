@@ -12,6 +12,7 @@ namespace Organizer\Helpers;
 
 use Organizer\Adapters\Database;
 use Organizer\Tables;
+use stdClass;
 
 /**
  * Provides functions for XML instance validation and modeling.
@@ -79,7 +80,7 @@ class Bookings extends ResourceHelper
 	 *
 	 * @param   int  $bookingID  the id of the booking entry
 	 *
-	 * @return array the ids matching the conditions
+	 * @return int[] the ids matching the conditions
 	 */
 	public static function getInstanceIDs(int $bookingID): array
 	{
@@ -99,7 +100,7 @@ class Bookings extends ResourceHelper
 	 *
 	 * @param   int  $bookingID  the id of the booking to get instance options for
 	 *
-	 * @return array
+	 * @return stdClass[]
 	 */
 	public static function getInstanceOptions(int $bookingID): array
 	{
@@ -158,7 +159,7 @@ class Bookings extends ResourceHelper
 	 *
 	 * @param   int  $bookingID  the id of the booking entry
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public static function getNames(int $bookingID): array
 	{
@@ -227,7 +228,7 @@ class Bookings extends ResourceHelper
 	 *
 	 * @param   int  $bookingID  the id of the booking to get instance options for
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public static function getRooms(int $bookingID): array
 	{
@@ -259,7 +260,7 @@ class Bookings extends ResourceHelper
 	 *
 	 * @param   int  $bookingID  the id of the booking to get instance options for
 	 *
-	 * @return array
+	 * @return stdClass[]
 	 */
 	public static function getRoomOptions(int $bookingID): array
 	{

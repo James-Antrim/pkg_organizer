@@ -262,7 +262,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @param   int  $poolID  the resource id
 	 *
-	 * @return array  empty if no child data exists
+	 * @return array[]  empty if no child data exists
 	 */
 	protected function getExistingCurriculum(int $poolID): array
 	{
@@ -387,7 +387,7 @@ abstract class CurriculumResource extends BaseModel
 	 *
 	 * @param   int  $resourceID  the resource id
 	 *
-	 * @return array the resource ranges
+	 * @return array[] the resource ranges
 	 */
 	protected function getRanges(int $resourceID): array
 	{

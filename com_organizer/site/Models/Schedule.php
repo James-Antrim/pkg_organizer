@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use Exception;
 use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 use Organizer\Tables;
 use Organizer\Validators;
@@ -210,13 +211,18 @@ class Schedule extends BaseModel
 	 */
 	private function deleteDuplicates()
 	{
-		$conditions = 's1.creationDate = s2.creationDate AND s1.creationTime = s2.creationTime
-						AND s1.organizationID = s2.organizationID AND s1.termID = s2.termID';
+		$conditions = [
+			's1.creationDate = s2.creationDate',
+			's1.creationTime = s2.creationTime',
+			's1.organizationID = s2.organizationID',
+			's1.termID = s2.termID'
+		];
 
+		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
 		$query->select('s1.id')
-			->from('#__organizer_schedules AS s1')
-			->innerJoin("#__organizer_schedules AS s2 ON $conditions")
+			->from('schedules AS s1')
+			->innerJoinX('schedules AS s2', $conditions)
 			->where('s1.id < s2.id');
 		Database::setQuery($query);
 
@@ -326,7 +332,7 @@ class Schedule extends BaseModel
 	 * @param   string  $fkColumn  the name of the fk column
 	 * @param   array   $fkValues  the fk column values
 	 *
-	 * @return array
+	 * @return int[]
 	 */
 	private function getAssociatedIDs(string $suffix, string $fkColumn, array $fkValues): array
 	{
@@ -345,7 +351,7 @@ class Schedule extends BaseModel
 	 * @param   int  $organizationID  the id of the organization context
 	 * @param   int  $termID          the id of the term context
 	 *
-	 * @return array the schedule ids
+	 * @return int[] the schedule ids
 	 */
 	private function getContextIDs(int $organizationID, int $termID): array
 	{

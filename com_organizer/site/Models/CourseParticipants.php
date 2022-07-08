@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -27,8 +28,9 @@ class CourseParticipants extends Participants
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
+		/* @var QueryMySQLi $query */
 		$query = parent::getListQuery();
 
 		$this->setValueFilters($query, ['attended', 'paid']);

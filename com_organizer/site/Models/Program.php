@@ -116,7 +116,7 @@ class Program extends CurriculumResource
 	 * @param   int  $resourceID  the id of the resource
 	 * @param   int  $subjectID   the id of a specific subject resource to find in context
 	 *
-	 * @return array the associated programs
+	 * @return int[] the associated programs
 	 */
 	private function getSubjectIDs(int $resourceID, int $subjectID = 0): array
 	{

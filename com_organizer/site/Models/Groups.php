@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -34,7 +36,8 @@ class Groups extends ListModel
 		$authorized = Helpers\Can::scheduleTheseOrganizations();
 		$tag        = Helpers\Languages::getTag();
 
-		$query = $this->_db->getQuery(true);
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 		$query->select('DISTINCT gr.id, gr.code, gr.categoryID, gr.gridID, gr.active')
 			->select("gr.fullName_$tag AS fullName, gr.name_$tag AS name")
 			->from('#__organizer_groups AS gr')

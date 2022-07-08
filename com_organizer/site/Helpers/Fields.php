@@ -124,7 +124,7 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @param   array  $subjectRanges  the mapped subject ranges
 	 *
-	 * @return array the field ids associated with the subjects in the given context
+	 * @return int[] the field ids associated with the subjects in the given context
 	 */
 	private static function getRelevantIDs(array $subjectRanges): array
 	{

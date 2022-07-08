@@ -47,7 +47,7 @@ class RoomOverview extends TableView
 	 * @param   object  $room  the room to retrieve the cells for
 	 * @param   string  $date  the Y-m-d date to retrieve the cells for
 	 *
-	 * @return array the cells for the specific day
+	 * @return array[] the cells for the specific day
 	 */
 	private function getDailyCells(object $room, string $date): array
 	{
@@ -107,7 +107,7 @@ class RoomOverview extends TableView
 	 *
 	 * @param   bool  $short  true if the block labels should be abbreviated
 	 *
-	 * @return array the blocks of the time grid
+	 * @return array[] the blocks of the time grid
 	 */
 	private function getHeaderBlocks(bool $short = false): array
 	{
@@ -177,7 +177,7 @@ class RoomOverview extends TableView
 	 *
 	 * @param   object  $resource  the resource whose information is displayed in the row
 	 *
-	 * @return array an array of property columns with their values
+	 * @return array[] an array of property columns with their values
 	 */
 	protected function getRow(object $resource): array
 	{
@@ -211,7 +211,7 @@ class RoomOverview extends TableView
 	 *
 	 * @param   object  $resource  the resource to be displayed in the row
 	 *
-	 * @return array  the label inclusive tooltip to be displayed
+	 * @return string[]  the label inclusive tooltip to be displayed
 	 */
 	protected function getRowLabel(object $resource): array
 	{
@@ -245,10 +245,7 @@ class RoomOverview extends TableView
 		$tip  = htmlentities($tip);
 		$text = "<span class=\"hasTooltip\" title=\"$tip\">$resource->name</span>";
 
-		$label          = [];
-		$label['label'] = $text;
-
-		return $label;
+		return ['label' => $text];
 	}
 
 	/**
@@ -256,7 +253,7 @@ class RoomOverview extends TableView
 	 *
 	 * @param   array  $data  the data to be used to generate the cell contents
 	 *
-	 * @return array an array of property columns with their values
+	 * @return string[] an array of property columns with their values
 	 */
 	protected function getDataCell(array $data): array
 	{

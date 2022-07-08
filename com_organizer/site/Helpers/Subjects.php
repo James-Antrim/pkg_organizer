@@ -66,7 +66,7 @@ class Subjects extends Curricula
 	/**
 	 * Retrieves the left and right boundaries of the nested program or pool
 	 *
-	 * @return array
+	 * @return array|array[]
 	 */
 	private static function getFilterRanges(): array
 	{
@@ -194,7 +194,7 @@ class Subjects extends Curricula
 	 *
 	 * @param   int  $subjectID  the id of the (plan) subject
 	 *
-	 * @return array the associated program names
+	 * @return array|array[] the associated program names
 	 */
 	public static function getPools(int $subjectID): array
 	{
@@ -207,7 +207,7 @@ class Subjects extends Curricula
 	 * @param   int  $subjectID  the id of the subject
 	 *
 	 *
-	 * @return array the associated prerequisites
+	 * @return int[] the associated prerequisites
 	 */
 	public static function getPostrequisites(int $subjectID): array
 	{
@@ -219,7 +219,7 @@ class Subjects extends Curricula
 	 *
 	 * @param   int  $subjectID  the id of the subject
 	 *
-	 * @return array the associated prerequisites
+	 * @return int[] the associated prerequisites
 	 */
 	public static function getPrerequisites(int $subjectID): array
 	{
@@ -252,7 +252,7 @@ class Subjects extends Curricula
 	 * @param   int     $subjectID  the id of the subject
 	 * @param   string  $direction  pre|post the direction of the subject dependency
 	 *
-	 * @return array the associated prerequisites
+	 * @return int[] the associated prerequisites
 	 */
 	private static function getRequisites(int $subjectID, string $direction): array
 	{
@@ -297,7 +297,7 @@ class Subjects extends Curricula
 		$eventID         = Subjects::getEventID($subjectID);
 		$fieldID         = $table->fieldID ?: 0;
 		$organizationIDs = self::getOrganizationIDs($table->id);
-		$organizationID  = $organizationIDs ? (int) $organizationIDs[0] : 0;
+		$organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
 		$tag             = Languages::getTag();
 
 		return [
