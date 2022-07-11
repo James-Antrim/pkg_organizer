@@ -11,8 +11,9 @@
 namespace Organizer\Adapters;
 
 use Exception;
-use Joomla\CMS\Factory;
 use JDatabaseQuery;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Log\Log;
 use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
 use stdClass;
@@ -36,6 +37,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return false;
@@ -47,9 +49,9 @@ class Database
 	 *
 	 * @param   bool  $new  True to return a new JDatabaseQuery object, otherwise false
 	 *
-	 * @return  JDatabaseQuery  The current query object or a new object extending the JDatabaseQuery class.
+	 * @return  JDatabaseQuery|string  The current query object or a new object extending the JDatabaseQuery class.
 	 */
-	public static function getQuery(bool $new = true): JDatabaseQuery
+	public static function getQuery(bool $new = true)
 	{
 		$dbo = Factory::getDbo();
 
@@ -58,14 +60,7 @@ class Database
 			Helpers\OrganizerHelper::error(501);
 		}
 
-		if ($new)
-		{
-			return new Queries\QueryMySQLi();
-		}
-		else
-		{
-			return $dbo->getQuery();
-		}
+		return $new ? new Queries\QueryMySQLi() : $dbo->getQuery();
 	}
 
 	/**
@@ -85,9 +80,10 @@ class Database
 		{
 			return $dbo->insertObject($table, $object, $key);
 		}
-		catch (Exception $exc)
+		catch (Exception $exception)
 		{
-			Helpers\OrganizerHelper::message($exc->getMessage(), 'error');
+			self::logException($exception);
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return false;
 		}
@@ -110,6 +106,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return [];
@@ -141,6 +138,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return [];
@@ -181,6 +179,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return [];
@@ -238,6 +237,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return new stdClass();
@@ -267,6 +267,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return [];
@@ -291,6 +292,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return $default;
@@ -310,6 +312,27 @@ class Database
 		$result = self::loadResult();
 
 		return $result ? (string) self::loadResult() : $default;
+	}
+
+	/**
+	 * Logs the exception.
+	 *
+	 * @param   Exception  $exception
+	 *
+	 * @return void
+	 */
+	private static function logException(Exception $exception)
+	{
+		Log::addLogger(['text_file' => 'organizer_db_errors.php'], Log::ALL, ['com_organizer']);
+		$message = "\n\nError Message:\n--------------\n";
+		$message .= print_r($exception->getMessage(), true);
+		$message .= "\n\nQuery:\n------\n";
+		$message .= print_r((string) self::getQuery(false), true);
+		$message .= "\n\nCall Stack:\n-----------\n";
+		$message .= print_r($exception->getTraceAsString(), true);
+		$message .= "\n\n--------------------------------------------------------------------------------------------";
+		$message .= "--------------------------------------";
+		Log::add($message, Log::DEBUG, 'com_organizer');
 	}
 
 	/**
