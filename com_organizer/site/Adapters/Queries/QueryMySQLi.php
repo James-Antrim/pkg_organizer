@@ -12,6 +12,7 @@ namespace Organizer\Adapters\Queries;
 
 use JDatabaseDriver;
 use JDatabaseQuery;
+use JDatabaseQueryElement;
 use JDatabaseQueryMysqli;
 use Joomla\CMS\Factory;
 use Joomla\Utilities\ArrayHelper;
@@ -69,7 +70,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 */
 	public function columns($columns): QueryMySQLi
 	{
-		$columns = $this->resolveColumns($columns);
+		$columns = $this->formatColumns($columns);
 
 		return parent::columns($columns);
 	}
@@ -83,9 +84,25 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 */
 	public function delete($table = null): QueryMySQLi
 	{
-		$table = $this->resolveTable($table);
+		$alias = null;
 
-		return parent::delete($table);
+		if ($table)
+		{
+			[$table, $alias] = $this->parseTable($table);
+		}
+
+		$alias = !$alias ? $alias : $this->quoteName($alias);
+
+		$this->type = 'delete';
+		$this->delete = new JDatabaseQueryElement('DELETE', $alias);
+
+		if ($table)
+		{
+			$table = $this->quoteName($table, $alias);
+			$this->from($table);
+		}
+
+		return $this;
 	}
 
 	/**
@@ -106,7 +123,6 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 		bool $negate = false,
 		bool $quote = false
 	): QueryMySQLi {
-		$table = $this->resolveTable($table);
 		$this->delete($table);
 
 		if ($where and $in)
@@ -140,198 +156,13 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	}
 
 	/**
-	 * @inheritDoc
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function from($tables, $subQueryAlias = null): QueryMySQLi
-	{
-		if ($tables instanceof JDatabaseQuery)
-		{
-			return parent::from($tables, $subQueryAlias);
-		}
-
-		$tables = $this->resolveTables($tables);
-
-		return parent::from($tables);
-	}
-
-	/**
-	 * @inheritDoc
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function group($columns): QueryMySQLi
-	{
-		$columns = $this->resolveColumns($columns);
-
-		return parent::group($columns);
-	}
-
-	//todo: having?
-
-	/**
-	 * @inheritDoc
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function innerJoin($condition): QueryMySQLi
-	{
-		return $this->join('INNER', $condition);
-	}
-
-	/**
-	 * Shortcut to explicit inner joins with standardized condition aggregation.
-	 *
-	 * @param   string  $table       the table being joined
-	 * @param   array   $conditions  the conditions for the join
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function innerJoinX(string $table, array $conditions): QueryMySQLi
-	{
-		return $this->joinX('INNER', $table, $conditions);
-	}
-
-	/**
-	 * @inheritDoc
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function insert($table, $incrementField = false): QueryMySQLi
-	{
-		$table = $this->resolveTable($table);
-
-		return parent::insert($table, $incrementField);
-	}
-
-	/**
-	 * Add a JOIN clause to the query.
-	 *
-	 * @param   string  $type        the type of join, prepended to the JOIN keyword
-	 * @param   string  $conditions  the join conditions
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function join($type, $conditions): QueryMySQLi
-	{
-		[$table, $conditions] = preg_split("/ ON /i", $conditions);
-		$conditions = preg_split("/ AND /i", $conditions);
-
-		$join = $this->resolveTable($table);
-		$join .= $this->joinConditions($conditions);
-
-		return parent::join($type, $join);
-	}
-
-	/**
-	 * Formats and aggregates join conditions.
-	 *
-	 * @param   array  $conditions
-	 *
-	 * @return string the aggregated conditions
-	 */
-	private function joinConditions(array $conditions): string
-	{
-		$join    = '';
-		$keyWord = 'ON';
-
-		foreach ($conditions as $condition)
-		{
-			[$left, $right] = explode(" = ", $condition);
-			$left  = $this->resolveColumn($left);
-			$right = $this->resolveColumn($right);
-			$join  .= " $keyWord $left = $right";
-
-			if ($keyWord === 'ON')
-			{
-				$keyWord = 'AND';
-			}
-		}
-
-		return $join;
-	}
-
-	/**
-	 * Add a JOIN clause to the query.
-	 *
-	 * @param   string  $type        the type of join, prepended to the JOIN keyword
-	 * @param   string  $table       the table being joined
-	 * @param   array   $conditions  the join conditions
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function joinX(string $type, string $table, array $conditions): QueryMySQLi
-	{
-		$join = $this->resolveTable($table);
-		$join .= $this->joinConditions($conditions);
-
-		return parent::join($type, $join);
-	}
-
-	/**
-	 * @inheritDoc
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function leftJoin($condition): QueryMySQLi
-	{
-		return $this->join('LEFT', $condition);
-	}
-
-	/**
-	 * Shortcut to explicit inner joins with standardized condition aggregation.
-	 *
-	 * @param   string  $table       the table being joined
-	 * @param   array   $conditions  the conditions for the join
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function leftJoinX(string $table, array $conditions): QueryMySQLi
-	{
-		return $this->joinX('LEFT', $table, $conditions);
-	}
-
-	/**
-	 * @inheritDoc
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function order($columns): QueryMySQLi
-	{
-		$this->resolveColumns($columns);
-
-		return parent::order($columns);
-	}
-
-	/**
-	 * @inheritDoc
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function orWhere($conditions, $glue = 'AND'): QueryMySQLi
-	{
-		return $this->extendWhere('OR', $conditions, $glue);
-	}
-
-	/**
-	 * @inheritDoc
-	 *
-	 * @return QueryMySQLi returns this object to allow chaining
-	 */
-	public function outerJoin($condition): QueryMySQLi
-	{
-		return $this->join('OUTER', $condition);
-	}
-
-	/**
 	 * Explicitly resolves the passed column to query appropriate quoting.
 	 *
 	 * @param   string  $column  the 'column' to be resolved
 	 *
 	 * @return string
 	 */
-	private function resolveColumn(string $column): string
+	private function formatColumn(string $column): string
 	{
 		// Ignore function and recursive calls.
 		if (strpos($column, '(') !== false or strpos($column, '`') === 0)
@@ -383,14 +214,14 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 *
 	 * @return string[]
 	 */
-	private function resolveColumns($columns): array
+	private function formatColumns($columns): array
 	{
 		$return = [];
 		if (is_array($columns))
 		{
 			foreach ($columns as $column)
 			{
-				$return[] = $this->resolveColumn($column);
+				$return[] = $this->formatColumn($column);
 			}
 		}
 		elseif (is_string($columns))
@@ -399,7 +230,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 
 			foreach ($columns as $column)
 			{
-				$return[] = $this->resolveColumn($column);
+				$return[] = $this->formatColumn($column);
 			}
 		}
 		else
@@ -417,21 +248,9 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 *
 	 * @return string
 	 */
-	private function resolveTable(string $table): string
+	private function formatTable(string $table): string
 	{
-		// A recursive call has been made.
-		if (strpos($table, '`') === 0)
-		{
-			return $table;
-		}
-
-		$alias = null;
-		if (stripos($table, ' AS '))
-		{
-			[$table, $alias] = preg_split("/ AS /i", $table);
-		}
-
-		$table = strpos($table, '#_') === 0 ? $table : "#__organizer_$table";
+		[$table, $alias] = $this->parseTable($table);
 
 		return $this->quoteName($table, $alias);
 	}
@@ -443,19 +262,19 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 *
 	 * @return string[]
 	 */
-	private function resolveTables($tables): array
+	private function formatTables($tables): array
 	{
 		$return = [];
 		if (is_array($tables))
 		{
 			foreach ($tables as $table)
 			{
-				$return[] = $this->resolveTable($table);
+				$return[] = $this->formatTable($table);
 			}
 		}
 		elseif (is_string($tables))
 		{
-			$return = [$this->resolveTable($tables)];
+			$return = [$this->formatTable($tables)];
 		}
 		else
 		{
@@ -463,6 +282,214 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 		}
 
 		return $return;
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function from($tables, $subQueryAlias = null): QueryMySQLi
+	{
+		if ($tables instanceof JDatabaseQuery)
+		{
+			return parent::from($tables, $subQueryAlias);
+		}
+
+		$tables = $this->formatTables($tables);
+
+		return parent::from($tables);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function group($columns): QueryMySQLi
+	{
+		$columns = $this->formatColumns($columns);
+
+		return parent::group($columns);
+	}
+
+	//todo: having?
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function innerJoin($condition): QueryMySQLi
+	{
+		return $this->join('INNER', $condition);
+	}
+
+	/**
+	 * Shortcut to explicit inner joins with standardized condition aggregation.
+	 *
+	 * @param   string  $table       the table being joined
+	 * @param   array   $conditions  the conditions for the join
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function innerJoinX(string $table, array $conditions): QueryMySQLi
+	{
+		return $this->joinX('INNER', $table, $conditions);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function insert($table, $incrementField = false): QueryMySQLi
+	{
+		$table = $this->formatTable($table);
+
+		return parent::insert($table, $incrementField);
+	}
+
+	/**
+	 * Add a JOIN clause to the query.
+	 *
+	 * @param   string  $type        the type of join, prepended to the JOIN keyword
+	 * @param   string  $conditions  the join conditions
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function join($type, $conditions): QueryMySQLi
+	{
+		[$table, $conditions] = preg_split("/ ON /i", $conditions);
+		$conditions = preg_split("/ AND /i", $conditions);
+
+		$join = $this->formatTable($table);
+		$join .= $this->joinConditions($conditions);
+
+		return parent::join($type, $join);
+	}
+
+	/**
+	 * Formats and aggregates join conditions.
+	 *
+	 * @param   array  $conditions
+	 *
+	 * @return string the aggregated conditions
+	 */
+	private function joinConditions(array $conditions): string
+	{
+		$join    = '';
+		$keyWord = 'ON';
+
+		foreach ($conditions as $condition)
+		{
+			[$left, $right] = explode(" = ", $condition);
+			$left  = $this->formatColumn($left);
+			$right = $this->formatColumn($right);
+			$join  .= " $keyWord $left = $right";
+
+			if ($keyWord === 'ON')
+			{
+				$keyWord = 'AND';
+			}
+		}
+
+		return $join;
+	}
+
+	/**
+	 * Add a JOIN clause to the query.
+	 *
+	 * @param   string  $type        the type of join, prepended to the JOIN keyword
+	 * @param   string  $table       the table being joined
+	 * @param   array   $conditions  the join conditions
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function joinX(string $type, string $table, array $conditions): QueryMySQLi
+	{
+		$join = $this->formatTable($table);
+		$join .= $this->joinConditions($conditions);
+
+		return parent::join($type, $join);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function leftJoin($condition): QueryMySQLi
+	{
+		return $this->join('LEFT', $condition);
+	}
+
+	/**
+	 * Shortcut to explicit inner joins with standardized condition aggregation.
+	 *
+	 * @param   string  $table       the table being joined
+	 * @param   array   $conditions  the conditions for the join
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function leftJoinX(string $table, array $conditions): QueryMySQLi
+	{
+		return $this->joinX('LEFT', $table, $conditions);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function order($columns): QueryMySQLi
+	{
+		$this->formatColumns($columns);
+
+		return parent::order($columns);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function orWhere($conditions, $glue = 'AND'): QueryMySQLi
+	{
+		return $this->extendWhere('OR', $conditions, $glue);
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function outerJoin($condition): QueryMySQLi
+	{
+		return $this->join('OUTER', $condition);
+	}
+
+	/**
+	 * Supplements the component internal common portions of a table name. Already complete table names are not changed.
+	 *
+	 * @param   string  $table  the unique part of an organizer table name, or a complete table name
+	 *
+	 * @return array
+	 */
+	private function parseTable(string $table): array
+	{
+		$table = str_replace('`', '', $table);
+
+		// If this is an empty string Joomla will seriously use it as an alias, also given here as a null parameter in delete.
+		$alias = null;
+		if (stripos($table, ' AS '))
+		{
+			[$table, $alias] = preg_split("/ AS /i", $table);
+		}
+
+		$table = strpos($table, '#_') === 0 ? $table : "#__organizer_$table";
+
+		return [$table, $alias];
 	}
 
 	/**
@@ -506,8 +533,8 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 		bool $quote = false
 	): QueryMySQLi {
 
-		$select = $this->resolveColumns($select);
-		$from   = $this->resolveTables($from);
+		$select = $this->formatColumns($select);
+		$from   = $this->formatTables($from);
 
 		$this->select($select)->from($from);
 
@@ -536,7 +563,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 */
 	public function update($table): QueryMySQLi
 	{
-		$table = $this->resolveTable($table);
+		$table = $this->formatTable($table);
 
 		return parent::update($table);
 	}
