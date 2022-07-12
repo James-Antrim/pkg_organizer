@@ -93,7 +93,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 
 		$alias = !$alias ? $alias : $this->quoteName($alias);
 
-		$this->type = 'delete';
+		$this->type   = 'delete';
 		$this->delete = new JDatabaseQueryElement('DELETE', $alias);
 
 		if ($table)
@@ -363,7 +363,8 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 		[$table, $conditions] = preg_split("/ ON /i", $conditions);
 		$conditions = preg_split("/ AND /i", $conditions);
 
-		$join = $this->formatTable($table);
+		// Subquery results used as a table; subquery was hopefully independently formatted.
+		$join = stripos($table, 'SELECT') !== false ? $table : $this->formatTable($table);
 		$join .= $this->joinConditions($conditions);
 
 		return parent::join($type, $join);
@@ -534,7 +535,6 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	): QueryMySQLi {
 
 		$select = $this->formatColumns($select);
-		$from   = $this->formatTables($from);
 
 		$this->select($select)->from($from);
 

@@ -281,14 +281,18 @@ class Programs extends Curricula implements Selectable
 
 		if (self::useCurrent())
 		{
-			$subQuery = Database::getQuery();
-			$subQuery->select("p2.name_$tag, p2.degreeID, MAX(p2.accredited) AS accredited")
-				->from('#__organizer_programs AS p2')
+			$select = [
+				"p2.name_$tag",
+				'p2.degreeID',
+				'MAX(' . Database::quoteName('p2.accredited') . ') AS ' . Database::quoteName('accredited')
+			];
+			$join   = Database::getQuery();
+			$join->selectX($select, 'programs AS p2')
 				->group("p2.name_$tag, p2.degreeID");
 			$conditions = "grouped.name_$tag = p.name_$tag ";
 			$conditions .= "AND grouped.degreeID = p.degreeID ";
 			$conditions .= "AND grouped.accredited = p.accredited ";
-			$query->innerJoin("($subQuery) AS grouped ON $conditions");
+			$query->innerJoin("($join) AS grouped ON $conditions");
 		}
 
 		Database::setQuery($query);

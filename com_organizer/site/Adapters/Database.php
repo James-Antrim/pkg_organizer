@@ -118,7 +118,7 @@ class Database
 	 * of ['field_name' => 'row_value'].  The array of rows can optionally be keyed by a field name, but defaults to
 	 * a sequential numeric array.
 	 *
-	 * NOTE: Chosing to key the result array by a non-unique field name can result in unwanted
+	 * NOTE: Choosing to key the result array by a non-unique field name can result in unwanted
 	 * behavior and should be avoided.
 	 *
 	 * @param   string  $key     The name of a field on which to key the result array.
@@ -333,6 +333,19 @@ class Database
 		$message .= "\n\n--------------------------------------------------------------------------------------------";
 		$message .= "--------------------------------------";
 		Log::add($message, Log::DEBUG, 'com_organizer');
+	}
+
+	/**
+	 * Wraps the database quote name function for use outside a query class without PhpStorm complaining about resolution.
+	 *
+	 * @param   array|string       $name   the column name or names
+	 * @param   array|null|string  $alias  the column alias or aliases, if arrays and incongruent sizes => empty array return value
+	 *
+	 * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
+	 */
+	public static function quoteName($name, $alias = null)
+	{
+		return Factory::getDbo()->quoteName($name, $alias);
 	}
 
 	/**
