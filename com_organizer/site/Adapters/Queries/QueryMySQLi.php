@@ -172,6 +172,12 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 
 		$column = trim($column);
 
+		$distinct = stripos($column, 'DISTINCT ');
+		if ($distinct !== false)
+		{
+			$column = preg_replace("/DISTINCT /i", '', $column);
+		}
+
 		$columnAlias = null;
 		if (stripos($column, ' AS '))
 		{
@@ -203,8 +209,9 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 		}
 
 		$column = $tableAlias ? "$tableAlias.$column" : $column;
+		$column = $this->quoteName($column, $columnAlias);
 
-		return $this->quoteName($column, $columnAlias);
+		return $distinct === false ? $column : 'DISTINCT ' . $column;
 	}
 
 	/**
@@ -409,7 +416,8 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 */
 	public function joinX(string $type, string $table, array $conditions): QueryMySQLi
 	{
-		$join = $this->formatTable($table);
+		// Subquery results used as a table; subquery was hopefully independently formatted.
+		$join = stripos($table, 'SELECT') !== false ? $table : $this->formatTable($table);
 		$join .= $this->joinConditions($conditions);
 
 		return parent::join($type, $join);
