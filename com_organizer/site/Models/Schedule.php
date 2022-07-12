@@ -37,7 +37,7 @@ class Schedule extends BaseModel
 	public function cleanBookings(bool $cleanUnattended = false)
 	{
 		// Earlier bookings will have already been cleaned.
-		$earliest = date('Y-m-d', strtotime('-180 days'));
+		$earliest = date('Y-m-d', strtotime('-14 days'));
 
 		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
