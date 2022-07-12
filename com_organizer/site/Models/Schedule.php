@@ -36,31 +36,32 @@ class Schedule extends BaseModel
 	 */
 	public function cleanBookings(bool $cleanUnattended = false)
 	{
-		// Bookings deprecated through scheduling changes.
+		// Earlier bookings will have already been cleaned.
+		$earliest = date('Y-m-d', strtotime('-180 days'));
 
-		$today = date('Y-m-d');
-
+		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
-		$query->select('DISTINCT bk.id')
-			->from('#__organizer_bookings AS bk')
-			->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
-			->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
-			->where("i.delta != 'removed'");
+		$query->selectX('DISTINCT bk.id', 'bookings AS bk', 'i.delta', ['removed'], true, true)
+			->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
+			->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
+			->where([Database::quoteName('bl.date') . " > '$earliest'"]);
 		Database::setQuery($query);
 
+		// Bookings associated with non-deprecated appointments.
 		$currentIDs = Database::loadIntColumn();
 
 		$query = Database::getQuery();
-		$query->select('DISTINCT bk.id')
-			->from('#__organizer_bookings AS bk')
-			->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
-			->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
-			->where("i.delta = 'removed'");
+		$query->selectX('DISTINCT bk.id', 'bookings AS bk', 'i.delta', ['removed'], false, true)
+			->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
+			->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
+			->where([Database::quoteName('bl.date') . " > '$earliest'"]);
 		Database::setQuery($query);
 
-		$mixedIDs = Database::loadIntColumn();
+		// Bookings associated with deprecated appointments.
+		$unattendedIDs = Database::loadIntColumn();
 
-		if ($deprecatedIDs = array_diff($mixedIDs, $currentIDs))
+		// Bookings solely with non-deprecated appointments.
+		if ($deprecatedIDs = array_diff($unattendedIDs, $currentIDs))
 		{
 			$this->deleteBookings($deprecatedIDs);
 		}
@@ -70,35 +71,34 @@ class Schedule extends BaseModel
 			return;
 		}
 
-		// Unused bookings in the past
+		// Unattended past bookings. The inner join to instance participants allows archived bookings to not be selected here.
 
+		$today = date('Y-m-d');
 		$query = Database::getQuery();
-		$query->select('DISTINCT bk.id')
-			->from('#__organizer_bookings AS bk')
-			->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
-			->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
-			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
-			->where("bl.date < '$today'")
-			->where('ip.attended = 1');
+		$query->selectX('DISTINCT bk.id', 'bookings AS bk', 'ip.attended', [1])
+			->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
+			->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
+			->innerJoinX('instance_participants AS ip', ['ip.instanceID = i.id'])
+			->where([Database::quoteName('bl.date') . " < '$today'"]);
 		Database::setQuery($query);
 
-		$usedIDs = Database::loadIntColumn();
+		// Attended bookings.
+		$attendedIDs = Database::loadIntColumn();
 
 		$query = Database::getQuery();
-		$query->select('DISTINCT bk.id')
-			->from('#__organizer_bookings AS bk')
-			->innerJoin('#__organizer_blocks AS bl ON bl.id = bk.blockID')
-			->innerJoin('#__organizer_instances AS i ON i.blockID = bk.blockID AND i.unitID = bk.unitID')
-			->innerJoin('#__organizer_instance_participants AS ip ON ip.instanceID = i.id')
-			->where("bl.date < '$today'")
-			->where('ip.attended = 0');
+		$query->selectX('DISTINCT bk.id', 'bookings AS bk', 'ip.attended', [0])
+			->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
+			->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
+			->innerJoinX('instance_participants AS ip', ['ip.instanceID = i.id'])
+			->where([Database::quoteName('bl.date') . " < '$today'"]);
 		Database::setQuery($query);
 
+		// Unattended bookings.
 		$mixedIDs = Database::loadIntColumn();
 
-		if ($unusedIDs = array_diff($mixedIDs, $usedIDs))
+		if ($unattendedIDs = array_diff($mixedIDs, $attendedIDs))
 		{
-			$this->deleteBookings($unusedIDs);
+			$this->deleteBookings($unattendedIDs);
 		}
 	}
 
@@ -195,10 +195,10 @@ class Schedule extends BaseModel
 	 */
 	private function deleteBookings(array $bookingIDs)
 	{
+		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
-		$query->delete('#__organizer_bookings')->where('id IN (' . implode(',', $bookingIDs) . ')');
+		$query->deleteX('bookings', 'id', $bookingIDs);
 
-		$query = Database::getQuery();
 		Database::setQuery($query);
 		Database::execute();
 	}
