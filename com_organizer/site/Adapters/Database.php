@@ -323,7 +323,8 @@ class Database
 	 */
 	private static function logException(Exception $exception)
 	{
-		Log::addLogger(['text_file' => 'organizer_db_errors.php'], Log::ALL, ['com_organizer']);
+		$options = ['text_file' => 'organizer_db_errors.php', 'text_entry_format' => '{DATETIME}:{MESSAGE}'];
+		Log::addLogger($options, Log::ALL, ['com_organizer.dbErrors']);
 		$message = "\n\nError Message:\n--------------\n";
 		$message .= print_r($exception->getMessage(), true);
 		$message .= "\n\nQuery:\n------\n";
@@ -332,7 +333,7 @@ class Database
 		$message .= print_r($exception->getTraceAsString(), true);
 		$message .= "\n\n--------------------------------------------------------------------------------------------";
 		$message .= "--------------------------------------";
-		Log::add($message, Log::DEBUG, 'com_organizer');
+		Log::add($message, Log::DEBUG, 'com_organizer.dbErrors');
 	}
 
 	/**
