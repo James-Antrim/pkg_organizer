@@ -202,10 +202,10 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 			$tableAlias = '';
 		}
 
-		if (strpos($column, '*'))
+		if (strpos($column, '*') !== false)
 		{
 			// A column alias for a star select makes no
-			return $tableAlias ? $this->quoteName($column) . '.*' : $column;
+			return $tableAlias ? $this->quoteName($tableAlias) . '.*' : $column;
 		}
 
 		$column = $tableAlias ? "$tableAlias.$column" : $column;
