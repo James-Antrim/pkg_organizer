@@ -62,7 +62,8 @@ class Event extends MergeModel
 		}
 
 		$data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		$coordinatorIDs = isset($data['coordinatorIDs']) ?? [];
+		$coordinatorIDs = $data['coordinatorIDs'] ?? [];
+
 		if ($coordinatorIDs)
 		{
 			$coordinatorIDs = ArrayHelper::toInteger($coordinatorIDs);
