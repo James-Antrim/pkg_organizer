@@ -145,9 +145,9 @@ class Organizer extends BaseModel
 	 */
 	public function cleanDB()
 	{
-		$this->cleanPeople();
 		$this->cleanAssociations();
 		$this->cleanDeprecated();
+		$this->cleanPeople();
 
 		OrganizerHelper::message('Tables cleaned.');
 	}
