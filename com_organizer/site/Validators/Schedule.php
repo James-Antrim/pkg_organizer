@@ -39,6 +39,11 @@ class Schedule
 
 	public $methods = null;
 
+	/**
+	 * @var string
+	 */
+	public $modified;
+
 	public $organizationID;
 
 	public $persons = null;
@@ -104,6 +109,8 @@ class Schedule
 			// Set the cut off to the day before schedule generation to avoid inconsistencies on the creation date
 			$this->dateTime = strtotime('-1 day', strtotime("$this->creationDate $this->creationTime"));
 		}
+
+		$this->modified = "$this->creationDate $this->creationTime";
 
 		Terms::validate($this, $this->xml->general);
 
@@ -208,7 +215,7 @@ class Schedule
 		}
 		unset($this->xml->departments);
 
-		$this->methods   = new stdClass();
+		$this->methods = new stdClass();
 		foreach ($this->xml->descriptions->children() as $node)
 		{
 			Descriptions::validate($this, $node);

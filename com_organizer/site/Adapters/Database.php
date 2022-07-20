@@ -45,6 +45,18 @@ class Database
 	}
 
 	/**
+	 * Retrieves the null date (time) specific to the driver.
+	 *
+	 * @return  string  the driver specific null date (time).
+	 */
+	public static function getNullDate(): string
+	{
+		$dbo = Factory::getDbo();
+
+		return $dbo->getNullDate();
+	}
+
+	/**
 	 * Get the current query object or a new JDatabaseQuery object.
 	 *
 	 * @param   bool  $new  True to return a new JDatabaseQuery object, otherwise false

@@ -163,19 +163,25 @@ class Units implements UntisXMLValidator
 
 		if ($table->load(['organizationID' => $unit->organizationID, 'termID' => $unit->termID, 'code' => $code]))
 		{
+			$updated = false;
 			foreach ($unit as $key => $value)
 			{
 				if (property_exists($table, $key) and $table->$key != $value)
 				{
+					$updated = true;
 					$table->set($key, $value);
 				}
 			}
 
-			$table->store();
-
+			if ($updated)
+			{
+				$table->modified = $model->modified;
+				$table->store();
+			}
 		}
 		else
 		{
+			$table->modified = $model->modified;
 			$table->save($unit);
 		}
 
