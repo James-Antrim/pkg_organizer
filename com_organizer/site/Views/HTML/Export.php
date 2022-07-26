@@ -11,7 +11,6 @@
 namespace Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Document;
 use Organizer\Adapters\Toolbar;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;

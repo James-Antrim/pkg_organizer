@@ -39,7 +39,7 @@ $rowNumber = 0;
     </div>
     <div class="instances current-layout">
 		<?php
-		foreach ($this->model->grid as $periodNo => $period)
+		foreach ($this->model->grid as $period)
 		{
 			$endTime   = Helpers\Dates::formatEndTime($period['endTime']);
 			$rowClass  = 'row' . ($rowNumber % 2);

@@ -11,8 +11,6 @@
 namespace Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
-use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Document;
 use Organizer\Helpers;
 
 /**
@@ -52,7 +50,7 @@ class Highlander extends StandardButton
 	 *
 	 * @return  string   JavaScript command string
 	 */
-	protected function _getCommand($name, $task, $list = true)
+	protected function _getCommand($name, $task, $list = true): string
 	{
 		Helpers\Languages::script('ORGANIZER_MAKE_SELECTION');
 		Helpers\Languages::script('ORGANIZER_ONLY_ONE_SELECTION');

@@ -44,8 +44,8 @@ class ProgramEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Programs
 	{
-		return new Tables\Programs;
+		return new Tables\Programs();
 	}
 }

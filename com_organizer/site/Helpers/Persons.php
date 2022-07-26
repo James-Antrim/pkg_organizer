@@ -12,6 +12,7 @@ namespace Organizer\Helpers;
 
 use Organizer\Adapters\Database;
 use Organizer\Tables;
+use stdClass;
 
 /**
  * Provides general functions for person access checks, data retrieval and display.
@@ -28,7 +29,7 @@ class Persons extends Associated implements Selectable
 	/**
 	 * Retrieves person entries from the database
 	 *
-	 * @return array  the persons who hold courses for the selected program and pool
+	 * @return stdClass[]  the persons who hold courses for the selected program and pool
 	 * @todo used by a plugin?
 	 */
 	public static function byProgramOrPool(): array
@@ -116,7 +117,7 @@ class Persons extends Associated implements Selectable
 	 * @param   bool  $multiple   whether multiple results are desired
 	 * @param   bool  $unique     whether unique results are desired
 	 *
-	 * @return array  an array of person data
+	 * @return array|array[]  an array of person data
 	 */
 	public static function getDataBySubject(
 		int $subjectID,
@@ -202,7 +203,7 @@ class Persons extends Associated implements Selectable
 	 *
 	 * @param   int  $personID  the person's id
 	 *
-	 * @return array the organizations with which the person is associated id => name
+	 * @return string[] the organizations with which the person is associated id => name
 	 */
 	public static function getOrganizationNames(int $personID): array
 	{
@@ -443,7 +444,7 @@ class Persons extends Associated implements Selectable
 	/**
 	 * Returns the ids of the organizations where the user has previously been assigned as a teacher.
 	 *
-	 * @return array the ids of the relevant organizations
+	 * @return int[] the ids of the relevant organizations
 	 */
 	public static function taughtOrganizations(): array
 	{
@@ -461,6 +462,6 @@ class Persons extends Associated implements Selectable
 			->where("ipe.roleID = 1");
 		Database::setQuery($query);
 
-		return Database::loadColumn();
+		return Database::loadIntColumn();
 	}
 }

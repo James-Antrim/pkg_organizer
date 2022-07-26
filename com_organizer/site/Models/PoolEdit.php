@@ -43,8 +43,8 @@ class PoolEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Pools
 	{
-		return new Tables\Pools;
+		return new Tables\Pools();
 	}
 }

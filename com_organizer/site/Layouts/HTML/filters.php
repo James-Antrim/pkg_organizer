@@ -32,8 +32,7 @@ if (isset($this->filterForm) && !empty($this->filterForm))
 // Set some basic options.
 $options['filtersHidden']       = $hideActiveFilters;
 $options['filterButton']        = $showFilterButton;
-$options['defaultLimit']        = isset($options['defaultLimit']) ?
-	$options['defaultLimit'] : $this->state->get('list.limit');
+$options['defaultLimit']        = $options['defaultLimit'] ?? $this->state->get('list.limit');
 $options['searchFieldSelector'] = '#filter_search';
 $options['orderFieldSelector']  = '#list_fullordering';
 

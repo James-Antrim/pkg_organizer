@@ -24,7 +24,7 @@ trait SubOrdinate
 	 *
 	 * @return bool
 	 */
-	private function addNew($data, $superOrdinates)
+	private function addNew(array $data, array $superOrdinates): bool
 	{
 		$existingRanges  = $this->getRanges($data['id']);
 		$resourceColumn  = $this->resource . 'ID';
@@ -75,9 +75,9 @@ trait SubOrdinate
 	 *
 	 * @param   array  $data  the form data
 	 *
-	 * @return array the applicable superordinate ranges
+	 * @return array[] the applicable superordinate ranges
 	 */
-	private function getSuperOrdinates($data)
+	private function getSuperOrdinates(array $data): array
 	{
 		// No need to check superordinates if no curriculum was selected
 		if (empty($data['curricula']))
@@ -166,7 +166,7 @@ trait SubOrdinate
 	 *
 	 * @return void removes deprecated ranges from the database
 	 */
-	private function removeDeprecated($resourceID, $superOrdinates)
+	private function removeDeprecated(int $resourceID, array $superOrdinates)
 	{
 		foreach ($this->getRanges($resourceID) as $range)
 		{

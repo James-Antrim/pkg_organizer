@@ -14,6 +14,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Organizer\Fields\FieldsField;
 use Organizer\Views\HTML\BaseView;
 use SimpleXMLElement;
+use stdClass;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -43,7 +44,7 @@ class HTML extends HTMLHelper
 	 *
 	 * @param   array  $array
 	 *
-	 * @return array the HMTL for the field label
+	 * @return stdClass[] the HMTL for the field label
 	 */
 	public static function getOptions(array $array): array
 	{
@@ -81,48 +82,6 @@ class HTML extends HTMLHelper
 	}
 
 	/**
-	 * Gets an array of dynamically translated default options.
-	 *
-	 * @param   FieldsField       $field    the field object.
-	 * @param   SimpleXMLElement  $element  the field's xml signature. passed separately to get around its protected status.
-	 *
-	 * @return array the default options.
-	 */
-	public static function getTranslatedOptions(FieldsField $field, SimpleXMLElement $element): array
-	{
-		$options = [];
-
-		foreach ($element->xpath('option') as $option)
-		{
-			$value = (string) $option['value'];
-			$text  = trim((string) $option) != '' ? trim((string) $option) : $value;
-
-			$disabled = (string) $option['disabled'];
-			$disabled = ($disabled == 'true' || $disabled == 'disabled' || $disabled == '1');
-			$disabled = $disabled || ($field->readonly && $value != $field->value);
-
-			$checked = (string) $option['checked'];
-			$checked = ($checked == 'true' || $checked == 'checked' || $checked == '1');
-
-			$selected = (string) $option['selected'];
-			$selected = ($selected == 'true' || $selected == 'selected' || $selected == '1');
-
-			$tmp = [
-				'value'    => $value,
-				'text'     => Languages::_($text),
-				'disable'  => $disabled,
-				'class'    => (string) $option['class'],
-				'selected' => ($checked || $selected),
-				'checked'  => ($checked || $selected),
-			];
-
-			$options[] = $tmp;
-		}
-
-		return $options;
-	}
-
-	/**
 	 * Creates the HTML string for an icon.
 	 *
 	 * @param   string  $name  the name of the icon class
@@ -144,24 +103,6 @@ class HTML extends HTMLHelper
 		}
 
 		return "<span $aria $class $title></span>";
-	}
-
-	/**
-	 * Translates an associative array of attributes into a string suitable for use in HTML.
-	 *
-	 * @param   array  $array  the element attributes
-	 *
-	 * @return string the HTML string containing the attributes
-	 */
-	public static function implodeAttributes(array $array): string
-	{
-		$attributes = [];
-		foreach ($array as $key => $value)
-		{
-			$attributes[] = "$key=\"$value\"";
-		}
-
-		return implode(' ', $attributes);
 	}
 
 	/**

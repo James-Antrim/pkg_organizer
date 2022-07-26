@@ -82,7 +82,7 @@ abstract class BaseView extends PHPExcel
 	 * @return void
 	 * @throws Exception
 	 */
-	public function addRange(string $start, string $end, $style = [], $value = '')
+	public function addRange(string $start, string $end, array $style = [], $value = '')
 	{
 		$coords = "$start:$end";
 		$sheet  = $this->getActiveSheet();

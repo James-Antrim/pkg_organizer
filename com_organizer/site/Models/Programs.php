@@ -10,7 +10,9 @@
 
 namespace Organizer\Models;
 
+use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -25,7 +27,7 @@ class Programs extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	public function filterFilterForm(Form &$form)
+	public function filterFilterForm(Form $form)
 	{
 		parent::filterFilterForm($form);
 
@@ -38,14 +40,14 @@ class Programs extends ListModel
 			}
 		}
 
-		return;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
+		/* @var QueryMySQLi $query */
 		$query = Helpers\Programs::getQuery();
 
 		$this->setActiveFilter($query, 'p');
@@ -77,6 +79,5 @@ class Programs extends ListModel
 			}
 		}
 
-		return;
 	}
 }

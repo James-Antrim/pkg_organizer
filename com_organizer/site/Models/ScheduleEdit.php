@@ -42,7 +42,7 @@ class ScheduleEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Schedules
 	{
 		return new Tables\Schedules();
 	}

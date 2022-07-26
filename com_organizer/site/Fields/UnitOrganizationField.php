@@ -11,6 +11,7 @@
 namespace Organizer\Fields;
 
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a select box for organizations.
@@ -33,7 +34,7 @@ class UnitOrganizationField extends OptionsField
 		$onchange           = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 
 		// Get the field options.
-		$options = (array) $this->getOptions();
+		$options = $this->getOptions();
 
 		return Helpers\HTML::_(
 			'select.genericlist',
@@ -50,7 +51,7 @@ class UnitOrganizationField extends OptionsField
 	/**
 	 * Returns an array of options
 	 *
-	 * @return array  the organization options
+	 * @return stdClass[]  the organization options
 	 */
 	protected function getOptions(): array
 	{

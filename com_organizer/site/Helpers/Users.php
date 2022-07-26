@@ -40,7 +40,6 @@ class Users
 
 		// Joomla documented the wrong type for registerDate which is a string
 
-		/** @noinspection PhpToStringImplementationInspection */
 		return urlencode(password_hash($user->email . $user->registerDate, PASSWORD_BCRYPT));
 	}
 
@@ -104,7 +103,6 @@ class Users
 		if ($requested->id and $requested->username !== $defaultUser->username)
 		{
 			// Joomla documented the wrong type for registerDate which is a string
-			/** @noinspection PhpToStringImplementationInspection */
 			if (password_verify($requested->email . $requested->registerDate, $authentication))
 			{
 				self::$user = $requested;
@@ -129,12 +127,12 @@ class Users
 	 *
 	 * @param   int  $userID  the id of the user whose full name should be resolved
 	 *
-	 * @return array the first and last names of the user
+	 * @return string[] the first and last names of the user
 	 */
 	public static function resolveUserName(int $userID = 0): array
 	{
 		$user           = Factory::getUser($userID);
-		$sanitizedName  = trim(preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}\.\-\']/', ' ', $user->name));
+		$sanitizedName  = trim(preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}.\-\']/', ' ', $user->name));
 		$nameFragments  = array_filter(explode(" ", $sanitizedName));
 		$surname        = array_pop($nameFragments);
 		$nameSupplement = '';

@@ -42,8 +42,8 @@ class ColorEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Colors
 	{
-		return new Tables\Colors;
+		return new Tables\Colors();
 	}
 }

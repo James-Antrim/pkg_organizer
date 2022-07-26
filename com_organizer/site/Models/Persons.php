@@ -11,7 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Helpers;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 
 /**
  * Class retrieves information for a filtered set of persons.
@@ -31,7 +32,8 @@ class Persons extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$query = $this->_db->getQuery(true);
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 		$query->select('DISTINCT p.id, surname, forename, username, p.active, o.id AS organizationID, code')
 			->from('#__organizer_persons AS p')
 			->leftJoin('#__organizer_associations AS a ON a.personID = p.id')

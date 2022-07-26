@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Form\Form;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -27,7 +29,7 @@ class Pools extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	public function filterFilterForm(Form &$form)
+	public function filterFilterForm(Form $form)
 	{
 		if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 		{
@@ -41,10 +43,11 @@ class Pools extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$tag = Helpers\Languages::getTag();
 
-		$query->select("DISTINCT p.id, p.fullName_$tag AS name, p.fieldID")->from('#__organizer_pools AS p');
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
+		$query->select("DISTINCT p.id, p.fullName_$tag AS name, p.fieldID")->from('pools AS p');
 
 		$this->setOrganizationFilter($query, 'pool', 'p');
 
@@ -55,11 +58,12 @@ class Pools extends ListModel
 			'p.abbreviation_en'
 		];
 		$this->setSearchFilter($query, $searchColumns);
-
 		$this->setValueFilters($query, ['fieldID']);
 
-		$programID = (int) $this->state->get('filter.programID', 0);
-		Helpers\Pools::setProgramFilter($query, $programID, 'pool', 'p');
+		if ($programID = (int) $this->state->get('filter.programID'))
+		{
+			Helpers\Pools::setProgramFilter($query, $programID, 'pool', 'p');
+		}
 
 		$this->setOrdering($query);
 

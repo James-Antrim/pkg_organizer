@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -27,10 +29,11 @@ class Fields extends ListModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$query->select("DISTINCT f.id, code, f.name_$tag AS name")->from('#__organizer_fields AS f');
 

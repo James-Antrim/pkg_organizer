@@ -44,7 +44,7 @@ class Programs extends Controller
 		}
 
 		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view={$this->listView}";
+		$url .= "&view=$this->listView";
 		$this->setRedirect($url);
 	}
 }

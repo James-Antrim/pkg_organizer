@@ -10,8 +10,8 @@
 
 namespace Organizer\Fields;
 
-use Joomla\CMS\Form\FormField;
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a select box for superordinate pool resources.
@@ -24,7 +24,7 @@ abstract class DependencyOptions extends OptionsField
 	 * @param   int    $subjectID  the selected subject
 	 * @param   array  $values     the subjects with which dependencies have already been mapped
 	 *
-	 * @return array  the options
+	 * @return stdClass[]  the options
 	 */
 	protected function getDependencyOptions(int $subjectID, array $values): array
 	{

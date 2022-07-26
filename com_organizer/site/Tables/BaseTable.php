@@ -47,11 +47,6 @@ abstract class BaseTable extends Table
 	 */
 	public function bindRegistry(Registry $registry): bool
 	{
-		if (!$registry instanceof Registry)
-		{
-			return false;
-		}
-
 		// Bind the source value, excluding the ignored fields.
 		foreach (array_keys($this->getProperties()) as $property)
 		{

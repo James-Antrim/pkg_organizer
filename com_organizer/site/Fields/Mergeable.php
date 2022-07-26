@@ -14,6 +14,7 @@ use Organizer\Adapters\Database;
 use Organizer\Helpers\HTML;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\Languages;
+use stdClass;
 
 /**
  * Trait for fields whose output should be suppressed if no options beyond those defined in the manifest were found.
@@ -29,7 +30,7 @@ trait Mergeable
 	 *
 	 * @param   array  $values
 	 *
-	 * @return array
+	 * @return stdClass[]
 	 */
 	protected function createOptions(array $values): array
 	{

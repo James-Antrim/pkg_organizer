@@ -10,6 +10,7 @@
 
 namespace Organizer\Validators;
 
+use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Tables;
 use SimpleXMLElement;
@@ -153,7 +154,13 @@ class Instances
 
 			if (!$table->load($instanceGroup))
 			{
+				$table->modified = $model->modified;
 				$table->save($instanceGroup);
+			}
+			elseif ($table->modified === Database::getNullDate())
+			{
+				$table->modified = $model->modified;
+				$table->store();
 			}
 		}
 	}
@@ -195,11 +202,13 @@ class Instances
 		if ($table->load($instance))
 		{
 			$table->methodID = $methodID;
+			$table->modified = $table->modified === Database::getNullDate() ? $model->modified : $table->modified;
 			$table->store();
 		}
 		else
 		{
 			$instance['methodID'] = $methodID;
+			$instance['modified'] = $model->modified;
 			$table->save($instance);
 		}
 
@@ -240,12 +249,14 @@ class Instances
 
 		if ($table->load($instancePerson))
 		{
-			$table->roleID = $roleID;
+			$table->roleID   = $roleID;
+			$table->modified = $table->modified === Database::getNullDate() ? $model->modified : $table->modified;
 			$table->store();
 		}
 		else
 		{
-			$instancePerson['roleID'] = $roleID;
+			$instancePerson['roleID']   = $roleID;
+			$instancePerson['modified'] = $model->modified;
 			$table->save($instancePerson);
 		}
 
@@ -295,7 +306,13 @@ class Instances
 
 			if (!$table->load($instanceRoom))
 			{
+				$table->modified = $model->modified;
 				$table->save($instanceRoom);
+			}
+			elseif ($table->modified === Database::getNullDate())
+			{
+				$table->modified = $model->modified;
+				$table->store();
 			}
 		}
 	}

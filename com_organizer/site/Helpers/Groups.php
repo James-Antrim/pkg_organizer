@@ -88,7 +88,7 @@ class Groups extends Associated implements Selectable
 	 *
 	 * @param   int  $groupID  the id of the group
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public static function getEvents(int $groupID): array
 	{
@@ -126,8 +126,7 @@ class Groups extends Associated implements Selectable
 			}
 		}
 
-		uasort($options, function ($optionOne, $optionTwo)
-		{
+		uasort($options, function ($optionOne, $optionTwo) {
 			return $optionOne->text > $optionTwo->text;
 		});
 
@@ -193,7 +192,7 @@ class Groups extends Associated implements Selectable
 	 * @param   string  $date      the date context for the unit search
 	 * @param   string  $interval  the interval to use as context for units
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public static function getUnits(int $groupID, string $date, string $interval = 'term'): array
 	{

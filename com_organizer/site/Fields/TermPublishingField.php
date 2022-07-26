@@ -65,7 +65,7 @@ class TermPublishingField extends FormField
 			$value        = empty($values[$term['id']]) ? 1 : $values[$term['id']]['published'];
 
 			$input .= '<div class="term-container">';
-			$input .= "<div class=\"term-label\"><label for=\"$subFieldName\">{$term[$nameColumn]}</label></div>";
+			$input .= "<div class=\"term-label\"><label for=\"$subFieldName\">$term[$nameColumn]</label></div>";
 			$input .= '<div class="term-input">';
 			$input .= Helpers\HTML::_(
 				'select.genericlist',

@@ -161,7 +161,7 @@ class RoomStatistics extends BaseModel
 	/**
 	 * Retrieves organization options
 	 *
-	 * @return array an array of organization options
+	 * @return string[] id => name
 	 */
 	public function getOrganizationOptions(): array
 	{
@@ -180,7 +180,7 @@ class RoomStatistics extends BaseModel
 	 * @param   string  $startTime  the time the instance starts
 	 * @param   string  $endTime    the time the instance ends
 	 *
-	 * @return array the relevant block numbers
+	 * @return int[] the relevant block numbers
 	 */
 	private function getRelevantBlocks(string $startTime, string $endTime): array
 	{
@@ -196,6 +196,7 @@ class RoomStatistics extends BaseModel
 				continue;
 			}
 
+			$blockNo                  = (int) $blockNo;
 			$relevantBlocks[$blockNo] = $blockNo;
 		}
 
@@ -205,7 +206,7 @@ class RoomStatistics extends BaseModel
 	/**
 	 * Retrieves room options
 	 *
-	 * @return array an array of room options
+	 * @return string[] id => name
 	 */
 	public function getRoomOptions(): array
 	{
@@ -221,7 +222,7 @@ class RoomStatistics extends BaseModel
 	/**
 	 * Retrieves room type options
 	 *
-	 * @return array an array of person options
+	 * @return string[] id => name
 	 */
 	public function getRoomtypeOptions(): array
 	{

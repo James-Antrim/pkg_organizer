@@ -54,7 +54,7 @@ class Roomkey extends BaseModel
 	 *
 	 * @return int|bool int id of the resource on success, otherwise bool false
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$this->authorize();
 

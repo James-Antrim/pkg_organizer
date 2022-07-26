@@ -29,21 +29,20 @@ class CourseParticipant extends BaseModel
 	 * @return bool true on success, otherwise false
 	 * @throws Exception
 	 */
-	public function accept()
+	public function accept(): bool
 	{
-		return $this->batch('status', self::ACCEPTED);
+		return $this->batch(self::ACCEPTED);
 	}
 
 	/**
 	 * Sets the property the given property to the given value for the selected participants.
 	 *
-	 * @param   string  $property  the property to update
-	 * @param   mixed   $value     the new value for the property
+	 * @param   mixed  $value  the new value for the property
 	 *
 	 * @return bool true on success, otherwise false
 	 * @throws Exception
 	 */
-	private function batch(string $property, $value)
+	private function batch($value): bool
 	{
 		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
@@ -69,22 +68,19 @@ class CourseParticipant extends BaseModel
 				return false;
 			}
 
-			if ($table->$property === $value)
+			if ($table->status === $value)
 			{
 				continue;
 			}
 
-			$table->$property = $value;
+			$table->status = $value;
 
 			if (!$table->store())
 			{
 				return false;
 			}
 
-			if ($property === 'status')
-			{
-				Helpers\Mailer::registrationUpdate($courseID, $participantID, $value);
-			}
+			Helpers\Mailer::registrationUpdate($courseID, $participantID, $value);
 		}
 
 		return true;
@@ -103,7 +99,7 @@ class CourseParticipant extends BaseModel
 	 *
 	 * @return bool true on success, false on error
 	 */
-	public function notify()
+	public function notify(): bool
 	{
 		if (!$courseID = Input::getID())
 		{
@@ -144,7 +140,7 @@ class CourseParticipant extends BaseModel
 	 *
 	 * @return bool true on success, otherwise false
 	 */
-	public function remove()
+	public function remove(): bool
 	{
 		if (!$courseID = Input::getID() or !$participantIDs = Input::getSelectedIDs())
 		{
@@ -204,9 +200,9 @@ class CourseParticipant extends BaseModel
 	 */
 	public function toggle(): bool
 	{
-		$attribute     = Input::getCMD('attribute', '');
-		$courseID      = Input::getInt('courseID', 0);
-		$participantID = Input::getInt('participantID', 0);
+		$attribute     = Input::getCMD('attribute');
+		$courseID      = Input::getInt('courseID');
+		$participantID = Input::getInt('participantID');
 
 		if (!$attribute or !$courseID or !$participantID)
 		{
@@ -250,8 +246,8 @@ class CourseParticipant extends BaseModel
 	 * @return bool true on success, otherwise false
 	 * @throws Exception
 	 */
-	public function waitlist()
+	public function waitlist(): bool
 	{
-		return $this->batch('status', self::WAITLIST);
+		return $this->batch(self::WAITLIST);
 	}
 }

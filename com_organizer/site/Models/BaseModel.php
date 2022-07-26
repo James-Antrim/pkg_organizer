@@ -13,6 +13,7 @@ namespace Organizer\Models;
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Organizer\Helpers;
+use Organizer\Tables\BaseTable;
 
 /**
  * Class which manages stored building data.
@@ -100,7 +101,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 *
 	 * @return int|bool int id of the resource on success, otherwise bool false
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$this->authorize();
 
@@ -108,6 +109,7 @@ abstract class BaseModel extends BaseDatabaseModel
 
 		try
 		{
+			/* @var BaseTable $table */
 			$table = $this->getTable();
 		}
 		catch (Exception $exception)
@@ -127,7 +129,7 @@ abstract class BaseModel extends BaseDatabaseModel
 	 *
 	 * @return int|bool the id of the resource on success, otherwise bool false
 	 */
-	public function save2copy($data = [])
+	public function save2copy(array $data = [])
 	{
 		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 		unset($data['id']);

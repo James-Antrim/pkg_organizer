@@ -44,7 +44,7 @@ class SubjectEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Subjects
 	{
 		return new Tables\Subjects();
 	}

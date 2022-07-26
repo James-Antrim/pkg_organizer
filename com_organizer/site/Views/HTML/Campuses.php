@@ -68,8 +68,8 @@ class Campuses extends ListView
 			}
 			else
 			{
-				$index      = "{$item->parentName}-{$item->name}";
-				$item->name = "|&nbsp;&nbsp;-&nbsp;{$item->name}";
+				$index      = "$item->parentName-$item->name";
+				$item->name = "|&nbsp;&nbsp;-&nbsp;$item->name";
 			}
 
 			$address    = '';

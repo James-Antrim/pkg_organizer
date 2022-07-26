@@ -20,12 +20,12 @@ class Holidays
 	public const CLOSED = 2, GAP = 1, HOLIDAY = 3;
 
 	/**
-	 * Gets holidays occuring between two dates (inclusive).
+	 * Gets holidays occurring between two dates (inclusive).
 	 *
 	 * @param   string  $startDate  the start date for the range
 	 * @param   string  $endDate    the end date for the range
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public static function getRelevant(string $startDate = '', string $endDate = ''): array
 	{

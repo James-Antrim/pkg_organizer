@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -23,10 +25,11 @@ class Grids extends ListModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->getDbo()->getQuery(true);
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$query->select("id, name_$tag AS name, grid, isDefault")
 			->from('#__organizer_grids');

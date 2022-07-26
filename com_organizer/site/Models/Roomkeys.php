@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -27,7 +29,8 @@ class Roomkeys extends ListModel
 	 */
 	protected function getListQuery(): JDatabaseQuery
 	{
-		$query = $this->_db->getQuery(true);
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 		$tag   = Helpers\Languages::getTag();
 
 		$query->select("rk.*, rk.name_$tag AS name, rk.key AS rns")

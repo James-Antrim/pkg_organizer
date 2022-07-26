@@ -146,7 +146,7 @@ class Schedules extends Controller
 			Helpers\OrganizerHelper::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', 'error');
 		}
 
-		$url .= "&view={$view}";
+		$url .= "&view=$view";
 		$this->setRedirect($url);
 	}
 }

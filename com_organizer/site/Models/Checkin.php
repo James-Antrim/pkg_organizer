@@ -104,7 +104,7 @@ class Checkin extends FormModel
 	/**
 	 * Gets the instances relevant to the booking and person.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public function getInstances(): array
 	{

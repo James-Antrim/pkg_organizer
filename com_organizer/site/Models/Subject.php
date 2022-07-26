@@ -137,12 +137,23 @@ class Subject extends CurriculumResource
 	{
 		if (!isset($data[$property]))
 		{
+			$data[$property] = 'NULL';
+
 			return;
 		}
 
-		if ($data[$property] == '-1')
+		$value = (int) $data[$property];
+		if ($value >= 3)
 		{
-			$data[$property] = 'NULL';
+			$data[$property] = 3;
+		}
+		elseif ($value >= 0)
+		{
+			$data[$property] = $value;
+		}
+		else
+		{
+			$data[$property] = null;
 		}
 	}
 
@@ -152,7 +163,7 @@ class Subject extends CurriculumResource
 	 * @param   array  $programRange   the program range being iterated
 	 * @param   array  $subjectRanges  the ranges for the given subject
 	 *
-	 * @return array the relevant subject ranges
+	 * @return array[] the relevant subject ranges
 	 */
 	private function filterRanges(array $programRange, array $subjectRanges): array
 	{
@@ -637,7 +648,7 @@ class Subject extends CurriculumResource
 	/**
 	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
@@ -896,7 +907,7 @@ class Subject extends CurriculumResource
 	 * @param   array  $potentialCodes  the possible code values used in the attribute text
 	 * @param   array  $programRanges   the program ranges whose curricula contain the subject being processed
 	 *
-	 * @return array the subject information for subjects with dependencies
+	 * @return array[] the subject information for subjects with dependencies
 	 */
 	private function verifyDependencies(array $potentialCodes, array $programRanges): array
 	{

@@ -138,7 +138,7 @@ class Course extends BaseModel
 				continue;
 			}
 
-			if (!preg_match('/^[\d\, ]+$/', $row))
+			if (!preg_match('/^[\d, ]+$/', $row))
 			{
 				Helpers\OrganizerHelper::message("Malformed row: $row.", 'error');
 				continue;
@@ -309,7 +309,7 @@ class Course extends BaseModel
 	 *
 	 * @return int|bool int id of the resource on success, otherwise bool false
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$this->authorize();
 

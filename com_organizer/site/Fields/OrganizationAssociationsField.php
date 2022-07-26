@@ -31,7 +31,7 @@ class OrganizationAssociationsField extends OptionsField
 	 * @param   string  $resource    the resource type
 	 * @param   int     $resourceID  the resource id
 	 *
-	 * @return array the ids of the organizations associated with the resource
+	 * @return int[] the ids of the organizations associated with the resource
 	 */
 	private function getAssociated(string $resource, int $resourceID): array
 	{
@@ -55,7 +55,7 @@ class OrganizationAssociationsField extends OptionsField
 	 *
 	 * @param   string  $resource  the resoure type
 	 *
-	 * @return array the ids of the organizations associated with the resource
+	 * @return int[] the ids of the organizations associated with the resource
 	 */
 	private function getAuthorized(string $resource): array
 	{

@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Form\Form;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -29,7 +31,7 @@ class RoomOverview extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function filterFilterForm(Form &$form)
+	protected function filterFilterForm(Form $form)
 	{
 		parent::filterFilterForm($form);
 
@@ -45,8 +47,9 @@ class RoomOverview extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$query->select('r.id, r.name AS name, r.effCapacity')
 			->select("t.id AS roomtypeID, t.name_$tag AS typeName, t.description_$tag AS typeDesc")

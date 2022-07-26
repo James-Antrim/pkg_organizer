@@ -62,7 +62,7 @@ trait Imported
 		}
 
 		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view={$this->listView}";
+		$url .= "&view=$this->listView";
 		$this->setRedirect($url);
 	}
 
@@ -75,7 +75,7 @@ trait Imported
 	{
 		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
 		$model     = new $modelName();
-		$url       = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
+		$url       = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
 
 		if ($resourceID = $model->save() and $model->importSingle($resourceID))
 		{

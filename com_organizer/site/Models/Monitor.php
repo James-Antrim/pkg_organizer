@@ -42,19 +42,15 @@ class Monitor extends BaseModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Monitors
 	{
-		return new Tables\Monitors;
+		return new Tables\Monitors();
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$this->authorize();
 
@@ -75,7 +71,7 @@ class Monitor extends BaseModel
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	public function saveDefaultBehaviour()
+	public function saveDefaultBehaviour(): bool
 	{
 		$this->authorize();
 

@@ -16,6 +16,7 @@ use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
 use Joomla\Utilities\ArrayHelper;
 use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 use stdClass;
 
@@ -67,7 +68,7 @@ abstract class ListModel extends ParentModel
 	 *
 	 * @return void modifies $form
 	 */
-	protected function filterFilterForm(Form &$form)
+	protected function filterFilterForm(Form $form)
 	{
 		// No implementation is the default implementation.
 	}
@@ -353,68 +354,61 @@ abstract class ListModel extends ParentModel
 	/**
 	 * Sets an organization filter for the given resource.
 	 *
-	 * @param   JDatabaseQuery  $query    the query to modify
-	 * @param   string          $context  the resource context from which this function was called
-	 * @param   string          $alias    the alias of the table onto which the organizations table will be joined as
+	 * @param   QueryMySQLi  $query       the query to modify
+	 * @param   string       $context     the resource context from which this function was called
+	 * @param   string       $alias       the alias of the table onto which the organizations table will be joined as
 	 *                                    needed
 	 *
 	 * @return void
 	 */
-	protected function setOrganizationFilter(JDatabaseQuery $query, string $context, string $alias)
+	protected function setOrganizationFilter(QueryMySQLi $query, string $context, string $alias)
 	{
-		$authorizedOrgIDs = $this->adminContext ?
-			Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
-		$organizationID   = $this->state->get('filter.organizationID', 0);
+		$authorizedIDs  = $this->adminContext ? Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
+		$organizationID = (int) $this->state->get('filter.organizationID');
 
-		if (!$authorizedOrgIDs or !$organizationID)
+		if (!$authorizedIDs or !$organizationID)
 		{
 			return;
 		}
 
-		$joinStatement = "#__organizer_associations AS a on a.{$context}ID = $alias.id";
+		$conditions = ["a.{$context}ID = $alias.id"];
+		$join       = 'associations AS a';
 
-		if ($organizationID == '-1')
+		if ($organizationID === self::NONE)
 		{
-			$query->leftJoin($joinStatement)->where('a.organizationID IS NULL');
+			$query->leftJoinX($join, $conditions)->where('a.organizationID IS NULL');
 
 			return;
 		}
 
-		$query->innerJoin($joinStatement);
-
-		if (in_array($organizationID, $authorizedOrgIDs))
-		{
-			$query->where("a.organizationID = $organizationID");
-
-			return;
-		}
-
-		$query->where('(a.organizationID IN (' . implode(',', $authorizedOrgIDs) . ') OR a.organizationID IS NULL)');
+		$in = in_array($organizationID, $authorizedIDs) ? [$organizationID] : $authorizedIDs;
+		$query->innerJoinX($join, $conditions)->wherein('a.organizationID', $in);
 	}
 
 	/**
 	 * Sets the search filter for the query
 	 *
-	 * @param   JDatabaseQuery  $query        the query to modify
-	 * @param   array           $columnNames  the column names to use in the search
+	 * @param   QueryMySQLi  $query        the query to modify
+	 * @param   array        $columnNames  the column names to use in the search
 	 *
 	 * @return void
 	 */
-	protected function setSearchFilter(JDatabaseQuery $query, array $columnNames)
+	protected function setSearchFilter(QueryMySQLi $query, array $columnNames)
 	{
-		$userInput = $this->state->get('filter.search', '');
-		if (empty($userInput))
+		if (!$userInput = $this->state->get('filter.search'))
 		{
 			return;
 		}
-		$search  = '%' . $this->_db->escape($userInput, true) . '%';
-		$wherray = [];
+
+		$search = '%' . $query->escape($userInput, true) . '%';
+		$where  = [];
+
 		foreach ($columnNames as $name)
 		{
-			$wherray[] = "$name LIKE '$search'";
+			$where[] = "$name LIKE '$search'";
 		}
-		$where = implode(' OR ', $wherray);
-		$query->where("($where)");
+
+		$query->andWhere($where);
 	}
 
 	/**

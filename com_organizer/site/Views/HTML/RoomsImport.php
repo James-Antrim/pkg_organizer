@@ -11,7 +11,6 @@
 namespace Organizer\Views\HTML;
 
 use Organizer\Adapters\Toolbar;
-use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
 
 /**

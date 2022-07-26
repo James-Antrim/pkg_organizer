@@ -12,6 +12,8 @@ namespace Organizer\Models;
 
 use Exception;
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 use Organizer\Tables;
 
@@ -42,7 +44,8 @@ class Equipment extends ListModel
 	{
 		$tag = Helpers\Languages::getTag();
 
-		$query = $this->_db->getQuery(true);
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 		$query->select("DISTINCT e.*, e.name_$tag AS name")
 			->from('#__organizer_equipment AS e');
 
@@ -63,7 +66,7 @@ class Equipment extends ListModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Equipment
 	{
 		return new Tables\Equipment();
 	}

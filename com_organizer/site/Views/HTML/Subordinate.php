@@ -20,6 +20,7 @@ trait Subordinate
 	 */
 	protected function modifyDocument()
 	{
+		/** @noinspection PhpMultipleClassDeclarationsInspection */
 		parent::modifyDocument();
 
 		Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/curricula.js');

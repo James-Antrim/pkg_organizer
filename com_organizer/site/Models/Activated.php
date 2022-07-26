@@ -24,6 +24,7 @@ trait Activated
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
+		/** @noinspection PhpMultipleClassDeclarationsInspection */
 		parent::populateState($ordering, $direction);
 
 		$app     = Helpers\OrganizerHelper::getApplication();

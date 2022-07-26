@@ -35,7 +35,7 @@ class Participants extends Controller
 	{
 		$model = new Models\Participant();
 
-		if ($participantID = $model->save())
+		if ($model->save())
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
 		}

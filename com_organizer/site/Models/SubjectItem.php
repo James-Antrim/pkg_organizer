@@ -449,7 +449,6 @@ class SubjectItem extends ItemModel
 
 		foreach (Helpers\Subjects::getPrograms($subject['subjectID']) as $prRange)
 		{
-			$pools           = [];
 			$program         = Helpers\Programs::getName($prRange['programID']);
 			$semesterNumbers = [];
 

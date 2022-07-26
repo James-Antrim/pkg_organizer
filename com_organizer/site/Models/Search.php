@@ -345,7 +345,7 @@ class Search extends ListModel
 	/**
 	 * Filters pool terms to non-compound terms not occurring in the program title.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	private function getPoolTerms(): array
 	{
@@ -438,7 +438,7 @@ class Search extends ListModel
 	 *
 	 * @param   array  $resources  the category and program search results
 	 *
-	 * @return array the structured results
+	 * @return array[] the structured results
 	 */
 	private function processCnP(array $resources): array
 	{
@@ -528,7 +528,7 @@ class Search extends ListModel
 	 *
 	 * @param   array  $resources  the event/subject results
 	 *
-	 * @return array the structured results
+	 * @return array[] the structured results
 	 */
 	private function processEnS(array $resources): array
 	{
@@ -579,7 +579,7 @@ class Search extends ListModel
 	 *
 	 * @param   array  $resources  the category and program search results
 	 *
-	 * @return array the structured results
+	 * @return array[] the structured results
 	 */
 	private function processGnP(array $resources): array
 	{
@@ -641,7 +641,7 @@ class Search extends ListModel
 	 *
 	 * @param   array  $organizationIDs  the organization ids
 	 *
-	 * @return array the structured results
+	 * @return array[] the structured results
 	 */
 	private function processOrganizations(array $organizationIDs): array
 	{
@@ -666,7 +666,7 @@ class Search extends ListModel
 	 *
 	 * @param   array  $personIDs  the category and program search results
 	 *
-	 * @return array the structured results
+	 * @return array[] the structured results
 	 */
 	private function processPersons(array $personIDs): array
 	{
@@ -715,7 +715,7 @@ class Search extends ListModel
 	 *
 	 * @param   array &$results  the room results
 	 *
-	 * @return array the structured results
+	 * @return array[] the structured results
 	 */
 	private function processRooms(array $results): array
 	{
@@ -799,7 +799,7 @@ class Search extends ListModel
 	 *
 	 * @param   array  $group  the group result
 	 *
-	 * @return array the pool entries associated with the pool
+	 * @return array[] the pool entries associated with the pool
 	 */
 	private function resolvePools(array $group): array
 	{
@@ -856,7 +856,7 @@ class Search extends ListModel
 	 * @param   array  $ncRooms   an array of terms which could not be resolved
 	 * @param   int    $capacity  the requested capacity
 	 *
-	 * @return array the room type ids which matched the criteria
+	 * @return int[] the room type ids which matched the criteria
 	 */
 	private function resolveRoomTypes(array &$ncRooms, int $capacity): array
 	{
@@ -1857,7 +1857,7 @@ class Search extends ListModel
 			->leftJoin('#__organizer_instance_persons AS ip ON ip.instanceID = i.id')
 			->leftJoin('#__organizer_persons AS p1 ON p1.id = ip.personID')
 			->leftJoin('#__organizer_event_coordinators AS ec ON ec.eventID = e.id')
-			->leftJoin('#__organizer_persons AS p2  ON p2.id = ec.personID')
+			->leftJoin('#__organizer_persons AS p2 ON p2.id = ec.personID')
 			->where('(roleID IS NULL OR roleID IN (' . implode(',', $relevantRoles) . '))')
 			->where("i.delta != 'removed'")
 			->where("u.delta != 'removed'")

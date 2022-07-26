@@ -25,14 +25,13 @@ class FieldColors extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function filterFilterForm(Form &$form)
+	protected function filterFilterForm(Form $form)
 	{
 		if (count(Helpers\Can::documentTheseOrganizations()) === 1)
 		{
 			$form->removeField('organizationID', 'filter');
 			unset($this->filter_fields['organizationID']);
 
-			return;
 		}
 	}
 

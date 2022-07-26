@@ -47,7 +47,7 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @return string the HTML output of the field attribute display
 	 */
-	public static function getFieldColorDisplay(int $fieldID, $organizationID = 0): string
+	public static function getFieldColorDisplay(int $fieldID, int $organizationID = 0): string
 	{
 		if (!$fieldID)
 		{
@@ -124,7 +124,7 @@ class Fields extends ResourceHelper implements Selectable
 	 *
 	 * @param   array  $subjectRanges  the mapped subject ranges
 	 *
-	 * @return array the field ids associated with the subjects in the given context
+	 * @return int[] the field ids associated with the subjects in the given context
 	 */
 	private static function getRelevantIDs(array $subjectRanges): array
 	{

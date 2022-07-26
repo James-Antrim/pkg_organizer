@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Form\Form;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -30,7 +32,7 @@ class Subjects extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	public function filterFilterForm(Form &$form)
+	public function filterFilterForm(Form $form)
 	{
 		parent::filterFilterForm($form);
 		if (!empty($this->state->get('calledProgramID')) or !empty($this->state->get('calledPoolID')))
@@ -87,9 +89,10 @@ class Subjects extends ListModel
 		$tag = Helpers\Languages::getTag();
 
 		// Create the sql query
-		$query = $this->_db->getQuery(true);
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 		$query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditPoints")
-			->from('#__organizer_subjects AS s');
+			->from('subjects AS s');
 
 		$searchFields = [
 			's.fullName_de',
@@ -103,29 +106,28 @@ class Subjects extends ListModel
 		$this->setOrganizationFilter($query, 'subject', 's');
 		$this->setSearchFilter($query, $searchFields);
 
-		if ($programID = $this->state->get('filter.programID', ''))
+		if ($programID = (int) $this->state->get('filter.programID'))
 		{
 			Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
 		}
 
 		// The selected pool supersedes any original called pool
-		if ($poolID = $this->state->get('filter.poolID', ''))
+		if ($poolID = $this->state->get('filter.poolID'))
 		{
 			Helpers\Subjects::setPoolFilter($query, $poolID, 's');
 		}
 
-		$personID = $this->state->get('filter.personID', '');
-		if (!empty($personID))
+		$personID = (int) $this->state->get('filter.personID');
+		if ($personID !== self::ALL)
 		{
-			if ($personID === '-1')
+			if ($personID === self::NONE)
 			{
-				$query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
-					->where('sp.subjectID IS NULL');
+				$conditions = ['sp.subjectID = s.id', 'sp.subjectID IS NULL'];
+				$query->leftJoinX('subject_persons AS sp', $conditions);
 			}
 			else
 			{
-				$query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
-					->where("sp.personID = $personID");
+				$query->innerJoinX('subject_persons AS sp', ['sp.subjectID = s.id'])->where("sp.personID = $personID");
 			}
 		}
 

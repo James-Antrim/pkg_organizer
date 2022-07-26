@@ -73,7 +73,7 @@ class SubOrdinatesField extends FormField
 	/**
 	 * Generates the HTML output for the subordinate entries
 	 *
-	 * @return array the HTML strings for the subordinate resources
+	 * @return string[] the HTML strings for the subordinate resources
 	 */
 	private function getRows(): array
 	{
@@ -168,7 +168,7 @@ class SubOrdinatesField extends FormField
 	/**
 	 * Retrieves resources subordinate to the resource being edited
 	 *
-	 * @return array  empty if no subordinates were found
+	 * @return array[]  empty if no subordinates were found
 	 */
 	private function getSubordinates(): array
 	{

@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -27,9 +29,10 @@ class Monitors extends ListModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
-		$query = $this->_db->getQuery(true);
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$query->select($this->state->get('list.select', 'm.id, r.name, m.ip, m.useDefaults, m.display, m.content'))
 			->from('#__organizer_monitors AS m')
@@ -52,7 +55,7 @@ class Monitors extends ListModel
 	 *
 	 * @return void
 	 */
-	private function addDisplayFilter($query)
+	private function addDisplayFilter(JDatabaseQuery $query)
 	{
 		$requestDisplay = $this->state->get('filter.display', '');
 
@@ -83,7 +86,7 @@ class Monitors extends ListModel
 	 *
 	 * @return void
 	 */
-	private function addContentFilter($query)
+	private function addContentFilter(JDatabaseQuery $query)
 	{
 		$params         = Helpers\Input::getParams();
 		$requestContent = $this->state->get('filter.content', '');

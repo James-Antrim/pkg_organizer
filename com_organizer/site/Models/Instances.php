@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\Instances as Helper;
@@ -57,7 +58,7 @@ class Instances extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	public function filterFilterForm(Form &$form)
+	public function filterFilterForm(Form $form)
 	{
 		parent::filterFilterForm($form);
 
@@ -272,6 +273,7 @@ class Instances extends ListModel
 	 */
 	protected function getListQuery(): JDatabaseQuery
 	{
+		/* @var QueryMySQLi $query */
 		$query = Helper::getInstanceQuery($this->conditions);
 		$query->select("DISTINCT i.id")->order('b.date, b.startTime, b.endTime');
 		$this->setSearchFilter($query, ['e.name_de', 'e.name_en']);

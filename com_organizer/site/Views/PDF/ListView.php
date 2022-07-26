@@ -8,8 +8,6 @@
  * @link        www.thm.de
  */
 
-/** @noinspection PhpTooManyParametersInspection */
-
 namespace Organizer\Views\PDF;
 
 use Joomla\Registry\Registry;

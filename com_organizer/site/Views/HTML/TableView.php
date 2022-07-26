@@ -114,7 +114,7 @@ abstract class TableView extends BaseView
 	 *
 	 * @param   object  $resource  the resource to be displayed in the row
 	 *
-	 * @return array  the label inclusive tooltip to be displayed
+	 * @return string[]  the label inclusive tooltip to be displayed
 	 */
 	abstract protected function getRowLabel(object $resource): array;
 
@@ -123,7 +123,7 @@ abstract class TableView extends BaseView
 	 *
 	 * @param   array  $data  the data used to structure the cell
 	 *
-	 * @return array structured cell information
+	 * @return string[] structured cell information
 	 */
 	abstract protected function getDataCell(array $data): array;
 

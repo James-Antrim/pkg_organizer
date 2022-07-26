@@ -28,8 +28,8 @@ class MethodEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Methods
 	{
-		return new Tables\Methods;
+		return new Tables\Methods();
 	}
 }

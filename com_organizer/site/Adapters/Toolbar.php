@@ -10,8 +10,13 @@
 
 namespace Organizer\Adapters;
 
+use JLoader;
+use Joomla\CMS\Filesystem\Path;
+use Joomla\CMS\Filter\InputFilter;
+use Joomla\CMS\Log\Log;
 use Joomla\CMS\Toolbar\Toolbar as ParentClass;
 use Joomla\CMS\Toolbar\ToolbarButton;
+use Organizer\Helpers\Languages;
 use Organizer\Helpers\OrganizerHelper;
 
 class Toolbar extends ParentClass
@@ -88,7 +93,7 @@ class Toolbar extends ParentClass
 
 		if (!class_exists('Joomla\\CMS\\Toolbar\\ToolbarButton'))
 		{
-			\JLog::add(\JText::_('JLIB_HTML_BUTTON_BASE_CLASS'), \JLog::WARNING, 'jerror');
+			Log::add(Languages::_('JLIB_HTML_BUTTON_BASE_CLASS'), Log::WARNING, 'jerror');
 
 			return false;
 		}
@@ -97,26 +102,19 @@ class Toolbar extends ParentClass
 
 		if (!$buttonClass)
 		{
-			if (isset($this->_buttonPath))
-			{
-				$dirs = $this->_buttonPath;
-			}
-			else
-			{
-				$dirs = [];
-			}
+			$dirs = $this->_buttonPath ?? [];
 
-			$file = \JFilterInput::getInstance()->clean(str_replace('_', DIRECTORY_SEPARATOR, strtolower($type)) . '.php', 'path');
+			$file = InputFilter::getInstance()->clean(str_replace('_', DIRECTORY_SEPARATOR, strtolower($type)) . '.php', 'path');
 
-			\JLoader::import('joomla.filesystem.path');
+			JLoader::import('joomla.filesystem.path');
 
-			if ($buttonFile = \JPath::find($dirs, $file))
+			if ($buttonFile = Path::find($dirs, $file))
 			{
 				include_once $buttonFile;
 			}
 			else
 			{
-				\JLog::add(\JText::sprintf('JLIB_HTML_BUTTON_NO_LOAD', $buttonClass, $buttonFile), \JLog::WARNING, 'jerror');
+				Log::add(Languages::sprintf('JLIB_HTML_BUTTON_NO_LOAD', $buttonClass, $buttonFile), Log::WARNING, 'jerror');
 
 				return false;
 			}

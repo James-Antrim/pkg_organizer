@@ -43,7 +43,7 @@ foreach ($iterator as $node)
 		$contents[$text] = $thisLink;
 	}
 }
-echo "<pre>" . print_r($contents, true) . "</pre><br>";
+//echo "<pre>" . print_r($contents, true) . "</pre><br>";
 /*
 
 function fillArrayWithFileNodes( DirectoryIterator $dir )

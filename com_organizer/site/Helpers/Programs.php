@@ -12,6 +12,7 @@ namespace Organizer\Helpers;
 
 use JDatabaseQuery;
 use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Models;
 use Organizer\Tables;
 
@@ -106,7 +107,7 @@ class Programs extends Curricula implements Selectable
 	 *
 	 * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
 	 *
-	 * @return array the program ids
+	 * @return int[] the program ids
 	 */
 	public static function getIDs($identifiers): array
 	{
@@ -118,7 +119,7 @@ class Programs extends Curricula implements Selectable
 		$ids = [];
 		foreach ($ranges as $range)
 		{
-			$ids[] = $range['programID'];
+			$ids[] = (int) $range['programID'];
 		}
 
 		$ids = array_unique($ids);
@@ -212,15 +213,17 @@ class Programs extends Curricula implements Selectable
 	public static function getQuery(): JDatabaseQuery
 	{
 		$tag   = Languages::getTag();
-		$parts = ["p.name_$tag", "' ('", 'd.abbreviation'];
-		$parts = self::useCurrent() ?
-			array_merge($parts, ["')'"]) : array_merge($parts, ["', '", 'p.accredited', "')'"]);
+		$start = [Database::quoteName("p.name_$tag"), "' ('", Database::quoteName('d.abbreviation')];
+		$end   = self::useCurrent() ? ["')'"] : ["', '", Database::quoteName('p.accredited'), "')'"];
+		$parts = array_merge($start, $end);
 
-		$query      = Database::getQuery();
-		$nameClause = $query->concatenate($parts, '') . ' AS name';
-		$query->select("DISTINCT p.id AS id, $nameClause, p.active")
-			->from('#__organizer_programs AS p')
-			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID');
+		$query  = Database::getQuery();
+		$select = [
+			'DISTINCT p.id AS id',
+			$query->concatenate($parts, '') . ' AS ' . Database::quoteName('name'),
+			'p.active'
+		];
+		$query->selectX($select, 'programs AS p')->innerJoinX('degrees AS d', ['d.id = p.degreeID']);
 
 		return $query;
 	}
@@ -266,10 +269,10 @@ class Programs extends Curricula implements Selectable
 	 */
 	public static function getResources(string $access = ''): array
 	{
+		/* @var QueryMySQLi $query */
 		$query = self::getQuery();
-		$tag   = Languages::getTag();
-		$query->select("d.abbreviation AS degree")
-			->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')
+		$query->select(Database::quoteName('d.abbreviation', 'degree'))
+			->innerJoinX('curricula AS c', ['c.programID = p.id'])
 			->order('name');
 
 		if ($access)
@@ -281,14 +284,21 @@ class Programs extends Curricula implements Selectable
 
 		if (self::useCurrent())
 		{
-			$subQuery = Database::getQuery();
-			$subQuery->select("p2.name_$tag, p2.degreeID, MAX(p2.accredited) AS accredited")
-				->from('#__organizer_programs AS p2')
-				->group("p2.name_$tag, p2.degreeID");
-			$conditions = "grouped.name_$tag = p.name_$tag ";
-			$conditions .= "AND grouped.degreeID = p.degreeID ";
-			$conditions .= "AND grouped.accredited = p.accredited ";
-			$query->innerJoin("($subQuery) AS grouped ON $conditions");
+			$tag = Languages::getTag();
+
+			$conditions = [
+				"grouped.name_$tag = p.name_$tag",
+				'grouped.degreeID = p.degreeID',
+				'grouped.accredited = p.accredited'
+			];
+			$select     = [
+				"p2.name_$tag",
+				'p2.degreeID',
+				'MAX(' . Database::quoteName('p2.accredited') . ') AS ' . Database::quoteName('accredited')
+			];
+
+			$join = Database::getQuery()->selectX($select, 'programs AS p2')->group(["p2.name_$tag", 'p2.degreeID']);
+			$query->innerJoinX("($join) AS grouped", $conditions);
 		}
 
 		Database::setQuery($query);

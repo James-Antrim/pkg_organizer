@@ -41,6 +41,7 @@ trait Translated
 			$this->description      = Helpers\Languages::_($descriptionConstant);
 		}
 
+		/** @noinspection PhpMultipleClassDeclarationsInspection */
 		return parent::getLayoutData();
 	}
 }

@@ -64,7 +64,7 @@ class Workload extends FormModel
 	 *
 	 * @param   array  $units
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	private function aggregateByBlock(array $units): array
 	{
@@ -198,7 +198,7 @@ class Workload extends FormModel
 	 *
 	 * @param   array  $instances  the instances to be aggregated
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	private function aggregateByUnit(array $instances): array
 	{
@@ -343,7 +343,7 @@ class Workload extends FormModel
 	 *
 	 * @param   array  $aggregates
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	private function itemize(array $aggregates): array
 	{

@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -51,8 +53,9 @@ class Units extends ListModel
 	{
 		$modified = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
 		$termID   = $this->state->get('filter.termID');
-		$query    = $this->_db->getQuery(true);
-		$tag      = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
+		$tag   = Helpers\Languages::getTag();
 
 		$query->select('u.id, u.code, u.courseID, u.delta AS status, u.endDate, u.modified, u.startDate')
 			->select("g.name_$tag AS grid")

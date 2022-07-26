@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use Joomla\CMS\Form\Form;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -27,7 +29,7 @@ class Courses extends ListModel
 	/**
 	 * @inheritDoc
 	 */
-	protected function filterFilterForm(Form &$form)
+	protected function filterFilterForm(Form $form)
 	{
 		parent::filterFilterForm($form);
 
@@ -77,8 +79,9 @@ class Courses extends ListModel
 	 */
 	protected function getListQuery()
 	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 		$query->select("c.*, c.name_$tag AS name, MIN(u.startDate) AS startDate, MAX(u.endDate) AS endDate")
 			->from('#__organizer_courses AS c')
 			->innerJoin('#__organizer_units AS u ON u.courseID = c.id')

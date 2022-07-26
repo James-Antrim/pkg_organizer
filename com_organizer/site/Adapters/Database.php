@@ -11,8 +11,9 @@
 namespace Organizer\Adapters;
 
 use Exception;
-use Joomla\CMS\Factory;
 use JDatabaseQuery;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Log\Log;
 use Joomla\Utilities\ArrayHelper;
 use Organizer\Helpers;
 use stdClass;
@@ -36,6 +37,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return false;
@@ -43,15 +45,34 @@ class Database
 	}
 
 	/**
+	 * Retrieves the null date (time) specific to the driver.
+	 *
+	 * @return  string  the driver specific null date (time).
+	 */
+	public static function getNullDate(): string
+	{
+		$dbo = Factory::getDbo();
+
+		return $dbo->getNullDate();
+	}
+
+	/**
 	 * Get the current query object or a new JDatabaseQuery object.
 	 *
 	 * @param   bool  $new  True to return a new JDatabaseQuery object, otherwise false
 	 *
-	 * @return  JDatabaseQuery  The current query object or a new object extending the JDatabaseQuery class.
+	 * @return  JDatabaseQuery|string  The current query object or a new object extending the JDatabaseQuery class.
 	 */
-	public static function getQuery($new = true): JDatabaseQuery
+	public static function getQuery(bool $new = true)
 	{
-		return Factory::getDbo()->getQuery($new);
+		$dbo = Factory::getDbo();
+
+		if (strtolower($dbo->getName()) !== 'mysqli')
+		{
+			Helpers\OrganizerHelper::error(501);
+		}
+
+		return $new ? new Queries\QueryMySQLi() : $dbo->getQuery();
 	}
 
 	/**
@@ -63,7 +84,7 @@ class Database
 	 *
 	 * @return  bool    True on success.
 	 */
-	public static function insertObject(string $table, object &$object, $key = 'id'): bool
+	public static function insertObject(string $table, object &$object, string $key = 'id'): bool
 	{
 		$dbo = Factory::getDbo();
 
@@ -71,9 +92,10 @@ class Database
 		{
 			return $dbo->insertObject($table, $object, $key);
 		}
-		catch (Exception $exc)
+		catch (Exception $exception)
 		{
-			Helpers\OrganizerHelper::message($exc->getMessage(), 'error');
+			self::logException($exception);
+			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return false;
 		}
@@ -96,6 +118,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return [];
@@ -107,16 +130,16 @@ class Database
 	 * of ['field_name' => 'row_value'].  The array of rows can optionally be keyed by a field name, but defaults to
 	 * a sequential numeric array.
 	 *
-	 * NOTE: Chosing to key the result array by a non-unique field name can result in unwanted
+	 * NOTE: Choosing to key the result array by a non-unique field name can result in unwanted
 	 * behavior and should be avoided.
 	 *
 	 * @param   string  $key     The name of a field on which to key the result array.
 	 * @param   string  $column  An optional column name. Instead of the whole row, only this column value will be in
 	 *                           the result array.
 	 *
-	 * @return  array   The return value or an empty array if the query failed.
+	 * @return  array[]   The return value or an empty array if the query failed.
 	 */
-	public static function loadAssocList($key = '', $column = ''): array
+	public static function loadAssocList(string $key = '', string $column = ''): array
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -127,6 +150,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return [];
@@ -141,7 +165,7 @@ class Database
 	 *
 	 * @return  bool  The return value if successful, otherwise the default value
 	 */
-	public static function loadBool($default = false): bool
+	public static function loadBool(bool $default = false): bool
 	{
 		$result = self::loadResult();
 
@@ -156,7 +180,7 @@ class Database
 	 *
 	 * @return  array    The return value or null if the query failed.
 	 */
-	public static function loadColumn($offset = 0): array
+	public static function loadColumn(int $offset = 0): array
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -167,6 +191,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return [];
@@ -181,7 +206,7 @@ class Database
 	 *
 	 * @return  int  The return value if successful, otherwise the default value
 	 */
-	public static function loadInt($default = 0): int
+	public static function loadInt(int $default = 0): int
 	{
 		$result = self::loadResult();
 
@@ -194,9 +219,9 @@ class Database
 	 *
 	 * @param   int  $offset  The row offset to use to build the result array.
 	 *
-	 * @return  array    The return value or null if the query failed.
+	 * @return  int[]    The return value or null if the query failed.
 	 */
-	public static function loadIntColumn($offset = 0): array
+	public static function loadIntColumn(int $offset = 0): array
 	{
 		if ($result = self::loadColumn($offset))
 		{
@@ -213,7 +238,7 @@ class Database
 	 *
 	 * @return  object  The return value or an empty array if the query failed.
 	 */
-	public static function loadObject($class = 'stdClass')
+	public static function loadObject(string $class = 'stdClass')
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -224,6 +249,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return new stdClass();
@@ -242,7 +268,7 @@ class Database
 	 *
 	 * @return  array   The return value or an empty array if the query failed.
 	 */
-	public static function loadObjectList($key = '', $class = 'stdClass'): array
+	public static function loadObjectList(string $key = '', string $class = 'stdClass'): array
 	{
 		$dbo = Factory::getDbo();
 		try
@@ -253,6 +279,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return [];
@@ -277,6 +304,7 @@ class Database
 		}
 		catch (Exception $exception)
 		{
+			self::logException($exception);
 			Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
 
 			return $default;
@@ -291,11 +319,46 @@ class Database
 	 *
 	 * @return  string  The return value if successful, otherwise the default value
 	 */
-	public static function loadString($default = ''): string
+	public static function loadString(string $default = ''): string
 	{
 		$result = self::loadResult();
 
 		return $result ? (string) self::loadResult() : $default;
+	}
+
+	/**
+	 * Logs the exception.
+	 *
+	 * @param   Exception  $exception
+	 *
+	 * @return void
+	 */
+	private static function logException(Exception $exception)
+	{
+		$options = ['text_file' => 'organizer_db_errors.php', 'text_entry_format' => '{DATETIME}:{MESSAGE}'];
+		Log::addLogger($options, Log::ALL, ['com_organizer.dbErrors']);
+		$message = "\n\nError Message:\n--------------\n";
+		$message .= print_r($exception->getMessage(), true);
+		$message .= "\n\nQuery:\n------\n";
+		$message .= print_r((string) self::getQuery(false), true);
+		$message .= "\n\nCall Stack:\n-----------\n";
+		$message .= print_r($exception->getTraceAsString(), true);
+		$message .= "\n\n--------------------------------------------------------------------------------------------";
+		$message .= "--------------------------------------";
+		Log::add($message, Log::DEBUG, 'com_organizer.dbErrors');
+	}
+
+	/**
+	 * Wraps the database quote name function for use outside a query class without PhpStorm complaining about resolution.
+	 *
+	 * @param   array|string       $name   the column name or names
+	 * @param   array|null|string  $alias  the column alias or aliases, if arrays and incongruent sizes => empty array return value
+	 *
+	 * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
+	 */
+	public static function quoteName($name, $alias = null)
+	{
+		return Factory::getDbo()->quoteName($name, $alias);
 	}
 
 	/**
@@ -307,7 +370,7 @@ class Database
 	 *
 	 * @return  void
 	 */
-	public static function setQuery($query, $offset = 0, $limit = 0)
+	public static function setQuery($query, int $offset = 0, int $limit = 0)
 	{
 		Factory::getDbo()->setQuery($query, $offset, $limit);
 	}

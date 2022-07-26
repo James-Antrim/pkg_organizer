@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use JDatabaseQuery;
 use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -45,7 +46,8 @@ class Runs extends ListModel
 	{
 		$this->deleteDeprecated();
 
-		$tag   = Helpers\Languages::getTag();
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
 		$query->select("r.id, r.name_$tag as name, r.run, r.termID, r.endDate")
 			->select("t.name_$tag as term")

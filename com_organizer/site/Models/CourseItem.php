@@ -28,7 +28,7 @@ class CourseItem extends ItemModel
 	 *
 	 * @return array  subject data on success, otherwise empty
 	 */
-	public function getItem()
+	public function getItem(): array
 	{
 		if (!$courseID = Helpers\Input::getID())
 		{
@@ -60,7 +60,7 @@ class CourseItem extends ItemModel
 		$course['campus']['value']      = Helpers\Campuses::getPin($campusID) . ' ' . Helpers\Campuses::getName($campusID);
 		$course['campusID']             = $campusID;
 		$course['deadline']             = $courseTable->deadline;
-		$course['description']['value'] = $courseTable->{"description_$tag"} ? $courseTable->{"description_$tag"} : '';
+		$course['description']['value'] = $courseTable->{"description_$tag"} ?: '';
 		$course['fee']['value']         = $courseTable->fee ? $courseTable->fee . ' €' : '';
 		$course['groups']               = $courseTable->groups;
 		$course['id']                   = $courseID;
@@ -81,7 +81,7 @@ class CourseItem extends ItemModel
 	 *
 	 * @return array the course template
 	 */
-	private function getStructure()
+	private function getStructure(): array
 	{
 		$option = 'ORGANIZER_';
 
@@ -195,24 +195,20 @@ class CourseItem extends ItemModel
 					continue;
 				}
 
-				if ($course[$name]['value'] === $value)
+				if ($course[$name]['value'] !== $value)
 				{
-					continue;
-				}
-				elseif (is_string($value) and $course[$name]['value'] === '')
-				{
-					$course[$name]['value'] = $value;
-					continue;
-				}
-				elseif (is_array($value) and $course[$name]['value'] === [])
-				{
-					$course[$name]['value'] = $value;
-					continue;
-				}
-				else
-				{
-					$course[$name]['value'] = null;
-					continue;
+					if (is_string($value) and $course[$name]['value'] === '')
+					{
+						$course[$name]['value'] = $value;
+					}
+					elseif (is_array($value) and $course[$name]['value'] === [])
+					{
+						$course[$name]['value'] = $value;
+					}
+					else
+					{
+						$course[$name]['value'] = null;
+					}
 				}
 			}
 		}
@@ -234,7 +230,6 @@ class CourseItem extends ItemModel
 				if ($course[$name]['value'] or empty($value))
 				{
 					unset($attributes[$name]);
-					continue;
 				}
 				else
 				{
@@ -257,12 +252,10 @@ class CourseItem extends ItemModel
 				if (is_array($event[$attribute]))
 				{
 					$event[$attribute]['value'] = $attributes[$attribute];
-					continue;
 				}
 				else
 				{
 					$event[$attribute] = $attributes[$attribute];
-					continue;
 				}
 			}
 			$course['events'][] = $attributes;

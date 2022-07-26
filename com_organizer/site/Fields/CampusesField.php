@@ -11,6 +11,7 @@
 namespace Organizer\Fields;
 
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a form field for campus selection.
@@ -25,7 +26,7 @@ class CampusesField extends OptionsField
 	/**
 	 * Returns an array of options
 	 *
-	 * @return array  the options
+	 * @return stdClass[]  the options
 	 */
 	protected function getOptions(): array
 	{

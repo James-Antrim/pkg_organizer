@@ -31,7 +31,7 @@ trait Planned
 	 *
 	 * @return string
 	 */
-	public function getInterval()
+	public function getInterval(): string
 	{
 		$intervals = ['day', 'week', 'term'];
 		$interval  = Helpers\Input::getString('interval');

@@ -125,7 +125,7 @@ class Person extends MergeModel
 	/**
 	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$this->selected = Helpers\Input::getSelectedIDs();
 		$this->authorize();

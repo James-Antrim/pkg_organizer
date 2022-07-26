@@ -561,7 +561,7 @@ class Booking extends Participants
 	/**
 	 * @inheritDoc
 	 */
-	protected function filterFilterForm(Form &$form)
+	protected function filterFilterForm(Form $form)
 	{
 		parent::filterFilterForm($form);
 

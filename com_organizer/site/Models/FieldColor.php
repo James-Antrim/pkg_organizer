@@ -51,19 +51,15 @@ class FieldColor extends BaseModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\FieldColors
 	{
-		return new Tables\FieldColors;
+		return new Tables\FieldColors();
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$this->authorize();
 

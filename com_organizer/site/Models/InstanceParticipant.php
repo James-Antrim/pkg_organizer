@@ -10,7 +10,6 @@
 
 namespace Organizer\Models;
 
-use Exception;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
@@ -115,7 +114,7 @@ class InstanceParticipant extends BaseModel
 		$participant = new Participant();
 		$participant->supplement($participantID);
 
-		if (!$instanceIDs = $this->getInstances($method, true))
+		if (!$instanceIDs = $this->getInstanceIDs($method, true))
 		{
 			return;
 		}
@@ -349,7 +348,7 @@ class InstanceParticipant extends BaseModel
 		}
 
 		// This filters out past instances.
-		if (!$instanceIDs = $this->getInstances($method))
+		if (!$instanceIDs = $this->getInstanceIDs($method))
 		{
 			return;
 		}
@@ -407,9 +406,9 @@ class InstanceParticipant extends BaseModel
 	 * @param   int   $method   the method for determining relevant instances
 	 * @param   bool  $virtual  whether virtual instances are permissible in the result set
 	 *
-	 * @return array
+	 * @return int[]
 	 */
-	private function getInstances(int $method, bool $virtual = false): array
+	private function getInstanceIDs(int $method, bool $virtual = false): array
 	{
 		$now   = date('H:i:s');
 		$query = Database::getQuery();
@@ -543,7 +542,7 @@ class InstanceParticipant extends BaseModel
 		$participant->supplement($participantID);
 
 		// This filters out past instances.
-		if (!$instanceIDs = $this->getInstances($method))
+		if (!$instanceIDs = $this->getInstanceIDs($method))
 		{
 			return;
 		}
@@ -570,13 +569,13 @@ class InstanceParticipant extends BaseModel
 				continue;
 			}
 
-			$name      = Helpers\Instances::getName($instanceID);
-			$block     = Helpers\Instances::getBlock($instanceID);
-			$date      = Helpers\Dates::formatDate($block->date);
-			$earliest  = Helpers\Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
+			$name  = Helpers\Instances::getName($instanceID);
+			$block = Helpers\Instances::getBlock($instanceID);
+			$date  = Helpers\Dates::formatDate($block->date);
+			//$earliest  = Helpers\Dates::formatDate(date('Y-m-d', strtotime('-2 days', strtotime($block->date))));
 			$endTime   = Helpers\Dates::formatEndTime($block->endTime);
 			$startTime = Helpers\Dates::formatTime($block->startTime);
-			$then      = date('Y-m-d', strtotime('+2 days'));
+			//$then      = date('Y-m-d', strtotime('+2 days'));
 
 			if (Helpers\Instances::getMethodCode($instanceID) === Helpers\Methods::FINALCODE)
 			{
@@ -673,7 +672,7 @@ class InstanceParticipant extends BaseModel
 			return;
 		}
 
-		if (!$instanceIDs = $this->getInstances($method, true))
+		if (!$instanceIDs = $this->getInstanceIDs($method, true))
 		{
 			return;
 		}
@@ -713,7 +712,7 @@ class InstanceParticipant extends BaseModel
 	 *
 	 * @return bool int id of the resource on success, otherwise bool false
 	 */
-	public function save($data = []): bool
+	public function save(array $data = []): bool
 	{
 		$this->authorize();
 

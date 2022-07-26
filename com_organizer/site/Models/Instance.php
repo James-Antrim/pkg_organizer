@@ -63,7 +63,7 @@ class Instance extends BaseModel
 	/**
 	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		Helpers\OrganizerHelper::error(503);
 
@@ -89,7 +89,7 @@ class Instance extends BaseModel
 	 *
 	 * @return false|int
 	 */
-	private function saveAppointment($data = [])
+	private function saveAppointment(array $data = [])
 	{
 		foreach (['date', 'endTime', 'roomIDs', 'startTime', 'title'] as $required)
 		{

@@ -65,6 +65,24 @@ class Organizer extends BaseView
 				false
 			);
 
+			$toolbar = Toolbar::getInstance();
+			$toolbar->appendButton(
+				'Standard',
+				'brush',
+				'Clean DB Entries',
+				'organizer.cleanDB',
+				false
+			);
+
+			$toolbar = Toolbar::getInstance();
+			$toolbar->appendButton(
+				'Standard',
+				'key',
+				'Re-Key Tables',
+				'organizer.reKeyTables',
+				false
+			);
+
 			$uri    = (string) Uri::getInstance();
 			$return = urlencode(base64_encode($uri));
 			$link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";

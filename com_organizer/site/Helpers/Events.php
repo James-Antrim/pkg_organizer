@@ -53,7 +53,7 @@ class Events extends ResourceHelper
 	 *
 	 * @param   int  $eventID  the id of the event
 	 *
-	 * @return array the names of the categories (or programs)
+	 * @return string[] the names of the categories (or programs)
 	 */
 	public static function getCategoryNames(int $eventID): array
 	{
@@ -93,7 +93,7 @@ class Events extends ResourceHelper
 	 * @param   string  $date      the date context for the unit search
 	 * @param   string  $interval  the interval to use as context for units
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public static function getUnits(int $eventID, string $date, string $interval = 'term'): array
 	{

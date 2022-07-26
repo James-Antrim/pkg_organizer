@@ -28,8 +28,8 @@ class Organization extends BaseModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Organizations
 	{
-		return new Tables\Organizations;
+		return new Tables\Organizations();
 	}
 }

@@ -113,7 +113,7 @@ class Dates
 	 *
 	 * @param   string  $date  the date
 	 *
-	 * @return array containing startDate and endDate
+	 * @return string[] containing startDate and endDate
 	 */
 	public static function getHalfYear(string $date): array
 	{
@@ -127,15 +127,15 @@ class Dates
 	 *
 	 * @param   string  $date  the date
 	 *
-	 * @return array containing startDate and endDate
+	 * @return string[] containing startDate and endDate
 	 */
 	public static function getMonth(string $date): array
 	{
-		$dateTime     = strtotime($date);
-		$startDT      = strtotime('first day of this month', $dateTime);
-		$startDate    = date('Y-m-d', $startDT);
-		$endDT        = strtotime('last day of this month', $dateTime);
-		$endDate      = date('Y-m-d', $endDT);
+		$dateTime  = strtotime($date);
+		$startDT   = strtotime('first day of this month', $dateTime);
+		$startDate = date('Y-m-d', $startDT);
+		$endDT     = strtotime('last day of this month', $dateTime);
+		$endDate   = date('Y-m-d', $endDT);
 
 		return ['startDate' => $startDate, 'endDate' => $endDate];
 	}
@@ -146,19 +146,18 @@ class Dates
 	 * @param   string  $date  the date
 	 * @param   int     $startDay
 	 *
-	 * @return array containing startDate and endDate
+	 * @return string[] containing startDate and endDate
 	 */
 	public static function getQuarter(string $date, int $startDay = 1): array
 	{
+		$dateTime = strtotime($date);
 		switch (Input::getCMD('format'))
 		{
 			case 'pdf':
-				$dateTime     = strtotime($date);
 				$startDayName = date('l', strtotime("Sunday + $startDay days"));
 				$dateTime     = strtotime("$startDayName this week", $dateTime);
 				break;
 			default:
-				$dateTime = strtotime($date);
 				break;
 		}
 
@@ -170,7 +169,7 @@ class Dates
 	 *
 	 * @param   string  $date  the date in format Y-m-d
 	 *
-	 * @return array containing startDate and endDate
+	 * @return string[] containing startDate and endDate
 	 */
 	public static function getTerm(string $date): array
 	{
@@ -190,7 +189,7 @@ class Dates
 	 * @param   int     $startDay  0-6 number of the starting day of the week
 	 * @param   int     $endDay    0-6 number of the ending day of the week
 	 *
-	 * @return array containing startDate and endDate
+	 * @return string[] containing startDate and endDate
 	 */
 	public static function getWeek(string $date, int $startDay = 1, int $endDay = 6): array
 	{

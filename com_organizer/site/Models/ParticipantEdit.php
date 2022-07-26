@@ -35,30 +35,29 @@ class ParticipantEdit extends EditModel
 	}
 
 	/**
-	 * Method to get a single record.
-	 *
-	 * @param   int  $participantID  The id of the primary key.
-	 *
-	 * @return mixed    Object on success, false on failure.
+	 * @inheritDoc
 	 */
-	public function getItem($participantID = 0)
+	public function getItem($pk = 0)
 	{
-		$this->participantID = $participantID ? $participantID : Helpers\Input::getSelectedID(Helpers\Users::getID());
+		$this->participantID = $pk ?: Helpers\Input::getSelectedID(Helpers\Users::getID());
 
 		$this->authorize();
 
 		// Prevents duplicate execution from getForm and getItem
-		if (isset($this->item->id) and ($this->item->id === $participantID))
+		if (isset($this->item->id) and ($this->item->id === $pk))
 		{
 			return $this->item;
 		}
 
 		// I assume I skipped parent because of performed access checks.
-		$this->item           = AdminModel::getItem($this->participantID);
+		$this->item = AdminModel::getItem($this->participantID);
+
+		/** @noinspection PhpUndefinedFieldInspection */
 		$this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 
 		// New participants need the user id as the participant id
-		$this->item->id = $this->item->id ? $this->item->id : $this->participantID;
+		/** @noinspection PhpPossiblePolymorphicInvocationInspection */
+		$this->item->id = $this->item->id ?: $this->participantID;
 
 		return $this->item;
 	}
@@ -74,7 +73,7 @@ class ParticipantEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Participants
 	{
 		return new Tables\Participants();
 	}

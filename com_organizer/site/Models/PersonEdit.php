@@ -61,8 +61,8 @@ class PersonEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Persons
 	{
-		return new Tables\Persons;
+		return new Tables\Persons();
 	}
 }

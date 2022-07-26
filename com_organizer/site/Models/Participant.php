@@ -26,7 +26,7 @@ class Participant extends BaseModel
 	 *
 	 * @return string the cleaned value
 	 */
-	private function cleanAlpha(string $name)
+	private function cleanAlpha(string $name): string
 	{
 		$name = preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\p{N}_.\-\']/', ' ', $name);
 
@@ -40,7 +40,7 @@ class Participant extends BaseModel
 	 *
 	 * @return string the cleaned value
 	 */
-	private function cleanAlphaNum(string $name)
+	private function cleanAlphaNum(string $name): string
 	{
 		$name = preg_replace('/[^A-ZÀ-ÖØ-Þa-zß-ÿ\d\p{N}_.\-\']/', ' ', $name);
 
@@ -54,7 +54,7 @@ class Participant extends BaseModel
 	 *
 	 * @return string the cleaned value
 	 */
-	private function cleanSpaces(string $string)
+	private function cleanSpaces(string $string): string
 	{
 		return preg_replace('/ +/', ' ', $string);
 	}
@@ -70,7 +70,7 @@ class Participant extends BaseModel
 	/**
 	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
@@ -152,21 +152,14 @@ class Participant extends BaseModel
 				if ($table->store())
 				{
 					Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_SAVED', 'success');
-
-					return $data['id'];
 				}
 				else
 				{
 					Helpers\OrganizerHelper::message('ORGANIZER_CHANGES_NOT_SAVED', 'error');
-
-					return $data['id'];
 				}
 			}
-			else
-			{
-				// Nothing changed
-				return $data['id'];
-			}
+
+			return $data['id'];
 		}
 
 		// 'Manual' insertion because the table's primary key is also a foreign key.
@@ -180,7 +173,7 @@ class Participant extends BaseModel
 			}
 		}
 
-		if (Database::insertObject('#__organizer_participants', $relevantData, 'id'))
+		if (Database::insertObject('#__organizer_participants', $relevantData))
 		{
 			Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
 

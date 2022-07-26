@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -25,10 +27,12 @@ class Campuses extends ListModel
 	 *
 	 * @return JDatabaseQuery
 	 */
-	protected function getListQuery()
+	protected function getListQuery(): JDatabaseQuery
 	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$tag = Helpers\Languages::getTag();
+
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$query->select("c1.id, c1.name_$tag as name, c1.address, c1.city, c1.zipCode, c1.location")
 			->select("c2.id as parentID, c2.name_$tag as parentName, c2.address as parentAddress")
@@ -64,7 +68,7 @@ class Campuses extends ListModel
 	 *
 	 * @return void
 	 */
-	private function setCityFilter($query)
+	private function setCityFilter(JDatabaseQuery $query)
 	{
 		$value = $this->state->get('filter.city', '');
 
@@ -95,7 +99,7 @@ class Campuses extends ListModel
 	 *
 	 * @return void
 	 */
-	private function setGridFilter($query)
+	private function setGridFilter(JDatabaseQuery $query)
 	{
 		$value = $this->state->get('filter.gridID', '');
 

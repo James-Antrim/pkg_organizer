@@ -44,7 +44,7 @@ class Groups extends Controller
 			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
 		}
 
-		$url = Helpers\Routing::getRedirectBase() . "&view={$this->listView}";
+		$url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
 		$this->setRedirect($url);
 	}
 

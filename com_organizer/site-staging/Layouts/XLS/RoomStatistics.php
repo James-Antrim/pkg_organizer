@@ -181,7 +181,7 @@ class RoomStatistics
 	 * @param   int    $roomID     the room id
 	 * @param   array  $weeksData  the utilization data grouped by week number
 	 *
-	 * @return array and array with the total and adjusted totals for the room being iterated
+	 * @return int[] and array with the total and adjusted totals for the room being iterated
 	 */
 	private function addSummaryDataRow($rowNo, $roomID, $weeksData)
 	{

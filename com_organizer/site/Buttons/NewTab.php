@@ -54,7 +54,7 @@ class NewTab extends StandardButton
 	 *
 	 * @return  string   JavaScript command string
 	 */
-	protected function _getCommand($name, $task, $list)
+	protected function _getCommand($name, $task, $list): string
 	{
 		$cmd = "newTab('" . $task . "');";
 

@@ -17,9 +17,9 @@ trait SuperOrdinate
 	/**
 	 * Builds the resource's curriculum using the subordinate resources contained in the form.
 	 *
-	 * @return array  an array containing the resource's subordinate resources
+	 * @return array[]  an array containing the resource's subordinate resources
 	 */
-	private function getSubOrdinates()
+	private function getSubOrdinates(): array
 	{
 		$index        = 1;
 		$subOrdinates = [];
@@ -27,7 +27,7 @@ trait SuperOrdinate
 		while (Input::getInt("sub{$index}Order"))
 		{
 			$ordering      = Input::getInt("sub{$index}Order");
-			$aggregateInfo = Input::getCMD("sub{$index}");
+			$aggregateInfo = Input::getCMD("sub$index");
 
 			if (!empty($aggregateInfo))
 			{

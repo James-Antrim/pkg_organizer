@@ -13,6 +13,7 @@ namespace Organizer\Helpers;
 use JDatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
 use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Tables;
 
 /**
@@ -234,7 +235,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @param   int  $instanceID
 	 *
-	 * @return array
+	 * @return int[]
 	 */
 	public static function getCategoryIDs(int $instanceID): array
 	{
@@ -375,7 +376,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @param   int  $instanceID  the id of the instance
 	 *
-	 * @return array
+	 * @return int[]
 	 */
 	public static function getGroupIDs(int $instanceID): array
 	{
@@ -403,7 +404,7 @@ class Instances extends ResourceHelper
 	/**
 	 * @param $conditions
 	 *
-	 * @return array
+	 * @return array|array[]
 	 */
 	public static function getItems($conditions): array
 	{
@@ -578,7 +579,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @param   array  $conditions  the conditions filtering the instances
 	 *
-	 * @return array the ids matching the conditions
+	 * @return int[] the ids matching the conditions
 	 */
 	public static function getInstanceIDs(array $conditions): array
 	{
@@ -601,6 +602,7 @@ class Instances extends ResourceHelper
 	 */
 	public static function getInstanceQuery(array $conditions, int $jump = self::NONE): JDatabaseQuery
 	{
+		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
 
 		$query->from('#__organizer_instances AS i')
@@ -901,7 +903,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @param   int  $instanceID
 	 *
-	 * @return array
+	 * @return int[]
 	 */
 	public static function getOrganizationIDs(int $instanceID): array
 	{
@@ -921,7 +923,7 @@ class Instances extends ResourceHelper
 	 * @param   int  $instanceID  the id of the instance
 	 * @param   int  $roleID      the id of the role the person fills
 	 *
-	 * @return array
+	 * @return int[]
 	 */
 	public static function getPersonIDs(int $instanceID, int $roleID = 0): array
 	{
@@ -987,7 +989,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @param   int  $instanceID  the id of the instance
 	 *
-	 * @return array
+	 * @return int[]
 	 */
 	public static function getRoomIDs(int $instanceID): array
 	{
@@ -1046,7 +1048,7 @@ class Instances extends ResourceHelper
 	 *
 	 * @param   array  $conditions  the schedule configuration parameters
 	 *
-	 * @return array next and latest available dates
+	 * @return string[] next and latest available dates
 	 */
 	public static function getJumpDates(array $conditions): array
 	{

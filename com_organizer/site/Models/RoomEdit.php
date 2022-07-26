@@ -42,8 +42,8 @@ class RoomEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Rooms
 	{
-		return new Tables\Rooms;
+		return new Tables\Rooms();
 	}
 }

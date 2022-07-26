@@ -66,7 +66,7 @@ class Rooms extends ResourceHelper implements Selectable
 	/**
 	 * Retrieves the ids for filtered rooms used in events.
 	 *
-	 * @return array the rooms used in actual events which meet the filter criteria
+	 * @return array[] the rooms used in actual events which meet the filter criteria
 	 */
 	public static function getPlannedRooms(): array
 	{

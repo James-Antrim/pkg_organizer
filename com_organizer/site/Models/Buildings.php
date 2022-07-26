@@ -11,6 +11,8 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 
 /**
  * Class retrieves the data regarding a filtered set of buildings.
@@ -26,7 +28,8 @@ class Buildings extends ListModel
 	 */
 	protected function getListQuery(): JDatabaseQuery
 	{
-		$query = $this->_db->getQuery(true);
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$query->select('b.id, b.name, propertyType, campusID, c1.parentID, b.address, c1.city, c2.city AS parentCity')
 			->from('#__organizer_buildings AS b')

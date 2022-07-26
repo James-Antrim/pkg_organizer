@@ -12,7 +12,6 @@ namespace Organizer\Fields;
 
 use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;
-use stdClass;
 
 /**
  * Class creates a select box for predefined colors.

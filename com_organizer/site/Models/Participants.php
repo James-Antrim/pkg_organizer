@@ -10,7 +10,8 @@
 
 namespace Organizer\Models;
 
-use Joomla\CMS\Form\Form;
+use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 
 /**
@@ -25,10 +26,24 @@ class Participants extends ListModel
 	/**
 	 * @inheritDoc
 	 */
+	public function __construct($config = [])
+	{
+		parent::__construct($config);
+
+		if (!$this->adminContext)
+		{
+			$this->defaultLimit = 0;
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function getListQuery()
 	{
-		$tag   = Helpers\Languages::getTag();
-		$query = $this->_db->getQuery(true);
+		$tag = Helpers\Languages::getTag();
+		/* @var QueryMySQLi $query */
+		$query = Database::getQuery();
 
 		$programParts = ["pr.name_$tag", "' ('", 'd.abbreviation', "' '", 'pr.accredited', "')'"];
 		$query->select('DISTINCT pa.id, pa.*, u.email')
@@ -59,11 +74,6 @@ class Participants extends ListModel
 		}
 
 		$this->setOrdering($query);
-
-		if (!$this->adminContext)
-		{
-			$query->setLimit(0);
-		}
 
 		return $query;
 	}

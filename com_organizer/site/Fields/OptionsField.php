@@ -109,7 +109,7 @@ class OptionsField extends FormField
 		{
 			if ($count >= 2)
 			{
-				$attr .= $this->multiple ? ' multiple' : '';
+				$attr .= ' multiple';
 
 				if ($count >= 3 and !empty($this->size))
 				{
@@ -124,7 +124,7 @@ class OptionsField extends FormField
 
 
 		// To avoid user's confusion, readonly="true" should imply disabled="true".
-		if ((bool) $this->readonly == '1' || (bool) $this->disabled)
+		if ($this->readonly or $this->disabled)
 		{
 			$attr .= ' disabled="disabled"';
 		}
@@ -149,7 +149,7 @@ class OptionsField extends FormField
 	/**
 	 * Gets the options defined in the form manifest.
 	 *
-	 * @return array
+	 * @return stdClass[]
 	 */
 	protected function getDefaultOptions(): array
 	{
@@ -159,7 +159,7 @@ class OptionsField extends FormField
 	/**
 	 * Method to get the field options.
 	 *
-	 * @return  array  The field option objects.
+	 * @return  stdClass[]  The field option objects.
 	 */
 	protected function getOptions(): array
 	{

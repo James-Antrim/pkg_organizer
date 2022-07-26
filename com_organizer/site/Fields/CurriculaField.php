@@ -15,6 +15,7 @@ use Joomla\CMS\Uri\Uri;
 use Organizer\Adapters\Document;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
+use stdClass;
 
 /**
  * Class creates a select box for programs to filter the context for subordinate resources.
@@ -63,7 +64,7 @@ class CurriculaField extends FormField
 	/**
 	 * Creates a list of programs to which the user has documentation access.
 	 *
-	 * @return array HTML options strings
+	 * @return stdClass[] HTML options strings
 	 */
 	private function getOptions(): array
 	{

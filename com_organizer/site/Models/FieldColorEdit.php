@@ -34,14 +34,8 @@ class FieldColorEdit extends EditModel
 		Helpers\OrganizerHelper::error(403);
 	}
 
-
 	/**
-	 * Method to get the form
-	 *
-	 * @param   array  $data      Data         (default: array)
-	 * @param   bool   $loadData  Load data  (default: true)
-	 *
-	 * @return mixed Form object on success, False on error.
+	 * @inheritDoc
 	 */
 	public function getForm($data = [], $loadData = true)
 	{
@@ -50,7 +44,7 @@ class FieldColorEdit extends EditModel
 			return false;
 		}
 
-		if ($fcID = Helpers\Input::getID())
+		if (Helpers\Input::getID())
 		{
 			$form->setFieldAttribute('fieldID', 'disabled', true);
 			$form->setFieldAttribute('organizationID', 'disabled', true);
@@ -71,8 +65,8 @@ class FieldColorEdit extends EditModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\FieldColors
 	{
-		return new Tables\FieldColors;
+		return new Tables\FieldColors();
 	}
 }

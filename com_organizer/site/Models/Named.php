@@ -35,7 +35,7 @@ trait Named
 	 *
 	 * @return  string  The name of the model
 	 */
-	public function getName()
+	public function getName(): string
 	{
 		if (empty($this->name))
 		{

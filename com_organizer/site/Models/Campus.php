@@ -42,19 +42,15 @@ class Campus extends BaseModel
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getTable($name = '', $prefix = '', $options = [])
+	public function getTable($name = '', $prefix = '', $options = []): Tables\Campuses
 	{
-		return new Tables\Campuses;
+		return new Tables\Campuses();
 	}
 
 	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return mixed int id of the resource on success, otherwise bool false
+	 * @inheritDoc
 	 */
-	public function save($data = [])
+	public function save(array $data = [])
 	{
 		if ($parentID = Helpers\Input::getInt('parentID'))
 		{

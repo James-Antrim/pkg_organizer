@@ -25,20 +25,19 @@ class Participants extends ResourceHelper
 	 *
 	 * @return bool true if the necessary participant information has been set, otherwise false
 	 */
-	public static function canRegister($participantID = 0)
+	public static function canRegister(int $participantID = 0): bool
 	{
-		$participantID = $participantID ? $participantID : Users::getID();
+		$participantID = $participantID ?: Users::getID();
 		$table         = new Tables\Participants();
 		if ($table->load($participantID))
 		{
-			$valid = true;
-			$valid = ($valid and (bool) $table->address);
-			$valid = ($valid and (bool) $table->city);
-			$valid = ($valid and (bool) $table->forename);
-			$valid = ($valid and (bool) $table->programID);
-			$valid = ($valid and (bool) $table->surname);
+			$valid = (bool) $table->address;
+			$valid = ($valid and $table->city);
+			$valid = ($valid and $table->forename);
+			$valid = ($valid and $table->programID);
+			$valid = ($valid and $table->surname);
 
-			return ($valid and (bool) $table->zipCode);
+			return ($valid and $table->zipCode);
 		}
 
 		return false;
@@ -51,9 +50,9 @@ class Participants extends ResourceHelper
 	 *
 	 * @return bool true if the user is already associated with a participant, otherwise false
 	 */
-	public static function exists($participantID = 0)
+	public static function exists(int $participantID = 0): bool
 	{
-		$participantID = $participantID ? $participantID : Users::getID();
+		$participantID = $participantID ?: Users::getID();
 		$participants  = new Tables\Participants();
 
 		return $participants->load($participantID);
@@ -64,9 +63,9 @@ class Participants extends ResourceHelper
 	 *
 	 * @param   int  $participantID  the id of the participant
 	 *
-	 * @return array the associated course ids if existent, otherwise empty
+	 * @return int[] the associated course ids if existent, otherwise empty
 	 */
-	public static function getCourses(int $participantID)
+	public static function getCourseIDs(int $participantID): array
 	{
 		$query = Database::getQuery();
 		$query->select('courseID')

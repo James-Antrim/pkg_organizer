@@ -188,7 +188,7 @@ class Input
 	 *
 	 * @param   string  $resource  the name of the resource upon which the ids being sought reference
 	 *
-	 * @return array the filter ids
+	 * @return int[] the filter ids
 	 */
 	public static function getFilterIDs(string $resource): array
 	{
@@ -269,7 +269,7 @@ class Input
 	 *
 	 * @param   string  $name  the input field name at which the value should be found
 	 *
-	 * @return array the ids
+	 * @return int[] the ids
 	 */
 	public static function getIntCollection(string $name): array
 	{
@@ -376,7 +376,7 @@ class Input
 	/**
 	 * Returns the selected resource ids.
 	 *
-	 * @return array the selected ids
+	 * @return int[] the selected ids
 	 */
 	public static function getSelectedIDs(): array
 	{
@@ -472,7 +472,7 @@ class Input
 	 *
 	 * @param   mixed  $idValues  the id values as an array or string
 	 *
-	 * @return array the id values, empty if the values were invalid or the input was not an array or a string
+	 * @return int[] the id values, empty if the values were invalid or the input was not an array or a string
 	 */
 	public static function formatIDValues(&$idValues): array
 	{
