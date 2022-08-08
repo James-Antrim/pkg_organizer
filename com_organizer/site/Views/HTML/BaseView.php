@@ -177,10 +177,6 @@ abstract class BaseView extends HtmlView
 				'url'    => Routing::getViewURL('Groups'),
 				'active' => $viewName == 'groups'
 			];
-			$items[Languages::_('ORGANIZER_RUNS')]           = [
-				'url'    => Routing::getViewURL('Runs'),
-				'active' => $viewName == 'runs'
-			];
 			$items[Languages::_('ORGANIZER_SCHEDULES')]      = [
 				'url'    => Routing::getViewURL('Schedules'),
 				'active' => $viewName == 'schedules'
@@ -344,6 +340,10 @@ abstract class BaseView extends HtmlView
 			$items[Languages::_('ORGANIZER_PARTICIPANTS')]  = [
 				'url'    => Routing::getViewURL('Participants'),
 				'active' => $viewName == 'participants'
+			];
+			$items[Languages::_('ORGANIZER_RUNS')]          = [
+				'url'    => Routing::getViewURL('Runs'),
+				'active' => $viewName == 'runs'
 			];
 			$items[Languages::_('ORGANIZER_TERMS')]         = [
 				'url'    => Routing::getViewURL('Terms'),
