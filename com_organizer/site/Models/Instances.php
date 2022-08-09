@@ -437,7 +437,7 @@ class Instances extends ListModel
 		{
 			$campusID = $params->get('campusID', 0);
 			$campusID = $app->getUserStateFromRequest("{$fc}campusID", "{$fp}campusID", $campusID, 'int');
-			$campusID = Input::getInt('$campusID', $campusID);
+			$campusID = Input::getInt('campusID', $campusID);
 
 			if ($campusID)
 			{

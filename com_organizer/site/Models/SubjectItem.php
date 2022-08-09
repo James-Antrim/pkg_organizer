@@ -44,7 +44,7 @@ class SubjectItem extends ItemModel
 			->select("selfCompetence_$tag AS seText, socialCompetence, socialCompetence_$tag AS soText, sws")
 			->from('#__organizer_subjects AS s')
 			->leftJoin('#__organizer_frequencies AS f ON f.id = s.frequencyID')
-			->where("s.id = '$subjectID'");
+			->where("s.id = $subjectID");
 		Database::setQuery($query);
 		$result = Database::loadAssoc();
 
@@ -80,9 +80,9 @@ class SubjectItem extends ItemModel
 						$value[] = $creditPoints . ' ' . Languages::_('ORGANIZER_CREDIT_POINTS_ABBR');
 					}
 
-					if ($expenditue = $result['expenditure'])
+					if ($expenditure = $result['expenditure'])
 					{
-						$value[] = Languages::_('ORGANIZER_EXPENDITURE') . ' ' . $expenditue . $hours;
+						$value[] = Languages::_('ORGANIZER_EXPENDITURE') . ' ' . $expenditure . $hours;
 					}
 
 					if ($present = $result['present'])

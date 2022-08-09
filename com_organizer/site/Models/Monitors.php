@@ -20,6 +20,8 @@ use Organizer\Helpers;
  */
 class Monitors extends ListModel
 {
+	public const UPCOMING_INSTANCES = 0, CURRENT_INSTANCES = 1, MIXED_PLAN = 2, CONTENT_DISPLAY = 3;
+
 	protected $defaultOrdering = 'r.name';
 
 	protected $filter_fields = ['content', 'display', 'useDefaults'];
@@ -57,21 +59,30 @@ class Monitors extends ListModel
 	 */
 	private function addDisplayFilter(JDatabaseQuery $query)
 	{
-		$requestDisplay = $this->state->get('filter.display', '');
+		$templateKey = $this->state->get('filter.display', '');
 
-		if ($requestDisplay === '')
+		if ($templateKey === '')
 		{
 			return;
 		}
 
-		$where = "m.display ='$requestDisplay'";
+		$templateKey = (int) $templateKey;
+		$templates   = [self::UPCOMING_INSTANCES, self::CURRENT_INSTANCES, self::MIXED_PLAN, self::CONTENT_DISPLAY];
+
+		if (!in_array($templateKey, $templates))
+		{
+			return;
+		}
+
+		$where = "m.display = $templateKey";
 
 		$params              = Helpers\Input::getParams();
 		$defaultDisplay      = $params->get('display', '');
-		$useComponentDisplay = (!empty($defaultDisplay) and $requestDisplay == $defaultDisplay);
+		$useComponentDisplay = (!empty($defaultDisplay) and $templateKey == $defaultDisplay);
+
 		if ($useComponentDisplay)
 		{
-			$query->where("( $where OR useDefaults = '1')");
+			$query->where("( $where OR useDefaults = 1)");
 
 			return;
 		}
@@ -88,22 +99,21 @@ class Monitors extends ListModel
 	 */
 	private function addContentFilter(JDatabaseQuery $query)
 	{
-		$params         = Helpers\Input::getParams();
-		$requestContent = $this->state->get('filter.content', '');
+		$params  = Helpers\Input::getParams();
+		$content = (string) $this->state->get('filter.content', '');
 
-		if ($requestContent === '')
+		if ($content === '')
 		{
 			return;
 		}
 
-		$requestContent = $requestContent == '-1' ? '' : $requestContent;
-		$where          = "m.content ='$requestContent'";
+		$content        = $content === '-1' ? '' : $content;
+		$defaultContent = $params->get('content', '');
+		$where          = 'm.content = ' . Database::quote($content);
 
-		$defaultContent      = $params->get('content', '');
-		$useComponentContent = ($requestContent == $defaultContent);
-		if ($useComponentContent)
+		if ($content === $defaultContent)
 		{
-			$query->where("( $where OR useDefaults = '1')");
+			$query->where("($where OR useDefaults = 1)");
 
 			return;
 		}
