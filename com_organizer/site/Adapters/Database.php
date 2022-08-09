@@ -349,9 +349,39 @@ class Database
 	}
 
 	/**
+	 * Formats the values to form a set used in the predicate of a query restriction. <NOT> IN <value set>
+	 *
+	 * @param   array  $values  the values to aggregate
+	 * @param   bool   $negate  whether the set should be negated
+	 * @param   false  $quote   whether to quote the values
+	 *
+	 * @return string the comma separated values surrounded by braces
+	 */
+	public static function makeSet(array $values, bool $negate = false, bool $quote = false): string
+	{
+		$values = $quote ? self::quote($values) : ArrayHelper::toInteger($values);
+		$values = implode(',', $values);
+
+		return $negate ? " NOT IN ($values)" : " IN ($values)";
+	}
+
+	/**
+	 * Wraps the database quote function for use outside a query class without PhpStorm complaining about resolution.
+	 *
+	 * @param   string|string[]  $term    the term or terms to quote
+	 * @param   bool             $escape  whether to escape the name provided
+	 *
+	 * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
+	 */
+	public static function quote($term, bool $escape = true)
+	{
+		return Factory::getDbo()->quote($term, $escape);
+	}
+
+	/**
 	 * Wraps the database quote name function for use outside a query class without PhpStorm complaining about resolution.
 	 *
-	 * @param   array|string       $name   the column name or names
+	 * @param   string|string[]    $name   the column name or names
 	 * @param   array|null|string  $alias  the column alias or aliases, if arrays and incongruent sizes => empty array return value
 	 *
 	 * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function

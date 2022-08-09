@@ -15,7 +15,7 @@ use JDatabaseQuery;
 use JDatabaseQueryElement;
 use JDatabaseQueryMysqli;
 use Joomla\CMS\Factory;
-use Joomla\Utilities\ArrayHelper;
+use Organizer\Adapters\Database;
 use Organizer\Helpers\OrganizerHelper;
 
 class QueryMySQLi extends JDatabaseQueryMysqli
@@ -608,9 +608,6 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 */
 	public function wherein(string $where, array $in, bool $negate = false, bool $quote = false): QueryMySQLi
 	{
-		$in        = $quote ? "'" . implode("','", $in) . "'" : implode(',', ArrayHelper::toInteger($in));
-		$predicate = $negate ? " NOT IN ($in)" : " IN ($in)";
-
-		return $this->where($this->quoteName($where) . $predicate);
+		return $this->where($this->quoteName($where) . Database::makeSet($in, $negate, $quote));
 	}
 }

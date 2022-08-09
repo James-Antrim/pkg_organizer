@@ -623,6 +623,9 @@ class Instances extends ListModel
 					if ($layout === Helper::GRID)
 					{
 						$interval = $this->mobile ? 'day' : 'week';
+
+						// Parameter bleed can potentially cause a 0-division error in the Joomla ListModel here.
+						$this->state->set('list.start', 0);
 					}
 					else
 					{
