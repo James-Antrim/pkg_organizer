@@ -89,7 +89,8 @@ class Campuses extends ListModel
 			return;
 		}
 
-		$query->where("(c1.city = '$value' OR (c1.city = '' AND c2.city = '$value'))");
+		$city = Database::quote($value);
+		$query->where("(c1.city = $city OR (c1.city = '' AND c2.city = $city))");
 	}
 
 	/**
@@ -101,9 +102,9 @@ class Campuses extends ListModel
 	 */
 	private function setGridFilter(JDatabaseQuery $query)
 	{
-		$value = $this->state->get('filter.gridID', '');
+		$value = (int) $this->state->get('filter.gridID');
 
-		if ($value === '')
+		if ($value === 0)
 		{
 			return;
 		}
@@ -113,13 +114,13 @@ class Campuses extends ListModel
 		 * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
 		 * be extended we could maybe add a parameter for it later.
 		 */
-		if ($value == '-1')
+		if ($value === -1)
 		{
 			$query->where('g1.id IS NULL and g2.id IS NULL');
 
 			return;
 		}
 
-		$query->where("(g1.id = '$value' OR (g1.id IS NULL AND g2.id = '$value'))");
+		$query->where("(g1.id = $value OR (g1.id IS NULL AND g2.id = $value))");
 	}
 }

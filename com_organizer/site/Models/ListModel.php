@@ -493,7 +493,8 @@ abstract class ListModel extends ParentModel
 			}
 			elseif (is_string($value))
 			{
-				$query->where("$column = '$value'");
+				$value = Database::quote($value);
+				$query->where("$column = $value");
 			}
 			elseif (is_array($value) and $value = implode(',', ArrayHelper::toInteger($value)))
 			{
