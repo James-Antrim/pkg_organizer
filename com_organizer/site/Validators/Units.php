@@ -142,7 +142,7 @@ class Units implements UntisXMLValidator
 
 		$role  = Database::quote(strtoupper($role));
 		$query = Database::getQuery(true);
-		$query->select('id')->from('#__organizer_roles')->where("code = '$role'");
+		$query->select('id')->from('#__organizer_roles')->where("code = $role");
 		Database::setQuery($query);
 
 		return Database::loadInt(1);
