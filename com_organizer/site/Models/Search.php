@@ -13,6 +13,7 @@ namespace Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Organizer\Adapters\Database;
+use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
 use Organizer\Tables;
@@ -247,17 +248,18 @@ class Search extends ListModel
 	 * Adds clauses to the room query for a max capacity or room types. Max capacity is used here for consistency with
 	 * room type values.
 	 *
-	 * @param   JDatabaseQuery  $query     the query to be modified
-	 * @param   int             $capacity  the capacity from the terms
-	 * @param   string          $typeIDs   the resolved room type ids
+	 * @param   QueryMySQLi  $query     the query to be modified
+	 * @param   int          $capacity  the capacity from the terms
+	 * @param   int[]        $typeIDs   the resolved room type ids
 	 *
 	 * @return void modifies the query
 	 */
-	private function addRoomClauses(JDatabaseQuery $query, int $capacity, string $typeIDs)
+	private function addRoomClauses(QueryMySQLi $query, int $capacity, array $typeIDs)
 	{
 		if ($capacity and $typeIDs)
 		{
-			$query->where("((r.maxCapacity >= $capacity OR r.maxCapacity = 0) AND rt.id IN ($typeIDs))");
+			$typeIDs = Database::makeSet($typeIDs);
+			$query->where("((r.maxCapacity >= $capacity OR r.maxCapacity = 0) AND rt.id$typeIDs)");
 		}
 		elseif ($capacity)
 		{
@@ -265,7 +267,106 @@ class Search extends ListModel
 		}
 		elseif ($typeIDs)
 		{
-			$query->where("rt.id IN ($typeIDs)");
+			$query->wherein('rt.id', $typeIDs);
+		}
+	}
+
+	/**
+	 * Fills the category and program containers with identifying values.
+	 *
+	 * @param   Tables\Categories|Tables\Programs  $table       the table object
+	 * @param   int                                $resourceID  the id of the resource
+	 * @param   string                             $key         the key value in the results
+	 * @param   string                             $term        the search term
+	 * @param   int[]                            & $container1  the container corresponding to the current resource
+	 * @param   int[]                            & $container2  the container corresponding to the related resource
+	 * @param   int[]                              $map         the container containing relation ids
+	 *
+	 * @return void fills $container1 and $container2 with values
+	 */
+	private function fillCnP(
+		$table,
+		int $resourceID,
+		string $key,
+		string $term,
+		array &$container1,
+		array &$container2,
+		array $map
+	) {
+		if (!$table->load($resourceID))
+		{
+			return;
+		}
+
+		/* @var Tables\Categories|Tables\Groups $table */
+		$name = $this->prepareString($table->name_de);
+
+		// The name is a true subset of the initial term => probably a search for a group/pool
+		if (levenshtein($name, $term, 0, 5, 5) === 0)
+		{
+			$container1[$resourceID] = $resourceID;
+
+			if (!empty($map[$key]))
+			{
+				$container2[$map[$key]] = $map[$key];
+			}
+
+			return;
+		}
+
+		$name = $this->prepareString($table->name_en);
+
+		if (levenshtein($name, $term, 0, 5, 5) === 0)
+		{
+			$container1[$resourceID] = $resourceID;
+
+			if (!empty($map[$key]))
+			{
+				$container2[$map[$key]] = $map[$key];
+			}
+		}
+	}
+
+	/**
+	 * Gets dependent 'strong' group results and adds filters to the pool query.
+	 *
+	 * @param   array         $categoryIDs  the ids of categories to whom found groups will be dependent
+	 * @param   array        &$groupIDs     the ids of the previously discovered groups
+	 * @param   QueryMySQLi   $groupQuery   the query for retrieving groups from the database
+	 * @param   array        &$items        the previously discovered search results
+	 * @param   array        &$poolIDs      the ids of the previously discovered pools
+	 * @param   QueryMySQLi   $poolQuery    the query for retrieving pools from the database
+	 * @param   array         $pools        the previously filtered terms related to pools
+	 * @param   array         $semesters    the previously filtered terms related to semesters
+	 *
+	 * @return void modifies the query objects and arrays passed by reference
+	 */
+	private function getSGResults(
+		array $categoryIDs,
+		array &$groupIDs,
+		QueryMySQLi $groupQuery,
+		array &$items,
+		array &$poolIDs,
+		QueryMySQLi $poolQuery,
+		array $pools,
+		array $semesters
+	) {
+		$groupQuery->clear('where')->wherein('g.categoryID', $categoryIDs);
+
+		if ($groupIDs)
+		{
+			$groupQuery->wherein('g.id', $groupIDs, true);
+		}
+
+		$wherray = $this->getSubWherray($poolQuery, 'group', $semesters, $pools, .6);
+
+		if ($wherray)
+		{
+			$groupQuery->where('(' . implode(' OR ', $wherray) . ')');
+
+			Database::setQuery($groupQuery);
+
+			$this->setGroupResults($items, 'good', $groupIDs, $poolIDs);
 		}
 	}
 
@@ -394,11 +495,150 @@ class Search extends ListModel
 	}
 
 	/**
+	 * Fills an array with filter clauses for subordinate groups & pools. Both of these resources share a large portion
+	 * of their name with their parent resources.
+	 *
+	 * @param   JDatabaseQuery  $query      the query providing the charlength function for the clauses
+	 * @param   string          $subType    the type of subordinate resource being sought (group|pool)
+	 * @param   array           $semesters  the semester terms previously parsed from the search terms
+	 * @param   array           $poolTerms  the pool terms used in coverage checks
+	 * @param   float           $coverage   the percentage of the query which must be covered by pool terms for a positive
+	 *
+	 * @return array clauses for subordinate resource filtration
+	 */
+	private function getSubWherray(
+		JDatabaseQuery $query,
+		string $subType,
+		array $semesters,
+		array $poolTerms,
+		float $coverage
+	): array {
+		if ($subType === 'group')
+		{
+			$deColumn = Database::quoteName('g.name_de');
+			$enColumn = Database::quoteName('g.name_en');
+		}
+		else
+		{
+			$deColumn = Database::quoteName('po.fullName_de');
+			$enColumn = Database::quoteName('po.fullName_en');
+		}
+
+		$wherray = [];
+
+		foreach ($semesters as $semester)
+		{
+			$semester  = Database::quote("%$semester%");
+			$wherray[] = "$deColumn LIKE $semester";
+			$wherray[] = "$enColumn LIKE $semester";
+		}
+
+		if ($poolTerms)
+		{
+			$term      = implode('%', $poolTerms);
+			$length    = strlen($term);
+			$term      = Database::quote("%$term%");
+			$wherray[] = "($deColumn LIKE $term AND $length / " . $query->charLength($deColumn) . " > $coverage)";
+			$wherray[] = "($enColumn LIKE $term AND $length / " . $query->charLength($enColumn) . " > $coverage)";
+		}
+
+		return $wherray;
+	}
+
+
+	/**
+	 * @param   array        &$groupIDs    the ids of the previously discovered groups
+	 * @param   array        &$items       the previously discovered search results
+	 * @param   array        &$poolIDs     the ids of the previously discovered pools
+	 * @param   QueryMySQLi   $poolQuery   the query for retrieving pools from the database
+	 * @param   array         $pools       the previously filtered terms related to pools
+	 * @param   array         $programIDs  the ids of programs to whom found pools will be dependent
+	 * @param   string        $relevance   the relative strength of any results found
+	 * @param   array         $semesters   the previously filtered terms related to semesters
+	 *
+	 * @return void modifies the query object and arrays passed by reference
+	 */
+	private function getPoolResults(
+		array &$groupIDs,
+		array &$items,
+		array &$poolIDs,
+		QueryMySQLi $poolQuery,
+		array $pools,
+		array $programIDs,
+		string $relevance,
+		array $semesters
+	) {
+		$poolQuery->clear('where')->wherein('pr.id', $programIDs);
+
+		if ($poolIDs)
+		{
+			$poolQuery->wherein('po.id', $poolIDs, true);
+		}
+
+		$wherray = $this->getSubWherray($poolQuery, 'pool', $semesters, $pools, .6);
+
+		if ($wherray)
+		{
+			$poolQuery->where('(' . implode(' OR ', $wherray) . ')');
+
+			Database::setQuery($poolQuery);
+			$this->setPoolResults($items, $relevance, $groupIDs, $poolIDs);
+		}
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function getTotal($idColumn = null): int
 	{
 		return count($this->items);
+	}
+
+	/**
+	 * Creates a set of like clauses for the given column and terms.
+	 *
+	 * @param   string  $column
+	 * @param   array   $terms
+	 * @param   string  $glue
+	 *
+	 * @return string
+	 */
+	private function implodeLikeSet(string $column, array $terms, string $glue): string
+	{
+		$column = Database::quoteName($column);
+
+		foreach ($terms as &$term)
+		{
+			$term = Database::quote("%$term%");
+		}
+
+		return "$column LIKE " . implode(" $glue $column LIKE ", $terms);
+	}
+
+	/**
+	 * Creates two localized sets of like clauses for the given column and terms.
+	 *
+	 * @param   string  $column  the unquoted column name
+	 * @param   array   $terms   the unquoted terms
+	 *
+	 * @return string the aggregated like clause
+	 */
+	private function localizedLikeSet(string $column, array $terms, string $iGlue, string $oGlue = ''): string
+	{
+		$deClause = $this->implodeLikeSet("{$column}_de", $terms, $iGlue);
+		$enClause = $this->implodeLikeSet("{$column}_en", $terms, $iGlue);
+
+		if (!$oGlue)
+		{
+			$oGlue = $iGlue;
+		}
+		elseif ($oGlue != $iGlue)
+		{
+			$deClause = "($deClause)";
+			$enClause = "($enClause)";
+		}
+
+		return "($deClause $oGlue $enClause)";
 	}
 
 	/**
@@ -429,7 +669,7 @@ class Search extends ListModel
 	 */
 	private function prepareString(string $string): string
 	{
-		return strtolower(str_replace(['\\', '\'', '"', '%', '_', '(', ')'], '', $string));
+		return strtolower(str_replace(['\\', '\'', '"', '%', '_', '(', ')', '*'], '', $string));
 	}
 
 	/**
@@ -769,7 +1009,7 @@ class Search extends ListModel
 			}
 		}
 
-		$deClause = "g.name_de LIKE '%" . implode("%' AND g.name_de LIKE '%", $parts) . "%'";
+		$deClause = $this->implodeLikeSet('g.name_de', $parts, 'AND');
 
 		$parts = explode(' ', $pool['name_en']);
 
@@ -781,11 +1021,10 @@ class Search extends ListModel
 			}
 		}
 
-		$enClause = "g.name_en LIKE '%" . implode("%' AND g.name_en LIKE '%", $parts) . "%'";
+		$enClause = $this->implodeLikeSet('g.name_en', $parts, 'AND');
 
 		$query = Database::getQuery();
-		$query->select('DISTINCT g.id AS groupID')
-			->from('#__organizer_groups AS g')
+		$query->selectX('DISTINCT g.id AS groupID', 'groups AS g')
 			->where("g.categoryID = {$pool['categoryID']}")
 			->where("(($deClause) OR ($enClause))");
 
@@ -818,7 +1057,7 @@ class Search extends ListModel
 			}
 		}
 
-		$deClause = "po.fullName_de LIKE '%" . implode("%' AND po.fullName_de LIKE '%", $parts) . "%'";
+		$deClause = $this->implodeLikeSet('po.fullName_de', $parts, 'AND');
 
 		$parts = explode(' ', $group['name_en']);
 
@@ -830,7 +1069,7 @@ class Search extends ListModel
 			}
 		}
 
-		$enClause = "po.fullName_de LIKE '%" . implode("%' AND po.fullName_de LIKE '%", $parts) . "%'";
+		$enClause = $this->implodeLikeSet('po.fullName_en', $parts, 'AND');
 
 		$conditions = "c2.lft < c1.lft AND c2.rgt > c1.rgt";
 		$query      = Database::getQuery();
@@ -851,7 +1090,7 @@ class Search extends ListModel
 
 	/**
 	 * Checks for room types which match the the capacity and unresolvable terms. If resolved removes the type from the
-	 * list of potential non-conventional/conformin room names.
+	 * list of potential non-conventional/conforming room names.
 	 *
 	 * @param   array  $ncRooms   an array of terms which could not be resolved
 	 * @param   int    $capacity  the requested capacity
@@ -868,12 +1107,14 @@ class Search extends ListModel
 		$query = Database::getQuery();
 		$query->select('DISTINCT id')->from('#__organizer_roomtypes');
 
+		$nameDE  = Database::quoteName('name_de');
+		$nameEN  = Database::quoteName('name_en');
 		$typeIDs = [];
 
 		foreach ($ncRooms as $key => $term)
 		{
-			$query->clear('where');
-			$query->where("(name_de LIKE '%$term%' OR name_en LIKE '%$term%')");
+			$term = Database::quote("%$term%");
+			$query->clear('where')->where("($nameDE LIKE $term OR $nameEN LIKE $term)");
 
 			if ($capacity)
 			{
@@ -930,16 +1171,16 @@ class Search extends ListModel
 		$noInitial = false;
 		$terms     = $this->terms;
 
-		foreach ($terms as $index => $term)
+		foreach ($terms as $index => $exact)
 		{
 			// Too many false positives for short strings.
-			$short = strlen($term) < 4;
+			$short = strlen($exact) < 4;
 
 			// No categories or programs with roman numerals.
-			$isRoman = preg_match("/^([ivx]+)$/", $term, $matches);
+			$isRoman = preg_match("/^([ivx]+)$/", $exact, $matches);
 
-			// Most relevant case would be year of accrediation, but most people will not enter this.
-			$isNumeric = is_numeric($term);
+			// Most relevant case would be year of accreditation, but most people will not enter this.
+			$isNumeric = is_numeric($exact);
 
 			if ($short or $isRoman or $isNumeric)
 			{
@@ -955,6 +1196,9 @@ class Search extends ListModel
 		// If the initial term never existed or was unset in the filtering process don't set.
 		$initialTerm = (empty($terms) or $noInitial) ? '' : array_shift($terms);
 
+		$cNameDE = Database::quoteName('c.name_de');
+		$cNameEN = Database::quoteName('c.name_en');
+		/* @var QueryMySQLi $cQuery */
 		$cQuery = Database::getQuery();
 		$cQuery->select('DISTINCT c.id AS categoryID, p.id AS programID, lft, rgt, o.id AS organizationID')
 			->from('#__organizer_categories AS c')
@@ -963,6 +1207,9 @@ class Search extends ListModel
 			->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
 			->innerJoin('#__organizer_organizations AS o on o.id = a.organizationID');
 
+		$pNameDE = Database::quoteName('p.name_de');
+		$pNameEN = Database::quoteName('p.name_en');
+		/* @var QueryMySQLi $pQuery */
 		$pQuery = Database::getQuery();
 		$pQuery->select('DISTINCT p.id AS programID, c.id AS categoryID, lft, rgt, o.id AS organizationID')
 			->from('#__organizer_programs AS p')
@@ -984,28 +1231,26 @@ class Search extends ListModel
 
 		$getCategories = false;
 		$getPrograms   = false;
+		$this->onlyActive($cQuery, $pQuery);
 
 		if ($initialTerm)
 		{
+			$exact         = Database::quote($initialTerm);
 			$getCategories = true;
 
 			if ($this->degrees and !empty($this->degrees['exact']))
 			{
-				$getPrograms = true;
+				$getPrograms  = true;
+				$startingWith = Database::quote("$initialTerm%");
 
-				$degrees    = $this->degrees['exact'];
-				$cdDEClause = "c.name_de LIKE '%" . implode("%' OR c.name_de LIKE '%", $degrees) . "%'";
-				$cdENClause = "c.name_en LIKE '%" . implode("%' OR c.name_en LIKE '%", $degrees) . "%'";
-				$cQuery->where("($cdDEClause OR $cdENClause)");
-				$cQuery->where("(c.name_de LIKE '$initialTerm%' OR c.name_en LIKE '$initialTerm%')");
-
-
-				$pQuery->where("(p.name_de LIKE '$initialTerm' OR p.name_en LIKE '$initialTerm')")
-					->where('p.degreeID IN (' . implode(',', array_keys($degrees)) . ')');
+				$cQuery->where($this->localizedLikeSet('c.name', $this->degrees['exact'], 'OR'))
+					->where("($cNameDE LIKE $startingWith OR $cNameEN LIKE $startingWith)");
+				$pQuery->where("($pNameDE LIKE $exact OR $pNameEN LIKE $exact)")
+					->wherein('p.degreeID', array_keys($this->degrees['exact']));
 			}
 			else
 			{
-				$cQuery->where("(c.name_de LIKE '$initialTerm' OR c.name_en LIKE '$initialTerm')");
+				$cQuery->where("($cNameDE LIKE $exact OR $cNameEN LIKE $exact)");
 			}
 		}
 
@@ -1031,7 +1276,7 @@ class Search extends ListModel
 		{
 			if ($programIDs)
 			{
-				$cQuery->where('(p.id IS NULL OR p.id NOT IN (' . implode(',', $programIDs) . '))');
+				$cQuery->nullSet('p.id', $programIDs, true);
 			}
 
 			Database::setQuery($cQuery);
@@ -1073,6 +1318,7 @@ class Search extends ListModel
 		$getCategories = false;
 		$getPrograms   = false;
 		$pQuery->clear('where');
+		$this->onlyActive($cQuery, $pQuery);
 
 		if ($initialTerm or $terms)
 		{
@@ -1083,31 +1329,29 @@ class Search extends ListModel
 
 				if ($terms and !empty($this->degrees['exact']))
 				{
-					$degrees    = $this->degrees['exact'];
-					$cdDEClause = "c.name_de LIKE '%" . implode("%' OR c.name_de LIKE '%", $degrees) . "%'";
-					$cdENClause = "c.name_en LIKE '%" . implode("%' OR c.name_en LIKE '%", $degrees) . "%'";
-					$cdClause   = "($cdDEClause OR $cdENClause)";
-					$ctDEClause = "c.name_de LIKE '%" . implode("%' AND c.name_de LIKE '%", $terms) . "%'";
-					$ctENClause = "c.name_en LIKE '%" . implode("%' AND c.name_en LIKE '%", $terms) . "%'";
-					$ctClause   = "(($ctDEClause) OR ($ctENClause))";
+					$cdClause   = $this->localizedLikeSet('c.name', $this->degrees['exact'], 'OR');
+					$ctClause   = $this->localizedLikeSet('c.name', $terms, 'AND', 'OR');
 					$cClauses[] = "($cdClause AND $ctClause)";
-					$pdClause   = 'p.degreeID IN (' . implode(',', array_keys($degrees)) . ')';
-					$ptDEClause = "p.name_de LIKE '%" . implode("%' AND p.name_de LIKE '%", $terms) . "%'";
-					$ptENClause = "p.name_en LIKE '%" . implode("%' AND p.name_en LIKE '%", $terms) . "%'";
-					$ptClause   = "(($ptDEClause) OR ($ptENClause))";
+					$pdClause   = 'p.degreeID' . Database::makeSet(array_keys($this->degrees['exact']));
+					$ptClause   = $this->localizedLikeSet('p.name', $terms, 'AND', 'OR');
 					$pClauses[] = "($pdClause AND $ptClause)";
 				}
 
 				if ($initialTerm and !empty($this->degrees['good']))
 				{
-					$degrees    = $this->degrees['good'];
-					$cdDEClause = "c.name_de LIKE '%" . implode("%' OR c.name_de LIKE '%", $degrees) . "%'";
-					$cdENClause = "c.name_en LIKE '%" . implode("%' OR c.name_en LIKE '%", $degrees) . "%'";
-					$cdClause   = "($cdDEClause OR $cdENClause)";
-					$ctClause   = "(c.name_de LIKE '$initialTerm%' OR c.name_en LIKE '$initialTerm%')";
+					$startingWith = Database::quote("$initialTerm%");
+					$theseDegrees = $this->degrees['good'];
+
+					foreach ($theseDegrees as &$thisDegree)
+					{
+						$thisDegree = Database::quote("%$thisDegree%");
+					}
+
+					$cdClause   = $this->localizedLikeSet('c.name', $this->degrees['good'], 'OR');
+					$ctClause   = "($cNameDE LIKE $startingWith OR $cNameEN LIKE $startingWith)";
 					$cClauses[] = "($cdClause AND $ctClause)";
-					$pdClause   = 'p.degreeID IN (' . implode(',', array_keys($degrees)) . ')';
-					$ptClause   = "(p.name_de LIKE '$initialTerm%' OR p.name_en LIKE '$initialTerm%')";
+					$pdClause   = 'p.degreeID' . Database::makeSet(array_keys($this->degrees['good']));
+					$ptClause   = "($pNameDE LIKE $startingWith OR $pNameEN LIKE $startingWith)";
 					$pClauses[] = "($pdClause AND $ptClause)";
 				}
 
@@ -1125,10 +1369,7 @@ class Search extends ListModel
 			elseif ($terms)
 			{
 				$getCategories = true;
-
-				$ctDEClause = "c.name_de LIKE '%" . implode("%' AND c.name_de LIKE '%", $terms) . "%'";
-				$ctENClause = "c.name_en LIKE '%" . implode("%' AND c.name_en LIKE '%", $terms) . "%'";
-				$cQuery->where("(($ctDEClause) OR ($ctENClause))");
+				$cQuery->where($this->localizedLikeSet('c.name', $terms, 'AND', 'OR'));
 			}
 		}
 
@@ -1136,7 +1377,7 @@ class Search extends ListModel
 		{
 			if ($programIDs)
 			{
-				$pQuery->where('p.id NOT IN (' . implode(',', $programIDs) . ')');
+				$pQuery->wherein('p.id', $programIDs, true);
 			}
 
 			Database::setQuery($pQuery);
@@ -1159,12 +1400,12 @@ class Search extends ListModel
 		{
 			if ($categoryIDs)
 			{
-				$cQuery->where('c.id NOT IN (' . implode(',', $categoryIDs) . ')');
+				$cQuery->wherein('c.id', $categoryIDs, true);
 			}
 
 			if ($programIDs)
 			{
-				$cQuery->where('(p.id IS NULL OR p.id NOT IN (' . implode(',', $programIDs) . '))');
+				$cQuery->nullSet('p.id', $programIDs, true);
 			}
 
 			Database::setQuery($cQuery);
@@ -1218,6 +1459,7 @@ class Search extends ListModel
 		$getCategories = false;
 		$getPrograms   = false;
 		$pQuery->clear('where');
+		$this->onlyActive($cQuery, $pQuery);
 
 		if ($initialTerm or $terms)
 		{
@@ -1228,35 +1470,28 @@ class Search extends ListModel
 
 				if ($this->filteredTerms and !empty($this->degrees['exact']))
 				{
-					$degrees    = $this->degrees['exact'];
-					$cdDEClause = "c.name_de LIKE '%" . implode("%' OR c.name_de LIKE '%", $degrees) . "%'";
-					$cdENClause = "c.name_en LIKE '%" . implode("%' OR c.name_en LIKE '%", $degrees) . "%'";
-					$cdClause   = "($cdDEClause OR $cdENClause)";
-					$ctDEClause = "c.name_de LIKE '%" . implode("%' OR c.name_de LIKE '%", $this->filteredTerms) . "%'";
-					$ctENClause = "c.name_en LIKE '%" . implode("%' OR c.name_en LIKE '%", $this->filteredTerms) . "%'";
-					$ctClause   = "($ctDEClause OR $ctENClause)";
+					$cdClause   = $this->localizedLikeSet('c.name', $this->degrees['exact'], 'OR');
+					$ctClause   = $this->localizedLikeSet('c.name', $this->filteredTerms, 'OR');
 					$cClauses[] = "($cdClause AND $ctClause)";
-					$pdClause   = 'p.degreeID IN (' . implode(',', array_keys($degrees)) . ')';
-					$ptDEClause = "p.name_de LIKE '%" . implode("%' OR p.name_de LIKE '%", $this->filteredTerms) . "%'";
-					$ptENClause = "p.name_en LIKE '%" . implode("%' OR p.name_en LIKE '%", $this->filteredTerms) . "%'";
-					$ptClause   = "($ptDEClause OR $ptENClause)";
+					$pdClause   = 'p.degreeID' . Database::makeSet(array_keys($this->degrees['exact']));
+					$ptClause   = $this->localizedLikeSet('p.name', $this->filteredTerms, 'OR');
 					$pClauses[] = "($pdClause AND $ptClause)";
 				}
 
 				if ($initialTerm and !empty($this->degrees['good']))
 				{
-					$degrees    = $this->degrees['good'];
-					$cdDEClause = "c.name_de LIKE '%" . implode("%' OR c.name_de LIKE '%", $degrees) . "%'";
-					$cdENClause = "c.name_en LIKE '%" . implode("%' OR c.name_en LIKE '%", $degrees) . "%'";
-					$cdClause   = "($cdDEClause OR $cdENClause)";
-					$ctDEClause = "c.name_de LIKE '%" . implode("%' AND c.name_de LIKE '%", $terms) . "%'";
-					$ctENClause = "c.name_en LIKE '%" . implode("%' AND c.name_en LIKE '%", $terms) . "%'";
-					$ctClause   = "(($ctDEClause) OR ($ctENClause))";
+					$theseDegrees = $this->degrees['good'];
+
+					foreach ($theseDegrees as &$thisDegree)
+					{
+						$thisDegree = Database::quote("%$thisDegree%");
+					}
+
+					$cdClause   = $this->localizedLikeSet('c.name', $this->degrees['good'], 'OR');
+					$ctClause   = $this->localizedLikeSet('c.name', $terms, 'AND', 'OR');
 					$cClauses[] = "($cdClause AND $ctClause)";
-					$pdClause   = 'p.degreeID IN (' . implode(',', array_keys($degrees)) . ')';
-					$ptDEClause = "c.name_de LIKE '%" . implode("%' AND c.name_de LIKE '%", $terms) . "%'";
-					$ptENClause = "c.name_en LIKE '%" . implode("%' AND c.name_en LIKE '%", $terms) . "%'";
-					$ptClause   = "(($ptDEClause) OR ($ptENClause))";
+					$pdClause   = 'p.degreeID' . Database::makeSet($theseDegrees);
+					$ptClause   = $this->localizedLikeSet('c.name', $terms, 'AND', 'OR');
 					$pClauses[] = "($pdClause AND $ptClause)";
 				}
 
@@ -1274,15 +1509,22 @@ class Search extends ListModel
 				if ($initialTerm)
 				{
 					$getPrograms = true;
-					$pQuery->where("(p.name_de LIKE '$initialTerm' OR p.name_en LIKE '$initialTerm')");
+					$term        = Database::quote($initialTerm);
+					$pQuery->where("(p.name_de LIKE $term OR p.name_en LIKE $term)");
 				}
 
 				if ($terms)
 				{
 					$getCategories = true;
+					$theseTerms    = $this->filteredTerms;
 
-					$ctDEClause = "c.name_de LIKE '%" . implode("%' OR c.name_de LIKE '%", $terms) . "%'";
-					$ctENClause = "c.name_en LIKE '%" . implode("%' OR c.name_en LIKE '%", $terms) . "%'";
+					foreach ($theseTerms as &$thisTerm)
+					{
+						$thisTerm = Database::quote("%$thisTerm%");
+					}
+
+					$ctDEClause = "c.name_de LIKE " . implode(" OR c.name_de LIKE ", $theseTerms);
+					$ctENClause = "c.name_en LIKE " . implode(" OR c.name_en LIKE ", $theseTerms);
 					$cQuery->where("($ctDEClause OR $ctENClause)");
 				}
 			}
@@ -1292,7 +1534,7 @@ class Search extends ListModel
 		{
 			if ($programIDs)
 			{
-				$pQuery->where('p.id NOT IN (' . implode(',', $programIDs) . ')');
+				$pQuery->wherein('p.id', $programIDs, true);
 			}
 
 			Database::setQuery($pQuery);
@@ -1306,38 +1548,7 @@ class Search extends ListModel
 				foreach ($theseProgramIDs as $key => $programID)
 				{
 					$program = new Tables\Programs();
-
-					if (!$program->load($programID))
-					{
-						continue;
-					}
-
-					$name = $this->prepareString($program->name_de);
-
-					// The name is a true subset of the initial term => probably a search for a group/pool
-					if (levenshtein($name, $initialTerm, 0, 5, 5) === 0)
-					{
-						$eProgramIDs[$programID] = $programID;
-
-						if (!empty($theseCategoryIDs[$key]))
-						{
-							$eCategoryIDs[$theseCategoryIDs[$key]] = $theseCategoryIDs[$key];
-						}
-
-						continue;
-					}
-
-					$name = $this->prepareString($program->name_en);
-
-					if (levenshtein($name, $initialTerm, 0, 5, 5) === 0)
-					{
-						$eProgramIDs[$programID] = $programID;
-
-						if (!empty($theseCategoryIDs[$key]))
-						{
-							$eCategoryIDs[$theseCategoryIDs[$key]] = $theseCategoryIDs[$key];
-						}
-					}
+					$this->fillCnP($program, $programID, $key, $initialTerm, $eProgramIDs, $eCategoryIDs, $theseCategoryIDs);
 				}
 
 				if ($requested)
@@ -1351,12 +1562,12 @@ class Search extends ListModel
 		{
 			if ($categoryIDs)
 			{
-				$cQuery->where('c.id NOT IN (' . implode(',', $categoryIDs) . ')');
+				$cQuery->wherein('c.id', $categoryIDs, true);
 			}
 
 			if ($programIDs)
 			{
-				$cQuery->where('(p.id IS NULL OR p.id NOT IN (' . implode(',', $programIDs) . '))');
+				$cQuery->nullSet('p.id', $programIDs, true);
 			}
 
 			Database::setQuery($cQuery);
@@ -1370,39 +1581,9 @@ class Search extends ListModel
 
 				foreach ($theseCategoryIDs as $key => $categoryID)
 				{
-					$category = new Tables\Categories();
-
-					if (!$category->load($categoryID))
-					{
-						continue;
-					}
-
-					$name = $this->prepareString($category->name_de);
-
-					// The name is a true subset of the initial term => probably a search for a group/pool
-					if (levenshtein($name, $initialTerm, 0, 5, 5) === 0)
-					{
-						$eCategoryIDs[$categoryID] = $categoryID;
-
-						if (!empty($theseProgramIDs[$key]))
-						{
-							$eProgramIDs[$theseProgramIDs[$key]] = $theseProgramIDs[$key];
-						}
-
-						continue;
-					}
-
-					$name = $this->prepareString($category->name_en);
-
-					if (levenshtein($name, $initialTerm, 0, 5, 5) === 0)
-					{
-						$eCategoryIDs[$categoryID] = $categoryID;
-
-						if (!empty($theseProgramIDs[$key]))
-						{
-							$eProgramIDs[$theseProgramIDs[$key]] = $theseProgramIDs[$key];
-						}
-					}
+					$startingWith = new Tables\Categories();
+					$this->fillCnP($startingWith, $categoryID, $key, $initialTerm, $eCategoryIDs, $eProgramIDs,
+						$theseCategoryIDs);
 				}
 
 				if ($requested)
@@ -1441,12 +1622,13 @@ class Search extends ListModel
 		if ($this->organizationIDs)
 		{
 
-			$cQuery->clear('where')->where('o.id IN (' . implode(',', $this->organizationIDs) . ')');
-			$pQuery->clear('where')->where('o.id IN (' . implode(',', $this->organizationIDs) . ')');
+			$cQuery->clear('where')->wherein('o.id', $this->organizationIDs);
+			$pQuery->clear('where')->wherein('o.id', $this->organizationIDs);
+			$this->onlyActive($cQuery, $pQuery);
 
 			if ($programIDs)
 			{
-				$pQuery->where('p.id NOT IN (' . implode(',', $programIDs) . ')');
+				$pQuery->wherein('p.id', $programIDs, true);
 			}
 
 			Database::setQuery($pQuery);
@@ -1463,12 +1645,12 @@ class Search extends ListModel
 
 			if ($categoryIDs)
 			{
-				$cQuery->where('c.id NOT IN (' . implode(',', $categoryIDs) . ')');
+				$cQuery->wherein('c.id', $categoryIDs, true);
 			}
 
 			if ($programIDs)
 			{
-				$cQuery->where('(p.id IS NULL OR p.id NOT IN (' . implode(',', $programIDs) . '))');
+				$cQuery->nullSet('p.id', $programIDs, true);
 			}
 
 			Database::setQuery($cQuery);
@@ -1516,6 +1698,20 @@ class Search extends ListModel
 	}
 
 	/**
+	 * Ensures that only currently active categories and/or programs are found.
+	 *
+	 * @param   JDatabaseQuery  $categoryQuery  the query to find category resources
+	 * @param   JDatabaseQuery  $programQuery   the query to find program resources
+	 *
+	 * @return void modifies the given query objects
+	 */
+	private function onlyActive(JDatabaseQuery $categoryQuery, JDatabaseQuery $programQuery)
+	{
+		$categoryQuery->where(Database::quoteName('c.active') . ' = 1')->where(Database::quoteName('p.active') . ' = 1');
+		$programQuery->where(Database::quoteName('c.active') . ' = 1')->where(Database::quoteName('p.active') . ' = 1');
+	}
+
+	/**
 	 * Retrieves prioritized event/subject search results.
 	 *
 	 * @param   array &$items  the container with the results
@@ -1554,41 +1750,45 @@ class Search extends ListModel
 			return;
 		}
 
-		$today = date('Y-m-d');
+		$iDelta = Database::quoteName('i.delta');
+		$uDelta = Database::quoteName('u.delta');
+		$today  = date('Y-m-d');
 
+		/* @var QueryMySQLi $eQuery */
 		$eQuery = Database::getQuery();
-		$eQuery->select('DISTINCT e.id AS eventID, s.id AS subjectID')
-			->from('#__organizer_events AS e')
-			->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
-			->innerJoin('#__organizer_units AS u ON u.id = i.unitID')
-			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
-			->leftJoin('#__organizer_subject_events AS se ON se.eventID = e.id')
-			->leftJoin('#__organizer_subjects AS s ON s.id = se.subjectID')
-			->where("i.delta != 'removed'")
-			->where("u.delta != 'removed'")
+		$eQuery->selectX(['DISTINCT e.id AS eventID', 's.id AS subjectID'], 'events AS e')
+			->innerJoinX('instances AS i', ['i.eventID = e.id'])
+			->innerJoinX('units AS u', ['u.id = i.unitID'])
+			->innerJoinX('blocks AS b', ['b.id = i.blockID'])
+			->leftJoinX('subject_events AS se', ['se.eventID = e.id'])
+			->leftJoinX('subjects AS s', ['s.id = se.subjectID'])
+			->where("$iDelta != 'removed'")
+			->where("$uDelta != 'removed'")
 			->where("b.date >= '$today'");
 
+		/* @var QueryMySQLi $sQuery */
 		$sQuery = Database::getQuery();
-		$sQuery->select('DISTINCT s.id as subjectID, e.id AS eventID')
-			->from('#__organizer_subjects AS s')
-			->leftJoin('#__organizer_subject_events AS se on se.subjectID = s.id')
-			->leftJoin('#__organizer_events AS e on e.id = se.eventID')
-			->leftJoin('#__organizer_instances AS i on i.eventID = e.id')
-			->leftJoin('#__organizer_units AS u on u.id = i.unitID')
-			->where("(i.delta IS NULL OR i.delta != 'removed')")
-			->where("(u.delta IS NULL OR u.delta != 'removed')");
+		$sQuery->selectX(['DISTINCT s.id as subjectID', 'e.id AS eventID'], 'subjects AS s')
+			->leftJoinX('subject_events AS se', ['se.subjectID = s.id'])
+			->leftJoinX('events AS e', ['e.id = se.eventID'])
+			->leftJoinX('instances AS i', ['i.eventID = e.id'])
+			->leftJoinX('units AS u', ['u.id = i.unitID'])
+			->nullSet('i.delta', ['removed'], true)
+			->nullSet('u.delta', ['removed'], true);
 
-		$eNameColumns = [
-			'e.name_de',
-			'e.name_en'
-		];
+		$eNameDE      = Database::quoteName('e.name_de');
+		$eNameEN      = Database::quoteName('e.name_en');
+		$eNameColumns = [$eNameDE, $eNameEN];
 
+		$sCode        = Database::quoteName('s.code');
+		$sFNameDE     = Database::quoteName('s.fullName_de');
+		$sFNameEN     = Database::quoteName('s.fullName_en');
 		$sNameColumns = [
-			's.abbreviation_de',
-			's.abbreviation_en',
-			's.code',
-			's.fullName_de',
-			's.fullName_en'
+			Database::quoteName('s.abbreviation_de'),
+			Database::quoteName('s.abbreviation_en'),
+			$sCode,
+			$sFNameDE,
+			$sFNameEN
 		];
 
 		// Only one salting: resolve against number/roman?
@@ -1600,21 +1800,23 @@ class Search extends ListModel
 
 		// Exact: the original search term matches the text of a naming field or one of the terms matches the code /////
 		$initialTerm = current($terms);
+		$qIT         = Database::quote($initialTerm);
 
 		foreach ($eNameColumns as $column)
 		{
-			$eWherray[] = "$column LIKE '$initialTerm'";
+			$eWherray[] = "$column LIKE $qIT";
 		}
 
 		foreach ($sNameColumns as $column)
 		{
-			$sWherray[] = "$column LIKE '$initialTerm'";
+			$sWherray[] = "$column LIKE $qIT";
 		}
 
 		foreach ($terms as $term)
 		{
-			$eWherray[] = "e.subjectNo LIKE '$term'";
-			$sWherray[] = "s.code LIKE '$term'";
+			$term       = Database::quote($term);
+			$eWherray[] = "e.subjectNo LIKE $term";
+			$sWherray[] = "$sCode LIKE $term";
 		}
 
 		$eQuery->where('(' . implode(' OR ', $eWherray) . ')');
@@ -1631,7 +1833,7 @@ class Search extends ListModel
 
 		if ($subjectIDs)
 		{
-			$eQuery->where('(s.id IS NULL OR s.id NOT IN (' . implode(',', $subjectIDs) . '))');
+			$eQuery->nullSet('s.id', $subjectIDs, true);
 		}
 
 		Database::setQuery($eQuery);
@@ -1653,12 +1855,12 @@ class Search extends ListModel
 			->where("u.delta != 'removed'")
 			->where("b.date >= '$today'");
 		$sQuery->clear('where')
-			->where("(i.delta IS NULL OR i.delta != 'removed')")
-			->where("(u.delta IS NULL OR u.delta != 'removed')");
+			->nullSet('i.delta', ['removed'], true)
+			->nullSet('u.delta', ['removed'], true);
 
 		if ($subjectIDs)
 		{
-			$sQuery->where('s.id NOT IN (' . implode(',', $subjectIDs) . ')');
+			$sQuery->wherein('s.id', $subjectIDs, true);
 		}
 
 		// If there is only one term to compare it should make up 80% of the name to get a strong rating.
@@ -1666,26 +1868,26 @@ class Search extends ListModel
 		{
 			$term      = reset($terms);
 			$length    = strlen($term);
-			$eDEClause = "e.name_de LIKE '%$term%' AND $length / " . $eQuery->charLength('e.name_de') . " > .8";
-			$eENClause = "e.name_en LIKE '%$term%' AND $length / " . $eQuery->charLength('e.name_en') . " > .8";
-			$sDEClause = "s.fullName_de LIKE '%$term%' AND $length / " . $eQuery->charLength('s.fullName_de') . " > .8";
-			$sENClause = "s.fullName_en LIKE '%$term%' AND $length / " . $eQuery->charLength('s.fullName_en') . " > .8";
+			$eDEClause = "$eNameDE LIKE '%$term%' AND $length / " . $eQuery->charLength($eNameDE) . " > .8";
+			$eENClause = "$eNameEN LIKE '%$term%' AND $length / " . $eQuery->charLength($eNameEN) . " > .8";
+			$sDEClause = "$sFNameDE LIKE '%$term%' AND $length / " . $eQuery->charLength($sFNameDE) . " > .8";
+			$sENClause = "$sFNameEN LIKE '%$term%' AND $length / " . $eQuery->charLength($sFNameEN) . " > .8";
 		}
 		else
 		{
-			$eDEClause = "e.name_de LIKE '%" . implode("%' AND e.name_de LIKE '%", $terms) . "%'";
-			$eENClause = "e.name_en LIKE '%" . implode("%' AND e.name_en LIKE '%", $terms) . "%'";
-			$sDEClause = "s.fullName_de LIKE '%" . implode("%' AND s.fullName_de LIKE '%", $terms) . "%'";
-			$sENClause = "s.fullName_en LIKE '%" . implode("%' AND s.fullName_en LIKE '%", $terms) . "%'";
+			$eDEClause = "$eNameDE LIKE '%" . implode("%' AND $eNameDE LIKE '%", $terms) . "%'";
+			$eENClause = "$eNameEN LIKE '%" . implode("%' AND $eNameEN LIKE '%", $terms) . "%'";
+			$sDEClause = "$sFNameDE LIKE '%" . implode("%' AND $sFNameDE LIKE '%", $terms) . "%'";
+			$sENClause = "$sFNameEN LIKE '%" . implode("%' AND $sFNameEN LIKE '%", $terms) . "%'";
 		}
 
 		if ($salt)
 		{
 
-			$eDEClause .= " AND e.name_de LIKE '% $salt'";
-			$eENClause .= " AND e.name_en LIKE '% $salt'";
-			$sDEClause .= " AND s.fullName_de LIKE '% $salt'";
-			$sENClause .= " AND s.fullName_en LIKE '% $salt'";
+			$eDEClause .= " AND $eNameDE LIKE '% $salt'";
+			$eENClause .= " AND $eNameEN LIKE '% $salt'";
+			$sDEClause .= " AND $sFNameDE LIKE '% $salt'";
+			$sENClause .= " AND $sFNameEN LIKE '% $salt'";
 		}
 
 		$eQuery->where("(($eDEClause) OR ($eENClause))");
@@ -1702,12 +1904,12 @@ class Search extends ListModel
 
 		if ($eventIDs)
 		{
-			$eQuery->where('e.id NOT IN (' . implode(',', $eventIDs) . ')');
+			$eQuery->wherein('e.id', $eventIDs, true);
 		}
 
 		if ($subjectIDs)
 		{
-			$eQuery->where('(s.id IS NULL OR s.id NOT IN (' . implode(',', $subjectIDs) . '))');
+			$eQuery->nullSet('s.id', $subjectIDs, true);
 		}
 
 		Database::setQuery($eQuery);
@@ -1729,12 +1931,12 @@ class Search extends ListModel
 			->where("u.delta != 'removed'")
 			->where("b.date >= '$today'");
 		$sQuery->clear('where')
-			->where("(i.delta IS NULL OR i.delta != 'removed')")
-			->where("(u.delta IS NULL OR u.delta != 'removed')");
+			->nullSet('i.delta', ['removed'], true)
+			->nullSet('u.delta', ['removed'], true);
 
 		if ($subjectIDs)
 		{
-			$sQuery->where('s.id NOT IN (' . implode(',', $subjectIDs) . ')');
+			$sQuery->wherein('s.id', $subjectIDs, true);
 		}
 
 		$eWherray = [];
@@ -1790,12 +1992,12 @@ class Search extends ListModel
 
 		if ($eventIDs)
 		{
-			$eQuery->where('e.id NOT IN (' . implode(',', $eventIDs) . ')');
+			$eQuery->wherein('e.id', $eventIDs, true);
 		}
 
 		if ($subjectIDs)
 		{
-			$eQuery->where('(s.id IS NULL OR s.id NOT IN (' . implode(',', $subjectIDs) . '))');
+			$eQuery->nullSet('s.id', $subjectIDs, true);
 		}
 
 		Database::setQuery($eQuery);
@@ -1814,12 +2016,12 @@ class Search extends ListModel
 		// Mentioned: term appears in a describing field ///////////////////////////////////////////////////////////////
 		// No searching event text fields at this time.
 		$sQuery->clear('where')
-			->where("(i.delta IS NULL OR i.delta != 'removed')")
-			->where("(u.delta IS NULL OR u.delta != 'removed')");
+			->nullSet('i.delta', ['removed'], true)
+			->nullSet('u.delta', ['removed'], true);
 
 		if ($subjectIDs)
 		{
-			$sQuery->where('s.id NOT IN (' . implode(',', $subjectIDs) . ')');
+			$sQuery->wherein('s.id', $subjectIDs, true);
 		}
 
 		$textColumns = [
@@ -1858,7 +2060,7 @@ class Search extends ListModel
 			->leftJoin('#__organizer_persons AS p1 ON p1.id = ip.personID')
 			->leftJoin('#__organizer_event_coordinators AS ec ON ec.eventID = e.id')
 			->leftJoin('#__organizer_persons AS p2 ON p2.id = ec.personID')
-			->where('(roleID IS NULL OR roleID IN (' . implode(',', $relevantRoles) . '))')
+			->nullSet('roleID', $relevantRoles)
 			->where("i.delta != 'removed'")
 			->where("u.delta != 'removed'")
 			->where("b.date >= '$today'")
@@ -1867,21 +2069,22 @@ class Search extends ListModel
 		$sQuery->clear('where')
 			->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')
 			->innerJoin('#__organizer_persons AS p ON p.id = sp.personID')
-			->where("(i.delta IS NULL OR i.delta != 'removed')")
-			->where("(u.delta IS NULL OR u.delta != 'removed')");
+			->nullSet('i.delta', ['removed'], true)
+			->nullSet('u.delta', ['removed'], true);
 
 		if ($subjectIDs)
 		{
-			$sQuery->where('s.id NOT IN (' . implode(',', $subjectIDs) . ')');
+			$sQuery->wherein('s.id', $subjectIDs, true);
 		}
 
 		// The query is set 'manually'. This flag takes the place of what is often otherwise wherray checks.
 		$runQuery = false;
 		if ($termCount == 1)
 		{
-			$eQuery->where("(p1.surname LIKE '%$initialTerm%' OR p2.surname LIKE '%$initialTerm%')");
+			$qIT = Database::quote("%$initialTerm%");
+			$eQuery->where("(p1.surname LIKE $qIT OR p2.surname LIKE $qIT)");
 			$runQuery = true;
-			$sQuery->where("p.surname LIKE '%$initialTerm%'");
+			$sQuery->where("p.surname LIKE $qIT");
 		}
 		else
 		{
@@ -1934,12 +2137,12 @@ class Search extends ListModel
 
 		if ($eventIDs)
 		{
-			$eQuery->where('e.id NOT IN (' . implode(',', $eventIDs) . ')');
+			$eQuery->wherein('e.id', $eventIDs, true);
 		}
 
 		if ($subjectIDs)
 		{
-			$eQuery->where('(s.id IS NULL OR s.id NOT IN (' . implode(',', $subjectIDs) . '))');
+			$eQuery->nullSet('s.id', $subjectIDs, true);
 		}
 
 		Database::setQuery($eQuery);
@@ -1979,18 +2182,26 @@ class Search extends ListModel
 		$groupIDs = [];
 		$poolIDs  = [];
 
+		/* @var QueryMySQLi $gQuery */
 		$gQuery = Database::getQuery();
-		$gQuery->select('DISTINCT g.id AS groupID, g.categoryID, g.name_de, g.name_en')
-			->from('#__organizer_groups AS g');
+		$gQuery->selectX(['DISTINCT g.id AS groupID', 'g.categoryID', 'g.name_de', 'g.name_en'], 'groups AS g');
 
-		$conditions = "c2.lft < c1.lft AND c2.rgt > c1.rgt";
-		$poQuery    = Database::getQuery();
-		$poQuery->select('DISTINCT po.id AS poolID, po.fullName_de AS name_de, po.fullName_en AS name_en')
-			->select('pr.id AS programID, pr.categoryID')
-			->select('c1.lft, c1.rgt')
-			->from('#__organizer_pools AS po')
+		$conditions = ['c2.lft < c1.lft', 'c2.rgt > c1.rgt'];
+		$select     = [
+			'DISTINCT po.id AS poolID',
+			'po.fullName_de AS name_de',
+			'po.fullName_en AS name_en',
+			'pr.id AS programID',
+			'pr.categoryID',
+			'c1.lft',
+			'c1.rgt'
+		];
+
+		/* @var QueryMySQLi $gQuery */
+		$poQuery = Database::getQuery();
+		$poQuery->selectX($select, 'pools AS po')
 			->innerJoin('#__organizer_curricula AS c1 ON c1.poolID = po.id')
-			->innerJoin("#__organizer_curricula AS c2 ON $conditions")
+			->innerJoinX('curricula AS c2', $conditions)
 			->innerJoin('#__organizer_programs AS pr ON pr.id = c2.programID');
 
 		/**
@@ -2008,23 +2219,8 @@ class Search extends ListModel
 		// Groups1
 		if ($exactCategoryIDs)
 		{
-			$gQuery->where('g.categoryID IN (' . implode(',', $exactCategoryIDs) . ')');
-
-			$wherray = [];
-
-			foreach ($exactSemesters as $semester)
-			{
-				$wherray[] = "g.name_de LIKE '%$semester%'";
-				$wherray[] = "g.name_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(g.name_de LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_de') . " > .8)";
-				$wherray[] = "(g.name_en LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_en') . " > .8)";
-			}
+			$gQuery->wherein('g.categoryID', $exactCategoryIDs);
+			$wherray = $this->getSubWherray($gQuery, 'group', $exactSemesters, $poolTerms, .8);
 
 			if ($wherray)
 			{
@@ -2032,41 +2228,7 @@ class Search extends ListModel
 
 				Database::setQuery($gQuery);
 
-				if ($groups = Database::loadAssocList('groupID'))
-				{
-					$results = [];
-
-					foreach ($groups as $groupID => $group)
-					{
-						$pools = $this->resolvePools($group);
-
-						if ($pools)
-						{
-							foreach ($pools as $poolID => $pool)
-							{
-								if (in_array($poolID, $poolIDs))
-								{
-									continue;
-								}
-
-								$pool['groupID'] = $groupID;
-								$results[]       = $pool;
-							}
-
-							$poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
-						}
-						else
-						{
-							$group['categoryID'] = 0;
-							$group['poolID']     = 0;
-							$results[]           = $group;
-						}
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter(array_keys($groups)));
-
-					$items['exact']['gnp'] = $this->processGnP($results);
-				}
+				$this->setGroupResults($items, 'exact', $groupIDs, $poolIDs);
 			}
 		}
 
@@ -2079,7 +2241,7 @@ class Search extends ListModel
 
 				if ($groupIDs)
 				{
-					$gQuery->where('g.id NOT IN(' . implode(',', $groupIDs) . ')');
+					$gQuery->wherein('g.id', $groupIDs, true);
 				}
 
 				$wherray = [];
@@ -2087,116 +2249,39 @@ class Search extends ListModel
 				// Leading placeholders: no; trailing placeholders: yes
 				foreach ($this->programDENames['exact'] as $name)
 				{
-					$name      = str_replace(' ', '%', $name);
-					$wherray[] = "g.name_de LIKE '$name%'";
+					$name      = Database::quote(str_replace(' ', '%', $name) . '%');
+					$wherray[] = "g.name_de LIKE $name";
 				}
 
 				foreach ($this->programENNames['exact'] as $name)
 				{
-					$name      = str_replace(' ', '%', $name);
-					$wherray[] = "g.name_en LIKE '$name%'";
+					$name      = Database::quote(str_replace(' ', '%', $name) . '%');
+					$wherray[] = "g.name_en LIKE $name";
 				}
 
 				$gQuery->where('(' . implode(' OR ', $wherray) . ')');
 
 				Database::setQuery($gQuery);
 
-				if ($groups = Database::loadAssocList('groupID'))
-				{
-					$results = [];
-
-					foreach ($groups as $groupID => $group)
-					{
-						$pools = $this->resolvePools($group);
-
-						if ($pools)
-						{
-							foreach ($pools as $poolID => $pool)
-							{
-								if (in_array($poolID, $poolIDs))
-								{
-									continue;
-								}
-
-								$pool['groupID'] = $groupID;
-								$results[]       = $pool;
-							}
-
-							$poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
-						}
-						else
-						{
-							$group['categoryID'] = 0;
-							$group['poolID']     = 0;
-							$results[]           = $group;
-						}
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter(array_keys($groups)));
-
-					$results               = $this->processGnP($results);
-					$items['exact']['gnp'] = empty($items['exact']['gnp']) ?
-						$results : array_merge($items['exact']['gnp'], $results);
-				}
+				$this->setGroupResults($items, 'exact', $groupIDs, $poolIDs);
 			}
 
 			// Pools
-			$poQuery->where('pr.id IN (' . implode(',', $exactProgramIDs) . ')');
+			$poQuery->wherein('pr.id', $exactProgramIDs);
 
 			if ($poolIDs)
 			{
-				$poQuery->where('po.id NOT IN(' . implode(',', $poolIDs) . ')');
+				$poQuery->wherein('po.id', $poolIDs, true);
 			}
 
-			$wherray = [];
-
-			foreach ($exactSemesters as $semester)
-			{
-				$wherray[] = "po.fullName_de LIKE '%$semester%'";
-				$wherray[] = "po.fullName_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(po.fullName_de LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_de') . " > .8)";
-				$wherray[] = "(po.fullName_en LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_en') . " > .8)";
-			}
+			$wherray = $this->getSubWherray($poQuery, 'pool', $exactSemesters, $poolTerms, .8);
 
 			if ($wherray)
 			{
 				$poQuery->where('(' . implode(' OR ', $wherray) . ')');
 
 				Database::setQuery($poQuery);
-
-				if ($pools = Database::loadAssocList('poolID'))
-				{
-					$poolIDs       = array_merge($poolIDs, array_filter(array_keys($pools)));
-					$theseGroupIDs = [];
-
-					foreach ($pools as $poolID => $pool)
-					{
-						if (empty($pool['categoryID']))
-						{
-							$pools[$poolID]['groupID'] = 0;
-							continue;
-						}
-
-						if ($groupID = $this->resolveGroup($pool))
-						{
-							$theseGroupIDs[$groupID] = $groupID;
-						}
-
-						$pools[$poolID]['groupID'] = $groupID;
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter($theseGroupIDs));
-
-					$results               = $this->processGnP($pools);
-					$items['exact']['gnp'] = empty($items['exact']['gnp']) ?
-						$results : array_merge($items['exact']['gnp'], $results);
-				}
+				$this->setPoolResults($items, 'exact', $groupIDs, $poolIDs);
 			}
 		}
 
@@ -2207,7 +2292,7 @@ class Search extends ListModel
 
 			if ($groupIDs)
 			{
-				$gQuery->where('g.id NOT IN(' . implode(',', $groupIDs) . ')');
+				$gQuery->wherein('g.id', $groupIDs, true);
 			}
 
 			// Degrees are still relevant here for abbreviated search terms.
@@ -2247,43 +2332,7 @@ class Search extends ListModel
 
 			Database::setQuery($gQuery);
 
-			if ($groups = Database::loadAssocList('groupID'))
-			{
-				$results = [];
-
-				foreach ($groups as $groupID => $group)
-				{
-					$pools = $this->resolvePools($group);
-
-					if ($pools)
-					{
-						foreach ($pools as $poolID => $pool)
-						{
-							if (in_array($poolID, $poolIDs))
-							{
-								continue;
-							}
-
-							$pool['groupID'] = $groupID;
-							$results[]       = $pool;
-						}
-
-						$poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
-					}
-					else
-					{
-						$group['categoryID'] = 0;
-						$group['poolID']     = 0;
-						$results[]           = $group;
-					}
-				}
-
-				$groupIDs = array_merge($groupIDs, array_filter(array_keys($groups)));
-
-				$results               = $this->processGnP($results);
-				$items['exact']['gnp'] = empty($items['exact']['gnp']) ?
-					$results : array_merge($items['exact']['gnp'], $results);
-			}
+			$this->setGroupResults($items, 'exact', $groupIDs, $poolIDs);
 		}
 
 		/**
@@ -2303,264 +2352,42 @@ class Search extends ListModel
 
 		if ($exactCategoryIDs)
 		{
-			$gQuery->clear('where')->where('g.categoryID IN (' . implode(',', $exactCategoryIDs) . ')');
-
-			if ($groupIDs)
-			{
-				$gQuery->where('g.id NOT IN(' . implode(',', $groupIDs) . ')');
-			}
-
-			$wherray = [];
-
-			foreach ($strongSemesters as $semester)
-			{
-				$wherray[] = "g.name_de LIKE '%$semester%'";
-				$wherray[] = "g.name_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(g.name_de LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_de') . " > .6)";
-				$wherray[] = "(g.name_en LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_en') . " > .6)";
-			}
-
-			if ($wherray)
-			{
-				$gQuery->where('(' . implode(' OR ', $wherray) . ')');
-
-				Database::setQuery($gQuery);
-
-				if ($groups = Database::loadAssocList('groupID'))
-				{
-					$results = [];
-
-					foreach ($groups as $groupID => $group)
-					{
-						$pools = $this->resolvePools($group);
-
-						if ($pools)
-						{
-							foreach ($pools as $poolID => $pool)
-							{
-								if (in_array($poolID, $poolIDs))
-								{
-									continue;
-								}
-
-								$pool['groupID'] = $groupID;
-								$results[]       = $pool;
-							}
-
-							$poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
-						}
-						else
-						{
-							$group['categoryID'] = 0;
-							$group['poolID']     = 0;
-							$results[]           = $group;
-						}
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter(array_keys($groups)));
-
-					$items['strong']['gnp'] = $this->processGnP($results);
-				}
-			}
+			$this->getSGResults(
+				$exactCategoryIDs,
+				$groupIDs,
+				$gQuery,
+				$items,
+				$poolIDs,
+				$poQuery,
+				$poolTerms,
+				$strongSemesters
+			);
 		}
 
 		if ($strongCategoryIDs)
 		{
-			$gQuery->clear('where')->where('g.categoryID IN (' . implode(',', $strongCategoryIDs) . ')');
-
-			if ($groupIDs)
-			{
-				$gQuery->where('g.id NOT IN(' . implode(',', $groupIDs) . ')');
-			}
-
-			$wherray = [];
-
-			foreach ($exactSemesters as $semester)
-			{
-				$wherray[] = "g.name_de LIKE '%$semester%'";
-				$wherray[] = "g.name_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(g.name_de LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_de') . " > .6)";
-				$wherray[] = "(g.name_en LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_en') . " > .6)";
-			}
-
-			if ($wherray)
-			{
-				$gQuery->where('(' . implode(' OR ', $wherray) . ')');
-
-				Database::setQuery($gQuery);
-
-				if ($groups = Database::loadAssocList('groupID'))
-				{
-					$results = [];
-
-					foreach ($groups as $groupID => $group)
-					{
-						$pools = $this->resolvePools($group);
-
-						if ($pools)
-						{
-							foreach ($pools as $poolID => $pool)
-							{
-								if (in_array($poolID, $poolIDs))
-								{
-									continue;
-								}
-
-								$pool['groupID'] = $groupID;
-								$results[]       = $pool;
-							}
-
-							$poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
-						}
-						else
-						{
-							$group['categoryID'] = 0;
-							$group['poolID']     = 0;
-							$results[]           = $group;
-						}
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter(array_keys($groups)));
-
-					$results                = $this->processGnP($results);
-					$items['strong']['gnp'] = empty($items['strong']['gnp']) ?
-						$results : array_merge($items['strong']['gnp'], $results);
-				}
-			}
+			$this->getSGResults(
+				$strongCategoryIDs,
+				$groupIDs,
+				$gQuery,
+				$items,
+				$poolIDs,
+				$poQuery,
+				$poolTerms,
+				$exactSemesters
+			);
 		}
 
 		if ($exactProgramIDs)
 		{
-			$poQuery->clear('where')->where('pr.id IN (' . implode(',', $exactProgramIDs) . ')');
-
-			if ($poolIDs)
-			{
-				$poQuery->where('po.id NOT IN(' . implode(',', $poolIDs) . ')');
-			}
-
-			$wherray = [];
-
-			foreach ($strongSemesters as $semester)
-			{
-				$wherray[] = "po.fullName_de LIKE '%$semester%'";
-				$wherray[] = "po.fullName_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(po.fullName_de LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_de') . " > .6)";
-				$wherray[] = "(po.fullName_en LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_en') . " > .6)";
-			}
-
-			if ($wherray)
-			{
-				$poQuery->where('(' . implode(' OR ', $wherray) . ')');
-
-				Database::setQuery($poQuery);
-
-				if ($pools = Database::loadAssocList('poolID'))
-				{
-					$poolIDs       = array_merge($poolIDs, array_filter(array_keys($pools)));
-					$theseGroupIDs = [];
-
-					foreach ($pools as $poolID => $pool)
-					{
-						if (empty($pool['categoryID']))
-						{
-							$pools[$poolID]['groupID'] = 0;
-							continue;
-						}
-
-						if ($groupID = $this->resolveGroup($pool))
-						{
-							$theseGroupIDs[$groupID] = $groupID;
-						}
-
-						$pools[$poolID]['groupID'] = $groupID;
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter($theseGroupIDs));
-
-					$results                = $this->processGnP($pools);
-					$items['strong']['gnp'] = empty($items['strong']['gnp']) ?
-						$results : array_merge($items['strong']['gnp'], $results);
-				}
-			}
+			$this->getPoolResults($groupIDs, $items, $poolIDs, $poQuery, $poolTerms, $exactProgramIDs, 'strong',
+				$strongSemesters);
 		}
 
 		if ($strongProgramIDs)
 		{
-			$poQuery->clear('where')->where('pr.id IN (' . implode(',', $strongProgramIDs) . ')');
-
-			if ($poolIDs)
-			{
-				$poQuery->where('po.id NOT IN(' . implode(',', $poolIDs) . ')');
-			}
-
-			$wherray = [];
-
-			foreach ($exactSemesters as $semester)
-			{
-				$wherray[] = "po.fullName_de LIKE '%$semester%'";
-				$wherray[] = "po.fullName_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(po.fullName_de LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_de') . " > .6)";
-				$wherray[] = "(po.fullName_en LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_en') . " > .6)";
-			}
-
-			if ($wherray)
-			{
-				$poQuery->where('(' . implode(' OR ', $wherray) . ')');
-
-				Database::setQuery($poQuery);
-
-				if ($pools = Database::loadAssocList('poolID'))
-				{
-					$poolIDs       = array_merge($poolIDs, array_filter(array_keys($pools)));
-					$theseGroupIDs = [];
-
-					foreach ($pools as $poolID => $pool)
-					{
-						if (empty($pool['categoryID']))
-						{
-							$pools[$poolID]['groupID'] = 0;
-							continue;
-						}
-
-						if ($groupID = $this->resolveGroup($pool))
-						{
-							$theseGroupIDs[$groupID] = $groupID;
-						}
-
-						$pools[$poolID]['groupID'] = $groupID;
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter($theseGroupIDs));
-
-					$results                = $this->processGnP($pools);
-					$items['strong']['gnp'] = empty($items['strong']['gnp']) ?
-						$results : array_merge($items['strong']['gnp'], $results);
-				}
-			}
+			$this->getPoolResults($groupIDs, $items, $poolIDs, $poQuery, $poolTerms, $strongProgramIDs, 'strong',
+				$exactSemesters);
 		}
 
 		/**
@@ -2578,264 +2405,40 @@ class Search extends ListModel
 
 		if ($exactCategoryIDs and $goodSemesters)
 		{
-			$gQuery->clear('where')->where('g.categoryID IN (' . implode(',', $exactCategoryIDs) . ')');
-
-			if ($groupIDs)
-			{
-				$gQuery->where('g.id NOT IN(' . implode(',', $groupIDs) . ')');
-			}
-
-			$wherray = [];
-
-			foreach ($goodSemesters as $semester)
-			{
-				$wherray[] = "g.name_de LIKE '%$semester%'";
-				$wherray[] = "g.name_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(g.name_de LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_de') . " > .6)";
-				$wherray[] = "(g.name_en LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_en') . " > .6)";
-			}
-
-			if ($wherray)
-			{
-				$gQuery->where('(' . implode(' OR ', $wherray) . ')');
-
-				Database::setQuery($gQuery);
-
-				if ($groups = Database::loadAssocList('groupID'))
-				{
-					$results = [];
-
-					foreach ($groups as $groupID => $group)
-					{
-						$pools = $this->resolvePools($group);
-
-						if ($pools)
-						{
-							foreach ($pools as $poolID => $pool)
-							{
-								if (in_array($poolID, $poolIDs))
-								{
-									continue;
-								}
-
-								$pool['groupID'] = $groupID;
-								$results[]       = $pool;
-							}
-
-							$poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
-						}
-						else
-						{
-							$group['categoryID'] = 0;
-							$group['poolID']     = 0;
-							$results[]           = $group;
-						}
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter(array_keys($groups)));
-
-					$items['good']['gnp'] = $this->processGnP($results);
-				}
-			}
+			$this->getSGResults(
+				$exactCategoryIDs,
+				$groupIDs,
+				$gQuery,
+				$items,
+				$poolIDs,
+				$poQuery,
+				$poolTerms,
+				$goodSemesters
+			);
 		}
 
 		if ($strongCategoryIDs and $strongSemesters)
 		{
-			$gQuery->clear('where')->where('g.categoryID IN (' . implode(',', $strongCategoryIDs) . ')');
-
-			if ($groupIDs)
-			{
-				$gQuery->where('g.id NOT IN(' . implode(',', $groupIDs) . ')');
-			}
-
-			$wherray = [];
-
-			foreach ($strongSemesters as $semester)
-			{
-				$wherray[] = "g.name_de LIKE '%$semester%'";
-				$wherray[] = "g.name_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(g.name_de LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_de') . " > .6)";
-				$wherray[] = "(g.name_en LIKE '%$term%' AND $length / " . $poQuery->charLength('g.name_en') . " > .6)";
-			}
-
-			if ($wherray)
-			{
-				$gQuery->where('(' . implode(' OR ', $wherray) . ')');
-
-				Database::setQuery($gQuery);
-
-				if ($groups = Database::loadAssocList('groupID'))
-				{
-					$results = [];
-
-					foreach ($groups as $groupID => $group)
-					{
-						$pools = $this->resolvePools($group);
-
-						if ($pools)
-						{
-							foreach ($pools as $poolID => $pool)
-							{
-								if (in_array($poolID, $poolIDs))
-								{
-									continue;
-								}
-
-								$pool['groupID'] = $groupID;
-								$results[]       = $pool;
-							}
-
-							$poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
-						}
-						else
-						{
-							$group['categoryID'] = 0;
-							$group['poolID']     = 0;
-							$results[]           = $group;
-						}
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter(array_keys($groups)));
-
-					$results              = $this->processGnP($results);
-					$items['good']['gnp'] = empty($items['good']['gnp']) ?
-						$results : array_merge($items['good']['gnp'], $results);
-				}
-			}
+			$this->getSGResults(
+				$strongCategoryIDs,
+				$groupIDs,
+				$gQuery,
+				$items,
+				$poolIDs,
+				$poQuery,
+				$poolTerms,
+				$strongSemesters
+			);
 		}
 
 		if ($exactProgramIDs and $goodSemesters)
 		{
-			$poQuery->clear('where')->where('pr.id IN (' . implode(',', $exactProgramIDs) . ')');
-
-			if ($poolIDs)
-			{
-				$poQuery->where('po.id NOT IN(' . implode(',', $poolIDs) . ')');
-			}
-
-			$wherray = [];
-
-			foreach ($goodSemesters as $semester)
-			{
-				$wherray[] = "po.fullName_de LIKE '%$semester%'";
-				$wherray[] = "po.fullName_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(po.fullName_de LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_de') . " > .6)";
-				$wherray[] = "(po.fullName_en LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_en') . " > .6)";
-			}
-
-			if ($wherray)
-			{
-				$poQuery->where('(' . implode(' OR ', $wherray) . ')');
-
-				Database::setQuery($poQuery);
-
-				if ($pools = Database::loadAssocList('poolID'))
-				{
-					$poolIDs       = array_merge($poolIDs, array_filter(array_keys($pools)));
-					$theseGroupIDs = [];
-
-					foreach ($pools as $poolID => $pool)
-					{
-						if (empty($pool['categoryID']))
-						{
-							$pools[$poolID]['groupID'] = 0;
-							continue;
-						}
-
-						if ($groupID = $this->resolveGroup($pool))
-						{
-							$theseGroupIDs[$groupID] = $groupID;
-						}
-
-						$pools[$poolID]['groupID'] = $groupID;
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter($theseGroupIDs));
-
-					$results              = $this->processGnP($pools);
-					$items['good']['gnp'] = empty($items['good']['gnp']) ?
-						$results : array_merge($items['good']['gnp'], $results);
-				}
-			}
+			$this->getPoolResults($groupIDs, $items, $poolIDs, $poQuery, $poolTerms, $exactProgramIDs, 'good', $goodSemesters);
 		}
 
 		if ($strongProgramIDs and $strongSemesters)
 		{
-			$poQuery->clear('where')->where('pr.id IN (' . implode(',', $strongProgramIDs) . ')');
-
-			if ($poolIDs)
-			{
-				$poQuery->where('po.id NOT IN(' . implode(',', $poolIDs) . ')');
-			}
-
-			$wherray = [];
-
-			foreach ($strongSemesters as $semester)
-			{
-				$wherray[] = "po.fullName_de LIKE '%$semester%'";
-				$wherray[] = "po.fullName_en LIKE '%$semester%'";
-			}
-
-			if ($poolTerms)
-			{
-				$term      = implode('%', $poolTerms);
-				$length    = strlen($term);
-				$wherray[] = "(po.fullName_de LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_de') . " > .6)";
-				$wherray[] = "(po.fullName_en LIKE '%$term%' AND $length / " . $poQuery->charLength('po.fullName_en') . " > .6)";
-			}
-
-			if ($wherray)
-			{
-				$poQuery->where('(' . implode(' OR ', $wherray) . ')');
-
-				Database::setQuery($poQuery);
-
-				if ($pools = Database::loadAssocList('poolID'))
-				{
-					$poolIDs       = array_merge($poolIDs, array_filter(array_keys($pools)));
-					$theseGroupIDs = [];
-
-					foreach ($pools as $poolID => $pool)
-					{
-						if (empty($pool['categoryID']))
-						{
-							$pools[$poolID]['groupID'] = 0;
-							continue;
-						}
-
-						if ($groupID = $this->resolveGroup($pool))
-						{
-							$theseGroupIDs[$groupID] = $groupID;
-						}
-
-						$pools[$poolID]['groupID'] = $groupID;
-					}
-
-					$groupIDs = array_merge($groupIDs, array_filter($theseGroupIDs));
-
-					$results              = $this->processGnP($pools);
-					$items['good']['gnp'] = empty($items['good']['gnp']) ?
-						$results : array_merge($items['good']['gnp'], $results);
-				}
-			}
+			$this->getPoolResults($groupIDs, $items, $poolIDs, $poQuery, $poolTerms, $strongProgramIDs, 'good', $strongSemesters);
 		}
 
 		/**
@@ -2851,78 +2454,29 @@ class Search extends ListModel
 
 		if ($exactCategoryIDs)
 		{
-			$gQuery->where('g.categoryID IN (' . implode(',', $exactCategoryIDs) . ')');
+			$gQuery->wherein('g.categoryID', $exactCategoryIDs);
 
 			if ($groupIDs)
 			{
-				$gQuery->where('g.id NOT IN(' . implode(',', $groupIDs) . ')');
+				$gQuery->wherein('g.id', $groupIDs, true);
 			}
 
 			Database::setQuery($gQuery);
 
-			if ($groups = Database::loadAssocList('groupID'))
-			{
-				$results = [];
-
-				foreach ($groups as $groupID => $group)
-				{
-					$pools = $this->resolvePools($group);
-
-					if ($pools)
-					{
-						foreach ($pools as $poolID => $pool)
-						{
-							if (in_array($poolID, $poolIDs))
-							{
-								continue;
-							}
-
-							$pool['groupID'] = $groupID;
-							$results[]       = $pool;
-						}
-
-						$poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
-					}
-					else
-					{
-						$group['categoryID'] = 0;
-						$group['poolID']     = 0;
-						$results[]           = $group;
-					}
-				}
-
-				$items['related']['gnp'] = $this->processGnP($results);
-			}
+			$this->setGroupResults($items, 'related', $groupIDs, $poolIDs);
 		}
 
 		if ($exactProgramIDs)
 		{
-			$poQuery->where('pr.id IN (' . implode(',', $exactProgramIDs) . ')');
+			$poQuery->wherein('pr.id', $exactProgramIDs);
 
 			if ($poolIDs)
 			{
-				$poQuery->where('po.id NOT IN(' . implode(',', $poolIDs) . ')');
+				$poQuery->wherein('po.id', $poolIDs, true);
 			}
 
 			Database::setQuery($poQuery);
-
-			if ($pools = Database::loadAssocList('poolID'))
-			{
-				foreach ($pools as $poolID => $pool)
-				{
-					if (empty($pool['categoryID']))
-					{
-						$pools[$poolID]['groupID'] = 0;
-						continue;
-					}
-
-					$pools[$poolID]['groupID'] = $this->resolveGroup($pool);
-				}
-
-				$results                 = $this->processGnP($pools);
-				$items['related']['gnp'] = empty($items['related']['gnp']) ?
-					$results : array_merge($items['related']['gnp'], $results);
-			}
+			$this->setPoolResults($items, 'related', $groupIDs, $poolIDs);
 		}
 	}
 
@@ -2955,14 +2509,15 @@ class Search extends ListModel
 		$organizationIDs = [];
 		$wherray         = [];
 
+		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
 		$query->select('DISTINCT id')->from('#__organizer_organizations');
-		$allTerms = $this->terms[0];
+		$allTerms = Database::quote($this->terms[0]);
 
 		// Exact: the original term exists (CI) as a name attribute.
 		foreach ($nameColumns as $column)
 		{
-			$wherray[] = "$column LIKE '$allTerms'";
+			$wherray[] = "$column LIKE $allTerms";
 		}
 
 		if ($wherray)
@@ -2989,7 +2544,7 @@ class Search extends ListModel
 
 		if ($organizationIDs)
 		{
-			$query->where('id NOT IN (' . implode(',', $organizationIDs) . ')');
+			$query->wherein('id', $organizationIDs, true);
 		}
 
 		foreach ($nameColumns as $column)
@@ -3039,7 +2594,7 @@ class Search extends ListModel
 
 		if ($organizationIDs)
 		{
-			$query->where('id NOT IN (' . implode(',', $organizationIDs) . ')');
+			$query->wherein('id', $organizationIDs, true);
 		}
 
 		foreach ($nameColumns as $column)
@@ -3079,7 +2634,8 @@ class Search extends ListModel
 	 */
 	private function searchPersons(array &$items)
 	{
-		$terms = $this->terms;
+		$terms       = $this->terms;
+		$quotedTerms = Database::quote($terms);
 
 		// No names shorter than two characters
 		foreach ($terms as $index => $term)
@@ -3146,12 +2702,12 @@ class Search extends ListModel
 
 		if ($allIDs)
 		{
-			$query->where('id NOT IN (' . implode(',', $allIDs) . ')');
+			$query->wherein('id', $allIDs, true);
 		}
 
-		foreach ($terms as $term)
+		foreach ($quotedTerms as $term)
 		{
-			$wherray[] = "surname LIKE '$term'";
+			$wherray[] = "surname LIKE $term";
 		}
 
 		$query->where('(' . implode(' OR ', $wherray) . ')');
@@ -3173,7 +2729,7 @@ class Search extends ListModel
 
 		if ($allIDs)
 		{
-			$query->where('id NOT IN (' . implode(',', $allIDs) . ')');
+			$query->wherein('id', $allIDs, true);
 		}
 
 		foreach ($terms as $term)
@@ -3199,8 +2755,9 @@ class Search extends ListModel
 	 */
 	private function searchRooms(array &$items)
 	{
-		$tag   = Languages::getTag();
-		$terms = $this->terms;
+		$tag         = Languages::getTag();
+		$terms       = $this->terms;
+		$quotedTerms = Database::quote($terms);
 
 		foreach ($terms as $key => $value)
 		{
@@ -3230,9 +2787,9 @@ class Search extends ListModel
 
 		$wherray = [];
 
-		foreach ($terms as $term)
+		foreach ($quotedTerms as $term)
 		{
-			$wherray[] = "r.name LIKE '$term'";
+			$wherray[] = "r.name LIKE $term";
 		}
 
 		$query->where('(' . implode(' OR ', $wherray) . ')');
@@ -3265,7 +2822,8 @@ class Search extends ListModel
 
 			if ($isBuilding or $isFloor)
 			{
-				$wherray[] = "r.name LIKE '$term%'";
+				$quotedTerm = Database::quote("$term%");
+				$wherray[]  = "r.name LIKE $quotedTerm";
 
 				continue;
 			}
@@ -3290,7 +2848,7 @@ class Search extends ListModel
 		}
 
 		$typeIDs = $this->resolveRoomTypes($ncRooms, $capacity);
-		$typeIDs = $typeIDs ? "'" . implode("', '", $typeIDs) . "'" : '';
+		$typeIDs = $typeIDs ?: [];
 
 		// Filtered against types in resolveRoomTypes.
 		foreach ($ncRooms as $ncRoom)
@@ -3388,6 +2946,7 @@ class Search extends ListModel
 			$administration = strpos($search, 'administration') !== false;
 			$business       = strpos($search, 'business') !== false;
 			$ba             = ($administration and $business);
+
 			if ($ba)
 			{
 				$search = str_replace('business', '', str_replace('administration', '', $search));
@@ -3476,15 +3035,13 @@ class Search extends ListModel
 				}
 				else
 				{
+					$alias = Database::quote("$alias%");
 					$query = Database::getQuery();
-					$query->select('DISTINCT id, abbreviation')
-						->from('#__organizer_degrees')
-						->where("alias LIKE '$alias%'");
+					$query->selectX(['DISTINCT id, abbreviation'], 'degrees')->where("alias LIKE $alias");
 
 					if ($previousIDs)
 					{
-						$ids = implode(',', $previousIDs);
-						$query->where("id NOT IN ($ids)");
+						$query->wherein('id', $previousIDs, true);
 					}
 
 					Database::setQuery($query);
@@ -3504,6 +3061,69 @@ class Search extends ListModel
 		}
 
 		$this->degrees = ($degrees['exact'] or $degrees['good']) ? $degrees : [];
+	}
+
+	/**
+	 * Sets group results within items.
+	 *
+	 * @param   array   &$items      the previously discovered results
+	 * @param   string   $relevance  the search relevance key
+	 * @param   int[]   &$groupIDs   the ids of the previously found group results
+	 * @param   int[]   &$poolIDs    the ids of the previously found pool results
+	 *
+	 * @return void modifies $items, $groupIDs and $poolIDs
+	 */
+	private function setGroupResults(array &$items, string $relevance, array &$groupIDs, array &$poolIDs)
+	{
+		if ($groups = Database::loadAssocList('groupID'))
+		{
+			$results = $this->structureGroups($groups, $groupIDs, $poolIDs);
+			$results = $this->processGnP($results);
+
+			$items[$relevance]['gnp'] = empty($items[$relevance]['gnp']) ?
+				$results : array_merge($items[$relevance]['gnp'], $results);
+		}
+	}
+
+	/**
+	 * Sets pool results within items.
+	 *
+	 * @param   array   &$items      the previously discovered results
+	 * @param   string   $relevance  the search relevance key
+	 * @param   int[]   &$groupIDs   the ids of the previously found group results
+	 * @param   int[]   &$poolIDs    the ids of the previously found pool results
+	 *
+	 * @return void modifies $items, $groupIDs and $poolIDs
+	 */
+	private function setPoolResults(array &$items, string $relevance, array &$groupIDs, array &$poolIDs)
+	{
+		if ($pools = Database::loadAssocList('poolID'))
+		{
+			$poolIDs       = array_merge($poolIDs, array_filter(array_keys($pools)));
+			$theseGroupIDs = [];
+
+			foreach ($pools as $poolID => $pool)
+			{
+				if (empty($pool['categoryID']))
+				{
+					$pools[$poolID]['groupID'] = 0;
+					continue;
+				}
+
+				if ($groupID = $this->resolveGroup($pool))
+				{
+					$theseGroupIDs[$groupID] = $groupID;
+				}
+
+				$pools[$poolID]['groupID'] = $groupID;
+			}
+
+			$groupIDs = array_merge($groupIDs, array_filter($theseGroupIDs));
+
+			$results                  = $this->processGnP($pools);
+			$items[$relevance]['gnp'] = empty($items[$relevance]['gnp']) ?
+				$results : array_merge($items[$relevance]['gnp'], $results);
+		}
 	}
 
 	/**
@@ -3546,7 +3166,7 @@ class Search extends ListModel
 				// REGEX had leading and trailing spaces and replacing braces may have added them
 				$semester = trim($semester);
 
-				// Ensure that positive match by going with the least common denominator in contex 'sem'
+				// Ensure that positive match by going with the least common denominator in context 'sem'
 				$semester = str_replace('ester', '', $semester);
 
 				// Standardize spacing for the differing 'Abschluss' pools
@@ -3607,7 +3227,7 @@ class Search extends ListModel
 					// REGEX had leading and trailing spaces and replacing braces may have added them
 					$semester = trim($semester);
 
-					// Ensure that positive match by going with the least common denominator in contex 'sem'
+					// Ensure that positive match by going with the least common denominator in context 'sem'
 					$semester = str_replace('ester', '', $semester);
 
 					$semesters['good'][] = str_replace(' ', '%', "$semester $salt");
@@ -3682,5 +3302,50 @@ class Search extends ListModel
 		$this->terms = array_unique($this->terms);
 
 		$this->setFilteredTerms();
+	}
+
+	/**
+	 * Structures group results for further processing.
+	 *
+	 * @param   array  $groups    the group results
+	 * @param   int[]  $groupIDs  the ids of the previously found group results
+	 * @param   int[]  $poolIDs   the ids of the previously found pool results
+	 *
+	 * @return array the structured group results
+	 */
+	private function structureGroups(array $groups, array &$groupIDs, array &$poolIDs): array
+	{
+		$results = [];
+
+		foreach ($groups as $groupID => $group)
+		{
+			$pools = $this->resolvePools($group);
+
+			if ($pools)
+			{
+				foreach ($pools as $poolID => $pool)
+				{
+					if (in_array($poolID, $poolIDs))
+					{
+						continue;
+					}
+
+					$pool['groupID'] = $groupID;
+					$results[]       = $pool;
+				}
+
+				$poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
+			}
+			else
+			{
+				$group['categoryID'] = 0;
+				$group['poolID']     = 0;
+				$results[]           = $group;
+			}
+		}
+
+		$groupIDs = array_merge($groupIDs, array_filter(array_keys($groups)));
+
+		return $results;
 	}
 }
