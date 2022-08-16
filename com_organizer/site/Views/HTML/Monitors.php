@@ -102,7 +102,7 @@ class Monitors extends ListView
 				'monitor',
 				$item->id,
 				$item->useDefaults,
-				'ORGANIZER_TOGGLE_COMPONENT_SETTINGS'
+				'ORGANIZER_TOGGLE_DEFAULT'
 			);
 
 			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
