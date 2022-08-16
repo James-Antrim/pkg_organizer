@@ -35,10 +35,15 @@ trait Translated
 	{
 		if (!empty($this->element['label']))
 		{
-			$labelConstant          = 'ORGANIZER_' . $this->element['label'];
-			$descriptionConstant    = $labelConstant . '_DESC';
-			$this->element['label'] = Helpers\Languages::_($labelConstant);
-			$this->description      = Helpers\Languages::_($descriptionConstant);
+			$label = $this->element['label'];
+			$label = strpos($label, 'ORGANIZER_') === 0 ? $label : "ORGANIZER_$label";
+
+			$tip = $this->element['description'] ?? "{$label}_DESC";
+			$tip = strpos($tip, 'ORGANIZER_') === 0 ? $tip : "ORGANIZER_$tip";
+			$tip = strpos($tip, '_DESC') === strlen($tip) - 5 ? $tip : "{$tip}_DESC";
+
+			$this->element['label'] = Helpers\Languages::_($label);
+			$this->description      = Helpers\Languages::_($tip);
 		}
 
 		/** @noinspection PhpMultipleClassDeclarationsInspection */
