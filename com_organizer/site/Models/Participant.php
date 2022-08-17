@@ -19,6 +19,34 @@ use Organizer\Tables;
  */
 class Participant extends BaseModel
 {
+//	private function anonymize()
+//	{
+//		/**
+//		 * Anonymize user:
+//		 * name: 'Anonymous User'
+//		 * username: 'x-<id>'
+//		 * password: ''
+//		 * email: x.<id>@xx.xx
+//		 * block: 1
+//		 * sendEmail: 0
+//		 * registerDate: '0000-00-00 00:00:00'
+//		 * lastvisitDate: '0000-00-00 00:00:00'
+//		 * activation: ''
+//		 * params: '{}'
+//		 * lastResetTime: '0000-00-00 00:00:00'
+//		 * resetCount: 0
+//		 * otpKey: ''
+//		 * otep: ''
+//		 * requireReset: 0
+//		 * authProvider: ''
+//		 */
+//
+//		/**
+//		 * Anonymize participant:
+//		 *
+//		 */
+//	}
+
 	/**
 	 * Filters names (city, forename, surname) for actual letters and accepted special characters.
 	 *
@@ -65,6 +93,72 @@ class Participant extends BaseModel
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
 		return new Tables\Participants();
+	}
+
+	/**
+	 * Truncates the participation to the threshold set in the component parameters. Called automatically by the system
+	 * plugin when administrator logs in.
+	 *
+	 * @return void
+	 */
+	public function truncateParticipation()
+	{
+		$then = date('Y-m-d', strtotime("-29 days"));
+
+		$query = Database::getQuery();
+		$query->select('ip.*')
+			->from('#__organizer_instance_participants AS ip')
+			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
+			->innerJoin('#__organizer_blocks AS b ON b.id = i.blockID')
+			->where("b.date <= '$then'");
+		Database::setQuery($query);
+
+		$entries = Database::loadObjectList();
+
+		$instances = [];
+
+		foreach ($entries as $entry)
+		{
+			$instanceID = $entry->instanceID;
+
+			if (empty($instances[$instanceID]))
+			{
+				$instances[$instanceID] = [
+					'attended'   => (int) $entry->attended,
+					'bookmarked' => 1,
+					'registered' => (int) $entry->registered
+				];
+			}
+			else
+			{
+				$instances[$instanceID]['attended']   += (int) $entry->attended;
+				$instances[$instanceID]['bookmarked'] += 1;
+				$instances[$instanceID]['registered'] += (int) $entry->registered;
+			}
+
+			$table = new Tables\InstanceParticipants();
+
+			if ($table->load($entry->id))
+			{
+				$table->delete();
+			}
+		}
+
+		foreach ($instances as $instanceID => $participation)
+		{
+			$table = new Tables\Instances();
+
+			if (!$table->load($instanceID))
+			{
+				continue;
+			}
+
+			$table->attended   = $participation['attended'];
+			$table->bookmarked = $participation['bookmarked'];
+			$table->registered = $participation['registered'];
+
+			$table->store();
+		}
 	}
 
 	/**
