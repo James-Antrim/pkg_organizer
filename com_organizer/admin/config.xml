@@ -3,6 +3,8 @@
     <fieldset name="miscellaneous" label="ORGANIZER_MISCELLANEOUS" description="ORGANIZER_MISCELLANEOUS_DESC">
         <field name="buildingRegex" type="Blank" label="BUILDING_REGEX" size="40" required="false"/>
         <field name="emailFilter" type="Blank" label="EMAIL_FILTER" size="40" required="false"/>
+        <field name="truncateHistory" type="Integer" label="TRUNCATE_PARTICIPATION_HISTORY" first="0" last="60" step="1"
+               default="0"/>
     </fieldset>
     <fieldset name="appearance" label="ORGANIZER_APPEARANCE" description="ORGANIZER_APPEARANCE_DESC">
         <field name="dateFormat" type="Blank" label="DATE_FORMAT" size="40" required="true" default="d.m.Y"/>

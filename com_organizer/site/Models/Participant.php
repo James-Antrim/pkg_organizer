@@ -12,6 +12,7 @@ namespace Organizer\Models;
 
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
+use Organizer\Helpers\Input;
 use Organizer\Tables;
 
 /**
@@ -103,7 +104,14 @@ class Participant extends BaseModel
 	 */
 	public function truncateParticipation()
 	{
-		$then = date('Y-m-d', strtotime("-29 days"));
+		$threshold = (int) Input::getParams()->get('truncateHistory');
+
+		if (!$threshold)
+		{
+			return;
+		}
+
+		$then = date('Y-m-d', strtotime("-$threshold days"));
 
 		$query = Database::getQuery();
 		$query->select('ip.*')
