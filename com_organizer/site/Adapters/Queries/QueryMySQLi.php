@@ -390,25 +390,40 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 
 		foreach ($conditions as $condition)
 		{
-			$glue = '';
+			$compound = false;
 
-			foreach ($operands as $operand)
+			foreach (['AND', 'OR'] as $conjunction)
 			{
-				if (strpos($condition, $operand) > 0)
+				if (strpos($condition, $conjunction))
 				{
-					$glue = $operand;
+					$compound = true;
+					$join     .= " $keyWord $condition";
+					break;
 				}
 			}
 
-			if (!$glue)
+			if (!$compound)
 			{
-				continue;
-			}
+				$glue = '';
 
-			[$left, $right] = explode($glue, $condition);
-			$left  = $this->formatColumn($left);
-			$right = $this->formatColumn($right);
-			$join  .= " $keyWord $left$glue$right";
+				foreach ($operands as $operand)
+				{
+					if (strpos($condition, $operand) > 0)
+					{
+						$glue = $operand;
+					}
+				}
+
+				if (!$glue)
+				{
+					continue;
+				}
+
+				[$left, $right] = explode($glue, $condition);
+				$left  = $this->formatColumn($left);
+				$right = $this->formatColumn($right);
+				$join  .= " $keyWord $left$glue$right";
+			}
 
 			if ($keyWord === 'ON')
 			{

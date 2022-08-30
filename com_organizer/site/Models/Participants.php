@@ -45,31 +45,51 @@ class Participants extends ListModel
 		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
 
-		$programParts = ["pr.name_$tag", "' ('", 'd.abbreviation', "' '", 'pr.accredited', "')'"];
-		$query->select('DISTINCT pa.id, pa.*, u.email')
-			->select($query->concatenate(['pa.surname', "', '", 'pa.forename'], '') . ' AS fullName')
-			->from('#__organizer_participants AS pa')
-			->innerJoin('#__users AS u ON u.id = pa.id')
-			->leftJoin('#__organizer_programs AS pr ON pr.id = pa.programID')
-			->leftJoin('#__organizer_degrees AS d ON d.id = pr.degreeID')
-			->select($query->concatenate($programParts, '') . ' AS program');
+		$nameParts    = [
+			Database::quoteName('pa.surname'),
+			"', '",
+			Database::quoteName('pa.forename'),
+		];
+		$programParts = [
+			Database::quoteName("pr.name_$tag"),
+			"' ('",
+			Database::quoteName('d.abbreviation'),
+			"' '",
+			Database::quoteName('pr.accredited'),
+			"')'"
+		];
+		$select       = [
+			'DISTINCT pa.id',
+			'pa.*',
+			'u.email',
+			$query->concatenate($nameParts, '') . ' AS fullName',
+			$query->concatenate($programParts, '') . ' AS program'
+		];
+
+		$query->selectX($select, 'participants AS pa')
+			->innerJoinX('#__users AS u', ['u.id = pa.id'])
+			->leftJoinX('programs AS pr', ['pr.id = pa.programID'])
+			->leftJoinX('degrees AS d', ['d.id = pr.degreeID']);
 
 		$this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
 		$this->setValueFilters($query, ['programID']);
 
 		if ($this->state->get('filter.duplicates'))
 		{
-			$likePAFN   = $query->concatenate(["'%'", 'TRIM(pa.forename)', "'%'"], '');
-			$likePA2FN  = $query->concatenate(["'%'", 'TRIM(pa2.forename)', "'%'"], '');
-			$conditions = "((pa.forename LIKE $likePA2FN OR pa2.forename LIKE $likePAFN)";
+			$forename1 = Database::quoteName('pa.forename');
+			$forename2 = Database::quoteName('pa2.forename');
+			$likeFN1   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa.forename') . ')', "'%'"], '');
+			$likeFN2   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa2.forename') . ')', "'%'"], '');
+			$likeSN1   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa.surname') . ')', "'%'"], '');
+			$likeSN2   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa2.surname') . ')', "'%'"], '');
+			$surname1  = Database::quoteName('pa.surname');
+			$surname2  = Database::quoteName('pa2.surname');
 
-			$conditions .= " AND ";
-
-			$likePASN   = $query->concatenate(["'%'", 'TRIM(pa.surname)', "'%'"], '');
-			$likePA2SN  = $query->concatenate(["'%'", 'TRIM(pa2.surname)', "'%'"], '');
-			$conditions .= "(pa.surname LIKE $likePA2SN OR pa2.surname LIKE $likePASN))";
-			$query->leftJoin("#__organizer_participants AS pa2 ON $conditions")
-				->where('pa.id != pa2.id')
+			$similarForenames = "($forename1 LIKE $likeFN2 OR $forename2 LIKE $likeFN1)";
+			$similarSurnames  = "($surname1 LIKE $likeSN2 OR $surname2 LIKE $likeSN1)";
+			$conditions       = "($similarForenames AND $similarSurnames)";
+			$query->leftJoinX('participants AS pa2', [$conditions])
+				->where(['pa.id != pa2.id'])
 				->group('pa.id');
 		}
 

@@ -12,13 +12,12 @@ namespace Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Router\Route;
-use Organizer\Controller;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
 use Organizer\Helpers\OrganizerHelper;
 use Organizer\Models;
 
-class CourseParticipants extends Controller
+class CourseParticipants extends Participants
 {
 	protected $listView = 'course_participants';
 
