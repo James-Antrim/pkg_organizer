@@ -98,6 +98,7 @@ class MergeAssociationsField extends OptionsField
 		}
 		elseif (count($options) > 1)
 		{
+			$this->required = true;
 			array_unshift(
 				$options,
 				Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_VALUE'))
