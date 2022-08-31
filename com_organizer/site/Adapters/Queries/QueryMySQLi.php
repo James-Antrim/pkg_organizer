@@ -172,6 +172,12 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 
 		$column = trim($column);
 
+		$binary = stripos($column, 'BINARY ');
+		if ($binary !== false)
+		{
+			$column = preg_replace("/BINARY /i", '', $column);
+		}
+
 		$distinct = stripos($column, 'DISTINCT ');
 		if ($distinct !== false)
 		{
@@ -211,7 +217,9 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 		$column = $tableAlias ? "$tableAlias.$column" : $column;
 		$column = $this->quoteName($column, $columnAlias);
 
-		return $distinct === false ? $column : 'DISTINCT ' . $column;
+		$column = $binary === false ? $column : "BINARY $column";
+
+		return $distinct === false ? $column : "DISTINCT $column";
 	}
 
 	/**
