@@ -10,6 +10,7 @@
 
 namespace Organizer\Models;
 
+use Exception;
 use Organizer\Adapters\Database;
 use Organizer\Helpers;
 use Organizer\Helpers\Input;
@@ -18,7 +19,7 @@ use Organizer\Tables;
 /**
  * Class which manages stored participant data.
  */
-class Participant extends BaseModel
+class Participant extends MergeModel
 {
 //	private function anonymize()
 //	{
@@ -94,6 +95,127 @@ class Participant extends BaseModel
 	public function getTable($name = '', $prefix = '', $options = [])
 	{
 		return new Tables\Participants();
+	}
+
+	/**
+	 * Merges resource entries and cleans association tables.
+	 *
+	 * @return bool  true on success, otherwise false
+	 * @throws Exception
+	 */
+	public function merge(): bool
+	{
+		$data = empty($this->data) ? Helpers\Input::getFormItems()->toArray() : $this->data;
+
+		if (empty($data['email']))
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_NO_EMAIL_ADDRESS_SELECTED', 'error');
+
+			return false;
+		}
+
+		//todo get view name (booking|course|participants)
+		$this->selected = Helpers\Input::getSelectedIDs();
+		sort($this->selected);
+
+		//todo differentiate rights by the called view and resource id as applicable
+		if (!Helpers\Can::administrate())
+		{
+			Helpers\OrganizerHelper::error(403);
+		}
+
+		// Associations have to be updated before entity references are deleted by foreign keys
+		if (!$this->updateReferences())
+		{
+			// Messages are generated at point of failure.
+			return false;
+		}
+
+		$email      = $data['email'];
+		$mergeID    = array_shift($this->selected);
+		$data['id'] = $mergeID;
+
+		$participant = new Tables\Participants();
+		$participant->load($mergeID);
+
+		// Case sensitive information was not being properly set without this call and store instead of save.
+		$participant->bind($data);
+
+		// Participants table has no unique columns so saving before deleting duplicates is fine.
+		$participant->store();
+
+		$user = Helpers\Users::getUser($mergeID);
+
+		if ($user->email === $email)
+		{
+			$name     = $user->name;
+			$password = $user->password;
+			$username = $user->username;
+		}
+		else
+		{
+			$name     = '';
+			$password = '';
+			$username = '';
+		}
+
+		$groups        = $user->groups;
+		$lastvisitDate = $user->lastvisitDate;
+		$registerDate  = $user->registerDate;
+
+		foreach ($this->selected as $deprecatedID)
+		{
+			$thisUser = Helpers\Users::getUser($deprecatedID);
+
+			if ($thisUser->email === $email)
+			{
+				$name     = $thisUser->name;
+				$password = $thisUser->password;
+				$username = $thisUser->username;
+			}
+
+			$groups        = array_merge($groups, $thisUser->groups);
+			$laterUse      = $thisUser->lastvisitDate > $lastvisitDate;
+			$lastvisitDate = $laterUse ? $thisUser->lastvisitDate : $lastvisitDate;
+			$registerDate  = $registerDate < $thisUser->registerDate ? $registerDate : $thisUser->registerDate;
+
+			if ($thisUser->params)
+			{
+				$theseParams = json_decode($thisUser->params);
+
+				foreach ($theseParams as $property => $value)
+				{
+					if (!$laterUse)
+					{
+						$user->getParam($property, $value);
+					}
+
+					$user->setParam($property, $value);
+				}
+			}
+
+			if (!$thisUser->delete())
+			{
+				Helpers\OrganizerHelper::message('ORGANIZER_USER_DELETION_FAILED', 'error');
+
+				return false;
+			}
+		}
+
+		$user->email         = $email;
+		$user->groups        = $groups;
+		$user->lastvisitDate = $lastvisitDate;
+		$user->name          = $name;
+		$user->password      = $password;
+		$user->registerDate  = $registerDate;
+		$user->username      = $username;
+
+		if (!$user->save())
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -327,5 +449,158 @@ class Participant extends BaseModel
 		Database::setQuery($query);
 
 		Database::execute();
+	}
+
+	/**
+	 * Updates the course participants table to reflect the merge of the persons.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function updateCourseParticipants(): bool
+	{
+		if (!$courseIDs = $this->getReferencedIDs('course_participants', 'courseID'))
+		{
+			return true;
+		}
+
+		$mergeID = reset($this->selected);
+
+		foreach ($courseIDs as $courseID)
+		{
+			$attended   = false;
+			$existing   = null;
+			$paid       = false;
+			$registered = '';
+
+			foreach ($this->selected as $participantID)
+			{
+				$assoc   = ['courseID' => $courseID, 'participantID' => $participantID];
+				$current = new Tables\CourseParticipants();
+
+				// The current participantID is not associated with the current course
+				if (!$current->load($assoc))
+				{
+					continue;
+				}
+
+				$attended   = (int) ($attended or $current->attended);
+				$paid       = (int) ($paid or $current->paid);
+				$registered = ($registered and $registered < $current->participantDate) ? $registered : $current->participantDate;
+
+				if (!$existing)
+				{
+					$existing = $current;
+					continue;
+				}
+
+				$current->delete();
+			}
+
+			if (!$existing)
+			{
+				continue;
+			}
+
+			$existing->attended        = $attended;
+			$existing->paid            = $paid;
+			$existing->participantDate = $registered;
+			$existing->participantID   = $mergeID;
+
+			if (!$existing->store())
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Updates the instance participants table to reflect the merge of the persons.
+	 *
+	 * @return bool true on success, otherwise false
+	 */
+	public function updateInstanceParticipants(): bool
+	{
+		if (!$instanceIDs = $this->getReferencedIDs('instance_participants', 'instanceID'))
+		{
+			return true;
+		}
+
+		$mergeID = reset($this->selected);
+
+		foreach ($instanceIDs as $instanceID)
+		{
+			$attended   = false;
+			$existing   = null;
+			$registered = false;
+			$roomID     = null;
+			$seat       = null;
+
+			foreach ($this->selected as $participantID)
+			{
+				$assoc   = ['instanceID' => $instanceID, 'participantID' => $participantID];
+				$current = new Tables\InstanceParticipants();
+
+				// The current participantID is not associated with the current course
+				if (!$current->load($assoc))
+				{
+					continue;
+				}
+
+				$attended   = (int) ($attended or $current->attended);
+				$registered = (int) ($registered or $current->registered);
+				$roomID     = $current->roomID ?? $roomID;
+				$seat       = $current->seat ?? $seat;
+
+				if (!$existing)
+				{
+					$existing = $current;
+					continue;
+				}
+
+				$current->delete();
+			}
+
+			if (!$existing)
+			{
+				continue;
+			}
+
+			$existing->attended      = $attended;
+			$existing->participantID = $mergeID;
+			$existing->registered    = $registered;
+			$existing->roomID        = $roomID;
+			$existing->seat          = $seat;
+
+			if (!$existing->store())
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function updateReferences(): bool
+	{
+		if (!$this->updateCourseParticipants())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_COURSE_PARTICIPATION_MERGE_FAILED', 'error');
+
+			return false;
+		}
+
+		if (!$this->updateInstanceParticipants())
+		{
+			Helpers\OrganizerHelper::message('ORGANIZER_INSTANCE_PARTICIPATION_MERGE_FAILED', 'error');
+
+			return false;
+		}
+
+		return true;
 	}
 }
