@@ -50,6 +50,8 @@ trait Mergeable
 		}
 		elseif (count($options) > 1)
 		{
+			/* @var OptionsField $this */
+			$this->required = true;
 			array_unshift(
 				$options,
 				HTML::_('select.option', '', Languages::_('ORGANIZER_SELECT_VALUE'))
