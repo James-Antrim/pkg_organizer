@@ -48,13 +48,13 @@ class Participants extends ListView
 				'participants.edit',
 				true
 			);
-			/*$toolbar->appendButton(
+			$toolbar->appendButton(
 				'Standard',
 				'contract',
 				Languages::_('ORGANIZER_MERGE'),
 				'participants.mergeView',
 				true
-			);*/
+			);
 		}
 	}
 
