@@ -405,6 +405,7 @@ abstract class ListModel extends ParentModel
 
 		foreach ($columnNames as $name)
 		{
+			$name    = Database::quoteName($name);
 			$where[] = "$name LIKE '$search'";
 		}
 
@@ -493,11 +494,12 @@ abstract class ListModel extends ParentModel
 			}
 			elseif (is_string($value))
 			{
-				$query->where("$column = '$value'");
+				$value = Database::quote($value);
+				$query->where("$column = $value");
 			}
-			elseif (is_array($value) and $value = implode(',', ArrayHelper::toInteger($value)))
+			elseif (is_array($value) and $values = ArrayHelper::toInteger($value))
 			{
-				$query->where("$column IN ($value)");
+				$query->where($column . Database::makeSet($values));
 			}
 		}
 	}

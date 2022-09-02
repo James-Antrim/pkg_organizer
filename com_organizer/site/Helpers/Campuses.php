@@ -80,7 +80,7 @@ class Campuses extends ResourceHelper implements Selectable
 		$query->select("c1.name_$tag as name, c2.name_$tag as parentName")
 			->from('#__organizer_campuses AS c1')
 			->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
-			->where("c1.id = '$resourceID'");
+			->where("c1.id = $resourceID");
 		Database::setQuery($query);
 
 		if (!$names = Database::loadAssoc())

@@ -130,7 +130,7 @@ class Events extends ResourceHelper
 
 		if ($eventID)
 		{
-			$query->where("i.eventID = '$eventID'");
+			$query->where("i.eventID = $eventID");
 		}
 
 		Database::setQuery($query);

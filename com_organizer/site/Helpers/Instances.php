@@ -261,7 +261,7 @@ class Instances extends ResourceHelper
 		$conditions['userID'] = Users::getID();
 		$conditions['my']     = (!empty($conditions['userID']) and Input::getBool('my'));
 
-		$conditions['date'] = Input::getCMD('date', date('Y-m-d'));
+		$conditions['date'] = Dates::standardizeDate(Input::getCMD('date', date('Y-m-d')));
 
 		$delta               = Input::getInt('delta');
 		$conditions['delta'] = empty($delta) ? false : date('Y-m-d', strtotime('-' . $delta . ' days'));

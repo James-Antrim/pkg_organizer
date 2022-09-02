@@ -156,7 +156,7 @@ class Programs extends Curricula implements Selectable
 		$query->select($query->concatenate($parts, "") . ' AS name')
 			->from('#__organizer_programs AS p')
 			->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-			->where("p.id = '$resourceID'");
+			->where("p.id = $resourceID");
 
 		Database::setQuery($query);
 

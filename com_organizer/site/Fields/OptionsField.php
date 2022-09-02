@@ -173,7 +173,8 @@ class OptionsField extends FormField
 			$option->value = (string) $optionTag['value'];
 
 			$text         = trim((string) $optionTag) != '' ? trim((string) $optionTag) : $option->value;
-			$option->text = Helpers\Languages::alt('ORGANIZER_' . $text, $fieldName);
+			$text         = strpos($text, 'ORGANIZER_') === 0 ? $text : "ORGANIZER_$text";
+			$option->text = Helpers\Languages::alt($text, $fieldName);
 
 			$option->class = (string) $optionTag['class'];
 

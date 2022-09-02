@@ -71,7 +71,7 @@ class Courses extends ListModel
 			$item->registered   = Helpers\CourseParticipants::getState($item->id, $userID);
 		}
 
-		return $items ?: [];
+		return $items;
 	}
 
 	/**

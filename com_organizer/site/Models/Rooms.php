@@ -79,7 +79,7 @@ class Rooms extends ListModel
 			$query->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
 				->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
 
-			if ($campusID and $campusID === self::NONE)
+			if ($campusID)
 			{
 				$query->where('r.buildingID IS NULL');
 			}

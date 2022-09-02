@@ -40,14 +40,15 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool  true on success, otherwise false
 	 */
-	/*private function addEvents($subjectID, $eventIDs)
+	/*private function addEvents(int $subjectID, array $eventIDs)
 	{
+		// add int[] cast to eventIDs
 		$query = Database::getQuery();
 		$query->insert('#__organizer_subject_events')->columns('subjectID, eventID');
 
 		foreach ($eventIDs as $eventID)
 		{
-			$query->values("'$subjectID', '$eventID'");
+			$query->values("$subjectID, $eventID");
 		}
 
 		Database::setQuery($query);
@@ -476,10 +477,10 @@ class Subject extends CurriculumResource
 	 *
 	 * @return bool
 	 */
-	/*private function removeEvents($subjectID)
+	/*private function removeEvents(int $subjectID)
 	{
 		$query = Database::getQuery();
-		$query->delete('#__organizer_subject_curricula')->where("subjectID = '$subjectID'");
+		$query->delete('#__organizer_subject_curricula')->where("subjectID = $subjectID");
 		Database::setQuery($query);
 
 		return Database::execute();

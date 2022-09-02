@@ -50,6 +50,8 @@ trait Mergeable
 		}
 		elseif (count($options) > 1)
 		{
+			/* @var OptionsField $this */
+			$this->required = true;
 			array_unshift(
 				$options,
 				HTML::_('select.option', '', Languages::_('ORGANIZER_SELECT_VALUE'))
@@ -67,11 +69,9 @@ trait Mergeable
 	protected function getValues(): array
 	{
 		$column = $this->getAttribute('name');
-		$query  = Database::getQuery(true);
+		$query  = Database::getQuery();
 		$table  = $this->resource === 'category' ? 'categories' : "{$this->resource}s";
-		$query->select("DISTINCT $column AS value")
-			->from("#__organizer_$table")
-			->where("id IN ( '" . implode("', '", $this->selectedIDs) . "' )")
+		$query->selectX(["DISTINCT BINARY $column AS value"], $table, 'id', $this->selectedIDs)
 			->order('value ASC');
 		Database::setQuery($query);
 

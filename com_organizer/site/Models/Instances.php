@@ -437,7 +437,7 @@ class Instances extends ListModel
 		{
 			$campusID = $params->get('campusID', 0);
 			$campusID = $app->getUserStateFromRequest("{$fc}campusID", "{$fp}campusID", $campusID, 'int');
-			$campusID = Input::getInt('$campusID', $campusID);
+			$campusID = Input::getInt('campusID', $campusID);
 
 			if ($campusID)
 			{
@@ -623,6 +623,9 @@ class Instances extends ListModel
 					if ($layout === Helper::GRID)
 					{
 						$interval = $this->mobile ? 'day' : 'week';
+
+						// Parameter bleed can potentially cause a 0-division error in the Joomla ListModel here.
+						$this->state->set('list.start', 0);
 					}
 					else
 					{

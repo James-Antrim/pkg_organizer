@@ -175,10 +175,10 @@ class SubOrdinatesField extends FormField
 		$contextParts = explode('.', $this->form->getName());
 		$query        = Database::getQuery();
 		$resource     = Helpers\OrganizerHelper::getResource($contextParts[1]);
-		$resourceID   = $this->form->getValue('id');
+		$resourceID   = (int) $this->form->getValue('id');
 		$query->select('id')
 			->from('#__organizer_curricula')
-			->where("{$resource}ID = '$resourceID'")
+			->where("{$resource}ID = $resourceID")
 			->group('id');
 		Database::setQuery($query);
 

@@ -25,7 +25,7 @@ class SubjectEventsField extends FormField
 	protected $type = 'SubjectEvents';
 
 	/**
-	 * Returns a selectionbox where stored coursepool can be chosen as a parent node
+	 * Returns a select box where stored pool can be chosen as a parent node
 	 *
 	 * @return string  the HTML output
 	 */
@@ -48,7 +48,7 @@ class SubjectEventsField extends FormField
 		$attributes = ['multiple' => 'multiple', 'size' => '10'];
 
 		$query = Database::getQuery(true);
-		$query->select('eventID')->from('#__organizer_subject_events')->where("subjectID = '$subjectID'");
+		$query->select('eventID')->from('#__organizer_subject_events')->where("subjectID = $subjectID");
 		Database::setQuery($query);
 		$selected = Database::loadIntColumn();
 

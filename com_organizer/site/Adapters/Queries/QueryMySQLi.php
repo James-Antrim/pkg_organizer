@@ -15,7 +15,7 @@ use JDatabaseQuery;
 use JDatabaseQueryElement;
 use JDatabaseQueryMysqli;
 use Joomla\CMS\Factory;
-use Joomla\Utilities\ArrayHelper;
+use Organizer\Adapters\Database;
 use Organizer\Helpers\OrganizerHelper;
 
 class QueryMySQLi extends JDatabaseQueryMysqli
@@ -172,6 +172,12 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 
 		$column = trim($column);
 
+		$binary = stripos($column, 'BINARY ');
+		if ($binary !== false)
+		{
+			$column = preg_replace("/BINARY /i", '', $column);
+		}
+
 		$distinct = stripos($column, 'DISTINCT ');
 		if ($distinct !== false)
 		{
@@ -211,7 +217,9 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 		$column = $tableAlias ? "$tableAlias.$column" : $column;
 		$column = $this->quoteName($column, $columnAlias);
 
-		return $distinct === false ? $column : 'DISTINCT ' . $column;
+		$column = $binary === false ? $column : "BINARY $column";
+
+		return $distinct === false ? $column : "DISTINCT $column";
 	}
 
 	/**
@@ -320,8 +328,6 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 		return parent::group($columns);
 	}
 
-	//todo: having?
-
 	/**
 	 * @inheritDoc
 	 *
@@ -386,15 +392,46 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 */
 	private function joinConditions(array $conditions): string
 	{
-		$join    = '';
-		$keyWord = 'ON';
+		$join     = '';
+		$keyWord  = 'ON';
+		$operands = [' = ', ' < ', ' > '];
 
 		foreach ($conditions as $condition)
 		{
-			[$left, $right] = explode(" = ", $condition);
-			$left  = $this->formatColumn($left);
-			$right = $this->formatColumn($right);
-			$join  .= " $keyWord $left = $right";
+			$compound = false;
+
+			foreach (['AND', 'OR'] as $conjunction)
+			{
+				if (strpos($condition, $conjunction))
+				{
+					$compound = true;
+					$join     .= " $keyWord $condition";
+					break;
+				}
+			}
+
+			if (!$compound)
+			{
+				$glue = '';
+
+				foreach ($operands as $operand)
+				{
+					if (strpos($condition, $operand) > 0)
+					{
+						$glue = $operand;
+					}
+				}
+
+				if (!$glue)
+				{
+					continue;
+				}
+
+				[$left, $right] = explode($glue, $condition);
+				$left  = $this->formatColumn($left);
+				$right = $this->formatColumn($right);
+				$join  .= " $keyWord $left$glue$right";
+			}
 
 			if ($keyWord === 'ON')
 			{
@@ -444,6 +481,23 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	public function leftJoinX(string $table, array $conditions): QueryMySQLi
 	{
 		return $this->joinX('LEFT', $table, $conditions);
+	}
+
+	/**
+	 * Adds a filter condition where a column is null or <not> in a set of values.
+	 *
+	 * @param   string  $column  the column to filter against
+	 * @param   array   $values  the values in the set
+	 * @param   bool    $negate  whether to negate the set filter
+	 *
+	 * @return QueryMySQLi returns this object to allow chaining
+	 */
+	public function nullSet(string $column, array $values, bool $negate = false): QueryMySQLi
+	{
+		$column = Database::quoteName($column);
+		$set    = Database::makeSet($values, $negate);
+
+		return $this->where("($column IS NULL OR $column$set)");
 	}
 
 	/**
@@ -608,9 +662,6 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	 */
 	public function wherein(string $where, array $in, bool $negate = false, bool $quote = false): QueryMySQLi
 	{
-		$in        = $quote ? "'" . implode("','", $in) . "'" : implode(',', ArrayHelper::toInteger($in));
-		$predicate = $negate ? " NOT IN ($in)" : " IN ($in)";
-
-		return $this->where($this->quoteName($where) . $predicate);
+		return $this->where($this->quoteName($where) . Database::makeSet($in, $negate, $quote));
 	}
 }

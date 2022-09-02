@@ -6,8 +6,9 @@
 #endregion
 
 #region curricula ######################################################################################################
-#the program/pool add x feature has wierd state problems
+#the program/pool add x feature has weird state problems
 #the program/pool add x feature should not attempt to close implicitly if no selection has been made
+#restyle the curriculum view to use css grids for container items
 #endregion
 
 #region schedule #######################################################################################################
@@ -24,28 +25,22 @@
 #export aggregates 'the same' appointment for teachers
 #schedule export link includes filter/list selections made
 ##add to form/state and redirect w/o GET
+#add dedicated placeholders for no person responsible
+#instances export options to suppress columns/resources
 #endregion
 
-#region tasks ##########################################################################################################
-#table compactor function for tables not referenced in schedules
-#duplicate removal function for the associations table
-#endregion
-
-#region list ###########################################################################################################
-#rework so that classDecode/-Encode is not necessary??
-#instances export suppress columns/resources
-#tables: move simple get/set functions from helpers/models to tables
-#tables: overwrite bind function to use types (and attributes)
-#purge data
-#add support for the language switch for dynamic content
+#region participants ###################################################################################################
 #rename instance participants to participations
 #add start and end time fields to participations
+#purge data
 #add a checkout view
 #add checkin for appointments where no person is responsible
-#add dedicated placeholders for no person responsible
-#restyle the curriculm view to use css grids for container items.
-#replace unnecessary double quotes
 #participant merge view
+#endregion
+
+#region tables #########################################################################################################
+#move simple get/set functions from helpers/models to tables
+#overwrite bind function to use types (and attributes)
 #endregion
 
 #region Features #######################################################################################################
@@ -94,6 +89,8 @@
 #endregion
 
 #region Meta ###########################################################################################################
+#rework so that classDecode/-Encode is not necessary??
+#replace unnecessary double quotes
 #update phpexcel
 #standardize tooltip use across component 'hasPopover' vs 'hasTooltip' vs 'hasTip'?
 #replace JComponentTitle use
@@ -129,12 +126,11 @@
 #input adapter
 #endregion
 #replace tcpdf use
+#move date formatting to the languages helper
 #endregion
 
 #region Quality ########################################################################################################
-#write wrappers for core function calls which throw errors
 #reformat text constant word order so that they are written as spoken: organizer_resource_edit => organizer_edit_resource
-#move date formatting to the languages helper
 #change the delta column to a signed int -1 'remove', 0 'no change from previous schedule', 1 'new'
 #sql binding
 #shorten the OEs of lengthy instances view titles

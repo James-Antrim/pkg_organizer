@@ -39,7 +39,7 @@ class Subjects extends Curricula
 
 		if ($subjectID)
 		{
-			$query->where("subjectID = '$subjectID'");
+			$query->where("subjectID = $subjectID");
 		}
 
 		Database::setQuery($query);

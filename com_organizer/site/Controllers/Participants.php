@@ -12,15 +12,13 @@ namespace Organizer\Controllers;
 
 use Organizer\Controller;
 use Organizer\Helpers;
-use Organizer\Models;
+use Organizer\Models\Participant;
 
 /**
  * Class receives user actions and performs access checks and redirection.
  */
 class Participants extends Controller
 {
-	const UNREGISTERED = null;
-
 	protected $listView = 'participants';
 
 	protected $resource = 'participant';
@@ -33,7 +31,7 @@ class Participants extends Controller
 	 */
 	public function save()
 	{
-		$model = new Models\Participant();
+		$model = new Participant();
 
 		if ($model->save())
 		{
