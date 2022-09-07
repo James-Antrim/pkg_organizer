@@ -68,7 +68,7 @@ abstract class BadgeLayout extends BaseLayout
 		$headerLine = $view->course;
 		$view->renderMultiCell(80, 5, $headerLine, $view::CENTER);
 
-		$titleOffset = strlen($headerLine) > 35 ? 12 : 2;
+		$titleOffset = strlen($headerLine) > 35 ? 9 : 2;
 
 		$view->changeFont($view::REGULAR, 10);
 		$dates = $view->startDate == $view->endDate ? $view->startDate : "$view->startDate - $view->endDate";
@@ -88,7 +88,7 @@ abstract class BadgeLayout extends BaseLayout
 		$halfTitleOffset = $titleOffset / 2;
 		$view->Ln();
 		$view->changeFont($view::BOLD, 20);
-		$view->changePosition($left, $yOffset + $halfTitleOffset + 45);
+		$view->changePosition($left, $yOffset + $halfTitleOffset + 47);
 		$view->renderCell(80, 5, Languages::_('ORGANIZER_BADGE'), $view::CENTER);
 
 		$view->changePosition($left, $yOffset + 45);
