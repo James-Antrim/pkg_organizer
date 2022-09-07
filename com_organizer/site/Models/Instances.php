@@ -11,6 +11,7 @@
 namespace Organizer\Models;
 
 use JDatabaseQuery;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
@@ -26,15 +27,8 @@ class Instances extends ListModel
 {
 	private const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
 
-	/**
-	 * The conditions used to determine instance relevance.
-	 *
-	 * @var array
-	 */
-	public $conditions = [];
-
+	public array $conditions = [];
 	protected $defaultOrdering = 'name';
-
 	protected $filter_fields = [
 		'campusID',
 		'categoryID',
@@ -44,16 +38,21 @@ class Instances extends ListModel
 		'personID',
 		'roomID'
 	];
+	public array $grid;
+	public int $gridID;
+	public array $holidays;
+	public int $layout;
+	public bool $noDate = false;
 
-	public $grid;
-
-	public $gridID;
-
-	public $holidays;
-
-	public $layout;
-
-	public $noDate = false;
+	/**
+	 * @inheritDoc
+	 */
+	public function __construct($config = [])
+	{
+		$session = Factory::getSession();
+		$session->set('organizer.instance.item.referrer', '');
+		parent::__construct($config);
+	}
 
 	/**
 	 * @inheritDoc

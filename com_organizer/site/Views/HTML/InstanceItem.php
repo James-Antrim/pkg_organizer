@@ -27,25 +27,12 @@ class InstanceItem extends ListView
 {
 	use ListsInstances;
 
-	private $buttons = [];
-
-	/**
-	 * The relevant status date of the entire instance.
-	 * @var string
-	 */
-	private $dateTime;
-
-	/**
-	 * @var object the data for the instance
-	 */
-	public $instance;
-
+	private array $buttons = [];
+	private string $dateTime;
+	public stdClass $instance;
 	protected $layout = 'instance-item';
-
-	public $minibar = '';
-
-	private $messages = [];
-
+	private array $messages = [];
+	public string $minibar = '';
 	protected $rowStructure = [
 		'tools'   => '',
 		'date'    => 'value',
@@ -53,16 +40,10 @@ class InstanceItem extends ListView
 		'persons' => 'value',
 		'rooms'   => 'value'
 	];
-
-	/**
-	 * The relevant status of the entire instance.
-	 * @var string
-	 */
-	private $status;
-
-	private $statusDate;
-
-	private $userID;
+	private string $status = '';
+	private string $statusDate = '';
+	private int $userID;
+	private string $referrer = '';
 
 	/**
 	 * @inheritDoc
@@ -123,6 +104,11 @@ class InstanceItem extends ListView
 		$minibar  = [];
 		$standard = new StandardButton();
 		$toolbar  = Toolbar::getInstance();
+
+		if ($this->referrer)
+		{
+			$minibar[] = $link->fetchButton('Link', 'undo-2', Languages::_('ORGANIZER_BACK_TO_OVERVIEW'), $this->referrer);
+		}
 
 		if ($this->userID and $this->buttons)
 		{
@@ -297,7 +283,9 @@ class InstanceItem extends ListView
 	 */
 	public function display($tpl = null)
 	{
-		$this->setInstance($this->getModel()->instance);
+		$model = $this->getModel();
+		$this->setInstance($model->instance);
+		$this->referrer = $model->referrer;
 
 		parent::display($tpl);
 	}
@@ -599,7 +587,7 @@ class InstanceItem extends ListView
 		{
 			$earlier    = $instance->instanceStatusDate < $instance->unitStatusDate;
 			$later      = $instance->instanceStatusDate > $instance->unitStatusDate;
-			$modified   = $dateTime > $modified ? $dateTime : $modified;
+			$modified   = max($dateTime, $modified);
 			$statusDate = Helpers\Dates::formatDateTime($instance->instanceStatusDate);
 
 			// Instance was removed...
@@ -656,7 +644,7 @@ class InstanceItem extends ListView
 
 				$filteredGroups = [];
 				$filteredRooms  = [];
-				$modified       = $dateTime > $modified ? $dateTime : $modified;
+				$modified       = max($dateTime, $modified);
 
 				if (empty($persons[$person['roleID']]))
 				{
@@ -774,7 +762,7 @@ class InstanceItem extends ListView
 			];
 		}
 
-		$modified = $dateTime > $modified ? $dateTime : $modified;
+		$modified = max($dateTime, $modified);
 
 		$copy = $resource;
 		unset($copy['status'], $copy['statusDate']);
