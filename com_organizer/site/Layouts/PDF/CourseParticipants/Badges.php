@@ -27,7 +27,7 @@ class Badges extends BadgeLayout
 	private function addSheetBack()
 	{
 		$view = $this->view;
-		$view->AddPage('L', '', false, false);
+		$view->AddPage('L');
 
 		$xOffset = 14;
 
@@ -52,15 +52,19 @@ class Badges extends BadgeLayout
 	public function fill(array $data)
 	{
 		$view             = $this->view;
-		$sheetCount       = intval(count($data) / 6);
-		$badgeCount       = $sheetCount * 6;
+
+		$count = count($data);
+		$buffer = intval($count * .2);
+		$count = $count + 6 - ($count % 6);
+		$buffer = $buffer + 6 - ($buffer % 6);
+		$badgeCount       = $count + $buffer;
 		$emptyParticipant = new class {
-			public $address = '';
-			public $city = '';
-			public $forename = '';
-			public $id = '';
-			public $surname = '';
-			public $zipCode = '';
+			public string $address = '';
+			public string $city = '';
+			public string $forename = '';
+			public string $id = '';
+			public string $surname = '';
+			public string $zipCode = '';
 		};
 		$xOffset          = 10;
 		$yOffset          = 0;
