@@ -21,7 +21,7 @@ use Organizer\Views\PDF\CourseParticipants;
  */
 abstract class BadgeLayout extends BaseLayout
 {
-	protected $rectangleStyle = [
+	protected array $rectangleStyle = [
 		'width' => 0.1,
 		'cap'   => 'butt',
 		'join'  => 'miter',
@@ -68,7 +68,7 @@ abstract class BadgeLayout extends BaseLayout
 		$headerLine = $view->course;
 		$view->renderMultiCell(80, 5, $headerLine, $view::CENTER);
 
-		$titleOffset = strlen($headerLine) > 35 ? 12 : 2;
+		$titleOffset = strlen($headerLine) > 35 ? 9 : 2;
 
 		$view->changeFont($view::REGULAR, 10);
 		$dates = $view->startDate == $view->endDate ? $view->startDate : "$view->startDate - $view->endDate";
@@ -88,29 +88,39 @@ abstract class BadgeLayout extends BaseLayout
 		$halfTitleOffset = $titleOffset / 2;
 		$view->Ln();
 		$view->changeFont($view::BOLD, 20);
-		$view->changePosition($left, $yOffset + $halfTitleOffset + 45);
+		$view->changePosition($left, $yOffset + $halfTitleOffset + 47);
 		$view->renderCell(80, 5, Languages::_('ORGANIZER_BADGE'), $view::CENTER);
 
 		$view->changePosition($left, $yOffset + 45);
 		$view->changeFont($view::REGULAR, 10);
 
-		$participantName = $participant->surname;
-		$participantName .= empty($participant->forename) ? '' : ",  $participant->forename";
-
+		$yOffset += 63;
 		$view->Ln();
-		$view->changePosition($left, $yOffset + 63);
+		$view->changePosition($left, $yOffset);
 		$view->renderCell(20, 5, Languages::_('ORGANIZER_NAME') . ': ');
 		$view->changeFont($view::BOLD);
-		$view->renderCell(65, 5, $participantName);
-		$view->changeFont($view::REGULAR);
+		$surname = $participant->surname ?: '';
+		$view->renderCell(65, 5, $surname);
 
 		$view->Ln();
-		$view->changePosition($left, $yOffset + 68);
+		$yOffset += 5;
+		$view->changePosition($left, $yOffset);
+		$view->renderCell(20, 5, '');
+		$forename = $participant->forename ?: '';
+		$view->renderCell(65, 5, $forename);
+
+
+		$view->Ln();
+		$yOffset += 5;
+		$view->changeFont();
+		$view->changePosition($left, $yOffset);
 		$view->renderCell(20, 5, Languages::_('ORGANIZER_ADDRESS') . ': ');
-		$view->renderCell(65, 5, $participant->address);
+		$address1 = $participant->address ?: '';
+		$view->renderCell(65, 5, $address1);
 
 		$view->Ln();
-		$view->changePosition($left, $yOffset + 73);
+		$yOffset += 5;
+		$view->changePosition($left, $yOffset);
 		$view->renderCell(20, 5, Languages::_('ORGANIZER_RESIDENCE') . ': ');
 		$view->renderCell(65, 5, "$participant->zipCode $participant->city");
 	}
