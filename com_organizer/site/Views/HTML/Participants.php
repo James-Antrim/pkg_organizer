@@ -22,13 +22,14 @@ use Organizer\Helpers\Languages;
 class Participants extends ListView
 {
 	protected $rowStructure = [
-		'checkbox' => '',
-		'fullName' => 'value',
-		'email'    => 'value',
-		'program'  => 'value',
-		'status'   => 'value',
-		'paid'     => 'value',
-		'attended' => 'value'
+		'checkbox'     => '',
+		'fullName'     => 'value',
+		'email'        => 'value',
+		'program'      => 'value',
+		'registerDate' => 'value',
+		'status'       => 'value',
+		'paid'         => 'value',
+		'attended'     => 'value'
 	];
 
 	/**
@@ -94,6 +95,10 @@ class Participants extends ListView
 			$headers['status']   = Helpers\HTML::sort('STATUS', 'status', $direction, $ordering);
 			$headers['paid']     = Helpers\HTML::sort('PAID', 'paid', $direction, $ordering);
 			$headers['attended'] = Helpers\HTML::sort('ATTENDED', 'attended', $direction, $ordering);
+		}
+		else
+		{
+			$headers['registerDate'] = Helpers\HTML::sort('REGISTRATION_DATE', 'registerDate', $direction, $ordering);
 		}
 
 		$this->headers = $headers;
