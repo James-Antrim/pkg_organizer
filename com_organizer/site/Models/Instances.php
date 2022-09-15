@@ -431,8 +431,13 @@ class Instances extends ListModel
 		$listItems->set('my', $personal);
 		$this->state->set('list.my', $personal);
 
+		if ($personal)
+		{
+			// I should be able to see my planned.
+			$conditions['showUnpublished'] = true;
+		}
 		// or attribute/resource based.
-		if (!$personal)
+		else
 		{
 			$campusID = $params->get('campusID', 0);
 			$campusID = $app->getUserStateFromRequest("{$fc}campusID", "{$fp}campusID", $campusID, 'int');
@@ -516,13 +521,19 @@ class Instances extends ListModel
 			if ($personID = Input::getInt('personID', $personID))
 			{
 				$personIDs = [$personID];
-				Helper::filterPersonIDs($personIDs, Helpers\Users::getID());
+				$userID    = Helpers\Users::getID();
+				Helper::filterPersonIDs($personIDs, $userID);
 
 				if ($personIDs)
 				{
 					$conditions['personIDs'] = $personIDs;
 					$filterItems->set('personID', $personID);
 					$this->state->set('filter.personID', $personID);
+
+					if (empty($conditions['showUnpublished']))
+					{
+						$conditions['showUnpublished'] = Helpers\Persons::getIDByUserID($userID) === $personID;
+					}
 				}
 				else
 				{

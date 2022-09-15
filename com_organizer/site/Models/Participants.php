@@ -61,7 +61,7 @@ class Participants extends ListModel
 		$select       = [
 			'DISTINCT pa.id',
 			'pa.*',
-			'u.email',
+			'u.*',
 			$query->concatenate($nameParts, '') . ' AS fullName',
 			$query->concatenate($programParts, '') . ' AS program'
 		];

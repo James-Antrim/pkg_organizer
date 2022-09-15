@@ -24,6 +24,20 @@ class Participants extends Controller
 	protected $resource = 'participant';
 
 	/**
+	 * Attempts to automatically merge entries according to criteria for unique identification.
+	 *
+	 * @return void
+	 */
+	public function automaticMerge()
+	{
+		$model = new Participant();
+		$model->automaticMerge();
+		$url = Helpers\Routing::getRedirectBase();
+		$url .= "&view=$this->listView";
+		$this->setRedirect($url);
+	}
+
+	/**
 	 * Save user information from form and if course id defined sign in or out of course
 	 * then redirect to course list view
 	 *

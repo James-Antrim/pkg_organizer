@@ -394,23 +394,24 @@ class QueryMySQLi extends JDatabaseQueryMysqli
 	{
 		$join     = '';
 		$keyWord  = 'ON';
-		$operands = [' = ', ' < ', ' > '];
+		$operands = [' = ', ' < ', ' > ', ' LIKE '];
 
 		foreach ($conditions as $condition)
 		{
-			$compound = false;
+			$complex = false;
 
-			foreach (['AND', 'OR'] as $conjunction)
+			// Conjunctions speak to recursion, placeholders to complex formatting
+			foreach (['AND', 'OR', '%', '_'] as $conjunction)
 			{
 				if (strpos($condition, $conjunction))
 				{
-					$compound = true;
-					$join     .= " $keyWord $condition";
+					$complex = true;
+					$join    .= " $keyWord $condition";
 					break;
 				}
 			}
 
-			if (!$compound)
+			if (!$complex)
 			{
 				$glue = '';
 
