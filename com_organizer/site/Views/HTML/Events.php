@@ -30,7 +30,7 @@ class Events extends ListView
 	 */
 	protected function addToolBar(bool $delete = true)
 	{
-		$this->setTitle('ORGANIZER_EVENTS');
+		$this->setTitle('ORGANIZER_EVENT_TEMPLATES');
 		$toolbar = Toolbar::getInstance();
 		$toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'events.edit', true);
 
