@@ -24,7 +24,11 @@ use Organizer\Validators;
  */
 class Schedule extends BaseModel
 {
-	private $modified;
+	/**
+	 * The datetime string of the creation of the schedule file
+	 * @var string
+	 */
+	private string $modified;
 
 	/**
 	 * Cleans bookings according to their current status derived by the state of associated instances, optionally cleans
@@ -1057,6 +1061,11 @@ class Schedule extends BaseModel
 		if (!Helpers\Can::schedule('organization', $organizationID))
 		{
 			Helpers\OrganizerHelper::error(403);
+		}
+
+		if (!Helpers\Organizations::allowScheduling($organizationID))
+		{
+			Helpers\OrganizerHelper::error(501);
 		}
 
 		$validator = new Validators\Schedule();

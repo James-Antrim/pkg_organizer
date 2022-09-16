@@ -40,6 +40,15 @@ class Organizations extends ResourceHelper implements Selectable
 
 		switch ($access)
 		{
+			case 'allowScheduling':
+				$query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id')
+					->where('o.allowScheduling = 1');
+				if (in_array($resource, ['category', 'person']))
+				{
+					$query->where("a.{$resource}ID IS NOT NULL");
+				}
+				$allowedIDs = Can::scheduleTheseOrganizations();
+				break;
 			case 'document':
 				$query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
 				if (in_array($resource, ['pool', 'program', 'subject']))
@@ -75,6 +84,25 @@ class Organizations extends ResourceHelper implements Selectable
 		}
 
 		$query->where("o.id IN ( '" . implode("', '", $allowedIDs) . "' )");
+	}
+
+	/**
+	 * Checks whether direct scheduling has been allowed for the given organization id.
+	 *
+	 * @param   int  $organizationID  the id of the organization
+	 *
+	 * @return bool true if direct scheduling is allowed otherwise false
+	 */
+	public static function allowScheduling(int $organizationID): bool
+	{
+		$organization = new Tables\Organizations();
+
+		if (!$organization->load($organizationID))
+		{
+			OrganizerHelper::error(412);
+		}
+
+		return $organization->allowScheduling;
 	}
 
 	/**
