@@ -659,6 +659,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_organizations` (
     `active`          TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `abbreviation_de` VARCHAR(25)         NOT NULL,
     `abbreviation_en` VARCHAR(25)         NOT NULL,
+    `allowScheduling` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
     `contactID`       INT(11)                      DEFAULT NULL,
     `contactEmail`    VARCHAR(100)                 DEFAULT NULL,
     `fullName_de`     VARCHAR(200)        NOT NULL,

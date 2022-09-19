@@ -41,6 +41,14 @@ class Organizations extends BaseTable
 	public $abbreviation_en;
 
 	/**
+	 * A flag which displays whether the planning for the organization directly is allowed.
+	 * TINYINT(1) UNSIGNED NOT NULL
+	 *
+	 * @var string
+	 */
+	public $allowScheduling;
+
+	/**
 	 * The id used by Joomla as a reference to its assets table.
 	 * INT(11) NOT NULL
 	 *

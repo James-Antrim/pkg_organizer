@@ -153,35 +153,35 @@ abstract class BaseView extends HtmlView
 			$spanText = Languages::_('ORGANIZER_SCHEDULING');
 			Languages::unpack($spanText);
 			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
-			JHtmlSidebar::addEntry($spanText, '', false);
+			JHtmlSidebar::addEntry($spanText);
 
 			$items = [];
 
-			$items[Languages::_('ORGANIZER_CATEGORIES')]     = [
+			$items[Languages::_('ORGANIZER_CATEGORIES')]      = [
 				'url'    => Routing::getViewURL('Categories'),
 				'active' => $viewName == 'categories'
 			];
-			$items[Languages::_('ORGANIZER_COURSES')]        = [
+			$items[Languages::_('ORGANIZER_COURSES')]         = [
 				'url'    => Routing::getViewURL('Courses'),
 				'active' => $viewName == 'courses'
 			];
-			$items[Languages::_('ORGANIZER_COURSES_IMPORT')] = [
+			$items[Languages::_('ORGANIZER_COURSES_IMPORT')]  = [
 				'url'    => Routing::getViewURL('CoursesImport'),
 				'active' => $viewName == 'courses_import'
 			];
-			$items[Languages::_('ORGANIZER_EVENTS')]         = [
+			$items[Languages::_('ORGANIZER_EVENT_TEMPLATES')] = [
 				'url'    => Routing::getViewURL('Events'),
 				'active' => $viewName == 'events'
 			];
-			$items[Languages::_('ORGANIZER_GROUPS')]         = [
+			$items[Languages::_('ORGANIZER_GROUPS')]          = [
 				'url'    => Routing::getViewURL('Groups'),
 				'active' => $viewName == 'groups'
 			];
-			$items[Languages::_('ORGANIZER_SCHEDULES')]      = [
+			$items[Languages::_('ORGANIZER_SCHEDULES')]       = [
 				'url'    => Routing::getViewURL('Schedules'),
 				'active' => $viewName == 'schedules'
 			];
-			$items[Languages::_('ORGANIZER_UNITS')]          = [
+			$items[Languages::_('ORGANIZER_UNITS')]           = [
 				'url'    => Routing::getViewURL('Units'),
 				'active' => $viewName == 'units'
 			];
@@ -210,7 +210,7 @@ abstract class BaseView extends HtmlView
 			$spanText = Languages::_('ORGANIZER_DOCUMENTATION');
 			Languages::unpack($spanText);
 			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
-			JHtmlSidebar::addEntry($spanText, '', false);
+			JHtmlSidebar::addEntry($spanText);
 
 			$items = [];
 
@@ -243,7 +243,7 @@ abstract class BaseView extends HtmlView
 			$spanText = Languages::_('ORGANIZER_HUMAN_RESOURCES');
 			Languages::unpack($spanText);
 			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
-			JHtmlSidebar::addEntry($spanText, '', false);
+			JHtmlSidebar::addEntry($spanText);
 			JHtmlSidebar::addEntry(
 				Languages::_('ORGANIZER_PERSONS'),
 				Routing::getViewURL('Persons'),
@@ -256,7 +256,7 @@ abstract class BaseView extends HtmlView
 			$spanText = Languages::_('ORGANIZER_FACILITY_MANAGEMENT');
 			Languages::unpack($spanText);
 			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
-			JHtmlSidebar::addEntry($spanText, '', false);
+			JHtmlSidebar::addEntry($spanText);
 
 			$items = [];
 
@@ -305,7 +305,7 @@ abstract class BaseView extends HtmlView
 			$spanText = Languages::_('ORGANIZER_ADMINISTRATION');
 			Languages::unpack($spanText);
 			$spanText = '<span class="menu-spacer">' . $spanText . '</span>';
-			JHtmlSidebar::addEntry($spanText, '', false);
+			JHtmlSidebar::addEntry($spanText);
 
 			$items = [];
 
