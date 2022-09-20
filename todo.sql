@@ -35,7 +35,6 @@
 #purge data
 #add a checkout view
 #add checkin for appointments where no person is responsible
-#participant merge view
 #endregion
 
 #region tables #########################################################################################################
