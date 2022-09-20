@@ -364,9 +364,10 @@ class Participant extends MergeModel
 			return false;
 		}
 
-		$email      = $data['email'];
-		$mergeID    = array_shift($this->selected);
-		$data['id'] = $mergeID;
+		$email             = $data['email'];
+		$mergeID           = array_shift($this->selected);
+		$data['id']        = $mergeID;
+		$data['programID'] = empty($data['programID']) ? null : $data['programID'];
 
 		$participant = new Table();
 		$participant->load($mergeID);
@@ -381,7 +382,6 @@ class Participant extends MergeModel
 
 		$user->email          = $email;
 		$user->guest          = null;
-		$user->password       = null;
 		$user->password_clear = null;
 		$user->resetCount     = (int) $user->resetCount;
 
@@ -505,11 +505,21 @@ class Participant extends MergeModel
 					return false;
 				}
 
-				if (in_array($index, $numericFields) and !is_numeric($value))
+				if (in_array($index, $numericFields))
 				{
-					OH::message('ORGANIZER_400', 'warning');
+					if (!is_numeric($value))
+					{
+						OH::message('ORGANIZER_400', 'warning');
 
-					return false;
+						return false;
+					}
+
+					$value = (int) $value;
+				}
+
+				if ($index === 'programID' and $value === -1)
+				{
+					$data[$index] = null;
 				}
 			}
 		}
