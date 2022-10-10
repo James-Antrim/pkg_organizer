@@ -108,9 +108,13 @@ body.tmpl-mobile div.main {
   .js-stools-field-list,
   .js-stools-container-filters,
   .js-stools-container-list {
-    margin-right: 0;
+    margin-right: 2px;
     margin-top: 0;
     width: 100%;
+
+    &:last-child {
+      margin-right: 0;
+    }
   }
 
   .js-stools-container-list {
@@ -120,15 +124,11 @@ body.tmpl-mobile div.main {
   .js-stools-field-list {
 
     &.Date {
-      width: 80%;
+      width: 75%;
     }
 
     &.Page {
-      width: 5%;
-
-      &:first-child {
-        margin-right: 16px;
-      }
+      width: 10%;
     }
   }
 
@@ -160,20 +160,18 @@ body.tmpl-mobile div.main {
 
   .btn-wrapper {
     display: inline-block;
-    margin-right: .4rem;
-
-    &:last-child {
-      margin-right: 0;
-    }
+    margin-right: 2px;
   }
 
   .btn {
     font-size: 12px;
     margin: 0 4px 4px 0;
+    padding: 6px 8px;
   }
 
   .input-append {
     font-size: 1rem;
+    margin-right: 8px;
     width: 80%;
 
     button {
