@@ -116,26 +116,5 @@ class PageField extends FormField
 		];
 
 		return '<button ' . implode(' ', $attributes) . '>' . $icon . '</button>';
-
-		/*$label = "<label for=\"$this->name\" class=\"element-invisible\">XTEXTX</label>";
-		$label = str_replace('XTEXTX', Languages::_('ORGANIZER_ADD_PARTICIPANT'), $label);
-
-		$container = '<div class="btn-wrapper input-append">XINPUTXXBUTTONX</div>';
-
-		$attributes = [
-			"id=\"$this->id\"",
-			"name=\"$this->name\"",
-			$this->class ? "class=\"$this->class\"" : '',
-			'maxlength="20"',
-			'placeholder="' . Languages::_('ORGANIZER_ADD') . '"',
-			'type="text"'
-		];
-		$input      = '<input ' . implode(' ', $attributes) . '/>';
-		$container  = str_replace('XINPUTX', $input, $container);
-
-		$container  = str_replace('XBUTTONX', $button, $container);
-
-		// Add a button
-		return $label . $container;*/
 	}
 }

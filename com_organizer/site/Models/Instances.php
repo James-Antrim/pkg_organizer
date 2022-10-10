@@ -302,15 +302,44 @@ class Instances extends ListModel
 			return $title;
 		}
 
-		$title  = $this->layout === Helper::GRID ? Languages::_('ORGANIZER_SCHEDULE') : Languages::_("ORGANIZER_INSTANCES");
-		$suffix = '';
+		$methods = '';
+		$suffix  = '';
+		$title   = $this->layout === Helper::GRID ? Languages::_('ORGANIZER_SCHEDULE') : Languages::_("ORGANIZER_INSTANCES");
+
+		if ($methodIDs = $params->get('methodIDs') and $methodIDs = array_filter($methodIDs))
+		{
+			if (count($methodIDs) === 1)
+			{
+				$methods = Helpers\Methods::getPlural($methodIDs[0]);
+			}
+			else
+			{
+				$methods = [];
+
+				foreach ($methodIDs as $methodID)
+				{
+					$methods[] = Helpers\Methods::getPlural($methodID);
+				}
+
+				$lastName = array_pop($methods);
+				$methods  = implode(', ', $methods) . " & $lastName";
+			}
+		}
 
 		if ($my = (int) $this->state->get('list.my'))
 		{
 			$username = ($user = Helpers\Users::getUser() and $user->username) ? " ($user->username)" : '';
-			$title    = $my === Helper::BOOKMARKS ?
-				Languages::_("ORGANIZER_MY_INSTANCES") : Languages::_("ORGANIZER_MY_REGISTRATIONS");
-			$title    .= $username;
+
+			if ($methods)
+			{
+				$title = Languages::_('ORGANIZER_MY') . ' ' . $methods;
+			}
+			else
+			{
+				$title = $my === Helper::BOOKMARKS ?
+					Languages::_("ORGANIZER_MY_INSTANCES") : Languages::_("ORGANIZER_MY_REGISTRATIONS");
+			}
+			$title .= $username;
 		}
 		else
 		{
@@ -342,24 +371,9 @@ class Instances extends ListModel
 						break;
 				}
 			}
-			elseif ($methodIDs = $params->get('methodIDs') and $methodIDs = array_filter($methodIDs))
+			elseif ($methods)
 			{
-				if (count($methodIDs) === 1)
-				{
-					$title = Helpers\Methods::getPlural($methodIDs[0]);
-				}
-				else
-				{
-					$names = [];
-
-					foreach ($methodIDs as $methodID)
-					{
-						$names[] = Helpers\Methods::getPlural($methodID);
-					}
-
-					$lastName = array_pop($names);
-					$title    = implode(', ', $names) . " & $lastName";
-				}
+				$title = $methods;
 			}
 
 			// Which resource
@@ -549,14 +563,14 @@ class Instances extends ListModel
 				$filterItems->set('roomID', $roomID);
 				$this->state->set('filter.roomID', $roomID);
 			}
+		}
 
-			$methodIDs = $params->get('methodIDs') ?: Input::getIntCollection('methodID');
-			if ($methodIDs = array_filter($methodIDs))
-			{
-				$conditions['methodIDs'] = $methodIDs;
-				$filterItems->set('methodID', $methodIDs);
-				$this->state->set('filter.methodID', $methodIDs);
-			}
+		$methodIDs = $params->get('methodIDs') ?: Input::getIntCollection('methodID');
+		if ($methodIDs = array_filter($methodIDs))
+		{
+			$conditions['methodIDs'] = $methodIDs;
+			$filterItems->set('methodID', $methodIDs);
+			$this->state->set('filter.methodID', $methodIDs);
 		}
 
 		// When/how
