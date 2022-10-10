@@ -41,7 +41,7 @@ class Instances extends ListModel
 	public array $grid;
 	public int $gridID;
 	public array $holidays;
-	public int $layout;
+	public int $layout = Helper::LIST;
 	public bool $noDate = false;
 
 	/**

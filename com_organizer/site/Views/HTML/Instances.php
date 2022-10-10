@@ -668,15 +668,17 @@ class Instances extends ListView
 
 		foreach ($fields as $field => $value)
 		{
-			if (empty($value) or $params->get($field))
+			if (empty($value))
 			{
 				unset($fields[$field]);
-				continue;
 			}
+		}
 
-			if ($field === 'methodID' and $params->get('methodIDs'))
+		foreach (['my' => 'my', 'methodIDs' => 'methodID'] as $param => $field)
+		{
+			if ($value = $params->get($param))
 			{
-				unset($fields[$field]);
+				$fields[$field] = $value;
 			}
 		}
 
@@ -699,7 +701,7 @@ class Instances extends ListView
 				foreach ($fields as $field => $value)
 				{
 					$value = is_array($value) ? (string) $value : $value;
-					$url .= "&$field=$value";
+					$url   .= "&$field=$value";
 				}
 			}
 			// 'My' link
