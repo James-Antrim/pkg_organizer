@@ -33,28 +33,28 @@ class Instances extends ListView
 	 * Will later determine whether an edit button will be displayed
 	 * @var bool
 	 */
-	private $allowEdit = false;
+	private bool $allowEdit = false;
 
-	private $courses = [];
+	private array $courses = [];
 
-	private $expired = true;
+	private bool $expired = true;
 
 	/**
 	 * @var \Organizer\Models\Instances
 	 */
 	protected $model;
 
-	public $noInstances = true;
+	public bool$noInstances = true;
 
-	private $premature = true;
+	private bool $premature = true;
 
 	/**
 	 * Whether the registration is allowed for any instance.
 	 * @var bool
 	 */
-	private $registration = false;
+	private bool $registration = false;
 
-	private $statusDate;
+	private string $statusDate;
 
 	protected $structureEmpty = true;
 
@@ -147,15 +147,13 @@ class Instances extends ListView
 						'Standard',
 						'bookmark',
 						Languages::_('ORGANIZER_BOOKMARK'),
-						'InstanceParticipants.bookmark',
-						true
+						'InstanceParticipants.bookmark'
 					);
 					$remove = $standard->fetchButton(
 						'Standard',
 						'bookmark-2',
 						Languages::_('ORGANIZER_REMOVE_BOOKMARK'),
-						'InstanceParticipants.removeBookmark',
-						true
+						'InstanceParticipants.removeBookmark'
 					);
 					$toolbar->appendButton(
 						'Buttons',
@@ -668,15 +666,17 @@ class Instances extends ListView
 
 		foreach ($fields as $field => $value)
 		{
-			if (empty($value) or $params->get($field))
+			if (empty($value))
 			{
 				unset($fields[$field]);
-				continue;
 			}
+		}
 
-			if ($field === 'methodID' and $params->get('methodIDs'))
+		foreach (['my' => 'my', 'methodIDs' => 'methodID'] as $param => $field)
+		{
+			if ($value = $params->get($param))
 			{
-				unset($fields[$field]);
+				$fields[$field] = $value;
 			}
 		}
 
@@ -698,8 +698,8 @@ class Instances extends ListView
 			{
 				foreach ($fields as $field => $value)
 				{
-					$value = is_array($value) ? (string) $value : $value;
-					$url .= "&$field=$value";
+					$value = is_array($value) ? implode(',', $value) : $value;
+					$url   .= "&$field=$value";
 				}
 			}
 			// 'My' link

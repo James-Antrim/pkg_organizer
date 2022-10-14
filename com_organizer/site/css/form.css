@@ -221,9 +221,17 @@ body.tmpl-mobile div.main .js-stools-field-filter,
 body.tmpl-mobile div.main .js-stools-field-list,
 body.tmpl-mobile div.main .js-stools-container-filters,
 body.tmpl-mobile div.main .js-stools-container-list {
-    margin-right: 0;
+    margin-right: 2px;
     margin-top: 0;
     width: 100%;
+}
+
+body.tmpl-mobile div.main .js-stools-container-bar:last-child,
+body.tmpl-mobile div.main .js-stools-field-filter:last-child,
+body.tmpl-mobile div.main .js-stools-field-list:last-child,
+body.tmpl-mobile div.main .js-stools-container-filters:last-child,
+body.tmpl-mobile div.main .js-stools-container-list:last-child {
+    margin-right: 0;
 }
 
 body.tmpl-mobile div.main .js-stools-container-list {
@@ -231,15 +239,11 @@ body.tmpl-mobile div.main .js-stools-container-list {
 }
 
 body.tmpl-mobile div.main .js-stools-field-list.Date {
-    width: 80%;
+    width: 75%;
 }
 
 body.tmpl-mobile div.main .js-stools-field-list.Page {
-    width: 5%;
-}
-
-body.tmpl-mobile div.main .js-stools-field-list.Page:first-child {
-    margin-right: 16px;
+    width: 10%;
 }
 
 body.tmpl-mobile div.main .js-stools-container-bar {
@@ -270,20 +274,18 @@ body.tmpl-mobile div.main input[type='text'] {
 
 body.tmpl-mobile div.main .btn-wrapper {
     display: inline-block;
-    margin-right: .4rem;
-}
-
-body.tmpl-mobile div.main .btn-wrapper:last-child {
-    margin-right: 0;
+    margin-right: 2px;
 }
 
 body.tmpl-mobile div.main .btn {
     font-size: 12px;
     margin: 0 4px 4px 0;
+    padding: 6px 8px;
 }
 
 body.tmpl-mobile div.main .input-append {
     font-size: 1rem;
+    margin-right: 8px;
     width: 80%;
 }
 

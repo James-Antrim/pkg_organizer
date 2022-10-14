@@ -91,6 +91,19 @@ class Participants extends ListModel
 			$query->leftJoinX('participants AS pa2', [$conditions])
 				->where(['pa.id != pa2.id'])
 				->group('pa.id');
+
+			if ($domain = Helpers\Input::getParams()->get('emailFilter'))
+			{
+				$domain = Database::quote("%$domain");
+				$email1 = Database::quoteName('u.email');
+				$email2 = Database::quoteName('u2.email');
+
+				$externalExists = "($email1 NOT LIKE $domain OR $email2 NOT LIKE $domain)";
+
+				$query->leftJoinX('#__users AS u2', ['u2.id = pa2.id'])
+					->where($externalExists);
+
+			}
 		}
 
 		$this->setOrdering($query);

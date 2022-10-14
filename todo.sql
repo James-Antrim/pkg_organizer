@@ -29,13 +29,26 @@
 #instances export options to suppress columns/resources
 #endregion
 
+#region HIT ############################################################################################################
+#expand event templates for new type 'information course' or something similar
+#- expand course participants table to include
+#-- travel options (public transportation, car, ...)
+#-- meal options (cafeteria, eat out, ...)
+#- expand profiles with school information
+#-- new resource school?
+#-- diploma type & year
+#- expand profiles for gender?
+#coordinate with organizations
+#- codes for individual events
+#statistical analysis?
+#endregion
+
 #region participants ###################################################################################################
 #rename instance participants to participations
 #add start and end time fields to participations
 #purge data
 #add a checkout view
 #add checkin for appointments where no person is responsible
-#participant merge view
 #endregion
 
 #region tables #########################################################################################################
@@ -59,6 +72,7 @@
 #add batch processing for rooms (types, equipment, properties,...)
 #capacity filters
 #endregion
+#add color coding for organizations and legend to the room overview
 #region routing
 #redo url building and parsing
 #add breadcrumbs for appropriate views
@@ -127,6 +141,7 @@
 #endregion
 #replace tcpdf use
 #move date formatting to the languages helper
+#replace numeric instances layout handling with strings
 #endregion
 
 #region Quality ########################################################################################################

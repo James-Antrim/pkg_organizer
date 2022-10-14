@@ -106,6 +106,26 @@ class Instances extends ResourceHelper
 	}
 
 	/**
+	 * Adds subject data to the instance.
+	 *
+	 * @param   array  &$instance  the instance data
+	 * @param   array   $subject   the subject data
+	 *
+	 * @return void
+	 */
+	private static function addSubjectData(array &$instance, array $subject)
+	{
+		$instance['subjectID'] = $subject['id'];
+		$instance['code']      = empty($subject['code']) ? '' : $subject['code'];
+		$instance['fullName']  = empty($subject['fullName']) ? '' : $subject['fullName'];
+
+		if (empty($instance['description']) and !empty($subject['description']))
+		{
+			$instance['description'] = $subject['description'];
+		}
+	}
+
+	/**
 	 * Calls various functions filling the properties and resources of a single instance.
 	 *
 	 * @param   array  $instance
@@ -1097,8 +1117,8 @@ class Instances extends ResourceHelper
 
 		$results = Database::loadIntColumn();
 
-		$online   = array_search(1, $results);
-		$presence = array_search(0, $results);
+		$online   = in_array(1, $results);
+		$presence = in_array(0, $results);
 
 		if ($presence === false)
 		{
@@ -1536,45 +1556,72 @@ class Instances extends ResourceHelper
 			->where("se.eventID = {$instance['eventID']}");
 		Database::setQuery($query);
 
+		$default = ['id' => null, 'code' => '', 'fullName' => ''];
+
+		// No subject <-> event associations
 		if (!$subjects = Database::loadAssocList())
 		{
-			$instance['subjectID'] = null;
-			$instance['code']      = '';
-			$instance['fullName']  = '';
+			self::addSubjectData($instance, $default);
 
 			return;
 		}
 
-		$subject = [];
-
-		// In the event of multiple results take the first one to fulfill the organization condition
-		if (!empty($conditions['organizationIDs']) and count($subjects) > 1)
+		// One subject <-> event association
+		if (count($subjects) === 1)
 		{
-			foreach ($subjects as $subjectItem)
+			self::addSubjectData($instance, $subjects[0]);
+
+			return;
+		}
+
+		// Multiple subject <-> event associations
+
+		// Which programs are associated with which subjects
+		$programMap = [];
+		foreach ($subjects as $key => $subject)
+		{
+			foreach (Subjects::getPrograms($subject['id']) as $program)
 			{
-				$organizationIDs = Subjects::getOrganizationIDs($subjectItem['id']);
-				if (array_intersect($organizationIDs, $conditions['organizationIDs']))
+				$programMap[$program['programID']] = $key;
+			}
+		}
+
+		// Determine the event categories
+		$categoryIDs = [];
+		if (!empty($conditions['categoryIDs']))
+		{
+			$categoryIDs = $conditions['categoryIDs'];
+		}
+		elseif (!empty($conditions['groupIDs']))
+		{
+			foreach ($conditions['groupIDs'] as $groupID)
+			{
+				$categoryID               = Groups::getCategoryID($groupID);
+				$categoryIDs[$categoryID] = $categoryID;
+			}
+		}
+
+		// Find the programs associated with the event categories
+		if ($categoryIDs)
+		{
+			$pQuery = Database::getQuery();
+			$pQuery->selectX(['DISTINCT id'], 'programs', 'categoryID', $categoryIDs)
+				->order(['accredited']);
+			Database::setQuery($pQuery);
+
+			foreach (Database::loadColumn() as $programID)
+			{
+				if (isset($programMap[$programID]))
 				{
-					$subject = $subjectItem;
-					break;
+					// First match is the best match because of the accredited sort
+					self::addSubjectData($instance, $subjects[$programMap[$programID]]);
+
+					return;
 				}
 			}
 		}
 
-		// Default
-		if (empty($subject))
-		{
-			$subject = $subjects[0];
-		}
-
-		$instance['subjectID'] = $subject['id'];
-		$instance['code']      = empty($subject['code']) ? '' : $subject['code'];
-		$instance['fullName']  = empty($subject['fullName']) ? '' : $subject['fullName'];
-
-		if (empty($instance['description']) and !empty($subject['description']))
-		{
-			$instance['description'] = $subject['description'];
-		}
+		self::addSubjectData($instance, $default);
 	}
 
 	/**

@@ -40,16 +40,26 @@ class MergeEmailField extends MergeValuesField
 			return [];
 		}
 
-		$domain = Database::quote("%$domain%");
-		$email  = Database::quoteName('email');
 
 		/* @var QueryMySQLi $query */
 		$query = Database::getQuery();
 		$query->selectX(['DISTINCT email AS value'], '#__users', 'id', $this->selectedIDs)
-			->where("$email LIKE $domain")
 			->order('value ASC');
 		Database::setQuery($query);
 
-		return Database::loadColumn();
+		if (!$addresses = Database::loadColumn())
+		{
+			return [];
+		}
+
+		foreach ($addresses as $address)
+		{
+			if (strpos($address, $domain))
+			{
+				return [$address];
+			}
+		}
+
+		return $addresses;
 	}
 }

@@ -29,7 +29,14 @@ class ProgramsField extends OptionsField
 	 */
 	protected function getOptions(): array
 	{
-		$options  = parent::getOptions();
+		$options = parent::getOptions();
+
+		$participantEdit = (strtolower(str_replace('_', '', Helpers\Input::getView())) === 'participantedit');
+		if ($participantEdit and Helpers\Can::administrate())
+		{
+			$options[] = Helpers\HTML::_('select.option', -1, Helpers\Languages::_('ORGANIZER_UNKNOWN'));
+		}
+
 		$access   = $this->adminContext ? $this->getAttribute('access', '') : '';
 		$programs = Helpers\Programs::getOptions($access);
 

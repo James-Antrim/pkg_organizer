@@ -468,21 +468,36 @@ abstract class ListModel extends ParentModel
 		{
 			$filterName = strpos($column, '.') === false ? $column : explode('.', $column)[1];
 
-			if (!$value = $filters->get($filterName)
-				and !$value = $lists->get($filterName)
-				and !$value = $state->get("filter.$filterName")
-				and !$value = $state->get("list.$filterName")
-			)
+			$value = $filters->get($filterName);
+
+			if (!$value and $value !== '0')
+			{
+				$value = $lists->get($filterName);
+			}
+
+			if (!$value and $value !== '0')
+			{
+				$value = $state->get("filter.$filterName");
+			}
+
+			if (!$value and $value !== '0')
+			{
+				$value = $state->get("list.$filterName");
+			}
+
+			if (!$value and $value !== '0')
 			{
 				continue;
 			}
+
+			$column = Database::quoteName($column);
 
 			/**
 			 * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
 			 * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
 			 * be extended we could maybe add a parameter for it later.
 			 */
-			if ($value == '-1')
+			if ($value === '-1')
 			{
 				$query->where("( $column = '' OR $column IS NULL )");
 				continue;
