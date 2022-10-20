@@ -582,7 +582,7 @@ class Instances extends ListModel
 		{
 			case 'ics':
 				// When/how is fixed in this format
-				$interval = 'quarter';
+				$interval = 'half';
 				$layout   = Helper::LIST;
 				break;
 
