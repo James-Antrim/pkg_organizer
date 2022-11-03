@@ -38,8 +38,7 @@ class ColorsField extends ColoredOptionsField
 		$tag = Helpers\Languages::getTag();
 
 		$query = Database::getQuery();
-		$query->select("DISTINCT c.id AS value, c.name_$tag AS text, c.color")
-			->from(' #__organizer_colors AS c')
+		$query->selectX(['DISTINCT c.id AS value', "c.name_$tag AS text", 'c.color'], 'colors AS c')
 			->order('text');
 		Database::setQuery($query);
 
