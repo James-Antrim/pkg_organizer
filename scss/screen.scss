@@ -16,7 +16,6 @@ body, html, div.main {
   line-height: normal;
   color: $background-grey;
 
-  /************** header *********************************************/
   .head {
     background-color: $foreground-color;
     border-bottom: 1px solid #ECECEC;
@@ -38,7 +37,6 @@ body, html, div.main {
 
     .title {
       text-align: center;
-      // anpassen an THM-Schriftgröße des Bildes - manuell
       font-size: 95px;
       font-weight: bold;
       line-height: 72px;
@@ -129,6 +127,91 @@ body, html, div.main {
     .unit-comment {
       font-size: 1.5rem;
       padding-bottom: .5rem;
+    }
+  }
+
+  &.mobile {
+
+    .head {
+      margin-bottom: 10px;
+      padding: 1rem;
+
+      .banner {
+        margin-top: 0;
+      }
+
+      .logo {
+        width: 5.5rem;
+
+        img {
+          width: 100%;
+        }
+      }
+
+      .title {
+        font-size: 2rem;
+        margin: 0 6rem 0 6rem;
+      }
+
+      .date-info {
+        font-size: 1rem;
+        right: 1rem;
+      }
+    }
+
+    .instances {
+      padding: 0;
+
+      .block-times, .instance-display {
+        display: block;
+        float: none;
+      }
+
+      .block-times {
+        font-size: 1rem;
+        padding: .3rem 0;
+        width: 100%;
+
+        br {
+          display: none;
+        }
+
+        span {
+          padding: 0 .2rem;
+        }
+      }
+
+      .instance-display {
+        padding-bottom: .4rem;
+        width: 100%;
+      }
+
+      .event-names {
+        font-size: 1.2rem;
+
+        &.fluffy {
+          padding-top: .4rem;
+        }
+      }
+
+      .instance-persons {
+        font-size: 1rem;
+      }
+
+      .unit-comment {
+        font-size: .8rem;
+        padding-bottom: .2rem;
+
+        a {
+          [class^="icon-"], [class*=" icon-"] {
+            font-size: 1rem;
+
+            &::before {
+              color: $red-100;
+            }
+          }
+        }
+      }
     }
   }
 }

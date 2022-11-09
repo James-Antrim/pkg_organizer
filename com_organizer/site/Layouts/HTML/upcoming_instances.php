@@ -19,7 +19,8 @@ $rowNumber = 0;
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload() {
+    function auto_reload()
+    {
         window.location = document.URL;
     }
 
@@ -66,8 +67,18 @@ $rowNumber = 0;
 
 			$rowClass = 'row' . ($rowNumber % 2);
 			$rowNumber++;
-			$paddingClass = empty($instance['comment']) ? 'fluffy' : '';
-			$event        = empty($instance['method']) ? $instance['event'] : "{$instance['event']} - {$instance['method']}"
+
+			if (empty($instance['comment']))
+			{
+				$paddingClass = 'fluffy';
+			}
+			else
+			{
+				$paddingClass        = '';
+				$instance['comment'] = $this->processComment($instance['comment']);
+			}
+
+			$event = empty($instance['method']) ? $instance['event'] : "{$instance['event']} - {$instance['method']}"
 			?>
             <div class="<?php echo $rowClass; ?> ym-clearfix instance">
                 <div class="block-times">

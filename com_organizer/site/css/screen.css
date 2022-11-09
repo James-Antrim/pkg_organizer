@@ -13,7 +13,6 @@ body, html, div.main {
     margin: auto 0;
     line-height: normal;
     color: #4a5c66;
-    /************** header *********************************************/
 }
 
 .screen .head {
@@ -128,4 +127,84 @@ body, html, div.main {
 .screen .instances .unit-comment {
     font-size: 1.5rem;
     padding-bottom: .5rem;
+}
+
+.screen.mobile .head {
+    margin-bottom: 10px;
+    padding: 1rem;
+}
+
+.screen.mobile .head .banner {
+    margin-top: 0;
+}
+
+.screen.mobile .head .logo {
+    width: 5.5rem;
+}
+
+.screen.mobile .head .logo img {
+    width: 100%;
+}
+
+.screen.mobile .head .title {
+    font-size: 2rem;
+    margin: 0 6rem 0 6rem;
+}
+
+.screen.mobile .head .date-info {
+    font-size: 1rem;
+    right: 1rem;
+}
+
+.screen.mobile .instances {
+    padding: 0;
+}
+
+.screen.mobile .instances .block-times, .screen.mobile .instances .instance-display {
+    display: block;
+    float: none;
+}
+
+.screen.mobile .instances .block-times {
+    font-size: 1rem;
+    padding: .3rem 0;
+    width: 100%;
+}
+
+.screen.mobile .instances .block-times br {
+    display: none;
+}
+
+.screen.mobile .instances .block-times span {
+    padding: 0 .2rem;
+}
+
+.screen.mobile .instances .instance-display {
+    padding-bottom: .4rem;
+    width: 100%;
+}
+
+.screen.mobile .instances .event-names {
+    font-size: 1.2rem;
+}
+
+.screen.mobile .instances .event-names.fluffy {
+    padding-top: .4rem;
+}
+
+.screen.mobile .instances .instance-persons {
+    font-size: 1rem;
+}
+
+.screen.mobile .instances .unit-comment {
+    font-size: .8rem;
+    padding-bottom: .2rem;
+}
+
+.screen.mobile .instances .unit-comment a [class^="icon-"], .screen.mobile .instances .unit-comment a [class*=" icon-"] {
+    font-size: 1rem;
+}
+
+.screen.mobile .instances .unit-comment a [class^="icon-"]::before, .screen.mobile .instances .unit-comment a [class*=" icon-"]::before {
+    color: #9c132e;
 }

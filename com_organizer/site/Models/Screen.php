@@ -23,15 +23,15 @@ class Screen extends BaseModel
 {
 	private const UPCOMING = 0, CURRENT = 1, ALTERNATING = 2, IMAGE = 3;
 
-	public $grid;
+	public array $grid = [];
 
-	public $instances = [];
+	public array $instances = [];
 
-	public $image = '';
+	public string $image = '';
 
-	public $layout = 'upcoming_instances';
+	public string $layout = 'upcoming_instances';
 
-	public $room;
+	public array $room = [];
 
 	/**
 	 * Constructor
@@ -42,18 +42,15 @@ class Screen extends BaseModel
 
 		$imagePath = JPATH_ROOT . '/images/organizer/';
 		$ipData    = ['ip' => Helpers\Input::getInput()->server->getString('REMOTE_ADDR', '')];
+		$layout    = 'upcoming_instances';
 		$monitor   = new Tables\Monitors();
 		$roomID    = 0;
 
-		if (!$monitor->load($ipData) or !$roomID = $monitor->roomID or !$name = Helpers\Rooms::getName($roomID))
+		if ($monitor->load($ipData))
 		{
-			if (!$name = Helpers\Input::getCMD('room') or !$roomID = Helpers\Rooms::getID($name))
-			{
-				Helpers\OrganizerHelper::getApplication()->redirect('index.php', 400);
-			}
-		}
-		else
-		{
+			$roomID = $monitor->roomID;
+			$name   = Helpers\Rooms::getName($roomID);
+
 			switch ($monitor->display)
 			{
 				case self::CURRENT:
@@ -84,7 +81,6 @@ class Screen extends BaseModel
 				case self::IMAGE:
 					if (empty($monitor->content) or !file_exists($imagePath . $monitor->content))
 					{
-						$layout = 'upcoming_instances';
 						break;
 					}
 					$this->image = $monitor->content;
@@ -92,16 +88,25 @@ class Screen extends BaseModel
 					break;
 				case self::UPCOMING:
 				default:
-					$layout = 'upcoming_instances';
 					break;
 			}
 		}
-
-		if (empty($layout))
+		elseif ($name = Helpers\Input::getCMD('room') and $roomID = Helpers\Rooms::getID($name))
 		{
-			$layouts = ['current_instances', 'image', 'upcoming_instances'];
-			$layout  = Helpers\Input::getCMD('layout', 'upcoming_instances');
-			$layout  = in_array($layout, $layouts) ? $layout : 'upcoming_instances';
+			if (Helpers\OrganizerHelper::isSmartphone())
+			{
+				$layout = 'current_instances';
+			}
+			else
+			{
+				$layouts = ['current_instances', 'image', 'upcoming_instances'];
+				$layout  = Helpers\Input::getCMD('layout', 'upcoming_instances');
+				$layout  = in_array($layout, $layouts) ? $layout : 'upcoming_instances';
+			}
+		}
+		else
+		{
+			Helpers\OrganizerHelper::getApplication()->redirect('index.php', 400);
 		}
 
 		if (Helpers\Input::getCMD('tmpl') !== 'component')

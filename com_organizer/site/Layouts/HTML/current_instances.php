@@ -11,14 +11,19 @@
 namespace Organizer\Layouts\HTML;
 
 use Organizer\Helpers;
+use Organizer\Views\HTML\Screen;
 
+$class = 'screen';
+/** @var Screen $this */
+$class     .= $this->mobile ? ' mobile' : '';
 $time      = date('H:i');
 $rowNumber = 0;
 ?>
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload() {
+    function auto_reload()
+    {
         window.location = document.URL;
     }
 
@@ -26,7 +31,7 @@ $rowNumber = 0;
         timer = setTimeout('auto_reload()', 60000);
     }
 </script>
-<div class='screen'>
+<div class='<?php echo $class; ?>'>
     <div class='head'>
         <div class='banner'>
             <div class='logo'><img src="components/com_organizer/images/logo.svg" alt="THM-Logo"/></div>
@@ -45,8 +50,17 @@ $rowNumber = 0;
 			$rowClass  = 'row' . ($rowNumber % 2);
 			$startTime = Helpers\Dates::formatTime($period['startTime']);
 
-			$activeClass  = ($time >= $startTime and $time <= $endTime) ? 'active' : 'inactive';
-			$paddingClass = empty($period['comment']) ? 'fluffy' : '';
+			$activeClass = ($time >= $startTime and $time <= $endTime) ? 'active' : 'inactive';
+
+			if (empty($period['comment']))
+			{
+				$paddingClass = 'fluffy';
+			}
+			else
+			{
+				$paddingClass      = '';
+				$period['comment'] = $this->processComment($period['comment']);
+			}
 
 			$event = implode(' / ', $period['events']);
 			$event .= $period['method'] ? " - {$period['method']}" : '';
@@ -54,7 +68,7 @@ $rowNumber = 0;
 			?>
             <div class="<?php echo $rowClass . ' ' . $activeClass; ?> ym-clearfix instance">
                 <div class="block-times">
-					<?php echo "$startTime<br>-<br>$endTime"; ?>
+					<?php echo "<span>$startTime</span><br><span>-</span><br><span>$endTime</span>"; ?>
                 </div>
                 <div class="instance-display">
                     <div class="event-names <?php echo $paddingClass; ?>">
