@@ -495,6 +495,11 @@ class Can
 				return true;
 			}
 
+			if ($user->authorise('organizer.schedule', "com_organizer.organization.$resourceID"))
+			{
+				return true;
+			}
+
 			return self::manage($resourceType, $resourceID);
 		}
 
