@@ -49,7 +49,9 @@ class Courses extends ListModel
 
 		if ($params->get('onlyPrepCourses'))
 		{
-			$form->removeField('search', 'filter');
+			$form->removeField('limit', 'list');
+            $form->removeField('search', 'filter');
+            $form->removeField('status', 'filter');
 		}
 	}
 

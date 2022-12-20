@@ -72,7 +72,7 @@ class Courses extends ListView
 		{
 			$currentURL       = Uri::getInstance()->toString() . '#login-anchor';
 			$this->supplement .= '<div class="tbox-yellow">';
-			$this->supplement .= sprintf(Languages::_('ORGANIZER_COURSE_LOGIN_WARNING'), $currentURL, $currentURL);
+			$this->supplement .= sprintf(Languages::_('ORGANIZER_COURSE_LOGIN_WARNING'), $currentURL);
 			$this->supplement .= '</div>';
 		}
 	}
@@ -159,6 +159,21 @@ class Courses extends ListView
 			Helpers\OrganizerHelper::error(403);
 		}
 	}
+
+    /**
+     * @inheritDoc
+     */
+    public function display($tpl = null)
+    {
+        $params = Helpers\Input::getParams();
+
+        if ($params->get('onlyPrepCourses'))
+        {
+            $this->empty = Languages::_('ORGANIZER_PREP_COURSE_PLANNING_INCOMPLETE');
+        }
+
+        parent::display($tpl);
+    }
 
 	/**
 	 * @inheritDoc
