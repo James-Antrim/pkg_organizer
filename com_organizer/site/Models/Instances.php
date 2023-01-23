@@ -578,6 +578,20 @@ class Instances extends ListModel
 		$endDate = $params->get('endDate');
 		$status  = Helper::CURRENT;
 
+		if ($dynamic = Helpers\OrganizerHelper::dynamic())
+		{
+			$dow       = null;
+			$startDate = null;
+			$bound     = false;
+		}
+		else
+		{
+			$dow       = $params->get('dow');
+			$methodIDs = array_filter($params->get('methodIDs'));
+			$startDate = $params->get('startDate');
+			$bound     = ($dow or $endDate or $methodIDs);
+		}
+
 		switch ($format = Input::getCMD('format'))
 		{
 			case 'ics':
@@ -599,16 +613,16 @@ class Instances extends ListModel
 				$conditions['separate'] = Input::getBool('separate');
 
 				$date      = $this->getDate();
-				$interval  = $this->getInterval();
-				$intervals = ['month', 'quarter', 'term', 'week'];
+				$interval  = $bound ? 'half' : $this->getInterval();
+				$intervals = ['half', 'month', 'quarter', 'term', 'week'];
 				$interval  = in_array($interval, $intervals) ? $interval : 'week';
 				$layout    = Helper::GRID;
 				break;
 
 			case 'xls':
 				$date      = $this->getDate();
-				$interval  = $this->getInterval();
-				$intervals = ['day', 'month', 'quarter', 'term', 'week'];
+				$interval  = $bound ? 'half' : $this->getInterval();
+				$intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
 				$interval  = in_array($interval, $intervals) ? $interval : 'week';
 				$layout    = Helper::LIST;
 				$status    = $app->getUserStateFromRequest("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
@@ -622,7 +636,7 @@ class Instances extends ListModel
 				$statuses = [Helper::CHANGED, Helper::CURRENT, Helper::NEW, Helper::REMOVED];
 				$status   = in_array($status, $statuses) ? $status : Helper::CURRENT;
 
-				if (Helpers\OrganizerHelper::dynamic())
+				if ($dynamic)
 				{
 					$sLayout = $app->getUserStateFromRequest("{$lc}layout", "{$lp}layout", Helper::LIST, 'int');
 					$gLayout = strpos(strtolower(Input::getString('layout')), 'grid') === 0;
@@ -653,12 +667,9 @@ class Instances extends ListModel
 					}
 					else
 					{
-						$dow       = $params->get('dow');
-						$methodIDs = array_filter($params->get('methodIDs'));
-						$startDate = $params->get('startDate');
 
 						// Menu constricted list conditions
-						if ($dow or $endDate or $methodIDs)
+						if ($bound)
 						{
 							$date     = ($startDate and $startDate > $date) ? $startDate : $date;
 							$interval = 'half';

@@ -44,7 +44,7 @@ class Instances extends ListView
 	 */
 	protected $model;
 
-	public bool$noInstances = true;
+	public bool $noInstances = true;
 
 	private bool $premature = true;
 
@@ -89,8 +89,8 @@ class Instances extends ListView
 					$formattedDate = Dates::formatDate($date);
 					$text          = Languages::_($constant);
 
-					$template    = "TEXT: <a onclick=\"jump('DATE')\">FORMATTEDDATE</a>";
-					$output      = str_replace('FORMATTEDDATE', $formattedDate, $template);
+					$template    = "TEXT: <a onclick=\"jump('DATE')\">formatted date</a>";
+					$output      = str_replace('formatted date', $formattedDate, $template);
 					$output      = str_replace('DATE', $date, $output);
 					$dates[$key] = str_replace('TEXT', $text, $output);
 				}
@@ -203,6 +203,9 @@ class Instances extends ListView
 
 			switch ((string) $this->state->get('list.interval'))
 			{
+				case 'half':
+					$interval = Languages::_('ORGANIZER_HALF_YEAR');
+					break;
 				case 'month':
 					$interval = Languages::_('ORGANIZER_SELECTED_MONTH');
 					break;

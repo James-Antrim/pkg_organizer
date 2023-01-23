@@ -22,9 +22,9 @@ class Instances extends ListView
 	// RoleIDs
 	private const SPEAKERS = 4, SUPERVISORS = 3, TEACHERS = 1, TUTORS = 2;
 
-	public $groups = [];
+	public array $groups = [];
 
-	public $rooms = [];
+	public array $rooms = [];
 
 	/**
 	 * @var Model
@@ -278,7 +278,7 @@ class Instances extends ListView
 			'date'        => Helpers\Dates::formatDate($item->date),
 			'times'       => "$item->startTime - $item->endTime",
 			'title'       => $item->name,
-			'method'      => $item->methodCode,
+			'method'      => $item->method,
 			'groups'      => $groupNames,
 			'rooms'       => $roomNames,
 			'teachers'    => $this->getPersonTexts($teachers, $persons, $showGroups, $showRooms),

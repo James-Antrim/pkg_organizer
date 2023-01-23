@@ -40,30 +40,30 @@ abstract class GridLayout extends BaseLayout
 		'B' => ['width' => '.5', 'color' => [255, 255, 255]]
 	];
 
-	protected $bookmark = false;
+	protected bool $bookmark = false;
 
-	protected $currentGroupID = 0;
+	protected int $currentGroupID = 0;
 
 	/**
 	 * The time grid.
 	 *
 	 * @var array
 	 */
-	protected $grid;
+	protected array $grid;
 
 	/**
 	 * The planned instances.
 	 *
 	 * @var stdClass[]
 	 */
-	protected $instances;
+	protected array $instances;
 
 	/**
 	 * The text pertaining to the selected resources.
 	 *
 	 * @var string
 	 */
-	private $resourceHeader;
+	private string $resourceHeader;
 
 	/**
 	 * The view document.
@@ -84,7 +84,7 @@ abstract class GridLayout extends BaseLayout
 		$view->setPageOrientation($view::LANDSCAPE);
 
 		// This allows new header data per page.
-		$view->setHeaderTemplateAutoreset(true);
+		$view->setHeaderTemplateAutoreset();
 	}
 
 	/**
@@ -998,6 +998,8 @@ abstract class GridLayout extends BaseLayout
 
 			if ($this->addPageBreak($row['height'], $monDate, $saturDate))
 			{
+				// The page and with it the page's y position has been changed.
+				/** @noinspection PhpConditionAlreadyCheckedInspection */
 				$yPos = $view->GetY();
 				$view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $xPos, $yPos, $label, $border);
 			}
@@ -1185,7 +1187,7 @@ abstract class GridLayout extends BaseLayout
 			}
 		}
 
-		$this->grid = $hasCells ? $grid : null;
+		$this->grid = $hasCells ? $grid : [];
 
 		for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
 		{
