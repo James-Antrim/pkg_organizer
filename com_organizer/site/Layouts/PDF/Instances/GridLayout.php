@@ -66,6 +66,30 @@ abstract class GridLayout extends BaseLayout
 	private string $resourceHeader;
 
 	/**
+	 * Whether to display the group codes globally.
+	 * @var bool
+	 */
+	private bool $showGroupCodes;
+
+	/**
+	 * Whether to display the instance method.
+	 * @var bool
+	 */
+	private bool $showMethods;
+
+	/**
+	 * Whether to display the names of persons.
+	 * @var bool
+	 */
+	private bool $showPersons;
+
+	/**
+	 * Whether to display the names of persons.
+	 * @var bool
+	 */
+	private bool $showRooms;
+
+	/**
 	 * The view document.
 	 * @var Instances
 	 */
@@ -217,7 +241,14 @@ abstract class GridLayout extends BaseLayout
 		$this->instances = $data;
 
 		$conditions = $view->conditions;
-		$monDate    = $startDate;
+
+		// If there is no category context the group names may overlap.
+		$this->showGroupCodes = empty($conditions['categoryIDs']);
+		$this->showMethods    = (empty($conditions['methodIDs']) or count($conditions['methodIDs']) > 1);
+		$this->showPersons    = (empty($conditions['personIDs']) or count($conditions['personIDs']) > 1);
+		$this->showRooms      = empty($conditions['roomIDs']);
+
+		$monDate = $startDate;
 
 		$atomic      = (!empty($conditions['my']) or !empty($conditions['groupIDs']) or !empty($conditions['personIDs']) or !empty($conditions['roomIDs']));
 		$noAggregate = (empty($conditions['organizationIDs']) and empty($conditions['categoryIDs']));
@@ -492,7 +523,7 @@ abstract class GridLayout extends BaseLayout
 
 		$html .= "<span style=\"font-size: 10pt;\">$name</span><br>";
 
-		if ($instance->methodID)
+		if ($this->showMethods and $instance->methodID)
 		{
 			$html .= "<span>$instance->method</span><br>";
 		}
@@ -505,15 +536,10 @@ abstract class GridLayout extends BaseLayout
 
 		$conditions = $this->view->conditions;
 
-		// If there is no category context the group names may overlap.
-		$showGroupCodes = empty($conditions['categoryIDs']);
-
 		$my = !empty($conditions['my']);
 
 		// If groups/rooms were restricted their output is redundant.
-		$showGroups  = (!$my and empty($conditions['groupIDs']) and !$this->currentGroupID);
-		$showPersons = empty($conditions['personIDs']);
-		$showRooms   = empty($conditions['roomIDs']);
+		$showGroups = (!$my and empty($conditions['groupIDs']) and !$this->currentGroupID);
 
 		// Aggregation containers
 		$groups      = [];
@@ -537,7 +563,7 @@ abstract class GridLayout extends BaseLayout
 				continue;
 			}
 
-			if (!$showPersons and !in_array($personID, $conditions['personIDs']))
+			if (!$this->showPersons and !in_array($personID, $conditions['personIDs']))
 			{
 				unset($persons[$personID]);
 				continue;
@@ -617,7 +643,7 @@ abstract class GridLayout extends BaseLayout
 		// Status: share and share alike, all persons are assigned the same groups and rooms or none
 		if ($groupCount < 2 and $roomCount < 2)
 		{
-			if ($showPersons)
+			if ($this->showPersons)
 			{
 				if ($roleCount === 1)
 				{
@@ -636,10 +662,10 @@ abstract class GridLayout extends BaseLayout
 
 			if ($groups and $showGroups)
 			{
-				$html .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . '<br>';
+				$html .= $this->getResourceText($groups[0], 'group', $this->showGroupCodes) . '<br>';
 			}
 
-			if ($rooms and $showRooms)
+			if ($rooms and $this->showRooms)
 			{
 				$html .= $this->getResourceText($rooms[0], 'room') . '<br>';
 			}
@@ -649,16 +675,16 @@ abstract class GridLayout extends BaseLayout
 			// Assumption specific room assignments => small number per person => no need to further process rooms per line
 			if ($groups and $showGroups)
 			{
-				$html .= $this->getResourceText($groups[0], 'group', $showGroupCodes) . '<br>';
+				$html .= $this->getResourceText($groups[0], 'group', $this->showGroupCodes) . '<br>';
 			}
 
-			if ($showPersons)
+			if ($this->showPersons)
 			{
 				if ($roleCount === 1)
 				{
 					$rolePersons = array_shift($personTexts);
 					asort($rolePersons);
-					$html .= $this->getIndividualTexts($rolePersons, $persons, false, $showRooms);
+					$html .= $this->getIndividualTexts($rolePersons, $persons, false, $this->showRooms);
 				}
 				else
 				{
@@ -666,18 +692,18 @@ abstract class GridLayout extends BaseLayout
 					{
 						asort($rolePersons);
 						$html .= $this->getRoleText($roleID, $rolePersons);
-						$html .= $this->getIndividualTexts($rolePersons, $persons, false, $showRooms);
+						$html .= $this->getIndividualTexts($rolePersons, $persons, false, $this->showRooms);
 					}
 				}
 			}
-			elseif ($rooms and $showRooms)
+			elseif ($rooms and $this->showRooms)
 			{
 				$html .= $this->getAggregated($rooms, 'room');
 			}
 		} // Status: claustrophobic, all persons are assigned the same rooms or none, groups may vary between persons
 		elseif ($roomCount < 2)
 		{
-			if ($showPersons)
+			if ($this->showPersons)
 			{
 				if ($roleCount === 1)
 				{
@@ -697,22 +723,22 @@ abstract class GridLayout extends BaseLayout
 			}
 			elseif ($groups and $showGroups)
 			{
-				$html .= $this->getAggregated($groups, 'group', $showGroupCodes);
+				$html .= $this->getAggregated($groups, 'group', $this->showGroupCodes);
 			}
 
-			if ($rooms and $showRooms)
+			if ($rooms and $this->showRooms)
 			{
 				$html .= $this->getResourceText($rooms[0], 'room') . '<br>';
 			}
 		} // Status: varying degrees of complexity, most easily handled by individual output,
-		elseif ($showPersons)
+		elseif ($this->showPersons)
 		{
 			// Suppress for less output where differentiation is not necessary.
 			if ($roleCount === 1)
 			{
 				$personTexts = array_shift($personTexts);
 				asort($personTexts);
-				$html .= $this->getIndividualTexts($personTexts, $persons, $showGroups, $showRooms);
+				$html .= $this->getIndividualTexts($personTexts, $persons, $showGroups, $this->showRooms);
 			}
 			else
 			{
@@ -720,7 +746,7 @@ abstract class GridLayout extends BaseLayout
 				{
 					asort($rolePersons);
 					$html .= $this->getRoleText($roleID, $rolePersons);
-					$html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, $showRooms);
+					$html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, $this->showRooms);
 				}
 			}
 		}
@@ -728,10 +754,10 @@ abstract class GridLayout extends BaseLayout
 		{
 			if ($groups and $showGroups)
 			{
-				$html .= $this->getAggregated($groups, 'group', $showGroupCodes);
+				$html .= $this->getAggregated($groups, 'group', $this->showGroupCodes);
 			}
 
-			if ($rooms and $showRooms)
+			if ($rooms and $this->showRooms)
 			{
 				$html .= $this->getAggregated($rooms, 'room');
 			}

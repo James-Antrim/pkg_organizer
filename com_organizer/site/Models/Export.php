@@ -101,25 +101,54 @@ class Export extends FormModel
 	{
 		if (!Helpers\Users::getID())
 		{
-			$form->removeField('personID');
+			$form->removeField('instances');
 			$form->removeField('my');
+			$form->removeField('personID');
 		}
 
-		if ($my = Input::getBool('my'))
+		$categoryID     = Input::getInt('categoryID');
+		$groupID        = Input::getInt('groupID');
+		$instances      = Input::getCMD('instances');
+		$my             = Input::getBool('my');
+		$organizationID = Input::getInt('organizationID');
+		$personID       = Input::getInt('personID');
+		$roomID         = Input::getInt('roomID');
+		$atomic         = ($groupID or $personID or $roomID);
+
+		if ($my)
 		{
-			//$form->removeField('campusID');
-			$form->removeField('organizationID');
 			$form->removeField('categoryID');
 			$form->removeField('groupID');
+			$form->removeField('instances');
+			$form->removeField('organizationID');
 			$form->removeField('personID');
+			$form->removeField('roleID');
 			$form->removeField('roomID');
+			$form->removeField('separate');
 		}
-		elseif (!$organizationID = Input::getInt('organizationID') and !$categoryID = Input::getInt('categoryID'))
+		elseif ($organizationID)
+		{
+			if (!Helpers\Can::view('organization', $organizationID) or $categoryID)
+			{
+				$form->removeField('instances');
+			}
+			elseif ($instances and $instances !== 'organization')
+			{
+				$form->removeField('categoryID');
+				$form->removeField('groupID');
+				$form->removeField('personID');
+				$form->removeField('roomID');
+			}
+		}
+		elseif ($categoryID)
+		{
+			$form->removeField('instances');
+		}
+		else
 		{
 			$form->removeField('groupID');
 		}
 
-		$atomic      = ($my or Input::getInt('groupID') or Input::getInt('personID') or Input::getInt('roomID'));
 		$noAggregate = (empty($organizationID) and empty($categoryID));
 		$pdf         = (!$format = Input::getFormItems()->get('format') or strpos($format, 'pdf') === 0);
 

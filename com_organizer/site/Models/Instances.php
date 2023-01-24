@@ -302,11 +302,12 @@ class Instances extends ListModel
 			return $title;
 		}
 
-		$methods = '';
-		$suffix  = '';
-		$title   = $this->layout === Helper::GRID ? Languages::_('ORGANIZER_SCHEDULE') : Languages::_("ORGANIZER_INSTANCES");
+		$methods   = '';
+		$suffix    = '';
+		$title     = $this->layout === Helper::GRID ? Languages::_('ORGANIZER_SCHEDULE') : Languages::_("ORGANIZER_INSTANCES");
+		$methodIDs = $params->get('methodIDs') ?: Input::getIntCollection('methodID');
 
-		if ($methodIDs = $params->get('methodIDs') and $methodIDs = array_filter($methodIDs))
+		if ($methodIDs and $methodIDs = array_filter($methodIDs))
 		{
 			if (count($methodIDs) === 1)
 			{
@@ -393,16 +394,27 @@ class Instances extends ListModel
 			{
 				$suffix .= ': ' . Helpers\Categories::getName($categoryID);
 			}
-			elseif ($organizationID = $params->get('organizationID'))
+			elseif ($organizationID = $params->get('organizationID', Input::getInt('organizationID')))
 			{
 				$fullName  = Helpers\Organizations::getFullName($organizationID);
 				$shortName = Helpers\Organizations::getShortName($organizationID);
-				$name      = ($this->mobile or strlen($fullName) > 50) ? $shortName : $fullName;
+				$name      = ($this->mobile or strlen($fullName) > 40) ? $shortName : $fullName;
 				$suffix    .= ': ' . $name;
 			}
 			elseif ($campusID = $params->get('campusID'))
 			{
 				$suffix .= ': ' . Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
+			}
+
+			if ($roleID = Input::getInt('roleID'))
+			{
+				$plural = Helpers\Roles::getPlural($roleID);
+				$suffix .= $suffix ? " - $plural" : ": $plural";
+			}
+			elseif ($instances = Input::getCMD('instances') and $instances === 'person')
+			{
+				$persons = Languages::_('ORGANIZER_PERSONS');
+				$suffix  .= $suffix ? " - $persons" : ": $persons";
 			}
 
 		}
@@ -482,10 +494,13 @@ class Instances extends ListModel
 				$organizationID = $params->get('organizationID', $organizationID);
 			}
 
+			$byPerson   = false;
 			$categoryID = $app->getUserStateFromRequest("{$fc}categoryID", "{$fp}categoryID", 0, 'int');
 			$categoryID = Input::getInt('categoryID', $categoryID);
 			$groupID    = $app->getUserStateFromRequest("{$fc}groupID", "{$fp}groupID", 0, 'int');
 			$groupID    = Input::getInt('groupID', $groupID);
+
+			$conditions['roleID'] = Input::getInt('roleID');
 
 			if ($organizationID)
 			{
@@ -493,6 +508,13 @@ class Instances extends ListModel
 				$filterItems->set('organizationID', $organizationID);
 				$this->state->set('filter.organizationID', $organizationID);
 				Helper::setPublishingAccess($conditions);
+
+				$instances = Input::getCMD('instances');
+				if (Helpers\Can::view('organization', $organizationID) and $instances === 'person')
+				{
+					$conditions['personIDs'] = Helpers\Organizations::getPersonIDs($organizationID);
+					$byPerson                = true;
+				}
 			}
 			else
 			{
@@ -511,57 +533,59 @@ class Instances extends ListModel
 				$conditions['showUnpublished'] = Helpers\Can::administrate();
 			}
 
-			if ($categoryID)
+			if (!$byPerson)
 			{
-				$conditions['categoryIDs'] = [$categoryID];
-				$filterItems->set('categoryID', $categoryID);
-				$this->state->set('filter.categoryID', $categoryID);
-			}
-
-			if ($groupID)
-			{
-				$conditions['groupIDs'] = [$groupID];
-				$filterItems->set('groupID', $groupID);
-				$this->state->set('filter.groupID', $groupID);
-			}
-
-			if ($eventID = Input::getInt('eventID'))
-			{
-				$conditions['eventIDs'] = [$eventID];
-				$this->state->set('filter.eventID', $eventID);
-			}
-
-			$personID = $app->getUserStateFromRequest("{$fc}personID", "{$fp}personID", 0, 'int');
-			if ($personID = Input::getInt('personID', $personID))
-			{
-				$personIDs = [$personID];
-				$userID    = Helpers\Users::getID();
-				Helper::filterPersonIDs($personIDs, $userID);
-
-				if ($personIDs)
+				if ($categoryID)
 				{
-					$conditions['personIDs'] = $personIDs;
-					$filterItems->set('personID', $personID);
-					$this->state->set('filter.personID', $personID);
+					$conditions['categoryIDs'] = [$categoryID];
+					$filterItems->set('categoryID', $categoryID);
+					$this->state->set('filter.categoryID', $categoryID);
+				}
+				if ($groupID)
+				{
+					$conditions['groupIDs'] = [$groupID];
+					$filterItems->set('groupID', $groupID);
+					$this->state->set('filter.groupID', $groupID);
+				}
 
-					if (empty($conditions['showUnpublished']))
+				if ($eventID = Input::getInt('eventID'))
+				{
+					$conditions['eventIDs'] = [$eventID];
+					$this->state->set('filter.eventID', $eventID);
+				}
+
+				$personID = $app->getUserStateFromRequest("{$fc}personID", "{$fp}personID", 0, 'int');
+				if ($personID = Input::getInt('personID', $personID))
+				{
+					$personIDs = [$personID];
+					$userID    = Helpers\Users::getID();
+					Helper::filterPersonIDs($personIDs, $userID);
+
+					if ($personIDs)
 					{
-						$conditions['showUnpublished'] = Helpers\Persons::getIDByUserID($userID) === $personID;
+						$conditions['personIDs'] = $personIDs;
+						$filterItems->set('personID', $personID);
+						$this->state->set('filter.personID', $personID);
+
+						if (empty($conditions['showUnpublished']))
+						{
+							$conditions['showUnpublished'] = Helpers\Persons::getIDByUserID($userID) === $personID;
+						}
+					}
+					else
+					{
+						// Unauthorized access to personal information.
+						Helpers\OrganizerHelper::error(403);
 					}
 				}
-				else
-				{
-					// Unauthorized access to personal information.
-					Helpers\OrganizerHelper::error(403);
-				}
-			}
 
-			$roomID = $app->getUserStateFromRequest("{$fc}roomID", "{$fp}roomID", 0, 'int');
-			if ($roomID = Input::getInt('roomID', $roomID))
-			{
-				$conditions['roomIDs'] = [$roomID];
-				$filterItems->set('roomID', $roomID);
-				$this->state->set('filter.roomID', $roomID);
+				$roomID = $app->getUserStateFromRequest("{$fc}roomID", "{$fp}roomID", 0, 'int');
+				if ($roomID = Input::getInt('roomID', $roomID))
+				{
+					$conditions['roomIDs'] = [$roomID];
+					$filterItems->set('roomID', $roomID);
+					$this->state->set('filter.roomID', $roomID);
+				}
 			}
 		}
 
@@ -583,6 +607,11 @@ class Instances extends ListModel
 			$dow       = null;
 			$startDate = null;
 			$bound     = false;
+
+			if ($instances = Input::getCMD('instances'))
+			{
+				$conditions['instances'] = $instances;
+			}
 		}
 		else
 		{

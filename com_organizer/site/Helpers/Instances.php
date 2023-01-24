@@ -805,6 +805,11 @@ class Instances extends ResourceHelper
 			$query->where("ipe.personID IN ($personIDs)");
 		}
 
+		if (!empty($conditions['roleID']))
+		{
+			$query->where("ipe.roleID = {$conditions['roleID']}");
+		}
+
 		if (!empty($conditions['roomIDs']))
 		{
 			$filterOrganization = false;
@@ -1421,6 +1426,11 @@ class Instances extends ResourceHelper
 			->from('#__organizer_instance_persons AS ip')
 			->innerJoin('#__organizer_roles AS r ON r.id = ip.roleID')
 			->where("ip.instanceID = {$instance['instanceID']}");
+
+		if (!empty($conditions['roleID']))
+		{
+			$query->where("ip.roleID = {$conditions['roleID']}");
+		}
 
 		self::addResourceDelta($query, 'ip', $conditions);
 

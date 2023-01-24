@@ -189,6 +189,22 @@ class Organizations extends ResourceHelper implements Selectable
 	}
 
 	/**
+	 * Retrieves a set of personIDs associated with the given organization.
+	 *
+	 * @param   int  $organizationID
+	 *
+	 * @return int[]
+	 */
+	public static function getPersonIDs(int $organizationID): array
+	{
+		$query = Database::getQuery();
+		$query->selectX('DISTINCT personID', 'associations', 'organizationID', [$organizationID]);
+		Database::setQuery($query);
+
+		return Database::loadIntColumn();
+	}
+
+	/**
 	 * @inheritDoc
 	 *
 	 * @param   string  $access  any access restriction which should be performed

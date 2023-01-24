@@ -27,7 +27,7 @@ class Export extends FormView
 	 *
 	 * @var string
 	 */
-	public $url;
+	public string $url;
 
 	/**
 	 * @inheritdoc
@@ -38,12 +38,13 @@ class Export extends FormView
 		$toolbar = Toolbar::getInstance();
 
 		$fields = [
-			'campusID'       => 0,
 			'categoryID'     => 0,
 			'groupID'        => 0,
 			'my'             => 0,
+			'methodID'       => 0,
 			'organizationID' => 0,
 			'personID'       => 0,
+			'roleID'         => 0,
 			'roomID'         => 0
 		];
 		$form   = ($task = Helpers\Input::getTask() and $task === 'export.reset') ? [] : Helpers\Input::getArray();
@@ -76,14 +77,18 @@ class Export extends FormView
 
 		$url = Uri::base() . '?option=com_organizer&view=instances';
 
-		$formats = ['ics', 'pdf.GridA3', 'pdf.GridA4', 'xls.Instances'];
+		$instances = ['organization', 'person'];
+		$instances = (!empty($form['instances']) and in_array($form['instances'], $instances)) ?
+			$form['instances'] : 'organization';
+		$url       .= $instances === 'organization' ? '' : "&instances=$instances";
 
-		$format = (!empty($form['format']) and in_array($form['format'], $formats)) ? $form['format'] : 'pdf.GridA4';
-		$format = explode('.', $format);
-		$layout = empty($format[1]) ? '' : "&layout=$format[1]";
-		$format = $format[0];
-		$layout .= ($format === 'pdf' and !empty($form['separate'])) ? '&separate=1' : '';
-		$url    .= "&format=$format$layout";
+		$formats = ['ics', 'pdf.GridA3', 'pdf.GridA4', 'xls.Instances'];
+		$format  = (!empty($form['format']) and in_array($form['format'], $formats)) ? $form['format'] : 'pdf.GridA4';
+		$format  = explode('.', $format);
+		$layout  = empty($format[1]) ? '' : "&layout=$format[1]";
+		$format  = $format[0];
+		$layout  .= ($format === 'pdf' and !empty($form['separate'])) ? '&separate=1' : '';
+		$url     .= "&format=$format$layout";
 
 		$authRequired = (!empty($fields['my']) or !empty($fields['personID']));
 

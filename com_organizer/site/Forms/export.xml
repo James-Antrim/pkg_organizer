@@ -5,11 +5,16 @@
             <option value="0">NO</option>
             <option value="1">YES</option>
         </field>
-        <!--<field name="campusID" type="Campuses" label="CAMPUS" onchange="this.form.submit();">
-            <option value="">ALL_CAMPUSES</option>
-        </field>-->
         <field name="organizationID" type="OrganizationFilter" label="ORGANIZATION" onchange="this.form.submit();">
             <option value="">ALL_ORGANIZATIONS</option>
+        </field>
+        <field name="instances" type="Options" label="INSTANCES" class="input-15" default="organization"
+               onchange="this.form.submit();">
+            <option value="organization">ORGANIZATION_INSTANCES</option>
+            <option value="person">ORGANIZATION_PERSON_INSTANCES</option>
+        </field>
+        <field name="roleID" type="Roles" label="ROLE" onchange="this.form.submit();">
+            <option value="">ALL_ROLES</option>
         </field>
         <field name="categoryID" type="Categories" label="CATEGORY" onchange="this.form.submit();">
             <option value="">ALL_CATEGORIES</option>
@@ -17,12 +22,14 @@
         <field name="groupID" type="Groups" label="GROUP" onchange="this.form.submit();">
             <option value="">ALL_GROUPS</option>
         </field>
-        <field name="personID" type="Persons" label="PERSON" onchange="this.form.submit();" table="organizer_persons"
-               textcolumn="surname" valuecolumn="id">
+        <field name="personID" type="Persons" label="PERSON" onchange="this.form.submit();">
             <option value="">ALL_PERSONS</option>
         </field>
         <field name="roomID" type="Rooms" label="ROOM" onchange="this.form.submit();">
             <option value="">ALL_ROOMS</option>
+        </field>
+        <field name="methodID" type="Methods" label="METHOD" onchange="this.form.submit();">
+            <option value="">ALL_METHODS</option>
         </field>
     </fieldset>
     <fieldset name="settings" label="SETTINGS">
