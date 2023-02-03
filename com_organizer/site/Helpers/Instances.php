@@ -1316,6 +1316,7 @@ class Instances extends ResourceHelper
 			->select("g.code AS code, g.name_$tag AS name, g.fullName_$tag AS fullName, g.gridID")
 			->from('#__organizer_instance_groups AS ig')
 			->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID')
+			->innerJoin('#__organizer_associations AS a ON a.groupID = g.id')
 			->where("ig.assocID = {$person['assocID']}");
 
 		if (array_key_exists('categoryIDs', $conditions))
@@ -1325,11 +1326,12 @@ class Instances extends ResourceHelper
 
 		self::addResourceDelta($query, 'ig', $conditions);
 
-		if (!empty($conditions['organizationIDs']))
+		// Don't limit the group organization in non-standard contexts
+		if (!empty($conditions['organizationIDs'])
+			and (empty($conditions['instances']) or $conditions['instances'] === 'organization'))
 		{
 			$organizationIDs = implode(',', ArrayHelper::toInteger($conditions['organizationIDs']));
-			$query->innerJoin('#__organizer_associations AS a ON a.groupID = g.id')
-				->where("a.organizationID IN ($organizationIDs)");
+			$query->where("a.organizationID IN ($organizationIDs)");
 		}
 
 		Database::setQuery($query);

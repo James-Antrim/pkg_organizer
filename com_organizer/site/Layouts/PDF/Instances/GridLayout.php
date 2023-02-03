@@ -11,6 +11,7 @@
 namespace Organizer\Layouts\PDF\Instances;
 
 use Organizer\Helpers;
+use Organizer\Layouts\Exported;
 use Organizer\Layouts\PDF\BaseLayout;
 use Organizer\Tables\Roles;
 use Organizer\Views\PDF\Instances;
@@ -23,6 +24,8 @@ use stdClass;
  */
 abstract class GridLayout extends BaseLayout
 {
+	use Exported;
+
 	protected const PADDING = 2, TIME_HEIGHT = 15, TIME_WIDTH = 11;
 
 	protected const CORNER_BORDER = [
@@ -64,30 +67,6 @@ abstract class GridLayout extends BaseLayout
 	 * @var string
 	 */
 	private string $resourceHeader;
-
-	/**
-	 * Whether to display the group codes globally.
-	 * @var bool
-	 */
-	private bool $showGroupCodes;
-
-	/**
-	 * Whether to display the instance method.
-	 * @var bool
-	 */
-	private bool $showMethods;
-
-	/**
-	 * Whether to display the names of persons.
-	 * @var bool
-	 */
-	private bool $showPersons;
-
-	/**
-	 * Whether to display the names of persons.
-	 * @var bool
-	 */
-	private bool $showRooms;
 
 	/**
 	 * The view document.
@@ -241,12 +220,7 @@ abstract class GridLayout extends BaseLayout
 		$this->instances = $data;
 
 		$conditions = $view->conditions;
-
-		// If there is no category context the group names may overlap.
-		$this->showGroupCodes = empty($conditions['categoryIDs']);
-		$this->showMethods    = (empty($conditions['methodIDs']) or count($conditions['methodIDs']) > 1);
-		$this->showPersons    = (empty($conditions['personIDs']) or count($conditions['personIDs']) > 1);
-		$this->showRooms      = empty($conditions['roomIDs']);
+		$this->setFlags($conditions);
 
 		$monDate = $startDate;
 
@@ -497,7 +471,16 @@ abstract class GridLayout extends BaseLayout
 	 */
 	protected function getInstance(stdClass $instance, string $startTime, string $endTime): string
 	{
+		$conditions = $this->view->conditions;
+
 		$html = '<div style="font-size: 10px; text-align: center">';
+
+		$showOrganization = ($this->showOrganizations and !in_array($instance->organizationID, $conditions['organizationIDs']));
+
+		if ($showOrganization)
+		{
+			$html .= "<span style=\"font-style: italic\">$instance->organization</span>";
+		}
 
 		// Understood end time the exclusive minute at which the instance has ended
 		$iEndTime   = $instance->endTime;
@@ -506,6 +489,7 @@ abstract class GridLayout extends BaseLayout
 		// Instance time not coincidental with block
 		if ($instance->startTime != $startTime or ($iEndTime != $endTime and $iEndTime != $altEndTime))
 		{
+			$html           .= $showOrganization ? '<br>' : '';
 			$formattedStart = Helpers\Dates::formatTime($instance->startTime);
 			$formattedEnd   = Helpers\Dates::formatTime($iEndTime);
 
@@ -533,8 +517,6 @@ abstract class GridLayout extends BaseLayout
 			$comment = $this->resolveLinks($instance->comment);
 			$html    .= "<span style=\"font-style: italic\">$comment</span><br>";
 		}
-
-		$conditions = $this->view->conditions;
 
 		$my = !empty($conditions['my']);
 
