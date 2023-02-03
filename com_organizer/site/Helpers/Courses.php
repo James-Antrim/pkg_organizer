@@ -18,9 +18,6 @@ use Organizer\Tables;
  */
 class Courses extends ResourceHelper
 {
-	// RoleIDs
-	private const TEACHER = 1, TUTOR = 2, SUPERVISOR = 3, SPEAKER = 4;
-
 	/**
 	 * Check if the user is a course coordinator.
 	 *
@@ -141,9 +138,9 @@ class Courses extends ResourceHelper
 
 		foreach ($events as &$event)
 		{
-			$event['speakers'] = self::getPersons($courseID, $event['id'], [self::SPEAKER]);
-			$event['teachers'] = self::getPersons($courseID, $event['id'], [self::TEACHER]);
-			$event['tutors']   = self::getPersons($courseID, $event['id'], [self::TUTOR]);
+			$event['speakers'] = self::getPersons($courseID, $event['id'], [Roles::SPEAKER]);
+			$event['teachers'] = self::getPersons($courseID, $event['id'], [Roles::TEACHER]);
+			$event['tutors']   = self::getPersons($courseID, $event['id'], [Roles::TUTOR]);
 		}
 
 		return $events;
@@ -439,7 +436,7 @@ class Courses extends ResourceHelper
 	 */
 	public static function speaks(int $courseID = 0, int $personID = 0): bool
 	{
-		return self::hasResponsibility($courseID, $personID, self::SPEAKER);
+		return self::hasResponsibility($courseID, $personID, Roles::SPEAKER);
 	}
 
 	/**
@@ -452,7 +449,7 @@ class Courses extends ResourceHelper
 	 */
 	public static function supervises(int $courseID = 0, int $personID = 0): bool
 	{
-		return self::hasResponsibility($courseID, $personID, self::SUPERVISOR);
+		return self::hasResponsibility($courseID, $personID, Roles::SUPERVISOR);
 	}
 
 	/**
@@ -465,7 +462,7 @@ class Courses extends ResourceHelper
 	 */
 	public static function teaches(int $courseID = 0, int $personID = 0): bool
 	{
-		return self::hasResponsibility($courseID, $personID, self::TEACHER);
+		return self::hasResponsibility($courseID, $personID, Roles::TEACHER);
 	}
 
 	/**
@@ -478,6 +475,6 @@ class Courses extends ResourceHelper
 	 */
 	public static function tutors(int $courseID = 0, int $personID = 0): bool
 	{
-		return self::hasResponsibility($courseID, $personID, self::TUTOR);
+		return self::hasResponsibility($courseID, $personID, Roles::TUTOR);
 	}
 }

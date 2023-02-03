@@ -16,6 +16,7 @@ use Organizer\Adapters\Database;
 use Organizer\Adapters\Queries\QueryMySQLi;
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
+use Organizer\Helpers\Roles;
 use Organizer\Tables;
 
 /**
@@ -23,8 +24,6 @@ use Organizer\Tables;
  */
 class Search extends ListModel
 {
-	private const TEACHER = 1, SPEAKER = 4;
-
 	private $authorized;
 
 	private $filteredTerms = [];
@@ -2052,7 +2051,7 @@ class Search extends ListModel
 			$items['mentioned']['ens'] = $this->processEnS($subjects);
 		}
 
-		$relevantRoles = [self::TEACHER, self::SPEAKER];
+		$relevantRoles = [Roles::TEACHER, Roles::SPEAKER];
 
 		// Related: terms match subjects: coordinator or teacher; events: coordinator, speaker or teacher //////////////
 		$eQuery->clear('where')

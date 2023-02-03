@@ -11,13 +11,14 @@
 namespace Organizer\Views\HTML;
 
 use Organizer\Helpers;
+use Organizer\Helpers\Roles;
 
 /**
  * Loads lesson and event data for a filtered set of rooms into the view context.
  */
 class RoomOverview extends TableView
 {
-	private const TEACHER = 1, WEEK = 2, SPEAKER = 4, LAB = 14, UNKNOWN = 49;
+	private const WEEK = 2, LAB = 14, UNKNOWN = 49;
 
 	private $grid = null;
 
@@ -311,7 +312,7 @@ class RoomOverview extends TableView
 			$persons = [];
 			foreach ($instance['resources'] as $personID => $personAssoc)
 			{
-				if ((int) $personAssoc['roleID'] === self::TEACHER or (int) $personAssoc['roleID'] === self::SPEAKER)
+				if ((int) $personAssoc['roleID'] === Roles::TEACHER or (int) $personAssoc['roleID'] === Roles::SPEAKER)
 				{
 					$persons[$personID] = $personAssoc['person'];
 				}

@@ -47,11 +47,6 @@ class Instances extends ResourceHelper
 	public const HYBRID = 0, ONLINE = -1, PRESENCE = 1;
 
 	/**
-	 * Role constant
-	 */
-	private const TEACHER = 1;
-
-	/**
 	 * Adds a delta clause for a joined table.
 	 *
 	 * @param   JDatabaseQuery  $query  the query to modify
@@ -1646,7 +1641,7 @@ class Instances extends ResourceHelper
 	 */
 	public static function teaches(int $instanceID = 0, int $personID = 0): bool
 	{
-		return self::hasResponsibility($instanceID, $personID, self::TEACHER);
+		return self::hasResponsibility($instanceID, $personID, Roles::TEACHER);
 	}
 
 	/**

@@ -18,6 +18,8 @@ use Organizer\Tables\Roles as Table;
  */
 class Roles extends ResourceHelper implements Selectable
 {
+	public const TEACHER = 1, TUTOR = 2, SUPERVISOR = 3, SPEAKER = 4;
+
 	/**
 	 * Returns the color value for a given colorID.
 	 *

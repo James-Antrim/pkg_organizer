@@ -19,8 +19,6 @@ use Organizer\Tables\Units as Table;
  */
 class Units extends ResourceHelper
 {
-	private const TEACHER = 1;
-
 	/**
 	 * Gets the campus id to associate with a course based on event documentation and planning data.
 	 *
@@ -264,7 +262,7 @@ class Units extends ResourceHelper
 			->from('#__organizer_instance_persons AS ip')
 			->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')
 			->where("ip.personID = $personID")
-			->where('ip.roleID = ' . self::TEACHER);
+			->where('ip.roleID = ' . Roles::TEACHER);
 
 		if ($unitID)
 		{
