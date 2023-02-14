@@ -12,6 +12,7 @@ namespace Organizer\Views\XLS;
 
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;
+use Organizer\Layouts\Exported;
 use Organizer\Models\Instances as Model;
 
 /**
@@ -19,6 +20,8 @@ use Organizer\Models\Instances as Model;
  */
 class Instances extends ListView
 {
+	use Exported;
+
 	// RoleIDs
 	private const SPEAKERS = 4, SUPERVISORS = 3, TEACHERS = 1, TUTORS = 2;
 
@@ -154,56 +157,107 @@ class Instances extends ListView
 	{
 		$this->headers = [
 			'date'        => [
-				'column' => 'A',
 				'text'   => Languages::_('ORGANIZER_DATE'),
 				'width'  => 12.5
 			],
-			'groups'      => [
-				'column' => 'E',
-				'text'   => Languages::_('ORGANIZER_GROUPS'),
-				'width'  => 70
-			],
-			'method'      => [
-				'column' => 'D',
-				'text'   => Languages::_('ORGANIZER_METHOD'),
-				'width'  => 15
-			],
-			'rooms'       => [
-				'column' => 'F',
-				'text'   => Languages::_('ORGANIZER_ROOMS'),
-				'width'  => 12.5
-			],
-			'speakers'    => [
-				'column' => 'J',
-				'text'   => Helpers\Roles::getLabel(self::SPEAKERS, 2),
-				'width'  => 30
-			],
-			'supervisors' => [
-				'column' => 'H',
-				'text'   => Helpers\Roles::getLabel(self::SUPERVISORS, 2),
-				'width'  => 30
-			],
-			'teachers'    => [
-				'column' => 'G',
-				'text'   => Helpers\Roles::getLabel(self::TEACHERS, 2),
-				'width'  => 30
-			],
 			'times'       => [
-				'column' => 'B',
 				'text'   => Languages::_('ORGANIZER_TIME'),
 				'width'  => 15
 			],
+			'organization'        => [
+				'text'   => Languages::_('ORGANIZER_ORGANIZATION'),
+				'width'  => 15
+			],
 			'title'       => [
-				'column' => 'C',
 				'text'   => Languages::_('ORGANIZER_NAME'),
 				'width'  => 30
 			],
+			'method'      => [
+				'text'   => Languages::_('ORGANIZER_METHOD'),
+				'width'  => 15
+			],
+			'groups'      => [
+				'text'   => Languages::_('ORGANIZER_GROUPS'),
+				'width'  => 70
+			],
+			'rooms'       => [
+				'text'   => Languages::_('ORGANIZER_ROOMS'),
+				'width'  => 12.5
+			],
+			'teachers'    => [
+				'text'   => Helpers\Roles::getLabel(self::TEACHERS, 2),
+				'width'  => 30
+			],
+			'supervisors' => [
+				'text'   => Helpers\Roles::getLabel(self::SUPERVISORS, 2),
+				'width'  => 30
+			],
 			'tutors'      => [
-				'column' => 'I',
 				'text'   => Helpers\Roles::getLabel(self::TUTORS, 2),
+				'width'  => 30
+			],
+			'speakers'    => [
+				'text'   => Helpers\Roles::getLabel(self::SPEAKERS, 2),
 				'width'  => 30
 			]
 		];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function structureItems()
+	{
+		$conditions = $this->model->conditions;
+
+		$this->setFlags($conditions);
+
+		// For organizations with no service function this can be a false flag. => Double check.
+		if ($this->showOrganizations)
+		{
+			$organizations = [];
+
+			foreach ($this->items as $item)
+			{
+				$organizations[$item->organization] = $item->organization;
+			}
+
+			if (count($organizations) === 1)
+			{
+				$this->showOrganizations = false;
+			}
+		}
+
+		if (!$this->showOrganizations)
+		{
+			unset($this->headers['organization']);
+		}
+
+		if (!empty($conditions['roleID']))
+		{
+			switch ($conditions['roleID'])
+			{
+				case Helpers\Roles::SPEAKER:
+					unset($this->headers['supervisors'], $this->headers['teachers'], $this->headers['tutors']);
+					break;
+				case Helpers\Roles::SUPERVISOR:
+					unset($this->headers['speakers'], $this->headers['teachers'], $this->headers['tutors']);
+					break;
+				case Helpers\Roles::TEACHER:
+					unset($this->headers['speakers'], $this->headers['supervisors'], $this->headers['tutors']);
+					break;
+				case Helpers\Roles::TUTOR:
+					unset($this->headers['speakers'], $this->headers['supervisors'], $this->headers['teachers']);
+					break;
+			}
+		}
+
+		if (!$this->showRooms)
+		{
+			unset($this->headers['rooms']);
+		}
+
+		parent::structureItems();
 	}
 
 	/**
@@ -276,15 +330,16 @@ class Instances extends ListView
 
 		return [
 			'date'        => Helpers\Dates::formatDate($item->date),
-			'times'       => "$item->startTime - $item->endTime",
-			'title'       => $item->name,
-			'method'      => $item->method,
 			'groups'      => $groupNames,
+			'method'      => $item->method,
+			'organization' => $this->showOrganizations ? $item->organization : '',
 			'rooms'       => $roomNames,
 			'teachers'    => $this->getPersonTexts($teachers, $persons, $showGroups, $showRooms),
+			'times'       => "$item->startTime - $item->endTime",
+			'title'       => $item->name,
+			'speakers'    => $this->getPersonTexts($speakers, $persons, $showGroups, $showRooms),
 			'supervisors' => $this->getPersonTexts($supervisors, $persons, $showGroups, $showRooms),
-			'tutors'      => $this->getPersonTexts($tutors, $persons, $showGroups, $showRooms),
-			'speakers'    => $this->getPersonTexts($speakers, $persons, $showGroups, $showRooms)
+			'tutors'      => $this->getPersonTexts($tutors, $persons, $showGroups, $showRooms)
 		];
 	}
 }

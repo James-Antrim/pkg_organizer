@@ -53,10 +53,13 @@ trait Exported
 	 */
 	public function setFlags(array $conditions)
 	{
+		$organizations = count($conditions['organizationIDs']) > 1;
+		$standard = (empty($conditions['instances']) or $conditions['instances'] === 'organization');
+
 		// If there is no category context the group names may overlap.
 		$this->showGroupCodes    = empty($conditions['categoryIDs']);
 		$this->showMethods       = (empty($conditions['methodIDs']) or count($conditions['methodIDs']) > 1);
-		$this->showOrganizations = (!empty($conditions['instances']) and $conditions['instances'] !== 'organization');
+		$this->showOrganizations = (($standard and $organizations) or !$standard);
 		$this->showPersons       = (empty($conditions['personIDs']) or count($conditions['personIDs']) > 1);
 		$this->showRooms         = empty($conditions['roomIDs']);
 	}

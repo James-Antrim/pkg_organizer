@@ -18,7 +18,7 @@ use Organizer\Views\XLS\XLConstants;
 abstract class ListLayout extends BaseLayout
 {
 
-	public $borders = [
+	public array $borders = [
 		'cell'   => [
 			'left'   => [
 				'style' => XLConstants::THIN
@@ -52,7 +52,7 @@ abstract class ListLayout extends BaseLayout
 	/**
 	 * @var array[] Fill definitions
 	 */
-	public $fills = [
+	public array $fills = [
 		'even'   => [
 			'type'  => XLConstants::SOLID,
 			'color' => ['rgb' => 'FFFFFF']
@@ -96,7 +96,7 @@ abstract class ListLayout extends BaseLayout
 		$pageSetUp = $sheet->getPageSetup();
 		$pageSetUp->setOrientation($orientation);
 		$pageSetUp->setPaperSize($paper);
-		$pageSetUp->setFitToPage(true);
+		$pageSetUp->setFitToPage();
 
 		$this->fillHeaders();
 		$this->fillItems();
@@ -119,12 +119,16 @@ abstract class ListLayout extends BaseLayout
 			'font'      => ['size' => 12]
 		];
 
-		foreach ($view->headers as $header)
+		$column = 'A';
+
+		foreach ($view->headers as &$header)
 		{
-			$coords = "{$header['column']}1";
+			$header['column'] = $column;
+			$coords = "{$column}1";
 			$sheet->getColumnDimension($header['column'])->setWidth($header['width']);
 			$sheet->setCellValue($coords, $header['text']);
 			$sheet->getStyle($coords)->applyFromArray($style);
+			$column++;
 		}
 
 		$sheet->getRowDimension()->setRowHeight(22.5);
@@ -164,13 +168,13 @@ abstract class ListLayout extends BaseLayout
 				if (is_array($value))
 				{
 					$count = count($value);
-					$lines = $count > $lines ? $count : $lines;
+					$lines = max($count, $lines);
 					$value = implode("\n", $value);
 				}
 
 				$header     = $view->headers[$property];
 				$column     = $header['column'];
-				$lastColumn = $column > $lastColumn ? $column : $lastColumn;
+				$lastColumn = max($column, $lastColumn);
 				$coords     = "$column$row";
 				$sheet->getStyle($coords)->applyFromArray($style);
 

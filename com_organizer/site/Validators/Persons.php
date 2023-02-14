@@ -39,7 +39,7 @@ class Persons implements UntisXMLValidator
 		}
 		$loadCriteria[] = ['code' => $person->code];
 
-		$extPattern = "/^[v]?[A-ZÀ-ÖØ-Þ][a-zß-ÿ]{1,3}([A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þa-zß-ÿ]*)$/";
+		$extPattern = "/^v?[A-ZÀ-ÖØ-Þ][a-zß-ÿ]{1,3}([A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þa-zß-ÿ]*)$/";
 		foreach ($loadCriteria as $criteria)
 		{
 			if ($exists = $table->load($criteria))
@@ -85,8 +85,9 @@ class Persons implements UntisXMLValidator
 			$table->save($person);
 		}
 
+		// Only automatically associate the first association.
 		$association = new Tables\Associations();
-		if (!$association->load(['organizationID' => $model->organizationID, 'personID' => $table->id]))
+		if (!$association->load(['personID' => $table->id]))
 		{
 			$association->save(['organizationID' => $model->organizationID, 'personID' => $table->id]);
 		}
