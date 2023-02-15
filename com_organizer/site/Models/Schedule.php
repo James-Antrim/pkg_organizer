@@ -31,6 +31,13 @@ class Schedule extends BaseModel
 	private string $modified;
 
 	/**
+	 * Gradually fills with a map of deprecated person ids to the ids that succeeded them, as required.
+	 *
+	 * @var int[] oldPersonID => newPersonID
+	 */
+	private array $personIDMap = [];
+
+	/**
 	 * Cleans bookings according to their current status derived by the state of associated instances, optionally cleans
 	 * unattended past bookings.
 	 *
@@ -424,8 +431,21 @@ class Schedule extends BaseModel
 		else
 		{
 			$this->createAssoc($iPerson, $keys, 'new', $roleID);
-		}
 
+			if (!$iPerson->id)
+			{
+				if ($newID = $this->getMergedID($personID, $instanceID, array_keys($instances[$instanceID])))
+				{
+					$keys['personID'] = $newID;
+					$iPerson->load($keys);
+				}
+
+				if (!$iPerson->id)
+				{
+					return;
+				}
+			}
+		}
 
 		foreach ($instances[$instanceID][$personID]['groups'] as $ID)
 		{
@@ -768,6 +788,35 @@ class Schedule extends BaseModel
 	}
 
 	/**
+	 * Method to retrieve the valid person id after a deprecated one has been deleted through a merge.
+	 *
+	 * @param   int    $deprecatedID the deprecated person id
+	 * @param   int    $instanceID   the id of the instance to which the person was assigned
+	 * @param   array  $personIDs    the person ids assigned to the instance in the JSON file
+	 *
+	 * @return int the id of the superseding person id
+	 */
+	private function getMergedID(int $deprecatedID, int $instanceID, array $personIDs): int
+	{
+		if (!empty($this->personIDMap[$deprecatedID]))
+		{
+			return $this->personIDMap[$deprecatedID];
+		}
+
+		$query = Database::getQuery();
+		$query->selectX('personID', 'instance_persons', 'personID', $personIDs, true)->wherein('instanceID', [$instanceID]);
+		Database::setQuery($query);
+		$mergedID = Database::loadInt();
+
+		if ($mergedID)
+		{
+			$this->personIDMap[$deprecatedID] = $mergedID;
+		}
+
+		return $mergedID;
+	}
+
+	/**
 	 * Sets the schedule with the given id as the current one in regard to the status of planned relationships and
 	 * resources in its organization / term context.
 	 *
@@ -801,10 +850,13 @@ class Schedule extends BaseModel
 			$rInstances = json_decode($reference->schedule, true);
 		}
 
+		$instanceIDs  = array_keys($instances);
+		$rInstanceIDs = array_keys($rInstances);
+
 		// New instances ///////////////////////////////////////////////////////////////////////////////////////////////
 		$NIUnitIDs = [];
 
-		foreach (array_diff(array_keys($instances), array_keys($rInstances)) as $instanceID)
+		foreach (array_diff($instanceIDs, $rInstanceIDs) as $instanceID)
 		{
 			$instance = new Tables\Instances();
 
@@ -826,7 +878,7 @@ class Schedule extends BaseModel
 		// Maintained instances ////////////////////////////////////////////////////////////////////////////////////////
 		$SIUnitIDs = [];
 
-		foreach (array_intersect(array_keys($instances), array_keys($rInstances)) as $instanceID)
+		foreach (array_intersect($instanceIDs, $rInstanceIDs) as $instanceID)
 		{
 			$instance = new Tables\Instances();
 
@@ -849,7 +901,8 @@ class Schedule extends BaseModel
 			}
 
 			// Maintained persons /////////////////////////////////////////
-			foreach (array_intersect($personIDs, $rPersonIDs) as $personID)
+			$mPersonIDs = array_intersect($personIDs, $rPersonIDs);
+			foreach ($mPersonIDs as $personID)
 			{
 				$iPerson = new Tables\InstancePersons();
 				$keys    = ['instanceID' => $instanceID, 'personID' => $personID];
@@ -862,6 +915,21 @@ class Schedule extends BaseModel
 				else
 				{
 					$this->createAssoc($iPerson, $keys, 'new', $roleID);
+
+
+					if (!$iPerson->id)
+					{
+						if ($newID = $this->getMergedID($personID, $instanceID, $mPersonIDs))
+						{
+							$keys['personID'] = $newID;
+							$iPerson->load($keys);
+						}
+
+						if (!$iPerson->id)
+						{
+							return;
+						}
+					}
 				}
 
 				$IDs  = $instances[$instanceID][$personID]['groups'];
@@ -954,7 +1022,7 @@ class Schedule extends BaseModel
 		// Removed instances ///////////////////////////////////////////////////////////////////////////////////////////
 		$ATLUnitIDs = [];
 
-		foreach (array_diff(array_keys($rInstances), array_keys($instances)) as $instanceID)
+		foreach (array_diff($rInstanceIDs, $instanceIDs) as $instanceID)
 		{
 			$instance = new Tables\Instances();
 

@@ -16,6 +16,7 @@ use Organizer\Helpers\Languages;
 use Organizer\Layouts\XLS\BaseLayout;
 use Organizer\Views\XLS\BaseView;
 use Organizer\Views\XLS\XLConstants;
+use PHPExcel_Exception;
 use PHPExcel_Worksheet_Drawing;
 
 /**
@@ -29,7 +30,7 @@ class Workload extends BaseLayout
 	/**
 	 * @var \array[][] Border definitions
 	 */
-	private $borders = [
+	private array $borders = [
 		'cell'      => [
 			'left'   => [
 				'style' => XLConstants::THIN
@@ -91,7 +92,7 @@ class Workload extends BaseLayout
 	/**
 	 * @var array[] Fill definitions
 	 */
-	private $fills = [
+	private array $fills = [
 		'header' => [
 			'type'  => XLConstants::SOLID,
 			'color' => ['rgb' => '80BA24']
@@ -109,7 +110,7 @@ class Workload extends BaseLayout
 	/**
 	 * @var string[] Height definitions
 	 */
-	private $heights = [
+	private array $heights = [
 		'basicField'    => '18.75',
 		'sectionHead'   => '13.5',
 		'sectionSpacer' => '8.25',
@@ -120,23 +121,23 @@ class Workload extends BaseLayout
 	/**
 	 * @var int the id of the organization selected
 	 */
-	private $organizationID;
+	private int $organizationID;
 
 	/**
 	 * @var int the id of the person whose workload this displays
 	 */
-	private $personID;
+	private int $personID;
 
-	private $separate;
+	private bool $separate;
 
-	private $sumCoords = [];
+	private array $sumCoords = [];
 
 	/**
 	 * @var int the id of the term where the workload was valid
 	 */
-	private $termID;
+	private int $termID;
 
-	private $weeks;
+	private int $weeks;
 
 	/**
 	 * Workload constructor.
@@ -327,7 +328,7 @@ class Workload extends BaseLayout
 					if (!empty($item['names']))
 					{
 						$count = count($item['names']);
-						$lines = $count > $lines ? $count : $lines;
+						$lines = max($count, $lines);
 						$sheet->setCellValue($coords, implode("\n", $item['names']));
 					}
 					break;
@@ -336,7 +337,7 @@ class Workload extends BaseLayout
 					if (!empty($groups))
 					{
 						$count = count($groups);
-						$lines = $count > $lines ? $count : $lines;
+						$lines = max($count, $lines);
 						$sheet->setCellValue($coords, implode("\n", $groups));
 					}
 					break;
@@ -345,7 +346,7 @@ class Workload extends BaseLayout
 					if (!empty($item['items']))
 					{
 						$count = count($item['items']);
-						$lines = $count > $lines ? $count : $lines;
+						$lines = max($count, $lines);
 						$sheet->setCellValue($coords, implode("\n", $item['items']));
 					}
 					break;
@@ -367,7 +368,7 @@ class Workload extends BaseLayout
 						else
 						{
 							$count = count($item['programs']);
-							$lines = $count > $lines ? $count : $lines;
+							$lines = max($count, $lines);
 							$sheet->setCellValue($coords, implode("\n", array_keys($item['programs'])));
 						}
 					}
@@ -377,7 +378,7 @@ class Workload extends BaseLayout
 					if (!empty($item['subjectNos']))
 					{
 						$count = count($item['subjectNos']);
-						$lines = $count > $lines ? $count : $lines;
+						$lines = max($count, $lines);
 						$sheet->setCellValue($coords, implode("\n", $item['subjectNos']));
 					}
 					break;
@@ -411,7 +412,7 @@ class Workload extends BaseLayout
 			foreach ($programs as $program => $groups)
 			{
 				$row++;
-				$this->addProgramRow($row, $program, $groups);
+				$this->addProgramRow($row, $program, $groups, $dataStyle, $indexStyle);
 			}
 		}
 
@@ -522,10 +523,10 @@ class Workload extends BaseLayout
 		$pageSetup = $sheet->getPageSetup();
 		$pageSetup->setOrientation(XLConstants::PORTRAIT);
 		$pageSetup->setPaperSize(XLConstants::A4);
-		$pageSetup->setFitToPage(true);
+		$pageSetup->setFitToPage();
 
 		$sheet->setTitle('Anleitung');
-		$sheet->setShowGridlines(false);
+		$sheet->setShowGridlines();
 		$sheet->getColumnDimension()->setWidth(5);
 		$sheet->getColumnDimension('B')->setWidth(75);
 		$sheet->getColumnDimension('C')->setWidth(5);
@@ -590,21 +591,20 @@ class Workload extends BaseLayout
 	}
 
 	/**
-	 * @param   int     $row
-	 * @param   string  $program
-	 * @param   array   $groups
+	 * Adds a supplementary row for events held for multiple degree programs.
+	 *
+	 * @param   int     $row         the row number
+	 * @param   string  $program     the name of the degree program
+	 * @param   array   $groups      the names of the program subordinate groups
+	 * @param   array   $dataStyle   the style to use for date fields
+	 * @param   array   $indexStyle  the style to use for index fields
 	 *
 	 * @return void
-	 * @throws Exception
+	 * @throws PHPExcel_Exception
 	 */
-	private function addProgramRow(int $row, string $program, array $groups)
+	private function addProgramRow(int $row, string $program, array $groups, array $dataStyle, array $indexStyle)
 	{
 		$sheet = $this->view->getActiveSheet();
-
-		$alignment  = ['vertical' => XLConstants::TOP, 'wrap' => true];
-		$border     = $this->borders['data'];
-		$dataStyle  = ['alignment' => $alignment, 'borders' => $border, 'fill' => $this->fills['data']];
-		$indexStyle = ['alignment' => $alignment, 'borders' => $border, 'fill' => $this->fills['index']];
 
 		$sheet->mergeCells("C$row:E$row");
 		$sheet->mergeCells("K$row:L$row");
@@ -623,7 +623,7 @@ class Workload extends BaseLayout
 					if (!empty($groups))
 					{
 						$count = count($groups);
-						$lines = $count > $lines ? $count : $lines;
+						$lines = max($count, $lines);
 						$sheet->setCellValue($coords, implode("\n", $groups));
 					}
 					break;
@@ -1401,9 +1401,9 @@ class Workload extends BaseLayout
 		$pageSetUp = $sheet->getPageSetup();
 		$pageSetUp->setOrientation(XLConstants::PORTRAIT);
 		$pageSetUp->setPaperSize(XLConstants::A4);
-		$pageSetUp->setFitToPage(true);
+		$pageSetUp->setFitToPage();
 
-		$sheet->setShowGridlines(false);
+		$sheet->setShowGridlines();
 		$sheet->getColumnDimension()->setWidth(1);
 		$sheet->getColumnDimension('B')->setWidth(13.5);
 		$sheet->getColumnDimension('C')->setWidth(10.71);
