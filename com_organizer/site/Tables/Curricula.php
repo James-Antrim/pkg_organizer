@@ -98,7 +98,7 @@ class Curricula extends BaseTable
 		$keyColumns = ['programID', 'poolID', 'subjectID'];
 		foreach ($keyColumns as $keyColumn)
 		{
-			if (!strlen($this->$keyColumn))
+			if (!$this->$keyColumn)
 			{
 				$this->$keyColumn = null;
 				continue;

@@ -122,7 +122,7 @@ class Pools extends BaseTable
 		$nullColumns = ['alias', 'groupID', 'fieldID', 'lsfID'];
 		foreach ($nullColumns as $nullColumn)
 		{
-			if (!strlen($this->$nullColumn))
+			if (!$this->$nullColumn)
 			{
 				$this->$nullColumn = null;
 			}
