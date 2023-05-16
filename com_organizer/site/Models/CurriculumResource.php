@@ -136,7 +136,6 @@ abstract class CurriculumResource extends BaseModel
 			}
 		}
 
-
 		return $curricula->id;
 	}
 
