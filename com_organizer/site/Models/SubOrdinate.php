@@ -90,14 +90,14 @@ trait SubOrdinate
 
         $data['curricula'] = ArrayHelper::toInteger($data['curricula']);
 
-        if (array_search(self::NONE, $data['curricula']) !== false)
+        if (in_array(self::NONE, $data['curricula']))
         {
             $this->deleteRanges($data['id']);
 
             return [];
         }
 
-        if (empty($data['superordinates']) or array_search(self::NONE, $data['superordinates']) !== false)
+        if (empty($data['superordinates']) or in_array(self::NONE, $data['superordinates']))
         {
             $this->deleteRanges($data['id']);
 
