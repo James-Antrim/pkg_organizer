@@ -23,9 +23,9 @@ class Program extends CurriculumResource
 	use Associated;
 	use SuperOrdinate;
 
-	protected $helper = 'Programs';
+	protected string $helper = 'Programs';
 
-	protected $resource = 'program';
+	protected string $resource = 'program';
 
 	/**
 	 * Activates programs by id.

@@ -23,9 +23,9 @@ class Pool extends CurriculumResource
 	use SubOrdinate;
 	use SuperOrdinate;
 
-	protected $helper = 'Pools';
+	protected string $helper = 'Pools';
 
-	protected $resource = 'pool';
+	protected string $resource = 'pool';
 
 	/**
 	 * @inheritDoc

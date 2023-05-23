@@ -27,9 +27,9 @@ class Subject extends CurriculumResource
 
 	private const COORDINATES = 1, TEACHES = 2;
 
-	protected $helper = 'Subjects';
+	protected string $helper = 'Subjects';
 
-	protected $resource = 'subject';
+	protected string $resource = 'subject';
 
 	/**
 	 * Adds a Subject => Event association. No access checks => this is not directly accessible and requires

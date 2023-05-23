@@ -80,7 +80,7 @@ trait SubOrdinate
      */
     private function getSuperOrdinates(array $data): array
     {
-        // No need to check superordinates if no curriculum was selected
+        // No need to check superordinates if no program context was selected
         if (empty($data['curricula']))
         {
             $this->deleteRanges($data['id']);
@@ -90,6 +90,7 @@ trait SubOrdinate
 
         $data['curricula'] = ArrayHelper::toInteger($data['curricula']);
 
+        // Program context is an explicit none
         if (in_array(self::NONE, $data['curricula']))
         {
             $this->deleteRanges($data['id']);
@@ -97,6 +98,7 @@ trait SubOrdinate
             return [];
         }
 
+        // No superordinate was selected or the superordinate is an explicit none
         if (empty($data['superordinates']) or in_array(self::NONE, $data['superordinates']))
         {
             $this->deleteRanges($data['id']);
@@ -104,7 +106,7 @@ trait SubOrdinate
             return [];
         }
 
-        // Retrieve the program ranges for sanity checks on the pool ranges
+        // Retrieve the program context ranges for sanity checks on pool ranges
         $programRanges = [];
         foreach ($data['curricula'] as $programID)
         {
@@ -125,9 +127,10 @@ trait SubOrdinate
                 continue;
             }
 
+            // Requested superordinate is the program context root
             if ($programID = $table->programID)
             {
-                // Subjects may not be directly associated with programs.
+                // Subjects may not be directly associated with programs
                 if ($this->resource === 'subject')
                 {
                     continue;
@@ -148,6 +151,7 @@ trait SubOrdinate
             {
                 foreach ($programRanges as $programRange)
                 {
+                    // Pool range is a valid subset of the program context range
                     if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt'])
                     {
                         $superOrdinateRanges[$poolRange['id']] = $poolRange;
