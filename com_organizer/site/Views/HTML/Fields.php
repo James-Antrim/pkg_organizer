@@ -17,44 +17,44 @@ use Organizer\Helpers;
  */
 class Fields extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'code' => 'link', 'colors' => 'value'];
+    protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'code' => 'link', 'colors' => 'value'];
 
-	/**
-	 * @inheritdoc
-	 */
-	public function setHeaders()
-	{
-		$ordering  = $this->state->get('list.ordering');
-		$direction = $this->state->get('list.direction');
+    /**
+     * @inheritdoc
+     */
+    public function setHeaders()
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
 
-		$headers = [
-			'checkbox' => '',
-			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-			'code'     => Helpers\HTML::sort('CODE', 'code', $direction, $ordering),
-			'colors'   => Helpers\Languages::_('ORGANIZER_COLORS')
-		];
+        $headers = [
+            'checkbox' => '',
+            'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+            'code'     => Helpers\HTML::sort('CODE', 'code', $direction, $ordering),
+            'colors'   => Helpers\Languages::_('ORGANIZER_COLORS')
+        ];
 
-		$this->headers = $headers;
-	}
+        $this->headers = $headers;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function structureItems()
-	{
-		$index           = 0;
-		$link            = 'index.php?option=com_organizer&view=field_edit&id=';
-		$structuredItems = [];
-		$organizationID  = $this->state->get('filter.organizationID', 0);
+    /**
+     * @inheritdoc
+     */
+    protected function structureItems()
+    {
+        $index           = 0;
+        $link            = 'index.php?option=com_organizer&view=field_edit&id=';
+        $structuredItems = [];
+        $organizationID  = (int) $this->state->get('filter.organizationID');
 
-		foreach ($this->items as $item)
-		{
-			$item->colors = Helpers\Fields::getFieldColorDisplay($item->id, $organizationID);
+        foreach ($this->items as $item)
+        {
+            $item->colors = Helpers\Fields::getFieldColorDisplay($item->id, $organizationID);
 
-			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-			$index++;
-		}
+            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $index++;
+        }
 
-		$this->items = $structuredItems;
-	}
+        $this->items = $structuredItems;
+    }
 }
