@@ -628,7 +628,7 @@ class InstanceItem extends ListView
         $uniqueGroups = [];
         $uniqueRooms  = [];
 
-        if ($instance->resources)
+        if (!empty($instance->resources))
         {
             foreach ($instance->resources as $personID => $person)
             {
