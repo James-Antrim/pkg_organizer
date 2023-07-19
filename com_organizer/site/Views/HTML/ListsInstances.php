@@ -648,6 +648,7 @@ trait ListsInstances
         else
         {
             $instance->manageable = false;
+            $instance->taught     = false;
             $this->teachesALL     = false;
         }
 
