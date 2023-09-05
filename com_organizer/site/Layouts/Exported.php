@@ -53,7 +53,7 @@ trait Exported
 	 */
 	public function setFlags(array $conditions)
 	{
-		$organizations = count($conditions['organizationIDs']) > 1;
+		$organizations = (!empty($conditions['organizationIDs']) and count($conditions['organizationIDs']) > 1);
 		$standard = (empty($conditions['instances']) or $conditions['instances'] === 'organization');
 
 		// If there is no category context the group names may overlap.
