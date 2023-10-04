@@ -585,6 +585,7 @@ CREATE TABLE IF NOT EXISTS `#__organizer_instances` (
     `attended`   INT(4) UNSIGNED  NOT NULL DEFAULT 0,
     `bookmarked` INT(4) UNSIGNED  NOT NULL DEFAULT 0,
     `registered` INT(4) UNSIGNED  NOT NULL DEFAULT 0,
+    `comment`    VARCHAR(255)              DEFAULT '',
     PRIMARY KEY (`id`),
     CONSTRAINT `entry` UNIQUE (`eventID`, `blockID`, `unitID`),
     KEY `blockID` (`blockID`),

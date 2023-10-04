@@ -41,6 +41,14 @@ class Instances extends BaseTable
 	 */
 	public $bookmarked;
 
+    /**
+     * A supplementary text description specific to a subset of unit instances.
+     * VARCHAR(255) DEFAULT NULL
+     *
+     * @var string
+     */
+    public $comment;
+
 	/**
 	 * The id of the event entry referenced.
 	 * INT(11) UNSIGNED DEFAULT NULL
