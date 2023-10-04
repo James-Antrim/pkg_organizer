@@ -259,24 +259,20 @@ class Units implements UntisXMLValidator
             $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_GRID_INVALID'), $untisID, $gridName);
         }
 
-        $comment  = trim((string) $node->text);
-        $iComment = trim((string) $node->text2);
-
         if (empty($model->units->$untisID))
         {
+            $comment              = trim((string) $node->text);
             $unit                 = new stdClass();
             $unit->organizationID = $model->organizationID;
             $unit->termID         = $model->termID;
             $unit->code           = $untisID;
             $unit->gridID         = $gridID;
             $unit->gridName       = $gridName;
-            $unit->roleID         = self::getRoleID(trim((string) $node->text1));
             $unit->startDate      = date('Y-m-d', $effBeginDT);
             $unit->startDT        = $effBeginDT;
             $unit->endDate        = date('Y-m-d', $effEndDT);
             $unit->endDT          = $effEndDT;
-            $unit->comment        = (empty($comment) or $comment == '.') ? '' : $comment;
-            $unit->iComment        = (empty($iComment) or $iComment == '.') ? '' : $iComment;
+            $unit->comment        = (empty($comment) or $comment === '.') ? '' : $comment;
             $unit->effStartDate   = '';
             $unit->effEndDate     = '';
 
@@ -285,9 +281,12 @@ class Units implements UntisXMLValidator
         }
         else
         {
-            $unit         = $model->units->$untisID;
-            $unit->roleID = self::getRoleID(trim((string) $node->text1));
+            $unit = $model->units->$untisID;
         }
+
+        $iComment       = trim((string) $node->text2);
+        $unit->iComment = !$iComment ? '' : $iComment;
+        $unit->roleID   = self::getRoleID(trim((string) $node->text1));
 
         $model->units->$untisID = $unit;
 

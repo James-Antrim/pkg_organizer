@@ -472,6 +472,8 @@ class Instances extends ResourceHelper
             'registered'         => 0,
             'unitID'             => $instancesTable->unitID
         ];
+
+        $iComment = $instancesTable->comment;
         $title    = $instancesTable->title;
 
         unset($instancesTable);
@@ -554,7 +556,8 @@ class Instances extends ResourceHelper
 
         unset($unitsTable);
 
-        $instance = array_merge($block, $event, $instance, $method, $unit);
+        $instance            = array_merge($block, $event, $instance, $method, $unit);
+        $instance['comment'] .= $iComment ? " $iComment" : '';
 
         if ($courseID = $instance['courseID'])
         {
