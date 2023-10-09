@@ -9,7 +9,7 @@
  */
 
 
-namespace Organizer\Layouts;
+namespace THM\Organizer\Layouts;
 
 
 trait Exported

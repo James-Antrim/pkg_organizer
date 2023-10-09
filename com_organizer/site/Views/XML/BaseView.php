@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\XML;
+namespace THM\Organizer\Views\XML;
 
 use Joomla\CMS\Uri\Uri;
 use Organizer\Helpers\OrganizerHelper;

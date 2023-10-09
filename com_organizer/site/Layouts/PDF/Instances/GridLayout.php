@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\PDF\Instances;
+namespace THM\Organizer\Layouts\PDF\Instances;
 
 use Organizer\Helpers;
 use Organizer\Layouts\Exported;

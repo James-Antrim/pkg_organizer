@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\XML;
+namespace THM\Organizer\Views\XML;
 
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;

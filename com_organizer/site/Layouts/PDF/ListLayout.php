@@ -9,7 +9,7 @@
  */
 
 
-namespace Organizer\Layouts\PDF;
+namespace THM\Organizer\Layouts\PDF;
 
 use Organizer\Views\PDF\ListView;
 use TCPDF_FONTS;

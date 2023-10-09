@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Helpers;
+namespace THM\Organizer\Helpers;
 
 /**
  * Class provides general functions for retrieving run data.

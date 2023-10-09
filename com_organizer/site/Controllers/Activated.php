@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Controllers;
+namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
 use Organizer\Helpers;

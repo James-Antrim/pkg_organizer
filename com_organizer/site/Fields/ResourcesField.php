@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Fields;
+namespace THM\Organizer\Fields;
 
 use Organizer\Helpers\HTML;
 use Organizer\Helpers\Languages;

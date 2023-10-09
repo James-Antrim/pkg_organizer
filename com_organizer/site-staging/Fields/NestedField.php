@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Fields;
+namespace THM\Organizer\Fields;
 
 require_once JPATH_ROOT . '/libraries/joomla/form/fields/subform.php';
 

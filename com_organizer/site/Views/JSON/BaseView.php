@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\JSON;
+namespace THM\Organizer\Views\JSON;
 
 use Joomla\CMS\Uri\Uri;
 use Organizer\Views\Named;

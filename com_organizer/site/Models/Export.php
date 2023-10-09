@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Models;
+namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Organizer\Helpers;

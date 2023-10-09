@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views;
+namespace THM\Organizer\Views;
 
 use Organizer\Helpers;
 

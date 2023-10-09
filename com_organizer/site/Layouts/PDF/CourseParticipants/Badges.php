@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\PDF\CourseParticipants;
+namespace THM\Organizer\Layouts\PDF\CourseParticipants;
 
 use Organizer\Helpers;
 use Organizer\Layouts\PDF\BadgeLayout;

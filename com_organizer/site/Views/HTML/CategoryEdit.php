@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\HTML;
+namespace THM\Organizer\Views\HTML;
 
 /**
  * Class loads the plan (degree) program / organizational grouping form into display context.

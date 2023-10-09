@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\HTML;
+namespace THM\Organizer\Views\HTML;
 
 /**
  * Class loads the (lesson) method form into display context.

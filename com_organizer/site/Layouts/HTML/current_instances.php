@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\HTML;
+namespace THM\Organizer\Layouts\HTML;
 
 use Organizer\Helpers;
 use Organizer\Views\HTML\Screen;

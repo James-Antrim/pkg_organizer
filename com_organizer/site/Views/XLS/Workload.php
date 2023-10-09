@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\XLS;
+namespace THM\Organizer\Views\XLS;
 
 /**
  * Class creates a XLS file for the display of the filtered schedule information.

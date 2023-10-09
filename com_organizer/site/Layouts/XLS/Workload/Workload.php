@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\XLS\Workload;
+namespace THM\Organizer\Layouts\XLS\Workload;
 
 use Exception;
 use Organizer\Helpers;

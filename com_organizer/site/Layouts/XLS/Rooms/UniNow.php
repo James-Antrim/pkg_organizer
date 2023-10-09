@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\XLS\Rooms;
+namespace THM\Organizer\Layouts\XLS\Rooms;
 
 use Exception;
 use Organizer\Layouts\XLS\BaseLayout;

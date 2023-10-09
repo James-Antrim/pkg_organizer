@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Helpers;
+namespace THM\Organizer\Helpers;
 
 /**
  * Ensures that helpers that reference selectable items offer the getOptions function.

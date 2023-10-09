@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Helpers;
+namespace THM\Organizer\Helpers;
 
 require_once JPATH_ROOT . '/components/com_jce/editor/libraries/classes/mobile.php';
 

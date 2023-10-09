@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\XLS;
+namespace THM\Organizer\Layouts\XLS;
 
 jimport('phpexcel.library.PHPExcel');
 

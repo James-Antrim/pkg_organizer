@@ -9,7 +9,7 @@
  */
 
 
-namespace Organizer\Helpers;
+namespace THM\Organizer\Helpers;
 
 use Organizer\Tables;
 

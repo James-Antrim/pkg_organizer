@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\XLS;
+namespace THM\Organizer\Views\XLS;
 
 use Joomla\Registry\Registry;
 use Organizer\Helpers;

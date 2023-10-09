@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Admin;
+namespace THM\Organizer\Admin;
 
 require_once JPATH_COMPONENT_SITE . '/autoloader.php';
 

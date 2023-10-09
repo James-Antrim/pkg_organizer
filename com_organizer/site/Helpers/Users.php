@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Helpers;
+namespace THM\Organizer\Helpers;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\User;

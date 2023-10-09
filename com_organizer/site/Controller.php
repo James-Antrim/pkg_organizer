@@ -10,7 +10,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer;
+namespace THM\Organizer;
 
 use Exception;
 use Joomla\CMS\Factory;

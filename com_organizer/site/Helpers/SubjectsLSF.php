@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Helpers;
+namespace THM\Organizer\Helpers;
 
 use Organizer\Tables\Subjects as Table;
 use SimpleXMLElement as Element;

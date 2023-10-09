@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\XLS;
+namespace THM\Organizer\Views\XLS;
 
 /**
  * Class instantiates and renders an XLS File with the room statistics.

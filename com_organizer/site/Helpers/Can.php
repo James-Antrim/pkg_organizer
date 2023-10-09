@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Helpers;
+namespace THM\Organizer\Helpers;
 
 use Joomla\Utilities\ArrayHelper;
 use Organizer\Adapters\Database;

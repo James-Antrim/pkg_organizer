@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Models;
+namespace THM\Organizer\Models;
 
 /**
  * Class which sets permissions for the view.

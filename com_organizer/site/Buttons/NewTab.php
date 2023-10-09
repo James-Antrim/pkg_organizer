@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Buttons;
+namespace THM\Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;

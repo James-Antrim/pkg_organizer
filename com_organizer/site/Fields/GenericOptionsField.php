@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Fields;
+namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
 use Organizer\Adapters\Database;

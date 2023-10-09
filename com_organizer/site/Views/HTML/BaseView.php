@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\HTML;
+namespace THM\Organizer\Views\HTML;
 
 use JHtmlSidebar;
 use Joomla\CMS\Layout\FileLayout;

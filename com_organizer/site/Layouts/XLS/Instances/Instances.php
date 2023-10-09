@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\XLS\Instances;
+namespace THM\Organizer\Layouts\XLS\Instances;
 
 use Exception;
 use Organizer\Helpers\Languages;

@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\PDF\Booking;
+namespace THM\Organizer\Layouts\PDF\Booking;
 
 use Organizer\Helpers\Bookings as Helper;
 use Organizer\Helpers\Languages;

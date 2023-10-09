@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\XLS;
+namespace THM\Organizer\Views\XLS;
 
 require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
 

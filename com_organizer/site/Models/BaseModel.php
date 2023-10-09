@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Models;
+namespace THM\Organizer\Models;
 
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;

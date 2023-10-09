@@ -10,7 +10,7 @@
 
 /** @noinspection PhpTooManyParametersInspection */
 
-namespace Organizer\Views\PDF;
+namespace THM\Organizer\Views\PDF;
 
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 

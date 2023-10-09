@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\PDF;
+namespace THM\Organizer\Layouts\PDF;
 
 use Organizer\Views\PDF\BaseView;
 

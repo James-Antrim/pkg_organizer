@@ -9,7 +9,7 @@
  */
 
 
-namespace Organizer\Views\HTML;
+namespace THM\Organizer\Views\HTML;
 
 use Organizer\Helpers\Can;
 use Organizer\Helpers\Dates;

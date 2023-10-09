@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\HTML;
+namespace THM\Organizer\Views\HTML;
 
 use Joomla\Registry\Registry;
 use Joomla\CMS\Uri\Uri;

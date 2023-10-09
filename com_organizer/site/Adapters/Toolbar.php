@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Adapters;
+namespace THM\Organizer\Adapters;
 
 use JLoader;
 use Joomla\CMS\Filesystem\Path;

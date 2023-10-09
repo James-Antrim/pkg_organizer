@@ -9,7 +9,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Tables;
+namespace THM\Organizer\Tables;
 
 /**
  * Models the organizer_programs table.

@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Adapters\Queries;
+namespace THM\Organizer\Adapters\Queries;
 
 use JDatabaseDriver;
 use JDatabaseQuery;

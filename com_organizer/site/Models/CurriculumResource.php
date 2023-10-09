@@ -6,7 +6,7 @@
  * @license     A "Slug" license name e.g. GPL2
  */
 
-namespace Organizer\Models;
+namespace THM\Organizer\Models;
 
 use Organizer\Adapters\Database;
 use Organizer\Helpers;

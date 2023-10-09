@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Layouts\PDF\ContactTracking;
+namespace THM\Organizer\Layouts\PDF\ContactTracking;
 
 use Organizer\Helpers;
 use Organizer\Helpers\Languages;

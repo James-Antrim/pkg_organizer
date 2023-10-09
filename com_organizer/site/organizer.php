@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer;
+namespace THM\Organizer;
 
 require_once 'autoloader.php';
 

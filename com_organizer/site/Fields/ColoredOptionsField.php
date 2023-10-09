@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Fields;
+namespace THM\Organizer\Fields;
 
 /**
  * Class creates a select box for predefined colors.

@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Models;
+namespace THM\Organizer\Models;
 
 /**
  * Class retrieves information for a filtered set of (subject) pools. Modal view.

@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\ICS;
+namespace THM\Organizer\Views\ICS;
 
 use DateTime;
 use DateTimeZone;

@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Validators;
+namespace THM\Organizer\Validators;
 
 use Organizer\Helpers;
 use Organizer\Tables;

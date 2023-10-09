@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Fields;
+namespace THM\Organizer\Fields;
 
 /**
  * Trait for fields whose output should be suppressed if no options beyond those defined in the manifest were found.

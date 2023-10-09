@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Views\PDF;
+namespace THM\Organizer\Views\PDF;
 
 use Organizer\Helpers;
 use Organizer\Tables;

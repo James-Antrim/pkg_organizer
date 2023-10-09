@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Helpers;
+namespace THM\Organizer\Helpers;
 
 use Joomla\CMS\HTML\HTMLHelper;
 use Organizer\Fields\FieldsField;

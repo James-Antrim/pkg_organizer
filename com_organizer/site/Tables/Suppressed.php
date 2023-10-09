@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace Organizer\Tables;
+namespace THM\Organizer\Tables;
 
 /**
  * Resources which can be reached over a URL are addressable.
