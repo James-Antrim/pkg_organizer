@@ -10,8 +10,6 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Controller;
-
 /**
  * Class receives user actions and performs access checks and redirection.
  */

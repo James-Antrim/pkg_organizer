@@ -11,7 +11,6 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Controller;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 

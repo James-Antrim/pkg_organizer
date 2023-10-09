@@ -10,7 +10,6 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Controller;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 

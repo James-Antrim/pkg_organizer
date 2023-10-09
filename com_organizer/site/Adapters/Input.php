@@ -8,12 +8,14 @@
  * @link        www.thm.de
  */
 
-namespace THM\Organizer\Helpers;
+namespace THM\Organizer\Adapters;
 
 use JInput;
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\Filter\InputFilter;
+use Joomla\Input\Input as Base;
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 
@@ -22,45 +24,11 @@ use Joomla\Utilities\ArrayHelper;
  */
 class Input
 {
-    /**
-     * @var Registry
-     */
-    private static $batchItems;
-
-    /**
-     * @var InputFilter
-     */
-    private static $filter;
-
-    /**
-     * @var Registry
-     */
-    private static $filterItems;
-
-    /**
-     * @var Registry
-     */
-    private static $formItems;
-
-    /**
-     * @var JInput
-     */
-    private static $input;
-
-    /**
-     * @var Registry
-     */
-    private static $listItems;
-
-    /**
-     * @var Registry
-     */
-    private static $params;
-
-    /**
-     * @var Registry
-     */
-    private static $supplementalItems;
+    private static InputFilter $filter;
+    private static Registry $filterItems;
+    private static Base $input;
+    private static Registry $listItems;
+    private static Registry $params;
 
     /**
      * Filters the given source data according to the type parameter.
@@ -70,7 +38,7 @@ class Input
      *
      * @return mixed
      */
-    public static function filter($source, string $type = 'string')
+    public static function filter(mixed $source, string $type = 'string'): mixed
     {
         if (empty(self::$filter)) {
             self::$filter = new InputFilter();
@@ -84,15 +52,11 @@ class Input
      *
      * @param string $property Name of the property to get.
      *
-     * @return array|int|string the value found, or false if the property could not be found
+     * @return mixed the value found, or false if the property could not be found
      */
-    private static function find(string $property)
+    private static function find(string $property): mixed
     {
         if ($value = self::getInput()->get($property, null, 'raw')) {
-            return $value;
-        }
-
-        if ($value = self::getFormItems()->get($property)) {
             return $value;
         }
 
@@ -133,7 +97,7 @@ class Input
      *
      * @return bool
      */
-    public static function getBool(string $property, $default = false): bool
+    public static function getBool(string $property, bool $default = false): bool
     {
         $value = self::find($property);
 
@@ -145,6 +109,19 @@ class Input
     }
 
     /**
+     * Retrieves the controller parameter with the view parameter as fallback.
+     * @return string
+     */
+    public static function getController(): string
+    {
+        if ($controller = self::getCMD('controller')) {
+            return $controller;
+        }
+
+        return self::getView();
+    }
+
+    /**
      * Retrieves the specified parameter.
      *
      * @param string $property Name of the property to get.
@@ -152,7 +129,7 @@ class Input
      *
      * @return string
      */
-    public static function getCMD(string $property, $default = ''): string
+    public static function getCMD(string $property, string $default = ''): string
     {
         if ($value = self::find($property)) {
             return self::filter($value, 'cmd');
@@ -232,15 +209,6 @@ class Input
     }
 
     /**
-     * Retrieves the request form.
-     * @return Registry with the request data if available
-     */
-    public static function getFormItems(): Registry
-    {
-        return new Registry(self::getArray());
-    }
-
-    /**
      * Retrieves the id parameter.
      * @return int
      */
@@ -267,13 +235,16 @@ class Input
      * Retrieves the specified parameter.
      *
      * @param string $property Name of the property to get.
-     * @param mixed  $default  Default value to return if variable does not exist.
+     * @param int    $default  Default value to return if variable does not exist.
      *
      * @return int
      */
-    public static function getInt(string $property, $default = 0): int
+    public static function getInt(string $property, int $default = 0): int
     {
-        if ($value = self::find($property)) {
+        $value = self::find($property);
+
+        // Better plausibility test for this type whose value can also be 0 on purpose and otherwise evaluate to false.
+        if (is_numeric($value)) {
             return self::filter($value, 'int');
         }
 
@@ -286,21 +257,21 @@ class Input
      */
     public static function getItemid(): int
     {
-        $app     = OrganizerHelper::getApplication();
-        $default = (empty($app->getMenu()) or empty($app->getMenu()->getActive())) ?
-            0 : $app->getMenu()->getActive()->id;
+        /** @var CMSApplication $app */
+        $app     = Application::getApplication();
+        $default = (empty($app->getMenu()) or empty($app->getMenu()->getActive())) ? 0 : $app->getMenu()->getActive()->id;
 
         return self::getInt('Itemid', $default);
     }
 
     /**
      * Returns the application's input object.
-     * @return JInput
+     * @return Base
      */
-    public static function getInput(): JInput
+    public static function getInput(): Base
     {
         if (empty(self::$input)) {
-            self::$input = OrganizerHelper::getApplication()->input;
+            self::$input = Application::getApplication()->input;
         }
 
         return self::$input;
@@ -314,7 +285,7 @@ class Input
     {
         if (empty(self::$listItems)) {
             $view            = self::getView();
-            $previous        = Factory::getSession()->get('registry')->get("com_organizer.$view.list", []);
+            $previous        = Application::getSession()->get('registry')->get("com_groups.$view.list", []);
             self::$listItems = new Registry(self::getArray('list', $previous));
         }
 
@@ -328,12 +299,21 @@ class Input
     public static function getParams(): Registry
     {
         if (empty(self::$params)) {
-            $app          = OrganizerHelper::getApplication();
+            $app          = Application::getApplication();
             self::$params = method_exists($app, 'getParams') ?
-                $app->getParams() : ComponentHelper::getParams('com_organizer');
+                $app->getParams() : Application::getParams();
         }
 
         return self::$params;
+    }
+
+    /**
+     * Gets the URL of the referrer.
+     * @return string
+     */
+    public static function getReferrer(): string
+    {
+        return self::getInput()->server->getString('HTTP_REFERER');
     }
 
     /**
@@ -357,48 +337,25 @@ class Input
     public static function getSelectedIDs(): array
     {
         // List Views
-        $selectedIDs = self::getIntCollection('cid');
-
-        if (!empty($selectedIDs)) {
+        if ($selectedIDs = self::getIntCollection('cid')) {
             return $selectedIDs;
-        }
-
-        // Forms
-        $formItems = self::getFormItems();
-        if ($formItems->count()) {
-            // Merge Views
-            if ($selectedIDs = $formItems->get('ids')) {
-                $formattedValues = self::formatIDValues($selectedIDs);
-                if (count($formattedValues)) {
-                    asort($formattedValues);
-
-                    return $formattedValues;
-                }
-            }
-
-            // Edit Views
-            if ($id = $formItems->get('id')) {
-                $selectedIDs = [$id];
-
-                return self::formatIDValues($selectedIDs);
-            }
         }
 
         // Default: explicit GET/POST parameter
         $selectedID = self::getID();
 
-        return empty($selectedID) ? [] : [$selectedID];
+        return $selectedID ? [$selectedID] : [];
     }
 
     /**
      * Retrieves the specified parameter.
      *
      * @param string $property Name of the property to get.
-     * @param mixed  $default  Default value to return if variable does not exist.
+     * @param string $default  $default  Default value to return if variable does not exist.
      *
      * @return string
      */
-    public static function getString(string $property, $default = ''): string
+    public static function getString(string $property, string $default = ''): string
     {
         if ($value = self::find($property)) {
             return self::filter($value);
@@ -422,7 +379,7 @@ class Input
      */
     public static function getTask(): string
     {
-        return self::getCMD('task');
+        return self::getCMD('task', 'display');
     }
 
     /**
@@ -437,11 +394,11 @@ class Input
     /**
      * Resolves a comma separated list of id values to an array of id values.
      *
-     * @param mixed $idValues the id values as an array or string
+     * @param array|string $idValues the id values as an array or string
      *
      * @return int[] the id values, empty if the values were invalid or the input was not an array or a string
      */
-    public static function formatIDValues(&$idValues): array
+    public static function formatIDValues(array|string &$idValues): array
     {
         if (is_string($idValues)) {
             $idValues = explode(',', $idValues);
@@ -465,7 +422,7 @@ class Input
      *
      * @return void
      */
-    public static function set(string $property, $value, string $method = '')
+    public static function set(string $property, mixed $value, string $method = ''): void
     {
         if ($method) {
             self::getInput()->$method->set($property, $value);

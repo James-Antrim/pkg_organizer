@@ -12,7 +12,6 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Factory;
-use THM\Organizer\Controller;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 

@@ -429,6 +429,7 @@ class Can
      */
     public static function view(string $resourceType, int $resourceID): bool
     {
+        //TODO revamp this thing
         if (is_bool($authorized = self::basic())) {
             return $authorized;
         }

@@ -3,22 +3,24 @@
  * @package     Organizer
  * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
- * @author      Wolf Rost, <wolf.rost@mni.thm.de>
- * @author      Florian Fenzl, <florian.fenzl@mni.thm.de>
  * @copyright   2020 TH Mittelhessen
  * @license     GNU GPL v.3
  * @link        www.thm.de
  */
 
-namespace THM\Organizer;
+namespace THM\Organizer\Controllers;
 
 use Exception;
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Controller\BaseController;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Can;
 use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Views\HTML\BaseView as HTMLView;
 use THM\Organizer\Views\JSON\BaseView as JSONView;
@@ -26,109 +28,80 @@ use THM\Organizer\Views\PDF\BaseView as PDFView;
 use THM\Organizer\Views\XLS\BaseView as XLSView;
 use THM\Organizer\Views\XML\BaseView as XMLView;
 
-/**
- * Class receives user actions and performs access checks and redirection.
- */
 class Controller extends BaseController
 {
-    public $adminContext;
-
-    protected $listView = '';
-
-    protected $resource = '';
+    /**
+     * Flag for calling context.
+     * @var bool
+     */
+    protected bool $backend;
 
     /**
-     * Class constructor
-     *
-     * @param array $config An optional associative [] of configuration settings.
+     * The URL to redirection into this component.
+     * @var string
      */
-    public function __construct($config = [])
-    {
-        $config['base_path']    = JPATH_COMPONENT_SITE;
-        $config['model_prefix'] = '';
-        parent::__construct($config);
+    protected string $baseURL = '';
 
-        $this->adminContext = OrganizerHelper::getApplication()->isClient('administrator');
-        $this->registerTask('add', 'edit');
+    /**
+     * @inheritDoc
+     */
+    public function __construct($config = [], MVCFactoryInterface $factory = null, ?CMSApplication $app = null, ?JInput $input = null)
+    {
+        $this->backend = Application::backend();
+        $this->baseURL = $this->baseURL ?: Uri::base() . 'index.php?option=com_groups';
+        parent::__construct($config, $factory, $app, $input);
     }
 
     /**
-     * Makes call to the models's save function, and redirects to the same view.
+     * Default authorization check. Level component administrator. Override for nuance.
      * @return void
      */
-    public function apply()
+    protected function authorize(): void
     {
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-        $model     = new $modelName();
-
-        if ($resourceID = $model->save()) {
-            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-        } else {
-            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+        if (!Can::administrate()) {
+            Application::error(403);
         }
-
-        $url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$resourceID";
-        $this->setRedirect($url);
     }
 
     /**
-     * Redirects to the manager from the form.
+     * Default authorization check. Level component administrator. Override for nuance.
      * @return void
      */
-    public function cancel()
+    protected function authorizeAJAX(): void
     {
-        $defaultView = empty($this->listView) ? '' : "&view=$this->listView";
-        $default     = Helpers\Routing::getRedirectBase() . $defaultView;
-        $referrer    = Helpers\Input::getString('referrer');
-        $url         = $referrer ?: $default;
-        $this->setRedirect($url);
-    }
-
-    /**
-     * Makes call to the model's delete function, and redirects to the manager view.
-     * @return void
-     */
-    public function delete()
-    {
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-        $model     = new $modelName();
-
-        if ($model->delete($this->resource)) {
-            OrganizerHelper::message('ORGANIZER_DELETE_SUCCESS', 'success');
-        } else {
-            OrganizerHelper::message('ORGANIZER_DELETE_FAIL', 'error');
+        if (!Can::administrate()) {
+            echo Text::_('GROUPS_403');
+            $this->app->close();
         }
-
-        $url = Helpers\Routing::getRedirectBase();
-        $url .= "&view=$this->listView";
-        $this->setRedirect($url);
     }
 
     /**
-     * Typical view method for MVC based architecture.
-     *
-     * @param bool  $cachable  If true, the view output will be cached
-     * @param array $urlparams An array of safe URL parameters and their variable types.
-     *
-     * @return BaseController  A BaseController object to support chaining.
-     * @throws Exception
+     * @inheritDoc
      */
     public function display($cachable = false, $urlparams = []): BaseController
     {
         $document = Factory::getDocument();
         $format   = $this->input->get('format', $document->getType());
-        $name     = $this->input->get('view', 'Organizer');
         $template = $this->input->get('layout', 'default', 'string');
+        $view     = $this->input->get('view', 'Organizer');
+
+        if (!class_exists("\\THM\\Organizer\\Views\\$format\\$view")) {
+            Application::error(503);
+        }
+
+        if (!Can::view($view)) {
+            Application::error(403);
+        }
 
         $view = $this->getView(
-            $name,
+            $view,
             $format,
             '',
             ['base_path' => $this->basePath, 'layout' => $template]
         );
 
         // Only html views require models to be loaded in this way.
-        if ($format === 'html' and $model = $this->getModel($name)) {
+        if ($format === 'html' and $model = $this->getModel($view)) {
             // Push the model into the view (as default)
             $view->setModel($model, true);
         }
@@ -143,17 +116,6 @@ class Controller extends BaseController
         }
 
         return $this;
-    }
-
-    /**
-     * Redirects to the edit view with an item id. Access checks performed in the view.
-     * @return void
-     * @throws Exception
-     */
-    public function edit()
-    {
-        Helpers\Input::set('view', "{$this->resource}_edit");
-        $this->display();
     }
 
     /**
@@ -338,66 +300,6 @@ class Controller extends BaseController
     {
         Helpers\Input::set('format', 'pdf');
         $this->display();
-    }
-
-    /**
-     * Save form data to the database.
-     * @return void
-     */
-    public function save()
-    {
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-        $model     = new $modelName();
-
-        if ($model->save()) {
-            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-        } else {
-            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-        }
-
-        $url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
-        $this->setRedirect(Route::_($url, false));
-    }
-
-    /**
-     * Makes call to the models's save2copy function, and redirects to the manager view.
-     * @return void
-     * @throws Exception
-     */
-    public function save2copy()
-    {
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-        $model     = new $modelName();
-
-        if ($newID = $model->save2copy()) {
-            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-            Helpers\Input::set('id', $newID);
-
-            $url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$newID";
-            $this->setRedirect($url);
-        } else {
-            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-            $this->display();
-        }
-    }
-
-    /**
-     * Toggles binary resource properties from a list view.
-     * @return void
-     */
-    public function toggle()
-    {
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-        $model     = new $modelName();
-
-        if (method_exists($model, 'toggle') and $model->toggle()) {
-            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-        } else {
-            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-        }
-
-        $url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
-        $this->setRedirect($url);
     }
 
     /**
