@@ -11,10 +11,10 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Tables;
 use SimpleXMLElement;
 
 /**

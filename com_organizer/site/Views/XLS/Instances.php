@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Views\XLS;
 
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Layouts\Exported;
-use Organizer\Models\Instances as Model;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Layouts\Exported;
+use THM\Organizer\Models\Instances as Model;
 
 /**
  * Class creates a XLS file for the display of the filtered schedule information.

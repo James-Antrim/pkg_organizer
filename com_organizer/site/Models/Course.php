@@ -11,10 +11,10 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Input;
-use Organizer\Tables;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Input;
+use THM\Organizer\Tables;
 
 /**
  * Class which manages stored course data.

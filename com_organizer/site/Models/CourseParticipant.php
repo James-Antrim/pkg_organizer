@@ -11,10 +11,10 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Helpers\Input;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Input;
+use THM\Organizer\Tables;
 
 /**
  * Class which manages stored course data.

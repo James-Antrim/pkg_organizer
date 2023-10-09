@@ -12,10 +12,10 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\User;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Helpers\Bookings as Helper;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Bookings as Helper;
+use THM\Organizer\Tables;
 
 /**
  * Class retrieves information for a filtered set of participants.

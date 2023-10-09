@@ -12,12 +12,12 @@ namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Roles;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Roles;
+use THM\Organizer\Tables;
 
 /**
  * Class searches THM Organizer resources for resources and views relevant to the given search query.

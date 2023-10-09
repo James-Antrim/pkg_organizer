@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Languages;
 
 $headers    = array_shift($this->grid);
 $columns    = array_keys($headers);

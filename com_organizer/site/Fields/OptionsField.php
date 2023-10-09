@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 use SimpleXMLElement;
 use stdClass;
 

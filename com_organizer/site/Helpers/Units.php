@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Adapters\Database;
-use Organizer\Tables;
-use Organizer\Tables\Units as Table;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Tables;
+use THM\Organizer\Tables\Units as Table;
 
 /**
  * Provides general function for data retrieval and display.

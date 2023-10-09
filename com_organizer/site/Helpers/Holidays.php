@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Database;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.

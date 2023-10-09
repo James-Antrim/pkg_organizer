@@ -11,7 +11,7 @@
 
 namespace THM\Organizer\Layouts\PDF;
 
-use Organizer\Views\PDF\ListView;
+use THM\Organizer\Views\PDF\ListView;
 use TCPDF_FONTS;
 
 abstract class ListLayout extends BaseLayout

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Tables;
+use THM\Organizer\Tables;
 
 /**
  * Class loads a form for editing grid data.

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Tables\Organizations as Table;
+use THM\Organizer\Tables\Organizations as Table;
 
 /**
  * Class loads a form for editing organization data.

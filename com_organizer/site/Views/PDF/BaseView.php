@@ -15,10 +15,10 @@ namespace THM\Organizer\Views\PDF;
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
 use Joomla\CMS\Application\ApplicationHelper;
-use Organizer\Helpers;
-use Organizer\Layouts\PDF\BaseLayout;
-use Organizer\Models;
-use Organizer\Views\Named;
+use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\PDF\BaseLayout;
+use THM\Organizer\Models;
+use THM\Organizer\Views\Named;
 use TCPDF;
 
 /**

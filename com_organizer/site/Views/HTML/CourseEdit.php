@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads persistent information about a course into the display context.

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Tables\Suppressed as SuppressedTable;
+use THM\Organizer\Tables\Suppressed as SuppressedTable;
 
 trait Suppressed
 {

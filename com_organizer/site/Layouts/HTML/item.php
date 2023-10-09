@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\Toolbar;
 
 require_once 'refresh.php';
 require_once 'titles.php';

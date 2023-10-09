@@ -9,8 +9,8 @@
  */
 
 use Joomla\CMS\Layout\LayoutHelper;
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers;
 
 $toolbar     = Toolbar::getInstance();
 $columnCount = count($this->headers);

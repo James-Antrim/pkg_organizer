@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class retrieves information for a filtered set of degrees.

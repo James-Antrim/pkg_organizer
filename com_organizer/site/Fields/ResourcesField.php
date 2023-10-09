@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Fields;
 
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class creates a select box for predefined colors.

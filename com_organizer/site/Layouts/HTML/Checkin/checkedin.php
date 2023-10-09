@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 $instance = $this->instances[0];
 $room     = '';

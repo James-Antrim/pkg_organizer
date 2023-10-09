@@ -15,9 +15,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
 use Joomla\Utilities\ArrayHelper;
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Helpers;
 use stdClass;
 
 /**

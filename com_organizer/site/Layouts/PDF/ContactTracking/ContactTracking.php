@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Layouts\PDF\ContactTracking;
 
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Layouts\PDF\ListLayout;
-use Organizer\Views\PDF\ContactTracking as View;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Layouts\PDF\ListLayout;
+use THM\Organizer\Views\PDF\ContactTracking as View;
 
 class ContactTracking extends ListLayout
 {

@@ -11,11 +11,11 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Helpers;
-use Organizer\Tables;
-use Organizer\Validators;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
+use THM\Organizer\Validators;
 
 /**
  * Class which manages stored schedule data.

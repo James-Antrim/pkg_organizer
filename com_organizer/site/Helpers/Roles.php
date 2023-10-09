@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Adapters\Database;
-use Organizer\Tables\Roles as Table;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Tables\Roles as Table;
 
 /**
  * Class provides generalized functions regarding dates and times.

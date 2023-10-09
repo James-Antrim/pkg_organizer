@@ -12,7 +12,7 @@ namespace THM\Organizer\Admin;
 
 require_once JPATH_COMPONENT_SITE . '/autoloader.php';
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 if (!Helpers\Users::getUser()->authorise('core.manage', 'com_organizer')) {
     Helpers\OrganizerHelper::error(403);

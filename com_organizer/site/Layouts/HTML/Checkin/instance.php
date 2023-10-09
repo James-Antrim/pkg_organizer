@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 $link = Uri::base() . '?option=com_organizer&task=checkin.confirmInstance&id=';
 ?>

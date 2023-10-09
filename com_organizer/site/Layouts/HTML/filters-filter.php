@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 // Load the form filters
 $filters = $this->filterForm->getGroup('filter');

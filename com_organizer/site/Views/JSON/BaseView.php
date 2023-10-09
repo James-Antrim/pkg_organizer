@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\JSON;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Views\Named;
+use THM\Organizer\Views\Named;
 
 /**
  * Base class for a Joomla View

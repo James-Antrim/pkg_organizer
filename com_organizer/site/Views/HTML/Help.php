@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Generates a view explaining the calling view.

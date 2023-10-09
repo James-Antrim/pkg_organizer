@@ -8,9 +8,9 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Instances;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Instances;
 
 $headers    = array_shift($this->grid);
 $columns    = array_keys($headers);

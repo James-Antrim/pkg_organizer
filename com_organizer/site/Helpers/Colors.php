@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Tables;
+use THM\Organizer\Tables;
 
 /**
  * Class provides generalized functions regarding dates and times.

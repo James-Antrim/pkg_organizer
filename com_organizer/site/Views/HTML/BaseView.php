@@ -15,11 +15,11 @@ use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Routing;
-use Organizer\Views\Named;
+use THM\Organizer\Adapters;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Routing;
+use THM\Organizer\Views\Named;
 
 /**
  * Base class for a Joomla View

@@ -17,8 +17,8 @@ use Joomla\CMS\Filter\OutputFilter;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 use Joomla\Registry\Registry;
-use Organizer\Helpers;
-use Organizer\Models;
+use THM\Organizer\Helpers;
+use THM\Organizer\Models;
 use SimpleXMLElement;
 
 /**

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Field to load a list of possible item count limits

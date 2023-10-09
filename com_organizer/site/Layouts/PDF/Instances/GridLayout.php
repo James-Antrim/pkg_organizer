@@ -10,11 +10,11 @@
 
 namespace THM\Organizer\Layouts\PDF\Instances;
 
-use Organizer\Helpers;
-use Organizer\Layouts\Exported;
-use Organizer\Layouts\PDF\BaseLayout;
-use Organizer\Tables\Roles;
-use Organizer\Views\PDF\Instances;
+use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\Exported;
+use THM\Organizer\Layouts\PDF\BaseLayout;
+use THM\Organizer\Tables\Roles;
+use THM\Organizer\Views\PDF\Instances;
 use stdClass;
 
 /**

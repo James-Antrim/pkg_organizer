@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Class standardizes the getName function across classes.

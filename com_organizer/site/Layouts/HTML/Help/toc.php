@@ -9,9 +9,9 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Helpers\Input;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\OrganizerHelper;
 
 if (Input::getCMD('tmpl') === 'component') {
     return;

@@ -12,8 +12,8 @@ namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of (degree) programs.

@@ -12,9 +12,9 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Factory;
 use Joomla\Utilities\ArrayHelper;
-use Organizer\Helpers;
-use Organizer\Tables;
-use Organizer\Tables\Instances as Table;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
+use THM\Organizer\Tables\Instances as Table;
 
 /**
  * Class loads a form for editing instance data.

@@ -11,14 +11,14 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Helpers\Can;
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Instances as Helper;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\Roles;
-use Organizer\Helpers\Routing;
-use Organizer\Helpers\Users;
+use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\Dates;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\Instances as Helper;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Roles;
+use THM\Organizer\Helpers\Routing;
+use THM\Organizer\Helpers\Users;
 use stdClass;
 
 trait ListsInstances

@@ -13,8 +13,8 @@ namespace THM\Organizer\Views\HTML;
 jimport('tcpdf.tcpdf');
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
-use Organizer\Helpers;
+use THM\Organizer\Adapters;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads organization statistics into the display context.

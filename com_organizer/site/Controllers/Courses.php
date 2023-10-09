@@ -12,10 +12,10 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Controller;
-use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Models;
+use THM\Organizer\Controller;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Models;
 
 /**
  * Class receives user actions and performs access checks and redirection.

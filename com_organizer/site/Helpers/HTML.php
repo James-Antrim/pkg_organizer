@@ -11,8 +11,8 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\CMS\HTML\HTMLHelper;
-use Organizer\Fields\FieldsField;
-use Organizer\Views\HTML\BaseView;
+use THM\Organizer\Fields\FieldsField;
+use THM\Organizer\Views\HTML\BaseView;
 use SimpleXMLElement;
 use stdClass;
 

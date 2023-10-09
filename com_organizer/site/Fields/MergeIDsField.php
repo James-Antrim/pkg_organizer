@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Class creates a two hidden fields for merging. One has the lowest selected id as its value, the other has all

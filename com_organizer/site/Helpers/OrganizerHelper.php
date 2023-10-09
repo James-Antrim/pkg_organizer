@@ -16,7 +16,7 @@ use Exception;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Controller;
+use THM\Organizer\Controller;
 use Wf_Mobile_Detect;
 
 /**

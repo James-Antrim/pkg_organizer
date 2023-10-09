@@ -12,10 +12,10 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
-use Organizer\Adapters;
-use Organizer\Helpers;
-use Organizer\Helpers\HTML;
-use Organizer\Models\ListModel;
+use THM\Organizer\Adapters;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Models\ListModel;
 use stdClass;
 
 /**

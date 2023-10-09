@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Tables\Subjects as Table;
+use THM\Organizer\Tables\Subjects as Table;
 use SimpleXMLElement as Element;
 
 /**

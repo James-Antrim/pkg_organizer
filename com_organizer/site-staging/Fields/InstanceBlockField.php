@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Fields;
 
-use Organizer\Helpers;
-use Organizer\Helpers\HTML;
-use Organizer\Tables\Blocks;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Tables\Blocks;
 
 /**
  * Class creates a select box for predefined colors.

@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads a filtered set of buildings into the display context.

@@ -12,10 +12,10 @@ namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
-use Organizer\Controller;
-use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Models;
+use THM\Organizer\Controller;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Models;
 
 /**
  * Class provides methods for participant interation with instances.

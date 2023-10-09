@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 $logoURL = 'components/com_organizer/images/organizer.png';
 $logo    = Helpers\HTML::_('image', $logoURL, Helpers\Languages::_('ORGANIZER'), ['class' => 'organizer_main_image']);

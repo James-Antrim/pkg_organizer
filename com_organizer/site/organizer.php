@@ -12,6 +12,6 @@ namespace THM\Organizer;
 
 require_once 'autoloader.php';
 
-use Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Helpers\OrganizerHelper;
 
 OrganizerHelper::setUp();

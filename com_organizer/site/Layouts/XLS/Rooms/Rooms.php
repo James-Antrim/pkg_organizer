@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Layouts\XLS\Rooms;
 
-use Organizer\Layouts\XLS\BaseLayout;
+use THM\Organizer\Layouts\XLS\BaseLayout;
 
 class Rooms extends BaseLayout
 {

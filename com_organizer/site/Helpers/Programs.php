@@ -11,10 +11,10 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Models;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Models;
+use THM\Organizer\Tables;
 
 /**
  * Provides general functions for program access checks, data retrieval and display.

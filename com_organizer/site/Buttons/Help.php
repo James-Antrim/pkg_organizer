@@ -12,8 +12,8 @@ namespace THM\Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\ToolbarButton;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Renders a help popup window button

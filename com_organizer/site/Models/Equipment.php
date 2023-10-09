@@ -12,10 +12,10 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use JDatabaseQuery;
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Helpers;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 
 /**
  * Class retrieves information for a filtered set of room types.

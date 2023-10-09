@@ -11,8 +11,8 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
-use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\OrganizerHelper;
 
 /**
  * Class receives user actions and performs access checks and redirection.

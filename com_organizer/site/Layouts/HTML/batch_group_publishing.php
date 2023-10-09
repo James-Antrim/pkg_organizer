@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 ?>
 <div class="modal hide fade" id="modal-publishing">

@@ -14,8 +14,8 @@ use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Menu;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers;
-use Organizer\Helpers\Input;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Input;
 use stdClass;
 
 /**

@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Layouts\PDF\CourseParticipants;
 
-use Organizer\Helpers;
-use Organizer\Layouts\PDF\ListLayout;
-use Organizer\Views\PDF\CourseParticipants;
+use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\PDF\ListLayout;
+use THM\Organizer\Views\PDF\CourseParticipants;
 
 class Participation extends ListLayout
 {

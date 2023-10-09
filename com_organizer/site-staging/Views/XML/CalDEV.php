@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Views\XML;
 
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\OrganizerHelper;
 use SimpleXMLElement;
 
 /**

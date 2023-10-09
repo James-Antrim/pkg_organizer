@@ -11,10 +11,10 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
-use Organizer\Tables;
+use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 
 /**
  * Class loads persistent information a filtered set of (scheduled subject) pools into the display context.

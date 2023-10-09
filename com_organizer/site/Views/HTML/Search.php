@@ -11,8 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\Languages;
 use stdClass;
 
 /**

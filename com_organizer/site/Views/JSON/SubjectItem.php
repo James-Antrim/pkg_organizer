@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\JSON;
 
-use Organizer\Models\SubjectItem as Model;
+use THM\Organizer\Models\SubjectItem as Model;
 
 /**
  * Class loads the subject into the display context.

@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Layouts\PDF\Booking;
 
-use Organizer\Helpers\Bookings as Helper;
-use Organizer\Helpers\Languages;
-use Organizer\Layouts\PDF\ListLayout;
-use Organizer\Views\PDF\Booking as View;
+use THM\Organizer\Helpers\Bookings as Helper;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Layouts\PDF\ListLayout;
+use THM\Organizer\Views\PDF\Booking as View;
 
 /**
  * Class loads persistent information about a course into the display context.

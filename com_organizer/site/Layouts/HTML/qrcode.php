@@ -11,9 +11,9 @@
 require_once JPATH_ROOT . '/libraries/tcpdf/tcpdf_barcodes_2d.php';
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\HTML as HTML;
-use Organizer\Helpers\Languages as Languages;
-use Organizer\Helpers\Bookings as Helper;
+use THM\Organizer\Helpers\HTML as HTML;
+use THM\Organizer\Helpers\Languages as Languages;
+use THM\Organizer\Helpers\Bookings as Helper;
 use TCPDF2DBarcode as QRCode;
 
 $bookingID  = $this->booking->id;

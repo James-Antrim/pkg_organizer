@@ -12,10 +12,10 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Router\Route;
-use Organizer\Helpers;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Models;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Input;
+use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Models;
 
 class CourseParticipants extends Participants
 {

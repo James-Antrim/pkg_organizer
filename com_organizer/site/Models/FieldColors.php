@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of fields (of expertise).

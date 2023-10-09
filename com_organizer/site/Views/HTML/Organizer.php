@@ -11,9 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
+use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers;
 
 /**
  * Class modifies the document for the output of a menu like list of resource management views.

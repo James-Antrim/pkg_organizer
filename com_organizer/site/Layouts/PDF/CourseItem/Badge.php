@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Layouts\PDF\CourseItem;
 
-use Organizer\Helpers;
-use Organizer\Layouts\PDF\BadgeLayout;
-use Organizer\Tables;
-use Organizer\Views\PDF\CourseItem;
+use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\PDF\BadgeLayout;
+use THM\Organizer\Tables;
+use THM\Organizer\Views\PDF\CourseItem;
 
 /**
  * Class loads persistent information about a course into the display context.

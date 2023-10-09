@@ -13,8 +13,8 @@ namespace THM\Organizer\Layouts\XLS;
 jimport('phpexcel.library.PHPExcel');
 
 use Joomla\CMS\Application\ApplicationHelper;
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class generates the organization statistics XLS file.

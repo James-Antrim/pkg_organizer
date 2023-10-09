@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
-use Organizer\Helpers;
-use Organizer\Tables\Curricula;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables\Curricula;
 
 trait SubOrdinate
 {

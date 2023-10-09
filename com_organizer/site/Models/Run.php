@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Helpers;
-use Organizer\Tables\Runs as Table;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables\Runs as Table;
 
 /**
  * Class which manages stored run data.

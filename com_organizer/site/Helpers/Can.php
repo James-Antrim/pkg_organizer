@@ -11,8 +11,8 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Utilities\ArrayHelper;
-use Organizer\Adapters\Database;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Tables;
 
 /**
  * Class provides generalized functions useful for several component files.

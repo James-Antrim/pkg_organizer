@@ -12,9 +12,9 @@ namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Document;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Document;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
 use stdClass;
 
 /**

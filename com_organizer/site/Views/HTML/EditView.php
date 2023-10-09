@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
-use Organizer\Models\EditModel;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers;
+use THM\Organizer\Models\EditModel;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.

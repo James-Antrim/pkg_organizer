@@ -11,8 +11,8 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class provides a field by which to add a participant to a given event related resource.

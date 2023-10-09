@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Helpers\Input;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Input;
 
 /**
  * Class retrieves information for a filtered set of participants.

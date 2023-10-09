@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads curriculum information into the view context.

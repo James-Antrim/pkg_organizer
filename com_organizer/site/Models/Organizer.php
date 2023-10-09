@@ -12,11 +12,11 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\User\User;
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Helpers\Terms;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Helpers\Terms;
+use THM\Organizer\Tables;
 
 /**
  * Class which sets permissions for the view.

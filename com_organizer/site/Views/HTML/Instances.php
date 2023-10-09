@@ -12,14 +12,14 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Document;
-use Organizer\Adapters\Toolbar;
-use Organizer\Buttons;
-use Organizer\Helpers;
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Instances as Helper;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\Document;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Buttons;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Dates;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\Instances as Helper;
+use THM\Organizer\Helpers\Languages;
 use stdClass;
 
 /**

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use DateTime;
-use Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Database;
 
 /**
  * Class provides generalized functions regarding dates and times.

@@ -11,8 +11,8 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
 
 /**
  * Class contains methods and method stubs useful in the context of nested curriculum resources.

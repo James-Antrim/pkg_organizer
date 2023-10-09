@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Adapters\Database;
-use Organizer\Tables\Categories as Category;
-use Organizer\Tables\Groups as Group;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Tables\Categories as Category;
+use THM\Organizer\Tables\Groups as Group;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.

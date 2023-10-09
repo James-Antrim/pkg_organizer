@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 if (!$componentTemplate = Helpers\Input::getCMD('tmpl') === 'component') {
     echo $this->title;

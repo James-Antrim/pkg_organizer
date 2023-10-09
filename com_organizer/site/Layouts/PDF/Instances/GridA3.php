@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF\Instances;
 
-use Organizer\Views\PDF\Instances;
+use THM\Organizer\Views\PDF\Instances;
 
 /**
  * Class generates a PDF file in A3 format.

@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Helpers;
-use Organizer\Helpers\Roles;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Roles;
 
 /**
  * Loads lesson and event data for a filtered set of rooms into the view context.

@@ -10,14 +10,14 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\InstanceParticipants as Helper;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Tables;
-use Organizer\Tables\InstanceParticipants as Table;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Input;
+use THM\Organizer\Helpers\InstanceParticipants as Helper;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Tables;
+use THM\Organizer\Tables\InstanceParticipants as Table;
 
 /**
  * Class which manages stored course data.

@@ -10,7 +10,7 @@
 
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Languages;
 
 $referrer = Factory::getSession()->get('organizer.checkin.referrer');
 ?>

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Tables\Terms as Table;
+use THM\Organizer\Tables\Terms as Table;
 
 /**
  * Class which manages stored degree data.

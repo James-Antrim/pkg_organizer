@@ -12,9 +12,9 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 
 /**
  * Class retrieves information about daily events for display on monitors.

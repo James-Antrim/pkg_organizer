@@ -11,10 +11,10 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Tables;
 
 /**
  * Class which retrieves subject information for a detailed display of subject attributes.

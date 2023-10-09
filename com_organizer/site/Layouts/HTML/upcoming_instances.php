@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Layouts\HTML;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 $count     = 0;
 $dates     = [];

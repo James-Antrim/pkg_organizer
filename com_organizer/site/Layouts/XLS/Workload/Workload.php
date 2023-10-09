@@ -11,11 +11,11 @@
 namespace THM\Organizer\Layouts\XLS\Workload;
 
 use Exception;
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Layouts\XLS\BaseLayout;
-use Organizer\Views\XLS\BaseView;
-use Organizer\Views\XLS\XLConstants;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Layouts\XLS\BaseLayout;
+use THM\Organizer\Views\XLS\BaseView;
+use THM\Organizer\Views\XLS\XLConstants;
 use PHPExcel_Exception;
 use PHPExcel_Worksheet_Drawing;
 

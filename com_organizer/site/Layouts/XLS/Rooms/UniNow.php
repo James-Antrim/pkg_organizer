@@ -11,7 +11,7 @@
 namespace THM\Organizer\Layouts\XLS\Rooms;
 
 use Exception;
-use Organizer\Layouts\XLS\BaseLayout;
+use THM\Organizer\Layouts\XLS\BaseLayout;
 use PHPExcel_Style_Border as BorderStyle;
 
 class UniNow extends BaseLayout

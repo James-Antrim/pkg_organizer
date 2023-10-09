@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Layouts\HTML;
 
-use Organizer\Helpers;
-use Organizer\Views\HTML\Screen;
+use THM\Organizer\Helpers;
+use THM\Organizer\Views\HTML\Screen;
 
 $class = 'screen';
 /** @var Screen $this */

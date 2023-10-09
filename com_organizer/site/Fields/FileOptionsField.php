@@ -15,7 +15,7 @@ jimport('joomla.filesystem.file');
 
 use Joomla\CMS\Filesystem;
 use SimpleXMLElement;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Supports an HTML select list of files.

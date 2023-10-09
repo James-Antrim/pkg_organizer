@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Layouts\PDF;
 
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
-use Organizer\Views\PDF\CourseParticipants;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Views\PDF\CourseParticipants;
 
 /**
  * Base class for a Joomla View

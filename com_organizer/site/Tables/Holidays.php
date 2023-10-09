@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Tables;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Models the organizer_holidays table.

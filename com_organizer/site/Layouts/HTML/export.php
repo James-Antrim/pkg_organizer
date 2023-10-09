@@ -9,8 +9,8 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers;
 
 $query    = Uri::getInstance()->getQuery();
 $script   = "document.getElementById('download-url').select();";

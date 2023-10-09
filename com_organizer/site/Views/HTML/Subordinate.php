@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
+use THM\Organizer\Adapters;
 
 trait Subordinate
 {

@@ -14,7 +14,7 @@ use Joomla\CMS\Access\Rules;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Asset;
 use Joomla\CMS\Table\Table;
-use Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Database;
 
 /**
  * Models the organizer_organizations table.

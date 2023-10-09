@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Validators;
 
-use Organizer\Adapters\Database;
-use Organizer\Helpers\Languages;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
 

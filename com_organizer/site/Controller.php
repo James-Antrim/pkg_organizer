@@ -18,13 +18,13 @@ use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Views\HTML\BaseView as HTMLView;
-use Organizer\Views\JSON\BaseView as JSONView;
-use Organizer\Views\PDF\BaseView as PDFView;
-use Organizer\Views\XLS\BaseView as XLSView;
-use Organizer\Views\XML\BaseView as XMLView;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Views\HTML\BaseView as HTMLView;
+use THM\Organizer\Views\JSON\BaseView as JSONView;
+use THM\Organizer\Views\PDF\BaseView as PDFView;
+use THM\Organizer\Views\XLS\BaseView as XLSView;
+use THM\Organizer\Views\XML\BaseView as XMLView;
 
 /**
  * Class receives user actions and performs access checks and redirection.

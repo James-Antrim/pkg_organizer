@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Trait resolves language constants with the addition of the component prefix and languages helper.

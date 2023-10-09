@@ -11,9 +11,9 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 
 /**
  * Class which manages stored (degree) program data.

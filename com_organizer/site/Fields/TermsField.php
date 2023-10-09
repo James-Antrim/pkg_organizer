@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Class creates a select box for terms.

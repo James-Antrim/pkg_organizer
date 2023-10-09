@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Tables;
+use THM\Organizer\Tables;
 
 /**
  * Abstract static class with functions returning name like resource attributes.

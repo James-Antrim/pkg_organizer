@@ -11,8 +11,8 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
 
 /**
  * Class creates a select box for explicitly associating subjects with events. This is also done

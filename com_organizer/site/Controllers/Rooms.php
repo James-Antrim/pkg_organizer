@@ -11,10 +11,10 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Organizer\Controller;
-use Organizer\Helpers;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Models\Room;
+use THM\Organizer\Controller;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Models\Room;
 
 /**
  * Class receives user actions and performs access checks and redirection.

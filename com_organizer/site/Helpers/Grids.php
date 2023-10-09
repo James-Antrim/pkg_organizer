@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Adapters\Database;
-use Organizer\Tables\Grids as Table;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Tables\Grids as Table;
 
 /**
  * Class provides general functions for retrieving building data.

@@ -12,8 +12,8 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
-use Organizer\Helpers;
+use THM\Organizer\Adapters;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads a non-item based resource form (merge) into the display context. Specific resource determined by

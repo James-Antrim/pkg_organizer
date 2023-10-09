@@ -12,7 +12,7 @@ namespace THM\Organizer\Buttons;
 
 
 use Joomla\CMS\Toolbar\ToolbarButton;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class provides a button acting as a dropdown toggle for other buttons.

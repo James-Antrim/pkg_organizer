@@ -11,10 +11,10 @@
 namespace THM\Organizer\Layouts\XLS\Instances;
 
 use Exception;
-use Organizer\Helpers\Languages;
-use Organizer\Layouts\XLS\ListLayout;
-use Organizer\Views\XLS\Instances as View;
-use Organizer\Views\XLS\XLConstants;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Layouts\XLS\ListLayout;
+use THM\Organizer\Views\XLS\Instances as View;
+use THM\Organizer\Views\XLS\XLConstants;
 
 class Instances extends ListLayout
 {

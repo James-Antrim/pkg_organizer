@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\JSON;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 trait Planned
 {

@@ -11,10 +11,10 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
-use Organizer\Helpers;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Adapters;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Loads curriculum information into the display context.

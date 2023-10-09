@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
 use stdClass;
 
 /**

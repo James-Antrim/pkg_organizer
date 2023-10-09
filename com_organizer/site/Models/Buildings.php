@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
 
 /**
  * Class retrieves the data regarding a filtered set of buildings.

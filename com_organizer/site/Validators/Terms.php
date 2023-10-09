@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Validators;
 
-use Organizer\Helpers;
-use Organizer\Tables;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
 

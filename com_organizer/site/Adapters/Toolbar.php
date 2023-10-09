@@ -16,8 +16,8 @@ use Joomla\CMS\Filter\InputFilter;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Toolbar\Toolbar as ParentClass;
 use Joomla\CMS\Toolbar\ToolbarButton;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\OrganizerHelper;
 
 class Toolbar extends ParentClass
 {

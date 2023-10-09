@@ -12,8 +12,8 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use Organizer\Helpers;
-use Organizer\Tables\BaseTable;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables\BaseTable;
 
 /**
  * Class which manages stored building data.

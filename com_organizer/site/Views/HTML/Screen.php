@@ -11,8 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Adapters;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads filtered events into the display context.

@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 $privacyText = Helpers\Languages::_('ORGANIZER_PRIVACY_POLICY');
 $privacyURL  = str_replace('profile', 'privacy', Uri::getInstance());

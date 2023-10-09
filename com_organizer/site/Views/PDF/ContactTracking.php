@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use Organizer\Helpers;
-use Organizer\Tables\Participants;
-use Organizer\Tables\Persons;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables\Participants;
+use THM\Organizer\Tables\Persons;
 
 /**
  * Class loads persistent information about a course into the display context.

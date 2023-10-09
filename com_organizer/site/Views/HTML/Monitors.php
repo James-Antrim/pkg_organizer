@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads persistent information a filtered set of monitors into the display context.

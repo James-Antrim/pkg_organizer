@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\Registry\Registry;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
+use THM\Organizer\Adapters;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.

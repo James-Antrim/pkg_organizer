@@ -15,8 +15,8 @@ use JDatabaseQuery;
 use JDatabaseQueryElement;
 use JDatabaseQueryMysqli;
 use Joomla\CMS\Factory;
-use Organizer\Adapters\Database;
-use Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers\OrganizerHelper;
 
 class QueryMySQLi extends JDatabaseQueryMysqli
 {

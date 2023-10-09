@@ -9,7 +9,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 $task = Helpers\Input::getCMD('view') . '.supplement';
 

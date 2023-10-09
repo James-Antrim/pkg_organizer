@@ -15,7 +15,7 @@ use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Log\Log;
 use Joomla\Utilities\ArrayHelper;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 use stdClass;
 
 /**

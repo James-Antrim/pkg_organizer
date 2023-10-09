@@ -12,8 +12,8 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
-use Organizer\Helpers;
+use THM\Organizer\Adapters;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.

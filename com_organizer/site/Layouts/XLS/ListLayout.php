@@ -12,8 +12,8 @@ namespace THM\Organizer\Layouts\XLS;
 
 
 use Exception;
-use Organizer\Views\XLS\ListView;
-use Organizer\Views\XLS\XLConstants;
+use THM\Organizer\Views\XLS\ListView;
+use THM\Organizer\Views\XLS\XLConstants;
 
 abstract class ListLayout extends BaseLayout
 {

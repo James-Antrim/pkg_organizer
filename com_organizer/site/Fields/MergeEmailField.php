@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Fields;
 
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Helpers;
 
 /**
  * Class creates a generalized select box for selection of a single column value among those already selected.

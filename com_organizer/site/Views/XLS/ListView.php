@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\XLS;
 
 use Joomla\Registry\Registry;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 abstract class ListView extends BaseView
 {

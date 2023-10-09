@@ -11,8 +11,8 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use Organizer\Adapters\Database;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Tables;
 
 /**
  * Provides general functions for organization access checks, data retrieval and display.

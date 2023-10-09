@@ -12,8 +12,8 @@ namespace THM\Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Document;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Document;
+use THM\Organizer\Helpers;
 
 /**
  * Renders a button whose contents open in a new tab.

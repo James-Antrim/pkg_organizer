@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 echo $this->form->renderField('date');
 echo $this->form->renderField('gridID');

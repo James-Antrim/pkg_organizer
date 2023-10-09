@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Helpers\Dates;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\Dates;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads persistent information a filtered set of degrees into the display context.

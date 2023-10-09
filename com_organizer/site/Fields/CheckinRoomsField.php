@@ -11,8 +11,8 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
 use stdClass;
 
 /**

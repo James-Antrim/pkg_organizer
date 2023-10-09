@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\JSON;
 
-use Organizer\Helpers;
-use Organizer\Tables;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 
 /**
  * Class answers dynamic (degree) program related queries

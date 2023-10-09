@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Object\CMSObject;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads item form data to edit an entry.

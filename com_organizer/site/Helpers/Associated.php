@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Adapters\Database;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Tables;
 
 /**
  * Ensures that resources associated with organizations have functions pertaining to those associations.

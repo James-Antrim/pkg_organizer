@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Controllers;
 
-use Organizer\Controller;
-use Organizer\Helpers;
-use Organizer\Models\Unit;
+use THM\Organizer\Controller;
+use THM\Organizer\Helpers;
+use THM\Organizer\Models\Unit;
 
 /**
  * Class receives user actions and performs access checks and redirection.

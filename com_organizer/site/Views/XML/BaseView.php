@@ -11,8 +11,8 @@
 namespace THM\Organizer\Views\XML;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers\OrganizerHelper;
-use Organizer\Views\Named;
+use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Views\Named;
 
 /**
  * Base class for a Joomla View

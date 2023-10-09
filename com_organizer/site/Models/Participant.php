@@ -11,13 +11,13 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Languages;
-use Organizer\Helpers\OrganizerHelper as OH;
-use Organizer\Tables;
-use Organizer\Tables\Participants as Table;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Input;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\OrganizerHelper as OH;
+use THM\Organizer\Tables;
+use THM\Organizer\Tables\Participants as Table;
 
 /**
  * Class which manages stored participant data.

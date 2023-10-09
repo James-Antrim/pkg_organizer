@@ -11,8 +11,8 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
 
 /**
  * Class creates a form field for enabling or disabling publishing for specific plan (subject) pools for specific

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF;
 
-use Organizer\Views\PDF\BaseView;
+use THM\Organizer\Views\PDF\BaseView;
 
 /**
  * Base class for a Joomla View

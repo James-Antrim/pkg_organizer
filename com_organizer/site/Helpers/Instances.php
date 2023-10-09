@@ -12,9 +12,9 @@ namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
-use Organizer\Adapters\Database;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Tables;
 
 /**
  * Provides functions for XML instance validation and modeling.
@@ -993,7 +993,7 @@ class Instances extends ResourceHelper
         $dates = [];
 
         $pastQuery = self::getInstanceQuery($conditions, self::PAST);
-        $pastQuery->select('MAX(date)')->where("date < '" . $conditions['startDate'] . "'");
+        $pastQuery->select('MAX(DATE)')->where("date < '" . $conditions['startDate'] . "'");
         Database::setQuery($pastQuery);
 
         if ($pastDate = Database::loadString()) {
@@ -1001,7 +1001,7 @@ class Instances extends ResourceHelper
         }
 
         $futureQuery = self::getInstanceQuery($conditions, self::FUTURE);
-        $futureQuery->select('MIN(date)')->where("date > '" . $conditions['endDate'] . "'");
+        $futureQuery->select('MIN(DATE)')->where("date > '" . $conditions['endDate'] . "'");
         Database::setQuery($futureQuery);
 
         if ($futureDate = Database::loadString()) {

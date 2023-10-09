@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\MVC\Model\AdminModel;
-use Organizer\Helpers;
-use Organizer\Tables;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 
 /**
  * Class loads a form for editing participant data.

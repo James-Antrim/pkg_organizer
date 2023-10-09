@@ -11,11 +11,11 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Factory;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Helpers\Units as Helper;
-use Organizer\Tables;
-use Organizer\Tables\Units as Table;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Units as Helper;
+use THM\Organizer\Tables;
+use THM\Organizer\Tables\Units as Table;
 use stdClass;
 
 /**

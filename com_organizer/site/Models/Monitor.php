@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Helpers;
-use Organizer\Tables;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 
 /**
  * Class which manages stored monitor data.

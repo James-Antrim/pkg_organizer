@@ -14,10 +14,10 @@ require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
 
 use Exception;
 use Joomla\CMS\Application\ApplicationHelper;
-use Organizer\Helpers;
-use Organizer\Layouts\XLS\BaseLayout;
-use Organizer\Models\BaseModel;
-use Organizer\Views\Named;
+use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\XLS\BaseLayout;
+use THM\Organizer\Models\BaseModel;
+use THM\Organizer\Views\Named;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Worksheet;

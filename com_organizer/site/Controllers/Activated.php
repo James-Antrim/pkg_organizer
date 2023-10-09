@@ -11,7 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 trait Activated
 {

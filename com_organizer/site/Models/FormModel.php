@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\FormModel as ParentModel;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads non-item-specific form data.

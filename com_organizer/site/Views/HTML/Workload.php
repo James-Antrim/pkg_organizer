@@ -11,8 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters;
-use Organizer\Helpers;
+use THM\Organizer\Adapters;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads personnal workload statistics into the display context.

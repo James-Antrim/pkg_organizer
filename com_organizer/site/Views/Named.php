@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views;
 
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 trait Named
 {

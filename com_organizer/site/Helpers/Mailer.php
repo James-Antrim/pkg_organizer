@@ -13,7 +13,7 @@ namespace THM\Organizer\Helpers;
 
 
 use Joomla\CMS\Factory;
-use Organizer\Tables;
+use THM\Organizer\Tables;
 
 class Mailer
 {

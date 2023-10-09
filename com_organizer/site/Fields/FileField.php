@@ -12,8 +12,8 @@ namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Utility\Utility;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\Languages;
 use SimpleXMLElement;
 
 /**

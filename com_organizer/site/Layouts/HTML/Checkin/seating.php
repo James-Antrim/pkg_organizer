@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use Organizer\Views\BaseView;
+use THM\Organizer\Views\BaseView;
 
 jimport('tcpdf.tcpdf');
 

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Helpers\Input;
+use THM\Organizer\Helpers\Input;
 
 trait SuperOrdinate
 {

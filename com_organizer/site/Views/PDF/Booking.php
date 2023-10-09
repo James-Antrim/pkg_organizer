@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use Organizer\Helpers;
-use Organizer\Helpers\Bookings as Helper;
-use Organizer\Models\Booking as Model;
-use Organizer\Tables;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Bookings as Helper;
+use THM\Organizer\Models\Booking as Model;
+use THM\Organizer\Tables;
 use TCPDF_FONTS;
 
 /**

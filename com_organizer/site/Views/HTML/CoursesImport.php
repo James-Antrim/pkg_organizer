@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class provides an interface for uploading a file containing room data.

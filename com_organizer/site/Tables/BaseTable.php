@@ -14,7 +14,7 @@ use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
 use Joomla\Registry\Registry;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 /**
  * Abstract class extending Table.

@@ -9,9 +9,9 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
-use Organizer\Views\HTML\Statistics as View;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers;
+use THM\Organizer\Views\HTML\Statistics as View;
 
 $conditions = $this->form->getFieldset('conditions');
 $query      = Uri::getInstance()->getQuery();

@@ -12,9 +12,9 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Document;
-use Organizer\Helpers;
-use Organizer\Tables\Participants as Table;
+use THM\Organizer\Adapters\Document;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables\Participants as Table;
 
 /**
  * Generates the checkin form.

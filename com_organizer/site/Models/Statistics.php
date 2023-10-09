@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Models;
 
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Views\HTML\Statistics as View;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Views\HTML\Statistics as View;
 
 /**
  * Class calculates lesson statistics and loads them into the view context.

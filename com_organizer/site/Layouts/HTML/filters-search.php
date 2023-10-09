@@ -9,7 +9,7 @@
  */
 
 use Joomla\Registry\Registry;
-use Organizer\Helpers;
+use THM\Organizer\Helpers;
 
 // Receive overridable options
 $options = empty($options) ? [] : $options;

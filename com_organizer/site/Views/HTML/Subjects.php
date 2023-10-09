@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
-use Organizer\Helpers\Routing;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Routing;
 
 /**
  * Class loads persistent information a filtered set of subjects into the display context.

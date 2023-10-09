@@ -13,9 +13,9 @@ namespace THM\Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Database;
-use Organizer\Helpers;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Database;
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 
 class Checkin extends FormModel
 {

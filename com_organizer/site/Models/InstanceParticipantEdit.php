@@ -11,9 +11,9 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Factory;
-use Organizer\Helpers;
-use Organizer\Helpers\InstanceParticipants as Helper;
-use Organizer\Tables\InstanceParticipants as Table;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\InstanceParticipants as Helper;
+use THM\Organizer\Tables\InstanceParticipants as Table;
 
 /**
  * Class loads a form for editing campus data.

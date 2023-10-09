@@ -12,7 +12,7 @@ namespace THM\Organizer\Layouts\XLS;
 
 
 use Exception;
-use Organizer\Views\XLS\BaseView;
+use THM\Organizer\Views\XLS\BaseView;
 
 abstract class BaseLayout
 {

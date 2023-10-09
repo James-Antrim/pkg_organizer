@@ -11,7 +11,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use Organizer\Tables;
+use THM\Organizer\Tables;
 
 trait Planned
 {

@@ -13,8 +13,8 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
-use Organizer\Adapters;
-use Organizer\Helpers;
+use THM\Organizer\Adapters;
+use THM\Organizer\Helpers;
 
 /**
  * Class loads statistical information about appointments into the display context.

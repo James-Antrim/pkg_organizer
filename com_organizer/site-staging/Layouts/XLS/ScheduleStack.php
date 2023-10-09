@@ -12,8 +12,8 @@ namespace THM\Organizer\Layouts\XLS;
 
 jimport('phpexcel.library.PHPExcel');
 
-use Organizer\Helpers;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class generates an XLS file for the schedule where lessons are listed as aggregates.

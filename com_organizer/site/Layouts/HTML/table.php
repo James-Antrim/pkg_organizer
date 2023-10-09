@@ -9,8 +9,8 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use Organizer\Adapters\Toolbar;
-use Organizer\Helpers;
+use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Helpers;
 
 $rows      = $this->rows;
 $iteration = 0;

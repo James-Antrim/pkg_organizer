@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Organizer\Helpers;
-use Organizer\Helpers\Holidays as Helper;
-use Organizer\Helpers\HTML;
-use Organizer\Helpers\Languages;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Holidays as Helper;
+use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads persistent information a filtered set of holidays into the display context.

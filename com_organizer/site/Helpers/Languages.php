@@ -13,7 +13,7 @@ namespace THM\Organizer\Helpers;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Language;
 use Joomla\CMS\Language\Text;
-use Organizer\Adapters;
+use THM\Organizer\Adapters;
 
 /**
  * Provides general functions for language data retrieval and display.

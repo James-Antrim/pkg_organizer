@@ -13,12 +13,12 @@ namespace THM\Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
-use Organizer\Adapters\Queries\QueryMySQLi;
-use Organizer\Helpers;
-use Organizer\Helpers\Input;
-use Organizer\Helpers\Instances as Helper;
-use Organizer\Helpers\Languages;
-use Organizer\Tables;
+use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Input;
+use THM\Organizer\Helpers\Instances as Helper;
+use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Tables;
 
 /**
  * Class retrieves information for a filtered set of instances.
