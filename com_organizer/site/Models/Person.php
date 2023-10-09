@@ -19,322 +19,285 @@ use Organizer\Tables;
  */
 class Person extends MergeModel
 {
-	use Associated;
+    use Associated;
 
-	protected $resource = 'person';
+    protected $resource = 'person';
 
-	/**
-	 * Activates persons by id if a selection was made, otherwise by use in the instance_persons table.
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function activate(): bool
-	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		$this->authorize();
+    /**
+     * Activates persons by id if a selection was made, otherwise by use in the instance_persons table.
+     * @return bool true on success, otherwise false
+     */
+    public function activate(): bool
+    {
+        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->authorize();
 
-		// Explicitly selected resources
-		if ($this->selected)
-		{
-			foreach ($this->selected as $selectedID)
-			{
-				$person = new Tables\Persons();
+        // Explicitly selected resources
+        if ($this->selected) {
+            foreach ($this->selected as $selectedID) {
+                $person = new Tables\Persons();
 
-				if ($person->load($selectedID))
-				{
-					$person->active = 1;
-					$person->store();
-					continue;
-				}
+                if ($person->load($selectedID)) {
+                    $person->active = 1;
+                    $person->store();
+                    continue;
+                }
 
-				return false;
-			}
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		// Implicitly used resources
-		$subQuery = Database::getQuery();
-		$subQuery->select('DISTINCT personID')->from('#__organizer_instance_persons');
-		$query = Database::getQuery();
-		$query->update('#__organizer_persons')->set('active = 1')->where("id IN ($subQuery)");
-		Database::setQuery($query);
+        // Implicitly used resources
+        $subQuery = Database::getQuery();
+        $subQuery->select('DISTINCT personID')->from('#__organizer_instance_persons');
+        $query = Database::getQuery();
+        $query->update('#__organizer_persons')->set('active = 1')->where("id IN ($subQuery)");
+        Database::setQuery($query);
 
-		return Database::execute();
-	}
+        return Database::execute();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::edit('persons', $this->selected))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * @inheritDoc
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::edit('persons', $this->selected)) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * Deactivates persons by id if a selection was made, otherwise by lack of use in the instance_persons table.
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	public function deactivate(): bool
-	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		$this->authorize();
+    /**
+     * Deactivates persons by id if a selection was made, otherwise by lack of use in the instance_persons table.
+     * @return bool true on success, otherwise false
+     */
+    public function deactivate(): bool
+    {
+        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->authorize();
 
-		// Explicitly selected resources
-		if ($this->selected)
-		{
-			foreach ($this->selected as $selectedID)
-			{
-				$person = new Tables\Persons();
+        // Explicitly selected resources
+        if ($this->selected) {
+            foreach ($this->selected as $selectedID) {
+                $person = new Tables\Persons();
 
-				if ($person->load($selectedID))
-				{
-					$person->active = 0;
-					$person->store();
-					continue;
-				}
+                if ($person->load($selectedID)) {
+                    $person->active = 0;
+                    $person->store();
+                    continue;
+                }
 
-				return false;
-			}
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		// Implicitly unused resources
-		$subQuery = Database::getQuery();
-		$subQuery->select('DISTINCT personID')->from('#__organizer_instance_persons');
-		$query = Database::getQuery();
-		$query->update('#__organizer_persons')->set('active = 0')->where("id NOT IN ($subQuery)");
-		Database::setQuery($query);
+        // Implicitly unused resources
+        $subQuery = Database::getQuery();
+        $subQuery->select('DISTINCT personID')->from('#__organizer_instance_persons');
+        $query = Database::getQuery();
+        $query->update('#__organizer_persons')->set('active = 0')->where("id NOT IN ($subQuery)");
+        Database::setQuery($query);
 
-		return Database::execute();
-	}
+        return Database::execute();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getTable($name = '', $prefix = '', $options = [])
-	{
-		return new Tables\Persons();
-	}
+    /**
+     * @inheritDoc
+     */
+    public function getTable($name = '', $prefix = '', $options = [])
+    {
+        return new Tables\Persons();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function save(array $data = [])
-	{
-		$this->selected = Helpers\Input::getSelectedIDs();
-		$this->authorize();
+    /**
+     * @inheritDoc
+     */
+    public function save(array $data = [])
+    {
+        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->authorize();
 
-		$data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
-		$table = new Tables\Persons();
+        $data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $table = new Tables\Persons();
 
-		if (!$table->save($data))
-		{
-			return false;
-		}
+        if (!$table->save($data)) {
+            return false;
+        }
 
-		$data['id'] = $table->id;
+        $data['id'] = $table->id;
 
-		if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs']))
-		{
-			return false;
-		}
+        if (!empty($data['organizationIDs']) and !$this->updateAssociations($data['id'], $data['organizationIDs'])) {
+            return false;
+        }
 
-		return $table->id;
-	}
+        return $table->id;
+    }
 
-	/**
-	 * Updates the event coordinators table to reflect the merge of the persons.
-	 *
-	 * @return bool true on success, otherwise false;
-	 */
-	private function updateEventCoordinators(): bool
-	{
-		if (!$eventIDs = $this->getReferencedIDs('event_coordinators', 'eventID'))
-		{
-			return true;
-		}
+    /**
+     * Updates the event coordinators table to reflect the merge of the persons.
+     * @return bool true on success, otherwise false;
+     */
+    private function updateEventCoordinators(): bool
+    {
+        if (!$eventIDs = $this->getReferencedIDs('event_coordinators', 'eventID')) {
+            return true;
+        }
 
-		$mergeID = reset($this->selected);
+        $mergeID = reset($this->selected);
 
-		foreach ($eventIDs as $eventID)
-		{
-			$existing = null;
+        foreach ($eventIDs as $eventID) {
+            $existing = null;
 
-			foreach ($this->selected as $currentID)
-			{
-				$eventCoordinator = new Tables\EventCoordinators();
-				$loadConditions   = ['eventID' => $eventID, 'personID' => $currentID];
+            foreach ($this->selected as $currentID) {
+                $eventCoordinator = new Tables\EventCoordinators();
+                $loadConditions   = ['eventID' => $eventID, 'personID' => $currentID];
 
-				// The current personID is not associated with the current eventID
-				if (!$eventCoordinator->load($loadConditions))
-				{
-					continue;
-				}
+                // The current personID is not associated with the current eventID
+                if (!$eventCoordinator->load($loadConditions)) {
+                    continue;
+                }
 
-				// An existing association with the current eventID has already been found, remove potential duplicate.
-				if ($existing)
-				{
-					$eventCoordinator->delete();
-					continue;
-				}
+                // An existing association with the current eventID has already been found, remove potential duplicate.
+                if ($existing) {
+                    $eventCoordinator->delete();
+                    continue;
+                }
 
-				$eventCoordinator->personID = $mergeID;
-				$existing                   = $eventCoordinator;
-			}
+                $eventCoordinator->personID = $mergeID;
+                $existing                   = $eventCoordinator;
+            }
 
-			if ($existing and !$existing->store())
-			{
-				return false;
-			}
-		}
+            if ($existing and !$existing->store()) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * Updates the instance persons table to reflect the merge of the persons.
-	 *
-	 * @return bool true on success, otherwise false;
-	 */
-	private function updateInstancePersons(): bool
-	{
-		if (!$instanceIDs = $this->getReferencedIDs('instance_persons', 'instanceID'))
-		{
-			return true;
-		}
+    /**
+     * Updates the instance persons table to reflect the merge of the persons.
+     * @return bool true on success, otherwise false;
+     */
+    private function updateInstancePersons(): bool
+    {
+        if (!$instanceIDs = $this->getReferencedIDs('instance_persons', 'instanceID')) {
+            return true;
+        }
 
-		$mergeID = reset($this->selected);
+        $mergeID = reset($this->selected);
 
-		foreach ($instanceIDs as $instanceID)
-		{
-			$existing = null;
+        foreach ($instanceIDs as $instanceID) {
+            $existing = null;
 
-			foreach ($this->selected as $personID)
-			{
-				$assoc   = ['instanceID' => $instanceID, 'personID' => $personID];
-				$current = new Tables\InstancePersons();
+            foreach ($this->selected as $personID) {
+                $assoc   = ['instanceID' => $instanceID, 'personID' => $personID];
+                $current = new Tables\InstancePersons();
 
-				// The current personID is not associated with the current instance
-				if (!$current->load($assoc))
-				{
-					continue;
-				}
+                // The current personID is not associated with the current instance
+                if (!$current->load($assoc)) {
+                    continue;
+                }
 
-				if ($current->delta === 'removed')
-				{
-					$current->delete();
-					continue;
-				}
+                if ($current->delta === 'removed') {
+                    $current->delete();
+                    continue;
+                }
 
-				if (!$existing)
-				{
-					$existing = $current;
-					continue;
-				}
+                if (!$existing) {
+                    $existing = $current;
+                    continue;
+                }
 
-				if ($current->modified < $existing->modified)
-				{
-					$current->delete();
-					continue;
-				}
+                if ($current->modified < $existing->modified) {
+                    $current->delete();
+                    continue;
+                }
 
-				// Just take the higher id instead of re-referencing instance groups and rooms
-				$existing->delete();
-				$current->personID = $mergeID;
-				$existing          = $current;
-			}
+                // Just take the higher id instead of re-referencing instance groups and rooms
+                $existing->delete();
+                $current->personID = $mergeID;
+                $existing          = $current;
+            }
 
-			if ($existing and !$existing->store())
-			{
-				return false;
-			}
-		}
+            if ($existing and !$existing->store()) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function updateReferences(): bool
-	{
-		if (!$this->updateAssociationsReferences())
-		{
-			return false;
-		}
+    /**
+     * @inheritDoc
+     */
+    protected function updateReferences(): bool
+    {
+        if (!$this->updateAssociationsReferences()) {
+            return false;
+        }
 
-		if (!$this->updateEventCoordinators())
-		{
-			return false;
-		}
+        if (!$this->updateEventCoordinators()) {
+            return false;
+        }
 
-		if (!$this->updateInstancePersons())
-		{
-			return false;
-		}
+        if (!$this->updateInstancePersons()) {
+            return false;
+        }
 
-		return $this->updateSubjectPersons();
-	}
+        return $this->updateSubjectPersons();
+    }
 
-	/**
-	 * Updates the subject persons table to reflect the merge of the persons.
-	 *
-	 * @return bool true on success, otherwise false;
-	 */
-	private function updateSubjectPersons(): bool
-	{
-		$mergeIDs = implode(', ', $this->selected);
-		$query    = Database::getQuery();
-		$query->select("DISTINCT subjectID, role")
-			->from("#__organizer_subject_persons")
-			->where("personID IN ($mergeIDs)");
-		Database::setQuery($query);
+    /**
+     * Updates the subject persons table to reflect the merge of the persons.
+     * @return bool true on success, otherwise false;
+     */
+    private function updateSubjectPersons(): bool
+    {
+        $mergeIDs = implode(', ', $this->selected);
+        $query    = Database::getQuery();
+        $query->select("DISTINCT subjectID, role")
+            ->from("#__organizer_subject_persons")
+            ->where("personID IN ($mergeIDs)");
+        Database::setQuery($query);
 
-		if (!$responsibilities = Database::loadAssocList())
-		{
-			return true;
-		}
+        if (!$responsibilities = Database::loadAssocList()) {
+            return true;
+        }
 
-		$mergeID = reset($this->selected);
+        $mergeID = reset($this->selected);
 
-		foreach ($responsibilities as $responsibility)
-		{
-			$existing = null;
+        foreach ($responsibilities as $responsibility) {
+            $existing = null;
 
-			foreach ($this->selected as $personID)
-			{
-				$responsibility['personID'] = $personID;
-				$subjectPerson              = new Tables\SubjectPersons();
+            foreach ($this->selected as $personID) {
+                $responsibility['personID'] = $personID;
+                $subjectPerson              = new Tables\SubjectPersons();
 
-				// The current personID is not associated with the current responsibility
-				if (!$subjectPerson->load($responsibility))
-				{
-					continue;
-				}
+                // The current personID is not associated with the current responsibility
+                if (!$subjectPerson->load($responsibility)) {
+                    continue;
+                }
 
-				// An existing association with the current responsibility has already been found, remove potential duplicate.
-				if ($existing)
-				{
-					$subjectPerson->delete();
-					continue;
-				}
+                // An existing association with the current responsibility has already been found, remove potential duplicate.
+                if ($existing) {
+                    $subjectPerson->delete();
+                    continue;
+                }
 
-				$subjectPerson->personID = $mergeID;
-				$existing                = $subjectPerson;
-			}
+                $subjectPerson->personID = $mergeID;
+                $existing                = $subjectPerson;
+            }
 
-			if ($existing and !$existing->store())
-			{
-				return false;
-			}
-		}
+            if ($existing and !$existing->store()) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

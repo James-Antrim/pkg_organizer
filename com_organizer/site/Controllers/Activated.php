@@ -15,49 +15,41 @@ use Organizer\Helpers;
 
 trait Activated
 {
-	/**
-	 * Activates resources.
-	 *
-	 * @return void
-	 */
-	public function activate()
-	{
-		$fqName = 'Organizer\\Models\\' . ucfirst($this->resource);
-		$model  = new $fqName();
+    /**
+     * Activates resources.
+     * @return void
+     */
+    public function activate()
+    {
+        $fqName = 'Organizer\\Models\\' . ucfirst($this->resource);
+        $model  = new $fqName();
 
-		if ($model->activate())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS', 'success');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_FAIL', 'error');
-		}
+        if ($model->activate()) {
+            Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS', 'success');
+        } else {
+            Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_FAIL', 'error');
+        }
 
-		$url = Helpers\Routing::getRedirectBase() . '&view=' . $this->listView;
-		$this->setRedirect(Route::_($url, false));
-	}
+        $url = Helpers\Routing::getRedirectBase() . '&view=' . $this->listView;
+        $this->setRedirect(Route::_($url, false));
+    }
 
-	/**
-	 * Deactivates resources.
-	 *
-	 * @return void
-	 */
-	public function deactivate()
-	{
-		$fqName = 'Organizer\\Models\\' . ucfirst($this->resource);
-		$model  = new $fqName();
+    /**
+     * Deactivates resources.
+     * @return void
+     */
+    public function deactivate()
+    {
+        $fqName = 'Organizer\\Models\\' . ucfirst($this->resource);
+        $model  = new $fqName();
 
-		if ($model->deactivate())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS', 'success');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_FAIL', 'error');
-		}
+        if ($model->deactivate()) {
+            Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS', 'success');
+        } else {
+            Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_FAIL', 'error');
+        }
 
-		$url = Helpers\Routing::getRedirectBase() . '&view=' . $this->listView;
-		$this->setRedirect(Route::_($url, false));
-	}
+        $url = Helpers\Routing::getRedirectBase() . '&view=' . $this->listView;
+        $this->setRedirect(Route::_($url, false));
+    }
 }

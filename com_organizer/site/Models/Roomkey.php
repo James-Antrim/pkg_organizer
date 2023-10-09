@@ -18,65 +18,60 @@ use Organizer\Tables;
  */
 class Roomkey extends BaseModel
 {
-	/**
-	 * Authorizes the user.
-	 *
-	 * @return void
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::manage('facilities'))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * Authorizes the user.
+     * @return void
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::manage('facilities')) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Roomkeys  A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Roomkeys
-	{
-		return new Tables\Roomkeys();
-	}
+    /**
+     * Method to get a table object, load it if necessary.
+     *
+     * @param string $name    The table name. Optional.
+     * @param string $prefix  The class prefix. Optional.
+     * @param array  $options Configuration array for model. Optional.
+     *
+     * @return Tables\Roomkeys  A Table object
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Tables\Roomkeys
+    {
+        return new Tables\Roomkeys();
+    }
 
-	/**
-	 * Attempts to save the resource.
-	 *
-	 * @param   array  $data  the data from the form
-	 *
-	 * @return int|bool int id of the resource on success, otherwise bool false
-	 */
-	public function save(array $data = [])
-	{
-		$this->authorize();
+    /**
+     * Attempts to save the resource.
+     *
+     * @param array $data the data from the form
+     *
+     * @return int|bool int id of the resource on success, otherwise bool false
+     */
+    public function save(array $data = [])
+    {
+        $this->authorize();
 
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
-		if (empty($data) or empty($data['id']))
-		{
-			return false;
-		}
+        if (empty($data) or empty($data['id'])) {
+            return false;
+        }
 
-		$roomkey = new Tables\Roomkeys();
+        $roomkey = new Tables\Roomkeys();
 
-		if (!$roomkey->load((int) $data['id']))
-		{
-			return false;
-		}
+        if (!$roomkey->load((int) $data['id'])) {
+            return false;
+        }
 
-		$cleaningGroup = new Tables\CleaningGroups();
-		$cleaningID    = (int) $data['cleaningID'];
+        $cleaningGroup = new Tables\CleaningGroups();
+        $cleaningID    = (int) $data['cleaningID'];
 
-		$roomkey->cleaningID = $cleaningGroup->load($cleaningID) ? $cleaningID : null;
+        $roomkey->cleaningID = $cleaningGroup->load($cleaningID) ? $cleaningID : null;
 
-		return $roomkey->save($data) ? $roomkey->id : false;
-	}
+        return $roomkey->save($data) ? $roomkey->id : false;
+    }
 }

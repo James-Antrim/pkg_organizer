@@ -20,55 +20,51 @@ use Organizer\Models;
  */
 class Organizer extends Controller
 {
-	/**
-	 * Removes unused bookings and deprecated participation data.
-	 *
-	 * @return void
-	 */
-	public function cleanBookings()
-	{
-		$model = new Models\Schedule();
-		$model->cleanBookings(true);
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
-	}
+    /**
+     * Removes unused bookings and deprecated participation data.
+     * @return void
+     */
+    public function cleanBookings()
+    {
+        $model = new Models\Schedule();
+        $model->cleanBookings(true);
+        $url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+        $this->setRedirect(Route::_($url, false));
+    }
 
-	/**
-	 * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
-	 *
-	 * @return void
-	 */
-	public function cleanDB()
-	{
-		$model = new Models\Organizer();
-		$model->cleanDB();
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
-	}
+    /**
+     * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
+     * @return void
+     */
+    public function cleanDB()
+    {
+        $model = new Models\Organizer();
+        $model->cleanDB();
+        $url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+        $this->setRedirect(Route::_($url, false));
+    }
 
-	/**
-	 * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
-	 *
-	 * @return void
-	 */
-	public function reKeyTables()
-	{
-		$model = new Models\Organizer();
-		$model->reKeyTables();
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
-	}
+    /**
+     * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
+     * @return void
+     */
+    public function reKeyTables()
+    {
+        $model = new Models\Organizer();
+        $model->reKeyTables();
+        $url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+        $this->setRedirect(Route::_($url, false));
+    }
 
-	/**
-	 * Updates all instance participation numbers.
-	 *
-	 * @return void
-	 */
-	public function updateNumbers()
-	{
-		$model = new Models\Instance();
-		$model->updateNumbers();
-		$url = Helpers\Routing::getRedirectBase() . "&view=organizer";
-		$this->setRedirect(Route::_($url, false));
-	}
+    /**
+     * Updates all instance participation numbers.
+     * @return void
+     */
+    public function updateNumbers()
+    {
+        $model = new Models\Instance();
+        $model->updateNumbers();
+        $url = Helpers\Routing::getRedirectBase() . "&view=organizer";
+        $this->setRedirect(Route::_($url, false));
+    }
 }

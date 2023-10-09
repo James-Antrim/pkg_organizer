@@ -20,54 +20,46 @@ use Organizer\Helpers;
  */
 class Roomkeys extends ListModel
 {
-	protected $filter_fields = ['cleaningID', 'useID'];
+    protected $filter_fields = ['cleaningID', 'useID'];
 
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery(): JDatabaseQuery
-	{
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
-		$tag   = Helpers\Languages::getTag();
+    /**
+     * Method to get a list of resources from the database.
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery(): JDatabaseQuery
+    {
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
+        $tag   = Helpers\Languages::getTag();
 
-		$query->select("rk.*, rk.name_$tag AS name, rk.key AS rns")
-			->select("ug.name_$tag AS useGroup")
-			->select("cg.name_$tag AS cleaningGroup")
-			->from('#__organizer_roomkeys AS rk')
-			->innerJoin('#__organizer_use_groups AS ug ON ug.id = rk.useID');
+        $query->select("rk.*, rk.name_$tag AS name, rk.key AS rns")
+            ->select("ug.name_$tag AS useGroup")
+            ->select("cg.name_$tag AS cleaningGroup")
+            ->from('#__organizer_roomkeys AS rk')
+            ->innerJoin('#__organizer_use_groups AS ug ON ug.id = rk.useID');
 
-		$this->setSearchFilter($query, ['name_de', 'name_en']);
-		$this->setValueFilters($query, ['cleaningID']);
+        $this->setSearchFilter($query, ['name_de', 'name_en']);
+        $this->setValueFilters($query, ['cleaningID']);
 
-		$useID = (int) $this->state->get('filter.useID');
+        $useID = (int) $this->state->get('filter.useID');
 
-		if ($useID)
-		{
-			$query->where("useID = $useID");
-		}
+        if ($useID) {
+            $query->where("useID = $useID");
+        }
 
-		if ($cleaningID = (int) $this->state->get('filter.cleaningID'))
-		{
-			if ($cleaningID !== self::NONE)
-			{
-				$query->innerJoin('#__organizer_cleaning_groups AS cg ON cg.id = rk.cleaningID')
-					->where("rk.cleaningID = $cleaningID");
-			}
-			else
-			{
-				$query->where('rk.cleaningID IS NULL');
-			}
-		}
-		else
-		{
-			$query->leftJoin('#__organizer_cleaning_groups AS cg ON cg.id = rk.cleaningID');
-		}
+        if ($cleaningID = (int) $this->state->get('filter.cleaningID')) {
+            if ($cleaningID !== self::NONE) {
+                $query->innerJoin('#__organizer_cleaning_groups AS cg ON cg.id = rk.cleaningID')
+                    ->where("rk.cleaningID = $cleaningID");
+            } else {
+                $query->where('rk.cleaningID IS NULL');
+            }
+        } else {
+            $query->leftJoin('#__organizer_cleaning_groups AS cg ON cg.id = rk.cleaningID');
+        }
 
-		$this->setOrdering($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 }

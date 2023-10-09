@@ -16,54 +16,52 @@ use Organizer\Views\Named;
 
 /**
  * Base class for a Joomla View
- *
  * Class holding methods for displaying presentation data.
  */
 abstract class BaseView
 {
-	use Named;
+    use Named;
 
-	/**
-	 * The base path of the site itself
-	 *
-	 * @var string
-	 */
-	private $baseURL;
+    /**
+     * The base path of the site itself
+     * @var string
+     */
+    private $baseURL;
 
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		$this->getName();
-		$this->baseURL = Uri::base(true);
-	}
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->getName();
+        $this->baseURL = Uri::base(true);
+    }
 
-	/**
-	 * Display the view output.
-	 */
-	public function display(string $response = '')
-	{
-		$app = OrganizerHelper::getApplication();
+    /**
+     * Display the view output.
+     */
+    public function display(string $response = '')
+    {
+        $app = OrganizerHelper::getApplication();
 
-		// Send xml mime type.
-		$app->setHeader('Content-Type', 'text/xml' . '; charset=' . $app->charSet);
-		$app->sendHeaders();
+        // Send xml mime type.
+        $app->setHeader('Content-Type', 'text/xml' . '; charset=' . $app->charSet);
+        $app->sendHeaders();
 
-		echo $response;
+        echo $response;
 
-		$app->close();
-	}
+        $app->close();
+    }
 
-	/**
-	 * Replaces ampersand to avoid any potential "unterminated entity reference" errors.
-	 *
-	 * @param   string  $string
-	 *
-	 * @return void
-	 */
-	protected function amp(string $string): string
-	{
-		return str_replace('&', '&amp;', $string);
-	}
+    /**
+     * Replaces ampersand to avoid any potential "unterminated entity reference" errors.
+     *
+     * @param string $string
+     *
+     * @return void
+     */
+    protected function amp(string $string): string
+    {
+        return str_replace('&', '&amp;', $string);
+    }
 }

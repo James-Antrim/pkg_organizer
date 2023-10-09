@@ -20,111 +20,94 @@ $sums       = array_shift($this->grid);
 
 echo "<div class=\"statistics-grid presence-type columns-$count\">";
 
-foreach ($headers as $key => $header)
-{
-	$class = 'header-row';
-	$class .= $key === $lastColumn ? ' row-end' : '';
-	$class .= $key === 'sum' ? ' sum-column' : '';
+foreach ($headers as $key => $header) {
+    $class = 'header-row';
+    $class .= $key === $lastColumn ? ' row-end' : '';
+    $class .= $key === 'sum' ? ' sum-column' : '';
 
-	if ($key !== 'week')
-	{
-		$class .= ' header-column';
-	}
+    if ($key !== 'week') {
+        $class .= ' header-column';
+    }
 
-	echo "<div class=\"$class\">$header</div>";
+    echo "<div class=\"$class\">$header</div>";
 }
 
 $sumIcon = '<span class="icon-sum hasTooltip" ' . Languages::_('ORGANIZER_SUM') . '>&sum;</span>';
 
-foreach ($sums as $key => $sum)
-{
-	$class = 'sum-row';
+foreach ($sums as $key => $sum) {
+    $class = 'sum-row';
 
-	if ($key === 'week')
-	{
-		$class .= ' header-column';
-	}
-	else
-	{
-		$class .= $key === 'sum' ? ' sum-column' : '';
-		$class .= $key === $lastColumn ? ' row-end' : '';
+    if ($key === 'week') {
+        $class .= ' header-column';
+    } else {
+        $class .= $key === 'sum' ? ' sum-column' : '';
+        $class .= $key === $lastColumn ? ' row-end' : '';
 
-		$hybrid   = empty($sum[Instances::HYBRID]) ? 0 : $sum[Instances::HYBRID];
-		$online   = empty($sum[Instances::ONLINE]) ? 0 : $sum[Instances::ONLINE];
-		$presence = empty($sum[Instances::PRESENCE]) ? 0 : $sum[Instances::PRESENCE];
-		$total    = empty($sum['total']) ? 0 : $sum['total'];
+        $hybrid   = empty($sum[Instances::HYBRID]) ? 0 : $sum[Instances::HYBRID];
+        $online   = empty($sum[Instances::ONLINE]) ? 0 : $sum[Instances::ONLINE];
+        $presence = empty($sum[Instances::PRESENCE]) ? 0 : $sum[Instances::PRESENCE];
+        $total    = empty($sum['total']) ? 0 : $sum['total'];
 
-		if ($total)
-		{
-			$sum = "<div>$sumIcon $total</div>";
+        if ($total) {
+            $sum = "<div>$sumIcon $total</div>";
 
-			$presenceIcon = HTML::icon('user', Languages::_('ORGANIZER_PRESENCE') . ": $presence / $total");
-			$percent      = (int) (($presence / $total) * 100);
-			$sum          .= "<div>$presenceIcon $percent%</div>";
+            $presenceIcon = HTML::icon('user', Languages::_('ORGANIZER_PRESENCE') . ": $presence / $total");
+            $percent      = (int) (($presence / $total) * 100);
+            $sum          .= "<div>$presenceIcon $percent%</div>";
 
-			$hybridIcon = HTML::icon('out-3', Languages::_('ORGANIZER_HYBRID') . ": $hybrid / $total");
-			$percent    = (int) (($hybrid / $total) * 100);
-			$sum        .= "<div>$hybridIcon $percent%</div>";
+            $hybridIcon = HTML::icon('out-3', Languages::_('ORGANIZER_HYBRID') . ": $hybrid / $total");
+            $percent    = (int) (($hybrid / $total) * 100);
+            $sum        .= "<div>$hybridIcon $percent%</div>";
 
-			$onlineIcon = HTML::icon('laptop', Languages::_('ORGANIZER_ONLINE') . ": $online / $total");
-			$percent    = (int) (($online / $total) * 100);
-			$sum        .= "<div>$onlineIcon $percent%</div>";
-		}
-		else
-		{
-			$sum = '-';
-		}
-	}
+            $onlineIcon = HTML::icon('laptop', Languages::_('ORGANIZER_ONLINE') . ": $online / $total");
+            $percent    = (int) (($online / $total) * 100);
+            $sum        .= "<div>$onlineIcon $percent%</div>";
+        } else {
+            $sum = '-';
+        }
+    }
 
-	echo "<div class=\"$class\">$sum</div>";
+    echo "<div class=\"$class\">$sum</div>";
 }
 
-foreach ($this->grid as $row)
-{
-	foreach ($row as $key => $sum)
-	{
-		$class = 'data-row';
+foreach ($this->grid as $row) {
+    foreach ($row as $key => $sum) {
+        $class = 'data-row';
 
-		if ($key === 'week')
-		{
-			$class .= ' header-column';
-			Languages::unpack($sum);
-		}
-		else
-		{
-			$class .= $key === 'sum' ? ' sum-column' : ' data-column';
+        if ($key === 'week') {
+            $class .= ' header-column';
+            Languages::unpack($sum);
+        } else {
+            $class .= $key === 'sum' ? ' sum-column' : ' data-column';
 
-			$hybrid   = empty($sum[Instances::HYBRID]) ? 0 : $sum[Instances::HYBRID];
-			$online   = empty($sum[Instances::ONLINE]) ? 0 : $sum[Instances::ONLINE];
-			$presence = empty($sum[Instances::PRESENCE]) ? 0 : $sum[Instances::PRESENCE];
-			$total    = empty($sum['total']) ? 0 : $sum['total'];
+            $hybrid   = empty($sum[Instances::HYBRID]) ? 0 : $sum[Instances::HYBRID];
+            $online   = empty($sum[Instances::ONLINE]) ? 0 : $sum[Instances::ONLINE];
+            $presence = empty($sum[Instances::PRESENCE]) ? 0 : $sum[Instances::PRESENCE];
+            $total    = empty($sum['total']) ? 0 : $sum['total'];
 
-			if ($total)
-			{
-				$sum = "<div>$sumIcon $total</div>";
+            if ($total) {
+                $sum = "<div>$sumIcon $total</div>";
 
-				$presenceIcon = HTML::icon('user', Languages::_('ORGANIZER_PRESENCE') . ": $presence / $total");
-				$percent      = (int) (($presence / $total) * 100);
-				$sum          .= "<div>$presenceIcon $percent%</div>";
+                $presenceIcon = HTML::icon('user', Languages::_('ORGANIZER_PRESENCE') . ": $presence / $total");
+                $percent      = (int) (($presence / $total) * 100);
+                $sum          .= "<div>$presenceIcon $percent%</div>";
 
-				$hybridIcon = HTML::icon('out-3', Languages::_('ORGANIZER_HYBRID') . ": $hybrid / $total");
-				$percent    = (int) (($hybrid / $total) * 100);
-				$sum        .= "<div>$hybridIcon $percent%</div>";
+                $hybridIcon = HTML::icon('out-3', Languages::_('ORGANIZER_HYBRID') . ": $hybrid / $total");
+                $percent    = (int) (($hybrid / $total) * 100);
+                $sum        .= "<div>$hybridIcon $percent%</div>";
 
-				$onlineIcon = HTML::icon('laptop', Languages::_('ORGANIZER_ONLINE') . ": $online / $total");
-				$percent    = (int) (($online / $total) * 100);
-				$sum        .= "<div>$onlineIcon $percent%</div>";
-			}
-			else
-			{
-				$sum = '-';
-			}
-		}
+                $onlineIcon = HTML::icon('laptop', Languages::_('ORGANIZER_ONLINE') . ": $online / $total");
+                $percent    = (int) (($online / $total) * 100);
+                $sum        .= "<div>$onlineIcon $percent%</div>";
+            } else {
+                $sum = '-';
+            }
+        }
 
-		$class .= $key === $lastColumn ? ' row-end' : '';
+        $class .= $key === $lastColumn ? ' row-end' : '';
 
-		echo "<div class=\"$class\">$sum</div>";
-	}
+        echo "<div class=\"$class\">$sum</div>";
+    }
 }
 
 echo "</div>";

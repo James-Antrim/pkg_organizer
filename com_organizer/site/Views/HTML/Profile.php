@@ -18,16 +18,15 @@ use Organizer\Helpers;
  */
 class Profile extends FormView
 {
-	/**
-	 * Adds a toolbar and title to the view.
-	 *
-	 * @return void  adds toolbar items to the view
-	 */
-	protected function addToolBar()
-	{
-		$this->setTitle('ORGANIZER_MY_PROFILE');
+    /**
+     * Adds a toolbar and title to the view.
+     * @return void  adds toolbar items to the view
+     */
+    protected function addToolBar()
+    {
+        $this->setTitle('ORGANIZER_MY_PROFILE');
 
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'profile.save', false);
-	}
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'profile.save', false);
+    }
 }

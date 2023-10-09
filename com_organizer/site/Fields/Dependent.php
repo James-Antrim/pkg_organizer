@@ -15,46 +15,41 @@ namespace Organizer\Fields;
  */
 trait Dependent
 {
-	/**
-	 * Suppresses field display when there are no options available because of context dependencies.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput(): string
-	{
-		$this->options = $this->getOptions();
+    /**
+     * Suppresses field display when there are no options available because of context dependencies.
+     * @return  string  The field input markup.
+     */
+    protected function getInput(): string
+    {
+        $this->options = $this->getOptions();
 
-		if (count($this->options) === count($this->getDefaultOptions()))
-		{
-			return '';
-		}
+        if (count($this->options) === count($this->getDefaultOptions())) {
+            return '';
+        }
 
-		return $this->getBaseInput();
-	}
+        return $this->getBaseInput();
+    }
 
-	/**
-	 * Suppresses the label display when there are no options available.
-	 *
-	 * @return string
-	 */
-	protected function getLabel(): string
-	{
-		if (!$this->getInput())
-		{
-			return '';
-		}
+    /**
+     * Suppresses the label display when there are no options available.
+     * @return string
+     */
+    protected function getLabel(): string
+    {
+        if (!$this->getInput()) {
+            return '';
+        }
 
-		/** @noinspection PhpMultipleClassDeclarationsInspection */
-		return parent::getLabel();
-	}
+        /** @noinspection PhpMultipleClassDeclarationsInspection */
+        return parent::getLabel();
+    }
 
-	/**
-	 * Checks whether the field input would be displayed.
-	 *
-	 * @return bool
-	 */
-	public function hasInput(): bool
-	{
-		return (bool) self::getInput();
-	}
+    /**
+     * Checks whether the field input would be displayed.
+     * @return bool
+     */
+    public function hasInput(): bool
+    {
+        return (bool) self::getInput();
+    }
 }

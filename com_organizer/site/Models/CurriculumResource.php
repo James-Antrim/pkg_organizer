@@ -2,7 +2,6 @@
 /**
  * @package     Organizer\Models
  * @subpackage
- *
  * @copyright   A copyright
  * @license     A "Slug" license name e.g. GPL2
  */
@@ -31,7 +30,7 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Adds a curriculum range to a parent curriculum range
      *
-     * @param   array &$range  an array containing data about a curriculum item and potentially its children
+     * @param array &$range an array containing data about a curriculum item and potentially its children
      *
      * @return int the id of the curriculum row on success, otherwise 0
      */
@@ -39,86 +38,67 @@ abstract class CurriculumResource extends BaseModel
     {
         $curricula = new Tables\Curricula();
 
-        if (empty($range['programID']))
-        {
+        if (empty($range['programID'])) {
             // Subordinates must have a parent
-            if (empty($range['parentID']) or !$parent = Helpers\Curricula::getRange($range['parentID']))
-            {
+            if (empty($range['parentID']) or !$parent = Helpers\Curricula::getRange($range['parentID'])) {
                 return 0;
             }
 
             // No resource
-            if (empty($range['poolID']) and empty($range['subjectID']))
-            {
+            if (empty($range['poolID']) and empty($range['subjectID'])) {
                 return 0;
             }
 
             $conditions = ['parentID' => $range['parentID']];
 
-            if (empty($range['subjectID']))
-            {
+            if (empty($range['subjectID'])) {
                 $conditions['poolID'] = $range['poolID'];
-            }
-            else
-            {
+            } else {
                 $conditions['subjectID'] = $range['subjectID'];
             }
-        }
-        else
-        {
+        } else {
             $conditions = ['programID' => $range['programID']];
             $parent     = null;
         }
 
-        if ($curricula->load($conditions))
-        {
+        if ($curricula->load($conditions)) {
             $curricula->ordering = $range['ordering'];
-            if (!$curricula->store())
-            {
+            if (!$curricula->store()) {
                 return 0;
             }
-        }
-        else
-        {
-            if (!empty($range['programID']))
-            {
+        } else {
+            if (!empty($range['programID'])) {
                 $range['parentID'] = null;
             }
 
             $range['lft'] = $this->getLeft($range['parentID'], $range['ordering']);
 
-            if (!$range['lft'] or !$this->shiftRight($range['lft']))
-            {
+            if (!$range['lft'] or !$this->shiftRight($range['lft'])) {
                 return 0;
             }
 
             $range['level'] = $parent ? $parent['level'] + 1 : 0;
             $range['rgt']   = $range['lft'] + 1;
 
-            if (!$curricula->save($range))
-            {
+            if (!$curricula->save($range)) {
                 return 0;
             }
         }
 
-        if (!empty($range['curriculum']))
-        {
+        if (!empty($range['curriculum'])) {
             $subRangeIDs = [];
 
-            foreach ($range['curriculum'] as $subOrdinate)
-            {
+            foreach ($range['curriculum'] as $subOrdinate) {
                 $subOrdinate['parentID'] = $curricula->id;
 
-                if (!$subRangeID = $this->addRange($subOrdinate))
-                {
+                if (!$subRangeID = $this->addRange($subOrdinate)) {
                     return 0;
                 }
 
                 $subRangeIDs[$subRangeID] = $subRangeID;
             }
 
-            if ($subRangeIDs = implode(',', $subRangeIDs))
-            {
+            if ($subRangeIDs = implode(',', $subRangeIDs)) {
                 $query = Database::getQuery();
                 $query->select('id')
                     ->from('#__organizer_curricula')
@@ -126,10 +106,8 @@ abstract class CurriculumResource extends BaseModel
                     ->where("parentID = $curricula->id");
                 Database::setQuery($query);
 
-                if ($zombieIDs = Database::loadIntColumn())
-                {
-                    foreach ($zombieIDs as $zombieID)
-                    {
+                if ($zombieIDs = Database::loadIntColumn()) {
+                    foreach ($zombieIDs as $zombieID) {
                         $this->deleteRange($zombieID);
                     }
                 }
@@ -145,8 +123,7 @@ abstract class CurriculumResource extends BaseModel
     protected function authorize()
     {
         if (($id = Helpers\Input::getID() and !Helpers\Can::document($this->resource, $id))
-            or !Helpers\Can::documentTheseOrganizations())
-        {
+            or !Helpers\Can::documentTheseOrganizations()) {
             OrganizerHelper::error(403);
         }
     }
@@ -158,17 +135,13 @@ abstract class CurriculumResource extends BaseModel
     {
         $this->authorize();
 
-        if ($resourceIDs = Helpers\Input::getSelectedIDs())
-        {
-            foreach ($resourceIDs as $resourceID)
-            {
-                if (!Helpers\Can::document($this->resource, $resourceID))
-                {
+        if ($resourceIDs = Helpers\Input::getSelectedIDs()) {
+            foreach ($resourceIDs as $resourceID) {
+                if (!Helpers\Can::document($this->resource, $resourceID)) {
                     OrganizerHelper::error(403);
                 }
 
-                if (!$this->deleteSingle($resourceID))
-                {
+                if (!$this->deleteSingle($resourceID)) {
                     return false;
                 }
             }
@@ -180,28 +153,25 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Method to delete a single range from the curricula table
      *
-     * @param   int  $rangeID  the id value of the range to be deleted
+     * @param int $rangeID the id value of the range to be deleted
      *
      * @return bool  true on success, otherwise false
      */
     protected function deleteRange(int $rangeID): bool
     {
-        if (!$range = Helpers\Curricula::getRange($rangeID))
-        {
+        if (!$range = Helpers\Curricula::getRange($rangeID)) {
             return false;
         }
 
         // Deletes the range
         $curricula = new Tables\Curricula();
 
-        if (!$curricula->delete($rangeID))
-        {
+        if (!$curricula->delete($rangeID)) {
             return false;
         }
 
         // Reduces the ordering of siblings with a greater ordering
-        if (!empty($range['parentID']) and !$this->shiftDown($range['parentID'], $range['ordering']))
-        {
+        if (!empty($range['parentID']) and !$this->shiftDown($range['parentID'], $range['ordering'])) {
             return false;
         }
 
@@ -213,7 +183,7 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Deletes ranges of a specific curriculum resource.
      *
-     * @param   int  $resourceID  the id of the resource
+     * @param int $resourceID the id of the resource
      *
      * @return bool true on success, otherwise false
      */
@@ -222,13 +192,10 @@ abstract class CurriculumResource extends BaseModel
         $helper = "Organizer\\Helpers\\" . $this->helper;
 
         /** @noinspection PhpUndefinedMethodInspection */
-        if ($rangeIDs = $helper::getRangeIDs($resourceID))
-        {
-            foreach ($rangeIDs as $rangeID)
-            {
+        if ($rangeIDs = $helper::getRangeIDs($resourceID)) {
+            foreach ($rangeIDs as $rangeID) {
                 $success = $this->deleteRange($rangeID);
-                if (!$success)
-                {
+                if (!$success) {
                     return false;
                 }
             }
@@ -240,14 +207,13 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Deletes a single curriculum resource.
      *
-     * @param   int  $resourceID  the resource id
+     * @param int $resourceID the resource id
      *
      * @return bool  true on success, otherwise false
      */
     protected function deleteSingle(int $resourceID): bool
     {
-        if (!$this->deleteRanges($resourceID))
-        {
+        if (!$this->deleteRanges($resourceID)) {
             return false;
         }
 
@@ -259,7 +225,7 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Gets the curriculum for a pool selected as a subordinate resource
      *
-     * @param   int  $poolID  the resource id
+     * @param int $poolID the resource id
      *
      * @return array[]  empty if no child data exists
      */
@@ -270,8 +236,7 @@ abstract class CurriculumResource extends BaseModel
         $query->select('id')->from('#__organizer_curricula')->where("poolID = $poolID");
         Database::setQuery($query);
 
-        if (!$firstID = Database::loadInt())
-        {
+        if (!$firstID = Database::loadInt()) {
             return [];
         }
 
@@ -279,15 +244,12 @@ abstract class CurriculumResource extends BaseModel
         $query->select('*')->from('#__organizer_curricula')->where("parentID = $firstID")->order('lft');
         Database::setQuery($query);
 
-        if (!$subOrdinates = Database::loadAssocList())
-        {
+        if (!$subOrdinates = Database::loadAssocList()) {
             return $subOrdinates;
         }
 
-        foreach ($subOrdinates as $key => $subOrdinate)
-        {
-            if ($subOrdinate['poolID'])
-            {
+        foreach ($subOrdinates as $key => $subOrdinate) {
+            if ($subOrdinate['poolID']) {
                 $subOrdinates[$key]['curriculum'] = $this->getExistingCurriculum($subOrdinate['poolID']);
             }
         }
@@ -298,8 +260,8 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Returns the resource's existing ordering in the context of its parent.
      *
-     * @param   int  $parentID    the parent id (curricula)
-     * @param   int  $resourceID  the resource id (resource table)
+     * @param int $parentID   the parent id (curricula)
+     * @param int $resourceID the resource id (resource table)
      *
      * @return int int if the resource has an existing ordering, otherwise null
      */
@@ -319,15 +281,14 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Attempt to determine the left value for the range to be created
      *
-     * @param   null|int  $parentID  the parent of the item to be inserted
-     * @param   mixed     $ordering  the targeted ordering on completion
+     * @param null|int $parentID the parent of the item to be inserted
+     * @param mixed    $ordering the targeted ordering on completion
      *
      * @return int  int the left value for the range to be created, or 0 on error
      */
     protected function getLeft(?int $parentID, $ordering): int
     {
-        if (!$parentID)
-        {
+        if (!$parentID) {
             $query = Database::getQuery();
             $query->select('MAX(rgt) + 1')->from('#__organizer_curricula');
             Database::setQuery($query);
@@ -343,8 +304,7 @@ abstract class CurriculumResource extends BaseModel
             ->where("ordering < $ordering");
         Database::setQuery($rgtQuery);
 
-        if ($rgt = Database::loadInt())
-        {
+        if ($rgt = Database::loadInt()) {
             return $rgt + 1;
         }
 
@@ -362,15 +322,14 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Retrieves the existing ordering of a pool to its parent item, or next highest value in the series
      *
-     * @param   int  $parentID    the id of the parent range
-     * @param   int  $resourceID  the id of the resource
+     * @param int $parentID   the id of the parent range
+     * @param int $resourceID the id of the resource
      *
      * @return int  the value of the highest existing ordering or 1 if none exist
      */
     protected function getOrdering(int $parentID, int $resourceID): int
     {
-        if ($existingOrdering = $this->getExistingOrdering($parentID, $resourceID))
-        {
+        if ($existingOrdering = $this->getExistingOrdering($parentID, $resourceID)) {
             return $existingOrdering;
         }
 
@@ -384,7 +343,7 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Gets the mapped curricula ranges for the given resource
      *
-     * @param   int  $resourceID  the resource id
+     * @param int $resourceID the resource id
      *
      * @return array[] the resource ranges
      */
@@ -398,15 +357,12 @@ abstract class CurriculumResource extends BaseModel
 
     /**
      * Method to import data associated with resources from LSF
-     *
      * @return bool true on success, otherwise false
      */
     public function import(): bool
     {
-        foreach (Helpers\Input::getSelectedIDs() as $resourceID)
-        {
-            if (!$this->importSingle($resourceID))
-            {
+        foreach (Helpers\Input::getSelectedIDs() as $resourceID) {
+            if (!$this->importSingle($resourceID)) {
                 return false;
             }
         }
@@ -417,7 +373,7 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Method to import data associated with a resource from LSF
      *
-     * @param   int  $resourceID  the id of the program to be imported
+     * @param int $resourceID the id of the program to be imported
      *
      * @return bool  true on success, otherwise false
      */
@@ -427,9 +383,9 @@ abstract class CurriculumResource extends BaseModel
      * Iterates a collection of resources subordinate to the calling resource. Creating structure and data elements as
      * needed.
      *
-     * @param   SimpleXMLElement  $collection      the SimpleXML node containing the collection of subordinate elements
-     * @param   int               $organizationID  the id of the organization with which the resources are associated
-     * @param   int               $parentID        the id of the curriculum entry for the parent element.
+     * @param SimpleXMLElement $collection     the SimpleXML node containing the collection of subordinate elements
+     * @param int              $organizationID the id of the organization with which the resources are associated
+     * @param int              $parentID       the id of the curriculum entry for the parent element.
      *
      * @return bool true on success, otherwise false
      */
@@ -438,24 +394,19 @@ abstract class CurriculumResource extends BaseModel
         $pool    = new Pool();
         $subject = new Subject();
 
-        foreach ($collection as $subOrdinate)
-        {
+        foreach ($collection as $subOrdinate) {
             $type = (string) $subOrdinate->pordtyp;
 
-            if ($type === self::POOL)
-            {
-                if ($pool->processResource($subOrdinate, $organizationID, $parentID))
-                {
+            if ($type === self::POOL) {
+                if ($pool->processResource($subOrdinate, $organizationID, $parentID)) {
                     continue;
                 }
 
                 return false;
             }
 
-            if ($type === self::SUBJECT)
-            {
-                if ($subject->processResource($subOrdinate, $organizationID, $parentID))
-                {
+            if ($type === self::SUBJECT) {
+                if ($subject->processResource($subOrdinate, $organizationID, $parentID)) {
                     continue;
                 }
 
@@ -469,8 +420,8 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Set name attributes common to pools and subjects
      *
-     * @param   Tables\Pools|Tables\Subjects  $table      the table to modify
-     * @param   SimpleXMLElement              $XMLObject  the data source
+     * @param Tables\Pools|Tables\Subjects $table     the table to modify
+     * @param SimpleXMLElement             $XMLObject the data source
      *
      * @return void modifies the table object
      */
@@ -480,8 +431,7 @@ abstract class CurriculumResource extends BaseModel
         $table->setColumn('abbreviation_en', (string) $XMLObject->kuerzelen, $table->abbreviation_de);
 
         $deTitle = (string) $XMLObject->titelde;
-        if (!$enTitle = (string) $XMLObject->titelen)
-        {
+        if (!$enTitle = (string) $XMLObject->titelen) {
             $enTitle = $deTitle;
         }
 
@@ -492,8 +442,8 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Shifts the ordering for existing siblings who have an ordering at or above the ordering to be inserted.
      *
-     * @param   int  $parentID  the id of the parent
-     * @param   int  $ordering  the ordering of the item to be inserted
+     * @param int $parentID the id of the parent
+     * @param int $ordering the ordering of the item to be inserted
      *
      * @return bool  true on success, otherwise false
      */
@@ -512,8 +462,8 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Shifts left and right values to allow for the values to be inserted
      *
-     * @param   int  $left   the int value above which left and right values need to be shifted
-     * @param   int  $width  the width of the item being deleted
+     * @param int $left  the int value above which left and right values need to be shifted
+     * @param int $width the width of the item being deleted
      *
      * @return bool  true on success, otherwise false
      */
@@ -523,8 +473,7 @@ abstract class CurriculumResource extends BaseModel
         $lftQuery->update('#__organizer_curricula')->set("lft = lft - $width")->where("lft > $left");
         Database::setQuery($lftQuery);
 
-        if (!Database::execute())
-        {
+        if (!Database::execute()) {
             return false;
         }
 
@@ -538,7 +487,7 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Shifts left and right values to allow for the values to be inserted
      *
-     * @param   int  $left   the int value above which left and right values
+     * @param int $left      the int value above which left and right values
      *                       need to be shifted
      *
      * @return bool  true on success, otherwise false
@@ -549,8 +498,7 @@ abstract class CurriculumResource extends BaseModel
         $lftQuery->update('#__organizer_curricula')->set('lft = lft + 2')->where("lft >= $left");
         Database::setQuery($lftQuery);
 
-        if (!Database::execute())
-        {
+        if (!Database::execute()) {
             return false;
         }
 
@@ -564,8 +512,8 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Shifts the ordering for existing siblings who have an ordering at or above the ordering to be inserted.
      *
-     * @param   int  $parentID  the id of the parent
-     * @param   int  $ordering  the ordering of the item to be inserted
+     * @param int $parentID the id of the parent
+     * @param int $ordering the ordering of the item to be inserted
      *
      * @return bool  true on success, otherwise false
      */
@@ -584,9 +532,9 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param   string  $name     The table name. Optional.
-     * @param   string  $prefix   The class prefix. Optional.
-     * @param   array   $options  Configuration array for model. Optional.
+     * @param string $name    The table name. Optional.
+     * @param string $prefix  The class prefix. Optional.
+     * @param array  $options Configuration array for model. Optional.
      *
      * @return Tables\BaseTable A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -602,7 +550,7 @@ abstract class CurriculumResource extends BaseModel
     /**
      * Ensures that the title(s) are set and do not contain 'dummy'. This function favors the German title.
      *
-     * @param   SimpleXMLElement  $resource  the resource being checked
+     * @param SimpleXMLElement $resource the resource being checked
      *
      * @return bool true if one of the titles has the possibility of being valid, otherwise false
      */
@@ -612,8 +560,7 @@ abstract class CurriculumResource extends BaseModel
         $titleEN = trim((string) $resource->titelen);
         $title   = empty($titleDE) ? $titleEN : $titleDE;
 
-        if (empty($title))
-        {
+        if (empty($title)) {
             return false;
         }
 

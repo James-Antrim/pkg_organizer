@@ -20,157 +20,132 @@ use Organizer\Helpers\Input;
 class Export extends FormModel
 {
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct($config = [])
-	{
-		// Resolve potential inconsistencies cause by user choices before the form is initialized.
-		if ($task = Input::getTask() and $task === 'export.reset')
-		{
-			$form = [];
-		}
-		else
-		{
-			$fields = ['categoryID' => 0, 'groupID' => 0, 'organizationID' => 0, 'personID' => 0, 'roomID' => 0];
-			$form   = Input::getArray();
+    /**
+     * @inheritDoc
+     */
+    public function __construct($config = [])
+    {
+        // Resolve potential inconsistencies cause by user choices before the form is initialized.
+        if ($task = Input::getTask() and $task === 'export.reset') {
+            $form = [];
+        } else {
+            $fields = ['categoryID' => 0, 'groupID' => 0, 'organizationID' => 0, 'personID' => 0, 'roomID' => 0];
+            $form   = Input::getArray();
 
-			if (!empty($form['my']))
-			{
-				foreach (array_keys($fields) as $field)
-				{
-					unset($form[$field]);
-				}
-			}
-			else
-			{
-				$categoryID     = empty($form['categoryID']) ? 0 : $form['categoryID'];
-				$organizationID = empty($form['organizationID']) ? 0 : $form['organizationID'];
-				$groupID        = empty($form['groupID']) ? 0 : $form['groupID'];
-				$personID       = empty($form['personID']) ? 0 : $form['personID'];
-				if ($organizationID)
-				{
-					if ($categoryID and !in_array($organizationID, Helpers\Categories::getOrganizationIDs($categoryID)))
-					{
-						$categoryID = 0;
-						unset($form['categoryID']);
-					}
+            if (!empty($form['my'])) {
+                foreach (array_keys($fields) as $field) {
+                    unset($form[$field]);
+                }
+            } else {
+                $categoryID     = empty($form['categoryID']) ? 0 : $form['categoryID'];
+                $organizationID = empty($form['organizationID']) ? 0 : $form['organizationID'];
+                $groupID        = empty($form['groupID']) ? 0 : $form['groupID'];
+                $personID       = empty($form['personID']) ? 0 : $form['personID'];
+                if ($organizationID) {
+                    if ($categoryID and !in_array($organizationID, Helpers\Categories::getOrganizationIDs($categoryID))) {
+                        $categoryID = 0;
+                        unset($form['categoryID']);
+                    }
 
-					if ($groupID and !in_array($organizationID, Helpers\Groups::getOrganizationIDs($groupID)))
-					{
-						$groupID = 0;
-						unset($form['groupID']);
-					}
+                    if ($groupID and !in_array($organizationID, Helpers\Groups::getOrganizationIDs($groupID))) {
+                        $groupID = 0;
+                        unset($form['groupID']);
+                    }
 
-					if ($personID and !in_array($organizationID, Helpers\Persons::getOrganizationIDs($personID)))
-					{
-						unset($form['groupID']);
-					}
-				}
+                    if ($personID and !in_array($organizationID, Helpers\Persons::getOrganizationIDs($personID))) {
+                        unset($form['groupID']);
+                    }
+                }
 
-				if ($categoryID and $groupID and $categoryID !== Helpers\Groups::getCategory($groupID)->id)
-				{
-					unset($form['groupID']);
-				}
-			}
-		}
+                if ($categoryID and $groupID and $categoryID !== Helpers\Groups::getCategory($groupID)->id) {
+                    unset($form['groupID']);
+                }
+            }
+        }
 
-		// Post: where the data was actually transmitted
-		Input::set('jform', $form, 'post');
+        // Post: where the data was actually transmitted
+        Input::set('jform', $form, 'post');
 
-		// Data: where Joomla preemptively aggregates request information
-		Input::set('jform', $form);
+        // Data: where Joomla preemptively aggregates request information
+        Input::set('jform', $form);
 
-		parent::__construct($config);
-	}
+        parent::__construct($config);
+    }
 
-	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
-	 *
-	 * @return void performs error management via redirects as appropriate
-	 */
-	protected function authorize()
-	{
-		// Form has public access
-	}
+    /**
+     * Provides a strict access check which can be overwritten by extending classes.
+     * @return void performs error management via redirects as appropriate
+     */
+    protected function authorize()
+    {
+        // Form has public access
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function filterForm(Form $form)
-	{
-		if (!Helpers\Users::getID())
-		{
-			$form->removeField('instances');
-			$form->removeField('my');
-			$form->removeField('personID');
-		}
+    /**
+     * @inheritDoc
+     */
+    protected function filterForm(Form $form)
+    {
+        if (!Helpers\Users::getID()) {
+            $form->removeField('instances');
+            $form->removeField('my');
+            $form->removeField('personID');
+        }
 
-		$categoryID     = Input::getInt('categoryID');
-		$groupID        = Input::getInt('groupID');
-		$instances      = Input::getCMD('instances');
-		$my             = Input::getBool('my');
-		$organizationID = Input::getInt('organizationID');
-		$personID       = Input::getInt('personID');
-		$roomID         = Input::getInt('roomID');
-		$atomic         = ($groupID or $personID or $roomID);
+        $categoryID     = Input::getInt('categoryID');
+        $groupID        = Input::getInt('groupID');
+        $instances      = Input::getCMD('instances');
+        $my             = Input::getBool('my');
+        $organizationID = Input::getInt('organizationID');
+        $personID       = Input::getInt('personID');
+        $roomID         = Input::getInt('roomID');
+        $atomic         = ($groupID or $personID or $roomID);
 
-		if ($my)
-		{
-			$form->removeField('categoryID');
-			$form->removeField('groupID');
-			$form->removeField('instances');
-			$form->removeField('organizationID');
-			$form->removeField('personID');
-			$form->removeField('roleID');
-			$form->removeField('roomID');
-			$form->removeField('separate');
-		}
-		elseif ($organizationID)
-		{
-			if (!Helpers\Can::view('organization', $organizationID) or $categoryID)
-			{
-				$form->removeField('instances');
-			}
-			elseif ($instances and $instances !== 'organization')
-			{
-				$form->removeField('categoryID');
-				$form->removeField('groupID');
-				$form->removeField('personID');
-				$form->removeField('roomID');
-			}
-		}
-		elseif ($categoryID)
-		{
-			$form->removeField('instances');
-		}
-		else
-		{
-			$form->removeField('groupID');
-		}
+        if ($my) {
+            $form->removeField('categoryID');
+            $form->removeField('groupID');
+            $form->removeField('instances');
+            $form->removeField('organizationID');
+            $form->removeField('personID');
+            $form->removeField('roleID');
+            $form->removeField('roomID');
+            $form->removeField('separate');
+        } elseif ($organizationID) {
+            if (!Helpers\Can::view('organization', $organizationID) or $categoryID) {
+                $form->removeField('instances');
+            } elseif ($instances and $instances !== 'organization') {
+                $form->removeField('categoryID');
+                $form->removeField('groupID');
+                $form->removeField('personID');
+                $form->removeField('roomID');
+            }
+        } elseif ($categoryID) {
+            $form->removeField('instances');
+        } else {
+            $form->removeField('groupID');
+        }
 
-		$noAggregate = (empty($organizationID) and empty($categoryID));
-		$pdf         = (!$format = Input::getFormItems()->get('format') or strpos($format, 'pdf') === 0);
+        $noAggregate = (empty($organizationID) and empty($categoryID));
+        $pdf         = (!$format = Input::getFormItems()->get('format') or strpos($format, 'pdf') === 0);
 
-		if ($atomic or $noAggregate or !$pdf)
-		{
-			$form->removeField('separate');
-		}
-	}
+        if ($atomic or $noAggregate or !$pdf) {
+            $form->removeField('separate');
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getForm($data = [], $loadData = true)
-	{
-		return parent::getForm($data, $loadData);
-	}
+    /**
+     * @inheritDoc
+     */
+    public function getForm($data = [], $loadData = true)
+    {
+        return parent::getForm($data, $loadData);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function loadFormData(): array
-	{
-		return Input::getArray();
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function loadFormData(): array
+    {
+        return Input::getArray();
+    }
 }

@@ -6,11 +6,12 @@
                valuecolumn="id" textcolumn="name" table="organizer_use_groups">
             <option value="">ALL_USE_GROUPS</option>
         </field>
-        <field name="keyID" type="GenericOptions" label="ROOMKEY"  onchange="this.form.submit();" localized="true"
+        <field name="keyID" type="GenericOptions" label="ROOMKEY" onchange="this.form.submit();" localized="true"
                table="organizer_roomkeys" textcolumn="name" valuecolumn="id">
             <option value="">ALL_ROOMKEYS</option>
         </field>
-        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();" localized="true"
+        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();"
+               localized="true"
                valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
             <option value="">ALL_CLEANING_GROUPS</option>
             <option value="-1">NO_CLEANING_GROUP</option>

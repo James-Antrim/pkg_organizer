@@ -17,54 +17,54 @@ use Joomla\CMS\Toolbar\ToolbarButton;
  */
 class Link extends ToolbarButton
 {
-	/**
-	 * Button type
-	 * @var    string
-	 */
-	protected $_name = 'Link';
+    /**
+     * Button type
+     * @var    string
+     */
+    protected $_name = 'Link';
 
-	/**
-	 * Fetch the HTML for the button
-	 *
-	 * @param   string  $type    unused
-	 * @param   string  $icon    the unique icon suffix
-	 * @param   string  $text    displayed text
-	 * @param   string  $url     url
-	 * @param   bool    $newTab  whether or not to open the link in a new tab
-	 *
-	 * @return  string  HTML string for the button
-	 */
-	public function fetchButton(
-		string $type = 'Link',
-		string $icon = 'back',
-		string $text = '',
-		string $url = '',
-		bool $newTab = false
-	): string {
-		$attribs = ['class="btn btn-small"', 'rel="help"', "href=\"$url\""];
+    /**
+     * Fetch the HTML for the button
+     *
+     * @param string $type   unused
+     * @param string $icon   the unique icon suffix
+     * @param string $text   displayed text
+     * @param string $url    url
+     * @param bool   $newTab whether or not to open the link in a new tab
+     *
+     * @return  string  HTML string for the button
+     */
+    public function fetchButton(
+        string $type = 'Link',
+        string $icon = 'back',
+        string $text = '',
+        string $url = '',
+        bool   $newTab = false
+    ): string
+    {
+        $attribs = ['class="btn btn-small"', 'rel="help"', "href=\"$url\""];
 
-		if ($newTab)
-		{
-			$attribs[] = 'target="_blank"';
-		}
+        if ($newTab) {
+            $attribs[] = 'target="_blank"';
+        }
 
-		$attribs = implode(' ', $attribs);
-		$icon    = "<span class=\"icon-$icon\" aria-hidden=\"true\"></span>";
+        $attribs = implode(' ', $attribs);
+        $icon    = "<span class=\"icon-$icon\" aria-hidden=\"true\"></span>";
 
-		return "<a $attribs>$icon$text</a>";
-	}
+        return "<a $attribs>$icon$text</a>";
+    }
 
-	/**
-	 * Get the button CSS id
-	 *
-	 * @param   string  $type  The button type.
-	 * @param   string  $name  The name of the button.
-	 *
-	 * @return  string  Button CSS Id
-	 * @noinspection PhpUnusedParameterInspection
-	 */
-	public function fetchId(string $type = 'Link', string $name = ''): string
-	{
-		return $this->_parent->getName() . '-' . $name;
-	}
+    /**
+     * Get the button CSS id
+     *
+     * @param string $type The button type.
+     * @param string $name The name of the button.
+     *
+     * @return  string  Button CSS Id
+     * @noinspection PhpUnusedParameterInspection
+     */
+    public function fetchId(string $type = 'Link', string $name = ''): string
+    {
+        return $this->_parent->getName() . '-' . $name;
+    }
 }

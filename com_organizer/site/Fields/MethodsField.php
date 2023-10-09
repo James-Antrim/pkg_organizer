@@ -18,21 +18,20 @@ use stdClass;
  */
 class MethodsField extends OptionsField
 {
-	/**
-	 * @var  string
-	 */
-	protected $type = 'Methods';
+    /**
+     * @var  string
+     */
+    protected $type = 'Methods';
 
-	/**
-	 * Returns a select box where stored buildings can be chosen
-	 *
-	 * @return stdClass[]  the available buildings
-	 */
-	protected function getOptions(): array
-	{
-		$defaultOptions = parent::getOptions();
-		$options        = Helpers\Methods::getOptions();
+    /**
+     * Returns a select box where stored buildings can be chosen
+     * @return stdClass[]  the available buildings
+     */
+    protected function getOptions(): array
+    {
+        $defaultOptions = parent::getOptions();
+        $options        = Helpers\Methods::getOptions();
 
-		return array_merge($defaultOptions, $options);
-	}
+        return array_merge($defaultOptions, $options);
+    }
 }

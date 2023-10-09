@@ -22,8 +22,7 @@ $rowNumber = 0;
 <script type="text/javascript">
     let timer = null;
 
-    function auto_reload()
-    {
+    function auto_reload() {
         window.location = document.URL;
     }
 
@@ -43,48 +42,44 @@ $rowNumber = 0;
         </div>
     </div>
     <div class="instances current-layout">
-		<?php
-		foreach ($this->model->grid as $period)
-		{
-			$endTime   = Helpers\Dates::formatEndTime($period['endTime']);
-			$rowClass  = 'row' . ($rowNumber % 2);
-			$startTime = Helpers\Dates::formatTime($period['startTime']);
+        <?php
+        foreach ($this->model->grid as $period) {
+            $endTime   = Helpers\Dates::formatEndTime($period['endTime']);
+            $rowClass  = 'row' . ($rowNumber % 2);
+            $startTime = Helpers\Dates::formatTime($period['startTime']);
 
-			$activeClass = ($time >= $startTime and $time <= $endTime) ? 'active' : 'inactive';
+            $activeClass = ($time >= $startTime and $time <= $endTime) ? 'active' : 'inactive';
 
-			if (empty($period['comment']))
-			{
-				$paddingClass = 'fluffy';
-			}
-			else
-			{
-				$paddingClass      = '';
-				$period['comment'] = $this->processComment($period['comment']);
-			}
+            if (empty($period['comment'])) {
+                $paddingClass = 'fluffy';
+            } else {
+                $paddingClass      = '';
+                $period['comment'] = $this->processComment($period['comment']);
+            }
 
-			$event = implode(' / ', $period['events']);
-			$event .= $period['method'] ? " - {$period['method']}" : '';
+            $event = implode(' / ', $period['events']);
+            $event .= $period['method'] ? " - {$period['method']}" : '';
 
-			?>
+            ?>
             <div class="<?php echo $rowClass . ' ' . $activeClass; ?> ym-clearfix instance">
                 <div class="block-times">
-					<?php echo "<span>$startTime</span><br><span>-</span><br><span>$endTime</span>"; ?>
+                    <?php echo "<span>$startTime</span><br><span>-</span><br><span>$endTime</span>"; ?>
                 </div>
                 <div class="instance-display">
                     <div class="event-names <?php echo $paddingClass; ?>">
-						<?php echo $event; ?>
+                        <?php echo $event; ?>
                     </div>
                     <div class="instance-persons"><?php echo implode(' / ', $period['persons']); ?></div>
-					<?php if (!empty($period['comment'])): ?>
+                    <?php if (!empty($period['comment'])): ?>
                         <div class="unit-comment">
                             (<?php echo $period['comment']; ?>)
                         </div>
-					<?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
-			<?php
-			$rowNumber++;
-		}
-		?>
+            <?php
+            $rowNumber++;
+        }
+        ?>
     </div>
 </div>

@@ -18,21 +18,20 @@ $script   .= "document.getElementById('download-url').setSelectionRange(0,99999)
 $script   .= "document.execCommand('copy');";
 $interval = Helpers\Input::getString('interval', 'week');
 
-switch ($interval)
-{
-	case 'month':
-		$interval = Helpers\Languages::_('ORGANIZER_SELECTED_MONTH');
-		break;
-	case 'quarter':
-		$interval = Helpers\Languages::_('ORGANIZER_QUARTER');
-		break;
-	case 'term':
-		$interval = Helpers\Languages::_('ORGANIZER_SELECTED_TERM');
-		break;
-	case 'week':
-	default:
-		$interval = Helpers\Languages::_('ORGANIZER_SELECTED_WEEK');
-		break;
+switch ($interval) {
+    case 'month':
+        $interval = Helpers\Languages::_('ORGANIZER_SELECTED_MONTH');
+        break;
+    case 'quarter':
+        $interval = Helpers\Languages::_('ORGANIZER_QUARTER');
+        break;
+    case 'term':
+        $interval = Helpers\Languages::_('ORGANIZER_SELECTED_TERM');
+        break;
+    case 'week':
+    default:
+        $interval = Helpers\Languages::_('ORGANIZER_SELECTED_WEEK');
+        break;
 }
 
 echo $this->title;
@@ -40,47 +39,41 @@ echo $this->title;
     <form action="<?php echo Uri::current(); ?>" id="adminForm" method="post" name="adminForm"
           class="form-horizontal form-validate" enctype="multipart/form-data">
         <div class="export-container">
-			<?php
-			foreach ($this->form->getFieldSets() as $set)
-			{
-				$label  = $set->label ?: false;
-				$fields = $this->form->getFieldset($set->name);
+            <?php
+            foreach ($this->form->getFieldSets() as $set) {
+                $label  = $set->label ?: false;
+                $fields = $this->form->getFieldset($set->name);
 
-				if ($label)
-				{
-					$constant = 'ORGANIZER_' . strtoupper($label);
-					$label    = Helpers\Languages::_($constant);
-					echo "<fieldset class=\"organizer-$set->name\">";
-					echo "<legend>$label</legend>";
-				}
+                if ($label) {
+                    $constant = 'ORGANIZER_' . strtoupper($label);
+                    $label    = Helpers\Languages::_($constant);
+                    echo "<fieldset class=\"organizer-$set->name\">";
+                    echo "<legend>$label</legend>";
+                }
 
-				foreach ($fields as $field)
-				{
-					if ($field->getAttribute('name') === 'format')
-					{
-						$options = $field->__get('options');
-						foreach ($options as $option)
-						{
-							$option->text = sprintf($option->text, $interval);
-						}
-						$field->__set('options', $options);
-					}
+                foreach ($fields as $field) {
+                    if ($field->getAttribute('name') === 'format') {
+                        $options = $field->__get('options');
+                        foreach ($options as $option) {
+                            $option->text = sprintf($option->text, $interval);
+                        }
+                        $field->__set('options', $options);
+                    }
 
-					echo $field->renderField();
-				}
+                    echo $field->renderField();
+                }
 
-				if ($label)
-				{
-					echo '</fieldset>';
-				}
-			}
-			?>
+                if ($label) {
+                    echo '</fieldset>';
+                }
+            }
+            ?>
         </div>
         <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-		<?php echo Helpers\HTML::_('form.token'); ?>
+        <?php echo Helpers\HTML::_('form.token'); ?>
     </form>
 <?php echo Toolbar::getInstance()->render(); ?>
 <?php if ($this->url): ?>

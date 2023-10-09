@@ -14,42 +14,39 @@ use Organizer\Helpers;
 
 $query = Uri::getInstance()->getQuery();
 
-if (!$this->adminContext)
-{
-	require_once 'titles.php';
+if (!$this->adminContext) {
+    require_once 'titles.php';
 }
 ?>
 <?php if (!$this->adminContext) : ?>
-	<?php echo Toolbar::getInstance()->render(); ?>
+    <?php echo Toolbar::getInstance()->render(); ?>
 <?php endif; ?>
 <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm"
       class="form-horizontal form-validate" enctype="multipart/form-data">
 
-	<?php
-	echo Helpers\HTML::_('bootstrap.startTabSet', 'myTab', ['active' => 'details']);
+    <?php
+    echo Helpers\HTML::_('bootstrap.startTabSet', 'myTab', ['active' => 'details']);
 
-	foreach ($this->form->getFieldSets() as $set)
-	{
-		$isInitialized  = (bool) $this->form->getValue('id');
-		$displayInitial = !isset($set->displayinitial) || $set->displayinitial;
+    foreach ($this->form->getFieldSets() as $set) {
+        $isInitialized  = (bool) $this->form->getValue('id');
+        $displayInitial = !isset($set->displayinitial) || $set->displayinitial;
 
-		if ($displayInitial or $isInitialized)
-		{
-			echo Helpers\HTML::_(
-				'bootstrap.addTab',
-				'myTab',
-				$set->name,
-				Helpers\Languages::_('ORGANIZER_' . $set->label, true)
-			);
-			echo $this->form->renderFieldset($set->name);
-			echo Helpers\HTML::_('bootstrap.endTab');
-		}
-	}
-	echo Helpers\HTML::_('bootstrap.endTabSet');
-	?>
+        if ($displayInitial or $isInitialized) {
+            echo Helpers\HTML::_(
+                'bootstrap.addTab',
+                'myTab',
+                $set->name,
+                Helpers\Languages::_('ORGANIZER_' . $set->label, true)
+            );
+            echo $this->form->renderFieldset($set->name);
+            echo Helpers\HTML::_('bootstrap.endTab');
+        }
+    }
+    echo Helpers\HTML::_('bootstrap.endTabSet');
+    ?>
     <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value=""/>
     <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-	<?php echo Helpers\HTML::_('form.token'); ?>
+    <?php echo Helpers\HTML::_('form.token'); ?>
 </form>

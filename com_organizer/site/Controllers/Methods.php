@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Methods extends Controller
 {
-	protected $listView = 'methods';
+    protected $listView = 'methods';
 
-	protected $resource = 'method';
+    protected $resource = 'method';
 }

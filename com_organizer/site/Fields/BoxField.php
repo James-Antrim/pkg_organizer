@@ -18,58 +18,52 @@ use Organizer\Helpers;
  */
 class BoxField extends FormField
 {
-	use Translated;
+    use Translated;
 
-	/**
-	 * The allowable maxlength of the field.
-	 *
-	 * @var    integer
-	 */
-	protected $maxLength;
+    /**
+     * The allowable maxlength of the field.
+     * @var    integer
+     */
+    protected $maxLength;
 
-	/**
-	 * The form field type.
-	 *
-	 * @var    string
-	 */
-	protected $type = 'Box';
+    /**
+     * The form field type.
+     * @var    string
+     */
+    protected $type = 'Box';
 
-	/**
-	 * Method to get the field input markup.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput(): string
-	{
-		if ($this->hint and $hint = trim($this->hint))
-		{
-			$hint = preg_match('/^[A-Z_]+$/', $hint) ?
-				Helpers\Languages::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT);
-		}
-		else
-		{
-			$hint = '';
-		}
+    /**
+     * Method to get the field input markup.
+     * @return  string  The field input markup.
+     */
+    protected function getInput(): string
+    {
+        if ($this->hint and $hint = trim($this->hint)) {
+            $hint = preg_match('/^[A-Z_]+$/', $hint) ?
+                Helpers\Languages::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT);
+        } else {
+            $hint = '';
+        }
 
-		$attributes = [
-			(!$this->autocomplete or $this->autocomplete !== 'off') ? '' : "autocomplete=\"$this->autocomplete\"",
-			$this->autofocus ? 'autofocus' : '',
-			$this->class ? "class=\"$this->class\"" : '',
-			$this->disabled ? 'disabled' : '',
-			$hint ? "placeholder=\"$hint\"" : '',
-			"id=\"$this->id\"",
-			$this->maxLength ? "maxlength=\"$this->maxLength\"" : '',
-			"name=\"$this->name\"",
-			!empty($this->onChange) ? "onChange=\"$this->onChange\"" : '',
-			$this->pattern ? 'pattern="' . $this->pattern . '"' : '',
-			$this->readonly ? 'readonly' : '',
-			$this->required ? 'required aria-required="true"' : '',
-			$this->spellcheck ? '' : 'spellcheck="false"'
-		];
+        $attributes = [
+            (!$this->autocomplete or $this->autocomplete !== 'off') ? '' : "autocomplete=\"$this->autocomplete\"",
+            $this->autofocus ? 'autofocus' : '',
+            $this->class ? "class=\"$this->class\"" : '',
+            $this->disabled ? 'disabled' : '',
+            $hint ? "placeholder=\"$hint\"" : '',
+            "id=\"$this->id\"",
+            $this->maxLength ? "maxlength=\"$this->maxLength\"" : '',
+            "name=\"$this->name\"",
+            !empty($this->onChange) ? "onChange=\"$this->onChange\"" : '',
+            $this->pattern ? 'pattern="' . $this->pattern . '"' : '',
+            $this->readonly ? 'readonly' : '',
+            $this->required ? 'required aria-required="true"' : '',
+            $this->spellcheck ? '' : 'spellcheck="false"'
+        ];
 
-		$open  = '<textarea ' . implode(' ', $attributes) . '>';
-		$value = htmlspecialchars($this->value, ENT_COMPAT);
+        $open  = '<textarea ' . implode(' ', $attributes) . '>';
+        $value = htmlspecialchars($this->value, ENT_COMPAT);
 
-		return $open . $value . '</textarea>';
-	}
+        return $open . $value . '</textarea>';
+    }
 }

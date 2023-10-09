@@ -17,36 +17,33 @@ use Organizer\Helpers;
  */
 class EventUnits extends BaseView
 {
-	use Planned;
+    use Planned;
 
-	/**
-	 * loads model data into view context
-	 *
-	 * @return void
-	 */
-	public function display()
-	{
-		$date     = $this->getDate();
-		$eventID  = Helpers\Input::getInt('eventID');
-		$interval = $this->getInterval();
-		$units    = [];
+    /**
+     * loads model data into view context
+     * @return void
+     */
+    public function display()
+    {
+        $date     = $this->getDate();
+        $eventID  = Helpers\Input::getInt('eventID');
+        $interval = $this->getInterval();
+        $units    = [];
 
-		foreach (Helpers\Events::getUnits($eventID, $date, $interval) as $unit)
-		{
-			$unitID = $unit['id'];
-			unset($unit['id']);
+        foreach (Helpers\Events::getUnits($eventID, $date, $interval) as $unit) {
+            $unitID = $unit['id'];
+            unset($unit['id']);
 
-			$unit['contexts'] = [];
+            $unit['contexts'] = [];
 
-			foreach (Helpers\Units::getContexts($unitID, $eventID) as $groupID => $context)
-			{
-				unset($context['groupID']);
-				$unit['contexts'][$groupID] = $context;
-			}
+            foreach (Helpers\Units::getContexts($unitID, $eventID) as $groupID => $context) {
+                unset($context['groupID']);
+                $unit['contexts'][$groupID] = $context;
+            }
 
-			$units[$unitID] = $unit;
-		}
+            $units[$unitID] = $unit;
+        }
 
-		echo json_encode($units, JSON_UNESCAPED_UNICODE);
-	}
+        echo json_encode($units, JSON_UNESCAPED_UNICODE);
+    }
 }

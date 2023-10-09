@@ -18,54 +18,49 @@ use Organizer\Tables;
  */
 class CleaningGroup extends BaseModel
 {
-	/**
-	 * Authorizes the user.
-	 *
-	 * @return void
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::manage('facilities'))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * Authorizes the user.
+     * @return void
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::manage('facilities')) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\CleaningGroups  A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\CleaningGroups
-	{
-		return new Tables\CleaningGroups();
-	}
+    /**
+     * Method to get a table object, load it if necessary.
+     *
+     * @param string $name    The table name. Optional.
+     * @param string $prefix  The class prefix. Optional.
+     * @param array  $options Configuration array for model. Optional.
+     *
+     * @return Tables\CleaningGroups  A Table object
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Tables\CleaningGroups
+    {
+        return new Tables\CleaningGroups();
+    }
 
-	/**
-	 * Toggles the monitor's use of default settings
-	 *
-	 * @return bool  true on success, otherwise false
-	 */
-	public function toggle(): bool
-	{
-		$this->authorize();
+    /**
+     * Toggles the monitor's use of default settings
+     * @return bool  true on success, otherwise false
+     */
+    public function toggle(): bool
+    {
+        $this->authorize();
 
-		$groupID = Helpers\Input::getID();
-		$group   = new Tables\CleaningGroups();
-		if (!$groupID or !$group->load($groupID))
-		{
-			return false;
-		}
+        $groupID = Helpers\Input::getID();
+        $group   = new Tables\CleaningGroups();
+        if (!$groupID or !$group->load($groupID)) {
+            return false;
+        }
 
-		$newValue = !$group->relevant;
-		$group->set('relevant', $newValue);
+        $newValue = !$group->relevant;
+        $group->set('relevant', $newValue);
 
-		return $group->store();
-	}
+        return $group->store();
+    }
 }

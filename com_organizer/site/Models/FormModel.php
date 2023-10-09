@@ -19,78 +19,74 @@ use Organizer\Helpers;
  */
 class FormModel extends ParentModel
 {
-	use Named;
+    use Named;
 
-	public $mobile = false;
+    public $mobile = false;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct($config = [])
-	{
-		parent::__construct($config);
+    /**
+     * @inheritDoc
+     */
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
 
-		$this->mobile = Helpers\OrganizerHelper::isSmartphone();
-		$this->setContext();
-	}
+        $this->mobile = Helpers\OrganizerHelper::isSmartphone();
+        $this->setContext();
+    }
 
-	/**
-	 * Provides a strict access check which can be overwritten by extending classes.
-	 *
-	 * @return void performs error management via redirects as appropriate
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::administrate())
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * Provides a strict access check which can be overwritten by extending classes.
+     * @return void performs error management via redirects as appropriate
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::administrate()) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * Filters out form inputs which should not be displayed due to previous selections.
-	 *
-	 * @param   Form  $form  the form to be filtered
-	 *
-	 * @return void modifies $form
-	 */
-	protected function filterForm(Form $form)
-	{
-		// Per default no fields are altered
-	}
+    /**
+     * Filters out form inputs which should not be displayed due to previous selections.
+     *
+     * @param Form $form the form to be filtered
+     *
+     * @return void modifies $form
+     */
+    protected function filterForm(Form $form)
+    {
+        // Per default no fields are altered
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getForm($data = [], $loadData = false)
-	{
-		$this->authorize();
+    /**
+     * @inheritDoc
+     */
+    public function getForm($data = [], $loadData = false)
+    {
+        $this->authorize();
 
-		$name = $this->get('name');
-		$form = $this->loadForm($this->context, $name, ['control' => 'jform', 'load_data' => $loadData]);
+        $name = $this->get('name');
+        $form = $this->loadForm($this->context, $name, ['control' => 'jform', 'load_data' => $loadData]);
 
-		if (empty($form))
-		{
-			return false;
-		}
+        if (empty($form)) {
+            return false;
+        }
 
-		return $form;
-	}
+        return $form;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = '')
-	{
-		Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
-		Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
+    /**
+     * @inheritDoc
+     */
+    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = '')
+    {
+        Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
+        Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
 
 
-		if ($form = parent::loadForm($name, $source, $options, $clear, $xpath))
-		{
-			$this->filterForm($form);
-		}
+        if ($form = parent::loadForm($name, $source, $options, $clear, $xpath)) {
+            $this->filterForm($form);
+        }
 
-		return $form;
-	}
+        return $form;
+    }
 }

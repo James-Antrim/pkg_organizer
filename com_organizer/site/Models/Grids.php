@@ -20,21 +20,20 @@ use Organizer\Helpers;
  */
 class Grids extends ListModel
 {
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery(): JDatabaseQuery
-	{
-		$tag = Helpers\Languages::getTag();
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
+    /**
+     * Method to get a list of resources from the database.
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery(): JDatabaseQuery
+    {
+        $tag = Helpers\Languages::getTag();
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
 
-		$query->select("id, name_$tag AS name, grid, isDefault")
-			->from('#__organizer_grids');
-		$this->setOrdering($query);
+        $query->select("id, name_$tag AS name, grid, isDefault")
+            ->from('#__organizer_grids');
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 }

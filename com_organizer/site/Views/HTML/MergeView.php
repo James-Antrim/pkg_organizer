@@ -18,32 +18,31 @@ use Organizer\Helpers;
  */
 abstract class MergeView extends FormView
 {
-	/**
-	 * Adds a toolbar and title to the view.
-	 *
-	 * @return void  adds toolbar items to the view
-	 */
-	protected function addToolBar()
-	{
-		$name = Helpers\OrganizerHelper::getClass($this);
-		$this->setTitle(Helpers\Languages::getConstant($name));
+    /**
+     * Adds a toolbar and title to the view.
+     * @return void  adds toolbar items to the view
+     */
+    protected function addToolBar()
+    {
+        $name = Helpers\OrganizerHelper::getClass($this);
+        $this->setTitle(Helpers\Languages::getConstant($name));
 
-		$resource   = str_replace('merge', '', strtolower($name));
-		$controller = Helpers\OrganizerHelper::getPlural($resource);
-		$toolbar    = Toolbar::getInstance();
-		$toolbar->appendButton(
-			'Standard',
-			'contract',
-			Helpers\Languages::_('ORGANIZER_MERGE'),
-			$controller . '.merge',
-			false
-		);
-		$toolbar->appendButton(
-			'Standard',
-			'cancel',
-			Helpers\Languages::_('ORGANIZER_CANCEL'),
-			$controller . '.cancel',
-			false
-		);
-	}
+        $resource   = str_replace('merge', '', strtolower($name));
+        $controller = Helpers\OrganizerHelper::getPlural($resource);
+        $toolbar    = Toolbar::getInstance();
+        $toolbar->appendButton(
+            'Standard',
+            'contract',
+            Helpers\Languages::_('ORGANIZER_MERGE'),
+            $controller . '.merge',
+            false
+        );
+        $toolbar->appendButton(
+            'Standard',
+            'cancel',
+            Helpers\Languages::_('ORGANIZER_CANCEL'),
+            $controller . '.cancel',
+            false
+        );
+    }
 }

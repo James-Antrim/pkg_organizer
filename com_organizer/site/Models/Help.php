@@ -15,5 +15,5 @@ namespace Organizer\Models;
  */
 class Help extends BaseModel
 {
-	// No data to display for this view.
+    // No data to display for this view.
 }

@@ -18,26 +18,26 @@ use Organizer\Helpers\Languages;
  */
 class RoomsImport extends EditView
 {
-	/**
-	 * @inheritDoc
-	 */
-	protected function addToolBar()
-	{
-		$this->setTitle('ORGANIZER_ROOMS_IMPORT');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton(
-			'Standard',
-			'upload',
-			Languages::_('ORGANIZER_UPLOAD'),
-			'rooms.import',
-			false
-		);
-		$toolbar->appendButton(
-			'Standard',
-			'cancel',
-			Languages::_('ORGANIZER_CANCEL'),
-			'rooms.cancel',
-			false
-		);
-	}
+    /**
+     * @inheritDoc
+     */
+    protected function addToolBar()
+    {
+        $this->setTitle('ORGANIZER_ROOMS_IMPORT');
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton(
+            'Standard',
+            'upload',
+            Languages::_('ORGANIZER_UPLOAD'),
+            'rooms.import',
+            false
+        );
+        $toolbar->appendButton(
+            'Standard',
+            'cancel',
+            Languages::_('ORGANIZER_CANCEL'),
+            'rooms.cancel',
+            false
+        );
+    }
 }

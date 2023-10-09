@@ -13,9 +13,8 @@ use Organizer\Helpers\Input;
 use Organizer\Helpers\Languages;
 use Organizer\Helpers\OrganizerHelper;
 
-if (Input::getCMD('tmpl') === 'component')
-{
-	return;
+if (Input::getCMD('tmpl') === 'component') {
+    return;
 }
 
 $contents = [];
@@ -25,23 +24,20 @@ $iterator = new DirectoryIterator($folder);
 $layout   = Input::getCMD('topic');
 $link     = $dynamic ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 
-foreach ($iterator as $node)
-{
-	if ($node->isFile())
-	{
-		$file = $node->getFilename();
+foreach ($iterator as $node) {
+    if ($node->isFile()) {
+        $file = $node->getFilename();
 
-		if (strpos($file, '.php') === false or $file === 'toc.php')
-		{
-			continue;
-		}
+        if (strpos($file, '.php') === false or $file === 'toc.php') {
+            continue;
+        }
 
-		$topic           = str_replace('.php', '', $file);
-		$constant        = 'ORGANIZER_TOPIC_' . strtoupper($topic);
-		$text            = Languages::_($constant);
-		$thisLink        = $dynamic ? $link . "&topic=$topic" : $link . "?topic=$topic";
-		$contents[$text] = $thisLink;
-	}
+        $topic           = str_replace('.php', '', $file);
+        $constant        = 'ORGANIZER_TOPIC_' . strtoupper($topic);
+        $text            = Languages::_($constant);
+        $thisLink        = $dynamic ? $link . "&topic=$topic" : $link . "?topic=$topic";
+        $contents[$text] = $thisLink;
+    }
 }
 //echo "<pre>" . print_r($contents, true) . "</pre><br>";
 /*

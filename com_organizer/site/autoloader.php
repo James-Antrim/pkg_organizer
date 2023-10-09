@@ -14,34 +14,30 @@ defined('_JEXEC') or die;
 
 spl_autoload_register(function ($originalClassName) {
 
-	if ($originalClassName === 'TCPDF')
-	{
-		require_once JPATH_LIBRARIES . '/tcpdf/tcpdf.php';
+    if ($originalClassName === 'TCPDF') {
+        require_once JPATH_LIBRARIES . '/tcpdf/tcpdf.php';
 
-		return;
-	}
+        return;
+    }
 
-	$classNameParts = explode('\\', $originalClassName);
+    $classNameParts = explode('\\', $originalClassName);
 
-	$component = array_shift($classNameParts);
-	if ($component !== 'Organizer')
-	{
-		return;
-	}
+    $component = array_shift($classNameParts);
+    if ($component !== 'Organizer') {
+        return;
+    }
 
-	$className = array_pop($classNameParts);
+    $className = array_pop($classNameParts);
 
-	if (reset($classNameParts) === 'Admin')
-	{
-		array_shift($classNameParts);
-	}
+    if (reset($classNameParts) === 'Admin') {
+        array_shift($classNameParts);
+    }
 
-	$classNameParts[] = empty($className) ? 'Organizer' : $className;
+    $classNameParts[] = empty($className) ? 'Organizer' : $className;
 
-	$filepath = JPATH_ROOT . '/components/com_organizer/' . implode('/', $classNameParts) . '.php';
+    $filepath = JPATH_ROOT . '/components/com_organizer/' . implode('/', $classNameParts) . '.php';
 
-	if (is_file($filepath))
-	{
-		require_once $filepath;
-	}
+    if (is_file($filepath)) {
+        require_once $filepath;
+    }
 });

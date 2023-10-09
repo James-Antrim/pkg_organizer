@@ -15,27 +15,25 @@ namespace Organizer\Tables;
  */
 class EventCoordinators extends BaseTable
 {
-	/**
-	 * The id of the event entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $eventID;
+    /**
+     * The id of the event entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $eventID;
 
-	/**
-	 * The id of the person entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $personID;
+    /**
+     * The id of the person entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $personID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_event_coordinators');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_event_coordinators');
+    }
 }

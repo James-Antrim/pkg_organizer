@@ -20,32 +20,30 @@ use Organizer\Helpers;
  */
 class CleaningGroups extends ListModel
 {
-	protected $filter_fields = ['relevant'];
+    protected $filter_fields = ['relevant'];
 
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery(): JDatabaseQuery
-	{
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
-		$tag   = Helpers\Languages::getTag();
+    /**
+     * Method to get a list of resources from the database.
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery(): JDatabaseQuery
+    {
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
+        $tag   = Helpers\Languages::getTag();
 
-		$query->select("*, name_$tag AS name")->from('#__organizer_cleaning_groups');
+        $query->select("*, name_$tag AS name")->from('#__organizer_cleaning_groups');
 
-		$this->setSearchFilter($query, ['name_de', 'name_en']);
+        $this->setSearchFilter($query, ['name_de', 'name_en']);
 
-		$relevant = $this->state->get('filter.relevant');
+        $relevant = $this->state->get('filter.relevant');
 
-		if (is_numeric($relevant) and in_array((int) $relevant, [0, 1]))
-		{
-			$query->where("relevant = $relevant");
-		}
+        if (is_numeric($relevant) and in_array((int) $relevant, [0, 1])) {
+            $query->where("relevant = $relevant");
+        }
 
-		$this->setOrdering($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 }

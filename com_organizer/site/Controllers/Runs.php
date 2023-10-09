@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Runs extends Controller
 {
-	protected $listView = 'runs';
+    protected $listView = 'runs';
 
-	protected $resource = 'run';
+    protected $resource = 'run';
 }

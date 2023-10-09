@@ -18,56 +18,44 @@ $sums       = array_shift($this->grid);
 
 echo "<div class=\"statistics-grid methods-use columns-$count\">";
 
-foreach ($headers as $key => $header)
-{
-	$class = 'header-row';
-	$class .= $key === $lastColumn ? ' row-end' : '';
-	$class .= $key === 'sum' ? ' sum-column' : '';
+foreach ($headers as $key => $header) {
+    $class = 'header-row';
+    $class .= $key === $lastColumn ? ' row-end' : '';
+    $class .= $key === 'sum' ? ' sum-column' : '';
 
-	if ($key === 'method')
-	{
-		Languages::unpack($header);
-	}
-	else
-	{
-		$class .= ' header-column';
-	}
+    if ($key === 'method') {
+        Languages::unpack($header);
+    } else {
+        $class .= ' header-column';
+    }
 
-	echo "<div class=\"$class\">$header</div>";
+    echo "<div class=\"$class\">$header</div>";
 }
 
-foreach ($sums as $key => $sum)
-{
-	$class = 'sum-row';
-	$class .= $key === 'method' ? ' header-column' : '';
-	$class .= $key === 'sum' ? ' sum-column' : '';
-	$class .= $key === $lastColumn ? ' row-end' : '';
-	echo "<div class=\"$class\">$sum</div>";
+foreach ($sums as $key => $sum) {
+    $class = 'sum-row';
+    $class .= $key === 'method' ? ' header-column' : '';
+    $class .= $key === 'sum' ? ' sum-column' : '';
+    $class .= $key === $lastColumn ? ' row-end' : '';
+    echo "<div class=\"$class\">$sum</div>";
 }
 
-foreach ($this->grid as $row)
-{
-	foreach ($row as $key => $sum)
-	{
-		$class = 'data-row';
+foreach ($this->grid as $row) {
+    foreach ($row as $key => $sum) {
+        $class = 'data-row';
 
-		if ($key === 'method')
-		{
-			$class .= ' header-column';
-			Languages::unpack($sum);
-		}
-		elseif ($key === 'sum')
-		{
-			$class .= ' sum-column';
-		}
-		else
-		{
-			$class .= ' data-column';
-		}
+        if ($key === 'method') {
+            $class .= ' header-column';
+            Languages::unpack($sum);
+        } elseif ($key === 'sum') {
+            $class .= ' sum-column';
+        } else {
+            $class .= ' data-column';
+        }
 
-		$class .= $key === $lastColumn ? ' row-end' : '';
-		echo "<div class=\"$class\">$sum</div>";
-	}
+        $class .= $key === $lastColumn ? ' row-end' : '';
+        echo "<div class=\"$class\">$sum</div>";
+    }
 }
 
 echo "</div>";

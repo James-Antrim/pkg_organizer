@@ -21,74 +21,67 @@ use stdClass;
  */
 trait Mergeable
 {
-	protected $resource;
+    protected $resource;
 
-	protected $selectedIDs;
+    protected $selectedIDs;
 
-	/**
-	 * Creates an array of Joomla option objects from the given array of values.
-	 *
-	 * @param   array  $values
-	 *
-	 * @return stdClass[]
-	 */
-	protected function createOptions(array $values): array
-	{
-		$options = [];
-		foreach ($values as $value)
-		{
-			if (empty($value))
-			{
-				continue;
-			}
-			$options[] = HTML::_('select.option', $value, $value);
-		}
+    /**
+     * Creates an array of Joomla option objects from the given array of values.
+     *
+     * @param array $values
+     *
+     * @return stdClass[]
+     */
+    protected function createOptions(array $values): array
+    {
+        $options = [];
+        foreach ($values as $value) {
+            if (empty($value)) {
+                continue;
+            }
+            $options[] = HTML::_('select.option', $value, $value);
+        }
 
-		if (empty($options))
-		{
-			$options[] = HTML::_('select.option', '', Languages::_('ORGANIZER_NONE_GIVEN'));
-		}
-		elseif (count($options) > 1)
-		{
-			/* @var OptionsField $this */
-			$this->required = true;
-			array_unshift(
-				$options,
-				HTML::_('select.option', '', Languages::_('ORGANIZER_SELECT_VALUE'))
-			);
-		}
+        if (empty($options)) {
+            $options[] = HTML::_('select.option', '', Languages::_('ORGANIZER_NONE_GIVEN'));
+        } elseif (count($options) > 1) {
+            /* @var OptionsField $this */
+            $this->required = true;
+            array_unshift(
+                $options,
+                HTML::_('select.option', '', Languages::_('ORGANIZER_SELECT_VALUE'))
+            );
+        }
 
-		return $options;
-	}
+        return $options;
+    }
 
-	/**
-	 * Gets the saved values for the selected resource IDs.
-	 *
-	 * @return array
-	 */
-	protected function getValues(): array
-	{
-		$column = $this->getAttribute('name');
-		$query  = Database::getQuery();
-		$table  = $this->resource === 'category' ? 'categories' : "{$this->resource}s";
-		$query->selectX(["DISTINCT BINARY $column AS value"], $table, 'id', $this->selectedIDs)
-			->order('value ASC');
-		Database::setQuery($query);
+    /**
+     * Gets the saved values for the selected resource IDs.
+     * @return array
+     */
+    protected function getValues(): array
+    {
+        $column = $this->getAttribute('name');
+        $query  = Database::getQuery();
+        $table  = $this->resource === 'category' ? 'categories' : "{$this->resource}s";
+        $query->selectX(["DISTINCT BINARY $column AS value"], $table, 'id', $this->selectedIDs)
+            ->order('value ASC');
+        Database::setQuery($query);
 
-		return Database::loadColumn();
-	}
+        return Database::loadColumn();
+    }
 
-	/**
-	 * Validates basic information needed to merge values.
-	 *
-	 * @return bool
-	 */
-	protected function validate(): bool
-	{
-		$this->selectedIDs = Input::getSelectedIDs();
-		$this->resource    = str_replace('_merge', '', Input::getView());
-		$validResources    = ['category', 'field', 'group', 'event', 'method', 'room', 'roomtype', 'participant', 'person'];
+    /**
+     * Validates basic information needed to merge values.
+     * @return bool
+     */
+    protected function validate(): bool
+    {
+        $this->selectedIDs = Input::getSelectedIDs();
+        $this->resource    = str_replace('_merge', '', Input::getView());
+        $validResources    = ['category', 'field', 'group', 'event', 'method', 'room', 'roomtype', 'participant', 'person'];
 
-		return !(empty($this->selectedIDs) or empty($this->resource) or !in_array($this->resource, $validResources));
-	}
+        return !(empty($this->selectedIDs) or empty($this->resource) or !in_array($this->resource, $validResources));
+    }
 }

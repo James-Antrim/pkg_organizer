@@ -18,43 +18,38 @@ use Organizer\Tables\Associations;
  */
 trait Associated
 {
-	/**
-	 * Sets context variables as requested.
-	 *
-	 * @param   int    $resourceID       the id of the resource being processed
-	 * @param   array  $organizationIDs  the organization ids with which the resource should be associated
-	 *
-	 * @return bool true on success, otherwise false
-	 */
-	protected function updateAssociations($resourceID, $organizationIDs): bool
-	{
-		foreach (Helpers\Organizations::getIDs() as $organizationID)
-		{
-			$conditions = ["{$this->resource}ID" => $resourceID, 'organizationID' => $organizationID];
-			$requested  = in_array($organizationID, $organizationIDs);
-			$table      = new Associations();
+    /**
+     * Sets context variables as requested.
+     *
+     * @param int   $resourceID      the id of the resource being processed
+     * @param array $organizationIDs the organization ids with which the resource should be associated
+     *
+     * @return bool true on success, otherwise false
+     */
+    protected function updateAssociations($resourceID, $organizationIDs): bool
+    {
+        foreach (Helpers\Organizations::getIDs() as $organizationID) {
+            $conditions = ["{$this->resource}ID" => $resourceID, 'organizationID' => $organizationID];
+            $requested  = in_array($organizationID, $organizationIDs);
+            $table      = new Associations();
 
-			if ($table->load($conditions))
-			{
-				if (!$requested and !$table->delete())
-				{
-					return false;
-				}
+            if ($table->load($conditions)) {
+                if (!$requested and !$table->delete()) {
+                    return false;
+                }
 
-				continue;
-			}
+                continue;
+            }
 
-			if (!$requested)
-			{
-				continue;
-			}
+            if (!$requested) {
+                continue;
+            }
 
-			if (!$table->save($conditions))
-			{
-				return false;
-			}
-		}
+            if (!$table->save($conditions)) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

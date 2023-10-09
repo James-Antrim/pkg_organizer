@@ -15,35 +15,32 @@ namespace Organizer\Tables;
  */
 class FieldColors extends BaseTable
 {
-	/**
-	 * The id of the color entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $colorID;
+    /**
+     * The id of the color entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int
+     */
+    public $colorID;
 
-	/**
-	 * The id of the field entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $fieldID;
+    /**
+     * The id of the field entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int
+     */
+    public $fieldID;
 
-	/**
-	 * The id of the organization entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $organizationID;
+    /**
+     * The id of the organization entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $organizationID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_field_colors');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_field_colors');
+    }
 }

@@ -17,27 +17,26 @@ use Organizer\Helpers;
  */
 class Help extends BaseView
 {
-	protected $layout = 'help-wrapper';
+    protected $layout = 'help-wrapper';
 
-	/**
-	 * Adds a toolbar and title to the view.
-	 *
-	 * @return void  adds toolbar items to the view
-	 */
-	protected function addToolBar()
-	{
-		$topic    = strtoupper(Helpers\Input::getCMD('topic', 'toc'));
-		$constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
-		$this->setTitle($constant);
-	}
+    /**
+     * Adds a toolbar and title to the view.
+     * @return void  adds toolbar items to the view
+     */
+    protected function addToolBar()
+    {
+        $topic    = strtoupper(Helpers\Input::getCMD('topic', 'toc'));
+        $constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
+        $this->setTitle($constant);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function display($tpl = null)
-	{
-		$this->addToolBar();
-		$this->modifyDocument();
-		parent::display($tpl);
-	}
+    /**
+     * @inheritDoc
+     */
+    public function display($tpl = null)
+    {
+        $this->addToolBar();
+        $this->modifyDocument();
+        parent::display($tpl);
+    }
 }

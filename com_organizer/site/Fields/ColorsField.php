@@ -19,45 +19,41 @@ use stdClass;
  */
 class ColorsField extends ColoredOptionsField
 {
-	/**
-	 * Type
-	 *
-	 * @var    String
-	 */
-	protected $type = 'Colors';
+    /**
+     * Type
+     * @var    String
+     */
+    protected $type = 'Colors';
 
-	/**
-	 * Method to get the field options.
-	 *
-	 * @return  array  The field option objects.
-	 */
-	protected function getOptions(): array
-	{
-		$options = parent::getOptions();
+    /**
+     * Method to get the field options.
+     * @return  array  The field option objects.
+     */
+    protected function getOptions(): array
+    {
+        $options = parent::getOptions();
 
-		$tag = Helpers\Languages::getTag();
+        $tag = Helpers\Languages::getTag();
 
-		$query = Database::getQuery();
-		$query->selectX(['DISTINCT c.id AS value', "c.name_$tag AS text", 'c.color'], 'colors AS c')
-			->order('text');
-		Database::setQuery($query);
+        $query = Database::getQuery();
+        $query->selectX(['DISTINCT c.id AS value', "c.name_$tag AS text", 'c.color'], 'colors AS c')
+            ->order('text');
+        Database::setQuery($query);
 
-		if (!$colors = Database::loadAssocList())
-		{
-			return $options;
-		}
+        if (!$colors = Database::loadAssocList()) {
+            return $options;
+        }
 
-		foreach ($colors as $color)
-		{
-			$option        = new stdClass();
-			$option->text  = $color['text'];
-			$option->value = $color['value'];
+        foreach ($colors as $color) {
+            $option        = new stdClass();
+            $option->text  = $color['text'];
+            $option->value = $color['value'];
 
-			$textColor     = Helpers\Colors::getDynamicTextColor($color['color']);
-			$option->style = "background-color:{$color['color']};color:$textColor;";
-			$options[]     = $option;
-		}
+            $textColor     = Helpers\Colors::getDynamicTextColor($color['color']);
+            $option->style = "background-color:{$color['color']};color:$textColor;";
+            $options[]     = $option;
+        }
 
-		return $options;
-	}
+        return $options;
+    }
 }

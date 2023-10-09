@@ -21,80 +21,70 @@ use Organizer\Models\Room;
  */
 class Rooms extends Controller
 {
-	use Activated;
+    use Activated;
 
-	protected $listView = 'rooms';
+    protected $listView = 'rooms';
 
-	protected $resource = 'room';
+    protected $resource = 'room';
 
-	/**
-	 * Makes call to the model's import function, and redirects to the manager view if the file .
-	 *
-	 * @return void
-	 */
-	public function import()
-	{
-		$url  = Helpers\Routing::getRedirectBase();
-		$view = 'Rooms';
+    /**
+     * Makes call to the model's import function, and redirects to the manager view if the file .
+     * @return void
+     */
+    public function import()
+    {
+        $url  = Helpers\Routing::getRedirectBase();
+        $view = 'Rooms';
 
-		if (JDEBUG)
-		{
-			OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
-			$url .= "&view=$view";
-			$this->setRedirect($url);
+        if (JDEBUG) {
+            OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
+            $url .= "&view=$view";
+            $this->setRedirect($url);
 
-			return;
-		}
+            return;
+        }
 
-		$form  = $this->input->files->get('jform', [], '[]');
-		$file  = $form['file'];
-		$types = ['application/vnd.ms-excel', 'text/csv'];
+        $form  = $this->input->files->get('jform', [], '[]');
+        $file  = $form['file'];
+        $types = ['application/vnd.ms-excel', 'text/csv'];
 
-		if (!empty($file['type']) and in_array($file['type'], $types))
-		{
-			if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8')
-			{
-				$model = new Room();
-				$view  = $model->import() ? 'Rooms' : 'RoomsImport';
-			}
-			else
-			{
-				$view = 'RoomsImport';
-				Helpers\OrganizerHelper::message('ORGANIZER_FILE_ENCODING_INVALID', 'error');
-			}
-		}
-		else
-		{
-			$view = 'RoomsImport';
-			Helpers\OrganizerHelper::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', 'error');
-		}
+        if (!empty($file['type']) and in_array($file['type'], $types)) {
+            if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8') {
+                $model = new Room();
+                $view  = $model->import() ? 'Rooms' : 'RoomsImport';
+            } else {
+                $view = 'RoomsImport';
+                Helpers\OrganizerHelper::message('ORGANIZER_FILE_ENCODING_INVALID', 'error');
+            }
+        } else {
+            $view = 'RoomsImport';
+            Helpers\OrganizerHelper::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', 'error');
+        }
 
-		$url .= "&view=$view";
-		$this->setRedirect($url);
-	}
+        $url .= "&view=$view";
+        $this->setRedirect($url);
+    }
 
-	/**
-	 * Creates an UniNow xls file based on form data.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function uniNow()
-	{
-		Helpers\Input::set('layout', 'UniNow');
-		Helpers\Input::set('format', 'xls');
-		$this->display();
-	}
+    /**
+     * Creates an UniNow xls file based on form data.
+     * @return void
+     * @throws Exception
+     */
+    public function uniNow()
+    {
+        Helpers\Input::set('layout', 'UniNow');
+        Helpers\Input::set('format', 'xls');
+        $this->display();
+    }
 
-	/**
-	 * Creates an xls file based on form data.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function xls()
-	{
-		Helpers\Input::set('format', 'xls');
-		$this->display();
-	}
+    /**
+     * Creates an xls file based on form data.
+     * @return void
+     * @throws Exception
+     */
+    public function xls()
+    {
+        Helpers\Input::set('format', 'xls');
+        $this->display();
+    }
 }

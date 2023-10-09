@@ -17,48 +17,49 @@ use Joomla\CMS\Toolbar\ToolbarButton;
  */
 class Script extends ToolbarButton
 {
-	/**
-	 * Button type
-	 * @var    string
-	 */
-	protected $_name = 'Script';
+    /**
+     * Button type
+     * @var    string
+     */
+    protected $_name = 'Script';
 
-	/**
-	 * Fetch the HTML for the button
-	 *
-	 * @param   string  $type  unused
-	 * @param   string  $icon  the unique icon suffix
-	 * @param   string  $text  displayed text
-	 * @param   string  $script  the script to use
-	 *
-	 * @return  string  HTML string for the button
-	 */
-	public function fetchButton(
-		string $type = 'Link',
-		string $icon = 'back',
-		string $text = '',
-		string $event = '',
-		string $script = ''
-	): string {
-		$attribs = ['class="btn btn-small"', "$event=\"$script\""];
+    /**
+     * Fetch the HTML for the button
+     *
+     * @param string $type   unused
+     * @param string $icon   the unique icon suffix
+     * @param string $text   displayed text
+     * @param string $script the script to use
+     *
+     * @return  string  HTML string for the button
+     */
+    public function fetchButton(
+        string $type = 'Link',
+        string $icon = 'back',
+        string $text = '',
+        string $event = '',
+        string $script = ''
+    ): string
+    {
+        $attribs = ['class="btn btn-small"', "$event=\"$script\""];
 
-		$attribs = implode(' ', $attribs);
-		$icon    = "<span class=\"icon-$icon\" aria-hidden=\"true\"></span>";
+        $attribs = implode(' ', $attribs);
+        $icon    = "<span class=\"icon-$icon\" aria-hidden=\"true\"></span>";
 
-		return "<a $attribs>$icon$text</a>";
-	}
+        return "<a $attribs>$icon$text</a>";
+    }
 
-	/**
-	 * Get the button CSS id
-	 *
-	 * @param   string  $type  The button type.
-	 * @param   string  $name  The name of the button.
-	 *
-	 * @return  string  Button CSS Id
-	 * @noinspection PhpUnusedParameterInspection
-	 */
-	public function fetchId(string $type = 'Script', string $name = ''): string
-	{
-		return $this->_parent->getName() . '-' . $name;
-	}
+    /**
+     * Get the button CSS id
+     *
+     * @param string $type The button type.
+     * @param string $name The name of the button.
+     *
+     * @return  string  Button CSS Id
+     * @noinspection PhpUnusedParameterInspection
+     */
+    public function fetchId(string $type = 'Script', string $name = ''): string
+    {
+        return $this->_parent->getName() . '-' . $name;
+    }
 }

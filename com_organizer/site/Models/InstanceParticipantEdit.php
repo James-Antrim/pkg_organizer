@@ -21,70 +21,65 @@ use Organizer\Tables\InstanceParticipants as Table;
 class InstanceParticipantEdit extends EditModel
 {
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct($config = [])
-	{
-		parent::__construct($config);
+    /**
+     * @inheritDoc
+     */
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
 
-		$session = Factory::getSession();
+        $session = Factory::getSession();
 
-		if (!$session->get('organizer.participation.referrer'))
-		{
-			$referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
-			$session->set('organizer.participation.referrer', $referrer);
-		}
-	}
+        if (!$session->get('organizer.participation.referrer')) {
+            $referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+            $session->set('organizer.participation.referrer', $referrer);
+        }
+    }
 
-	/**
-	 * Checks access to edit the resource.
-	 *
-	 * @return void
-	 */
-	protected function authorize()
-	{
-		$bookingID = 0;
+    /**
+     * Checks access to edit the resource.
+     * @return void
+     */
+    protected function authorize()
+    {
+        $bookingID = 0;
 
-		if (!$participationID = Helpers\Input::getID() or !$bookingID = Helper::getBookingID($participationID))
-		{
-			Helpers\OrganizerHelper::error(400);
-		}
+        if (!$participationID = Helpers\Input::getID() or !$bookingID = Helper::getBookingID($participationID)) {
+            Helpers\OrganizerHelper::error(400);
+        }
 
-		if (!Helpers\Can::manage('booking', $bookingID))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+        if (!Helpers\Can::manage('booking', $bookingID)) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * Method to get a single record.
-	 *
-	 * @param   int  $pk  The id of the primary key.
-	 *
-	 * @return mixed    Object on success, false on failure.
-	 */
-	public function getItem($pk = 0)
-	{
-		$this->item           = parent::getItem($pk);
-		$this->item->referrer = Factory::getSession()->get('organizer.participation.referrer');
+    /**
+     * Method to get a single record.
+     *
+     * @param int $pk The id of the primary key.
+     *
+     * @return mixed    Object on success, false on failure.
+     */
+    public function getItem($pk = 0)
+    {
+        $this->item           = parent::getItem($pk);
+        $this->item->referrer = Factory::getSession()->get('organizer.participation.referrer');
 
-		return $this->item;
-	}
+        return $this->item;
+    }
 
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Table  A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = []): Table
-	{
-		return new Table();
-	}
+    /**
+     * Method to get a table object, load it if necessary.
+     *
+     * @param string $name    The table name. Optional.
+     * @param string $prefix  The class prefix. Optional.
+     * @param array  $options Configuration array for model. Optional.
+     *
+     * @return Table  A Table object
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Table
+    {
+        return new Table();
+    }
 }

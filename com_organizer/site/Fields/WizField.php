@@ -17,12 +17,11 @@ use Joomla\CMS\Form\Field\EditorField;
  */
 class WizField extends EditorField
 {
-	use Translated;
+    use Translated;
 
-	/**
-	 * The form field type.
-	 *
-	 * @var    string
-	 */
-	public $type = 'Wiz';
+    /**
+     * The form field type.
+     * @var    string
+     */
+    public $type = 'Wiz';
 }

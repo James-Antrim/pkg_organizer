@@ -15,27 +15,25 @@ namespace Organizer\Tables;
  */
 class Frequencies extends BaseTable
 {
-	/**
-	 * The resource's German name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
+    /**
+     * The resource's German name.
+     * VARCHAR(150) NOT NULL
+     * @var string
+     */
+    public $name_de;
 
-	/**
-	 * The resource's English name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
+    /**
+     * The resource's English name.
+     * VARCHAR(150) NOT NULL
+     * @var string
+     */
+    public $name_en;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_frequencies');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_frequencies');
+    }
 }

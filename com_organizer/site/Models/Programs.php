@@ -20,64 +20,60 @@ use Organizer\Helpers;
  */
 class Programs extends ListModel
 {
-	use Activated;
+    use Activated;
 
-	protected $filter_fields = ['accredited', 'degreeID', 'frequencyID', 'organizationID'];
+    protected $filter_fields = ['accredited', 'degreeID', 'frequencyID', 'organizationID'];
 
-	/**
-	 * @inheritDoc
-	 */
-	public function filterFilterForm(Form $form)
-	{
-		parent::filterFilterForm($form);
+    /**
+     * @inheritDoc
+     */
+    public function filterFilterForm(Form $form)
+    {
+        parent::filterFilterForm($form);
 
-		if ($this->adminContext)
-		{
-			if (count(Helpers\Can::documentTheseOrganizations()) === 1)
-			{
-				$form->removeField('organizationID', 'filter');
-				unset($this->filter_fields['organizationID']);
-			}
-		}
+        if ($this->adminContext) {
+            if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
+                $form->removeField('organizationID', 'filter');
+                unset($this->filter_fields['organizationID']);
+            }
+        }
 
-	}
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function getListQuery(): JDatabaseQuery
-	{
-		/* @var QueryMySQLi $query */
-		$query = Helpers\Programs::getQuery();
+    /**
+     * @inheritDoc
+     */
+    protected function getListQuery(): JDatabaseQuery
+    {
+        /* @var QueryMySQLi $query */
+        $query = Helpers\Programs::getQuery();
 
-		$this->setActiveFilter($query, 'p');
-		$this->setOrganizationFilter($query, 'program', 'p');
+        $this->setActiveFilter($query, 'p');
+        $this->setOrganizationFilter($query, 'program', 'p');
 
-		$searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
-		$this->setSearchFilter($query, $searchColumns);
+        $searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
+        $this->setSearchFilter($query, $searchColumns);
 
-		$this->setValueFilters($query, ['degreeID', 'frequencyID', 'accredited']);
+        $this->setValueFilters($query, ['degreeID', 'frequencyID', 'accredited']);
 
-		$this->setOrdering($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function populateState($ordering = null, $direction = null)
-	{
-		parent::populateState($ordering, $direction);
+    /**
+     * @inheritDoc
+     */
+    protected function populateState($ordering = null, $direction = null)
+    {
+        parent::populateState($ordering, $direction);
 
-		if ($this->adminContext)
-		{
-			$authorized = Helpers\Can::documentTheseOrganizations();
-			if (count($authorized) === 1)
-			{
-				$this->state->set('filter.organizationID', $authorized[0]);
-			}
-		}
+        if ($this->adminContext) {
+            $authorized = Helpers\Can::documentTheseOrganizations();
+            if (count($authorized) === 1) {
+                $this->state->set('filter.organizationID', $authorized[0]);
+            }
+        }
 
-	}
+    }
 }

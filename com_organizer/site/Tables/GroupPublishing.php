@@ -15,35 +15,32 @@ namespace Organizer\Tables;
  */
 class GroupPublishing extends BaseTable
 {
-	/**
-	 * The id of the group entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $groupID;
+    /**
+     * The id of the group entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $groupID;
 
-	/**
-	 * The publishing status of the group for the term.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
-	 *
-	 * @var bool
-	 */
-	public $published;
+    /**
+     * The publishing status of the group for the term.
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 1
+     * @var bool
+     */
+    public $published;
 
-	/**
-	 * The id of the term entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $termID;
+    /**
+     * The id of the term entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $termID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_group_publishing');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_group_publishing');
+    }
 }

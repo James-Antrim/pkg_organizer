@@ -18,200 +18,191 @@ use Organizer\Tables;
  */
 class Terms extends ResourceHelper implements Selectable
 {
-	use Numbered;
+    use Numbered;
 
-	/**
-	 * Gets the id of the term whose dates encompass the current date
-	 *
-	 * @param   string  $date  the reference date
-	 *
-	 * @return int the id of the term for the dates used on success, otherwise 0
-	 */
-	public static function getCurrentID(string $date = ''): int
-	{
-		$date  = ($date and strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
-		$query = Database::getQuery();
-		$query->select('id')
-			->from('#__organizer_terms')
-			->where("'$date' BETWEEN startDate and endDate");
-		Database::setQuery($query);
+    /**
+     * Gets the id of the term whose dates encompass the current date
+     *
+     * @param string $date the reference date
+     *
+     * @return int the id of the term for the dates used on success, otherwise 0
+     */
+    public static function getCurrentID(string $date = ''): int
+    {
+        $date  = ($date and strtotime($date)) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
+        $query = Database::getQuery();
+        $query->select('id')
+            ->from('#__organizer_terms')
+            ->where("'$date' BETWEEN startDate and endDate");
+        Database::setQuery($query);
 
-		return Database::loadInt();
-	}
+        return Database::loadInt();
+    }
 
-	/**
-	 * Checks for the term end date for a given term id
-	 *
-	 * @param   int  $termID  the term's id
-	 *
-	 * @return string|null  string the end date of the term could be resolved, otherwise null
-	 */
-	public static function getEndDate(int $termID): ?string
-	{
-		$table = new Tables\Terms();
+    /**
+     * Checks for the term end date for a given term id
+     *
+     * @param int $termID the term's id
+     *
+     * @return string|null  string the end date of the term could be resolved, otherwise null
+     */
+    public static function getEndDate(int $termID): ?string
+    {
+        $table = new Tables\Terms();
 
-		return $table->load($termID) ? $table->endDate : null;
-	}
+        return $table->load($termID) ? $table->endDate : null;
+    }
 
-	/**
-	 * Checks for the term entry in the database, creating it as necessary.
-	 *
-	 * @param   array  $data  the term's data
-	 *
-	 * @return int|null  int the id if the room could be resolved/added, otherwise null
-	 */
-	public static function getID(array $data): ?int
-	{
-		if (empty($data))
-		{
-			return null;
-		}
+    /**
+     * Checks for the term entry in the database, creating it as necessary.
+     *
+     * @param array $data the term's data
+     *
+     * @return int|null  int the id if the room could be resolved/added, otherwise null
+     */
+    public static function getID(array $data): ?int
+    {
+        if (empty($data)) {
+            return null;
+        }
 
-		$table        = new Tables\Terms();
-		$loadCriteria = ['startDate' => $data['startDate'], 'endDate' => $data['endDate']];
+        $table        = new Tables\Terms();
+        $loadCriteria = ['startDate' => $data['startDate'], 'endDate' => $data['endDate']];
 
-		if ($table->load($loadCriteria))
-		{
-			return $table->id;
-		}
+        if ($table->load($loadCriteria)) {
+            return $table->id;
+        }
 
-		return $table->save($data) ? $table->id : null;
-	}
+        return $table->save($data) ? $table->id : null;
+    }
 
-	/**
-	 * Checks for the term entry in the database, creating it as necessary.
-	 *
-	 * @param   bool  $filter  if true only current and future terms will be displayed
-	 *
-	 * @return int[]  the term ids
-	 */
-	public static function getIDs(bool $filter = false): array
-	{
-		$ids = [];
+    /**
+     * Checks for the term entry in the database, creating it as necessary.
+     *
+     * @param bool $filter if true only current and future terms will be displayed
+     *
+     * @return int[]  the term ids
+     */
+    public static function getIDs(bool $filter = false): array
+    {
+        $ids = [];
 
-		foreach (self::getResources($filter) as $term)
-		{
-			$ids[] = (int) $term['id'];
-		}
+        foreach (self::getResources($filter) as $term) {
+            $ids[] = (int) $term['id'];
+        }
 
-		return $ids;
-	}
+        return $ids;
+    }
 
-	/**
-	 * Retrieves the ID of the term occurring immediately after the reference term.
-	 *
-	 * @param   int  $currentID  the id of the reference term
-	 *
-	 * @return int the id of the subsequent term if successful, otherwise 0
-	 */
-	public static function getNextID(int $currentID = 0): int
-	{
-		if (empty($currentID))
-		{
-			$currentID = self::getCurrentID();
-		}
+    /**
+     * Retrieves the ID of the term occurring immediately after the reference term.
+     *
+     * @param int $currentID the id of the reference term
+     *
+     * @return int the id of the subsequent term if successful, otherwise 0
+     */
+    public static function getNextID(int $currentID = 0): int
+    {
+        if (empty($currentID)) {
+            $currentID = self::getCurrentID();
+        }
 
-		$currentEndDate = self::getEndDate($currentID);
-		$query          = Database::getQuery(true);
-		$query->select('id')
-			->from('#__organizer_terms')
-			->where("startDate > '$currentEndDate'")
-			->order('startDate');
-		Database::setQuery($query);
+        $currentEndDate = self::getEndDate($currentID);
+        $query          = Database::getQuery(true);
+        $query->select('id')
+            ->from('#__organizer_terms')
+            ->where("startDate > '$currentEndDate'")
+            ->order('startDate');
+        Database::setQuery($query);
 
-		return Database::loadInt();
-	}
+        return Database::loadInt();
+    }
 
-	/**
-	 * @inheritDoc
-	 *
-	 * @param   bool  $showDates  if true the start and end date will be displayed as part of the name
-	 * @param   bool  $filter     if true only current and future terms will be displayed
-	 */
-	public static function getOptions(bool $showDates = false, bool $filter = false): array
-	{
-		$tag     = Languages::getTag();
-		$options = [];
+    /**
+     * @inheritDoc
+     *
+     * @param bool $showDates if true the start and end date will be displayed as part of the name
+     * @param bool $filter    if true only current and future terms will be displayed
+     */
+    public static function getOptions(bool $showDates = false, bool $filter = false): array
+    {
+        $tag     = Languages::getTag();
+        $options = [];
 
-		foreach (Terms::getResources($filter) as $term)
-		{
-			$name = $term["name_$tag"];
+        foreach (Terms::getResources($filter) as $term) {
+            $name = $term["name_$tag"];
 
-			if ($showDates)
-			{
-				$startDate = Dates::formatDate($term['startDate']);
-				$endDate   = Dates::formatDate($term['endDate']);
-				$name      .= " ($startDate - $endDate)";
-			}
+            if ($showDates) {
+                $startDate = Dates::formatDate($term['startDate']);
+                $endDate   = Dates::formatDate($term['endDate']);
+                $name      .= " ($startDate - $endDate)";
+            }
 
-			$options[] = HTML::_('select.option', $term['id'], $name);
-		}
+            $options[] = HTML::_('select.option', $term['id'], $name);
+        }
 
-		return $options;
-	}
+        return $options;
+    }
 
-	/**
-	 * Retrieves the ID of the term occurring immediately after the reference term.
-	 *
-	 * @param   int  $currentID  the id of the reference term
-	 *
-	 * @return int the id of the subsequent term if successful, otherwise 0
-	 */
-	public static function getPreviousID(int $currentID = 0): int
-	{
-		if (empty($currentID))
-		{
-			$currentID = self::getCurrentID();
-		}
+    /**
+     * Retrieves the ID of the term occurring immediately after the reference term.
+     *
+     * @param int $currentID the id of the reference term
+     *
+     * @return int the id of the subsequent term if successful, otherwise 0
+     */
+    public static function getPreviousID(int $currentID = 0): int
+    {
+        if (empty($currentID)) {
+            $currentID = self::getCurrentID();
+        }
 
-		$currentStartDate = self::getStartDate($currentID);
-		$query            = Database::getQuery(true);
-		$query->select('id')
-			->from('#__organizer_terms')
-			->where("endDate < '$currentStartDate'")
-			->order('endDate DESC');
-		Database::setQuery($query);
+        $currentStartDate = self::getStartDate($currentID);
+        $query            = Database::getQuery(true);
+        $query->select('id')
+            ->from('#__organizer_terms')
+            ->where("endDate < '$currentStartDate'")
+            ->order('endDate DESC');
+        Database::setQuery($query);
 
-		return Database::loadInt();
-	}
+        return Database::loadInt();
+    }
 
-	/**
-	 * @inheritDoc
-	 *
-	 * @param   bool  $filter
-	 */
-	public static function getResources(bool $filter = false): array
-	{
-		$query = Database::getQuery();
-		$query->select('DISTINCT term.*')->from('#__organizer_terms AS term')->order('startDate');
+    /**
+     * @inheritDoc
+     *
+     * @param bool $filter
+     */
+    public static function getResources(bool $filter = false): array
+    {
+        $query = Database::getQuery();
+        $query->select('DISTINCT term.*')->from('#__organizer_terms AS term')->order('startDate');
 
-		if ($view = Input::getView() and $view === 'Schedules')
-		{
-			$query->innerJoin('#__organizer_schedules AS s ON s.termID = term.id');
-		}
+        if ($view = Input::getView() and $view === 'Schedules') {
+            $query->innerJoin('#__organizer_schedules AS s ON s.termID = term.id');
+        }
 
-		if ($filter)
-		{
-			$today = date('Y-m-d');
-			$query->where("term.endDate > '$today'");
-		}
+        if ($filter) {
+            $today = date('Y-m-d');
+            $query->where("term.endDate > '$today'");
+        }
 
-		Database::setQuery($query);
+        Database::setQuery($query);
 
-		return Database::loadAssocList('id');
-	}
+        return Database::loadAssocList('id');
+    }
 
-	/**
-	 * Checks for the term start date for a given term id
-	 *
-	 * @param   int  $termID  the term's id
-	 *
-	 * @return string|null  string the end date of the term could be resolved, otherwise null
-	 */
-	public static function getStartDate(int $termID): ?string
-	{
-		$table = new Tables\Terms();
+    /**
+     * Checks for the term start date for a given term id
+     *
+     * @param int $termID the term's id
+     *
+     * @return string|null  string the end date of the term could be resolved, otherwise null
+     */
+    public static function getStartDate(int $termID): ?string
+    {
+        $table = new Tables\Terms();
 
-		return $table->load($termID) ? $table->startDate : null;
-	}
+        return $table->load($termID) ? $table->startDate : null;
+    }
 }

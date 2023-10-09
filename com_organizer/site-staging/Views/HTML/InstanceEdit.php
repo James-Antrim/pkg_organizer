@@ -18,54 +18,49 @@ use Organizer\Helpers;
  */
 class InstanceEdit extends EditView
 {
-	protected $layout = 'instance-wrapper';
+    protected $layout = 'instance-wrapper';
 
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		//$appointment = Helpers\Input::getCMD('layout') === 'appointment';
+    /**
+     * Method to generate buttons for user interaction
+     * @return void
+     */
+    protected function addToolBar()
+    {
+        //$appointment = Helpers\Input::getCMD('layout') === 'appointment';
 
-		if ($this->item->id)
-		{
-			$cancel = 'ORGANIZER_CLOSE';
-			$save   = 'ORGANIZER_SAVE';
-			$title  = 'ORGANIZER_INSTANCE_EDIT';
-		}
-		else
-		{
-			$cancel = 'ORGANIZER_CANCEL';
-			$save   = 'ORGANIZER_CREATE';
-			$title  = 'ORGANIZER_INSTANCE_NEW';
-		}
+        if ($this->item->id) {
+            $cancel = 'ORGANIZER_CLOSE';
+            $save   = 'ORGANIZER_SAVE';
+            $title  = 'ORGANIZER_INSTANCE_EDIT';
+        } else {
+            $cancel = 'ORGANIZER_CANCEL';
+            $save   = 'ORGANIZER_CREATE';
+            $title  = 'ORGANIZER_INSTANCE_NEW';
+        }
 
-		$this->setTitle($title);
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'instances.save', false);
+        $this->setTitle($title);
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'instances.save', false);
 
-		$layout  = Helpers\Input::getCMD('layout');
-		$layouts = ['appointment', 'simple'];
-		$layout  = in_array($layout, $layouts) ? $layout : 'appointment';
+        $layout  = Helpers\Input::getCMD('layout');
+        $layouts = ['appointment', 'simple'];
+        $layout  = in_array($layout, $layouts) ? $layout : 'appointment';
 
-		// One less button for the people Ralph wants to present as mentally impaired.
-		if ($layout !== 'appointment')
-		{
-			$toolbar->appendButton('Standard', 'reset', Helpers\Languages::_('ORGANIZER_RESET'), 'instances.reset', false);
-		}
+        // One less button for the people Ralph wants to present as mentally impaired.
+        if ($layout !== 'appointment') {
+            $toolbar->appendButton('Standard', 'reset', Helpers\Languages::_('ORGANIZER_RESET'), 'instances.reset', false);
+        }
 
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'instances.cancel', false);
-	}
+        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'instances.cancel', false);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function modifyDocument()
-	{
-		parent::modifyDocument();
+    /**
+     * @inheritDoc
+     */
+    protected function modifyDocument()
+    {
+        parent::modifyDocument();
 
-		Helpers\HTML::_('formbehavior.chosen', 'select');
-	}
+        Helpers\HTML::_('formbehavior.chosen', 'select');
+    }
 }

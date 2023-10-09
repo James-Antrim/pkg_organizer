@@ -12,11 +12,11 @@
 $list = $this->filterForm->getGroup('list');
 ?>
 <?php if ($list) : ?>
-	<?php foreach ($list as $fieldName => $field) : ?>
-		<?php if ($field->input): ?>
+    <?php foreach ($list as $fieldName => $field) : ?>
+        <?php if ($field->input): ?>
             <div class="js-stools-field-list <?php echo $field->getType(); ?>">
-				<?php echo $field->input; ?>
+                <?php echo $field->input; ?>
             </div>
-		<?php endif; ?>
-	<?php endforeach; ?>
+        <?php endif; ?>
+    <?php endforeach; ?>
 <?php endif; ?>

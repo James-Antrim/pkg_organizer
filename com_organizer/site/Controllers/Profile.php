@@ -20,17 +20,16 @@ use Organizer\Models;
  */
 class Profile extends Controller
 {
-	/**
-	 * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
-	 *
-	 * @return void
-	 */
-	public function save()
-	{
-		$model = new Models\Profile();
-		$model->save();
+    /**
+     * Creates a new booking element for a given instance and redirects to the corresponding instance participants view.
+     * @return void
+     */
+    public function save()
+    {
+        $model = new Models\Profile();
+        $model->save();
 
-		$url = Helpers\Routing::getRedirectBase() . "&view=profile";
-		$this->setRedirect(Route::_($url, false));
-	}
+        $url = Helpers\Routing::getRedirectBase() . "&view=profile";
+        $this->setRedirect(Route::_($url, false));
+    }
 }

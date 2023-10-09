@@ -19,43 +19,38 @@ use Organizer\Models\Participant;
  */
 class Participants extends Controller
 {
-	protected $listView = 'participants';
+    protected $listView = 'participants';
 
-	protected $resource = 'participant';
+    protected $resource = 'participant';
 
-	/**
-	 * Attempts to automatically merge entries according to criteria for unique identification.
-	 *
-	 * @return void
-	 */
-	public function automaticMerge()
-	{
-		$model = new Participant();
-		$model->automaticMerge();
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=$this->listView";
-		$this->setRedirect($url);
-	}
+    /**
+     * Attempts to automatically merge entries according to criteria for unique identification.
+     * @return void
+     */
+    public function automaticMerge()
+    {
+        $model = new Participant();
+        $model->automaticMerge();
+        $url = Helpers\Routing::getRedirectBase();
+        $url .= "&view=$this->listView";
+        $this->setRedirect($url);
+    }
 
-	/**
-	 * Save user information from form and if course id defined sign in or out of course
-	 * then redirect to course list view
-	 *
-	 * @return void
-	 */
-	public function save()
-	{
-		$model = new Participant();
+    /**
+     * Save user information from form and if course id defined sign in or out of course
+     * then redirect to course list view
+     * @return void
+     */
+    public function save()
+    {
+        $model = new Participant();
 
-		if ($model->save())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
+        if ($model->save()) {
+            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+        } else {
+            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+        }
 
-		$this->setRedirect(Helpers\Input::getString('referrer'));
-	}
+        $this->setRedirect(Helpers\Input::getString('referrer'));
+    }
 }

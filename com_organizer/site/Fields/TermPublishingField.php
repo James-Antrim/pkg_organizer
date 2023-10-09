@@ -20,67 +20,63 @@ use Organizer\Helpers;
  */
 class TermPublishingField extends FormField
 {
-	use Translated;
+    use Translated;
 
-	/**
-	 * @var  string
-	 */
-	protected $type = 'TermPublishing';
+    /**
+     * @var  string
+     */
+    protected $type = 'TermPublishing';
 
-	/**
-	 * Returns a select box where resource attributes can be selected
-	 *
-	 * @return string  the HTML select box
-	 */
-	protected function getInput(): string
-	{
-		$input      = '';
-		$nameColumn = 'name_' . Helpers\Languages::getTag();
-		$today      = date('Y-m-d');
-		$container  = '<div class="publishing-container">XXXX</div>';
+    /**
+     * Returns a select box where resource attributes can be selected
+     * @return string  the HTML select box
+     */
+    protected function getInput(): string
+    {
+        $input      = '';
+        $nameColumn = 'name_' . Helpers\Languages::getTag();
+        $today      = date('Y-m-d');
+        $container  = '<div class="publishing-container">XXXX</div>';
 
-		$no      = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_NO'), 'value' => 0];
-		$yes     = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_YES'), 'value' => 1];
-		$options = [$yes, $no];
+        $no      = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_NO'), 'value' => 0];
+        $yes     = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_YES'), 'value' => 1];
+        $options = [$yes, $no];
 
-		$values = [];
-		if ($groupID = Helpers\Input::getID())
-		{
-			$query = Database::getQuery();
-			$query->select('termID, published')->from('#__organizer_group_publishing')->where("groupID = $groupID");
-			Database::setQuery($query);
+        $values = [];
+        if ($groupID = Helpers\Input::getID()) {
+            $query = Database::getQuery();
+            $query->select('termID, published')->from('#__organizer_group_publishing')->where("groupID = $groupID");
+            Database::setQuery($query);
 
-			$values = Database::loadAssocList('termID');
-		}
+            $values = Database::loadAssocList('termID');
+        }
 
-		foreach (Helpers\Terms::getResources() as $term)
-		{
-			if ($term['endDate'] < $today)
-			{
-				continue;
-			}
+        foreach (Helpers\Terms::getResources() as $term) {
+            if ($term['endDate'] < $today) {
+                continue;
+            }
 
-			$subFieldID   = $this->id . "_{$term['id']}";
-			$subFieldName = $this->name . "[{$term['id']}]";
-			$value        = empty($values[$term['id']]) ? 1 : $values[$term['id']]['published'];
+            $subFieldID   = $this->id . "_{$term['id']}";
+            $subFieldName = $this->name . "[{$term['id']}]";
+            $value        = empty($values[$term['id']]) ? 1 : $values[$term['id']]['published'];
 
-			$input .= '<div class="term-container">';
-			$input .= "<div class=\"term-label\"><label for=\"$subFieldName\">$term[$nameColumn]</label></div>";
-			$input .= '<div class="term-input">';
-			$input .= Helpers\HTML::_(
-				'select.genericlist',
-				$options,
-				$subFieldName,
-				null,
-				'value',
-				'text',
-				$value,
-				$subFieldID
-			);
-			$input .= '</div>';
-			$input .= '</div>';
-		}
+            $input .= '<div class="term-container">';
+            $input .= "<div class=\"term-label\"><label for=\"$subFieldName\">$term[$nameColumn]</label></div>";
+            $input .= '<div class="term-input">';
+            $input .= Helpers\HTML::_(
+                'select.genericlist',
+                $options,
+                $subFieldName,
+                null,
+                'value',
+                'text',
+                $value,
+                $subFieldID
+            );
+            $input .= '</div>';
+            $input .= '</div>';
+        }
 
-		return $input ? str_replace('XXXX', $input, $container) : $input;
-	}
+        return $input ? str_replace('XXXX', $input, $container) : $input;
+    }
 }

@@ -19,62 +19,58 @@ use Organizer\Tables;
  */
 class ParticipantEdit extends EditModel
 {
-	private $participantID;
+    private $participantID;
 
-	/**
-	 * Checks access to edit the resource.
-	 *
-	 * @return void
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::edit('participant', (int) $this->participantID))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * Checks access to edit the resource.
+     * @return void
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::edit('participant', (int) $this->participantID)) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getItem($pk = 0)
-	{
-		$this->participantID = $pk ?: Helpers\Input::getSelectedID(Helpers\Users::getID());
+    /**
+     * @inheritDoc
+     */
+    public function getItem($pk = 0)
+    {
+        $this->participantID = $pk ?: Helpers\Input::getSelectedID(Helpers\Users::getID());
 
-		$this->authorize();
+        $this->authorize();
 
-		// Prevents duplicate execution from getForm and getItem
-		if (isset($this->item->id) and ($this->item->id === $pk))
-		{
-			return $this->item;
-		}
+        // Prevents duplicate execution from getForm and getItem
+        if (isset($this->item->id) and ($this->item->id === $pk)) {
+            return $this->item;
+        }
 
-		// I assume I skipped parent because of performed access checks.
-		$this->item = AdminModel::getItem($this->participantID);
+        // I assume I skipped parent because of performed access checks.
+        $this->item = AdminModel::getItem($this->participantID);
 
-		/** @noinspection PhpUndefinedFieldInspection */
-		$this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+        /** @noinspection PhpUndefinedFieldInspection */
+        $this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
 
-		// New participants need the user id as the participant id
-		/** @noinspection PhpPossiblePolymorphicInvocationInspection */
-		$this->item->id = $this->item->id ?: $this->participantID;
+        // New participants need the user id as the participant id
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+        $this->item->id = $this->item->id ?: $this->participantID;
 
-		return $this->item;
-	}
+        return $this->item;
+    }
 
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Participants A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Participants
-	{
-		return new Tables\Participants();
-	}
+    /**
+     * Method to get a table object, load it if necessary.
+     *
+     * @param string $name    The table name. Optional.
+     * @param string $prefix  The class prefix. Optional.
+     * @param array  $options Configuration array for model. Optional.
+     *
+     * @return Tables\Participants A Table object
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Tables\Participants
+    {
+        return new Tables\Participants();
+    }
 }

@@ -18,30 +18,27 @@ use stdClass;
  */
 class MergeValuesField extends OptionsField
 {
-	use Mergeable;
+    use Mergeable;
 
-	/**
-	 * @var  string
-	 */
-	protected $type = 'MergeValues';
+    /**
+     * @var  string
+     */
+    protected $type = 'MergeValues';
 
-	/**
-	 * Returns a select box where resource attributes can be selected
-	 *
-	 * @return stdClass[] the options for the select box
-	 */
-	protected function getOptions(): array
-	{
-		if (!$this->validate())
-		{
-			return [];
-		}
+    /**
+     * Returns a select box where resource attributes can be selected
+     * @return stdClass[] the options for the select box
+     */
+    protected function getOptions(): array
+    {
+        if (!$this->validate()) {
+            return [];
+        }
 
-		if (!$values = $this->getValues())
-		{
-			return [Helpers\HTML::_('select.option', '-1', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
-		}
+        if (!$values = $this->getValues()) {
+            return [Helpers\HTML::_('select.option', '-1', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
+        }
 
-		return $this->createOptions($values);
-	}
+        return $this->createOptions($values);
+    }
 }

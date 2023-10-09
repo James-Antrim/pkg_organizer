@@ -17,38 +17,37 @@ use Organizer\Adapters\Database;
  */
 class Methods extends ResourceHelper implements Selectable
 {
-	/**
-	 * Code constants
-	 */
-	public const FINALCODE = 'KLA';
+    /**
+     * Code constants
+     */
+    public const FINALCODE = 'KLA';
 
-	/**
-	 * @inheritDoc
-	 */
-	public static function getOptions(): array
-	{
-		$options = [];
-		foreach (self::getResources() as $method)
-		{
-			$options[] = HTML::_('select.option', $method['id'], $method['name']);
-		}
+    /**
+     * @inheritDoc
+     */
+    public static function getOptions(): array
+    {
+        $options = [];
+        foreach (self::getResources() as $method) {
+            $options[] = HTML::_('select.option', $method['id'], $method['name']);
+        }
 
-		return $options;
-	}
+        return $options;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public static function getResources(): array
-	{
-		$query = Database::getQuery();
-		$tag   = Languages::getTag();
-		$query->select("DISTINCT m.*, m.name_$tag AS name")
-			->from('#__organizer_methods AS m')
-			->innerJoin('#__organizer_instances AS i ON i.methodID = m.id')
-			->order('name');
-		Database::setQuery($query);
+    /**
+     * @inheritDoc
+     */
+    public static function getResources(): array
+    {
+        $query = Database::getQuery();
+        $tag   = Languages::getTag();
+        $query->select("DISTINCT m.*, m.name_$tag AS name")
+            ->from('#__organizer_methods AS m')
+            ->innerJoin('#__organizer_instances AS i ON i.methodID = m.id')
+            ->order('name');
+        Database::setQuery($query);
 
-		return Database::loadAssocList('id');
-	}
+        return Database::loadAssocList('id');
+    }
 }

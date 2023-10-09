@@ -18,47 +18,42 @@ use Organizer\Helpers;
  */
 class DateField extends FormField
 {
-	use Translated;
+    use Translated;
 
-	/**
-	 * The form field type.
-	 *
-	 * @var    string
-	 */
-	protected $type = 'Date';
+    /**
+     * The form field type.
+     * @var    string
+     */
+    protected $type = 'Date';
 
-	/**
-	 * Method to get the field input markup.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput(): string
-	{
-		$empty    = $this->getAttribute('empty', 'true');
-		$onchange = $this->getAttribute('onchange', '');
+    /**
+     * Method to get the field input markup.
+     * @return  string  The field input markup.
+     */
+    protected function getInput(): string
+    {
+        $empty    = $this->getAttribute('empty', 'true');
+        $onchange = $this->getAttribute('onchange', '');
 
-		if ($this->value)
-		{
-			$value = Helpers\Dates::standardizeDate($this->value);
-		}
-		else
-		{
-			$value = $empty === 'false' ? Helpers\Dates::standardizeDate() : '';
-		}
+        if ($this->value) {
+            $value = Helpers\Dates::standardizeDate($this->value);
+        } else {
+            $value = $empty === 'false' ? Helpers\Dates::standardizeDate() : '';
+        }
 
-		$attributes = [
-			$this->autofocus ? 'autofocus' : '',
-			$this->class ? "class=\"$this->class\"" : '',
-			$this->disabled ? 'disabled' : '',
-			"id=\"$this->id\"",
-			"name=\"$this->name\"",
-			$onchange ? "onChange=\"$onchange\"" : '',
-			$this->readonly ? 'readonly' : '',
-			$this->required ? 'required aria-required="true"' : '',
-			'type="date"',
-			'value="' . $value . '"'
-		];
+        $attributes = [
+            $this->autofocus ? 'autofocus' : '',
+            $this->class ? "class=\"$this->class\"" : '',
+            $this->disabled ? 'disabled' : '',
+            "id=\"$this->id\"",
+            "name=\"$this->name\"",
+            $onchange ? "onChange=\"$onchange\"" : '',
+            $this->readonly ? 'readonly' : '',
+            $this->required ? 'required aria-required="true"' : '',
+            'type="date"',
+            'value="' . $value . '"'
+        ];
 
-		return '<input ' . implode(' ', $attributes) . '/>';
-	}
+        return '<input ' . implode(' ', $attributes) . '/>';
+    }
 }

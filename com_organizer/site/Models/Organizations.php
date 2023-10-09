@@ -20,40 +20,39 @@ use Organizer\Helpers;
  */
 class Organizations extends ListModel
 {
-	protected $defaultOrdering = 'shortName';
+    protected $defaultOrdering = 'shortName';
 
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery()
-	{
-		$authorized = Helpers\Can::manageTheseOrganizations();
-		$tag        = Helpers\Languages::getTag();
+    /**
+     * Method to get a list of resources from the database.
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery()
+    {
+        $authorized = Helpers\Can::manageTheseOrganizations();
+        $tag        = Helpers\Languages::getTag();
 
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
-		$query->select("o.id, o.shortName_$tag AS shortName, o.fullName_$tag AS name, a.rules")
-			->from('#__organizer_organizations AS o')
-			->innerJoin('#__assets AS a ON a.id = o.asset_id')
-			->where('o.id IN (' . implode(',', $authorized) . ')');
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
+        $query->select("o.id, o.shortName_$tag AS shortName, o.fullName_$tag AS name, a.rules")
+            ->from('#__organizer_organizations AS o')
+            ->innerJoin('#__assets AS a ON a.id = o.asset_id')
+            ->where('o.id IN (' . implode(',', $authorized) . ')');
 
-		$searchColumns = [
-			'abbreviation_de',
-			'abbreviation_en',
-			'fullName_de',
-			'fullName_en',
-			'name_de',
-			'name_en',
-			'shortName_de',
-			'shortName_en'
-		];
+        $searchColumns = [
+            'abbreviation_de',
+            'abbreviation_en',
+            'fullName_de',
+            'fullName_en',
+            'name_de',
+            'name_en',
+            'shortName_de',
+            'shortName_en'
+        ];
 
-		$this->setSearchFilter($query, $searchColumns);
+        $this->setSearchFilter($query, $searchColumns);
 
-		$this->setOrdering($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 }

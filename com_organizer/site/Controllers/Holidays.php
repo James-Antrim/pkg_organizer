@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Holidays extends Controller
 {
-	protected $listView = 'holidays';
+    protected $listView = 'holidays';
 
-	protected $resource = 'holiday';
+    protected $resource = 'holiday';
 }

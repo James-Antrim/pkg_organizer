@@ -20,53 +20,45 @@ use Organizer\Models;
  */
 class Groups extends Controller
 {
-	use Activated;
+    use Activated;
 
-	protected $listView = 'groups';
+    protected $listView = 'groups';
 
-	protected $resource = 'group';
+    protected $resource = 'group';
 
-	/**
-	 * Makes call to the models's batch function, and redirects to the manager view.
-	 *
-	 * @return void
-	 */
-	public function batch()
-	{
-		$model = new Models\Group();
+    /**
+     * Makes call to the models's batch function, and redirects to the manager view.
+     * @return void
+     */
+    public function batch()
+    {
+        $model = new Models\Group();
 
-		if ($model->batch())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
+        if ($model->batch()) {
+            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+        } else {
+            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+        }
 
-		$url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
-		$this->setRedirect($url);
-	}
+        $url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
+        $this->setRedirect($url);
+    }
 
-	/**
-	 * Sets the publication status for any group / complete term pairing to true
-	 *
-	 * @return void
-	 */
-	public function publishPast()
-	{
-		$group = new Models\Group();
+    /**
+     * Sets the publication status for any group / complete term pairing to true
+     * @return void
+     */
+    public function publishPast()
+    {
+        $group = new Models\Group();
 
-		if ($group->publishPast())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
+        if ($group->publishPast()) {
+            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+        } else {
+            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+        }
 
-		$url = Helpers\Routing::getRedirectBase() . '&view=groups';
-		$this->setRedirect(Route::_($url, false));
-	}
+        $url = Helpers\Routing::getRedirectBase() . '&view=groups';
+        $this->setRedirect(Route::_($url, false));
+    }
 }

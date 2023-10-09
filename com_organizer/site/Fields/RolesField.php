@@ -18,21 +18,20 @@ use stdClass;
  */
 class RolesField extends OptionsField
 {
-	/**
-	 * @var  string
-	 */
-	protected $type = 'Roles';
+    /**
+     * @var  string
+     */
+    protected $type = 'Roles';
 
-	/**
-	 * Returns a select box where stored buildings can be chosen
-	 *
-	 * @return stdClass[]  the available buildings
-	 */
-	protected function getOptions(): array
-	{
-		$defaultOptions = parent::getOptions();
-		$options        = Helpers\Roles::getOptions();
+    /**
+     * Returns a select box where stored buildings can be chosen
+     * @return stdClass[]  the available buildings
+     */
+    protected function getOptions(): array
+    {
+        $defaultOptions = parent::getOptions();
+        $options        = Helpers\Roles::getOptions();
 
-		return array_merge($defaultOptions, $options);
-	}
+        return array_merge($defaultOptions, $options);
+    }
 }

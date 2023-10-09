@@ -20,26 +20,25 @@ use Organizer\Helpers;
  */
 class Colors extends ListModel
 {
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery(): JDatabaseQuery
-	{
-		$tag = Helpers\Languages::getTag();
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
+    /**
+     * Method to get a list of resources from the database.
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery(): JDatabaseQuery
+    {
+        $tag = Helpers\Languages::getTag();
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
 
-		$query->select("id, name_$tag AS name, color")
-			->from('#__organizer_colors');
+        $query->select("id, name_$tag AS name, color")
+            ->from('#__organizer_colors');
 
-		$this->setSearchFilter($query, ['name_de', 'name_en', 'color']);
-		$this->setValueFilters($query, ['color']);
-		$this->setIDFilter($query, 'id', 'filter.name');
+        $this->setSearchFilter($query, ['name_de', 'name_en', 'color']);
+        $this->setValueFilters($query, ['color']);
+        $this->setIDFilter($query, 'id', 'filter.name');
 
-		$this->setOrdering($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 }

@@ -5,7 +5,8 @@
         <field name="id" type="hidden"/>
         <field name="URL" type="Blank" label="URL" maxlength="255"/>
         <field name="alias" type="Blank" label="ALIAS" maxlength="255"/>
-        <field name="contactID" type="User" label="ORGANIZER_CONTACT_PERSON" description="ORGANIZER_CONTACT_PERSON_DESC"/>
+        <field name="contactID" type="User" label="ORGANIZER_CONTACT_PERSON"
+               description="ORGANIZER_CONTACT_PERSON_DESC"/>
         <field name="contactEmail" type="Email" label="ORGANIZER_CONTACT_EMAIL" validate="email"/>
         <field name="active" type="Options" label="ACTIVE" default="1">
             <option value="1">ACTIVE</option>

@@ -15,50 +15,46 @@ namespace Organizer\Tables;
  */
 class Categories extends BaseTable
 {
-	use Activated;
-	use Aliased;
-	use Coded;
-	use Suppressed;
+    use Activated;
+    use Aliased;
+    use Coded;
+    use Suppressed;
 
-	/**
-	 * The resource's German name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
+    /**
+     * The resource's German name.
+     * VARCHAR(150) NOT NULL
+     * @var string
+     */
+    public $name_de;
 
-	/**
-	 * The resource's English name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
+    /**
+     * The resource's English name.
+     * VARCHAR(150) NOT NULL
+     * @var string
+     */
+    public $name_en;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_categories');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_categories');
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function check(): bool
-	{
-		if (empty($this->alias))
-		{
-			$this->alias = null;
-		}
+    /**
+     * @inheritDoc
+     */
+    public function check(): bool
+    {
+        if (empty($this->alias)) {
+            $this->alias = null;
+        }
 
-		if (empty($this->code))
-		{
-			$this->code = null;
-		}
+        if (empty($this->code)) {
+            $this->code = null;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

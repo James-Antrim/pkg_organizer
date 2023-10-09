@@ -17,36 +17,34 @@ use Organizer\Helpers;
  */
 trait Translated
 {
-	/**
-	 * Gets the field's protected type attribute
-	 * @return string
-	 */
-	public function getType(): string
-	{
-		return $this->type;
-	}
+    /**
+     * Gets the field's protected type attribute
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
 
-	/**
-	 * Method to get the data to be passed to the layout for rendering.
-	 *
-	 * @return  array
-	 */
-	protected function getLayoutData(): array
-	{
-		if (!empty($this->element['label']))
-		{
-			$label = $this->element['label'];
-			$label = strpos($label, 'ORGANIZER_') === 0 ? $label : "ORGANIZER_$label";
+    /**
+     * Method to get the data to be passed to the layout for rendering.
+     * @return  array
+     */
+    protected function getLayoutData(): array
+    {
+        if (!empty($this->element['label'])) {
+            $label = $this->element['label'];
+            $label = strpos($label, 'ORGANIZER_') === 0 ? $label : "ORGANIZER_$label";
 
-			$tip = $this->element['description'] ?? "{$label}_DESC";
-			$tip = strpos($tip, 'ORGANIZER_') === 0 ? $tip : "ORGANIZER_$tip";
-			$tip = strpos($tip, '_DESC') === strlen($tip) - 5 ? $tip : "{$tip}_DESC";
+            $tip = $this->element['description'] ?? "{$label}_DESC";
+            $tip = strpos($tip, 'ORGANIZER_') === 0 ? $tip : "ORGANIZER_$tip";
+            $tip = strpos($tip, '_DESC') === strlen($tip) - 5 ? $tip : "{$tip}_DESC";
 
-			$this->element['label'] = Helpers\Languages::_($label);
-			$this->description      = Helpers\Languages::_($tip);
-		}
+            $this->element['label'] = Helpers\Languages::_($label);
+            $this->description      = Helpers\Languages::_($tip);
+        }
 
-		/** @noinspection PhpMultipleClassDeclarationsInspection */
-		return parent::getLayoutData();
-	}
+        /** @noinspection PhpMultipleClassDeclarationsInspection */
+        return parent::getLayoutData();
+    }
 }

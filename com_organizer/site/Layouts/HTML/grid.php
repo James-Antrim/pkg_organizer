@@ -26,90 +26,74 @@ $lastRow    = end($rows);
 
 ?>
 <div id="j-main-container" class="span10">
-	<?php echo Toolbar::getInstance()->render(); ?>
+    <?php echo Toolbar::getInstance()->render(); ?>
     <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
-		<?php require_once 'filters.php'; ?>
+        <?php require_once 'filters.php'; ?>
         <div class="<?php echo $class; ?>" id="instances-grid">
-			<?php
-			foreach ($this->headers as $key => $header)
-			{
-				$class = 'grid-header';
-				$class .= $key === $lastColumn ? ' row-end' : '';
-				echo "<div class=\"$class\">$header</div>";
-			}
-			?>
-			<?php if (count($items)) : ?>
-				<?php foreach ($items as $key => $row) : ?>
-					<?php
-					foreach ($columns as $column)
-					{
-						$empty = false;
-						if (is_array($row[$column]))
-						{
-							$busy  = $row[$column]['busy'];
-							$value = $row[$column]['instances'];
+            <?php
+            foreach ($this->headers as $key => $header) {
+                $class = 'grid-header';
+                $class .= $key === $lastColumn ? ' row-end' : '';
+                echo "<div class=\"$class\">$header</div>";
+            }
+            ?>
+            <?php if (count($items)) : ?>
+                <?php foreach ($items as $key => $row) : ?>
+                    <?php
+                    foreach ($columns as $column) {
+                        $empty = false;
+                        if (is_array($row[$column])) {
+                            $busy  = $row[$column]['busy'];
+                            $value = $row[$column]['instances'];
 
-							if (!$value and !empty($row[$column]['label']))
-							{
-								$empty = true;
-								$value = $row[$column]['label'];
-							}
-						}
-						else
-						{
-							$busy  = false;
-							$value = $row[$column];
-						}
+                            if (!$value and !empty($row[$column]['label'])) {
+                                $empty = true;
+                                $value = $row[$column]['label'];
+                            }
+                        } else {
+                            $busy  = false;
+                            $value = $row[$column];
+                        }
 
-						$class = '';
+                        $class = '';
 
-						if ($column === 'times')
-						{
-							$class .= 'grid-header times';
-						}
-                        elseif ($column === $lastColumn)
-						{
-							$class .= 'row-end';
-						}
+                        if ($column === 'times') {
+                            $class .= 'grid-header times';
+                        } elseif ($column === $lastColumn) {
+                            $class .= 'row-end';
+                        }
 
-						if ($key === $lastRow)
-						{
-							$class .= ' column-end';
-						}
+                        if ($key === $lastRow) {
+                            $class .= ' column-end';
+                        }
 
-						if ($busy)
-						{
-							$class .= ' block-busy';
-						}
+                        if ($busy) {
+                            $class .= ' block-busy';
+                        }
 
-						if (!empty($row[$column]['type']))
-						{
-							$class .= " {$row[$column]['type']}";
+                        if (!empty($row[$column]['type'])) {
+                            $class .= " {$row[$column]['type']}";
 
-							if ($empty)
-							{
-								$class .= " empty";
-							}
-						}
-                        elseif (!empty($row['type']) and $row['type'] === 'break')
-						{
-							$class .= ' break';
-						}
+                            if ($empty) {
+                                $class .= " empty";
+                            }
+                        } elseif (!empty($row['type']) and $row['type'] === 'break') {
+                            $class .= ' break';
+                        }
 
-						$class = trim($class);
+                        $class = trim($class);
 
-						if ($class)
-						{
-							$class = "class=\"$class\"";
-						}
+                        if ($class) {
+                            $class = "class=\"$class\"";
+                        }
 
-						echo "<div $class>$value</div>";
-					}
-					?>
-				<?php endforeach; ?>
-			<?php else: ?>
+                        echo "<div $class>$value</div>";
+                    }
+                    ?>
+                <?php endforeach; ?>
+            <?php else: ?>
                 <div class="empty-result-set"><?php echo $this->empty; ?></div>
-			<?php endif; ?>
+            <?php endif; ?>
         </div>
         <input type="hidden" name="boxchecked" value="0"/>
         <input type="hidden" name="id" value="<?php echo Helpers\Input::getID(); ?>"/>
@@ -117,9 +101,9 @@ $lastRow    = end($rows);
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-		<?php echo Helpers\HTML::_('form.token'); ?>
+        <?php echo Helpers\HTML::_('form.token'); ?>
     </form>
-	<?php echo $this->disclaimer; ?>
+    <?php echo $this->disclaimer; ?>
 </div>
 
 

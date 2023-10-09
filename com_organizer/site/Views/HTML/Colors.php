@@ -17,39 +17,38 @@ use Organizer\Helpers;
  */
 class Colors extends ListView
 {
-	protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'color' => 'value'];
+    protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'color' => 'value'];
 
-	/**
-	 * @inheritdoc
-	 */
-	public function setHeaders()
-	{
-		$direction = $this->state->get('list.direction');
-		$headers   = [
-			'checkbox' => '',
-			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
-			'color'    => Helpers\Languages::_('ORGANIZER_COLOR')
-		];
+    /**
+     * @inheritdoc
+     */
+    public function setHeaders()
+    {
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox' => '',
+            'name' => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
+            'color' => Helpers\Languages::_('ORGANIZER_COLOR')
+        ];
 
-		$this->headers = $headers;
-	}
+        $this->headers = $headers;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function structureItems()
-	{
-		$index           = 0;
-		$link            = 'index.php?option=com_organizer&view=color_edit&id=';
-		$structuredItems = [];
+    /**
+     * @inheritdoc
+     */
+    protected function structureItems()
+    {
+        $index           = 0;
+        $link            = 'index.php?option=com_organizer&view=color_edit&id=';
+        $structuredItems = [];
 
-		foreach ($this->items as $item)
-		{
-			$item->color             = Helpers\Colors::getListDisplay($item->color, $item->id);
-			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-			$index++;
-		}
+        foreach ($this->items as $item) {
+            $item->color             = Helpers\Colors::getListDisplay($item->color, $item->id);
+            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $index++;
+        }
 
-		$this->items = $structuredItems;
-	}
+        $this->items = $structuredItems;
+    }
 }

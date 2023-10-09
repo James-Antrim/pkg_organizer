@@ -10,22 +10,21 @@
 
 use Organizer\Helpers;
 
-if (!$componentTemplate = Helpers\Input::getCMD('tmpl') === 'component')
-{
-	echo $this->title;
+if (!$componentTemplate = Helpers\Input::getCMD('tmpl') === 'component') {
+    echo $this->title;
 }
 ?>
 <div class="resource-item">
     <div class="curriculum">
-		<?php foreach ($this->item['curriculum'] as $pool) : ?>
-			<?php $this->renderPanel($pool); ?>
-		<?php endforeach; ?>
-		<?php if ($componentTemplate): ?>
-			<?php $this->renderLegend(); ?>
-		<?php endif; ?>
-		<?php echo $this->disclaimer; ?>
+        <?php foreach ($this->item['curriculum'] as $pool) : ?>
+            <?php $this->renderPanel($pool); ?>
+        <?php endforeach; ?>
+        <?php if ($componentTemplate): ?>
+            <?php $this->renderLegend(); ?>
+        <?php endif; ?>
+        <?php echo $this->disclaimer; ?>
     </div>
-	<?php if (count($this->fields) and !$componentTemplate) : ?>
-		<?php $this->renderLegend(); ?>
-	<?php endif; ?>
+    <?php if (count($this->fields) and !$componentTemplate) : ?>
+        <?php $this->renderLegend(); ?>
+    <?php endif; ?>
 </div>

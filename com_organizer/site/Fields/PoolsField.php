@@ -18,22 +18,21 @@ use stdClass;
  */
 class PoolsField extends OptionsField
 {
-	/**
-	 * @var  string
-	 */
-	protected $type = 'Pools';
+    /**
+     * @var  string
+     */
+    protected $type = 'Pools';
 
-	/**
-	 * Returns an array of pool options
-	 *
-	 * @return stdClass[]  the pool options
-	 */
-	protected function getOptions(): array
-	{
-		$options = parent::getOptions();
-		$access  = $this->adminContext ? 'document' : '';
-		$pools   = Helpers\Pools::getOptions($access);
+    /**
+     * Returns an array of pool options
+     * @return stdClass[]  the pool options
+     */
+    protected function getOptions(): array
+    {
+        $options = parent::getOptions();
+        $access  = $this->adminContext ? 'document' : '';
+        $pools   = Helpers\Pools::getOptions($access);
 
-		return array_merge($options, $pools);
-	}
+        return array_merge($options, $pools);
+    }
 }

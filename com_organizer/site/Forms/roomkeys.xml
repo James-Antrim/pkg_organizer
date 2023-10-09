@@ -2,7 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();" localized="true"
+        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();"
+               localized="true"
                valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
             <option value="">ALL_CLEANING_GROUPS</option>
             <option value="-1">NO_CLEANING_GROUP</option>

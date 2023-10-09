@@ -14,22 +14,21 @@ use Organizer\Tables\Suppressed as SuppressedTable;
 
 trait Suppressed
 {
-	/**
-	 * Retrieves the suppress attribute of the table.
-	 *
-	 * @param   int  $resourceID
-	 *
-	 * @return bool
-	 */
-	public static function getSuppressed(int $resourceID): bool
-	{
-		$table = self::getTable();
-		if ($table->load($resourceID))
-		{
-			/* @var $table SuppressedTable */
-			return (bool) $table->suppress;
-		}
+    /**
+     * Retrieves the suppress attribute of the table.
+     *
+     * @param int $resourceID
+     *
+     * @return bool
+     */
+    public static function getSuppressed(int $resourceID): bool
+    {
+        $table = self::getTable();
+        if ($table->load($resourceID)) {
+            /* @var $table SuppressedTable */
+            return (bool) $table->suppress;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

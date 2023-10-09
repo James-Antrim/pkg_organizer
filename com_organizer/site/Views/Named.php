@@ -14,26 +14,23 @@ use Organizer\Helpers;
 
 trait Named
 {
-	/**
-	 * The name of the view
-	 *
-	 * @var    string
-	 */
-	protected $_name = null;
+    /**
+     * The name of the view
+     * @var    string
+     */
+    protected $_name = null;
 
-	/**
-	 * Method to get the object name. Original overwrite to avoid Joomla thrown exception. Currently also used for
-	 * non-HTML hierarchy views.
-	 *
-	 * @return  string  The name of the model
-	 */
-	public function getName(): string
-	{
-		if (empty($this->_name))
-		{
-			$this->_name = Helpers\OrganizerHelper::getClass($this);
-		}
+    /**
+     * Method to get the object name. Original overwrite to avoid Joomla thrown exception. Currently also used for
+     * non-HTML hierarchy views.
+     * @return  string  The name of the model
+     */
+    public function getName(): string
+    {
+        if (empty($this->_name)) {
+            $this->_name = Helpers\OrganizerHelper::getClass($this);
+        }
 
-		return $this->_name;
-	}
+        return $this->_name;
+    }
 }

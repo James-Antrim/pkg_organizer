@@ -16,22 +16,19 @@ echo $this->form->renderField('blockID');
 echo $this->form->renderField('startTime');
 echo $this->form->renderField('endTime');
 
-if (Helpers\Input::getBool('advanced', false))
-{
-	echo $this->form->renderFieldset('advanced');
-}
-else
-{
-	echo $this->form->renderField('eventIDs');
-	echo $this->form->renderField('title');
-	echo $this->form->renderField('methodID');
-	echo $this->form->renderField('personID');
-	echo $this->form->renderField('roleID');
-	echo "// Set organizations based on the person's associations, assignments and existing assignments for the unit.<br>";
-	echo '<div class="control-label"></div>';
-	echo '<div class="controls">';
-	echo '<span class="comment"> ' . Helpers\Languages::_('ORGANIZER_INSTANCES_GROUPS_DISPLAY_TEXT') . '</span>';
-	echo '</div>';
-	echo $this->form->renderField('groupIDs');
-	echo $this->form->renderField('roomIDs');
+if (Helpers\Input::getBool('advanced', false)) {
+    echo $this->form->renderFieldset('advanced');
+} else {
+    echo $this->form->renderField('eventIDs');
+    echo $this->form->renderField('title');
+    echo $this->form->renderField('methodID');
+    echo $this->form->renderField('personID');
+    echo $this->form->renderField('roleID');
+    echo "// Set organizations based on the person's associations, assignments and existing assignments for the unit.<br>";
+    echo '<div class="control-label"></div>';
+    echo '<div class="controls">';
+    echo '<span class="comment"> ' . Helpers\Languages::_('ORGANIZER_INSTANCES_GROUPS_DISPLAY_TEXT') . '</span>';
+    echo '</div>';
+    echo $this->form->renderField('groupIDs');
+    echo $this->form->renderField('roomIDs');
 }

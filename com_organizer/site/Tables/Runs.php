@@ -15,51 +15,46 @@ namespace Organizer\Tables;
  */
 class Runs extends BaseTable
 {
-	/**
-	 * The end date of the resource.
-	 * DATE NOT NULL
-	 *
-	 * @var string
-	 */
-	public $endDate;
+    /**
+     * The end date of the resource.
+     * DATE NOT NULL
+     * @var string
+     */
+    public $endDate;
 
-	/**
-	 * The resource's German name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
+    /**
+     * The resource's German name.
+     * VARCHAR(150) NOT NULL
+     * @var string
+     */
+    public $name_de;
 
-	/**
-	 * The resource's English name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
+    /**
+     * The resource's English name.
+     * VARCHAR(150) NOT NULL
+     * @var string
+     */
+    public $name_en;
 
-	/**
-	 * A run object modeled by a JSON string, containing the respective start and end dates of run sections.
-	 * TEXT
-	 *
-	 * @var string
-	 */
-	public $run;
+    /**
+     * A run object modeled by a JSON string, containing the respective start and end dates of run sections.
+     * TEXT
+     * @var string
+     */
+    public $run;
 
-	/**
-	 * The id of the term entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $termID;
+    /**
+     * The id of the term entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $termID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_runs');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_runs');
+    }
 }

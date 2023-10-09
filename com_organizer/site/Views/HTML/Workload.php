@@ -19,35 +19,34 @@ use Organizer\Helpers;
  */
 class Workload extends FormView
 {
-	/**
-	 * Adds a toolbar and title to the view.
-	 *
-	 * @return void  sets context variables
-	 */
-	protected function addToolBar()
-	{
-		$this->setTitle('ORGANIZER_WORKLOAD');
-		$toolbar = Adapters\Toolbar::getInstance();
+    /**
+     * Adds a toolbar and title to the view.
+     * @return void  sets context variables
+     */
+    protected function addToolBar()
+    {
+        $this->setTitle('ORGANIZER_WORKLOAD');
+        $toolbar = Adapters\Toolbar::getInstance();
 
-		if ($this->form->getValue('personID'))//Helpers\Input::getInt('personID'))
-		{
-			$toolbar->appendButton(
-				'NewTab',
-				'file-xls',
-				Helpers\Languages::_('ORGANIZER_DOWNLOAD'),
-				'Workloads.xls',
-				false
-			);
-		}
-	}
+        if ($this->form->getValue('personID'))//Helpers\Input::getInt('personID'))
+        {
+            $toolbar->appendButton(
+                'NewTab',
+                'file-xls',
+                Helpers\Languages::_('ORGANIZER_DOWNLOAD'),
+                'Workloads.xls',
+                false
+            );
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function modifyDocument()
-	{
-		parent::modifyDocument();
+    /**
+     * @inheritDoc
+     */
+    protected function modifyDocument()
+    {
+        parent::modifyDocument();
 
-		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
-	}
+        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
+    }
 }

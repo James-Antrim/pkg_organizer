@@ -19,37 +19,35 @@ use Organizer\Adapters\Queries\QueryMySQLi;
  */
 class Degrees extends ListModel
 {
-	/**
-	 * Constructor to set up the configuration and call the parent constructor
-	 *
-	 * @param   array  $config  the configuration  (default: array)
-	 */
-	public function __construct($config = [])
-	{
-		if (empty($config['filter_fields']))
-		{
-			$config['filter_fields'] = ['name', 'abbreviation', 'code'];
-		}
+    /**
+     * Constructor to set up the configuration and call the parent constructor
+     *
+     * @param array $config the configuration  (default: array)
+     */
+    public function __construct($config = [])
+    {
+        if (empty($config['filter_fields'])) {
+            $config['filter_fields'] = ['name', 'abbreviation', 'code'];
+        }
 
-		parent::__construct($config);
-	}
+        parent::__construct($config);
+    }
 
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery(): JDatabaseQuery
-	{
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
-		$query->select('id, name, abbreviation, code')
-			->from('#__organizer_degrees');
+    /**
+     * Method to get a list of resources from the database.
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery(): JDatabaseQuery
+    {
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
+        $query->select('id, name, abbreviation, code')
+            ->from('#__organizer_degrees');
 
-		$columns = ['name', 'abbreviation', 'code'];
-		$this->setSearchFilter($query, $columns);
-		$this->setOrdering($query);
+        $columns = ['name', 'abbreviation', 'code'];
+        $this->setSearchFilter($query, $columns);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 }

@@ -15,8 +15,8 @@ $topic = Helpers\Input::getCMD('topic', 'toc');
 echo $this->title;
 ?>
 <div id="j-main-container" class="span10">
-	<?php
-	/** @noinspection PhpIncludeInspection */
-	require_once "Help/$topic.php";
-	?>
+    <?php
+    /** @noinspection PhpIncludeInspection */
+    require_once "Help/$topic.php";
+    ?>
 </div>

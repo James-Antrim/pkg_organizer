@@ -20,53 +20,51 @@ use Organizer\Helpers;
  */
 class Holidays extends ListModel
 {
-	private const EXPIRED = 1, NOT_EXPIRED = 0;
+    private const EXPIRED = 1, NOT_EXPIRED = 0;
 
-	protected $defaultOrdering = 'startDate';
+    protected $defaultOrdering = 'startDate';
 
-	protected $filter_fields = ['termID', 'type'];
+    protected $filter_fields = ['termID', 'type'];
 
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery(): JDatabaseQuery
-	{
-		$tag = Helpers\Languages::getTag();
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
-		$query->select("h.*, h.name_$tag as name, t.name_$tag as term")
-			->from('#__organizer_holidays AS h')
-			->innerJoin('#__organizer_terms AS t ON t.startDate <= h.startDate AND t.endDate >= h.endDate');
+    /**
+     * Method to get a list of resources from the database.
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery(): JDatabaseQuery
+    {
+        $tag = Helpers\Languages::getTag();
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
+        $query->select("h.*, h.name_$tag as name, t.name_$tag as term")
+            ->from('#__organizer_holidays AS h')
+            ->innerJoin('#__organizer_terms AS t ON t.startDate <= h.startDate AND t.endDate >= h.endDate');
 
-		$this->setIDFilter($query, 't.id', 'filter.termID');
-		$this->setSearchFilter($query, ['h.name_de', 'h.name_en']);
-		$this->setValueFilters($query, ['type']);
+        $this->setIDFilter($query, 't.id', 'filter.termID');
+        $this->setSearchFilter($query, ['h.name_de', 'h.name_en']);
+        $this->setValueFilters($query, ['type']);
 
-		switch ((int) $this->state->get('filter.status'))
-		{
-			case self::EXPIRED:
-				$query->where('h.endDate < CURDATE()');
-				break;
-			case self::NOT_EXPIRED:
-				$query->where('h.endDate >= CURDATE()');
-				break;
-		}
+        switch ((int) $this->state->get('filter.status')) {
+            case self::EXPIRED:
+                $query->where('h.endDate < CURDATE()');
+                break;
+            case self::NOT_EXPIRED:
+                $query->where('h.endDate >= CURDATE()');
+                break;
+        }
 
-		$this->setOrdering($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function populateState($ordering = null, $direction = null)
-	{
-		parent::populateState($ordering, $direction);
+    /**
+     * @inheritDoc
+     */
+    protected function populateState($ordering = null, $direction = null)
+    {
+        parent::populateState($ordering, $direction);
 
-		$status = (int) $this->state->get('filter.status');
-		$this->setState('filter.status', $status);
-	}
+        $status = (int) $this->state->get('filter.status');
+        $this->setState('filter.status', $status);
+    }
 }

@@ -15,5 +15,5 @@ namespace Organizer\Views\XLS;
  */
 class Rooms extends BaseView
 {
-	// Parent handles everything
+    // Parent handles everything
 }

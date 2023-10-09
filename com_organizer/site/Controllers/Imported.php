@@ -19,73 +19,61 @@ use Organizer\Helpers\OrganizerHelper;
  */
 trait Imported
 {
-	/**
-	 * Makes call to the models's save and importSingle functions, and redirects to the same view.
-	 *
-	 * @return void
-	 */
-	public function applyImport()
-	{
-		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName();
+    /**
+     * Makes call to the models's save and importSingle functions, and redirects to the same view.
+     * @return void
+     */
+    public function applyImport()
+    {
+        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+        $model     = new $modelName();
 
-		if ($resourceID = $model->save() and $model->importSingle($resourceID))
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
+        if ($resourceID = $model->save() and $model->importSingle($resourceID)) {
+            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+        } else {
+            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+        }
 
-		$url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$resourceID";
-		$this->setRedirect($url);
-	}
+        $url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$resourceID";
+        $this->setRedirect($url);
+    }
 
-	/**
-	 * Makes call to the models's import batch function, and redirects to the manager view.
-	 *
-	 * @return void
-	 */
-	public function import()
-	{
-		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName();
+    /**
+     * Makes call to the models's import batch function, and redirects to the manager view.
+     * @return void
+     */
+    public function import()
+    {
+        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+        $model     = new $modelName();
 
-		if ($model->import())
-		{
-			OrganizerHelper::message('ORGANIZER_IMPORT_SUCCESS', 'success');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_IMPORT_FAIL', 'error');
-		}
+        if ($model->import()) {
+            OrganizerHelper::message('ORGANIZER_IMPORT_SUCCESS', 'success');
+        } else {
+            OrganizerHelper::message('ORGANIZER_IMPORT_FAIL', 'error');
+        }
 
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=$this->listView";
-		$this->setRedirect($url);
-	}
+        $url = Helpers\Routing::getRedirectBase();
+        $url .= "&view=$this->listView";
+        $this->setRedirect($url);
+    }
 
-	/**
-	 * Save form data to the database.
-	 *
-	 * @return void
-	 */
-	public function saveImport()
-	{
-		$modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
-		$model     = new $modelName();
-		$url       = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
+    /**
+     * Save form data to the database.
+     * @return void
+     */
+    public function saveImport()
+    {
+        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+        $model     = new $modelName();
+        $url       = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
 
-		if ($resourceID = $model->save() and $model->importSingle($resourceID))
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
-		}
-		else
-		{
-			OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
-		}
+        if ($resourceID = $model->save() and $model->importSingle($resourceID)) {
+            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+        } else {
+            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+        }
 
-		$this->setRedirect(Route::_($url, false));
-	}
+        $this->setRedirect(Route::_($url, false));
+    }
 }

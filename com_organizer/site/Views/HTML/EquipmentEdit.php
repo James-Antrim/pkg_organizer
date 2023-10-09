@@ -15,5 +15,5 @@ namespace Organizer\Views\HTML;
  */
 class EquipmentEdit extends EditView
 {
-	// Everything is taken care of in the inheritance hierarchy.
+    // Everything is taken care of in the inheritance hierarchy.
 }

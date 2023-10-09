@@ -28,7 +28,6 @@ class Persons extends Associated implements Selectable
 
     /**
      * Retrieves person entries from the database
-     *
      * @return stdClass[]  the persons who hold courses for the selected program and pool
      * @todo used by a plugin?
      */
@@ -37,12 +36,9 @@ class Persons extends Associated implements Selectable
         $programID = Input::getInt('programID', -1);
         $poolID    = Input::getInt('poolID', -1);
 
-        if ($poolID > 0)
-        {
+        if ($poolID > 0) {
             $boundarySet = Pools::getRanges($poolID);
-        }
-        else
-        {
+        } else {
             $boundarySet = Programs::getRanges($programID);
         }
 
@@ -53,12 +49,10 @@ class Persons extends Associated implements Selectable
             ->innerJoin('#__organizer_curricula AS c ON c.subjectID = sp.subjectID')
             ->order('p.surname, p.forename');
 
-        if (!empty($boundarySet))
-        {
+        if (!empty($boundarySet)) {
             $where   = '';
             $initial = true;
-            foreach ($boundarySet as $boundaries)
-            {
+            foreach ($boundarySet as $boundaries) {
                 $where   .= $initial ?
                     "((c.lft >= '{$boundaries['lft']}' AND c.rgt <= '{$boundaries['rgt']}')"
                     : " OR (c.lft >= '{$boundaries['lft']}' AND c.rgt <= '{$boundaries['rgt']}')";
@@ -70,13 +64,11 @@ class Persons extends Associated implements Selectable
 
         Database::setQuery($query);
 
-        if (!$persons = Database::loadObjectList())
-        {
+        if (!$persons = Database::loadObjectList()) {
             return [];
         }
 
-        foreach ($persons as $value)
-        {
+        foreach ($persons as $value) {
             $value->name = empty($value->forename) ? $value->surname : $value->surname . ', ' . $value->forename;
         }
 
@@ -86,24 +78,21 @@ class Persons extends Associated implements Selectable
     /**
      * Checks for multiple person entries (roles) for a subject and removes the lesser
      *
-     * @param   array &$list  the list of persons with a role for the subject
+     * @param array &$list the list of persons with a role for the subject
      *
      * @return void  removes duplicate list entries dependent on role
      */
     private static function ensureUnique(array &$list)
     {
         $keysToIds = [];
-        foreach ($list as $key => $item)
-        {
+        foreach ($list as $key => $item) {
             $keysToIds[$key] = $item['id'];
         }
 
         $valueCount = array_count_values($keysToIds);
-        foreach ($list as $key => $item)
-        {
+        foreach ($list as $key => $item) {
             $unset = ($valueCount[$item['id']] > 1 and $item['role'] > 1);
-            if ($unset)
-            {
+            if ($unset) {
                 unset($list[$key]);
             }
         }
@@ -112,16 +101,16 @@ class Persons extends Associated implements Selectable
     /**
      * Retrieves the persons associated with a given subject, optionally filtered by role.
      *
-     * @param   int   $subjectID  the subject's id
-     * @param   int   $role       represents the person's role for the subject
-     * @param   bool  $multiple   whether multiple results are desired
-     * @param   bool  $unique     whether unique results are desired
+     * @param int  $subjectID the subject's id
+     * @param int  $role      represents the person's role for the subject
+     * @param bool $multiple  whether multiple results are desired
+     * @param bool $unique    whether unique results are desired
      *
      * @return array|array[]  an array of person data
      */
     public static function getDataBySubject(
-        int $subjectID,
-        int $role = 0,
+        int  $subjectID,
+        int  $role = 0,
         bool $multiple = false,
         bool $unique = true
     ): array
@@ -134,22 +123,18 @@ class Persons extends Associated implements Selectable
             ->where("sp.subjectID = $subjectID")
             ->order('surname');
 
-        if ($role)
-        {
+        if ($role) {
             $query->where("sp.role = $role");
         }
 
         Database::setQuery($query);
 
-        if ($multiple)
-        {
-            if (!$personList = Database::loadAssocList())
-            {
+        if ($multiple) {
+            if (!$personList = Database::loadAssocList()) {
                 return [];
             }
 
-            if ($unique)
-            {
+            if ($unique) {
                 self::ensureUnique($personList);
             }
 
@@ -162,8 +147,8 @@ class Persons extends Associated implements Selectable
     /**
      * Generates a default person text based upon organizer's internal data
      *
-     * @param   int   $personID      the person's id
-     * @param   bool  $excludeTitle  whether the title should be excluded from the return value
+     * @param int  $personID     the person's id
+     * @param bool $excludeTitle whether the title should be excluded from the return value
      *
      * @return string  the default name of the person
      */
@@ -173,8 +158,7 @@ class Persons extends Associated implements Selectable
         $person->load($personID);
         $return = '';
 
-        if ($person->id)
-        {
+        if ($person->id) {
             $title    = ($person->title and !$excludeTitle) ? "$person->title " : '';
             $forename = $person->forename ? "$person->forename " : '';
             $surname  = $person->surname;
@@ -187,7 +171,7 @@ class Persons extends Associated implements Selectable
     /**
      * Retrieves the person's surnames.
      *
-     * @param   int  $personID  the person's id
+     * @param int $personID the person's id
      *
      * @return string  the default name of the person
      */
@@ -202,7 +186,7 @@ class Persons extends Associated implements Selectable
     /**
      * Gets the organizations with which the person is associated
      *
-     * @param   int  $personID  the person's id
+     * @param int $personID the person's id
      *
      * @return string[] the organizations with which the person is associated id => name
      */
@@ -222,8 +206,8 @@ class Persons extends Associated implements Selectable
     /**
      * Generates a preformatted person text based upon organizer's internal data
      *
-     * @param   int   $personID  the person's id
-     * @param   bool  $short     whether the person's forename should be abbreviated
+     * @param int  $personID the person's id
+     * @param bool $short    whether the person's forename should be abbreviated
      *
      * @return string  the default name of the person
      */
@@ -233,12 +217,10 @@ class Persons extends Associated implements Selectable
         $person->load($personID);
         $return = '';
 
-        if ($person->id)
-        {
+        if ($person->id) {
             $return = $person->surname;
 
-            if ($person->forename)
-            {
+            if ($person->forename) {
                 // Getting the first letter by other means can cause encoding problems with 'interesting' first names.
                 $forename = $short ? mb_substr($person->forename, 0, 1) . '.' : $person->forename;
                 $return   .= empty($forename) ? '' : ", $forename";
@@ -252,14 +234,13 @@ class Persons extends Associated implements Selectable
      * Checks whether the user has an associated person resource by their username, returning the id of the person
      * entry if existent.
      *
-     * @param   int  $userID  the user id if empty the current user is used
+     * @param int $userID the user id if empty the current user is used
      *
      * @return int the id of the person entry if existent, otherwise 0
      */
     public static function getIDByUserID(int $userID = 0): int
     {
-        if (!$user = Users::getUser($userID))
-        {
+        if (!$user = Users::getUser($userID)) {
             return 0;
         }
 
@@ -278,10 +259,8 @@ class Persons extends Associated implements Selectable
     public static function getOptions(): array
     {
         $options = [];
-        foreach (self::getResources() as $person)
-        {
-            if ($person['active'])
-            {
+        foreach (self::getResources() as $person) {
+            if ($person['active']) {
                 $name     = $person['surname'];
                 $forename = trim($person['forename']);
                 $name     .= $forename ? ", $forename" : '';
@@ -299,24 +278,18 @@ class Persons extends Associated implements Selectable
     public static function getResources(): array
     {
         $organizationID = Input::getInt('organizationID');
-        if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization'))
-        {
-            foreach ($organizationIDs as $key => $organizationID)
-            {
-                if (!Can::view('organization', $organizationID))
-                {
+        if ($organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization')) {
+            foreach ($organizationIDs as $key => $organizationID) {
+                if (!Can::view('organization', $organizationID)) {
                     unset($organizationIDs[$key]);
                 }
             }
-        }
-        else
-        {
+        } else {
             $organizationIDs = Can::manageTheseOrganizations();
         }
 
         $userName = '';
-        if ($thisPersonID = self::getIDByUserID())
-        {
+        if ($thisPersonID = self::getIDByUserID()) {
             $userName = Users::getUser()->username;
         }
 
@@ -328,27 +301,23 @@ class Persons extends Associated implements Selectable
 
         $wherray = [];
 
-        if ($thisPersonID)
-        {
+        if ($thisPersonID) {
             $wherray[] = "p.username = '$userName'";
         }
 
-        if (count($organizationIDs))
-        {
+        if (count($organizationIDs)) {
             $query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
 
             $where = 'a.organizationID IN (' . implode(',', $organizationIDs) . ')';
 
-            if ($categoryID = Input::getInt('categoryID'))
-            {
+            if ($categoryID = Input::getInt('categoryID')) {
                 $categoryIDs = [$categoryID];
             }
 
             $categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
             $categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
 
-            if ($categoryIDs and $categoryIDs = implode(',', $categoryIDs))
-            {
+            if ($categoryIDs and $categoryIDs = implode(',', $categoryIDs)) {
                 $query->innerJoin('#__organizer_instance_persons AS ip ON ip.personID = p.id')
                     ->innerJoin('#__organizer_instance_groups AS ig ON ig.assocID = ip.id')
                     ->innerJoin('#__organizer_groups AS g ON g.id = ig.groupID');
@@ -358,15 +327,12 @@ class Persons extends Associated implements Selectable
             }
 
             $wherray[] = $where;
-        }
-        elseif ($organizationID)
-        {
+        } elseif ($organizationID) {
             $query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
             $wherray[] = "(a.organizationID = $organizationID and p.public = 1) ";
         }
 
-        if ($wherray)
-        {
+        if ($wherray) {
             $query->where('(' . implode(' OR ', $wherray) . ')');
             Database::setQuery($query);
 
@@ -379,7 +345,7 @@ class Persons extends Associated implements Selectable
     /**
      * Retrieves the person's surnames.
      *
-     * @param   int  $personID  the person's id
+     * @param int $personID the person's id
      *
      * @return string  the default name of the person
      */
@@ -394,17 +360,15 @@ class Persons extends Associated implements Selectable
     /**
      * Function to sort persons by their surnames and forenames.
      *
-     * @param   array &$persons  the persons array to sort.
+     * @param array &$persons the persons array to sort.
      */
     public static function nameSort(array &$persons)
     {
         uasort($persons, function ($personOne, $personTwo) {
-            if ($personOne['surname'] > $personTwo['surname'])
-            {
+            if ($personOne['surname'] > $personTwo['surname']) {
                 return 1;
             }
-            if ($personOne['surname'] < $personTwo['surname'])
-            {
+            if ($personOne['surname'] < $personTwo['surname']) {
                 return -1;
             }
 
@@ -415,7 +379,7 @@ class Persons extends Associated implements Selectable
     /**
      * Retrieves the person's public release status.
      *
-     * @param   int  $personID  the person's id
+     * @param int $personID the person's id
      *
      * @return bool  the person's public release status
      */
@@ -430,15 +394,14 @@ class Persons extends Associated implements Selectable
     /**
      * Function to sort persons by their roles.
      *
-     * @param   array &$persons  the persons array to sort.
+     * @param array &$persons the persons array to sort.
      */
     public static function roleSort(array &$persons)
     {
         uasort($persons, function ($personOne, $personTwo) {
             $roleOne = isset($personOne['role'][self::COORDINATES]);
             $roleTwo = isset($personTwo['role'][self::COORDINATES]);
-            if ($roleOne or !$roleTwo)
-            {
+            if ($roleOne or !$roleTwo) {
                 return 1;
             }
 
@@ -448,13 +411,11 @@ class Persons extends Associated implements Selectable
 
     /**
      * Returns the ids of the organizations where the user has previously been assigned as a teacher.
-     *
      * @return int[] the ids of the relevant organizations
      */
     public static function taughtOrganizations(): array
     {
-        if (!$personID = self::getIDByUserID())
-        {
+        if (!$personID = self::getIDByUserID()) {
             return [];
         }
 

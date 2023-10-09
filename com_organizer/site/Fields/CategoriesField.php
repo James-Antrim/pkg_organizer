@@ -19,21 +19,20 @@ use stdClass;
 class CategoriesField extends OptionsField
 {
 
-	/**
-	 * @var  string
-	 */
-	protected $type = 'Categories';
+    /**
+     * @var  string
+     */
+    protected $type = 'Categories';
 
-	/**
-	 * Returns a select box where resource attributes can be selected
-	 *
-	 * @return stdClass[] the options for the select box
-	 */
-	protected function getOptions(): array
-	{
-		$options    = parent::getOptions();
-		$categories = Helpers\Categories::getOptions();
+    /**
+     * Returns a select box where resource attributes can be selected
+     * @return stdClass[] the options for the select box
+     */
+    protected function getOptions(): array
+    {
+        $options    = parent::getOptions();
+        $categories = Helpers\Categories::getOptions();
 
-		return array_merge($options, $categories);
-	}
+        return array_merge($options, $categories);
+    }
 }

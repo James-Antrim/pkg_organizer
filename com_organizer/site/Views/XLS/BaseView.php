@@ -24,126 +24,118 @@ use PHPExcel_Worksheet;
 
 /**
  * Base class for a Joomla View
- *
  * Class holding methods for displaying presentation data.
  */
 abstract class BaseView extends PHPExcel
 {
-	use Named;
+    use Named;
 
-	/**
-	 * @var bool
-	 */
-	public $adminContext;
+    /**
+     * @var bool
+     */
+    public $adminContext;
 
-	/**
-	 * @var BaseLayout
-	 */
-	protected $layout;
+    /**
+     * @var BaseLayout
+     */
+    protected $layout;
 
-	/**
-	 * @var BaseModel
-	 */
-	public $model;
+    /**
+     * @var BaseModel
+     */
+    public $model;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function __construct()
-	{
-		parent::__construct();
+    /**
+     * @inheritdoc
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-		$name               = $this->getName();
-		$this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+        $name               = $this->getName();
+        $this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
 
-		$layout = Helpers\Input::getCMD('layout', $name);
-		$layout = Helpers\OrganizerHelper::classDecode($layout);
-		$layout = "Organizer\\Layouts\\XLS\\$name\\$layout";
-		$model  = "Organizer\\Models\\$name";
+        $layout = Helpers\Input::getCMD('layout', $name);
+        $layout = Helpers\OrganizerHelper::classDecode($layout);
+        $layout = "Organizer\\Layouts\\XLS\\$name\\$layout";
+        $model  = "Organizer\\Models\\$name";
 
-		$this->layout = new $layout($this);
-		$this->model  = new $model();
+        $this->layout = new $layout($this);
+        $this->model  = new $model();
 
-		$properties = $this->getProperties();
-		$properties->setCreator('Organizer');
-		$properties->setLastModifiedBy(Helpers\Users::getName());
-		$properties->setDescription($this->layout->getDescription());
-		$properties->setTitle($this->layout->getTitle());
-	}
+        $properties = $this->getProperties();
+        $properties->setCreator('Organizer');
+        $properties->setLastModifiedBy(Helpers\Users::getName());
+        $properties->setDescription($this->layout->getDescription());
+        $properties->setTitle($this->layout->getTitle());
+    }
 
-	/**
-	 * Adds a range to the active sheet.
-	 *
-	 * @param   string      $start
-	 * @param   string      $end
-	 * @param   array       $style
-	 * @param   int|string  $value
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function addRange(string $start, string $end, array $style = [], $value = '')
-	{
-		$coords = "$start:$end";
-		$sheet  = $this->getActiveSheet();
-		$sheet->mergeCells($coords);
+    /**
+     * Adds a range to the active sheet.
+     *
+     * @param string     $start
+     * @param string     $end
+     * @param array      $style
+     * @param int|string $value
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function addRange(string $start, string $end, array $style = [], $value = '')
+    {
+        $coords = "$start:$end";
+        $sheet  = $this->getActiveSheet();
+        $sheet->mergeCells($coords);
 
-		if ($style)
-		{
-			$sheet->getStyle($coords)->applyFromArray($style);
-		}
+        if ($style) {
+            $sheet->getStyle($coords)->applyFromArray($style);
+        }
 
-		if ($value)
-		{
-			$sheet->setCellValue($start, $value);
-		}
-	}
+        if ($value) {
+            $sheet->setCellValue($start, $value);
+        }
+    }
 
-	/**
-	 * Sets context variables and renders the view.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	public function display()
-	{
-		$this->layout->fill();
-		$this->render();
-	}
+    /**
+     * Sets context variables and renders the view.
+     * @return void
+     * @throws Exception
+     */
+    public function display()
+    {
+        $this->layout->fill();
+        $this->render();
+    }
 
-	/**
-	 * Renders the document.
-	 *
-	 * @return void
-	 * @throws Exception
-	 */
-	protected function render()
-	{
-		$documentTitle = ApplicationHelper::stringURLSafe($this->getProperties()->getTitle());
-		$objWriter     = PHPExcel_IOFactory::createWriter($this, 'Excel2007');
-		ob_end_clean();
-		header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-		header("Content-Disposition: attachment;filename=$documentTitle.xlsx");
-		$objWriter->save('php://output');
-		exit();
-	}
+    /**
+     * Renders the document.
+     * @return void
+     * @throws Exception
+     */
+    protected function render()
+    {
+        $documentTitle = ApplicationHelper::stringURLSafe($this->getProperties()->getTitle());
+        $objWriter     = PHPExcel_IOFactory::createWriter($this, 'Excel2007');
+        ob_end_clean();
+        header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Disposition: attachment;filename=$documentTitle.xlsx");
+        $objWriter->save('php://output');
+        exit();
+    }
 
-	/**
-	 * Set active sheet index
-	 *
-	 * @param   int  $pIndex  Active sheet index
-	 *
-	 * @return PHPExcel_Worksheet
-	 */
-	public function setActiveSheetIndex($pIndex = 0): PHPExcel_Worksheet
-	{
-		try
-		{
-			return parent::setActiveSheetIndex($pIndex);
-		}
-		catch (Exception $exception)
-		{
-			return $this->setActiveSheetIndex($pIndex - 1);
-		}
-	}
+    /**
+     * Set active sheet index
+     *
+     * @param int $pIndex Active sheet index
+     *
+     * @return PHPExcel_Worksheet
+     */
+    public function setActiveSheetIndex($pIndex = 0): PHPExcel_Worksheet
+    {
+        try {
+            return parent::setActiveSheetIndex($pIndex);
+        } catch (Exception $exception) {
+            return $this->setActiveSheetIndex($pIndex - 1);
+        }
+    }
 }

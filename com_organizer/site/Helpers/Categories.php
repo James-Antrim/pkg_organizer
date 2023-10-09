@@ -24,8 +24,8 @@ class Categories extends Associated implements Selectable
     /**
      * Retrieves the groups associated with a category.
      *
-     * @param   int   $categoryID  the category id
-     * @param   bool  $active      whether to retrieve only active categories
+     * @param int  $categoryID the category id
+     * @param bool $active     whether to retrieve only active categories
      *
      * @return array[]
      */
@@ -37,8 +37,7 @@ class Categories extends Associated implements Selectable
             ->from('#__organizer_groups AS g')
             ->where("categoryID = $categoryID");
 
-        if ($active)
-        {
+        if ($active) {
             $query->where('active = 1');
         }
 
@@ -50,16 +49,14 @@ class Categories extends Associated implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function getOptions(string $access = ''): array
     {
         $name    = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
         $options = [];
-        foreach (self::getResources($access) as $category)
-        {
-            if ($category['active'])
-            {
+        foreach (self::getResources($access) as $category) {
+            if ($category['active']) {
                 $options[] = HTML::_('select.option', $category['id'], $category[$name]);
             }
         }
@@ -75,15 +72,14 @@ class Categories extends Associated implements Selectable
     /**
      * Retrieves the name of the program associated with the category.
      *
-     * @param   int  $categoryID  the table id for the program
+     * @param int $categoryID the table id for the program
      *
      * @return string the name of the (plan) program, otherwise empty
      */
     public static function getProgramName(int $categoryID): string
     {
         $noName = Languages::_('ORGANIZER_NO_PROGRAM');
-        if (!$categoryID)
-        {
+        if (!$categoryID) {
             return $noName;
         }
 
@@ -91,8 +87,7 @@ class Categories extends Associated implements Selectable
         $query->select('DISTINCT id')->from('#__organizer_programs')->where("categoryID = $categoryID");
         Database::setQuery($query);
 
-        if ($programIDs = Database::loadIntColumn())
-        {
+        if ($programIDs = Database::loadIntColumn()) {
             return count($programIDs) > 1 ?
                 Languages::_('ORGANIZER_MULTIPLE_PROGRAMS') : Programs::getName($programIDs[0]);
         }
@@ -103,7 +98,7 @@ class Categories extends Associated implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function getResources(string $access = ''): array
     {
@@ -111,8 +106,7 @@ class Categories extends Associated implements Selectable
         $query = Database::getQuery(true);
         $query->select('DISTINCT c.*')->from('#__organizer_categories AS c')->order($order);
 
-        if (!empty($access))
-        {
+        if (!empty($access)) {
             self::addAccessFilter($query, $access, 'category', 'c');
         }
 

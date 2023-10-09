@@ -15,5 +15,5 @@ namespace Organizer\Views\HTML;
  */
 class OrganizationEdit extends EditView
 {
-	protected $layout = 'tabs';
+    protected $layout = 'tabs';
 }

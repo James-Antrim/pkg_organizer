@@ -15,19 +15,19 @@ namespace Organizer\Models;
  */
 class ItemModel extends BaseModel
 {
-	use Named;
+    use Named;
 
-	protected $option = 'com_organizer';
+    protected $option = 'com_organizer';
 
-	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
-	 */
-	public function __construct($config = [])
-	{
-		parent::__construct($config);
+    /**
+     * Constructor.
+     *
+     * @param array $config An optional associative array of configuration settings.
+     */
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
 
-		$this->setContext();
-	}
+        $this->setContext();
+    }
 }

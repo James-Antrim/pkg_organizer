@@ -19,32 +19,28 @@ use Organizer\Models;
  */
 class Programs extends Controller
 {
-	use Activated, Imported;
+    use Activated, Imported;
 
-	protected $listView = 'programs';
+    protected $listView = 'programs';
 
-	protected $resource = 'program';
+    protected $resource = 'program';
 
-	/**
-	 * Makes call to the models's update batch function, and redirects to the manager view.
-	 *
-	 * @return void
-	 */
-	public function update()
-	{
-		$model = new Models\Program();
+    /**
+     * Makes call to the models's update batch function, and redirects to the manager view.
+     * @return void
+     */
+    public function update()
+    {
+        $model = new Models\Program();
 
-		if ($model->update())
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS', 'success');
-		}
-		else
-		{
-			Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
-		}
+        if ($model->update()) {
+            Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS', 'success');
+        } else {
+            Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
+        }
 
-		$url = Helpers\Routing::getRedirectBase();
-		$url .= "&view=$this->listView";
-		$this->setRedirect($url);
-	}
+        $url = Helpers\Routing::getRedirectBase();
+        $url .= "&view=$this->listView";
+        $this->setRedirect($url);
+    }
 }

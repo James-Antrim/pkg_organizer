@@ -17,44 +17,43 @@ use Organizer\Helpers;
  */
 class Equipment extends ListView
 {
-	protected $rowStructure = [
-		'checkbox' => '',
-		'code'     => 'link',
-		'name'     => 'link'
-	];
+    protected $rowStructure = [
+        'checkbox' => '',
+        'code' => 'link',
+        'name' => 'link'
+    ];
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function addToolBar(bool $delete = false)
-	{
-		parent::addToolBar($delete);
-	}
+    /**
+     * @inheritDoc
+     */
+    protected function addToolBar(bool $delete = false)
+    {
+        parent::addToolBar($delete);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::manage('facilities'))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::manage('facilities')) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function setHeaders()
-	{
-		$ordering  = $this->state->get('list.ordering');
-		$direction = $this->state->get('list.direction');
-		$headers   = [
-			'checkbox' => '',
-			'code'     => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
-			'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
-		];
+    /**
+     * @inheritdoc
+     */
+    public function setHeaders()
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox' => '',
+            'code' => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
+            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
+        ];
 
-		$this->headers = $headers;
-	}
+        $this->headers = $headers;
+    }
 }

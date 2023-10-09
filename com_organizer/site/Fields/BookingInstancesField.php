@@ -18,21 +18,20 @@ use stdClass;
  */
 class BookingInstancesField extends OptionsField
 {
-	/**
-	 * @var  string
-	 */
-	protected $type = 'BookingInstances';
+    /**
+     * @var  string
+     */
+    protected $type = 'BookingInstances';
 
-	/**
-	 * Returns an array of booking instance options
-	 *
-	 * @return stdClass[]  the pool options
-	 */
-	protected function getOptions(): array
-	{
-		$options   = parent::getOptions();
-		$instances = Helpers\Bookings::getInstanceOptions(Helpers\Input::getID());
+    /**
+     * Returns an array of booking instance options
+     * @return stdClass[]  the pool options
+     */
+    protected function getOptions(): array
+    {
+        $options   = parent::getOptions();
+        $instances = Helpers\Bookings::getInstanceOptions(Helpers\Input::getID());
 
-		return array_merge($options, $instances);
-	}
+        return array_merge($options, $instances);
+    }
 }

@@ -17,50 +17,44 @@ use Organizer\Helpers;
  */
 class DocumentedPersonsField extends OptionsField
 {
-	protected $type = 'DocumentedPersons';
+    protected $type = 'DocumentedPersons';
 
-	/**
-	 * Method to get the field options.
-	 *
-	 * @return  array  The field option objects.
-	 */
-	protected function getOptions(): array
-	{
-		$options   = parent::getOptions();
-		$poolID    = Helpers\Input::getFilterID('pool', Helpers\Input::getInt('poolID'));
-		$programID = Helpers\Input::getFilterID('program', Helpers\Input::getInt('programID'));
+    /**
+     * Method to get the field options.
+     * @return  array  The field option objects.
+     */
+    protected function getOptions(): array
+    {
+        $options   = parent::getOptions();
+        $poolID    = Helpers\Input::getFilterID('pool', Helpers\Input::getInt('poolID'));
+        $programID = Helpers\Input::getFilterID('program', Helpers\Input::getInt('programID'));
 
-		if (!$poolID and !$programID)
-		{
-			return $options;
-		}
+        if (!$poolID and !$programID) {
+            return $options;
+        }
 
-		$subjects = $poolID ? Helpers\Pools::getSubjects($poolID) : Helpers\Programs::getSubjects($programID);
+        $subjects = $poolID ? Helpers\Pools::getSubjects($poolID) : Helpers\Programs::getSubjects($programID);
 
-		if (empty($subjects))
-		{
-			return $options;
-		}
+        if (empty($subjects)) {
+            return $options;
+        }
 
-		$aggregatedPersons = [];
-		foreach ($subjects as $subject)
-		{
-			$subjectPersons = Helpers\Subjects::getPersons($subject['subjectID']);
-			if (empty($subjectPersons))
-			{
-				continue;
-			}
+        $aggregatedPersons = [];
+        foreach ($subjects as $subject) {
+            $subjectPersons = Helpers\Subjects::getPersons($subject['subjectID']);
+            if (empty($subjectPersons)) {
+                continue;
+            }
 
-			$aggregatedPersons = array_merge($aggregatedPersons, $subjectPersons);
-		}
+            $aggregatedPersons = array_merge($aggregatedPersons, $subjectPersons);
+        }
 
-		ksort($aggregatedPersons);
+        ksort($aggregatedPersons);
 
-		foreach ($aggregatedPersons as $name => $person)
-		{
-			$options[] = Helpers\HTML::_('select.option', $person['id'], $name);
-		}
+        foreach ($aggregatedPersons as $name => $person) {
+            $options[] = Helpers\HTML::_('select.option', $person['id'], $name);
+        }
 
-		return $options;
-	}
+        return $options;
+    }
 }

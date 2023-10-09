@@ -26,23 +26,19 @@ class Instances
     /**
      * Adds the data for locating the missing room information to the warnings.
      *
-     * @param   Schedule  $model       the model for the schedule being validated
-     * @param   string    $untisID     the untis id of the unit being iterated
-     * @param   array     $invalidIDs  the untis ids of rooms which proved to be invalid
+     * @param Schedule $model      the model for the schedule being validated
+     * @param string   $untisID    the untis id of the unit being iterated
+     * @param array    $invalidIDs the untis ids of rooms which proved to be invalid
      */
     private static function addInvalidRoomData(Schedule $model, string $untisID, array $invalidIDs)
     {
-        if (empty($model->warnings['IIR']))
-        {
+        if (empty($model->warnings['IIR'])) {
             $model->warnings['IIR'] = [];
         }
 
-        if (empty($model->warnings['IIR'][$untisID]))
-        {
+        if (empty($model->warnings['IIR'][$untisID])) {
             $model->warnings['IIR'][$untisID] = $invalidIDs;
-        }
-        else
-        {
+        } else {
             $invalidIDs                       = array_diff($invalidIDs, $model->warnings['IIR'][$untisID]);
             $model->warnings['IIR'][$untisID] = array_merge($model->warnings['IIR'][$untisID], $invalidIDs);
         }
@@ -51,37 +47,31 @@ class Instances
     /**
      * Adds the data for locating the missing room information to the warnings.
      *
-     * @param   Schedule  $model      the model for the schedule being validated
-     * @param   string    $untisID    the untis id of the unit being iterated
-     * @param   int       $currentDT  the current date time in the iteration
-     * @param   int       $periodNo   the period number of the grid to look for times in
+     * @param Schedule $model     the model for the schedule being validated
+     * @param string   $untisID   the untis id of the unit being iterated
+     * @param int      $currentDT the current date time in the iteration
+     * @param int      $periodNo  the period number of the grid to look for times in
      */
     private static function addMissingRoomData(Schedule $model, string $untisID, int $currentDT, int $periodNo)
     {
-        if (empty($model->warnings['IMR']))
-        {
+        if (empty($model->warnings['IMR'])) {
             $model->warnings['IMR'] = [];
         }
 
-        if (empty($model->warnings['IMR'][$untisID]))
-        {
+        if (empty($model->warnings['IMR'][$untisID])) {
             $model->warnings['IMR'][$untisID] = [];
         }
 
         $dow = strtoupper(date('l', $currentDT));
         $dow = Helpers\Languages::_($dow);
-        if (empty($model->warnings['IMR'][$untisID][$dow]))
-        {
+        if (empty($model->warnings['IMR'][$untisID][$dow])) {
             $model->warnings['IMR'][$untisID][$dow] = [];
         }
 
         $date = date('Y-m-d', $currentDT);
-        if (empty($model->warnings['IMR'][$untisID][$dow][$periodNo]))
-        {
+        if (empty($model->warnings['IMR'][$untisID][$dow][$periodNo])) {
             $model->warnings['IMR'][$untisID][$dow][$periodNo] = [$date];
-        }
-        else
-        {
+        } else {
             $model->warnings['IMR'][$untisID][$dow][$periodNo][] = $date;
         }
     }
@@ -89,8 +79,8 @@ class Instances
     /**
      * Retrieves the appropriate block id from the database, creating the entry as necessary.
      *
-     * @param   SimpleXMLElement  $node         the node being validated
-     * @param   string            $currentDate  the current date being iterated
+     * @param SimpleXMLElement $node        the node being validated
+     * @param string           $currentDate the current date being iterated
      *
      * @return int the id of the block
      */
@@ -103,14 +93,13 @@ class Instances
 
         $block     = new Tables\Blocks();
         $blockData = [
-            'date'      => $currentDate,
-            'dow'       => date('w', strtotime($currentDate)),
+            'date' => $currentDate,
+            'dow' => date('w', strtotime($currentDate)),
             'startTime' => $startTime,
-            'endTime'   => $endTime
+            'endTime' => $endTime
         ];
 
-        if (!$block->load($blockData))
-        {
+        if (!$block->load($blockData)) {
             $block->save($blockData);
         }
 
@@ -120,10 +109,10 @@ class Instances
     /**
      * Sets associations between an instance person association and its groups.
      *
-     * @param   Schedule  $model       the model for the schedule being validated
-     * @param   string    $untisID     the untis id of the unit being iterated
-     * @param   int       $instanceID  the id of the instance being validated
-     * @param   int       $assocID     the id of the instance person association with which the groups are to be associated
+     * @param Schedule $model      the model for the schedule being validated
+     * @param string   $untisID    the untis id of the unit being iterated
+     * @param int      $instanceID the id of the instance being validated
+     * @param int      $assocID    the id of the instance person association with which the groups are to be associated
      *
      * @return void
      */
@@ -134,31 +123,24 @@ class Instances
         $personID  = $unit->personID;
         $groups    = $unit->groups;
 
-        if (empty($instances[$instanceID][$personID]['groups']))
-        {
+        if (empty($instances[$instanceID][$personID]['groups'])) {
             $newGroups = $groups;
 
             $instances[$instanceID][$personID]['groups'] = $newGroups;
-        }
-        else
-        {
+        } else {
             $newGroups = array_diff($unit->groups, $instances[$instanceID][$personID]['groups']);
             $instances[$instanceID][$personID]['groups']
                        = array_merge($instances[$instanceID][$personID]['groups'], $newGroups);
         }
 
-        foreach ($newGroups as $groupID)
-        {
+        foreach ($newGroups as $groupID) {
             $instanceGroup = ['assocID' => $assocID, 'groupID' => $groupID];
             $table         = new Tables\InstanceGroups();
 
-            if (!$table->load($instanceGroup))
-            {
+            if (!$table->load($instanceGroup)) {
                 $table->modified = $model->modified;
                 $table->save($instanceGroup);
-            }
-            elseif ($table->modified === Database::getNullDate())
-            {
+            } elseif ($table->modified === Database::getNullDate()) {
                 $table->modified = $model->modified;
                 $table->store();
             }
@@ -168,10 +150,10 @@ class Instances
     /**
      * Retrieves the resource id using the Untis ID. Creates the resource id if unavailable.
      *
-     * @param   Schedule          $model        the model for the schedule being validated
-     * @param   SimpleXMLElement  $node         the node being validated
-     * @param   string            $untisID      the untis id of the unit being iterated
-     * @param   string            $currentDate  the current date being iterated
+     * @param Schedule         $model       the model for the schedule being validated
+     * @param SimpleXMLElement $node        the node being validated
+     * @param string           $untisID     the untis id of the unit being iterated
+     * @param string           $currentDate the current date being iterated
      *
      * @return void modifies the model, setting the id property of the resource
      */
@@ -180,13 +162,11 @@ class Instances
         $unit = $model->units->$untisID;
 
         // Update the actual run dates of the unit
-        if (!$unit->effEndDate or $unit->effEndDate < $currentDate)
-        {
+        if (!$unit->effEndDate or $unit->effEndDate < $currentDate) {
             $unit->effEndDate = $currentDate;
         }
 
-        if (!$unit->effStartDate or $unit->effStartDate > $currentDate)
-        {
+        if (!$unit->effStartDate or $unit->effStartDate > $currentDate) {
             $unit->effStartDate = $currentDate;
         }
 
@@ -194,20 +174,17 @@ class Instances
         $instance = [
             'blockID' => self::getBlockID($node, $currentDate),
             'eventID' => $unit->eventID,
-            'unitID'  => $unit->id
+            'unitID' => $unit->id
         ];
 
         $table = new Tables\Instances();
 
-        if ($table->load($instance))
-        {
+        if ($table->load($instance)) {
             $table->comment  = $unit->iComment;
             $table->methodID = $methodID;
             $table->modified = $table->modified === Database::getNullDate() ? $model->modified : $table->modified;
             $table->store();
-        }
-        else
-        {
+        } else {
             $instance['comment']  = $unit->iComment;
             $instance['methodID'] = $methodID;
             $instance['modified'] = $model->modified;
@@ -217,8 +194,7 @@ class Instances
         $instanceID = $table->id;
         $instances  = &$model->instances;
 
-        if (empty($instances[$instanceID]))
-        {
+        if (empty($instances[$instanceID])) {
             $instances[$instanceID] = [];
         }
 
@@ -228,9 +204,9 @@ class Instances
     /**
      * Sets an instance person association.
      *
-     * @param   Schedule  $model       the model for the schedule being validated
-     * @param   string    $untisID     the untis id of the unit being iterated
-     * @param   int       $instanceID  the id of the instance being validated
+     * @param Schedule $model      the model for the schedule being validated
+     * @param string   $untisID    the untis id of the unit being iterated
+     * @param int      $instanceID the id of the instance being validated
      *
      * @return void
      */
@@ -239,8 +215,7 @@ class Instances
         $instances = &$model->instances;
         $unit      = $model->units->$untisID;
         $personID  = $unit->personID;
-        if (empty($instances[$instanceID][$personID]))
-        {
+        if (empty($instances[$instanceID][$personID])) {
             $instances[$instanceID][$personID] = [];
         }
 
@@ -249,14 +224,11 @@ class Instances
 
         $table = new Tables\InstancePersons();
 
-        if ($table->load($instancePerson))
-        {
+        if ($table->load($instancePerson)) {
             $table->roleID   = $roleID;
             $table->modified = $table->modified === Database::getNullDate() ? $model->modified : $table->modified;
             $table->store();
-        }
-        else
-        {
+        } else {
             $instancePerson['roleID']   = $roleID;
             $instancePerson['modified'] = $model->modified;
             $table->save($instancePerson);
@@ -274,10 +246,10 @@ class Instances
     /**
      * Sets associations between an instance person association and its groups.
      *
-     * @param   Schedule  $model       the model for the schedule being validated
-     * @param   string    $untisID     the untis id of the unit being iterated
-     * @param   int       $instanceID  the id of the instance being validated
-     * @param   int       $assocID     the id of the instance person association with which the groups are to be associated
+     * @param Schedule $model      the model for the schedule being validated
+     * @param string   $untisID    the untis id of the unit being iterated
+     * @param int      $instanceID the id of the instance being validated
+     * @param int      $assocID    the id of the instance person association with which the groups are to be associated
      *
      * @return void
      */
@@ -288,31 +260,24 @@ class Instances
         $personID  = $unit->personID;
         $rooms     = $unit->rooms;
 
-        if (empty($instances[$instanceID][$personID]['rooms']))
-        {
+        if (empty($instances[$instanceID][$personID]['rooms'])) {
             $newRooms = $rooms;
 
             $instances[$instanceID][$personID]['rooms'] = $newRooms;
-        }
-        else
-        {
+        } else {
             $newRooms = array_diff($unit->rooms, $instances[$instanceID][$personID]['rooms']);
             $instances[$instanceID][$personID]['rooms']
                       = array_merge($instances[$instanceID][$personID]['rooms'], $newRooms);
         }
 
-        foreach ($newRooms as $roomID)
-        {
+        foreach ($newRooms as $roomID) {
             $instanceRoom = ['assocID' => $assocID, 'roomID' => $roomID];
             $table        = new Tables\InstanceRooms();
 
-            if (!$table->load($instanceRoom))
-            {
+            if (!$table->load($instanceRoom)) {
                 $table->modified = $model->modified;
                 $table->save($instanceRoom);
-            }
-            elseif ($table->modified === Database::getNullDate())
-            {
+            } elseif ($table->modified === Database::getNullDate()) {
                 $table->modified = $model->modified;
                 $table->store();
             }
@@ -322,24 +287,23 @@ class Instances
     /**
      * Iterates over possible occurrences and validates them
      *
-     * @param   Schedule          $model        the model for the schedule being validated
-     * @param   SimpleXMLElement  $node         the node being validated
-     * @param   string            $untisID      the untis id of the unit being iterated
-     * @param   array             $occurrences  an array of 'occurrences'
-     * @param   bool              $valid        whether the planning unit is valid (for purposes of saving)
+     * @param Schedule         $model       the model for the schedule being validated
+     * @param SimpleXMLElement $node        the node being validated
+     * @param string           $untisID     the untis id of the unit being iterated
+     * @param array            $occurrences an array of 'occurrences'
+     * @param bool             $valid       whether the planning unit is valid (for purposes of saving)
      *
      * @return void
      */
     public static function validateCollection(
-        Schedule $model,
+        Schedule         $model,
         SimpleXMLElement $node,
-        string $untisID,
-        array $occurrences,
-        bool $valid
+        string           $untisID,
+        array            $occurrences,
+        bool             $valid
     )
     {
-        if (!$node->count())
-        {
+        if (!$node->count()) {
             return;
         }
 
@@ -348,18 +312,15 @@ class Instances
         $unit      = $model->units->$untisID;
         $currentDT = $unit->startDT;
 
-        foreach ($occurrences as $occurrence)
-        {
+        foreach ($occurrences as $occurrence) {
             // Instances are relevant if they occur after the creation of the schedule itself.
             $relevant = $currentDT > $model->dateTime;
 
             // Instances are irrelevant on vacation days or outside scope
             $irrelevant = ($occurrence == self::NO or $occurrence == self::VACATION);
 
-            if ($relevant and !$irrelevant)
-            {
-                foreach ($instances as $instance)
-                {
+            if ($relevant and !$irrelevant) {
+                foreach ($instances as $instance) {
                     self::validateInstance($model, $instance, $untisID, $currentDT, $valid);
                 }
             }
@@ -371,25 +332,24 @@ class Instances
     /**
      * Validates instance dates and rooms.
      *
-     * @param   Schedule          $model      the model for the schedule being validated
-     * @param   SimpleXMLElement  $node       the node being validated
-     * @param   string            $untisID    the untis id of the unit being iterated
-     * @param   int               $currentDT  the current date time in the iteration
-     * @param   bool              $valid      whether the planning unit is valid (for purposes of saving)
+     * @param Schedule         $model     the model for the schedule being validated
+     * @param SimpleXMLElement $node      the node being validated
+     * @param string           $untisID   the untis id of the unit being iterated
+     * @param int              $currentDT the current date time in the iteration
+     * @param bool             $valid     whether the planning unit is valid (for purposes of saving)
      *
      * @return void errors are added to the model's errors property
      */
     private static function validateInstance(
-        Schedule $model,
+        Schedule         $model,
         SimpleXMLElement $node,
-        string $untisID,
-        int $currentDT,
-        bool $valid
+        string           $untisID,
+        int              $currentDT,
+        bool             $valid
     )
     {
         // Current date not applicable for this instance
-        if (trim((string) $node->assigned_day) != date('w', $currentDT))
-        {
+        if (trim((string) $node->assigned_day) != date('w', $currentDT)) {
             return;
         }
 
@@ -397,8 +357,7 @@ class Instances
         $specificDate = strtotime(trim((string) $node->assigned_date));
 
         // The event is sporadic and does not occur on the date being currently iterated
-        if (!empty($specificDate) and $specificDate != $currentDT)
-        {
+        if (!empty($specificDate) and $specificDate != $currentDT) {
             return;
         }
 
@@ -406,20 +365,15 @@ class Instances
         $unit        = $model->units->$untisID;
         $unit->rooms = [];
 
-        if (!$roomAttribute = trim((string) $node->assigned_room[0]['id']))
-        {
+        if (!$roomAttribute = trim((string) $node->assigned_room[0]['id'])) {
             self::addMissingRoomData($model, $untisID, $currentDT, $periodNo);
-        }
-        else
-        {
+        } else {
             $invalidIDs = [];
             $rooms      = $model->rooms;
             $roomIDs    = explode(' ', str_replace('RM_', '', strtoupper($roomAttribute)));
 
-            foreach ($roomIDs as $roomID)
-            {
-                if (empty($rooms->$roomID))
-                {
+            foreach ($roomIDs as $roomID) {
+                if (empty($rooms->$roomID)) {
                     $invalidIDs[] = $roomID;
                     continue;
                 }
@@ -427,14 +381,12 @@ class Instances
                 $unit->rooms[] = $rooms->$roomID->id;
             }
 
-            if (count($invalidIDs))
-            {
+            if (count($invalidIDs)) {
                 self::addInvalidRoomData($model, $untisID, $invalidIDs);
             }
         }
 
-        if ($valid)
-        {
+        if ($valid) {
             $currentDate = date('Y-m-d', $currentDT);
             self::setInstance($model, $node, $untisID, $currentDate);
         }

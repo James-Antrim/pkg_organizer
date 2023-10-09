@@ -15,29 +15,27 @@ namespace Organizer\Tables;
  */
 class InstanceGroups extends BaseTable
 {
-	use Modified;
+    use Modified;
 
-	/**
-	 * The id of the instance persons entry referenced.
-	 * INT(20) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $assocID;
+    /**
+     * The id of the instance persons entry referenced.
+     * INT(20) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $assocID;
 
-	/**
-	 * The id of the group entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $groupID;
+    /**
+     * The id of the group entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $groupID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_instance_groups');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_instance_groups');
+    }
 }

@@ -17,65 +17,63 @@ use Organizer\Helpers;
  */
 class CleaningGroups extends ListView
 {
-	protected $rowStructure = [
-		'checkbox'  => '',
-		'name'      => 'link',
-		'days'      => 'link',
-		'valuation' => 'link',
-		'relevant'  => 'value'
-	];
+    protected $rowStructure = [
+        'checkbox' => '',
+        'name' => 'link',
+        'days' => 'link',
+        'valuation' => 'link',
+        'relevant' => 'value'
+    ];
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::manage('facilities'))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::manage('facilities')) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function setHeaders()
-	{
-		$direction = $this->state->get('list.direction');
-		$headers   = [
-			'checkbox'  => '',
-			'name'      => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
-			'days'      => Helpers\Languages::_('ORGANIZER_CLEANING_DAYS_PER_MONTH'),
-			'valuation' => Helpers\Languages::_('ORGANIZER_CALCULATED_SURFACE_PERFORMANCE_VALUE'),
-			'relevant'  => Helpers\Languages::_('ORGANIZER_COST_ACCOUNTING')
-		];
+    /**
+     * @inheritdoc
+     */
+    public function setHeaders()
+    {
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox' => '',
+            'name' => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
+            'days' => Helpers\Languages::_('ORGANIZER_CLEANING_DAYS_PER_MONTH'),
+            'valuation' => Helpers\Languages::_('ORGANIZER_CALCULATED_SURFACE_PERFORMANCE_VALUE'),
+            'relevant' => Helpers\Languages::_('ORGANIZER_COST_ACCOUNTING')
+        ];
 
-		$this->headers = $headers;
-	}
+        $this->headers = $headers;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function structureItems()
-	{
-		$link            = 'index.php?option=com_organizer&view=CleaningGroupEdit&id=';
-		$index           = 0;
-		$structuredItems = [];
+    /**
+     * @inheritdoc
+     */
+    protected function structureItems()
+    {
+        $link            = 'index.php?option=com_organizer&view=CleaningGroupEdit&id=';
+        $index           = 0;
+        $structuredItems = [];
 
-		foreach ($this->items as $item)
-		{
-			$item->days      = $item->days === '0.00' ? '-' : $item->days;
-			$item->valuation = $item->valuation === '0.00' ? '-' : $item->valuation;
+        foreach ($this->items as $item) {
+            $item->days      = $item->days === '0.00' ? '-' : $item->days;
+            $item->valuation = $item->valuation === '0.00' ? '-' : $item->valuation;
 
-			$tip = 'ORGANIZER_CLICK_TO_MARK_';
-			$tip .= $item->relevant ? 'IRRELEVANT' : 'RELEVANT';
+            $tip = 'ORGANIZER_CLICK_TO_MARK_';
+            $tip .= $item->relevant ? 'IRRELEVANT' : 'RELEVANT';
 
-			$item->relevant = $this->getToggle('CleaningGroups', $item->id, $item->relevant, $tip);
+            $item->relevant = $this->getToggle('CleaningGroups', $item->id, $item->relevant, $tip);
 
-			$structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-			$index++;
-		}
+            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $index++;
+        }
 
-		$this->items = $structuredItems;
-	}
+        $this->items = $structuredItems;
+    }
 }

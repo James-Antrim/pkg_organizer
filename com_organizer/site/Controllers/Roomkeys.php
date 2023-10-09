@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class Roomkeys extends Controller
 {
-	protected $listView = 'Roomkeys';
+    protected $listView = 'Roomkeys';
 
-	protected $resource = 'Roomkey';
+    protected $resource = 'Roomkey';
 }

@@ -19,108 +19,104 @@ use Organizer\Helpers;
  */
 class Participants extends ListModel
 {
-	protected $defaultOrdering = 'fullName';
+    protected $defaultOrdering = 'fullName';
 
-	protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
+    protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct($config = [])
-	{
-		parent::__construct($config);
+    /**
+     * @inheritDoc
+     */
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
 
-		if (!$this->adminContext)
-		{
-			$this->defaultLimit = 0;
-		}
-	}
+        if (!$this->adminContext) {
+            $this->defaultLimit = 0;
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function getListQuery()
-	{
-		$tag = Helpers\Languages::getTag();
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
+    /**
+     * @inheritDoc
+     */
+    protected function getListQuery()
+    {
+        $tag = Helpers\Languages::getTag();
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
 
-		$nameParts    = [
-			Database::quoteName('pa.surname'),
-			"', '",
-			Database::quoteName('pa.forename'),
-		];
-		$programParts = [
-			Database::quoteName("pr.name_$tag"),
-			"' ('",
-			Database::quoteName('d.abbreviation'),
-			"' '",
-			Database::quoteName('pr.accredited'),
-			"')'"
-		];
-		$select       = [
-			'DISTINCT pa.id',
-			'pa.*',
-			'u.*',
-			$query->concatenate($nameParts, '') . ' AS fullName',
-			$query->concatenate($programParts, '') . ' AS program'
-		];
+        $nameParts    = [
+            Database::quoteName('pa.surname'),
+            "', '",
+            Database::quoteName('pa.forename'),
+        ];
+        $programParts = [
+            Database::quoteName("pr.name_$tag"),
+            "' ('",
+            Database::quoteName('d.abbreviation'),
+            "' '",
+            Database::quoteName('pr.accredited'),
+            "')'"
+        ];
+        $select       = [
+            'DISTINCT pa.id',
+            'pa.*',
+            'u.*',
+            $query->concatenate($nameParts, '') . ' AS fullName',
+            $query->concatenate($programParts, '') . ' AS program'
+        ];
 
-		$query->selectX($select, 'participants AS pa')
-			->innerJoinX('#__users AS u', ['u.id = pa.id'])
-			->leftJoinX('programs AS pr', ['pr.id = pa.programID'])
-			->leftJoinX('degrees AS d', ['d.id = pr.degreeID']);
+        $query->selectX($select, 'participants AS pa')
+            ->innerJoinX('#__users AS u', ['u.id = pa.id'])
+            ->leftJoinX('programs AS pr', ['pr.id = pa.programID'])
+            ->leftJoinX('degrees AS d', ['d.id = pr.degreeID']);
 
-		$this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
-		$this->setValueFilters($query, ['programID']);
+        $this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
+        $this->setValueFilters($query, ['programID']);
 
-		if ($this->state->get('filter.duplicates'))
-		{
-			$forename1 = Database::quoteName('pa.forename');
-			$forename2 = Database::quoteName('pa2.forename');
-			$likeFN1   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa.forename') . ')', "'%'"], '');
-			$likeFN2   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa2.forename') . ')', "'%'"], '');
-			$likeSN1   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa.surname') . ')', "'%'"], '');
-			$likeSN2   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa2.surname') . ')', "'%'"], '');
-			$surname1  = Database::quoteName('pa.surname');
-			$surname2  = Database::quoteName('pa2.surname');
+        if ($this->state->get('filter.duplicates')) {
+            $forename1 = Database::quoteName('pa.forename');
+            $forename2 = Database::quoteName('pa2.forename');
+            $likeFN1   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa.forename') . ')', "'%'"], '');
+            $likeFN2   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa2.forename') . ')', "'%'"], '');
+            $likeSN1   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa.surname') . ')', "'%'"], '');
+            $likeSN2   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa2.surname') . ')', "'%'"], '');
+            $surname1  = Database::quoteName('pa.surname');
+            $surname2  = Database::quoteName('pa2.surname');
 
-			$similarForenames = "($forename1 LIKE $likeFN2 OR $forename2 LIKE $likeFN1)";
-			$similarSurnames  = "($surname1 LIKE $likeSN2 OR $surname2 LIKE $likeSN1)";
-			$conditions       = "($similarForenames AND $similarSurnames)";
-			$query->leftJoinX('participants AS pa2', [$conditions])
-				->where(['pa.id != pa2.id'])
-				->group('pa.id');
+            $similarForenames = "($forename1 LIKE $likeFN2 OR $forename2 LIKE $likeFN1)";
+            $similarSurnames  = "($surname1 LIKE $likeSN2 OR $surname2 LIKE $likeSN1)";
+            $conditions       = "($similarForenames AND $similarSurnames)";
+            $query->leftJoinX('participants AS pa2', [$conditions])
+                ->where(['pa.id != pa2.id'])
+                ->group('pa.id');
 
-			if ($domain = Helpers\Input::getParams()->get('emailFilter'))
-			{
-				$domain = Database::quote("%$domain");
-				$email1 = Database::quoteName('u.email');
-				$email2 = Database::quoteName('u2.email');
+            if ($domain = Helpers\Input::getParams()->get('emailFilter')) {
+                $domain = Database::quote("%$domain");
+                $email1 = Database::quoteName('u.email');
+                $email2 = Database::quoteName('u2.email');
 
-				$externalExists = "($email1 NOT LIKE $domain OR $email2 NOT LIKE $domain)";
+                $externalExists = "($email1 NOT LIKE $domain OR $email2 NOT LIKE $domain)";
 
-				$query->leftJoinX('#__users AS u2', ['u2.id = pa2.id'])
-					->where($externalExists);
+                $query->leftJoinX('#__users AS u2', ['u2.id = pa2.id'])
+                    ->where($externalExists);
 
-			}
-		}
+            }
+        }
 
-		$this->setOrdering($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function populateState($ordering = null, $direction = null)
-	{
-		parent::populateState($ordering, $direction);
+    /**
+     * @inheritDoc
+     */
+    protected function populateState($ordering = null, $direction = null)
+    {
+        parent::populateState($ordering, $direction);
 
-		if ($courseID = Helpers\Input::getFilterID('course'))
-		{
-			$this->setState('filter.courseID', $courseID);
-		}
-	}
+        if ($courseID = Helpers\Input::getFilterID('course')) {
+            $this->setState('filter.courseID', $courseID);
+        }
+    }
 }

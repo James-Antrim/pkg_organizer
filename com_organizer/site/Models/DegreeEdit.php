@@ -17,19 +17,18 @@ use Organizer\Tables;
  */
 class DegreeEdit extends EditModel
 {
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Degrees A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Degrees
-	{
-		return new Tables\Degrees();
-	}
+    /**
+     * Method to get a table object, load it if necessary.
+     *
+     * @param string $name    The table name. Optional.
+     * @param string $prefix  The class prefix. Optional.
+     * @param array  $options Configuration array for model. Optional.
+     *
+     * @return Tables\Degrees A Table object
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Tables\Degrees
+    {
+        return new Tables\Degrees();
+    }
 }

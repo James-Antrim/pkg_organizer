@@ -18,56 +18,53 @@ use Organizer\Helpers\Languages;
  */
 class ResourcesField extends ColoredOptionsField
 {
-	/**
-	 * Type
-	 *
-	 * @var    String
-	 */
-	protected $type = 'Resources';
+    /**
+     * Type
+     * @var    String
+     */
+    protected $type = 'Resources';
 
-	/**
-	 * Method to get the field options.
-	 *
-	 * @return  array  The field option objects.
-	 */
-	protected function getOptions(): array
-	{
-		$options = parent::getOptions();
+    /**
+     * Method to get the field options.
+     * @return  array  The field option objects.
+     */
+    protected function getOptions(): array
+    {
+        $options = parent::getOptions();
 
-		$resources = [
-			Languages::_('ORGANIZER_CATEGORIES_AND_PROGRAMS') => [
-				'text'  => Languages::_('ORGANIZER_CATEGORIES_AND_PROGRAMS'),
-				'value' => 'cnp'
-			],
-			Languages::_('ORGANIZER_EVENTS_AND_SUBJECTS')     => [
-				'text'  => Languages::_('ORGANIZER_EVENTS_AND_SUBJECTS'),
-				'value' => 'ens'
-			],
-			Languages::_('ORGANIZER_GROUPS_AND_POOLS')        => [
-				'text'  => Languages::_('ORGANIZER_GROUPS_AND_POOLS'),
-				'value' => 'gnp'
-			],
-			Languages::_('ORGANIZER_ORGANIZATIONS')           => [
-				'text'  => Languages::_('ORGANIZER_ORGANIZATIONS'),
-				'value' => 'organizations'
-			],
-			Languages::_('ORGANIZER_PERSONS')                 => [
-				'text'  => Languages::_('ORGANIZER_PERSONS'),
-				'value' => 'persons'
-			],
-			Languages::_('ORGANIZER_ROOMS')                   => [
-				'text'  => Languages::_('ORGANIZER_ROOMS'),
-				'value' => 'rooms'
-			]
-		];
+        $resources = [
+            Languages::_('ORGANIZER_CATEGORIES_AND_PROGRAMS') => [
+                'text' => Languages::_('ORGANIZER_CATEGORIES_AND_PROGRAMS'),
+                'value' => 'cnp'
+            ],
+            Languages::_('ORGANIZER_EVENTS_AND_SUBJECTS') => [
+                'text' => Languages::_('ORGANIZER_EVENTS_AND_SUBJECTS'),
+                'value' => 'ens'
+            ],
+            Languages::_('ORGANIZER_GROUPS_AND_POOLS') => [
+                'text' => Languages::_('ORGANIZER_GROUPS_AND_POOLS'),
+                'value' => 'gnp'
+            ],
+            Languages::_('ORGANIZER_ORGANIZATIONS') => [
+                'text' => Languages::_('ORGANIZER_ORGANIZATIONS'),
+                'value' => 'organizations'
+            ],
+            Languages::_('ORGANIZER_PERSONS') => [
+                'text' => Languages::_('ORGANIZER_PERSONS'),
+                'value' => 'persons'
+            ],
+            Languages::_('ORGANIZER_ROOMS') => [
+                'text' => Languages::_('ORGANIZER_ROOMS'),
+                'value' => 'rooms'
+            ]
+        ];
 
-		ksort($resources);
+        ksort($resources);
 
-		foreach ($resources as $resource)
-		{
-			$options[] = HTML::_('select.option', $resource['value'], $resource['text']);
-		}
+        foreach ($resources as $resource) {
+            $options[] = HTML::_('select.option', $resource['value'], $resource['text']);
+        }
 
-		return $options;
-	}
+        return $options;
+    }
 }

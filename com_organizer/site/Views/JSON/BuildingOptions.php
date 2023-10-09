@@ -17,13 +17,12 @@ use Organizer\Helpers;
  */
 class BuildingOptions extends BaseView
 {
-	/**
-	 * loads model data into view context
-	 *
-	 * @return void
-	 */
-	public function display()
-	{
-		echo json_encode(Helpers\Buildings::getOptions(), JSON_UNESCAPED_UNICODE);
-	}
+    /**
+     * loads model data into view context
+     * @return void
+     */
+    public function display()
+    {
+        echo json_encode(Helpers\Buildings::getOptions(), JSON_UNESCAPED_UNICODE);
+    }
 }

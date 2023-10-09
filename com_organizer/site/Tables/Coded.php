@@ -15,12 +15,11 @@ namespace Organizer\Tables;
  */
 trait Coded
 {
-	/**
-	 * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
-	 * software with the exception of units which are also supplemented locally.
-	 * VARCHAR(60) DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $code;
+    /**
+     * An abbreviated nomenclature for the resource. Currently corresponding to the identifier in Untis scheduling
+     * software with the exception of units which are also supplemented locally.
+     * VARCHAR(60) DEFAULT NULL
+     * @var string
+     */
+    public $code;
 }

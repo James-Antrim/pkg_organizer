@@ -15,88 +15,79 @@ namespace Organizer\Tables;
  */
 class Participants extends BaseTable
 {
-	/**
-	 * The physical address of the resource.
-	 * VARCHAR(60) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $address;
+    /**
+     * The physical address of the resource.
+     * VARCHAR(60) NOT NULL DEFAULT ''
+     * @var string
+     */
+    public $address;
 
-	/**
-	 * The city in which the resource is located.
-	 * VARCHAR(60) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $city;
+    /**
+     * The city in which the resource is located.
+     * VARCHAR(60) NOT NULL
+     * @var string
+     */
+    public $city;
 
-	/**
-	 * The person's first and middle names.
-	 * VARCHAR(255) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $forename;
+    /**
+     * The person's first and middle names.
+     * VARCHAR(255) NOT NULL DEFAULT ''
+     * @var string
+     */
+    public $forename;
 
-	/**
-	 * A flag displaying whether the user wishes to receive emails regarding schedule changes.
-	 * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
-	 *
-	 * @var bool
-	 */
-	public $notify;
+    /**
+     * A flag displaying whether the user wishes to receive emails regarding schedule changes.
+     * TINYINT(1) UNSIGNED NOT NULL DEFAULT 0
+     * @var bool
+     */
+    public $notify;
 
-	/**
-	 * The id of the program entry referenced.
-	 * INT(11) UNSIGNED DEFAULT NULL
-	 *
-	 * @var int
-	 */
-	public $programID;
+    /**
+     * The id of the program entry referenced.
+     * INT(11) UNSIGNED DEFAULT NULL
+     * @var int
+     */
+    public $programID;
 
-	/**
-	 * The person's surnames.
-	 * VARCHAR(255) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $surname;
+    /**
+     * The person's surnames.
+     * VARCHAR(255) NOT NULL DEFAULT ''
+     * @var string
+     */
+    public $surname;
 
-	/**
-	 * The person's telephone number.
-	 * VARCHAR(60) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $telephone;
+    /**
+     * The person's telephone number.
+     * VARCHAR(60) NOT NULL DEFAULT ''
+     * @var string
+     */
+    public $telephone;
 
-	/**
-	 * The ZIP code of the resource.
-	 * VARCHAR(60) NOT NULL DEFAULT ''
-	 *
-	 * @var string
-	 */
-	public $zipCode;
+    /**
+     * The ZIP code of the resource.
+     * VARCHAR(60) NOT NULL DEFAULT ''
+     * @var string
+     */
+    public $zipCode;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_participants');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_participants');
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function check(): bool
-	{
-		if (!$this->programID)
-		{
-			$this->programID = null;
-		}
+    /**
+     * @inheritDoc
+     */
+    public function check(): bool
+    {
+        if (!$this->programID) {
+            $this->programID = null;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

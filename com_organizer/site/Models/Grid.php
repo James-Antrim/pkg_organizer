@@ -19,87 +19,80 @@ use Organizer\Tables;
  */
 class Grid extends BaseModel
 {
-	/**
-	 * @inheritDoc
-	 */
-	public function getTable($name = '', $prefix = '', $options = [])
-	{
-		return new Tables\Grids();
-	}
+    /**
+     * @inheritDoc
+     */
+    public function getTable($name = '', $prefix = '', $options = [])
+    {
+        return new Tables\Grids();
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function save(array $data = [])
-	{
-		$this->authorize();
+    /**
+     * @inheritDoc
+     */
+    public function save(array $data = [])
+    {
+        $this->authorize();
 
-		$data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
 
-		// Save grids in json by foreach because the index is not numeric
-		$periods = [];
-		$index   = 1;
-		if (!empty($data['grid']))
-		{
-			foreach ($data['grid'] as $row)
-			{
-				$periods[$index] = $row;
-				++$index;
-			}
-		}
+        // Save grids in json by foreach because the index is not numeric
+        $periods = [];
+        $index   = 1;
+        if (!empty($data['grid'])) {
+            foreach ($data['grid'] as $row) {
+                $periods[$index] = $row;
+                ++$index;
+            }
+        }
 
-		$grid         = ['periods' => $periods, 'startDay' => $data['startDay'], 'endDay' => $data['endDay']];
-		$data['grid'] = json_encode($grid, JSON_UNESCAPED_UNICODE);
+        $grid         = ['periods' => $periods, 'startDay' => $data['startDay'], 'endDay' => $data['endDay']];
+        $data['grid'] = json_encode($grid, JSON_UNESCAPED_UNICODE);
 
-		if ($data['isDefault'] and !$this->unDefaultAll())
-		{
-			return false;
-		}
+        if ($data['isDefault'] and !$this->unDefaultAll()) {
+            return false;
+        }
 
-		$table = new Tables\Grids();
+        $table = new Tables\Grids();
 
-		return $table->save($data) ? $table->id : false;
-	}
+        return $table->save($data) ? $table->id : false;
+    }
 
-	/**
-	 * Toggles the default grid.
-	 *
-	 * @return bool true if the default grid was changed successfully, otherwise false
-	 */
-	public function toggle(): bool
-	{
-		$this->authorize();
+    /**
+     * Toggles the default grid.
+     * @return bool true if the default grid was changed successfully, otherwise false
+     */
+    public function toggle(): bool
+    {
+        $this->authorize();
 
-		$selected = Helpers\Input::getID();
-		$table    = new Tables\Grids();
+        $selected = Helpers\Input::getID();
+        $table    = new Tables\Grids();
 
-		// Entry not found or already set to default
-		if (!$table->load($selected) or $table->isDefault)
-		{
-			return false;
-		}
+        // Entry not found or already set to default
+        if (!$table->load($selected) or $table->isDefault) {
+            return false;
+        }
 
-		if (!$this->unDefaultAll())
-		{
-			return false;
-		}
+        if (!$this->unDefaultAll()) {
+            return false;
+        }
 
-		$table->isDefault = 1;
+        $table->isDefault = 1;
 
-		return $table->store();
-	}
+        return $table->store();
+    }
 
-	/**
-	 * Removes the default status from all grids.
-	 *
-	 * @return bool true if the default status was removed from all grids, otherwise false
-	 */
-	private function unDefaultAll(): bool
-	{
-		$query = Database::getQuery();
-		$query->update('#__organizer_grids')->set('isDefault = 0');
-		Database::setQuery($query);
+    /**
+     * Removes the default status from all grids.
+     * @return bool true if the default status was removed from all grids, otherwise false
+     */
+    private function unDefaultAll(): bool
+    {
+        $query = Database::getQuery();
+        $query->update('#__organizer_grids')->set('isDefault = 0');
+        Database::setQuery($query);
 
-		return Database::execute();
-	}
+        return Database::execute();
+    }
 }

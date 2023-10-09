@@ -24,35 +24,31 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * Filters organizations according to user access and relevant resource associations.
      *
-     * @param   JDatabaseQuery  $query   the query to modify
-     * @param   string          $access  any access restriction which should be performed
+     * @param JDatabaseQuery $query  the query to modify
+     * @param string         $access any access restriction which should be performed
      *
      * @return void modifies the query
      */
     private static function addAccessFilter(JDatabaseQuery $query, string $access)
     {
-        if (!$access or !$view = Input::getView())
-        {
+        if (!$access or !$view = Input::getView()) {
             return;
         }
 
         $resource = OrganizerHelper::getResource($view);
 
-        switch ($access)
-        {
+        switch ($access) {
             case 'allowScheduling':
                 $query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id')
                     ->where('o.allowScheduling = 1');
-                if (in_array($resource, ['category', 'person']))
-                {
+                if (in_array($resource, ['category', 'person'])) {
                     $query->where("a.{$resource}ID IS NOT NULL");
                 }
                 $allowedIDs = Can::scheduleTheseOrganizations();
                 break;
             case 'document':
                 $query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
-                if (in_array($resource, ['pool', 'program', 'subject']))
-                {
+                if (in_array($resource, ['pool', 'program', 'subject'])) {
                     $query->where("a.{$resource}ID IS NOT NULL");
                 }
                 $allowedIDs = Can::documentTheseOrganizations();
@@ -62,8 +58,7 @@ class Organizations extends ResourceHelper implements Selectable
                 break;
             case 'schedule':
                 $query->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id');
-                if (in_array($resource, ['category', 'person']))
-                {
+                if (in_array($resource, ['category', 'person'])) {
                     $query->where("a.{$resource}ID IS NOT NULL");
                 }
                 $allowedIDs = Can::scheduleTheseOrganizations();
@@ -89,7 +84,7 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * Checks whether direct scheduling has been allowed for the given organization id.
      *
-     * @param   int  $organizationID  the id of the organization
+     * @param int $organizationID the id of the organization
      *
      * @return bool true if direct scheduling is allowed otherwise false
      */
@@ -97,8 +92,7 @@ class Organizations extends ResourceHelper implements Selectable
     {
         $organization = new Tables\Organizations();
 
-        if (!$organization->load($organizationID))
-        {
+        if (!$organization->load($organizationID)) {
             OrganizerHelper::error(412);
         }
 
@@ -108,8 +102,8 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * Gets the categories associated with a given organization.
      *
-     * @param   int   $organizationID  the organization to filter categories against
-     * @param   bool  $active          whether to filter out inactive categories
+     * @param int  $organizationID the organization to filter categories against
+     * @param bool $active         whether to filter out inactive categories
      *
      * @return array[]
      */
@@ -122,8 +116,7 @@ class Organizations extends ResourceHelper implements Selectable
             ->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
             ->where("a.organizationID = $organizationID");
 
-        if ($active)
-        {
+        if ($active) {
             $query->where('c.active = 1');
         }
 
@@ -135,7 +128,7 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * The default grid for an organization defined by current organization grid usage. 0 if no usage is available.
      *
-     * @param   int  $organizationID
+     * @param int $organizationID
      *
      * @return int
      */
@@ -153,8 +146,7 @@ class Organizations extends ResourceHelper implements Selectable
             ->order('occurrences DESC');
         Database::setQuery($query);
 
-        if ($results = Database::loadAssoc())
-        {
+        if ($results = Database::loadAssoc()) {
             return (int) $results['gridID'];
         }
 
@@ -164,16 +156,14 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   bool    $short   whether abbreviated names should be returned
-     * @param   string  $access  any access restriction which should be performed
+     * @param bool   $short  whether abbreviated names should be returned
+     * @param string $access any access restriction which should be performed
      */
     public static function getOptions(bool $short = true, string $access = ''): array
     {
         $options = [];
-        foreach (self::getResources($access) as $organization)
-        {
-            if ($organization['active'])
-            {
+        foreach (self::getResources($access) as $organization) {
+            if ($organization['active']) {
                 $name = $short ? $organization['shortName'] : $organization['name'];
 
                 $options[] = HTML::_('select.option', $organization['id'], $name);
@@ -191,7 +181,7 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * Retrieves a set of personIDs associated with the given organization.
      *
-     * @param   int  $organizationID
+     * @param int $organizationID
      *
      * @return int[]
      */
@@ -207,7 +197,7 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function getResources(string $access = ''): array
     {
@@ -225,8 +215,8 @@ class Organizations extends ResourceHelper implements Selectable
      * Checks whether the plan resource is already associated with an organization, creating an entry if none already
      * exists.
      *
-     * @param   int     $resourceID  the db id for the plan resource
-     * @param   string  $column      the column in which the resource information is stored
+     * @param int    $resourceID the db id for the plan resource
+     * @param string $column     the column in which the resource information is stored
      *
      * @return void
      */
@@ -239,8 +229,7 @@ class Organizations extends ResourceHelper implements Selectable
          * appropriate edit view.
          */
         $data = [$column => $resourceID];
-        if ($associations->load($data))
-        {
+        if ($associations->load($data)) {
             return;
         }
 

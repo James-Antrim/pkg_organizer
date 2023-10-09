@@ -19,7 +19,6 @@ use stdClass;
 
 /**
  * Base class for a Joomla View
- *
  * Class holding methods for displaying presentation data.
  */
 abstract class GridLayout extends BaseLayout
@@ -49,21 +48,18 @@ abstract class GridLayout extends BaseLayout
 
     /**
      * The time grid.
-     *
      * @var array
      */
     protected array $grid;
 
     /**
      * The planned instances.
-     *
      * @var stdClass[]
      */
     protected array $instances;
 
     /**
      * The text pertaining to the selected resources.
-     *
      * @var string
      */
     private string $resourceHeader;
@@ -93,8 +89,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds a page to the document.
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $saturDate  the page end date
+     * @param string $startDate the page start date
+     * @param string $saturDate the page end date
      *
      * @return void modifies the document
      */
@@ -107,8 +103,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds an empty page to the document.
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
      *
      * @return void modifies the document
      */
@@ -123,8 +119,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds a page to the document.
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
      *
      * @return void modifies the document
      */
@@ -140,8 +136,7 @@ abstract class GridLayout extends BaseLayout
         $view->setHeaderData('pdf_logo.png', '55', $view->title, $subTitle, $view::BLACK, $view::WHITE);
         $view->AddPage();
 
-        if ($this->bookmark)
-        {
+        if ($this->bookmark) {
             $view->Bookmark($this->resourceHeader, 0, -10);
             $this->bookmark = false;
         }
@@ -150,20 +145,18 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds an iterated set of grid pages.
      *
-     * @param   string  $monDate  the start date of the week
-     * @param   string  $endDate  the end date of the week
+     * @param string $monDate the start date of the week
+     * @param string $endDate the end date of the week
      *
      * @return void
      */
     private function addPages(string $monDate, string $endDate)
     {
-        while ($monDate < $endDate)
-        {
+        while ($monDate < $endDate) {
             $saturDate = date('Y-m-d', strtotime('saturday this week', strtotime($monDate)));
             $this->setGrid($monDate, $saturDate);
 
-            if ($this->grid)
-            {
+            if ($this->grid) {
                 $this->addGridPage($monDate, $saturDate);
                 $this->renderGrid($monDate, $saturDate);
             }
@@ -175,9 +168,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Adds a page break as necessary.
      *
-     * @param   float   $rowHeight  the height of the row to be rendered
-     * @param   string  $monDate    the page start date
-     * @param   string  $saturDate  the page end date
+     * @param float  $rowHeight the height of the row to be rendered
+     * @param string $monDate   the page start date
+     * @param string $saturDate the page end date
      *
      * @return bool  true if a page was added, otherwise false
      */
@@ -190,8 +183,7 @@ abstract class GridLayout extends BaseLayout
         $pageHeight   = $dimensions['hk'];
         $yPos         = $view->GetY();
 
-        if (($yPos + $rowHeight + $bottomMargin) > $pageHeight)
-        {
+        if (($yPos + $rowHeight + $bottomMargin) > $pageHeight) {
             $view->Ln();
             $this->addGridPage($monDate, $saturDate);
 
@@ -210,8 +202,7 @@ abstract class GridLayout extends BaseLayout
         $endDate   = $view->conditions['endDate'];
         $startDate = $view->conditions['startDate'];
 
-        if (!$data)
-        {
+        if (!$data) {
             $this->addEmptyPage($startDate, $endDate);
 
             return;
@@ -227,21 +218,17 @@ abstract class GridLayout extends BaseLayout
         $atomic      = (!empty($conditions['my']) or !empty($conditions['groupIDs']) or !empty($conditions['personIDs']) or !empty($conditions['roomIDs']));
         $noAggregate = (empty($conditions['organizationIDs']) and empty($conditions['categoryIDs']));
 
-        if (empty($conditions['separate']) or $atomic or $noAggregate)
-        {
+        if (empty($conditions['separate']) or $atomic or $noAggregate) {
             $this->setResourceHeader();
             $this->addPages($monDate, $endDate);
-        }
-        else
-        {
+        } else {
             $groups = $this->scrapeGroups();
 
             uasort($groups, function ($groupOne, $groupTwo) {
                 return strcmp($groupOne['fullName'], $groupTwo['fullName']);
             });
 
-            foreach ($groups as $groupID => $group)
-            {
+            foreach ($groups as $groupID => $group) {
                 $this->setResourceHeader($group['fullName']);
                 $this->bookmark       = true;
                 $this->currentGroupID = $groupID;
@@ -253,9 +240,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Aggregates resource collections of the same type and creates an output text.
      *
-     * @param   array   $resources  the resources to be aggregated
-     * @param   string  $key        the name key for the resource type
-     * @param   bool    $showCode   whether the resource code should be displayed in lieu of the name
+     * @param array  $resources the resources to be aggregated
+     * @param string $key       the name key for the resource type
+     * @param bool   $showCode  whether the resource code should be displayed in lieu of the name
      *
      * @return string
      */
@@ -263,8 +250,7 @@ abstract class GridLayout extends BaseLayout
     {
         $aggregate = [];
 
-        foreach ($resources as $set)
-        {
+        foreach ($resources as $set) {
             $aggregate = array_merge($aggregate, $set);
         }
 
@@ -274,9 +260,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Filters the instances to those planned in the block being iterated.
      *
-     * @param   string  $date       the block date
-     * @param   string  $startTime  the block start time
-     * @param   string  $endTime    the block end time
+     * @param string $date      the block date
+     * @param string $startTime the block start time
+     * @param string $endTime   the block end time
      *
      * @return stdClass[] the relevant instances
      */
@@ -284,20 +270,16 @@ abstract class GridLayout extends BaseLayout
     {
         $instances = [];
 
-        foreach ($this->instances as $instance)
-        {
-            if ($instance->date !== $date)
-            {
+        foreach ($this->instances as $instance) {
+            if ($instance->date !== $date) {
                 continue;
             }
 
-            if ($instance->endTime <= $startTime)
-            {
+            if ($instance->endTime <= $startTime) {
                 continue;
             }
 
-            if ($instance->startTime > $endTime)
-            {
+            if ($instance->startTime > $endTime) {
                 continue;
             }
 
@@ -316,8 +298,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Gets an accurate measurement of a cell's rendered height.
      *
-     * @param   float   $width     the width of the column to be rendered
-     * @param   string  $contents  the contents to be rendered
+     * @param float  $width    the width of the column to be rendered
+     * @param string $contents the contents to be rendered
      *
      * @return float
      */
@@ -336,9 +318,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Gets the text to be displayed in the row cells
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
-     * @param   array   $block      the block being iterated
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
+     * @param array  $block     the block being iterated
      *
      * @return array
      */
@@ -346,22 +328,18 @@ abstract class GridLayout extends BaseLayout
     {
         $cells = [];
 
-        for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
-        {
+        for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);) {
             $date      = date('Y-m-d', $currentDT);
             $endTime   = date('H:i', strtotime($block['endTime']));
             $row       = 0;
             $startTime = date('H:i', strtotime($block['startTime']));
 
-            foreach ($this->getBlockInstances($date, $startTime, $endTime) as $instance)
-            {
-                if (!$this->isGroupRelevant($instance))
-                {
+            foreach ($this->getBlockInstances($date, $startTime, $endTime) as $instance) {
+                if (!$this->isGroupRelevant($instance)) {
                     continue;
                 }
 
-                if (empty($cells[$row]))
-                {
+                if (empty($cells[$row])) {
                     $cells[$row] = ['height' => []];
                 }
 
@@ -376,8 +354,7 @@ abstract class GridLayout extends BaseLayout
             $currentDT = strtotime("+1 day", $currentDT);
         }
 
-        foreach ($cells as $row => $instances)
-        {
+        foreach ($cells as $row => $instances) {
             $subRowHeight          = max($instances['height']);
             $cells[$row]['height'] = $subRowHeight;
             $cells['height']       = array_key_exists('height', $cells) ?
@@ -390,7 +367,7 @@ abstract class GridLayout extends BaseLayout
     /**
      * Gets the text to be displayed for the given block.
      *
-     * @param   array  $block  the block being iterated
+     * @param array $block the block being iterated
      *
      * @return string
      */
@@ -398,12 +375,9 @@ abstract class GridLayout extends BaseLayout
     {
         $label = 'label_' . Helpers\Languages::getTag();
 
-        if ($block[$label])
-        {
+        if ($block[$label]) {
             $value = $block[$label];
-        }
-        else
-        {
+        } else {
             $startTime = Helpers\Dates::formatTime($block['startTime']);
 
             // Special case where the block would otherwise bleed into the next day
@@ -420,10 +394,10 @@ abstract class GridLayout extends BaseLayout
     /**
      * Creates a text for an individual person, inclusive their group and room assignments as requested.
      *
-     * @param   array  $rolePersons  the persons of a single role in the form personID => name
-     * @param   array  $persons      the instance person resources hierarchy
-     * @param   bool   $showGroups   whether person specific groups should be displayed
-     * @param   bool   $showRooms    whether person specific rooms should be displayed
+     * @param array $rolePersons the persons of a single role in the form personID => name
+     * @param array $persons     the instance person resources hierarchy
+     * @param bool  $showGroups  whether person specific groups should be displayed
+     * @param bool  $showRooms   whether person specific rooms should be displayed
      *
      * @return string
      */
@@ -431,29 +405,23 @@ abstract class GridLayout extends BaseLayout
     {
         $html = '';
 
-        if ($showGroups or $showRooms)
-        {
-            foreach ($rolePersons as $personID => $name)
-            {
+        if ($showGroups or $showRooms) {
+            foreach ($rolePersons as $personID => $name) {
                 $html .= $name;
 
-                if ($showGroups and array_key_exists('groups', $persons[$personID]))
-                {
+                if ($showGroups and array_key_exists('groups', $persons[$personID])) {
                     $glue = count($persons[$personID]['groups']) > 2 ? '<br>' : ' - ';
                     $html .= $glue . $this->getResourceText($persons[$personID]['groups'], 'group');
                 }
 
-                if ($showRooms and array_key_exists('rooms', $persons[$personID]))
-                {
+                if ($showRooms and array_key_exists('rooms', $persons[$personID])) {
                     $glue = count($persons[$personID]['rooms']) > 2 ? '<br>' : ' - ';
                     $html .= $glue . $this->getResourceText($persons[$personID]['rooms'], 'room');
                 }
 
                 $html .= '<br>';
             }
-        }
-        else
-        {
+        } else {
             $html .= $this->implode($rolePersons) . '<br>';
         }
 
@@ -463,9 +431,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Creates the text to be output for the lesson instance
      *
-     * @param   stdClass  $instance   the instance information
-     * @param   string    $startTime  the block start time
-     * @param   string    $endTime    the block end time
+     * @param stdClass $instance  the instance information
+     * @param string   $startTime the block start time
+     * @param string   $endTime   the block end time
      *
      * @return string the html for the instance text
      */
@@ -477,8 +445,7 @@ abstract class GridLayout extends BaseLayout
 
         $showOrganization = ($this->showOrganizations and !in_array($instance->organizationID, $conditions['organizationIDs']));
 
-        if ($showOrganization)
-        {
+        if ($showOrganization) {
             $html .= "<span style=\"font-style: italic\">$instance->organization</span>";
         }
 
@@ -487,8 +454,7 @@ abstract class GridLayout extends BaseLayout
         $altEndTime = date('H:i', strtotime('+1 minute', strtotime($endTime)));
 
         // Instance time not coincidental with block
-        if ($instance->startTime != $startTime or ($iEndTime != $endTime and $iEndTime != $altEndTime))
-        {
+        if ($instance->startTime != $startTime or ($iEndTime != $endTime and $iEndTime != $altEndTime)) {
             $html           .= $showOrganization ? '<br>' : '';
             $formattedStart = Helpers\Dates::formatTime($instance->startTime);
             $formattedEnd   = Helpers\Dates::formatTime($iEndTime);
@@ -500,20 +466,17 @@ abstract class GridLayout extends BaseLayout
 
         $name = $instance->name;
 
-        if ($instance->subjectNo)
-        {
+        if ($instance->subjectNo) {
             $name .= " ($instance->subjectNo)";
         }
 
         $html .= "<span style=\"font-size: 10pt;\">$name</span><br>";
 
-        if ($this->showMethods and $instance->methodID)
-        {
+        if ($this->showMethods and $instance->methodID) {
             $html .= "<span>$instance->method</span><br>";
         }
 
-        if ($instance->comment)
-        {
+        if ($instance->comment) {
             $comment = $this->resolveLinks($instance->comment);
             $html    .= "<span style=\"font-style: italic\">$comment</span><br>";
         }
@@ -529,44 +492,36 @@ abstract class GridLayout extends BaseLayout
         $personTexts = [];
         $rooms       = [];
 
-        foreach ($persons as $personID => $person)
-        {
+        foreach ($persons as $personID => $person) {
             $irrelevant = (!empty($conditions['personIDs']) and !in_array($personID, $conditions['personIDs']));
 
-            if ($this->currentGroupID)
-            {
+            if ($this->currentGroupID) {
                 $irrelevant = ($irrelevant or empty($person['groups']) or empty($person['groups'][$this->currentGroupID]));
             }
 
             // No delta display in pdf
-            if ($person['status'] === 'removed' or $irrelevant)
-            {
+            if ($person['status'] === 'removed' or $irrelevant) {
                 unset($persons[$personID]);
                 continue;
             }
 
-            if (!$this->showPersons and !in_array($personID, $conditions['personIDs']))
-            {
+            if (!$this->showPersons and !in_array($personID, $conditions['personIDs'])) {
                 unset($persons[$personID]);
                 continue;
             }
 
-            if (!array_key_exists($person['roleID'], $personTexts))
-            {
+            if (!array_key_exists($person['roleID'], $personTexts)) {
                 $personTexts[$person['roleID']] = [];
             }
 
             $personTexts[$person['roleID']][$personID] = $person['person'];
 
-            if (array_key_exists('groups', $person))
-            {
+            if (array_key_exists('groups', $person)) {
                 // The group status creates false negatives using in_array
                 $filteredGroups = [];
-                foreach ($person['groups'] as $groupID => $group)
-                {
+                foreach ($person['groups'] as $groupID => $group) {
                     // No delta display in pdf
-                    if ($group['status'] === 'removed')
-                    {
+                    if ($group['status'] === 'removed') {
                         unset($persons[$personID]['groups'][$groupID]);
                         continue;
                     }
@@ -575,21 +530,17 @@ abstract class GridLayout extends BaseLayout
                     $filteredGroups[$groupID] = $group;
                 }
 
-                if (!in_array($filteredGroups, $groups))
-                {
+                if (!in_array($filteredGroups, $groups)) {
                     $groups[] = $filteredGroups;
                 }
             }
 
-            if (array_key_exists('rooms', $person) and !in_array($person['rooms'], $rooms))
-            {
+            if (array_key_exists('rooms', $person) and !in_array($person['rooms'], $rooms)) {
                 // The room status creates false negatives using in_array
                 $filteredRooms = [];
-                foreach ($person['rooms'] as $roomID => $room)
-                {
+                foreach ($person['rooms'] as $roomID => $room) {
                     // No delta display in pdf
-                    if ($room['status'] === 'removed')
-                    {
+                    if ($room['status'] === 'removed') {
                         unset($persons[$personID]['rooms'][$roomID]);
                         continue;
                     }
@@ -598,18 +549,15 @@ abstract class GridLayout extends BaseLayout
                     $filteredRooms[$roomID] = $room;
                 }
 
-                if (!in_array($filteredRooms, $rooms))
-                {
+                if (!in_array($filteredRooms, $rooms)) {
                     $rooms[] = $filteredRooms;
                 }
             }
 
-            if ($this->currentGroupID)
-            {
+            if ($this->currentGroupID) {
                 unset($instance->resources[$personID]['groups'][$this->currentGroupID]);
 
-                if (empty($instance->resources[$personID]['groups']))
-                {
+                if (empty($instance->resources[$personID]['groups'])) {
                     unset($instance->resources[$personID]);
                 }
             }
@@ -623,18 +571,12 @@ abstract class GridLayout extends BaseLayout
         $roomCount  = count($rooms);
 
         // Status: share and share alike, all persons are assigned the same groups and rooms or none
-        if ($groupCount < 2 and $roomCount < 2)
-        {
-            if ($this->showPersons)
-            {
-                if ($roleCount === 1)
-                {
+        if ($groupCount < 2 and $roomCount < 2) {
+            if ($this->showPersons) {
+                if ($roleCount === 1) {
                     $html .= $this->getResourceText($persons, 'person') . '<br>';
-                }
-                else
-                {
-                    foreach ($personTexts as $roleID => $rolePersons)
-                    {
+                } else {
+                    foreach ($personTexts as $roleID => $rolePersons) {
                         asort($rolePersons);
                         $html .= $this->getRoleText($roleID, $rolePersons);
                         $html .= $this->getIndividualTexts($rolePersons, $persons, false, false);
@@ -642,105 +584,76 @@ abstract class GridLayout extends BaseLayout
                 }
             }
 
-            if ($groups and $showGroups)
-            {
+            if ($groups and $showGroups) {
                 $html .= $this->getResourceText($groups[0], 'group', $this->showGroupCodes) . '<br>';
             }
 
-            if ($rooms and $this->showRooms)
-            {
+            if ($rooms and $this->showRooms) {
                 $html .= $this->getResourceText($rooms[0], 'room') . '<br>';
             }
         } // Status: laser focused, all persons are assigned the same groups or none, rooms may vary between persons
-        elseif ($groupCount < 2)
-        {
+        elseif ($groupCount < 2) {
             // Assumption specific room assignments => small number per person => no need to further process rooms per line
-            if ($groups and $showGroups)
-            {
+            if ($groups and $showGroups) {
                 $html .= $this->getResourceText($groups[0], 'group', $this->showGroupCodes) . '<br>';
             }
 
-            if ($this->showPersons)
-            {
-                if ($roleCount === 1)
-                {
+            if ($this->showPersons) {
+                if ($roleCount === 1) {
                     $rolePersons = array_shift($personTexts);
                     asort($rolePersons);
                     $html .= $this->getIndividualTexts($rolePersons, $persons, false, $this->showRooms);
-                }
-                else
-                {
-                    foreach ($personTexts as $roleID => $rolePersons)
-                    {
+                } else {
+                    foreach ($personTexts as $roleID => $rolePersons) {
                         asort($rolePersons);
                         $html .= $this->getRoleText($roleID, $rolePersons);
                         $html .= $this->getIndividualTexts($rolePersons, $persons, false, $this->showRooms);
                     }
                 }
-            }
-            elseif ($rooms and $this->showRooms)
-            {
+            } elseif ($rooms and $this->showRooms) {
                 $html .= $this->getAggregated($rooms, 'room');
             }
         } // Status: claustrophobic, all persons are assigned the same rooms or none, groups may vary between persons
-        elseif ($roomCount < 2)
-        {
-            if ($this->showPersons)
-            {
-                if ($roleCount === 1)
-                {
+        elseif ($roomCount < 2) {
+            if ($this->showPersons) {
+                if ($roleCount === 1) {
                     $rolePersons = array_shift($personTexts);
                     asort($rolePersons);
                     $html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
-                }
-                else
-                {
-                    foreach ($personTexts as $roleID => $rolePersons)
-                    {
+                } else {
+                    foreach ($personTexts as $roleID => $rolePersons) {
                         asort($rolePersons);
                         $html .= $this->getRoleText($roleID, $rolePersons);
                         $html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, false);
                     }
                 }
-            }
-            elseif ($groups and $showGroups)
-            {
+            } elseif ($groups and $showGroups) {
                 $html .= $this->getAggregated($groups, 'group', $this->showGroupCodes);
             }
 
-            if ($rooms and $this->showRooms)
-            {
+            if ($rooms and $this->showRooms) {
                 $html .= $this->getResourceText($rooms[0], 'room') . '<br>';
             }
         } // Status: varying degrees of complexity, most easily handled by individual output,
-        elseif ($this->showPersons)
-        {
+        elseif ($this->showPersons) {
             // Suppress for less output where differentiation is not necessary.
-            if ($roleCount === 1)
-            {
+            if ($roleCount === 1) {
                 $personTexts = array_shift($personTexts);
                 asort($personTexts);
                 $html .= $this->getIndividualTexts($personTexts, $persons, $showGroups, $this->showRooms);
-            }
-            else
-            {
-                foreach ($personTexts as $roleID => $rolePersons)
-                {
+            } else {
+                foreach ($personTexts as $roleID => $rolePersons) {
                     asort($rolePersons);
                     $html .= $this->getRoleText($roleID, $rolePersons);
                     $html .= $this->getIndividualTexts($rolePersons, $persons, $showGroups, $this->showRooms);
                 }
             }
-        }
-        else
-        {
-            if ($groups and $showGroups)
-            {
+        } else {
+            if ($groups and $showGroups) {
                 $html .= $this->getAggregated($groups, 'group', $this->showGroupCodes);
             }
 
-            if ($rooms and $this->showRooms)
-            {
+            if ($rooms and $this->showRooms) {
                 $html .= $this->getAggregated($rooms, 'room');
             }
         }
@@ -749,8 +662,7 @@ abstract class GridLayout extends BaseLayout
         $length    = strlen($html);
         $lastBreak = strrpos($html, '<br>');
 
-        if ($lastBreak + 1 === $length)
-        {
+        if ($lastBreak + 1 === $length) {
             $html = substr($html, 0, strlen($html) - 1);
         }
 
@@ -760,9 +672,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Generates the text for the given resources.
      *
-     * @param   array   $resources  the rooms associated with the person or persons
-     * @param   string  $name       the name and index of the resource within the respective array
-     * @param   bool    $code       whether the resource code should be used for the text
+     * @param array  $resources the rooms associated with the person or persons
+     * @param string $name      the name and index of the resource within the respective array
+     * @param bool   $code      whether the resource code should be used for the text
      *
      * @return string
      */
@@ -770,8 +682,7 @@ abstract class GridLayout extends BaseLayout
     {
         $container = [];
 
-        foreach ($resources as $resource)
-        {
+        foreach ($resources as $resource) {
             $container[] = $code ? $resource['code'] : $resource[$name];
         }
 
@@ -781,8 +692,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Creates the text for the role being currently iterated.
      *
-     * @param   int    $roleID       the id of the role being iterated
-     * @param   array  $rolePersons  the persons associated with the role being iterated
+     * @param int   $roleID      the id of the role being iterated
+     * @param array $rolePersons the persons associated with the role being iterated
      *
      * @return string
      */
@@ -799,7 +710,7 @@ abstract class GridLayout extends BaseLayout
     /**
      * Aggregates resources to string with a soft wrap at $this::BREAK characters.
      *
-     * @param   array  $resources  the resources to be aggregated
+     * @param array $resources the resources to be aggregated
      *
      * @return string
      */
@@ -808,30 +719,22 @@ abstract class GridLayout extends BaseLayout
         asort($resources);
         $lastResource = array_pop($resources);
 
-        if ($resources)
-        {
+        if ($resources) {
             $index  = 0;
             $length = 0;
             $texts  = [];
 
-            foreach ($resources as $resource)
-            {
-                if (empty($texts[$index]))
-                {
+            foreach ($resources as $resource) {
+                if (empty($texts[$index])) {
                     $texts[$index] = $resource;
-                }
-                else
-                {
+                } else {
                     $probe = $texts[$index] . ", $resource";
 
-                    if (strlen($probe) > $this::LINE_LENGTH)
-                    {
+                    if (strlen($probe) > $this::LINE_LENGTH) {
                         $texts[$index] .= ",<br>";
                         $index++;
                         $texts[$index] = $resource;
-                    }
-                    else
-                    {
+                    } else {
                         $texts[$index] = $probe;
                     }
                 }
@@ -858,15 +761,12 @@ abstract class GridLayout extends BaseLayout
      */
     private function isGroupRelevant($instance): bool
     {
-        if (!$this->currentGroupID)
-        {
+        if (!$this->currentGroupID) {
             return true;
         }
 
-        foreach ($instance->resources as $person)
-        {
-            if (in_array($this->currentGroupID, $person['groups']))
-            {
+        foreach ($instance->resources as $person) {
+            if (in_array($this->currentGroupID, $person['groups'])) {
                 return true;
             }
         }
@@ -877,9 +777,9 @@ abstract class GridLayout extends BaseLayout
     /**
      * Renders a row in which no instances are planned.
      *
-     * @param   string  $label      the label for the row
-     * @param   string  $monDate    the page start date
-     * @param   string  $saturDate  the page end date
+     * @param string $label     the label for the row
+     * @param string $monDate   the page start date
+     * @param string $saturDate the page end date
      *
      * @return void  modifies the document
      */
@@ -894,8 +794,7 @@ abstract class GridLayout extends BaseLayout
         $view->writeHTMLCell(self::TIME_WIDTH, self::TIME_HEIGHT, $xPos, $yPos, $label, self::CORNER_BORDER);
         $xPos += $this::TIME_WIDTH;
 
-        for ($currentDT = strtotime($monDate); $currentDT <= strtotime($saturDate);)
-        {
+        for ($currentDT = strtotime($monDate); $currentDT <= strtotime($saturDate);) {
             $view->writeHTMLCell($this::DATA_WIDTH, self::TIME_HEIGHT, $xPos, $yPos, '', self::CORNER_BORDER);
             $xPos += $this::DATA_WIDTH;
 
@@ -908,17 +807,15 @@ abstract class GridLayout extends BaseLayout
     /**
      * Renders the grid body.
      *
-     * @param   string  $monDate    the page start date
-     * @param   string  $saturDate  the page end date
+     * @param string $monDate   the page start date
+     * @param string $saturDate the page end date
      *
      * @return void  modifies the document
      */
     protected function renderGrid(string $monDate, string $saturDate)
     {
-        foreach (array_reverse(array_keys($this->grid)) as $endKey)
-        {
-            if (empty($this->grid[$endKey]['cells']))
-            {
+        foreach (array_reverse(array_keys($this->grid)) as $endKey) {
+            if (empty($this->grid[$endKey]['cells'])) {
                 unset($this->grid[$endKey]);
                 continue;
             }
@@ -926,12 +823,10 @@ abstract class GridLayout extends BaseLayout
             break;
         }
 
-        foreach ($this->grid as $block)
-        {
+        foreach ($this->grid as $block) {
             $label = $this->getLabel($block);
 
-            if (!empty($block['cells']))
-            {
+            if (!empty($block['cells'])) {
                 $this->renderRow($label, $block['cells'], $monDate, $saturDate);
                 continue;
             }
@@ -943,8 +838,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Renders the grid headers.
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
      *
      * @return void  modifies the document
      */
@@ -961,8 +856,7 @@ abstract class GridLayout extends BaseLayout
             $view::HORIZONTAL
         );
 
-        for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
-        {
+        for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);) {
             $view->renderMultiCell(
                 $this::DATA_WIDTH,
                 0,
@@ -979,10 +873,10 @@ abstract class GridLayout extends BaseLayout
     }
 
     /**
-     * @param   string  $label      the block label
-     * @param   array   $cells      the block instance data
-     * @param   string  $monDate    the page start date
-     * @param   string  $saturDate  the page end date
+     * @param string $label     the block label
+     * @param array  $cells     the block instance data
+     * @param string $monDate   the page start date
+     * @param string $saturDate the page end date
      *
      * @return void  modifies the document
      */
@@ -993,10 +887,8 @@ abstract class GridLayout extends BaseLayout
         $rowNumber = 1;
         $view      = $this->view;
 
-        foreach ($cells as $index => $row)
-        {
-            if ($index === 'height')
-            {
+        foreach ($cells as $index => $row) {
+            if ($index === 'height') {
                 continue;
             }
 
@@ -1004,19 +896,14 @@ abstract class GridLayout extends BaseLayout
             $xPos   = $view->GetX();
             $yPos   = $view->GetY();
 
-            if ($this->addPageBreak($row['height'], $monDate, $saturDate))
-            {
+            if ($this->addPageBreak($row['height'], $monDate, $saturDate)) {
                 // The page and with it the page's y position has been changed.
                 /** @noinspection PhpConditionAlreadyCheckedInspection */
                 $yPos = $view->GetY();
                 $view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $xPos, $yPos, $label, $border);
-            }
-            elseif ($rowNumber === 1)
-            {
+            } elseif ($rowNumber === 1) {
                 $view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $xPos, $yPos, $label, $border);
-            }
-            else
-            {
+            } else {
                 $view->writeHTMLCell(self::TIME_WIDTH, $row['height'], $xPos, $yPos, '', $border);
             }
 
@@ -1024,8 +911,7 @@ abstract class GridLayout extends BaseLayout
             $rowNumber++;
             $xPos += self::TIME_WIDTH;
 
-            for ($currentDT = strtotime($monDate); $currentDT <= strtotime($saturDate);)
-            {
+            for ($currentDT = strtotime($monDate); $currentDT <= strtotime($saturDate);) {
                 $date  = date('Y-m-d', $currentDT);
                 $value = empty($row[$date]) ? '' : $row[$date];
                 $view->writeHTMLCell($this::DATA_WIDTH, $row['height'], $xPos, $yPos, $value, $border);
@@ -1041,7 +927,7 @@ abstract class GridLayout extends BaseLayout
     /**
      * Resolves any links/link parameters to links with icons.
      *
-     * @param   string  $text  the text to search
+     * @param string $text the text to search
      *
      * @return string
      */
@@ -1094,33 +980,27 @@ abstract class GridLayout extends BaseLayout
     }
 
     /**
-     * Retrieves the individual groups associated with the instances and replaces the groups arrays with their respective
-     * ids to reduce memory overhead.
-     *
+     * Retrieves the individual groups associated with the instances and replaces the groups arrays with their
+     * respective ids to reduce memory overhead.
      * @return array[]
      */
     private function scrapeGroups(): array
     {
         $groups = [];
 
-        foreach ($this->instances as $key => $instance)
-        {
-            if (empty($instance->resources))
-            {
+        foreach ($this->instances as $key => $instance) {
+            if (empty($instance->resources)) {
                 unset($this->instances[$key]);
                 continue;
             }
 
-            foreach ($instance->resources as $personID => $person)
-            {
-                if (empty($person['groups']))
-                {
+            foreach ($instance->resources as $personID => $person) {
+                if (empty($person['groups'])) {
                     unset($instance->resources[$personID]);
                     continue;
                 }
 
-                foreach ($person['groups'] as $groupID => $group)
-                {
+                foreach ($person['groups'] as $groupID => $group) {
                     $groups[$groupID]                                   = $group;
                     $instance->resources[$personID]['groups'][$groupID] = $groupID;
                 }
@@ -1133,8 +1013,8 @@ abstract class GridLayout extends BaseLayout
     /**
      * Sets the grid to be used for the current page
      *
-     * @param   string  $startDate  the page start date
-     * @param   string  $endDate    the page end date
+     * @param string $startDate the page start date
+     * @param string $endDate   the page end date
      *
      * @return void  modifies the document
      */
@@ -1142,33 +1022,25 @@ abstract class GridLayout extends BaseLayout
     {
         $gridIDs = [];
 
-        foreach ($this->instances as $instance)
-        {
-            if ($instance->date < $startDate)
-            {
+        foreach ($this->instances as $instance) {
+            if ($instance->date < $startDate) {
                 continue;
             }
 
-            if ($instance->date > $endDate)
-            {
+            if ($instance->date > $endDate) {
                 continue;
             }
 
-            if ($this->currentGroupID)
-            {
-                foreach ($instance->resources as $person)
-                {
-                    if (!in_array($this->currentGroupID, $person['groups']))
-                    {
+            if ($this->currentGroupID) {
+                foreach ($instance->resources as $person) {
+                    if (!in_array($this->currentGroupID, $person['groups'])) {
                         continue;
                     }
 
                     $gridIDs[$instance->gridID] = empty($gridIDs[$instance->gridID]) ? 1 : $gridIDs[$instance->gridID] + 1;
                     break;
                 }
-            }
-            else
-            {
+            } else {
                 $gridIDs[$instance->gridID] = empty($gridIDs[$instance->gridID]) ? 1 : $gridIDs[$instance->gridID] + 1;
             }
         }
@@ -1176,8 +1048,7 @@ abstract class GridLayout extends BaseLayout
         // Descending by grid use keeping gridID association.
         arsort($gridIDs);
 
-        if (empty($gridIDs) or !$gridID = array_key_first($gridIDs))
-        {
+        if (empty($gridIDs) or !$gridID = array_key_first($gridIDs)) {
             $gridID = Helpers\Grids::getDefault();
         }
 
@@ -1186,10 +1057,8 @@ abstract class GridLayout extends BaseLayout
 
         $hasCells = false;
 
-        foreach ($grid as $blockNo => $block)
-        {
-            if ($cells = $this->getCells($startDate, $endDate, $block))
-            {
+        foreach ($grid as $blockNo => $block) {
+            if ($cells = $this->getCells($startDate, $endDate, $block)) {
                 $hasCells                = true;
                 $grid[$blockNo]['cells'] = $cells;
             }
@@ -1197,14 +1066,11 @@ abstract class GridLayout extends BaseLayout
 
         $this->grid = $hasCells ? $grid : [];
 
-        for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);)
-        {
+        for ($currentDT = strtotime($startDate); $currentDT <= strtotime($endDate);) {
             $date = date('Y-m-d', $currentDT);
 
-            foreach ($this->instances as $key => $instance)
-            {
-                if ((!$this->currentGroupID and $instance->date < $date) or empty($instance->resources))
-                {
+            foreach ($this->instances as $key => $instance) {
+                if ((!$this->currentGroupID and $instance->date < $date) or empty($instance->resources)) {
                     unset($this->instances[$key]);
                 }
             }
@@ -1215,13 +1081,11 @@ abstract class GridLayout extends BaseLayout
 
     /**
      * Sets the subtitle line dedicated to the selected resources.
-     *
      * @return void
      */
     private function setResourceHeader(string $resource = '')
     {
-        if ($resource)
-        {
+        if ($resource) {
             $this->resourceHeader = $resource;
 
             return;
@@ -1232,35 +1096,27 @@ abstract class GridLayout extends BaseLayout
 
         if (array_key_exists('personIDs', $conditions)
             and count($conditions['personIDs']) === 1
-            and $person = Helpers\Persons::getName($conditions['personIDs'][0]))
-        {
+            and $person = Helpers\Persons::getName($conditions['personIDs'][0])) {
             $resources['person'] = $person;
         }
 
         if (array_key_exists('categoryIDs', $conditions)
             and count($conditions['categoryIDs']) === 1
-            and $category = Helpers\Categories::getName($conditions['categoryIDs'][0]))
-        {
+            and $category = Helpers\Categories::getName($conditions['categoryIDs'][0])) {
             $resources['group'] = $category;
         }
 
-        if (array_key_exists('groupIDs', $conditions))
-        {
-            if (count($conditions['groupIDs']) === 1)
-            {
+        if (array_key_exists('groupIDs', $conditions)) {
+            if (count($conditions['groupIDs']) === 1) {
                 $resources['group'] = Helpers\Groups::getFullName($conditions['groupIDs'][0]);
-            }
-            else
-            {
+            } else {
                 $groups    = [];
                 $lastID    = array_pop($conditions['groupIDs']);
                 $lastGroup = Helpers\Groups::getName($lastID);
 
                 // If there was no specific category filter, the groups are not necessarily of the same category and should be ignored.
-                if (array_key_exists('group', $resources))
-                {
-                    foreach ($conditions['groupIDs'] as $groupID)
-                    {
+                if (array_key_exists('group', $resources)) {
+                    foreach ($conditions['groupIDs'] as $groupID) {
                         $groups[] = Helpers\Groups::getName($groupID);
                     }
 
@@ -1269,20 +1125,15 @@ abstract class GridLayout extends BaseLayout
             }
         }
 
-        if (array_key_exists('roomIDs', $conditions))
-        {
-            if (count($conditions['roomIDs']) === 1)
-            {
+        if (array_key_exists('roomIDs', $conditions)) {
+            if (count($conditions['roomIDs']) === 1) {
                 $resources['room'] = Helpers\Rooms::getName($conditions['roomIDs'][0]);
-            }
-            else
-            {
+            } else {
                 $rooms    = [];
                 $lastID   = array_pop($conditions['roomIDs']);
                 $lastRoom = Helpers\Rooms::getName($lastID);
 
-                foreach ($conditions['roomIDs'] as $roomID)
-                {
+                foreach ($conditions['roomIDs'] as $roomID) {
                     $rooms[] = Helpers\Rooms::getName($roomID);
                 }
 

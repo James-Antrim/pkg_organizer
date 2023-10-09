@@ -1,5 +1,7 @@
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET foreign_key_checks = 0;
+SET
+SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET
+foreign_key_checks = 0;
 
 DROP TABLE IF EXISTS `#__organizer_associations`;
 DROP TABLE IF EXISTS `#__organizer_blocks`;
@@ -51,4 +53,5 @@ DROP TABLE IF EXISTS `#__organizer_units`;
 DROP TABLE IF EXISTS `#__organizer_use_codes`;
 DROP TABLE IF EXISTS `#__organizer_use_groups`;
 
-SET foreign_key_checks = 1;
+SET
+foreign_key_checks = 1;

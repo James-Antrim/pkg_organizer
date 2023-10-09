@@ -19,47 +19,42 @@ use Organizer\Helpers;
  */
 class MergeEmailField extends MergeValuesField
 {
-	use Mergeable;
+    use Mergeable;
 
-	/**
-	 * @var  string
-	 */
-	protected $type = 'MergeEmail';
+    /**
+     * @var  string
+     */
+    protected $type = 'MergeEmail';
 
-	/**
-	 * Gets the saved values for the selected resource IDs.
-	 *
-	 * @return array
-	 */
-	protected function getValues(): array
-	{
-		$domain = Helpers\Input::getParams()->get('emailFilter');
+    /**
+     * Gets the saved values for the selected resource IDs.
+     * @return array
+     */
+    protected function getValues(): array
+    {
+        $domain = Helpers\Input::getParams()->get('emailFilter');
 
-		if (!$domain)
-		{
-			return [];
-		}
+        if (!$domain) {
+            return [];
+        }
 
 
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
-		$query->selectX(['DISTINCT email AS value'], '#__users', 'id', $this->selectedIDs)
-			->order('value ASC');
-		Database::setQuery($query);
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
+        $query->selectX(['DISTINCT email AS value'], '#__users', 'id', $this->selectedIDs)
+            ->order('value ASC');
+        Database::setQuery($query);
 
-		if (!$addresses = Database::loadColumn())
-		{
-			return [];
-		}
+        if (!$addresses = Database::loadColumn()) {
+            return [];
+        }
 
-		foreach ($addresses as $address)
-		{
-			if (strpos($address, $domain))
-			{
-				return [$address];
-			}
-		}
+        foreach ($addresses as $address) {
+            if (strpos($address, $domain)) {
+                return [$address];
+            }
+        }
 
-		return $addresses;
-	}
+        return $addresses;
+    }
 }

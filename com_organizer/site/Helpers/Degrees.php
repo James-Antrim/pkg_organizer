@@ -16,17 +16,17 @@ namespace Organizer\Helpers;
  */
 class Degrees extends ResourceHelper
 {
-	/**
-	 * Gets the academic level of the degree. (Bachelor|Master)
-	 *
-	 * @param   int  $degreeID  the id of the degree
-	 *
-	 * @return string
-	 */
-	public static function getLevel(int $degreeID): string
-	{
-		$code = self::getCode($degreeID);
+    /**
+     * Gets the academic level of the degree. (Bachelor|Master)
+     *
+     * @param int $degreeID the id of the degree
+     *
+     * @return string
+     */
+    public static function getLevel(int $degreeID): string
+    {
+        $code = self::getCode($degreeID);
 
-		return strpos($code, 'M') === 0 ? 'Master' : 'Bachelor';
-	}
+        return strpos($code, 'M') === 0 ? 'Master' : 'Bachelor';
+    }
 }

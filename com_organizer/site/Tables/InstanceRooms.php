@@ -15,29 +15,27 @@ namespace Organizer\Tables;
  */
 class InstanceRooms extends BaseTable
 {
-	use Modified;
+    use Modified;
 
-	/**
-	 * The id of the instance persons entry referenced.
-	 * INT(20) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $assocID;
+    /**
+     * The id of the instance persons entry referenced.
+     * INT(20) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $assocID;
 
-	/**
-	 * The id of the room entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $roomID;
+    /**
+     * The id of the room entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $roomID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_instance_rooms');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_instance_rooms');
+    }
 }

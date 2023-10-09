@@ -15,45 +15,41 @@ namespace Organizer\Tables;
  */
 class Bookings extends BaseTable
 {
-	use Coded;
+    use Coded;
 
-	/**
-	 * The id of the block entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $blockID;
+    /**
+     * The id of the block entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $blockID;
 
-	/**
-	 * The end time of the block.
-	 * TIME DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $endTime;
+    /**
+     * The end time of the block.
+     * TIME DEFAULT NULL
+     * @var string
+     */
+    public $endTime;
 
-	/**
-	 * The start time of the block.
-	 * TIME DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $startTime;
+    /**
+     * The start time of the block.
+     * TIME DEFAULT NULL
+     * @var string
+     */
+    public $startTime;
 
-	/**
-	 * The id of the unit entry referenced.
-	 * INT(11) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $unitID;
+    /**
+     * The id of the unit entry referenced.
+     * INT(11) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $unitID;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_bookings');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_bookings');
+    }
 }

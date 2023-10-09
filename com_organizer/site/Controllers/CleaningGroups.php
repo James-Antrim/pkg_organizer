@@ -17,7 +17,7 @@ use Organizer\Controller;
  */
 class CleaningGroups extends Controller
 {
-	protected $listView = 'CleaningGroups';
+    protected $listView = 'CleaningGroups';
 
-	protected $resource = 'CleaningGroup';
+    protected $resource = 'CleaningGroup';
 }

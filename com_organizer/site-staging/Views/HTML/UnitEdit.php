@@ -18,22 +18,21 @@ use Organizer\Helpers;
  */
 class UnitEdit extends EditView
 {
-	public $orientation = 'vertical';
+    public $orientation = 'vertical';
 
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		$model = $this->getModel();
+    /**
+     * Method to generate buttons for user interaction
+     * @return void
+     */
+    protected function addToolBar()
+    {
+        $model = $this->getModel();
 
-		$title = $model->my ? 'ORGANIZER_MANAGE_MY_UNIT' : 'ORGANIZER_UNIT_EDIT';
+        $title = $model->my ? 'ORGANIZER_MANAGE_MY_UNIT' : 'ORGANIZER_UNIT_EDIT';
 
-		$this->setTitle($title);
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE_CLOSE'), "Units.save", false);
-		$toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_('ORGANIZER_CLOSE'), "Units.cancel", false);
-	}
+        $this->setTitle($title);
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE_CLOSE'), "Units.save", false);
+        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_('ORGANIZER_CLOSE'), "Units.cancel", false);
+    }
 }

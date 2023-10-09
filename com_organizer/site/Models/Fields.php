@@ -20,54 +20,47 @@ use Organizer\Helpers;
  */
 class Fields extends ListModel
 {
-	protected $defaultOrdering = 'name';
+    protected $defaultOrdering = 'name';
 
-	protected $filter_fields = ['colorID', 'organizationID'];
+    protected $filter_fields = ['colorID', 'organizationID'];
 
-	/**
-	 * Method to get a list of resources from the database.
-	 *
-	 * @return JDatabaseQuery
-	 */
-	protected function getListQuery(): JDatabaseQuery
-	{
-		$tag = Helpers\Languages::getTag();
-		/* @var QueryMySQLi $query */
-		$query = Database::getQuery();
+    /**
+     * Method to get a list of resources from the database.
+     * @return JDatabaseQuery
+     */
+    protected function getListQuery(): JDatabaseQuery
+    {
+        $tag = Helpers\Languages::getTag();
+        /* @var QueryMySQLi $query */
+        $query = Database::getQuery();
 
-		$query->select("DISTINCT f.id, code, f.name_$tag AS name")->from('#__organizer_fields AS f');
+        $query->select("DISTINCT f.id, code, f.name_$tag AS name")->from('#__organizer_fields AS f');
 
-		$this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code']);
+        $this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code']);
 
-		$colorID        = Helpers\Input::getFilterID('color');
-		$organizationID = Helpers\Input::getFilterID('organization');
-		if ($colorID or $organizationID)
-		{
-			if ($colorID === self::NONE or $organizationID === self::NONE)
-			{
-				$query->leftJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
-			}
-			else
-			{
-				$query->innerJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
-			}
+        $colorID        = Helpers\Input::getFilterID('color');
+        $organizationID = Helpers\Input::getFilterID('organization');
+        if ($colorID or $organizationID) {
+            if ($colorID === self::NONE or $organizationID === self::NONE) {
+                $query->leftJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
+            } else {
+                $query->innerJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
+            }
 
-			if ($colorID)
-			{
-				$colorFilter = $colorID === self::NONE ? 'colorID IS NULL' : "colorID = $colorID";
-				$query->where($colorFilter);
-			}
+            if ($colorID) {
+                $colorFilter = $colorID === self::NONE ? 'colorID IS NULL' : "colorID = $colorID";
+                $query->where($colorFilter);
+            }
 
-			if ($organizationID)
-			{
-				$organizationFilter = $organizationID === self::NONE ?
-					'organizationID IS NULL' : "organizationID = $organizationID";
-				$query->where($organizationFilter);
-			}
-		}
+            if ($organizationID) {
+                $organizationFilter = $organizationID === self::NONE ?
+                    'organizationID IS NULL' : "organizationID = $organizationID";
+                $query->where($organizationFilter);
+            }
+        }
 
-		$this->setOrdering($query);
+        $this->setOrdering($query);
 
-		return $query;
-	}
+        return $query;
+    }
 }

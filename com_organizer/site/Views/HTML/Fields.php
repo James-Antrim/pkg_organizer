@@ -29,9 +29,9 @@ class Fields extends ListView
 
         $headers = [
             'checkbox' => '',
-            'name'     => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-            'code'     => Helpers\HTML::sort('CODE', 'code', $direction, $ordering),
-            'colors'   => Helpers\Languages::_('ORGANIZER_COLORS')
+            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
+            'code' => Helpers\HTML::sort('CODE', 'code', $direction, $ordering),
+            'colors' => Helpers\Languages::_('ORGANIZER_COLORS')
         ];
 
         $this->headers = $headers;
@@ -47,8 +47,7 @@ class Fields extends ListView
         $structuredItems = [];
         $organizationID  = (int) $this->state->get('filter.organizationID');
 
-        foreach ($this->items as $item)
-        {
+        foreach ($this->items as $item) {
             $item->colors = Helpers\Fields::getFieldColorDisplay($item->id, $organizationID);
 
             $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);

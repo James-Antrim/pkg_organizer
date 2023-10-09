@@ -26,7 +26,7 @@ class Groups extends Associated implements Selectable
     /**
      * Returns the category (table entry) associated with a group.
      *
-     * @param   int  $groupID
+     * @param int $groupID
      *
      * @return Category
      */
@@ -35,8 +35,7 @@ class Groups extends Associated implements Selectable
         $category = new Category();
         $group    = new Group();
 
-        if ($group->load($groupID))
-        {
+        if ($group->load($groupID)) {
             $category->load($group->categoryID);
         }
 
@@ -46,7 +45,7 @@ class Groups extends Associated implements Selectable
     /**
      * Gets the name of the category with which the group is associated.
      *
-     * @param   int  $groupID
+     * @param int $groupID
      *
      * @return string
      */
@@ -54,8 +53,7 @@ class Groups extends Associated implements Selectable
     {
         $category = self::getCategory($groupID);
 
-        if (!$category->id)
-        {
+        if (!$category->id) {
             return 0;
         }
 
@@ -65,7 +63,7 @@ class Groups extends Associated implements Selectable
     /**
      * Gets the name of the category with which the group is associated.
      *
-     * @param   int  $groupID
+     * @param int $groupID
      *
      * @return string
      */
@@ -73,8 +71,7 @@ class Groups extends Associated implements Selectable
     {
         $category = self::getCategory($groupID);
 
-        if (!$category->id)
-        {
+        if (!$category->id) {
             return Languages::_('ORGANIZER_NO_CATEGORIES');
         }
 
@@ -86,7 +83,7 @@ class Groups extends Associated implements Selectable
     /**
      * Retrieves the events associated with a group.
      *
-     * @param   int  $groupID  the id of the group
+     * @param int $groupID the id of the group
      *
      * @return array[]
      */
@@ -108,7 +105,7 @@ class Groups extends Associated implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function getOptions(string $access = ''): array
     {
@@ -118,10 +115,8 @@ class Groups extends Associated implements Selectable
         $name        = count($categoryIDs) === 1 ? "name_$tag" : "fullName_$tag";
         $options     = [];
 
-        foreach (self::getResources() as $group)
-        {
-            if ($group['active'])
-            {
+        foreach (self::getResources() as $group) {
+            if ($group['active']) {
                 $options[] = HTML::_('select.option', $group['id'], $group[$name]);
             }
         }
@@ -137,46 +132,40 @@ class Groups extends Associated implements Selectable
     /**
      * @inheritDoc
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param string $access any access restriction which should be performed
      */
     public static function getResources(string $access = ''): array
     {
-        if ($categoryID = Input::getInt('categoryID'))
-        {
+        if ($categoryID = Input::getInt('categoryID')) {
             $categoryIDs = [$categoryID];
         }
 
         $categoryIDs = empty($categoryIDs) ? Input::getIntCollection('categoryIDs') : $categoryIDs;
         $categoryIDs = empty($categoryIDs) ? Input::getFilterIDs('category') : $categoryIDs;
 
-        if ($organizationID = Input::getInt('organizationID'))
-        {
+        if ($organizationID = Input::getInt('organizationID')) {
             $organizationIDs = [$organizationID];
         }
 
         $organizationIDs = empty($organizationIDs) ? Input::getIntCollection('organizationIDs') : $organizationIDs;
         $organizationIDs = empty($organizationIDs) ? Input::getFilterIDs('organization') : $organizationIDs;
 
-        if (empty($categoryIDs) and empty($organizationIDs))
-        {
+        if (empty($categoryIDs) and empty($organizationIDs)) {
             return [];
         }
 
         $query = Database::getQuery();
         $query->select('g.*')->from('#__organizer_groups AS g');
 
-        if (!empty($access))
-        {
+        if (!empty($access)) {
             self::addAccessFilter($query, $access, 'group', 'g');
         }
 
-        if (!empty($organizationIDs))
-        {
+        if (!empty($organizationIDs)) {
             self::addOrganizationFilter($query, 'group', 'g');
         }
 
-        if (!empty($categoryIDs))
-        {
+        if (!empty($categoryIDs)) {
             self::addResourceFilter($query, 'category', 'cat', 'g');
         }
 
@@ -188,9 +177,9 @@ class Groups extends Associated implements Selectable
     /**
      * Retrieves the units associated with an event.
      *
-     * @param   int     $groupID   the id of the referenced event
-     * @param   string  $date      the date context for the unit search
-     * @param   string  $interval  the interval to use as context for units
+     * @param int    $groupID  the id of the referenced event
+     * @param string $date     the date context for the unit search
+     * @param string $interval the interval to use as context for units
      *
      * @return array[]
      */

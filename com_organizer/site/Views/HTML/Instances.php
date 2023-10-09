@@ -69,22 +69,18 @@ class Instances extends ListView
 
     /**
      * Adds supplemental information to the display output.
-     *
      * @return void modifies the object property supplement
      */
     protected function addSupplement()
     {
-        if ($this->noInstances)
-        {
+        if ($this->noInstances) {
             $supplement = '<div class="tbox-yellow">';
 
-            if (!$this->model->noDate and $dates = Helper::getJumpDates($this->model->conditions))
-            {
+            if (!$this->model->noDate and $dates = Helper::getJumpDates($this->model->conditions)) {
                 $supplement .= Languages::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
                 $supplement .= '<ul><li>';
 
-                foreach ($dates as $key => $date)
-                {
+                foreach ($dates as $key => $date) {
                     $constant      = $key === 'futureDate' ? 'ORGANIZER_NEXT_INSTANCE' : 'ORGANIZER_PREVIOUS_INSTANCE';
                     $formattedDate = Dates::formatDate($date);
                     $text          = Languages::_($constant);
@@ -96,20 +92,13 @@ class Instances extends ListView
                 }
 
                 $supplement .= implode('</li><li>', $dates) . '</li></ul>';
-            }
-            elseif (Helpers\Input::getInt('my'))
-            {
-                if (Helpers\Users::getID())
-                {
+            } elseif (Helpers\Input::getInt('my')) {
+                if (Helpers\Users::getID()) {
                     $supplement .= Languages::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
-                }
-                else
-                {
+                } else {
                     $supplement .= Languages::_('ORGANIZER_401');
                 }
-            }
-            else
-            {
+            } else {
                 $supplement .= Languages::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
             }
 
@@ -132,17 +121,12 @@ class Instances extends ListView
         $standard = new StandardButton();
         $expURL   = Helpers\Routing::getViewURL('export');
 
-        if ($this->mobile)
-        {
+        if ($this->mobile) {
             $toolbar->appendButton('Script', 'info-calender', Languages::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');
             $toolbar->appendButton('Link', 'equalizer', Languages::_('ORGANIZER_ADVANCED_EXPORT'), $expURL);
-        }
-        else
-        {
-            if (Helpers\Users::getID() and $this->model->layout === Helper::LIST)
-            {
-                if (!$this->expired and !$this->teachesALL)
-                {
+        } else {
+            if (Helpers\Users::getID() and $this->model->layout === Helper::LIST) {
+                if (!$this->expired and !$this->teachesALL) {
                     $add    = $standard->fetchButton(
                         'Standard',
                         'bookmark',
@@ -189,8 +173,7 @@ class Instances extends ListView
                     );
                 }*/
 
-                if (($this->manages or $this->teachesOne) and !$this->premature)
-                {
+                if (($this->manages or $this->teachesOne) and !$this->premature) {
                     $toolbar->appendButton(
                         'Highlander',
                         'users',
@@ -201,8 +184,7 @@ class Instances extends ListView
                 }
             }
 
-            switch ((string) $this->state->get('list.interval'))
-            {
+            switch ((string) $this->state->get('list.interval')) {
                 case 'half':
                     $interval = Languages::_('ORGANIZER_HALF_YEAR');
                     break;
@@ -235,10 +217,10 @@ class Instances extends ListView
             $xlsButton   = $newTab->fetchButton('NewTab', 'file-xls', $xlsText, 'Instances.xls', false);
 
             $exportButtons = [
-                $icsText   => $icsButton,
+                $icsText => $icsButton,
                 $pdfA3Text => $pdfA3Button,
                 $pdfA4Text => $pdfA4Button,
-                $xlsText   => $xlsButton
+                $xlsText => $xlsButton
             ];
 
             ksort($exportButtons);
@@ -256,18 +238,15 @@ class Instances extends ListView
      */
     protected function authorize()
     {
-        if ($this->adminContext)
-        {
-            if (!$this->manages = (bool) Helpers\Can::scheduleTheseOrganizations())
-            {
+        if ($this->adminContext) {
+            if (!$this->manages = (bool) Helpers\Can::scheduleTheseOrganizations()) {
                 Helpers\OrganizerHelper::error(403);
             }
 
             return;
         }
 
-        if (Helpers\Input::getBool('my') and !Helpers\Users::getID())
-        {
+        if (Helpers\Input::getBool('my') and !Helpers\Users::getID()) {
             Helpers\OrganizerHelper::error(401);
         }
 
@@ -289,8 +268,8 @@ class Instances extends ListView
     /**
      * Creates the blocks used to display a grid schedule from the raw grid periods.
      *
-     * @param   array  $periods  the raw periods data
-     * @param   bool   $allDay   whether the grid consists of a single block for the whole day
+     * @param array $periods the raw periods data
+     * @param bool  $allDay  whether the grid consists of a single block for the whole day
      *
      * @return array[]
      */
@@ -299,20 +278,16 @@ class Instances extends ListView
         $blocks = [];
         $tag    = Languages::getTag();
 
-        foreach ($periods as $period)
-        {
+        foreach ($periods as $period) {
             $block              = [];
             $block['key']       = "{$period['startTime']}-{$period['endTime']}";
             $block['endTime']   = Dates::formatEndTime($period['endTime']);
             $block['startTime'] = Dates::formatTime($period['startTime']);
             $block['type']      = $period['type'];
 
-            if (!empty($period["label_$tag"]))
-            {
+            if (!empty($period["label_$tag"])) {
                 $block['label'] = $period["label_$tag"];
-            }
-            else
-            {
+            } else {
                 $allDay         = ($block['endTime'] === '00:00' and $block['startTime'] === '00:00');
                 $block['label'] = $allDay ? '' : "{$block['startTime']}<br>-<br>{$block['endTime']}";
             }
@@ -326,9 +301,9 @@ class Instances extends ListView
     /**
      * Generates a grid structure based upon the frame parameters, which can then later be filled with appointments.
      *
-     * @param   array   $blocks   the daily structure of the grid
-     * @param   array  &$headers  the column headers
-     * @param   bool    $allDay   whether the grid consists of a single block lasting the whole day
+     * @param array   $blocks  the daily structure of the grid
+     * @param array  &$headers the column headers
+     * @param bool    $allDay  whether the grid consists of a single block lasting the whole day
      *
      * @return array[] the grid structure to fill with appointments
      */
@@ -344,31 +319,26 @@ class Instances extends ListView
         $startDoW  = empty($rawGrid['startDay']) ? 1 : $rawGrid['startDay'];
         $grid      = [];
 
-        for ($current = $startDate; $current <= $endDate;)
-        {
+        for ($current = $startDate; $current <= $endDate;) {
             $currentDT = strtotime($current);
             $day       = date('w', $currentDT);
 
             $dayLabel = '';
             $dayType  = '';
 
-            if (!empty($holidays[$current]))
-            {
+            if (!empty($holidays[$current])) {
                 $dayLabel = $holidays[$current]['name'];
                 $dayType  = $holidays[$current]['type'];
             }
 
-            if ($day >= $startDoW and $day <= $endDoW)
-            {
+            if ($day >= $startDoW and $day <= $endDoW) {
                 $day               = date('l', $currentDT);
                 $headers[$current] = Languages::_($day) . '<br>' . Dates::formatDate($current);
 
-                foreach ($blocks as $block)
-                {
+                foreach ($blocks as $block) {
                     $key = $block['key'];
 
-                    if (!$allDay)
-                    {
+                    if (!$allDay) {
                         $grid[$key]['times'] = $block['label'];
                         $grid[$key]['type']  = $block['type'];
                     }
@@ -381,8 +351,7 @@ class Instances extends ListView
                     // Create a container for instances to appear
                     $grid[$key][$current] = ['busy' => $busy, 'instances' => []];
 
-                    if ($dayLabel)
-                    {
+                    if ($dayLabel) {
                         $grid[$key][$current]['label'] = $dayLabel;
                         $grid[$key][$current]['type']  = $dayType;
                     }
@@ -399,7 +368,7 @@ class Instances extends ListView
     /**
      * Creates the event title.
      *
-     * @param   stdClass  $item  the event item being iterated
+     * @param stdClass $item the event item being iterated
      *
      * @return array the title column
      */
@@ -419,45 +388,37 @@ class Instances extends ListView
      * Creates output for individual instances and assigns them to the day/block coordinates in which they will be
      * displayed.
      *
-     * @param   array  $grid  the grid used to structure the instances for display
+     * @param array $grid the grid used to structure the instances for display
      *
      * @return void
      */
     private function fillGrid(array &$grid)
     {
-        foreach ($this->items as $item)
-        {
+        foreach ($this->items as $item) {
             $cClass = 'grid-item';
             $iClass = 'warning-2';
             $notice = '';
 
             // If removed are here at all, the status holds relevance regardless of date
-            if ($item->unitStatus === 'removed')
-            {
+            if ($item->unitStatus === 'removed') {
                 $cClass  .= ' removed';
                 $iClass  .= ' unit-removed';
                 $date    = Dates::formatDate($item->unitStatusDate);
                 $message = sprintf(Languages::_('ORGANIZER_UNIT_REMOVED_ON'), $date);
                 $notice  = HTML::icon($iClass, $message);
-            }
-            elseif ($item->instanceStatus === 'removed')
-            {
+            } elseif ($item->instanceStatus === 'removed') {
                 $cClass  .= ' removed';
                 $iClass  .= ' instance-removed';
                 $date    = Dates::formatDate($item->instanceStatusDate);
                 $message = sprintf(Languages::_('ORGANIZER_INSTANCE_REMOVED_ON'), $date);
                 $notice  = HTML::icon($iClass, $message);
-            }
-            elseif ($item->unitStatus === 'new' and $item->unitStatusDate >= $this->statusDate)
-            {
+            } elseif ($item->unitStatus === 'new' and $item->unitStatusDate >= $this->statusDate) {
                 $cClass  .= ' new';
                 $iClass  .= ' unit-new';
                 $date    = Dates::formatDate($item->instanceStatusDate);
                 $message = sprintf(Languages::_('ORGANIZER_UNIT_ADDED_ON'), $date);
                 $notice  = HTML::icon($iClass, $message);
-            }
-            elseif ($item->instanceStatus === 'new' and $item->instanceStatusDate >= $this->statusDate)
-            {
+            } elseif ($item->instanceStatus === 'new' and $item->instanceStatusDate >= $this->statusDate) {
                 $cClass  .= ' new';
                 $iClass  .= ' instance-new';
                 $date    = Dates::formatDate($item->instanceStatusDate);
@@ -472,12 +433,9 @@ class Instances extends ListView
             $title = '<span class="event">' . $title . '</span>';
             $title = HTML::_('link', $item->link, $title);
 
-            if (empty($item->method))
-            {
+            if (empty($item->method)) {
                 $method = '';
-            }
-            else
-            {
+            } else {
                 $method = "<br><span class=\"method\">$item->method</span>";
                 $key    .= $item->method;
             }
@@ -486,29 +444,25 @@ class Instances extends ListView
 
             $persons = '';
 
-            if (empty($this->state->get('filter.personID')) and $item->persons)
-            {
+            if (empty($this->state->get('filter.personID')) and $item->persons) {
                 $persons = '<br>' . $item->persons;
             }
 
             $groups = '';
 
-            if (empty($this->state->get('filter.groupID')) and $item->groups)
-            {
+            if (empty($this->state->get('filter.groupID')) and $item->groups) {
                 $groups = '<br>' . $item->groups;
             }
 
             $rooms = '';
 
-            if (empty($this->state->get('filter.roomID')) and $item->rooms)
-            {
+            if (empty($this->state->get('filter.roomID')) and $item->rooms) {
                 $rooms = '<br>' . $item->rooms;
             }
 
             $chain = '';
 
-            if ($item->courseID)
-            {
+            if ($item->courseID) {
                 $chain = '<br>' . HTML::icon('link hasToolTip',
                         Languages::_('ORGANIZER_REGISTRATION_LINKED')) . ' ';
                 $chain .= Languages::_('ORGANIZER_INSTANCE_SERIES') . ": $item->courseID";
@@ -516,49 +470,37 @@ class Instances extends ListView
 
             $tools = [];
 
-            if (Helpers\Users::getID())
-            {
+            if (Helpers\Users::getID()) {
                 $instanceID = $item->instanceID;
 
-                if ($item->manageable)
-                {
-                    if ($item->presence !== Helper::ONLINE and !$item->premature)
-                    {
+                if ($item->manageable) {
+                    if ($item->presence !== Helper::ONLINE and !$item->premature) {
                         $label   = Languages::_('ORGANIZER_MANAGE_BOOKING');
                         $attribs = ['aria-label' => $label];
                         $icon    = HTML::icon('users', $label, true);
                         $url     = '';
 
-                        if ($item->bookingID)
-                        {
+                        if ($item->bookingID) {
                             $url = Helpers\Routing::getViewURL('booking', $item->bookingID);
-                        }
-                        elseif ($item->registration and !$item->expired)
-                        {
+                        } elseif ($item->registration and !$item->expired) {
                             $url = Helpers\Routing::getTaskURL('bookings.manage', $instanceID);
                         }
 
-                        if ($url)
-                        {
+                        if ($url) {
                             $tools[] = HTML::link($url, $icon, $attribs);
                         }
                     }
                 }
 
                 // Virtual and full appointments can still be added to the personal calendar
-                if (!$item->taught and !$item->expired)
-                {
-                    if (!$item->running)
-                    {
-                        if ($item->bookmarked)
-                        {
+                if (!$item->taught and !$item->expired) {
+                    if (!$item->running) {
+                        if ($item->bookmarked) {
                             $label = Languages::_('ORGANIZER_REMOVE_BOOKMARK');
                             $icon  = HTML::icon('bookmark', $label, true);
                             $url   = Helpers\Routing::getTaskURL('InstanceParticipants.removeBookmarkBlock',
                                 $instanceID);
-                        }
-                        else
-                        {
+                        } else {
                             $label = Languages::_('ORGANIZER_BOOKMARK');
                             $icon  = HTML::icon('bookmark-2', $label, true);
                             $url   = Helpers\Routing::getTaskURL('InstanceParticipants.bookmarkBlock', $instanceID);
@@ -609,8 +551,7 @@ class Instances extends ListView
                 }
             }
 
-            if ($item->subjectID)
-            {
+            if ($item->subjectID) {
                 $sIcon   = HTML::icon('book hasToolTip', Languages::_('ORGANIZER_READ_SUBJECT_DOCUMENTATION'));
                 $sURL    = Helpers\Routing::getViewURL('SubjectItem', $item->subjectID);
                 $tools[] = HTML::link($sURL, $sIcon);
@@ -622,11 +563,9 @@ class Instances extends ListView
             $comment = $this->resolveLinks($item->comment, $tools);
             $comment = empty(trim($comment)) ? '' : "<br><span class=\"comment\">$comment</span>";
 
-            foreach ($grid as &$items)
-            {
+            foreach ($grid as &$items) {
                 // Date is assumed to exist
-                if ($items['startTime'] >= $item->endTime or $items['endTime'] <= $item->startTime)
-                {
+                if ($items['startTime'] >= $item->endTime or $items['endTime'] <= $item->startTime) {
                     continue;
                 }
 
@@ -655,41 +594,35 @@ class Instances extends ListView
         $url   = '';
 
         $fields = [
-            'campusID'       => $state->get('filter.campusID', 0),
-            'categoryID'     => $state->get('filter.categoryID', 0),
-            'eventID'        => $state->get('filter.eventID', 0),
-            'groupID'        => $state->get('filter.groupID', 0),
-            'methodID'       => $state->get('filter.methodID', 0),
-            'my'             => $state->get('list.my', 0),
+            'campusID' => $state->get('filter.campusID', 0),
+            'categoryID' => $state->get('filter.categoryID', 0),
+            'eventID' => $state->get('filter.eventID', 0),
+            'groupID' => $state->get('filter.groupID', 0),
+            'methodID' => $state->get('filter.methodID', 0),
+            'my' => $state->get('list.my', 0),
             'organizationID' => $state->get('filter.organizationID', 0),
-            'personID'       => $state->get('filter.personID', 0),
-            'roomID'         => $state->get('filter.roomID', 0)
+            'personID' => $state->get('filter.personID', 0),
+            'roomID' => $state->get('filter.roomID', 0)
         ];
 
         $params = Helpers\Input::getParams();
 
-        foreach ($fields as $field => $value)
-        {
-            if (empty($value))
-            {
+        foreach ($fields as $field => $value) {
+            if (empty($value)) {
                 unset($fields[$field]);
             }
         }
 
-        foreach (['my' => 'my', 'methodIDs' => 'methodID'] as $param => $field)
-        {
-            if ($value = $params->get($param))
-            {
+        foreach (['my' => 'my', 'methodIDs' => 'methodID'] as $param => $field) {
+            if ($value = $params->get($param)) {
                 $fields[$field] = $value;
             }
         }
 
-        if ($fields)
-        {
+        if ($fields) {
             $authRequired = (!empty($fields['my']) or !empty($fields['personID']));
 
-            if (!$username = Helpers\Users::getUserName() and $authRequired)
-            {
+            if (!$username = Helpers\Users::getUserName() and $authRequired) {
                 Helpers\OrganizerHelper::error(401);
 
                 return;
@@ -698,22 +631,17 @@ class Instances extends ListView
             $url = Uri::base() . '?option=com_organizer&view=instances&format=ics';
 
             // Resource links
-            if (empty($fields['my']))
-            {
-                foreach ($fields as $field => $value)
-                {
+            if (empty($fields['my'])) {
+                foreach ($fields as $field => $value) {
                     $value = is_array($value) ? implode(',', $value) : $value;
                     $url   .= "&$field=$value";
                 }
-            }
-            // 'My' link
-            else
-            {
+            } // 'My' link
+            else {
                 $url .= "&my=1";
             }
 
-            if ($authRequired)
-            {
+            if ($authRequired) {
                 $url .= "&username=$username&auth=" . Helpers\Users::getAuth();
             }
         }
@@ -725,8 +653,7 @@ class Instances extends ListView
         Document::addScript(Uri::root() . 'components/com_organizer/js/ics.js');
         Document::addScript(Uri::root() . 'components/com_organizer/js/jump.js');
 
-        if ($this->model->layout === Helper::GRID)
-        {
+        if ($this->model->layout === Helper::GRID) {
             Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/grid.css');
         }
     }
@@ -737,16 +664,15 @@ class Instances extends ListView
     public function setHeaders()
     {
         $this->headers = [
-            'tools'   => '',
-            'title'   => ['attributes' => ['class' => 'title-column'], 'value' => Languages::_('ORGANIZER_INSTANCE')],
-            'status'  => Languages::_('ORGANIZER_STATUS'),
+            'tools' => '',
+            'title' => ['attributes' => ['class' => 'title-column'], 'value' => Languages::_('ORGANIZER_INSTANCE')],
+            'status' => Languages::_('ORGANIZER_STATUS'),
             'persons' => Languages::_('ORGANIZER_PERSONS'),
-            'groups'  => Languages::_('ORGANIZER_GROUPS'),
-            'rooms'   => Languages::_('ORGANIZER_ROOMS')
+            'groups' => Languages::_('ORGANIZER_GROUPS'),
+            'rooms' => Languages::_('ORGANIZER_ROOMS')
         ];
 
-        if (Helpers\Users::getID() and !$this->mobile)
-        {
+        if (Helpers\Users::getID() and !$this->mobile) {
             $this->headers['tools'] = HTML::_('grid.checkall');
         }
     }
@@ -756,8 +682,7 @@ class Instances extends ListView
      */
     protected function setSubtitle()
     {
-        if ($interval = $this->state->get('list.interval') and $interval === 'quarter')
-        {
+        if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {
             $date           = $this->state->get('list.date');
             $interval       = Helpers\Dates::getQuarter($date);
             $interval       = Helpers\Dates::getDisplay($interval['startDate'], $interval['endDate']);
@@ -767,7 +692,6 @@ class Instances extends ListView
 
     /**
      * Structures the instances to be presented in a weekly/daily plan (grid).
-     *
      * @return void
      */
     private function structureGrid()
@@ -783,12 +707,9 @@ class Instances extends ListView
 
         $this->fillGrid($grid);
 
-        foreach ($grid as $key => $dates)
-        {
-            foreach ($dates as $date => $instances)
-            {
-                if (in_array($date, ['endTime', 'startTime', 'times', 'type']))
-                {
+        foreach ($grid as $key => $dates) {
+            foreach ($dates as $date => $instances) {
+                if (in_array($date, ['endTime', 'startTime', 'times', 'type'])) {
                     continue;
                 }
 
@@ -806,18 +727,15 @@ class Instances extends ListView
      */
     protected function structureItems()
     {
-        if (!empty($this->items))
-        {
+        if (!empty($this->items)) {
             $this->noInstances = false;
             $this->setDerived($this->items);
         }
 
-        if ($this->model->layout === Helper::GRID)
-        {
+        if ($this->model->layout === Helper::GRID) {
 
             // Prevent setting the grid id without having the context from items at least once
-            if (empty($this->items))
-            {
+            if (empty($this->items)) {
                 $this->filterForm->removeField('gridID', 'list');
             }
 
@@ -833,7 +751,6 @@ class Instances extends ListView
 
     /**
      * Structures the instances to be presented in a list/html table.
-     *
      * @return void
      */
     private function structureList()
@@ -841,27 +758,22 @@ class Instances extends ListView
         $index     = 0;
         $listItems = [];
 
-        foreach ($this->items as $item)
-        {
+        foreach ($this->items as $item) {
             $listItems[$index] = [];
 
-            if (!$item->expired)
-            {
+            if (!$item->expired) {
                 $this->expired = false;
 
-                if ($item->bookmarked)
-                {
+                if ($item->bookmarked) {
                     $listItems[$index]['attributes'] = ['class' => 'bookmarked'];
                 }
             }
 
-            if (!$item->premature)
-            {
+            if (!$item->premature) {
                 $this->premature = false;
             }
 
-            if (Helper::getMethodCode($item->instanceID) !== Helpers\Methods::FINALCODE and $item->registration === true)
-            {
+            if (Helper::getMethodCode($item->instanceID) !== Helpers\Methods::FINALCODE and $item->registration === true) {
                 $this->registration = true;
             }
 

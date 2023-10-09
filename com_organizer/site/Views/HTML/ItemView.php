@@ -20,127 +20,116 @@ use Organizer\Helpers;
  */
 abstract class ItemView extends BaseView
 {
-	protected $layout = 'item';
+    protected $layout = 'item';
 
-	public $form = null;
+    public $form = null;
 
-	public $item = null;
+    public $item = null;
 
-	/**
-	 * Method to generate buttons for user interaction
-	 *
-	 * @return void
-	 */
-	protected function addToolBar()
-	{
-		// On demand abstract function.
-	}
+    /**
+     * Method to generate buttons for user interaction
+     * @return void
+     */
+    protected function addToolBar()
+    {
+        // On demand abstract function.
+    }
 
-	/**
-	 * Method to get display
-	 *
-	 * @param   Object  $tpl  template  (default: null)
-	 *
-	 * @return void
-	 */
-	public function display($tpl = null)
-	{
-		$this->item = $this->get('Item');
+    /**
+     * Method to get display
+     *
+     * @param Object $tpl template  (default: null)
+     *
+     * @return void
+     */
+    public function display($tpl = null)
+    {
+        $this->item = $this->get('Item');
 
-		$this->addDisclaimer();
-		$this->addToolBar();
-		$this->setSubtitle();
-		$this->addSupplement();
-		$this->modifyDocument();
+        $this->addDisclaimer();
+        $this->addToolBar();
+        $this->setSubtitle();
+        $this->addSupplement();
+        $this->modifyDocument();
 
-		$defaultConstant = 'ORGANIZER_' . strtoupper(str_replace('Item', '', $this->getName()));
-		$itemName        = is_array($this->item['name']) ? $this->item['name']['value'] : $this->item['name'];
-		$this->setTitle($defaultConstant, $itemName);
-		unset($this->item['name']);
+        $defaultConstant = 'ORGANIZER_' . strtoupper(str_replace('Item', '', $this->getName()));
+        $itemName        = is_array($this->item['name']) ? $this->item['name']['value'] : $this->item['name'];
+        $this->setTitle($defaultConstant, $itemName);
+        unset($this->item['name']);
 
-		// This has to be after the title has been set so that it isn't prematurely removed.
-		$this->filterAttributes();
-		parent::display($tpl);
-	}
+        // This has to be after the title has been set so that it isn't prematurely removed.
+        $this->filterAttributes();
+        parent::display($tpl);
+    }
 
-	/**
-	 * Filters out invalid and true empty values. (0 is allowed.)
-	 *
-	 * @return void modifies the item
-	 */
-	protected function filterAttributes()
-	{
-		foreach ($this->item as $key => $attribute)
-		{
-			// Invalid for HTML Output
-			if (!is_array($attribute)
-				or !array_key_exists('value', $attribute)
-				or !array_key_exists('label', $attribute)
-				or $attribute['value'] === null
-				or $attribute['value'] === ''
-			)
-			{
-				unset($this->item[$key]);
-			}
-		}
-	}
+    /**
+     * Filters out invalid and true empty values. (0 is allowed.)
+     * @return void modifies the item
+     */
+    protected function filterAttributes()
+    {
+        foreach ($this->item as $key => $attribute) {
+            // Invalid for HTML Output
+            if (!is_array($attribute)
+                or !array_key_exists('value', $attribute)
+                or !array_key_exists('label', $attribute)
+                or $attribute['value'] === null
+                or $attribute['value'] === ''
+            ) {
+                unset($this->item[$key]);
+            }
+        }
+    }
 
-	/**
-	 * Modifies document variables and adds links to external files
-	 *
-	 * @return void
-	 */
-	protected function modifyDocument()
-	{
-		parent::modifyDocument();
+    /**
+     * Modifies document variables and adds links to external files
+     * @return void
+     */
+    protected function modifyDocument()
+    {
+        parent::modifyDocument();
 
-		Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
-	}
+        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
+    }
 
-	/**
-	 * Recursively outputs an array of items as a list.
-	 *
-	 * @param   array  $items  the items to be displayed.
-	 *
-	 * @return void outputs the items as a html list
-	 */
-	public function renderListValue(array $items, string $url, array $urlAttribs)
-	{
-		echo '<ul>';
-		foreach ($items as $index => $item)
-		{
-			echo '<li>';
-			if (is_array($item))
-			{
-				echo $index;
-				$this->renderListValue($item, $url, $urlAttribs);
-			}
-			else
-			{
-				echo empty($url) ? $item : Helpers\HTML::link(Route::_($url . $index), $item, $urlAttribs);
-			}
-			echo '</li>';
-		}
-		echo '</ul>';
-	}
+    /**
+     * Recursively outputs an array of items as a list.
+     *
+     * @param array $items the items to be displayed.
+     *
+     * @return void outputs the items as a html list
+     */
+    public function renderListValue(array $items, string $url, array $urlAttribs)
+    {
+        echo '<ul>';
+        foreach ($items as $index => $item) {
+            echo '<li>';
+            if (is_array($item)) {
+                echo $index;
+                $this->renderListValue($item, $url, $urlAttribs);
+            } else {
+                echo empty($url) ? $item : Helpers\HTML::link(Route::_($url . $index), $item, $urlAttribs);
+            }
+            echo '</li>';
+        }
+        echo '</ul>';
+    }
 
-	/**
-	 * Creates a subtitle element .
-	 *
-	 * @return void modifies the course
-	 */
-	protected function setSubtitle()
-	{
-		// On demand abstract function.
-	}
+    /**
+     * Creates a subtitle element .
+     * @return void modifies the course
+     */
+    protected function setSubtitle()
+    {
+        // On demand abstract function.
+    }
 
-	/**
-	 * Adds supplemental information to the display output.
-	 *
-	 * @return void modifies the object property supplement
-	 */
-	protected function addSupplement()
-	{
-		// On demand abstract function.
-	}
+    /**
+     * Adds supplemental information to the display output.
+     * @return void modifies the object property supplement
+     */
+    protected function addSupplement()
+    {
+        // On demand abstract function.
+    }
 }

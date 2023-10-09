@@ -21,78 +21,74 @@ use SimpleXMLElement;
  */
 class FileField extends FormField
 {
-	use Translated;
+    use Translated;
 
-	protected $type = 'File';
+    protected $type = 'File';
 
-	protected $accept;
+    protected $accept;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __get($name): string
-	{
-		switch ($name)
-		{
-			case 'accept':
-				return $this->accept;
-		}
+    /**
+     * @inheritDoc
+     */
+    public function __get($name): string
+    {
+        switch ($name) {
+            case 'accept':
+                return $this->accept;
+        }
 
-		return parent::__get($name);
-	}
+        return parent::__get($name);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __set($name, $value)
-	{
-		switch ($name)
-		{
-			case 'accept':
-				$this->accept = (string) $value;
-				break;
+    /**
+     * @inheritDoc
+     */
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'accept':
+                $this->accept = (string) $value;
+                break;
 
-			default:
-				parent::__set($name, $value);
-		}
-	}
+            default:
+                parent::__set($name, $value);
+        }
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function setup(SimpleXMLElement $element, $value, $group = null): bool
-	{
-		$return = parent::setup($element, $value, $group);
+    /**
+     * @inheritDoc
+     */
+    public function setup(SimpleXMLElement $element, $value, $group = null): bool
+    {
+        $return = parent::setup($element, $value, $group);
 
-		if ($return)
-		{
-			$this->accept = (string) $this->element['accept'];
-		}
+        if ($return) {
+            $this->accept = (string) $this->element['accept'];
+        }
 
-		return $return;
-	}
+        return $return;
+    }
 
-	/**
-	 * Method to get the field input markup for the file field.
-	 *
-	 * @return  string  The field input markup.
-	 */
-	protected function getInput(): string
-	{
-		$attributes     = [
-			$this->accept ? 'accept="' . $this->accept . '"' : '',
-			$this->class ? 'class="' . $this->class . '"' : '',
-			"id=\"$this->id\"",
-			$this->multiple ? 'multiple' : '',
-			"name=\"$this->name\"",
-			$this->required ? 'required aria-required="true"' : '',
-			$this->size ? 'size="' . $this->size . '"' : '',
-			'type="file"',
-		];
-		$attributes     = array_filter($attributes);
-		$maxSize        = HTML::_('number.bytes', Utility::getMaxUploadSize());
-		$uploadSizeText = sprintf(Languages::_('ORGANIZER_UPLOAD_SIZE_LIMIT'), $maxSize);
+    /**
+     * Method to get the field input markup for the file field.
+     * @return  string  The field input markup.
+     */
+    protected function getInput(): string
+    {
+        $attributes     = [
+            $this->accept ? 'accept="' . $this->accept . '"' : '',
+            $this->class ? 'class="' . $this->class . '"' : '',
+            "id=\"$this->id\"",
+            $this->multiple ? 'multiple' : '',
+            "name=\"$this->name\"",
+            $this->required ? 'required aria-required="true"' : '',
+            $this->size ? 'size="' . $this->size . '"' : '',
+            'type="file"',
+        ];
+        $attributes     = array_filter($attributes);
+        $maxSize        = HTML::_('number.bytes', Utility::getMaxUploadSize());
+        $uploadSizeText = sprintf(Languages::_('ORGANIZER_UPLOAD_SIZE_LIMIT'), $maxSize);
 
-		return '<input ' . implode(' ', $attributes) . '/><br>' . $uploadSizeText;
-	}
+        return '<input ' . implode(' ', $attributes) . '/><br>' . $uploadSizeText;
+    }
 }

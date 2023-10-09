@@ -8,9 +8,8 @@
  * @link        www.thm.de
  */
 
-if ($this->refresh)
-{
-	?>
+if ($this->refresh) {
+    ?>
     <script type="text/javascript">
         let timer = null;
 
@@ -22,7 +21,7 @@ if ($this->refresh)
             timer = setTimeout('auto_reload()', <?php echo $this->refresh; ?>000);
         }
     </script>
-	<?php
+    <?php
 }
 
 

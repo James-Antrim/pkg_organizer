@@ -18,26 +18,26 @@ use Organizer\Helpers\Languages;
  */
 class CoursesImport extends EditView
 {
-	/**
-	 * @inheritDoc
-	 */
-	protected function addToolBar()
-	{
-		$this->setTitle('ORGANIZER_COURSES_IMPORT');
-		$toolbar = Toolbar::getInstance();
-		$toolbar->appendButton(
-			'Standard',
-			'upload',
-			Languages::_('ORGANIZER_UPLOAD'),
-			'courses.import',
-			false
-		);
-		$toolbar->appendButton(
-			'Standard',
-			'cancel',
-			Languages::_('ORGANIZER_CANCEL'),
-			'courses.cancel',
-			false
-		);
-	}
+    /**
+     * @inheritDoc
+     */
+    protected function addToolBar()
+    {
+        $this->setTitle('ORGANIZER_COURSES_IMPORT');
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton(
+            'Standard',
+            'upload',
+            Languages::_('ORGANIZER_UPLOAD'),
+            'courses.import',
+            false
+        );
+        $toolbar->appendButton(
+            'Standard',
+            'cancel',
+            Languages::_('ORGANIZER_CANCEL'),
+            'courses.cancel',
+            false
+        );
+    }
 }

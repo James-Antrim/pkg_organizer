@@ -15,42 +15,39 @@ namespace Organizer\Tables;
  */
 class Equipment extends BaseTable
 {
-	use Coded;
+    use Coded;
 
-	/**
-	 * The equipment's German name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_de;
+    /**
+     * The equipment's German name.
+     * VARCHAR(150) NOT NULL
+     * @var string
+     */
+    public $name_de;
 
-	/**
-	 * The equipment's English name.
-	 * VARCHAR(150) NOT NULL
-	 *
-	 * @var string
-	 */
-	public $name_en;
+    /**
+     * The equipment's English name.
+     * VARCHAR(150) NOT NULL
+     * @var string
+     */
+    public $name_en;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_equipment');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_equipment');
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function check(): bool
-	{
-		if (empty($this->code))
-		{
-			$this->code = null;
-		}
+    /**
+     * @inheritDoc
+     */
+    public function check(): bool
+    {
+        if (empty($this->code)) {
+            $this->code = null;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

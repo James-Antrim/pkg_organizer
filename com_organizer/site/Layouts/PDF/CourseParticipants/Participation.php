@@ -16,111 +16,102 @@ use Organizer\Views\PDF\CourseParticipants;
 
 class Participation extends ListLayout
 {
-	protected $widths = [
-		'grouping'     => 130,
-		'participants' => 60
-	];
+    protected $widths = [
+        'grouping' => 130,
+        'participants' => 60
+    ];
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct(CourseParticipants $view)
-	{
-		parent::__construct($view);
-		$view->margins(10, 30, -1, 0, 8);
+    /**
+     * @inheritDoc
+     */
+    public function __construct(CourseParticipants $view)
+    {
+        parent::__construct($view);
+        $view->margins(10, 30, -1, 0, 8);
 
-		$groupingHeader = Helpers\Languages::_('ORGANIZER_ORGANIZATION') . ' / ';
-		$groupingHeader .= Helpers\Languages::_('ORGANIZER_PROGRAM');
+        $groupingHeader = Helpers\Languages::_('ORGANIZER_ORGANIZATION') . ' / ';
+        $groupingHeader .= Helpers\Languages::_('ORGANIZER_PROGRAM');
 
-		$this->headers = [
-			'grouping'     => $groupingHeader,
-			'participants' => Helpers\Languages::_('ORGANIZER_PARTICIPANTS')
-		];
-	}
+        $this->headers = [
+            'grouping' => $groupingHeader,
+            'participants' => Helpers\Languages::_('ORGANIZER_PARTICIPANTS')
+        ];
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function fill(array $data)
-	{
-		/* @var CourseParticipants $view */
-		$view                 = $this->view;
-		$groupedParticipation = Helpers\Courses::getGroupedParticipation($view->courseID);
+    /**
+     * @inheritdoc
+     */
+    public function fill(array $data)
+    {
+        /* @var CourseParticipants $view */
+        $view                 = $this->view;
+        $groupedParticipation = Helpers\Courses::getGroupedParticipation($view->courseID);
 
-		$this->addListPage();
+        $this->addListPage();
 
-		foreach ($groupedParticipation as $organization => $programs)
-		{
-			$maxLength = 0;
-			$startX    = $view->GetX();
-			$startY    = $view->GetY();
+        foreach ($groupedParticipation as $organization => $programs) {
+            $maxLength = 0;
+            $startX    = $view->GetX();
+            $startY    = $view->GetY();
 
-			$view->SetFillColor(225);
-			foreach (array_keys($this->headers) as $columnName)
-			{
-				$value  = $columnName === 'grouping' ? $organization : $programs['participants'];
-				$length = $view->renderMultiCell($this->widths[$columnName], 5, $value, $view::LEFT, $view::NONE, true);
+            $view->SetFillColor(225);
+            foreach (array_keys($this->headers) as $columnName) {
+                $value  = $columnName === 'grouping' ? $organization : $programs['participants'];
+                $length = $view->renderMultiCell($this->widths[$columnName], 5, $value, $view::LEFT, $view::NONE, true);
 
-				if ($length > $maxLength)
-				{
-					$maxLength = $length;
-				}
-			}
-			$view->SetFillColor(255);
+                if ($length > $maxLength) {
+                    $maxLength = $length;
+                }
+            }
+            $view->SetFillColor(255);
 
-			$view->changePosition($startX, $startY);
+            $view->changePosition($startX, $startY);
 
-			foreach ($this->widths as $oIndex => $width)
-			{
-				$border = $oIndex === 'grouping' ? ['BLRT' => $view->border] : ['BRT' => $view->border];
-				$view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
-			}
+            foreach ($this->widths as $oIndex => $width) {
+                $border = $oIndex === 'grouping' ? ['BLRT' => $view->border] : ['BRT' => $view->border];
+                $view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
+            }
 
-			$this->addLine();
+            $this->addLine();
 
-			foreach ($programs as $key => $program)
-			{
-				if ($key === 'participants')
-				{
-					continue;
-				}
+            foreach ($programs as $key => $program) {
+                if ($key === 'participants') {
+                    continue;
+                }
 
-				$maxLength = 0;
-				$startX    = $view->GetX();
-				$startY    = $view->GetY();
+                $maxLength = 0;
+                $startX    = $view->GetX();
+                $startY    = $view->GetY();
 
-				foreach (array_keys($this->headers) as $columnName)
-				{
-					$value  = $columnName === 'grouping' ?
-						" - {$program['program']} ({$program['degree']}, {$program['year']})" : $program['participants'];
-					$length = $view->renderMultiCell($this->widths[$columnName], 5, $value);
-					if ($length > $maxLength)
-					{
-						$maxLength = $length;
-					}
-				}
+                foreach (array_keys($this->headers) as $columnName) {
+                    $value  = $columnName === 'grouping' ?
+                        " - {$program['program']} ({$program['degree']}, {$program['year']})" : $program['participants'];
+                    $length = $view->renderMultiCell($this->widths[$columnName], 5, $value);
+                    if ($length > $maxLength) {
+                        $maxLength = $length;
+                    }
+                }
 
-				$view->changePosition($startX, $startY);
+                $view->changePosition($startX, $startY);
 
-				foreach ($this->widths as $iIndex => $width)
-				{
-					$border = $iIndex === 'grouping' ? ['BLR' => $view->border] : ['BR' => $view->border];
-					$view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
-				}
+                foreach ($this->widths as $iIndex => $width) {
+                    $border = $iIndex === 'grouping' ? ['BLR' => $view->border] : ['BR' => $view->border];
+                    $view->renderMultiCell($width, $maxLength * 5, '', $view::LEFT, $border);
+                }
 
-				$this->addLine();
-			}
-		}
-	}
+                $this->addLine();
+            }
+        }
+    }
 
-	/**
-	 * Generates the title and sets name related properties.
-	 */
-	public function setTitle()
-	{
-		/* @var CourseParticipants $view */
-		$view         = $this->view;
-		$documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_ATTENDANCE');
-		$view->setNames($documentName);
-	}
+    /**
+     * Generates the title and sets name related properties.
+     */
+    public function setTitle()
+    {
+        /* @var CourseParticipants $view */
+        $view         = $this->view;
+        $documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_ATTENDANCE');
+        $view->setNames($documentName);
+    }
 }

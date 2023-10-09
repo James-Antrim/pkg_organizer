@@ -15,5 +15,5 @@ namespace Organizer\Models;
  */
 class CategoryMerge extends FormModel
 {
-	// Necessary code is performed in inheritance hierarchy.
+    // Necessary code is performed in inheritance hierarchy.
 }

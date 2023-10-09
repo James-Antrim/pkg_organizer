@@ -18,32 +18,29 @@ use Organizer\Tables;
  */
 class CampusEdit extends EditModel
 {
-	/**
-	 * Checks access to edit the resource.
-	 *
-	 * @return void
-	 */
-	protected function authorize()
-	{
-		if (!Helpers\Can::manage('facilities'))
-		{
-			Helpers\OrganizerHelper::error(403);
-		}
-	}
+    /**
+     * Checks access to edit the resource.
+     * @return void
+     */
+    protected function authorize()
+    {
+        if (!Helpers\Can::manage('facilities')) {
+            Helpers\OrganizerHelper::error(403);
+        }
+    }
 
-	/**
-	 * Method to get a table object, load it if necessary.
-	 *
-	 * @param   string  $name     The table name. Optional.
-	 * @param   string  $prefix   The class prefix. Optional.
-	 * @param   array   $options  Configuration array for model. Optional.
-	 *
-	 * @return Tables\Campuses  A Table object
-	 *
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getTable($name = '', $prefix = '', $options = []): Tables\Campuses
-	{
-		return new Tables\Campuses();
-	}
+    /**
+     * Method to get a table object, load it if necessary.
+     *
+     * @param string $name    The table name. Optional.
+     * @param string $prefix  The class prefix. Optional.
+     * @param array  $options Configuration array for model. Optional.
+     *
+     * @return Tables\Campuses  A Table object
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Tables\Campuses
+    {
+        return new Tables\Campuses();
+    }
 }

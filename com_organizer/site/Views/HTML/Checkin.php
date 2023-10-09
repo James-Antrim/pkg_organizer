@@ -21,124 +21,106 @@ use Organizer\Tables\Participants as Table;
  */
 class Checkin extends FormView
 {
-	public $complete = true;
+    public $complete = true;
 
-	public $edit = false;
+    public $edit = false;
 
-	public $privacy = false;
+    public $privacy = false;
 
-	/**
-	 * @var array
-	 */
-	public $instances;
+    /**
+     * @var array
+     */
+    public $instances;
 
-	/**
-	 * @var Table
-	 */
-	public $participant;
+    /**
+     * @var Table
+     */
+    public $participant;
 
-	/**
-	 * @var int|null
-	 */
-	public $roomID;
+    /**
+     * @var int|null
+     */
+    public $roomID;
 
-	/**
-	 * @var null|string
-	 */
-	public $seat;
+    /**
+     * @var null|string
+     */
+    public $seat;
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function addToolBar()
-	{
-		if ($this->privacy)
-		{
-			$title = "Besondere Datenschutzhinweis zum THM Checkin-Verfahren im Zusammenhang mit der Coronapandemie";
-		}
-		elseif ($this->edit or !$this->complete)
-		{
-			$title = 'ORGANIZER_CONTACT_INFORMATION';
-		}
-		elseif ($this->instances)
-		{
-			if (count($this->instances) > 1)
-			{
-				$title = 'ORGANIZER_CONFIRM_EVENT';
-			}
-			elseif (!$this->roomID or $this->seat === null)
-			{
-				$title = 'ORGANIZER_CONFIRM_SEATING';
-			}
-			else
-			{
-				$title = 'ORGANIZER_CHECKED_IN';
-			}
-		}
-		else
-		{
-			$title = 'ORGANIZER_CHECKIN';
-		}
+    /**
+     * @inheritDoc
+     */
+    protected function addToolBar()
+    {
+        if ($this->privacy) {
+            $title = "Besondere Datenschutzhinweis zum THM Checkin-Verfahren im Zusammenhang mit der Coronapandemie";
+        } elseif ($this->edit or !$this->complete) {
+            $title = 'ORGANIZER_CONTACT_INFORMATION';
+        } elseif ($this->instances) {
+            if (count($this->instances) > 1) {
+                $title = 'ORGANIZER_CONFIRM_EVENT';
+            } elseif (!$this->roomID or $this->seat === null) {
+                $title = 'ORGANIZER_CONFIRM_SEATING';
+            } else {
+                $title = 'ORGANIZER_CHECKED_IN';
+            }
+        } else {
+            $title = 'ORGANIZER_CHECKIN';
+        }
 
-		$this->setTitle($title);
-	}
+        $this->setTitle($title);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function display($tpl = null)
-	{
-		$session = Factory::getSession();
+    /**
+     * @inheritDoc
+     */
+    public function display($tpl = null)
+    {
+        $session = Factory::getSession();
 
-		if ($layout = Helpers\Input::getCMD('layout'))
-		{
-			if ($this->privacy = $layout === 'privacy')
-			{
-				if (!$session->get('organizer.checkin.referrer'))
-				{
-					$session->set(
-						'organizer.checkin.referrer',
-						Helpers\Input::getInput()->server->getString('HTTP_REFERER')
-					);
-				}
-			}
+        if ($layout = Helpers\Input::getCMD('layout')) {
+            if ($this->privacy = $layout === 'privacy') {
+                if (!$session->get('organizer.checkin.referrer')) {
+                    $session->set(
+                        'organizer.checkin.referrer',
+                        Helpers\Input::getInput()->server->getString('HTTP_REFERER')
+                    );
+                }
+            }
 
-			$this->edit = $layout === 'profile';
-		}
+            $this->edit = $layout === 'profile';
+        }
 
-		if (!$layout or $layout !== 'privacy')
-		{
-			$session->set('organizer.checkin.referrer', '');
-		}
+        if (!$layout or $layout !== 'privacy') {
+            $session->set('organizer.checkin.referrer', '');
+        }
 
-		$this->instances   = $this->get('Instances');
-		$this->layout      = 'checkin-wrapper';
-		$this->participant = $this->get('Participant');
-		$this->roomID      = $this->get('RoomID');
-		$this->seat        = $this->get('Seat');
+        $this->instances   = $this->get('Instances');
+        $this->layout      = 'checkin-wrapper';
+        $this->participant = $this->get('Participant');
+        $this->roomID      = $this->get('RoomID');
+        $this->seat        = $this->get('Seat');
 
-		$this->complete = true;
+        $this->complete = true;
 
-		if ($this->participant->id)
-		{
-			$requiredColumns = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
-			foreach ($requiredColumns as $column)
-			{
-				$this->complete = ($this->complete and !empty($this->participant->$column));
-			}
-		}
+        if ($this->participant->id) {
+            $requiredColumns = ['address', 'city', 'forename', 'surname', 'telephone', 'zipCode'];
+            foreach ($requiredColumns as $column) {
+                $this->complete = ($this->complete and !empty($this->participant->$column));
+            }
+        }
 
-		parent::display($tpl);
-	}
+        parent::display($tpl);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function modifyDocument()
-	{
-		parent::modifyDocument();
+    /**
+     * @inheritDoc
+     */
+    protected function modifyDocument()
+    {
+        parent::modifyDocument();
 
-		Document::addScript(Uri::root() . 'components/com_organizer/js/checkin.js');
-		Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/checkin.css');
-	}
+        Document::addScript(Uri::root() . 'components/com_organizer/js/checkin.js');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/checkin.css');
+    }
 }

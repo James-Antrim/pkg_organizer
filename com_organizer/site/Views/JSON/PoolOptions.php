@@ -17,13 +17,12 @@ use Organizer\Helpers;
  */
 class PoolOptions extends BaseView
 {
-	/**
-	 * loads model data into view context
-	 *
-	 * @return void
-	 */
-	public function display()
-	{
-		echo json_encode(Helpers\Pools::getOptions(), JSON_UNESCAPED_UNICODE);
-	}
+    /**
+     * loads model data into view context
+     * @return void
+     */
+    public function display()
+    {
+        echo json_encode(Helpers\Pools::getOptions(), JSON_UNESCAPED_UNICODE);
+    }
 }

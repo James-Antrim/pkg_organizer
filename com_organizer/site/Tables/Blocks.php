@@ -15,43 +15,39 @@ namespace Organizer\Tables;
  */
 class Blocks extends BaseTable
 {
-	/**
-	 * The date of the block.
-	 * DATE DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $date;
+    /**
+     * The date of the block.
+     * DATE DEFAULT NULL
+     * @var string
+     */
+    public $date;
 
-	/**
-	 * The numerical day of the week of the block.
-	 * TINYINT(1) UNSIGNED NOT NULL
-	 *
-	 * @var int
-	 */
-	public $dow;
+    /**
+     * The numerical day of the week of the block.
+     * TINYINT(1) UNSIGNED NOT NULL
+     * @var int
+     */
+    public $dow;
 
-	/**
-	 * The end time of the block.
-	 * TIME DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $endTime;
+    /**
+     * The end time of the block.
+     * TIME DEFAULT NULL
+     * @var string
+     */
+    public $endTime;
 
-	/**
-	 * The start time of the block.
-	 * TIME DEFAULT NULL
-	 *
-	 * @var string
-	 */
-	public $startTime;
+    /**
+     * The start time of the block.
+     * TIME DEFAULT NULL
+     * @var string
+     */
+    public $startTime;
 
-	/**
-	 * Declares the associated table.
-	 */
-	public function __construct()
-	{
-		parent::__construct('#__organizer_blocks');
-	}
+    /**
+     * Declares the associated table.
+     */
+    public function __construct()
+    {
+        parent::__construct('#__organizer_blocks');
+    }
 }
