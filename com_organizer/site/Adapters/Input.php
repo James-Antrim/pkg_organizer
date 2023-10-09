@@ -56,6 +56,14 @@ class Input
             return $value;
         }
 
+        if ($value = self::getFilterItems()->get($property)) {
+            return $value;
+        }
+
+        if ($value = self::getListItems()->get($property)) {
+            return $value;
+        }
+
         if ($value = self::getParams()->get($property)) {
             return $value;
         }
