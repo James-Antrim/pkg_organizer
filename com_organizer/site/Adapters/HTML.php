@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-namespace THM\Groups\Adapters;
+namespace THM\Organizer\Adapters;
 
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
