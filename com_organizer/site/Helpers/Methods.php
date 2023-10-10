@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
@@ -41,7 +41,7 @@ class Methods extends ResourceHelper implements Selectable
     public static function getResources(): array
     {
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("DISTINCT m.*, m.name_$tag AS name")
             ->from('#__organizer_methods AS m')
             ->innerJoin('#__organizer_instances AS i ON i.methodID = m.id')

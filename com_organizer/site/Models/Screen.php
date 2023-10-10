@@ -144,7 +144,7 @@ class Screen extends BaseModel
     private function setInstances()
     {
         $query = Database::getQuery();
-        $tag   = Helpers\Languages::getTag();
+        $tag   = Application::getTag();
         $query->select('DISTINCT i.id')
             ->select('b.date, b.endTime, b.startTime')
             ->select("e.id AS eventID, e.name_$tag AS event")

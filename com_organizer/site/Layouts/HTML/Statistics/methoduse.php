@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\Text;
 
 $headers    = array_shift($this->grid);
 $columns    = array_keys($headers);
@@ -24,7 +24,7 @@ foreach ($headers as $key => $header) {
     $class .= $key === 'sum' ? ' sum-column' : '';
 
     if ($key === 'method') {
-        Languages::unpack($header);
+        Text::unpack($header);
     } else {
         $class .= ' header-column';
     }
@@ -46,7 +46,7 @@ foreach ($this->grid as $row) {
 
         if ($key === 'method') {
             $class .= ' header-column';
-            Languages::unpack($sum);
+            Text::unpack($sum);
         } elseif ($key === 'sum') {
             $class .= ' sum-column';
         } else {

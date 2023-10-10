@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -111,7 +111,7 @@ class MergeAssociationsField extends OptionsField
         $localized   = $this->getAttribute('localized', false);
 
         if ($localized) {
-            $textColumns[0] = $textColumns[0] . '_' . Helpers\Languages::getTag();
+            $textColumns[0] = $textColumns[0] . '_' . Application::getTag();
         }
 
         $glue = $this->getAttribute('glue');

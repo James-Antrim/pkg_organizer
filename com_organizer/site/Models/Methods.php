@@ -11,9 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 
 /**
  * Class provides a standardized framework for the display of listed methods.
@@ -28,7 +26,7 @@ class Methods extends ListModel
      */
     protected function getListQuery()
     {
-        $tag = Helpers\Languages::getTag();
+        $tag = Application::getTag();
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();
 

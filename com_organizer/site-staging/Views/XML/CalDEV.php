@@ -12,7 +12,6 @@ namespace THM\Organizer\Views\XML;
 
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use SimpleXMLElement;
 
 /**
@@ -111,7 +110,7 @@ class CalDEV extends BaseView
                     $category->addAttribute('id', $table->id);
                     $code = htmlspecialchars($table->code);
                     $category->addChild('code', $code);
-                    $nameColumn = 'name_' . Languages::getTag();
+                    $nameColumn = 'name_' . Application::getTag();
                     $name       = htmlspecialchars($table->$nameColumn);
                     $category->addChild('name', $name);
                     $response = $category->asXML();
@@ -128,7 +127,7 @@ class CalDEV extends BaseView
                     $group->addAttribute('id', $table->id);
                     $code = htmlspecialchars($table->code);
                     $group->addChild('code', $code);
-                    $nameColumn = 'fullName_' . Languages::getTag();
+                    $nameColumn = 'fullName_' . Application::getTag();
                     $name       = htmlspecialchars($table->$nameColumn);
                     $group->addChild('name', $name);
                     $response = $group->asXML();

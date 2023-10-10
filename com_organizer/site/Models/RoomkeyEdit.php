@@ -38,7 +38,7 @@ class RoomkeyEdit extends EditModel
         parent::getItem($pk);
 
         if ($this->item and !empty($this->item->useID)) {
-            $tag   = Helpers\Languages::getTag();
+            $tag   = Application::getTag();
             $query = Database::getQuery();
             $query->select("name_$tag")->from('#__organizer_use_groups')->where("id = {$this->item->useID}");
             Database::setQuery($query);

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -161,7 +161,7 @@ class GenericOptionsField extends OptionsField
 
         $localized = $this->getAttribute('localized', false);
         if ($localized) {
-            $tag = Helpers\Languages::getTag();
+            $tag = Application::getTag();
             foreach ($textColumns as $key => $value) {
                 $textColumns[$key] = $value . '_' . $tag;
             }

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -31,7 +31,7 @@ class Categories extends Associated implements Selectable
      */
     public static function getGroups(int $categoryID, bool $active = true): array
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select("id, code, name_$tag AS name")
             ->from('#__organizer_groups AS g')
@@ -53,7 +53,7 @@ class Categories extends Associated implements Selectable
      */
     public static function getOptions(string $access = ''): array
     {
-        $name    = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
+        $name    = Application::getTag() === 'en' ? 'name_en' : 'name_de';
         $options = [];
         foreach (self::getResources($access) as $category) {
             if ($category['active']) {
@@ -102,7 +102,7 @@ class Categories extends Associated implements Selectable
      */
     public static function getResources(string $access = ''): array
     {
-        $order = Languages::getTag() === 'en' ? 'name_en' : 'name_de';
+        $order = Application::getTag() === 'en' ? 'name_en' : 'name_de';
         $query = Database::getQuery(true);
         $query->select('DISTINCT c.*')->from('#__organizer_categories AS c')->order($order);
 

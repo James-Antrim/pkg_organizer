@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Tables;
@@ -202,7 +202,7 @@ class Subject extends CurriculumResource
             return $this->deleteSingle($table->id);
         }
 
-        $tag           = Helpers\Languages::getTag();
+        $tag           = Application::getTag();
         $titleProperty = "titel$tag";
         $title         = $subject->$titleProperty;
 

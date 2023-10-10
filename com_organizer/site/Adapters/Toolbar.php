@@ -104,7 +104,7 @@ class Toolbar extends ParentClass
             if ($buttonFile = Path::find($dirs, $file)) {
                 include_once $buttonFile;
             } else {
-                Log::add(Languages::sprintf('JLIB_HTML_BUTTON_NO_LOAD', $buttonClass, $buttonFile), Log::WARNING, 'jerror');
+                Log::add(Text::sprintf('JLIB_HTML_BUTTON_NO_LOAD', $buttonClass, $buttonFile), Log::WARNING, 'jerror');
 
                 return false;
             }

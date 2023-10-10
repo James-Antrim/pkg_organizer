@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables\Roles as Table;
 
 /**
@@ -30,7 +30,7 @@ class Roles extends ResourceHelper implements Selectable
      */
     public static function getLabel(int $roleID, int $count): string
     {
-        $tag    = Languages::getTag();
+        $tag    = Application::getTag();
         $column = $count > 1 ? "plural_$tag" : "name_$tag";
         $table  = new Table();
 
@@ -56,7 +56,7 @@ class Roles extends ResourceHelper implements Selectable
     public static function getResources(): array
     {
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("DISTINCT *, name_$tag AS name")
             ->from('#__organizer_roles')
             ->order('name');

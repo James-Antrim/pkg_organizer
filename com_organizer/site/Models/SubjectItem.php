@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
@@ -32,7 +32,7 @@ class SubjectItem extends ItemModel
         }
 
         $query = Database::getQuery(true);
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("f.name_$tag AS availability, bonusPoints, content_$tag AS content, creditPoints")
             ->select("description_$tag AS description, duration, expenditure, expertise, expertise_$tag AS exText")
             ->select("language, literature, independent, method_$tag AS method, methodCompetence")
@@ -234,7 +234,7 @@ class SubjectItem extends ItemModel
         $subjectID = $subject['subjectID'];
         $programs  = Helpers\Subjects::getPrograms($subjectID);
         $query     = Database::getQuery();
-        $tag       = Languages::getTag();
+        $tag       = Application::getTag();
         $query->select('DISTINCT pr.id AS id')
             ->select("s1.id AS preID, s1.fullName_$tag AS preName, s1.code AS preModuleNumber")
             ->select("s2.id AS postID, s2.fullName_$tag AS postName, s2.code AS postModuleNumber")
@@ -439,7 +439,7 @@ class SubjectItem extends ItemModel
             if ($semesterNumbers) {
                 $first = min($semesterNumbers);
                 $last  = max($semesterNumbers);
-                $tag   = Languages::getTag();
+                $tag   = Application::getTag();
 
                 if ($first !== $last) {
                     $suffix   = Languages::_('ORGANIZER_SEMESTERS');

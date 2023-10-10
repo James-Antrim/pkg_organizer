@@ -17,6 +17,7 @@ use Joomla\CMS\Filter\OutputFilter;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 use Joomla\Registry\Registry;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 use SimpleXMLElement;
@@ -121,7 +122,7 @@ class Instances
         $left  = date('Ymd') . 'T' . date('His') . date('T');
         $right = $uri->getHost() . $uri->getPath();
 
-        $this->language    = strtoupper(Helpers\Languages::getTag());
+        $this->language    = strtoupper(Application::getTag());
         $this->instances   = $model->getItems();
         $this->state       = $model->getState();
         $this->tzID        = date_default_timezone_get();

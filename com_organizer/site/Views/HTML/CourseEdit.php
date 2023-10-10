@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 
 /**
@@ -31,7 +32,7 @@ class CourseEdit extends EditView
             if ($this->adminContext) {
                 $campus = Helpers\Campuses::getName($this->item->campusID);
                 $dates  = Helpers\Courses::getDateDisplay($this->item->id);
-                $tag    = Helpers\Languages::getTag();
+                $tag    = Application::getTag();
                 $name   = "name_$tag";
                 $name   = $this->item->$name;
 

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -249,7 +249,7 @@ class RoomStatistics extends BaseModel
      */
     private function setData(int $roomID): bool
     {
-        $tag       = Helpers\Languages::getTag();
+        $tag       = Application::getTag();
         $ringQuery = Database::getQuery();
         $ringQuery->select('DISTINCT ccm.id AS ccmID')
             ->from('#__organizer_calendar_configuration_map AS ccm')
@@ -370,7 +370,7 @@ class RoomStatistics extends BaseModel
      */
     private function setLSData(array $lcrsIDs)
     {
-        $tag   = Helpers\Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
 
         $select = 'DISTINCT lcrs.id AS lcrsID, ';
@@ -440,7 +440,7 @@ class RoomStatistics extends BaseModel
      */
     private function setRoomtypes()
     {
-        $tag   = Helpers\Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
 
         $query->select("id, name_$tag AS name, description_$tag AS description")

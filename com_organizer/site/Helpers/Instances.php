@@ -12,8 +12,7 @@ namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 use THM\Organizer\Tables;
 
 /**
@@ -423,7 +422,7 @@ class Instances extends ResourceHelper
      */
     public static function getInstance(int $instanceID): array
     {
-        $tag = Languages::getTag();
+        $tag = Application::getTag();
 
         $instancesTable = new Tables\Instances();
         if (!$instancesTable->load($instanceID)) {
@@ -1122,7 +1121,7 @@ class Instances extends ResourceHelper
             return;
         }
 
-        $tag                      = Languages::getTag();
+        $tag                      = Application::getTag();
         $instance['campusID']     = $coursesTable->campusID ?: $instance['campusID'];
         $instance['courseGroups'] = $coursesTable->groups ?: '';
         $instance['courseName']   = $coursesTable->{"name_$tag"} ?: '';
@@ -1203,7 +1202,7 @@ class Instances extends ResourceHelper
      */
     private static function setGroups(array &$person, array $conditions)
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
 
         $query->select('ig.groupID, ig.delta, ig.modified')
@@ -1308,7 +1307,7 @@ class Instances extends ResourceHelper
     {
         $conditions['instanceStatus'] = $instance['instanceStatus'] ?? 'new';
 
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select('ip.id AS assocID, ip.personID, ip.roleID, ip.delta AS status, ip.modified')
             ->select("r.abbreviation_$tag AS roleCode, r.name_$tag AS role")
@@ -1434,7 +1433,7 @@ class Instances extends ResourceHelper
      */
     public static function setSubject(array &$instance, array $conditions)
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select("DISTINCT s.id, s.abbreviation_$tag AS code, s.fullName_$tag AS fullName")
             ->select("s.description_$tag AS description")

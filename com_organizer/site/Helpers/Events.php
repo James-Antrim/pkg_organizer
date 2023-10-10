@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 
 /**
  * Provides general functions for subject access checks, data retrieval and display.
@@ -57,7 +57,7 @@ class Events extends ResourceHelper
     public static function getCategoryNames(int $eventID): array
     {
         $names     = [];
-        $tag       = Languages::getTag();
+        $tag       = Application::getTag();
         $query     = Database::getQuery();
         $nameParts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
         $query->select("c.name_$tag AS category, " . $query->concatenate($nameParts, "") . ' AS program')
@@ -108,7 +108,7 @@ class Events extends ResourceHelper
     public static function getUnits(int $eventID, string $date, string $interval = 'term'): array
     {
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method")
             ->from('#__organizer_units AS u')
             ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')

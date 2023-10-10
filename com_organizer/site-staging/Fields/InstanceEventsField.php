@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Helpers;
 
 /**
@@ -39,7 +39,7 @@ class InstanceEventsField extends OptionsField
             return $options;
         }
 
-        $tag   = Helpers\Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select("DISTINCT e.id, e.name_$tag AS name, e.organizationID")
             ->from('#__organizer_events AS e');

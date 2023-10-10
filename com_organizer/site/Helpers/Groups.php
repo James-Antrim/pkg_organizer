@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables\Categories as Category;
 use THM\Organizer\Tables\Groups as Group;
 
@@ -75,7 +75,7 @@ class Groups extends Associated implements Selectable
             return Languages::_('ORGANIZER_NO_CATEGORIES');
         }
 
-        $column = 'name_' . Languages::getTag();
+        $column = 'name_' . Application::getTag();
 
         return $category->$column;
     }
@@ -90,7 +90,7 @@ class Groups extends Associated implements Selectable
     public static function getEvents(int $groupID): array
     {
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("DISTINCT e.id, e.code, e.name_$tag AS name, e.description_$tag AS description")
             ->from('#__organizer_events AS e')
             ->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
@@ -111,7 +111,7 @@ class Groups extends Associated implements Selectable
     {
         $categoryID  = Input::getInt('categoryID');
         $categoryIDs = $categoryID ? [$categoryID] : Input::getFilterIDs('category');
-        $tag         = Languages::getTag();
+        $tag         = Application::getTag();
         $name        = count($categoryIDs) === 1 ? "name_$tag" : "fullName_$tag";
         $options     = [];
 
@@ -186,7 +186,7 @@ class Groups extends Associated implements Selectable
     public static function getUnits(int $groupID, string $date, string $interval = 'term'): array
     {
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("DISTINCT u.id, u.comment, m.abbreviation_$tag AS method, eventID")
             ->from('#__organizer_units AS u')
             ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')

@@ -156,7 +156,7 @@ class Course extends BaseModel
 
         sort($unitIDs);
         $course    = new Tables\Courses();
-        $localized = 'name_' . Languages::getTag();
+        $localized = 'name_' . Application::getTag();
         $units     = [];
 
         foreach ($unitIDs as $unitID) {

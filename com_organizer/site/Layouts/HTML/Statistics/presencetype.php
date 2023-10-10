@@ -8,6 +8,7 @@
  * @link        www.thm.de
  */
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Instances;
@@ -76,7 +77,7 @@ foreach ($this->grid as $row) {
 
         if ($key === 'week') {
             $class .= ' header-column';
-            Languages::unpack($sum);
+            Text::unpack($sum);
         } else {
             $class .= $key === 'sum' ? ' sum-column' : ' data-column';
 

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
@@ -51,7 +51,7 @@ class CourseItem extends ItemModel
         }
 
         $campusID = $courseTable->campusID;
-        $tag      = Languages::getTag();
+        $tag      = Application::getTag();
 
         $course['campus']['value']      = Helpers\Campuses::getPin($campusID) . ' ' . Helpers\Campuses::getName($campusID);
         $course['campusID']             = $campusID;

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables;
 
 /**
@@ -126,7 +126,7 @@ class Terms extends ResourceHelper implements Selectable
      */
     public static function getOptions(bool $showDates = false, bool $filter = false): array
     {
-        $tag     = Languages::getTag();
+        $tag     = Application::getTag();
         $options = [];
 
         foreach (Terms::getResources($filter) as $term) {

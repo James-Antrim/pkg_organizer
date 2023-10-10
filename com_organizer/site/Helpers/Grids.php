@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables\Grids as Table;
 
 /**
@@ -77,7 +77,7 @@ class Grids extends ResourceHelper implements Selectable
     public static function getResources(): array
     {
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("*, name_$tag as name, isDefault")->from('#__organizer_grids')->order('name');
         Database::setQuery($query);
 

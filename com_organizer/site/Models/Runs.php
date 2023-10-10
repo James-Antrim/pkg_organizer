@@ -11,9 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 
 /**
  * Class retrieves information for a filtered set of runs.
@@ -44,7 +42,7 @@ class Runs extends ListModel
     {
         $this->deleteDeprecated();
 
-        $tag = Helpers\Languages::getTag();
+        $tag = Application::getTag();
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->select("r.id, r.name_$tag as name, r.run, r.termID, r.endDate")

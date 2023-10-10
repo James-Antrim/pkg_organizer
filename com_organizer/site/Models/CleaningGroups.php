@@ -11,9 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 
 /**
  * Class retrieves the data regarding a filtered set of buildings.
@@ -30,7 +28,7 @@ class CleaningGroups extends ListModel
     {
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();
-        $tag   = Helpers\Languages::getTag();
+        $tag   = Application::getTag();
 
         $query->select("*, name_$tag AS name")->from('#__organizer_cleaning_groups');
 

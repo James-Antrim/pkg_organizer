@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
 use THM\Organizer\Buttons;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Dates;
@@ -208,11 +208,11 @@ class Instances extends ListView
 
             $icsText     = Languages::_('ORGANIZER_ICS_URL');
             $icsButton   = $script->fetchButton('Script', 'info-calender', $icsText, 'onclick', 'makeLink()');
-            $pdfA3Text   = Languages::sprintf('ORGANIZER_PDF_A3', $interval);
+            $pdfA3Text   = Text::sprintf('ORGANIZER_PDF_A3', $interval);
             $pdfA3Button = $newTab->fetchButton('NewTab', 'file-pdf', $pdfA3Text, 'Instances.gridA3', false);
-            $pdfA4Text   = Languages::sprintf('ORGANIZER_PDF_A4', $interval);
+            $pdfA4Text   = Text::sprintf('ORGANIZER_PDF_A4', $interval);
             $pdfA4Button = $newTab->fetchButton('NewTab', 'file-pdf', $pdfA4Text, 'Instances.gridA4', false);
-            $xlsText     = Languages::sprintf('ORGANIZER_XLS_LIST', $interval);
+            $xlsText     = Text::sprintf('ORGANIZER_XLS_LIST', $interval);
             $xlsButton   = $newTab->fetchButton('NewTab', 'file-xls', $xlsText, 'Instances.xls', false);
 
             $exportButtons = [
@@ -275,7 +275,7 @@ class Instances extends ListView
     private function getBlocks(array $periods, bool &$allDay): array
     {
         $blocks = [];
-        $tag    = Languages::getTag();
+        $tag    = Application::getTag();
 
         foreach ($periods as $period) {
             $block              = [];
@@ -428,7 +428,7 @@ class Instances extends ListView
             $times = '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span><br>';
             $title = $item->name;
             $key   = $title;
-            Languages::unpack($title);
+            Text::unpack($title);
             $title = '<span class="event">' . $title . '</span>';
             $title = HTML::_('link', $item->link, $title);
 
@@ -647,7 +647,7 @@ class Instances extends ListView
 
         $variables = ['ICS_URL' => $url];
 
-        Languages::script('ORGANIZER_GENERATE_LINK');
+        Text::useLocalization('ORGANIZER_GENERATE_LINK');
         Document::addScriptOptions('variables', $variables);
         Document::addScript(Uri::root() . 'components/com_organizer/js/ics.js');
         Document::addScript(Uri::root() . 'components/com_organizer/js/jump.js');

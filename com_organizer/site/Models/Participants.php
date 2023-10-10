@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 
 /**
  * Class retrieves information for a filtered set of participants.
@@ -39,7 +38,7 @@ class Participants extends ListModel
      */
     protected function getListQuery()
     {
-        $tag = Helpers\Languages::getTag();
+        $tag = Application::getTag();
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();
 

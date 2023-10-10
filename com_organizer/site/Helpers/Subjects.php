@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -92,7 +92,7 @@ class Subjects extends Curricula
     {
         $query      = Database::getQuery(true);
         $resourceID = $resourceID ?: Input::getID();
-        $tag        = Languages::getTag();
+        $tag        = Application::getTag();
         $query->select("fullName_$tag as name, abbreviation_$tag as abbreviation")
             ->select("code AS subjectNo")
             ->from('#__organizer_subjects')
@@ -280,7 +280,7 @@ class Subjects extends Curricula
         $fieldID         = $table->fieldID ?: 0;
         $organizationIDs = self::getOrganizationIDs($table->id);
         $organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
-        $tag             = Languages::getTag();
+        $tag             = Application::getTag();
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},
@@ -308,7 +308,7 @@ class Subjects extends Curricula
         }
 
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("DISTINCT s.id, s.fullName_$tag AS name, s.code, s.creditPoints")
             ->select('p.surname, p.forename, p.title, p.username')
             ->from('#__organizer_subjects AS s')

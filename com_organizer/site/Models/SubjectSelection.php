@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -26,7 +25,7 @@ class SubjectSelection extends ListModel
      */
     protected function getListQuery(): JDatabaseQuery
     {
-        $tag = Helpers\Languages::getTag();
+        $tag = Application::getTag();
 
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();

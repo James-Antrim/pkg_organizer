@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Units as Table;
 
@@ -66,7 +66,7 @@ class Units extends ResourceHelper
      */
     public static function getContexts(int $unitID, int $eventID): array
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select("g.id AS groupID, g.categoryID, g.fullName_$tag AS fqGroup, g.name_$tag AS nqGroup")
             ->from('#__organizer_instances AS i')
@@ -121,7 +121,7 @@ class Units extends ResourceHelper
      */
     public static function getEventNames(int $unitID, string $glue = '')
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery(true);
         $query->select("DISTINCT name_$tag")
             ->from('#__organizer_events AS e')

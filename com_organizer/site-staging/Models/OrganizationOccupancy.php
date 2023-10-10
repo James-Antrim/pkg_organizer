@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -267,7 +267,7 @@ class OrganizationOccupancy extends BaseModel
      */
     private function setData($roomID)
     {
-        $tag     = Helpers\Languages::getTag();
+        $tag     = Application::getTag();
         $cSelect = "c.schedule_date AS date, TIME_FORMAT(c.startTime, '%H:%i') AS startTime, ";
         $cSelect .= "TIME_FORMAT(c.endTime, '%H:%i') AS endTime";
 
@@ -327,7 +327,7 @@ class OrganizationOccupancy extends BaseModel
     private function setRoomtypes()
     {
         $query = Database::getQuery();
-        $tag   = Helpers\Languages::getTag();
+        $tag   = Application::getTag();
 
         $query->select("id, name_$tag AS name, description_$tag AS description");
         $query->from('#__organizer_roomtypes');

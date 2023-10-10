@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -31,7 +31,7 @@ class Holidays
     {
         $endDate   = Dates::standardizeDate($endDate);
         $startDate = Dates::standardizeDate($startDate);
-        $tag       = Languages::getTag();
+        $tag       = Application::getTag();
 
         $query = Database::getQuery();
         $query->select('*')

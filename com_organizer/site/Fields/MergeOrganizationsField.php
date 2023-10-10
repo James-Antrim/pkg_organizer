@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -40,7 +40,7 @@ class MergeOrganizationsField extends OptionsField
 
         $query      = Database::getQuery(true);
         $table      = $resource === 'category' ? 'categories' : 'persons';
-        $textColumn = 'shortName_' . Helpers\Languages::getTag();
+        $textColumn = 'shortName_' . Application::getTag();
         $query->select("DISTINCT o.id AS value, o.$textColumn AS text")
             ->from("#__organizer_organizations AS o")
             ->innerJoin("#__organizer_associations AS a ON a.organizationID = o.id")

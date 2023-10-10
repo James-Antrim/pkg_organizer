@@ -11,6 +11,7 @@
 namespace THM\Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 
 /**
@@ -51,8 +52,8 @@ class Highlander extends StandardButton
      */
     protected function _getCommand($name, $task, $list = true): string
     {
-        Helpers\Languages::script('ORGANIZER_MAKE_SELECTION');
-        Helpers\Languages::script('ORGANIZER_ONLY_ONE_SELECTION');
+        Text::script('ORGANIZER_MAKE_SELECTION');
+        Text::script('ORGANIZER_ONLY_ONE_SELECTION');
 
         $alert1 = "alert(Joomla.JText._('ORGANIZER_MAKE_SELECTION'));";
         $alert2 = "alert(Joomla.JText._('ORGANIZER_ONLY_ONE_SELECTION'));";

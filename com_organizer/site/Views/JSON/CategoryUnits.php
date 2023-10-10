@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\JSON;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -30,7 +30,7 @@ class CategoryUnits extends BaseView
         $date         = $this->getDate();
         $groups       = [];
         $interval     = $this->getInterval();
-        $nameProperty = 'name_' . Helpers\Languages::getTag();
+        $nameProperty = 'name_' . Application::getTag();
 
         $active     = Input::getBool('active', true);
         $categoryID = Input::getInt('categoryID');

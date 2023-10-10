@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables;
 
 /**
@@ -114,7 +114,7 @@ class Courses extends ResourceHelper
      */
     public static function getEvents(int $courseID): array
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select("DISTINCT e.id, e.name_$tag AS name, contact_$tag AS contact")
             ->select("courseContact_$tag AS courseContact, content_$tag AS content, e.description_$tag AS description")
@@ -153,7 +153,7 @@ class Courses extends ResourceHelper
         }
 
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("pr.id, pr.name_$tag AS program, pr.accredited AS year, COUNT(*) AS participants")
             ->select("d.abbreviation AS degree")
             ->from('#__organizer_programs AS pr')

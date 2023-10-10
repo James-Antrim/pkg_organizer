@@ -69,7 +69,7 @@ class CourseParticipants extends ListView
         parent::__construct();
 
         $dates        = Helpers\Courses::getDates($this->courseID);
-        $nameProperty = 'name_' . Helpers\Languages::getTag();
+        $nameProperty = 'name_' . Application::getTag();
 
         // Course Data is on top, because the participants are the actual list items.
         $course = new Tables\Courses();

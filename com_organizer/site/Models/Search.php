@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Roles;
@@ -2478,7 +2478,7 @@ class Search extends ListModel
      */
     private function searchRooms(array &$items)
     {
-        $tag         = Languages::getTag();
+        $tag         = Application::getTag();
         $terms       = $this->terms;
         $quotedTerms = Database::quote($terms);
 

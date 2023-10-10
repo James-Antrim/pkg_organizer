@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables;
 
 /**
@@ -71,7 +71,7 @@ class Campuses extends ResourceHelper implements Selectable
             return '';
         }
 
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery(true);
         $query->select("c1.name_$tag as name, c2.name_$tag as parentName")
             ->from('#__organizer_campuses AS c1')
@@ -108,7 +108,7 @@ class Campuses extends ResourceHelper implements Selectable
      */
     public static function getResources(): array
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select("c1.*, c1.name_$tag AS name")
             ->from('#__organizer_campuses AS c1')

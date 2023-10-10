@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables;
 
 /**
@@ -61,7 +61,7 @@ class Pools extends Curricula implements Selectable
             return '';
         }
 
-        $nameColumn   = 'fullName_' . Languages::getTag();
+        $nameColumn   = 'fullName_' . Application::getTag();
         $indentedName = Pools::getIndentedName($poolsTable->$nameColumn, $range['level']);
 
         $selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
@@ -190,7 +190,7 @@ class Pools extends Curricula implements Selectable
         $fieldID         = $table->fieldID ?: 0;
         $organizationIDs = self::getOrganizationIDs($table->id);
         $organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
-        $tag             = Languages::getTag();
+        $tag             = Application::getTag();
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},
@@ -224,7 +224,7 @@ class Pools extends Curricula implements Selectable
         }
 
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("DISTINCT p.*, p.fullName_$tag AS name")
             ->from('#__organizer_pools AS p')
             ->innerJoin('#__organizer_curricula AS c ON c.poolID = p.id')

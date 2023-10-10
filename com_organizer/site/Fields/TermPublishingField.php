@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -34,7 +34,7 @@ class TermPublishingField extends FormField
     protected function getInput(): string
     {
         $input      = '';
-        $nameColumn = 'name_' . Helpers\Languages::getTag();
+        $nameColumn = 'name_' . Application::getTag();
         $today      = date('Y-m-d');
         $container  = '<div class="publishing-container">XXXX</div>';
 

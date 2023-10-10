@@ -13,7 +13,7 @@ namespace THM\Organizer\Fields;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Database, Document};
+use THM\Organizer\Adapters\{Database, Document, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -133,19 +133,19 @@ class SubOrdinatesField extends FormField
         $rowTemplate .= '</td>';
         $rowTemplate .= '<td class="sub-order">';
 
-        $firstText   = Helpers\Languages::setScript('ORGANIZER_MAKE_FIRST');
+        $firstText   = Text::useLocalization('ORGANIZER_MAKE_FIRST');
         $rowTemplate .= $this->getButton('setFirst', 'icon-first', $firstText);
-        $rowTemplate .= $this->getButton('moveUp', 'icon-previous', Helpers\Languages::setScript('ORGANIZER_MOVE_UP'));
+        $rowTemplate .= $this->getButton('moveUp', 'icon-previous', Text::useLocalization('ORGANIZER_MOVE_UP'));
 
         $orderTemplate = '<input type="text" title="Ordering" name="subXORDERINGXOrder" id="subXORDERINGXOrder" ';
         $orderTemplate .= 'value="XORDERINGX" onChange="moveTo(XORDERINGX);"/>';
         $rowTemplate   .= $orderTemplate;
 
-        $emptyText   = Helpers\Languages::setScript('ORGANIZER_ADD_EMPTY');
+        $emptyText   = Text::useLocalization('ORGANIZER_ADD_EMPTY');
         $rowTemplate .= $this->getButton('insertBlank', 'icon-download', $emptyText);
-        $rowTemplate .= $this->getButton('trash', 'icon-trash', Helpers\Languages::setScript('ORGANIZER_DELETE'));
-        $rowTemplate .= $this->getButton('moveDown', 'icon-next', Helpers\Languages::setScript('ORGANIZER_MOVE_DOWN'));
-        $rowTemplate .= $this->getButton('setLast', 'icon-last', Helpers\Languages::setScript('ORGANIZER_MAKE_LAST'));
+        $rowTemplate .= $this->getButton('trash', 'icon-trash', Text::useLocalization('ORGANIZER_DELETE'));
+        $rowTemplate .= $this->getButton('moveDown', 'icon-next', Text::useLocalization('ORGANIZER_MOVE_DOWN'));
+        $rowTemplate .= $this->getButton('setLast', 'icon-last', Text::useLocalization('ORGANIZER_MAKE_LAST'));
 
         $rowTemplate .= '</td>';
         $rowTemplate .= '</tr>';

@@ -11,8 +11,8 @@
 
 namespace THM\Organizer\Helpers;
 
-
 use Joomla\CMS\Factory;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Tables;
 
 class Mailer
@@ -91,7 +91,7 @@ class Mailer
 
         $userParams = json_decode($user->params);
         if (empty($userParams->language)) {
-            $tag = Languages::getTag();
+            $tag = Application::getTag();
         } else {
             // TODO see what variable Joomla needs set here and set it.
             $tag = explode('-', $userParams['language'])[0];

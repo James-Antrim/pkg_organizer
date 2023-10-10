@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\Application;
 
 /**
  * Class retrieves information for a filtered set of degrees.
@@ -34,7 +34,7 @@ class Terms extends ListModel
      */
     protected function getListQuery()
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = $this->_db->getQuery(true);
         $query->select("id, fullName_$tag as term, startDate, endDate")
             ->from('#__organizer_terms')

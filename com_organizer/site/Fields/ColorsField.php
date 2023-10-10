@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -33,7 +33,7 @@ class ColorsField extends ColoredOptionsField
     {
         $options = parent::getOptions();
 
-        $tag = Helpers\Languages::getTag();
+        $tag = Application::getTag();
 
         $query = Database::getQuery();
         $query->selectX(['DISTINCT c.id AS value', "c.name_$tag AS text", 'c.color'], 'colors AS c')

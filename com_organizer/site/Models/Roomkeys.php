@@ -11,9 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 
 /**
  * Class retrieves the data regarding a filtered set of buildings.
@@ -30,7 +28,7 @@ class Roomkeys extends ListModel
     {
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();
-        $tag   = Helpers\Languages::getTag();
+        $tag   = Application::getTag();
 
         $query->select("rk.*, rk.name_$tag AS name, rk.key AS rns")
             ->select("ug.name_$tag AS useGroup")

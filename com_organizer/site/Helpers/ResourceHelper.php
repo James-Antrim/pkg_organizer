@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Tables;
 
 /**
@@ -74,7 +75,7 @@ abstract class ResourceHelper
             return (string) $table->$columnName;
         }
 
-        $localizedName = "{$columnName}_" . Languages::getTag();
+        $localizedName = "{$columnName}_" . Application::getTag();
         if (array_key_exists($localizedName, $tableFields)) {
             // Some name columns may contain a null value
             return (string) $table->$localizedName;

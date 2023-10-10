@@ -109,7 +109,7 @@ class Organizations extends ResourceHelper implements Selectable
      */
     public static function getCategories(int $organizationID, bool $active = true): array
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select("c.id, code, name_$tag AS name")
             ->from('#__organizer_categories AS c')
@@ -202,7 +202,7 @@ class Organizations extends ResourceHelper implements Selectable
     public static function getResources(string $access = ''): array
     {
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("DISTINCT o.*, o.shortName_$tag AS shortName, o.name_$tag AS name")
             ->from('#__organizer_organizations AS o');
         self::addAccessFilter($query, $access);

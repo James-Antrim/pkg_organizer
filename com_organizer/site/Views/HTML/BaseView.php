@@ -15,7 +15,7 @@ use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, Input};
+use THM\Organizer\Adapters\{Application, Document, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Routing;
@@ -142,7 +142,7 @@ abstract class BaseView extends HtmlView
 
         if (Helpers\Can::scheduleTheseOrganizations()) {
             $spanText = Languages::_('ORGANIZER_SCHEDULING');
-            Languages::unpack($spanText);
+            Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
 
@@ -190,14 +190,14 @@ abstract class BaseView extends HtmlView
             $items = $prepend + $items;
 
             foreach ($items as $key => $value) {
-                Languages::unpack($key);
+                Text::unpack($key);
                 JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
             }
         }
 
         if (Helpers\Can::documentTheseOrganizations()) {
             $spanText = Languages::_('ORGANIZER_DOCUMENTATION');
-            Languages::unpack($spanText);
+            Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
 
@@ -221,14 +221,14 @@ abstract class BaseView extends HtmlView
             ];
             ksort($items);
             foreach ($items as $key => $value) {
-                Languages::unpack($key);
+                Text::unpack($key);
                 JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
             }
         }
 
         if (Helpers\Can::manage('persons')) {
             $spanText = Languages::_('ORGANIZER_HUMAN_RESOURCES');
-            Languages::unpack($spanText);
+            Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
             JHtmlSidebar::addEntry(
@@ -240,7 +240,7 @@ abstract class BaseView extends HtmlView
 
         if (Helpers\Can::manage('facilities')) {
             $spanText = Languages::_('ORGANIZER_FACILITY_MANAGEMENT');
-            Languages::unpack($spanText);
+            Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
 
@@ -280,14 +280,14 @@ abstract class BaseView extends HtmlView
             ];
             ksort($items);
             foreach ($items as $key => $value) {
-                Languages::unpack($key);
+                Text::unpack($key);
                 JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
             }
         }
 
         if ($admin) {
             $spanText = Languages::_('ORGANIZER_ADMINISTRATION');
-            Languages::unpack($spanText);
+            Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
 
@@ -335,7 +335,7 @@ abstract class BaseView extends HtmlView
             ];
             ksort($items);
             foreach ($items as $key => $value) {
-                Languages::unpack($key);
+                Text::unpack($key);
                 JHtmlSidebar::addEntry($key, $value['url'], $value['active']);
             }
         }

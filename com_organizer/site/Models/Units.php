@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -52,7 +51,7 @@ class Units extends ListModel
         $termID   = $this->state->get('filter.termID');
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();
-        $tag   = Helpers\Languages::getTag();
+        $tag   = Application::getTag();
 
         $query->select('u.id, u.code, u.courseID, u.delta AS status, u.endDate, u.modified, u.startDate')
             ->select("g.name_$tag AS grid")

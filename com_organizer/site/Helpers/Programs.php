@@ -11,8 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 use THM\Organizer\Models;
 use THM\Organizer\Tables;
 
@@ -144,7 +143,7 @@ class Programs extends Curricula implements Selectable
         }
 
         $query = Database::getQuery(true);
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $parts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
         $query->select($query->concatenate($parts, "") . ' AS name')
             ->from('#__organizer_programs AS p')
@@ -200,7 +199,7 @@ class Programs extends Curricula implements Selectable
      */
     public static function getQuery(): JDatabaseQuery
     {
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $start = [Database::quoteName("p.name_$tag"), "' ('", Database::quoteName('d.abbreviation')];
         $end   = self::useCurrent() ? ["')'"] : ["', '", Database::quoteName('p.accredited'), "')'"];
         $parts = array_merge($start, $end);
@@ -265,7 +264,7 @@ class Programs extends Curricula implements Selectable
         self::addOrganizationFilter($query, 'program', 'p');
 
         if (self::useCurrent()) {
-            $tag = Languages::getTag();
+            $tag = Application::getTag();
 
             $conditions = [
                 "grouped.name_$tag = p.name_$tag",

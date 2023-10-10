@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -183,7 +183,7 @@ class ContactTracking extends ListModel
             ->innerJoin('#__organizer_instance_participants AS ipa ON ipa.participantID = p.id')
             ->select('ipa.participantID, ipa.roomID, ipa.seat');
 
-        $tag     = Helpers\Languages::getTag();
+        $tag     = Application::getTag();
         $peQuery = Database::getQuery();
         $peQuery->from('#__organizer_persons AS pe')
             ->select('pe.forename AS defaultForename, pe.surname AS defaultSurname')

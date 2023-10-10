@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF\Instances;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\Exported;
 use THM\Organizer\Layouts\PDF\BaseLayout;
@@ -373,7 +374,7 @@ abstract class GridLayout extends BaseLayout
      */
     protected function getLabel(array $block): string
     {
-        $label = 'label_' . Helpers\Languages::getTag();
+        $label = 'label_' . Application::getTag();
 
         if ($block[$label]) {
             $value = $block[$label];
@@ -701,7 +702,7 @@ abstract class GridLayout extends BaseLayout
     {
         $role = new Roles();
         $role->load($roleID);
-        $tag    = Helpers\Languages::getTag();
+        $tag    = Application::getTag();
         $column = count($rolePersons) > 1 ? "plural_$tag" : "name_$tag";
 
         return $role->$column . ":<br>";

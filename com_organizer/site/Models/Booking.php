@@ -582,7 +582,7 @@ class Booking extends Participants
     {
         $bookingID = Input::getID();
         $query     = Database::getQuery();
-        $tag       = Helpers\Languages::getTag();
+        $tag       = Application::getTag();
         $query->select("e.name_$tag AS event")
             ->from('#__organizer_events AS e')
             ->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')

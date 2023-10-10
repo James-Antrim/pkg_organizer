@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables;
 use stdClass;
 
@@ -193,7 +193,7 @@ class Persons extends Associated implements Selectable
     public static function getOrganizationNames(int $personID): array
     {
         $query = Database::getQuery();
-        $tag   = Languages::getTag();
+        $tag   = Application::getTag();
         $query->select("o.shortName_$tag AS name")
             ->from('#__organizer_organizations AS o')
             ->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id')

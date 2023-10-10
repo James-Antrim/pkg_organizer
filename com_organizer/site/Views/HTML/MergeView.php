@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -25,7 +25,7 @@ abstract class MergeView extends FormView
     protected function addToolBar()
     {
         $name = Helpers\OrganizerHelper::getClass($this);
-        $this->setTitle(Helpers\Languages::getConstant($name));
+        $this->setTitle(Text::getClassConstant($name));
 
         $resource   = str_replace('merge', '', strtolower($name));
         $controller = Helpers\OrganizerHelper::getPlural($resource);

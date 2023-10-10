@@ -27,7 +27,7 @@ class Schedules extends ListModel
      */
     protected function getListQuery(): JDatabaseQuery
     {
-        $tag = Helpers\Languages::getTag();
+        $tag = Application::getTag();
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();
 

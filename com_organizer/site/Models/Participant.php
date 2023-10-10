@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\OrganizerHelper as OH;
@@ -163,28 +163,28 @@ class Participant extends MergeModel
         }
 
         if ($successes) {
-            OH::message(Languages::sprintf('ORGANIZER_AUTOMATIC_MERGE_SUCCESSES', $successes));
+            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_SUCCESSES', $successes));
         }
 
         if ($failures) {
-            OH::message(Languages::sprintf('ORGANIZER_AUTOMATIC_MERGE_FAILURES', $failures), 'error');
+            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_FAILURES', $failures), 'error');
         }
 
         if ($ambiguous) {
-            OH::message(Languages::sprintf('ORGANIZER_AUTOMATIC_MERGE_AMBIGUOUS', $ambiguous), 'warning');
+            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_AMBIGUOUS', $ambiguous), 'warning');
         }
 
         if ($implausible) {
-            OH::message(Languages::sprintf('ORGANIZER_AUTOMATIC_MERGE_IMPLAUSIBLE', $implausible),
+            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_IMPLAUSIBLE', $implausible),
                 'warning');
         }
 
         if ($surfeit) {
-            OH::message(Languages::sprintf('ORGANIZER_AUTOMATIC_MERGE_SURFEIT', $surfeit), 'warning');
+            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_SURFEIT', $surfeit), 'warning');
         }
 
         if ($synonyms) {
-            OH::message(Languages::sprintf('ORGANIZER_AUTOMATIC_MERGE_SYNONYMS', $synonyms), 'warning');
+            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_SYNONYMS', $synonyms), 'warning');
         }
     }
 

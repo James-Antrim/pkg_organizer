@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
@@ -42,7 +42,7 @@ class Roomtypes extends ResourceHelper implements Selectable
      */
     public static function getResources($associated = self::YES, $suppress = self::NO): array
     {
-        $tag = Languages::getTag();
+        $tag = Application::getTag();
 
         $query = Database::getQuery(true);
         $query->select("DISTINCT t.*, t.id AS id, t.name_$tag AS name")

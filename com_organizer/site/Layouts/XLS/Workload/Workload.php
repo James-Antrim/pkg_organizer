@@ -11,7 +11,7 @@
 namespace THM\Organizer\Layouts\XLS\Workload;
 
 use Exception;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Layouts\XLS\BaseLayout;
@@ -1371,7 +1371,7 @@ class Workload extends BaseLayout
         $term   = Helpers\Terms::getFullName($this->termID);
         $date   = Helpers\Dates::formatDate(date('Y-m-d'));
 
-        return Languages::sprintf('ORGANIZER_WORKLOAD_XLS_DESCRIPTION', $person, $term, $date);
+        return Text::sprintf('ORGANIZER_WORKLOAD_XLS_DESCRIPTION', $person, $term, $date);
     }
 
     /**

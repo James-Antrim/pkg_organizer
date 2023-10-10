@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
+use THM\Organizer\Adapters\{Document, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Helpers\Languages;
@@ -97,7 +97,7 @@ class Curriculum extends ItemView
                 $itemClass = 'item-pool';
             }
 
-            Languages::unpack($item['name']);
+            Text::unpack($item['name']);
 
             $title       = HTML::link($url, $item['name'], $attributes);
             $itemContent .= '<div class="item-title">' . $title . '</div>';
@@ -124,7 +124,7 @@ class Curriculum extends ItemView
                 <div class="panel-title"><?php echo Languages::_('ORGANIZER_LEGEND'); ?></div>
             </div>
             <?php foreach ($this->fields as $hex => $field) : ?>
-                <?php Languages::unpack($field); ?>
+                <?php Text::unpack($field); ?>
                 <div class="legend-item">
                     <div class="item-color" style="background-color: <?php echo $hex; ?>;"></div>
                     <div class="item-title"><?php echo $field; ?></div>

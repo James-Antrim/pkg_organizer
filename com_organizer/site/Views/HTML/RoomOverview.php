@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Roles;
 
@@ -120,7 +120,7 @@ class RoomOverview extends TableView
         }
 
         $blocks     = [];
-        $labelIndex = 'label_' . Helpers\Languages::getTag();
+        $labelIndex = 'label_' . Application::getTag();
 
         foreach ($grid['periods'] as $number => $data) {
             $endTime   = Helpers\Dates::formatEndTime($data['endTime']);
