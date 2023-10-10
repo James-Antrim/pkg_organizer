@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -84,7 +84,7 @@ class Rooms extends ListView
     protected function authorize()
     {
         if ($this->adminContext and !Helpers\Can::manage('facilities')) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

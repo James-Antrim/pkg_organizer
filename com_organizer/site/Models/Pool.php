@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
@@ -120,11 +120,11 @@ class Pool extends CurriculumResource
 
         if (empty($data['id'])) {
             if (!Helpers\Can::documentTheseOrganizations()) {
-                Helpers\OrganizerHelper::error(403);
+                Application::error(403);
             }
         } elseif (is_numeric($data['id'])) {
             if (!Helpers\Can::document('pool', (int) $data['id'])) {
-                Helpers\OrganizerHelper::error(403);
+                Application::error(403);
             }
         } else {
             return false;

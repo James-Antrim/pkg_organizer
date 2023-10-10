@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Application, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -37,7 +37,7 @@ class SubjectSelection extends ListView
     protected function authorize()
     {
         if (!Helpers\Can::documentTheseOrganizations()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

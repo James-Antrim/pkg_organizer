@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\User;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Tables;
@@ -48,23 +48,23 @@ class Booking extends Participants
     public function add(): int
     {
         if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         if (!$instanceIDs = Input::getSelectedIDs()) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         $instanceID = array_shift($instanceIDs);
 
         if (!Helpers\Can::manage('instance', $instanceID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $block    = new Tables\Blocks();
         $instance = new Tables\Instances();
         if (!$instance->load($instanceID) or !$block->load($instance->blockID)) {
-            Helpers\OrganizerHelper::error(412);
+            Application::error(412);
         }
 
         if ($instance->delta === 'removed') {
@@ -102,7 +102,7 @@ class Booking extends Participants
         $input     = $listItems->get('username');
 
         if (empty($input) or !$input = trim($input)) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         $bookingID = Input::getID();
@@ -320,11 +320,11 @@ class Booking extends Participants
     private function authorize()
     {
         if (!$bookingID = Input::getID()) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         if (!Helpers\Can::manage('booking', $bookingID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 
@@ -428,7 +428,7 @@ class Booking extends Participants
         $this->authorize();
 
         if (!Helper::getInstanceIDs(Input::getID())) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         $count = 0;

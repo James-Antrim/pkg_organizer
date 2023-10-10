@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -256,7 +256,7 @@ class Workload extends FormModel
     protected function authorize()
     {
         if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         $organizationIDs = Helpers\Can::manageTheseOrganizations();
@@ -267,7 +267,7 @@ class Workload extends FormModel
         $unAuthorized = (!$organizationIDs and $personID and $personID != $thisPersonID);
 
         if ((!$organizationIDs and !$thisPersonID) or $unAuthorized) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $organizationID       = $organizationIDs ? reset($organizationIDs) : 0;
@@ -279,7 +279,7 @@ class Workload extends FormModel
         $incomplete = (!$this->personID or !$this->termID);
 
         if ($format = Input::getCMD('format') and $format === 'xls' and $incomplete) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
     }
 

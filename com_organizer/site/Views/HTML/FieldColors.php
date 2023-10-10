@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Application, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -49,7 +49,7 @@ class FieldColors extends ListView
     protected function authorize()
     {
         if (!Helpers\Can::documentTheseOrganizations()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

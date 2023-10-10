@@ -16,6 +16,7 @@ use Exception;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Controllers\Controller;
 use Wf_Mobile_Detect;
 
@@ -62,65 +63,9 @@ class OrganizerHelper
      */
     public static function dynamic(): bool
     {
-        $app = self::getApplication();
+        $app = Application::getApplication();
 
         return (empty($app->getMenu()) or empty($app->getMenu()->getActive()));
-    }
-
-    /**
-     * Performs a redirect on error.
-     *
-     * @param int $code the error code
-     *
-     * @return void
-     */
-    public static function error(int $code)
-    {
-        $URI     = Uri::getInstance();
-        $current = $URI->toString();
-
-        if ($code === 401) {
-            $return   = urlencode(base64_encode($current));
-            $URL      = Uri::base() . "?option=com_users&view=login&return=$return";
-            $severity = 'notice';
-        } else {
-            switch ($code) {
-                case 400:
-                case 404:
-                case 412:
-                    $severity = 'notice';
-                    break;
-                case 403:
-                    $severity = 'warning';
-                    break;
-                case 501:
-                case 503:
-                default:
-                    $severity = 'error';
-                    break;
-
-            }
-
-            $referrer = Input::getInput()->server->getString('HTTP_REFERER', Uri::base());
-            $URL      = $referrer === $current ? Uri::base() : $referrer;
-        }
-
-        self::message(Languages::_("ORGANIZER_$code"), $severity);
-        self::getApplication()->redirect($URL, $code);
-    }
-
-    /**
-     * Surrounds the call to the application with a try catch so that not every function needs to have a throws tag. If
-     * the application has an error it would have never made it to the component in the first place.
-     * @return CMSApplication|null
-     */
-    public static function getApplication(): ?CMSApplication
-    {
-        try {
-            return Factory::getApplication();
-        } catch (Exception $exc) {
-            return null;
-        }
     }
 
     /**
@@ -236,7 +181,7 @@ class OrganizerHelper
     public static function message(string $message, string $type = 'message')
     {
         $message = Languages::_($message);
-        self::getApplication()->enqueueMessage($message, $type);
+        Application::getApplication()->enqueueMessage($message, $type);
     }
 
     /**

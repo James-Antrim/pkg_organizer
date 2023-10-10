@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -27,7 +28,7 @@ class ProgramEdit extends EditModel
     public function authorize()
     {
         if (!Helpers\Can::document('program', (int) $this->item->id)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

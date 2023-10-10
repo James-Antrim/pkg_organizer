@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -190,11 +190,11 @@ class Program extends CurriculumResource
             $schedulingAccess    = (bool) Helpers\Can::scheduleTheseOrganizations();
 
             if (!($documentationAccess or $schedulingAccess)) {
-                Helpers\OrganizerHelper::error(403);
+                Application::error(403);
             }
         } elseif (is_numeric($data['id'])) {
             if (!Helpers\Can::document('program', (int) $data['id'])) {
-                Helpers\OrganizerHelper::error(403);
+                Application::error(403);
             }
         } else {
             return false;
@@ -237,7 +237,7 @@ class Program extends CurriculumResource
 
         foreach ($programIDs as $programID) {
             if (!Helpers\Can::document('program', $programID)) {
-                Helpers\OrganizerHelper::error(403);
+                Application::error(403);
             }
 
             if (!$subjectIDs = $this->getSubjectIDs($programID)) {

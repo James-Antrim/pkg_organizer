@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Routing;
 
@@ -88,7 +88,7 @@ class Subjects extends ListView
         }
 
         if (!$this->documentAccess = Helpers\Can::documentTheseOrganizations()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

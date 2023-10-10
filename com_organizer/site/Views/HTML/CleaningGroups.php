@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 
 /**
@@ -31,7 +32,7 @@ class CleaningGroups extends ListView
     protected function authorize()
     {
         if (!Helpers\Can::manage('facilities')) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

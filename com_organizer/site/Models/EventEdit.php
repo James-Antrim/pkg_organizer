@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -25,11 +26,11 @@ class EventEdit extends EditModel
     public function authorize()
     {
         if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         if (!Helpers\Can::edit('events', (int) $this->item->id)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

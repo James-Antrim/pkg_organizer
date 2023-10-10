@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Application;
 
 trait Activated
 {
@@ -27,7 +27,7 @@ trait Activated
         /** @noinspection PhpMultipleClassDeclarationsInspection */
         parent::populateState($ordering, $direction);
 
-        $app     = Helpers\OrganizerHelper::getApplication();
+        $app     = Application::getApplication();
         $filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
 
         if (!array_key_exists('active', $filters) or $filters['active'] === '') {

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -84,7 +84,7 @@ class RoomOverview extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        $app  = Helpers\OrganizerHelper::getApplication();
+        $app  = Application::getApplication();
         $list = Input::getListItems();
 
         $date = $app->getUserStateFromRequest("$this->context.list.date", "list_date", '', 'string');

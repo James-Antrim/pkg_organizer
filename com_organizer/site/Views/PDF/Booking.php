@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Models\Booking as Model;
@@ -74,15 +74,15 @@ class Booking extends ListView
     protected function authorize()
     {
         if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         if (!$this->bookingID = Input::getID()) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         if (!Helpers\Can::manage('booking', $this->bookingID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

@@ -11,6 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use SimpleXMLElement;
 use stdClass;
@@ -82,7 +83,7 @@ class OptionsField extends FormField
      */
     protected function getInput(): string
     {
-        $this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+        $this->adminContext = Application::getApplication()->isClient('administrator');
 
         $attr = '';
 

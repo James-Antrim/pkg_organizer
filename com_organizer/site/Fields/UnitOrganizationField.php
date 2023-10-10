@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -29,7 +30,7 @@ class UnitOrganizationField extends OptionsField
      */
     protected function getInput(): string
     {
-        $this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+        $this->adminContext = Application::getApplication()->isClient('administrator');
         $onchange           = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 
         // Get the field options.

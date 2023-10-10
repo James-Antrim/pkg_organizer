@@ -11,8 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers\Languages;
 
 /**
@@ -34,7 +33,7 @@ class PageField extends FormField
      */
     protected function getInput(): string
     {
-        $app       = Helpers\OrganizerHelper::getApplication();
+        $app       = Application::getApplication();
         $context   = 'com_organizer.instances';
         $interval  = $app->getUserStateFromRequest("$context.list.interval", 'list_interval', '', 'string');
         $interval  = Input::getListItems()->get('interval', $interval);

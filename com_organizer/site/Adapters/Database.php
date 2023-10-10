@@ -63,7 +63,7 @@ class Database
         $dbo = Factory::getDbo();
 
         if (strtolower($dbo->getName()) !== 'mysqli') {
-            Helpers\OrganizerHelper::error(501);
+            Application::error(501);
         }
 
         return $new ? new Queries\QueryMySQLi() : $dbo->getQuery();

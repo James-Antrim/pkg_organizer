@@ -12,7 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -133,7 +133,7 @@ class Bookings extends Controller
     {
         if (!$instanceID) {
             if (!$instanceIDs = Input::getSelectedIDs()) {
-                Helpers\OrganizerHelper::error(400);
+                Application::error(400);
             }
 
             $instanceID = array_shift($instanceIDs);
@@ -160,7 +160,7 @@ class Bookings extends Controller
     public function manageThis()
     {
         if (!$instanceID = Input::getID()) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         $this->manage($instanceID);

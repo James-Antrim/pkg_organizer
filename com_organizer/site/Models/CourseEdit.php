@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -25,7 +26,7 @@ class CourseEdit extends EditModel
     protected function authorize()
     {
         if (!Helpers\Can::manage('course', (int) $this->item->id)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

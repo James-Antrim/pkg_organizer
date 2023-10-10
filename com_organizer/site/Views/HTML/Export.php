@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 
@@ -89,9 +89,7 @@ class Export extends FormView
         $authRequired = (!empty($fields['my']) or !empty($fields['personID']));
 
         if (!$username = Helpers\Users::getUserName() and $authRequired) {
-            Helpers\OrganizerHelper::error(401);
-
-            return;
+            Application::error(401);
         }
 
         // Resource links

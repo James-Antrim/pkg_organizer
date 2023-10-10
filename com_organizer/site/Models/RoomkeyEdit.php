@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -26,7 +26,7 @@ class RoomkeyEdit extends EditModel
     protected function authorize()
     {
         if (!Helpers\Can::manage('facilities')) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

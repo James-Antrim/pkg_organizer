@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 
 /**
@@ -25,7 +26,7 @@ abstract class PoolsView extends ListView
     protected function authorize()
     {
         if (!Helpers\Can::documentTheseOrganizations()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -47,12 +47,12 @@ class CourseParticipant extends BaseModel
         }
 
         if (!Helpers\Can::manage('course', $courseID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         foreach ($participantIDs as $participantID) {
             if (!Helpers\Can::manage('participant', $participantID)) {
-                Helpers\OrganizerHelper::error(403);
+                Application::error(403);
             }
 
             $table = $this->getTable();
@@ -96,7 +96,7 @@ class CourseParticipant extends BaseModel
         }
 
         if (!Helpers\Can::manage('course', $courseID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $courseParticipants   = Helpers\Courses::getParticipantIDs($courseID);
@@ -131,7 +131,7 @@ class CourseParticipant extends BaseModel
         }
 
         if (!Helpers\Can::manage('course', $courseID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $dates = Helpers\Courses::getDates($courseID);
@@ -145,7 +145,7 @@ class CourseParticipant extends BaseModel
 
         foreach ($participantIDs as $participantID) {
             if (!Helpers\Can::manage('participant', $participantID)) {
-                Helpers\OrganizerHelper::error(403);
+                Application::error(403);
             }
 
             $courseParticipant = new Tables\CourseParticipants();
@@ -186,7 +186,7 @@ class CourseParticipant extends BaseModel
         }
 
         if (!Helpers\Can::manage('course', $courseID) or !Helpers\Can::manage('participant', $participantID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $table = $this->getTable();

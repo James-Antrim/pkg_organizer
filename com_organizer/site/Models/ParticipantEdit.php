@@ -11,6 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\MVC\Model\AdminModel;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
@@ -29,7 +30,7 @@ class ParticipantEdit extends EditModel
     protected function authorize()
     {
         if (!Helpers\Can::edit('participant', (int) $this->participantID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

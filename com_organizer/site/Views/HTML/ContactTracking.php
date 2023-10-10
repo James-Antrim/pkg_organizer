@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 
@@ -65,11 +65,11 @@ class ContactTracking extends ListView
     protected function authorize()
     {
         if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         if (!Helpers\Can::traceContacts()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -26,7 +26,7 @@ class Campus extends BaseModel
     protected function authorize()
     {
         if (!Helpers\Can::manage('facilities')) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

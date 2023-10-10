@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\XLS;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Layouts\Exported;
@@ -41,11 +41,11 @@ class Instances extends ListView
     protected function authorize()
     {
         if ($this->adminContext and !Helpers\Can::scheduleTheseOrganizations()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         if (Input::getBool('my') and !Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
     }
 

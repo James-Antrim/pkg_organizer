@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Instances as Model;
 
@@ -57,11 +57,11 @@ class Instances extends ListView
 
         if ($my or $personID) {
             if (!Helpers\Users::getID()) {
-                Helpers\OrganizerHelper::error(401);
+                Application::error(401);
             }
 
             if ($personID and !in_array($personID, array_keys(Helpers\Persons::getResources()))) {
-                Helpers\OrganizerHelper::error(403);
+                Application::error(403);
             }
         }
     }

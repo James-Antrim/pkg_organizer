@@ -15,7 +15,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -47,7 +47,7 @@ abstract class ListModel extends ParentModel
     {
         parent::__construct($config);
 
-        $app                  = Helpers\OrganizerHelper::getApplication();
+        $app                  = Application::getApplication();
         $this->adminContext   = $app->isClient('administrator');
         $this->filterFormName = strtolower(Helpers\OrganizerHelper::getClass($this));
 
@@ -133,7 +133,7 @@ abstract class ListModel extends ParentModel
     protected function loadFormData()
     {
         // Check the session for previously entered form data.
-        $data = Helpers\OrganizerHelper::getApplication()->getUserState($this->context, new stdClass());
+        $data = Application::getApplication()->getUserState($this->context, new stdClass());
 
         // Pre-create the list options
         if (!property_exists($data, 'list')) {
@@ -163,7 +163,7 @@ abstract class ListModel extends ParentModel
     protected function populateState($ordering = null, $direction = null)
     {
         parent::populateState($ordering, $direction);
-        $app = Helpers\OrganizerHelper::getApplication();
+        $app = Application::getApplication();
 
         // Receive & set filters
         $filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');

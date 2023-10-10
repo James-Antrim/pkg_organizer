@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 
 /**
@@ -54,7 +55,7 @@ trait Named
 
         $this->context = strtolower('com_organizer.' . $this->getName());
 
-        $app = Helpers\OrganizerHelper::getApplication();
+        $app = Application::getApplication();
 
         if ($menu = $app->getMenu() and $menuItem = $menu->getActive() and $menuID = $menuItem->id) {
             $this->context .= '.' . $menuID;

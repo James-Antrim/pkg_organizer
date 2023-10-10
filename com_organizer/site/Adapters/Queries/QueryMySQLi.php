@@ -15,8 +15,8 @@ use JDatabaseQuery;
 use JDatabaseQueryElement;
 use JDatabaseQueryMysqli;
 use Joomla\CMS\Factory;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Adapters\Database;
-use THM\Organizer\Helpers\OrganizerHelper;
 
 class QueryMySQLi extends JDatabaseQueryMysqli
 {
@@ -225,7 +225,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
                 $return[] = $this->formatColumn($column);
             }
         } else {
-            OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         return $return;
@@ -262,7 +262,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
         } elseif (is_string($tables)) {
             $return = [$this->formatTable($tables)];
         } else {
-            OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         return $return;

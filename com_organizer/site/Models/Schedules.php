@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -64,7 +63,7 @@ class Schedules extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        $app     = Helpers\OrganizerHelper::getApplication();
+        $app     = Application::getApplication();
         $filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
 
         if (!array_key_exists('active', $filters) or $filters['active'] === '') {

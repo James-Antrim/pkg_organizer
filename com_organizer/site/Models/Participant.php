@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\OrganizerHelper as OH;
@@ -317,7 +317,7 @@ class Participant extends MergeModel
 
         //todo differentiate rights by the called view and resource id as applicable
         if (!Helpers\Can::administrate()) {
-            OH::error(403);
+            Application::error(403);
         }
 
         // Associations have to be updated before entity references are deleted by foreign keys
@@ -425,7 +425,7 @@ class Participant extends MergeModel
         }
 
         if (!Helpers\Can::edit('participant', $data['id'])) {
-            OH::error(403);
+            Application::error(403);
         }
 
         $numericFields = ['id', 'programID'];
@@ -438,7 +438,7 @@ class Participant extends MergeModel
                 $requiredFields = ['address', 'city', 'forename', 'id', 'surname', 'telephone', 'zipCode'];
                 break;
             default:
-                OH::error(501);
+                Application::error(501);
 
                 return false;
 

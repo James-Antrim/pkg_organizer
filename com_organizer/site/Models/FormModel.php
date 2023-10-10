@@ -12,6 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\FormModel as ParentModel;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 
 /**
@@ -41,7 +42,7 @@ class FormModel extends ParentModel
     protected function authorize()
     {
         if (!Helpers\Can::administrate()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

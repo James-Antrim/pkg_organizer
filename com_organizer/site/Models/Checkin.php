@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -50,7 +50,7 @@ class Checkin extends FormModel
         // Force component template
         if (Input::getCMD('tmpl') !== 'component') {
             $query = Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
-            Helpers\OrganizerHelper::getApplication()->redirect(Uri::current() . "?$query");
+            Application::getApplication()->redirect(Uri::current() . "?$query");
         }
 
         $form    = $this->getForm();
@@ -81,7 +81,7 @@ class Checkin extends FormModel
     protected function authorize()
     {
         if (Input::getCMD('layout') === 'profile' and !Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
     }
 

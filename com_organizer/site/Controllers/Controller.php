@@ -157,7 +157,7 @@ class Controller extends BaseController
             $model->setState('task', $this->task);
 
             // Let's get the application object and set menu information if it's available
-            $menu = OrganizerHelper::getApplication()->getMenu();
+            $menu = Application::getApplication()->getMenu();
 
             if (is_object($menu) && $item = $menu->getActive()) {
                 $params = $menu->getParams($item->id);
@@ -213,7 +213,7 @@ class Controller extends BaseController
             } elseif ($view = new $name()) {
                 self::$views[$key][$type][$prefix] = &$view;
             } else {
-                OrganizerHelper::error(501);
+                Application::error(501);
             }
         }
 
@@ -229,7 +229,7 @@ class Controller extends BaseController
      */
     protected function jsonResponse(string $response)
     {
-        $app = OrganizerHelper::getApplication();
+        $app = Application::getApplication();
 
         // Send json mime type.
         $app->setHeader('Content-Type', 'application/json' . '; charset=' . $app->charSet);

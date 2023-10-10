@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use THM\Organizer\Validators;
@@ -169,7 +169,7 @@ class Schedule extends BaseModel
     public function delete(): bool
     {
         if (!Helpers\Can::scheduleTheseOrganizations()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $scheduleIDs = Input::getSelectedIDs();
@@ -240,7 +240,7 @@ class Schedule extends BaseModel
     private function deleteSingle($scheduleID): bool
     {
         if (!Helpers\Can::schedule('schedule', $scheduleID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $schedule = new Tables\Schedules();
@@ -446,7 +446,7 @@ class Schedule extends BaseModel
         }
 
         if (!Helpers\Can::schedule('organization', $organizationID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $this->deleteDuplicates();
@@ -477,7 +477,7 @@ class Schedule extends BaseModel
         }
 
         if (!Helpers\Can::schedule('schedule', $referenceID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $reference = new Tables\Schedules();
@@ -1005,11 +1005,11 @@ class Schedule extends BaseModel
         }
 
         if (!Helpers\Can::schedule('organization', $organizationID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         if (!Helpers\Organizations::allowScheduling($organizationID)) {
-            Helpers\OrganizerHelper::error(501);
+            Application::error(501);
         }
 
         $validator = new Validators\Schedule();

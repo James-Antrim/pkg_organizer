@@ -14,7 +14,7 @@ require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
 
 use Exception;
 use Joomla\CMS\Application\ApplicationHelper;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\XLS\BaseLayout;
 use THM\Organizer\Models\BaseModel;
@@ -54,7 +54,7 @@ abstract class BaseView extends PHPExcel
         parent::__construct();
 
         $name               = $this->getName();
-        $this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+        $this->adminContext = Application::getApplication()->isClient('administrator');
 
         $layout = Input::getCMD('layout', $name);
         $layout = Helpers\OrganizerHelper::classDecode($layout);

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Tables;
 
 /**
@@ -93,7 +93,7 @@ class Organizations extends ResourceHelper implements Selectable
         $organization = new Tables\Organizations();
 
         if (!$organization->load($organizationID)) {
-            OrganizerHelper::error(412);
+            Application::error(412);
         }
 
         return $organization->allowScheduling;

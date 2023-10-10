@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\BaseTable;
 
@@ -50,7 +50,7 @@ abstract class BaseModel extends BaseDatabaseModel
     protected function authorize()
     {
         if (!Helpers\Can::administrate()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

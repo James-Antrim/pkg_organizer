@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -29,7 +30,7 @@ class OrganizationFilterField extends OptionsField
      */
     protected function getInput(): string
     {
-        $this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+        $this->adminContext = Application::backend();
         $onchange           = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 
         // Get the field options.

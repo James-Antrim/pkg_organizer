@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -27,7 +28,7 @@ class PersonEdit extends EditModel
     protected function authorize()
     {
         if (!Helpers\Can::manage('persons')) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

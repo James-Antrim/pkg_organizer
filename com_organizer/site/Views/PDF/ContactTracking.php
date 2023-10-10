@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\Participants;
 use THM\Organizer\Tables\Persons;
@@ -52,7 +53,7 @@ class ContactTracking extends ListView
         }
 
         if (!$name) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         $this->participantName = $name;
@@ -64,11 +65,11 @@ class ContactTracking extends ListView
     protected function authorize()
     {
         if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         if (!Helpers\Can::traceContacts()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

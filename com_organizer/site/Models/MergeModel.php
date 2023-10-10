@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -53,7 +53,7 @@ abstract class MergeModel extends BaseModel
         sort($this->selected);
 
         if (!Helpers\Can::administrate()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         // Associations have to be updated before entity references are deleted by foreign keys

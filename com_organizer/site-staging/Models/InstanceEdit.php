@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Factory;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Instances as Table;
@@ -34,15 +34,15 @@ class InstanceEdit extends EditModel
     protected function authorize()
     {
         if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         if (!$this->personID = Helpers\Persons::getIDByUserID()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         if ($instanceID = Input::getID() and !Helpers\Can::manage('instance', $instanceID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

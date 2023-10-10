@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\XML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Views\Named;
 
 /**
@@ -42,7 +42,7 @@ abstract class BaseView
      */
     public function display(string $response = '')
     {
-        $app = OrganizerHelper::getApplication();
+        $app = Application::getApplication();
 
         // Send xml mime type.
         $app->setHeader('Content-Type', 'text/xml' . '; charset=' . $app->charSet);

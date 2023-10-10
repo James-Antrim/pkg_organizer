@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -36,7 +36,7 @@ class Unit extends BaseModel
 
         $authorized = Helpers\Can::scheduleTheseOrganizations();
         if (!in_array($unit->organizationID, $authorized)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $event  = new Tables\Events();

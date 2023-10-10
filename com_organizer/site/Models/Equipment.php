@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -28,7 +28,7 @@ class Equipment extends ListModel
     protected function authorize()
     {
         if (!Helpers\Can::manage('facilities')) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

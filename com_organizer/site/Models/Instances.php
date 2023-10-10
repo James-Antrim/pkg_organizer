@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Instances as Helper;
 use THM\Organizer\Helpers\Languages;
@@ -167,7 +167,7 @@ class Instances extends ListModel
      */
     private function getDate(): string
     {
-        $app = Helpers\OrganizerHelper::getApplication();
+        $app = Application::getApplication();
 
         // Instances view
         $date = $app->getUserStateFromRequest("$this->context.list.date", "list_date", '', 'string');
@@ -185,7 +185,7 @@ class Instances extends ListModel
      */
     private function getInterval(): string
     {
-        $app = Helpers\OrganizerHelper::getApplication();
+        $app = Application::getApplication();
 
         // Instances view
         $interval = $app->getUserStateFromRequest("$this->context.list.interval", "list_interval", '', 'string');
@@ -203,7 +203,7 @@ class Instances extends ListModel
 
         // Prevents out of memory errors.
         if (count($items) >= 12500) {
-            Helpers\OrganizerHelper::error(413);
+            Application::error(413);
         }
 
         $usedGrids = [];
@@ -373,7 +373,7 @@ class Instances extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        $app         = Helpers\OrganizerHelper::getApplication();
+        $app         = Application::getApplication();
         $conditions  = ['delta' => date('Y-m-d', strtotime('-14 days'))];
         $filterItems = Input::getFilterItems();
         $listItems   = Input::getListItems();
@@ -487,7 +487,7 @@ class Instances extends ListModel
                         }
                     } else {
                         // Unauthorized access to personal information.
-                        Helpers\OrganizerHelper::error(403);
+                        Application::error(403);
                     }
                 }
 

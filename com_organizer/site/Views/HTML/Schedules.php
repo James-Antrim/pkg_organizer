@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Application, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -98,7 +98,7 @@ class Schedules extends ListView
     protected function authorize()
     {
         if (!Helpers\Can::scheduleTheseOrganizations()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

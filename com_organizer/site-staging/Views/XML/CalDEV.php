@@ -10,10 +10,9 @@
 
 namespace THM\Organizer\Views\XML;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
-use THM\Organizer\Helpers\OrganizerHelper;
 use SimpleXMLElement;
 
 /**
@@ -42,12 +41,12 @@ class CalDEV extends BaseView
         $allowedMethods = ['GET', 'OPTIONS', 'PROPFIND', 'REPORT'];
 
         if (!in_array($this->method, $allowedMethods)) {
-            OrganizerHelper::error(501);
+            Application::error(501);
         }
 
         $response = '';
 
-        $app = OrganizerHelper::getApplication();
+        $app = Application::getApplication();
         switch ($this->method) {
             case 'GET':
                 $get = new SimpleXMLElement('<response/>');
@@ -98,14 +97,14 @@ class CalDEV extends BaseView
 
             $table = new $table();
             if (!$table->load($id)) {
-                OrganizerHelper::error(404);
+                Application::error(404);
             }
 
             switch ($key) {
                 case 'categoryID':
 
                     if ($table->suppress or !$table->active) {
-                        OrganizerHelper::error(404);
+                        Application::error(404);
                     }
 
                     $category = new SimpleXMLElement('<category/>');
@@ -122,7 +121,7 @@ class CalDEV extends BaseView
                 case 'groupID':
 
                     if ($table->suppress or !$table->active) {
-                        OrganizerHelper::error(404);
+                        Application::error(404);
                     }
 
                     $group = new SimpleXMLElement('<group/>');
@@ -139,15 +138,15 @@ class CalDEV extends BaseView
                 case 'roomID':
 
                     if (!$table->active) {
-                        OrganizerHelper::error(404);
+                        Application::error(404);
                     }
 
                     if (!$table->roomtypeID) {
-                        OrganizerHelper::error(412);
+                        Application::error(412);
                     }
 
                     if (Helpers\Roomtypes::getSuppressed($table->roomtypeID)) {
-                        OrganizerHelper::error(404);
+                        Application::error(404);
                     }
 
                     $room = new SimpleXMLElement('<room/>');

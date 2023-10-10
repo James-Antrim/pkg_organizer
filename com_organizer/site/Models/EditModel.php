@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Object\CMSObject;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -46,7 +46,7 @@ abstract class EditModel extends AdminModel
     protected function authorize()
     {
         if (!Helpers\Can::administrate()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

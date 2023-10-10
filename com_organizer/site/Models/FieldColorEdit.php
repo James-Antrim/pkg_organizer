@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -30,7 +30,7 @@ class FieldColorEdit extends EditModel
             return;
         }
 
-        Helpers\OrganizerHelper::error(403);
+        Application::error(403);
     }
 
     /**

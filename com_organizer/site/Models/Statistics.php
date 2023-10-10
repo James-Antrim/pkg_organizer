@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Helpers;
 use THM\Organizer\Views\HTML\Statistics as View;
 
@@ -653,7 +653,7 @@ class Statistics extends FormModel
      */
     protected function populateState()
     {
-        $app        = Helpers\OrganizerHelper::getApplication();
+        $app        = Application::getApplication();
         $conditions = $app->getUserStateFromRequest($this->context . '.conditions', 'jform', [], 'array');
         foreach ($conditions as $input => $value) {
             $this->setState("conditions.$input", $value);

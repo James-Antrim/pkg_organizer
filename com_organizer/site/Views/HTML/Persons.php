@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Application, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 
@@ -78,7 +78,7 @@ class Persons extends ListView
     protected function authorize()
     {
         if (!Helpers\Can::manage('persons')) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

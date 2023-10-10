@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
@@ -30,7 +30,7 @@ class Course extends BaseModel
     protected function authorize()
     {
         if (!Helpers\Can::manage('course', Input::getID())) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 
@@ -45,7 +45,7 @@ class Course extends BaseModel
         }
 
         if (!Helpers\Can::manage('participant', $participantID) and !Helpers\Can::manage('course', $courseID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $dates = Helpers\Courses::getDates($courseID);
@@ -101,11 +101,11 @@ class Course extends BaseModel
         $termID         = Input::getInt('termID');
 
         if (!$organizationID or !$termID) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         if (!Helpers\Can::schedule('organization', $organizationID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         $input = Input::getInput();
@@ -151,7 +151,7 @@ class Course extends BaseModel
         $term         = new Tables\Terms();
 
         if (!$organization->load($organizationID) or !$term->load($termID)) {
-            Helpers\OrganizerHelper::error(500);
+            Application::error(500);
         }
 
         sort($unitIDs);

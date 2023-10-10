@@ -6,11 +6,10 @@
  * @license     A "Slug" license name e.g. GPL2
  */
 
-use THM\Organizer\Adapters\Input;
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Tables;
@@ -126,7 +125,7 @@ abstract class CurriculumResource extends BaseModel
     {
         if (($id = Input::getID() and !Helpers\Can::document($this->resource, $id))
             or !Helpers\Can::documentTheseOrganizations()) {
-            OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 
@@ -140,7 +139,7 @@ abstract class CurriculumResource extends BaseModel
         if ($resourceIDs = Input::getSelectedIDs()) {
             foreach ($resourceIDs as $resourceID) {
                 if (!Helpers\Can::document($this->resource, $resourceID)) {
-                    OrganizerHelper::error(403);
+                    Application::error(403);
                 }
 
                 if (!$this->deleteSingle($resourceID)) {

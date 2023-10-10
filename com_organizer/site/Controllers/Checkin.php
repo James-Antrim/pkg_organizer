@@ -12,7 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -33,7 +33,7 @@ class Checkin extends Controller
 
         if (!Helpers\Users::getID()) {
             $credentials = ['username' => $data->get('username'), 'password' => $data->get('password')];
-            Helpers\OrganizerHelper::getApplication()->login($credentials);
+            Application::getApplication()->login($credentials);
             $session->set('organizer.checkin.username', $data->get('username'));
         }
 

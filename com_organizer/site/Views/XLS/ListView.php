@@ -11,6 +11,7 @@
 namespace THM\Organizer\Views\XLS;
 
 use Joomla\Registry\Registry;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 
 abstract class ListView extends BaseView
@@ -37,7 +38,7 @@ abstract class ListView extends BaseView
     protected function authorize()
     {
         if (!Helpers\Can::administrate()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

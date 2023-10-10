@@ -11,6 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\{Application, Input};
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -25,13 +26,13 @@ class Routing
     {
         $base = Uri::base();
 
-        if (OrganizerHelper::getApplication()->isClient('administrator')) {
+        if (Application::backend()) {
             return "$base?option=com_organizer";
         }
 
         // If the menu is plausible redirect
-        if ($menuID = Input::getItemid() and !OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->home) {
-            return $base . OrganizerHelper::getApplication()->getMenu()->getItem($menuID)->route . '?';
+        if ($menuID = Input::getItemid() and !Application::getApplication()->getMenu()->getItem($menuID)->home) {
+            return $base . Application::getApplication()->getMenu()->getItem($menuID)->route . '?';
         }
 
         return "$base?option=com_organizer";

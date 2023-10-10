@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -92,12 +92,12 @@ class Screen extends BaseModel
                 $layout  = in_array($layout, $layouts) ? $layout : 'upcoming_instances';
             }
         } else {
-            Helpers\OrganizerHelper::getApplication()->redirect('index.php', 400);
+            Application::getApplication()->redirect('index.php', 400);
         }
 
         if (Input::getCMD('tmpl') !== 'component') {
             $query = Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
-            Helpers\OrganizerHelper::getApplication()->redirect(Uri::root() . "?$query");
+            Application::getApplication()->redirect(Uri::root() . "?$query");
         }
 
         $gridLayouts  = ['current_instances', 'upcoming_instances'];

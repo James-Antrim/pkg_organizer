@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -36,15 +36,15 @@ class Instance extends BaseModel
     protected function authorize()
     {
         if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         if (!$this->personID = Helpers\Persons::getIDByUserID()) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
 
         if ($instanceID = Input::getID() and !Helpers\Can::manage('instance', $instanceID)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 
@@ -61,7 +61,7 @@ class Instance extends BaseModel
      */
     public function save(array $data = [])
     {
-        Helpers\OrganizerHelper::error(503);
+        Application::error(503);
 
         $this->authorize();
         $data           = empty($data) ? Input::getFormItems()->toArray() : $data;
@@ -72,7 +72,7 @@ class Instance extends BaseModel
         }
 
         // Not implemented, yet
-        Helpers\OrganizerHelper::error(503);
+        Application::error(503);
 
         return false;
     }
@@ -89,7 +89,7 @@ class Instance extends BaseModel
         foreach (['date', 'endTime', 'roomIDs', 'startTime', 'title'] as $required) {
             if (empty($data[$required])) {
                 // Hard error
-                Helpers\OrganizerHelper::error(400);
+                Application::error(400);
             }
         }
 
@@ -121,7 +121,7 @@ class Instance extends BaseModel
         $instance = new Tables\Instances();
         if ($instanceID = empty($data['id']) ? null : (int) $data['id']) {
             if (!$instance->load($instanceID)) {
-                Helpers\OrganizerHelper::error(412);
+                Application::error(412);
             }
 
             $unitID = $instance->unitID;

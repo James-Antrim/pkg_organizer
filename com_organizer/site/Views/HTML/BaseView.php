@@ -16,7 +16,7 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Routing;
@@ -68,7 +68,7 @@ abstract class BaseView extends HtmlView
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->adminContext = Helpers\OrganizerHelper::getApplication()->isClient('administrator');
+        $this->adminContext = Application::getApplication()->isClient('administrator');
         $this->mobile       = Helpers\OrganizerHelper::isSmartphone();
     }
 
@@ -384,7 +384,7 @@ abstract class BaseView extends HtmlView
             }
 
             if (!$exists) {
-                Helpers\OrganizerHelper::error(501);
+                Application::error(501);
             }
 
             $this->layout = strtolower($this->getName());
@@ -415,7 +415,7 @@ abstract class BaseView extends HtmlView
      */
     protected function setTitle(string $standard, string $conditional = '')
     {
-        $app    = Helpers\OrganizerHelper::getApplication();
+        $app    = Application::getApplication();
         $params = Input::getParams();
 
         if ($params->get('show_page_heading') and $params->get('page_title')) {

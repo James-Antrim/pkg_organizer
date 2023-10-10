@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, Input, Toolbar};
 use THM\Organizer\Buttons;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Dates;
@@ -239,14 +239,14 @@ class Instances extends ListView
     {
         if ($this->adminContext) {
             if (!$this->manages = (bool) Helpers\Can::scheduleTheseOrganizations()) {
-                Helpers\OrganizerHelper::error(403);
+                Application::error(403);
             }
 
             return;
         }
 
         if (Input::getBool('my') and !Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         $organizationID = Input::getParams()->get('organizationID', 0);
@@ -622,7 +622,7 @@ class Instances extends ListView
             $authRequired = (!empty($fields['my']) or !empty($fields['personID']));
 
             if (!$username = Helpers\Users::getUserName() and $authRequired) {
-                Helpers\OrganizerHelper::error(401);
+                Application::error(401);
 
                 return;
             }

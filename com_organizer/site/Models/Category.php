@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -72,7 +72,7 @@ class Category extends BaseModel
     protected function authorize()
     {
         if (!Helpers\Can::edit('categories', $this->selected)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\InstanceParticipants as Helper;
 use THM\Organizer\Helpers\Languages;
@@ -81,11 +81,11 @@ class InstanceParticipant extends BaseModel
         $bookingID = 0;
 
         if (!$participationID = Input::getID() or !$bookingID = Helper::getBookingID($participationID)) {
-            OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         if (!Helpers\Can::manage('booking', $bookingID)) {
-            OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

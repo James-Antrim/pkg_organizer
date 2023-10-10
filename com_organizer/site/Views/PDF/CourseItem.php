@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -91,17 +91,17 @@ class CourseItem extends BaseView
     {
         // TODO revamp this to make a authorize according to the layout context course => true, badge = auth
         if (!$this->courseID = Input::getID()) {
-            Helpers\OrganizerHelper::error(400);
+            Application::error(400);
         }
 
         if (!$this->participantID = Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         $courseParticipant = new Tables\CourseParticipants();
         $cpKeys            = ['courseID' => $this->courseID, 'participantID' => $this->participantID];
         if (!$courseParticipant->load($cpKeys)) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 

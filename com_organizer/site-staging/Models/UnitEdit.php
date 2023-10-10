@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Units as Table;
@@ -34,11 +34,11 @@ class UnitEdit extends EditModel
     protected function authorize()
     {
         if (!Helpers\Users::getID()) {
-            Helpers\OrganizerHelper::error(401);
+            Application::error(401);
         }
 
         if (!Helpers\Can::manage('unit', Input::getInt('id'))) {
-            Helpers\OrganizerHelper::error(403);
+            Application::error(403);
         }
     }
 
@@ -173,7 +173,7 @@ class UnitEdit extends EditModel
         } else {
             // No unit creation outside of the my context right now.
             if (empty($pk)) {
-                Helpers\OrganizerHelper::error(501);
+                Application::error(501);
             }
 
             $item  = new stdClass();
