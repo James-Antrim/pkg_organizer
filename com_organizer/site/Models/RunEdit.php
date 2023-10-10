@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -28,7 +29,7 @@ class RunEdit extends EditModel
             return;
         }
 
-        if (!Helpers\Can::scheduleTheseOrganizations() or Helpers\Input::getID()) {
+        if (!Helpers\Can::scheduleTheseOrganizations() or Input::getID()) {
             Helpers\OrganizerHelper::error(403);
         }
     }
@@ -39,7 +40,7 @@ class RunEdit extends EditModel
     public function getForm($data = [], $loadData = true)
     {
         if ($form = parent::getForm($data, $loadData)) {
-            $defaultID = Helpers\Input::getFilterID('term', Helpers\Terms::getCurrentID());
+            $defaultID = Input::getFilterID('term', Helpers\Terms::getCurrentID());
             $form->setValue('termID', null, $form->getValue('termID', null, $defaultID));
         }
 

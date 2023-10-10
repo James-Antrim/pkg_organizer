@@ -14,8 +14,8 @@ use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Menu;
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Input;
 use stdClass;
 
 /**
@@ -101,7 +101,7 @@ class InstanceItem extends ListModel
 
         if (!$this->referrer = $session->get('organizer.instance.item.referrer', '')) {
             $root     = Uri::root();
-            $referrer = Uri::getInstance(Helpers\Input::getInput()->server->getString('HTTP_REFERER'));
+            $referrer = Uri::getInstance(Input::getInput()->server->getString('HTTP_REFERER'));
 
             // Site external => irrelevant
             if (strpos((string) $referrer, $root) !== 0) {

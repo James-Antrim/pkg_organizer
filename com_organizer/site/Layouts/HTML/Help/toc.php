@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Helpers\Input;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\OrganizerHelper;
 

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\JSON;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 
 /**
@@ -23,7 +24,7 @@ class TermOptions extends BaseView
      */
     public function display()
     {
-        $showDates = Helpers\Input::getBool('showDates');
+        $showDates = Input::getBool('showDates');
         echo json_encode(Helpers\Terms::getOptions($showDates), JSON_UNESCAPED_UNICODE);
     }
 }

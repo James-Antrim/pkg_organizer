@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -35,7 +34,7 @@ class RoomOverview extends ListModel
     {
         parent::filterFilterForm($form);
 
-        if (Helpers\Input::getParams()->get('campusID', 0)) {
+        if (Input::getParams()->get('campusID', 0)) {
             $form->removeField('campusID', 'filter');
             unset($this->filter_fields[array_search('campusID', $this->filter_fields)]);
         }
@@ -65,7 +64,7 @@ class RoomOverview extends ListModel
         $this->setValueFilters($query, ['buildingID', 'roomtypeID']);
         $this->setCampusFilter($query, 'b');
 
-        if ($roomIDs = Helpers\Input::getFilterIDs('room')) {
+        if ($roomIDs = Input::getFilterIDs('room')) {
             $query->where('r.id IN (' . implode(',', $roomIDs) . ')');
         }
 
@@ -86,7 +85,7 @@ class RoomOverview extends ListModel
         parent::populateState($ordering, $direction);
 
         $app  = Helpers\OrganizerHelper::getApplication();
-        $list = Helpers\Input::getListItems();
+        $list = Input::getListItems();
 
         $date = $app->getUserStateFromRequest("$this->context.list.date", "list_date", '', 'string');
         $date = (string) $list->get('date', $date);
@@ -94,7 +93,7 @@ class RoomOverview extends ListModel
 
         $defaultGrid = Helpers\Grids::getDefault();
 
-        if ($campusID = Helpers\Input::getParams()->get('campusID')) {
+        if ($campusID = Input::getParams()->get('campusID')) {
             $defaultGrid = Helpers\Campuses::getGridID($campusID);
             $this->setState('filter.campusID', $campusID);
         }

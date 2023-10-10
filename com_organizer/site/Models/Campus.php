@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -49,7 +50,7 @@ class Campus extends BaseModel
      */
     public function save(array $data = [])
     {
-        if ($parentID = Helpers\Input::getInt('parentID')) {
+        if ($parentID = Input::getInt('parentID')) {
             $table = new Tables\Campuses();
             $table->load($parentID);
 

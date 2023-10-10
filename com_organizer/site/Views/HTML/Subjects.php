@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Routing;
 
@@ -31,7 +31,7 @@ class Subjects extends ListView
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->params = Helpers\Input::getParams();
+        $this->params = Input::getParams();
     }
 
     /**
@@ -45,7 +45,7 @@ class Subjects extends ListView
                 $resourceName = Helpers\Persons::getDefaultName($personID);
                 $resourceName .= ": " . Helpers\Languages::_('ORGANIZER_SUBJECTS');
             } else {
-                if ($programID = Helpers\Input::getInt('programID')) {
+                if ($programID = Input::getInt('programID')) {
                     $resourceName = Helpers\Programs::getName($programID);
                 }
                 if ($poolID = $this->state->get('calledPoolID', 0)) {
@@ -110,7 +110,7 @@ class Subjects extends ListView
         $headers['code'] = Helpers\HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
 
         if (!$this->state->get('calledPersonID', 0)) {
-            if ($role = (int) Helpers\Input::getParams()->get('role') and $role === self::COORDINATES) {
+            if ($role = (int) Input::getParams()->get('role') and $role === self::COORDINATES) {
                 $personsText = Helpers\Languages::_('ORGANIZER_COORDINATORS');
             } else {
                 $personsText = Helpers\Languages::_('ORGANIZER_TEACHERS');
@@ -133,7 +133,7 @@ class Subjects extends ListView
     private function getPersonDisplay(object $subject): string
     {
         $names = [];
-        $role  = (int) Helpers\Input::getParams()->get('role');
+        $role  = (int) Input::getParams()->get('role');
 
         if (count($subject->persons) > 3) {
             return $role === self::COORDINATES ?

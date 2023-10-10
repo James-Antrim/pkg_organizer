@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -30,7 +31,7 @@ class BookingInstancesField extends OptionsField
     protected function getOptions(): array
     {
         $options   = parent::getOptions();
-        $instances = Helpers\Bookings::getInstanceOptions(Helpers\Input::getID());
+        $instances = Helpers\Bookings::getInstanceOptions(Input::getID());
 
         return array_merge($options, $instances);
     }

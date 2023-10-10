@@ -12,6 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Factory;
 use Joomla\Utilities\ArrayHelper;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Instances as Table;
@@ -40,7 +41,7 @@ class InstanceEdit extends EditModel
             Helpers\OrganizerHelper::error(403);
         }
 
-        if ($instanceID = Helpers\Input::getID() and !Helpers\Can::manage('instance', $instanceID)) {
+        if ($instanceID = Input::getID() and !Helpers\Can::manage('instance', $instanceID)) {
             Helpers\OrganizerHelper::error(403);
         }
     }
@@ -55,7 +56,7 @@ class InstanceEdit extends EditModel
      */
     private function checkString(string $field, string $pattern): string
     {
-        $value = Helpers\Input::getString($field);
+        $value = Input::getString($field);
 
         return preg_match($pattern, $value) ? $value : '';
     }
@@ -69,7 +70,7 @@ class InstanceEdit extends EditModel
      */
     private function getSelection(string $field): array
     {
-        $request = Helpers\Input::getFormItems();
+        $request = Input::getFormItems();
 
         if ($selection = $request->get($field)) {
             $selection = ArrayHelper::toInteger($selection);
@@ -92,7 +93,7 @@ class InstanceEdit extends EditModel
         $form = parent::getForm($data, $loadData);
 
         $item     = $this->item;
-        $request  = Helpers\Input::getFormItems();
+        $request  = Input::getFormItems();
         $session  = Factory::getSession();
         $instance = $session->get('organizer.instance', []);
 
@@ -103,7 +104,7 @@ class InstanceEdit extends EditModel
 
         // Immutable once set
         if (empty($instance['referrer'])) {
-            $instance['referrer'] = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+            $instance['referrer'] = Input::getInput()->server->getString('HTTP_REFERER');
         }
 
         $instance['id'] = $this->item->id;
@@ -135,7 +136,7 @@ class InstanceEdit extends EditModel
         $instance['eventIDs']  = $rEventIDs ?: $dEventIDs;
         $instance['gridID']    = empty($request->get('gridID')) ? $dGridID : (int) $request->get('gridID');
         $instance['groupIDs']  = $rGroupIDs ?: $dGroupIDs;
-        $instance['layout']    = Helpers\Input::getCMD('layout', 'appointment');
+        $instance['layout']    = Input::getCMD('layout', 'appointment');
         $instance['personID']  = $this->personID;
         $instance['roleID']    = empty($request->get('roleID')) ? $dRoleID : (int) $request->get('roleID');
         $instance['roomIDs']   = $rRoomIDs ?: $dRoomIDs;

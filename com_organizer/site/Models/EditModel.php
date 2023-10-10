@@ -13,6 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\Object\CMSObject;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 
 /**
@@ -69,7 +70,7 @@ abstract class EditModel extends AdminModel
      */
     public function getItem($pk = 0)
     {
-        $pk = empty($pk) ? Helpers\Input::getSelectedID() : $pk;
+        $pk = empty($pk) ? Input::getSelectedID() : $pk;
 
         // Prevents duplicate execution from getForm and getItem
         if (isset($this->item->id) and ($this->item->id === $pk or $pk === null)) {
@@ -99,7 +100,7 @@ abstract class EditModel extends AdminModel
      */
     protected function loadFormData(): ?CMSObject
     {
-        $resourceIDs = Helpers\Input::getSelectedIDs();
+        $resourceIDs = Input::getSelectedIDs();
         $resourceID  = empty($resourceIDs) ? 0 : $resourceIDs[0];
 
         return $this->item ?: $this->getItem($resourceID);

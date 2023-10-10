@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use stdClass;
@@ -86,8 +87,8 @@ class Schedule
      */
     public function validate(): bool
     {
-        $this->organizationID = Helpers\Input::getInt('organizationID');
-        $formFiles            = Helpers\Input::getInput()->files->get('jform', [], 'array');
+        $this->organizationID = Input::getInt('organizationID');
+        $formFiles            = Input::getInput()->files->get('jform', [], 'array');
         $this->xml            = simplexml_load_file($formFiles['file']['tmp_name']);
 
         // Unused & mostly unfilled nodes

@@ -11,9 +11,9 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
-use THM\Organizer\Helpers\Input;
 use THM\Organizer\Tables;
 
 /**

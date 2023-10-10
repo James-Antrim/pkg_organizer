@@ -16,6 +16,7 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Routing;
@@ -415,7 +416,7 @@ abstract class BaseView extends HtmlView
     protected function setTitle(string $standard, string $conditional = '')
     {
         $app    = Helpers\OrganizerHelper::getApplication();
-        $params = Helpers\Input::getParams();
+        $params = Input::getParams();
 
         if ($params->get('show_page_heading') and $params->get('page_title')) {
             $title = $params->get('page_title');

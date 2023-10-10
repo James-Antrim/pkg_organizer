@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 
@@ -28,7 +28,7 @@ class ContactTracking extends ListView
     {
         parent::__construct($config);
 
-        $listFormat = (int) Helpers\Input::getListItems()->get('listFormat', self::BY_DAY);
+        $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
         $structure  = ['index' => 'value', 'person' => 'value', 'data' => 'value'];
 
         switch ($listFormat) {
@@ -78,7 +78,7 @@ class ContactTracking extends ListView
      */
     public function display($tpl = null)
     {
-        $filterItems = Helpers\Input::getFilterItems();
+        $filterItems = Input::getFilterItems();
 
         // If a query string was entered feedback is a part of a system message.
         if ($filterItems->get('search')) {
@@ -95,7 +95,7 @@ class ContactTracking extends ListView
      */
     public function setHeaders()
     {
-        $listFormat = (int) Helpers\Input::getListItems()->get('listFormat', self::BY_DAY);
+        $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
         $headers    = [
             'index' => '#',
             'person' => Languages::_('ORGANIZER_PERSON'),
@@ -136,7 +136,7 @@ class ContactTracking extends ListView
     {
         $index           = 1;
         $link            = '';
-        $listFormat      = (int) Helpers\Input::getListItems()->get('listFormat', self::BY_DAY);
+        $listFormat      = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
         $mText           = Languages::_('ORGANIZER_MINUTES');
         $structuredItems = [];
 

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Instances as Model;
 
@@ -49,9 +50,9 @@ class Instances extends ListView
     protected function authorize()
     {
         // State has not been established => redundant checks :(
-        $filters  = Helpers\Input::getFilterItems();
-        $params   = Helpers\Input::getParams();
-        $my       = Helpers\Input::getInt('my', $params->get('my', 0));
+        $filters  = Input::getFilterItems();
+        $params   = Input::getParams();
+        $my       = Input::getInt('my', $params->get('my', 0));
         $personID = $filters->get('personID');
 
         if ($my or $personID) {

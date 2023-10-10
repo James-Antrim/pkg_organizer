@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Instances as Helper;
 use THM\Organizer\Helpers\Languages;
@@ -19,7 +19,7 @@ $instance    = $this->instance;
 $items       = $this->items;
 $iteration   = 0;
 $action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
-$resourceID  = Helpers\Input::getID();
+$resourceID  = Input::getID();
 
 require_once 'titles.php';
 ?>
@@ -88,8 +88,8 @@ require_once 'titles.php';
                 </table>
             <?php endif; ?>
             <input type="hidden" name="boxchecked" value="0"/>
-            <input type="hidden" name="id" value="<?php echo Helpers\Input::getID(); ?>"/>
-            <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
+            <input type="hidden" name="id" value="<?php echo Input::getID(); ?>"/>
+            <input type="hidden" name="Itemid" value="<?php echo Input::getInt('Itemid'); ?>"/>
             <input type="hidden" name="option" value="com_organizer"/>
             <input type="hidden" name="task" value=""/>
             <input type="hidden" name="view" value="InstanceItem"/>

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -77,7 +78,7 @@ class Profile extends FormModel
             return;
         }
 
-        $data = Helpers\Input::getFormItems();
+        $data = Input::getFormItems();
         $participant->bindRegistry($data);
 
         if (!$participant->store()) {

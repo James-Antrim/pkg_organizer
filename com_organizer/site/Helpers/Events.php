@@ -84,6 +84,19 @@ class Events extends ResourceHelper
     }
 
     /**
+     * Gets the id of the organization with which an event is associated.
+     *
+     * @param int $eventID
+     *
+     * @return int the id of the organization associated with an event, or 0
+     */
+    public static function getOrganizationID(int $eventID): int
+    {
+        // todo implement
+        return 0;
+    }
+
+    /**
      * Retrieves the units associated with an event.
      *
      * @param int    $eventID  the id of the referenced event

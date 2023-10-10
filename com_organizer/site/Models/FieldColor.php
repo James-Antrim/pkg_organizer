@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -24,13 +25,13 @@ class FieldColor extends BaseModel
      */
     protected function authorize()
     {
-        if ($organizationID = Helpers\Input::getInt('organizationID')
+        if ($organizationID = Input::getInt('organizationID')
             and Helpers\Can::document('organization', $organizationID)
         ) {
             return;
         }
 
-        if ($fcID = Helpers\Input::getID() and Helpers\Can::document('fieldcolor', $fcID)) {
+        if ($fcID = Input::getID() and Helpers\Can::document('fieldcolor', $fcID)) {
             return;
         }
 
@@ -59,7 +60,7 @@ class FieldColor extends BaseModel
     {
         $this->authorize();
 
-        $data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data  = empty($data) ? Input::getFormItems()->toArray() : $data;
         $table = $this->getTable();
 
         if (empty($data['id'])) {

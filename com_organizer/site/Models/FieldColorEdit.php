@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -24,7 +25,7 @@ class FieldColorEdit extends EditModel
      */
     public function authorize()
     {
-        if (($fcID = Helpers\Input::getID() and Helpers\Can::document('fieldcolor', $fcID))
+        if (($fcID = Input::getID() and Helpers\Can::document('fieldcolor', $fcID))
             or Helpers\Can::documentTheseOrganizations()) {
             return;
         }
@@ -41,7 +42,7 @@ class FieldColorEdit extends EditModel
             return false;
         }
 
-        if (Helpers\Input::getID()) {
+        if (Input::getID()) {
             $form->setFieldAttribute('fieldID', 'disabled', true);
             $form->setFieldAttribute('organizationID', 'disabled', true);
         }

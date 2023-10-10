@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -29,7 +30,7 @@ class ParticipationRoomsField extends OptionsField
      */
     protected function getOptions(): array
     {
-        $bookingID = Helpers\InstanceParticipants::getBookingID(Helpers\Input::getID());
+        $bookingID = Helpers\InstanceParticipants::getBookingID(Input::getID());
         $rooms     = Helpers\Bookings::getRoomOptions($bookingID);
 
         if (count($rooms) === 1) {

@@ -12,8 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Document, Input, Toolbar};
 use THM\Organizer\Buttons\Link;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Instances as Helper;
@@ -239,7 +238,7 @@ class InstanceItem extends ListView
      */
     protected function authorize()
     {
-        if (!$instanceID = Helpers\Input::getID()) {
+        if (!$instanceID = Input::getID()) {
             Helpers\OrganizerHelper::error(400);
         }
 

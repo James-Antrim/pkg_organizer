@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -32,7 +31,7 @@ class MergeEmailField extends MergeValuesField
      */
     protected function getValues(): array
     {
-        $domain = Helpers\Input::getParams()->get('emailFilter');
+        $domain = Input::getParams()->get('emailFilter');
 
         if (!$domain) {
             return [];

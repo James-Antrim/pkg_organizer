@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -33,7 +33,7 @@ class Rooms extends ListView
     {
         $title = Helpers\Languages::_('ORGANIZER_ROOMS');
 
-        if ($campusID = Helpers\Input::getInt('campusID')) {
+        if ($campusID = Input::getInt('campusID')) {
             $title .= ': ' . Helpers\Languages::_('ORGANIZER_CAMPUS');
             $title .= ' ' . Helpers\Campuses::getName($campusID);
         }

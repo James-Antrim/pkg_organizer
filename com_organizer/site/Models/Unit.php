@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -25,7 +26,7 @@ class Unit extends BaseModel
     public function addCourse()
     {
         $unit = new Tables\Units();
-        if (!$unitID = Helpers\Input::getSelectedID() or !$unit->load($unitID)) {
+        if (!$unitID = Input::getSelectedID() or !$unit->load($unitID)) {
             return false;
         }
 

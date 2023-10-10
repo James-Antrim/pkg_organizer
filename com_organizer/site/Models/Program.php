@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -33,7 +33,7 @@ class Program extends CurriculumResource
      */
     public function activate(): bool
     {
-        if (!$selected = Helpers\Input::getSelectedIDs()) {
+        if (!$selected = Input::getSelectedIDs()) {
             return false;
         }
 
@@ -60,7 +60,7 @@ class Program extends CurriculumResource
      */
     public function deactivate(): bool
     {
-        if (!$selected = Helpers\Input::getSelectedIDs()) {
+        if (!$selected = Input::getSelectedIDs()) {
             return false;
         }
 
@@ -182,7 +182,7 @@ class Program extends CurriculumResource
      */
     public function save(array $data = [])
     {
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         if (empty($data['id'])) {
             // New program can be saved explicitly by documenters or implicitly by schedulers.
@@ -227,7 +227,7 @@ class Program extends CurriculumResource
      */
     public function update(): bool
     {
-        $programIDs = Helpers\Input::getSelectedIDs();
+        $programIDs = Input::getSelectedIDs();
 
         if (empty($programIDs)) {
             return false;

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
@@ -82,7 +83,7 @@ class Rooms implements UntisXMLValidator
 
         $capacity      = (int) $node->capacity;
         $buildingID    = null;
-        $buildingREGEX = Helpers\Input::getParams()->get('buildingRegex');
+        $buildingREGEX = Input::getParams()->get('buildingRegex');
 
         if (!empty($buildingREGEX) and preg_match("/$buildingREGEX/", $code, $matches)) {
             $buildingID = Helpers\Buildings::getID($matches[1]);

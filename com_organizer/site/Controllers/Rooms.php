@@ -11,6 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Models\Room;
@@ -71,8 +72,8 @@ class Rooms extends Controller
      */
     public function uniNow()
     {
-        Helpers\Input::set('layout', 'UniNow');
-        Helpers\Input::set('format', 'xls');
+        Input::set('layout', 'UniNow');
+        Input::set('format', 'xls');
         $this->display();
     }
 
@@ -83,7 +84,7 @@ class Rooms extends Controller
      */
     public function xls()
     {
-        Helpers\Input::set('format', 'xls');
+        Input::set('format', 'xls');
         $this->display();
     }
 }

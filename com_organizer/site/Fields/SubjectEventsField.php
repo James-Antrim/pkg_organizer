@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -30,8 +30,8 @@ class SubjectEventsField extends FormField
      */
     public function getInput(): string
     {
-        $query     = Database::getQuery(true);
-        $subjectID = Helpers\Input::getID();
+        $query     = Database::getQuery();
+        $subjectID = Input::getID();
         $tag       = Helpers\Languages::getTag();
         $query->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
         Database::setQuery($query);

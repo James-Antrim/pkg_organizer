@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -33,7 +33,7 @@ class Group extends MergeModel
      */
     public function activate(): bool
     {
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         $this->authorize();
 
         // Explicitly selected resources
@@ -83,7 +83,7 @@ class Group extends MergeModel
      */
     public function batch(): bool
     {
-        if (!$this->selected = Helpers\Input::getSelectedIDs()) {
+        if (!$this->selected = Input::getSelectedIDs()) {
             return false;
         }
 
@@ -93,7 +93,7 @@ class Group extends MergeModel
             return false;
         }
 
-        if ($gridID = Helpers\Input::getBatchItems()['gridID']) {
+        if ($gridID = Input::getBatchItems()['gridID']) {
             foreach ($this->selected as $groupID) {
                 $table = new Tables\Groups();
 
@@ -118,7 +118,7 @@ class Group extends MergeModel
      */
     public function deactivate(): bool
     {
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         $this->authorize();
 
         // Explicitly selected resources
@@ -193,10 +193,10 @@ class Group extends MergeModel
      */
     public function save(array $data = [])
     {
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         $this->authorize();
 
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         $table = new Tables\Groups();
 
@@ -225,8 +225,8 @@ class Group extends MergeModel
     {
         $default = false;
 
-        if (!$terms = Helpers\Input::getBatchItems()->get('publishing')) {
-            if (!$terms = Helpers\Input::getFormItems()->get('publishing')) {
+        if (!$terms = Input::getBatchItems()->get('publishing')) {
+            if (!$terms = Input::getFormItems()->get('publishing')) {
                 $default = true;
                 $terms   = array_flip(Helpers\Terms::getIDs());
             }
@@ -259,14 +259,14 @@ class Group extends MergeModel
      */
     public function toggle(): bool
     {
-        if (!$groupID = Helpers\Input::getID()) {
+        if (!$groupID = Input::getID()) {
             return false;
         }
 
         $this->selected = [$groupID];
         $this->authorize();
 
-        $attribute = Helpers\Input::getCMD('attribute');
+        $attribute = Input::getCMD('attribute');
 
         if (is_numeric($attribute)) {
             $load  = ['groupID' => $groupID, 'termID' => (int) $attribute];

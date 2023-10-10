@@ -12,8 +12,7 @@ namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -32,7 +31,7 @@ class Rooms extends ListModel
      */
     protected function filterFilterForm(Form $form)
     {
-        if (Helpers\Input::getParams()->get('campusID')) {
+        if (Input::getParams()->get('campusID')) {
             $form->removeField('campusID', 'filter');
 
             // No virtual rooms in a physical area
@@ -98,11 +97,11 @@ class Rooms extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        if ($format = Helpers\Input::getCMD('format') and in_array($format, ['pdf', 'xls'])) {
+        if ($format = Input::getCMD('format') and in_array($format, ['pdf', 'xls'])) {
             $this->setState('list.limit', 0);
         }
 
-        if ($campusID = Helpers\Input::getInt('campusID')) {
+        if ($campusID = Input::getInt('campusID')) {
             $this->setState('filter.campusID', $campusID);
         }
     }

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -55,7 +56,7 @@ class Roomkey extends BaseModel
     {
         $this->authorize();
 
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         if (empty($data) or empty($data['id'])) {
             return false;

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -58,7 +58,7 @@ class RoomStatistics extends BaseModel
     {
         parent::__construct($config);
 
-        $format = Helpers\Input::getCMD('format', 'html');
+        $format = Input::getCMD('format', 'html');
 
         switch ($format) {
             case 'xls':
@@ -291,7 +291,7 @@ class RoomStatistics extends BaseModel
      */
     private function setDates()
     {
-        $termID = Helpers\Input::getFilterID('term');
+        $termID = Input::getFilterID('term');
 
         if ($termID) {
             $table = new Tables\Terms();
@@ -304,11 +304,11 @@ class RoomStatistics extends BaseModel
             }
         }
 
-        $dateFormat = Helpers\Input::getParams()->get('dateFormat');
-        $date       = Helpers\Input::getCMD('date', date($dateFormat));
+        $dateFormat = Input::getParams()->get('dateFormat');
+        $date       = Input::getCMD('date', date($dateFormat));
         $startDoWNo = empty($this->startDoW) ? 1 : $this->startDoW;
         $endDoWNo   = empty($this->endDoW) ? 6 : $this->endDoW;
-        $interval   = Helpers\Input::getCMD('interval', 'week');
+        $interval   = Input::getCMD('interval', 'week');
 
         switch ($interval) {
             case 'month':

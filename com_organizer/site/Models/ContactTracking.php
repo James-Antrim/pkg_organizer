@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -291,7 +291,7 @@ class ContactTracking extends ListModel
     {
         $participantID = $participantIDs ? $participantIDs[0] : 0;
         $personID      = $personIDs ? $personIDs[0] : 0;
-        $filters       = Helpers\Input::getFilterItems();
+        $filters       = Input::getFilterItems();
         $search        = $filters->get('search');
         $tooMany       = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $search);
 
@@ -324,7 +324,7 @@ class ContactTracking extends ListModel
     {
         parent::populateState();
 
-        $filters = Helpers\Input::getFilterItems();
+        $filters = Input::getFilterItems();
 
         if (!$search = $filters->get('search')) {
             $this->forceEmpty();

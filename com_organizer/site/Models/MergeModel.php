@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -49,7 +49,7 @@ abstract class MergeModel extends BaseModel
      */
     public function merge(): bool
     {
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         sort($this->selected);
 
         if (!Helpers\Can::administrate()) {
@@ -65,7 +65,7 @@ abstract class MergeModel extends BaseModel
             return false;
         }
 
-        $data          = empty($this->data) ? Helpers\Input::getFormItems()->toArray() : $this->data;
+        $data          = empty($this->data) ? Input::getFormItems()->toArray() : $this->data;
         $deprecatedIDs = $this->selected;
         $data['id']    = array_shift($deprecatedIDs);
         $table         = $this->getTable();

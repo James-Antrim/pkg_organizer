@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -26,7 +26,7 @@ class InstanceEdit extends EditView
      */
     protected function addToolBar()
     {
-        //$appointment = Helpers\Input::getCMD('layout') === 'appointment';
+        //$appointment = Input::getCMD('layout') === 'appointment';
 
         if ($this->item->id) {
             $cancel = 'ORGANIZER_CLOSE';
@@ -42,7 +42,7 @@ class InstanceEdit extends EditView
         $toolbar = Toolbar::getInstance();
         $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'instances.save', false);
 
-        $layout  = Helpers\Input::getCMD('layout');
+        $layout  = Input::getCMD('layout');
         $layouts = ['appointment', 'simple'];
         $layout  = in_array($layout, $layouts) ? $layout : 'appointment';
 

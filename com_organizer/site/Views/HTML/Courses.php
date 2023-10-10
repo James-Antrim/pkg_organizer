@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 
@@ -48,8 +48,8 @@ class Courses extends ListView
 
         $this->rowStructure = $structure;
 
-        $getPrep           = Helpers\Input::getBool('preparatory', false);
-        $menuPrep          = Helpers\Input::getBool('onlyPrepCourses', false);
+        $getPrep           = Input::getBool('preparatory', false);
+        $menuPrep          = Input::getBool('onlyPrepCourses', false);
         $this->preparatory = ($getPrep or $menuPrep);
     }
 
@@ -150,7 +150,7 @@ class Courses extends ListView
      */
     public function display($tpl = null)
     {
-        $params = Helpers\Input::getParams();
+        $params = Input::getParams();
 
         if ($params->get('onlyPrepCourses')) {
             $this->empty = Languages::_('ORGANIZER_PREP_COURSE_PLANNING_INCOMPLETE');

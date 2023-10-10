@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -65,7 +64,7 @@ class Subjects extends ListModel
             return [];
         }
 
-        $role = Helpers\Input::getParams()->get('role', 1);
+        $role = Input::getParams()->get('role', 1);
 
         foreach ($items as $item) {
             $item->persons = Helpers\Subjects::getPersons($item->id, $role);
@@ -147,7 +146,7 @@ class Subjects extends ListModel
         $poolID        = self::ALL;
         $programID     = self::ALL;
 
-        $organizationID = Helpers\Input::getFilterID('organization', self::ALL);
+        $organizationID = Input::getFilterID('organization', self::ALL);
 
         if ($this->adminContext) {
             $authorized = Helpers\Can::documentTheseOrganizations();
@@ -157,20 +156,20 @@ class Subjects extends ListModel
             }
         } else {
             // Program ID can be set by menu settings or the request
-            if ($programID = Helpers\Input::getInt('programID')
-                or $programID = Helpers\Input::getParams()->get('programID', 0)
+            if ($programID = Input::getInt('programID')
+                or $programID = Input::getParams()->get('programID', 0)
                 or $programID = $this->state->get('calledProgramID')) {
                 $calledProgram = $programID;
             }
 
             // Pool ID can be set by the request
-            if ($poolID = Helpers\Input::getInt('poolID')
+            if ($poolID = Input::getInt('poolID')
                 or $poolID = $this->state->get('calledPoolID')) {
                 $calledPool = $poolID;
             }
 
             // Person ID can be set by the request
-            if ($personID = Helpers\Input::getInt('personID')
+            if ($personID = Input::getInt('personID')
                 or $personID = $this->state->get('calledPersonID')) {
                 $calledPerson = $personID;
             }
@@ -180,10 +179,10 @@ class Subjects extends ListModel
             $this->setState('list.limit', 0);
         }
 
-        $personID    = $calledPerson ? $personID : Helpers\Input::getFilterID('person', self::ALL);
+        $personID    = $calledPerson ? $personID : Input::getFilterID('person', self::ALL);
         $defaultPool = $calledPool ?: self::ALL;
-        $poolID      = $calledPool ? $poolID : Helpers\Input::getFilterID('pool', $defaultPool);
-        $programID   = $calledProgram ? $programID : Helpers\Input::getFilterID('program', self::ALL);
+        $poolID      = $calledPool ? $poolID : Input::getFilterID('pool', $defaultPool);
+        $programID   = $calledProgram ? $programID : Input::getFilterID('program', self::ALL);
 
         $this->state->set('calledPersonID', $calledPerson);
         $this->state->set('calledPoolID', false);

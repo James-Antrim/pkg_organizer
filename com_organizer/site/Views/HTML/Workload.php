@@ -28,7 +28,7 @@ class Workload extends FormView
         $this->setTitle('ORGANIZER_WORKLOAD');
         $toolbar = Adapters\Toolbar::getInstance();
 
-        if ($this->form->getValue('personID'))//Helpers\Input::getInt('personID'))
+        if ($this->form->getValue('personID'))//Input::getInt('personID'))
         {
             $toolbar->appendButton(
                 'NewTab',

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\Rooms as Table;
 
@@ -25,7 +25,7 @@ class Room extends MergeModel
      */
     public function activate(): bool
     {
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         $this->authorize();
 
         // Explicitly selected resources
@@ -95,7 +95,7 @@ class Room extends MergeModel
      */
     public function deactivate(): bool
     {
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         $this->authorize();
 
         // Explicitly selected resources
@@ -133,7 +133,7 @@ class Room extends MergeModel
     {
         $this->authorize();
 
-        $input = Helpers\Input::getInput();
+        $input = Input::getInput();
 
         $file = $input->files->get('jform', [], 'array')['file'];
         $file = fopen($file['tmp_name'], 'r');

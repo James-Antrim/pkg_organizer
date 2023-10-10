@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -34,7 +34,7 @@ class CourseParticipants extends Participants
 
         $this->setValueFilters($query, ['attended', 'paid']);
 
-        $courseID = Helpers\Input::getID();
+        $courseID = Input::getID();
         $query->select('cp.attended, cp.paid, cp.status')
             ->innerJoin('#__organizer_course_participants AS cp ON cp.participantID = pa.id')
             ->where("cp.courseID = $courseID");

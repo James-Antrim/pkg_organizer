@@ -12,8 +12,8 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Input;
 use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Models;
 
@@ -49,8 +49,8 @@ class CourseParticipants extends Participants
      */
     public function attendance()
     {
-        Helpers\Input::set('format', 'pdf');
-        Helpers\Input::set('layout', 'Attendance');
+        Input::set('format', 'pdf');
+        Input::set('layout', 'Attendance');
         parent::display();
     }
 
@@ -79,8 +79,8 @@ class CourseParticipants extends Participants
      */
     public function badges()
     {
-        Helpers\Input::set('format', 'pdf');
-        Helpers\Input::set('layout', 'Badges');
+        Input::set('format', 'pdf');
+        Input::set('layout', 'Badges');
         parent::display();
     }
 
@@ -91,8 +91,8 @@ class CourseParticipants extends Participants
      */
     public function participation()
     {
-        Helpers\Input::set('format', 'pdf');
-        Helpers\Input::set('layout', 'Participation');
+        Input::set('format', 'pdf');
+        Input::set('layout', 'Participation');
         parent::display();
     }
 

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 
 /**
@@ -24,13 +25,13 @@ class Curriculum extends ItemModel
     public function getItem()
     {
         $curriculum = [];
-        if ($poolID = Helpers\Input::getInt('poolID')) {
+        if ($poolID = Input::getInt('poolID')) {
             $ranges             = Helpers\Pools::getRanges($poolID);
             $curriculum['name'] = Helpers\Pools::getName($poolID);
             $curriculum['type'] = 'pool';
             $curriculum         += array_pop($ranges);
             Helpers\Pools::getCurriculum($curriculum);
-        } elseif ($programID = Helpers\Input::getInt('programID')) {
+        } elseif ($programID = Input::getInt('programID')) {
             $ranges             = Helpers\Programs::getRanges($programID);
             $curriculum['name'] = Helpers\Programs::getName($programID);
             $curriculum['type'] = 'program';

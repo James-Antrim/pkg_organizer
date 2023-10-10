@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
@@ -29,7 +29,7 @@ class CourseItem extends ItemModel
      */
     public function getItem(): array
     {
-        if (!$courseID = Helpers\Input::getID()) {
+        if (!$courseID = Input::getID()) {
             return [];
         }
 

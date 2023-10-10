@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -29,7 +29,7 @@ class Person extends MergeModel
      */
     public function activate(): bool
     {
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         $this->authorize();
 
         // Explicitly selected resources
@@ -75,7 +75,7 @@ class Person extends MergeModel
      */
     public function deactivate(): bool
     {
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         $this->authorize();
 
         // Explicitly selected resources
@@ -118,10 +118,10 @@ class Person extends MergeModel
      */
     public function save(array $data = [])
     {
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         $this->authorize();
 
-        $data  = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data  = empty($data) ? Input::getFormItems()->toArray() : $data;
         $table = new Tables\Persons();
 
         if (!$table->save($data)) {

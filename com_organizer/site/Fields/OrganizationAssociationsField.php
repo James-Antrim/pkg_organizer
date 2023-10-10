@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -90,7 +90,7 @@ class OrganizationAssociationsField extends OptionsField
         $contextParts    = explode('.', $this->form->getName());
         $disabled        = false;
         $resource        = str_replace('edit', '', $contextParts[1]);
-        $resourceID      = Helpers\Input::getSelectedID(Helpers\Input::getID());
+        $resourceID      = Input::getSelectedID(Input::getID());
         $pseudoResources = ['workload'];
 
         $authorized = $this->getAuthorized($resource);

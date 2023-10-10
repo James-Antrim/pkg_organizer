@@ -420,19 +420,59 @@ class Can
     }
 
     /**
-     * Checks whether the user has privileged access to resource associated views.
+     * Checks whether the user has viewing access to the view.
      *
-     * @param string $resourceType the resource type being checked
-     * @param int    $resourceID   the resource id being checked or an array if resource ids to check
+     * @param string $view       the name of the view being accessed
+     * @param int    $resourceID the optional resource id
      *
      * @return bool true if the user is authorized for scheduling functions and views.
      */
-    public static function view(string $resourceType, int $resourceID): bool
+    public static function view(string $view, int $resourceID = 0): bool
     {
-        //TODO revamp this thing
-        if (is_bool($authorized = self::basic())) {
-            return $authorized;
+        if (self::administrate()) {
+            return true;
         }
+        // todo implement
+        return false;
+
+        /*$documentedOrgIDs = self::documentTheseOrganizations();
+        $scheduledOrgIDs  = self::scheduleTheseOrganizations();
+        switch ($view) {
+
+            // Scheduling resources and views with no intrinsic public value and import forms
+            case 'Categories':
+            case 'CoursesImport':
+            case 'Events':
+            case 'Groups':
+            case 'Schedule':
+            case 'Schedules':
+            case 'Units':
+                return (bool) $scheduledOrgIDs;
+
+            // Scheduling resource with no intrinsic public value
+            case 'Category':
+                return ($scheduledOrgIDs and array_intersect($scheduledOrgIDs, Categories::getOrganizationIDs($resourceID)));
+            case 'Event':
+                return ($scheduledOrgIDs and in_array(Events::getOrganizationID($resourceID), $scheduledOrgIDs));
+            case 'Group':
+                return ($scheduledOrgIDs and array_intersect($scheduledOrgIDs, Groups::getOrganizationIDs($resourceID)));
+
+            // Documentation resources with no intrinsic public value
+            case 'FieldColors';
+            case 'Pools';
+                return (bool) $documentedOrgIDs;
+
+
+            // Documentation resource with no intrinsic public value
+            case 'FieldColor';
+            return false;
+                // Resources with public value
+            case 'Course':
+            case 'Courses':
+            default:
+                return true;
+        }
+
 
         $user = Users::getUser();
 
@@ -448,7 +488,7 @@ class Can
             return self::manage($resourceType, $resourceID);
         }
 
-        return false;
+        return false;*/
     }
 
     /**

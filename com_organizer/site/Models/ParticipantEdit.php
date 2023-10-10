@@ -11,6 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\MVC\Model\AdminModel;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -37,7 +38,7 @@ class ParticipantEdit extends EditModel
      */
     public function getItem($pk = 0)
     {
-        $this->participantID = $pk ?: Helpers\Input::getSelectedID(Helpers\Users::getID());
+        $this->participantID = $pk ?: Input::getSelectedID(Helpers\Users::getID());
 
         $this->authorize();
 
@@ -50,7 +51,7 @@ class ParticipantEdit extends EditModel
         $this->item = AdminModel::getItem($this->participantID);
 
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->item->referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+        $this->item->referrer = Input::getInput()->server->getString('HTTP_REFERER');
 
         // New participants need the user id as the participant id
         /** @noinspection PhpPossiblePolymorphicInvocationInspection */

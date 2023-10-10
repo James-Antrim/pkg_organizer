@@ -13,6 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Models\ListModel;
@@ -166,7 +167,7 @@ abstract class ListView extends BaseView
         $url = Uri::base() . "?option=com_organizer&task=$controller.toggle";
         $url .= "&$columnOne=$valueOne&$columnTwo=$valueTwo";
         $url .= $attribute ? "&attribute=$attribute" : '';
-        $url .= ($menuID = Helpers\Input::getInt('Itemid')) ? "&Itemid=$menuID" : '';
+        $url .= ($menuID = Input::getInt('Itemid')) ? "&Itemid=$menuID" : '';
 
         $iconClass = empty($currentValue) ? 'checkbox-unchecked' : 'checkbox-checked';
         $icon      = '<span class="icon-' . $iconClass . '"></span>';
@@ -266,7 +267,7 @@ abstract class ListView extends BaseView
         $index           = 0;
         $structuredItems = [];
 
-        $resource    = Helpers\OrganizerHelper::getResource(Helpers\Input::getView());
+        $resource    = Helpers\OrganizerHelper::getResource(Input::getView());
         $defaultLink = "index.php?option=com_organizer&view={$resource}_edit&id=";
 
         foreach ($this->items as $item) {

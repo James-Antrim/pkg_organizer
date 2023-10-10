@@ -12,6 +12,7 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\BaseTable;
 
@@ -59,7 +60,7 @@ abstract class BaseModel extends BaseDatabaseModel
      */
     public function delete(): bool
     {
-        if (!$this->selected = Helpers\Input::getSelectedIDs()) {
+        if (!$this->selected = Input::getSelectedIDs()) {
             return false;
         }
 
@@ -94,7 +95,7 @@ abstract class BaseModel extends BaseDatabaseModel
     {
         $this->authorize();
 
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         try {
             /* @var BaseTable $table */
@@ -117,7 +118,7 @@ abstract class BaseModel extends BaseDatabaseModel
      */
     public function save2copy(array $data = [])
     {
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
         unset($data['id']);
 
         return $this->save($data);
@@ -130,7 +131,7 @@ abstract class BaseModel extends BaseDatabaseModel
      */
     public function toggle(): bool
     {
-        if (!$resourceID = Helpers\Input::getID()) {
+        if (!$resourceID = Input::getID()) {
             return false;
         }
 
@@ -138,7 +139,7 @@ abstract class BaseModel extends BaseDatabaseModel
         $this->selected = [$resourceID];
         $this->authorize();
 
-        $attribute = Helpers\Input::getCMD('attribute');
+        $attribute = Input::getCMD('attribute');
         $table     = $this->getTable();
 
         $tableFields = $table->getFields();

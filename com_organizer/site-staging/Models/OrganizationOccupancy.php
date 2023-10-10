@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -43,14 +43,14 @@ class OrganizationOccupancy extends BaseModel
     {
         parent::__construct($config);
 
-        $format = Helpers\Input::getCMD('format', 'html');
+        $format = Input::getCMD('format', 'html');
 
         switch ($format) {
             case 'xls':
                 $this->setRoomtypes();
                 $this->setRooms();
 
-                $year            = Helpers\Input::getCMD('year', date('Y'));
+                $year            = Input::getCMD('year', date('Y'));
                 $this->startDate = "$year-01-01";
                 $this->endDate   = "$year-12-31";
 

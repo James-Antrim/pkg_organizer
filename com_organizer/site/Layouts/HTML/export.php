@@ -9,14 +9,14 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 
 $query    = Uri::getInstance()->getQuery();
 $script   = "document.getElementById('download-url').select();";
 $script   .= "document.getElementById('download-url').setSelectionRange(0,99999);";
 $script   .= "document.execCommand('copy');";
-$interval = Helpers\Input::getString('interval', 'week');
+$interval = Input::getString('interval', 'week');
 
 switch ($interval) {
     case 'month':
@@ -69,7 +69,7 @@ echo $this->title;
             }
             ?>
         </div>
-        <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
+        <input type="hidden" name="Itemid" value="<?php echo Input::getInt('Itemid'); ?>"/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>

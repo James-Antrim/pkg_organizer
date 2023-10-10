@@ -9,9 +9,10 @@
  * @link        www.thm.de
  */
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 
-$task = Helpers\Input::getCMD('view') . '.supplement';
+$task = Input::getCMD('view') . '.supplement';
 
 ?>
 <div class="modal hide fade form-modal" id="form-modal">

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -27,7 +27,7 @@ class Event extends MergeModel
     {
         if ($this->selected and !Helpers\Can::edit('events', $this->selected)) {
             Helpers\OrganizerHelper::error(403);
-        } elseif ($eventID = Helpers\Input::getID() and !Helpers\Can::edit('events', $eventID)) {
+        } elseif ($eventID = Input::getID() and !Helpers\Can::edit('events', $eventID)) {
             Helpers\OrganizerHelper::error(403);
         } elseif (!Helpers\Can::edit('events')) {
             Helpers\OrganizerHelper::error(403);
@@ -55,7 +55,7 @@ class Event extends MergeModel
             return false;
         }
 
-        $data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data           = empty($data) ? Input::getFormItems()->toArray() : $data;
         $coordinatorIDs = $data['coordinatorIDs'] ?? [];
 
         if ($coordinatorIDs) {

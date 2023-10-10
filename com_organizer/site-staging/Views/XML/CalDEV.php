@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\XML;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\OrganizerHelper;
@@ -91,7 +92,7 @@ class CalDEV extends BaseView
         $response = '';
 
         foreach ($accessibleResources as $key => $table) {
-            if (!$id = Helpers\Input::getInt($key)) {
+            if (!$id = Input::getInt($key)) {
                 continue;
             }
 

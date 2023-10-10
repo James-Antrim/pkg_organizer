@@ -12,8 +12,7 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -78,7 +77,7 @@ class Equipment extends ListModel
     {
         $this->authorize();
 
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         try {
             $table = $this->getTable();

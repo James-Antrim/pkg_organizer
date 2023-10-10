@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Input;
 
 /**
  * Generates a view explaining the calling view.
@@ -25,7 +25,7 @@ class Help extends BaseView
      */
     protected function addToolBar()
     {
-        $topic    = strtoupper(Helpers\Input::getCMD('topic', 'toc'));
+        $topic    = strtoupper(Input::getCMD('topic', 'toc'));
         $constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
         $this->setTitle($constant);
     }

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -29,7 +30,7 @@ class GridsField extends OptionsField
      */
     protected function getInput(): string
     {
-        if (empty($this->value) and $campusID = Helpers\Input::getParams()->get('campusID')) {
+        if (empty($this->value) and $campusID = Input::getParams()->get('campusID')) {
             $this->value = Helpers\Campuses::getGridID($campusID);
         }
 

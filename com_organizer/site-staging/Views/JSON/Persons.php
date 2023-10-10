@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\JSON;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 
 /**
@@ -23,7 +24,7 @@ class Persons extends BaseView
      */
     public function display()
     {
-        $function = Helpers\Input::getTask();
+        $function = Input::getTask();
         if (method_exists('Organizer\\Helpers\\Persons', $function)) {
             echo json_encode(Helpers\Persons::$function(), JSON_UNESCAPED_UNICODE);
         } else {

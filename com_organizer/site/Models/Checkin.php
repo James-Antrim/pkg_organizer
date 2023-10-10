@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -48,8 +48,8 @@ class Checkin extends FormModel
         parent::__construct($config);
 
         // Force component template
-        if (Helpers\Input::getCMD('tmpl') !== 'component') {
-            $query = Helpers\Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
+        if (Input::getCMD('tmpl') !== 'component') {
+            $query = Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
             Helpers\OrganizerHelper::getApplication()->redirect(Uri::current() . "?$query");
         }
 
@@ -60,7 +60,7 @@ class Checkin extends FormModel
             $form->setValue('username', null, $username);
         }
 
-        if ($code = $session->get('organizer.checkin.code') or $code = Helpers\Input::getCMD('code')) {
+        if ($code = $session->get('organizer.checkin.code') or $code = Input::getCMD('code')) {
             $form->setValue('code', null, $code);
         }
 
@@ -80,7 +80,7 @@ class Checkin extends FormModel
      */
     protected function authorize()
     {
-        if (Helpers\Input::getCMD('layout') === 'profile' and !Helpers\Users::getID()) {
+        if (Input::getCMD('layout') === 'profile' and !Helpers\Users::getID()) {
             Helpers\OrganizerHelper::error(401);
         }
     }

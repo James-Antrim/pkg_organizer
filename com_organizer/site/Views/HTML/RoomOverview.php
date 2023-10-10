@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Roles;
 
@@ -30,7 +31,7 @@ class RoomOverview extends TableView
     {
         $resourceName = Helpers\Languages::_('ORGANIZER_ROOM_OVERVIEW');
         if (!$this->adminContext) {
-            if ($campusID = Helpers\Input::getInt('campusID')) {
+            if ($campusID = Input::getInt('campusID')) {
                 $resourceName .= ': ' . Helpers\Languages::_('ORGANIZER_CAMPUS');
                 $resourceName .= ' ' . Helpers\Campuses::getName($campusID);
             }
@@ -361,7 +362,7 @@ class RoomOverview extends TableView
      */
     protected function setOverrides()
     {
-        if (!$gridID = $this->state->get('list.gridID') and $campusID = Helpers\Input::getParams()->get('campusID')) {
+        if (!$gridID = $this->state->get('list.gridID') and $campusID = Input::getParams()->get('campusID')) {
             $gridID = Helpers\Campuses::getGridID($campusID);
         }
 

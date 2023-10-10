@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -41,7 +41,7 @@ class Screen extends BaseModel
         parent::__construct();
 
         $imagePath = JPATH_ROOT . '/images/organizer/';
-        $ipData    = ['ip' => Helpers\Input::getInput()->server->getString('REMOTE_ADDR', '')];
+        $ipData    = ['ip' => Input::getInput()->server->getString('REMOTE_ADDR', '')];
         $layout    = 'upcoming_instances';
         $monitor   = new Tables\Monitors();
         $roomID    = 0;
@@ -83,20 +83,20 @@ class Screen extends BaseModel
                 default:
                     break;
             }
-        } elseif ($name = Helpers\Input::getCMD('room') and $roomID = Helpers\Rooms::getID($name)) {
+        } elseif ($name = Input::getCMD('room') and $roomID = Helpers\Rooms::getID($name)) {
             if (Helpers\OrganizerHelper::isSmartphone()) {
                 $layout = 'current_instances';
             } else {
                 $layouts = ['current_instances', 'image', 'upcoming_instances'];
-                $layout  = Helpers\Input::getCMD('layout', 'upcoming_instances');
+                $layout  = Input::getCMD('layout', 'upcoming_instances');
                 $layout  = in_array($layout, $layouts) ? $layout : 'upcoming_instances';
             }
         } else {
             Helpers\OrganizerHelper::getApplication()->redirect('index.php', 400);
         }
 
-        if (Helpers\Input::getCMD('tmpl') !== 'component') {
-            $query = Helpers\Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
+        if (Input::getCMD('tmpl') !== 'component') {
+            $query = Input::getInput()->server->get('QUERY_STRING', '', 'raw') . '&tmpl=component';
             Helpers\OrganizerHelper::getApplication()->redirect(Uri::root() . "?$query");
         }
 

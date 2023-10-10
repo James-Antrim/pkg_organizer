@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
+use THM\Organizer\Adapters\{Document, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\Participants as Table;
 
@@ -78,12 +78,12 @@ class Checkin extends FormView
     {
         $session = Factory::getSession();
 
-        if ($layout = Helpers\Input::getCMD('layout')) {
+        if ($layout = Input::getCMD('layout')) {
             if ($this->privacy = $layout === 'privacy') {
                 if (!$session->get('organizer.checkin.referrer')) {
                     $session->set(
                         'organizer.checkin.referrer',
-                        Helpers\Input::getInput()->server->getString('HTTP_REFERER')
+                        Input::getInput()->server->getString('HTTP_REFERER')
                     );
                 }
             }

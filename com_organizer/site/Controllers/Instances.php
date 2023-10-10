@@ -13,6 +13,7 @@ namespace THM\Organizer\Controllers;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Instance;
 
@@ -35,7 +36,7 @@ class Instances extends Controller
         $instance = $session->get('organizer.instance', []);
 
         if (!empty($instance['referrer'])) {
-            Helpers\Input::set('referrer', $instance['referrer']);
+            Input::set('referrer', $instance['referrer']);
         }
 
         $session->set('organizer.instance', '');
@@ -50,8 +51,8 @@ class Instances extends Controller
      */
     public function gridA3()
     {
-        Helpers\Input::set('format', 'pdf');
-        Helpers\Input::set('layout', 'GridA3');
+        Input::set('format', 'pdf');
+        Input::set('layout', 'GridA3');
         parent::display();
     }
 
@@ -62,8 +63,8 @@ class Instances extends Controller
      */
     public function gridA4()
     {
-        Helpers\Input::set('format', 'pdf');
-        Helpers\Input::set('layout', 'GridA4');
+        Input::set('format', 'pdf');
+        Input::set('layout', 'GridA4');
         parent::display();
     }
 
@@ -108,11 +109,11 @@ class Instances extends Controller
 
         $url = Helpers\Routing::getRedirectBase() . "&view=instance_edit";
 
-        if ($id = Helpers\Input::getID()) {
+        if ($id = Input::getID()) {
             $url .= "&id=$id";
         }
 
-        if (Helpers\Input::getCMD('layout', 'appointment') === 'appointment') {
+        if (Input::getCMD('layout', 'appointment') === 'appointment') {
             $url .= '&appointment=1';
         }
 
@@ -127,8 +128,8 @@ class Instances extends Controller
     public function xls()
     {
         // prevents parameter name from biting here
-        Helpers\Input::set('layout', 'Instances');
-        Helpers\Input::set('format', 'xls');
+        Input::set('layout', 'Instances');
+        Input::set('format', 'xls');
         $this->display();
     }
 }

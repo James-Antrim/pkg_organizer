@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 
@@ -46,7 +46,7 @@ class Export extends FormView
             'roleID' => 0,
             'roomID' => 0
         ];
-        $form   = ($task = Helpers\Input::getTask() and $task === 'export.reset') ? [] : Helpers\Input::getArray();
+        $form   = ($task = Input::getTask() and $task === 'export.reset') ? [] : Input::getArray();
 
         foreach (array_keys($fields) as $field) {
             if (empty($form[$field])) {

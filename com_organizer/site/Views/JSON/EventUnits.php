@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\JSON;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 
 /**
@@ -26,7 +27,7 @@ class EventUnits extends BaseView
     public function display()
     {
         $date     = $this->getDate();
-        $eventID  = Helpers\Input::getInt('eventID');
+        $eventID  = Input::getInt('eventID');
         $interval = $this->getInterval();
         $units    = [];
 

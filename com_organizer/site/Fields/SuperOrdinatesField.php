@@ -11,6 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -46,7 +47,7 @@ class SuperOrdinatesField extends FormField
      */
     protected function getOptions(): array
     {
-        $resourceID   = Helpers\Input::getID();
+        $resourceID   = Input::getID();
         $contextParts = explode('.', $this->form->getName());
         $resourceType = str_replace('edit', '', $contextParts[1]);
 

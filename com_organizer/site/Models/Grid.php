@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -34,7 +34,7 @@ class Grid extends BaseModel
     {
         $this->authorize();
 
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         // Save grids in json by foreach because the index is not numeric
         $periods = [];
@@ -66,7 +66,7 @@ class Grid extends BaseModel
     {
         $this->authorize();
 
-        $selected = Helpers\Input::getID();
+        $selected = Input::getID();
         $table    = new Tables\Grids();
 
         // Entry not found or already set to default

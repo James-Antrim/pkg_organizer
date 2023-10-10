@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -73,7 +72,7 @@ class Monitors extends ListModel
 
         $where = "m.display = $templateKey";
 
-        $params              = Helpers\Input::getParams();
+        $params              = Input::getParams();
         $defaultDisplay      = $params->get('display', '');
         $useComponentDisplay = (!empty($defaultDisplay) and $templateKey == $defaultDisplay);
 
@@ -95,7 +94,7 @@ class Monitors extends ListModel
      */
     private function addContentFilter(JDatabaseQuery $query)
     {
-        $params  = Helpers\Input::getParams();
+        $params  = Input::getParams();
         $content = (string) $this->state->get('filter.content', '');
 
         if ($content === '') {

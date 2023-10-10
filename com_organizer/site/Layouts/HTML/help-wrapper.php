@@ -8,9 +8,9 @@
  * @link        www.thm.de
  */
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Input;
 
-$topic = Helpers\Input::getCMD('topic', 'toc');
+$topic = Input::getCMD('topic', 'toc');
 
 echo $this->title;
 ?>

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
@@ -115,7 +116,7 @@ class Pool extends CurriculumResource
      */
     public function save(array $data = [])
     {
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         if (empty($data['id'])) {
             if (!Helpers\Can::documentTheseOrganizations()) {

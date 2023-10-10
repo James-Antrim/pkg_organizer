@@ -11,6 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\Curricula;
 
@@ -26,7 +27,7 @@ trait SubOrdinate
      */
     private function addNew(array $data, array $superOrdinates): bool
     {
-        $existingPool = ($this->resource === 'pool' and Helpers\Input::getTask() !== 'pools.save2copy');
+        $existingPool = ($this->resource === 'pool' and Input::getTask() !== 'pools.save2copy');
         $ranges       = $this->getRanges($data['id']);
         $resourceID   = $this->resource . 'ID';
 

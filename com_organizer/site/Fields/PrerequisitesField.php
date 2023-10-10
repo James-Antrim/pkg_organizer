@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -43,7 +44,7 @@ class PrerequisitesField extends DependencyOptions
      */
     protected function getOptions(): array
     {
-        $subjectID = Helpers\Input::getID();
+        $subjectID = Input::getID();
         $values    = Helpers\Subjects::getPrerequisites($subjectID);
 
         $selected = empty($values) ? ' selected' : '';

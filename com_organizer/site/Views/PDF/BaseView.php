@@ -15,6 +15,7 @@ namespace THM\Organizer\Views\PDF;
 define('K_PATH_IMAGES', JPATH_ROOT . '/components/com_organizer/images/');
 
 use Joomla\CMS\Application\ApplicationHelper;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\BaseLayout;
 use THM\Organizer\Models;
@@ -113,7 +114,7 @@ abstract class BaseView extends TCPDF
         $this->setImageScale(1.25);
 
         $name   = $this->getName();
-        $layout = Helpers\Input::getCMD('layout', $name);
+        $layout = Input::getCMD('layout', $name);
         $layout = Helpers\OrganizerHelper::classDecode($layout);
         $layout = "Organizer\\Layouts\\PDF\\$name\\$layout";
         $model  = "Organizer\\Models\\$name";

@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -90,7 +89,7 @@ class Participants extends ListModel
                 ->where(['pa.id != pa2.id'])
                 ->group('pa.id');
 
-            if ($domain = Helpers\Input::getParams()->get('emailFilter')) {
+            if ($domain = Input::getParams()->get('emailFilter')) {
                 $domain = Database::quote("%$domain");
                 $email1 = Database::quoteName('u.email');
                 $email2 = Database::quoteName('u2.email');
@@ -115,7 +114,7 @@ class Participants extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        if ($courseID = Helpers\Input::getFilterID('course')) {
+        if ($courseID = Input::getFilterID('course')) {
             $this->setState('filter.courseID', $courseID);
         }
     }

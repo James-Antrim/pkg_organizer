@@ -18,7 +18,7 @@ use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Helpers\OrganizerHelper;
@@ -45,7 +45,7 @@ class Controller extends BaseController
     /**
      * @inheritDoc
      */
-    public function __construct($config = [], MVCFactoryInterface $factory = null, ?CMSApplication $app = null, ?JInput $input = null)
+    public function __construct($config = [], MVCFactoryInterface $factory = null, ?CMSApplication $app = null, ?Input $input = null)
     {
         $this->backend = Application::backend();
         $this->baseURL = $this->baseURL ?: Uri::base() . 'index.php?option=com_groups';
@@ -81,7 +81,7 @@ class Controller extends BaseController
     public function display($cachable = false, $urlparams = []): BaseController
     {
         $document = Factory::getDocument();
-        $format   = $this->input->get('format', $document->getType());
+        $format   = $this->input->get('format', strtoupper($document->getType()));
         $template = $this->input->get('layout', 'default', 'string');
         $view     = $this->input->get('view', 'Organizer');
 
@@ -278,7 +278,7 @@ class Controller extends BaseController
             return;
         }
 
-        $selectedIDs = Helpers\Input::getSelectedIDs();
+        $selectedIDs = Input::getSelectedIDs();
         if (count($selectedIDs) == 1) {
             $msg = Helpers\Languages::_('ORGANIZER_TOO_FEW');
             $this->setRedirect(Route::_($url, false), $msg, 'notice');
@@ -287,7 +287,7 @@ class Controller extends BaseController
         }
 
         // Reliance on POST requires a different method of redirection
-        Helpers\Input::set('view', "{$this->resource}_merge");
+        Input::set('view', "{$this->resource}_merge");
         $this->display();
     }
 
@@ -298,7 +298,7 @@ class Controller extends BaseController
      */
     public function pdf()
     {
-        Helpers\Input::set('format', 'pdf');
+        Input::set('format', 'pdf');
         $this->display();
     }
 
@@ -309,7 +309,7 @@ class Controller extends BaseController
      */
     public function xls()
     {
-        Helpers\Input::set('format', 'xls');
+        Input::set('format', 'xls');
         $this->display();
     }
 }

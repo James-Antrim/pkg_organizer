@@ -11,9 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Input;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\OrganizerHelper as OH;
 use THM\Organizer\Tables;
@@ -304,7 +303,7 @@ class Participant extends MergeModel
      */
     public function merge(): bool
     {
-        $data = empty($this->data) ? Helpers\Input::getFormItems()->toArray() : $this->data;
+        $data = empty($this->data) ? Input::getFormItems()->toArray() : $this->data;
 
         if (empty($data['email'])) {
             OH::message('ORGANIZER_NO_EMAIL_ADDRESS_SELECTED', 'error');
@@ -313,7 +312,7 @@ class Participant extends MergeModel
         }
 
         //todo get view name (booking|course|participants)
-        $this->selected = Helpers\Input::getSelectedIDs();
+        $this->selected = Input::getSelectedIDs();
         sort($this->selected);
 
         //todo differentiate rights by the called view and resource id as applicable
@@ -417,7 +416,7 @@ class Participant extends MergeModel
      */
     public function save(array $data = [])
     {
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         if (!isset($data['id'])) {
             OH::message('ORGANIZER_400', 'error');
@@ -431,7 +430,7 @@ class Participant extends MergeModel
 
         $numericFields = ['id', 'programID'];
 
-        switch (Helpers\Input::getTask()) {
+        switch (Input::getTask()) {
             case 'participants.save':
                 $requiredFields = ['address', 'city', 'forename', 'id', 'programID', 'surname', 'zipCode'];
                 break;

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
@@ -26,7 +26,7 @@ class SubjectItem extends ItemModel
      */
     public function getItem(): array
     {
-        $subjectID = Helpers\Input::getID();
+        $subjectID = Input::getID();
         if (empty($subjectID)) {
             return [];
         }
@@ -148,7 +148,7 @@ class SubjectItem extends ItemModel
         $url    = '?option=com_organizer&view=SubjectItem&id=';
 
         return [
-            'subjectID' => Helpers\Input::getID(),
+            'subjectID' => Input::getID(),
             'name' => ['label' => Languages::_($option . 'NAME'), 'type' => 'text'],
 
             // Persons

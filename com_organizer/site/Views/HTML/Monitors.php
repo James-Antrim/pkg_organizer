@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 
 /**
@@ -81,7 +82,7 @@ class Monitors extends ListView
         $index           = 0;
         $structuredItems = [];
 
-        $params       = Helpers\Input::getParams();
+        $params       = Input::getParams();
         $displayParam = $params->get('display');
         $contentParam = $params->get('content');
 

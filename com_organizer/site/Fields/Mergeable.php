@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers\HTML;
-use THM\Organizer\Helpers\Input;
 use THM\Organizer\Helpers\Languages;
 use stdClass;
 

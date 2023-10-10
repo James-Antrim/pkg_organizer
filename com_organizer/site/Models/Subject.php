@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Tables;
@@ -587,7 +587,7 @@ class Subject extends CurriculumResource
      */
     public function save(array $data = [])
     {
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         $this->authorize();
 

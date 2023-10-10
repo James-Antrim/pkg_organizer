@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\JSON;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Input;
 
 trait Planned
 {
@@ -20,7 +20,7 @@ trait Planned
      */
     public function getDate()
     {
-        $date = Helpers\Input::getString('date');
+        $date = Input::getString('date');
 
         return ($dts = strtotime($date)) ? date('Y-m-d', $dts) : date('Y-m-d');
     }
@@ -32,7 +32,7 @@ trait Planned
     public function getInterval(): string
     {
         $intervals = ['day', 'week', 'term'];
-        $interval  = Helpers\Input::getString('interval');
+        $interval  = Input::getString('interval');
 
         return in_array($interval, $intervals) ? $interval : 'term';
     }

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -26,7 +26,7 @@ class SubjectPersonsField extends OptionsField
      */
     protected function getOptions(): array
     {
-        $subjectIDs = Helpers\Input::getSelectedIDs();
+        $subjectIDs = Input::getSelectedIDs();
         $role       = $this->getAttribute('role');
         $invalid    = (empty($subjectIDs) or empty($subjectIDs[0]) or empty($role));
 

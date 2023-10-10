@@ -8,7 +8,7 @@
  * @link        www.thm.de
  */
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Input, Text};
 
 echo $this->form->renderField('date');
 echo $this->form->renderField('gridID');
@@ -16,7 +16,7 @@ echo $this->form->renderField('blockID');
 echo $this->form->renderField('startTime');
 echo $this->form->renderField('endTime');
 
-if (Helpers\Input::getBool('advanced', false)) {
+if (Input::getBool('advanced')) {
     echo $this->form->renderFieldset('advanced');
 } else {
     echo $this->form->renderField('eventIDs');
@@ -27,7 +27,7 @@ if (Helpers\Input::getBool('advanced', false)) {
     echo "// Set organizations based on the person's associations, assignments and existing assignments for the unit.<br>";
     echo '<div class="control-label"></div>';
     echo '<div class="controls">';
-    echo '<span class="comment"> ' . Helpers\Languages::_('ORGANIZER_INSTANCES_GROUPS_DISPLAY_TEXT') . '</span>';
+    echo '<span class="comment"> ' . Text::_('ORGANIZER_INSTANCES_GROUPS_DISPLAY_TEXT') . '</span>';
     echo '</div>';
     echo $this->form->renderField('groupIDs');
     echo $this->form->renderField('roomIDs');

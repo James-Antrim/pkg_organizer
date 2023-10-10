@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -89,7 +90,7 @@ class CourseParticipants extends ListView
             Helpers\OrganizerHelper::error(401);
         }
 
-        if (!$this->courseID = Helpers\Input::getID()) {
+        if (!$this->courseID = Input::getID()) {
             Helpers\OrganizerHelper::error(400);
         }
 

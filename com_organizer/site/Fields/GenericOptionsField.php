@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -212,7 +212,7 @@ class GenericOptionsField extends OptionsField
             return;
         }
         $valueParameters     = explode(',', $valueParameter);
-        $componentParameters = Helpers\Input::getParams();
+        $componentParameters = Input::getParams();
         foreach ($valueParameters as $parameter) {
             $componentParameter = $componentParameters->get($parameter);
             if (empty($componentParameter)) {

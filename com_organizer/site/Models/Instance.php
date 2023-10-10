@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -43,7 +43,7 @@ class Instance extends BaseModel
             Helpers\OrganizerHelper::error(403);
         }
 
-        if ($instanceID = Helpers\Input::getID() and !Helpers\Can::manage('instance', $instanceID)) {
+        if ($instanceID = Input::getID() and !Helpers\Can::manage('instance', $instanceID)) {
             Helpers\OrganizerHelper::error(403);
         }
     }
@@ -64,7 +64,7 @@ class Instance extends BaseModel
         Helpers\OrganizerHelper::error(503);
 
         $this->authorize();
-        $data           = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data           = empty($data) ? Input::getFormItems()->toArray() : $data;
         $this->modified = date('Y-m-d H:i:s');
 
         if ($data['layout'] === 'appointment') {
@@ -150,7 +150,7 @@ class Instance extends BaseModel
             'blockID' => $blockID,
             'eventID' => null,
             'modified' => $this->modified,
-            'title' => Helpers\Input::filter($data['title']),
+            'title' => Input::filter($data['title']),
             'unitID' => $unitID
         ];
         $instance->save($iData);

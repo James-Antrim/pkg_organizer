@@ -12,6 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Factory;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -27,7 +28,7 @@ class Checkin extends Controller
      */
     public function checkin()
     {
-        $data    = Helpers\Input::getFormItems();
+        $data    = Input::getFormItems();
         $session = Factory::getSession();
 
         if (!Helpers\Users::getID()) {

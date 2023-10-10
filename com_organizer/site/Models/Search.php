@@ -12,8 +12,7 @@ namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Roles;
@@ -612,7 +611,7 @@ class Search extends ListModel
     {
         parent::populateState();
 
-        $get     = Helpers\Input::getString('search');
+        $get     = Input::getString('search');
         $session = Factory::getSession();
         $pSearch = (string) $session->get('organizer.search.search');
 

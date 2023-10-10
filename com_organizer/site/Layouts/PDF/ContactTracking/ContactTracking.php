@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF\ContactTracking;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Layouts\PDF\ListLayout;
@@ -47,7 +48,7 @@ class ContactTracking extends ListLayout
             'data' => Languages::_('ORGANIZER_CONTACT_INFORMATION')
         ];
 
-        $listFormat = (int) Helpers\Input::getListItems()->get('listFormat', self::BY_DAY);
+        $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
 
         switch ($listFormat) {
             case self::BY_EVENT:

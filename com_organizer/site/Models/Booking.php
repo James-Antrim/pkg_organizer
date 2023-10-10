@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\User;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Tables;
@@ -51,7 +51,7 @@ class Booking extends Participants
             Helpers\OrganizerHelper::error(401);
         }
 
-        if (!$instanceIDs = Helpers\Input::getSelectedIDs()) {
+        if (!$instanceIDs = Input::getSelectedIDs()) {
             Helpers\OrganizerHelper::error(400);
         }
 
@@ -98,17 +98,17 @@ class Booking extends Participants
     {
         $this->authorize();
 
-        $listItems = Helpers\Input::getListItems();
+        $listItems = Input::getListItems();
         $input     = $listItems->get('username');
 
         if (empty($input) or !$input = trim($input)) {
             Helpers\OrganizerHelper::error(400);
         }
 
-        $bookingID = Helpers\Input::getID();
+        $bookingID = Input::getID();
 
         // Manually unset the username, so it isn't later added to the state
-        Helpers\Input::getInput()->set('list', ['fullordering' => $listItems->get('fullordering')]);
+        Input::getInput()->set('list', ['fullordering' => $listItems->get('fullordering')]);
 
         $existing = true;
         $query    = Database::getQuery();
@@ -319,7 +319,7 @@ class Booking extends Participants
      */
     private function authorize()
     {
-        if (!$bookingID = Helpers\Input::getID()) {
+        if (!$bookingID = Input::getID()) {
             Helpers\OrganizerHelper::error(400);
         }
 
@@ -336,7 +336,7 @@ class Booking extends Participants
     {
         $this->authorize();
 
-        $batch      = Helpers\Input::getBatchItems();
+        $batch      = Input::getBatchItems();
         $instanceID = (int) $batch->get('instanceID');
         $roomID     = (int) $batch->get('roomID');
 
@@ -344,7 +344,7 @@ class Booking extends Participants
             return true;
         }
 
-        foreach (Helpers\Input::getSelectedIDs() as $participationID) {
+        foreach (Input::getSelectedIDs() as $participationID) {
             $participation = new Tables\InstanceParticipants();
 
             if (!$participation->load($participationID)) {
@@ -427,13 +427,13 @@ class Booking extends Participants
     {
         $this->authorize();
 
-        if (!Helper::getInstanceIDs(Helpers\Input::getID())) {
+        if (!Helper::getInstanceIDs(Input::getID())) {
             Helpers\OrganizerHelper::error(400);
         }
 
         $count = 0;
 
-        foreach (Helpers\Input::getSelectedIDs() as $participationID) {
+        foreach (Input::getSelectedIDs() as $participationID) {
             $participation = new Tables\InstanceParticipants();
 
             if ($participation->load($participationID)) {
@@ -461,7 +461,7 @@ class Booking extends Participants
 
         $block     = new Tables\Blocks();
         $booking   = new Tables\Bookings();
-        $bookingID = Helpers\Input::getID();
+        $bookingID = Input::getID();
 
         if (!$booking->load($bookingID) or !$block->load($booking->blockID)) {
             Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
@@ -492,7 +492,7 @@ class Booking extends Participants
     {
         parent::filterFilterForm($form);
 
-        $bookingID = Helpers\Input::getID();
+        $bookingID = Input::getID();
 
         if (!$this->adminContext) {
             $form->removeField('limit', 'list');
@@ -525,7 +525,7 @@ class Booking extends Participants
      */
     public function getBooking(): Tables\Bookings
     {
-        $bookingID = Helpers\Input::getID();
+        $bookingID = Input::getID();
         $booking   = new Tables\Bookings();
         $booking->load($bookingID);
 
@@ -543,7 +543,7 @@ class Booking extends Participants
      */
     protected function getListQuery()
     {
-        $bookingID = Helpers\Input::getID();
+        $bookingID = Input::getID();
         $query     = parent::getListQuery();
         $query->select('r.name AS room, ip.id AS ipaID, ip.attended, ip.seat, ip.registered')
             ->innerJoin('#__organizer_instance_participants AS ip ON ip.participantID = pa.id')
@@ -580,7 +580,7 @@ class Booking extends Participants
      */
     public function getItems(): array
     {
-        $bookingID = Helpers\Input::getID();
+        $bookingID = Input::getID();
         $query     = Database::getQuery();
         $tag       = Helpers\Languages::getTag();
         $query->select("e.name_$tag AS event")
@@ -651,7 +651,7 @@ class Booking extends Participants
 
         $block     = new Tables\Blocks();
         $booking   = new Tables\Bookings();
-        $bookingID = Helpers\Input::getID();
+        $bookingID = Input::getID();
 
         if (!$booking->load($bookingID) or !$block->load($booking->blockID)) {
             Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
@@ -692,7 +692,7 @@ class Booking extends Participants
      */
     protected function populateState($ordering = null, $direction = null)
     {
-        if (Helpers\Input::getListItems()->get('username')) {
+        if (Input::getListItems()->get('username')) {
             $this->addParticipant();
         }
 
@@ -707,7 +707,7 @@ class Booking extends Participants
     {
         $this->authorize();
 
-        if (!$participationIDs = Helpers\Input::getSelectedIDs()) {
+        if (!$participationIDs = Input::getSelectedIDs()) {
             Helpers\OrganizerHelper::message('ORGANIZER_400', 'warning');
 
             return;

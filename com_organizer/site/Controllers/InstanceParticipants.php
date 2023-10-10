@@ -12,6 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Models;
@@ -47,7 +48,7 @@ class InstanceParticipants extends Controller
     {
         $model = new Models\InstanceParticipant();
         $model->bookmark($method);
-        $referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -77,7 +78,7 @@ class InstanceParticipants extends Controller
     {
         $model = new Models\InstanceParticipant();
         $model->deregister($method);
-        $referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -98,7 +99,7 @@ class InstanceParticipants extends Controller
     {
         $model = new Models\InstanceParticipant();
         $model->register($method);
-        $referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -119,7 +120,7 @@ class InstanceParticipants extends Controller
     {
         $model = new Models\InstanceParticipant();
         $model->removeBookmark($method);
-        $referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -153,7 +154,7 @@ class InstanceParticipants extends Controller
         if ($model->save()) {
             OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
             Factory::getSession()->set('organizer.participation.referrer', '');
-            $referrer = Helpers\Input::getString('referrer');
+            $referrer = Input::getString('referrer');
             $this->setRedirect(Route::_($referrer, false));
         } else {
             OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');

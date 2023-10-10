@@ -12,6 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Helpers\Languages;
@@ -190,7 +191,7 @@ class Booking extends Participants
             Helpers\OrganizerHelper::error(401);
         }
 
-        if (!$this->bookingID = Helpers\Input::getID()) {
+        if (!$this->bookingID = Input::getID()) {
             Helpers\OrganizerHelper::error(400);
         }
 
@@ -251,7 +252,7 @@ class Booking extends Participants
      */
     protected function setSubtitle()
     {
-        $bookingID      = Helpers\Input::getID();
+        $bookingID      = Input::getID();
         $subTitle       = Helper::getNames($bookingID);
         $subTitle[]     = Helper::getDateTimeDisplay($bookingID);
         $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';

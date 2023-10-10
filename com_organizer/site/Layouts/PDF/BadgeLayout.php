@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Views\PDF\CourseParticipants;
@@ -192,7 +193,7 @@ abstract class BadgeLayout extends BaseLayout
         $view->changePosition($badgeCenter, $labelOffset);
         $view->renderCell(80, 5, Languages::_('ORGANIZER_REPRESENTATIVE'), $view::CENTER);
 
-        $params = Helpers\Input::getParams();
+        $params = Input::getParams();
         if (!empty($params->get('signatureFile'))) {
             $signaturePath = K_PATH_IMAGES . $params->get('signatureFile');
             $view->Image($signaturePath, $xOffset + 35, $signatureOffset, 20);

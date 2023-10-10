@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -38,8 +37,8 @@ class Fields extends ListModel
 
         $this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code']);
 
-        $colorID        = Helpers\Input::getFilterID('color');
-        $organizationID = Helpers\Input::getFilterID('organization');
+        $colorID        = Input::getFilterID('color');
+        $organizationID = Input::getFilterID('organization');
         if ($colorID or $organizationID) {
             if ($colorID === self::NONE or $organizationID === self::NONE) {
                 $query->leftJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');

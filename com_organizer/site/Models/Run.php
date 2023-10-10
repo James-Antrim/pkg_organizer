@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\Runs as Table;
 
@@ -27,7 +28,7 @@ class Run extends BaseModel
             return;
         }
 
-        if (!Helpers\Can::scheduleTheseOrganizations() or Helpers\Input::getID()) {
+        if (!Helpers\Can::scheduleTheseOrganizations() or Input::getID()) {
             Helpers\OrganizerHelper::error(403);
         }
     }
@@ -58,7 +59,7 @@ class Run extends BaseModel
     {
         $this->authorize();
 
-        $data    = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data    = empty($data) ? Input::getFormItems()->toArray() : $data;
         $endDate = '';
         $index   = 1;
         $runs    = [];

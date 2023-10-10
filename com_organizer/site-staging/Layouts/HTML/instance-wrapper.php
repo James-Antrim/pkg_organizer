@@ -9,12 +9,12 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Input, Toolbar};
 use THM\Organizer\Helpers;
 
 $action = Uri::base() . '?' . Uri::getInstance()->getQuery();
 $oClass = "form-$this->orientation";
-$layout = Helpers\Input::getCMD('type', 'appointment');
+$layout = Input::getCMD('type', 'appointment');
 
 if (!$this->adminContext) {
     echo $this->title;
@@ -37,7 +37,7 @@ if (!$this->adminContext) {
             // Simple instance edit layout
             <?php //require_once 'Instance/simple.php'; ?>
         <?php endif; ?>
-        <input type="hidden" name="Itemid" value="<?php echo Helpers\Input::getInt('Itemid'); ?>"/>
+        <input type="hidden" name="Itemid" value="<?php echo Input::getInt('Itemid'); ?>"/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="InstanceEdit"/>

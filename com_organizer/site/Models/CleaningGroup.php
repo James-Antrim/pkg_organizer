@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -52,7 +53,7 @@ class CleaningGroup extends BaseModel
     {
         $this->authorize();
 
-        $groupID = Helpers\Input::getID();
+        $groupID = Input::getID();
         $group   = new Tables\CleaningGroups();
         if (!$groupID or !$group->load($groupID)) {
             return false;

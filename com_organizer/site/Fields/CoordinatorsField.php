@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -30,7 +30,7 @@ class CoordinatorsField extends OptionsField
      */
     protected function getInput(): string
     {
-        $eventID = Helpers\Input::getID();
+        $eventID = Input::getID();
         $query   = Database::getQuery();
         $query->select('DISTINCT personID')
             ->from('#__organizer_event_coordinators')
@@ -47,7 +47,7 @@ class CoordinatorsField extends OptionsField
      */
     public function getOptions(): array
     {
-        $eventID = Helpers\Input::getID();
+        $eventID = Input::getID();
         $event   = new Tables\Events();
         $options = [];
 

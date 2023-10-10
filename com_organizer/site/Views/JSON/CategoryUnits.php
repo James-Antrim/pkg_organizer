@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\JSON;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -31,8 +32,8 @@ class CategoryUnits extends BaseView
         $interval     = $this->getInterval();
         $nameProperty = 'name_' . Helpers\Languages::getTag();
 
-        $active     = Helpers\Input::getBool('active', true);
-        $categoryID = Helpers\Input::getInt('categoryID');
+        $active     = Input::getBool('active', true);
+        $categoryID = Input::getInt('categoryID');
 
         foreach (Helpers\Categories::getGroups($categoryID, $active) as $group) {
             $group['events'] = [];

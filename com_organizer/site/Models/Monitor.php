@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -51,7 +52,7 @@ class Monitor extends BaseModel
     {
         $this->authorize();
 
-        $data = empty($data) ? Helpers\Input::getFormItems()->toArray() : $data;
+        $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         if (empty($data['roomID'])) {
             unset($data['roomID']);
@@ -70,13 +71,13 @@ class Monitor extends BaseModel
     {
         $this->authorize();
 
-        $monitorID   = Helpers\Input::getID();
+        $monitorID   = Input::getID();
         $plausibleID = ($monitorID > 0);
 
         if ($plausibleID) {
             $table = new Tables\Monitors();
             $table->load($monitorID);
-            $table->set('useDefaults', Helpers\Input::getInt('useDefaults'));
+            $table->set('useDefaults', Input::getInt('useDefaults'));
 
             return $table->store();
         }
@@ -92,7 +93,7 @@ class Monitor extends BaseModel
     {
         $this->authorize();
 
-        $monitorID = Helpers\Input::getID();
+        $monitorID = Input::getID();
         $table     = new Tables\Monitors();
         if (empty($monitorID) or !$table->load($monitorID)) {
             return false;

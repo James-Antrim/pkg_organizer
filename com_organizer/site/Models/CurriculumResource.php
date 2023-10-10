@@ -6,6 +6,8 @@
  * @license     A "Slug" license name e.g. GPL2
  */
 
+use THM\Organizer\Adapters\Input;
+
 namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\Database;
@@ -122,7 +124,7 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function authorize()
     {
-        if (($id = Helpers\Input::getID() and !Helpers\Can::document($this->resource, $id))
+        if (($id = Input::getID() and !Helpers\Can::document($this->resource, $id))
             or !Helpers\Can::documentTheseOrganizations()) {
             OrganizerHelper::error(403);
         }
@@ -135,7 +137,7 @@ abstract class CurriculumResource extends BaseModel
     {
         $this->authorize();
 
-        if ($resourceIDs = Helpers\Input::getSelectedIDs()) {
+        if ($resourceIDs = Input::getSelectedIDs()) {
             foreach ($resourceIDs as $resourceID) {
                 if (!Helpers\Can::document($this->resource, $resourceID)) {
                     OrganizerHelper::error(403);
@@ -361,7 +363,7 @@ abstract class CurriculumResource extends BaseModel
      */
     public function import(): bool
     {
-        foreach (Helpers\Input::getSelectedIDs() as $resourceID) {
+        foreach (Input::getSelectedIDs() as $resourceID) {
             if (!$this->importSingle($resourceID)) {
                 return false;
             }

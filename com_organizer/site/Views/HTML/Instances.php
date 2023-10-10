@@ -12,8 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Document, Input, Toolbar};
 use THM\Organizer\Buttons;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Dates;
@@ -92,7 +91,7 @@ class Instances extends ListView
                 }
 
                 $supplement .= implode('</li><li>', $dates) . '</li></ul>';
-            } elseif (Helpers\Input::getInt('my')) {
+            } elseif (Input::getInt('my')) {
                 if (Helpers\Users::getID()) {
                     $supplement .= Languages::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
                 } else {
@@ -246,11 +245,11 @@ class Instances extends ListView
             return;
         }
 
-        if (Helpers\Input::getBool('my') and !Helpers\Users::getID()) {
+        if (Input::getBool('my') and !Helpers\Users::getID()) {
             Helpers\OrganizerHelper::error(401);
         }
 
-        $organizationID = Helpers\Input::getParams()->get('organizationID', 0);
+        $organizationID = Input::getParams()->get('organizationID', 0);
         $this->manages  = $organizationID ?
             Helpers\Can::manage('organization', $organizationID) : (bool) Helpers\Can::manageTheseOrganizations();
     }
@@ -605,7 +604,7 @@ class Instances extends ListView
             'roomID' => $state->get('filter.roomID', 0)
         ];
 
-        $params = Helpers\Input::getParams();
+        $params = Input::getParams();
 
         foreach ($fields as $field => $value) {
             if (empty($value)) {

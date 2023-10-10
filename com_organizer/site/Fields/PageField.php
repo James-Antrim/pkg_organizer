@@ -11,6 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 
@@ -36,7 +37,7 @@ class PageField extends FormField
         $app       = Helpers\OrganizerHelper::getApplication();
         $context   = 'com_organizer.instances';
         $interval  = $app->getUserStateFromRequest("$context.list.interval", 'list_interval', '', 'string');
-        $interval  = Helpers\Input::getListItems()->get('interval', $interval);
+        $interval  = Input::getListItems()->get('interval', $interval);
         $intervals = ['day', 'week', 'month'];
 
         if (!in_array($interval, $intervals)) {
@@ -52,7 +53,7 @@ class PageField extends FormField
 
         $default = $app->getUserStateFromRequest("$context.list.date", 'list_date', '', 'string');
         $default = $default ?: date('Y-m-d');
-        $date    = Helpers\Input::getListItems()->get('date', $default);
+        $date    = Input::getListItems()->get('date', $default);
         $title   = '';
         $stamp   = strtotime($date);
         $target  = '';

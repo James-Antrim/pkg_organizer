@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\JSON;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Input;
 
 /**
  * Class answers dynamic subject pool related queries
@@ -28,7 +28,7 @@ class SuperOrdinates extends BaseView
         $type  = Input::getCMD('type');
 
         // Pending program ranges are dependant on selected programs.
-        $programIDs    = Helpers\Input::getIntCollection('curricula');
+        $programIDs    = Input::getIntCollection('curricula');
         $programRanges = Helpers\Programs::getPrograms($programIDs);
 
         $options = Helpers\Pools::getSuperOptions($subID, $type, $programRanges);

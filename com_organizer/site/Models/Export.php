@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Input;
 
 /**
  * Class retrieves information for a filtered set of instances.

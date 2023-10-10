@@ -12,6 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Models;
@@ -32,8 +33,8 @@ class Courses extends Controller
      */
     public function badge()
     {
-        Helpers\Input::set('format', 'pdf');
-        Helpers\Input::set('layout', 'Badge');
+        Input::set('format', 'pdf');
+        Input::set('layout', 'Badge');
         parent::display();
     }
 
@@ -43,7 +44,7 @@ class Courses extends Controller
      */
     public function deregister()
     {
-        $referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
 
         $model = new Models\Course();
 
@@ -100,7 +101,7 @@ class Courses extends Controller
      */
     public function participants()
     {
-        if (!$courseID = Helpers\Input::getSelectedIDs()[0]) {
+        if (!$courseID = Input::getSelectedIDs()[0]) {
             parent::display();
 
             return;
@@ -115,8 +116,8 @@ class Courses extends Controller
      */
     public function register()
     {
-        $courseID      = Helpers\Input::getID();
-        $referrer      = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+        $courseID      = Input::getID();
+        $referrer      = Input::getInput()->server->getString('HTTP_REFERER');
         $participantID = Helpers\Users::getID();
 
         if (!Helpers\CourseParticipants::validProfile($courseID, $participantID)) {

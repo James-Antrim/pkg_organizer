@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Participant;
 
@@ -50,6 +51,6 @@ class Participants extends Controller
             Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
         }
 
-        $this->setRedirect(Helpers\Input::getString('referrer'));
+        $this->setRedirect(Input::getString('referrer'));
     }
 }

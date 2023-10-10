@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -43,7 +43,7 @@ class TermPublishingField extends FormField
         $options = [$yes, $no];
 
         $values = [];
-        if ($groupID = Helpers\Input::getID()) {
+        if ($groupID = Input::getID()) {
             $query = Database::getQuery();
             $query->select('termID, published')->from('#__organizer_group_publishing')->where("groupID = $groupID");
             Database::setQuery($query);

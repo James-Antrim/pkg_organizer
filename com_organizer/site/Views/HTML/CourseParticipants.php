@@ -12,6 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
@@ -38,7 +39,7 @@ class CourseParticipants extends Participants
     {
         $this->setTitle('ORGANIZER_PARTICIPANTS');
 
-        $courseID = Helpers\Input::getID();
+        $courseID = Input::getID();
         $course   = new Tables\Courses();
         $course->load($courseID);
 
@@ -113,7 +114,7 @@ class CourseParticipants extends Participants
             Helpers\OrganizerHelper::error(401);
         }
 
-        if (!$courseID = Helpers\Input::getID()) {
+        if (!$courseID = Input::getID()) {
             Helpers\OrganizerHelper::error(400);
         }
 
@@ -168,7 +169,7 @@ class CourseParticipants extends Participants
      */
     protected function setSubtitle()
     {
-        $courseID = Helpers\Input::getID();
+        $courseID = Input::getID();
 
         $subTitle   = [];
         $subTitle[] = Helpers\Courses::getName($courseID);
@@ -193,7 +194,7 @@ class CourseParticipants extends Participants
 
         $admin     = Helpers\Can::administrate();
         $checked   = '<span class="icon-checkbox-checked"></span>';
-        $courseID  = Helpers\Input::getID();
+        $courseID  = Input::getID();
         $expired   = Helpers\Courses::isExpired($courseID);
         $unchecked = '<span class="icon-checkbox-unchecked"></span>';
 

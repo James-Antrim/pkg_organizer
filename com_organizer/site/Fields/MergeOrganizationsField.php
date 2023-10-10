@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -30,8 +30,8 @@ class MergeOrganizationsField extends OptionsField
      */
     protected function getOptions(): array
     {
-        $selectedIDs    = Helpers\Input::getSelectedIDs();
-        $resource       = str_replace('_merge', '', Helpers\Input::getView());
+        $selectedIDs    = Input::getSelectedIDs();
+        $resource       = str_replace('_merge', '', Input::getView());
         $validResources = ['category', 'person'];
         $invalid        = (empty($selectedIDs) or empty($resource) or !in_array($resource, $validResources));
         if ($invalid) {

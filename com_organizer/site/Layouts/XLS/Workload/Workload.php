@@ -11,6 +11,7 @@
 namespace THM\Organizer\Layouts\XLS\Workload;
 
 use Exception;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Layouts\XLS\BaseLayout;
@@ -147,11 +148,11 @@ class Workload extends BaseLayout
     public function __construct(BaseView $view)
     {
         parent::__construct($view);
-        $this->organizationID = Helpers\Input::getInt('organizationID');
-        $this->personID       = Helpers\Input::getInt('personID');
-        $this->separate       = Helpers\Input::getBool('separate');
-        $this->termID         = Helpers\Input::getInt('termID');
-        $this->weeks          = Helpers\Input::getInt('weeks', 13);
+        $this->organizationID = Input::getInt('organizationID');
+        $this->personID       = Input::getInt('personID');
+        $this->separate       = Input::getBool('separate');
+        $this->termID         = Input::getInt('termID');
+        $this->weeks          = Input::getInt('weeks', 13);
     }
 
     /**

@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
 /**
@@ -39,7 +38,7 @@ class Courses extends ListModel
 
         $form->removeField('termID', 'filter');
 
-        $params = Helpers\Input::getParams();
+        $params = Input::getParams();
 
         if ($params->get('campusID')) {
             $form->removeField('campusID', 'filter');
@@ -113,8 +112,8 @@ class Courses extends ListModel
             $query->where("u.organizationID in ($organizationIDs)");
         }
 
-        $params      = Helpers\Input::getParams();
-        $preparatory = ($params->get('onlyPrepCourses') or Helpers\Input::getBool('preparatory'));
+        $params      = Input::getParams();
+        $preparatory = ($params->get('onlyPrepCourses') or Input::getBool('preparatory'));
 
         if (!$this->adminContext and $preparatory) {
             $query->where('e.preparatory = 1');
@@ -140,7 +139,7 @@ class Courses extends ListModel
         parent::populateState($ordering, $direction);
 
         if (!$this->adminContext) {
-            $params = Helpers\Input::getParams();
+            $params = Input::getParams();
 
             if ($campusID = $params->get('campusID')) {
                 $this->state->set('filter.campusID', $campusID);

@@ -12,6 +12,7 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -45,7 +46,7 @@ class Bookings extends Controller
         $model = new Models\Booking();
 
         if (!$bookingID = $model->add()) {
-            $this->setRedirect(Helpers\Input::getString('referrer'));
+            $this->setRedirect(Input::getString('referrer'));
 
             return;
         }
@@ -62,7 +63,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->addParticipant();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
         $this->setRedirect(Route::_($url, false));
     }
 
@@ -81,7 +82,7 @@ class Bookings extends Controller
             Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
         }
 
-        $referrer = Helpers\Input::getInput()->server->getString('HTTP_REFERER');
+        $referrer = Input::getInput()->server->getString('HTTP_REFERER');
         $this->setRedirect(Route::_($referrer, false));
     }
 
@@ -93,7 +94,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->checkin();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
         $this->setRedirect(Route::_($url, false));
     }
 
@@ -105,7 +106,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->close();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
         $this->setRedirect(Route::_($url, false));
     }
 
@@ -116,11 +117,11 @@ class Bookings extends Controller
      */
     public function editParticipants()
     {
-        $bookingID       = Helpers\Input::getID();
-        $participationID = Helpers\Input::getSelectedID();
-        Helpers\Input::set('id', $participationID);
-        Helpers\Input::set('bookingID', $bookingID);
-        Helpers\Input::set('view', 'instance_participant_edit');
+        $bookingID       = Input::getID();
+        $participationID = Input::getSelectedID();
+        Input::set('id', $participationID);
+        Input::set('bookingID', $bookingID);
+        Input::set('view', 'instance_participant_edit');
         $this->display();
     }
 
@@ -131,7 +132,7 @@ class Bookings extends Controller
     public function manage(int $instanceID = 0)
     {
         if (!$instanceID) {
-            if (!$instanceIDs = Helpers\Input::getSelectedIDs()) {
+            if (!$instanceIDs = Input::getSelectedIDs()) {
                 Helpers\OrganizerHelper::error(400);
             }
 
@@ -142,7 +143,7 @@ class Bookings extends Controller
             $model = new Models\Booking();
 
             if (!$bookingID = $model->add()) {
-                $this->setRedirect(Helpers\Input::getString('referrer'));
+                $this->setRedirect(Input::getString('referrer'));
 
                 return;
             }
@@ -158,7 +159,7 @@ class Bookings extends Controller
      */
     public function manageThis()
     {
-        if (!$instanceID = Helpers\Input::getID()) {
+        if (!$instanceID = Input::getID()) {
             Helpers\OrganizerHelper::error(400);
         }
 
@@ -173,7 +174,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->open();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
         $this->setRedirect(Route::_($url, false));
     }
 
@@ -185,7 +186,7 @@ class Bookings extends Controller
     {
         $model = new Models\Booking();
         $model->removeParticipants();
-        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Helpers\Input::getID();
+        $url = Helpers\Routing::getRedirectBase() . "&view=booking&id=" . Input::getID();
         $this->setRedirect(Route::_($url, false));
     }
 }

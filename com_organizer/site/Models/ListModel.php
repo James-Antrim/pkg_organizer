@@ -15,8 +15,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\ListModel as ParentModel;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -210,7 +209,7 @@ abstract class ListModel extends ParentModel
         $this->setState('list.ordering', $ordering);
         $this->setState('list.direction', $direction);
 
-        if ($format = Helpers\Input::getCMD('format') and $format === 'pdf') {
+        if ($format = Input::getCMD('format') and $format === 'pdf') {
             $limit = 0;
         } else {
             $limit = (isset($list['limit']) && is_numeric($list['limit'])) ? $list['limit'] : $this->defaultLimit;
@@ -427,8 +426,8 @@ abstract class ListModel extends ParentModel
      */
     protected function setValueFilters(JDatabaseQuery $query, array $queryColumns)
     {
-        $filters = Helpers\Input::getFilterItems();
-        $lists   = Helpers\Input::getListItems();
+        $filters = Input::getFilterItems();
+        $lists   = Input::getListItems();
         $state   = $this->getState();
 
         // The view level filters

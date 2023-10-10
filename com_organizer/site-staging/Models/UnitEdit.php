@@ -10,10 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Units as Helper;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Units as Table;
 use stdClass;
@@ -39,7 +37,7 @@ class UnitEdit extends EditModel
             Helpers\OrganizerHelper::error(401);
         }
 
-        if (!Helpers\Can::manage('unit', Helpers\Input::getInt('id'))) {
+        if (!Helpers\Can::manage('unit', Input::getInt('id'))) {
             Helpers\OrganizerHelper::error(403);
         }
     }
@@ -82,7 +80,7 @@ class UnitEdit extends EditModel
 
         /*$item = $this->item;
 
-        $previous = Helpers\Input::getFormItems();
+        $previous = Input::getFormItems();
         $session  = Factory::getSession();
         $instance = $session->get('organizer.instance', []);
 
@@ -138,10 +136,10 @@ class UnitEdit extends EditModel
     {
         $this->authorize();
 
-        echo "<pre>" . print_r(Helpers\Input::getInput(), true) . "</pre><br>";
+        echo "<pre>" . print_r(Input::getInput(), true) . "</pre><br>";
         die;
 
-        if ($this->my = Helpers\Input::getBool('my')) {
+        if ($this->my = Input::getBool('my')) {
             $code = Helpers\Users::getID() . '-1';
             $keys = ['code' => $code];
 
@@ -244,7 +242,7 @@ class UnitEdit extends EditModel
         $block = new Tables\Blocks();
 
         // Selected > unit > organization default > 0
-        if ($blockID = Helpers\Input::getFormItems()->get('blockID') and $block->load($blockID)) {
+        if ($blockID = Input::getFormItems()->get('blockID') and $block->load($blockID)) {
             $item->blockID = $blockID;
         }
     }
@@ -258,7 +256,7 @@ class UnitEdit extends EditModel
      */
     private function setDate(object $item)
     {
-        if ($date = Helpers\Input::getFormItems()->get('date') and preg_match('/\d{4}-\d{2}-\d{2}/', $date)) {
+        if ($date = Input::getFormItems()->get('date') and preg_match('/\d{4}-\d{2}-\d{2}/', $date)) {
             $item->date = $date;
         } elseif (empty($item->date)) {
             $item->date = date('Y-m-d');
@@ -278,7 +276,7 @@ class UnitEdit extends EditModel
         $grid    = new Tables\Grids();
 
         // Selected > unit > organization default > 0
-        if ($gridID = Helpers\Input::getFormItems()->get('gridID') and $grid->load($gridID)) {
+        if ($gridID = Input::getFormItems()->get('gridID') and $grid->load($gridID)) {
             $item->gridID = $gridID;
         } elseif (empty($item->gridID)) {
             $item->gridID = $default;

@@ -11,8 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use THM\Organizer\Validators;
@@ -173,7 +172,7 @@ class Schedule extends BaseModel
             Helpers\OrganizerHelper::error(403);
         }
 
-        $scheduleIDs = Helpers\Input::getSelectedIDs();
+        $scheduleIDs = Input::getSelectedIDs();
         foreach ($scheduleIDs as $scheduleID) {
             if (!$this->deleteSingle($scheduleID)) {
                 return false;
@@ -442,7 +441,7 @@ class Schedule extends BaseModel
      */
     public function rebuild(): bool
     {
-        if (!$organizationID = Helpers\Input::getFilterID('organization') or !$termID = Helpers\Input::getFilterID('term')) {
+        if (!$organizationID = Input::getFilterID('organization') or !$termID = Input::getFilterID('term')) {
             return false;
         }
 
@@ -473,7 +472,7 @@ class Schedule extends BaseModel
      */
     public function reference(): bool
     {
-        if (!$referenceID = Helpers\Input::getSelectedID()) {
+        if (!$referenceID = Input::getSelectedID()) {
             return false;
         }
 
@@ -1001,7 +1000,7 @@ class Schedule extends BaseModel
      */
     public function upload(): bool
     {
-        if (!$organizationID = Helpers\Input::getInt('organizationID')) {
+        if (!$organizationID = Input::getInt('organizationID')) {
             return false;
         }
 

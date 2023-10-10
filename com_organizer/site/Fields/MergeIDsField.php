@@ -11,6 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 
 /**
@@ -29,7 +30,7 @@ class MergeIDsField extends FormField
      */
     protected function getInput(): string
     {
-        $selectedIDs = Helpers\Input::getSelectedIDs();
+        $selectedIDs = Input::getSelectedIDs();
         asort($selectedIDs);
         $values = implode(',', $selectedIDs);
 

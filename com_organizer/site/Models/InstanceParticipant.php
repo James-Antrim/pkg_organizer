@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Input;
 use THM\Organizer\Helpers\InstanceParticipants as Helper;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\OrganizerHelper;

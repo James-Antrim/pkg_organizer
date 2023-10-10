@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 
 /**
@@ -26,8 +27,8 @@ class DocumentedPersonsField extends OptionsField
     protected function getOptions(): array
     {
         $options   = parent::getOptions();
-        $poolID    = Helpers\Input::getFilterID('pool', Helpers\Input::getInt('poolID'));
-        $programID = Helpers\Input::getFilterID('program', Helpers\Input::getInt('programID'));
+        $poolID    = Input::getFilterID('pool', Input::getInt('poolID'));
+        $programID = Input::getFilterID('program', Input::getInt('programID'));
 
         if (!$poolID and !$programID) {
             return $options;
