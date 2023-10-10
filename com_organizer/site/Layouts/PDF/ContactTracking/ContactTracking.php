@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF\ContactTracking;
 
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\{Input, Text};
 use THM\Organizer\Layouts\PDF\ListLayout;
 use THM\Organizer\Views\PDF\ContactTracking as View;
 
@@ -44,19 +42,19 @@ class ContactTracking extends ListLayout
 
         $headers = [
             'index' => '#',
-            'person' => Languages::_('ORGANIZER_PERSON'),
-            'data' => Languages::_('ORGANIZER_CONTACT_INFORMATION')
+            'person' => Text::_('ORGANIZER_PERSON'),
+            'data' => Text::_('ORGANIZER_CONTACT_INFORMATION')
         ];
 
         $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
 
         switch ($listFormat) {
             case self::BY_EVENT:
-                $otherHeaders = ['contacts' => Languages::_('ORGANIZER_CONTACTS')];
+                $otherHeaders = ['contacts' => Text::_('ORGANIZER_CONTACTS')];
                 break;
             case self::BY_DAY:
             default:
-                $otherHeaders = ['dates' => Languages::_('ORGANIZER_DATES'), 'length' => Languages::_('ORGANIZER_CONTACT_LENGTH')];
+                $otherHeaders = ['dates' => Text::_('ORGANIZER_DATES'), 'length' => Text::_('ORGANIZER_CONTACT_LENGTH')];
                 break;
         }
 
@@ -69,7 +67,7 @@ class ContactTracking extends ListLayout
     public function fill(array $data)
     {
         $itemNo = 1;
-        $mText  = Languages::_('ORGANIZER_MINUTES');
+        $mText  = Text::_('ORGANIZER_MINUTES');
         $view   = $this->view;
         $this->addListPage();
 

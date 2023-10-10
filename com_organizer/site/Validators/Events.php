@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
@@ -63,7 +63,7 @@ class Events implements UntisXMLValidator
         if (!empty($model->warnings['SubjectNumber'])) {
             $warningCount = $model->warnings['SubjectNumber'];
             unset($model->warnings['SubjectNumber']);
-            $model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_EVENT_SUBJECTNOS_MISSING'), $warningCount);
+            $model->warnings[] = Text::sprintf('ORGANIZER_EVENT_SUBJECTNOS_MISSING', $warningCount);
         }
     }
 
@@ -76,7 +76,7 @@ class Events implements UntisXMLValidator
         $name = trim((string) $node->longname);
 
         if (empty($name)) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_EVENT_NAME_MISSING'), $code);
+            $model->errors[] = Text::sprintf('ORGANIZER_EVENT_NAME_MISSING', $code);
 
             return;
         }

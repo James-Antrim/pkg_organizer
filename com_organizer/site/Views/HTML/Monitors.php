@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -36,10 +36,10 @@ class Monitors extends ListView
      */
     public function __construct($config = [])
     {
-        $this->displayBehaviour[self::UPCOMING] = Helpers\Languages::_('ORGANIZER_UPCOMING_INSTANCES');
-        $this->displayBehaviour[self::CURRENT]  = Helpers\Languages::_('ORGANIZER_CURRENT_INSTANCES');
-        $this->displayBehaviour[self::MIXED]    = Helpers\Languages::_('ORGANIZER_MIXED_PLAN');
-        $this->displayBehaviour[self::CONTENT]  = Helpers\Languages::_('ORGANIZER_CONTENT_DISPLAY');
+        $this->displayBehaviour[self::UPCOMING] = Text::_('ORGANIZER_UPCOMING_INSTANCES');
+        $this->displayBehaviour[self::CURRENT]  = Text::_('ORGANIZER_CURRENT_INSTANCES');
+        $this->displayBehaviour[self::MIXED]    = Text::_('ORGANIZER_MIXED_PLAN');
+        $this->displayBehaviour[self::CONTENT]  = Text::_('ORGANIZER_CONTENT_DISPLAY');
 
         parent::__construct($config);
     }
@@ -66,7 +66,7 @@ class Monitors extends ListView
             'name' => Helpers\HTML::sort('ROOM', 'r.name', $direction, $ordering),
             'ip' => Helpers\HTML::sort('IP', 'm.ip', $direction, $ordering),
             'useDefaults' => Helpers\HTML::sort('DEFAULT_SETTINGS', 'm.useDefaults', $direction, $ordering),
-            'display' => Helpers\Languages::_('ORGANIZER_DISPLAY_BEHAVIOUR'),
+            'display' => Text::_('ORGANIZER_DISPLAY_BEHAVIOUR'),
             'content' => Helpers\HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering)
         ];
 

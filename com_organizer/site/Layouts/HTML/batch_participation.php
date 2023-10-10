@@ -9,13 +9,13 @@
  * @link        www.thm.de
  */
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 
 ?>
 <div class="modal hide fade" id="modal-participation">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&#215;</button>
-        <h3><?php echo Helpers\Languages::_('ORGANIZER_UPDATE_PARTICIPATION'); ?>
+        <h3><?php echo Text::_('ORGANIZER_UPDATE_PARTICIPATION'); ?>
     </div>
     <div class="modal-body modal-batch form-horizontal">
         <?php foreach ($this->filterForm->getGroup('batch') as $batchField) : ?>
@@ -32,11 +32,11 @@ use THM\Organizer\Helpers;
     <div class="modal-footer">
         <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('bookings.batch');">
             <span aria-hidden="true" class="icon-loop"></span>
-            <?php echo Helpers\Languages::_('ORGANIZER_UPDATE'); ?>
+            <?php echo Text::_('ORGANIZER_UPDATE'); ?>
         </button>
         <button class="btn" type="button" data-dismiss="modal">
             <span aria-hidden="true" class="icon-cancel"></span>
-            <?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
+            <?php echo Text::_('ORGANIZER_CANCEL'); ?>
         </button>
     </div>
 </div>

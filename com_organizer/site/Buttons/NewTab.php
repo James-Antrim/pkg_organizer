@@ -12,8 +12,7 @@ namespace THM\Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Document, Text};
 
 /**
  * Renders a button whose contents open in a new tab.
@@ -37,7 +36,7 @@ class NewTab extends StandardButton
         $target      = 'formtarget="_blank" type="submit"';
         $iconClass   = 'class="' . $this->fetchIconClass($name) . '"';
         $task        = 'onclick="' . $this->_getCommand($text, $task, $list) . '"';
-        $text        = Helpers\Languages::_($text);
+        $text        = Text::_($text);
 
         Document::addScript(Uri::root() . 'components/com_organizer/js/newTab.js');
 

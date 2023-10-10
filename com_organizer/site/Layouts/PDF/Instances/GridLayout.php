@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF\Instances;
 
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\Exported;
 use THM\Organizer\Layouts\PDF\BaseLayout;
@@ -114,7 +114,7 @@ abstract class GridLayout extends BaseLayout
         $this->addLayoutPage($startDate, $endDate);
         $endDate   = Helpers\Dates::formatDate($endDate);
         $startDate = Helpers\Dates::formatDate($startDate);
-        $this->view->Cell('', '', sprintf(Helpers\Languages::_('ORGANIZER_NO_INSTANCES'), $startDate, $endDate));
+        $this->view->Cell('', '', Text::sprintf('ORGANIZER_NO_INSTANCES', $startDate, $endDate));
     }
 
     /**
@@ -852,7 +852,7 @@ abstract class GridLayout extends BaseLayout
         $view->renderMultiCell(
             self::TIME_WIDTH,
             0,
-            Helpers\Languages::_('ORGANIZER_TIME'),
+            Text::_('ORGANIZER_TIME'),
             $view::CENTER,
             $view::HORIZONTAL
         );
@@ -934,7 +934,7 @@ abstract class GridLayout extends BaseLayout
      */
     private function resolveLinks(string $text): string
     {
-        $course = Helpers\Languages::_('ORGANIZER_MOODLE_COURSE');
+        $course = Text::_('ORGANIZER_MOODLE_COURSE');
 
         $courseURL      = 'https://moodle.thm.de/course/view.php?id=CID';
         $courseTemplate = "<a href=\"MOODLEURL\" target=\"_blank\" style=\"text-decoration: underline\">$course: CID</a>";
@@ -948,7 +948,7 @@ abstract class GridLayout extends BaseLayout
         $text     = preg_replace('/moodle=(\d+)/', $template, $text);
 
         // Category URL
-        $category         = Helpers\Languages::_('ORGANIZER_MOODLE_COURSE');
+        $category         = Text::_('ORGANIZER_MOODLE_COURSE');
         $categoryURL      = 'https://moodle.thm.de/course/index.php?categoryid=CID';
         $categoryTemplate =
             "<a href=\"MOODLEURL\" target=\"_blank\" style=\"text-decoration: underline\">$category: CID</a>";

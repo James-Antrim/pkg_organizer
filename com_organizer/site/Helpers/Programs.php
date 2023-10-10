@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi, Text};
 use THM\Organizer\Models;
 use THM\Organizer\Tables;
 
@@ -139,7 +139,7 @@ class Programs extends Curricula implements Selectable
     public static function getName(int $resourceID): string
     {
         if (!$resourceID) {
-            return Languages::_('ORGANIZER_NO_PROGRAM');
+            return Text::_('ORGANIZER_NO_PROGRAM');
         }
 
         $query = Database::getQuery(true);
@@ -183,11 +183,11 @@ class Programs extends Curricula implements Selectable
     public static function getOrganization(int $programID, bool $short = false): string
     {
         if (!$organizationIDs = self::getOrganizationIDs($programID)) {
-            return Languages::_('ORGANIZER_NO_ORGANIZATION');
+            return Text::_('ORGANIZER_NO_ORGANIZATION');
         }
 
         if (count($organizationIDs) > 1) {
-            return Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
+            return Text::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
         }
 
         return $short ? Organizations::getShortName($organizationIDs[0]) : Organizations::getName($organizationIDs[0]);

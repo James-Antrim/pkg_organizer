@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Class loads the (subject) pool form into display context.
@@ -42,14 +41,14 @@ class PoolEdit extends EditView
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'apply', Helpers\Languages::_($apply), 'pools.apply', false);
-        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'pools.save', false);
+        $toolbar->appendButton('Standard', 'apply', Text::_($apply), 'pools.apply', false);
+        $toolbar->appendButton('Standard', 'save', Text::_($save), 'pools.save', false);
 
         if ($this->item->id) {
             $toolbar->appendButton(
                 'Standard',
                 'save-copy',
-                Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
+                Text::_('ORGANIZER_SAVE2COPY'),
                 'pools.save2copy',
                 false
             );
@@ -59,11 +58,11 @@ class PoolEdit extends EditView
         $baseURL .= "&type=pool&id={$this->item->id}&view=";
 
         $poolLink = $baseURL . 'pool_selection';
-        $toolbar->appendButton('Popup', 'list', Helpers\Languages::_('ORGANIZER_ADD_POOL'), $poolLink);
+        $toolbar->appendButton('Popup', 'list', Text::_('ORGANIZER_ADD_POOL'), $poolLink);
 
         $subjectLink = $baseURL . 'subject_selection';
-        $toolbar->appendButton('Popup', 'book', Helpers\Languages::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
+        $toolbar->appendButton('Popup', 'book', Text::_('ORGANIZER_ADD_SUBJECT'), $subjectLink);
 
-        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'pools.cancel', false);
+        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), 'pools.cancel', false);
     }
 }

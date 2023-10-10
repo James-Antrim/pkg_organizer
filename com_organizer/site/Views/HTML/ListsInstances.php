@@ -11,11 +11,11 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Helpers\Dates;
 use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Helpers\Instances as Helper;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Roles;
 use THM\Organizer\Helpers\Routing;
 use THM\Organizer\Helpers\Users;
@@ -78,45 +78,45 @@ trait ListsInstances
 
         if ($instance->instanceStatus !== 'removed' and $instance->unitStatus !== 'removed') {
             if ($instance->expired) {
-                $value = Languages::_('ORGANIZER_EXPIRED');
+                $value = Text::_('ORGANIZER_EXPIRED');
             } elseif ($instance->presence === Helper::ONLINE) {
-                $value = Languages::_('ORGANIZER_ONLINE');
+                $value = Text::_('ORGANIZER_ONLINE');
 
                 if ($userID) {
                     if ($instance->bookmarked) {
-                        $value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_BOOKMARKED'));
+                        $value .= ' ' . HTML::icon('bookmark', Text::_('ORGANIZER_BOOKMARKED'));
                     }
 
                     if ($instance->manageable) {
                         $value .= '<br>' . $instance->interested . ' ';
-                        $value .= HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBERS'));
+                        $value .= HTML::icon('bookmark', Text::_('ORGANIZER_SUBSCRIBERS'));
                     }
 
                 }
             } else {
                 $interested = $instance->interested - $instance->current;
-                $value      = $instance->presence === Helper::HYBRID ? Languages::_('ORGANIZER_HYBRID') : Languages::_('ORGANIZER_PRESENCE');
+                $value      = $instance->presence === Helper::HYBRID ? Text::_('ORGANIZER_HYBRID') : Text::_('ORGANIZER_PRESENCE');
 
                 if ($userID) {
                     if ($instance->bookmarked) {
-                        $value .= ' ' . HTML::icon('bookmark', Languages::_('ORGANIZER_BOOKMARKED'));
+                        $value .= ' ' . HTML::icon('bookmark', Text::_('ORGANIZER_BOOKMARKED'));
 
                         if ($instance->registered) {
-                            $value .= ' ' . HTML::icon('signup', Languages::_('ORGANIZER_REGISTERED'));
+                            $value .= ' ' . HTML::icon('signup', Text::_('ORGANIZER_REGISTERED'));
                         }
                     }
 
                     if ($instance->manageable) {
                         if ($interested) {
                             $value .= "<br>$interested ";
-                            $value .= HTML::icon('bookmark', Languages::_('ORGANIZER_SUBSCRIBERS'));
+                            $value .= HTML::icon('bookmark', Text::_('ORGANIZER_SUBSCRIBERS'));
                         }
                     }
                 }
 
                 /*if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
                 {
-                    $attribs = ['class' => 'hasTip', 'target' => '_blank', 'title' => Languages::_('ORGANIZER_FINALS_REGISTRATION')];
+                    $attribs = ['class' => 'hasTip', 'target' => '_blank', 'title' => Text::_('ORGANIZER_FINALS_REGISTRATION')];
                     $icon    = HTML::icon('out');
                     $value   = HTML::link('https://ecampus.thm.de', $icon, $attribs);
                 }
@@ -126,33 +126,33 @@ trait ListsInstances
 
                     if ($instance->premature)
                     {
-                        $value .= HTML::icon('unlock', Languages::_('ORGANIZER_REGISTRATION_PREMATURE'));
+                        $value .= HTML::icon('unlock', Text::_('ORGANIZER_REGISTRATION_PREMATURE'));
                         $value .= ' ' . $instance->registrationStart;
                     }
                     elseif ($instance->running)
                     {
-                        $value .= HTML::icon('stop', Languages::_('ORGANIZER_REGISTRATION_CLOSED'));
+                        $value .= HTML::icon('stop', Text::_('ORGANIZER_REGISTRATION_CLOSED'));
                     }
                     else
                     {
                         if ($instance->full)
                         {
-                            $value .= HTML::icon('pause', Languages::_('ORGANIZER_INSTANCE_FULL')) . ' ';
+                            $value .= HTML::icon('pause', Text::_('ORGANIZER_INSTANCE_FULL')) . ' ';
                         }
                         else
                         {
-                            $value .= HTML::icon('play', Languages::_('ORGANIZER_REGISTRATION_OPEN'));
+                            $value .= HTML::icon('play', Text::_('ORGANIZER_REGISTRATION_OPEN'));
                         }
 
                         // Forced output
                         $capacity = $instance->capacity ?: 'X';
                         $value    .= "$instance->current/$capacity ";
-                        $value    .= HTML::icon('users', Languages::_('ORGANIZER_PARTICIPANTS'));
+                        $value    .= HTML::icon('users', Text::_('ORGANIZER_PARTICIPANTS'));
                     }
                 }*/
             }
         } else {
-            $value = Languages::_('ORGANIZER_REMOVED');
+            $value = Text::_('ORGANIZER_REMOVED');
         }
 
         return $value;
@@ -177,19 +177,19 @@ trait ListsInstances
         if ($instance->unitStatus === 'removed') {
             $date  = Dates::formatDate($instance->unitStatusDate);
             $class .= ' unit-removed';
-            $title = sprintf(Languages::_('ORGANIZER_UNIT_REMOVED_ON'), $date);
+            $title = Text::sprintf('ORGANIZER_UNIT_REMOVED_ON', $date);
         } elseif ($instance->instanceStatus === 'removed') {
             $date  = Dates::formatDate($instance->instanceStatusDate);
             $class .= ' instance-removed';
-            $title = sprintf(Languages::_('ORGANIZER_INSTANCE_REMOVED_ON'), $date);
+            $title = Text::sprintf('ORGANIZER_INSTANCE_REMOVED_ON', $date);
         } elseif ($instance->unitStatus === 'new' and $instance->unitStatusDate >= $this->statusDate) {
             $date  = Dates::formatDate($instance->instanceStatusDate);
             $class .= ' unit-new';
-            $title = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $date);
+            $title = Text::sprintf('ORGANIZER_INSTANCE_ADDED_ON', $date);
         } elseif ($instance->instanceStatus === 'new' and $instance->instanceStatusDate >= $this->statusDate) {
             $date  = Dates::formatDate($instance->instanceStatusDate);
             $class .= ' instance-new';
-            $title = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $date);
+            $title = Text::sprintf('ORGANIZER_INSTANCE_ADDED_ON', $date);
         }
 
         if ($userID) {
@@ -197,7 +197,7 @@ trait ListsInstances
                 $buttons = [];
 
                 if ($instance->manageable) {
-                    $label   = Languages::_('ORGANIZER_MANAGE_BOOKING');
+                    $label   = Text::_('ORGANIZER_MANAGE_BOOKING');
                     $icon    = HTML::icon('users', $label, true);
                     $attribs = ['aria-label' => $label, 'class' => 'btn btn-checkbox'];
 
@@ -215,11 +215,11 @@ trait ListsInstances
                 // Future appointments can be added to the personal schedules of non-responsible individuals.
                 if (!$instance->taught and !$instance->expired and !$instance->running) {
                     if ($instance->bookmarked) {
-                        $label = Languages::_('ORGANIZER_REMOVE_BOOKMARK');
+                        $label = Text::_('ORGANIZER_REMOVE_BOOKMARK');
                         $icon  = HTML::icon('bookmark-2', $label, true);
                         $url   = Routing::getTaskURL('InstanceParticipants.removeBookmark', $instanceID);
                     } else {
-                        $label = Languages::_('ORGANIZER_BOOKMARK');
+                        $label = Text::_('ORGANIZER_BOOKMARK');
                         $icon  = HTML::icon('bookmark', $label, true);
                         $url   = Routing::getTaskURL('InstanceParticipants.bookmark', $instanceID);
                     }
@@ -234,7 +234,7 @@ trait ListsInstances
 
                         if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
                         {
-                            $label     = Languages::_('ORGANIZER_REGISTRATION_EXTERNAL_TIP');
+                            $label     = Text::_('ORGANIZER_REGISTRATION_EXTERNAL_TIP');
                             $icon      = HTML::icon('out', $label, true);
                             $url       = "https://ecampus.thm.de";
                             $buttons[] = HTML::link($url, $icon, $attribs);
@@ -243,13 +243,13 @@ trait ListsInstances
                         {
                             if ($instance->registered)
                             {
-                                $label = Languages::_('ORGANIZER_DEREGISTER');
+                                $label = Text::_('ORGANIZER_DEREGISTER');
                                 $icon  = HTML::icon('exit', $label, true);
                                 $url   = Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
                             }
                             else
                             {
-                                $label = Languages::_('ORGANIZER_REGISTER');
+                                $label = Text::_('ORGANIZER_REGISTER');
                                 $icon  = HTML::icon('signup', $label, true);
                                 $url   = Routing::getTaskURL('InstanceParticipants.register', $instanceID);
                             }
@@ -267,14 +267,14 @@ trait ListsInstances
 
         if ($instance->manageable and $instance->presence !== Helper::ONLINE) {
             if ($instance->expired) {
-                $value .= '<br>' . HTML::icon('folder-2 red', Languages::_('ORGANIZER_BOOKING_CLOSED'));
+                $value .= '<br>' . HTML::icon('folder-2 red', Text::_('ORGANIZER_BOOKING_CLOSED'));
             } elseif (!$instance->premature) {
                 $value .= '<br>';
 
                 if ($instance->running) {
-                    $value .= HTML::icon('folder-open green', Languages::_('ORGANIZER_BOOKING_ONGOING'));
+                    $value .= HTML::icon('folder-open green', Text::_('ORGANIZER_BOOKING_ONGOING'));
                 } else {
-                    $value .= HTML::icon('folder-open yellow', Languages::_('ORGANIZER_BOOKING_PENDING'));
+                    $value .= HTML::icon('folder-open yellow', Text::_('ORGANIZER_BOOKING_PENDING'));
                 }
             }
 
@@ -297,8 +297,8 @@ trait ListsInstances
         $comment = $this->resolveLinks($instance->comment);
 
         if ($instance->courseID) {
-            $title .= '<br>' . HTML::icon('link hasToolTip', Languages::_('ORGANIZER_REGISTRATION_LINKED')) . ' ';
-            $title .= Languages::_('ORGANIZER_INSTANCE_SERIES') . ": $instance->courseID";
+            $title .= '<br>' . HTML::icon('link hasToolTip', Text::_('ORGANIZER_REGISTRATION_LINKED')) . ' ';
+            $title .= Text::_('ORGANIZER_INSTANCE_SERIES') . ": $instance->courseID";
         }
 
         $title .= empty($comment) ? '' : "<br><span class=\"comment\">$comment</span>";
@@ -519,7 +519,7 @@ trait ListsInstances
         }
 
         if ($instance->presence === Helper::ONLINE) {
-            $instance->rooms = Languages::_('ORGANIZER_ONLINE');
+            $instance->rooms = Text::_('ORGANIZER_ONLINE');
 
             return;
         }
@@ -527,7 +527,7 @@ trait ListsInstances
         ksort($rooms);
 
         if ($instance->presence === Helper::HYBRID) {
-            array_unshift($rooms, Languages::_('ORGANIZER_ONLINE'));
+            array_unshift($rooms, Text::_('ORGANIZER_ONLINE'));
         }
 
         $instance->rooms = implode($glue, $rooms);

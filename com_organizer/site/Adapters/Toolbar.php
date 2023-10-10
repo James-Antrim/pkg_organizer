@@ -16,7 +16,6 @@ use Joomla\CMS\Filter\InputFilter;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Toolbar\Toolbar as ParentClass;
 use Joomla\CMS\Toolbar\ToolbarButton;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\OrganizerHelper;
 
 class Toolbar extends ParentClass
@@ -87,7 +86,7 @@ class Toolbar extends ParentClass
         }
 
         if (!class_exists('Joomla\\CMS\\Toolbar\\ToolbarButton')) {
-            Log::add(Languages::_('JLIB_HTML_BUTTON_BASE_CLASS'), Log::WARNING, 'jerror');
+            Log::add(Text::_('JLIB_HTML_BUTTON_BASE_CLASS'), Log::WARNING, 'jerror');
 
             return false;
         }

@@ -9,7 +9,6 @@
  */
 
 use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\Languages;
 
 $headers    = array_shift($this->grid);
 $columns    = array_keys($headers);
@@ -50,18 +49,18 @@ foreach ($sums as $key => $sum) {
             $tip = '';
 
             if ($attended !== $registered) {
-                $registrations = Languages::_('ORGANIZER_REGISTRATIONS');
+                $registrations = Text::_('ORGANIZER_REGISTRATIONS');
                 $tip           .= "$registered $registrations <br>";
             }
 
-            $tip .= "$attended " . Languages::_('ORGANIZER_PARTICIPANTS');
+            $tip .= "$attended " . Text::_('ORGANIZER_PARTICIPANTS');
 
             if ($noShows) {
-                $tip .= "<br>$noShows " . Languages::_('ORGANIZER_NO_SHOWS');
+                $tip .= "<br>$noShows " . Text::_('ORGANIZER_NO_SHOWS');
             }
 
             if ($unregistered) {
-                $tip .= "<br>$unregistered " . Languages::_('ORGANIZER_UNREGISTERED_PARTICIPANTS');
+                $tip .= "<br>$unregistered " . Text::_('ORGANIZER_UNREGISTERED_PARTICIPANTS');
             }
 
             $sum = str_replace('VALUE', $registered, $template);
@@ -93,18 +92,18 @@ foreach ($this->grid as $row) {
                 $tip = '';
 
                 if ($attended !== $registered) {
-                    $registrations = Languages::_('ORGANIZER_REGISTRATIONS');
+                    $registrations = Text::_('ORGANIZER_REGISTRATIONS');
                     $tip           .= "$registered $registrations <br>";
                 }
 
-                $tip .= "$attended " . Languages::_('ORGANIZER_PARTICIPANTS');
+                $tip .= "$attended " . Text::_('ORGANIZER_PARTICIPANTS');
 
                 if ($noShows) {
-                    $tip .= "<br>$noShows " . Languages::_('ORGANIZER_NO_SHOWS');
+                    $tip .= "<br>$noShows " . Text::_('ORGANIZER_NO_SHOWS');
                 }
 
                 if ($unregistered) {
-                    $tip .= "<br>$unregistered " . Languages::_('ORGANIZER_UNREGISTERED_PARTICIPANTS');
+                    $tip .= "<br>$unregistered " . Text::_('ORGANIZER_UNREGISTERED_PARTICIPANTS');
                 }
 
                 $sum = str_replace('VALUE', $registered, $template);

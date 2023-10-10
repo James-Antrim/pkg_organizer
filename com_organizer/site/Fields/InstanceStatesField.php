@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 
 /**
  * Class creates a select box for predefined colors.
@@ -31,21 +31,21 @@ class InstanceStatesField extends ColoredOptionsField
     {
         return [
             (object) [
-                'text' => Helpers\Languages::_('ORGANIZER_CURRENT_INSTANCES'),
+                'text' => Text::_('ORGANIZER_CURRENT_INSTANCES'),
                 'value' => 1
             ],
             (object) [
-                'text' => Helpers\Languages::_('ORGANIZER_CHANGED_INSTANCES'),
+                'text' => Text::_('ORGANIZER_CHANGED_INSTANCES'),
                 'value' => 4
             ],
             (object) [
                 'style' => "background-color:#a0cb5b;",
-                'text' => Helpers\Languages::_('ORGANIZER_NEW_INSTANCES'),
+                'text' => Text::_('ORGANIZER_NEW_INSTANCES'),
                 'value' => 2
             ],
             (object) [
                 'style' => "background-color:#cd8996;",
-                'text' => Helpers\Languages::_('ORGANIZER_REMOVED_INSTANCES'),
+                'text' => Text::_('ORGANIZER_REMOVED_INSTANCES'),
                 'value' => 3
             ]
         ];

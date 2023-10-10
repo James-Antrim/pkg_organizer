@@ -11,8 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\{Application, Input, Text};
 
 /**
  * Class provides a field by which to add a participant to a given event related resource.
@@ -65,15 +64,15 @@ class PageField extends FormField
                     $dow    = date('N', $stamp);
                     $bump   = $dow === '6' ? '+2 days' : '+1 day';
                     $target = strtotime($bump, $stamp);
-                    $title  = Languages::_('ORGANIZER_NEXT_DAY');
+                    $title  = Text::_('ORGANIZER_NEXT_DAY');
                     break;
                 case 'month':
                     $target = strtotime('+1 month', $stamp);
-                    $title  = Languages::_('ORGANIZER_NEXT_MONTH');
+                    $title  = Text::_('ORGANIZER_NEXT_MONTH');
                     break;
                 case 'week':
                     $target = strtotime('+7 days', $stamp);
-                    $title  = Languages::_('ORGANIZER_NEXT_WEEK');
+                    $title  = Text::_('ORGANIZER_NEXT_WEEK');
                     break;
             }
         } else {
@@ -84,15 +83,15 @@ class PageField extends FormField
                     $dow    = date('N', $stamp);
                     $bump   = $dow === '1' ? '-2 days' : '-1 day';
                     $target = strtotime($bump, $stamp);
-                    $title  = Languages::_('ORGANIZER_PREVIOUS_DAY');
+                    $title  = Text::_('ORGANIZER_PREVIOUS_DAY');
                     break;
                 case 'month':
                     $target = strtotime('-1 month', $stamp);
-                    $title  = Languages::_('ORGANIZER_PREVIOUS_MONTH');
+                    $title  = Text::_('ORGANIZER_PREVIOUS_MONTH');
                     break;
                 case 'week':
                     $target = strtotime('-7 days', $stamp);
-                    $title  = Languages::_('ORGANIZER_PREVIOUS_WEEK');
+                    $title  = Text::_('ORGANIZER_PREVIOUS_WEEK');
                     break;
             }
         }

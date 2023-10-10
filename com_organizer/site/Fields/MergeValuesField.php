@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -36,7 +37,7 @@ class MergeValuesField extends OptionsField
         }
 
         if (!$values = $this->getValues()) {
-            return [Helpers\HTML::_('select.option', '-1', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
+            return [Helpers\HTML::_('select.option', '-1', Text::_('ORGANIZER_NONE_GIVEN'))];
         }
 
         return $this->createOptions($values);

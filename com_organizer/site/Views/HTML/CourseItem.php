@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads the subject into the display context.
@@ -78,7 +77,7 @@ class CourseItem extends ItemView
                 $toolbar->appendButton(
                     'Link',
                     'vcard',
-                    Languages::_('ORGANIZER_PROFILE_EDIT'),
+                    Text::_('ORGANIZER_PROFILE_EDIT'),
                     'index.php?option=com_organizer&view=participant_edit'
                 );
 
@@ -89,10 +88,10 @@ class CourseItem extends ItemView
                     $validProfile = Helpers\CourseParticipants::validProfile($courseID, $participantID);
                     if (!$full and $state === self::UNREGISTERED and $validProfile) {
                         $rLink = $link . '&task=courses.register';
-                        $toolbar->appendButton('Link', 'enter', Languages::_('ORGANIZER_REGISTER'), $rLink);
+                        $toolbar->appendButton('Link', 'enter', Text::_('ORGANIZER_REGISTER'), $rLink);
                     } elseif ($state === self::ACCEPTED or $state === self::WAITLIST) {
                         $drLink = $link . '&task=courses.deregister';
-                        $toolbar->appendButton('Link', 'exit', Languages::_('ORGANIZER_DEREGISTER'), $drLink);
+                        $toolbar->appendButton('Link', 'exit', Text::_('ORGANIZER_DEREGISTER'), $drLink);
 
                         $hasPaid = Helpers\CourseParticipants::hasPaid($courseID, $participantID);
                         if ($state === self::ACCEPTED and $hasPaid) {
@@ -100,7 +99,7 @@ class CourseItem extends ItemView
                             $toolbar->appendButton(
                                 'Link',
                                 'tags-2',
-                                Languages::_('ORGANIZER_DOWNLOAD_BADGE'),
+                                Text::_('ORGANIZER_DOWNLOAD_BADGE'),
                                 $bLink,
                                 true
                             );
@@ -112,7 +111,7 @@ class CourseItem extends ItemView
                 $toolbar->appendButton(
                     'Link',
                     'user-plus',
-                    Languages::_('ORGANIZER_PROFILE_NEW'),
+                    Text::_('ORGANIZER_PROFILE_NEW'),
                     $link . '&view=participant_edit'
                 );
             }
@@ -129,7 +128,7 @@ class CourseItem extends ItemView
 
         if ($this->item['campusID']) {
             $campusName     = Helpers\Campuses::getName($this->item['campusID']);
-            $this->subtitle .= Languages::_('ORGANIZER_CAMPUS') . " $campusName: ";
+            $this->subtitle .= Text::_('ORGANIZER_CAMPUS') . " $campusName: ";
         }
 
         $this->subtitle .= Helpers\Courses::getDateDisplay($this->item['id']) . '</h6>';

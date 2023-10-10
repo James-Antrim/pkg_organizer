@@ -9,10 +9,9 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Instances as Helper;
-use THM\Organizer\Helpers\Languages;
 
 $columnCount = count($this->headers);
 $instance    = $this->instance;
@@ -27,13 +26,13 @@ require_once 'titles.php';
 <div id="j-main-container" class="span10">
     <?php if (!$instance->expired): ?>
         <div class="attribute-item">
-            <div class="attribute-label"><?php echo Languages::_('ORGANIZER_ORGANIZATIONAL'); ?></div>
+            <div class="attribute-label"><?php echo Text::_('ORGANIZER_ORGANIZATIONAL'); ?></div>
             <div class="attribute-content"><?php echo $this->renderOrganizational(); ?></div>
         </div>
     <?php endif; ?>
     <?php if ($instance->description): ?>
         <div class="attribute-item">
-            <div class="attribute-label"><?php echo Languages::_('ORGANIZER_DESC'); ?></div>
+            <div class="attribute-label"><?php echo Text::_('ORGANIZER_DESC'); ?></div>
             <div class="attribute-content"><?php echo $instance->description; ?></div>
         </div>
     <?php endif; ?>
@@ -41,13 +40,13 @@ require_once 'titles.php';
         <?php $this->renderPersons() ?>
     <?php endif; ?>
     <?php if (!$instance->hideGroups): ?>
-        <?php $this->renderResources(Languages::_('ORGANIZER_GROUPS'), $instance->groups) ?>
+        <?php $this->renderResources(Text::_('ORGANIZER_GROUPS'), $instance->groups) ?>
     <?php endif; ?>
     <?php if (!$instance->hideRooms and $instance->presence !== Helper::ONLINE): ?>
-        <?php $this->renderResources(Languages::_('ORGANIZER_ROOMS'), $instance->rooms) ?>
+        <?php $this->renderResources(Text::_('ORGANIZER_ROOMS'), $instance->rooms) ?>
     <?php endif; ?>
     <?php if ($this->items): ?>
-        <h2 class="section-head"><?php echo Languages::_('ORGANIZER_UPCOMING_INSTANCES'); ?></h2>
+        <h2 class="section-head"><?php echo Text::_('ORGANIZER_UPCOMING_INSTANCES'); ?></h2>
         <?php echo Toolbar::getInstance()->render(); ?>
         <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
             <?php if (count($items)) : ?>

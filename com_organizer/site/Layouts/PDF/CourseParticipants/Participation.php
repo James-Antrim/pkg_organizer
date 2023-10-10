@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF\CourseParticipants;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\ListLayout;
 use THM\Organizer\Views\PDF\CourseParticipants;
@@ -29,12 +30,12 @@ class Participation extends ListLayout
         parent::__construct($view);
         $view->margins(10, 30, -1, 0, 8);
 
-        $groupingHeader = Helpers\Languages::_('ORGANIZER_ORGANIZATION') . ' / ';
-        $groupingHeader .= Helpers\Languages::_('ORGANIZER_PROGRAM');
+        $groupingHeader = Text::_('ORGANIZER_ORGANIZATION') . ' / ';
+        $groupingHeader .= Text::_('ORGANIZER_PROGRAM');
 
         $this->headers = [
             'grouping' => $groupingHeader,
-            'participants' => Helpers\Languages::_('ORGANIZER_PARTICIPANTS')
+            'participants' => Text::_('ORGANIZER_PARTICIPANTS')
         ];
     }
 
@@ -111,7 +112,7 @@ class Participation extends ListLayout
     {
         /* @var CourseParticipants $view */
         $view         = $this->view;
-        $documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_ATTENDANCE');
+        $documentName = "$view->course - $view->campus - $view->startDate - " . Text::_('ORGANIZER_ATTENDANCE');
         $view->setNames($documentName);
     }
 }

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 
 /**
  * Class creates text input.
@@ -40,7 +40,7 @@ class BlankField extends FormField
     {
         if ($this->hint and $hint = trim($this->hint)) {
             $hint = preg_match('/^[A-Z_]+$/', $hint) ?
-                Helpers\Languages::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT);
+                Text::_("ORGANIZER_$hint") : htmlspecialchars($hint, ENT_COMPAT);
         } else {
             $hint = '';
         }

@@ -18,7 +18,6 @@ use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Dates;
 use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Helpers\Instances as Helper;
-use THM\Organizer\Helpers\Languages;
 use stdClass;
 
 /**
@@ -76,13 +75,13 @@ class Instances extends ListView
             $supplement = '<div class="tbox-yellow">';
 
             if (!$this->model->noDate and $dates = Helper::getJumpDates($this->model->conditions)) {
-                $supplement .= Languages::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
+                $supplement .= Text::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
                 $supplement .= '<ul><li>';
 
                 foreach ($dates as $key => $date) {
                     $constant      = $key === 'futureDate' ? 'ORGANIZER_NEXT_INSTANCE' : 'ORGANIZER_PREVIOUS_INSTANCE';
                     $formattedDate = Dates::formatDate($date);
-                    $text          = Languages::_($constant);
+                    $text          = Text::_($constant);
 
                     $template    = "TEXT: <a onclick=\"jump('DATE')\">formatted date</a>";
                     $output      = str_replace('formatted date', $formattedDate, $template);
@@ -93,12 +92,12 @@ class Instances extends ListView
                 $supplement .= implode('</li><li>', $dates) . '</li></ul>';
             } elseif (Input::getInt('my')) {
                 if (Helpers\Users::getID()) {
-                    $supplement .= Languages::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
+                    $supplement .= Text::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
                 } else {
-                    $supplement .= Languages::_('ORGANIZER_401');
+                    $supplement .= Text::_('ORGANIZER_401');
                 }
             } else {
-                $supplement .= Languages::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
+                $supplement .= Text::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
             }
 
             $supplement .= '</div>';
@@ -121,27 +120,27 @@ class Instances extends ListView
         $expURL   = Helpers\Routing::getViewURL('export');
 
         if ($this->mobile) {
-            $toolbar->appendButton('Script', 'info-calender', Languages::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');
-            $toolbar->appendButton('Link', 'equalizer', Languages::_('ORGANIZER_ADVANCED_EXPORT'), $expURL);
+            $toolbar->appendButton('Script', 'info-calender', Text::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');
+            $toolbar->appendButton('Link', 'equalizer', Text::_('ORGANIZER_ADVANCED_EXPORT'), $expURL);
         } else {
             if (Helpers\Users::getID() and $this->model->layout === Helper::LIST) {
                 if (!$this->expired and !$this->teachesALL) {
                     $add    = $standard->fetchButton(
                         'Standard',
                         'bookmark',
-                        Languages::_('ORGANIZER_BOOKMARK'),
+                        Text::_('ORGANIZER_BOOKMARK'),
                         'InstanceParticipants.bookmark'
                     );
                     $remove = $standard->fetchButton(
                         'Standard',
                         'bookmark-2',
-                        Languages::_('ORGANIZER_REMOVE_BOOKMARK'),
+                        Text::_('ORGANIZER_REMOVE_BOOKMARK'),
                         'InstanceParticipants.removeBookmark'
                     );
                     $toolbar->appendButton(
                         'Buttons',
                         'buttons',
-                        Languages::_('ORGANIZER_INSTANCES'),
+                        Text::_('ORGANIZER_INSTANCES'),
                         [$add, $remove],
                         'bookmark'
                     );
@@ -152,21 +151,21 @@ class Instances extends ListView
                     $register   = $standard->fetchButton(
                         'Standard',
                         'signup',
-                        Languages::_('ORGANIZER_REGISTER'),
+                        Text::_('ORGANIZER_REGISTER'),
                         'InstanceParticipants.register',
                         true
                     );
                     $deregister = $standard->fetchButton(
                         'Standard',
                         'exit',
-                        Languages::_('ORGANIZER_DEREGISTER'),
+                        Text::_('ORGANIZER_DEREGISTER'),
                         'InstanceParticipants.deregister',
                         true
                     );
                     $toolbar->appendButton(
                         'Buttons',
                         'buttons',
-                        Languages::_('ORGANIZER_PRESENCE_PARTICIPATION'),
+                        Text::_('ORGANIZER_PRESENCE_PARTICIPATION'),
                         [$register, $deregister],
                         'signup'
                     );
@@ -176,7 +175,7 @@ class Instances extends ListView
                     $toolbar->appendButton(
                         'Highlander',
                         'users',
-                        Languages::_('ORGANIZER_MANAGE_BOOKING'),
+                        Text::_('ORGANIZER_MANAGE_BOOKING'),
                         'bookings.manage',
                         true
                     );
@@ -185,28 +184,28 @@ class Instances extends ListView
 
             switch ((string) $this->state->get('list.interval')) {
                 case 'half':
-                    $interval = Languages::_('ORGANIZER_HALF_YEAR');
+                    $interval = Text::_('ORGANIZER_HALF_YEAR');
                     break;
                 case 'month':
-                    $interval = Languages::_('ORGANIZER_SELECTED_MONTH');
+                    $interval = Text::_('ORGANIZER_SELECTED_MONTH');
                     break;
                 case 'quarter':
-                    $interval = Languages::_('ORGANIZER_QUARTER');
+                    $interval = Text::_('ORGANIZER_QUARTER');
                     break;
                 case 'term':
-                    $interval = Languages::_('ORGANIZER_SELECTED_TERM');
+                    $interval = Text::_('ORGANIZER_SELECTED_TERM');
                     break;
                 case 'week':
-                    $interval = Languages::_('ORGANIZER_SELECTED_WEEK');
+                    $interval = Text::_('ORGANIZER_SELECTED_WEEK');
                     break;
                 case 'day':
                 case '0':
                 default:
-                    $interval = Languages::_('ORGANIZER_SELECTED_DAY');
+                    $interval = Text::_('ORGANIZER_SELECTED_DAY');
                     break;
             }
 
-            $icsText     = Languages::_('ORGANIZER_ICS_URL');
+            $icsText     = Text::_('ORGANIZER_ICS_URL');
             $icsButton   = $script->fetchButton('Script', 'info-calender', $icsText, 'onclick', 'makeLink()');
             $pdfA3Text   = Text::sprintf('ORGANIZER_PDF_A3', $interval);
             $pdfA3Button = $newTab->fetchButton('NewTab', 'file-pdf', $pdfA3Text, 'Instances.gridA3', false);
@@ -224,11 +223,11 @@ class Instances extends ListView
 
             ksort($exportButtons);
 
-            $expText                 = Languages::_('ORGANIZER_ADVANCED_EXPORT');
+            $expText                 = Text::_('ORGANIZER_ADVANCED_EXPORT');
             $expButton               = $link->fetchButton('Link', 'equalizer', $expText, $expURL);
             $exportButtons[$expText] = $expButton;
 
-            $toolbar->appendButton('Buttons', 'buttons', Languages::_('ORGANIZER_EXPORT'), $exportButtons, 'download');
+            $toolbar->appendButton('Buttons', 'buttons', Text::_('ORGANIZER_EXPORT'), $exportButtons, 'download');
         }
     }
 
@@ -332,7 +331,7 @@ class Instances extends ListView
 
             if ($day >= $startDoW and $day <= $endDoW) {
                 $day               = date('l', $currentDT);
-                $headers[$current] = Languages::_($day) . '<br>' . Dates::formatDate($current);
+                $headers[$current] = Text::_($day) . '<br>' . Dates::formatDate($current);
 
                 foreach ($blocks as $block) {
                     $key = $block['key'];
@@ -403,25 +402,25 @@ class Instances extends ListView
                 $cClass  .= ' removed';
                 $iClass  .= ' unit-removed';
                 $date    = Dates::formatDate($item->unitStatusDate);
-                $message = sprintf(Languages::_('ORGANIZER_UNIT_REMOVED_ON'), $date);
+                $message = Text::sprintf('ORGANIZER_UNIT_REMOVED_ON', $date);
                 $notice  = HTML::icon($iClass, $message);
             } elseif ($item->instanceStatus === 'removed') {
                 $cClass  .= ' removed';
                 $iClass  .= ' instance-removed';
                 $date    = Dates::formatDate($item->instanceStatusDate);
-                $message = sprintf(Languages::_('ORGANIZER_INSTANCE_REMOVED_ON'), $date);
+                $message = Text::sprintf('ORGANIZER_INSTANCE_REMOVED_ON', $date);
                 $notice  = HTML::icon($iClass, $message);
             } elseif ($item->unitStatus === 'new' and $item->unitStatusDate >= $this->statusDate) {
                 $cClass  .= ' new';
                 $iClass  .= ' unit-new';
                 $date    = Dates::formatDate($item->instanceStatusDate);
-                $message = sprintf(Languages::_('ORGANIZER_UNIT_ADDED_ON'), $date);
+                $message = Text::sprintf('ORGANIZER_UNIT_ADDED_ON', $date);
                 $notice  = HTML::icon($iClass, $message);
             } elseif ($item->instanceStatus === 'new' and $item->instanceStatusDate >= $this->statusDate) {
                 $cClass  .= ' new';
                 $iClass  .= ' instance-new';
                 $date    = Dates::formatDate($item->instanceStatusDate);
-                $message = sprintf(Languages::_('ORGANIZER_INSTANCE_ADDED_ON'), $date);
+                $message = Text::sprintf('ORGANIZER_INSTANCE_ADDED_ON', $date);
                 $notice  = HTML::icon($iClass, $message);
             }
 
@@ -463,8 +462,8 @@ class Instances extends ListView
 
             if ($item->courseID) {
                 $chain = '<br>' . HTML::icon('link hasToolTip',
-                        Languages::_('ORGANIZER_REGISTRATION_LINKED')) . ' ';
-                $chain .= Languages::_('ORGANIZER_INSTANCE_SERIES') . ": $item->courseID";
+                        Text::_('ORGANIZER_REGISTRATION_LINKED')) . ' ';
+                $chain .= Text::_('ORGANIZER_INSTANCE_SERIES') . ": $item->courseID";
             }
 
             $tools = [];
@@ -474,7 +473,7 @@ class Instances extends ListView
 
                 if ($item->manageable) {
                     if ($item->presence !== Helper::ONLINE and !$item->premature) {
-                        $label   = Languages::_('ORGANIZER_MANAGE_BOOKING');
+                        $label   = Text::_('ORGANIZER_MANAGE_BOOKING');
                         $attribs = ['aria-label' => $label];
                         $icon    = HTML::icon('users', $label, true);
                         $url     = '';
@@ -495,12 +494,12 @@ class Instances extends ListView
                 if (!$item->taught and !$item->expired) {
                     if (!$item->running) {
                         if ($item->bookmarked) {
-                            $label = Languages::_('ORGANIZER_REMOVE_BOOKMARK');
+                            $label = Text::_('ORGANIZER_REMOVE_BOOKMARK');
                             $icon  = HTML::icon('bookmark', $label, true);
                             $url   = Helpers\Routing::getTaskURL('InstanceParticipants.removeBookmarkBlock',
                                 $instanceID);
                         } else {
-                            $label = Languages::_('ORGANIZER_BOOKMARK');
+                            $label = Text::_('ORGANIZER_BOOKMARK');
                             $icon  = HTML::icon('bookmark-2', $label, true);
                             $url   = Helpers\Routing::getTaskURL('InstanceParticipants.bookmarkBlock', $instanceID);
                         }
@@ -512,36 +511,35 @@ class Instances extends ListView
                     {
                         if ($item->running)
                         {
-                            $tools[] = HTML::icon('stop', Languages::_('ORGANIZER_REGISTRATION_CLOSED'));
+                            $tools[] = HTML::icon('stop', Text::_('ORGANIZER_REGISTRATION_CLOSED'));
                         }
                         elseif (Helper::getMethodCode($item->instanceID) === Helpers\Methods::FINALCODE)
                         {
-                            $tip     = Languages::_('ORGANIZER_REGISTRATION_EXTERNAL_TIP');
+                            $tip     = Text::_('ORGANIZER_REGISTRATION_EXTERNAL_TIP');
                             $icon    = HTML::icon('out', $tip);
                             $url     = "https://ecampus.thm.de";
                             $tools[] = HTML::link($url, $icon, ['aria-label' => $tip]);
                         }
                         elseif ($item->premature)
                         {
-                            $text    = Languages::_('ORGANIZER_REGISTRATION_BEGINS_ON');
-                            $tip     = sprintf($text, $item->registrationStart);
+                            $tip     = Text::sprintf('ORGANIZER_REGISTRATION_BEGINS_ON', $item->registrationStart);
                             $tools[] = HTML::icon('unlock', $tip);
                         }
                         elseif ($item->full)
                         {
-                            $tip     = Languages::_('ORGANIZER_INSTANCE_FULL');
+                            $tip     = Text::_('ORGANIZER_INSTANCE_FULL');
                             $tools[] = HTML::icon('pause', $tip);
                         }
                         elseif ($item->registered)
                         {
-                            $tip     = Languages::_('ORGANIZER_REGISTERED_DEREGISTER');
+                            $tip     = Text::_('ORGANIZER_REGISTERED_DEREGISTER');
                             $icon    = HTML::icon('signup', $tip);
                             $url     = Helpers\Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
                             $tools[] = HTML::link($url, $icon, ['aria-label' => $tip]);
                         }
                         else
                         {
-                            $tip     = Languages::_('ORGANIZER_REGISTER');
+                            $tip     = Text::_('ORGANIZER_REGISTER');
                             $icon    = HTML::icon('play', $tip);
                             $url     = Helpers\Routing::getTaskURL('InstanceParticipants.register', $instanceID);
                             $tools[] = HTML::link($url, $icon, ['aria-label' => $tip]);
@@ -551,12 +549,12 @@ class Instances extends ListView
             }
 
             if ($item->subjectID) {
-                $sIcon   = HTML::icon('book hasToolTip', Languages::_('ORGANIZER_READ_SUBJECT_DOCUMENTATION'));
+                $sIcon   = HTML::icon('book hasToolTip', Text::_('ORGANIZER_READ_SUBJECT_DOCUMENTATION'));
                 $sURL    = Helpers\Routing::getViewURL('SubjectItem', $item->subjectID);
                 $tools[] = HTML::link($sURL, $sIcon);
             }
 
-            $itemIcon = HTML::icon('info-circle hasToolTip', Languages::_('ORGANIZER_ITEM_VIEW'));
+            $itemIcon = HTML::icon('info-circle hasToolTip', Text::_('ORGANIZER_ITEM_VIEW'));
             $tools[]  = HTML::_('link', $item->link, $itemIcon);
 
             $comment = $this->resolveLinks($item->comment, $tools);
@@ -664,11 +662,11 @@ class Instances extends ListView
     {
         $this->headers = [
             'tools' => '',
-            'title' => ['attributes' => ['class' => 'title-column'], 'value' => Languages::_('ORGANIZER_INSTANCE')],
-            'status' => Languages::_('ORGANIZER_STATUS'),
-            'persons' => Languages::_('ORGANIZER_PERSONS'),
-            'groups' => Languages::_('ORGANIZER_GROUPS'),
-            'rooms' => Languages::_('ORGANIZER_ROOMS')
+            'title' => ['attributes' => ['class' => 'title-column'], 'value' => Text::_('ORGANIZER_INSTANCE')],
+            'status' => Text::_('ORGANIZER_STATUS'),
+            'persons' => Text::_('ORGANIZER_PERSONS'),
+            'groups' => Text::_('ORGANIZER_GROUPS'),
+            'rooms' => Text::_('ORGANIZER_ROOMS')
         ];
 
         if (Helpers\Users::getID() and !$this->mobile) {
@@ -701,7 +699,7 @@ class Instances extends ListView
         $rawGrid = $this->model->grid;
         $blocks  = $this->getBlocks($rawGrid['periods'], $allDay);
 
-        $headers = $allDay ? [] : ['times' => Languages::_('ORGANIZER_TIMES')];
+        $headers = $allDay ? [] : ['times' => Text::_('ORGANIZER_TIMES')];
         $grid    = $this->getGrid($blocks, $headers, $allDay);
 
         $this->fillGrid($grid);

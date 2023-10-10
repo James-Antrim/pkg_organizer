@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Toolbar};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -35,46 +35,27 @@ class Schedules extends ListView
         $admin   = Helpers\Can::administrate();
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->appendButton(
-            'Standard',
-            'upload',
-            Helpers\Languages::_('ORGANIZER_UPLOAD'),
-            'schedules.edit',
-            false
-        );
+        $toolbar->appendButton('Standard', 'upload', Text::_('ORGANIZER_UPLOAD'), 'schedules.edit', false);
 
         if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID')) {
-            /*$toolbar->appendButton(
-                'Standard',
-                'envelope',
-                Helpers\Languages::_('ORGANIZER_NOTIFY_CHANGES'),
-                'schedules.notify',
-                true
-            );*/
+            /*$toolbar->appendButton( 'Standard', 'envelope', Text::_('ORGANIZER_NOTIFY_CHANGES'), 'schedules.notify', true);*/
 
             $toolbar->appendButton(
                 'Confirm',
-                Helpers\Languages::_('ORGANIZER_REFERENCE_CONFIRM'),
+                Text::_('ORGANIZER_REFERENCE_CONFIRM'),
                 'share-alt',
-                Helpers\Languages::_('ORGANIZER_REFERENCE'),
+                Text::_('ORGANIZER_REFERENCE'),
                 'schedules.reference',
                 true
             );
 
             if ($admin) {
-                $toolbar->appendButton(
-                    'Standard',
-                    'loop',
-                    Helpers\Languages::_('ORGANIZER_REBUILD'),
-                    'schedules.rebuild',
-                    false
-                );
-
+                $toolbar->appendButton('Standard', 'loop', Text::_('ORGANIZER_REBUILD'), 'schedules.rebuild', false);
                 $toolbar->appendButton(
                     'Confirm',
-                    Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+                    Text::_('ORGANIZER_DELETE_CONFIRM'),
                     'delete',
-                    Helpers\Languages::_('ORGANIZER_DELETE'),
+                    Text::_('ORGANIZER_DELETE'),
                     'schedules.delete',
                     true
                 );
@@ -109,10 +90,10 @@ class Schedules extends ListView
     {
         $headers = [
             'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'organizationName' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
-            'termName' => Helpers\Languages::_('ORGANIZER_TERM'),
-            'userName' => Helpers\Languages::_('ORGANIZER_USERNAME'),
-            'created' => Helpers\Languages::_('ORGANIZER_CREATION_DATE')
+            'organizationName' => Text::_('ORGANIZER_ORGANIZATION'),
+            'termName' => Text::_('ORGANIZER_TERM'),
+            'userName' => Text::_('ORGANIZER_USERNAME'),
+            'created' => Text::_('ORGANIZER_CREATION_DATE')
         ];
 
         $this->headers = $headers;

@@ -14,7 +14,6 @@ use Joomla\CMS\Language\Text as Base;
 
 /**
  * Class handles localization resolution.
- * Does not extend Joomla\CMS\Language\Text in order to simplify function calls.
  */
 class Text extends Base
 {
@@ -187,7 +186,7 @@ class Text extends Base
         $args    = func_get_args();
         $args[0] = $lang->_($string);
 
-        // Replace custom named placeholders with sprintf style placeholders
+        // Replace custom placeholders
         $args[0] = preg_replace('/\[\[%([0-9]+):[^\]]*\]\]/', '%\1$s', $args[0]);
 
         return call_user_func_array('sprintf', $args);

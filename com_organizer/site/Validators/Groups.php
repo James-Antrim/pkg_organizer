@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
@@ -62,45 +62,29 @@ class Groups implements UntisXMLValidator
         $code     = str_replace('CL_', '', trim((string) $node[0]['id']));
         $fullName = trim((string) $node->longname);
         if (empty($fullName)) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_FULLNAME_MISSING'), $code);
-
+            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_FULLNAME_MISSING', $code);
             return;
         }
 
         $name = trim((string) $node->classlevel);
         if (empty($name)) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_NAME_MISSING'), $fullName, $code);
-
+            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_NAME_MISSING', $fullName, $code);
             return;
         }
 
         if (!$categoryID = str_replace('DP_', '', trim((string) $node->class_department[0]['id']))) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_CATEGORY_MISSING'), $fullName, $code);
-
+            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_CATEGORY_MISSING', $fullName, $code);
             return;
         } elseif (!$category = $model->categories->$categoryID) {
-            $model->errors[] = sprintf(
-                Helpers\Languages::_('ORGANIZER_GROUP_CATEGORY_INCOMPLETE'),
-                $fullName,
-                $code,
-                $categoryID
-            );
-
+            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_CATEGORY_INCOMPLETE', $fullName, $code, $categoryID);
             return;
         }
 
         if (!$gridName = (string) $node->timegrid) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GROUP_GRID_MISSING'), $fullName, $code);
-
+            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_GRID_MISSING', $fullName, $code);
             return;
         } elseif (!$grid = $model->grids->$gridName) {
-            $model->errors[] = sprintf(
-                Helpers\Languages::_('ORGANIZER_GROUP_GRID_INCOMPLETE'),
-                $fullName,
-                $code,
-                $gridName
-            );
-
+            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_GRID_INCOMPLETE', $fullName, $code, $gridName);
             return;
         }
 

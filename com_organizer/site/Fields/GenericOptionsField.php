@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -44,7 +44,7 @@ class GenericOptionsField extends OptionsField
         $attr        .= $this->required ? ' required aria-required="true"' : '';
         $attr        .= $this->autofocus ? ' autofocus' : '';
         $placeHolder = $this->getAttribute('placeholder', '');
-        $attr        .= empty($placeHolder) ? '' : ' placeholder="' . Helpers\Languages::_($placeHolder) . '"';
+        $attr        .= empty($placeHolder) ? '' : ' placeholder="' . Text::_($placeHolder) . '"';
 
         $isReadOnly     = ($this->readonly == '1' or $this->readonly == 'true');
         $this->readonly = (string) $isReadOnly;

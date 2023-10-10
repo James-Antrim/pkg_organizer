@@ -12,8 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
-use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\{Application, Document, Input};
+use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Models\ListModel;
@@ -79,16 +78,16 @@ abstract class ListView extends BaseView
         $constant = strtoupper($resource);
         $this->setTitle("ORGANIZER_$constant");
 
-        $toolbar = Adapters\Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), "$resource.add", false);
-        $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "$resource.edit", true);
+        $toolbar = Toolbar::getInstance();
+        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), "$resource.add", false);
+        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), "$resource.edit", true);
 
         if ($delete) {
             $toolbar->appendButton(
                 'Confirm',
-                Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+                Text::_('ORGANIZER_DELETE_CONFIRM'),
                 'delete',
-                Helpers\Languages::_('ORGANIZER_DELETE'),
+                Text::_('ORGANIZER_DELETE'),
                 "$resource.delete",
                 true
             );
@@ -126,7 +125,7 @@ abstract class ListView extends BaseView
             $this->structureItems();
         }
 
-        $this->empty = $this->empty !== null ? $this->empty : Helpers\Languages::_('ORGANIZER_EMPTY_RESULT_SET');
+        $this->empty = $this->empty !== null ? $this->empty : Text::_('ORGANIZER_EMPTY_RESULT_SET');
 
         $this->addDisclaimer();
         $this->addToolBar();
@@ -227,7 +226,7 @@ abstract class ListView extends BaseView
         $iconClass = empty($currentValue) ? 'checkbox-unchecked' : 'checkbox-checked';
         $icon      = '<span class="icon-' . $iconClass . '"></span>';
 
-        $attributes = ['title' => Helpers\Languages::_($tip), 'class' => 'hasTooltip'];
+        $attributes = ['title' => Text::_($tip), 'class' => 'hasTooltip'];
 
         return HTML::_('link', $url, $icon, $attributes);
     }

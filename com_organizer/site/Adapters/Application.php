@@ -23,7 +23,6 @@ use Joomla\DI\Container;
 use Joomla\Registry\Registry;
 use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 
 /**

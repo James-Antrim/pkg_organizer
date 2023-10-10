@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 
 /**
  * Class creates a select box for predefined colors.
@@ -31,25 +31,25 @@ class UnitStatesField extends ColoredOptionsField
     {
         return [
             (object) [
-                'text' => Helpers\Languages::_('ORGANIZER_ALL_UNITS'),
+                'text' => Text::_('ORGANIZER_ALL_UNITS'),
                 'value' => ''
             ],
             (object) [
-                'text' => Helpers\Languages::_('ORGANIZER_CURRENT_UNITS'),
+                'text' => Text::_('ORGANIZER_CURRENT_UNITS'),
                 'value' => 1
             ],
             (object) [
-                'text' => Helpers\Languages::_('ORGANIZER_CHANGED_UNITS'),
+                'text' => Text::_('ORGANIZER_CHANGED_UNITS'),
                 'value' => 4
             ],
             (object) [
                 'style' => "background-color:#a0cb5b;",
-                'text' => Helpers\Languages::_('ORGANIZER_NEW_UNITS'),
+                'text' => Text::_('ORGANIZER_NEW_UNITS'),
                 'value' => 2
             ],
             (object) [
                 'style' => "background-color:#cd8996;",
-                'text' => Helpers\Languages::_('ORGANIZER_REMOVED_UNITS'),
+                'text' => Text::_('ORGANIZER_REMOVED_UNITS'),
                 'value' => 3
             ]
         ];

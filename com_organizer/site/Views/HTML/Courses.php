@@ -11,9 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class which loads data into the view output context
@@ -61,13 +60,13 @@ class Courses extends ListView
         $this->supplement = '';
 
         if ($this->preparatory) {
-            $this->supplement .= '<div>' . Languages::_('ORGANIZER_PREP_COURSE_SUPPLEMENT') . '</div>';
+            $this->supplement .= '<div>' . Text::_('ORGANIZER_PREP_COURSE_SUPPLEMENT') . '</div>';
         }
 
         if (!Helpers\Users::getID()) {
             $currentURL       = Uri::getInstance()->toString() . '#login-anchor';
             $this->supplement .= '<div class="tbox-yellow">';
-            $this->supplement .= sprintf(Languages::_('ORGANIZER_COURSE_LOGIN_WARNING'), $currentURL);
+            $this->supplement .= Text::sprintf('ORGANIZER_COURSE_LOGIN_WARNING', $currentURL);
             $this->supplement .= '</div>';
         }
     }
@@ -79,9 +78,9 @@ class Courses extends ListView
     {
         $resourceName = '';
         if (!$this->adminContext and $this->preparatory) {
-            $resourceName .= Languages::_('ORGANIZER_PREP_COURSES');
+            $resourceName .= Text::_('ORGANIZER_PREP_COURSES');
             if ($campusID = $this->state->get('filter.campusID', 0)) {
-                $resourceName .= ' ' . Languages::_('ORGANIZER_CAMPUS') . ' ' . Helpers\Campuses::getName($campusID);
+                $resourceName .= ' ' . Text::_('ORGANIZER_CAMPUS') . ' ' . Helpers\Campuses::getName($campusID);
             }
         }
 
@@ -94,7 +93,7 @@ class Courses extends ListView
                     $toolbar->appendButton(
                         'Standard',
                         'vcard',
-                        Languages::_('ORGANIZER_PROFILE_EDIT'),
+                        Text::_('ORGANIZER_PROFILE_EDIT'),
                         'participants.edit',
                         false
                     );
@@ -102,7 +101,7 @@ class Courses extends ListView
                     $toolbar->appendButton(
                         'Standard',
                         'user-plus',
-                        Languages::_('ORGANIZER_PROFILE_NEW'),
+                        Text::_('ORGANIZER_PROFILE_NEW'),
                         'participants.edit',
                         false
                     );
@@ -110,20 +109,20 @@ class Courses extends ListView
             }
 
             if ($this->manages) {
-                $toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'courses.edit', true);
+                $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'courses.edit', true);
                 $toolbar->appendButton(
                     'NewTab',
                     'users',
-                    Languages::_('ORGANIZER_PARTICIPANTS'),
+                    Text::_('ORGANIZER_PARTICIPANTS'),
                     'courses.participants',
                     true
                 );
 
                 $toolbar->appendButton(
                     'Confirm',
-                    Languages::_('ORGANIZER_DELETE_CONFIRM'),
+                    Text::_('ORGANIZER_DELETE_CONFIRM'),
                     'delete',
-                    Languages::_('ORGANIZER_DELETE'),
+                    Text::_('ORGANIZER_DELETE'),
                     'courses.delete',
                     true
                 );
@@ -153,7 +152,7 @@ class Courses extends ListView
         $params = Input::getParams();
 
         if ($params->get('onlyPrepCourses')) {
-            $this->empty = Languages::_('ORGANIZER_PREP_COURSE_PLANNING_INCOMPLETE');
+            $this->empty = Text::_('ORGANIZER_PREP_COURSE_PLANNING_INCOMPLETE');
         }
 
         parent::display($tpl);
@@ -169,11 +168,11 @@ class Courses extends ListView
 
         $headers = [
             'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-            'campus' => Languages::_('ORGANIZER_CAMPUS'),
+            'campus' => Text::_('ORGANIZER_CAMPUS'),
             'dates' => Helpers\HTML::sort('DATES', 'dates', $direction, $ordering),
             'courseStatus' => [
                 'attributes' => ['class' => 'center'],
-                'value' => Languages::_('ORGANIZER_COURSE_STATUS')
+                'value' => Text::_('ORGANIZER_COURSE_STATUS')
             ]
         ];
 
@@ -183,7 +182,7 @@ class Courses extends ListView
             $headers = $headers + [
                     'registrationStatus' => [
                         'attributes' => ['class' => 'center'],
-                        'value' => Languages::_('ORGANIZER_REGISTRATION_STATUS')
+                        'value' => Text::_('ORGANIZER_REGISTRATION_STATUS')
                     ]
                 ];
         }
@@ -233,51 +232,51 @@ class Courses extends ListView
 
                 $course->courseStatus = [
                     'attributes' => $attributes,
-                    'value' => Languages::_('ORGANIZER_EXPIRED')
+                    'value' => Text::_('ORGANIZER_EXPIRED')
                 ];
 
                 if (!$this->manages) {
                     $course->registrationStatus = [
                         'attributes' => $attributes,
-                        'value' => Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT')
+                        'value' => Text::_('ORGANIZER_DEADLINE_EXPIRED_SHORT')
                     ];
                 }
             } else {
                 $class                = 'status-display center hasTip';
                 $course->courseStatus = [];
-                $capacityText         = Languages::_('ORGANIZER_PARTICIPANTS');
+                $capacityText         = Text::_('ORGANIZER_PARTICIPANTS');
                 $capacityText         .= ": $course->participants / $course->maxParticipants<br>";
 
                 if ($ongoing) {
                     $courseAttributes = [
                         'class' => $class . ' red',
-                        'title' => Languages::_('ORGANIZER_COURSE_ONGOING')
+                        'title' => Text::_('ORGANIZER_COURSE_ONGOING')
                     ];
                 } elseif ($closed) {
                     $courseAttributes = [
                         'class' => $class . ' yellow',
-                        'title' => Languages::_('ORGANIZER_COURSE_CLOSED')
+                        'title' => Text::_('ORGANIZER_COURSE_CLOSED')
                     ];
                 } elseif ($full) {
-                    $courseAttributes = ['class' => $class . ' red', 'title' => Languages::_('ORGANIZER_COURSE_FULL')];
+                    $courseAttributes = ['class' => $class . ' red', 'title' => Text::_('ORGANIZER_COURSE_FULL')];
                 } elseif ($ninety) {
                     $courseAttributes = [
                         'class' => $class . ' yellow',
-                        'title' => Languages::_('ORGANIZER_COURSE_LIMITED')
+                        'title' => Text::_('ORGANIZER_COURSE_LIMITED')
                     ];
                 } else {
                     $courseAttributes = [
                         'class' => $class . ' green',
-                        'title' => Languages::_('ORGANIZER_COURSE_OPEN')
+                        'title' => Text::_('ORGANIZER_COURSE_OPEN')
                     ];
                 }
 
                 $course->courseStatus['attributes'] = $courseAttributes;
 
                 if ($ongoing or $closed) {
-                    $courseText = Languages::_('ORGANIZER_DEADLINE_EXPIRED_SHORT');
+                    $courseText = Text::_('ORGANIZER_DEADLINE_EXPIRED_SHORT');
                 } else {
-                    $courseText = sprintf(Languages::_('ORGANIZER_DEADLINE_TEXT_SHORT'), $deadline);
+                    $courseText = Text::sprintf('ORGANIZER_DEADLINE_TEXT_SHORT', $deadline);
                 }
 
                 $course->courseStatus['value'] = $capacityText . $courseText;
@@ -287,19 +286,19 @@ class Courses extends ListView
                         if ($course->registered) {
                             $course->registrationStatus = [
                                 'attributes' => ['class' => 'status-display center green'],
-                                'value' => Languages::_('ORGANIZER_REGISTERED')
+                                'value' => Text::_('ORGANIZER_REGISTERED')
                             ];
                         } else {
                             $color                      = ($ongoing or $closed) ? 'red' : 'yellow';
                             $course->registrationStatus = [
                                 'attributes' => ['class' => "status-display center $color"],
-                                'value' => Languages::_('ORGANIZER_NOT_REGISTERED')
+                                'value' => Text::_('ORGANIZER_NOT_REGISTERED')
                             ];
                         }
                     } else {
                         $course->registrationStatus = [
                             'attributes' => ['class' => 'status-display center grey'],
-                            'value' => Languages::_('ORGANIZER_NOT_LOGGED_IN')
+                            'value' => Text::_('ORGANIZER_NOT_LOGGED_IN')
                         ];
                     }
                 }

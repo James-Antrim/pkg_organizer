@@ -11,7 +11,7 @@
 namespace THM\Organizer\Layouts\XLS\Instances;
 
 use Exception;
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Layouts\XLS\ListLayout;
 use THM\Organizer\Views\XLS\Instances as View;
 use THM\Organizer\Views\XLS\XLConstants;
@@ -37,7 +37,7 @@ class Instances extends ListLayout
         $view->createSheet();
         $view->setActiveSheetIndex($pageNo);
         $sheet = $view->getActiveSheet();
-        $title = Languages::_('ORGANIZER_GLOSSARY') . ' - ' . Languages::_('ORGANIZER_GROUPS');
+        $title = Text::_('ORGANIZER_GLOSSARY') . ' - ' . Text::_('ORGANIZER_GROUPS');
         $sheet->setTitle($title);
 
         $sheet->getColumnDimension()->setWidth(20);
@@ -50,8 +50,8 @@ class Instances extends ListLayout
             'font' => ['size' => 12]
         ];
         $sheet->getStyle('A1:B1')->applyFromArray($style);
-        $sheet->setCellValue("A1", Languages::_('ORGANIZER_ABBREVIATION'));
-        $sheet->setCellValue("B1", Languages::_('ORGANIZER_GROUP'));
+        $sheet->setCellValue("A1", Text::_('ORGANIZER_ABBREVIATION'));
+        $sheet->setCellValue("B1", Text::_('ORGANIZER_GROUP'));
         $sheet->getRowDimension()->setRowHeight(22.5);
 
         ksort($view->groups);
@@ -78,7 +78,7 @@ class Instances extends ListLayout
     {
         $view = $this->view;
         $view->getDefaultStyle()->getFont()->setName('Arial')->setSize();
-        $this->addListSheet(Languages::_('ORGANIZER_INSTANCES'));
+        $this->addListSheet(Text::_('ORGANIZER_INSTANCES'));
 
         // So that the pages are later extensible
         $page = 1;

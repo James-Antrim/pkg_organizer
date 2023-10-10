@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Models\Booking as Model;
@@ -109,11 +109,11 @@ class Booking extends ListView
             $this->SetFont('zapfdingbats');
             $this->renderCell(3, 0, TCPDF_FONTS::unichr(51), self::LEFT, self::TOP);
             $this->SetFont($pageFont);
-            $this->renderCell(25, 0, Helpers\Languages::_('ORGANIZER_CHECKED_IN'), self::LEFT, self::TOP);
+            $this->renderCell(25, 0, Text::_('ORGANIZER_CHECKED_IN'), self::LEFT, self::TOP);
             $this->SetFont('zapfdingbats');
             $this->renderCell(3, 0, TCPDF_FONTS::unichr(46), self::LEFT, self::TOP);
             $this->SetFont($pageFont);
-            $this->renderCell(25, 0, Helpers\Languages::_('ORGANIZER_REGISTERED'), self::LEFT, self::TOP);
+            $this->renderCell(25, 0, Text::_('ORGANIZER_REGISTERED'), self::LEFT, self::TOP);
 
             $pnText = $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
             $this->Cell(0, 0, $this->getAliasRightShift() . $pnText, self::TOP, 0, self::RIGHT);
@@ -130,36 +130,36 @@ class Booking extends ListView
      */
     public function setOverhead()
     {
-        $title    = Helpers\Languages::_('ORGANIZER_EVENT_CODE') . ': ' . $this->booking->code;
+        $title    = Text::_('ORGANIZER_EVENT_CODE') . ': ' . $this->booking->code;
         $subTitle = Helpers\Bookings::getNames($this->bookingID);
 
         if (count($subTitle) > 2) {
-            $subTitle = [Helpers\Languages::_('ORGANIZER_MULTIPLE_EVENTS')];
+            $subTitle = [Text::_('ORGANIZER_MULTIPLE_EVENTS')];
         }
 
         $room = '';
 
         if ($roomID = $this->formState->get('filter.roomID')) {
-            $room = ', ' . Helpers\Languages::_('ORGANIZER_ROOM') . ' ' . Helpers\Rooms::getName($roomID);
+            $room = ', ' . Text::_('ORGANIZER_ROOM') . ' ' . Helpers\Rooms::getName($roomID);
         }
 
         $subTitle[] = $this->dateTime . $room;
 
         switch ($this->formState->get('filter.status')) {
             case Helper::ALL:
-                $subTitle[] = Helpers\Languages::_('ORGANIZER_CHECKED_IN_OR_REGISTERED_PARTICIPANTS');
+                $subTitle[] = Text::_('ORGANIZER_CHECKED_IN_OR_REGISTERED_PARTICIPANTS');
                 break;
             case Helper::ATTENDEES:
-                $subTitle[] = Helpers\Languages::_('ORGANIZER_CHECKED_IN_PARTICIPANTS');
+                $subTitle[] = Text::_('ORGANIZER_CHECKED_IN_PARTICIPANTS');
                 break;
             case Helper::IMPROPER:
-                $subTitle[] = Helpers\Languages::_('ORGANIZER_CHECKED_IN_NOT_REGISTERED_PARTICIPANTS');
+                $subTitle[] = Text::_('ORGANIZER_CHECKED_IN_NOT_REGISTERED_PARTICIPANTS');
                 break;
             case Helper::ONLY_REGISTERED:
-                $subTitle[] = Helpers\Languages::_('ORGANIZER_REGISTERED_NOT_CHECKED_IN_PARTICIPANTS');
+                $subTitle[] = Text::_('ORGANIZER_REGISTERED_NOT_CHECKED_IN_PARTICIPANTS');
                 break;
             case Helper::PROPER:
-                $subTitle[] = Helpers\Languages::_('ORGANIZER_CHECKED_IN_AND_REGISTERED_PARTICIPANTS');
+                $subTitle[] = Text::_('ORGANIZER_CHECKED_IN_AND_REGISTERED_PARTICIPANTS');
                 break;
         }
 

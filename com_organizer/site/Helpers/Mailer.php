@@ -12,7 +12,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Tables;
 
 class Mailer
@@ -108,8 +108,7 @@ class Mailer
         $courseName .= " ($dates)";
 
         if ($status === self::NONE) {
-            $body = sprintf(
-                Languages::_('ORGANIZER_DEREGISTER_BODY'),
+            $body = Text::sprintf('ORGANIZER_DEREGISTER_BODY',
                 $courseName,
                 $sender->name,
                 $sender->email,
@@ -118,9 +117,9 @@ class Mailer
             );
         } else {
             $statusText = $status ? 'ORGANIZER_REGISTERED' : 'ORGANIZER_WAITLIST';
-            $statusText = Languages::_($statusText);
-            $body       = sprintf(
-                Languages::_('ORGANIZER_STATUS_CHANGE_BODY'),
+            $statusText = Text::_($statusText);
+            $body       = Text::sprintf(
+                'ORGANIZER_STATUS_CHANGE_BODY',
                 $courseName,
                 $statusText,
                 $sender->name,

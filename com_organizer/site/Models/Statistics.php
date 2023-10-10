@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Views\HTML\Statistics as View;
 
@@ -490,8 +490,8 @@ class Statistics extends FormModel
 
         if ($statistic === View::METHOD_USE) {
             $grid['headers'] = [
-                'method' => Helpers\Languages::_('ORGANIZER_METHOD_SIMPLE'),
-                'sum' => Helpers\Languages::_('ORGANIZER_SUM')
+                'method' => Text::_('ORGANIZER_METHOD_SIMPLE'),
+                'sum' => Text::_('ORGANIZER_SUM')
             ];
             foreach ($columns as $columnID => $columnName) {
                 $grid['headers'][$columnID] = $columnName;
@@ -502,7 +502,7 @@ class Statistics extends FormModel
 
             foreach ($columnIDs as $columnID) {
                 if ($columnID === 'method') {
-                    $grid['sum'][$columnID] = Helpers\Languages::_('ORGANIZER_SUM');
+                    $grid['sum'][$columnID] = Text::_('ORGANIZER_SUM');
                     continue;
                 }
 
@@ -524,9 +524,9 @@ class Statistics extends FormModel
             }
         } else {
             $grid['headers'] = [
-                'week' => Helpers\Languages::_('ORGANIZER_WEEK'),
+                'week' => Text::_('ORGANIZER_WEEK'),
                 'sum' => $statistic === View::PRESENCE_USE ?
-                    Helpers\Languages::_('ORGANIZER_AVERAGE') : Helpers\Languages::_('ORGANIZER_SUM')
+                    Text::_('ORGANIZER_AVERAGE') : Text::_('ORGANIZER_SUM')
             ];
             foreach ($columns as $columnID => $columnName) {
                 $grid['headers'][$columnID] = $columnName;
@@ -561,7 +561,7 @@ class Statistics extends FormModel
             foreach ($columnIDs as $columnID) {
                 if ($columnID === 'week') {
                     $grid['sum'][$columnID] = $statistic === View::PRESENCE_USE ?
-                        Helpers\Languages::_('ORGANIZER_AVERAGE') : Helpers\Languages::_('ORGANIZER_SUM');
+                        Text::_('ORGANIZER_AVERAGE') : Text::_('ORGANIZER_SUM');
                     continue;
                 }
 

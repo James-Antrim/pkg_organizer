@@ -13,7 +13,6 @@ namespace THM\Organizer\Layouts\XLS\Workload;
 use Exception;
 use THM\Organizer\Adapters\{Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Layouts\XLS\BaseLayout;
 use THM\Organizer\Views\XLS\BaseView;
 use THM\Organizer\Views\XLS\XLConstants;
@@ -636,8 +635,8 @@ class Workload extends BaseLayout
         ];
 
         $sheet->getStyle('A1:B1')->applyFromArray($style);
-        $sheet->setCellValue("A1", Languages::_('ORGANIZER_CODE'));
-        $sheet->setCellValue("B1", Languages::_('ORGANIZER_METHOD'));
+        $sheet->setCellValue("A1", Text::_('ORGANIZER_CODE'));
+        $sheet->setCellValue("B1", Text::_('ORGANIZER_METHOD'));
 
         $row = 2;
 
@@ -678,10 +677,10 @@ class Workload extends BaseLayout
         ];
 
         $sheet->getStyle('A1:D1')->applyFromArray($style);
-        $sheet->setCellValue("A1", Languages::_('ORGANIZER_PROGRAMS'));
-        $sheet->setCellValue("B1", Languages::_('ORGANIZER_PROGRAM_RESTRICTIONS'));
-        $sheet->setCellValue("C1", Languages::_('ORGANIZER_PROGRAMS'));
-        $sheet->setCellValue("D1", Languages::_('ORGANIZER_ORGANIZATIONS'));
+        $sheet->setCellValue("A1", Text::_('ORGANIZER_PROGRAMS'));
+        $sheet->setCellValue("B1", Text::_('ORGANIZER_PROGRAM_RESTRICTIONS'));
+        $sheet->setCellValue("C1", Text::_('ORGANIZER_PROGRAMS'));
+        $sheet->setCellValue("D1", Text::_('ORGANIZER_ORGANIZATIONS'));
 
         $row = 2;
 
@@ -695,15 +694,15 @@ class Workload extends BaseLayout
             $restrictions = [];
 
             if ($program['fee']) {
-                $restrictions[] = Languages::_('ORGANIZER_PROGRAM_FEE');
+                $restrictions[] = Text::_('ORGANIZER_PROGRAM_FEE');
             }
 
             if ($program['nc']) {
-                $restrictions[] = Languages::_('ORGANIZER_NC');
+                $restrictions[] = Text::_('ORGANIZER_NC');
             }
 
             if ($program['special']) {
-                $restrictions[] = Languages::_('ORGANIZER_PROGRAM_SPECIAL');
+                $restrictions[] = Text::_('ORGANIZER_PROGRAM_SPECIAL');
             }
 
             $restrictions = $restrictions ? implode(', ', $restrictions) : '-----';
@@ -1382,7 +1381,7 @@ class Workload extends BaseLayout
         $person = Helpers\Persons::getLNFName($this->personID);
         $term   = Helpers\Terms::getName($this->termID);
 
-        return Languages::_('ORGANIZER_WORKLOAD') . ": $person - $term";
+        return Text::_('ORGANIZER_WORKLOAD') . ": $person - $term";
     }
 
 }

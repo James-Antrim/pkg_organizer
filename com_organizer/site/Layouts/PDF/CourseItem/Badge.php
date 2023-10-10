@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF\CourseItem;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Layouts\PDF\BadgeLayout;
 use THM\Organizer\Tables;
 use THM\Organizer\Views\PDF\CourseItem;
@@ -53,7 +53,7 @@ class Badge extends BadgeLayout
     {
         /* @var CourseItem $view */
         $view         = $this->view;
-        $documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_BADGE');
+        $documentName = "$view->course - $view->campus - $view->startDate - " . Text::_('ORGANIZER_BADGE');
         $view->setNames($documentName);
     }
 }

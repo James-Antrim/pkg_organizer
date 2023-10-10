@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Class loads persistent information about a subject into the display context.
@@ -29,20 +28,20 @@ class SubjectEdit extends EditView
     protected function addToolBar()
     {
         if (empty($this->item->id)) {
-            $apply       = Helpers\Languages::_('ORGANIZER_CREATE');
-            $applyImport = Helpers\Languages::_('ORGANIZER_CREATE_IMPORT');
-            $cancel      = Helpers\Languages::_('ORGANIZER_CLOSE');
-            $save        = Helpers\Languages::_('ORGANIZER_CREATE_CLOSE');
-            $saveImport  = Helpers\Languages::_('ORGANIZER_CREATE_IMPORT_CLOSE');
-            $title       = Helpers\Languages::_('ORGANIZER_SUBJECT_NEW');
+            $apply       = Text::_('ORGANIZER_CREATE');
+            $applyImport = Text::_('ORGANIZER_CREATE_IMPORT');
+            $cancel      = Text::_('ORGANIZER_CLOSE');
+            $save        = Text::_('ORGANIZER_CREATE_CLOSE');
+            $saveImport  = Text::_('ORGANIZER_CREATE_IMPORT_CLOSE');
+            $title       = Text::_('ORGANIZER_SUBJECT_NEW');
 
         } else {
-            $apply       = Helpers\Languages::_('ORGANIZER_APPLY');
-            $applyImport = Helpers\Languages::_('ORGANIZER_APPLY_UPDATE');
-            $cancel      = Helpers\Languages::_('ORGANIZER_CANCEL');
-            $save        = Helpers\Languages::_('ORGANIZER_SAVE');
-            $saveImport  = Helpers\Languages::_('ORGANIZER_SAVE_UPDATE');
-            $title       = Helpers\Languages::_('ORGANIZER_SUBJECT_EDIT');
+            $apply       = Text::_('ORGANIZER_APPLY');
+            $applyImport = Text::_('ORGANIZER_APPLY_UPDATE');
+            $cancel      = Text::_('ORGANIZER_CANCEL');
+            $save        = Text::_('ORGANIZER_SAVE');
+            $saveImport  = Text::_('ORGANIZER_SAVE_UPDATE');
+            $title       = Text::_('ORGANIZER_SUBJECT_EDIT');
         }
 
         $this->setTitle($title);

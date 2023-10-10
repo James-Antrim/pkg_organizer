@@ -11,8 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Document, Text, Toolbar};
 
 /**
  * Class loads pool information into the display context.
@@ -29,7 +28,7 @@ class PoolSelection extends PoolsView
     protected function addToolBar(bool $delete = true)
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'x', true);
+        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'x', true);
     }
 
     /**

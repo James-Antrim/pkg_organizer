@@ -53,8 +53,8 @@ class SubOrdinatesField extends FormField
 
         $input = '<table class="subOrdinates table-striped">';
         $input .= '<thead><tr>';
-        $input .= '<th>' . Helpers\Languages::_('ORGANIZER_NAME') . '</th>';
-        $input .= '<th>' . Helpers\Languages::_('ORGANIZER_ORDER') . '</th>';
+        $input .= '<th>' . Text::_('ORGANIZER_NAME') . '</th>';
+        $input .= '<th>' . Text::_('ORGANIZER_ORDER') . '</th>';
         $input .= '</tr></thead>';
         $input .= '<tbody>';
 

@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\{Input, Text};
 use THM\Organizer\Helpers\OrganizerHelper;
 
 if (Input::getCMD('tmpl') === 'component') {
@@ -34,7 +33,7 @@ foreach ($iterator as $node) {
 
         $topic           = str_replace('.php', '', $file);
         $constant        = 'ORGANIZER_TOPIC_' . strtoupper($topic);
-        $text            = Languages::_($constant);
+        $text            = Text::_($constant);
         $thisLink        = $dynamic ? $link . "&topic=$topic" : $link . "?topic=$topic";
         $contents[$text] = $thisLink;
     }

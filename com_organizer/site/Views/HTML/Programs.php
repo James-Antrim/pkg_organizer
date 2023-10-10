@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Toolbar};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -30,51 +30,24 @@ class Programs extends ListView
         if ($this->documentAccess) {
             $toolbar = Toolbar::getInstance();
 
-            $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'programs.add', false);
-            $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'programs.edit', true);
-
-            $toolbar->appendButton(
-                'Standard',
-                'upload',
-                Helpers\Languages::_('ORGANIZER_IMPORT_LSF'),
-                'programs.import',
-                true
-            );
-
-            $toolbar->appendButton(
-                'Standard',
-                'loop',
-                Helpers\Languages::_('ORGANIZER_UPDATE_SUBJECTS'),
-                'programs.update',
-                true
-            );
+            $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'programs.add', false);
+            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'programs.edit', true);
+            $toolbar->appendButton('Standard', 'upload', Text::_('ORGANIZER_IMPORT_LSF'), 'programs.import', true);
+            $toolbar->appendButton('Standard', 'loop', Text::_('ORGANIZER_UPDATE_SUBJECTS'), 'programs.update', true);
 
             if (Helpers\Can::administrate()) {
                 $toolbar->appendButton(
                     'Confirm',
-                    Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+                    Text::_('ORGANIZER_DELETE_CONFIRM'),
                     'delete',
-                    Helpers\Languages::_('ORGANIZER_DELETE'),
+                    Text::_('ORGANIZER_DELETE'),
                     'programs.delete',
                     true
                 );
             }
 
-            $toolbar->appendButton(
-                'Standard',
-                'eye-open',
-                Helpers\Languages::_('ORGANIZER_ACTIVATE'),
-                'programs.activate',
-                true
-            );
-
-            $toolbar->appendButton(
-                'Standard',
-                'eye-close',
-                Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
-                'programs.deactivate',
-                true
-            );
+            $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_ACTIVATE'), 'programs.activate', true);
+            $toolbar->appendButton('Standard', 'eye-close', Text::_('ORGANIZER_DEACTIVATE'), 'programs.deactivate', true);
         }
     }
 
@@ -108,7 +81,7 @@ class Programs extends ListView
         if (!$this->adminContext) {
             $headers['links'] = '';
         } else {
-            $headers['active'] = Helpers\Languages::_('ORGANIZER_ACTIVE');
+            $headers['active'] = Text::_('ORGANIZER_ACTIVE');
         }
 
         $this->headers = $headers;
@@ -127,12 +100,12 @@ class Programs extends ListView
             $template = "<a class=\"hasTooltip\" href=\"URL\" target=\"_blank\" title=\"TIP\">ICON</a>";
 
             $icon  = "<span class=\"icon-grid-2\"></span>";
-            $tip   = Helpers\Languages::_('ORGANIZER_CURRICULUM');
+            $tip   = Text::_('ORGANIZER_CURRICULUM');
             $url   = 'index.php?option=com_organizer&view=curriculum&programID=XXXX';
             $links .= str_replace('URL', $url, str_replace('TIP', $tip, str_replace('ICON', $icon, $template)));
 
             $icon  = "<span class=\"icon-list\"></span>";
-            $tip   = Helpers\Languages::_('ORGANIZER_SUBJECTS');
+            $tip   = Text::_('ORGANIZER_SUBJECTS');
             $url   = 'index.php?option=com_organizer&view=subjects&programID=XXXX';
             $links .= str_replace('URL', $url, str_replace('TIP', $tip, str_replace('ICON', $icon, $template)));
         }

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -27,13 +27,13 @@ class Organizations extends ListView
     {
         $this->setTitle('ORGANIZER_ORGANIZATIONS');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'organizations.add', false);
-        $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'organizations.edit', true);
+        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'organizations.add', false);
+        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'organizations.edit', true);
         $toolbar->appendButton(
             'Confirm',
-            Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+            Text::_('ORGANIZER_DELETE_CONFIRM'),
             'delete',
-            Helpers\Languages::_('ORGANIZER_DELETE'),
+            Text::_('ORGANIZER_DELETE'),
             'organizations.delete',
             true
         );

@@ -11,9 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Document, Text, Toolbar};
 
 /**
  * Class loads personnal workload statistics into the display context.
@@ -27,14 +25,14 @@ class Workload extends FormView
     protected function addToolBar()
     {
         $this->setTitle('ORGANIZER_WORKLOAD');
-        $toolbar = Adapters\Toolbar::getInstance();
+        $toolbar = Toolbar::getInstance();
 
         if ($this->form->getValue('personID'))//Input::getInt('personID'))
         {
             $toolbar->appendButton(
                 'NewTab',
                 'file-xls',
-                Helpers\Languages::_('ORGANIZER_DOWNLOAD'),
+                Text::_('ORGANIZER_DOWNLOAD'),
                 'Workloads.xls',
                 false
             );

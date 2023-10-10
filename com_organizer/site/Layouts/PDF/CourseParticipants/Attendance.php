@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF\CourseParticipants;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\PDF\ListLayout;
 use THM\Organizer\Views\PDF\CourseParticipants;
@@ -43,14 +44,14 @@ class Attendance extends ListLayout
         $this->headers = [
             'index' => '#',
             'name' => 'Name',
-            'organization' => Helpers\Languages::_('ORGANIZER_ORGANIZATION'),
-            'program' => Helpers\Languages::_('ORGANIZER_PROGRAM'),
-            'room' => Helpers\Languages::_('ORGANIZER_ROOM')
+            'organization' => Text::_('ORGANIZER_ORGANIZATION'),
+            'program' => Text::_('ORGANIZER_PROGRAM'),
+            'room' => Text::_('ORGANIZER_ROOM')
         ];
 
         // Adjust for more information
         if ($view->fee) {
-            $this->headers['paid'] = Helpers\Languages::_('ORGANIZER_PAID');
+            $this->headers['paid'] = Text::_('ORGANIZER_PAID');
             $this->widths['name']  = 42;
             $this->widths['paid']  = 14;
             $this->widths['room']  = 14;
@@ -113,7 +114,7 @@ class Attendance extends ListLayout
     public function setTitle()
     {
         $view         = $this->view;
-        $documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_PARTICIPANTS');
+        $documentName = "$view->course - $view->campus - $view->startDate - " . Text::_('ORGANIZER_PARTICIPANTS');
         $view->setNames($documentName);
     }
 }

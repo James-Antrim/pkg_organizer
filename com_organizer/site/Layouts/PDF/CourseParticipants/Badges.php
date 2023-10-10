@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF\CourseParticipants;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Layouts\PDF\BadgeLayout;
 use THM\Organizer\Views\PDF\CourseParticipants;
 
@@ -100,7 +100,7 @@ class Badges extends BadgeLayout
     {
         /* @var CourseParticipants $view */
         $view         = $this->view;
-        $documentName = "$view->course - $view->campus - $view->startDate - " . Helpers\Languages::_('ORGANIZER_BADGES');
+        $documentName = "$view->course - $view->campus - $view->startDate - " . Text::_('ORGANIZER_BADGES');
         $view->setNames($documentName);
     }
 }

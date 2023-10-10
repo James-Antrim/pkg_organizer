@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
@@ -96,13 +97,13 @@ class Persons implements UntisXMLValidator
         if (!empty($model->warnings['PEX'])) {
             $warningCount = $model->warnings['PEX'];
             unset($model->warnings['PEX']);
-            $model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_PERSON_EXTERNAL_IDS_MISSING'), $warningCount);
+            $model->warnings[] = Text::sprintf('ORGANIZER_PERSON_EXTERNAL_IDS_MISSING', $warningCount);
         }
 
         if (!empty($model->warnings['PFN'])) {
             $warningCount = $model->warnings['PFN'];
             unset($model->warnings['PFN']);
-            $model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_PERSON_FORENAMES_MISSING'), $warningCount);
+            $model->warnings[] = Text::sprintf('ORGANIZER_PERSON_FORENAMES_MISSING', $warningCount);
         }
     }
 
@@ -122,7 +123,7 @@ class Persons implements UntisXMLValidator
 
         $surname = trim((string) $node->surname);
         if (empty($surname)) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_PERSON_SURNAME_MISSING'), $internalID);
+            $model->errors[] = Text::sprintf('ORGANIZER_PERSON_SURNAME_MISSING', $internalID);
 
             return;
         }

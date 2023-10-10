@@ -12,7 +12,6 @@ namespace THM\Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers;
 
 /**
  * Renders a button whose contents open in a new tab.
@@ -36,7 +35,7 @@ class Highlander extends StandardButton
         $target      = 'formtarget="_blank" type="submit"';
         $iconClass   = 'class="' . $this->fetchIconClass($name) . '"';
         $task        = 'onclick="' . $this->_getCommand($text, $task) . '"';
-        $text        = Helpers\Languages::_($text);
+        $text        = Text::_($text);
 
         return "<button $target $task $buttonClass><span $iconClass $aria></span>$text</button>";
     }

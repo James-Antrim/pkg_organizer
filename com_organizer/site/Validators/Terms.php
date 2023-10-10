@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
@@ -96,7 +96,7 @@ class Terms implements UntisXMLValidator
 
         // Data type / value checks failed.
         if (!$valid) {
-            $model->errors[] = Helpers\Languages::_('ORGANIZER_TERM_INVALID');
+            $model->errors[] = Text::_('ORGANIZER_TERM_INVALID');
 
             return;
         }
@@ -104,7 +104,7 @@ class Terms implements UntisXMLValidator
         $endTimeStamp = strtotime($term->endDate);
 
         if ($endTimeStamp < strtotime(date('Y-m-d'))) {
-            $model->errors[] = Helpers\Languages::_('ORGANIZER_TERM_EXPIRED');
+            $model->errors[] = Text::_('ORGANIZER_TERM_EXPIRED');
 
             return;
         }
@@ -119,7 +119,7 @@ class Terms implements UntisXMLValidator
 
         // Consistency among the dates failed.
         if ($invalid) {
-            $model->errors[] = Helpers\Languages::_('ORGANIZER_TERM_INVALID');
+            $model->errors[] = Text::_('ORGANIZER_TERM_INVALID');
 
             return;
         }

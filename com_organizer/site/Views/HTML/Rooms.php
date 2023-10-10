@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -31,50 +31,26 @@ class Rooms extends ListView
      */
     protected function addToolBar(bool $delete = true)
     {
-        $title = Helpers\Languages::_('ORGANIZER_ROOMS');
+        $title = Text::_('ORGANIZER_ROOMS');
 
         if ($campusID = Input::getInt('campusID')) {
-            $title .= ': ' . Helpers\Languages::_('ORGANIZER_CAMPUS');
+            $title .= ': ' . Text::_('ORGANIZER_CAMPUS');
             $title .= ' ' . Helpers\Campuses::getName($campusID);
         }
         $this->setTitle($title);
 
         if (Helpers\Can::manage('facilities')) {
             $toolbar = Toolbar::getInstance();
-            $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'rooms.add', false);
-            $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'rooms.edit', true);
-            $toolbar->appendButton(
-                'Standard',
-                'eye-open',
-                Helpers\Languages::_('ORGANIZER_ACTIVATE'),
-                'rooms.activate',
-                false
-            );
-            $toolbar->appendButton(
-                'Standard',
-                'eye-close',
-                Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
-                'rooms.deactivate',
-                false
-            );
+            $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'rooms.add', false);
+            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'rooms.edit', true);
+            $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_ACTIVATE'), 'rooms.activate', false);
+            $toolbar->appendButton('Standard', 'eye-close', Text::_('ORGANIZER_DEACTIVATE'), 'rooms.deactivate', false);
 
             if (Helpers\Can::administrate()) {
-                $toolbar->appendButton(
-                    'Standard',
-                    'contract',
-                    Helpers\Languages::_('ORGANIZER_MERGE'),
-                    'rooms.mergeView',
-                    true
-                );
+                $toolbar->appendButton('Standard', 'contract', Text::_('ORGANIZER_MERGE'), 'rooms.mergeView', true);
             }
 
-            $toolbar->appendButton(
-                'NewTab',
-                'file-xls',
-                Helpers\Languages::_('ORGANIZER_UNINOW_EXPORT'),
-                'Rooms.UniNow',
-                false
-            );
+            $toolbar->appendButton('NewTab', 'file-xls', Text::_('ORGANIZER_UNINOW_EXPORT'), 'Rooms.UniNow', false);
         }
     }
 
@@ -100,7 +76,7 @@ class Rooms extends ListView
             'roomName' => Helpers\HTML::sort('NAME', 'roomName', $direction, $ordering),
             'buildingName' => Helpers\HTML::sort('BUILDING', 'buildingName', $direction, $ordering),
             'roomType' => Helpers\HTML::sort('TYPE', 'roomType', $direction, $ordering),
-            'active' => Helpers\Languages::_('ORGANIZER_ACTIVE')
+            'active' => Text::_('ORGANIZER_ACTIVE')
         ];
 
         $this->headers = $headers;

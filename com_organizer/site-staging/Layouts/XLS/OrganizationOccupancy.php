@@ -13,8 +13,8 @@ namespace THM\Organizer\Layouts\XLS;
 jimport('phpexcel.library.PHPExcel');
 
 use Joomla\CMS\Application\ApplicationHelper;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class generates the organization statistics XLS file.
@@ -67,10 +67,10 @@ class OrganizationOccupancy
         $endDate   = Helpers\Dates::formatDate($this->endDate);
 
         $description
-            = sprintf(Languages::_('ORGANIZER_ORGANIZATION_OCCUPANCY_DESC'), $startDate, $endDate);
+            = Text::sprintf('ORGANIZER_ORGANIZATION_OCCUPANCY_DESC', $startDate, $endDate);
         $this->spreadSheet->getProperties()->setCreator('THM Organizer')
             ->setLastModifiedBy($userName)
-            ->setTitle(Languages::_('ORGANIZER_ORGANIZATION_OCCUPANCY'))
+            ->setTitle(Text::_('ORGANIZER_ORGANIZATION_OCCUPANCY'))
             ->setDescription($description);
 
         $this->headerFill = [
@@ -116,7 +116,7 @@ class OrganizationOccupancy
         ]);
 
         $summaryPP = [
-            'name' => Languages::_('ORGANIZER_SUMMARY'),
+            'name' => Text::_('ORGANIZER_SUMMARY'),
             'startDate' => $this->startDate,
             'endDate' => $this->endDate
         ];
@@ -218,7 +218,7 @@ class OrganizationOccupancy
         ++$startColumn;
         $column = $startColumn;
         $this->spreadSheet->getActiveSheet($sheetNo)
-            ->setCellValue("{$column}3", Languages::_('ORGANIZER_HOURS_ABBR'));
+            ->setCellValue("{$column}3", Text::_('ORGANIZER_HOURS_ABBR'));
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}3")->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet($sheetNo)
             ->setCellValue("{$column}4", "=SUBTOTAL(109,{$column}{$firstRow}:{$column}{$lastRow})");
@@ -226,13 +226,13 @@ class OrganizationOccupancy
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}4")->getNumberFormat()
             ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
         $this->spreadSheet->getActiveSheet($sheetNo)
-            ->setCellValue("{$column}7", Languages::_('ORGANIZER_HOURS_ABBR'));
+            ->setCellValue("{$column}7", Text::_('ORGANIZER_HOURS_ABBR'));
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}7")->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet()->getColumnDimension($column)->setWidth(10);
 
         ++$column;
         $this->spreadSheet->getActiveSheet($sheetNo)
-            ->setCellValue("{$column}3", Languages::_('ORGANIZER_SCHOOL_HOURS_ABBR'));
+            ->setCellValue("{$column}3", Text::_('ORGANIZER_SCHOOL_HOURS_ABBR'));
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}3")->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet($sheetNo)
             ->setCellValue("{$column}4", "=SUBTOTAL(109,{$column}{$firstRow}:{$column}{$lastRow})");
@@ -240,20 +240,20 @@ class OrganizationOccupancy
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}4")->getNumberFormat()
             ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
         $this->spreadSheet->getActiveSheet($sheetNo)
-            ->setCellValue("{$column}7", Languages::_('ORGANIZER_SCHOOL_HOURS_ABBR'));
+            ->setCellValue("{$column}7", Text::_('ORGANIZER_SCHOOL_HOURS_ABBR'));
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}7")->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet()->getColumnDimension($column)->setWidth(10);
 
         ++$column;
         $this->spreadSheet->getActiveSheet($sheetNo)
-            ->setCellValue("{$column}3", Languages::_('ORGANIZER_PERCENT_USAGE'));
+            ->setCellValue("{$column}3", Text::_('ORGANIZER_PERCENT_USAGE'));
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}3")->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet($sheetNo)->setCellValue("{$column}4", "==IFERROR({$startColumn}4/C4,0)");
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}4")->applyFromArray(['borders' => $this->rightBorder]);
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}4")->getNumberFormat()
             ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE_00);
         $this->spreadSheet->getActiveSheet($sheetNo)
-            ->setCellValue("{$column}7", Languages::_('ORGANIZER_PERCENT_USAGE'));
+            ->setCellValue("{$column}7", Text::_('ORGANIZER_PERCENT_USAGE'));
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}7")->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet()->getStyle("{$column}7")->applyFromArray(['borders' => $this->rightBorder]);
         $this->spreadSheet->getActiveSheet()->getColumnDimension($column)->setWidth(10);
@@ -287,11 +287,11 @@ class OrganizationOccupancy
         $title = $term['name'];
 
         if ($term['startDate'] < $this->startDate) {
-            $title .= ' ' . sprintf(Languages::_('ORGANIZER_FROM_DATE'), $this->startDate);
+            $title .= ' ' . Text::sprintf('ORGANIZER_FROM_DATE', $this->startDate);
         }
 
         if ($term['endDate'] > $this->endDate) {
-            $title .= ' ' . sprintf(Languages::_('ORGANIZER_TO_DATE'), $this->endDate);
+            $title .= ' ' . Text::sprintf('ORGANIZER_TO_DATE', $this->endDate);
         }
 
         $this->spreadSheet->setActiveSheetIndex($sheetNumber);
@@ -302,7 +302,7 @@ class OrganizationOccupancy
         $this->spreadSheet->getActiveSheet()->getStyle('A1')->getFont()->setSize(16);
         $this->spreadSheet->getActiveSheet()->getStyle('B3')
             ->applyFromArray(['fill' => $this->headerFill, 'borders' => $this->rightBorder]);
-        $this->spreadSheet->getActiveSheet()->setCellValue('B4', Languages::_('ORGANIZER_SUMMARY'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('B4', Text::_('ORGANIZER_SUMMARY'));
         $this->spreadSheet->getActiveSheet()->getStyle('B4')
             ->applyFromArray(['fill' => $this->headerFill, 'borders' => $this->rightBorder]);
 
@@ -312,11 +312,11 @@ class OrganizationOccupancy
             $lastColumn = $this->addDataRow($sheetNumber, $lastRow, $termIndex, $roomID);
         }
 
-        $this->addSummaryHeader($sheetNumber, 'C', Languages::_('ORGANIZER_HOURS_ABBR'), $lastRow, 'lightBorder');
+        $this->addSummaryHeader($sheetNumber, 'C', Text::_('ORGANIZER_HOURS_ABBR'), $lastRow, 'lightBorder');
         $this->addSummaryHeader(
             $sheetNumber,
             'D',
-            Languages::_('ORGANIZER_SCHOOL_HOURS_ABBR'),
+            Text::_('ORGANIZER_SCHOOL_HOURS_ABBR'),
             $lastRow,
             'rightBorder'
         );
@@ -328,10 +328,10 @@ class OrganizationOccupancy
                 $lastRow);
         }
 
-        $this->spreadSheet->getActiveSheet($sheetNumber)->setCellValue('A7', Languages::_('ORGANIZER_NAME'));
+        $this->spreadSheet->getActiveSheet($sheetNumber)->setCellValue('A7', Text::_('ORGANIZER_NAME'));
         $this->spreadSheet->getActiveSheet()->getStyle('A7')->applyFromArray(['fill' => $this->headerFill]);
         $this->spreadSheet->getActiveSheet()->getStyle('B6')->applyFromArray(['borders' => $this->rightBorder]);
-        $this->spreadSheet->getActiveSheet($sheetNumber)->setCellValue('B7', Languages::_('ORGANIZER_ROOMTYPE'));
+        $this->spreadSheet->getActiveSheet($sheetNumber)->setCellValue('B7', Text::_('ORGANIZER_ROOMTYPE'));
         $this->spreadSheet->getActiveSheet()->getStyle('D6')->applyFromArray(['borders' => $this->rightBorder]);
         $this->spreadSheet->getActiveSheet()->getStyle('B7')
             ->applyFromArray(['fill' => $this->headerFill, 'borders' => $this->rightBorder]);
@@ -386,7 +386,7 @@ class OrganizationOccupancy
         $objWriter = PHPExcel_IOFactory::createWriter($this->spreadSheet, 'Excel2007');
         ob_end_clean();
         header('Content-type: application/vnd.ms-excel');
-        $rawTitle = Languages::_('ORGANIZER_ORGANIZATION_OCCUPANCY') . '_' . date('Ymd');
+        $rawTitle = Text::_('ORGANIZER_ORGANIZATION_OCCUPANCY') . '_' . date('Ymd');
         $docTitle = ApplicationHelper::stringURLSafe($rawTitle);
         header("Content-Disposition: attachment;filename=$docTitle.xlsx");
         $objWriter->save('php://output');

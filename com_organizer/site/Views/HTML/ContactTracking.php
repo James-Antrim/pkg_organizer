@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads persistent information a filtered set of colors into the display context.
@@ -55,7 +54,7 @@ class ContactTracking extends ListView
         if (($this->state->get('participantID') or $this->state->get('personID')) and count($this->items)) {
             $toolbar = Toolbar::getInstance();
             //$toolbar->appendButton('Standard', 'envelope', Languages::_('ORGANIZER_NOTIFY'), '', false);
-            $toolbar->appendButton('NewTab', 'file-pdf', Languages::_('Download as PDF'), 'ContactTracking.pdf', false);
+            $toolbar->appendButton('NewTab', 'file-pdf', Text::_('Download as PDF'), 'ContactTracking.pdf', false);
         }
     }
 
@@ -84,7 +83,7 @@ class ContactTracking extends ListView
         if ($filterItems->get('search')) {
             $this->empty = ' ';
         } else {
-            $this->empty = Languages::_('ORGANIZER_ENTER_SEARCH_TERM');
+            $this->empty = Text::_('ORGANIZER_ENTER_SEARCH_TERM');
         }
 
         parent::display($tpl);
@@ -98,18 +97,18 @@ class ContactTracking extends ListView
         $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
         $headers    = [
             'index' => '#',
-            'person' => Languages::_('ORGANIZER_PERSON'),
-            'data' => Languages::_('ORGANIZER_CONTACT_INFORMATION')
+            'person' => Text::_('ORGANIZER_PERSON'),
+            'data' => Text::_('ORGANIZER_CONTACT_INFORMATION')
         ];
 
         switch ($listFormat) {
             case self::BY_EVENT:
-                $otherHeaders = ['contacts' => Languages::_('ORGANIZER_CONTACTS')];
+                $otherHeaders = ['contacts' => Text::_('ORGANIZER_CONTACTS')];
                 break;
             case self::BY_DAY:
             default:
-                $otherHeaders = ['dates' => Languages::_('ORGANIZER_DATES'),
-                    'length' => Languages::_('ORGANIZER_CONTACT_LENGTH')
+                $otherHeaders = ['dates' => Text::_('ORGANIZER_DATES'),
+                    'length' => Text::_('ORGANIZER_CONTACT_LENGTH')
                 ];
                 break;
 
@@ -126,7 +125,7 @@ class ContactTracking extends ListView
     {
         $then           = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
         $today          = Helpers\Dates::formatDate(date('Y-m-d'));
-        $this->subtitle = Languages::_('ORGANIZER_INTERVAL') . ": $then - $today";
+        $this->subtitle = Text::_('ORGANIZER_INTERVAL') . ": $then - $today";
     }
 
     /**
@@ -137,7 +136,7 @@ class ContactTracking extends ListView
         $index           = 1;
         $link            = '';
         $listFormat      = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
-        $mText           = Languages::_('ORGANIZER_MINUTES');
+        $mText           = Text::_('ORGANIZER_MINUTES');
         $structuredItems = [];
 
         foreach ($this->items as $item) {

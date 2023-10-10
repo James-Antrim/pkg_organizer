@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Class loads the holiday form into display context.
@@ -36,18 +35,12 @@ class HolidayEdit extends EditView
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "holidays.save", false);
+        $toolbar->appendButton('Standard', 'save', Text::_($save), "holidays.save", false);
 
         if ($this->item->id) {
-            $toolbar->appendButton(
-                'Standard',
-                'save-copy',
-                Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
-                'holidays.save2copy',
-                false
-            );
+            $toolbar->appendButton('Standard', 'save-copy', Text::_('ORGANIZER_SAVE2COPY'), 'holidays.save2copy', false);
         }
 
-        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "holidays.cancel", false);
+        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), "holidays.cancel", false);
     }
 }

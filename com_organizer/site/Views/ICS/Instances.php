@@ -17,7 +17,7 @@ use Joomla\CMS\Filter\OutputFilter;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\User;
 use Joomla\Registry\Registry;
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 use SimpleXMLElement;
@@ -218,7 +218,7 @@ class Instances
                 $description = implode(', ', $persons) . " & $last";
             }
 
-            $description = sprintf(Helpers\Languages::_('ORGANIZER_ICS_DESCRIPTION'), $description);
+            $description = Text::sprintf('ORGANIZER_ICS_DESCRIPTION', $description);
             $description = $this->escape($description);
 
             $ics[] = "DESCRIPTION:$description";
@@ -701,7 +701,7 @@ class Instances
     {
         $state = $this->state;
         $user  = $this->user;
-        $title = Helpers\Languages::_('ORGANIZER_INSTANCES');
+        $title = Text::_('ORGANIZER_INSTANCES');
 
         $suffix        = ".ics";
         $preTemplate   = "$title: %s";
@@ -709,7 +709,7 @@ class Instances
         $postTemplate2 = "%s - Organizer $title";
 
         if ($state->get('filter.my') and $user->username) {
-            $this->title    = Helpers\Languages::_('ORGANIZER_INSTANCES_ICS');
+            $this->title    = Text::_('ORGANIZER_INSTANCES_ICS');
             $this->fileName = OutputFilter::stringURLSafe($this->title) . $suffix;
 
             return;

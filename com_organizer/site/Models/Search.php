@@ -12,9 +12,8 @@ namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Roles;
 use THM\Organizer\Tables;
 
@@ -654,7 +653,7 @@ class Search extends ListModel
             if ($programID) {
                 $key   = "program-$programID";
                 $left  = $resource['lft'];
-                $label = Languages::_('ORGANIZER_PROGRAM') . ': ';
+                $label = Text::_('ORGANIZER_PROGRAM') . ': ';
                 $name  = Helpers\Programs::getName($programID);
                 $right = $resource['rgt'];
 
@@ -666,7 +665,7 @@ class Search extends ListModel
                 $organizationIDs = Helpers\Programs::getOrganizationIDs($programID);
             } else {
                 $key   = "category-$categoryID";
-                $label = Languages::_('ORGANIZER_CATEGORY') . ': ';
+                $label = Text::_('ORGANIZER_CATEGORY') . ': ';
                 $name  = Helpers\Categories::getName($categoryID);
 
                 $organizationIDs = Helpers\Categories::getOrganizationIDs($categoryID);
@@ -730,14 +729,14 @@ class Search extends ListModel
             if ($subjectID) {
                 $description = Helpers\Subjects::getProgramName($subjectID);
                 $key         = "subject-$subjectID";
-                $label       = Languages::_('ORGANIZER_SUBJECT') . ': ';
+                $label       = Text::_('ORGANIZER_SUBJECT') . ': ';
                 $name        = Helpers\Subjects::getName($subjectID, true);
 
                 $links['subject_item'] = "?option=com_organizer&view=subject_item&id=$subjectID";
             } else {
                 $description = Helpers\Events::getCategoryNames($eventID);
                 $key         = "event-$eventID";
-                $label       = Languages::_('ORGANIZER_EVENT') . ': ';
+                $label       = Text::_('ORGANIZER_EVENT') . ': ';
                 $name        = Helpers\Events::getName($resource['eventID']);
             }
 
@@ -775,7 +774,7 @@ class Search extends ListModel
 
             if ($poolID) {
                 $key   = "pool-$poolID";
-                $label = Languages::_('ORGANIZER_POOL') . ': ';
+                $label = Text::_('ORGANIZER_POOL') . ': ';
                 $left  = $resource['lft'];
                 $name  = Helpers\Pools::getFullName($poolID);
                 $right = $resource['rgt'];
@@ -787,7 +786,7 @@ class Search extends ListModel
                 $description = Helpers\Pools::getProgramName($poolID);
             } else {
                 $key   = "group-$groupID";
-                $label = Languages::_('ORGANIZER_GROUP') . ': ';
+                $label = Text::_('ORGANIZER_GROUP') . ': ';
                 $name  = Helpers\Groups::getFullName($groupID);
 
                 $description = Helpers\Groups::getCategoryName($groupID);
@@ -821,7 +820,7 @@ class Search extends ListModel
      */
     private function processOrganizations(array $organizationIDs): array
     {
-        $label         = Languages::_('ORGANIZER_ORGANIZATION') . ': ';
+        $label         = Text::_('ORGANIZER_ORGANIZATION') . ': ';
         $organizations = [];
 
         foreach ($organizationIDs as $organizationID) {
@@ -845,7 +844,7 @@ class Search extends ListModel
      */
     private function processPersons(array $personIDs): array
     {
-        $label   = Languages::_('ORGANIZER_PERSON') . ': ';
+        $label   = Text::_('ORGANIZER_PERSON') . ': ';
         $persons = [];
         $userID  = Helpers\Users::getID();
 
@@ -896,14 +895,14 @@ class Search extends ListModel
             $roomID         = $room['id'];
             $rooms[$roomID] = [];
 
-            $rooms[$roomID]['text'] = Languages::_('ORGANIZER_ROOM') . ": {$room['name']}";
+            $rooms[$roomID]['text'] = Text::_('ORGANIZER_ROOM') . ": {$room['name']}";
 
             $description = empty($room['description']) ? $room['type'] : $room['description'];
 
             if (empty($room['effCapacity'])) {
                 $capacity = '';
             } else {
-                $capacity = ' (~' . $room['effCapacity'] . ' ' . Languages::_('ORGANIZER_SEATS') . ')';
+                $capacity = ' (~' . $room['effCapacity'] . ' ' . Text::_('ORGANIZER_SEATS') . ')';
             }
 
             $rooms[$roomID]['description'] = "$description$capacity";

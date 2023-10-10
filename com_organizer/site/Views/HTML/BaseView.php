@@ -17,7 +17,6 @@ use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Routing;
 use THM\Organizer\Views\Named;
 
@@ -92,26 +91,26 @@ abstract class BaseView extends HtmlView
 
         $lsfLink = Helpers\HTML::link(
             'https://studien-sb-service.th-mittelhessen.de/docu/online.html',
-            Languages::_('ORGANIZER_DISCLAIMER_LSF_TITLE'),
+            Text::_('ORGANIZER_DISCLAIMER_LSF_TITLE'),
             $attributes
         );
         $ambLink = Helpers\HTML::link(
             'https://www.thm.de/amb/pruefungsordnungen',
-            Languages::_('ORGANIZER_DISCLAIMER_AMB_TITLE'),
+            Text::_('ORGANIZER_DISCLAIMER_AMB_TITLE'),
             $attributes
         );
         $poLink  = Helpers\HTML::link(
             'https://www.thm.de/site/studium/sie-studieren/pruefungsordnung.html',
-            Languages::_('ORGANIZER_DISCLAIMER_PO_TITLE'),
+            Text::_('ORGANIZER_DISCLAIMER_PO_TITLE'),
             $attributes
         );
 
         $disclaimer = '<div class="disclaimer">';
-        $disclaimer .= '<h4>' . Languages::_('ORGANIZER_DISCLAIMER_LEGAL') . '</h4>';
+        $disclaimer .= '<h4>' . Text::_('ORGANIZER_DISCLAIMER_LEGAL') . '</h4>';
         $disclaimer .= '<ul>';
-        $disclaimer .= '<li>' . sprintf(Languages::_('ORGANIZER_DISCLAIMER_LSF_TEXT'), $lsfLink) . '</li>';
-        $disclaimer .= '<li>' . sprintf(Languages::_('ORGANIZER_DISCLAIMER_AMB_TEXT'), $ambLink) . '</li>';
-        $disclaimer .= '<li>' . sprintf(Languages::_('ORGANIZER_DISCLAIMER_PO_TEXT'), $poLink) . '</li>';
+        $disclaimer .= '<li>' . Text::sprintf('ORGANIZER_DISCLAIMER_LSF_TEXT', $lsfLink) . '</li>';
+        $disclaimer .= '<li>' . Text::sprintf('ORGANIZER_DISCLAIMER_AMB_TEXT', $ambLink) . '</li>';
+        $disclaimer .= '<li>' . Text::sprintf('ORGANIZER_DISCLAIMER_PO_TEXT', $poLink) . '</li>';
         $disclaimer .= '</ul>';
         $disclaimer .= '</div>';
 
@@ -133,7 +132,7 @@ abstract class BaseView extends HtmlView
         $viewName = strtolower($this->get('name'));
 
         JHtmlSidebar::addEntry(
-            '<span class="icon-home"></span>' . Languages::_('ORGANIZER'),
+            '<span class="icon-home"></span>' . Text::_('ORGANIZER'),
             Routing::getViewURL('Organizer'),
             $viewName == 'organizer'
         );
@@ -141,38 +140,38 @@ abstract class BaseView extends HtmlView
         $admin = Helpers\Can::administrate();
 
         if (Helpers\Can::scheduleTheseOrganizations()) {
-            $spanText = Languages::_('ORGANIZER_SCHEDULING');
+            $spanText = Text::_('ORGANIZER_SCHEDULING');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
 
             $items = [];
 
-            $items[Languages::_('ORGANIZER_CATEGORIES')]      = [
+            $items[Text::_('ORGANIZER_CATEGORIES')]      = [
                 'url' => Routing::getViewURL('Categories'),
                 'active' => $viewName == 'categories'
             ];
-            $items[Languages::_('ORGANIZER_COURSES')]         = [
+            $items[Text::_('ORGANIZER_COURSES')]         = [
                 'url' => Routing::getViewURL('Courses'),
                 'active' => $viewName == 'courses'
             ];
-            $items[Languages::_('ORGANIZER_COURSES_IMPORT')]  = [
+            $items[Text::_('ORGANIZER_COURSES_IMPORT')]  = [
                 'url' => Routing::getViewURL('CoursesImport'),
                 'active' => $viewName == 'courses_import'
             ];
-            $items[Languages::_('ORGANIZER_EVENT_TEMPLATES')] = [
+            $items[Text::_('ORGANIZER_EVENT_TEMPLATES')] = [
                 'url' => Routing::getViewURL('Events'),
                 'active' => $viewName == 'events'
             ];
-            $items[Languages::_('ORGANIZER_GROUPS')]          = [
+            $items[Text::_('ORGANIZER_GROUPS')]          = [
                 'url' => Routing::getViewURL('Groups'),
                 'active' => $viewName == 'groups'
             ];
-            $items[Languages::_('ORGANIZER_SCHEDULES')]       = [
+            $items[Text::_('ORGANIZER_SCHEDULES')]       = [
                 'url' => Routing::getViewURL('Schedules'),
                 'active' => $viewName == 'schedules'
             ];
-            $items[Languages::_('ORGANIZER_UNITS')]           = [
+            $items[Text::_('ORGANIZER_UNITS')]           = [
                 'url' => Routing::getViewURL('Units'),
                 'active' => $viewName == 'units'
             ];
@@ -181,7 +180,7 @@ abstract class BaseView extends HtmlView
 
             // Uploading a schedule should always be the first menu item and will never be the active submenu item.
             $prepend = [
-                Languages::_('ORGANIZER_SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
+                Text::_('ORGANIZER_SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
                     'url' => Routing::getViewURL('ScheduleEdit'),
                     'active' => false
                 ]
@@ -196,26 +195,26 @@ abstract class BaseView extends HtmlView
         }
 
         if (Helpers\Can::documentTheseOrganizations()) {
-            $spanText = Languages::_('ORGANIZER_DOCUMENTATION');
+            $spanText = Text::_('ORGANIZER_DOCUMENTATION');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
 
             $items = [];
 
-            $items[Languages::_('ORGANIZER_FIELD_COLORS')] = [
+            $items[Text::_('ORGANIZER_FIELD_COLORS')] = [
                 'url' => Routing::getViewURL('FieldColors'),
                 'active' => $viewName == 'field_colors'
             ];
-            $items[Languages::_('ORGANIZER_POOLS')]        = [
+            $items[Text::_('ORGANIZER_POOLS')]        = [
                 'url' => Routing::getViewURL('Pools'),
                 'active' => $viewName == 'pools'
             ];
-            $items[Languages::_('ORGANIZER_PROGRAMS')]     = [
+            $items[Text::_('ORGANIZER_PROGRAMS')]     = [
                 'url' => Routing::getViewURL('Programs'),
                 'active' => $viewName == 'programs'
             ];
-            $items[Languages::_('ORGANIZER_SUBJECTS')]     = [
+            $items[Text::_('ORGANIZER_SUBJECTS')]     = [
                 'url' => Routing::getViewURL('Subjects'),
                 'active' => $viewName == 'subjects'
             ];
@@ -227,54 +226,54 @@ abstract class BaseView extends HtmlView
         }
 
         if (Helpers\Can::manage('persons')) {
-            $spanText = Languages::_('ORGANIZER_HUMAN_RESOURCES');
+            $spanText = Text::_('ORGANIZER_HUMAN_RESOURCES');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
             JHtmlSidebar::addEntry(
-                Languages::_('ORGANIZER_PERSONS'),
+                Text::_('ORGANIZER_PERSONS'),
                 Routing::getViewURL('Persons'),
                 $viewName == 'persons'
             );
         }
 
         if (Helpers\Can::manage('facilities')) {
-            $spanText = Languages::_('ORGANIZER_FACILITY_MANAGEMENT');
+            $spanText = Text::_('ORGANIZER_FACILITY_MANAGEMENT');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
 
             $items = [];
 
-            $items[Languages::_('ORGANIZER_BUILDINGS')]       = [
+            $items[Text::_('ORGANIZER_BUILDINGS')]       = [
                 'url' => Routing::getViewURL('Buildings'),
                 'active' => $viewName == 'buildings'
             ];
-            $items[Languages::_('ORGANIZER_CAMPUSES')]        = [
+            $items[Text::_('ORGANIZER_CAMPUSES')]        = [
                 'url' => Routing::getViewURL('Campuses'),
                 'active' => $viewName == 'campuses'
             ];
-            $items[Languages::_('ORGANIZER_CLEANING_GROUPS')] = [
+            $items[Text::_('ORGANIZER_CLEANING_GROUPS')] = [
                 'url' => Routing::getViewURL('CleaningGroups'),
                 'active' => $viewName == 'cleaning_groups'
             ];
-            $items[Languages::_('ORGANIZER_MONITORS')]        = [
+            $items[Text::_('ORGANIZER_MONITORS')]        = [
                 'url' => Routing::getViewURL('Monitors'),
                 'active' => $viewName == 'monitors'
             ];
-            $items[Languages::_('ORGANIZER_ROOMS')]           = [
+            $items[Text::_('ORGANIZER_ROOMS')]           = [
                 'url' => Routing::getViewURL('Rooms'),
                 'active' => $viewName == 'rooms'
             ];
-            /*$items[Languages::_('ORGANIZER_ROOMS_IMPORT')] = [
+            /*$items[Text::_('ORGANIZER_ROOMS_IMPORT')] = [
                 'url'    => Routing::getViewURL('RoomsImport'),
                 'active' => $viewName == 'rooms_import'
             ];*/
-            $items[Languages::_('ORGANIZER_ROOMKEYS')]  = [
+            $items[Text::_('ORGANIZER_ROOMKEYS')]  = [
                 'url' => Routing::getViewURL('Roomkeys'),
                 'active' => $viewName == 'roomkeys'
             ];
-            $items[Languages::_('ORGANIZER_ROOMTYPES')] = [
+            $items[Text::_('ORGANIZER_ROOMTYPES')] = [
                 'url' => Routing::getViewURL('Roomtypes'),
                 'active' => $viewName == 'roomtypes'
             ];
@@ -286,50 +285,50 @@ abstract class BaseView extends HtmlView
         }
 
         if ($admin) {
-            $spanText = Languages::_('ORGANIZER_ADMINISTRATION');
+            $spanText = Text::_('ORGANIZER_ADMINISTRATION');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             JHtmlSidebar::addEntry($spanText);
 
             $items = [];
 
-            $items[Languages::_('ORGANIZER_COLORS')]        = [
+            $items[Text::_('ORGANIZER_COLORS')]        = [
                 'url' => Routing::getViewURL('Colors'),
                 'active' => $viewName == 'colors'
             ];
-            $items[Languages::_('ORGANIZER_DEGREES')]       = [
+            $items[Text::_('ORGANIZER_DEGREES')]       = [
                 'url' => Routing::getViewURL('Degrees'),
                 'active' => $viewName == 'degrees'
             ];
-            $items[Languages::_('ORGANIZER_FIELDS')]        = [
+            $items[Text::_('ORGANIZER_FIELDS')]        = [
                 'url' => Routing::getViewURL('Fields'),
                 'active' => $viewName == 'fields'
             ];
-            $items[Languages::_('ORGANIZER_GRIDS')]         = [
+            $items[Text::_('ORGANIZER_GRIDS')]         = [
                 'url' => Routing::getViewURL('Grids'),
                 'active' => $viewName == 'grids'
             ];
-            $items[Languages::_('ORGANIZER_HOLIDAYS')]      = [
+            $items[Text::_('ORGANIZER_HOLIDAYS')]      = [
                 'url' => Routing::getViewURL('Holidays'),
                 'active' => $viewName == 'holidays'
             ];
-            $items[Languages::_('ORGANIZER_METHODS')]       = [
+            $items[Text::_('ORGANIZER_METHODS')]       = [
                 'url' => Routing::getViewURL('Methods'),
                 'active' => $viewName == 'methods'
             ];
-            $items[Languages::_('ORGANIZER_ORGANIZATIONS')] = [
+            $items[Text::_('ORGANIZER_ORGANIZATIONS')] = [
                 'url' => Routing::getViewURL('Organizations'),
                 'active' => $viewName == 'organizations'
             ];
-            $items[Languages::_('ORGANIZER_PARTICIPANTS')]  = [
+            $items[Text::_('ORGANIZER_PARTICIPANTS')]  = [
                 'url' => Routing::getViewURL('Participants'),
                 'active' => $viewName == 'participants'
             ];
-            $items[Languages::_('ORGANIZER_RUNS')]          = [
+            $items[Text::_('ORGANIZER_RUNS')]          = [
                 'url' => Routing::getViewURL('Runs'),
                 'active' => $viewName == 'runs'
             ];
-            $items[Languages::_('ORGANIZER_TERMS')]         = [
+            $items[Text::_('ORGANIZER_TERMS')]         = [
                 'url' => Routing::getViewURL('Terms'),
                 'active' => $viewName == 'terms'
             ];
@@ -420,7 +419,7 @@ abstract class BaseView extends HtmlView
         if ($params->get('show_page_heading') and $params->get('page_title')) {
             $title = $params->get('page_title');
         } else {
-            $title = empty($conditional) ? Languages::_($standard) : $conditional;
+            $title = empty($conditional) ? Text::_($standard) : $conditional;
         }
 
         $layout = new FileLayout('joomla.toolbar.title');

@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Class loads the run form into display context.
@@ -41,18 +40,18 @@ class RunEdit extends EditView
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
         $toolbar->appendButton('Standard', $applyIcon, $apply, 'runs.apply', false);
-        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'runs.save', false);
+        $toolbar->appendButton('Standard', 'save', Text::_($save), 'runs.save', false);
 
         if ($this->item->id) {
             $toolbar->appendButton(
                 'Standard',
                 'save-copy',
-                Helpers\Languages::_('ORGANIZER_SAVE2COPY'),
+                Text::_('ORGANIZER_SAVE2COPY'),
                 'runs.save2copy',
                 false
             );
         }
 
-        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "runs.cancel", false);
+        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), "runs.cancel", false);
     }
 }

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\EditModel;
 
@@ -48,8 +48,8 @@ abstract class EditView extends FormView
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "$controller.save", false);
-        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "$controller.cancel", false);
+        $toolbar->appendButton('Standard', 'save', Text::_($save), "$controller.save", false);
+        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), "$controller.cancel", false);
     }
 
     /**

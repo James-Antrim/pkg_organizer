@@ -10,9 +10,7 @@
 
 namespace THM\Organizer\Layouts\PDF;
 
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\{Input, Text};
 use THM\Organizer\Views\PDF\CourseParticipants;
 
 /**
@@ -86,7 +84,7 @@ abstract class BadgeLayout extends BaseLayout
         $view->Ln();
         $view->changeFont($view::BOLD, 20);
         $view->changePosition($left, $yOffset + $halfTitleOffset + 47);
-        $view->renderCell(80, 5, Languages::_('ORGANIZER_BADGE'), $view::CENTER);
+        $view->renderCell(80, 5, Text::_('ORGANIZER_BADGE'), $view::CENTER);
 
         $view->changePosition($left, $yOffset + 45);
         $view->changeFont($view::REGULAR, 10);
@@ -94,7 +92,7 @@ abstract class BadgeLayout extends BaseLayout
         $yOffset += 63;
         $view->Ln();
         $view->changePosition($left, $yOffset);
-        $view->renderCell(20, 5, Languages::_('ORGANIZER_NAME') . ': ');
+        $view->renderCell(20, 5, Text::_('ORGANIZER_NAME') . ': ');
         $view->changeFont($view::BOLD);
         $surname = $participant->surname ?: '';
         $view->renderCell(65, 5, $surname);
@@ -111,14 +109,14 @@ abstract class BadgeLayout extends BaseLayout
         $yOffset += 5;
         $view->changeFont();
         $view->changePosition($left, $yOffset);
-        $view->renderCell(20, 5, Languages::_('ORGANIZER_ADDRESS') . ': ');
+        $view->renderCell(20, 5, Text::_('ORGANIZER_ADDRESS') . ': ');
         $address1 = $participant->address ?: '';
         $view->renderCell(65, 5, $address1);
 
         $view->Ln();
         $yOffset += 5;
         $view->changePosition($left, $yOffset);
-        $view->renderCell(20, 5, Languages::_('ORGANIZER_RESIDENCE') . ': ');
+        $view->renderCell(20, 5, Text::_('ORGANIZER_RESIDENCE') . ': ');
         $view->renderCell(65, 5, "$participant->zipCode $participant->city");
     }
 
@@ -159,7 +157,7 @@ abstract class BadgeLayout extends BaseLayout
 
         $view->changeFont($view::BOLD, 20);
         $view->changePosition($badgeCenter, $headerOffset);
-        $view->renderCell(80, 5, Languages::_('ORGANIZER_RECEIPT'), $view::CENTER);
+        $view->renderCell(80, 5, Text::_('ORGANIZER_RECEIPT'), $view::CENTER);
 
         $view->changeFont($view::BOLD, 12);
         $title       = $view->course;
@@ -180,18 +178,18 @@ abstract class BadgeLayout extends BaseLayout
             $view->renderMultiCell(
                 80,
                 5,
-                sprintf(Languages::_('ORGANIZER_BADGE_PAYMENT_TEXT'), $view->fee),
+                Text::sprintf('ORGANIZER_BADGE_PAYMENT_TEXT', $view->fee),
                 $view::CENTER
             );
 
             $view->changePosition($badgeCenter, 50 + $yOffset);
             $view->changeFont($view::ITALIC, 6);
-            $view->renderMultiCell(80, 5, Languages::_('ORGANIZER_BADGE_TAX_TEXT'), $view::CENTER);
+            $view->renderMultiCell(80, 5, Text::_('ORGANIZER_BADGE_TAX_TEXT'), $view::CENTER);
         }
 
         $view->changeSize(8);
         $view->changePosition($badgeCenter, $labelOffset);
-        $view->renderCell(80, 5, Languages::_('ORGANIZER_REPRESENTATIVE'), $view::CENTER);
+        $view->renderCell(80, 5, Text::_('ORGANIZER_REPRESENTATIVE'), $view::CENTER);
 
         $params = Input::getParams();
         if (!empty($params->get('signatureFile'))) {

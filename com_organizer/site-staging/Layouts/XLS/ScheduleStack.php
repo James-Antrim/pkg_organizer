@@ -12,8 +12,8 @@ namespace THM\Organizer\Layouts\XLS;
 
 jimport('phpexcel.library.PHPExcel');
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class generates an XLS file for the schedule where lessons are listed as aggregates.
@@ -191,32 +191,32 @@ class ScheduleStack
 
         $this->spreadSheet->getActiveSheet()->setTitle($dates);
 
-        $this->spreadSheet->getActiveSheet()->setCellValue('A2', Languages::_('ORGANIZER_DATE'));
-        $this->spreadSheet->getActiveSheet()->setCellValue('B2', Languages::_('ORGANIZER_START_TIME'));
-        $this->spreadSheet->getActiveSheet()->setCellValue('C2', Languages::_('ORGANIZER_END_TIME'));
-        $this->spreadSheet->getActiveSheet()->setCellValue('D2', Languages::_('ORGANIZER_SUBJECTS'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('A2', Text::_('ORGANIZER_DATE'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('B2', Text::_('ORGANIZER_START_TIME'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('C2', Text::_('ORGANIZER_END_TIME'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('D2', Text::_('ORGANIZER_SUBJECTS'));
 
         $letter = 'D';
         if ($this->parameters['showPersons']) {
             $column = ++$letter;
             $cell   = "{$column}2";
-            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Languages::_('ORGANIZER_TEACHERS'));
+            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Text::_('ORGANIZER_TEACHERS'));
         }
 
         if ($this->parameters['showRooms']) {
             $column = ++$letter;
             $cell   = "{$column}2";
-            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Languages::_('ORGANIZER_ROOMS'));
+            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Text::_('ORGANIZER_ROOMS'));
         }
 
         if ($this->parameters['showPools']) {
             $column = ++$letter;
             $cell   = "{$column}2";
-            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Languages::_('ORGANIZER_POOLS'));
+            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Text::_('ORGANIZER_POOLS'));
         }
 
         $this->spreadSheet->getActiveSheet()->mergeCells("A1:{$letter}1");
-        $pageHeading = Languages::_('ORGANIZER_WEEK') . ": $dates";
+        $pageHeading = Text::_('ORGANIZER_WEEK') . ": $dates";
         $this->spreadSheet->getActiveSheet()->setCellValue('A1', $pageHeading);
 
         foreach (range('A', $letter) as $columnID) {
@@ -234,7 +234,7 @@ class ScheduleStack
         $startDate   = Helpers\Dates::formatDate(reset($lessonDates));
         $endDate     = Helpers\Dates::formatDate(end($lessonDates));
 
-        return Languages::_('ORGANIZER_SCHEDULE') . " $startDate - $endDate " . $this->parameters['pageTitle'];
+        return Text::_('ORGANIZER_SCHEDULE') . " $startDate - $endDate " . $this->parameters['pageTitle'];
     }
 
     /**

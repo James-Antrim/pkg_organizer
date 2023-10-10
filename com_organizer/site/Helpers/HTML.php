@@ -11,9 +11,8 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\CMS\HTML\HTMLHelper;
-use THM\Organizer\Fields\FieldsField;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Views\HTML\BaseView;
-use SimpleXMLElement;
 use stdClass;
 
 /**
@@ -31,8 +30,8 @@ class HTML extends HTMLHelper
      */
     public static function getLabel(BaseView $view, string $inputName): string
     {
-        $title  = Languages::_($view->form->getField($inputName)->title);
-        $tip    = Languages::_($view->form->getField($inputName)->description);
+        $title  = Text::_($view->form->getField($inputName)->title);
+        $tip    = Text::_($view->form->getField($inputName)->description);
         $return = '<label id="jform_' . $inputName . '-lbl" for="jform_' . $inputName . '" class="hasPopover"';
         $return .= 'data-content="' . $tip . '" data-original-title="' . $title . '">' . $title . '</label>';
 
@@ -129,7 +128,7 @@ class HTML extends HTMLHelper
      */
     public static function sort(string $constant, string $column, string $direction, string $ordering)
     {
-        $text = Languages::_("ORGANIZER_$constant");
+        $text = Text::_("ORGANIZER_$constant");
 
         return self::_('searchtools.sort', $text, $column, $direction, $ordering);
     }

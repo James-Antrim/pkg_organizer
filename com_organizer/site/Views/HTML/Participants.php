@@ -11,9 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Input, Toolbar};
+use THM\Organizer\Adapters\{Document, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
@@ -43,21 +42,21 @@ class Participants extends ListView
             $toolbar->appendButton(
                 'Standard',
                 'edit',
-                Languages::_('ORGANIZER_EDIT'),
+                Text::_('ORGANIZER_EDIT'),
                 'participants.edit',
                 true
             );
             $toolbar->appendButton(
                 'Standard',
                 'contract',
-                Languages::_('ORGANIZER_MERGE'),
+                Text::_('ORGANIZER_MERGE'),
                 'participants.mergeView',
                 true
             );
             $toolbar->appendButton(
                 'Standard',
                 'contract-2',
-                Languages::_('ORGANIZER_AUTOMATIC_MERGE'),
+                Text::_('ORGANIZER_AUTOMATIC_MERGE'),
                 'participants.automaticMerge',
                 false
             );

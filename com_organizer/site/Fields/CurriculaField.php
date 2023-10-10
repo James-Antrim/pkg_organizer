@@ -12,7 +12,7 @@ namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Database, Document};
+use THM\Organizer\Adapters\{Database, Document, Text};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -52,7 +52,7 @@ class CurriculaField extends FormField
         $selectedPrograms = empty($ranges) ? [] : Helpers\Programs::getIDs($ranges);
         $options          = $this->getOptions();
 
-        $defaultOptions = [Helpers\HTML::_('select.option', '-1', Helpers\Languages::_('ORGANIZER_NONE'))];
+        $defaultOptions = [Helpers\HTML::_('select.option', '-1', Text::_('ORGANIZER_NONE'))];
         $programs       = array_merge($defaultOptions, $options);
         $attributes     = ['multiple' => 'multiple', 'size' => '10'];
 

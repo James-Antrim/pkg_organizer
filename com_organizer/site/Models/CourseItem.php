@@ -11,9 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
 
 /**
@@ -82,36 +81,36 @@ class CourseItem extends ItemModel
 
         return [
             'id' => 0,
-            'name' => ['label' => Languages::_($option . 'NAME'), 'type' => 'text', 'value' => ''],
-            'fee' => ['label' => Languages::_($option . 'FEE'), 'type' => 'text', 'value' => ''],
+            'name' => ['label' => Text::_($option . 'NAME'), 'type' => 'text', 'value' => ''],
+            'fee' => ['label' => Text::_($option . 'FEE'), 'type' => 'text', 'value' => ''],
             'campusID' => 0,
-            'campus' => ['label' => Languages::_($option . 'CAMPUS'), 'type' => 'text', 'value' => ''],
+            'campus' => ['label' => Text::_($option . 'CAMPUS'), 'type' => 'text', 'value' => ''],
             'organization' => [
-                'label' => Languages::_($option . 'ORGANIZATIONAL'),
+                'label' => Text::_($option . 'ORGANIZATIONAL'),
                 'type' => 'text',
                 'value' => ''
             ],
-            'speakers' => ['label' => Languages::_($option . 'SPEAKERS'), 'type' => 'list', 'value' => []],
-            'teachers' => ['label' => Languages::_($option . 'TEACHERS'), 'type' => 'list', 'value' => []],
-            'tutors' => ['label' => Languages::_($option . 'TUTORS'), 'type' => 'list', 'value' => []],
+            'speakers' => ['label' => Text::_($option . 'SPEAKERS'), 'type' => 'list', 'value' => []],
+            'teachers' => ['label' => Text::_($option . 'TEACHERS'), 'type' => 'list', 'value' => []],
+            'tutors' => ['label' => Text::_($option . 'TUTORS'), 'type' => 'list', 'value' => []],
             'description' => [
-                'label' => Languages::_($option . 'SHORT_DESCRIPTION'),
+                'label' => Text::_($option . 'SHORT_DESCRIPTION'),
                 'type' => 'text',
                 'value' => ''
             ],
-            'content' => ['label' => Languages::_($option . 'CONTENT'), 'type' => 'text', 'value' => ''],
+            'content' => ['label' => Text::_($option . 'CONTENT'), 'type' => 'text', 'value' => ''],
             'registration' => [
-                'label' => Languages::_($option . 'REGISTRATION'),
+                'label' => Text::_($option . 'REGISTRATION'),
                 'type' => 'text',
                 'value' => ''
             ],
-            'pretests' => ['label' => Languages::_($option . 'PRETESTS'), 'type' => 'text', 'value' => ''],
+            'pretests' => ['label' => Text::_($option . 'PRETESTS'), 'type' => 'text', 'value' => ''],
             'courseContact' => [
-                'label' => Languages::_($option . 'COURSE_POC'),
+                'label' => Text::_($option . 'COURSE_POC'),
                 'type' => 'text',
                 'value' => ''
             ],
-            'contact' => ['label' => Languages::_($option . 'POC'), 'type' => 'text', 'value' => ''],
+            'contact' => ['label' => Text::_($option . 'POC'), 'type' => 'text', 'value' => ''],
             'courseStatus' => null,
             'courseText' => null,
             'deadline' => null,
@@ -243,9 +242,9 @@ class CourseItem extends ItemModel
     private function setRegistrationTexts(array &$course)
     {
         $course['registration']['value'] = $course['registrationType'] ?
-            Languages::_('ORGANIZER_REGISTRATION_MANUAL')
-            : Languages::_('ORGANIZER_REGISTRATION_FIFO');
-        $today                           = Helpers\Dates::standardizeDate();
+            Text::_('ORGANIZER_REGISTRATION_MANUAL') : Text::_('ORGANIZER_REGISTRATION_FIFO');
+
+        $today = Helpers\Dates::standardizeDate();
 
         $expired = $course['endDate'] < $today;
         $ongoing = ($course['startDate'] <= $today and $expired);
@@ -264,7 +263,7 @@ class CourseItem extends ItemModel
 
         if ($expired) {
             $course['courseStatus'] = 'grey';
-            $course['courseText']   = Languages::_('ORGANIZER_COURSE_EXPIRED');
+            $course['courseText']   = Text::_('ORGANIZER_COURSE_EXPIRED');
 
             return;
         }
@@ -274,32 +273,32 @@ class CourseItem extends ItemModel
             $course['courseStatus'] = 'red';
 
             if ($ongoing) {
-                $texts['course'] = Languages::_('ORGANIZER_COURSE_ONGOING');
+                $texts['course'] = Text::_('ORGANIZER_COURSE_ONGOING');
             }
 
             if ($full) {
-                $texts['cRegistration'] = Languages::_('ORGANIZER_COURSE_FULL');
+                $texts['cRegistration'] = Text::_('ORGANIZER_COURSE_FULL');
             }
         } elseif ($closed or $ninety) {
             $course['courseStatus'] = 'yellow';
             if ($closed) {
-                $texts['cRegistration'] = Languages::_('ORGANIZER_DEADLINE_EXPIRED');
+                $texts['cRegistration'] = Text::_('ORGANIZER_DEADLINE_EXPIRED');
             } elseif ($ninety) {
-                $texts['cRegistration'] = Languages::_('ORGANIZER_COURSE_LIMITED');
+                $texts['cRegistration'] = Text::_('ORGANIZER_COURSE_LIMITED');
             }
         }
 
-        $deadlineText = sprintf(Languages::_('ORGANIZER_DEADLINE_TEXT'), $deadline);
+        $deadlineText = Text::sprintf('ORGANIZER_DEADLINE_TEXT', $deadline);
 
         if ($userID = Helpers\Users::getID()) {
             $course['registrationStatus'] = Helpers\CourseParticipants::getState($course['id'], $userID);
 
             if ($course['registrationStatus'] === self::UNREGISTERED) {
-                $texts['pRegistration'] = Languages::_('ORGANIZER_COURSE_UNREGISTERED');
+                $texts['pRegistration'] = Text::_('ORGANIZER_COURSE_UNREGISTERED');
 
                 if (!Helpers\Participants::exists()
                     or !Helpers\CourseParticipants::validProfile($course['id'], $userID)) {
-                    $texts['profile'] = Languages::_('ORGANIZER_COURSE_PROFILE_REQUIRED');
+                    $texts['profile'] = Text::_('ORGANIZER_COURSE_PROFILE_REQUIRED');
                 }
 
                 $texts['deadline'] = $deadlineText;
@@ -307,21 +306,17 @@ class CourseItem extends ItemModel
                 unset($texts['course'], $texts['cRegistration']);
                 if ($course['registrationStatus']) {
                     $course['courseStatus'] = 'green';
-                    $texts['pRegistration'] = Languages::_('ORGANIZER_COURSE_ACCEPTED');
+                    $texts['pRegistration'] = Text::_('ORGANIZER_COURSE_ACCEPTED');
                 } else {
                     $course['courseStatus'] = 'blue';
-                    $texts['pRegistration'] = Languages::_('ORGANIZER_COURSE_WAITLIST');
+                    $texts['pRegistration'] = Text::_('ORGANIZER_COURSE_WAITLIST');
                 }
             }
         } else {
             $currentURL = Uri::getInstance()->toString() . '#login-anchor';
 
             $course['registrationStatus'] = null;
-            $texts['pRegistration']       = sprintf(
-                Languages::_('ORGANIZER_COURSE_LOGIN_WARNING'),
-                $currentURL,
-                $currentURL
-            );
+            $texts['pRegistration']       = Text::sprintf('ORGANIZER_COURSE_LOGIN_WARNING', $currentURL, $currentURL);
             $texts['deadline']            = $deadlineText;
         }
 

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Input, Text};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -48,7 +48,7 @@ class PrerequisitesField extends DependencyOptions
         $values    = Helpers\Subjects::getPrerequisites($subjectID);
 
         $selected = empty($values) ? ' selected' : '';
-        $text     = Helpers\Languages::_('ORGANIZER_NO_PREREQUISITES');
+        $text     = Text::_('ORGANIZER_NO_PREREQUISITES');
 
         $defaultOption     = "<option value=\"-1\"$selected>$text</option>";
         $dependencyOptions = parent::getDependencyOptions($subjectID, $values);

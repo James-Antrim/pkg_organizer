@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Tables;
@@ -187,7 +187,7 @@ class Subject extends CurriculumResource
 
         // Invalid response
         if (empty($response->modul)) {
-            $message = sprintf(Helpers\Languages::_('ORGANIZER_LSF_RESPONSE_EMPTY'), $table->lsfID);
+            $message = Text::sprintf('ORGANIZER_LSF_RESPONSE_EMPTY', $table->lsfID);
             OrganizerHelper::message($message, 'notice');
 
             return $this->deleteSingle($table->id);
@@ -196,7 +196,7 @@ class Subject extends CurriculumResource
         $subject = $response->modul;
 
         if (!$this->validTitle($subject)) {
-            $message = sprintf(Helpers\Languages::_('ORGANIZER_IMPORT_TITLE_INVALID'), $table->lsfID);
+            $message = Text::sprintf('ORGANIZER_IMPORT_TITLE_INVALID', $table->lsfID);
             OrganizerHelper::message($message, 'error');
 
             return $this->deleteSingle($table->id);
@@ -208,7 +208,7 @@ class Subject extends CurriculumResource
 
         // Suppressed
         if (!empty($subject->sperrmh) and strtolower((string) $subject->sperrmh) === 'x') {
-            $message = sprintf(Helpers\Languages::_('ORGANIZER_SUBJECT_SUPPRESSED'), $title, $table->lsfID);
+            $message = Text::sprintf('ORGANIZER_SUBJECT_SUPPRESSED', $title, $table->lsfID);
             OrganizerHelper::message($message, 'notice');
 
             return $this->deleteSingle($table->id);

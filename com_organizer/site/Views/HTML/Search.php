@@ -11,8 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\HTML;
-use THM\Organizer\Helpers\Languages;
 use stdClass;
 
 /**
@@ -54,7 +54,7 @@ class Search extends ListView
     {
         $this->state = $this->get('State');
 
-        $this->empty = $this->state->get('filter.search') ? '' : Languages::_('ORGANIZER_NO_SEARCH_QUERY');
+        $this->empty = $this->state->get('filter.search') ? '' : Text::_('ORGANIZER_NO_SEARCH_QUERY');
 
         parent::display($tpl);
     }
@@ -64,7 +64,7 @@ class Search extends ListView
      */
     protected function setHeaders()
     {
-        $this->headers = ['result' => Languages::_('ORGANIZER_RESOURCE'), 'links' => Languages::_('ORGANIZER_LINKS')];
+        $this->headers = ['result' => Text::_('ORGANIZER_RESOURCE'), 'links' => Text::_('ORGANIZER_LINKS')];
     }
 
     /**
@@ -99,23 +99,23 @@ class Search extends ListView
             switch ($type) {
                 case 'curriculum':
                     $icon = '<span class="icon-grid-2"></span>';
-                    $text = Languages::_('ORGANIZER_CURRICULUM');
+                    $text = Text::_('ORGANIZER_CURRICULUM');
                     break;
                 case 'grid':
                     $icon = '<span class="icon-calendar"></span>';
-                    $text = Languages::_('ORGANIZER_SCHEDULE');
+                    $text = Text::_('ORGANIZER_SCHEDULE');
                     break;
                 case 'list':
                     $icon = '<span class="icon-list"></span>';
-                    $text = Languages::_('ORGANIZER_INSTANCES');
+                    $text = Text::_('ORGANIZER_INSTANCES');
                     break;
                 case 'subjects':
                     $icon = '<span class="icon-list"></span>';
-                    $text = Languages::_('ORGANIZER_SUBJECTS');
+                    $text = Text::_('ORGANIZER_SUBJECTS');
                     break;
                 case 'subject_item':
                     $icon = '<span class="icon-book"></span>';
-                    $text = Languages::_('ORGANIZER_SUBJECT');
+                    $text = Text::_('ORGANIZER_SUBJECT');
                     break;
             }
 

@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\{Database, Text};
 use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
@@ -35,14 +34,11 @@ class Units implements UntisXMLValidator
             $invalidRooms = implode(', ', $invalidRooms);
             $pos          = strrpos(', ', $invalidRooms);
             if ($pos !== false) {
-                $and          = Languages::_('ORGANIZER_AND');
+                $and          = Text::_('ORGANIZER_AND');
                 $invalidRooms = substr_replace($invalidRooms, " $and ", $pos, strlen($invalidRooms));
             }
 
-            $model->warnings[] = sprintf(
-                Languages::_('ORGANIZER_UNIT_ROOM_INCOMPLETE'),
-                $untisID,
-                $invalidRooms
+            $model->warnings[] = Text::sprintf('ORGANIZER_UNIT_ROOM_INCOMPLETE', $untisID, $invalidRooms
             );
         }
         unset($model->warnings['IIR']);
@@ -61,28 +57,18 @@ class Units implements UntisXMLValidator
             foreach ($dows as $dow => $periods) {
                 foreach ($periods as $periodNo => $missingDates) {
                     if (count($missingDates) > 2) {
-                        $model->warnings[] = sprintf(
-                            Languages::_('ORGANIZER_UNIT_ROOMS_MISSING'),
-                            $untisID,
-                            $dow,
-                            $periodNo
-                        );
+                        $model->warnings[] = Text::sprintf('ORGANIZER_UNIT_ROOMS_MISSING', $untisID, $dow, $periodNo);
                         continue;
                     }
 
                     $dates = implode(', ', $missingDates);
                     $pos   = strrpos(', ', $dates);
                     if ($pos !== false) {
-                        $and   = Languages::_('ORGANIZER_AND');
+                        $and   = Text::_('ORGANIZER_AND');
                         $dates = substr_replace($dates, " $and ", $pos, strlen($dates));
                     }
 
-                    $model->warnings[] = sprintf(
-                        Languages::_('ORGANIZER_UNIT_ROOMS_MISSING'),
-                        $untisID,
-                        $dates,
-                        $periodNo
-                    );
+                    $model->warnings[] = Text::sprintf('ORGANIZER_UNIT_ROOMS_MISSING', $untisID, $dates, $periodNo);
                 }
 
             }
@@ -186,7 +172,7 @@ class Units implements UntisXMLValidator
         if (!empty($model->warnings['MID'])) {
             $warningCount = $model->warnings['MID'];
             unset($model->warnings['MID']);
-            $model->warnings[] = sprintf(Languages::_('ORGANIZER_METHOD_ID_WARNING'), $warningCount);
+            $model->warnings[] = Text::sprintf('ORGANIZER_METHOD_ID_WARNING', $warningCount);
         }
 
         if (!empty($model->warnings['IMR'])) {
@@ -232,9 +218,9 @@ class Units implements UntisXMLValidator
 
         $gridID = null;
         if (!$gridName = trim((string) $node->timegrid)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_GRID_MISSING'), $untisID);
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_GRID_MISSING', $untisID);
         } elseif (!$gridID = Grids::getID($gridName)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_GRID_INVALID'), $untisID, $gridName);
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_GRID_INVALID', $untisID, $gridName);
         }
 
         if (empty($model->units->$untisID)) {
@@ -297,51 +283,33 @@ class Units implements UntisXMLValidator
         $valid = true;
 
         if (empty($unit->startDT)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_START_DATE_MISSING'), $untisID);
-
-            $valid = false;
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_START_DATE_MISSING', $untisID);
+            $valid           = false;
         }
 
         $syStartTime = strtotime($model->schoolYear->startDate);
         $syEndTime   = strtotime($model->schoolYear->endDate);
 
         if ($unit->startDT < $syStartTime or $unit->startDT > $syEndTime) {
-            $model->errors[] = sprintf(
-                Languages::_('ORGANIZER_UNIT_START_DATE_INVALID'),
-                $untisID,
-                $unit->startDate
-            );
-
-            $valid = false;
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_START_DATE_INVALID', $untisID, $unit->startDate);
+            $valid           = false;
         }
 
         if (empty($unit->endDT)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_END_DATE_MISSING'), $untisID);
-
-            $valid = false;
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_END_DATE_MISSING', $untisID);
+            $valid           = false;
         }
 
         $validEndDate = ($unit->endDT >= $syStartTime and $unit->endDT <= $syEndTime);
         if (!$validEndDate) {
-            $model->errors[] = sprintf(
-                Languages::_('ORGANIZER_UNIT_END_DATE_INVALID'),
-                $untisID,
-                $unit->endDate
-            );
-
-            $valid = false;
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_END_DATE_INVALID', $untisID, $unit->endDate);
+            $valid           = false;
         }
 
         // Checks if start date is before end date
         if ($unit->endDT < $unit->startDT) {
-            $model->errors[] = sprintf(
-                Languages::_('ORGANIZER_UNIT_DATES_INCONSISTENT'),
-                $untisID,
-                $unit->startDate,
-                $unit->endDate
-            );
-
-            $valid = false;
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_DATES_INCONSISTENT', $untisID, $unit->startDate, $unit->endDate);
+            $valid           = false;
         }
 
         return $valid;
@@ -361,13 +329,13 @@ class Units implements UntisXMLValidator
         $eventCode = str_replace('SU_', '', trim((string) $node->lesson_subject[0]['id']));
 
         if (empty($eventCode)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_EVENT_MISSING'), $untisID);
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_EVENT_MISSING', $untisID);
 
             return false;
         }
 
         if (empty($model->events->$eventCode)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_EVENT_INVALID'), $untisID, $eventCode);
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_EVENT_INVALID', $untisID, $eventCode);
 
             return false;
         }
@@ -407,7 +375,7 @@ class Units implements UntisXMLValidator
         $rawUntisIDs = str_replace('CL_', '', (string) $node->lesson_classes[0]['id']);
 
         if (empty($rawUntisIDs)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_GROUPS_MISSING'), $untisID);
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_GROUPS_MISSING', $untisID);
 
             return false;
         }
@@ -425,7 +393,7 @@ class Units implements UntisXMLValidator
 
         foreach ($groupCodes as $groupCode) {
             if (empty($model->groups->$groupCode)) {
-                $model->warnings[] = sprintf(Languages::_('ORGANIZER_UNIT_GROUP_INVALID'), $untisID, $groupCode);
+                $model->warnings[] = Text::sprintf('ORGANIZER_UNIT_GROUP_INVALID', $untisID, $groupCode);
 
                 continue;
             }
@@ -459,7 +427,7 @@ class Units implements UntisXMLValidator
         }
 
         if (empty($model->methods->$methodID)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_METHOD_INVALID'), $untisID, $methodID);
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_METHOD_INVALID', $untisID, $methodID);
 
             return false;
         }
@@ -483,13 +451,13 @@ class Units implements UntisXMLValidator
         $personCode = str_replace('TR_', '', trim((string) $node->lesson_teacher[0]['id']));
 
         if (empty($personCode)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_PERSON_MISSING'), $untisID);
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_PERSON_MISSING', $untisID);
 
             return false;
         }
 
         if (empty($model->persons->$personCode)) {
-            $model->errors[] = sprintf(Languages::_('ORGANIZER_UNIT_PERSON_INVALID'), $untisID, $personCode);
+            $model->errors[] = Text::sprintf('ORGANIZER_UNIT_PERSON_INVALID', $untisID, $personCode);
 
             return false;
         }

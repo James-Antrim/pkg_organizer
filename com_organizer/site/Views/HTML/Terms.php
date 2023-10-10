@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\Dates;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads persistent information a filtered set of degrees into the display context.
@@ -27,9 +27,9 @@ class Terms extends ListView
     {
         $headers = [
             'checkbox' => '',
-            'term' => Languages::_('ORGANIZER_NAME'),
-            'startDate' => Languages::_('ORGANIZER_START_DATE'),
-            'endDate' => Languages::_('ORGANIZER_END_DATE')
+            'term' => Text::_('ORGANIZER_NAME'),
+            'startDate' => Text::_('ORGANIZER_START_DATE'),
+            'endDate' => Text::_('ORGANIZER_END_DATE')
         ];
 
         $this->headers = $headers;

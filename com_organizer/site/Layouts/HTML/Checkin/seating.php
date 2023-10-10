@@ -9,6 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 
 ?>
@@ -16,7 +17,7 @@ use THM\Organizer\Helpers;
       class="form-vertical form-validate contact" enctype="multipart/form-data" xmlns="http://www.w3.org/1999/html">
     <?php echo $this->form->renderFieldset('seating'); ?>
     <div class="control-group">
-        <input class="btn" type="submit" value="<?php echo Helpers\Languages::_('ORGANIZER_CONFIRM'); ?>"/>
+        <input class="btn" type="submit" value="<?php echo Text::_('ORGANIZER_CONFIRM'); ?>"/>
     </div>
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.confirmSeating"/>

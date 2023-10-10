@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Class loads the profile form into display context.
@@ -27,6 +26,6 @@ class Profile extends FormView
         $this->setTitle('ORGANIZER_MY_PROFILE');
 
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE'), 'profile.save', false);
+        $toolbar->appendButton('Standard', 'save', Text::_('ORGANIZER_SAVE'), 'profile.save', false);
     }
 }

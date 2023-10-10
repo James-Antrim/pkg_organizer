@@ -9,15 +9,16 @@
  */
 
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 
 $current          = Uri::getInstance()->toString();
-$privacyText      = Helpers\Languages::_('ORGANIZER_PRIVACY_POLICY');
+$privacyText      = Text::_('ORGANIZER_PRIVACY_POLICY');
 $privacyURL       = Uri::getInstance() . '&layout=privacy';
 $privacyLink      = Helpers\HTML::link($privacyURL, $privacyText);
 $return           = urlencode(base64_encode($current));
 $registerURL      = Uri::base() . "?option=com_users&view=registration&return=$return";
-$registrationLink = Helpers\HTML::link($registerURL, Helpers\Languages::_('ORGANIZER_REGISTER_TEXT_LINK'));
+$registrationLink = Helpers\HTML::link($registerURL, Text::_('ORGANIZER_REGISTER_TEXT_LINK'));
 $userID           = Helpers\Users::getID();
 
 ?>
@@ -29,17 +30,17 @@ $userID           = Helpers\Users::getID();
     <?php endif; ?>
     <?php echo $this->form->renderField('code'); ?>
     <div class="control-group">
-        <input class="btn" type="submit" value="<?php echo Helpers\Languages::_('ORGANIZER_CHECKIN'); ?>"/>
+        <input class="btn" type="submit" value="<?php echo Text::_('ORGANIZER_CHECKIN'); ?>"/>
     </div>
     <?php if ($userID): ?>
         <div class="control-group">
             <a class="btn" href="<?php echo Uri::getInstance() . '&layout=profile'; ?>">
-                <?php echo Helpers\Languages::_('ORGANIZER_PROFILE_EDIT'); ?>
+                <?php echo Text::_('ORGANIZER_PROFILE_EDIT'); ?>
             </a>
         </div>
     <?php else: ?>
         <div class="control-group message register">
-            <?php echo sprintf(Helpers\Languages::_('ORGANIZER_REGISTER_TEXT_FRAME'), '<br>' . $registrationLink); ?>
+            <?php echo Text::sprintf('ORGANIZER_REGISTER_TEXT_FRAME', '<br>' . $registrationLink); ?>
         </div>
     <?php endif; ?>
     <div class="control-group message">

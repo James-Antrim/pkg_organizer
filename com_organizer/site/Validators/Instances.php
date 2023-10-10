@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Database, Text};
 use THM\Organizer\Tables;
 use SimpleXMLElement;
 
@@ -63,7 +62,7 @@ class Instances
         }
 
         $dow = strtoupper(date('l', $currentDT));
-        $dow = Helpers\Languages::_($dow);
+        $dow = Text::_($dow);
         if (empty($model->warnings['IMR'][$untisID][$dow])) {
             $model->warnings['IMR'][$untisID][$dow] = [];
         }

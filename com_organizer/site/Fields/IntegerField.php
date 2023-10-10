@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 
 /**
@@ -53,7 +54,7 @@ class IntegerField extends OptionsField
             for ($number = $first; $number >= $last; $number += $step) {
                 $text = empty($prefix) ? '' : $prefix;
                 $text .= $number;
-                $text .= empty($unit) ? '' : ' ' . Helpers\Languages::_("ORGANIZER_$unit");
+                $text .= empty($unit) ? '' : ' ' . Text::_("ORGANIZER_$unit");
 
                 $options[] = Helpers\HTML::_('select.option', $number, $text);
             }
@@ -62,7 +63,7 @@ class IntegerField extends OptionsField
             for ($number = $first; $number <= $last; $number += $step) {
                 $text = empty($prefix) ? '' : $prefix;
                 $text .= $number;
-                $text .= empty($unit) ? '' : ' ' . Helpers\Languages::_("ORGANIZER_$unit");
+                $text .= empty($unit) ? '' : ' ' . Text::_("ORGANIZER_$unit");
 
                 $options[] = Helpers\HTML::_('select.option', $number, $text);
             }

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -56,7 +56,7 @@ class CourseEdit extends EditModel
         $this->item = parent::getItem($pk);
 
         if (empty($this->item->id)) {
-            $this->item->name   = Helpers\Languages::_('ORGANIZER_NONE');
+            $this->item->name   = Text::_('ORGANIZER_NONE');
             $this->item->termID = Helpers\Terms::getNextID();
         } else {
             $this->item->name = Helpers\Courses::getName($this->item->id);

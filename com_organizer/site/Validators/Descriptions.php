@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
 
@@ -38,7 +38,7 @@ class Descriptions implements UntisXMLValidator
             $property                = strtolower($resource);
             $model->$property->$code = $method->id;
         } else {
-            $model->errors[] = sprintf(Helpers\Languages::_($error), $code);
+            $model->errors[] = Text::sprintf($error, $code);
         }
     }
 
@@ -58,7 +58,7 @@ class Descriptions implements UntisXMLValidator
         $name    = trim((string) $node->longname);
 
         if (empty($name)) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_DESCRIPTION_NAME_MISSING'), $untisID);
+            $model->errors[] = Text::sprintf('ORGANIZER_DESCRIPTION_NAME_MISSING', $untisID);
 
             return;
         }

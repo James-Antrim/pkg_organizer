@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Text};
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -58,10 +58,10 @@ class Holidays
                         $holidays[$date]['name'] = $holiday["name_$tag"];
                         $holidays[$date]['type'] = 'holiday';
                     } elseif ($type === self::GAP) {
-                        $holidays[$date]['name'] = Languages::_('ORGANIZER_GAP_DAY');
+                        $holidays[$date]['name'] = Text::_('ORGANIZER_GAP_DAY');
                         $holidays[$date]['type'] = 'gap';
                     } else {
-                        $holidays[$date]['name'] = Languages::_('ORGANIZER_CLOSED_DAY');
+                        $holidays[$date]['name'] = Text::_('ORGANIZER_CLOSED_DAY');
                         $holidays[$date]['type'] = 'closed';
                     }
                 }

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Text};
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -78,7 +78,7 @@ class Categories extends Associated implements Selectable
      */
     public static function getProgramName(int $categoryID): string
     {
-        $noName = Languages::_('ORGANIZER_NO_PROGRAM');
+        $noName = Text::_('ORGANIZER_NO_PROGRAM');
         if (!$categoryID) {
             return $noName;
         }
@@ -89,7 +89,7 @@ class Categories extends Associated implements Selectable
 
         if ($programIDs = Database::loadIntColumn()) {
             return count($programIDs) > 1 ?
-                Languages::_('ORGANIZER_MULTIPLE_PROGRAMS') : Programs::getName($programIDs[0]);
+                Text::_('ORGANIZER_MULTIPLE_PROGRAMS') : Programs::getName($programIDs[0]);
         }
 
         return $noName;

@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Filesystem;
-use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Language\Text;
+use THM\Organizer\Adapters\{HTML, Text};
 
 /**
  * Class for the execution of processes during changes to the component itself.
@@ -194,13 +193,13 @@ class Com_OrganizerInstallerScript
         $dirSpan   = '';
         $imagePath = '/images/organizer';
         if (!$this->createImageDirectory()) {
-            $failText = sprintf(Text::_('ORGANIZER_IMAGE_FOLDER_FAIL'), $imagePath);
+            $failText = Text::sprintf('ORGANIZER_IMAGE_FOLDER_FAIL', $imagePath);
             $dirSpan  .= '<span style="color:red" >' . $failText . '</span>';
         }
-        $updateText = sprintf(Text::_('ORGANIZER_UPDATE_MESSAGE'), $version, $licenseLink);
+        $updateText = Text::sprintf('ORGANIZER_UPDATE_MESSAGE', $version, $licenseLink);
         ?>
         <div class="span5 form-vertical">
-            <?php echo HTMLHelper::_('image', $logoURL, Text::_('ORGANIZER')); ?>
+            <?php echo HTML::_('image', $logoURL, Text::_('ORGANIZER')); ?>
             <br/>
             <p><?php echo $updateText . ' ' . $dirSpan; ?></p>
             <br/>

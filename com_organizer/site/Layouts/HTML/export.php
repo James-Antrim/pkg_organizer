@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 $query    = Uri::getInstance()->getQuery();
@@ -20,17 +20,17 @@ $interval = Input::getString('interval', 'week');
 
 switch ($interval) {
     case 'month':
-        $interval = Helpers\Languages::_('ORGANIZER_SELECTED_MONTH');
+        $interval = Text::_('ORGANIZER_SELECTED_MONTH');
         break;
     case 'quarter':
-        $interval = Helpers\Languages::_('ORGANIZER_QUARTER');
+        $interval = Text::_('ORGANIZER_QUARTER');
         break;
     case 'term':
-        $interval = Helpers\Languages::_('ORGANIZER_SELECTED_TERM');
+        $interval = Text::_('ORGANIZER_SELECTED_TERM');
         break;
     case 'week':
     default:
-        $interval = Helpers\Languages::_('ORGANIZER_SELECTED_WEEK');
+        $interval = Text::_('ORGANIZER_SELECTED_WEEK');
         break;
 }
 
@@ -46,7 +46,7 @@ echo $this->title;
 
                 if ($label) {
                     $constant = 'ORGANIZER_' . strtoupper($label);
-                    $label    = Helpers\Languages::_($constant);
+                    $label    = Text::_($constant);
                     echo "<fieldset class=\"organizer-$set->name\">";
                     echo "<legend>$label</legend>";
                 }
@@ -78,10 +78,10 @@ echo $this->title;
 <?php echo Toolbar::getInstance()->render(); ?>
 <?php if ($this->url): ?>
     <div class="tbox-green">
-        <h6><?php echo Helpers\Languages::_('ORGANIZER_DOWNLOAD_URL_DESC'); ?></h6>
+        <h6><?php echo Text::_('ORGANIZER_DOWNLOAD_URL_DESC'); ?></h6>
         <input type="text" id="download-url" class="download-url" value="<?php echo $this->url; ?>"/>
         <button class="btn copy-button" onclick="<?php echo $script; ?>">
-            <span class="icon-copy"></span><?php echo Helpers\Languages::_('ORGANIZER_COPY'); ?>
+            <span class="icon-copy"></span><?php echo Text::_('ORGANIZER_COPY'); ?>
         </button>
     </div>
 <?php endif; ?>

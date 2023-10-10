@@ -14,7 +14,6 @@ use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Document, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\HTML;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Loads curriculum information into the display context.
@@ -75,16 +74,16 @@ class Curriculum extends ItemView
                 $crp = empty($item['creditPoints']) ? '' : "{$item['creditPoints']} CrP";
                 $url = $base . "SubjectItem&id={$item['subjectID']}";
 
-                $icon            = HTML::icon('book', Languages::_('ORGANIZER_SUBJECT_ITEM'));
+                $icon            = HTML::icon('book', Text::_('ORGANIZER_SUBJECT_ITEM'));
                 $additionalLinks .= HTML::link($url, $icon, $attributes);
 
                 if (!empty($item['eventID'])) {
                     $iUrl = $base . "Instances&eventID={$item['eventID']}&layout=";
 
-                    $icon            = HTML::icon('info-calender', Languages::_('ORGANIZER_SCHEDULE'));
+                    $icon            = HTML::icon('info-calender', Text::_('ORGANIZER_SCHEDULE'));
                     $additionalLinks .= HTML::link($iUrl . 'grid', $icon, $attributes);
 
-                    $icon            = HTML::icon('list', Languages::_('ORGANIZER_INSTANCES'));
+                    $icon            = HTML::icon('list', Text::_('ORGANIZER_INSTANCES'));
                     $additionalLinks .= HTML::link($iUrl . 'list', $icon, $attributes);
                 }
 
@@ -121,7 +120,7 @@ class Curriculum extends ItemView
         ?>
         <div class="legend">
             <div class="panel-head">
-                <div class="panel-title"><?php echo Languages::_('ORGANIZER_LEGEND'); ?></div>
+                <div class="panel-title"><?php echo Text::_('ORGANIZER_LEGEND'); ?></div>
             </div>
             <?php foreach ($this->fields as $hex => $field) : ?>
                 <?php Text::unpack($field); ?>

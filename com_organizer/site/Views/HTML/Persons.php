@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Toolbar};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads persistent information a filtered set of persons into the display context.
@@ -36,19 +35,19 @@ class Persons extends ListView
     {
         $this->setTitle('ORGANIZER_TEACHERS');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Languages::_('ORGANIZER_ADD'), 'persons.add', false);
-        $toolbar->appendButton('Standard', 'edit', Languages::_('ORGANIZER_EDIT'), 'persons.edit', true);
+        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'persons.add', false);
+        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'persons.edit', true);
         $toolbar->appendButton(
             'Standard',
             'eye-open',
-            Helpers\Languages::_('ORGANIZER_ACTIVATE'),
+            Helpers\Text::_('ORGANIZER_ACTIVATE'),
             'persons.activate',
             false
         );
         $toolbar->appendButton(
             'Standard',
             'eye-close',
-            Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
+            Helpers\Text::_('ORGANIZER_DEACTIVATE'),
             'persons.deactivate',
             false
         );
@@ -56,16 +55,16 @@ class Persons extends ListView
         if (Helpers\Can::administrate()) {
             /*$toolbar->appendButton(
                 'Confirm',
-                Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+                Helpers\Text::_('ORGANIZER_DELETE_CONFIRM'),
                 'delete',
-                Helpers\Languages::_('ORGANIZER_DELETE'),
+                Helpers\Text::_('ORGANIZER_DELETE'),
                 'persons.delete',
                 true
             );*/
             $toolbar->appendButton(
                 'Standard',
                 'contract',
-                Languages::_('ORGANIZER_MERGE'),
+                Text::_('ORGANIZER_MERGE'),
                 'persons.mergeView',
                 true
             );
@@ -89,12 +88,12 @@ class Persons extends ListView
     {
         $headers = [
             'checkbox' => '',
-            'surname' => Languages::_('ORGANIZER_SURNAME'),
-            'forename' => Languages::_('ORGANIZER_FORENAME'),
-            'username' => Languages::_('ORGANIZER_USERNAME'),
-            'active' => Helpers\Languages::_('ORGANIZER_ACTIVE'),
-            'organizationID' => Languages::_('ORGANIZER_ORGANIZATION'),
-            't.code' => Languages::_('ORGANIZER_UNTIS_ID')
+            'surname' => Text::_('ORGANIZER_SURNAME'),
+            'forename' => Text::_('ORGANIZER_FORENAME'),
+            'username' => Text::_('ORGANIZER_USERNAME'),
+            'active' => Helpers\Text::_('ORGANIZER_ACTIVE'),
+            'organizationID' => Text::_('ORGANIZER_ORGANIZATION'),
+            't.code' => Text::_('ORGANIZER_UNTIS_ID')
         ];
 
         $this->headers = $headers;
@@ -117,11 +116,11 @@ class Persons extends ListView
             $item->active = $this->getToggle('persons', $item->id, $item->active, $tip, 'active');
 
             if (!$organizations = Helpers\Persons::getOrganizationNames($item->id)) {
-                $item->organizationID = Languages::_('JNONE');
+                $item->organizationID = Text::_('JNONE');
             } elseif (count($organizations) === 1) {
                 $item->organizationID = $organizations[0];
             } else {
-                $item->organizationID = Languages::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
+                $item->organizationID = Text::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
             }
 
             $item->code = empty($item->code) ? '' : $item->code;

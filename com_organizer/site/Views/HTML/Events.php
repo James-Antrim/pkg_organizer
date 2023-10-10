@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Toolbar};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -32,13 +32,13 @@ class Events extends ListView
     {
         $this->setTitle('ORGANIZER_EVENT_TEMPLATES');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'events.edit', true);
+        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'events.edit', true);
 
         if (Helpers\Can::administrate()) {
             $toolbar->appendButton(
                 'Standard',
                 'contract',
-                Helpers\Languages::_('ORGANIZER_MERGE'),
+                Text::_('ORGANIZER_MERGE'),
                 'events.mergeView',
                 true
             );

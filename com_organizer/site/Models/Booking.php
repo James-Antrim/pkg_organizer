@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\User;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Tables;
@@ -152,7 +152,7 @@ class Booking extends Participants
             $over30 = strpos($response, 'mehr als 30') !== false;
 
             if ($count > 1 or $over30) {
-                $message = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $input);
+                $message = Text::sprintf('ORGANIZER_TOO_MANY_RESULTS', $input);
                 Helpers\OrganizerHelper::message($message, 'notice');
 
                 return;
@@ -382,7 +382,7 @@ class Booking extends Participants
         Database::setQuery($query);
 
         if (!$allIDs = Database::loadColumn()) {
-            Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
+            Helpers\OrganizerHelper::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
 
             return;
         }
@@ -393,13 +393,13 @@ class Booking extends Participants
         Database::setQuery($query);
 
         if (!$attendedIDs = Database::loadColumn()) {
-            Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
+            Helpers\OrganizerHelper::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
 
             return;
         }
 
         if (!$unAttendedIDs = array_diff($allIDs, $attendedIDs)) {
-            Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
+            Helpers\OrganizerHelper::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
 
             return;
         }
@@ -416,7 +416,7 @@ class Booking extends Participants
             $type     = 'error';
         }
 
-        Helpers\OrganizerHelper::message(Helpers\Languages::_($constant), $type);
+        Helpers\OrganizerHelper::message(Text::_($constant), $type);
     }
 
     /**
@@ -447,7 +447,7 @@ class Booking extends Participants
         }
 
         $type    = $count ? 'message' : 'notice';
-        $message = sprintf(Helpers\Languages::_('ORGANIZER_CHECKED_IN_COUNT'), $count);
+        $message = Text::sprintf('ORGANIZER_CHECKED_IN_COUNT', $count);
         Helpers\OrganizerHelper::message($message, $type);
     }
 
@@ -599,8 +599,8 @@ class Booking extends Participants
         }
 
         $warning      = Helpers\HTML::icon('warning-2 yellow');
-        $eventWarning = $warning . ' ' . Helpers\Languages::_('ORGANIZER_SELECT_EVENT');
-        $roomWarning  = $warning . ' ' . Helpers\Languages::_('ORGANIZER_SELECT_ROOM');
+        $eventWarning = $warning . ' ' . Text::_('ORGANIZER_SELECT_EVENT');
+        $roomWarning  = $warning . ' ' . Text::_('ORGANIZER_SELECT_ROOM');
 
         foreach ($items = parent::getItems() as $item) {
             if ($item->attended and empty($item->room)) {

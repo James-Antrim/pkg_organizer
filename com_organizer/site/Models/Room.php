@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\Rooms as Table;
 
@@ -229,7 +229,7 @@ class Room extends MergeModel
 
         fclose($file);
 
-        Helpers\OrganizerHelper::message(Helpers\Languages::_('ORGANIZER_IMPORT_SUCCESS'));
+        Helpers\OrganizerHelper::message(Text::_('ORGANIZER_IMPORT_SUCCESS'));
 
         return true;
     }

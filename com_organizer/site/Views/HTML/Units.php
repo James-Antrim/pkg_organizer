@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Toolbar};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class which loads data into the view output context
@@ -51,19 +50,19 @@ class Units extends ListView
         $toolbar->appendButton(
             'Standard',
             'plus',
-            Helpers\Languages::_('ORGANIZER_ADD_COURSE'),
+            Text::_('ORGANIZER_ADD_COURSE'),
             "units.addCourse",
             true
         );
 
         /*if (Helpers\Can::administrate())
         {
-            $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "units.edit", true);
+            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), "units.edit", true);
             $toolbar->appendButton(
                 'Confirm',
-                Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+                Text::_('ORGANIZER_DELETE_CONFIRM'),
                 'delete',
-                Helpers\Languages::_('ORGANIZER_DELETE'),
+                Text::_('ORGANIZER_DELETE'),
                 "units.delete",
                 true
             );
@@ -86,11 +85,11 @@ class Units extends ListView
         if ($item->status === 'removed') {
             $date  = Helpers\Dates::formatDate($item->modified);
             $class .= ' unit-removed';
-            $title = sprintf(Languages::_('ORGANIZER_UNIT_REMOVED_ON'), $date);
+            $title = Text::sprintf('ORGANIZER_UNIT_REMOVED_ON', $date);
         } elseif ($item->status === 'new' and $item->modified >= $this->statusDate) {
             $date  = Helpers\Dates::formatDate($item->modified);
             $class .= ' unit-new';
-            $title = sprintf(Languages::_('ORGANIZER_UNIT_ADDED_ON'), $date);
+            $title = Text::sprintf('ORGANIZER_UNIT_ADDED_ON', $date);
 
         }
 
@@ -105,12 +104,12 @@ class Units extends ListView
         $headers = [
             'checkbox' => Helpers\HTML::_('grid.checkall'),
             'status' => '',
-            'name' => Languages::_('ORGANIZER_NAME'),
-            'method' => Languages::_('ORGANIZER_METHOD'),
-            'dates' => Languages::_('ORGANIZER_DATES'),
-            'grid' => Languages::_('ORGANIZER_GRID'),
-            'code' => Languages::_('ORGANIZER_UNTIS_ID'),
-            //'run'      => Languages::_('ORGANIZER_RUN')
+            'name' => Text::_('ORGANIZER_NAME'),
+            'method' => Text::_('ORGANIZER_METHOD'),
+            'dates' => Text::_('ORGANIZER_DATES'),
+            'grid' => Text::_('ORGANIZER_GRID'),
+            'code' => Text::_('ORGANIZER_UNTIS_ID'),
+            //'run'      => Text::_('ORGANIZER_RUN')
         ];
 
         $this->headers = $headers;

@@ -13,7 +13,6 @@ namespace THM\Organizer\Models;
 use Exception;
 use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\OrganizerHelper as OH;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Participants as Table;
@@ -41,7 +40,7 @@ class Participant extends MergeModel
         Database::setQuery($query);
 
         if (!$candidates = Database::loadAssocList()) {
-            OH::message(Languages::_('ORGANIZER_AUTOMATIC_MERGE_NO_CANDIDATES'));
+            OH::message(Text::_('ORGANIZER_AUTOMATIC_MERGE_NO_CANDIDATES'));
         }
 
         $ambiguous   = 0;

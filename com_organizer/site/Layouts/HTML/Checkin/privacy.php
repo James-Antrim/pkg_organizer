@@ -10,7 +10,7 @@
 
 
 use Joomla\CMS\Factory;
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\Text;
 
 $referrer = Factory::getSession()->get('organizer.checkin.referrer');
 ?>
@@ -162,7 +162,7 @@ $referrer = Factory::getSession()->get('organizer.checkin.referrer');
     <br>
     <div class="control-group">
         <a class="btn" href="<?php echo $referrer; ?>">
-            <?php echo Languages::_('ORGANIZER_CLOSE'); ?>
+            <?php echo Text::_('ORGANIZER_CLOSE'); ?>
         </a>
     </div>
 </form>

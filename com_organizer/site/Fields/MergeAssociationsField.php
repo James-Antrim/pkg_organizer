@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -31,7 +31,7 @@ class MergeAssociationsField extends OptionsField
      */
     protected function getOptions(): array
     {
-        $default     = [Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_NONE_GIVEN'))];
+        $default     = [Helpers\HTML::_('select.option', '', Text::_('ORGANIZER_NONE_GIVEN'))];
         $selectedIDs = Input::getSelectedIDs();
         $valueColumn = $this->getAttribute('name');
         if (empty($selectedIDs) or empty($valueColumn)) {
@@ -90,7 +90,7 @@ class MergeAssociationsField extends OptionsField
             $this->required = true;
             array_unshift(
                 $options,
-                Helpers\HTML::_('select.option', '', Helpers\Languages::_('ORGANIZER_SELECT_VALUE'))
+                Helpers\HTML::_('select.option', '', Text::_('ORGANIZER_SELECT_VALUE'))
             );
         }
 

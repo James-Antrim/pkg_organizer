@@ -10,78 +10,14 @@
 
 namespace THM\Organizer\Helpers;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Language;
 use Joomla\CMS\Language\Text;
+use THM\Organizer\Adapters\Text as Next;
 
 /**
  * Provides general functions for language data retrieval and display.
  */
 class Languages extends Text
 {
-    /**
-     * @inheritDoc
-     * @noinspection PhpMethodNamingConventionInspection
-     */
-    public static function _($string, $jsSafe = false, $interpretBackSlashes = true, $script = false): string
-    {
-        if (is_array($jsSafe)) {
-            if (array_key_exists('interpretBackSlashes', $jsSafe)) {
-                $interpretBackSlashes = (bool) $jsSafe['interpretBackSlashes'];
-            }
-
-            if (array_key_exists('script', $jsSafe)) {
-                $script = (bool) $jsSafe['script'];
-            }
-
-            $jsSafe = !empty($jsSafe['jsSafe']);
-        }
-
-        $language = self::getLanguage();
-
-        if ($script) {
-            static::$strings[$string] = $language->_($string, $jsSafe, $interpretBackSlashes);
-
-            return $string;
-        }
-
-        return $language->_($string, $jsSafe, $interpretBackSlashes);
-    }
-
-    /**
-     * Converts an array of values into a list string.
-     *
-     * @param array $array the array to reformat
-     * @param bool  $and   whether the last entry should be separated with ampersand
-     *
-     * @return string the reformatted
-     */
-    public static function array2string(array $array, bool $and = true): string
-    {
-        asort($array);
-
-        if ($and) {
-            $last = array_pop($array);
-
-            // Did the array originally have more than one item
-            return $array ? implode(', ', $array) . ', & ' . $last : $last;
-        }
-
-        return implode(', ', $array);
-    }
-
-    /**
-     * Returns a language instance based on user input.
-     * @return Language
-     */
-    public static function getLanguage(): Language
-    {
-        $language = Factory::getLanguage();
-        $language->load('com_organizer', JPATH_ADMINISTRATOR . '/components/com_organizer');
-
-        return $language;
-    }
-
     /**
      * Converts a double colon separated string or 2 separate strings to a string ready for bootstrap tooltips
      *
@@ -98,8 +34,8 @@ class Languages extends Text
 
         // Don't process empty strings
         if ($content !== '' or $title !== '') {
-            $title   = self::_($title);
-            $content = self::_($content);
+            $title   = Next::_($title);
+            $content = Next::_($content);
 
             if ($title === '') {
                 $result = $content;

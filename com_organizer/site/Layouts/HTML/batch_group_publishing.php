@@ -8,13 +8,13 @@
  * @link        www.thm.de
  */
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 
 ?>
 <div class="modal hide fade" id="modal-publishing">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&#215;</button>
-        <h3><?php echo Helpers\Languages::_('ORGANIZER_BATCH_GROUPS'); ?></h3>
+        <h3><?php echo Text::_('ORGANIZER_BATCH_GROUPS'); ?></h3>
     </div>
     <div class="modal-body modal-batch form-horizontal">
         <?php foreach ($this->filterForm->getGroup('batch') as $batchField) : ?>
@@ -30,10 +30,10 @@ use THM\Organizer\Helpers;
     </div>
     <div class="modal-footer">
         <button class="btn" type="button" data-dismiss="modal">
-            <?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
+            <?php echo Text::_('ORGANIZER_CANCEL'); ?>
         </button>
         <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('groups.batch');">
-            <?php echo Helpers\Languages::_('ORGANIZER_SAVE'); ?>
+            <?php echo Text::_('ORGANIZER_SAVE'); ?>
         </button>
     </div>
 </div>

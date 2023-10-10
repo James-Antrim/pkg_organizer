@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Holidays as Helper;
 use THM\Organizer\Helpers\HTML;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads persistent information a filtered set of holidays into the display context.
@@ -31,9 +31,9 @@ class Holidays extends ListView
         $headers = [
             'checkbox' => '',
             'name' => HTML::sort('NAME', 'name', $direction, $ordering),
-            'dates' => Languages::_('ORGANIZER_DATES'),
-            'type' => Languages::_('ORGANIZER_TYPE'),
-            'status' => Languages::_('ORGANIZER_STATUS')
+            'dates' => Text::_('ORGANIZER_DATES'),
+            'type' => Text::_('ORGANIZER_TYPE'),
+            'status' => Text::_('ORGANIZER_STATUS')
         ];
 
         $this->headers = $headers;
@@ -63,7 +63,7 @@ class Holidays extends ListView
                 $name .= ". ($item->term)";
             }
 
-            $status = $item->endDate < $today ? Languages::_('ORGANIZER_EXPIRED') : Languages::_('ORGANIZER_CURRENT');
+            $status = $item->endDate < $today ? Text::_('ORGANIZER_EXPIRED') : Text::_('ORGANIZER_CURRENT');
             $type   = $typeMap[$item->type];
 
             $thisLink      = $link . $item->id;
@@ -71,7 +71,7 @@ class Holidays extends ListView
                 'checkbox' => HTML::_('grid.id', $index, $item->id),
                 'name' => HTML::_('link', $thisLink, $name),
                 'dates' => HTML::_('link', $thisLink, $dateString),
-                'type' => HTML::_('link', $thisLink, Languages::_($type)),
+                'type' => HTML::_('link', $thisLink, Text::_($type)),
                 'status' => HTML::_('link', $thisLink, $status)
             ];
 

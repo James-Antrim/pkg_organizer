@@ -9,9 +9,10 @@
  */
 
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 
-$privacyText = Helpers\Languages::_('ORGANIZER_PRIVACY_POLICY');
+$privacyText = Text::_('ORGANIZER_PRIVACY_POLICY');
 $privacyURL  = str_replace('profile', 'privacy', Uri::getInstance());
 $privacyLink = Helpers\HTML::link($privacyURL, $privacyText);
 
@@ -32,7 +33,7 @@ $privacyLink = Helpers\HTML::link($privacyURL, $privacyText);
         </div>
     </div>
     <div class="control-group">
-        <input class="btn" type="submit" value="<?php echo Helpers\Languages::_('ORGANIZER_SAVE'); ?>"/>
+        <input class="btn" type="submit" value="<?php echo Text::_('ORGANIZER_SAVE'); ?>"/>
     </div>
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.contact"/>

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -47,9 +47,9 @@ class Buildings extends ListView
         $headers   = [
             'checkbox' => '',
             'name' => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
-            'campusID' => Helpers\Languages::_('ORGANIZER_CAMPUS'),
-            'propertyType' => Helpers\Languages::_('ORGANIZER_PROPERTY_TYPE'),
-            'address' => Helpers\Languages::_('ORGANIZER_STREET')
+            'campusID' => Text::_('ORGANIZER_CAMPUS'),
+            'propertyType' => Text::_('ORGANIZER_PROPERTY_TYPE'),
+            'address' => Text::_('ORGANIZER_STREET')
         ];
 
         $this->headers = $headers;
@@ -69,19 +69,19 @@ class Buildings extends ListView
 
             switch ($item->propertyType) {
                 case self::OWNED:
-                    $item->propertyType = Helpers\Languages::_('ORGANIZER_OWNED');
+                    $item->propertyType = Text::_('ORGANIZER_OWNED');
                     break;
 
                 case self::RENTED:
-                    $item->propertyType = Helpers\Languages::_('ORGANIZER_RENTED');
+                    $item->propertyType = Text::_('ORGANIZER_RENTED');
                     break;
 
                 case self::USED:
-                    $item->propertyType = Helpers\Languages::_('ORGANIZER_USED');
+                    $item->propertyType = Text::_('ORGANIZER_USED');
                     break;
 
                 default:
-                    $item->propertyType = Helpers\Languages::_('ORGANIZER_UNKNOWN');
+                    $item->propertyType = Text::_('ORGANIZER_UNKNOWN');
                     break;
             }
 

@@ -11,8 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use THM\Organizer\Adapters\{Database, Queries\QueryMySQLi, Text};
 
 /**
  * Class contains methods and method stubs useful in the context of nested curriculum resources.
@@ -270,7 +269,7 @@ abstract class Curricula extends Associated implements Selectable
      */
     public static function getSuperOptions(int $resourceID, string $type, array $programRanges): array
     {
-        $options = ['<option value="-1">' . Languages::_('ORGANIZER_NONE') . '</option>'];
+        $options = ['<option value="-1">' . Text::_('ORGANIZER_NONE') . '</option>'];
         if (!$programRanges or !$type) {
             return $options;
         }
@@ -325,13 +324,13 @@ abstract class Curricula extends Associated implements Selectable
     public static function getProgramName(int $resourceID): string
     {
         if (!$programs = self::getPrograms($resourceID)) {
-            return Languages::_('ORGANIZER_NO_PROGRAMS');
+            return Text::_('ORGANIZER_NO_PROGRAMS');
         }
 
         if (count($programs) === 1) {
             return Programs::getName($programs[0]['programID']);
         } else {
-            return Languages::_('ORGANIZER_MULTIPLE_PROGRAMS');
+            return Text::_('ORGANIZER_MULTIPLE_PROGRAMS');
         }
     }
 

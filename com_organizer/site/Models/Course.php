@@ -11,9 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
 
 /**
@@ -136,7 +135,7 @@ class Course extends BaseModel
             $this->addCourseByUnitIDs($organizationID, $termID, $unitIDs);
         }
 
-        Helpers\OrganizerHelper::message(Languages::_('ORGANIZER_IMPORT_SUCCESS'));
+        Helpers\OrganizerHelper::message(Text::_('ORGANIZER_IMPORT_SUCCESS'));
 
         return true;
     }
@@ -163,14 +162,14 @@ class Course extends BaseModel
             $unit = new Tables\Units();
 
             if (!$unit->load(['code' => $unitID, 'organizationID' => $organizationID, 'termID' => $termID])) {
-                Helpers\OrganizerHelper::message(sprintf(Languages::_('ORGANIZER_UNIT_ID_INVALID'), $unitID));
+                Helpers\OrganizerHelper::message(Text::sprintf('ORGANIZER_UNIT_ID_INVALID', $unitID));
 
                 return;
             }
 
             if ($unit->courseID) {
                 if ($course->id and $course->id !== $unit->courseID) {
-                    Helpers\OrganizerHelper::message(sprintf(Languages::_('ORGANIZER_UNIT_COURSE_CONFLICT'), $unitID, $course->$localized));
+                    Helpers\OrganizerHelper::message(Text::sprintf('ORGANIZER_UNIT_COURSE_CONFLICT', $unitID, $course->$localized));
 
                     return;
                 } elseif (!$course->id) {

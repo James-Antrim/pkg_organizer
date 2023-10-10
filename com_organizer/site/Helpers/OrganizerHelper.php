@@ -13,10 +13,7 @@ namespace THM\Organizer\Helpers;
 require_once JPATH_ROOT . '/components/com_jce/editor/libraries/classes/mobile.php';
 
 use Exception;
-use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Controllers\Controller;
 use Wf_Mobile_Detect;
 
@@ -180,7 +177,7 @@ class OrganizerHelper
      */
     public static function message(string $message, string $type = 'message')
     {
-        $message = Languages::_($message);
+        $message = Text::_($message);
         Application::getApplication()->enqueueMessage($message, $type);
     }
 

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Toolbar};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -33,18 +33,18 @@ class Categories extends ListView
     {
         $this->setTitle('ORGANIZER_CATEGORIES');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'categories.edit', true);
+        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'categories.edit', true);
         $toolbar->appendButton(
             'Standard',
             'eye-open',
-            Helpers\Languages::_('ORGANIZER_ACTIVATE'),
+            Text::_('ORGANIZER_ACTIVATE'),
             'Categories.activate',
             false
         );
         $toolbar->appendButton(
             'Standard',
             'eye-close',
-            Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
+            Text::_('ORGANIZER_DEACTIVATE'),
             'Categories.deactivate',
             false
         );
@@ -53,7 +53,7 @@ class Categories extends ListView
             $toolbar->appendButton(
                 'Standard',
                 'delete',
-                Helpers\Languages::_('ORGANIZER_DELETE'),
+                Text::_('ORGANIZER_DELETE'),
                 'Categories.delete',
                 true
             );
@@ -80,8 +80,8 @@ class Categories extends ListView
         $headers   = [
             'checkbox' => '',
             'name' => Helpers\HTML::sort('DISPLAY_NAME', 'name', $direction, $ordering),
-            'active' => Helpers\Languages::_('ORGANIZER_ACTIVE'),
-            'program' => Helpers\Languages::_('ORGANIZER_PROGRAM'),
+            'active' => Text::_('ORGANIZER_ACTIVE'),
+            'program' => Text::_('ORGANIZER_PROGRAM'),
             'code' => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering)
         ];
 

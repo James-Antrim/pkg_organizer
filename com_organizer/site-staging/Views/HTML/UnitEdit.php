@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Class loads the grid form into display context.
@@ -32,7 +31,7 @@ class UnitEdit extends EditView
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_('ORGANIZER_SAVE_CLOSE'), "Units.save", false);
-        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_('ORGANIZER_CLOSE'), "Units.cancel", false);
+        $toolbar->appendButton('Standard', 'save', Text::_('ORGANIZER_SAVE_CLOSE'), "Units.save", false);
+        $toolbar->appendButton('Standard', 'cancel', Text::_('ORGANIZER_CLOSE'), "Units.cancel", false);
     }
 }

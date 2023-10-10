@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Toolbar};
+use THM\Organizer\Adapters\{Document, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -48,7 +48,7 @@ class Organizer extends BaseView
             $toolbar->appendButton(
                 'Standard',
                 'trash',
-                Helpers\Languages::_('ORGANIZER_CLEAN_BOOKINGS'),
+                Text::_('ORGANIZER_CLEAN_BOOKINGS'),
                 'organizer.cleanBookings',
                 false
             );
@@ -84,7 +84,7 @@ class Organizer extends BaseView
             $return = urlencode(base64_encode($uri));
             $link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
 
-            $toolbar->appendButton('Link', 'options', Helpers\Languages::_('ORGANIZER_SETTINGS'), $link);
+            $toolbar->appendButton('Link', 'options', Text::_('ORGANIZER_SETTINGS'), $link);
         }
     }
 

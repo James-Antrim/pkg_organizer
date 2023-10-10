@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Toolbar};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -45,15 +45,15 @@ class Runs extends ListView
     {
         $this->setTitle('ORGANIZER_RUNS');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), "runs.add", false);
+        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), "runs.add", false);
 
         if (Helpers\Can::administrate() and count($this->items)) {
-            $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "runs.edit", true);
+            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), "runs.edit", true);
             $toolbar->appendButton(
                 'Confirm',
-                Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+                Text::_('ORGANIZER_DELETE_CONFIRM'),
                 'delete',
-                Helpers\Languages::_('ORGANIZER_DELETE'),
+                Text::_('ORGANIZER_DELETE'),
                 "runs.delete",
                 true
             );
@@ -67,11 +67,11 @@ class Runs extends ListView
     {
         $headers = [
             'checkbox' => '',
-            'name' => Helpers\Languages::_('ORGANIZER_NAME'),
-            'term' => Helpers\Languages::_('ORGANIZER_TERM'),
-            'startDate' => Helpers\Languages::_('ORGANIZER_START_DATE'),
-            'endDate' => Helpers\Languages::_('ORGANIZER_END_DATE'),
-            'sections' => Helpers\Languages::_('ORGANIZER_SECTIONS')
+            'name' => Text::_('ORGANIZER_NAME'),
+            'term' => Text::_('ORGANIZER_TERM'),
+            'startDate' => Text::_('ORGANIZER_START_DATE'),
+            'endDate' => Text::_('ORGANIZER_END_DATE'),
+            'sections' => Text::_('ORGANIZER_SECTIONS')
         ];
 
         $this->headers = $headers;

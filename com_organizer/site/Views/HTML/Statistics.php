@@ -13,8 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
-use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\Document;
+use THM\Organizer\Adapters\{Document, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -43,11 +42,11 @@ class Statistics extends FormView
     protected function addToolBar()
     {
         $this->setTitle('ORGANIZER_STATISTICS');
-        $toolbar = Adapters\Toolbar::getInstance();
+        $toolbar = Toolbar::getInstance();
         $toolbar->appendButton(
             'Standard',
             'play',
-            Helpers\Languages::_('ORGANIZER_GENERATE_STATISTIC'),
+            Text::_('ORGANIZER_GENERATE_STATISTIC'),
             'Statistics.display',
             false
         );
@@ -99,16 +98,16 @@ class Statistics extends FormView
 
         switch ($this->state->get('conditions.statistic')) {
             case self::REGISTRATIONS:
-                $text = sprintf(Helpers\Languages::_('ORGANIZER_REGISTRATIONS_DESC'), $startDate, $endDate);
+                $text = Text::sprintf('ORGANIZER_REGISTRATIONS_DESC', $startDate, $endDate);
                 break;
             case self::METHOD_USE:
-                $text = sprintf(Helpers\Languages::_('ORGANIZER_METHOD_USE_DESC'), $startDate, $endDate);
+                $text = Text::sprintf('ORGANIZER_METHOD_USE_DESC', $startDate, $endDate);
                 break;
             case self::PLANNED_PRESENCE_TYPE:
-                $text = sprintf(Helpers\Languages::_('ORGANIZER_PLANNED_PRESENCE_TYPE_DESC'), $startDate, $endDate);
+                $text = Text::sprintf('ORGANIZER_PLANNED_PRESENCE_TYPE_DESC', $startDate, $endDate);
                 break;
             case self::PRESENCE_USE:
-                $text = sprintf(Helpers\Languages::_('ORGANIZER_PRESENCE_USE_DESC'), $startDate, $endDate);
+                $text = Text::sprintf('ORGANIZER_PRESENCE_USE_DESC', $startDate, $endDate);
                 break;
             default:
                 $text = '';

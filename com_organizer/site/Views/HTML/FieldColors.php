@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Toolbar};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -27,20 +27,20 @@ class FieldColors extends ListView
     {
         $this->setTitle('ORGANIZER_FIELD_COLORS');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'link', Helpers\Languages::_('ORGANIZER_ADD'), "field_colors.add", false);
-        $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), "field_colors.edit", true);
+        $toolbar->appendButton('Standard', 'link', Text::_('ORGANIZER_ADD'), "field_colors.add", false);
+        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), "field_colors.edit", true);
 
         $toolbar->appendButton(
             'Confirm',
-            Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+            Text::_('ORGANIZER_DELETE_CONFIRM'),
             'delete',
-            Helpers\Languages::_('ORGANIZER_DELETE'),
+            Text::_('ORGANIZER_DELETE'),
             "field_colors.delete",
             true
         );
 
-        $toolbar->appendButton('Standard', 'lamp', Helpers\Languages::_('ORGANIZER_FIELD_NEW'), 'fields.add', false);
-        $toolbar->appendButton('Standard', 'palette', Helpers\Languages::_('ORGANIZER_COLOR_NEW'), 'colors.add', false);
+        $toolbar->appendButton('Standard', 'lamp', Text::_('ORGANIZER_FIELD_NEW'), 'fields.add', false);
+        $toolbar->appendButton('Standard', 'palette', Text::_('ORGANIZER_COLOR_NEW'), 'colors.add', false);
     }
 
     /**
@@ -64,7 +64,7 @@ class FieldColors extends ListView
             'checkbox' => '',
             'field' => Helpers\HTML::sort('FIELD', 'field', $direction, $ordering),
             'organization' => Helpers\HTML::sort('ORGANIZATION', 'organization', $direction, $ordering),
-            'color' => Helpers\Languages::_('ORGANIZER_COLOR')
+            'color' => Text::_('ORGANIZER_COLOR')
         ];
 
         $this->headers = $headers;

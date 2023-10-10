@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -40,7 +40,7 @@ class InstanceEdit extends EditView
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), 'instances.save', false);
+        $toolbar->appendButton('Standard', 'save', Text::_($save), 'instances.save', false);
 
         $layout  = Input::getCMD('layout');
         $layouts = ['appointment', 'simple'];
@@ -48,10 +48,10 @@ class InstanceEdit extends EditView
 
         // One less button for the people Ralph wants to present as mentally impaired.
         if ($layout !== 'appointment') {
-            $toolbar->appendButton('Standard', 'reset', Helpers\Languages::_('ORGANIZER_RESET'), 'instances.reset', false);
+            $toolbar->appendButton('Standard', 'reset', Text::_('ORGANIZER_RESET'), 'instances.reset', false);
         }
 
-        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), 'instances.cancel', false);
+        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), 'instances.cancel', false);
     }
 
     /**

@@ -11,7 +11,6 @@
 namespace THM\Organizer\Adapters;
 
 use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Language\Text;
 use Joomla\Utilities\ArrayHelper;
 
 class HTML extends HTMLHelper

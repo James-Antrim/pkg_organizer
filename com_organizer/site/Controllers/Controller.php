@@ -280,7 +280,7 @@ class Controller extends BaseController
 
         $selectedIDs = Input::getSelectedIDs();
         if (count($selectedIDs) == 1) {
-            $msg = Helpers\Languages::_('ORGANIZER_TOO_FEW');
+            $msg = Text::_('ORGANIZER_TOO_FEW');
             $this->setRedirect(Route::_($url, false), $msg, 'notice');
 
             return;

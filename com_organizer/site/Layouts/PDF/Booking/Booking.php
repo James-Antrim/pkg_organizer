@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Layouts\PDF\Booking;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\Bookings as Helper;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Layouts\PDF\ListLayout;
 use THM\Organizer\Views\PDF\Booking as View;
 
@@ -85,12 +85,12 @@ class Booking extends ListLayout
         $this->headers = [
             'checkbox' => '',
             'index' => '#',
-            'name' => Languages::_('ORGANIZER_NAME'),
+            'name' => Text::_('ORGANIZER_NAME'),
             'attended' => '51',
             'registered' => '46',
-            'event' => Languages::_('ORGANIZER_EVENT'),
-            'room' => Languages::_('ORGANIZER_ROOM'),
-            'seat' => Languages::_('ORGANIZER_SEAT')
+            'event' => Text::_('ORGANIZER_EVENT'),
+            'room' => Text::_('ORGANIZER_ROOM'),
+            'seat' => Text::_('ORGANIZER_SEAT')
         ];
 
         $view     = $this->view;
@@ -150,7 +150,7 @@ class Booking extends ListLayout
     public function setTitle()
     {
         $view = $this->view;
-        $name = Languages::_('ORGANIZER_EVENT') . '-' . $view->booking->code . '-' . Languages::_('ORGANIZER_PARTICIPANTS');
+        $name = Text::_('ORGANIZER_EVENT') . '-' . $view->booking->code . '-' . Text::_('ORGANIZER_PARTICIPANTS');
         $view->setNames($name);
     }
 }

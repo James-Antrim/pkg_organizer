@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
@@ -98,7 +99,7 @@ class Categories implements UntisXMLValidator
         $code = str_replace('DP_', '', trim((string) $node[0]['id']));
 
         if (!$name = (string) $node->longname) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_CATEGORY_NAME_MISSING'), $code);
+            $model->errors[] = Text::sprintf('ORGANIZER_CATEGORY_NAME_MISSING', $code);
 
             return;
         }

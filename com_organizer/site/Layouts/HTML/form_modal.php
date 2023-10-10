@@ -9,8 +9,7 @@
  * @link        www.thm.de
  */
 
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Input, Text};
 
 $task = Input::getCMD('view') . '.supplement';
 
@@ -18,7 +17,7 @@ $task = Input::getCMD('view') . '.supplement';
 <div class="modal hide fade form-modal" id="form-modal">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&#215;</button>
-        <h3><?php echo Helpers\Languages::_('ORGANIZER_SUPPLEMENT'); ?>
+        <h3><?php echo Text::_('ORGANIZER_SUPPLEMENT'); ?>
     </div>
     <div class="modal-body modal-batch form-vertical">
         <?php foreach ($this->filterForm->getGroup('supplement') as $formField) : ?>
@@ -34,10 +33,10 @@ $task = Input::getCMD('view') . '.supplement';
     </div>
     <div class="modal-footer">
         <button class="btn" type="button" data-dismiss="modal">
-            <?php echo Helpers\Languages::_('ORGANIZER_CANCEL'); ?>
+            <?php echo Text::_('ORGANIZER_CANCEL'); ?>
         </button>
         <button class="btn btn-primary" type="submit" onclick="Joomla.submitbutton('<?php echo $task; ?>');">
-            <?php echo Helpers\Languages::_('ORGANIZER_SAVE'); ?>
+            <?php echo Text::_('ORGANIZER_SAVE'); ?>
         </button>
     </div>
 </div>

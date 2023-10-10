@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Views\XLS;
 
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Layouts\Exported;
 use THM\Organizer\Models\Instances as Model;
 
@@ -147,31 +146,31 @@ class Instances extends ListView
     {
         $this->headers = [
             'date' => [
-                'text' => Languages::_('ORGANIZER_DATE'),
+                'text' => Text::_('ORGANIZER_DATE'),
                 'width' => 12.5
             ],
             'times' => [
-                'text' => Languages::_('ORGANIZER_TIME'),
+                'text' => Text::_('ORGANIZER_TIME'),
                 'width' => 15
             ],
             'organization' => [
-                'text' => Languages::_('ORGANIZER_ORGANIZATION'),
+                'text' => Text::_('ORGANIZER_ORGANIZATION'),
                 'width' => 15
             ],
             'title' => [
-                'text' => Languages::_('ORGANIZER_NAME'),
+                'text' => Text::_('ORGANIZER_NAME'),
                 'width' => 30
             ],
             'method' => [
-                'text' => Languages::_('ORGANIZER_METHOD'),
+                'text' => Text::_('ORGANIZER_METHOD'),
                 'width' => 15
             ],
             'groups' => [
-                'text' => Languages::_('ORGANIZER_GROUPS'),
+                'text' => Text::_('ORGANIZER_GROUPS'),
                 'width' => 70
             ],
             'rooms' => [
-                'text' => Languages::_('ORGANIZER_ROOMS'),
+                'text' => Text::_('ORGANIZER_ROOMS'),
                 'width' => 12.5
             ],
             'teachers' => [

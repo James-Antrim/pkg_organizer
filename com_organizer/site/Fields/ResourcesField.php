@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\HTML;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class creates a select box for predefined colors.
@@ -33,28 +33,28 @@ class ResourcesField extends ColoredOptionsField
         $options = parent::getOptions();
 
         $resources = [
-            Languages::_('ORGANIZER_CATEGORIES_AND_PROGRAMS') => [
-                'text' => Languages::_('ORGANIZER_CATEGORIES_AND_PROGRAMS'),
+            Text::_('ORGANIZER_CATEGORIES_AND_PROGRAMS') => [
+                'text' => Text::_('ORGANIZER_CATEGORIES_AND_PROGRAMS'),
                 'value' => 'cnp'
             ],
-            Languages::_('ORGANIZER_EVENTS_AND_SUBJECTS') => [
-                'text' => Languages::_('ORGANIZER_EVENTS_AND_SUBJECTS'),
+            Text::_('ORGANIZER_EVENTS_AND_SUBJECTS') => [
+                'text' => Text::_('ORGANIZER_EVENTS_AND_SUBJECTS'),
                 'value' => 'ens'
             ],
-            Languages::_('ORGANIZER_GROUPS_AND_POOLS') => [
-                'text' => Languages::_('ORGANIZER_GROUPS_AND_POOLS'),
+            Text::_('ORGANIZER_GROUPS_AND_POOLS') => [
+                'text' => Text::_('ORGANIZER_GROUPS_AND_POOLS'),
                 'value' => 'gnp'
             ],
-            Languages::_('ORGANIZER_ORGANIZATIONS') => [
-                'text' => Languages::_('ORGANIZER_ORGANIZATIONS'),
+            Text::_('ORGANIZER_ORGANIZATIONS') => [
+                'text' => Text::_('ORGANIZER_ORGANIZATIONS'),
                 'value' => 'organizations'
             ],
-            Languages::_('ORGANIZER_PERSONS') => [
-                'text' => Languages::_('ORGANIZER_PERSONS'),
+            Text::_('ORGANIZER_PERSONS') => [
+                'text' => Text::_('ORGANIZER_PERSONS'),
                 'value' => 'persons'
             ],
-            Languages::_('ORGANIZER_ROOMS') => [
-                'text' => Languages::_('ORGANIZER_ROOMS'),
+            Text::_('ORGANIZER_ROOMS') => [
+                'text' => Text::_('ORGANIZER_ROOMS'),
                 'value' => 'rooms'
             ]
         ];

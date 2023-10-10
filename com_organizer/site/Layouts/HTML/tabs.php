@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 $query = Uri::getInstance()->getQuery();
@@ -36,7 +36,7 @@ if (!$this->adminContext) {
                 'bootstrap.addTab',
                 'myTab',
                 $set->name,
-                Helpers\Languages::_('ORGANIZER_' . $set->label, true)
+                Text::_('ORGANIZER_' . $set->label, true)
             );
             echo $this->form->renderFieldset($set->name);
             echo Helpers\HTML::_('bootstrap.endTab');

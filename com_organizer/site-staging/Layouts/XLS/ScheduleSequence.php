@@ -12,8 +12,8 @@ namespace THM\Organizer\Layouts\XLS;
 
 jimport('phpexcel.library.PHPExcel');
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class generates an XLS file for the schedule where lessons are listed sequentially.
@@ -141,28 +141,28 @@ class ScheduleSequence
     private function addHeader()
     {
         $this->spreadSheet->setActiveSheetIndex(0);
-        $this->spreadSheet->getActiveSheet()->setCellValue('A1', Languages::_('ORGANIZER_DATE'));
-        $this->spreadSheet->getActiveSheet()->setCellValue('B1', Languages::_('ORGANIZER_START_TIME'));
-        $this->spreadSheet->getActiveSheet()->setCellValue('C1', Languages::_('ORGANIZER_END_TIME'));
-        $this->spreadSheet->getActiveSheet()->setCellValue('D1', Languages::_('ORGANIZER_SUBJECTS'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('A1', Text::_('ORGANIZER_DATE'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('B1', Text::_('ORGANIZER_START_TIME'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('C1', Text::_('ORGANIZER_END_TIME'));
+        $this->spreadSheet->getActiveSheet()->setCellValue('D1', Text::_('ORGANIZER_SUBJECTS'));
 
         $letter = 'D';
         if ($this->parameters['showPersons']) {
             $column = ++$letter;
             $cell   = "{$column}1";
-            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Languages::_('ORGANIZER_TEACHERS'));
+            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Text::_('ORGANIZER_TEACHERS'));
         }
 
         if ($this->parameters['showRooms']) {
             $column = ++$letter;
             $cell   = "{$column}1";
-            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Languages::_('ORGANIZER_ROOMS'));
+            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Text::_('ORGANIZER_ROOMS'));
         }
 
         if ($this->parameters['showPools']) {
             $column = ++$letter;
             $cell   = "{$column}1";
-            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Languages::_('ORGANIZER_POOLS'));
+            $this->spreadSheet->getActiveSheet()->setCellValue($cell, Text::_('ORGANIZER_POOLS'));
         }
 
         foreach (range('A', $letter) as $columnID) {
@@ -180,7 +180,7 @@ class ScheduleSequence
         $startDate   = Helpers\Dates::formatDate(reset($lessonDates));
         $endDate     = Helpers\Dates::formatDate(end($lessonDates));
 
-        return Languages::_('ORGANIZER_SCHEDULE') . " $startDate - $endDate " . $this->parameters['pageTitle'];
+        return Text::_('ORGANIZER_SCHEDULE') . " $startDate - $endDate " . $this->parameters['pageTitle'];
     }
 
     /**

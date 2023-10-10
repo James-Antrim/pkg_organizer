@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 
 /**
  * Trait resolves language constants with the addition of the component prefix and languages helper.
@@ -40,8 +40,8 @@ trait Translated
             $tip = strpos($tip, 'ORGANIZER_') === 0 ? $tip : "ORGANIZER_$tip";
             $tip = strpos($tip, '_DESC') === strlen($tip) - 5 ? $tip : "{$tip}_DESC";
 
-            $this->element['label'] = Helpers\Languages::_($label);
-            $this->description      = Helpers\Languages::_($tip);
+            $this->element['label'] = Text::_($label);
+            $this->description      = Text::_($tip);
         }
 
         /** @noinspection PhpMultipleClassDeclarationsInspection */

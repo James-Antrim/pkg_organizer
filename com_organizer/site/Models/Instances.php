@@ -13,10 +13,9 @@ namespace THM\Organizer\Models;
 use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Application, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Input, Queries\QueryMySQLi, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Instances as Helper;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
 
 /**
@@ -269,7 +268,7 @@ class Instances extends ListModel
 
         $methods   = '';
         $suffix    = '';
-        $title     = $this->layout === Helper::GRID ? Languages::_('ORGANIZER_SCHEDULE') : Languages::_("ORGANIZER_INSTANCES");
+        $title     = $this->layout === Helper::GRID ? Text::_('ORGANIZER_SCHEDULE') : Text::_("ORGANIZER_INSTANCES");
         $methodIDs = $params->get('methodIDs') ?: Input::getIntCollection('methodID');
 
         if ($methodIDs and $methodIDs = array_filter($methodIDs)) {
@@ -291,10 +290,10 @@ class Instances extends ListModel
             $username = ($user = Helpers\Users::getUser() and $user->username) ? " ($user->username)" : '';
 
             if ($methods) {
-                $title = Languages::_('ORGANIZER_MY') . ' ' . $methods;
+                $title = Text::_('ORGANIZER_MY') . ' ' . $methods;
             } else {
                 $title = $my === Helper::BOOKMARKS ?
-                    Languages::_("ORGANIZER_MY_INSTANCES") : Languages::_("ORGANIZER_MY_REGISTRATIONS");
+                    Text::_("ORGANIZER_MY_INSTANCES") : Text::_("ORGANIZER_MY_REGISTRATIONS");
             }
             $title .= $username;
         } else {
@@ -302,25 +301,25 @@ class Instances extends ListModel
             if ($dow = $params->get('dow')) {
                 switch ($dow) {
                     case self::MONDAY:
-                        $title = Languages::_("ORGANIZER_MONDAY_INSTANCES");
+                        $title = Text::_("ORGANIZER_MONDAY_INSTANCES");
                         break;
                     case self::TUESDAY:
-                        $title = Languages::_("ORGANIZER_TUESDAY_INSTANCES");
+                        $title = Text::_("ORGANIZER_TUESDAY_INSTANCES");
                         break;
                     case self::WEDNESDAY:
-                        $title = Languages::_("ORGANIZER_WEDNESDAY_INSTANCES");
+                        $title = Text::_("ORGANIZER_WEDNESDAY_INSTANCES");
                         break;
                     case self::THURSDAY:
-                        $title = Languages::_("ORGANIZER_THURSDAY_INSTANCES");
+                        $title = Text::_("ORGANIZER_THURSDAY_INSTANCES");
                         break;
                     case self::FRIDAY:
-                        $title = Languages::_("ORGANIZER_FRIDAY_INSTANCES");
+                        $title = Text::_("ORGANIZER_FRIDAY_INSTANCES");
                         break;
                     case self::SATURDAY:
-                        $title = Languages::_("ORGANIZER_SATURDAY_INSTANCES");
+                        $title = Text::_("ORGANIZER_SATURDAY_INSTANCES");
                         break;
                     case self::SUNDAY:
-                        $title = Languages::_("ORGANIZER_SUNDAY_INSTANCES");
+                        $title = Text::_("ORGANIZER_SUNDAY_INSTANCES");
                         break;
                 }
             } elseif ($methods) {
@@ -342,14 +341,14 @@ class Instances extends ListModel
                 $name      = ($this->mobile or strlen($fullName) > 40) ? $shortName : $fullName;
                 $suffix    .= ': ' . $name;
             } elseif ($campusID = $params->get('campusID')) {
-                $suffix .= ': ' . Languages::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
+                $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
             }
 
             if ($roleID = Input::getInt('roleID')) {
                 $plural = Helpers\Roles::getPlural($roleID);
                 $suffix .= $suffix ? " - $plural" : ": $plural";
             } elseif ($instances = Input::getCMD('instances') and $instances === 'person') {
-                $persons = Languages::_('ORGANIZER_PERSONS');
+                $persons = Text::_('ORGANIZER_PERSONS');
                 $suffix  .= $suffix ? " - $persons" : ": $persons";
             }
 

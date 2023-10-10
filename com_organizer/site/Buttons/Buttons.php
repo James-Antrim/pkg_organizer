@@ -12,7 +12,7 @@ namespace THM\Organizer\Buttons;
 
 
 use Joomla\CMS\Toolbar\ToolbarButton;
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\Text;
 
 /**
  * Class provides a button acting as a dropdown toggle for other buttons.
@@ -35,7 +35,7 @@ class Buttons extends ToolbarButton
      */
     public function fetchButton(string $type = 'Buttons', string $name = 'buttons-button', string $text = '', array $buttons = [], string $icon = 'list-3'): string
     {
-        $text = $text ?: Languages::_('ORGANIZER_SELECTION');
+        $text = $text ?: Text::_('ORGANIZER_SELECTION');
 
         $html = '<button class="dropdown-toggle btn" data-toggle="dropdown">';
         $html .= "<span class=\"icon-$icon\"></span>" . $text . '<span class="icon-arrow-down-3"></span>';

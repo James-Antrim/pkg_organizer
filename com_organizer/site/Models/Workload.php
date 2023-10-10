@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -566,7 +566,7 @@ class Workload extends FormModel
                     $startDate                 = Helpers\Dates::formatDate($data['startDate']);
                     $items[$eIndex]['minutes'] += $data['minutes'];
                     $dateDisplay               = $startDate !== $endDate ? "$startDate - $endDate" : $startDate;
-                    $hoursDisplay              = ceil($data['minutes'] / 45) . ' ' . Helpers\Languages::_('ORGANIZER_HOURS_ABBR');
+                    $hoursDisplay              = ceil($data['minutes'] / 45) . ' ' . Text::_('ORGANIZER_HOURS_ABBR');
                     $items[$eIndex]['items'][] = "$dateDisplay $hoursDisplay";
                 }
             }
@@ -629,8 +629,8 @@ class Workload extends FormModel
                 $items[$eIndex]['minutes'] += $minutes;
 
                 $suffix       = strtoupper(date('l', strtotime("Sunday +{$block['dow']} days")));
-                $day          = Helpers\Languages::_("ORGANIZER_$suffix");
-                $hoursDisplay = $hours . ' ' . Helpers\Languages::_('ORGANIZER_HOURS_ABBR');
+                $day          = Text::_("ORGANIZER_$suffix");
+                $hoursDisplay = $hours . ' ' . Text::_('ORGANIZER_HOURS_ABBR');
                 $endTime      = Helpers\Dates::formatTime($block['endTime']);
                 $startTime    = Helpers\Dates::formatTime($block['startTime']);
 

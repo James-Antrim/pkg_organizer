@@ -11,14 +11,14 @@
 require_once JPATH_ROOT . '/libraries/tcpdf/tcpdf_barcodes_2d.php';
 
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\HTML as HTML;
-use THM\Organizer\Helpers\Languages as Languages;
 use THM\Organizer\Helpers\Bookings as Helper;
 use TCPDF2DBarcode as QRCode;
 
 $bookingID  = $this->booking->id;
 $logoURL    = 'components/com_organizer/images/organizer.png';
-$logo       = HTML::_('image', $logoURL, Languages::_('ORGANIZER'), ['class' => 'organizer_main_image']);
+$logo       = HTML::_('image', $logoURL, Text::_('ORGANIZER'), ['class' => 'organizer_main_image']);
 $checkinURL = Uri::base() . "?option=com_organizer&view=checkin&code={$this->booking->code}";
 $qrCode     = new QRCode($checkinURL, 'QRCODE,L');
 

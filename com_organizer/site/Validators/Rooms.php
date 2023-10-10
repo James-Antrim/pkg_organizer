@@ -10,11 +10,11 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\Input;
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
+use THM\Organizer\Adapters\{Input, Text};
+use THM\Organizer\Helpers;
+use THM\Organizer\Tables;
 
 /**
  * Class provides general functions for retrieving room data.
@@ -30,7 +30,7 @@ class Rooms implements UntisXMLValidator
         $table = new Tables\Rooms();
 
         if (!$table->load(['code' => $room->code])) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_ROOM_MISSING_FROM_INVENTORY'), $code);
+            $model->errors[] = Text::sprintf('ORGANIZER_ROOM_MISSING_FROM_INVENTORY', $code);
 
             return;
         }
@@ -62,7 +62,7 @@ class Rooms implements UntisXMLValidator
         if (!empty($model->warnings['REX'])) {
             $warningCount = $model->warnings['REX'];
             unset($model->warnings['REX']);
-            $model->warnings[] = sprintf(Helpers\Languages::_('ORGANIZER_ROOM_EXTERNAL_IDS_MISSING'), $warningCount);
+            $model->warnings[] = Text::sprintf('ORGANIZER_ROOM_EXTERNAL_IDS_MISSING', $warningCount);
         }
     }
 

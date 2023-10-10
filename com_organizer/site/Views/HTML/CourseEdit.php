@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -27,7 +27,7 @@ class CourseEdit extends EditView
     protected function addToolBar()
     {
         if ($this->item->id) {
-            $title = Helpers\Languages::_('ORGANIZER_COURSE_EDIT');
+            $title = Text::_('ORGANIZER_COURSE_EDIT');
 
             if ($this->adminContext) {
                 $campus = Helpers\Campuses::getName($this->item->campusID);
@@ -39,7 +39,7 @@ class CourseEdit extends EditView
                 $title .= ": $name - $campus ($dates)";
             }
         } else {
-            $title = Helpers\Languages::_('ORGANIZER_COURSE_NEW');
+            $title = Text::_('ORGANIZER_COURSE_NEW');
         }
 
         parent::addToolBar();

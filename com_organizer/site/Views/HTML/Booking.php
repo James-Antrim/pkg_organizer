@@ -12,10 +12,9 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\{Application, Document, Input};
+use THM\Organizer\Adapters\{Application, Document, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
 
 /**
@@ -51,9 +50,9 @@ class Booking extends Participants
     protected function addSupplement()
     {
         $bookingDate = $this->booking->get('date');
-        $expiredText = Languages::_('ORGANIZER_BOOKING_CLOSED');
-        $ongoingText = Languages::_('ORGANIZER_BOOKING_ONGOING');
-        $pendingText = Languages::_('ORGANIZER_BOOKING_PENDING');
+        $expiredText = Text::_('ORGANIZER_BOOKING_CLOSED');
+        $ongoingText = Text::_('ORGANIZER_BOOKING_ONGOING');
+        $pendingText = Text::_('ORGANIZER_BOOKING_PENDING');
         $today       = date('Y-m-d');
 
         if ($today === $bookingDate) {
@@ -82,11 +81,11 @@ class Booking extends Participants
         $count         = Helper::getParticipantCount($this->bookingID);
         $registrations = Helper::getRegistrations($this->bookingID);
         $capacity      = Helper::getCapacity($this->bookingID);
-        $countText     = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_COUNT'), $count, $registrations, $capacity);
+        $countText     = Text::sprintf('ORGANIZER_CHECKIN_COUNT', $count, $registrations, $capacity);
 
         if ($count and $roomID = $this->state->get('filter.roomID')) {
             $roomCount = Helper::getParticipantCount($this->bookingID, $roomID);
-            $roomCount = sprintf(Helpers\Languages::_('ORGANIZER_CHECKIN_ROOM_COUNT'), $roomCount);
+            $roomCount = Text::sprintf('ORGANIZER_CHECKIN_ROOM_COUNT', $roomCount);
             $countText .= " ($roomCount)";
         }
 
@@ -100,14 +99,14 @@ class Booking extends Participants
      */
     protected function addToolBar(bool $delete = true)
     {
-        $title = Languages::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}";
+        $title = Text::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}";
 
         $this->setTitle($title);
 
         $toolbar = Adapters\Toolbar::getInstance();
 
         $icon = '<span class="icon-list-3"></span>';
-        $text = Languages::_('ORGANIZER_MY_INSTANCES');
+        $text = Text::_('ORGANIZER_MY_INSTANCES');
         $url  = Uri::base() . "?option=com_organizer&view=instances&my=1";
         $link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn']);
         $toolbar->appendButton('Custom', $link);
@@ -139,7 +138,7 @@ class Booking extends Participants
 
         if (!$expired and !($isToday and $ended)) {
             $icon = '<span class="icon-grid-2"></span>';
-            $text = Languages::_('QR Code');
+            $text = Text::_('QR Code');
             $url  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
             $link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
             $toolbar->appendButton('Custom', $link);
@@ -149,17 +148,17 @@ class Booking extends Participants
             $toolbar->appendButton(
                 'NewTab',
                 'file-pdf',
-                Languages::_('ORGANIZER_ATTENDANCE_LIST'),
+                Text::_('ORGANIZER_ATTENDANCE_LIST'),
                 'Bookings.pdf',
                 false
             );
 
             if (($expired or ($isToday and $now >= $start)) and $this->hasRegistered) {
-                $text = Languages::_('ORGANIZER_CHECKIN');
+                $text = Text::_('ORGANIZER_CHECKIN');
                 $toolbar->appendButton('Standard', 'user-check', $text, 'bookings.checkin', true);
             } // No easy removal at a later date
             elseif (!$expired) {
-                $text = Languages::_('ORGANIZER_DELETE');
+                $text = Text::_('ORGANIZER_DELETE');
                 $toolbar->appendButton('Standard', 'user-minus', $text, 'bookings.removeParticipants', true);
             }
         }
@@ -168,15 +167,15 @@ class Booking extends Participants
             if ($earlyStart or $reOpen) {
                 if ($earlyStart) {
                     $icon = 'play';
-                    $text = Languages::_('ORGANIZER_MANUALLY_OPEN');
+                    $text = Text::_('ORGANIZER_MANUALLY_OPEN');
                 } else {
                     $icon = 'loop';
-                    $text = Languages::_('ORGANIZER_REOPEN');
+                    $text = Text::_('ORGANIZER_REOPEN');
                 }
 
                 $toolbar->appendButton('Standard', $icon, $text, 'bookings.open', false);
             } elseif ($started and !$this->booking->endTime) {
-                $text = $notOver ? Languages::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Languages::_('ORGANIZER_MANUALLY_CLOSE_POST');
+                $text = $notOver ? Text::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Text::_('ORGANIZER_MANUALLY_CLOSE_POST');
                 $toolbar->appendButton('Standard', 'stop', $text, 'bookings.close', false);
             }
         }
@@ -236,12 +235,12 @@ class Booking extends Participants
         $direction = $this->state->get('list.direction');
         $headers   = [
             'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'status' => Languages::_('ORGANIZER_STATUS'),
+            'status' => Text::_('ORGANIZER_STATUS'),
             'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
-            'event' => Languages::_('ORGANIZER_EVENT'),
-            'room' => Languages::_('ORGANIZER_ROOM'),
-            'seat' => Languages::_('ORGANIZER_SEAT'),
-            'complete' => Languages::_('ORGANIZER_PROFILE_COMPLETE')
+            'event' => Text::_('ORGANIZER_EVENT'),
+            'room' => Text::_('ORGANIZER_ROOM'),
+            'seat' => Text::_('ORGANIZER_SEAT'),
+            'complete' => Text::_('ORGANIZER_PROFILE_COMPLETE')
         ];
 
         $this->headers = $headers;
@@ -287,24 +286,24 @@ class Booking extends Participants
             $thisLink       = ($link and $item->attended) ? $link . $item->ipaID : '';
 
             if ($item->attended and $item->registered) {
-                $label = Languages::_('ORGANIZER_CHECKED_IN');
+                $label = Text::_('ORGANIZER_CHECKED_IN');
                 $icon  = 'user-check';
             } elseif ($item->attended) {
-                $label = Languages::_('ORGANIZER_STOWAWAY');
+                $label = Text::_('ORGANIZER_STOWAWAY');
                 $icon  = 'user-plus';
             } else {
                 $this->hasRegistered = true;
-                $label               = Languages::_('ORGANIZER_REGISTERED');
+                $label               = Text::_('ORGANIZER_REGISTERED');
                 $icon                = 'question';
             }
 
             $item->status = Helpers\HTML::icon($icon, $label, true);
 
             if ($item->complete) {
-                $label = Languages::_('ORGANIZER_PROFILE_COMPLETE');
+                $label = Text::_('ORGANIZER_PROFILE_COMPLETE');
                 $icon  = 'checked';
             } else {
-                $label = Languages::_('ORGANIZER_PROFILE_INCOMPLETE');
+                $label = Text::_('ORGANIZER_PROFILE_INCOMPLETE');
                 $icon  = 'unchecked';
             }
 

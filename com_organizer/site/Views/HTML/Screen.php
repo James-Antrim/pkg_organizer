@@ -11,8 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\{Document, Text};
 
 /**
  * Class loads filtered events into the display context.
@@ -91,27 +90,27 @@ class Screen extends BaseView
             $template = '<a href="$1" target="_blank"><span class="icon-pilos"></span></a>';
         } else {
             // Moodle Course
-            $text     = Languages::_('ORGANIZER_MOODLE_COURSE') . ': CID';
+            $text     = Text::_('ORGANIZER_MOODLE_COURSE') . ': CID';
             $template = str_replace('CID', '$4', $text);
             $comment  = preg_replace($moodle1, $template, $comment);
             $template = str_replace('CID', '$1', $text);
             $comment  = preg_replace($moodle2, $template, $comment);
 
             // Moodle Category
-            $text     = Languages::_('ORGANIZER_MOODLE_CATEGORY') . ': CID';
+            $text     = Text::_('ORGANIZER_MOODLE_CATEGORY') . ': CID';
             $template = str_replace('CID', '$4', $text);
             $comment  = preg_replace($moodle3, $template, $comment);
 
-            $template = Languages::_('ORGANIZER_NETACAD_COURSE') . ': $1';
+            $template = Text::_('ORGANIZER_NETACAD_COURSE') . ': $1';
             $comment  = preg_replace($netAcad, $template, $comment);
 
-            $text     = Languages::_('ORGANIZER_PANOPTO_PAGE') . ': PID';
+            $text     = Text::_('ORGANIZER_PANOPTO_PAGE') . ': PID';
             $template = str_replace('PID', '$4', $text);
             $comment  = preg_replace($panopto1, $template, $comment);
             $template = str_replace('PID', '$1', $text);
             $comment  = preg_replace($panopto2, $template, $comment);
 
-            $template = Languages::_('ORGANIZER_PILOS_ID') . ': $1';
+            $template = Text::_('ORGANIZER_PILOS_ID') . ': $1';
         }
 
         return preg_replace($pilos, $template, $comment);

@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Class loads the schedule upload form into display context.
@@ -28,14 +27,14 @@ class ScheduleEdit extends EditView
         $toolbar->appendButton(
             'Standard',
             'upload',
-            Helpers\Languages::_('ORGANIZER_UPLOAD'),
+            Text::_('ORGANIZER_UPLOAD'),
             'schedules.upload',
             false
         );
         $toolbar->appendButton(
             'Standard',
             'cancel',
-            Helpers\Languages::_('ORGANIZER_CANCEL'),
+            Text::_('ORGANIZER_CANCEL'),
             'schedules.cancel',
             false
         );

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -27,7 +27,7 @@ class SubjectSelection extends ListView
     protected function addToolBar(bool $delete = true)
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'x', true);
+        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'x', true);
     }
 
     /**
@@ -60,7 +60,7 @@ class SubjectSelection extends ListView
         $headers   = [
             'checkbox' => Helpers\HTML::_('grid.checkall'),
             'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-            'program' => Helpers\Languages::_('ORGANIZER_PROGRAMS')
+            'program' => Text::_('ORGANIZER_PROGRAMS')
         ];
 
         $this->headers = $headers;

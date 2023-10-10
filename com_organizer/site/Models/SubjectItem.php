@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
 
 /**
@@ -51,7 +50,7 @@ class SubjectItem extends ItemModel
         }
 
         $code    = empty($result['code']) ? '' : "{$result['code']} ";
-        $hours   = ' ' . Languages::_('ORGANIZER_HOURS_ABBR');
+        $hours   = ' ' . Text::_('ORGANIZER_HOURS_ABBR');
         $subject = $this->getStructure();
 
         foreach (array_keys($subject) as $property) {
@@ -63,32 +62,32 @@ class SubjectItem extends ItemModel
 
             switch ($property) {
                 case 'bonusPoints':
-                    $value = $value ? Languages::_('ORGANIZER_YES') : Languages::_('ORGANIZER_NO');
-                    $value = '<p>' . $value . '</p><p>' . Languages::_('ORGANIZER_BONUS_POINTS_TEXT') . '</p>';
+                    $value = $value ? Text::_('ORGANIZER_YES') : Text::_('ORGANIZER_NO');
+                    $value = '<p>' . $value . '</p><p>' . Text::_('ORGANIZER_BONUS_POINTS_TEXT') . '</p>';
                     break;
                 case 'creditPoints':
                     $creditPoints = $value;
                     $value        = [];
                     if ($creditPoints) {
-                        $value[] = $creditPoints . ' ' . Languages::_('ORGANIZER_CREDIT_POINTS_ABBR');
+                        $value[] = $creditPoints . ' ' . Text::_('ORGANIZER_CREDIT_POINTS_ABBR');
                     }
 
                     if ($expenditure = $result['expenditure']) {
-                        $value[] = Languages::_('ORGANIZER_EXPENDITURE') . ' ' . $expenditure . $hours;
+                        $value[] = Text::_('ORGANIZER_EXPENDITURE') . ' ' . $expenditure . $hours;
                     }
 
                     if ($present = $result['present']) {
-                        $value[] = Languages::_('ORGANIZER_PRESENT') . ' ' . $present . $hours;
+                        $value[] = Text::_('ORGANIZER_PRESENT') . ' ' . $present . $hours;
                     }
 
                     if ($independent = $result['independent']) {
-                        $value[] = Languages::_('ORGANIZER_INDEPENDENT') . ' ' . $independent . $hours;
+                        $value[] = Text::_('ORGANIZER_INDEPENDENT') . ' ' . $independent . $hours;
                     }
 
                     break;
                 case 'duration':
                     $constant = $value > 1 ? 'ORGANIZER_SEMESTERS' : 'ORGANIZER_SEMESTER';
-                    $value    .= ' ' . Languages::_($constant);
+                    $value    .= ' ' . Text::_($constant);
                     break;
                 case 'expertise':
                     if (!empty($result['exText'])) {
@@ -100,7 +99,7 @@ class SubjectItem extends ItemModel
                     $value = preg_split('/, ?/', $value);
 
                     if ($result['sws']) {
-                        array_unshift($value, $result['sws'] . ' ' . Languages::_('ORGANIZER_SWS_ABBR'));
+                        array_unshift($value, $result['sws'] . ' ' . Text::_('ORGANIZER_SWS_ABBR'));
                     }
 
                     break;
@@ -149,68 +148,68 @@ class SubjectItem extends ItemModel
 
         return [
             'subjectID' => Input::getID(),
-            'name' => ['label' => Languages::_($option . 'NAME'), 'type' => 'text'],
+            'name' => ['label' => Text::_($option . 'NAME'), 'type' => 'text'],
 
             // Persons
-            'coordinators' => ['label' => Languages::_($option . 'SUBJECT_COORDINATOR'), 'type' => 'list'],
-            'persons' => ['label' => Languages::_($option . 'TEACHERS'), 'type' => 'list'],
+            'coordinators' => ['label' => Text::_($option . 'SUBJECT_COORDINATOR'), 'type' => 'list'],
+            'persons' => ['label' => Text::_($option . 'TEACHERS'), 'type' => 'list'],
 
             // Prerequisites
-            'prerequisites' => ['label' => Languages::_($option . 'PREREQUISITES_LONG'), 'type' => 'text'],
+            'prerequisites' => ['label' => Text::_($option . 'PREREQUISITES_LONG'), 'type' => 'text'],
             'preRequisiteModules' => [
-                'label' => Languages::_($option . 'PREREQUISITE_MODULES'),
+                'label' => Text::_($option . 'PREREQUISITE_MODULES'),
                 'type' => 'list',
                 'url' => $url
             ],
             'recommendedPrerequisites' => [
-                'label' => Languages::_($option . 'RECOMMENDED_PREREQUISITES_LONG'),
+                'label' => Text::_($option . 'RECOMMENDED_PREREQUISITES_LONG'),
                 'type' => 'text'
             ],
 
             // Descriptive texts
-            'description' => ['label' => Languages::_($option . 'SHORT_DESCRIPTION'), 'type' => 'text'],
-            'content' => ['label' => Languages::_($option . 'CONTENT'), 'type' => 'text'],
-            'objective' => ['label' => Languages::_($option . 'OBJECTIVES'), 'type' => 'text'],
-            'expertise' => ['label' => Languages::_($option . 'EXPERTISE'), 'type' => 'star'],
-            'methodCompetence' => ['label' => Languages::_($option . 'METHOD_COMPETENCE'), 'type' => 'star'],
-            'socialCompetence' => ['label' => Languages::_($option . 'SOCIAL_COMPETENCE'), 'type' => 'star'],
-            'selfCompetence' => ['label' => Languages::_($option . 'SELF_COMPETENCE'), 'type' => 'star'],
+            'description' => ['label' => Text::_($option . 'SHORT_DESCRIPTION'), 'type' => 'text'],
+            'content' => ['label' => Text::_($option . 'CONTENT'), 'type' => 'text'],
+            'objective' => ['label' => Text::_($option . 'OBJECTIVES'), 'type' => 'text'],
+            'expertise' => ['label' => Text::_($option . 'EXPERTISE'), 'type' => 'star'],
+            'methodCompetence' => ['label' => Text::_($option . 'METHOD_COMPETENCE'), 'type' => 'star'],
+            'socialCompetence' => ['label' => Text::_($option . 'SOCIAL_COMPETENCE'), 'type' => 'star'],
+            'selfCompetence' => ['label' => Text::_($option . 'SELF_COMPETENCE'), 'type' => 'star'],
 
             // Hard attributes
-            'creditPoints' => ['label' => Languages::_($option . 'CREDIT_POINTS'), 'type' => 'list'],
-            'method' => ['label' => Languages::_($option . 'METHOD'), 'type' => 'list'],
+            'creditPoints' => ['label' => Text::_($option . 'CREDIT_POINTS'), 'type' => 'list'],
+            'method' => ['label' => Text::_($option . 'METHOD'), 'type' => 'list'],
             'pools' => [
-                'label' => Languages::_($option . 'SUBJECT_ITEM_SEMESTER'),
+                'label' => Text::_($option . 'SUBJECT_ITEM_SEMESTER'),
                 'type' => 'list'
             ],
-            'duration' => ['label' => Languages::_($option . 'DURATION'), 'type' => 'text'],
-            'availability' => ['label' => Languages::_($option . 'AVAILABILITY'), 'type' => 'text'],
-            'language' => ['label' => Languages::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
+            'duration' => ['label' => Text::_($option . 'DURATION'), 'type' => 'text'],
+            'availability' => ['label' => Text::_($option . 'AVAILABILITY'), 'type' => 'text'],
+            'language' => ['label' => Text::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
 
             // Testing
-            'preliminaryWork' => ['label' => Languages::_($option . 'PRELIMINARY_WORK'), 'type' => 'text'],
-            'bonusPoints' => ['label' => Languages::_($option . 'BONUS_POINTS'), 'type' => 'text'],
-            'proof' => ['label' => Languages::_($option . 'PROOF'), 'type' => 'text'],
+            'preliminaryWork' => ['label' => Text::_($option . 'PRELIMINARY_WORK'), 'type' => 'text'],
+            'bonusPoints' => ['label' => Text::_($option . 'BONUS_POINTS'), 'type' => 'text'],
+            'proof' => ['label' => Text::_($option . 'PROOF'), 'type' => 'text'],
             'evaluation' => [
-                'label' => Languages::_($option . 'EVALUATION'),
+                'label' => Text::_($option . 'EVALUATION'),
                 'type' => 'text',
-                'value' => Languages::_('ORGANIZER_EVALUATION_TEXT')
+                'value' => Text::_('ORGANIZER_EVALUATION_TEXT')
             ],
 
             // Prerequisite for
             'use' => [
-                'label' => Languages::_($option . 'PREREQUISITE_FOR'),
+                'label' => Text::_($option . 'PREREQUISITE_FOR'),
                 'type' => 'text',
-                'value' => Languages::_('ORGANIZER_USE_TEXT')
+                'value' => Text::_('ORGANIZER_USE_TEXT')
             ],
             'postRequisiteModules' => [
-                'label' => Languages::_($option . 'POSTREQUISITE_MODULES'),
+                'label' => Text::_($option . 'POSTREQUISITE_MODULES'),
                 'type' => 'list',
                 'url' => $url
             ],
 
             // Other
-            'literature' => ['label' => Languages::_($option . 'LITERATURE'), 'type' => 'text']
+            'literature' => ['label' => Text::_($option . 'LITERATURE'), 'type' => 'text']
         ];
     }
 
@@ -304,7 +303,7 @@ class SubjectItem extends ItemModel
 
         $level    = $level ?: 'Bachelor';
         $constant = 'ORGANIZER_' . strtoupper($level) . '_PROGRAMS';
-        $programs = Languages::_($constant);
+        $programs = Text::_($constant);
 
         $subject['use']['value'] = sprintf($subject['use']['value'], $programs);
     }
@@ -320,41 +319,41 @@ class SubjectItem extends ItemModel
     {
         switch (strtoupper((string) $subject['language']['value'])) {
             case 'A':
-                $subject['language']['value'] = Languages::_('ORGANIZER_ARABIAN');
+                $subject['language']['value'] = Text::_('ORGANIZER_ARABIAN');
                 break;
             case 'C':
-                $subject['language']['value'] = Languages::_('ORGANIZER_CHINESE');
+                $subject['language']['value'] = Text::_('ORGANIZER_CHINESE');
                 break;
             case 'E':
-                $subject['language']['value'] = Languages::_('ORGANIZER_ENGLISH');
+                $subject['language']['value'] = Text::_('ORGANIZER_ENGLISH');
                 break;
             case 'F':
-                $subject['language']['value'] = Languages::_('ORGANIZER_FRENCH');
+                $subject['language']['value'] = Text::_('ORGANIZER_FRENCH');
                 break;
             case 'G':
-                $subject['language']['value'] = Languages::_('ORGANIZER_GREEK');
+                $subject['language']['value'] = Text::_('ORGANIZER_GREEK');
                 break;
             case 'I':
-                $subject['language']['value'] = Languages::_('ORGANIZER_ITALIAN');
+                $subject['language']['value'] = Text::_('ORGANIZER_ITALIAN');
                 break;
             case 'J':
-                $subject['language']['value'] = Languages::_('ORGANIZER_JAPANESE');
+                $subject['language']['value'] = Text::_('ORGANIZER_JAPANESE');
                 break;
             case 'K':
-                $subject['language']['value'] = Languages::_('ORGANIZER_KOREAN');
+                $subject['language']['value'] = Text::_('ORGANIZER_KOREAN');
                 break;
             case 'P':
-                $subject['language']['value'] = Languages::_('ORGANIZER_POLISH');
+                $subject['language']['value'] = Text::_('ORGANIZER_POLISH');
                 break;
             case 'S':
-                $subject['language']['value'] = Languages::_('ORGANIZER_SPANISH');
+                $subject['language']['value'] = Text::_('ORGANIZER_SPANISH');
                 break;
             case 'T':
-                $subject['language']['value'] = Languages::_('ORGANIZER_TURKISH');
+                $subject['language']['value'] = Text::_('ORGANIZER_TURKISH');
                 break;
             case 'D':
             default:
-                $subject['language']['value'] = Languages::_('ORGANIZER_GERMAN');
+                $subject['language']['value'] = Text::_('ORGANIZER_GERMAN');
         }
     }
 
@@ -442,10 +441,10 @@ class SubjectItem extends ItemModel
                 $tag   = Application::getTag();
 
                 if ($first !== $last) {
-                    $suffix   = Languages::_('ORGANIZER_SEMESTERS');
+                    $suffix   = Text::_('ORGANIZER_SEMESTERS');
                     $semester = $tag === 'en' ? "$first - $last $suffix" : "$first. - $last. $suffix";
                 } else {
-                    $suffix   = Languages::_('ORGANIZER_SEMESTER');
+                    $suffix   = Text::_('ORGANIZER_SEMESTER');
                     $semester = $tag === 'en' ? "$first $suffix" : "$first. $suffix";
                 }
             }

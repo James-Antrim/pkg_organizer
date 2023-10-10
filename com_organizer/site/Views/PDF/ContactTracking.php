@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\PDF;
 
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\Participants;
 use THM\Organizer\Tables\Persons;
@@ -85,7 +85,7 @@ class ContactTracking extends ListView
         $pnText = $this->getAliasNumPage() . ' / ' . $this->getAliasNbPages();
 
         $this->SetX($this->original_lMargin);
-        $text = Helpers\Languages::_('ORGANIZER_COVID_CONTACT');
+        $text = Text::_('ORGANIZER_COVID_CONTACT');
         $this->Cell(0, 0, $text, self::TOP, 0, self::CENTER);
         $this->Cell(0, 0, $this->getAliasRightShift() . $pnText, self::TOP, 0, self::RIGHT);
     }
@@ -96,7 +96,7 @@ class ContactTracking extends ListView
      */
     public function setOverhead()
     {
-        $title = Helpers\Languages::_('ORGANIZER_COVID_CONTACTS') . $this->participantName;
+        $title = Text::_('ORGANIZER_COVID_CONTACTS') . $this->participantName;
 
         $then  = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
         $today = Helpers\Dates::formatDate(date('Y-m-d'));
@@ -107,15 +107,15 @@ class ContactTracking extends ListView
 
         if ($participantID = $this->formState->get('participantID') and $participant->load($participantID)) {
             $user        = Helpers\Users::getUser($participantID);
-            $subTitles[] = Helpers\Languages::_('ORGANIZER_EMAIL') . ": $user->email";
+            $subTitles[] = Text::_('ORGANIZER_EMAIL') . ": $user->email";
 
             if ($participant->telephone) {
-                $subTitles[] = Helpers\Languages::_('ORGANIZER_TELEPHONE') . ": $participant->telephone";
+                $subTitles[] = Text::_('ORGANIZER_TELEPHONE') . ": $participant->telephone";
             }
 
             if ($participant->address or $participant->zipCode or $participant->city) {
                 $line3       = [$participant->address, $participant->zipCode, $participant->city];
-                $subTitles[] = Helpers\Languages::_('ORGANIZER_ADDRESS') . ': ' . implode(' ', $line3);
+                $subTitles[] = Text::_('ORGANIZER_ADDRESS') . ': ' . implode(' ', $line3);
             }
         }
 

@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 jimport('tcpdf.tcpdf');
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
+use THM\Organizer\Adapters\{Document, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -42,8 +42,8 @@ class OrganizationOccupancy extends SelectionView
         $termSelect = Helpers\HTML::selectBox($options, 'year', $attribs, $default);
 
         $this->sets['baseSettings']['termIDs'] = [
-            'label' => Helpers\Languages::_('ORGANIZER_YEAR'),
-            'description' => Helpers\Languages::_('ORGANIZER_YEAR_DESC'),
+            'label' => Text::_('ORGANIZER_YEAR'),
+            'description' => Text::_('ORGANIZER_YEAR_DESC'),
             'input' => $termSelect
         ];
     }
@@ -74,8 +74,8 @@ class OrganizationOccupancy extends SelectionView
         $roomSelect  = Helpers\HTML::selectBox($roomOptions, 'roomIDs', $roomAttribs);
 
         $this->sets['filterFields']['roomIDs'] = [
-            'label' => Helpers\Languages::_('ORGANIZER_ROOMS'),
-            'description' => Helpers\Languages::_('ORGANIZER_ROOMS_DESC'),
+            'label' => Text::_('ORGANIZER_ROOMS'),
+            'description' => Text::_('ORGANIZER_ROOMS_DESC'),
             'input' => $roomSelect
         ];
 
@@ -85,8 +85,8 @@ class OrganizationOccupancy extends SelectionView
         $roomtypeSelect              = Helpers\HTML::selectBox($typeOptions, 'roomtypeIDs', $roomtypeAttribs);
 
         $this->sets['filterFields']['roomtypeIDs'] = [
-            'label' => Helpers\Languages::_('ORGANIZER_ROOMTYPES'),
-            'description' => Helpers\Languages::_('ORGANIZER_ROOMS_TYPES_DESC'),
+            'label' => Text::_('ORGANIZER_ROOMTYPES'),
+            'description' => Text::_('ORGANIZER_ROOMS_TYPES_DESC'),
             'input' => $roomtypeSelect
         ];
     }

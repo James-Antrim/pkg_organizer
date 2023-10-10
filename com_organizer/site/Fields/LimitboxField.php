@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 
 /**
@@ -66,11 +67,12 @@ class LimitboxField extends OptionsField
                 $limits[] = 0;
             }
 
+            // TODO this will probably create errors with the new system
             if (!empty($limits)) {
                 foreach ($limits as $value) {
                     $options[] = (object) [
                         'value' => $value,
-                        'text' => ($value != 0) ? Helpers\Languages::_('J' . $value) : Helpers\Languages::_('JALL'),
+                        'text' => ($value != 0) ? Text::_('J' . $value) : Text::_('JALL'),
                     ];
                 }
 

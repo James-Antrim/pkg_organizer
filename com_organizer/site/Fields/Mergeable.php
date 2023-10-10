@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Database, Input, Text};
 use THM\Organizer\Helpers\HTML;
-use THM\Organizer\Helpers\Languages;
 use stdClass;
 
 /**
@@ -42,13 +41,13 @@ trait Mergeable
         }
 
         if (empty($options)) {
-            $options[] = HTML::_('select.option', '', Languages::_('ORGANIZER_NONE_GIVEN'));
+            $options[] = HTML::_('select.option', '', Text::_('ORGANIZER_NONE_GIVEN'));
         } elseif (count($options) > 1) {
             /* @var OptionsField $this */
             $this->required = true;
             array_unshift(
                 $options,
-                HTML::_('select.option', '', Languages::_('ORGANIZER_SELECT_VALUE'))
+                HTML::_('select.option', '', Text::_('ORGANIZER_SELECT_VALUE'))
             );
         }
 

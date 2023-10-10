@@ -12,8 +12,8 @@ namespace THM\Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\ToolbarButton;
 use Joomla\CMS\Uri\Uri;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\HTML;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Renders a help popup window button
@@ -41,7 +41,7 @@ class Help extends ToolbarButton
         $attribs  = implode(' ', $attribs);
         $constant = ($topic and $showContext) ? 'ORGANIZER_HELP_' . strtoupper($topic) : 'ORGANIZER_HELP';
         $icon     = '<span class="icon-question-sign" aria-hidden="true"></span>';
-        $text     = Languages::_($constant);
+        $text     = Text::_($constant);
 
         HTML::_('behavior.core');
 
@@ -76,7 +76,7 @@ class Help extends ToolbarButton
         $url = json_encode(htmlspecialchars($url, ENT_QUOTES), JSON_HEX_APOS);
         $url = substr($url, 1, -1);
 
-        return "Joomla.popupWindow('$url', '" . Languages::_('ORGANIZER_HELP', true) . "', 700, 500, 1)";
+        return "Joomla.popupWindow('$url', '" . Text::_('ORGANIZER_HELP', true) . "', 700, 500, 1)";
     }
 
 }

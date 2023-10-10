@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers\Languages;
+use THM\Organizer\Adapters\{Text, Toolbar};
 
 /**
  * Class provides an interface for uploading a file containing room data.
@@ -28,14 +27,14 @@ class CoursesImport extends EditView
         $toolbar->appendButton(
             'Standard',
             'upload',
-            Languages::_('ORGANIZER_UPLOAD'),
+            Text::_('ORGANIZER_UPLOAD'),
             'courses.import',
             false
         );
         $toolbar->appendButton(
             'Standard',
             'cancel',
-            Languages::_('ORGANIZER_CANCEL'),
+            Text::_('ORGANIZER_CANCEL'),
             'courses.cancel',
             false
         );

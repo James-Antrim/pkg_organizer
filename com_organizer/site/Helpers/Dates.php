@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use DateTime;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Text};
 
 /**
  * Class provides generalized functions regarding dates and times.
@@ -35,7 +35,7 @@ class Dates
         if ($withText) {
             $textFormat    = $short ? 'D' : 'l';
             $shortDOW      = date($textFormat, strtotime($date));
-            $text          = Languages::_(strtoupper($shortDOW));
+            $text          = Text::_(strtoupper($shortDOW));
             $formattedDate = "$text $formattedDate";
         }
 

@@ -12,9 +12,8 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\{Application, Document, Input};
+use THM\Organizer\Adapters\{Application, Document, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Tables;
 
 /**
@@ -48,7 +47,7 @@ class CourseParticipants extends Participants
         $toolbar->appendButton(
             'Standard',
             'checkin',
-            Languages::_('ORGANIZER_ACCEPT'),
+            Text::_('ORGANIZER_ACCEPT'),
             'CourseParticipants.accept',
             true
         );
@@ -56,16 +55,16 @@ class CourseParticipants extends Participants
         $toolbar->appendButton(
             'Standard',
             'checkbox-unchecked',
-            Languages::_('ORGANIZER_WAITLIST'),
+            Text::_('ORGANIZER_WAITLIST'),
             'CourseParticipants.waitlist',
             true
         );
 
         $toolbar->appendButton(
             'Confirm',
-            Languages::_('ORGANIZER_DELETE_CONFIRM'),
+            Text::_('ORGANIZER_DELETE_CONFIRM'),
             'user-minus',
-            Languages::_('ORGANIZER_DELETE'),
+            Text::_('ORGANIZER_DELETE'),
             'CourseParticipants.remove',
             true
         );
@@ -73,7 +72,7 @@ class CourseParticipants extends Participants
         $toolbar->appendButton(
             'NewTab',
             'tags-2',
-            Languages::_('ORGANIZER_DOWNLOAD_BADGES'),
+            Text::_('ORGANIZER_DOWNLOAD_BADGES'),
             'CourseParticipants.badges',
             false
         );
@@ -81,7 +80,7 @@ class CourseParticipants extends Participants
         $toolbar->appendButton(
             'NewTab',
             'list',
-            Languages::_('ORGANIZER_ATTENDANCE'),
+            Text::_('ORGANIZER_ATTENDANCE'),
             'CourseParticipants.attendance',
             false
         );
@@ -89,7 +88,7 @@ class CourseParticipants extends Participants
         $toolbar->appendButton(
             'NewTab',
             'list-2',
-            Languages::_('ORGANIZER_GROUPED_PARTICIPATION'),
+            Text::_('ORGANIZER_GROUPED_PARTICIPATION'),
             'CourseParticipants.participation',
             false
         );
@@ -97,7 +96,7 @@ class CourseParticipants extends Participants
         $script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
         $batchButton = "<button id=\"participant-mail\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
 
-        $title       = Languages::_('ORGANIZER_NOTIFY');
+        $title       = Text::_('ORGANIZER_NOTIFY');
         $batchButton .= '<span class="icon-envelope" title="' . $title . '"></span>' . " $title";
 
         $batchButton .= '</button>';
@@ -156,9 +155,9 @@ class CourseParticipants extends Participants
             'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
             'email' => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
             'program' => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering),
-            'status' => Languages::_('ORGANIZER_STATUS'),
-            'paid' => Languages::_('ORGANIZER_PAID'),
-            'attended' => Languages::_('ORGANIZER_ATTENDED')
+            'status' => Text::_('ORGANIZER_STATUS'),
+            'paid' => Text::_('ORGANIZER_PAID'),
+            'attended' => Text::_('ORGANIZER_ATTENDED')
         ];
 
         $this->headers = $headers;
@@ -207,7 +206,7 @@ class CourseParticipants extends Participants
                     'participantID',
                     $item->id,
                     $item->status,
-                    Languages::_('ORGANIZER_TOGGLE_ACCEPTED'),
+                    Text::_('ORGANIZER_TOGGLE_ACCEPTED'),
                     'status'
                 );
             } else {
@@ -222,7 +221,7 @@ class CourseParticipants extends Participants
                     'participantID',
                     $item->id,
                     $item->attended,
-                    Languages::_('ORGANIZER_TOGGLE_ATTENDED'),
+                    Text::_('ORGANIZER_TOGGLE_ATTENDED'),
                     'attended'
                 );
             } else {
@@ -237,7 +236,7 @@ class CourseParticipants extends Participants
                     'participantID',
                     $item->id,
                     $item->paid,
-                    Languages::_('ORGANIZER_TOGGLE_PAID'),
+                    Text::_('ORGANIZER_TOGGLE_PAID'),
                     'paid'
                 );
             } else {

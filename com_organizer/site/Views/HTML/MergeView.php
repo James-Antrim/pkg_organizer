@@ -33,14 +33,14 @@ abstract class MergeView extends FormView
         $toolbar->appendButton(
             'Standard',
             'contract',
-            Helpers\Languages::_('ORGANIZER_MERGE'),
+            Text::_('ORGANIZER_MERGE'),
             $controller . '.merge',
             false
         );
         $toolbar->appendButton(
             'Standard',
             'cancel',
-            Helpers\Languages::_('ORGANIZER_CANCEL'),
+            Text::_('ORGANIZER_CANCEL'),
             $controller . '.cancel',
             false
         );

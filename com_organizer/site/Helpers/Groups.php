@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Text};
 use THM\Organizer\Tables\Categories as Category;
 use THM\Organizer\Tables\Groups as Group;
 
@@ -72,7 +72,7 @@ class Groups extends Associated implements Selectable
         $category = self::getCategory($groupID);
 
         if (!$category->id) {
-            return Languages::_('ORGANIZER_NO_CATEGORIES');
+            return Text::_('ORGANIZER_NO_CATEGORIES');
         }
 
         $column = 'name_' . Application::getTag();

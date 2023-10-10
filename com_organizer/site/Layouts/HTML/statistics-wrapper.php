@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Views\HTML\Statistics as View;
 
@@ -59,7 +59,7 @@ require_once 'titles.php';
         }
         ?>
     <?php elseif ($statistic): ?>
-        <?php echo '<div>' . Helpers\Languages::_('ORGANIZER_EMPTY_RESULT_SET') . '</div>'; ?>
+        <?php echo '<div>' . Text::_('ORGANIZER_EMPTY_RESULT_SET') . '</div>'; ?>
     <?php endif; ?>
 </div>
 

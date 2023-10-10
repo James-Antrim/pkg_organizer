@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -38,7 +38,7 @@ class ParticipantEdit extends EditView
 
         $this->setTitle($title);
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'save', Helpers\Languages::_($save), "participants.save", false);
-        $toolbar->appendButton('Standard', 'cancel', Helpers\Languages::_($cancel), "participants.cancel", false);
+        $toolbar->appendButton('Standard', 'save', Text::_($save), "participants.save", false);
+        $toolbar->appendButton('Standard', 'cancel', Text::_($cancel), "participants.cancel", false);
     }
 }

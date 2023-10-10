@@ -12,7 +12,6 @@ namespace THM\Organizer\Adapters;
 
 use InvalidArgumentException;
 use Joomla\CMS\Form\{Form as Base, FormField, FormHelper};
-use Joomla\CMS\Language\Text;
 use Joomla\Database\DatabaseAwareInterface;
 use RuntimeException;
 use SimpleXMLElement;

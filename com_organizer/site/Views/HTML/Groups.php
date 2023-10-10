@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -38,50 +38,25 @@ class Groups extends ListView
     {
         $this->setTitle('ORGANIZER_GROUPS');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'groups.edit', true);
+        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'groups.edit', true);
 
-        $if          = "alert('" . Helpers\Languages::_('ORGANIZER_LIST_SELECTION_WARNING') . "');";
+        $if          = "alert('" . Text::_('ORGANIZER_LIST_SELECTION_WARNING', true) . "');";
         $else        = "jQuery('#modal-publishing').modal('show'); return true;";
         $script      = 'onclick="if(document.adminForm.boxchecked.value==0){' . $if . '}else{' . $else . '}"';
         $batchButton = '<button id="group-publishing" data-toggle="modal" class="btn btn-small" ' . $script . '>';
 
-        $title       = Helpers\Languages::_('ORGANIZER_BATCH');
+        $title       = Text::_('ORGANIZER_BATCH');
         $batchButton .= '<span class="icon-stack" title="' . $title . '"></span>' . " $title";
 
         $batchButton .= '</button>';
 
         $toolbar->appendButton('Custom', $batchButton, 'batch');
-        $toolbar->appendButton(
-            'Standard',
-            'eye-open',
-            Helpers\Languages::_('ORGANIZER_ACTIVATE'),
-            'groups.activate',
-            false
-        );
-        $toolbar->appendButton(
-            'Standard',
-            'eye-close',
-            Helpers\Languages::_('ORGANIZER_DEACTIVATE'),
-            'groups.deactivate',
-            false
-        );
+        $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_ACTIVATE'), 'groups.activate', false);
+        $toolbar->appendButton('Standard', 'eye-close', Text::_('ORGANIZER_DEACTIVATE'), 'groups.deactivate', false);
 
         if (Helpers\Can::administrate()) {
-            $toolbar->appendButton(
-                'Standard',
-                'contract',
-                Helpers\Languages::_('ORGANIZER_MERGE'),
-                'groups.mergeView',
-                true
-            );
-
-            $toolbar->appendButton(
-                'Standard',
-                'eye-open',
-                Helpers\Languages::_('ORGANIZER_PUBLISH_EXPIRED_TERMS'),
-                'groups.publishPast',
-                false
-            );
+            $toolbar->appendButton('Standard', 'contract', Text::_('ORGANIZER_MERGE'), 'groups.mergeView', true);
+            $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_PUBLISH_EXPIRED_TERMS'), 'groups.publishPast', false);
         }
     }
 
@@ -130,8 +105,8 @@ class Groups extends ListView
             'this' => Helpers\Terms::getName(Helpers\Terms::getCurrentID()),
             'next' => Helpers\Terms::getName(Helpers\Terms::getNextID()),
             'name' => Helpers\HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
-            'active' => Helpers\Languages::_('ORGANIZER_ACTIVE'),
-            'grid' => Helpers\Languages::_('ORGANIZER_GRID'),
+            'active' => Text::_('ORGANIZER_ACTIVE'),
+            'grid' => Text::_('ORGANIZER_GRID'),
             'code' => Helpers\HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
         ];
 

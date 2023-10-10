@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -43,10 +43,10 @@ class Campuses extends ListView
     {
         $headers = [
             'checkbox' => '',
-            'name' => Helpers\Languages::_('ORGANIZER_NAME'),
-            'address' => Helpers\Languages::_('ORGANIZER_STREET'),
-            'location' => Helpers\Languages::_('ORGANIZER_LOCATION'),
-            'gridID' => Helpers\Languages::_('ORGANIZER_GRID')
+            'name' => Text::_('ORGANIZER_NAME'),
+            'address' => Text::_('ORGANIZER_STREET'),
+            'location' => Text::_('ORGANIZER_LOCATION'),
+            'gridID' => Text::_('ORGANIZER_GRID')
         ];
 
         $this->headers = $headers;
@@ -89,7 +89,7 @@ class Campuses extends ListView
             } elseif (!empty($item->parentGridName)) {
                 $gridName = $item->parentGridName;
             } else {
-                $gridName = Helpers\Languages::_('ORGANIZER_NONE_GIVEN');
+                $gridName = Text::_('ORGANIZER_NONE_GIVEN');
             }
             $item->gridID = $gridName;
 

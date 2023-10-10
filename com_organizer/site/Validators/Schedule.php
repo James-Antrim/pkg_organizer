@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 use stdClass;
@@ -70,7 +70,7 @@ class Schedule
     private function printStatusReport()
     {
         if (count($this->errors)) {
-            $errorMessage = Helpers\Languages::_('ORGANIZER_ERROR_HEADER') . '<br />';
+            $errorMessage = Text::_('ORGANIZER_ERROR_HEADER') . '<br />';
             $errorMessage .= implode('<br />', $this->errors);
             Helpers\OrganizerHelper::message($errorMessage, 'error');
         }
@@ -147,13 +147,13 @@ class Schedule
     public function validateCreationTime(): bool
     {
         if (empty($this->creationTime)) {
-            $this->errors[] = Helpers\Languages::_("ORGANIZER_CREATION_TIME_MISSING");
+            $this->errors[] = Text::_("ORGANIZER_CREATION_TIME_MISSING");
 
             return false;
         }
 
         if (!preg_match('/^[\d]{6}$/', $this->creationTime)) {
-            $this->errors[]     = Helpers\Languages::_("ORGANIZER_CREATION_TIME_INVALID");
+            $this->errors[]     = Text::_("ORGANIZER_CREATION_TIME_INVALID");
             $this->creationTime = '';
 
             return false;
@@ -175,7 +175,7 @@ class Schedule
     public function validateDate(string &$value, string $constant): bool
     {
         if (empty($value)) {
-            $this->errors[] = Helpers\Languages::_("ORGANIZER_{$constant}_MISSING");
+            $this->errors[] = Text::_("ORGANIZER_{$constant}_MISSING");
 
             return false;
         }
@@ -270,13 +270,13 @@ class Schedule
     public function validateText(string $value, string $constant, string $regex = ''): bool
     {
         if (empty($value)) {
-            $this->errors[] = Helpers\Languages::_("ORGANIZER_{$constant}_MISSING");
+            $this->errors[] = Text::_("ORGANIZER_{$constant}_MISSING");
 
             return false;
         }
 
         if (!empty($regex) and preg_match($regex, $value)) {
-            $this->errors[] = Helpers\Languages::_("ORGANIZER_{$constant}_INVALID");
+            $this->errors[] = Text::_("ORGANIZER_{$constant}_INVALID");
 
             return false;
         }

@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 
 /**
@@ -34,12 +35,12 @@ class Grids extends ListView
     {
         $headers = [
             'checkbox' => '',
-            'name' => Helpers\Languages::_('ORGANIZER_NAME'),
-            'startDay' => Helpers\Languages::_('ORGANIZER_START_DAY'),
-            'endDay' => Helpers\Languages::_('ORGANIZER_END_DAY'),
-            'startTime' => Helpers\Languages::_('ORGANIZER_START_TIME'),
-            'endTime' => Helpers\Languages::_('ORGANIZER_END_TIME'),
-            'isDefault' => Helpers\Languages::_('ORGANIZER_DEFAULT')
+            'name' => Text::_('ORGANIZER_NAME'),
+            'startDay' => Text::_('ORGANIZER_START_DAY'),
+            'endDay' => Text::_('ORGANIZER_END_DAY'),
+            'startTime' => Text::_('ORGANIZER_START_TIME'),
+            'endTime' => Text::_('ORGANIZER_END_TIME'),
+            'isDefault' => Text::_('ORGANIZER_DEFAULT')
         ];
 
         $this->headers = $headers;
@@ -62,8 +63,8 @@ class Grids extends ListView
                 $startDayConstant = strtoupper(date('l', strtotime("Sunday + {$grid['startDay']} days")));
                 $endDayConstant   = strtoupper(date('l', strtotime("Sunday + {$grid['endDay']} days")));
 
-                $item->startDay  = Helpers\Languages::_($startDayConstant);
-                $item->endDay    = Helpers\Languages::_($endDayConstant);
+                $item->startDay  = Text::_($startDayConstant);
+                $item->endDay    = Text::_($endDayConstant);
                 $item->startTime = Helpers\Dates::formatTime(reset($grid['periods'])['startTime']);
                 $item->endTime   = Helpers\Dates::formatTime(end($grid['periods'])['endTime']);
             } else {

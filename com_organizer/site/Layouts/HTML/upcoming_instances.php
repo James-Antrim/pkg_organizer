@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Layouts\HTML;
 
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 
 $count     = 0;
@@ -39,7 +40,7 @@ $rowNumber = 0;
         </div>
     </div>
     <div class="instances upcoming-layout">
-        <div class="explanation"><?php echo Helpers\Languages::_('ORGANIZER_NEXT_4'); ?></div>
+        <div class="explanation"><?php echo Text::_('ORGANIZER_NEXT_4'); ?></div>
         <?php foreach ($this->model->instances as $instance) {
             if ($count >= 4) {
                 break;

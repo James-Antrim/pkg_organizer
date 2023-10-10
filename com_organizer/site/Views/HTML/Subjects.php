@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Routing;
 
@@ -43,7 +43,7 @@ class Subjects extends ListView
         if (!$this->adminContext) {
             if ($personID = $this->state->get('calledPersonID', 0)) {
                 $resourceName = Helpers\Persons::getDefaultName($personID);
-                $resourceName .= ": " . Helpers\Languages::_('ORGANIZER_SUBJECTS');
+                $resourceName .= ": " . Text::_('ORGANIZER_SUBJECTS');
             } else {
                 if ($programID = Input::getInt('programID')) {
                     $resourceName = Helpers\Programs::getName($programID);
@@ -58,20 +58,20 @@ class Subjects extends ListView
         $this->setTitle('ORGANIZER_SUBJECTS', $resourceName);
         $toolbar = Toolbar::getInstance();
         if ($this->documentAccess) {
-            $toolbar->appendButton('Standard', 'new', Helpers\Languages::_('ORGANIZER_ADD'), 'subjects.add', false);
-            $toolbar->appendButton('Standard', 'edit', Helpers\Languages::_('ORGANIZER_EDIT'), 'subjects.edit', true);
+            $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'subjects.add', false);
+            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'subjects.edit', true);
             $toolbar->appendButton(
                 'Standard',
                 'upload',
-                Helpers\Languages::_('ORGANIZER_IMPORT_LSF'),
+                Text::_('ORGANIZER_IMPORT_LSF'),
                 'subjects.import',
                 true
             );
             $toolbar->appendButton(
                 'Confirm',
-                Helpers\Languages::_('ORGANIZER_DELETE_CONFIRM'),
+                Text::_('ORGANIZER_DELETE_CONFIRM'),
                 'delete',
-                Helpers\Languages::_('ORGANIZER_DELETE'),
+                Text::_('ORGANIZER_DELETE'),
                 'subjects.delete',
                 true
             );
@@ -111,14 +111,14 @@ class Subjects extends ListView
 
         if (!$this->state->get('calledPersonID', 0)) {
             if ($role = (int) Input::getParams()->get('role') and $role === self::COORDINATES) {
-                $personsText = Helpers\Languages::_('ORGANIZER_COORDINATORS');
+                $personsText = Text::_('ORGANIZER_COORDINATORS');
             } else {
-                $personsText = Helpers\Languages::_('ORGANIZER_TEACHERS');
+                $personsText = Text::_('ORGANIZER_TEACHERS');
             }
             $headers['persons'] = $personsText;
         }
 
-        $headers['creditPoints'] = Helpers\Languages::_('ORGANIZER_CREDIT_POINTS');
+        $headers['creditPoints'] = Text::_('ORGANIZER_CREDIT_POINTS');
 
         $this->headers = $headers;
     }
@@ -137,8 +137,8 @@ class Subjects extends ListView
 
         if (count($subject->persons) > 3) {
             return $role === self::COORDINATES ?
-                Helpers\Languages::_('ORGANIZER_COORDINATORS_PLACEHOLDER') :
-                Helpers\Languages::_('ORGANIZER_TEACHERS_PLACEHOLDER');
+                Text::_('ORGANIZER_COORDINATORS_PLACEHOLDER') :
+                Text::_('ORGANIZER_TEACHERS_PLACEHOLDER');
         }
 
         foreach ($subject->persons as $person) {
@@ -147,10 +147,10 @@ class Subjects extends ListView
             if ($role === self::ALL) {
                 $roles = [];
                 if (isset($person['role'][self::COORDINATES])) {
-                    $roles[] = Helpers\Languages::_('ORGANIZER_SUBJECT_COORDINATOR_ABBR');
+                    $roles[] = Text::_('ORGANIZER_SUBJECT_COORDINATOR_ABBR');
                 }
                 if (isset($person['role'][self::TEACHES])) {
-                    $roles[] = Helpers\Languages::_('ORGANIZER_TEACHER_ABBR');
+                    $roles[] = Text::_('ORGANIZER_TEACHER_ABBR');
                 }
 
                 $name .= ' (' . implode(', ', $roles) . ')';

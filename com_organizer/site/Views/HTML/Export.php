@@ -11,9 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Languages;
 
 /**
  * Class loads persistent information a filtered set of instances into the display context.
@@ -63,7 +62,7 @@ class Export extends FormView
             $toolbar->appendButton(
                 'Standard',
                 'undo-2',
-                Helpers\Languages::_('ORGANIZER_RESET'),
+                Text::_('ORGANIZER_RESET'),
                 'export.reset',
                 false
             );
@@ -120,7 +119,7 @@ class Export extends FormView
                 'week' : $form['interval'];
             $url       .= "&interval=$interval";
 
-            $toolbar->appendButton('Link', "file-$format", Languages::_('ORGANIZER_DOWNLOAD'), $url, true);
+            $toolbar->appendButton('Link', "file-$format", Text::_('ORGANIZER_DOWNLOAD'), $url, true);
 
             // The URL has a specific date => URL has no general application
             if ($specific) {
@@ -132,7 +131,7 @@ class Export extends FormView
         $toolbar->appendButton(
             'Standard',
             'undo-2',
-            Helpers\Languages::_('ORGANIZER_RESET'),
+            Text::_('ORGANIZER_RESET'),
             'export.reset',
             false
         );

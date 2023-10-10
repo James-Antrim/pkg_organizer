@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 
 /**
  * Class provides a field by which to add a participant to a given event related resource.
@@ -33,7 +33,7 @@ class AddParticipantField extends FormField
     protected function getInput(): string
     {
         $label = "<label for=\"$this->name\" class=\"element-invisible\">XTEXTX</label>";
-        $label = str_replace('XTEXTX', Helpers\Languages::_('ORGANIZER_ADD_PARTICIPANT'), $label);
+        $label = str_replace('XTEXTX', Text::_('ORGANIZER_ADD_PARTICIPANT'), $label);
 
         $container = '<div class="btn-wrapper input-append">XINPUTXXBUTTONX</div>';
 
@@ -42,17 +42,17 @@ class AddParticipantField extends FormField
             "name=\"$this->name\"",
             $this->class ? "class=\"$this->class\"" : '',
             'maxlength="20"',
-            'placeholder="' . Helpers\Languages::_('ORGANIZER_ADD') . '"',
+            'placeholder="' . Text::_('ORGANIZER_ADD') . '"',
             'type="text"'
         ];
         $input      = '<input ' . implode(' ', $attributes) . '/>';
         $container  = str_replace('XINPUTX', $input, $container);
 
         $attributes = [
-            'aria-label="' . Helpers\Languages::_('ORGANIZER_ADD_PARTICIPANT') . '"',
+            'aria-label="' . Text::_('ORGANIZER_ADD_PARTICIPANT') . '"',
             'class="btn hasTooltip"',
             'onclick="Joomla.submitbutton(\'bookings.addParticipant\');"',
-            'title="' . Helpers\Languages::_('ORGANIZER_ADD_PARTICIPANT') . '"',
+            'title="' . Text::_('ORGANIZER_ADD_PARTICIPANT') . '"',
             'type="submit"'
         ];
         $icon       = '<span class="icon-user-plus" aria-hidden="true"></span>';

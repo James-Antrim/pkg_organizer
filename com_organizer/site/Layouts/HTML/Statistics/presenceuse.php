@@ -9,7 +9,6 @@
  */
 
 use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\Languages;
 
 $headers    = array_shift($this->grid);
 $columns    = array_keys($headers);
@@ -49,15 +48,15 @@ foreach ($sums as $key => $sum) {
             $percent = (int) (($attended / $capacity) * 100);
 
             if ($total === $attended) {
-                $tip = sprintf(Languages::_('ORGANIZER_PRESENCE_USE_TIP'), $total, $capacity, $percent);
+                $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP', $total, $capacity, $percent);
             } else {
-                $tip = sprintf(Languages::_('ORGANIZER_PRESENCE_USE_TIP_LONG'), $attended, $total, $capacity, $percent);
+                $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP_LONG', $attended, $total, $capacity, $percent);
             }
 
             $sum = str_replace('VALUE', $percent, $template);
             $sum = str_replace('XTOOLTIPX', $tip, $sum);
         } elseif ($total) {
-            $tip = sprintf(Languages::_('ORGANIZER_PRESENCE_USE_TIP_SHORT'), $total);
+            $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP_SHORT', $total);
             $sum = str_replace('VALUE', $total, $template);
             $sum = str_replace('XTOOLTIPX', $tip, $sum);
         } else {
@@ -86,15 +85,15 @@ foreach ($this->grid as $row) {
                 $percent = (int) (($attended / $capacity) * 100);
 
                 if ($total === $attended) {
-                    $tip = sprintf(Languages::_('ORGANIZER_PRESENCE_USE_TIP'), $total, $capacity, $percent);
+                    $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP', $total, $capacity, $percent);
                 } else {
-                    $tip = sprintf(Languages::_('ORGANIZER_PRESENCE_USE_TIP_LONG'), $attended, $total, $capacity, $percent);
+                    $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP_LONG', $attended, $total, $capacity, $percent);
                 }
 
                 $sum = str_replace('VALUE', $percent, $template);
                 $sum = str_replace('XTOOLTIPX', $tip, $sum);
             } elseif ($total) {
-                $tip = sprintf(Languages::_('ORGANIZER_PRESENCE_USE_TIP_SHORT'), $total);
+                $tip = Text::sprintf('ORGANIZER_PRESENCE_USE_TIP_SHORT', $total);
                 $sum = str_replace('VALUE', $total, $template);
                 $sum = str_replace('XTOOLTIPX', $tip, $sum);
             } else {

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -272,7 +272,7 @@ class ContactTracking extends ListModel
         if ($items) {
             ksort($items);
         } elseif ($search = $this->state->get('filter.search')) {
-            $none = sprintf(Helpers\Languages::_('ORGANIZER_EMPTY_CONTACT_RESULT_SET'), $search);
+            $none = Text::sprintf('ORGANIZER_EMPTY_CONTACT_RESULT_SET', $search);
             Helpers\OrganizerHelper::message($none, 'notice');
         }
 
@@ -293,7 +293,7 @@ class ContactTracking extends ListModel
         $personID      = $personIDs ? $personIDs[0] : 0;
         $filters       = Input::getFilterItems();
         $search        = $filters->get('search');
-        $tooMany       = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $search);
+        $tooMany       = Text::sprintf('ORGANIZER_TOO_MANY_RESULTS', $search);
 
         // User and person resource usernames don't resolve to the same physical person.
         if ($participantID and $personID and (int) $personID !== Helpers\Persons::getIDByUserID($participantID)) {
@@ -332,7 +332,7 @@ class ContactTracking extends ListModel
             return;
         }
 
-        $tooMany = sprintf(Helpers\Languages::_('ORGANIZER_TOO_MANY_RESULTS'), $search);
+        $tooMany = Text::sprintf('ORGANIZER_TOO_MANY_RESULTS', $search);
         $search  = explode(' ', $search);
 
         // Users/participants by username

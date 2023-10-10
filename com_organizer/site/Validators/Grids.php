@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
@@ -49,7 +49,7 @@ class Grids implements UntisXMLValidator
 
         // No overwrites for global resources
         if (!$table->load(['code' => $code])) {
-            $model->errors[] = sprintf(Helpers\Languages::_('ORGANIZER_GRID_INVALID'), $code);
+            $model->errors[] = Text::sprintf('ORGANIZER_GRID_INVALID', $code);
 
             return;
         }
@@ -89,8 +89,8 @@ class Grids implements UntisXMLValidator
         $invalidPeriod = ($invalidKeys or $invalidTimes);
 
         if ($invalidPeriod) {
-            if (!in_array(Helpers\Languages::_('ORGANIZER_PERIODS_INCONSISTENT'), $model->errors)) {
-                $model->errors[] = Helpers\Languages::_('ORGANIZER_PERIODS_INCONSISTENT');
+            if (!in_array(Text::_('ORGANIZER_PERIODS_INCONSISTENT'), $model->errors)) {
+                $model->errors[] = Text::_('ORGANIZER_PERIODS_INCONSISTENT');
             }
 
             return;

@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Text;
 
 $instance = $this->instances[0];
 $room     = '';
@@ -35,7 +35,7 @@ if (!empty($instance['room'])) {
     }
 </script>
 <form action="#" id="adminForm" method="post" name="adminForm" class="form-vertical checkedin">
-    <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CHECKED_INTO'); ?></div>
+    <div class="control-group message"><?php echo Text::_('ORGANIZER_CHECKED_INTO'); ?></div>
     <div class="control-group message"><b><?php echo $instance['name']; ?></b></div>
     <?php if ($instance['method']): ?>
         <div class="control-group message"><?php echo $instance['method']; ?></div>
@@ -46,10 +46,10 @@ if (!empty($instance['room'])) {
         </div>
     <?php endif; ?>
     <div class="control-group message"><?php echo $instance['startTime'] . ' - ' . $instance['endTime']; ?></div>
-    <div class="control-group message"><?php echo Helpers\Languages::_('ORGANIZER_CHECKOUT_REMINDER'); ?></div>
+    <div class="control-group message"><?php echo Text::_('ORGANIZER_CHECKOUT_REMINDER'); ?></div>
     <div class="control-group">
         <a class="btn" href="<?php echo Uri::getInstance() . '&layout=profile' ?>">
-            <?php echo Helpers\Languages::_('ORGANIZER_PROFILE_EDIT'); ?>
+            <?php echo Text::_('ORGANIZER_PROFILE_EDIT'); ?>
         </a>
     </div>
 </form>

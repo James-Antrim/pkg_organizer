@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -45,9 +45,9 @@ class CleaningGroups extends ListView
         $headers   = [
             'checkbox' => '',
             'name' => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
-            'days' => Helpers\Languages::_('ORGANIZER_CLEANING_DAYS_PER_MONTH'),
-            'valuation' => Helpers\Languages::_('ORGANIZER_CALCULATED_SURFACE_PERFORMANCE_VALUE'),
-            'relevant' => Helpers\Languages::_('ORGANIZER_COST_ACCOUNTING')
+            'days' => Text::_('ORGANIZER_CLEANING_DAYS_PER_MONTH'),
+            'valuation' => Text::_('ORGANIZER_CALCULATED_SURFACE_PERFORMANCE_VALUE'),
+            'relevant' => Text::_('ORGANIZER_COST_ACCOUNTING')
         ];
 
         $this->headers = $headers;

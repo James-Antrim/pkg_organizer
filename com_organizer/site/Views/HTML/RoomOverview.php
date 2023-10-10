@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Roles;
 
@@ -29,10 +29,10 @@ class RoomOverview extends TableView
      */
     protected function addToolBar()
     {
-        $resourceName = Helpers\Languages::_('ORGANIZER_ROOM_OVERVIEW');
+        $resourceName = Text::_('ORGANIZER_ROOM_OVERVIEW');
         if (!$this->adminContext) {
             if ($campusID = Input::getInt('campusID')) {
-                $resourceName .= ': ' . Helpers\Languages::_('ORGANIZER_CAMPUS');
+                $resourceName .= ': ' . Text::_('ORGANIZER_CAMPUS');
                 $resourceName .= ' ' . Helpers\Campuses::getName($campusID);
             }
         }
@@ -207,7 +207,7 @@ class RoomOverview extends TableView
         }
 
         if ($resource->effCapacity) {
-            $tip .= Helpers\Languages::_('ORGANIZER_CAPACITY');
+            $tip .= Text::_('ORGANIZER_CAPACITY');
             $tip .= ": $resource->effCapacity";
         }
 
@@ -267,7 +267,7 @@ class RoomOverview extends TableView
             $tip .= $instance['method'] ? " - {$instance['method']}" : '';
             $tip .= '</span><br>';
 
-            $tip .= Helpers\Languages::_('ORGANIZER_ORGANIZATION') . ":";
+            $tip .= Text::_('ORGANIZER_ORGANIZATION') . ":";
             $tip .= strlen($instance['organization']) > 20 ? '<br>' : ' ';
             $tip .= "{$instance['organization']}<br>";
 
@@ -279,14 +279,14 @@ class RoomOverview extends TableView
             }
 
             if ($persons) {
-                $tip     .= Helpers\Languages::_('ORGANIZER_PERSONS') . ":";
+                $tip     .= Text::_('ORGANIZER_PERSONS') . ":";
                 $persons = implode(', ', $persons);
                 $tip     .= strlen($persons) > 20 ? '<br>' : ' ';
                 $tip     .= "$persons<br>";
             }
 
             if ($instance['comment']) {
-                $tip .= Helpers\Languages::_('ORGANIZER_EXTRA_INFORMATION') . ":";
+                $tip .= Text::_('ORGANIZER_EXTRA_INFORMATION') . ":";
                 $tip .= strlen($instance['comment']) > 20 ? '<br>' : ' ';
                 $tip .= "{$instance['comment']}<br>";
             }

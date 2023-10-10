@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -38,8 +38,8 @@ class TermPublishingField extends FormField
         $today      = date('Y-m-d');
         $container  = '<div class="publishing-container">XXXX</div>';
 
-        $no      = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_NO'), 'value' => 0];
-        $yes     = (object) ['disable' => false, 'text' => Helpers\Languages::_('ORGANIZER_YES'), 'value' => 1];
+        $no      = (object) ['disable' => false, 'text' => Text::_('ORGANIZER_NO'), 'value' => 0];
+        $yes     = (object) ['disable' => false, 'text' => Text::_('ORGANIZER_YES'), 'value' => 1];
         $options = [$yes, $no];
 
         $values = [];
