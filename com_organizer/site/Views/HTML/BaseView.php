@@ -15,8 +15,7 @@ use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Document, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Languages;
 use THM\Organizer\Helpers\Routing;
@@ -87,7 +86,7 @@ abstract class BaseView extends HtmlView
             return;
         }
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/disclaimer.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/disclaimer.css');
 
         $attributes = ['target' => '_blank'];
 
@@ -129,7 +128,7 @@ abstract class BaseView extends HtmlView
             return;
         }
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/sidebar.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/sidebar.css');
 
         $viewName = strtolower($this->get('name'));
 
@@ -359,9 +358,9 @@ abstract class BaseView extends HtmlView
      */
     protected function modifyDocument()
     {
-        Adapters\Document::setCharset();
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/global.css');
-        Adapters\Document::addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
+        Document::setCharset();
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/global.css');
+        Document::addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
 
         Helpers\HTML::_('bootstrap.tooltip', '.hasTooltip', ['placement' => 'right']);
     }
@@ -434,6 +433,6 @@ abstract class BaseView extends HtmlView
         // Frontend => self developed title/toolbar output
         $this->title = $title;
 
-        Adapters\Document::setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
+        Document::setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
     }
 }

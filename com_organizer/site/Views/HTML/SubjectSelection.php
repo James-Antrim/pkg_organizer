@@ -11,8 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\{Application, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -48,7 +47,7 @@ class SubjectSelection extends ListView
     {
         parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
     }
 
     /**

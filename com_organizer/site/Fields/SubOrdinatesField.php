@@ -13,8 +13,7 @@ namespace THM\Organizer\Fields;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Document};
 use THM\Organizer\Helpers;
 
 /**

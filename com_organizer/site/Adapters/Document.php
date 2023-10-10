@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Adapters;
 
-use Joomla\CMS\Factory;
+use Joomla\CMS\Document\HtmlDocument;
 
 /**
  * Adapts functions of the document class to avoid exceptions and deprecated warnings.
@@ -18,81 +18,77 @@ use Joomla\CMS\Factory;
 class Document
 {
     /**
-     * Adds a linked script to the page
+     * Adds a linked script to the page.
      *
-     * @param string $url     URL to the linked script.
-     * @param array  $options Array of options. Example: array('version' => 'auto', 'conditional' => 'lt IE 9')
-     * @param array  $attribs Array of attributes. Example: array('id' => 'scriptID', 'async' => 'async', 'data-test'
-     *                        => 1)
+     * @param string $url the script URL
      *
-     * @return  void
+     * @return  HtmlDocument instance of $this to allow chaining
+     * @deprecated 5.0  Use WebAssetManager
      */
-    public static function addScript(string $url, array $options = [], array $attribs = [])
+    public static function addScript(string $url): HtmlDocument
     {
-        /** @noinspection PhpDeprecationInspection */
-        Factory::getDocument()->addScript($url, $options, $attribs);
+        /** @var HtmlDocument $document */
+        $document = Application::getDocument();
+        return $document->addScript($url);
     }
 
     /**
-     * Adds a script to the page
+     * Add script variables for localizations.
      *
-     * @param string $content Script
+     * @param string       $key           key for addressing the localizations in script files
+     * @param array|string $localizations localization(s)
+     * @param bool         $merge         true if the localizations should be merged with existing
      *
-     * @return  void
+     * @return  HtmlDocument instance of $this to allow chaining
      */
-    public static function addScriptDeclaration(string $content)
+    public static function addScriptOptions(string $key, array|string $localizations, bool $merge = true): HtmlDocument
     {
-        Factory::getDocument()->addScriptDeclaration($content);
+        /** @var HtmlDocument $document */
+        $document = Application::getDocument();
+        return $document->addScriptOptions($key, $localizations, $merge);
     }
 
     /**
-     * Add option for script. Static wrapper for dynamic function.
+     * Adds a linked stylesheet to the page
      *
-     * @param string $key     Name in Storage
-     * @param mixed  $options Scrip options as array or string
-     * @param bool   $merge   Whether merge with existing (true) or replace (false)
+     * @param string $url the style sheet URL
      *
-     * @return  void
+     * @return  HtmlDocument instance of $this to allow chaining
+     * @deprecated 5.0  Use WebAssetManager
      */
-    public static function addScriptOptions(string $key, $options, bool $merge = true)
+    public static function addStyleSheet(string $url): HtmlDocument
     {
-        Factory::getDocument()->addScriptOptions($key, $options, $merge);
+        /** @var HtmlDocument $document */
+        $document = Application::getDocument();
+        return $document->addStyleSheet($url);
     }
 
     /**
-     * Adds a linked stylesheet to the page.
+     * Explicitly sets the document's charset.
      *
-     * @param string $url     URL to the linked style sheet
-     * @param array  $options Array of options. Example: array('version' => 'auto', 'conditional' => 'lt IE 9')
-     * @param array  $attribs Array of attributes. Example: array('id' => 'stylesheet', 'data-test' => 1)
+     * @param string $type Charset encoding string
      *
-     * @return  void
+     * @return  HtmlDocument instance of $this to allow chaining
      */
-    public static function addStyleSheet(string $url, array $options = [], array $attribs = [])
+    public static function setCharset(string $type = 'utf-8'): HtmlDocument
     {
-        /** @noinspection PhpDeprecationInspection */
-        Factory::getDocument()->addStyleSheet($url, $options, $attribs);
+        /** @var HtmlDocument $document */
+        $document = Application::getDocument();
+        return $document->setCharset($type);
     }
 
     /**
-     * Sets the document charset to UTF-8.
-     * @return void
-     */
-    public static function setCharset()
-    {
-        /** @noinspection PhpRedundantOptionalArgumentInspection */
-        Factory::getDocument()->setCharset('utf-8');
-    }
-
-    /**
-     * Sets the title of the document.
+     * Sets the title of the document
      *
      * @param string $title The title to be set
      *
-     * @return  void
+     * @return  HtmlDocument instance of $this to allow chaining
+     * @since   1.7.0
      */
-    public static function setTitle(string $title)
+    public static function setTitle(string $title): HtmlDocument
     {
-        Factory::getDocument()->setTitle($title);
+        /** @var HtmlDocument $document */
+        $document = Application::getDocument();
+        return $document->setTitle($title);
     }
 }

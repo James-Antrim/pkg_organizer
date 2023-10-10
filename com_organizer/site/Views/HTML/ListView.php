@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Document, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Models\ListModel;
@@ -239,8 +239,8 @@ abstract class ListView extends BaseView
     {
         parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
-        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/list.js');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
+        Document::addScript(Uri::root() . 'components/com_organizer/js/list.js');
     }
 
     /**

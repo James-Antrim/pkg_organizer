@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\{Application, Document, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Helpers\Languages;
@@ -220,7 +220,7 @@ class Booking extends Participants
     protected function modifyDocument()
     {
         if ($this->layout === 'qrcode') {
-            Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
+            Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
         } else {
             parent::modifyDocument();
         }

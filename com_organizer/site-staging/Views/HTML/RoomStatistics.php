@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 
 /**
  * Class loads room statistic information into the display context.
@@ -26,7 +26,7 @@ class RoomStatistics extends SelectionView
     {
         parent::modifyDocument();
 
-        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/room_statistics.js');
+        Document::addScript(Uri::root() . 'components/com_organizer/js/room_statistics.js');
     }
 
     private function setBaseFields()

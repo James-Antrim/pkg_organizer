@@ -14,6 +14,7 @@ use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 use THM\Organizer\Helpers;
 
 /**
@@ -80,8 +81,8 @@ class Statistics extends FormView
     {
         BaseView::modifyDocument();
 
-        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/statistics.js');
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/statistics.css');
+        Document::addScript(Uri::root() . 'components/com_organizer/js/statistics.js');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/statistics.css');
     }
 
     /**

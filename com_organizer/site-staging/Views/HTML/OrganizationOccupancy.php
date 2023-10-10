@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 jimport('tcpdf.tcpdf');
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 use THM\Organizer\Helpers;
 
 /**
@@ -29,7 +29,7 @@ class OrganizationOccupancy extends SelectionView
     {
         parent::modifyDocument();
 
-        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/organization_occupancy.js');
+        Document::addScript(Uri::root() . 'components/com_organizer/js/organization_occupancy.js');
     }
 
     private function setBaseFields()

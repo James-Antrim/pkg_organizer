@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 use THM\Organizer\Helpers;
 
 /**
@@ -89,7 +89,7 @@ abstract class ItemView extends BaseView
     {
         parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
     }
 
     /**

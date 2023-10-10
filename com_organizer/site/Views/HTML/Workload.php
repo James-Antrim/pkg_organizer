@@ -12,6 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 use THM\Organizer\Helpers;
 
 /**
@@ -47,6 +48,6 @@ class Workload extends FormView
     {
         parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
     }
 }

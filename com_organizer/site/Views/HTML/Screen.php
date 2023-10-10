@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 use THM\Organizer\Helpers\Languages;
 
 /**
@@ -39,8 +39,8 @@ class Screen extends BaseView
 
         $this->setLayout($this->model->layout);
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/screen.css');
-        Adapters\Document::addStyleSheet(Uri::root() . 'media/jui/css/icomoon.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/screen.css');
+        Document::addStyleSheet(Uri::root() . 'media/jui/css/icomoon.css');
 
         parent::display($tpl);
     }

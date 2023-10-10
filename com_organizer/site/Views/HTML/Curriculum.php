@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Helpers\Languages;
@@ -41,7 +41,7 @@ class Curriculum extends ItemView
     {
         parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/curriculum.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/curriculum.css');
     }
 
     /**

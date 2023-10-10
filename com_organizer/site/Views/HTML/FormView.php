@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 use THM\Organizer\Helpers;
 
 /**
@@ -75,9 +75,9 @@ abstract class FormView extends BaseView
 
         Helpers\HTML::_('behavior.formvalidator');
 
-        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
-        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
-        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/validators.js');
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
+        Document::addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
+        Document::addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
+        Document::addScript(Uri::root() . 'components/com_organizer/js/validators.js');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
     }
 }

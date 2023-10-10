@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\Registry\Registry;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
@@ -131,7 +131,7 @@ abstract class TableView extends BaseView
     {
         parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/table.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/table.css');
     }
 
     /**

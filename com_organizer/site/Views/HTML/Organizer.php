@@ -11,8 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Document, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -96,6 +95,6 @@ class Organizer extends BaseView
     {
         parent::modifyDocument();
 
-        Adapters\Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/organizer.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/organizer.css');
     }
 }

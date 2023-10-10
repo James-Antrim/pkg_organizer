@@ -12,6 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters;
+use THM\Organizer\Adapters\Document;
 
 trait Subordinate
 {
@@ -23,6 +24,6 @@ trait Subordinate
         /** @noinspection PhpMultipleClassDeclarationsInspection */
         parent::modifyDocument();
 
-        Adapters\Document::addScript(Uri::root() . 'components/com_organizer/js/curricula.js');
+        Document::addScript(Uri::root() . 'components/com_organizer/js/curricula.js');
     }
 }
