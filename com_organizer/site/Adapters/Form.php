@@ -151,7 +151,7 @@ class Form extends Base
      */
     private function loadFieldClass(string $field): FormField
     {
-        $fqName = 'THM\\Groups\\Fields\\' . $field;
+        $fqName = 'THM\\Organizer\\Fields\\' . $field;
 
         $field = new $fqName($this);
         $field->setDatabase($this->getDatabase());
