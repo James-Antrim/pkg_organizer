@@ -11,9 +11,8 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Models\Room;
 
 /**
@@ -37,7 +36,7 @@ class Rooms extends Controller
         $view = 'Rooms';
 
         if (JDEBUG) {
-            OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
+            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
             $url .= "&view=$view";
             $this->setRedirect($url);
 
@@ -54,11 +53,11 @@ class Rooms extends Controller
                 $view  = $model->import() ? 'Rooms' : 'RoomsImport';
             } else {
                 $view = 'RoomsImport';
-                Helpers\OrganizerHelper::message('ORGANIZER_FILE_ENCODING_INVALID', 'error');
+                Application::message('ORGANIZER_FILE_ENCODING_INVALID', Application::ERROR);
             }
         } else {
             $view = 'RoomsImport';
-            Helpers\OrganizerHelper::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', 'error');
+            Application::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', Application::ERROR);
         }
 
         $url .= "&view=$view";

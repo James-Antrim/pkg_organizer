@@ -35,7 +35,7 @@ abstract class BaseModel extends BaseDatabaseModel
         try {
             parent::__construct($config);
         } catch (Exception $exception) {
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return;
         }
@@ -74,7 +74,7 @@ abstract class BaseModel extends BaseDatabaseModel
                 $success = ($success and $table->delete($selectedID));
             }
         } catch (Exception $exception) {
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
         }
@@ -101,7 +101,7 @@ abstract class BaseModel extends BaseDatabaseModel
             /* @var BaseTable $table */
             $table = $this->getTable();
         } catch (Exception $exception) {
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
         }

@@ -82,7 +82,7 @@ class Equipment extends ListModel
         try {
             $table = $this->getTable();
         } catch (Exception $exception) {
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
         }

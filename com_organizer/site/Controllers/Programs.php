@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -33,9 +34,9 @@ class Programs extends Controller
         $model = new Models\Program();
 
         if ($model->update()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS', 'success');
+            Application::message('ORGANIZER_UPDATE_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
+            Application::message('ORGANIZER_UPDATE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase();

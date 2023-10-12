@@ -263,7 +263,7 @@ class Schedule extends BaseModel
         Database::setQuery($query);
 
         if (!$scheduleIDs = Database::loadColumn()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_412', 'warning');
+            Application::message('ORGANIZER_412', Application::WARNING);
 
             return;
         }
@@ -272,7 +272,7 @@ class Schedule extends BaseModel
             $schedule = new Tables\Schedules();
 
             if (!$schedule->load($scheduleID)) {
-                Helpers\OrganizerHelper::message('ORGANIZER_412', 'warning');
+                Application::message('ORGANIZER_412', Application::WARNING);
                 continue;
             }
 

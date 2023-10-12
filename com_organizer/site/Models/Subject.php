@@ -13,7 +13,6 @@ namespace THM\Organizer\Models;
 use Exception;
 use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Tables;
 use SimpleXMLElement;
 
@@ -178,7 +177,7 @@ class Subject extends CurriculumResource
         try {
             $client = new Helpers\LSF();
         } catch (Exception $exception) {
-            Helpers\OrganizerHelper::message('ORGANIZER_LSF_CLIENT_FAILED', 'error');
+            Application::message('ORGANIZER_LSF_CLIENT_FAILED', Application::ERROR);
 
             return false;
         }
@@ -188,7 +187,7 @@ class Subject extends CurriculumResource
         // Invalid response
         if (empty($response->modul)) {
             $message = Text::sprintf('ORGANIZER_LSF_RESPONSE_EMPTY', $table->lsfID);
-            OrganizerHelper::message($message, 'notice');
+            Application::message($message, Application::NOTICE);
 
             return $this->deleteSingle($table->id);
         }
@@ -197,7 +196,7 @@ class Subject extends CurriculumResource
 
         if (!$this->validTitle($subject)) {
             $message = Text::sprintf('ORGANIZER_IMPORT_TITLE_INVALID', $table->lsfID);
-            OrganizerHelper::message($message, 'error');
+            Application::message($message, Application::ERROR);
 
             return $this->deleteSingle($table->id);
         }
@@ -209,13 +208,13 @@ class Subject extends CurriculumResource
         // Suppressed
         if (!empty($subject->sperrmh) and strtolower((string) $subject->sperrmh) === 'x') {
             $message = Text::sprintf('ORGANIZER_SUBJECT_SUPPRESSED', $title, $table->lsfID);
-            OrganizerHelper::message($message, 'notice');
+            Application::message($message, Application::NOTICE);
 
             return $this->deleteSingle($table->id);
         }
 
         if (!$this->setPersons($table->id, $subject)) {
-            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
 
             return false;
         }

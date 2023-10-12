@@ -12,9 +12,8 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Models;
 
 /**
@@ -49,9 +48,9 @@ class Courses extends Controller
         $model = new Models\Course();
 
         if ($model->deregister()) {
-            OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+            Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+            Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
         }
 
         $this->setRedirect($referrer);
@@ -67,7 +66,7 @@ class Courses extends Controller
         $view = 'Courses';
 
         if (JDEBUG) {
-            OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
+            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
             $url .= "&view=$view";
             $this->setRedirect($url);
 
@@ -83,11 +82,11 @@ class Courses extends Controller
                 $view  = $model->import() ? 'Courses' : 'CoursesImport';
             } else {
                 $view = 'CoursesImport';
-                OrganizerHelper::message('ORGANIZER_FILE_ENCODING_INVALID', 'error');
+                Application::message('ORGANIZER_FILE_ENCODING_INVALID', Application::ERROR);
             }
         } else {
             $view = 'CoursesImport';
-            OrganizerHelper::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', 'error');
+            Application::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', Application::ERROR);
         }
 
         $url .= "&view=$view";
@@ -121,14 +120,14 @@ class Courses extends Controller
         $participantID = Helpers\Users::getID();
 
         if (!Helpers\CourseParticipants::validProfile($courseID, $participantID)) {
-            OrganizerHelper::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', 'error');
+            Application::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', Application::ERROR);
         } else {
             $model = new Models\Course();
 
             if ($model->register()) {
-                OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+                Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
             } else {
-                OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+                Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
             }
         }
 

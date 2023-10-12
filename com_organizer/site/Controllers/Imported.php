@@ -11,6 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\OrganizerHelper;
 
@@ -29,9 +30,9 @@ trait Imported
         $model     = new $modelName();
 
         if ($resourceID = $model->save() and $model->importSingle($resourceID)) {
-            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_SAVE_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . "&view={$this->resource}_edit&id=$resourceID";
@@ -48,9 +49,9 @@ trait Imported
         $model     = new $modelName();
 
         if ($model->import()) {
-            OrganizerHelper::message('ORGANIZER_IMPORT_SUCCESS', 'success');
+            Application::message('ORGANIZER_IMPORT_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_IMPORT_FAIL', 'error');
+            Application::message('ORGANIZER_IMPORT_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase();
@@ -69,9 +70,9 @@ trait Imported
         $url       = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
 
         if ($resourceID = $model->save() and $model->importSingle($resourceID)) {
-            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_SAVE_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 
         $this->setRedirect(Route::_($url, false));

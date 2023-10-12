@@ -168,20 +168,6 @@ class OrganizerHelper
     }
 
     /**
-     * Masks the Joomla application enqueueMessage function
-     *
-     * @param string $message the message to enqueue
-     * @param string $type    how the message is to be presented
-     *
-     * @return void
-     */
-    public static function message(string $message, string $type = 'message')
-    {
-        $message = Text::_($message);
-        Application::getApplication()->enqueueMessage($message, $type);
-    }
-
-    /**
      * Instantiates the controller.
      * @return void
      */
@@ -210,7 +196,7 @@ class OrganizerHelper
         try {
             $controllerObj->execute($task);
         } catch (Exception $exception) {
-            self::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
         }
 
         $controllerObj->redirect();

@@ -13,7 +13,6 @@ namespace THM\Organizer\Models;
 use Exception;
 use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\OrganizerHelper as OH;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\Participants as Table;
 
@@ -40,7 +39,7 @@ class Participant extends MergeModel
         Database::setQuery($query);
 
         if (!$candidates = Database::loadAssocList()) {
-            OH::message(Text::_('ORGANIZER_AUTOMATIC_MERGE_NO_CANDIDATES'));
+            Application::message(Text::_('ORGANIZER_AUTOMATIC_MERGE_NO_CANDIDATES'));
         }
 
         $ambiguous   = 0;
@@ -162,28 +161,28 @@ class Participant extends MergeModel
         }
 
         if ($successes) {
-            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_SUCCESSES', $successes));
+            Application::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_SUCCESSES', $successes));
         }
 
         if ($failures) {
-            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_FAILURES', $failures), 'error');
+            Application::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_FAILURES', $failures), Application::ERROR);
         }
 
         if ($ambiguous) {
-            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_AMBIGUOUS', $ambiguous), 'warning');
+            Application::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_AMBIGUOUS', $ambiguous), Application::WARNING);
         }
 
         if ($implausible) {
-            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_IMPLAUSIBLE', $implausible),
+            Application::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_IMPLAUSIBLE', $implausible),
                 'warning');
         }
 
         if ($surfeit) {
-            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_SURFEIT', $surfeit), 'warning');
+            Application::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_SURFEIT', $surfeit), Application::WARNING);
         }
 
         if ($synonyms) {
-            OH::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_SYNONYMS', $synonyms), 'warning');
+            Application::message(Text::sprintf('ORGANIZER_AUTOMATIC_MERGE_SYNONYMS', $synonyms), Application::WARNING);
         }
     }
 
@@ -305,7 +304,7 @@ class Participant extends MergeModel
         $data = empty($this->data) ? Input::getFormItems()->toArray() : $this->data;
 
         if (empty($data['email'])) {
-            OH::message('ORGANIZER_NO_EMAIL_ADDRESS_SELECTED', 'error');
+            Application::message('ORGANIZER_NO_EMAIL_ADDRESS_SELECTED', Application::ERROR);
 
             return false;
         }
@@ -379,7 +378,7 @@ class Participant extends MergeModel
             }
 
             if (!$thisUser->delete()) {
-                OH::message('ORGANIZER_USER_DELETION_FAILED', 'error');
+                Application::message('ORGANIZER_USER_DELETION_FAILED', Application::ERROR);
 
                 return false;
             }
@@ -418,7 +417,7 @@ class Participant extends MergeModel
         $data = empty($data) ? Input::getFormItems()->toArray() : $data;
 
         if (!isset($data['id'])) {
-            OH::message('ORGANIZER_400', 'error');
+            Application::message('ORGANIZER_400', Application::ERROR);
 
             return false;
         }
@@ -448,14 +447,14 @@ class Participant extends MergeModel
                 $data[$index] = trim($value);
 
                 if (empty($data[$index])) {
-                    OH::message('ORGANIZER_400', 'warning');
+                    Application::message('ORGANIZER_400', Application::WARNING);
 
                     return false;
                 }
 
                 if (in_array($index, $numericFields)) {
                     if (!is_numeric($value)) {
-                        OH::message('ORGANIZER_400', 'warning');
+                        Application::message('ORGANIZER_400', Application::WARNING);
 
                         return false;
                     }
@@ -490,9 +489,9 @@ class Participant extends MergeModel
 
             if ($altered) {
                 if ($table->store()) {
-                    OH::message('ORGANIZER_CHANGES_SAVED', 'success');
+                    Application::message('ORGANIZER_CHANGES_SAVED');
                 } else {
-                    OH::message('ORGANIZER_CHANGES_NOT_SAVED', 'error');
+                    Application::message('ORGANIZER_CHANGES_NOT_SAVED', Application::ERROR);
                 }
             }
 
@@ -509,12 +508,12 @@ class Participant extends MergeModel
         }
 
         if (Database::insertObject('#__organizer_participants', $relevantData)) {
-            OH::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
+            Application::message('ORGANIZER_PARTICIPANT_ADDED');
 
             return $data['id'];
         }
 
-        OH::message('ORGANIZER_PARTICIPANT_NOT_ADDED', 'success');
+        Application::message('ORGANIZER_PARTICIPANT_NOT_ADDED');
 
         return false;
     }
@@ -742,13 +741,13 @@ class Participant extends MergeModel
     protected function updateReferences(): bool
     {
         if (!$this->updateCourseParticipants()) {
-            OH::message('ORGANIZER_COURSE_PARTICIPATION_MERGE_FAILED', 'error');
+            Application::message('ORGANIZER_COURSE_PARTICIPATION_MERGE_FAILED', Application::ERROR);
 
             return false;
         }
 
         if (!$this->updateInstanceParticipants()) {
-            OH::message('ORGANIZER_INSTANCE_PARTICIPATION_MERGE_FAILED', 'error');
+            Application::message('ORGANIZER_INSTANCE_PARTICIPATION_MERGE_FAILED', Application::ERROR);
 
             return false;
         }

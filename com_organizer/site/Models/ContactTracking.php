@@ -273,7 +273,7 @@ class ContactTracking extends ListModel
             ksort($items);
         } elseif ($search = $this->state->get('filter.search')) {
             $none = Text::sprintf('ORGANIZER_EMPTY_CONTACT_RESULT_SET', $search);
-            Helpers\OrganizerHelper::message($none, 'notice');
+            Application::message($none, Application::NOTICE);
         }
 
         return $items;
@@ -298,7 +298,7 @@ class ContactTracking extends ListModel
         // User and person resource usernames don't resolve to the same physical person.
         if ($participantID and $personID and (int) $personID !== Helpers\Persons::getIDByUserID($participantID)) {
             $this->forceEmpty();
-            Helpers\OrganizerHelper::message($tooMany, 'notice');
+            Application::message($tooMany, Application::NOTICE);
 
             return;
         }
@@ -345,7 +345,7 @@ class ContactTracking extends ListModel
 
         if ($participantIDs = Database::loadColumn() and count($participantIDs) > 1) {
             $this->forceEmpty();
-            Helpers\OrganizerHelper::message($tooMany, 'notice');
+            Application::message($tooMany, Application::NOTICE);
 
             return;
         }
@@ -359,7 +359,7 @@ class ContactTracking extends ListModel
 
         if ($personIDs = Database::loadColumn() and count($personIDs) > 1) {
             $this->forceEmpty();
-            Helpers\OrganizerHelper::message($tooMany, 'notice');
+            Application::message($tooMany, Application::NOTICE);
 
             return;
         }
@@ -383,7 +383,7 @@ class ContactTracking extends ListModel
 
         if ($participantIDs = Database::loadColumn() and count($participantIDs) > 1) {
             $this->forceEmpty();
-            Helpers\OrganizerHelper::message($tooMany, 'notice');
+            Application::message($tooMany, Application::NOTICE);
 
             return;
         }
@@ -401,7 +401,7 @@ class ContactTracking extends ListModel
 
         if ($personIDs = Database::loadColumn() and count($personIDs) > 1) {
             $this->forceEmpty();
-            Helpers\OrganizerHelper::message($tooMany, 'notice');
+            Application::message($tooMany, Application::NOTICE);
 
             return;
         }

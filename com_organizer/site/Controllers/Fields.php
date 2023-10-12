@@ -11,6 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -34,9 +35,9 @@ class Fields extends Controller
         $url   .= Helpers\Can::administrate() ? 'fields' : 'field_colors';
 
         if ($model->save()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_SAVE_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 
         $this->setRedirect(Route::_($url, false));

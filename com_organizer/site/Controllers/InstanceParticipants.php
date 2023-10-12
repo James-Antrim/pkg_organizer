@@ -152,12 +152,12 @@ class InstanceParticipants extends Controller
         $model = new Models\InstanceParticipant();
 
         if ($model->save()) {
-            OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_SAVE_SUCCESS');
             Factory::getSession()->set('organizer.participation.referrer', '');
             $referrer = Input::getString('referrer');
             $this->setRedirect(Route::_($referrer, false));
         } else {
-            OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
     }
 }

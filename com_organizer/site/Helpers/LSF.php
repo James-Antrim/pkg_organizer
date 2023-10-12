@@ -13,6 +13,7 @@ namespace THM\Organizer\Helpers;
 use Exception;
 use SimpleXMLElement;
 use SoapClient;
+use THM\Organizer\Adapters\Application;
 
 /**
  * Class provides methods for communication with the LSF curriculum documentation system.
@@ -51,13 +52,13 @@ class LSF
         $result = $this->client->__soapCall('getDataXML', ['xmlParams' => $query]);
 
         if (!$result) {
-            OrganizerHelper::message('ORGANIZER_SOAP_FAIL', 'error');
+            Application::message('ORGANIZER_SOAP_FAIL', Application::ERROR);
 
             return false;
         }
 
         if ($result == 'error in soap-request') {
-            OrganizerHelper::message('ORGANIZER_SOAP_INVALID', 'error');
+            Application::message('ORGANIZER_SOAP_INVALID', Application::ERROR);
 
             return false;
         }

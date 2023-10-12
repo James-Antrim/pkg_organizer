@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\{Input, Text};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Tables;
 use stdClass;
 
@@ -72,11 +71,11 @@ class Schedule
         if (count($this->errors)) {
             $errorMessage = Text::_('ORGANIZER_ERROR_HEADER') . '<br />';
             $errorMessage .= implode('<br />', $this->errors);
-            Helpers\OrganizerHelper::message($errorMessage, 'error');
+            Application::message($errorMessage, Application::ERROR);
         }
 
         if (count($this->warnings)) {
-            Helpers\OrganizerHelper::message(implode('<br />', $this->warnings), 'warning');
+            Application::message(implode('<br />', $this->warnings), Application::WARNING);
         }
     }
 
@@ -128,7 +127,7 @@ class Schedule
         $schedule = new Tables\Schedules();
 
         if ($schedule->load($contextKeys)) {
-            Helpers\OrganizerHelper::message('ORGANIZER_SCHEDULE_EXISTS', 'error');
+            Application::message('ORGANIZER_SCHEDULE_EXISTS', Application::ERROR);
 
             return false;
         }

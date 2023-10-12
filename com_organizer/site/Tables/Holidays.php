@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Tables;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Application;
 
 /**
  * Models the organizer_holidays table.
@@ -66,7 +66,7 @@ class Holidays extends BaseTable
     public function check(): bool
     {
         if ($this->endDate < $this->startDate) {
-            Helpers\OrganizerHelper::message('ORGANIZER_DATE_CHECK', 'error');
+            Application::message('ORGANIZER_DATE_CHECK', Application::ERROR);
 
             return false;
         }

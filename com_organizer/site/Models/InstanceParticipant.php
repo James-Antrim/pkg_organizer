@@ -13,7 +13,6 @@ namespace THM\Organizer\Models;
 use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\InstanceParticipants as Helper;
-use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Tables;
 use THM\Organizer\Tables\InstanceParticipants as Table;
 
@@ -98,7 +97,7 @@ class InstanceParticipant extends BaseModel
     public function bookmark(int $method)
     {
         if (!$participantID = Helpers\Users::getID()) {
-            OrganizerHelper::message(Text::_('ORGANIZER_401'), 'error');
+            Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
 
             return;
         }
@@ -134,9 +133,9 @@ class InstanceParticipant extends BaseModel
         }
 
         if ($bookmarked) {
-            OrganizerHelper::message('ORGANIZER_SCHEDULE_SUCCESS');
+            Application::message('ORGANIZER_SCHEDULE_SUCCESS');
         } elseif ($responsible) {
-            OrganizerHelper::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', 'notice');
+            Application::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', Application::NOTICE);
         }
 
         // The other option is that all matching instances were already in the participant's personal schedule => no message.
@@ -149,7 +148,7 @@ class InstanceParticipant extends BaseModel
     public function checkin(): bool
     {
         if (!$participantID = Helpers\Users::getID()) {
-            OrganizerHelper::message('ORGANIZER_401', 'error');
+            Application::message('ORGANIZER_401', Application::ERROR);
 
             return false;
         }
@@ -159,7 +158,7 @@ class InstanceParticipant extends BaseModel
 
         $data = Input::getFormItems();
         if (!$code = $data->get('code') or !preg_match('/^[a-f0-9]{4}-[a-f0-9]{4}$/', $code)) {
-            OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
+            Application::message('ORGANIZER_UNIT_CODE_INVALID', Application::ERROR);
 
             return false;
         }
@@ -179,7 +178,7 @@ class InstanceParticipant extends BaseModel
         Database::setQuery($query);
 
         if (!$instanceIDs = Database::loadIntColumn()) {
-            OrganizerHelper::message('ORGANIZER_UNIT_CODE_INVALID', 'error');
+            Application::message('ORGANIZER_UNIT_CODE_INVALID', Application::ERROR);
 
             return false;
         }
@@ -204,7 +203,7 @@ class InstanceParticipant extends BaseModel
             $data['attended'] = 1;
 
             if (!$participation->save($data)) {
-                OrganizerHelper::message(Text::_('ORGANIZER_CHECKIN_FAILED'));
+                Application::message(Text::_('ORGANIZER_CHECKIN_FAILED'));
 
                 return false;
             }
@@ -212,7 +211,7 @@ class InstanceParticipant extends BaseModel
             Helpers\Instances::updateNumbers($instanceID);
         }
 
-        OrganizerHelper::message(Text::_('ORGANIZER_CHECKIN_SUCCEEDED'), 'success');
+        Application::message(Text::_('ORGANIZER_CHECKIN_SUCCEEDED'));
 
         return true;
     }
@@ -224,20 +223,20 @@ class InstanceParticipant extends BaseModel
     public function confirmInstance()
     {
         if (!$participantID = Helpers\Users::getID()) {
-            OrganizerHelper::message('ORGANIZER_401', 'error');
+            Application::message('ORGANIZER_401', Application::ERROR);
 
             return;
         }
 
         if (!$instanceID = Input::getID()) {
-            OrganizerHelper::message('ORGANIZER_400', 'error');
+            Application::message('ORGANIZER_400', Application::ERROR);
 
             return;
         }
 
         $instance = new Tables\Instances();
         if (!$instance->load($instanceID)) {
-            OrganizerHelper::message('ORGANIZER_412', 'error');
+            Application::message('ORGANIZER_412', Application::ERROR);
 
             return;
         }
@@ -256,10 +255,10 @@ class InstanceParticipant extends BaseModel
 
             if ($participation->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
                 $participation->delete();
-                OrganizerHelper::message('ORGANIZER_EVENT_CONFIRMED', 'success');
+                Application::message('ORGANIZER_EVENT_CONFIRMED');
                 Helpers\Instances::updateNumbers($instanceID);
             } else {
-                OrganizerHelper::message('ORGANIZER_412', 'error');
+                Application::message('ORGANIZER_412', Application::ERROR);
             }
         }
     }
@@ -271,13 +270,13 @@ class InstanceParticipant extends BaseModel
     public function confirmSeating()
     {
         if (!$participantID = Helpers\Users::getID()) {
-            OrganizerHelper::message('ORGANIZER_401', 'error');
+            Application::message('ORGANIZER_401', Application::ERROR);
 
             return;
         }
 
         if (!$instanceID = Input::getInt('instanceID') or !$roomID = Input::getInt('roomID')) {
-            OrganizerHelper::message('ORGANIZER_400', 'error');
+            Application::message('ORGANIZER_400', Application::ERROR);
 
             return;
         }
@@ -285,7 +284,7 @@ class InstanceParticipant extends BaseModel
         $table = new Table();
 
         if (!$table->load(['instanceID' => $instanceID, 'participantID' => $participantID])) {
-            OrganizerHelper::message('ORGANIZER_412', 'error');
+            Application::message('ORGANIZER_412', Application::ERROR);
 
             return;
         }
@@ -306,7 +305,7 @@ class InstanceParticipant extends BaseModel
     public function deregister(int $method)
     {
         if (!$participantID = Helpers\Users::getID()) {
-            OrganizerHelper::message(Text::_('ORGANIZER_401'), 'error');
+            Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
 
             return;
         }
@@ -338,7 +337,7 @@ class InstanceParticipant extends BaseModel
         }
 
         if ($deregistered) {
-            OrganizerHelper::message(Text::_('ORGANIZER_DEREGISTRATION_SUCCESS'));
+            Application::message(Text::_('ORGANIZER_DEREGISTRATION_SUCCESS'));
         }
 
         // The other option is that the participant wasn't registered to any of the matching instances => no message.
@@ -428,7 +427,7 @@ class InstanceParticipant extends BaseModel
         }
 
         if (!$instanceIDs = array_values($instanceIDs)) {
-            OrganizerHelper::message(Text::_('ORGANIZER_NO_VALID_INSTANCES'), 'notice');
+            Application::message(Text::_('ORGANIZER_NO_VALID_INSTANCES'), Application::NOTICE);
         }
 
         return $instanceIDs;
@@ -485,7 +484,7 @@ class InstanceParticipant extends BaseModel
     public function register(int $method)
     {
         if (!$participantID = Helpers\Users::getID()) {
-            OrganizerHelper::message(Text::_('ORGANIZER_401'), 'error');
+            Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
 
             return;
         }
@@ -526,26 +525,26 @@ class InstanceParticipant extends BaseModel
             //$then      = date('Y-m-d', strtotime('+2 days'));
 
             if (Helpers\Instances::getMethodCode($instanceID) === Helpers\Methods::FINALCODE) {
-                OrganizerHelper::message(
+                Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_EXTERNAL_REGISTRATION', $name, $date, $startTime, $endTime),
-                    'notice'
+                    Application::NOTICE
                 );
                 continue;
             }
 
             if (Helpers\Instances::getPresence($instanceID) === Helpers\Instances::ONLINE) {
-                OrganizerHelper::message(
+                Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_ONLINE', $name, $date, $startTime, $endTime),
-                    'notice'
+                    Application::NOTICE
                 );
                 continue;
             }
 
             /*if ($block->date > $then)
             {
-                OrganizerHelper::message(
+                Application::message(
                     Text::sprintf('ORGANIZER_PREMATURE_REGISTRATION', $name, $date, $startTime, $endTime, $earliest),
-                    'notice'
+                    Application::NOTICE
                 );
                 continue;
             }*/
@@ -562,18 +561,18 @@ class InstanceParticipant extends BaseModel
 
             if ($otherInstanceID = Database::loadInt()) {
                 $otherName = Helpers\Instances::getName($otherInstanceID);
-                OrganizerHelper::message(
+                Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_PREVIOUS_ENGAGEMENT', $date, $startTime, $endTime,
                         $otherName),
-                    'notice'
+                    Application::NOTICE
                 );
                 continue;
             }
 
             if (Helpers\Instances::isFull($instanceID)) {
-                OrganizerHelper::message(
+                Application::message(
                     Text::sprintf('ORGANIZER_INSTANCE_FULL_MESSAGE', $name, $date, $startTime, $endTime),
-                    'notice'
+                    Application::NOTICE
                 );
                 continue;
             }
@@ -587,9 +586,9 @@ class InstanceParticipant extends BaseModel
         }
 
         if ($registered) {
-            OrganizerHelper::message(Text::_('ORGANIZER_REGISTRATION_SUCCESS'));
+            Application::message(Text::_('ORGANIZER_REGISTRATION_SUCCESS'));
         } elseif ($responsible) {
-            OrganizerHelper::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', 'notice');
+            Application::message('ORGANIZER_INSTANCE_RESPONSIBLE_NOTICE', Application::NOTICE);
         }
 
         // The other option is that the participant is already registered to all matching instances => no message.
@@ -605,7 +604,7 @@ class InstanceParticipant extends BaseModel
     public function removeBookmark(int $method)
     {
         if (!$participantID = Helpers\Users::getID()) {
-            OrganizerHelper::message(Text::_('ORGANIZER_401'), 'error');
+            Application::message(Text::_('ORGANIZER_401'), Application::ERROR);
 
             return;
         }
@@ -632,7 +631,7 @@ class InstanceParticipant extends BaseModel
         }
 
         if ($removed) {
-            OrganizerHelper::message(Text::_('ORGANIZER_DESCHEDULE_SUCCESS'));
+            Application::message(Text::_('ORGANIZER_DESCHEDULE_SUCCESS'));
         }
 
         // The other option is that the participant didn't have matching instances in their personal schedule anyways => no message.

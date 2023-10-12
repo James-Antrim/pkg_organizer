@@ -14,7 +14,7 @@ use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Table\Table;
 use Joomla\Registry\Registry;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Application;
 
 /**
  * Abstract class extending Table.
@@ -70,7 +70,7 @@ abstract class BaseTable extends Table
         try {
             return parent::load($keys, $reset);
         } catch (Exception $exception) {
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
         }

@@ -73,7 +73,7 @@ class Profile extends FormModel
         $participant = new Tables\Participants();
 
         if (!$participant->load($userID)) {
-            Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
+            Application::message('ORGANIZER_412', Application::NOTICE);
 
             return;
         }
@@ -82,7 +82,7 @@ class Profile extends FormModel
         $participant->bindRegistry($data);
 
         if (!$participant->store()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_NOT_SAVED', 'error');
+            Application::message('ORGANIZER_PROFILE_NOT_SAVED', Application::ERROR);
 
             return;
         }
@@ -91,7 +91,7 @@ class Profile extends FormModel
 
         if ($personID = Helpers\Persons::getIDByUserID($userID)) {
             if (!$person->load($personID)) {
-                Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
+                Application::message('ORGANIZER_412', Application::NOTICE);
 
                 return;
             }
@@ -99,12 +99,12 @@ class Profile extends FormModel
             $person->bindRegistry($data);
 
             if (!$person->store()) {
-                Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_NOT_SAVED', 'error');
+                Application::message('ORGANIZER_PROFILE_NOT_SAVED', Application::ERROR);
 
                 return;
             }
         }
 
-        Helpers\OrganizerHelper::message('ORGANIZER_PROFILE_SAVED', 'success');
+        Application::message('ORGANIZER_PROFILE_SAVED');
     }
 }

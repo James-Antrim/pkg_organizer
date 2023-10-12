@@ -111,7 +111,7 @@ class Controller extends BaseController
         try {
             $view->display();
         } catch (Exception $exception) {
-            OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
             $this->setRedirect(Uri::base());
         }
 
@@ -251,9 +251,9 @@ class Controller extends BaseController
         $model     = new $modelName();
 
         if ($model->merge($this->resource)) {
-            OrganizerHelper::message('ORGANIZER_MERGE_SUCCESS', 'success');
+            Application::message('ORGANIZER_MERGE_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_MERGE_FAIL', 'error');
+            Application::message('ORGANIZER_MERGE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase();
@@ -272,7 +272,7 @@ class Controller extends BaseController
         $url = "index.php?option=com_organizer&view=$this->listView";
 
         if (JDEBUG) {
-            OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
+            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
             $this->setRedirect($url);
 
             return;
@@ -281,7 +281,7 @@ class Controller extends BaseController
         $selectedIDs = Input::getSelectedIDs();
         if (count($selectedIDs) == 1) {
             $msg = Text::_('ORGANIZER_TOO_FEW');
-            $this->setRedirect(Route::_($url, false), $msg, 'notice');
+            $this->setRedirect(Route::_($url, false), $msg, Application::NOTICE);
 
             return;
         }

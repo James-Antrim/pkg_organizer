@@ -139,7 +139,7 @@ class Program extends CurriculumResource
     public function importSingle(int $resourceID): bool
     {
         if (!$keys = $this->getKeys($resourceID)) {
-            Helpers\OrganizerHelper::message('ORGANIZER_LSF_DATA_MISSING', 'error');
+            Application::message('ORGANIZER_LSF_DATA_MISSING', Application::ERROR);
 
             return false;
         }
@@ -147,7 +147,7 @@ class Program extends CurriculumResource
         try {
             $client = new Helpers\LSF();
         } catch (Exception $exception) {
-            Helpers\OrganizerHelper::message('ORGANIZER_LSF_CLIENT_FAILED', 'error');
+            Application::message('ORGANIZER_LSF_CLIENT_FAILED', Application::ERROR);
 
             return false;
         }

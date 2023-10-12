@@ -12,9 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\User\User;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
-use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 use THM\Organizer\Helpers\Terms;
 use THM\Organizer\Tables;
 
@@ -143,7 +141,7 @@ class Organizer extends BaseModel
         $this->cleanDeprecated();
         $this->cleanPeople();
 
-        OrganizerHelper::message('Tables cleaned.');
+        Application::message('Tables cleaned.');
     }
 
     /**
@@ -303,7 +301,7 @@ class Organizer extends BaseModel
             $deleted++;
         }
 
-        OrganizerHelper::message("$deleted un-associated person entries deleted.");
+        Application::message("$deleted un-associated person entries deleted.");
     }
 
     /**
@@ -331,7 +329,7 @@ class Organizer extends BaseModel
             }
         }
 
-        OrganizerHelper::message("$deleted $adjective users deleted.");
+        Application::message("$deleted $adjective users deleted.");
     }
 
     /**
@@ -363,6 +361,6 @@ class Organizer extends BaseModel
             $this->reKeyTable($table);
         }
 
-        OrganizerHelper::message('Tables re-keyed.');
+        Application::message('Tables re-keyed.');
     }
 }

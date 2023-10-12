@@ -122,7 +122,7 @@ class Course extends BaseModel
             }
 
             if (!preg_match('/^[\d, ]+$/', $row)) {
-                Helpers\OrganizerHelper::message("Malformed row: $row.", 'error');
+                Application::message("Malformed row: $row.", Application::ERROR);
                 continue;
             }
 
@@ -135,7 +135,7 @@ class Course extends BaseModel
             $this->addCourseByUnitIDs($organizationID, $termID, $unitIDs);
         }
 
-        Helpers\OrganizerHelper::message(Text::_('ORGANIZER_IMPORT_SUCCESS'));
+        Application::message(Text::_('ORGANIZER_IMPORT_SUCCESS'));
 
         return true;
     }
@@ -162,14 +162,14 @@ class Course extends BaseModel
             $unit = new Tables\Units();
 
             if (!$unit->load(['code' => $unitID, 'organizationID' => $organizationID, 'termID' => $termID])) {
-                Helpers\OrganizerHelper::message(Text::sprintf('ORGANIZER_UNIT_ID_INVALID', $unitID));
+                Application::message(Text::sprintf('ORGANIZER_UNIT_ID_INVALID', $unitID));
 
                 return;
             }
 
             if ($unit->courseID) {
                 if ($course->id and $course->id !== $unit->courseID) {
-                    Helpers\OrganizerHelper::message(Text::sprintf('ORGANIZER_UNIT_COURSE_CONFLICT', $unitID, $course->$localized));
+                    Application::message(Text::sprintf('ORGANIZER_UNIT_COURSE_CONFLICT', $unitID, $course->$localized));
 
                     return;
                 } elseif (!$course->id) {

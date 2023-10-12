@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Participant;
 
@@ -46,9 +46,9 @@ class Participants extends Controller
         $model = new Participant();
 
         if ($model->save()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_SAVE_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 
         $this->setRedirect(Input::getString('referrer'));

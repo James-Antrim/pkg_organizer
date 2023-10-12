@@ -151,7 +151,7 @@ class Room extends MergeModel
 
 
         if ($codeIndex === false) {
-            Helpers\OrganizerHelper::message('No code column.', 'error');
+            Application::message('No code column.', Application::ERROR);
 
             return false;
         }
@@ -178,19 +178,19 @@ class Room extends MergeModel
             $values = explode(',', $row);
 
             if (count($values) !== $expected) {
-                Helpers\OrganizerHelper::message("Malformed row: $row.", 'error');
+                Application::message("Malformed row: $row.", Application::ERROR);
                 continue;
             }
 
             if (!$code = $values[$codeIndex]) {
-                Helpers\OrganizerHelper::message("No code value: $row.", 'error');
+                Application::message("No code value: $row.", Application::ERROR);
                 continue;
             }
 
             $room = new Table();
 
             if (!$room->load(['code' => $code])) {
-                Helpers\OrganizerHelper::message("Room does not exist: $code.", 'error');
+                Application::message("Room does not exist: $code.", Application::ERROR);
                 continue;
             }
 
@@ -229,7 +229,7 @@ class Room extends MergeModel
 
         fclose($file);
 
-        Helpers\OrganizerHelper::message(Text::_('ORGANIZER_IMPORT_SUCCESS'));
+        Application::message(Text::_('ORGANIZER_IMPORT_SUCCESS'));
 
         return true;
     }

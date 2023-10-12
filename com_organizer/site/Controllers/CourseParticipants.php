@@ -12,9 +12,8 @@ namespace THM\Organizer\Controllers;
 
 use Exception;
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\OrganizerHelper;
 use THM\Organizer\Models;
 
 class CourseParticipants extends Participants
@@ -33,9 +32,9 @@ class CourseParticipants extends Participants
         $model = new Models\CourseParticipant();
 
         if ($model->accept()) {
-            OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+            Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+            Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
@@ -63,9 +62,9 @@ class CourseParticipants extends Participants
         $model = new Models\CourseParticipant();
 
         if ($model->notify()) {
-            OrganizerHelper::message('ORGANIZER_NOTIFY_SUCCESS', 'success');
+            Application::message('ORGANIZER_NOTIFY_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_NOTIFY_FAIL', 'error');
+            Application::message('ORGANIZER_NOTIFY_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
@@ -105,9 +104,9 @@ class CourseParticipants extends Participants
         $model = new Models\CourseParticipant();
 
         if ($model->remove()) {
-            OrganizerHelper::message('ORGANIZER_REMOVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_REMOVE_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_REMOVE_FAIL', 'error');
+            Application::message('ORGANIZER_REMOVE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();
@@ -124,9 +123,9 @@ class CourseParticipants extends Participants
         $model = new Models\CourseParticipant();
 
         if ($model->toggle()) {
-            OrganizerHelper::message('ORGANIZER_TOGGLE_SUCCESS', 'success');
+            Application::message('ORGANIZER_TOGGLE_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_TOGGLE_FAIL', 'error');
+            Application::message('ORGANIZER_TOGGLE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getInt('courseID');
@@ -143,9 +142,9 @@ class CourseParticipants extends Participants
         $model = new Models\CourseParticipant();
 
         if ($model->waitlist()) {
-            OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_SUCCESS', 'success');
+            Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
         } else {
-            OrganizerHelper::message('ORGANIZER_STATUS_CHANGE_FAIL', 'error');
+            Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . '&view=course_participants&id=' . Input::getID();

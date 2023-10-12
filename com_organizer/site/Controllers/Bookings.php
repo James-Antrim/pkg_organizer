@@ -77,9 +77,9 @@ class Bookings extends Controller
         $model = new Models\Booking();
 
         if ($model->batch()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_SUCCESS', 'success');
+            Application::message('ORGANIZER_UPDATE_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_UPDATE_FAIL', 'error');
+            Application::message('ORGANIZER_UPDATE_FAIL', Application::ERROR);
         }
 
         $referrer = Input::getInput()->server->getString('HTTP_REFERER');

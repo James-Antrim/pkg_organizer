@@ -13,7 +13,7 @@ namespace THM\Organizer\Controllers;
 use Exception;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Instance;
 
@@ -98,14 +98,14 @@ class Instances extends Controller
         $referrer = empty($instance['referrer']) ? '' : $instance['referrer'];
 
         if ($model->save()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_SAVE_SUCCESS');
             $session->set('organizer.instance', '');
             $this->setRedirect(Route::_($referrer, false));
 
             return;
         }
 
-        Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+        Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
 
         $url = Helpers\Routing::getRedirectBase() . "&view=instance_edit";
 

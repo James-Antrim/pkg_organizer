@@ -11,6 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 
 trait Activated
@@ -25,9 +26,9 @@ trait Activated
         $model  = new $fqName();
 
         if ($model->activate()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS', 'success');
+            Application::message('ORGANIZER_DEACTIVATION_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_FAIL', 'error');
+            Application::message('ORGANIZER_DEACTIVATION_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . '&view=' . $this->listView;
@@ -44,9 +45,9 @@ trait Activated
         $model  = new $fqName();
 
         if ($model->deactivate()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_SUCCESS', 'success');
+            Application::message('ORGANIZER_DEACTIVATION_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_DEACTIVATION_FAIL', 'error');
+            Application::message('ORGANIZER_DEACTIVATION_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . '&view=' . $this->listView;

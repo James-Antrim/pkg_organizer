@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -32,11 +33,11 @@ class Schedules extends Controller
 
         if ($model->notify())
         {
-            Helpers\OrganizerHelper::message('ORGANIZER_NOTIFY_SUCCESS', 'success');
+            Application::message('ORGANIZER_NOTIFY_SUCCESS');
         }
         else
         {
-            Helpers\OrganizerHelper::message('ORGANIZER_NOTIFY_FAIL', 'error');
+            Application::message('ORGANIZER_NOTIFY_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase();
@@ -66,9 +67,9 @@ class Schedules extends Controller
         $model = new Models\Schedule();
 
         if ($model->rebuild()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_REBUILD_SUCCESS', 'success');
+            Application::message('ORGANIZER_REBUILD_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_REBUILD_FAIL', 'error');
+            Application::message('ORGANIZER_REBUILD_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase();
@@ -85,9 +86,9 @@ class Schedules extends Controller
         $model = new Models\Schedule();
 
         if ($model->reference()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_SUCCESS', 'success');
+            Application::message('ORGANIZER_REFERENCE_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_REFERENCE_FAIL', 'error');
+            Application::message('ORGANIZER_REFERENCE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase();
@@ -103,7 +104,7 @@ class Schedules extends Controller
     {
         $url = Helpers\Routing::getRedirectBase();
         if (JDEBUG) {
-            Helpers\OrganizerHelper::message('ORGANIZER_DEBUG_ON', 'error');
+            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
             $url .= "&view=Schedules";
             $this->setRedirect($url);
 
@@ -120,11 +121,11 @@ class Schedules extends Controller
                 $view  = $model->upload() ? 'Schedules' : 'Schedule_Edit';
             } else {
                 $view = 'Schedule_Edit';
-                Helpers\OrganizerHelper::message('ORGANIZER_FILE_ENCODING_INVALID', 'error');
+                Application::message('ORGANIZER_FILE_ENCODING_INVALID', Application::ERROR);
             }
         } else {
             $view = 'Schedule_Edit';
-            Helpers\OrganizerHelper::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', 'error');
+            Application::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', Application::ERROR);
         }
 
         $url .= "&view=$view";

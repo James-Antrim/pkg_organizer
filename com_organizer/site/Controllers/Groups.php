@@ -11,6 +11,7 @@
 namespace THM\Organizer\Controllers;
 
 use Joomla\CMS\Router\Route;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models;
 
@@ -34,9 +35,9 @@ class Groups extends Controller
         $model = new Models\Group();
 
         if ($model->batch()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_SAVE_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
@@ -52,9 +53,9 @@ class Groups extends Controller
         $group = new Models\Group();
 
         if ($group->publishPast()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_SAVE_SUCCESS');
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase() . '&view=groups';

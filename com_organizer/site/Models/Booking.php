@@ -68,7 +68,7 @@ class Booking extends Participants
         }
 
         if ($instance->delta === 'removed') {
-            Helpers\OrganizerHelper::message('ORGANIZER_DEPRECATED_INSTANCE', 'notice');
+            Application::message('ORGANIZER_DEPRECATED_INSTANCE', Application::NOTICE);
 
             return 0;
         }
@@ -81,9 +81,9 @@ class Booking extends Participants
             $values = ['code' => substr($hash, 0, 4) . '-' . substr($hash, 4)];
 
             if ($booking->save(array_merge($keys, $values))) {
-                Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_CREATED', 'success');
+                Application::message('ORGANIZER_BOOKING_CREATED');
             } else {
-                Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_NOT_CREATED', 'error');
+                Application::message('ORGANIZER_BOOKING_NOT_CREATED', Application::ERROR);
             }
         }
 
@@ -134,7 +134,7 @@ class Booking extends Participants
             ]);
 
             if (!$response = file_get_contents('https://scripts.its.thm.de/emsearch/emsearch.cgi', false, $context)) {
-                Helpers\OrganizerHelper::message('ORGANIZER_503', 'error');
+                Application::message('ORGANIZER_503', Application::ERROR);
 
                 return;
             }
@@ -153,11 +153,11 @@ class Booking extends Participants
 
             if ($count > 1 or $over30) {
                 $message = Text::sprintf('ORGANIZER_TOO_MANY_RESULTS', $input);
-                Helpers\OrganizerHelper::message($message, 'notice');
+                Application::message($message, Application::NOTICE);
 
                 return;
             } elseif (!$count) {
-                Helpers\OrganizerHelper::message('ORGANIZER_EMPTY_RESULT_SET', 'notice');
+                Application::message('ORGANIZER_EMPTY_RESULT_SET', Application::NOTICE);
 
                 return;
             }
@@ -181,7 +181,7 @@ class Booking extends Participants
 
             // Avoid potential inconsistent external data delivery
             if (!$email or !$name or !$username) {
-                Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+                Application::message('ORGANIZER_412', Application::ERROR);
 
                 return;
             }
@@ -255,7 +255,7 @@ class Booking extends Participants
                 $user->save();
 
                 if (!$participantID = $user->id) {
-                    Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_NOT_IMPORTED', 'error');
+                    Application::message('ORGANIZER_PARTICIPANT_NOT_IMPORTED', Application::ERROR);
 
                     return;
                 }
@@ -283,7 +283,7 @@ class Booking extends Participants
                     $participation->attended = 1;
 
                     if (!$participation->store()) {
-                        Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_NOT_ADDED', 'error');
+                        Application::message('ORGANIZER_PARTICIPANT_NOT_ADDED', Application::ERROR);
 
                         return;
                     }
@@ -291,7 +291,7 @@ class Booking extends Participants
                     Helpers\Instances::updateNumbers($participation->instanceID);
                 }
 
-                Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
+                Application::message('ORGANIZER_PARTICIPANT_ADDED');
 
                 return;
             }
@@ -302,7 +302,7 @@ class Booking extends Participants
             $data['instanceID'] = $instanceID;
             $participation      = new Tables\InstanceParticipants();
             if (!$participation->save($data)) {
-                Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_NOT_ADDED', 'error');
+                Application::message('ORGANIZER_PARTICIPANT_NOT_ADDED', Application::ERROR);
 
                 return;
             }
@@ -310,7 +310,7 @@ class Booking extends Participants
             Helpers\Instances::updateNumbers($instanceID);
         }
 
-        Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANT_ADDED', 'success');
+        Application::message('ORGANIZER_PARTICIPANT_ADDED');
     }
 
     /**
@@ -382,7 +382,7 @@ class Booking extends Participants
         Database::setQuery($query);
 
         if (!$allIDs = Database::loadColumn()) {
-            Helpers\OrganizerHelper::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
+            Application::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), Application::NOTICE);
 
             return;
         }
@@ -393,13 +393,13 @@ class Booking extends Participants
         Database::setQuery($query);
 
         if (!$attendedIDs = Database::loadColumn()) {
-            Helpers\OrganizerHelper::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
+            Application::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), Application::NOTICE);
 
             return;
         }
 
         if (!$unAttendedIDs = array_diff($allIDs, $attendedIDs)) {
-            Helpers\OrganizerHelper::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), 'notice');
+            Application::message(Text::_('ORGANIZER_BOOKINGS_NOT_DELETED'), Application::NOTICE);
 
             return;
         }
@@ -410,13 +410,13 @@ class Booking extends Participants
 
         if (Database::execute()) {
             $constant = 'ORGANIZER_BOOKINGS_DELETED';
-            $type     = 'success';
+            $type     = Application::MESSAGE;
         } else {
             $constant = 'ORGANIZER_BOOKINGS_NOT_DELETED';
-            $type     = 'error';
+            $type     = Application::ERROR;
         }
 
-        Helpers\OrganizerHelper::message(Text::_($constant), $type);
+        Application::message(Text::_($constant), $type);
     }
 
     /**
@@ -446,9 +446,9 @@ class Booking extends Participants
             }
         }
 
-        $type    = $count ? 'message' : 'notice';
+        $type    = $count ? Application::MESSAGE : Application::NOTICE;
         $message = Text::sprintf('ORGANIZER_CHECKED_IN_COUNT', $count);
-        Helpers\OrganizerHelper::message($message, $type);
+        Application::message($message, $type);
     }
 
     /**
@@ -464,7 +464,7 @@ class Booking extends Participants
         $bookingID = Input::getID();
 
         if (!$booking->load($bookingID) or !$block->load($booking->blockID)) {
-            Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+            Application::message('ORGANIZER_412', Application::ERROR);
 
             return;
         }
@@ -476,13 +476,13 @@ class Booking extends Participants
             $booking->endTime = $now;
 
             if ($booking->store()) {
-                Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_CLOSED', 'success');
+                Application::message('ORGANIZER_BOOKING_CLOSED');
 
                 return;
             }
         }
 
-        Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_NOT_CLOSED', 'notice');
+        Application::message('ORGANIZER_BOOKING_NOT_CLOSED', Application::NOTICE);
     }
 
     /**
@@ -654,7 +654,7 @@ class Booking extends Participants
         $bookingID = Input::getID();
 
         if (!$booking->load($bookingID) or !$block->load($booking->blockID)) {
-            Helpers\OrganizerHelper::message('ORGANIZER_412', 'error');
+            Application::message('ORGANIZER_412', Application::ERROR);
 
             return;
         }
@@ -667,7 +667,7 @@ class Booking extends Participants
             $booking->endTime = null;
 
             if ($booking->store()) {
-                Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_REOPENED', 'success');
+                Application::message('ORGANIZER_BOOKING_REOPENED');
             }
 
             return;
@@ -678,13 +678,13 @@ class Booking extends Participants
             $booking->startTime = $now;
 
             if ($booking->store()) {
-                Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_OPENED', 'success');
+                Application::message('ORGANIZER_BOOKING_OPENED');
 
                 return;
             }
         }
 
-        Helpers\OrganizerHelper::message('ORGANIZER_BOOKING_NOT_OPENED', 'notice');
+        Application::message('ORGANIZER_BOOKING_NOT_OPENED', Application::NOTICE);
     }
 
     /**
@@ -708,7 +708,7 @@ class Booking extends Participants
         $this->authorize();
 
         if (!$participationIDs = Input::getSelectedIDs()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_400', 'warning');
+            Application::message('ORGANIZER_400', Application::WARNING);
 
             return;
         }
@@ -717,7 +717,7 @@ class Booking extends Participants
             $table = new Tables\InstanceParticipants();
 
             if (!$table->load($participationID)) {
-                Helpers\OrganizerHelper::message('ORGANIZER_412', 'notice');
+                Application::message('ORGANIZER_412', Application::NOTICE);
 
                 return;
             }
@@ -725,7 +725,7 @@ class Booking extends Participants
             $instanceID = $table->instanceID;
 
             if (!$table->delete()) {
-                Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANTS_NOT_REMOVED', 'error');
+                Application::message('ORGANIZER_PARTICIPANTS_NOT_REMOVED', Application::ERROR);
 
                 return;
             }
@@ -733,7 +733,7 @@ class Booking extends Participants
             Helpers\Instances::updateNumbers($instanceID);
         }
 
-        Helpers\OrganizerHelper::message('ORGANIZER_PARTICIPANTS_REMOVED', 'success');
+        Application::message('ORGANIZER_PARTICIPANTS_REMOVED');
     }
 
     /**

@@ -15,7 +15,6 @@ use JDatabaseQuery;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Log\Log;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Helpers;
 use stdClass;
 
 /**
@@ -31,10 +30,10 @@ class Database
     {
         $dbo = Factory::getDbo();
         try {
-            return (bool) $dbo->execute();
+            return $dbo->execute();
         } catch (Exception $exception) {
             self::logException($exception);
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
         }
@@ -86,7 +85,7 @@ class Database
             return $dbo->insertObject($table, $object, $key);
         } catch (Exception $exception) {
             self::logException($exception);
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return false;
         }
@@ -106,7 +105,7 @@ class Database
             return $result ?: [];
         } catch (Exception $exception) {
             self::logException($exception);
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return [];
         }
@@ -134,7 +133,7 @@ class Database
             return $result ?: [];
         } catch (Exception $exception) {
             self::logException($exception);
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return [];
         }
@@ -172,7 +171,7 @@ class Database
             return $result ?: [];
         } catch (Exception $exception) {
             self::logException($exception);
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return [];
         }
@@ -226,7 +225,7 @@ class Database
             return $result ?: new stdClass();
         } catch (Exception $exception) {
             self::logException($exception);
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return new stdClass();
         }
@@ -252,7 +251,7 @@ class Database
             return $result ?: [];
         } catch (Exception $exception) {
             self::logException($exception);
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return [];
         }
@@ -274,7 +273,7 @@ class Database
             return $result ?: $default;
         } catch (Exception $exception) {
             self::logException($exception);
-            Helpers\OrganizerHelper::message($exception->getMessage(), 'error');
+            Application::message($exception->getMessage(), Application::ERROR);
 
             return $default;
         }

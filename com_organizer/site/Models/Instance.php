@@ -102,7 +102,7 @@ class Instance extends BaseModel
 
         if (!$validDate or !$startTime or !$endTime or $endTime < $startTime or $endTime < $now) {
             // Improper use
-            Helpers\OrganizerHelper::message('ORGANIZER_INSTANCE_DATE_OR_TIMES_INVALID');
+            Application::message('ORGANIZER_INSTANCE_DATE_OR_TIMES_INVALID');
 
             return false;
         }

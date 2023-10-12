@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Controllers;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\Unit;
 
@@ -31,11 +32,11 @@ class Units extends Controller
         $model = new Unit();
 
         if ($resourceID = $model->addCourse()) {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_SUCCESS', 'success');
+            Application::message('ORGANIZER_SAVE_SUCCESS');
 
             $url = Helpers\Routing::getRedirectBase() . "&view=course_edit&id=$resourceID";
         } else {
-            Helpers\OrganizerHelper::message('ORGANIZER_SAVE_FAIL', 'error');
+            Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
 
             $url = Helpers\Routing::getRedirectBase() . "&view=units";
         }
