@@ -84,7 +84,7 @@ class Screen extends BaseModel
                     break;
             }
         } elseif ($name = Input::getCMD('room') and $roomID = Helpers\Rooms::getID($name)) {
-            if (Helpers\OrganizerHelper::isSmartphone()) {
+            if (Application::mobile()) {
                 $layout = 'current_instances';
             } else {
                 $layouts = ['current_instances', 'image', 'upcoming_instances'];
@@ -112,7 +112,7 @@ class Screen extends BaseModel
     /**
      * Gets the grid to be used in the screen display.
      *
-     * @param int $gridID the id of the grid
+     * @param   int  $gridID  the id of the grid
      *
      * @return void  sets the object grid variable
      */

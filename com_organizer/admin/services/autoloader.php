@@ -12,8 +12,8 @@ namespace THM\Organizer;
 
 defined('_JEXEC') or die;
 
-spl_autoload_register(function ($originalClassName) {
-
+spl_autoload_register(function ($originalClassName)
+{
     if ($originalClassName === 'TCPDF') {
         require_once JPATH_LIBRARIES . '/tcpdf/tcpdf.php';
 
@@ -22,8 +22,7 @@ spl_autoload_register(function ($originalClassName) {
 
     $classNameParts = explode('\\', $originalClassName);
 
-    $component = array_shift($classNameParts);
-    if ($component !== 'Organizer') {
+    if (array_shift($classNameParts) !== 'THM' or array_shift($classNameParts) !== 'Organizer') {
         return;
     }
 

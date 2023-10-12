@@ -1,19 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extension type="component" version="3.*" method="upgrade">
+<extension type="component" method="upgrade">
     <name>ORGANIZER</name>
+    <description>ORGANIZER_XML_DESCRIPTION</description>
+    <creationDate>January 2013</creationDate>
     <author>James Antrim</author>
     <authorEmail>james.antrim@nm.thm.de</authorEmail>
     <authorUrl>www.thm.de</authorUrl>
-    <creationDate>January 2020</creationDate>
-    <copyright>TH Mittelhessen 2020</copyright>
-    <licence>GNU GPL v.3</licence>
-    <version>3.0.0</version>
-    <scriptfile>script.php</scriptfile>
+    <copyright>TH Mittelhessen 2023</copyright>
+    <license>GNU/GPL Version 3</license>
+    <version>4.0.0</version>
+    <namespace path="src">THM\Organizer</namespace>
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.sql</file>
+        </sql>
+    </install>
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/uninstall.sql</file>
+        </sql>
+    </uninstall>
+    <update>
+        <schemas>
+            <schemapath type="mysql">sql/updates/</schemapath>
+        </schemas>
+    </update>
+    <administration>
+        <menu>ORGANIZER</menu>
+        <files folder="admin">
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+            <folder>language</folder>
+            <folder>services</folder>
+            <folder>sql</folder>
+        </files>
+    </administration>
     <files folder="site">
-        <filename>autoloader.php</filename>
-        <filename>Controller.php</filename>
-        <filename>LICENSE.txt</filename>
-        <filename>organizer.php</filename>
         <filename>metadata.xml</filename>
         <folder>Adapters</folder>
         <folder>Buttons</folder>
@@ -30,17 +52,7 @@
         <folder>Validators</folder>
         <folder>Views</folder>
     </files>
-    <administration>
-        <menu>ORGANIZER</menu>
-        <files folder="admin">
-            <filename>access.xml</filename>
-            <filename>config.xml</filename>
-            <filename>LICENSE.txt</filename>
-            <filename>organizer.php</filename>
-            <folder>language</folder>
-            <folder>sql</folder>
-        </files>
-    </administration>
+    <scriptfile>script.php</scriptfile>
     <updateservers>
         <server type="extension" priority="1" name="Organizer Component Update Site"></server>
     </updateservers>

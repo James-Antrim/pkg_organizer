@@ -55,14 +55,14 @@ abstract class ListModel extends ParentModel
             $this->defaultLimit = $app->get('list_limit', 50);
         }
 
-        $this->mobile = Helpers\OrganizerHelper::isSmartphone();
+        $this->mobile = Application::mobile();
         $this->setContext();
     }
 
     /**
      * Filters out form inputs which should not be displayed due to menu settings.
      *
-     * @param Form $form the form to be filtered
+     * @param   Form  $form  the form to be filtered
      *
      * @return void modifies $form
      */
@@ -225,8 +225,8 @@ abstract class ListModel extends ParentModel
     /**
      * Sets a campus filter for a given resource.
      *
-     * @param JDatabaseQuery $query the query to modify
-     * @param string         $alias the alias for the linking table
+     * @param   JDatabaseQuery  $query  the query to modify
+     * @param   string          $alias  the alias for the linking table
      */
     public function setCampusFilter(JDatabaseQuery $query, string $alias)
     {
@@ -249,8 +249,8 @@ abstract class ListModel extends ParentModel
     /**
      * Sets a campus filter for a given resource.
      *
-     * @param JDatabaseQuery $query the query to modify
-     * @param string         $alias the alias for the linking table
+     * @param   JDatabaseQuery  $query  the query to modify
+     * @param   string          $alias  the alias for the linking table
      */
     public function setActiveFilter(JDatabaseQuery $query, string $alias)
     {
@@ -270,9 +270,9 @@ abstract class ListModel extends ParentModel
     /**
      * Provides a default method for setting filters based on id/unique values
      *
-     * @param JDatabaseQuery $query      the query to modify
-     * @param string         $idColumn   the id column in the table
-     * @param string         $filterName the filter name to look for the id in
+     * @param   JDatabaseQuery  $query       the query to modify
+     * @param   string          $idColumn    the id column in the table
+     * @param   string          $filterName  the filter name to look for the id in
      *
      * @return void
      */
@@ -301,7 +301,7 @@ abstract class ListModel extends ParentModel
     /**
      * Provides a default method for setting the list ordering
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   JDatabaseQuery  $query  the query to modify
      *
      * @return void
      */
@@ -327,9 +327,9 @@ abstract class ListModel extends ParentModel
     /**
      * Sets an organization filter for the given resource.
      *
-     * @param QueryMySQLi $query          the query to modify
-     * @param string      $context        the resource context from which this function was called
-     * @param string      $alias          the alias of the table onto which the organizations table will be joined as
+     * @param   QueryMySQLi  $query       the query to modify
+     * @param   string       $context     the resource context from which this function was called
+     * @param   string       $alias       the alias of the table onto which the organizations table will be joined as
      *                                    needed
      *
      * @return void
@@ -359,8 +359,8 @@ abstract class ListModel extends ParentModel
     /**
      * Sets the search filter for the query
      *
-     * @param QueryMySQLi $query       the query to modify
-     * @param array       $columnNames the column names to use in the search
+     * @param   QueryMySQLi  $query        the query to modify
+     * @param   array        $columnNames  the column names to use in the search
      *
      * @return void
      */
@@ -384,8 +384,8 @@ abstract class ListModel extends ParentModel
     /**
      * Adds a date status filter for a given resource.
      *
-     * @param JDatabaseQuery $query the query to modify
-     * @param string         $alias the column alias
+     * @param   JDatabaseQuery  $query  the query to modify
+     * @param   string          $alias  the column alias
      */
     public function setStatusFilter(JDatabaseQuery $query, string $alias)
     {
@@ -419,8 +419,8 @@ abstract class ListModel extends ParentModel
     /**
      * Provides a default method for setting filters for non-unique values
      *
-     * @param JDatabaseQuery $query        the query to modify
-     * @param array          $queryColumns the filter names. names should be synonymous with db column names.
+     * @param   JDatabaseQuery  $query         the query to modify
+     * @param   array           $queryColumns  the filter names. names should be synonymous with db column names.
      *
      * @return void
      */

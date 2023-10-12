@@ -31,7 +31,7 @@ class FormModel extends ParentModel
     {
         parent::__construct($config);
 
-        $this->mobile = Helpers\OrganizerHelper::isSmartphone();
+        $this->mobile = Application::mobile();
         $this->setContext();
     }
 
@@ -49,7 +49,7 @@ class FormModel extends ParentModel
     /**
      * Filters out form inputs which should not be displayed due to previous selections.
      *
-     * @param Form $form the form to be filtered
+     * @param   Form  $form  the form to be filtered
      *
      * @return void modifies $form
      */

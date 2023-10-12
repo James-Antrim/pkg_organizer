@@ -10,12 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-require_once JPATH_ROOT . '/components/com_jce/editor/libraries/classes/mobile.php';
-
 use Exception;
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Controllers\Controller;
-use Wf_Mobile_Detect;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -25,7 +22,7 @@ class OrganizerHelper
     /**
      * Converts a camel cased class name into a lower cased, underscore separated string
      *
-     * @param string $className the original class name
+     * @param   string  $className  the original class name
      *
      * @return string the encoded base class name
      */
@@ -40,7 +37,7 @@ class OrganizerHelper
     /**
      * Converts a lower cased, underscore separated string into a camel cased class name
      *
-     * @param string $encoded the encoded class name
+     * @param   string  $encoded  the encoded class name
      *
      * @return string the camel cased class name
      */
@@ -68,8 +65,8 @@ class OrganizerHelper
     /**
      * Gets the name of an object's class without its namespace.
      *
-     * @param object|string $object the object whose namespace free name is requested or the fq name of the class to be
-     *                              loaded
+     * @param   object|string  $object  the object whose namespace free name is requested or the fq name of the class to be
+     *                                  loaded
      *
      * @return string the name of the class without its namespace
      */
@@ -89,7 +86,7 @@ class OrganizerHelper
     /**
      * Creates the plural of the given resource.
      *
-     * @param string $resource the resource for which the plural is needed
+     * @param   string  $resource  the resource for which the plural is needed
      *
      * @return string the plural of the resource name
      */
@@ -111,7 +108,7 @@ class OrganizerHelper
     /**
      * Resolves a view name to the corresponding resource.
      *
-     * @param string $view the view for which the resource is needed
+     * @param   string  $view  the view for which the resource is needed
      *
      * @return string the resource name
      */
@@ -124,47 +121,35 @@ class OrganizerHelper
         }
 
         $listViews = [
-            'campuses' => 'campus',
-            'categories' => 'category',
-            'courses' => 'course',
-            'colors' => 'color',
-            'degrees' => 'degree',
-            'grids' => 'grid',
-            'groups' => 'group',
-            'equipment' => 'equipment',
-            'events' => 'event',
-            'fields' => 'field',
-            'fieldcolors' => 'fieldcolor',
-            'holidays' => 'holiday',
-            'methods' => 'method',
+            'campuses'      => 'campus',
+            'categories'    => 'category',
+            'courses'       => 'course',
+            'colors'        => 'color',
+            'degrees'       => 'degree',
+            'grids'         => 'grid',
+            'groups'        => 'group',
+            'equipment'     => 'equipment',
+            'events'        => 'event',
+            'fields'        => 'field',
+            'fieldcolors'   => 'fieldcolor',
+            'holidays'      => 'holiday',
+            'methods'       => 'method',
             'organizations' => 'organization',
-            'participants' => 'participant',
-            'persons' => 'person',
-            'pools' => 'pool',
-            'programs' => 'program',
-            'rooms' => 'room',
-            'roomtypes' => 'roomtype',
-            'schedules' => 'schedule',
-            'search' => 'search',
-            'subjects' => 'subject',
-            'terms' => 'term',
-            'trace' => '',
-            'units' => 'unit'
+            'participants'  => 'participant',
+            'persons'       => 'person',
+            'pools'         => 'pool',
+            'programs'      => 'program',
+            'rooms'         => 'room',
+            'roomtypes'     => 'roomtype',
+            'schedules'     => 'schedule',
+            'search'        => 'search',
+            'subjects'      => 'subject',
+            'terms'         => 'term',
+            'trace'         => '',
+            'units'         => 'unit'
         ];
 
         return $listViews[$initial];
-    }
-
-    /**
-     * TODO: Including this (someday) to the Joomla Core!
-     * Checks if the device is a smartphone, based on the 'Mobile Detect' library
-     * @return bool
-     */
-    public static function isSmartphone(): bool
-    {
-        $checker = new Wf_Mobile_Detect();
-
-        return ($checker->isMobile() and !$checker->isTablet());
     }
 
     /**
