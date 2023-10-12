@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Tables;
 
 /**

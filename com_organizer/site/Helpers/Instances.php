@@ -12,7 +12,7 @@ namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Tables;
 
 /**
@@ -54,7 +54,7 @@ class Instances extends ResourceHelper
      *
      * @return void modifies the query
      */
-    private static function addDeltaClause(JDatabaseQuery $query, string $alias, $delta)
+    private static function addDeltaClause(JDatabaseQuery $query, string $alias, $delta): void
     {
         $wherray = ["$alias.delta != 'removed'"];
 
@@ -74,7 +74,7 @@ class Instances extends ResourceHelper
      *
      * @return void modifies the query
      */
-    private static function addResourceDelta(JDatabaseQuery $query, string $alias, array $conditions)
+    private static function addResourceDelta(JDatabaseQuery $query, string $alias, array $conditions): void
     {
         if (!empty($conditions['instanceStatus']) and $conditions['instanceStatus'] !== 'removed') {
             $query->where("$alias.delta != 'removed'");
@@ -102,9 +102,9 @@ class Instances extends ResourceHelper
      * @param array  &$instance the instance data
      * @param array   $subject  the subject data
      *
-     * @return void
+     * @return void modifies the instance array
      */
-    private static function addSubjectData(array &$instance, array $subject)
+    private static function addSubjectData(array &$instance, array $subject): void
     {
         $instance['subjectID'] = $subject['id'];
         $instance['code']      = empty($subject['code']) ? '' : $subject['code'];
@@ -121,9 +121,9 @@ class Instances extends ResourceHelper
      * @param array    $instance
      * @param          $conditions
      *
-     * @return void
+     * @return void modifies the instance array
      */
-    public static function fill(array &$instance, $conditions)
+    public static function fill(array &$instance, $conditions): void
     {
         self::setBooking($instance);
         self::setCourse($instance);
@@ -430,15 +430,15 @@ class Instances extends ResourceHelper
         }
 
         $instance = [
-            'attended' => 0,
-            'blockID' => $instancesTable->blockID,
-            'eventID' => $instancesTable->eventID,
-            'instanceID' => $instanceID,
-            'instanceStatus' => $instancesTable->delta,
+            'attended'           => 0,
+            'blockID'            => $instancesTable->blockID,
+            'eventID'            => $instancesTable->eventID,
+            'instanceID'         => $instanceID,
+            'instanceStatus'     => $instancesTable->delta,
             'instanceStatusDate' => $instancesTable->modified,
-            'methodID' => $instancesTable->methodID,
-            'registered' => 0,
-            'unitID' => $instancesTable->unitID
+            'methodID'           => $instancesTable->methodID,
+            'registered'         => 0,
+            'unitID'             => $instancesTable->unitID
         ];
 
         $iComment = $instancesTable->comment;
@@ -454,8 +454,8 @@ class Instances extends ResourceHelper
 
         $endTime = empty($instance['eventID']) ? Dates::formatTime($blocksTable->endTime) : Dates::formatEndTime($blocksTable->endTime);
         $block   = [
-            'date' => $blocksTable->date,
-            'endTime' => $endTime,
+            'date'      => $blocksTable->date,
+            'endTime'   => $endTime,
             'startTime' => Dates::formatTime($blocksTable->startTime)
         ];
 
@@ -465,23 +465,23 @@ class Instances extends ResourceHelper
 
         if ($instance['eventID'] and $eventsTable->load($instance['eventID'])) {
             $event = [
-                'campusID' => $eventsTable->campusID,
-                'deadline' => $eventsTable->deadline,
-                'description' => $eventsTable->{"description_$tag"},
-                'fee' => $eventsTable->fee,
-                'name' => $eventsTable->{"name_$tag"},
+                'campusID'         => $eventsTable->campusID,
+                'deadline'         => $eventsTable->deadline,
+                'description'      => $eventsTable->{"description_$tag"},
+                'fee'              => $eventsTable->fee,
+                'name'             => $eventsTable->{"name_$tag"},
                 'registrationType' => $eventsTable->registrationType,
-                'subjectNo' => $eventsTable->subjectNo
+                'subjectNo'        => $eventsTable->subjectNo
             ];
         } else {
             $event = [
-                'campusID' => null,
-                'deadline' => 0,
-                'description' => null,
-                'fee' => 0,
-                'name' => $title,
+                'campusID'         => null,
+                'deadline'         => 0,
+                'description'      => null,
+                'fee'              => 0,
+                'name'             => $title,
                 'registrationType' => null,
-                'subjectNo' => ''
+                'subjectNo'        => ''
             ];
         }
 
@@ -492,7 +492,7 @@ class Instances extends ResourceHelper
         if ($methodsTable->load($instance['methodID'])) {
             $method = [
                 'methodCode' => $methodsTable->{"abbreviation_$tag"},
-                'method' => $methodsTable->{"name_$tag"}
+                'method'     => $methodsTable->{"name_$tag"}
             ];
         }
 
@@ -506,13 +506,13 @@ class Instances extends ResourceHelper
         $orgName = $unitsTable->organizationID ? Organizations::getShortName($unitsTable->organizationID) : '';
 
         $unit = [
-            'comment' => $unitsTable->comment,
-            'courseID' => $unitsTable->courseID,
-            'organization' => $orgName,
+            'comment'        => $unitsTable->comment,
+            'courseID'       => $unitsTable->courseID,
+            'organization'   => $orgName,
             'organizationID' => $unitsTable->organizationID,
-            'gridID' => $unitsTable->gridID,
-            'termID' => $unitsTable->termID,
-            'unitStatus' => $unitsTable->delta,
+            'gridID'         => $unitsTable->gridID,
+            'termID'         => $unitsTable->termID,
+            'unitStatus'     => $unitsTable->delta,
             'unitStatusDate' => $unitsTable->modified,
         ];
 
@@ -1234,10 +1234,10 @@ class Instances extends ResourceHelper
         foreach ($groupAssocs as $groupAssoc) {
             $groupID = $groupAssoc['groupID'];
             $group   = [
-                'code' => $groupAssoc['code'],
-                'fullName' => $groupAssoc['fullName'],
-                'group' => $groupAssoc['name'],
-                'status' => $groupAssoc['delta'],
+                'code'       => $groupAssoc['code'],
+                'fullName'   => $groupAssoc['fullName'],
+                'group'      => $groupAssoc['name'],
+                'status'     => $groupAssoc['delta'],
                 'statusDate' => $groupAssoc['modified']
             ];
 
@@ -1331,12 +1331,12 @@ class Instances extends ResourceHelper
             $assocID  = $personAssoc['assocID'];
             $personID = $personAssoc['personID'];
             $person   = [
-                'assocID' => $assocID,
-                'code' => $personAssoc['roleCode'],
-                'person' => Persons::getLNFName($personID, true),
-                'role' => $personAssoc['role'],
-                'roleID' => $personAssoc['roleID'],
-                'status' => $personAssoc['status'],
+                'assocID'    => $assocID,
+                'code'       => $personAssoc['roleCode'],
+                'person'     => Persons::getLNFName($personID, true),
+                'role'       => $personAssoc['role'],
+                'roleID'     => $personAssoc['roleID'],
+                'status'     => $personAssoc['status'],
                 'statusDate' => $personAssoc['modified']
             ];
 
@@ -1409,12 +1409,12 @@ class Instances extends ResourceHelper
 
             $roomID = $room['roomID'];
             $room   = [
-                'campus' => $campus,
-                'location' => $location,
-                'room' => $room['name'],
-                'status' => $room['delta'],
+                'campus'     => $campus,
+                'location'   => $location,
+                'room'       => $room['name'],
+                'status'     => $room['delta'],
                 'statusDate' => $room['modified'],
-                'virtual' => $room['virtual']
+                'virtual'    => $room['virtual']
             ];
 
             $rooms[$roomID] = $room;

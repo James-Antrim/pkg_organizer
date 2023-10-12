@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi, Text};
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi, Text};
 use THM\Organizer\Models;
 use THM\Organizer\Tables;
 
@@ -54,7 +54,7 @@ class Programs extends Curricula implements Selectable
     }
 
     /**
-     * Gets a HTML option based upon a program curriculum association
+     * Gets an HTML option based upon a program curriculum association
      *
      * @param array  $range     the program curriculum range
      * @param array  $parentIDs the selected parents
@@ -142,7 +142,7 @@ class Programs extends Curricula implements Selectable
             return Text::_('ORGANIZER_NO_PROGRAM');
         }
 
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $tag   = Application::getTag();
         $parts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
         $query->select($query->concatenate($parts, "") . ' AS name')
@@ -176,7 +176,7 @@ class Programs extends Curricula implements Selectable
      * Retrieves the organizationIDs associated with the program
      *
      * @param int  $programID the table id for the program
-     * @param bool $short     whether or not to display an abbreviated version of fhe organization name
+     * @param bool $short     whether to display an abbreviated version of fhe organization name
      *
      * @return string the organization associated with the program's documentation
      */

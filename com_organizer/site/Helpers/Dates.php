@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use DateTime;
-use THM\Organizer\Adapters\{Database, Text};
+use THM\Organizer\Adapters\{Database, Input, Text};
 
 /**
  * Class provides generalized functions regarding dates and times.
@@ -62,9 +62,9 @@ class Dates
      *
      * @param string $time the date to be formatted
      *
-     * @return string|bool  a formatted date string otherwise false
+     * @return string  a formatted date string otherwise false
      */
-    public static function formatEndTime(string $time)
+    public static function formatEndTime(string $time): string
     {
         return date('H:i', strtotime('+1 minute', strtotime($time)));
     }
@@ -74,9 +74,9 @@ class Dates
      *
      * @param string $time the date to be formatted
      *
-     * @return string|bool  a formatted date string otherwise false
+     * @return string  a formatted date string otherwise false
      */
-    public static function formatTime(string $time)
+    public static function formatTime(string $time): string
     {
         return date('H:i', strtotime($time));
     }
@@ -107,7 +107,7 @@ class Dates
     }
 
     /**
-     * Returns the end and start dates of a six month period beginning with the date given.
+     * Returns the end and start dates of a six-month period beginning with the date given.
      *
      * @param string $date the date
      *
@@ -139,7 +139,7 @@ class Dates
     }
 
     /**
-     * Returns the end and start dates of a three month period beginning with the date given.
+     * Returns the end and start dates of a three-month period beginning with the date given.
      *
      * @param string $date the date
      * @param int    $startDay

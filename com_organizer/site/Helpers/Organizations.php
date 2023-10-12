@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -170,7 +170,8 @@ class Organizations extends ResourceHelper implements Selectable
             }
         }
 
-        uasort($options, function ($optionOne, $optionTwo) {
+        uasort($options, function ($optionOne, $optionTwo)
+        {
             return strcmp($optionOne->text, $optionTwo->text);
         });
 

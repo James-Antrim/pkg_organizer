@@ -90,7 +90,7 @@ class Units extends ResourceHelper
      */
     public static function getEventIDs(int $unitID, ?int $instanceID = null): array
     {
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
 
         $query->select('DISTINCT i.eventID')
             ->from('#__organizer_instances AS i')
@@ -119,10 +119,10 @@ class Units extends ResourceHelper
      *
      * @return string|string[] the names of the associated events
      */
-    public static function getEventNames(int $unitID, string $glue = '')
+    public static function getEventNames(int $unitID, string $glue = ''): array|string
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select("DISTINCT name_$tag")
             ->from('#__organizer_events AS e')
             ->innerJoin('#__organizer_instances AS i ON i.eventID = e.id')
@@ -158,7 +158,7 @@ class Units extends ResourceHelper
      */
     public static function getGroupIDs(int $unitID, ?int $instanceID = null): array
     {
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
 
         $query->select('DISTINCT ig.groupID')
             ->from('#__organizer_instance_groups AS ig')
@@ -213,7 +213,7 @@ class Units extends ResourceHelper
      */
     public static function getRoomIDs(int $unitID, ?int $instanceID = null): array
     {
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
 
         $query->select('DISTINCT ir.roomID')
             ->from('#__organizer_instance_rooms AS ir')
@@ -248,7 +248,7 @@ class Units extends ResourceHelper
     {
         $personID = $personID ?: Persons::getIDByUserID(Users::getID());
 
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select('COUNT(*)')
             ->from('#__organizer_instance_persons AS ip')
             ->innerJoin('#__organizer_instances AS i ON i.id = ip.instanceID')

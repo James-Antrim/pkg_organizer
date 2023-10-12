@@ -96,7 +96,7 @@ class Buildings extends ResourceHelper implements Selectable
      */
     public static function getResources(): array
     {
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select('DISTINCT b.*, c.parentID')
             ->from('#__organizer_buildings AS b')
             ->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID')

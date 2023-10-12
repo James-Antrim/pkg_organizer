@@ -11,19 +11,13 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Campuses, Can, CourseParticipants, Courses, Dates, Participants, Users};
 
 /**
  * Class loads the subject into the display context.
  */
 class CourseItem extends ItemView
 {
-    // Participant statuses
-    const UNREGISTERED = null, WAITLIST = 0, ACCEPTED = 1;
-
-    // Course Statuses
-    const EXPIRED = -1, ONGOING = 1;
-
     private $manages = false;
 
     /**
@@ -33,7 +27,7 @@ class CourseItem extends ItemView
     {
         parent::__construct($config);
 
-        if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::manage('courses')) {
+        if (Can::scheduleTheseOrganizations() or Can::manage('courses')) {
             $this->manages = true;
         }
     }
@@ -42,7 +36,7 @@ class CourseItem extends ItemView
      * Adds supplemental information to the display output.
      * @return void modifies the object property supplement
      */
-    protected function addSupplement()
+    protected function addSupplement(): void
     {
         if ($this->manages) {
             return;
@@ -59,21 +53,21 @@ class CourseItem extends ItemView
      * Adds a toolbar and title to the view.
      * @return void  adds toolbar items to the view
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
-        if (!$this->manages and $participantID = Helpers\Users::getID()) {
+        if (!$this->manages and $participantID = Users::getID()) {
             $courseID        = $this->item['id'];
             $deadline        = $this->item['deadline'];
             $link            = 'index.php?option=com_organizer';
             $maxParticipants = $this->item['maxParticipants'];
             $participants    = $this->item['participants'];
             $startDate       = $this->item['startDate'];
-            $today           = Helpers\Dates::standardizeDate();
+            $today           = Dates::standardizeDate();
             $toolbar         = Toolbar::getInstance();
 
             $deadline = $deadline ? date('Y-m-d', strtotime("-$deadline Days", strtotime($startDate))) : $startDate;
 
-            if (Helpers\Participants::exists()) {
+            if (Participants::exists()) {
                 $toolbar->appendButton(
                     'Link',
                     'vcard',
@@ -84,17 +78,17 @@ class CourseItem extends ItemView
                 if ($deadline > $today) {
                     $full         = $participants >= $maxParticipants;
                     $link         .= '&id=' . $this->item['id'];
-                    $state        = Helpers\CourseParticipants::getState($courseID, $participantID);
-                    $validProfile = Helpers\CourseParticipants::validProfile($courseID, $participantID);
-                    if (!$full and $state === self::UNREGISTERED and $validProfile) {
+                    $state        = CourseParticipants::getState($courseID, $participantID);
+                    $validProfile = CourseParticipants::validProfile($courseID, $participantID);
+                    if (!$full and $state === CourseParticipants::UNREGISTERED and $validProfile) {
                         $rLink = $link . '&task=courses.register';
                         $toolbar->appendButton('Link', 'enter', Text::_('ORGANIZER_REGISTER'), $rLink);
-                    } elseif ($state === self::ACCEPTED or $state === self::WAITLIST) {
+                    } elseif ($state === CourseParticipants::ACCEPTED or $state === CourseParticipants::WAITLIST) {
                         $drLink = $link . '&task=courses.deregister';
                         $toolbar->appendButton('Link', 'exit', Text::_('ORGANIZER_DEREGISTER'), $drLink);
 
-                        $hasPaid = Helpers\CourseParticipants::hasPaid($courseID, $participantID);
-                        if ($state === self::ACCEPTED and $hasPaid) {
+                        $hasPaid = CourseParticipants::hasPaid($courseID, $participantID);
+                        if ($state === CourseParticipants::ACCEPTED and $hasPaid) {
                             $bLink = $link . '&view=CourseItem&task=Courses.badge';
                             $toolbar->appendButton(
                                 'Link',
@@ -122,15 +116,15 @@ class CourseItem extends ItemView
      * Creates a subtitle element from the term name and the start and end dates of the course.
      * @return void modifies the course
      */
-    protected function setSubtitle()
+    protected function setSubtitle(): void
     {
         $this->subtitle = '<h6 class="sub-title">';
 
         if ($this->item['campusID']) {
-            $campusName     = Helpers\Campuses::getName($this->item['campusID']);
+            $campusName     = Campuses::getName($this->item['campusID']);
             $this->subtitle .= Text::_('ORGANIZER_CAMPUS') . " $campusName: ";
         }
 
-        $this->subtitle .= Helpers\Courses::getDateDisplay($this->item['id']) . '</h6>';
+        $this->subtitle .= Courses::getDateDisplay($this->item['id']) . '</h6>';
     }
 }

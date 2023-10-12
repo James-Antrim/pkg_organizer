@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Tables;
 use stdClass;
 
@@ -364,7 +364,8 @@ class Persons extends Associated implements Selectable
      */
     public static function nameSort(array &$persons)
     {
-        uasort($persons, function ($personOne, $personTwo) {
+        uasort($persons, function ($personOne, $personTwo)
+        {
             if ($personOne['surname'] > $personTwo['surname']) {
                 return 1;
             }
@@ -398,7 +399,8 @@ class Persons extends Associated implements Selectable
      */
     public static function roleSort(array &$persons)
     {
-        uasort($persons, function ($personOne, $personTwo) {
+        uasort($persons, function ($personOne, $personTwo)
+        {
             $roleOne = isset($personOne['role'][self::COORDINATES]);
             $roleTwo = isset($personTwo['role'][self::COORDINATES]);
             if ($roleOne or !$roleTwo) {

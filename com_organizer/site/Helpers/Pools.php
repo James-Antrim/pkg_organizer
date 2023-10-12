@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -46,7 +46,7 @@ class Pools extends Curricula implements Selectable
     }
 
     /**
-     * Gets a HTML option based upon a pool curriculum association
+     * Gets an HTML option based upon a pool curriculum association
      *
      * @param array $range     the curriculum range entry
      * @param array $parentIDs the selected parents
@@ -134,7 +134,7 @@ class Pools extends Curricula implements Selectable
         $resourceID   = Input::getID();
         $resourceType = Input::getCMD('type');
 
-        // Pending program ranges are dependant on selected programs.
+        // Pending program ranges are dependent on selected programs.
         $programIDs    = Input::getFilterIDs('program');
         $programRanges = Programs::getPrograms($programIDs);
 
@@ -194,14 +194,14 @@ class Pools extends Curricula implements Selectable
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},
-            'bgColor' => Fields::getColor($fieldID, $organizationID),
-            'description' => $table->{"description_$tag"},
-            'field' => $fieldID ? Fields::getName($fieldID) : '',
-            'fieldID' => $table->fieldID,
-            'id' => $table->id,
-            'maxCrP' => $table->maxCrP,
-            'minCrP' => $table->minCrP,
-            'name' => $table->{"fullName_$tag"}
+            'bgColor'      => Fields::getColor($fieldID, $organizationID),
+            'description'  => $table->{"description_$tag"},
+            'field'        => $fieldID ? Fields::getName($fieldID) : '',
+            'fieldID'      => $table->fieldID,
+            'id'           => $table->id,
+            'maxCrP'       => $table->maxCrP,
+            'minCrP'       => $table->minCrP,
+            'name'         => $table->{"fullName_$tag"}
         ];
     }
 

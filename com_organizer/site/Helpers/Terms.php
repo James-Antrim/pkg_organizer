@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -108,7 +108,7 @@ class Terms extends ResourceHelper implements Selectable
         }
 
         $currentEndDate = self::getEndDate($currentID);
-        $query          = Database::getQuery(true);
+        $query          = Database::getQuery();
         $query->select('id')
             ->from('#__organizer_terms')
             ->where("startDate > '$currentEndDate'")
@@ -158,7 +158,7 @@ class Terms extends ResourceHelper implements Selectable
         }
 
         $currentStartDate = self::getStartDate($currentID);
-        $query            = Database::getQuery(true);
+        $query            = Database::getQuery();
         $query->select('id')
             ->from('#__organizer_terms')
             ->where("endDate < '$currentStartDate'")

@@ -178,7 +178,7 @@ class Courses extends ResourceHelper
 
                 if (empty($results[$organization])) {
                     $results[$organization] = [
-                        'participants' => $programCount['participants'],
+                        'participants'      => $programCount['participants'],
                         $programCount['id'] => $programCount
                     ];
                 } else {

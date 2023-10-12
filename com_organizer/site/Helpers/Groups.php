@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, Text};
+use THM\Organizer\Adapters\{Application, Database, Input, Text};
 use THM\Organizer\Tables\Categories as Category;
 use THM\Organizer\Tables\Groups as Group;
 
@@ -121,7 +121,8 @@ class Groups extends Associated implements Selectable
             }
         }
 
-        uasort($options, function ($optionOne, $optionTwo) {
+        uasort($options, function ($optionOne, $optionTwo)
+        {
             return strcmp($optionOne->text, $optionTwo->text);
         });
 

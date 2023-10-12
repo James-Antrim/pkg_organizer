@@ -44,7 +44,7 @@ class Roomtypes extends ResourceHelper implements Selectable
     {
         $tag = Application::getTag();
 
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select("DISTINCT t.*, t.id AS id, t.name_$tag AS name")
             ->from('#__organizer_roomtypes AS t');
 

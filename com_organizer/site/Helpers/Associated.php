@@ -32,7 +32,7 @@ abstract class Associated extends ResourceHelper
     public static function getOrganizationIDs(int $resourceID): array
     {
         $column = static::$resource . 'ID';
-        $query  = Database::getQuery(true);
+        $query  = Database::getQuery();
         $query->select('DISTINCT organizationID')
             ->from('#__organizer_associations')
             ->where("$column = $resourceID");

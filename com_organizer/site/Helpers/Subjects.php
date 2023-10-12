@@ -31,7 +31,7 @@ class Subjects extends Curricula
     public static function coordinates(int $subjectID = 0, int $personID = 0): bool
     {
         $personID = $personID ?: Persons::getIDByUserID(Users::getID());
-        $query    = Database::getQuery(true);
+        $query    = Database::getQuery();
         $query->select('COUNT(*)')
             ->from('#__organizer_subject_persons')
             ->where("personID = $personID")
@@ -90,7 +90,7 @@ class Subjects extends Curricula
      */
     public static function getName(int $resourceID = 0, bool $withNumber = false): string
     {
-        $query      = Database::getQuery(true);
+        $query      = Database::getQuery();
         $resourceID = $resourceID ?: Input::getID();
         $tag        = Application::getTag();
         $query->select("fullName_$tag as name, abbreviation_$tag as abbreviation")
@@ -139,7 +139,7 @@ class Subjects extends Curricula
      */
     public static function getPersons(int $subjectID, int $role = 0): array
     {
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select('p.id, p.surname, p.forename, p.title, sp.role')
             ->from('#__organizer_persons AS p')
             ->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
@@ -222,7 +222,7 @@ class Subjects extends Curricula
             return [];
         }
 
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select('DISTINCT *')
             ->from('#__organizer_curricula')
             ->where("subjectID = $identifiers")
@@ -250,7 +250,7 @@ class Subjects extends Curricula
             $toColumn   = 'subjectID';
         }
 
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select('DISTINCT target.subjectID')
             ->from('#__organizer_curricula AS target')
             ->innerJoin("#__organizer_prerequisites AS p ON p.$toColumn = target.id")
@@ -284,14 +284,14 @@ class Subjects extends Curricula
 
         return [
             'abbreviation' => $table->{"abbreviation_$tag"},
-            'bgColor' => Fields::getColor($fieldID, $organizationID),
+            'bgColor'      => Fields::getColor($fieldID, $organizationID),
             'creditPoints' => $table->creditPoints,
-            'eventID' => $eventID,
-            'field' => $fieldID ? Fields::getName($fieldID) : '',
-            'fieldID' => $table->fieldID,
-            'id' => $table->id,
-            'moduleNo' => $table->code,
-            'name' => $table->{"fullName_$tag"}
+            'eventID'      => $eventID,
+            'field'        => $fieldID ? Fields::getName($fieldID) : '',
+            'fieldID'      => $table->fieldID,
+            'id'           => $table->id,
+            'moduleNo'     => $table->code,
+            'name'         => $table->{"fullName_$tag"}
         ];
     }
 

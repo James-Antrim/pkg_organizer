@@ -11,6 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
+use THM\Organizer\Adapters\Input;
 
 /**
  * Class contains functions for organization filtering.
@@ -24,8 +25,10 @@ trait Filtered
      * @param string         $access  the access right to be filtered against
      * @param string         $context the resource context from which this function was called
      * @param string         $alias   the alias being used for the resource table
+     *
+     * @return void modifies the query object
      */
-    public static function addAccessFilter($query, $access, $context, $alias)
+    public static function addAccessFilter($query, $access, $context, $alias): void
     {
         $authorized = [];
 
@@ -55,8 +58,10 @@ trait Filtered
      *
      * @param JDatabaseQuery $query the query to modify
      * @param string         $alias the alias for the linking table
+     *
+     * @return void modifies the query object
      */
-    public static function addCampusFilter($query, $alias)
+    public static function addCampusFilter($query, $alias): void
     {
         $campusID  = Input::getInt('campusID');
         $campusIDs = $campusID ? [$campusID] : Input::getFilterIDs('campus');
@@ -109,8 +114,10 @@ trait Filtered
      * @param string         $resource      the name of the resource associated
      * @param string         $newAlias      the alias for any linked table
      * @param string         $existingAlias the alias for the linking table
+     *
+     * @return void modifies the query
      */
-    public static function addResourceFilter($query, $resource, $newAlias, $existingAlias)
+    public static function addResourceFilter($query, $resource, $newAlias, $existingAlias): void
     {
         // TODO Remove (plan) programs on completion of migration.
         if ($resource === 'category') {

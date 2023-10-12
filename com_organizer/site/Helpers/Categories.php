@@ -61,7 +61,8 @@ class Categories extends Associated implements Selectable
             }
         }
 
-        uasort($options, function ($optionOne, $optionTwo) {
+        uasort($options, function ($optionOne, $optionTwo)
+        {
             return strcmp($optionOne->text, $optionTwo->text);
         });
 
@@ -83,7 +84,7 @@ class Categories extends Associated implements Selectable
             return $noName;
         }
 
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select('DISTINCT id')->from('#__organizer_programs')->where("categoryID = $categoryID");
         Database::setQuery($query);
 
@@ -103,7 +104,7 @@ class Categories extends Associated implements Selectable
     public static function getResources(string $access = ''): array
     {
         $order = Application::getTag() === 'en' ? 'name_en' : 'name_de';
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select('DISTINCT c.*')->from('#__organizer_categories AS c')->order($order);
 
         if (!empty($access)) {

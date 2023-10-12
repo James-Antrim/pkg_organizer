@@ -92,7 +92,7 @@ class SubjectsLSF
         // Remove the formatted text tag
         $text = preg_replace('/<[\/]?[f|F]ormatted[t|T]ext>/', '', $text);
 
-        // Remove non self closing tags with no content and unwanted self closing tags
+        // Remove non-self-closing tags with no content and unwanted self-closing tags
         $text = preg_replace('/<((?!br|col|link).)[a-z]*[\s]*\/>/', '', $text);
 
         // Replace non-blank spaces
@@ -105,17 +105,17 @@ class SubjectsLSF
         do {
             $startText = $text;
 
-            // Replace multiple whitespace characters with a single single space
+            // Replace multiple whitespace characters with a single space
             $text = preg_replace('/\s+/', ' ', $text);
 
             // Replace non-blank spaces
-            $text = preg_replace('/^\s+/', '', $text);
+            $text = ltrim($text);
 
             // Remove leading white space
-            $text = preg_replace('/^\s+/', '', $text);
+            $text = ltrim($text);
 
             // Remove trailing white space
-            $text = preg_replace("/\s+$/", '', $text);
+            $text = rtrim($text);
 
             // Replace remaining white space with an actual space to prevent errors from weird coding
             $text = preg_replace("/\s$/", ' ', $text);
@@ -275,7 +275,7 @@ class SubjectsLSF
 
         switch ($category) {
             case 'Aufteilung des Arbeitsaufwands':
-                // There are int fields handled elsewhere for this hopefully.
+                // There are int fields handled elsewhere for this, hopefully.
                 if (!$table->creditPoints) {
                     self::processExpenditures($table, $germanText);
                 }
@@ -449,7 +449,7 @@ class SubjectsLSF
         if (is_numeric($deValue)) {
             $scalarValue = (int) $deValue;
             $scalarValue = $scalarValue < 4 ? $scalarValue : 3;
-            $scalarValue = $scalarValue < 0 ? 0 : $scalarValue;
+            $scalarValue = max($scalarValue, 0);
         } elseif (preg_match('/^(\*)+$/', $deValue, $occurences)) {
             $scalarValue = count($occurences);
             $scalarValue = $scalarValue < 4 ? $scalarValue : 3;

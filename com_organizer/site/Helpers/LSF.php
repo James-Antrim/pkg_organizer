@@ -13,7 +13,7 @@ namespace THM\Organizer\Helpers;
 use Exception;
 use SimpleXMLElement;
 use SoapClient;
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, Input};
 
 /**
  * Class provides methods for communication with the LSF curriculum documentation system.

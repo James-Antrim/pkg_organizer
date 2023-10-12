@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -65,7 +65,7 @@ class Rooms extends ResourceHelper implements Selectable
      */
     public static function getPlannedRooms(): array
     {
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select('r.id, r.name, r.roomtypeID')
             ->from('#__organizer_rooms AS r')
             ->innerJoin('#__organizer_instance_rooms AS ir ON ir.roomID = r.id')
@@ -101,7 +101,7 @@ class Rooms extends ResourceHelper implements Selectable
      */
     public static function getResources(): array
     {
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select("DISTINCT r.id, r.*")
             ->from('#__organizer_rooms AS r')
             ->innerJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID')
@@ -137,7 +137,7 @@ class Rooms extends ResourceHelper implements Selectable
     }
 
     /**
-     * Checks whether or not the room is virtual.
+     * Checks whether the room is virtual.
      *
      * @param int $roomID the id of the room
      *

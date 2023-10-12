@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -86,7 +86,7 @@ class Fields extends ResourceHelper implements Selectable
      */
     public static function getResources(): array
     {
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $tag   = Application::getTag();
         $query->select("DISTINCT *, name_$tag AS name")
             ->from('#__organizer_fields')

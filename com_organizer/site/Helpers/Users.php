@@ -12,6 +12,7 @@ namespace THM\Organizer\Helpers;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\User\User;
+use THM\Organizer\Adapters\Input;
 
 /**
  * Class provides generalized functions useful for several component files.
@@ -19,7 +20,7 @@ use Joomla\CMS\User\User;
 class Users
 {
     /**
-     * The logged in user.
+     * The logged-in user.
      * @var User
      */
     private static $user;
@@ -63,7 +64,7 @@ class Users
      * Get a user object.
      * Returns the global {@link User} object, only creating it if it doesn't already exist.
      *
-     * @param int $userID The user to load - Can be an int or string - If string, it is converted to ID automatically.
+     * @param int $userID The user to load - Can be an int or string - If-string, it is converted to ID automatically.
      *
      * @return  User a user object specifically requested ids return a dynamic user, otherwise the current user
      */
@@ -112,7 +113,7 @@ class Users
     }
 
     /**
-     * Resolves a user name attribute into forename and surname attributes.
+     * Resolves a username attribute into forename and surname attributes.
      *
      * @param int $userID the id of the user whose full name should be resolved
      *

@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Exception;
 use THM\Organizer\Adapters\{Application, Database, Input};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\{Can, CourseParticipants, Courses, Mailer};
 use THM\Organizer\Tables;
 
 /**
@@ -20,8 +20,6 @@ use THM\Organizer\Tables;
  */
 class CourseParticipant extends BaseModel
 {
-    private const ACCEPTED = 1, WAITLIST = 0;
-
     /**
      * Sets the status for the course participant to accepted
      * @return bool true on success, otherwise false
@@ -29,7 +27,7 @@ class CourseParticipant extends BaseModel
      */
     public function accept(): bool
     {
-        return $this->batch(self::ACCEPTED);
+        return $this->batch(CourseParticipants::ACCEPTED);
     }
 
     /**
@@ -46,12 +44,12 @@ class CourseParticipant extends BaseModel
             return false;
         }
 
-        if (!Helpers\Can::manage('course', $courseID)) {
+        if (!Can::manage('course', $courseID)) {
             Application::error(403);
         }
 
         foreach ($participantIDs as $participantID) {
-            if (!Helpers\Can::manage('participant', $participantID)) {
+            if (!Can::manage('participant', $participantID)) {
                 Application::error(403);
             }
 
@@ -71,7 +69,7 @@ class CourseParticipant extends BaseModel
                 return false;
             }
 
-            Helpers\Mailer::registrationUpdate($courseID, $participantID, $value);
+            Mailer::registrationUpdate($courseID, $participantID, $value);
         }
 
         return true;
@@ -95,11 +93,11 @@ class CourseParticipant extends BaseModel
             return false;
         }
 
-        if (!Helpers\Can::manage('course', $courseID)) {
+        if (!Can::manage('course', $courseID)) {
             Application::error(403);
         }
 
-        $courseParticipants   = Helpers\Courses::getParticipantIDs($courseID);
+        $courseParticipants   = Courses::getParticipantIDs($courseID);
         $selectedParticipants = Input::getIntCollection('cid');
 
         if (empty($courseParticipants) and empty($selectedParticipants)) {
@@ -114,14 +112,14 @@ class CourseParticipant extends BaseModel
         }
 
         foreach ($participantIDs as $participantID) {
-            Helpers\Mailer::notifyParticipant($participantID, $subject, $body);
+            Mailer::notifyParticipant($participantID, $subject, $body);
         }
 
         return true;
     }
 
     /**
-     * Sets the payment status to paid.
+     * Removes the participation record.
      * @return bool true on success, otherwise false
      */
     public function remove(): bool
@@ -130,21 +128,21 @@ class CourseParticipant extends BaseModel
             return false;
         }
 
-        if (!Helpers\Can::manage('course', $courseID)) {
+        if (!Can::manage('course', $courseID)) {
             Application::error(403);
         }
 
-        $dates = Helpers\Courses::getDates($courseID);
+        $dates = Courses::getDates($courseID);
 
         if (empty($dates['endDate']) or $dates['endDate'] < date('Y-m-d')) {
             return false;
         }
 
-        $instanceIDs = Helpers\Courses::getInstanceIDs($courseID);
+        $instanceIDs = Courses::getInstanceIDs($courseID);
         $instanceIDs = implode(',', $instanceIDs);
 
         foreach ($participantIDs as $participantID) {
-            if (!Helpers\Can::manage('participant', $participantID)) {
+            if (!Can::manage('participant', $participantID)) {
                 Application::error(403);
             }
 
@@ -166,7 +164,7 @@ class CourseParticipant extends BaseModel
                 return false;
             }
 
-            Helpers\Mailer::registrationUpdate($courseID, $participantID, null);
+            Mailer::registrationUpdate($courseID, $participantID, null);
         }
 
         return true;
@@ -185,7 +183,7 @@ class CourseParticipant extends BaseModel
             return false;
         }
 
-        if (!Helpers\Can::manage('course', $courseID) or !Helpers\Can::manage('participant', $participantID)) {
+        if (!Can::manage('course', $courseID) or !Can::manage('participant', $participantID)) {
             Application::error(403);
         }
 
@@ -205,7 +203,7 @@ class CourseParticipant extends BaseModel
         }
 
         if ($attribute === 'status') {
-            Helpers\Mailer::registrationUpdate($courseID, $participantID, $table->$attribute);
+            Mailer::registrationUpdate($courseID, $participantID, $table->$attribute);
         }
 
         return true;
@@ -218,6 +216,6 @@ class CourseParticipant extends BaseModel
      */
     public function waitlist(): bool
     {
-        return $this->batch(self::WAITLIST);
+        return $this->batch(CourseParticipants::WAITLIST);
     }
 }

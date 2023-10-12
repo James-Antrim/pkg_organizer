@@ -18,10 +18,10 @@ use THM\Organizer\Tables;
  */
 class CourseParticipants extends ResourceHelper
 {
-    private const UNREGISTERED = null;
+    public const UNREGISTERED = null, WAITLIST = 0, ACCEPTED = 1;
 
     /**
-     * Determines whether or not the participant has paid for the course.
+     * Determines whether the participant has paid for the course.
      *
      * @param int $courseID      the course id
      * @param int $participantID the participant id

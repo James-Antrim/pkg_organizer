@@ -17,8 +17,6 @@ use THM\Organizer\Tables;
 
 class Mailer
 {
-    const NONE = null, WAITLIST = 0, REGISTERED = 1;
-
     /**
      * Sends a notification mail to the participant.
      *
@@ -107,13 +105,13 @@ class Mailer
         $contact    = str_replace(' – ', "\n", $params->get('contact'));
         $courseName .= " ($dates)";
 
-        if ($status === self::NONE) {
+        if ($status === CourseParticipants::UNREGISTERED) {
             $body = Text::sprintf('ORGANIZER_DEREGISTER_BODY',
-                $courseName,
-                $sender->name,
-                $sender->email,
-                $address,
-                $contact
+                                  $courseName,
+                                  $sender->name,
+                                  $sender->email,
+                                  $address,
+                                  $contact
             );
         } else {
             $statusText = $status ? 'ORGANIZER_REGISTERED' : 'ORGANIZER_WAITLIST';

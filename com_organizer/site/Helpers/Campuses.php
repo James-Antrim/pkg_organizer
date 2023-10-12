@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -72,7 +72,7 @@ class Campuses extends ResourceHelper implements Selectable
         }
 
         $tag   = Application::getTag();
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $query->select("c1.name_$tag as name, c2.name_$tag as parentName")
             ->from('#__organizer_campuses AS c1')
             ->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
