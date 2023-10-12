@@ -15,8 +15,8 @@ use Joomla\CMS\Application\{CMSApplication, WebApplication};
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Document\Document;
 use Joomla\CMS\Language\Language;
+use Joomla\CMS\Menu\MenuItem;
 use Joomla\CMS\Session\Session;
-use Joomla\CMS\Toolbar\Toolbar as BaseToolbar;
 use Joomla\CMS\User\{User, UserFactory, UserFactoryInterface};
 use Joomla\Database\DatabaseDriver;
 use Joomla\DI\Container;
@@ -58,9 +58,18 @@ class Application
     }
 
     /**
+     * Determines whether the view was called from a dynamic context
+     * @return bool true if the view was called dynamically, otherwise false
+     */
+    public static function dynamic(): bool
+    {
+        return !self::getMenuItem();
+    }
+
+    /**
      * Performs a redirect on error.
      *
-     * @param int $code the error code
+     * @param   int  $code  the error code
      *
      * @return void
      */
@@ -90,7 +99,7 @@ class Application
             $url      = $referrer === $current ? Uri::base() : $referrer;
         }
 
-        self::message("GROUPS_$code", $severity);
+        self::message($code, $severity);
         self::redirect($url, $code);
     }
 
@@ -116,8 +125,8 @@ class Application
     /**
      * Gets the name of an object's class without its namespace.
      *
-     * @param object|string $object the object whose namespace free name is requested or the fq name of the class to be
-     *                              loaded
+     * @param   object|string  $object  the object whose namespace free name is requested or the fq name of the class to be
+     *                                  loaded
      *
      * @return string the name of the class without its namespace
      */
@@ -170,9 +179,25 @@ class Application
     }
 
     /**
+     * Gets the current menu item.
+     * @return MenuItem|null the current menu item or null
+     */
+    public static function getMenuItem(): ?MenuItem
+    {
+        /** @var CMSApplication $app */
+        $app = self::getApplication();
+
+        if ($menu = $app->getMenu() and $menuItem = $menu->getActive()) {
+            return $menuItem;
+        }
+
+        return null;
+    }
+
+    /**
      * Gets the parameter object for the component
      *
-     * @param string $component the component name.
+     * @param   string  $component  the component name.
      *
      * @return  Registry
      */
@@ -202,21 +227,9 @@ class Application
     }
 
     /**
-     * Returns a toolbar object, creating it as necessary. Specific toolbars can be accessed over the name parameter.
-     *
-     * @param string $name The name of the toolbar.
-     *
-     * @return  BaseToolbar  The Toolbar object.
-     */
-    public static function getToolbar(string $name = 'toolbar'): BaseToolbar
-    {
-        return Toolbar::getInstance($name);
-    }
-
-    /**
      * Gets a user object (specified or current).
      *
-     * @param int|string $userID the user identifier (id or name)
+     * @param   int|string  $userID  the user identifier (id or name)
      *
      * @return User
      */
@@ -239,7 +252,7 @@ class Application
     /**
      * Performs handling for joomla's internal errors not handled by joomla.
      *
-     * @param Exception $exception the joomla internal error being thrown instead of handled
+     * @param   Exception  $exception  the joomla internal error being thrown instead of handled
      *
      * @return void
      */
@@ -279,8 +292,8 @@ class Application
     /**
      * Masks the Joomla application enqueueMessage function
      *
-     * @param string $message the message to enqueue
-     * @param string $type    how the message is to be presented
+     * @param   string  $message  the message to enqueue
+     * @param   string  $type     how the message is to be presented
      *
      * @return void
      */
@@ -306,8 +319,8 @@ class Application
     /**
      * Redirect to another URL.
      *
-     * @param string $url    The URL to redirect to. Can only be http/https URL
-     * @param int    $status The HTTP 1.1 status code to be provided. 303 is assumed by default.
+     * @param   string  $url     The URL to redirect to. Can only be http/https URL
+     * @param   int     $status  The HTTP 1.1 status code to be provided. 303 is assumed by default.
      *
      * @return  void
      */

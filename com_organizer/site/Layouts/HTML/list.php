@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Toolbar};
 use THM\Organizer\Helpers;
 
 require_once 'refresh.php';
@@ -17,7 +17,7 @@ require_once 'refresh.php';
 $columnCount = count($this->headers);
 $items       = $this->items;
 $iteration   = 0;
-$action      = Helpers\OrganizerHelper::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
+$action      = Application::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 
 if (!$this->adminContext) {
     require_once 'titles.php';

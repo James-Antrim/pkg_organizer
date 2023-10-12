@@ -11,23 +11,25 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
+use Joomla\Application\WebApplicationInterface;
+use Joomla\Input\Input as JInput;
 use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Factory;
-use Joomla\CMS\MVC\Controller\BaseController;
-use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\MVC\{Controller\BaseController, Factory\MVCFactoryInterface, Model\BaseDatabaseModel as BDBM};
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Helpers\OrganizerHelper;
-use THM\Organizer\Views\HTML\BaseView as HTMLView;
-use THM\Organizer\Views\JSON\BaseView as JSONView;
-use THM\Organizer\Views\PDF\BaseView as PDFView;
-use THM\Organizer\Views\XLS\BaseView as XLSView;
-use THM\Organizer\Views\XML\BaseView as XMLView;
+use THM\Organizer\Views\HTML\BaseView as HTML;
+use THM\Organizer\Views\JSON\BaseView as JSON;
+use THM\Organizer\Views\PDF\BaseView as PDF;
+use THM\Organizer\Views\XLS\BaseView as XLS;
+use THM\Organizer\Views\XML\BaseView as XML;
 
+/**
+ * Class provides ...
+ */
 class Controller extends BaseController
 {
     /**
@@ -45,10 +47,10 @@ class Controller extends BaseController
     /**
      * @inheritDoc
      */
-    public function __construct($config = [], MVCFactoryInterface $factory = null, ?CMSApplication $app = null, ?Input $input = null)
+    public function __construct($config = [], MVCFactoryInterface $factory = null, ?CMSApplication $app = null, ?JInput $input = null)
     {
         $this->backend = Application::backend();
-        $this->baseURL = $this->baseURL ?: Uri::base() . 'index.php?option=com_groups';
+        $this->baseURL = $this->baseURL ?: Uri::base() . 'index.php?option=com_organizer';
         parent::__construct($config, $factory, $app, $input);
     }
 
@@ -70,7 +72,7 @@ class Controller extends BaseController
     protected function authorizeAJAX(): void
     {
         if (!Can::administrate()) {
-            echo Text::_('GROUPS_403');
+            echo Text::_('403');
             $this->app->close();
         }
     }
@@ -80,7 +82,7 @@ class Controller extends BaseController
      */
     public function display($cachable = false, $urlparams = []): BaseController
     {
-        $document = Factory::getDocument();
+        $document = Application::getDocument();
         $format   = $this->input->get('format', strtoupper($document->getType()));
         $template = $this->input->get('layout', 'default', 'string');
         $view     = $this->input->get('view', 'Organizer');
@@ -136,13 +138,13 @@ class Controller extends BaseController
     /**
      * Method to get a model object, loading it if required.
      *
-     * @param string $name   The model name. Optional.
-     * @param string $prefix The class prefix. Optional.
-     * @param array  $config Configuration array for model. Optional.
+     * @param   string  $name    The model name. Optional.
+     * @param   string  $prefix  The class prefix. Optional.
+     * @param   array   $config  Configuration array for model. Optional.
      *
-     * @return  BaseDatabaseModel|false  Model object on success; otherwise false on failure.
+     * @return  BDBM|false  Model object on success; otherwise false on failure.
      */
-    public function getModel($name = '', $prefix = '', $config = [])
+    public function getModel($name = '', $prefix = '', $config = []): BDBM|false
     {
         $name = empty($name) ? $this->getName() : $name;
 
@@ -156,11 +158,8 @@ class Controller extends BaseController
             // Task is a reserved state
             $model->setState('task', $this->task);
 
-            // Let's get the application object and set menu information if it's available
-            $menu = Application::getApplication()->getMenu();
-
-            if (is_object($menu) && $item = $menu->getActive()) {
-                $params = $menu->getParams($item->id);
+            if ($item = Application::getMenuItem()) {
+                $params = $item->getParams();
 
                 // Set default state data
                 $model->setState('parameters.menu', $params);
@@ -173,14 +172,14 @@ class Controller extends BaseController
     /**
      * Method to get a reference to the current view and load it if necessary.
      *
-     * @param string $name   The view name. Optional, defaults to the controller name.
-     * @param string $type   The view type. Optional.
-     * @param string $prefix The class prefix. Optional.
-     * @param array  $config Configuration array for view. Optional.
+     * @param   string  $name    The view name. Optional, defaults to the controller name.
+     * @param   string  $type    The view type. Optional.
+     * @param   string  $prefix  The class prefix. Optional.
+     * @param   array   $config  Configuration array for view. Optional.
      *
-     * @return  HTMLView|JSONView|PDFView|XLSView|XMLView  the view object
+     * @return  HTML|JSON|PDF|XLS|XML  the view object
      */
-    public function getView($name = '', $type = '', $prefix = 'x', $config = []): object
+    public function getView($name = '', $type = '', $prefix = 'x', $config = []): HTML|JSON|PDF|XLS|XML
     {
         // @note We use self so we only access stuff in this class rather than in all classes.
         if (!isset(self::$views)) {
@@ -223,12 +222,13 @@ class Controller extends BaseController
     /**
      * Creates the environment for the proper output of a given JSON string.
      *
-     * @param string $response the preformatted response string
+     * @param   string  $response  the preformatted response string
      *
      * @return void
      */
-    protected function jsonResponse(string $response)
+    protected function jsonResponse(string $response): void
     {
+        /** @var WebApplicationInterface $app */
         $app = Application::getApplication();
 
         // Send json mime type.
@@ -245,7 +245,7 @@ class Controller extends BaseController
      * redirects to the room manager view
      * @return void
      */
-    public function merge()
+    public function merge(): void
     {
         $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
         $model     = new $modelName();
@@ -267,7 +267,7 @@ class Controller extends BaseController
      * @return void
      * @throws Exception
      */
-    public function mergeView()
+    public function mergeView(): void
     {
         $url = "index.php?option=com_organizer&view=$this->listView";
 
@@ -296,7 +296,7 @@ class Controller extends BaseController
      * @return void
      * @throws Exception
      */
-    public function pdf()
+    public function pdf(): void
     {
         Input::set('format', 'pdf');
         $this->display();
@@ -307,7 +307,7 @@ class Controller extends BaseController
      * @return void
      * @throws Exception
      */
-    public function xls()
+    public function xls(): void
     {
         Input::set('format', 'xls');
         $this->display();

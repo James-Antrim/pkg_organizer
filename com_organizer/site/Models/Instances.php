@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use Joomla\CMS\Factory;
+use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Form\Form;
 use THM\Organizer\Adapters\{Application, Input, Queries\QueryMySQLi, Text};
 use THM\Organizer\Helpers;
@@ -47,7 +47,7 @@ class Instances extends ListModel
      */
     public function __construct($config = [])
     {
-        $session = Factory::getSession();
+        $session = Application::getSession();
         $session->set('organizer.instance.item.referrer', '');
         parent::__construct($config);
     }
@@ -55,7 +55,7 @@ class Instances extends ListModel
     /**
      * @inheritDoc
      */
-    public function filterFilterForm(Form $form)
+    public function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
 
@@ -166,6 +166,7 @@ class Instances extends ListModel
      */
     private function getDate(): string
     {
+        /** @var CMSWebApplicationInterface $app */
         $app = Application::getApplication();
 
         // Instances view
@@ -184,6 +185,7 @@ class Instances extends ListModel
      */
     private function getInterval(): string
     {
+        /** @var CMSWebApplicationInterface $app */
         $app = Application::getApplication();
 
         // Instances view
@@ -368,10 +370,11 @@ class Instances extends ListModel
     /**
      * @inheritdoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 
+        /** @var CMSWebApplicationInterface $app */
         $app         = Application::getApplication();
         $conditions  = ['delta' => date('Y-m-d', strtotime('-14 days'))];
         $filterItems = Input::getFilterItems();
@@ -511,7 +514,7 @@ class Instances extends ListModel
         $endDate = $params->get('endDate');
         $status  = Helper::CURRENT;
 
-        if ($dynamic = Helpers\OrganizerHelper::dynamic()) {
+        if ($dynamic = Application::dynamic()) {
             $dow       = null;
             $startDate = null;
             $bound     = false;

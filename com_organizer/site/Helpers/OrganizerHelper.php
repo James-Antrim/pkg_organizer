@@ -10,10 +10,6 @@
 
 namespace THM\Organizer\Helpers;
 
-use Exception;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Controllers\Controller;
-
 /**
  * Class provides generalized functions useful for several component files.
  */
@@ -52,17 +48,6 @@ class OrganizerHelper
     }
 
     /**
-     * Determines whether the view was called from a dynamic context
-     * @return bool true if the view was called dynamically, otherwise false
-     */
-    public static function dynamic(): bool
-    {
-        $app = Application::getApplication();
-
-        return (empty($app->getMenu()) or empty($app->getMenu()->getActive()));
-    }
-
-    /**
      * Gets the name of an object's class without its namespace.
      *
      * @param   object|string  $object  the object whose namespace free name is requested or the fq name of the class to be
@@ -70,7 +55,7 @@ class OrganizerHelper
      *
      * @return string the name of the class without its namespace
      */
-    public static function getClass($object): string
+    public static function getClass(object|string $object): string
     {
         $fqName   = is_string($object) ? $object : get_class($object);
         $nsParts  = explode('\\', $fqName);
@@ -150,40 +135,5 @@ class OrganizerHelper
         ];
 
         return $listViews[$initial];
-    }
-
-    /**
-     * Instantiates the controller.
-     * @return void
-     */
-    public static function setUp()
-    {
-        $handler = explode('.', Input::getTask());
-
-        if (count($handler) == 2) {
-            $possibleController = self::classDecode($handler[0]);
-            $filepath           = JPATH_ROOT . "/components/com_organizer/Controllers/$possibleController.php";
-
-            if (is_file($filepath)) {
-                $namespacedClassName = "Organizer\\Controllers\\" . $possibleController;
-                $controllerObj       = new $namespacedClassName();
-            }
-
-            $task = $handler[1];
-        } else {
-            $task = $handler[0];
-        }
-
-        if (empty($controllerObj)) {
-            $controllerObj = new Controller();
-        }
-
-        try {
-            $controllerObj->execute($task);
-        } catch (Exception $exception) {
-            Application::message($exception->getMessage(), Application::ERROR);
-        }
-
-        $controllerObj->redirect();
     }
 }

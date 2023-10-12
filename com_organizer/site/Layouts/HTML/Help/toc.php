@@ -9,15 +9,14 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Text};
-use THM\Organizer\Helpers\OrganizerHelper;
+use THM\Organizer\Adapters\{Application, Input, Text};
 
 if (Input::getCMD('tmpl') === 'component') {
     return;
 }
 
 $contents = [];
-$dynamic  = OrganizerHelper::dynamic();
+$dynamic  = Application::dynamic();
 $folder   = dirname(__FILE__);
 $iterator = new DirectoryIterator($folder);
 $layout   = Input::getCMD('topic');
