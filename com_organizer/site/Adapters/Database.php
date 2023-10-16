@@ -11,9 +11,8 @@
 namespace THM\Organizer\Adapters;
 
 use Exception;
-use JDatabaseQuery;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Log\Log;
+use Joomla\Database\DatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
 
@@ -28,7 +27,7 @@ class Database
      */
     public static function execute(): bool
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
         try {
             return $dbo->execute();
         } catch (Exception $exception) {
@@ -45,7 +44,7 @@ class Database
      */
     public static function getNullDate(): string
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
 
         return $dbo->getNullDate();
     }
@@ -53,13 +52,13 @@ class Database
     /**
      * Get the current query object or a new JDatabaseQuery object.
      *
-     * @param bool $new True to return a new JDatabaseQuery object, otherwise false
+     * @param bool $new True to return a new DatabaseQuery object, otherwise false
      *
-     * @return  JDatabaseQuery|string  The current query object or a new object extending the JDatabaseQuery class.
+     * @return  DatabaseQuery
      */
-    public static function getQuery(bool $new = true)
+    public static function getQuery(bool $new = true): DatabaseQuery
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
 
         if (strtolower($dbo->getName()) !== 'mysqli') {
             Application::error(501);
@@ -79,7 +78,7 @@ class Database
      */
     public static function insertObject(string $table, object &$object, string $key = 'id'): bool
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
 
         try {
             return $dbo->insertObject($table, $object, $key);
@@ -98,7 +97,7 @@ class Database
      */
     public static function loadAssoc(): array
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
         try {
             $result = $dbo->loadAssoc();
 
@@ -126,7 +125,7 @@ class Database
      */
     public static function loadAssocList(string $key = '', string $column = ''): array
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
         try {
             $result = $dbo->loadAssocList($key, $column);
 
@@ -164,7 +163,7 @@ class Database
      */
     public static function loadColumn(int $offset = 0): array
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
         try {
             $result = $dbo->loadColumn($offset);
 
@@ -218,7 +217,7 @@ class Database
      */
     public static function loadObject(string $class = 'stdClass')
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
         try {
             $result = $dbo->loadObject($class);
 
@@ -244,7 +243,7 @@ class Database
      */
     public static function loadObjectList(string $key = '', string $class = 'stdClass'): array
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
         try {
             $result = $dbo->loadObjectList($key, $class);
 
@@ -264,9 +263,9 @@ class Database
      *
      * @return  mixed  The return value if successful, otherwise the default value
      */
-    public static function loadResult($default = null)
+    public static function loadResult(mixed $default = null): mixed
     {
-        $dbo = Factory::getDbo();
+        $dbo = Application::getDB();
         try {
             $result = $dbo->loadResult();
 
@@ -301,7 +300,7 @@ class Database
      *
      * @return void
      */
-    private static function logException(Exception $exception)
+    public static function logException(Exception $exception)
     {
         $options = ['text_file' => 'organizer_db_errors.php', 'text_entry_format' => '{DATETIME}:{MESSAGE}'];
         Log::addLogger($options, Log::ALL, ['com_organizer.dbErrors']);
@@ -334,16 +333,17 @@ class Database
     }
 
     /**
-     * Wraps the database quote function for use outside a query class without PhpStorm complaining about resolution.
+     * Wraps the database quote function for use outside a query class without PhpStorm complaining about resolution and
+     * inaccurate return typing.
      *
      * @param string|string[] $term   the term or terms to quote
      * @param bool            $escape whether to escape the name provided
      *
      * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
      */
-    public static function quote($term, bool $escape = true)
+    public static function quote(array|string $term, bool $escape = true): array|string
     {
-        return Factory::getDbo()->quote($term, $escape);
+        return Application::getDB()->quote($term, $escape);
     }
 
     /**
@@ -351,27 +351,27 @@ class Database
      * resolution.
      *
      * @param string|string[]   $name  the column name or names
-     * @param array|null|string $alias the column alias or aliases, if arrays and incongruent sizes => empty array
+     * @param array|string|null $alias the column alias or aliases, if arrays and incongruent sizes => empty array
      *                                 return value
      *
      * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
      */
-    public static function quoteName($name, $alias = null)
+    public static function quoteName(array|string $name, array|string $alias = null): array|string
     {
-        return Factory::getDbo()->quoteName($name, $alias);
+        return Application::getDB()->quoteName($name, $alias);
     }
 
     /**
      * Sets the SQL statement string for later execution.
      *
-     * @param JDatabaseQuery|string $query  The SQL statement to set either as a JDatabaseQuery object or a string.
-     * @param int                   $offset The affected row offset to set.
-     * @param int                   $limit  The maximum affected rows to set.
+     * @param string|DatabaseQuery $query  The SQL statement to set either as a DatabaseQuery object or a string.
+     * @param int                  $offset The affected row offset to set.
+     * @param int                  $limit  The maximum affected rows to set.
      *
      * @return  void
      */
-    public static function setQuery($query, int $offset = 0, int $limit = 0)
+    public static function setQuery(string|DatabaseQuery $query, int $offset = 0, int $limit = 0): void
     {
-        Factory::getDbo()->setQuery($query, $offset, $limit);
+        Application::getDB()->setQuery($query, $offset, $limit);
     }
 }

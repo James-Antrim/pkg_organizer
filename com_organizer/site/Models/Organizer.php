@@ -13,6 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\User\User;
 use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use Joomla\Database\ParameterType;
 use THM\Organizer\Helpers\Terms;
 use THM\Organizer\Tables;
 
@@ -179,7 +180,7 @@ class Organizer extends BaseModel
             Database::execute();
 
             $query = Database::getQuery();
-            $query->deleteX('units', 'termID', $termIDs)->wherein('delta', ['removed'], false, true);
+            $query->deleteX('units', 'termID', $termIDs)->whereIn('delta', ['removed'], ParameterType::STRING);
             Database::setQuery($query);
             Database::execute();
         }

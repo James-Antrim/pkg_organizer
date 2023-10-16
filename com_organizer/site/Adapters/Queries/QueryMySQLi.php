@@ -10,22 +10,22 @@
 
 namespace THM\Organizer\Adapters\Queries;
 
-use JDatabaseDriver;
-use JDatabaseQuery;
-use JDatabaseQueryElement;
-use JDatabaseQueryMysqli;
+use Joomla\Database\{DatabaseDriver, ParameterType};
+use Exception;
+use Joomla\Database\Query\QueryElement;
+use Joomla\Database\Mysqli\MysqliQuery;
 use Joomla\CMS\Factory;
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Adapters\Database;
 
-class QueryMySQLi extends JDatabaseQueryMysqli
+class QueryMySQLi extends MysqliQuery
 {
     /**
      * @inheritDoc
      */
-    public function __construct(JDatabaseDriver $db = null)
+    public function __construct(DatabaseDriver $db = null)
     {
-        $db = !($db instanceof JDatabaseDriver) ? Factory::getDbo() : $db;
+        $db = !($db instanceof DatabaseDriver) ? Factory::getDbo() : $db;
         parent::__construct($db);
     }
 
@@ -88,7 +88,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
         $alias = !$alias ? $alias : $this->quoteName($alias);
 
         $this->type   = 'delete';
-        $this->delete = new JDatabaseQueryElement('DELETE', $alias);
+        $this->delete = new QueryElement('DELETE', $alias);
 
         if ($table) {
             $table = $this->quoteName($table, $alias);
@@ -121,7 +121,12 @@ class QueryMySQLi extends JDatabaseQueryMysqli
         $this->delete($table);
 
         if ($where and $in) {
-            $this->wherein($where, $in, $negate, $quote);
+            $dataType = $quote ? ParameterType::STRING : ParameterType::INTEGER;
+            if ($negate) {
+                $this->whereNotIn($where, $in, $dataType);
+            } else {
+                $this->whereIn($where, $in, $dataType);
+            }
         }
 
         return $this;
@@ -156,7 +161,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
     private function formatColumn(string $column): string
     {
         // Ignore function and recursive calls.
-        if (strpos($column, '(') !== false or strpos($column, '`') === 0) {
+        if (str_contains($column, '(') or str_starts_with($column, '`')) {
             return $column;
         }
 
@@ -191,7 +196,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
             $tableAlias = '';
         }
 
-        if (strpos($column, '*') !== false) {
+        if (str_contains($column, '*')) {
             // A column alias for a star select makes no
             return $tableAlias ? $this->quoteName($tableAlias) . '.*' : $column;
         }
@@ -211,7 +216,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
      *
      * @return string[]
      */
-    private function formatColumns($columns): array
+    private function formatColumns(array|string $columns): array
     {
         $return = [];
         if (is_array($columns)) {
@@ -246,41 +251,28 @@ class QueryMySQLi extends JDatabaseQueryMysqli
     }
 
     /**
-     * Supplements the component internal common portions of a table name. Already complete table names are not changed.
+     * Add a table to the FROM clause of the query. DatabaseQuery allows for $table to be recursive for subqueries used
+     * as tables, this implementation will
      *
-     * @param array|string $tables the unique part of an organizer table name, or a complete table name
+     * @param string $table the table to be queried
      *
-     * @return string[]
+     * @return QueryMySQLi
      */
-    private function formatTables($tables): array
+    public function from($table): QueryMySQLi
     {
-        $return = [];
-        if (is_array($tables)) {
-            foreach ($tables as $table) {
-                $return[] = $this->formatTable($table);
-            }
-        } elseif (is_string($tables)) {
-            $return = [$this->formatTable($tables)];
-        } else {
-            Application::error(400);
+        // The original explicitly allows for $table to be a subquery, and secretly allows it to be an array
+        if (!is_string($table)) {
+            $message   = 'Improper type used as a parameter for the from clause of a query.';
+            $exception = new Exception($message);
+            Database::logException($exception);
+            Application::message($message, Application::ERROR);
+            return $this;
         }
 
-        return $return;
-    }
+        $table = $this->formatTable($table);
+        parent::from($table);
 
-    /**
-     * @inheritDoc
-     * @return QueryMySQLi returns this object to allow chaining
-     */
-    public function from($tables, $subQueryAlias = null): QueryMySQLi
-    {
-        if ($tables instanceof JDatabaseQuery) {
-            return parent::from($tables, $subQueryAlias);
-        }
-
-        $tables = $this->formatTables($tables);
-
-        return parent::from($tables);
+        return $this;
     }
 
     /**
@@ -298,9 +290,9 @@ class QueryMySQLi extends JDatabaseQueryMysqli
      * @inheritDoc
      * @return QueryMySQLi returns this object to allow chaining
      */
-    public function innerJoin($condition): QueryMySQLi
+    public function innerJoin($table, $condition = null): QueryMySQLi
     {
-        return $this->join('INNER', $condition);
+        return $condition ? $this->joinX('INNER', $table, $condition) : $this->join('INNER', $table);
     }
 
     /**
@@ -330,14 +322,20 @@ class QueryMySQLi extends JDatabaseQueryMysqli
     /**
      * Add a JOIN clause to the query.
      *
-     * @param string $type       the type of join, prepended to the JOIN keyword
-     * @param string $conditions the join conditions
+     * @param string               $type      the type of join
+     * @param string               $table     the table w/ optional alias and optional conditions
+     * @param null|string|string[] $condition use joinX for explicit conditioning
      *
-     * @return QueryMySQLi returns this object to allow chaining
+     * @return QueryMySQLi
      */
-    public function join($type, $conditions): QueryMySQLi
+    public function join($type, $table, $condition = null): QueryMySQLi
     {
-        [$table, $conditions] = preg_split("/ ON /i", $conditions);
+        if ($condition !== null) {
+            $conditions = is_array($condition) ? $condition : [$condition];
+            return $this->joinX($type, $table, $conditions);
+        }
+
+        [$table, $conditions] = preg_split("/ ON /i", $condition);
         $conditions = preg_split("/ AND /i", $conditions);
 
         // Subquery results used as a table; subquery was hopefully independently formatted.
@@ -421,9 +419,9 @@ class QueryMySQLi extends JDatabaseQueryMysqli
      * @inheritDoc
      * @return QueryMySQLi returns this object to allow chaining
      */
-    public function leftJoin($condition): QueryMySQLi
+    public function leftJoin($table, $condition = null): QueryMySQLi
     {
-        return $this->join('LEFT', $condition);
+        return $condition ? $this->joinX('LEFT', $table, $condition) : $this->join('LEFT', $table);
     }
 
     /**
@@ -480,9 +478,9 @@ class QueryMySQLi extends JDatabaseQueryMysqli
      * @inheritDoc
      * @return QueryMySQLi returns this object to allow chaining
      */
-    public function outerJoin($condition): QueryMySQLi
+    public function outerJoin($table, $condition = null): QueryMySQLi
     {
-        return $this->join('OUTER', $condition);
+        return $condition ? $this->joinX('OUTER', $table, $condition) : $this->join('OUTER', $table);
     }
 
     /**
@@ -502,7 +500,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
             [$table, $alias] = preg_split("/ AS /i", $table);
         }
 
-        $table = strpos($table, '#_') === 0 ? $table : "#__organizer_$table";
+        $table = str_starts_with($table, '#_') ? $table : "#__organizer_$table";
 
         return [$table, $alias];
     }
@@ -511,9 +509,9 @@ class QueryMySQLi extends JDatabaseQueryMysqli
      * @inheritDoc
      * @return QueryMySQLi returns this object to allow chaining
      */
-    public function rightJoin($condition): QueryMySQLi
+    public function rightJoin($table, $condition = null): QueryMySQLi
     {
-        return $this->join('RIGHT', $condition);
+        return $condition ? $this->joinX('RIGHT', $table, $condition) : $this->join('RIGHT', $table);
     }
 
     /**
@@ -529,7 +527,7 @@ class QueryMySQLi extends JDatabaseQueryMysqli
      * Provides a shortcut signature for a simple select query.
      *
      * @param array|string   $select the 'columns' to select
-     * @param array|string   $from   the unique part of an organizer table name, or a complete table name
+     * @param string         $from   the unique part of an organizer table name, or a complete table name
      * @param string         $where  the optional column to filter against
      * @param int[]|string[] $in     the optional values to filter against
      * @param bool           $negate if the predicate should be negated
@@ -538,12 +536,12 @@ class QueryMySQLi extends JDatabaseQueryMysqli
      * @return QueryMySQLi returns this object to allow chaining
      */
     public function selectX(
-        $select,
-        $from,
-        string $where = '',
-        array $in = [],
-        bool $negate = false,
-        bool $quote = false
+        array|string $select,
+        string       $from,
+        string       $where = '',
+        array        $in = [],
+        bool         $negate = false,
+        bool         $quote = false
     ): QueryMySQLi
     {
 
@@ -552,7 +550,12 @@ class QueryMySQLi extends JDatabaseQueryMysqli
         $this->select($select)->from($from);
 
         if ($where and $in) {
-            $this->wherein($where, $in, $negate, $quote);
+            $dataType = $quote ? ParameterType::STRING : ParameterType::INTEGER;
+            if ($negate) {
+                $this->whereNotIn($where, $in, $dataType);
+            } else {
+                $this->whereIn($where, $in, $dataType);
+            }
         }
 
         return $this;
@@ -597,17 +600,22 @@ class QueryMySQLi extends JDatabaseQueryMysqli
     }
 
     /**
-     * Adds value filter conditions to a query (WHERE <column> <NOT> IN <value set>).
-     *
-     * @param string         $where  the column to filter against
-     * @param int[]|string[] $in     the values to filter against
-     * @param bool           $negate if the predicate should be negated
-     * @param bool           $quote  if the values should be quoted
-     *
+     * @inheritdoc
      * @return QueryMySQLi returns this object to allow chaining
      */
-    public function wherein(string $where, array $in, bool $negate = false, bool $quote = false): QueryMySQLi
+    public function whereIn(string $keyName, array $keyValues, $dataType = ParameterType::INTEGER): QueryMySQLi
     {
-        return $this->where($this->quoteName($where) . Database::makeSet($in, $negate, $quote));
+        $keyName = Database::quoteName($keyName);
+        return parent::whereIn($keyName, $keyValues, $dataType);
+    }
+
+    /**
+     * @inheritdoc
+     * @return QueryMySQLi
+     */
+    public function whereNotIn(string $keyName, array $keyValues, $dataType = ParameterType::INTEGER): QueryMySQLi
+    {
+        $keyName = Database::quoteName($keyName);
+        return parent::whereNotIn($keyName, $keyValues, $dataType);
     }
 }

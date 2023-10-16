@@ -728,7 +728,7 @@ class Schedule extends BaseModel
         }
 
         $query = Database::getQuery();
-        $query->selectX('personID', 'instance_persons', 'personID', $personIDs, true)->wherein('instanceID', [$instanceID]);
+        $query->selectX('personID', 'instance_persons', 'personID', $personIDs, true)->whereIn('instanceID', [$instanceID]);
         Database::setQuery($query);
         $mergedID = Database::loadInt();
 

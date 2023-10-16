@@ -259,7 +259,7 @@ class Search extends ListModel
         } elseif ($capacity) {
             $query->where("r.maxCapacity >= $capacity");
         } elseif ($typeIDs) {
-            $query->wherein('rt.id', $typeIDs);
+            $query->whereIn('rt.id', $typeIDs);
         }
     }
 
@@ -340,10 +340,10 @@ class Search extends ListModel
         array       $semesters
     )
     {
-        $groupQuery->clear('where')->wherein('g.categoryID', $categoryIDs);
+        $groupQuery->clear('where')->whereIn('g.categoryID', $categoryIDs);
 
         if ($groupIDs) {
-            $groupQuery->wherein('g.id', $groupIDs, true);
+            $groupQuery->whereNotIn('g.id', $groupIDs);
         }
 
         $wherray = $this->getSubWherray($poolQuery, 'group', $semesters, $pools, .6);
@@ -536,10 +536,10 @@ class Search extends ListModel
         array       $semesters
     )
     {
-        $poolQuery->clear('where')->wherein('pr.id', $programIDs);
+        $poolQuery->clear('where')->whereIn('pr.id', $programIDs);
 
         if ($poolIDs) {
-            $poolQuery->wherein('po.id', $poolIDs, true);
+            $poolQuery->whereNotIn('po.id', $poolIDs);
         }
 
         $wherray = $this->getSubWherray($poolQuery, 'pool', $semesters, $pools, .6);
@@ -1150,7 +1150,7 @@ class Search extends ListModel
                 $cQuery->where($this->localizedLikeSet('c.name', $this->degrees['exact'], 'OR'))
                     ->where("($cNameDE LIKE $startingWith OR $cNameEN LIKE $startingWith)");
                 $pQuery->where("($pNameDE LIKE $exact OR $pNameEN LIKE $exact)")
-                    ->wherein('p.degreeID', array_keys($this->degrees['exact']));
+                    ->whereIn('p.degreeID', array_keys($this->degrees['exact']));
             } else {
                 $cQuery->where("($cNameDE LIKE $exact OR $cNameEN LIKE $exact)");
             }
@@ -1260,7 +1260,7 @@ class Search extends ListModel
 
         if ($getPrograms) {
             if ($programIDs) {
-                $pQuery->wherein('p.id', $programIDs, true);
+                $pQuery->whereNotIn('p.id', $programIDs);
             }
 
             Database::setQuery($pQuery);
@@ -1279,7 +1279,7 @@ class Search extends ListModel
 
         if ($getCategories) {
             if ($categoryIDs) {
-                $cQuery->wherein('c.id', $categoryIDs, true);
+                $cQuery->whereNotIn('c.id', $categoryIDs);
             }
 
             if ($programIDs) {
@@ -1394,7 +1394,7 @@ class Search extends ListModel
 
         if ($getPrograms) {
             if ($programIDs) {
-                $pQuery->wherein('p.id', $programIDs, true);
+                $pQuery->whereNotIn('p.id', $programIDs);
             }
 
             Database::setQuery($pQuery);
@@ -1417,7 +1417,7 @@ class Search extends ListModel
 
         if ($getCategories) {
             if ($categoryIDs) {
-                $cQuery->wherein('c.id', $categoryIDs, true);
+                $cQuery->whereNotIn('c.id', $categoryIDs);
             }
 
             if ($programIDs) {
@@ -1470,12 +1470,12 @@ class Search extends ListModel
 
         if ($this->organizationIDs) {
 
-            $cQuery->clear('where')->wherein('o.id', $this->organizationIDs);
-            $pQuery->clear('where')->wherein('o.id', $this->organizationIDs);
+            $cQuery->clear('where')->whereIn('o.id', $this->organizationIDs);
+            $pQuery->clear('where')->whereIn('o.id', $this->organizationIDs);
             $this->onlyActive($cQuery, $pQuery);
 
             if ($programIDs) {
-                $pQuery->wherein('p.id', $programIDs, true);
+                $pQuery->whereNotIn('p.id', $programIDs);
             }
 
             Database::setQuery($pQuery);
@@ -1489,7 +1489,7 @@ class Search extends ListModel
             }
 
             if ($categoryIDs) {
-                $cQuery->wherein('c.id', $categoryIDs, true);
+                $cQuery->whereNotIn('c.id', $categoryIDs);
             }
 
             if ($programIDs) {
@@ -1685,7 +1685,7 @@ class Search extends ListModel
             ->nullSet('u.delta', ['removed'], true);
 
         if ($subjectIDs) {
-            $sQuery->wherein('s.id', $subjectIDs, true);
+            $sQuery->whereNotIn('s.id', $subjectIDs);
         }
 
         // If there is only one term to compare it should make up 80% of the name to get a strong rating.
@@ -1723,7 +1723,7 @@ class Search extends ListModel
         }
 
         if ($eventIDs) {
-            $eQuery->wherein('e.id', $eventIDs, true);
+            $eQuery->whereNotIn('e.id', $eventIDs);
         }
 
         if ($subjectIDs) {
@@ -1752,7 +1752,7 @@ class Search extends ListModel
             ->nullSet('u.delta', ['removed'], true);
 
         if ($subjectIDs) {
-            $sQuery->wherein('s.id', $subjectIDs, true);
+            $sQuery->whereNotIn('s.id', $subjectIDs);
         }
 
         $eWherray = [];
@@ -1800,7 +1800,7 @@ class Search extends ListModel
         }
 
         if ($eventIDs) {
-            $eQuery->wherein('e.id', $eventIDs, true);
+            $eQuery->whereNotIn('e.id', $eventIDs);
         }
 
         if ($subjectIDs) {
@@ -1826,7 +1826,7 @@ class Search extends ListModel
             ->nullSet('u.delta', ['removed'], true);
 
         if ($subjectIDs) {
-            $sQuery->wherein('s.id', $subjectIDs, true);
+            $sQuery->whereNotIn('s.id', $subjectIDs);
         }
 
         $textColumns = [
@@ -1875,7 +1875,7 @@ class Search extends ListModel
             ->nullSet('u.delta', ['removed'], true);
 
         if ($subjectIDs) {
-            $sQuery->wherein('s.id', $subjectIDs, true);
+            $sQuery->whereNotIn('s.id', $subjectIDs);
         }
 
         // The query is set 'manually'. This flag takes the place of what is often otherwise wherray checks.
@@ -1927,7 +1927,7 @@ class Search extends ListModel
         }
 
         if ($eventIDs) {
-            $eQuery->wherein('e.id', $eventIDs, true);
+            $eQuery->whereNotIn('e.id', $eventIDs);
         }
 
         if ($subjectIDs) {
@@ -2005,7 +2005,7 @@ class Search extends ListModel
 
         // Groups1
         if ($exactCategoryIDs) {
-            $gQuery->wherein('g.categoryID', $exactCategoryIDs);
+            $gQuery->whereIn('g.categoryID', $exactCategoryIDs);
             $wherray = $this->getSubWherray($gQuery, 'group', $exactSemesters, $poolTerms, .8);
 
             if ($wherray) {
@@ -2023,7 +2023,7 @@ class Search extends ListModel
                 $gQuery->clear('where');
 
                 if ($groupIDs) {
-                    $gQuery->wherein('g.id', $groupIDs, true);
+                    $gQuery->whereNotIn('g.id', $groupIDs);
                 }
 
                 $wherray = [];
@@ -2047,10 +2047,10 @@ class Search extends ListModel
             }
 
             // Pools
-            $poQuery->wherein('pr.id', $exactProgramIDs);
+            $poQuery->whereIn('pr.id', $exactProgramIDs);
 
             if ($poolIDs) {
-                $poQuery->wherein('po.id', $poolIDs, true);
+                $poQuery->whereNotIn('po.id', $poolIDs);
             }
 
             $wherray = $this->getSubWherray($poQuery, 'pool', $exactSemesters, $poolTerms, .8);
@@ -2068,7 +2068,7 @@ class Search extends ListModel
             $gQuery->clear('where');
 
             if ($groupIDs) {
-                $gQuery->wherein('g.id', $groupIDs, true);
+                $gQuery->whereNotIn('g.id', $groupIDs);
             }
 
             // Degrees are still relevant here for abbreviated search terms.
@@ -2214,10 +2214,10 @@ class Search extends ListModel
         $poQuery->clear('where');
 
         if ($exactCategoryIDs) {
-            $gQuery->wherein('g.categoryID', $exactCategoryIDs);
+            $gQuery->whereIn('g.categoryID', $exactCategoryIDs);
 
             if ($groupIDs) {
-                $gQuery->wherein('g.id', $groupIDs, true);
+                $gQuery->whereNotIn('g.id', $groupIDs);
             }
 
             Database::setQuery($gQuery);
@@ -2226,10 +2226,10 @@ class Search extends ListModel
         }
 
         if ($exactProgramIDs) {
-            $poQuery->wherein('pr.id', $exactProgramIDs);
+            $poQuery->whereIn('pr.id', $exactProgramIDs);
 
             if ($poolIDs) {
-                $poQuery->wherein('po.id', $poolIDs, true);
+                $poQuery->whereNotIn('po.id', $poolIDs);
             }
 
             Database::setQuery($poQuery);
@@ -2295,7 +2295,7 @@ class Search extends ListModel
         $wherray     = [];
 
         if ($organizationIDs) {
-            $query->wherein('id', $organizationIDs, true);
+            $query->whereNotIn('id', $organizationIDs);
         }
 
         foreach ($nameColumns as $column) {
@@ -2336,7 +2336,7 @@ class Search extends ListModel
         $wherray = [];
 
         if ($organizationIDs) {
-            $query->wherein('id', $organizationIDs, true);
+            $query->whereNotIn('id', $organizationIDs);
         }
 
         foreach ($nameColumns as $column) {
@@ -2429,7 +2429,7 @@ class Search extends ListModel
         $wherray = [];
 
         if ($allIDs) {
-            $query->wherein('id', $allIDs, true);
+            $query->whereNotIn('id', $allIDs);
         }
 
         foreach ($quotedTerms as $term) {
@@ -2453,7 +2453,7 @@ class Search extends ListModel
         $wherray = [];
 
         if ($allIDs) {
-            $query->wherein('id', $allIDs, true);
+            $query->whereNotIn('id', $allIDs);
         }
 
         foreach ($terms as $term) {
@@ -2721,7 +2721,7 @@ class Search extends ListModel
                     $query->selectX(['DISTINCT id, abbreviation'], 'degrees')->where("alias LIKE $alias");
 
                     if ($previousIDs) {
-                        $query->wherein('id', $previousIDs, true);
+                        $query->whereNotIn('id', $previousIDs);
                     }
 
                     Database::setQuery($query);
