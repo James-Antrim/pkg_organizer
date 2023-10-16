@@ -26,7 +26,7 @@ trait Imported
      */
     public function applyImport()
     {
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+        $modelName = 'THM\\Organizer\\Models\\' . OrganizerHelper::getClass($this->resource);
         $model     = new $modelName();
 
         if ($resourceID = $model->save() and $model->importSingle($resourceID)) {
@@ -45,7 +45,7 @@ trait Imported
      */
     public function import()
     {
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+        $modelName = 'THM\\Organizer\\Models\\' . OrganizerHelper::getClass($this->resource);
         $model     = new $modelName();
 
         if ($model->import()) {
@@ -65,7 +65,7 @@ trait Imported
      */
     public function saveImport()
     {
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+        $modelName = 'THM\\Organizer\\Models\\' . OrganizerHelper::getClass($this->resource);
         $model     = new $modelName();
         $url       = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
 

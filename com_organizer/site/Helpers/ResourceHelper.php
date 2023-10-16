@@ -127,7 +127,7 @@ abstract class ResourceHelper
     public static function getTable(): Tables\BaseTable
     {
         $tableClass = OrganizerHelper::getClass(get_called_class());
-        $fqn        = "\\Organizer\\Tables\\$tableClass";
+        $fqn        = "THM\\Organizer\\Tables\\$tableClass";
 
         return new $fqn();
     }

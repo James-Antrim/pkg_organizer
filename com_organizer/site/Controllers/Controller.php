@@ -21,11 +21,6 @@ use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Helpers\OrganizerHelper;
-use THM\Organizer\Views\HTML\BaseView as HTML;
-use THM\Organizer\Views\JSON\BaseView as JSON;
-use THM\Organizer\Views\PDF\BaseView as PDF;
-use THM\Organizer\Views\XLS\BaseView as XLS;
-use THM\Organizer\Views\XML\BaseView as XML;
 
 /**
  * Class provides ...
@@ -82,10 +77,8 @@ class Controller extends BaseController
      */
     public function display($cachable = false, $urlparams = []): BaseController
     {
-        $document = Application::getDocument();
-        $format   = $this->input->get('format', strtoupper($document->getType()));
-        $template = $this->input->get('layout', 'default', 'string');
-        $view     = $this->input->get('view', 'Organizer');
+        $format = Input::getFormat();
+        $view   = $this->input->get('view', 'Organizer');
 
         if (!class_exists("\\THM\\Organizer\\Views\\$format\\$view")) {
             Application::error(503);
@@ -95,149 +88,7 @@ class Controller extends BaseController
             Application::error(403);
         }
 
-        $view = $this->getView(
-            $view,
-            $format,
-            '',
-            ['base_path' => $this->basePath, 'layout' => $template]
-        );
-
-        // Only html views require models to be loaded in this way.
-        if ($format === 'html' and $model = $this->getModel($view)) {
-            // Push the model into the view (as default)
-            $view->setModel($model, true);
-        }
-
-        $view->document = $document;
-
-        try {
-            $view->display();
-        } catch (Exception $exception) {
-            Application::message($exception->getMessage(), Application::ERROR);
-            $this->setRedirect(Uri::base());
-        }
-
-        return $this;
-    }
-
-    /**
-     * Method to get the controller name. This commentary has to be here otherwise using functions register unhandled
-     * exceptions.
-     * @return  string  The name of the dispatcher
-     */
-    public function getName(): string
-    {
-        if (empty($this->name)) {
-
-            $this->name = OrganizerHelper::getClass($this);
-        }
-
-        return $this->name;
-    }
-
-    /**
-     * Method to get a model object, loading it if required.
-     *
-     * @param   string  $name    The model name. Optional.
-     * @param   string  $prefix  The class prefix. Optional.
-     * @param   array   $config  Configuration array for model. Optional.
-     *
-     * @return  BDBM|false  Model object on success; otherwise false on failure.
-     */
-    public function getModel($name = '', $prefix = '', $config = []): BDBM|false
-    {
-        $name = empty($name) ? $this->getName() : $name;
-
-        if (empty($name)) {
-            return false;
-        }
-
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($name);
-
-        if ($model = new $modelName($config)) {
-            // Task is a reserved state
-            $model->setState('task', $this->task);
-
-            if ($item = Application::getMenuItem()) {
-                $params = $item->getParams();
-
-                // Set default state data
-                $model->setState('parameters.menu', $params);
-            }
-        }
-
-        return $model;
-    }
-
-    /**
-     * Method to get a reference to the current view and load it if necessary.
-     *
-     * @param   string  $name    The view name. Optional, defaults to the controller name.
-     * @param   string  $type    The view type. Optional.
-     * @param   string  $prefix  The class prefix. Optional.
-     * @param   array   $config  Configuration array for view. Optional.
-     *
-     * @return  HTML|JSON|PDF|XLS|XML  the view object
-     */
-    public function getView($name = '', $type = '', $prefix = 'x', $config = []): HTML|JSON|PDF|XLS|XML
-    {
-        // @note We use self so we only access stuff in this class rather than in all classes.
-        if (!isset(self::$views)) {
-            self::$views = [];
-        }
-
-        if (empty($name)) {
-            $name = $this->getName();
-        }
-
-        $viewName       = OrganizerHelper::getClass($name);
-        $xmlDerivatives = ['CalDEV' => 'CALDEV', 'WebDAV' => 'WEBDAV'];
-        $type           = preg_replace('/[^A-Z0-9_]/i', '', strtoupper($type));
-
-        if ($derivative = array_search($type, $xmlDerivatives)) {
-            $type     = 'XML';
-            $viewName = $derivative;
-        }
-
-        $name = "Organizer\\Views\\$type\\$viewName";
-
-        $config['base_path']     = JPATH_COMPONENT_SITE . "/Views/$type";
-        $config['helper_path']   = JPATH_COMPONENT_SITE . "/Helpers";
-        $config['template_path'] = JPATH_COMPONENT_SITE . "/Layouts/$type";
-
-        $key = strtolower($viewName);
-        if (empty(self::$views[$key][$type][$prefix])) {
-            if ($type === 'HTML' and $view = new $name($config)) {
-                self::$views[$key][$type][$prefix] = &$view;
-            } elseif ($view = new $name()) {
-                self::$views[$key][$type][$prefix] = &$view;
-            } else {
-                Application::error(501);
-            }
-        }
-
-        return self::$views[$key][$type][$prefix];
-    }
-
-    /**
-     * Creates the environment for the proper output of a given JSON string.
-     *
-     * @param   string  $response  the preformatted response string
-     *
-     * @return void
-     */
-    protected function jsonResponse(string $response): void
-    {
-        /** @var WebApplicationInterface $app */
-        $app = Application::getApplication();
-
-        // Send json mime type.
-        $app->setHeader('Content-Type', 'application/json' . '; charset=' . $app->charSet);
-        $app->sendHeaders();
-
-        echo $response;
-
-        $app->close();
+        return parent::display($cachable, $urlparams);
     }
 
     /**
@@ -247,7 +98,7 @@ class Controller extends BaseController
      */
     public function merge(): void
     {
-        $modelName = "Organizer\\Models\\" . OrganizerHelper::getClass($this->resource);
+        $modelName = 'THM\\Organizer\\Models\\' . OrganizerHelper::getClass($this->resource);
         $model     = new $modelName();
 
         if ($model->merge($this->resource)) {

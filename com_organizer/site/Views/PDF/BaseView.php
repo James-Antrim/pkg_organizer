@@ -116,8 +116,8 @@ abstract class BaseView extends TCPDF
         $name   = $this->getName();
         $layout = Input::getCMD('layout', $name);
         $layout = Helpers\OrganizerHelper::classDecode($layout);
-        $layout = "Organizer\\Layouts\\PDF\\$name\\$layout";
-        $model  = "Organizer\\Models\\$name";
+        $layout = "THM\\Organizer\\Layouts\\PDF\\$name\\$layout";
+        $model  = "THM\\Organizer\\Models\\$name";
 
         $this->layout = new $layout($this);
         $this->model  = new $model();

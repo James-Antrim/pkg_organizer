@@ -22,7 +22,7 @@ trait Activated
      */
     public function activate()
     {
-        $fqName = 'Organizer\\Models\\' . ucfirst($this->resource);
+        $fqName = 'THM\\Organizer\\Models\\' . ucfirst($this->resource);
         $model  = new $fqName();
 
         if ($model->activate()) {
@@ -41,7 +41,7 @@ trait Activated
      */
     public function deactivate()
     {
-        $fqName = 'Organizer\\Models\\' . ucfirst($this->resource);
+        $fqName = 'THM\\Organizer\\Models\\' . ucfirst($this->resource);
         $model  = new $fqName();
 
         if ($model->deactivate()) {

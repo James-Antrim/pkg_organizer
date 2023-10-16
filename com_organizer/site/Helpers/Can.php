@@ -11,6 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Utilities\ArrayHelper;
+use THM\Groups\Adapters\Input;
 use THM\Organizer\Adapters\Database;
 use THM\Organizer\Tables;
 
@@ -220,16 +221,16 @@ class Can
      * @return bool true if the user is authorized to manage courses, otherwise false
      * @noinspection PhpUndefinedMethodInspection
      */
-    private static function editScheduleResource(string $helperClass, $resource): bool
+    private static function editScheduleResource(string $helperClass, array|int $resource): bool
     {
         if (empty($resource)) {
             return false;
         }
 
         $authorized = self::scheduleTheseOrganizations();
-        $helper     = "Organizer\\Helpers\\$helperClass";
+        $helper     = "THM\\Organizer\\Helpers\\$helperClass";
 
-        if (is_numeric($resource) and $resource = intval($resource)) {
+        if (is_int($resource)) {
             $associated = $helper::getOrganizationIDs($resource);
 
             return (bool) array_intersect($associated, $authorized);
@@ -267,7 +268,7 @@ class Can
             return $organizationIDs;
         }
 
-        if (!method_exists('Organizer\\Helpers\\Can', $function)) {
+        if (!method_exists('THM\\Organizer\\Helpers\\Can', $function)) {
             return [];
         }
 
@@ -429,67 +430,49 @@ class Can
      */
     public static function view(string $view, int $resourceID = 0): bool
     {
+        // Preempt any more complicated authorization checks.
         if (self::administrate()) {
             return true;
         }
 
-        // todo implement
-        return false;
-
-        /*$documentedOrgIDs = self::documentTheseOrganizations();
-        $scheduledOrgIDs  = self::scheduleTheseOrganizations();
-        switch ($view) {
-
+        return match ($view) {
+            // Administrative views and admin access was already checked
+            'Color', 'Colors', 'Degree', 'Degrees', 'Field', 'Fields', 'Grid', 'Grids', 'Holiday', 'Holidays', 'Method',
+            'Methods', 'Organization', 'Organizations', 'Participant', 'Participants', 'Run', 'Runs', 'Term', 'Terms'
+            => false,
             // Scheduling resources and views with no intrinsic public value and import forms
-            case 'Categories':
-            case 'CoursesImport':
-            case 'Events':
-            case 'Groups':
-            case 'Schedule':
-            case 'Schedules':
-            case 'Units':
-                return (bool) $scheduledOrgIDs;
+            'Categories', 'CategoryMerge', 'CoursesImport', 'EventMerge', 'Events', 'Groups', 'Schedule', 'Schedules',
+            'Units'
+            => (bool) self::scheduleTheseOrganizations(),
+            // Edit views for scheduling resource with no intrinsic public value
+            'Category', 'Event', 'Group', 'Unit'
+            => self::edit(strtolower($view), $resourceID),
+            // Curriculum resources with no intrinsic public value
+            'FieldColors', 'Pools', 'PoolSelection'
+            => (bool) self::documentTheseOrganizations(),
+            // Edit views for curriculum resource with no intrinsic public value
+            'FieldColor', 'Pool' => self::document(strtolower($view), $resourceID),
+            'Person', 'PersonMerge', 'Persons'
+            => self::manage('persons'),
+            // Facility resource views
+            'Building', 'Buildings', 'Campus', 'Campuses', 'CleaningGroup', 'CleaningGroups', 'Equipment',
+            'EquipmentItem', 'Monitor', 'Monitors', 'Room', 'RoomKey', 'RoomKeys', 'RoomMerge', 'Rooms',
+            => self::manage('facilities'),
 
-            // Scheduling resource with no intrinsic public value
-            case 'Category':
-                return ($scheduledOrgIDs and array_intersect($scheduledOrgIDs, Categories::getOrganizationIDs($resourceID)));
-            case 'Event':
-                return ($scheduledOrgIDs and in_array(Events::getOrganizationID($resourceID), $scheduledOrgIDs));
-            case 'Group':
-                return ($scheduledOrgIDs and array_intersect($scheduledOrgIDs, Groups::getOrganizationIDs($resourceID)));
-
-            // Documentation resources with no intrinsic public value
-            case 'FieldColors';
-            case 'Pools';
-                return (bool) $documentedOrgIDs;
-
-
-            // Documentation resource with no intrinsic public value
-            case 'FieldColor';
-            return false;
-                // Resources with public value
-            case 'Course':
-            case 'Courses':
-            default:
-                return true;
-        }
-
-
-        $user = Users::getUser();
-
-        if ($resourceType === 'organization') {
-            if ($user->authorise('organizer.view', "com_organizer.organization.$resourceID")) {
-                return true;
-            }
-
-            if ($user->authorise('organizer.schedule', "com_organizer.organization.$resourceID")) {
-                return true;
-            }
-
-            return self::manage($resourceType, $resourceID);
-        }
-
-        return false;*/
+            /**
+             * Restricted views with possible access over a login redirect
+             * Booking, ContactTracking, CourseParticipants, Profile
+             * Restricted views with complex authorization
+             * ParticipantMerge
+             * Views restricted by view access levels
+             * Statistics, Workload
+             * Viewing is generally allowed, however functions, layouts and levels may still be restricted elsewhere.
+             * Course, Courses, InstanceItem, Instances, Program, Programs, Subject, Subjects
+             * Unrestricted
+             * Curriculum, Help, Screen
+             */
+            default => true
+        };
     }
 
     /**

@@ -749,7 +749,7 @@ class Booking extends Participants
     private function reReference(string $table, int $toID, int $fromID, string $fkColumn)
     {
         $buffer    = [];
-        $fqClass   = "Organizer\\Tables\\" . ucfirst($table) . 'Participants';
+        $fqClass   = 'THM\\Organizer\\Tables\\' . ucfirst($table) . 'Participants';
         $protected = ['id', 'instanceID', $fkColumn];
 
         $query = Database::getQuery();

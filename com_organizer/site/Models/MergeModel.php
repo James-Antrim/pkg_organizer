@@ -161,7 +161,7 @@ abstract class MergeModel extends BaseModel
         $initialSize = count($results);
         $mergeID     = $this->selected[0];
         $nextIndex   = 0;
-        $tableClass  = "Organizer\\Tables\\Instance" . ucfirst($this->name) . 's';
+        $tableClass  = "THM\\Organizer\\Tables\\Instance" . ucfirst($this->name) . 's';
 
         for ($index = 0; $index < $initialSize;) {
             $assocTable = new $tableClass();

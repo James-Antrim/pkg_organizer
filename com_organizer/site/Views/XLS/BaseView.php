@@ -58,8 +58,8 @@ abstract class BaseView extends PHPExcel
 
         $layout = Input::getCMD('layout', $name);
         $layout = Helpers\OrganizerHelper::classDecode($layout);
-        $layout = "Organizer\\Layouts\\XLS\\$name\\$layout";
-        $model  = "Organizer\\Models\\$name";
+        $layout = "THM\\Organizer\\Layouts\\XLS\\$name\\$layout";
+        $model  = "THM\\Organizer\\Models\\$name";
 
         $this->layout = new $layout($this);
         $this->model  = new $model();

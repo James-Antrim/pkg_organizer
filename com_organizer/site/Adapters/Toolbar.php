@@ -58,7 +58,7 @@ class Toolbar extends ParentClass
     private function loadButtonClass(string $type): ?string
     {
         $buttonClasses = [
-            'Organizer\\Buttons\\' . OrganizerHelper::classDecode($type),
+            'THM\\Organizer\\Buttons\\' . OrganizerHelper::classDecode($type),
             'Joomla\\CMS\\Toolbar\\Button\\' . ucfirst($type) . 'Button'
         ];
 

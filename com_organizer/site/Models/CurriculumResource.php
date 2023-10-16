@@ -190,7 +190,7 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function deleteRanges(int $resourceID): bool
     {
-        $helper = "Organizer\\Helpers\\" . $this->helper;
+        $helper = "THM\\Organizer\\Helpers\\$this->helper";
 
         /** @noinspection PhpUndefinedMethodInspection */
         if ($rangeIDs = $helper::getRangeIDs($resourceID)) {
@@ -350,7 +350,7 @@ abstract class CurriculumResource extends BaseModel
      */
     protected function getRanges(int $resourceID): array
     {
-        $helper = "Organizer\\Helpers\\" . $this->helper;
+        $helper = "THM\\Organizer\\Helpers\\$this->helper";
 
         /** @noinspection PhpUndefinedMethodInspection */
         return $helper::getRanges($resourceID);
@@ -543,7 +543,7 @@ abstract class CurriculumResource extends BaseModel
      */
     public function getTable($name = '', $prefix = '', $options = [])
     {
-        $table = "Organizer\\Tables\\" . $this->helper;
+        $table = "THM\\Organizer\\Tables\\$this->helper";
 
         return new $table();
     }

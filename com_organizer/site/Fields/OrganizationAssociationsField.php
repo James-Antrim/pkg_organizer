@@ -36,7 +36,7 @@ class OrganizationAssociationsField extends OptionsField
     private function getAssociated(string $resource, int $resourceID): array
     {
         if (array_key_exists($resource, $this->singleAssoc)) {
-            $tableName = 'Organizer\\Tables\\' . $this->singleAssoc[$resource];
+            $tableName = 'THM\\Organizer\\Tables\\' . $this->singleAssoc[$resource];
             $table     = new $tableName();
 
             return ($table->load($resourceID) and !empty($table->organizationID)) ? [$table->organizationID] : [];

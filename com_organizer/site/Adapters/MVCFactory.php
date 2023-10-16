@@ -15,7 +15,7 @@ use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Form\FormFactoryAwareInterface;
 use Joomla\CMS\MVC\Factory\MVCFactory as Base;
 use Joomla\Event\DispatcherAwareInterface;
-use Joomla\Input\Input;
+use Joomla\Input\Input as JInput;
 use THM\Organizer\Controllers\Controller;
 
 /**
@@ -88,7 +88,7 @@ class MVCFactory extends Base
      *
      * @return  Controller
      */
-    public function createController($name, $prefix, array $config, CMSApplicationInterface $app, Input $input): Controller
+    public function createController($name, $prefix, array $config, CMSApplicationInterface $app, JInput $input): Controller
     {
         $name           = preg_replace('/[^A-Z0-9_]/i', '', $name);
         $className      = "THM\Organizer\Controllers\\$name";
@@ -119,16 +119,10 @@ class MVCFactory extends Base
      */
     public function createView($name, $prefix = '', $type = 'HTML', array $config = [])
     {
-        $supported = ['HTML', 'JSON', 'VCF'];
-        $type      = strtoupper(preg_replace('/[^A-Z0-9_]/i', '', $type));
-
-        if (!in_array($type, $supported)) {
-            Application::error(501);
-        }
-
-        $name      = preg_replace('/[^A-Z0-9_]/i', '', $name);
-        $className = "THM\Organizer\Views\\$type\\$name";
-        $view      = new $className($config);
+        $format = Input::getFormat();
+        $name   = preg_replace('/[^A-Z0-9_]/i', '', $name);
+        $view   = "THM\Organizer\Views\\$format\\$name";
+        $view   = new $view($config);
         $this->addDispatcher($view);
         $this->addFormFactory($view);
 
