@@ -43,12 +43,6 @@ class Application
         INFO = 'info', MESSAGE = 'message', NOTICE = 'notice', WARNING = 'warning';
 
     /**
-     * Stores toolbar references.
-     * @var    Toolbar[]
-     */
-    protected static array $toolbars = [];
-
-    /**
      * Checks whether the current context is the administrator context.
      * @return bool
      */
@@ -69,7 +63,7 @@ class Application
     /**
      * Performs a redirect on error.
      *
-     * @param   int  $code  the error code
+     * @param int $code the error code
      *
      * @return void
      */
@@ -125,8 +119,8 @@ class Application
     /**
      * Gets the name of an object's class without its namespace.
      *
-     * @param   object|string  $object  the object whose namespace free name is requested or the fq name of the class to be
-     *                                  loaded
+     * @param object|string $object the object whose namespace free name is requested or the fq name of the class to be
+     *                              loaded
      *
      * @return string the name of the class without its namespace
      */
@@ -136,7 +130,7 @@ class Application
         $nsParts  = explode('\\', $fqName);
         $lastItem = array_pop($nsParts);
 
-        return empty($lastItem) ? 'Dashboard' : $lastItem;
+        return empty($lastItem) ? 'Organizer' : $lastItem;
     }
 
     /**
@@ -197,7 +191,7 @@ class Application
     /**
      * Gets the parameter object for the component
      *
-     * @param   string  $component  the component name.
+     * @param string $component the component name.
      *
      * @return  Registry
      */
@@ -229,7 +223,7 @@ class Application
     /**
      * Gets a user object (specified or current).
      *
-     * @param   int|string  $userID  the user identifier (id or name)
+     * @param int|string $userID the user identifier (id or name)
      *
      * @return User
      */
@@ -250,9 +244,43 @@ class Application
     }
 
     /**
+     * Gets the user's state's property value.
+     *
+     * @param string $property the property name
+     * @param mixed  $default  the optional default value
+     *
+     * @return  mixed  the property value or null
+     * @see CMSApplication::getUserState()
+     */
+    public static function getUserState(string $property, mixed $default = null): mixed
+    {
+        /** @var CMSApplication $app */
+        $app = self::getApplication();
+        return $app->getUserState($property, $default);
+    }
+
+    /**
+     * Gets the property value from the state, overwriting the value from the request if available.
+     *
+     * @param string $property the property name
+     * @param string $request  the name of the property as passed in a request.
+     * @param mixed  $default  the optional default value
+     * @param string $type     the optional name of the type filter to use on the variable
+     *
+     * @return  mixed  The request user state.
+     * @see CMSApplication::getUserStateFromRequest(), InputFilter::clean()
+     */
+    public static function getUserRequestState(string $property, string $request, mixed $default = null, string $type = 'none')
+    {
+        /** @var CMSApplication $app */
+        $app = self::getApplication();
+        return $app->getUserStateFromRequest($property, $request, $default, $type);
+    }
+
+    /**
      * Performs handling for joomla's internal errors not handled by joomla.
      *
-     * @param   Exception  $exception  the joomla internal error being thrown instead of handled
+     * @param Exception $exception the joomla internal error being thrown instead of handled
      *
      * @return void
      */
@@ -292,8 +320,8 @@ class Application
     /**
      * Masks the Joomla application enqueueMessage function
      *
-     * @param   string  $message  the message to enqueue
-     * @param   string  $type     how the message is to be presented
+     * @param string $message the message to enqueue
+     * @param string $type    how the message is to be presented
      *
      * @return void
      */
@@ -319,8 +347,8 @@ class Application
     /**
      * Redirect to another URL.
      *
-     * @param   string  $url     The URL to redirect to. Can only be http/https URL
-     * @param   int     $status  The HTTP 1.1 status code to be provided. 303 is assumed by default.
+     * @param string $url    The URL to redirect to. Can only be http/https URL
+     * @param int    $status The HTTP 1.1 status code to be provided. 303 is assumed by default.
      *
      * @return  void
      */
