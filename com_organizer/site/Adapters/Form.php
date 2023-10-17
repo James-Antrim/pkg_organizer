@@ -29,9 +29,9 @@ class Form extends Base
     {
         parent::__construct($name, $options);
 
-        FormHelper::addFieldPath(JPATH_SITE . '/components/com_groups/Fields');
-        FormHelper::addFilterPath(JPATH_SITE . '/components/com_groups/forms');
-        FormHelper::addFormPath(JPATH_SITE . '/components/com_groups/forms');
+        FormHelper::addFieldPath(JPATH_SITE . '/components/com_organizer/Fields');
+        FormHelper::addFilterPath(JPATH_SITE . '/components/com_organizer/Forms');
+        FormHelper::addFormPath(JPATH_SITE . '/components/com_organizer/Forms');
     }
 
     /**
