@@ -19,7 +19,7 @@ trait Subordinate
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         /** @noinspection PhpMultipleClassDeclarationsInspection */
         parent::modifyDocument();

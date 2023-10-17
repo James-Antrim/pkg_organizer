@@ -28,9 +28,7 @@ abstract class EditModel extends AdminModel
     public $item = null;
 
     /**
-     * Constructor.
-     *
-     * @param array $config An optional associative array of configuration settings.
+     * @inheritdoc
      */
     public function __construct($config = [])
     {

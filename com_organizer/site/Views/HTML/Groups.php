@@ -20,7 +20,7 @@ use THM\Organizer\Tables;
  */
 class Groups extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'fullName' => 'link',
         'this' => 'value',
@@ -34,7 +34,7 @@ class Groups extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_GROUPS');
         $toolbar = Toolbar::getInstance();
@@ -63,7 +63,7 @@ class Groups extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::scheduleTheseOrganizations()) {
             Application::error(403);
@@ -73,7 +73,7 @@ class Groups extends ListView
     /**
      * @inheritdoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         // Set batch template path
         $this->batch = ['batch_group_publishing'];
@@ -84,7 +84,7 @@ class Groups extends ListView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
@@ -95,7 +95,7 @@ class Groups extends ListView
     /**
      * @inheritdoc
      */
-    protected function setHeaders()
+    protected function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -116,7 +116,7 @@ class Groups extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $currentTerm     = Helpers\Terms::getCurrentID();
         $index           = 0;

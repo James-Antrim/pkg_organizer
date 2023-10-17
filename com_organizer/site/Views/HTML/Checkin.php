@@ -49,7 +49,7 @@ class Checkin extends FormView
     /**
      * @inheritDoc
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         if ($this->privacy) {
             $title = "Besondere Datenschutzhinweis zum THM Checkin-Verfahren im Zusammenhang mit der Coronapandemie";
@@ -73,7 +73,7 @@ class Checkin extends FormView
     /**
      * @inheritDoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $session = Factory::getSession();
 
@@ -115,7 +115,7 @@ class Checkin extends FormView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 

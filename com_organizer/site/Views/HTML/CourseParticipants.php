@@ -34,7 +34,7 @@ class CourseParticipants extends Participants
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_PARTICIPANTS');
 
@@ -107,7 +107,7 @@ class CourseParticipants extends Participants
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Users::getID()) {
             Application::error(401);
@@ -125,7 +125,7 @@ class CourseParticipants extends Participants
     /**
      * @inheritdoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         // Set batch template path
         $this->batch = ['batch_participant_notify'];
@@ -136,7 +136,7 @@ class CourseParticipants extends Participants
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
@@ -146,7 +146,7 @@ class CourseParticipants extends Participants
     /**
      * @inheritdoc
      */
-    protected function setHeaders()
+    protected function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -166,7 +166,7 @@ class CourseParticipants extends Participants
     /**
      * @inheritdoc
      */
-    protected function setSubtitle()
+    protected function setSubtitle(): void
     {
         $courseID = Input::getID();
 
@@ -185,7 +185,7 @@ class CourseParticipants extends Participants
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $link            = 'index.php?option=com_organizer&view=participant_edit&id=';

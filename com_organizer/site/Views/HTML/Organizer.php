@@ -26,7 +26,7 @@ class Organizer extends BaseView
      *
      * @return void
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $this->addMenu();
         $this->modifyDocument();
@@ -39,7 +39,7 @@ class Organizer extends BaseView
      * Creates a toolbar
      * @return void
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         $this->setTitle('ORGANIZER_MAIN');
 
@@ -91,7 +91,7 @@ class Organizer extends BaseView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 

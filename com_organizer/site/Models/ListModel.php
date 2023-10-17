@@ -59,6 +59,8 @@ abstract class ListModel extends Base
      */
     public function __construct($config = [], MVCFactoryInterface $factory = null)
     {
+        // Preemptively set to avoid unnecessary complications.
+        $this->setContext();
         $this->state = new Registry();
 
         try {
@@ -72,11 +74,6 @@ abstract class ListModel extends Base
 
         if (!is_numeric($this->defaultLimit)) {
             $this->defaultLimit = $app->get('list_limit', 50);
-        }
-
-        // Make sure the filters from different menu items do not bleed.
-        if ($menuItem = Application::getMenuItem() and $menuID = $menuItem->id) {
-            $this->context .= '.' . $menuID;
         }
     }
 

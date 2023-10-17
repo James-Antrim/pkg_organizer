@@ -28,7 +28,7 @@ class Curriculum extends ItemView
      * Filters out invalid and true empty values. (0 is allowed.)
      * @return void modifies the item
      */
-    protected function filterAttributes()
+    protected function filterAttributes(): void
     {
         // Nothing filtered
     }

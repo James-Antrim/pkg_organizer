@@ -23,7 +23,7 @@ abstract class BaseModel extends BaseDatabaseModel
 {
     use Named;
 
-    protected $selected = [];
+    protected array $selected = [];
 
     /**
      * BaseModel constructor.

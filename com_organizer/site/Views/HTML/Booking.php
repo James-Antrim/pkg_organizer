@@ -47,7 +47,7 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function addSupplement()
+    protected function addSupplement(): void
     {
         $bookingDate = $this->booking->get('date');
         $expiredText = Text::_('ORGANIZER_BOOKING_CLOSED');
@@ -97,7 +97,7 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $title = Text::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}";
 
@@ -184,7 +184,7 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Users::getID()) {
             Application::error(401);
@@ -202,7 +202,7 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         // Set batch template path
         $this->batch   = ['batch_participation', 'form_modal'];
@@ -216,7 +216,7 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         if ($this->layout === 'qrcode') {
             Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
@@ -229,7 +229,7 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function setHeaders()
+    protected function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -249,7 +249,7 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function setSubtitle()
+    protected function setSubtitle(): void
     {
         $bookingID      = Input::getID();
         $subTitle       = Helper::getNames($bookingID);
@@ -260,7 +260,7 @@ class Booking extends Participants
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index = 0;
 

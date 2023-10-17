@@ -19,7 +19,7 @@ use THM\Organizer\Helpers;
  */
 class Participants extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'fullName' => 'value',
         'email' => 'value',
@@ -33,7 +33,7 @@ class Participants extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_PARTICIPANTS');
 
@@ -66,7 +66,7 @@ class Participants extends ListView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
@@ -76,7 +76,7 @@ class Participants extends ListView
     /**
      * @inheritdoc
      */
-    protected function setHeaders()
+    protected function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -101,7 +101,7 @@ class Participants extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $link            = 'index.php?option=com_organizer&view=participant_edit&id=';

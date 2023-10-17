@@ -22,7 +22,7 @@ class Workload extends FormView
      * Adds a toolbar and title to the view.
      * @return void  sets context variables
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         $this->setTitle('ORGANIZER_WORKLOAD');
         $toolbar = Toolbar::getInstance();
@@ -42,7 +42,7 @@ class Workload extends FormView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
