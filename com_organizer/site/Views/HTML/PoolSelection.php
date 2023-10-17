@@ -20,7 +20,7 @@ class PoolSelection extends PoolsView
 {
     protected string $layout = 'list_modal';
 
-    protected $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
+    protected array $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
 
     /**
      * @inheritdoc

@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Grids extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'name' => 'link',
         'startDay' => 'value',
@@ -31,7 +31,7 @@ class Grids extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $headers = [
             'checkbox' => '',
@@ -49,7 +49,7 @@ class Grids extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $structuredItems = [];

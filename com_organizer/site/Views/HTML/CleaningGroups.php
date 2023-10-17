@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class CleaningGroups extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'name' => 'link',
         'days' => 'link',
@@ -29,7 +29,7 @@ class CleaningGroups extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
@@ -39,7 +39,7 @@ class CleaningGroups extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $direction = $this->state->get('list.direction');
         $headers   = [
@@ -56,7 +56,7 @@ class CleaningGroups extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $link            = 'index.php?option=com_organizer&view=CleaningGroupEdit&id=';
         $index           = 0;

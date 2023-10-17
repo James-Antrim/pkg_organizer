@@ -18,12 +18,12 @@ use THM\Organizer\Helpers\Dates;
  */
 class Terms extends ListView
 {
-    protected $rowStructure = ['checkbox' => '', 'term' => 'link', 'startDate' => 'link', 'endDate' => 'link'];
+    protected array $rowStructure = ['checkbox' => '', 'term' => 'link', 'startDate' => 'link', 'endDate' => 'link'];
 
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $headers = [
             'checkbox' => '',
@@ -38,7 +38,7 @@ class Terms extends ListView
     /**
      * @inheritDoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $link            = "index.php?option=com_organizer&view=term_edit&id=";
         $index           = 0;

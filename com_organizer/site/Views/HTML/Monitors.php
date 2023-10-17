@@ -20,9 +20,9 @@ class Monitors extends ListView
 {
     private const UPCOMING = 0, CURRENT = 1, MIXED = 2, CONTENT = 3;
 
-    public $displayBehaviour = [];
+    public array $displayBehaviour = [];
 
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'name' => 'link',
         'ip' => 'link',
@@ -47,7 +47,7 @@ class Monitors extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
@@ -57,7 +57,7 @@ class Monitors extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -76,7 +76,7 @@ class Monitors extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $link            = 'index.php?option=com_organizer&view=monitor_edit&id=';
         $index           = 0;

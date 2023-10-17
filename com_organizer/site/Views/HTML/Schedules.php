@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Schedules extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'organizationName' => 'value',
         'termName' => 'value',
@@ -29,7 +29,7 @@ class Schedules extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_SCHEDULES');
         $admin   = Helpers\Can::administrate();
@@ -76,7 +76,7 @@ class Schedules extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::scheduleTheseOrganizations()) {
             Application::error(403);
@@ -86,7 +86,7 @@ class Schedules extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $headers = [
             'checkbox' => Helpers\HTML::_('grid.checkall'),
@@ -102,7 +102,7 @@ class Schedules extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $structuredItems = [];

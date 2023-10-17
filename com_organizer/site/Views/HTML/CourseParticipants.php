@@ -21,7 +21,7 @@ use THM\Organizer\Tables;
  */
 class CourseParticipants extends Participants
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'fullName' => 'value',
         'email' => 'value',

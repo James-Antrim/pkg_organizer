@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Roomtypes extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'rns' => 'link',
         'name' => 'link',
@@ -28,7 +28,7 @@ class Roomtypes extends ListView
     /**
      * @inheritDoc
      */
-    protected function addToolBar(bool $delete = false)
+    protected function addToolBar(bool $delete = false): void
     {
         parent::addToolBar($delete);
     }
@@ -36,7 +36,7 @@ class Roomtypes extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
@@ -46,7 +46,7 @@ class Roomtypes extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');

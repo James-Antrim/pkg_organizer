@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Rooms extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'roomName' => 'link',
         'buildingName' => 'link',

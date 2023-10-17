@@ -18,12 +18,12 @@ use THM\Organizer\Helpers;
  */
 class Organizations extends ListView
 {
-    protected $rowStructure = ['checkbox' => '', 'shortName' => 'link', 'name' => 'link'];
+    protected array $rowStructure = ['checkbox' => '', 'shortName' => 'link', 'name' => 'link'];
 
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_ORGANIZATIONS');
         $toolbar = Toolbar::getInstance();
@@ -42,7 +42,7 @@ class Organizations extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');

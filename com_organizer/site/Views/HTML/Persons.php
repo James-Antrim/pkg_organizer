@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Persons extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'surname' => 'link',
         'forename' => 'link',
@@ -31,7 +31,7 @@ class Persons extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_TEACHERS');
         $toolbar = Toolbar::getInstance();
@@ -74,7 +74,7 @@ class Persons extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('persons')) {
             Application::error(403);
@@ -84,7 +84,7 @@ class Persons extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $headers = [
             'checkbox' => '',
@@ -102,7 +102,7 @@ class Persons extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $structuredItems = [];

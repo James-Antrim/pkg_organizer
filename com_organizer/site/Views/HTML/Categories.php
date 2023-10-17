@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Categories extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'name' => 'link',
         'active' => 'value',
@@ -29,7 +29,7 @@ class Categories extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_CATEGORIES');
         $toolbar = Toolbar::getInstance();
@@ -63,7 +63,7 @@ class Categories extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::scheduleTheseOrganizations()) {
             Application::error(403);
@@ -73,7 +73,7 @@ class Categories extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -91,7 +91,7 @@ class Categories extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $link            = 'index.php?option=com_organizer&view=CategoryEdit&id=';

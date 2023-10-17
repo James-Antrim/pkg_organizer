@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Roomkeys extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'name' => 'link',
         'key' => 'link',
@@ -30,7 +30,7 @@ class Roomkeys extends ListView
      * Adds a toolbar and title to the view.
      * @return void  sets context variables
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle("ORGANIZER_ROOMKEYS");
 
@@ -41,7 +41,7 @@ class Roomkeys extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
@@ -51,7 +51,7 @@ class Roomkeys extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $column    = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -69,7 +69,7 @@ class Roomkeys extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $link            = 'index.php?option=com_organizer&view=RoomkeyEdit&id=';
         $index           = 0;

@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Campuses extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'name' => 'link',
         'address' => 'link',
@@ -29,7 +29,7 @@ class Campuses extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
@@ -39,7 +39,7 @@ class Campuses extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $headers = [
             'checkbox' => '',
@@ -55,7 +55,7 @@ class Campuses extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $link            = 'index.php?option=com_organizer&view=campus_edit&id=';
         $structuredItems = [];

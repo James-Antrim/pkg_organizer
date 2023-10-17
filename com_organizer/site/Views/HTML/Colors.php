@@ -18,12 +18,12 @@ use THM\Organizer\Helpers;
  */
 class Colors extends ListView
 {
-    protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'color' => 'value'];
+    protected array $rowStructure = ['checkbox' => '', 'name' => 'link', 'color' => 'value'];
 
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $direction = $this->state->get('list.direction');
         $headers   = [
@@ -38,7 +38,7 @@ class Colors extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $link            = 'index.php?option=com_organizer&view=color_edit&id=';

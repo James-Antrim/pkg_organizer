@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Equipment extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'code' => 'link',
         'name' => 'link'
@@ -27,7 +27,7 @@ class Equipment extends ListView
     /**
      * @inheritDoc
      */
-    protected function addToolBar(bool $delete = false)
+    protected function addToolBar(bool $delete = false): void
     {
         parent::addToolBar($delete);
     }
@@ -35,7 +35,7 @@ class Equipment extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
@@ -45,7 +45,7 @@ class Equipment extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');

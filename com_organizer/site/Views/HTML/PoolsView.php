@@ -18,12 +18,12 @@ use THM\Organizer\Helpers;
  */
 abstract class PoolsView extends ListView
 {
-    protected $rowStructure = ['checkbox' => '', 'name' => 'link', 'programID' => 'link'];
+    protected array $rowStructure = ['checkbox' => '', 'name' => 'link', 'programID' => 'link'];
 
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::documentTheseOrganizations()) {
             Application::error(403);
@@ -33,7 +33,7 @@ abstract class PoolsView extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -49,7 +49,7 @@ abstract class PoolsView extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $link            = 'index.php?option=com_organizer&view=pool_edit&id=';

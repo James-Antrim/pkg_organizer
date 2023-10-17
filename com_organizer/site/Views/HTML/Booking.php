@@ -30,11 +30,11 @@ class Booking extends Participants
     /**
      * @var int
      */
-    public $bookingID;
+    public int $bookingID;
 
-    private $hasRegistered = false;
+    private bool $hasRegistered = false;
 
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'status' => 'value',
         'fullName' => 'link',

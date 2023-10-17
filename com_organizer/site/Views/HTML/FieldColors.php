@@ -18,12 +18,12 @@ use THM\Organizer\Helpers;
  */
 class FieldColors extends ListView
 {
-    protected $rowStructure = ['checkbox' => '', 'field' => 'link', 'organization' => 'link', 'color' => 'value'];
+    protected array $rowStructure = ['checkbox' => '', 'field' => 'link', 'organization' => 'link', 'color' => 'value'];
 
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_FIELD_COLORS');
         $toolbar = Toolbar::getInstance();
@@ -46,7 +46,7 @@ class FieldColors extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::documentTheseOrganizations()) {
             Application::error(403);
@@ -56,7 +56,7 @@ class FieldColors extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -73,7 +73,7 @@ class FieldColors extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $link            = 'index.php?option=com_organizer&view=field_color_edit&id=';

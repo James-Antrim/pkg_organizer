@@ -32,7 +32,7 @@ class InstanceItem extends ListView
     protected string $layout = 'instance-item';
     private array $messages = [];
     public string $minibar = '';
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'tools' => '',
         'date' => 'value',
         'time' => 'value',

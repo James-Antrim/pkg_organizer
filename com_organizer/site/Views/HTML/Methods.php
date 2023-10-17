@@ -17,12 +17,12 @@ use THM\Organizer\Helpers;
  */
 class Methods extends ListView
 {
-    protected $rowStructure = ['checkbox' => '', 'abbreviation' => 'link', 'name' => 'link'];
+    protected array $rowStructure = ['checkbox' => '', 'abbreviation' => 'link', 'name' => 'link'];
 
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');

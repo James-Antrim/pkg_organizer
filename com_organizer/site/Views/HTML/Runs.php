@@ -18,7 +18,7 @@ use THM\Organizer\Helpers;
  */
 class Runs extends ListView
 {
-    protected $rowStructure = [
+    protected array $rowStructure = [
         'checkbox' => '',
         'name' => 'link',
         'term' => 'link',
@@ -31,7 +31,7 @@ class Runs extends ListView
      * Checks user authorization and initiates redirects accordingly.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::scheduleTheseOrganizations()) {
             Application::error(403);
@@ -41,7 +41,7 @@ class Runs extends ListView
     /**
      * @inheritDoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_RUNS');
         $toolbar = Toolbar::getInstance();
@@ -63,7 +63,7 @@ class Runs extends ListView
     /**
      * @inheritDoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $headers = [
             'checkbox' => '',
@@ -80,7 +80,7 @@ class Runs extends ListView
     /**
      * @inheritDoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $link            = "index.php?option=com_organizer&view=run_edit&id=";
         $index           = 0;
