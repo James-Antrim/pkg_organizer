@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
-use THM\Organizer\Helpers;
 
 /**
  * Class retrieves information for a filtered set of monitors.
@@ -21,15 +20,15 @@ class Monitors extends ListModel
 {
     public const UPCOMING_INSTANCES = 0, CURRENT_INSTANCES = 1, MIXED_PLAN = 2, CONTENT_DISPLAY = 3;
 
-    protected $defaultOrdering = 'r.name';
+    protected string $defaultOrdering = 'r.name';
 
     protected $filter_fields = ['content', 'display', 'useDefaults'];
 
     /**
      * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();
@@ -55,7 +54,7 @@ class Monitors extends ListModel
      *
      * @return void
      */
-    private function addDisplayFilter(JDatabaseQuery $query)
+    private function addDisplayFilter(JDatabaseQuery $query): void
     {
         $templateKey = $this->state->get('filter.display', '');
 
@@ -92,7 +91,7 @@ class Monitors extends ListModel
      *
      * @return void
      */
-    private function addContentFilter(JDatabaseQuery $query)
+    private function addContentFilter(JDatabaseQuery $query): void
     {
         $params  = Input::getParams();
         $content = (string) $this->state->get('filter.content', '');

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 
 /**
@@ -18,13 +18,13 @@ use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
  */
 class Methods extends ListModel
 {
-    protected $defaultOrdering = 'abbreviation';
+    protected string $defaultOrdering = 'abbreviation';
 
     /**
      * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
         /* @var QueryMySQLi $query */

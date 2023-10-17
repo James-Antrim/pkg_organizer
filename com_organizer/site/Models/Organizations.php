@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
@@ -19,13 +19,13 @@ use THM\Organizer\Helpers;
  */
 class Organizations extends ListModel
 {
-    protected $defaultOrdering = 'shortName';
+    protected string $defaultOrdering = 'shortName';
 
     /**
      * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $authorized = Helpers\Can::manageTheseOrganizations();
         $tag        = Application::getTag();

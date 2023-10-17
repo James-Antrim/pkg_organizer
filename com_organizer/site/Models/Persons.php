@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\Database;
 use THM\Organizer\Adapters\Queries\QueryMySQLi;
 
@@ -21,15 +21,15 @@ class Persons extends ListModel
 {
     use Activated;
 
-    protected $defaultOrdering = 'p.surname, p.forename';
+    protected string $defaultOrdering = 'p.surname, p.forename';
 
     protected $filter_fields = ['organizationID', 'suppress'];
 
     /**
      * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    protected function getListQuery()
+    protected function getListQuery():DatabaseQuery
     {
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();

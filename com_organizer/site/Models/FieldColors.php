@@ -19,7 +19,7 @@ use THM\Organizer\Helpers;
  */
 class FieldColors extends ListModel
 {
-    protected $defaultOrdering = 'field';
+    protected string $defaultOrdering = 'field';
 
     protected $filter_fields = ['colorID' => 'colorID', 'organizationID' => 'organizationID'];
 

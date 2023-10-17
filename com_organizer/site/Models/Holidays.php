@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 
 /**
@@ -20,15 +20,15 @@ class Holidays extends ListModel
 {
     private const EXPIRED = 1, NOT_EXPIRED = 0;
 
-    protected $defaultOrdering = 'startDate';
+    protected string $defaultOrdering = 'startDate';
 
     protected $filter_fields = ['termID', 'type'];
 
     /**
      * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
         /* @var QueryMySQLi $query */

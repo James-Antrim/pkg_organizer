@@ -21,7 +21,7 @@ class Groups extends ListModel
 {
     use Activated;
 
-    protected $defaultOrdering = 'gr.code';
+    protected string $defaultOrdering = 'gr.code';
 
     protected $filter_fields = ['categoryID', 'organizationID', 'gridID'];
 

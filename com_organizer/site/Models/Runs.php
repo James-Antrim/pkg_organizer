@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 
 /**
@@ -18,7 +18,7 @@ use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
  */
 class Runs extends ListModel
 {
-    protected $defaultOrdering = 't.startDate, name';
+    protected string $defaultOrdering = 't.startDate, name';
 
     protected $filter_fields = ['termID'];
 
@@ -26,7 +26,7 @@ class Runs extends ListModel
      * Remove runs which have expired.
      * @return void
      */
-    private function deleteDeprecated()
+    private function deleteDeprecated(): void
     {
         $query = Database::getQuery();
         $query->delete('#__organizer_runs')->where('endDate < CURDATE()');
@@ -36,9 +36,9 @@ class Runs extends ListModel
 
     /**
      * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
         $this->deleteDeprecated();
 

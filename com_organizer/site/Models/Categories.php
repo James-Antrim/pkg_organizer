@@ -21,7 +21,7 @@ class Categories extends ListModel
 {
     use Activated;
 
-    protected $defaultOrdering = 'name';
+    protected string $defaultOrdering = 'name';
 
     protected $filter_fields = ['organizationID'];
 

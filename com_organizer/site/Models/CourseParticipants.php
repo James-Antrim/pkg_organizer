@@ -19,7 +19,7 @@ use THM\Organizer\Helpers;
  */
 class CourseParticipants extends Participants
 {
-    protected $defaultOrdering = 'fullName';
+    protected string $defaultOrdering = 'fullName';
 
     protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 

@@ -18,7 +18,7 @@ use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
  */
 class Fields extends ListModel
 {
-    protected $defaultOrdering = 'name';
+    protected string $defaultOrdering = 'name';
 
     protected $filter_fields = ['colorID', 'organizationID'];
 
