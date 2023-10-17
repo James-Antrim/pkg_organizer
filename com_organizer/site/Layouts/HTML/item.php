@@ -8,13 +8,13 @@
  * @link        www.thm.de
  */
 
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Application, Toolbar};
 
 require_once 'refresh.php';
 require_once 'titles.php';
 ?>
 <div id="j-main-container" class="span10">
-    <?php if (!$this->adminContext) : ?>
+    <?php if (!Application::backend()) : ?>
         <?php echo Toolbar::getInstance()->render(); ?>
     <?php endif; ?>
     <?php

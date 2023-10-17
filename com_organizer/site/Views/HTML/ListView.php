@@ -10,6 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use Joomla\CMS\Form\Form;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
@@ -23,47 +25,44 @@ use stdClass;
  */
 abstract class ListView extends BaseView
 {
-    protected $layout = 'list';
+    protected string $layout = 'list';
 
-    public $activeFilters = null;
+    public array $activeFilters = [];
 
-    public $batch = [];
+    public array $batch = [];
 
-    public $empty;
+    public string $empty;
 
-    public $filterForm = null;
+    public Form $filterForm;
 
     /**
      * The header information to display indexed by the referenced attribute.
      * @var array
      */
-    public $headers = [];
+    public array $headers = [];
 
-    public $items = null;
+    public array $items = [];
 
     /**
      * @var ListModel
      */
-    protected $model;
+    protected BaseDatabaseModel $model;
 
     public $pagination = null;
 
-    protected $rowStructure = [];
+    protected array $rowStructure = [];
 
-    protected $sameTab = false;
+    protected bool $sameTab = false;
 
-    protected $structureEmpty = false;
+    protected bool $structureEmpty = false;
 
-    /**
-     * @var Registry
-     */
-    public $state = null;
+    public Registry $state;
 
     /**
      * Adds supplemental information to the display output.
      * @return void modifies the object property supplement
      */
-    protected function addSupplement()
+    protected function addSupplement(): void
     {
         $this->supplement = '';
     }
@@ -72,7 +71,7 @@ abstract class ListView extends BaseView
      * Adds a toolbar and title to the view.
      * @return void  sets context variables
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $resource = Helpers\OrganizerHelper::classEncode($this->getName());
         $constant = strtoupper($resource);
@@ -98,7 +97,7 @@ abstract class ListView extends BaseView
      * Checks user authorization and initiates redirects accordingly.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::administrate()) {
             Application::error(403);
@@ -108,7 +107,7 @@ abstract class ListView extends BaseView
     /**
      * @inheritDoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $this->authorize();
 
@@ -183,12 +182,9 @@ abstract class ListView extends BaseView
      *
      * @return string the HTML attribute output for the item
      */
-    public function getAttributesOutput(&$element): string
+    public function getAttributesOutput(array &$element): string
     {
         $output = '';
-        if (!is_array($element)) {
-            return $output;
-        }
 
         $relevant = (!empty($element['attributes']) and is_array($element['attributes']));
         if ($relevant) {
@@ -234,7 +230,7 @@ abstract class ListView extends BaseView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
@@ -246,13 +242,13 @@ abstract class ListView extends BaseView
      * Function to set the object's headers property
      * @return void sets the object headers property
      */
-    abstract protected function setHeaders();
+    abstract protected function setHeaders(): void;
 
     /**
      * Creates a subtitle element from the term name and the start and end dates of the course.
      * @return void modifies the course
      */
-    protected function setSubtitle()
+    protected function setSubtitle(): void
     {
         $this->subtitle = '';
     }
@@ -261,7 +257,7 @@ abstract class ListView extends BaseView
      * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
      * @return void processes the class items property
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $structuredItems = [];
@@ -287,7 +283,7 @@ abstract class ListView extends BaseView
      *
      * @return array an array of property columns with their values
      */
-    protected function structureItem($index, stdClass $item, string $link = ''): array
+    protected function structureItem(int|string $index, stdClass $item, string $link = ''): array
     {
         $processedItem = [];
 
@@ -309,7 +305,7 @@ abstract class ListView extends BaseView
 
             if ($propertyType === 'link') {
                 $attributes = [];
-                if (!$this->adminContext and !$this->sameTab) {
+                if (!Application::backend() and !$this->sameTab) {
                     $attributes['target'] = '_blank';
                 }
 

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Input, Text};
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -36,7 +36,7 @@ class ProgramsField extends OptionsField
             $options[] = Helpers\HTML::_('select.option', -1, Text::_('ORGANIZER_UNKNOWN'));
         }
 
-        $access   = $this->adminContext ? $this->getAttribute('access', '') : '';
+        $access   = Application::backend() ? $this->getAttribute('access', '') : '';
         $programs = Helpers\Programs::getOptions($access);
 
         return array_merge($options, $programs);

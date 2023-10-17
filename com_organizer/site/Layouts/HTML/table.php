@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Toolbar;
+use THM\Organizer\Adapters\{Application, Toolbar};
 use THM\Organizer\Helpers;
 
 $rows      = $this->rows;
@@ -19,7 +19,7 @@ require_once 'titles.php';
 
 ?>
 <div id="j-main-container" class="span10">
-    <?php if (!$this->adminContext) : ?>
+    <?php if (!Application::backend()) : ?>
         <?php echo Toolbar::getInstance()->render(); ?>
     <?php endif; ?>
     <form action="<?php echo Uri::current(); ?>" id="adminForm" method="post" name="adminForm">

@@ -21,14 +21,14 @@ class Rooms extends ListModel
 {
     use Activated;
 
-    protected $defaultOrdering = 'r.name';
+    protected string $defaultOrdering = 'r.name';
 
     protected $filter_fields = ['buildingID', 'campusID', 'cleaningID', 'keyID', 'roomtypeID', 'virtual'];
 
     /**
      * @inheritDoc
      */
-    protected function filterFilterForm(Form $form)
+    protected function filterFilterForm(Form $form): void
     {
         if (Input::getParams()->get('campusID')) {
             $form->removeField('campusID', 'filter');
@@ -38,7 +38,7 @@ class Rooms extends ListModel
             unset($this->filter_fields['campusID'], $this->filter_fields['virtual']);
         }
 
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             $form->removeField('active', 'filter');
         }
     }
@@ -92,7 +92,7 @@ class Rooms extends ListModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 

@@ -18,13 +18,13 @@ use THM\Organizer\Helpers;
  */
 class InstanceEdit extends EditView
 {
-    protected $layout = 'instance-wrapper';
+    protected string $layout = 'instance-wrapper';
 
     /**
      * Method to generate buttons for user interaction
      * @return void
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         //$appointment = Input::getCMD('layout') === 'appointment';
 
@@ -57,7 +57,7 @@ class InstanceEdit extends EditView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 

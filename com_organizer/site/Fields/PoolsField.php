@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -30,7 +31,7 @@ class PoolsField extends OptionsField
     protected function getOptions(): array
     {
         $options = parent::getOptions();
-        $access  = $this->adminContext ? 'document' : '';
+        $access  = Application::backend() ? 'document' : '';
         $pools   = Helpers\Pools::getOptions($access);
 
         return array_merge($options, $pools);

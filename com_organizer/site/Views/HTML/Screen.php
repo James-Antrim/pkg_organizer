@@ -10,33 +10,33 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Text};
+use THM\Organizer\Adapters\{Application, Document, Text};
+use THM\Organizer\Models\Screen as Model;
 
 /**
  * Class loads filtered events into the display context.
  */
 class Screen extends BaseView
 {
-    protected $layout = 'upcoming_instances';
+    protected string $layout = 'upcoming_instances';
 
-    public $model;
+    public BaseDatabaseModel $model;
 
     /**
-     * Loads persistent data into the view context
-     *
-     * @param string $tpl the name of the template to load
-     *
-     * @return void
+     * @inheritdoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         //https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=upcoming_instances
         //https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=current_instances
         //https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=file
-        $this->model = $this->getModel();
+        /** @var Model $model */
+        $model       = $this->getModel();
+        $this->model = $model;
 
-        $this->setLayout($this->model->layout);
+        $this->setLayout($model->layout);
 
         Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/screen.css');
         Document::addStyleSheet(Uri::root() . 'media/jui/css/icomoon.css');
@@ -62,7 +62,7 @@ class Screen extends BaseView
         $panopto2 = '/panopto=([\d\w\-]+)/';
         $pilos    = '/(((https?):\/\/)(\d+|roxy).pilos-thm.de\/(b\/)?[\d\w]{3}-[\d\w]{3}-[\d\w]{3})/';
 
-        if ($this->mobile) {
+        if (Application::mobile()) {
             $link = '<a href="URL" target="_blank"><span class="icon-moodle"></span></a>';
 
             // Moodle Course

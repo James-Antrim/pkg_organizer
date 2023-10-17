@@ -18,12 +18,12 @@ use THM\Organizer\Helpers;
  */
 class Programs extends ListView
 {
-    private $documentAccess = false;
+    private bool $documentAccess = false;
 
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_PROGRAMS');
 
@@ -54,9 +54,9 @@ class Programs extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             return;
         }
 
@@ -68,7 +68,7 @@ class Programs extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -78,7 +78,7 @@ class Programs extends ListView
             'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
         ];
 
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             $headers['links'] = '';
         } else {
             $headers['active'] = Text::_('ORGANIZER_ACTIVE');
@@ -90,13 +90,13 @@ class Programs extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $editLink = 'index.php?option=com_organizer&view=program_edit&id=';
         $itemLink = 'index.php?option=com_organizer&view=program_item&id=';
         $links    = '';
 
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             $template = "<a class=\"hasTooltip\" href=\"URL\" target=\"_blank\" title=\"TIP\">ICON</a>";
 
             $icon  = "<span class=\"icon-grid-2\"></span>";
@@ -114,7 +114,7 @@ class Programs extends ListView
         $structuredItems = [];
         foreach ($this->items as $program) {
             // The backend entries have been prefiltered for access
-            if ($this->adminContext) {
+            if (Application::backend()) {
                 $checkbox = Helpers\HTML::_('grid.id', $index, $program->id);
                 $thisLink = $editLink . $program->id;
             } else {
@@ -128,7 +128,7 @@ class Programs extends ListView
             $structuredItems[$index]['checkbox'] = $checkbox;
             $structuredItems[$index]['name']     = Helpers\HTML::_('link', $thisLink, $program->name);
 
-            if ($this->adminContext) {
+            if (Application::backend()) {
                 $tip    = $program->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
                 $toggle = $this->getToggle('programs', $program->id, $program->active, $tip, 'active');
 

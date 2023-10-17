@@ -17,13 +17,13 @@ use THM\Organizer\Adapters\Input;
  */
 class Help extends BaseView
 {
-    protected $layout = 'help-wrapper';
+    protected string $layout = 'help-wrapper';
 
     /**
      * Adds a toolbar and title to the view.
      * @return void  adds toolbar items to the view
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         $topic    = strtoupper(Input::getCMD('topic', 'toc'));
         $constant = 'ORGANIZER_TOPIC_' . strtoupper($topic);
@@ -33,7 +33,7 @@ class Help extends BaseView
     /**
      * @inheritDoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $this->addToolBar();
         $this->modifyDocument();

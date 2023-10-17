@@ -19,7 +19,7 @@ use THM\Organizer\Helpers;
  */
 class Events extends ListModel
 {
-    protected $defaultOrdering = 'code';
+    protected string $defaultOrdering = 'code';
 
     protected $filter_fields = ['campusID', 'categoryID', 'groupID', 'organizationID', 'preparatory'];
 
@@ -39,7 +39,7 @@ class Events extends ListModel
             ->innerJoin('#__organizer_organizations AS o ON o.id = e.organizationID')
             ->leftJoin('#__organizer_campuses AS c ON c.id = e.campusID');
 
-        if ($this->adminContext) {
+        if (Application::backend()) {
             $authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
             $query->where("o.id IN ($authorized)");
         }

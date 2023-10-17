@@ -11,6 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
+use Joomla\Registry\Registry;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Routing;
 
@@ -21,9 +22,9 @@ class Subjects extends ListView
 {
     private const ALL = 0, COORDINATES = 1, TEACHES = 2;
 
-    private $documentAccess = false;
+    private bool $documentAccess = false;
 
-    private $params;
+    private Registry $params;
 
     /**
      * @inheritdoc
@@ -37,10 +38,10 @@ class Subjects extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $resourceName = '';
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             if ($personID = $this->state->get('calledPersonID', 0)) {
                 $resourceName = Helpers\Persons::getDefaultName($personID);
                 $resourceName .= ": " . Text::_('ORGANIZER_SUBJECTS');
@@ -81,9 +82,9 @@ class Subjects extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             return;
         }
 
@@ -95,14 +96,14 @@ class Subjects extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $direction = $this->state->get('list.direction');
         $ordering  = $this->state->get('list.ordering');
         $headers   = [];
 
-        if ($this->adminContext or $this->documentAccess) {
-            $headers['checkbox'] = ($this->adminContext and $this->documentAccess) ?
+        if (Application::backend() or $this->documentAccess) {
+            $headers['checkbox'] = (Application::backend() and $this->documentAccess) ?
                 Helpers\HTML::_('grid.checkall') : '';
         }
 
@@ -189,13 +190,13 @@ class Subjects extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $structuredItems = [];
 
         $attributes = [];
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             $attributes['target'] = '_blank';
         }
 
@@ -204,12 +205,12 @@ class Subjects extends ListView
         foreach ($this->items as $subject) {
             $access   = Helpers\Can::document('subject', (int) $subject->id);
             $checkbox = $access ? Helpers\HTML::_('grid.id', $index, $subject->id) : '';
-            $thisLink = ($this->adminContext and $access) ?
+            $thisLink = (Application::backend() and $access) ?
                 Routing::getViewURL('SubjectEdit', $subject->id) : Routing::getViewURL('SubjectItem', $subject->id);
 
             $structuredItems[$index] = [];
 
-            if ($this->adminContext or $this->documentAccess) {
+            if (Application::backend() or $this->documentAccess) {
                 $structuredItems[$index]['checkbox'] = $checkbox;
             }
 

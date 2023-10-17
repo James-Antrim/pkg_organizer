@@ -18,18 +18,18 @@ use THM\Organizer\Helpers;
  */
 class CourseEdit extends EditView
 {
-    protected $layout = 'tabs';
+    protected string $layout = 'tabs';
 
     /**
      * Adds a toolbar and title to the view.
      * @return void  adds toolbar items to the view
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         if ($this->item->id) {
             $title = Text::_('ORGANIZER_COURSE_EDIT');
 
-            if ($this->adminContext) {
+            if (Application::backend()) {
                 $campus = Helpers\Campuses::getName($this->item->campusID);
                 $dates  = Helpers\Courses::getDateDisplay($this->item->id);
                 $tag    = Application::getTag();
@@ -50,7 +50,7 @@ class CourseEdit extends EditView
      * Creates a subtitle element from the term name and the start and end dates of the course.
      * @return void modifies the course
      */
-    protected function setSubtitle()
+    protected function setSubtitle(): void
     {
         if (empty($this->item->id)) {
             $this->subtitle = '';

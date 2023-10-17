@@ -19,14 +19,14 @@ $items       = $this->items;
 $iteration   = 0;
 $action      = Application::dynamic() ? Uri::current() . '?' . Uri::getInstance()->getQuery() : Uri::current();
 
-if (!$this->adminContext) {
+if (!Application::backend()) {
     require_once 'titles.php';
 }
 if (!empty($this->submenu)) {
     echo '<div id="j-sidebar-container" class="span2">' . $this->submenu . '</div>';
 } ?>
 <div id="j-main-container" class="span10">
-    <?php if (!$this->adminContext) : ?>
+    <?php if (!Application::backend()) : ?>
         <?php echo Toolbar::getInstance()->render(); ?>
     <?php endif; ?>
     <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm">
@@ -74,7 +74,7 @@ if (!empty($this->submenu)) {
             </tr>
             </tfoot>
             <?php
-            if (isset($this->batch) && !empty($this->batch)) {
+            if (property_exists($this, 'batch') && !empty($this->batch)) {
                 foreach ($this->batch as $filename) {
                     foreach ($this->_path['template'] as $path) {
                         $exists = file_exists("$path$filename.php");

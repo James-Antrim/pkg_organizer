@@ -20,9 +20,9 @@ use THM\Organizer\Helpers\HTML;
  */
 class Curriculum extends ItemView
 {
-    protected $layout = 'curriculum';
+    protected string $layout = 'curriculum';
 
-    public $fields = [];
+    public array $fields = [];
 
     /**
      * Filters out invalid and true empty values. (0 is allowed.)
@@ -36,7 +36,7 @@ class Curriculum extends ItemView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
@@ -115,7 +115,7 @@ class Curriculum extends ItemView
      * Renders the panel resolving the colors to the corresponding competences.
      * @return void
      */
-    public function renderLegend()
+    public function renderLegend(): void
     {
         ?>
         <div class="legend">
@@ -140,7 +140,7 @@ class Curriculum extends ItemView
      *
      * @return void displays HTML
      */
-    public function renderPanel(array $pool)
+    public function renderPanel(array $pool): void
     {
         $crpText = Helpers\Pools::getCrPText($pool);
         ?>
@@ -163,14 +163,14 @@ class Curriculum extends ItemView
      *
      * @return  void displays the panel body
      */
-    private function renderPanelBody(array $curriculum)
+    private function renderPanelBody(array $curriculum): void
     {
         $maxOrdering = 0;
         $items       = [];
         foreach ($curriculum as $subOrdinate) {
             $items[$subOrdinate['ordering']] = $this->getPanelItem($subOrdinate);
 
-            $maxOrdering = $maxOrdering > $subOrdinate['ordering'] ? $maxOrdering : $subOrdinate['ordering'];
+            $maxOrdering = max($maxOrdering, $subOrdinate['ordering']);
         }
 
         $trailingBlanks = 5 - $maxOrdering % 5;

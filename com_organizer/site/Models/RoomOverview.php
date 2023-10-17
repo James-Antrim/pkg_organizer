@@ -11,6 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
@@ -21,16 +22,16 @@ class RoomOverview extends ListModel
 {
     private const DAY = 1;
 
-    protected $defaultLimit = 25;
+    protected int $defaultLimit = 25;
 
-    protected $defaultOrdering = 'r.name';
+    protected string $defaultOrdering = 'r.name';
 
     protected $filter_fields = ['campusID', 'buildingID', 'effCapacity', 'roomtypeID'];
 
     /**
      * @inheritDoc
      */
-    protected function filterFilterForm(Form $form)
+    protected function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
 
@@ -43,7 +44,7 @@ class RoomOverview extends ListModel
     /**
      * @inheritDoc
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
         /* @var QueryMySQLi $query */
@@ -80,14 +81,13 @@ class RoomOverview extends ListModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 
-        $app  = Application::getApplication();
         $list = Input::getListItems();
 
-        $date = $app->getUserStateFromRequest("$this->context.list.date", "list_date", '', 'string');
+        $date = Application::getUserRequestState("$this->context.list.date", "list_date", '', 'string');
         $date = (string) $list->get('date', $date);
         $date = Helpers\Dates::standardizeDate($date);
 
@@ -98,10 +98,10 @@ class RoomOverview extends ListModel
             $this->setState('filter.campusID', $campusID);
         }
 
-        $gridID = $app->getUserStateFromRequest("$this->context.list.gridID", "list_gridID", $defaultGrid, 'int');
+        $gridID = Application::getUserRequestState("$this->context.list.gridID", "list_gridID", $defaultGrid, 'int');
         $gridID = (int) $list->get('gridID', $gridID);
 
-        $template = $app->getUserStateFromRequest("$this->context.list.template", "list_template", self::DAY, 'int');
+        $template = Application::getUserRequestState("$this->context.list.template", "list_template", self::DAY, 'int');
         $template = (int) $list->get('template', $template);
 
         $this->setState('list.date', $date);

@@ -10,14 +10,18 @@
 
 namespace THM\Organizer\Layouts\HTML;
 
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
-use THM\Organizer\Views\HTML\Screen;
+use THM\Organizer\Models\Screen as Model;
+use THM\Organizer\Views\HTML\Screen as View;
 
 $class = 'screen';
-/** @var Screen $this */
-$class     .= $this->mobile ? ' mobile' : '';
+/** @var View $this */
+$class     .= Application::mobile() ? ' mobile' : '';
 $time      = date('H:i');
 $rowNumber = 0;
+/** @var Model $model */
+$model = $this->model;
 ?>
 <script type="text/javascript">
     let timer = null;
@@ -34,7 +38,7 @@ $rowNumber = 0;
     <div class='head'>
         <div class='banner'>
             <div class='logo'><img src="components/com_organizer/images/logo.svg" alt="THM-Logo"/></div>
-            <div class="title"><?php echo $this->model->room['name']; ?></div>
+            <div class="title"><?php echo $model->room['name']; ?></div>
         </div>
         <div class='date-info'>
             <div class='time'><?php echo $time; ?></div>
@@ -43,7 +47,7 @@ $rowNumber = 0;
     </div>
     <div class="instances current-layout">
         <?php
-        foreach ($this->model->grid as $period) {
+        foreach ($model->grid as $period) {
             $endTime   = Helpers\Dates::formatEndTime($period['endTime']);
             $rowClass  = 'row' . ($rowNumber % 2);
             $startTime = Helpers\Dates::formatTime($period['startTime']);

@@ -20,7 +20,7 @@ use THM\Organizer\Helpers;
  */
 abstract class ItemView extends BaseView
 {
-    protected $layout = 'item';
+    protected string $layout = 'item';
 
     public $form = null;
 
@@ -36,13 +36,9 @@ abstract class ItemView extends BaseView
     }
 
     /**
-     * Method to get display
-     *
-     * @param Object $tpl template  (default: null)
-     *
-     * @return void
+     * @inheritdoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $this->item = $this->get('Item');
 
@@ -66,7 +62,7 @@ abstract class ItemView extends BaseView
      * Filters out invalid and true empty values. (0 is allowed.)
      * @return void modifies the item
      */
-    protected function filterAttributes()
+    protected function filterAttributes(): void
     {
         foreach ($this->item as $key => $attribute) {
             // Invalid for HTML Output
@@ -85,7 +81,7 @@ abstract class ItemView extends BaseView
      * Modifies document variables and adds links to external files
      * @return void
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
@@ -99,7 +95,7 @@ abstract class ItemView extends BaseView
      *
      * @return void outputs the items as a html list
      */
-    public function renderListValue(array $items, string $url, array $urlAttribs)
+    public function renderListValue(array $items, string $url, array $urlAttribs): void
     {
         echo '<ul>';
         foreach ($items as $index => $item) {

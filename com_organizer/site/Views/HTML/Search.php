@@ -24,12 +24,12 @@ class Search extends ListView
 
     public $results;
 
-    protected $rowStructure = ['result' => 'value', 'links' => 'value'];
+    protected array $rowStructure = ['result' => 'value', 'links' => 'value'];
 
     /**
      * @inheritDoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_SEARCH');
     }
@@ -38,19 +38,15 @@ class Search extends ListView
      * Checks user authorization and initiates redirects accordingly.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         // Public access.
     }
 
     /**
-     * loads model data into view context
-     *
-     * @param string $tpl the name of the template to be used
-     *
-     * @return void
+     * @inheritdoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $this->state = $this->get('State');
 
@@ -62,7 +58,7 @@ class Search extends ListView
     /**
      * @inheritDoc
      */
-    protected function setHeaders()
+    protected function setHeaders(): void
     {
         $this->headers = ['result' => Text::_('ORGANIZER_RESOURCE'), 'links' => Text::_('ORGANIZER_LINKS')];
     }
@@ -76,9 +72,9 @@ class Search extends ListView
      *
      * @return array an array of property columns with their values
      */
-    protected function structureItem($index, stdClass $item, string $link = ''): array
+    protected function structureItem(int|string $index, stdClass $item, string $link = ''): array
     {
-        $processedItem = ['result' => '', 'links' => []];
+        $processedItem = [];
 
         $attribs = ['target' => '_blank'];
         $result  = '<span class="resource-item">' . $item->text . '</span>';
@@ -131,7 +127,7 @@ class Search extends ListView
      * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
      * @return void processes the class items property
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index = 0;
         $start = (int) $this->state->get('list.start');

@@ -19,7 +19,7 @@ use THM\Organizer\Helpers;
  */
 class Export extends FormView
 {
-    protected $layout = 'export';
+    protected string $layout = 'export';
 
     /**
      * The URL for direct access to the export.
@@ -30,7 +30,7 @@ class Export extends FormView
     /**
      * @inheritdoc
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         $this->setTitle('ORGANIZER_EXPORT_TITLE');
         $toolbar = Toolbar::getInstance();

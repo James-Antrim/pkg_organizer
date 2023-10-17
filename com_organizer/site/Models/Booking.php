@@ -13,6 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\User;
 use THM\Organizer\Adapters\{Application, Database, Input, Text};
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Tables;
@@ -22,12 +23,9 @@ use THM\Organizer\Tables;
  */
 class Booking extends Participants
 {
-    /**
-     * @var Tables\Bookings
-     */
-    public $booking;
+    public Tables\Bookings $booking;
 
-    protected $defaultOrdering = 'fullName';
+    protected string $defaultOrdering = 'fullName';
 
     protected $filter_fields = ['instanceID', 'roomID', 'status'];
 
@@ -94,7 +92,7 @@ class Booking extends Participants
      * Adds a participant to the instance(s) of the booking.
      * @return void
      */
-    public function addParticipant()
+    public function addParticipant(): void
     {
         $this->authorize();
 
@@ -149,7 +147,7 @@ class Booking extends Participants
             }
 
             $count  = substr_count($response, '<li>');
-            $over30 = strpos($response, 'mehr als 30') !== false;
+            $over30 = str_contains($response, 'mehr als 30');
 
             if ($count > 1 or $over30) {
                 $message = Text::sprintf('ORGANIZER_TOO_MANY_RESULTS', $input);
@@ -317,7 +315,7 @@ class Booking extends Participants
      * Performs authorization checks for booking dm functions.
      * @return void
      */
-    private function authorize()
+    private function authorize(): void
     {
         if (!$bookingID = Input::getID()) {
             Application::error(400);
@@ -371,7 +369,7 @@ class Booking extends Participants
      * Deletes booking unassociated with attendance.
      * @return void
      */
-    public function clean()
+    public function clean(): void
     {
         $today = date('Y-m-d');
         $query = Database::getQuery();
@@ -423,7 +421,7 @@ class Booking extends Participants
      * Checks the selected participants into the booking.
      * @return void
      */
-    public function checkin()
+    public function checkin(): void
     {
         $this->authorize();
 
@@ -455,7 +453,7 @@ class Booking extends Participants
      * Closes a booking manually.
      * @return void
      */
-    public function close()
+    public function close(): void
     {
         $this->authorize();
 
@@ -488,13 +486,13 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function filterFilterForm(Form $form)
+    protected function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
 
         $bookingID = Input::getID();
 
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             $form->removeField('limit', 'list');
         }
 
@@ -541,7 +539,7 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $bookingID = Input::getID();
         $query     = parent::getListQuery();
@@ -690,7 +688,7 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         if (Input::getListItems()->get('username')) {
             $this->addParticipant();
@@ -703,7 +701,7 @@ class Booking extends Participants
      * Removes the selected participants from the list of registered participants.
      * @return void
      */
-    public function removeParticipants()
+    public function removeParticipants(): void
     {
         $this->authorize();
 
@@ -746,7 +744,7 @@ class Booking extends Participants
      *
      * @return void
      */
-    private function reReference(string $table, int $toID, int $fromID, string $fkColumn)
+    private function reReference(string $table, int $toID, int $fromID, string $fkColumn): void
     {
         $buffer    = [];
         $fqClass   = 'THM\\Organizer\\Tables\\' . ucfirst($table) . 'Participants';

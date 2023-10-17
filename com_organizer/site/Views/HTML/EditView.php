@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use THM\Organizer\Adapters\{Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\EditModel;
@@ -24,13 +25,13 @@ abstract class EditView extends FormView
     /**
      * @var EditModel
      */
-    protected $model;
+    protected BaseDatabaseModel $model;
 
     /**
      * Method to generate buttons for user interaction
      * @return void
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         $resource   = Helpers\OrganizerHelper::classEncode($this->getName());
         $constant   = strtoupper($resource);
@@ -53,15 +54,13 @@ abstract class EditView extends FormView
     }
 
     /**
-     * Method to get display
-     *
-     * @param Object $tpl template  (default: null)
-     *
-     * @return void
+     * @inheritdoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
-        $this->item = $this->getModel()->getItem(Input::getSelectedID());
+        /** @var EditModel $model */
+        $model      = $this->getModel();
+        $this->item = $model->getItem(Input::getSelectedID());
         parent::display($tpl);
     }
 }

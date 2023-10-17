@@ -9,16 +9,16 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 $query = Uri::getInstance()->getQuery();
 
-if (!$this->adminContext) {
+if (!Application::backend()) {
     require_once 'titles.php';
 }
 ?>
-<?php if (!$this->adminContext) : ?>
+<?php if (!Application::backend()) : ?>
     <?php echo Toolbar::getInstance()->render(); ?>
 <?php endif; ?>
 <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post" name="adminForm"

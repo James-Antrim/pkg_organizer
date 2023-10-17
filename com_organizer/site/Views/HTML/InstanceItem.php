@@ -16,6 +16,7 @@ use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
 use THM\Organizer\Buttons\Link;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Instances as Helper;
+use THM\Organizer\Models\InstanceItem as Model;
 use stdClass;
 
 /**
@@ -28,7 +29,7 @@ class InstanceItem extends ListView
     private array $buttons = [];
     private string $dateTime;
     public stdClass $instance;
-    protected $layout = 'instance-item';
+    protected string $layout = 'instance-item';
     private array $messages = [];
     public string $minibar = '';
     protected $rowStructure = [
@@ -46,7 +47,7 @@ class InstanceItem extends ListView
     /**
      * @inheritDoc
      */
-    protected function addSupplement()
+    protected function addSupplement(): void
     {
         $color    = 'blue';
         $instance = $this->instance;
@@ -80,7 +81,7 @@ class InstanceItem extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $instance = $this->instance;
         $method   = $instance->method ? " - $instance->method" : '';
@@ -235,7 +236,7 @@ class InstanceItem extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!$instanceID = Input::getID()) {
             Application::error(400);
@@ -253,8 +254,9 @@ class InstanceItem extends ListView
     /**
      * @inheritDoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
+        /** @var Model $model */
         $model = $this->getModel();
         $this->setInstance($model->instance);
         $this->referrer = $model->referrer;
@@ -272,7 +274,7 @@ class InstanceItem extends ListView
     private function getTitle(stdClass $item): array
     {
         $title = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
-        $title .= $this->mobile ? '<br>' : '';
+        $title .= Application::mobile() ? '<br>' : '';
         $title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
         $title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
         $title = Helpers\HTML::link($item->link, $title);
@@ -283,7 +285,7 @@ class InstanceItem extends ListView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
         Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
@@ -293,7 +295,7 @@ class InstanceItem extends ListView
      * Renders the persons section of the item.
      * @return void
      */
-    public function renderPersons()
+    public function renderPersons(): void
     {
         $instance = $this->instance;
 
@@ -363,7 +365,7 @@ class InstanceItem extends ListView
      * Renders texts about the organization of the appointment in terms of presence...
      * @return void
      */
-    public function renderOrganizational()
+    public function renderOrganizational(): void
     {
         $instance = $this->instance;
 
@@ -444,7 +446,7 @@ class InstanceItem extends ListView
      *
      * @return void
      */
-    private function renderResource(string $name, string $status, string $dateTime)
+    private function renderResource(string $name, string $status, string $dateTime): void
     {
         $implied       = ($dateTime === $this->dateTime and $status === $this->status);
         $irrelevant    = $dateTime < $this->statusDate;
@@ -467,7 +469,7 @@ class InstanceItem extends ListView
      * Renders the persons section of the item.
      * @return void
      */
-    public function renderResources(string $label, array $resources)
+    public function renderResources(string $label, array $resources): void
     {
         echo '<div class="attribute-item">';
         echo "<div class=\"attribute-label\">$label</div>";
@@ -485,10 +487,10 @@ class InstanceItem extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $this->headers = [
-            'tools' => ($this->userID and !$this->mobile) ? Helpers\HTML::_('grid.checkall') : '',
+            'tools' => ($this->userID and !Application::mobile()) ? Helpers\HTML::_('grid.checkall') : '',
             'instance' => Text::_('ORGANIZER_INSTANCE'),
             'status' => Text::_('ORGANIZER_STATUS'),
             'persons' => Text::_('ORGANIZER_PERSONS'),
@@ -504,7 +506,7 @@ class InstanceItem extends ListView
      *
      * @return void
      */
-    private function setInstance(stdClass $instance)
+    private function setInstance(stdClass $instance): void
     {
         $this->setSingle($instance);
 
@@ -679,7 +681,7 @@ class InstanceItem extends ListView
         int    $key,
         string $name,
         array  $resource
-    )
+    ): void
     {
         $dateTime = $resource['statusDate'];
 
@@ -700,7 +702,7 @@ class InstanceItem extends ListView
     /**
      * @inheritdoc
      */
-    protected function setSubtitle()
+    protected function setSubtitle(): void
     {
         $instance       = $this->instance;
         $date           = Helpers\Dates::formatDate($instance->date);
@@ -710,7 +712,7 @@ class InstanceItem extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $this->setDerived($this->items);
 
@@ -811,7 +813,7 @@ class InstanceItem extends ListView
             $index++;
         }
 
-        if ($this->mobile) {
+        if (Application::mobile()) {
             $buttons['deregisterList'] = false;
             $buttons['descheduleList'] = false;
             $buttons['manageList']     = false;

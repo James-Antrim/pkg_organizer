@@ -12,6 +12,7 @@ namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Adapters\Queries\QueryMySQLi;
 use THM\Organizer\Helpers;
 
@@ -27,11 +28,11 @@ class Programs extends ListModel
     /**
      * @inheritDoc
      */
-    public function filterFilterForm(Form $form)
+    public function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
 
-        if ($this->adminContext) {
+        if (Application::backend()) {
             if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
@@ -64,11 +65,11 @@ class Programs extends ListModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 
-        if ($this->adminContext) {
+        if (Application::backend()) {
             $authorized = Helpers\Can::documentTheseOrganizations();
             if (count($authorized) === 1) {
                 $this->state->set('filter.organizationID', $authorized[0]);

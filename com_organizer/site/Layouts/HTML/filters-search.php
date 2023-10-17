@@ -9,7 +9,7 @@
  */
 
 use Joomla\Registry\Registry;
-use THM\Organizer\Adapters\Text;
+use THM\Organizer\Adapters\{Application, Text};
 
 // Receive overridable options
 $options = empty($options) ? [] : $options;
@@ -18,12 +18,13 @@ if (is_array($options)) {
     $options = new Registry($options);
 }
 
-$filters          = $this->filterForm->getGroup('filter');
+$filters    = $this->filterForm->getGroup('filter');
+$mobile     = Application::mobile();
+$filterText = $mobile ? "<span class=\"icon-filter\"></span>" : Text::_('ORGANIZER_SEARCH_TOOLS') . ' <span class="caret"></span>';
+$resetText  = $mobile ? "<span class=\"icon-undo-2\"></span>" : Text::_('ORGANIZER_RESET');
+
 $searchButton     = $options->get('searchButton', true);
 $showFilterButton = empty($filters['filter_search']) ? (bool) count($filters) : count($filters) > 1;
-$filterText       = $this->mobile ?
-    "<span class=\"icon-filter\"></span>" : Text::_('ORGANIZER_SEARCH_TOOLS') . ' <span class="caret"></span>';
-$resetText        = $this->mobile ? "<span class=\"icon-undo-2\"></span>" : Text::_('ORGANIZER_RESET');
 
 ?>
 

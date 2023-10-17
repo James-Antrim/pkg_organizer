@@ -13,8 +13,9 @@ namespace THM\Organizer\Views\XLS;
 require_once JPATH_ROOT . '/libraries/phpexcel/library/PHPExcel.php';
 
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Joomla\CMS\Application\ApplicationHelper;
-use THM\Organizer\Adapters\{Application, Input};
+use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\XLS\BaseLayout;
 use THM\Organizer\Models\BaseModel;
@@ -31,20 +32,8 @@ abstract class BaseView extends PHPExcel
 {
     use Named;
 
-    /**
-     * @var bool
-     */
-    public $adminContext;
-
-    /**
-     * @var BaseLayout
-     */
-    protected $layout;
-
-    /**
-     * @var BaseModel
-     */
-    public $model;
+    protected BaseLayout $layout;
+    public BaseModel $model;
 
     /**
      * @inheritdoc
@@ -53,8 +42,7 @@ abstract class BaseView extends PHPExcel
     {
         parent::__construct();
 
-        $name               = $this->getName();
-        $this->adminContext = Application::getApplication()->isClient('administrator');
+        $name = $this->getName();
 
         $layout = Input::getCMD('layout', $name);
         $layout = Helpers\OrganizerHelper::classDecode($layout);
@@ -74,15 +62,15 @@ abstract class BaseView extends PHPExcel
     /**
      * Adds a range to the active sheet.
      *
-     * @param string     $start
-     * @param string     $end
-     * @param array      $style
-     * @param int|string $value
+     * @param string     $start the start cell coordinates
+     * @param string     $end   the end cell coordinates
+     * @param array      $style the style to apply to the range
+     * @param int|string $value the value to add to the cell range
      *
      * @return void
      * @throws Exception
      */
-    public function addRange(string $start, string $end, array $style = [], $value = '')
+    public function addRange(string $start, string $end, array $style = [], int|string $value = ''): void
     {
         $coords = "$start:$end";
         $sheet  = $this->getActiveSheet();
@@ -102,7 +90,7 @@ abstract class BaseView extends PHPExcel
      * @return void
      * @throws Exception
      */
-    public function display()
+    #[NoReturn] public function display(): void
     {
         $this->layout->fill();
         $this->render();
@@ -113,7 +101,7 @@ abstract class BaseView extends PHPExcel
      * @return void
      * @throws Exception
      */
-    protected function render()
+    #[NoReturn] protected function render(): void
     {
         $documentTitle = ApplicationHelper::stringURLSafe($this->getProperties()->getTitle());
         $objWriter     = PHPExcel_IOFactory::createWriter($this, 'Excel2007');
@@ -135,7 +123,7 @@ abstract class BaseView extends PHPExcel
     {
         try {
             return parent::setActiveSheetIndex($pIndex);
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return $this->setActiveSheetIndex($pIndex - 1);
         }
     }

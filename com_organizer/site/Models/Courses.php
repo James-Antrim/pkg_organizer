@@ -12,6 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers;
 
 /**
@@ -21,18 +22,18 @@ class Courses extends ListModel
 {
     use Helpers\Filtered;
 
-    protected $defaultOrdering = 'dates';
+    protected string $defaultOrdering = 'dates';
 
     protected $filter_fields = ['campusID', 'status', 'termID'];
 
     /**
      * @inheritDoc
      */
-    protected function filterFilterForm(Form $form)
+    protected function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
 
-        if ($this->adminContext) {
+        if (Application::backend()) {
             return;
         }
 
@@ -73,7 +74,7 @@ class Courses extends ListModel
     /**
      * @inheritDoc
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
         /* @var QueryMySQLi $query */
@@ -107,7 +108,7 @@ class Courses extends ListModel
 
         $this->setSearchFilter($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 
-        if ($this->adminContext) {
+        if (Application::backend()) {
             $organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
             $query->where("u.organizationID in ($organizationIDs)");
         }
@@ -115,7 +116,7 @@ class Courses extends ListModel
         $params      = Input::getParams();
         $preparatory = ($params->get('onlyPrepCourses') or Input::getBool('preparatory'));
 
-        if (!$this->adminContext and $preparatory) {
+        if (!Application::backend() and $preparatory) {
             $query->where('e.preparatory = 1');
         } else {
             $this->setValueFilters($query, ['c.termID']);
@@ -134,11 +135,11 @@ class Courses extends ListModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             $params = Input::getParams();
 
             if ($campusID = $params->get('campusID')) {

@@ -17,13 +17,13 @@ use THM\Organizer\Adapters\{Text, Toolbar};
  */
 class ProgramEdit extends EditView
 {
-    protected $layout = 'tabs';
+    protected string $layout = 'tabs';
 
     /**
      * Method to generate buttons for user interaction
      * @return void
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         if ($this->item->id) {
             $apply  = 'ORGANIZER_APPLY';

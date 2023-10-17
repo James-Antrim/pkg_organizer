@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Models;
 
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 
 /**
@@ -17,7 +18,7 @@ use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
  */
 class Participants extends ListModel
 {
-    protected $defaultOrdering = 'fullName';
+    protected string $defaultOrdering = 'fullName';
 
     protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
@@ -28,7 +29,7 @@ class Participants extends ListModel
     {
         parent::__construct($config);
 
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             $this->defaultLimit = 0;
         }
     }
@@ -36,7 +37,7 @@ class Participants extends ListModel
     /**
      * @inheritDoc
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
         /* @var QueryMySQLi $query */
@@ -109,7 +110,7 @@ class Participants extends ListModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 

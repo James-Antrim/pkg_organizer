@@ -19,13 +19,13 @@ class PoolEdit extends EditView
 {
     use Subordinate;
 
-    protected $layout = 'tabs';
+    protected string $layout = 'tabs';
 
     /**
      * Method to generate buttons for user interaction
      * @return void
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         if ($this->item->id) {
             $apply  = 'ORGANIZER_APPLY';

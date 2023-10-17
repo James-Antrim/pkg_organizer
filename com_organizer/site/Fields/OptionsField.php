@@ -11,7 +11,6 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\Application;
 use THM\Organizer\Helpers;
 use SimpleXMLElement;
 use stdClass;
@@ -23,13 +22,11 @@ class OptionsField extends FormField
 {
     use Translated;
 
-    protected $adminContext;
-
     /**
      * Cached array of the category items.
      * @var    array
      */
-    public $options = [];
+    public array $options = [];
 
     /**
      * Method to get certain otherwise inaccessible properties from the form field object.
@@ -83,8 +80,6 @@ class OptionsField extends FormField
      */
     protected function getInput(): string
     {
-        $this->adminContext = Application::getApplication()->isClient('administrator');
-
         $attr = '';
 
         // Check for previous initialization using the dependent trait. Set before other attributes to allow options to
@@ -158,7 +153,7 @@ class OptionsField extends FormField
             $option->value = (string) $optionTag['value'];
 
             $text         = trim((string) $optionTag) != '' ? trim((string) $optionTag) : $option->value;
-            $text         = strpos($text, 'ORGANIZER_') === 0 ? $text : "ORGANIZER_$text";
+            $text         = str_starts_with($text, 'ORGANIZER_') ? $text : "ORGANIZER_$text";
             $option->text = Helpers\Languages::alt($text, $fieldName);
 
             $option->class = (string) $optionTag['class'];
@@ -183,8 +178,6 @@ class OptionsField extends FormField
             // Add the option object to the result set.
             $options[] = $option;
         }
-
-        reset($options);
 
         return $options;
     }

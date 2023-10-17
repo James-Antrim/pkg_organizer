@@ -10,6 +10,8 @@
 
 namespace THM\Organizer\Views\XLS;
 
+use JetBrains\PhpStorm\NoReturn;
+
 /**
  * Class instantiates and renders an XLS File with the room statistics.
  */
@@ -20,12 +22,13 @@ class RoomStatistics extends BaseView
     /**
      * Sets context variables and renders the view.
      *
-     * @param string $tpl The name of the template file to parse; automatically searches through the template paths.
+     * @param string|null $tpl The name of the template file to parse; automatically searches through the template
+     *                         paths.
      *
      * @return void
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function display($tpl = null)
+    #[NoReturn] public function display(string $tpl = null): void
     {
         $model = $this->getModel();
 

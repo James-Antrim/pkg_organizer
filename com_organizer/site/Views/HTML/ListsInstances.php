@@ -11,14 +11,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\Can;
-use THM\Organizer\Helpers\Dates;
+use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Roles, Users};
 use THM\Organizer\Helpers\HTML;
-use THM\Organizer\Helpers\Instances as Helper;
-use THM\Organizer\Helpers\Roles;
 use THM\Organizer\Helpers\Routing;
-use THM\Organizer\Helpers\Users;
 use stdClass;
 
 trait ListsInstances
@@ -37,7 +33,7 @@ trait ListsInstances
      *
      * @return void
      */
-    private function addResources(array &$index, stdClass $instance)
+    private function addResources(array &$index, stdClass $instance): void
     {
         $index['persons'] = $instance->persons;
         $index['groups']  = $instance->groups;
@@ -57,7 +53,7 @@ trait ListsInstances
      *
      * @return void
      */
-    private function findTool(string $pattern, int $key, string &$text, array &$tools, string $URL, string $link)
+    private function findTool(string $pattern, int $key, string &$text, array &$tools, string $URL, string $link): void
     {
         if (preg_match($pattern, $text, $matches)) {
             $tools[] = str_replace('URL', $URL . $matches[$key], $link);
@@ -165,7 +161,7 @@ trait ListsInstances
      *
      * @return array|string an icon representing the status of the instance, empty if the status is irrelevant
      */
-    private function getToolsColumn(stdClass $instance, int $index)
+    private function getToolsColumn(stdClass $instance, int $index): array|string
     {
         $class      = 'status-display hasToolTip';
         $instanceID = $instance->instanceID;
@@ -193,7 +189,7 @@ trait ListsInstances
         }
 
         if ($userID) {
-            if ($this->mobile) {
+            if (Application::mobile()) {
                 $buttons = [];
 
                 if ($instance->manageable) {
@@ -394,7 +390,7 @@ trait ListsInstances
      *
      * @return void
      */
-    private function setDerived(array $instances)
+    private function setDerived(array $instances): void
     {
         foreach ($instances as $instance) {
             $this->setSingle($instance);
@@ -409,7 +405,7 @@ trait ListsInstances
      *
      * @return void
      */
-    private function setResources(stdClass $instance)
+    private function setResources(stdClass $instance): void
     {
         $instance->groups   = '';
         $instance->persons  = '';
@@ -540,7 +536,7 @@ trait ListsInstances
      *
      * @return void
      */
-    private function setSingle(stdClass $instance)
+    private function setSingle(stdClass $instance): void
     {
         $now    = date('H:i');
         $today  = date('Y-m-d');

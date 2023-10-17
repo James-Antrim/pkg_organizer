@@ -12,6 +12,7 @@ namespace THM\Organizer\Models;
 
 use THM\Organizer\Adapters\{Application, Database, Text};
 use THM\Organizer\Helpers;
+use THM\Organizer\Tables\Methods;
 use THM\Organizer\Views\HTML\Statistics as View;
 
 /**
@@ -23,7 +24,7 @@ class Statistics extends FormModel
      * Authorizes the user.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         //Public access
     }
@@ -36,7 +37,7 @@ class Statistics extends FormModel
      *
      * @return void
      */
-    private function fillMethodUse(array &$grid, array $instances)
+    private function fillMethodUse(array &$grid, array $instances): void
     {
         $state          = $this->state;
         $categoryID     = $state->get('conditions.categoryID');
@@ -104,7 +105,7 @@ class Statistics extends FormModel
      *
      * @return void
      */
-    private function fillPresenceUse(array &$grid, array $instances)
+    private function fillPresenceUse(array &$grid, array $instances): void
     {
         $state          = $this->state;
         $categoryID     = $state->get('conditions.categoryID');
@@ -192,7 +193,7 @@ class Statistics extends FormModel
      *
      * @return void
      */
-    private function fillRegistrations(array &$grid, array $instances)
+    private function fillRegistrations(array &$grid, array $instances): void
     {
         $state          = $this->state;
         $categoryID     = $state->get('conditions.categoryID');
@@ -215,9 +216,9 @@ class Statistics extends FormModel
 
             $monday       = date('Y-m-d', strtotime('monday this week', strtotime($instance['date'])));
             $attended     = Helpers\Instances::getAttended($instanceID);
-            $noShows      = ($registrations - $attendence) > 0 ? ($registrations - $attendence) : 0;
+            $noShows      = max(($registrations - $attendence), 0);
             $registered   = Helpers\Instances::getRegistered($instanceID);
-            $unregistered = ($attendence - $registrations) > 0 ? ($attendence - $registrations) : 0;
+            $unregistered = max(($attendence - $registrations), 0);
             $uniqueKey    = "{$instance['unitID']}-{$instance['blockID']}";
             $updateUnique = false;
 
@@ -280,7 +281,7 @@ class Statistics extends FormModel
      *
      * @return void
      */
-    private function fillTypeUse(array &$grid, array $instances)
+    private function fillTypeUse(array &$grid, array $instances): void
     {
         $state          = $this->state;
         $categoryID     = $state->get('conditions.categoryID');
@@ -334,7 +335,7 @@ class Statistics extends FormModel
      *
      * @return void
      */
-    private function filterUnused(array &$grid, array $columnKeys, array $usedMondays, array $usedResources)
+    private function filterUnused(array &$grid, array $columnKeys, array $usedMondays, array $usedResources): void
     {
         // Unused Rows
         foreach (array_diff(array_keys($grid), $usedMondays) as $unusedMonday) {
@@ -438,7 +439,7 @@ class Statistics extends FormModel
         $statistic = (int) $state->get('conditions.statistic');
 
         if ($statistic === View::PRESENCE_USE or $statistic === View::REGISTRATIONS) {
-            $finals = new \Organizer\Tables\Methods();
+            $finals = new Methods();
             $finals->load(['code' => 'KLA']);
             $now   = date('H:i:s');
             $today = date('Y-m-d');
@@ -651,10 +652,9 @@ class Statistics extends FormModel
      * Method to auto-populate the model state.
      * @return void
      */
-    protected function populateState()
+    protected function populateState(): void
     {
-        $app        = Application::getApplication();
-        $conditions = $app->getUserStateFromRequest($this->context . '.conditions', 'jform', [], 'array');
+        $conditions = Application::getUserRequestState($this->context . '.conditions', 'jform', [], 'array');
         foreach ($conditions as $input => $value) {
             $this->setState("conditions.$input", $value);
         }

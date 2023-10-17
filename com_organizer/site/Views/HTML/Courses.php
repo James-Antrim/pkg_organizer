@@ -19,9 +19,9 @@ use THM\Organizer\Helpers;
  */
 class Courses extends ListView
 {
-    private $preparatory;
+    private bool $preparatory;
 
-    private $manages = false;
+    private bool $manages = false;
 
     /**
      * @inheritdoc
@@ -47,15 +47,15 @@ class Courses extends ListView
 
         $this->rowStructure = $structure;
 
-        $getPrep           = Input::getBool('preparatory', false);
-        $menuPrep          = Input::getBool('onlyPrepCourses', false);
+        $getPrep           = Input::getBool('preparatory');
+        $menuPrep          = Input::getBool('onlyPrepCourses');
         $this->preparatory = ($getPrep or $menuPrep);
     }
 
     /**
      * @inheritDoc
      */
-    protected function addSupplement()
+    protected function addSupplement(): void
     {
         $this->supplement = '';
 
@@ -74,10 +74,10 @@ class Courses extends ListView
     /**
      * @inheritDoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $resourceName = '';
-        if (!$this->adminContext and $this->preparatory) {
+        if (!Application::backend() and $this->preparatory) {
             $resourceName .= Text::_('ORGANIZER_PREP_COURSES');
             if ($campusID = $this->state->get('filter.campusID', 0)) {
                 $resourceName .= ' ' . Text::_('ORGANIZER_CAMPUS') . ' ' . Helpers\Campuses::getName($campusID);
@@ -88,7 +88,7 @@ class Courses extends ListView
 
         if (Helpers\Users::getID()) {
             $toolbar = Toolbar::getInstance();
-            if (!$this->adminContext and !$this->manages) {
+            if (!Application::backend() and !$this->manages) {
                 if (Helpers\Participants::exists()) {
                     $toolbar->appendButton(
                         'Standard',
@@ -133,9 +133,9 @@ class Courses extends ListView
     /**
      * @inheritDoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             return;
         }
 
@@ -147,7 +147,7 @@ class Courses extends ListView
     /**
      * @inheritDoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $params = Input::getParams();
 
@@ -161,7 +161,7 @@ class Courses extends ListView
     /**
      * @inheritDoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -193,10 +193,10 @@ class Courses extends ListView
     /**
      * @inheritDoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $url = Uri::base() . '?option=com_organizer';
-        $url .= $this->adminContext ? '&view=course_edit&id=' : '&view=course_item&id=';
+        $url .= Application::backend() ? '&view=course_edit&id=' : '&view=course_item&id=';
 
         $structuredItems = [];
 
@@ -206,7 +206,7 @@ class Courses extends ListView
         foreach ($this->items as $course) {
             $campusID   = (int) $course->campusID;
             $campusName = Helpers\Campuses::getName($campusID);
-            $pin        = $this->adminContext ? '' : ' ' . Helpers\Campuses::getPin($campusID);
+            $pin        = Application::backend() ? '' : ' ' . Helpers\Campuses::getPin($campusID);
 
             $course->campus = $campusName . $pin;
 

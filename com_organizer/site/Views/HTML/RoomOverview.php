@@ -21,16 +21,16 @@ class RoomOverview extends TableView
 {
     private const WEEK = 2, LAB = 14, UNKNOWN = 49;
 
-    private $grid = null;
+    private array $grid;
 
     /**
      * Adds a toolbar and title to the view.
      * @return void  sets context variables
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         $resourceName = Text::_('ORGANIZER_ROOM_OVERVIEW');
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             if ($campusID = Input::getInt('campusID')) {
                 $resourceName .= ': ' . Text::_('ORGANIZER_CAMPUS');
                 $resourceName .= ' ' . Helpers\Campuses::getName($campusID);
@@ -119,7 +119,6 @@ class RoomOverview extends TableView
             }
         }
 
-        $blocks     = [];
         $labelIndex = 'label_' . Application::getTag();
 
         foreach ($grid['periods'] as $number => $data) {
@@ -243,8 +242,7 @@ class RoomOverview extends TableView
 
         $instances = $data['instances'];
 
-        $relevantInstances = 0;
-        $tips              = [];
+        $tips = [];
 
         foreach ($instances as $instance) {
             if (!$noGrid) {
@@ -295,7 +293,6 @@ class RoomOverview extends TableView
 
             $tip          .= '</div>';
             $tips[$index] = $tip;
-            $relevantInstances++;
         }
 
         $cell['text'] = '';
@@ -328,7 +325,7 @@ class RoomOverview extends TableView
      * Sets the table header information
      * @return void sets the headers property
      */
-    protected function setHeaders()
+    protected function setHeaders(): void
     {
         $date     = $this->state->get('list.date');
         $headers  = [];
@@ -360,7 +357,7 @@ class RoomOverview extends TableView
      * Function to set attributes unique to individual tables.
      * @return void sets attributes specific to individual tables
      */
-    protected function setOverrides()
+    protected function setOverrides(): void
     {
         if (!$gridID = $this->state->get('list.gridID') and $campusID = Input::getParams()->get('campusID')) {
             $gridID = Helpers\Campuses::getGridID($campusID);

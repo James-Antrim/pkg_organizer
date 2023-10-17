@@ -22,8 +22,6 @@ class FormModel extends ParentModel
 {
     use Named;
 
-    public $mobile = false;
-
     /**
      * @inheritDoc
      */
@@ -31,7 +29,6 @@ class FormModel extends ParentModel
     {
         parent::__construct($config);
 
-        $this->mobile = Application::mobile();
         $this->setContext();
     }
 
@@ -39,7 +36,7 @@ class FormModel extends ParentModel
      * Provides a strict access check which can be overwritten by extending classes.
      * @return void performs error management via redirects as appropriate
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::administrate()) {
             Application::error(403);
@@ -49,7 +46,7 @@ class FormModel extends ParentModel
     /**
      * Filters out form inputs which should not be displayed due to previous selections.
      *
-     * @param   Form  $form  the form to be filtered
+     * @param Form $form the form to be filtered
      *
      * @return void modifies $form
      */
@@ -78,11 +75,10 @@ class FormModel extends ParentModel
     /**
      * @inheritDoc
      */
-    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = '')
+    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = ''): Form
     {
         Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
         Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
-
 
         if ($form = parent::loadForm($name, $source, $options, $clear, $xpath)) {
             $this->filterForm($form);

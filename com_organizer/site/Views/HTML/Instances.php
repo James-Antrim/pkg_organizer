@@ -15,9 +15,8 @@ use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
 use THM\Organizer\Buttons;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Dates;
-use THM\Organizer\Helpers\HTML;
-use THM\Organizer\Helpers\Instances as Helper;
+use THM\Organizer\Helpers\{Dates, HTML, Instances as Helper};
+use THM\Organizer\Models\Instances as Model;
 use stdClass;
 
 /**
@@ -36,11 +35,6 @@ class Instances extends ListView
     private array $courses = [];
 
     private bool $expired = true;
-
-    /**
-     * @var \Organizer\Models\Instances
-     */
-    protected $model;
 
     public bool $noInstances = true;
 
@@ -69,12 +63,14 @@ class Instances extends ListView
      * Adds supplemental information to the display output.
      * @return void modifies the object property supplement
      */
-    protected function addSupplement()
+    protected function addSupplement(): void
     {
         if ($this->noInstances) {
             $supplement = '<div class="tbox-yellow">';
 
-            if (!$this->model->noDate and $dates = Helper::getJumpDates($this->model->conditions)) {
+            /** @var Model $model */
+            $model = $this->model;
+            if (!$model->noDate and $dates = Helper::getJumpDates($model->conditions)) {
                 $supplement .= Text::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
                 $supplement .= '<ul><li>';
 
@@ -109,7 +105,7 @@ class Instances extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle($this->get('title'));
         $toolbar  = Toolbar::getInstance();
@@ -119,11 +115,13 @@ class Instances extends ListView
         $standard = new StandardButton();
         $expURL   = Helpers\Routing::getViewURL('export');
 
-        if ($this->mobile) {
+        if (Application::mobile()) {
             $toolbar->appendButton('Script', 'info-calender', Text::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');
             $toolbar->appendButton('Link', 'equalizer', Text::_('ORGANIZER_ADVANCED_EXPORT'), $expURL);
         } else {
-            if (Helpers\Users::getID() and $this->model->layout === Helper::LIST) {
+            /** @var Model $model */
+            $model = $this->model;
+            if (Helpers\Users::getID() and $model->layout === Helper::LIST) {
                 if (!$this->expired and !$this->teachesALL) {
                     $add    = $standard->fetchButton(
                         'Standard',
@@ -182,28 +180,14 @@ class Instances extends ListView
                 }
             }
 
-            switch ((string) $this->state->get('list.interval')) {
-                case 'half':
-                    $interval = Text::_('ORGANIZER_HALF_YEAR');
-                    break;
-                case 'month':
-                    $interval = Text::_('ORGANIZER_SELECTED_MONTH');
-                    break;
-                case 'quarter':
-                    $interval = Text::_('ORGANIZER_QUARTER');
-                    break;
-                case 'term':
-                    $interval = Text::_('ORGANIZER_SELECTED_TERM');
-                    break;
-                case 'week':
-                    $interval = Text::_('ORGANIZER_SELECTED_WEEK');
-                    break;
-                case 'day':
-                case '0':
-                default:
-                    $interval = Text::_('ORGANIZER_SELECTED_DAY');
-                    break;
-            }
+            $interval = match ((string) $this->state->get('list.interval')) {
+                'half' => Text::_('ORGANIZER_HALF_YEAR'),
+                'month' => Text::_('ORGANIZER_SELECTED_MONTH'),
+                'quarter' => Text::_('ORGANIZER_QUARTER'),
+                'term' => Text::_('ORGANIZER_SELECTED_TERM'),
+                'week' => Text::_('ORGANIZER_SELECTED_WEEK'),
+                default => Text::_('ORGANIZER_SELECTED_DAY'),
+            };
 
             $icsText     = Text::_('ORGANIZER_ICS_URL');
             $icsButton   = $script->fetchButton('Script', 'info-calender', $icsText, 'onclick', 'makeLink()');
@@ -234,9 +218,9 @@ class Instances extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if ($this->adminContext) {
+        if (Application::backend()) {
             if (!$this->manages = (bool) Helpers\Can::scheduleTheseOrganizations()) {
                 Application::error(403);
             }
@@ -256,7 +240,7 @@ class Instances extends ListView
     /**
      * @inheritDoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $this->empty = '';
 
@@ -307,9 +291,11 @@ class Instances extends ListView
      */
     private function getGrid(array $blocks, array &$headers, bool $allDay): array
     {
-        $conditions = $this->model->conditions;
-        $holidays   = $this->model->holidays;
-        $rawGrid    = $this->model->grid;
+        /** @var Model $model */
+        $model      = $this->model;
+        $conditions = $model->conditions;
+        $holidays   = $model->holidays;
+        $rawGrid    = $model->grid;
 
         $endDate   = $conditions['endDate'];
         $endDoW    = empty($rawGrid['endDay']) ? 6 : $rawGrid['endDay'];
@@ -390,7 +376,7 @@ class Instances extends ListView
      *
      * @return void
      */
-    private function fillGrid(array &$grid)
+    private function fillGrid(array &$grid): void
     {
         foreach ($this->items as $item) {
             $cClass = 'grid-item';
@@ -583,11 +569,13 @@ class Instances extends ListView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
-        $state = $this->model->getState();
+        /** @var Model $model */
+        $model = $this->model;
+        $state = $model->getState();
         $url   = '';
 
         $fields = [
@@ -650,7 +638,7 @@ class Instances extends ListView
         Document::addScript(Uri::root() . 'components/com_organizer/js/ics.js');
         Document::addScript(Uri::root() . 'components/com_organizer/js/jump.js');
 
-        if ($this->model->layout === Helper::GRID) {
+        if ($model->layout === Helper::GRID) {
             Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/grid.css');
         }
     }
@@ -658,7 +646,7 @@ class Instances extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $this->headers = [
             'tools' => '',
@@ -669,7 +657,7 @@ class Instances extends ListView
             'rooms' => Text::_('ORGANIZER_ROOMS')
         ];
 
-        if (Helpers\Users::getID() and !$this->mobile) {
+        if (Helpers\Users::getID() and !Application::mobile()) {
             $this->headers['tools'] = HTML::_('grid.checkall');
         }
     }
@@ -677,7 +665,7 @@ class Instances extends ListView
     /**
      * @inheritDoc
      */
-    protected function setSubtitle()
+    protected function setSubtitle(): void
     {
         if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {
             $date           = $this->state->get('list.date');
@@ -691,12 +679,14 @@ class Instances extends ListView
      * Structures the instances to be presented in a weekly/daily plan (grid).
      * @return void
      */
-    private function structureGrid()
+    private function structureGrid(): void
     {
-        $this->filterForm->setValue('gridID', 'list', $this->model->gridID);
+        /** @var Model $model */
+        $model = $this->model;
+        $this->filterForm->setValue('gridID', 'list', $model->gridID);
 
         $allDay  = false;
-        $rawGrid = $this->model->grid;
+        $rawGrid = $model->grid;
         $blocks  = $this->getBlocks($rawGrid['periods'], $allDay);
 
         $headers = $allDay ? [] : ['times' => Text::_('ORGANIZER_TIMES')];
@@ -722,14 +712,16 @@ class Instances extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         if (!empty($this->items)) {
             $this->noInstances = false;
             $this->setDerived($this->items);
         }
 
-        if ($this->model->layout === Helper::GRID) {
+        /** @var Model $model */
+        $model = $this->model;
+        if ($model->layout === Helper::GRID) {
 
             // Prevent setting the grid id without having the context from items at least once
             if (empty($this->items)) {
@@ -750,7 +742,7 @@ class Instances extends ListView
      * Structures the instances to be presented in a list/html table.
      * @return void
      */
-    private function structureList()
+    private function structureList(): void
     {
         $index     = 0;
         $listItems = [];

@@ -9,21 +9,21 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Toolbar};
+use THM\Organizer\Adapters\{Application, Input, Toolbar};
 use THM\Organizer\Helpers;
 
 $action = Uri::base() . '?' . Uri::getInstance()->getQuery();
 $oClass = "form-$this->orientation";
 $layout = Input::getCMD('type', 'appointment');
 
-if (!$this->adminContext) {
+if (!Application::backend()) {
     echo $this->title;
     echo $this->subtitle;
     echo $this->supplement;
 }
 ?>
 <div id="j-main-container" class="span10">
-    <?php if (!$this->adminContext): ?>
+    <?php if (!Application::backend()): ?>
         <?php echo Toolbar::getInstance()->render(); ?>
     <?php endif; ?>
     <form action="<?php echo $action; ?>" id="adminForm" method="post" name="adminForm" enctype="multipart/form-data"

@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
-use THM\Organizer\Adapters\{Document, Text, Toolbar};
+use THM\Organizer\Adapters\{Document, Form, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -23,23 +23,18 @@ class Statistics extends FormView
 {
     public const METHOD_USE = 1, PLANNED_PRESENCE_TYPE = 2, PRESENCE_USE = 3, REGISTRATIONS = 4;
 
-    public $filterForm;
+    public Form $filterForm;
 
-    public $grid;
+    public array $grid;
 
-    protected $layout = 'statistics-wrapper';
+    protected string $layout = 'statistics-wrapper';
 
-    /**
-     * @var Registry
-     */
-    public $state;
-
-    public $statistic;
+    public Registry $state;
 
     /**
      * @inheritDoc
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
         $this->setTitle('ORGANIZER_STATISTICS');
         $toolbar = Toolbar::getInstance();
@@ -53,13 +48,9 @@ class Statistics extends FormView
     }
 
     /**
-     * Execute and display a template script.
-     *
-     * @param string $tpl The name of the template file to parse; automatically searches through the template paths.
-     *
-     * @return void sets context variables and uses the parent's display method
+     * @inheritdoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $this->state = $this->get('State');
         $this->form  = $this->get('Form');
@@ -76,7 +67,7 @@ class Statistics extends FormView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         BaseView::modifyDocument();
 
@@ -88,7 +79,7 @@ class Statistics extends FormView
      * Adds a text describing the selected layout as a subtitle.
      * @return void modifies the course
      */
-    protected function setSubtitle()
+    protected function setSubtitle(): void
     {
         $termID    = $this->state->get('conditions.termID');
         $endDate   = Helpers\Terms::getEndDate($termID);
@@ -96,23 +87,13 @@ class Statistics extends FormView
         $startDate = Helpers\Terms::getStartDate($termID);
         $startDate = Helpers\Dates::formatDate($startDate);
 
-        switch ($this->state->get('conditions.statistic')) {
-            case self::REGISTRATIONS:
-                $text = Text::sprintf('ORGANIZER_REGISTRATIONS_DESC', $startDate, $endDate);
-                break;
-            case self::METHOD_USE:
-                $text = Text::sprintf('ORGANIZER_METHOD_USE_DESC', $startDate, $endDate);
-                break;
-            case self::PLANNED_PRESENCE_TYPE:
-                $text = Text::sprintf('ORGANIZER_PLANNED_PRESENCE_TYPE_DESC', $startDate, $endDate);
-                break;
-            case self::PRESENCE_USE:
-                $text = Text::sprintf('ORGANIZER_PRESENCE_USE_DESC', $startDate, $endDate);
-                break;
-            default:
-                $text = '';
-                break;
-        }
+        $text = match ($this->state->get('conditions.statistic')) {
+            self::REGISTRATIONS => Text::sprintf('ORGANIZER_REGISTRATIONS_DESC', $startDate, $endDate),
+            self::METHOD_USE => Text::sprintf('ORGANIZER_METHOD_USE_DESC', $startDate, $endDate),
+            self::PLANNED_PRESENCE_TYPE => Text::sprintf('ORGANIZER_PLANNED_PRESENCE_TYPE_DESC', $startDate, $endDate),
+            self::PRESENCE_USE => Text::sprintf('ORGANIZER_PRESENCE_USE_DESC', $startDate, $endDate),
+            default => '',
+        };
 
         $this->subtitle = $text ? "<h4>$text</h4>" : $text;
     }

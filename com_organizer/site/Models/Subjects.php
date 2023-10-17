@@ -11,6 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
@@ -31,7 +32,7 @@ class Subjects extends ListModel
     /**
      * @inheritDoc
      */
-    public function filterFilterForm(Form $form)
+    public function filterFilterForm(Form $form): void
     {
         parent::filterFilterForm($form);
         if (!empty($this->state->get('calledProgramID')) or !empty($this->state->get('calledPoolID'))) {
@@ -45,7 +46,7 @@ class Subjects extends ListModel
             $form->removeField('limit', 'list');
             $form->removeField('personID', 'filter');
             unset($this->filter_fields['organizationID'], $this->filter_fields['personID']);
-        } elseif ($this->adminContext) {
+        } elseif (Application::backend()) {
             if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
@@ -76,7 +77,7 @@ class Subjects extends ListModel
     /**
      * @inheritDoc
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
 
@@ -135,7 +136,7 @@ class Subjects extends ListModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 
@@ -148,7 +149,7 @@ class Subjects extends ListModel
 
         $organizationID = Input::getFilterID('organization', self::ALL);
 
-        if ($this->adminContext) {
+        if (Application::backend()) {
             $authorized = Helpers\Can::documentTheseOrganizations();
             if (count($authorized) === 1) {
                 $organizationID = $authorized[0];

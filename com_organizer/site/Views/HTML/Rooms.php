@@ -29,7 +29,7 @@ class Rooms extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $title = Text::_('ORGANIZER_ROOMS');
 
@@ -57,9 +57,9 @@ class Rooms extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if ($this->adminContext and !Helpers\Can::manage('facilities')) {
+        if (Application::backend() and !Helpers\Can::manage('facilities')) {
             Application::error(403);
         }
     }
@@ -67,7 +67,7 @@ class Rooms extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -85,7 +85,7 @@ class Rooms extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $link            = 'index.php?option=com_organizer&view=room_edit&id=';

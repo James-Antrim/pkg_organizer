@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\XLS;
 use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\Exported;
-use THM\Organizer\Models\Instances as Model;
+use THM\Organizer\Models\BaseModel;
 
 /**
  * Class creates a XLS file for the display of the filtered schedule information.
@@ -29,17 +29,14 @@ class Instances extends ListView
 
     public array $rooms = [];
 
-    /**
-     * @var Model
-     */
-    public $model;
+    public BaseModel $model;
 
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
-        if ($this->adminContext and !Helpers\Can::scheduleTheseOrganizations()) {
+        if (Application::backend() and !Helpers\Can::scheduleTheseOrganizations()) {
             Application::error(403);
         }
 
@@ -58,7 +55,7 @@ class Instances extends ListView
      *
      * @return void
      */
-    private function filterResources(string $key, array &$persons, int $personID, array &$container)
+    private function filterResources(string $key, array &$persons, int $personID, array &$container): void
     {
         $person =& $persons[$personID];
 
@@ -142,7 +139,7 @@ class Instances extends ListView
     /**
      * @inheritDoc
      */
-    protected function setHeaders()
+    protected function setHeaders(): void
     {
         $this->headers = [
             'date' => [
@@ -195,7 +192,7 @@ class Instances extends ListView
     /**
      * @inheritDoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $conditions = $this->model->conditions;
 

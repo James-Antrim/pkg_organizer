@@ -18,14 +18,14 @@ use THM\Organizer\Adapters\{Document, Text, Toolbar};
  */
 class PoolSelection extends PoolsView
 {
-    protected $layout = 'list_modal';
+    protected string $layout = 'list_modal';
 
     protected $rowStructure = ['checkbox' => '', 'name' => 'value', 'programID' => 'value'];
 
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'x', true);
@@ -34,7 +34,7 @@ class PoolSelection extends PoolsView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 

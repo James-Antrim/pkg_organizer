@@ -13,47 +13,41 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\Registry\Registry;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\Document;
+use THM\Organizer\Adapters\Form;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
  */
 abstract class TableView extends BaseView
 {
-    protected $layout = 'table';
+    protected string $layout = 'table';
 
-    public $activeFilters = null;
+    public array $activeFilters;
 
-    public $columnCount = 0;
+    public int $columnCount = 0;
 
-    public $filterForm = null;
+    public Form $filterForm;
 
-    public $headers = null;
+    public array $headers;
 
-    public $labelCount = 1;
+    public int $labelCount = 1;
 
     public $pagination = null;
 
-    public $rows = null;
+    public array $rows;
 
-    /**
-     * @var Registry
-     */
-    public $state = null;
+    public Registry $state;
 
     /**
      * Adds a toolbar and title to the view.
      * @return void  sets context variables
      */
-    abstract protected function addToolBar();
+    abstract protected function addToolBar(): void;
 
     /**
-     * Method to create a list output
-     *
-     * @param string $tpl The name of the template file to parse; automatically searches through the template paths.
-     *
-     * @return void
+     * @inheritdoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $this->state         = $this->get('State');
         $this->filterForm    = $this->get('FilterForm');
@@ -127,7 +121,7 @@ abstract class TableView extends BaseView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
@@ -138,7 +132,7 @@ abstract class TableView extends BaseView
      * Generates the HTML output for the table headers.
      * @return void outputs HTML
      */
-    public function renderHeaders()
+    public function renderHeaders(): void
     {
         $levelOne = '';
         $levelTwo = '';
@@ -178,7 +172,7 @@ abstract class TableView extends BaseView
      * Generates the HTML output for the individual rows.
      * @return void outputs HTML
      */
-    public function renderRows()
+    public function renderRows(): void
     {
         $columnClass = "class=\"columns-$this->columnCount\"";
 
@@ -199,13 +193,13 @@ abstract class TableView extends BaseView
      * Sets the table header information
      * @return void sets the headers property
      */
-    abstract protected function setHeaders();
+    abstract protected function setHeaders(): void;
 
     /**
      * Sets class properties of inheriting views necessary for individualized table definitions.
      * @return void sets properties of inheriting classes
      */
-    abstract protected function setOverrides();
+    abstract protected function setOverrides(): void;
 
     /**
      * Processes the resources for display in rows.
@@ -214,7 +208,7 @@ abstract class TableView extends BaseView
      *
      * @return void processes the class rows property
      */
-    protected function setRows(array $resources)
+    protected function setRows(array $resources): void
     {
         $rows = [];
 

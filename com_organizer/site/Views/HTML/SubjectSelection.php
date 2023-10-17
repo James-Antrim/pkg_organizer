@@ -19,12 +19,12 @@ use THM\Organizer\Helpers;
  */
 class SubjectSelection extends ListView
 {
-    protected $layout = 'list_modal';
+    protected string $layout = 'list_modal';
 
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'x', true);
@@ -33,7 +33,7 @@ class SubjectSelection extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::documentTheseOrganizations()) {
             Application::error(403);
@@ -43,7 +43,7 @@ class SubjectSelection extends ListView
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
@@ -53,7 +53,7 @@ class SubjectSelection extends ListView
     /**
      * @inheritdoc
      */
-    protected function setHeaders()
+    protected function setHeaders(): void
     {
         $direction = $this->state->get('list.direction');
         $ordering  = $this->state->get('list.ordering');
@@ -69,7 +69,7 @@ class SubjectSelection extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $structuredItems = [];

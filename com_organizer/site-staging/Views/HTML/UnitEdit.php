@@ -11,21 +11,24 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Text, Toolbar};
+use THM\Organizer\Models\UnitEdit as Model;
 
 /**
  * Class loads the grid form into display context.
  */
 class UnitEdit extends EditView
 {
-    public $orientation = 'vertical';
+    public string $orientation = 'vertical';
 
     /**
      * Method to generate buttons for user interaction
      * @return void
      */
-    protected function addToolBar()
+    protected function addToolBar(): void
     {
-        $model = $this->getModel();
+        /** @var Model $model */
+        $model       = $this->getModel();
+        $this->model = $model;
 
         $title = $model->my ? 'ORGANIZER_MANAGE_MY_UNIT' : 'ORGANIZER_UNIT_EDIT';
 

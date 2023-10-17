@@ -59,12 +59,11 @@ class Schedules extends ListModel
      *
      * @return void populates state properties
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 
-        $app     = Application::getApplication();
-        $filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
+        $filters = Application::getUserRequestState($this->context . '.filter', 'filter', [], 'array');
 
         if (!array_key_exists('active', $filters) or $filters['active'] === '') {
             $this->setState('filter.active', -1);

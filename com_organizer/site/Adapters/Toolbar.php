@@ -10,12 +10,14 @@
 
 namespace THM\Organizer\Adapters;
 
+use Exception;
 use JLoader;
 use Joomla\CMS\Filesystem\Path;
 use Joomla\CMS\Filter\InputFilter;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Toolbar\Toolbar as ParentClass;
 use Joomla\CMS\Toolbar\ToolbarButton;
+use Joomla\CMS\Toolbar\ToolbarHelper;
 use THM\Organizer\Helpers\OrganizerHelper;
 
 class Toolbar extends ParentClass
@@ -77,7 +79,7 @@ class Toolbar extends ParentClass
      * @inheritDoc
      * @return ToolbarButton|bool
      */
-    public function loadButtonType($type, $new = false)
+    public function loadButtonType($type, $new = false): ToolbarButton|bool
     {
         $signature = md5($type);
 
@@ -118,5 +120,37 @@ class Toolbar extends ParentClass
         $this->_buttons[$signature] = new $buttonClass($this);
 
         return $this->_buttons[$signature];
+    }
+
+    /**
+     * Render a toolbar. Wraps the parent class to avoid exception handling when the layout file is not found.
+     *
+     * @param array $options The options of toolbar.
+     *
+     * @return  string  HTML for the toolbar.
+     */
+    public function render(array $options = []): string
+    {
+        try {
+            return parent::render($options);
+        } catch (Exception $exception) {
+            Application::message($exception->getMessage(), Application::ERROR);
+            return '';
+        }
+    }
+
+    /**
+     * Sets the application (view) title to a pre-rendered title layout with the given text and optional icon. Also sets
+     * the document title.
+     *
+     * @param string $title the view title
+     * @param string $icon  the icon class name
+     *
+     * @return  void
+     * @see ToolbarHelper::title()
+     */
+    public static function setTitle(string $title, string $icon = ''): void
+    {
+        ToolbarHelper::title($title, $icon);
     }
 }

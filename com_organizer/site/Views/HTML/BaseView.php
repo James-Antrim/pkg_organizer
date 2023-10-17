@@ -11,11 +11,10 @@
 namespace THM\Organizer\Views\HTML;
 
 use JHtmlSidebar;
-use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, Input, Text};
+use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Routing;
 use THM\Organizer\Views\Named;
@@ -28,9 +27,7 @@ abstract class BaseView extends HtmlView
 {
     use Named;
 
-    public $adminContext;
-
-    public $disclaimer = '';
+    public string $disclaimer = '';
 
     public $form;
 
@@ -38,9 +35,7 @@ abstract class BaseView extends HtmlView
      * The name of the layout to use during rendering.
      * @var string
      */
-    protected $layout = 'default';
-
-    public $mobile = false;
+    protected string $layout = 'default';
 
     /**
      * Inheritance stems from BaseDatabaseModel, not BaseModel. BaseDatabaseModel is higher in the Joomla internal
@@ -48,35 +43,25 @@ abstract class BaseView extends HtmlView
      * classes of similar names.
      * @var BaseDatabaseModel
      */
-    protected $model;
+    protected BaseDatabaseModel $model;
 
-    public $refresh = 0;
+    public int $refresh = 0;
 
-    public $submenu = '';
+    public string $submenu = '';
 
-    public $subtitle = '';
+    public string $subtitle = '';
 
-    public $supplement = '';
+    public string $supplement = '';
 
-    public $title = '';
-
-    /**
-     * @inheritdoc
-     */
-    public function __construct($config = [])
-    {
-        parent::__construct($config);
-        $this->adminContext = Application::getApplication()->isClient('administrator');
-        $this->mobile       = Application::mobile();
-    }
+    public string $title = '';
 
     /**
      * Adds a legal disclaimer to the view.
      * @return void modifies the class property disclaimer
      */
-    protected function addDisclaimer()
+    protected function addDisclaimer(): void
     {
-        if ($this->adminContext) {
+        if (Application::backend()) {
             return;
         }
 
@@ -121,9 +106,9 @@ abstract class BaseView extends HtmlView
      * Adds the component menu to the view.
      * @return void
      */
-    protected function addMenu()
+    protected function addMenu(): void
     {
-        if (!$this->adminContext) {
+        if (!Application::backend()) {
             return;
         }
 
@@ -148,31 +133,31 @@ abstract class BaseView extends HtmlView
             $items = [];
 
             $items[Text::_('ORGANIZER_CATEGORIES')]      = [
-                'url'    => Routing::getViewURL('Categories'),
+                'url' => Routing::getViewURL('Categories'),
                 'active' => $viewName == 'categories'
             ];
             $items[Text::_('ORGANIZER_COURSES')]         = [
-                'url'    => Routing::getViewURL('Courses'),
+                'url' => Routing::getViewURL('Courses'),
                 'active' => $viewName == 'courses'
             ];
             $items[Text::_('ORGANIZER_COURSES_IMPORT')]  = [
-                'url'    => Routing::getViewURL('CoursesImport'),
+                'url' => Routing::getViewURL('CoursesImport'),
                 'active' => $viewName == 'courses_import'
             ];
             $items[Text::_('ORGANIZER_EVENT_TEMPLATES')] = [
-                'url'    => Routing::getViewURL('Events'),
+                'url' => Routing::getViewURL('Events'),
                 'active' => $viewName == 'events'
             ];
             $items[Text::_('ORGANIZER_GROUPS')]          = [
-                'url'    => Routing::getViewURL('Groups'),
+                'url' => Routing::getViewURL('Groups'),
                 'active' => $viewName == 'groups'
             ];
             $items[Text::_('ORGANIZER_SCHEDULES')]       = [
-                'url'    => Routing::getViewURL('Schedules'),
+                'url' => Routing::getViewURL('Schedules'),
                 'active' => $viewName == 'schedules'
             ];
             $items[Text::_('ORGANIZER_UNITS')]           = [
-                'url'    => Routing::getViewURL('Units'),
+                'url' => Routing::getViewURL('Units'),
                 'active' => $viewName == 'units'
             ];
 
@@ -181,7 +166,7 @@ abstract class BaseView extends HtmlView
             // Uploading a schedule should always be the first menu item and will never be the active submenu item.
             $prepend = [
                 Text::_('ORGANIZER_SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
-                    'url'    => Routing::getViewURL('ScheduleEdit'),
+                    'url' => Routing::getViewURL('ScheduleEdit'),
                     'active' => false
                 ]
             ];
@@ -203,19 +188,19 @@ abstract class BaseView extends HtmlView
             $items = [];
 
             $items[Text::_('ORGANIZER_FIELD_COLORS')] = [
-                'url'    => Routing::getViewURL('FieldColors'),
+                'url' => Routing::getViewURL('FieldColors'),
                 'active' => $viewName == 'field_colors'
             ];
             $items[Text::_('ORGANIZER_POOLS')]        = [
-                'url'    => Routing::getViewURL('Pools'),
+                'url' => Routing::getViewURL('Pools'),
                 'active' => $viewName == 'pools'
             ];
             $items[Text::_('ORGANIZER_PROGRAMS')]     = [
-                'url'    => Routing::getViewURL('Programs'),
+                'url' => Routing::getViewURL('Programs'),
                 'active' => $viewName == 'programs'
             ];
             $items[Text::_('ORGANIZER_SUBJECTS')]     = [
-                'url'    => Routing::getViewURL('Subjects'),
+                'url' => Routing::getViewURL('Subjects'),
                 'active' => $viewName == 'subjects'
             ];
             ksort($items);
@@ -246,23 +231,23 @@ abstract class BaseView extends HtmlView
             $items = [];
 
             $items[Text::_('ORGANIZER_BUILDINGS')]       = [
-                'url'    => Routing::getViewURL('Buildings'),
+                'url' => Routing::getViewURL('Buildings'),
                 'active' => $viewName == 'buildings'
             ];
             $items[Text::_('ORGANIZER_CAMPUSES')]        = [
-                'url'    => Routing::getViewURL('Campuses'),
+                'url' => Routing::getViewURL('Campuses'),
                 'active' => $viewName == 'campuses'
             ];
             $items[Text::_('ORGANIZER_CLEANING_GROUPS')] = [
-                'url'    => Routing::getViewURL('CleaningGroups'),
+                'url' => Routing::getViewURL('CleaningGroups'),
                 'active' => $viewName == 'cleaning_groups'
             ];
             $items[Text::_('ORGANIZER_MONITORS')]        = [
-                'url'    => Routing::getViewURL('Monitors'),
+                'url' => Routing::getViewURL('Monitors'),
                 'active' => $viewName == 'monitors'
             ];
             $items[Text::_('ORGANIZER_ROOMS')]           = [
-                'url'    => Routing::getViewURL('Rooms'),
+                'url' => Routing::getViewURL('Rooms'),
                 'active' => $viewName == 'rooms'
             ];
             /*$items[Text::_('ORGANIZER_ROOMS_IMPORT')] = [
@@ -270,11 +255,11 @@ abstract class BaseView extends HtmlView
                 'active' => $viewName == 'rooms_import'
             ];*/
             $items[Text::_('ORGANIZER_ROOMKEYS')]  = [
-                'url'    => Routing::getViewURL('Roomkeys'),
+                'url' => Routing::getViewURL('Roomkeys'),
                 'active' => $viewName == 'roomkeys'
             ];
             $items[Text::_('ORGANIZER_ROOMTYPES')] = [
-                'url'    => Routing::getViewURL('Roomtypes'),
+                'url' => Routing::getViewURL('Roomtypes'),
                 'active' => $viewName == 'roomtypes'
             ];
             ksort($items);
@@ -293,43 +278,43 @@ abstract class BaseView extends HtmlView
             $items = [];
 
             $items[Text::_('ORGANIZER_COLORS')]        = [
-                'url'    => Routing::getViewURL('Colors'),
+                'url' => Routing::getViewURL('Colors'),
                 'active' => $viewName == 'colors'
             ];
             $items[Text::_('ORGANIZER_DEGREES')]       = [
-                'url'    => Routing::getViewURL('Degrees'),
+                'url' => Routing::getViewURL('Degrees'),
                 'active' => $viewName == 'degrees'
             ];
             $items[Text::_('ORGANIZER_FIELDS')]        = [
-                'url'    => Routing::getViewURL('Fields'),
+                'url' => Routing::getViewURL('Fields'),
                 'active' => $viewName == 'fields'
             ];
             $items[Text::_('ORGANIZER_GRIDS')]         = [
-                'url'    => Routing::getViewURL('Grids'),
+                'url' => Routing::getViewURL('Grids'),
                 'active' => $viewName == 'grids'
             ];
             $items[Text::_('ORGANIZER_HOLIDAYS')]      = [
-                'url'    => Routing::getViewURL('Holidays'),
+                'url' => Routing::getViewURL('Holidays'),
                 'active' => $viewName == 'holidays'
             ];
             $items[Text::_('ORGANIZER_METHODS')]       = [
-                'url'    => Routing::getViewURL('Methods'),
+                'url' => Routing::getViewURL('Methods'),
                 'active' => $viewName == 'methods'
             ];
             $items[Text::_('ORGANIZER_ORGANIZATIONS')] = [
-                'url'    => Routing::getViewURL('Organizations'),
+                'url' => Routing::getViewURL('Organizations'),
                 'active' => $viewName == 'organizations'
             ];
             $items[Text::_('ORGANIZER_PARTICIPANTS')]  = [
-                'url'    => Routing::getViewURL('Participants'),
+                'url' => Routing::getViewURL('Participants'),
                 'active' => $viewName == 'participants'
             ];
             $items[Text::_('ORGANIZER_RUNS')]          = [
-                'url'    => Routing::getViewURL('Runs'),
+                'url' => Routing::getViewURL('Runs'),
                 'active' => $viewName == 'runs'
             ];
             $items[Text::_('ORGANIZER_TERMS')]         = [
-                'url'    => Routing::getViewURL('Terms'),
+                'url' => Routing::getViewURL('Terms'),
                 'active' => $viewName == 'terms'
             ];
             ksort($items);
@@ -355,7 +340,7 @@ abstract class BaseView extends HtmlView
      * Modifies document and adds scripts and styles.
      * @return void
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         Document::setCharset();
         Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/global.css');
@@ -406,14 +391,13 @@ abstract class BaseView extends HtmlView
     /**
      * Prepares the title for standard HTML output.
      *
-     * @param   string  $standard     the title to display
-     * @param   string  $conditional  the conditional title to display
+     * @param string $standard    the title to display
+     * @param string $conditional the conditional title to display
      *
      * @return void
      */
-    protected function setTitle(string $standard, string $conditional = '')
+    protected function setTitle(string $standard, string $conditional = ''): void
     {
-        $app    = Application::getApplication();
         $params = Input::getParams();
 
         if ($params->get('show_page_heading') and $params->get('page_title')) {
@@ -422,16 +406,12 @@ abstract class BaseView extends HtmlView
             $title = empty($conditional) ? Text::_($standard) : $conditional;
         }
 
-        $layout = new FileLayout('joomla.toolbar.title');
-        $title  = $layout->render(['title' => $title]);
-
         // Backend => Joomla standard title/toolbar output property declared dynamically by Joomla
-        /** @noinspection PhpUndefinedFieldInspection */
-        $app->JComponentTitle = $title;
+        Toolbar::setTitle($title);
 
         // Frontend => self developed title/toolbar output
         $this->title = $title;
 
-        Document::setTitle(strip_tags($title) . ' - ' . $app->get('sitename'));
+        Document::setTitle(strip_tags($title) . ' - ' . Application::getApplication()->get('sitename'));
     }
 }

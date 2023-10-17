@@ -11,7 +11,6 @@
 namespace THM\Organizer\Models;
 
 use JDatabaseQuery;
-use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Form\Form;
 use THM\Organizer\Adapters\{Application, Input, Queries\QueryMySQLi, Text};
 use THM\Organizer\Helpers;
@@ -26,7 +25,7 @@ class Instances extends ListModel
     private const MONDAY = 1, TUESDAY = 2, WEDNESDAY = 3, THURSDAY = 4, FRIDAY = 5, SATURDAY = 6, SUNDAY = 7;
 
     public array $conditions = [];
-    protected $defaultOrdering = 'name';
+    protected string $defaultOrdering = 'name';
     protected $filter_fields = [
         'campusID',
         'categoryID',
@@ -77,7 +76,7 @@ class Instances extends ListModel
             $form->removeField('limit', 'list');
         }
 
-        if ($this->adminContext) {
+        if (Application::backend()) {
             if (count(Helpers\Can::scheduleTheseOrganizations()) === 1) {
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
@@ -151,7 +150,7 @@ class Instances extends ListModel
             }
         }
 
-        if (!$this->adminContext and $this->mobile) {
+        if (!Application::backend() and Application::mobile()) {
             $form->removeField('limit', 'list');
         }
 
@@ -166,11 +165,8 @@ class Instances extends ListModel
      */
     private function getDate(): string
     {
-        /** @var CMSWebApplicationInterface $app */
-        $app = Application::getApplication();
-
         // Instances view
-        $date = $app->getUserStateFromRequest("$this->context.list.date", "list_date", '', 'string');
+        $date = Application::getUserRequestState("$this->context.list.date", "list_date", '', 'string');
 
         // Export view, GET, POST
         $date = Input::getString('date', $date);
@@ -185,11 +181,8 @@ class Instances extends ListModel
      */
     private function getInterval(): string
     {
-        /** @var CMSWebApplicationInterface $app */
-        $app = Application::getApplication();
-
         // Instances view
-        $interval = $app->getUserStateFromRequest("$this->context.list.interval", "list_interval", '', 'string');
+        $interval = Application::getUserRequestState("$this->context.list.interval", "list_interval", '', 'string');
 
         // Export view, GET, POST
         return Input::getString('interval', $interval);
@@ -340,7 +333,7 @@ class Instances extends ListModel
             } elseif ($organizationID = $params->get('organizationID', Input::getInt('organizationID'))) {
                 $fullName  = Helpers\Organizations::getFullName($organizationID);
                 $shortName = Helpers\Organizations::getShortName($organizationID);
-                $name      = ($this->mobile or strlen($fullName) > 40) ? $shortName : $fullName;
+                $name      = (Application::mobile() or strlen($fullName) > 40) ? $shortName : $fullName;
                 $suffix    .= ': ' . $name;
             } elseif ($campusID = $params->get('campusID')) {
                 $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
@@ -374,8 +367,6 @@ class Instances extends ListModel
     {
         parent::populateState($ordering, $direction);
 
-        /** @var CMSWebApplicationInterface $app */
-        $app         = Application::getApplication();
         $conditions  = ['delta' => date('Y-m-d', strtotime('-14 days'))];
         $filterItems = Input::getFilterItems();
         $listItems   = Input::getListItems();
@@ -388,7 +379,7 @@ class Instances extends ListModel
 
         // What? Personal...
         $personal         = (int) $params->get('my');
-        $personal         = ($personal or $app->getUserStateFromRequest("{$lc}my", "{$lp}my", 0, 'int'));
+        $personal         = ($personal or Application::getUserRequestState("{$lc}my", "{$lp}my", 0, 'int'));
         $personal         = ($personal or Input::getInt('my'));
         $personal         = ($personal or (int) $listItems->get('my'));
         $conditions['my'] = $personal;
@@ -401,7 +392,7 @@ class Instances extends ListModel
         } // or attribute/resource based.
         else {
             $campusID = $params->get('campusID', 0);
-            $campusID = $app->getUserStateFromRequest("{$fc}campusID", "{$fp}campusID", $campusID, 'int');
+            $campusID = Application::getUserRequestState("{$fc}campusID", "{$fp}campusID", $campusID, 'int');
             $campusID = Input::getInt('campusID', $campusID);
 
             if ($campusID) {
@@ -412,22 +403,22 @@ class Instances extends ListModel
 
             $organizationID = 0;
 
-            if ($this->adminContext) {
+            if (Application::backend()) {
                 // Empty would have already resulted in a redirect from the view authorization check.
                 $authorized = Helpers\Can::scheduleTheseOrganizations();
                 if (count($authorized) === 1) {
                     $organizationID = $authorized[0];
                 }
             } else {
-                $organizationID = $app->getUserStateFromRequest("{$fc}organizationID", "{$fp}organizationID", 0, 'int');
+                $organizationID = Application::getUserRequestState("{$fc}organizationID", "{$fp}organizationID", 0, 'int');
                 $organizationID = Input::getInt('organizationID', $organizationID);
                 $organizationID = $params->get('organizationID', $organizationID);
             }
 
             $byPerson   = false;
-            $categoryID = $app->getUserStateFromRequest("{$fc}categoryID", "{$fp}categoryID", 0, 'int');
+            $categoryID = Application::getUserRequestState("{$fc}categoryID", "{$fp}categoryID", 0, 'int');
             $categoryID = Input::getInt('categoryID', $categoryID);
-            $groupID    = $app->getUserStateFromRequest("{$fc}groupID", "{$fp}groupID", 0, 'int');
+            $groupID    = Application::getUserRequestState("{$fc}groupID", "{$fp}groupID", 0, 'int');
             $groupID    = Input::getInt('groupID', $groupID);
 
             $conditions['roleID'] = Input::getInt('roleID');
@@ -473,7 +464,7 @@ class Instances extends ListModel
                     $this->state->set('filter.eventID', $eventID);
                 }
 
-                $personID = $app->getUserStateFromRequest("{$fc}personID", "{$fp}personID", 0, 'int');
+                $personID = Application::getUserRequestState("{$fc}personID", "{$fp}personID", 0, 'int');
                 if ($personID = Input::getInt('personID', $personID)) {
                     $personIDs = [$personID];
                     $userID    = Helpers\Users::getID();
@@ -493,7 +484,7 @@ class Instances extends ListModel
                     }
                 }
 
-                $roomID = $app->getUserStateFromRequest("{$fc}roomID", "{$fp}roomID", 0, 'int');
+                $roomID = Application::getUserRequestState("{$fc}roomID", "{$fp}roomID", 0, 'int');
                 if ($roomID = Input::getInt('roomID', $roomID)) {
                     $conditions['roomIDs'] = [$roomID];
                     $filterItems->set('roomID', $roomID);
@@ -561,24 +552,24 @@ class Instances extends ListModel
                 $intervals = ['day', 'half', 'month', 'quarter', 'term', 'week'];
                 $interval  = in_array($interval, $intervals) ? $interval : 'week';
                 $layout    = Helper::LIST;
-                $status    = $app->getUserStateFromRequest("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
+                $status    = Application::getUserRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
                 break;
 
             case 'html':
             default:
                 $date     = $this->getDate();
-                $status   = $app->getUserStateFromRequest("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
+                $status   = Application::getUserRequestState("{$fc}status", "{$fp}status", Helper::CURRENT, 'int');
                 $status   = Input::getInt('status', $status);
                 $statuses = [Helper::CHANGED, Helper::CURRENT, Helper::NEW, Helper::REMOVED];
                 $status   = in_array($status, $statuses) ? $status : Helper::CURRENT;
 
                 if ($dynamic) {
-                    $sLayout = $app->getUserStateFromRequest("{$lc}layout", "{$lp}layout", Helper::LIST, 'int');
-                    $gLayout = strpos(strtolower(Input::getString('layout')), 'grid') === 0;
+                    $sLayout = Application::getUserRequestState("{$lc}layout", "{$lp}layout", Helper::LIST, 'int');
+                    $gLayout = str_starts_with(strtolower(Input::getString('layout')), 'grid');
                     $layout  = ($sLayout or $gLayout) ? Helper::GRID : Helper::LIST;
 
                     if ($layout === Helper::GRID) {
-                        $interval = $this->mobile ? 'day' : 'week';
+                        $interval = Application::mobile() ? 'day' : 'week';
                     } else {
                         $interval  = $this->getInterval();
                         $intervals = ['day', 'month', 'quarter', 'term', 'week'];
@@ -589,7 +580,7 @@ class Instances extends ListModel
                     $layout = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
 
                     if ($layout === Helper::GRID) {
-                        $interval = $this->mobile ? 'day' : 'week';
+                        $interval = Application::mobile() ? 'day' : 'week';
 
                         // Parameter bleed can potentially cause a 0-division error in the Joomla ListModel here.
                         $this->state->set('list.start', 0);
@@ -610,7 +601,7 @@ class Instances extends ListModel
                                 $this->state->set('filter.dow', $dow);
                             }
                         } else {
-                            $sInterval = $app->getUserStateFromRequest("{$lc}interval", "{$lp}interval", '', 'string');
+                            $sInterval = Application::getUserRequestState("{$lc}interval", "{$lp}interval", '', 'string');
                             $interval  = Input::getString('interval', $sInterval);
                             $intervals = ['day', 'month', 'quarter', 'term', 'week'];
                             $interval  = in_array($interval, $intervals) ? $interval : 'day';

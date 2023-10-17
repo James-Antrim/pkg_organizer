@@ -10,53 +10,108 @@
 
 namespace THM\Organizer\Models;
 
+use Exception;
 use JDatabaseQuery;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
-use Joomla\CMS\MVC\Model\ListModel as ParentModel;
+use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\CMS\MVC\Model\ListModel as Base;
+use Joomla\CMS\Table\Table;
+use Joomla\Database\QueryInterface;
+use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use stdClass;
 
 /**
- * Class provides a standardized framework for the display of listed resources.
+ * Model class for handling lists of items.
+ * - Overrides/-writes to avoid deprecated code in the platform or promote ease of use
+ * - Supplemental functions to extract common code from list models
  */
-abstract class ListModel extends ParentModel
+abstract class ListModel extends Base
 {
     use Named;
 
     protected const ALL = 0, NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
-    protected $adminContext;
+    protected string $defaultOrdering = 'name';
 
-    protected $defaultOrdering = 'name';
+    protected string $defaultDirection = 'ASC';
 
-    protected $defaultDirection = 'ASC';
+    protected int $defaultLimit = 50;
 
-    protected $defaultLimit = null;
-
-    public $mobile = false;
-
+    /**
+     * The URL option for the component. If this is missing an error will be thrown because the class does not have the
+     * word "Model" in its name.
+     * @var string
+     * @see BaseDatabaseModel
+     */
     protected $option = 'com_organizer';
+
+    /**
+     * A state object. Overrides the use of the deprecated CMSObject.
+     * @var    Registry
+     */
+    protected $state = null;
 
     /**
      * @inheritDoc
      */
-    public function __construct($config = [])
+    public function __construct($config = [], MVCFactoryInterface $factory = null)
     {
-        parent::__construct($config);
+        $this->state = new Registry();
+
+        try {
+            parent::__construct($config, $factory);
+        } catch (Exception $exception) {
+            Application::handleException($exception);
+        }
 
         $app                  = Application::getApplication();
-        $this->adminContext   = $app->isClient('administrator');
         $this->filterFormName = strtolower(Helpers\OrganizerHelper::getClass($this));
 
-        if (!is_int($this->defaultLimit)) {
+        if (!is_numeric($this->defaultLimit)) {
             $this->defaultLimit = $app->get('list_limit', 50);
         }
 
-        $this->mobile = Application::mobile();
-        $this->setContext();
+        // Make sure the filters from different menu items do not bleed.
+        if ($menuItem = Application::getMenuItem() and $menuID = $menuItem->id) {
+            $this->context .= '.' . $menuID;
+        }
+    }
+
+    /**
+     * Adds a binary value filter clause for the given $query;
+     *
+     * @param QueryInterface $query the query to modify
+     * @param string         $name  the attribute whose value to filter against
+     *
+     * @return void modifies the query if a binary value was delivered in the request
+     */
+    protected function binaryFilter(QueryInterface $query, string $name): void
+    {
+        $value = $this->state->get($name);
+
+        // State default for get is null and default for request is either an empty string or not being set.
+        if (!$this->isBinary($value)) {
+            return;
+        }
+
+        $value = (int) $value;
+
+        // Typical filter names are in the form 'filter.column'
+        $column = strpos($name, '.') ? substr($name, strpos($name, '.') + 1) : $name;
+        $column = $this->getDatabase()->quoteName($column);
+        $query->where("$column = $value");
+    }
+
+    /** Provides external access to the clean cache function. This belongs in the input adapter, but I do not want to
+     *  have to put in the effort to resolve everything necessary to get it there.
+     * @void initiates cache cleaning
+     */
+    public function emptyCache(): void
+    {
+        $this->cleanCache();
     }
 
     /**
@@ -66,9 +121,57 @@ abstract class ListModel extends ParentModel
      *
      * @return void modifies $form
      */
-    protected function filterFilterForm(Form $form)
+    protected function filterFilterForm(Form $form): void
     {
         // No implementation is the default implementation.
+    }
+
+    /**
+     * @inheritDoc
+     * Replacing the deprecated CMSObject with Registry makes the parent no longer function correctly this compensates
+     * for that.
+     */
+    public function getActiveFilters(): array
+    {
+        $activeFilters = [];
+
+        if (!empty($this->filter_fields)) {
+            foreach ($this->filter_fields as $filter) {
+                $filterName = 'filter.' . $filter;
+                $value      = $this->state->get($filterName);
+
+                if ($value or is_numeric($value)) {
+                    $activeFilters[$filter] = $value;
+                }
+            }
+        }
+
+        return $activeFilters;
+    }
+
+    /**
+     * Gets the filter form. Overwrites the parent to have form names analog to the view names in which they are used.
+     * Also has enhanced error reporting in the event of failure.
+     *
+     * @param array $data     data
+     * @param bool  $loadData load current data
+     *
+     * @return  Form|null  the form object or null if the form can't be found
+     */
+    public function getFilterForm($data = [], $loadData = true): ?Form
+    {
+        $this->filterFormName = strtolower($this->name);
+
+        $context = $this->context . '.filter';
+        $options = ['control' => '', 'load_data' => $loadData];
+
+        try {
+            return $this->loadForm($context, $this->filterFormName, $options);
+        } catch (Exception $exception) {
+            Application::handleException($exception);
+        }
+
+        return null;
     }
 
     /**
@@ -80,6 +183,24 @@ abstract class ListModel extends ParentModel
         $items = parent::getItems();
 
         return $items ?: [];
+    }
+
+    /**
+     * Method to get a table object, load it if necessary.
+     *
+     * @param string $name    the table name, unused
+     * @param string $prefix  the class prefix, unused
+     * @param array  $options configuration array for model, unused
+     *
+     * @return  Table  a table object
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Table
+    {
+        // With few exception the table and list class names are identical
+        $class = Application::getClass($this);
+        $fqn   = "\\THM\\Groups\\Tables\\$class";
+
+        return new $fqn();
     }
 
     /**
@@ -115,11 +236,8 @@ abstract class ListModel extends ParentModel
     /**
      * @inheritDoc
      */
-    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false)
+    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false): Form
     {
-        Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
-        Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
-
         if ($form = parent::loadForm($name, $source, $options, $clear, $xpath)) {
             $this->filterFilterForm($form);
         }
@@ -128,12 +246,30 @@ abstract class ListModel extends ParentModel
     }
 
     /**
+     * Checks whether the given value can safely be interpreted as a binary value.
+     *
+     * @param mixed $value the value to be checked
+     *
+     * @return bool if the value can be interpreted as a binary integer
+     */
+    protected function isBinary(mixed $value): bool
+    {
+        if (!is_bool($value) and !is_numeric($value)) {
+            return false;
+        }
+
+        $value = (int) $value;
+
+        return !(($value > 1 or $value < 0));
+    }
+
+    /**
      * @inheritDoc
      */
     protected function loadFormData()
     {
         // Check the session for previously entered form data.
-        $data = Application::getApplication()->getUserState($this->context, new stdClass());
+        $data = Application::getUserState($this->context, new stdClass());
 
         // Pre-create the list options
         if (!property_exists($data, 'list')) {
@@ -145,10 +281,10 @@ abstract class ListModel extends ParentModel
         }
 
         foreach ((array) $this->state as $property => $value) {
-            if (strpos($property, 'list.') === 0) {
+            if (str_starts_with($property, 'list.')) {
                 $listProperty              = substr($property, 5);
                 $data->list[$listProperty] = $value;
-            } elseif (strpos($property, 'filter.') === 0) {
+            } elseif (str_starts_with($property, 'filter.')) {
                 $filterProperty                = substr($property, 7);
                 $data->filter[$filterProperty] = $value;
             }
@@ -160,18 +296,17 @@ abstract class ListModel extends ParentModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
-        $app = Application::getApplication();
 
         // Receive & set filters
-        $filters = $app->getUserStateFromRequest($this->context . '.filter', 'filter', [], 'array');
+        $filters = Application::getUserRequestState($this->context . '.filter', 'filter', [], 'array');
         foreach ($filters as $input => $value) {
             $this->setState('filter.' . $input, $value);
         }
 
-        $list = $app->getUserStateFromRequest($this->context . '.list', 'list', [], 'array');
+        $list = Application::getUserRequestState($this->context . '.list', 'list', [], 'array');
         foreach ($list as $input => $value) {
             $this->setState("list.$input", $value);
         }
@@ -180,7 +315,7 @@ abstract class ListModel extends ParentModel
         $fullOrdering = "$this->defaultOrdering ASC";
         $ordering     = $this->defaultOrdering;
 
-        if (!empty($list['fullordering']) and strpos($list['fullordering'], 'null') === false) {
+        if (!empty($list['fullordering']) and !str_contains($list['fullordering'], 'null')) {
             $pieces          = explode(' ', $list['fullordering']);
             $validDirections = ['ASC', 'DESC', ''];
 
@@ -217,7 +352,7 @@ abstract class ListModel extends ParentModel
 
         $this->setState('list.limit', $limit);
 
-        $value = $this->getUserStateFromRequest('limitstart', 'limitstart', 0);
+        $value = Application::getUserRequestState('limitstart', 'limitstart', 0);
         $start = ($limit != 0 ? (floor($value / $limit) * $limit) : 0);
         $this->setState('list.start', $start);
     }
@@ -228,7 +363,7 @@ abstract class ListModel extends ParentModel
      * @param JDatabaseQuery $query the query to modify
      * @param string         $alias the alias for the linking table
      */
-    public function setCampusFilter(JDatabaseQuery $query, string $alias)
+    public function setCampusFilter(JDatabaseQuery $query, string $alias): void
     {
         $campusID = $this->state->get('filter.campusID');
         if (empty($campusID)) {
@@ -252,7 +387,7 @@ abstract class ListModel extends ParentModel
      * @param JDatabaseQuery $query the query to modify
      * @param string         $alias the alias for the linking table
      */
-    public function setActiveFilter(JDatabaseQuery $query, string $alias)
+    public function setActiveFilter(JDatabaseQuery $query, string $alias): void
     {
         $status = $this->state->get('filter.active');
 
@@ -276,7 +411,7 @@ abstract class ListModel extends ParentModel
      *
      * @return void
      */
-    protected function setIDFilter(JDatabaseQuery $query, string $idColumn, string $filterName)
+    protected function setIDFilter(JDatabaseQuery $query, string $idColumn, string $filterName): void
     {
         $value = $this->state->get($filterName, '');
         if ($value === '') {
@@ -305,13 +440,13 @@ abstract class ListModel extends ParentModel
      *
      * @return void
      */
-    protected function setOrdering(JDatabaseQuery $query)
+    protected function setOrdering(JDatabaseQuery $query): void
     {
         $defaultOrdering = "$this->defaultOrdering $this->defaultDirection";
-        $session         = Factory::getSession();
+        $session         = Application::getSession();
         $listOrdering    = $this->state->get('list.fullordering', $defaultOrdering);
 
-        if (strpos($listOrdering, 'null') !== false) {
+        if (str_contains($listOrdering, 'null')) {
             $sessionOrdering = $session->get('ordering', '');
             if (empty($sessionOrdering)) {
                 $session->set($this->context . '.ordering', $defaultOrdering);
@@ -334,9 +469,9 @@ abstract class ListModel extends ParentModel
      *
      * @return void
      */
-    protected function setOrganizationFilter(QueryMySQLi $query, string $context, string $alias)
+    protected function setOrganizationFilter(QueryMySQLi $query, string $context, string $alias): void
     {
-        $authorizedIDs  = $this->adminContext ? Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
+        $authorizedIDs  = Application::backend() ? Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
         $organizationID = (int) $this->state->get('filter.organizationID');
 
         if (!$authorizedIDs or !$organizationID) {
@@ -364,7 +499,7 @@ abstract class ListModel extends ParentModel
      *
      * @return void
      */
-    protected function setSearchFilter(QueryMySQLi $query, array $columnNames)
+    protected function setSearchFilter(QueryMySQLi $query, array $columnNames): void
     {
         if (!$userInput = $this->state->get('filter.search')) {
             return;
@@ -387,7 +522,7 @@ abstract class ListModel extends ParentModel
      * @param JDatabaseQuery $query the query to modify
      * @param string         $alias the column alias
      */
-    public function setStatusFilter(JDatabaseQuery $query, string $alias)
+    public function setStatusFilter(JDatabaseQuery $query, string $alias): void
     {
         if (!$value = $this->state->get('filter.status')) {
             return;
@@ -424,7 +559,7 @@ abstract class ListModel extends ParentModel
      *
      * @return void
      */
-    protected function setValueFilters(JDatabaseQuery $query, array $queryColumns)
+    protected function setValueFilters(JDatabaseQuery $query, array $queryColumns): void
     {
         $filters = Input::getFilterItems();
         $lists   = Input::getListItems();
@@ -432,7 +567,7 @@ abstract class ListModel extends ParentModel
 
         // The view level filters
         foreach ($queryColumns as $column) {
-            $filterName = strpos($column, '.') === false ? $column : explode('.', $column)[1];
+            $filterName = !str_contains($column, '.') ? $column : explode('.', $column)[1];
 
             $value = $filters->get($filterName);
 

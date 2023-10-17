@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
+use THM\Organizer\Adapters\{Application, Document};
 use THM\Organizer\Helpers;
 
 /**
@@ -29,25 +29,25 @@ abstract class FormView extends BaseView
     /**
      * @inheritdoc
      */
-    protected $layout = 'form';
+    protected string $layout = 'form';
 
     /**
      * The form orientation.
      * @var string
      */
-    protected $orientation = 'horizontal';
+    protected string $orientation = 'horizontal';
 
     /**
      * @inheritDoc
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
         $this->form = $this->get('Form');
 
         // Allows for view specific toolbar handling
         $this->addToolBar();
 
-        if (empty($this->adminContext)) {
+        if (!Application::backend()) {
             if (method_exists($this, 'setSubtitle')) {
                 $this->setSubtitle();
             }
@@ -64,12 +64,12 @@ abstract class FormView extends BaseView
      * Adds a toolbar and title to the view.
      * @return void  adds toolbar items to the view
      */
-    abstract protected function addToolBar();
+    abstract protected function addToolBar(): void;
 
     /**
      * @inheritDoc
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 

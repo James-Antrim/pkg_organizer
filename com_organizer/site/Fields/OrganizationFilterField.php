@@ -30,8 +30,7 @@ class OrganizationFilterField extends OptionsField
      */
     protected function getInput(): string
     {
-        $this->adminContext = Application::backend();
-        $onchange           = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
+        $onchange = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
 
         // Get the field options.
         $options = $this->getOptions();
@@ -55,7 +54,7 @@ class OrganizationFilterField extends OptionsField
     protected function getOptions(): array
     {
         $options       = parent::getOptions();
-        $access        = $this->adminContext ? $this->getAttribute('access', '') : '';
+        $access        = Application::backend() ? $this->getAttribute('access', '') : '';
         $organizations = Helpers\Organizations::getOptions(true, $access);
 
         return count($organizations) > 1 ? array_merge($options, $organizations) : $organizations;
