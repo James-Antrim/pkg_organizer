@@ -30,19 +30,6 @@ trait Named
     protected $name;
 
     /**
-     * Method to get the model name.
-     * @return  string  the name of the model
-     */
-    public function getName(): string
-    {
-        if (empty($this->name)) {
-            $this->name = Application::getClass($this);
-        }
-
-        return $this->name;
-    }
-
-    /**
      * Sets the form context to prevent bleeding.
      * @return void
      */
@@ -56,5 +43,19 @@ trait Named
                 $this->context .= '.' . $menuID;
             }
         }
+    }
+
+    /**
+     * Method to get the model name.
+     * @return  string  the name of the model
+     */
+    public function getName(): string
+    {
+        if (empty($this->name) or empty($this->option)) {
+            $this->name   = Application::getClass($this);
+            $this->option = 'com_organizer';
+        }
+
+        return $this->name;
     }
 }

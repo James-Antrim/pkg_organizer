@@ -10,87 +10,72 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\CMS\Form\Form;
-use Joomla\CMS\MVC\Model\AdminModel;
+use Exception;
 use Joomla\CMS\Object\CMSObject;
-use THM\Organizer\Adapters\{Application, Input};
-use THM\Organizer\Helpers;
+use Joomla\CMS\Table\Table;
+use Joomla\Utilities\ArrayHelper;
+use THM\Organizer\Adapters\{Application, Input, FormFactory, MVCFactory};
 
 /**
- * Class loads item form data to edit an entry.
+ * Class for editing a single resource record, based loosely on AdminModel, but without all the extra code it now caries
+ * with it.
  */
-abstract class EditModel extends AdminModel
+abstract class EditModel extends FormModel
 {
-    use Named;
-
-    protected $association;
-
-    public $item = null;
-
     /**
-     * @inheritdoc
+     * The resource's table class.
+     * @var string
      */
-    public function __construct($config = [])
-    {
-        parent::__construct($config);
-
-        $this->setContext();
-    }
-
-    /**
-     * Checks access to edit the resource.
-     * @return void
-     */
-    protected function authorize()
-    {
-        if (!Helpers\Can::administrate()) {
-            Application::error(403);
-        }
-    }
+    protected string $tableClass = '';
 
     /**
      * @inheritDoc
+     * Wraps the parent constructor to ensure inheriting classes specify their respective table classes.
      */
-    public function getForm($data = [], $loadData = true)
+    public function __construct($config, MVCFactory $factory, FormFactory $formFactory)
     {
-        $name = $this->get('name');
-        $form = $this->loadForm($this->context, $name, ['control' => 'jform', 'load_data' => $loadData]);
-
-        return empty($form) ? false : $form;
-    }
-
-    /**
-     * Method to get a single record.
-     *
-     * @param int $pk The id of the primary key.
-     *
-     * @return mixed    Object on success, false on failure.
-     */
-    public function getItem($pk = 0)
-    {
-        $pk = empty($pk) ? Input::getSelectedID() : $pk;
-
-        // Prevents duplicate execution from getForm and getItem
-        if (isset($this->item->id) and ($this->item->id === $pk or $pk === null)) {
-            return $this->item;
+        if (empty($this->tableClass)) {
+            $childClass = get_called_class();
+            $exception  = new Exception("$childClass has not specified its associated table.");
+            Application::handleException($exception);
         }
 
-        $this->item = parent::getItem($pk);
-
-        $this->authorize();
-
-        return $this->item;
+        parent::__construct($config, $factory, $formFactory);
     }
 
     /**
-     * @inheritDoc
+     * Retrieves a resource record.
+     * @return  CMSObject  Object on success, false on failure.
      */
-    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = '')
+    public function getItem(): CMSObject
     {
-        Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
-        Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
+        $rowID = Input::getSelectedID();
+        $table = $this->getTable();
+        $table->load($rowID);
 
-        return parent::loadForm($name, $source, $options, $clear, $xpath);
+        // Convert to the CMSObject before adding other data.
+        $properties = $table->getProperties();
+
+        /** @var CMSObject $item */
+        $item = ArrayHelper::toObject($properties, CMSObject::class);
+
+        return $item;
+    }
+
+    /**
+     * Method to get a table object, load it if necessary.
+     *
+     * @param string $name    the table name, unused
+     * @param string $prefix  the class prefix, unused
+     * @param array  $options configuration array for model, unused
+     *
+     * @return  Table  a table object
+     */
+    public function getTable($name = '', $prefix = '', $options = []): Table
+    {
+        $fqn = "\\THM\\Organizer\\Tables\\$this->tableClass";
+
+        return new $fqn();
     }
 
     /**
@@ -98,9 +83,6 @@ abstract class EditModel extends AdminModel
      */
     protected function loadFormData(): ?CMSObject
     {
-        $resourceIDs = Input::getSelectedIDs();
-        $resourceID  = empty($resourceIDs) ? 0 : $resourceIDs[0];
-
-        return $this->item ?: $this->getItem($resourceID);
+        return $this->getItem();
     }
 }

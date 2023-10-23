@@ -10,37 +10,33 @@
 
 namespace THM\Organizer\Models;
 
-use Joomla\CMS\Form\Form;
-use Joomla\CMS\MVC\Model\FormModel as ParentModel;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers;
+use Exception;
+use Joomla\CMS\Form\Form as FormAlias;
+use Joomla\CMS\MVC\Model\FormModel as Base;
+use THM\Organizer\Adapters\{Application, Form, FormFactory, MVCFactory};
 
 /**
- * Class loads non-item-specific form data.
+ * Model for data to be used with a form.
  */
-class FormModel extends ParentModel
+abstract class FormModel extends Base
 {
     use Named;
 
     /**
-     * @inheritDoc
+     * Constructor
+     *
+     * @param array       $config               An array of configuration options (name, state, dbo, table_path,
+     *                                          ignore_request).
+     * @param MVCFactory  $factory              The factory.
+     * @param FormFactory $formFactory          The form factory.
+     *
+     * @throws Exception
      */
-    public function __construct($config = [])
+    public function __construct($config, MVCFactory $factory, FormFactory $formFactory)
     {
-        parent::__construct($config);
+        parent::__construct($config, $factory, $formFactory);
 
         $this->setContext();
-    }
-
-    /**
-     * Provides a strict access check which can be overwritten by extending classes.
-     * @return void performs error management via redirects as appropriate
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::administrate()) {
-            Application::error(403);
-        }
     }
 
     /**
@@ -58,32 +54,16 @@ class FormModel extends ParentModel
     /**
      * @inheritDoc
      */
-    public function getForm($data = [], $loadData = false)
+    public function getForm($data = array(), $loadData = true): ?FormAlias
     {
-        $this->authorize();
+        $options = ['control' => '', 'load_data' => $loadData];
 
-        $name = $this->get('name');
-        $form = $this->loadForm($this->context, $name, ['control' => 'jform', 'load_data' => $loadData]);
-
-        if (empty($form)) {
-            return false;
+        try {
+            return $this->loadForm($this->context, strtolower($this->name), $options);
+        } catch (Exception $exception) {
+            Application::handleException($exception);
         }
 
-        return $form;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = ''): Form
-    {
-        Form::addFormPath(JPATH_COMPONENT_SITE . '/Forms');
-        Form::addFieldPath(JPATH_COMPONENT_SITE . '/Fields');
-
-        if ($form = parent::loadForm($name, $source, $options, $clear, $xpath)) {
-            $this->filterForm($form);
-        }
-
-        return $form;
+        return null;
     }
 }

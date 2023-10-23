@@ -18,15 +18,13 @@ use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Routing;
-use THM\Organizer\Views\Named;
 
 /**
- * Base class for a Joomla View
- * Class holding methods for displaying presentation data.
+ * View class for setting general context variables.
  */
 abstract class BaseView extends HtmlView
 {
-    use Named;
+    use Configured;
 
     public string $disclaimer = '';
 
@@ -55,6 +53,15 @@ abstract class BaseView extends HtmlView
     public string $supplement = '';
 
     public string $title = '';
+
+    /**
+     * @inheritDoc
+     */
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+        $this->configure();
+    }
 
     /**
      * Adds a legal disclaimer to the view.
@@ -329,12 +336,24 @@ abstract class BaseView extends HtmlView
     }
 
     /**
-     * Get the layout. Overwrites the use of the prefixed parent property.
-     * @return  string  The layout name
+     * @inheritdoc
+     * Does not dump the responsibility for exception handling onto inheriting classes.
+     */
+    public function display($tpl = null): void
+    {
+        try {
+            parent::display($tpl);
+        } catch (Exception $exception) {
+            Application::handleException($exception);
+        }
+    }
+
+    /**
+     * @inheritDoc
      */
     public function getLayout(): string
     {
-        return $this->layout;
+        return $this->layout ?: strtolower($this->_name);
     }
 
     /**
@@ -348,35 +367,6 @@ abstract class BaseView extends HtmlView
         Document::addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
 
         Helpers\HTML::_('bootstrap.tooltip', '.hasTooltip', ['placement' => 'right']);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setLayout($layout): string
-    {
-        // Default is not an option anymore.
-        if ($layout === 'default' and $this->layout === 'default') {
-            $exists     = false;
-            $layoutName = strtolower($this->getName());
-
-            foreach ($this->_path['template'] as $path) {
-                $exists = file_exists("$path$layoutName.php");
-                if ($exists) {
-                    break;
-                }
-            }
-
-            if (!$exists) {
-                Application::error(501);
-            }
-
-            $this->layout = strtolower($this->getName());
-        } elseif ($layout !== 'default') {
-            $this->layout = $layout;
-        }
-
-        return $this->layout;
     }
 
     /**

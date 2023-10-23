@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\Application;
 
 trait Named
 {
@@ -18,7 +18,7 @@ trait Named
      * The name of the view
      * @var    string
      */
-    protected $_name = null;
+    protected $_name;
 
     /**
      * Method to get the object name. Original overwrite to avoid Joomla thrown exception. Currently also used for
@@ -28,7 +28,7 @@ trait Named
     public function getName(): string
     {
         if (empty($this->_name)) {
-            $this->_name = Helpers\OrganizerHelper::getClass($this);
+            $this->_name = Application::getClass($this);
         }
 
         return $this->_name;

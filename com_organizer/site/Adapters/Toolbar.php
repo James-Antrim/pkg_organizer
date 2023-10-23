@@ -15,12 +15,11 @@ use JLoader;
 use Joomla\CMS\Filesystem\Path;
 use Joomla\CMS\Filter\InputFilter;
 use Joomla\CMS\Log\Log;
-use Joomla\CMS\Toolbar\Toolbar as ParentClass;
-use Joomla\CMS\Toolbar\ToolbarButton;
-use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Toolbar\{Toolbar as Base, ToolbarButton as Button, ToolbarFactoryInterface, ToolbarHelper as Helper};
+use Joomla\DI\Exception\KeyNotFoundException;
 use THM\Organizer\Helpers\OrganizerHelper;
 
-class Toolbar extends ParentClass
+class Toolbar extends Base
 {
     /**
      * @inheritDoc
@@ -33,18 +32,25 @@ class Toolbar extends ParentClass
     }
 
     /**
-     * Returns the global Toolbar object, only creating it if it
-     * doesn't already exist.
+     * Returns the GLOBAL Toolbar object, only creating it if it doesn't already exist. The parent documentation says
+     * deprecated => use the container, but the container is explicitly not allowed to set toolbars because they are
+     * GLOBAL and used by joomla to display component items outside the component context.
      *
      * @param string $name The name of the toolbar.
      *
-     * @return  Toolbar  The Toolbar object.
-     * @since   1.5
+     * @return  Base  The Toolbar object.
      */
-    public static function getInstance($name = 'toolbar'): Toolbar
+    public static function getInstance($name = 'toolbar'): Base
     {
         if (empty(self::$instances[$name])) {
-            self::$instances[$name] = new Toolbar($name);
+            $container = Application::getContainer();
+
+            try {
+                $tbFactory              = $container->get(ToolbarFactoryInterface::class);
+                self::$instances[$name] = $tbFactory->createToolbar($name);
+            } catch (KeyNotFoundException $exception) {
+                Application::handleException($exception);
+            }
         }
 
         return self::$instances[$name];
@@ -77,20 +83,14 @@ class Toolbar extends ParentClass
 
     /**
      * @inheritDoc
-     * @return ToolbarButton|bool
+     * @return Button|bool
      */
-    public function loadButtonType($type, $new = false): ToolbarButton|bool
+    public function loadButtonType($type, $new = false): Button|bool
     {
         $signature = md5($type);
 
         if ($new === false && isset($this->_buttons[$signature])) {
             return $this->_buttons[$signature];
-        }
-
-        if (!class_exists('Joomla\\CMS\\Toolbar\\ToolbarButton')) {
-            Log::add(Text::_('JLIB_HTML_BUTTON_BASE_CLASS'), Log::WARNING, 'jerror');
-
-            return false;
         }
 
         $buttonClass = $this->loadButtonClass($type);
@@ -147,10 +147,10 @@ class Toolbar extends ParentClass
      * @param string $icon  the icon class name
      *
      * @return  void
-     * @see ToolbarHelper::title()
+     * @see Helper::title()
      */
     public static function setTitle(string $title, string $icon = ''): void
     {
-        ToolbarHelper::title($title, $icon);
+        Helper::title($title, $icon);
     }
 }
