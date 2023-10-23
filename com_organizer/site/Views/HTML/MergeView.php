@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -19,30 +19,35 @@ use THM\Organizer\Helpers;
 abstract class MergeView extends FormView
 {
     /**
-     * Adds a toolbar and title to the view.
-     * @return void  adds toolbar items to the view
+     * The list view to redirect to after completion of form view functions.
+     * @var string
      */
-    protected function addToolBar()
-    {
-        $name = Helpers\OrganizerHelper::getClass($this);
-        $this->setTitle(Text::getClassConstant($name));
+    protected string $controller = '';
 
-        $resource   = str_replace('merge', '', strtolower($name));
-        $controller = Helpers\OrganizerHelper::getPlural($resource);
-        $toolbar    = Toolbar::getInstance();
-        $toolbar->appendButton(
-            'Standard',
-            'contract',
-            Text::_('ORGANIZER_MERGE'),
-            $controller . '.merge',
-            false
-        );
-        $toolbar->appendButton(
-            'Standard',
-            'cancel',
-            Text::_('ORGANIZER_CANCEL'),
-            $controller . '.cancel',
-            false
-        );
+    /**
+     * @inheritDoc
+     */
+    public function __construct($config = [])
+    {
+        if (empty($this->controller)) {
+            Application::error(501);
+        }
+
+        parent::__construct($config);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar(): void
+    {
+        $this->setTitle(Text::_(strtoupper($this->_name)));
+
+        $toolbar = Toolbar::getInstance();
+        $toolbar->standardButton('merge', Text::_('MERGE'))
+            ->icon('fa fa-code-branch')
+            ->task($this->controller . '.merge')
+            ->listCheck(false);
+        $toolbar->cancel($this->controller . '.cancel');
     }
 }

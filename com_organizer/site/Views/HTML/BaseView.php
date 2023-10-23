@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use Exception;
 use JHtmlSidebar;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;

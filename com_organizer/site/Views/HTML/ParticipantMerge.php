@@ -15,5 +15,8 @@ namespace THM\Organizer\Views\HTML;
  */
 class ParticipantMerge extends MergeView
 {
-    // Everything is taken care of in the inheritance hierarchy.
+    /**
+     * @inheritdoc
+     */
+    protected string $controller = 'Participant';
 }
