@@ -36,6 +36,7 @@ abstract class FormView extends BaseView
      * @var string
      */
     protected string $orientation = 'horizontal';
+    public array $toDo = [];
 
     /**
      * @inheritDoc

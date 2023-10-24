@@ -25,38 +25,28 @@ use stdClass;
  */
 abstract class ListView extends BaseView
 {
-    protected string $layout = 'list';
 
     public array $activeFilters = [];
-
+    public bool $allowBatch = false;
     public array $batch = [];
-
-    public string $empty;
-
+    public string $empty = '';
     public Form $filterForm;
-
     /**
      * The header information to display indexed by the referenced attribute.
      * @var array
      */
     public array $headers = [];
-
     public array $items = [];
-
-    /**
-     * @var ListModel
-     */
+    protected string $layout = 'list';
+    /** @var ListModel */
     protected BaseDatabaseModel $model;
-
     public $pagination = null;
-
     protected array $rowStructure = [];
-
     protected bool $sameTab = false;
+    public Registry $state;
 
     protected bool $structureEmpty = false;
-
-    public Registry $state;
+    public array $toDo = [];
 
     /**
      * Adds supplemental information to the display output.

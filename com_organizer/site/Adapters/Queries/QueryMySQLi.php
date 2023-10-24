@@ -335,7 +335,7 @@ class QueryMySQLi extends MysqliQuery
             return $this->joinX($type, $table, $conditions);
         }
 
-        [$table, $conditions] = preg_split("/ ON /i", $condition);
+        [$table, $conditions] = preg_split("/ ON /i", $table);
         $conditions = preg_split("/ AND /i", $conditions);
 
         // Subquery results used as a table; subquery was hopefully independently formatted.

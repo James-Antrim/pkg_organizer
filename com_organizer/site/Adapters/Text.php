@@ -160,7 +160,7 @@ class Text extends Base
     }
 
     /**
-     * Supplements an non-prefaced key as necessary.
+     * Supplements a non-prefaced key as necessary.
      *
      * @param string $key
      *
