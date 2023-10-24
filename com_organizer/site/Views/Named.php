@@ -14,10 +14,7 @@ use THM\Organizer\Adapters\Application;
 
 trait Named
 {
-    /**
-     * The name of the view
-     * @var    string
-     */
+    /** @var string The name of the view class */
     protected $_name;
 
     /**

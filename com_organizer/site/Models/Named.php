@@ -17,16 +17,9 @@ use THM\Organizer\Adapters\Application;
  */
 trait Named
 {
-    /**
-     * The form context. (com_organizer.<model><.menuID>)
-     * @var string $context
-     */
+    /** @var string $context the form context (com_organizer.<model><.menuID>) */
     protected $context;
-
-    /**
-     * The name of the called class.
-     * @var string $name
-     */
+    /** @var string the name of the called class */
     protected $name;
 
     /**
