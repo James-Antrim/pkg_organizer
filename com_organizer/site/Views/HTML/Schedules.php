@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Helpers\{Can, Dates};
 
 /**
  * Class loads persistent information a filtered set of schedules into the display context.
@@ -29,58 +29,27 @@ class Schedules extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true): void
+    protected function addToolBar(): void
     {
-        $this->setTitle('ORGANIZER_SCHEDULES');
-        $admin   = Helpers\Can::administrate();
+        $toolbar = Toolbar::getInstance();
+        $toolbar::setTitle('ORGANIZER_SCHEDULES');
+        $admin   = Can::administrate();
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->appendButton('Standard', 'upload', Text::_('ORGANIZER_UPLOAD'), 'schedules.edit', false);
+        $toolbar->standardButton('upload', Text::_('ORGANIZER_UPLOAD'), 'Schedules.edit')->icon('fa fa-upload');
 
         if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID')) {
-            /*$toolbar->appendButton( 'Standard', 'envelope', Text::_('ORGANIZER_NOTIFY_CHANGES'), 'schedules.notify', true);*/
+            /*$toolbar->standardButton('envelope', Text::_('ORGANIZER_NOTIFY_CHANGES'), 'schedules.notify', true);*/
 
-            $toolbar->appendButton(
-                'Confirm',
-                Text::_('ORGANIZER_REFERENCE_CONFIRM'),
-                'share-alt',
-                Text::_('ORGANIZER_REFERENCE'),
-                'schedules.reference',
-                true
-            );
+            $toolbar->confirmButton('reference', Text::_('REFERENCE_CONFIRM'), 'Schedules.reference')->icon('fa fa-share');
 
             if ($admin) {
-                $toolbar->appendButton('Standard', 'loop', Text::_('ORGANIZER_REBUILD'), 'schedules.rebuild', false);
-                $toolbar->appendButton(
-                    'Confirm',
-                    Text::_('ORGANIZER_DELETE_CONFIRM'),
-                    'delete',
-                    Text::_('ORGANIZER_DELETE'),
-                    'schedules.delete',
-                    true
-                );
+                $toolbar->standardButton('rebuild', Text::_('REBUILD'), 'Schedules.rebuild')->icon('fa fa-sync');
+                $toolbar->delete('Schedules.delete', Text::_('DELETE'))->message(Text::_('DELETE_CONFIRM'));
             }
         }
 
-        if ($admin) {
-            $toolbar->appendButton(
-                'Standard',
-                'filter',
-                'Filter Relevance',
-                'schedules.filterRelevance',
-                false
-            );
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
-            Application::error(403);
-        }
+        parent::addToolBar();
     }
 
     /**
@@ -89,7 +58,7 @@ class Schedules extends ListView
     public function setHeaders(): void
     {
         $headers = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
+            'checkbox' => HTML::_('grid.checkall'),
             'organizationName' => Text::_('ORGANIZER_ORGANIZATION'),
             'termName' => Text::_('ORGANIZER_TERM'),
             'userName' => Text::_('ORGANIZER_USERNAME'),
@@ -108,8 +77,8 @@ class Schedules extends ListView
         $structuredItems = [];
 
         foreach ($this->items as $item) {
-            $creationDate  = Helpers\Dates::formatDate($item->creationDate);
-            $creationTime  = Helpers\Dates::formatTime($item->creationTime);
+            $creationDate  = Dates::formatDate($item->creationDate);
+            $creationTime  = Dates::formatTime($item->creationTime);
             $item->created = "$creationDate / $creationTime";
 
             $structuredItems[$index] = $this->structureItem($index, $item);

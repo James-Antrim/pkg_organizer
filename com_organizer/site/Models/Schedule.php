@@ -11,9 +11,11 @@
 namespace THM\Organizer\Models;
 
 use Exception;
+use Joomla\CMS\Table\Table;
 use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
+use THM\Organizer\Tables\{BaseTable, Schedules};
 use THM\Organizer\Validators;
 
 /**
@@ -43,7 +45,7 @@ class Schedule extends BaseModel
      *
      * @return void
      */
-    public function cleanBookings(bool $cleanUnattended = false)
+    public function cleanBookings(bool $cleanUnattended = false): void
     {
         // Earlier bookings will have already been cleaned.
         $earliest = date('Y-m-d', strtotime('-14 days'));
@@ -59,6 +61,7 @@ class Schedule extends BaseModel
         // Bookings associated with non-deprecated appointments.
         $currentIDs = Database::loadIntColumn();
 
+        /** @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->selectX('DISTINCT bk.id', 'bookings AS bk', 'i.delta', ['removed'], false, true)
             ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
@@ -81,6 +84,7 @@ class Schedule extends BaseModel
         // Unattended past bookings. The inner join to instance participants allows archived bookings to not be selected here.
 
         $today = date('Y-m-d');
+        /** @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->selectX('DISTINCT bk.id', 'bookings AS bk', 'ip.attended', [1])
             ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
@@ -92,6 +96,7 @@ class Schedule extends BaseModel
         // Attended bookings.
         $attendedIDs = Database::loadIntColumn();
 
+        /** @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->selectX('DISTINCT bk.id', 'bookings AS bk', 'ip.attended', [0])
             ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
@@ -112,7 +117,7 @@ class Schedule extends BaseModel
      * Removes booking and participation entries made irrelevant by scheduling changes.
      * @return void
      */
-    private function cleanRegistrations()
+    private function cleanRegistrations(): void
     {
         $query = Database::getQuery();
         $query->select('DISTINCT i.id')
@@ -134,14 +139,14 @@ class Schedule extends BaseModel
     /**
      * Updates a table associating an instance with a resource.
      *
-     * @param Tables\BaseTable|Tables\Modified $table  the association table to be updated
-     * @param array                            $keys   the keys used to identify the association through content
-     * @param string                           $delta  the status of the association
-     * @param int                              $roleID the id of the role for instance person associations
+     * @param BaseTable $table  the association table to be updated
+     * @param array     $keys   the keys used to identify the association through content
+     * @param string    $delta  the status of the association
+     * @param int       $roleID the id of the role for instance person associations
      *
      * @return void
      */
-    private function createAssoc($table, array $keys, string $delta, int $roleID = 1)
+    private function createAssoc(BaseTable $table, array $keys, string $delta, int $roleID = 1): void
     {
         foreach ($keys as $key => $value) {
             $table->$key = $value;
@@ -158,6 +163,7 @@ class Schedule extends BaseModel
             $table->store();
         } // FK fails for resources merged out of existence
         catch (Exception $exception) {
+            Application::message($exception->getMessage(), Application::ERROR);
             return;
         }
     }
@@ -189,7 +195,7 @@ class Schedule extends BaseModel
      *
      * @return void
      */
-    private function deleteBookings(array $bookingIDs)
+    private function deleteBookings(array $bookingIDs): void
     {
         /* @var QueryMySQLi $query */
         $query = Database::getQuery();
@@ -204,7 +210,7 @@ class Schedule extends BaseModel
      * authorization checks, because abuse would not result in actual data loss.
      * @return void
      */
-    private function deleteDuplicates()
+    private function deleteDuplicates(): void
     {
         $conditions = [
             's1.creationDate = s2.creationDate',
@@ -253,62 +259,6 @@ class Schedule extends BaseModel
     }
 
     /**
-     * Filters schedule instances to those which occur after the schedule's creation date & time.
-     * @return void
-     */
-    public function filterRelevance()
-    {
-        $query = Database::getQuery();
-        $query->select('id')->from('#__organizer_schedules');
-        Database::setQuery($query);
-
-        if (!$scheduleIDs = Database::loadColumn()) {
-            Application::message('ORGANIZER_412', Application::WARNING);
-
-            return;
-        }
-
-        foreach ($scheduleIDs as $scheduleID) {
-            $schedule = new Tables\Schedules();
-
-            if (!$schedule->load($scheduleID)) {
-                Application::message('ORGANIZER_412', Application::WARNING);
-                continue;
-            }
-
-            $startDate = $schedule->creationDate;
-            $startTime = $schedule->creationTime;
-            $instances = json_decode($schedule->schedule, true);
-
-            foreach (array_keys($instances) as $instanceID) {
-                $instance = new Tables\Instances();
-
-                if (!$instance->load($instanceID)) {
-                    unset($instances[$instanceID]);
-
-                    continue;
-                }
-
-                $block = new Tables\Blocks();
-
-                if (!$block->load($instance->blockID)) {
-                    unset($instances[$instanceID]);
-
-                    continue;
-                }
-
-                if ($block->date < $startDate or ($block->date === $startDate and $block->endTime < $startTime)) {
-                    unset($instances[$instanceID]);
-                }
-
-            }
-
-            $schedule->schedule = json_encode($instances);
-            $schedule->store();
-        }
-    }
-
-    /**
      * Retrieves the ids of the resources associated with the given fk values.
      *
      * @param string $suffix   the specific portion of the table name
@@ -352,7 +302,7 @@ class Schedule extends BaseModel
     /**
      * @inheritDoc
      */
-    public function getTable($name = '', $prefix = '', $options = [])
+    public function getTable($name = '', $prefix = '', $options = []): Schedules|Table
     {
         return new Tables\Schedules();
     }
@@ -389,7 +339,7 @@ class Schedule extends BaseModel
      *
      * @return void
      */
-    private function newPerson(array $instances, int $instanceID, int $personID)
+    private function newPerson(array $instances, int $instanceID, int $personID): void
     {
         $iPerson = new Tables\InstancePersons();
         $keys    = ['instanceID' => $instanceID, 'personID' => $personID];
@@ -521,7 +471,7 @@ class Schedule extends BaseModel
      *
      * @return void
      */
-    private function removePersons(array $instances, int $instanceID, array $personIDs)
+    private function removePersons(array $instances, int $instanceID, array $personIDs): void
     {
         foreach ($personIDs as $personID) {
             $iPerson = new Tables\InstancePersons();
@@ -554,7 +504,7 @@ class Schedule extends BaseModel
      *
      * @return void
      */
-    private function removeResource(string $table, int $assocID, int $resourceID)
+    private function removeResource(string $table, int $assocID, int $resourceID): void
     {
         switch ($table) {
             case 'groups':
@@ -586,7 +536,7 @@ class Schedule extends BaseModel
      *
      * @return void
      */
-    private function resetContext(int $organizationID, int $termID, int $baseID)
+    private function resetContext(int $organizationID, int $termID, int $baseID): void
     {
         $firstSchedule = new Tables\Schedules();
         $firstSchedule->load($baseID);
@@ -656,7 +606,7 @@ class Schedule extends BaseModel
      *
      * @return void
      */
-    private function resolveEventSubjects(int $organizationID)
+    private function resolveEventSubjects(int $organizationID): void
     {
         $query = Database::getQuery();
         /** @noinspection SqlResolve */
@@ -727,6 +677,7 @@ class Schedule extends BaseModel
             return $this->personIDMap[$deprecatedID];
         }
 
+        /** @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->selectX('personID', 'instance_persons', 'personID', $personIDs, true)->whereIn('instanceID', [$instanceID]);
         Database::setQuery($query);
@@ -748,7 +699,7 @@ class Schedule extends BaseModel
      *
      * @return void
      */
-    public function setCurrent(int $scheduleID, int $referenceID)
+    public function setCurrent(int $scheduleID, int $referenceID): void
     {
         $schedule = new Tables\Schedules();
 
@@ -958,13 +909,13 @@ class Schedule extends BaseModel
     /**
      * Updates a table associating an instance with a resource.
      *
-     * @param Tables\BaseTable|Tables\Modified $table  the association table to be updated
-     * @param string                           $delta  the status of the association
-     * @param int                              $roleID the id of the role for instance person associations
+     * @param BaseTable $table  the association table to be updated
+     * @param string    $delta  the status of the association
+     * @param int       $roleID the id of the role for instance person associations
      *
      * @return void
      */
-    private function updateAssoc($table, string $delta, int $roleID = 1)
+    private function updateAssoc(BaseTable $table, string $delta, int $roleID = 1): void
     {
         $table->delta    = $delta;
         $table->modified = $this->modified;
@@ -985,7 +936,7 @@ class Schedule extends BaseModel
      *
      * @return void
      */
-    private function updateBatch(string $suffix, array $entryIDs, array $conditions)
+    private function updateBatch(string $suffix, array $entryIDs, array $conditions): void
     {
         $entryIDs = implode(', ', $entryIDs);
         $query    = Database::getQuery();

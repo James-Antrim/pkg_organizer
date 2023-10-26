@@ -38,9 +38,9 @@ class Toolbar extends Base
      *
      * @param string $name The name of the toolbar.
      *
-     * @return  Base  The Toolbar object.
+     * @return Toolbar The Toolbar object.
      */
-    public static function getInstance($name = 'toolbar'): Base
+    public static function getInstance($name = 'toolbar'): Toolbar
     {
         if (empty(self::$instances[$name])) {
             $container = Application::getContainer();

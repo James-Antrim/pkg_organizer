@@ -19,9 +19,9 @@ use THM\Organizer\Models;
  */
 class Schedules extends Controller
 {
-    protected $listView = 'schedules';
+    protected string $listView = 'schedules';
 
-    protected $resource = 'schedule';
+    protected string $resource = 'schedule';
 
     /**
      * Notifies the points of contact for affected organizations of changes made to the schedule.
@@ -46,23 +46,10 @@ class Schedules extends Controller
     }*/
 
     /**
-     * Filters schedule instances to those which occur after the schedule's creation date & time.
-     * @return void
-     */
-    public function filterRelevance()
-    {
-        $model = new Models\Schedule();
-        $model->filterRelevance();
-        $url = Helpers\Routing::getRedirectBase();
-        $url .= "&view=schedules";
-        $this->setRedirect($url);
-    }
-
-    /**
      * Rebuilds the delta status of planning resources and relations.
      * @return void
      */
-    public function rebuild()
+    public function rebuild(): void
     {
         $model = new Models\Schedule();
 
@@ -81,7 +68,7 @@ class Schedules extends Controller
      * Uses the model's reference function to set the marked schedule as the reference in organization/term context.
      * @return void
      */
-    public function reference()
+    public function reference(): void
     {
         $model = new Models\Schedule();
 
@@ -100,7 +87,7 @@ class Schedules extends Controller
      * Uses the model's upload function to validate and save the file to the database should validation be successful.
      * @return void
      */
-    public function upload()
+    public function upload(): void
     {
         $url = Helpers\Routing::getRedirectBase();
         if (JDEBUG) {

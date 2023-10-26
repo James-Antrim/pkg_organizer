@@ -12,41 +12,62 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\MVC\View\ListView as Base;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
-use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
+use THM\Organizer\Controllers\Controller;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Models\ListModel;
 use stdClass;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
  */
-abstract class ListView extends BaseView
+abstract class ListView extends Base
 {
+    use Configured;
 
-    public array $activeFilters = [];
     public bool $allowBatch = false;
-    public array $batch = [];
     public string $empty = '';
-    public Form $filterForm;
+    /** @var Form */
+    public $filterForm;
     /**
      * The header information to display indexed by the referenced attribute.
      * @var array
      */
     public array $headers = [];
-    public array $items = [];
+    /** @var array */
+    public $items = [];
     protected string $layout = 'list';
     /** @var ListModel */
     protected BaseDatabaseModel $model;
     public $pagination = null;
     protected array $rowStructure = [];
     protected bool $sameTab = false;
-    public Registry $state;
-
+    public string $supplement = '';
+    /** @var Registry */
+    public $state;
     protected bool $structureEmpty = false;
+    /** @var array The default text for an empty result set. */
     public array $toDo = [];
+
+    /**
+     * Constructor
+     *
+     * @param array $config An optional associative array of configuration settings.
+     */
+    public function __construct(array $config)
+    {
+        $this->option = 'com_organizer';
+
+        // If this is not explicitly set going in Joomla will default to default without looking at the object property value.
+        $config['layout'] = $this->layout;
+
+        parent::__construct($config);
+
+        $this->configure();
+    }
 
     /**
      * Adds supplemental information to the display output.
@@ -58,40 +79,34 @@ abstract class ListView extends BaseView
     }
 
     /**
-     * Adds a toolbar and title to the view.
-     * @return void  sets context variables
+     * @inheritdoc
+     * ListView adds the title and configuration button if user has access. Inheriting classes are responsible for
+     * their own buttons.
      */
-    protected function addToolBar(bool $delete = true): void
+    protected function addToolBar(): void
     {
-        $resource = Helpers\OrganizerHelper::classEncode($this->getName());
-        $constant = strtoupper($resource);
-        $this->setTitle("ORGANIZER_$constant");
+        // MVC name identity is now the internal standard
+        $controller = $this->getName();
+        $toolbar    = Toolbar::getInstance();
+        $toolbar::setTitle(strtoupper($controller));
 
-        $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), "$resource.add", false);
-        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), "$resource.edit", true);
+        $uri    = (string) Uri::getInstance();
+        $return = urlencode(base64_encode($uri));
+        $link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
 
-        if ($delete) {
-            $toolbar->appendButton(
-                'Confirm',
-                Text::_('ORGANIZER_DELETE_CONFIRM'),
-                'delete',
-                Text::_('ORGANIZER_DELETE'),
-                "$resource.delete",
-                true
-            );
-        }
+        $toolbar->divider();
+        $toolbar->link(Text::_('SETTINGS'), $link)->icon('fa fa-cog');
     }
 
     /**
-     * Checks user authorization and initiates redirects accordingly.
+     * Checks user authorization and initiates redirects accordingly. General access is now regulated through the below
+     * mentioned functions. Views with public access can be further restricted here as necessary.
      * @return void
+     * @see Controller::display(), Can::view()
      */
     protected function authorize(): void
     {
-        if (!Helpers\Can::administrate()) {
-            Application::error(403);
-        }
+        // See comment.
     }
 
     /**
@@ -114,7 +129,7 @@ abstract class ListView extends BaseView
             $this->structureItems();
         }
 
-        $this->empty = $this->empty !== null ? $this->empty : Text::_('ORGANIZER_EMPTY_RESULT_SET');
+        $this->empty = $this->empty ?: Text::_('ORGANIZER_EMPTY_RESULT_SET');
 
         $this->addDisclaimer();
         $this->addToolBar();
@@ -220,10 +235,27 @@ abstract class ListView extends BaseView
     /**
      * @inheritDoc
      */
+    protected function initializeView(): void
+    {
+        // TODO: check submenu viability
+
+        parent::initializeView();
+
+        // All the tools are now there.
+        $this->addSupplement();
+        $this->initializeHeaders();
+        $this->completeItems();
+    }
+
+    /**
+     * Adds scripts and stylesheets to the document.
+     *     *
+     * @deprecated  4.3 will be removed in 6.0
+     *              Use WebAssetManager
+     *              Example: $wa->registerAndUseStyle(...);
+     */
     protected function modifyDocument(): void
     {
-        parent::modifyDocument();
-
         Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
         Document::addScript(Uri::root() . 'components/com_organizer/js/list.js');
     }
