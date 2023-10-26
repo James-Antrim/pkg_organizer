@@ -17,14 +17,23 @@ use THM\Organizer\Adapters\Text;
  */
 class SubjectItem extends ItemView
 {
+    use Documented;
+
+    /** @inheritdoc */
+    public function display($tpl = null): void
+    {
+        $this->addDisclaimer();
+        parent::display($tpl);
+    }
+
     /**
      * Renders a number of stars appropriate to the value
      *
-     * @param int|null $value the value of the star attribute
+     * @param   int|null  $value  the value of the star attribute
      *
      * @return void outputs HTML
      */
-    public function renderStarValue(?int $value)
+    public function renderStarValue(?int $value): void
     {
         if (is_null($value)) {
             return;

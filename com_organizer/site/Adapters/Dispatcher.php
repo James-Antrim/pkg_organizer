@@ -57,10 +57,12 @@ class Dispatcher extends ComponentDispatcher
 
             Input::set('args', $args);
 
-        } elseif (!$controller = Input::getController()) {
+        }
+        elseif (!$controller = Input::getController()) {
             if (Application::backend()) {
-                $controller = 'Groups';
-            } else {
+                $controller = 'Organizer';
+            }
+            else {
                 Application::redirect();
             }
         }
@@ -75,11 +77,11 @@ class Dispatcher extends ComponentDispatcher
         try {
             /** @var Controller $controller */
             $controller->execute($task);
-        } catch (Exception $exception) {
+            $controller->redirect();
+        }
+        catch (Exception $exception) {
             Application::handleException($exception);
         }
-
-        $controller->redirect();
     }
 
     /**

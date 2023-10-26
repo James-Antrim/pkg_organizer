@@ -42,7 +42,6 @@ abstract class ItemView extends BaseView
     {
         $this->item = $this->get('Item');
 
-        $this->addDisclaimer();
         $this->addToolBar();
         $this->setSubtitle();
         $this->addSupplement();
@@ -91,7 +90,7 @@ abstract class ItemView extends BaseView
     /**
      * Recursively outputs an array of items as a list.
      *
-     * @param array $items the items to be displayed.
+     * @param   array  $items  the items to be displayed.
      *
      * @return void outputs the items as a html list
      */
@@ -103,7 +102,8 @@ abstract class ItemView extends BaseView
             if (is_array($item)) {
                 echo $index;
                 $this->renderListValue($item, $url, $urlAttribs);
-            } else {
+            }
+            else {
                 echo empty($url) ? $item : Helpers\HTML::link(Route::_($url . $index), $item, $urlAttribs);
             }
             echo '</li>';

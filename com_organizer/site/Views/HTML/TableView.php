@@ -58,7 +58,6 @@ abstract class TableView extends BaseView
         $this->setRows($this->get('Items'));
         $this->pagination = $this->get('Pagination');
 
-        $this->addDisclaimer();
         if (method_exists($this, 'setSubtitle')) {
             $this->setSubtitle();
         }
@@ -76,9 +75,9 @@ abstract class TableView extends BaseView
     /**
      * Creates the HTML which will later be rendered. This is not output directly to allow for multilevel headers.
      *
-     * @param array  $cell      the data to use for HTML generation
-     * @param string $dataClass the class denoting the displayed information's column type
-     * @param int    $colSpan   the number of columns the generated header cell will span
+     * @param   array   $cell       the data to use for HTML generation
+     * @param   string  $dataClass  the class denoting the displayed information's column type
+     * @param   int     $colSpan    the number of columns the generated header cell will span
      *
      * @return string
      */
@@ -94,7 +93,7 @@ abstract class TableView extends BaseView
     /**
      * Processes an individual list item resolving it to an array of table data values.
      *
-     * @param object $resource the resource whose information is displayed in the row
+     * @param   object  $resource  the resource whose information is displayed in the row
      *
      * @return array an array of property columns with their values
      */
@@ -103,7 +102,7 @@ abstract class TableView extends BaseView
     /**
      * Creates a label with tooltip for the resource row.
      *
-     * @param object $resource the resource to be displayed in the row
+     * @param   object  $resource  the resource to be displayed in the row
      *
      * @return string[]  the label inclusive tooltip to be displayed
      */
@@ -112,7 +111,7 @@ abstract class TableView extends BaseView
     /**
      * Creates a table cell.
      *
-     * @param array $data the data used to structure the cell
+     * @param   array  $data  the data used to structure the cell
      *
      * @return string[] structured cell information
      */
@@ -148,11 +147,13 @@ abstract class TableView extends BaseView
                     foreach ($header['columns'] as $column) {
                         $levelTwo .= $this->getHeaderCell($column, $dataClass);
                     }
-                } else {
+                }
+                else {
                     $levelTwo .= $this->getHeaderCell([], $dataClass);
                 }
 
-            } elseif ($header['text']) {
+            }
+            elseif ($header['text']) {
                 $this->columnCount++;
             }
 
@@ -181,7 +182,8 @@ abstract class TableView extends BaseView
             foreach ($row as $cell) {
                 if (isset($cell['label'])) {
                     echo "<th class=\"resource-column\">{$cell['label']}</th>";
-                } elseif (isset($cell['text'])) {
+                }
+                elseif (isset($cell['text'])) {
                     echo "<td class=\"data-column\">{$cell['text']}</td>";
                 }
             }
@@ -204,7 +206,7 @@ abstract class TableView extends BaseView
     /**
      * Processes the resources for display in rows.
      *
-     * @param array $resources the resources to be displayed
+     * @param   array  $resources  the resources to be displayed
      *
      * @return void processes the class rows property
      */

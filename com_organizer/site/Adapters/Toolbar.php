@@ -36,11 +36,11 @@ class Toolbar extends Base
      * deprecated => use the container, but the container is explicitly not allowed to set toolbars because they are
      * GLOBAL and used by joomla to display component items outside the component context.
      *
-     * @param string $name The name of the toolbar.
+     * @param   string  $name  The name of the toolbar.
      *
      * @return Toolbar The Toolbar object.
      */
-    public static function getInstance($name = 'toolbar'): Toolbar
+    public static function getInstance($name = 'toolbar'): Base
     {
         if (empty(self::$instances[$name])) {
             $container = Application::getContainer();
@@ -48,7 +48,8 @@ class Toolbar extends Base
             try {
                 $tbFactory              = $container->get(ToolbarFactoryInterface::class);
                 self::$instances[$name] = $tbFactory->createToolbar($name);
-            } catch (KeyNotFoundException $exception) {
+            }
+            catch (KeyNotFoundException $exception) {
                 Application::handleException($exception);
             }
         }
@@ -59,7 +60,7 @@ class Toolbar extends Base
     /**
      * Load the button class including the deprecated ones.
      *
-     * @param string $type Button Type
+     * @param   string  $type  Button Type
      *
      * @return  string|null
      */
@@ -104,7 +105,8 @@ class Toolbar extends Base
 
             if ($buttonFile = Path::find($dirs, $file)) {
                 include_once $buttonFile;
-            } else {
+            }
+            else {
                 Log::add(Text::sprintf('JLIB_HTML_BUTTON_NO_LOAD', $buttonClass, $buttonFile), Log::WARNING, 'jerror');
 
                 return false;
@@ -125,7 +127,7 @@ class Toolbar extends Base
     /**
      * Render a toolbar. Wraps the parent class to avoid exception handling when the layout file is not found.
      *
-     * @param array $options The options of toolbar.
+     * @param   array  $options  The options of toolbar.
      *
      * @return  string  HTML for the toolbar.
      */
@@ -133,8 +135,10 @@ class Toolbar extends Base
     {
         try {
             return parent::render($options);
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::message($exception->getMessage(), Application::ERROR);
+
             return '';
         }
     }
@@ -143,14 +147,14 @@ class Toolbar extends Base
      * Sets the application (view) title to a pre-rendered title layout with the given text and optional icon. Also sets
      * the document title.
      *
-     * @param string $title the view title
-     * @param string $icon  the icon class name
+     * @param   string  $title  the view title
+     * @param   string  $icon   the icon class name
      *
      * @return  void
      * @see Helper::title()
      */
     public static function setTitle(string $title, string $icon = ''): void
     {
-        Helper::title($title, $icon);
+        Helper::title(Text::_($title), $icon);
     }
 }

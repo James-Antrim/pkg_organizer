@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
 use THM\Organizer\Tables;
 
 /**
@@ -24,12 +24,12 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * Filters organizations according to user access and relevant resource associations.
      *
-     * @param JDatabaseQuery $query  the query to modify
-     * @param string         $access any access restriction which should be performed
+     * @param   DatabaseQuery  $query   the query to modify
+     * @param   string         $access  any access restriction which should be performed
      *
      * @return void modifies the query
      */
-    private static function addAccessFilter(JDatabaseQuery $query, string $access)
+    private static function addAccessFilter(DatabaseQuery $query, string $access): void
     {
         if (!$access or !$view = Input::getView()) {
             return;
@@ -84,7 +84,7 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * Checks whether direct scheduling has been allowed for the given organization id.
      *
-     * @param int $organizationID the id of the organization
+     * @param   int  $organizationID  the id of the organization
      *
      * @return bool true if direct scheduling is allowed otherwise false
      */
@@ -102,8 +102,8 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * Gets the categories associated with a given organization.
      *
-     * @param int  $organizationID the organization to filter categories against
-     * @param bool $active         whether to filter out inactive categories
+     * @param   int   $organizationID  the organization to filter categories against
+     * @param   bool  $active          whether to filter out inactive categories
      *
      * @return array[]
      */
@@ -128,7 +128,7 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * The default grid for an organization defined by current organization grid usage. 0 if no usage is available.
      *
-     * @param int $organizationID
+     * @param   int  $organizationID
      *
      * @return int
      */
@@ -156,8 +156,8 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param bool   $short  whether abbreviated names should be returned
-     * @param string $access any access restriction which should be performed
+     * @param   bool    $short   whether abbreviated names should be returned
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getOptions(bool $short = true, string $access = ''): array
     {
@@ -170,8 +170,7 @@ class Organizations extends ResourceHelper implements Selectable
             }
         }
 
-        uasort($options, function ($optionOne, $optionTwo)
-        {
+        uasort($options, function ($optionOne, $optionTwo) {
             return strcmp($optionOne->text, $optionTwo->text);
         });
 
@@ -182,12 +181,13 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * Retrieves a set of personIDs associated with the given organization.
      *
-     * @param int $organizationID
+     * @param   int  $organizationID
      *
      * @return int[]
      */
     public static function getPersonIDs(int $organizationID): array
     {
+        /** @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->selectX('DISTINCT personID', 'associations', 'organizationID', [$organizationID]);
         Database::setQuery($query);
@@ -198,7 +198,7 @@ class Organizations extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param string $access any access restriction which should be performed
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getResources(string $access = ''): array
     {
@@ -216,12 +216,12 @@ class Organizations extends ResourceHelper implements Selectable
      * Checks whether the plan resource is already associated with an organization, creating an entry if none already
      * exists.
      *
-     * @param int    $resourceID the db id for the plan resource
-     * @param string $column     the column in which the resource information is stored
+     * @param   int     $resourceID  the db id for the plan resource
+     * @param   string  $column      the column in which the resource information is stored
      *
      * @return void
      */
-    public static function setResource(int $resourceID, string $column)
+    public static function setResource(int $resourceID, string $column): void
     {
         $associations = new Tables\Associations();
 

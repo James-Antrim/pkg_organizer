@@ -11,15 +11,12 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use JDatabaseQuery;
-use Joomla\CMS\Form\Form;
-use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\CMS\MVC\Model\ListModel as Base;
+use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Base};
 use Joomla\CMS\Table\Table;
-use Joomla\Database\QueryInterface;
+use Joomla\Database\{DatabaseQuery, QueryInterface};
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Form, Input, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -65,7 +62,8 @@ abstract class ListModel extends Base
 
         try {
             parent::__construct($config, $factory);
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::handleException($exception);
         }
 
@@ -80,8 +78,8 @@ abstract class ListModel extends Base
     /**
      * Adds a binary value filter clause for the given $query;
      *
-     * @param QueryInterface $query the query to modify
-     * @param string         $name  the attribute whose value to filter against
+     * @param   QueryInterface  $query  the query to modify
+     * @param   string          $name   the attribute whose value to filter against
      *
      * @return void modifies the query if a binary value was delivered in the request
      */
@@ -114,7 +112,7 @@ abstract class ListModel extends Base
     /**
      * Filters out form inputs which should not be displayed due to menu settings.
      *
-     * @param Form $form the form to be filtered
+     * @param   Form  $form  the form to be filtered
      *
      * @return void modifies $form
      */
@@ -150,8 +148,8 @@ abstract class ListModel extends Base
      * Gets the filter form. Overwrites the parent to have form names analog to the view names in which they are used.
      * Also has enhanced error reporting in the event of failure.
      *
-     * @param array $data     data
-     * @param bool  $loadData load current data
+     * @param   array  $data      data
+     * @param   bool   $loadData  load current data
      *
      * @return  Form|null  the form object or null if the form can't be found
      */
@@ -164,7 +162,8 @@ abstract class ListModel extends Base
 
         try {
             return $this->loadForm($context, $this->filterFormName, $options);
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::handleException($exception);
         }
 
@@ -185,9 +184,9 @@ abstract class ListModel extends Base
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    the table name, unused
-     * @param string $prefix  the class prefix, unused
-     * @param array  $options configuration array for model, unused
+     * @param   string  $name     the table name, unused
+     * @param   string  $prefix   the class prefix, unused
+     * @param   array   $options  configuration array for model, unused
      *
      * @return  Table  a table object
      */
@@ -235,6 +234,7 @@ abstract class ListModel extends Base
      */
     protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false): Form
     {
+        /** @var Form $form */
         if ($form = parent::loadForm($name, $source, $options, $clear, $xpath)) {
             $this->filterFilterForm($form);
         }
@@ -245,7 +245,7 @@ abstract class ListModel extends Base
     /**
      * Checks whether the given value can safely be interpreted as a binary value.
      *
-     * @param mixed $value the value to be checked
+     * @param   mixed  $value  the value to be checked
      *
      * @return bool if the value can be interpreted as a binary integer
      */
@@ -281,7 +281,8 @@ abstract class ListModel extends Base
             if (str_starts_with($property, 'list.')) {
                 $listProperty              = substr($property, 5);
                 $data->list[$listProperty] = $value;
-            } elseif (str_starts_with($property, 'filter.')) {
+            }
+            elseif (str_starts_with($property, 'filter.')) {
                 $filterProperty                = substr($property, 7);
                 $data->filter[$filterProperty] = $value;
             }
@@ -343,7 +344,8 @@ abstract class ListModel extends Base
 
         if ($format = Input::getCMD('format') and $format === 'pdf') {
             $limit = 0;
-        } else {
+        }
+        else {
             $limit = (isset($list['limit']) && is_numeric($list['limit'])) ? $list['limit'] : $this->defaultLimit;
         }
 
@@ -357,10 +359,10 @@ abstract class ListModel extends Base
     /**
      * Sets a campus filter for a given resource.
      *
-     * @param JDatabaseQuery $query the query to modify
-     * @param string         $alias the alias for the linking table
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias for the linking table
      */
-    public function setCampusFilter(JDatabaseQuery $query, string $alias): void
+    public function setCampusFilter(DatabaseQuery $query, string $alias): void
     {
         $campusID = $this->state->get('filter.campusID');
         if (empty($campusID)) {
@@ -381,10 +383,10 @@ abstract class ListModel extends Base
     /**
      * Sets a campus filter for a given resource.
      *
-     * @param JDatabaseQuery $query the query to modify
-     * @param string         $alias the alias for the linking table
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias for the linking table
      */
-    public function setActiveFilter(JDatabaseQuery $query, string $alias): void
+    public function setActiveFilter(DatabaseQuery $query, string $alias): void
     {
         $status = $this->state->get('filter.active');
 
@@ -402,13 +404,13 @@ abstract class ListModel extends Base
     /**
      * Provides a default method for setting filters based on id/unique values
      *
-     * @param JDatabaseQuery $query      the query to modify
-     * @param string         $idColumn   the id column in the table
-     * @param string         $filterName the filter name to look for the id in
+     * @param   DatabaseQuery  $query       the query to modify
+     * @param   string         $idColumn    the id column in the table
+     * @param   string         $filterName  the filter name to look for the id in
      *
      * @return void
      */
-    protected function setIDFilter(JDatabaseQuery $query, string $idColumn, string $filterName): void
+    protected function setIDFilter(DatabaseQuery $query, string $idColumn, string $filterName): void
     {
         $value = $this->state->get($filterName, '');
         if ($value === '') {
@@ -433,11 +435,11 @@ abstract class ListModel extends Base
     /**
      * Provides a default method for setting the list ordering
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   DatabaseQuery  $query  the query to modify
      *
      * @return void
      */
-    protected function setOrdering(JDatabaseQuery $query): void
+    protected function setOrdering(DatabaseQuery $query): void
     {
         $defaultOrdering = "$this->defaultOrdering $this->defaultDirection";
         $session         = Application::getSession();
@@ -459,9 +461,9 @@ abstract class ListModel extends Base
     /**
      * Sets an organization filter for the given resource.
      *
-     * @param QueryMySQLi $query          the query to modify
-     * @param string      $context        the resource context from which this function was called
-     * @param string      $alias          the alias of the table onto which the organizations table will be joined as
+     * @param   QueryMySQLi  $query       the query to modify
+     * @param   string       $context     the resource context from which this function was called
+     * @param   string       $alias       the alias of the table onto which the organizations table will be joined as
      *                                    needed
      *
      * @return void
@@ -491,8 +493,8 @@ abstract class ListModel extends Base
     /**
      * Sets the search filter for the query
      *
-     * @param QueryMySQLi $query       the query to modify
-     * @param array       $columnNames the column names to use in the search
+     * @param   QueryMySQLi  $query        the query to modify
+     * @param   array        $columnNames  the column names to use in the search
      *
      * @return void
      */
@@ -516,10 +518,10 @@ abstract class ListModel extends Base
     /**
      * Adds a date status filter for a given resource.
      *
-     * @param JDatabaseQuery $query the query to modify
-     * @param string         $alias the column alias
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the column alias
      */
-    public function setStatusFilter(JDatabaseQuery $query, string $alias): void
+    public function setStatusFilter(DatabaseQuery $query, string $alias): void
     {
         if (!$value = $this->state->get('filter.status')) {
             return;
@@ -551,12 +553,12 @@ abstract class ListModel extends Base
     /**
      * Provides a default method for setting filters for non-unique values
      *
-     * @param JDatabaseQuery $query        the query to modify
-     * @param array          $queryColumns the filter names. names should be synonymous with db column names.
+     * @param   DatabaseQuery  $query         the query to modify
+     * @param   array          $queryColumns  the filter names. names should be synonymous with db column names.
      *
      * @return void
      */
-    protected function setValueFilters(JDatabaseQuery $query, array $queryColumns): void
+    protected function setValueFilters(DatabaseQuery $query, array $queryColumns): void
     {
         $filters = Input::getFilterItems();
         $lists   = Input::getListItems();
@@ -598,10 +600,12 @@ abstract class ListModel extends Base
 
             if (is_numeric($value)) {
                 $query->where("$column = $value");
-            } elseif (is_string($value)) {
+            }
+            elseif (is_string($value)) {
                 $value = Database::quote($value);
                 $query->where("$column = $value");
-            } elseif (is_array($value) and $values = ArrayHelper::toInteger($value)) {
+            }
+            elseif (is_array($value) and $values = ArrayHelper::toInteger($value)) {
                 $query->where($column . Database::makeSet($values));
             }
         }

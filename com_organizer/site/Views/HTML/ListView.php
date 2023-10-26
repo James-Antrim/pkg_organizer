@@ -26,7 +26,7 @@ use stdClass;
  */
 abstract class ListView extends Base
 {
-    use Configured;
+    use Configured, ToCed;
 
     public bool $allowBatch = false;
     public string $empty = '';
@@ -55,7 +55,7 @@ abstract class ListView extends Base
     /**
      * Constructor
      *
-     * @param array $config An optional associative array of configuration settings.
+     * @param   array  $config  An optional associative array of configuration settings.
      */
     public function __construct(array $config)
     {
@@ -131,9 +131,8 @@ abstract class ListView extends Base
 
         $this->empty = $this->empty ?: Text::_('ORGANIZER_EMPTY_RESULT_SET');
 
-        $this->addDisclaimer();
+        $this->addToC();
         $this->addToolBar();
-        $this->addMenu();
         $this->modifyDocument();
         $this->setSubtitle();
         $this->addSupplement();
@@ -144,14 +143,14 @@ abstract class ListView extends Base
     /**
      * Generates a toggle for an attribute of an association
      *
-     * @param string $controller   the name of the controller which executes the task
-     * @param string $columnOne    the name of the first identifying column
-     * @param int    $valueOne     the value of the first identifying column
-     * @param string $columnTwo    the name of the second identifying column
-     * @param int    $valueTwo     the value of the second identifying column
-     * @param bool   $currentValue the value currently set for the attribute (saves asking it later)
-     * @param string $tip          the tooltip
-     * @param string $attribute    the resource attribute to be changed (useful if multiple entries can be toggled)
+     * @param   string  $controller    the name of the controller which executes the task
+     * @param   string  $columnOne     the name of the first identifying column
+     * @param   int     $valueOne      the value of the first identifying column
+     * @param   string  $columnTwo     the name of the second identifying column
+     * @param   int     $valueTwo      the value of the second identifying column
+     * @param   bool    $currentValue  the value currently set for the attribute (saves asking it later)
+     * @param   string  $tip           the tooltip
+     * @param   string  $attribute     the resource attribute to be changed (useful if multiple entries can be toggled)
      *
      * @return string  a HTML string
      * @noinspection PhpTooManyParametersInspection
@@ -159,10 +158,10 @@ abstract class ListView extends Base
     protected function getAssocToggle(
         string $controller,
         string $columnOne,
-        int    $valueOne,
+        int $valueOne,
         string $columnTwo,
-        int    $valueTwo,
-        bool   $currentValue,
+        int $valueTwo,
+        bool $currentValue,
         string $tip,
         string $attribute = ''
     ): string
@@ -183,7 +182,7 @@ abstract class ListView extends Base
     /**
      * Generates a string containing attribute information for an HTML element to be output
      *
-     * @param mixed &$element the element being processed
+     * @param   mixed &$element  the element being processed
      *
      * @return string the HTML attribute output for the item
      */
@@ -205,18 +204,18 @@ abstract class ListView extends Base
     /**
      * Generates a toggle for a binary resource attribute
      *
-     * @param string $controller   the name of the data management controller
-     * @param int    $resourceID   the id of the resource
-     * @param bool   $currentValue the value currently set for the attribute (saves asking it later)
-     * @param string $tip          the tooltip
-     * @param string $attribute    the resource attribute to be changed (useful if multiple entries can be toggled)
+     * @param   string  $controller    the name of the data management controller
+     * @param   int     $resourceID    the id of the resource
+     * @param   bool    $currentValue  the value currently set for the attribute (saves asking it later)
+     * @param   string  $tip           the tooltip
+     * @param   string  $attribute     the resource attribute to be changed (useful if multiple entries can be toggled)
      *
      * @return string  a HTML string
      */
     protected function getToggle(
         string $controller,
-        int    $resourceID,
-        bool   $currentValue,
+        int $resourceID,
+        bool $currentValue,
         string $tip,
         string $attribute = ''
     ): string
@@ -299,9 +298,9 @@ abstract class ListView extends Base
     /**
      * Processes an individual list item resolving it to an array of table data values.
      *
-     * @param int|string $index the row index, typically an int value, but can also be string
-     * @param stdClass   $item  the item to be displayed in a table row
-     * @param string     $link  the link to the individual resource
+     * @param   int|string  $index  the row index, typically an int value, but can also be string
+     * @param   stdClass    $item   the item to be displayed in a table row
+     * @param   string      $link   the link to the individual resource
      *
      * @return array an array of property columns with their values
      */

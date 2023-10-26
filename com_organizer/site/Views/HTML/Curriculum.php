@@ -20,9 +20,18 @@ use THM\Organizer\Helpers\HTML;
  */
 class Curriculum extends ItemView
 {
+    use Documented;
+
     protected string $layout = 'curriculum';
 
     public array $fields = [];
+
+    /** @inheritdoc */
+    public function display($tpl = null): void
+    {
+        $this->addDisclaimer();
+        parent::display($tpl);
+    }
 
     /**
      * Filters out invalid and true empty values. (0 is allowed.)
@@ -46,7 +55,7 @@ class Curriculum extends ItemView
     /**
      * Creates the HTML for a panel item.
      *
-     * @param array $item the date for the panel item to create
+     * @param   array  $item  the date for the panel item to create
      *
      * @return string the HTML for the panel item
      */
@@ -88,7 +97,8 @@ class Curriculum extends ItemView
                 }
 
                 $itemClass = 'item-subject';
-            } else {
+            }
+            else {
                 $crp = Helpers\Pools::getCrPText($item);
                 $url = $base . 'Subjects';
                 $url .= "&programID={$this->item['programID']}&poolID={$item['poolID']}";
@@ -136,7 +146,7 @@ class Curriculum extends ItemView
     /**
      * Outputs the pool information in the form of a panel
      *
-     * @param array $pool the pool to be displayed
+     * @param   array  $pool  the pool to be displayed
      *
      * @return void displays HTML
      */
@@ -159,7 +169,7 @@ class Curriculum extends ItemView
     /**
      * Displays the body of the panel while iterating through child items
      *
-     * @param array $curriculum the subordinate elements to the pool modeled by the panel
+     * @param   array  $curriculum  the subordinate elements to the pool modeled by the panel
      *
      * @return  void displays the panel body
      */

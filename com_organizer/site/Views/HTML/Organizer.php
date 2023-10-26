@@ -10,26 +10,43 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Document, Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class modifies the document for the output of a menu like list of resource management views.
  */
-class Organizer extends BaseView
+class Organizer extends HtmlView
 {
+    use Configured, ToCed;
+
+    protected string $layout = 'organizer';
+
     /**
-     * Method to get display
+     * Constructor
      *
-     * @param Object $tpl template  (default: null)
-     *
-     * @return void
+     * @param   array  $config  An optional associative array of configuration settings.
+     */
+    public function __construct(array $config)
+    {
+        $this->option = 'com_organizer';
+
+        // If this is not explicitly set going in Joomla will default to default without looking at the object property value.
+        $config['layout'] = $this->layout;
+
+        parent::__construct($config);
+
+        $this->configure();
+    }
+
+    /**
+     * @inheritdoc
      */
     public function display($tpl = null): void
     {
-        $this->addMenu();
-        $this->modifyDocument();
+        $this->addToC();
         $this->addToolBar();
 
         parent::display($tpl);
@@ -41,55 +58,24 @@ class Organizer extends BaseView
      */
     protected function addToolBar(): void
     {
-        $this->setTitle('ORGANIZER_MAIN');
+        Toolbar::setTitle('MAIN');
 
-        if (Helpers\Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
-            $toolbar->appendButton(
-                'Standard',
-                'trash',
-                Text::_('ORGANIZER_CLEAN_BOOKINGS'),
-                'organizer.cleanBookings',
-                false
-            );
-
-            $toolbar = Toolbar::getInstance();
-            $toolbar->appendButton(
-                'Standard',
-                'bars',
-                'Update Participation Numbers',
-                'organizer.updateNumbers',
-                false
-            );
-
-            $toolbar = Toolbar::getInstance();
-            $toolbar->appendButton(
-                'Standard',
-                'brush',
-                'Clean DB Entries',
-                'organizer.cleanDB',
-                false
-            );
-
-            $toolbar = Toolbar::getInstance();
-            $toolbar->appendButton(
-                'Standard',
-                'key',
-                'Re-Key Tables',
-                'organizer.reKeyTables',
-                false
-            );
-
+        if (Can::administrate()) {
             $uri    = (string) Uri::getInstance();
             $return = urlencode(base64_encode($uri));
             $link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
 
-            $toolbar->appendButton('Link', 'options', Text::_('ORGANIZER_SETTINGS'), $link);
+            $toolbar = Toolbar::getInstance();
+            $toolbar->standardButton('trash', 'Clean Bookings', 'Organizer.cleanBookings');
+            $toolbar->standardButton('bars', 'Update Participation Numbers', 'Organizer.updateNumbers');
+            $toolbar->standardButton('brush', 'Clean DB Entries', 'Organizer.cleanDB');
+            $toolbar->standardButton('key', 'Re-Key Tables', 'Organizer.reKeyTables');
+            $toolbar->linkButton('options', Text::_('SETTINGS'))->url($link);
         }
     }
 
     /**
-     * @inheritDoc
+     * @deprecated use web assets
      */
     protected function modifyDocument(): void
     {

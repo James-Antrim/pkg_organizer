@@ -12,14 +12,15 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
 use Joomla\Registry\Registry;
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Routing;
+use THM\Organizer\Helpers\{Can, HTML, Persons, Pools, Programs, Routing};
 
 /**
  * Class loads persistent information a filtered set of subjects into the display context.
  */
 class Subjects extends ListView
 {
+    use Documented;
+
     private const ALL = 0, COORDINATES = 1, TEACHES = 2;
 
     private bool $documentAccess = false;
@@ -43,14 +44,15 @@ class Subjects extends ListView
         $resourceName = '';
         if (!Application::backend()) {
             if ($personID = $this->state->get('calledPersonID', 0)) {
-                $resourceName = Helpers\Persons::getDefaultName($personID);
+                $resourceName = Persons::getDefaultName($personID);
                 $resourceName .= ": " . Text::_('ORGANIZER_SUBJECTS');
-            } else {
+            }
+            else {
                 if ($programID = Input::getInt('programID')) {
-                    $resourceName = Helpers\Programs::getName($programID);
+                    $resourceName = Programs::getName($programID);
                 }
                 if ($poolID = $this->state->get('calledPoolID', 0)) {
-                    $poolName     = Helpers\Pools::getFullName($poolID);
+                    $poolName     = Pools::getFullName($poolID);
                     $resourceName .= empty($resourceName) ? $poolName : ", $poolName";
                 }
             }
@@ -88,9 +90,16 @@ class Subjects extends ListView
             return;
         }
 
-        if (!$this->documentAccess = Helpers\Can::documentTheseOrganizations()) {
+        if (!$this->documentAccess = (bool) Can::documentTheseOrganizations()) {
             Application::error(403);
         }
+    }
+
+    /** @inheritdoc */
+    public function display($tpl = null): void
+    {
+        $this->addDisclaimer();
+        parent::display($tpl);
     }
 
     /**
@@ -104,16 +113,17 @@ class Subjects extends ListView
 
         if (Application::backend() or $this->documentAccess) {
             $headers['checkbox'] = (Application::backend() and $this->documentAccess) ?
-                Helpers\HTML::_('grid.checkall') : '';
+                HTML::_('grid.checkall') : '';
         }
 
-        $headers['name'] = Helpers\HTML::sort('NAME', 'name', $direction, $ordering);
-        $headers['code'] = Helpers\HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
+        $headers['name'] = HTML::sort('NAME', 'name', $direction, $ordering);
+        $headers['code'] = HTML::sort('MODULE_CODE', 'code', $direction, $ordering);
 
         if (!$this->state->get('calledPersonID', 0)) {
             if ($role = (int) Input::getParams()->get('role') and $role === self::COORDINATES) {
                 $personsText = Text::_('ORGANIZER_COORDINATORS');
-            } else {
+            }
+            else {
                 $personsText = Text::_('ORGANIZER_TEACHERS');
             }
             $headers['persons'] = $personsText;
@@ -127,7 +137,7 @@ class Subjects extends ListView
     /**
      * Retrieves the person texts and formats them according to their roles for the subject being iterated
      *
-     * @param object $subject the subject being iterated
+     * @param   object  $subject  the subject being iterated
      *
      * @return string
      */
@@ -166,7 +176,7 @@ class Subjects extends ListView
     /**
      * Generates the person text (surname(, forename)?( title)?) for the given person
      *
-     * @param array $person the subject person
+     * @param   array  $person  the subject person
      *
      * @return string
      */
@@ -203,8 +213,8 @@ class Subjects extends ListView
         $calledPersonID = (int) $this->state->get('calledPersonID', 0);
 
         foreach ($this->items as $subject) {
-            $access   = Helpers\Can::document('subject', (int) $subject->id);
-            $checkbox = $access ? Helpers\HTML::_('grid.id', $index, $subject->id) : '';
+            $access   = Can::document('subject', (int) $subject->id);
+            $checkbox = $access ? HTML::_('grid.id', $index, $subject->id) : '';
             $thisLink = (Application::backend() and $access) ?
                 Routing::getViewURL('SubjectEdit', $subject->id) : Routing::getViewURL('SubjectItem', $subject->id);
 
@@ -214,8 +224,8 @@ class Subjects extends ListView
                 $structuredItems[$index]['checkbox'] = $checkbox;
             }
 
-            $structuredItems[$index]['name'] = Helpers\HTML::_('link', $thisLink, $subject->name, $attributes);
-            $structuredItems[$index]['code'] = Helpers\HTML::_('link', $thisLink, $subject->code, $attributes);
+            $structuredItems[$index]['name'] = HTML::_('link', $thisLink, $subject->name, $attributes);
+            $structuredItems[$index]['code'] = HTML::_('link', $thisLink, $subject->code, $attributes);
 
             if (!$calledPersonID) {
                 $structuredItems[$index]['persons'] = $this->getPersonDisplay($subject);

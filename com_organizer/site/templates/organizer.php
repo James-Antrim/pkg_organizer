@@ -9,16 +9,11 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers;
 
-$logoURL = 'components/com_organizer/images/organizer.png';
-$logo    = Helpers\HTML::_('image', $logoURL, Text::_('ORGANIZER'), ['class' => 'organizer_main_image']);
-$query   = Uri::getInstance()->getQuery();
+$query = Uri::getInstance()->getQuery();
 ?>
-<div id="j-sidebar-container" class="span2">
-    <?php echo $this->submenu; ?>
-</div>
+<?php echo $this->ToC; ?>
 <div id="j-main-container" class="span10">
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post"
           name="adminForm">
