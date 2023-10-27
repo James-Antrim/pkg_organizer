@@ -185,7 +185,7 @@ class Text extends Base
     {
         $lang    = Application::getLanguage();
         $args    = func_get_args();
-        $args[0] = $lang->_($string);
+        $args[0] = $lang->_(self::prefaceKey($string));
 
         // Replace custom placeholders
         $args[0] = preg_replace('/\[\[%([0-9]+):[^\]]*\]\]/', '%\1$s', $args[0]);
