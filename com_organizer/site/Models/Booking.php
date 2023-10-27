@@ -12,7 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\User\User;
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
@@ -80,7 +80,8 @@ class Booking extends Participants
 
             if ($booking->save(array_merge($keys, $values))) {
                 Application::message('ORGANIZER_BOOKING_CREATED');
-            } else {
+            }
+            else {
                 Application::message('ORGANIZER_BOOKING_NOT_CREATED', Application::ERROR);
             }
         }
@@ -119,14 +120,15 @@ class Booking extends Participants
                 $participant->supplement($participantID);
                 $existing = false;
             }
-        } else {
+        }
+        else {
             $input   = mb_convert_encoding($input, 'ISO-8859-1', 'utf-8');
             $content = http_build_query(['name' => $input]);
             $header  = "Content-type: application/x-www-form-urlencoded\r\n";
             $context = stream_context_create([
                 'http' => [
-                    'header' => $header,
-                    'method' => 'POST',
+                    'header'  => $header,
+                    'method'  => 'POST',
                     'content' => $content
                 ]
             ]);
@@ -154,7 +156,8 @@ class Booking extends Participants
                 Application::message($message, Application::NOTICE);
 
                 return;
-            } elseif (!$count) {
+            }
+            elseif (!$count) {
                 Application::message('ORGANIZER_EMPTY_RESULT_SET', Application::NOTICE);
 
                 return;
@@ -209,7 +212,8 @@ class Booking extends Participants
                     if ($userNameParticipant->id) {
                         $deleteID      = $emailID;
                         $participantID = $userNameID;
-                    } else {
+                    }
+                    else {
                         $deleteID      = $userNameID;
                         $participantID = $emailID;
                     }
@@ -236,14 +240,16 @@ class Booking extends Participants
                 $user = new User();
                 $user->load($deleteID);
                 $user->delete();
-            } elseif ($userNameID or $emailID) {
+            }
+            elseif ($userNameID or $emailID) {
                 $participantID = $userNameID ?: $emailID;
-            } else {
+            }
+            else {
                 $data     = [
-                    'block' => 0,
-                    'email' => $email,
-                    'groups' => [2],
-                    'name' => $name,
+                    'block'    => 0,
+                    'email'    => $email,
+                    'groups'   => [2],
+                    'name'     => $name,
                     'username' => $username
                 ];
                 $existing = false;
@@ -409,7 +415,8 @@ class Booking extends Participants
         if (Database::execute()) {
             $constant = 'ORGANIZER_BOOKINGS_DELETED';
             $type     = Application::MESSAGE;
-        } else {
+        }
+        else {
             $constant = 'ORGANIZER_BOOKINGS_NOT_DELETED';
             $type     = Application::ERROR;
         }
@@ -596,9 +603,9 @@ class Booking extends Participants
             $updateRoom = reset($rooms);
         }
 
-        $warning      = Helpers\HTML::icon('warning-2 yellow');
-        $eventWarning = $warning . ' ' . Text::_('ORGANIZER_SELECT_EVENT');
-        $roomWarning  = $warning . ' ' . Text::_('ORGANIZER_SELECT_ROOM');
+        $warning      = HTML::icon('fa fa-exclamation-triangle yellow');
+        $eventWarning = $warning . ' ' . Text::_('SELECT_EVENT');
+        $roomWarning  = $warning . ' ' . Text::_('SELECT_ROOM');
 
         foreach ($items = parent::getItems() as $item) {
             if ($item->attended and empty($item->room)) {
@@ -608,7 +615,8 @@ class Booking extends Participants
                     $table->roomID = $updateID;
                     $table->store();
                     $item->room = $updateRoom;
-                } else {
+                }
+                else {
                     $item->room = $roomWarning;
                 }
             }
@@ -630,7 +638,8 @@ class Booking extends Participants
 
             if ($events = Database::loadColumn()) {
                 $item->event = count($events) > 1 ? $eventWarning : $events[0];
-            } else {
+            }
+            else {
                 $item->event = '';
             }
 
@@ -643,7 +652,7 @@ class Booking extends Participants
      * Opens/reopens a booking manually.
      * @return void
      */
-    public function open()
+    public function open(): void
     {
         $this->authorize();
 
@@ -737,10 +746,10 @@ class Booking extends Participants
     /**
      * Re-references entries in the course/instance participants tables for the given participant ids.
      *
-     * @param string $table    the unique part of the table name (course|instance)
-     * @param int    $toID     the id to use in the reference tables
-     * @param int    $fromID   the id to replace/delete in the reference tables
-     * @param string $fkColumn the fk column name away from the instances table (courseID|instanceID)
+     * @param   string  $table     the unique part of the table name (course|instance)
+     * @param   int     $toID      the id to use in the reference tables
+     * @param   int     $fromID    the id to replace/delete in the reference tables
+     * @param   string  $fkColumn  the fk column name away from the instances table (courseID|instanceID)
      *
      * @return void
      */
@@ -775,7 +784,8 @@ class Booking extends Participants
 
                 $table = new $fqClass();
                 $table->delete($reference['id']);
-            } else {
+            }
+            else {
                 $buffer[$index] = $reference;
             }
         }

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -32,7 +32,7 @@ class Units extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::scheduleTheseOrganizations()) {
             Application::error(403);
@@ -42,7 +42,7 @@ class Units extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle('ORGANIZER_UNITS');
         $toolbar = Toolbar::getInstance();
@@ -72,7 +72,7 @@ class Units extends ListView
     /**
      * Created a structure for displaying status information as necessary.
      *
-     * @param object $item the instance item being iterated
+     * @param   object  $item  the instance item being iterated
      *
      * @return array
      */
@@ -86,7 +86,8 @@ class Units extends ListView
             $date  = Helpers\Dates::formatDate($item->modified);
             $class .= ' unit-removed';
             $title = Text::sprintf('ORGANIZER_UNIT_REMOVED_ON', $date);
-        } elseif ($item->status === 'new' and $item->modified >= $this->statusDate) {
+        }
+        elseif ($item->status === 'new' and $item->modified >= $this->statusDate) {
             $date  = Helpers\Dates::formatDate($item->modified);
             $class .= ' unit-new';
             $title = Text::sprintf('ORGANIZER_UNIT_ADDED_ON', $date);
@@ -99,16 +100,16 @@ class Units extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $headers = [
             'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'status' => '',
-            'name' => Text::_('ORGANIZER_NAME'),
-            'method' => Text::_('ORGANIZER_METHOD'),
-            'dates' => Text::_('ORGANIZER_DATES'),
-            'grid' => Text::_('ORGANIZER_GRID'),
-            'code' => Text::_('ORGANIZER_UNTIS_ID'),
+            'status'   => '',
+            'name'     => Text::_('ORGANIZER_NAME'),
+            'method'   => Text::_('ORGANIZER_METHOD'),
+            'dates'    => Text::_('ORGANIZER_DATES'),
+            'grid'     => Text::_('ORGANIZER_GRID'),
+            'code'     => Text::_('ORGANIZER_UNTIS_ID'),
             //'run'      => Text::_('ORGANIZER_RUN')
         ];
 
@@ -118,7 +119,7 @@ class Units extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index           = 0;
         $structuredItems = [];
@@ -128,7 +129,7 @@ class Units extends ListView
             $startDate = Helpers\Dates::formatDate($item->startDate);
 
             $structuredItems[$index]             = [];
-            $structuredItems[$index]['checkbox'] = Helpers\HTML::_('grid.id', $index, $item->id);
+            $structuredItems[$index]['checkbox'] = HTML::checkBox($index, $item->id);
             $structuredItems[$index]['status']   = $this->getStatus($item);
             $structuredItems[$index]['name']     = $item->name;
             $structuredItems[$index]['method']   = $item->method;

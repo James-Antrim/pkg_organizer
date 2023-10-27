@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -21,7 +21,7 @@ class Campuses extends ResourceHelper implements Selectable
     /**
      * Retrieves the default grid id for the given campus
      *
-     * @param int $campusID the id of the campus
+     * @param   int  $campusID  the id of the campus
      *
      * @return int the id of the associated grid
      */
@@ -46,7 +46,7 @@ class Campuses extends ResourceHelper implements Selectable
     /**
      * Creates a link to the campus' location
      *
-     * @param int $campusID the id of the campus
+     * @param   int  $campusID  the id of the campus
      *
      * @return string the HTML for the location link
      */
@@ -61,7 +61,7 @@ class Campuses extends ResourceHelper implements Selectable
     /**
      * Gets the qualified campus name
      *
-     * @param int $resourceID the campus' id
+     * @param   int  $resourceID  the campus' id
      *
      * @return string the name if the campus could be resolved, otherwise empty
      */
@@ -95,7 +95,7 @@ class Campuses extends ResourceHelper implements Selectable
         foreach (self::getResources() as $campus) {
             $name = empty($campus['parentName']) ? $campus['name'] : "{$campus['parentName']} / {$campus['name']}";
 
-            $options[$name] = HTML::_('select.option', $campus['id'], $name);
+            $options[$name] = HTML::option($campus['id'], $name);
         }
 
         ksort($options);
@@ -137,7 +137,7 @@ class Campuses extends ResourceHelper implements Selectable
     /**
      * Returns a pin icon with a link for the location
      *
-     * @param int|string $input int the id of the campus, string the location coordinates
+     * @param   int|string  $input  int the id of the campus, string the location coordinates
      *
      * @return string the html output of the pin
      */

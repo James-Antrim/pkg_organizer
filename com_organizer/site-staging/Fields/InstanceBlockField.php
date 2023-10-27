@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Fields;
 
+use THM\Organizer\Adapters\HTML;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Tables\Blocks;
 
 /**
@@ -69,7 +69,7 @@ class InstanceBlockField extends OptionsField
                 $block->save($keys);
             }
 
-            $options[] = HTML::_('select.option', $block->id, "$startTime - $endTime");
+            $options[] = HTML::option($block->id, "$startTime - $endTime");
         }
 
         return $options;

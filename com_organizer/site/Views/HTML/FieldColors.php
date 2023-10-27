@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -61,10 +61,10 @@ class FieldColors extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'field' => Helpers\HTML::sort('FIELD', 'field', $direction, $ordering),
-            'organization' => Helpers\HTML::sort('ORGANIZATION', 'organization', $direction, $ordering),
-            'color' => Text::_('ORGANIZER_COLOR')
+            'checkbox'     => '',
+            'field'        => HTML::sort('FIELD', 'field', $direction, $ordering),
+            'organization' => HTML::sort('ORGANIZATION', 'organization', $direction, $ordering),
+            'color'        => Text::_('COLOR')
         ];
 
         $this->headers = $headers;

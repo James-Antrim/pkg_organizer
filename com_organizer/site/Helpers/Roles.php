@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, HTML};
 use THM\Organizer\Tables\Roles as Table;
 
 /**
@@ -23,8 +23,8 @@ class Roles extends ResourceHelper implements Selectable
     /**
      * Returns the color value for a given colorID.
      *
-     * @param int $roleID the id of the color
-     * @param int $count  the number of entries
+     * @param   int  $roleID  the id of the color
+     * @param   int  $count   the number of entries
      *
      * @return string the label text for the role
      */
@@ -44,7 +44,7 @@ class Roles extends ResourceHelper implements Selectable
     {
         $options = [];
         foreach (self::getResources() as $role) {
-            $options[] = HTML::_('select.option', $role['id'], $role['name']);
+            $options[] = HTML::option($role['id'], $role['name']);
         }
 
         return $options;

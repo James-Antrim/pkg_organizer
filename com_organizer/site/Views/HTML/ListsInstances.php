@@ -11,9 +11,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\{Application, HTML, Text};
 use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Roles, Users};
-use THM\Organizer\Helpers\HTML;
 use THM\Organizer\Helpers\Routing;
 use stdClass;
 
@@ -28,8 +27,8 @@ trait ListsInstances
     /**
      * Adds previously set resources to the structured item.
      *
-     * @param array    $index
-     * @param stdClass $instance
+     * @param   array     $index
+     * @param   stdClass  $instance
      *
      * @return void
      */
@@ -44,12 +43,12 @@ trait ListsInstances
      * Searches for a pattern specified link in commentary text. If found it is added to the tools and removed from the
      * text.
      *
-     * @param string   $pattern the pattern to search for
-     * @param int      $key     the matches index number for the discovered id
-     * @param string  &$text    the text to search in
-     * @param array   &$tools   the container to add discovered tools to
-     * @param string   $URL     the static portion of the dynamic link
-     * @param string   $link    the HTML a-Tag which will be added to the tools
+     * @param   string   $pattern  the pattern to search for
+     * @param   int      $key      the matches index number for the discovered id
+     * @param   string  &$text     the text to search in
+     * @param   array   &$tools    the container to add discovered tools to
+     * @param   string   $URL      the static portion of the dynamic link
+     * @param   string   $link     the HTML a-Tag which will be added to the tools
      *
      * @return void
      */
@@ -64,7 +63,7 @@ trait ListsInstances
     /**
      * Created a structure for displaying status information as necessary.
      *
-     * @param stdClass $instance the instance item being iterated
+     * @param   stdClass  $instance  the instance item being iterated
      *
      * @return string
      */
@@ -75,46 +74,51 @@ trait ListsInstances
         if ($instance->instanceStatus !== 'removed' and $instance->unitStatus !== 'removed') {
             if ($instance->expired) {
                 $value = Text::_('ORGANIZER_EXPIRED');
-            } elseif ($instance->presence === Helper::ONLINE) {
+            }
+            elseif ($instance->presence === Helper::ONLINE) {
                 $value = Text::_('ORGANIZER_ONLINE');
 
                 if ($userID) {
                     if ($instance->bookmarked) {
-                        $value .= ' ' . HTML::icon('bookmark', Text::_('ORGANIZER_BOOKMARKED'));
+                        $value .= ' ' . HTML::tip(HTML::icon('fa fa-bookmark'), "instance-bookmark-$instance->id", 'BOOKMARKED');
+
                     }
 
                     if ($instance->manageable) {
                         $value .= '<br>' . $instance->interested . ' ';
-                        $value .= HTML::icon('bookmark', Text::_('ORGANIZER_SUBSCRIBERS'));
+                        $value .= HTML::tip(HTML::icon('fa fa-bookmark'), "instance-subscribers-$instance->id", 'SUBSCRIBERS');
                     }
 
                 }
-            } else {
+            }
+            else {
                 $interested = $instance->interested - $instance->current;
-                $value      = $instance->presence === Helper::HYBRID ? Text::_('ORGANIZER_HYBRID') : Text::_('ORGANIZER_PRESENCE');
+                $value      = $instance->presence === Helper::HYBRID ? Text::_('HYBRID') : Text::_('PRESENCE');
 
                 if ($userID) {
                     if ($instance->bookmarked) {
-                        $value .= ' ' . HTML::icon('bookmark', Text::_('ORGANIZER_BOOKMARKED'));
+                        $value .= ' ' . HTML::tip(HTML::icon('fa fa-bookmark'), "instance-bookmark-$instance->id", 'BOOKMARKED');
 
                         if ($instance->registered) {
-                            $value .= ' ' . HTML::icon('signup', Text::_('ORGANIZER_REGISTERED'));
+                            $icon  = HTML::icon('fa fa-sign-in-alt');
+                            $value .= ' ' . HTML::tip($icon, "instance-registration-$instance->id", 'REGISTERED');
                         }
                     }
 
                     if ($instance->manageable) {
                         if ($interested) {
+                            $icon  = HTML::icon('fa fa-bookmark');
                             $value .= "<br>$interested ";
-                            $value .= HTML::icon('bookmark', Text::_('ORGANIZER_SUBSCRIBERS'));
+                            $value .= HTML::tip($icon, "instance-subscribers-$instance->id", 'SUBSCRIBERS');
                         }
                     }
                 }
 
                 /*if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
                 {
-                    $attribs = ['class' => 'hasTip', 'target' => '_blank', 'title' => Text::_('ORGANIZER_FINALS_REGISTRATION')];
-                    $icon    = HTML::icon('out');
-                    $value   = HTML::link('https://ecampus.thm.de', $icon, $attribs);
+                    $attribs = ['target' => '_blank'];
+                    $icon    = HTML::icon('fa fa-share');
+                    $value   = HTML::link('https://ecampus.thm.de', $icon, ['target' => '_blank']);
                 }
                 elseif ($instance->presence !== Helper::ONLINE)
                 {
@@ -122,32 +126,38 @@ trait ListsInstances
 
                     if ($instance->premature)
                     {
-                        $value .= HTML::icon('unlock', Text::_('ORGANIZER_REGISTRATION_PREMATURE'));
+                        $icon  =  HTML::icon('fa fa-unlock');
+                        $value .= HTML::tip($icon, "instance-status-$instance->id", 'REGISTRATION_PREMATURE');
                         $value .= ' ' . $instance->registrationStart;
                     }
                     elseif ($instance->running)
                     {
-                        $value .= HTML::icon('stop', Text::_('ORGANIZER_REGISTRATION_CLOSED'));
+                        $icon  =  HTML::icon('fa fa-stop');
+                        $value .= HTML::tip($icon, "instance-status-$instance->id", 'REGISTRATION_CLOSED');
                     }
                     else
                     {
                         if ($instance->full)
                         {
-                            $value .= HTML::icon('pause', Text::_('ORGANIZER_INSTANCE_FULL')) . ' ';
+                            $icon  =  HTML::icon('fa fa-pause');
+                            $value .= HTML::tip($icon, "instance-status-$instance->id", 'INSTANCE_FULL') . ' ';
                         }
                         else
                         {
-                            $value .= HTML::icon('play', Text::_('ORGANIZER_REGISTRATION_OPEN'));
+                            $icon  =  HTML::icon('fa fa-play');
+                            $value .= HTML::tip($icon, "instance-status-$instance->id", 'REGISTRATION_OPEN') . ' ';
                         }
 
                         // Forced output
                         $capacity = $instance->capacity ?: 'X';
+                        $icon = HTML::icon('fa fa-users');
                         $value    .= "$instance->current/$capacity ";
-                        $value    .= HTML::icon('users', Text::_('ORGANIZER_PARTICIPANTS'));
+                        $value .= HTML::tip($icon, "participants-$instance->id", 'PARTICIPANTS') . ' ';
                     }
                 }*/
             }
-        } else {
+        }
+        else {
             $value = Text::_('ORGANIZER_REMOVED');
         }
 
@@ -157,7 +167,7 @@ trait ListsInstances
     /**
      * Gets an icon displaying the instance's (unit's) status as relevant.
      *
-     * @param stdClass $instance the object modeling the instance
+     * @param   stdClass  $instance  the object modeling the instance
      *
      * @return array|string an icon representing the status of the instance, empty if the status is irrelevant
      */
@@ -174,15 +184,18 @@ trait ListsInstances
             $date  = Dates::formatDate($instance->unitStatusDate);
             $class .= ' unit-removed';
             $title = Text::sprintf('ORGANIZER_UNIT_REMOVED_ON', $date);
-        } elseif ($instance->instanceStatus === 'removed') {
+        }
+        elseif ($instance->instanceStatus === 'removed') {
             $date  = Dates::formatDate($instance->instanceStatusDate);
             $class .= ' instance-removed';
             $title = Text::sprintf('ORGANIZER_INSTANCE_REMOVED_ON', $date);
-        } elseif ($instance->unitStatus === 'new' and $instance->unitStatusDate >= $this->statusDate) {
+        }
+        elseif ($instance->unitStatus === 'new' and $instance->unitStatusDate >= $this->statusDate) {
             $date  = Dates::formatDate($instance->instanceStatusDate);
             $class .= ' unit-new';
             $title = Text::sprintf('ORGANIZER_INSTANCE_ADDED_ON', $date);
-        } elseif ($instance->instanceStatus === 'new' and $instance->instanceStatusDate >= $this->statusDate) {
+        }
+        elseif ($instance->instanceStatus === 'new' and $instance->instanceStatusDate >= $this->statusDate) {
             $date  = Dates::formatDate($instance->instanceStatusDate);
             $class .= ' instance-new';
             $title = Text::sprintf('ORGANIZER_INSTANCE_ADDED_ON', $date);
@@ -193,84 +206,91 @@ trait ListsInstances
                 $buttons = [];
 
                 if ($instance->manageable) {
-                    $label   = Text::_('ORGANIZER_MANAGE_BOOKING');
-                    $icon    = HTML::icon('users', $label, true);
-                    $attribs = ['aria-label' => $label, 'class' => 'btn btn-checkbox'];
+                    $attribs = ['class' => 'btn btn-checkbox'];
+                    $icon    = HTML::icon('fa fa-users');
 
                     // Always allow management of existing
                     if ($instance->bookingID) {
                         $url       = Routing::getViewURL('booking', $instance->bookingID);
-                        $buttons[] = HTML::link($url, $icon, $attribs);
+                        $buttons[] = HTML::tip($icon, "manage-$instance->id", 'MANAGE_BOOKING', $attribs, $url);
                     } // Never allow creation of bookings for past instances
                     elseif ($instance->registration) {
                         $url       = Routing::getTaskURL('bookings.manage', $instanceID);
-                        $buttons[] = HTML::link($url, $icon, $attribs);
+                        $buttons[] = HTML::tip($icon, "manage-$instance->id", 'MANAGE_BOOKING', $attribs, $url);
                     }
+
                 }
 
                 // Future appointments can be added to the personal schedules of non-responsible individuals.
                 if (!$instance->taught and !$instance->expired and !$instance->running) {
                     if ($instance->bookmarked) {
-                        $label = Text::_('ORGANIZER_REMOVE_BOOKMARK');
-                        $icon  = HTML::icon('bookmark-2', $label, true);
+                        $label = 'REMOVE_BOOKMARK';
+                        $icon  = HTML::icon('fa fa-bookmark');
                         $url   = Routing::getTaskURL('InstanceParticipants.removeBookmark', $instanceID);
-                    } else {
-                        $label = Text::_('ORGANIZER_BOOKMARK');
-                        $icon  = HTML::icon('bookmark', $label, true);
+                    }
+                    else {
+                        $label = 'BOOKMARK';
+                        $icon  = HTML::icon('far fa-bookmark');
                         $url   = Routing::getTaskURL('InstanceParticipants.bookmark', $instanceID);
                     }
 
-                    $attribs   = ['aria-label' => $label, 'class' => 'btn'];
-                    $buttons[] = HTML::link($url, $icon, $attribs);
+                    $attribs   = ['class' => 'btn'];
+                    $buttons[] = HTML::tip($icon, "bookmark-instance-$instanceID", $label, $attribs, $url);
 
                     // Not virtual and not full
                     /*if ($instance->registration)
                     {
-                        $attribs = ['aria-label' => $label, 'class' => 'btn btn-checkbox'];
+                        $attribs = ['class' => 'btn btn-checkbox'];
 
                         if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
                         {
-                            $label     = Text::_('ORGANIZER_REGISTRATION_EXTERNAL_TIP');
-                            $icon      = HTML::icon('out', $label, true);
+                            $label     = 'EXTERNAL_TIP';
+                            $icon      = HTML::icon('fa fa-share');
                             $url       = "https://ecampus.thm.de";
-                            $buttons[] = HTML::link($url, $icon, $attribs);
+                            $buttons[] = HTML::tip($icon, "external-registration-$instanceID", $label, $attribs, $url);
                         }
                         elseif (!$instance->premature)
                         {
                             if ($instance->registered)
                             {
-                                $label = Text::_('ORGANIZER_DEREGISTER');
-                                $icon  = HTML::icon('exit', $label, true);
+                                $label = 'DEREGISTER';
+                                $icon  = HTML::icon('fa fa-sign-out-alt');
                                 $url   = Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
                             }
                             else
                             {
-                                $label = Text::_('ORGANIZER_REGISTER');
-                                $icon  = HTML::icon('signup', $label, true);
+                                $label = 'REGISTER';
+                                $icon  = HTML::icon('fa fa-sign-in-alt');
                                 $url   = Routing::getTaskURL('InstanceParticipants.register', $instanceID);
                             }
 
-                            $buttons[] = HTML::link($url, $icon, $attribs);
+                            $buttons[] = HTML::tip($icon, "instance-register-$instanceID", $label, $attribs, $url);
                         }
                     }*/
                 }
 
                 $value .= implode('', $buttons);
-            } elseif (!$instance->expired or ($instance->manageable and $instance->bookingID)) {
-                $value = HTML::_('grid.id', $index, $instanceID);
+            }
+            elseif (!$instance->expired or ($instance->manageable and $instance->bookingID)) {
+                $value = HTML::checkBox($index, $instanceID);
             }
         }
 
         if ($instance->manageable and $instance->presence !== Helper::ONLINE) {
             if ($instance->expired) {
-                $value .= '<br>' . HTML::icon('folder-2 red', Text::_('ORGANIZER_BOOKING_CLOSED'));
-            } elseif (!$instance->premature) {
+                $icon  = HTML::icon('fa fa-folder red');
+                $value .= '<br>' . HTML::tip($icon, "booking-$instanceID", 'BOOKING_CLOSED');
+            }
+            elseif (!$instance->premature) {
                 $value .= '<br>';
 
                 if ($instance->running) {
-                    $value .= HTML::icon('folder-open green', Text::_('ORGANIZER_BOOKING_ONGOING'));
-                } else {
-                    $value .= HTML::icon('folder-open yellow', Text::_('ORGANIZER_BOOKING_PENDING'));
+                    $icon  = HTML::icon('fa fa-folder-open green');
+                    $value .= HTML::tip($icon, "booking-$instanceID", 'BOOKING_ONGOING');
+                }
+                else {
+                    $icon  = HTML::icon('fa fa-folder-open yellow');
+                    $value .= HTML::tip($icon, "booking-$instanceID", 'BOOKING_PENDING');
                 }
             }
 
@@ -283,8 +303,8 @@ trait ListsInstances
     /**
      * Generates the common portion of the instance title for listed instances.
      *
-     * @param stdClass $instance the object containing instance information
-     * @param string   $title    the already processed portion of the title
+     * @param   stdClass  $instance  the object containing instance information
+     * @param   string    $title     the already processed portion of the title
      *
      * @return array
      */
@@ -293,7 +313,7 @@ trait ListsInstances
         $comment = $this->resolveLinks($instance->comment);
 
         if ($instance->courseID) {
-            $title .= '<br>' . HTML::icon('link hasToolTip', Text::_('ORGANIZER_REGISTRATION_LINKED')) . ' ';
+            $title .= '<br>' . HTML::tip(HTML::icon('fa fa-link'), "course-$instance->id", 'REGISTRATION_LINKED') . ' ';
             $title .= Text::_('ORGANIZER_INSTANCE_SERIES') . ": $instance->courseID";
         }
 
@@ -305,8 +325,8 @@ trait ListsInstances
     /**
      * Resolves any links/link parameters to links with icons.
      *
-     * @param string     $text the text to search
-     * @param array|null $tools
+     * @param   string      $text  the text to search
+     * @param   array|null  $tools
      *
      * @return string
      */
@@ -325,7 +345,8 @@ trait ListsInstances
             self::findTool($pattern1, 4, $text, $tools, $URL1, $link);
             self::findTool($pattern2, 1, $text, $tools, $URL1, $link);
             self::findTool($pattern3, 4, $text, $tools, $URL2, $link);
-        } else {
+        }
+        else {
             $URL1 = 'https://moodle.thm.de/course/view.php?id=PID';
             $URL2 = 'https://moodle.thm.de/course/index.php?categoryid=PID';
 
@@ -343,7 +364,8 @@ trait ListsInstances
         if ($tools and preg_match($pattern, $text, $matches)) {
             $tools[] = "<a href=\"$matches[1]\" target=\"_blank\">$icon</a>";
             $text    = preg_replace($pattern, '', $text);
-        } else {
+        }
+        else {
             $template = "<a href=\"$1\" target=\"_blank\">$icon</a>";
             $text     = preg_replace($pattern, $template, $text);
         }
@@ -358,7 +380,8 @@ trait ListsInstances
 
             self::findTool($pattern1, 4, $text, $tools, $URL, $link);
             self::findTool($pattern2, 1, $text, $tools, $URL, $link);
-        } else {
+        }
+        else {
             $URL  = 'https://panopto.thm.de/Panopto/Pages/Viewer.aspx?id=PID';
             $link = "<a href=\"$URL\" target=\"_blank\">$icon</a>";
 
@@ -375,7 +398,8 @@ trait ListsInstances
         if ($tools and preg_match($pattern, $text, $matches)) {
             $tools[] = "<a href=\"$matches[1]\" target=\"_blank\">$icon</a>";
             $text    = preg_replace($pattern, '', $text);
-        } else {
+        }
+        else {
             $template = "<a href=\"$1\" target=\"_blank\">$icon</a>";
             $text     = preg_replace($pattern, $template, $text);
         }
@@ -386,7 +410,7 @@ trait ListsInstances
     /**
      * Adds derived attributes/resource output for the instances.
      *
-     * @param array $instances
+     * @param   array  $instances
      *
      * @return void
      */
@@ -401,7 +425,7 @@ trait ListsInstances
      * Determines whether the item is conducted virtually: every person is assigned rooms, all assigned rooms are
      * virtual.
      *
-     * @param stdClass $instance the item being iterated
+     * @param   stdClass  $instance  the item being iterated
      *
      * @return void
      */
@@ -488,7 +512,8 @@ trait ListsInstances
             ksort($persons);
 
             $instance->persons = implode($glue, $persons);
-        } else {
+        }
+        else {
             $displayRoles = [];
             foreach ($roles as $roleID => $persons) {
                 $roleDisplay = '';
@@ -510,7 +535,8 @@ trait ListsInstances
 
         if ($presence and $virtual) {
             $instance->presence = Helper::HYBRID;
-        } elseif ($presence) {
+        }
+        elseif ($presence) {
             $instance->presence = Helper::PRESENCE;
         }
 
@@ -532,7 +558,7 @@ trait ListsInstances
     /**
      * Sets derived attributes for a single instance.
      *
-     * @param stdClass $instance
+     * @param   stdClass  $instance
      *
      * @return void
      */
@@ -559,7 +585,8 @@ trait ListsInstances
             $teaches          = Helper::hasResponsibility($instanceID);
             $instance->taught = $teaches;
             $this->teachesOne = $teaches;
-        } else {
+        }
+        else {
             $instance->manageable = false;
             $instance->taught     = false;
             $this->teachesALL     = false;

@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database, HTML, Input};
 use stdClass;
 
 /**
@@ -56,7 +55,7 @@ class MergeOrganizationsField extends OptionsField
         $options = [];
         $values  = [];
         foreach ($valuePairs as $valuePair) {
-            $options[]                   = Helpers\HTML::_('select.option', $valuePair['value'], $valuePair['text']);
+            $options[]                   = HTML::option($valuePair['value'], $valuePair['text']);
             $values[$valuePair['value']] = $valuePair['value'];
         }
 

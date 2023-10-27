@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Database, HTML, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -50,7 +50,8 @@ class SubjectPersonsField extends OptionsField
             if (empty($this->value)) {
                 $query->innerJoin('#__organizer_associations AS a ON a.personID = p.id')
                     ->where("organizationID = $organizationID");
-            } else {
+            }
+            else {
                 $query->leftJoin('#__organizer_associations AS a ON a.personID = p.id');
                 $personIDs  = implode(',', $this->value);
                 $extPersons = "(organizationID != $organizationID AND personID IN ($personIDs))";
@@ -68,7 +69,7 @@ class SubjectPersonsField extends OptionsField
         foreach ($persons as $person) {
             $text      = empty($person['forename']) ?
                 $person['surname'] : "{$person['surname']}, {$person['forename']}";
-            $options[] = Helpers\HTML::_('select.option', $person['id'], $text);
+            $options[] = HTML::option($person['id'], $text);
         }
 
         return $options;

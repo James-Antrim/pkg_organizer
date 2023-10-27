@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, HTML};
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
@@ -28,7 +28,7 @@ class Roomtypes extends ResourceHelper implements Selectable
     {
         $options = [];
         foreach (self::getResources() as $type) {
-            $options[] = HTML::_('select.option', $type['id'], $type['name']);
+            $options[] = HTML::option($type['id'], $type['name']);
         }
 
         return $options;
@@ -37,8 +37,8 @@ class Roomtypes extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param bool $associated whether the type needs to be associated with a room
-     * @param bool $public
+     * @param   bool  $associated  whether the type needs to be associated with a room
+     * @param   bool  $public
      */
     public static function getResources($associated = self::YES, $suppress = self::NO): array
     {
@@ -54,7 +54,8 @@ class Roomtypes extends ResourceHelper implements Selectable
 
         if ($associated === self::YES) {
             $query->innerJoin('#__organizer_rooms AS r ON r.roomtypeID = t.id');
-        } elseif ($associated === self::NO) {
+        }
+        elseif ($associated === self::NO) {
             $query->leftJoin('#__organizer_rooms AS r ON r.roomtypeID = t.id');
             $query->where('r.roomtypeID IS NULL');
         }

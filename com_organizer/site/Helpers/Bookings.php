@@ -11,6 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\HTML;
 use THM\Organizer\Tables;
 use stdClass;
 
@@ -24,7 +25,7 @@ class Bookings extends ResourceHelper
     /**
      * Retrieves the number of current registrations for the booking.
      *
-     * @param int $bookingID
+     * @param   int  $bookingID
      *
      * @return int
      */
@@ -40,7 +41,7 @@ class Bookings extends ResourceHelper
     /**
      * Creates a display of formatted times for a booking.
      *
-     * @param int $bookingID the id of the booking entry
+     * @param   int  $bookingID  the id of the booking entry
      *
      * @return string the dates to display
      */
@@ -74,7 +75,7 @@ class Bookings extends ResourceHelper
     /**
      * Retrieves a list of instance IDs for instances which fulfill the requirements.
      *
-     * @param int $bookingID the id of the booking entry
+     * @param   int  $bookingID  the id of the booking entry
      *
      * @return int[] the ids matching the conditions
      */
@@ -94,7 +95,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets instance options for the booking entry.
      *
-     * @param int $bookingID the id of the booking to get instance options for
+     * @param   int  $bookingID  the id of the booking to get instance options for
      *
      * @return stdClass[]
      */
@@ -104,7 +105,7 @@ class Bookings extends ResourceHelper
 
         foreach (self::getInstanceIDs($bookingID) as $instanceID) {
             if ($name = Instances::getName($instanceID)) {
-                $options[$name] = HTML::_('select.option', $instanceID, $name);
+                $options[$name] = HTML::option($instanceID, $name);
             }
         }
 
@@ -116,7 +117,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets the localized name of the events associated with the booking and the name of the booking's method.
      *
-     * @param int $resourceID the id of the booking entry
+     * @param   int  $resourceID  the id of the booking entry
      *
      * @return string
      */
@@ -148,7 +149,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets the localized name of the events associated with the booking and the name of the booking's method.
      *
-     * @param int $bookingID the id of the booking entry
+     * @param   int  $bookingID  the id of the booking entry
      *
      * @return string[]
      */
@@ -171,8 +172,8 @@ class Bookings extends ResourceHelper
     /**
      * Gets the count of participants who attended the booking.
      *
-     * @param int $bookingID the id of the booking entry
-     * @param int $roomID    the optional id of the room
+     * @param   int  $bookingID  the id of the booking entry
+     * @param   int  $roomID     the optional id of the room
      *
      * @return int the number of attending participants
      */
@@ -197,7 +198,7 @@ class Bookings extends ResourceHelper
     /**
      * Retrieves the number of current registrations for the booking.
      *
-     * @param int $bookingID
+     * @param   int  $bookingID
      *
      * @return int
      */
@@ -213,7 +214,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets instance options for the booking entry.
      *
-     * @param int $bookingID the id of the booking to get instance options for
+     * @param   int  $bookingID  the id of the booking to get instance options for
      *
      * @return string[]
      */
@@ -242,7 +243,7 @@ class Bookings extends ResourceHelper
     /**
      * Gets instance options for the booking entry.
      *
-     * @param int $bookingID the id of the booking to get instance options for
+     * @param   int  $bookingID  the id of the booking to get instance options for
      *
      * @return stdClass[]
      */
@@ -253,7 +254,7 @@ class Bookings extends ResourceHelper
         foreach (self::getInstanceIDs($bookingID) as $instanceID) {
             foreach (Instances::getRoomIDs($instanceID) as $roomID) {
                 $name           = Rooms::getName($roomID);
-                $options[$name] = HTML::_('select.option', $roomID, $name);
+                $options[$name] = HTML::option($roomID, $name);
             }
         }
 

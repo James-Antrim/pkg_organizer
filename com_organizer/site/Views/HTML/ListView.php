@@ -15,11 +15,11 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\ListView as Base;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
+use stdClass;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Controllers\Controller;
 use THM\Organizer\Helpers;
 use THM\Organizer\Models\ListModel;
-use stdClass;
 
 /**
  * Class loads a filtered set of resources into the display context. Specific resource determined by extending class.
@@ -310,7 +310,7 @@ abstract class ListView extends Base
 
         foreach ($this->rowStructure as $property => $propertyType) {
             if ($property === 'checkbox') {
-                $processedItem['checkbox'] = HTML::_('grid.id', $index, $item->id);
+                $processedItem['checkbox'] = HTML::checkBox($index, $item->id);
                 continue;
             }
 

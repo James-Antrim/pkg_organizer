@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -23,12 +23,12 @@ class Groups extends ListView
     protected array $rowStructure = [
         'checkbox' => '',
         'fullName' => 'link',
-        'this' => 'value',
-        'next' => 'value',
-        'name' => 'link',
-        'active' => 'value',
-        'grid' => 'link',
-        'code' => 'link'
+        'this'     => 'value',
+        'next'     => 'value',
+        'name'     => 'link',
+        'active'   => 'value',
+        'grid'     => 'link',
+        'code'     => 'link'
     ];
 
     /**
@@ -56,7 +56,8 @@ class Groups extends ListView
 
         if (Helpers\Can::administrate()) {
             $toolbar->appendButton('Standard', 'contract', Text::_('ORGANIZER_MERGE'), 'groups.mergeView', true);
-            $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_PUBLISH_EXPIRED_TERMS'), 'groups.publishPast', false);
+            $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_PUBLISH_EXPIRED_TERMS'), 'groups.publishPast',
+                false);
         }
     }
 
@@ -100,14 +101,14 @@ class Groups extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'fullName' => Helpers\HTML::sort('FULL_NAME', 'gr.fullName', $direction, $ordering),
-            'this' => Helpers\Terms::getName(Helpers\Terms::getCurrentID()),
-            'next' => Helpers\Terms::getName(Helpers\Terms::getNextID()),
-            'name' => Helpers\HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
-            'active' => Text::_('ORGANIZER_ACTIVE'),
-            'grid' => Text::_('ORGANIZER_GRID'),
-            'code' => Helpers\HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
+            'checkbox' => HTML::checkAll(),
+            'fullName' => HTML::sort('FULL_NAME', 'gr.fullName', $direction, $ordering),
+            'this'     => Helpers\Terms::getName(Helpers\Terms::getCurrentID()),
+            'next'     => Helpers\Terms::getName(Helpers\Terms::getNextID()),
+            'name'     => HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
+            'active'   => Text::_('ACTIVE'),
+            'grid'     => Text::_('GRID'),
+            'code'     => HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
         ];
 
         $this->headers = $headers;

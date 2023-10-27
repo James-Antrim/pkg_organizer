@@ -11,6 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\HTML;
 use THM\Organizer\Tables;
 
 /**
@@ -24,7 +25,7 @@ class Buildings extends ResourceHelper implements Selectable
      * Checks for the building entry in the database, creating it as necessary. Adds the id to the building entry in the
      * schedule.
      *
-     * @param string $name the building name
+     * @param   string  $name  the building name
      *
      * @return int|null  int the id if the room could be resolved/added, otherwise null
      */
@@ -60,7 +61,7 @@ class Buildings extends ResourceHelper implements Selectable
 
             if ($standardHandling) {
                 $buildingName .= empty($thisBuilding['campusName']) ? '' : " ({$thisBuilding['campusName']})";
-                $options[]    = HTML::_('select.option', $thisBuilding['id'], $buildingName);
+                $options[]    = HTML::option($thisBuilding['id'], $buildingName);
                 continue;
             }
 
@@ -78,14 +79,15 @@ class Buildings extends ResourceHelper implements Selectable
                 $buildingName .= " ({$thisBuilding['campusName']})";
 
                 $buildings[$index + 1] = $nextBuilding;
-            } else {
+            }
+            else {
                 $buildingID   = $nextBuilding['id'];
                 $buildingName .= " ({$nextBuilding['campusName']})";
 
                 $buildings[$index + 1] = $thisBuilding;
             }
 
-            $options[] = HTML::_('select.option', $buildingID, $buildingName);
+            $options[] = HTML::option($buildingID, $buildingName);
         }
 
         return $options;

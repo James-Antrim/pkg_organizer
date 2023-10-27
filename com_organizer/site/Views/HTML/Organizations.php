@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 
 /**
  * Class loads persistent information a filtered set of organizations into the display context.
@@ -47,9 +46,9 @@ class Organizations extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'shortName' => Helpers\HTML::sort('SHORT_NAME', 'shortName', $direction, $ordering),
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
+            'checkbox'  => '',
+            'shortName' => HTML::sort('SHORT_NAME', 'shortName', $direction, $ordering),
+            'name'      => HTML::sort('NAME', 'name', $direction, $ordering)
         ];
 
         $this->headers = $headers;

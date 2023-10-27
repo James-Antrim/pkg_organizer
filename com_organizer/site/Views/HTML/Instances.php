@@ -12,10 +12,10 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Buttons;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\{Dates, HTML, Instances as Helper};
+use THM\Organizer\Helpers\{Dates, HTML as Deprecated, Instances as Helper};
 use THM\Organizer\Models\Instances as Model;
 use stdClass;
 
@@ -48,7 +48,7 @@ class Instances extends ListView
 
     private string $statusDate;
 
-    protected $structureEmpty = true;
+    protected bool $structureEmpty = true;
 
     /**
      * @inheritdoc
@@ -86,13 +86,16 @@ class Instances extends ListView
                 }
 
                 $supplement .= implode('</li><li>', $dates) . '</li></ul>';
-            } elseif (Input::getInt('my')) {
+            }
+            elseif (Input::getInt('my')) {
                 if (Helpers\Users::getID()) {
                     $supplement .= Text::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
-                } else {
+                }
+                else {
                     $supplement .= Text::_('ORGANIZER_401');
                 }
-            } else {
+            }
+            else {
                 $supplement .= Text::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
             }
 
@@ -118,7 +121,8 @@ class Instances extends ListView
         if (Application::mobile()) {
             $toolbar->appendButton('Script', 'info-calender', Text::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');
             $toolbar->appendButton('Link', 'equalizer', Text::_('ORGANIZER_ADVANCED_EXPORT'), $expURL);
-        } else {
+        }
+        else {
             /** @var Model $model */
             $model = $this->model;
             if (Helpers\Users::getID() and $model->layout === Helper::LIST) {
@@ -199,10 +203,10 @@ class Instances extends ListView
             $xlsButton   = $newTab->fetchButton('NewTab', 'file-xls', $xlsText, 'Instances.xls', false);
 
             $exportButtons = [
-                $icsText => $icsButton,
+                $icsText   => $icsButton,
                 $pdfA3Text => $pdfA3Button,
                 $pdfA4Text => $pdfA4Button,
-                $xlsText => $xlsButton
+                $xlsText   => $xlsButton
             ];
 
             ksort($exportButtons);
@@ -250,8 +254,8 @@ class Instances extends ListView
     /**
      * Creates the blocks used to display a grid schedule from the raw grid periods.
      *
-     * @param array $periods the raw periods data
-     * @param bool  $allDay  whether the grid consists of a single block for the whole day
+     * @param   array  $periods  the raw periods data
+     * @param   bool   $allDay   whether the grid consists of a single block for the whole day
      *
      * @return array[]
      */
@@ -269,7 +273,8 @@ class Instances extends ListView
 
             if (!empty($period["label_$tag"])) {
                 $block['label'] = $period["label_$tag"];
-            } else {
+            }
+            else {
                 $allDay         = ($block['endTime'] === '00:00' and $block['startTime'] === '00:00');
                 $block['label'] = $allDay ? '' : "{$block['startTime']}<br>-<br>{$block['endTime']}";
             }
@@ -283,9 +288,9 @@ class Instances extends ListView
     /**
      * Generates a grid structure based upon the frame parameters, which can then later be filled with appointments.
      *
-     * @param array   $blocks  the daily structure of the grid
-     * @param array  &$headers the column headers
-     * @param bool    $allDay  whether the grid consists of a single block lasting the whole day
+     * @param   array   $blocks   the daily structure of the grid
+     * @param   array  &$headers  the column headers
+     * @param   bool    $allDay   whether the grid consists of a single block lasting the whole day
      *
      * @return array[] the grid structure to fill with appointments
      */
@@ -352,7 +357,7 @@ class Instances extends ListView
     /**
      * Creates the event title.
      *
-     * @param stdClass $item the event item being iterated
+     * @param   stdClass  $item  the event item being iterated
      *
      * @return array the title column
      */
@@ -362,7 +367,7 @@ class Instances extends ListView
 
         $title = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
         $title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span><br>';
-        $title .= HTML::_('link', $item->link, $name, ['target' => '_blank']);
+        $title .= Deprecated::_('link', $item->link, $name, ['target' => '_blank']);
         $title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
 
         return $this->liGetTitle($item, $title);
@@ -372,42 +377,42 @@ class Instances extends ListView
      * Creates output for individual instances and assigns them to the day/block coordinates in which they will be
      * displayed.
      *
-     * @param array $grid the grid used to structure the instances for display
+     * @param   array  $grid  the grid used to structure the instances for display
      *
      * @return void
      */
     private function fillGrid(array &$grid): void
     {
         foreach ($this->items as $item) {
-            $cClass = 'grid-item';
-            $iClass = 'warning-2';
-            $notice = '';
+            $cClass  = 'grid-item';
+            $context = "instance-$item->instanceID";
+            $iClass  = 'fa fa-exclamation-triangle';
+            $notice  = '';
 
             // If removed are here at all, the status holds relevance regardless of date
             if ($item->unitStatus === 'removed') {
                 $cClass  .= ' removed';
-                $iClass  .= ' unit-removed';
-                $date    = Dates::formatDate($item->unitStatusDate);
-                $message = Text::sprintf('ORGANIZER_UNIT_REMOVED_ON', $date);
-                $notice  = HTML::icon($iClass, $message);
-            } elseif ($item->instanceStatus === 'removed') {
+                $icon    = HTML::icon($iClass . ' unit-removed');
+                $message = Text::sprintf('UNIT_REMOVED_ON', Dates::formatDate($item->unitStatusDate));
+                $notice  = HTML::tip($icon, "$context-delta-status", $message);
+            }
+            elseif ($item->instanceStatus === 'removed') {
                 $cClass  .= ' removed';
-                $iClass  .= ' instance-removed';
-                $date    = Dates::formatDate($item->instanceStatusDate);
-                $message = Text::sprintf('ORGANIZER_INSTANCE_REMOVED_ON', $date);
-                $notice  = HTML::icon($iClass, $message);
-            } elseif ($item->unitStatus === 'new' and $item->unitStatusDate >= $this->statusDate) {
+                $icon    = HTML::icon($iClass . ' instance-removed');
+                $message = Text::sprintf('INSTANCE_REMOVED_ON', Dates::formatDate($item->instanceStatusDate));
+                $notice  = HTML::tip($icon, "$context-delta-status", $message);
+            }
+            elseif ($item->unitStatus === 'new' and $item->unitStatusDate >= $this->statusDate) {
                 $cClass  .= ' new';
-                $iClass  .= ' unit-new';
-                $date    = Dates::formatDate($item->instanceStatusDate);
-                $message = Text::sprintf('ORGANIZER_UNIT_ADDED_ON', $date);
-                $notice  = HTML::icon($iClass, $message);
-            } elseif ($item->instanceStatus === 'new' and $item->instanceStatusDate >= $this->statusDate) {
+                $icon    = HTML::icon($iClass . ' unit-new');
+                $message = Text::sprintf('UNIT_ADDED_ON', Dates::formatDate($item->instanceStatusDate));
+                $notice  = HTML::tip($icon, "$context-delta-status", $message);
+            }
+            elseif ($item->instanceStatus === 'new' and $item->instanceStatusDate >= $this->statusDate) {
                 $cClass  .= ' new';
-                $iClass  .= ' instance-new';
-                $date    = Dates::formatDate($item->instanceStatusDate);
-                $message = Text::sprintf('ORGANIZER_INSTANCE_ADDED_ON', $date);
-                $notice  = HTML::icon($iClass, $message);
+                $icon    = HTML::icon($iClass . ' instance-new');
+                $message = Text::sprintf('ORGANIZER_INSTANCE_ADDED_ON', Dates::formatDate($item->instanceStatusDate));
+                $notice  = HTML::tip($icon, "$context-delta-status", $message);
             }
 
             $times = '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span><br>';
@@ -415,11 +420,12 @@ class Instances extends ListView
             $key   = $title;
             Text::unpack($title);
             $title = '<span class="event">' . $title . '</span>';
-            $title = HTML::_('link', $item->link, $title);
+            $title = Deprecated::_('link', $item->link, $title);
 
             if (empty($item->method)) {
                 $method = '';
-            } else {
+            }
+            else {
                 $method = "<br><span class=\"method\">$item->method</span>";
                 $key    .= $item->method;
             }
@@ -447,9 +453,7 @@ class Instances extends ListView
             $chain = '';
 
             if ($item->courseID) {
-                $chain = '<br>' . HTML::icon('link hasToolTip',
-                        Text::_('ORGANIZER_REGISTRATION_LINKED')) . ' ';
-                $chain .= Text::_('ORGANIZER_INSTANCE_SERIES') . ": $item->courseID";
+                $chain = HTML::tip(HTML::icon('fa fa-link'), "$context-series", Text::_('INSTANCE_SERIES') . ": $item->courseID");
             }
 
             $tools = [];
@@ -459,19 +463,18 @@ class Instances extends ListView
 
                 if ($item->manageable) {
                     if ($item->presence !== Helper::ONLINE and !$item->premature) {
-                        $label   = Text::_('ORGANIZER_MANAGE_BOOKING');
-                        $attribs = ['aria-label' => $label];
-                        $icon    = HTML::icon('users', $label, true);
-                        $url     = '';
+                        $icon = HTML::icon('fa fa-users');
+                        $url  = '';
 
                         if ($item->bookingID) {
                             $url = Helpers\Routing::getViewURL('booking', $item->bookingID);
-                        } elseif ($item->registration and !$item->expired) {
+                        }
+                        elseif ($item->registration and !$item->expired) {
                             $url = Helpers\Routing::getTaskURL('bookings.manage', $instanceID);
                         }
 
                         if ($url) {
-                            $tools[] = HTML::link($url, $icon, $attribs);
+                            $tools[] = HTML::tip($icon, "$context-manage", 'MANAGE_BOOKING', [], $url);
                         }
                     }
                 }
@@ -480,68 +483,65 @@ class Instances extends ListView
                 if (!$item->taught and !$item->expired) {
                     if (!$item->running) {
                         if ($item->bookmarked) {
-                            $label = Text::_('ORGANIZER_REMOVE_BOOKMARK');
-                            $icon  = HTML::icon('bookmark', $label, true);
-                            $url   = Helpers\Routing::getTaskURL('InstanceParticipants.removeBookmarkBlock',
-                                $instanceID);
-                        } else {
-                            $label = Text::_('ORGANIZER_BOOKMARK');
-                            $icon  = HTML::icon('bookmark-2', $label, true);
+                            $label = 'REMOVE_BOOKMARK';
+                            $icon  = HTML::icon('fa fa-bookmark');
+                            $url   = Helpers\Routing::getTaskURL('InstanceParticipants.removeBookmarkBlock', $instanceID);
+                        }
+                        else {
+                            $label = 'BOOKMARK';
+                            $icon  = HTML::icon('far fa-bookmark');
                             $url   = Helpers\Routing::getTaskURL('InstanceParticipants.bookmarkBlock', $instanceID);
                         }
 
-                        $tools[] = HTML::link($url, $icon, ['aria-label' => $label]);
+                        $tools[] = HTML::tip($icon, "$context-bookmark", $label, [], $url);
                     }
 
                     /*if ($item->presence !== Helper::ONLINE)
                     {
                         if ($item->running)
                         {
-                            $tools[] = HTML::icon('stop', Text::_('ORGANIZER_REGISTRATION_CLOSED'));
+                            $tools[] = HTML::tip(HTML::icon('fa fa-stop'), "$context-instance-status", 'REGISTRATION_CLOSED');
                         }
                         elseif (Helper::getMethodCode($item->instanceID) === Helpers\Methods::FINALCODE)
                         {
-                            $tip     = Text::_('ORGANIZER_REGISTRATION_EXTERNAL_TIP');
-                            $icon    = HTML::icon('out', $tip);
+                            $icon    = HTML::icon('fa fa-share');
                             $url     = "https://ecampus.thm.de";
-                            $tools[] = HTML::link($url, $icon, ['aria-label' => $tip]);
+                            $tools[] = HTML::tip($icon, "$context-instance-status", 'REGISTRATION_EXTERNAL_TIP', [], $url);
                         }
                         elseif ($item->premature)
                         {
-                            $tip     = Text::sprintf('ORGANIZER_REGISTRATION_BEGINS_ON', $item->registrationStart);
-                            $tools[] = HTML::icon('unlock', $tip);
+                            $icon    = HTML::icon('fa fa-unlock');
+                            $tip     = Text::sprintf('REGISTRATION_BEGINS_ON', $item->registrationStart);
+                            $tools[] = HTML::tip($icon, "$context-instance-status", $tip, [], $url)
                         }
                         elseif ($item->full)
                         {
-                            $tip     = Text::_('ORGANIZER_INSTANCE_FULL');
-                            $tools[] = HTML::icon('pause', $tip);
+                            $tools[] = HTML::tip(HTML::icon('fa fa-pause'), "$context-instance-status", 'INSTANCE_FULL');
                         }
                         elseif ($item->registered)
                         {
-                            $tip     = Text::_('ORGANIZER_REGISTERED_DEREGISTER');
-                            $icon    = HTML::icon('signup', $tip);
+                            $icon    = HTML::icon('fa fa-sign-in-alt');
                             $url     = Helpers\Routing::getTaskURL('InstanceParticipants.deregister', $instanceID);
-                            $tools[] = HTML::link($url, $icon, ['aria-label' => $tip]);
+                            $tools[] = HTML::tip($icon, "$context-instance-status", 'REGISTERED_DEREGISTER', [], $url);
                         }
                         else
                         {
-                            $tip     = Text::_('ORGANIZER_REGISTER');
-                            $icon    = HTML::icon('play', $tip);
+                            $icon    = HTML::icon('fa fa-play');
                             $url     = Helpers\Routing::getTaskURL('InstanceParticipants.register', $instanceID);
-                            $tools[] = HTML::link($url, $icon, ['aria-label' => $tip]);
+                            $tools[] = HTML::tip($icon, "$context-instance-status", 'REGISTER', [], $url);
                         }
                     }*/
                 }
             }
 
             if ($item->subjectID) {
-                $sIcon   = HTML::icon('book hasToolTip', Text::_('ORGANIZER_READ_SUBJECT_DOCUMENTATION'));
-                $sURL    = Helpers\Routing::getViewURL('SubjectItem', $item->subjectID);
-                $tools[] = HTML::link($sURL, $sIcon);
+                $icon    = HTML::icon('fa fa-book');
+                $tip     = 'READ_SUBJECT_DOCUMENTATION';
+                $url     = Helpers\Routing::getViewURL('SubjectItem', $item->subjectID);
+                $tools[] = HTML::tip($icon, "$context-instance-documentation", $tip, [], $url);
             }
 
-            $itemIcon = HTML::icon('info-circle hasToolTip', Text::_('ORGANIZER_ITEM_VIEW'));
-            $tools[]  = HTML::_('link', $item->link, $itemIcon);
+            $tools[] = HTML::tip(HTML::icon('fa fa-info-circle'), "$context-instance-item", 'ITEM_VIEW', [], $item->link);
 
             $comment = $this->resolveLinks($item->comment, $tools);
             $comment = empty(trim($comment)) ? '' : "<br><span class=\"comment\">$comment</span>";
@@ -579,15 +579,15 @@ class Instances extends ListView
         $url   = '';
 
         $fields = [
-            'campusID' => $state->get('filter.campusID', 0),
-            'categoryID' => $state->get('filter.categoryID', 0),
-            'eventID' => $state->get('filter.eventID', 0),
-            'groupID' => $state->get('filter.groupID', 0),
-            'methodID' => $state->get('filter.methodID', 0),
-            'my' => $state->get('list.my', 0),
+            'campusID'       => $state->get('filter.campusID', 0),
+            'categoryID'     => $state->get('filter.categoryID', 0),
+            'eventID'        => $state->get('filter.eventID', 0),
+            'groupID'        => $state->get('filter.groupID', 0),
+            'methodID'       => $state->get('filter.methodID', 0),
+            'my'             => $state->get('list.my', 0),
             'organizationID' => $state->get('filter.organizationID', 0),
-            'personID' => $state->get('filter.personID', 0),
-            'roomID' => $state->get('filter.roomID', 0)
+            'personID'       => $state->get('filter.personID', 0),
+            'roomID'         => $state->get('filter.roomID', 0)
         ];
 
         $params = Input::getParams();
@@ -649,16 +649,16 @@ class Instances extends ListView
     public function setHeaders(): void
     {
         $this->headers = [
-            'tools' => '',
-            'title' => ['attributes' => ['class' => 'title-column'], 'value' => Text::_('ORGANIZER_INSTANCE')],
-            'status' => Text::_('ORGANIZER_STATUS'),
+            'tools'   => '',
+            'title'   => ['attributes' => ['class' => 'title-column'], 'value' => Text::_('ORGANIZER_INSTANCE')],
+            'status'  => Text::_('ORGANIZER_STATUS'),
             'persons' => Text::_('ORGANIZER_PERSONS'),
-            'groups' => Text::_('ORGANIZER_GROUPS'),
-            'rooms' => Text::_('ORGANIZER_ROOMS')
+            'groups'  => Text::_('ORGANIZER_GROUPS'),
+            'rooms'   => Text::_('ORGANIZER_ROOMS')
         ];
 
         if (Helpers\Users::getID() and !Application::mobile()) {
-            $this->headers['tools'] = HTML::_('grid.checkall');
+            $this->headers['tools'] = Deprecated::_('grid.checkall');
         }
     }
 

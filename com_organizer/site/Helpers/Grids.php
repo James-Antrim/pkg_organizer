@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, HTML};
 use THM\Organizer\Tables\Grids as Table;
 
 /**
@@ -25,7 +25,7 @@ class Grids extends ResourceHelper implements Selectable
     {
         $options = [];
         foreach (self::getResources() as $grid) {
-            $options[] = HTML::_('select.option', $grid['id'], $grid['name']);
+            $options[] = HTML::option($grid['id'], $grid['name']);
         }
 
         return $options;
@@ -34,7 +34,7 @@ class Grids extends ResourceHelper implements Selectable
     /**
      * Retrieves the default grid.
      *
-     * @param bool $onlyID whether only the id will be returned, defaults to true
+     * @param   bool  $onlyID  whether only the id will be returned, defaults to true
      *
      * @return int|Table int the id, otherwise the grid table entry
      */
@@ -59,7 +59,7 @@ class Grids extends ResourceHelper implements Selectable
     /**
      * Retrieves the grid property for the given grid.
      *
-     * @param int $gridID the grid id
+     * @param   int  $gridID  the grid id
      *
      * @return string string the grid json string on success, otherwise null
      */

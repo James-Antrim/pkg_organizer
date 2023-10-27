@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
 use THM\Organizer\Tables\Categories as Category;
 use THM\Organizer\Tables\Groups as Group;
 
@@ -26,7 +26,7 @@ class Groups extends Associated implements Selectable
     /**
      * Returns the category (table entry) associated with a group.
      *
-     * @param int $groupID
+     * @param   int  $groupID
      *
      * @return Category
      */
@@ -45,7 +45,7 @@ class Groups extends Associated implements Selectable
     /**
      * Gets the name of the category with which the group is associated.
      *
-     * @param int $groupID
+     * @param   int  $groupID
      *
      * @return string
      */
@@ -63,7 +63,7 @@ class Groups extends Associated implements Selectable
     /**
      * Gets the name of the category with which the group is associated.
      *
-     * @param int $groupID
+     * @param   int  $groupID
      *
      * @return string
      */
@@ -83,7 +83,7 @@ class Groups extends Associated implements Selectable
     /**
      * Retrieves the events associated with a group.
      *
-     * @param int $groupID the id of the group
+     * @param   int  $groupID  the id of the group
      *
      * @return array[]
      */
@@ -105,7 +105,7 @@ class Groups extends Associated implements Selectable
     /**
      * @inheritDoc
      *
-     * @param string $access any access restriction which should be performed
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getOptions(string $access = ''): array
     {
@@ -117,12 +117,11 @@ class Groups extends Associated implements Selectable
 
         foreach (self::getResources() as $group) {
             if ($group['active']) {
-                $options[] = HTML::_('select.option', $group['id'], $group[$name]);
+                $options[] = HTML::option($group['id'], $group[$name]);
             }
         }
 
-        uasort($options, function ($optionOne, $optionTwo)
-        {
+        uasort($options, function ($optionOne, $optionTwo) {
             return strcmp($optionOne->text, $optionTwo->text);
         });
 
@@ -133,7 +132,7 @@ class Groups extends Associated implements Selectable
     /**
      * @inheritDoc
      *
-     * @param string $access any access restriction which should be performed
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getResources(string $access = ''): array
     {
@@ -178,9 +177,9 @@ class Groups extends Associated implements Selectable
     /**
      * Retrieves the units associated with an event.
      *
-     * @param int    $groupID  the id of the referenced event
-     * @param string $date     the date context for the unit search
-     * @param string $interval the interval to use as context for units
+     * @param   int     $groupID   the id of the referenced event
+     * @param   string  $date      the date context for the unit search
+     * @param   string  $interval  the interval to use as context for units
      *
      * @return array[]
      */

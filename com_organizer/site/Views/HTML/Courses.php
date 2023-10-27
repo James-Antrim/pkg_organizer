@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -31,9 +31,9 @@ class Courses extends ListView
         parent::__construct($config);
 
         $structure = [
-            'name' => 'link',
-            'campus' => 'value',
-            'dates' => 'value',
+            'name'         => 'link',
+            'campus'       => 'value',
+            'dates'        => 'value',
             'courseStatus' => 'value'
         ];
 
@@ -41,7 +41,8 @@ class Courses extends ListView
             $this->manages = true;
             $structure     = ['checkbox' => ''] + $structure + ['registrationStatus' => 'value'];
             unset($structure['registrationStatus']);
-        } else {
+        }
+        else {
             $structure = $structure + ['registrationStatus' => 'link'];
         }
 
@@ -97,7 +98,8 @@ class Courses extends ListView
                         'participants.edit',
                         false
                     );
-                } else {
+                }
+                else {
                     $toolbar->appendButton(
                         'Standard',
                         'user-plus',
@@ -167,22 +169,23 @@ class Courses extends ListView
         $direction = $this->state->get('list.direction');
 
         $headers = [
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-            'campus' => Text::_('ORGANIZER_CAMPUS'),
-            'dates' => Helpers\HTML::sort('DATES', 'dates', $direction, $ordering),
+            'name'         => HTML::sort('NAME', 'name', $direction, $ordering),
+            'campus'       => Text::_('CAMPUS'),
+            'dates'        => HTML::sort('DATES', 'dates', $direction, $ordering),
             'courseStatus' => [
                 'attributes' => ['class' => 'center'],
-                'value' => Text::_('ORGANIZER_COURSE_STATUS')
+                'value'      => Text::_('COURSE_STATUS')
             ]
         ];
 
         if ($this->manages) {
             $headers = ['checkbox' => ''] + $headers;
-        } else {
+        }
+        else {
             $headers = $headers + [
                     'registrationStatus' => [
                         'attributes' => ['class' => 'center'],
-                        'value' => Text::_('ORGANIZER_REGISTRATION_STATUS')
+                        'value'      => Text::_('REGISTRATION_STATUS')
                     ]
                 ];
         }
@@ -217,7 +220,8 @@ class Courses extends ListView
 
             if ($course->deadline) {
                 $deadline = date('Y-m-d', strtotime("-$course->deadline Days", strtotime($course->startDate)));
-            } else {
+            }
+            else {
                 $deadline = $course->startDate;
             }
 
@@ -232,16 +236,17 @@ class Courses extends ListView
 
                 $course->courseStatus = [
                     'attributes' => $attributes,
-                    'value' => Text::_('ORGANIZER_EXPIRED')
+                    'value'      => Text::_('ORGANIZER_EXPIRED')
                 ];
 
                 if (!$this->manages) {
                     $course->registrationStatus = [
                         'attributes' => $attributes,
-                        'value' => Text::_('ORGANIZER_DEADLINE_EXPIRED_SHORT')
+                        'value'      => Text::_('ORGANIZER_DEADLINE_EXPIRED_SHORT')
                     ];
                 }
-            } else {
+            }
+            else {
                 $class                = 'status-display center hasTip';
                 $course->courseStatus = [];
                 $capacityText         = Text::_('ORGANIZER_PARTICIPANTS');
@@ -252,19 +257,23 @@ class Courses extends ListView
                         'class' => $class . ' red',
                         'title' => Text::_('ORGANIZER_COURSE_ONGOING')
                     ];
-                } elseif ($closed) {
+                }
+                elseif ($closed) {
                     $courseAttributes = [
                         'class' => $class . ' yellow',
                         'title' => Text::_('ORGANIZER_COURSE_CLOSED')
                     ];
-                } elseif ($full) {
+                }
+                elseif ($full) {
                     $courseAttributes = ['class' => $class . ' red', 'title' => Text::_('ORGANIZER_COURSE_FULL')];
-                } elseif ($ninety) {
+                }
+                elseif ($ninety) {
                     $courseAttributes = [
                         'class' => $class . ' yellow',
                         'title' => Text::_('ORGANIZER_COURSE_LIMITED')
                     ];
-                } else {
+                }
+                else {
                     $courseAttributes = [
                         'class' => $class . ' green',
                         'title' => Text::_('ORGANIZER_COURSE_OPEN')
@@ -275,7 +284,8 @@ class Courses extends ListView
 
                 if ($ongoing or $closed) {
                     $courseText = Text::_('ORGANIZER_DEADLINE_EXPIRED_SHORT');
-                } else {
+                }
+                else {
                     $courseText = Text::sprintf('ORGANIZER_DEADLINE_TEXT_SHORT', $deadline);
                 }
 
@@ -286,19 +296,21 @@ class Courses extends ListView
                         if ($course->registered) {
                             $course->registrationStatus = [
                                 'attributes' => ['class' => 'status-display center green'],
-                                'value' => Text::_('ORGANIZER_REGISTERED')
+                                'value'      => Text::_('ORGANIZER_REGISTERED')
                             ];
-                        } else {
+                        }
+                        else {
                             $color                      = ($ongoing or $closed) ? 'red' : 'yellow';
                             $course->registrationStatus = [
                                 'attributes' => ['class' => "status-display center $color"],
-                                'value' => Text::_('ORGANIZER_NOT_REGISTERED')
+                                'value'      => Text::_('ORGANIZER_NOT_REGISTERED')
                             ];
                         }
-                    } else {
+                    }
+                    else {
                         $course->registrationStatus = [
                             'attributes' => ['class' => 'status-display center grey'],
-                            'value' => Text::_('ORGANIZER_NOT_LOGGED_IN')
+                            'value'      => Text::_('ORGANIZER_NOT_LOGGED_IN')
                         ];
                     }
                 }

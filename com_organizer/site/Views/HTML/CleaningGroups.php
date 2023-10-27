@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\{Application, HTML, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -19,11 +19,11 @@ use THM\Organizer\Helpers;
 class CleaningGroups extends ListView
 {
     protected array $rowStructure = [
-        'checkbox' => '',
-        'name' => 'link',
-        'days' => 'link',
+        'checkbox'  => '',
+        'name'      => 'link',
+        'days'      => 'link',
         'valuation' => 'link',
-        'relevant' => 'value'
+        'relevant'  => 'value'
     ];
 
     /**
@@ -43,11 +43,11 @@ class CleaningGroups extends ListView
     {
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
-            'days' => Text::_('ORGANIZER_CLEANING_DAYS_PER_MONTH'),
-            'valuation' => Text::_('ORGANIZER_CALCULATED_SURFACE_PERFORMANCE_VALUE'),
-            'relevant' => Text::_('ORGANIZER_COST_ACCOUNTING')
+            'checkbox'  => '',
+            'name'      => HTML::sort('NAME', 'name', $direction, 'name'),
+            'days'      => Text::_('CLEANING_DAYS_PER_MONTH'),
+            'valuation' => Text::_('CALCULATED_SURFACE_PERFORMANCE_VALUE'),
+            'relevant'  => Text::_('COST_ACCOUNTING')
         ];
 
         $this->headers = $headers;

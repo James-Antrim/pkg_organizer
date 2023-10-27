@@ -11,8 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\{Application, Document, Input, Text};
+use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Bookings as Helper;
 use THM\Organizer\Tables;
@@ -36,11 +35,11 @@ class Booking extends Participants
 
     protected array $rowStructure = [
         'checkbox' => '',
-        'status' => 'value',
+        'status'   => 'value',
         'fullName' => 'link',
-        'event' => 'value',
-        'room' => 'value',
-        'seat' => 'value',
+        'event'    => 'value',
+        'room'     => 'value',
+        'seat'     => 'value',
         'complete' => 'value'
     ];
 
@@ -63,17 +62,21 @@ class Booking extends Participants
             if ($now >= $start and $now < $end) {
                 $statusColor = 'green';
                 $texts[]     = $ongoingText;
-            } elseif ($now < $start) {
+            }
+            elseif ($now < $start) {
                 $statusColor = 'yellow';
                 $texts[]     = $pendingText;
-            } else {
+            }
+            else {
                 $statusColor = 'red';
                 $texts[]     = $expiredText;
             }
-        } elseif ($bookingDate > $today) {
+        }
+        elseif ($bookingDate > $today) {
             $statusColor = 'yellow';
             $texts[]     = $pendingText;
-        } else {
+        }
+        else {
             $statusColor = 'red';
             $texts[]     = $expiredText;
         }
@@ -103,7 +106,7 @@ class Booking extends Participants
 
         $this->setTitle($title);
 
-        $toolbar = Adapters\Toolbar::getInstance();
+        $toolbar = Toolbar::getInstance();
 
         $icon = '<span class="icon-list-3"></span>';
         $text = Text::_('ORGANIZER_MY_INSTANCES');
@@ -168,13 +171,15 @@ class Booking extends Participants
                 if ($earlyStart) {
                     $icon = 'play';
                     $text = Text::_('ORGANIZER_MANUALLY_OPEN');
-                } else {
+                }
+                else {
                     $icon = 'loop';
                     $text = Text::_('ORGANIZER_REOPEN');
                 }
 
                 $toolbar->appendButton('Standard', $icon, $text, 'bookings.open', false);
-            } elseif ($started and !$this->booking->endTime) {
+            }
+            elseif ($started and !$this->booking->endTime) {
                 $text = $notOver ? Text::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Text::_('ORGANIZER_MANUALLY_CLOSE_POST');
                 $toolbar->appendButton('Standard', 'stop', $text, 'bookings.close', false);
             }
@@ -220,7 +225,8 @@ class Booking extends Participants
     {
         if ($this->layout === 'qrcode') {
             Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
-        } else {
+        }
+        else {
             parent::modifyDocument();
         }
 
@@ -234,13 +240,13 @@ class Booking extends Participants
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'status' => Text::_('ORGANIZER_STATUS'),
-            'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
-            'event' => Text::_('ORGANIZER_EVENT'),
-            'room' => Text::_('ORGANIZER_ROOM'),
-            'seat' => Text::_('ORGANIZER_SEAT'),
-            'complete' => Text::_('ORGANIZER_PROFILE_COMPLETE')
+            'checkbox' => HTML::checkAll(),
+            'status'   => Text::_('STATUS'),
+            'fullName' => HTML::sort('NAME', 'fullName', $direction, $ordering),
+            'event'    => Text::_('EVENT'),
+            'room'     => Text::_('ROOM'),
+            'seat'     => Text::_('SEAT'),
+            'complete' => Text::_('PROFILE_COMPLETE')
         ];
 
         $this->headers = $headers;
@@ -286,28 +292,32 @@ class Booking extends Participants
             $thisLink       = ($link and $item->attended) ? $link . $item->ipaID : '';
 
             if ($item->attended and $item->registered) {
-                $label = Text::_('ORGANIZER_CHECKED_IN');
-                $icon  = 'user-check';
-            } elseif ($item->attended) {
-                $label = Text::_('ORGANIZER_STOWAWAY');
-                $icon  = 'user-plus';
-            } else {
+                $label = 'CHECKED_IN';
+                $icon  = 'fa fa-user-check';
+            }
+            elseif ($item->attended) {
+                $label = 'STOWAWAY';
+                $icon  = 'fa fa-user-plus';
+            }
+            else {
                 $this->hasRegistered = true;
-                $label               = Text::_('ORGANIZER_REGISTERED');
-                $icon                = 'question';
+
+                $label = 'REGISTERED';
+                $icon  = 'fa fa-question';
             }
 
-            $item->status = Helpers\HTML::icon($icon, $label, true);
+            $item->status = HTML::tip(HTML::icon($icon), "person-status-$item->id", $label);
 
             if ($item->complete) {
-                $label = Text::_('ORGANIZER_PROFILE_COMPLETE');
-                $icon  = 'checked';
-            } else {
-                $label = Text::_('ORGANIZER_PROFILE_INCOMPLETE');
-                $icon  = 'unchecked';
+                $label = 'PROFILE_COMPLETE';
+                $icon  = 'fa fa-check-square';
+            }
+            else {
+                $label = 'PROFILE_INCOMPLETE';
+                $icon  = 'fa fa-square';
             }
 
-            $item->complete = Helpers\HTML::icon("checkbox-$icon", $label, true);
+            $item->complete = HTML::tip(HTML::icon($icon), "profile-status-$item->id", $label);
 
             $structuredItems[$index] = $this->structureItem($index, $item, $thisLink);
             $index++;

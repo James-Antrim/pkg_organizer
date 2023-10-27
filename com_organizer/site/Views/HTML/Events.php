@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -19,9 +19,9 @@ use THM\Organizer\Helpers;
 class Events extends ListView
 {
     protected array $rowStructure = [
-        'checkbox' => '',
-        'code' => 'link',
-        'name' => 'link',
+        'checkbox'     => '',
+        'code'         => 'link',
+        'name'         => 'link',
         'organization' => 'link'
     ];
 
@@ -63,10 +63,10 @@ class Events extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'code' => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-            'organization' => Helpers\HTML::sort('ORGANIZATION', 'name', $direction, $ordering)
+            'checkbox'     => '',
+            'code'         => HTML::sort('UNTIS_ID', 'code', $direction, $ordering),
+            'name'         => HTML::sort('NAME', 'name', $direction, $ordering),
+            'organization' => HTML::sort('ORGANIZATION', 'name', $direction, $ordering)
         ];
 
         $this->headers = $headers;

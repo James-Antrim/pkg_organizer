@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Queries\QueryMySQLi};
 use THM\Organizer\Tables;
 
 /**
@@ -166,7 +166,7 @@ class Organizations extends ResourceHelper implements Selectable
             if ($organization['active']) {
                 $name = $short ? $organization['shortName'] : $organization['name'];
 
-                $options[] = HTML::_('select.option', $organization['id'], $name);
+                $options[] = HTML::option($organization['id'], $name);
             }
         }
 

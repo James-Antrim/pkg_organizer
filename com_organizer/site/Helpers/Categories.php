@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, Text};
+use THM\Organizer\Adapters\{Application, Database, HTML, Text};
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -24,8 +24,8 @@ class Categories extends Associated implements Selectable
     /**
      * Retrieves the groups associated with a category.
      *
-     * @param int  $categoryID the category id
-     * @param bool $active     whether to retrieve only active categories
+     * @param   int   $categoryID  the category id
+     * @param   bool  $active      whether to retrieve only active categories
      *
      * @return array[]
      */
@@ -49,7 +49,7 @@ class Categories extends Associated implements Selectable
     /**
      * @inheritDoc
      *
-     * @param string $access any access restriction which should be performed
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getOptions(string $access = ''): array
     {
@@ -57,12 +57,11 @@ class Categories extends Associated implements Selectable
         $options = [];
         foreach (self::getResources($access) as $category) {
             if ($category['active']) {
-                $options[] = HTML::_('select.option', $category['id'], $category[$name]);
+                $options[] = HTML::option($category['id'], $category[$name]);
             }
         }
 
-        uasort($options, function ($optionOne, $optionTwo)
-        {
+        uasort($options, function ($optionOne, $optionTwo) {
             return strcmp($optionOne->text, $optionTwo->text);
         });
 
@@ -73,7 +72,7 @@ class Categories extends Associated implements Selectable
     /**
      * Retrieves the name of the program associated with the category.
      *
-     * @param int $categoryID the table id for the program
+     * @param   int  $categoryID  the table id for the program
      *
      * @return string the name of the (plan) program, otherwise empty
      */
@@ -99,7 +98,7 @@ class Categories extends Associated implements Selectable
     /**
      * @inheritDoc
      *
-     * @param string $access any access restriction which should be performed
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getResources(string $access = ''): array
     {

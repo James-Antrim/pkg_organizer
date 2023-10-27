@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -23,12 +23,12 @@ class Monitors extends ListView
     public array $displayBehaviour = [];
 
     protected array $rowStructure = [
-        'checkbox' => '',
-        'name' => 'link',
-        'ip' => 'link',
+        'checkbox'    => '',
+        'name'        => 'link',
+        'ip'          => 'link',
         'useDefaults' => 'value',
-        'display' => 'link',
-        'content' => 'link'
+        'display'     => 'link',
+        'content'     => 'link'
     ];
 
     /**
@@ -62,12 +62,12 @@ class Monitors extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'name' => Helpers\HTML::sort('ROOM', 'r.name', $direction, $ordering),
-            'ip' => Helpers\HTML::sort('IP', 'm.ip', $direction, $ordering),
-            'useDefaults' => Helpers\HTML::sort('DEFAULT_SETTINGS', 'm.useDefaults', $direction, $ordering),
-            'display' => Text::_('ORGANIZER_DISPLAY_BEHAVIOUR'),
-            'content' => Helpers\HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering)
+            'checkbox'    => HTML::checkAll(),
+            'name'        => HTML::sort('ROOM', 'r.name', $direction, $ordering),
+            'ip'          => HTML::sort('IP', 'm.ip', $direction, $ordering),
+            'useDefaults' => HTML::sort('DEFAULT_SETTINGS', 'm.useDefaults', $direction, $ordering),
+            'display'     => Text::_('DISPLAY_BEHAVIOUR'),
+            'content'     => HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering)
         ];
 
         $this->headers = $headers;
@@ -90,7 +90,8 @@ class Monitors extends ListView
             if ($item->useDefaults) {
                 $item->display = $this->displayBehaviour[$displayParam];
                 $item->content = $contentParam;
-            } else {
+            }
+            else {
                 $item->display = $this->displayBehaviour[$item->display];
             }
 

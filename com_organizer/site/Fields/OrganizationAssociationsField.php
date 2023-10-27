@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Database, HTML, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -28,8 +28,8 @@ class OrganizationAssociationsField extends OptionsField
     /**
      * Retrieves the organization ids associated with the resource.
      *
-     * @param string $resource   the resource type
-     * @param int    $resourceID the resource id
+     * @param   string  $resource    the resource type
+     * @param   int     $resourceID  the resource id
      *
      * @return int[] the ids of the organizations associated with the resource
      */
@@ -52,7 +52,7 @@ class OrganizationAssociationsField extends OptionsField
     /**
      * Retrieves the organization ids authorized for use by the user.
      *
-     * @param string $resource the resoure type
+     * @param   string  $resource  the resoure type
      *
      * @return int[] the ids of the organizations associated with the resource
      */
@@ -105,11 +105,13 @@ class OrganizationAssociationsField extends OptionsField
             // The already associated organizations are a subset of the organizations authorized for editing
             if (count(array_intersect($authorized, $associated)) === $assocCount and $authCount > $assocCount) {
                 $displayed = $authorized;
-            } else {
+            }
+            else {
                 $displayed = $associated;
                 $disabled  = true;
             }
-        } else {
+        }
+        else {
             $displayed = $authorized;
         }
 
@@ -124,16 +126,18 @@ class OrganizationAssociationsField extends OptionsField
         $options = [];
 
         foreach ($displayed as $organizationID => $shortName) {
-            $options[] = Helpers\HTML::_('select.option', $organizationID, $shortName);
+            $options[] = HTML::option($organizationID, $shortName);
         }
 
         $attr = !empty($this->class) ? ' class="' . $this->class . '"' : '';
 
         if (array_key_exists($resource, $this->singleAssoc)) {
             $attr .= ' required aria-required="true" autofocus';
-        } elseif ($pseudo and $onchange = $this->getAttribute('onchange')) {
+        }
+        elseif ($pseudo and $onchange = $this->getAttribute('onchange')) {
             $attr .= " onchange=\"$onchange\"";
-        } else {
+        }
+        else {
             $this->name = $this->name . '[]';
 
             if (count($options) > 1) {
@@ -145,7 +149,8 @@ class OrganizationAssociationsField extends OptionsField
             if ($disabled) {
                 $attr .= ' disabled="disabled"';
                 $attr .= ' size="' . count($options) . '"';
-            } elseif (!$pseudo) {
+            }
+            elseif (!$pseudo) {
                 $attr .= $count > 3 ? ' size="10"' : " size=\"$count\"";
                 $attr .= ' size="3" required aria-required="true" autofocus';
             }

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -75,13 +75,14 @@ class Programs extends ListView
 
         $headers = [
             'checkbox' => '',
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
+            'name'     => HTML::sort('NAME', 'name', $direction, $ordering)
         ];
 
         if (!Application::backend()) {
             $headers['links'] = '';
-        } else {
-            $headers['active'] = Text::_('ORGANIZER_ACTIVE');
+        }
+        else {
+            $headers['active'] = Text::_('ACTIVE');
         }
 
         $this->headers = $headers;
@@ -115,18 +116,19 @@ class Programs extends ListView
         foreach ($this->items as $program) {
             // The backend entries have been prefiltered for access
             if (Application::backend()) {
-                $checkbox = Helpers\HTML::_('grid.id', $index, $program->id);
+                $checkbox = HTML::checkBox($index, $program->id);
                 $thisLink = $editLink . $program->id;
-            } else {
+            }
+            else {
                 $access   = Helpers\Can::document('program', (int) $program->id);
-                $checkbox = $access ? Helpers\HTML::_('grid.id', $index, $program->id) : '';
+                $checkbox = $access ? HTML::checkBox($index, $program->id) : '';
                 $thisLink = $itemLink . $program->id;
             }
 
 
             $structuredItems[$index]             = [];
             $structuredItems[$index]['checkbox'] = $checkbox;
-            $structuredItems[$index]['name']     = Helpers\HTML::_('link', $thisLink, $program->name);
+            $structuredItems[$index]['name']     = HTML::link($thisLink, $program->name);
 
             if (Application::backend()) {
                 $tip    = $program->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';

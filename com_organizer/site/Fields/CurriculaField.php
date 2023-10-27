@@ -12,7 +12,7 @@ namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Database, Document, Text};
+use THM\Organizer\Adapters\{Database, Document, HTML, Text};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -40,8 +40,8 @@ class CurriculaField extends FormField
 
         $curriculumParameters = [
             'rootURL' => Uri::root(),
-            'id' => $resourceID,
-            'type' => $resourceType
+            'id'      => $resourceID,
+            'type'    => $resourceType
         ];
 
         Document::addScriptOptions('curriculumParameters', $curriculumParameters);
@@ -52,7 +52,7 @@ class CurriculaField extends FormField
         $selectedPrograms = empty($ranges) ? [] : Helpers\Programs::getIDs($ranges);
         $options          = $this->getOptions();
 
-        $defaultOptions = [Helpers\HTML::_('select.option', '-1', Text::_('ORGANIZER_NONE'))];
+        $defaultOptions = [HTML::option('-1', Text::_('NONE'))];
         $programs       = array_merge($defaultOptions, $options);
         $attributes     = ['multiple' => 'multiple', 'size' => '10'];
 
@@ -79,7 +79,7 @@ class CurriculaField extends FormField
                 continue;
             }
 
-            $options[] = Helpers\HTML::_('select.option', $program['id'], $program['name']);
+            $options[] = HTML::option($program['id'], $program['name']);
         }
 
         return $options;

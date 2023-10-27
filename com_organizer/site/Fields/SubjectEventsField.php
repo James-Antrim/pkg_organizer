@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -36,10 +36,10 @@ class SubjectEventsField extends FormField
         $query->select("id AS value, name_$tag AS name")->from('#__organizer_events')->order('name');
         Database::setQuery($query);
         $events  = Database::loadAssocList();
-        $options = [Helpers\HTML::_('select.option', '', Text::_('ORGANIZER_SELECT_EVENT'))];
+        $options = [HTML::option('', Text::_('ORGANIZER_SELECT_EVENT'))];
 
         foreach ($events as $event) {
-            $options[] = Helpers\HTML::_('select.option', $event['value'], $event['name']);
+            $options[] = HTML::option($event['value'], $event['name']);
         }
 
         $fieldName  = $this->getAttribute('name');

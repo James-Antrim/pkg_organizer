@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Database, Input};
+use THM\Organizer\Adapters\{Database, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -25,7 +25,7 @@ class Rooms extends ResourceHelper implements Selectable
     /**
      * Resolves a text to a room id.
      *
-     * @param string $room the name of the room
+     * @param   string  $room  the name of the room
      *
      * @return int the id of the entry
      */
@@ -52,7 +52,7 @@ class Rooms extends ResourceHelper implements Selectable
         $options = [];
         foreach (self::getResources() as $room) {
             if ($room['active']) {
-                $options[] = HTML::_('select.option', $room['id'], $room['name']);
+                $options[] = HTML::option($room['id'], $room['name']);
             }
         }
 
@@ -139,7 +139,7 @@ class Rooms extends ResourceHelper implements Selectable
     /**
      * Checks whether the room is virtual.
      *
-     * @param int $roomID the id of the room
+     * @param   int  $roomID  the id of the room
      *
      * @return bool true if the room is virtual, otherwise false
      */
@@ -157,8 +157,8 @@ class Rooms extends ResourceHelper implements Selectable
     /**
      * Checks whether a given room has been assigned to a given campus.
      *
-     * @param int $roomID   the id of the room to verify
-     * @param int $campusID the id of the campus to check against
+     * @param   int  $roomID    the id of the room to verify
+     * @param   int  $campusID  the id of the campus to check against
      *
      * @return bool
      */

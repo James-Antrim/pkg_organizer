@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, HTML};
 use THM\Organizer\Helpers;
 
 /**
@@ -68,7 +68,8 @@ class InstanceEventsField extends OptionsField
             if ($result['organizationID']) {
                 // Associated events can overwrite each other.
                 $events[$result['name']] = $result['id'];
-            } else {
+            }
+            else {
                 $free[$result['name']] = $result['id'];
             }
         }
@@ -82,7 +83,7 @@ class InstanceEventsField extends OptionsField
         ksort($events);
 
         foreach ($events as $name => $id) {
-            $options[] = Helpers\HTML::_('select.option', $id, $name);
+            $options[] = HTML::option($id, $name);
         }
 
         return $options;

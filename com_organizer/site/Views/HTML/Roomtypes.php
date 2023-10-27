@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Application;
+use THM\Organizer\Adapters\{Application, HTML};
 use THM\Organizer\Helpers;
 
 /**
@@ -20,9 +20,9 @@ class Roomtypes extends ListView
 {
     protected array $rowStructure = [
         'checkbox' => '',
-        'rns' => 'link',
-        'name' => 'link',
-        'useCode' => 'link'
+        'rns'      => 'link',
+        'name'     => 'link',
+        'useCode'  => 'link'
     ];
 
     /**
@@ -52,9 +52,9 @@ class Roomtypes extends ListView
         $direction = $this->state->get('list.direction');
         $headers   = [
             'checkbox' => '',
-            'rns' => Helpers\HTML::sort('ROOMKEY', 'rns', $direction, $ordering),
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-            'useCode' => Helpers\HTML::sort('USE_CODE_TEXT', 'useCode', $direction, $ordering)
+            'rns'      => HTML::sort('ROOMKEY', 'rns', $direction, $ordering),
+            'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
+            'useCode'  => HTML::sort('USE_CODE_TEXT', 'useCode', $direction, $ordering)
         ];
 
         $this->headers = $headers;

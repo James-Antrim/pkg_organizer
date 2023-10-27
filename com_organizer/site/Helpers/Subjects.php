@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -23,8 +23,8 @@ class Subjects extends Curricula
     /**
      * Check if user one of the subject's coordinators.
      *
-     * @param int $subjectID the optional id of the subject
-     * @param int $personID  the optional id of the person entry
+     * @param   int  $subjectID  the optional id of the subject
+     * @param   int  $personID   the optional id of the person entry
      *
      * @return bool true if the user is a coordinator, otherwise false
      */
@@ -49,7 +49,7 @@ class Subjects extends Curricula
     /**
      * Retrieves the event ID associated with the subject.
      *
-     * @param int $subjectID the id of the referencing subject
+     * @param   int  $subjectID  the id of the referencing subject
      *
      * @return int the id of the referenced event
      */
@@ -83,8 +83,8 @@ class Subjects extends Curricula
     /**
      * Retrieves the subject name
      *
-     * @param int  $resourceID the table id for the subject
-     * @param bool $withNumber whether to integrate the subject code directly into the name
+     * @param   int   $resourceID  the table id for the subject
+     * @param   bool  $withNumber  whether to integrate the subject code directly into the name
      *
      * @return string the subject name
      */
@@ -123,7 +123,7 @@ class Subjects extends Curricula
     {
         $options = [];
         foreach (self::getResources() as $subject) {
-            $options[] = HTML::_('select.option', $subject['id'], $subject['name']);
+            $options[] = HTML::option($subject['id'], $subject['name']);
         }
 
         return $options;
@@ -132,8 +132,8 @@ class Subjects extends Curricula
     /**
      * Retrieves the persons associated with a given subject and their respective roles for it.
      *
-     * @param int $subjectID the id of the subject with which the persons must be associated
-     * @param int $role      the role to be filtered against default none
+     * @param   int  $subjectID  the id of the subject with which the persons must be associated
+     * @param   int  $role       the role to be filtered against default none
      *
      * @return array the persons associated with the subject, empty if none were found.
      */
@@ -180,7 +180,7 @@ class Subjects extends Curricula
     /**
      * Looks up the names of the pools associated with the subject
      *
-     * @param int $subjectID the id of the (plan) subject
+     * @param   int  $subjectID  the id of the (plan) subject
      *
      * @return array|array[] the associated program names
      */
@@ -192,7 +192,7 @@ class Subjects extends Curricula
     /**
      * Retrieves the ids of subjects registered as prerequisites for a given subject
      *
-     * @param int $subjectID the id of the subject
+     * @param   int  $subjectID  the id of the subject
      *
      * @return int[] the associated prerequisites
      */
@@ -204,7 +204,7 @@ class Subjects extends Curricula
     /**
      * Retrieves the ids of subjects registered as prerequisites for a given subject
      *
-     * @param int $subjectID the id of the subject
+     * @param   int  $subjectID  the id of the subject
      *
      * @return int[] the associated prerequisites
      */
@@ -235,8 +235,8 @@ class Subjects extends Curricula
     /**
      * Retrieves the ids of subjects registered as prerequisites for a given subject
      *
-     * @param int    $subjectID the id of the subject
-     * @param string $direction pre|post the direction of the subject dependency
+     * @param   int     $subjectID  the id of the subject
+     * @param   string  $direction  pre|post the direction of the subject dependency
      *
      * @return int[] the associated prerequisites
      */
@@ -245,7 +245,8 @@ class Subjects extends Curricula
         if ($direction === 'pre') {
             $fromColumn = 'subjectID';
             $toColumn   = 'prerequisiteID';
-        } else {
+        }
+        else {
             $fromColumn = 'prerequisiteID';
             $toColumn   = 'subjectID';
         }
@@ -264,7 +265,7 @@ class Subjects extends Curricula
     /**
      * Gets an array modeling the attributes of the resource.
      *
-     * @param int $subjectID the id of the subject
+     * @param   int  $subjectID  the id of the subject
      *
      * @return array
      */
@@ -328,7 +329,8 @@ class Subjects extends Curricula
 
         if ($personID !== self::ALL) {
             $query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.personID = $personID");
-        } else {
+        }
+        else {
             $query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.role = '1'");
         }
 
@@ -342,8 +344,8 @@ class Subjects extends Curricula
     /**
      * Checks whether the pool is subordinate to the selected program
      *
-     * @param array $poolBoundaries    the pool's left and right values
-     * @param array $programBoundaries the program's left and right values
+     * @param   array  $poolBoundaries     the pool's left and right values
+     * @param   array  $programBoundaries  the program's left and right values
      *
      * @return bool  true if the pool is subordinate to the program,
      *                   otherwise false
@@ -365,8 +367,8 @@ class Subjects extends Curricula
     /**
      * Check if the user is one of the subject's teachers.
      *
-     * @param int $subjectID the optional id of the subject
-     * @param int $personID  the optional id of the person entry
+     * @param   int  $subjectID  the optional id of the subject
+     * @param   int  $personID   the optional id of the person entry
      *
      * @return bool true if the user a teacher for the subject, otherwise false
      */

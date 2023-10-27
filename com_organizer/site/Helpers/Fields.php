@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -21,8 +21,8 @@ class Fields extends ResourceHelper implements Selectable
     /**
      * Returns the color value associated with the field.
      *
-     * @param int $fieldID        the id of the field
-     * @param int $organizationID the id of the organization
+     * @param   int  $fieldID         the id of the field
+     * @param   int  $organizationID  the id of the organization
      *
      * @return string the hexadecimal color value associated with the field
      */
@@ -41,8 +41,8 @@ class Fields extends ResourceHelper implements Selectable
     /**
      * Creates the display for a field item as used in a list view.
      *
-     * @param int $fieldID        the id of the field
-     * @param int $organizationID the id of the organization
+     * @param   int  $fieldID         the id of the field
+     * @param   int  $organizationID  the id of the organization
      *
      * @return string the HTML output of the field attribute display
      */
@@ -75,7 +75,7 @@ class Fields extends ResourceHelper implements Selectable
     {
         $options = [];
         foreach (self::getResources() as $field) {
-            $options[] = HTML::_('select.option', $field['id'], $field['name']);
+            $options[] = HTML::option($field['id'], $field['name']);
         }
 
         return $options;
@@ -96,7 +96,8 @@ class Fields extends ResourceHelper implements Selectable
 
         if ($poolID = Input::getFilterID('pool') ? Input::getFilterID('pool') : Input::getInt('poolID')) {
             $ranges = Pools::getSubjects($poolID);
-        } elseif ($programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID')) {
+        }
+        elseif ($programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID')) {
             $ranges = Programs::getSubjects($programID);
         }
 
@@ -113,7 +114,7 @@ class Fields extends ResourceHelper implements Selectable
     /**
      * Retrieves the relevant field ids for the given curriculum context.
      *
-     * @param array $subjectRanges the mapped subject ranges
+     * @param   array  $subjectRanges  the mapped subject ranges
      *
      * @return int[] the field ids associated with the subjects in the given context
      */

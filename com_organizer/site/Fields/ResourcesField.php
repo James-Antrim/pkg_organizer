@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Adapters\{HTML, Text};
 
 /**
  * Class creates a select box for predefined colors.
@@ -34,27 +33,27 @@ class ResourcesField extends ColoredOptionsField
 
         $resources = [
             Text::_('ORGANIZER_CATEGORIES_AND_PROGRAMS') => [
-                'text' => Text::_('ORGANIZER_CATEGORIES_AND_PROGRAMS'),
+                'text'  => Text::_('ORGANIZER_CATEGORIES_AND_PROGRAMS'),
                 'value' => 'cnp'
             ],
-            Text::_('ORGANIZER_EVENTS_AND_SUBJECTS') => [
-                'text' => Text::_('ORGANIZER_EVENTS_AND_SUBJECTS'),
+            Text::_('ORGANIZER_EVENTS_AND_SUBJECTS')     => [
+                'text'  => Text::_('ORGANIZER_EVENTS_AND_SUBJECTS'),
                 'value' => 'ens'
             ],
-            Text::_('ORGANIZER_GROUPS_AND_POOLS') => [
-                'text' => Text::_('ORGANIZER_GROUPS_AND_POOLS'),
+            Text::_('ORGANIZER_GROUPS_AND_POOLS')        => [
+                'text'  => Text::_('ORGANIZER_GROUPS_AND_POOLS'),
                 'value' => 'gnp'
             ],
-            Text::_('ORGANIZER_ORGANIZATIONS') => [
-                'text' => Text::_('ORGANIZER_ORGANIZATIONS'),
+            Text::_('ORGANIZER_ORGANIZATIONS')           => [
+                'text'  => Text::_('ORGANIZER_ORGANIZATIONS'),
                 'value' => 'organizations'
             ],
-            Text::_('ORGANIZER_PERSONS') => [
-                'text' => Text::_('ORGANIZER_PERSONS'),
+            Text::_('ORGANIZER_PERSONS')                 => [
+                'text'  => Text::_('ORGANIZER_PERSONS'),
                 'value' => 'persons'
             ],
-            Text::_('ORGANIZER_ROOMS') => [
-                'text' => Text::_('ORGANIZER_ROOMS'),
+            Text::_('ORGANIZER_ROOMS')                   => [
+                'text'  => Text::_('ORGANIZER_ROOMS'),
                 'value' => 'rooms'
             ]
         ];
@@ -62,7 +61,7 @@ class ResourcesField extends ColoredOptionsField
         ksort($resources);
 
         foreach ($resources as $resource) {
-            $options[] = HTML::_('select.option', $resource['value'], $resource['text']);
+            $options[] = HTML::option($resource['value'], $resource['text']);
         }
 
         return $options;

@@ -11,8 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters;
-use THM\Organizer\Adapters\{Application, Document, Input, Text};
+use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -24,10 +23,10 @@ class CourseParticipants extends Participants
     protected array $rowStructure = [
         'checkbox' => '',
         'fullName' => 'value',
-        'email' => 'value',
-        'program' => 'value',
-        'status' => 'value',
-        'paid' => 'value',
+        'email'    => 'value',
+        'program'  => 'value',
+        'status'   => 'value',
+        'paid'     => 'value',
         'attended' => 'value'
     ];
 
@@ -36,13 +35,13 @@ class CourseParticipants extends Participants
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_PARTICIPANTS');
+        Toolbar::setTitle('PARTICIPANTS');
 
         $courseID = Input::getID();
         $course   = new Tables\Courses();
         $course->load($courseID);
 
-        $toolbar = Adapters\Toolbar::getInstance();
+        $toolbar = Toolbar::getInstance();
 
         $toolbar->appendButton(
             'Standard',
@@ -151,13 +150,13 @@ class CourseParticipants extends Participants
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'fullName' => Helpers\HTML::sort('NAME', 'fullName', $direction, $ordering),
-            'email' => Helpers\HTML::sort('EMAIL', 'email', $direction, $ordering),
-            'program' => Helpers\HTML::sort('PROGRAM', 'program', $direction, $ordering),
-            'status' => Text::_('ORGANIZER_STATUS'),
-            'paid' => Text::_('ORGANIZER_PAID'),
-            'attended' => Text::_('ORGANIZER_ATTENDED')
+            'checkbox' => HTML::checkAll(),
+            'fullName' => HTML::sort('NAME', 'fullName', $direction, $ordering),
+            'email'    => HTML::sort('EMAIL', 'email', $direction, $ordering),
+            'program'  => HTML::sort('PROGRAM', 'program', $direction, $ordering),
+            'status'   => Text::_('STATUS'),
+            'paid'     => Text::_('PAID'),
+            'attended' => Text::_('ATTENDED')
         ];
 
         $this->headers = $headers;
@@ -209,7 +208,8 @@ class CourseParticipants extends Participants
                     Text::_('ORGANIZER_TOGGLE_ACCEPTED'),
                     'status'
                 );
-            } else {
+            }
+            else {
                 $item->status = $item->status ? $checked : $unchecked;
             }
 
@@ -224,7 +224,8 @@ class CourseParticipants extends Participants
                     Text::_('ORGANIZER_TOGGLE_ATTENDED'),
                     'attended'
                 );
-            } else {
+            }
+            else {
                 $item->attended = $checked;
             }
 
@@ -239,7 +240,8 @@ class CourseParticipants extends Participants
                     Text::_('ORGANIZER_TOGGLE_PAID'),
                     'paid'
                 );
-            } else {
+            }
+            else {
                 $item->paid = $checked;
             }
 

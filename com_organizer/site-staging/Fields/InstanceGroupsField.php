@@ -10,9 +10,6 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Helpers;
-
 /**
  * Class creates a select box for predefined colors.
  */
@@ -84,7 +81,7 @@ class InstanceGroupsField extends OptionsField
 
         foreach ($events as $name => $id)
         {
-            $options[] = Helpers\HTML::_('select.option', $id, $name);
+            $options[] = HTML::option($id, $name);
         }*/
 
         return $options;

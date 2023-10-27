@@ -23,8 +23,8 @@ class HTML extends HTMLHelper
     /**
      * Creates a dynamically translated label.
      *
-     * @param BaseView $view      the view this method is applied to
-     * @param string   $inputName the name of the form field whose label should be generated
+     * @param   BaseView  $view       the view this method is applied to
+     * @param   string    $inputName  the name of the form field whose label should be generated
      *
      * @return string the HMTL for the field label
      */
@@ -41,7 +41,7 @@ class HTML extends HTMLHelper
     /**
      * Creates an array of option objects from an array.
      *
-     * @param array $array
+     * @param   array  $array
      *
      * @return stdClass[] the HMTL for the field label
      */
@@ -57,52 +57,31 @@ class HTML extends HTMLHelper
                 if (array_key_exists('text', $item) and array_key_exists('value', $item)) {
                     $text  = $item['text'];
                     $value = $item['value'];
-                } else {
+                }
+                else {
                     $text  = reset($item);
                     $value = end($item);
                 }
-            } else {
+            }
+            else {
                 $text  = (string) $item;
                 $value = $key;
             }
 
-            $options[] = HTML::_('select.option', $value, $text);
+            $options[] = HTMLHelper::_('select.option', $value, $text);
         }
 
         return $options;
     }
 
     /**
-     * Creates the HTML string for an icon.
-     *
-     * @param string $name the name of the icon class
-     * @param string $tip  text to be used as a tooltip
-     * @param bool   $aria true if the screen reader should ignore
-     *
-     * @return string
-     */
-    public static function icon(string $name, string $tip = '', bool $aria = false): string
-    {
-        $aria  = $aria ? 'aria-hidden="true"' : '';
-        $class = "class=\"icon-$name\"";
-        $title = '';
-
-        if ($tip) {
-            $class .= ' hasTooltip';
-            $title = "title=\"$tip\"";
-        }
-
-        return "<span $aria $class $title></span>";
-    }
-
-    /**
      * Creates a select box
      *
-     * @param mixed  $options    a set of keys and values
-     * @param string $name       the name of the element
-     * @param mixed  $attributes optional attributes: object, array, or string in the form key => value(,)+
-     * @param mixed  $selected   optional selected items
-     * @param bool   $jform      whether the element will be wrapped by a 'jform' element
+     * @param   mixed   $options     a set of keys and values
+     * @param   string  $name        the name of the element
+     * @param   mixed   $attributes  optional attributes: object, array, or string in the form key => value(,)+
+     * @param   mixed   $selected    optional selected items
+     * @param   bool    $jform       whether the element will be wrapped by a 'jform' element
      *
      * @return string  the html output for the select box
      */
@@ -114,22 +93,5 @@ class HTML extends HTMLHelper
         $name = $jform ? "jform[$name]$multiple" : "$name$multiple";
 
         return self::_('select.genericlist', $options, $name, $attributes, 'value', 'text', $selected);
-    }
-
-    /**
-     * Provides a simplified interface for sortable headers
-     *
-     * @param string $constant  the unique portion of the text constant
-     * @param string $column    the column name when sorting by this column
-     * @param string $direction the direction in which to sort
-     * @param string $ordering  the column name of the column currently being used for sorting
-     *
-     * @return mixed
-     */
-    public static function sort(string $constant, string $column, string $direction, string $ordering)
-    {
-        $text = Text::_("ORGANIZER_$constant");
-
-        return self::_('searchtools.sort', $text, $column, $direction, $ordering);
     }
 }

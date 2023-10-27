@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -19,11 +19,11 @@ use THM\Organizer\Helpers;
 class Rooms extends ListView
 {
     protected array $rowStructure = [
-        'checkbox' => '',
-        'roomName' => 'link',
+        'checkbox'     => '',
+        'roomName'     => 'link',
         'buildingName' => 'link',
-        'roomType' => 'link',
-        'active' => 'value'
+        'roomType'     => 'link',
+        'active'       => 'value'
     ];
 
     /**
@@ -72,11 +72,11 @@ class Rooms extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'roomName' => Helpers\HTML::sort('NAME', 'roomName', $direction, $ordering),
-            'buildingName' => Helpers\HTML::sort('BUILDING', 'buildingName', $direction, $ordering),
-            'roomType' => Helpers\HTML::sort('TYPE', 'roomType', $direction, $ordering),
-            'active' => Text::_('ORGANIZER_ACTIVE')
+            'checkbox'     => HTML::checkAll(),
+            'roomName'     => HTML::sort('NAME', 'roomName', $direction, $ordering),
+            'buildingName' => HTML::sort('BUILDING', 'buildingName', $direction, $ordering),
+            'roomType'     => HTML::sort('TYPE', 'roomType', $direction, $ordering),
+            'active'       => Text::_('ACTIVE')
         ];
 
         $this->headers = $headers;

@@ -11,8 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
 use stdClass;
 
 /**
@@ -31,7 +30,7 @@ class MergeAssociationsField extends OptionsField
      */
     protected function getOptions(): array
     {
-        $default     = [Helpers\HTML::_('select.option', '', Text::_('ORGANIZER_NONE_GIVEN'))];
+        $default     = [HTML::option('', Text::_('ORGANIZER_NONE_GIVEN'))];
         $selectedIDs = Input::getSelectedIDs();
         $valueColumn = $this->getAttribute('name');
         if (empty($selectedIDs) or empty($valueColumn)) {
@@ -81,16 +80,17 @@ class MergeAssociationsField extends OptionsField
 
         $options = [];
         foreach ($valuePairs as $valuePair) {
-            $options[] = Helpers\HTML::_('select.option', $valuePair['value'], $valuePair['text']);
+            $options[] = HTML::option($valuePair['value'], $valuePair['text']);
         }
 
         if (empty($options)) {
             $options = $default;
-        } elseif (count($options) > 1) {
+        }
+        elseif (count($options) > 1) {
             $this->required = true;
             array_unshift(
                 $options,
-                Helpers\HTML::_('select.option', '', Text::_('ORGANIZER_SELECT_VALUE'))
+                HTML::option('', Text::_('ORGANIZER_SELECT_VALUE'))
             );
         }
 
@@ -100,7 +100,7 @@ class MergeAssociationsField extends OptionsField
     /**
      * Resolves the textColumns for localization and concatenation of column names
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   JDatabaseQuery  $query  the query to modify
      *
      * @return string  the string to use for text selection
      */

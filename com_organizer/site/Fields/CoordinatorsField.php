@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Database, Input};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Database, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -69,7 +68,7 @@ class CoordinatorsField extends OptionsField
 
         foreach ($persons as $person) {
             $name      = empty($person['forename']) ? $person['surname'] : "{$person['surname']}, {$person['forename']}";
-            $options[] = Helpers\HTML::_('select.option', $person['id'], $name);
+            $options[] = HTML::option($person['id'], $name);
         }
 
         return $options;

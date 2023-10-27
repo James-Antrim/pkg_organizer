@@ -11,9 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Text};
+use THM\Organizer\Adapters\{Document, HTML, Text};
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Helpers\HTML as Deprecated;
 
 /**
  * Loads curriculum information into the display context.
@@ -76,24 +76,24 @@ class Curriculum extends ItemView
             $itemContent .= '<div class="item-color" style="background-color: ' . $bgColor . '"></div>';
             $itemContent .= '<div class="item-body">';
 
-            $additionalLinks = '';
-            $attributes      = ['target' => '_blank'];
+            $links      = '';
+            $attributes = ['target' => '_blank'];
 
             if ($item['subjectID']) {
-                $crp = empty($item['creditPoints']) ? '' : "{$item['creditPoints']} CrP";
-                $url = $base . "SubjectItem&id={$item['subjectID']}";
+                $contextID = $item['id'] . '-' . $item['subjectID'];
+                $crp       = empty($item['creditPoints']) ? '' : "{$item['creditPoints']} CrP";
+                $url       = $base . "SubjectItem&id={$item['subjectID']}";
 
-                $icon            = HTML::icon('book', Text::_('ORGANIZER_SUBJECT_ITEM'));
-                $additionalLinks .= HTML::link($url, $icon, $attributes);
+                $links .= HTML::tip(HTML::icon('fa fa-book'), "subject-link-$contextID", 'SUBJECT_ITEM', [], $url, true);
 
                 if (!empty($item['eventID'])) {
                     $iUrl = $base . "Instances&eventID={$item['eventID']}&layout=";
 
-                    $icon            = HTML::icon('info-calender', Text::_('ORGANIZER_SCHEDULE'));
-                    $additionalLinks .= HTML::link($iUrl . 'grid', $icon, $attributes);
+                    $icon  = HTML::icon('fa fa-calendar');
+                    $links .= HTML::tip($icon, "schedule-link-$contextID", 'SCHEDULE', [], $iUrl . 'grid', true);
 
-                    $icon            = HTML::icon('list', Text::_('ORGANIZER_INSTANCES'));
-                    $additionalLinks .= HTML::link($iUrl . 'list', $icon, $attributes);
+                    $icon  = HTML::icon('fa fa-list');
+                    $links .= HTML::tip($icon, "instances-link-$contextID", 'INSTANCES', [], $iUrl . 'list', true);
                 }
 
                 $itemClass = 'item-subject';
@@ -108,10 +108,10 @@ class Curriculum extends ItemView
 
             Text::unpack($item['name']);
 
-            $title       = HTML::link($url, $item['name'], $attributes);
+            $title       = Deprecated::link($url, $item['name'], $attributes);
             $itemContent .= '<div class="item-title">' . $title . '</div>';
             $itemContent .= $crp ? '<div class="item-crp">' . $crp . '</div>' : '';
-            $itemContent .= $additionalLinks ? '<div class="item-tools">' . $additionalLinks . '</div>' : '';
+            $itemContent .= $links ? '<div class="item-tools">' . $links . '</div>' : '';
 
             $itemContent .= '</div>';
         }

@@ -10,10 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Text;
+use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Holidays as Helper;
-use THM\Organizer\Helpers\HTML;
 
 /**
  * Class loads persistent information a filtered set of holidays into the display context.
@@ -23,17 +22,17 @@ class Holidays extends ListView
     /**
      * @inheritDoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
 
         $headers = [
             'checkbox' => '',
-            'name' => HTML::sort('NAME', 'name', $direction, $ordering),
-            'dates' => Text::_('ORGANIZER_DATES'),
-            'type' => Text::_('ORGANIZER_TYPE'),
-            'status' => Text::_('ORGANIZER_STATUS')
+            'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
+            'dates'    => Text::_('ORGANIZER_DATES'),
+            'type'     => Text::_('ORGANIZER_TYPE'),
+            'status'   => Text::_('ORGANIZER_STATUS')
         ];
 
         $this->headers = $headers;
@@ -42,14 +41,14 @@ class Holidays extends ListView
     /**
      * @inheritDoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $index   = 0;
         $link    = 'index.php?option=com_organizer&view=holiday_edit&id=';
         $items   = [];
         $typeMap = [
-            Helper::GAP => 'ORGANIZER_GAP_DAYS',
-            Helper::CLOSED => 'ORGANIZER_CLOSED_DAYS',
+            Helper::GAP     => 'ORGANIZER_GAP_DAYS',
+            Helper::CLOSED  => 'ORGANIZER_CLOSED_DAYS',
             Helper::HOLIDAY => 'ORGANIZER_HOLIDAYS'
         ];
 
@@ -68,11 +67,11 @@ class Holidays extends ListView
 
             $thisLink      = $link . $item->id;
             $items[$index] = [
-                'checkbox' => HTML::_('grid.id', $index, $item->id),
-                'name' => HTML::_('link', $thisLink, $name),
-                'dates' => HTML::_('link', $thisLink, $dateString),
-                'type' => HTML::_('link', $thisLink, Text::_($type)),
-                'status' => HTML::_('link', $thisLink, $status)
+                'checkbox' => HTML::checkBox($index, $item->id),
+                'name'     => HTML::link($thisLink, $name),
+                'dates'    => HTML::link($thisLink, $dateString),
+                'type'     => HTML::link($thisLink, $type),
+                'status'   => HTML::link($thisLink, $status)
             ];
 
             $index++;

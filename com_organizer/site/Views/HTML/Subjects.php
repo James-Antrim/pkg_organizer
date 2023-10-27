@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
 use Joomla\Registry\Registry;
-use THM\Organizer\Helpers\{Can, HTML, Persons, Pools, Programs, Routing};
+use THM\Organizer\Helpers\{Can, Persons, Pools, Programs, Routing};
 
 /**
  * Class loads persistent information a filtered set of subjects into the display context.
@@ -113,7 +113,7 @@ class Subjects extends ListView
 
         if (Application::backend() or $this->documentAccess) {
             $headers['checkbox'] = (Application::backend() and $this->documentAccess) ?
-                HTML::_('grid.checkall') : '';
+                HTML::checkAll() : '';
         }
 
         $headers['name'] = HTML::sort('NAME', 'name', $direction, $ordering);
@@ -121,15 +121,15 @@ class Subjects extends ListView
 
         if (!$this->state->get('calledPersonID', 0)) {
             if ($role = (int) Input::getParams()->get('role') and $role === self::COORDINATES) {
-                $personsText = Text::_('ORGANIZER_COORDINATORS');
+                $personsText = Text::_('COORDINATORS');
             }
             else {
-                $personsText = Text::_('ORGANIZER_TEACHERS');
+                $personsText = Text::_('TEACHERS');
             }
             $headers['persons'] = $personsText;
         }
 
-        $headers['creditPoints'] = Text::_('ORGANIZER_CREDIT_POINTS');
+        $headers['creditPoints'] = Text::_('CREDIT_POINTS');
 
         $this->headers = $headers;
     }
@@ -214,7 +214,7 @@ class Subjects extends ListView
 
         foreach ($this->items as $subject) {
             $access   = Can::document('subject', (int) $subject->id);
-            $checkbox = $access ? HTML::_('grid.id', $index, $subject->id) : '';
+            $checkbox = $access ? HTML::checkBox($index, $subject->id) : '';
             $thisLink = (Application::backend() and $access) ?
                 Routing::getViewURL('SubjectEdit', $subject->id) : Routing::getViewURL('SubjectItem', $subject->id);
 
@@ -224,8 +224,8 @@ class Subjects extends ListView
                 $structuredItems[$index]['checkbox'] = $checkbox;
             }
 
-            $structuredItems[$index]['name'] = HTML::_('link', $thisLink, $subject->name, $attributes);
-            $structuredItems[$index]['code'] = HTML::_('link', $thisLink, $subject->code, $attributes);
+            $structuredItems[$index]['name'] = HTML::link($thisLink, $subject->name, $attributes);
+            $structuredItems[$index]['code'] = HTML::link($thisLink, $subject->code, $attributes);
 
             if (!$calledPersonID) {
                 $structuredItems[$index]['persons'] = $this->getPersonDisplay($subject);

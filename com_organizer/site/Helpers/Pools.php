@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -25,7 +25,7 @@ class Pools extends Curricula implements Selectable
     /**
      * Creates a text for the required pool credit points
      *
-     * @param array $pool the pool
+     * @param   array  $pool  the pool
      *
      * @return string  the required amount of credit points
      */
@@ -36,9 +36,11 @@ class Pools extends Curricula implements Selectable
         if ($maxCrPExists and $minCrPExists) {
             return $pool['maxCrP'] === $pool['minCrP'] ?
                 "{$pool['maxCrP']} CrP" : "{$pool['minCrP']} - {$pool['maxCrP']} CrP";
-        } elseif ($maxCrPExists) {
+        }
+        elseif ($maxCrPExists) {
             return "max. {$pool['maxCrP']} CrP";
-        } elseif ($minCrPExists) {
+        }
+        elseif ($minCrPExists) {
             return "min. {$pool['minCrP']} CrP";
         }
 
@@ -48,8 +50,8 @@ class Pools extends Curricula implements Selectable
     /**
      * Gets an HTML option based upon a pool curriculum association
      *
-     * @param array $range     the curriculum range entry
-     * @param array $parentIDs the selected parents
+     * @param   array  $range      the curriculum range entry
+     * @param   array  $parentIDs  the selected parents
      *
      * @return string  HTML option
      */
@@ -72,7 +74,7 @@ class Pools extends Curricula implements Selectable
     /**
      * Gets the mapped curricula ranges for the given pool
      *
-     * @param mixed $identifiers int poolID | array ranges of subordinate resources
+     * @param   mixed  $identifiers  int poolID | array ranges of subordinate resources
      *
      * @return array[] the pool ranges
      */
@@ -93,8 +95,8 @@ class Pools extends Curricula implements Selectable
     /**
      * Creates a name for use in a list of options implicitly displaying the pool hierarchy.
      *
-     * @param string $name  the name of the pool
-     * @param int    $level the structural depth
+     * @param   string  $name   the name of the pool
+     * @param   int     $level  the structural depth
      *
      * @return string the pool name indented according to the curricular hierarchy
      */
@@ -113,13 +115,13 @@ class Pools extends Curricula implements Selectable
     /**
      * @inheritDoc
      *
-     * @param string $access any access restriction which should be performed
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getOptions(string $access = ''): array
     {
         $options = [];
         foreach (self::getResources($access) as $pool) {
-            $options[] = HTML::_('select.option', $pool['id'], $pool['name']);
+            $options[] = HTML::option($pool['id'], $pool['name']);
         }
 
         return $options;
@@ -160,7 +162,8 @@ class Pools extends Curricula implements Selectable
 
         if (is_array($identifiers)) {
             self::filterSuperOrdinate($query, $identifiers);
-        } else {
+        }
+        else {
             $poolID = (int) $identifiers;
             if ($identifiers != self::NONE) {
                 $query->where("poolID = $poolID");
@@ -208,7 +211,7 @@ class Pools extends Curricula implements Selectable
     /**
      * @inheritDoc
      *
-     * @param string $access any access restriction which should be performed
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getResources(string $access = ''): array
     {
@@ -244,7 +247,7 @@ class Pools extends Curricula implements Selectable
     /**
      * Retrieves the range of the selected resource exclusive subordinate pools.
      *
-     * @param array $range the original range of a pool
+     * @param   array  $range  the original range of a pool
      *
      * @return array[]  boundary values
      */

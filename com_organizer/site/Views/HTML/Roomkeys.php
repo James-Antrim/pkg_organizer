@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -19,10 +19,10 @@ use THM\Organizer\Helpers;
 class Roomkeys extends ListView
 {
     protected array $rowStructure = [
-        'checkbox' => '',
-        'name' => 'link',
-        'key' => 'link',
-        'useGroup' => 'link',
+        'checkbox'      => '',
+        'name'          => 'link',
+        'key'           => 'link',
+        'useGroup'      => 'link',
         'cleaningGroup' => 'link'
     ];
 
@@ -56,11 +56,11 @@ class Roomkeys extends ListView
         $column    = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $column),
-            'rns' => Helpers\HTML::sort('RNS', 'rns', $direction, $column),
-            'useGroup' => Helpers\HTML::sort('USE_GROUP', 'useGroup', $direction, $column),
-            'cleaningGroup' => Helpers\HTML::sort('CLEANING_GROUP', 'cleaningGroup', $direction, $column)
+            'checkbox'      => '',
+            'name'          => HTML::sort('NAME', 'name', $direction, $column),
+            'rns'           => HTML::sort('RNS', 'rns', $direction, $column),
+            'useGroup'      => HTML::sort('USE_GROUP', 'useGroup', $direction, $column),
+            'cleaningGroup' => HTML::sort('CLEANING_GROUP', 'cleaningGroup', $direction, $column)
         ];
 
         $this->headers = $headers;

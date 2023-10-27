@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text};
 
 /**
  * Provides a select list of int with specified first, last and step values.
@@ -43,29 +42,33 @@ class IntegerField extends OptionsField
         if ($step == 0) {
             // Step of 0 will create an endless loop.
             return $options;
-        } elseif ($first < $last && $step < 0) {
+        }
+        elseif ($first < $last && $step < 0) {
             // A negative step will never reach the last number.
             return $options;
-        } elseif ($first > $last && $step > 0) {
+        }
+        elseif ($first > $last && $step > 0) {
             // A position step will never reach the last number.
             return $options;
-        } elseif ($step < 0) {
+        }
+        elseif ($step < 0) {
             // Build the options array backwards.
             for ($number = $first; $number >= $last; $number += $step) {
                 $text = empty($prefix) ? '' : $prefix;
                 $text .= $number;
                 $text .= empty($unit) ? '' : ' ' . Text::_("ORGANIZER_$unit");
 
-                $options[] = Helpers\HTML::_('select.option', $number, $text);
+                $options[] = HTML::option($number, $text);
             }
-        } else {
+        }
+        else {
             // Build the options array.
             for ($number = $first; $number <= $last; $number += $step) {
                 $text = empty($prefix) ? '' : $prefix;
                 $text .= $number;
                 $text .= empty($unit) ? '' : ' ' . Text::_("ORGANIZER_$unit");
 
-                $options[] = Helpers\HTML::_('select.option', $number, $text);
+                $options[] = HTML::option($number, $text);
             }
         }
 

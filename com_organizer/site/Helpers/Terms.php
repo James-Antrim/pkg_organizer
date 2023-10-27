@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -23,7 +23,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Gets the id of the term whose dates encompass the current date
      *
-     * @param string $date the reference date
+     * @param   string  $date  the reference date
      *
      * @return int the id of the term for the dates used on success, otherwise 0
      */
@@ -42,7 +42,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Checks for the term end date for a given term id
      *
-     * @param int $termID the term's id
+     * @param   int  $termID  the term's id
      *
      * @return string|null  string the end date of the term could be resolved, otherwise null
      */
@@ -56,7 +56,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Checks for the term entry in the database, creating it as necessary.
      *
-     * @param array $data the term's data
+     * @param   array  $data  the term's data
      *
      * @return int|null  int the id if the room could be resolved/added, otherwise null
      */
@@ -79,7 +79,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Checks for the term entry in the database, creating it as necessary.
      *
-     * @param bool $filter if true only current and future terms will be displayed
+     * @param   bool  $filter  if true only current and future terms will be displayed
      *
      * @return int[]  the term ids
      */
@@ -97,7 +97,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Retrieves the ID of the term occurring immediately after the reference term.
      *
-     * @param int $currentID the id of the reference term
+     * @param   int  $currentID  the id of the reference term
      *
      * @return int the id of the subsequent term if successful, otherwise 0
      */
@@ -121,8 +121,8 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param bool $showDates if true the start and end date will be displayed as part of the name
-     * @param bool $filter    if true only current and future terms will be displayed
+     * @param   bool  $showDates  if true the start and end date will be displayed as part of the name
+     * @param   bool  $filter     if true only current and future terms will be displayed
      */
     public static function getOptions(bool $showDates = false, bool $filter = false): array
     {
@@ -138,7 +138,7 @@ class Terms extends ResourceHelper implements Selectable
                 $name      .= " ($startDate - $endDate)";
             }
 
-            $options[] = HTML::_('select.option', $term['id'], $name);
+            $options[] = HTML::option($term['id'], $name);
         }
 
         return $options;
@@ -147,7 +147,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Retrieves the ID of the term occurring immediately after the reference term.
      *
-     * @param int $currentID the id of the reference term
+     * @param   int  $currentID  the id of the reference term
      *
      * @return int the id of the subsequent term if successful, otherwise 0
      */
@@ -171,7 +171,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * @inheritDoc
      *
-     * @param bool $filter
+     * @param   bool  $filter
      */
     public static function getResources(bool $filter = false): array
     {
@@ -195,7 +195,7 @@ class Terms extends ResourceHelper implements Selectable
     /**
      * Checks for the term start date for a given term id
      *
-     * @param int $termID the term's id
+     * @param   int  $termID  the term's id
      *
      * @return string|null  string the end date of the term could be resolved, otherwise null
      */

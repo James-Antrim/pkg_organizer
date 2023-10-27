@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi, Text};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Queries\QueryMySQLi, Text};
 use THM\Organizer\Models;
 use THM\Organizer\Tables;
 
@@ -25,9 +25,9 @@ class Programs extends Curricula implements Selectable
     /**
      * Checks if a program exists matching the identification keys. If none exist one is created.
      *
-     * @param array  $programData the program data
-     * @param string $initialName the name to be used if no entry already exists
-     * @param int    $categoryID  the id of the category calling this function
+     * @param   array   $programData  the program data
+     * @param   string  $initialName  the name to be used if no entry already exists
+     * @param   int     $categoryID   the id of the category calling this function
      *
      * @return int int the created program's id on success, otherwise 0
      */
@@ -56,9 +56,9 @@ class Programs extends Curricula implements Selectable
     /**
      * Gets an HTML option based upon a program curriculum association
      *
-     * @param array  $range     the program curriculum range
-     * @param array  $parentIDs the selected parents
-     * @param string $type      the resource type of the form
+     * @param   array   $range      the program curriculum range
+     * @param   array   $parentIDs  the selected parents
+     * @param   string  $type       the resource type of the form
      *
      * @return string  HTML option
      */
@@ -81,7 +81,7 @@ class Programs extends Curricula implements Selectable
     /**
      * Retrieves the id of the degree associated with the program.
      *
-     * @param int $programID
+     * @param   int  $programID
      *
      * @return int
      */
@@ -100,7 +100,7 @@ class Programs extends Curricula implements Selectable
     /**
      * Gets the programIDs for the given resource
      *
-     * @param mixed $identifiers int resourceID | array ranges of subordinate resources
+     * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
      *
      * @return int[] the program ids
      */
@@ -124,7 +124,7 @@ class Programs extends Curricula implements Selectable
     /**
      * Gets the academic level of the program. (Bachelor|Master)
      *
-     * @param int $programID the id of the program
+     * @param   int  $programID  the id of the program
      *
      * @return string
      */
@@ -158,14 +158,14 @@ class Programs extends Curricula implements Selectable
     /**
      * @inheritDoc
      *
-     * @param string $access any access restriction which should be performed
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getOptions(string $access = ''): array
     {
         $options = [];
         foreach (self::getResources($access) as $program) {
             if ($program['active']) {
-                $options[] = HTML::_('select.option', $program['id'], $program['name']);
+                $options[] = HTML::option($program['id'], $program['name']);
             }
         }
 
@@ -175,8 +175,8 @@ class Programs extends Curricula implements Selectable
     /**
      * Retrieves the organizationIDs associated with the program
      *
-     * @param int  $programID the table id for the program
-     * @param bool $short     whether to display an abbreviated version of fhe organization name
+     * @param   int   $programID  the table id for the program
+     * @param   bool  $short      whether to display an abbreviated version of fhe organization name
      *
      * @return string the organization associated with the program's documentation
      */
@@ -232,7 +232,8 @@ class Programs extends Curricula implements Selectable
 
         if (is_array($identifiers)) {
             self::filterSuperOrdinate($query, $identifiers);
-        } else {
+        }
+        else {
             $programID = (int) $identifiers;
             if ($identifiers != self::NONE) {
                 $query->where("programID = $programID");
@@ -247,7 +248,7 @@ class Programs extends Curricula implements Selectable
     /**
      * @inheritDoc
      *
-     * @param string $access any access restriction which should be performed
+     * @param   string  $access  any access restriction which should be performed
      */
     public static function getResources(string $access = ''): array
     {

@@ -24,14 +24,14 @@ class ListItem
     /**
      * Renders a check all box style list header.
      *
-     * @param int    $rowNo the row iteration count
-     * @param object $item  the item being rendered
+     * @param   int     $rowNo  the row iteration count
+     * @param   object  $item   the item being rendered
      */
     private static function check(int $rowNo, object $item): void
     {
         ?>
         <td class="text-center">
-            <?php echo HTML::_('grid.id', $rowNo, $item->id, false, 'cid', 'cb', $item->name); ?>
+            <?php echo HTML::checkBox($rowNo, $item->id); ?>
         </td>
         <?php
     }
@@ -39,8 +39,8 @@ class ListItem
     /**
      * Renders a sorting tool.
      *
-     * @param object $item    the item being rendered
-     * @param bool   $enabled whether sorting has been enabled
+     * @param   object  $item     the item being rendered
+     * @param   bool    $enabled  whether sorting has been enabled
      */
     private static function ordering(object $item, bool $enabled): void
     {
@@ -48,15 +48,15 @@ class ListItem
 
         if (!$item->access) {
             $attributes['class'] .= ' inactive';
-        } elseif (!$enabled) {
+        }
+        elseif (!$enabled) {
             $attributes['class'] .= ' inactive';
             $attributes['title'] = Text::_('JORDERINGDISABLED');
         }
 
-        $properties = HTML::toProperties($attributes);
         ?>
         <td class="text-center d-none d-md-table-cell">
-            <span <?php echo $properties ?>>
+            <span <?php echo HTML::toString($attributes); ?>>
                 <span class="icon-ellipsis-v"></span>
             </span>
             <?php if ($item->access and $enabled) : ?>
@@ -71,10 +71,10 @@ class ListItem
     /**
      * Renders a list item.
      *
-     * @param ListView $view        the view being rendered
-     * @param int      $rowNo       the row number being rendered
-     * @param object   $item        the item being rendered
-     * @param bool     $dragEnabled whether the table has drag enabled
+     * @param   ListView  $view         the view being rendered
+     * @param   int       $rowNo        the row number being rendered
+     * @param   object    $item         the item being rendered
+     * @param   bool      $dragEnabled  whether the table has drag enabled
      */
     public static function render(ListView $view, int $rowNo, object $item, bool $dragEnabled = false): void
     {
@@ -119,26 +119,28 @@ class ListItem
     /**
      * Renders a check all box style list header.
      *
-     * @param object $item     the current row item
-     * @param string $column   the current column
-     * @param bool   $context  the display context (false: public, true: admin)
-     * @param int    $linkType the link type to use for the displayed column value
+     * @param   object  $item      the current row item
+     * @param   string  $column    the current column
+     * @param   bool    $context   the display context (false: public, true: admin)
+     * @param   int     $linkType  the link type to use for the displayed column value
      */
     private static function text(object $item, string $column, bool $context, int $linkType): void
     {
         $value = $item->$column ?? '';
 
         if (is_array($value)) {
-            $properties = HTML::toProperties($value['properties']);
+            $properties = HTML::toString($value['properties']);
             $value      = $value['value'];
-        } else {
+        }
+        else {
             $properties = '';
         }
 
         if ($main = $column === 'name') {
             $opener = "<th $properties scope=\"row\">";
             $closer = "</th>";
-        } else {
+        }
+        else {
             $opener = "<td $properties>";
             $closer = "</td>";
         }
@@ -156,7 +158,7 @@ class ListItem
                     $lProperties['target'] = '_blank';
                 }
 
-                $linkOpen  = '<a ' . HTML::toProperties($lProperties) . '>';
+                $linkOpen  = '<a ' . HTML::toString($lProperties) . '>';
                 $linkClose = '</a>';
             }
         }

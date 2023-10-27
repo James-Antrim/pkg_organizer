@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, Input};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input};
 use THM\Organizer\Tables;
 use stdClass;
 
@@ -38,7 +38,8 @@ class Persons extends Associated implements Selectable
 
         if ($poolID > 0) {
             $boundarySet = Pools::getRanges($poolID);
-        } else {
+        }
+        else {
             $boundarySet = Programs::getRanges($programID);
         }
 
@@ -78,7 +79,7 @@ class Persons extends Associated implements Selectable
     /**
      * Checks for multiple person entries (roles) for a subject and removes the lesser
      *
-     * @param array &$list the list of persons with a role for the subject
+     * @param   array &$list  the list of persons with a role for the subject
      *
      * @return void  removes duplicate list entries dependent on role
      */
@@ -101,16 +102,16 @@ class Persons extends Associated implements Selectable
     /**
      * Retrieves the persons associated with a given subject, optionally filtered by role.
      *
-     * @param int  $subjectID the subject's id
-     * @param int  $role      represents the person's role for the subject
-     * @param bool $multiple  whether multiple results are desired
-     * @param bool $unique    whether unique results are desired
+     * @param   int   $subjectID  the subject's id
+     * @param   int   $role       represents the person's role for the subject
+     * @param   bool  $multiple   whether multiple results are desired
+     * @param   bool  $unique     whether unique results are desired
      *
      * @return array|array[]  an array of person data
      */
     public static function getDataBySubject(
-        int  $subjectID,
-        int  $role = 0,
+        int $subjectID,
+        int $role = 0,
         bool $multiple = false,
         bool $unique = true
     ): array
@@ -147,8 +148,8 @@ class Persons extends Associated implements Selectable
     /**
      * Generates a default person text based upon organizer's internal data
      *
-     * @param int  $personID     the person's id
-     * @param bool $excludeTitle whether the title should be excluded from the return value
+     * @param   int   $personID      the person's id
+     * @param   bool  $excludeTitle  whether the title should be excluded from the return value
      *
      * @return string  the default name of the person
      */
@@ -171,7 +172,7 @@ class Persons extends Associated implements Selectable
     /**
      * Retrieves the person's surnames.
      *
-     * @param int $personID the person's id
+     * @param   int  $personID  the person's id
      *
      * @return string  the default name of the person
      */
@@ -186,7 +187,7 @@ class Persons extends Associated implements Selectable
     /**
      * Gets the organizations with which the person is associated
      *
-     * @param int $personID the person's id
+     * @param   int  $personID  the person's id
      *
      * @return string[] the organizations with which the person is associated id => name
      */
@@ -206,8 +207,8 @@ class Persons extends Associated implements Selectable
     /**
      * Generates a preformatted person text based upon organizer's internal data
      *
-     * @param int  $personID the person's id
-     * @param bool $short    whether the person's forename should be abbreviated
+     * @param   int   $personID  the person's id
+     * @param   bool  $short     whether the person's forename should be abbreviated
      *
      * @return string  the default name of the person
      */
@@ -234,7 +235,7 @@ class Persons extends Associated implements Selectable
      * Checks whether the user has an associated person resource by their username, returning the id of the person
      * entry if existent.
      *
-     * @param int $userID the user id if empty the current user is used
+     * @param   int  $userID  the user id if empty the current user is used
      *
      * @return int the id of the person entry if existent, otherwise 0
      */
@@ -265,7 +266,7 @@ class Persons extends Associated implements Selectable
                 $forename = trim($person['forename']);
                 $name     .= $forename ? ", $forename" : '';
 
-                $options[] = HTML::_('select.option', $person['id'], $name);
+                $options[] = HTML::option($person['id'], $name);
             }
         }
 
@@ -284,7 +285,8 @@ class Persons extends Associated implements Selectable
                     unset($organizationIDs[$key]);
                 }
             }
-        } else {
+        }
+        else {
             $organizationIDs = Can::manageTheseOrganizations();
         }
 
@@ -327,7 +329,8 @@ class Persons extends Associated implements Selectable
             }
 
             $wherray[] = $where;
-        } elseif ($organizationID) {
+        }
+        elseif ($organizationID) {
             $query->innerJoin('#__organizer_associations AS a ON a.personID = p.id');
             $wherray[] = "(a.organizationID = $organizationID and p.public = 1) ";
         }
@@ -345,7 +348,7 @@ class Persons extends Associated implements Selectable
     /**
      * Retrieves the person's surnames.
      *
-     * @param int $personID the person's id
+     * @param   int  $personID  the person's id
      *
      * @return string  the default name of the person
      */
@@ -360,12 +363,11 @@ class Persons extends Associated implements Selectable
     /**
      * Function to sort persons by their surnames and forenames.
      *
-     * @param array &$persons the persons array to sort.
+     * @param   array &$persons  the persons array to sort.
      */
     public static function nameSort(array &$persons)
     {
-        uasort($persons, function ($personOne, $personTwo)
-        {
+        uasort($persons, function ($personOne, $personTwo) {
             if ($personOne['surname'] > $personTwo['surname']) {
                 return 1;
             }
@@ -380,7 +382,7 @@ class Persons extends Associated implements Selectable
     /**
      * Retrieves the person's public release status.
      *
-     * @param int $personID the person's id
+     * @param   int  $personID  the person's id
      *
      * @return bool  the person's public release status
      */
@@ -395,12 +397,11 @@ class Persons extends Associated implements Selectable
     /**
      * Function to sort persons by their roles.
      *
-     * @param array &$persons the persons array to sort.
+     * @param   array &$persons  the persons array to sort.
      */
     public static function roleSort(array &$persons)
     {
-        uasort($persons, function ($personOne, $personTwo)
-        {
+        uasort($persons, function ($personOne, $personTwo) {
             $roleOne = isset($personOne['role'][self::COORDINATES]);
             $roleTwo = isset($personTwo['role'][self::COORDINATES]);
             if ($roleOne or !$roleTwo) {

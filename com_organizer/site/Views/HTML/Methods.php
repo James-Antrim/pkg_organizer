@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\HTML;
 
 /**
  * Class loads persistent information a filtered set of (lesson) methods into the display context.
@@ -27,9 +27,9 @@ class Methods extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'abbreviation' => Helpers\HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering)
+            'checkbox'     => '',
+            'abbreviation' => HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
+            'name'         => HTML::sort('NAME', 'name', $direction, $ordering)
         ];
 
         $this->headers = $headers;

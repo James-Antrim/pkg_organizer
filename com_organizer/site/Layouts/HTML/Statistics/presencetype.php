@@ -8,8 +8,7 @@
  * @link        www.thm.de
  */
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers\Instances;
 
 $headers    = array_shift($this->grid);
@@ -32,14 +31,15 @@ foreach ($headers as $key => $header) {
     echo "<div class=\"$class\">$header</div>";
 }
 
-$sumIcon = '<span class="icon-sum hasTooltip" ' . Text::_('ORGANIZER_SUM') . '>&sum;</span>';
+$sumIcon = HTML::tip('<span>&Sigma;</span>', 'sum', 'SUM');
 
 foreach ($sums as $key => $sum) {
     $class = 'sum-row';
 
     if ($key === 'week') {
         $class .= ' header-column';
-    } else {
+    }
+    else {
         $class .= $key === 'sum' ? ' sum-column' : '';
         $class .= $key === $lastColumn ? ' row-end' : '';
 
@@ -51,18 +51,21 @@ foreach ($sums as $key => $sum) {
         if ($total) {
             $sum = "<div>$sumIcon $total</div>";
 
-            $presenceIcon = HTML::icon('user', Text::_('ORGANIZER_PRESENCE') . ": $presence / $total");
-            $percent      = (int) (($presence / $total) * 100);
-            $sum          .= "<div>$presenceIcon $percent%</div>";
+            $context = "sum-row-$key";
+            $icon    = HTML::tip(HTML::icon('fa fa-user'), "$context-presence", 'PRESENCE' . ": $presence / $total");
+            $percent = (int) (($presence / $total) * 100);
+            $sum     .= "<div>$icon $percent%</div>";
 
-            $hybridIcon = HTML::icon('out-3', Text::_('ORGANIZER_HYBRID') . ": $hybrid / $total");
-            $percent    = (int) (($hybrid / $total) * 100);
-            $sum        .= "<div>$hybridIcon $percent%</div>";
+            $icon    = HTML::icon('fa fa-external-link-square-alt');
+            $icon    = HTML::tip($icon, "$context-hybrid", 'HYBRID' . ": $hybrid / $total");
+            $percent = (int) (($hybrid / $total) * 100);
+            $sum     .= "<div>$icon $percent%</div>";
 
-            $onlineIcon = HTML::icon('laptop', Text::_('ORGANIZER_ONLINE') . ": $online / $total");
-            $percent    = (int) (($online / $total) * 100);
-            $sum        .= "<div>$onlineIcon $percent%</div>";
-        } else {
+            $icon    = HTML::tip(HTML::icon('fa fa-laptop'), "$context-online", 'ONLINE' . ": $online / $total");
+            $percent = (int) (($online / $total) * 100);
+            $sum     .= "<div>$icon $percent%</div>";
+        }
+        else {
             $sum = '-';
         }
     }
@@ -77,7 +80,8 @@ foreach ($this->grid as $row) {
         if ($key === 'week') {
             $class .= ' header-column';
             Text::unpack($sum);
-        } else {
+        }
+        else {
             $class .= $key === 'sum' ? ' sum-column' : ' data-column';
 
             $hybrid   = empty($sum[Instances::HYBRID]) ? 0 : $sum[Instances::HYBRID];
@@ -88,18 +92,21 @@ foreach ($this->grid as $row) {
             if ($total) {
                 $sum = "<div>$sumIcon $total</div>";
 
-                $presenceIcon = HTML::icon('user', Text::_('ORGANIZER_PRESENCE') . ": $presence / $total");
-                $percent      = (int) (($presence / $total) * 100);
-                $sum          .= "<div>$presenceIcon $percent%</div>";
+                $context = "sum-column-$key";
+                $icon    = HTML::tip(HTML::icon('fa fa-user'), "$context-presence", 'PRESENCE' . ": $presence / $total");
+                $percent = (int) (($presence / $total) * 100);
+                $sum     .= "<div>$icon $percent%</div>";
 
-                $hybridIcon = HTML::icon('out-3', Text::_('ORGANIZER_HYBRID') . ": $hybrid / $total");
-                $percent    = (int) (($hybrid / $total) * 100);
-                $sum        .= "<div>$hybridIcon $percent%</div>";
+                $icon    = HTML::icon('fa fa-external-link-square-alt');
+                $icon    = HTML::tip($icon, "$context-hybrid", 'HYBRID' . ": $hybrid / $total");
+                $percent = (int) (($hybrid / $total) * 100);
+                $sum     .= "<div>$icon $percent%</div>";
 
-                $onlineIcon = HTML::icon('laptop', Text::_('ORGANIZER_ONLINE') . ": $online / $total");
-                $percent    = (int) (($online / $total) * 100);
-                $sum        .= "<div>$onlineIcon $percent%</div>";
-            } else {
+                $icon    = HTML::tip(HTML::icon('fa fa-laptop'), "$context-online", 'ONLINE' . ": $online / $total");
+                $percent = (int) (($online / $total) * 100);
+                $sum     .= "<div>$icon $percent%</div>";
+            }
+            else {
                 $sum = '-';
             }
         }

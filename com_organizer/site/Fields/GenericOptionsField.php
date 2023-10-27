@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -84,11 +84,13 @@ class GenericOptionsField extends OptionsField
                     $value  = htmlspecialchars($value, ENT_COMPAT);
                     $html[] = '<input type="hidden" name="' . $this->name . '" value="' . $value . '"/>';
                 }
-            } else {
+            }
+            else {
                 $value  = htmlspecialchars($this->value, ENT_COMPAT);
                 $html[] = '<input type="hidden" name="' . $this->name . '" value="' . $value . '"/>';
             }
-        } else // Create a regular list.
+        }
+        else // Create a regular list.
         {
             $html[] = Helpers\HTML::_(
                 'select.genericlist',
@@ -140,7 +142,7 @@ class GenericOptionsField extends OptionsField
                 }
             }
 
-            $options[$resource['text']] = Helpers\HTML::_('select.option', $resource['value'], $resource['text']);
+            $options[$resource['text']] = HTML::option($resource['value'], $resource['text']);
         }
         $this->setValueParameters($options);
 
@@ -150,7 +152,7 @@ class GenericOptionsField extends OptionsField
     /**
      * Resolves the textColumns for concatenated values
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   JDatabaseQuery  $query  the query to modify
      *
      * @return string  the string to use for text selection
      */
@@ -178,7 +180,7 @@ class GenericOptionsField extends OptionsField
     /**
      * Resolves the textColumns for concatenated values
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   JDatabaseQuery  $query  the query to modify
      *
      * @return void modifies the query as necessary
      */
@@ -201,7 +203,7 @@ class GenericOptionsField extends OptionsField
     /**
      * Sets value oriented parameters from component settings
      *
-     * @param array &$options the input options
+     * @param   array &$options  the input options
      *
      * @return void  sets option values
      */
@@ -218,7 +220,7 @@ class GenericOptionsField extends OptionsField
             if (empty($componentParameter)) {
                 continue;
             }
-            $options[$componentParameter] = Helpers\HTML::_('select.option', $componentParameter, $componentParameter);
+            $options[$componentParameter] = HTML::option($componentParameter, $componentParameter);
         }
 
         ksort($options);
@@ -227,7 +229,7 @@ class GenericOptionsField extends OptionsField
     /**
      * Adds filter conditions
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   JDatabaseQuery  $query  the query to modify
      *
      * @return void modifies the query as necessary
      */

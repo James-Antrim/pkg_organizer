@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\{Application, HTML, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -38,9 +38,9 @@ abstract class PoolsView extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-            'programID' => Text::_('ORGANIZER_PROGRAM')
+            'checkbox'  => HTML::checkAll(),
+            'name'      => HTML::sort('NAME', 'name', $direction, $ordering),
+            'programID' => Text::_('PROGRAM')
         ];
 
         $this->headers = $headers;

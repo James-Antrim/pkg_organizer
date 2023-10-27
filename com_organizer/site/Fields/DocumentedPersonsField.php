@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Input;
+use THM\Organizer\Adapters\{HTML, Input};
 use THM\Organizer\Helpers;
 
 /**
@@ -53,7 +53,7 @@ class DocumentedPersonsField extends OptionsField
         ksort($aggregatedPersons);
 
         foreach ($aggregatedPersons as $name => $person) {
-            $options[] = Helpers\HTML::_('select.option', $person['id'], $name);
+            $options[] = HTML::option($person['id'], $name);
         }
 
         return $options;

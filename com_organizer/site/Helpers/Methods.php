@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database};
+use THM\Organizer\Adapters\{Application, Database, HTML};
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
@@ -29,7 +29,7 @@ class Methods extends ResourceHelper implements Selectable
     {
         $options = [];
         foreach (self::getResources() as $method) {
-            $options[] = HTML::_('select.option', $method['id'], $method['name']);
+            $options[] = HTML::option($method['id'], $method['name']);
         }
 
         return $options;

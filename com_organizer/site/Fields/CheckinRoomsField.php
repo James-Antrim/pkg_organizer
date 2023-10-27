@@ -11,7 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
+use THM\Organizer\Adapters\{Database, HTML};
 use THM\Organizer\Helpers;
 use stdClass;
 
@@ -55,7 +55,7 @@ class CheckinRoomsField extends OptionsField
 
         foreach (Helpers\Instances::getRoomIDs($instanceID) as $roomID) {
             $name         = Helpers\Rooms::getName($roomID);
-            $rooms[$name] = Helpers\HTML::_('select.option', $roomID, $name);
+            $rooms[$name] = HTML::option($roomID, $name);
         }
 
         if (count($rooms) === 1) {
@@ -70,7 +70,7 @@ class CheckinRoomsField extends OptionsField
     /**
      * Gets a query where common statements are already included.
      *
-     * @param int $participantID the id of the participant for which to find checkins
+     * @param   int  $participantID  the id of the participant for which to find checkins
      *
      * @return JDatabaseQuery
      */

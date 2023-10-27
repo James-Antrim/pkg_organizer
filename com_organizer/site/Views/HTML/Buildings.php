@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\{Application, HTML, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -21,17 +21,17 @@ class Buildings extends ListView
     private const OWNED = 1, RENTED = 2, USED = 3;
 
     protected array $rowStructure = [
-        'checkbox' => '',
-        'name' => 'link',
-        'campusID' => 'link',
+        'checkbox'     => '',
+        'name'         => 'link',
+        'campusID'     => 'link',
         'propertyType' => 'link',
-        'address' => 'link'
+        'address'      => 'link'
     ];
 
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
@@ -41,15 +41,15 @@ class Buildings extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders()
+    public function setHeaders(): void
     {
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
-            'campusID' => Text::_('ORGANIZER_CAMPUS'),
-            'propertyType' => Text::_('ORGANIZER_PROPERTY_TYPE'),
-            'address' => Text::_('ORGANIZER_STREET')
+            'checkbox'     => '',
+            'name'         => HTML::sort('NAME', 'name', $direction, 'name'),
+            'campusID'     => Text::_('CAMPUS'),
+            'propertyType' => Text::_('PROPERTY_TYPE'),
+            'address'      => Text::_('STREET')
         ];
 
         $this->headers = $headers;
@@ -58,7 +58,7 @@ class Buildings extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems()
+    protected function structureItems(): void
     {
         $link            = 'index.php?option=com_organizer&view=building_edit&id=';
         $index           = 0;

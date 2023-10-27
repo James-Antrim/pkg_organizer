@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -33,7 +33,7 @@ class ProgramsField extends OptionsField
 
         $participantEdit = (strtolower(str_replace('_', '', Input::getView())) === 'participantedit');
         if ($participantEdit and Helpers\Can::administrate()) {
-            $options[] = Helpers\HTML::_('select.option', -1, Text::_('ORGANIZER_UNKNOWN'));
+            $options[] = HTML::option(-1, Text::_('ORGANIZER_UNKNOWN'));
         }
 
         $access   = Application::backend() ? $this->getAttribute('access', '') : '';

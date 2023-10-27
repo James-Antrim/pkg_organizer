@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\Text;
+use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers;
 
 /**
@@ -28,8 +28,8 @@ class Colors extends ListView
         $direction = $this->state->get('list.direction');
         $headers   = [
             'checkbox' => '',
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, 'name'),
-            'color' => Text::_('ORGANIZER_COLOR')
+            'name'     => HTML::sort('NAME', 'name', $direction, 'name'),
+            'color'    => Text::_('COLOR')
         ];
 
         $this->headers = $headers;

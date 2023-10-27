@@ -10,11 +10,9 @@
 
 namespace THM\Organizer\Fields;
 
-jimport('joomla.filesystem.folder');
-jimport('joomla.filesystem.file');
-
 use Joomla\CMS\Filesystem;
 use SimpleXMLElement;
+use THM\Organizer\Adapters\HTML;
 use THM\Organizer\Helpers;
 
 /**
@@ -67,7 +65,7 @@ class FileOptionsField extends OptionsField
     /**
      * Method to get certain otherwise inaccessible properties from the form field object.
      *
-     * @param string $name The property name for which to get the value.
+     * @param   string  $name  The property name for which to get the value.
      *
      * @return  mixed  The property value or null.
      */
@@ -89,8 +87,8 @@ class FileOptionsField extends OptionsField
     /**
      * Method to set certain otherwise inaccessible properties of the form field object.
      *
-     * @param string $name  The property name for which to set the value.
-     * @param mixed  $value The value of the property.
+     * @param   string  $name   The property name for which to set the value.
+     * @param   mixed   $value  The value of the property.
      *
      * @return  void
      */
@@ -118,9 +116,9 @@ class FileOptionsField extends OptionsField
     /**
      * Method to attach a JForm object to the field.
      *
-     * @param SimpleXMLElement $element     The SimpleXMLElement object representing the field.
-     * @param mixed            $value       The form field value to validate.
-     * @param string           $group       The field name group control value. This acts as an array container for the
+     * @param   SimpleXMLElement  $element  The SimpleXMLElement object representing the field.
+     * @param   mixed             $value    The form field value to validate.
+     * @param   string            $group    The field name group control value. This acts as an array container for the
      *                                      field.
      *
      * @return  bool  True on success.
@@ -204,7 +202,7 @@ class FileOptionsField extends OptionsField
                     $file = Filesystem\File::stripExt($file);
                 }
 
-                $options[] = Helpers\HTML::_('select.option', $file, $file);
+                $options[] = HTML::option($file, $file);
             }
         }
 

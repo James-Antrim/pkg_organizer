@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -20,10 +20,10 @@ class Categories extends ListView
 {
     protected array $rowStructure = [
         'checkbox' => '',
-        'name' => 'link',
-        'active' => 'value',
-        'program' => 'link',
-        'code' => 'link'
+        'name'     => 'link',
+        'active'   => 'value',
+        'program'  => 'link',
+        'code'     => 'link'
     ];
 
     /**
@@ -79,10 +79,10 @@ class Categories extends ListView
         $direction = $this->state->get('list.direction');
         $headers   = [
             'checkbox' => '',
-            'name' => Helpers\HTML::sort('DISPLAY_NAME', 'name', $direction, $ordering),
-            'active' => Text::_('ORGANIZER_ACTIVE'),
-            'program' => Text::_('ORGANIZER_PROGRAM'),
-            'code' => Helpers\HTML::sort('UNTIS_ID', 'code', $direction, $ordering)
+            'name'     => HTML::sort('DISPLAY_NAME', 'name', $direction, $ordering),
+            'active'   => Text::_('ACTIVE'),
+            'program'  => Text::_('PROGRAM'),
+            'code'     => HTML::sort('UNTIS_ID', 'code', $direction, $ordering)
         ];
 
         $this->headers = $headers;

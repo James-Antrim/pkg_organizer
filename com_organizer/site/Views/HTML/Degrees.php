@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\HTML;
 
 /**
  * Class loads persistent information a filtered set of degrees into the display context.
@@ -27,10 +27,10 @@ class Degrees extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'name' => Helpers\HTML::sort('NAME', 'name', $direction, $ordering),
-            'abbreviation' => Helpers\HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
-            'code' => Helpers\HTML::sort('DEGREE_CODE', 'code', $direction, $ordering)
+            'checkbox'     => '',
+            'name'         => HTML::sort('NAME', 'name', $direction, $ordering),
+            'abbreviation' => HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
+            'code'         => HTML::sort('DEGREE_CODE', 'code', $direction, $ordering)
         ];
 
         $this->headers = $headers;
