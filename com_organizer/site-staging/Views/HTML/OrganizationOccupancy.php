@@ -13,8 +13,7 @@ namespace THM\Organizer\Views\HTML;
 jimport('tcpdf.tcpdf');
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, Text};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Document, HTML, Text};
 
 /**
  * Class loads organization statistics into the display context.
@@ -34,17 +33,16 @@ class OrganizationOccupancy extends SelectionView
 
     private function setBaseFields()
     {
-        $attribs                    = [];
         $this->sets['baseSettings'] = [];
 
         $options    = $this->model->getYearOptions();
         $default    = date('Y');
-        $termSelect = Helpers\HTML::selectBox($options, 'year', $attribs, $default);
+        $termSelect = HTML::selectBox('year', $options, $default);
 
         $this->sets['baseSettings']['termIDs'] = [
-            'label' => Text::_('ORGANIZER_YEAR'),
+            'label'       => Text::_('ORGANIZER_YEAR'),
             'description' => Text::_('ORGANIZER_YEAR_DESC'),
-            'input' => $termSelect
+            'input'       => $termSelect
         ];
     }
 
@@ -71,23 +69,23 @@ class OrganizationOccupancy extends SelectionView
 
         $roomAttribs = $attribs;
         $roomOptions = $this->model->getRoomOptions();
-        $roomSelect  = Helpers\HTML::selectBox($roomOptions, 'roomIDs', $roomAttribs);
+        $roomSelect  = HTML::selectBox('roomIDs', $roomOptions, $roomAttribs);
 
         $this->sets['filterFields']['roomIDs'] = [
-            'label' => Text::_('ORGANIZER_ROOMS'),
+            'label'       => Text::_('ORGANIZER_ROOMS'),
             'description' => Text::_('ORGANIZER_ROOMS_DESC'),
-            'input' => $roomSelect
+            'input'       => $roomSelect
         ];
 
         $roomtypeAttribs             = $attribs;
         $roomtypeAttribs['onChange'] = 'repopulateRooms();';
         $typeOptions                 = $this->model->getRoomtypeOptions();
-        $roomtypeSelect              = Helpers\HTML::selectBox($typeOptions, 'roomtypeIDs', $roomtypeAttribs);
+        $roomtypeSelect              = HTML::selectBox('roomtypeIDs', $typeOptions, $roomtypeAttribs);
 
         $this->sets['filterFields']['roomtypeIDs'] = [
-            'label' => Text::_('ORGANIZER_ROOMTYPES'),
+            'label'       => Text::_('ORGANIZER_ROOMTYPES'),
             'description' => Text::_('ORGANIZER_ROOMS_TYPES_DESC'),
-            'input' => $roomtypeSelect
+            'input'       => $roomtypeSelect
         ];
     }
 }

@@ -89,9 +89,39 @@ class HTML extends HTMLHelper
      *
      * @return  stdClass
      */
-    public static function option(int|string $value, string $text, bool $disable): stdClass
+    public static function option(int|string $value, string $text, bool $disable = false): stdClass
     {
         return Select::option((string) $value, $text, $disable);
+    }
+
+    /**
+     * Generates an HTML selection list.
+     *
+     * @param   string            $name        the field name.
+     * @param   stdClass[]        $options     the field options
+     * @param   array|int|string  $selected    the selected resource designators; called function accepts array|string
+     * @param   array             $properties  additional HTML properties for the select tag
+     * @param   string            $textKey     name of the name column when working directly with table rows
+     * @param   string            $valueKey    name of the value column when working directly with table rows
+     *
+     * @return  string
+     */
+    public static function selectBox(
+        string $name,
+        array $options,
+        array|int|string $selected = [],
+        array $properties = [],
+        string $textKey = 'text',
+        string $valueKey = 'value'
+    ): string
+    {
+        /**
+         * Called function will most likely eventually be typed to array|string, most of our single selection values
+         * will be integers for resource ids.
+         */
+        $selected = gettype($selected) === 'integer' ? (string) $selected : $selected;
+
+        return Select::genericlist($options, $name, $properties, $valueKey, $textKey, $selected, false, true);
     }
 
     /**

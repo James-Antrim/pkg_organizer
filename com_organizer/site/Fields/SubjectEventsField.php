@@ -12,7 +12,6 @@ namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
 use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
-use THM\Organizer\Helpers;
 
 /**
  * Class creates a select box for explicitly associating subjects with events. This is also done
@@ -50,6 +49,6 @@ class SubjectEventsField extends FormField
         Database::setQuery($query);
         $selected = Database::loadIntColumn();
 
-        return Helpers\HTML::selectBox($options, $fieldName, $attributes, $selected, true);
+        return HTML::selectBox($fieldName, $options, $attributes, $selected);
     }
 }

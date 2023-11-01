@@ -52,11 +52,11 @@ class CurriculaField extends FormField
         $selectedPrograms = empty($ranges) ? [] : Helpers\Programs::getIDs($ranges);
         $options          = $this->getOptions();
 
-        $defaultOptions = [HTML::option('-1', Text::_('NONE'))];
+        $defaultOptions = [HTML::option(-1, Text::_('NONE'))];
         $programs       = array_merge($defaultOptions, $options);
         $attributes     = ['multiple' => 'multiple', 'size' => '10'];
 
-        return Helpers\HTML::selectBox($programs, 'curricula', $attributes, $selectedPrograms, true);
+        return HTML::selectBox('curricula', $programs, $attributes, $selectedPrograms);
     }
 
     /**
