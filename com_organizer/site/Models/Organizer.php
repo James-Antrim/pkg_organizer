@@ -82,34 +82,34 @@ class Organizer extends BaseModel
         $select     = ['duplicate.id'];
         $from       = ['associations AS duplicate', 'associations AS reference'];
         $conditions = [
-            Database::quoteName('duplicate.id') . ' > ' . Database::quoteName('reference.id'),
-            Database::quoteName('duplicate.organizationID') . ' = ' . Database::quoteName('reference.organizationID')
+            Database::qn('duplicate.id') . ' > ' . Database::qn('reference.id'),
+            Database::qn('duplicate.organizationID') . ' = ' . Database::qn('reference.organizationID')
         ];
 
         $orConditions   = [];
         $orConditions[] = [
-            Database::quoteName('duplicate.categoryID') . ' = ' . Database::quoteName('reference.categoryID'),
-            Database::quoteName('duplicate.categoryID') . ' IS NOT NULL'
+            Database::qn('duplicate.categoryID') . ' = ' . Database::qn('reference.categoryID'),
+            Database::qn('duplicate.categoryID') . ' IS NOT NULL'
         ];
         $orConditions[] = [
-            Database::quoteName('duplicate.groupID') . ' = ' . Database::quoteName('reference.groupID'),
-            Database::quoteName('duplicate.groupID') . ' IS NOT NULL'
+            Database::qn('duplicate.groupID') . ' = ' . Database::qn('reference.groupID'),
+            Database::qn('duplicate.groupID') . ' IS NOT NULL'
         ];
         $orConditions[] = [
-            Database::quoteName('duplicate.personID') . ' = ' . Database::quoteName('reference.personID'),
-            Database::quoteName('duplicate.personID') . ' IS NOT NULL'
+            Database::qn('duplicate.personID') . ' = ' . Database::qn('reference.personID'),
+            Database::qn('duplicate.personID') . ' IS NOT NULL'
         ];
         $orConditions[] = [
-            Database::quoteName('duplicate.poolID') . ' = ' . Database::quoteName('reference.poolID'),
-            Database::quoteName('duplicate.poolID') . ' IS NOT NULL'
+            Database::qn('duplicate.poolID') . ' = ' . Database::qn('reference.poolID'),
+            Database::qn('duplicate.poolID') . ' IS NOT NULL'
         ];
         $orConditions[] = [
-            Database::quoteName('duplicate.programID') . ' = ' . Database::quoteName('reference.programID'),
-            Database::quoteName('duplicate.programID') . ' IS NOT NULL'
+            Database::qn('duplicate.programID') . ' = ' . Database::qn('reference.programID'),
+            Database::qn('duplicate.programID') . ' IS NOT NULL'
         ];
         $orConditions[] = [
-            Database::quoteName('duplicate.subjectID') . ' = ' . Database::quoteName('reference.subjectID'),
-            Database::quoteName('duplicate.subjectID') . ' IS NOT NULL'
+            Database::qn('duplicate.subjectID') . ' = ' . Database::qn('reference.subjectID'),
+            Database::qn('duplicate.subjectID') . ' IS NOT NULL'
         ];
         foreach ($orConditions as &$andConditions) {
             $andConditions = implode(' AND ', $andConditions);
@@ -156,7 +156,7 @@ class Organizer extends BaseModel
         $query = Database::getQuery();
         $query->delete('units AS u')
             ->leftJoinX('instances AS i', ['i.unitID = u.id'])
-            ->where([Database::quoteName('i.id') . ' IS NULL']);
+            ->where([Database::qn('i.id') . ' IS NULL']);
         Database::setQuery($query);
         Database::execute();
 
@@ -185,13 +185,13 @@ class Organizer extends BaseModel
             Database::execute();
         }
 
-        $dateCondition = Database::quoteName('b.date') . " < '$termStart'";
+        $dateCondition = Database::qn('b.date') . " < '$termStart'";
 
         // Remove instances and instance associations (explicitly marked as removed) from previous terms.
         $query = Database::getQuery();
         $query->delete('instances AS i')
             ->innerJoinX('blocks AS b', ['b.id = i.blockID'])
-            ->where([$dateCondition, Database::quoteName('i.delta') . " = 'removed'"]);
+            ->where([$dateCondition, Database::qn('i.delta') . " = 'removed'"]);
         Database::setQuery($query);
         Database::execute();
 
@@ -199,7 +199,7 @@ class Organizer extends BaseModel
         $query->delete('instance_persons AS ip')
             ->innerJoinX('instances AS i', ['i.id = ip.instanceID'])
             ->innerJoinX('blocks AS b', ['b.id = i.blockID'])
-            ->where([$dateCondition, Database::quoteName('ip.delta') . " = 'removed'"]);
+            ->where([$dateCondition, Database::qn('ip.delta') . " = 'removed'"]);
         Database::setQuery($query);
         Database::execute();
 
@@ -208,7 +208,7 @@ class Organizer extends BaseModel
             ->innerJoinX('instance_persons AS ip', ['ip.id = ig.assocID'])
             ->innerJoinX('instances AS i', ['i.id = ip.instanceID'])
             ->innerJoinX('blocks AS b', ['b.id = i.blockID'])
-            ->where([$dateCondition, Database::quoteName('ig.delta') . " = 'removed'"]);
+            ->where([$dateCondition, Database::qn('ig.delta') . " = 'removed'"]);
         Database::setQuery($query);
         Database::execute();
 
@@ -217,7 +217,7 @@ class Organizer extends BaseModel
             ->innerJoinX('instance_persons AS ip', ['ip.id = ir.assocID'])
             ->innerJoinX('instances AS i', ['i.id = ip.instanceID'])
             ->innerJoinX('blocks AS b', ['b.id = i.blockID'])
-            ->where([$dateCondition, Database::quoteName('ir.delta') . " = 'removed'"]);
+            ->where([$dateCondition, Database::qn('ir.delta') . " = 'removed'"]);
         Database::setQuery($query);
         Database::execute();
 
@@ -225,7 +225,7 @@ class Organizer extends BaseModel
         $query = Database::getQuery();
         $query->delete('blocks AS b')
             ->leftJoinX('instances AS i', ['i.blockID = b.id'])
-            ->where([$dateCondition, Database::quoteName('i.id') . ' IS NULL']);
+            ->where([$dateCondition, Database::qn('i.id') . ' IS NULL']);
         Database::setQuery($query);
         Database::execute();
 
@@ -233,7 +233,7 @@ class Organizer extends BaseModel
         $query = Database::getQuery();
         $query->delete('events AS e')
             ->leftJoinX('instances AS i', ['i.eventID = e.id'])
-            ->where([Database::quoteName('i.id') . ' IS NULL']);
+            ->where([Database::qn('i.id') . ' IS NULL']);
         Database::setQuery($query);
         Database::execute();
     }
@@ -252,7 +252,7 @@ class Organizer extends BaseModel
 
         // Past users that were never participants.
         $query = Database::getQuery();
-        $where = [Database::quoteName('p.id') . ' IS NULL', Database::quoteName('u.lastvisitDate') . " < '$cutoff'"];
+        $where = [Database::qn('p.id') . ' IS NULL', Database::qn('u.lastvisitDate') . " < '$cutoff'"];
         $query->selectX('u.id', '#__users AS u')->leftJoinX('participants AS p', ['p.id = u.id'])->where($where);
         Database::setQuery($query);
 
@@ -261,9 +261,9 @@ class Organizer extends BaseModel
         // Inactive participants with no associations.
         $query = Database::getQuery();
         $where = [
-            Database::quoteName('cp.id') . ' IS NULL',
-            Database::quoteName('ip.id') . ' IS NULL',
-            Database::quoteName('u.lastvisitDate') . " < '$cutoff'"
+            Database::qn('cp.id') . ' IS NULL',
+            Database::qn('ip.id') . ' IS NULL',
+            Database::qn('u.lastvisitDate') . " < '$cutoff'"
         ];
         $query->selectX('u.id, u.lastvisitDate', '#__users AS u')
             ->innerJoinX('participants AS p', ['p.id = u.id'])
@@ -277,9 +277,9 @@ class Organizer extends BaseModel
         // Unassociated persons entries
         $query = Database::getQuery();
         $where = [
-            Database::quoteName('ec.id') . ' IS NULL',
-            Database::quoteName('ip.id') . ' IS NULL',
-            Database::quoteName('sp.id') . ' IS NULL'
+            Database::qn('ec.id') . ' IS NULL',
+            Database::qn('ip.id') . ' IS NULL',
+            Database::qn('sp.id') . ' IS NULL'
         ];
         $query->selectX('p.id, p.code, p.forename, p.surname', 'persons AS p')
             ->leftJoinX('event_coordinators AS ec', ['ec.personID = p.id'])

@@ -34,7 +34,7 @@ class Participant extends MergeModel
         $query = Database::getQuery();
         $query->selectX(['COUNT(*) AS cardinality', 'p1.surname', 'p1.forename'], 'participants AS p1')
             ->innerJoinX('participants AS p2', ['p1.surname LIKE p2.surname', 'p1.forename LIKE p2.forename'])
-            ->where(Database::quoteName('p1.id') . ' != ' . Database::quoteName('p2.id'))
+            ->where(Database::qn('p1.id') . ' != ' . Database::qn('p2.id'))
             ->group('p1.surname, p1.forename');
         Database::setQuery($query);
 
@@ -58,8 +58,8 @@ class Participant extends MergeModel
 
             $query = Database::getQuery();
             $query->selectX(['id'], 'participants AS pa')
-                ->where(Database::quoteName('surname') . "LIKE '{$candidate['surname']}'")
-                ->where(Database::quoteName('forename') . "LIKE '{$candidate['forename']}'")
+                ->where(Database::qn('surname') . "LIKE '{$candidate['surname']}'")
+                ->where(Database::qn('forename') . "LIKE '{$candidate['forename']}'")
                 ->order('id');
             Database::setQuery($query);
 

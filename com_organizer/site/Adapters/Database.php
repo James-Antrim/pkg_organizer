@@ -60,11 +60,7 @@ class Database
     {
         $dbo = Application::getDB();
 
-        if (strtolower($dbo->getName()) !== 'mysqli') {
-            Application::error(501);
-        }
-
-        return $new ? new Queries\QueryMySQLi() : $dbo->getQuery();
+        return $dbo->getQuery($new);
     }
 
     /**
@@ -333,6 +329,21 @@ class Database
     }
 
     /**
+     * Wraps the database quote name function for use outside a query class without PhpStorm complaining about
+     * resolution.
+     *
+     * @param string|string[]   $name  the column name or names
+     * @param array|string|null $alias the column alias or aliases, if arrays and incongruent sizes => empty array
+     *                                 return value
+     *
+     * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
+     */
+    public static function qn(array|string $name, array|string $alias = null): array|string
+    {
+        return Application::getDB()->quoteName($name, $alias);
+    }
+
+    /**
      * Wraps the database quote function for use outside a query class without PhpStorm complaining about resolution and
      * inaccurate return typing.
      *
@@ -344,21 +355,6 @@ class Database
     public static function quote(array|string $term, bool $escape = true): array|string
     {
         return Application::getDB()->quote($term, $escape);
-    }
-
-    /**
-     * Wraps the database quote name function for use outside a query class without PhpStorm complaining about
-     * resolution.
-     *
-     * @param string|string[]   $name  the column name or names
-     * @param array|string|null $alias the column alias or aliases, if arrays and incongruent sizes => empty array
-     *                                 return value
-     *
-     * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
-     */
-    public static function quoteName(array|string $name, array|string $alias = null): array|string
-    {
-        return Application::getDB()->quoteName($name, $alias);
     }
 
     /**

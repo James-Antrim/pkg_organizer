@@ -55,7 +55,7 @@ class Schedule extends BaseModel
         $query->selectX('DISTINCT bk.id', 'bookings AS bk', 'i.delta', ['removed'], true, true)
             ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
             ->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
-            ->where([Database::quoteName('bl.date') . " > '$earliest'"]);
+            ->where([Database::qn('bl.date') . " > '$earliest'"]);
         Database::setQuery($query);
 
         // Bookings associated with non-deprecated appointments.
@@ -66,7 +66,7 @@ class Schedule extends BaseModel
         $query->selectX('DISTINCT bk.id', 'bookings AS bk', 'i.delta', ['removed'], false, true)
             ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
             ->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
-            ->where([Database::quoteName('bl.date') . " > '$earliest'"]);
+            ->where([Database::qn('bl.date') . " > '$earliest'"]);
         Database::setQuery($query);
 
         // Bookings associated with deprecated appointments.
@@ -90,7 +90,7 @@ class Schedule extends BaseModel
             ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
             ->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
             ->innerJoinX('instance_participants AS ip', ['ip.instanceID = i.id'])
-            ->where([Database::quoteName('bl.date') . " < '$today'"]);
+            ->where([Database::qn('bl.date') . " < '$today'"]);
         Database::setQuery($query);
 
         // Attended bookings.
@@ -102,7 +102,7 @@ class Schedule extends BaseModel
             ->innerJoinX('blocks AS bl', ['bl.id = bk.blockID'])
             ->innerJoinX('instances AS i', ['i.blockID = bk.blockID', 'i.unitID = bk.unitID'])
             ->innerJoinX('instance_participants AS ip', ['ip.instanceID = i.id'])
-            ->where([Database::quoteName('bl.date') . " < '$today'"]);
+            ->where([Database::qn('bl.date') . " < '$today'"]);
         Database::setQuery($query);
 
         // Unattended bookings.

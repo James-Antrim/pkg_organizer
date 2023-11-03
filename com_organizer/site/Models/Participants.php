@@ -44,16 +44,16 @@ class Participants extends ListModel
         $query = Database::getQuery();
 
         $nameParts    = [
-            Database::quoteName('pa.surname'),
+            Database::qn('pa.surname'),
             "', '",
-            Database::quoteName('pa.forename'),
+            Database::qn('pa.forename'),
         ];
         $programParts = [
-            Database::quoteName("pr.name_$tag"),
+            Database::qn("pr.name_$tag"),
             "' ('",
-            Database::quoteName('d.abbreviation'),
+            Database::qn('d.abbreviation'),
             "' '",
-            Database::quoteName('pr.accredited'),
+            Database::qn('pr.accredited'),
             "')'"
         ];
         $select       = [
@@ -73,14 +73,14 @@ class Participants extends ListModel
         $this->setValueFilters($query, ['programID']);
 
         if ($this->state->get('filter.duplicates')) {
-            $forename1 = Database::quoteName('pa.forename');
-            $forename2 = Database::quoteName('pa2.forename');
-            $likeFN1   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa.forename') . ')', "'%'"], '');
-            $likeFN2   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa2.forename') . ')', "'%'"], '');
-            $likeSN1   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa.surname') . ')', "'%'"], '');
-            $likeSN2   = $query->concatenate(["'%'", 'TRIM(' . Database::quoteName('pa2.surname') . ')', "'%'"], '');
-            $surname1  = Database::quoteName('pa.surname');
-            $surname2  = Database::quoteName('pa2.surname');
+            $forename1 = Database::qn('pa.forename');
+            $forename2 = Database::qn('pa2.forename');
+            $likeFN1   = $query->concatenate(["'%'", 'TRIM(' . Database::qn('pa.forename') . ')', "'%'"], '');
+            $likeFN2   = $query->concatenate(["'%'", 'TRIM(' . Database::qn('pa2.forename') . ')', "'%'"], '');
+            $likeSN1   = $query->concatenate(["'%'", 'TRIM(' . Database::qn('pa.surname') . ')', "'%'"], '');
+            $likeSN2   = $query->concatenate(["'%'", 'TRIM(' . Database::qn('pa2.surname') . ')', "'%'"], '');
+            $surname1  = Database::qn('pa.surname');
+            $surname2  = Database::qn('pa2.surname');
 
             $similarForenames = "($forename1 LIKE $likeFN2 OR $forename2 LIKE $likeFN1)";
             $similarSurnames  = "($surname1 LIKE $likeSN2 OR $surname2 LIKE $likeSN1)";
@@ -91,8 +91,8 @@ class Participants extends ListModel
 
             if ($domain = Input::getParams()->get('emailFilter')) {
                 $domain = Database::quote("%$domain");
-                $email1 = Database::quoteName('u.email');
-                $email2 = Database::quoteName('u2.email');
+                $email1 = Database::qn('u.email');
+                $email2 = Database::qn('u2.email');
 
                 $externalExists = "($email1 NOT LIKE $domain OR $email2 NOT LIKE $domain)";
 

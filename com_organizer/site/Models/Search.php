@@ -486,11 +486,11 @@ class Search extends ListModel
     ): array
     {
         if ($subType === 'group') {
-            $deColumn = Database::quoteName('g.name_de');
-            $enColumn = Database::quoteName('g.name_en');
+            $deColumn = Database::qn('g.name_de');
+            $enColumn = Database::qn('g.name_en');
         } else {
-            $deColumn = Database::quoteName('po.fullName_de');
-            $enColumn = Database::quoteName('po.fullName_en');
+            $deColumn = Database::qn('po.fullName_de');
+            $enColumn = Database::qn('po.fullName_en');
         }
 
         $wherray = [];
@@ -571,7 +571,7 @@ class Search extends ListModel
      */
     private function implodeLikeSet(string $column, array $terms, string $glue): string
     {
-        $column = Database::quoteName($column);
+        $column = Database::qn($column);
 
         foreach ($terms as &$term) {
             $term = Database::quote("%$term%");
@@ -1023,8 +1023,8 @@ class Search extends ListModel
         $query = Database::getQuery();
         $query->select('DISTINCT id')->from('#__organizer_roomtypes');
 
-        $nameDE  = Database::quoteName('name_de');
-        $nameEN  = Database::quoteName('name_en');
+        $nameDE  = Database::qn('name_de');
+        $nameEN  = Database::qn('name_en');
         $typeIDs = [];
 
         foreach ($ncRooms as $key => $term) {
@@ -1103,8 +1103,8 @@ class Search extends ListModel
         // If the initial term never existed or was unset in the filtering process don't set.
         $initialTerm = (empty($terms) or $noInitial) ? '' : array_shift($terms);
 
-        $cNameDE = Database::quoteName('c.name_de');
-        $cNameEN = Database::quoteName('c.name_en');
+        $cNameDE = Database::qn('c.name_de');
+        $cNameEN = Database::qn('c.name_en');
         /* @var QueryMySQLi $cQuery */
         $cQuery = Database::getQuery();
         $cQuery->select('DISTINCT c.id AS categoryID, p.id AS programID, lft, rgt, o.id AS organizationID')
@@ -1114,8 +1114,8 @@ class Search extends ListModel
             ->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
             ->innerJoin('#__organizer_organizations AS o on o.id = a.organizationID');
 
-        $pNameDE = Database::quoteName('p.name_de');
-        $pNameEN = Database::quoteName('p.name_en');
+        $pNameDE = Database::qn('p.name_de');
+        $pNameEN = Database::qn('p.name_en');
         /* @var QueryMySQLi $pQuery */
         $pQuery = Database::getQuery();
         $pQuery->select('DISTINCT p.id AS programID, c.id AS categoryID, lft, rgt, o.id AS organizationID')
@@ -1543,8 +1543,8 @@ class Search extends ListModel
      */
     private function onlyActive(JDatabaseQuery $categoryQuery, JDatabaseQuery $programQuery)
     {
-        $categoryQuery->where(Database::quoteName('c.active') . ' = 1')->where(Database::quoteName('p.active') . ' = 1');
-        $programQuery->where(Database::quoteName('c.active') . ' = 1')->where(Database::quoteName('p.active') . ' = 1');
+        $categoryQuery->where(Database::qn('c.active') . ' = 1')->where(Database::qn('p.active') . ' = 1');
+        $programQuery->where(Database::qn('c.active') . ' = 1')->where(Database::qn('p.active') . ' = 1');
     }
 
     /**
@@ -1582,8 +1582,8 @@ class Search extends ListModel
             return;
         }
 
-        $iDelta = Database::quoteName('i.delta');
-        $uDelta = Database::quoteName('u.delta');
+        $iDelta = Database::qn('i.delta');
+        $uDelta = Database::qn('u.delta');
         $today  = date('Y-m-d');
 
         /* @var QueryMySQLi $eQuery */
@@ -1608,16 +1608,16 @@ class Search extends ListModel
             ->nullSet('i.delta', ['removed'], true)
             ->nullSet('u.delta', ['removed'], true);
 
-        $eNameDE      = Database::quoteName('e.name_de');
-        $eNameEN      = Database::quoteName('e.name_en');
+        $eNameDE      = Database::qn('e.name_de');
+        $eNameEN      = Database::qn('e.name_en');
         $eNameColumns = [$eNameDE, $eNameEN];
 
-        $sCode        = Database::quoteName('s.code');
-        $sFNameDE     = Database::quoteName('s.fullName_de');
-        $sFNameEN     = Database::quoteName('s.fullName_en');
+        $sCode        = Database::qn('s.code');
+        $sFNameDE     = Database::qn('s.fullName_de');
+        $sFNameEN     = Database::qn('s.fullName_en');
         $sNameColumns = [
-            Database::quoteName('s.abbreviation_de'),
-            Database::quoteName('s.abbreviation_en'),
+            Database::qn('s.abbreviation_de'),
+            Database::qn('s.abbreviation_en'),
             $sCode,
             $sFNameDE,
             $sFNameEN

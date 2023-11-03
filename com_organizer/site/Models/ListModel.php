@@ -462,7 +462,7 @@ abstract class ListModel extends Base
         $where  = [];
 
         foreach ($columnNames as $name) {
-            $name    = Database::quoteName($name);
+            $name    = Database::qn($name);
             $where[] = "$name LIKE '$search'";
         }
 
@@ -540,7 +540,7 @@ abstract class ListModel extends Base
                 continue;
             }
 
-            $column = Database::quoteName($column);
+            $column = Database::qn($column);
 
             /**
              * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must

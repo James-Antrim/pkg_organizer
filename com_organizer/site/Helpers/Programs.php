@@ -200,14 +200,14 @@ class Programs extends Curricula implements Selectable
     public static function getQuery(): JDatabaseQuery
     {
         $tag   = Application::getTag();
-        $start = [Database::quoteName("p.name_$tag"), "' ('", Database::quoteName('d.abbreviation')];
-        $end   = self::useCurrent() ? ["')'"] : ["', '", Database::quoteName('p.accredited'), "')'"];
+        $start = [Database::qn("p.name_$tag"), "' ('", Database::qn('d.abbreviation')];
+        $end   = self::useCurrent() ? ["')'"] : ["', '", Database::qn('p.accredited'), "')'"];
         $parts = array_merge($start, $end);
 
         $query  = Database::getQuery();
         $select = [
             'DISTINCT p.id AS id',
-            $query->concatenate($parts, '') . ' AS ' . Database::quoteName('name'),
+            $query->concatenate($parts, '') . ' AS ' . Database::qn('name'),
             'p.active'
         ];
         $query->selectX($select, 'programs AS p')->innerJoinX('degrees AS d', ['d.id = p.degreeID']);
@@ -254,7 +254,7 @@ class Programs extends Curricula implements Selectable
     {
         /* @var QueryMySQLi $query */
         $query = self::getQuery();
-        $query->select(Database::quoteName('d.abbreviation', 'degree'))
+        $query->select(Database::qn('d.abbreviation', 'degree'))
             ->innerJoinX('curricula AS c', ['c.programID = p.id'])
             ->order('name');
 
@@ -275,7 +275,7 @@ class Programs extends Curricula implements Selectable
             $select     = [
                 "p2.name_$tag",
                 'p2.degreeID',
-                'MAX(' . Database::quoteName('p2.accredited') . ') AS ' . Database::quoteName('accredited')
+                'MAX(' . Database::qn('p2.accredited') . ') AS ' . Database::qn('accredited')
             ];
 
             $join = Database::getQuery()->selectX($select, 'programs AS p2')->group(["p2.name_$tag", 'p2.degreeID']);
