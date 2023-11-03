@@ -17,11 +17,11 @@ use THM\Organizer\Models;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Schedules extends Controller
+class Schedules extends ListController
 {
     protected string $listView = 'schedules';
 
-    protected string $resource = 'schedule';
+    protected string $item = 'Schedule';
 
     /**
      * Notifies the points of contact for affected organizations of changes made to the schedule.
@@ -33,11 +33,11 @@ class Schedules extends Controller
 
         if ($model->notify())
         {
-            Application::message('ORGANIZER_NOTIFY_SUCCESS');
+            Application::message('NOTIFY_SUCCESS');
         }
         else
         {
-            Application::message('ORGANIZER_NOTIFY_FAIL', Application::ERROR);
+            Application::message('NOTIFY_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase();
@@ -54,9 +54,10 @@ class Schedules extends Controller
         $model = new Models\Schedule();
 
         if ($model->rebuild()) {
-            Application::message('ORGANIZER_REBUILD_SUCCESS');
-        } else {
-            Application::message('ORGANIZER_REBUILD_FAIL', Application::ERROR);
+            Application::message('REBUILD_SUCCESS');
+        }
+        else {
+            Application::message('REBUILD_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase();
@@ -73,9 +74,10 @@ class Schedules extends Controller
         $model = new Models\Schedule();
 
         if ($model->reference()) {
-            Application::message('ORGANIZER_REFERENCE_SUCCESS');
-        } else {
-            Application::message('ORGANIZER_REFERENCE_FAIL', Application::ERROR);
+            Application::message('REFERENCE_SUCCESS');
+        }
+        else {
+            Application::message('REFERENCE_FAIL', Application::ERROR);
         }
 
         $url = Helpers\Routing::getRedirectBase();
@@ -91,7 +93,7 @@ class Schedules extends Controller
     {
         $url = Helpers\Routing::getRedirectBase();
         if (JDEBUG) {
-            Application::message('ORGANIZER_DEBUG_ON', Application::ERROR);
+            Application::message('DEBUG_ON', Application::ERROR);
             $url .= "&view=Schedules";
             $this->setRedirect($url);
 
@@ -106,13 +108,15 @@ class Schedules extends Controller
             if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8') {
                 $model = new Models\Schedule();
                 $view  = $model->upload() ? 'Schedules' : 'Schedule_Edit';
-            } else {
-                $view = 'Schedule_Edit';
-                Application::message('ORGANIZER_FILE_ENCODING_INVALID', Application::ERROR);
             }
-        } else {
+            else {
+                $view = 'Schedule_Edit';
+                Application::message('FILE_ENCODING_INVALID', Application::ERROR);
+            }
+        }
+        else {
             $view = 'Schedule_Edit';
-            Application::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', Application::ERROR);
+            Application::message('FILE_TYPE_NOT_ALLOWED', Application::ERROR);
         }
 
         $url .= "&view=$view";

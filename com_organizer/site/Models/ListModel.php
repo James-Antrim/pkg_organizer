@@ -16,9 +16,9 @@ use Joomla\CMS\Table\Table;
 use Joomla\Database\{DatabaseQuery, QueryInterface};
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
-use THM\Organizer\Adapters\{Application, Database, Form, Input, Queries\QueryMySQLi};
-use THM\Organizer\Helpers;
 use stdClass;
+use THM\Organizer\Adapters\{Application, Database as DB, Form, Input};
+use THM\Organizer\Helpers;
 
 /**
  * Model class for handling lists of items.
@@ -415,14 +415,14 @@ abstract class ListModel extends Base
     /**
      * Sets an organization filter for the given resource.
      *
-     * @param   QueryMySQLi  $query       the query to modify
-     * @param   string       $context     the resource context from which this function was called
-     * @param   string       $alias       the alias of the table onto which the organizations table will be joined as
+     * @param   DatabaseQuery  $query     the query to modify
+     * @param   string         $context   the resource context from which this function was called
+     * @param   string         $alias     the alias of the table onto which the organizations table will be joined as
      *                                    needed
      *
      * @return void
      */
-    protected function setOrganizationFilter(QueryMySQLi $query, string $context, string $alias): void
+    protected function setOrganizationFilter(DatabaseQuery $query, string $context, string $alias): void
     {
         $authorizedIDs  = Application::backend() ? Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
         $organizationID = (int) $this->state->get('filter.organizationID');
@@ -431,28 +431,29 @@ abstract class ListModel extends Base
             return;
         }
 
-        $conditions = ["a.{$context}ID = $alias.id"];
-        $join       = 'associations AS a';
+        $conditions = DB::qc("a.{$context}ID", "$alias.id");
 
         if ($organizationID === self::NONE) {
-            $query->leftJoinX($join, $conditions)->where('a.organizationID IS NULL');
+            $query->leftJoin(DB::qn('#_organizer_associations', 'a'), $conditions)
+                ->where(DB::qn('a.organizationID') . ' IS NULL');
 
             return;
         }
 
         $in = in_array($organizationID, $authorizedIDs) ? [$organizationID] : $authorizedIDs;
-        $query->innerJoinX($join, $conditions)->whereIn('a.organizationID', $in);
+        $query->innerJoin(DB::qn('#_organizer_associations', 'a'), $conditions)
+            ->whereIn(DB::qn('a.organizationID'), $in);
     }
 
     /**
      * Sets the search filter for the query
      *
-     * @param   QueryMySQLi  $query        the query to modify
-     * @param   array        $columnNames  the column names to use in the search
+     * @param   DatabaseQuery  $query        the query to modify
+     * @param   array          $columnNames  the column names to use in the search
      *
      * @return void
      */
-    protected function setSearchFilter(QueryMySQLi $query, array $columnNames): void
+    protected function setSearchFilter(DatabaseQuery $query, array $columnNames): void
     {
         if (!$userInput = $this->state->get('filter.search')) {
             return;
@@ -462,7 +463,7 @@ abstract class ListModel extends Base
         $where  = [];
 
         foreach ($columnNames as $name) {
-            $name    = Database::qn($name);
+            $name    = DB::qn($name);
             $where[] = "$name LIKE '$search'";
         }
 
@@ -540,7 +541,7 @@ abstract class ListModel extends Base
                 continue;
             }
 
-            $column = Database::qn($column);
+            $column = DB::qn($column);
 
             /**
              * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
@@ -556,11 +557,11 @@ abstract class ListModel extends Base
                 $query->where("$column = $value");
             }
             elseif (is_string($value)) {
-                $value = Database::quote($value);
+                $value = DB::quote($value);
                 $query->where("$column = $value");
             }
             elseif (is_array($value) and $values = ArrayHelper::toInteger($value)) {
-                $query->where($column . Database::makeSet($values));
+                $query->where($column . DB::makeSet($values));
             }
         }
     }

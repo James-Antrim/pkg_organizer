@@ -10,36 +10,28 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Dates};
+use stdClass;
 
 /**
  * Class loads persistent information a filtered set of schedules into the display context.
  */
 class Schedules extends ListView
 {
-    protected array $rowStructure = [
-        'checkbox' => '',
-        'organizationName' => 'value',
-        'termName' => 'value',
-        'userName' => 'value',
-        'created' => 'value'
-    ];
-
     /**
      * @inheritdoc
      */
     protected function addToolBar(): void
     {
-        $toolbar = Toolbar::getInstance();
-        $toolbar::setTitle('ORGANIZER_SCHEDULES');
+        Toolbar::setTitle('SCHEDULES');
         $admin   = Can::administrate();
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->standardButton('upload', Text::_('ORGANIZER_UPLOAD'), 'Schedules.edit')->icon('fa fa-upload');
+        $toolbar->standardButton('upload', Text::_('UPLOAD'), 'Schedules.edit')->icon('fa fa-upload');
 
         if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID')) {
-            /*$toolbar->standardButton('envelope', Text::_('ORGANIZER_NOTIFY_CHANGES'), 'schedules.notify', true);*/
+            /*$toolbar->standardButton('envelope', Text::_('NOTIFY_CHANGES'), 'schedules.notify', true);*/
 
             $toolbar->confirmButton('reference', Text::_('REFERENCE_CONFIRM'), 'Schedules.reference')->icon('fa fa-share');
 
@@ -55,36 +47,40 @@ class Schedules extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
+    public function initializeColumns(): void
     {
-        $headers = [
-            'checkbox' => HTML::_('grid.checkall'),
-            'organizationName' => Text::_('ORGANIZER_ORGANIZATION'),
-            'termName' => Text::_('ORGANIZER_TERM'),
-            'userName' => Text::_('ORGANIZER_USERNAME'),
-            'created' => Text::_('ORGANIZER_CREATION_DATE')
+        $this->headers = [
+            'check'            => ['type' => 'check'],
+            'organizationName' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ORGANIZATION'),
+                'type'       => 'text'
+            ],
+            'termName'         => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('TERM'),
+                'type'       => 'text'
+            ],
+            'userName'         => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('USERNAME'),
+                'type'       => 'text'
+            ],
+            'created'          => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('CREATION_DATE'),
+                'type'       => 'text'
+            ]
         ];
-
-        $this->headers = $headers;
     }
 
     /**
      * @inheritdoc
      */
-    protected function structureItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $index           = 0;
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $creationDate  = Dates::formatDate($item->creationDate);
-            $creationTime  = Dates::formatTime($item->creationTime);
-            $item->created = "$creationDate / $creationTime";
-
-            $structuredItems[$index] = $this->structureItem($index, $item);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $creationDate  = Dates::formatDate($item->creationDate);
+        $creationTime  = Dates::formatTime($item->creationTime);
+        $item->created = "$creationDate / $creationTime";
     }
 }

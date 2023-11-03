@@ -88,7 +88,7 @@ abstract class ListView extends Base
         // MVC name identity is now the internal standard
         $controller = $this->getName();
         $toolbar    = Toolbar::getInstance();
-        $toolbar::setTitle(strtoupper($controller));
+        Toolbar::setTitle(strtoupper($controller));
 
         if (Can::administrate()) {
             $toolbar->preferences('com_organizer');
@@ -96,8 +96,8 @@ abstract class ListView extends Base
     }
 
     /**
-     * Checks user authorization and initiates redirects accordingly. General access is now regulated through the below
-     * mentioned functions. Views with public access can be further restricted here as necessary.
+     * Checks user authorization and initiates redirects accordingly. General access is now regulated through the
+     * below-mentioned functions. Views with public access can be further restricted here as necessary.
      * @return void
      * @see Controller::display(), Can::view()
      */
@@ -112,23 +112,6 @@ abstract class ListView extends Base
     public function display($tpl = null): void
     {
         $this->authorize();
-
-        $this->initializeColumns();
-
-        $this->items      = $this->get('Items');
-        $this->pagination = $this->get('Pagination');
-
-        if ($this->items or $this->structureEmpty) {
-            $this->completeItems();
-        }
-
-        $this->empty = $this->empty ?: Text::_('ORGANIZER_EMPTY_RESULT_SET');
-
-        $this->addToC();
-        $this->addToolBar();
-        $this->modifyDocument();
-        $this->addSubtitle();
-        $this->addSupplement();
 
         parent::display($tpl);
     }
@@ -233,10 +216,15 @@ abstract class ListView extends Base
 
         parent::initializeView();
 
-        // All the tools are now there.
+        $this->empty = $this->empty ?: Text::_('_EMPTY_RESULT_SET');
+
+        $this->addSubtitle();
         $this->addSupplement();
-        $this->initializeColumns();
+        $this->addToC();
         $this->completeItems();
+        $this->initializeColumns();
+        $this->modifyDocument();
+        $this->addSupplement();
     }
 
     /**

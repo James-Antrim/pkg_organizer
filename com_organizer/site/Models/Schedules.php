@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
-use THM\Organizer\Helpers;
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves information for a filtered set of schedules.
@@ -23,28 +23,30 @@ class Schedules extends ListModel
 
     /**
      * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $tag   = Application::getTag();
+        $query = DB::getQuery();
 
-        $createdParts = ['s.creationDate', 's.creationTime'];
-        $query->select('s.id, s.creationDate, s.creationTime')
-            ->select($query->concatenate($createdParts, ' ') . ' AS created ')
-            ->select("o.id AS organizationID, o.shortName_$tag AS organizationName")
-            ->select("term.id AS termID, term.name_$tag AS termName")
-            ->select('u.name AS userName')
-            ->from('#__organizer_schedules AS s')
-            ->innerJoin('#__organizer_organizations AS o ON o.id = s.organizationID')
-            ->innerJoin('#__organizer_terms AS term ON term.id = s.termID')
-            ->leftJoin('#__users AS u ON u.id = s.userID')
-            ->order('created DESC');
+        $select       = DB::qn(['s.id', 's.creationDate', 's.creationTime']);
+        $aliased      = DB::qn(
+            ['o.id', "o.shortName_$tag", 'term.id', "term.name_$tag", 'u.name'],
+            ['organizationID', 'organizationName', 'termID', 'termName', 'userName']
+        );
+        $createdParts = DB::qn(['s.creationDate', 's.creationTime']);
+        $created      = [$query->concatenate($createdParts, ' ') . ' AS created '];
+        $select       = array_merge($select, $aliased, $created);
+        $query->select($select)
+            ->select($query->concatenate($createdParts, ' '))
+            ->from(DB::qn('#__organizer_schedules', 's'))
+            ->innerJoin(DB::qn('#__organizer_organizations', 'o'), DB::qc('o.id', 's.organizationID'))
+            ->innerJoin(DB::qn('#__organizer_terms', 'term'), DB::qc('term.id', 's.termID'))
+            ->innerJoin(DB::qn('#__users', 'u'), DB::qc('u.id', 's.userID'))
+            ->order(DB::qn('created') . ' DESC');
 
-        $authorized = implode(', ', Helpers\Can::scheduleTheseOrganizations());
-        $query->where("o.id IN ($authorized)");
+        $query->whereIn(DB::qn('o.id'), Can::scheduleTheseOrganizations());
 
         $this->setValueFilters($query, ['organizationID', 'termID']);
 
@@ -52,10 +54,10 @@ class Schedules extends ListModel
     }
 
     /**
-     * Method to auto-populate the model state.
+     * Method to automatically populate the model state.
      *
-     * @param string $ordering  An optional ordering field.
-     * @param string $direction An optional direction (asc|desc).
+     * @param   string  $ordering   An optional ordering field.
+     * @param   string  $direction  An optional direction (asc|desc).
      *
      * @return void populates state properties
      */
@@ -66,7 +68,7 @@ class Schedules extends ListModel
         $filters = Application::getUserRequestState($this->context . '.filter', 'filter', [], 'array');
 
         if (!array_key_exists('active', $filters) or $filters['active'] === '') {
-            $this->setState('filter.active', -1);
+            $this->state->set('filter.active', -1);
         }
     }
 }
