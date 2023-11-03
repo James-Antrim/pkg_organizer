@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\Text;
+use THM\Organizer\Adapters\{Text, Toolbar};
 use THM\Organizer\Helpers\Dates;
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -20,6 +20,17 @@ use THM\Organizer\Layouts\HTML\ListItem;
  */
 class Terms extends ListView
 {
+    /**
+     * @inheritDoc
+     */
+    protected function addToolBar(): void
+    {
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('Semester.add');
+        $toolbar->delete('Semester.delete')->message(Text::_('DELETE_CONFIRM'));
+        parent::addToolBar();
+    }
+
     /**
      * @inheritdoc
      */
