@@ -10,36 +10,33 @@
 
 namespace THM\Organizer\Views\HTML;
 
+use stdClass;
 use THM\Organizer\Adapters\Text;
 use THM\Organizer\Helpers\Dates;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of degrees into the display context.
  */
 class Terms extends ListView
 {
-    protected array $rowStructure = ['checkbox' => '', 'term' => 'link', 'startDate' => 'link', 'endDate' => 'link'];
+    /**
+     * @inheritdoc
+     */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $item->editLink  = $options['query'] . $item->id;
+        $item->endDate   = Dates::formatDate($item->endDate);
+        $item->startDate = Dates::formatDate($item->startDate);
+    }
 
     /**
      * @inheritDoc
      */
-    protected function completeItems(): void
+    protected function completeItems(array $options = []): void
     {
-        $link            = "index.php?option=com_organizer&view=term_edit&id=";
-        $index           = 0;
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $thisLink = empty($item->link) ? $link . $item->id : $item->link;
-
-            $item->endDate   = Dates::formatDate($item->endDate);
-            $item->startDate = Dates::formatDate($item->startDate);
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $thisLink);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $options = ['query' => "index.php?option=com_organizer&view=Term&id="];
+        parent::completeItems($options);
     }
 
     /**
@@ -47,13 +44,24 @@ class Terms extends ListView
      */
     public function initializeColumns(): void
     {
-        $headers = [
-            'checkbox'  => '',
-            'term'      => Text::_('ORGANIZER_NAME'),
-            'startDate' => Text::_('ORGANIZER_START_DATE'),
-            'endDate'   => Text::_('ORGANIZER_END_DATE')
+        $this->headers = [
+            'check'     => ['type' => 'check'],
+            'term'      => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('NAME'),
+                'type'       => 'value'
+            ],
+            'startDate' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('START_DATE'),
+                'type'       => 'text'
+            ],
+            'endDate'   => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('END_DATE'),
+                'type'       => 'text'
+            ],
         ];
-
-        $this->headers = $headers;
     }
 }
