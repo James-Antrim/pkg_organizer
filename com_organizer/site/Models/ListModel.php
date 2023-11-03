@@ -66,13 +66,6 @@ abstract class ListModel extends Base
         catch (Exception $exception) {
             Application::handleException($exception);
         }
-
-        $app                  = Application::getApplication();
-        $this->filterFormName = strtolower(Helpers\OrganizerHelper::getClass($this));
-
-        if (!is_numeric($this->defaultLimit)) {
-            $this->defaultLimit = $app->get('list_limit', 50);
-        }
     }
 
     /**
@@ -301,12 +294,12 @@ abstract class ListModel extends Base
         // Receive & set filters
         $filters = Application::getUserRequestState($this->context . '.filter', 'filter', [], 'array');
         foreach ($filters as $input => $value) {
-            $this->setState('filter.' . $input, $value);
+            $this->state->set('filter.' . $input, $value);
         }
 
         $list = Application::getUserRequestState($this->context . '.list', 'list', [], 'array');
         foreach ($list as $input => $value) {
-            $this->setState("list.$input", $value);
+            $this->state->set("list.$input", $value);
         }
 
         $direction    = 'ASC';
@@ -317,43 +310,33 @@ abstract class ListModel extends Base
             $pieces          = explode(' ', $list['fullordering']);
             $validDirections = ['ASC', 'DESC', ''];
 
-            switch (count($pieces)) {
-                case 1:
-                    if (in_array($pieces[0], $validDirections)) {
-                        $direction    = empty($pieces[0]) ? 'ASC' : $pieces[0];
-                        $fullOrdering = "$this->defaultDirection $direction";
-                        $ordering     = $this->defaultDirection;
-                        break;
-                    }
-
-                    $direction    = $pieces[0];
-                    $fullOrdering = "$pieces[0] ASC";
-                    $ordering     = 'ASC';
-                    break;
-                case 2:
-                    $direction    = !in_array($pieces[1], $validDirections) ? 'ASC' : $pieces[1];
-                    $ordering     = $pieces[0];
-                    $fullOrdering = "$ordering $direction";
-                    break;
+            if (in_array(end($pieces), $validDirections)) {
+                $direction = array_pop($pieces);
             }
+
+            if ($pieces) {
+                $ordering = implode(' ', $pieces);
+            }
+
+            $fullOrdering = "$ordering $direction";
         }
 
-        $this->setState('list.fullordering', $fullOrdering);
-        $this->setState('list.ordering', $ordering);
-        $this->setState('list.direction', $direction);
+        $this->state->set('list.fullordering', $fullOrdering);
+        $this->state->set('list.ordering', $ordering);
+        $this->state->set('list.direction', $direction);
 
-        if ($format = Input::getCMD('format') and $format === 'pdf') {
+        if ($format = Input::getCMD('format') and $format !== 'html') {
             $limit = 0;
+            $start = 0;
         }
         else {
             $limit = (isset($list['limit']) && is_numeric($list['limit'])) ? $list['limit'] : $this->defaultLimit;
+            $start = $this->getUserStateFromRequest('limitstart', 'limitstart', 0);
+            $start = ($limit != 0 ? (floor($start / $limit) * $limit) : 0);
         }
 
-        $this->setState('list.limit', $limit);
-
-        $value = Application::getUserRequestState('limitstart', 'limitstart', 0);
-        $start = ($limit != 0 ? (floor($value / $limit) * $limit) : 0);
-        $this->setState('list.start', $start);
+        $this->state->set('list.limit', $limit);
+        $this->state->set('list.start', $start);
     }
 
     /**

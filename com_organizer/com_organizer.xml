@@ -26,7 +26,7 @@
         </schemas>
     </update>
     <administration>
-        <menu>ORGANIZER</menu>
+        <menu link="option=com_organizer">ORGANIZER</menu>
         <files folder="admin">
             <filename>access.xml</filename>
             <filename>config.xml</filename>
