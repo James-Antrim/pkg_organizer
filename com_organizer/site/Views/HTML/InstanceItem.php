@@ -33,11 +33,11 @@ class InstanceItem extends ListView
     private array $messages = [];
     public string $minibar = '';
     protected array $rowStructure = [
-        'tools' => '',
-        'date' => 'value',
-        'time' => 'value',
+        'tools'   => '',
+        'date'    => 'value',
+        'time'    => 'value',
         'persons' => 'value',
-        'rooms' => 'value'
+        'rooms'   => 'value'
     ];
     private string $status = '';
     private string $statusDate = '';
@@ -56,18 +56,22 @@ class InstanceItem extends ListView
         if ($instance->expired) {
             $color          = 'grey';
             $this->messages = [Text::_('ORGANIZER_INSTANCE_EXPIRED')];
-        } elseif (!$this->userID) {
+        }
+        elseif (!$this->userID) {
             $this->messages[] = Text::_('ORGANIZER_INSTANCE_LOG_IN_FIRST');
-        } elseif ($instance->registered) {
+        }
+        elseif ($instance->registered) {
             $color            = 'green';
             $this->messages[] = Text::_('ORGANIZER_INSTANCE_REGISTERED');
-        } elseif ($instance->bookmarked) {
+        }
+        elseif ($instance->bookmarked) {
             $this->messages[] = Text::_('ORGANIZER_INSTANCE_BOOKMARKED');
 
             if ($instance->presence !== Helper::ONLINE) {
                 $color = 'yellow';
             }
-        } elseif (!$instance->taught) {
+        }
+        elseif (!$instance->taught) {
             $this->messages[] = Text::_('ORGANIZER_INSTANCE_NOT_BOOKMARKED');
         }
 
@@ -86,7 +90,7 @@ class InstanceItem extends ListView
         $instance = $this->instance;
         $method   = $instance->method ? " - $instance->method" : '';
         $this->setTitle($instance->name . $method);
-        $this->setSubtitle();
+        $this->addSubtitle();
 
         $link     = new Link();
         $minibar  = [];
@@ -108,7 +112,8 @@ class InstanceItem extends ListView
                     'InstanceParticipants.bookmarkThis',
                     false
                 );
-            } elseif ($buttons['deschedule']) {
+            }
+            elseif ($buttons['deschedule']) {
                 $minibar[] = $standard->fetchButton(
                     'Standard',
                     'bookmark-2',
@@ -267,7 +272,7 @@ class InstanceItem extends ListView
     /**
      * Creates the event title.
      *
-     * @param stdClass $item the event item being iterated
+     * @param   stdClass  $item  the event item being iterated
      *
      * @return array the title column
      */
@@ -440,9 +445,9 @@ class InstanceItem extends ListView
     /**
      * Renders the individual resource output.
      *
-     * @param string $name     the resource name
-     * @param string $status   the resource's status
-     * @param string $dateTime the date time of the resource's last status update
+     * @param   string  $name      the resource name
+     * @param   string  $status    the resource's status
+     * @param   string  $dateTime  the date time of the resource's last status update
      *
      * @return void
      */
@@ -487,22 +492,22 @@ class InstanceItem extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
+    public function initializeColumns(): void
     {
         $this->headers = [
-            'tools' => ($this->userID and !Application::mobile()) ? Helpers\HTML::_('grid.checkall') : '',
+            'tools'    => ($this->userID and !Application::mobile()) ? Helpers\HTML::_('grid.checkall') : '',
             'instance' => Text::_('ORGANIZER_INSTANCE'),
-            'status' => Text::_('ORGANIZER_STATUS'),
-            'persons' => Text::_('ORGANIZER_PERSONS'),
-            'groups' => Text::_('ORGANIZER_GROUPS'),
-            'rooms' => Text::_('ORGANIZER_ROOMS')
+            'status'   => Text::_('ORGANIZER_STATUS'),
+            'persons'  => Text::_('ORGANIZER_PERSONS'),
+            'groups'   => Text::_('ORGANIZER_GROUPS'),
+            'rooms'    => Text::_('ORGANIZER_ROOMS')
         ];
     }
 
     /**
      * Processes the instance to aid in simplifying/supplementing the item display.
      *
-     * @param stdClass $instance the instance data
+     * @param   stdClass  $instance  the instance data
      *
      * @return void
      */
@@ -665,29 +670,29 @@ class InstanceItem extends ListView
     }
 
     /**
-     * @param array   &$collection the aggregated collection for the resource
-     * @param array   &$filtered   the resource filtered of attributes obfuscating resource uniqueness
-     * @param string  &$modified   the date time string denoting the last modification date for the whole instance
-     * @param int      $key        the resource's id in the database
-     * @param string   $name       the name of the resource
-     * @param array    $resource   the resource being iterated
+     * @param   array   &$collection  the aggregated collection for the resource
+     * @param   array   &$filtered    the resource filtered of attributes obfuscating resource uniqueness
+     * @param   string  &$modified    the date time string denoting the last modification date for the whole instance
+     * @param   int      $key         the resource's id in the database
+     * @param   string   $name        the name of the resource
+     * @param   array    $resource    the resource being iterated
      *
      * @return void
      */
     private function setResource(
-        array  &$collection,
-        array  &$filtered,
+        array &$collection,
+        array &$filtered,
         string &$modified,
-        int    $key,
+        int $key,
         string $name,
-        array  $resource
+        array $resource
     ): void
     {
         $dateTime = $resource['statusDate'];
 
         if (empty($collection[$name]) or $dateTime > $collection[$name]['date']) {
             $collection[$name] = [
-                'date' => $modified,
+                'date'   => $modified,
                 'status' => $resource['status']
             ];
         }
@@ -702,7 +707,7 @@ class InstanceItem extends ListView
     /**
      * @inheritdoc
      */
-    protected function setSubtitle(): void
+    protected function addSubtitle(): void
     {
         $instance       = $this->instance;
         $date           = Helpers\Dates::formatDate($instance->date);
@@ -712,23 +717,23 @@ class InstanceItem extends ListView
     /**
      * @inheritdoc
      */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $this->setDerived($this->items);
 
         $buttons = [
             //'deregister'      => false,
             //'deregisterList'  => false,
-            'deschedule' => false,
+            'deschedule'      => false,
             'descheduleBlock' => false,
-            'descheduleList' => false,
-            'manage' => false,
-            'manageList' => false,
+            'descheduleList'  => false,
+            'manage'          => false,
+            'manageList'      => false,
             //'register'        => false,
             //'registerList'    => false,
-            'schedule' => false,
-            'scheduleBlock' => false,
-            'scheduleList' => false
+            'schedule'        => false,
+            'scheduleBlock'   => false,
+            'scheduleList'    => false
         ];
 
         $instance = $this->instance;
@@ -737,7 +742,8 @@ class InstanceItem extends ListView
             if ($instance->bookmarked) {
                 $buttons['deschedule'] = true;
 
-            } else {
+            }
+            else {
                 $buttons['schedule'] = true;
 
             }
@@ -755,7 +761,8 @@ class InstanceItem extends ListView
             {
                 $buttons['register'] = true;
             }*/
-        } elseif ($instance->manageable and !$instance->premature) {
+        }
+        elseif ($instance->manageable and !$instance->premature) {
             $buttons['manage'] = true;
         }
 
@@ -783,7 +790,8 @@ class InstanceItem extends ListView
                     {
                         $buttons['descheduleBlock'] = true;
                     }*/
-                } else {
+                }
+                else {
                     $buttons['scheduleList'] = true;
 
                     /*$notFinal     = Helper::getMethodCode($item->instanceID) !== Helpers\Methods::FINALCODE;
@@ -800,7 +808,8 @@ class InstanceItem extends ListView
                         $buttons['scheduleBlock'] = true;
                     }
                 }
-            } elseif ($item->manageable and !$item->premature) {
+            }
+            elseif ($item->manageable and !$item->premature) {
                 $buttons['manageList'] = true;
             }
 

@@ -46,6 +46,17 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
+    protected function addSubtitle(): void
+    {
+        $bookingID      = Input::getID();
+        $subTitle       = Helper::getNames($bookingID);
+        $subTitle[]     = Helper::getDateTimeDisplay($bookingID);
+        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function addSupplement(): void
     {
         $bookingDate = $this->booking->get('date');
@@ -205,68 +216,9 @@ class Booking extends Participants
     }
 
     /**
-     * @inheritDoc
-     */
-    public function display($tpl = null): void
-    {
-        // Set batch template path
-        $this->batch   = ['batch_participation', 'form_modal'];
-        $this->booking = $this->getModel()->booking;
-        $this->empty   = '';
-        $this->sameTab = true;
-
-        parent::display($tpl);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument(): void
-    {
-        if ($this->layout === 'qrcode') {
-            Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
-        }
-        else {
-            parent::modifyDocument();
-        }
-
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function setHeaders(): void
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox' => HTML::checkAll(),
-            'status'   => Text::_('STATUS'),
-            'fullName' => HTML::sort('NAME', 'fullName', $direction, $ordering),
-            'event'    => Text::_('EVENT'),
-            'room'     => Text::_('ROOM'),
-            'seat'     => Text::_('SEAT'),
-            'complete' => Text::_('PROFILE_COMPLETE')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function setSubtitle(): void
-    {
-        $bookingID      = Input::getID();
-        $subTitle       = Helper::getNames($bookingID);
-        $subTitle[]     = Helper::getDateTimeDisplay($bookingID);
-        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
-    }
-
-    /**
      * @inheritdoc
      */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $index = 0;
 
@@ -319,10 +271,58 @@ class Booking extends Participants
 
             $item->complete = HTML::tip(HTML::icon($icon), "profile-status-$item->id", $label);
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $thisLink);
+            $structuredItems[$index] = $this->completeItem($index, $item, $thisLink);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function display($tpl = null): void
+    {
+        // Set batch template path
+        $this->batch   = ['batch_participation', 'form_modal'];
+        $this->booking = $this->getModel()->booking;
+        $this->empty   = '';
+        $this->sameTab = true;
+
+        parent::display($tpl);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function initializeColumns(): void
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox' => HTML::checkAll(),
+            'status'   => Text::_('STATUS'),
+            'fullName' => HTML::sort('NAME', 'fullName', $direction, $ordering),
+            'event'    => Text::_('EVENT'),
+            'room'     => Text::_('ROOM'),
+            'seat'     => Text::_('SEAT'),
+            'complete' => Text::_('PROFILE_COMPLETE')
+        ];
+
+        $this->headers = $headers;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function modifyDocument(): void
+    {
+        if ($this->layout === 'qrcode') {
+            Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/qrcode.css');
+        }
+        else {
+            parent::modifyDocument();
+        }
+
     }
 }

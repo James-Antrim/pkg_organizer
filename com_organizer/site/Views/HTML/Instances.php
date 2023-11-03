@@ -60,6 +60,19 @@ class Instances extends ListView
     }
 
     /**
+     * @inheritDoc
+     */
+    protected function addSubtitle(): void
+    {
+        if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {
+            $date           = $this->state->get('list.date');
+            $interval       = Helpers\Dates::getQuarter($date);
+            $interval       = Helpers\Dates::getDisplay($interval['startDate'], $interval['endDate']);
+            $this->subtitle = "<h6 class=\"sub-title\">$interval</h6>";
+        }
+    }
+
+    /**
      * Adds supplemental information to the display output.
      * @return void modifies the object property supplement
      */
@@ -239,6 +252,35 @@ class Instances extends ListView
         $organizationID = Input::getParams()->get('organizationID', 0);
         $this->manages  = $organizationID ?
             Helpers\Can::manage('organization', $organizationID) : (bool) Helpers\Can::manageTheseOrganizations();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function completeItems(): void
+    {
+        if (!empty($this->items)) {
+            $this->noInstances = false;
+            $this->setDerived($this->items);
+        }
+
+        /** @var Model $model */
+        $model = $this->model;
+        if ($model->layout === Helper::GRID) {
+
+            // Prevent setting the grid id without having the context from items at least once
+            if (empty($this->items)) {
+                $this->filterForm->removeField('gridID', 'list');
+            }
+
+            $this->layout = 'grid';
+            $this->structureGrid();
+
+            return;
+        }
+
+        $this->layout = 'list';
+        $this->structureList();
     }
 
     /**
@@ -567,6 +609,25 @@ class Instances extends ListView
     }
 
     /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
+    {
+        $this->headers = [
+            'tools'   => '',
+            'title'   => ['attributes' => ['class' => 'title-column'], 'value' => Text::_('ORGANIZER_INSTANCE')],
+            'status'  => Text::_('ORGANIZER_STATUS'),
+            'persons' => Text::_('ORGANIZER_PERSONS'),
+            'groups'  => Text::_('ORGANIZER_GROUPS'),
+            'rooms'   => Text::_('ORGANIZER_ROOMS')
+        ];
+
+        if (Helpers\Users::getID() and !Application::mobile()) {
+            $this->headers['tools'] = Deprecated::_('grid.checkall');
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     protected function modifyDocument(): void
@@ -644,38 +705,6 @@ class Instances extends ListView
     }
 
     /**
-     * @inheritdoc
-     */
-    public function setHeaders(): void
-    {
-        $this->headers = [
-            'tools'   => '',
-            'title'   => ['attributes' => ['class' => 'title-column'], 'value' => Text::_('ORGANIZER_INSTANCE')],
-            'status'  => Text::_('ORGANIZER_STATUS'),
-            'persons' => Text::_('ORGANIZER_PERSONS'),
-            'groups'  => Text::_('ORGANIZER_GROUPS'),
-            'rooms'   => Text::_('ORGANIZER_ROOMS')
-        ];
-
-        if (Helpers\Users::getID() and !Application::mobile()) {
-            $this->headers['tools'] = Deprecated::_('grid.checkall');
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function setSubtitle(): void
-    {
-        if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {
-            $date           = $this->state->get('list.date');
-            $interval       = Helpers\Dates::getQuarter($date);
-            $interval       = Helpers\Dates::getDisplay($interval['startDate'], $interval['endDate']);
-            $this->subtitle = "<h6 class=\"sub-title\">$interval</h6>";
-        }
-    }
-
-    /**
      * Structures the instances to be presented in a weekly/daily plan (grid).
      * @return void
      */
@@ -707,35 +736,6 @@ class Instances extends ListView
 
         $this->headers = $headers;
         $this->items   = $grid;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
-    {
-        if (!empty($this->items)) {
-            $this->noInstances = false;
-            $this->setDerived($this->items);
-        }
-
-        /** @var Model $model */
-        $model = $this->model;
-        if ($model->layout === Helper::GRID) {
-
-            // Prevent setting the grid id without having the context from items at least once
-            if (empty($this->items)) {
-                $this->filterForm->removeField('gridID', 'list');
-            }
-
-            $this->layout = 'grid';
-            $this->structureGrid();
-
-            return;
-        }
-
-        $this->layout = 'list';
-        $this->structureList();
     }
 
     /**

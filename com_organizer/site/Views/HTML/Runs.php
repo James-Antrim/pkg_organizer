@@ -19,12 +19,12 @@ use THM\Organizer\Helpers;
 class Runs extends ListView
 {
     protected array $rowStructure = [
-        'checkbox' => '',
-        'name' => 'link',
-        'term' => 'link',
+        'checkbox'  => '',
+        'name'      => 'link',
+        'term'      => 'link',
         'startDate' => 'link',
-        'endDate' => 'link',
-        'sections' => 'value'
+        'endDate'   => 'link',
+        'sections'  => 'value'
     ];
 
     /**
@@ -63,24 +63,7 @@ class Runs extends ListView
     /**
      * @inheritDoc
      */
-    public function setHeaders(): void
-    {
-        $headers = [
-            'checkbox' => '',
-            'name' => Text::_('ORGANIZER_NAME'),
-            'term' => Text::_('ORGANIZER_TERM'),
-            'startDate' => Text::_('ORGANIZER_START_DATE'),
-            'endDate' => Text::_('ORGANIZER_END_DATE'),
-            'sections' => Text::_('ORGANIZER_SECTIONS')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $link            = "index.php?option=com_organizer&view=run_edit&id=";
         $index           = 0;
@@ -94,7 +77,8 @@ class Runs extends ListView
                 $item->endDate   = '';
                 $item->sections  = '';
                 $item->startDate = '';
-            } else {
+            }
+            else {
                 $runs      = $run['runs'];
                 $sections  = [];
                 $startDate = '';
@@ -110,10 +94,27 @@ class Runs extends ListView
                 $item->startDate = Helpers\Dates::formatDate($startDate);
             }
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $thisLink);
+            $structuredItems[$index] = $this->completeItem($index, $item, $thisLink);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function initializeColumns(): void
+    {
+        $headers = [
+            'checkbox'  => '',
+            'name'      => Text::_('ORGANIZER_NAME'),
+            'term'      => Text::_('ORGANIZER_TERM'),
+            'startDate' => Text::_('ORGANIZER_START_DATE'),
+            'endDate'   => Text::_('ORGANIZER_END_DATE'),
+            'sections'  => Text::_('ORGANIZER_SECTIONS')
+        ];
+
+        $this->headers = $headers;
     }
 }

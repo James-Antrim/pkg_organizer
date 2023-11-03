@@ -51,7 +51,24 @@ class Roomkeys extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
+    protected function completeItems(): void
+    {
+        $link            = 'index.php?option=com_organizer&view=RoomkeyEdit&id=';
+        $index           = 0;
+        $structuredItems = [];
+
+        foreach ($this->items as $item) {
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
+            $index++;
+        }
+
+        $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
     {
         $column    = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -64,22 +81,5 @@ class Roomkeys extends ListView
         ];
 
         $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
-    {
-        $link            = 'index.php?option=com_organizer&view=RoomkeyEdit&id=';
-        $index           = 0;
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
     }
 }

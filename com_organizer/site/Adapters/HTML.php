@@ -19,7 +19,6 @@ class HTML extends HTMLHelper
 {
     /**
      * Method to check all checkboxes in a resource table.
-     *
      * @return  string
      * @see Grid::checkall()
      */
@@ -31,12 +30,10 @@ class HTML extends HTMLHelper
     /**
      * Method to create a checkbox for a resource table row.
      *
-     * @param   int  $rowNumber
-     * @param   int  $rowID
+     * @param   int  $rowNumber  the row number in the HTML output
+     * @param   int  $rowID      the id of the resource row in the database
      *
      * @return  string
-     *
-     * @since   1.5
      */
     public static function checkBox(int $rowNumber, int $rowID): string
     {
@@ -56,7 +53,8 @@ class HTML extends HTMLHelper
     }
 
     /**
-     * Method to create a sorting column header for a resource table. Header text key is automatically prefaced and localized.
+     * Method to create a sorting column header for a resource table. Header text key is automatically prefaced and
+     * localized.
      *
      * @param   string  $constant       the text to display in the table header
      * @param   string  $column         the query column that this link sorts by

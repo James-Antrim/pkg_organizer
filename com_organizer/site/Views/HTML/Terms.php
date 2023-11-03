@@ -21,24 +21,9 @@ class Terms extends ListView
     protected array $rowStructure = ['checkbox' => '', 'term' => 'link', 'startDate' => 'link', 'endDate' => 'link'];
 
     /**
-     * @inheritdoc
-     */
-    public function setHeaders(): void
-    {
-        $headers = [
-            'checkbox' => '',
-            'term' => Text::_('ORGANIZER_NAME'),
-            'startDate' => Text::_('ORGANIZER_START_DATE'),
-            'endDate' => Text::_('ORGANIZER_END_DATE')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
      * @inheritDoc
      */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $link            = "index.php?option=com_organizer&view=term_edit&id=";
         $index           = 0;
@@ -50,10 +35,25 @@ class Terms extends ListView
             $item->endDate   = Dates::formatDate($item->endDate);
             $item->startDate = Dates::formatDate($item->startDate);
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $thisLink);
+            $structuredItems[$index] = $this->completeItem($index, $item, $thisLink);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
+    {
+        $headers = [
+            'checkbox'  => '',
+            'term'      => Text::_('ORGANIZER_NAME'),
+            'startDate' => Text::_('ORGANIZER_START_DATE'),
+            'endDate'   => Text::_('ORGANIZER_END_DATE')
+        ];
+
+        $this->headers = $headers;
     }
 }

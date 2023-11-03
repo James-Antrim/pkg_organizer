@@ -20,10 +20,10 @@ class Campuses extends ListView
 {
     protected array $rowStructure = [
         'checkbox' => '',
-        'name' => 'link',
-        'address' => 'link',
+        'name'     => 'link',
+        'address'  => 'link',
         'location' => 'value',
-        'gridID' => 'link'
+        'gridID'   => 'link'
     ];
 
     /**
@@ -39,23 +39,7 @@ class Campuses extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
-    {
-        $headers = [
-            'checkbox' => '',
-            'name' => Text::_('ORGANIZER_NAME'),
-            'address' => Text::_('ORGANIZER_STREET'),
-            'location' => Text::_('ORGANIZER_LOCATION'),
-            'gridID' => Text::_('ORGANIZER_GRID')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $link            = 'index.php?option=com_organizer&view=campus_edit&id=';
         $structuredItems = [];
@@ -63,7 +47,8 @@ class Campuses extends ListView
         foreach ($this->items as $item) {
             if (empty($item->parentID)) {
                 $index = $item->name;
-            } else {
+            }
+            else {
                 $index      = "$item->parentName-$item->name";
                 $item->name = "|&nbsp;&nbsp;-&nbsp;$item->name";
             }
@@ -86,18 +71,36 @@ class Campuses extends ListView
 
             if (!empty($item->gridName)) {
                 $gridName = $item->gridName;
-            } elseif (!empty($item->parentGridName)) {
+            }
+            elseif (!empty($item->parentGridName)) {
                 $gridName = $item->parentGridName;
-            } else {
+            }
+            else {
                 $gridName = Text::_('ORGANIZER_NONE_GIVEN');
             }
             $item->gridID = $gridName;
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
         }
 
         asort($structuredItems);
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
+    {
+        $headers = [
+            'checkbox' => '',
+            'name'     => Text::_('ORGANIZER_NAME'),
+            'address'  => Text::_('ORGANIZER_STREET'),
+            'location' => Text::_('ORGANIZER_LOCATION'),
+            'gridID'   => Text::_('ORGANIZER_GRID')
+        ];
+
+        $this->headers = $headers;
     }
 }

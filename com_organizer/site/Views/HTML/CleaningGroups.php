@@ -39,24 +39,7 @@ class CleaningGroups extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
-    {
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox'  => '',
-            'name'      => HTML::sort('NAME', 'name', $direction, 'name'),
-            'days'      => Text::_('CLEANING_DAYS_PER_MONTH'),
-            'valuation' => Text::_('CALCULATED_SURFACE_PERFORMANCE_VALUE'),
-            'relevant'  => Text::_('COST_ACCOUNTING')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $link            = 'index.php?option=com_organizer&view=CleaningGroupEdit&id=';
         $index           = 0;
@@ -71,10 +54,27 @@ class CleaningGroups extends ListView
 
             $item->relevant = $this->getToggle('CleaningGroups', $item->id, $item->relevant, $tip);
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
+    {
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox'  => '',
+            'name'      => HTML::sort('NAME', 'name', $direction, 'name'),
+            'days'      => Text::_('CLEANING_DAYS_PER_MONTH'),
+            'valuation' => Text::_('CALCULATED_SURFACE_PERFORMANCE_VALUE'),
+            'relevant'  => Text::_('COST_ACCOUNTING')
+        ];
+
+        $this->headers = $headers;
     }
 }

@@ -11,7 +11,6 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Utilities\ArrayHelper;
-use THM\Groups\Adapters\Input;
 use THM\Organizer\Adapters\Database;
 use THM\Organizer\Tables;
 
@@ -57,8 +56,8 @@ class Can
     /**
      * Checks whether the user has access to documentation resources and their respective views.
      *
-     * @param string $resourceType the resource type being checked
-     * @param int    $resourceID   the resource id being checked or an array if resource ids to check
+     * @param   string  $resourceType  the resource type being checked
+     * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
      *
      * @return bool true if the user is authorized to document the resources of an/the organization
      */
@@ -129,7 +128,8 @@ class Can
             if (!$organizationIDs) {
                 return false;
             }
-        } else {
+        }
+        else {
             Database::setQuery($query);
             $organizationIDs = Database::loadIntColumn();
         }
@@ -157,8 +157,8 @@ class Can
     /**
      * Checks whether the user has access to the participant information
      *
-     * @param string         $resourceType the resource type being checked
-     * @param array|int|null $resource     the resource id being checked or an array if resource ids to check
+     * @param   string          $resourceType  the resource type being checked
+     * @param   array|int|null  $resource      the resource id being checked or an array if resource ids to check
      *
      * @return bool true if the user is authorized to manage courses, otherwise false
      */
@@ -215,8 +215,8 @@ class Can
     /**
      * Returns whether the user is authorized to edit the schedule resource.
      *
-     * @param string    $helperClass the name of the helper class
-     * @param array|int $resource    the resource id being checked or an array if resource ids to check
+     * @param   string     $helperClass  the name of the helper class
+     * @param   array|int  $resource     the resource id being checked or an array if resource ids to check
      *
      * @return bool true if the user is authorized to manage courses, otherwise false
      * @noinspection PhpUndefinedMethodInspection
@@ -234,7 +234,8 @@ class Can
             $associated = $helper::getOrganizationIDs($resource);
 
             return (bool) array_intersect($associated, $authorized);
-        } elseif (is_array($resource)) {
+        }
+        elseif (is_array($resource)) {
             $resource = ArrayHelper::toInteger($resource);
 
             foreach ($resource as $resourceID) {
@@ -252,7 +253,7 @@ class Can
     /**
      * Gets the organization ids of for which the user is authorized access
      *
-     * @param string $function the action for authorization
+     * @param   string  $function  the action for authorization
      *
      * @return int[]  the organization ids, empty if user has no access
      */
@@ -286,8 +287,8 @@ class Can
     /**
      * Checks whether the user can manage the given resource.
      *
-     * @param string $resourceType the resource type being checked
-     * @param int    $resourceID   the resource id being checked or an array if resource ids to check
+     * @param   string  $resourceType  the resource type being checked
+     * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
      *
      * @return bool true if the user is authorized for scheduling functions and views.
      */
@@ -364,8 +365,8 @@ class Can
     /**
      * Checks whether the user has access to scheduling resources and their respective views.
      *
-     * @param string $resourceType the resource type being checked
-     * @param int    $resourceID   the resource id being checked or an array if resource ids to check
+     * @param   string  $resourceType  the resource type being checked
+     * @param   int     $resourceID    the resource id being checked or an array if resource ids to check
      *
      * @return bool true if the user is authorized for scheduling functions and views.
      */
@@ -423,8 +424,8 @@ class Can
     /**
      * Checks whether the user has viewing access to the view.
      *
-     * @param string $view       the name of the view being accessed
-     * @param int    $resourceID the optional resource id
+     * @param   string  $view        the name of the view being accessed
+     * @param   int     $resourceID  the optional resource id
      *
      * @return bool true if the user is authorized for scheduling functions and views.
      */

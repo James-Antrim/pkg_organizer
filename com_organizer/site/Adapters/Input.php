@@ -29,8 +29,8 @@ class Input
     /**
      * Filters the given source data according to the type parameter.
      *
-     * @param mixed  $source the data to be filtered
-     * @param string $type   the type against which to filter the source data
+     * @param   mixed   $source  the data to be filtered
+     * @param   string  $type    the type against which to filter the source data
      *
      * @return mixed
      */
@@ -46,7 +46,7 @@ class Input
     /**
      * Retrieves the specified parameter.
      *
-     * @param string $property Name of the property to get.
+     * @param   string  $property  Name of the property to get.
      *
      * @return mixed the value found, or false if the property could not be found
      */
@@ -66,12 +66,12 @@ class Input
     /**
      * Provides a shortcut to retrieve an array from the request.
      *
-     * @param string $name    the name of the array item
-     * @param array  $default the default array
+     * @param   string  $name     the name of the array item
+     * @param   array   $default  the default array
      *
      * @return array
      */
-    public static function getArray(string $name = 'jform', array $default = []): array
+    public static function getArray(string $name, array $default = []): array
     {
         return self::getInput()->get($name, $default, 'array');
     }
@@ -88,8 +88,8 @@ class Input
     /**
      * Retrieves the specified parameter.
      *
-     * @param string $property Name of the property to get.
-     * @param mixed  $default  Default value to return if variable does not exist.
+     * @param   string  $property  Name of the property to get.
+     * @param   mixed   $default   Default value to return if variable does not exist.
      *
      * @return bool
      */
@@ -120,8 +120,8 @@ class Input
     /**
      * Retrieves the specified parameter.
      *
-     * @param string $property Name of the property to get.
-     * @param mixed  $default  Default value to return if variable does not exist.
+     * @param   string  $property  Name of the property to get.
+     * @param   mixed   $default   Default value to return if variable does not exist.
      *
      * @return string
      */
@@ -135,28 +135,10 @@ class Input
     }
 
     /**
-     * The file format of the document to be displayed.
-     * @return string defaults to 'HTML'
-     */
-    public static function getFormat(): string
-    {
-        $document  = Application::getDocument();
-        $supported = ['HTML', 'ICS', 'JSON', 'PDF', 'XLS', 'XML'];
-        $format    = self::getCMD('format', strtoupper($document->getType()));
-
-        if (!in_array($format, $supported)) {
-            self::set('format', 'HTML');
-            $format = 'HTML';
-        }
-
-        return $format;
-    }
-
-    /**
      * Returns the application's input object.
      *
-     * @param string $resource the name of the resource upon which the ids being sought reference
-     * @param int    $default  the default value
+     * @param   string  $resource  the name of the resource upon which the ids being sought reference
+     * @param   int     $default   the default value
      *
      * @return int the filter id
      */
@@ -170,7 +152,7 @@ class Input
     /**
      * Returns the application's input object.
      *
-     * @param string $resource the name of the resource upon which the ids being sought reference
+     * @param   string  $resource  the name of the resource upon which the ids being sought reference
      *
      * @return int[] the filter ids
      */
@@ -223,6 +205,24 @@ class Input
     }
 
     /**
+     * The file format of the document to be displayed.
+     * @return string defaults to 'HTML'
+     */
+    public static function getFormat(): string
+    {
+        $document  = Application::getDocument();
+        $supported = ['HTML', 'ICS', 'JSON', 'PDF', 'XLS', 'XML'];
+        $format    = self::getCMD('format', strtoupper($document->getType()));
+
+        if (!in_array($format, $supported)) {
+            self::set('format', 'HTML');
+            $format = 'HTML';
+        }
+
+        return $format;
+    }
+
+    /**
      * Retrieves the id parameter.
      * @return int
      */
@@ -234,7 +234,7 @@ class Input
     /**
      * Retrieves the id parameter.
      *
-     * @param string $name the input field name at which the value should be found
+     * @param   string  $name  the input field name at which the value should be found
      *
      * @return int[] the ids
      */
@@ -248,8 +248,8 @@ class Input
     /**
      * Retrieves the specified parameter.
      *
-     * @param string $property Name of the property to get.
-     * @param int    $default  Default value to return if variable does not exist.
+     * @param   string  $property  Name of the property to get.
+     * @param   int     $default   Default value to return if variable does not exist.
      *
      * @return int
      */
@@ -332,7 +332,7 @@ class Input
     /**
      * Returns the selected resource id.
      *
-     * @param int $default the default value
+     * @param   int  $default  the default value
      *
      * @return int the selected id
      */
@@ -363,8 +363,8 @@ class Input
     /**
      * Retrieves the specified parameter.
      *
-     * @param string $property Name of the property to get.
-     * @param string $default  $default  Default value to return if variable does not exist.
+     * @param   string  $property  Name of the property to get.
+     * @param   string  $default   $default  Default value to return if variable does not exist.
      *
      * @return string
      */
@@ -407,7 +407,7 @@ class Input
     /**
      * Resolves a comma separated list of id values to an array of id values.
      *
-     * @param array|string $idValues the id values as an array or string
+     * @param   array|string  $idValues  the id values as an array or string
      *
      * @return int[] the id values, empty if the values were invalid or the input was not an array or a string
      */
@@ -415,9 +415,11 @@ class Input
     {
         if (is_string($idValues)) {
             $idValues = explode(',', $idValues);
-        } elseif (is_array($idValues) and count($idValues) === 1 and preg_match('/^(\d+,)*\d+$/', $idValues[0]) !== -1) {
+        }
+        elseif (is_array($idValues) and count($idValues) === 1 and preg_match('/^(\d+,)*\d+$/', $idValues[0]) !== -1) {
             $idValues = explode(',', $idValues[0]);
-        } elseif (!is_array($idValues)) {
+        }
+        elseif (!is_array($idValues)) {
             $idValues = [];
         }
 
@@ -429,9 +431,9 @@ class Input
     /**
      * Sets an input property with a value.
      *
-     * @param string $property the name of the property to set
-     * @param mixed  $value    the value to set to the property
-     * @param string $method   the method group of the property
+     * @param   string  $property  the name of the property to set
+     * @param   mixed   $value     the value to set to the property
+     * @param   string  $method    the method group of the property
      *
      * @return void
      */

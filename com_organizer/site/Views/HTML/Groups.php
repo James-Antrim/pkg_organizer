@@ -74,50 +74,7 @@ class Groups extends ListView
     /**
      * @inheritdoc
      */
-    public function display($tpl = null): void
-    {
-        // Set batch template path
-        $this->batch = ['batch_group_publishing'];
-
-        parent::display($tpl);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument(): void
-    {
-        parent::modifyDocument();
-
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/group_publishing.css');
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function setHeaders(): void
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox' => HTML::checkAll(),
-            'fullName' => HTML::sort('FULL_NAME', 'gr.fullName', $direction, $ordering),
-            'this'     => Helpers\Terms::getName(Helpers\Terms::getCurrentID()),
-            'next'     => Helpers\Terms::getName(Helpers\Terms::getNextID()),
-            'name'     => HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
-            'active'   => Text::_('ACTIVE'),
-            'grid'     => Text::_('GRID'),
-            'code'     => HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $currentTerm     = Helpers\Terms::getCurrentID();
         $index           = 0;
@@ -142,10 +99,53 @@ class Groups extends ListView
             $tip                = $nextValue ? 'ORGANIZER_CLICK_TO_UNPUBLISH' : 'ORGANIZER_CLICK_TO_PUBLISH';
             $item->next         = $this->getToggle('groups', $item->id, $nextValue, $tip, $nextTerm);
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function display($tpl = null): void
+    {
+        // Set batch template path
+        $this->batch = ['batch_group_publishing'];
+
+        parent::display($tpl);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function initializeColumns(): void
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox' => HTML::checkAll(),
+            'fullName' => HTML::sort('FULL_NAME', 'gr.fullName', $direction, $ordering),
+            'this'     => Helpers\Terms::getName(Helpers\Terms::getCurrentID()),
+            'next'     => Helpers\Terms::getName(Helpers\Terms::getNextID()),
+            'name'     => HTML::sort('SELECT_BOX_DISPLAY', 'gr.name', $direction, $ordering),
+            'active'   => Text::_('ACTIVE'),
+            'grid'     => Text::_('GRID'),
+            'code'     => HTML::sort('UNTIS_ID', 'gr.code', $direction, $ordering)
+        ];
+
+        $this->headers = $headers;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function modifyDocument(): void
+    {
+        parent::modifyDocument();
+
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/group_publishing.css');
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
     }
 }

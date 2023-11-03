@@ -10,15 +10,13 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Form\Form;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\ListView as Base;
 use Joomla\CMS\Uri\Uri;
-use Joomla\Registry\Registry;
 use stdClass;
-use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Controllers\Controller;
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Can;
 use THM\Organizer\Models\ListModel;
 
 /**
@@ -30,24 +28,17 @@ abstract class ListView extends Base
 
     public bool $allowBatch = false;
     public string $empty = '';
-    /** @var Form */
-    public $filterForm;
     /**
      * The header information to display indexed by the referenced attribute.
      * @var array
      */
     public array $headers = [];
-    /** @var array */
-    public $items = [];
     protected string $layout = 'list';
     /** @var ListModel */
     protected BaseDatabaseModel $model;
-    public $pagination = null;
     protected array $rowStructure = [];
     protected bool $sameTab = false;
     public string $supplement = '';
-    /** @var Registry */
-    public $state;
     protected bool $structureEmpty = false;
     /** @var array The default text for an empty result set. */
     public array $toDo = [];
@@ -67,6 +58,15 @@ abstract class ListView extends Base
         parent::__construct($config);
 
         $this->configure();
+    }
+
+    /**
+     * Creates a subtitle element from the term name and the start and end dates of the course.
+     * @return void modifies the course
+     */
+    protected function addSubtitle(): void
+    {
+        $this->subtitle = '';
     }
 
     /**
@@ -90,12 +90,9 @@ abstract class ListView extends Base
         $toolbar    = Toolbar::getInstance();
         $toolbar::setTitle(strtoupper($controller));
 
-        $uri    = (string) Uri::getInstance();
-        $return = urlencode(base64_encode($uri));
-        $link   = "index.php?option=com_config&view=component&component=com_organizer&return=$return";
-
-        $toolbar->divider();
-        $toolbar->link(Text::_('SETTINGS'), $link)->icon('fa fa-cog');
+        if (Can::administrate()) {
+            $toolbar->preferences('com_organizer');
+        }
     }
 
     /**
@@ -116,17 +113,13 @@ abstract class ListView extends Base
     {
         $this->authorize();
 
-        $this->state         = $this->get('State');
-        $this->filterForm    = $this->get('FilterForm');
-        $this->activeFilters = $this->get('ActiveFilters');
-
-        $this->setHeaders();
+        $this->initializeColumns();
 
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
         if ($this->items or $this->structureEmpty) {
-            $this->structureItems();
+            $this->completeItems();
         }
 
         $this->empty = $this->empty ?: Text::_('ORGANIZER_EMPTY_RESULT_SET');
@@ -134,7 +127,7 @@ abstract class ListView extends Base
         $this->addToC();
         $this->addToolBar();
         $this->modifyDocument();
-        $this->setSubtitle();
+        $this->addSubtitle();
         $this->addSupplement();
 
         parent::display($tpl);
@@ -242,7 +235,7 @@ abstract class ListView extends Base
 
         // All the tools are now there.
         $this->addSupplement();
-        $this->initializeHeaders();
+        $this->initializeColumns();
         $this->completeItems();
     }
 
@@ -260,97 +253,36 @@ abstract class ListView extends Base
     }
 
     /**
-     * Function to set the object's headers property
+     * Function to set the object's headers property which defines column output par
      * @return void sets the object headers property
      */
-    abstract protected function setHeaders(): void;
+    abstract protected function initializeColumns(): void;
 
     /**
-     * Creates a subtitle element from the term name and the start and end dates of the course.
-     * @return void modifies the course
+     * Readies an item for output.
+     *
+     * @param   int       $index  the current iteration number
+     * @param   stdClass  $item   the current item being iterated
+     * @param   array     $options
+     *
+     * @return void
      */
-    protected function setSubtitle(): void
-    {
-        $this->subtitle = '';
-    }
+    abstract protected function completeItem(int $index, stdClass $item, array $options = []): void;
 
     /**
-     * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
-     * @return void processes the class items property
+     * Processes items for output.
+     *
+     * @param   array  $options
+     *
+     * @return void
      */
-    protected function structureItems(): void
+    protected function completeItems(array $options = []): void
     {
-        $index           = 0;
-        $structuredItems = [];
-
-        $resource    = Helpers\OrganizerHelper::getResource(Input::getView());
-        $defaultLink = "index.php?option=com_organizer&view={$resource}_edit&id=";
+        $index = 0;
 
         foreach ($this->items as $item) {
-            $link                    = empty($item->link) ? $defaultLink . $item->id : $item->link;
-            $structuredItems[$index] = $this->structureItem($index, $item, $link);
+            $this->completeItem($index, $item, $options);
             $index++;
         }
-
-        $this->items = $structuredItems;
-    }
-
-    /**
-     * Processes an individual list item resolving it to an array of table data values.
-     *
-     * @param   int|string  $index  the row index, typically an int value, but can also be string
-     * @param   stdClass    $item   the item to be displayed in a table row
-     * @param   string      $link   the link to the individual resource
-     *
-     * @return array an array of property columns with their values
-     */
-    protected function structureItem(int|string $index, stdClass $item, string $link = ''): array
-    {
-        $processedItem = [];
-
-        foreach ($this->rowStructure as $property => $propertyType) {
-            if ($property === 'checkbox') {
-                $processedItem['checkbox'] = HTML::checkBox($index, $item->id);
-                continue;
-            }
-
-            if (!property_exists($item, $property)) {
-                continue;
-            }
-
-            // Individual code will be added to index later
-            if ($propertyType === '') {
-                $processedItem[$property] = $propertyType;
-                continue;
-            }
-
-            if ($propertyType === 'link') {
-                $attributes = [];
-                if (!Application::backend() and !$this->sameTab) {
-                    $attributes['target'] = '_blank';
-                }
-
-                $value = is_array($item->$property) ? $item->$property['value'] : $item->$property;
-
-                $processedItem[$property] = ($link and $value) ? HTML::_('link', $link, $value, $attributes) : '';
-                continue;
-            }
-
-            if ($propertyType === 'list' and is_array($item->$property)) {
-                $list = '<ul>';
-                foreach ($item->$property as $listItem) {
-                    $list .= "<li>$listItem</li>";
-                }
-                $list                     .= '<ul>';
-                $processedItem[$property] = $list;
-                continue;
-            }
-
-            if ($propertyType === 'value') {
-                $processedItem[$property] = $item->$property;
-            }
-        }
-
-        return $processedItem;
     }
 }

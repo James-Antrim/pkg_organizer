@@ -44,35 +44,15 @@ class Search extends ListView
     }
 
     /**
-     * @inheritdoc
-     */
-    public function display($tpl = null): void
-    {
-        $this->state = $this->get('State');
-
-        $this->empty = $this->state->get('filter.search') ? '' : Text::_('ORGANIZER_NO_SEARCH_QUERY');
-
-        parent::display($tpl);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function setHeaders(): void
-    {
-        $this->headers = ['result' => Text::_('ORGANIZER_RESOURCE'), 'links' => Text::_('ORGANIZER_LINKS')];
-    }
-
-    /**
      * Processes an individual list item resolving it to an array of table data values.
      *
-     * @param int|string $index the row index, typically an int value, but can also be string
-     * @param stdClass   $item  the item to be displayed in a table row
-     * @param string     $link  the link to the individual resource
+     * @param   int|string  $index  the row index, typically an int value, but can also be string
+     * @param   stdClass    $item   the item to be displayed in a table row
+     * @param   string      $link   the link to the individual resource
      *
      * @return array an array of property columns with their values
      */
-    protected function structureItem(int|string $index, stdClass $item, string $link = ''): array
+    protected function completeItem(int|string $index, stdClass $item, string $link = ''): array
     {
         $processedItem = [];
 
@@ -127,7 +107,7 @@ class Search extends ListView
      * Processes the items in a manner specific to the view, so that a generalized  output in the layout can occur.
      * @return void processes the class items property
      */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $index = 0;
         $start = (int) $this->state->get('list.start');
@@ -144,10 +124,30 @@ class Search extends ListView
                 continue;
             }
 
-            $structuredItems[$index] = $this->structureItem($index, $item);
+            $structuredItems[$index] = $this->completeItem($index, $item);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function display($tpl = null): void
+    {
+        $this->state = $this->get('State');
+
+        $this->empty = $this->state->get('filter.search') ? '' : Text::_('ORGANIZER_NO_SEARCH_QUERY');
+
+        parent::display($tpl);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function initializeColumns(): void
+    {
+        $this->headers = ['result' => Text::_('ORGANIZER_RESOURCE'), 'links' => Text::_('ORGANIZER_LINKS')];
     }
 }

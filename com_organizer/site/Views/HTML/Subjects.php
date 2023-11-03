@@ -95,6 +95,48 @@ class Subjects extends ListView
         }
     }
 
+    /**
+     * @inheritdoc
+     */
+    protected function completeItems(): void
+    {
+        $index           = 0;
+        $structuredItems = [];
+
+        $attributes = [];
+        if (!Application::backend()) {
+            $attributes['target'] = '_blank';
+        }
+
+        $calledPersonID = (int) $this->state->get('calledPersonID', 0);
+
+        foreach ($this->items as $subject) {
+            $access   = Can::document('subject', (int) $subject->id);
+            $checkbox = $access ? HTML::checkBox($index, $subject->id) : '';
+            $thisLink = (Application::backend() and $access) ?
+                Routing::getViewURL('SubjectEdit', $subject->id) : Routing::getViewURL('SubjectItem', $subject->id);
+
+            $structuredItems[$index] = [];
+
+            if (Application::backend() or $this->documentAccess) {
+                $structuredItems[$index]['checkbox'] = $checkbox;
+            }
+
+            $structuredItems[$index]['name'] = HTML::link($thisLink, $subject->name, $attributes);
+            $structuredItems[$index]['code'] = HTML::link($thisLink, $subject->code, $attributes);
+
+            if (!$calledPersonID) {
+                $structuredItems[$index]['persons'] = $this->getPersonDisplay($subject);
+            }
+
+            $structuredItems[$index]['creditPoints'] = empty($subject->creditPoints) ? '' : $subject->creditPoints;
+
+            $index++;
+        }
+
+        $this->items = $structuredItems;
+    }
+
     /** @inheritdoc */
     public function display($tpl = null): void
     {
@@ -105,7 +147,7 @@ class Subjects extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
+    public function initializeColumns(): void
     {
         $direction = $this->state->get('list.direction');
         $ordering  = $this->state->get('list.ordering');
@@ -195,47 +237,5 @@ class Subjects extends ListView
         }
 
         return $text;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
-    {
-        $index           = 0;
-        $structuredItems = [];
-
-        $attributes = [];
-        if (!Application::backend()) {
-            $attributes['target'] = '_blank';
-        }
-
-        $calledPersonID = (int) $this->state->get('calledPersonID', 0);
-
-        foreach ($this->items as $subject) {
-            $access   = Can::document('subject', (int) $subject->id);
-            $checkbox = $access ? HTML::checkBox($index, $subject->id) : '';
-            $thisLink = (Application::backend() and $access) ?
-                Routing::getViewURL('SubjectEdit', $subject->id) : Routing::getViewURL('SubjectItem', $subject->id);
-
-            $structuredItems[$index] = [];
-
-            if (Application::backend() or $this->documentAccess) {
-                $structuredItems[$index]['checkbox'] = $checkbox;
-            }
-
-            $structuredItems[$index]['name'] = HTML::link($thisLink, $subject->name, $attributes);
-            $structuredItems[$index]['code'] = HTML::link($thisLink, $subject->code, $attributes);
-
-            if (!$calledPersonID) {
-                $structuredItems[$index]['persons'] = $this->getPersonDisplay($subject);
-            }
-
-            $structuredItems[$index]['creditPoints'] = empty($subject->creditPoints) ? '' : $subject->creditPoints;
-
-            $index++;
-        }
-
-        $this->items = $structuredItems;
     }
 }

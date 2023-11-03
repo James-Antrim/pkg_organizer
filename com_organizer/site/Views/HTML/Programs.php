@@ -68,30 +68,7 @@ class Programs extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-
-        $headers = [
-            'checkbox' => '',
-            'name'     => HTML::sort('NAME', 'name', $direction, $ordering)
-        ];
-
-        if (!Application::backend()) {
-            $headers['links'] = '';
-        }
-        else {
-            $headers['active'] = Text::_('ACTIVE');
-        }
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $editLink = 'index.php?option=com_organizer&view=program_edit&id=';
         $itemLink = 'index.php?option=com_organizer&view=program_item&id=';
@@ -145,5 +122,28 @@ class Programs extends ListView
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+
+        $headers = [
+            'checkbox' => '',
+            'name'     => HTML::sort('NAME', 'name', $direction, $ordering)
+        ];
+
+        if (!Application::backend()) {
+            $headers['links'] = '';
+        }
+        else {
+            $headers['active'] = Text::_('ACTIVE');
+        }
+
+        $this->headers = $headers;
     }
 }

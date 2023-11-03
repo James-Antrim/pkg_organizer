@@ -19,13 +19,13 @@ use THM\Organizer\Helpers;
 class Persons extends ListView
 {
     protected array $rowStructure = [
-        'checkbox' => '',
-        'surname' => 'link',
-        'forename' => 'link',
-        'username' => 'link',
-        'active' => 'value',
+        'checkbox'       => '',
+        'surname'        => 'link',
+        'forename'       => 'link',
+        'username'       => 'link',
+        'active'         => 'value',
         'organizationID' => 'link',
-        'code' => 'link'
+        'code'           => 'link'
     ];
 
     /**
@@ -84,25 +84,7 @@ class Persons extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
-    {
-        $headers = [
-            'checkbox' => '',
-            'surname' => Text::_('ORGANIZER_SURNAME'),
-            'forename' => Text::_('ORGANIZER_FORENAME'),
-            'username' => Text::_('ORGANIZER_USERNAME'),
-            'active' => Helpers\Text::_('ORGANIZER_ACTIVE'),
-            'organizationID' => Text::_('ORGANIZER_ORGANIZATION'),
-            't.code' => Text::_('ORGANIZER_UNTIS_ID')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $index           = 0;
         $structuredItems = [];
@@ -117,18 +99,38 @@ class Persons extends ListView
 
             if (!$organizations = Helpers\Persons::getOrganizationNames($item->id)) {
                 $item->organizationID = Text::_('JNONE');
-            } elseif (count($organizations) === 1) {
+            }
+            elseif (count($organizations) === 1) {
                 $item->organizationID = $organizations[0];
-            } else {
+            }
+            else {
                 $item->organizationID = Text::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
             }
 
             $item->code = empty($item->code) ? '' : $item->code;
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
+    {
+        $headers = [
+            'checkbox'       => '',
+            'surname'        => Text::_('ORGANIZER_SURNAME'),
+            'forename'       => Text::_('ORGANIZER_FORENAME'),
+            'username'       => Text::_('ORGANIZER_USERNAME'),
+            'active'         => Helpers\Text::_('ORGANIZER_ACTIVE'),
+            'organizationID' => Text::_('ORGANIZER_ORGANIZATION'),
+            't.code'         => Text::_('ORGANIZER_UNTIS_ID')
+        ];
+
+        $this->headers = $headers;
     }
 }

@@ -165,6 +165,7 @@ abstract class ListModel extends Base
 
     /**
      * @inheritDoc
+     * Ensures a standardized return type.
      * @return  array  An array of data items on success.
      */
     public function getItems(): array
@@ -187,39 +188,9 @@ abstract class ListModel extends Base
     {
         // With few exception the table and list class names are identical
         $class = Application::getClass($this);
-        $fqn   = "\\THM\\Groups\\Tables\\$class";
+        $fqn   = "\\THM\\Organizer\\Tables\\$class";
 
         return new $fqn();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTotal($idColumn = null)
-    {
-        if (empty($idColumn)) {
-            return parent::getTotal();
-        }
-
-        // Get a storage key.
-        $store = $this->getStoreId('getTotal');
-
-        // Try to load the data from internal storage.
-        if (isset($this->cache[$store])) {
-            return $this->cache[$store];
-        }
-
-        // Load the total.
-        $query = $this->getListQuery();
-        $query->clear('select')->clear('limit')->clear('offset')->clear('order');
-        $query->select("COUNT(DISTINCT ($idColumn))");
-        Database::setQuery($query);
-        $total = Database::loadInt();
-
-        // Add the total to the internal cache.
-        $this->cache[$store] = $total;
-
-        return $this->cache[$store];
     }
 
     /**

@@ -26,23 +26,56 @@ class MVCFactory extends Base
     /**
      * Maps singular model / view names to their corresponding table names.
      * @var string[]
+     * @todo remove unused resolutions
      */
     private array $tableMap = [
-        'Attribute' => 'Attributes',
-        'Category' => 'Categories',
-        'Group' => 'Groups',
-        'Profile' => 'Profiles',
-        'Role' => 'Roles',
-        'Template' => 'Templates',
-        'Type' => 'Types'
+        'Booking'           => 'Bookings',
+        'Building'          => 'Buildings',
+        'Campus'            => 'Campuses',
+        'Category'          => 'Categories',
+        'CleaningGroup'     => 'CleaningGroups',
+        'Color'             => 'Colors',
+        'Course'            => 'Courses',
+        'CourseParticipant' => 'CourseParticipants',
+        // todo helper this
+        'Degree'            => 'Degrees',
+        'Event'             => 'Events',
+        'Field'             => 'Fields',
+        'FieldColor'        => 'FieldColors',
+        // todo helper this
+        'Frequency'         => 'Frequencies',
+        'Grid'              => 'Grids',
+        'Group'             => 'Groups',
+        'Holiday'           => 'Holidays',
+        'Instance'          => 'Instances',
+        // todo helper this
+        'Method'            => 'Methods',
+        'Monitor'           => 'Monitors',
+        'Organization'      => 'Organizations',
+        'Participant'       => 'Participants',
+        'Person'            => 'Persons',
+        'Pool'              => 'Pools',
+        'Program'           => 'Programs',
+        // todo helper this
+        'Role'              => 'Roles',
+        'Room'              => 'Rooms',
+        // todo camelcase this
+        'Roomkey'           => 'Roomkeys',
+        'RoomType'          => 'RoomTypes',
+        'Run'               => 'Runs',
+        'Schedule'          => 'Schedules',
+        'Subject'           => 'Subjects',
+        'Term'              => 'Terms',
+        'Unit'              => 'Units'
     ];
 
     /**
      * Sets the internal event dispatcher on the given object. Parent has private access. :(
      *
-     * @param object $object the object
+     * @param   object  $object  the object
      *
      * @return  void
+     * @todo check this
      */
     private function addDispatcher(object $object): void
     {
@@ -52,7 +85,8 @@ class MVCFactory extends Base
 
         try {
             $object->setDispatcher($this->getDispatcher());
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::handleException($exception);
         }
     }
@@ -60,9 +94,10 @@ class MVCFactory extends Base
     /**
      * Sets the internal form factory on the given object. Parent has private access. :(
      *
-     * @param object $object the object
+     * @param   object  $object  the object
      *
      * @return  void
+     * @todo check this
      */
     private function addFormFactory(object $object): void
     {
@@ -72,7 +107,8 @@ class MVCFactory extends Base
 
         try {
             $object->setFormFactory($this->getFormFactory());
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::handleException($exception);
         }
     }
@@ -80,11 +116,11 @@ class MVCFactory extends Base
     /**
      * Method to load and return a controller object.
      *
-     * @param string                  $name   The name of the controller
-     * @param string                  $prefix The controller prefix
-     * @param array                   $config The configuration array for the controller
-     * @param CMSApplicationInterface $app    The app
-     * @param Input                   $input  The input
+     * @param   string                   $name    The name of the controller
+     * @param   string                   $prefix  The controller prefix
+     * @param   array                    $config  The configuration array for the controller
+     * @param   CMSApplicationInterface  $app     The app
+     * @param   JInput                   $input   The input
      *
      * @return  Controller
      */
@@ -105,9 +141,10 @@ class MVCFactory extends Base
      */
     public function createModel($name, $prefix = '', array $config = [])
     {
-        $name      = preg_replace('/[^A-Z0-9_]/i', '', $name);
-        $className = "THM\Organizer\Models\\$name";
-        $model     = new $className($config, $this);
+        $name        = preg_replace('/[^A-Z0-9_]/i', '', $name);
+        $className   = "THM\Organizer\Models\\$name";
+        $formFactory = $this->getFormFactory();
+        $model       = new $className($config, $this, $formFactory);
         $this->addDispatcher($model);
         $this->addFormFactory($model);
 
@@ -147,6 +184,8 @@ class MVCFactory extends Base
 
         return new $fqName($dbo);
     }
+
+    // todo overwrite getClassName???
 
     /**
      * Checks for the available Table classes.

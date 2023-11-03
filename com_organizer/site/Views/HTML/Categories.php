@@ -73,7 +73,28 @@ class Categories extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
+    protected function completeItems(): void
+    {
+        $index           = 0;
+        $link            = 'index.php?option=com_organizer&view=CategoryEdit&id=';
+        $structuredItems = [];
+
+        foreach ($this->items as $item) {
+            $tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
+            $item->active = $this->getToggle('categories', $item->id, $item->active, $tip, 'active');
+
+            $item->program           = Helpers\Categories::getName($item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
+            $index++;
+        }
+
+        $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -86,26 +107,5 @@ class Categories extends ListView
         ];
 
         $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
-    {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=CategoryEdit&id=';
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
-            $item->active = $this->getToggle('categories', $item->id, $item->active, $tip, 'active');
-
-            $item->program           = Helpers\Categories::getName($item->id);
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
     }
 }

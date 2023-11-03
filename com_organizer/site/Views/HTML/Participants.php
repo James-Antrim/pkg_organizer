@@ -64,19 +64,27 @@ class Participants extends ListView
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    protected function modifyDocument(): void
+    protected function completeItems(): void
     {
-        parent::modifyDocument();
+        $index           = 0;
+        $link            = 'index.php?option=com_organizer&view=participant_edit&id=';
+        $structuredItems = [];
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+        foreach ($this->items as $item) {
+            $item->fullName          = $item->forename ? $item->fullName : $item->surname;
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
+            $index++;
+        }
+
+        $this->items = $structuredItems;
     }
 
     /**
      * @inheritdoc
      */
-    protected function setHeaders(): void
+    protected function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -100,20 +108,12 @@ class Participants extends ListView
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    protected function structureItems(): void
+    protected function modifyDocument(): void
     {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=participant_edit&id=';
-        $structuredItems = [];
+        parent::modifyDocument();
 
-        foreach ($this->items as $item) {
-            $item->fullName          = $item->forename ? $item->fullName : $item->surname;
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
     }
 }

@@ -41,35 +41,9 @@ class SubjectSelection extends ListView
     }
 
     /**
-     * @inheritDoc
-     */
-    protected function modifyDocument(): void
-    {
-        parent::modifyDocument();
-
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
-    }
-
-    /**
      * @inheritdoc
      */
-    protected function setHeaders(): void
-    {
-        $direction = $this->state->get('list.direction');
-        $ordering  = $this->state->get('list.ordering');
-        $headers   = [
-            'checkbox' => HTML::checkAll(),
-            'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
-            'program'  => Text::_('PROGRAMS')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $index           = 0;
         $structuredItems = [];
@@ -91,5 +65,31 @@ class SubjectSelection extends ListView
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function initializeColumns(): void
+    {
+        $direction = $this->state->get('list.direction');
+        $ordering  = $this->state->get('list.ordering');
+        $headers   = [
+            'checkbox' => HTML::checkAll(),
+            'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
+            'program'  => Text::_('PROGRAMS')
+        ];
+
+        $this->headers = $headers;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function modifyDocument(): void
+    {
+        parent::modifyDocument();
+
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
     }
 }

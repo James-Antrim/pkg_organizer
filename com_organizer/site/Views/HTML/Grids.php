@@ -19,37 +19,19 @@ use THM\Organizer\Helpers;
 class Grids extends ListView
 {
     protected array $rowStructure = [
-        'checkbox' => '',
-        'name' => 'link',
-        'startDay' => 'value',
-        'endDay' => 'value',
+        'checkbox'  => '',
+        'name'      => 'link',
+        'startDay'  => 'value',
+        'endDay'    => 'value',
         'startTime' => 'value',
-        'endTime' => 'value',
+        'endTime'   => 'value',
         'isDefault' => 'value'
     ];
 
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
-    {
-        $headers = [
-            'checkbox' => '',
-            'name' => Text::_('ORGANIZER_NAME'),
-            'startDay' => Text::_('ORGANIZER_START_DAY'),
-            'endDay' => Text::_('ORGANIZER_END_DAY'),
-            'startTime' => Text::_('ORGANIZER_START_TIME'),
-            'endTime' => Text::_('ORGANIZER_END_TIME'),
-            'isDefault' => Text::_('ORGANIZER_DEFAULT')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $index           = 0;
         $structuredItems = [];
@@ -67,7 +49,8 @@ class Grids extends ListView
                 $item->endDay    = Text::_($endDayConstant);
                 $item->startTime = Helpers\Dates::formatTime(reset($grid['periods'])['startTime']);
                 $item->endTime   = Helpers\Dates::formatTime(end($grid['periods'])['endTime']);
-            } else {
+            }
+            else {
                 $item->startDay  = '';
                 $item->endDay    = '';
                 $item->startTime = '';
@@ -75,10 +58,28 @@ class Grids extends ListView
             }
 
             $item->isDefault         = $this->getToggle('grids', $item->id, $item->isDefault, 'ORGANIZER_GRID_DESC');
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
+    {
+        $headers = [
+            'checkbox'  => '',
+            'name'      => Text::_('ORGANIZER_NAME'),
+            'startDay'  => Text::_('ORGANIZER_START_DAY'),
+            'endDay'    => Text::_('ORGANIZER_END_DAY'),
+            'startTime' => Text::_('ORGANIZER_START_TIME'),
+            'endTime'   => Text::_('ORGANIZER_END_TIME'),
+            'isDefault' => Text::_('ORGANIZER_DEFAULT')
+        ];
+
+        $this->headers = $headers;
     }
 }

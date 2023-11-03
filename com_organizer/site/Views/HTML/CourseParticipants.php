@@ -33,6 +33,25 @@ class CourseParticipants extends Participants
     /**
      * @inheritdoc
      */
+    protected function addSubtitle(): void
+    {
+        $courseID = Input::getID();
+
+        $subTitle   = [];
+        $subTitle[] = Helpers\Courses::getName($courseID);
+
+        if ($campusID = Helpers\Courses::getCampusID($courseID)) {
+            $subTitle[] = Helpers\Campuses::getName($campusID);
+        }
+
+        $subTitle[] = Helpers\Courses::getDateDisplay($courseID);
+
+        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function addToolBar(bool $delete = true): void
     {
         Toolbar::setTitle('PARTICIPANTS');
@@ -124,67 +143,7 @@ class CourseParticipants extends Participants
     /**
      * @inheritdoc
      */
-    public function display($tpl = null): void
-    {
-        // Set batch template path
-        $this->batch = ['batch_participant_notify'];
-
-        parent::display($tpl);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function modifyDocument(): void
-    {
-        parent::modifyDocument();
-
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function setHeaders(): void
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox' => HTML::checkAll(),
-            'fullName' => HTML::sort('NAME', 'fullName', $direction, $ordering),
-            'email'    => HTML::sort('EMAIL', 'email', $direction, $ordering),
-            'program'  => HTML::sort('PROGRAM', 'program', $direction, $ordering),
-            'status'   => Text::_('STATUS'),
-            'paid'     => Text::_('PAID'),
-            'attended' => Text::_('ATTENDED')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function setSubtitle(): void
-    {
-        $courseID = Input::getID();
-
-        $subTitle   = [];
-        $subTitle[] = Helpers\Courses::getName($courseID);
-
-        if ($campusID = Helpers\Courses::getCampusID($courseID)) {
-            $subTitle[] = Helpers\Campuses::getName($campusID);
-        }
-
-        $subTitle[] = Helpers\Courses::getDateDisplay($courseID);
-
-        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $index           = 0;
         $link            = 'index.php?option=com_organizer&view=participant_edit&id=';
@@ -245,10 +204,51 @@ class CourseParticipants extends Participants
                 $item->paid = $checked;
             }
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function display($tpl = null): void
+    {
+        // Set batch template path
+        $this->batch = ['batch_participant_notify'];
+
+        parent::display($tpl);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function initializeColumns(): void
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox' => HTML::checkAll(),
+            'fullName' => HTML::sort('NAME', 'fullName', $direction, $ordering),
+            'email'    => HTML::sort('EMAIL', 'email', $direction, $ordering),
+            'program'  => HTML::sort('PROGRAM', 'program', $direction, $ordering),
+            'status'   => Text::_('STATUS'),
+            'paid'     => Text::_('PAID'),
+            'attended' => Text::_('ATTENDED')
+        ];
+
+        $this->headers = $headers;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function modifyDocument(): void
+    {
+        parent::modifyDocument();
+
+        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
     }
 }

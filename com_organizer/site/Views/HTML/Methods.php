@@ -22,7 +22,7 @@ class Methods extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
+    public function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');

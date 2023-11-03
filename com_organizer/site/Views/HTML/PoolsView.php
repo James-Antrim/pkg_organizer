@@ -33,7 +33,25 @@ abstract class PoolsView extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
+    protected function completeItems(): void
+    {
+        $index           = 0;
+        $link            = 'index.php?option=com_organizer&view=pool_edit&id=';
+        $structuredItems = [];
+
+        foreach ($this->items as $item) {
+            $item->programID         = Helpers\Pools::getProgramName($item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
+            $index++;
+        }
+
+        $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
@@ -44,23 +62,5 @@ abstract class PoolsView extends ListView
         ];
 
         $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
-    {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=pool_edit&id=';
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $item->programID         = Helpers\Pools::getProgramName($item->id);
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
     }
 }

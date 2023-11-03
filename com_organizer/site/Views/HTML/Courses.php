@@ -149,54 +149,7 @@ class Courses extends ListView
     /**
      * @inheritDoc
      */
-    public function display($tpl = null): void
-    {
-        $params = Input::getParams();
-
-        if ($params->get('onlyPrepCourses')) {
-            $this->empty = Text::_('ORGANIZER_PREP_COURSE_PLANNING_INCOMPLETE');
-        }
-
-        parent::display($tpl);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setHeaders(): void
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-
-        $headers = [
-            'name'         => HTML::sort('NAME', 'name', $direction, $ordering),
-            'campus'       => Text::_('CAMPUS'),
-            'dates'        => HTML::sort('DATES', 'dates', $direction, $ordering),
-            'courseStatus' => [
-                'attributes' => ['class' => 'center'],
-                'value'      => Text::_('COURSE_STATUS')
-            ]
-        ];
-
-        if ($this->manages) {
-            $headers = ['checkbox' => ''] + $headers;
-        }
-        else {
-            $headers = $headers + [
-                    'registrationStatus' => [
-                        'attributes' => ['class' => 'center'],
-                        'value'      => Text::_('REGISTRATION_STATUS')
-                    ]
-                ];
-        }
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $url = Uri::base() . '?option=com_organizer';
         $url .= Application::backend() ? '&view=course_edit&id=' : '&view=course_item&id=';
@@ -318,9 +271,56 @@ class Courses extends ListView
 
             $index = "$course->startDate $course->name $campusName";
 
-            $structuredItems[$index] = $this->structureItem($index, $course, $url . $course->id);
+            $structuredItems[$index] = $this->completeItem($index, $course, $url . $course->id);
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function display($tpl = null): void
+    {
+        $params = Input::getParams();
+
+        if ($params->get('onlyPrepCourses')) {
+            $this->empty = Text::_('ORGANIZER_PREP_COURSE_PLANNING_INCOMPLETE');
+        }
+
+        parent::display($tpl);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function initializeColumns(): void
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+
+        $headers = [
+            'name'         => HTML::sort('NAME', 'name', $direction, $ordering),
+            'campus'       => Text::_('CAMPUS'),
+            'dates'        => HTML::sort('DATES', 'dates', $direction, $ordering),
+            'courseStatus' => [
+                'attributes' => ['class' => 'center'],
+                'value'      => Text::_('COURSE_STATUS')
+            ]
+        ];
+
+        if ($this->manages) {
+            $headers = ['checkbox' => ''] + $headers;
+        }
+        else {
+            $headers = $headers + [
+                    'registrationStatus' => [
+                        'attributes' => ['class' => 'center'],
+                        'value'      => Text::_('REGISTRATION_STATUS')
+                    ]
+                ];
+        }
+
+        $this->headers = $headers;
     }
 }

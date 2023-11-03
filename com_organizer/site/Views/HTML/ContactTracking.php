@@ -45,6 +45,16 @@ class ContactTracking extends ListView
     }
 
     /**
+     * @inheritDoc
+     */
+    protected function addSubtitle()
+    {
+        $then           = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
+        $today          = Helpers\Dates::formatDate(date('Y-m-d'));
+        $this->subtitle = Text::_('ORGANIZER_INTERVAL') . ": $then - $today";
+    }
+
+    /**
      * @inheritdoc
      */
     protected function addToolBar(bool $delete = true)
@@ -73,65 +83,9 @@ class ContactTracking extends ListView
     }
 
     /**
-     * @inheritDoc
-     */
-    public function display($tpl = null)
-    {
-        $filterItems = Input::getFilterItems();
-
-        // If a query string was entered feedback is a part of a system message.
-        if ($filterItems->get('search')) {
-            $this->empty = ' ';
-        } else {
-            $this->empty = Text::_('ORGANIZER_ENTER_SEARCH_TERM');
-        }
-
-        parent::display($tpl);
-    }
-
-    /**
      * @inheritdoc
      */
-    public function setHeaders()
-    {
-        $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
-        $headers    = [
-            'index' => '#',
-            'person' => Text::_('ORGANIZER_PERSON'),
-            'data' => Text::_('ORGANIZER_CONTACT_INFORMATION')
-        ];
-
-        switch ($listFormat) {
-            case self::BY_EVENT:
-                $otherHeaders = ['contacts' => Text::_('ORGANIZER_CONTACTS')];
-                break;
-            case self::BY_DAY:
-            default:
-                $otherHeaders = ['dates' => Text::_('ORGANIZER_DATES'),
-                    'length' => Text::_('ORGANIZER_CONTACT_LENGTH')
-                ];
-                break;
-
-        }
-
-        $headers       = array_merge($headers, $otherHeaders);
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function setSubtitle()
-    {
-        $then           = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
-        $today          = Helpers\Dates::formatDate(date('Y-m-d'));
-        $this->subtitle = Text::_('ORGANIZER_INTERVAL') . ": $then - $today";
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems()
+    protected function completeItems()
     {
         $index           = 1;
         $link            = '';
@@ -184,10 +138,58 @@ class ContactTracking extends ListView
 
             }
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $link);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function display($tpl = null)
+    {
+        $filterItems = Input::getFilterItems();
+
+        // If a query string was entered feedback is a part of a system message.
+        if ($filterItems->get('search')) {
+            $this->empty = ' ';
+        }
+        else {
+            $this->empty = Text::_('ORGANIZER_ENTER_SEARCH_TERM');
+        }
+
+        parent::display($tpl);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns()
+    {
+        $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
+        $headers    = [
+            'index'  => '#',
+            'person' => Text::_('ORGANIZER_PERSON'),
+            'data'   => Text::_('ORGANIZER_CONTACT_INFORMATION')
+        ];
+
+        switch ($listFormat) {
+            case self::BY_EVENT:
+                $otherHeaders = ['contacts' => Text::_('ORGANIZER_CONTACTS')];
+                break;
+            case self::BY_DAY:
+            default:
+                $otherHeaders = [
+                    'dates'  => Text::_('ORGANIZER_DATES'),
+                    'length' => Text::_('ORGANIZER_CONTACT_LENGTH')
+                ];
+                break;
+
+        }
+
+        $headers       = array_merge($headers, $otherHeaders);
+        $this->headers = $headers;
     }
 }

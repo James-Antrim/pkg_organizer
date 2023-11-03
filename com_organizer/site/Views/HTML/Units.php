@@ -70,6 +70,33 @@ class Units extends ListView
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function completeItems(): void
+    {
+        $index           = 0;
+        $structuredItems = [];
+
+        foreach ($this->items as $item) {
+            $endDate   = Helpers\Dates::formatDate($item->endDate);
+            $startDate = Helpers\Dates::formatDate($item->startDate);
+
+            $structuredItems[$index]             = [];
+            $structuredItems[$index]['checkbox'] = HTML::checkBox($index, $item->id);
+            $structuredItems[$index]['status']   = $this->getStatus($item);
+            $structuredItems[$index]['name']     = $item->name;
+            $structuredItems[$index]['method']   = $item->method;
+            $structuredItems[$index]['dates']    = "$startDate - $endDate";
+            $structuredItems[$index]['grid']     = $item->grid;
+            $structuredItems[$index]['code']     = $item->code;
+
+            $index++;
+        }
+
+        $this->items = $structuredItems;
+    }
+
+    /**
      * Created a structure for displaying status information as necessary.
      *
      * @param   object  $item  the instance item being iterated
@@ -100,7 +127,7 @@ class Units extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
+    public function initializeColumns(): void
     {
         $headers = [
             'checkbox' => Helpers\HTML::_('grid.checkall'),
@@ -114,32 +141,5 @@ class Units extends ListView
         ];
 
         $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
-    {
-        $index           = 0;
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $endDate   = Helpers\Dates::formatDate($item->endDate);
-            $startDate = Helpers\Dates::formatDate($item->startDate);
-
-            $structuredItems[$index]             = [];
-            $structuredItems[$index]['checkbox'] = HTML::checkBox($index, $item->id);
-            $structuredItems[$index]['status']   = $this->getStatus($item);
-            $structuredItems[$index]['name']     = $item->name;
-            $structuredItems[$index]['method']   = $item->method;
-            $structuredItems[$index]['dates']    = "$startDate - $endDate";
-            $structuredItems[$index]['grid']     = $item->grid;
-            $structuredItems[$index]['code']     = $item->code;
-
-            $index++;
-        }
-
-        $this->items = $structuredItems;
     }
 }

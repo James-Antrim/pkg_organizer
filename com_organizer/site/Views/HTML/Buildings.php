@@ -39,26 +39,11 @@ class Buildings extends ListView
     }
 
     /**
+     * @param   array  $options  *
+     *
      * @inheritdoc
      */
-    public function setHeaders(): void
-    {
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox'     => '',
-            'name'         => HTML::sort('NAME', 'name', $direction, 'name'),
-            'campusID'     => Text::_('CAMPUS'),
-            'propertyType' => Text::_('PROPERTY_TYPE'),
-            'address'      => Text::_('STREET')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(array $options = []): void
     {
         $link            = 'index.php?option=com_organizer&view=building_edit&id=';
         $index           = 0;
@@ -85,10 +70,27 @@ class Buildings extends ListView
                     break;
             }
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
+    {
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox'     => '',
+            'name'         => HTML::sort('NAME', 'name', $direction, 'name'),
+            'campusID'     => Text::_('CAMPUS'),
+            'propertyType' => Text::_('PROPERTY_TYPE'),
+            'address'      => Text::_('STREET')
+        ];
+
+        $this->headers = $headers;
     }
 }

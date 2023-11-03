@@ -22,26 +22,7 @@ class Holidays extends ListView
     /**
      * @inheritDoc
      */
-    public function setHeaders(): void
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-
-        $headers = [
-            'checkbox' => '',
-            'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
-            'dates'    => Text::_('ORGANIZER_DATES'),
-            'type'     => Text::_('ORGANIZER_TYPE'),
-            'status'   => Text::_('ORGANIZER_STATUS')
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $index   = 0;
         $link    = 'index.php?option=com_organizer&view=holiday_edit&id=';
@@ -78,5 +59,24 @@ class Holidays extends ListView
         }
 
         $this->items = $items;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function initializeColumns(): void
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+
+        $headers = [
+            'checkbox' => '',
+            'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
+            'dates'    => Text::_('ORGANIZER_DATES'),
+            'type'     => Text::_('ORGANIZER_TYPE'),
+            'status'   => Text::_('ORGANIZER_STATUS')
+        ];
+
+        $this->headers = $headers;
     }
 }

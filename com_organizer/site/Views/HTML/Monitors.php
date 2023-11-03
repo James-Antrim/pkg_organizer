@@ -57,26 +57,7 @@ class Monitors extends ListView
     /**
      * @inheritdoc
      */
-    public function setHeaders(): void
-    {
-        $ordering  = $this->state->get('list.ordering');
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox'    => HTML::checkAll(),
-            'name'        => HTML::sort('ROOM', 'r.name', $direction, $ordering),
-            'ip'          => HTML::sort('IP', 'm.ip', $direction, $ordering),
-            'useDefaults' => HTML::sort('DEFAULT_SETTINGS', 'm.useDefaults', $direction, $ordering),
-            'display'     => Text::_('DISPLAY_BEHAVIOUR'),
-            'content'     => HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering)
-        ];
-
-        $this->headers = $headers;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function structureItems(): void
+    protected function completeItems(): void
     {
         $link            = 'index.php?option=com_organizer&view=monitor_edit&id=';
         $index           = 0;
@@ -102,10 +83,29 @@ class Monitors extends ListView
                 'ORGANIZER_TOGGLE_DEFAULT'
             );
 
-            $structuredItems[$index] = $this->structureItem($index, $item, $link . $item->id);
+            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
             $index++;
         }
 
         $this->items = $structuredItems;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeColumns(): void
+    {
+        $ordering  = $this->state->get('list.ordering');
+        $direction = $this->state->get('list.direction');
+        $headers   = [
+            'checkbox'    => HTML::checkAll(),
+            'name'        => HTML::sort('ROOM', 'r.name', $direction, $ordering),
+            'ip'          => HTML::sort('IP', 'm.ip', $direction, $ordering),
+            'useDefaults' => HTML::sort('DEFAULT_SETTINGS', 'm.useDefaults', $direction, $ordering),
+            'display'     => Text::_('DISPLAY_BEHAVIOUR'),
+            'content'     => HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering)
+        ];
+
+        $this->headers = $headers;
     }
 }

@@ -28,12 +28,6 @@ use THM\Organizer\Helpers\OrganizerHelper;
 class Controller extends BaseController
 {
     /**
-     * Flag for calling context.
-     * @var bool
-     */
-    protected bool $backend;
-
-    /**
      * The URL to redirection into this component.
      * @var string
      */
@@ -42,9 +36,13 @@ class Controller extends BaseController
     /**
      * @inheritDoc
      */
-    public function __construct($config = [], MVCFactoryInterface $factory = null, ?CMSApplication $app = null, ?JInput $input = null)
+    public function __construct(
+        $config = [],
+        MVCFactoryInterface $factory = null,
+        ?CMSApplication $app = null,
+        ?JInput $input = null
+    )
     {
-        $this->backend = Application::backend();
         $this->baseURL = $this->baseURL ?: Uri::base() . 'index.php?option=com_organizer';
         parent::__construct($config, $factory, $app, $input);
     }
@@ -103,7 +101,8 @@ class Controller extends BaseController
 
         if ($model->merge($this->resource)) {
             Application::message('ORGANIZER_MERGE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_MERGE_FAIL', Application::ERROR);
         }
 
