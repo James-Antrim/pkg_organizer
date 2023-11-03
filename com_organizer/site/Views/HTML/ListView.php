@@ -216,7 +216,7 @@ abstract class ListView extends Base
 
         parent::initializeView();
 
-        $this->empty = $this->empty ?: Text::_('_EMPTY_RESULT_SET');
+        $this->empty = $this->empty ?: Text::_('EMPTY_RESULT_SET');
 
         $this->addSubtitle();
         $this->addSupplement();

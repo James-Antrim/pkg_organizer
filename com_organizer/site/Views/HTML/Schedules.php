@@ -33,7 +33,8 @@ class Schedules extends ListView
         if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID')) {
             /*$toolbar->standardButton('envelope', Text::_('NOTIFY_CHANGES'), 'schedules.notify', true);*/
 
-            $toolbar->confirmButton('reference', Text::_('REFERENCE_CONFIRM'), 'Schedules.reference')->icon('fa fa-share');
+            $toolbar->confirmButton('reference', Text::_('REFERENCE'), 'Schedules.reference')
+                ->message(Text::_('REFERENCE_CONFIRM'))->icon('fa fa-share');
 
             if ($admin) {
                 $toolbar->standardButton('rebuild', Text::_('REBUILD'), 'Schedules.rebuild')->icon('fa fa-sync');

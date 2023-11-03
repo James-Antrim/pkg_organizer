@@ -36,7 +36,7 @@ trait ToCed
         $viewName = Application::getClass($this);
 
         Sidebar::addEntry(
-            '<span class="icon-home"></span>' . Text::_('ORGANIZER'),
+            '<span class="icon-home"></span>Organizer',
             Routing::getViewURL('Organizer'),
             $viewName === 'Organizer'
         );
@@ -242,8 +242,6 @@ trait ToCed
             }
         }
 
-        $postWrapper = '</div>';
-        $preWrapper  = '<div class="main-nav">';
-        $this->ToC   = $preWrapper . Sidebar::render() . $postWrapper;
+        $this->sidebar = Sidebar::render();
     }
 }

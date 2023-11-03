@@ -18,6 +18,9 @@ $query = Uri::getInstance()->getQuery();
     <form action="<?php echo Uri::base() . "?$query"; ?>" id="adminForm" method="post"
           name="adminForm">
         <h2 class="organizer-header">Organizer</h2>
+        <div id="j-sidebar-container" class="col-md-2">
+            <?php echo $this->sidebar; ?>
+        </div>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="organizer"/>
