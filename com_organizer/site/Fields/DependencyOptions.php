@@ -16,13 +16,13 @@ use stdClass;
 /**
  * Class creates a select box for superordinate pool resources.
  */
-abstract class DependencyOptions extends OptionsField
+abstract class DependencyOptions extends Options
 {
     /**
      * Gets pool options for a select list. All parameters come from the
      *
-     * @param int   $subjectID the selected subject
-     * @param array $values    the subjects with which dependencies have already been mapped
+     * @param   int    $subjectID  the selected subject
+     * @param   array  $values     the subjects with which dependencies have already been mapped
      *
      * @return stdClass[]  the options
      */

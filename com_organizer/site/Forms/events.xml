@@ -17,8 +17,7 @@
             <option value="">ALL_CAMPUSES</option>
             <option value="-1">NO_CAMPUS</option>
         </field>
-        <field name="preparatory" type="Options" label="ORGANIZER_PREP_COURSES" default=""
-               onchange="this.form.submit();">
+        <field name="preparatory" type="Options" label="PREP_COURSES" default="" onchange="this.form.submit();">
             <option value="">ALL_COURSES</option>
             <option value="1">ONLY_PREP_COURSES</option>
             <option value="0">NOT_PREP_COURSES</option>

@@ -74,7 +74,8 @@ class Form extends Base
                     $debug   = $lang->setDebug(false);
                     $default = Text::_($default);
                     $lang->setDebug($debug);
-                } else {
+                }
+                else {
                     $default = Text::_($default);
                 }
             }
@@ -86,7 +87,8 @@ class Form extends Base
 
         if ($field->setup($element, $value, $group)) {
             return $field;
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -98,8 +100,8 @@ class Form extends Base
     private function getFieldClasses(): array
     {
         $fields = [];
-        foreach (glob(JPATH_SITE . '/components/com_groups/Fields/*') as $field) {
-            $field    = str_replace(JPATH_SITE . '/components/com_groups/Fields/', '', $field);
+        foreach (glob(JPATH_SITE . '/components/com_organizer/Fields/*') as $field) {
+            $field    = str_replace(JPATH_SITE . '/components/com_organizer/Fields/', '', $field);
             $fields[] = str_replace('.php', '', $field);
         }
 
@@ -132,7 +134,8 @@ class Form extends Base
                 if (!$forms[$name]->load($data, $replace, $xpath)) {
                     throw new RuntimeException(sprintf('%s() could not load form', __METHOD__));
                 }
-            } else {
+            }
+            else {
                 if (!$forms[$name]->loadFile($data, $replace, $xpath)) {
                     throw new RuntimeException(sprintf('%s() could not load file', __METHOD__));
                 }
@@ -145,7 +148,7 @@ class Form extends Base
     /**
      * Loads a reasonably namespaced form field.
      *
-     * @param string $field the name of the field class to load
+     * @param   string  $field  the name of the field class to load
      *
      * @return FormField
      */

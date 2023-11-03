@@ -100,7 +100,7 @@ class HTML extends HTMLHelper
      */
     public static function option(int|string $value, string $text, bool $disable = false): stdClass
     {
-        return Select::option((string) $value, $text, $disable);
+        return Select::option((string) $value, $text, 'value', 'text', $disable);
     }
 
     /**

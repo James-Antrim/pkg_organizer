@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\{Database, HTML, Input, Text};
+use THM\Organizer\Adapters\{Database as DB, HTML, Input, Text};
 use stdClass;
 
 /**
@@ -40,14 +40,14 @@ trait Mergeable
         }
 
         if (empty($options)) {
-            $options[] = HTML::option('', Text::_('ORGANIZER_NONE_GIVEN'));
+            $options[] = HTML::option('', Text::_('NONE_GIVEN'));
         }
         elseif (count($options) > 1) {
-            /* @var OptionsField $this */
+            /* @var Options $this */
             $this->required = true;
             array_unshift(
                 $options,
-                HTML::option('', Text::_('ORGANIZER_SELECT_VALUE'))
+                HTML::option('', Text::_('SELECT_VALUE'))
             );
         }
 
@@ -60,14 +60,16 @@ trait Mergeable
      */
     protected function getValues(): array
     {
-        $column = $this->getAttribute('name');
-        $query  = Database::getQuery();
+        $column = DB::qn($this->getAttribute('name'), 'value');
+        $query  = DB::getQuery();
         $table  = $this->resource === 'category' ? 'categories' : "{$this->resource}s";
-        $query->selectX(["DISTINCT BINARY $column AS value"], $table, 'id', $this->selectedIDs)
-            ->order('value ASC');
-        Database::setQuery($query);
+        $query->select(["DISTINCT BINARY $column"])
+            ->from(DB::qn("#__organizer_$table"))
+            ->whereIn(DB::qn('id'), $this->selectedIDs)
+            ->order(DB::qn('value') . ' ASC');
+        DB::setQuery($query);
 
-        return Database::loadColumn();
+        return DB::loadColumn();
     }
 
     /**
