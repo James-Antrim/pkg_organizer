@@ -10,7 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use THM\Organizer\Adapters\Application;
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB};
 
 /**
  * Class retrieves information for a filtered set of degrees.
@@ -32,13 +33,13 @@ class Terms extends ListModel
     /**
      * @inheritDoc
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
-        $tag   = Application::getTag();
-        $query = $this->_db->getQuery(true);
-        $query->select("id, fullName_$tag as term, startDate, endDate")
-            ->from('#__organizer_terms')
-            ->order('startDate');
+        $tag     = Application::getTag();
+        $query   = DB::getQuery();
+        $select  = DB::qn(['id', 'startDate', 'endDate']);
+        $aliased = [DB::qn("fullName_$tag", 'term')];
+        $query->select(array_merge($select, $aliased))->from(DB::qn('#__organizer_terms'))->order(DB::qn('startDate') . ' DESC');
 
         return $query;
     }
