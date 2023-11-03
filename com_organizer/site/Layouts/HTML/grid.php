@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, HTML, Input, Toolbar};
 
 require_once 'refresh.php';
 require_once 'titles.php';
@@ -50,7 +49,8 @@ $lastRow    = end($rows);
                                 $empty = true;
                                 $value = $row[$column]['label'];
                             }
-                        } else {
+                        }
+                        else {
                             $busy  = false;
                             $value = $row[$column];
                         }
@@ -59,7 +59,8 @@ $lastRow    = end($rows);
 
                         if ($column === 'times') {
                             $class .= 'grid-header times';
-                        } elseif ($column === $lastColumn) {
+                        }
+                        elseif ($column === $lastColumn) {
                             $class .= 'row-end';
                         }
 
@@ -77,7 +78,8 @@ $lastRow    = end($rows);
                             if ($empty) {
                                 $class .= " empty";
                             }
-                        } elseif (!empty($row['type']) and $row['type'] === 'break') {
+                        }
+                        elseif (!empty($row['type']) and $row['type'] === 'break') {
                             $class .= ' break';
                         }
 
@@ -101,7 +103,7 @@ $lastRow    = end($rows);
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-        <?php echo Helpers\HTML::_('form.token'); ?>
+        <?php echo HTML::token(); ?>
     </form>
     <?php echo $this->disclaimer; ?>
 </div>

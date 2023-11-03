@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, HTML, Input, Toolbar};
 
 $action = Uri::base() . '?' . Uri::getInstance()->getQuery();
 $oClass = "form-$this->orientation";
@@ -41,6 +40,6 @@ if (!Application::backend()) {
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="InstanceEdit"/>
-        <?php echo Helpers\HTML::_('form.token'); ?>
+        <?php echo HTML::token(); ?>
     </form>
 </div>

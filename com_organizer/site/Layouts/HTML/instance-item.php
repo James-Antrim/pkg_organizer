@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers\Instances as Helper;
 
 $columnCount = count($this->headers);
@@ -92,7 +91,7 @@ require_once 'titles.php';
             <input type="hidden" name="option" value="com_organizer"/>
             <input type="hidden" name="task" value=""/>
             <input type="hidden" name="view" value="InstanceItem"/>
-            <?php echo Helpers\HTML::_('form.token'); ?>
+            <?php echo HTML::token(); ?>
         </form>
     <?php endif; ?>
     <?php echo $this->disclaimer; ?>

@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, HTML, Toolbar};
 
 $rows      = $this->rows;
 $iteration = 0;
@@ -37,7 +36,7 @@ require_once 'titles.php';
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="view" value="<?php echo $this->get('name'); ?>"/>
-        <?php echo Helpers\HTML::_('form.token'); ?>
+        <?php echo HTML::token(); ?>
     </form>
     <?php echo $this->disclaimer; ?>
 </div>

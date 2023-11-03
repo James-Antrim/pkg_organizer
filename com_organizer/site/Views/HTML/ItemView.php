@@ -12,8 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Document, HTML};
 
 /**
  * Class loads the resource form into display context. Specific resource determined by extending class.
@@ -104,7 +103,7 @@ abstract class ItemView extends BaseView
                 $this->renderListValue($item, $url, $urlAttribs);
             }
             else {
-                echo empty($url) ? $item : Helpers\HTML::link(Route::_($url . $index), $item, $urlAttribs);
+                echo empty($url) ? $item : HTML::link(Route::_($url . $index), $item, $urlAttribs);
             }
             echo '</li>';
         }

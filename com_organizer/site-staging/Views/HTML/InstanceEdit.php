@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Input, Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
 
 /**
  * Class loads the instance form into display context.
@@ -32,7 +31,8 @@ class InstanceEdit extends EditView
             $cancel = 'ORGANIZER_CLOSE';
             $save   = 'ORGANIZER_SAVE';
             $title  = 'ORGANIZER_INSTANCE_EDIT';
-        } else {
+        }
+        else {
             $cancel = 'ORGANIZER_CANCEL';
             $save   = 'ORGANIZER_CREATE';
             $title  = 'ORGANIZER_INSTANCE_NEW';
@@ -61,6 +61,6 @@ class InstanceEdit extends EditView
     {
         parent::modifyDocument();
 
-        Helpers\HTML::_('formbehavior.chosen', 'select');
+        HTML::_('formbehavior.chosen', 'select');
     }
 }

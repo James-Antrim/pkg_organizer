@@ -12,8 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Document, HTML, Text};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\HTML as Deprecated;
+use THM\Organizer\Helpers\Pools;
 
 /**
  * Loads curriculum information into the display context.
@@ -99,7 +98,7 @@ class Curriculum extends ItemView
                 $itemClass = 'item-subject';
             }
             else {
-                $crp = Helpers\Pools::getCrPText($item);
+                $crp = Pools::getCrPText($item);
                 $url = $base . 'Subjects';
                 $url .= "&programID={$this->item['programID']}&poolID={$item['poolID']}";
 
@@ -108,7 +107,7 @@ class Curriculum extends ItemView
 
             Text::unpack($item['name']);
 
-            $title       = Deprecated::link($url, $item['name'], $attributes);
+            $title       = HTML::link($url, $item['name'], $attributes);
             $itemContent .= '<div class="item-title">' . $title . '</div>';
             $itemContent .= $crp ? '<div class="item-crp">' . $crp . '</div>' : '';
             $itemContent .= $links ? '<div class="item-tools">' . $links . '</div>' : '';
@@ -152,7 +151,7 @@ class Curriculum extends ItemView
      */
     public function renderPanel(array $pool): void
     {
-        $crpText = Helpers\Pools::getCrPText($pool);
+        $crpText = Pools::getCrPText($pool);
         ?>
         <div class="panel">
             <div class="panel-head">

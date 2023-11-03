@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Helpers;
 use stdClass;
+use THM\Organizer\Adapters\{Application, HTML};
+use THM\Organizer\Helpers\Organizations;
 
 /**
  * Class creates a select box for organizations.
@@ -35,7 +35,7 @@ class OrganizationFilterField extends OptionsField
         // Get the field options.
         $options = $this->getOptions();
 
-        return Helpers\HTML::_(
+        return HTML::_(
             'select.genericlist',
             $options,
             $this->name,
@@ -55,7 +55,7 @@ class OrganizationFilterField extends OptionsField
     {
         $options       = parent::getOptions();
         $access        = Application::backend() ? $this->getAttribute('access', '') : '';
-        $organizations = Helpers\Organizations::getOptions(true, $access);
+        $organizations = Organizations::getOptions(true, $access);
 
         return count($organizations) > 1 ? array_merge($options, $organizations) : $organizations;
     }

@@ -63,7 +63,7 @@ if (count($this->headers) > 4) {
                             'bootstrap.renderModal',
                             'collapseModal',
                             [
-                                'title' => Text::_('GROUPS_BATCH_PROCESSING'),
+                                'title'  => Text::_('GROUPS_BATCH_PROCESSING'),
                                 'footer' => Batch::renderFooter($this),
                             ],
                             Batch::renderBody($this)
@@ -74,7 +74,7 @@ if (count($this->headers) > 4) {
 
                 <input type="hidden" name="task" value="">
                 <input type="hidden" name="boxchecked" value="0">
-                <?php echo HTML::_('form.token'); ?>
+                <?php echo HTML::token(); ?>
             </div>
         </div>
     </div>

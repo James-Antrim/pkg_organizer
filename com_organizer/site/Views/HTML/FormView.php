@@ -12,8 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Document, HTML};
 
 /**
  * Class loads a non-item based resource form (merge) into the display context. Specific resource determined by
@@ -74,7 +73,7 @@ abstract class FormView extends BaseView
     {
         parent::modifyDocument();
 
-        Helpers\HTML::_('behavior.formvalidator');
+        HTML::_('behavior.formvalidator');
 
         Document::addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
         Document::addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');

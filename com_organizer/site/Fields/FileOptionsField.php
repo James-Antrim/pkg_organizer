@@ -169,19 +169,11 @@ class FileOptionsField extends OptionsField
 
         // Prepend some default options based on field attributes.
         if (!$this->hideNone) {
-            $options[] = Helpers\HTML::_(
-                'select.option',
-                '-1',
-                Helpers\Languages::alt('JOPTION_DO_NOT_USE', $cleanedName)
-            );
+            $options[] = HTML::option('-1', Helpers\Languages::alt('JOPTION_DO_NOT_USE', $cleanedName));
         }
 
         if (!$this->hideDefault) {
-            $options[] = Helpers\HTML::_(
-                'select.option',
-                '',
-                Helpers\Languages::alt('JOPTION_USE_DEFAULT', $cleanedName)
-            );
+            $options[] = HTML::option('', Helpers\Languages::alt('JOPTION_USE_DEFAULT', $cleanedName));
         }
 
         // Get a list of files in the search path with the given filter.

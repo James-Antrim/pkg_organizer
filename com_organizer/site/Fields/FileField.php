@@ -11,9 +11,7 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use Joomla\CMS\Utility\Utility;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Adapters\{HTML, Text};
 use SimpleXMLElement;
 
 /**
@@ -86,7 +84,7 @@ class FileField extends FormField
             'type="file"',
         ];
         $attributes     = array_filter($attributes);
-        $maxSize        = HTML::_('number.bytes', Utility::getMaxUploadSize());
+        $maxSize        = HTML::maxUploadSize();
         $uploadSizeText = Text::sprintf('ORGANIZER_UPLOAD_SIZE_LIMIT', $maxSize);
 
         return '<input ' . implode(' ', $attributes) . '/><br>' . $uploadSizeText;

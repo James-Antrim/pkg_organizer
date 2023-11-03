@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Input, Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
 use THM\Organizer\Views\HTML\Statistics as View;
 
 $conditions = $this->form->getFieldset('conditions');
@@ -37,7 +36,7 @@ require_once 'titles.php';
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="Statistics"/>
-        <?php echo Helpers\HTML::_('form.token'); ?>
+        <?php echo HTML::token(); ?>
     </form>
     <?php if (count($this->grid)): ?>
         <?php $count = count(array_keys($this->grid['headers'])); ?>

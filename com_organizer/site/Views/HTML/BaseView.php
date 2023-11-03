@@ -13,9 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
-use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
-use THM\Organizer\Helpers;
 
 /**
  * View class for setting general context variables.
@@ -87,11 +85,11 @@ abstract class BaseView extends HtmlView
      */
     protected function modifyDocument(): void
     {
-        Document::setCharset();
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/global.css');
-        Document::addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
+        //Document::setCharset();
+        //Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/global.css');
+        //Document::addStyleSheet(Uri::root() . 'media/jui/css/bootstrap-extended.css');
 
-        Helpers\HTML::_('bootstrap.tooltip', '.hasTooltip', ['placement' => 'right']);
+        //HTML::_('bootstrap.tooltip', '.hasTooltip', ['placement' => 'right']);
     }
 
     /**

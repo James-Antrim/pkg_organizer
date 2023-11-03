@@ -11,8 +11,8 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Adapters\{Application, Database, Input, Text};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
+use THM\Organizer\Helpers\Terms;
 
 /**
  * Class creates a form field for enabling or disabling publishing for specific plan (subject) pools for specific
@@ -51,7 +51,7 @@ class TermPublishingField extends FormField
             $values = Database::loadAssocList('termID');
         }
 
-        foreach (Helpers\Terms::getResources() as $term) {
+        foreach (Terms::getResources() as $term) {
             if ($term['endDate'] < $today) {
                 continue;
             }
@@ -63,7 +63,7 @@ class TermPublishingField extends FormField
             $input .= '<div class="term-container">';
             $input .= "<div class=\"term-label\"><label for=\"$subFieldName\">$term[$nameColumn]</label></div>";
             $input .= '<div class="term-input">';
-            $input .= Helpers\HTML::_(
+            $input .= HTML::_(
                 'select.genericlist',
                 $options,
                 $subFieldName,

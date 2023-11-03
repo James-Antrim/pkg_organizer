@@ -11,9 +11,9 @@
 namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
-use THM\Organizer\Helpers;
 use SimpleXMLElement;
 use stdClass;
+use THM\Organizer\Adapters\{HTML, Text};
 
 /**
  * Class creates select input.
@@ -31,7 +31,7 @@ class OptionsField extends FormField
     /**
      * Method to get certain otherwise inaccessible properties from the form field object.
      *
-     * @param string $name The property name for which to get the value.
+     * @param   string  $name  The property name for which to get the value.
      *
      * @return  mixed  The property value or null.
      */
@@ -47,8 +47,8 @@ class OptionsField extends FormField
     /**
      * Method to add an option to the list field.
      *
-     * @param string $text       Text/Language variable of the option.
-     * @param array  $attributes Array of attributes ('name' => 'value' format)
+     * @param   string  $text        Text/Language variable of the option.
+     * @param   array   $attributes  Array of attributes ('name' => 'value' format)
      *
      * @return  OptionsField  For chaining.
      */
@@ -102,7 +102,8 @@ class OptionsField extends FormField
                     $attr .= " size=\"$this->size\"";
                 }
             }
-        } else {
+        }
+        else {
             $attr .= !empty($this->size) ? ' size="' . $this->size . '"' : '';
         }
 
@@ -117,7 +118,7 @@ class OptionsField extends FormField
         $attr .= empty($this->getAttribute('onblur')) ?
             '' : ' onblur="' . $this->getAttribute('onblur') . '"';
 
-        return Helpers\HTML::_(
+        return HTML::_(
             'select.genericlist',
             $this->options,
             $this->name,
@@ -144,8 +145,7 @@ class OptionsField extends FormField
      */
     protected function getOptions(): array
     {
-        $fieldName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $this->fieldname);
-        $options   = [];
+        $options = [];
 
         foreach ($this->element->xpath('option') as $optionTag) {
 
@@ -153,8 +153,7 @@ class OptionsField extends FormField
             $option->value = (string) $optionTag['value'];
 
             $text         = trim((string) $optionTag) != '' ? trim((string) $optionTag) : $option->value;
-            $text         = str_starts_with($text, 'ORGANIZER_') ? $text : "ORGANIZER_$text";
-            $option->text = Helpers\Languages::alt($text, $fieldName);
+            $option->text = Text::_($text);
 
             $option->class = (string) $optionTag['class'];
 

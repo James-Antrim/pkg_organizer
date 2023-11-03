@@ -12,12 +12,11 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
-use THM\Organizer\Buttons\Link;
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Instances as Helper;
-use THM\Organizer\Models\InstanceItem as Model;
 use stdClass;
+use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
+use THM\Organizer\Buttons\Link;
+use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Routing, Users};
+use THM\Organizer\Models\InstanceItem as Model;
 
 /**
  * Class loads information about a given instance.
@@ -228,7 +227,7 @@ class InstanceItem extends ListView
         }
 
         if ($instance->subjectID) {
-            $url       = Helpers\Routing::getViewURL('SubjectItem', $instance->subjectID);
+            $url       = Routing::getViewURL('SubjectItem', $instance->subjectID);
             $minibar[] = $link->fetchButton('Link', 'book', Text::_('ORGANIZER_SUBJECT_ITEM'), $url, true);
         }
 
@@ -247,8 +246,8 @@ class InstanceItem extends ListView
             Application::error(400);
         }
 
-        if ($this->userID = Helpers\Users::getID()) {
-            $this->manages = Helpers\Can::manage('instance', $instanceID);
+        if ($this->userID = Users::getID()) {
+            $this->manages = Can::manage('instance', $instanceID);
 
             return;
         }
@@ -278,11 +277,11 @@ class InstanceItem extends ListView
      */
     private function getTitle(stdClass $item): array
     {
-        $title = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
+        $title = '<span class="date">' . Dates::formatDate($item->date) . '</span> ';
         $title .= Application::mobile() ? '<br>' : '';
         $title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span>';
         $title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
-        $title = Helpers\HTML::link($item->link, $title);
+        $title = HTML::link($item->link, $title);
 
         return $this->liGetTitle($item, $title);
     }
@@ -402,7 +401,7 @@ class InstanceItem extends ListView
 
         /*if ($instance->registration)
         {
-            if (Helper::getMethodCode($instance->instanceID) === Helpers\Methods::FINALCODE)
+            if (Helper::getMethodCode($instance->instanceID) === Methods::FINALCODE)
             {
                 echo '<li>' . Text::_('ORGANIZER_REGISTRATION_EXTERNAL') . '</li>';
             }
@@ -463,7 +462,7 @@ class InstanceItem extends ListView
             return;
         }
 
-        $dateTime = Helpers\Dates::formatDateTime($dateTime);
+        $dateTime = Dates::formatDateTime($dateTime);
         $delta    = $status === 'removed' ?
             Text::sprintf('ORGANIZER_REMOVED_ON', $dateTime) : Text::sprintf('ORGANIZER_ADDED_ON', $dateTime);
 
@@ -495,7 +494,7 @@ class InstanceItem extends ListView
     public function initializeColumns(): void
     {
         $this->headers = [
-            'tools'    => ($this->userID and !Application::mobile()) ? Helpers\HTML::_('grid.checkall') : '',
+            'tools'    => ($this->userID and !Application::mobile()) ? HTML::checkAll() : '',
             'instance' => Text::_('ORGANIZER_INSTANCE'),
             'status'   => Text::_('ORGANIZER_STATUS'),
             'persons'  => Text::_('ORGANIZER_PERSONS'),
@@ -534,7 +533,7 @@ class InstanceItem extends ListView
             $constant       = $instance->unitStatus === 'removed' ? 'ORGANIZER_UNIT_REMOVED_ON' : 'ORGANIZER_UNIT_ADDED_ON';
             $status         = $instance->unitStatus;
             $this->status   = $instance->unitStatus;
-            $statusDate     = Helpers\Dates::formatDateTime($instance->unitStatusDate);
+            $statusDate     = Dates::formatDateTime($instance->unitStatusDate);
             $message        = Text::sprintf($constant, $statusDate);
         }
 
@@ -544,7 +543,7 @@ class InstanceItem extends ListView
             $earlier    = $instance->instanceStatusDate < $instance->unitStatusDate;
             $later      = $instance->instanceStatusDate > $instance->unitStatusDate;
             $modified   = max($dateTime, $modified);
-            $statusDate = Helpers\Dates::formatDateTime($instance->instanceStatusDate);
+            $statusDate = Dates::formatDateTime($instance->instanceStatusDate);
 
             // Instance was removed...
             if ($instance->instanceStatus === 'removed') {
@@ -662,7 +661,7 @@ class InstanceItem extends ListView
         }
 
         if ($modified and $status !== 'new' and $status !== 'removed') {
-            $modified         = Helpers\Dates::formatDateTime($modified);
+            $modified         = Dates::formatDateTime($modified);
             $this->messages[] = Text::sprintf('ORGANIZER_LAST_UPDATED', $modified);
         }
 
@@ -710,7 +709,7 @@ class InstanceItem extends ListView
     protected function addSubtitle(): void
     {
         $instance       = $this->instance;
-        $date           = Helpers\Dates::formatDate($instance->date);
+        $date           = Dates::formatDate($instance->date);
         $this->subtitle = "<h4>$date $instance->startTime - $instance->endTime</h4>";
     }
 
@@ -748,7 +747,7 @@ class InstanceItem extends ListView
 
             }
 
-            /*$notFinal     = Helper::getMethodCode($instance->instanceID) !== Helpers\Methods::FINALCODE;
+            /*$notFinal     = Helper::getMethodCode($instance->instanceID) !== Methods::FINALCODE;
             $notFull      = !$instance->full;
             $notOnline    = $instance->presence !== Helper::ONLINE;
             $notPremature = !$instance->premature;
@@ -794,7 +793,7 @@ class InstanceItem extends ListView
                 else {
                     $buttons['scheduleList'] = true;
 
-                    /*$notFinal     = Helper::getMethodCode($item->instanceID) !== Helpers\Methods::FINALCODE;
+                    /*$notFinal     = Helper::getMethodCode($item->instanceID) !== Methods::FINALCODE;
                     $notFull      = !$item->full;
                     $notOnline    = $item->presence !== Helper::ONLINE;
                     $notPremature = !$item->premature;

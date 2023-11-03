@@ -130,7 +130,7 @@ class Units extends ListView
     public function initializeColumns(): void
     {
         $headers = [
-            'checkbox' => Helpers\HTML::_('grid.checkall'),
+            'checkbox' => HTML::checkAll(),
             'status'   => '',
             'name'     => Text::_('ORGANIZER_NAME'),
             'method'   => Text::_('ORGANIZER_METHOD'),

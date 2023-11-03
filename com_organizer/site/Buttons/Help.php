@@ -12,8 +12,7 @@ namespace THM\Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\ToolbarButton;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\HTML;
+use THM\Organizer\Adapters\{HTML, Text};
 
 /**
  * Renders a help popup window button
@@ -29,9 +28,9 @@ class Help extends ToolbarButton
     /**
      * Fetch the HTML for the button
      *
-     * @param string $type        unused
-     * @param string $topic       the help topic.
-     * @param bool   $showContext whether to differentiate the help text
+     * @param   string  $type         unused
+     * @param   string  $topic        the help topic.
+     * @param   bool    $showContext  whether to differentiate the help text
      *
      * @return  string
      */
@@ -51,8 +50,8 @@ class Help extends ToolbarButton
     /**
      * Get the button CSS id
      *
-     * @param string $type The button type.
-     * @param string $name The name of the button.
+     * @param   string  $type  The button type.
+     * @param   string  $name  The name of the button.
      *
      * @return  string  Button CSS Id
      * @noinspection PhpUnusedParameterInspection
@@ -65,7 +64,7 @@ class Help extends ToolbarButton
     /**
      * Get the JavaScript command for the button
      *
-     * @param string $topic the help topic
+     * @param   string  $topic  the help topic
      *
      * @return  string   JavaScript command string
      */

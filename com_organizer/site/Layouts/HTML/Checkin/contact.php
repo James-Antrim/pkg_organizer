@@ -9,12 +9,11 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text};
 
 $privacyText = Text::_('ORGANIZER_PRIVACY_POLICY');
 $privacyURL  = str_replace('profile', 'privacy', Uri::getInstance());
-$privacyLink = Helpers\HTML::link($privacyURL, $privacyText);
+$privacyLink = HTML::link($privacyURL, $privacyText);
 
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
@@ -38,5 +37,5 @@ $privacyLink = Helpers\HTML::link($privacyURL, $privacyText);
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.contact"/>
     <input type="hidden" name="view" value="checkin"/>
-    <?php echo Helpers\HTML::_('form.token'); ?>
+    <?php echo HTML::token(); ?>
 </form>

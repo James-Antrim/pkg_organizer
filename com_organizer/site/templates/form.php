@@ -10,9 +10,8 @@
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{Input, Text};
+use THM\Organizer\Adapters\{HTML, Input, Text};
 use THM\Organizer\Views\HTML\FormView;
 
 /** @var FormView $this */
@@ -48,17 +47,17 @@ if ($this->toDo) {
       name="adminForm">
     <div class="main-card">
         <?php if ($tabbed): ?>
-            <?php echo HTMLHelper::_('uitab.startTabSet', 'myTab', ['active' => 'details', 'recall' => true, 'breakpoint' => 768]); ?>
+            <?php echo HTML::_('uitab.startTabSet', 'myTab', ['active' => 'details', 'recall' => true, 'breakpoint' => 768]); ?>
             <?php foreach ($tabs as $name => $tab): ?>
-                <?php echo HTMLHelper::_('uitab.addTab', 'myTab', $tab->name, Text::_($tab->label)); ?>
+                <?php echo HTML::_('uitab.addTab', 'myTab', $tab->name, Text::_($tab->label)); ?>
                 <fieldset class="options-form">
                     <div class="form-grid">
                         <?php echo $this->form->renderFieldset($name); ?>
                     </div>
                 </fieldset>
-                <?php echo HTMLHelper::_('uitab.endTab'); ?>
+                <?php echo HTML::_('uitab.endTab'); ?>
             <?php endforeach; ?>
-            <?php echo HTMLHelper::_('uitab.endTabSet'); ?>
+            <?php echo HTML::_('uitab.endTabSet'); ?>
         <?php else: ?>
             <fieldset class="options-form">
                 <div class="form-grid">
@@ -69,6 +68,6 @@ if ($this->toDo) {
         <input type="hidden" name="task" value="">
         <input type="hidden" name="return" value="<?php echo $return; ?>">
         <input type="hidden" name="forcedLanguage" value="<?php echo $forcedLanguage; ?>">
-        <?php echo HTMLHelper::_('form.token'); ?>
+        <?php echo HTML::token(); ?>
     </div>
 </form>

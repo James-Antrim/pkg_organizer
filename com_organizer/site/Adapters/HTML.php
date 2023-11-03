@@ -10,8 +10,9 @@
 
 namespace THM\Organizer\Adapters;
 
-use Joomla\CMS\HTML\Helpers\{Grid, SearchTools, Select};
+use Joomla\CMS\HTML\Helpers\{Form as FH, Grid, Number, SearchTools, Select};
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Utility\Utility;
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
 
@@ -79,6 +80,16 @@ class HTML extends HTMLHelper
     }
 
     /**
+     * Method to return the maximum upload size defined in the site configured in the ini.
+     * @return  string
+     * @see Number::bytes(), Utility::getMaxUploadSize()
+     */
+    public static function maxUploadSize(): string
+    {
+        return Number::bytes(Utility::getMaxUploadSize());
+    }
+
+    /**
      * Create an object that represents an option in an option list.
      *
      * @param   int|string  $value    the option value
@@ -120,6 +131,16 @@ class HTML extends HTMLHelper
         $selected = gettype($selected) === 'integer' ? (string) $selected : $selected;
 
         return Select::genericlist($options, $name, $properties, $valueKey, $textKey, $selected, false, true);
+    }
+
+    /**
+     * Displays a hidden token field to reduce the risk of CSRF exploits.
+     * @return  string  A hidden input field with a token
+     * @see     FH::token(), Session::checkToken()
+     */
+    public static function token(): string
+    {
+        return FH::token();
     }
 
     /**

@@ -10,8 +10,9 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Helpers;
 use stdClass;
+use THM\Organizer\Adapters\HTML;
+use THM\Organizer\Helpers\Organizations;
 
 /**
  * Class creates a select box for organizations.
@@ -29,20 +30,16 @@ class UnitOrganizationField extends OptionsField
      */
     protected function getInput(): string
     {
-        $onchange = $this->onchange ? ' onchange="' . $this->onchange . '"' : '';
+        $onchange = $this->onchange ? ['onchange' => $this->onchange] : [];
 
         // Get the field options.
         $options = $this->getOptions();
 
-        return Helpers\HTML::_(
-            'select.genericlist',
-            $options,
+        return HTML::selectBox(
             $this->name,
-            $onchange,
-            'value',
-            'text',
+            $options,
             $this->value,
-            $this->id
+            $onchange
         );
     }
 
@@ -53,7 +50,7 @@ class UnitOrganizationField extends OptionsField
     protected function getOptions(): array
     {
         $options       = parent::getOptions();
-        $organizations = Helpers\Organizations::getOptions(true, 'teach');
+        $organizations = Organizations::getOptions(true, 'teach');
 
         return count($organizations) > 1 ? array_merge($options, $organizations) : $organizations;
     }

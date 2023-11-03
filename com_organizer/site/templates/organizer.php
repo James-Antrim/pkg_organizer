@@ -9,7 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\HTML;
 
 $query = Uri::getInstance()->getQuery();
 ?>
@@ -21,6 +21,6 @@ $query = Uri::getInstance()->getQuery();
         <input type="hidden" name="option" value="com_organizer"/>
         <input type="hidden" name="task" value=""/>
         <input type="hidden" name="view" value="organizer"/>
-        <?php echo Helpers\HTML::_('form.token'); ?>
+        <?php echo HTML::token(); ?>
     </form>
 </div>

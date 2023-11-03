@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text};
 
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
@@ -22,5 +21,5 @@ use THM\Organizer\Helpers;
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.confirmSeating"/>
     <input type="hidden" name="view" value="checkin"/>
-    <?php echo Helpers\HTML::_('form.token'); ?>
+    <?php echo HTML::token(); ?>
 </form>

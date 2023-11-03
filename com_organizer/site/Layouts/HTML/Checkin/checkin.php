@@ -9,17 +9,17 @@
  */
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text};
+use THM\Organizer\Helpers\Users;
 
 $current          = Uri::getInstance()->toString();
 $privacyText      = Text::_('ORGANIZER_PRIVACY_POLICY');
 $privacyURL       = Uri::getInstance() . '&layout=privacy';
-$privacyLink      = Helpers\HTML::link($privacyURL, $privacyText);
+$privacyLink      = HTML::link($privacyURL, $privacyText);
 $return           = urlencode(base64_encode($current));
 $registerURL      = Uri::base() . "?option=com_users&view=registration&return=$return";
-$registrationLink = Helpers\HTML::link($registerURL, Text::_('ORGANIZER_REGISTER_TEXT_LINK'));
-$userID           = Helpers\Users::getID();
+$registrationLink = HTML::link($registerURL, Text::_('ORGANIZER_REGISTER_TEXT_LINK'));
+$userID           = Users::getID();
 
 ?>
 <form action="<?php echo Uri::base(); ?>" id="adminForm" method="post" name="adminForm"
@@ -49,5 +49,5 @@ $userID           = Helpers\Users::getID();
     <input type="hidden" name="option" value="com_organizer"/>
     <input type="hidden" name="task" value="checkin.checkin"/>
     <input type="hidden" name="view" value="checkin"/>
-    <?php echo Helpers\HTML::_('form.token'); ?>
+    <?php echo HTML::token(); ?>
 </form>

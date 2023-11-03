@@ -9,8 +9,7 @@
  */
 
 use Joomla\CMS\Layout\LayoutHelper;
-use THM\Organizer\Adapters\Toolbar;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Toolbar};
 
 $toolbar     = Toolbar::getInstance();
 $columnCount = count($this->headers);
@@ -64,7 +63,7 @@ $type     = $viewName === 'SubjectSelection' ? 's' : 'p';
     <input type="hidden" name="task" value=""/>
     <input type="hidden" name="tmpl" value="component"/>
     <input type="hidden" name="view" value="<?php echo $viewName; ?>"/>
-    <?php echo Helpers\HTML::_('form.token'); ?>
+    <?php echo HTML::token(); ?>
 </form>
 <script>
     jQuery(document).ready(function () {

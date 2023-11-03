@@ -11,9 +11,8 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers\HTML;
 use stdClass;
+use THM\Organizer\Adapters\{HTML, Text};
 
 /**
  * Class loads the query's results into the display context.

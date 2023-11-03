@@ -11,9 +11,8 @@
 namespace THM\Organizer\Fields;
 
 use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
-use THM\Organizer\Helpers;
 use stdClass;
+use THM\Organizer\Adapters\{Application, Database, HTML, Input, Text};
 
 /**
  * Class replaces form field type sql by using Joomla's database objects to avoid database language dependency. While
@@ -63,7 +62,7 @@ class GenericOptionsField extends OptionsField
 
         // Create a read-only list (no name) with hidden input(s) to store the value(s).
         if ($isReadOnly) {
-            $html[] = Helpers\HTML::_(
+            $html[] = HTML::_(
                 'select.genericlist',
                 $options,
                 '',
@@ -92,7 +91,7 @@ class GenericOptionsField extends OptionsField
         }
         else // Create a regular list.
         {
-            $html[] = Helpers\HTML::_(
+            $html[] = HTML::_(
                 'select.genericlist',
                 $options,
                 $this->name,

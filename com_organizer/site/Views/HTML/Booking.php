@@ -12,8 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Bookings as Helper;
+use THM\Organizer\Helpers\{Bookings as Helper, Can, Users};
 use THM\Organizer\Tables;
 
 /**
@@ -122,7 +121,7 @@ class Booking extends Participants
         $icon = '<span class="icon-list-3"></span>';
         $text = Text::_('ORGANIZER_MY_INSTANCES');
         $url  = Uri::base() . "?option=com_organizer&view=instances&my=1";
-        $link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn']);
+        $link = HTML::link($url, $icon . $text, ['class' => 'btn']);
         $toolbar->appendButton('Custom', $link);
 
         $bookingDate = $this->booking->get('date');
@@ -154,7 +153,7 @@ class Booking extends Participants
             $icon = '<span class="icon-grid-2"></span>';
             $text = Text::_('QR Code');
             $url  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
-            $link = Helpers\HTML::link($url, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
+            $link = HTML::link($url, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
             $toolbar->appendButton('Custom', $link);
         }
 
@@ -202,7 +201,7 @@ class Booking extends Participants
      */
     protected function authorize(): void
     {
-        if (!Helpers\Users::getID()) {
+        if (!Users::getID()) {
             Application::error(401);
         }
 
@@ -210,7 +209,7 @@ class Booking extends Participants
             Application::error(400);
         }
 
-        if (!Helpers\Can::manage('booking', $this->bookingID)) {
+        if (!Can::manage('booking', $this->bookingID)) {
             Application::error(403);
         }
     }

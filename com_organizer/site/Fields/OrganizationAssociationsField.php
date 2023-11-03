@@ -156,7 +156,7 @@ class OrganizationAssociationsField extends OptionsField
             }
         }
 
-        return Helpers\HTML::_(
+        return HTML::_(
             'select.genericlist',
             $options,
             $this->name,

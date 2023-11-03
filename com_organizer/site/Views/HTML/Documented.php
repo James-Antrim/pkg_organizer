@@ -11,11 +11,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\Application;
-use THM\Organizer\Adapters\Document;
-use THM\Organizer\Adapters\Text;
+use THM\Organizer\Adapters\{Application, Document, HTML, Text};
 
 trait Documented
 {
@@ -31,17 +28,17 @@ trait Documented
 
         $attributes = ['target' => '_blank'];
 
-        $lsfLink = Helpers\HTML::link(
+        $lsfLink = HTML::link(
             'https://studien-sb-service.th-mittelhessen.de/docu/online.html',
             Text::_('ORGANIZER_DISCLAIMER_LSF_TITLE'),
             $attributes
         );
-        $ambLink = Helpers\HTML::link(
+        $ambLink = HTML::link(
             'https://www.thm.de/amb/pruefungsordnungen',
             Text::_('ORGANIZER_DISCLAIMER_AMB_TITLE'),
             $attributes
         );
-        $poLink  = Helpers\HTML::link(
+        $poLink  = HTML::link(
             'https://www.thm.de/site/studium/sie-studieren/pruefungsordnung.html',
             Text::_('ORGANIZER_DISCLAIMER_PO_TITLE'),
             $attributes
