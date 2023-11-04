@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database as DB};
 
 /**
  * Class retrieves information for a filtered set of runs.
@@ -28,10 +28,10 @@ class Runs extends ListModel
      */
     private function deleteDeprecated(): void
     {
-        $query = Database::getQuery();
-        $query->delete('#__organizer_runs')->where('endDate < CURDATE()');
-        Database::setQuery($query);
-        Database::execute();
+        $query = DB::getQuery();
+        $query->delete(DB::qn('#__organizer_runs'))->where(DB::qn('endDate') . ' < CURDATE()');
+        DB::setQuery($query);
+        DB::execute();
     }
 
     /**
@@ -42,14 +42,14 @@ class Runs extends ListModel
     {
         $this->deleteDeprecated();
 
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->select("r.id, r.name_$tag as name, r.run, r.termID, r.endDate")
-            ->select("t.name_$tag as term")
-            ->from('#__organizer_runs AS r')
-            ->leftJoin('#__organizer_terms AS t ON t.id = r.termID')
-            ->order('t.startDate, name');
+        $tag     = Application::getTag();
+        $query   = DB::getQuery();
+        $select  = DB::qn(['r.id', 'r.run', 'r.termID', 'r.endDate']);
+        $aliased = DB::qn(["r.name_$tag", "t.name_$tag"], ['name', 'term']);
+        $query->select(array_merge($select, $aliased))
+            ->from(DB::qn('#__organizer_runs', 'r'))
+            ->innerJoin(DB::qn('#__organizer_terms', 't'), DB::qc('t.id', 'r.termID'))
+            ->order(DB::qn('t.startDate') . ', ' . DB::qn('name'));
 
         $this->setSearchFilter($query, ['name_de', 'name_en']);
         $this->setValueFilters($query, ['termID']);

@@ -10,8 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Text, Toolbar};
+use stdClass;
 use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of runs into the display context.
@@ -28,77 +30,55 @@ class Runs extends ListView
     ];
 
     /**
-     * Checks user authorization and initiates redirects accordingly.
-     * @return void
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
-            Application::error(403);
-        }
-    }
-
-    /**
      * @inheritDoc
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_RUNS');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), "runs.add", false);
-
-        if (Helpers\Can::administrate() and count($this->items)) {
-            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), "runs.edit", true);
-            $toolbar->appendButton(
-                'Confirm',
-                Text::_('ORGANIZER_DELETE_CONFIRM'),
-                'delete',
-                Text::_('ORGANIZER_DELETE'),
-                "runs.delete",
-                true
-            );
-        }
+        $toolbar->addNew('Run.add');
+        $toolbar->delete('Runs.delete')->message(Text::_('DELETE_CONFIRM'));
+        parent::addToolBar();
     }
 
     /**
      * @inheritDoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $link            = "index.php?option=com_organizer&view=run_edit&id=";
-        $index           = 0;
-        $structuredItems = [];
+        $item->editLink = $options['query'] . $item->id;
+        $run            = json_decode($item->run, true);
 
-        foreach ($this->items as $item) {
-            $thisLink = "$link$item->id";
-            $run      = json_decode($item->run, true);
-
-            if (empty($run) or empty($run['runs'])) {
-                $item->endDate   = '';
-                $item->sections  = '';
-                $item->startDate = '';
-            }
-            else {
-                $runs      = $run['runs'];
-                $sections  = [];
-                $startDate = '';
-
-                foreach ($runs as $run) {
-                    $startDate = (!$startDate or $startDate > $run['startDate']) ? $run['startDate'] : $startDate;
-                }
-
-                ksort($sections);
-
-                $item->endDate   = Helpers\Dates::formatDate($item->endDate);
-                $item->sections  = count($runs);
-                $item->startDate = Helpers\Dates::formatDate($startDate);
-            }
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $thisLink);
-            $index++;
+        if (empty($run) or empty($run['runs'])) {
+            $item->endDate   = '';
+            $item->sections  = '';
+            $item->startDate = '';
         }
+        else {
+            $runs      = $run['runs'];
+            $sections  = [];
+            $startDate = '';
 
-        $this->items = $structuredItems;
+            foreach ($runs as $run) {
+                $startDate = (!$startDate or $startDate > $run['startDate']) ? $run['startDate'] : $startDate;
+            }
+
+            ksort($sections);
+
+            $item->endDate   = Helpers\Dates::formatDate($item->endDate);
+            $item->sections  = count($runs);
+            $item->startDate = Helpers\Dates::formatDate($startDate);
+        }
+    }
+
+    /**
+     * @param   array  $options  *
+     *
+     * @inheritDoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        $options = ['query' => "index.php?option=com_organizer&view=run_edit&id="];
+        parent::completeItems($options);
     }
 
     /**
@@ -106,15 +86,34 @@ class Runs extends ListView
      */
     public function initializeColumns(): void
     {
-        $headers = [
-            'checkbox'  => '',
-            'name'      => Text::_('ORGANIZER_NAME'),
-            'term'      => Text::_('ORGANIZER_TERM'),
-            'startDate' => Text::_('ORGANIZER_START_DATE'),
-            'endDate'   => Text::_('ORGANIZER_END_DATE'),
-            'sections'  => Text::_('ORGANIZER_SECTIONS')
+        $this->headers = [
+            'check'     => ['type' => 'check'],
+            'name'      => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('NAME'),
+                'type'       => 'value'
+            ],
+            'term'      => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('TERM'),
+                'type'       => 'text'
+            ],
+            'startDate' => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('START_DATE'),
+                'type'       => 'text'
+            ],
+            'endDate'   => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('END_DATE'),
+                'type'       => 'text'
+            ],
+            'sections'  => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('SECTIONS'),
+                'type'       => 'text'
+            ],
         ];
-
-        $this->headers = $headers;
     }
 }
