@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB};
 
 /**
  * Class retrieves information for a filtered set of (schedule) grids.
@@ -19,17 +19,16 @@ use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 class Grids extends ListModel
 {
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $tag   = Application::getTag();
+        $query = DB::getQuery();
 
-        $query->select("id, name_$tag AS name, grid, isDefault")
-            ->from('#__organizer_grids');
+        $select  = DB::qn(['id', 'grid', 'isDefault']);
+        $aliased = [DB::qn("name_$tag", 'name')];
+        $query->select(array_merge($select, $aliased))->from(DB::qn('#__organizer_grids'));
         $this->setOrdering($query);
 
         return $query;

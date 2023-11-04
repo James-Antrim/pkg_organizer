@@ -28,10 +28,10 @@ class Schedules extends ListView
         $admin   = Can::administrate();
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->standardButton('upload', Text::_('UPLOAD'), 'Schedules.edit')->icon('fa fa-upload');
+        $toolbar->standardButton('upload', Text::_('UPLOAD'), 'Schedule.add')->icon('fa fa-upload');
 
         if ($this->state->get('filter.organizationID') and $this->state->get('filter.termID')) {
-            /*$toolbar->standardButton('envelope', Text::_('NOTIFY_CHANGES'), 'schedules.notify', true);*/
+            /*$toolbar->standardButton('envelope', Text::_('NOTIFY_CHANGES'), 'Schedules.notify', true);*/
 
             $toolbar->confirmButton('reference', Text::_('REFERENCE'), 'Schedules.reference')
                 ->message(Text::_('REFERENCE_CONFIRM'))->icon('fa fa-share');

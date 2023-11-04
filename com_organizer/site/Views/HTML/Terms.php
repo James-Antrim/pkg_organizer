@@ -27,7 +27,7 @@ class Terms extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Semester.add');
-        $toolbar->delete('Semester.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->delete('Semesters.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }
 
