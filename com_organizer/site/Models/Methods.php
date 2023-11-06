@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database as DB};
 
 /**
  * Class provides a standardized framework for the display of listed methods.
@@ -27,14 +27,12 @@ class Methods extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $query = DB::getQuery();
 
-        $query->select("id, abbreviation_$tag AS abbreviation, name_$tag AS name")
-            ->from('#__organizer_methods');
+        $query->select([DB::qn('id'), DB::qn("abbreviation_$tag", 'abbreviation'), DB::qn("name_$tag", 'name')])
+            ->from(DB::qn('#__organizer_methods'));
 
         $this->setSearchFilter($query, ['name_de', 'name_en', 'abbreviation_de', 'abbreviation_en']);
-
         $this->setOrdering($query);
 
         return $query;

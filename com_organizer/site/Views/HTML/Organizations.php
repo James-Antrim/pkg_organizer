@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use stdClass;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Layouts\HTML\ListItem;
 
 /**

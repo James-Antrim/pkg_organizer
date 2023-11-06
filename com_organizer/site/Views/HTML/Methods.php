@@ -10,14 +10,44 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\HTML;
+use stdClass;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of (lesson) methods into the display context.
  */
 class Methods extends ListView
 {
-    protected array $rowStructure = ['checkbox' => '', 'abbreviation' => 'link', 'name' => 'link'];
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar(bool $delete = true): void
+    {
+        // Schedule access is a
+        $toolbar = Toolbar::getInstance();
+        $toolbar->standardButton('new', Text::_('ADD'), 'Method.add');
+        $toolbar->delete('Methods.delete', Text::_('DELETE'))->message(Text::_('DELETE_CONFIRM'));
+
+        parent::addToolBar();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $item->editLink = $options['query'] . $item->id;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        $options = ['query' => 'index.php?option=com_organizer&view=Method&id='];
+        parent::completeItems($options);
+    }
 
     /**
      * @inheritdoc
@@ -27,9 +57,19 @@ class Methods extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox'     => '',
-            'abbreviation' => HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
-            'name'         => HTML::sort('NAME', 'name', $direction, $ordering)
+            'check'     => ['type' => 'check'],
+            'abbreviation' => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
+                'type'       => 'value'
+            ],
+            'name' => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
+                'type'       => 'value'
+            ],
         ];
 
         $this->headers = $headers;
