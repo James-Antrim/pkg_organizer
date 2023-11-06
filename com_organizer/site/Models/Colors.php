@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB};
 
 /**
  * Class retrieves information for a filtered set of colors.
@@ -19,17 +19,15 @@ use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 class Colors extends ListModel
 {
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $tag   = Application::getTag();
+        $query = DB::getQuery();
 
-        $query->select("id, name_$tag AS name, color")
-            ->from('#__organizer_colors');
+        $query->select([DB::qn('id'), DB::qn("name_$tag", 'name'), DB::qn('color')])
+            ->from(DB::qn('#__organizer_colors'));
 
         $this->setSearchFilter($query, ['name_de', 'name_en', 'color']);
         $this->setValueFilters($query, ['color']);

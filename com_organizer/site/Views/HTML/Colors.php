@@ -10,32 +10,42 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text};
+use stdClass;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of colors into the display context.
  */
 class Colors extends ListView
 {
-    protected array $rowStructure = ['checkbox' => '', 'name' => 'link', 'color' => 'value'];
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar(): void
+    {
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('Color.add');
+        $toolbar->delete('Colors.delete')->message(Text::_('DELETE_CONFIRM'));
+        parent::addToolBar();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $item->color = Helpers\Colors::getListDisplay($item->color, $item->id);
+    }
 
     /**
      * @inheritdoc
      */
-    protected function completeItems(): void
+    protected function completeItems(array $options = []): void
     {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=color_edit&id=';
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $item->color             = Helpers\Colors::getListDisplay($item->color, $item->id);
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $options = ['query' => 'index.php?option=com_organizer&view=Color&id='];
+        parent::completeItems($options);
     }
 
     /**
@@ -43,13 +53,20 @@ class Colors extends ListView
      */
     public function initializeColumns(): void
     {
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox' => '',
-            'name'     => HTML::sort('NAME', 'name', $direction, 'name'),
-            'color'    => Text::_('COLOR')
+        $direction     = $this->state->get('list.direction');
+        $this->headers = [
+            'check' => ['type' => 'check'],
+            'name'  => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
+                'type'       => 'value'
+            ],
+            'color' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('COLOR'),
+                'type'       => 'text'
+            ],
         ];
-
-        $this->headers = $headers;
     }
 }
