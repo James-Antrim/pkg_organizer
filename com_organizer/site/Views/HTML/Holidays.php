@@ -10,9 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Holidays as Helper;
+use stdClass;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Helpers\{Can, Dates, Holidays as Helper};
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of holidays into the display context.
@@ -20,45 +21,47 @@ use THM\Organizer\Helpers\Holidays as Helper;
 class Holidays extends ListView
 {
     /**
+     * @inheritdoc
+     */
+    protected function addToolBar(): void
+    {
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('Holiday.add');
+        $toolbar->delete('Holidays.delete')->message(Text::_('DELETE_CONFIRM'));
+        parent::addToolBar();
+    }
+
+    /**
      * @inheritDoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $index   = 0;
-        $link    = 'index.php?option=com_organizer&view=holiday_edit&id=';
-        $items   = [];
-        $typeMap = [
-            Helper::GAP     => 'ORGANIZER_GAP_DAYS',
-            Helper::CLOSED  => 'ORGANIZER_CLOSED_DAYS',
-            Helper::HOLIDAY => 'ORGANIZER_HOLIDAYS'
-        ];
+        $item->dates = Dates::getDisplay($item->startDate, $item->endDate);
+        $item->link  = $options['query'] . $item->id;
 
-        foreach ($this->items as $item) {
-            $today = date('Y-m-d');
-
-            $dateString = Helpers\Dates::getDisplay($item->startDate, $item->endDate);
-            $name       = $item->name;
-
-            if (!$this->state->get('filter.termID')) {
-                $name .= ". ($item->term)";
-            }
-
-            $status = $item->endDate < $today ? Text::_('ORGANIZER_EXPIRED') : Text::_('ORGANIZER_CURRENT');
-            $type   = $typeMap[$item->type];
-
-            $thisLink      = $link . $item->id;
-            $items[$index] = [
-                'checkbox' => HTML::checkBox($index, $item->id),
-                'name'     => HTML::link($thisLink, $name),
-                'dates'    => HTML::link($thisLink, $dateString),
-                'type'     => HTML::link($thisLink, $type),
-                'status'   => HTML::link($thisLink, $status)
-            ];
-
-            $index++;
+        if (!$this->state->get('filter.termID')) {
+            $item->name .= " ($item->term)";
         }
 
-        $this->items = $items;
+        $item->status = $item->endDate < $options['today'] ? Text::_('EXPIRED') : Text::_('CURRENT');
+        $item->type   = Text::_($options['map'][$item->type]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        $options = [
+            'map'   => [
+                Helper::GAP     => 'GAP_DAYS',
+                Helper::CLOSED  => 'CLOSED_DAYS',
+                Helper::HOLIDAY => 'HOLIDAYS'
+            ],
+            'query' => 'index.php?option=com_organizer&view=Holiday&id=',
+            'today' => date('Y-m-d'),
+        ];
+        parent::completeItems($options);
     }
 
     /**
@@ -69,14 +72,29 @@ class Holidays extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
 
-        $headers = [
-            'checkbox' => '',
-            'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
-            'dates'    => Text::_('ORGANIZER_DATES'),
-            'type'     => Text::_('ORGANIZER_TYPE'),
-            'status'   => Text::_('ORGANIZER_STATUS')
+        $this->headers = [
+            'check'  => ['type' => 'check'],
+            'name'   => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
+                'type'       => 'value'
+            ],
+            'dates'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('DATES'),
+                'type'       => 'text'
+            ],
+            'type'   => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('TYPE'),
+                'type'       => 'text'
+            ],
+            'status' => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('STATUS'),
+                'type'       => 'text'
+            ],
         ];
-
-        $this->headers = $headers;
     }
 }

@@ -22,7 +22,7 @@ class Participants extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true): void
+    protected function addToolBar(): void
     {
         if (Helpers\Can::administrate()) {
             $toolbar = Toolbar::getInstance();

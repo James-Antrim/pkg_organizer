@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database as DB};
 
 /**
  * Class retrieves information for a filtered set of holidays.
@@ -30,12 +30,16 @@ class Holidays extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
+        $hED = DB::qn('h.endDate');
+        $conditions = [
+            DB::qn('t.startDate') . ' <= ' . DB::qn('h.startDate'),
+            DB::qn('t.endDate') . ' >= ' . $hED,
+        ];
         $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->select("h.*, h.name_$tag as name, t.name_$tag as term")
-            ->from('#__organizer_holidays AS h')
-            ->innerJoin('#__organizer_terms AS t ON t.startDate <= h.startDate AND t.endDate >= h.endDate');
+        $query = DB::getQuery();
+        $query->select([DB::qn('h') . '.*', DB::qn("h.name_$tag", 'name'), DB::qn("t.name_$tag", 'term')])
+            ->from(DB::qn('#__organizer_holidays', 'h'))
+            ->innerJoin(DB::qn('#__organizer_terms', 't'), implode(' AND ', $conditions));
 
         $this->setIDFilter($query, 't.id', 'filter.termID');
         $this->setSearchFilter($query, ['h.name_de', 'h.name_en']);
@@ -43,10 +47,10 @@ class Holidays extends ListModel
 
         switch ((int) $this->state->get('filter.status')) {
             case self::EXPIRED:
-                $query->where('h.endDate < CURDATE()');
+                $query->where("$hED < CURDATE()");
                 break;
             case self::NOT_EXPIRED:
-                $query->where('h.endDate >= CURDATE()');
+                $query->where("$hED >= CURDATE()");
                 break;
         }
 
@@ -58,7 +62,7 @@ class Holidays extends ListModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 
