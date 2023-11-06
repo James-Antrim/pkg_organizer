@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, HTML, Input, Queries\QueryMySQLi, Text};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text};
 use THM\Organizer\Models;
 use THM\Organizer\Tables;
 
@@ -66,9 +66,9 @@ class Programs extends Curricula implements Selectable
     {
         $query = self::getQuery();
         $query->where("p.id = {$range['programID']}");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (!$program = Database::loadAssoc()) {
+        if (!$program = DB::loadAssoc()) {
             return '';
         }
 
@@ -104,7 +104,7 @@ class Programs extends Curricula implements Selectable
      *
      * @return int[] the program ids
      */
-    public static function getIDs($identifiers): array
+    public static function getIDs(array|int $identifiers): array
     {
         if (!$ranges = self::getRanges($identifiers)) {
             return [];
@@ -142,7 +142,7 @@ class Programs extends Curricula implements Selectable
             return Text::_('ORGANIZER_NO_PROGRAM');
         }
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $tag   = Application::getTag();
         $parts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
         $query->select($query->concatenate($parts, "") . ' AS name')
@@ -150,9 +150,9 @@ class Programs extends Curricula implements Selectable
             ->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
             ->where("p.id = $resourceID");
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadString();
+        return DB::loadString();
     }
 
     /**
@@ -195,22 +195,24 @@ class Programs extends Curricula implements Selectable
 
     /**
      * Creates a basic query for program related items.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    public static function getQuery(): JDatabaseQuery
+    public static function getQuery(): DatabaseQuery
     {
         $tag   = Application::getTag();
-        $start = [Database::qn("p.name_$tag"), "' ('", Database::qn('d.abbreviation')];
-        $end   = self::useCurrent() ? ["')'"] : ["', '", Database::qn('p.accredited'), "')'"];
+        $start = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation')];
+        $end   = self::useCurrent() ? ["')'"] : ["', '", DB::qn('p.accredited'), "')'"];
         $parts = array_merge($start, $end);
 
-        $query  = Database::getQuery();
+        $query  = DB::getQuery();
         $select = [
-            'DISTINCT p.id AS id',
-            $query->concatenate($parts, '') . ' AS ' . Database::qn('name'),
-            'p.active'
+            'DISTINCT ' . DB::qn('p.id', 'id'),
+            $query->concatenate($parts, '') . ' AS ' . DB::qn('name'),
+            DB::qn('p.active')
         ];
-        $query->selectX($select, 'programs AS p')->innerJoinX('degrees AS d', ['d.id = p.degreeID']);
+        $query->select($select)
+            ->from(DB::qn('#__organizer_programs', 'p'))
+            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qn('d.id') . ' = ' . DB::qn('p.degreeID'));
 
         return $query;
     }
@@ -224,7 +226,7 @@ class Programs extends Curricula implements Selectable
             return [];
         }
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT *')
             ->from('#__organizer_curricula')
             ->where('programID IS NOT NULL ')
@@ -240,9 +242,9 @@ class Programs extends Curricula implements Selectable
             }
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList();
+        return DB::loadAssocList();
     }
 
     /**
@@ -252,11 +254,10 @@ class Programs extends Curricula implements Selectable
      */
     public static function getResources(string $access = ''): array
     {
-        /* @var QueryMySQLi $query */
         $query = self::getQuery();
-        $query->select(Database::qn('d.abbreviation', 'degree'))
-            ->innerJoinX('curricula AS c', ['c.programID = p.id'])
-            ->order('name');
+        $query->select(DB::qn('d.abbreviation', 'degree'))
+            ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qn('c.programID') . ' = ' . DB::qn('p.id'))
+            ->order(DB::qn('name'));
 
         if ($access) {
             self::addAccessFilter($query, $access, 'program', 'p');
@@ -268,23 +269,24 @@ class Programs extends Curricula implements Selectable
             $tag = Application::getTag();
 
             $conditions = [
-                "grouped.name_$tag = p.name_$tag",
-                'grouped.degreeID = p.degreeID',
-                'grouped.accredited = p.accredited'
-            ];
-            $select     = [
-                "p2.name_$tag",
-                'p2.degreeID',
-                'MAX(' . Database::qn('p2.accredited') . ') AS ' . Database::qn('accredited')
+                DB::qn("grouped.name_$tag") . ' = ' . DB::qn("p.name_$tag"),
+                DB::qn('grouped.degreeID') . ' = ' . DB::qn('p.degreeID'),
+                DB::qn('grouped.accredited') . ' = ' . DB::qn('p.accredited')
             ];
 
-            $join = Database::getQuery()->selectX($select, 'programs AS p2')->group(["p2.name_$tag", 'p2.degreeID']);
-            $query->innerJoinX("($join) AS grouped", $conditions);
+            $p2id   = DB::qn('p2.degreeID');
+            $p2Name = DB::qn("p2.name_$tag");
+            $select = [$p2Name, $p2id, 'MAX(' . DB::qn('p2.accredited') . ') AS ' . DB::qn('accredited')];
+
+            $join = DB::getQuery()->select($select)->from(DB::qn('#__organizer_programs', 'p2'))->group([$p2Name, 'p2.degreeID']);
+
+            $query->innerJoin("($join) AS " . DB::qn('grouped'), $conditions);
         }
+        echo "<pre>" . print_r((string) $query, true) . "</pre>";
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
+        return DB::loadAssocList('id');
     }
 
     /**

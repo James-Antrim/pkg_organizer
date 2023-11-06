@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, HTML, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
+use stdClass;
 use THM\Organizer\Helpers;
 
 /**
@@ -19,66 +19,38 @@ use THM\Organizer\Helpers;
  */
 class Participants extends ListView
 {
-    protected array $rowStructure = [
-        'checkbox'     => '',
-        'fullName'     => 'value',
-        'email'        => 'value',
-        'program'      => 'value',
-        'registerDate' => 'value',
-        'status'       => 'value',
-        'paid'         => 'value',
-        'attended'     => 'value'
-    ];
-
     /**
      * @inheritdoc
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_PARTICIPANTS');
-
         if (Helpers\Can::administrate()) {
             $toolbar = Toolbar::getInstance();
-            $toolbar->appendButton(
-                'Standard',
-                'edit',
-                Text::_('ORGANIZER_EDIT'),
-                'participants.edit',
-                true
-            );
-            $toolbar->appendButton(
-                'Standard',
-                'contract',
-                Text::_('ORGANIZER_MERGE'),
-                'participants.mergeView',
-                true
-            );
-            $toolbar->appendButton(
-                'Standard',
-                'contract-2',
-                Text::_('ORGANIZER_AUTOMATIC_MERGE'),
-                'participants.automaticMerge',
-                false
-            );
+            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergeParticipants.display')->icon('fa fa-compress');
         }
+
+        parent::addToolBar();
     }
 
     /**
+     * @inheritDoc
+     */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $item->editLink = $options['query'] . $item->id;
+        $item->fullName = $item->forename ? $item->fullName : $item->surname;
+        $item->program  = $item->programID ? $item->program : '';
+    }
+
+    /**
+     * @param   array  $options  *
+     *
      * @inheritdoc
      */
-    protected function completeItems(): void
+    protected function completeItems(array $options = []): void
     {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=participant_edit&id=';
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $item->fullName          = $item->forename ? $item->fullName : $item->surname;
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $options = ['query' => 'index.php?option=com_organizer&view=participant_edit&id='];
+        parent::completeItems($options);
     }
 
     /**
@@ -88,20 +60,50 @@ class Participants extends ListView
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox' => HTML::checkAll(),
-            'fullName' => HTML::sort('NAME', 'fullName', $direction, $ordering),
-            'email'    => HTML::sort('EMAIL', 'email', $direction, $ordering),
-            'program'  => HTML::sort('PROGRAM', 'program', $direction, $ordering),
+
+        $headers = [
+            'check'    => ['type' => 'check'],
+            'fullName' => [
+                //'link'       => ListItem::DIRECT, editing currently unavailable
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'fullName', $direction, $ordering),
+                'type'       => 'value'
+            ],
+            'email'    => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('EMAIL', 'email', $direction, $ordering),
+                'type'       => 'text'
+            ],
+            'program'  => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('PROGRAM', 'program', $direction, $ordering),
+                'type'       => 'text'
+            ],
         ];
 
         if ($courseID = Input::getFilterID('course') and $courseID !== -1) {
-            $headers['status']   = HTML::sort('STATUS', 'status', $direction, $ordering);
-            $headers['paid']     = HTML::sort('PAID', 'paid', $direction, $ordering);
-            $headers['attended'] = HTML::sort('ATTENDED', 'attended', $direction, $ordering);
+            $headers['status']   = [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('STATUS', 'status', $direction, $ordering),
+                'type'       => 'value'
+            ];
+            $headers['paid']     = [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('PAID', 'paid', $direction, $ordering),
+                'type'       => 'value'
+            ];
+            $headers['attended'] = [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('ATTENDED', 'attended', $direction, $ordering),
+                'type'       => 'value'
+            ];
         }
         else {
-            $headers['registerDate'] = HTML::sort('REGISTRATION_DATE', 'registerDate', $direction, $ordering);
+            $headers['registerDate'] = [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('REGISTRATION_DATE', 'registerDate', $direction, $ordering),
+                'type'       => 'text'
+            ];
         }
 
         $this->headers = $headers;
@@ -112,8 +114,8 @@ class Participants extends ListView
      */
     protected function modifyDocument(): void
     {
-        parent::modifyDocument();
+        //parent::modifyDocument();
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+        //Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
     }
 }

@@ -24,7 +24,8 @@ use THM\Organizer\Models\ListModel;
  */
 abstract class ListView extends Base
 {
-    use Configured, ToCed;
+    use Configured;
+    use ToCed;
 
     public bool $allowBatch = false;
     public string $empty = '';
@@ -87,10 +88,10 @@ abstract class ListView extends Base
     {
         // MVC name identity is now the internal standard
         $controller = $this->getName();
-        $toolbar    = Toolbar::getInstance();
         Toolbar::setTitle(strtoupper($controller));
 
         if (Can::administrate()) {
+            $toolbar = Toolbar::getInstance();
             $toolbar->preferences('com_organizer');
         }
     }
@@ -114,6 +115,34 @@ abstract class ListView extends Base
         $this->authorize();
 
         parent::display($tpl);
+    }
+
+    /**
+     * Readies an item for output.
+     *
+     * @param   int       $index  the current iteration number
+     * @param   stdClass  $item   the current item being iterated
+     * @param   array     $options
+     *
+     * @return void
+     */
+    abstract protected function completeItem(int $index, stdClass $item, array $options = []): void;
+
+    /**
+     * Processes items for output.
+     *
+     * @param   array  $options
+     *
+     * @return void
+     */
+    protected function completeItems(array $options = []): void
+    {
+        $index = 0;
+
+        foreach ($this->items as $item) {
+            $this->completeItem($index, $item, $options);
+            $index++;
+        }
     }
 
     /**
@@ -208,6 +237,12 @@ abstract class ListView extends Base
     }
 
     /**
+     * Function to set the object's headers property which defines column output par
+     * @return void sets the object headers property
+     */
+    abstract protected function initializeColumns(): void;
+
+    /**
      * @inheritDoc
      */
     protected function initializeView(): void
@@ -229,48 +264,13 @@ abstract class ListView extends Base
 
     /**
      * Adds scripts and stylesheets to the document.
-     *     *
+     *
      * @deprecated  4.3 will be removed in 6.0
-     *              Use WebAssetManager
-     *              Example: $wa->registerAndUseStyle(...);
+     *              Use WebAssetManager Example: $wa->registerAndUseStyle(...);
      */
     protected function modifyDocument(): void
     {
         Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
         Document::addScript(Uri::root() . 'components/com_organizer/js/list.js');
-    }
-
-    /**
-     * Function to set the object's headers property which defines column output par
-     * @return void sets the object headers property
-     */
-    abstract protected function initializeColumns(): void;
-
-    /**
-     * Readies an item for output.
-     *
-     * @param   int       $index  the current iteration number
-     * @param   stdClass  $item   the current item being iterated
-     * @param   array     $options
-     *
-     * @return void
-     */
-    abstract protected function completeItem(int $index, stdClass $item, array $options = []): void;
-
-    /**
-     * Processes items for output.
-     *
-     * @param   array  $options
-     *
-     * @return void
-     */
-    protected function completeItems(array $options = []): void
-    {
-        $index = 0;
-
-        foreach ($this->items as $item) {
-            $this->completeItem($index, $item, $options);
-            $index++;
-        }
     }
 }

@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
 
 /**
  * Class retrieves information for a filtered set of participants.
@@ -39,65 +39,54 @@ class Participants extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $tag   = Application::getTag();
+        $query = DB::getQuery();
 
-        $nameParts    = [
-            Database::qn('pa.surname'),
-            "', '",
-            Database::qn('pa.forename'),
-        ];
-        $programParts = [
-            Database::qn("pr.name_$tag"),
-            "' ('",
-            Database::qn('d.abbreviation'),
-            "' '",
-            Database::qn('pr.accredited'),
-            "')'"
-        ];
+        $nameParts    = [DB::qn('pa.surname'), "', '", DB::qn('pa.forename')];
+        $programParts = [DB::qn("pr.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('pr.accredited'), "')'"];
         $select       = [
-            'DISTINCT pa.id',
-            'pa.*',
-            'u.*',
-            $query->concatenate($nameParts, '') . ' AS fullName',
-            $query->concatenate($programParts, '') . ' AS program'
+            'DISTINCT ' . DB::qn('pa.id'),
+            DB::qn('pa') . '.*',
+            DB::qn('u') . '.*',
+            $query->concatenate($nameParts, '') . ' AS ' . DB::qn('fullName'),
+            $query->concatenate($programParts, '') . ' AS ' . DB::qn('program')
         ];
 
-        $query->selectX($select, 'participants AS pa')
-            ->innerJoinX('#__users AS u', ['u.id = pa.id'])
-            ->leftJoinX('programs AS pr', ['pr.id = pa.programID'])
-            ->leftJoinX('degrees AS d', ['d.id = pr.degreeID']);
+        $query->select($select)
+            ->from(DB::qn('#__organizer_participants', 'pa'))
+            ->innerJoin(DB::qn('#__users', 'u'), DB::qc('u.id', 'pa.id'))
+            ->leftJoin(DB::qn('#__organizer_programs', 'pr'), DB::qc('pr.id', 'pa.programID'))
+            ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'pr.degreeID'));
 
         $this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
         $this->setValueFilters($query, ['programID']);
 
         if ($this->state->get('filter.duplicates')) {
-            $forename1 = Database::qn('pa.forename');
-            $forename2 = Database::qn('pa2.forename');
-            $likeFN1   = $query->concatenate(["'%'", 'TRIM(' . Database::qn('pa.forename') . ')', "'%'"], '');
-            $likeFN2   = $query->concatenate(["'%'", 'TRIM(' . Database::qn('pa2.forename') . ')', "'%'"], '');
-            $likeSN1   = $query->concatenate(["'%'", 'TRIM(' . Database::qn('pa.surname') . ')', "'%'"], '');
-            $likeSN2   = $query->concatenate(["'%'", 'TRIM(' . Database::qn('pa2.surname') . ')', "'%'"], '');
-            $surname1  = Database::qn('pa.surname');
-            $surname2  = Database::qn('pa2.surname');
+            $forename1 = DB::qn('pa.forename');
+            $forename2 = DB::qn('pa2.forename');
+            $likeFN1   = $query->concatenate(["'%'", 'TRIM(' . DB::qn('pa.forename') . ')', "'%'"], '');
+            $likeFN2   = $query->concatenate(["'%'", 'TRIM(' . DB::qn('pa2.forename') . ')', "'%'"], '');
+            $likeSN1   = $query->concatenate(["'%'", 'TRIM(' . DB::qn('pa.surname') . ')', "'%'"], '');
+            $likeSN2   = $query->concatenate(["'%'", 'TRIM(' . DB::qn('pa2.surname') . ')', "'%'"], '');
+            $surname1  = DB::qn('pa.surname');
+            $surname2  = DB::qn('pa2.surname');
 
             $similarForenames = "($forename1 LIKE $likeFN2 OR $forename2 LIKE $likeFN1)";
             $similarSurnames  = "($surname1 LIKE $likeSN2 OR $surname2 LIKE $likeSN1)";
             $conditions       = "($similarForenames AND $similarSurnames)";
-            $query->leftJoinX('participants AS pa2', [$conditions])
-                ->where(['pa.id != pa2.id'])
-                ->group('pa.id');
+            $paid             = DB::qn('pa.id');
+            $query->leftJoin(DB::qn('participants', 'pa2'), $conditions)
+                ->where("$paid != " . DB::qn('pa2.id'))
+                ->group($paid);
 
             if ($domain = Input::getParams()->get('emailFilter')) {
-                $domain = Database::quote("%$domain");
-                $email1 = Database::qn('u.email');
-                $email2 = Database::qn('u2.email');
+                $domain = DB::quote("%$domain");
+                $email1 = DB::qn('u.email');
+                $email2 = DB::qn('u2.email');
 
                 $externalExists = "($email1 NOT LIKE $domain OR $email2 NOT LIKE $domain)";
 
-                $query->leftJoinX('#__users AS u2', ['u2.id = pa2.id'])
-                    ->where($externalExists);
+                $query->leftJoin(DB::qn('#__users', 'u2'), DB::qc('u2.id', 'pa2.id'))->where($externalExists);
 
             }
         }
