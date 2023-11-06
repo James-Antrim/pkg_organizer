@@ -2,17 +2,15 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="programID" type="Programs" label="PROGRAM" access="manage" onchange="this.form.submit();"
-               participant="1">
+        <field name="programID" type="Programs" label="PROGRAM" access="manage" onchange="this.form.submit();" participant="1">
             <option value="">ALL_PROGRAMS</option>
         </field>
-        <field name="duplicates" type="Options" label="DUPLICATES_FILTER" class="input-12"
-               onchange="this.form.submit();">
+        <field name="duplicates" type="Options" label="DUPLICATES_FILTER" class="input-12" onchange="this.form.submit();">
             <option value="">DUPLICATES_FILTER_INACTIVE</option>
             <option value="1">DUPLICATES_FILTER_ACTIVE</option>
         </field>
     </fields>
     <fields name="list">
-        <field name="limit" type="Limitbox" class="input-mini" onchange="this.form.submit();"/>
+        <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
     </fields>
 </form>

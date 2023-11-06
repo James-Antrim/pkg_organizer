@@ -22,7 +22,7 @@
         </field>
     </fields>
     <fields name="list">
-        <field name="limit" type="Limitbox" onchange="this.form.submit();"/>
+        <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
     </fields>
     <fields name="batch">
         <field name="publishing" type="TermPublishing" label="PUBLISHING"/>

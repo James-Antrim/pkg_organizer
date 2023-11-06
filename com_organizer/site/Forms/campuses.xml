@@ -2,8 +2,8 @@
 <form addfieldprefix="Organizer\Fields">
     <fields name="filter">
         <field name="search" type="Blank" label="SEARCH" hint="SEARCH"/>
-        <field name="city" type="GenericOptions" label="NAME" conditions="city != ''" default=""
-               onchange="this.form.submit();" table="organizer_campuses" textcolumn="city" valuecolumn="city">
+        <field name="city" type="GenericOptions" label="NAME" conditions="city != ''" default="" onchange="this.form.submit();"
+               table="organizer_campuses" textcolumn="city" valuecolumn="city">
             <option value="">ALL_CITIES</option>
             <option value="-1">NO_CITY</option>
         </field>
@@ -13,6 +13,6 @@
         </field>
     </fields>
     <fields name="list">
-        <field name="limit" type="Limitbox" onchange="this.form.submit();"/>
+        <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
     </fields>
 </form>

@@ -10,14 +10,13 @@
                table="organizer_roomkeys" textcolumn="name" valuecolumn="id">
             <option value="">ALL_ROOMKEYS</option>
         </field>
-        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();"
-               localized="true"
+        <field name="cleaningID" type="GenericOptions" label="CLEANING_GROUP" onchange="this.form.submit();" localized="true"
                valuecolumn="id" textcolumn="name" table="organizer_cleaning_groups">
             <option value="">ALL_CLEANING_GROUPS</option>
             <option value="-1">NO_CLEANING_GROUP</option>
         </field>
     </fields>
     <fields name="list">
-        <field name="limit" type="Limitbox" onchange="this.form.submit();"/>
+        <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
     </fields>
 </form>

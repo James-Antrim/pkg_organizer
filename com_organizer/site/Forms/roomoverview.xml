@@ -13,19 +13,18 @@
         <field name="roomtypeID" type="Roomtypes" label="TYPE" class="input-12" onchange="this.form.submit();">
             <option value="">ALL_ROOMTYPES</option>
         </field>
-        <field name="effCapacity" type="Integer" label="CAPACITY" first="5" last="500" onchange="this.form.submit();"
-               prefix="> " step="5" unit="SEATS">
+        <field name="effCapacity" type="Integer" label="CAPACITY" first="5" last="500" onchange="this.form.submit();" prefix="> "
+               step="5" unit="SEATS">
             <option value="">ALL_SIZES</option>
         </field>
     </fields>
     <fields name="list">
-        <field name="template" type="Options" label="DISPLAY_RANGE" class="input-7" default="1"
-               onchange="this.form.submit();">
+        <field name="template" type="Options" label="DISPLAY_RANGE" class="input-7" default="1" onchange="this.form.submit();">
             <option value="1">SINGLE_DAY</option>
             <option value="2">WEEK</option>
         </field>
         <field name="gridID" type="Grids" label="GRIDS" class="input-13" onchange="this.form.submit();"/>
         <field name="date" type="Date" label="DATE" class="input-8" empty="false" onchange="this.form.submit();"/>
-        <field name="limit" type="Limitbox" class="input-4" onchange="this.form.submit();"/>
+        <field name="limit" type="Limitbox" class="input-mini" default="25" onchange="this.form.submit();"/>
     </fields>
 </form>

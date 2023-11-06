@@ -7,6 +7,6 @@
         <field name="resource" type="Resources" label="RESOURCE" onchange="this.form.submit();">
             <option value="">ALL_RESOURCES</option>
         </field>
-        <field name="limit" type="limitbox" class="input-mini" onchange="this.form.submit();"/>
+        <field name="limit" type="Limitbox" class="input-mini" default="0" onchange="this.form.submit();"/>
     </fields>
 </form>

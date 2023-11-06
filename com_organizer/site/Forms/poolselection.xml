@@ -7,13 +7,12 @@
             <option value="-1">NO_PROGRAMS</option>
         </field>
         <field name="fieldID" type="GenericOptions" label="FIELD" localized="true" onchange="this.form.submit();"
-               table="organizer_pools AS p,organizer_fields AS f ON f.id = p.fieldID" textcolumn="f.name"
-               valuecolumn="f.id">
+               table="organizer_pools AS p,organizer_fields AS f ON f.id = p.fieldID" textcolumn="f.name" valuecolumn="f.id">
             <option value="">ALL_FIELDS</option>
             <option value="-1">NO_FIELD</option>
         </field>
     </fields>
     <fields name="list">
-        <field name="limit" type="Limitbox" onchange="this.form.submit();"/>
+        <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
     </fields>
 </form>

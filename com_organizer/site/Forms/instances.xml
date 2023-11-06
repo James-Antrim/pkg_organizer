@@ -47,6 +47,6 @@
             <option value="quarter">QUARTER</option>
             <option value="term">TERM</option>
         </field>
-        <field name="limit" type="limitbox" class="input-mini" onchange="this.form.submit();"/>
+        <field name="limit" type="Limitbox" class="input-mini" default="50" onchange="this.form.submit();"/>
     </fields>
 </form>
