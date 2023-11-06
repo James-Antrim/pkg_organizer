@@ -11,7 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, HTML, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
 use THM\Organizer\Tables;
 
 /**
@@ -110,7 +110,7 @@ class Organizations extends ResourceHelper implements Selectable
     public static function getCategories(int $organizationID, bool $active = true): array
     {
         $tag   = Application::getTag();
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select("c.id, code, name_$tag AS name")
             ->from('#__organizer_categories AS c')
             ->innerJoin('#__organizer_associations AS a ON a.categoryID = c.id')
@@ -120,9 +120,9 @@ class Organizations extends ResourceHelper implements Selectable
             $query->where('c.active = 1');
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList();
+        return DB::loadAssocList();
     }
 
     /**
@@ -134,7 +134,7 @@ class Organizations extends ResourceHelper implements Selectable
      */
     public static function getDefaultGrid(int $organizationID): int
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('u.gridID, COUNT(*) AS occurrences')
             ->from('#__organizer_units AS u')
             ->innerJoin('#__organizer_instances AS i ON i.unitID = u.id')
@@ -144,9 +144,9 @@ class Organizations extends ResourceHelper implements Selectable
             ->where("a.organizationID = $organizationID")
             ->group('u.gridID')
             ->order('occurrences DESC');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if ($results = Database::loadAssoc()) {
+        if ($results = DB::loadAssoc()) {
             return (int) $results['gridID'];
         }
 
@@ -187,12 +187,13 @@ class Organizations extends ResourceHelper implements Selectable
      */
     public static function getPersonIDs(int $organizationID): array
     {
-        /** @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->selectX('DISTINCT personID', 'associations', 'organizationID', [$organizationID]);
-        Database::setQuery($query);
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('personID'))
+            ->from(DB::qn('#__organizer_associations'))
+            ->whereIn(DB::qn('organizationID'), [$organizationID]);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
+        return DB::loadIntColumn();
     }
 
     /**
@@ -202,14 +203,14 @@ class Organizations extends ResourceHelper implements Selectable
      */
     public static function getResources(string $access = ''): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $tag   = Application::getTag();
-        $query->select("DISTINCT o.*, o.shortName_$tag AS shortName, o.name_$tag AS name")
-            ->from('#__organizer_organizations AS o');
+        $query->select(['DISTINCT ' . DB::qn('o') . '.*', DB::qn("o.shortName_$tag", 'shortName'), DB::qn("o.name_$tag", 'name')])
+            ->from(DB::qn('#__organizer_organizations', 'o'));
         self::addAccessFilter($query, $access);
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
+        return DB::loadAssocList('id');
     }
 
     /**

@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves information for a filtered set of organizations.
@@ -27,15 +27,17 @@ class Organizations extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $authorized = Helpers\Can::manageTheseOrganizations();
-        $tag        = Application::getTag();
+        $authorized = Can::manageTheseOrganizations();
+        $oID        = DB::qn('o.id');
 
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->select("o.id, o.shortName_$tag AS shortName, o.fullName_$tag AS name, a.rules")
-            ->from('#__organizer_organizations AS o')
-            ->innerJoin('#__assets AS a ON a.id = o.asset_id')
-            ->where('o.id IN (' . implode(',', $authorized) . ')');
+        $tag     = Application::getTag();
+        $aliased = DB::qn(["o.fullName_$tag", "o.shortName_$tag"], ['name', 'shortName']);
+
+        $query = DB::getQuery();
+        $query->select(array_merge([$oID, DB::qn('a.rules')], $aliased))
+            ->from(DB::qn('#__organizer_organizations', 'o'))
+            ->innerJoin(DB::qn('#__assets', 'a'), DB::qn('a.id') . ' = ' . DB::qn('o.asset_id'))
+            ->whereIn($oID, $authorized);
 
         $searchColumns = [
             'abbreviation_de',
@@ -49,7 +51,6 @@ class Organizations extends ListModel
         ];
 
         $this->setSearchFilter($query, $searchColumns);
-
         $this->setOrdering($query);
 
         return $query;

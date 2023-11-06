@@ -11,31 +11,42 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use stdClass;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of organizations into the display context.
  */
 class Organizations extends ListView
 {
-    protected array $rowStructure = ['checkbox' => '', 'shortName' => 'link', 'name' => 'link'];
-
     /**
      * @inheritdoc
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_ORGANIZATIONS');
+        // Schedule access is a
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'organizations.add', false);
-        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'organizations.edit', true);
-        $toolbar->appendButton(
-            'Confirm',
-            Text::_('ORGANIZER_DELETE_CONFIRM'),
-            'delete',
-            Text::_('ORGANIZER_DELETE'),
-            'organizations.delete',
-            true
-        );
+        $toolbar->standardButton('new', Text::_('ADD'), 'Organization.add');
+        $toolbar->delete('Organizations.delete', Text::_('DELETE'))->message(Text::_('DELETE_CONFIRM'));
+
+        parent::addToolBar();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $item->editLink = $options['query'] . $item->id;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        $options = ['query' => 'index.php?option=com_organizer&view=Organization&id='];
+        parent::completeItems($options);
     }
 
     /**
@@ -46,9 +57,19 @@ class Organizations extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox'  => '',
-            'shortName' => HTML::sort('SHORT_NAME', 'shortName', $direction, $ordering),
-            'name'      => HTML::sort('NAME', 'name', $direction, $ordering)
+            'check'     => ['type' => 'check'],
+            'shortName' => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('SHORT_NAME', 'shortName', $direction, $ordering),
+                'type'       => 'value'
+            ],
+            'name'      => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
+                'type'       => 'value'
+            ],
         ];
 
         $this->headers = $headers;

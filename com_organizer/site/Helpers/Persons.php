@@ -10,7 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use Joomla\Database\ParameterType;
 use THM\Organizer\Tables;
 use stdClass;
 
@@ -43,7 +44,7 @@ class Persons extends Associated implements Selectable
             $boundarySet = Programs::getRanges($programID);
         }
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT p.id, p.forename, p.surname')
             ->from('#__organizer_persons AS p')
             ->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
@@ -63,9 +64,9 @@ class Persons extends Associated implements Selectable
             $query->where($where . ')');
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (!$persons = Database::loadObjectList()) {
+        if (!$persons = DB::loadObjectList()) {
             return [];
         }
 
@@ -116,7 +117,7 @@ class Persons extends Associated implements Selectable
         bool $unique = true
     ): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('p.id, p.surname, p.forename, p.title, p.username, u.id AS userID, sp.role, code')
             ->from('#__organizer_persons AS p')
             ->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
@@ -128,10 +129,10 @@ class Persons extends Associated implements Selectable
             $query->where("sp.role = $role");
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
         if ($multiple) {
-            if (!$personList = Database::loadAssocList()) {
+            if (!$personList = DB::loadAssocList()) {
                 return [];
             }
 
@@ -142,7 +143,7 @@ class Persons extends Associated implements Selectable
             return $personList;
         }
 
-        return Database::loadAssoc();
+        return DB::loadAssoc();
     }
 
     /**
@@ -193,15 +194,16 @@ class Persons extends Associated implements Selectable
      */
     public static function getOrganizationNames(int $personID): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $tag   = Application::getTag();
-        $query->select("o.shortName_$tag AS name")
-            ->from('#__organizer_organizations AS o')
-            ->innerJoin('#__organizer_associations AS a ON a.organizationID = o.id')
-            ->where("personID = $personID");
-        Database::setQuery($query);
+        $query->select(DB::qn("o.shortName_$tag", 'name'))
+            ->from(DB::qn('#__organizer_organizations', 'o'))
+            ->innerJoin(DB::qn('#__organizer_associations', 'a'), DB::qn('a.organizationID') . ' = ' . DB::qn('o.id'))
+            ->where(DB::qn('personID') . ' = :personID')
+            ->bind(':personID', $personID, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        return Database::loadColumn();
+        return DB::loadColumn();
     }
 
     /**
@@ -245,13 +247,13 @@ class Persons extends Associated implements Selectable
             return 0;
         }
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('id')
             ->from('#__organizer_persons')
             ->where("username = '$user->username'");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadInt();
+        return DB::loadInt();
     }
 
     /**
@@ -295,7 +297,7 @@ class Persons extends Associated implements Selectable
             $userName = Users::getUser()->username;
         }
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT p.*')
             ->from('#__organizer_persons AS p')
             ->where('p.active = 1')
@@ -337,9 +339,9 @@ class Persons extends Associated implements Selectable
 
         if ($wherray) {
             $query->where('(' . implode(' OR ', $wherray) . ')');
-            Database::setQuery($query);
+            DB::setQuery($query);
 
-            return Database::loadAssocList('id');
+            return DB::loadAssocList('id');
         }
 
         return [];
@@ -422,15 +424,15 @@ class Persons extends Associated implements Selectable
             return [];
         }
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT a.organizationID')
             ->from('#__organizer_associations AS a')
             ->innerJoin('#__organizer_instance_groups AS ig ON ig.groupID = a.groupID')
             ->innerJoin('#__organizer_instance_persons AS ipe ON ipe.id = ig.assocID')
             ->where("ipe.personID = $personID")
             ->where("ipe.roleID = 1");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
+        return DB::loadIntColumn();
     }
 }

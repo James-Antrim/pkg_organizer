@@ -49,7 +49,7 @@ class Participants extends ListView
      */
     protected function completeItems(array $options = []): void
     {
-        $options = ['query' => 'index.php?option=com_organizer&view=participant_edit&id='];
+        $options = ['query' => 'index.php?option=com_organizer&view=Participant&id='];
         parent::completeItems($options);
     }
 
