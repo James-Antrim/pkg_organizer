@@ -10,34 +10,46 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Text};
+use stdClass;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of fields (of expertise) into the display context.
  */
 class Fields extends ListView
 {
-    protected array $rowStructure = ['checkbox' => '', 'name' => 'link', 'code' => 'link', 'colors' => 'value'];
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar(): void
+    {
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('Field.add');
+        $toolbar->delete('Fields.delete')->message(Text::_('DELETE_CONFIRM'));
+        parent::addToolBar();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $item->colors = Helpers\Fields::getFieldColorDisplay($item->id, $options['organizationID']);
+        $item->link   = $options['query'] . $item->id;
+    }
 
     /**
      * @inheritdoc
      */
-    protected function completeItems(): void
+    protected function completeItems(array $options = []): void
     {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=field_edit&id=';
-        $structuredItems = [];
-        $organizationID  = (int) $this->state->get('filter.organizationID');
-
-        foreach ($this->items as $item) {
-            $item->colors = Helpers\Fields::getFieldColorDisplay($item->id, $organizationID);
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $options = [
+            'organizationID' => (int) $this->state->get('filter.organizationID'),
+            'query'          => 'index.php?option=com_organizer&view=Field&id=',
+        ];
+        parent::completeItems($options);
     }
 
     /**
@@ -48,13 +60,24 @@ class Fields extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
 
-        $headers = [
-            'checkbox' => '',
-            'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
-            'code'     => HTML::sort('CODE', 'code', $direction, $ordering),
-            'colors'   => Text::_('COLORS')
+        $this->headers = [
+            'check'  => ['type' => 'check'],
+            'name'   => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
+                'type'       => 'value'
+            ],
+            'code'   => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('CODE'),
+                'type'       => 'text'
+            ],
+            'colors' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('COLORS'),
+                'type'       => 'value'
+            ],
         ];
-
-        $this->headers = $headers;
     }
 }

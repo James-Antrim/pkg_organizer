@@ -10,8 +10,9 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use Joomla\Database\ParameterType;
 
 /**
  * Class retrieves information for a filtered set of fields (of expertise).
@@ -23,37 +24,48 @@ class Fields extends ListModel
     protected $filter_fields = ['colorID', 'organizationID'];
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $tag   = Application::getTag();
+        $query = DB::getQuery();
 
-        $query->select("DISTINCT f.id, code, f.name_$tag AS name")->from('#__organizer_fields AS f');
+        $query->select(['DISTINCT ' . DB::qn('f.id'), DB::qn('code'), DB::qn("f.name_$tag", 'name')])
+            ->from(DB::qn('#__organizer_fields', 'f'));
 
         $this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code']);
 
-        $colorID        = Input::getFilterID('color');
-        $organizationID = Input::getFilterID('organization');
-        if ($colorID or $organizationID) {
-            if ($colorID === self::NONE or $organizationID === self::NONE) {
-                $query->leftJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
-            } else {
-                $query->innerJoin('#__organizer_field_colors AS fc ON fc.fieldID = f.id');
+        $color        = Input::getFilterID('color');
+        $organization = Input::getFilterID('organization');
+        if ($color or $organization) {
+            $fc  = DB::qn('#__organizer_field_colors', 'fc');
+            $fcc = DB::qn('fc.fieldID') . ' = ' . DB::qn('f.id');
+            if ($color === self::NONE or $organization === self::NONE) {
+                $query->leftJoin($fc, $fcc);
+            }
+            else {
+                $query->innerJoin($fc, $fcc);
             }
 
-            if ($colorID) {
-                $colorFilter = $colorID === self::NONE ? 'colorID IS NULL' : "colorID = $colorID";
-                $query->where($colorFilter);
+            if ($color) {
+                $colorID = DB::qn('colorID');
+                if ($color === self::NONE) {
+                    $query->where("$colorID IS NULL");
+                }
+                else {
+                    $query->where("$colorID = :colorID")->bind(':colorID', $color, ParameterType::INTEGER);
+                }
             }
 
-            if ($organizationID) {
-                $organizationFilter = $organizationID === self::NONE ?
-                    'organizationID IS NULL' : "organizationID = $organizationID";
-                $query->where($organizationFilter);
+            if ($organization) {
+                $organizationID = DB::qn('organizationID');
+                if ($color === self::NONE) {
+                    $query->where("$organizationID IS NULL");
+                }
+                else {
+                    $query->where("$organizationID = :orgID")->bind(':orgID', $organization, ParameterType::INTEGER);
+                }
             }
         }
 

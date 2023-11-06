@@ -37,7 +37,7 @@ class Colors extends ColoredOptions
 
         $query = DB::getQuery();
         $query->select(['DISTINCT ' . DB::qn('c.id', 'value'), DB::qn("c.name_$tag", 'text'), DB::qn('c.color')])
-            ->from(DB::qn('colors', 'c'))
+            ->from(DB::qn('#__organizer_colors', 'c'))
             ->order(DB::qn('text'));
         DB::setQuery($query);
 
