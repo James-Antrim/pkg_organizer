@@ -10,39 +10,24 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\Database as DB;
 
 /**
  * Class retrieves information for a filtered set of degrees.
  */
 class Degrees extends ListModel
 {
-    /**
-     * Constructor to set up the configuration and call the parent constructor
-     *
-     * @param array $config the configuration  (default: array)
-     */
-    public function __construct($config = [])
-    {
-        if (empty($config['filter_fields'])) {
-            $config['filter_fields'] = ['name', 'abbreviation', 'code'];
-        }
-
-        parent::__construct($config);
-    }
+    protected $filter_fields = ['name', 'abbreviation', 'code'];
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $query->select('id, name, abbreviation, code')
-            ->from('#__organizer_degrees');
+        $query = DB::getQuery();
+        $query->select(DB::qn(['id', 'name', 'abbreviation', 'code']))
+            ->from(DB::qn('#__organizer_degrees'));
 
         $columns = ['name', 'abbreviation', 'code'];
         $this->setSearchFilter($query, $columns);
