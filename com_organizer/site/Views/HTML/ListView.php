@@ -14,7 +14,7 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\ListView as Base;
 use Joomla\CMS\Uri\Uri;
 use stdClass;
-use THM\Organizer\Adapters\{Document, HTML, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Controllers\Controller;
 use THM\Organizer\Helpers\Can;
 use THM\Organizer\Models\ListModel;
@@ -25,6 +25,7 @@ use THM\Organizer\Models\ListModel;
 abstract class ListView extends Base
 {
     use Configured;
+    use Titled;
     use ToCed;
 
     public bool $allowBatch = false;
@@ -88,9 +89,9 @@ abstract class ListView extends Base
     {
         // MVC name identity is now the internal standard
         $controller = $this->getName();
-        Toolbar::setTitle(strtoupper($controller));
+        $this->setTitle(strtoupper($controller));
 
-        if (Can::administrate()) {
+        if (Application::backend() and Can::administrate()) {
             $toolbar = Toolbar::getInstance();
             $toolbar->preferences('com_organizer');
         }
@@ -105,16 +106,6 @@ abstract class ListView extends Base
     protected function authorize(): void
     {
         // See comment.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function display($tpl = null): void
-    {
-        $this->authorize();
-
-        parent::display($tpl);
     }
 
     /**
@@ -144,6 +135,17 @@ abstract class ListView extends Base
             $index++;
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function display($tpl = null): void
+    {
+        $this->authorize();
+
+        parent::display($tpl);
+    }
+
 
     /**
      * Generates a toggle for an attribute of an association

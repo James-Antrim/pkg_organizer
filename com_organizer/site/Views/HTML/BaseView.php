@@ -13,7 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Exception;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
-use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
+use THM\Organizer\Adapters\Application;
 
 /**
  * View class for setting general context variables.
@@ -21,6 +21,7 @@ use THM\Organizer\Adapters\{Application, Document, Input, Text, Toolbar};
 abstract class BaseView extends HtmlView
 {
     use Configured;
+    use Titled;
 
     public $form;
 
@@ -45,8 +46,6 @@ abstract class BaseView extends HtmlView
     public string $subtitle = '';
 
     public string $supplement = '';
-
-    public string $title = '';
 
     /**
      * @inheritDoc
@@ -100,33 +99,5 @@ abstract class BaseView extends HtmlView
         $this->model = parent::setModel($model, $default);
 
         return $this->model;
-    }
-
-    /**
-     * Prepares the title for standard HTML output.
-     *
-     * @param   string  $standard     the title to display
-     * @param   string  $conditional  the conditional title to display
-     *
-     * @return void
-     */
-    protected function setTitle(string $standard, string $conditional = ''): void
-    {
-        $params = Input::getParams();
-
-        if ($params->get('show_page_heading') and $params->get('page_title')) {
-            $title = $params->get('page_title');
-        }
-        else {
-            $title = empty($conditional) ? Text::_($standard) : $conditional;
-        }
-
-        // Backend => Joomla standard title/toolbar output property declared dynamically by Joomla
-        Toolbar::setTitle($title);
-
-        // Frontend => self developed title/toolbar output
-        $this->title = $title;
-
-        Document::setTitle(strip_tags($title) . ' - ' . Application::getApplication()->get('sitename'));
     }
 }
