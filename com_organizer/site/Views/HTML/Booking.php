@@ -45,71 +45,6 @@ class Booking extends Participants
     /**
      * @inheritDoc
      */
-    protected function addSubtitle(): void
-    {
-        $bookingID      = Input::getID();
-        $subTitle       = Helper::getNames($bookingID);
-        $subTitle[]     = Helper::getDateTimeDisplay($bookingID);
-        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function addSupplement(): void
-    {
-        $bookingDate = $this->booking->get('date');
-        $expiredText = Text::_('ORGANIZER_BOOKING_CLOSED');
-        $ongoingText = Text::_('ORGANIZER_BOOKING_ONGOING');
-        $pendingText = Text::_('ORGANIZER_BOOKING_PENDING');
-        $today       = date('Y-m-d');
-
-        if ($today === $bookingDate) {
-            $end   = $this->booking->endTime ?: $this->booking->get('defaultEndTime');
-            $now   = date('H:i:s');
-            $start = $this->booking->startTime ?: $this->booking->get('defaultStartTime');
-
-            if ($now >= $start and $now < $end) {
-                $statusColor = 'green';
-                $texts[]     = $ongoingText;
-            }
-            elseif ($now < $start) {
-                $statusColor = 'yellow';
-                $texts[]     = $pendingText;
-            }
-            else {
-                $statusColor = 'red';
-                $texts[]     = $expiredText;
-            }
-        }
-        elseif ($bookingDate > $today) {
-            $statusColor = 'yellow';
-            $texts[]     = $pendingText;
-        }
-        else {
-            $statusColor = 'red';
-            $texts[]     = $expiredText;
-        }
-
-        $count         = Helper::getParticipantCount($this->bookingID);
-        $registrations = Helper::getRegistrations($this->bookingID);
-        $capacity      = Helper::getCapacity($this->bookingID);
-        $countText     = Text::sprintf('ORGANIZER_CHECKIN_COUNT', $count, $registrations, $capacity);
-
-        if ($count and $roomID = $this->state->get('filter.roomID')) {
-            $roomCount = Helper::getParticipantCount($this->bookingID, $roomID);
-            $roomCount = Text::sprintf('ORGANIZER_CHECKIN_ROOM_COUNT', $roomCount);
-            $countText .= " ($roomCount)";
-        }
-
-        $texts[] = $countText;
-
-        $this->supplement = '<div class="tbox-' . $statusColor . '">' . implode('<br>', $texts) . '</div>';
-    }
-
-    /**
-     * @inheritDoc
-     */
     protected function addToolBar(bool $delete = true): void
     {
         $title = Text::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}";
@@ -323,5 +258,70 @@ class Booking extends Participants
             parent::modifyDocument();
         }
 
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function setSubTitle(): void
+    {
+        $bookingID      = Input::getID();
+        $subTitle       = Helper::getNames($bookingID);
+        $subTitle[]     = Helper::getDateTimeDisplay($bookingID);
+        $this->subtitle = '<h6 class="sub-title">' . implode('<br>', $subTitle) . '</h6>';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function setSupplement(): void
+    {
+        $bookingDate = $this->booking->get('date');
+        $expiredText = Text::_('ORGANIZER_BOOKING_CLOSED');
+        $ongoingText = Text::_('ORGANIZER_BOOKING_ONGOING');
+        $pendingText = Text::_('ORGANIZER_BOOKING_PENDING');
+        $today       = date('Y-m-d');
+
+        if ($today === $bookingDate) {
+            $end   = $this->booking->endTime ?: $this->booking->get('defaultEndTime');
+            $now   = date('H:i:s');
+            $start = $this->booking->startTime ?: $this->booking->get('defaultStartTime');
+
+            if ($now >= $start and $now < $end) {
+                $statusColor = 'green';
+                $texts[]     = $ongoingText;
+            }
+            elseif ($now < $start) {
+                $statusColor = 'yellow';
+                $texts[]     = $pendingText;
+            }
+            else {
+                $statusColor = 'red';
+                $texts[]     = $expiredText;
+            }
+        }
+        elseif ($bookingDate > $today) {
+            $statusColor = 'yellow';
+            $texts[]     = $pendingText;
+        }
+        else {
+            $statusColor = 'red';
+            $texts[]     = $expiredText;
+        }
+
+        $count         = Helper::getParticipantCount($this->bookingID);
+        $registrations = Helper::getRegistrations($this->bookingID);
+        $capacity      = Helper::getCapacity($this->bookingID);
+        $countText     = Text::sprintf('ORGANIZER_CHECKIN_COUNT', $count, $registrations, $capacity);
+
+        if ($count and $roomID = $this->state->get('filter.roomID')) {
+            $roomCount = Helper::getParticipantCount($this->bookingID, $roomID);
+            $roomCount = Text::sprintf('ORGANIZER_CHECKIN_ROOM_COUNT', $roomCount);
+            $countText .= " ($roomCount)";
+        }
+
+        $texts[] = $countText;
+
+        $this->supplement = '<div class="tbox-' . $statusColor . '">' . implode('<br>', $texts) . '</div>';
     }
 }

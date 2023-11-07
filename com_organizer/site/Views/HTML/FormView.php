@@ -46,16 +46,8 @@ abstract class FormView extends BaseView
 
         // Allows for view specific toolbar handling
         $this->addToolBar();
-
-        if (!Application::backend()) {
-            if (method_exists($this, 'setSubtitle')) {
-                $this->setSubtitle();
-            }
-            if (method_exists($this, 'addSupplement')) {
-                $this->addSupplement();
-            }
-        }
-
+        $this->setSubtitle();
+        $this->setSupplement();
         $this->modifyDocument();
         parent::display($tpl);
     }

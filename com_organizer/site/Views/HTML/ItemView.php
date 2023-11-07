@@ -43,7 +43,7 @@ abstract class ItemView extends BaseView
 
         $this->addToolBar();
         $this->setSubtitle();
-        $this->addSupplement();
+        $this->setSupplement();
         $this->modifyDocument();
 
         $defaultConstant = 'ORGANIZER_' . strtoupper(str_replace('Item', '', $this->getName()));
@@ -108,23 +108,5 @@ abstract class ItemView extends BaseView
             echo '</li>';
         }
         echo '</ul>';
-    }
-
-    /**
-     * Creates a subtitle element .
-     * @return void modifies the course
-     */
-    protected function setSubtitle()
-    {
-        // On demand abstract function.
-    }
-
-    /**
-     * Adds supplemental information to the display output.
-     * @return void modifies the object property supplement
-     */
-    protected function addSupplement()
-    {
-        // On demand abstract function.
     }
 }

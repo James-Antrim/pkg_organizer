@@ -60,65 +60,6 @@ class Instances extends ListView
     }
 
     /**
-     * @inheritDoc
-     */
-    protected function addSubtitle(): void
-    {
-        if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {
-            $date           = $this->state->get('list.date');
-            $interval       = Helpers\Dates::getQuarter($date);
-            $interval       = Helpers\Dates::getDisplay($interval['startDate'], $interval['endDate']);
-            $this->subtitle = "<h6 class=\"sub-title\">$interval</h6>";
-        }
-    }
-
-    /**
-     * Adds supplemental information to the display output.
-     * @return void modifies the object property supplement
-     */
-    protected function addSupplement(): void
-    {
-        if ($this->noInstances) {
-            $supplement = '<div class="tbox-yellow">';
-
-            /** @var Model $model */
-            $model = $this->model;
-            if (!$model->noDate and $dates = Helper::getJumpDates($model->conditions)) {
-                $supplement .= Text::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
-                $supplement .= '<ul><li>';
-
-                foreach ($dates as $key => $date) {
-                    $constant      = $key === 'futureDate' ? 'ORGANIZER_NEXT_INSTANCE' : 'ORGANIZER_PREVIOUS_INSTANCE';
-                    $formattedDate = Dates::formatDate($date);
-                    $text          = Text::_($constant);
-
-                    $template    = "TEXT: <a onclick=\"jump('DATE')\">formatted date</a>";
-                    $output      = str_replace('formatted date', $formattedDate, $template);
-                    $output      = str_replace('DATE', $date, $output);
-                    $dates[$key] = str_replace('TEXT', $text, $output);
-                }
-
-                $supplement .= implode('</li><li>', $dates) . '</li></ul>';
-            }
-            elseif (Input::getInt('my')) {
-                if (Helpers\Users::getID()) {
-                    $supplement .= Text::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
-                }
-                else {
-                    $supplement .= Text::_('ORGANIZER_401');
-                }
-            }
-            else {
-                $supplement .= Text::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
-            }
-
-            $supplement .= '</div>';
-
-            $this->supplement = $supplement;
-        }
-    }
-
-    /**
      * @inheritdoc
      */
     protected function addToolBar(bool $delete = true): void
@@ -701,6 +642,65 @@ class Instances extends ListView
 
         if ($model->layout === Helper::GRID) {
             Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/grid.css');
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function setSubTitle(): void
+    {
+        if ($interval = $this->state->get('list.interval') and $interval === 'quarter') {
+            $date           = $this->state->get('list.date');
+            $interval       = Helpers\Dates::getQuarter($date);
+            $interval       = Helpers\Dates::getDisplay($interval['startDate'], $interval['endDate']);
+            $this->subtitle = "<h6 class=\"sub-title\">$interval</h6>";
+        }
+    }
+
+    /**
+     * Adds supplemental information to the display output.
+     * @return void modifies the object property supplement
+     */
+    protected function setSupplement(): void
+    {
+        if ($this->noInstances) {
+            $supplement = '<div class="tbox-yellow">';
+
+            /** @var Model $model */
+            $model = $this->model;
+            if (!$model->noDate and $dates = Helper::getJumpDates($model->conditions)) {
+                $supplement .= Text::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
+                $supplement .= '<ul><li>';
+
+                foreach ($dates as $key => $date) {
+                    $constant      = $key === 'futureDate' ? 'ORGANIZER_NEXT_INSTANCE' : 'ORGANIZER_PREVIOUS_INSTANCE';
+                    $formattedDate = Dates::formatDate($date);
+                    $text          = Text::_($constant);
+
+                    $template    = "TEXT: <a onclick=\"jump('DATE')\">formatted date</a>";
+                    $output      = str_replace('formatted date', $formattedDate, $template);
+                    $output      = str_replace('DATE', $date, $output);
+                    $dates[$key] = str_replace('TEXT', $text, $output);
+                }
+
+                $supplement .= implode('</li><li>', $dates) . '</li></ul>';
+            }
+            elseif (Input::getInt('my')) {
+                if (Helpers\Users::getID()) {
+                    $supplement .= Text::_('ORGANIZER_EMPTY_PERSONAL_RESULT_SET');
+                }
+                else {
+                    $supplement .= Text::_('ORGANIZER_401');
+                }
+            }
+            else {
+                $supplement .= Text::_('ORGANIZER_NO_INSTANCES_IN_INTERVAL');
+            }
+
+            $supplement .= '</div>';
+
+            $this->supplement = $supplement;
         }
     }
 

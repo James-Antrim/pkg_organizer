@@ -56,25 +56,6 @@ class Courses extends ListView
     /**
      * @inheritDoc
      */
-    protected function addSupplement(): void
-    {
-        $this->supplement = '';
-
-        if ($this->preparatory) {
-            $this->supplement .= '<div>' . Text::_('ORGANIZER_PREP_COURSE_SUPPLEMENT') . '</div>';
-        }
-
-        if (!Helpers\Users::getID()) {
-            $currentURL       = Uri::getInstance()->toString() . '#login-anchor';
-            $this->supplement .= '<div class="tbox-yellow">';
-            $this->supplement .= Text::sprintf('ORGANIZER_COURSE_LOGIN_WARNING', $currentURL);
-            $this->supplement .= '</div>';
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
     protected function addToolBar(bool $delete = true): void
     {
         $resourceName = '';
@@ -322,5 +303,24 @@ class Courses extends ListView
         }
 
         $this->headers = $headers;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function setSupplement(): void
+    {
+        $this->supplement = '';
+
+        if ($this->preparatory) {
+            $this->supplement .= '<div>' . Text::_('PREP_COURSE_SUPPLEMENT') . '</div>';
+        }
+
+        if (!Users::getID()) {
+            $currentURL       = Uri::getInstance()->toString() . '#login-anchor';
+            $this->supplement .= '<div class="tbox-yellow">';
+            $this->supplement .= Text::sprintf('COURSE_LOGIN_WARNING', $currentURL);
+            $this->supplement .= '</div>';
+        }
     }
 }

@@ -40,7 +40,6 @@ abstract class ListView extends Base
     protected BaseDatabaseModel $model;
     protected array $rowStructure = [];
     protected bool $sameTab = false;
-    public string $supplement = '';
     protected bool $structureEmpty = false;
     /** @var array The default text for an empty result set. */
     public array $toDo = [];
@@ -60,24 +59,6 @@ abstract class ListView extends Base
         parent::__construct($config);
 
         $this->configure();
-    }
-
-    /**
-     * Creates a subtitle element from the term name and the start and end dates of the course.
-     * @return void modifies the course
-     */
-    protected function addSubtitle(): void
-    {
-        $this->subtitle = '';
-    }
-
-    /**
-     * Adds supplemental information to the display output.
-     * @return void modifies the object property supplement
-     */
-    protected function addSupplement(): void
-    {
-        $this->supplement = '';
     }
 
     /**
@@ -255,13 +236,12 @@ abstract class ListView extends Base
 
         $this->empty = $this->empty ?: Text::_('EMPTY_RESULT_SET');
 
-        $this->addSubtitle();
-        $this->addSupplement();
+        $this->setSubTitle();
+        $this->setSupplement();
         $this->addToC();
         $this->completeItems();
         $this->initializeColumns();
         $this->modifyDocument();
-        $this->addSupplement();
     }
 
     /**

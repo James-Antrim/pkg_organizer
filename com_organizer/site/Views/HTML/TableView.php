@@ -58,15 +58,9 @@ abstract class TableView extends BaseView
         $this->setRows($this->get('Items'));
         $this->pagination = $this->get('Pagination');
 
-        if (method_exists($this, 'setSubtitle')) {
-            $this->setSubtitle();
-        }
-        if (method_exists($this, 'addSupplement')) {
-            $this->addSupplement();
-        }
-
         $this->addToolBar();
-        $this->addMenu();
+        $this->setSubtitle();
+        $this->setSupplement();
         $this->modifyDocument();
 
         parent::display($tpl);

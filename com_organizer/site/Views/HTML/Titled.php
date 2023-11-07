@@ -19,7 +19,27 @@ use THM\Organizer\Adapters\Toolbar;
 
 trait Titled
 {
+    public string $subtitle = '';
+    public string $supplement = '';
     public string $title = '';
+
+    /**
+     * Creates a subtitle element from the term name and the start and end dates of the course.
+     * @return void modifies the course
+     */
+    protected function setSubTitle(): void
+    {
+        // Overwritten as necessary.
+    }
+
+    /**
+     * Adds supplemental information to the display output.
+     * @return void modifies the object property supplement
+     */
+    protected function setSupplement(): void
+    {
+        // Overwritten as necessary.
+    }
 
     /**
      * Prepares the title for standard HTML output.

@@ -41,12 +41,6 @@ abstract class BaseView extends HtmlView
 
     public int $refresh = 0;
 
-    public string $submenu = '';
-
-    public string $subtitle = '';
-
-    public string $supplement = '';
-
     /**
      * @inheritDoc
      */

@@ -44,44 +44,6 @@ class InstanceItem extends ListView
     private string $referrer = '';
 
     /**
-     * @inheritDoc
-     */
-    protected function addSupplement(): void
-    {
-        $color    = 'blue';
-        $instance = $this->instance;
-        $text     = '';
-
-        if ($instance->expired) {
-            $color          = 'grey';
-            $this->messages = [Text::_('ORGANIZER_INSTANCE_EXPIRED')];
-        }
-        elseif (!$this->userID) {
-            $this->messages[] = Text::_('ORGANIZER_INSTANCE_LOG_IN_FIRST');
-        }
-        elseif ($instance->registered) {
-            $color            = 'green';
-            $this->messages[] = Text::_('ORGANIZER_INSTANCE_REGISTERED');
-        }
-        elseif ($instance->bookmarked) {
-            $this->messages[] = Text::_('ORGANIZER_INSTANCE_BOOKMARKED');
-
-            if ($instance->presence !== Helper::ONLINE) {
-                $color = 'yellow';
-            }
-        }
-        elseif (!$instance->taught) {
-            $this->messages[] = Text::_('ORGANIZER_INSTANCE_NOT_BOOKMARKED');
-        }
-
-        if ($this->messages) {
-            $text = "<div class=\"tbox-$color\">" . implode('<br>', $this->messages) . '</div>';
-        }
-
-        $this->supplement = $text;
-    }
-
-    /**
      * @inheritdoc
      */
     protected function addToolBar(bool $delete = true): void
@@ -711,6 +673,44 @@ class InstanceItem extends ListView
         $instance       = $this->instance;
         $date           = Dates::formatDate($instance->date);
         $this->subtitle = "<h4>$date $instance->startTime - $instance->endTime</h4>";
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function setSupplement(): void
+    {
+        $color    = 'blue';
+        $instance = $this->instance;
+        $text     = '';
+
+        if ($instance->expired) {
+            $color          = 'grey';
+            $this->messages = [Text::_('ORGANIZER_INSTANCE_EXPIRED')];
+        }
+        elseif (!$this->userID) {
+            $this->messages[] = Text::_('ORGANIZER_INSTANCE_LOG_IN_FIRST');
+        }
+        elseif ($instance->registered) {
+            $color            = 'green';
+            $this->messages[] = Text::_('ORGANIZER_INSTANCE_REGISTERED');
+        }
+        elseif ($instance->bookmarked) {
+            $this->messages[] = Text::_('ORGANIZER_INSTANCE_BOOKMARKED');
+
+            if ($instance->presence !== Helper::ONLINE) {
+                $color = 'yellow';
+            }
+        }
+        elseif (!$instance->taught) {
+            $this->messages[] = Text::_('ORGANIZER_INSTANCE_NOT_BOOKMARKED');
+        }
+
+        if ($this->messages) {
+            $text = "<div class=\"tbox-$color\">" . implode('<br>', $this->messages) . '</div>';
+        }
+
+        $this->supplement = $text;
     }
 
     /**

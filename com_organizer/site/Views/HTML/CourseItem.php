@@ -33,23 +33,6 @@ class CourseItem extends ItemView
     }
 
     /**
-     * Adds supplemental information to the display output.
-     * @return void modifies the object property supplement
-     */
-    protected function addSupplement(): void
-    {
-        if ($this->manages) {
-            return;
-        }
-
-        $course = $this->item;
-
-        $text = '<div class="tbox-' . $course['courseStatus'] . '">' . $course['courseText'] . '</div>';
-
-        $this->supplement = $text;
-    }
-
-    /**
      * Adds a toolbar and title to the view.
      * @return void  adds toolbar items to the view
      */
@@ -83,7 +66,8 @@ class CourseItem extends ItemView
                     if (!$full and $state === CourseParticipants::UNREGISTERED and $validProfile) {
                         $rLink = $link . '&task=courses.register';
                         $toolbar->appendButton('Link', 'enter', Text::_('ORGANIZER_REGISTER'), $rLink);
-                    } elseif ($state === CourseParticipants::ACCEPTED or $state === CourseParticipants::WAITLIST) {
+                    }
+                    elseif ($state === CourseParticipants::ACCEPTED or $state === CourseParticipants::WAITLIST) {
                         $drLink = $link . '&task=courses.deregister';
                         $toolbar->appendButton('Link', 'exit', Text::_('ORGANIZER_DEREGISTER'), $drLink);
 
@@ -101,7 +85,8 @@ class CourseItem extends ItemView
                     }
                 }
 
-            } else {
+            }
+            else {
                 $toolbar->appendButton(
                     'Link',
                     'user-plus',
@@ -126,5 +111,22 @@ class CourseItem extends ItemView
         }
 
         $this->subtitle .= Courses::getDateDisplay($this->item['id']) . '</h6>';
+    }
+
+    /**
+     * Adds supplemental information to the display output.
+     * @return void modifies the object property supplement
+     */
+    protected function setSupplement(): void
+    {
+        if ($this->manages) {
+            return;
+        }
+
+        $course = $this->item;
+
+        $text = '<div class="tbox-' . $course['courseStatus'] . '">' . $course['courseText'] . '</div>';
+
+        $this->supplement = $text;
     }
 }
