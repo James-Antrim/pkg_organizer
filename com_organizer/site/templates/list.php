@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
  * @license     GNU GPL v.3
@@ -11,7 +11,7 @@
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\HTML;
+use THM\Organizer\Adapters\{Application, HTML};
 use THM\Organizer\Layouts\HTML\{Batch, EmptyList, ListHeaders, ListItem, ListTools};
 use THM\Organizer\Views\HTML\ListView;
 
@@ -31,7 +31,7 @@ if ($this->toDo) {
 }
 
 if (count($this->headers) > 4) {
-    $wa = $this->document->getWebAssetManager();
+    $wa = Application::getDocument()->getWebAssetManager();
     $wa->useScript('table.columns');
 }
 

@@ -344,6 +344,7 @@ class Database
      * @param   string  $operator
      *
      * @return string an accurate representation of what is actually returned from the dbo quoteName function
+     * @noinspection PhpMethodNamingConventionInspection
      */
     public static function qc(string $leftColumn, string $rightColumn, string $operator = '='): string
     {
@@ -390,6 +391,7 @@ class Database
      *                                     return value
      *
      * @return string|string[] an accurate representation of what is actually returned from the dbo quoteName function
+     * @noinspection PhpMethodNamingConventionInspection
      */
     public static function qn(array|string $name, array|string $alias = null): array|string
     {

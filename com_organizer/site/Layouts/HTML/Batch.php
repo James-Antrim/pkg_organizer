@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
  * @license     GNU GPL v.3
@@ -14,12 +14,15 @@ use Joomla\CMS\Language\Text;
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Views\HTML\ListView;
 
+/**
+ * Class renders elements of a modal element for batch processing.
+ */
 class Batch
 {
     /**
      * Generates the HTML to be used as the body of the batch modal.
      *
-     * @param ListView $view
+     * @param   ListView  $view
      *
      * @return string
      */
@@ -37,7 +40,7 @@ class Batch
     /**
      * Generates the HTML to be used as the footer of the batch modal.
      *
-     * @param ListView $view
+     * @param   ListView  $view
      *
      * @return string
      */

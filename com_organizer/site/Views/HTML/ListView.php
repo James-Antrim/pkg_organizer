@@ -220,8 +220,8 @@ abstract class ListView extends Base
     }
 
     /**
-     * Function to set the object's headers property which defines column output par
-     * @return void sets the object headers property
+     * Initializes the headers after the form and state properties have been initialized.
+     * @return void
      */
     abstract protected function initializeColumns(): void;
 

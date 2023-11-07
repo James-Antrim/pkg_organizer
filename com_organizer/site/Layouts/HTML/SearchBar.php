@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
  * @license     GNU GPL v.3
@@ -21,7 +21,7 @@ class SearchBar
     /**
      * Renders the search bar.
      *
-     * @param ListView $view
+     * @param   ListView  $view
      */
     public static function render(ListView $view): void
     {

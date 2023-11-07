@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2023 TH Mittelhessen
  * @license     GNU GPL v.3
@@ -11,13 +11,13 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Router\Route;
-use THM\Organizer\Adapters\{HTML, Input, Text};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text};
 use THM\Organizer\Views\HTML\FormView;
 
 /** @var FormView $this */
 
 // Core behaviour scripts
-$wa = $this->document->getWebAssetManager();
+$wa = Application::getDocument()->getWebAssetManager();
 $wa->useScript('keepalive')->useScript('form.validate');
 
 $formName  = strtoupper($this->getName());
@@ -32,8 +32,8 @@ $tabbed = count($this->form->getFieldsets()) > 1;
 
 if ($this->toDo) {
     echo '<ul>';
-    foreach ($this->todo as $todo) {
-        echo "<li>$todo</li>";
+    foreach ($this->toDo as $toDo) {
+        echo "<li>$toDo</li>";
     }
     echo '</ul>';
 }

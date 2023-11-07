@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
  * @license     GNU GPL v.3
@@ -14,6 +14,9 @@ use Joomla\CMS\Language\Text;
 use THM\Organizer\Adapters\{Application, HTML};
 use THM\Organizer\Views\HTML\ListView;
 
+/**
+ * Class provides standardized rendering functions for table cells in list views.
+ */
 class ListItem
 {
     private const ADMIN = true;

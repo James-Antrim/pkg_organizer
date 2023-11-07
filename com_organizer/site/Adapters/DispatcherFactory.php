@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
  * @license     GNU GPL v.2
@@ -28,8 +28,8 @@ class DispatcherFactory implements ComponentDispatcherFactoryInterface
     /**
      * ComponentDispatcherFactory constructor.
      *
-     * @param string              $namespace  The namespace
-     * @param MVCFactoryInterface $mvcFactory The MVC factory
+     * @param   string               $namespace   The namespace
+     * @param   MVCFactoryInterface  $mvcFactory  The MVC factory
      */
     public function __construct(string $namespace, MVCFactoryInterface $mvcFactory)
     {
@@ -44,7 +44,8 @@ class DispatcherFactory implements ComponentDispatcherFactoryInterface
     {
         if ($application->isClient('api')) {
             $className = ApiDispatcher::class;
-        } else {
+        }
+        else {
             $className = Dispatcher::class;
         }
 

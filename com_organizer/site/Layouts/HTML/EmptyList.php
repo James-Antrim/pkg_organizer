@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
  * @license     GNU GPL v.3
@@ -13,6 +13,9 @@ namespace THM\Organizer\Layouts\HTML;
 use Joomla\CMS\Language\Text;
 use THM\Organizer\Views\HTML\ListView;
 
+/**
+ * Class renders a message pertaining to an empty result set for the list view.
+ */
 class EmptyList
 {
     /**

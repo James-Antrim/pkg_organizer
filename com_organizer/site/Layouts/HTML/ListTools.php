@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
  * @license     GNU GPL v.3
@@ -21,7 +21,7 @@ class ListTools
     /**
      * Renders list headers.
      *
-     * @param ListView $view the view being displayed
+     * @param   ListView  $view  the view being displayed
      */
     public static function render(ListView $view): void
     {
@@ -41,10 +41,10 @@ class ListTools
         $state   = $view->get('state');
         $options = [
             'activeDirection' => $view->escape($state->get('list.direction')),
-            'activeOrder' => $view->escape($state->get('list.ordering')),
-            'defaultLimit' => Application::getApplication()->get('list_limit', 50),
-            'orderSelector' => '#list_fullordering',
-            'searchSelector' => '#filter_search'
+            'activeOrder'     => $view->escape($state->get('list.ordering')),
+            'defaultLimit'    => Application::getApplication()->get('list_limit', 50),
+            'orderSelector'   => '#list_fullordering',
+            'searchSelector'  => '#filter_search'
         ];
 
         $class = ($filtersExist and !empty($view->activeFilters)) ? ' js-stools-container-filters-visible' : '';

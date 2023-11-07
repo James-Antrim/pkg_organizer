@@ -16,6 +16,10 @@ use Joomla\CMS\Utility\Utility;
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
 
+/**
+ * Class integrates HTMLHelper and several further helper classes, wrapping unhandled exceptions and creating simplified
+ * and documented access to functions otherwise called by magic methods.
+ */
 class HTML extends HTMLHelper
 {
     /**
@@ -94,7 +98,7 @@ class HTML extends HTMLHelper
      *
      * @param   int|string  $value    the option value
      * @param   string      $text     the option text
-     * @param   boolean     $disable  whether the option is disabled
+     * @param   bool        $disable  whether the option is disabled
      *
      * @return  stdClass
      */
@@ -146,10 +150,10 @@ class HTML extends HTMLHelper
     /**
      * Returns an action on a grid
      *
-     * @param   integer  $index       the row index
-     * @param   array    $state       the state configuration
-     * @param   string   $controller  the name of the controller class
-     * @param   string   $neither     text for columns which cannot be toggled
+     * @param   int     $index       the row index
+     * @param   array   $state       the state configuration
+     * @param   string  $controller  the name of the controller class
+     * @param   string  $neither     text for columns which cannot be toggled
      *
      * @return  string
      */

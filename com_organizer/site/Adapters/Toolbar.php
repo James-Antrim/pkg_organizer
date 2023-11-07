@@ -10,6 +10,7 @@
 
 namespace THM\Organizer\Adapters;
 
+use Exception;
 use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\Toolbar\{Toolbar as Base, ToolbarHelper as Helper};
 
@@ -31,6 +32,30 @@ class Toolbar
     public static function getInstance(string $name = 'toolbar'): Base
     {
         return Document::getToolbar($name);
+    }
+
+    /**
+     * Renders a toolbar. Wraps the base function due to errors thrown by button rendering.
+     *
+     * @param   string  $name     the name of the toolbar to render, defaults to global 'toolbar'
+     * @param   array   $options  the options used to render the toolbar
+     *
+     * @return string
+     * @see Base::render()
+     */
+    public static function render(string $name = 'toolbar', array $options = []): string
+    {
+        $bar  = self::getInstance($name);
+        $html = '';
+
+        try {
+            $html = $bar->render($options);
+        }
+        catch (Exception $exception) {
+            Application::handleException($exception);
+        }
+
+        return $html;
     }
 
     /**

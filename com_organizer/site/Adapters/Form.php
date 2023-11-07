@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
  * @license     GNU GPL v.3
@@ -131,12 +131,14 @@ class Form extends Base
 
             // Load the data.
             if (str_starts_with($data, '<')) {
-                if (!$forms[$name]->load($data, $replace, $xpath)) {
+                $loaded = $forms[$name]->load($data, $replace, $xpath);
+                if (!$loaded) {
                     throw new RuntimeException(sprintf('%s() could not load form', __METHOD__));
                 }
             }
             else {
-                if (!$forms[$name]->loadFile($data, $replace, $xpath)) {
+                $loaded = $forms[$name]->loadFile($data, $replace, $xpath);
+                if (!$loaded) {
                     throw new RuntimeException(sprintf('%s() could not load file', __METHOD__));
                 }
             }

@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     Groups
- * @extension   com_groups
+ * @package     Organizer
+ * @extension   com_organizer
  * @author      James Antrim, <james.antrim@nm.thm.de>
  * @copyright   2022 TH Mittelhessen
  * @license     GNU GPL v.3
@@ -12,6 +12,9 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Views\Named;
 
+/**
+ * Class sets commonly configured view properties.
+ */
 trait Configured
 {
     use Named;
