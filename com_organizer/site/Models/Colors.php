@@ -33,7 +33,7 @@ class Colors extends ListModel
         $this->setValueFilters($query, ['color']);
         $this->setIDFilter($query, 'id', 'filter.name');
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

@@ -67,7 +67,8 @@ class Rooms extends ListModel
             $query->innerJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
                 ->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
                 ->where("(c1.id = $campusID OR c1.parentID = $campusID)");
-        } else {
+        }
+        else {
             $query->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
                 ->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
 
@@ -84,7 +85,7 @@ class Rooms extends ListModel
         $this->setSearchFilter($query, ['r.name', 'b.name', 't.name_de', 't.name_en', 'uc.code']);
         $this->setValueFilters($query, ['buildingID', 'roomtypeID', 'virtual']);
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

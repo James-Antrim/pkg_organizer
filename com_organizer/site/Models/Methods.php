@@ -26,14 +26,14 @@ class Methods extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
+        $tag   = Application::getTag();
         $query = DB::getQuery();
 
         $query->select([DB::qn('id'), DB::qn("abbreviation_$tag", 'abbreviation'), DB::qn("name_$tag", 'name')])
             ->from(DB::qn('#__organizer_methods'));
 
         $this->setSearchFilter($query, ['name_de', 'name_en', 'abbreviation_de', 'abbreviation_en']);
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

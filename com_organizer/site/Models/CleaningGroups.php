@@ -40,7 +40,7 @@ class CleaningGroups extends ListModel
             $query->where("relevant = $relevant");
         }
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

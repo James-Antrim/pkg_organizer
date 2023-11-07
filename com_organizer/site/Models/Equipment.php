@@ -46,7 +46,7 @@ class Equipment extends ListModel
             ->from('#__organizer_equipment AS e');
 
         $this->setSearchFilter($query, ['e.code', 'e.name_de', 'e.name_en']);
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }
@@ -54,9 +54,9 @@ class Equipment extends ListModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
      * @return Tables\Equipment  A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -69,7 +69,7 @@ class Equipment extends ListModel
     /**
      * Attempts to save the resource.
      *
-     * @param array $data the data from the form
+     * @param   array  $data  the data from the form
      *
      * @return int|bool int id of the resource on success, otherwise bool false
      */
@@ -81,7 +81,8 @@ class Equipment extends ListModel
 
         try {
             $table = $this->getTable();
-        } catch (Exception $exception) {
+        }
+        catch (Exception $exception) {
             Application::message($exception->getMessage(), Application::ERROR);
 
             return false;

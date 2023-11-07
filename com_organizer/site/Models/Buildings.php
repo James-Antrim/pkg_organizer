@@ -42,12 +42,13 @@ class Buildings extends ListModel
         if ($campusID = $this->state->get('filter.campusID', '')) {
             if ($campusID === '-1') {
                 $query->where('campusID IS NULL');
-            } else {
+            }
+            else {
                 $query->where("(b.campusID = $campusID OR c1.parentID = $campusID)");
             }
         }
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

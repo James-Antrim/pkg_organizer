@@ -29,7 +29,7 @@ class Grids extends ListModel
         $select  = DB::qn(['id', 'grid', 'isDefault']);
         $aliased = [DB::qn("name_$tag", 'name')];
         $query->select(array_merge($select, $aliased))->from(DB::qn('#__organizer_grids'));
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

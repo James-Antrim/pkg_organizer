@@ -57,7 +57,7 @@ class Programs extends ListModel
 
         $this->setValueFilters($query, ['degreeID', 'frequencyID', 'accredited']);
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

@@ -61,7 +61,7 @@ class FieldColors extends ListModel
             $query->where("organizationID = $organizationID");
         }
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

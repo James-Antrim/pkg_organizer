@@ -69,7 +69,7 @@ class Fields extends ListModel
             }
         }
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

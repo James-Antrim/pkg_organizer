@@ -21,8 +21,8 @@ class Pools extends ListModel
 {
     protected $filter_fields = [
         'organizationID' => 'organizationID',
-        'fieldID' => 'fieldID',
-        'programID' => 'programID'
+        'fieldID'        => 'fieldID',
+        'programID'      => 'programID'
     ];
 
     /**
@@ -62,7 +62,7 @@ class Pools extends ListModel
             Helpers\Pools::setProgramFilter($query, $programID, 'pool', 'p');
         }
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

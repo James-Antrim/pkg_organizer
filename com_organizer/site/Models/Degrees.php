@@ -31,7 +31,7 @@ class Degrees extends ListModel
 
         $columns = ['name', 'abbreviation', 'code'];
         $this->setSearchFilter($query, $columns);
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

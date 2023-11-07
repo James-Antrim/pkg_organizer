@@ -21,12 +21,12 @@ use THM\Organizer\Helpers;
 class Subjects extends ListModel
 {
     protected $filter_fields = [
-        'language' => 'language',
-        'fieldID' => 'fieldID',
+        'language'       => 'language',
+        'fieldID'        => 'fieldID',
         'organizationID' => 'organizationID',
-        'personID' => 'personID',
-        'poolID' => 'poolID',
-        'programID' => 'programID'
+        'personID'       => 'personID',
+        'poolID'         => 'poolID',
+        'programID'      => 'programID'
     ];
 
     /**
@@ -46,7 +46,8 @@ class Subjects extends ListModel
             $form->removeField('limit', 'list');
             $form->removeField('personID', 'filter');
             unset($this->filter_fields['organizationID'], $this->filter_fields['personID']);
-        } elseif (Application::backend()) {
+        }
+        elseif (Application::backend()) {
             if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
@@ -113,14 +114,15 @@ class Subjects extends ListModel
             if ($personID === self::NONE) {
                 $conditions = ['sp.subjectID = s.id', 'sp.subjectID IS NULL'];
                 $query->leftJoinX('subject_persons AS sp', $conditions);
-            } else {
+            }
+            else {
                 $query->innerJoinX('subject_persons AS sp', ['sp.subjectID = s.id'])->where("sp.personID = $personID");
             }
         }
 
         $this->setIDFilter($query, 's.fieldID', 'filter.fieldID');
         $this->setValueFilters($query, ['language']);
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }
@@ -155,7 +157,8 @@ class Subjects extends ListModel
                 $organizationID = $authorized[0];
                 $this->state->set('filter.organizationID', $organizationID);
             }
-        } else {
+        }
+        else {
             // Program ID can be set by menu settings or the request
             if ($programID = Input::getInt('programID')
                 or $programID = Input::getParams()->get('programID', 0)
@@ -283,7 +286,8 @@ class Subjects extends ListModel
 
                 $this->state->set('filter.poolID', $poolID);
                 $this->state->set('filter.programID', $programID);
-            } else {
+            }
+            else {
                 $this->state->set('filter.poolID', self::ALL);
                 $this->state->set('filter.programID', self::NONE);
             }
@@ -309,7 +313,8 @@ class Subjects extends ListModel
 
             if ($calledPool) {
                 $this->state->set('calledPoolID', $calledPool);
-            } elseif ($calledProgram) {
+            }
+            elseif ($calledProgram) {
                 $this->state->set('calledProgramID', $calledProgram);
             }
 

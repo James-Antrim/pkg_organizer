@@ -45,7 +45,7 @@ class Categories extends ListModel
         $this->setActiveFilter($query, 'cat');
         $this->setSearchFilter($query, ['cat.name_de', 'cat.name_en', 'cat.code']);
         $this->setValueFilters($query, ['organizationID', 'programID']);
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

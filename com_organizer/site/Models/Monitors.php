@@ -42,7 +42,7 @@ class Monitors extends ListModel
         $this->addDisplayFilter($query);
         $this->addContentFilter($query);
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }
@@ -50,7 +50,7 @@ class Monitors extends ListModel
     /**
      * Adds the filter settings for display behaviour
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   JDatabaseQuery  $query  the query to modify
      *
      * @return void
      */
@@ -87,7 +87,7 @@ class Monitors extends ListModel
     /**
      * Adds the filter settings for displayed content
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   JDatabaseQuery  $query  the query to modify
      *
      * @return void
      */

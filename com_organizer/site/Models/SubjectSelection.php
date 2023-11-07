@@ -56,7 +56,7 @@ class SubjectSelection extends ListModel
             Helpers\Subjects::setPoolFilter($query, $poolID, 's');
         }
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

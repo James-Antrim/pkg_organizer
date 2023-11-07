@@ -46,7 +46,7 @@ class Groups extends ListModel
         $this->setSearchFilter($query, ['gr.fullName_de', 'gr.fullName_en', 'gr.name_de', 'gr.name_en', 'gr.code']);
         $this->setValueFilters($query, ['gr.categoryID', 'a.organizationID', 'gr.gridID']);
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

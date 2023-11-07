@@ -41,7 +41,7 @@ class Roomtypes extends ListModel
         $this->setIDFilter($query, 'k.id', 'filter.keyID');
         $this->setIDFilter($query, 'k.useID', 'filter.useID');
         $this->setSearchFilter($query, ['t.name_de', 't.name_en', 't.capacity', 'c.code']);
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

@@ -30,13 +30,13 @@ class Holidays extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $hED = DB::qn('h.endDate');
+        $hED        = DB::qn('h.endDate');
         $conditions = [
             DB::qn('t.startDate') . ' <= ' . DB::qn('h.startDate'),
             DB::qn('t.endDate') . ' >= ' . $hED,
         ];
-        $tag = Application::getTag();
-        $query = DB::getQuery();
+        $tag        = Application::getTag();
+        $query      = DB::getQuery();
         $query->select([DB::qn('h') . '.*', DB::qn("h.name_$tag", 'name'), DB::qn("t.name_$tag", 'term')])
             ->from(DB::qn('#__organizer_holidays', 'h'))
             ->innerJoin(DB::qn('#__organizer_terms', 't'), implode(' AND ', $conditions));
@@ -54,7 +54,7 @@ class Holidays extends ListModel
                 break;
         }
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

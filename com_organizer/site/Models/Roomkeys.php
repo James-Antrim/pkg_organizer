@@ -49,14 +49,16 @@ class Roomkeys extends ListModel
             if ($cleaningID !== self::NONE) {
                 $query->innerJoin('#__organizer_cleaning_groups AS cg ON cg.id = rk.cleaningID')
                     ->where("rk.cleaningID = $cleaningID");
-            } else {
+            }
+            else {
                 $query->where('rk.cleaningID IS NULL');
             }
-        } else {
+        }
+        else {
             $query->leftJoin('#__organizer_cleaning_groups AS cg ON cg.id = rk.cleaningID');
         }
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

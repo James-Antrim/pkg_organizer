@@ -47,7 +47,7 @@ class Events extends ListModel
         $this->setSearchFilter($query, ['e.name_de', 'e.name_en', 'e.subjectNo']);
         $this->setValueFilters($query, ['e.organizationID', 'e.campusID', 'e.preparatory']);
 
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

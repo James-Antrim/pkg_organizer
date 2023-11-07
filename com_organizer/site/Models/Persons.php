@@ -28,12 +28,12 @@ class Persons extends ListModel
      * Method to get a list of resources from the database.
      * @return DatabaseQuery
      */
-    protected function getListQuery():DatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
         $personID = DB::qn('p.id');
-        $those = DB::qn(['surname', 'forename', 'username', 'p.active', 'code']);
-        $these = ["DISTINCT $personID", DB::qn('o.id', 'organizationID')];
-        $query = DB::getQuery();
+        $those    = DB::qn(['surname', 'forename', 'username', 'p.active', 'code']);
+        $these    = ["DISTINCT $personID", DB::qn('o.id', 'organizationID')];
+        $query    = DB::getQuery();
         $query->select(array_merge($these, $those))
             ->from(DB::qn('#__organizer_persons', 'p'))
             ->leftJoin(DB::qn('#__organizer_associations', 'a'), DB::qn('a.personID') . " = $personID")
@@ -44,7 +44,7 @@ class Persons extends ListModel
         $this->setSearchFilter($query, ['surname', 'forename', 'username', 'code']);
         $this->setIDFilter($query, 'organizationID', 'filter.organizationID');
         $this->setValueFilters($query, ['p.suppress']);
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }

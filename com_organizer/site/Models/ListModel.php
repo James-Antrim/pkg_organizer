@@ -13,8 +13,7 @@ namespace THM\Organizer\Models;
 use Exception;
 use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Base};
 use Joomla\CMS\Table\Table;
-use Joomla\Database\{DatabaseQuery, QueryInterface};
-use Joomla\Registry\Registry;
+use Joomla\Database\QueryInterface;
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, Form, Input};
@@ -31,16 +30,8 @@ abstract class ListModel extends Base
 
     protected const ALL = 0, NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
-    protected string $defaultOrdering = 'name';
     protected int $defaultLimit = 50;
-
-    /**
-     * The URL option for the component. If this is missing an error will be thrown because the class does not have the
-     * word "Model" in its name.
-     * @var string
-     * @see BaseDatabaseModel
-     */
-    protected $option = 'com_organizer';
+    protected string $defaultOrdering = 'name';
 
     /**
      * @inheritDoc
@@ -247,6 +238,32 @@ abstract class ListModel extends Base
     }
 
     /**
+     * Adds a standardized order by clause for the given $query;
+     *
+     * @param   QueryInterface  $query  the query to modify
+     *
+     * @return void
+     */
+    protected function orderBy(QueryInterface $query): void
+    {
+        if ($columns = $this->state->get('list.ordering')) {
+            if (preg_match('/, */', $columns)) {
+                $columns = explode(',', preg_replace('/, */', ',', $columns));
+            }
+
+            $columns = $query->quoteName($columns);
+
+            $direction = strtoupper($query->escape($this->getState('list.direction', 'ASC')));
+
+            if (is_array($columns)) {
+                $columns = implode(" $direction, ", $columns);
+            }
+
+            $query->order("$columns $direction");
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     protected function populateState($ordering = null, $direction = null): void
@@ -304,10 +321,10 @@ abstract class ListModel extends Base
     /**
      * Sets a campus filter for a given resource.
      *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $alias  the alias for the linking table
+     * @param   QueryInterface  $query  the query to modify
+     * @param   string          $alias  the alias for the linking table
      */
-    protected function setActiveFilter(DatabaseQuery $query, string $alias): void
+    protected function setActiveFilter(QueryInterface $query, string $alias): void
     {
         $status = $this->state->get('filter.active');
 
@@ -325,10 +342,10 @@ abstract class ListModel extends Base
     /**
      * Sets a campus filter for a given resource.
      *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $alias  the alias for the linking table
+     * @param   QueryInterface  $query  the query to modify
+     * @param   string          $alias  the alias for the linking table
      */
-    protected function setCampusFilter(DatabaseQuery $query, string $alias): void
+    protected function setCampusFilter(QueryInterface $query, string $alias): void
     {
         $campusID = $this->state->get('filter.campusID');
         if (empty($campusID)) {
@@ -349,13 +366,13 @@ abstract class ListModel extends Base
     /**
      * Provides a default method for setting filters based on id/unique values
      *
-     * @param   DatabaseQuery  $query       the query to modify
-     * @param   string         $idColumn    the id column in the table
-     * @param   string         $filterName  the filter name to look for the id in
+     * @param   QueryInterface  $query       the query to modify
+     * @param   string          $idColumn    the id column in the table
+     * @param   string          $filterName  the filter name to look for the id in
      *
      * @return void
      */
-    protected function setIDFilter(DatabaseQuery $query, string $idColumn, string $filterName): void
+    protected function setIDFilter(QueryInterface $query, string $idColumn, string $filterName): void
     {
         $value = $this->state->get($filterName, '');
         if ($value === '') {
@@ -378,42 +395,16 @@ abstract class ListModel extends Base
     }
 
     /**
-     * Provides a default method for setting the list ordering
-     *
-     * @param   DatabaseQuery  $query  the query to modify
-     *
-     * @return void
-     */
-    protected function setOrdering(DatabaseQuery $query): void
-    {
-        $defaultOrdering = "$this->defaultOrdering $this->defaultDirection";
-        $session         = Application::getSession();
-        $listOrdering    = $this->state->get('list.fullordering', $defaultOrdering);
-
-        if (str_contains($listOrdering, 'null')) {
-            $sessionOrdering = $session->get('ordering', '');
-            if (empty($sessionOrdering)) {
-                $session->set($this->context . '.ordering', $defaultOrdering);
-                $query->order($defaultOrdering);
-
-                return;
-            }
-        }
-
-        $query->order($listOrdering);
-    }
-
-    /**
      * Sets an organization filter for the given resource.
      *
-     * @param   DatabaseQuery  $query     the query to modify
-     * @param   string         $context   the resource context from which this function was called
-     * @param   string         $alias     the alias of the table onto which the organizations table will be joined as
+     * @param   QueryInterface  $query    the query to modify
+     * @param   string          $context  the resource context from which this function was called
+     * @param   string          $alias    the alias of the table onto which the organizations table will be joined as
      *                                    needed
      *
      * @return void
      */
-    protected function setOrganizationFilter(DatabaseQuery $query, string $context, string $alias): void
+    protected function setOrganizationFilter(QueryInterface $query, string $context, string $alias): void
     {
         $authorizedIDs  = Application::backend() ? Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
         $organizationID = (int) $this->state->get('filter.organizationID');
@@ -439,12 +430,12 @@ abstract class ListModel extends Base
     /**
      * Sets the search filter for the query
      *
-     * @param   DatabaseQuery  $query        the query to modify
-     * @param   array          $columnNames  the column names to use in the search
+     * @param   QueryInterface  $query        the query to modify
+     * @param   array           $columnNames  the column names to use in the search
      *
      * @return void
      */
-    protected function setSearchFilter(DatabaseQuery $query, array $columnNames): void
+    protected function setSearchFilter(QueryInterface $query, array $columnNames): void
     {
         if (!$userInput = $this->state->get('filter.search')) {
             return;
@@ -464,10 +455,10 @@ abstract class ListModel extends Base
     /**
      * Adds a date status filter for a given resource.
      *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $alias  the column alias
+     * @param   QueryInterface  $query  the query to modify
+     * @param   string          $alias  the column alias
      */
-    protected function setStatusFilter(DatabaseQuery $query, string $alias): void
+    protected function setStatusFilter(QueryInterface $query, string $alias): void
     {
         if (!$value = $this->state->get('filter.status')) {
             return;
@@ -499,12 +490,12 @@ abstract class ListModel extends Base
     /**
      * Provides a default method for setting filters for non-unique values
      *
-     * @param   DatabaseQuery  $query         the query to modify
-     * @param   array          $queryColumns  the filter names. names should be synonymous with db column names.
+     * @param   QueryInterface  $query         the query to modify
+     * @param   array           $queryColumns  the filter names. names should be synonymous with db column names.
      *
      * @return void
      */
-    protected function setValueFilters(DatabaseQuery $query, array $queryColumns): void
+    protected function setValueFilters(QueryInterface $query, array $queryColumns): void
     {
         $filters = Input::getFilterItems();
         $lists   = Input::getListItems();

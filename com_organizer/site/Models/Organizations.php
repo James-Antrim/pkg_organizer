@@ -51,7 +51,7 @@ class Organizations extends ListModel
         ];
 
         $this->setSearchFilter($query, $searchColumns);
-        $this->setOrdering($query);
+        $this->orderBy($query);
 
         return $query;
     }
