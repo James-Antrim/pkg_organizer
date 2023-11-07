@@ -32,9 +32,6 @@ abstract class ListModel extends Base
     protected const ALL = 0, NONE = -1, CURRENT = 1, NEW = 2, REMOVED = 3, CHANGED = 4;
 
     protected string $defaultOrdering = 'name';
-
-    protected string $defaultDirection = 'ASC';
-
     protected int $defaultLimit = 50;
 
     /**
@@ -46,19 +43,12 @@ abstract class ListModel extends Base
     protected $option = 'com_organizer';
 
     /**
-     * A state object. Overrides the use of the deprecated CMSObject.
-     * @var    Registry
-     */
-    protected $state = null;
-
-    /**
      * @inheritDoc
      */
     public function __construct($config = [], MVCFactoryInterface $factory = null)
     {
         // Preemptively set to avoid unnecessary complications.
         $this->setContext();
-        $this->state = new Registry();
 
         try {
             parent::__construct($config, $factory);
@@ -93,8 +83,9 @@ abstract class ListModel extends Base
         $query->where("$column = $value");
     }
 
-    /** Provides external access to the clean cache function. This belongs in the input adapter, but I do not want to
-     *  have to put in the effort to resolve everything necessary to get it there.
+    /**
+     * Provides external access to the clean cache function. This belongs in the input adapter, but I do not want to
+     * have to put in the effort to resolve everything necessary to get it there.
      * @void initiates cache cleaning
      */
     public function emptyCache(): void
@@ -316,7 +307,28 @@ abstract class ListModel extends Base
      * @param   DatabaseQuery  $query  the query to modify
      * @param   string         $alias  the alias for the linking table
      */
-    public function setCampusFilter(DatabaseQuery $query, string $alias): void
+    protected function setActiveFilter(DatabaseQuery $query, string $alias): void
+    {
+        $status = $this->state->get('filter.active');
+
+        if (!is_numeric($status)) {
+            $status = 1;
+        }
+
+        if ($status == -1) {
+            return;
+        }
+
+        $query->where("$alias.active = $status");
+    }
+
+    /**
+     * Sets a campus filter for a given resource.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias for the linking table
+     */
+    protected function setCampusFilter(DatabaseQuery $query, string $alias): void
     {
         $campusID = $this->state->get('filter.campusID');
         if (empty($campusID)) {
@@ -332,27 +344,6 @@ abstract class ListModel extends Base
 
         $query->innerJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
             ->where("(campusAlias.id = $campusID OR campusAlias.parentID = $campusID)");
-    }
-
-    /**
-     * Sets a campus filter for a given resource.
-     *
-     * @param   DatabaseQuery  $query  the query to modify
-     * @param   string         $alias  the alias for the linking table
-     */
-    public function setActiveFilter(DatabaseQuery $query, string $alias): void
-    {
-        $status = $this->state->get('filter.active');
-
-        if (!is_numeric($status)) {
-            $status = 1;
-        }
-
-        if ($status == -1) {
-            return;
-        }
-
-        $query->where("$alias.active = $status");
     }
 
     /**
@@ -476,7 +467,7 @@ abstract class ListModel extends Base
      * @param   DatabaseQuery  $query  the query to modify
      * @param   string         $alias  the column alias
      */
-    public function setStatusFilter(DatabaseQuery $query, string $alias): void
+    protected function setStatusFilter(DatabaseQuery $query, string $alias): void
     {
         if (!$value = $this->state->get('filter.status')) {
             return;
