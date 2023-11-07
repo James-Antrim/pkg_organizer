@@ -10,11 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
-use THM\Organizer\Buttons\Link;
 use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Routing, Users};
 use THM\Organizer\Models\InstanceItem as Model;
 
@@ -86,67 +84,40 @@ class InstanceItem extends ListView
                 )->icon('far fa-bookmark');
             }
 
-            if ($buttons['register'])
+            /*if ($buttons['register'])
             {
-                $minibar[] = $standard->fetchButton(
-                    'Standard',
-                    'signup',
-                    Text::_('ORGANIZER_REGISTER'),
-                    'InstanceParticipants.registerThis',
-                    false
-                );
+                $itembar->standardButton('register', Text::_('REGISTER'), 'InstanceParticipants.registerThis')
+                    ->icon('fa fa-sign-in-alt');
             }
             elseif ($buttons['deregister'])
             {
-                $minibar[] = $standard->fetchButton(
-                    'Standard',
-                    'exit',
-                    Text::_('ORGANIZER_DEREGISTER'),
-                    'InstanceParticipants.deregisterThis',
-                    false
-                );
-            }
+                $itembar->standardButton('deregister', Text::_('DEREGISTER'), 'InstanceParticipants.deregisterThis')
+                    ->icon('fa fa-sign-out-alt');
+            }*/
 
             if ($buttons['scheduleList']) {
-                $listbar->appendButton(
-                    'Standard',
-                    'bookmark',
-                    Text::_('ORGANIZER_ADD_INSTANCES'),
-                    'InstanceParticipants.bookmark',
-                    true
-                );
+                $listbar->standardButton('bookmark-list', Text::_('ADD_INSTANCES'), 'InstanceParticipants.bookmark')
+                    ->listCheck(true)
+                    ->icon('fas fa-bookmark');
             }
 
             if ($buttons['descheduleList']) {
-                $listbar->appendButton(
-                    'Standard',
-                    'bookmark-2',
-                    Text::_('ORGANIZER_DELETE_INSTANCES'),
-                    'InstanceParticipants.removeBookmark',
-                    true
-                );
+                $listbar->standardButton('unbookmark-list', Text::_('DELETE_INSTANCES'), 'InstanceParticipants.removeBookmark')
+                    ->listCheck(true)
+                    ->icon('far fa-bookmark');;
             }
 
             /*if ($buttons['registerList'])
             {
-                $toolbar->appendButton(
-                    'Standard',
-                    'signup',
-                    Text::_('ORGANIZER_REGISTER'),
-                    'InstanceParticipants.register',
-                    true
-                );
+                $listbar->standardButton('register-list', Text::_('REGISTER'), 'InstanceParticipants.register')->listCheck(true)
+                    ->icon('fa fa-sign-in-alt');;
             }
 
             if ($buttons['deregisterList'])
             {
-                $toolbar->appendButton(
-                    'Standard',
-                    'exit',
-                    Text::_('ORGANIZER_DEREGISTER'),
-                    'InstanceParticipants.deregister',
-                    true
-                );
+                $listbar->standardButton('deregister-list', Text::_('DEREGISTER'), 'InstanceParticipants.deregister')
+                    ->listCheck(true)
+                    ->icon('fa fa-sign-out-alt');
             }*/
 
             if ($buttons['manage']) {
@@ -171,13 +142,13 @@ class InstanceItem extends ListView
         }
 
         if ($instance->subjectID) {
-            $url       = Routing::getViewURL('SubjectItem', $instance->subjectID);
-            $itembar[] = $link->fetchButton('Link', 'book', Text::_('ORGANIZER_SUBJECT_ITEM'), $url, true);
+            $url = Routing::getViewURL('SubjectItem', $instance->subjectID);
+            $itembar->linkButton('subject', Text::_('SUBJECT_ITEM'))->target('_blank')->url($url)->icon('fa fa-book');
         }
 
         if ($itembar) {
             $this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
-            $this->minibar .= implode('', $itembar) . '</div>';
+            $this->minibar .= Toolbar::render('itembar') . '</div>';
         }
     }
 
