@@ -25,6 +25,7 @@ class InstanceItem extends ListView
 {
     use ListsInstances;
 
+    /** @var array A list of buttons to add to the toolbars. */
     private array $buttons = [];
     private string $dateTime;
     public stdClass $instance;
@@ -53,58 +54,39 @@ class InstanceItem extends ListView
         $this->setTitle($instance->name . $method);
         $this->addSubtitle();
 
-        $link     = new Link();
-        $minibar  = [];
-        $standard = new StandardButton();
-        $toolbar  = Toolbar::getInstance();
+        $itembar = Toolbar::getInstance('itembar');
+        $listbar = Toolbar::getInstance();
 
         if ($this->referrer) {
-            $minibar[] = $link->fetchButton('Link', 'undo-2', Text::_('ORGANIZER_BACK_TO_OVERVIEW'), $this->referrer);
+            $itembar->linkButton('back', Text::_('BACK_TO_OVERVIEW'))->url($this->referrer)->icon('fa fa-undo');
         }
 
         if ($this->userID and $this->buttons) {
             $buttons = $this->buttons;
 
             if ($buttons['schedule']) {
-                $minibar[] = $standard->fetchButton(
-                    'Standard',
-                    'bookmark',
-                    Text::_('ORGANIZER_ADD_INSTANCE'),
-                    'InstanceParticipants.bookmarkThis',
-                    false
-                );
+                $itembar->standardButton('bookmark', Text::_('ADD_INSTANCE'), 'InstanceParticipants.bookmarkThis')
+                    ->icon('fas fa-bookmark');
             }
             elseif ($buttons['deschedule']) {
-                $minibar[] = $standard->fetchButton(
-                    'Standard',
-                    'bookmark-2',
-                    Text::_('ORGANIZER_DELETE_INSTANCE'),
-                    'InstanceParticipants.removeBookmarkThis',
-                    false
-                );
+                $itembar->standardButton('unbookmark', Text::_('DELETE_INSTANCE'), 'InstanceParticipants.removeBookmarkThis')
+                    ->icon('far fa-bookmark');
             }
 
             if ($buttons['scheduleBlock']) {
-                $minibar[] = $standard->fetchButton(
-                    'Standard',
-                    'bookmark',
-                    Text::_('ORGANIZER_ADD_BLOCK_INSTANCES'),
-                    'InstanceParticipants.bookmarkBlock',
-                    false
-                );
+                $itembar->standardButton('bookmark-block', Text::_('ADD_BLOCK_INSTANCES'), 'InstanceParticipants.bookmarkBlock')
+                    ->icon('fas fa-bookmark');
             }
 
             if ($buttons['descheduleBlock']) {
-                $minibar[] = $standard->fetchButton(
-                    'Standard',
-                    'bookmark-2',
-                    Text::_('ORGANIZER_DELETE_BLOCK_INSTANCES'),
-                    'InstanceParticipants.removeBookmarkBlock',
-                    false
-                );
+                $itembar->standardButton(
+                    'unbookmark-block',
+                    Text::_('DELETE_BLOCK_INSTANCES'),
+                    'InstanceParticipants.removeBookmarkBlock'
+                )->icon('far fa-bookmark');
             }
 
-            /*if ($buttons['register'])
+            if ($buttons['register'])
             {
                 $minibar[] = $standard->fetchButton(
                     'Standard',
@@ -123,10 +105,10 @@ class InstanceItem extends ListView
                     'InstanceParticipants.deregisterThis',
                     false
                 );
-            }*/
+            }
 
             if ($buttons['scheduleList']) {
-                $toolbar->appendButton(
+                $listbar->appendButton(
                     'Standard',
                     'bookmark',
                     Text::_('ORGANIZER_ADD_INSTANCES'),
@@ -136,7 +118,7 @@ class InstanceItem extends ListView
             }
 
             if ($buttons['descheduleList']) {
-                $toolbar->appendButton(
+                $listbar->appendButton(
                     'Standard',
                     'bookmark-2',
                     Text::_('ORGANIZER_DELETE_INSTANCES'),
@@ -168,7 +150,7 @@ class InstanceItem extends ListView
             }*/
 
             if ($buttons['manage']) {
-                $minibar[] = $standard->fetchButton(
+                $itembar[] = $standard->fetchButton(
                     'NewTab',
                     'users',
                     Text::_('ORGANIZER_MANAGE_BOOKING'),
@@ -178,7 +160,7 @@ class InstanceItem extends ListView
             }
 
             if ($buttons['manageList']) {
-                $toolbar->appendButton(
+                $listbar->appendButton(
                     'Highlander',
                     'users',
                     Text::_('ORGANIZER_MANAGE_BOOKINGS'),
@@ -190,12 +172,12 @@ class InstanceItem extends ListView
 
         if ($instance->subjectID) {
             $url       = Routing::getViewURL('SubjectItem', $instance->subjectID);
-            $minibar[] = $link->fetchButton('Link', 'book', Text::_('ORGANIZER_SUBJECT_ITEM'), $url, true);
+            $itembar[] = $link->fetchButton('Link', 'book', Text::_('ORGANIZER_SUBJECT_ITEM'), $url, true);
         }
 
-        if ($minibar) {
+        if ($itembar) {
             $this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
-            $this->minibar .= implode('', $minibar) . '</div>';
+            $this->minibar .= implode('', $itembar) . '</div>';
         }
     }
 

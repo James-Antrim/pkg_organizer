@@ -26,8 +26,8 @@ class Methods extends ListView
     {
         // Schedule access is a
         $toolbar = Toolbar::getInstance();
-        $toolbar->standardButton('new', Text::_('ADD'), 'Method.add');
-        $toolbar->delete('Methods.delete', Text::_('DELETE'))->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->addNew('Method.add');
+        $toolbar->delete('Methods.delete')->message(Text::_('DELETE_CONFIRM'));
 
         parent::addToolBar();
     }

@@ -26,8 +26,8 @@ class Organizations extends ListView
     {
         // Schedule access is a
         $toolbar = Toolbar::getInstance();
-        $toolbar->standardButton('new', Text::_('ADD'), 'Organization.add');
-        $toolbar->delete('Organizations.delete', Text::_('DELETE'))->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->addNew('Organization.add');
+        $toolbar->delete('Organizations.delete')->message(Text::_('DELETE_CONFIRM'));
 
         parent::addToolBar();
     }

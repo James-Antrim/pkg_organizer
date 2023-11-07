@@ -47,30 +47,23 @@ class Booking extends Participants
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $title = Text::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}";
-
-        $this->setTitle($title);
+        $this->setTitle(Text::_('ORGANIZER_EVENT_CODE') . ": {$this->booking->code}");
 
         $toolbar = Toolbar::getInstance();
 
-        $icon = '<span class="icon-list-3"></span>';
-        $text = Text::_('ORGANIZER_MY_INSTANCES');
-        $url  = Uri::base() . "?option=com_organizer&view=instances&my=1";
-        $link = HTML::link($url, $icon . $text, ['class' => 'btn']);
-        $toolbar->appendButton('Custom', $link);
+        $url = Uri::base() . "?option=com_organizer&view=instances&my=1";
+        $toolbar->linkButton('my', Text::_('MY_INSTANCES'))->url($url)->icon('fa fa-th-list');
 
         $bookingDate = $this->booking->get('date');
-        $today       = date('Y-m-d');
-        $earlyStart  = false;
+        $earlyStart  = $ended = $reOpen = $started = false;
         $end         = $this->booking->get('defaultEndTime');
-        $ended       = false;
-        $expired     = $today > $bookingDate;
-        $isToday     = $today === $bookingDate;
         $notOver     = true;
         $now         = date('H:i:s');
-        $reOpen      = false;
         $start       = $this->booking->get('defaultStartTime');
-        $started     = false;
+        $today       = date('Y-m-d');
+
+        $expired = $today > $bookingDate;
+        $isToday = $today === $bookingDate;
 
         if ($isToday) {
             $earlyStart = date('H:i:s', strtotime('-60 minutes', strtotime($this->booking->get('defaultStartTime'))));
@@ -85,11 +78,8 @@ class Booking extends Participants
         }
 
         if (!$expired and !($isToday and $ended)) {
-            $icon = '<span class="icon-grid-2"></span>';
-            $text = Text::_('QR Code');
-            $url  = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
-            $link = HTML::link($url, $icon . $text, ['class' => 'btn', 'target' => 'qrcode']);
-            $toolbar->appendButton('Custom', $link);
+            $url = Uri::getInstance()->toString() . "&layout=qrcode&tmpl=component";
+            $toolbar->linkButton('qrcode', 'QR Code')->target('qrcode')->url($url)->icon('fa fa-qrcode');
         }
 
         if (count($this->items)) {
@@ -102,31 +92,30 @@ class Booking extends Participants
             );
 
             if (($expired or ($isToday and $now >= $start)) and $this->hasRegistered) {
-                $text = Text::_('ORGANIZER_CHECKIN');
-                $toolbar->appendButton('Standard', 'user-check', $text, 'bookings.checkin', true);
+                $toolbar->standardButton('checkin', Text::_('CHECKIN'), 'Booking.checkin', true)->icon('fa fa-user-check');
             } // No easy removal at a later date
             elseif (!$expired) {
-                $text = Text::_('ORGANIZER_DELETE');
-                $toolbar->appendButton('Standard', 'user-minus', $text, 'bookings.removeParticipants', true);
+                $toolbar->standardButton('remove', Text::_('DELETE'), 'Booking.removeParticipants',
+                    true)->icon('fa fa-user-minus');
             }
         }
 
         if ($isToday) {
             if ($earlyStart or $reOpen) {
                 if ($earlyStart) {
-                    $icon = 'play';
-                    $text = Text::_('ORGANIZER_MANUALLY_OPEN');
+                    $icon = 'fa fa-play';
+                    $text = Text::_('MANUALLY_OPEN');
                 }
                 else {
-                    $icon = 'loop';
-                    $text = Text::_('ORGANIZER_REOPEN');
+                    $icon = 'fa fa-sync';
+                    $text = Text::_('REOPEN');
                 }
 
-                $toolbar->appendButton('Standard', $icon, $text, 'bookings.open', false);
+                $toolbar->standardButton('open', $text, 'Booking.open')->icon($icon);
             }
             elseif ($started and !$this->booking->endTime) {
-                $text = $notOver ? Text::_('ORGANIZER_MANUALLY_CLOSE_PRE') : Text::_('ORGANIZER_MANUALLY_CLOSE_POST');
-                $toolbar->appendButton('Standard', 'stop', $text, 'bookings.close', false);
+                $text = $notOver ? Text::_('MANUALLY_CLOSE_PRE') : Text::_('MANUALLY_CLOSE_POST');
+                $toolbar->standardButton('close', $text, 'Booking.close')->icon('fa fa-stop');
             }
         }
     }

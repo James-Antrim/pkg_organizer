@@ -47,7 +47,7 @@ class ContactTracking extends ListView
     /**
      * @inheritDoc
      */
-    protected function addSubtitle()
+    protected function setSubTitle()
     {
         $then           = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
         $today          = Helpers\Dates::formatDate(date('Y-m-d'));
@@ -57,9 +57,9 @@ class ContactTracking extends ListView
     /**
      * @inheritdoc
      */
-    protected function addToolBar(bool $delete = true)
+    protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_CONTACT_TRACKING');
+        $this->setTitle('CONTACT_TRACKING');
 
         if (($this->state->get('participantID') or $this->state->get('personID')) and count($this->items)) {
             $toolbar = Toolbar::getInstance();

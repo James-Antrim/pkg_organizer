@@ -31,33 +31,15 @@ class Categories extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_CATEGORIES');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'categories.edit', true);
-        $toolbar->appendButton(
-            'Standard',
-            'eye-open',
-            Text::_('ORGANIZER_ACTIVATE'),
-            'Categories.activate',
-            false
-        );
-        $toolbar->appendButton(
-            'Standard',
-            'eye-close',
-            Text::_('ORGANIZER_DEACTIVATE'),
-            'Categories.deactivate',
-            false
-        );
+        $toolbar->standardButton('activate', Text::_('ACTIVATE'), 'Categories.activate')->icon('fa fa-eye')->listCheck(true);
+        $toolbar->standardButton('activate', Text::_('DEACTIVATE'), 'Categories.deactivate')->icon('fa fa-eye-slash');
 
         if (Helpers\Can::administrate()) {
-            $toolbar->appendButton(
-                'Standard',
-                'delete',
-                Text::_('ORGANIZER_DELETE'),
-                'Categories.delete',
-                true
-            );
+            $toolbar->delete('Categories.delete');
         }
+
+        parent::addToolBar();
     }
 
     /**

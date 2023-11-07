@@ -27,7 +27,7 @@ class SubjectSelection extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'x', true);
+        $toolbar->addNew('x', Text::_('ADD'));
     }
 
     /**

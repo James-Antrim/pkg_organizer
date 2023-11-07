@@ -18,57 +18,23 @@ use THM\Organizer\Helpers;
  */
 class Persons extends ListView
 {
-    protected array $rowStructure = [
-        'checkbox'       => '',
-        'surname'        => 'link',
-        'forename'       => 'link',
-        'username'       => 'link',
-        'active'         => 'value',
-        'organizationID' => 'link',
-        'code'           => 'link'
-    ];
-
     /**
      * @inheritdoc
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_TEACHERS');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'persons.add', false);
-        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'persons.edit', true);
-        $toolbar->appendButton(
-            'Standard',
-            'eye-open',
-            Helpers\Text::_('ORGANIZER_ACTIVATE'),
-            'persons.activate',
-            false
-        );
-        $toolbar->appendButton(
-            'Standard',
-            'eye-close',
-            Helpers\Text::_('ORGANIZER_DEACTIVATE'),
-            'persons.deactivate',
-            false
-        );
+        $toolbar->addNew('Person.add');
+        $toolbar->standardButton('activate', Text::_('ACTIVATE'), 'Persons.activate')->icon('fa fa-eye')->listCheck(true);
+        // todo check that automatic deactivation occurs as imagined when no item is selected
+        $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), 'Persons.deactivate')->icon('fa fa-eye-slash');
 
         if (Helpers\Can::administrate()) {
-            /*$toolbar->appendButton(
-                'Confirm',
-                Helpers\Text::_('ORGANIZER_DELETE_CONFIRM'),
-                'delete',
-                Helpers\Text::_('ORGANIZER_DELETE'),
-                'persons.delete',
-                true
-            );*/
-            $toolbar->appendButton(
-                'Standard',
-                'contract',
-                Text::_('ORGANIZER_MERGE'),
-                'persons.mergeView',
-                true
-            );
+            $toolbar->delete('Persons.delete')->message('DELETE_CONFIRM');
+            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergePersons.display')->icon('fa fa-compress');
         }
+
+        parent::addToolBar();
     }
 
     /**

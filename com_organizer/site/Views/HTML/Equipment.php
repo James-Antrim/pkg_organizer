@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -29,7 +29,10 @@ class Equipment extends ListView
      */
     protected function addToolBar(bool $delete = false): void
     {
-        parent::addToolBar($delete);
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('EquipmentItem.add');
+        $toolbar->delete('Equipment.delete')->message(Text::_('DELETE_CONFIRM'));
+        parent::addToolBar();
     }
 
     /**

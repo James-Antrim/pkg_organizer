@@ -58,7 +58,8 @@ class Subjects extends ListView
             }
         }
 
-        $this->setTitle('ORGANIZER_SUBJECTS', $resourceName);
+
+        Toolbar::setTitle('SUBJECTS', $resourceName);
         $toolbar = Toolbar::getInstance();
         if ($this->documentAccess) {
             $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'subjects.add', false);

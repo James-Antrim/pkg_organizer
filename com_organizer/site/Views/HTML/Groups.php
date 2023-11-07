@@ -36,9 +36,7 @@ class Groups extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_GROUPS');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'groups.edit', true);
 
         $if          = "alert('" . Text::_('ORGANIZER_LIST_SELECTION_WARNING', true) . "');";
         $else        = "jQuery('#modal-publishing').modal('show'); return true;";
@@ -51,14 +49,16 @@ class Groups extends ListView
         $batchButton .= '</button>';
 
         $toolbar->appendButton('Custom', $batchButton, 'batch');
-        $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_ACTIVATE'), 'groups.activate', false);
-        $toolbar->appendButton('Standard', 'eye-close', Text::_('ORGANIZER_DEACTIVATE'), 'groups.deactivate', false);
+        $toolbar->standardButton('activate', Text::_('ACTIVATE'), 'Groups.activate')->listCheck(true)->icon('fa fa-eye');
+        $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), 'Groups.deactivate')->icon('fa fa-eye-slash');
 
         if (Helpers\Can::administrate()) {
-            $toolbar->appendButton('Standard', 'contract', Text::_('ORGANIZER_MERGE'), 'groups.mergeView', true);
-            $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_PUBLISH_EXPIRED_TERMS'), 'groups.publishPast',
-                false);
+            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergeGroups.display')->listCheck(true)->icon('fa fa-compress');
+            $toolbar->standardButton('publish-expired', Text::_('PUBLISH_EXPIRED_TERMS'), 'Groups.publishPast')
+                ->icon('fa fa-reply-all');
         }
+
+        parent::addToolBar();
     }
 
     /**

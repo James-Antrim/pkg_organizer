@@ -44,29 +44,11 @@ class Units extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_UNITS');
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->appendButton(
-            'Standard',
-            'plus',
-            Text::_('ORGANIZER_ADD_COURSE'),
-            "units.addCourse",
-            true
-        );
+        $toolbar->addNew('Course.add', Text::_('ADD_COURSE'))->listCheck(true)->icon('fa fa-plus');
 
-        /*if (Helpers\Can::administrate())
-        {
-            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), "units.edit", true);
-            $toolbar->appendButton(
-                'Confirm',
-                Text::_('ORGANIZER_DELETE_CONFIRM'),
-                'delete',
-                Text::_('ORGANIZER_DELETE'),
-                "units.delete",
-                true
-            );
-        }*/
+        parent::addToolBar();
     }
 
     /**

@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -34,6 +34,17 @@ class CleaningGroups extends ListView
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar(): void
+    {
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('CleaningGroup.add');
+        $toolbar->delete('CleaningGroups.delete')->message(Text::_('DELETE_CONFIRM'));
+        parent::addToolBar();
     }
 
     /**

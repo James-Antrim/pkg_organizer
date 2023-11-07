@@ -12,6 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class loads persistent information a filtered set of fields (of expertise) into the display context.
@@ -25,22 +26,21 @@ class FieldColors extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_FIELD_COLORS');
+        // Divergent naming scheme
+        Toolbar::setTitle('FIELD_COLORS');
+
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'link', Text::_('ORGANIZER_ADD'), "field_colors.add", false);
-        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), "field_colors.edit", true);
+        $toolbar->addNew('FieldColor.add')->icon('fa fa-link');
+        $toolbar->delete('FieldColors.delete')->message(Text::_('DELETE_CONFIRM'));
 
-        $toolbar->appendButton(
-            'Confirm',
-            Text::_('ORGANIZER_DELETE_CONFIRM'),
-            'delete',
-            Text::_('ORGANIZER_DELETE'),
-            "field_colors.delete",
-            true
-        );
+        $toolbar->standardButton('newField', Text::_('FIELD_NEW'), 'Field.add')->icon('fa fa-lightbulb');
+        $toolbar->standardButton('newColor', Text::_('COLOR_NEW'), 'Color.add')->icon('fa fa-palette');
 
-        $toolbar->appendButton('Standard', 'lamp', Text::_('ORGANIZER_FIELD_NEW'), 'fields.add', false);
-        $toolbar->appendButton('Standard', 'palette', Text::_('ORGANIZER_COLOR_NEW'), 'colors.add', false);
+
+        if (Can::administrate()) {
+            $toolbar = Toolbar::getInstance();
+            $toolbar->preferences('com_organizer');
+        }
     }
 
     /**

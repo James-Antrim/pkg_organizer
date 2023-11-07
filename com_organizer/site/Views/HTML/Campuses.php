@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text};
+use THM\Organizer\Adapters\{Application, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -34,6 +34,17 @@ class Campuses extends ListView
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar(): void
+    {
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('Campus.add');
+        $toolbar->delete('Campuses.delete')->message(Text::_('DELETE_CONFIRM'));
+        parent::addToolBar();
     }
 
     /**

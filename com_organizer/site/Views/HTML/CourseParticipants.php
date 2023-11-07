@@ -33,7 +33,7 @@ class CourseParticipants extends Participants
     /**
      * @inheritdoc
      */
-    protected function addSubtitle(): void
+    protected function setSubTitle(): void
     {
         $courseID = Input::getID();
 
@@ -54,38 +54,19 @@ class CourseParticipants extends Participants
      */
     protected function addToolBar(bool $delete = true): void
     {
-        Toolbar::setTitle('PARTICIPANTS');
-
-        $courseID = Input::getID();
-        $course   = new Tables\Courses();
-        $course->load($courseID);
+        $this->setTitle('PARTICIPANTS');
 
         $toolbar = Toolbar::getInstance();
 
-        $toolbar->appendButton(
-            'Standard',
-            'checkin',
-            Text::_('ORGANIZER_ACCEPT'),
-            'CourseParticipants.accept',
-            true
-        );
+        $toolbar->standardButton('checkin', Text::_('ACCEPT'), 'CourseParticipants.accept')
+            ->listCheck(true)
+            ->icon('fa fa-check-square');
 
-        $toolbar->appendButton(
-            'Standard',
-            'checkbox-unchecked',
-            Text::_('ORGANIZER_WAITLIST'),
-            'CourseParticipants.waitlist',
-            true
-        );
+        $toolbar->standardButton('wait', Text::_('WAITLIST'), 'CourseParticipants.waitlist')
+            ->listCheck(true)
+            ->icon('fa fa-square');
 
-        $toolbar->appendButton(
-            'Confirm',
-            Text::_('ORGANIZER_DELETE_CONFIRM'),
-            'user-minus',
-            Text::_('ORGANIZER_DELETE'),
-            'CourseParticipants.remove',
-            true
-        );
+        $toolbar->delete('CourseParticipants.remove')->message(Text::_('DELETE_CONFIRM'))->icon('fa fa-user-minus');
 
         $toolbar->appendButton(
             'NewTab',

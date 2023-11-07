@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -27,6 +27,17 @@ class Buildings extends ListView
         'propertyType' => 'link',
         'address'      => 'link'
     ];
+
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar(): void
+    {
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('Building.add');
+        $toolbar->delete('Buildings.delete')->message(Text::_('DELETE_CONFIRM'));
+        parent::addToolBar();
+    }
 
     /**
      * @inheritdoc

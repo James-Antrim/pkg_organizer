@@ -32,20 +32,21 @@ class Export extends FormView
      */
     protected function addToolBar(): void
     {
-        $this->setTitle('ORGANIZER_EXPORT_TITLE');
+        Toolbar::setTitle('EXPORT_TITLE');
         $toolbar = Toolbar::getInstance();
 
         $fields = [
-            'categoryID' => 0,
-            'groupID' => 0,
-            'my' => 0,
-            'methodID' => 0,
+            'categoryID'     => 0,
+            'groupID'        => 0,
+            'my'             => 0,
+            'methodID'       => 0,
             'organizationID' => 0,
-            'personID' => 0,
-            'roleID' => 0,
-            'roomID' => 0
+            'personID'       => 0,
+            'roleID'         => 0,
+            'roomID'         => 0
         ];
-        $form   = ($task = Input::getTask() and $task === 'export.reset') ? [] : Input::getArray();
+
+        $form = ($task = Input::getTask() and $task === 'export.reset') ? [] : Input::getArray();
 
         foreach (array_keys($fields) as $field) {
             if (empty($form[$field])) {
@@ -59,13 +60,7 @@ class Export extends FormView
         // No selection has been made
         if (!$fields) {
             $this->url = '';
-            $toolbar->appendButton(
-                'Standard',
-                'undo-2',
-                Text::_('ORGANIZER_RESET'),
-                'export.reset',
-                false
-            );
+            $toolbar->standardButton('reset', Text::_('RESET'), 'Export.reset')->icon('fa fa-undo');
 
             return;
         }

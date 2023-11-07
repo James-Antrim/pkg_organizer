@@ -26,8 +26,8 @@ class Terms extends ListView
     protected function addToolBar(): void
     {
         $toolbar = Toolbar::getInstance();
-        $toolbar->addNew('Semester.add');
-        $toolbar->delete('Semesters.delete')->message(Text::_('DELETE_CONFIRM'));
+        $toolbar->addNew('Term.add');
+        $toolbar->delete('Terms.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
     }
 

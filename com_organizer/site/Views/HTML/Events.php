@@ -12,6 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class loads persistent information a filtered set of events into the display context.
@@ -32,16 +33,14 @@ class Events extends ListView
     {
         $this->setTitle('ORGANIZER_EVENT_TEMPLATES');
         $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'events.edit', true);
 
-        if (Helpers\Can::administrate()) {
-            $toolbar->appendButton(
-                'Standard',
-                'contract',
-                Text::_('ORGANIZER_MERGE'),
-                'events.mergeView',
-                true
-            );
+        if (Can::administrate()) {
+            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergeEvents.display')->icon('fa fa-compress');
+
+            if (Application::backend()) {
+                $toolbar = Toolbar::getInstance();
+                $toolbar->preferences('com_organizer');
+            }
         }
     }
 
@@ -50,7 +49,7 @@ class Events extends ListView
      */
     protected function authorize(): void
     {
-        if (!Helpers\Can::edit('events')) {
+        if (!Can::edit('events')) {
             Application::error(403);
         }
     }
