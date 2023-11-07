@@ -13,8 +13,8 @@ namespace THM\Organizer\Validators;
 use SimpleXMLElement;
 use stdClass;
 use THM\Organizer\Adapters\{Input, Text};
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
+use THM\Organizer\Helpers\Buildings;
+use THM\Organizer\Tables\Rooms as Table;
 
 /**
  * Class provides general functions for retrieving room data.
@@ -24,13 +24,13 @@ class Rooms implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code)
+    public static function setID(Schedule $model, string $code): void
     {
         $room  = $model->rooms->$code;
-        $table = new Tables\Rooms();
+        $table = new Table();
 
         if (!$table->load(['code' => $room->code])) {
-            $model->errors[] = Text::sprintf('ORGANIZER_ROOM_MISSING_FROM_INVENTORY', $code);
+            $model->errors[] = Text::sprintf('ROOM_MISSING_FROM_INVENTORY', $code);
 
             return;
         }
@@ -53,32 +53,33 @@ class Rooms implements UntisXMLValidator
     /**
      * Checks whether nodes have the expected structure and required information
      *
-     * @param Schedule $model the model for the schedule being validated
+     * @param   Schedule  $model  the model for the schedule being validated
      *
      * @return void modifies &$model
      */
-    public static function setWarnings(Schedule $model)
+    public static function setWarnings(Schedule $model): void
     {
         if (!empty($model->warnings['REX'])) {
             $warningCount = $model->warnings['REX'];
             unset($model->warnings['REX']);
-            $model->warnings[] = Text::sprintf('ORGANIZER_ROOM_EXTERNAL_IDS_MISSING', $warningCount);
+            $model->warnings[] = Text::sprintf('ROOM_EXTERNAL_IDS_MISSING', $warningCount);
         }
     }
 
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node)
+    public static function validate(Schedule $model, SimpleXMLElement $node): void
     {
         $internalID = strtoupper(str_replace('RM_', '', trim((string) $node[0]['id'])));
 
         if ($externalID = strtoupper(trim((string) $node->external_name))) {
             $code = $externalID;
-        } else {
+        }
+        else {
             $model->warnings['REX'] = empty($model->warnings['REX']) ? 1 : $model->warnings['REX'] + 1;
 
-            $code = strpos($internalID, 'ONLINE') !== false ? 'ONLINE' : $internalID;
+            $code = str_contains($internalID, 'ONLINE') ? 'ONLINE' : $internalID;
         }
 
         $capacity      = (int) $node->capacity;
@@ -86,7 +87,7 @@ class Rooms implements UntisXMLValidator
         $buildingREGEX = Input::getParams()->get('buildingRegex');
 
         if (!empty($buildingREGEX) and preg_match("/$buildingREGEX/", $code, $matches)) {
-            $buildingID = Helpers\Buildings::getID($matches[1]);
+            $buildingID = Buildings::getID($matches[1]);
         }
 
         $room              = new stdClass();

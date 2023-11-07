@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
+use THM\Organizer\Adapters\Text;
+use THM\Organizer\Tables\{Associations, Groups as Table};
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -23,11 +23,11 @@ class Groups implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code)
+    public static function setID(Schedule $model, string $code): void
     {
         $group = $model->groups->$code;
 
-        $table  = new Tables\Groups();
+        $table  = new Table();
         $exists = $table->load(['code' => $group->code]);
 
         if ($exists) {
@@ -42,11 +42,12 @@ class Groups implements UntisXMLValidator
             if ($altered) {
                 $table->store();
             }
-        } else {
+        }
+        else {
             $table->save($group);
         }
 
-        $association = new Tables\Associations();
+        $association = new Associations();
         if (!$association->load(['groupID' => $table->id])) {
             $association->save(['groupID' => $table->id, 'organizationID' => $model->organizationID]);
         }
@@ -57,34 +58,42 @@ class Groups implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node)
+    public static function validate(Schedule $model, SimpleXMLElement $node): void
     {
         $code     = str_replace('CL_', '', trim((string) $node[0]['id']));
         $fullName = trim((string) $node->longname);
         if (empty($fullName)) {
-            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_FULLNAME_MISSING', $code);
+            $model->errors[] = Text::sprintf('GROUP_FULLNAME_MISSING', $code);
+
             return;
         }
 
         $name = trim((string) $node->classlevel);
         if (empty($name)) {
-            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_NAME_MISSING', $fullName, $code);
+            $model->errors[] = Text::sprintf('GROUP_NAME_MISSING', $fullName, $code);
+
             return;
         }
 
         if (!$categoryID = str_replace('DP_', '', trim((string) $node->class_department[0]['id']))) {
-            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_CATEGORY_MISSING', $fullName, $code);
+            $model->errors[] = Text::sprintf('GROUP_CATEGORY_MISSING', $fullName, $code);
+
             return;
-        } elseif (!$category = $model->categories->$categoryID) {
-            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_CATEGORY_INCOMPLETE', $fullName, $code, $categoryID);
+        }
+        elseif (!$category = $model->categories->$categoryID) {
+            $model->errors[] = Text::sprintf('GROUP_CATEGORY_INCOMPLETE', $fullName, $code, $categoryID);
+
             return;
         }
 
         if (!$gridName = (string) $node->timegrid) {
-            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_GRID_MISSING', $fullName, $code);
+            $model->errors[] = Text::sprintf('GROUP_GRID_MISSING', $fullName, $code);
+
             return;
-        } elseif (!$grid = $model->grids->$gridName) {
-            $model->errors[] = Text::sprintf('ORGANIZER_GROUP_GRID_INCOMPLETE', $fullName, $code, $gridName);
+        }
+        elseif (!$grid = $model->grids->$gridName) {
+            $model->errors[] = Text::sprintf('GROUP_GRID_INCOMPLETE', $fullName, $code, $gridName);
+
             return;
         }
 

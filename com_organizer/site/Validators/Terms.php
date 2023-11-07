@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
+use THM\Organizer\Adapters\Text;
+use THM\Organizer\Tables\Terms as Table;
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -23,14 +23,14 @@ class Terms implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code)
+    public static function setID(Schedule $model, string $code): void
     {
         $loadCriteria = [
             ['code' => $code],
             ['endDate' => $model->term->endDate, 'startDate' => $model->term->startDate]
         ];
 
-        $table = new Tables\Terms();
+        $table = new Table();
 
         foreach ($loadCriteria as $criterion) {
             if ($exists = $table->load($criterion)) {
@@ -75,7 +75,7 @@ class Terms implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node)
+    public static function validate(Schedule $model, SimpleXMLElement $node): void
     {
         $model->schoolYear            = new stdClass();
         $model->schoolYear->endDate   = trim((string) $node->schoolyearenddate);
@@ -96,7 +96,7 @@ class Terms implements UntisXMLValidator
 
         // Data type / value checks failed.
         if (!$valid) {
-            $model->errors[] = Text::_('ORGANIZER_TERM_INVALID');
+            $model->errors[] = Text::_('TERM_INVALID');
 
             return;
         }
@@ -104,7 +104,7 @@ class Terms implements UntisXMLValidator
         $endTimeStamp = strtotime($term->endDate);
 
         if ($endTimeStamp < strtotime(date('Y-m-d'))) {
-            $model->errors[] = Text::_('ORGANIZER_TERM_EXPIRED');
+            $model->errors[] = Text::_('TERM_EXPIRED');
 
             return;
         }
@@ -119,7 +119,7 @@ class Terms implements UntisXMLValidator
 
         // Consistency among the dates failed.
         if ($invalid) {
-            $model->errors[] = Text::_('ORGANIZER_TERM_INVALID');
+            $model->errors[] = Text::_('TERM_INVALID');
 
             return;
         }

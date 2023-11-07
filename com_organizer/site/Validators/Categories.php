@@ -10,11 +10,11 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
+use THM\Organizer\Adapters\Text;
+use THM\Organizer\Helpers\{Organizations, Programs};
+use THM\Organizer\Tables\{Associations, Categories as Table, Degrees};
 
 /**
  * Provides general functions for campus access checks, data retrieval and display.
@@ -24,7 +24,7 @@ class Categories implements UntisXMLValidator
     /**
      * Determines whether the data conveyed in the untisID is plausible for finding a real program.
      *
-     * @param string $untisID the id used in untis for this program
+     * @param   string  $untisID  the id used in untis for this program
      *
      * @return string[] empty if the id is implausible
      */
@@ -45,7 +45,7 @@ class Categories implements UntisXMLValidator
         $plausibleCode = preg_match('/^[A-Z]+[0-9]*$/', $pieces[0]);
 
         // Degrees are a managed resource
-        $degrees  = new Tables\Degrees();
+        $degrees  = new Degrees();
         $degreeID = $degrees->load(['code' => $pieces[1]]) ? $degrees->id : null;
 
         // Should be year of accreditation, but ITS likes to pick random years
@@ -58,10 +58,10 @@ class Categories implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code)
+    public static function setID(Schedule $model, string $code): void
     {
         $category = $model->categories->$code;
-        $table    = new Tables\Categories();
+        $table    = new Table();
 
         if ($exists = $table->load(['code' => $code])) {
             $altered = false;
@@ -83,7 +83,7 @@ class Categories implements UntisXMLValidator
             $table->save($category);
         }
 
-        $association = new Tables\Associations();
+        $association = new Associations();
         if (!$association->load(['categoryID' => $table->id])) {
             $association->save(['categoryID' => $table->id, 'organizationID' => $model->organizationID]);
         }
@@ -94,12 +94,12 @@ class Categories implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node)
+    public static function validate(Schedule $model, SimpleXMLElement $node): void
     {
         $code = str_replace('DP_', '', trim((string) $node[0]['id']));
 
         if (!$name = (string) $node->longname) {
-            $model->errors[] = Text::sprintf('ORGANIZER_CATEGORY_NAME_MISSING', $code);
+            $model->errors[] = Text::sprintf('CATEGORY_NAME_MISSING', $code);
 
             return;
         }
@@ -111,11 +111,11 @@ class Categories implements UntisXMLValidator
 
         $model->categories->$code = $category;
         self::setID($model, $code);
-        Helpers\Organizations::setResource($category->id, 'categoryID');
+        Organizations::setResource($category->id, 'categoryID');
 
         if ($programData = self::parseProgramData($code)) {
             $programName = trim(substr($name, 0, strpos($name, '(')));
-            Helpers\Programs::create($programData, $programName, $category->id);
+            Programs::create($programData, $programName, $category->id);
         }
     }
 }

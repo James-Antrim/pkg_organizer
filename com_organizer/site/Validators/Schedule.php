@@ -10,66 +10,45 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\{Application, Input, Text};
-use THM\Organizer\Tables;
+use SimpleXMLElement;
 use stdClass;
+use THM\Organizer\Adapters\{Application, Input, Text};
+use THM\Organizer\Tables\Schedules as Table;
 
 /**
  * Provides functions for XML unit validation and persistence.
  */
 class Schedule
 {
-    public $categories = null;
-
-    public $creationDate;
-
-    public $creationTime;
-
-    public $dateTime;
-
-    public $errors = [];
-
-    public $events = null;
-
-    public $grids = null;
-
-    public $groups = null;
-
-    public $instances = [];
-
-    public $methods = null;
-
-    /**
-     * @var string
-     */
-    public $modified;
-
-    public $organizationID;
-
-    public $persons = null;
-
-    public $rooms = null;
-
-    public $schoolYear = null;
-
-    public $term = null;
-
-    public $termID = null;
-
-    public $units = null;
-
-    public $warnings = [];
-
-    public $xml = null;
+    public stdClass $categories;
+    public string $creationDate;
+    public string $creationTime;
+    public int $dateTime;
+    public array $errors = [];
+    public stdClass $events;
+    public stdClass $grids;
+    public stdClass $groups;
+    public array $instances = [];
+    public stdClass $methods;
+    public string $modified;
+    public int $organizationID;
+    public stdClass $persons;
+    public stdClass $rooms;
+    public stdClass $schoolYear;
+    public stdClass $term;
+    public int $termID;
+    public stdClass $units;
+    public array $warnings = [];
+    public SimpleXMLElement $xml;
 
     /**
      * Creates a status report based upon object error and warning messages
      * @return void  outputs errors to the application
      */
-    private function printStatusReport()
+    private function printStatusReport(): void
     {
         if (count($this->errors)) {
-            $errorMessage = Text::_('ORGANIZER_ERROR_HEADER') . '<br />';
+            $errorMessage = Text::_('ERROR_HEADER') . '<br />';
             $errorMessage .= implode('<br />', $this->errors);
             Application::message($errorMessage, Application::ERROR);
         }
@@ -98,10 +77,9 @@ class Schedule
         $this->creationDate = trim((string) $this->xml[0]['date']);
         $validCreationDate  = $this->validateDate($this->creationDate, 'CREATION_DATE');
         $this->creationTime = trim((string) $this->xml[0]['time']);
-        $valid              = false;
 
         if ($valid = ($validCreationDate and $this->validateCreationTime())) {
-            // Set the cut off to the day before schedule generation to avoid inconsistencies on the creation date
+            // Set the cut-off to the day before schedule generation to avoid inconsistencies on the creation date
             $this->dateTime = strtotime('-1 day', strtotime("$this->creationDate $this->creationTime"));
         }
 
@@ -118,16 +96,16 @@ class Schedule
         unset($this->xml->general);
 
         $contextKeys = [
-            'creationDate' => $this->creationDate,
-            'creationTime' => $this->creationTime,
+            'creationDate'   => $this->creationDate,
+            'creationTime'   => $this->creationTime,
             'organizationID' => $this->organizationID,
-            'termID' => $this->termID
+            'termID'         => $this->termID
         ];
 
-        $schedule = new Tables\Schedules();
+        $schedule = new Table();
 
         if ($schedule->load($contextKeys)) {
-            Application::message('ORGANIZER_SCHEDULE_EXISTS', Application::ERROR);
+            Application::message('SCHEDULE_EXISTS', Application::ERROR);
 
             return false;
         }
@@ -146,13 +124,13 @@ class Schedule
     public function validateCreationTime(): bool
     {
         if (empty($this->creationTime)) {
-            $this->errors[] = Text::_("ORGANIZER_CREATION_TIME_MISSING");
+            $this->errors[] = Text::_("CREATION_TIME_MISSING");
 
             return false;
         }
 
         if (!preg_match('/^[\d]{6}$/', $this->creationTime)) {
-            $this->errors[]     = Text::_("ORGANIZER_CREATION_TIME_INVALID");
+            $this->errors[]     = Text::_("CREATION_TIME_INVALID");
             $this->creationTime = '';
 
             return false;
@@ -166,15 +144,15 @@ class Schedule
     /**
      * Validates a date attribute.
      *
-     * @param string &$value    the attribute value passed by reference because of reformatting to Y-m-d
-     * @param string  $constant the unique text constant fragment
+     * @param   string &$value     the attribute value passed by reference because of reformatting to Y-m-d
+     * @param   string  $constant  the unique text constant fragment
      *
      * @return bool true on success, otherwise false
      */
     public function validateDate(string &$value, string $constant): bool
     {
         if (empty($value)) {
-            $this->errors[] = Text::_("ORGANIZER_{$constant}_MISSING");
+            $this->errors[] = Text::_("{$constant}_MISSING");
 
             return false;
         }
@@ -190,11 +168,11 @@ class Schedule
      * Checks a given schedule in gp-untis xml format for data completeness and
      * consistency and gives it basic structure
      *
-     * @param bool $validTerm whether or not the term is valid
+     * @param   bool  $validTerm  whether the term is valid
      *
      * @return void true on successful validation w/o errors, false if the schedule was invalid or an error occurred
      */
-    public function validateResources(bool $validTerm)
+    public function validateResources(bool $validTerm): void
     {
         $this->categories = new stdClass();
         foreach ($this->xml->departments->children() as $node) {
@@ -204,7 +182,7 @@ class Schedule
 
         $this->methods = new stdClass();
         foreach ($this->xml->descriptions->children() as $node) {
-            Descriptions::validate($this, $node);
+            Methods::validate($this, $node);
         }
         unset($this->xml->descriptions);
 
@@ -260,22 +238,22 @@ class Schedule
     /**
      * Validates a text attribute. Sets the attribute if valid.
      *
-     * @param string $value    the attribute value
-     * @param string $constant the unique text constant fragment
-     * @param string $regex    the regex to check the text against
+     * @param   string  $value     the attribute value
+     * @param   string  $constant  the unique text constant fragment
+     * @param   string  $regex     the regex to check the text against
      *
      * @return bool false if blocking errors were found, otherwise true
      */
     public function validateText(string $value, string $constant, string $regex = ''): bool
     {
         if (empty($value)) {
-            $this->errors[] = Text::_("ORGANIZER_{$constant}_MISSING");
+            $this->errors[] = Text::_("{$constant}_MISSING");
 
             return false;
         }
 
         if (!empty($regex) and preg_match($regex, $value)) {
-            $this->errors[] = Text::_("ORGANIZER_{$constant}_INVALID");
+            $this->errors[] = Text::_("{$constant}_INVALID");
 
             return false;
         }

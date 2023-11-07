@@ -10,11 +10,11 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
+use THM\Organizer\Adapters\Text;
+use THM\Organizer\Helpers\Organizations;
+use THM\Organizer\Tables\{Associations, Persons as Table};
 
 /**
  * Provides general functions for person access checks, data retrieval and display.
@@ -24,10 +24,10 @@ class Persons implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code)
+    public static function setID(Schedule $model, string $code): void
     {
         $person       = $model->persons->$code;
-        $table        = new Tables\Persons();
+        $table        = new Table();
         $loadCriteria = [];
 
         if (!empty($person->username)) {
@@ -77,7 +77,7 @@ class Persons implements UntisXMLValidator
         }
 
         // Only automatically associate the first association.
-        $association = new Tables\Associations();
+        $association = new Associations();
         if (!$association->load(['personID' => $table->id])) {
             $association->save(['organizationID' => $model->organizationID, 'personID' => $table->id]);
         }
@@ -88,42 +88,43 @@ class Persons implements UntisXMLValidator
     /**
      * Checks whether nodes have the expected structure and required information
      *
-     * @param Schedule $model the model for the schedule being validated
+     * @param   Schedule  $model  the model for the schedule being validated
      *
      * @return void modifies &$model
      */
-    public static function setWarnings(Schedule $model)
+    public static function setWarnings(Schedule $model): void
     {
         if (!empty($model->warnings['PEX'])) {
             $warningCount = $model->warnings['PEX'];
             unset($model->warnings['PEX']);
-            $model->warnings[] = Text::sprintf('ORGANIZER_PERSON_EXTERNAL_IDS_MISSING', $warningCount);
+            $model->warnings[] = Text::sprintf('PERSON_EXTERNAL_IDS_MISSING', $warningCount);
         }
 
         if (!empty($model->warnings['PFN'])) {
             $warningCount = $model->warnings['PFN'];
             unset($model->warnings['PFN']);
-            $model->warnings[] = Text::sprintf('ORGANIZER_PERSON_FORENAMES_MISSING', $warningCount);
+            $model->warnings[] = Text::sprintf('PERSON_FORENAMES_MISSING', $warningCount);
         }
     }
 
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node)
+    public static function validate(Schedule $model, SimpleXMLElement $node): void
     {
         $internalID = str_replace('TR_', '', trim((string) $node[0]['id']));
 
         if ($externalID = trim((string) $node->external_name)) {
             $untisID = $externalID;
-        } else {
+        }
+        else {
             $model->warnings['PEX'] = empty($model->warnings['PEX']) ? 1 : $model->warnings['PEX'] + 1;
             $untisID                = $internalID;
         }
 
         $surname = trim((string) $node->surname);
         if (empty($surname)) {
-            $model->errors[] = Text::sprintf('ORGANIZER_PERSON_SURNAME_MISSING', $internalID);
+            $model->errors[] = Text::sprintf('PERSON_SURNAME_MISSING', $internalID);
 
             return;
         }
@@ -142,6 +143,6 @@ class Persons implements UntisXMLValidator
         $model->persons->$internalID = $person;
 
         self::setID($model, $internalID);
-        Helpers\Organizations::setResource($person->id, 'personID');
+        Organizations::setResource($person->id, 'personID');
     }
 }

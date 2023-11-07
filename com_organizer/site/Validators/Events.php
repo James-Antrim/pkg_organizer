@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Validators;
 
-use THM\Organizer\Adapters\Text;
-use THM\Organizer\Tables;
 use SimpleXMLElement;
 use stdClass;
+use THM\Organizer\Adapters\Text;
+use THM\Organizer\Tables\Events as Table;
 
 /**
  * Provides general functions for course access checks, data retrieval and display.
@@ -23,10 +23,10 @@ class Events implements UntisXMLValidator
     /**
      * @inheritDoc
      */
-    public static function setID(Schedule $model, string $code)
+    public static function setID(Schedule $model, string $code): void
     {
         $event = $model->events->$code;
-        $table = new Tables\Events();
+        $table = new Table();
 
         if ($table->load(['organizationID' => $event->organizationID, 'code' => $code])) {
             $altered = false;
@@ -44,7 +44,8 @@ class Events implements UntisXMLValidator
             if ($altered) {
                 $table->store();
             }
-        } else {
+        }
+        else {
             $table->save($event);
         }
 
@@ -54,29 +55,29 @@ class Events implements UntisXMLValidator
     /**
      * Creates a warning for missing subject no attributes.
      *
-     * @param Schedule $model the model for the schedule being validated
+     * @param   Schedule  $model  the model for the schedule being validated
      *
      * @return void modifies &$model
      */
-    public static function setWarnings(Schedule $model)
+    public static function setWarnings(Schedule $model): void
     {
         if (!empty($model->warnings['SubjectNumber'])) {
             $warningCount = $model->warnings['SubjectNumber'];
             unset($model->warnings['SubjectNumber']);
-            $model->warnings[] = Text::sprintf('ORGANIZER_EVENT_SUBJECTNOS_MISSING', $warningCount);
+            $model->warnings[] = Text::sprintf('EVENT_SUBJECTNOS_MISSING', $warningCount);
         }
     }
 
     /**
      * @inheritDoc
      */
-    public static function validate(Schedule $model, SimpleXMLElement $node)
+    public static function validate(Schedule $model, SimpleXMLElement $node): void
     {
         $code = str_replace('SU_', '', trim((string) $node[0]['id']));
         $name = trim((string) $node->longname);
 
         if (empty($name)) {
-            $model->errors[] = Text::sprintf('ORGANIZER_EVENT_NAME_MISSING', $code);
+            $model->errors[] = Text::sprintf('EVENT_NAME_MISSING', $code);
 
             return;
         }
