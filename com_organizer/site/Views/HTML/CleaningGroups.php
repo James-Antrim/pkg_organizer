@@ -10,8 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use stdClass;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads a filtered set of buildings into the display context.
@@ -30,28 +31,26 @@ class CleaningGroups extends ListView
     }
 
     /**
+     * @inheritDoc
+     */
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        $tip = 'CLICK_TO_MARK_';
+        $tip .= $item->relevant ? 'IRRELEVANT' : 'RELEVANT';
+
+        $item->days      = $item->days === '0.00' ? '-' : $item->days;
+        $item->link      = $options['query'] . $item->id;
+        $item->relevant  = $this->getToggle('CleaningGroups', $item->id, $item->relevant, $tip);
+        $item->valuation = $item->valuation === '0.00' ? '-' : $item->valuation;
+    }
+
+    /**
      * @inheritdoc
      */
-    protected function completeItems(): void
+    protected function completeItems(array $options = []): void
     {
-        $link            = 'index.php?option=com_organizer&view=CleaningGroupEdit&id=';
-        $index           = 0;
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $item->days      = $item->days === '0.00' ? '-' : $item->days;
-            $item->valuation = $item->valuation === '0.00' ? '-' : $item->valuation;
-
-            $tip = 'ORGANIZER_CLICK_TO_MARK_';
-            $tip .= $item->relevant ? 'IRRELEVANT' : 'RELEVANT';
-
-            $item->relevant = $this->getToggle('CleaningGroups', $item->id, $item->relevant, $tip);
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $options = ['query' => 'index.php?option=com_organizer&view=CleaningGroup&id='];
+        parent::completeItems($options);
     }
 
     /**
@@ -61,11 +60,28 @@ class CleaningGroups extends ListView
     {
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox'  => '',
-            'name'      => HTML::sort('NAME', 'name', $direction, 'name'),
-            'days'      => Text::_('CLEANING_DAYS_PER_MONTH'),
-            'valuation' => Text::_('CALCULATED_SURFACE_PERFORMANCE_VALUE'),
-            'relevant'  => Text::_('COST_ACCOUNTING')
+            'check'     => ['type' => 'check'],
+            'name'      => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
+                'type'       => 'value'
+            ],
+            'days'      => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('CLEANING_DAYS_PER_MONTH'),
+                'type'       => 'text'
+            ],
+            'valuation' => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('CALCULATED_SURFACE_PERFORMANCE_VALUE'),
+                'type'       => 'text'
+            ],
+            'relevant'  => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('COST_ACCOUNTING'),
+                'type'       => 'value'
+            ],
         ];
 
         $this->headers = $headers;
