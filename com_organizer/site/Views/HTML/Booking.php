@@ -32,16 +32,6 @@ class Booking extends Participants
 
     private bool $hasRegistered = false;
 
-    protected array $rowStructure = [
-        'checkbox' => '',
-        'status'   => 'value',
-        'fullName' => 'link',
-        'event'    => 'value',
-        'room'     => 'value',
-        'seat'     => 'value',
-        'complete' => 'value'
-    ];
-
     /**
      * @inheritDoc
      */

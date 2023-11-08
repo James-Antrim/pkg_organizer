@@ -23,8 +23,6 @@ class Search extends ListView
 
     public $results;
 
-    protected array $rowStructure = ['result' => 'value', 'links' => 'value'];
-
     /**
      * Processes an individual list item resolving it to an array of table data values.
      *

@@ -443,14 +443,16 @@ class Can
             'Methods', 'Organization', 'Organizations', 'Participant', 'Participants', 'Run', 'Runs', 'Term', 'Terms'
             => false,
             // Scheduling resources and views with no intrinsic public value and import forms
-            'Categories', 'CoursesImport', 'Events', 'Groups', 'MergeCategories', 'MergeEvents', 'Schedule', 'Schedules',
+            'Categories', 'CoursesImport', 'Groups', 'MergeCategories', 'MergeEvents', 'Schedule', 'Schedules',
             'Units'
             => (bool) self::scheduleTheseOrganizations(),
+            // Special dispensation for coordinators and teachers
+            'Events' => self::edit('events'),
             // Edit views for scheduling resource with no intrinsic public value
             'Category', 'Event', 'Group', 'Unit'
             => self::edit(strtolower($view), $resourceID),
             // Curriculum resources with no intrinsic public value
-            'FieldColors', 'Pools', 'PoolSelection'
+            'FieldColors', 'Pools', 'PoolSelection', 'SubjectSelection'
             => (bool) self::documentTheseOrganizations(),
             // Curriculum resources with public value
             'Programs', 'Subjects'

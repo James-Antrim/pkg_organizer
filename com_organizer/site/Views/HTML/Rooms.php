@@ -21,14 +21,6 @@ class Rooms extends ListView
     use Activated;
     use Merged;
 
-    protected array $rowStructure = [
-        'checkbox'     => '',
-        'roomName'     => 'link',
-        'buildingName' => 'link',
-        'roomType'     => 'link',
-        'active'       => 'value'
-    ];
-
     /**
      * @inheritdoc
      */

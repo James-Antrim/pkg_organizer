@@ -28,15 +28,9 @@ class InstanceItem extends ListView
     private string $dateTime;
     public stdClass $instance;
     protected string $layout = 'instance-item';
+
     private array $messages = [];
     public string $minibar = '';
-    protected array $rowStructure = [
-        'tools'   => '',
-        'date'    => 'value',
-        'time'    => 'value',
-        'persons' => 'value',
-        'rooms'   => 'value'
-    ];
     private string $status = '';
     private string $statusDate = '';
     private int $userID;
@@ -163,11 +157,7 @@ class InstanceItem extends ListView
 
         if ($this->userID = Users::getID()) {
             $this->manages = Can::manage('instance', $instanceID);
-
-            return;
         }
-
-        $this->manages = false;
     }
 
     /**

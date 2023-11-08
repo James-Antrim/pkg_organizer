@@ -20,15 +20,6 @@ use THM\Organizer\Layouts\HTML\ListItem;
  */
 class Runs extends ListView
 {
-    protected array $rowStructure = [
-        'checkbox'  => '',
-        'name'      => 'link',
-        'term'      => 'link',
-        'startDate' => 'link',
-        'endDate'   => 'link',
-        'sections'  => 'value'
-    ];
-
     /**
      * @inheritDoc
      */

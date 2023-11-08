@@ -33,16 +33,6 @@ class SubjectSelection extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::documentTheseOrganizations()) {
-            Application::error(403);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function completeItems(): void
     {
         $index           = 0;

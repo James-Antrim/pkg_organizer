@@ -49,20 +49,6 @@ class Programs extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize(): void
-    {
-        if (!Application::backend()) {
-            return;
-        }
-
-        if (!$this->documentAccess = Can::documentTheseOrganizations()) {
-            Application::error(403);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function completeItems(): void
     {
         $editLink = 'index.php?option=com_organizer&view=program_edit&id=';

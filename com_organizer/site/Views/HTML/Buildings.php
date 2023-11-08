@@ -20,14 +20,6 @@ class Buildings extends ListView
 {
     private const OWNED = 1, RENTED = 2, USED = 3;
 
-    protected array $rowStructure = [
-        'checkbox'     => '',
-        'name'         => 'link',
-        'campusID'     => 'link',
-        'propertyType' => 'link',
-        'address'      => 'link'
-    ];
-
     /**
      * @inheritdoc
      */

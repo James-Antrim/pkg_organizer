@@ -32,16 +32,6 @@ class Units extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
-            Application::error(403);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();

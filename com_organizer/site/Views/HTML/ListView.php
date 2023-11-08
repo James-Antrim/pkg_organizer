@@ -38,7 +38,6 @@ abstract class ListView extends Base
     protected string $layout = 'list';
     /** @var ListModel */
     protected BaseDatabaseModel $model;
-    protected array $rowStructure = [];
     protected bool $sameTab = false;
     protected bool $structureEmpty = false;
     /** @var array The default text for an empty result set. */

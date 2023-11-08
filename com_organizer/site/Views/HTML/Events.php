@@ -21,13 +21,6 @@ class Events extends ListView
 {
     use Merged;
 
-    protected array $rowStructure = [
-        'checkbox'     => '',
-        'code'         => 'link',
-        'name'         => 'link',
-        'organization' => 'link'
-    ];
-
     /**
      * @inheritdoc
      */
@@ -43,16 +36,6 @@ class Events extends ListView
                 $toolbar = Toolbar::getInstance();
                 $toolbar->preferences('com_organizer');
             }
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Can::edit('events')) {
-            Application::error(403);
         }
     }
 

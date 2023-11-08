@@ -23,16 +23,6 @@ abstract class PoolsView extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::documentTheseOrganizations()) {
-            Application::error(403);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function addToolBar(bool $delete = true): void
     {
         $toolbar = Toolbar::getInstance();

@@ -18,24 +18,6 @@ use THM\Organizer\Helpers;
  */
 class Campuses extends ListView
 {
-    protected array $rowStructure = [
-        'checkbox' => '',
-        'name'     => 'link',
-        'address'  => 'link',
-        'location' => 'value',
-        'gridID'   => 'link'
-    ];
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::manage('facilities')) {
-            Application::error(403);
-        }
-    }
-
     /**
      * @inheritdoc
      */

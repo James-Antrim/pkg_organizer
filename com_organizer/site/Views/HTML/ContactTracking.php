@@ -47,7 +47,7 @@ class ContactTracking extends ListView
     /**
      * @inheritDoc
      */
-    protected function setSubTitle()
+    protected function setSubTitle(): void
     {
         $then           = Helpers\Dates::formatDate(date('Y-m-d', strtotime("-28 days")));
         $today          = Helpers\Dates::formatDate(date('Y-m-d'));
@@ -71,7 +71,7 @@ class ContactTracking extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Users::getID()) {
             Application::error(401);

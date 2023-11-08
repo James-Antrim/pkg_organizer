@@ -22,15 +22,6 @@ class Monitors extends ListView
 
     public array $displayBehaviour = [];
 
-    protected array $rowStructure = [
-        'checkbox'    => '',
-        'name'        => 'link',
-        'ip'          => 'link',
-        'useDefaults' => 'value',
-        'display'     => 'link',
-        'content'     => 'link'
-    ];
-
     /**
      * @inheritdoc
      */
@@ -42,16 +33,6 @@ class Monitors extends ListView
         $this->displayBehaviour[self::CONTENT]  = Text::_('ORGANIZER_CONTENT_DISPLAY');
 
         parent::__construct($config);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::manage('facilities')) {
-            Application::error(403);
-        }
     }
 
     /**

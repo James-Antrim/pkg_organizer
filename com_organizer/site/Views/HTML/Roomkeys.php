@@ -18,24 +18,6 @@ use THM\Organizer\Helpers;
  */
 class Roomkeys extends ListView
 {
-    protected array $rowStructure = [
-        'checkbox'      => '',
-        'name'          => 'link',
-        'key'           => 'link',
-        'useGroup'      => 'link',
-        'cleaningGroup' => 'link'
-    ];
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::manage('facilities')) {
-            Application::error(403);
-        }
-    }
-
     /**
      * @inheritdoc
      */

@@ -20,14 +20,6 @@ class Categories extends ListView
 {
     use Activated;
 
-    protected array $rowStructure = [
-        'checkbox' => '',
-        'name'     => 'link',
-        'active'   => 'value',
-        'program'  => 'link',
-        'code'     => 'link'
-    ];
-
     /**
      * @inheritdoc
      */
@@ -43,16 +35,6 @@ class Categories extends ListView
         }
 
         parent::addToolBar();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
-            Application::error(403);
-        }
     }
 
     /**

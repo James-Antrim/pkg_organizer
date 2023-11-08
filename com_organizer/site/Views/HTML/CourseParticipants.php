@@ -20,16 +20,6 @@ use THM\Organizer\Tables;
  */
 class CourseParticipants extends Participants
 {
-    protected array $rowStructure = [
-        'checkbox' => '',
-        'fullName' => 'value',
-        'email'    => 'value',
-        'program'  => 'value',
-        'status'   => 'value',
-        'paid'     => 'value',
-        'attended' => 'value'
-    ];
-
     /**
      * @inheritdoc
      */

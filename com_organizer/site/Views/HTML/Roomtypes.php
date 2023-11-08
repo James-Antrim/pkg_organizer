@@ -18,13 +18,6 @@ use THM\Organizer\Helpers\Can;
  */
 class Roomtypes extends ListView
 {
-    protected array $rowStructure = [
-        'checkbox' => '',
-        'rns'      => 'link',
-        'name'     => 'link',
-        'useCode'  => 'link'
-    ];
-
     /**
      * @inheritdoc
      */

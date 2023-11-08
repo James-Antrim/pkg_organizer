@@ -18,12 +18,6 @@ use THM\Organizer\Helpers;
  */
 class Equipment extends ListView
 {
-    protected array $rowStructure = [
-        'checkbox' => '',
-        'code'     => 'link',
-        'name'     => 'link'
-    ];
-
     /**
      * @inheritDoc
      */
@@ -33,16 +27,6 @@ class Equipment extends ListView
         $toolbar->addNew('EquipmentItem.add');
         $toolbar->delete('Equipment.delete')->message(Text::_('DELETE_CONFIRM'));
         parent::addToolBar();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::manage('facilities')) {
-            Application::error(403);
-        }
     }
 
     /**

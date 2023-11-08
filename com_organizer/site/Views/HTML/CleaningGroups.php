@@ -18,24 +18,6 @@ use THM\Organizer\Helpers;
  */
 class CleaningGroups extends ListView
 {
-    protected array $rowStructure = [
-        'checkbox'  => '',
-        'name'      => 'link',
-        'days'      => 'link',
-        'valuation' => 'link',
-        'relevant'  => 'value'
-    ];
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::manage('facilities')) {
-            Application::error(403);
-        }
-    }
-
     /**
      * @inheritdoc
      */

@@ -19,8 +19,6 @@ use THM\Organizer\Helpers\Can;
  */
 class FieldColors extends ListView
 {
-    protected array $rowStructure = ['checkbox' => '', 'field' => 'link', 'organization' => 'link', 'color' => 'value'];
-
     /**
      * @inheritdoc
      */
@@ -40,16 +38,6 @@ class FieldColors extends ListView
         if (Can::administrate()) {
             $toolbar = Toolbar::getInstance();
             $toolbar->preferences('com_organizer');
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::documentTheseOrganizations()) {
-            Application::error(403);
         }
     }
 

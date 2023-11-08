@@ -40,16 +40,6 @@ class Persons extends ListView
     /**
      * @inheritdoc
      */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::manage('persons')) {
-            Application::error(403);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function completeItems(): void
     {
         $index           = 0;

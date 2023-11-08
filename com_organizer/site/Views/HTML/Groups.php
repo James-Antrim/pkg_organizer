@@ -23,17 +23,6 @@ class Groups extends ListView
     use Activated;
     use Merged;
 
-    protected array $rowStructure = [
-        'checkbox' => '',
-        'fullName' => 'link',
-        'this'     => 'value',
-        'next'     => 'value',
-        'name'     => 'link',
-        'active'   => 'value',
-        'grid'     => 'link',
-        'code'     => 'link'
-    ];
-
     /**
      * @inheritdoc
      */
@@ -63,16 +52,6 @@ class Groups extends ListView
         }
 
         parent::addToolBar();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
-            Application::error(403);
-        }
     }
 
     /**
