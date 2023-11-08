@@ -11,13 +11,15 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class loads persistent information a filtered set of degree programs into the display context.
  */
 class Programs extends ListView
 {
+    use Activated;
+
     private bool $documentAccess = false;
 
     /**
@@ -25,30 +27,23 @@ class Programs extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $this->setTitle('ORGANIZER_PROGRAMS');
-
         if ($this->documentAccess) {
             $toolbar = Toolbar::getInstance();
 
-            $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'programs.add', false);
-            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'programs.edit', true);
-            $toolbar->appendButton('Standard', 'upload', Text::_('ORGANIZER_IMPORT_LSF'), 'programs.import', true);
-            $toolbar->appendButton('Standard', 'loop', Text::_('ORGANIZER_UPDATE_SUBJECTS'), 'programs.update', true);
+            $toolbar->addNew('Program.add');
+            $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Programs.import')->listCheck(true)->icon('fa fa-upload');
+            $toolbar->standardButton('update', Text::_('UPDATE_SUBJECTS'),
+                'Programs.update')->listCheck(true)->icon('fa fa-sync');
 
-            if (Helpers\Can::administrate()) {
-                $toolbar->appendButton(
-                    'Confirm',
-                    Text::_('ORGANIZER_DELETE_CONFIRM'),
-                    'delete',
-                    Text::_('ORGANIZER_DELETE'),
-                    'programs.delete',
-                    true
-                );
+            if (Can::administrate()) {
+                $toolbar->delete('Programs.delete')->message(Text::_('DELETE_CONFIRM'));
             }
 
-            $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_ACTIVATE'), 'programs.activate', true);
-            $toolbar->appendButton('Standard', 'eye-close', Text::_('ORGANIZER_DEACTIVATE'), 'programs.deactivate', true);
+            // No implicit basis in scheduling to deactivate programs.
+            $this->addActa(true);
         }
+
+        parent::addToolBar();
     }
 
     /**
@@ -60,7 +55,7 @@ class Programs extends ListView
             return;
         }
 
-        if (!$this->documentAccess = Helpers\Can::documentTheseOrganizations()) {
+        if (!$this->documentAccess = Can::documentTheseOrganizations()) {
             Application::error(403);
         }
     }
@@ -97,7 +92,7 @@ class Programs extends ListView
                 $thisLink = $editLink . $program->id;
             }
             else {
-                $access   = Helpers\Can::document('program', (int) $program->id);
+                $access   = Can::document('program', (int) $program->id);
                 $checkbox = $access ? HTML::checkBox($index, $program->id) : '';
                 $thisLink = $itemLink . $program->id;
             }

@@ -26,23 +26,6 @@ class Search extends ListView
     protected array $rowStructure = ['result' => 'value', 'links' => 'value'];
 
     /**
-     * @inheritDoc
-     */
-    protected function addToolBar(bool $delete = true): void
-    {
-        $this->setTitle('ORGANIZER_SEARCH');
-    }
-
-    /**
-     * Checks user authorization and initiates redirects accordingly.
-     * @return void
-     */
-    protected function authorize(): void
-    {
-        // Public access.
-    }
-
-    /**
      * Processes an individual list item resolving it to an array of table data values.
      *
      * @param   int|string  $index  the row index, typically an int value, but can also be string

@@ -11,6 +11,7 @@
 namespace THM\Organizer\Helpers;
 
 use Joomla\Utilities\ArrayHelper;
+use THM\Organizer\Adapters\Application;
 use THM\Organizer\Adapters\Database;
 use THM\Organizer\Tables;
 
@@ -442,7 +443,7 @@ class Can
             'Methods', 'Organization', 'Organizations', 'Participant', 'Participants', 'Run', 'Runs', 'Term', 'Terms'
             => false,
             // Scheduling resources and views with no intrinsic public value and import forms
-            'Categories', 'CategoryMerge', 'CoursesImport', 'EventMerge', 'Events', 'Groups', 'Schedule', 'Schedules',
+            'Categories', 'CoursesImport', 'Events', 'Groups', 'MergeCategories', 'MergeEvents', 'Schedule', 'Schedules',
             'Units'
             => (bool) self::scheduleTheseOrganizations(),
             // Edit views for scheduling resource with no intrinsic public value
@@ -451,24 +452,29 @@ class Can
             // Curriculum resources with no intrinsic public value
             'FieldColors', 'Pools', 'PoolSelection'
             => (bool) self::documentTheseOrganizations(),
+            // Curriculum resources with public value
+            'Programs', 'Subjects'
+            => (!Application::backend() or self::documentTheseOrganizations()),
             // Edit views for curriculum resource with no intrinsic public value
             'FieldColor', 'Pool' => self::document(strtolower($view), $resourceID),
-            'Person', 'PersonMerge', 'Persons'
+            // Edit views for curriculum resource with intrinsic public value
+            'Program', 'Subject' => (!Application::backend() or self::document(strtolower($view), $resourceID)),
+            'MergePersons', 'Person', 'Persons'
             => self::manage('persons'),
             // Facility resource views
             'Building', 'Buildings', 'Campus', 'Campuses', 'CleaningGroup', 'CleaningGroups', 'Equipment',
-            'EquipmentItem', 'Monitor', 'Monitors', 'Room', 'RoomKey', 'RoomKeys', 'RoomMerge', 'Rooms',
+            'EquipmentItem', 'MergeRooms', 'Monitor', 'Monitors', 'Room', 'RoomKey', 'RoomKeys', 'Rooms',
             => self::manage('facilities'),
 
             /**
              * Restricted views with possible access over a login redirect
              * Booking, ContactTracking, CourseParticipants, Profile
              * Restricted views with complex authorization
-             * ParticipantMerge
+             * MergeParticipants
              * Views restricted by view access levels
              * Statistics, Workload
              * Viewing is generally allowed, however functions, layouts and levels may still be restricted elsewhere.
-             * Course, Courses, InstanceItem, Instances, Program, Programs, Subject, Subjects
+             * Course, Courses, InstanceItem, Instances
              * Unrestricted
              * Curriculum, Help, Screen
              */

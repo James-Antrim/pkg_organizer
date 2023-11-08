@@ -12,9 +12,15 @@ namespace THM\Organizer\Views;
 
 use THM\Organizer\Adapters\Application;
 
+/**
+ * Handles getting and setting of the global view property $_name
+ */
 trait Named
 {
-    /** @var string The name of the view class */
+    /**
+     * @var string The name of the view class
+     * @noinspection PhpPropertyNamingConventionInspection
+     */
     protected $_name;
 
     /**

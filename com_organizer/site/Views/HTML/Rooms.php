@@ -18,6 +18,9 @@ use THM\Organizer\Helpers;
  */
 class Rooms extends ListView
 {
+    use Activated;
+    use Merged;
+
     protected array $rowStructure = [
         'checkbox'     => '',
         'roomName'     => 'link',
@@ -31,36 +34,25 @@ class Rooms extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $title = Text::_('ORGANIZER_ROOMS');
+        $title = Text::_('ROOMS');
 
         if ($campusID = Input::getInt('campusID')) {
-            $title .= ': ' . Text::_('ORGANIZER_CAMPUS');
+            $title .= ': ' . Text::_('CAMPUS');
             $title .= ' ' . Helpers\Campuses::getName($campusID);
         }
         $this->setTitle($title);
 
         if (Helpers\Can::manage('facilities')) {
             $toolbar = Toolbar::getInstance();
-            $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'rooms.add', false);
-            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'rooms.edit', true);
-            $toolbar->appendButton('Standard', 'eye-open', Text::_('ORGANIZER_ACTIVATE'), 'rooms.activate', false);
-            $toolbar->appendButton('Standard', 'eye-close', Text::_('ORGANIZER_DEACTIVATE'), 'rooms.deactivate', false);
+            $toolbar->addNew('Room.add');
+            $this->addActa();
 
             if (Helpers\Can::administrate()) {
-                $toolbar->appendButton('Standard', 'contract', Text::_('ORGANIZER_MERGE'), 'rooms.mergeView', true);
+                $this->addMerge();
+                $toolbar->delete('Rooms.delete')->message(Text::_('DELETE_CONFIRM'));
             }
 
-            $toolbar->appendButton('NewTab', 'file-xls', Text::_('ORGANIZER_UNINOW_EXPORT'), 'Rooms.UniNow', false);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function authorize(): void
-    {
-        if (Application::backend() and !Helpers\Can::manage('facilities')) {
-            Application::error(403);
+            $toolbar->appendButton('NewTab', 'file-xls', Text::_('UNINOW_EXPORT'), 'Rooms.UniNow', false);
         }
     }
 

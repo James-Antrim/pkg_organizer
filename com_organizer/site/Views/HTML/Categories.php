@@ -18,6 +18,8 @@ use THM\Organizer\Helpers;
  */
 class Categories extends ListView
 {
+    use Activated;
+
     protected array $rowStructure = [
         'checkbox' => '',
         'name'     => 'link',
@@ -31,11 +33,12 @@ class Categories extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        $toolbar = Toolbar::getInstance();
-        $toolbar->standardButton('activate', Text::_('ACTIVATE'), 'Categories.activate')->icon('fa fa-eye')->listCheck(true);
-        $toolbar->standardButton('activate', Text::_('DEACTIVATE'), 'Categories.deactivate')->icon('fa fa-eye-slash');
+        // Resource creation occurs in Untis and editing is done via links in the list.
+
+        $this->addActa();
 
         if (Helpers\Can::administrate()) {
+            $toolbar = Toolbar::getInstance();
             $toolbar->delete('Categories.delete');
         }
 

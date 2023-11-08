@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Input, Text};
+use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -52,6 +52,18 @@ class Monitors extends ListView
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar(bool $delete = true): void
+    {
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('Monitor.add');
+        $toolbar->delete('Monitors.delete')->message(Text::_('DELETE_CONFIRM'));
+
+        parent::addToolBar();
     }
 
     /**

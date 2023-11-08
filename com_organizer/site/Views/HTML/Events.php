@@ -19,6 +19,8 @@ use THM\Organizer\Helpers\Can;
  */
 class Events extends ListView
 {
+    use Merged;
+
     protected array $rowStructure = [
         'checkbox'     => '',
         'code'         => 'link',
@@ -31,11 +33,11 @@ class Events extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
+        // Divergent title
         $this->setTitle('ORGANIZER_EVENT_TEMPLATES');
-        $toolbar = Toolbar::getInstance();
 
         if (Can::administrate()) {
-            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergeEvents.display')->icon('fa fa-compress');
+            $this->addMerge();
 
             if (Application::backend()) {
                 $toolbar = Toolbar::getInstance();

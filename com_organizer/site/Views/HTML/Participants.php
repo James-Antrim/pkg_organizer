@@ -10,23 +10,24 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
 use stdClass;
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{Application, HTML, Input};
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
  */
 class Participants extends ListView
 {
+    use Merged;
+
     /**
      * @inheritdoc
      */
     protected function addToolBar(): void
     {
-        if (Helpers\Can::administrate()) {
-            $toolbar = Toolbar::getInstance();
-            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergeParticipants.display')->icon('fa fa-compress');
+        if (Application::backend() and Can::administrate()) {
+            $this->addMerge();
         }
 
         parent::addToolBar();

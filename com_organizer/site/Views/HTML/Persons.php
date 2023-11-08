@@ -18,6 +18,8 @@ use THM\Organizer\Helpers;
  */
 class Persons extends ListView
 {
+    use Activated;
+
     /**
      * @inheritdoc
      */
@@ -25,9 +27,7 @@ class Persons extends ListView
     {
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Person.add');
-        $toolbar->standardButton('activate', Text::_('ACTIVATE'), 'Persons.activate')->icon('fa fa-eye')->listCheck(true);
-        // todo check that automatic deactivation occurs as imagined when no item is selected
-        $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), 'Persons.deactivate')->icon('fa fa-eye-slash');
+        $this->addActa();
 
         if (Helpers\Can::administrate()) {
             $toolbar->delete('Persons.delete')->message('DELETE_CONFIRM');

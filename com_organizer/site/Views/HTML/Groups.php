@@ -20,6 +20,9 @@ use THM\Organizer\Tables;
  */
 class Groups extends ListView
 {
+    use Activated;
+    use Merged;
+
     protected array $rowStructure = [
         'checkbox' => '',
         'fullName' => 'link',
@@ -36,6 +39,8 @@ class Groups extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
+        // Resource creation occurs in Untis and editing is done via links in the list.
+
         $toolbar = Toolbar::getInstance();
 
         $if          = "alert('" . Text::_('ORGANIZER_LIST_SELECTION_WARNING', true) . "');";
@@ -49,11 +54,10 @@ class Groups extends ListView
         $batchButton .= '</button>';
 
         $toolbar->appendButton('Custom', $batchButton, 'batch');
-        $toolbar->standardButton('activate', Text::_('ACTIVATE'), 'Groups.activate')->listCheck(true)->icon('fa fa-eye');
-        $toolbar->standardButton('deactivate', Text::_('DEACTIVATE'), 'Groups.deactivate')->icon('fa fa-eye-slash');
+        $this->addActa();
 
         if (Helpers\Can::administrate()) {
-            $toolbar->standardButton('merge', Text::_('MERGE'), 'MergeGroups.display')->listCheck(true)->icon('fa fa-compress');
+            $this->addMerge();
             $toolbar->standardButton('publish-expired', Text::_('PUBLISH_EXPIRED_TERMS'), 'Groups.publishPast')
                 ->icon('fa fa-reply-all');
         }

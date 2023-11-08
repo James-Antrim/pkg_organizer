@@ -24,7 +24,6 @@ class Methods extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        // Schedule access is a
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Method.add');
         $toolbar->delete('Methods.delete')->message(Text::_('DELETE_CONFIRM'));
@@ -57,14 +56,14 @@ class Methods extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'check'     => ['type' => 'check'],
+            'check'        => ['type' => 'check'],
             'abbreviation' => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('ABBREVIATION', 'abbreviation', $direction, $ordering),
                 'type'       => 'value'
             ],
-            'name' => [
+            'name'         => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'name', $direction, $ordering),

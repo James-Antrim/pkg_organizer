@@ -23,7 +23,7 @@ class Subjects extends ListView
 
     private const ALL = 0, COORDINATES = 1, TEACHES = 2;
 
-    private bool $documentAccess = false;
+    private bool $access = false;
 
     private Registry $params;
 
@@ -58,27 +58,13 @@ class Subjects extends ListView
             }
         }
 
+        $this->setTitle('SUBJECTS', $resourceName);
 
-        Toolbar::setTitle('SUBJECTS', $resourceName);
-        $toolbar = Toolbar::getInstance();
-        if ($this->documentAccess) {
-            $toolbar->appendButton('Standard', 'new', Text::_('ORGANIZER_ADD'), 'subjects.add', false);
-            $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), 'subjects.edit', true);
-            $toolbar->appendButton(
-                'Standard',
-                'upload',
-                Text::_('ORGANIZER_IMPORT_LSF'),
-                'subjects.import',
-                true
-            );
-            $toolbar->appendButton(
-                'Confirm',
-                Text::_('ORGANIZER_DELETE_CONFIRM'),
-                'delete',
-                Text::_('ORGANIZER_DELETE'),
-                'subjects.delete',
-                true
-            );
+        if ($this->access) {
+            $toolbar = Toolbar::getInstance();
+            $toolbar->addNew('Subjects.add');
+            $toolbar->standardButton('upload', Text::_('IMPORT_LSF'), 'Subjects.import')->listCheck(true)->icon('fa fa-upload');
+            $toolbar->delete('Subjects.delete')->message(Text::_('DELETE_CONFIRM'));
         }
     }
 
@@ -87,13 +73,7 @@ class Subjects extends ListView
      */
     protected function authorize(): void
     {
-        if (!Application::backend()) {
-            return;
-        }
-
-        if (!$this->documentAccess = (bool) Can::documentTheseOrganizations()) {
-            Application::error(403);
-        }
+        $this->access = (bool) Can::documentTheseOrganizations();
     }
 
     /**
@@ -119,7 +99,7 @@ class Subjects extends ListView
 
             $structuredItems[$index] = [];
 
-            if (Application::backend() or $this->documentAccess) {
+            if ($this->access) {
                 $structuredItems[$index]['checkbox'] = $checkbox;
             }
 
@@ -154,9 +134,8 @@ class Subjects extends ListView
         $ordering  = $this->state->get('list.ordering');
         $headers   = [];
 
-        if (Application::backend() or $this->documentAccess) {
-            $headers['checkbox'] = (Application::backend() and $this->documentAccess) ?
-                HTML::checkAll() : '';
+        if ($this->access) {
+            $headers['checkbox'] = HTML::checkAll();
         }
 
         $headers['name'] = HTML::sort('NAME', 'name', $direction, $ordering);

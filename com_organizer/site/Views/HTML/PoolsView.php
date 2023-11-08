@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -28,6 +28,18 @@ abstract class PoolsView extends ListView
         if (!Helpers\Can::documentTheseOrganizations()) {
             Application::error(403);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function addToolBar(bool $delete = true): void
+    {
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('Pool.add');
+        $toolbar->delete('Pools.delete')->message(Text::_('DELETE_CONFIRM'));
+
+        parent::addToolBar();
     }
 
     /**

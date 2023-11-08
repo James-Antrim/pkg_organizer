@@ -24,7 +24,6 @@ class Organizations extends ListView
      */
     protected function addToolBar(bool $delete = true): void
     {
-        // Schedule access is a
         $toolbar = Toolbar::getInstance();
         $toolbar->addNew('Organization.add');
         $toolbar->delete('Organizations.delete')->message(Text::_('DELETE_CONFIRM'));

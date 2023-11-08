@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML};
-use THM\Organizer\Helpers;
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class loads persistent information a filtered set of room types into the display context.
@@ -26,21 +26,19 @@ class Roomtypes extends ListView
     ];
 
     /**
-     * @inheritDoc
-     */
-    protected function addToolBar(bool $delete = false): void
-    {
-        parent::addToolBar($delete);
-    }
-
-    /**
      * @inheritdoc
      */
-    protected function authorize(): void
+    protected function addToolBar(bool $delete = true): void
     {
-        if (!Helpers\Can::manage('facilities')) {
-            Application::error(403);
+        $toolbar = Toolbar::getInstance();
+        $toolbar->addNew('Roomtype.add');
+
+        // Trust isn't there for this yet.
+        if (Can::administrate()) {
+            $toolbar->delete('Roomtypes.delete')->message(Text::_('DELETE_CONFIRM'));
         }
+
+        parent::addToolBar();
     }
 
     /**

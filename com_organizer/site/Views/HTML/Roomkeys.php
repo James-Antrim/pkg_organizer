@@ -27,18 +27,6 @@ class Roomkeys extends ListView
     ];
 
     /**
-     * Adds a toolbar and title to the view.
-     * @return void  sets context variables
-     */
-    protected function addToolBar(bool $delete = true): void
-    {
-        $this->setTitle("ORGANIZER_ROOMKEYS");
-
-        $toolbar = Toolbar::getInstance();
-        $toolbar->appendButton('Standard', 'edit', Text::_('ORGANIZER_EDIT'), "Roomkeys.edit", true);
-    }
-
-    /**
      * @inheritdoc
      */
     protected function authorize(): void
