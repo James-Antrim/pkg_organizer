@@ -31,14 +31,14 @@ trait ToCed
             return;
         }
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/sidebar.css');
+        //Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/sidebar.css');
 
-        $viewName = Application::getClass($this);
+        $viewName = strtolower(Application::getClass($this));
 
         Sidebar::addEntry(
             '<span class="icon-home"></span>Organizer',
             Routing::getViewURL('Organizer'),
-            $viewName === 'Organizer'
+            $viewName === 'organizer'
         );
 
 
@@ -52,31 +52,31 @@ trait ToCed
 
             $items[Text::_('ORGANIZER_CATEGORIES')]      = [
                 'url'    => Routing::getViewURL('Categories'),
-                'active' => $viewName == 'categories'
+                'active' => $viewName === 'categories'
             ];
             $items[Text::_('ORGANIZER_COURSES')]         = [
                 'url'    => Routing::getViewURL('Courses'),
-                'active' => $viewName == 'courses'
+                'active' => $viewName === 'courses'
             ];
             $items[Text::_('ORGANIZER_COURSES_IMPORT')]  = [
                 'url'    => Routing::getViewURL('CoursesImport'),
-                'active' => $viewName == 'courses_import'
+                'active' => $viewName === 'coursesimport'
             ];
             $items[Text::_('ORGANIZER_EVENT_TEMPLATES')] = [
                 'url'    => Routing::getViewURL('Events'),
-                'active' => $viewName == 'events'
+                'active' => $viewName === 'events'
             ];
             $items[Text::_('ORGANIZER_GROUPS')]          = [
                 'url'    => Routing::getViewURL('Groups'),
-                'active' => $viewName == 'groups'
+                'active' => $viewName === 'groups'
             ];
             $items[Text::_('ORGANIZER_SCHEDULES')]       = [
                 'url'    => Routing::getViewURL('Schedules'),
-                'active' => $viewName == 'schedules'
+                'active' => $viewName === 'schedules'
             ];
             $items[Text::_('ORGANIZER_UNITS')]           = [
                 'url'    => Routing::getViewURL('Units'),
-                'active' => $viewName == 'units'
+                'active' => $viewName === 'units'
             ];
 
             ksort($items);
@@ -107,19 +107,19 @@ trait ToCed
 
             $items[Text::_('ORGANIZER_FIELD_COLORS')] = [
                 'url'    => Routing::getViewURL('FieldColors'),
-                'active' => $viewName == 'field_colors'
+                'active' => $viewName === 'fieldcolors'
             ];
             $items[Text::_('ORGANIZER_POOLS')]        = [
                 'url'    => Routing::getViewURL('Pools'),
-                'active' => $viewName == 'pools'
+                'active' => $viewName === 'pools'
             ];
             $items[Text::_('ORGANIZER_PROGRAMS')]     = [
                 'url'    => Routing::getViewURL('Programs'),
-                'active' => $viewName == 'programs'
+                'active' => $viewName === 'programs'
             ];
             $items[Text::_('ORGANIZER_SUBJECTS')]     = [
                 'url'    => Routing::getViewURL('Subjects'),
-                'active' => $viewName == 'subjects'
+                'active' => $viewName === 'subjects'
             ];
             ksort($items);
             foreach ($items as $key => $value) {
@@ -136,7 +136,7 @@ trait ToCed
             Sidebar::addEntry(
                 Text::_('ORGANIZER_PERSONS'),
                 Routing::getViewURL('Persons'),
-                $viewName == 'persons'
+                $viewName === 'persons'
             );
         }
 
@@ -148,37 +148,37 @@ trait ToCed
 
             $items = [];
 
-            $items[Text::_('ORGANIZER_BUILDINGS')]       = [
+            $items[Text::_('ORGANIZER_BUILDINGS')]      = [
                 'url'    => Routing::getViewURL('Buildings'),
-                'active' => $viewName == 'buildings'
+                'active' => $viewName === 'buildings'
             ];
-            $items[Text::_('ORGANIZER_CAMPUSES')]        = [
+            $items[Text::_('ORGANIZER_CAMPUSES')]       = [
                 'url'    => Routing::getViewURL('Campuses'),
-                'active' => $viewName == 'campuses'
+                'active' => $viewName === 'campuses'
             ];
-            $items[Text::_('ORGANIZER_CLEANING_GROUPS')] = [
+            $items[Text::_('ORGANIZER_CLEANINGGROUPS')] = [
                 'url'    => Routing::getViewURL('CleaningGroups'),
-                'active' => $viewName == 'cleaning_groups'
+                'active' => $viewName === 'cleaninggroups'
             ];
-            $items[Text::_('ORGANIZER_MONITORS')]        = [
+            $items[Text::_('ORGANIZER_MONITORS')]       = [
                 'url'    => Routing::getViewURL('Monitors'),
-                'active' => $viewName == 'monitors'
+                'active' => $viewName === 'monitors'
             ];
-            $items[Text::_('ORGANIZER_ROOMS')]           = [
+            $items[Text::_('ORGANIZER_ROOMS')]          = [
                 'url'    => Routing::getViewURL('Rooms'),
-                'active' => $viewName == 'rooms'
+                'active' => $viewName === 'rooms'
             ];
             /*$items[Text::_('ORGANIZER_ROOMS_IMPORT')] = [
                 'url'    => Routing::getViewURL('RoomsImport'),
-                'active' => $viewName == 'rooms_import'
+                'active' => $viewName === 'rooms_import'
             ];*/
             $items[Text::_('ORGANIZER_ROOMKEYS')]  = [
                 'url'    => Routing::getViewURL('Roomkeys'),
-                'active' => $viewName == 'roomkeys'
+                'active' => $viewName === 'roomkeys'
             ];
             $items[Text::_('ORGANIZER_ROOMTYPES')] = [
                 'url'    => Routing::getViewURL('Roomtypes'),
-                'active' => $viewName == 'roomtypes'
+                'active' => $viewName === 'roomtypes'
             ];
             ksort($items);
             foreach ($items as $key => $value) {
@@ -197,43 +197,43 @@ trait ToCed
 
             $items[Text::_('ORGANIZER_COLORS')]        = [
                 'url'    => Routing::getViewURL('Colors'),
-                'active' => $viewName == 'colors'
+                'active' => $viewName === 'colors'
             ];
             $items[Text::_('ORGANIZER_DEGREES')]       = [
                 'url'    => Routing::getViewURL('Degrees'),
-                'active' => $viewName == 'degrees'
+                'active' => $viewName === 'degrees'
             ];
             $items[Text::_('ORGANIZER_FIELDS')]        = [
                 'url'    => Routing::getViewURL('Fields'),
-                'active' => $viewName == 'fields'
+                'active' => $viewName === 'fields'
             ];
             $items[Text::_('ORGANIZER_GRIDS')]         = [
                 'url'    => Routing::getViewURL('Grids'),
-                'active' => $viewName == 'grids'
+                'active' => $viewName === 'grids'
             ];
             $items[Text::_('ORGANIZER_HOLIDAYS')]      = [
                 'url'    => Routing::getViewURL('Holidays'),
-                'active' => $viewName == 'holidays'
+                'active' => $viewName === 'holidays'
             ];
             $items[Text::_('ORGANIZER_METHODS')]       = [
                 'url'    => Routing::getViewURL('Methods'),
-                'active' => $viewName == 'methods'
+                'active' => $viewName === 'methods'
             ];
             $items[Text::_('ORGANIZER_ORGANIZATIONS')] = [
                 'url'    => Routing::getViewURL('Organizations'),
-                'active' => $viewName == 'organizations'
+                'active' => $viewName === 'organizations'
             ];
             $items[Text::_('ORGANIZER_PARTICIPANTS')]  = [
                 'url'    => Routing::getViewURL('Participants'),
-                'active' => $viewName == 'participants'
+                'active' => $viewName === 'participants'
             ];
             $items[Text::_('ORGANIZER_RUNS')]          = [
                 'url'    => Routing::getViewURL('Runs'),
-                'active' => $viewName == 'runs'
+                'active' => $viewName === 'runs'
             ];
             $items[Text::_('ORGANIZER_TERMS')]         = [
                 'url'    => Routing::getViewURL('Terms'),
-                'active' => $viewName == 'terms'
+                'active' => $viewName === 'terms'
             ];
             ksort($items);
             foreach ($items as $key => $value) {
