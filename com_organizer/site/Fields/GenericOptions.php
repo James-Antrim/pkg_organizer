@@ -128,7 +128,7 @@ class GenericOptions extends Options
         $tag         = $this->getAttribute('localized', false) ? '_' . Application::getTag() : '';
 
         foreach ($textColumns as $key => $value) {
-            $textColumns[$key] = DB::qn($value . '_' . $tag);
+            $textColumns[$key] = DB::qn($value . $tag);
         }
 
         if (count($textColumns) === 1 or empty($glue)) {

@@ -10,8 +10,11 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
+use stdClass;
+use THM\Organizer\Buttons\NewTab;
 use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of rooms into the display context.
@@ -44,28 +47,30 @@ class Rooms extends ListView
                 $toolbar->delete('Rooms.delete')->message(Text::_('DELETE_CONFIRM'));
             }
 
-            $toolbar->appendButton('NewTab', 'file-xls', Text::_('UNINOW_EXPORT'), 'Rooms.UniNow', false);
+            $export = new NewTab('export', Text::_('UNINOW_EXPORT'));
+            $export->icon('fa fa-file-excel')->listCheck(false)->task('Rooms.UniNow');
+            $toolbar->appendButton($export);
         }
     }
 
     /**
      * @inheritdoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $index           = 0;
-        $link            = 'index.php?option=com_organizer&view=room_edit&id=';
-        $structuredItems = [];
+        $tip = $item->active ? 'CLICK_TO_DEACTIVATE' : 'CLICK_TO_ACTIVATE';
 
-        foreach ($this->items as $item) {
-            $tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
-            $item->active = $this->getToggle('rooms', $item->id, $item->active, $tip, 'active');
+        $item->active = $this->getToggle('rooms', $item->id, $item->active, $tip, 'active');
+        $item->link   = $options['query'] . $item->id;
+    }
 
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+    /**
+     * @inheritdoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        $options = ['query' => 'index.php?option=com_organizer&view=Room&id='];
+        parent::completeItems($options);
     }
 
     /**
@@ -76,11 +81,28 @@ class Rooms extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox'     => HTML::checkAll(),
-            'roomName'     => HTML::sort('NAME', 'roomName', $direction, $ordering),
-            'buildingName' => HTML::sort('BUILDING', 'buildingName', $direction, $ordering),
-            'roomType'     => HTML::sort('TYPE', 'roomType', $direction, $ordering),
-            'active'       => Text::_('ACTIVE')
+            'check'        => ['type' => 'check'],
+            'roomName'     => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-none d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'roomName', $direction, $ordering),
+                'type'       => 'value'
+            ],
+            'buildingName' => [
+                'properties' => ['class' => 'w-10 d-none d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('BUILDING', 'buildingName', $direction, $ordering),
+                'type'       => 'text'
+            ],
+            'roomType'     => [
+                'properties' => ['class' => 'w-10 d-none d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('TYPE', 'roomType', $direction, $ordering),
+                'type'       => 'text'
+            ],
+            'active'       => [
+                'properties' => ['class' => 'w-5 d-none d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ACTIVE'),
+                'type'       => 'value'
+            ],
         ];
 
         $this->headers = $headers;

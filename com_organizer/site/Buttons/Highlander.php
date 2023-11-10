@@ -14,52 +14,25 @@ use Joomla\CMS\Toolbar\Button\StandardButton;
 use THM\Organizer\Adapters\Text;
 
 /**
- * Renders a button whose contents open in a new tab.
+ * Renders a button that checks that exactly one item from a list was selected.
  */
 class Highlander extends StandardButton
 {
     /**
-     * Button type
-     * @var    string
+     * @inheritdoc
      */
-    protected $_name = 'Highlander';
-
-    /**
-     * @inheritDoc
-     */
-    public function fetchButton($type = 'Highlander', $name = '', $text = '', $task = '', $list = true): string
+    protected function _getCommand(): string
     {
-        // Store all data to the options array for use with JLayout
-        $aria        = 'aria-hidden="true"';
-        $buttonClass = "class=\"btn btn-small button-$name\"";
-        $target      = 'formtarget="_blank" type="submit"';
-        $iconClass   = 'class="' . $this->fetchIconClass($name) . '"';
-        $task        = 'onclick="' . $this->_getCommand($text, $task) . '"';
-        $text        = Text::_($text);
-
-        return "<button $target $task $buttonClass><span $iconClass $aria></span>$text</button>";
-    }
-
-    /**
-     * Get the JavaScript command for the button
-     *
-     * @param string $name The task name as seen by the user
-     * @param string $task The task used by the application
-     * @param bool   $list True is requires a list confirmation.
-     *
-     * @return  string   JavaScript command string
-     */
-    protected function _getCommand($name, $task, $list = true): string
-    {
+        Text::script('ERROR');
         Text::script('ORGANIZER_MAKE_SELECTION');
         Text::script('ORGANIZER_ONLY_ONE_SELECTION');
 
-        $alert1 = "alert(Joomla.JText._('ORGANIZER_MAKE_SELECTION'));";
-        $alert2 = "alert(Joomla.JText._('ORGANIZER_ONLY_ONE_SELECTION'));";
-        $cmd    = "if (document.adminForm.boxchecked.value == 0) { " . $alert1 . " } ";
-        $cmd    .= "else if (document.adminForm.boxchecked.value > 1) { " . $alert2 . " } ";
-        $cmd    .= "else { Joomla.submitbutton('" . $task . "');}";
+        $anyAlert     = "Joomla.renderMessages({error: [Joomla.Text._('ORGANIZER_MAKE_SELECTION')]})";
+        $anyCondition = 'document.adminForm.boxchecked.value == 0';
+        $hlAlert      = "Joomla.renderMessages({error: [Joomla.Text._('ORGANIZER_ONLY_ONE_SELECTION')]})";
+        $hlCondition  = 'document.adminForm.boxchecked.value > 1';
+        $submit       = "Joomla.submitbutton('" . $this->getTask() . "');";
 
-        return $cmd;
+        return "if ($anyCondition) { $anyAlert } else if ($hlCondition) { $hlAlert } else { $submit }";
     }
 }

@@ -10,9 +10,10 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use Joomla\Database\ParameterType;
 
 /**
  * Class retrieves information for a filtered set of rooms.
@@ -21,7 +22,7 @@ class Rooms extends ListModel
 {
     use Activated;
 
-    protected string $defaultOrdering = 'r.name';
+    protected string $defaultOrdering = 'roomName';
 
     protected $filter_fields = ['buildingID', 'campusID', 'cleaningID', 'keyID', 'roomtypeID', 'virtual'];
 
@@ -44,33 +45,35 @@ class Rooms extends ListModel
     }
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $tag   = Application::getTag();
+        $query = DB::getQuery();
 
-        $query->select('r.id, r.code, r.name AS roomName, r.active, r.effCapacity')
-            ->select("t.id AS roomtypeID, t.name_$tag AS roomType")
-            ->select('b.id AS buildingID, b.address, b.name AS buildingName, b.location, b.propertyType')
-            ->select("c1.name_$tag AS campus, c2.name_$tag AS parent")
-            ->from('#__organizer_rooms AS r')
-            ->leftJoin('#__organizer_roomtypes AS t ON t.id = r.roomtypeID')
-            ->leftJoin('#__organizer_use_codes AS uc ON uc.id = t.usecode')
-            ->leftJoin('#__organizer_roomkeys AS rk ON rk.id = uc.keyID');
+        $aliased = DB::qn(
+            ['b.id', 'b.name', "c1.name_$tag", "c2.name_$tag", 'r.name', 't.id', "t.name_$tag"],
+            ['buildingID', 'buildingName', 'campus', 'parent', 'roomName', 'roomtypeID', 'roomType']
+        );
+        $select  = DB::qn(['r.id', 'r.code', 'r.active', 'r.effCapacity', 'b.address', 'b.location', 'b.propertyType']);
+
+        $query->select(array_merge($select, $aliased))
+            ->from(DB::qn('#__organizer_rooms', 'r'))
+            ->leftJoin(DB::qn('#__organizer_roomtypes', 't'), DB::qc('t.id', 'r.roomtypeID'))
+            ->leftJoin(DB::qn('#__organizer_use_codes', 'uc'), DB::qc('uc.id', 't.usecode'))
+            ->leftJoin(DB::qn('#__organizer_roomkeys', 'rk'), DB::qc('rk.id', 'uc.keyID'));
 
         $campusID = (int) $this->state->get('filter.campusID');
         if ($campusID and $campusID !== self::NONE) {
-            $query->innerJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-                ->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
-                ->where("(c1.id = $campusID OR c1.parentID = $campusID)");
+            $query->innerJoin(DB::qn('#__organizer_buildings', 'b'), DB::qc('b.id', 'r.buildingID'))
+                ->innerJoin(DB::qn('#__organizer_campuses', 'c1'), DB::qc('c1.id', 'b.campusID'))
+                ->where('(' . DB::qcs([['c1.id', ':campusID'], ['c1.parentID', ':campusID']], 'OR') . ')')
+                ->bind(':campusID', $campusID, ParameterType::INTEGER);
         }
         else {
-            $query->leftJoin('#__organizer_buildings AS b ON b.id = r.buildingID')
-                ->leftJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID');
+            $query->leftJoin(DB::qn('#__organizer_buildings', 'b'), DB::qc('b.id', 'r.buildingID'))
+                ->leftJoin(DB::qn('#__organizer_campuses', 'c1'), DB::qc('c1.id', 'b.campusID'));
 
             if ($campusID) {
                 $query->where('r.buildingID IS NULL');
@@ -97,6 +100,7 @@ class Rooms extends ListModel
     {
         parent::populateState($ordering, $direction);
 
+        // GET
         if ($format = Input::getCMD('format') and in_array($format, ['pdf', 'xls'])) {
             $this->setState('list.limit', 0);
         }

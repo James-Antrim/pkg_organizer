@@ -12,9 +12,12 @@ namespace THM\Organizer\Adapters;
 
 use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\Toolbar\Toolbar as TB;
+use Joomla\CMS\WebAsset\WebAssetManager;
 
 /**
- * Adapts functions of the document class to avoid exceptions and deprecated warnings.
+ * Adapts functions of the document class to avoid exceptions, deprecated warnings, and overlong access chains.
+ *
+ * @see Application::getDocument()
  */
 class Document
 {
@@ -80,6 +83,20 @@ class Document
         $document = Application::getDocument();
 
         return $document->getToolbar($name);
+    }
+
+    /**
+     * Return WebAsset manager
+     *
+     * @return  WebAssetManager
+     * @see HtmlDocument::getWebAssetManager()
+     */
+    public static function getWAManager(): WebAssetManager
+    {
+        /** @var HtmlDocument $document */
+        $document = Application::getDocument();
+
+        return $document->getWebAssetManager();
     }
 
     /**

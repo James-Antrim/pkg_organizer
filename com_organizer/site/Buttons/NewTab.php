@@ -11,7 +11,6 @@
 namespace THM\Organizer\Buttons;
 
 use Joomla\CMS\Toolbar\Button\StandardButton;
-use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Document, Text};
 
 /**
@@ -20,45 +19,19 @@ use THM\Organizer\Adapters\{Document, Text};
 class NewTab extends StandardButton
 {
     /**
-     * Button type
-     * @var    string
+     * @inheritdoc
      */
-    protected $_name = 'NewTab';
-
-    /**
-     * @inheritDoc
-     */
-    public function fetchButton($type = 'NewTab', $name = '', $text = '', $task = '', $list = true): string
+    protected function _getCommand(): string
     {
-        // Store all data to the options array for use with JLayout
-        $aria        = 'aria-hidden="true"';
-        $buttonClass = "class=\"btn btn-small button-$name\"";
-        $target      = 'formtarget="_blank" type="submit"';
-        $iconClass   = 'class="' . $this->fetchIconClass($name) . '"';
-        $task        = 'onclick="' . $this->_getCommand($text, $task, $list) . '"';
-        $text        = Text::_($text);
+        Document::getWAManager()->registerAndUseScript('newTab', 'components/com_organizer/js/newTab.js');
 
-        Document::addScript(Uri::root() . 'components/com_organizer/js/newTab.js');
+        $cmd = "newTab('" . $this->getTask() . "');";
 
-        return "<button $target $task $buttonClass><span $iconClass $aria></span>$text</button>";
-    }
-
-    /**
-     * Get the JavaScript command for the button
-     *
-     * @param string $name The task name as seen by the user
-     * @param string $task The task used by the application
-     * @param bool   $list True is requires a list confirmation.
-     *
-     * @return  string   JavaScript command string
-     */
-    protected function _getCommand($name, $task, $list): string
-    {
-        $cmd = "newTab('" . $task . "');";
-
-        if ($list) {
-            $alert = "alert(Joomla.JText._('JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST'));";
-            $cmd   = "if (document.adminForm.boxchecked.value == 0) { " . $alert . " } else { " . $cmd . " }";
+        if ($this->getListCheck()) {
+            Text::script('ORGANIZER_MAKE_SELECTION');
+            $anyAlert     = "Joomla.renderMessages({error: [Joomla.Text._('ORGANIZER_MAKE_SELECTION')]})";
+            $anyCondition = 'document.adminForm.boxchecked.value == 0';
+            $cmd          = "if ($anyCondition) { $anyAlert } else { $cmd }";
         }
 
         return $cmd;
