@@ -60,7 +60,7 @@ class MVCFactory extends Base
         'Role'              => 'Roles',
         'Room'              => 'Rooms',
         // todo camelcase this
-        'Roomkey'           => 'Roomkeys',
+        'RoomKey'           => 'RoomKeys',
         'RoomType'          => 'RoomTypes',
         'Run'               => 'Runs',
         'Schedule'          => 'Schedules',

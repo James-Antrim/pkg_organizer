@@ -33,22 +33,22 @@ class Roomkey extends BaseModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
-     * @return Tables\Roomkeys  A Table object
+     * @return Tables\RoomKeys  A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getTable($name = '', $prefix = '', $options = []): Tables\Roomkeys
+    public function getTable($name = '', $prefix = '', $options = []): Tables\RoomKeys
     {
-        return new Tables\Roomkeys();
+        return new Tables\RoomKeys();
     }
 
     /**
      * Attempts to save the resource.
      *
-     * @param array $data the data from the form
+     * @param   array  $data  the data from the form
      *
      * @return int|bool int id of the resource on success, otherwise bool false
      */
@@ -62,7 +62,7 @@ class Roomkey extends BaseModel
             return false;
         }
 
-        $roomkey = new Tables\Roomkeys();
+        $roomkey = new Tables\RoomKeys();
 
         if (!$roomkey->load((int) $data['id'])) {
             return false;

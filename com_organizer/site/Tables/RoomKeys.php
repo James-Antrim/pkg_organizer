@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -13,7 +14,7 @@ namespace THM\Organizer\Tables;
 /**
  * Models the organizer_blocks table.
  */
-class Roomkeys extends BaseTable
+class RoomKeys extends BaseTable
 {
     /**
      * The cleaning group associated with the room key.

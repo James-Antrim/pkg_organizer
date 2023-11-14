@@ -12,7 +12,6 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\HTML\Helpers\Sidebar;
-use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\Application;
 use THM\Organizer\Adapters\Document;
 use THM\Organizer\Adapters\Text;
@@ -173,7 +172,7 @@ trait ToCed
                 'active' => $viewName === 'rooms_import'
             ];*/
             $items[Text::_('ROOMKEYS')]  = [
-                'url'    => Routing::getViewURL('Roomkeys'),
+                'url'    => Routing::getViewURL('RoomKeys'),
                 'active' => $viewName === 'roomkeys'
             ];
             $items[Text::_('ROOMTYPES')] = [

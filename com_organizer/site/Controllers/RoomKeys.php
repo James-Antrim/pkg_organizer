@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Roomkeys extends Controller
+class RoomKeys extends ListController
 {
-    protected $listView = 'Roomkeys';
-
-    protected $resource = 'Roomkey';
+    protected string $item = 'RoomKey';
 }
