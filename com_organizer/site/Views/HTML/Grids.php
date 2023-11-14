@@ -37,8 +37,7 @@ class Grids extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $grid           = json_decode($item->grid, true);
-        $item->editLink = $options['query'] . $item->id;
+        $grid = json_decode($item->grid, true);
 
         if (!empty($grid['periods'])) {
             // 'l' (lowercase L) in date function for full textual day of the week.
@@ -58,17 +57,6 @@ class Grids extends ListView
         }
 
         $item->isDefault = $this->getToggle('grids', $item->id, $item->isDefault, 'ORGANIZER_GRID_DESC');
-    }
-
-    /**
-     * @param   array  $options  *
-     *
-     * @inheritdoc
-     */
-    protected function completeItems(array $options = []): void
-    {
-        $options = ['query' => "index.php?option=com_organizer&view=grid_edit&id="];
-        parent::completeItems($options);
     }
 
     /**

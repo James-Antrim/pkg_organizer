@@ -11,6 +11,7 @@
 namespace THM\Organizer\Layouts\HTML;
 
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, HTML};
 use THM\Organizer\Views\HTML\ListView;
 
@@ -148,31 +149,31 @@ class ListItem
             $closer = "</td>";
         }
 
-        $linkOpen  = '';
-        $linkClose = '';
-
-        if ($linkType) {
-            $editLink = $item->editLink ?? '';
-            $viewLink = $item->viewLink ?? '';
-            if ($url = $context === self::ADMIN ? $editLink : $viewLink) {
-                $lProperties = ['href' => $url];
-
-                if ($linkType === self::TAB) {
-                    $lProperties['target'] = '_blank';
-                }
-
-                $linkOpen  = '<a ' . HTML::toString($lProperties) . '>';
-                $linkClose = '</a>';
-            }
-        }
-
         echo $opener;
 
         if ($main and !empty($item->prefix)) {
             echo $item->prefix;
         }
 
-        echo $linkOpen . $value . $linkClose;
+        if ($linkType and !empty($item->url)) {
+
+            $attributes = $linkType === self::TAB ? ['target' => '_blank'] : [];
+            $editURL    = Route::_("$item->url&layout=edit");
+            $url        = Route::_($item->url);
+
+            if (empty($item->access)) {
+                echo HTML::link($url, $value, $attributes);
+            }
+            elseif ($context === self::ADMIN) {
+                echo HTML::link($editURL, $value, $attributes);
+            }
+            else {
+                echo HTML::link($url, $value, $attributes) . ' ' . HTML::link($editURL, HTML::icon('fa fa-edit'), $attributes);
+            }
+        }
+        else {
+            echo $value;
+        }
 
         if ($main and !empty($item->icon)) {
             echo $item->icon;
@@ -182,6 +183,7 @@ class ListItem
             echo "<br><span class=\"small\">$item->supplement</span>";
         }
 
+        // Groups code mirroring users.
         if ($main and isset($item->requireReset) and $item->requireReset === 1) {
             echo '<span class="badge bg-warning text-dark">' . Text::_('GROUPS_RESET_REQUIRED') . '</span>';
         }

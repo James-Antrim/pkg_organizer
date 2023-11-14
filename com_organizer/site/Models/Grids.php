@@ -23,12 +23,16 @@ class Grids extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag   = Application::getTag();
+        $link  = 'index.php?option=com_organizer&view=Grid&id=';
         $query = DB::getQuery();
+        $tag   = Application::getTag();
 
-        $select  = DB::qn(['id', 'grid', 'isDefault']);
+        $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = [DB::qn("name_$tag", 'name')];
-        $query->select(array_merge($select, $aliased))->from(DB::qn('#__organizer_grids'));
+        $link    = [$query->concatenate([DB::quote($link), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
+        $select  = DB::qn(['id', 'grid', 'isDefault']);
+
+        $query->select(array_merge($select, $access, $aliased, $link))->from(DB::qn('#__organizer_grids'));
         $this->orderBy($query);
 
         return $query;
