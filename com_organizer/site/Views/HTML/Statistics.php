@@ -71,8 +71,8 @@ class Statistics extends FormView
     {
         BaseView::modifyDocument();
 
-        Document::addScript(Uri::root() . 'components/com_organizer/js/statistics.js');
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/statistics.css');
+        Document::script('statistics');
+        //Document::style('statistics');
     }
 
     /**

@@ -24,11 +24,11 @@ class OrganizationOccupancy extends SelectionView
      * Modifies document variables and adds links to external files
      * @return void
      */
-    protected function modifyDocument()
+    protected function modifyDocument(): void
     {
         parent::modifyDocument();
 
-        Document::addScript(Uri::root() . 'components/com_organizer/js/organization_occupancy.js');
+        Document::script('occupancy');
     }
 
     private function setBaseFields()

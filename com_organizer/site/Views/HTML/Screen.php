@@ -29,17 +29,17 @@ class Screen extends BaseView
      */
     public function display($tpl = null): void
     {
-        //https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=upcoming_instances
-        //https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=current_instances
-        //https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=file
+        // Examples
+        // https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=upcoming_instances
+        // https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=current_instances
+        // https://www.thm.de/dev/organizer/?option=com_organizer&view=screen&tmpl=component&room=A20.2.11&layout=file
         /** @var Model $model */
         $model       = $this->getModel();
         $this->model = $model;
 
         $this->setLayout($model->layout);
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/screen.css');
-        Document::addStyleSheet(Uri::root() . 'media/jui/css/icomoon.css');
+        //Document::style('screen');
 
         parent::display($tpl);
     }
@@ -48,7 +48,7 @@ class Screen extends BaseView
     /**
      * Resolves any links/link parameters to links with icons or texts.
      *
-     * @param string $comment the comment to process
+     * @param   string  $comment  the comment to process
      *
      * @return string
      */
@@ -88,7 +88,8 @@ class Screen extends BaseView
             $comment  = preg_replace($panopto2, $template, $comment);
 
             $template = '<a href="$1" target="_blank"><span class="icon-pilos"></span></a>';
-        } else {
+        }
+        else {
             // Moodle Course
             $text     = Text::_('ORGANIZER_MOODLE_COURSE') . ': CID';
             $template = str_replace('CID', '$4', $text);

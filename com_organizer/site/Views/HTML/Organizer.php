@@ -48,6 +48,7 @@ class Organizer extends HtmlView
     {
         $this->addToC();
         $this->addToolBar();
+        //Document::style('organizer');
 
         parent::display($tpl);
     }
@@ -72,15 +73,5 @@ class Organizer extends HtmlView
             $toolbar->standardButton('key', 'Re-Key Tables', 'Organizer.reKeyTables');
             $toolbar->linkButton('options', Text::_('SETTINGS'))->url($link);
         }
-    }
-
-    /**
-     * @deprecated use web assets
-     */
-    protected function modifyDocument(): void
-    {
-        parent::modifyDocument();
-
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/organizer.css');
     }
 }

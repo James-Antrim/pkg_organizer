@@ -24,6 +24,6 @@ trait Subordinate
         /** @noinspection PhpMultipleClassDeclarationsInspection */
         parent::modifyDocument();
 
-        Document::addScript(Uri::root() . 'components/com_organizer/js/curricula.js');
+        Document::script('curricula');
     }
 }

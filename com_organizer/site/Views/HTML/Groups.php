@@ -128,7 +128,7 @@ class Groups extends ListView
     {
         parent::modifyDocument();
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/group_publishing.css');
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+        //Document::style('group_publishing');
+        //Document::style('modal');
     }
 }

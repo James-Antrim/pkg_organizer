@@ -245,13 +245,10 @@ abstract class ListView extends Base
 
     /**
      * Adds scripts and stylesheets to the document.
-     *
-     * @deprecated  4.3 will be removed in 6.0
-     *              Use WebAssetManager Example: $wa->registerAndUseStyle(...);
      */
     protected function modifyDocument(): void
     {
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
-        Document::addScript(Uri::root() . 'components/com_organizer/js/list.js');
+        Document::script('cacheMiss');
+        //Document::style('list');
     }
 }

@@ -118,7 +118,7 @@ abstract class TableView extends BaseView
     {
         parent::modifyDocument();
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/table.css');
+        //Document::style('table');
     }
 
     /**

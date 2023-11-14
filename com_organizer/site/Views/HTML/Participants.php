@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use stdClass;
-use THM\Organizer\Adapters\{Application, HTML, Input};
+use THM\Organizer\Adapters\{Application, Document, HTML, Input};
 use THM\Organizer\Helpers\Can;
 
 /**
@@ -115,8 +115,8 @@ class Participants extends ListView
      */
     protected function modifyDocument(): void
     {
-        //parent::modifyDocument();
+        parent::modifyDocument();
 
-        //Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+        //Document::style('modal');
     }
 }

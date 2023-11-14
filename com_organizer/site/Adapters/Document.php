@@ -21,53 +21,20 @@ use Joomla\CMS\WebAsset\WebAssetManager;
  */
 class Document
 {
-    /**
-     * Adds a linked script to the page.
-     *
-     * @param   string  $url  the script URL
-     *
-     * @return  HtmlDocument instance of $this to allow chaining
-     * @deprecated 5.0 Use WebAssetManager
-     */
-    public static function addScript(string $url): HtmlDocument
-    {
-        /** @var HtmlDocument $document */
-        $document = Application::getDocument();
-
-        return $document->addScript($url);
-    }
 
     /**
-     * Add script variables for localizations.
+     * Gets the path for the given file and type.
      *
-     * @param   string        $key            key for addressing the localizations in script files
-     * @param   array|string  $localizations  localization(s)
-     * @param   bool          $merge          true if the localizations should be merged with existing
+     * @param   string  $file  the name of the file
+     * @param   string  $type  the file extension type
      *
-     * @return  HtmlDocument instance of $this to allow chaining
+     * @return string
      */
-    public static function addScriptOptions(string $key, array|string $localizations, bool $merge = true): HtmlDocument
+    private static function getPath(string $file, string $type): string
     {
-        /** @var HtmlDocument $document */
-        $document = Application::getDocument();
+        $path = "components/com_organizer/$type/$file.$type";
 
-        return $document->addScriptOptions($key, $localizations, $merge);
-    }
-
-    /**
-     * Adds a linked stylesheet to the page
-     *
-     * @param   string  $url  the style sheet URL
-     *
-     * @return  HtmlDocument instance of $this to allow chaining
-     * @deprecated 5.0 Use WebAssetManager
-     */
-    public static function addStyleSheet(string $url): HtmlDocument
-    {
-        /** @var HtmlDocument $document */
-        $document = Application::getDocument();
-
-        return $document->addStyleSheet($url);
+        return file_exists(JPATH_ROOT . "/$path") ? $path : '';
     }
 
     /**
@@ -86,17 +53,34 @@ class Document
     }
 
     /**
-     * Return WebAsset manager
+     * Adds a script to a page.
      *
-     * @return  WebAssetManager
-     * @see HtmlDocument::getWebAssetManager()
+     * @param   string  $file  the file name
+     *
+     * @return void
      */
-    public static function getWAManager(): WebAssetManager
+    public static function script(string $file = ''): void
+    {
+        if ($path = self::getPath($file, 'js')) {
+            self::webAssetManager()->registerAndUseScript("oz.$file", $path);
+        }
+    }
+
+    /**
+     * Add script variables for localizations.
+     *
+     * @param   string        $key            key for addressing the localizations in script files
+     * @param   array|string  $localizations  localization(s)
+     * @param   bool          $merge          true if the localizations should be merged with existing
+     *
+     * @return  HtmlDocument instance of $this to allow chaining
+     */
+    public static function scriptLocalizations(string $key, array|string $localizations, bool $merge = true): HtmlDocument
     {
         /** @var HtmlDocument $document */
         $document = Application::getDocument();
 
-        return $document->getWebAssetManager();
+        return $document->addScriptOptions($key, $localizations, $merge);
     }
 
     /**
@@ -128,5 +112,33 @@ class Document
         $document = Application::getDocument();
 
         return $document->setTitle($title);
+    }
+
+    /**
+     * Adds a style to a page.
+     *
+     * @param   string  $file  the file name
+     *
+     * @return void
+     */
+    public static function style(string $file = ''): void
+    {
+        if ($path = self::getPath($file, 'css')) {
+            self::webAssetManager()->registerAndUseStyle("oz.$file", $path);
+        }
+    }
+
+    /**
+     * Return WebAsset manager
+     *
+     * @return  WebAssetManager
+     * @see HtmlDocument::getWebAssetManager()
+     */
+    public static function webAssetManager(): WebAssetManager
+    {
+        /** @var HtmlDocument $document */
+        $document = Application::getDocument();
+
+        return $document->getWebAssetManager();
     }
 }

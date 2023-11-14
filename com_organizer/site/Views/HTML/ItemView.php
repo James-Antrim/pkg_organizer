@@ -83,7 +83,7 @@ abstract class ItemView extends BaseView
     {
         parent::modifyDocument();
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
+        //Document::style('item');
     }
 
     /**

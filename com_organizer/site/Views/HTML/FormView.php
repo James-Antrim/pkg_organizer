@@ -67,9 +67,10 @@ abstract class FormView extends BaseView
 
         HTML::_('behavior.formvalidator');
 
-        Document::addScript(Uri::root() . 'components/com_organizer/js/multiple.js');
-        Document::addScript(Uri::root() . 'components/com_organizer/js/submitButton.js');
-        Document::addScript(Uri::root() . 'components/com_organizer/js/validators.js');
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/form.css');
+        Document::script('multiple');
+        // todo necessary??
+        //Document::addScript('submitButton');
+        //Document::addScript('validators.');
+        //Document::style('form');
     }
 }

@@ -24,7 +24,7 @@ trait Documented
             return;
         }
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/disclaimer.css');
+        Document::style('disclaimer');
 
         $attributes = ['target' => '_blank'];
 

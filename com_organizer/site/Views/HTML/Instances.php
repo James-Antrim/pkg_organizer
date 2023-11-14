@@ -15,7 +15,7 @@ use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Buttons;
 use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\{Dates, HTML as Deprecated, Instances as Helper};
+use THM\Organizer\Helpers\{Dates, Instances as Helper};
 use THM\Organizer\Models\Instances as Model;
 use stdClass;
 
@@ -350,7 +350,7 @@ class Instances extends ListView
 
         $title = '<span class="date">' . Helpers\Dates::formatDate($item->date) . '</span> ';
         $title .= '<span class="times">' . $item->startTime . ' - ' . $item->endTime . '</span><br>';
-        $title .= Deprecated::_('link', $item->link, $name, ['target' => '_blank']);
+        $title .= HTML::link($item->link, $name, ['target' => '_blank']);
         $title .= empty($item->method) ? '' : "<br><span class=\"method\">$item->method</span>";
 
         return $this->liGetTitle($item, $title);
@@ -403,7 +403,7 @@ class Instances extends ListView
             $key   = $title;
             Text::unpack($title);
             $title = '<span class="event">' . $title . '</span>';
-            $title = Deprecated::_('link', $item->link, $title);
+            $title = HTML::link($item->link, $title);
 
             if (empty($item->method)) {
                 $method = '';
@@ -564,7 +564,7 @@ class Instances extends ListView
         ];
 
         if (Helpers\Users::getID() and !Application::mobile()) {
-            $this->headers['tools'] = Deprecated::_('grid.checkall');
+            $this->headers['tools'] = HTML::checkAll();
         }
     }
 

@@ -26,7 +26,7 @@ class RoomStatistics extends SelectionView
     {
         parent::modifyDocument();
 
-        Document::addScript(Uri::root() . 'components/com_organizer/js/room_statistics.js');
+        Document::script('roomStatistics');
     }
 
     private function setBaseFields()
@@ -34,8 +34,8 @@ class RoomStatistics extends SelectionView
         $this->sets['basic'] = ['label' => 'ORGANIZER_BASIC_SETTINGS'];
 
         $intervals = [
-            'week' => 'ORGANIZER_WEEK',
-            'month' => 'ORGANIZER_MONTH',
+            'week'     => 'ORGANIZER_WEEK',
+            'month'    => 'ORGANIZER_MONTH',
             'semester' => 'ORGANIZER_SEMESTER'
         ];
         $this->setListField('interval', 'basic', $intervals, ['onChange' => 'handleInterval();'], 'week');

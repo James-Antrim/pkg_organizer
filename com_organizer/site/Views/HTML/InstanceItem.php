@@ -197,7 +197,8 @@ class InstanceItem extends ListView
     protected function modifyDocument(): void
     {
         parent::modifyDocument();
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/item.css');
+
+        //Document::style('item');
     }
 
     /**
@@ -376,6 +377,10 @@ class InstanceItem extends ListView
 
     /**
      * Renders the persons section of the item.
+     *
+     * @param   string  $label      the resources displayed in this section
+     * @param   array   $resources  the resource items
+     *
      * @return void
      */
     public function renderResources(string $label, array $resources): void
@@ -609,9 +614,9 @@ class InstanceItem extends ListView
     }
 
     /**
-     * @inheritdoc
+     * Adds a subtitle with supplemental information.
      */
-    protected function addSubtitle(): void
+    private function addSubtitle(): void
     {
         $instance       = $this->instance;
         $date           = Dates::formatDate($instance->date);

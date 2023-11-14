@@ -48,7 +48,7 @@ class Curriculum extends ItemView
     {
         parent::modifyDocument();
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/curriculum.css');
+        //Document::style('curriculum');
     }
 
     /**

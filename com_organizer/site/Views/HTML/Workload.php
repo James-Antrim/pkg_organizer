@@ -46,6 +46,6 @@ class Workload extends FormView
     {
         parent::modifyDocument();
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/list.css');
+        //Document::style('list');
     }
 }

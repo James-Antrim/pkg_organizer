@@ -80,6 +80,6 @@ class SubjectSelection extends ListView
     {
         parent::modifyDocument();
 
-        Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/modal.css');
+        //Document::style('modal');
     }
 }

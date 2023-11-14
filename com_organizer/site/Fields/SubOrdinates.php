@@ -49,7 +49,7 @@ class SubOrdinates extends FormField
      */
     public function getInput(): string
     {
-        Document::addScript(Uri::root() . 'components/com_organizer/js/subordinates.js');
+        Document::script('subordinates');
 
         $input = '<table class="subOrdinates table-striped">';
         $input .= '<thead><tr>';

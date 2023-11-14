@@ -44,7 +44,7 @@ class Curricula extends FormField
             'type'    => $resourceType
         ];
 
-        Document::addScriptOptions('curriculumParameters', $curriculumParameters);
+        Document::scriptLocalizations('curriculumParameters', $curriculumParameters);
 
         $ranges = $resourceType === 'pool' ?
             Helpers\Pools::getRanges($resourceID) : Helpers\Subjects::getRanges($resourceID);
