@@ -31,23 +31,6 @@ class Degrees extends ListView
     }
 
     /**
-     * @inheritDoc
-     */
-    protected function completeItem(int $index, stdClass $item, array $options = []): void
-    {
-        $item->link = $options['query'] . $item->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function completeItems(array $options = []): void
-    {
-        $options = ['query' => 'index.php?option=com_organizer&view=Degree&id=',];
-        parent::completeItems($options);
-    }
-
-    /**
      * @inheritdoc
      */
     public function initializeColumns(): void

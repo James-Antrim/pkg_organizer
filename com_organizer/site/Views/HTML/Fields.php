@@ -37,7 +37,6 @@ class Fields extends ListView
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->colors = Helpers\Fields::getFieldColorDisplay($item->id, $options['organizationID']);
-        $item->link   = $options['query'] . $item->id;
     }
 
     /**
@@ -45,10 +44,7 @@ class Fields extends ListView
      */
     protected function completeItems(array $options = []): void
     {
-        $options = [
-            'organizationID' => (int) $this->state->get('filter.organizationID'),
-            'query'          => 'index.php?option=com_organizer&view=Field&id=',
-        ];
+        $options = ['organizationID' => (int) $this->state->get('filter.organizationID')];
         parent::completeItems($options);
     }
 

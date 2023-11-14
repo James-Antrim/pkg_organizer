@@ -26,7 +26,13 @@ class Degrees extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
-        $query->select(DB::qn(['id', 'name', 'abbreviation', 'code']))
+        $url   = 'index.php?option=com_organizer&view=Degree&id=';
+
+        $access = [DB::quote(1) . ' AS ' . DB::qn('access')];
+        $select = DB::qn(['id', 'name', 'abbreviation', 'code']);
+        $url    = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge($select, $access, $url))
             ->from(DB::qn('#__organizer_degrees'));
 
         $columns = ['name', 'abbreviation', 'code'];

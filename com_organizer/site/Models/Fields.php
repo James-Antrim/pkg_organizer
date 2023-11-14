@@ -28,11 +28,19 @@ class Fields extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag   = Application::getTag();
         $query = DB::getQuery();
+        $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Field&id=';
 
-        $query->select(['DISTINCT ' . DB::qn('f.id'), DB::qn('code'), DB::qn("f.name_$tag", 'name')])
-            ->from(DB::qn('#__organizer_fields', 'f'));
+        $select = [
+            'DISTINCT ' . DB::qn('f.id'),
+            DB::quote(1) . ' AS ' . DB::qn('access'),
+            DB::qn('code'),
+            DB::qn("f.name_$tag", 'name'),
+            $query->concatenate([DB::quote($url), DB::qn('f.id')], '') . ' AS ' . DB::qn('url')
+        ];
+
+        $query->select($select)->from(DB::qn('#__organizer_fields', 'f'));
 
         $this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code']);
 
