@@ -42,15 +42,6 @@ class Colors extends ListView
     /**
      * @inheritdoc
      */
-    protected function completeItems(array $options = []): void
-    {
-        $options = ['query' => 'index.php?option=com_organizer&view=Color&id='];
-        parent::completeItems($options);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function initializeColumns(): void
     {
         $direction     = $this->state->get('list.direction');

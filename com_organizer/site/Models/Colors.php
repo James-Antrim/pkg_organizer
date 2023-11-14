@@ -23,10 +23,16 @@ class Colors extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag   = Application::getTag();
         $query = DB::getQuery();
+        $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Color&id=';
 
-        $query->select([DB::qn('id'), DB::qn("name_$tag", 'name'), DB::qn('color')])
+        $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
+        $aliased = DB::qn(["name_$tag"], ['name']);
+        $select  = DB::qn(['id', 'color']);
+        $url     = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge($select, $access, $aliased, $url))
             ->from(DB::qn('#__organizer_colors'));
 
         $this->setSearchFilter($query, ['name_de', 'name_en', 'color']);

@@ -27,7 +27,6 @@ class Grids extends ListModel
         $tag   = Application::getTag();
         $url   = 'index.php?option=com_organizer&view=Grid&id=';
 
-        // Admin access required for view.
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = [DB::qn("name_$tag", 'name')];
         $url     = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
