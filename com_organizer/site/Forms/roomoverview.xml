@@ -10,7 +10,7 @@
             <option value="">ALL_BUILDINGS</option>
             <option value="-1">NO_BUILDING</option>
         </field>
-        <field name="roomtypeID" type="Roomtypes" label="TYPE" class="input-12" onchange="this.form.submit();">
+        <field name="roomtypeID" type="RoomTypes" label="TYPE" class="input-12" onchange="this.form.submit();">
             <option value="">ALL_ROOMTYPES</option>
         </field>
         <field name="effCapacity" type="Integer" label="CAPACITY" first="5" last="500" onchange="this.form.submit();" prefix="> "

@@ -21,8 +21,8 @@ class RoomtypeOptions extends BaseView
      * loads model data into view context
      * @return void
      */
-    public function display()
+    public function display(): void
     {
-        echo json_encode(Helpers\Roomtypes::getOptions(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\RoomTypes::getOptions(), JSON_UNESCAPED_UNICODE);
     }
 }

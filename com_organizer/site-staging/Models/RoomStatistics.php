@@ -47,12 +47,12 @@ class RoomStatistics extends BaseModel
 
     public $startDoW;
 
-    private $threshhold = .2;
+    private float $threshold = .2;
 
     /**
      * Room_Statistics constructor.
      *
-     * @param array $config
+     * @param   array  $config
      */
     public function __construct(array $config)
     {
@@ -62,7 +62,7 @@ class RoomStatistics extends BaseModel
 
         switch ($format) {
             case 'xls':
-                $this->setRoomtypes();
+                $this->setRoomTypes();
                 $this->setRooms();
                 $this->setGrid();
                 $this->setDates();
@@ -95,11 +95,11 @@ class RoomStatistics extends BaseModel
     /**
      * Aggregates the raw instance data into calendar entries
      *
-     * @param array $ringData the raw lesson instances for a specific room
+     * @param   array  $ringData  the raw lesson instances for a specific room
      *
      * @return void
      */
-    private function aggregateInstances(array $ringData)
+    private function aggregateInstances(array $ringData): void
     {
         foreach ($ringData as $instance) {
             $rawConfig = json_decode($instance['configuration'], true);
@@ -161,8 +161,8 @@ class RoomStatistics extends BaseModel
     /**
      * Determines the relevant grid blocks based upon the instance start and end times
      *
-     * @param string $startTime the time the instance starts
-     * @param string $endTime   the time the instance ends
+     * @param   string  $startTime  the time the instance starts
+     * @param   string  $endTime    the time the instance ends
      *
      * @return int[] the relevant block numbers
      */
@@ -217,7 +217,7 @@ class RoomStatistics extends BaseModel
      * Creates a calendar to associate the instances with.
      * @return void sets the object variable use
      */
-    private function initializeCalendar()
+    private function initializeCalendar(): void
     {
         $calendar = [];
         $startDT  = strtotime($this->startDate);
@@ -243,7 +243,7 @@ class RoomStatistics extends BaseModel
     /**
      * Retrieves raw lesson instance information from the database
      *
-     * @param int $roomID the id of the room being iterated
+     * @param   int  $roomID  the id of the room being iterated
      *
      * @return bool true if room information was found, otherwise false
      */
@@ -289,7 +289,7 @@ class RoomStatistics extends BaseModel
      * Resolves form date information into where clauses for the query being built
      * @return void the corresponding start and end dates
      */
-    private function setDates()
+    private function setDates(): void
     {
         $termID = Input::getFilterID('term');
 
@@ -310,16 +310,10 @@ class RoomStatistics extends BaseModel
         $endDoWNo   = empty($this->endDoW) ? 6 : $this->endDoW;
         $interval   = Input::getCMD('interval', 'week');
 
-        switch ($interval) {
-            case 'month':
-                $dates = Helpers\Dates::getMonth($date);
-                break;
-            case 'week':
-            default:
-                $dates = Helpers\Dates::getWeek($date, $startDoWNo, $endDoWNo);
-                break;
-
-        }
+        $dates = match ($interval) {
+            'month' => Helpers\Dates::getMonth($date),
+            default => Helpers\Dates::getWeek($date, $startDoWNo, $endDoWNo),
+        };
 
         $this->startDate = $dates['startDate'];
         $this->endDate   = $dates['endDate'];
@@ -329,14 +323,15 @@ class RoomStatistics extends BaseModel
      * Retrieves the selected grid from the database
      * @return void sets object variables
      */
-    private function setGrid()
+    private function setGrid(): void
     {
         $query = Database::getQuery();
         $query->select('grid')->from('#__organizer_grids');
 
         if (empty($this->parameters['gridID'])) {
             $query->where('isDefault = 1');
-        } else {
+        }
+        else {
             $query->where("id = {$this->parameters['gridID']}");
         }
 
@@ -364,11 +359,11 @@ class RoomStatistics extends BaseModel
     /**
      * Sets mostly textual data which is dependent on the lesson subject ids
      *
-     * @param array $lcrsIDs the lesson subject database ids
+     * @param   array  $lcrsIDs  the lesson subject database ids
      *
      * @return void sets object variable indexes
      */
-    private function setLSData(array $lcrsIDs)
+    private function setLSData(array $lcrsIDs): void
     {
         $tag   = Application::getTag();
         $query = Database::getQuery();
@@ -421,7 +416,7 @@ class RoomStatistics extends BaseModel
      * Sets the rooms
      * @return void sets an object variable
      */
-    private function setRooms()
+    private function setRooms(): void
     {
         $rooms       = Helpers\Rooms::getPlannedRooms();
         $roomtypeMap = [];
@@ -438,7 +433,7 @@ class RoomStatistics extends BaseModel
      * Sets the available room types based on the rooms
      * @return void sets the room types object variable
      */
-    private function setRoomtypes()
+    private function setRoomTypes(): void
     {
         $tag   = Application::getTag();
         $query = Database::getQuery();
@@ -453,10 +448,10 @@ class RoomStatistics extends BaseModel
     }
 
     /**
-     * Creates meta data for the weeks, totals and adjusted totals. Also sets room week data.
+     * Creates metadata for the weeks, totals and adjusted totals. Also sets room week data.
      * @return void
      */
-    private function createMetaData()
+    private function createMetaData(): void
     {
         $this->metaData         = [];
         $this->metaData['days'] = [];
@@ -494,7 +489,7 @@ class RoomStatistics extends BaseModel
                 $week['use']   += $this->metaData['days'][$currentDate]['use'];
                 $dailyAverage  = $this->metaData['days'][$currentDate]['use'] / $this->metaData['days'][$currentDate]['total'];
 
-                if ($dailyAverage > $this->threshhold) {
+                if ($dailyAverage > $this->threshold) {
                     $week['adjustedTotal'] += $this->metaData['days'][$currentDate]['total'];
                     $week['adjustedUse']   += $this->metaData['days'][$currentDate]['use'];
                 }
@@ -516,7 +511,7 @@ class RoomStatistics extends BaseModel
                     $this->roomData[$roomData['id']]['weeks'][$weekNo]['use']   +=
                         $this->roomData[$roomData['id']]['days'][$currentDate];
 
-                    if ($dailyAverage > $this->threshhold) {
+                    if ($dailyAverage > $this->threshold) {
                         $this->roomData[$roomData['id']]['weeks'][$weekNo]['adjustedTotal'] += $dailyBlocks;
                         $this->roomData[$roomData['id']]['weeks'][$weekNo]['adjustedUse']   +=
                             $this->roomData[$roomData['id']]['days'][$currentDate];
@@ -547,7 +542,7 @@ class RoomStatistics extends BaseModel
             $weeklyAverage = $weekData['adjustedUse'] / $weekData['adjustedTotal'];
 
             // TODO: find a good value for this through experimentation
-            if ($weeklyAverage > $this->threshhold) {
+            if ($weeklyAverage > $this->threshold) {
                 $this->metaData['adjustedTotal'] += $weekData['adjustedTotal'];
                 $this->metaData['adjustedUse']   += $weekData['adjustedUse'];
             }
@@ -558,7 +553,7 @@ class RoomStatistics extends BaseModel
      * Sums number of used blocks per room per day
      * @return void
      */
-    private function createUseData()
+    private function createUseData(): void
     {
         $this->roomData = [];
 

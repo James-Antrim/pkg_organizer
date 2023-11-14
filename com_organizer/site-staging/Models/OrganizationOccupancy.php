@@ -18,9 +18,9 @@ use THM\Organizer\Helpers;
  */
 class OrganizationOccupancy extends BaseModel
 {
-    private $calendarData;
+    private array $calendarData;
 
-    public $endDate;
+    public string $endDate;
 
     public $terms;
 
@@ -37,7 +37,7 @@ class OrganizationOccupancy extends BaseModel
     /**
      * Organization_Statistics constructor.
      *
-     * @param array $config
+     * @param   array  $config
      */
     public function __construct(array $config)
     {
@@ -47,7 +47,7 @@ class OrganizationOccupancy extends BaseModel
 
         switch ($format) {
             case 'xls':
-                $this->setRoomtypes();
+                $this->setRoomTypes();
                 $this->setRooms();
 
                 $year            = Input::getCMD('year', date('Y'));
@@ -65,7 +65,8 @@ class OrganizationOccupancy extends BaseModel
 
                     if ($booked) {
                         $this->rooms[$roomData['id']] = $roomName;
-                    } else {
+                    }
+                    else {
                         unset($this->roomtypeMap[$roomData['id']]);
                     }
                 }
@@ -83,7 +84,7 @@ class OrganizationOccupancy extends BaseModel
             case 'html':
             default:
                 $this->setRooms();
-                $this->setRoomtypes();
+                $this->setRoomTypes();
 
                 break;
         }
@@ -102,8 +103,8 @@ class OrganizationOccupancy extends BaseModel
             $termName                 = $term['name'];
             $this->useData[$termName] = [];
 
-            $currentDate = $term['startDate'] < $this->startDate ? $this->startDate : $term['startDate'];
-            $endDate     = $this->endDate < $term['endDate'] ? $this->endDate : $term['endDate'];
+            $currentDate = max($term['startDate'], $this->startDate);
+            $endDate     = min($this->endDate, $term['endDate']);
 
             while ($currentDate <= $endDate) {
                 if (empty($this->calendarData[$currentDate])) {
@@ -133,11 +134,11 @@ class OrganizationOccupancy extends BaseModel
     /**
      * Aggregates the raw instance data into calendar entries
      *
-     * @param array $rawInstances the raw lesson instances for a specific room
+     * @param   array  $rawInstances  the raw lesson instances for a specific room
      *
      * @return void
      */
-    private function aggregateInstances($rawInstances)
+    private function aggregateInstances(array $rawInstances)
     {
         foreach ($rawInstances as $rawInstance) {
             $rawConfig = json_decode($rawInstance['configuration'], true);
@@ -195,9 +196,11 @@ class OrganizationOccupancy extends BaseModel
         foreach ($organizations as $organization) {
             if ($count == 1) {
                 $organizationName .= $organization;
-            } elseif ($count == $noOrgs) {
+            }
+            elseif ($count == $noOrgs) {
                 $organizationName .= " & $organization";
-            } else {
+            }
+            else {
                 $organizationName .= ", $organization";
             }
 
@@ -261,11 +264,11 @@ class OrganizationOccupancy extends BaseModel
     /**
      * Retrieves raw lesson instance information from the database
      *
-     * @param int $roomID the id of the room being iterated
+     * @param   int  $roomID  the id of the room being iterated
      *
      * @return bool true if room information was found, otherwise false
      */
-    private function setData($roomID)
+    private function setData(int $roomID)
     {
         $tag     = Application::getTag();
         $cSelect = "c.schedule_date AS date, TIME_FORMAT(c.startTime, '%H:%i') AS startTime, ";
@@ -324,7 +327,7 @@ class OrganizationOccupancy extends BaseModel
      * Sets the available room types based on the rooms
      * @return void sets the room types object variable
      */
-    private function setRoomtypes()
+    private function setRoomTypes()
     {
         $query = Database::getQuery();
         $tag   = Application::getTag();
@@ -340,11 +343,11 @@ class OrganizationOccupancy extends BaseModel
     /**
      * Retrieves the relevant term data from the database
      *
-     * @param string $year the year used for the statistics generation
+     * @param   string  $year  the year used for the statistics generation
      *
-     * @return bool true if the query was successfull, otherwise false
+     * @return void true if the query was successful, otherwise false
      */
-    private function setTerms($year)
+    private function setTerms(string $year): void
     {
         $query = Database::getQuery();
         $query->select('*')->from('#__organizer_terms')
@@ -354,20 +357,19 @@ class OrganizationOccupancy extends BaseModel
 
         $this->terms = Database::loadAssocList('id');
 
-        return empty($this->terms) ? false : true;
     }
 
     /**
      * Sets/sums individual usage values in it's container property
      *
-     * @param string $termName the name of the term
-     * @param string $orgName  the name of the organization
-     * @param int    $roomID   the id of the room
-     * @param int    $value    the number of minutes
+     * @param   string  $termName  the name of the term
+     * @param   string  $orgName   the name of the organization
+     * @param   int     $roomID    the id of the room
+     * @param   int     $value     the number of minutes
      *
      * @return void
      */
-    private function setUseData($termName, $orgName, $roomID, $value)
+    private function setUseData(string $termName, string $orgName, int $roomID, int $value)
     {
         if (empty($this->useData[$termName][$orgName])) {
             $this->useData[$termName][$orgName] = [];

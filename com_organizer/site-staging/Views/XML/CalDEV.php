@@ -11,6 +11,7 @@
 namespace THM\Organizer\Views\XML;
 
 use THM\Organizer\Adapters\{Application, Input};
+use Joomla\CMS\Application\CMSApplication;
 use THM\Organizer\Helpers;
 use SimpleXMLElement;
 
@@ -20,7 +21,7 @@ use SimpleXMLElement;
  */
 class CalDEV extends BaseView
 {
-    private $method;
+    private string $method;
 
     /**
      * Constructor
@@ -45,6 +46,7 @@ class CalDEV extends BaseView
 
         $response = '';
 
+        /** @var CMSApplication $app */
         $app = Application::getApplication();
         switch ($this->method) {
             case 'GET':
@@ -82,9 +84,9 @@ class CalDEV extends BaseView
     {
         $accessibleResources = [
             'categoryID' => "\\Organizer\\Tables\\Categories",
-            'eventID' => "\\Organizer\\Tables\\Events",
-            'groupID' => "\\Organizer\\Tables\\Groups",
-            'roomID' => "\\Organizer\\Tables\\Rooms"
+            'eventID'    => "\\Organizer\\Tables\\Events",
+            'groupID'    => "\\Organizer\\Tables\\Groups",
+            'roomID'     => "\\Organizer\\Tables\\Rooms"
         ];
 
         $response = '';
@@ -144,7 +146,7 @@ class CalDEV extends BaseView
                         Application::error(412);
                     }
 
-                    if (Helpers\Roomtypes::getSuppressed($table->roomtypeID)) {
+                    if (Helpers\RoomTypes::getSuppressed($table->roomtypeID)) {
                         Application::error(404);
                     }
 
@@ -153,7 +155,7 @@ class CalDEV extends BaseView
                     $room->addAttribute('virtual', $table->virtual);
                     $name = $this->amp($table->name);
                     $room->addChild('name', $name);
-                    $type = $this->amp(Helpers\Roomtypes::getName($table->roomtypeID));
+                    $type = $this->amp(Helpers\RoomTypes::getName($table->roomtypeID));
                     $room->addChild('type', $type);
                     $building = $table->buildingID ? $this->amp(Helpers\Buildings::getName($table->buildingID)) : '';
                     $room->addChild('building', $building);

@@ -176,7 +176,7 @@ trait ToCed
                 'active' => $viewName === 'roomkeys'
             ];
             $items[Text::_('ROOMTYPES')] = [
-                'url'    => Routing::getViewURL('Roomtypes'),
+                'url'    => Routing::getViewURL('RoomTypes'),
                 'active' => $viewName === 'roomtypes'
             ];
             ksort($items);

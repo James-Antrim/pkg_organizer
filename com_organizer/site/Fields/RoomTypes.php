@@ -15,12 +15,12 @@ use THM\Organizer\Helpers;
 /**
  * Class creates a form field for room type selection
  */
-class Roomtypes extends Options
+class RoomTypes extends Options
 {
     /**
      * @var  string
      */
-    protected $type = 'Roomtypes';
+    protected $type = 'RoomTypes';
 
     /**
      * Method to get the field options.
@@ -29,7 +29,7 @@ class Roomtypes extends Options
     protected function getOptions(): array
     {
         $options   = parent::getOptions();
-        $roomtypes = Helpers\Roomtypes::getOptions();
+        $roomtypes = Helpers\RoomTypes::getOptions();
 
         return array_merge($options, $roomtypes);
     }

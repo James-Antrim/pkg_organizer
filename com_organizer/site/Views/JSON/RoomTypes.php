@@ -15,14 +15,14 @@ use THM\Organizer\Helpers;
 /**
  * Class answers dynamic (degree) program related queries
  */
-class Roomtypes extends BaseView
+class RoomTypes extends BaseView
 {
     /**
      * loads model data into view context
      * @return void
      */
-    public function display()
+    public function display(): void
     {
-        echo json_encode(Helpers\Roomtypes::getResources(), JSON_UNESCAPED_UNICODE);
+        echo json_encode(Helpers\RoomTypes::getResources(), JSON_UNESCAPED_UNICODE);
     }
 }

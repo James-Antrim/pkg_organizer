@@ -15,11 +15,11 @@ use THM\Organizer\Adapters\{Application, Database, HTML};
 /**
  * Provides general functions for room type access checks, data retrieval and display.
  */
-class Roomtypes extends ResourceHelper implements Selectable
+class RoomTypes extends ResourceHelper implements Selectable
 {
     use Filtered, Suppressed;
 
-    private const NO = 0, YES = 1;
+    private const NO = false, YES = true;
 
     /**
      * @inheritDoc
@@ -40,7 +40,7 @@ class Roomtypes extends ResourceHelper implements Selectable
      * @param   bool  $associated  whether the type needs to be associated with a room
      * @param   bool  $public
      */
-    public static function getResources($associated = self::YES, $suppress = self::NO): array
+    public static function getResources(bool $associated = self::YES, bool $suppress = self::NO): array
     {
         $tag = Application::getTag();
 

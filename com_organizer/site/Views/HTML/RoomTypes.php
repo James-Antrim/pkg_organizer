@@ -12,11 +12,12 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers\Can;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of room types into the display context.
  */
-class Roomtypes extends ListView
+class RoomTypes extends ListView
 {
     /**
      * @inheritdoc
@@ -28,7 +29,7 @@ class Roomtypes extends ListView
 
         // Trust isn't there for this yet.
         if (Can::administrate()) {
-            $toolbar->delete('Roomtypes.delete')->message(Text::_('DELETE_CONFIRM'));
+            $toolbar->delete('RoomTypes.delete')->message(Text::_('DELETE_CONFIRM'));
         }
 
         parent::addToolBar();
@@ -42,10 +43,23 @@ class Roomtypes extends ListView
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
         $headers   = [
-            'checkbox' => '',
-            'rns'      => HTML::sort('ROOMKEY', 'rns', $direction, $ordering),
-            'name'     => HTML::sort('NAME', 'name', $direction, $ordering),
-            'useCode'  => HTML::sort('USE_CODE_TEXT', 'useCode', $direction, $ordering)
+            'check'   => ['type' => 'check'],
+            'name'    => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, $ordering),
+                'type'       => 'value'
+            ],
+            'rns'     => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('ROOMKEY', 'rns', $direction, $ordering),
+                'type'       => 'text'
+            ],
+            'useCode' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('USE_CODE_TEXT', 'useCode', $direction, $ordering),
+                'type'       => 'text'
+            ],
         ];
 
         $this->headers = $headers;

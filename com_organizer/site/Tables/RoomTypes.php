@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpMissingFieldTypeInspection */
+
 /**
  * @package     Organizer
  * @extension   com_organizer
@@ -13,7 +14,7 @@ namespace THM\Organizer\Tables;
 /**
  * Models the organizer_roomtypes table.
  */
-class Roomtypes extends BaseTable
+class RoomTypes extends BaseTable
 {
     use Suppressed;
 

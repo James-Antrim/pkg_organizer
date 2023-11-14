@@ -23,7 +23,7 @@ class Roomtype extends BaseModel
      * Authorizes the user.
      * @return void
      */
-    protected function authorize()
+    protected function authorize(): void
     {
         if (!Helpers\Can::manage('facilities')) {
             Application::error(403);
@@ -33,15 +33,15 @@ class Roomtype extends BaseModel
     /**
      * Method to get a table object, load it if necessary.
      *
-     * @param string $name    The table name. Optional.
-     * @param string $prefix  The class prefix. Optional.
-     * @param array  $options Configuration array for model. Optional.
+     * @param   string  $name     The table name. Optional.
+     * @param   string  $prefix   The class prefix. Optional.
+     * @param   array   $options  Configuration array for model. Optional.
      *
-     * @return Tables\Roomtypes A Table object
+     * @return Tables\RoomTypes A Table object
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getTable($name = '', $prefix = '', $options = []): Tables\Roomtypes
+    public function getTable($name = '', $prefix = '', $options = []): Tables\RoomTypes
     {
-        return new Tables\Roomtypes();
+        return new Tables\RoomTypes();
     }
 }
