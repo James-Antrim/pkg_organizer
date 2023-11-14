@@ -10,7 +10,6 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use stdClass;
 use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -29,23 +28,6 @@ class Organizations extends ListView
         $toolbar->delete('Organizations.delete')->message(Text::_('DELETE_CONFIRM'));
 
         parent::addToolBar();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function completeItem(int $index, stdClass $item, array $options = []): void
-    {
-        $item->editLink = $options['query'] . $item->id;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function completeItems(array $options = []): void
-    {
-        $options = ['query' => 'index.php?option=com_organizer&view=Organization&id='];
-        parent::completeItems($options);
     }
 
     /**

@@ -97,7 +97,10 @@ abstract class ListView extends Base
      *
      * @return void
      */
-    abstract protected function completeItem(int $index, stdClass $item, array $options = []): void;
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
+    {
+        // Overridable as needed.
+    }
 
     /**
      * Processes items for output.

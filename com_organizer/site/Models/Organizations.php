@@ -12,6 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB};
+use Joomla\Database\QueryInterface;
 use THM\Organizer\Helpers\Can;
 
 /**
@@ -22,22 +23,36 @@ class Organizations extends ListModel
     protected string $defaultOrdering = 'shortName';
 
     /**
+     * @inheritdoc
+     */
+    protected function addAccess(QueryInterface $query): void
+    {
+        if ($ids = Can::manageTheseOrganizations()) {
+            $query->select(DB::qn('o.id') . ' IN (' . implode(',', $ids) . ')' . ' AS ' . DB::qn('access'));
+        }
+        else {
+            $query->select(DB::quote(0) . ' AS ' . DB::qn('access'));
+        }
+    }
+
+    /**
      * Method to get a list of resources from the database.
      * @return DatabaseQuery
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $authorized = Can::manageTheseOrganizations();
-        $oID        = DB::qn('o.id');
-
-        $tag     = Application::getTag();
-        $aliased = DB::qn(["o.fullName_$tag", "o.shortName_$tag"], ['name', 'shortName']);
-
+        $link  = 'index.php?option=com_organizer&view=Organization&id=';
         $query = DB::getQuery();
-        $query->select(array_merge([$oID, DB::qn('a.rules')], $aliased))
+        $tag   = Application::getTag();
+
+        $aliased = DB::qn(["o.fullName_$tag", "o.shortName_$tag"], ['name', 'shortName']);
+        $link    = [$query->concatenate([DB::quote($link), DB::qn('o.id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge([DB::qn('o.id'), DB::qn('a.rules')], $aliased, $link))
             ->from(DB::qn('#__organizer_organizations', 'o'))
-            ->innerJoin(DB::qn('#__assets', 'a'), DB::qn('a.id') . ' = ' . DB::qn('o.asset_id'))
-            ->whereIn($oID, $authorized);
+            ->innerJoin(DB::qn('#__assets', 'a'), DB::qn('a.id') . ' = ' . DB::qn('o.asset_id'));
+
+        $this->addAccess($query);
 
         $searchColumns = [
             'abbreviation_de',
