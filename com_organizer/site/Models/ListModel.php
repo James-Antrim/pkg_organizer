@@ -50,6 +50,18 @@ abstract class ListModel extends Base
     }
 
     /**
+     * Area where overrideable resource access conditions can be written.
+     *
+     * @param   QueryInterface  $query
+     *
+     * @return void
+     */
+    protected function addAccess(QueryInterface $query): void
+    {
+        // As needed
+    }
+
+    /**
      * Adds a binary value filter clause for the given $query;
      *
      * @param   QueryInterface  $query  the query to modify

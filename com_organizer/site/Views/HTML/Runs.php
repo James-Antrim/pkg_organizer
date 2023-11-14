@@ -36,8 +36,7 @@ class Runs extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->editLink = $options['query'] . $item->id;
-        $run            = json_decode($item->run, true);
+        $run = json_decode($item->run, true);
 
         if (empty($run) or empty($run['runs'])) {
             $item->endDate   = '';
@@ -59,17 +58,6 @@ class Runs extends ListView
             $item->sections  = count($runs);
             $item->startDate = Helpers\Dates::formatDate($startDate);
         }
-    }
-
-    /**
-     * @param   array  $options  *
-     *
-     * @inheritDoc
-     */
-    protected function completeItems(array $options = []): void
-    {
-        $options = ['query' => "index.php?option=com_organizer&view=run_edit&id="];
-        parent::completeItems($options);
     }
 
     /**

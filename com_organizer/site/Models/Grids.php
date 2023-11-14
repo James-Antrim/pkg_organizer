@@ -27,6 +27,7 @@ class Grids extends ListModel
         $query = DB::getQuery();
         $tag   = Application::getTag();
 
+        // Admin access required for view.
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = [DB::qn("name_$tag", 'name')];
         $link    = [$query->concatenate([DB::quote($link), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
