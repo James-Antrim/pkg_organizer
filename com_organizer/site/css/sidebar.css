@@ -1,17 +1,30 @@
-.sidebar-nav {
-    color: #394a59;
+#j-sidebar-container {
+    padding: 0;
 }
 
-.menu-spacer {
-    background-color: #dfe5e6;
+div.sidebar-nav {
+    padding: 0;
+}
+
+div.sidebar-nav li {
+    padding: .1rem .2rem;
+}
+
+div.sidebar-nav li:first-child {
+    font-size: 1.2rem;
+}
+
+div.sidebar-nav li:has(span.menu-spacer) {
+    background-color: #1f3047;
+    padding: .3rem .6rem;
+}
+
+div.sidebar-nav li a::before {
+    content: none;
+}
+
+div.sidebar-nav li span.menu-spacer {
     display: block;
-    font-size: 1.1rem;
-    margin: .3rem -2rem 0 -2rem;
-    padding: .3rem 1.6rem .3rem 2rem;
+    font-size: 1.2rem;
     width: 100%;
-}
-
-.organizer-logo, .organizer-description {
-    font-size: .9rem;
-    margin-bottom: .6rem;
 }

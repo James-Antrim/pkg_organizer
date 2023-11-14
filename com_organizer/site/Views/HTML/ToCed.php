@@ -31,12 +31,12 @@ trait ToCed
             return;
         }
 
-        //Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/sidebar.css');
+        Document::style('sidebar');
 
         $viewName = strtolower(Application::getClass($this));
 
         Sidebar::addEntry(
-            '<span class="icon-home"></span>Organizer',
+            '<span class="icon-home"></span> Organizer',
             Routing::getViewURL('Organizer'),
             $viewName === 'organizer'
         );

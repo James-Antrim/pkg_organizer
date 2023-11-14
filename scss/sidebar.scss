@@ -1,19 +1,32 @@
 @import "variables";
 
-.sidebar-nav {
-  color: $font-color;
+#j-sidebar-container {
+  padding: 0;
 }
 
-.menu-spacer {
-  background-color: $background-navigation-color;
-  display: block;
-  font-size: 1.1rem;
-  margin: .3rem -2rem 0 -2rem;
-  padding: .3rem 1.6rem .3rem 2rem;
-  width: 100%;
-}
+div.sidebar-nav {
+  padding: 0;
 
-.organizer-logo, .organizer-description {
-  font-size: .9rem;
-  margin-bottom: .6rem;
+  li {
+    padding: .1rem .2rem;
+
+    &:first-child {
+      font-size: 1.2rem;
+    }
+
+    &:has(span.menu-spacer) {
+      background-color: hsl(214, 40%, 20%);
+      padding: .3rem .6rem;
+    }
+
+    a::before {
+      content: none;
+    }
+
+    span.menu-spacer {
+      display: block;
+      font-size: 1.2rem;
+      width: 100%;
+    }
+  }
 }
