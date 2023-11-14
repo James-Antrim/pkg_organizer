@@ -36,18 +36,8 @@ class Terms extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->editLink  = $options['query'] . $item->id;
         $item->endDate   = Dates::formatDate($item->endDate);
         $item->startDate = Dates::formatDate($item->startDate);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function completeItems(array $options = []): void
-    {
-        $options = ['query' => "index.php?option=com_organizer&view=Term&id="];
-        parent::completeItems($options);
     }
 
     /**

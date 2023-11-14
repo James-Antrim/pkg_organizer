@@ -18,28 +18,26 @@ use THM\Organizer\Adapters\{Application, Database as DB};
  */
 class Terms extends ListModel
 {
-    /**
-     * @inheritDoc
-     */
-    public function __construct($config = [])
-    {
-        if (empty($config['filter_fields'])) {
-            $config['filter_fields'] = ['name', 'abbreviation', 'code'];
-        }
-
-        parent::__construct($config);
-    }
+    protected $filter_fields = ['name', 'abbreviation', 'code'];
 
     /**
      * @inheritDoc
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag     = Application::getTag();
-        $query   = DB::getQuery();
+        $link  = 'index.php?option=com_organizer&view=Term&id=';
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
+
+        // Admin access required for view.
+        $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $select  = DB::qn(['id', 'startDate', 'endDate']);
+        $link    = [$query->concatenate([DB::quote($link), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
         $aliased = [DB::qn("fullName_$tag", 'term')];
-        $query->select(array_merge($select, $aliased))->from(DB::qn('#__organizer_terms'))->order(DB::qn('startDate') . ' DESC');
+
+        $query->select(array_merge($select, $access, $aliased, $link))
+            ->from(DB::qn('#__organizer_terms'))
+            ->order(DB::qn('startDate') . ' DESC');
 
         return $query;
     }
