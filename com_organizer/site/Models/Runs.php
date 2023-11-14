@@ -42,17 +42,17 @@ class Runs extends ListModel
     {
         $this->deleteDeprecated();
 
-        $link  = 'index.php?option=com_organizer&view=Run&id=';
         $query = DB::getQuery();
         $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Run&id=';
 
         // Admin access required for view.
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(["r.name_$tag", "t.name_$tag"], ['name', 'term']);
-        $link    = [$query->concatenate([DB::quote($link), DB::qn('r.id')], '') . ' AS ' . DB::qn('url')];
+        $url     = [$query->concatenate([DB::quote($url), DB::qn('r.id')], '') . ' AS ' . DB::qn('url')];
         $select  = DB::qn(['r.id', 'r.run', 'r.termID', 'r.endDate']);
 
-        $query->select(array_merge($select, $access, $aliased, $link))
+        $query->select(array_merge($select, $access, $aliased, $url))
             ->from(DB::qn('#__organizer_runs', 'r'))
             ->innerJoin(DB::qn('#__organizer_terms', 't'), DB::qc('t.id', 'r.termID'))
             ->order(DB::qn('t.startDate') . ', ' . DB::qn('name'));

@@ -58,9 +58,9 @@ class Participants extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $link  = 'index.php?option=com_organizer&view=Participant&id=';
         $query = DB::getQuery();
         $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Participant&id=';
 
         $nameParts    = [DB::qn('pa.surname'), "', '", DB::qn('pa.forename')];
         $programParts = [DB::qn("pr.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('pr.accredited'), "')'"];
@@ -70,7 +70,7 @@ class Participants extends ListModel
             DB::qn('u') . '.*',
             $query->concatenate($nameParts, '') . ' AS ' . DB::qn('fullName'),
             $query->concatenate($programParts, '') . ' AS ' . DB::qn('program'),
-            $query->concatenate([DB::quote($link), DB::qn('u.id')], '') . ' AS ' . DB::qn('url')
+            $query->concatenate([DB::quote($url), DB::qn('u.id')], '') . ' AS ' . DB::qn('url')
         ];
 
         $query->select($select)

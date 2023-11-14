@@ -26,15 +26,15 @@ class Methods extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $link  = 'index.php?option=com_organizer&view=Method&id=';
         $query = DB::getQuery();
         $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Method&id=';
 
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(["abbreviation_$tag", "name_$tag"], ['abbreviation', 'name']);
-        $link    = [$query->concatenate([DB::quote($link), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
+        $url     = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
 
-        $query->select(array_merge([DB::qn('id')], $access, $aliased, $link))
+        $query->select(array_merge([DB::qn('id')], $access, $aliased, $url))
             ->from(DB::qn('#__organizer_methods'));
 
         $this->setSearchFilter($query, ['name_de', 'name_en', 'abbreviation_de', 'abbreviation_en']);

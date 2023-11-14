@@ -25,17 +25,17 @@ class Terms extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $link  = 'index.php?option=com_organizer&view=Term&id=';
         $query = DB::getQuery();
         $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Term&id=';
 
         // Admin access required for view.
         $access  = [DB::quote(1) . ' AS ' . DB::qn('access')];
         $select  = DB::qn(['id', 'startDate', 'endDate']);
-        $link    = [$query->concatenate([DB::quote($link), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
+        $url     = [$query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')];
         $aliased = [DB::qn("fullName_$tag", 'term')];
 
-        $query->select(array_merge($select, $access, $aliased, $link))
+        $query->select(array_merge($select, $access, $aliased, $url))
             ->from(DB::qn('#__organizer_terms'))
             ->order(DB::qn('startDate') . ' DESC');
 

@@ -30,14 +30,20 @@ class Holidays extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $hED        = DB::qn('h.endDate');
+        $hED   = DB::qn('h.endDate');
+        $url   = 'index.php?option=com_organizer&view=Holiday&id=';
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
+
+        $access     = [DB::quote(1) . ' AS ' . DB::qn('access')];
+        $aliased    = DB::qn(["h.name_$tag", "t.name_$tag"], ['name', 'term']);
         $conditions = [
             DB::qn('t.startDate') . ' <= ' . DB::qn('h.startDate'),
             DB::qn('t.endDate') . ' >= ' . $hED,
         ];
-        $tag        = Application::getTag();
-        $query      = DB::getQuery();
-        $query->select([DB::qn('h') . '.*', DB::qn("h.name_$tag", 'name'), DB::qn("t.name_$tag", 'term')])
+        $url        = [$query->concatenate([DB::quote($url), DB::qn('h.id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge([DB::qn('h') . '.*'], $access, $aliased, $url))
             ->from(DB::qn('#__organizer_holidays', 'h'))
             ->innerJoin(DB::qn('#__organizer_terms', 't'), implode(' AND ', $conditions));
 

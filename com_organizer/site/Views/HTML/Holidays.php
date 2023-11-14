@@ -37,7 +37,6 @@ class Holidays extends ListView
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
         $item->dates = Dates::getDisplay($item->startDate, $item->endDate);
-        $item->link  = $options['query'] . $item->id;
 
         if (!$this->state->get('filter.termID')) {
             $item->name .= " ($item->term)";
@@ -58,7 +57,6 @@ class Holidays extends ListView
                 Helper::CLOSED  => 'CLOSED_DAYS',
                 Helper::HOLIDAY => 'HOLIDAYS'
             ],
-            'query' => 'index.php?option=com_organizer&view=Holiday&id=',
             'today' => date('Y-m-d'),
         ];
         parent::completeItems($options);
