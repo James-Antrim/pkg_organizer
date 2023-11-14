@@ -14,6 +14,7 @@ use Joomla\CMS\Form\Form;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
 use Joomla\Database\ParameterType;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves information for a filtered set of rooms.
@@ -49,16 +50,19 @@ class Rooms extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag   = Application::getTag();
         $query = DB::getQuery();
+        $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Room&id=';
 
+        $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
         $aliased = DB::qn(
             ['b.id', 'b.name', "c1.name_$tag", "c2.name_$tag", 'r.name', 't.id', "t.name_$tag"],
             ['buildingID', 'buildingName', 'campus', 'parent', 'roomName', 'roomtypeID', 'roomType']
         );
         $select  = DB::qn(['r.id', 'r.code', 'r.active', 'r.effCapacity', 'b.address', 'b.location', 'b.propertyType']);
+        $url     = [$query->concatenate([DB::quote($url), DB::qn('r.id')], '') . ' AS ' . DB::qn('url')];
 
-        $query->select(array_merge($select, $aliased))
+        $query->select(array_merge($select, $access, $aliased, $url))
             ->from(DB::qn('#__organizer_rooms', 'r'))
             ->leftJoin(DB::qn('#__organizer_roomtypes', 't'), DB::qc('t.id', 'r.roomtypeID'))
             ->leftJoin(DB::qn('#__organizer_use_codes', 'uc'), DB::qc('uc.id', 't.usecode'))

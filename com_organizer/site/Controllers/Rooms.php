@@ -30,7 +30,7 @@ class Rooms extends Controller
      * Makes call to the model's import function, and redirects to the manager view if the file .
      * @return void
      */
-    public function import()
+    public function import(): void
     {
         $url  = Helpers\Routing::getRedirectBase();
         $view = 'Rooms';
@@ -69,7 +69,7 @@ class Rooms extends Controller
      * @return void
      * @throws Exception
      */
-    public function uniNow()
+    public function uniNow(): void
     {
         Input::set('layout', 'UniNow');
         Input::set('format', 'xls');
@@ -81,7 +81,7 @@ class Rooms extends Controller
      * @return void
      * @throws Exception
      */
-    public function xls()
+    public function xls(): void
     {
         Input::set('format', 'xls');
         $this->display();

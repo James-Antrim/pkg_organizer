@@ -61,16 +61,6 @@ class Rooms extends ListView
         $tip = $item->active ? 'CLICK_TO_DEACTIVATE' : 'CLICK_TO_ACTIVATE';
 
         $item->active = $this->getToggle('rooms', $item->id, $item->active, $tip, 'active');
-        $item->link   = $options['query'] . $item->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function completeItems(array $options = []): void
-    {
-        $options = ['query' => 'index.php?option=com_organizer&view=Room&id='];
-        parent::completeItems($options);
     }
 
     /**
