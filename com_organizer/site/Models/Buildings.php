@@ -10,9 +10,10 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\Database;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
+use Joomla\Database\DatabaseQuery;
+use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\Database as DB;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves the data regarding a filtered set of buildings.
@@ -22,29 +23,35 @@ class Buildings extends ListModel
     protected $filter_fields = ['campusID', 'propertyType'];
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritdoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $query = DB::getQuery();
+        $url   = 'index.php?option=com_organizer&view=Building&id=';
 
-        $query->select('b.id, b.name, propertyType, campusID, c1.parentID, b.address, c1.city, c2.city AS parentCity')
-            ->from('#__organizer_buildings AS b')
-            ->innerJoin('#__organizer_campuses AS c1 ON c1.id = b.campusID')
-            ->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID');
+        $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
+        $aliased = DB::qn(['c2.city'], ['parentCity']);
+        $select  = DB::qn(['b.id', 'b.name', 'propertyType', 'campusID', 'c1.parentID', 'b.address', 'c1.city']);
+        $url     = [$query->concatenate([DB::quote($url), DB::qn('b.id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge($select, $access, $aliased, $url))
+            ->from(DB::qn('#__organizer_buildings', 'b'))
+            ->innerJoin(DB::qn('#__organizer_campuses', 'c1'), DB::qc('c1.id', 'b.campusID'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'));
 
         $this->setActiveFilter($query, 'b');
         $this->setSearchFilter($query, ['b.name', 'b.address', 'c1.city', 'c2.city']);
         $this->setValueFilters($query, ['propertyType']);
 
         if ($campusID = $this->state->get('filter.campusID', '')) {
+            $column = DB::qn('campusID');
             if ($campusID === '-1') {
-                $query->where('campusID IS NULL');
+                $query->where("$column IS NULL");
             }
             else {
-                $query->where("(b.campusID = $campusID OR c1.parentID = $campusID)");
+                $query->where("($column = :campusID OR c1.parentID = :campusID)")
+                    ->bind(':campusID', $campusID, ParameterType::INTEGER);
             }
         }
 

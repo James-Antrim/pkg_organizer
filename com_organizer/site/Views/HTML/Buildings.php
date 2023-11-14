@@ -11,7 +11,9 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
+use stdClass;
 use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads a filtered set of buildings into the display context.
@@ -42,42 +44,17 @@ class Buildings extends ListView
     }
 
     /**
-     * @param   array  $options  *
-     *
      * @inheritdoc
      */
-    protected function completeItems(array $options = []): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $link            = 'index.php?option=com_organizer&view=building_edit&id=';
-        $index           = 0;
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            $item->campusID = Helpers\Campuses::getName($item->campusID);
-
-            switch ($item->propertyType) {
-                case self::OWNED:
-                    $item->propertyType = Text::_('ORGANIZER_OWNED');
-                    break;
-
-                case self::RENTED:
-                    $item->propertyType = Text::_('ORGANIZER_RENTED');
-                    break;
-
-                case self::USED:
-                    $item->propertyType = Text::_('ORGANIZER_USED');
-                    break;
-
-                default:
-                    $item->propertyType = Text::_('ORGANIZER_UNKNOWN');
-                    break;
-            }
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
-        }
-
-        $this->items = $structuredItems;
+        $item->campusID     = Helpers\Campuses::getName($item->campusID);
+        $item->propertyType = match ($item->propertyType) {
+            self::OWNED => Text::_('ORGANIZER_OWNED'),
+            self::RENTED => Text::_('ORGANIZER_RENTED'),
+            self::USED => Text::_('ORGANIZER_USED'),
+            default => Text::_('ORGANIZER_UNKNOWN'),
+        };
     }
 
     /**
@@ -85,15 +62,30 @@ class Buildings extends ListView
      */
     public function initializeColumns(): void
     {
-        $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox'     => '',
-            'name'         => HTML::sort('NAME', 'name', $direction, 'name'),
-            'campusID'     => Text::_('CAMPUS'),
-            'propertyType' => Text::_('PROPERTY_TYPE'),
-            'address'      => Text::_('STREET')
+        $direction     = $this->state->get('list.direction');
+        $this->headers = [
+            'check'        => ['type' => 'check'],
+            'name'         => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('NAME', 'name', $direction, 'name'),
+                'type'       => 'value'
+            ],
+            'campusID'     => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('CAMPUS'),
+                'type'       => 'text'
+            ],
+            'propertyType' => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('PROPERTY_TYPE'),
+                'type'       => 'text'
+            ],
+            'address'      => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('STREET'),
+                'type'       => 'text'
+            ],
         ];
-
-        $this->headers = $headers;
     }
 }
