@@ -43,38 +43,38 @@ trait ToCed
 
 
         if (Can::scheduleTheseOrganizations()) {
-            $spanText = Text::_('ORGANIZER_SCHEDULING');
+            $spanText = Text::_('SCHEDULING');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             Sidebar::addEntry($spanText);
 
             $items = [];
 
-            $items[Text::_('ORGANIZER_CATEGORIES')]      = [
+            $items[Text::_('CATEGORIES')]      = [
                 'url'    => Routing::getViewURL('Categories'),
                 'active' => $viewName === 'categories'
             ];
-            $items[Text::_('ORGANIZER_COURSES')]         = [
+            $items[Text::_('COURSES')]         = [
                 'url'    => Routing::getViewURL('Courses'),
                 'active' => $viewName === 'courses'
             ];
-            $items[Text::_('ORGANIZER_COURSES_IMPORT')]  = [
+            $items[Text::_('COURSES_IMPORT')]  = [
                 'url'    => Routing::getViewURL('CoursesImport'),
                 'active' => $viewName === 'coursesimport'
             ];
-            $items[Text::_('ORGANIZER_EVENT_TEMPLATES')] = [
+            $items[Text::_('EVENT_TEMPLATES')] = [
                 'url'    => Routing::getViewURL('Events'),
                 'active' => $viewName === 'events'
             ];
-            $items[Text::_('ORGANIZER_GROUPS')]          = [
+            $items[Text::_('GROUPS')]          = [
                 'url'    => Routing::getViewURL('Groups'),
                 'active' => $viewName === 'groups'
             ];
-            $items[Text::_('ORGANIZER_SCHEDULES')]       = [
+            $items[Text::_('SCHEDULES')]       = [
                 'url'    => Routing::getViewURL('Schedules'),
                 'active' => $viewName === 'schedules'
             ];
-            $items[Text::_('ORGANIZER_UNITS')]           = [
+            $items[Text::_('UNITS')]           = [
                 'url'    => Routing::getViewURL('Units'),
                 'active' => $viewName === 'units'
             ];
@@ -83,7 +83,7 @@ trait ToCed
 
             // Uploading a schedule should always be the first menu item and will never be the active submenu item.
             $prepend = [
-                Text::_('ORGANIZER_SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
+                Text::_('SCHEDULE_UPLOAD') . ' <span class="icon-upload"></span>' => [
                     'url'    => Routing::getViewURL('ScheduleEdit'),
                     'active' => false
                 ]
@@ -98,26 +98,26 @@ trait ToCed
         }
 
         if (Can::documentTheseOrganizations()) {
-            $spanText = Text::_('ORGANIZER_DOCUMENTATION');
+            $spanText = Text::_('DOCUMENTATION');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             Sidebar::addEntry($spanText);
 
             $items = [];
 
-            $items[Text::_('ORGANIZER_FIELD_COLORS')] = [
+            $items[Text::_('FIELD_COLORS')] = [
                 'url'    => Routing::getViewURL('FieldColors'),
                 'active' => $viewName === 'fieldcolors'
             ];
-            $items[Text::_('ORGANIZER_POOLS')]        = [
+            $items[Text::_('POOLS')]        = [
                 'url'    => Routing::getViewURL('Pools'),
                 'active' => $viewName === 'pools'
             ];
-            $items[Text::_('ORGANIZER_PROGRAMS')]     = [
+            $items[Text::_('PROGRAMS')]     = [
                 'url'    => Routing::getViewURL('Programs'),
                 'active' => $viewName === 'programs'
             ];
-            $items[Text::_('ORGANIZER_SUBJECTS')]     = [
+            $items[Text::_('SUBJECTS')]     = [
                 'url'    => Routing::getViewURL('Subjects'),
                 'active' => $viewName === 'subjects'
             ];
@@ -129,54 +129,54 @@ trait ToCed
         }
 
         if (Can::manage('persons')) {
-            $spanText = Text::_('ORGANIZER_HUMAN_RESOURCES');
+            $spanText = Text::_('HUMAN_RESOURCES');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             Sidebar::addEntry($spanText);
             Sidebar::addEntry(
-                Text::_('ORGANIZER_PERSONS'),
+                Text::_('PERSONS'),
                 Routing::getViewURL('Persons'),
                 $viewName === 'persons'
             );
         }
 
         if (Can::manage('facilities')) {
-            $spanText = Text::_('ORGANIZER_FACILITY_MANAGEMENT');
+            $spanText = Text::_('FACILITY_MANAGEMENT');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             Sidebar::addEntry($spanText);
 
             $items = [];
 
-            $items[Text::_('ORGANIZER_BUILDINGS')]      = [
+            $items[Text::_('BUILDINGS')]      = [
                 'url'    => Routing::getViewURL('Buildings'),
                 'active' => $viewName === 'buildings'
             ];
-            $items[Text::_('ORGANIZER_CAMPUSES')]       = [
+            $items[Text::_('CAMPUSES')]       = [
                 'url'    => Routing::getViewURL('Campuses'),
                 'active' => $viewName === 'campuses'
             ];
-            $items[Text::_('ORGANIZER_CLEANINGGROUPS')] = [
+            $items[Text::_('CLEANINGGROUPS')] = [
                 'url'    => Routing::getViewURL('CleaningGroups'),
                 'active' => $viewName === 'cleaninggroups'
             ];
-            $items[Text::_('ORGANIZER_MONITORS')]       = [
+            $items[Text::_('MONITORS')]       = [
                 'url'    => Routing::getViewURL('Monitors'),
                 'active' => $viewName === 'monitors'
             ];
-            $items[Text::_('ORGANIZER_ROOMS')]          = [
+            $items[Text::_('ROOMS')]          = [
                 'url'    => Routing::getViewURL('Rooms'),
                 'active' => $viewName === 'rooms'
             ];
-            /*$items[Text::_('ORGANIZER_ROOMS_IMPORT')] = [
+            /*$items[Text::_('ROOMS_IMPORT')] = [
                 'url'    => Routing::getViewURL('RoomsImport'),
                 'active' => $viewName === 'rooms_import'
             ];*/
-            $items[Text::_('ORGANIZER_ROOMKEYS')]  = [
+            $items[Text::_('ROOMKEYS')]  = [
                 'url'    => Routing::getViewURL('Roomkeys'),
                 'active' => $viewName === 'roomkeys'
             ];
-            $items[Text::_('ORGANIZER_ROOMTYPES')] = [
+            $items[Text::_('ROOMTYPES')] = [
                 'url'    => Routing::getViewURL('Roomtypes'),
                 'active' => $viewName === 'roomtypes'
             ];
@@ -188,50 +188,50 @@ trait ToCed
         }
 
         if (Can::administrate()) {
-            $spanText = Text::_('ORGANIZER_ADMINISTRATION');
+            $spanText = Text::_('ADMINISTRATION');
             Text::unpack($spanText);
             $spanText = '<span class="menu-spacer">' . $spanText . '</span>';
             Sidebar::addEntry($spanText);
 
             $items = [];
 
-            $items[Text::_('ORGANIZER_COLORS')]        = [
+            $items[Text::_('COLORS')]        = [
                 'url'    => Routing::getViewURL('Colors'),
                 'active' => $viewName === 'colors'
             ];
-            $items[Text::_('ORGANIZER_DEGREES')]       = [
+            $items[Text::_('DEGREES')]       = [
                 'url'    => Routing::getViewURL('Degrees'),
                 'active' => $viewName === 'degrees'
             ];
-            $items[Text::_('ORGANIZER_FIELDS')]        = [
+            $items[Text::_('FIELDS')]        = [
                 'url'    => Routing::getViewURL('Fields'),
                 'active' => $viewName === 'fields'
             ];
-            $items[Text::_('ORGANIZER_GRIDS')]         = [
+            $items[Text::_('GRIDS')]         = [
                 'url'    => Routing::getViewURL('Grids'),
                 'active' => $viewName === 'grids'
             ];
-            $items[Text::_('ORGANIZER_HOLIDAYS')]      = [
+            $items[Text::_('HOLIDAYS')]      = [
                 'url'    => Routing::getViewURL('Holidays'),
                 'active' => $viewName === 'holidays'
             ];
-            $items[Text::_('ORGANIZER_METHODS')]       = [
+            $items[Text::_('METHODS')]       = [
                 'url'    => Routing::getViewURL('Methods'),
                 'active' => $viewName === 'methods'
             ];
-            $items[Text::_('ORGANIZER_ORGANIZATIONS')] = [
+            $items[Text::_('ORGANIZATIONS')] = [
                 'url'    => Routing::getViewURL('Organizations'),
                 'active' => $viewName === 'organizations'
             ];
-            $items[Text::_('ORGANIZER_PARTICIPANTS')]  = [
+            $items[Text::_('PARTICIPANTS')]  = [
                 'url'    => Routing::getViewURL('Participants'),
                 'active' => $viewName === 'participants'
             ];
-            $items[Text::_('ORGANIZER_RUNS')]          = [
+            $items[Text::_('RUNS')]          = [
                 'url'    => Routing::getViewURL('Runs'),
                 'active' => $viewName === 'runs'
             ];
-            $items[Text::_('ORGANIZER_TERMS')]         = [
+            $items[Text::_('TERMS')]         = [
                 'url'    => Routing::getViewURL('Terms'),
                 'active' => $viewName === 'terms'
             ];

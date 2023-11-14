@@ -53,18 +53,23 @@ class Checkin extends FormView
     {
         if ($this->privacy) {
             $title = "Besondere Datenschutzhinweis zum THM Checkin-Verfahren im Zusammenhang mit der Coronapandemie";
-        } elseif ($this->edit or !$this->complete) {
-            $title = 'ORGANIZER_CONTACT_INFORMATION';
-        } elseif ($this->instances) {
+        }
+        elseif ($this->edit or !$this->complete) {
+            $title = 'CONTACT_INFORMATION';
+        }
+        elseif ($this->instances) {
             if (count($this->instances) > 1) {
-                $title = 'ORGANIZER_CONFIRM_EVENT';
-            } elseif (!$this->roomID or $this->seat === null) {
-                $title = 'ORGANIZER_CONFIRM_SEATING';
-            } else {
-                $title = 'ORGANIZER_CHECKED_IN';
+                $title = 'CONFIRM_EVENT';
             }
-        } else {
-            $title = 'ORGANIZER_CHECKIN';
+            elseif (!$this->roomID or $this->seat === null) {
+                $title = 'CONFIRM_SEATING';
+            }
+            else {
+                $title = 'CHECKED_IN';
+            }
+        }
+        else {
+            $title = 'CHECKIN';
         }
 
         $this->setTitle($title);
