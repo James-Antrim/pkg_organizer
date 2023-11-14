@@ -11,8 +11,9 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database as DB};
 use Joomla\Database\ParameterType;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves the data regarding a filtered set of buildings.
@@ -28,8 +29,16 @@ class CleaningGroups extends ListModel
     {
         $query = DB::getQuery();
         $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=CleaningGroup&id=';
 
-        $query->select(['*', DB::qn("name_$tag", 'name')])
+        $select = [
+            '*',
+            DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access'),
+            DB::qn("name_$tag", 'name'),
+            $query->concatenate([DB::quote($url), DB::qn('id')], '') . ' AS ' . DB::qn('url')
+        ];
+
+        $query->select($select)
             ->from(DB::qn('#__organizer_cleaning_groups'));
 
         $this->setSearchFilter($query, ['name_de', 'name_en']);

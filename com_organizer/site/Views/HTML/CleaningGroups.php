@@ -39,18 +39,8 @@ class CleaningGroups extends ListView
         $tip .= $item->relevant ? 'IRRELEVANT' : 'RELEVANT';
 
         $item->days      = $item->days === '0.00' ? '-' : $item->days;
-        $item->link      = $options['query'] . $item->id;
         $item->relevant  = $this->getToggle('CleaningGroups', $item->id, $item->relevant, $tip);
         $item->valuation = $item->valuation === '0.00' ? '-' : $item->valuation;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function completeItems(array $options = []): void
-    {
-        $options = ['query' => 'index.php?option=com_organizer&view=CleaningGroup&id='];
-        parent::completeItems($options);
     }
 
     /**
