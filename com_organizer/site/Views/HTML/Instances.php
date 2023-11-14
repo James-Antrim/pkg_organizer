@@ -10,10 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Toolbar\Button\StandardButton;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
-use THM\Organizer\Buttons;
+use THM\Organizer\Buttons\{FormTarget, Highlander};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\{Dates, Instances as Helper};
 use THM\Organizer\Models\Instances as Model;
@@ -65,112 +64,85 @@ class Instances extends ListView
     protected function addToolBar(bool $delete = true): void
     {
         $this->setTitle($this->get('title'));
-        $toolbar  = Toolbar::getInstance();
-        $link     = new Buttons\Link();
-        $newTab   = new Buttons\NewTab();
-        $script   = new Buttons\Script();
-        $standard = new StandardButton();
-        $expURL   = Helpers\Routing::getViewURL('export');
+        $toolbar = Toolbar::getInstance();
+        $expURL  = Helpers\Routing::getViewURL('export');
 
-        if (Application::mobile()) {
-            $toolbar->appendButton('Script', 'info-calender', Text::_('ORGANIZER_ICS_CALENDAR'), 'onclick', 'makeLink()');
-            $toolbar->appendButton('Link', 'equalizer', Text::_('ORGANIZER_ADVANCED_EXPORT'), $expURL);
-        }
-        else {
-            /** @var Model $model */
-            $model = $this->model;
-            if (Helpers\Users::getID() and $model->layout === Helper::LIST) {
-                if (!$this->expired and !$this->teachesALL) {
-                    $add    = $standard->fetchButton(
-                        'Standard',
-                        'bookmark',
-                        Text::_('ORGANIZER_BOOKMARK'),
-                        'InstanceParticipants.bookmark'
-                    );
-                    $remove = $standard->fetchButton(
-                        'Standard',
-                        'bookmark-2',
-                        Text::_('ORGANIZER_REMOVE_BOOKMARK'),
-                        'InstanceParticipants.removeBookmark'
-                    );
-                    $toolbar->appendButton(
-                        'Buttons',
-                        'buttons',
-                        Text::_('ORGANIZER_INSTANCES'),
-                        [$add, $remove],
-                        'bookmark'
-                    );
-                }
-
-                /*if ($this->registration and !$this->premature and !$this->teachesALL)
-                {
-                    $register   = $standard->fetchButton(
-                        'Standard',
-                        'signup',
-                        Text::_('ORGANIZER_REGISTER'),
-                        'InstanceParticipants.register',
-                        true
-                    );
-                    $deregister = $standard->fetchButton(
-                        'Standard',
-                        'exit',
-                        Text::_('ORGANIZER_DEREGISTER'),
-                        'InstanceParticipants.deregister',
-                        true
-                    );
-                    $toolbar->appendButton(
-                        'Buttons',
-                        'buttons',
-                        Text::_('ORGANIZER_PRESENCE_PARTICIPATION'),
-                        [$register, $deregister],
-                        'signup'
-                    );
-                }*/
-
-                if (($this->manages or $this->teachesOne) and !$this->premature) {
-                    $toolbar->appendButton(
-                        'Highlander',
-                        'users',
-                        Text::_('ORGANIZER_MANAGE_BOOKING'),
-                        'bookings.manage',
-                        true
-                    );
-                }
+        /** @var Model $model */
+        $model = $this->model;
+        if (Helpers\Users::getID() and $model->layout === Helper::LIST) {
+            if (!$this->expired and !$this->teachesALL) {
+                $bookmarkDD = $toolbar->dropdownButton('bookmark-dd', Text::_('INSTANCES'));
+                $bookmarkDD->toggleSplit(false)->buttonClass('btn btn-action')->icon('fa fa-ellipsis-h')->listCheck(true);
+                $bookmarkCB = $bookmarkDD->getChildToolbar();
+                $bookmarkCB->standardButton('bookmark', Text::_('BOOKMARK'), 'InstanceParticipants.bookmark')
+                    ->icon('fas fa-bookmark')->listCheck(true);
+                $bookmarkCB->standardButton('unbookmark', Text::_('REMOVE_BOOKMARK'), 'InstanceParticipants.removeBookmark')
+                    ->icon('far fa-bookmark')->listCheck(true);
             }
 
-            $interval = match ((string) $this->state->get('list.interval')) {
-                'half' => Text::_('ORGANIZER_HALF_YEAR'),
-                'month' => Text::_('ORGANIZER_SELECTED_MONTH'),
-                'quarter' => Text::_('ORGANIZER_QUARTER'),
-                'term' => Text::_('ORGANIZER_SELECTED_TERM'),
-                'week' => Text::_('ORGANIZER_SELECTED_WEEK'),
-                default => Text::_('ORGANIZER_SELECTED_DAY'),
-            };
+            /*if ($this->registration and !$this->premature and !$this->teachesALL) {
+                $registrationDD = $toolbar->dropdownButton('registration', Text::_('PRESENCE_PARTICIPATION'));
+                $registrationDD->toggleSplit(false)->buttonClass('btn btn-action')->icon('fa fa-ellipsis-h')->listCheck(true);
+                $registrationCB = $registrationDD->getChildToolbar();
+                $registrationCB->standardButton('register', Text::_('REGISTER'), 'InstanceParticipants.register')
+                    ->icon('fa fa-sign-in-alt')->listCheck(true);
+                $registrationCB->standardButton('deregister', Text::_('DEREGISTER'), 'InstanceParticipants.deregister')
+                    ->icon('fa fa-sign-out-alt')->listCheck(true);
+            }*/
 
-            $icsText     = Text::_('ORGANIZER_ICS_URL');
-            $icsButton   = $script->fetchButton('Script', 'info-calender', $icsText, 'onclick', 'makeLink()');
-            $pdfA3Text   = Text::sprintf('ORGANIZER_PDF_A3', $interval);
-            $pdfA3Button = $newTab->fetchButton('NewTab', 'file-pdf', $pdfA3Text, 'Instances.gridA3', false);
-            $pdfA4Text   = Text::sprintf('ORGANIZER_PDF_A4', $interval);
-            $pdfA4Button = $newTab->fetchButton('NewTab', 'file-pdf', $pdfA4Text, 'Instances.gridA4', false);
-            $xlsText     = Text::sprintf('ORGANIZER_XLS_LIST', $interval);
-            $xlsButton   = $newTab->fetchButton('NewTab', 'file-xls', $xlsText, 'Instances.xls', false);
-
-            $exportButtons = [
-                $icsText   => $icsButton,
-                $pdfA3Text => $pdfA3Button,
-                $pdfA4Text => $pdfA4Button,
-                $xlsText   => $xlsButton
-            ];
-
-            ksort($exportButtons);
-
-            $expText                 = Text::_('ORGANIZER_ADVANCED_EXPORT');
-            $expButton               = $link->fetchButton('Link', 'equalizer', $expText, $expURL);
-            $exportButtons[$expText] = $expButton;
-
-            $toolbar->appendButton('Buttons', 'buttons', Text::_('ORGANIZER_EXPORT'), $exportButtons, 'download');
+            if (($this->manages or $this->teachesOne) and !$this->premature) {
+                $manage = new Highlander('manage', Text::_('MANAGE_BOOKING'));
+                $manage->icon('fa fa-users')->listCheck(true)->task('Booking.manage');
+                $toolbar->appendButton($manage);
+            }
         }
+
+        $interval = match ((string) $this->state->get('list.interval')) {
+            'half' => Text::_('HALF_YEAR'),
+            'month' => Text::_('SELECTED_MONTH'),
+            'quarter' => Text::_('QUARTER'),
+            'term' => Text::_('SELECTED_TERM'),
+            'week' => Text::_('SELECTED_WEEK'),
+            default => Text::_('SELECTED_DAY'),
+        };
+
+        $keyMap = [
+            'ICS_URL'  => Text::_('ICS_URL'),
+            'PDF_A3'   => Text::sprintf('PDF_A3', $interval),
+            'PDF_A4'   => Text::sprintf('PDF_A4', $interval),
+            'XLS_LIST' => Text::sprintf('XLS_LIST', $interval),
+        ];
+
+        asort($keyMap);
+
+        $exportDD = $toolbar->dropdownButton('export', Text::_('INSTANCES'));
+        $exportDD->toggleSplit(false)->buttonClass('btn btn-action')->icon('fa fa-download')->listCheck(true);
+        $exportCB = $exportDD->getChildToolbar();
+
+        foreach ($keyMap as $key => $text) {
+            switch ($key) {
+                case 'ICS_URL':
+                    $exportCB->standardButton('subscription', $text)->icon('fa fa-calendar-check')->onclick('makeLink()');
+                    break;
+                case 'PDF_A3':
+                    $button = new FormTarget('pdfGridA3', $text);
+                    $button->icon('fa fa-file-pdf')->task('Instances.gridA3');
+                    $exportCB->appendButton($button);
+                    break;
+                case 'PDF_A4':
+                    $button = new FormTarget('pdfGridA4', $text);
+                    $button->icon('fa fa-file-pdf')->task('Instances.gridA4');
+                    $exportCB->appendButton($button);
+                    break;
+                case 'XLS_LIST':
+                    $button = new FormTarget('xls', $text);
+                    $button->icon('fa fa-file-excel')->task('Instances.xls');
+                    $exportCB->appendButton($button);
+                    break;
+            }
+        }
+
+        $exportCB->linkButton('export', Text::_('ADVANCED_EXPORT'))->url($expURL)->target('_blank')->icon('fa fa-sliders-h');
     }
 
     /**
@@ -636,12 +608,13 @@ class Instances extends ListView
         $variables = ['ICS_URL' => $url];
 
         Text::useLocalization('ORGANIZER_GENERATE_LINK');
-        Document::addScriptOptions('variables', $variables);
-        Document::addScript(Uri::root() . 'components/com_organizer/js/ics.js');
-        Document::addScript(Uri::root() . 'components/com_organizer/js/jump.js');
+        Document::scriptLocalizations('variables', $variables);
+
+        Document::script('ics');
+        Document::script('jump');
 
         if ($model->layout === Helper::GRID) {
-            Document::addStyleSheet(Uri::root() . 'components/com_organizer/css/grid.css');
+            Document::style('grid');
         }
     }
 

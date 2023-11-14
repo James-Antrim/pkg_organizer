@@ -12,6 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Document, Text, Toolbar};
+use THM\Organizer\Buttons\FormTarget;
 
 /**
  * Class loads personnal workload statistics into the display context.
@@ -29,13 +30,9 @@ class Workload extends FormView
 
         if ($this->form->getValue('personID'))//Input::getInt('personID'))
         {
-            $toolbar->appendButton(
-                'NewTab',
-                'file-xls',
-                Text::_('ORGANIZER_DOWNLOAD'),
-                'Workloads.xls',
-                false
-            );
+            $button = new FormTarget('export', Text::_('DOWNLOAD'));
+            $button->icon('fa fa-file-excel')->task('Workloads.xls');
+            $toolbar->appendButton($button);
         }
     }
 

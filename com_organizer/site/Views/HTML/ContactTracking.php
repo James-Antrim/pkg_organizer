@@ -11,6 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{Application, Input, Text, Toolbar};
+use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers;
 
 /**
@@ -30,16 +31,10 @@ class ContactTracking extends ListView
         $listFormat = (int) Input::getListItems()->get('listFormat', self::BY_DAY);
         $structure  = ['index' => 'value', 'person' => 'value', 'data' => 'value'];
 
-        switch ($listFormat) {
-            case self::BY_EVENT:
-                $structure = array_merge($structure, ['contacts' => 'value']);
-                break;
-            case self::BY_DAY:
-            default:
-                $structure = array_merge($structure, ['dates' => 'value', 'length' => 'value']);
-                break;
-
-        }
+        $structure = match ($listFormat) {
+            self::BY_EVENT => array_merge($structure, ['contacts' => 'value']),
+            default => array_merge($structure, ['dates' => 'value', 'length' => 'value']),
+        };
 
         $this->rowStructure = $structure;
     }
@@ -63,8 +58,10 @@ class ContactTracking extends ListView
 
         if (($this->state->get('participantID') or $this->state->get('personID')) and count($this->items)) {
             $toolbar = Toolbar::getInstance();
-            //$toolbar->appendButton('Standard', 'envelope', Languages::_('ORGANIZER_NOTIFY'), '', false);
-            $toolbar->appendButton('NewTab', 'file-pdf', Text::_('Download as PDF'), 'ContactTracking.pdf', false);
+            //$toolbar->standardButton('notify', Text::_('NOTIFY'));
+            $button = new FormTarget('contactmap', 'Download as PDF');
+            $button->icon('fa fa-file-pdf')->task('ContactTracking.pdf');
+            $toolbar->appendButton($button);
         }
     }
 
@@ -175,19 +172,13 @@ class ContactTracking extends ListView
             'data'   => Text::_('ORGANIZER_CONTACT_INFORMATION')
         ];
 
-        switch ($listFormat) {
-            case self::BY_EVENT:
-                $otherHeaders = ['contacts' => Text::_('ORGANIZER_CONTACTS')];
-                break;
-            case self::BY_DAY:
-            default:
-                $otherHeaders = [
-                    'dates'  => Text::_('ORGANIZER_DATES'),
-                    'length' => Text::_('ORGANIZER_CONTACT_LENGTH')
-                ];
-                break;
-
-        }
+        $otherHeaders = match ($listFormat) {
+            self::BY_EVENT => ['contacts' => Text::_('ORGANIZER_CONTACTS')],
+            default => [
+                'dates'  => Text::_('ORGANIZER_DATES'),
+                'length' => Text::_('ORGANIZER_CONTACT_LENGTH')
+            ],
+        };
 
         $headers       = array_merge($headers, $otherHeaders);
         $this->headers = $headers;

@@ -13,6 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers\{Bookings as Helper, Can, Users};
+use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Tables;
 
 /**
@@ -73,20 +74,17 @@ class Booking extends Participants
         }
 
         if (count($this->items)) {
-            $toolbar->appendButton(
-                'NewTab',
-                'file-pdf',
-                Text::_('ORGANIZER_ATTENDANCE_LIST'),
-                'Bookings.pdf',
-                false
-            );
+            $button = new FormTarget('attendance', Text::_('ATTENDANCE_LIST'));
+            $button->icon('fa fa-file-pdf')->task('Bookings.pdf');
+            $toolbar->appendButton($button);
 
             if (($expired or ($isToday and $now >= $start)) and $this->hasRegistered) {
-                $toolbar->standardButton('checkin', Text::_('CHECKIN'), 'Booking.checkin', true)->icon('fa fa-user-check');
+                $toolbar->standardButton('checkin', Text::_('CHECKIN'), 'Booking.checkin')
+                    ->icon('fa fa-user-check')->listCheck(true);
             } // No easy removal at a later date
             elseif (!$expired) {
-                $toolbar->standardButton('remove', Text::_('DELETE'), 'Booking.removeParticipants',
-                    true)->icon('fa fa-user-minus');
+                $toolbar->standardButton('remove', Text::_('DELETE'), 'Booking.removeParticipants')
+                    ->icon('fa fa-user-minus')->listCheck(true);
             }
         }
 

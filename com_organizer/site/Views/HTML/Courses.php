@@ -12,9 +12,8 @@ namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
-use THM\Organizer\Helpers;
-use THM\Organizer\Helpers\Can;
-use THM\Organizer\Helpers\Users;
+use THM\Organizer\Buttons\FormTarget;
+use THM\Organizer\Helpers\{Campuses, Can, Courses as Helper, Dates, Participants, Users};
 
 /**
  * Class which loads data into the view output context
@@ -39,7 +38,7 @@ class Courses extends ListView
             'courseStatus' => 'value'
         ];
 
-        if (Helpers\Can::scheduleTheseOrganizations() or Helpers\Can::manage('courses')) {
+        if (Can::scheduleTheseOrganizations() or Can::manage('courses')) {
             $this->manages = true;
             $structure     = ['checkbox' => ''] + $structure + ['registrationStatus' => 'value'];
             unset($structure['registrationStatus']);
@@ -64,7 +63,7 @@ class Courses extends ListView
         if (!Application::backend() and $this->preparatory) {
             $resourceName .= Text::_('PREP_COURSES');
             if ($campusID = $this->state->get('filter.campusID', 0)) {
-                $resourceName .= ' ' . Text::_('CAMPUS') . ' ' . Helpers\Campuses::getName($campusID);
+                $resourceName .= ' ' . Text::_('CAMPUS') . ' ' . Campuses::getName($campusID);
             }
         }
 
@@ -77,14 +76,9 @@ class Courses extends ListView
         $toolbar = Toolbar::getInstance();
 
         if ($this->manages) {
-            $toolbar->standardButton('edit', Text::_('EDIT'), 'Course.edit', true);
-            $toolbar->appendButton(
-                'NewTab',
-                'users',
-                Text::_('PARTICIPANTS'),
-                'courses.participants',
-                true
-            );
+            $button = new FormTarget('participants', Text::_('PARTICIPANTS'));
+            $button->icon('fa fa-users')->listCheck(true)->task('Courses.participants');
+            $toolbar->appendButton($button);
 
             $toolbar->delete('Courses.delete')->message(Text::_('DELETE_CONFIRM'));
 
@@ -92,7 +86,7 @@ class Courses extends ListView
         }
 
         if (!Application::backend()) {
-            if (Helpers\Participants::exists()) {
+            if (Participants::exists()) {
                 $toolbar->standardButton('participant', Text::_('PROFILE_EDIT'), 'Participant.edit')->icon('fa fa-address-card');
             }
             else {
@@ -115,7 +109,7 @@ class Courses extends ListView
             return;
         }
 
-        if (!Helpers\Can::scheduleTheseOrganizations()) {
+        if (!Can::scheduleTheseOrganizations()) {
             Application::error(403);
         }
     }
@@ -130,17 +124,17 @@ class Courses extends ListView
 
         $structuredItems = [];
 
-        $today  = Helpers\Dates::standardizeDate();
+        $today  = Dates::standardizeDate();
         $userID = Users::getID();
 
         foreach ($this->items as $course) {
             $campusID   = (int) $course->campusID;
-            $campusName = Helpers\Campuses::getName($campusID);
-            $pin        = Application::backend() ? '' : ' ' . Helpers\Campuses::getPin($campusID);
+            $campusName = Campuses::getName($campusID);
+            $pin        = Application::backend() ? '' : ' ' . Campuses::getPin($campusID);
 
             $course->campus = $campusName . $pin;
 
-            $course->dates = Helpers\Courses::getDateDisplay($course->id);
+            $course->dates = Helper::getDateDisplay($course->id);
 
             $expired = $course->endDate < $today;
             $ongoing = ($course->startDate <= $today and !$expired);
@@ -153,7 +147,7 @@ class Courses extends ListView
             }
 
             $closed   = (!$expired and !$ongoing and $deadline <= $today);
-            $deadline = Helpers\Dates::formatDate($deadline);
+            $deadline = Dates::formatDate($deadline);
 
             $full   = $course->participants >= $course->maxParticipants;
             $ninety = (!$full and ($course->participants / (int) $course->maxParticipants) >= .9);

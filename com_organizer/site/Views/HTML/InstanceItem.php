@@ -10,10 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Uri\Uri;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
 use THM\Organizer\Helpers\{Can, Dates, Instances as Helper, Routing, Users};
+use THM\Organizer\Buttons\{FormTarget, Highlander};
 use THM\Organizer\Models\InstanceItem as Model;
 
 /**
@@ -91,14 +91,14 @@ class InstanceItem extends ListView
 
             if ($buttons['scheduleList']) {
                 $listbar->standardButton('bookmark-list', Text::_('ADD_INSTANCES'), 'InstanceParticipants.bookmark')
-                    ->listCheck(true)
-                    ->icon('fas fa-bookmark');
+                    ->icon('fas fa-bookmark')
+                    ->listCheck(true);
             }
 
             if ($buttons['descheduleList']) {
                 $listbar->standardButton('unbookmark-list', Text::_('DELETE_INSTANCES'), 'InstanceParticipants.removeBookmark')
-                    ->listCheck(true)
-                    ->icon('far fa-bookmark');;
+                    ->icon('far fa-bookmark')
+                    ->listCheck(true);
             }
 
             /*if ($buttons['registerList'])
@@ -115,23 +115,15 @@ class InstanceItem extends ListView
             }*/
 
             if ($buttons['manage']) {
-                $itembar[] = $standard->fetchButton(
-                    'NewTab',
-                    'users',
-                    Text::_('ORGANIZER_MANAGE_BOOKING'),
-                    'bookings.manageThis',
-                    false
-                );
+                $button = new FormTarget('booking', Text::_('MANAGE_BOOKING'));
+                $button->icon('fa fa-users')->task('Booking.manageThis');
+                $itembar->appendButton($button);
             }
 
             if ($buttons['manageList']) {
-                $listbar->appendButton(
-                    'Highlander',
-                    'users',
-                    Text::_('ORGANIZER_MANAGE_BOOKINGS'),
-                    'bookings.manage',
-                    true
-                );
+                $button = new Highlander('bookings', Text::_('MANAGE_BOOKINGS'));
+                $button->icon('fa fa-users')->task('Bookings.manage');
+                $listbar->appendButton($button);
             }
         }
 
@@ -140,10 +132,8 @@ class InstanceItem extends ListView
             $itembar->linkButton('subject', Text::_('SUBJECT_ITEM'))->target('_blank')->url($url)->icon('fa fa-book');
         }
 
-        if ($itembar) {
-            $this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
-            $this->minibar .= Toolbar::render('itembar') . '</div>';
-        }
+        $this->minibar = '<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" id="minibar">';
+        $this->minibar .= Toolbar::render('itembar') . '</div>';
     }
 
     /**

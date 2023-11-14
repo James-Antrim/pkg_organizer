@@ -10,10 +10,9 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Uri\Uri;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input, Text, Toolbar};
+use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers;
-use THM\Organizer\Tables;
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
@@ -58,30 +57,19 @@ class CourseParticipants extends Participants
 
         $toolbar->delete('CourseParticipants.remove')->message(Text::_('DELETE_CONFIRM'))->icon('fa fa-user-minus');
 
-        $toolbar->appendButton(
-            'NewTab',
-            'tags-2',
-            Text::_('ORGANIZER_DOWNLOAD_BADGES'),
-            'CourseParticipants.badges',
-            false
-        );
+        $button = new FormTarget('badges', Text::_('DOWNLOAD_BADGES'));
+        $button->icon('fa fa-tags')->task('CourseParticipants.badges');
+        $toolbar->appendButton($button);
 
-        $toolbar->appendButton(
-            'NewTab',
-            'list',
-            Text::_('ORGANIZER_ATTENDANCE'),
-            'CourseParticipants.attendance',
-            false
-        );
+        $button = new FormTarget('attendance', Text::_('ATTENDANCE'));
+        $button->icon('fa fa-list')->task('CourseParticipants.attendance');
+        $toolbar->appendButton($button);
 
-        $toolbar->appendButton(
-            'NewTab',
-            'list-2',
-            Text::_('ORGANIZER_GROUPED_PARTICIPATION'),
-            'CourseParticipants.participation',
-            false
-        );
+        $button = new FormTarget('participation', Text::_('GROUPED_PARTICIPATION'));
+        $button->icon('fa fa-list-ul')->task('CourseParticipants.participation');
+        $toolbar->appendButton($button);
 
+        // todo jq???
         $script      = "onclick=\"jQuery('#modal-mail').modal('show'); return true;\"";
         $batchButton = "<button id=\"participant-mail\" data-toggle=\"modal\" class=\"btn btn-small\" $script>";
 

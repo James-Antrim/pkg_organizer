@@ -46,8 +46,7 @@ abstract class MergeView extends FormView
         $toolbar = Toolbar::getInstance();
         $toolbar->standardButton('merge', Text::_('MERGE'))
             ->icon('fa fa-code-branch')
-            ->task($this->controller . '.merge')
-            ->listCheck(false);
+            ->task($this->controller . '.merge');
         $toolbar->cancel($this->controller . '.cancel');
     }
 }

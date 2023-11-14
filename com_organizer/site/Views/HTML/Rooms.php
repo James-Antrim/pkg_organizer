@@ -12,7 +12,7 @@ namespace THM\Organizer\Views\HTML;
 
 use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
 use stdClass;
-use THM\Organizer\Buttons\NewTab;
+use THM\Organizer\Buttons\FormTarget;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\HTML\ListItem;
 
@@ -47,8 +47,8 @@ class Rooms extends ListView
                 $toolbar->delete('Rooms.delete')->message(Text::_('DELETE_CONFIRM'));
             }
 
-            $export = new NewTab('export', Text::_('UNINOW_EXPORT'));
-            $export->icon('fa fa-file-excel')->listCheck(false)->task('Rooms.UniNow');
+            $export = new FormTarget('export', Text::_('UNINOW_EXPORT'));
+            $export->icon('fa fa-file-excel')->task('Rooms.UniNow');
             $toolbar->appendButton($export);
         }
     }

@@ -6,7 +6,7 @@
  *
  * @returns  {void}
  */
-function newTab(task)
+function formTarget(task)
 {
     const button = document.createElement('input'),
         form = document.getElementById('adminForm');

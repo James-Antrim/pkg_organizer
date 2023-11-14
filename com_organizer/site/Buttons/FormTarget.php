@@ -16,16 +16,16 @@ use THM\Organizer\Adapters\{Document, Text};
 /**
  * Renders a button whose contents open in a new tab.
  */
-class NewTab extends StandardButton
+class FormTarget extends StandardButton
 {
     /**
      * @inheritdoc
      */
     protected function _getCommand(): string
     {
-        Document::getWAManager()->registerAndUseScript('newTab', 'components/com_organizer/js/newTab.js');
+        Document::script('formTarget');
 
-        $cmd = "newTab('" . $this->getTask() . "');";
+        $cmd = "formTarget('" . $this->getTask() . "');";
 
         if ($this->getListCheck()) {
             Text::script('ORGANIZER_MAKE_SELECTION');
