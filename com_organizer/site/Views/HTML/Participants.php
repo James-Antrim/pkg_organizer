@@ -13,6 +13,7 @@ namespace THM\Organizer\Views\HTML;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Document, HTML, Input};
 use THM\Organizer\Helpers\Can;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of course participants into the display context.
@@ -38,20 +39,8 @@ class Participants extends ListView
      */
     protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $item->editLink = $options['query'] . $item->id;
         $item->fullName = $item->forename ? $item->fullName : $item->surname;
         $item->program  = $item->programID ? $item->program : '';
-    }
-
-    /**
-     * @param   array  $options  *
-     *
-     * @inheritdoc
-     */
-    protected function completeItems(array $options = []): void
-    {
-        $options = ['query' => 'index.php?option=com_organizer&view=Participant&id='];
-        parent::completeItems($options);
     }
 
     /**
@@ -65,7 +54,7 @@ class Participants extends ListView
         $headers = [
             'check'    => ['type' => 'check'],
             'fullName' => [
-                //'link'       => ListItem::DIRECT, editing currently unavailable
+                'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => HTML::sort('NAME', 'fullName', $direction, $ordering),
                 'type'       => 'value'

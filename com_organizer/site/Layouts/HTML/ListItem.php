@@ -35,7 +35,7 @@ class ListItem
     {
         ?>
         <td class="text-center">
-            <?php echo HTML::checkBox($rowNo, $item->id); ?>
+            <?php echo empty($item->access) ? '' : HTML::checkBox($rowNo, $item->id); ?>
         </td>
         <?php
     }

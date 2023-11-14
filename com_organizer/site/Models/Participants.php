@@ -12,6 +12,9 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, Input};
+use Joomla\Database\QueryInterface;
+use THM\Organizer\Helpers\Can;
+use THM\Organizer\Helpers\Users;
 
 /**
  * Class retrieves information for a filtered set of participants.
@@ -35,12 +38,29 @@ class Participants extends ListModel
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function addAccess(QueryInterface $query): void
+    {
+        if (Can::administrate()) {
+            $query->select(DB::quote(1) . ' AS ' . DB::qn('access'));
+        }
+        elseif ($userID = Users::getID()) {
+            $query->select(DB::quote($userID) . ' = ' . DB::qn('u.id') . ' AS ' . DB::qn('access'));
+        }
+        else {
+            $query->select(DB::quote(0) . ' AS ' . DB::qn('access'));
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag   = Application::getTag();
+        $link  = 'index.php?option=com_organizer&view=Participant&id=';
         $query = DB::getQuery();
+        $tag   = Application::getTag();
 
         $nameParts    = [DB::qn('pa.surname'), "', '", DB::qn('pa.forename')];
         $programParts = [DB::qn("pr.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('pr.accredited'), "')'"];
@@ -49,7 +69,8 @@ class Participants extends ListModel
             DB::qn('pa') . '.*',
             DB::qn('u') . '.*',
             $query->concatenate($nameParts, '') . ' AS ' . DB::qn('fullName'),
-            $query->concatenate($programParts, '') . ' AS ' . DB::qn('program')
+            $query->concatenate($programParts, '') . ' AS ' . DB::qn('program'),
+            $query->concatenate([DB::quote($link), DB::qn('u.id')], '') . ' AS ' . DB::qn('url')
         ];
 
         $query->select($select)
@@ -57,6 +78,8 @@ class Participants extends ListModel
             ->innerJoin(DB::qn('#__users', 'u'), DB::qc('u.id', 'pa.id'))
             ->leftJoin(DB::qn('#__organizer_programs', 'pr'), DB::qc('pr.id', 'pa.programID'))
             ->leftJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'pr.degreeID'));
+
+        $this->addAccess($query);
 
         $this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
         $this->setValueFilters($query, ['programID']);
