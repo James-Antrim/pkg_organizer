@@ -141,18 +141,16 @@ class Campuses extends ResourceHelper implements Selectable
      *
      * @return string the html output of the pin
      */
-    public static function getPin($input): string
+    public static function getPin(int|string $input): string
     {
-        $isID     = is_numeric($input);
-        $location = $isID ? self::getLocation($input) : $input;
+        $location = is_int($input) ? self::getLocation($input) : $input;
 
         if (!preg_match('/^-?[\d]?[\d].[\d]{6},-?[01]?[\d]{1,2}.[\d]{6}$/', $location)) {
             return '';
         }
 
-        $pin = '<a target="_blank" href="https://www.google.de/maps/place/' . $location . '">';
-        $pin .= '<span class="icon-location"></span></a>';
-
-        return $pin;
+        $icon = HTML::icon('fa fa-map-marker-alt');
+        $url = "https://www.google.de/maps/place/$location";
+        return HTML::link($url, $icon, ['target' => '_blank']);
     }
 }

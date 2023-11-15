@@ -10,8 +10,10 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB};
+use Joomla\Database\ParameterType;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves information for a filtered set of campuses.
@@ -21,25 +23,50 @@ class Campuses extends ListModel
     protected $filter_fields = ['city', 'gridID'];
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritdoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
+        $url   = 'index.php?option=com_organizer&view=Campus&id=';
 
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $aliases = [
+            'name',
+            'parentAddress',
+            'parentCity',
+            'parentID',
+            'parentName',
+            'parentZIPCode',
+            'gridID',
+            'gridName',
+            'parentGridID',
+            'parentGridName'
+        ];
+        $columns = [
+            "c1.name_$tag",
+            'c2.address',
+            'c2.city',
+            'c2.id',
+            "c2.name_$tag",
+            'c2.zipCode',
+            'g1.id',
+            "g1.name_$tag",
+            'g2.id',
+            "g2.name_$tag"
+        ];
 
-        $query->select("c1.id, c1.name_$tag as name, c1.address, c1.city, c1.zipCode, c1.location")
-            ->select("c2.id as parentID, c2.name_$tag as parentName, c2.address as parentAddress")
-            ->select('c2.city AS parentCity, c2.zipCode AS parentZIPCode')
-            ->select("g1.id as gridID, g1.name_$tag as gridName")
-            ->select("g2.id as parentGridID, g2.name_$tag as parentGridName")
-            ->from('#__organizer_campuses AS c1')
-            ->leftJoin('#__organizer_grids AS g1 ON g1.id = c1.gridID')
-            ->leftJoin('#__organizer_campuses AS c2 ON c2.id = c1.parentID')
-            ->leftJoin('#__organizer_grids AS g2 ON g2.id = c2.gridID');
+        $access  = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
+        $aliased = DB::qn($columns, $aliases);
+        $select  = DB::qn(['c1.id', 'c1.address', 'c1.city', 'c1.zipCode', 'c1.location']);
+        $url     = [$query->concatenate([DB::quote($url), DB::qn('c1.id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge($select, $access, $aliased, $url))
+            ->from(DB::qn('#__organizer_campuses', 'c1'))
+            ->leftJoin(DB::qn('#__organizer_grids', 'g1'), DB::qc('g1.id', 'c1.gridID'))
+            ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'))
+            ->leftJoin(DB::qn('#__organizer_grids', 'g2'), DB::qc('g2.id', 'c2.gridID'))
+            ->order(DB::qn(['parentName', 'name']));
 
         $searchColumns = [
             'c1.name_de',
@@ -61,15 +88,13 @@ class Campuses extends ListModel
     /**
      * Filters according to the selected city.
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   DatabaseQuery  $query  the query to modify
      *
      * @return void
      */
-    private function setCityFilter(JDatabaseQuery $query)
+    private function setCityFilter(DatabaseQuery $query): void
     {
-        $value = $this->state->get('filter.city', '');
-
-        if ($value === '') {
+        if (!$value = $this->state->get('filter.city')) {
             return;
         }
 
@@ -78,42 +103,46 @@ class Campuses extends ListModel
          * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
          * be extended we could maybe add a parameter for it later.
          */
-        if ($value == '-1') {
-            $query->where("city = ''");
+        if ((int) $value === self::NONE) {
+            $query->where(DB::qn('city') . " = ''");
 
             return;
         }
 
-        $city = Database::quote($value);
-        $query->where("(c1.city = $city OR (c1.city = '' AND c2.city = $city))");
+        $cCity = DB::qn('c1.city');
+        $query->where("($cCity = :city OR ($cCity = '' AND " . DB::qn('c2.city') . " = :city))")->bind(':city', $value);
     }
 
     /**
      * Filters according to the selected grid.
      *
-     * @param JDatabaseQuery $query the query to modify
+     * @param   DatabaseQuery  $query  the query to modify
      *
      * @return void
      */
-    private function setGridFilter(JDatabaseQuery $query)
+    private function setGridFilter(DatabaseQuery $query): void
     {
-        $value = (int) $this->state->get('filter.gridID');
+        ;
 
-        if ($value === 0) {
+        if (!$value = (int) $this->state->get('filter.gridID')) {
             return;
         }
+
+        $grid  = DB::qn('g1.id');
+        $pGrid = DB::qn('g2.id');
 
         /**
          * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
          * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
          * be extended we could maybe add a parameter for it later.
          */
-        if ($value === -1) {
-            $query->where('g1.id IS NULL and g2.id IS NULL');
+        if ($value === self::NONE) {
+            $query->where("$grid IS NULL AND $pGrid IS NULL");
 
             return;
         }
 
-        $query->where("(g1.id = $value OR (g1.id IS NULL AND g2.id = $value))");
+        $query->where("($grid = :gridID OR ($grid IS NULL AND $pGrid = :gridID))")
+            ->bind(':gridID', $value, ParameterType::INTEGER);
     }
 }

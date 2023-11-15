@@ -10,8 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
+use stdClass;
 use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads a filtered set of campuses into the display context.
@@ -29,56 +31,77 @@ class Campuses extends ListView
         parent::addToolBar();
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $link            = 'index.php?option=com_organizer&view=campus_edit&id=';
-        $structuredItems = [];
-
-        foreach ($this->items as $item) {
-            if (empty($item->parentID)) {
-                $index = $item->name;
-            }
-            else {
-                $index      = "$item->parentName-$item->name";
-                $item->name = "|&nbsp;&nbsp;-&nbsp;$item->name";
-            }
-
-            $address    = '';
-            $ownAddress = (!empty($item->address) or !empty($item->city) or !empty($item->zipCode));
-
-            if ($ownAddress) {
-                $addressParts   = [];
-                $addressParts[] = empty($item->address) ? empty($item->parentAddress) ?
-                    '' : $item->parentAddress : $item->address;
-                $addressParts[] = empty($item->city) ? empty($item->parentCity) ? '' : $item->parentCity : $item->city;
-                $addressParts[] = empty($item->zipCode) ? empty($item->parentZIPCode) ?
-                    '' : $item->parentZIPCode : $item->zipCode;
-                $address        = implode(' ', $addressParts);
-            }
-
-            $item->address  = $address;
-            $item->location = Helpers\Campuses::getPin($item->location);
-
-            if (!empty($item->gridName)) {
-                $gridName = $item->gridName;
-            }
-            elseif (!empty($item->parentGridName)) {
-                $gridName = $item->parentGridName;
-            }
-            else {
-                $gridName = Text::_('ORGANIZER_NONE_GIVEN');
-            }
-            $item->gridID = $gridName;
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
+        if ($item->parentID) {
+            $item->name = HTML::icon('fa fa-long-arrow-alt-right') . " $item->name";
         }
 
-        asort($structuredItems);
+        $address = '';
 
-        $this->items = $structuredItems;
+        if ($item->address or $item->city or $item->zipCode) {
+            $addressParts   = [];
+            $addressParts[] = empty($item->address) ? empty($item->parentAddress) ? '' : $item->parentAddress : $item->address;
+            $addressParts[] = empty($item->city) ? empty($item->parentCity) ? '' : $item->parentCity : $item->city;
+            $addressParts[] = empty($item->zipCode) ? empty($item->parentZIPCode) ? '' : $item->parentZIPCode : $item->zipCode;
+            $address        = implode(' ', $addressParts);
+        }
+
+        $item->address  = $address;
+        $item->location = Helpers\Campuses::getPin($item->location);
+
+        if (empty($item->gridName)) {
+            $gridName = empty($item->parentGridName) ? Text::_('NONE_GIVEN') : $item->parentGridName;
+        }
+        else {
+            $gridName = $item->gridName;
+        }
+
+        $item->gridID = $gridName;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        parent::completeItems($options);
+
+        uasort($this->items, [$this, 'compare']);
+    }
+
+    /**
+     * Compares the long names of the campuses for sorting.
+     *
+     * @param   stdClass  $item1  the first item
+     * @param   stdClass  $item2  the secont item
+     *
+     * @return int -1 if $item1 is before $item2; 1 if $item1 is after $item2
+     */
+    private function compare(stdClass $item1, stdClass $item2): int
+    {
+        if (empty($item1->parentName)) {
+
+            // Both are cities
+            if (empty($item2->parentName)) {
+                return strcmp($item1->name, $item2->name);
+            }
+
+            // Thing 1 is a city
+            return strcmp($item1->name, $item2->parentName);
+        }
+        // Thing 2 is a city
+        elseif (empty($item2->parentName)) {
+            return strcmp($item1->parentName, $item2->name);
+        }
+
+        // Different cities
+        if ($parentDiff = strcmp($item1->parentName, $item2->parentName)) {
+            return $parentDiff;
+        }
+
+        // Same city
+        return strcmp($item1->name, $item2->name);
     }
 
     /**
@@ -86,14 +109,29 @@ class Campuses extends ListView
      */
     public function initializeColumns(): void
     {
-        $headers = [
-            'checkbox' => '',
-            'name'     => Text::_('ORGANIZER_NAME'),
-            'address'  => Text::_('ORGANIZER_STREET'),
-            'location' => Text::_('ORGANIZER_LOCATION'),
-            'gridID'   => Text::_('ORGANIZER_GRID')
+        $this->headers =  [
+            'check'        => ['type' => 'check'],
+            'name'         => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('NAME'),
+                'type'       => 'value'
+            ],
+            'address'         => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('STREET'),
+                'type'       => 'text'
+            ],
+            'location'         => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('LOCATION'),
+                'type'       => 'text'
+            ],
+            'gridID'         => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('GRID'),
+                'type'       => 'text'
+            ],
         ];
-
-        $this->headers = $headers;
     }
 }

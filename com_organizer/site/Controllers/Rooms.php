@@ -18,13 +18,11 @@ use THM\Organizer\Models\Room;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Rooms extends Controller
+class Rooms extends ListController
 {
     use Activated;
 
-    protected $listView = 'rooms';
-
-    protected $resource = 'room';
+    protected string $item = 'room';
 
     /**
      * Makes call to the model's import function, and redirects to the manager view if the file .

@@ -252,6 +252,6 @@ abstract class ListView extends Base
     protected function modifyDocument(): void
     {
         Document::script('cacheMiss');
-        //Document::style('list');
+        Document::style('list');
     }
 }
