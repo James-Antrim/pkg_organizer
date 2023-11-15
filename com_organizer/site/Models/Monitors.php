@@ -11,18 +11,83 @@
 namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
-use THM\Organizer\Adapters\{Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Database as DB, Input};
+use Joomla\Database\ParameterType;
+use THM\Organizer\Helpers\Monitors as Helper;
 
 /**
  * Class retrieves information for a filtered set of monitors.
  */
 class Monitors extends ListModel
 {
-    public const UPCOMING_INSTANCES = 0, CURRENT_INSTANCES = 1, MIXED_PLAN = 2, CONTENT_DISPLAY = 3;
-
     protected string $defaultOrdering = 'r.name';
 
     protected $filter_fields = ['content', 'display', 'useDefaults'];
+
+    /**
+     * Adds the filter settings for displayed content
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     *
+     * @return void
+     */
+    private function contentFilter(DatabaseQuery $query): void
+    {
+        if (!$content = (string) $this->state->get('filter.content')) {
+            return;
+        }
+
+        $content  = $content === (string) self::NONE ? '' : $content;
+        $default  = (string) Input::getParams()->get('content');
+        $assigned = DB::qn('m.content') . ' = :content';
+
+        if ($content === $default) {
+            $useDefaults = DB::qn('useDefaults') . ' = 1';
+            $query->where("($assigned OR $useDefaults)");
+        }
+        else {
+            $query->where($assigned);
+        }
+
+        $query->bind(':content', $content);
+    }
+
+    /**
+     * Adds the filter settings for display behaviour
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     *
+     * @return void
+     */
+    private function displayFilter(DatabaseQuery $query): void
+    {
+        $templateKey = $this->state->get('filter.display');
+
+        // Filter null and empty string as explicit non-zero values.
+        if (!is_numeric($templateKey)) {
+            return;
+        }
+
+        $templateKey = (int) $templateKey;
+
+        if (!in_array($templateKey, Helper::LAYOUTS)) {
+            return;
+        }
+
+        $assigned = DB::qn('m.display') . ' = :template';
+        $default  = Input::getParams()->get('display');
+
+        if (is_numeric($default) and (int) $default === $templateKey) {
+            $useDefaults = DB::qn('useDefaults') . ' = 1';
+            $query->where("($assigned OR $useDefaults)");
+        }
+        else {
+            $query->where($assigned);
+        }
+
+        $query->bind(':template', $templateKey, ParameterType::INTEGER);
+
+    }
 
     /**
      * Method to get a list of resources from the database.
@@ -30,86 +95,20 @@ class Monitors extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $query = DB::getQuery();
 
-        $query->select($this->state->get('list.select', 'm.id, r.name, m.ip, m.useDefaults, m.display, m.content'))
-            ->from('#__organizer_monitors AS m')
-            ->leftJoin('#__organizer_rooms AS r ON r.id = m.roomID');
+        $select = DB::qn(['m.id', 'r.name', 'm.ip', 'm.useDefaults', 'm.display', 'm.content']);
+        $query->select($select)
+            ->from(DB::qn('#__organizer_monitors', 'm'))
+            ->leftJoin(DB::qn('#__organizer_rooms', 'r'), DB::qc('r.id', 'm.roomID'));
 
         $this->setSearchFilter($query, ['r.name', 'm.ip']);
         $this->setValueFilters($query, ['useDefaults']);
-        $this->addDisplayFilter($query);
-        $this->addContentFilter($query);
+        $this->displayFilter($query);
+        $this->contentFilter($query);
 
         $this->orderBy($query);
 
         return $query;
-    }
-
-    /**
-     * Adds the filter settings for display behaviour
-     *
-     * @param   JDatabaseQuery  $query  the query to modify
-     *
-     * @return void
-     */
-    private function addDisplayFilter(JDatabaseQuery $query): void
-    {
-        $templateKey = $this->state->get('filter.display', '');
-
-        if ($templateKey === '') {
-            return;
-        }
-
-        $templateKey = (int) $templateKey;
-        $templates   = [self::UPCOMING_INSTANCES, self::CURRENT_INSTANCES, self::MIXED_PLAN, self::CONTENT_DISPLAY];
-
-        if (!in_array($templateKey, $templates)) {
-            return;
-        }
-
-        $where = "m.display = $templateKey";
-
-        $params              = Input::getParams();
-        $defaultDisplay      = $params->get('display', '');
-        $useComponentDisplay = (!empty($defaultDisplay) and $templateKey == $defaultDisplay);
-
-        if ($useComponentDisplay) {
-            $query->where("( $where OR useDefaults = 1)");
-
-            return;
-        }
-
-        $query->where($where);
-    }
-
-    /**
-     * Adds the filter settings for displayed content
-     *
-     * @param   JDatabaseQuery  $query  the query to modify
-     *
-     * @return void
-     */
-    private function addContentFilter(JDatabaseQuery $query): void
-    {
-        $params  = Input::getParams();
-        $content = (string) $this->state->get('filter.content', '');
-
-        if ($content === '') {
-            return;
-        }
-
-        $content        = $content === '-1' ? '' : $content;
-        $defaultContent = $params->get('content', '');
-        $where          = 'm.content = ' . Database::quote($content);
-
-        if ($content === $defaultContent) {
-            $query->where("($where OR useDefaults = 1)");
-
-            return;
-        }
-
-        $query->where($where);
     }
 }

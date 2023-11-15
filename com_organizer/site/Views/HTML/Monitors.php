@@ -10,31 +10,16 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Input, Text, Toolbar};
-use THM\Organizer\Helpers;
+use stdClass;
+use THM\Organizer\Adapters\{HTML, Input, Text, Toolbar};
+use THM\Organizer\Helpers\Monitors as Helper;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of monitors into the display context.
  */
 class Monitors extends ListView
 {
-    private const UPCOMING = 0, CURRENT = 1, MIXED = 2, CONTENT = 3;
-
-    public array $displayBehaviour = [];
-
-    /**
-     * @inheritdoc
-     */
-    public function __construct($config = [])
-    {
-        $this->displayBehaviour[self::UPCOMING] = Text::_('ORGANIZER_UPCOMING_INSTANCES');
-        $this->displayBehaviour[self::CURRENT]  = Text::_('ORGANIZER_CURRENT_INSTANCES');
-        $this->displayBehaviour[self::MIXED]    = Text::_('ORGANIZER_MIXED_PLAN');
-        $this->displayBehaviour[self::CONTENT]  = Text::_('ORGANIZER_CONTENT_DISPLAY');
-
-        parent::__construct($config);
-    }
-
     /**
      * @inheritdoc
      */
@@ -50,37 +35,39 @@ class Monitors extends ListView
     /**
      * @inheritdoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $link            = 'index.php?option=com_organizer&view=monitor_edit&id=';
-        $index           = 0;
-        $structuredItems = [];
-
-        $params       = Input::getParams();
-        $displayParam = $params->get('display');
-        $contentParam = $params->get('content');
-
-        foreach ($this->items as $item) {
-            if ($item->useDefaults) {
-                $item->display = $this->displayBehaviour[$displayParam];
-                $item->content = $contentParam;
-            }
-            else {
-                $item->display = $this->displayBehaviour[$item->display];
-            }
-
-            $item->useDefaults = $this->getToggle(
-                'monitor',
-                $item->id,
-                $item->useDefaults,
-                'ORGANIZER_TOGGLE_DEFAULT'
-            );
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
+        if ($item->useDefaults) {
+            $item->display = $options['templates'][$options['template']];
+            $item->content = $options['content'];
+        }
+        else {
+            $item->display = $options['templates'][$item->display];
         }
 
-        $this->items = $structuredItems;
+        $item->useDefaults = $this->getToggle('monitor', $item->id, $item->useDefaults, 'TOGGLE_DEFAULT');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function completeItems(array $options = []): void
+    {
+        $params   = Input::getParams();
+        $template = $params->get('display');
+        $content  = $params->get('content');
+
+        $options = [
+            'content'   => $content,
+            'template'  => $template,
+            'templates' => [
+                Helper::UPCOMING => Text::_('UPCOMING_INSTANCES'),
+                Helper::CURRENT  => Text::_('CURRENT_INSTANCES'),
+                Helper::MIXED    => Text::_('MIXED_PLAN'),
+                Helper::CONTENT  => Text::_('CONTENT_DISPLAY'),
+            ]
+        ];
+        parent::completeItems($options);
     }
 
     /**
@@ -90,15 +77,35 @@ class Monitors extends ListView
     {
         $ordering  = $this->state->get('list.ordering');
         $direction = $this->state->get('list.direction');
-        $headers   = [
-            'checkbox'    => HTML::checkAll(),
-            'name'        => HTML::sort('ROOM', 'r.name', $direction, $ordering),
-            'ip'          => HTML::sort('IP', 'm.ip', $direction, $ordering),
-            'useDefaults' => HTML::sort('DEFAULT_SETTINGS', 'm.useDefaults', $direction, $ordering),
-            'display'     => Text::_('DISPLAY_BEHAVIOUR'),
-            'content'     => HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering)
-        ];
 
-        $this->headers = $headers;
+        $this->headers = [
+            'check'       => ['type' => 'check'],
+            'name'        => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('ROOM', 'r.name', $direction, $ordering),
+                'type'       => 'value'
+            ],
+            'ip'          => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('IP', 'm.ip', $direction, $ordering),
+                'type'       => 'text'
+            ],
+            'useDefaults' => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('DEFAULT_SETTINGS'),
+                'type'       => 'value'
+            ],
+            'display'     => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('DISPLAY_BEHAVIOUR'),
+                'type'       => 'text'
+            ],
+            'content'     => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => HTML::sort('DISPLAY_CONTENT', 'm.content', $direction, $ordering),
+                'type'       => 'text'
+            ],
+        ];
     }
 }

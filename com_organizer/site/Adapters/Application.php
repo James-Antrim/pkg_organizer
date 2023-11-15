@@ -197,7 +197,7 @@ class Application
      *
      * @return  Registry
      */
-    public static function getParams(string $component = 'com_groups'): Registry
+    public static function getParams(string $component = 'com_organizer'): Registry
     {
         return ComponentHelper::getParams($component);
     }
