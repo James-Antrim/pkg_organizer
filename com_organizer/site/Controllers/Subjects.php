@@ -13,11 +13,9 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Subjects extends Controller
+class Subjects extends ListController
 {
     use Imported;
 
-    protected $listView = 'subjects';
-
-    protected $resource = 'subject';
+    protected string $item = 'Subject';
 }

@@ -15,5 +15,5 @@ namespace THM\Organizer\Controllers;
  */
 class Buildings extends ListController
 {
-    protected string $item = 'building';
+    protected string $item = 'Building';
 }

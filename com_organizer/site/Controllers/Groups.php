@@ -18,29 +18,28 @@ use THM\Organizer\Models;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Groups extends Controller
+class Groups extends ListController
 {
     use Activated;
 
-    protected $listView = 'groups';
-
-    protected $resource = 'group';
+    protected string $item = 'Group';
 
     /**
-     * Makes call to the models's batch function, and redirects to the manager view.
+     * Makes call to the model's batch function, and redirects to the manager view.
      * @return void
      */
-    public function batch()
+    public function batch(): void
     {
         $model = new Models\Group();
 
         if ($model->batch()) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 
-        $url = Helpers\Routing::getRedirectBase() . "&view=$this->listView";
+        $url = Helpers\Routing::getRedirectBase() . '&view=' . Application::getClass($this);
         $this->setRedirect($url);
     }
 
@@ -48,13 +47,14 @@ class Groups extends Controller
      * Sets the publication status for any group / complete term pairing to true
      * @return void
      */
-    public function publishPast()
+    public function publishPast(): void
     {
         $group = new Models\Group();
 
         if ($group->publishPast()) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 

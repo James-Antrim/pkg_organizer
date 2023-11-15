@@ -18,17 +18,15 @@ use THM\Organizer\Models;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Colors extends Controller
+class Colors extends ListController
 {
-    protected $listView = 'colors';
-
-    protected $resource = 'color';
+    protected string $item = 'Color';
 
     /**
      * Save form data to the database.
      * @return void
      */
-    public function save()
+    public function save(): void
     {
         $model = new Models\Color();
         $url   = Helpers\Routing::getRedirectBase() . '&view=';
@@ -36,7 +34,8 @@ class Colors extends Controller
 
         if ($model->save()) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 

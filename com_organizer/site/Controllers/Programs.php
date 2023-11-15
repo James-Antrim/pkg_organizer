@@ -17,30 +17,29 @@ use THM\Organizer\Models;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Programs extends Controller
+class Programs extends ListController
 {
-    use Activated, Imported;
+    use Activated;
+    use Imported;
 
-    protected $listView = 'programs';
-
-    protected $resource = 'program';
+    protected string $item = 'Program';
 
     /**
-     * Makes call to the models's update batch function, and redirects to the manager view.
+     * Makes call to the model's update batch function, and redirects to the manager view.
      * @return void
      */
-    public function update()
+    public function update(): void
     {
         $model = new Models\Program();
 
         if ($model->update()) {
             Application::message('ORGANIZER_UPDATE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_UPDATE_FAIL', Application::ERROR);
         }
 
-        $url = Helpers\Routing::getRedirectBase();
-        $url .= "&view=$this->listView";
+        $url = Helpers\Routing::getRedirectBase() . '&view=' . Application::getClass($this);
         $this->setRedirect($url);
     }
 }

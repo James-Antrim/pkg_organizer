@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class CleaningGroups extends Controller
+class CleaningGroups extends ListController
 {
-    protected $listView = 'CleaningGroups';
-
-    protected $resource = 'CleaningGroup';
+    protected string $item = 'CleaningGroup';
 }

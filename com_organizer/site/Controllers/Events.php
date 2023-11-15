@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Events extends Controller
+class Events extends ListController
 {
-    protected $listView = 'events';
-
-    protected $resource = 'event';
+    protected string $item = 'Event';
 }

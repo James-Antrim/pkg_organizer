@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Grids extends Controller
+class Grids extends ListController
 {
-    protected $listView = 'grids';
-
-    protected $resource = 'grid';
+    protected string $item = 'Grid';
 }

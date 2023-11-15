@@ -22,7 +22,7 @@ class Rooms extends ListController
 {
     use Activated;
 
-    protected string $item = 'room';
+    protected string $item = 'Room';
 
     /**
      * Makes call to the model's import function, and redirects to the manager view if the file .
@@ -49,11 +49,13 @@ class Rooms extends ListController
             if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8') {
                 $model = new Room();
                 $view  = $model->import() ? 'Rooms' : 'RoomsImport';
-            } else {
+            }
+            else {
                 $view = 'RoomsImport';
                 Application::message('ORGANIZER_FILE_ENCODING_INVALID', Application::ERROR);
             }
-        } else {
+        }
+        else {
             $view = 'RoomsImport';
             Application::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', Application::ERROR);
         }
@@ -75,7 +77,7 @@ class Rooms extends ListController
     }
 
     /**
-     * Creates an xls file based on form data.
+     * Creates a xls file based on form data.
      * @return void
      * @throws Exception
      */

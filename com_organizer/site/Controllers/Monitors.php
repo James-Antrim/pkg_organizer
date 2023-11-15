@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Monitors extends Controller
+class Monitors extends ListController
 {
-    protected $listView = 'monitors';
-
-    protected $resource = 'monitor';
+    protected string $item = 'Monitor';
 }

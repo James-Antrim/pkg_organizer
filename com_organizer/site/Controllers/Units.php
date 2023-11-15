@@ -17,17 +17,15 @@ use THM\Organizer\Models\Unit;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Units extends Controller
+class Units extends ListController
 {
-    protected $listView = 'units';
-
-    protected $resource = 'unit';
+    protected string $item = 'Unit';
 
     /**
      * Creates a course entry based on the data associated with a unit.
      * @return void
      */
-    public function addCourse()
+    public function addCourse(): void
     {
         $model = new Unit();
 
@@ -35,7 +33,8 @@ class Units extends Controller
             Application::message('ORGANIZER_SAVE_SUCCESS');
 
             $url = Helpers\Routing::getRedirectBase() . "&view=course_edit&id=$resourceID";
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
 
             $url = Helpers\Routing::getRedirectBase() . "&view=units";

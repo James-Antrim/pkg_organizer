@@ -19,18 +19,16 @@ use THM\Organizer\Models;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Courses extends Controller
+class Courses extends ListController
 {
-    protected $listView = 'courses';
-
-    protected $resource = 'course';
+    protected string $item = 'Course';
 
     /**
      * Prints badges for the selected participants.
      * @return void
      * @throws Exception
      */
-    public function badge()
+    public function badge(): void
     {
         Input::set('format', 'pdf');
         Input::set('layout', 'Badge');
@@ -41,7 +39,7 @@ class Courses extends Controller
      * De-/registers a participant from/to a course.
      * @return void
      */
-    public function deregister()
+    public function deregister(): void
     {
         $referrer = Input::getInput()->server->getString('HTTP_REFERER');
 
@@ -49,7 +47,8 @@ class Courses extends Controller
 
         if ($model->deregister()) {
             Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
         }
 
@@ -60,7 +59,7 @@ class Courses extends Controller
      * Makes call to the model's import function, and redirects to the manager view if the file .
      * @return void
      */
-    public function import()
+    public function import(): void
     {
         $url  = Helpers\Routing::getRedirectBase();
         $view = 'Courses';
@@ -80,11 +79,13 @@ class Courses extends Controller
             if (mb_detect_encoding($file['tmp_name'], 'UTF-8', true) === 'UTF-8') {
                 $model = new Models\Course();
                 $view  = $model->import() ? 'Courses' : 'CoursesImport';
-            } else {
+            }
+            else {
                 $view = 'CoursesImport';
                 Application::message('ORGANIZER_FILE_ENCODING_INVALID', Application::ERROR);
             }
-        } else {
+        }
+        else {
             $view = 'CoursesImport';
             Application::message('ORGANIZER_FILE_TYPE_NOT_ALLOWED', Application::ERROR);
         }
@@ -98,7 +99,7 @@ class Courses extends Controller
      * @return void
      * @throws Exception
      */
-    public function participants()
+    public function participants(): void
     {
         if (!$courseID = Input::getSelectedIDs()[0]) {
             parent::display();
@@ -113,7 +114,7 @@ class Courses extends Controller
      * De-/registers a participant from/to a course.
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $courseID      = Input::getID();
         $referrer      = Input::getInput()->server->getString('HTTP_REFERER');
@@ -121,12 +122,14 @@ class Courses extends Controller
 
         if (!Helpers\CourseParticipants::validProfile($courseID, $participantID)) {
             Application::message('ORGANIZER_PROFILE_INCOMPLETE_ERROR', Application::ERROR);
-        } else {
+        }
+        else {
             $model = new Models\Course();
 
             if ($model->register()) {
                 Application::message('ORGANIZER_STATUS_CHANGE_SUCCESS');
-            } else {
+            }
+            else {
                 Application::message('ORGANIZER_STATUS_CHANGE_FAIL', Application::ERROR);
             }
         }

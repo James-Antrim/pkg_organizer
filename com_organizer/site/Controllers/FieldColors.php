@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class FieldColors extends Controller
+class FieldColors extends ListController
 {
-    protected $listView = 'field_colors';
-
-    protected $resource = 'field_color';
+    protected string $item = 'FieldColor';
 }

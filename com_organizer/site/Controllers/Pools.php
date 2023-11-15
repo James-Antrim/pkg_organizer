@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Pools extends Controller
+class Pools extends ListController
 {
-    protected $listView = 'pools';
-
-    protected $resource = 'pool';
+    protected string $item = 'Pool';
 }

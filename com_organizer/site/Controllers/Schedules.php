@@ -19,8 +19,6 @@ use THM\Organizer\Models;
  */
 class Schedules extends ListController
 {
-    protected string $listView = 'schedules';
-
     protected string $item = 'Schedule';
 
     /**

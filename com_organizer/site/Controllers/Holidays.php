@@ -15,7 +15,5 @@ namespace THM\Organizer\Controllers;
  */
 class Holidays extends Controller
 {
-    protected $listView = 'holidays';
-
-    protected $resource = 'holiday';
+    protected string $item = 'Holiday';
 }

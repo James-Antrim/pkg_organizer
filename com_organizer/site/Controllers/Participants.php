@@ -17,37 +17,35 @@ use THM\Organizer\Models\Participant;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Participants extends Controller
+class Participants extends ListController
 {
-    protected $listView = 'participants';
-
-    protected $resource = 'participant';
+    protected string $item = 'Participant';
 
     /**
      * Attempts to automatically merge entries according to criteria for unique identification.
      * @return void
      */
-    public function automaticMerge()
+    public function automaticMerge(): void
     {
         $model = new Participant();
         $model->automaticMerge();
-        $url = Helpers\Routing::getRedirectBase();
-        $url .= "&view=$this->listView";
+        $url = Helpers\Routing::getRedirectBase() . '&view=' . Application::getClass($this);
         $this->setRedirect($url);
     }
 
     /**
-     * Save user information from form and if course id defined sign in or out of course
+     * Save user information from form and if courseID defined sign in or out of course
      * then redirect to course list view
      * @return void
      */
-    public function save()
+    public function save(): void
     {
         $model = new Participant();
 
         if ($model->save()) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 

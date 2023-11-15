@@ -18,17 +18,15 @@ use THM\Organizer\Models;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Fields extends Controller
+class Fields extends ListController
 {
-    protected $listView = 'fields';
-
-    protected $resource = 'field';
+    protected string $item = 'Field';
 
     /**
      * Save form data to the database.
      * @return void
      */
-    public function save()
+    public function save(): void
     {
         $model = new Models\Field();
         $url   = Helpers\Routing::getRedirectBase() . '&view=';
@@ -36,7 +34,8 @@ class Fields extends Controller
 
         if ($model->save()) {
             Application::message('ORGANIZER_SAVE_SUCCESS');
-        } else {
+        }
+        else {
             Application::message('ORGANIZER_SAVE_FAIL', Application::ERROR);
         }
 

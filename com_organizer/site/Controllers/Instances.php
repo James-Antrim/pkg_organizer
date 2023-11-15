@@ -11,7 +11,6 @@
 namespace THM\Organizer\Controllers;
 
 use Exception;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Router\Route;
 use THM\Organizer\Adapters\{Application, Input};
 use THM\Organizer\Helpers;
@@ -20,19 +19,17 @@ use THM\Organizer\Models\Instance;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Instances extends Controller
+class Instances extends ListController
 {
-    protected $listView = 'instances';
-
-    protected $resource = 'instance';
+    protected string $item = 'Instance';
 
     /**
      * Ends the instance create/edit process and empties the session container.
      * @return void
      */
-    public function cancel()
+    public function cancel(): void
     {
-        $session  = Factory::getSession();
+        $session  = Application::getSession();
         $instance = $session->get('organizer.instance', []);
 
         if (!empty($instance['referrer'])) {
@@ -49,7 +46,7 @@ class Instances extends Controller
      * @return void
      * @throws Exception
      */
-    public function gridA3()
+    public function gridA3(): void
     {
         Input::set('format', 'pdf');
         Input::set('layout', 'GridA3');
@@ -61,7 +58,7 @@ class Instances extends Controller
      * @return void
      * @throws Exception
      */
-    public function gridA4()
+    public function gridA4(): void
     {
         Input::set('format', 'pdf');
         Input::set('layout', 'GridA4');
@@ -72,9 +69,9 @@ class Instances extends Controller
      * Removed all properties stored in the session
      * @return void
      */
-    public function reset()
+    public function reset(): void
     {
-        $session  = Factory::getSession();
+        $session  = Application::getSession();
         $instance = $session->get('organizer.instance', []);
 
         if (!empty($instance['referrer'])) {
@@ -90,10 +87,10 @@ class Instances extends Controller
      * Save form data to the database.
      * @return void
      */
-    public function save()
+    public function save(): void
     {
         $model    = new Instance();
-        $session  = Factory::getSession();
+        $session  = Application::getSession();
         $instance = $session->get('organizer.instance', []);
         $referrer = empty($instance['referrer']) ? '' : $instance['referrer'];
 
@@ -121,11 +118,11 @@ class Instances extends Controller
     }
 
     /**
-     * Creates an xls file based on form data.
+     * Creates a xls file based on form data.
      * @return void
      * @throws Exception
      */
-    public function xls()
+    public function xls(): void
     {
         // prevents parameter name from biting here
         Input::set('layout', 'Instances');

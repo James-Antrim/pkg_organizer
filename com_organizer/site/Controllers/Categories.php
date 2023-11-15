@@ -13,11 +13,9 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Categories extends Controller
+class Categories extends ListController
 {
     use Activated;
 
-    protected $listView = 'categories';
-
-    protected $resource = 'category';
+    protected string $item = 'Category';
 }

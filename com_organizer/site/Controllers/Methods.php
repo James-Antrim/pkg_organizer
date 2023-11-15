@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Methods extends Controller
+class Methods extends ListController
 {
-    protected $listView = 'methods';
-
-    protected $resource = 'method';
+    protected string $item = 'Method';
 }

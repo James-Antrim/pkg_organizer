@@ -13,9 +13,7 @@ namespace THM\Organizer\Controllers;
 /**
  * Class receives user actions and performs access checks and redirection.
  */
-class Terms extends Controller
+class Terms extends ListController
 {
-    protected $listView = 'terms';
-
-    protected $resource = 'term';
+    protected string $item = 'Term';
 }
