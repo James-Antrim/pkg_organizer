@@ -34,8 +34,8 @@ class Subject extends CurriculumResource
      * Adds a Subject => Event association. No access checks => this is not directly accessible and requires
      * differing checks according to its calling context.
      *
-     * @param int   $subjectID the id of the subject
-     * @param array $eventIDs  the ids of the events
+     * @param   int    $subjectID  the id of the subject
+     * @param   array  $eventIDs   the ids of the events
      *
      * @return bool  true on success, otherwise false
      */
@@ -58,10 +58,10 @@ class Subject extends CurriculumResource
     /**
      * Associates subject curriculum dependencies.
      *
-     * @param array $programRanges          the program ranges
-     * @param array $prerequisiteRanges     the prerequisite ranges
-     * @param array $subjectRanges          the subject ranges
-     * @param bool  $pre                    whether or not the function is being called in the prerequisite context this
+     * @param   array  $programRanges       the program ranges
+     * @param   array  $prerequisiteRanges  the prerequisite ranges
+     * @param   array  $subjectRanges       the subject ranges
+     * @param   bool   $pre                 whether or not the function is being called in the prerequisite context this
      *                                      influences how possible deprecated entries are detected.
      *
      * @return bool true on success, otherwise false
@@ -85,7 +85,8 @@ class Subject extends CurriculumResource
 
             if ($pre) {
                 $query->where("subjectID IN ($rsIDs)")->where("prerequisiteID NOT IN ($rprIDs)");
-            } else {
+            }
+            else {
                 $query->where("prerequisiteID IN ($rsIDs)")->where("subjectID NOT IN ($rprIDs)");
             }
 
@@ -117,8 +118,8 @@ class Subject extends CurriculumResource
     /**
      * Checks if the property should be displayed. Setting it to NULL if not.
      *
-     * @param array  &$data     the form data
-     * @param string  $property the property name
+     * @param   array  &$data      the form data
+     * @param   string  $property  the property name
      *
      * @return void  can change the &$data value at the property name index
      */
@@ -133,9 +134,11 @@ class Subject extends CurriculumResource
         $value = (int) $data[$property];
         if ($value >= 3) {
             $data[$property] = 3;
-        } elseif ($value >= 0) {
+        }
+        elseif ($value >= 0) {
             $data[$property] = $value;
-        } else {
+        }
+        else {
             $data[$property] = null;
         }
     }
@@ -143,8 +146,8 @@ class Subject extends CurriculumResource
     /**
      * Filters subject ranges to those relevant to a given program range.
      *
-     * @param array $programRange  the program range being iterated
-     * @param array $subjectRanges the ranges for the given subject
+     * @param   array  $programRange   the program range being iterated
+     * @param   array  $subjectRanges  the ranges for the given subject
      *
      * @return array[] the relevant subject ranges
      */
@@ -176,7 +179,8 @@ class Subject extends CurriculumResource
 
         try {
             $client = new Helpers\LSF();
-        } catch (Exception $exception) {
+        }
+        catch (Exception) {
             Application::message('ORGANIZER_LSF_CLIENT_FAILED', Application::ERROR);
 
             return false;
@@ -233,7 +237,7 @@ class Subject extends CurriculumResource
     /**
      * Processes the events to be associated with the subject
      *
-     * @param array &$data the post data
+     * @param   array &$data  the post data
      *
      * @return bool  true on success, otherwise false
      */
@@ -264,7 +268,7 @@ class Subject extends CurriculumResource
     /**
      * Processes the persons selected for the subject
      *
-     * @param array $data the post data
+     * @param   array  $data  the post data
      *
      * @return bool  true on success, otherwise false
      */
@@ -311,7 +315,7 @@ class Subject extends CurriculumResource
     /**
      * Processes the subject prerequisites selected for the subject
      *
-     * @param array $data the post data
+     * @param   array  $data  the post data
      *
      * @return bool  true on success, otherwise false
      */
@@ -323,17 +327,18 @@ class Subject extends CurriculumResource
             return true;
         }
 
-        $programRanges = Helpers\Programs::getRanges($subjectRanges);
+        $programRanges = Helpers\Programs::ranges($subjectRanges);
 
         $preRequisites = array_filter($data['prerequisites']);
-        if (!empty($preRequisites) and array_search(self::NONE, $preRequisites) === false) {
+        if (!empty($preRequisites) and !in_array(self::NONE, $preRequisites)) {
             $prerequisiteRanges = [];
             foreach ($preRequisites as $preRequisiteID) {
                 $prerequisiteRanges = array_merge($prerequisiteRanges, $this->getRanges($preRequisiteID));
             }
 
             $success = $this->associate($programRanges, $prerequisiteRanges, $subjectRanges, true);
-        } else {
+        }
+        else {
             $success = $this->removePreRequisites($subjectID);
         }
 
@@ -343,9 +348,9 @@ class Subject extends CurriculumResource
     /**
      * Creates a subject and a curricula table entries as necessary.
      *
-     * @param SimpleXMLElement $XMLObject      a SimpleXML object containing rudimentary resource data
-     * @param int              $organizationID the id of the organization with which the resource is associated
-     * @param int              $parentID       the  id of the parent entry in the curricula table
+     * @param   SimpleXMLElement  $XMLObject       a SimpleXML object containing rudimentary resource data
+     * @param   int               $organizationID  the id of the organization with which the resource is associated
+     * @param   int               $parentID        the  id of the parent entry in the curricula table
      *
      * @return bool  true on success, otherwise false
      */
@@ -372,7 +377,8 @@ class Subject extends CurriculumResource
             if (!$subject->store()) {
                 return false;
             }
-        } elseif ($blocked or !$validTitle) {
+        }
+        elseif ($blocked or !$validTitle) {
             return $this->deleteSingle($subject->id);
         }
 
@@ -380,9 +386,9 @@ class Subject extends CurriculumResource
 
         if (!$curricula->load(['parentID' => $parentID, 'subjectID' => $subject->id])) {
             $range = [
-                'parentID' => $parentID,
+                'parentID'  => $parentID,
                 'subjectID' => $subject->id,
-                'ordering' => $this->getOrdering($parentID, $subject->id)
+                'ordering'  => $this->getOrdering($parentID, $subject->id)
             ];
 
             if (!$this->shiftUp($parentID, $range['ordering'])) {
@@ -408,7 +414,7 @@ class Subject extends CurriculumResource
      * Removes pre- & postrequisite associations for the given subject. No access checks => this is not directly
      * accessible and requires differing checks according to its calling context.
      *
-     * @param int $subjectID the subject id
+     * @param   int  $subjectID  the subject id
      *
      * @return bool true on success, otherwise false
      */
@@ -421,7 +427,7 @@ class Subject extends CurriculumResource
      * Removes planSubject associations for the given subject. No access checks => this is not directly accessible and
      * requires differing checks according to its calling context.
      *
-     * @param int $subjectID the subject id
+     * @param   int  $subjectID  the subject id
      *
      * @return bool
      */
@@ -438,8 +444,8 @@ class Subject extends CurriculumResource
      * Removes person associations for the given subject and role. No access checks => this is not directly
      * accessible and requires differing checks according to its calling context.
      *
-     * @param int $subjectID the subject id
-     * @param int $role      the person role
+     * @param   int  $subjectID  the subject id
+     * @param   int  $role       the person role
      *
      * @return bool
      */
@@ -461,7 +467,7 @@ class Subject extends CurriculumResource
      * Removes prerequisite associations for the given subject. No access checks => this is not directly
      * accessible and requires differing checks according to its calling context.
      *
-     * @param int $subjectID the subject id
+     * @param   int  $subjectID  the subject id
      *
      * @return bool true on success, otherwise false
      */
@@ -484,7 +490,7 @@ class Subject extends CurriculumResource
      * Removes postrequisite associations for the given subject. No access checks => this is not directly
      * accessible and requires differing checks according to its calling context.
      *
-     * @param int $subjectID the subject id
+     * @param   int  $subjectID  the subject id
      *
      * @return bool true on success, otherwise false
      */
@@ -506,7 +512,7 @@ class Subject extends CurriculumResource
     /**
      * Parses the prerequisites text and replaces subject references with links to the subjects
      *
-     * @param int $subjectID the id of the subject being processed
+     * @param   int  $subjectID  the id of the subject being processed
      *
      * @return bool true on success, otherwise false
      */
@@ -520,7 +526,7 @@ class Subject extends CurriculumResource
         }
 
         // Subject is not associated with a program
-        if (!$programRanges = Helpers\Subjects::getPrograms($subjectID)) {
+        if (!$programRanges = Helpers\Subjects::programs($subjectID)) {
             return $this->removeDependencies($subjectID);
         }
 
@@ -637,10 +643,10 @@ class Subject extends CurriculumResource
     /**
      * Saves the dependencies to the prerequisites table
      *
-     * @param array  $programs     the programs that the schedule should be associated with
-     * @param int    $subjectID    the id of the subject being processed
-     * @param array  $dependencies the subject dependencies
-     * @param string $type         the type (direction) of dependency: pre|post
+     * @param   array   $programs      the programs that the schedule should be associated with
+     * @param   int     $subjectID     the id of the subject being processed
+     * @param   array   $dependencies  the subject dependencies
+     * @param   string  $type          the type (direction) of dependency: pre|post
      *
      * @return bool
      */
@@ -664,7 +670,8 @@ class Subject extends CurriculumResource
 
             if ($type == 'pre') {
                 $success = $this->savePrerequisites($fdRangeIDs, $fsRangeIDs);
-            } else {
+            }
+            else {
                 $success = $this->savePrerequisites($fsRangeIDs, $fdRangeIDs);
             }
 
@@ -679,8 +686,8 @@ class Subject extends CurriculumResource
     /**
      * Saves the prerequisite relation.
      *
-     * @param array $prerequisiteIDs ids for prerequisite subject entries in the program curriculum context
-     * @param array $subjectIDs      ids for subject entries in the program curriculum context
+     * @param   array  $prerequisiteIDs  ids for prerequisite subject entries in the program curriculum context
+     * @param   array  $subjectIDs       ids for subject entries in the program curriculum context
      *
      * @return bool true on success otherwise false
      */
@@ -715,8 +722,8 @@ class Subject extends CurriculumResource
     /**
      * Creates an association between persons, subjects and their roles for that subject.
      *
-     * @param int              $subjectID  the id of the subject
-     * @param SimpleXMLElement $dataObject an object containing the lsf response
+     * @param   int               $subjectID   the id of the subject
+     * @param   SimpleXMLElement  $dataObject  an object containing the lsf response
      *
      * @return bool  true on success, otherwise false
      */
@@ -745,9 +752,9 @@ class Subject extends CurriculumResource
     /**
      * Sets subject persons by their role for the subject
      *
-     * @param int   $subjectID the subject's id
-     * @param array $persons   an array containing information about the subject's persons
-     * @param int   $role      the person's role
+     * @param   int    $subjectID  the subject's id
+     * @param   array  $persons    an array containing information about the subject's persons
+     * @param   int    $role       the person's role
      *
      * @return bool  true on success, otherwise false
      */
@@ -811,8 +818,8 @@ class Subject extends CurriculumResource
     /**
      * Checks for subjects with the given possible module number associated with to the same programs.
      *
-     * @param array $potentialCodes the possible code values used in the attribute text
-     * @param array $programRanges  the program ranges whose curricula contain the subject being processed
+     * @param   array  $potentialCodes  the possible code values used in the attribute text
+     * @param   array  $programRanges   the program ranges whose curricula contain the subject being processed
      *
      * @return array[] the subject information for subjects with dependencies
      */

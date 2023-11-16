@@ -10,7 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML, Input};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input};
+use Joomla\Database\ParameterType;
 use THM\Organizer\Tables;
 
 /**
@@ -18,32 +19,44 @@ use THM\Organizer\Tables;
  */
 class Subjects extends Curricula
 {
+    public const COORDINATES = 1, TEACHES = 2;
     protected static $resource = 'subject';
 
     /**
      * Check if user one of the subject's coordinators.
      *
      * @param   int  $subjectID  the optional id of the subject
-     * @param   int  $personID   the optional id of the person entry
+     * @param   int  $personID   the optional id of the person entry, defaults to current user
      *
      * @return bool true if the user is a coordinator, otherwise false
      */
     public static function coordinates(int $subjectID = 0, int $personID = 0): bool
     {
-        $personID = $personID ?: Persons::getIDByUserID(Users::getID());
-        $query    = Database::getQuery();
-        $query->select('COUNT(*)')
-            ->from('#__organizer_subject_persons')
-            ->where("personID = $personID")
-            ->where("role = 1");
-
-        if ($subjectID) {
-            $query->where("subjectID = $subjectID");
+        if (!$personID = $personID ?: Persons::getIDByUserID(Users::getID())) {
+            return false;
         }
 
-        Database::setQuery($query);
+        $coordinates = self::COORDINATES;
+        $query       = DB::getQuery();
+        $query->select('COUNT(*)')->from(DB::qn('#__organizer_subject_persons'))
+            ->where(DB::qn('personID') . ' = :personID')->bind(':personID', $personID, ParameterType::INTEGER)
+            ->where(DB::qn('role') . ' = :coordinates')->bind(':coordinates', $coordinates, ParameterType::INTEGER);
 
-        return Database::loadBool();
+        if ($subjectID) {
+            $query->where(DB::qn('subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER);
+        }
+
+        DB::setQuery($query);
+
+        return DB::loadBool();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function documentable(string $resource = 'subject'): array
+    {
+        return parent::documentable($resource);
     }
 
     /**
@@ -53,31 +66,32 @@ class Subjects extends Curricula
      *
      * @return int the id of the referenced event
      */
-    public static function getEventID(int $subjectID): int
+    private static function eventID(int $subjectID): int
     {
-        $query = Database::getQuery();
-        $query->select('eventID')->from('#__organizer_subject_events')->where("subjectID = $subjectID");
-        Database::setQuery($query);
+        $query = DB::getQuery();
+        $query->select(DB::qn('eventID'))->from(DB::qn('#__organizer_subject_events'))
+            ->where(DB::qn('subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        return Database::loadInt();
+        return DB::loadInt();
     }
 
     /**
      * Retrieves the left and right boundaries of the nested program or pool
      * @return array|array[]
      */
-    private static function getFilterRanges(): array
+    private static function filterRanges(): array
     {
-        if (!$programBoundaries = Programs::getRanges(Input::getInt('programID'))) {
+        if (!$programRanges = Programs::ranges(Input::getInt('programID'))) {
             return [];
         }
 
-        if ($poolBoundaries = Pools::getRanges(Input::getInt('poolID'))
-            and self::poolInProgram($poolBoundaries, $programBoundaries)) {
-            return $poolBoundaries;
+        if ($poolRanges = Pools::ranges(Input::getInt('poolID'))
+            and self::included($poolRanges, $programRanges)) {
+            return $poolRanges;
         }
 
-        return $programBoundaries;
+        return $programRanges;
     }
 
     /**
@@ -90,16 +104,19 @@ class Subjects extends Curricula
      */
     public static function getName(int $resourceID = 0, bool $withNumber = false): string
     {
-        $query      = Database::getQuery();
-        $resourceID = $resourceID ?: Input::getID();
-        $tag        = Application::getTag();
-        $query->select("fullName_$tag as name, abbreviation_$tag as abbreviation")
-            ->select("code AS subjectNo")
-            ->from('#__organizer_subjects')
-            ->where("id = $resourceID");
-        Database::setQuery($query);
+        if (!$resourceID = $resourceID ?: Input::getID()) {
+            return '';
+        }
 
-        if (!$names = Database::loadAssoc()) {
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
+
+        $select = DB::qn(["abbreviation_$tag", 'code', "fullName_$tag"], ['abbreviation', 'subjectNo', 'name']);
+        $query->select($select)->from(DB::qn('#__organizer_subjects'))
+            ->where(DB::qn('id') . ' = :subjectID')->bind(':subjectID', $resourceID, ParameterType::INTEGER);
+        DB::setQuery($query);
+
+        if (!$names = DB::loadAssoc()) {
             return '';
         }
 
@@ -130,28 +147,146 @@ class Subjects extends Curricula
     }
 
     /**
+     * @inheritDoc
+     */
+    public static function getResources(): array
+    {
+        $poolID    = Input::getInt('poolID', self::NONE);
+        $programID = Input::getInt('programID', self::NONE);
+        $personID  = Input::getInt('personID', self::NONE);
+        if ($poolID === self::NONE and $programID === self::NONE and $personID === self::NONE) {
+            return [];
+        }
+
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
+
+        $subjectID = DB::qn('s.id');
+        $aliased   = [DB::qn("s.fullName_$tag", 'name')];
+        $these     = ["DISTINCT $subjectID"];
+        $those     = DB::qn(['p.surname, p.forename, p.title, p.username, s.code, s.creditPoints']);
+
+        $query->select(array_merge($these, $those, $aliased))->from(DB::qn('#__organizer_subjects', 's'))
+            ->order(DB::qn('name'))->group($subjectID);
+
+        if ($ranges = self::filterRanges()) {
+            $query->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.subjectID', 's.id'));
+
+            $count   = 1;
+            $left    = DB::qn('c.lft');
+            $right   = DB::qn('c.rgt');
+            $wherray = [];
+
+            foreach ($ranges as $range) {
+                $bLeft     = ":left$count";
+                $bRight    = ":right$count";
+                $wherray[] = "( $left >= $bLeft AND $right <= $bRight )";
+                $query->bind($bLeft, $range['lft'], ParameterType::INTEGER)->bind($bRight, $range['rgt'], ParameterType::INTEGER);
+                $count++;
+            }
+
+            $query->where('(' . implode(' OR ', $wherray) . ')');
+        }
+
+        $condition = DB::qc('sp.subjectID', 's.id');
+        $table     = DB::qn('#__organizer_subject_persons', 'sp');
+        if ($personID !== self::ALL) {
+            $query->innerJoin($table, $condition)
+                ->where("sp.personID = :personID")->bind(':personID', $personID, ParameterType::INTEGER);
+        }
+        else {
+            $coordinates = self::COORDINATES;
+            $query->leftJoin($table, $condition)
+                ->where(DB::qc('sp.role', ':roleID'))->bind(':roleID', $coordinates, ParameterType::INTEGER);
+        }
+
+        $query->leftJoin(DB::qn('#__organizer_persons', 'p'), DB::qc('p.id', 'sp.personID'));
+
+        DB::setQuery($query);
+
+        return DB::loadAssocList('id');
+    }
+
+    /**
+     * Checks whether the pool is subordinate to the selected program
+     *
+     * @param   array  $poolBoundaries     the pool's left and right values
+     * @param   array  $programBoundaries  the program's left and right values
+     *
+     * @return bool  true if the pool is subordinate to the program,
+     *                   otherwise false
+     */
+    public static function included(array $poolBoundaries, array $programBoundaries): bool
+    {
+        $first = $poolBoundaries[0];
+        $last  = end($poolBoundaries);
+
+        $leftValid  = $first['lft'] > $programBoundaries[0]['lft'];
+        $rightValid = $last['rgt'] < $programBoundaries[0]['rgt'];
+        if ($leftValid and $rightValid) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets an array modeling the attributes of the resource.
+     *
+     * @param   int  $subjectID  the id of the subject
+     *
+     * @return array
+     */
+    public static function load(int $subjectID): array
+    {
+        $table = new Tables\Subjects();
+
+        if (!$table->load($subjectID)) {
+            return [];
+        }
+
+        $eventID         = Subjects::eventID($subjectID);
+        $fieldID         = $table->fieldID ?: 0;
+        $organizationIDs = self::getOrganizationIDs($table->id);
+        $organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
+        $tag             = Application::getTag();
+
+        return [
+            'abbreviation' => $table->{"abbreviation_$tag"},
+            'bgColor'      => Fields::getColor($fieldID, $organizationID),
+            'creditPoints' => $table->creditPoints,
+            'eventID'      => $eventID,
+            'field'        => $fieldID ? Fields::getName($fieldID) : '',
+            'fieldID'      => $table->fieldID,
+            'id'           => $table->id,
+            'moduleNo'     => $table->code,
+            'name'         => $table->{"fullName_$tag"}
+        ];
+    }
+
+    /**
      * Retrieves the persons associated with a given subject and their respective roles for it.
      *
      * @param   int  $subjectID  the id of the subject with which the persons must be associated
-     * @param   int  $role       the role to be filtered against default none
+     * @param   int  $roleID     the role to be filtered against default none
      *
      * @return array the persons associated with the subject, empty if none were found.
      */
-    public static function getPersons(int $subjectID, int $role = 0): array
+    public static function persons(int $subjectID, int $roleID = 0): array
     {
-        $query = Database::getQuery();
-        $query->select('p.id, p.surname, p.forename, p.title, sp.role')
-            ->from('#__organizer_persons AS p')
-            ->innerJoin('#__organizer_subject_persons AS sp ON sp.personID = p.id')
-            ->where("sp.subjectID = $subjectID");
+        $query = DB::getQuery();
+        $query->select(DB::qn(['p.id', 'p.surname', 'p.forename', 'p.title', 'sp.role']))
+            ->from(DB::qn('#__organizer_persons', 'p'))
+            ->innerJoin(DB::qn('#__organizer_subject_persons', 'sp'), DB::qc('sp.personID', 'p.id'))
+            ->where(DB::qn('sp.subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER);
 
-        if ($role) {
-            $query->where("sp.role = $role");
+        if ($roleID) {
+            $query->where(DB::qn('sp.role') . ' = :roleID')->bind(':roleID', $roleID, ParameterType::INTEGER);
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (!$results = Database::loadAssocList()) {
+        if (!$results = DB::loadAssocList()) {
             return [];
         }
 
@@ -184,9 +319,9 @@ class Subjects extends Curricula
      *
      * @return array|array[] the associated program names
      */
-    public static function getPools(int $subjectID): array
+    public static function pools(int $subjectID): array
     {
-        return Pools::getRanges(self::getRanges($subjectID));
+        return Pools::ranges(self::ranges($subjectID));
     }
 
     /**
@@ -196,9 +331,9 @@ class Subjects extends Curricula
      *
      * @return int[] the associated prerequisites
      */
-    public static function getPostrequisites(int $subjectID): array
+    public static function postrequisites(int $subjectID): array
     {
-        return self::getRequisites($subjectID, 'post');
+        return self::requisites($subjectID, 'post');
     }
 
     /**
@@ -208,28 +343,29 @@ class Subjects extends Curricula
      *
      * @return int[] the associated prerequisites
      */
-    public static function getPrerequisites(int $subjectID): array
+    public static function prerequisites(int $subjectID): array
     {
-        return self::getRequisites($subjectID, 'pre');
+        return self::requisites($subjectID, 'pre');
     }
 
     /**
      * @inheritDoc
      */
-    public static function getRanges($identifiers): array
+    public static function ranges(array|int $identifiers): array
     {
-        if (!$identifiers or !is_numeric($identifiers)) {
+        // Signature demands allowing an array to this point.
+        if (!$identifiers or is_array($identifiers)) {
             return [];
         }
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT *')
-            ->from('#__organizer_curricula')
-            ->where("subjectID = $identifiers")
-            ->order('lft');
-        Database::setQuery($query);
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where(DB::qn('subjectID') . ' = :subjectID')->bind(':subjectID', $identifiers, ParameterType::INTEGER)
+            ->order(DB::qn('lft'));
+        DB::setQuery($query);
 
-        return Database::loadAssocList();
+        return DB::loadAssocList();
     }
 
     /**
@@ -240,7 +376,7 @@ class Subjects extends Curricula
      *
      * @return int[] the associated prerequisites
      */
-    private static function getRequisites(int $subjectID, string $direction): array
+    private static function requisites(int $subjectID, string $direction): array
     {
         if ($direction === 'pre') {
             $fromColumn = 'subjectID';
@@ -251,117 +387,15 @@ class Subjects extends Curricula
             $toColumn   = 'subjectID';
         }
 
-        $query = Database::getQuery();
-        $query->select('DISTINCT target.subjectID')
-            ->from('#__organizer_curricula AS target')
-            ->innerJoin("#__organizer_prerequisites AS p ON p.$toColumn = target.id")
-            ->innerJoin("#__organizer_curricula AS source ON source.id = p.$fromColumn")
-            ->where("source.subjectID = $subjectID");
-        Database::setQuery($query);
+        $query = DB::getQuery();
+        $query->select('DISTINCT ' . DB::qn('target.subjectID'))
+            ->from(DB::qn('#__organizer_curricula', 'target'))
+            ->innerJoin(DB::qn('#__organizer_prerequisites', 'p'), DB::qc("p.$toColumn", 'target.id'))
+            ->innerJoin(DB::qn('#__organizer_curricula', 'source'), DB::qc('source.id', "p.$fromColumn"))
+            ->where(DB::qn('source.subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER);
+        DB::setQuery($query);
 
-        return Database::loadIntColumn();
-    }
-
-    /**
-     * Gets an array modeling the attributes of the resource.
-     *
-     * @param   int  $subjectID  the id of the subject
-     *
-     * @return array
-     */
-    public static function getSubject(int $subjectID): array
-    {
-        $table = new Tables\Subjects();
-
-        if (!$table->load($subjectID)) {
-            return [];
-        }
-
-        $eventID         = Subjects::getEventID($subjectID);
-        $fieldID         = $table->fieldID ?: 0;
-        $organizationIDs = self::getOrganizationIDs($table->id);
-        $organizationID  = $organizationIDs ? $organizationIDs[0] : 0;
-        $tag             = Application::getTag();
-
-        return [
-            'abbreviation' => $table->{"abbreviation_$tag"},
-            'bgColor'      => Fields::getColor($fieldID, $organizationID),
-            'creditPoints' => $table->creditPoints,
-            'eventID'      => $eventID,
-            'field'        => $fieldID ? Fields::getName($fieldID) : '',
-            'fieldID'      => $table->fieldID,
-            'id'           => $table->id,
-            'moduleNo'     => $table->code,
-            'name'         => $table->{"fullName_$tag"}
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getResources(): array
-    {
-        $poolID    = Input::getInt('poolID', -1);
-        $programID = Input::getInt('programID', -1);
-        $personID  = Input::getInt('personID', -1);
-        if ($poolID === -1 and $programID === -1 and $personID === -1) {
-            return [];
-        }
-
-        $query = Database::getQuery();
-        $tag   = Application::getTag();
-        $query->select("DISTINCT s.id, s.fullName_$tag AS name, s.code, s.creditPoints")
-            ->select('p.surname, p.forename, p.title, p.username')
-            ->from('#__organizer_subjects AS s')
-            ->order('name')
-            ->group('s.id');
-
-        if ($ranges = self::getFilterRanges()) {
-            $query->innerJoin('#__organizer_curricula AS c ON c.subjectID = s.id');
-            $wherray = [];
-
-            foreach ($ranges as $boundaries) {
-                $wherray[] = "(c.lft >= '{$boundaries['lft']}' AND c.rgt <= '{$boundaries['rgt']}')";
-            }
-
-            $query->where('(' . implode(' OR ', $wherray) . ')');
-        }
-
-        if ($personID !== self::ALL) {
-            $query->innerJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.personID = $personID");
-        }
-        else {
-            $query->leftJoin('#__organizer_subject_persons AS sp ON sp.subjectID = s.id')->where("sp.role = '1'");
-        }
-
-        $query->leftJoin('#__organizer_persons AS p ON p.id = sp.personID');
-
-        Database::setQuery($query);
-
-        return Database::loadAssocList('id');
-    }
-
-    /**
-     * Checks whether the pool is subordinate to the selected program
-     *
-     * @param   array  $poolBoundaries     the pool's left and right values
-     * @param   array  $programBoundaries  the program's left and right values
-     *
-     * @return bool  true if the pool is subordinate to the program,
-     *                   otherwise false
-     */
-    public static function poolInProgram(array $poolBoundaries, array $programBoundaries): bool
-    {
-        $first = $poolBoundaries[0];
-        $last  = end($poolBoundaries);
-
-        $leftValid  = $first['lft'] > $programBoundaries[0]['lft'];
-        $rightValid = $last['rgt'] < $programBoundaries[0]['rgt'];
-        if ($leftValid and $rightValid) {
-            return true;
-        }
-
-        return false;
+        return DB::loadIntColumn();
     }
 
     /**
@@ -374,19 +408,23 @@ class Subjects extends Curricula
      */
     public static function teaches(int $subjectID = 0, int $personID = 0): bool
     {
-        $personID = $personID ?: Persons::getIDByUserID(Users::getID());
-        $query    = Database::getQuery();
-        $query->select('COUNT(*)')
-            ->from('#__organizer_subject_persons')
-            ->where("personID = $personID")
-            ->where("role = 2");
-
-        if ($subjectID) {
-            $query->where("subjectID = '$subjectID'");
+        if (!$personID = $personID ?: Persons::getIDByUserID(Users::getID())) {
+            return false;
         }
 
-        Database::setQuery($query);
+        $teaches = self::TEACHES;
+        $query   = DB::getQuery();
+        $query->select('COUNT(*)')
+            ->from(DB::qn('#__organizer_subject_persons'))
+            ->where(DB::qn('personID') . ' = :personID')->bind(':personID', $personID, ParameterType::INTEGER)
+            ->where(DB::qn('role') . ' = :roleID')->bind(':roleID', $teaches, ParameterType::INTEGER);
 
-        return Database::loadBool();
+        if ($subjectID) {
+            $query->where(DB::qn('subjectID') . ' = :subjectID')->bind(':subjectID', $subjectID, ParameterType::INTEGER);
+        }
+
+        DB::setQuery($query);
+
+        return DB::loadBool();
     }
 }

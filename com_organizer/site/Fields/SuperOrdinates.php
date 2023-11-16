@@ -53,8 +53,8 @@ class SuperOrdinates extends FormField
 
         // Initial program ranges are dependent on existing ranges.
         $programRanges = $resourceType === 'pool' ?
-            Helpers\Pools::getPrograms($resourceID) : Helpers\Subjects::getPrograms($resourceID);
+            Helpers\Pools::programs($resourceID) : Helpers\Subjects::programs($resourceID);
 
-        return Helpers\Pools::getSuperOptions($resourceID, $resourceType, $programRanges);
+        return Helpers\Pools::superOptions($resourceID, $resourceType, $programRanges);
     }
 }

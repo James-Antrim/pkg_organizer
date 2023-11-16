@@ -38,10 +38,10 @@ class Persons extends Associated implements Selectable
         $poolID    = Input::getInt('poolID', -1);
 
         if ($poolID > 0) {
-            $boundarySet = Pools::getRanges($poolID);
+            $boundarySet = Pools::ranges($poolID);
         }
         else {
-            $boundarySet = Programs::getRanges($programID);
+            $boundarySet = Programs::ranges($programID);
         }
 
         $query = DB::getQuery();

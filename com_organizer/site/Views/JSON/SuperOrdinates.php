@@ -29,9 +29,9 @@ class SuperOrdinates extends BaseView
 
         // Pending program ranges are dependant on selected programs.
         $programIDs    = Input::getIntCollection('curricula');
-        $programRanges = Helpers\Programs::getPrograms($programIDs);
+        $programRanges = Helpers\Programs::programs($programIDs);
 
-        $options = Helpers\Pools::getSuperOptions($subID, $type, $programRanges);
+        $options = Helpers\Pools::superOptions($subID, $type, $programRanges);
         echo json_encode(implode('', $options), JSON_UNESCAPED_UNICODE);
     }
 }

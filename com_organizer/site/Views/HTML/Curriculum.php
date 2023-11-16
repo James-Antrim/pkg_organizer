@@ -11,7 +11,7 @@
 namespace THM\Organizer\Views\HTML;
 
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Document, HTML, Text};
+use THM\Organizer\Adapters\{HTML, Text};
 use THM\Organizer\Helpers\Pools;
 
 /**
@@ -98,7 +98,7 @@ class Curriculum extends ItemView
                 $itemClass = 'item-subject';
             }
             else {
-                $crp = Pools::getCrPText($item);
+                $crp = Pools::crpText($item);
                 $url = $base . 'Subjects';
                 $url .= "&programID={$this->item['programID']}&poolID={$item['poolID']}";
 
@@ -151,7 +151,7 @@ class Curriculum extends ItemView
      */
     public function renderPanel(array $pool): void
     {
-        $crpText = Pools::getCrPText($pool);
+        $crpText = Pools::crpText($pool);
         ?>
         <div class="panel">
             <div class="panel-head">

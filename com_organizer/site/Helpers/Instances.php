@@ -48,9 +48,9 @@ class Instances extends ResourceHelper
     /**
      * Adds a delta clause for a joined table.
      *
-     * @param JDatabaseQuery $query the query to modify
-     * @param string         $alias the table alias
-     * @param string|bool    $delta string the date for the delta or bool false
+     * @param   JDatabaseQuery  $query  the query to modify
+     * @param   string          $alias  the table alias
+     * @param   string|bool     $delta  string the date for the delta or bool false
      *
      * @return void modifies the query
      */
@@ -68,9 +68,9 @@ class Instances extends ResourceHelper
     /**
      * Adds a delta clause for a joined table.
      *
-     * @param JDatabaseQuery $query      the query to modify
-     * @param string         $alias      the table alias
-     * @param array          $conditions the conditions for queries
+     * @param   JDatabaseQuery  $query       the query to modify
+     * @param   string          $alias       the table alias
+     * @param   array           $conditions  the conditions for queries
      *
      * @return void modifies the query
      */
@@ -99,8 +99,8 @@ class Instances extends ResourceHelper
     /**
      * Adds subject data to the instance.
      *
-     * @param array  &$instance the instance data
-     * @param array   $subject  the subject data
+     * @param   array  &$instance  the instance data
+     * @param   array   $subject   the subject data
      *
      * @return void modifies the instance array
      */
@@ -118,7 +118,7 @@ class Instances extends ResourceHelper
     /**
      * Calls various functions filling the properties and resources of a single instance.
      *
-     * @param array    $instance
+     * @param   array  $instance
      * @param          $conditions
      *
      * @return void modifies the instance array
@@ -136,7 +136,7 @@ class Instances extends ResourceHelper
     /**
      * Returns the number of in-person participants for the given instance.
      *
-     * @param int $instanceID
+     * @param   int  $instanceID
      *
      * @return int
      */
@@ -157,7 +157,7 @@ class Instances extends ResourceHelper
     /**
      * Gets the block associated with the instance.
      *
-     * @param int $instanceID the id of the instance
+     * @param   int  $instanceID  the id of the instance
      *
      * @return Tables\Blocks
      */
@@ -176,7 +176,7 @@ class Instances extends ResourceHelper
     /**
      * Gets the booking associated with an instance
      *
-     * @param int $instanceID the id of the instance for which to find a booking match
+     * @param   int  $instanceID  the id of the instance for which to find a booking match
      *
      * @return Tables\Bookings
      */
@@ -195,9 +195,9 @@ class Instances extends ResourceHelper
     /**
      * Gets the booking associated with an instance
      *
-     * @param int $instanceID the id of the instance for which to find a booking match
+     * @param   int  $instanceID  the id of the instance for which to find a booking match
      *
-     * @return int the id of the booking entry
+     * @return int|null the id of the booking entry
      */
     public static function getBookingID(int $instanceID): ?int
     {
@@ -210,7 +210,7 @@ class Instances extends ResourceHelper
      * Retrieves the sum of the effective capacity of physical rooms associated with concurrent instances of the same
      * block and unit as the instance identified.
      *
-     * @param int $instanceID the id of the instance
+     * @param   int  $instanceID  the id of the instance
      *
      * @return int
      */
@@ -240,7 +240,7 @@ class Instances extends ResourceHelper
     /**
      * Retrieves the
      *
-     * @param int $instanceID
+     * @param   int  $instanceID
      *
      * @return int[]
      */
@@ -301,7 +301,8 @@ class Instances extends ResourceHelper
                 $conditions['organizationIDs'] = [$organizationID];
 
                 self::setPublishingAccess($conditions);
-            } else {
+            }
+            else {
                 $conditions['showUnpublished'] = Can::administrate();
             }
 
@@ -316,7 +317,8 @@ class Instances extends ResourceHelper
             $roomID = Input::getInt('roomID');
             if ($roomIDs = $roomID ? [$roomID] : Input::getIntCollection('roomIDs')) {
                 $conditions['roomIDs'] = $roomIDs;
-            } elseif ($room = Input::getCMD('room') and $roomID = Rooms::getID($room)) {
+            }
+            elseif ($room = Input::getCMD('room') and $roomID = Rooms::getID($room)) {
                 $conditions['roomIDs'] = [$roomID];
             }
 
@@ -328,7 +330,8 @@ class Instances extends ResourceHelper
             if ($unitIDs = $unitID ? [$unitID] : Input::getIntCollection('unitIDs')) {
                 $conditions['unitIDs'] = $unitIDs;
             }
-        } elseif ($personID = Persons::getIDByUserID($conditions['userID'])) {
+        }
+        elseif ($personID = Persons::getIDByUserID($conditions['userID'])) {
             // Schedule items which have been planned for the person should appear in their schedule
             $conditions['personIDs']       = [$personID];
             $conditions['showUnpublished'] = true;
@@ -341,7 +344,7 @@ class Instances extends ResourceHelper
      * Returns the current number of participants for all concurrent instances  of the same block and unit as the given
      * instance.
      *
-     * @param int $instanceID
+     * @param   int  $instanceID
      *
      * @return int
      */
@@ -362,7 +365,7 @@ class Instances extends ResourceHelper
     /**
      * Retrieves the groupIDs associated with the instance.
      *
-     * @param int $instanceID the id of the instance
+     * @param   int  $instanceID  the id of the instance
      *
      * @return int[]
      */
@@ -416,7 +419,7 @@ class Instances extends ResourceHelper
     /**
      * Retrieves the core information for one instance.
      *
-     * @param int $instanceID the id of the instance
+     * @param   int  $instanceID  the id of the instance
      *
      * @return array an array modeling the instance
      */
@@ -473,7 +476,8 @@ class Instances extends ResourceHelper
                 'registrationType' => $eventsTable->registrationType,
                 'subjectNo'        => $eventsTable->subjectNo
             ];
-        } else {
+        }
+        else {
             $event = [
                 'campusID'         => null,
                 'deadline'         => 0,
@@ -552,7 +556,7 @@ class Instances extends ResourceHelper
     /**
      * Retrieves a list of instance IDs for instances which fulfill the requirements.
      *
-     * @param array $conditions the conditions filtering the instances
+     * @param   array  $conditions  the conditions filtering the instances
      *
      * @return int[] the ids matching the conditions
      */
@@ -570,8 +574,8 @@ class Instances extends ResourceHelper
     /**
      * Builds a general query to find instances matching the given conditions.
      *
-     * @param array $conditions the conditions for filtering the query
-     * @param int   $jump       the jump direction if applicable
+     * @param   array  $conditions  the conditions for filtering the query
+     * @param   int    $jump        the jump direction if applicable
      *
      * @return JDatabaseQuery the query object
      */
@@ -675,7 +679,8 @@ class Instances extends ResourceHelper
                     $query->innerJoin('#__organizer_instance_participants AS ipa ON ipa.instanceID = i.id')
                         ->where("ipa.participantID = $userID")
                         ->where("ipa.registered = 1");
-                } else {
+                }
+                else {
                     if ($personID = Persons::getIDByUserID($userID)) {
                         $filterOrganization = false;
                         $wherray[]          = "ipe.personID = $personID";
@@ -689,11 +694,13 @@ class Instances extends ResourceHelper
 
                     if ($wherray) {
                         $query->where('(' . implode(' OR ', $wherray) . ')');
-                    } else {
+                    }
+                    else {
                         $query->where('i.id = 0');
                     }
                 }
-            } else {
+            }
+            else {
                 $query->where('i.id = 0');
             }
         }
@@ -711,18 +718,22 @@ class Instances extends ResourceHelper
                 $query->innerJoin('#__organizer_subject_events AS se ON se.eventID = e.id')
                     ->where("se.subjectID IN ($subjectIDs)");
             }
-        } elseif (!empty($conditions['unitIDs'])) {
+        }
+        elseif (!empty($conditions['unitIDs'])) {
             $unitIDs = implode(',', $conditions['unitIDs']);
             $query->where("i.unitID IN ($unitIDs)");
-        } elseif (!empty($conditions['courseIDs'])) {
+        }
+        elseif (!empty($conditions['courseIDs'])) {
             $filterOrganization = false;
             $courseIDs          = implode(',', $conditions['courseIDs']);
             $query->where("u.courseID IN ($courseIDs)");
-        } elseif (!empty($conditions['groupIDs'])) {
+        }
+        elseif (!empty($conditions['groupIDs'])) {
             $filterOrganization = false;
             $groupIDs           = implode(',', $conditions['groupIDs']);
             $query->where("ig.groupID IN ($groupIDs)");
-        } elseif (!empty($conditions['categoryIDs'])) {
+        }
+        elseif (!empty($conditions['categoryIDs'])) {
             $categoryIDs = implode(',', $conditions['categoryIDs']);
             $query->where("g.categoryID IN ($categoryIDs)");
         }
@@ -756,7 +767,7 @@ class Instances extends ResourceHelper
      * Returns the current number of participants for all concurrent instances  of the same block and unit as the given
      * instance.
      *
-     * @param int $instanceID
+     * @param   int  $instanceID
      *
      * @return int
      */
@@ -778,7 +789,7 @@ class Instances extends ResourceHelper
     /**
      * Gets the localized name of the method associated with the instance.
      *
-     * @param int $instanceID the id of the instance
+     * @param   int  $instanceID  the id of the instance
      *
      * @return string
      */
@@ -796,7 +807,7 @@ class Instances extends ResourceHelper
     /**
      * Gets the code of the method associated with the instance.
      *
-     * @param int $instanceID the id of the instance
+     * @param   int  $instanceID  the id of the instance
      *
      * @return string
      */
@@ -814,8 +825,8 @@ class Instances extends ResourceHelper
     /**
      * Gets the localized name of the event associated with the instance and the name of the instance's method.
      *
-     * @param int  $resourceID the id of the instance
-     * @param bool $showMethod
+     * @param   int   $resourceID  the id of the instance
+     * @param   bool  $showMethod
      *
      * @return string
      */
@@ -845,7 +856,7 @@ class Instances extends ResourceHelper
     /**
      * Retrieves the
      *
-     * @param int $instanceID
+     * @param   int  $instanceID
      *
      * @return int[]
      */
@@ -863,8 +874,8 @@ class Instances extends ResourceHelper
     /**
      * Retrieves the persons actively associated with the given instance.
      *
-     * @param int $instanceID the id of the instance
-     * @param int $roleID     the id of the role the person fills
+     * @param   int  $instanceID  the id of the instance
+     * @param   int  $roleID      the id of the role the person fills
      *
      * @return int[]
      */
@@ -888,7 +899,7 @@ class Instances extends ResourceHelper
     /**
      * Returns the number of in-person participants for the given instance.
      *
-     * @param int $instanceID
+     * @param   int  $instanceID
      *
      * @return int
      */
@@ -909,8 +920,8 @@ class Instances extends ResourceHelper
     /**
      * Retrieves the role id for the given instance and person.
      *
-     * @param int $instanceID the id of the instance
-     * @param int $personID   the id of the person
+     * @param   int  $instanceID  the id of the instance
+     * @param   int  $personID    the id of the person
      *
      * @return int the id of the role
      */
@@ -928,7 +939,7 @@ class Instances extends ResourceHelper
     /**
      * Retrieves the rooms actively associated with the given instance.
      *
-     * @param int $instanceID the id of the instance
+     * @param   int  $instanceID  the id of the instance
      *
      * @return int[]
      */
@@ -949,8 +960,8 @@ class Instances extends ResourceHelper
     /**
      * Filters the person ids to view access
      *
-     * @param array &$personIDs the person ids.
-     * @param int    $userID    the id of the user whose authorizations will be checked
+     * @param   array &$personIDs  the person ids.
+     * @param   int    $userID     the id of the user whose authorizations will be checked
      *
      * @return void removes unauthorized entries from the array
      */
@@ -983,7 +994,7 @@ class Instances extends ResourceHelper
     /**
      * Searches for the next and most recent previous date where events matching the query can be found.
      *
-     * @param array $conditions the schedule configuration parameters
+     * @param   array  $conditions  the schedule configuration parameters
      *
      * @return string[] next and latest available dates
      */
@@ -1013,7 +1024,7 @@ class Instances extends ResourceHelper
     /**
      * Checks whether the instance takes place exclusively online.
      *
-     * @param int $instanceID
+     * @param   int  $instanceID
      *
      * @return int
      */
@@ -1049,9 +1060,9 @@ class Instances extends ResourceHelper
     /**
      * Check if user has a course responsibility.
      *
-     * @param int $instanceID the optional id of the course
-     * @param int $personID   the optional id of the person
-     * @param int $roleID     the optional if of the person's role
+     * @param   int  $instanceID  the optional id of the course
+     * @param   int  $personID    the optional id of the person
+     * @param   int  $roleID      the optional if of the person's role
      *
      * @return bool true if the user has a course responsibility, otherwise false
      */
@@ -1080,7 +1091,7 @@ class Instances extends ResourceHelper
     /**
      * Checks if the registrations are already at or above the sum of the effective capacity of the rooms.
      *
-     * @param int $instanceID
+     * @param   int  $instanceID
      *
      * @return bool
      */
@@ -1096,7 +1107,7 @@ class Instances extends ResourceHelper
     /**
      * Sets the instance's bookingID
      *
-     * @param array  &$instance the instance to modify
+     * @param   array  &$instance  the instance to modify
      *
      * @return void
      */
@@ -1110,7 +1121,7 @@ class Instances extends ResourceHelper
     /**
      * Sets/overwrites attributes based on subject associations.
      *
-     * @param array &$instance the array of instance attributes
+     * @param   array &$instance  the array of instance attributes
      *
      * @return void modifies the instance
      */
@@ -1137,7 +1148,7 @@ class Instances extends ResourceHelper
     /**
      * Sets the start and end date parameters and adjusts the date parameter as appropriate.
      *
-     * @param array &$parameters the parameters used for event retrieval
+     * @param   array &$parameters  the parameters used for event retrieval
      *
      * @return void modifies $parameters
      */
@@ -1154,7 +1165,8 @@ class Instances extends ResourceHelper
         if (!$displayedDay) {
             if ($reqDoW === 6) {
                 $string = '-1 day';
-            } else {
+            }
+            else {
                 $string = '+1 day';
             }
 
@@ -1163,31 +1175,14 @@ class Instances extends ResourceHelper
 
         $parameters['date'] = $date;
 
-        switch ($parameters['interval']) {
-            case 'day':
-                $dates = ['startDate' => $date, 'endDate' => $date];
-                break;
-
-            case 'half':
-                $dates = Dates::getHalfYear($date);
-                break;
-
-            case 'month':
-                $dates = Dates::getMonth($date);
-                break;
-
-            case 'quarter':
-                $dates = Dates::getQuarter($date);
-                break;
-
-            case 'term':
-                $dates = Dates::getTerm($date);
-                break;
-
-            case 'week':
-            default:
-                $dates = Dates::getWeek($date, $startDayNo, $endDayNo);
-        }
+        $dates = match ($parameters['interval']) {
+            'day' => ['startDate' => $date, 'endDate' => $date],
+            'half' => Dates::getHalfYear($date),
+            'month' => Dates::getMonth($date),
+            'quarter' => Dates::getQuarter($date),
+            'term' => Dates::getTerm($date),
+            default => Dates::getWeek($date, $startDayNo, $endDayNo),
+        };
 
         $parameters = array_merge($parameters, $dates);
     }
@@ -1195,8 +1190,8 @@ class Instances extends ResourceHelper
     /**
      * Gets the groups associated with the instance => person association.
      *
-     * @param array &$person     the array of person attributes
-     * @param array  $conditions the conditions which instances must fulfill
+     * @param   array &$person      the array of person attributes
+     * @param   array  $conditions  the conditions which instances must fulfill
      *
      * @return void modifies $person
      */
@@ -1255,7 +1250,7 @@ class Instances extends ResourceHelper
      * - 'interested' - the number of users who have added this instance to their schedule
      * - 'registered' - the user has registered to physically participate in the instance
      *
-     * @param array $instance the array containing instance information
+     * @param   array  $instance  the array containing instance information
      *
      * @return void
      */
@@ -1298,8 +1293,8 @@ class Instances extends ResourceHelper
     /**
      * Gets the persons and person associated resources associated with the instance.
      *
-     * @param array &$instance   the array of instance attributes
-     * @param array  $conditions the conditions which instances must fulfill
+     * @param   array &$instance    the array of instance attributes
+     * @param   array  $conditions  the conditions which instances must fulfill
      *
      * @return void modifies the instance array
      */
@@ -1351,7 +1346,7 @@ class Instances extends ResourceHelper
     /**
      * Set the display of unpublished instances according to the user's access rights
      *
-     * @param array &$conditions the conditions for instance retrieval
+     * @param   array &$conditions  the conditions for instance retrieval
      *
      * @return void
      */
@@ -1364,7 +1359,8 @@ class Instances extends ResourceHelper
         // If the user has planning access to all requested organizations show unpublished automatically.
         if ($overlapCount and $overlapCount == count($conditions['organizationIDs'])) {
             $conditions['showUnpublished'] = true;
-        } else {
+        }
+        else {
             $conditions['showUnpublished'] = false;
         }
     }
@@ -1372,8 +1368,8 @@ class Instances extends ResourceHelper
     /**
      * Gets the rooms associated with the instance => person association.
      *
-     * @param array &$person     the array of person attributes
-     * @param array  $conditions the conditions which instances must fulfill
+     * @param   array &$person      the array of person attributes
+     * @param   array  $conditions  the conditions which instances must fulfill
      *
      * @return void modifies $person
      */
@@ -1403,7 +1399,8 @@ class Instances extends ResourceHelper
 
             if (!empty($room['campusLocation'])) {
                 $campus = $room['campusLocation'];
-            } elseif (!empty($room['defaultLocation'])) {
+            }
+            elseif (!empty($room['defaultLocation'])) {
                 $campus = $room['defaultLocation'];
             }
 
@@ -1426,8 +1423,8 @@ class Instances extends ResourceHelper
     /**
      * Sets/overwrites attributes based on subject associations.
      *
-     * @param array &$instance   the instance
-     * @param array  $conditions the conditions used to specify the instances
+     * @param   array &$instance    the instance
+     * @param   array  $conditions  the conditions used to specify the instances
      *
      * @return void modifies the instance
      */
@@ -1464,7 +1461,7 @@ class Instances extends ResourceHelper
         // Which programs are associated with which subjects
         $programMap = [];
         foreach ($subjects as $key => $subject) {
-            foreach (Subjects::getPrograms($subject['id']) as $program) {
+            foreach (Subjects::programs($subject['id']) as $program) {
                 $programMap[$program['programID']] = $key;
             }
         }
@@ -1473,7 +1470,8 @@ class Instances extends ResourceHelper
         $categoryIDs = [];
         if (!empty($conditions['categoryIDs'])) {
             $categoryIDs = $conditions['categoryIDs'];
-        } elseif (!empty($conditions['groupIDs'])) {
+        }
+        elseif (!empty($conditions['groupIDs'])) {
             foreach ($conditions['groupIDs'] as $groupID) {
                 $categoryID               = Groups::getCategoryID($groupID);
                 $categoryIDs[$categoryID] = $categoryID;
@@ -1503,8 +1501,8 @@ class Instances extends ResourceHelper
     /**
      * Check if person is associated with an instance as a teacher.
      *
-     * @param int $instanceID the optional id of the instance
-     * @param int $personID   the optional id of the person
+     * @param   int  $instanceID  the optional id of the instance
+     * @param   int  $personID    the optional id of the person
      *
      * @return bool true if the person is an instance teacher, otherwise false
      */
@@ -1516,7 +1514,7 @@ class Instances extends ResourceHelper
     /**
      * Updates participation numbers for a single instance.
      *
-     * @param int $instanceID
+     * @param   int  $instanceID
      *
      * @return void
      */

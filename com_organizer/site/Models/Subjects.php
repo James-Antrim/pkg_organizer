@@ -69,7 +69,7 @@ class Subjects extends ListModel
         $role = Input::getParams()->get('role', 1);
 
         foreach ($items as $item) {
-            $item->persons = Helpers\Subjects::getPersons($item->id, $role);
+            $item->persons = Helpers\Subjects::persons($item->id, $role);
         }
 
         return $items;
@@ -224,12 +224,12 @@ class Subjects extends ListModel
                 }
 
                 if ($programID) {
-                    if (!$prRanges = Helpers\Programs::getRanges($programID)) {
+                    if (!$prRanges = Helpers\Programs::ranges($programID)) {
                         return;
                     }
 
-                    if (!$plRanges = Helpers\Pools::getRanges($poolID)
-                        or !Helpers\Subjects::poolInProgram($plRanges, $prRanges)) {
+                    if (!$plRanges = Helpers\Pools::ranges($poolID)
+                        or !Helpers\Subjects::included($plRanges, $prRanges)) {
                         $this->state->set('filter.poolID', self::ALL);
                         $this->state->set('filter.programID', $programID);
 
@@ -288,7 +288,7 @@ class Subjects extends ListModel
         // The existence of a program id precludes the pool having been called directly
         if ($programID) {
             // None has already been eliminated => the chosen program is invalid => allow reset
-            if (!$prRanges = Helpers\Programs::getRanges($programID)) {
+            if (!$prRanges = Helpers\Programs::ranges($programID)) {
                 return;
             }
 
@@ -296,8 +296,8 @@ class Subjects extends ListModel
             $this->state->set('filter.programID', $programID);
 
             // Pool is invalid or invalid for the chosen program context
-            if (!$plRanges = Helpers\Pools::getRanges($poolID)
-                or !Helpers\Subjects::poolInProgram($plRanges, $prRanges)) {
+            if (!$plRanges = Helpers\Pools::ranges($poolID)
+                or !Helpers\Subjects::included($plRanges, $prRanges)) {
                 return;
             }
 

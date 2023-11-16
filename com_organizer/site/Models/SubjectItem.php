@@ -30,7 +30,7 @@ class SubjectItem extends ItemModel
             return [];
         }
 
-        $query = Database::getQuery(true);
+        $query = Database::getQuery();
         $tag   = Application::getTag();
         $query->select("f.name_$tag AS availability, bonusPoints, content_$tag AS content, creditPoints")
             ->select("description_$tag AS description, duration, expenditure, expertise, expertise_$tag AS exText")
@@ -147,69 +147,69 @@ class SubjectItem extends ItemModel
         $url    = '?option=com_organizer&view=SubjectItem&id=';
 
         return [
-            'subjectID' => Input::getID(),
-            'name' => ['label' => Text::_($option . 'NAME'), 'type' => 'text'],
+            'subjectID'                => Input::getID(),
+            'name'                     => ['label' => Text::_($option . 'NAME'), 'type' => 'text'],
 
             // Persons
-            'coordinators' => ['label' => Text::_($option . 'SUBJECT_COORDINATOR'), 'type' => 'list'],
-            'persons' => ['label' => Text::_($option . 'TEACHERS'), 'type' => 'list'],
+            'coordinators'             => ['label' => Text::_($option . 'SUBJECT_COORDINATOR'), 'type' => 'list'],
+            'persons'                  => ['label' => Text::_($option . 'TEACHERS'), 'type' => 'list'],
 
             // Prerequisites
-            'prerequisites' => ['label' => Text::_($option . 'PREREQUISITES_LONG'), 'type' => 'text'],
-            'preRequisiteModules' => [
+            'prerequisites'            => ['label' => Text::_($option . 'PREREQUISITES_LONG'), 'type' => 'text'],
+            'preRequisiteModules'      => [
                 'label' => Text::_($option . 'PREREQUISITE_MODULES'),
-                'type' => 'list',
-                'url' => $url
+                'type'  => 'list',
+                'url'   => $url
             ],
             'recommendedPrerequisites' => [
                 'label' => Text::_($option . 'RECOMMENDED_PREREQUISITES_LONG'),
-                'type' => 'text'
+                'type'  => 'text'
             ],
 
             // Descriptive texts
-            'description' => ['label' => Text::_($option . 'SHORT_DESCRIPTION'), 'type' => 'text'],
-            'content' => ['label' => Text::_($option . 'CONTENT'), 'type' => 'text'],
-            'objective' => ['label' => Text::_($option . 'OBJECTIVES'), 'type' => 'text'],
-            'expertise' => ['label' => Text::_($option . 'EXPERTISE'), 'type' => 'star'],
-            'methodCompetence' => ['label' => Text::_($option . 'METHOD_COMPETENCE'), 'type' => 'star'],
-            'socialCompetence' => ['label' => Text::_($option . 'SOCIAL_COMPETENCE'), 'type' => 'star'],
-            'selfCompetence' => ['label' => Text::_($option . 'SELF_COMPETENCE'), 'type' => 'star'],
+            'description'              => ['label' => Text::_($option . 'SHORT_DESCRIPTION'), 'type' => 'text'],
+            'content'                  => ['label' => Text::_($option . 'CONTENT'), 'type' => 'text'],
+            'objective'                => ['label' => Text::_($option . 'OBJECTIVES'), 'type' => 'text'],
+            'expertise'                => ['label' => Text::_($option . 'EXPERTISE'), 'type' => 'star'],
+            'methodCompetence'         => ['label' => Text::_($option . 'METHOD_COMPETENCE'), 'type' => 'star'],
+            'socialCompetence'         => ['label' => Text::_($option . 'SOCIAL_COMPETENCE'), 'type' => 'star'],
+            'selfCompetence'           => ['label' => Text::_($option . 'SELF_COMPETENCE'), 'type' => 'star'],
 
             // Hard attributes
-            'creditPoints' => ['label' => Text::_($option . 'CREDIT_POINTS'), 'type' => 'list'],
-            'method' => ['label' => Text::_($option . 'METHOD'), 'type' => 'list'],
-            'pools' => [
+            'creditPoints'             => ['label' => Text::_($option . 'CREDIT_POINTS'), 'type' => 'list'],
+            'method'                   => ['label' => Text::_($option . 'METHOD'), 'type' => 'list'],
+            'pools'                    => [
                 'label' => Text::_($option . 'SUBJECT_ITEM_SEMESTER'),
-                'type' => 'list'
+                'type'  => 'list'
             ],
-            'duration' => ['label' => Text::_($option . 'DURATION'), 'type' => 'text'],
-            'availability' => ['label' => Text::_($option . 'AVAILABILITY'), 'type' => 'text'],
-            'language' => ['label' => Text::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
+            'duration'                 => ['label' => Text::_($option . 'DURATION'), 'type' => 'text'],
+            'availability'             => ['label' => Text::_($option . 'AVAILABILITY'), 'type' => 'text'],
+            'language'                 => ['label' => Text::_($option . 'INSTRUCTION_LANGUAGE'), 'type' => 'text'],
 
             // Testing
-            'preliminaryWork' => ['label' => Text::_($option . 'PRELIMINARY_WORK'), 'type' => 'text'],
-            'bonusPoints' => ['label' => Text::_($option . 'BONUS_POINTS'), 'type' => 'text'],
-            'proof' => ['label' => Text::_($option . 'PROOF'), 'type' => 'text'],
-            'evaluation' => [
+            'preliminaryWork'          => ['label' => Text::_($option . 'PRELIMINARY_WORK'), 'type' => 'text'],
+            'bonusPoints'              => ['label' => Text::_($option . 'BONUS_POINTS'), 'type' => 'text'],
+            'proof'                    => ['label' => Text::_($option . 'PROOF'), 'type' => 'text'],
+            'evaluation'               => [
                 'label' => Text::_($option . 'EVALUATION'),
-                'type' => 'text',
+                'type'  => 'text',
                 'value' => Text::_('ORGANIZER_EVALUATION_TEXT')
             ],
 
             // Prerequisite for
-            'use' => [
+            'use'                      => [
                 'label' => Text::_($option . 'PREREQUISITE_FOR'),
-                'type' => 'text',
+                'type'  => 'text',
                 'value' => Text::_('ORGANIZER_USE_TEXT')
             ],
-            'postRequisiteModules' => [
+            'postRequisiteModules'     => [
                 'label' => Text::_($option . 'POSTREQUISITE_MODULES'),
-                'type' => 'list',
-                'url' => $url
+                'type'  => 'list',
+                'url'   => $url
             ],
 
             // Other
-            'literature' => ['label' => Text::_($option . 'LITERATURE'), 'type' => 'text']
+            'literature'               => ['label' => Text::_($option . 'LITERATURE'), 'type' => 'text']
         ];
     }
 
@@ -224,14 +224,14 @@ class SubjectItem extends ItemModel
     /**
      * Loads an array of names and links into the subject model for subjects for which this subject is a prerequisite.
      *
-     * @param array  &$subject the object containing subject data
+     * @param   array  &$subject  the object containing subject data
      *
      * @return void
      */
     private function setDependencies(array &$subject)
     {
         $subjectID = $subject['subjectID'];
-        $programs  = Helpers\Subjects::getPrograms($subjectID);
+        $programs  = Helpers\Subjects::programs($subjectID);
         $query     = Database::getQuery();
         $tag       = Application::getTag();
         $query->select('DISTINCT pr.id AS id')
@@ -247,7 +247,7 @@ class SubjectItem extends ItemModel
 
         foreach ($programs as $program) {
             if (!$level) {
-                $level = Helpers\Programs::getLevel($program['programID']);
+                $level = Helpers\Programs::level($program['programID']);
             }
 
             $query->clear('where');
@@ -276,7 +276,8 @@ class SubjectItem extends ItemModel
                     $name .= empty($dependency['postModuleNumber']) ? '' : " ({$dependency['postModuleNumber']})";
 
                     $subject['postRequisiteModules']['value'][$programName][$dependency['postID']] = $name;
-                } else {
+                }
+                else {
                     if (empty($subject['preRequisiteModules']['value'])) {
                         $subject['preRequisiteModules']['value'] = [];
                     }
@@ -311,56 +312,32 @@ class SubjectItem extends ItemModel
     /**
      * Creates a textual output for the language of instruction.
      *
-     * @param array &$subject the object containing subject data
+     * @param   array &$subject  the object containing subject data
      *
      * @return void  sets values in the references object
      */
-    private function setLanguage(array &$subject)
+    private function setLanguage(array &$subject): void
     {
-        switch (strtoupper((string) $subject['language']['value'])) {
-            case 'A':
-                $subject['language']['value'] = Text::_('ORGANIZER_ARABIAN');
-                break;
-            case 'C':
-                $subject['language']['value'] = Text::_('ORGANIZER_CHINESE');
-                break;
-            case 'E':
-                $subject['language']['value'] = Text::_('ORGANIZER_ENGLISH');
-                break;
-            case 'F':
-                $subject['language']['value'] = Text::_('ORGANIZER_FRENCH');
-                break;
-            case 'G':
-                $subject['language']['value'] = Text::_('ORGANIZER_GREEK');
-                break;
-            case 'I':
-                $subject['language']['value'] = Text::_('ORGANIZER_ITALIAN');
-                break;
-            case 'J':
-                $subject['language']['value'] = Text::_('ORGANIZER_JAPANESE');
-                break;
-            case 'K':
-                $subject['language']['value'] = Text::_('ORGANIZER_KOREAN');
-                break;
-            case 'P':
-                $subject['language']['value'] = Text::_('ORGANIZER_POLISH');
-                break;
-            case 'S':
-                $subject['language']['value'] = Text::_('ORGANIZER_SPANISH');
-                break;
-            case 'T':
-                $subject['language']['value'] = Text::_('ORGANIZER_TURKISH');
-                break;
-            case 'D':
-            default:
-                $subject['language']['value'] = Text::_('ORGANIZER_GERMAN');
-        }
+        $subject['language']['value'] = match (strtoupper((string) $subject['language']['value'])) {
+            'A' => Text::_('ARABIAN'),
+            'C' => Text::_('CHINESE'),
+            'E' => Text::_('ENGLISH'),
+            'F' => Text::_('FRENCH'),
+            'G' => Text::_('GREEK'),
+            'I' => Text::_('ITALIAN'),
+            'J' => Text::_('JAPANESE'),
+            'K' => Text::_('KOREAN'),
+            'P' => Text::_('POLISH'),
+            'S' => Text::_('SPANISH'),
+            'T' => Text::_('TURKISH'),
+            default => Text::_('GERMAN'),
+        };
     }
 
     /**
      * Loads an array of names and links into the subject model for subjects for which this subject is a prerequisite.
      *
-     * @param array &$subject the object containing subject data
+     * @param   array &$subject  the object containing subject data
      *
      * @return void
      */
@@ -383,7 +360,8 @@ class SubjectItem extends ItemModel
 
             if ($person['role'] == '1') {
                 $coordinators[$person['id']] = $name;
-            } else {
+            }
+            else {
                 $persons[$person['id']] = $name;
             }
         }
@@ -400,16 +378,16 @@ class SubjectItem extends ItemModel
     /**
      * Sets the pools to which the subject is assigned.
      *
-     * @param array  &$subject
+     * @param   array  &$subject
      *
      * @return void
      */
     private function setPools(array &$subject)
     {
         $programs   = [];
-        $poolRanges = Helpers\Subjects::getPools($subject['subjectID']);
+        $poolRanges = Helpers\Subjects::pools($subject['subjectID']);
 
-        foreach (Helpers\Subjects::getPrograms($subject['subjectID']) as $prRange) {
+        foreach (Helpers\Subjects::programs($subject['subjectID']) as $prRange) {
             $program         = Helpers\Programs::getName($prRange['programID']);
             $semesterNumbers = [];
 
@@ -420,7 +398,7 @@ class SubjectItem extends ItemModel
 
                 $pool = strtolower(Helpers\Pools::getFullName($poRange['poolID']));
 
-                if (strpos($pool, 'semester') === false) {
+                if (!str_contains($pool, 'semester')) {
                     continue;
                 }
 
@@ -443,7 +421,8 @@ class SubjectItem extends ItemModel
                 if ($first !== $last) {
                     $suffix   = Text::_('ORGANIZER_SEMESTERS');
                     $semester = $tag === 'en' ? "$first - $last $suffix" : "$first. - $last. $suffix";
-                } else {
+                }
+                else {
                     $suffix   = Text::_('ORGANIZER_SEMESTER');
                     $semester = $tag === 'en' ? "$first $suffix" : "$first. $suffix";
                 }

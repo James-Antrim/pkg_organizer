@@ -15,13 +15,16 @@ use THM\Organizer\Adapters\Input;
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables\Curricula;
 
+/**
+ * Class has functions common to subordinate curriculum resources.
+ */
 trait SubOrdinate
 {
     /**
      * Adds ranges for the resource to the given superordinate ranges.
      *
-     * @param array $data           the resource data from the form
-     * @param array $superOrdinates the valid superordinate ranges to which to create/validate ranges within
+     * @param   array  $data            the resource data from the form
+     * @param   array  $superOrdinates  the valid superordinate ranges to which to create/validate ranges within
      *
      * @return bool
      */
@@ -32,7 +35,7 @@ trait SubOrdinate
         $resourceID   = $this->resource . 'ID';
 
         $range = [
-            $resourceID => $data['id'],
+            $resourceID  => $data['id'],
             'curriculum' => $existingPool ? $this->getSubOrdinates() : []
         ];
 
@@ -70,7 +73,7 @@ trait SubOrdinate
      * Performs checks to ensure that a superordinate item has been selected as a precursor to the rest of the
      * curriculum processing.
      *
-     * @param array $data the form data
+     * @param   array  $data  the form data
      *
      * @return array[] the applicable superordinate ranges
      */
@@ -102,7 +105,7 @@ trait SubOrdinate
         // Retrieve the program context ranges for sanity checks on pool ranges
         $programRanges = [];
         foreach ($data['curricula'] as $programID) {
-            if ($ranges = Helpers\Programs::getRanges($programID)) {
+            if ($ranges = Helpers\Programs::ranges($programID)) {
                 $programRanges[$programID] = $ranges[0];
             }
         }
@@ -132,7 +135,7 @@ trait SubOrdinate
                 continue;
             }
 
-            foreach (Helpers\Pools::getRanges($table->poolID) as $poolRange) {
+            foreach (Helpers\Pools::ranges($table->poolID) as $poolRange) {
                 foreach ($programRanges as $programRange) {
                     // Pool range is a valid subset of the program context range
                     if ($poolRange['lft'] > $programRange['lft'] and $poolRange['rgt'] < $programRange['rgt']) {
@@ -148,8 +151,8 @@ trait SubOrdinate
     /**
      * Removes resource ranges not subordinate to the given superordinate elements.
      *
-     * @param int   $resourceID     the resource id
-     * @param array $superOrdinates the valid superordinate ranges
+     * @param   int    $resourceID      the resource id
+     * @param   array  $superOrdinates  the valid superordinate ranges
      *
      * @return void removes deprecated ranges from the database
      */

@@ -45,7 +45,7 @@ class Prerequisites extends DependencyOptions
     protected function getOptions(): array
     {
         $subjectID = Input::getID();
-        $values    = Helpers\Subjects::getPrerequisites($subjectID);
+        $values    = Helpers\Subjects::prerequisites($subjectID);
 
         $selected = empty($values) ? ' selected' : '';
         $text     = Text::_('NO_PREREQUISITES');

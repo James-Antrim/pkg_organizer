@@ -95,10 +95,10 @@ class Fields extends ResourceHelper implements Selectable
         $ranges = [];
 
         if ($poolID = Input::getFilterID('pool') ? Input::getFilterID('pool') : Input::getInt('poolID')) {
-            $ranges = Pools::getSubjects($poolID);
+            $ranges = Pools::subjects($poolID);
         }
         elseif ($programID = Input::getFilterID('program') ? Input::getFilterID('program') : Input::getInt('programID')) {
-            $ranges = Programs::getSubjects($programID);
+            $ranges = Programs::subjects($programID);
         }
 
         if ($ranges and $fieldIDs = self::getRelevantIDs($ranges)) {

@@ -28,11 +28,11 @@ abstract class DependencyOptions extends Options
      */
     protected function getDependencyOptions(int $subjectID, array $values): array
     {
-        $programs = Helpers\Subjects::getPrograms($subjectID);
+        $programs = Helpers\Subjects::programs($subjectID);
         $options  = [];
 
         foreach ($programs as $programRange) {
-            if ($subjectRanges = Helpers\Programs::getSubjects($programRange['programID'])) {
+            if ($subjectRanges = Helpers\Programs::subjects($programRange['programID'])) {
                 foreach ($subjectRanges as $subjectRange) {
                     $rSubjectID = (int) $subjectRange['subjectID'];
 

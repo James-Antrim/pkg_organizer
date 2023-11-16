@@ -26,11 +26,11 @@ class Attendance extends ListLayout
     protected $view;
 
     protected $widths = [
-        'index' => 10,
-        'name' => 55,
+        'index'        => 10,
+        'name'         => 55,
         'organization' => 25,
-        'program' => 85,
-        'room' => 15
+        'program'      => 85,
+        'room'         => 15
     ];
 
     /**
@@ -42,11 +42,11 @@ class Attendance extends ListLayout
         $view->margins(10, 30, -1, 0, 8);
 
         $this->headers = [
-            'index' => '#',
-            'name' => 'Name',
+            'index'        => '#',
+            'name'         => 'Name',
             'organization' => Text::_('ORGANIZER_ORGANIZATION'),
-            'program' => Text::_('ORGANIZER_PROGRAM'),
-            'room' => Text::_('ORGANIZER_ROOM')
+            'program'      => Text::_('ORGANIZER_PROGRAM'),
+            'room'         => Text::_('ORGANIZER_ROOM')
         ];
 
         // Adjust for more information
@@ -74,26 +74,14 @@ class Attendance extends ListLayout
             $startY    = $view->GetY();
 
             foreach (array_keys($this->headers) as $columnName) {
-                switch ($columnName) {
-                    case 'index':
-                        $value = $itemNo;
-                        break;
-                    case 'name':
-                        $value = empty($participant->forename) ?
-                            $participant->surname : "$participant->surname,  $participant->forename";
-                        break;
-                    case 'organization':
-                        // The participant may not be associated with a program => cast to int to prevent null
-                        $value = Helpers\Programs::getOrganization((int) $participant->programID, true);
-                        break;
-                    case 'program':
-                        // The participant may not be associated with a program => cast to int to prevent null
-                        $value = Helpers\Programs::getName((int) $participant->programID);
-                        break;
-                    default:
-                        $value = '';
-                        break;
-                }
+                $value = match ($columnName) {
+                    'index' => $itemNo,
+                    'name' => empty($participant->forename) ?
+                        $participant->surname : "$participant->surname,  $participant->forename",
+                    'organization' => Helpers\Programs::organization((int) $participant->programID, true),
+                    'program' => Helpers\Programs::getName((int) $participant->programID),
+                    default => '',
+                };
 
                 $length = $view->renderMultiCell($this->widths[$columnName], 5, $value);
 

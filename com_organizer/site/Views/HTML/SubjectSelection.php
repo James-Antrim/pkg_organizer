@@ -10,8 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Application, Document, HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -49,7 +48,7 @@ class SubjectSelection extends ListView
             $structuredItems[$index]             = [];
             $structuredItems[$index]['checkbox'] = HTML::checkBox($index, $subject->id);
             $structuredItems[$index]['name']     = $name;
-            $structuredItems[$index]['programs'] = Helpers\Subjects::getProgramName($subject->id);
+            $structuredItems[$index]['programs'] = Helpers\Subjects::programName($subject->id);
 
             $index++;
         }

@@ -12,8 +12,9 @@ namespace THM\Organizer\Helpers;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database as DB, HTML, Input, Text};
+use Joomla\Database\ParameterType;
 use THM\Organizer\Models;
-use THM\Organizer\Tables;
+use THM\Organizer\Tables\{Participants, Programs as Table};
 
 /**
  * Provides general functions for program access checks, data retrieval and display.
@@ -33,7 +34,7 @@ class Programs extends Curricula implements Selectable
      */
     public static function create(array $programData, string $initialName, int $categoryID): int
     {
-        $programTable = new Tables\Programs();
+        $programTable = new Table();
         if ($programTable->load($programData)) {
             return $programTable->id;
         }
@@ -54,41 +55,16 @@ class Programs extends Curricula implements Selectable
     }
 
     /**
-     * Gets an HTML option based upon a program curriculum association
-     *
-     * @param   array   $range      the program curriculum range
-     * @param   array   $parentIDs  the selected parents
-     * @param   string  $type       the resource type of the form
-     *
-     * @return string  HTML option
-     */
-    public static function getCurricularOption(array $range, array $parentIDs, string $type): string
-    {
-        $query = self::getQuery();
-        $query->where("p.id = {$range['programID']}");
-        DB::setQuery($query);
-
-        if (!$program = DB::loadAssoc()) {
-            return '';
-        }
-
-        $selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
-        $disabled = $type === 'pool' ? '' : 'disabled';
-
-        return "<option value='{$range['id']}' $selected $disabled>{$program['name']}</option>";
-    }
-
-    /**
      * Retrieves the id of the degree associated with the program.
      *
      * @param   int  $programID
      *
      * @return int
      */
-    public static function getDegreeID(int $programID): int
+    public static function degreeID(int $programID): int
     {
         $degreeID = 0;
-        $program  = new Tables\Programs();
+        $program  = new Table();
 
         if ($program->load($programID)) {
             $degreeID = $program->degreeID;
@@ -98,15 +74,23 @@ class Programs extends Curricula implements Selectable
     }
 
     /**
+     * @inheritDoc
+     */
+    public static function documentable(string $resource = 'program'): array
+    {
+        return parent::documentable($resource);
+    }
+
+    /**
      * Gets the programIDs for the given resource
      *
      * @param   mixed  $identifiers  int resourceID | array ranges of subordinate resources
      *
      * @return int[] the program ids
      */
-    public static function getIDs(array|int $identifiers): array
+    public static function extractIDs(array|int $identifiers): array
     {
-        if (!$ranges = self::getRanges($identifiers)) {
+        if (!$ranges = self::ranges($identifiers)) {
             return [];
         }
 
@@ -122,37 +106,39 @@ class Programs extends Curricula implements Selectable
     }
 
     /**
+     * @inheritDoc
+     */
+    public static function getName(int $resourceID): string
+    {
+        if (!$resourceID) {
+            return Text::_('NO_PROGRAM');
+        }
+
+        $query = DB::getQuery();
+        $tag   = Application::getTag();
+
+        $parts = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation'), "' '", DB::qn('p.accredited'), "')'"];
+        $query->select($query->concatenate($parts, "") . ' AS ' . DB::qn('name'))
+            ->from(DB::qn('#__organizer_programs', 'p'))
+            ->innerJoin(DB::qn('#__organizer_degrees', 'd'), DB::qc('d.id', 'p.degreeID'))
+            ->where(DB::qn('p.id') . ' = :programID')
+            ->bind(':programID', $resourceID, ParameterType::INTEGER);
+
+        DB::setQuery($query);
+
+        return DB::loadString();
+    }
+
+    /**
      * Gets the academic level of the program. (Bachelor|Master)
      *
      * @param   int  $programID  the id of the program
      *
      * @return string
      */
-    public static function getLevel(int $programID): string
+    public static function level(int $programID): string
     {
-        return Degrees::getLevel(self::getDegreeID($programID));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getName(int $resourceID): string
-    {
-        if (!$resourceID) {
-            return Text::_('ORGANIZER_NO_PROGRAM');
-        }
-
-        $query = DB::getQuery();
-        $tag   = Application::getTag();
-        $parts = ["p.name_$tag", "' ('", 'd.abbreviation', "' '", 'p.accredited', "')'"];
-        $query->select($query->concatenate($parts, "") . ' AS name')
-            ->from('#__organizer_programs AS p')
-            ->innerJoin('#__organizer_degrees AS d ON d.id = p.degreeID')
-            ->where("p.id = $resourceID");
-
-        DB::setQuery($query);
-
-        return DB::loadString();
+        return Degrees::getLevel(self::degreeID($programID));
     }
 
     /**
@@ -173,31 +159,51 @@ class Programs extends Curricula implements Selectable
     }
 
     /**
-     * Retrieves the organizationIDs associated with the program
+     * @inheritDoc
      *
-     * @param   int   $programID  the table id for the program
-     * @param   bool  $short      whether to display an abbreviated version of fhe organization name
-     *
-     * @return string the organization associated with the program's documentation
+     * @param   string  $access  any access restriction which should be performed
      */
-    public static function getOrganization(int $programID, bool $short = false): string
+    public static function getResources(string $access = ''): array
     {
-        if (!$organizationIDs = self::getOrganizationIDs($programID)) {
-            return Text::_('ORGANIZER_NO_ORGANIZATION');
+        $query = self::query();
+        $query->select(DB::qn('d.abbreviation', 'degree'))
+            ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qc('c.programID', 'p.id'))
+            ->order(DB::qn('name'));
+
+        if ($access) {
+            self::filterAccess($query, $access, 'program', 'p');
         }
 
-        if (count($organizationIDs) > 1) {
-            return Text::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
+        self::filterOrganizations($query, 'program', 'p');
+
+        if (self::useCurrent()) {
+            $tag = Application::getTag();
+
+            $conditions = DB::qcs([
+                ["grouped.name_$tag", "p.name_$tag"],
+                ['grouped.degreeID', 'p.degreeID'],
+                ['grouped.accredited', 'p.accredited'],
+            ]);
+
+            $p2id   = DB::qn('p2.degreeID');
+            $p2Name = DB::qn("p2.name_$tag");
+            $select = [$p2Name, $p2id, 'MAX(' . DB::qn('p2.accredited') . ') AS ' . DB::qn('accredited')];
+
+            $join = DB::getQuery()->select($select)->from(DB::qn('#__organizer_programs', 'p2'))->group([$p2Name, 'p2.degreeID']);
+
+            $query->innerJoin("($join) AS " . DB::qn('grouped'), $conditions);
         }
 
-        return $short ? Organizations::getShortName($organizationIDs[0]) : Organizations::getName($organizationIDs[0]);
+        DB::setQuery($query);
+
+        return DB::loadAssocList('id');
     }
 
     /**
      * Creates a basic query for program related items.
      * @return DatabaseQuery
      */
-    public static function getQuery(): DatabaseQuery
+    public static function query(): DatabaseQuery
     {
         $tag   = Application::getTag();
         $start = [DB::qn("p.name_$tag"), "' ('", DB::qn('d.abbreviation')];
@@ -220,26 +226,24 @@ class Programs extends Curricula implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getRanges($identifiers): array
+    public static function ranges(array|int $identifiers): array
     {
-        if (!$identifiers or (!is_numeric($identifiers) and !is_array($identifiers))) {
+        if (!$identifiers or $identifiers === self::NONE) {
             return [];
         }
 
-        $query = DB::getQuery();
+        $programID = DB::qn('programID');
+        $query     = DB::getQuery();
         $query->select('DISTINCT *')
-            ->from('#__organizer_curricula')
-            ->where('programID IS NOT NULL ')
-            ->order('lft');
+            ->from(DB::qn('#__organizer_curricula'))
+            ->where("$programID IS NOT NULL")
+            ->order(DB::qn('lft'));
 
         if (is_array($identifiers)) {
             self::filterSuperOrdinate($query, $identifiers);
         }
         else {
-            $programID = (int) $identifiers;
-            if ($identifiers != self::NONE) {
-                $query->where("programID = $programID");
-            }
+            $query->where("$programID = :programID")->bind(':programID', $identifiers, ParameterType::INTEGER);
         }
 
         DB::setQuery($query);
@@ -248,55 +252,59 @@ class Programs extends Curricula implements Selectable
     }
 
     /**
-     * @inheritDoc
+     * Gets an HTML option based upon a program curriculum association
      *
-     * @param   string  $access  any access restriction which should be performed
+     * @param   array   $range      the program curriculum range
+     * @param   array   $parentIDs  the selected parents
+     * @param   string  $type       the resource type of the form
+     *
+     * @return string  HTML option
      */
-    public static function getResources(string $access = ''): array
+    public static function option(array $range, array $parentIDs, string $type): string
     {
-        $query = self::getQuery();
-        $query->select(DB::qn('d.abbreviation', 'degree'))
-            ->innerJoin(DB::qn('#__organizer_curricula', 'c'), DB::qn('c.programID') . ' = ' . DB::qn('p.id'))
-            ->order(DB::qn('name'));
-
-        if ($access) {
-            self::filterAccess($query, $access, 'program', 'p');
-        }
-
-        self::filterOrganizations($query, 'program', 'p');
-
-        if (self::useCurrent()) {
-            $tag = Application::getTag();
-
-            $conditions = [
-                DB::qn("grouped.name_$tag") . ' = ' . DB::qn("p.name_$tag"),
-                DB::qn('grouped.degreeID') . ' = ' . DB::qn('p.degreeID'),
-                DB::qn('grouped.accredited') . ' = ' . DB::qn('p.accredited')
-            ];
-
-            $p2id   = DB::qn('p2.degreeID');
-            $p2Name = DB::qn("p2.name_$tag");
-            $select = [$p2Name, $p2id, 'MAX(' . DB::qn('p2.accredited') . ') AS ' . DB::qn('accredited')];
-
-            $join = DB::getQuery()->select($select)->from(DB::qn('#__organizer_programs', 'p2'))->group([$p2Name, 'p2.degreeID']);
-
-            $query->innerJoin("($join) AS " . DB::qn('grouped'), $conditions);
-        }
-        echo "<pre>" . print_r((string) $query, true) . "</pre>";
-
+        $query = self::query();
+        $query->where(DB::qn('p.id') . ' = :programID')->bind(':programID', $range['programID'], ParameterType::INTEGER);
         DB::setQuery($query);
 
-        return DB::loadAssocList('id');
+        if (!$program = DB::loadAssoc()) {
+            return '';
+        }
+
+        $selected = in_array($range['id'], $parentIDs) ? 'selected' : '';
+        $disabled = $type === 'pool' ? '' : 'disabled';
+
+        return "<option value='{$range['id']}' $selected $disabled>{$program['name']}</option>";
+    }
+
+    /**
+     * Retrieves the organizationIDs associated with the program
+     *
+     * @param   int   $programID  the table id for the program
+     * @param   bool  $short      whether to display an abbreviated version of fhe organization name
+     *
+     * @return string the organization associated with the program's documentation
+     */
+    public static function organization(int $programID, bool $short = false): string
+    {
+        if (!$organizationIDs = self::getOrganizationIDs($programID)) {
+            return Text::_('NO_ORGANIZATION');
+        }
+
+        if (count($organizationIDs) > 1) {
+            return Text::_('MULTIPLE_ORGANIZATIONS');
+        }
+
+        return $short ? Organizations::getShortName($organizationIDs[0]) : Organizations::getName($organizationIDs[0]);
     }
 
     /**
      * @inheritDoc
      */
-    public static function getPrograms(array|int $identifiers): array
+    public static function programs(array|int $identifiers): array
     {
         $ranges = [];
         foreach ($identifiers as $programID) {
-            $ranges = array_merge($ranges, self::getRanges($programID));
+            $ranges = array_merge($ranges, self::ranges($programID));
         }
 
         return $ranges;
@@ -313,7 +321,7 @@ class Programs extends Curricula implements Selectable
 
         if (Input::getView() === 'participant_edit') {
             $participantID = empty($selectedIDs) ? Users::getID() : $selectedIDs[0];
-            $table         = new Tables\Participants();
+            $table         = new Participants();
 
             if (!$table->load($participantID)) {
                 $useCurrent = true;

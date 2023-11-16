@@ -245,9 +245,9 @@ class Search extends ListModel
      * Adds clauses to the room query for a max capacity or room types. Max capacity is used here for consistency with
      * room type values.
      *
-     * @param QueryMySQLi $query    the query to be modified
-     * @param int         $capacity the capacity from the terms
-     * @param int[]       $typeIDs  the resolved room type ids
+     * @param   QueryMySQLi  $query     the query to be modified
+     * @param   int          $capacity  the capacity from the terms
+     * @param   int[]        $typeIDs   the resolved room type ids
      *
      * @return void modifies the query
      */
@@ -256,9 +256,11 @@ class Search extends ListModel
         if ($capacity and $typeIDs) {
             $typeIDs = Database::makeSet($typeIDs);
             $query->where("((r.maxCapacity >= $capacity OR r.maxCapacity = 0) AND rt.id$typeIDs)");
-        } elseif ($capacity) {
+        }
+        elseif ($capacity) {
             $query->where("r.maxCapacity >= $capacity");
-        } elseif ($typeIDs) {
+        }
+        elseif ($typeIDs) {
             $query->whereIn('rt.id', $typeIDs);
         }
     }
@@ -266,13 +268,13 @@ class Search extends ListModel
     /**
      * Fills the category and program containers with identifying values.
      *
-     * @param Tables\Categories|Tables\Programs  $table      the table object
-     * @param int                                $resourceID the id of the resource
-     * @param string                             $key        the key value in the results
-     * @param string                             $term       the search term
-     * @param int[]                            & $container1 the container corresponding to the current resource
-     * @param int[]                            & $container2 the container corresponding to the related resource
-     * @param int[]                              $map        the container containing relation ids
+     * @param   Tables\Categories|Tables\Programs  $table       the table object
+     * @param   int                                $resourceID  the id of the resource
+     * @param   string                             $key         the key value in the results
+     * @param   string                             $term        the search term
+     * @param   int[]                            & $container1  the container corresponding to the current resource
+     * @param   int[]                            & $container2  the container corresponding to the related resource
+     * @param   int[]                              $map         the container containing relation ids
      *
      * @return void fills $container1 and $container2 with values
      */
@@ -284,7 +286,7 @@ class Search extends ListModel
         array &$container1,
         array &$container2,
         array $map
-    )
+    ): void
     {
         if (!$table->load($resourceID)) {
             return;
@@ -318,26 +320,26 @@ class Search extends ListModel
     /**
      * Gets dependent 'strong' group results and adds filters to the pool query.
      *
-     * @param array         $categoryIDs the ids of categories to whom found groups will be dependent
-     * @param array        &$groupIDs    the ids of the previously discovered groups
-     * @param QueryMySQLi   $groupQuery  the query for retrieving groups from the database
-     * @param array        &$items       the previously discovered search results
-     * @param array        &$poolIDs     the ids of the previously discovered pools
-     * @param QueryMySQLi   $poolQuery   the query for retrieving pools from the database
-     * @param array         $pools       the previously filtered terms related to pools
-     * @param array         $semesters   the previously filtered terms related to semesters
+     * @param   array         $categoryIDs  the ids of categories to whom found groups will be dependent
+     * @param   array        &$groupIDs     the ids of the previously discovered groups
+     * @param   QueryMySQLi   $groupQuery   the query for retrieving groups from the database
+     * @param   array        &$items        the previously discovered search results
+     * @param   array        &$poolIDs      the ids of the previously discovered pools
+     * @param   QueryMySQLi   $poolQuery    the query for retrieving pools from the database
+     * @param   array         $pools        the previously filtered terms related to pools
+     * @param   array         $semesters    the previously filtered terms related to semesters
      *
      * @return void modifies the query objects and arrays passed by reference
      */
     private function getSGResults(
-        array       $categoryIDs,
-        array       &$groupIDs,
+        array $categoryIDs,
+        array &$groupIDs,
         QueryMySQLi $groupQuery,
-        array       &$items,
-        array       &$poolIDs,
+        array &$items,
+        array &$poolIDs,
         QueryMySQLi $poolQuery,
-        array       $pools,
-        array       $semesters
+        array $pools,
+        array $semesters
     )
     {
         $groupQuery->clear('where')->whereIn('g.categoryID', $categoryIDs);
@@ -442,20 +444,20 @@ class Search extends ListModel
         }
 
         foreach ($poolTerms as $key => $term) {
-            if (strpos($term, ' ') !== false) {
+            if (str_contains($term, ' ')) {
                 unset($poolTerms[$key]);
                 continue;
             }
 
             foreach ($deNames as $deName) {
-                if (strpos($deName, $term) !== false) {
+                if (str_contains($deName, $term)) {
                     unset($poolTerms[$key]);
                     continue 2;
                 }
             }
 
             foreach ($enNames as $enName) {
-                if (strpos($enName, $term) !== false) {
+                if (str_contains($enName, $term)) {
                     unset($poolTerms[$key]);
                     continue 2;
                 }
@@ -469,26 +471,27 @@ class Search extends ListModel
      * Fills an array with filter clauses for subordinate groups & pools. Both of these resources share a large portion
      * of their name with their parent resources.
      *
-     * @param JDatabaseQuery $query     the query providing the charlength function for the clauses
-     * @param string         $subType   the type of subordinate resource being sought (group|pool)
-     * @param array          $semesters the semester terms previously parsed from the search terms
-     * @param array          $poolTerms the pool terms used in coverage checks
-     * @param float          $coverage  the percentage of the query which must be covered by pool terms for a positive
+     * @param   JDatabaseQuery  $query      the query providing the charlength function for the clauses
+     * @param   string          $subType    the type of subordinate resource being sought (group|pool)
+     * @param   array           $semesters  the semester terms previously parsed from the search terms
+     * @param   array           $poolTerms  the pool terms used in coverage checks
+     * @param   float           $coverage   the percentage of the query which must be covered by pool terms for a positive
      *
      * @return array clauses for subordinate resource filtration
      */
     private function getSubWherray(
         JDatabaseQuery $query,
-        string         $subType,
-        array          $semesters,
-        array          $poolTerms,
-        float          $coverage
+        string $subType,
+        array $semesters,
+        array $poolTerms,
+        float $coverage
     ): array
     {
         if ($subType === 'group') {
             $deColumn = Database::qn('g.name_de');
             $enColumn = Database::qn('g.name_en');
-        } else {
+        }
+        else {
             $deColumn = Database::qn('po.fullName_de');
             $enColumn = Database::qn('po.fullName_en');
         }
@@ -514,26 +517,26 @@ class Search extends ListModel
 
 
     /**
-     * @param array        &$groupIDs   the ids of the previously discovered groups
-     * @param array        &$items      the previously discovered search results
-     * @param array        &$poolIDs    the ids of the previously discovered pools
-     * @param QueryMySQLi   $poolQuery  the query for retrieving pools from the database
-     * @param array         $pools      the previously filtered terms related to pools
-     * @param array         $programIDs the ids of programs to whom found pools will be dependent
-     * @param string        $relevance  the relative strength of any results found
-     * @param array         $semesters  the previously filtered terms related to semesters
+     * @param   array        &$groupIDs    the ids of the previously discovered groups
+     * @param   array        &$items       the previously discovered search results
+     * @param   array        &$poolIDs     the ids of the previously discovered pools
+     * @param   QueryMySQLi   $poolQuery   the query for retrieving pools from the database
+     * @param   array         $pools       the previously filtered terms related to pools
+     * @param   array         $programIDs  the ids of programs to whom found pools will be dependent
+     * @param   string        $relevance   the relative strength of any results found
+     * @param   array         $semesters   the previously filtered terms related to semesters
      *
      * @return void modifies the query object and arrays passed by reference
      */
     private function getPoolResults(
-        array       &$groupIDs,
-        array       &$items,
-        array       &$poolIDs,
+        array &$groupIDs,
+        array &$items,
+        array &$poolIDs,
         QueryMySQLi $poolQuery,
-        array       $pools,
-        array       $programIDs,
-        string      $relevance,
-        array       $semesters
+        array $pools,
+        array $programIDs,
+        string $relevance,
+        array $semesters
     )
     {
         $poolQuery->clear('where')->whereIn('pr.id', $programIDs);
@@ -563,9 +566,9 @@ class Search extends ListModel
     /**
      * Creates a set of like clauses for the given column and terms.
      *
-     * @param string $column
-     * @param array  $terms
-     * @param string $glue
+     * @param   string  $column
+     * @param   array   $terms
+     * @param   string  $glue
      *
      * @return string
      */
@@ -583,8 +586,8 @@ class Search extends ListModel
     /**
      * Creates two localized sets of like clauses for the given column and terms.
      *
-     * @param string $column the unquoted column name
-     * @param array  $terms  the unquoted terms
+     * @param   string  $column  the unquoted column name
+     * @param   array   $terms   the unquoted terms
      *
      * @return string the aggregated like clause
      */
@@ -595,7 +598,8 @@ class Search extends ListModel
 
         if (!$oGlue) {
             $oGlue = $iGlue;
-        } elseif ($oGlue != $iGlue) {
+        }
+        elseif ($oGlue != $iGlue) {
             $deClause = "($deClause)";
             $enClause = "($enClause)";
         }
@@ -611,7 +615,7 @@ class Search extends ListModel
         parent::populateState();
 
         $get     = Input::getString('search');
-        $session = Factory::getSession();
+        $session = Application::getSession();
         $pSearch = (string) $session->get('organizer.search.search');
 
         // No previous and there now is one or previous and the current one is different
@@ -624,7 +628,7 @@ class Search extends ListModel
     /**
      * Removes special characters and converts the string to lower case.
      *
-     * @param string $string
+     * @param   string  $string
      *
      * @return string the prepared string
      */
@@ -637,7 +641,7 @@ class Search extends ListModel
      * Processes category / program results into a standardized array for output. Programs are prioritized in the output
      * for ease of comprehension.
      *
-     * @param array $resources the category and program search results
+     * @param   array  $resources  the category and program search results
      *
      * @return array[] the structured results
      */
@@ -663,7 +667,8 @@ class Search extends ListModel
                 }
 
                 $organizationIDs = Helpers\Programs::getOrganizationIDs($programID);
-            } else {
+            }
+            else {
                 $key   = "category-$categoryID";
                 $label = Text::_('ORGANIZER_CATEGORY') . ': ';
                 $name  = Helpers\Categories::getName($categoryID);
@@ -683,9 +688,11 @@ class Search extends ListModel
                 asort($organizations);
                 if ($count === 1) {
                     $description = array_shift($organizations);
-                } elseif ($count === 2) {
+                }
+                elseif ($count === 2) {
                     $description = implode(' & ', $organizations);
-                } else {
+                }
+                else {
                     $last        = array_pop($organizations);
                     $description = implode(', ', $organizations) . ", & $last";
                 }
@@ -713,7 +720,7 @@ class Search extends ListModel
     /**
      * Processes event/subject results into a standardized array for output
      *
-     * @param array $resources the event/subject results
+     * @param   array  $resources  the event/subject results
      *
      * @return array[] the structured results
      */
@@ -727,13 +734,14 @@ class Search extends ListModel
             $subjectID = $resource['subjectID'];
 
             if ($subjectID) {
-                $description = Helpers\Subjects::getProgramName($subjectID);
+                $description = Helpers\Subjects::programName($subjectID);
                 $key         = "subject-$subjectID";
                 $label       = Text::_('ORGANIZER_SUBJECT') . ': ';
                 $name        = Helpers\Subjects::getName($subjectID, true);
 
                 $links['subject_item'] = "?option=com_organizer&view=subject_item&id=$subjectID";
-            } else {
+            }
+            else {
                 $description = Helpers\Events::getCategoryNames($eventID);
                 $key         = "event-$eventID";
                 $label       = Text::_('ORGANIZER_EVENT') . ': ';
@@ -759,7 +767,7 @@ class Search extends ListModel
      * Processes group / pool results into a standardized array for output. Pools are prioritized in the output
      * for ease of comprehension.
      *
-     * @param array $resources the category and program search results
+     * @param   array  $resources  the category and program search results
      *
      * @return array[] the structured results
      */
@@ -783,8 +791,9 @@ class Search extends ListModel
                     $links['subjects'] = "?option=com_organizer&view=subjects&poolID=$poolID";
                 }
 
-                $description = Helpers\Pools::getProgramName($poolID);
-            } else {
+                $description = Helpers\Pools::programName($poolID);
+            }
+            else {
                 $key   = "group-$groupID";
                 $label = Text::_('ORGANIZER_GROUP') . ': ';
                 $name  = Helpers\Groups::getFullName($groupID);
@@ -814,7 +823,7 @@ class Search extends ListModel
     /**
      * Processes organization results into a standardized array for output
      *
-     * @param array $organizationIDs the organization ids
+     * @param   array  $organizationIDs  the organization ids
      *
      * @return array[] the structured results
      */
@@ -838,7 +847,7 @@ class Search extends ListModel
     /**
      * Processes person results into a standardized array for output.
      *
-     * @param array $personIDs the category and program search results
+     * @param   array  $personIDs  the category and program search results
      *
      * @return array[] the structured results
      */
@@ -883,7 +892,7 @@ class Search extends ListModel
     /**
      * Processes room results into a standardized array for output
      *
-     * @param array &$results the room results
+     * @param   array &$results  the room results
      *
      * @return array[] the structured results
      */
@@ -901,7 +910,8 @@ class Search extends ListModel
 
             if (empty($room['effCapacity'])) {
                 $capacity = '';
-            } else {
+            }
+            else {
                 $capacity = ' (~' . $room['effCapacity'] . ' ' . Text::_('ORGANIZER_SEATS') . ')';
             }
 
@@ -919,7 +929,7 @@ class Search extends ListModel
     /**
      * Attempts to resolve a pool result to the corresponding group.
      *
-     * @param array $pool the pool result
+     * @param   array  $pool  the pool result
      *
      * @return int the id of the group on success, otherwise 0
      */
@@ -958,7 +968,7 @@ class Search extends ListModel
     /**
      * Attempts to resolve a group result to the corresponding pools.
      *
-     * @param array $group the group result
+     * @param   array  $group  the group result
      *
      * @return array[] the pool entries associated with the pool
      */
@@ -1009,8 +1019,8 @@ class Search extends ListModel
      * Checks for room types which match the the capacity and unresolvable terms. If resolved removes the type from the
      * list of potential non-conventional/conforming room names.
      *
-     * @param array $ncRooms  an array of terms which could not be resolved
-     * @param int   $capacity the requested capacity
+     * @param   array  $ncRooms   an array of terms which could not be resolved
+     * @param   int    $capacity  the requested capacity
      *
      * @return int[] the room type ids which matched the criteria
      */
@@ -1064,8 +1074,8 @@ class Search extends ListModel
      * Retrieves prioritized category/program search results. Programs are prioritized in the output for ease of
      * comprehension.
      *
-     * @param array &$items     the container with the results
-     * @param bool   $requested true: results added to output; false: results used for subordinate context
+     * @param   array &$items      the container with the results
+     * @param   bool   $requested  true: results added to output; false: results used for subordinate context
      *
      * @return void modifies &$items
      */
@@ -1086,7 +1096,7 @@ class Search extends ListModel
             $short = strlen($exact) < 4;
 
             // No categories or programs with roman numerals.
-            $isRoman = preg_match("/^([ivx]+)$/", $exact, $matches);
+            $isRoman = preg_match("/^([ivx]+)$/", $exact);
 
             // Most relevant case would be year of accreditation, but most people will not enter this.
             $isNumeric = is_numeric($exact);
@@ -1151,7 +1161,8 @@ class Search extends ListModel
                     ->where("($cNameDE LIKE $startingWith OR $cNameEN LIKE $startingWith)");
                 $pQuery->where("($pNameDE LIKE $exact OR $pNameEN LIKE $exact)")
                     ->whereIn('p.degreeID', array_keys($this->degrees['exact']));
-            } else {
+            }
+            else {
                 $cQuery->where("($cNameDE LIKE $exact OR $cNameEN LIKE $exact)");
             }
         }
@@ -1252,7 +1263,8 @@ class Search extends ListModel
 
                 }
 
-            } elseif ($terms) {
+            }
+            elseif ($terms) {
                 $getCategories = true;
                 $cQuery->where($this->localizedLikeSet('c.name', $terms, 'AND', 'OR'));
             }
@@ -1370,7 +1382,8 @@ class Search extends ListModel
                     $getPrograms = true;
                     $pQuery->where('(' . implode(' OR ', $pClauses) . ')');
                 }
-            } else {
+            }
+            else {
                 if ($initialTerm) {
                     $getPrograms = true;
                     $term        = Database::quote($initialTerm);
@@ -1536,8 +1549,8 @@ class Search extends ListModel
     /**
      * Ensures that only currently active categories and/or programs are found.
      *
-     * @param JDatabaseQuery $categoryQuery the query to find category resources
-     * @param JDatabaseQuery $programQuery  the query to find program resources
+     * @param   JDatabaseQuery  $categoryQuery  the query to find category resources
+     * @param   JDatabaseQuery  $programQuery   the query to find program resources
      *
      * @return void modifies the given query objects
      */
@@ -1550,7 +1563,7 @@ class Search extends ListModel
     /**
      * Retrieves prioritized event/subject search results.
      *
-     * @param array &$items the container with the results
+     * @param   array &$items  the container with the results
      *
      * @return void modifies &$items
      */
@@ -1565,7 +1578,7 @@ class Search extends ListModel
             $short = strlen($term) < 4;
 
             // Probable sequence 'numbers'
-            $isRoman   = preg_match("/^([ivx]+)$/", $term, $matches);
+            $isRoman   = preg_match("/^([ivx]+)$/", $term);
             $isNumeric = is_numeric($term);
 
             if ($short or $isRoman or $isNumeric) {
@@ -1696,7 +1709,8 @@ class Search extends ListModel
             $eENClause = "$eNameEN LIKE '%$term%' AND $length / " . $eQuery->charLength($eNameEN) . " > .8";
             $sDEClause = "$sFNameDE LIKE '%$term%' AND $length / " . $eQuery->charLength($sFNameDE) . " > .8";
             $sENClause = "$sFNameEN LIKE '%$term%' AND $length / " . $eQuery->charLength($sFNameEN) . " > .8";
-        } else {
+        }
+        else {
             $eDEClause = "$eNameDE LIKE '%" . implode("%' AND $eNameDE LIKE '%", $terms) . "%'";
             $eENClause = "$eNameEN LIKE '%" . implode("%' AND $eNameEN LIKE '%", $terms) . "%'";
             $sDEClause = "$sFNameDE LIKE '%" . implode("%' AND $sFNameDE LIKE '%", $terms) . "%'";
@@ -1885,7 +1899,8 @@ class Search extends ListModel
             $eQuery->where("(p1.surname LIKE $qIT OR p2.surname LIKE $qIT)");
             $runQuery = true;
             $sQuery->where("p.surname LIKE $qIT");
-        } else {
+        }
+        else {
             $eWherray = [];
             $sWherray = [];
 
@@ -1948,7 +1963,7 @@ class Search extends ListModel
      * Retrieves prioritized group/pool search results. Pools are prioritized in the output for ease of
      * comprehension.
      *
-     * @param array &$items the container with the results
+     * @param   array &$items  the container with the results
      *
      * @return void modifies &$items
      */
@@ -2078,7 +2093,7 @@ class Search extends ListModel
             }
 
             $initial = reset($terms);
-            $term    = strpos($initial, ' ') === false ? implode('%', $terms) : str_replace(' ', '%', $initial);
+            $term    = !str_contains($initial, ' ') ? implode('%', $terms) : str_replace(' ', '%', $initial);
 
             if ($degrees) {
                 $deClauses = [];
@@ -2093,7 +2108,8 @@ class Search extends ListModel
 
                 $deClause = implode(' OR ', $deClauses);
                 $enClause = implode(' OR ', $enClauses);
-            } else {
+            }
+            else {
                 $length   = strlen($term);
                 $deClause = "(g.name_de LIKE '%$term%' AND $length / " . $gQuery->charLength('g.name_de') . " > .8)";
                 $enClause = "(g.name_en LIKE '%$term%' AND $length / " . $gQuery->charLength('g.name_en') . " > .8)";
@@ -2240,8 +2256,8 @@ class Search extends ListModel
     /**
      * Retrieves prioritized organization search results.
      *
-     * @param array &$items     the container with the results
-     * @param bool   $requested true: results added to output; false: results used for subordinate context
+     * @param   array &$items      the container with the results
+     * @param   bool   $requested  true: results added to output; false: results used for subordinate context
      *
      * @return void modifies &$items
      */
@@ -2364,7 +2380,7 @@ class Search extends ListModel
     /**
      * Retrieves prioritized person search results.
      *
-     * @param array &$items the container with the results
+     * @param   array &$items  the container with the results
      *
      * @return void modifies &$items
      */
@@ -2471,7 +2487,7 @@ class Search extends ListModel
     /**
      * Sets prioritized room search results.
      *
-     * @param array &$items the container with the results
+     * @param   array &$items  the container with the results
      *
      * @return void modifies &$items
      */
@@ -2601,7 +2617,7 @@ class Search extends ListModel
     private function setFilteredTerms()
     {
         foreach ($this->terms as $term) {
-            if (strpos($term, ' ') === false and !in_array($term, $this->whiteNoise)) {
+            if (!str_contains($term, ' ') and !in_array($term, $this->whiteNoise)) {
                 $this->filteredTerms[] = $term;
             }
         }
@@ -2610,7 +2626,7 @@ class Search extends ListModel
     /**
      * Sets plausible degree ids for later use in searches.
      *
-     * @param string  &$search the string containing the search terms
+     * @param   string  &$search  the string containing the search terms
      *
      * @return void
      */
@@ -2638,12 +2654,12 @@ class Search extends ListModel
 
         if ($levels and $levels = $levels[0]) {
             // If levels are existent check for and remove types.
-            if ($arts = strpos($search, 'arts') !== false) {
+            if ($arts = str_contains($search, 'arts')) {
                 $search = str_replace('arts', '', $search);
             }
 
-            $administration = strpos($search, 'administration') !== false;
-            $business       = strpos($search, 'business') !== false;
+            $administration = str_contains($search, 'administration');
+            $business       = str_contains($search, 'business');
             $ba             = ($administration and $business);
 
             if ($ba) {
@@ -2651,15 +2667,15 @@ class Search extends ListModel
                 $search = preg_replace('/(^| )engineering($| )/', ' ', $search, 1);
             }
 
-            if ($education = strpos($search, 'education') !== false) {
+            if ($education = str_contains($search, 'education')) {
                 $search = str_replace('education', '', $search);
             }
 
-            if ($engineering = strpos($search, 'engineering') !== false) {
+            if ($engineering = str_contains($search, 'engineering')) {
                 $search = str_replace('engineering', '', $search);
             }
 
-            if ($science = strpos($search, 'science') !== false) {
+            if ($science = str_contains($search, 'science')) {
                 $search = str_replace('science', '', $search);
             }
 
@@ -2715,7 +2731,8 @@ class Search extends ListModel
                             $degrees['exact'][$degree->id] = $degree->id;
                         }
                     }
-                } else {
+                }
+                else {
                     $alias = Database::quote("$alias%");
                     $query = Database::getQuery();
                     $query->selectX(['DISTINCT id, abbreviation'], 'degrees')->where("alias LIKE $alias");
@@ -2744,10 +2761,10 @@ class Search extends ListModel
     /**
      * Sets group results within items.
      *
-     * @param array   &$items     the previously discovered results
-     * @param string   $relevance the search relevance key
-     * @param int[]   &$groupIDs  the ids of the previously found group results
-     * @param int[]   &$poolIDs   the ids of the previously found pool results
+     * @param   array   &$items      the previously discovered results
+     * @param   string   $relevance  the search relevance key
+     * @param   int[]   &$groupIDs   the ids of the previously found group results
+     * @param   int[]   &$poolIDs    the ids of the previously found pool results
      *
      * @return void modifies $items, $groupIDs and $poolIDs
      */
@@ -2765,10 +2782,10 @@ class Search extends ListModel
     /**
      * Sets pool results within items.
      *
-     * @param array   &$items     the previously discovered results
-     * @param string   $relevance the search relevance key
-     * @param int[]   &$groupIDs  the ids of the previously found group results
-     * @param int[]   &$poolIDs   the ids of the previously found pool results
+     * @param   array   &$items      the previously discovered results
+     * @param   string   $relevance  the search relevance key
+     * @param   int[]   &$groupIDs   the ids of the previously found group results
+     * @param   int[]   &$poolIDs    the ids of the previously found pool results
      *
      * @return void modifies $items, $groupIDs and $poolIDs
      */
@@ -2802,7 +2819,7 @@ class Search extends ListModel
     /**
      * Sets plausible semester strings for later use in searches.
      *
-     * @param string  &$search the string containing the search terms
+     * @param   string  &$search  the string containing the search terms
      *
      * @return void
      */
@@ -2846,7 +2863,8 @@ class Search extends ListModel
                 if ($salt) {
                     $semesters['exact'][]  = str_replace(' ', '%', "$semester $salt");
                     $semesters['strong'][] = str_replace(' ', '%', $semester);
-                } else {
+                }
+                else {
                     $semesters['exact'][] = str_replace(' ', '%', $semester);
                 }
 
@@ -2962,9 +2980,9 @@ class Search extends ListModel
     /**
      * Structures group results for further processing.
      *
-     * @param array $groups   the group results
-     * @param int[] $groupIDs the ids of the previously found group results
-     * @param int[] $poolIDs  the ids of the previously found pool results
+     * @param   array  $groups    the group results
+     * @param   int[]  $groupIDs  the ids of the previously found group results
+     * @param   int[]  $poolIDs   the ids of the previously found pool results
      *
      * @return array the structured group results
      */
@@ -2986,7 +3004,8 @@ class Search extends ListModel
                 }
 
                 $poolIDs = array_merge($poolIDs, array_filter(array_keys($pools)));
-            } else {
+            }
+            else {
                 $group['categoryID'] = 0;
                 $group['poolID']     = 0;
                 $results[]           = $group;

@@ -34,7 +34,7 @@ class DocumentedPersons extends Options
             return $options;
         }
 
-        $subjects = $poolID ? Helpers\Pools::getSubjects($poolID) : Helpers\Programs::getSubjects($programID);
+        $subjects = $poolID ? Helpers\Pools::subjects($poolID) : Helpers\Programs::subjects($programID);
 
         if (empty($subjects)) {
             return $options;
@@ -42,7 +42,7 @@ class DocumentedPersons extends Options
 
         $aggregatedPersons = [];
         foreach ($subjects as $subject) {
-            $subjectPersons = Helpers\Subjects::getPersons($subject['subjectID']);
+            $subjectPersons = Helpers\Subjects::persons($subject['subjectID']);
             if (empty($subjectPersons)) {
                 continue;
             }

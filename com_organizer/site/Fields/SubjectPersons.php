@@ -34,7 +34,7 @@ class SubjectPersons extends Options
             return [];
         }
 
-        $existingPersons = Helpers\Subjects::getPersons($subjectIDs[0], $role);
+        $existingPersons = Helpers\Subjects::persons($subjectIDs[0], $role);
         $this->value     = [];
         foreach ($existingPersons as $person) {
             $this->value[$person['id']] = $person['id'];

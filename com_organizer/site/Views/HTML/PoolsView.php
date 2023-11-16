@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use THM\Organizer\Helpers;
 
 /**
@@ -42,7 +42,7 @@ abstract class PoolsView extends ListView
         $structuredItems = [];
 
         foreach ($this->items as $item) {
-            $item->programID         = Helpers\Pools::getProgramName($item->id);
+            $item->programID         = Helpers\Pools::programName($item->id);
             $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
             $index++;
         }

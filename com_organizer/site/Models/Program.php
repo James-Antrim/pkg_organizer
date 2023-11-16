@@ -85,7 +85,7 @@ class Program extends CurriculumResource
     /**
      * Retrieves program information relevant for soap queries to the LSF system.
      *
-     * @param int $programID the id of the degree program
+     * @param   int  $programID  the id of the degree program
      *
      * @return array  empty if the program could not be found
      */
@@ -105,14 +105,14 @@ class Program extends CurriculumResource
     /**
      * Finds the curriculum entry ids for subject entries subordinate to a particular resource.
      *
-     * @param int $resourceID the id of the resource
-     * @param int $subjectID  the id of a specific subject resource to find in context
+     * @param   int  $resourceID  the id of the resource
+     * @param   int  $subjectID   the id of a specific subject resource to find in context
      *
      * @return int[] the associated programs
      */
     private function getSubjectIDs(int $resourceID, int $subjectID = 0): array
     {
-        $ranges = Helpers\Programs::getSubjects($resourceID, $subjectID);
+        $ranges = Helpers\Programs::subjects($resourceID, $subjectID);
 
         $ids = [];
         foreach ($ranges as $range) {
@@ -139,15 +139,16 @@ class Program extends CurriculumResource
     public function importSingle(int $resourceID): bool
     {
         if (!$keys = $this->getKeys($resourceID)) {
-            Application::message('ORGANIZER_LSF_DATA_MISSING', Application::ERROR);
+            Application::message('LSF_DATA_MISSING', Application::ERROR);
 
             return false;
         }
 
         try {
             $client = new Helpers\LSF();
-        } catch (Exception $exception) {
-            Application::message('ORGANIZER_LSF_CLIENT_FAILED', Application::ERROR);
+        }
+        catch (Exception) {
+            Application::message('LSF_CLIENT_FAILED', Application::ERROR);
 
             return false;
         }
@@ -165,7 +166,8 @@ class Program extends CurriculumResource
             $range = ['parentID' => null, 'programID' => $resourceID, 'ordering' => 0];
 
             return $this->addRange($range);
-        } else {
+        }
+        else {
             $curriculumID = $ranges[0]['id'];
         }
 
@@ -192,11 +194,13 @@ class Program extends CurriculumResource
             if (!($documentationAccess or $schedulingAccess)) {
                 Application::error(403);
             }
-        } elseif (is_numeric($data['id'])) {
+        }
+        elseif (is_numeric($data['id'])) {
             if (!Helpers\Can::document('program', (int) $data['id'])) {
                 Application::error(403);
             }
-        } else {
+        }
+        else {
             return false;
         }
 

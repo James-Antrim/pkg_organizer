@@ -12,9 +12,9 @@ namespace THM\Organizer\Fields;
 
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Uri\Uri;
-use THM\Organizer\Adapters\{Database, Document, HTML, Text};
-use THM\Organizer\Helpers;
 use stdClass;
+use THM\Organizer\Adapters\{Database, Document, HTML, Text};
+use THM\Organizer\Helpers\{Can, Pools, Programs, Subjects};
 
 /**
  * Class creates a select box for programs to filter the context for subordinate resources.
@@ -46,17 +46,16 @@ class Curricula extends FormField
 
         Document::scriptLocalizations('curriculumParameters', $curriculumParameters);
 
-        $ranges = $resourceType === 'pool' ?
-            Helpers\Pools::getRanges($resourceID) : Helpers\Subjects::getRanges($resourceID);
+        $ranges = $resourceType === 'pool' ? Pools::ranges($resourceID) : Subjects::ranges($resourceID);
 
-        $selectedPrograms = empty($ranges) ? [] : Helpers\Programs::getIDs($ranges);
-        $options          = $this->getOptions();
+        $programIDs = empty($ranges) ? [] : Programs::extractIDs($ranges);
+        $options    = $this->getOptions();
 
         $defaultOptions = [HTML::option(-1, Text::_('NONE'))];
         $programs       = array_merge($defaultOptions, $options);
         $attributes     = ['multiple' => 'multiple', 'size' => '10'];
 
-        return HTML::selectBox('curricula', $programs, $attributes, $selectedPrograms);
+        return HTML::selectBox('curricula', $programs, $attributes, $programIDs);
     }
 
     /**
@@ -65,7 +64,7 @@ class Curricula extends FormField
      */
     private function getOptions(): array
     {
-        $query = Helpers\Programs::getQuery();
+        $query = Programs::query();
         $query->innerJoin('#__organizer_curricula AS c ON c.programID = p.id')->order('name ASC');
         Database::setQuery($query);
 
@@ -75,7 +74,7 @@ class Curricula extends FormField
 
         $options = [];
         foreach ($programs as $program) {
-            if (!Helpers\Can::document('program', (int) $program['id'])) {
+            if (!Can::document('program', (int) $program['id'])) {
                 continue;
             }
 
