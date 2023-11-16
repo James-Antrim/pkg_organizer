@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, HTML, Text, Toolbar};
+use THM\Organizer\Adapters\{HTML, Text, Toolbar};
 use stdClass;
 use THM\Organizer\Helpers;
 use THM\Organizer\Layouts\HTML\ListItem;
@@ -109,25 +109,25 @@ class Campuses extends ListView
      */
     public function initializeColumns(): void
     {
-        $this->headers =  [
-            'check'        => ['type' => 'check'],
-            'name'         => [
+        $this->headers = [
+            'check'    => ['type' => 'check'],
+            'name'     => [
                 'link'       => ListItem::DIRECT,
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('NAME'),
-                'type'       => 'value'
+                'type'       => 'text'
             ],
-            'address'         => [
+            'address'  => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('STREET'),
                 'type'       => 'text'
             ],
-            'location'         => [
+            'location' => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('LOCATION'),
                 'type'       => 'text'
             ],
-            'gridID'         => [
+            'gridID'   => [
                 'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
                 'title'      => Text::_('GRID'),
                 'type'       => 'text'

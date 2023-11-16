@@ -10,8 +10,10 @@
 
 namespace THM\Organizer\Views\HTML;
 
-use THM\Organizer\Adapters\{Application, Text, Toolbar};
+use THM\Organizer\Adapters\{Text, Toolbar};
+use stdClass;
 use THM\Organizer\Helpers;
+use THM\Organizer\Layouts\HTML\ListItem;
 
 /**
  * Class loads persistent information a filtered set of persons into the display context.
@@ -40,36 +42,25 @@ class Persons extends ListView
     /**
      * @inheritdoc
      */
-    protected function completeItems(): void
+    protected function completeItem(int $index, stdClass $item, array $options = []): void
     {
-        $index           = 0;
-        $structuredItems = [];
-        $link            = "index.php?option=com_organizer&view=person_edit&id=";
+        $item->forename = empty($item->forename) ? '' : $item->forename;
+        $item->username = empty($item->username) ? '' : $item->username;
 
-        foreach ($this->items as $item) {
-            $item->forename = empty($item->forename) ? '' : $item->forename;
-            $item->username = empty($item->username) ? '' : $item->username;
+        $tip          = $item->active ? 'CLICK_TO_DEACTIVATE' : 'CLICK_TO_ACTIVATE';
+        $item->active = $this->getToggle('persons', $item->id, $item->active, $tip, 'active');
 
-            $tip          = $item->active ? 'ORGANIZER_CLICK_TO_DEACTIVATE' : 'ORGANIZER_CLICK_TO_ACTIVATE';
-            $item->active = $this->getToggle('persons', $item->id, $item->active, $tip, 'active');
-
-            if (!$organizations = Helpers\Persons::getOrganizationNames($item->id)) {
-                $item->organizationID = Text::_('JNONE');
-            }
-            elseif (count($organizations) === 1) {
-                $item->organizationID = $organizations[0];
-            }
-            else {
-                $item->organizationID = Text::_('ORGANIZER_MULTIPLE_ORGANIZATIONS');
-            }
-
-            $item->code = empty($item->code) ? '' : $item->code;
-
-            $structuredItems[$index] = $this->completeItem($index, $item, $link . $item->id);
-            $index++;
+        if (!$organizations = Helpers\Persons::getOrganizationNames($item->id)) {
+            $item->organizationID = Text::_('NONE');
+        }
+        elseif (count($organizations) === 1) {
+            $item->organizationID = $organizations[0];
+        }
+        else {
+            $item->organizationID = Text::_('MULTIPLE_ORGANIZATIONS');
         }
 
-        $this->items = $structuredItems;
+        $item->code = empty($item->code) ? '' : $item->code;
     }
 
     /**
@@ -77,16 +68,41 @@ class Persons extends ListView
      */
     public function initializeColumns(): void
     {
-        $headers = [
-            'checkbox'       => '',
-            'surname'        => Text::_('ORGANIZER_SURNAME'),
-            'forename'       => Text::_('ORGANIZER_FORENAME'),
-            'username'       => Text::_('ORGANIZER_USERNAME'),
-            'active'         => Helpers\Text::_('ORGANIZER_ACTIVE'),
-            'organizationID' => Text::_('ORGANIZER_ORGANIZATION'),
-            't.code'         => Text::_('ORGANIZER_UNTIS_ID')
+        $this->headers = [
+            'check'          => ['type' => 'check'],
+            'surname'        => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('SURNAME'),
+                'type'       => 'text'
+            ],
+            'forename'       => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('FORENAME'),
+                'type'       => 'text'
+            ],
+            'username'       => [
+                'link'       => ListItem::DIRECT,
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('USERNAME'),
+                'type'       => 'text'
+            ],
+            'active'         => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ACTIVE'),
+                'type'       => 'value'
+            ],
+            'organizationID' => [
+                'properties' => ['class' => 'w-5 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('ORGANIZATION'),
+                'type'       => 'text'
+            ],
+            'code'           => [
+                'properties' => ['class' => 'w-10 d-md-table-cell', 'scope' => 'col'],
+                'title'      => Text::_('UNTIS_ID'),
+                'type'       => 'text'
+            ],
         ];
-
-        $this->headers = $headers;
     }
 }

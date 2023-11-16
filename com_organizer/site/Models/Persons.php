@@ -12,6 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\Database as DB;
+use THM\Organizer\Helpers\Can;
 
 /**
  * Class retrieves information for a filtered set of persons.
@@ -31,10 +32,15 @@ class Persons extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $personID = DB::qn('p.id');
-        $those    = DB::qn(['surname', 'forename', 'username', 'p.active', 'code']);
-        $these    = ["DISTINCT $personID", DB::qn('o.id', 'organizationID')];
         $query    = DB::getQuery();
-        $query->select(array_merge($these, $those))
+        $url      = 'index.php?option=com_organizer&view=Person&id=';
+
+        $access = [DB::quote((int) Can::manage('persons')) . ' AS ' . DB::qn('access')];
+        $these  = ["DISTINCT $personID", DB::qn('o.id', 'organizationID')];
+        $those  = DB::qn(['surname', 'forename', 'username', 'p.active', 'code']);
+        $url    = [$query->concatenate([DB::quote($url), DB::qn('p.id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge($these, $those, $access, $url))
             ->from(DB::qn('#__organizer_persons', 'p'))
             ->leftJoin(DB::qn('#__organizer_associations', 'a'), DB::qn('a.personID') . " = $personID")
             ->leftJoin(DB::qn('#__organizer_organizations', 'o'), DB::qn('o.id') . ' = ' . DB::qn('a.id'))

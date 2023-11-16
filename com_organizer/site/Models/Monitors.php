@@ -13,6 +13,7 @@ namespace THM\Organizer\Models;
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Database as DB, Input};
 use Joomla\Database\ParameterType;
+use THM\Organizer\Helpers\Can;
 use THM\Organizer\Helpers\Monitors as Helper;
 
 /**
@@ -96,9 +97,13 @@ class Monitors extends ListModel
     protected function getListQuery(): DatabaseQuery
     {
         $query = DB::getQuery();
+        $url   = 'index.php?option=com_organizer&view=Monitor&id=';
 
+        $access = [DB::quote((int) Can::manage('facilities')) . ' AS ' . DB::qn('access')];
         $select = DB::qn(['m.id', 'r.name', 'm.ip', 'm.useDefaults', 'm.display', 'm.content']);
-        $query->select($select)
+        $url    = [$query->concatenate([DB::quote($url), DB::qn('m.id')], '') . ' AS ' . DB::qn('url')];
+
+        $query->select(array_merge($select, $access, $url))
             ->from(DB::qn('#__organizer_monitors', 'm'))
             ->leftJoin(DB::qn('#__organizer_rooms', 'r'), DB::qc('r.id', 'm.roomID'));
 

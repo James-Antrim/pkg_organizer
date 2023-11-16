@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use THM\Organizer\Helpers;
+use THM\Organizer\Helpers\RoomTypes as Helper;
 
 /**
  * Class creates a form field for room type selection
@@ -29,7 +29,7 @@ class RoomTypes extends Options
     protected function getOptions(): array
     {
         $options   = parent::getOptions();
-        $roomtypes = Helpers\RoomTypes::getOptions();
+        $roomtypes = Helper::getOptions();
 
         return array_merge($options, $roomtypes);
     }

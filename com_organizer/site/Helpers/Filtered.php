@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Helpers;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\Input;
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Database as DB, Input};
 
 /**
  * Class contains functions for organization filtering.
@@ -21,10 +21,10 @@ trait Filtered
     /**
      * Restricts the query by the organizationIDs for which the user has the given access right.
      *
-     * @param JDatabaseQuery $query   the query to modify
-     * @param string         $access  the access right to be filtered against
-     * @param string         $context the resource context from which this function was called
-     * @param string         $alias   the alias being used for the resource table
+     * @param   DatabaseQuery  $query    the query to modify
+     * @param   string         $access   the access right to be filtered against
+     * @param   string         $context  the resource context from which this function was called
+     * @param   string         $alias    the alias being used for the resource table
      *
      * @return void modifies the query object
      */
@@ -49,15 +49,15 @@ trait Filtered
 
         // Alias 'aaf' so as not to conflict with the access filter.
         $authorized = implode(',', $authorized);
-        $query->innerJoin("#__organizer_associations AS aaf ON aaf.{$context}ID = $alias.id")
+        $query->innerJoin(DB::qn('#__organizer_associations', 'aaf'), DB::qc("aaf.{$context}ID", "$alias.id"))
             ->where("aaf.organizationID IN ($authorized)");
     }
 
     /**
      * Adds a resource filter for a given resource.
      *
-     * @param JDatabaseQuery $query the query to modify
-     * @param string         $alias the alias for the linking table
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias for the linking table
      *
      * @return void modifies the query object
      */
@@ -69,12 +69,14 @@ trait Filtered
             return;
         }
 
+        $condition = DB::qc('campusAlias.id', "$alias.campusID");
+        $table     = DB::qn('#__organizer_campuses', 'campusAlias');
         if (in_array('-1', $campusIDs)) {
-            $query->leftJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
-                ->where("campusAlias.id IS NULL");
-        } else {
+            $query->leftJoin($table, $condition)->where("campusAlias.id IS NULL");
+        }
+        else {
             $campusIDs = implode(',', $campusIDs);
-            $query->innerJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
+            $query->innerJoin($table, $condition)
                 ->where("(campusAlias.id IN ($campusIDs) OR campusAlias.parentID IN ($campusIDs))");
         }
     }
@@ -82,14 +84,14 @@ trait Filtered
     /**
      * Adds a selected organization filter to the query.
      *
-     * @param JDatabaseQuery $query     the query to modify
-     * @param string         $resource  the name of the organization associated resource
-     * @param string         $alias     the alias being used for the resource table
-     * @param string         $keyColumn the name of the column holding the association key
+     * @param   DatabaseQuery  $query      the query to modify
+     * @param   string         $resource   the name of the organization associated resource
+     * @param   string         $alias      the alias being used for the resource table
+     * @param   string         $keyColumn  the name of the column holding the association key
      *
      * @return void modifies the query
      */
-    public static function addOrganizationFilter($query, $resource, $alias, $keyColumn = 'id')
+    public static function addOrganizationFilter($query, $resource, $alias, $keyColumn = 'id'): void
     {
         $organizationID  = Input::getInt('organizationID');
         $organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
@@ -98,28 +100,29 @@ trait Filtered
         }
 
         // Alias 'aof' so as not to conflict with the access filter.
-        if (in_array('-1', $organizationIDs)) {
-            $query->leftJoin("#__organizer_associations AS aof ON aof.{$resource}ID = $alias.$keyColumn")
-                ->where('aof.id IS NULL');
-        } else {
-            $query->innerJoin("#__organizer_associations AS aof ON aof.{$resource}ID = $alias.$keyColumn")
-                ->where("aof.organizationID IN (" . implode(',', $organizationIDs) . ")");
+        $conditon = DB::qc("aof.{$resource}ID", "$alias.$keyColumn");
+        $table    = DB::qn('#__organizer_associations', 'aof');
+        if (in_array(self::NONE, $organizationIDs)) {
+            $query->leftJoin($table, $conditon)->where(DB::qn('aof.id') . ' IS NULL');
+        }
+        else {
+            $query->innerJoin($table, $conditon)
+                ->whereIn(DB::qn('aof.organizationID'), $organizationIDs);
         }
     }
 
     /**
      * Adds a resource filter for a given resource.
      *
-     * @param JDatabaseQuery $query         the query to modify
-     * @param string         $resource      the name of the resource associated
-     * @param string         $newAlias      the alias for any linked table
-     * @param string         $existingAlias the alias for the linking table
+     * @param   DatabaseQuery  $query          the query to modify
+     * @param   string         $resource       the name of the resource associated
+     * @param   string         $newAlias       the alias for any linked table
+     * @param   string         $existingAlias  the alias for the linking table
      *
      * @return void modifies the query
      */
     public static function addResourceFilter($query, $resource, $newAlias, $existingAlias): void
     {
-        // TODO Remove (plan) programs on completion of migration.
         if ($resource === 'category') {
             if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID')) {
                 $resourceIDs = [$categoryID];
@@ -138,13 +141,14 @@ trait Filtered
             return;
         }
 
-        $table = OrganizerHelper::getPlural($resource);
-        if (in_array('-1', $resourceIDs)) {
-            $query->leftJoin("#__organizer_$table AS $newAlias ON $newAlias.id = $existingAlias.{$resource}ID")
-                ->where("$newAlias.id IS NULL");
-        } else {
-            $query->innerJoin("#__organizer_$table AS $newAlias ON $newAlias.id = $existingAlias.{$resource}ID")
-                ->where("$newAlias.id IN (" . implode(',', $resourceIDs) . ")");
+        $condition = DB::qc("$newAlias.id", "$existingAlias.{$resource}ID");
+        $table     = OrganizerHelper::getPlural($resource);
+        $table     = DB::qn("#__organizer_$table", $newAlias);
+        if (in_array(self::NONE, $resourceIDs)) {
+            $query->leftJoin($table, $condition)->where("$newAlias.id IS NULL");
+        }
+        else {
+            $query->innerJoin($table, $condition)->whereIn(DB::qn("$newAlias.id"), $resourceIDs);
         }
     }
 }

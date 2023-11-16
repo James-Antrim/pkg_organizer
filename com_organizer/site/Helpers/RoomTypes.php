@@ -10,14 +10,15 @@
 
 namespace THM\Organizer\Helpers;
 
-use THM\Organizer\Adapters\{Application, Database, HTML};
+use THM\Organizer\Adapters\{Application, Database as DB, HTML};
 
 /**
  * Provides general functions for room type access checks, data retrieval and display.
  */
 class RoomTypes extends ResourceHelper implements Selectable
 {
-    use Filtered, Suppressed;
+    use Filtered;
+    use Suppressed;
 
     private const NO = false, YES = true;
 
@@ -38,37 +39,42 @@ class RoomTypes extends ResourceHelper implements Selectable
      * @inheritDoc
      *
      * @param   bool  $associated  whether the type needs to be associated with a room
-     * @param   bool  $public
+     * @param   bool  $suppressed  whether suppressed types should also be included in the result set
      */
-    public static function getResources(bool $associated = self::YES, bool $suppress = self::NO): array
+    public static function getResources(bool $associated = self::YES, bool $suppressed = self::NO): array
     {
-        $tag = Application::getTag();
+        $tag    = Application::getTag();
+        $select = [
+            'DISTINCT ' . DB::qn('t') . '.*',
+            DB::qn('t.id', 'id'),
+            DB::qn("t.name_$tag", 'name'),
+        ];
 
-        $query = Database::getQuery();
-        $query->select("DISTINCT t.*, t.id AS id, t.name_$tag AS name")
-            ->from('#__organizer_roomtypes AS t');
+        $query = DB::getQuery();
+        $query->select($select)->from(DB::qn('#__organizer_roomtypes', 't'));
 
-        if ($suppress === self::YES or $suppress === self::NO) {
-            $query->where("t.suppress = $suppress");
+        // Unsuppressed or all
+        if ($suppressed === self::NO) {
+            $query->where(DB::qn('t.suppress') . ' = 0');
         }
 
         if ($associated === self::YES) {
-            $query->innerJoin('#__organizer_rooms AS r ON r.roomtypeID = t.id');
+            $query->innerJoin(DB::qn('#__organizer_rooms', 'r'), DB::qc('r.roomtypeID', 't.id'));
         }
         elseif ($associated === self::NO) {
-            $query->leftJoin('#__organizer_rooms AS r ON r.roomtypeID = t.id');
-            $query->where('r.roomtypeID IS NULL');
+            $query->leftJoin(DB::qn('#__organizer_rooms', 'r'), DB::qc('r.roomtypeID', 't.id'));
+            $query->where(DB::qn('r.roomtypeID') . ' IS NULL');
         }
 
         self::addResourceFilter($query, 'building', 'b1', 'r');
 
         // This join is used specifically to filter campuses independent of buildings.
-        $query->leftJoin('#__organizer_buildings AS b2 ON b2.id = r.buildingID');
+        $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));
         self::addCampusFilter($query, 'b2');
 
         $query->order('name');
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList('id');
+        return DB::loadAssocList('id');
     }
 }
