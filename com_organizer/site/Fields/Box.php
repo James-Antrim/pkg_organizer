@@ -20,10 +20,6 @@ class Box extends FormField
 {
     use Translated;
 
-    /**
-     * The allowable maxlength of the field.
-     * @var    integer
-     */
     protected int $maxLength;
 
     /**

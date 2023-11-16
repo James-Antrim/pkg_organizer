@@ -34,10 +34,10 @@ trait Translated
     {
         if (!empty($this->element['label'])) {
             $label = $this->element['label'];
-            $label = strpos($label, 'ORGANIZER_') === 0 ? $label : "ORGANIZER_$label";
+            $label = str_starts_with($label, 'ORGANIZER_') ? $label : "ORGANIZER_$label";
 
             $tip = $this->element['description'] ?? "{$label}_DESC";
-            $tip = strpos($tip, 'ORGANIZER_') === 0 ? $tip : "ORGANIZER_$tip";
+            $tip = str_starts_with($tip, 'ORGANIZER_') ? $tip : "ORGANIZER_$tip";
             $tip = strpos($tip, '_DESC') === strlen($tip) - 5 ? $tip : "{$tip}_DESC";
 
             $this->element['label'] = Text::_($label);

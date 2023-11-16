@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Fields;
 
-use Joomla\CMS\Filesystem;
+use Joomla\Filesystem\{File, Folder};
 use SimpleXMLElement;
 use THM\Organizer\Adapters\HTML;
 use THM\Organizer\Helpers;
@@ -141,7 +141,7 @@ class FileOptions extends Options
         }
 
         // Get a list of files in the search path with the given filter.
-        $files = Filesystem\Folder::files($path, $this->filter);
+        $files = Folder::files($path, $this->filter);
 
         // Build the options list from the list of files.
         if (is_array($files)) {
@@ -155,7 +155,7 @@ class FileOptions extends Options
 
                 // If the extension is to be stripped, do it.
                 if ($this->stripExt) {
-                    $file = Filesystem\File::stripExt($file);
+                    $file = File::stripExt($file);
                 }
 
                 $options[] = HTML::option($file, $file);
