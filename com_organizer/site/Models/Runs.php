@@ -57,8 +57,8 @@ class Runs extends ListModel
             ->innerJoin(DB::qn('#__organizer_terms', 't'), DB::qc('t.id', 'r.termID'))
             ->order(DB::qn('t.startDate') . ', ' . DB::qn('name'));
 
-        $this->setSearchFilter($query, ['name_de', 'name_en']);
-        $this->setValueFilters($query, ['termID']);
+        $this->filterSearch($query, ['name_de', 'name_en']);
+        $this->filterValues($query, ['termID']);
 
         return $query;
     }

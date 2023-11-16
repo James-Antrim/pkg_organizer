@@ -12,6 +12,7 @@ namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
 use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers;
 
 /**
@@ -28,7 +29,7 @@ class Pools extends ListModel
     /**
      * @inheritDoc
      */
-    public function filterFilterForm(Form $form)
+    public function filterFilterForm(Form $form): void
     {
         if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
             $form->removeField('organizationID', 'filter');
@@ -39,15 +40,14 @@ class Pools extends ListModel
     /**
      * @inheritDoc
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
 
-        /* @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->select("DISTINCT p.id, p.fullName_$tag AS name, p.fieldID")->from('pools AS p');
 
-        $this->setOrganizationFilter($query, 'pool', 'p');
+        $this->filterOrganizations($query, 'pool', 'p');
 
         $searchColumns = [
             'p.fullName_de',
@@ -55,11 +55,11 @@ class Pools extends ListModel
             'p.fullName_en',
             'p.abbreviation_en'
         ];
-        $this->setSearchFilter($query, $searchColumns);
-        $this->setValueFilters($query, ['fieldID']);
+        $this->filterSearch($query, $searchColumns);
+        $this->filterValues($query, ['fieldID']);
 
         if ($programID = (int) $this->state->get('filter.programID')) {
-            Helpers\Pools::setProgramFilter($query, $programID, 'pool', 'p');
+            Helpers\Pools::filterProgram($query, $programID, 'pool', 'p');
         }
 
         $this->orderBy($query);
@@ -70,7 +70,7 @@ class Pools extends ListModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 

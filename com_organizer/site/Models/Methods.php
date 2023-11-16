@@ -37,7 +37,7 @@ class Methods extends ListModel
         $query->select(array_merge([DB::qn('id')], $access, $aliased, $url))
             ->from(DB::qn('#__organizer_methods'));
 
-        $this->setSearchFilter($query, ['name_de', 'name_en', 'abbreviation_de', 'abbreviation_en']);
+        $this->filterSearch($query, ['name_de', 'name_en', 'abbreviation_de', 'abbreviation_en']);
         $this->orderBy($query);
 
         return $query;

@@ -28,7 +28,7 @@ trait Filtered
      *
      * @return void modifies the query object
      */
-    public static function addAccessFilter($query, $access, $context, $alias): void
+    public static function filterAccess($query, $access, $context, $alias): void
     {
         $authorized = [];
 
@@ -61,7 +61,7 @@ trait Filtered
      *
      * @return void modifies the query object
      */
-    public static function addCampusFilter($query, $alias): void
+    public static function filterCampus($query, $alias): void
     {
         $campusID  = Input::getInt('campusID');
         $campusIDs = $campusID ? [$campusID] : Input::getFilterIDs('campus');
@@ -91,7 +91,7 @@ trait Filtered
      *
      * @return void modifies the query
      */
-    public static function addOrganizationFilter($query, $resource, $alias, $keyColumn = 'id'): void
+    public static function filterOrganizations($query, $resource, $alias, $keyColumn = 'id'): void
     {
         $organizationID  = Input::getInt('organizationID');
         $organizationIDs = $organizationID ? [$organizationID] : Input::getFilterIDs('organization');
@@ -121,7 +121,7 @@ trait Filtered
      *
      * @return void modifies the query
      */
-    public static function addResourceFilter($query, $resource, $newAlias, $existingAlias): void
+    public static function filterResources($query, $resource, $newAlias, $existingAlias): void
     {
         if ($resource === 'category') {
             if ($categoryID = Input::getInt('programIDs') or $categoryID = Input::getInt('categoryID')) {

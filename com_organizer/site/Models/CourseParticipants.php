@@ -10,9 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Input, Queries\QueryMySQLi};
-use THM\Organizer\Helpers;
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Input};
 
 /**
  * Class retrieves information for a filtered set of participants.
@@ -24,15 +23,13 @@ class CourseParticipants extends Participants
     protected $filter_fields = ['attended', 'duplicates', 'paid', 'programID'];
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        /* @var QueryMySQLi $query */
         $query = parent::getListQuery();
 
-        $this->setValueFilters($query, ['attended', 'paid']);
+        $this->filterValues($query, ['attended', 'paid']);
 
         $courseID = Input::getID();
         $query->select('cp.attended, cp.paid, cp.status')

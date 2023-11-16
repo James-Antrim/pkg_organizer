@@ -74,11 +74,11 @@ class Pools extends Curricula implements Selectable
     /**
      * Gets the mapped curricula ranges for the given pool
      *
-     * @param   mixed  $identifiers  int poolID | array ranges of subordinate resources
+     * @param   array|int  $identifiers  int poolID | array ranges of subordinate resources
      *
      * @return array[] the pool ranges
      */
-    public static function getFilteredRanges($identifiers): array
+    public static function getFilteredRanges(array|int $identifiers): array
     {
         if (!$ranges = self::getRanges($identifiers)) {
             return [];
@@ -148,9 +148,9 @@ class Pools extends Curricula implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getRanges($identifiers): array
+    public static function getRanges(array|int $identifiers): array
     {
-        if (empty($identifiers) or (!is_numeric($identifiers) and !is_array($identifiers))) {
+        if (empty($identifiers)) {
             return [];
         }
 
@@ -164,7 +164,7 @@ class Pools extends Curricula implements Selectable
             self::filterSuperOrdinate($query, $identifiers);
         }
         else {
-            $poolID = (int) $identifiers;
+            $poolID = $identifiers;
             if ($identifiers != self::NONE) {
                 $query->where("poolID = $poolID");
             }
@@ -236,7 +236,7 @@ class Pools extends Curricula implements Selectable
             ->order('name ASC');
 
         if (!empty($access)) {
-            self::addAccessFilter($query, $access, 'pool', 'p');
+            self::filterAccess($query, $access, 'pool', 'p');
         }
 
         Database::setQuery($query);

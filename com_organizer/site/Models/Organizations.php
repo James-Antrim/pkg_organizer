@@ -65,7 +65,7 @@ class Organizations extends ListModel
             'shortName_en'
         ];
 
-        $this->setSearchFilter($query, $searchColumns);
+        $this->filterSearch($query, $searchColumns);
         $this->orderBy($query);
 
         return $query;

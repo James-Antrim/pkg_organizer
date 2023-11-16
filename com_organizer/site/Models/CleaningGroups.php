@@ -41,7 +41,7 @@ class CleaningGroups extends ListModel
         $query->select($select)
             ->from(DB::qn('#__organizer_cleaning_groups'));
 
-        $this->setSearchFilter($query, ['name_de', 'name_en']);
+        $this->filterSearch($query, ['name_de', 'name_en']);
 
         $relevant = $this->state->get('filter.relevant');
 

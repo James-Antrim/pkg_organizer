@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Helpers;
 
 /**
@@ -21,13 +21,12 @@ class SubjectSelection extends ListModel
 {
     /**
      * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
 
-        /* @var QueryMySQLi $query */
         $query = Database::getQuery();
 
         $query->select("DISTINCT s.id, code, fullName_$tag AS name")->from('#__organizer_subjects AS s');
@@ -45,15 +44,15 @@ class SubjectSelection extends ListModel
             'objective_en',
             'content_en'
         ];
-        $this->setSearchFilter($query, $searchFields);
-        $this->setValueFilters($query, ['code', 'fieldID']);
+        $this->filterSearch($query, $searchFields);
+        $this->filterValues($query, ['code', 'fieldID']);
 
         if ($programID = $this->state->get('filter.programID', '')) {
-            Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
+            Helpers\Subjects::filterProgram($query, $programID, 'subject', 's');
         }
 
         if ($poolID = $this->state->get('filter.poolID', '')) {
-            Helpers\Subjects::setPoolFilter($query, $poolID, 's');
+            Helpers\Subjects::filterPool($query, $poolID, 's');
         }
 
         $this->orderBy($query);

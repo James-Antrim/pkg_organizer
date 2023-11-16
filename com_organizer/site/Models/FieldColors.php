@@ -26,12 +26,11 @@ class FieldColors extends ListModel
     /**
      * @inheritDoc
      */
-    protected function filterFilterForm(Form $form)
+    protected function filterFilterForm(Form $form): void
     {
         if (count(Helpers\Can::documentTheseOrganizations()) === 1) {
             $form->removeField('organizationID', 'filter');
             unset($this->filter_fields['organizationID']);
-
         }
     }
 
@@ -53,8 +52,8 @@ class FieldColors extends ListModel
             ->innerJoin('#__organizer_organizations AS o ON o.id = fc.organizationID');
 
         // Explicitly set via request
-        $this->setIDFilter($query, 'c.id', 'filter.colorID');
-        $this->setIDFilter($query, 'f.id', 'filter.fieldID');
+        $this->filterID($query, 'c.id', 'filter.colorID');
+        $this->filterID($query, 'f.id', 'filter.fieldID');
 
         // Explicitly set via request or implicitly set by authorization
         if ($organizationID = $this->state->get('filter.organizationID')) {
@@ -69,14 +68,14 @@ class FieldColors extends ListModel
     /**
      * @inheritDoc
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 
-        $accessibleOrganizations = Helpers\Can::documentTheseOrganizations();
+        $documentable = Helpers\Can::documentTheseOrganizations();
 
-        if (count($accessibleOrganizations) === 1) {
-            $this->setState('filter.organizationID', $accessibleOrganizations[0]);
+        if (count($documentable) === 1) {
+            $this->setState('filter.organizationID', $documentable[0]);
         }
     }
 }

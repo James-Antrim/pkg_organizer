@@ -36,7 +36,7 @@ class Degrees extends ListModel
             ->from(DB::qn('#__organizer_degrees'));
 
         $columns = ['name', 'abbreviation', 'code'];
-        $this->setSearchFilter($query, $columns);
+        $this->filterSearch($query, $columns);
         $this->orderBy($query);
 
         return $query;

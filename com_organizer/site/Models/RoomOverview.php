@@ -46,8 +46,7 @@ class RoomOverview extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
+        $tag   = Application::getTag();
         $query = Database::getQuery();
 
         $query->select('r.id, r.name AS name, r.effCapacity')
@@ -61,9 +60,9 @@ class RoomOverview extends ListModel
         // Only display public room types, i.e. no offices or toilets...
         $query->where('t.suppress = 0');
 
-        $this->setSearchFilter($query, ['r.name']);
-        $this->setValueFilters($query, ['buildingID', 'roomtypeID']);
-        $this->setCampusFilter($query, 'b');
+        $this->filterSearch($query, ['r.name']);
+        $this->filterValues($query, ['buildingID', 'roomtypeID']);
+        $this->filterCampus($query, 'b');
 
         if ($roomIDs = Input::getFilterIDs('room')) {
             $query->where('r.id IN (' . implode(',', $roomIDs) . ')');

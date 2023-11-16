@@ -558,7 +558,7 @@ class Booking extends Participants
             ->where("b.id = $bookingID")
             ->where('(ip.attended = 1 or ip.registered = 1)');
 
-        $this->setValueFilters($query, ['instanceID', 'roomID']);
+        $this->filterValues($query, ['instanceID', 'roomID']);
 
         switch ((int) $this->state->get('filter.status')) {
             case Helper::ATTENDEES:

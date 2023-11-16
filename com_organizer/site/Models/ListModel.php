@@ -13,7 +13,7 @@ namespace THM\Organizer\Models;
 use Exception;
 use Joomla\CMS\MVC\{Factory\MVCFactoryInterface, Model\ListModel as Base};
 use Joomla\CMS\Table\Table;
-use Joomla\Database\QueryInterface;
+use Joomla\Database\DatabaseQuery;
 use Joomla\Utilities\ArrayHelper;
 use stdClass;
 use THM\Organizer\Adapters\{Application, Database as DB, Form, Input};
@@ -52,24 +52,55 @@ abstract class ListModel extends Base
     /**
      * Area where overrideable resource access conditions can be written.
      *
-     * @param   QueryInterface  $query
+     * @param   DatabaseQuery  $query
      *
      * @return void
      */
-    protected function addAccess(QueryInterface $query): void
+    protected function addAccess(DatabaseQuery $query): void
     {
         // As needed
     }
 
     /**
+     * Provides external access to the clean cache function. This belongs in the input adapter, but I do not want to
+     * have to put in the effort to resolve everything necessary to get it there.
+     * @void initiates cache cleaning
+     */
+    public function emptyCache(): void
+    {
+        $this->cleanCache();
+    }
+
+    /**
+     * Sets a campus filter for a given resource.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias for the linking table
+     */
+    protected function filterActive(DatabaseQuery $query, string $alias): void
+    {
+        $status = $this->state->get('filter.active');
+
+        if (!is_numeric($status)) {
+            $status = 1;
+        }
+
+        if ($status == -1) {
+            return;
+        }
+
+        $query->where("$alias.active = $status");
+    }
+
+    /**
      * Adds a binary value filter clause for the given $query;
      *
-     * @param   QueryInterface  $query  the query to modify
-     * @param   string          $name   the attribute whose value to filter against
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $name   the attribute whose value to filter against
      *
      * @return void modifies the query if a binary value was delivered in the request
      */
-    protected function binaryFilter(QueryInterface $query, string $name): void
+    protected function filterBinary(DatabaseQuery $query, string $name): void
     {
         $value = $this->state->get($name);
 
@@ -87,13 +118,27 @@ abstract class ListModel extends Base
     }
 
     /**
-     * Provides external access to the clean cache function. This belongs in the input adapter, but I do not want to
-     * have to put in the effort to resolve everything necessary to get it there.
-     * @void initiates cache cleaning
+     * Sets a campus filter for a given resource.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the alias for the linking table
      */
-    public function emptyCache(): void
+    protected function filterCampus(DatabaseQuery $query, string $alias): void
     {
-        $this->cleanCache();
+        $campusID = $this->state->get('filter.campusID');
+        if (empty($campusID)) {
+            return;
+        }
+
+        if ($campusID === '-1') {
+            $query->leftJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
+                ->where("campusAlias.id IS NULL");
+
+            return;
+        }
+
+        $query->innerJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
+            ->where("(campusAlias.id = $campusID OR campusAlias.parentID = $campusID)");
     }
 
     /**
@@ -106,6 +151,191 @@ abstract class ListModel extends Base
     protected function filterFilterForm(Form $form): void
     {
         // No implementation is the default implementation.
+    }
+
+    /**
+     * Provides a default method for setting filters based on id/unique values
+     *
+     * @param   DatabaseQuery  $query       the query to modify
+     * @param   string         $idColumn    the id column in the table
+     * @param   string         $filterName  the filter name to look for the id in
+     *
+     * @return void
+     */
+    protected function filterID(DatabaseQuery $query, string $idColumn, string $filterName): void
+    {
+        $value = $this->state->get($filterName, '');
+        if ($value === '') {
+            return;
+        }
+
+        /**
+         * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
+         * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
+         * be extended we could maybe add a parameter for it later.
+         */
+        if ($value == '-1') {
+            $query->where("$idColumn IS NULL");
+
+            return;
+        }
+
+        // IDs are unique and therefore mutually exclusive => one is enough!
+        $query->where("$idColumn = $value");
+    }
+
+    /**
+     * Sets the search filter for the query
+     *
+     * @param   DatabaseQuery  $query        the query to modify
+     * @param   array          $columnNames  the column names to use in the search
+     *
+     * @return void
+     */
+    protected function filterSearch(DatabaseQuery $query, array $columnNames): void
+    {
+        if (!$userInput = $this->state->get('filter.search')) {
+            return;
+        }
+
+        $search = '%' . $query->escape($userInput, true) . '%';
+        $where  = [];
+
+        foreach ($columnNames as $name) {
+            $name    = DB::qn($name);
+            $where[] = "$name LIKE '$search'";
+        }
+
+        $query->andWhere($where);
+    }
+
+    /**
+     * Adds a date status filter for a given resource.
+     *
+     * @param   DatabaseQuery  $query  the query to modify
+     * @param   string         $alias  the column alias
+     */
+    protected function filterStatus(DatabaseQuery $query, string $alias): void
+    {
+        if (!$value = $this->state->get('filter.status')) {
+            return;
+        }
+
+        $modified       = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
+        $modifiedClause = "AND $alias.modified > '$modified'";
+
+        switch ($value) {
+            case self::CURRENT:
+                $query->where("$alias.delta != 'removed'");
+
+                return;
+            case self::CHANGED:
+                $query->where("(($alias.delta = 'new' $modifiedClause) OR $alias.delta = 'removed')");
+
+                return;
+            case self::NEW:
+                $query->where("($alias.delta = 'new' $modifiedClause)");
+
+                return;
+            case self::REMOVED:
+                $query->where("$alias.delta = 'removed'");
+
+                return;
+        }
+    }
+
+    /**
+     * Provides a default method for setting filters for non-unique values
+     *
+     * @param   DatabaseQuery  $query         the query to modify
+     * @param   array          $queryColumns  the filter names. names should be synonymous with db column names.
+     *
+     * @return void
+     */
+    protected function filterValues(DatabaseQuery $query, array $queryColumns): void
+    {
+        $filters = Input::getFilterItems();
+        $lists   = Input::getListItems();
+        $state   = $this->getState();
+
+        // The view level filters
+        foreach ($queryColumns as $column) {
+            $filterName = !str_contains($column, '.') ? $column : explode('.', $column)[1];
+
+            $value = $filters->get($filterName);
+
+            if (!$value and $value !== '0') {
+                $value = $lists->get($filterName);
+            }
+
+            if (!$value and $value !== '0') {
+                $value = $state->get("filter.$filterName");
+            }
+
+            if (!$value and $value !== '0') {
+                $value = $state->get("list.$filterName");
+            }
+
+            if (!$value and $value !== '0') {
+                continue;
+            }
+
+            $column = DB::qn($column);
+
+            /**
+             * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
+             * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
+             * be extended we could maybe add a parameter for it later.
+             */
+            if ($value === '-1') {
+                $query->where("( $column = '' OR $column IS NULL )");
+                continue;
+            }
+
+            if (is_numeric($value)) {
+                $query->where("$column = $value");
+            }
+            elseif (is_string($value)) {
+                $value = DB::quote($value);
+                $query->where("$column = $value");
+            }
+            elseif (is_array($value) and $values = ArrayHelper::toInteger($value)) {
+                $query->where($column . DB::makeSet($values));
+            }
+        }
+    }
+
+    /**
+     * Sets an organization filter for the given resource.
+     *
+     * @param   DatabaseQuery  $query     the query to modify
+     * @param   string         $context   the resource context from which this function was called
+     * @param   string         $alias     the alias of the table onto which the organizations table will be joined as
+     *                                    needed
+     *
+     * @return void
+     */
+    protected function filterOrganizations(DatabaseQuery $query, string $context, string $alias): void
+    {
+        $authorizedIDs  = Application::backend() ? Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
+        $organizationID = (int) $this->state->get('filter.organizationID');
+
+        if (!$authorizedIDs or !$organizationID) {
+            return;
+        }
+
+        $conditions = DB::qc("a.{$context}ID", "$alias.id");
+
+        if ($organizationID === self::NONE) {
+            $query->leftJoin(DB::qn('#_organizer_associations', 'a'), $conditions)
+                ->where(DB::qn('a.organizationID') . ' IS NULL');
+
+            return;
+        }
+
+        $in = in_array($organizationID, $authorizedIDs) ? [$organizationID] : $authorizedIDs;
+        $query->innerJoin(DB::qn('#_organizer_associations', 'a'), $conditions)
+            ->whereIn(DB::qn('a.organizationID'), $in);
     }
 
     /**
@@ -190,6 +420,16 @@ abstract class ListModel extends Base
     /**
      * @inheritDoc
      */
+    public function getTotal(): int
+    {
+        $total = parent::getTotal();
+
+        return is_int($total) ? $total : 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function loadForm($name, $source = null, $options = [], $clear = false, $xpath = false): Form
     {
         /** @var Form $form */
@@ -252,11 +492,11 @@ abstract class ListModel extends Base
     /**
      * Adds a standardized order by clause for the given $query;
      *
-     * @param   QueryInterface  $query  the query to modify
+     * @param   DatabaseQuery  $query  the query to modify
      *
      * @return void
      */
-    protected function orderBy(QueryInterface $query): void
+    protected function orderBy(DatabaseQuery $query): void
     {
         if ($columns = $this->state->get('list.ordering')) {
             if (preg_match('/, */', $columns)) {
@@ -328,235 +568,5 @@ abstract class ListModel extends Base
 
         $this->state->set('list.limit', $limit);
         $this->state->set('list.start', $start);
-    }
-
-    /**
-     * Sets a campus filter for a given resource.
-     *
-     * @param   QueryInterface  $query  the query to modify
-     * @param   string          $alias  the alias for the linking table
-     */
-    protected function setActiveFilter(QueryInterface $query, string $alias): void
-    {
-        $status = $this->state->get('filter.active');
-
-        if (!is_numeric($status)) {
-            $status = 1;
-        }
-
-        if ($status == -1) {
-            return;
-        }
-
-        $query->where("$alias.active = $status");
-    }
-
-    /**
-     * Sets a campus filter for a given resource.
-     *
-     * @param   QueryInterface  $query  the query to modify
-     * @param   string          $alias  the alias for the linking table
-     */
-    protected function setCampusFilter(QueryInterface $query, string $alias): void
-    {
-        $campusID = $this->state->get('filter.campusID');
-        if (empty($campusID)) {
-            return;
-        }
-
-        if ($campusID === '-1') {
-            $query->leftJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
-                ->where("campusAlias.id IS NULL");
-
-            return;
-        }
-
-        $query->innerJoin("#__organizer_campuses AS campusAlias ON campusAlias.id = $alias.campusID")
-            ->where("(campusAlias.id = $campusID OR campusAlias.parentID = $campusID)");
-    }
-
-    /**
-     * Provides a default method for setting filters based on id/unique values
-     *
-     * @param   QueryInterface  $query       the query to modify
-     * @param   string          $idColumn    the id column in the table
-     * @param   string          $filterName  the filter name to look for the id in
-     *
-     * @return void
-     */
-    protected function setIDFilter(QueryInterface $query, string $idColumn, string $filterName): void
-    {
-        $value = $this->state->get($filterName, '');
-        if ($value === '') {
-            return;
-        }
-
-        /**
-         * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
-         * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
-         * be extended we could maybe add a parameter for it later.
-         */
-        if ($value == '-1') {
-            $query->where("$idColumn IS NULL");
-
-            return;
-        }
-
-        // IDs are unique and therefore mutually exclusive => one is enough!
-        $query->where("$idColumn = $value");
-    }
-
-    /**
-     * Sets an organization filter for the given resource.
-     *
-     * @param   QueryInterface  $query    the query to modify
-     * @param   string          $context  the resource context from which this function was called
-     * @param   string          $alias    the alias of the table onto which the organizations table will be joined as
-     *                                    needed
-     *
-     * @return void
-     */
-    protected function setOrganizationFilter(QueryInterface $query, string $context, string $alias): void
-    {
-        $authorizedIDs  = Application::backend() ? Helpers\Can::documentTheseOrganizations() : Helpers\Organizations::getIDs();
-        $organizationID = (int) $this->state->get('filter.organizationID');
-
-        if (!$authorizedIDs or !$organizationID) {
-            return;
-        }
-
-        $conditions = DB::qc("a.{$context}ID", "$alias.id");
-
-        if ($organizationID === self::NONE) {
-            $query->leftJoin(DB::qn('#_organizer_associations', 'a'), $conditions)
-                ->where(DB::qn('a.organizationID') . ' IS NULL');
-
-            return;
-        }
-
-        $in = in_array($organizationID, $authorizedIDs) ? [$organizationID] : $authorizedIDs;
-        $query->innerJoin(DB::qn('#_organizer_associations', 'a'), $conditions)
-            ->whereIn(DB::qn('a.organizationID'), $in);
-    }
-
-    /**
-     * Sets the search filter for the query
-     *
-     * @param   QueryInterface  $query        the query to modify
-     * @param   array           $columnNames  the column names to use in the search
-     *
-     * @return void
-     */
-    protected function setSearchFilter(QueryInterface $query, array $columnNames): void
-    {
-        if (!$userInput = $this->state->get('filter.search')) {
-            return;
-        }
-
-        $search = '%' . $query->escape($userInput, true) . '%';
-        $where  = [];
-
-        foreach ($columnNames as $name) {
-            $name    = DB::qn($name);
-            $where[] = "$name LIKE '$search'";
-        }
-
-        $query->andWhere($where);
-    }
-
-    /**
-     * Adds a date status filter for a given resource.
-     *
-     * @param   QueryInterface  $query  the query to modify
-     * @param   string          $alias  the column alias
-     */
-    protected function setStatusFilter(QueryInterface $query, string $alias): void
-    {
-        if (!$value = $this->state->get('filter.status')) {
-            return;
-        }
-
-        $modified       = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
-        $modifiedClause = "AND $alias.modified > '$modified'";
-
-        switch ($value) {
-            case self::CURRENT:
-                $query->where("$alias.delta != 'removed'");
-
-                return;
-            case self::CHANGED:
-                $query->where("(($alias.delta = 'new' $modifiedClause) OR $alias.delta = 'removed')");
-
-                return;
-            case self::NEW:
-                $query->where("($alias.delta = 'new' $modifiedClause)");
-
-                return;
-            case self::REMOVED:
-                $query->where("$alias.delta = 'removed'");
-
-                return;
-        }
-    }
-
-    /**
-     * Provides a default method for setting filters for non-unique values
-     *
-     * @param   QueryInterface  $query         the query to modify
-     * @param   array           $queryColumns  the filter names. names should be synonymous with db column names.
-     *
-     * @return void
-     */
-    protected function setValueFilters(QueryInterface $query, array $queryColumns): void
-    {
-        $filters = Input::getFilterItems();
-        $lists   = Input::getListItems();
-        $state   = $this->getState();
-
-        // The view level filters
-        foreach ($queryColumns as $column) {
-            $filterName = !str_contains($column, '.') ? $column : explode('.', $column)[1];
-
-            $value = $filters->get($filterName);
-
-            if (!$value and $value !== '0') {
-                $value = $lists->get($filterName);
-            }
-
-            if (!$value and $value !== '0') {
-                $value = $state->get("filter.$filterName");
-            }
-
-            if (!$value and $value !== '0') {
-                $value = $state->get("list.$filterName");
-            }
-
-            if (!$value and $value !== '0') {
-                continue;
-            }
-
-            $column = DB::qn($column);
-
-            /**
-             * Special value reserved for empty filtering. Since an empty is dependent upon the column default, we must
-             * check against multiple 'empty' values. Here we check against empty string and null. Should this need to
-             * be extended we could maybe add a parameter for it later.
-             */
-            if ($value === '-1') {
-                $query->where("( $column = '' OR $column IS NULL )");
-                continue;
-            }
-
-            if (is_numeric($value)) {
-                $query->where("$column = $value");
-            }
-            elseif (is_string($value)) {
-                $value = DB::quote($value);
-                $query->where("$column = $value");
-            }
-            elseif (is_array($value) and $values = ArrayHelper::toInteger($value)) {
-                $query->where($column . DB::makeSet($values));
-            }
-        }
     }
 }

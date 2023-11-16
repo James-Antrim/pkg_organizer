@@ -35,9 +35,9 @@ class Colors extends ListModel
         $query->select(array_merge($select, $access, $aliased, $url))
             ->from(DB::qn('#__organizer_colors'));
 
-        $this->setSearchFilter($query, ['name_de', 'name_en', 'color']);
-        $this->setValueFilters($query, ['color']);
-        $this->setIDFilter($query, 'id', 'filter.name');
+        $this->filterSearch($query, ['name_de', 'name_en', 'color']);
+        $this->filterValues($query, ['color']);
+        $this->filterID($query, 'id', 'filter.name');
 
         $this->orderBy($query);
 

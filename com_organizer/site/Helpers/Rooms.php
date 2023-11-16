@@ -106,7 +106,7 @@ class Rooms extends ResourceHelper implements Selectable
             ->from('#__organizer_rooms AS r')
             ->innerJoin('#__organizer_roomtypes AS rt ON rt.id = r.roomtypeID')
             ->order('name');
-        self::addResourceFilter($query, 'building', 'b1', 'r');
+        self::filterResources($query, 'building', 'b1', 'r');
 
         // TODO Remove roomTypeIDs on completion of migration.
         $roomtypeID  = Input::getInt('roomtypeID', Input::getInt('roomTypeIDs', self::ALL));
@@ -130,7 +130,7 @@ class Rooms extends ResourceHelper implements Selectable
 
         // This join is used specifically to filter campuses independent of buildings.
         $query->leftJoin('#__organizer_buildings AS b2 ON b2.id = r.buildingID');
-        self::addCampusFilter($query, 'b2');
+        self::filterCampus($query, 'b2');
         Database::setQuery($query);
 
         return Database::loadAssocList();

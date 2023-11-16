@@ -260,10 +260,10 @@ class Programs extends Curricula implements Selectable
             ->order(DB::qn('name'));
 
         if ($access) {
-            self::addAccessFilter($query, $access, 'program', 'p');
+            self::filterAccess($query, $access, 'program', 'p');
         }
 
-        self::addOrganizationFilter($query, 'program', 'p');
+        self::filterOrganizations($query, 'program', 'p');
 
         if (self::useCurrent()) {
             $tag = Application::getTag();
@@ -292,7 +292,7 @@ class Programs extends Curricula implements Selectable
     /**
      * @inheritDoc
      */
-    public static function getPrograms($identifiers): array
+    public static function getPrograms(array|int $identifiers): array
     {
         $ranges = [];
         foreach ($identifiers as $programID) {

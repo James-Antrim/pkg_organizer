@@ -10,7 +10,7 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
 use THM\Organizer\Helpers;
 
@@ -24,13 +24,11 @@ class Events extends ListModel
     protected $filter_fields = ['campusID', 'categoryID', 'groupID', 'organizationID', 'preparatory'];
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select("DISTINCT e.id AS id, e.name_$tag as name, e.organizationID, e.code")
             ->select("o.id AS organizationID, o.shortName_$tag AS organization")
@@ -44,8 +42,8 @@ class Events extends ListModel
             $query->where("o.id IN ($authorized)");
         }
 
-        $this->setSearchFilter($query, ['e.name_de', 'e.name_en', 'e.subjectNo']);
-        $this->setValueFilters($query, ['e.organizationID', 'e.campusID', 'e.preparatory']);
+        $this->filterSearch($query, ['e.name_de', 'e.name_en', 'e.subjectNo']);
+        $this->filterValues($query, ['e.organizationID', 'e.campusID', 'e.preparatory']);
 
         $this->orderBy($query);
 

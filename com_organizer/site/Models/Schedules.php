@@ -48,7 +48,7 @@ class Schedules extends ListModel
 
         $query->whereIn(DB::qn('o.id'), Can::scheduleTheseOrganizations());
 
-        $this->setValueFilters($query, ['organizationID', 'termID']);
+        $this->filterValues($query, ['organizationID', 'termID']);
 
         return $query;
     }

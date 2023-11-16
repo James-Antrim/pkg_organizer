@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Helpers;
 
 /**
@@ -42,16 +42,14 @@ class Units extends ListModel
     }
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
         $modified = date('Y-m-d h:i:s', strtotime('-2 Weeks'));
         $termID   = $this->state->get('filter.termID');
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
-        $tag   = Application::getTag();
+        $query    = Database::getQuery();
+        $tag      = Application::getTag();
 
         $query->select('u.id, u.code, u.courseID, u.delta AS status, u.endDate, u.modified, u.startDate')
             ->select("g.name_$tag AS grid")
@@ -72,18 +70,19 @@ class Units extends ListModel
 
         if ($organizationID = $this->state->get('filter.organizationID')) {
             $query->where("a.organizationID = $organizationID");
-        } else {
+        }
+        else {
             $organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
             $query->where("a.organizationID IN ($organizationIDs)");
         }
 
         if ($this->state->get('filter.search')) {
             $query->innerJoin('#__organizer_events AS e ON e.id = i.eventID');
-            $this->setSearchFilter($query, ['e.name_de', 'e.name_en', 'u.code']);
+            $this->filterSearch($query, ['e.name_de', 'e.name_en', 'u.code']);
         }
 
-        $this->setValueFilters($query, ['u.gridID', 'u.runID']);
-        $this->setStatusFilter($query, 'u');
+        $this->filterValues($query, ['u.gridID', 'u.runID']);
+        $this->filterStatus($query, 'u');
 
         return $query;
     }
@@ -91,12 +90,12 @@ class Units extends ListModel
     /**
      * Method to auto-populate the model state.
      *
-     * @param string $ordering  An optional ordering field.
-     * @param string $direction An optional direction (asc|desc).
+     * @param   string  $ordering   An optional ordering field.
+     * @param   string  $direction  An optional direction (asc|desc).
      *
      * @return void populates state properties
      */
-    protected function populateState($ordering = null, $direction = null)
+    protected function populateState($ordering = null, $direction = null): void
     {
         parent::populateState($ordering, $direction);
 

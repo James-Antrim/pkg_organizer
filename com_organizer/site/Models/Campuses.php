@@ -78,7 +78,7 @@ class Campuses extends ListModel
             'c2.address',
             'c2.zipCode'
         ];
-        $this->setSearchFilter($query, $searchColumns);
+        $this->filterSearch($query, $searchColumns);
         $this->setCityFilter($query);
         $this->setGridFilter($query);
 
@@ -122,8 +122,6 @@ class Campuses extends ListModel
      */
     private function setGridFilter(DatabaseQuery $query): void
     {
-        ;
-
         if (!$value = (int) $this->state->get('filter.gridID')) {
             return;
         }

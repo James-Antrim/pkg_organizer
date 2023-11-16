@@ -42,7 +42,7 @@ class Fields extends ListModel
 
         $query->select($select)->from(DB::qn('#__organizer_fields', 'f'));
 
-        $this->setSearchFilter($query, ['f.name_de', 'f.name_en', 'code']);
+        $this->filterSearch($query, ['f.name_de', 'f.name_en', 'code']);
 
         $color        = Input::getFilterID('color');
         $organization = Input::getFilterID('organization');

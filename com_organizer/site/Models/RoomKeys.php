@@ -42,8 +42,8 @@ class RoomKeys extends ListModel
             ->from(DB::qn('#__organizer_roomkeys', 'rk'))
             ->innerJoin(DB::qn('#__organizer_use_groups', 'ug'), DB::qc('ug.id', 'rk.useID'));
 
-        $this->setSearchFilter($query, ['name_de', 'name_en']);
-        $this->setValueFilters($query, ['cleaningID']);
+        $this->filterSearch($query, ['name_de', 'name_en']);
+        $this->filterValues($query, ['cleaningID']);
 
         $useID = (int) $this->state->get('filter.useID');
 

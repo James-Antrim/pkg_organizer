@@ -19,7 +19,9 @@ use THM\Organizer\Tables\Groups as Group;
  */
 class Groups extends Associated implements Selectable
 {
-    use Filtered, Planned, Suppressed;
+    use Filtered;
+    use Planned;
+    use Suppressed;
 
     protected static $resource = 'group';
 
@@ -158,15 +160,15 @@ class Groups extends Associated implements Selectable
         $query->select('g.*')->from('#__organizer_groups AS g');
 
         if (!empty($access)) {
-            self::addAccessFilter($query, $access, 'group', 'g');
+            self::filterAccess($query, $access, 'group', 'g');
         }
 
         if (!empty($organizationIDs)) {
-            self::addOrganizationFilter($query, 'group', 'g');
+            self::filterOrganizations($query, 'group', 'g');
         }
 
         if (!empty($categoryIDs)) {
-            self::addResourceFilter($query, 'category', 'cat', 'g');
+            self::filterResources($query, 'category', 'cat', 'g');
         }
 
         Database::setQuery($query);

@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database};
 use THM\Organizer\Helpers;
 
 /**
@@ -26,14 +26,12 @@ class Categories extends ListModel
     protected $filter_fields = ['organizationID'];
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
 
-        /* @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->select("DISTINCT cat.id, cat.code, cat.name_$tag AS name, cat.active")
             ->from('#__organizer_categories AS cat')
@@ -42,9 +40,9 @@ class Categories extends ListModel
         $authorized = implode(",", Helpers\Can::scheduleTheseOrganizations());
         $query->where("a.organizationID IN ($authorized)");
 
-        $this->setActiveFilter($query, 'cat');
-        $this->setSearchFilter($query, ['cat.name_de', 'cat.name_en', 'cat.code']);
-        $this->setValueFilters($query, ['organizationID', 'programID']);
+        $this->filterActive($query, 'cat');
+        $this->filterSearch($query, ['cat.name_de', 'cat.name_en', 'cat.code']);
+        $this->filterValues($query, ['organizationID', 'programID']);
         $this->orderBy($query);
 
         return $query;

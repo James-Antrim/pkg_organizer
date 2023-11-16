@@ -10,8 +10,8 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database as DB};
 use THM\Organizer\Helpers;
 
 /**
@@ -27,24 +27,23 @@ class Groups extends ListModel
 
     /**
      * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @return DatabaseQuery
      */
-    protected function getListQuery()
+    protected function getListQuery(): DatabaseQuery
     {
         $authorized = Helpers\Can::scheduleTheseOrganizations();
         $tag        = Application::getTag();
 
-        /* @var QueryMySQLi $query */
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT gr.id, gr.code, gr.categoryID, gr.gridID, gr.active')
             ->select("gr.fullName_$tag AS fullName, gr.name_$tag AS name")
             ->from('#__organizer_groups AS gr')
             ->innerJoin('#__organizer_associations AS a ON a.groupID = gr.id')
             ->where('(a.organizationID IN (' . implode(',', $authorized) . ') OR a.organizationID IS NULL)');
 
-        $this->setActiveFilter($query, 'gr');
-        $this->setSearchFilter($query, ['gr.fullName_de', 'gr.fullName_en', 'gr.name_de', 'gr.name_en', 'gr.code']);
-        $this->setValueFilters($query, ['gr.categoryID', 'a.organizationID', 'gr.gridID']);
+        $this->filterActive($query, 'gr');
+        $this->filterSearch($query, ['gr.fullName_de', 'gr.fullName_en', 'gr.name_de', 'gr.name_en', 'gr.code']);
+        $this->filterValues($query, ['gr.categoryID', 'a.organizationID', 'gr.gridID']);
 
         $this->orderBy($query);
 

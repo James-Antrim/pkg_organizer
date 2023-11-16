@@ -10,8 +10,9 @@
 
 namespace THM\Organizer\Helpers;
 
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Database, Queries\QueryMySQLi, Text};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Database as DB, Text};
+use Joomla\Database\ParameterType;
 
 /**
  * Class contains methods and method stubs useful in the context of nested curriculum resources.
@@ -24,13 +25,13 @@ abstract class Curricula extends Associated implements Selectable
      * Adds clauses to an array to find subordinate resources in an error state disassociated from a superordinate
      * resource type.
      *
-     * @param JDatabaseQuery $query  the query to modify
-     * @param array          $ranges the ranges of the possible superordinate resources
-     * @param string         $alias  the alias to use in the query
+     * @param   DatabaseQuery  $query   the query to modify
+     * @param   array          $ranges  the ranges of the possible superordinate resources
+     * @param   string         $alias   the alias to use in the query
      *
-     * @return void modifies the query
+     * @return void
      */
-    protected static function filterDisassociated(JDatabaseQuery $query, array $ranges, string $alias)
+    protected static function filterDisassociated(DatabaseQuery $query, array $ranges, string $alias): void
     {
         $erray = [];
 
@@ -46,7 +47,7 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Filters the curricula ids from an array of ranges.
      *
-     * @param array $ranges the ranges to filter
+     * @param   array  $ranges  the ranges to filter
      *
      * @return int[] the curricular ids contained in the ranges
      */
@@ -56,7 +57,8 @@ abstract class Curricula extends Associated implements Selectable
         foreach ($ranges as $range) {
             if (empty($range['id'])) {
                 $ids[] = $range['curriculumID'];
-            } else {
+            }
+            else {
                 $ids[] = $range['id'];
             }
         }
@@ -67,7 +69,7 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Filters the curricula ids from an array of ranges.
      *
-     * @param array $ranges the ranges to filter
+     * @param   array  $ranges  the ranges to filter
      *
      * @return int[] the curricular ids contained in the ranges
      */
@@ -82,15 +84,77 @@ abstract class Curricula extends Associated implements Selectable
     }
 
     /**
+     * Adds a program filter clause to the given query.
+     *
+     * @param   DatabaseQuery  $query   the query to modify
+     * @param   int            $poolID  the id of the pool to filter for
+     * @param   string         $alias   the alias of the table referenced in the join
+     *
+     * @return void
+     */
+    public static function filterPool(DatabaseQuery $query, int $poolID, string $alias): void
+    {
+        if (!$poolID or !$ranges = Pools::getRanges($poolID)) {
+            return;
+        }
+
+        // Program context is a precondition for none, so this filters for subjects directly associated with a program.
+        if ($poolID === self::NONE) {
+            $query->innerJoin(DB::qn('#__organizer_curricula', 'parent'), DB::qc('parent.ID', 'prc.parentID'))
+                ->where(DB::qn('parent.programID') . ' IS NOT NULL');
+
+            return;
+        }
+
+        $range = array_pop($ranges);
+        $query->innerJoin(DB::qn('#__organizer_curricula', 'poc'), DB::qc('poc.subjectID', "$alias.id"))
+            ->where([DB::qn('poc.lft') . ' > :left', DB::qn('poc.rgt') . ' < :right'])
+            ->bind(':left', $range['lft'], ParameterType::INTEGER)
+            ->bind(':right', $range['rgt'], ParameterType::INTEGER);
+    }
+
+    /**
+     * Adds a program filter clause to the given query.
+     *
+     * @param   DatabaseQuery  $query      the query to modify
+     * @param   int            $programID  the id of the program to filter for
+     * @param   string         $context    the resource context from which this function was called
+     * @param   string         $alias      the alias of the table referenced in the join
+     *
+     * @return void
+     */
+    public static function filterProgram(DatabaseQuery $query, int $programID, string $context, string $alias): void
+    {
+        if (!$programID or !$ranges = Programs::getRanges($programID)) {
+            return;
+        }
+
+        $condition = DB::qc("prc.{$context}ID", "$alias.id");
+        $table     = DB::qn('#__organizer_curricula', 'prc');
+        $range     = array_pop($ranges);
+
+        if ($programID === self::NONE) {
+            $query->leftJoin($table, $condition)
+                ->where("prc.{$context}ID IS NULL");
+
+            return;
+        }
+
+        $query->innerJoin($table, $condition)
+            ->where("prc.lft > {$range['lft']}")
+            ->where("prc.rgt < {$range['rgt']}");
+    }
+
+    /**
      * Adds range restrictions for subordinate resources.
      *
-     * @param JDatabaseQuery $query     the query to modify
-     * @param array          $ranges    the ranges of subordinate resources
-     * @param int            $subjectID the id of a specific subject resource to find in context
+     * @param   DatabaseQuery  $query      the query to modify
+     * @param   array          $ranges     the ranges of subordinate resources
+     * @param   int            $subjectID  the id of a specific subject resource to find in context
      *
-     * @return void modifies the query
+     * @return void
      */
-    protected static function filterSubOrdinate(JDatabaseQuery $query, array $ranges, int $subjectID = 0)
+    protected static function filterSubOrdinate(DatabaseQuery $query, array $ranges, int $subjectID = 0): void
     {
         $wherray = [];
         foreach ($ranges as $range) {
@@ -103,7 +167,8 @@ abstract class Curricula extends Associated implements Selectable
 
         if ($subjectID) {
             $query->where("subjectID = $subjectID");
-        } else {
+        }
+        else {
             $query->where("subjectID IS NOT NULL");
         }
     }
@@ -111,12 +176,12 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Adds range restrictions for subordinate resources.
      *
-     * @param JDatabaseQuery $query  the query to modify
-     * @param array          $ranges the ranges of subordinate resources
+     * @param   DatabaseQuery  $query   the query to modify
+     * @param   array          $ranges  the ranges of subordinate resources
      *
-     * @return void modifies the query
+     * @return void
      */
-    protected static function filterSuperOrdinate(JDatabaseQuery $query, array $ranges)
+    protected static function filterSuperOrdinate(DatabaseQuery $query, array $ranges): void
     {
         $wherray = [];
         foreach ($ranges as $range) {
@@ -129,11 +194,11 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Recursively builds the curriculum hierarchy inclusive data for resources subordinate to a given range.
      *
-     * @param array $curriculum the range used as the start point
+     * @param   array  $curriculum  the range used as the start point
      *
-     * @return void modifies the curriculum array
+     * @return void
      */
-    public static function getCurriculum(array &$curriculum)
+    public static function getCurriculum(array &$curriculum): void
     {
         $invalidRange = (empty($curriculum['lft']) or empty($curriculum['rgt']) or $curriculum['subjectID']);
         if ($invalidRange) {
@@ -142,7 +207,7 @@ abstract class Curricula extends Associated implements Selectable
             return;
         }
 
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('*')
             ->from('#__organizer_curricula')
             ->where("lft > {$curriculum['lft']}")
@@ -155,9 +220,9 @@ abstract class Curricula extends Associated implements Selectable
             $query->where("poolID IS NOT NULL");
         }
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        if (!$subOrdinates = Database::loadAssocList('id')) {
+        if (!$subOrdinates = DB::loadAssocList('id')) {
             $curriculum['curriculum'] = [];
 
             return;
@@ -183,13 +248,13 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Retrieves all curriculum ranges subordinate to a program
      *
-     * @param array $programRanges the ranges of superordinate programs
+     * @param   array  $programRanges  the ranges of superordinate programs
      *
      * @return array[]  an array containing all ranges subordinate to the ranges specified
      */
     private static function getMappableRanges(array $programRanges): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('*');
         $query->from('#__organizer_curricula');
 
@@ -200,9 +265,9 @@ abstract class Curricula extends Associated implements Selectable
                 ->where("rgt <= {$range['rgt']}")
                 ->where('subjectID IS NULL')
                 ->order('lft ASC');
-            Database::setQuery($query);
+            DB::setQuery($query);
 
-            if (!$results = Database::loadAssocList()) {
+            if (!$results = DB::loadAssocList()) {
                 continue;
             }
 
@@ -215,23 +280,23 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Retrieves the range for a given id.
      *
-     * @param int $rangeID the id of the range requested
+     * @param   int  $rangeID  the id of the range requested
      *
      * @return array  curriculum range
      */
     public static function getRange(int $rangeID): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('*')->from('#__organizer_curricula')->where("id = $rangeID");
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssoc();
+        return DB::loadAssoc();
     }
 
     /**
      * Gets the mapped curricula ranges for the given resource
      *
-     * @param int $resourceID the resource ID
+     * @param   int  $resourceID  the resource ID
      *
      * @return int[] the resource ranges
      */
@@ -246,11 +311,11 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Gets the mapped curricula ranges for the given resource
      *
-     * @param array|int $identifiers ranges of subordinate resources | resource id
+     * @param   array|int  $identifiers  ranges of subordinate resources | resource id
      *
      * @return array[] the resource ranges
      */
-    public static function getRanges($identifiers): array
+    public static function getRanges(array|int $identifiers): array
     {
         $self = get_called_class();
 
@@ -261,9 +326,9 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Retrieves a list of options for choosing superordinate entries in the curriculum hierarchy.
      *
-     * @param int    $resourceID    the id of the resource for which the form is being displayed
-     * @param string $type          the type of the resource
-     * @param array  $programRanges the ranges for programs selected in the form, or already mapped
+     * @param   int     $resourceID     the id of the resource for which the form is being displayed
+     * @param   string  $type           the type of the resource
+     * @param   array   $programRanges  the ranges for programs selected in the form, or already mapped
      *
      * @return string[] the superordinate resource options
      */
@@ -295,7 +360,8 @@ abstract class Curricula extends Associated implements Selectable
                     }
                 }
 
-            } else {
+            }
+            else {
                 $selected = Subjects::getRanges($resourceID);
             }
         }
@@ -306,7 +372,8 @@ abstract class Curricula extends Associated implements Selectable
 
             if (!empty($mappableRange['poolID'])) {
                 $options[] = Pools::getCurricularOption($mappableRange, $parentIDs);
-            } else {
+            }
+            else {
                 $options[] = Programs::getCurricularOption($mappableRange, $parentIDs, $type);
             }
         }
@@ -317,7 +384,7 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Retrieves a string value representing the degree programs to which the resource is associated.
      *
-     * @param int $resourceID the id of the resource
+     * @param   int  $resourceID  the id of the resource
      *
      * @return string  string representing the associated program(s)
      */
@@ -329,7 +396,8 @@ abstract class Curricula extends Associated implements Selectable
 
         if (count($programs) === 1) {
             return Programs::getName($programs[0]['programID']);
-        } else {
+        }
+        else {
             return Text::_('ORGANIZER_MULTIPLE_PROGRAMS');
         }
     }
@@ -338,11 +406,11 @@ abstract class Curricula extends Associated implements Selectable
      * Looks up the names of the programs associated with the resource. Overwritten by the programs helper to prevent
      * endless regression.
      *
-     * @param array|int $identifiers ranges of subordinate resources | resource id
+     * @param   array|int  $identifiers  ranges of subordinate resources | resource id
      *
      * @return array[] the associated programs
      */
-    public static function getPrograms($identifiers): array
+    public static function getPrograms(array|int $identifiers): array
     {
         $resource = get_called_class();
 
@@ -353,14 +421,14 @@ abstract class Curricula extends Associated implements Selectable
     /**
      * Finds the subject entries subordinate to a particular resource.
      *
-     * @param int $resourceID the id of the resource
-     * @param int $subjectID  the id of a specific subject resource to find in context
+     * @param   int  $resourceID  the id of the resource
+     * @param   int  $subjectID   the id of a specific subject resource to find in context
      *
      * @return array[] the associated programs
      */
     public static function getSubjects(int $resourceID, int $subjectID = 0): array
     {
-        $query = Database::getQuery();
+        $query = DB::getQuery();
         $query->select('DISTINCT *')
             ->from('#__organizer_curricula')
             ->order('lft');
@@ -369,64 +437,8 @@ abstract class Curricula extends Associated implements Selectable
         /** @noinspection PhpUndefinedMethodInspection */
         self::filterSubOrdinate($query, $resource::getRanges($resourceID), $subjectID);
 
-        Database::setQuery($query);
+        DB::setQuery($query);
 
-        return Database::loadAssocList();
-    }
-
-    /**
-     * Adds a program filter clause to the given query.
-     *
-     * @param QueryMySQLi $query  the query to modify
-     * @param int         $poolID the id of the pool to filter for
-     * @param string      $alias  the alias of the table referenced in the join
-     *
-     * @return void modifies the query
-     */
-    public static function setPoolFilter(QueryMySQLi $query, int $poolID, string $alias)
-    {
-        if (!$poolID or !$ranges = Pools::getRanges($poolID)) {
-            return;
-        }
-
-        // Program context is a precondition for none, so this filters for subjects directly associated with a program.
-        if ($poolID === self::NONE) {
-            $query->innerJoinX('curricula AS parent', ["parent.ID = prc.parentID"])->where('parent.programID IS NOT NULL');
-
-            return;
-        }
-
-        $range = array_pop($ranges);
-        $query->innerJoinX('curricula AS poc', ["poc.subjectID = $alias.id"])
-            ->where(["poc.lft > {$range['lft']}", "poc.rgt < {$range['rgt']}"]);
-    }
-
-    /**
-     * Adds a program filter clause to the given query.
-     *
-     * @param QueryMySQLi $query     the query to modify
-     * @param int         $programID the id of the program to filter for
-     * @param string      $context   the resource context from which this function was called
-     * @param string      $alias     the alias of the table referenced in the join
-     *
-     * @return void modifies the query
-     */
-    public static function setProgramFilter(QueryMySQLi $query, int $programID, string $context, string $alias)
-    {
-        if (!$programID or !$ranges = Programs::getRanges($programID)) {
-            return;
-        }
-
-        $conditions = ["prc.{$context}ID = $alias.id"];
-        $join       = 'curricula AS prc';
-        $range      = array_pop($ranges);
-
-        if ($programID === self::NONE) {
-            $query->leftJoinX($join, $conditions)->where("prc.{$context}ID IS NULL");
-
-            return;
-        }
-
-        $query->innerJoinX($join, $conditions)->where("prc.lft > {$range['lft']}")->where("prc.rgt < {$range['rgt']}");
+        return DB::loadAssocList();
     }
 }

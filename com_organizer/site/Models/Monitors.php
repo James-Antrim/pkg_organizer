@@ -107,8 +107,8 @@ class Monitors extends ListModel
             ->from(DB::qn('#__organizer_monitors', 'm'))
             ->leftJoin(DB::qn('#__organizer_rooms', 'r'), DB::qc('r.id', 'm.roomID'));
 
-        $this->setSearchFilter($query, ['r.name', 'm.ip']);
-        $this->setValueFilters($query, ['useDefaults']);
+        $this->filterSearch($query, ['r.name', 'm.ip']);
+        $this->filterValues($query, ['useDefaults']);
         $this->displayFilter($query);
         $this->contentFilter($query);
 

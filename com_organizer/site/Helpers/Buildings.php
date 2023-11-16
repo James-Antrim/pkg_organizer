@@ -103,7 +103,7 @@ class Buildings extends ResourceHelper implements Selectable
             ->from('#__organizer_buildings AS b')
             ->leftJoin('#__organizer_campuses AS c ON c.id = b.campusID')
             ->order('name');
-        self::addCampusFilter($query, 'b');
+        self::filterCampus($query, 'b');
         Database::setQuery($query);
 
         return Database::loadAssocList('id');

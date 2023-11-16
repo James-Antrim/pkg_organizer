@@ -47,9 +47,9 @@ class Holidays extends ListModel
             ->from(DB::qn('#__organizer_holidays', 'h'))
             ->innerJoin(DB::qn('#__organizer_terms', 't'), implode(' AND ', $conditions));
 
-        $this->setIDFilter($query, 't.id', 'filter.termID');
-        $this->setSearchFilter($query, ['h.name_de', 'h.name_en']);
-        $this->setValueFilters($query, ['type']);
+        $this->filterID($query, 't.id', 'filter.termID');
+        $this->filterSearch($query, ['h.name_de', 'h.name_en']);
+        $this->filterValues($query, ['type']);
 
         switch ((int) $this->state->get('filter.status')) {
             case self::EXPIRED:

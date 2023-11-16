@@ -66,11 +66,11 @@ class RoomTypes extends ResourceHelper implements Selectable
             $query->where(DB::qn('r.roomtypeID') . ' IS NULL');
         }
 
-        self::addResourceFilter($query, 'building', 'b1', 'r');
+        self::filterResources($query, 'building', 'b1', 'r');
 
         // This join is used specifically to filter campuses independent of buildings.
         $query->leftJoin(DB::qn('#__organizer_buildings', 'b2'), DB::qc('b2.id', 'r.buildingID'));
-        self::addCampusFilter($query, 'b2');
+        self::filterCampus($query, 'b2');
 
         $query->order('name');
         DB::setQuery($query);

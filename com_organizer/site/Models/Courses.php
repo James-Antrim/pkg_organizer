@@ -11,7 +11,7 @@
 namespace THM\Organizer\Models;
 
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use THM\Organizer\Adapters\{Application, Database, Input};
 use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Helpers;
 
@@ -76,8 +76,7 @@ class Courses extends ListModel
      */
     protected function getListQuery(): DatabaseQuery
     {
-        $tag = Application::getTag();
-        /* @var QueryMySQLi $query */
+        $tag   = Application::getTag();
         $query = Database::getQuery();
         $query->select("c.*, c.name_$tag AS name, MIN(u.startDate) AS startDate, MAX(u.endDate) AS endDate")
             ->from('#__organizer_courses AS c')
@@ -92,7 +91,8 @@ class Courses extends ListModel
             case 'name':
                 if ($direction === 'DESC') {
                     $query->order("c.name_$tag DESC");
-                } else {
+                }
+                else {
                     $query->order("c.name_$tag ASC");
                 }
                 break;
@@ -100,13 +100,14 @@ class Courses extends ListModel
             default:
                 if ($direction === 'DESC') {
                     $query->order('u.endDate DESC');
-                } else {
+                }
+                else {
                     $query->order('u.startDate ASC');
                 }
                 break;
         }
 
-        $this->setSearchFilter($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
+        $this->filterSearch($query, ['c.name_de', 'c.name_en', 'e.name_de', 'e.name_en']);
 
         if (Application::backend()) {
             $organizationIDs = implode(',', Helpers\Can::scheduleTheseOrganizations());
@@ -118,8 +119,9 @@ class Courses extends ListModel
 
         if (!Application::backend() and $preparatory) {
             $query->where('e.preparatory = 1');
-        } else {
-            $this->setValueFilters($query, ['c.termID']);
+        }
+        else {
+            $this->filterValues($query, ['c.termID']);
         }
 
         if (empty($this->state->get('filter.status'))) {
@@ -127,7 +129,7 @@ class Courses extends ListModel
             $query->where("endDate >= '$today'");
         }
 
-        self::addCampusFilter($query, 'c');
+        self::filterCampus($query, 'c');
 
         return $query;
     }

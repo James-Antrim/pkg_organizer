@@ -82,8 +82,6 @@ class Subjects extends ListModel
     {
         $tag = Application::getTag();
 
-        // Create the sql query
-        /* @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->select("DISTINCT s.id, s.code, s.fullName_$tag AS name, s.fieldID, s.creditPoints")
             ->from('subjects AS s');
@@ -97,16 +95,16 @@ class Subjects extends ListModel
             's.lsfID'
         ];
 
-        $this->setOrganizationFilter($query, 'subject', 's');
-        $this->setSearchFilter($query, $searchFields);
+        $this->filterOrganizations($query, 'subject', 's');
+        $this->filterSearch($query, $searchFields);
 
         if ($programID = (int) $this->state->get('filter.programID')) {
-            Helpers\Subjects::setProgramFilter($query, $programID, 'subject', 's');
+            Helpers\Subjects::filterProgram($query, $programID, 'subject', 's');
         }
 
         // The selected pool supersedes any original called pool
         if ($poolID = $this->state->get('filter.poolID')) {
-            Helpers\Subjects::setPoolFilter($query, $poolID, 's');
+            Helpers\Subjects::filterPool($query, $poolID, 's');
         }
 
         $personID = (int) $this->state->get('filter.personID');
@@ -120,19 +118,11 @@ class Subjects extends ListModel
             }
         }
 
-        $this->setIDFilter($query, 's.fieldID', 'filter.fieldID');
-        $this->setValueFilters($query, ['language']);
+        $this->filterID($query, 's.fieldID', 'filter.fieldID');
+        $this->filterValues($query, ['language']);
         $this->orderBy($query);
 
         return $query;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTotal($idColumn = null)
-    {
-        return parent::getTotal('s.id');
     }
 
     /**

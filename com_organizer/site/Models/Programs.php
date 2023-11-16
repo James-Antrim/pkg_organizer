@@ -10,10 +10,9 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
+use Joomla\Database\DatabaseQuery;
 use THM\Organizer\Adapters\Application;
-use THM\Organizer\Adapters\Queries\QueryMySQLi;
 use THM\Organizer\Helpers;
 
 /**
@@ -44,18 +43,17 @@ class Programs extends ListModel
     /**
      * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        /* @var QueryMySQLi $query */
         $query = Helpers\Programs::getQuery();
 
-        $this->setActiveFilter($query, 'p');
-        $this->setOrganizationFilter($query, 'program', 'p');
+        $this->filterActive($query, 'p');
+        $this->filterOrganizations($query, 'program', 'p');
 
         $searchColumns = ['p.name_de', 'p.name_en', 'accredited', 'd.name', 'description_de', 'description_en'];
-        $this->setSearchFilter($query, $searchColumns);
+        $this->filterSearch($query, $searchColumns);
 
-        $this->setValueFilters($query, ['degreeID', 'frequencyID', 'accredited']);
+        $this->filterValues($query, ['degreeID', 'frequencyID', 'accredited']);
 
         $this->orderBy($query);
 

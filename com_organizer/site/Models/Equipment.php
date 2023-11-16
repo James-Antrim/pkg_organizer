@@ -11,8 +11,8 @@
 namespace THM\Organizer\Models;
 
 use Exception;
-use JDatabaseQuery;
-use THM\Organizer\Adapters\{Application, Database, Input, Queries\QueryMySQLi};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Database, Input};
 use THM\Organizer\Helpers;
 use THM\Organizer\Tables;
 
@@ -33,19 +33,17 @@ class Equipment extends ListModel
     }
 
     /**
-     * Method to get a list of resources from the database.
-     * @return JDatabaseQuery
+     * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
         $tag = Application::getTag();
 
-        /* @var QueryMySQLi $query */
         $query = Database::getQuery();
         $query->select("DISTINCT e.*, e.name_$tag AS name")
             ->from('#__organizer_equipment AS e');
 
-        $this->setSearchFilter($query, ['e.code', 'e.name_de', 'e.name_en']);
+        $this->filterSearch($query, ['e.code', 'e.name_de', 'e.name_en']);
         $this->orderBy($query);
 
         return $query;

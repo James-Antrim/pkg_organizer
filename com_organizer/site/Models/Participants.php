@@ -81,8 +81,8 @@ class Participants extends ListModel
 
         $this->addAccess($query);
 
-        $this->setSearchFilter($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
-        $this->setValueFilters($query, ['programID']);
+        $this->filterSearch($query, ['pa.forename', 'pa.surname', 'pr.name_de', 'pr.name_en']);
+        $this->filterValues($query, ['programID']);
 
         if ($this->state->get('filter.duplicates')) {
             $forename1 = DB::qn('pa.forename');

@@ -17,7 +17,9 @@ use THM\Organizer\Adapters\{Application, Database, HTML, Text};
  */
 class Categories extends Associated implements Selectable
 {
-    use Filtered, Numbered, Suppressed;
+    use Filtered;
+    use Numbered;
+    use Suppressed;
 
     protected static $resource = 'category';
 
@@ -107,10 +109,10 @@ class Categories extends Associated implements Selectable
         $query->select('DISTINCT c.*')->from('#__organizer_categories AS c')->order($order);
 
         if (!empty($access)) {
-            self::addAccessFilter($query, $access, 'category', 'c');
+            self::filterAccess($query, $access, 'category', 'c');
         }
 
-        self::addOrganizationFilter($query, 'category', 'c');
+        self::filterOrganizations($query, 'category', 'c');
         Database::setQuery($query);
 
         return Database::loadAssocList('id');

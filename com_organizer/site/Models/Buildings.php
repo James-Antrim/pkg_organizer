@@ -40,9 +40,9 @@ class Buildings extends ListModel
             ->innerJoin(DB::qn('#__organizer_campuses', 'c1'), DB::qc('c1.id', 'b.campusID'))
             ->leftJoin(DB::qn('#__organizer_campuses', 'c2'), DB::qc('c2.id', 'c1.parentID'));
 
-        $this->setActiveFilter($query, 'b');
-        $this->setSearchFilter($query, ['b.name', 'b.address', 'c1.city', 'c2.city']);
-        $this->setValueFilters($query, ['propertyType']);
+        $this->filterActive($query, 'b');
+        $this->filterSearch($query, ['b.name', 'b.address', 'c1.city', 'c2.city']);
+        $this->filterValues($query, ['propertyType']);
 
         if ($campusID = $this->state->get('filter.campusID', '')) {
             $column = DB::qn('campusID');

@@ -10,9 +10,9 @@
 
 namespace THM\Organizer\Models;
 
-use JDatabaseQuery;
 use Joomla\CMS\Form\Form;
-use THM\Organizer\Adapters\{Application, Input, Queries\QueryMySQLi, Text};
+use Joomla\Database\DatabaseQuery;
+use THM\Organizer\Adapters\{Application, Input, Text};
 use THM\Organizer\Helpers;
 use THM\Organizer\Helpers\Instances as Helper;
 use THM\Organizer\Tables;
@@ -71,7 +71,8 @@ class Instances extends ListModel
 
         if ($this->layout === Helper::LIST) {
             $form->removeField('gridID', 'list');
-        } else {
+        }
+        else {
             $form->removeField('interval', 'list');
             $form->removeField('limit', 'list');
         }
@@ -81,7 +82,8 @@ class Instances extends ListModel
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields['organizationID']);
             }
-        } elseif ($params->get('my')) {
+        }
+        elseif ($params->get('my')) {
             $form->removeField('campusID', 'filter');
             $form->removeField('categoryID', 'filter');
             $form->removeField('groupID', 'filter');
@@ -92,7 +94,8 @@ class Instances extends ListModel
             $form->removeField('search', 'filter');
             $form->removeField('status', 'filter');
             $this->filter_fields = [];
-        } else {
+        }
+        else {
             if (!Helpers\Users::getID()) {
                 $form->removeField('my', 'list');
             }
@@ -113,7 +116,8 @@ class Instances extends ListModel
                 $form->removeField('campusID', 'filter');
                 $form->removeField('organizationID', 'filter');
                 unset($this->filter_fields[array_search('organizationID', $this->filter_fields)]);
-            } elseif (Input::getInt('categoryID')) {
+            }
+            elseif (Input::getInt('categoryID')) {
                 $form->removeField('campusID', 'filter');
                 $form->removeField('organizationID', 'filter');
                 $form->removeField('categoryID', 'filter');
@@ -121,7 +125,8 @@ class Instances extends ListModel
                     $this->filter_fields[array_search('organizationID', $this->filter_fields)],
                     $this->filter_fields[array_search('categoryID', $this->filter_fields)]
                 );
-            } elseif (Input::getInt('groupID')) {
+            }
+            elseif (Input::getInt('groupID')) {
                 $form->removeField('campusID', 'filter');
                 $form->removeField('organizationID', 'filter');
                 $form->removeField('categoryID', 'filter');
@@ -213,7 +218,8 @@ class Instances extends ListModel
             if (!$gridID = $this->state->get('list.gridID')) {
                 if ($usedGrids) {
                     $gridID = array_search(max($usedGrids), $usedGrids);
-                } else {
+                }
+                else {
                     $gridID = Helpers\Grids::getDefault();
                 }
             }
@@ -232,18 +238,17 @@ class Instances extends ListModel
     /**
      * @inheritDoc
      */
-    protected function getListQuery(): JDatabaseQuery
+    protected function getListQuery(): DatabaseQuery
     {
-        /* @var QueryMySQLi $query */
         $query = Helper::getInstanceQuery($this->conditions);
         $query->select("DISTINCT i.id")->order('b.date, b.startTime, b.endTime');
-        $this->setSearchFilter($query, ['e.name_de', 'e.name_en']);
-        $this->setValueFilters($query, ['b.dow', 'i.methodID']);
+        $this->filterSearch($query, ['e.name_de', 'e.name_en']);
+        $this->filterValues($query, ['b.dow', 'i.methodID']);
 
         if ($this->state->get('filter.campusID')) {
             $query->innerJoin('#__organizer_rooms AS r ON r.id = ir.roomID')
                 ->innerJoin('#__organizer_buildings AS bd ON bd.id = r.buildingID');
-            $this->setCampusFilter($query, 'bd');
+            $this->filterCampus($query, 'bd');
         }
 
         return $query;
@@ -269,7 +274,8 @@ class Instances extends ListModel
         if ($methodIDs and $methodIDs = array_filter($methodIDs)) {
             if (count($methodIDs) === 1) {
                 $methods = Helpers\Methods::getPlural($methodIDs[0]);
-            } else {
+            }
+            else {
                 $methods = [];
 
                 foreach ($methodIDs as $methodID) {
@@ -286,12 +292,14 @@ class Instances extends ListModel
 
             if ($methods) {
                 $title = Text::_('ORGANIZER_MY') . ' ' . $methods;
-            } else {
+            }
+            else {
                 $title = $my === Helper::BOOKMARKS ?
                     Text::_("ORGANIZER_MY_INSTANCES") : Text::_("ORGANIZER_MY_REGISTRATIONS");
             }
             $title .= $username;
-        } else {
+        }
+        else {
             // Replace the title
             if ($dow = $params->get('dow')) {
                 switch ($dow) {
@@ -317,32 +325,39 @@ class Instances extends ListModel
                         $title = Text::_("ORGANIZER_SUNDAY_INSTANCES");
                         break;
                 }
-            } elseif ($methods) {
+            }
+            elseif ($methods) {
                 $title = $methods;
             }
 
             // Which resource
             if ($eventID = $this->state->get('filter.eventID')) {
                 $suffix .= ': ' . Helpers\Events::getName($eventID);
-            } elseif ($personID = $this->state->get('filter.personID')) {
+            }
+            elseif ($personID = $this->state->get('filter.personID')) {
                 $suffix .= ': ' . Helpers\Persons::getDefaultName($personID);
-            } elseif ($groupID = $this->state->get('filter.groupID')) {
+            }
+            elseif ($groupID = $this->state->get('filter.groupID')) {
                 $suffix .= ': ' . Helpers\Groups::getFullName($groupID);
-            } elseif ($categoryID = $this->state->get('filter.categoryID')) {
+            }
+            elseif ($categoryID = $this->state->get('filter.categoryID')) {
                 $suffix .= ': ' . Helpers\Categories::getName($categoryID);
-            } elseif ($organizationID = $params->get('organizationID', Input::getInt('organizationID'))) {
+            }
+            elseif ($organizationID = $params->get('organizationID', Input::getInt('organizationID'))) {
                 $fullName  = Helpers\Organizations::getFullName($organizationID);
                 $shortName = Helpers\Organizations::getShortName($organizationID);
                 $name      = (Application::mobile() or strlen($fullName) > 40) ? $shortName : $fullName;
                 $suffix    .= ': ' . $name;
-            } elseif ($campusID = $params->get('campusID')) {
+            }
+            elseif ($campusID = $params->get('campusID')) {
                 $suffix .= ': ' . Text::_("ORGANIZER_CAMPUS") . ' ' . Helpers\Campuses::getName($campusID);
             }
 
             if ($roleID = Input::getInt('roleID')) {
                 $plural = Helpers\Roles::getPlural($roleID);
                 $suffix .= $suffix ? " - $plural" : ": $plural";
-            } elseif ($instances = Input::getCMD('instances') and $instances === 'person') {
+            }
+            elseif ($instances = Input::getCMD('instances') and $instances === 'person') {
                 $persons = Text::_('ORGANIZER_PERSONS');
                 $suffix  .= $suffix ? " - $persons" : ": $persons";
             }
@@ -350,14 +365,6 @@ class Instances extends ListModel
         }
 
         return $title . $suffix;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getTotal($idColumn = null)
-    {
-        return parent::getTotal('i.id');
     }
 
     /**
@@ -409,7 +416,8 @@ class Instances extends ListModel
                 if (count($authorized) === 1) {
                     $organizationID = $authorized[0];
                 }
-            } else {
+            }
+            else {
                 $organizationID = Application::getUserRequestState("{$fc}organizationID", "{$fp}organizationID", 0, 'int');
                 $organizationID = Input::getInt('organizationID', $organizationID);
                 $organizationID = $params->get('organizationID', $organizationID);
@@ -434,11 +442,13 @@ class Instances extends ListModel
                     $conditions['personIDs'] = Helpers\Organizations::getPersonIDs($organizationID);
                     $byPerson                = true;
                 }
-            } else {
+            }
+            else {
                 if ($categoryID) {
                     $organizationID                = Helpers\Categories::getOrganizationIDs($categoryID)[0];
                     $conditions['organizationIDs'] = [$organizationID];
-                } elseif ($groupID) {
+                }
+                elseif ($groupID) {
                     $categoryID                    = Helpers\Groups::getCategoryID($groupID);
                     $organizationID                = Helpers\Categories::getOrganizationIDs($categoryID)[0];
                     $conditions['organizationIDs'] = [$organizationID];
@@ -478,7 +488,8 @@ class Instances extends ListModel
                         if (empty($conditions['showUnpublished'])) {
                             $conditions['showUnpublished'] = Helpers\Persons::getIDByUserID($userID) === $personID;
                         }
-                    } else {
+                    }
+                    else {
                         // Unauthorized access to personal information.
                         Application::error(403);
                     }
@@ -513,7 +524,8 @@ class Instances extends ListModel
             if ($instances = Input::getCMD('instances')) {
                 $conditions['instances'] = $instances;
             }
-        } else {
+        }
+        else {
             $dow       = $params->get('dow');
             $methodIDs = array_filter($params->get('methodIDs'));
             $startDate = $params->get('startDate');
@@ -570,12 +582,14 @@ class Instances extends ListModel
 
                     if ($layout === Helper::GRID) {
                         $interval = Application::mobile() ? 'day' : 'week';
-                    } else {
+                    }
+                    else {
                         $interval  = $this->getInterval();
                         $intervals = ['day', 'month', 'quarter', 'term', 'week'];
                         $interval  = in_array($interval, $intervals) ? $interval : 'day';
                     }
-                } else {
+                }
+                else {
                     $layout = (int) $params->get('layout');
                     $layout = in_array($layout, [Helper::LIST, Helper::GRID]) ? $layout : Helper::LIST;
 
@@ -584,28 +598,26 @@ class Instances extends ListModel
 
                         // Parameter bleed can potentially cause a 0-division error in the Joomla ListModel here.
                         $this->state->set('list.start', 0);
-                    } else {
+                    }
+                    elseif ($bound) {
+                        $date     = ($startDate and $startDate > $date) ? $startDate : $date;
+                        $interval = 'half';
 
-                        // Menu constricted list conditions
-                        if ($bound) {
-                            $date     = ($startDate and $startDate > $date) ? $startDate : $date;
-                            $interval = 'half';
-
-                            if ($endDate) {
-                                $listItems->set('endDate', $endDate);
-                                $this->state->set('list.endDate', $endDate);
-                            }
-
-                            if ($dow) {
-                                $filterItems->set('dow', $dow);
-                                $this->state->set('filter.dow', $dow);
-                            }
-                        } else {
-                            $sInterval = Application::getUserRequestState("{$lc}interval", "{$lp}interval", '', 'string');
-                            $interval  = Input::getString('interval', $sInterval);
-                            $intervals = ['day', 'month', 'quarter', 'term', 'week'];
-                            $interval  = in_array($interval, $intervals) ? $interval : 'day';
+                        if ($endDate) {
+                            $listItems->set('endDate', $endDate);
+                            $this->state->set('list.endDate', $endDate);
                         }
+
+                        if ($dow) {
+                            $filterItems->set('dow', $dow);
+                            $this->state->set('filter.dow', $dow);
+                        }
+                    }
+                    else {
+                        $sInterval = Application::getUserRequestState("{$lc}interval", "{$lp}interval", '', 'string');
+                        $interval  = Input::getString('interval', $sInterval);
+                        $intervals = ['day', 'month', 'quarter', 'term', 'week'];
+                        $interval  = in_array($interval, $intervals) ? $interval : 'day';
                     }
                 }
 
